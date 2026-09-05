@@ -4,6 +4,11 @@
 # Allow Antigravity agent configurations & skills
 !.agents/
 
+# Ignore Python bytecode and caches inside skills
+__pycache__/
+*.py[cod]
+*$py.class
+
 # Allow repository documentation and git configs
 !.gitignore
 !README.md
