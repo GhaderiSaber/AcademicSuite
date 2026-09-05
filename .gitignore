@@ -1,23 +1,9 @@
-/Thesis_Talebian.pdf
-/Proposal-Mrs Talebian.pdf
-/فصل 4.docx
-/Proposal-Mrs Talebian.doc
-/Questionnaire
-/Chapter 5.docx
-/Data Analysis
-/Articles
-/Thesis_Talebian.gdoc
-/Fada Talebi References.Data
-/Fada Talebi References.enl
-/Chapter 4.docx
-/Thesis_Talebian.docx
-/Translate
-/Example Thesis.docx
-/References_Compiled_APA.txt
-/Questionnaires_Appendix.docx
-/References_Compiled.docx
-/Thesis_Compiled.docx
-/~$esis_Compiled.docx
-/Thesis_Test_Fix.docx
-/Thesis_Verified.docx
-/~WRL0252.tmp
+# Ignore all files and folders in workspace by default
+/*
+
+# Allow Antigravity agent configurations & skills
+!.agents/
+
+# Allow repository documentation and git configs
+!.gitignore
+!README.md
