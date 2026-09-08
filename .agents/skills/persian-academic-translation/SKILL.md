@@ -148,6 +148,9 @@ Follow the standard structure of scientific papers:
   - **Document Styling Specifications**:
     - **Reading Order**: Right-to-Left (RTL / `w:bidi`) for all Persian paragraphs.
     - **Typography**: Persian standard fonts (B Nazanin, Vazirmatn, or Tahoma) at 13–14 pt with 1.15 line spacing.
+    - **Zero-Tolerance for Raw Markdown in Word Documents (.docx)**:
+      - **Markdown Text Formatting**: Never emit literal asterisks (`*text*` for italic or `**text**` for bold) into `.docx` paragraphs or references. Always parse them into native Word bold (`<w:b>`) and italic (`<w:i>`) runs with appropriate Persian font properties.
+      - **Markdown Tables**: Never emit pipe-delimited raw markdown tables (`| Col 1 | Col 2 |`) as plain text lines in Word. Always convert them into native Word tables (`<w:tbl>`) with `<w:bidiVisual/>`, shaded header rows (`#EBF1F5`), borders, and native captions.
     - **Headings**:
       - All document headings (`Heading 1`, `Heading 2`, `Heading 3`, `Heading 4`) must have **RTL text direction** (`<w:bidi/>`), **right-aligned with justify** (`<w:jc w:val="both"/>` or `<w:jc w:val="right"/>`), and `<w:rtl/>` on every run with Persian font (`B Titr` / `B Nazanin Bold`).
       - Title: 18 pt Bold, Center-aligned.

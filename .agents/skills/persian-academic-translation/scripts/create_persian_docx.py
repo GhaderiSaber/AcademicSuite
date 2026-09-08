@@ -112,9 +112,96 @@ def add_persian_paragraph_with_footnotes(doc, raw_text, default_font="B Nazanin"
             fn_id = int(m.group(1))
             add_native_footnote_reference(p, fn_id, font_name=default_font)
         else:
-            run = p.add_run(token)
-            set_run_font(run, font_name=default_font, font_size_pt=font_size_pt)
+            # Parse markdown bold (**text**) and italic (*text*)
+            md_pattern = re.compile(r'(\*\*[^*]+?\*\*|\*[^*]+?\*)')
+            parts = md_pattern.split(token)
+            for part in parts:
+                if not part:
+                    continue
+                if part.startswith('**') and part.endswith('**') and len(part) >= 4:
+                    run = p.add_run(part[2:-2])
+                    set_run_font(run, font_name=default_font, font_size_pt=font_size_pt, bold=True)
+                elif part.startswith('*') and part.endswith('*') and len(part) >= 2:
+                    run = p.add_run(part[1:-1])
+                    set_run_font(run, font_name=default_font, font_size_pt=font_size_pt, italic=True)
+                else:
+                    run = p.add_run(part)
+                    set_run_font(run, font_name=default_font, font_size_pt=font_size_pt)
     return p
+
+def add_persian_markdown_table(doc, md_lines, caption=None):
+    """
+    Converts raw markdown table lines (| Col 1 | Col 2 |) into a native Word APA table (<w:tbl>)
+    with shaded headers, cell borders, centered text, and full RTL layout.
+    """
+    rows_data = []
+    for line in md_lines:
+        line = line.strip()
+        if not line or not line.startswith('|'):
+            continue
+        if re.match(r'^\|[\s\-:|]+\|$', line):
+            continue
+        cells = [c.strip() for c in line.split('|')[1:-1]]
+        if cells:
+            rows_data.append(cells)
+    
+    if not rows_data:
+        return None
+
+    if caption:
+        p_cap = doc.add_paragraph()
+        set_paragraph_rtl(p_cap, justify=False)
+        p_cap.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        p_cap.paragraph_format.space_before = Pt(12)
+        p_cap.paragraph_format.space_after = Pt(4)
+        run_cap = p_cap.add_run(caption)
+        set_run_font(run_cap, font_name="B Nazanin", font_size_pt=11, bold=True)
+
+    num_rows = len(rows_data)
+    num_cols = max(len(r) for r in rows_data)
+    tbl = doc.add_table(rows=num_rows, cols=num_cols)
+    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    
+    tblPr = tbl._tbl.tblPr
+    if tblPr.find(qn('w:bidiVisual')) is None:
+        tblPr.append(OxmlElement('w:bidiVisual'))
+
+    tblBorders = parse_xml(
+        f'<w:tblBorders {nsdecls("w")}>\n'
+        '  <w:top w:val="single" w:sz="8" w:space="0" w:color="2B4C7E"/>\n'
+        '  <w:bottom w:val="single" w:sz="8" w:space="0" w:color="2B4C7E"/>\n'
+        '  <w:insideH w:val="single" w:sz="4" w:space="0" w:color="D3D3D3"/>\n'
+        '  <w:insideV w:val="none"/>\n'
+        '  <w:left w:val="none"/>\n'
+        '  <w:right w:val="none"/>\n'
+        '</w:tblBorders>'
+    )
+    tblPr.append(tblBorders)
+
+    for r_idx, row_data in enumerate(rows_data):
+        row = tbl.rows[r_idx]
+        is_header = (r_idx == 0)
+        for c_idx, cell_text in enumerate(row_data):
+            if c_idx < len(row.cells):
+                cell = row.cells[c_idx]
+                cell.text = cell_text
+                tcPr = cell._tc.get_or_add_tcPr()
+                if is_header:
+                    shd = parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:color="auto" w:fill="EBF1F5"/>')
+                    tcPr.append(shd)
+                
+                p = cell.paragraphs[0]
+                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                pPr = p._p.get_or_add_pPr()
+                if pPr.find(qn('w:bidi')) is None:
+                    pPr.append(OxmlElement('w:bidi'))
+                for r in p.runs:
+                    set_run_font(r, font_name="B Nazanin", font_size_pt=10, bold=is_header)
+
+    p_sp = doc.add_paragraph()
+    set_paragraph_rtl(p_sp, justify=False)
+    p_sp.paragraph_format.space_after = Pt(12)
+    return tbl
 
 def pack_native_footnotes(base_docx_path, output_docx_path, footnotes_list):
     """

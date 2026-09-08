@@ -107,6 +107,8 @@ Deliver the filtered section references in three universal formats, saved in the
    - Supported by Zotero, Mendeley, Citavi, Paperpile, and RefWorks.
 3. **Formatted APA Text File (`.txt`)**:
    - Clean, numbered, alphabetically sorted reference list according to APA 7th Edition style.
+   - **Zero Raw Markdown Asterisks**: When exporting or inserting references into Word documents (`.docx`), never leave literal asterisks (`*Journal Name*`) in the output. Render journal and book titles with native Word italic runs (`<w:i>`).
+   - **Bilingual References Support**: When compiling theses or bilingual documents, partition references into Persian references (الف) منابع فارسی sorted by Persian alphabet) and English references (ب) منابع انگلیسی sorted A–Z).
 
 ---
 
