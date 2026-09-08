@@ -22,6 +22,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Fuses an institutional Master Word Template (`.docx`) with modular research components into a single, flawlessly formatted thesis meeting Iranian graduate university OpenXML formatting rules.
 7. **Supervisor Revision Assistant ([persian-thesis-revision-assistant](.agents/skills/persian-thesis-revision-assistant/))**:
    Extracts Word comments and margin annotations from reviewed drafts, triages requested edits, applies targeted revisions, and generates the official Point-by-Point Response Table (`جدول_پاسخ_به_نظرات_اساتید.docx`).
+8. **Academic Article Writer ([academic-article-writer](.agents/skills/academic-article-writer/))**:
+   Synthesizes all heterogeneous project artifacts (theses, Chapter 4 statistical data, translated literature, and psychometric scales) into high-impact, publication-grade academic journal articles adhering to international peer-review standards (IMRaD, APA 7th Edition, JARS) for both International English journals (ISI / Scopus Q1/Q2) and Iranian Scientific-Research journals (علمی-پژوهشی / ISC).
 
 ---
 
@@ -31,6 +33,7 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
 AcademicSuite/
 ├── .agents/
 │   └── skills/
+│       ├── academic-article-writer/            # ISI/Scopus & ISC journal article compiler
 │       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
 │       ├── persian-academic-translation/       # Psychology translation & terminology engine
 │       ├── persian-discussion-builder/         # Chapter 5 discussion & theoretical explanation
@@ -85,12 +88,31 @@ python3 .agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py \
   --mode chapter4
 ```
 
+### Academic Article Compilation (ISI/Scopus or ISC)
+Given structured article data synthesized from project files:
+```bash
+# English Article (ISI / Scopus)
+python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.py \
+  --json "article_payload.json" \
+  --out "Academic_Article_Manuscript.docx" \
+  --lang en
+
+# Persian Article (علمی-پژوهشی / ISC)
+python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.py \
+  --json "article_payload.json" \
+  --out "مقاله_علمی_پژوهشی.docx" \
+  --lang fa
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
 - *"Analyze this SPSS dataset and write Chapter 4 in Persian Word format."*
 - *"Translate this psychological paper for Chapter 2 and preserve in-text citations."*
 - *"Extract EndNote citations for all references in Chapter 2."*
 - *"Compile the whole thesis into the university master template."*
+- *"Review supervisor margin comments on my thesis and generate the response table."*
+- *"Synthesize my thesis and Chapter 4 dataset into an ISI journal article in English."*
+- *"Draft an ISC scientific-research article in Persian from this completed thesis."*
 
 ---
 

@@ -60,12 +60,13 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`persian-discussion-builder`** | [.agents/skills/persian-discussion-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-discussion-builder) | User requests writing Chapter 5 (بحث و نتیجه‌گیری) interpreting statistical findings against literature. | Chapter 4 results (`stats_results.json`) + Chapter 2 literature | `فصل پنجم: بحث و نتیجه‌گیری.docx` with clinical implications and limitations. |
 | **`persian-thesis-builder`** | [.agents/skills/persian-thesis-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-builder) | User wants to compile, merge, format, or assemble all thesis parts into a unified university document. | Master `.docx` template + Proposal + Translated Chapters 2, 4, 5 + Questionnaires | `Thesis_Compiled.docx` (Complete dissertation meeting university formatting rules). |
 | **`persian-thesis-revision-assistant`** | [.agents/skills/persian-thesis-revision-assistant/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-revision-assistant) | User needs to review, extract, and resolve supervisor/examiner comments and produce the formal response table. | Reviewed `.docx` with comments or feedback text | `جدول_پاسخ_به_نظرات_اساتید.docx` + revised chapters. |
+| **`academic-article-writer`** | [.agents/skills/academic-article-writer/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-article-writer) | User requests drafting, structuring, or compiling an academic journal article from thesis chapters and project data for ISI/Scopus (English) or ISC (Persian). | Full project artifacts (Proposal, Lit Review, Stats JSON, Ch 5) | `Academic_Article_Manuscript.docx` (English) or `مقاله_علمی_پژوهشی.docx` (Persian) meeting IMRaD & APA 7 standards. |
 
 ---
 
 ## 3. Data & Artifact Workflow Architecture
 
-The skills are modular and designed to pass standard artifacts between each other across the entire thesis lifecycle:
+The skills are modular and designed to pass standard artifacts between each other across the entire research and publication lifecycle:
 
 ```
 [Research Idea / Variables] ──► (persian-proposal-builder)         ──► Proposal / Ch 1 & 3 (.docx)
@@ -77,7 +78,7 @@ The skills are modular and designed to pass standard artifacts between each othe
 [In-Text Citations]         ──► (academic-reference-extractor)        ──► .enw / .ris / .txt
                                                                                 │
                                                                                 ▼
-[SPSS / Excel Dataset]      ──► (statistical-data-analyst)            ──► Chapter 4 (.docx)
+[SPSS / Excel Dataset]      ──► (statistical-data-analyst)            ──► Chapter 4 (.docx) + stats_results.json
                                                                                 │
                                                                                 ▼
 [Hypotheses + Stats JSON]   ──► (persian-discussion-builder)          ──► Chapter 5 (.docx)
@@ -87,13 +88,33 @@ The skills are modular and designed to pass standard artifacts between each othe
                                                                                 │
                                                                                 ▼
 [Supervisor/Jury Review]    ──► (persian-thesis-revision-assistant)   ──► Response Table (.docx)
+                                                                                │
+                                                                                ▼
+[Completed Thesis & Data]   ──► (academic-article-writer)             ──► Journal Manuscript (.docx)
+                                                                            ├── Track A: ISI / Scopus (English)
+                                                                            └── Track B: ISC Scientific-Research (Persian)
 ```
 
 ---
 
 ## 4. Python Environment & CLI Command Reference
 
-All calculation scripts are located in `.agents/skills/statistical-data-analyst/scripts/`.
+All calculation scripts are located in `.agents/skills/statistical-data-analyst/scripts/` and `.agents/skills/academic-article-writer/scripts/`.
+
+### Compile Publication-Grade Academic Articles:
+```bash
+# Compile International English Article (ISI / Scopus Q1/Q2)
+python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.py \
+  --json "article_payload.json" \
+  --out "Academic_Article_Manuscript.docx" \
+  --lang en
+
+# Compile Iranian Scientific-Research Article (علمی-پژوهشی / ISC)
+python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.py \
+  --json "article_payload.json" \
+  --out "مقاله_علمی_پژوهشی.docx" \
+  --lang fa
+```
 
 ### Run Automated Statistical Suite:
 ```bash
