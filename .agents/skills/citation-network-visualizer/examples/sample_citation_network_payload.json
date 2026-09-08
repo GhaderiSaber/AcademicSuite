@@ -1,0 +1,208 @@
+{
+  "project_title": "تحلیل تاریخ‌نگاری علم و ترسیم مسیر اصلی تکامل درمان مبتنی بر پذیرش و تعهد و انعطاف‌پذیری روان‌شناختی (۱۹۸۶-۲۰۲۴)",
+  "language": "fa",
+  "timespan": [1986, 2024],
+  "domain": "Clinical Psychology & Behavioral Medicine (ACT & Psychological Flexibility)",
+  "articles": [
+    {
+      "id": "DOC_01",
+      "title": "A Contextual Approach to Therapeutic Change: Comprehensive Distancing as an Alternative to Cognitive Therapy",
+      "authors": ["Hayes, S. C."],
+      "journal": "International Journal of Psychology and Psychological Therapy",
+      "year": 1986,
+      "citations": 420,
+      "cited_doc_ids": [],
+      "keywords": ["Comprehensive Distancing", "Rule-Governed Behavior", "Verbal Context", "Behavior Therapy"]
+    },
+    {
+      "id": "DOC_02",
+      "title": "Cognitive-Behavioral Treatment of Borderline Personality Disorder: Dialectical Behavior Therapy",
+      "authors": ["Linehan, M. M."],
+      "journal": "Guilford Press",
+      "year": 1993,
+      "citations": 12500,
+      "cited_doc_ids": [],
+      "keywords": ["Dialectical Behavior Therapy", "Acceptance", "Emotion Dysregulation", "Mindfulness"]
+    },
+    {
+      "id": "DOC_03",
+      "title": "Acceptance and Commitment Therapy: An Experiential Approach to Behavior Change",
+      "authors": ["Hayes, S. C.", "Strosahl, K. D.", "Wilson, K. G."],
+      "journal": "Guilford Press",
+      "year": 1999,
+      "citations": 18450,
+      "cited_doc_ids": ["DOC_01", "DOC_02"],
+      "keywords": ["Acceptance and Commitment Therapy", "Experiential Avoidance", "Psychological Flexibility", "Values"]
+    },
+    {
+      "id": "DOC_04",
+      "title": "Relational Frame Theory: A Post-Skinnerian Account of Human Language and Cognition",
+      "authors": ["Hayes, S. C.", "Barnes-Holmes, D.", "Roche, B."],
+      "journal": "Plenum Press",
+      "year": 2001,
+      "citations": 3650,
+      "cited_doc_ids": ["DOC_01", "DOC_03"],
+      "keywords": ["Relational Frame Theory", "Derived Relational Responding", "Cognition", "Language"]
+    },
+    {
+      "id": "DOC_05",
+      "title": "Acceptance and Commitment Therapy: Model, Processes and Outcomes",
+      "authors": ["Hayes, S. C.", "Luoma, J. B.", "Bond, F. W.", "Masuda, A.", "Lillis, J."],
+      "journal": "Behaviour Research and Therapy",
+      "year": 2006,
+      "citations": 4280,
+      "cited_doc_ids": ["DOC_03", "DOC_04"],
+      "keywords": ["Hexaflex", "Psychological Flexibility", "Cognitive Defusion", "Mindfulness"]
+    },
+    {
+      "id": "DOC_06",
+      "title": "Acceptance of Chronic Pain: Component Analysis and a Revised Assessment Method",
+      "authors": ["McCracken, L. M.", "Vowles, K. E.", "Eccleston, C."],
+      "journal": "Pain",
+      "year": 2004,
+      "citations": 1420,
+      "cited_doc_ids": ["DOC_03"],
+      "keywords": ["Chronic Pain", "Pain Acceptance", "CPAQ", "Disability"]
+    },
+    {
+      "id": "DOC_07",
+      "title": "The Role of Acceptance and Job Control in Mental Health, Job Satisfaction, and Work Performance",
+      "authors": ["Bond, F. W.", "Bunce, D."],
+      "journal": "Journal of Applied Psychology",
+      "year": 2003,
+      "citations": 1150,
+      "cited_doc_ids": ["DOC_03"],
+      "keywords": ["Workplace Well-Being", "Job Control", "Psychological Acceptance", "Mental Health"]
+    },
+    {
+      "id": "DOC_08",
+      "title": "Emotion Regulation: Affective, Cognitive, and Social Consequences",
+      "authors": ["Gross, J. J."],
+      "journal": "Psychophysiology",
+      "year": 2002,
+      "citations": 8900,
+      "cited_doc_ids": [],
+      "keywords": ["Emotion Regulation", "Cognitive Reappraisal", "Expressive Suppression", "Affect"]
+    },
+    {
+      "id": "DOC_09",
+      "title": "Psychological Flexibility as a Fundamental Aspect of Health",
+      "authors": ["Kashdan, T. B.", "Rottenberg, J."],
+      "journal": "Clinical Psychology Review",
+      "year": 2010,
+      "citations": 2840,
+      "cited_doc_ids": ["DOC_03", "DOC_05", "DOC_08"],
+      "keywords": ["Psychological Flexibility", "Well-Being", "Executive Function", "Adaptability"]
+    },
+    {
+      "id": "DOC_10",
+      "title": "Preliminary Psychometric Properties of the Acceptance and Action Questionnaire-II: A Revised Measure of Psychological Inflexibility and Experiential Avoidance",
+      "authors": ["Bond, F. W.", "Hayes, S. C.", "Baer, R. A.", "Carpenter, K. M."],
+      "journal": "Behavior Therapy",
+      "year": 2011,
+      "citations": 6200,
+      "cited_doc_ids": ["DOC_03", "DOC_05"],
+      "keywords": ["AAQ-II", "Experiential Avoidance", "Psychological Inflexibility", "Psychometrics"]
+    },
+    {
+      "id": "DOC_11",
+      "title": "Acceptance and Commitment Therapy and Mindfulness for Chronic Pain: Model, Process, and Progress",
+      "authors": ["McCracken, L. M.", "Vowles, K. E."],
+      "journal": "American Psychologist",
+      "year": 2014,
+      "citations": 1850,
+      "cited_doc_ids": ["DOC_05", "DOC_06", "DOC_10"],
+      "keywords": ["Chronic Pain", "Mindfulness", "Acceptance", "Committed Action"]
+    },
+    {
+      "id": "DOC_12",
+      "title": "Psychometric Properties of the Persian Version of the Chronic Pain Acceptance Questionnaire (CPAQ) in Iranian Patients",
+      "authors": ["Asghari, A.", "Saed, F.", "Dibajnia, P."],
+      "journal": "Journal of Mazandaran University of Medical Sciences",
+      "year": 2014,
+      "citations": 115,
+      "cited_doc_ids": ["DOC_06", "DOC_10"],
+      "keywords": ["پرسشنامه پذیرش درد مزمن", "ویژگی‌های روان‌سنجی", "بیماران درد مزمن", "روایی و پایایی"]
+    },
+    {
+      "id": "DOC_13",
+      "title": "A Meta-Analysis of the Efficacy of Acceptance and Commitment Therapy for Clinically Relevant Mental and Physical Health Problems",
+      "authors": ["A-Tjak, J. G.", "Davis, M. L.", "Morina, N.", "Powers, M. B."],
+      "journal": "Psychotherapy and Psychosomatics",
+      "year": 2015,
+      "citations": 1620,
+      "cited_doc_ids": ["DOC_05", "DOC_09", "DOC_10"],
+      "keywords": ["Meta-Analysis", "Effectiveness", "Randomized Controlled Trials", "Hexaflex"]
+    },
+    {
+      "id": "DOC_14",
+      "title": "The Role of Psychological Flexibility in Work-Related Strain, Burnout, and General Health",
+      "authors": ["Lloyd, J.", "Bond, F. W.", "Flaxman, P. E."],
+      "journal": "Work & Stress",
+      "year": 2017,
+      "citations": 490,
+      "cited_doc_ids": ["DOC_07", "DOC_10"],
+      "keywords": ["Work-Related Strain", "Burnout", "Psychological Flexibility", "Occupational Health"]
+    },
+    {
+      "id": "DOC_15",
+      "title": "The Third Wave of Cognitive Behavioral Therapy and the Rise of Process-Based Therapy",
+      "authors": ["Hayes, S. C.", "Hofmann, S. G."],
+      "journal": "World Psychiatry",
+      "year": 2017,
+      "citations": 1380,
+      "cited_doc_ids": ["DOC_03", "DOC_05", "DOC_09"],
+      "keywords": ["Process-Based Therapy", "Third Wave CBT", "Mediation", "Individualized Treatment"]
+    },
+    {
+      "id": "DOC_16",
+      "title": "اثربخشی درمان مبتنی بر پذیرش و تعهد بر کاهش درماندگی روان‌شناختی، اضطراب درد و ارتقای کیفیت زندگی بیماران مبتلا به درد مزمن",
+      "authors": ["قادری، صابر", "اصغری، علی", "شکوهی‌یکتا، محسن"],
+      "journal": "پژوهش‌های روان‌شناسی بالینی و مشاوره",
+      "year": 2019,
+      "citations": 45,
+      "cited_doc_ids": ["DOC_06", "DOC_10", "DOC_11", "DOC_12"],
+      "keywords": ["درمان مبتنی بر پذیرش و تعهد", "اضطراب درد", "کیفیت زندگی", "درد مزمن"]
+    },
+    {
+      "id": "DOC_17",
+      "title": "Process-Based Approaches to Chronic Pain: Navigating Beyond Syndromes to Mechanisms of Change",
+      "authors": ["McCracken, L. M.", "Yu, L.", "Vowles, K. E."],
+      "journal": "European Journal of Pain",
+      "year": 2021,
+      "citations": 320,
+      "cited_doc_ids": ["DOC_11", "DOC_15"],
+      "keywords": ["Process-Based Therapy", "Chronic Pain", "Psychological Flexibility", "Mechanisms"]
+    },
+    {
+      "id": "DOC_18",
+      "title": "Beyond General Psychological Flexibility: Multidimensional Assessment with the Multidimensional Psychological Flexibility Inventory (MPFI)",
+      "authors": ["Rolffs, J. L.", "Rogge, R. D.", "Wilson, K. G."],
+      "journal": "Journal of Contextual Behavioral Science",
+      "year": 2018,
+      "citations": 680,
+      "cited_doc_ids": ["DOC_05", "DOC_10"],
+      "keywords": ["MPFI", "Hexaflex Dimensions", "Multidimensional Measurement", "Construct Validity"]
+    },
+    {
+      "id": "DOC_19",
+      "title": "مدل‌یابی ساختاری ارتباط انعطاف‌پذیری روان‌شناختی و گسلش شناختی با فرسودگی شغلی معلمان: نقش میانجی تاب‌آوری",
+      "authors": ["عزیزی، مسعود", "اصغری، علی", "قادری، صابر"],
+      "journal": "مطالعات روان‌شناختی",
+      "year": 2022,
+      "citations": 28,
+      "cited_doc_ids": ["DOC_07", "DOC_10", "DOC_14", "DOC_18"],
+      "keywords": ["انعطاف‌پذیری روان‌شناختی", "گسلش شناختی", "فرسودگی شغلی", "تاب‌آوری"]
+    },
+    {
+      "id": "DOC_20",
+      "title": "Process-Based Therapy and Modern Clinical Psychology: Core Processes across Idiographic Networks",
+      "authors": ["Hayes, S. C.", "Ciarrochi, J.", "Hofmann, S. G."],
+      "journal": "Annual Review of Clinical Psychology",
+      "year": 2024,
+      "citations": 190,
+      "cited_doc_ids": ["DOC_05", "DOC_09", "DOC_15", "DOC_17", "DOC_18"],
+      "keywords": ["Process-Based Therapy", "Extended Evolutionary Meta-Model", "Idiographic Analysis", "Clinical Science"]
+    }
+  ]
+}

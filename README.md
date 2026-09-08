@@ -56,6 +56,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Automated academic literature search engine and empirical parameter extractor for international (PubMed, CrossRef, Semantic Scholar) and Iranian (SID, Magiran) databases: extracts participant sample sizes ($N$), research designs (RCT, ANCOVA, SEM), and psychometric instruments from abstracts. Generates defense-ready Chapter 2 Word reports (`.docx`) with APA 7 empirical tables and 5-part narrative formulas, 4-sheet Excel matrices (`.xlsx`), and standard RIS citation files (`.ris`) for EndNote and Zotero.
 24. **Bibliometric Science Mapping & Network Analyst ([bibliometric-network-analyst](.agents/skills/bibliometric-network-analyst/))**:
    Automated bibliometric science mapping and network topology engine compatible with VOSviewer and Bibliometrix: evaluates Bradford's Law journal scattering (Zone 1 core vs peripheral), Lotka's Law author productivity, keyword co-occurrence centralities (Degree, Betweenness conceptual bridges, Closeness), and Callon's 4-Quadrant Strategic Diagram (Motor, Niche, Emerging/Declining, Basic Themes). Exports native VOSviewer map and network files (`vosviewer_map.txt`, `vosviewer_network.txt`), dual 300-DPI publication plots (`bibliometric_network_map.png`, `thematic_strategic_map.png`), 5-sheet Excel workbooks (`bibliometric_matrix.xlsx`), and defense-ready Chapter 2 Word reports (`.docx`) with OpenXML BiDi RTL.
+25. **Citation Network Visualizer & Main Path Analyst ([citation-network-visualizer](.agents/skills/citation-network-visualizer/))**:
+   Historical direct citation network and algorithmic historiography engine based on Eugene Garfield's HistCite framework and Hummon & Doreian's (1989) Main Path Analysis (MPA): builds chronological citation graphs (chronomaps) along a causal time axis, calculates Local Citation Score (LCS) vs. Global Citation Score (GCS), Search Path Count (SPC) edge weights via topological dynamic programming, and extracts Global, Local, and Key-Route Main Path trajectories tracing the evolutionary intellectual backbone across paradigm shifts. Exports 300-DPI visual figures (`citation_chronomap.png`, `main_path_trajectory.png`), 5-sheet Excel matrices (`citation_matrix.xlsx`), and publication-grade Chapter 2 Word reports (`.docx`) with OpenXML BiDi RTL.
 
 ---
 
@@ -70,6 +72,7 @@ AcademicSuite/
 │       ├── academic-suite-orchestrator/        # Master multi-stage pipeline & DAG workflow orchestrator
 │       ├── ai-academic-tone-polisher/          # Academic tone polisher, burstiness optimizer & anti-AI refiner
 │       ├── bibliometric-network-analyst/       # VOSviewer/Bibliometrix science mapping & Callon strategic diagram
+│       ├── citation-network-visualizer/        # HistCite chronomaps, LCS/GCS & Main Path Analysis (SPC)
 │       ├── gpower-sample-size-calculator/      # G*Power sample size, power curves & Chapter 3 justifications
 │       ├── irandoc-plagiarism-reducer/         # Irandoc similarity reduction & academic paraphraser
 │       ├── journal-submission-assistant/       # Submission collateral, CRediT taxonomy & rebuttal tables
@@ -418,8 +421,29 @@ python3 .agents/skills/bibliometric-network-analyst/scripts/bibliometric_engine.
   --top-n 40
 ```
 
+### Algorithmic Historiography & Main Path Analysis (HistCite Chronomap)
+Map the direct citation evolution, compute LCS vs. GCS, and trace the Main Path backbone trajectory:
+```bash
+# 1. Global Main Path & HistCite Chronomap (Persian Report)
+python3 .agents/skills/citation-network-visualizer/scripts/citation_visualizer_engine.py \
+  --input .agents/skills/citation-network-visualizer/examples/sample_citation_network_payload.json \
+  --output-dir "./historiography_output_fa" \
+  --language fa \
+  --main-path global
+
+# 2. English Mode with Key-Route Traversal
+python3 .agents/skills/citation-network-visualizer/scripts/citation_visualizer_engine.py \
+  --input "wos_direct_citations.json" \
+  --output-dir "./chronomap_output_en" \
+  --language en \
+  --main-path key-route
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
+- *"Construct an algorithmic historiography chronomap and run Main Path Analysis (SPC) on this citation network to trace the intellectual evolution of ACT therapy."*
+- *"Calculate Local Citation Scores (LCS) vs Global Citation Scores (GCS) for my literature corpus and highlight the seminal cornerstones on the timeline."*
+- *"Identify the Main Path trajectory and branching points for emotion regulation research and generate the Chapter 2 historiographic Word report."*
 - *"Conduct a bibliometric analysis on this literature dataset: generate the keyword co-occurrence network, Bradford's core journals table, Callon's strategic diagram, and native VOSviewer files."*
 - *"Map the intellectual structure and conceptual clusters for research on ACT therapy and emotion regulation, and compile the Chapter 2 bibliometric Word report."*
 - *"Evaluate Bradford's Law and Lotka's Law for my literature review corpus and export the 5-sheet Excel bibliometric matrix."*

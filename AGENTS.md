@@ -77,6 +77,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`ai-academic-tone-polisher`** | [.agents/skills/ai-academic-tone-polisher/](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher) | User requests humanizing AI-generated academic text, optimizing sentence cadence and burstiness ($CV \ge 0.50$), removing robotic LLM cliches (شایان ذکر است که، delve into), or refining Persian half-spaces (نیم‌فاصله) while preserving citations and statistics. | AI draft text (`.docx` / `.txt` / JSON) | `متن_ویراسته_و_دانشگاهی.docx` + `tone_burstiness_plot.png` (300 DPI) + `academic_tone_audit_matrix.xlsx` + `tone_polish_results.json`. |
 | **`literature-harvester`** | [.agents/skills/literature-harvester/](file:///Users/saber/Desktop/academic_suite/.agents/skills/literature-harvester) | User requests automated literature search, extracting empirical parameters (sample size N, design, scales, findings) from PubMed, CrossRef, Semantic Scholar, SID, or Magiran, or compiling Chapter 2 empirical review matrices and RIS citation files. | Research keywords or search query payload | `گزارش_جامع_پیشینه_پژوهش_استخراج‌شده.docx` + `harvested_empirical_studies.xlsx` + `harvested_citations.ris` + `harvested_studies.json`. |
 | **`bibliometric-network-analyst`** | [.agents/skills/bibliometric-network-analyst/](file:///Users/saber/Desktop/academic_suite/.agents/skills/bibliometric-network-analyst) | User requests science mapping, keyword co-occurrence analysis, Bradford's Law journal scattering, Lotka's author productivity, NetworkX centralities, Callon's 4-quadrant strategic diagram, or VOSviewer native map/network exports. | Literature payload (`.json`, `.csv`, `.ris`) | `گزارش_تحلیل_علم‌سنجی_و_ترسیم_نقشه_دانش.docx` + `bibliometric_network_map.png` + `thematic_strategic_map.png` + `vosviewer_map.txt` + `vosviewer_network.txt` + `bibliometric_matrix.xlsx` (5 sheets). |
+| **`citation-network-visualizer`** | [.agents/skills/citation-network-visualizer/](file:///Users/saber/Desktop/academic_suite/.agents/skills/citation-network-visualizer) | User requests direct citation analysis, algorithmic historiography (HistCite chronomaps), Local Citation Score (LCS) vs Global Citation Score (GCS), Search Path Count (SPC) edge weights, or Main Path Analysis (MPA). | Direct citation payload (`.json` or `.csv`) | `گزارش_تحلیل_مسیر_اصلی_و_نگاشت_تاریخی_استنادات.docx` + `citation_chronomap.png` (300 DPI) + `main_path_trajectory.png` (300 DPI) + `citation_matrix.xlsx` (5 sheets). |
 
 ---
 
@@ -401,6 +402,15 @@ python3 .agents/skills/bibliometric-network-analyst/scripts/bibliometric_engine.
   --language fa \
   --min-freq 1 \
   --top-n 30
+```
+
+#### Run Citation Network Visualizer & Main Path Analysis (Skill #25):
+```bash
+python3 .agents/skills/citation-network-visualizer/scripts/citation_visualizer_engine.py \
+  --input .agents/skills/citation-network-visualizer/examples/sample_citation_network_payload.json \
+  --output-dir "./historiography_results" \
+  --language fa \
+  --main-path global
 ```
 
 ---

@@ -156,6 +156,12 @@ SKILL_REGISTRY = {
         "script": os.path.join(SKILLS_DIR, "bibliometric-network-analyst", "scripts", "bibliometric_engine.py"),
         "default_sample": os.path.join(SKILLS_DIR, "bibliometric-network-analyst", "examples", "sample_bibliometric_payload.json"),
         "desc": "VOSviewer & Bibliometrix science mapping, keyword co-occurrence & Callon strategic diagram (.docx, .xlsx, .png, .txt)"
+    },
+    "historiography": {
+        "skill": "citation-network-visualizer",
+        "script": os.path.join(SKILLS_DIR, "citation-network-visualizer", "scripts", "citation_visualizer_engine.py"),
+        "default_sample": os.path.join(SKILLS_DIR, "citation-network-visualizer", "examples", "sample_citation_network_payload.json"),
+        "desc": "Algorithmic historiography, HistCite chronomaps & Main Path Analysis (SPC) (.docx, .xlsx, .png, .json)"
     }
 }
 
@@ -600,6 +606,22 @@ class MasterAcademicOrchestrator:
             self.manifest["artifacts"]["vosviewer_map"] = os.path.join(step_dir, "vosviewer_map.txt")
             self.manifest["artifacts"]["vosviewer_network"] = os.path.join(step_dir, "vosviewer_network.txt")
             return cmd, {"docx": out_docx, "net_plot": net_plot, "strat_plot": strat_plot, "dir": step_dir}
+
+        elif step == "historiography":
+            script = info["script"]
+            json_payload = step_conf.get("payload_path") or info["default_sample"]
+            if not os.path.isabs(json_payload):
+                json_payload = os.path.join(REPO_ROOT, json_payload)
+            cmd = [PYTHON_BIN, script, "--input", json_payload, "--output-dir", step_dir, "--language", self.lang]
+            out_docx = os.path.join(step_dir, "گزارش_تحلیل_مسیر_اصلی_و_نگاشت_تاریخی_استنادات.docx" if self.lang == "fa" else "Historiographic_Citation_Network_Report.docx")
+            chrono_plot = os.path.join(step_dir, "citation_chronomap.png")
+            traj_plot = os.path.join(step_dir, "main_path_trajectory.png")
+            self.manifest["artifacts"]["historiography_docx"] = out_docx
+            self.manifest["artifacts"]["historiography_chrono_plot"] = chrono_plot
+            self.manifest["artifacts"]["historiography_traj_plot"] = traj_plot
+            self.manifest["artifacts"]["historiography_excel"] = os.path.join(step_dir, "citation_matrix.xlsx")
+            self.manifest["artifacts"]["historiography_json"] = os.path.join(step_dir, "citation_summary.json")
+            return cmd, {"docx": out_docx, "chrono_plot": chrono_plot, "traj_plot": traj_plot, "dir": step_dir}
 
         else:
             raise ValueError(f"Unknown step '{step}'. Valid steps are: {list(SKILL_REGISTRY.keys())}")
