@@ -38,6 +38,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Conducts and synthesizes gold-standard systematic reviews and quantitative meta-analyses adhering to PRISMA 2020 and Cochrane Risk of Bias (RoB 2) standards: multi-database Boolean search strategies, PRISMA study flow tracking, deterministic Hedges' $g$ effect sizes, Fixed-Effect & DerSimonian-Laird Random-Effects pooling, heterogeneity quantification ($Q$, $I^2$, $\tau^2$), Egger's publication bias test, and high-resolution Forest and Funnel plots.
 15. **Psychometric Data Simulator ([psychometric-data-simulator](.agents/skills/psychometric-data-simulator/))**:
    Generates realistic synthetic datasets using Monte Carlo simulation algorithms for Structural Equation Modeling (SEM), Confirmatory Factor Analysis (CFA), multi-item discrete Likert response scales (1–5, 1–7, 1–10) with indicator factor loadings ($\lambda$), measurement noise ($\theta$), and reverse items, and Randomized Clinical Trials (RCT) with repeated-measures pretest-posttest-followup designs. Exports multi-sheet Excel workbooks (`.xlsx`), CSV datasets, executable R `lavaan` scripts, and fit summaries.
+16. **Qualitative Data Analysis & Chapter 4 ([qualitative-data-analyst](.agents/skills/qualitative-data-analyst/))**:
+   End-to-end qualitative analysis and reporting engine supporting **Braun & Clarke (2006, 2019, 2021) Reflexive Thematic Analysis** (6-phase pipeline, 3-tier theme hierarchy: Basic, Organizing, Global) and **Strauss & Corbin (1990, 1998) Systematic Grounded Theory** (open, axial, selective coding, and 6-dimension Paradigmatic Model). Computes inter-coder reliability (Holsti's PAO, Cohen's Kappa), conducts Lincoln & Guba (1985) trustworthiness audits, renders 300-DPI thematic network diagrams (`thematic_network.png`), exports 5-sheet coding matrices (`thematic_matrix.xlsx`), and compiles defense-ready Persian/English Chapter 4 Word reports (`.docx`).
 
 ---
 
@@ -60,6 +62,7 @@ AcademicSuite/
 │       ├── psychological-intervention-protocol-builder/ # Evidence-based treatment manual & Ch 3 table builder
 │       ├── psychometric-data-simulator/        # Monte Carlo SEM, Likert scale & RCT data simulator
 │       ├── psychometric-scale-resolver/        # Questionnaire resolution, scoring & psychometrics
+│       ├── qualitative-data-analyst/           # Thematic analysis, grounded theory & Ch 4 qualitative reporter
 │       ├── statistical-data-analyst/           # Statistical testing & Chapter 4 builder
 │       └── systematic-review-meta-analyst/     # PRISMA 2020 & Cochrane meta-analysis engine
 ├── AGENTS.md                                   # Canonical agent behavioral rules & directives
@@ -242,6 +245,22 @@ python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
   --seed 42
 ```
 
+### Qualitative Data Analysis & Chapter 4 Compilation
+Analyze qualitative interview transcripts or coding matrices and compile defense-ready Chapter 4 reports:
+```bash
+# 1. Reflexive Thematic Analysis (Braun & Clarke 3-tier hierarchy & network diagram)
+python3 .agents/skills/qualitative-data-analyst/scripts/qualitative_engine.py \
+  --json "thematic_payload.json" \
+  --out-dir "./qualitative_output_thematic" \
+  --lang fa
+
+# 2. Grounded Theory (Strauss & Corbin 6-dimension paradigmatic model)
+python3 .agents/skills/qualitative-data-analyst/scripts/qualitative_engine.py \
+  --json "grounded_theory_payload.json" \
+  --out-dir "./qualitative_output_gt" \
+  --lang fa
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
 - *"Rewrite Chapter 2 to reduce Irandoc similarity below 15% while keeping all citations intact."*
@@ -262,6 +281,9 @@ Simply instruct your Antigravity agent:
 - *"Evaluate the risk of bias using Cochrane RoB 2 and run Egger's regression test for publication bias."*
 - *"Simulate a 300-subject SEM dataset testing mediation between Psychological Flexibility, Pain Acceptance, and Quality of Life with 5-point Likert items."*
 - *"Generate an RCT dataset for 60 subjects comparing ACT vs Control across Pre, Post, and 3-month Follow-up with target Cohen's d = 0.8."*
+- *"Analyze these 15 interview transcripts using Braun & Clarke Reflexive Thematic Analysis and generate the thematic network diagram and Chapter 4 report in Persian."*
+- *"Build a Strauss & Corbin Grounded Theory paradigmatic model for marital forgiveness and output the 5-sheet Excel matrix and Word dissertation chapter."*
+- *"Calculate Holsti's inter-coder reliability index and Cohen's Kappa between two independent raters for my qualitative coding."*
 
 ---
 

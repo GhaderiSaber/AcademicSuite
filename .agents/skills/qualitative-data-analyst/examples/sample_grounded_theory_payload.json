@@ -1,0 +1,80 @@
+{
+  "study_title": "الگوی پارادایمی فرایند بخشش زناشویی و بازسازی اعتماد پس از پیمان‌شکنی: نظریه داده‌بنیاد",
+  "study_title_en": "Paradigmatic Model of Marital Forgiveness and Trust Reconstruction Following Infidelity: A Grounded Theory Study",
+  "methodology": "grounded_theory",
+  "framework": "Strauss_and_Corbin_1998",
+  "research_context": "این مطالعه کیفی با هدف تبیین فرایند چندمرحله‌ای بخشش زناشویی و بازسازی اعتماد در زوجین آسیب‌دیده از پیمان‌شکنی با رویکرد نظام‌مند استراوس و کوربین به اجرا درآمد.",
+  "sample_size": 14,
+  "saturation_point": "اشباع مقوله‌ها پس از ۱۲ مصاحبه عمیق با زوجین و صاحب‌نظران حاصل شد و ۲ مصاحبه برای تأیید نهایی روابط پارادایمی اضافه شد.",
+  "paradigmatic_model": {
+    "core_phenomenon": {
+      "title": "پدیده محوری (Core Phenomenon)",
+      "concept": "گذار از ترومای خیانت به بازسازی هویت رابطه و بخشش عاملیت‌یافته",
+      "categories": [
+        "پذیرش سوگ خیانت و پذیرش رنج به عنوان نقطه عطف",
+        "تصمیم آگاهانه برای بازسازی پیمان مشترک بدون چشم‌پوشی منفعلانه"
+      ]
+    },
+    "causal_conditions": {
+      "title": "شرایط علی (Causal Conditions)",
+      "concept": "عوامل و تکانه‌های آغازگر فرایند بخشش",
+      "categories": [
+        "افشای صادقانه و ابراز پشیمانی واقعی همسر پیمان‌شکن",
+        "قطع کامل هرگونه ارتباط موازی و شفافیت مطلق رفتاری",
+        "وجود دلبستگی بنیادین و تمایل متقابل برای بقای کانون خانواده"
+      ]
+    },
+    "contextual_conditions": {
+      "title": "شرایط زمینه‌ای (Contextual Conditions)",
+      "concept": "بستر ویژگی‌های فردی، زناشویی و محیطی حاکم بر زوجین",
+      "categories": [
+        "تاریخچه تعهد و تجارب مثبت پیش از خیانت",
+        "وجود فرزندان و ارزش‌های مذهبی/فرهنگی بازدارنده از طلاق",
+        "ثبات اقتصادی و استقلال نسبی همسر آسیب‌دیده"
+      ]
+    },
+    "intervening_conditions": {
+      "title": "شرایط مداخله‌گر (Intervening Conditions)",
+      "concept": "عوامل ساختاری و محیطی تسهیل‌کننده یا بازدارنده",
+      "categories": [
+        "مداخله تخصصی زوج‌درمانگر و دریافت پروتکل‌های درمانی استاندارد",
+        "عدم دخالت آسیب‌زای خانواده‌های مبدأ و اطرافیان",
+        "فشارهای اجتماعی و انگ‌زنی اطرافیان در صورت افشا در فامیل"
+      ]
+    },
+    "action_strategies": {
+      "title": "راهبردها و اقدامات (Action/Interaction Strategies)",
+      "concept": "کنش‌ها و تعاملات زوجین برای مدیریت بحران",
+      "categories": [
+        "گفتگوی بدون تحقیر و تخلیه هیجانی کنترل‌شده در جلسات درمانی",
+        "بازآفرینی توافق‌نامه‌های رفتاری و مرزگذاری شفاف زناشویی",
+        "بازسازی تدریجی صمیمیت عاطفی و جسمی بر پایه گام‌های کوچک و آزمون‌پذیر"
+      ]
+    },
+    "consequences": {
+      "title": "پیامدها (Consequences)",
+      "concept": "دستاوردها و نتایج حاصل از فرایند بخشش",
+      "categories": [
+        "رشد پساآسیبی رابطه و شکل‌گیری تعهد عمیق‌تر و بالغانه",
+        "کاهش نشخوار فکری و التیام علائم اضطراب و تروما در همسر آسیب‌دیده",
+        "ایجاد فرهنگ شفافیت، ایمنی روانی و تاب‌آوری در برابر تعارضات آتی"
+      ]
+    }
+  },
+  "participants": [
+    {"id": "P1", "pseudonym": "مشارکت‌کننده ۱", "gender": "زن", "age": 36, "education": "کارشناسی ارشد", "marital_status": "متأهل", "years_married": 10, "post_infidelity_months": 16},
+    {"id": "P2", "pseudonym": "مشارکت‌کننده ۲", "gender": "مرد", "age": 41, "education": "کارشناسی", "marital_status": "متأهل", "years_married": 14, "post_infidelity_months": 22},
+    {"id": "P3", "pseudonym": "مشارکت‌کننده ۳", "gender": "زن", "age": 32, "education": "کارشناسی", "marital_status": "متأهل", "years_married": 7, "post_infidelity_months": 12},
+    {"id": "P4", "pseudonym": "مشارکت‌کننده ۴", "gender": "مرد", "age": 45, "education": "دکتری", "marital_status": "متأهل", "years_married": 18, "post_infidelity_months": 28}
+  ],
+  "inter_coder_reliability": {
+    "coder1_name": "پژوهشگر اصلی",
+    "coder2_name": "متخصص روش‌شناسی کیفی",
+    "total_decisions_coder1": 142,
+    "total_decisions_coder2": 138,
+    "agreed_decisions": 122,
+    "holsti_index": 0.871,
+    "percent_agreement": 87.1,
+    "cohens_kappa": 0.835
+  }
+}
