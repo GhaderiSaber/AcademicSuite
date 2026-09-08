@@ -200,6 +200,13 @@ PIPELINE_PRESETS = {
         "plagiarism",
         "article",
         "submission"
+    ],
+    "bibliometric_pipeline": [
+        "harvest",
+        "bibliometrics",
+        "historiography",
+        "article",
+        "submission"
     ]
 }
 
@@ -506,10 +513,14 @@ class MasterAcademicOrchestrator:
 
         elif step == "article":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
+            default_art = (
+                os.path.join(SKILLS_DIR, "academic-article-writer", "examples", "sample_article_en.json")
+                if self.lang == "en" else info["default_sample"]
+            )
+            json_payload = step_conf.get("payload_path") or default_art
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
-            out_docx = os.path.join(step_dir, "مقاله_علمی_پژوهشی.docx")
+            out_docx = os.path.join(step_dir, "مقاله_علمی_پژوهشی.docx" if self.lang == "fa" else "Academic_Article_Manuscript.docx")
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx, "--lang", self.lang]
             self.context["article_docx"] = out_docx
             self.manifest["artifacts"]["article_docx"] = out_docx
@@ -517,7 +528,11 @@ class MasterAcademicOrchestrator:
 
         elif step == "submission":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
+            default_sub = (
+                os.path.join(SKILLS_DIR, "journal-submission-assistant", "examples", "sample_submission_payload_en.json")
+                if self.lang == "en" else info["default_sample"]
+            )
+            json_payload = step_conf.get("payload_path") or default_sub
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
@@ -583,6 +598,10 @@ class MasterAcademicOrchestrator:
             sample_name = "act_psychological_flexibility_fa" if self.lang == "fa" else "cognitive_reappraisal_mindfulness_en"
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--sample", sample_name, "--out-dir", step_dir, "--lang", self.lang]
             out_docx = os.path.join(step_dir, "گزارش_جامع_پیشینه_پژوهش_استخراج‌شده.docx" if self.lang == "fa" else "Harvested_Literature_Review.docx")
+            self.context["harvest_json"] = os.path.join(step_dir, "harvested_studies.json")
+            self.context["harvest_docx"] = out_docx
+            self.context["harvest_excel"] = os.path.join(step_dir, "harvested_empirical_studies.xlsx")
+            self.context["harvest_ris"] = os.path.join(step_dir, "harvested_citations.ris")
             self.manifest["artifacts"]["harvest_docx"] = out_docx
             self.manifest["artifacts"]["harvest_excel"] = os.path.join(step_dir, "harvested_empirical_studies.xlsx")
             self.manifest["artifacts"]["harvest_ris"] = os.path.join(step_dir, "harvested_citations.ris")
@@ -591,13 +610,18 @@ class MasterAcademicOrchestrator:
 
         elif step == "bibliometrics":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
+            json_payload = step_conf.get("payload_path") or self.context.get("harvest_json") or info["default_sample"]
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--input", json_payload, "--output-dir", step_dir, "--language", self.lang]
             out_docx = os.path.join(step_dir, "گزارش_تحلیل_علم‌سنجی_و_ترسیم_نقشه_دانش.docx" if self.lang == "fa" else "Bibliometric_Science_Mapping_Report.docx")
             net_plot = os.path.join(step_dir, "bibliometric_network_map.png")
             strat_plot = os.path.join(step_dir, "thematic_strategic_map.png")
+            self.context["bibliometric_docx"] = out_docx
+            self.context["bibliometric_json"] = os.path.join(step_dir, "bibliometric_summary.json")
+            self.context["bibliometric_excel"] = os.path.join(step_dir, "bibliometric_matrix.xlsx")
+            self.context["bibliometric_net_plot"] = net_plot
+            self.context["bibliometric_strat_plot"] = strat_plot
             self.manifest["artifacts"]["bibliometric_docx"] = out_docx
             self.manifest["artifacts"]["bibliometric_net_plot"] = net_plot
             self.manifest["artifacts"]["bibliometric_strat_plot"] = strat_plot
@@ -609,13 +633,18 @@ class MasterAcademicOrchestrator:
 
         elif step == "historiography":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
+            json_payload = step_conf.get("payload_path") or self.context.get("citation_json") or info["default_sample"]
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--input", json_payload, "--output-dir", step_dir, "--language", self.lang]
             out_docx = os.path.join(step_dir, "گزارش_تحلیل_مسیر_اصلی_و_نگاشت_تاریخی_استنادات.docx" if self.lang == "fa" else "Historiographic_Citation_Network_Report.docx")
             chrono_plot = os.path.join(step_dir, "citation_chronomap.png")
             traj_plot = os.path.join(step_dir, "main_path_trajectory.png")
+            self.context["historiography_docx"] = out_docx
+            self.context["historiography_json"] = os.path.join(step_dir, "citation_summary.json")
+            self.context["historiography_excel"] = os.path.join(step_dir, "citation_matrix.xlsx")
+            self.context["historiography_chrono_plot"] = chrono_plot
+            self.context["historiography_traj_plot"] = traj_plot
             self.manifest["artifacts"]["historiography_docx"] = out_docx
             self.manifest["artifacts"]["historiography_chrono_plot"] = chrono_plot
             self.manifest["artifacts"]["historiography_traj_plot"] = traj_plot
@@ -668,11 +697,57 @@ class MasterAcademicOrchestrator:
             art_str = ", ".join(links) if links else "-"
             lines.append(f"| **{step_name}** | `{skill}` | {status} | {dur} | {art_str} |")
 
+        # Section 3: High-Resolution Figures & Science Maps (if any)
+        arts = self.manifest.get("artifacts", {})
+        visual_sections = []
+
+        biblio_plots = []
+        if "bibliometric_net_plot" in arts and os.path.exists(arts["bibliometric_net_plot"]):
+            p = arts["bibliometric_net_plot"]
+            biblio_plots.append(f"- **Co-occurrence Network Map**: [{os.path.basename(p)}](file://{p})\n\n![Bibliometric Network Map]({p})")
+        if "bibliometric_strat_plot" in arts and os.path.exists(arts["bibliometric_strat_plot"]):
+            p = arts["bibliometric_strat_plot"]
+            biblio_plots.append(f"- **Callon Thematic Strategic Diagram**: [{os.path.basename(p)}](file://{p})\n\n![Callon Thematic Strategic Diagram]({p})")
+        if biblio_plots:
+            visual_sections.append("### 3.1 Bibliometric Science Maps & Thematic Clusters\n\n" + "\n\n".join(biblio_plots))
+
+        histo_plots = []
+        if "historiography_chrono_plot" in arts and os.path.exists(arts["historiography_chrono_plot"]):
+            p = arts["historiography_chrono_plot"]
+            histo_plots.append(f"- **Historical Citation Chronomap**: [{os.path.basename(p)}](file://{p})\n\n![Historical Citation Chronomap]({p})")
+        if "historiography_traj_plot" in arts and os.path.exists(arts["historiography_traj_plot"]):
+            p = arts["historiography_traj_plot"]
+            histo_plots.append(f"- **Main Path SPC Trajectory**: [{os.path.basename(p)}](file://{p})\n\n![Main Path SPC Trajectory]({p})")
+        if histo_plots:
+            visual_sections.append("### 3.2 Historical Citation Trajectories & Algorithmic Historiography\n\n" + "\n\n".join(histo_plots))
+
+        other_plots = []
+        if "gpower_plot" in arts and os.path.exists(arts["gpower_plot"]):
+            p = arts["gpower_plot"]
+            other_plots.append(f"- **Statistical Power Curve**: [{os.path.basename(p)}](file://{p})\n\n![Statistical Power Curve]({p})")
+        if "tone_polish_plot" in arts and os.path.exists(arts["tone_polish_plot"]):
+            p = arts["tone_polish_plot"]
+            other_plots.append(f"- **Syntactic Burstiness Distribution**: [{os.path.basename(p)}](file://{p})\n\n![Syntactic Burstiness Distribution]({p})")
+        if other_plots:
+            visual_sections.append("### 3.3 Diagnostic & Statistical Power Figures\n\n" + "\n\n".join(other_plots))
+
+        sec_idx = 3
+        if visual_sections:
+            lines.extend([
+                "",
+                "---",
+                "",
+                f"## {sec_idx}. High-Resolution Scientific Visualizations",
+                ""
+            ])
+            lines.extend(visual_sections)
+            sec_idx += 1
+
         lines.extend([
             "",
             "---",
             "",
-            "## 3. Master Deliverables Directory",
+            f"## {sec_idx}. Master Deliverables Directory",
             f"All compiled artifacts are located in: [{self.out_dir}](file://{self.out_dir})"
         ])
 

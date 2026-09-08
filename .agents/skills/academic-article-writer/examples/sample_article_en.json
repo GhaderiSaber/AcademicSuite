@@ -1,0 +1,174 @@
+{
+  "title": "Effectiveness of Mindfulness-Based Cognitive Therapy on Academic Anxiety and Resilience: A Randomized Controlled Trial",
+  "authors": [
+    "Saber Ghaderi",
+    "Jane Doe, Ph.D."
+  ],
+  "affiliation": "Department of Psychology, Faculty of Educational Sciences and Psychology, University of Tehran",
+  "abstract": {
+    "background": "Academic anxiety represents a prevalent psychological impairment among secondary school adolescents, undermining cognitive flexibility and academic performance.",
+    "objective": "The present study investigated the clinical efficacy of an 8-week Mindfulness-Based Cognitive Therapy (MBCT) intervention in attenuating academic anxiety and enhancing psychological resilience.",
+    "methods": "Employing a randomized pretest-posttest control group design with a 60-day follow-up, 60 eligible high school students were randomly assigned to MBCT (n = 30) or waitlist control (n = 30). Participants completed the Sarason Academic Anxiety Scale and Connor-Davidson Resilience Scale.",
+    "results": "One-way ANCOVA controlling for baseline scores demonstrated statistically significant reductions in academic anxiety (F(1, 57) = 48.22, p < .001, partial eta^2 = .458) and significant enhancements in resilience (F(1, 57) = 39.14, p < .001, partial eta^2 = .407) in the experimental group.",
+    "conclusion": "MBCT demonstrates substantial empirical efficacy in alleviating academic stress and fostering resilience, serving as a scalable protocol for secondary educational settings."
+  },
+  "keywords": [
+    "Mindfulness-Based Cognitive Therapy",
+    "Academic Anxiety",
+    "Psychological Resilience",
+    "Adolescents",
+    "Randomized Controlled Trial"
+  ],
+  "introduction": [
+    "Academic anxiety is characterized by debilitating cognitive worry and autonomic arousal in educational evaluative situations (Zeidner, 2014). In competitive secondary schooling systems, chronic anxiety precipitates cognitive avoidance, executive dysfunction, and heightened dropout vulnerability.",
+    "Theoretical models of cognitive appraisal (Lazarus & Folkman, 1984) and emotional regulation (Gross, 2015) emphasize that subjective evaluations rather than task difficulty dictate distress. Mindfulness-based interventions foster metacognitive awareness and non-judgmental acceptance of distress.",
+    "Despite expanding literature on adolescent mindfulness, few empirical trials have concurrently assessed both symptom reduction and positive psychological adaptation using robust ANCOVA designs.",
+    "Accordingly, the objective of the present investigation was to evaluate whether an 8-week structured MBCT program leads to significant improvements in academic anxiety and resilience relative to an inactive control group."
+  ],
+  "method": {
+    "design_and_participants": "A randomized pretest-posttest control group design with follow-up was utilized. An a priori statistical power analysis using G*Power 3.1.9.7 (alpha = .05, power = .85, medium effect size f = 0.25) determined a minimum sample size of 54. Sixty students (aged 16-18) were recruited and randomized.",
+    "measures": "Academic anxiety was measured using the 37-item Sarason Test Anxiety Scale (alpha = .88). Psychological resilience was assessed via the 25-item Connor-Davidson Resilience Scale (CD-RISC, alpha = .89).",
+    "procedure": "Participants in the experimental group attended eight 90-minute weekly sessions of standardized MBCT protocol. Controls remained on a waitlist and received equivalent training after the follow-up.",
+    "statistical_analysis": "Data were analyzed using SPSS version 26. Univariate normality (Shapiro-Wilk) and homogeneity of variances (Levene test) were confirmed prior to conducting One-Way Analysis of Covariance (ANCOVA)."
+  },
+  "results": {
+    "narrative": [
+      "Descriptive parameters for academic anxiety and resilience across assessment phases are summarized in Table 1.",
+      "Testing ANCOVA assumptions revealed non-significant Levene tests and homogeneous regression slopes across groups. Table 2 presents the inferential ANCOVA results."
+    ],
+    "tables": [
+      {
+        "title": "Descriptive Statistics for Study Variables by Group and Measurement Phase",
+        "headers": [
+          "Variable",
+          "Group",
+          "Pretest M (SD)",
+          "Posttest M (SD)",
+          "Follow-up M (SD)"
+        ],
+        "rows": [
+          [
+            "Academic Anxiety",
+            "Experimental (n=30)",
+            "31.42 (4.15)",
+            "18.65 (3.22)",
+            "19.10 (3.45)"
+          ],
+          [
+            "Academic Anxiety",
+            "Control (n=30)",
+            "30.88 (4.30)",
+            "30.15 (4.12)",
+            "30.50 (4.20)"
+          ],
+          [
+            "Resilience",
+            "Experimental (n=30)",
+            "48.30 (5.60)",
+            "72.40 (6.10)",
+            "71.85 (5.95)"
+          ],
+          [
+            "Resilience",
+            "Control (n=30)",
+            "49.10 (5.45)",
+            "50.20 (5.30)",
+            "49.80 (5.50)"
+          ]
+        ],
+        "note": "M = Mean; SD = Standard Deviation; Scores on Anxiety range from 0 to 37; Resilience ranges from 0 to 100."
+      },
+      {
+        "title": "Analysis of Covariance (ANCOVA) for Intervention Effects",
+        "headers": [
+          "Source",
+          "Dependent Variable",
+          "Type III SS",
+          "df",
+          "MS",
+          "F",
+          "p",
+          "Partial eta^2"
+        ],
+        "rows": [
+          [
+            "Pretest (Covariate)",
+            "Academic Anxiety",
+            "248.50",
+            "1",
+            "248.50",
+            "22.18",
+            "< .001",
+            ".280"
+          ],
+          [
+            "Group (Intervention)",
+            "Academic Anxiety",
+            "540.12",
+            "1",
+            "540.12",
+            "48.22",
+            "< .001",
+            ".458"
+          ],
+          [
+            "Error",
+            "Academic Anxiety",
+            "638.45",
+            "57",
+            "11.20",
+            "-",
+            "-",
+            "-"
+          ],
+          [
+            "Pretest (Covariate)",
+            "Resilience",
+            "312.20",
+            "1",
+            "312.20",
+            "24.60",
+            "< .001",
+            ".301"
+          ],
+          [
+            "Group (Intervention)",
+            "Resilience",
+            "497.05",
+            "1",
+            "497.05",
+            "39.14",
+            "< .001",
+            ".407"
+          ],
+          [
+            "Error",
+            "Resilience",
+            "723.90",
+            "57",
+            "12.70",
+            "-",
+            "-",
+            "-"
+          ]
+        ],
+        "note": "SS = Sum of Squares; MS = Mean Square; df = degrees of freedom; alpha = .05."
+      }
+    ]
+  },
+  "discussion": [
+    "The primary objective of this randomized clinical trial was to determine whether mindfulness-based cognitive therapy effectively diminishes academic anxiety and fosters psychological resilience among secondary school students.",
+    "The significant attenuation of academic anxiety is congruent with prior investigations (Kabat-Zinn, 2013; Roeser et al., 2013). Theoretically, mindfulness facilitates cognitive decentering, enabling students to relate to anxious thoughts as transient mental events rather than catastrophic verities.",
+    "Similarly, marked enhancements in resilience substantiate Bandura’s (1997) self-efficacy framework and Gross’s (2015) model of cognitive reappraisal. Cultivating attentional stability reduces habitual ruminative distress, fostering adaptive coping resources.",
+    "Methodological strengths include randomized allocation, G*Power sample validation, and inclusion of a 60-day follow-up. Conversely, limitations comprise the reliance on self-report questionnaires and a single-region geographic sampling frame.",
+    "In conclusion, mindfulness-based cognitive therapy serves as an efficacious, practical, and scalable psychological intervention for mitigating evaluative anxiety and bolstering resilience in adolescent cohorts."
+  ],
+  "references": [
+    "Bandura, A. (1997). Self-efficacy: The exercise of control. W. H. Freeman.",
+    "Gross, J. J. (2015). Emotion regulation: Current status and future prospects. Philosophical Transactions of the Royal Society B: Biological Sciences, 370(1677), 20140235.",
+    "Kabat-Zinn, J. (2013). Full catastrophe living: Using the wisdom of your body and mind to face stress, pain, and illness (2nd ed.). Bantam Books.",
+    "Lazarus, R. S., & Folkman, S. (1984). Stress, appraisal, and coping. Springer Publishing Company.",
+    "Roeser, R. W., Schonert-Reichl, K. A., Jha, A., Cullen, M., Wallace, L., Wilensky, R., ... & Klein, K. (2013). Mindfulness training and reductions in teacher stress and burnout: Results from two randomized, waitlist-control field trials. Mind, Brain, and Education, 7(1), 1-18.",
+    "Zeidner, M. (2014). Anxiety in education. In R. Pekrun & L. Linnenbrink-Garcia (Eds.), International handbook of emotions in education (pp. 265-288). Routledge."
+  ]
+}

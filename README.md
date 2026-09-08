@@ -45,7 +45,7 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
 18. **Psychometric Scale Validator ([psychometric-scale-validator](.agents/skills/psychometric-scale-validator/))**:
    End-to-end scale standardization, Classical Test Theory (CTT), and modern Item Response Theory (IRT) engine: verification of WHO/ITC translation protocols, quantitative Lawshe (1975) CVR against critical panel thresholds, Waltz & Bausell / Lynn (1986) CVI ($I\text{-}CVI$, $S\text{-}CVI/\text{Ave}$), Item Impact Scores, Exploratory Factor Analysis (EFA: KMO, Bartlett, Scree plot, Promax/Varimax), Confirmatory Factor Analysis (CFA: $\chi^2/df$, CFI, TLI, RMSEA, SRMR), Fornell & Larcker Convergent (AVE $\ge 0.50$, CR $\ge 0.70$) and Discriminant Validity, APA 7th Edition McDonald's Omega ($\omega$) and Cronbach's Alpha ($\alpha$), Test-Retest ICC, Item Response Theory (IRT) Graded Response Model (GRM: discrimination $a$, category thresholds $b_1-b_4$, Infit/Outfit MNSQ, Test Information Function TIF, and Differential Item Functioning DIF), Norm score conversions (Z, T, Percentiles), and ROC Curve clinical cut-off determination. Compiles defense-ready Chapter 4 Word reports (`.docx` with 8 APA 7 tables), 6-sheet Excel validation matrices, and dual 300-DPI visual plots.
 19. **Master Research Pipeline Orchestrator ([academic-suite-orchestrator](.agents/skills/academic-suite-orchestrator/))**:
-   Unified research orchestration engine that executes multi-stage, inter-skill pipelines across all 18 skills with 5 turnkey presets (`thesis_empirical`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`), automatic artifact handoffs, dependency DAG validation (`--dry-run`), step-level resumption (`--resume-from`), execution manifest generation (`orchestrator_manifest.json`), and comprehensive Markdown project dashboards (`PROJECT_DASHBOARD.md`).
+   Unified research orchestration engine that executes multi-stage, inter-skill pipelines across all 18 skills with 6 turnkey presets (`thesis_empirical`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`, `bibliometric_pipeline`), automatic artifact handoffs, dependency DAG validation (`--dry-run`), step-level resumption (`--resume-from`), execution manifest generation (`orchestrator_manifest.json`), and comprehensive Markdown project dashboards (`PROJECT_DASHBOARD.md`).
 20. **Thesis Integrity & Cross-Chapter Forensic Auditor ([thesis-integrity-auditor](.agents/skills/thesis-integrity-auditor/))**:
    Automated academic jury, forensic proofreader, and cross-chapter consistency verification engine: audits hypothesis-result-discussion alignment (Ch 1 $\leftrightarrow$ Ch 4 $\leftrightarrow$ Ch 5), validates methodology sample sizes and degrees of freedom ($t$-test, ANOVA, ANCOVA, regression $df$), executes bidirectional citation reconciliation (orphaned in-text citations vs ghost bibliography entries, year mismatches), and enforces APA 7th Edition statistical formatting rules (leading zeroes, $p = .000$, effect sizes). Generates publication-grade audit Word reports (`.docx`), 5-sheet citation reconciliation workbooks (`.xlsx`), and machine-readable JSON summaries.
 21. **G*Power Academic Sample Size & Power Engine ([gpower-sample-size-calculator](.agents/skills/gpower-sample-size-calculator/))**:
@@ -311,17 +311,23 @@ Coordinate and execute multi-stage research pipelines with turnkey presets, arti
 ```bash
 # 1. Run complete empirical thesis pipeline (Proposal -> Simulation -> Stats -> Ch 5 -> Full Thesis -> Defense Slides)
 python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
-  --preset thesis_empirical \
+  --pipeline thesis_empirical \
   --out-dir "./my_thesis_study"
 
-# 2. Dry-run pipeline DAG validation
+# 2. Run turnkey bibliometric pipeline (Harvest -> Bibliometrics -> Historiography -> Article -> Submission)
 python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
-  --preset scale_validation \
+  --pipeline bibliometric_pipeline \
+  --out-dir "./my_bibliometric_study" \
+  --lang fa
+
+# 3. Dry-run pipeline DAG validation
+python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
+  --pipeline bibliometric_pipeline \
   --dry-run
 
-# 3. Resume from a specific pipeline checkpoint
+# 4. Resume from a specific pipeline checkpoint
 python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
-  --preset thesis_empirical \
+  --pipeline thesis_empirical \
   --out-dir "./my_thesis_study" \
   --resume-from statistics
 ```

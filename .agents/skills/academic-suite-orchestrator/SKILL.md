@@ -42,6 +42,7 @@ Activate this skill when:
 | **`qualitative_study`** | `proposal` $\to$ `qualitative` $\to$ `discussion` $\to$ `thesis` $\to$ `defense` | Proposal (`.docx`), Coding Matrix (`.xlsx`), Thematic Network (`.png`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Slides (`.pptx`). |
 | **`meta_analysis`** | `meta_analysis` $\to$ `article` $\to$ `submission` | PRISMA Report (`.docx`), Forest & Funnel Plots (`.png`), Manuscript (`.docx`), Cover Letter & Highlights (`.docx`). |
 | **`thesis_to_publication`** | `plagiarism` $\to$ `article` $\to$ `submission` | Rewritten Thesis ($< 20\%$ Irandoc), Journal Manuscript (`.docx`), Cover Letter, Title Page (CRediT), and Highlights (`.docx`). |
+| **`bibliometric_pipeline`** | `harvest` $\to$ `bibliometrics` $\to$ `historiography` $\to$ `article` $\to$ `submission` | Harvested Literature (`.docx`, `.xlsx`, `.ris`), VOSviewer Science Maps (`.txt`, `.png`), HistCite Chronomap & Main Path (`.png`, `.docx`), Article (`.docx`), Submission Package (`.docx`). |
 
 ---
 

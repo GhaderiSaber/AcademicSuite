@@ -149,10 +149,25 @@ def load_bibliometric_data(input_path):
         with open(input_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         if isinstance(data, dict):
-            articles = data.get('articles', [])
-            project_title = data.get('project_title', 'Bibliometric Science Mapping')
+            articles = data.get('articles', []) or data.get('studies', [])
+            project_title = data.get('project_title') or (f"تحلیل علم‌سنجی: {data.get('query')}" if data.get('query') else 'Bibliometric Science Mapping')
             language = data.get('language', 'fa')
             timespan = data.get('timespan', None)
+            for a in articles:
+                if 'year_ad' in a and isinstance(a['year_ad'], int):
+                    a['year'] = a['year_ad']
+                elif 'year' in a:
+                    try:
+                        y_str = str(a['year']).strip()
+                        for f_d, e_d in zip('۰۱۲۳۴۵۶۷۸۹', '0123456789'):
+                            y_str = y_str.replace(f_d, e_d)
+                        a['year'] = int(y_str)
+                    except (ValueError, TypeError):
+                        a['year'] = 2023
+                else:
+                    a['year'] = 2023
+                if 'citations' not in a or not isinstance(a.get('citations'), (int, float)):
+                    a['citations'] = a.get('citations') if isinstance(a.get('citations'), int) else 5
             return articles, project_title, language, timespan
         elif isinstance(data, list):
             return data, 'Bibliometric Science Mapping', 'fa', None
