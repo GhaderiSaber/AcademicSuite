@@ -26,18 +26,18 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+resolver_dir = os.path.abspath(os.path.join(script_dir, "..", "..", "psychometric-scale-resolver", "scripts"))
+for d in [script_dir, resolver_dir]:
+    if os.path.exists(d) and d not in sys.path:
+        sys.path.insert(0, d)
+
 try:
     from questionnaire_resolver import score_dataset, get_scale_profile, search_registry
 except ImportError:
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    if script_dir not in sys.path:
-        sys.path.insert(0, script_dir)
-    try:
-        from questionnaire_resolver import score_dataset, get_scale_profile, search_registry
-    except ImportError:
-        score_dataset = None
-        get_scale_profile = None
-        search_registry = None
+    score_dataset = None
+    get_scale_profile = None
+    search_registry = None
 
 def load_dataset(file_path: str) -> pd.DataFrame:
     """Load dataset from .xlsx, .csv, or .sav."""

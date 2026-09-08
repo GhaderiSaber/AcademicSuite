@@ -55,10 +55,11 @@ When assembling or editing Persian Word documents (`.docx`):
 | :--- | :--- | :--- | :--- | :--- |
 | **`persian-proposal-builder`** | [.agents/skills/persian-proposal-builder/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/persian-proposal-builder) | User requests writing or refining a graduate research proposal (پروپوزال), drafting Chapter 1 or Chapter 3, or calculating sample size. | Research topic, variables, population, instruments | `پروپوزال_طرح_پژوهش.docx` meeting university review council rules. |
 | **`persian-academic-translation`** | [.agents/skills/persian-academic-translation/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/persian-academic-translation) | User requests translating English papers, book chapters, or theoretical frameworks into academic Persian. | English PDF / DOCX / TXT papers | `*_fa.docx` formatted with academic terminology and preserved citations. |
-| **`academic-reference-extractor`** | [.agents/skills/academic-reference-extractor/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/academic-reference-extractor) | User needs EndNote/Zotero citations for a translated paper or specific thesis chapter. | Translated text with citations + Master paper bibliography | `.enw` (EndNote), `.ris` (Zotero/Mendeley), and `.txt` (APA list). |
-| **`statistical-data-analyst`** | [.agents/skills/statistical-data-analyst/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/statistical-data-analyst) | User provides data (`.sav`, `.xlsx`, `.csv`) and requests analysis, hypothesis testing, or Chapter 4 writing. | Raw dataset + Hypotheses / Research Questions | `فصل چهارم: یافته‌های پژوهش.docx` + `stats_results.json` + APA 7 tables. |
+| **`academic-reference-extractor`** | [.agents/skills/academic-reference-extractor/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-reference-extractor) | User needs EndNote/Zotero citations for a translated paper or specific thesis chapter. | Translated text with citations + Master paper bibliography | `.enw` (EndNote), `.ris` (Zotero/Mendeley), and `.txt` (APA list). |
+| **`psychometric-scale-resolver`** | [.agents/skills/psychometric-scale-resolver/](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychometric-scale-resolver) | User needs to identify questionnaires, extract subscale factor structures, scoring methods, reverse-scoring keys, or score raw survey items. | Raw items (`Q1..Q40`) or Scale query + `Questionnaires.xlsx` | `data_scored.xlsx` + factor subscales + Cronbach's $\alpha$. |
+| **`statistical-data-analyst`** | [.agents/skills/statistical-data-analyst/](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst) | User provides data (`.sav`, `.xlsx`, `.csv`) and requests analysis, hypothesis testing, or Chapter 4 writing. | Scored dataset + Hypotheses / Research Questions | `فصل چهارم: یافته‌های پژوهش.docx` + `stats_results.json` + APA 7 tables. |
 | **`persian-discussion-builder`** | [.agents/skills/persian-discussion-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-discussion-builder) | User requests writing Chapter 5 (بحث و نتیجه‌گیری) interpreting statistical findings against literature. | Chapter 4 results (`stats_results.json`) + Chapter 2 literature | `فصل پنجم: بحث و نتیجه‌گیری.docx` with clinical implications and limitations. |
-| **`persian-thesis-builder`** | [.agents/skills/persian-thesis-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-builder) | User wants to compile, merge, format, or assemble all thesis parts into a unified university document. | Master `.docx` template + Proposal + Translated Chapters 2, 4, 5 + Questionnaires | `Thesis_Compiled.docx` (Complete dissertation meeting university formatting rules). |
+| **`persian-thesis-builder`** | [.agents/skills/persian-thesis-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-builder) | User wants to compile, merge, format, or assemble all modular thesis parts into a unified university document. | Master `.docx` template + Chapters 1-5 + References + Scales | `Thesis_Compiled.docx` (Complete dissertation meeting university formatting rules). |
 | **`persian-thesis-revision-assistant`** | [.agents/skills/persian-thesis-revision-assistant/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-revision-assistant) | User needs to review, extract, and resolve supervisor/examiner comments and produce the formal response table. | Reviewed `.docx` with comments or feedback text | `جدول_پاسخ_به_نظرات_اساتید.docx` + revised chapters. |
 | **`academic-article-writer`** | [.agents/skills/academic-article-writer/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-article-writer) | User requests drafting, structuring, or compiling an academic journal article from thesis chapters and project data for ISI/Scopus (English) or ISC (Persian). | Full project artifacts (Proposal, Lit Review, Stats JSON, Ch 5) | `Academic_Article_Manuscript.docx` (English) or `مقاله_علمی_پژوهشی.docx` (Persian) meeting IMRaD & APA 7 standards. |
 
@@ -78,7 +79,10 @@ The skills are modular and designed to pass standard artifacts between each othe
 [In-Text Citations]         ──► (academic-reference-extractor)        ──► .enw / .ris / .txt
                                                                                 │
                                                                                 ▼
-[SPSS / Excel Dataset]      ──► (statistical-data-analyst)            ──► Chapter 4 (.docx) + stats_results.json
+[Raw Survey Responses]      ──► (psychometric-scale-resolver)         ──► data_scored.xlsx (Factors + Alphas)
+                                                                                │
+                                                                                ▼
+[Scored Dataset + Hypo]     ──► (statistical-data-analyst)            ──► Chapter 4 (.docx) + stats_results.json
                                                                                 │
                                                                                 ▼
 [Hypotheses + Stats JSON]   ──► (persian-discussion-builder)          ──► Chapter 5 (.docx)
@@ -99,33 +103,30 @@ The skills are modular and designed to pass standard artifacts between each othe
 
 ## 4. Python Environment & CLI Command Reference
 
-All calculation scripts are located in `.agents/skills/statistical-data-analyst/scripts/` and `.agents/skills/academic-article-writer/scripts/`.
-
-### Compile Publication-Grade Academic Articles:
+### Master Thesis Compilation:
 ```bash
-# Compile International English Article (ISI / Scopus Q1/Q2)
-python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.py \
-  --json "article_payload.json" \
-  --out "Academic_Article_Manuscript.docx" \
-  --lang en
-
-# Compile Iranian Scientific-Research Article (علمی-پژوهشی / ISC)
-python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.py \
-  --json "article_payload.json" \
-  --out "مقاله_علمی_پژوهشی.docx" \
-  --lang fa
+python3 .agents/skills/persian-thesis-builder/scripts/compile_full_thesis.py \
+  --template "path/to/template.docx" \
+  --output "Thesis_Compiled.docx" \
+  --ch1 "Chapter1.docx" \
+  --ch2 "Chapter2.docx" \
+  --ch3 "Chapter3.docx" \
+  --ch4 "Chapter4.docx" \
+  --ch5 "Chapter5.docx" \
+  --refs "References_Compiled.docx" \
+  --scales "Connor-Davidson Resilience Scale, Penn State Worry Questionnaire"
 ```
 
-### Questionnaire Lookup & Automated Factor Scoring:
+### Questionnaire Lookup & Factor Scoring:
 ```bash
-# 1. Search Questionnaire Registry (Questionnaires.xlsx) & Google Drive Library
-python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py search "Connor-Davidson"
+# Search Registry (Questionnaires.xlsx) & Google Drive Library
+python3 .agents/skills/psychometric-scale-resolver/scripts/questionnaire_resolver.py search "Connor-Davidson"
 
-# 2. Inspect Scale Scoring Profile, Subscales, and Reverse Keys
-python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py profile "Penn State Worry Questionnaire"
+# Inspect Scale Scoring Profile, Subscales, and Reverse Keys
+python3 .agents/skills/psychometric-scale-resolver/scripts/questionnaire_resolver.py profile "Penn State Worry Questionnaire"
 
-# 3. Score Raw Survey Item Responses into Factors and Scale Composites
-python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py score \
+# Score Raw Survey Item Responses into Factors and Scale Composites
+python3 .agents/skills/psychometric-scale-resolver/scripts/questionnaire_resolver.py score \
   --data "survey_raw.xlsx" \
   --scale "Penn State Worry Questionnaire" \
   --prefix "Q" \

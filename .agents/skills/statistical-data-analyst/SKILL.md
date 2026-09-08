@@ -95,27 +95,17 @@ When a student provides a dataset and asks for analysis or Chapter 4, follow thi
    - Verify tables, APA notation, and hypothesis conclusions
 ```
 
-### Step 0: Questionnaire Ingestion & Factor Scoring
-When the student provides raw item responses (e.g. `Q1..Q25` or `R1..R25`), resolve the questionnaire using the 3-tier hierarchy:
-1. **Tier 1 (Project Folder)**: Check local project files or proposal text.
-2. **Tier 2 (Excel Registry)**: Query `Questionnaires.xlsx` (4,880 rows) for subscale item lists, scoring methods, and reverse keys.
-3. **Tier 3 (Google Drive Library)**: Search `/Pending Works/Questionnaire(s)/` (2,206 documents) for original instruments and scoring manuals.
-
-Execute automated scoring and factor extraction:
+### Step 0: Psychometric Ingestion & Factor Scoring
+When the student provides raw item responses (e.g. `Q1..Q25` or `R1..R25`), invoke the **`psychometric-scale-resolver`** skill to resolve the scale via the 3-tier hierarchy (`Questionnaires.xlsx` / Google Drive library), reverse negatively keyed items, and generate composite factor scores:
 ```bash
-# Search registry & library
-python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py search "Connor-Davidson"
-
-# Inspect profile, subscales, and reverse keys
-python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py profile "Connor-Davidson Resilience Scale"
-
-# Automatically reverse negative items and compute subscale sums/means + Cronbach alpha
-python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py score \
+# Invert reverse items and compute subscales + total score via psychometric-scale-resolver:
+python3 .agents/skills/psychometric-scale-resolver/scripts/questionnaire_resolver.py score \
   --data "data_raw.xlsx" \
   --scale "Connor-Davidson Resilience Scale" \
   --prefix "Q" \
   --out "data_scored.xlsx"
 ```
+Once scored, proceed with inferential statistical hypothesis testing on `data_scored.xlsx`.
 
 ### Step 1: Inspect Dataset
 Inspect the provided data file using Python:
