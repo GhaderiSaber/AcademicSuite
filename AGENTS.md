@@ -61,13 +61,14 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`persian-discussion-builder`** | [.agents/skills/persian-discussion-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-discussion-builder) | User requests writing Chapter 5 (بحث و نتیجه‌گیری) interpreting statistical findings against literature. | Chapter 4 results (`stats_results.json`) + Chapter 2 literature | `فصل پنجم: بحث و نتیجه‌گیری.docx` with clinical implications and limitations. |
 | **`persian-thesis-builder`** | [.agents/skills/persian-thesis-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-builder) | User wants to compile, merge, format, or assemble all modular thesis parts into a unified university document. | Master `.docx` template + Chapters 1-5 + References + Scales | `Thesis_Compiled.docx` (Complete dissertation meeting university formatting rules). |
 | **`persian-thesis-revision-assistant`** | [.agents/skills/persian-thesis-revision-assistant/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-revision-assistant) | User needs to review, extract, and resolve supervisor/examiner comments and produce the formal response table. | Reviewed `.docx` with comments or feedback text | `جدول_پاسخ_به_نظرات_اساتید.docx` + revised chapters. |
+| **`persian-defense-presentation-builder`** | [.agents/skills/persian-defense-presentation-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-defense-presentation-builder) | User requests creating defense slides (.pptx) or preparing for the viva voce oral defense before examiners. | Completed thesis / chapters / stats_results.json | `جلسه_دفاع.pptx` (16:9 widescreen, RTL OpenXML, Iranian typography, and candidate Speaker Notes). |
 | **`academic-article-writer`** | [.agents/skills/academic-article-writer/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-article-writer) | User requests drafting, structuring, or compiling an academic journal article from thesis chapters and project data for ISI/Scopus (English) or ISC (Persian). | Full project artifacts (Proposal, Lit Review, Stats JSON, Ch 5) | `Academic_Article_Manuscript.docx` (English) or `مقاله_علمی_پژوهشی.docx` (Persian) meeting IMRaD & APA 7 standards. |
 
 ---
 
 ## 3. Data & Artifact Workflow Architecture
 
-The skills are modular and designed to pass standard artifacts between each other across the entire research and publication lifecycle:
+The skills are modular and designed to pass standard artifacts between each other across the entire research, defense, and publication lifecycle:
 
 ```
 [Research Idea / Variables] ──► (persian-proposal-builder)         ──► Proposal / Ch 1 & 3 (.docx)
@@ -90,18 +91,31 @@ The skills are modular and designed to pass standard artifacts between each othe
                                                                                 ▼
 [All Chapters + Template]   ──► (persian-thesis-builder)              ──► Master Thesis (.docx)
                                                                                 │
-                                                                                ▼
-[Supervisor/Jury Review]    ──► (persian-thesis-revision-assistant)   ──► Response Table (.docx)
-                                                                                │
-                                                                                ▼
-[Completed Thesis & Data]   ──► (academic-article-writer)             ──► Journal Manuscript (.docx)
-                                                                            ├── Track A: ISI / Scopus (English)
-                                                                            └── Track B: ISC Scientific-Research (Persian)
+                                        ┌───────────────────────────────────────┴───────────────────────────────────────┐
+                                        ▼                                                                               ▼
+[Supervisor/Jury Review] ──► (persian-thesis-revision-assistant)                                [Completed Thesis & Data]
+                                        │                                                                               │
+                                        ▼                                                                               ▼
+                            Response Table (.docx)                                              (academic-article-writer)
+                                        │                                                                               │
+                                        ▼                                                                               ▼
+[Defense Session Prep]   ──► (persian-defense-presentation-builder)                            Journal Manuscript (.docx)
+                                        │                                                       ├── Track A: ISI / Scopus (EN)
+                                        ▼                                                       └── Track B: ISC علمی-پژوهشی (FA)
+                            جلسه_دفاع.pptx (RTL OpenXML + Speaker Notes)
 ```
 
 ---
 
 ## 4. Python Environment & CLI Command Reference
+
+### Defense Presentation Compilation (PowerPoint .pptx):
+```bash
+python3 .agents/skills/persian-defense-presentation-builder/scripts/compile_defense_presentation.py \
+  --json "defense_payload.json" \
+  --output "جلسه_دفاع_پایان_نامه.pptx" \
+  --theme academic_navy
+```
 
 ### Master Thesis Compilation:
 ```bash

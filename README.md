@@ -24,7 +24,9 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Cross-platform OpenXML compilation engine (`compile_full_thesis.py`) that fuses institutional Master Word templates (`.docx`) with modular chapter drafts, unified references, dynamic questionnaire appendices, and Persian typography (*B Titr*, *B Nazanin*, *B Lotus*).
 8. **Supervisor Revision Assistant ([persian-thesis-revision-assistant](.agents/skills/persian-thesis-revision-assistant/))**:
    Extracts Word comments and margin annotations from reviewed drafts, triages requested edits, applies targeted revisions, and generates the official Point-by-Point Response Table (`جدول_پاسخ_به_نظرات_اساتید.docx`).
-9. **Academic Article Writer ([academic-article-writer](.agents/skills/academic-article-writer/))**:
+9. **Master Thesis Defense Presentation ([persian-defense-presentation-builder](.agents/skills/persian-defense-presentation-builder/))**:
+   Synthesizes thesis chapters, statistical findings, and discussion models into a defense-ready 16:9 widescreen PowerPoint presentation (`.pptx`) with native RTL OpenXML formatting, authentic Iranian academic typography (*B Titr*, *B Nazanin*), visual card containers, and comprehensive oral candidate Speaker Notes (متن گفتار دانشجو).
+10. **Academic Article Writer ([academic-article-writer](.agents/skills/academic-article-writer/))**:
    Synthesizes all heterogeneous project artifacts (theses, Chapter 4 statistical data, translated literature, and psychometric scales) into high-impact, publication-grade academic journal articles adhering to international peer-review standards (IMRaD, APA 7th Edition, JARS) for both International English journals (ISI / Scopus Q1/Q2) and Iranian Scientific-Research journals (علمی-پژوهشی / ISC).
 
 ---
@@ -38,6 +40,7 @@ AcademicSuite/
 │       ├── academic-article-writer/            # ISI/Scopus & ISC journal article compiler
 │       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
 │       ├── persian-academic-translation/       # Psychology translation & terminology engine
+│       ├── persian-defense-presentation-builder/ # Defense slide deck (.pptx) & speaker notes compiler
 │       ├── persian-discussion-builder/         # Chapter 5 discussion & theoretical explanation
 │       ├── persian-proposal-builder/           # Research proposal & methodology builder
 │       ├── persian-thesis-builder/             # Generic cross-platform thesis compiler
@@ -127,6 +130,15 @@ python3 .agents/skills/persian-thesis-builder/scripts/compile_full_thesis.py \
   --scales "Connor-Davidson Resilience Scale, Penn State Worry Questionnaire"
 ```
 
+### Master Thesis Defense Presentation (PowerPoint .pptx)
+Generate a defense slide deck (16:9 widescreen, RTL OpenXML, B Titr/Nazanin) with candidate oral speaker notes:
+```bash
+python3 .agents/skills/persian-defense-presentation-builder/scripts/compile_defense_presentation.py \
+  --json "defense_payload.json" \
+  --output "جلسه_دفاع_پایان_نامه.pptx" \
+  --theme academic_navy
+```
+
 ### Academic Article Compilation (ISI/Scopus or ISC)
 Given structured article data synthesized from project files:
 ```bash
@@ -152,6 +164,7 @@ Simply instruct your Antigravity agent:
 - *"Extract EndNote citations for all references in Chapter 2."*
 - *"Compile the whole thesis into the university master template with questionnaire appendices."*
 - *"Review supervisor margin comments on my thesis and generate the response table."*
+- *"Generate defense presentation slides (.pptx) with candidate speaker notes from my completed thesis."*
 - *"Synthesize my thesis and Chapter 4 dataset into an ISI journal article in English."*
 - *"Draft an ISC scientific-research article in Persian from this completed thesis."*
 
