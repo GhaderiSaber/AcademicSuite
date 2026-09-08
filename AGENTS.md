@@ -54,6 +54,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | Skill Name | Path | When to Activate | Core Inputs | Primary Deliverables |
 | :--- | :--- | :--- | :--- | :--- |
 | **`persian-proposal-builder`** | [.agents/skills/persian-proposal-builder/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/persian-proposal-builder) | User requests writing or refining a graduate research proposal (پروپوزال), drafting Chapter 1 or Chapter 3, or calculating sample size. | Research topic, variables, population, instruments | `پروپوزال_طرح_پژوهش.docx` meeting university review council rules. |
+| **`psychological-intervention-protocol-builder`** | [.agents/skills/psychological-intervention-protocol-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychological-intervention-protocol-builder) | User requests drafting or compiling an experimental intervention protocol (ACT, CBT, Schema, CFT, MBSR, Positive Psychotherapy) for Chapter 3 or thesis appendix. | Treatment approach, target population, session count | `پروتکل_مداخله.docx` (Ch 3 table + Appendix manual) + `protocol_summary.json`. |
 | **`persian-academic-translation`** | [.agents/skills/persian-academic-translation/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/persian-academic-translation) | User requests translating English papers, book chapters, or theoretical frameworks into academic Persian. | English PDF / DOCX / TXT papers | `*_fa.docx` formatted with academic terminology and preserved citations. |
 | **`academic-reference-extractor`** | [.agents/skills/academic-reference-extractor/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-reference-extractor) | User needs EndNote/Zotero citations for a translated paper or specific thesis chapter. | Translated text with citations + Master paper bibliography | `.enw` (EndNote), `.ris` (Zotero/Mendeley), and `.txt` (APA list). |
 | **`psychometric-scale-resolver`** | [.agents/skills/psychometric-scale-resolver/](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychometric-scale-resolver) | User needs to identify questionnaires, extract subscale factor structures, scoring methods, reverse-scoring keys, or score raw survey items. | Raw items (`Q1..Q40`) or Scale query + `Questionnaires.xlsx` | `data_scored.xlsx` + factor subscales + Cronbach's $\alpha$. |
@@ -72,8 +73,9 @@ The skills are modular and designed to pass standard artifacts between each othe
 
 ```
 [Research Idea / Variables] ──► (persian-proposal-builder)         ──► Proposal / Ch 1 & 3 (.docx)
-                                                                                │
-                                                                                ▼
+            │                                                                   │
+            ├─────────────────► (psychological-intervention-protocol-builder) ─┤ ──► Ch 3 Table & Protocol Manual
+            │                                                                   ▼
 [Raw English Literature]    ──► (persian-academic-translation)      ──► Chapter 2 Lit (.docx)
                                                                                 │
                                                                                 ▼
@@ -108,6 +110,15 @@ The skills are modular and designed to pass standard artifacts between each othe
 ---
 
 ## 4. Python Environment & CLI Command Reference
+
+### Intervention Protocol Compilation (Chapter 3 Table & Appendix Manual):
+```bash
+python3 .agents/skills/psychological-intervention-protocol-builder/scripts/compile_intervention_protocol.py \
+  --preset act \
+  --target-population "بیماران مبتلا به دردهای مزمن عضلانی-اسکلتی" \
+  --output-docx "پروتکل_مداخله_اکت.docx" \
+  --output-json "protocol_act.json"
+```
 
 ### Defense Presentation Compilation (PowerPoint .pptx):
 ```bash

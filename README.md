@@ -10,23 +10,25 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
 
 1. **Research Proposal ([persian-proposal-builder](.agents/skills/persian-proposal-builder/))**:
    Formulates graduate research proposals, problem statements (بیان مسئله) via the inverted-triangle model, directional hypotheses, definitions, G*Power sample sizes, and Chapters 1 & 3.
-2. **Academic Translation ([persian-academic-translation](.agents/skills/persian-academic-translation/))**:
+2. **Intervention Protocol & Manual Builder ([psychological-intervention-protocol-builder](.agents/skills/psychological-intervention-protocol-builder/))**:
+   Designs and compiles standardized clinical and educational intervention protocols (ACT, CBT, Schema Therapy, CFT, MBSR, Positive Psychotherapy), generating Chapter 3 APA 7 session summary tables and comprehensive Appendix session-by-session clinical manuals in Word (`.docx`) and structured JSON.
+3. **Academic Translation ([persian-academic-translation](.agents/skills/persian-academic-translation/))**:
    Translates English journal papers into formal academic Persian with specialized psychological terminology and proper half-space typography (نیم‌فاصله) for Chapter 2.
-3. **Reference Extraction ([academic-reference-extractor](.agents/skills/academic-reference-extractor/))**:
+4. **Reference Extraction ([academic-reference-extractor](.agents/skills/academic-reference-extractor/))**:
    Extracts in-text citations from translated sections and generates clean EndNote (`.enw`), RIS (`.ris`), and APA 7 (`.txt`) citation libraries.
-4. **Psychometric Scale Resolution ([psychometric-scale-resolver](.agents/skills/psychometric-scale-resolver/))**:
+5. **Psychometric Scale Resolution ([psychometric-scale-resolver](.agents/skills/psychometric-scale-resolver/))**:
    Specialized psychometric instrument engine executing 3-tier search (`Questionnaires.xlsx`, local project docs, cloud drive archive), item-to-factor mapping, reverse-scoring algebra, subscale aggregation, and Cronbach's alpha verification.
-5. **Statistical Analysis & Chapter 4 ([statistical-data-analyst](.agents/skills/statistical-data-analyst/))**:
+6. **Statistical Analysis & Chapter 4 ([statistical-data-analyst](.agents/skills/statistical-data-analyst/))**:
    Deterministic calculation engine (`pandas`, `scipy`, `statsmodels`) that ingests SPSS (`.sav`), Excel (`.xlsx`), and CSV data, verifies assumptions, tests hypotheses (ANCOVA, Hierarchical Regression, Mediation with 5,000 bootstrap resamples), and outputs publication-ready APA 7 Persian Word (`.docx`) tables and Chapter 4 reports.
-6. **Discussion & Synthesis ([persian-discussion-builder](.agents/skills/persian-discussion-builder/))**:
+7. **Discussion & Synthesis ([persian-discussion-builder](.agents/skills/persian-discussion-builder/))**:
    Synthesizes Chapter 4 statistical findings with Chapter 2 literature to draft Chapter 5 (بحث و نتیجه‌گیری) using theoretical mechanisms, clinical implications, limitations, and recommendations.
-7. **Master Thesis Assembly ([persian-thesis-builder](.agents/skills/persian-thesis-builder/))**:
+8. **Master Thesis Assembly ([persian-thesis-builder](.agents/skills/persian-thesis-builder/))**:
    Cross-platform OpenXML compilation engine (`compile_full_thesis.py`) that fuses institutional Master Word templates (`.docx`) with modular chapter drafts, unified references, dynamic questionnaire appendices, and Persian typography (*B Titr*, *B Nazanin*, *B Lotus*).
-8. **Supervisor Revision Assistant ([persian-thesis-revision-assistant](.agents/skills/persian-thesis-revision-assistant/))**:
+9. **Supervisor Revision Assistant ([persian-thesis-revision-assistant](.agents/skills/persian-thesis-revision-assistant/))**:
    Extracts Word comments and margin annotations from reviewed drafts, triages requested edits, applies targeted revisions, and generates the official Point-by-Point Response Table (`جدول_پاسخ_به_نظرات_اساتید.docx`).
-9. **Master Thesis Defense Presentation ([persian-defense-presentation-builder](.agents/skills/persian-defense-presentation-builder/))**:
+10. **Master Thesis Defense Presentation ([persian-defense-presentation-builder](.agents/skills/persian-defense-presentation-builder/))**:
    Synthesizes thesis chapters, statistical findings, and discussion models into a defense-ready 16:9 widescreen PowerPoint presentation (`.pptx`) with native RTL OpenXML formatting, authentic Iranian academic typography (*B Titr*, *B Nazanin*), visual card containers, and comprehensive oral candidate Speaker Notes (متن گفتار دانشجو).
-10. **Academic Article Writer ([academic-article-writer](.agents/skills/academic-article-writer/))**:
+11. **Academic Article Writer ([academic-article-writer](.agents/skills/academic-article-writer/))**:
    Synthesizes all heterogeneous project artifacts (theses, Chapter 4 statistical data, translated literature, and psychometric scales) into high-impact, publication-grade academic journal articles adhering to international peer-review standards (IMRaD, APA 7th Edition, JARS) for both International English journals (ISI / Scopus Q1/Q2) and Iranian Scientific-Research journals (علمی-پژوهشی / ISC).
 
 ---
@@ -45,6 +47,7 @@ AcademicSuite/
 │       ├── persian-proposal-builder/           # Research proposal & methodology builder
 │       ├── persian-thesis-builder/             # Generic cross-platform thesis compiler
 │       ├── persian-thesis-revision-assistant/  # Word comment extractor & response table builder
+│       ├── psychological-intervention-protocol-builder/ # Evidence-based treatment manual & Ch 3 table builder
 │       ├── psychometric-scale-resolver/        # Questionnaire resolution, scoring & psychometrics
 │       └── statistical-data-analyst/           # Statistical testing & Chapter 4 builder
 ├── AGENTS.md                                   # Canonical agent behavioral rules & directives
@@ -155,8 +158,19 @@ python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.
   --lang fa
 ```
 
+### Intervention Protocol Compilation (Chapter 3 Table & Appendix Manual)
+Generate standardized session summary tables for Chapter 3 and comprehensive Appendix clinical manuals:
+```bash
+python3 .agents/skills/psychological-intervention-protocol-builder/scripts/compile_intervention_protocol.py \
+  --preset act \
+  --target-population "بیماران مبتلا به دردهای مزمن عضلانی-اسکلتی" \
+  --output-docx "پروتکل_مداخله_اکت.docx" \
+  --output-json "protocol_act.json"
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
+- *"Generate an 8-session ACT intervention protocol and Chapter 3 table for chronic pain patients."*
 - *"Find the subscales, scoring method, and questions for Connor-Davidson Resilience Scale."*
 - *"Score this raw survey file using the Penn State Worry Questionnaire keys and reverse items."*
 - *"Analyze this SPSS dataset and write Chapter 4 in Persian Word format."*
