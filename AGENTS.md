@@ -78,6 +78,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`literature-harvester`** | [.agents/skills/literature-harvester/](file:///Users/saber/Desktop/academic_suite/.agents/skills/literature-harvester) | User requests automated literature search, extracting empirical parameters (sample size N, design, scales, findings) from PubMed, CrossRef, Semantic Scholar, SID, or Magiran, or compiling Chapter 2 empirical review matrices and RIS citation files. | Research keywords or search query payload | `گزارش_جامع_پیشینه_پژوهش_استخراج‌شده.docx` + `harvested_empirical_studies.xlsx` + `harvested_citations.ris` + `harvested_studies.json`. |
 | **`bibliometric-network-analyst`** | [.agents/skills/bibliometric-network-analyst/](file:///Users/saber/Desktop/academic_suite/.agents/skills/bibliometric-network-analyst) | User requests science mapping, keyword co-occurrence analysis, Bradford's Law journal scattering, Lotka's author productivity, NetworkX centralities, Callon's 4-quadrant strategic diagram, or VOSviewer native map/network exports. | Literature payload (`.json`, `.csv`, `.ris`) | `گزارش_تحلیل_علم‌سنجی_و_ترسیم_نقشه_دانش.docx` + `bibliometric_network_map.png` + `thematic_strategic_map.png` + `vosviewer_map.txt` + `vosviewer_network.txt` + `bibliometric_matrix.xlsx` (5 sheets). |
 | **`citation-network-visualizer`** | [.agents/skills/citation-network-visualizer/](file:///Users/saber/Desktop/academic_suite/.agents/skills/citation-network-visualizer) | User requests direct citation analysis, algorithmic historiography (HistCite chronomaps), Local Citation Score (LCS) vs Global Citation Score (GCS), Search Path Count (SPC) edge weights, or Main Path Analysis (MPA). | Direct citation payload (`.json` or `.csv`) | `گزارش_تحلیل_مسیر_اصلی_و_نگاشت_تاریخی_استنادات.docx` + `citation_chronomap.png` (300 DPI) + `main_path_trajectory.png` (300 DPI) + `citation_matrix.xlsx` (5 sheets). |
+| **`digital-twin-academic-consultant`** | [.agents/skills/digital-twin-academic-consultant/](file:///Users/saber/Desktop/academic_suite/.agents/skills/digital-twin-academic-consultant) | Automates Telegram client interactions, proposal analysis & pricing quotation in Tomans, psychometric scale lookup, admin review desk (Saber ID: 124911145), and chat export FAQ calibration. | Student proposal (.docx/.pdf/text), Telegram export (result.json), or Telegram queries | Itemized pricing card (`telegram_card.txt`), `proposal_quote.md`, `quote_summary.json`, `calibrated_knowledge.json`. |
 
 ---
 
@@ -417,6 +418,21 @@ python3 .agents/skills/citation-network-visualizer/scripts/citation_visualizer_e
   --output-dir "./historiography_results" \
   --language fa \
   --main-path global
+```
+
+#### Run Digital Twin Academic Consultant & Telegram Bot (Skill #26):
+```bash
+# 1. Analyze proposal and generate itemized quote in Tomans
+python3 .agents/skills/digital-twin-academic-consultant/scripts/proposal_price_estimator.py \
+  --input /path/to/proposal.docx \
+  --telegram-card --admin
+
+# 2. Ingest Telegram export to calibrate consulting FAQs
+python3 .agents/skills/digital-twin-academic-consultant/scripts/telegram_chat_analyzer.py \
+  --input /path/to/result.json --update-persona
+
+# 3. Run bot daemon test simulation (offline)
+python3 .agents/skills/digital-twin-academic-consultant/scripts/telegram_bot_daemon.py --test-mode
 ```
 
 ---

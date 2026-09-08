@@ -58,6 +58,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Automated bibliometric science mapping and network topology engine compatible with VOSviewer and Bibliometrix: evaluates Bradford's Law journal scattering (Zone 1 core vs peripheral), Lotka's Law author productivity, keyword co-occurrence centralities (Degree, Betweenness conceptual bridges, Closeness), and Callon's 4-Quadrant Strategic Diagram (Motor, Niche, Emerging/Declining, Basic Themes). Exports native VOSviewer map and network files (`vosviewer_map.txt`, `vosviewer_network.txt`), dual 300-DPI publication plots (`bibliometric_network_map.png`, `thematic_strategic_map.png`), 5-sheet Excel workbooks (`bibliometric_matrix.xlsx`), and defense-ready Chapter 2 Word reports (`.docx`) with OpenXML BiDi RTL.
 25. **Citation Network Visualizer & Main Path Analyst ([citation-network-visualizer](.agents/skills/citation-network-visualizer/))**:
    Historical direct citation network and algorithmic historiography engine based on Eugene Garfield's HistCite framework and Hummon & Doreian's (1989) Main Path Analysis (MPA): builds chronological citation graphs (chronomaps) along a causal time axis, calculates Local Citation Score (LCS) vs. Global Citation Score (GCS), Search Path Count (SPC) edge weights via topological dynamic programming, and extracts Global, Local, and Key-Route Main Path trajectories tracing the evolutionary intellectual backbone across paradigm shifts. Exports 300-DPI visual figures (`citation_chronomap.png`, `main_path_trajectory.png`), 5-sheet Excel matrices (`citation_matrix.xlsx`), and publication-grade Chapter 2 Word reports (`.docx`) with OpenXML BiDi RTL.
+26. **Digital Twin Academic Consultant & Telegram Bot ([digital-twin-academic-consultant](.agents/skills/digital-twin-academic-consultant/))**:
+   Automated Telegram client consulting and quotation engine representing Saber Ghaderi (`@GhaderiSaber`, ID: `124911145`): automatically ingests client proposals (`.docx`, `.pdf`, text), extracts research designs, sample sizes, and required statistical software, computes itemized pricing in Tomans with realistic timelines, searches 4,880 questionnaires in `Questionnaires.xlsx`, provides an Admin Review Desk for quotation approval, and ingests Telegram chat exports (`result.json`) to calibrate consulting FAQs.
 
 ---
 
@@ -73,6 +75,7 @@ AcademicSuite/
 │       ├── ai-academic-tone-polisher/          # Academic tone polisher, burstiness optimizer & anti-AI refiner
 │       ├── bibliometric-network-analyst/       # VOSviewer/Bibliometrix science mapping & Callon strategic diagram
 │       ├── citation-network-visualizer/        # HistCite chronomaps, LCS/GCS & Main Path Analysis (SPC)
+│       ├── digital-twin-academic-consultant/   # Digital Saber Telegram bot, proposal pricing & scale search
 │       ├── gpower-sample-size-calculator/      # G*Power sample size, power curves & Chapter 3 justifications
 │       ├── irandoc-plagiarism-reducer/         # Irandoc similarity reduction & academic paraphraser
 │       ├── journal-submission-assistant/       # Submission collateral, CRediT taxonomy & rebuttal tables

@@ -1,0 +1,10 @@
+{
+  "bot_token": "YOUR_TELEGRAM_BOT_TOKEN_FROM_BOTFATHER",
+  "admin_id": 124911145,
+  "admin_handle": "@GhaderiSaber",
+  "auto_quote": false,
+  "default_currency": "تومان",
+  "work_dir": "/Users/saber/Desktop/academic_suite/.agents/skills/digital-twin-academic-consultant/scripts/bot_storage",
+  "persona_path": "/Users/saber/Desktop/academic_suite/.agents/skills/digital-twin-academic-consultant/references/saber_persona.json",
+  "questionnaires_path": "/Users/saber/Desktop/academic_suite/Questionnaires.xlsx"
+}
