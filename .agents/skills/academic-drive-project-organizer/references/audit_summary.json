@@ -1,0 +1,599 @@
+{
+  "directory_path": "/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive/Pending Works",
+  "total_items": 44,
+  "total_project_folders": 42,
+  "loose_files_count": 2,
+  "loose_files": [
+    "Course Elements.docx",
+    "Course Elements۱.docx"
+  ],
+  "temp_junk_count": 0,
+  "fragmented_clients_count": 6,
+  "fragmented_clients": {
+    "mehrane khorasani": [
+      "Mehrane Khorasani",
+      "Mehrane"
+    ],
+    "reyhaneh hasani": [
+      "Reyhaneh Hasani",
+      "Reyhaneh Hasani Articles"
+    ],
+    "shahram model": [
+      "Shahram Model Data 17",
+      "Shahram Model Data 2",
+      "Shahram Model Data 18",
+      "Shahram Model Data 11",
+      "Shahram Model Data 16",
+      "Shahram Model Analysis 2",
+      "Shahram Model Analysis",
+      "Shahram Model Data",
+      "Shahram Model Data 13",
+      "Shahram Model Data 14",
+      "Shahram Model Data 15",
+      "Shahram Model 3",
+      "Shahram Model Data 12",
+      "Shahram Model Analysis 1"
+    ],
+    "shahram manova": [
+      "Shahram Manova Data 3",
+      "Shahram Manova Data 2",
+      "Shahram Manova Data"
+    ],
+    "shahram questionnaire": [
+      "Shahram Questionnaire Data",
+      "Questionnaire"
+    ],
+    "rahmaneh azadeghan": [
+      "Rahmaneh Azadeghan",
+      "Rahmaneh Azadeghan Article"
+    ]
+  },
+  "project_audits": [
+    {
+      "folder_name": "Akram Mehrshadan",
+      "total_files": 11,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 8,
+        "02_analysis_code": 0,
+        "03_deliverables": 2,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 1
+      }
+    },
+    {
+      "folder_name": "Ala Ghapanchi",
+      "total_files": 20,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 14,
+        "02_analysis_code": 2,
+        "03_deliverables": 4,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Fateme Osati",
+      "total_files": 29,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 11,
+        "02_analysis_code": 4,
+        "03_deliverables": 9,
+        "04_references_and_lit": 3,
+        "already_structured": 0,
+        "temp_junk": 2
+      }
+    },
+    {
+      "folder_name": "Firuzi",
+      "total_files": 37,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 18,
+        "02_analysis_code": 8,
+        "03_deliverables": 9,
+        "04_references_and_lit": 2,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Hamid Amiri Article",
+      "total_files": 22,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 7,
+        "02_analysis_code": 2,
+        "03_deliverables": 8,
+        "04_references_and_lit": 5,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Iravani",
+      "total_files": 34,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 22,
+        "02_analysis_code": 0,
+        "03_deliverables": 0,
+        "04_references_and_lit": 12,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Marziyeh Sinayi",
+      "total_files": 21,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 12,
+        "02_analysis_code": 0,
+        "03_deliverables": 9,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Mehrane",
+      "total_files": 2,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 2,
+        "02_analysis_code": 0,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Mehrane Khorasani",
+      "total_files": 7,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 7,
+        "02_analysis_code": 0,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Mohtasham Valiyanpur",
+      "total_files": 45,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 26,
+        "02_analysis_code": 15,
+        "03_deliverables": 4,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Najmeh Eskandari",
+      "total_files": 5,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 3,
+        "02_analysis_code": 0,
+        "03_deliverables": 0,
+        "04_references_and_lit": 2,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Questionnaire",
+      "total_files": 2207,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 1813,
+        "02_analysis_code": 0,
+        "03_deliverables": 359,
+        "04_references_and_lit": 35,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Rahmaneh Azadeghan",
+      "total_files": 17,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 12,
+        "02_analysis_code": 0,
+        "03_deliverables": 5,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Rahmaneh Azadeghan Article",
+      "total_files": 6,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 1,
+        "02_analysis_code": 0,
+        "03_deliverables": 3,
+        "04_references_and_lit": 2,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Reyhane Shamsizade",
+      "total_files": 21,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 14,
+        "02_analysis_code": 0,
+        "03_deliverables": 5,
+        "04_references_and_lit": 2,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Reyhaneh Hasani",
+      "total_files": 18,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 11,
+        "02_analysis_code": 4,
+        "03_deliverables": 3,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Reyhaneh Hasani Articles",
+      "total_files": 23,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 16,
+        "02_analysis_code": 3,
+        "03_deliverables": 3,
+        "04_references_and_lit": 1,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Samaneh Basiti",
+      "total_files": 46,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 16,
+        "02_analysis_code": 0,
+        "03_deliverables": 29,
+        "04_references_and_lit": 1,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Sepideh Hoseyni",
+      "total_files": 1,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 1,
+        "02_analysis_code": 0,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Amiri",
+      "total_files": 15,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 9,
+        "02_analysis_code": 1,
+        "03_deliverables": 5,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram IRT",
+      "total_files": 12,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 5,
+        "02_analysis_code": 6,
+        "03_deliverables": 1,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Manova Data",
+      "total_files": 8,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 6,
+        "02_analysis_code": 2,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Manova Data 2",
+      "total_files": 6,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 4,
+        "02_analysis_code": 2,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Manova Data 3",
+      "total_files": 14,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 7,
+        "02_analysis_code": 7,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model 3",
+      "total_files": 0,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 0,
+        "02_analysis_code": 0,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Analysis",
+      "total_files": 12,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 6,
+        "02_analysis_code": 3,
+        "03_deliverables": 3,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Analysis 1",
+      "total_files": 5,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 3,
+        "02_analysis_code": 1,
+        "03_deliverables": 1,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Analysis 2",
+      "total_files": 5,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 3,
+        "02_analysis_code": 1,
+        "03_deliverables": 1,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Data",
+      "total_files": 0,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 0,
+        "02_analysis_code": 0,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Data 11",
+      "total_files": 11,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 6,
+        "02_analysis_code": 4,
+        "03_deliverables": 1,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Data 12",
+      "total_files": 11,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 6,
+        "02_analysis_code": 4,
+        "03_deliverables": 1,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Data 13",
+      "total_files": 20,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 11,
+        "02_analysis_code": 5,
+        "03_deliverables": 4,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Data 14",
+      "total_files": 17,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 9,
+        "02_analysis_code": 7,
+        "03_deliverables": 1,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Data 15",
+      "total_files": 17,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 9,
+        "02_analysis_code": 7,
+        "03_deliverables": 1,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Data 16",
+      "total_files": 12,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 9,
+        "02_analysis_code": 2,
+        "03_deliverables": 1,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Data 17",
+      "total_files": 7,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 4,
+        "02_analysis_code": 3,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Data 18",
+      "total_files": 9,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 6,
+        "02_analysis_code": 2,
+        "03_deliverables": 1,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Model Data 2",
+      "total_files": 0,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 0,
+        "02_analysis_code": 0,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Shahram Questionnaire Data",
+      "total_files": 32,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 24,
+        "02_analysis_code": 5,
+        "03_deliverables": 3,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "SmartPLS",
+      "total_files": 17,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 17,
+        "02_analysis_code": 0,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "Zahra Valikhani",
+      "total_files": 2,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 1,
+        "02_analysis_code": 0,
+        "03_deliverables": 1,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    },
+    {
+      "folder_name": "virastar UPDATE",
+      "total_files": 6,
+      "is_structured": false,
+      "file_counts": {
+        "01_raw_inputs": 6,
+        "02_analysis_code": 0,
+        "03_deliverables": 0,
+        "04_references_and_lit": 0,
+        "already_structured": 0,
+        "temp_junk": 0
+      }
+    }
+  ]
+}

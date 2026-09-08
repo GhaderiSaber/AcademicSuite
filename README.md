@@ -60,6 +60,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Historical direct citation network and algorithmic historiography engine based on Eugene Garfield's HistCite framework and Hummon & Doreian's (1989) Main Path Analysis (MPA): builds chronological citation graphs (chronomaps) along a causal time axis, calculates Local Citation Score (LCS) vs. Global Citation Score (GCS), Search Path Count (SPC) edge weights via topological dynamic programming, and extracts Global, Local, and Key-Route Main Path trajectories tracing the evolutionary intellectual backbone across paradigm shifts. Exports 300-DPI visual figures (`citation_chronomap.png`, `main_path_trajectory.png`), 5-sheet Excel matrices (`citation_matrix.xlsx`), and publication-grade Chapter 2 Word reports (`.docx`) with OpenXML BiDi RTL.
 26. **Digital Twin Academic Consultant & Telegram Bot ([digital-twin-academic-consultant](.agents/skills/digital-twin-academic-consultant/))**:
    Automated Telegram client consulting and quotation engine representing Saber Ghaderi (`@GhaderiSaber`, ID: `124911145`): automatically ingests client proposals (`.docx`, `.pdf`, text), extracts research designs, sample sizes, and required statistical software, computes itemized pricing in Tomans with realistic timelines, searches 4,880 questionnaires in `Questionnaires.xlsx`, provides an Admin Review Desk for quotation approval, and ingests Telegram chat exports (`result.json`) to calibrate consulting FAQs.
+27. **Academic Drive Project Organizer & Lifecycle Manager ([academic-drive-project-organizer](.agents/skills/academic-drive-project-organizer/))**:
+   Automated project lifecycle manager and structural organizer for academic research projects across Google Drive (`Pending Works`, `My Work`, `Finished Works`): audits directories for loose and fragmented client files, reorganizes project assets into a deterministic 4-tier taxonomy (`01_raw_inputs`, `02_analysis_code`, `03_deliverables`, `04_references_and_lit`), cross-references Duzen project milestones and payments to generate unified Master Project Catalogs (`.xlsx` and `.md`), provisions clean client folders with metadata, and executes safe lifecycle stage migrations with automated undo manifests.
 
 ---
 
@@ -70,6 +72,7 @@ AcademicSuite/
 ├── .agents/
 │   └── skills/
 │       ├── academic-article-writer/            # ISI/Scopus & ISC journal article compiler
+│       ├── academic-drive-project-organizer/   # Google Drive project organizer, 4-tier taxonomy & Duzen sync
 │       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
 │       ├── academic-suite-orchestrator/        # Master multi-stage pipeline & DAG workflow orchestrator
 │       ├── ai-academic-tone-polisher/          # Academic tone polisher, burstiness optimizer & anti-AI refiner
