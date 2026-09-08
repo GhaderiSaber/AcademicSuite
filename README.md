@@ -40,6 +40,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Generates realistic synthetic datasets using Monte Carlo simulation algorithms for Structural Equation Modeling (SEM), Confirmatory Factor Analysis (CFA), multi-item discrete Likert response scales (1–5, 1–7, 1–10) with indicator factor loadings ($\lambda$), measurement noise ($\theta$), and reverse items, and Randomized Clinical Trials (RCT) with repeated-measures pretest-posttest-followup designs. Exports multi-sheet Excel workbooks (`.xlsx`), CSV datasets, executable R `lavaan` scripts, and fit summaries.
 16. **Qualitative Data Analysis & Chapter 4 ([qualitative-data-analyst](.agents/skills/qualitative-data-analyst/))**:
    End-to-end qualitative analysis and reporting engine supporting **Braun & Clarke (2006, 2019, 2021) Reflexive Thematic Analysis** (6-phase pipeline, 3-tier theme hierarchy: Basic, Organizing, Global) and **Strauss & Corbin (1990, 1998) Systematic Grounded Theory** (open, axial, selective coding, and 6-dimension Paradigmatic Model). Computes inter-coder reliability (Holsti's PAO, Cohen's Kappa), conducts Lincoln & Guba (1985) trustworthiness audits, renders 300-DPI thematic network diagrams (`thematic_network.png`), exports 5-sheet coding matrices (`thematic_matrix.xlsx`), and compiles defense-ready Persian/English Chapter 4 Word reports (`.docx`).
+17. **Literature Review & Chapter 2 Synthesis ([persian-literature-review-builder](.agents/skills/persian-literature-review-builder/))**:
+   Translates and integrates English theoretical foundations from foreign dissertations and literature (strictly avoiding copying from Persian theses to prevent cliches and high Irandoc similarity), organizes recent Iranian (Magiran, SID, ISC) and international (Scopus, PubMed, WoS) empirical literature using a 5-part reporting formula, embeds APA 7 borderless empirical summary tables, articulates research gaps and conceptual frameworks, and compiles defense-ready Word (`.docx`) and multi-sheet Excel workbooks.
 
 ---
 
@@ -56,6 +58,7 @@ AcademicSuite/
 │       ├── persian-academic-translation/       # Psychology translation & terminology engine
 │       ├── persian-defense-presentation-builder/ # Defense slide deck (.pptx) & speaker notes compiler
 │       ├── persian-discussion-builder/         # Chapter 5 discussion & theoretical explanation
+│       ├── persian-literature-review-builder/  # Chapter 2 theoretical & empirical literature synthesizer
 │       ├── persian-proposal-builder/           # Research proposal & methodology builder
 │       ├── persian-thesis-builder/             # Generic cross-platform thesis compiler
 │       ├── persian-thesis-revision-assistant/  # Word comment extractor & response table builder
@@ -261,6 +264,15 @@ python3 .agents/skills/qualitative-data-analyst/scripts/qualitative_engine.py \
   --lang fa
 ```
 
+### Chapter 2 Literature Review & Empirical Matrix Compilation
+Synthesize foreign thesis theoretical chapters, organize Iranian/international empirical studies, and compile defense-ready Chapter 2 Word documents:
+```bash
+python3 .agents/skills/persian-literature-review-builder/scripts/literature_review_engine.py \
+  --json "ch2_payload.json" \
+  --out-dir "./chapter2_output" \
+  --lang fa
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
 - *"Rewrite Chapter 2 to reduce Irandoc similarity below 15% while keeping all citations intact."*
@@ -284,6 +296,8 @@ Simply instruct your Antigravity agent:
 - *"Analyze these 15 interview transcripts using Braun & Clarke Reflexive Thematic Analysis and generate the thematic network diagram and Chapter 4 report in Persian."*
 - *"Build a Strauss & Corbin Grounded Theory paradigmatic model for marital forgiveness and output the 5-sheet Excel matrix and Word dissertation chapter."*
 - *"Calculate Holsti's inter-coder reliability index and Cohen's Kappa between two independent raters for my qualitative coding."*
+- *"Compile Chapter 2 from these translated foreign dissertation sections, summarize 6 Iranian and 6 foreign empirical studies, and generate the APA 7 summary table in Word."*
+- *"Extract the research gap and conceptual model for my thesis on Internet Gaming Disorder and Ego Strength in Chapter 2."*
 
 ---
 

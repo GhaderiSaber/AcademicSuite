@@ -69,6 +69,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`systematic-review-meta-analyst`** | [.agents/skills/systematic-review-meta-analyst/](file:///Users/saber/Desktop/academic_suite/.agents/skills/systematic-review-meta-analyst) | User conducts or reports systematic review or meta-analysis (PRISMA 2020 & Cochrane RoB 2), pooling Hedges' g, calculating heterogeneity (Q, I², τ²), testing publication bias (Egger), or generating Forest & Funnel plots. | Trial outcome datasets (means, SDs, Ns) or screening numbers | `Meta_Analysis_Report.docx` + `forest_plot.png` + `funnel_plot.png` + `meta_analysis_statistics.json`. |
 | **`psychometric-data-simulator`** | [.agents/skills/psychometric-data-simulator/](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychometric-data-simulator) | User requests synthetic psychometric datasets, Monte Carlo SEM/CFA data generation, multi-item discrete Likert scale responses with reverse items, or randomized clinical trial (RCT) repeated-measures pre/post data. | Structural model parameters ($\mathbf{B}, \mathbf{\Gamma}$), factor loadings ($\mathbf{\Lambda}$), or RCT trial specifications | Multi-sheet Excel workbook (`.xlsx`), CSV dataset, executable R `lavaan` script (`lavaan_syntax.R`), and simulation summary JSON. |
 | **`qualitative-data-analyst`** | [.agents/skills/qualitative-data-analyst/](file:///Users/saber/Desktop/academic_suite/.agents/skills/qualitative-data-analyst) | User provides interview transcripts, focus groups, or qualitative data requiring Braun & Clarke Reflexive Thematic Analysis, Strauss & Corbin Grounded Theory, Paradigmatic Model (6 dimensions), or Chapter 4 qualitative reporting. | Interview transcripts / quotes / coding payload | `فصل_چهارم_یافته‌های_کیفی.docx` + `thematic_matrix.xlsx` + `thematic_network.png` (300 DPI) + `qualitative_summary.json`. |
+| **`persian-literature-review-builder`** | [.agents/skills/persian-literature-review-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-literature-review-builder) | User requests drafting, synthesizing, or compiling Chapter 2 (فصل دوم: مبانی نظری و پیشینه پژوهش), translating English theoretical foundations, organizing Iranian/international empirical studies, or building APA 7 summary tables. | Foreign dissertations/theses, variables, empirical study records | `فصل_دوم_مبانی_نظری_و_پیشینه_پژوهش.docx` + `empirical_literature_matrix.xlsx` + `literature_summary.json`. |
 
 ---
 
@@ -81,7 +82,7 @@ The skills are modular and designed to pass standard artifacts between each othe
             │                                                                   │
             ├─────────────────► (psychological-intervention-protocol-builder) ─┤ ──► Ch 3 Table & Protocol Manual
             │                                                                   ▼
-[Raw English Literature]    ──► (persian-academic-translation)      ──► Chapter 2 Lit (.docx)
+[Foreign Theses / Studies]  ──► (persian-literature-review-builder)  ──► Chapter 2 Lit (.docx) + Matrix (.xlsx)
                                                                                 │
                                                                                 ▼
 [In-Text Citations]         ──► (academic-reference-extractor)        ──► .enw / .ris / .txt
@@ -215,6 +216,14 @@ python3 .agents/skills/qualitative-data-analyst/scripts/qualitative_engine.py \
 python3 .agents/skills/qualitative-data-analyst/scripts/qualitative_engine.py \
   --json "grounded_theory_payload.json" \
   --out-dir "./qualitative_output_gt" \
+  --lang fa
+```
+
+### Chapter 2 Literature Review & Empirical Matrix Compilation:
+```bash
+python3 .agents/skills/persian-literature-review-builder/scripts/literature_review_engine.py \
+  --json "ch2_payload.json" \
+  --out-dir "./chapter2_output" \
   --lang fa
 ```
 
