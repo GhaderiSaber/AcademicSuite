@@ -9,6 +9,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Allow repository documentation and git configs
+# Allow repository documentation, agent instructions, and dependencies
 !.gitignore
 !README.md
+!AGENTS.md
+!requirements.txt
+!SETUP_GUIDE.md
