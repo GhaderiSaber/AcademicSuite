@@ -132,6 +132,12 @@ SKILL_REGISTRY = {
         "script": os.path.join(SKILLS_DIR, "thesis-integrity-auditor", "scripts", "audit_engine.py"),
         "default_sample": os.path.join(SKILLS_DIR, "thesis-integrity-auditor", "examples", "sample_audit_payload.json"),
         "desc": "Cross-chapter thesis integrity audit, hypothesis alignment, degrees of freedom & citation reconciliation"
+    },
+    "sample_size": {
+        "skill": "gpower-sample-size-calculator",
+        "script": os.path.join(SKILLS_DIR, "gpower-sample-size-calculator", "scripts", "gpower_engine.py"),
+        "default_sample": os.path.join(SKILLS_DIR, "gpower-sample-size-calculator", "examples", "sample_gpower_payload.json"),
+        "desc": "G*Power academic sample size determination, statistical power curves & Chapter 3 justifications"
     }
 }
 
@@ -515,6 +521,20 @@ class MasterAcademicOrchestrator:
             self.manifest["artifacts"]["audit_json"] = os.path.join(step_dir, "thesis_audit_summary.json")
             self.manifest["artifacts"]["audit_excel"] = os.path.join(step_dir, "annotated_citations.xlsx")
             return cmd, {"docx": out_docx, "dir": step_dir}
+
+        elif step == "sample_size":
+            script = info["script"]
+            json_payload = step_conf.get("payload_path") or info["default_sample"]
+            if not os.path.isabs(json_payload):
+                json_payload = os.path.join(REPO_ROOT, json_payload)
+            cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
+            out_docx = os.path.join(step_dir, "گزارش_محاسبه_حجم_نمونه_جی‌پاور.docx" if self.lang == "fa" else "GPower_Sample_Size_Report.docx")
+            plot_path = os.path.join(step_dir, "power_curve_plot.png")
+            self.manifest["artifacts"]["gpower_docx"] = out_docx
+            self.manifest["artifacts"]["gpower_plot"] = plot_path
+            self.manifest["artifacts"]["gpower_excel"] = os.path.join(step_dir, "sample_size_calculator_matrix.xlsx")
+            self.manifest["artifacts"]["gpower_json"] = os.path.join(step_dir, "gpower_results.json")
+            return cmd, {"docx": out_docx, "plot": plot_path, "dir": step_dir}
 
         else:
             raise ValueError(f"Unknown step '{step}'. Valid steps are: {list(SKILL_REGISTRY.keys())}")

@@ -1,0 +1,73 @@
+{
+  "study_metadata": {
+    "project_title": "اثربخشی درمان مبتنی بر پذیرش و تعهد (ACT) بر انعطاف‌پذیری روان‌شناختی و تنظیم شناختی هیجان در بیماران مبتلا به دردهای مزمن",
+    "project_title_en": "Effectiveness of Acceptance and Commitment Therapy (ACT) on Psychological Flexibility and Emotion Regulation in Chronic Pain Patients",
+    "author": "صابر قادری",
+    "supervisor": "دکتر علی اسماعیلی",
+    "advisor": "دکتر مریم رضایی",
+    "university": "دانشگاه تهران",
+    "faculty": "دانشکده روان‌شناسی و علوم تربیتی",
+    "department": "گروه روان‌شناسی بالینی",
+    "degree": "کارشناسی ارشد روان‌شناسی بالینی",
+    "academic_year": "۱۴۰۳-۱۴۰۴"
+  },
+  "primary_analysis": {
+    "test_family": "F-tests",
+    "statistical_test": "ANCOVA",
+    "test_label_fa": "تحلیل کوواریانس تک‌متغیری (ANCOVA)",
+    "analysis_type": "a_priori",
+    "alpha": 0.05,
+    "target_power": 0.85,
+    "effect_size": 0.25,
+    "effect_size_type": "f",
+    "effect_size_label": "متوسط (Medium: f = 0.25)",
+    "number_of_groups": 2,
+    "number_of_covariates": 1,
+    "allocation_ratio": 1.0,
+    "attrition_rate": 0.15
+  },
+  "alternative_analyses": [
+    {
+      "test_family": "F-tests",
+      "statistical_test": "Multiple Regression",
+      "test_label_fa": "رگرسیون خطی چندگانه (Fixed Model, R² from zero)",
+      "analysis_type": "a_priori",
+      "alpha": 0.05,
+      "target_power": 0.80,
+      "effect_size": 0.15,
+      "effect_size_type": "f2",
+      "number_of_predictors": 3
+    },
+    {
+      "test_family": "t-tests",
+      "statistical_test": "Independent Samples t-test",
+      "test_label_fa": "آزمون تی مستقل برای مقایسه دو گروه",
+      "analysis_type": "a_priori",
+      "alpha": 0.05,
+      "target_power": 0.80,
+      "effect_size": 0.50,
+      "effect_size_type": "d",
+      "tails": "two"
+    },
+    {
+      "test_family": "F-tests",
+      "statistical_test": "Repeated Measures ANOVA",
+      "test_label_fa": "تحلیل واریانس با اندازه‌گیری مکرر (تعامل بین-درون)",
+      "analysis_type": "a_priori",
+      "alpha": 0.05,
+      "target_power": 0.85,
+      "effect_size": 0.25,
+      "effect_size_type": "f",
+      "number_of_groups": 2,
+      "number_of_measurements": 3,
+      "correlation_among_measures": 0.50
+    }
+  ],
+  "sem_cfa_specification": {
+    "latent_variables": 3,
+    "observed_indicators": 15,
+    "expected_effect_size": 0.30,
+    "alpha": 0.05,
+    "target_power": 0.80
+  }
+}

@@ -48,6 +48,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Unified research orchestration engine that executes multi-stage, inter-skill pipelines across all 18 skills with 5 turnkey presets (`thesis_empirical`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`), automatic artifact handoffs, dependency DAG validation (`--dry-run`), step-level resumption (`--resume-from`), execution manifest generation (`orchestrator_manifest.json`), and comprehensive Markdown project dashboards (`PROJECT_DASHBOARD.md`).
 20. **Thesis Integrity & Cross-Chapter Forensic Auditor ([thesis-integrity-auditor](.agents/skills/thesis-integrity-auditor/))**:
    Automated academic jury, forensic proofreader, and cross-chapter consistency verification engine: audits hypothesis-result-discussion alignment (Ch 1 $\leftrightarrow$ Ch 4 $\leftrightarrow$ Ch 5), validates methodology sample sizes and degrees of freedom ($t$-test, ANOVA, ANCOVA, regression $df$), executes bidirectional citation reconciliation (orphaned in-text citations vs ghost bibliography entries, year mismatches), and enforces APA 7th Edition statistical formatting rules (leading zeroes, $p = .000$, effect sizes). Generates publication-grade audit Word reports (`.docx`), 5-sheet citation reconciliation workbooks (`.xlsx`), and machine-readable JSON summaries.
+21. **G*Power Academic Sample Size & Power Engine ([gpower-sample-size-calculator](.agents/skills/gpower-sample-size-calculator/))**:
+   Automated sample size determination and statistical power calculation engine based on Faul et al.'s (2007, 2009) G*Power 3.1 methodology and Cohen's (1988) power framework: computes a priori, post hoc, and sensitivity power for ANCOVA, ANOVA, Repeated Measures, Multiple Regression, $t$-tests, and SEM/CFA. Exports publication-grade Chapter 3 defense justifications (`.docx`), 300-DPI dual-panel power curve plots (`power_curve_plot.png`), multi-sheet Excel matrices (`.xlsx`), and structured JSON.
 
 ---
 
@@ -60,6 +62,7 @@ AcademicSuite/
 │       ├── academic-article-writer/            # ISI/Scopus & ISC journal article compiler
 │       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
 │       ├── academic-suite-orchestrator/        # Master multi-stage pipeline & DAG workflow orchestrator
+│       ├── gpower-sample-size-calculator/      # G*Power sample size, power curves & Chapter 3 justifications
 │       ├── irandoc-plagiarism-reducer/         # Irandoc similarity reduction & academic paraphraser
 │       ├── journal-submission-assistant/       # Submission collateral, CRediT taxonomy & rebuttal tables
 │       ├── persian-academic-translation/       # Psychology translation & terminology engine
@@ -327,8 +330,35 @@ python3 .agents/skills/thesis-integrity-auditor/scripts/audit_engine.py \
   --lang en
 ```
 
+### G*Power Academic Sample Size & Statistical Power Calculation
+Compute required sample sizes ($N$), generate 300-DPI power curve plots, and export Chapter 3 defense justifications:
+```bash
+# 1. ANCOVA Power Analysis (2 Groups, 1 Covariate, Effect Size f = 0.25, Power = 0.85)
+python3 .agents/skills/gpower-sample-size-calculator/scripts/gpower_engine.py \
+  --test ancova \
+  --groups 2 \
+  --covariates 1 \
+  --power 0.85 \
+  --effect-size 0.25 \
+  --out-dir "./sample_size_ancova" \
+  --lang fa
+
+# 2. Multiple Linear Regression Sample Size (3 Predictors, Medium Effect f² = 0.15)
+python3 .agents/skills/gpower-sample-size-calculator/scripts/gpower_engine.py \
+  --test regression \
+  --predictors 3 \
+  --power 0.80 \
+  --effect-size 0.15 \
+  --out-dir "./sample_size_regression" \
+  --lang fa
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
+- *"Calculate the required sample size for my Master's thesis using ANCOVA with 2 groups, 1 pre-test covariate, and 15% anticipated attrition."*
+- *"Generate the official G*Power Chapter 3 methodology writeup and power curve plot for my research proposal."*
+- *"Determine the minimum sample size for a multiple regression model with 4 predictors and medium effect size."*
+- *"Perform a sensitivity analysis: what is the minimum detectable effect size for my available sample of N = 60 subjects?"*
 - *"Audit my completed thesis: verify whether all Chapter 1 hypotheses are tested in Chapter 4 and discussed in Chapter 5."*
 - *"Check whether my degrees of freedom in ANCOVA and regression tables match the total sample size reported in Chapter 3."*
 - *"Reconcile all in-text citations against the reference list and flag any orphaned citations or ghost bibliography entries."*
