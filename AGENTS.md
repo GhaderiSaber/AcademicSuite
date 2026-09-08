@@ -65,6 +65,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`persian-thesis-revision-assistant`** | [.agents/skills/persian-thesis-revision-assistant/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-revision-assistant) | User needs to review, extract, and resolve supervisor/examiner comments and produce the formal response table. | Reviewed `.docx` with comments or feedback text | `جدول_پاسخ_به_نظرات_اساتید.docx` + revised chapters. |
 | **`persian-defense-presentation-builder`** | [.agents/skills/persian-defense-presentation-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-defense-presentation-builder) | User requests creating defense slides (.pptx) or preparing for the viva voce oral defense before examiners. | Completed thesis / chapters / stats_results.json | `جلسه_دفاع.pptx` (16:9 widescreen, RTL OpenXML, Iranian typography, and candidate Speaker Notes). |
 | **`academic-article-writer`** | [.agents/skills/academic-article-writer/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-article-writer) | User requests drafting, structuring, or compiling an academic journal article from thesis chapters and project data for ISI/Scopus (English) or ISC (Persian). | Full project artifacts (Proposal, Lit Review, Stats JSON, Ch 5) | `Academic_Article_Manuscript.docx` (English) or `مقاله_علمی_پژوهشی.docx` (Persian) meeting IMRaD & APA 7 standards. |
+| **`journal-submission-assistant`** | [.agents/skills/journal-submission-assistant/](file:///Users/saber/Desktop/academic_suite/.agents/skills/journal-submission-assistant) | User needs journal submission collateral (Cover Letter, Title Page with 14 CRediT roles, Highlights <= 85 chars, Declarations) or Point-by-Point Response to Reviewers for Revise & Resubmit. | Manuscript draft, metadata, or reviewer comments | `Cover_Letter.docx`, `Title_Page.docx`, `Highlights.docx`, `Response_to_Reviewers.docx`. |
 
 ---
 
@@ -103,15 +104,16 @@ The skills are modular and designed to pass standard artifacts between each othe
                                         │                                                                               │
                                         ▼                                                                               ▼
 [Supervisor/Jury Review] ──► (persian-thesis-revision-assistant)                                Journal Manuscript (.docx)
-                                        │                                                       ├── Track A: ISI / Scopus (EN)
-                                        ▼                                                       └── Track B: ISC علمی-پژوهشی (FA)
-                            Response Table (.docx)
-                                        │
-                                        ▼
-[Defense Session Prep]   ──► (persian-defense-presentation-builder)
-                                        │
-                                        ▼
-                            جلسه_دفاع.pptx (RTL OpenXML + Speaker Notes)
+                                        │                                                                               │
+                                        ▼                                                                               ▼
+                            Response Table (.docx)                                              (journal-submission-assistant)
+                                        │                                                                               │
+                                        ▼                                                                               ▼
+[Defense Session Prep]   ──► (persian-defense-presentation-builder)                             Submission Package (.docx)
+                                        │                                                       ├── 1. Cover Letter
+                                        ▼                                                       ├── 2. Title Page & CRediT
+                            جلسه_دفاع.pptx (RTL OpenXML + Speaker Notes)                        ├── 3. Highlights (<= 85 chars)
+                                                                                                └── 4. Response to Reviewers (R&R)
 ```
 
 ---
@@ -141,6 +143,21 @@ python3 .agents/skills/persian-defense-presentation-builder/scripts/compile_defe
   --json "defense_payload.json" \
   --output "جلسه_دفاع_پایان_نامه.pptx" \
   --theme academic_navy
+```
+
+### Journal Submission Collateral & Rebuttal Package Compilation:
+```bash
+# English Submission Package (ISI / Scopus Q1-Q4)
+python3 .agents/skills/journal-submission-assistant/scripts/compile_submission_package.py \
+  --json "submission_payload.json" \
+  --out-dir "./submission_package_en" \
+  --lang en
+
+# Persian Submission Package (علمی-پژوهشی / ISC)
+python3 .agents/skills/journal-submission-assistant/scripts/compile_submission_package.py \
+  --json "submission_payload_fa.json" \
+  --out-dir "./submission_package_fa" \
+  --lang fa
 ```
 
 ### Master Thesis Compilation:

@@ -32,6 +32,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Synthesizes thesis chapters, statistical findings, and discussion models into a defense-ready 16:9 widescreen PowerPoint presentation (`.pptx`) with native RTL OpenXML formatting, authentic Iranian academic typography (*B Titr*, *B Nazanin*), visual card containers, and comprehensive oral candidate Speaker Notes (متن گفتار دانشجو).
 12. **Academic Article Writer ([academic-article-writer](.agents/skills/academic-article-writer/))**:
    Synthesizes all heterogeneous project artifacts (theses, Chapter 4 statistical data, translated literature, and psychometric scales) into high-impact, publication-grade academic journal articles adhering to international peer-review standards (IMRaD, APA 7th Edition, JARS) for both International English journals (ISI / Scopus Q1/Q2) and Iranian Scientific-Research journals (علمی-پژوهشی / ISC).
+13. **Journal Submission Assistant ([journal-submission-assistant](.agents/skills/journal-submission-assistant/))**:
+   Packages research papers into publisher-compliant submission bundles for international (Elsevier, Springer, Wiley, MDPI) and Iranian ISC journals: formal Cover Letters to the Editor-in-Chief, Title Pages with standard 14 CRediT authorship taxonomy roles and ethical declarations, Highlights strictly validated to $\le 85$ characters, and APA 7 Point-by-Point Response to Reviewers rebuttal tables for Revise & Resubmit (R&R) decisions.
 
 ---
 
@@ -44,6 +46,7 @@ AcademicSuite/
 │       ├── academic-article-writer/            # ISI/Scopus & ISC journal article compiler
 │       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
 │       ├── irandoc-plagiarism-reducer/         # Irandoc similarity reduction & academic paraphraser
+│       ├── journal-submission-assistant/       # Submission collateral, CRediT taxonomy & rebuttal tables
 │       ├── persian-academic-translation/       # Psychology translation & terminology engine
 │       ├── persian-defense-presentation-builder/ # Defense slide deck (.pptx) & speaker notes compiler
 │       ├── persian-discussion-builder/         # Chapter 5 discussion & theoretical explanation
@@ -180,6 +183,22 @@ python3 .agents/skills/irandoc-plagiarism-reducer/scripts/paraphrase_engine.py \
   --output-report "گزارش_کاهش_همانندجویی.docx"
 ```
 
+### Journal Submission Collateral & Rebuttal Compilation
+Generate formal Cover Letters, Title Pages with standard 14 CRediT authorship taxonomy roles, verified Highlights ($\le 85$ chars), and Point-by-Point Response to Reviewers rebuttal tables:
+```bash
+# Compile English Submission Bundle (Cover Letter, Title Page, Highlights, Rebuttal)
+python3 .agents/skills/journal-submission-assistant/scripts/compile_submission_package.py \
+  --json "submission_payload.json" \
+  --out-dir "./submission_package_en" \
+  --lang en
+
+# Compile Persian Submission Bundle (علمی-پژوهشی / ISC)
+python3 .agents/skills/journal-submission-assistant/scripts/compile_submission_package.py \
+  --json "submission_payload_fa.json" \
+  --out-dir "./submission_package_fa" \
+  --lang fa
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
 - *"Rewrite Chapter 2 to reduce Irandoc similarity below 15% while keeping all citations intact."*
@@ -194,6 +213,8 @@ Simply instruct your Antigravity agent:
 - *"Generate defense presentation slides (.pptx) with candidate speaker notes from my completed thesis."*
 - *"Synthesize my thesis and Chapter 4 dataset into an ISI journal article in English."*
 - *"Draft an ISC scientific-research article in Persian from this completed thesis."*
+- *"Prepare the journal submission collateral package (Cover Letter, Title Page with CRediT roles, and Highlights) for Elsevier."*
+- *"Draft a point-by-point response to reviewers rebuttal table for my revised manuscript."*
 
 ---
 

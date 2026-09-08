@@ -1,0 +1,165 @@
+{
+  "manuscript_metadata": {
+    "title": "Efficacy of Acceptance and Commitment Therapy on Pain Acceptance and Psychological Inflexibility in Chronic Musculoskeletal Pain: A Randomized Controlled Trial",
+    "short_title": "ACT for Chronic Musculoskeletal Pain",
+    "running_head": "ACT for Chronic Pain Acceptance",
+    "article_type": "Original Research Article",
+    "journal_name": "Journal of Contextual Behavioral Science",
+    "publisher": "Elsevier",
+    "editor_in_chief": "Dr. Emily K. Sandoz",
+    "editorial_office": "Elsevier Publishing, Amsterdam, Netherlands",
+    "submission_date": "2026-09-08",
+    "word_counts": {
+      "abstract": 248,
+      "main_text": 5120,
+      "tables_count": 4,
+      "figures_count": 2,
+      "references_count": 46
+    }
+  },
+  "authors": [
+    {
+      "id": "author_1",
+      "first_name": "Saber",
+      "last_name": "Ghaderi",
+      "initials": "S. G.",
+      "degree": "Ph.D.",
+      "affiliation_ids": [1],
+      "email": "ghaderi.sabir@gmail.com",
+      "orcid": "0000-0002-1234-5678",
+      "is_corresponding": true,
+      "credit_roles": [
+        "Conceptualization",
+        "Methodology",
+        "Investigation",
+        "Formal analysis",
+        "Writing - original draft"
+      ]
+    },
+    {
+      "id": "author_2",
+      "first_name": "Maryam",
+      "last_name": "Hosseini",
+      "initials": "M. H.",
+      "degree": "Ph.D.",
+      "affiliation_ids": [1],
+      "email": "m.hosseini@example.ac.ir",
+      "orcid": "0000-0001-9876-5432",
+      "is_corresponding": false,
+      "credit_roles": [
+        "Data curation",
+        "Software",
+        "Validation",
+        "Visualization"
+      ]
+    },
+    {
+      "id": "author_3",
+      "first_name": "Alireza",
+      "last_name": "Moradi",
+      "initials": "A. M.",
+      "degree": "Ph.D.",
+      "affiliation_ids": [1, 2],
+      "email": "a.moradi@example.ac.ir",
+      "orcid": "0000-0003-4567-8901",
+      "is_corresponding": false,
+      "credit_roles": [
+        "Supervision",
+        "Project administration",
+        "Resources",
+        "Funding acquisition",
+        "Writing - review & editing"
+      ]
+    }
+  ],
+  "affiliations": [
+    {
+      "id": 1,
+      "department": "Department of Clinical Psychology, Faculty of Psychology and Education",
+      "institution": "University of Tehran",
+      "city": "Tehran",
+      "country": "Iran"
+    },
+    {
+      "id": 2,
+      "department": "Institute for Cognitive and Brain Sciences",
+      "institution": "Shahid Beheshti University",
+      "city": "Tehran",
+      "country": "Iran"
+    }
+  ],
+  "corresponding_author": {
+    "name": "Saber Ghaderi, Ph.D.",
+    "department": "Department of Clinical Psychology, Faculty of Psychology and Education",
+    "institution": "University of Tehran",
+    "address": "Jalal Al-e-Ahmad Highway, Tehran, 1411713114, Iran",
+    "email": "ghaderi.sabir@gmail.com",
+    "phone": "+98 21 6111 7400"
+  },
+  "cover_letter_content": {
+    "hook": "Chronic musculoskeletal pain remains one of the primary contributors to global disability, frequently exacerbated by experiential avoidance and behavioral inflexibility. Although pharmacological treatments offer palliative relief, psychological flexibility training has emerged as a transformative paradigm for functional restoration.",
+    "key_findings": "In this randomized controlled trial of 60 chronic pain patients, 8 weekly sessions of Acceptance and Commitment Therapy produced significant reductions in pain-related disability (ηp² = 0.34, p < .001) and psychological inflexibility (ηp² = 0.42, p < .001) compared to treatment-as-usual controls, with treatment gains fully sustained at 3-month follow-up.",
+    "novelty_statement": "To our knowledge, this is the first randomized investigation in the region to examine cognitive defusion and committed action as concurrent longitudinal mediators of pain acceptance trajectories using bootstrap confidence intervals.",
+    "fit_with_journal": "Given the Journal of Contextual Behavioral Science's preeminent reputation in contextual behavioral science and functional contextualist clinical interventions, we believe this manuscript will be of immediate interest to your international readership."
+  },
+  "highlights": [
+    "ACT significantly reduced pain disability in chronic pain patients (p < .001).",
+    "Psychological inflexibility was reduced with a large effect size (ηp² = .42).",
+    "Gains in pain acceptance were fully sustained at 3-month follow-up.",
+    "Cognitive defusion significantly mediated treatment outcomes over time."
+  ],
+  "declarations": {
+    "funding": "This research was supported by the University of Tehran Research Council (Grant No. UT-PSY-2025-104).",
+    "conflicts_of_interest": "The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.",
+    "ethics_approval": "The study protocol was approved by the Research Ethics Committee of the University of Tehran (Ethics Code: IR.UT.PSY.REC.1403.078) in full accordance with the 1964 Declaration of Helsinki and its subsequent amendments.",
+    "informed_consent": "Informed written consent was obtained from all individual participants prior to enrollment in the study.",
+    "consent_for_publication": "Not applicable; no identifying individual personal or clinical details are included.",
+    "data_availability": "The anonymized statistical datasets and analysis syntax generated during the current study are available from the corresponding author upon reasonable request.",
+    "acknowledgments": "The authors extend their sincere gratitude to the staff of the Tehran Pain Clinic and all participating patients for their dedication throughout the 12-week trial."
+  },
+  "suggested_reviewers": [
+    {
+      "name": "Prof. Lance M. McCracken",
+      "institution": "Uppsala University, Sweden",
+      "email": "lance.mccracken@psyk.uu.se",
+      "reason": "Leading authority on Acceptance and Commitment Therapy and pain acceptance mechanisms."
+    },
+    {
+      "name": "Prof. Kevin E. Vowles",
+      "institution": "Queen's University Belfast, UK",
+      "email": "k.vowles@qub.ac.uk",
+      "reason": "Extensive empirical publication track record on psychological flexibility in chronic pain populations."
+    }
+  ],
+  "revision_rebuttal": {
+    "manuscript_id": "JCBS-D-26-00412R1",
+    "decision_date": "2026-08-15",
+    "introductory_letter": "We thank the Editor and the two anonymous reviewers for their thoughtful, constructive, and comprehensive reviews of our manuscript. Their valuable insights have significantly enhanced the methodological precision, theoretical depth, and clinical clarity of this paper. Below, we provide point-by-point responses to all comments alongside exact page and line references to the revised manuscript (clean version).",
+    "reviewer_points": [
+      {
+        "reviewer": "Reviewer #1",
+        "comment_id": "R1.1",
+        "comment": "The authors should clarify how treatment fidelity was assessed across the 8 ACT intervention sessions.",
+        "author_response": "We thank Reviewer 1 for identifying this crucial methodological aspect. In the revised manuscript, we now explicitly detail that 20% of randomly selected audio-recorded therapy sessions were rated by two independent licensed clinical psychologists using the ACT Treatment Integrity Coding Manual. Inter-rater reliability was high (intraclass correlation coefficient = .89), confirming high fidelity to protocol.",
+        "manuscript_action": "Added comprehensive treatment fidelity protocol description in Section 2.3 (Intervention Protocol), Page 6, Lines 134–146.",
+        "excerpt": "\"To verify treatment adherence, 20% of all audio-recorded intervention sessions were randomly selected and independently evaluated by two clinical psychologists using the ACT Treatment Integrity Coding Manual (intraclass correlation coefficient = .89). Fidelity ratings averaged 94.2% across sessions.\""
+      },
+      {
+        "reviewer": "Reviewer #1",
+        "comment_id": "R1.2",
+        "comment": "Please report Cohen's d or partial eta squared effect sizes with 95% confidence intervals for all primary outcome measures.",
+        "author_response": "We agree completely with this recommendation. In accordance with APA 7 and JCBS reporting standards, we have computed exact 95% bootstrap confidence intervals for all partial eta squared effect sizes in both the Results narrative and Table 2.",
+        "manuscript_action": "Updated Table 2 and Section 3.2 (Primary Outcomes), Page 9, Lines 201–215.",
+        "excerpt": "\"Repeated-measures ANCOVA demonstrated a significant time-by-group interaction on pain disability (F(2, 57) = 14.82, p < .001, ηp² = 0.34, 95% CI [0.18, 0.48]).\""
+      },
+      {
+        "reviewer": "Reviewer #2",
+        "comment_id": "R2.1",
+        "comment": "The discussion should contrast the present results with recent findings by Hughes et al. (2023) regarding cognitive fusion trajectories in older versus younger pain cohorts.",
+        "author_response": "We appreciate this insightful suggestion. We have expanded our Discussion (Section 4.2) to integrate Hughes et al. (2023), specifically highlighting that age-related variations in experiential avoidance did not moderate defusion efficacy in our sample.",
+        "manuscript_action": "Expanded Discussion Section 4.2, Page 12, Paragraph 3, Lines 285–302.",
+        "excerpt": "\"Consistent with recent evidence from Hughes et al. (2023), cognitive defusion operated as a robust mechanism across age strata, indicating that mindfulness-based experiential detachment does not depend on baseline pain chronicity or patient age.\""
+      }
+    ]
+  }
+}
