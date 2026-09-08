@@ -71,6 +71,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`qualitative-data-analyst`** | [.agents/skills/qualitative-data-analyst/](file:///Users/saber/Desktop/academic_suite/.agents/skills/qualitative-data-analyst) | User provides interview transcripts, focus groups, or qualitative data requiring Braun & Clarke Reflexive Thematic Analysis, Strauss & Corbin Grounded Theory, Paradigmatic Model (6 dimensions), or Chapter 4 qualitative reporting. | Interview transcripts / quotes / coding payload | `فصل_چهارم_یافته‌های_کیفی.docx` + `thematic_matrix.xlsx` + `thematic_network.png` (300 DPI) + `qualitative_summary.json`. |
 | **`persian-literature-review-builder`** | [.agents/skills/persian-literature-review-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-literature-review-builder) | User requests drafting, synthesizing, or compiling Chapter 2 (فصل دوم: مبانی نظری و پیشینه پژوهش), translating English theoretical foundations, organizing Iranian/international empirical studies, or building APA 7 summary tables. | Foreign dissertations/theses, variables, empirical study records | `فصل_دوم_مبانی_نظری_و_پیشینه_پژوهش.docx` + `empirical_literature_matrix.xlsx` + `literature_summary.json`. |
 | **`psychometric-scale-validator`** | [.agents/skills/psychometric-scale-validator/](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychometric-scale-validator) | User conducts scale adaptation, standardization, psychometric validation (Lawshe CVR, Waltz-Bausell CVI, EFA, CFA, McDonald's omega, Fornell-Larcker, Item Response Theory [IRT] Graded Response Model [GRM], Infit/Outfit MNSQ, Test Information Function [TIF], Differential Item Functioning [DIF], and ROC cut-offs) or writes psychometric Chapter 4 reports. | Raw survey items, expert panel ratings, scale structure | `فصل_چهارم_ویژگی‌های_روان‌سنجی_و_هنجاریابی.docx` (8 APA 7 tables) + `psychometric_validation_matrix.xlsx` (6 sheets) + dual 300-DPI plots (`scree_and_roc_plots.png`, `irt_tif_and_ccc_plots.png`) + `psychometric_summary.json`. |
+| **`academic-suite-orchestrator`** | [.agents/skills/academic-suite-orchestrator/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-suite-orchestrator) | User requests running end-to-end multi-stage research workflows, turnkey academic pipelines (empirical thesis, scale validation, qualitative study, meta-analysis, publication preparation), or managing research project dashboards. | Project config JSON or preset (`thesis_empirical`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`) | Coordinated stage deliverables + `orchestrator_manifest.json` + `PROJECT_DASHBOARD.md`. |
 
 ---
 
@@ -295,6 +296,35 @@ python3 .agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py \
   --json "stats_results.json" \
   --out "فصل چهارم: یافته‌های پژوهش.docx" \
   --mode chapter4
+```
+
+### End-to-End Academic Pipeline Orchestration:
+```bash
+# 1. Run turnkey pipeline preset (thesis_empirical, scale_validation, qualitative_study, meta_analysis, thesis_to_publication)
+python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
+  --preset thesis_empirical \
+  --out-dir "./my_thesis_project"
+
+# 2. Dry-run validation (inspect execution plan and dependency DAG without running)
+python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
+  --preset scale_validation \
+  --dry-run
+
+# 3. Custom project configuration with custom step payloads
+python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
+  --config "project_config.json" \
+  --out-dir "./custom_academic_study"
+
+# 4. Granular checkpointing & step control
+python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
+  --preset thesis_empirical \
+  --out-dir "./my_thesis_project" \
+  --resume-from statistics
+
+python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
+  --preset thesis_empirical \
+  --out-dir "./my_thesis_project" \
+  --step discussion
 ```
 
 ---

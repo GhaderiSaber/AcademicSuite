@@ -1,0 +1,64 @@
+{
+  "project_name": "Internet_Gaming_Disorder_Thesis_Project",
+  "project_title": "پیش‌بینی گرایش به اختلال بازی‌های اینترنتی بر اساس صفات شخصیت و مکانیسم‌های دفاعی با میانجی‌گری خودآگاهی هیجانی در نوجوانان",
+  "project_title_en": "Predicting Tendency toward Internet Gaming Disorder based on Personality Traits and Defense Mechanisms with the Mediating Role of Emotional Awareness in Adolescents",
+  "author": "صابر قادری",
+  "author_en": "Saber Ghaderi",
+  "supervisor": "دکتر حمید طاهر نشاط‌دوست",
+  "university": "دانشگاه اصفهان",
+  "faculty": "دانشکده علوم تربیتی و روان‌شناسی",
+  "field": "روان‌شناسی بالینی",
+  "degree": "کارشناسی ارشد",
+  "pipeline": "thesis_empirical",
+  "target_language": "fa",
+  "sample_size": 350,
+  "variables": {
+    "independent": ["صفات شخصیت نئو (NEO-FFI)", "مکانیسم‌های دفاعی (DSQ-40)"],
+    "mediator": ["خودآگاهی هیجانی (EAS)"],
+    "dependent": ["اختلال بازی‌های اینترنتی (IGD-20)"]
+  },
+  "steps_configuration": {
+    "proposal": {
+      "enabled": true,
+      "payload_path": ".agents/skills/persian-proposal-builder/examples/sample_proposal.json"
+    },
+    "simulation": {
+      "enabled": true,
+      "payload_path": ".agents/skills/psychometric-data-simulator/examples/sample_regression_payload.json"
+    },
+    "statistics": {
+      "enabled": true,
+      "use_simulated_data": true,
+      "model_type": "hierarchical_regression",
+      "alpha_level": 0.05
+    },
+    "discussion": {
+      "enabled": true,
+      "theoretical_mechanisms": ["نظریه شناختی-رفتاری بک", "نظریه یادگیری اجتماعی بندورا", "مدل فرایندی تنظیم هیجان گراس"],
+      "limitations": [
+        "استفاده از ابزارهای خودگزارش‌دهی و احتمال سوگیری مطلوبیت اجتماعی",
+        "طرح همبستگی مقطعی و عدم امکان استنباط دقیق روابط علی",
+        "محدودیت جامعه آماری به دانش‌آموزان دوره دوم متوسطه شهر اصفهان"
+      ],
+      "recommendations": [
+        "برگزاری کارگاه‌های ارتقای خودآگاهی هیجانی در مدارس جهت پیشگیری از گرایش به بازی‌های آنلاین",
+        "به‌کارگیری پروتکل‌های درمانی شناختی-رفتاری متمرکز بر اصلاح مکانیسم‌های دفاعی نابالغ"
+      ]
+    },
+    "thesis": {
+      "enabled": true,
+      "include_ch1": true,
+      "include_ch2": true,
+      "include_ch3": true,
+      "include_ch4": true,
+      "include_ch5": true,
+      "include_references": true
+    },
+    "defense": {
+      "enabled": true,
+      "total_slides": 14,
+      "include_speaker_notes": true,
+      "aspect_ratio": "16:9"
+    }
+  }
+}

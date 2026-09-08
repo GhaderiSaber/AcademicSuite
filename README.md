@@ -44,6 +44,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Translates and integrates English theoretical foundations from foreign dissertations and literature (strictly avoiding copying from Persian theses to prevent cliches and high Irandoc similarity), organizes recent Iranian (Magiran, SID, ISC) and international (Scopus, PubMed, WoS) empirical literature using a 5-part reporting formula, embeds APA 7 borderless empirical summary tables, articulates research gaps and conceptual frameworks, and compiles defense-ready Word (`.docx`) and multi-sheet Excel workbooks.
 18. **Psychometric Scale Validator ([psychometric-scale-validator](.agents/skills/psychometric-scale-validator/))**:
    End-to-end scale standardization, Classical Test Theory (CTT), and modern Item Response Theory (IRT) engine: verification of WHO/ITC translation protocols, quantitative Lawshe (1975) CVR against critical panel thresholds, Waltz & Bausell / Lynn (1986) CVI ($I\text{-}CVI$, $S\text{-}CVI/\text{Ave}$), Item Impact Scores, Exploratory Factor Analysis (EFA: KMO, Bartlett, Scree plot, Promax/Varimax), Confirmatory Factor Analysis (CFA: $\chi^2/df$, CFI, TLI, RMSEA, SRMR), Fornell & Larcker Convergent (AVE $\ge 0.50$, CR $\ge 0.70$) and Discriminant Validity, APA 7th Edition McDonald's Omega ($\omega$) and Cronbach's Alpha ($\alpha$), Test-Retest ICC, Item Response Theory (IRT) Graded Response Model (GRM: discrimination $a$, category thresholds $b_1-b_4$, Infit/Outfit MNSQ, Test Information Function TIF, and Differential Item Functioning DIF), Norm score conversions (Z, T, Percentiles), and ROC Curve clinical cut-off determination. Compiles defense-ready Chapter 4 Word reports (`.docx` with 8 APA 7 tables), 6-sheet Excel validation matrices, and dual 300-DPI visual plots.
+19. **Master Research Pipeline Orchestrator ([academic-suite-orchestrator](.agents/skills/academic-suite-orchestrator/))**:
+   Unified research orchestration engine that executes multi-stage, inter-skill pipelines across all 18 skills with 5 turnkey presets (`thesis_empirical`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`), automatic artifact handoffs, dependency DAG validation (`--dry-run`), step-level resumption (`--resume-from`), execution manifest generation (`orchestrator_manifest.json`), and comprehensive Markdown project dashboards (`PROJECT_DASHBOARD.md`).
 
 ---
 
@@ -55,6 +57,7 @@ AcademicSuite/
 │   └── skills/
 │       ├── academic-article-writer/            # ISI/Scopus & ISC journal article compiler
 │       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
+│       ├── academic-suite-orchestrator/        # Master multi-stage pipeline & DAG workflow orchestrator
 │       ├── irandoc-plagiarism-reducer/         # Irandoc similarity reduction & academic paraphraser
 │       ├── journal-submission-assistant/       # Submission collateral, CRediT taxonomy & rebuttal tables
 │       ├── persian-academic-translation/       # Psychology translation & terminology engine
@@ -285,8 +288,32 @@ python3 .agents/skills/psychometric-scale-validator/scripts/psychometric_validat
   --lang fa
 ```
 
+### End-to-End Academic Pipeline Orchestration
+Coordinate and execute multi-stage research pipelines with turnkey presets, artifact handoffs, and executive project dashboards:
+```bash
+# 1. Run complete empirical thesis pipeline (Proposal -> Simulation -> Stats -> Ch 5 -> Full Thesis -> Defense Slides)
+python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
+  --preset thesis_empirical \
+  --out-dir "./my_thesis_study"
+
+# 2. Dry-run pipeline DAG validation
+python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
+  --preset scale_validation \
+  --dry-run
+
+# 3. Resume from a specific pipeline checkpoint
+python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
+  --preset thesis_empirical \
+  --out-dir "./my_thesis_study" \
+  --resume-from statistics
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
+- *"Run the full empirical thesis pipeline from proposal to defense presentation slides for a study on ACT therapy and chronic pain."*
+- *"Execute the scale validation pipeline to standardize the Cognitive Flexibility Inventory (CFI) and generate the journal submission package."*
+- *"Run the qualitative study pipeline to analyze 15 interview transcripts on marital resilience and build Chapter 4, Chapter 5, and the master thesis."*
+- *"Execute the PRISMA meta-analysis pipeline on mindfulness trials and package the manuscript for Elsevier submission."*
 - *"Rewrite Chapter 2 to reduce Irandoc similarity below 15% while keeping all citations intact."*
 - *"Generate an 8-session ACT intervention protocol and Chapter 3 table for chronic pain patients."*
 - *"Find the subscales, scoring method, and questions for Connor-Davidson Resilience Scale."*

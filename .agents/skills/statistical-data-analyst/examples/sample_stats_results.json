@@ -1,0 +1,362 @@
+{
+  "descriptives": {
+    "Pre_Anxiety": {
+      "N": 60,
+      "mean": 31.23,
+      "sd": 4.54,
+      "median": 30.85,
+      "min": 22.2,
+      "max": 41.26,
+      "skewness": 0.02,
+      "kurtosis": -0.45,
+      "shapiro_w": 0.988,
+      "shapiro_p": 0.8232216300795895,
+      "shapiro_p_str": ".823",
+      "is_normal": true
+    },
+    "Post_Anxiety": {
+      "N": 60,
+      "mean": 26.72,
+      "sd": 6.41,
+      "median": 26.38,
+      "min": 8.83,
+      "max": 42.68,
+      "skewness": -0.03,
+      "kurtosis": 0.62,
+      "shapiro_w": 0.988,
+      "shapiro_p": 0.8238278995825108,
+      "shapiro_p_str": ".824",
+      "is_normal": true
+    },
+    "Resilience": {
+      "N": 60,
+      "mean": 28.41,
+      "sd": 4.48,
+      "median": 29.03,
+      "min": 20.77,
+      "max": 40.24,
+      "skewness": 0.35,
+      "kurtosis": -0.32,
+      "shapiro_w": 0.972,
+      "shapiro_p": 0.17884908306398917,
+      "shapiro_p_str": ".179",
+      "is_normal": true
+    },
+    "Self_Efficacy": {
+      "N": 60,
+      "mean": 29.38,
+      "sd": 3.83,
+      "median": 29.15,
+      "min": 22.32,
+      "max": 41.23,
+      "skewness": 0.47,
+      "kurtosis": 0.51,
+      "shapiro_w": 0.979,
+      "shapiro_p": 0.4060722698691339,
+      "shapiro_p_str": ".406",
+      "is_normal": true
+    },
+    "Well_Being": {
+      "N": 60,
+      "mean": 34.78,
+      "sd": 4.18,
+      "median": 34.77,
+      "min": 21.57,
+      "max": 43.62,
+      "skewness": -0.42,
+      "kurtosis": 0.54,
+      "shapiro_w": 0.981,
+      "shapiro_p": 0.4931876099728592,
+      "shapiro_p_str": ".493",
+      "is_normal": true
+    }
+  },
+  "reliability": {
+    "تاب‌آوری": {
+      "n_items": 5,
+      "n_cases": 60,
+      "cronbach_alpha": 0.237,
+      "cronbach_alpha_str": ".237",
+      "item_diagnostics": [
+        {
+          "item": "R1",
+          "mean": 3.52,
+          "sd": 0.68,
+          "item_total_corr": 0.055,
+          "alpha_if_deleted": 0.243
+        },
+        {
+          "item": "R2",
+          "mean": 3.67,
+          "sd": 0.84,
+          "item_total_corr": 0.231,
+          "alpha_if_deleted": 0.062
+        },
+        {
+          "item": "R3",
+          "mean": 3.47,
+          "sd": 0.91,
+          "item_total_corr": 0.072,
+          "alpha_if_deleted": 0.242
+        },
+        {
+          "item": "R4",
+          "mean": 3.32,
+          "sd": 0.79,
+          "item_total_corr": 0.149,
+          "alpha_if_deleted": 0.157
+        },
+        {
+          "item": "R5",
+          "mean": 3.52,
+          "sd": 0.75,
+          "item_total_corr": 0.038,
+          "alpha_if_deleted": 0.262
+        }
+      ]
+    },
+    "خودکارآمدی": {
+      "n_items": 4,
+      "n_cases": 60,
+      "cronbach_alpha": 0.024,
+      "cronbach_alpha_str": ".024",
+      "item_diagnostics": [
+        {
+          "item": "SE1",
+          "mean": 3.93,
+          "sd": 0.73,
+          "item_total_corr": -0.026,
+          "alpha_if_deleted": 0.079
+        },
+        {
+          "item": "SE2",
+          "mean": 3.77,
+          "sd": 0.79,
+          "item_total_corr": 0.124,
+          "alpha_if_deleted": -0.211
+        },
+        {
+          "item": "SE3",
+          "mean": 3.75,
+          "sd": 0.7,
+          "item_total_corr": 0.108,
+          "alpha_if_deleted": -0.147
+        },
+        {
+          "item": "SE4",
+          "mean": 3.87,
+          "sd": 0.7,
+          "item_total_corr": -0.144,
+          "alpha_if_deleted": 0.246
+        }
+      ]
+    }
+  },
+  "correlation": {
+    "method": "pearson",
+    "variables": [
+      "Resilience",
+      "Self_Efficacy",
+      "Well_Being",
+      "Post_Anxiety"
+    ],
+    "n_cases": 60,
+    "correlations": {
+      "Resilience": {
+        "Resilience": 1.0,
+        "Self_Efficacy": 0.583,
+        "Well_Being": 0.601,
+        "Post_Anxiety": 0.273
+      },
+      "Self_Efficacy": {
+        "Resilience": 0.583,
+        "Self_Efficacy": 1.0,
+        "Well_Being": 0.395,
+        "Post_Anxiety": 0.26
+      },
+      "Well_Being": {
+        "Resilience": 0.601,
+        "Self_Efficacy": 0.395,
+        "Well_Being": 1.0,
+        "Post_Anxiety": -0.133
+      },
+      "Post_Anxiety": {
+        "Resilience": 0.273,
+        "Self_Efficacy": 0.26,
+        "Well_Being": -0.133,
+        "Post_Anxiety": 1.0
+      }
+    },
+    "p_values": {
+      "Resilience": {
+        "Resilience": 1.0,
+        "Self_Efficacy": 9.936775915481206e-07,
+        "Well_Being": 3.7755461932402453e-07,
+        "Post_Anxiety": 0.03474153138644237
+      },
+      "Self_Efficacy": {
+        "Resilience": 9.936775915481206e-07,
+        "Self_Efficacy": 1.0,
+        "Well_Being": 0.001788107207859373,
+        "Post_Anxiety": 0.0450702327590044
+      },
+      "Well_Being": {
+        "Resilience": 3.7755461932402453e-07,
+        "Self_Efficacy": 0.001788107207859373,
+        "Well_Being": 1.0,
+        "Post_Anxiety": 0.31187998640200976
+      },
+      "Post_Anxiety": {
+        "Resilience": 0.03474153138644237,
+        "Self_Efficacy": 0.0450702327590044,
+        "Well_Being": 0.31187998640200976,
+        "Post_Anxiety": 1.0
+      }
+    }
+  },
+  "ancova": [
+    {
+      "dv": "Post_Anxiety",
+      "group_var": "Group",
+      "covariate": "Pre_Anxiety",
+      "n_total": 60,
+      "slope_homogeneity_p": 0.5320482668423907,
+      "slope_homogeneity_p_str": ".532",
+      "slope_homogeneity_met": true,
+      "f_stat": 124.76,
+      "df_between": 1,
+      "df_within": 57,
+      "p": 5.587676968190261e-16,
+      "p_str": "< .001",
+      "partial_eta_squared": 0.686,
+      "partial_eta_squared_str": ".686",
+      "adjusted_means": {
+        "1": 23.27,
+        "2": 30.17
+      }
+    }
+  ],
+  "regression": [
+    {
+      "dv": "Well_Being",
+      "n": 60,
+      "step1": {
+        "variables": [
+          "Resilience"
+        ],
+        "r2": 0.362,
+        "r2_str": ".362",
+        "f": 32.84,
+        "df1": 1,
+        "df2": 58,
+        "p": 3.775546193240227e-07,
+        "p_str": "< .001",
+        "coefficients": [
+          {
+            "variable": "Resilience",
+            "B": 0.561,
+            "SE": 0.098,
+            "beta": 0.601,
+            "t": 5.73,
+            "p": 3.7755461932403146e-07,
+            "p_str": "< .001"
+          }
+        ]
+      },
+      "step2": {
+        "added_variables": [
+          "Self_Efficacy",
+          "Post_Anxiety"
+        ],
+        "r2": 0.466,
+        "r2_str": ".466",
+        "f": 16.28,
+        "df1": 3,
+        "df2": 56,
+        "p": 9.998288657909295e-08,
+        "p_str": "< .001",
+        "delta_r2": 0.104,
+        "delta_r2_str": ".104",
+        "delta_f": 5.47,
+        "delta_p": 0.006779382056054721,
+        "delta_p_str": ".007",
+        "coefficients": [
+          {
+            "variable": "Resilience",
+            "B": 0.582,
+            "SE": 0.114,
+            "beta": 0.624,
+            "t": 5.12,
+            "p": 3.846501583038242e-06,
+            "p_str": "< .001",
+            "VIF": 1.55
+          },
+          {
+            "variable": "Self_Efficacy",
+            "B": 0.129,
+            "SE": 0.132,
+            "beta": 0.118,
+            "t": 0.97,
+            "p": 0.33571655551108825,
+            "p_str": ".336",
+            "VIF": 1.54
+          },
+          {
+            "variable": "Post_Anxiety",
+            "B": -0.218,
+            "SE": 0.067,
+            "beta": -0.334,
+            "t": -3.26,
+            "p": 0.0019013296685682682,
+            "p_str": ".002",
+            "VIF": 1.1
+          }
+        ]
+      }
+    }
+  ],
+  "mediation": [
+    {
+      "x": "Resilience",
+      "m": "Self_Efficacy",
+      "y": "Well_Being",
+      "n": 60,
+      "n_boot": 1000,
+      "path_a": {
+        "B": 0.498,
+        "SE": 0.091,
+        "t": 5.47,
+        "p": 9.936775915481386e-07,
+        "p_str": "< .001"
+      },
+      "path_b": {
+        "B": 0.073,
+        "SE": 0.142,
+        "t": 0.52,
+        "p": 0.6084553353365088,
+        "p_str": ".608"
+      },
+      "path_c_total": {
+        "B": 0.561,
+        "SE": 0.098,
+        "t": 5.73,
+        "p": 3.7755461932403146e-07,
+        "p_str": "< .001"
+      },
+      "path_c_prime_direct": {
+        "B": 0.525,
+        "SE": 0.121,
+        "t": 4.32,
+        "p": 6.234187861848296e-05,
+        "p_str": "< .001"
+      },
+      "indirect_effect": {
+        "estimate": 0.036,
+        "boot_se": 0.076,
+        "ci_95_lower": -0.137,
+        "ci_95_upper": 0.163,
+        "is_significant": false
+      }
+    }
+  ]
+}
