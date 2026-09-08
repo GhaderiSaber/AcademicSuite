@@ -50,6 +50,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Automated academic jury, forensic proofreader, and cross-chapter consistency verification engine: audits hypothesis-result-discussion alignment (Ch 1 $\leftrightarrow$ Ch 4 $\leftrightarrow$ Ch 5), validates methodology sample sizes and degrees of freedom ($t$-test, ANOVA, ANCOVA, regression $df$), executes bidirectional citation reconciliation (orphaned in-text citations vs ghost bibliography entries, year mismatches), and enforces APA 7th Edition statistical formatting rules (leading zeroes, $p = .000$, effect sizes). Generates publication-grade audit Word reports (`.docx`), 5-sheet citation reconciliation workbooks (`.xlsx`), and machine-readable JSON summaries.
 21. **G*Power Academic Sample Size & Power Engine ([gpower-sample-size-calculator](.agents/skills/gpower-sample-size-calculator/))**:
    Automated sample size determination and statistical power calculation engine based on Faul et al.'s (2007, 2009) G*Power 3.1 methodology and Cohen's (1988) power framework: computes a priori, post hoc, and sensitivity power for ANCOVA, ANOVA, Repeated Measures, Multiple Regression, $t$-tests, and SEM/CFA. Exports publication-grade Chapter 3 defense justifications (`.docx`), 300-DPI dual-panel power curve plots (`power_curve_plot.png`), multi-sheet Excel matrices (`.xlsx`), and structured JSON.
+22. **Academic Tone Polisher & Anti-AI Refiner ([ai-academic-tone-polisher](.agents/skills/ai-academic-tone-polisher/))**:
+   Advanced stylistic humanization and anti-AI detection refiner for graduate dissertations and peer-reviewed journal manuscripts: eliminates robotic LLM cliches (*«شایان ذکر است که»*, *«در این راستا»*, *"delve into"*, *"testament to"*), elevates sentence cadence and burstiness ($CV_{len} \ge 0.50$) to authentic human scholarly standards, and enforces official Persian half-spaces (نیم‌فاصله) while strictly preserving APA 7 in-text citations and statistical parameter formulas ($F, t, p, \eta_p^2$). Exports defense-ready Word reports (`.docx`), 300-DPI diagnostic plots (`tone_burstiness_plot.png`), and 4-sheet Excel audit matrices (`.xlsx`).
 
 ---
 
@@ -62,6 +64,7 @@ AcademicSuite/
 │       ├── academic-article-writer/            # ISI/Scopus & ISC journal article compiler
 │       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
 │       ├── academic-suite-orchestrator/        # Master multi-stage pipeline & DAG workflow orchestrator
+│       ├── ai-academic-tone-polisher/          # Academic tone polisher, burstiness optimizer & anti-AI refiner
 │       ├── gpower-sample-size-calculator/      # G*Power sample size, power curves & Chapter 3 justifications
 │       ├── irandoc-plagiarism-reducer/         # Irandoc similarity reduction & academic paraphraser
 │       ├── journal-submission-assistant/       # Submission collateral, CRediT taxonomy & rebuttal tables
@@ -353,8 +356,28 @@ python3 .agents/skills/gpower-sample-size-calculator/scripts/gpower_engine.py \
   --lang fa
 ```
 
+### Academic Tone Polishing & Anti-AI Refinement
+Humanize AI-generated text, optimize sentence burstiness ($CV_{len} \ge 0.50$), eradicate robotic cliches, and enforce Persian orthography (نیم‌فاصله):
+```bash
+# 1. Persian Chapter Draft Polishing (Chapter 2 Literature Review or Chapter 5 Discussion)
+python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py \
+  --json .agents/skills/ai-academic-tone-polisher/examples/sample_ai_text_payload.json \
+  --sample persian_draft \
+  --out-dir "./academic_tone_output" \
+  --lang fa
+
+# 2. English Peer-Reviewed Journal Article Polishing
+python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py \
+  --json .agents/skills/ai-academic-tone-polisher/examples/sample_ai_text_payload.json \
+  --sample english_draft \
+  --out-dir "./academic_tone_output_en" \
+  --lang en
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
+- *"Humanize this draft Chapter 5 text: remove robotic AI cliches, increase burstiness to scholarly standards, and enforce Persian half-spaces without altering any citations or statistical formulas."*
+- *"Polish this English journal manuscript to bypass Turnitin AI and GPTZero detection while elevating academic vocabulary."*
 - *"Calculate the required sample size for my Master's thesis using ANCOVA with 2 groups, 1 pre-test covariate, and 15% anticipated attrition."*
 - *"Generate the official G*Power Chapter 3 methodology writeup and power curve plot for my research proposal."*
 - *"Determine the minimum sample size for a multiple regression model with 4 predictors and medium effect size."*

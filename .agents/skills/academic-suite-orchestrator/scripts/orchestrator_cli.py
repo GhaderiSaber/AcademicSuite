@@ -138,6 +138,12 @@ SKILL_REGISTRY = {
         "script": os.path.join(SKILLS_DIR, "gpower-sample-size-calculator", "scripts", "gpower_engine.py"),
         "default_sample": os.path.join(SKILLS_DIR, "gpower-sample-size-calculator", "examples", "sample_gpower_payload.json"),
         "desc": "G*Power academic sample size determination, statistical power curves & Chapter 3 justifications"
+    },
+    "tone_polish": {
+        "skill": "ai-academic-tone-polisher",
+        "script": os.path.join(SKILLS_DIR, "ai-academic-tone-polisher", "scripts", "tone_polisher_engine.py"),
+        "default_sample": os.path.join(SKILLS_DIR, "ai-academic-tone-polisher", "examples", "sample_ai_text_payload.json"),
+        "desc": "Academic tone polisher, syntactic burstiness optimizer & anti-AI refiner (.docx, .xlsx, .png)"
     }
 }
 
@@ -534,6 +540,21 @@ class MasterAcademicOrchestrator:
             self.manifest["artifacts"]["gpower_plot"] = plot_path
             self.manifest["artifacts"]["gpower_excel"] = os.path.join(step_dir, "sample_size_calculator_matrix.xlsx")
             self.manifest["artifacts"]["gpower_json"] = os.path.join(step_dir, "gpower_results.json")
+            return cmd, {"docx": out_docx, "plot": plot_path, "dir": step_dir}
+
+        elif step == "tone_polish":
+            script = info["script"]
+            json_payload = step_conf.get("payload_path") or info["default_sample"]
+            if not os.path.isabs(json_payload):
+                json_payload = os.path.join(REPO_ROOT, json_payload)
+            sample_name = "persian_draft" if self.lang == "fa" else "english_draft"
+            cmd = [PYTHON_BIN, script, "--json", json_payload, "--sample", sample_name, "--out-dir", step_dir, "--lang", self.lang]
+            out_docx = os.path.join(step_dir, "متن_ویراسته_و_دانشگاهی.docx" if self.lang == "fa" else "Polished_Academic_Manuscript.docx")
+            plot_path = os.path.join(step_dir, "tone_burstiness_plot.png")
+            self.manifest["artifacts"]["tone_polish_docx"] = out_docx
+            self.manifest["artifacts"]["tone_polish_plot"] = plot_path
+            self.manifest["artifacts"]["tone_polish_excel"] = os.path.join(step_dir, "academic_tone_audit_matrix.xlsx")
+            self.manifest["artifacts"]["tone_polish_json"] = os.path.join(step_dir, "tone_polish_results.json")
             return cmd, {"docx": out_docx, "plot": plot_path, "dir": step_dir}
 
         else:

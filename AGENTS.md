@@ -74,6 +74,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`academic-suite-orchestrator`** | [.agents/skills/academic-suite-orchestrator/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-suite-orchestrator) | User requests running end-to-end multi-stage research workflows, turnkey academic pipelines (empirical thesis, scale validation, qualitative study, meta-analysis, publication preparation), or managing research project dashboards. | Project config JSON or preset (`thesis_empirical`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`) | Coordinated stage deliverables + `orchestrator_manifest.json` + `PROJECT_DASHBOARD.md`. |
 | **`thesis-integrity-auditor`** | [.agents/skills/thesis-integrity-auditor/](file:///Users/saber/Desktop/academic_suite/.agents/skills/thesis-integrity-auditor) | User requests auditing, checking, or verifying a graduate thesis, proposal, or research project for hypothesis-result alignment, degrees of freedom ($df$) consistency, citation reconciliation (orphaned vs ghost references), or APA 7 compliance. | Master thesis document (`.docx`) or audit JSON payload | `گزارش_جامع_ممیزی_و_صحت‌سنجی_رساله.docx` + `annotated_citations.xlsx` + `thesis_audit_summary.json` with computed Integrity Score (TIS). |
 | **`gpower-sample-size-calculator`** | [.agents/skills/gpower-sample-size-calculator/](file:///Users/saber/Desktop/academic_suite/.agents/skills/gpower-sample-size-calculator) | User requests determining required sample size ($N$), computing a priori/post hoc power, modeling effect sizes (Cohen's $d, f, f^2$), rendering power curve figures ($1-\beta$ vs $N$), or writing Chapter 3 G*Power methodology justifications. | Target design, alpha, desired power, effect size, or study config JSON | `گزارش_محاسبه_حجم_نمونه_جی‌پاور.docx` + `power_curve_plot.png` (300 DPI) + `sample_size_calculator_matrix.xlsx` + `gpower_results.json`. |
+| **`ai-academic-tone-polisher`** | [.agents/skills/ai-academic-tone-polisher/](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher) | User requests humanizing AI-generated academic text, optimizing sentence cadence and burstiness ($CV \ge 0.50$), removing robotic LLM cliches (شایان ذکر است که، delve into), or refining Persian half-spaces (نیم‌فاصله) while preserving citations and statistics. | AI draft text (`.docx` / `.txt` / JSON) | `متن_ویراسته_و_دانشگاهی.docx` + `tone_burstiness_plot.png` (300 DPI) + `academic_tone_audit_matrix.xlsx` + `tone_polish_results.json`. |
 
 ---
 
@@ -369,6 +370,15 @@ python3 .agents/skills/gpower-sample-size-calculator/scripts/gpower_engine.py \
 python3 .agents/skills/gpower-sample-size-calculator/scripts/gpower_engine.py \
   --json "gpower_payload.json" \
   --out-dir "./gpower_results" \
+  --lang fa
+```
+
+#### Run Academic Tone Polisher & Anti-AI Refiner (Skill #22):
+```bash
+python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py \
+  --json .agents/skills/ai-academic-tone-polisher/examples/sample_ai_text_payload.json \
+  --sample persian_draft \
+  --out-dir "./tone_results" \
   --lang fa
 ```
 
