@@ -1,0 +1,26 @@
+{
+  "queries": {
+    "act_psychological_flexibility_fa": {
+      "query": "درمان مبتنی بر پذیرش و تعهد انعطاف‌پذیری روان‌شناختی فرسودگی شغلی",
+      "language": "fa",
+      "target_field": "psychology",
+      "sources": ["sid", "magiran", "pubmed", "crossref"],
+      "limit": 10,
+      "year_range": [1398, 1403],
+      "include_summary_docx": true,
+      "include_excel_matrix": true,
+      "include_ris": true
+    },
+    "cognitive_reappraisal_mindfulness_en": {
+      "query": "cognitive reappraisal emotion regulation mindfulness depression",
+      "language": "en",
+      "target_field": "psychology",
+      "sources": ["pubmed", "crossref", "semanticscholar"],
+      "limit": 10,
+      "year_range": [2019, 2025],
+      "include_summary_docx": true,
+      "include_excel_matrix": true,
+      "include_ris": true
+    }
+  }
+}

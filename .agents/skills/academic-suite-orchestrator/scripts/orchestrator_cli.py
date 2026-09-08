@@ -144,6 +144,12 @@ SKILL_REGISTRY = {
         "script": os.path.join(SKILLS_DIR, "ai-academic-tone-polisher", "scripts", "tone_polisher_engine.py"),
         "default_sample": os.path.join(SKILLS_DIR, "ai-academic-tone-polisher", "examples", "sample_ai_text_payload.json"),
         "desc": "Academic tone polisher, syntactic burstiness optimizer & anti-AI refiner (.docx, .xlsx, .png)"
+    },
+    "harvest": {
+        "skill": "literature-harvester",
+        "script": os.path.join(SKILLS_DIR, "literature-harvester", "scripts", "harvester_engine.py"),
+        "default_sample": os.path.join(SKILLS_DIR, "literature-harvester", "examples", "sample_harvest_query.json"),
+        "desc": "Multi-database literature search & Chapter 2 empirical background extractor (.docx, .xlsx, .ris)"
     }
 }
 
@@ -556,6 +562,20 @@ class MasterAcademicOrchestrator:
             self.manifest["artifacts"]["tone_polish_excel"] = os.path.join(step_dir, "academic_tone_audit_matrix.xlsx")
             self.manifest["artifacts"]["tone_polish_json"] = os.path.join(step_dir, "tone_polish_results.json")
             return cmd, {"docx": out_docx, "plot": plot_path, "dir": step_dir}
+
+        elif step == "harvest":
+            script = info["script"]
+            json_payload = step_conf.get("payload_path") or info["default_sample"]
+            if not os.path.isabs(json_payload):
+                json_payload = os.path.join(REPO_ROOT, json_payload)
+            sample_name = "act_psychological_flexibility_fa" if self.lang == "fa" else "cognitive_reappraisal_mindfulness_en"
+            cmd = [PYTHON_BIN, script, "--json", json_payload, "--sample", sample_name, "--out-dir", step_dir, "--lang", self.lang]
+            out_docx = os.path.join(step_dir, "گزارش_جامع_پیشینه_پژوهش_استخراج‌شده.docx" if self.lang == "fa" else "Harvested_Literature_Review.docx")
+            self.manifest["artifacts"]["harvest_docx"] = out_docx
+            self.manifest["artifacts"]["harvest_excel"] = os.path.join(step_dir, "harvested_empirical_studies.xlsx")
+            self.manifest["artifacts"]["harvest_ris"] = os.path.join(step_dir, "harvested_citations.ris")
+            self.manifest["artifacts"]["harvest_json"] = os.path.join(step_dir, "harvested_studies.json")
+            return cmd, {"docx": out_docx, "dir": step_dir}
 
         else:
             raise ValueError(f"Unknown step '{step}'. Valid steps are: {list(SKILL_REGISTRY.keys())}")

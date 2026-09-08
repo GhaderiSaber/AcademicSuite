@@ -52,6 +52,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Automated sample size determination and statistical power calculation engine based on Faul et al.'s (2007, 2009) G*Power 3.1 methodology and Cohen's (1988) power framework: computes a priori, post hoc, and sensitivity power for ANCOVA, ANOVA, Repeated Measures, Multiple Regression, $t$-tests, and SEM/CFA. Exports publication-grade Chapter 3 defense justifications (`.docx`), 300-DPI dual-panel power curve plots (`power_curve_plot.png`), multi-sheet Excel matrices (`.xlsx`), and structured JSON.
 22. **Academic Tone Polisher & Anti-AI Refiner ([ai-academic-tone-polisher](.agents/skills/ai-academic-tone-polisher/))**:
    Advanced stylistic humanization and anti-AI detection refiner for graduate dissertations and peer-reviewed journal manuscripts: eliminates robotic LLM cliches (*«شایان ذکر است که»*, *«در این راستا»*, *"delve into"*, *"testament to"*), elevates sentence cadence and burstiness ($CV_{len} \ge 0.50$) to authentic human scholarly standards, and enforces official Persian half-spaces (نیم‌فاصله) while strictly preserving APA 7 in-text citations and statistical parameter formulas ($F, t, p, \eta_p^2$). Exports defense-ready Word reports (`.docx`), 300-DPI diagnostic plots (`tone_burstiness_plot.png`), and 4-sheet Excel audit matrices (`.xlsx`).
+23. **Multi-Database Literature Harvester & Extractor ([literature-harvester](.agents/skills/literature-harvester/))**:
+   Automated academic literature search engine and empirical parameter extractor for international (PubMed, CrossRef, Semantic Scholar) and Iranian (SID, Magiran) databases: extracts participant sample sizes ($N$), research designs (RCT, ANCOVA, SEM), and psychometric instruments from abstracts. Generates defense-ready Chapter 2 Word reports (`.docx`) with APA 7 empirical tables and 5-part narrative formulas, 4-sheet Excel matrices (`.xlsx`), and standard RIS citation files (`.ris`) for EndNote and Zotero.
 
 ---
 
@@ -68,6 +70,7 @@ AcademicSuite/
 │       ├── gpower-sample-size-calculator/      # G*Power sample size, power curves & Chapter 3 justifications
 │       ├── irandoc-plagiarism-reducer/         # Irandoc similarity reduction & academic paraphraser
 │       ├── journal-submission-assistant/       # Submission collateral, CRediT taxonomy & rebuttal tables
+│       ├── literature-harvester/               # Multi-database literature search & Chapter 2 empirical extractor
 │       ├── persian-academic-translation/       # Psychology translation & terminology engine
 │       ├── persian-defense-presentation-builder/ # Defense slide deck (.pptx) & speaker notes compiler
 │       ├── persian-discussion-builder/         # Chapter 5 discussion & theoretical explanation
@@ -374,8 +377,28 @@ python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py
   --lang en
 ```
 
+### Multi-Database Literature Harvesting & Parameter Extraction
+Search PubMed, CrossRef, Semantic Scholar, SID, and Magiran, extract sample sizes and psychometric instruments, and generate Chapter 2 empirical review matrices:
+```bash
+# 1. Persian Empirical Background Search (ACT Therapy & Workplace Burnout)
+python3 .agents/skills/literature-harvester/scripts/harvester_engine.py \
+  --query "درمان مبتنی بر پذیرش و تعهد انعطاف‌پذیری روان‌شناختی فرسودگی شغلی" \
+  --out-dir "./harvested_act_literature" \
+  --limit 10 \
+  --lang fa
+
+# 2. International Clinical Psychology Literature Search (Emotion Regulation & Mindfulness)
+python3 .agents/skills/literature-harvester/scripts/harvester_engine.py \
+  --query "cognitive reappraisal emotion regulation mindfulness depression" \
+  --out-dir "./harvested_mindfulness_en" \
+  --limit 10 \
+  --lang en
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
+- *"Search PubMed and Iranian journals (SID/Magiran) for empirical studies on ACT therapy and teacher burnout, and compile the Chapter 2 empirical table and EndNote RIS file."*
+- *"Extract sample sizes, research designs, and psychometric instruments for recent cognitive reappraisal papers and build the empirical background narrative."*
 - *"Humanize this draft Chapter 5 text: remove robotic AI cliches, increase burstiness to scholarly standards, and enforce Persian half-spaces without altering any citations or statistical formulas."*
 - *"Polish this English journal manuscript to bypass Turnitin AI and GPTZero detection while elevating academic vocabulary."*
 - *"Calculate the required sample size for my Master's thesis using ANCOVA with 2 groups, 1 pre-test covariate, and 15% anticipated attrition."*
