@@ -20,25 +20,28 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Synthesizes Chapter 4 statistical findings with Chapter 2 literature to draft Chapter 5 (بحث و نتیجه‌گیری) using theoretical mechanisms, clinical implications, limitations, and recommendations.
 6. **Master Thesis Assembly ([persian-thesis-builder](.agents/skills/persian-thesis-builder/))**:
    Fuses an institutional Master Word Template (`.docx`) with modular research components into a single, flawlessly formatted thesis meeting Iranian graduate university OpenXML formatting rules.
+7. **Supervisor Revision Assistant ([persian-thesis-revision-assistant](.agents/skills/persian-thesis-revision-assistant/))**:
+   Extracts Word comments and margin annotations from reviewed drafts, triages requested edits, applies targeted revisions, and generates the official Point-by-Point Response Table (`جدول_پاسخ_به_نظرات_اساتید.docx`).
 
 ---
 
 ## 📁 Repository Structure
 
 ```text
-AntigravitySkills/
+AcademicSuite/
 ├── .agents/
 │   └── skills/
-│       ├── academic-reference-extractor/   # EndNote, RIS, APA citation extractor
-│       ├── persian-academic-translation/   # Psychology translation & terminology engine
-│       ├── persian-discussion-builder/     # Chapter 5 discussion & theoretical explanation
-│       ├── persian-proposal-builder/       # Research proposal & methodology builder
-│       ├── persian-thesis-builder/         # Master Word template thesis compiler
-│       └── statistical-data-analyst/       # Statistical testing & Chapter 4 builder
-├── AGENTS.md                               # Canonical agent behavioral rules & directives
-├── SETUP_GUIDE.md                          # Migration guide for setting up on a new device
-├── requirements.txt                        # Python dependencies
-└── README.md                               # Project documentation
+│       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
+│       ├── persian-academic-translation/       # Psychology translation & terminology engine
+│       ├── persian-discussion-builder/         # Chapter 5 discussion & theoretical explanation
+│       ├── persian-proposal-builder/           # Research proposal & methodology builder
+│       ├── persian-thesis-builder/             # Master Word template thesis compiler
+│       ├── persian-thesis-revision-assistant/  # Word comment extractor & response table builder
+│       └── statistical-data-analyst/           # Statistical testing & Chapter 4 builder
+├── AGENTS.md                                   # Canonical agent behavioral rules & directives
+├── SETUP_GUIDE.md                              # Migration guide for setting up on a new device
+├── requirements.txt                            # Python dependencies
+└── README.md                                   # Project documentation
 ```
 
 ---
