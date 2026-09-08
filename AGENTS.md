@@ -67,6 +67,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`academic-article-writer`** | [.agents/skills/academic-article-writer/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-article-writer) | User requests drafting, structuring, or compiling an academic journal article from thesis chapters and project data for ISI/Scopus (English) or ISC (Persian). | Full project artifacts (Proposal, Lit Review, Stats JSON, Ch 5) | `Academic_Article_Manuscript.docx` (English) or `مقاله_علمی_پژوهشی.docx` (Persian) meeting IMRaD & APA 7 standards. |
 | **`journal-submission-assistant`** | [.agents/skills/journal-submission-assistant/](file:///Users/saber/Desktop/academic_suite/.agents/skills/journal-submission-assistant) | User needs journal submission collateral (Cover Letter, Title Page with 14 CRediT roles, Highlights <= 85 chars, Declarations) or Point-by-Point Response to Reviewers for Revise & Resubmit. | Manuscript draft, metadata, or reviewer comments | `Cover_Letter.docx`, `Title_Page.docx`, `Highlights.docx`, `Response_to_Reviewers.docx`. |
 | **`systematic-review-meta-analyst`** | [.agents/skills/systematic-review-meta-analyst/](file:///Users/saber/Desktop/academic_suite/.agents/skills/systematic-review-meta-analyst) | User conducts or reports systematic review or meta-analysis (PRISMA 2020 & Cochrane RoB 2), pooling Hedges' g, calculating heterogeneity (Q, I², τ²), testing publication bias (Egger), or generating Forest & Funnel plots. | Trial outcome datasets (means, SDs, Ns) or screening numbers | `Meta_Analysis_Report.docx` + `forest_plot.png` + `funnel_plot.png` + `meta_analysis_statistics.json`. |
+| **`psychometric-data-simulator`** | [.agents/skills/psychometric-data-simulator/](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychometric-data-simulator) | User requests synthetic psychometric datasets, Monte Carlo SEM/CFA data generation, multi-item discrete Likert scale responses with reverse items, or randomized clinical trial (RCT) repeated-measures pre/post data. | Structural model parameters ($\mathbf{B}, \mathbf{\Gamma}$), factor loadings ($\mathbf{\Lambda}$), or RCT trial specifications | Multi-sheet Excel workbook (`.xlsx`), CSV dataset, executable R `lavaan` script (`lavaan_syntax.R`), and simulation summary JSON. |
 
 ---
 
@@ -83,6 +84,9 @@ The skills are modular and designed to pass standard artifacts between each othe
                                                                                 │
                                                                                 ▼
 [In-Text Citations]         ──► (academic-reference-extractor)        ──► .enw / .ris / .txt
+                                                                                │
+                                                                                ▼
+[SEM/CFA Model or RCT Design] ──► (psychometric-data-simulator)       ──► Simulated Data (.xlsx / .csv / lavaan.R)
                                                                                 │
                                                                                 ▼
 [Raw Survey Responses]      ──► (psychometric-scale-resolver)         ──► data_scored.xlsx (Factors + Alphas)
@@ -174,6 +178,23 @@ python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engi
   --json "meta_analysis_payload_fa.json" \
   --out-dir "./meta_analysis_output_fa" \
   --lang fa
+```
+
+### Monte Carlo Psychometric Data Simulation (SEM, Likert Scales, RCT Trials):
+```bash
+# Structural Equation Modeling (SEM) / Confirmatory Factor Analysis (CFA) Mode
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
+  --mode sem \
+  --json "sem_simulation_payload.json" \
+  --out-dir "./simulated_sem_data" \
+  --seed 42
+
+# Randomized Clinical Trial (RCT) Pre/Post/Follow-up Mode
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
+  --mode rct \
+  --json "rct_simulation_payload.json" \
+  --out-dir "./simulated_rct_data" \
+  --seed 42
 ```
 
 ### Master Thesis Compilation:

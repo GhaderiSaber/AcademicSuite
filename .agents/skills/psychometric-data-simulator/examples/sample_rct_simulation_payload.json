@@ -1,0 +1,95 @@
+{
+  "project_name": "ACT for Chronic Musculoskeletal Pain RCT Trial Simulation",
+  "analysis_type": "rct",
+  "sample_size_per_group": 30,
+  "seed": 101,
+  "groups": [
+    {
+      "code": 1,
+      "name": "Intervention_ACT",
+      "label": "Acceptance and Commitment Therapy"
+    },
+    {
+      "code": 0,
+      "name": "Control_TAU",
+      "label": "Treatment as Usual"
+    }
+  ],
+  "timepoints": ["Pretest", "Posttest", "Followup_3M"],
+  "outcomes": [
+    {
+      "name": "Pain_Interference",
+      "scale_min": 0,
+      "scale_max": 60,
+      "baseline_mean": 38.50,
+      "baseline_sd": 7.20,
+      "test_retest_r": 0.70,
+      "control_trajectory": {
+        "post_change_mean": -1.20,
+        "followup_change_mean": -0.80
+      },
+      "intervention_trajectory": {
+        "post_change_mean": -12.40,
+        "followup_change_mean": -13.10
+      },
+      "cohens_d_post": 0.85
+    },
+    {
+      "name": "Psychological_Inflexibility",
+      "scale_min": 7,
+      "scale_max": 49,
+      "baseline_mean": 34.20,
+      "baseline_sd": 6.10,
+      "test_retest_r": 0.75,
+      "control_trajectory": {
+        "post_change_mean": -0.80,
+        "followup_change_mean": -0.50
+      },
+      "intervention_trajectory": {
+        "post_change_mean": -9.60,
+        "followup_change_mean": -10.20
+      },
+      "cohens_d_post": 0.92
+    },
+    {
+      "name": "Quality_of_Life",
+      "scale_min": 10,
+      "scale_max": 50,
+      "baseline_mean": 24.10,
+      "baseline_sd": 5.40,
+      "test_retest_r": 0.68,
+      "control_trajectory": {
+        "post_change_mean": 0.90,
+        "followup_change_mean": 0.60
+      },
+      "intervention_trajectory": {
+        "post_change_mean": 8.50,
+        "followup_change_mean": 9.20
+      },
+      "cohens_d_post": 0.78
+    }
+  ],
+  "demographics": {
+    "continuous": [
+      {
+        "name": "Age",
+        "mean": 45.2,
+        "sd": 9.8,
+        "min": 20,
+        "max": 68
+      }
+    ],
+    "categorical": [
+      {
+        "name": "Gender",
+        "categories": ["Male", "Female"],
+        "weights": [0.40, 0.60]
+      },
+      {
+        "name": "Marital_Status",
+        "categories": ["Single", "Married", "Divorced"],
+        "weights": [0.20, 0.70, 0.10]
+      }
+    ]
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "project_name": "ACT Pain Mediation SEM Simulation",
+  "analysis_type": "sem",
+  "sample_size": 300,
+  "seed": 42,
+  "variables": [
+    {
+      "id": "var_pf",
+      "name": "Psychological Flexibility",
+      "abbr": "PF",
+      "role": "predictor",
+      "variance": 1.0,
+      "subscales": [
+        {
+          "name": "Acceptance and Openness",
+          "abbr": "OPEN",
+          "items": 5,
+          "min": 5,
+          "max": 35,
+          "item_min": 1,
+          "item_max": 7,
+          "theoretical_mean": 20.0,
+          "factor_loading": 0.78,
+          "reverse_items": [2]
+        },
+        {
+          "name": "Committed Action",
+          "abbr": "COMM",
+          "items": 5,
+          "min": 5,
+          "max": 35,
+          "item_min": 1,
+          "item_max": 7,
+          "theoretical_mean": 20.0,
+          "factor_loading": 0.72,
+          "reverse_items": []
+        }
+      ]
+    },
+    {
+      "id": "var_pa",
+      "name": "Pain Acceptance",
+      "abbr": "PA",
+      "role": "mediator",
+      "variance": 0.65,
+      "subscales": [
+        {
+          "name": "Activity Engagement",
+          "abbr": "ACTENG",
+          "items": 6,
+          "min": 6,
+          "max": 42,
+          "item_min": 1,
+          "item_max": 7,
+          "theoretical_mean": 24.0,
+          "factor_loading": 0.80,
+          "reverse_items": []
+        },
+        {
+          "name": "Pain Willingness",
+          "abbr": "WILL",
+          "items": 6,
+          "min": 6,
+          "max": 42,
+          "item_min": 1,
+          "item_max": 7,
+          "theoretical_mean": 24.0,
+          "factor_loading": 0.74,
+          "reverse_items": [3, 5]
+        }
+      ]
+    },
+    {
+      "id": "var_qol",
+      "name": "Health-Related Quality of Life",
+      "abbr": "QOL",
+      "role": "criterion",
+      "variance": 0.50,
+      "subscales": [
+        {
+          "name": "Physical Well-being",
+          "abbr": "PHYS",
+          "items": 5,
+          "min": 5,
+          "max": 25,
+          "item_min": 1,
+          "item_max": 5,
+          "theoretical_mean": 15.0,
+          "factor_loading": 0.75,
+          "reverse_items": []
+        },
+        {
+          "name": "Mental Vitality",
+          "abbr": "MENT",
+          "items": 5,
+          "min": 5,
+          "max": 25,
+          "item_min": 1,
+          "item_max": 5,
+          "theoretical_mean": 15.0,
+          "factor_loading": 0.82,
+          "reverse_items": [1]
+        }
+      ]
+    }
+  ],
+  "structural_model": {
+    "paths": [
+      {
+        "from": "PF",
+        "to": "PA",
+        "coefficient": 0.55,
+        "label": "path_a"
+      },
+      {
+        "from": "PA",
+        "to": "QOL",
+        "coefficient": 0.48,
+        "label": "path_b"
+      },
+      {
+        "from": "PF",
+        "to": "QOL",
+        "coefficient": 0.22,
+        "label": "path_c_prime"
+      }
+    ],
+    "defined_parameters": [
+      {
+        "name": "indirect_effect",
+        "expression": "path_a * path_b"
+      },
+      {
+        "name": "total_effect",
+        "expression": "path_c_prime + (path_a * path_b)"
+      }
+    ],
+    "error_variance": 0.30
+  },
+  "demographics": {
+    "continuous": [
+      {
+        "name": "Age",
+        "mean": 42.5,
+        "sd": 11.2,
+        "min": 18,
+        "max": 75,
+        "correlations": {
+          "PF": 0.12,
+          "PA": -0.08
+        }
+      },
+      {
+        "name": "Pain_Duration_Months",
+        "mean": 38.0,
+        "sd": 24.5,
+        "min": 6,
+        "max": 144,
+        "correlations": {
+          "QOL": -0.25
+        }
+      }
+    ],
+    "categorical": [
+      {
+        "name": "Gender",
+        "categories": ["Male", "Female"],
+        "weights": [0.45, 0.55]
+      },
+      {
+        "name": "Education",
+        "categories": ["Diploma", "Bachelor", "Master", "Doctorate"],
+        "weights": [0.25, 0.45, 0.22, 0.08]
+      },
+      {
+        "name": "Socioeconomic_Status",
+        "categories": ["Low", "Middle", "High"],
+        "weights": [0.30, 0.55, 0.15]
+      }
+    ]
+  }
+}

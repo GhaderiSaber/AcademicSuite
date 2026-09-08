@@ -36,6 +36,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Packages research papers into publisher-compliant submission bundles for international (Elsevier, Springer, Wiley, MDPI) and Iranian ISC journals: formal Cover Letters to the Editor-in-Chief, Title Pages with standard 14 CRediT authorship taxonomy roles and ethical declarations, Highlights strictly validated to $\le 85$ characters, and APA 7 Point-by-Point Response to Reviewers rebuttal tables for Revise & Resubmit (R&R) decisions.
 14. **Systematic Review & Meta-Analyst ([systematic-review-meta-analyst](.agents/skills/systematic-review-meta-analyst/))**:
    Conducts and synthesizes gold-standard systematic reviews and quantitative meta-analyses adhering to PRISMA 2020 and Cochrane Risk of Bias (RoB 2) standards: multi-database Boolean search strategies, PRISMA study flow tracking, deterministic Hedges' $g$ effect sizes, Fixed-Effect & DerSimonian-Laird Random-Effects pooling, heterogeneity quantification ($Q$, $I^2$, $\tau^2$), Egger's publication bias test, and high-resolution Forest and Funnel plots.
+15. **Psychometric Data Simulator ([psychometric-data-simulator](.agents/skills/psychometric-data-simulator/))**:
+   Generates realistic synthetic datasets using Monte Carlo simulation algorithms for Structural Equation Modeling (SEM), Confirmatory Factor Analysis (CFA), multi-item discrete Likert response scales (1–5, 1–7, 1–10) with indicator factor loadings ($\lambda$), measurement noise ($\theta$), and reverse items, and Randomized Clinical Trials (RCT) with repeated-measures pretest-posttest-followup designs. Exports multi-sheet Excel workbooks (`.xlsx`), CSV datasets, executable R `lavaan` scripts, and fit summaries.
 
 ---
 
@@ -56,6 +58,7 @@ AcademicSuite/
 │       ├── persian-thesis-builder/             # Generic cross-platform thesis compiler
 │       ├── persian-thesis-revision-assistant/  # Word comment extractor & response table builder
 │       ├── psychological-intervention-protocol-builder/ # Evidence-based treatment manual & Ch 3 table builder
+│       ├── psychometric-data-simulator/        # Monte Carlo SEM, Likert scale & RCT data simulator
 │       ├── psychometric-scale-resolver/        # Questionnaire resolution, scoring & psychometrics
 │       ├── statistical-data-analyst/           # Statistical testing & Chapter 4 builder
 │       └── systematic-review-meta-analyst/     # PRISMA 2020 & Cochrane meta-analysis engine
@@ -218,6 +221,24 @@ python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engi
   --lang fa
 ```
 
+### Monte Carlo Psychometric Data Simulation (SEM & RCT)
+Generate realistic simulated survey/scale datasets, Structural Equation Models (SEM), Confirmatory Factor Analysis (CFA), and clinical trial repeated-measures data:
+```bash
+# 1. Structural Equation Modeling (SEM) / Path Analysis / CFA Simulation
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
+  --mode sem \
+  --json "sem_payload.json" \
+  --out-dir "./sim_sem_output" \
+  --seed 42
+
+# 2. Randomized Clinical Trial (RCT) Pre/Post/Follow-up Simulation
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
+  --mode rct \
+  --json "rct_payload.json" \
+  --out-dir "./sim_rct_output" \
+  --seed 42
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
 - *"Rewrite Chapter 2 to reduce Irandoc similarity below 15% while keeping all citations intact."*
@@ -236,6 +257,8 @@ Simply instruct your Antigravity agent:
 - *"Draft a point-by-point response to reviewers rebuttal table for my revised manuscript."*
 - *"Conduct a quantitative meta-analysis on these 10 RCTs and generate the PRISMA 2020 flowchart, Forest plot, and Funnel plot."*
 - *"Evaluate the risk of bias using Cochrane RoB 2 and run Egger's regression test for publication bias."*
+- *"Simulate a 300-subject SEM dataset testing mediation between Psychological Flexibility, Pain Acceptance, and Quality of Life with 5-point Likert items."*
+- *"Generate an RCT dataset for 60 subjects comparing ACT vs Control across Pre, Post, and 3-month Follow-up with target Cohen's d = 0.8."*
 
 ---
 
