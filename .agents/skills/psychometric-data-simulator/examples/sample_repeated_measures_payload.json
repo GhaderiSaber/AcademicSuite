@@ -1,0 +1,14 @@
+{
+  "analysis_type": "repeated_measures",
+  "sample_size": 80,
+  "seed": 42,
+  "groups": ["Treatment_As_Usual", "Compassion_Focused_Therapy"],
+  "timepoints": ["Pretest", "Posttest", "Followup_1Month", "Followup_3Months"],
+  "dv_name": "Self_Criticism_Score",
+  "autocorrelation": 0.70,
+  "sd": 8.0,
+  "trajectories": {
+    "Treatment_As_Usual": [62.0, 59.5, 58.0, 59.0],
+    "Compassion_Focused_Therapy": [63.0, 37.0, 36.5, 38.0]
+  }
+}

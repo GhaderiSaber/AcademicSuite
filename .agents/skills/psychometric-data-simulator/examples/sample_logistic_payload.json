@@ -1,0 +1,33 @@
+{
+  "analysis_type": "logistic",
+  "sample_size": 250,
+  "seed": 42,
+  "dv_name": "Clinical_Remission_Status",
+  "intercept": -1.35,
+  "predictors": [
+    {
+      "name": "Trauma_History",
+      "type": "binary",
+      "prob": 0.40,
+      "target_or": 0.42
+    },
+    {
+      "name": "Treatment_Session_Attendance",
+      "mean": 8.0,
+      "sd": 2.0,
+      "target_or": 1.65
+    },
+    {
+      "name": "Social_Connectedness",
+      "mean": 42.0,
+      "sd": 8.0,
+      "target_or": 1.48
+    },
+    {
+      "name": "Baseline_Depression_Severity",
+      "mean": 32.0,
+      "sd": 6.5,
+      "target_or": 0.72
+    }
+  ]
+}

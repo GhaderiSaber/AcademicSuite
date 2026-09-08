@@ -1,0 +1,51 @@
+{
+  "analysis_type": "regression",
+  "subtype": "hierarchical",
+  "sample_size": 300,
+  "seed": 42,
+  "dv": {
+    "name": "Life_Satisfaction",
+    "mean": 54.0,
+    "sd": 10.0
+  },
+  "step1_ivs": [
+    {
+      "name": "Age",
+      "mean": 36.0,
+      "sd": 8.0,
+      "beta": 0.14
+    },
+    {
+      "name": "Gender",
+      "type": "binary",
+      "prob": 0.50,
+      "beta": -0.09
+    },
+    {
+      "name": "Years_Education",
+      "mean": 16.0,
+      "sd": 2.5,
+      "beta": 0.18
+    }
+  ],
+  "step2_ivs": [
+    {
+      "name": "Psychological_Flexibility",
+      "mean": 48.0,
+      "sd": 9.0,
+      "beta": 0.42
+    },
+    {
+      "name": "Self_Compassion",
+      "mean": 44.0,
+      "sd": 8.5,
+      "beta": 0.31
+    },
+    {
+      "name": "Mindfulness",
+      "mean": 46.0,
+      "sd": 7.5,
+      "beta": 0.24
+    }
+  ]
+}

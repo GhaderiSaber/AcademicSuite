@@ -78,49 +78,94 @@ Activate this skill when:
 - **Categorical Features**: Gender (e.g., Male/Female/Other), Educational Level (High School, Bachelor's, Master's, Ph.D.), Socioeconomic Status (Low, Middle, High), Marital Status.
 - **Latent Construct Correlations**: Connects demographics to psychological variables (e.g., Age positively correlated with Resilience, SES negatively correlated with Psychological Distress).
 
+### Engine 5: Multiple & Hierarchical Regression (`--mode regression`)
+- **Multiple Regression**: Target $R^2$, standardized $\beta$ coefficients, and controlled VIF multicollinearity.
+- **Hierarchical Regression**: Step 1 (Demographics / Control covariates) $\to$ Step 2 (Main psychological predictors) with $\Delta R^2$, $F$, and $\Delta F$ $p$-value.
+- **Moderated Regression (PROCESS Model 1)**: Mean-centered predictors $X$, $W$, and interaction $X \times W$ with conditional simple slopes at $-1 SD$, Mean, and $+1 SD$.
+
+### Engine 6: ANOVA Family & Mean Differences (`--mode anova`)
+- **Independent & Paired $t$-tests**: 2 groups with target Cohen's $d$ or paired pre-post correlation with $d_z$.
+- **One-Way ANOVA**: 3+ groups with planned post-hoc contrasts (Tukey HSD pairwise comparisons).
+- **Two-Way Factorial ANOVA ($A \times B$)**: Main effect Factor A, Main effect Factor B, Interaction effect ($A \times B$), and Partial $\eta^2$.
+- **MANOVA**: Multiple correlated DVs with specified inter-correlation matrix across groups, reporting Wilks' Lambda ($\Lambda$).
+
+### Engine 7: Mixed Split-Plot Repeated Measures (`--mode repeated_measures`)
+- **Between Factor $\times$ Within Factor**: Groups (e.g., Intervention vs. Control) $\times$ Time waves (Pre, Post, 1-mo FU, 3-mo FU).
+- **Temporal Covariance**: Autoregressive AR(1) or compound symmetry structure with sphericity parameter control ($\epsilon$).
+- **Dual Formats**: Generates both wide format (SPSS) and long format (mixed-effects models).
+
+### Engine 8: Binary Logistic Regression (`--mode logistic`)
+- **Logit Inversion**: Simulates binary endpoints ($0/1$, e.g., Clinical Diagnosis, Treatment Remission, Relapse) from log-odds $z_i = \beta_0 + \sum \beta_j X_{ij}$.
+- **Odds Ratios (OR)**: Calibrated directly from specified target odds ratios $\exp(\beta_j)$.
+- **Classification Metrics**: Confusion matrix, classification accuracy, sensitivity, and specificity.
+
+### Engine 9: Exploratory Factor Analysis (`--mode efa`)
+- **Multi-Factor Structure**: Primary factor loadings ($\ge .50$), cross-loadings ($[.15, .35]$), and communalities ($h^2$).
+- **Psychometric Diagnostics**: Kaiser-Meyer-Olkin (KMO) sampling adequacy, Bartlett's test of sphericity, and eigenvalues.
+
+### Engine 10: Non-Parametric & Categorical (`--mode non_parametric`)
+- **Skewed Continuous Data**: Gamma and Log-normal distributions for testing Mann-Whitney $U$, Wilcoxon Signed-Rank, and Kruskal-Wallis $H$.
+- **Contingency Tables**: $r \times c$ categorical cross-tabulations for Pearson Chi-Square ($\chi^2$) and Cramér's $V$.
+
 ---
 
-## 3. CLI Execution Quick-Start
+## 3. Built-in Research Presets (`--preset <name>`)
 
-### 1. Structural Equation Model Simulation:
+Instantly generate publication-ready synthetic datasets with one command:
+| Preset Flag | Analysis / Design | Sample Size | Primary Output |
+| :--- | :--- | :--- | :--- |
+| **`--preset hierarchical_regression`** | Demographics (Age, Gender) $\to$ Resilience, Self-Efficacy predicting Wellbeing | $N = 250$ | Step 1/2 $\Delta R^2$, $\Delta F$, coefficients |
+| **`--preset moderation_model1`** | Stress $\to$ Burnout moderated by Social Support | $N = 200$ | $X \times W$ interaction & simple slopes at $\pm 1 SD$ |
+| **`--preset factorial_anova`** | $2 \times 3$ Factorial ANOVA (Gender $\times$ Treatment [Waitlist, CBT, ACT]) on QoL | $N = 180$ | Main effects A & B, interaction $A \times B$, $\eta_p^2$ |
+| **`--preset mixed_split_plot`** | $2 \times 4$ Mixed Repeated Measures (Group $\times$ Pre, Post, 1m FU, 3m FU) on Pain | $N = 60$ | Time, Group, Time $\times$ Group, Sphericity $\epsilon$ |
+| **`--preset ancova_trial`** | RCT Pre-Post Clinical Trial on Anxiety & Depression | $N = 60$ | Baseline balance, Cohen's $d = 1.15$ posttest |
+| **`--preset logistic_diagnosis`** | Trauma, Sleep, Family History predicting Depression Diagnosis (0/1) | $N = 200$ | Odds Ratios, Confusion Matrix, ROC-AUC |
+| **`--preset efa_battery`** | 3-factor 15-item survey with cross-loadings & communalities | $N = 350$ | KMO, Bartlett's $\chi^2$, Eigenvalues |
+| **`--preset non_parametric_skewed`** | Skewed clinical severity scores across 3 severity groups | $N = 120$ | Kruskal-Wallis $H$, Medians, and IQRs |
+
+---
+
+## 4. CLI Execution Examples
+
+### 1. Instant Run via Research Preset:
 ```bash
 python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
-  --mode sem \
-  --json "sem_config.json" \
+  --preset hierarchical_regression \
+  --out-dir "./sim_hierarchical_results"
+```
+
+### 2. Factorial ANOVA Simulation:
+```bash
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
+  --preset factorial_anova \
+  --out-dir "./sim_factorial_results"
+```
+
+### 3. Mixed Split-Plot Repeated Measures:
+```bash
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
+  --preset mixed_split_plot \
+  --out-dir "./sim_repeated_measures_results"
+```
+
+### 4. Custom JSON Configuration:
+```bash
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
+  --mode regression \
+  --json "my_regression_config.json" \
   --n 300 \
   --seed 42 \
-  --out-dir "./sim_sem_results"
-```
-
-### 2. Multi-Item Questionnaire Simulation:
-```bash
-python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
-  --mode scale \
-  --json "scale_config.json" \
-  --n 400 \
-  --seed 101 \
-  --out-dir "./sim_scale_results"
-```
-
-### 3. Experimental RCT Clinical Trial Simulation:
-```bash
-python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
-  --mode rct \
-  --json "rct_config.json" \
-  --n 60 \
-  --seed 202 \
-  --out-dir "./sim_rct_results"
+  --out-dir "./custom_sim_output"
 ```
 
 ---
 
-## 4. Output Artifacts & Formats
+## 5. Output Artifacts & Formats
 
-1. **`simulated_dataset.xlsx`**: Multi-sheet Excel workbook:
-   - `Rescaled_Data`: Integer Likert items and demographic codes (ideal for importing directly into SPSS, jamovi, or JASP).
-   - `Composite_Scores`: Subscale sums, means, and total scores.
-   - `Latent_Continuous`: Underlying continuous standard scores for validation.
-   - `Parameters_and_Fit`: Model specification, path coefficients, factor loadings, and SEM fit indices.
-2. **`simulated_dataset.csv`**: Standard CSV format for R, Python, and Mplus.
-3. **`lavaan_syntax.R`**: Clean, commented R script to replicate SEM analysis and output formal parameter tables.
-4. **`simulation_summary.json`**: Machine-readable JSON summary of sample statistics, empirical vs. theoretical correlations, and fit indices.
+1. **`simulated_<mode>_dataset.xlsx`**: Multi-sheet Excel workbook tailored to the design:
+   - `Dataset` / `Rescaled_Data`: Clean SPSS-ready dataset.
+   - `Summary_and_Tests`: Descriptive statistics, ANOVA tables, regression steps, and fit indices.
+   - `Parameters_and_Effects`: Standardized coefficients, effect sizes ($R^2$, $\eta_p^2$, Cohen's $d$, OR), and loadings.
+2. **`simulated_<mode>_dataset.csv`**: Standard CSV format for SPSS, jamovi, JASP, R, and Python.
+3. **`simulation_summary.json`**: Complete structured JSON summary of empirical statistics and effect sizes.
+4. **`lavaan_syntax.R`** *(for SEM/CFA)*: Executable R script replicating the latent model.

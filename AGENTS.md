@@ -180,20 +180,23 @@ python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engi
   --lang fa
 ```
 
-### Monte Carlo Psychometric Data Simulation (SEM, Likert Scales, RCT Trials):
+### Monte Carlo Psychometric & Statistical Data Simulation (All Research Paradigms):
 ```bash
-# Structural Equation Modeling (SEM) / Confirmatory Factor Analysis (CFA) Mode
+# 1. Instant Run via Research Presets (No JSON needed!)
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset hierarchical_regression --out-dir "./sim_reg"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset moderation_model1 --out-dir "./sim_mod"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset factorial_anova --out-dir "./sim_anova"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset mixed_split_plot --out-dir "./sim_rm"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset ancova_trial --out-dir "./sim_rct"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset logistic_diagnosis --out-dir "./sim_logistic"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset efa_battery --out-dir "./sim_efa"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset non_parametric_skewed --out-dir "./sim_np"
+
+# 2. Custom Structural Equation Modeling (SEM) / CFA Mode
 python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
   --mode sem \
   --json "sem_simulation_payload.json" \
   --out-dir "./simulated_sem_data" \
-  --seed 42
-
-# Randomized Clinical Trial (RCT) Pre/Post/Follow-up Mode
-python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
-  --mode rct \
-  --json "rct_simulation_payload.json" \
-  --out-dir "./simulated_rct_data" \
   --seed 42
 ```
 

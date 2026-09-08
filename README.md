@@ -221,21 +221,24 @@ python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engi
   --lang fa
 ```
 
-### Monte Carlo Psychometric Data Simulation (SEM & RCT)
-Generate realistic simulated survey/scale datasets, Structural Equation Models (SEM), Confirmatory Factor Analysis (CFA), and clinical trial repeated-measures data:
+### Monte Carlo Psychometric & Statistical Data Simulation
+Generate realistic synthetic datasets across any quantitative research design with one command or custom JSON:
 ```bash
-# 1. Structural Equation Modeling (SEM) / Path Analysis / CFA Simulation
+# Instant Run via Research Presets (No JSON file required):
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset hierarchical_regression --out-dir "./sim_reg"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset moderation_model1 --out-dir "./sim_mod"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset factorial_anova --out-dir "./sim_anova"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset mixed_split_plot --out-dir "./sim_rm"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset ancova_trial --out-dir "./sim_rct"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset logistic_diagnosis --out-dir "./sim_logistic"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset efa_battery --out-dir "./sim_efa"
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py --preset non_parametric_skewed --out-dir "./sim_np"
+
+# Custom Structural Equation Modeling (SEM) / CFA Simulation:
 python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
   --mode sem \
   --json "sem_payload.json" \
   --out-dir "./sim_sem_output" \
-  --seed 42
-
-# 2. Randomized Clinical Trial (RCT) Pre/Post/Follow-up Simulation
-python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
-  --mode rct \
-  --json "rct_payload.json" \
-  --out-dir "./sim_rct_output" \
   --seed 42
 ```
 

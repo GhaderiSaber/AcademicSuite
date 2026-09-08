@@ -1,0 +1,12 @@
+{
+  "analysis_type": "anova",
+  "subtype": "factorial",
+  "sample_size": 240,
+  "seed": 42,
+  "factor_a_name": "Gender",
+  "factor_a_levels": ["Male", "Female"],
+  "factor_b_name": "Intervention_Type",
+  "factor_b_levels": ["Waitlist_Control", "CBT", "Mindfulness_ACT"],
+  "dv_name": "Subjective_Vitality",
+  "sd": 7.5
+}
