@@ -125,23 +125,6 @@ To eliminate premature line wrapping, word scrambling, and flipped punctuation m
 8. **Non-Destructive Element-Level Chapter Injection (Zero Destruction Rule)**:
    - When injecting complex chapters (such as Chapter 4 containing statistical tables, histograms, P-P plots, and SEM path models), NEVER use `child.itertext()` or string re-construction which destroys bookmarks, drawing shapes, and fields.
    - Copy OpenXML elements directly (`copy.deepcopy(child)`), synchronize image files in `word/media/`, and update relationship IDs in `word/_rels/document.xml.rels`.
-9. **Automatic Multilevel Hierarchical Heading Numbering**:
-   - Numbering must be 100% dynamic via Microsoft Word's native list engine (`abstractNumId=2`, `numId=3`).
-   - **Level 1 (`Heading 1`)**: Single chapter number (`۱-`, `۲-`, `۳-`, `۴-`, `۵-`). Unnumbered for back matter (`فهرست منابع` and `پیوست‌ها`).
-   - **Level 2 (`Heading 2`)**: Two numbers (`[Parent]-[Itself]`, e.g., `۱-۱-`, `۱-۲-`, `۲-۱-`).
-   - **Level 3 (`Heading 3`)**: Three numbers (`[Parent]-[Subparent]-[Itself]`, e.g., `۲-۱-۱-`, `۴-۱-۱-`).
-   - **Strict OpenXML Schema Order**: Inside `<w:pPr>`, elements MUST be in exact sequence:
-     `<w:pStyle>` $\rightarrow$ `<w:keepNext>` $\rightarrow$ `<w:numPr>` (`w:ilvl`, `w:numId`) $\rightarrow$ `<w:bidi>` $\rightarrow$ `<w:spacing>` $\rightarrow$ `<w:jc>`.
-   - **Relationship Preservation**: Always preserve `rId2` (the OpenXML link to `word/numbering.xml`) in `word/_rels/document.xml.rels`.
-10. **Native Markdown Formatting & Table Parsing**:
-    - Raw asterisks (`*text*` for italic, `**text**` for bold) must be parsed into native `<w:i>` and `<w:b>` runs; raw asterisks must never remain in body paragraphs, citations, or references.
-    - Markdown raw tables (consecutive lines starting with `|`) must be detected and converted into native APA Word tables (`<w:tbl>`) with shaded headers, borders, and native `SEQ جدول_...` captions.
-11. **Appendix Questionnaire Table Layout Standards**:
-    - Tables in appendices must avoid vertical syllable wrapping by specifying explicit column widths:
-      - Column 0 (Index): 720 dxa.
-      - Column 1 (Item/Question): 3600 dxa.
-      - Columns 2–N (Likert scale options): ~650 dxa each.
-    - Header text should use explicit line breaks (`کاملاً\nمخالفم`) and cell padding (`top/bottom=60 dxa, left/right=100 dxa`).
 
 
 ### C. Margins & Page Geometry
