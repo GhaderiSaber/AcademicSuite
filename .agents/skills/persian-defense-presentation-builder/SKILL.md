@@ -57,16 +57,24 @@ Iranian defense sessions typically allocate **20 to 30 minutes** for the candida
 
 ## 🎨 Visual & Typography Standards
 
-### 1. Slide Canvas & Layout
+### 1. Slide Canvas & Ultra-Modern Layouts
 - **Aspect Ratio**: 16:9 Widescreen (`13.333` inches $\times$ `7.5` inches).
-- **Structure**: Visual cards and content containers with subtle shadow borders instead of dense bulleted text walls.
-- **Density Rule**: Maximum 4–6 lines per text container; bold keywords for visual scannability.
+- **Layout Engines**:
+  1. `cover`: Executive title layout with midnight navy backdrop, geometric gold framing, university header pills, and distinct candidate/supervisor profile cards.
+  2. `committee`: 2x2 directory cards with academic rank badges, role icons, and appreciation headers.
+  3. `split_diagram`: Asymmetric dual-column layout embedding high-resolution 300-DPI scientific diagrams (`image_path`), caption badges, and analytical cards.
+  4. `kpi_dashboard`: Executive metric cards with 34–40pt bold numbers, status trend badges (`★ بسیار مطلوب`, `✓ کفایت نمونه`), and analytical takeaway container.
+  5. `cards`: Enhanced container cards with individual `badge` tags (`[تحلیل عصب‌شناختی]`, `[بتا = -۰/۵۰]`), accent strips, and bottom **Key Takeaway Banners (`callout`)** for examiners.
+  6. `table`: APA 7 tables with solid navy headers, zebra-striped data rows, embedded result badges (`✓ تأیید شد` in emerald green, `★ مطلوب`), and table note containers.
+  7. `closing`: Executive closing slide with appreciation statement, inspirational quote, and defense Q&A announcement.
+- **Scientific Figures Integration**: Generates and embeds 300-DPI figures (`sem_path_model.png`, `dual_systems_infographic.png`, `path_coefficients_chart.png`, `fit_benchmark_chart.png`, `demographics_chart.png`).
+- **Density Rule**: Clean scannable hierarchy; maximum 4–6 bullet lines per card with bold keywords.
 
-### 2. Iranian Academic Typography
+### 2. Iranian Academic Typography & OpenXML Standards
 To ensure flawless presentation without OpenXML font degradation:
-- **Slide Headings**: `B Titr` (Bold, 22–26 pt).
-- **Body & Bullet Text**: `B Nazanin` or `B Lotus` (Regular/Bold, 16–18 pt).
-- **Statistical Numbers & Terms**: `Times New Roman` or `Calibri` (14–16 pt).
+- **Slide Headings**: `B Titr` (Bold, 21–24 pt).
+- **Body & Bullet Text**: `B Nazanin` (Regular/Bold, 13–15 pt).
+- **Statistical Numbers & Terms**: `Times New Roman` or `Calibri` (12–34 pt).
 - **OpenXML DrawingML Enforcement**:
   Every paragraph element (`<a:p>`) must include:
   ```xml
@@ -78,22 +86,22 @@ To ensure flawless presentation without OpenXML font degradation:
   ```
 
 ### 3. Curated Academic Color Palettes
-The compiler supports 3 refined academic color schemes:
-1. **`academic_navy` (Default)**:
-   - Primary: Deep Academic Navy (`#1A365D`)
-   - Accent: Warm Gold (`#D69E2E` / `#C59B27`)
-   - Surface/Card: Pure White (`#FFFFFF`) with Slate Border (`#E2E8F0`)
+1. **`academic_navy` (Default Executive)**:
+   - Primary: Midnight Dark Navy (`#0F172A`)
+   - Secondary: Royal Navy (`#1E3A8A`)
+   - Accent: Warm Amber Gold (`#D97706` / `#F59E0B`)
+   - Emerald Success: Vibrant Emerald (`#059669`)
+   - Surface/Card: Pure White (`#FFFFFF`) with Slate-200 Border (`#E2E8F0`)
    - Background: Soft Platinum Tint (`#F8FAFC`)
 2. **`emerald_slate`**:
    - Primary: Deep Forest Teal (`#134E4A`)
+   - Secondary: Deep Sea Teal (`#0F766E`)
    - Accent: Bright Emerald (`#059669`)
-   - Surface/Card: Crisp Cream (`#FFFFFF`)
-   - Background: Soft Mint Ice (`#F0FDF4`)
+   - Surface/Card: Crisp Cream (`#FFFFFF`) with Mint Ice Border (`#D1FAE5`)
 3. **`royal_burgundy`**:
    - Primary: Imperial Maroon (`#4A0E17`)
+   - Secondary: Rose Maroon (`#881337`)
    - Accent: Warm Amber (`#D97706`)
-   - Surface/Card: Crisp White (`#FFFFFF`)
-   - Background: Soft Pearl (`#FFFBEB`)
 
 ---
 
