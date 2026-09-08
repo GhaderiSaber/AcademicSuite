@@ -72,6 +72,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`persian-literature-review-builder`** | [.agents/skills/persian-literature-review-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-literature-review-builder) | User requests drafting, synthesizing, or compiling Chapter 2 (فصل دوم: مبانی نظری و پیشینه پژوهش), translating English theoretical foundations, organizing Iranian/international empirical studies, or building APA 7 summary tables. | Foreign dissertations/theses, variables, empirical study records | `فصل_دوم_مبانی_نظری_و_پیشینه_پژوهش.docx` + `empirical_literature_matrix.xlsx` + `literature_summary.json`. |
 | **`psychometric-scale-validator`** | [.agents/skills/psychometric-scale-validator/](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychometric-scale-validator) | User conducts scale adaptation, standardization, psychometric validation (Lawshe CVR, Waltz-Bausell CVI, EFA, CFA, McDonald's omega, Fornell-Larcker, Item Response Theory [IRT] Graded Response Model [GRM], Infit/Outfit MNSQ, Test Information Function [TIF], Differential Item Functioning [DIF], and ROC cut-offs) or writes psychometric Chapter 4 reports. | Raw survey items, expert panel ratings, scale structure | `فصل_چهارم_ویژگی‌های_روان‌سنجی_و_هنجاریابی.docx` (8 APA 7 tables) + `psychometric_validation_matrix.xlsx` (6 sheets) + dual 300-DPI plots (`scree_and_roc_plots.png`, `irt_tif_and_ccc_plots.png`) + `psychometric_summary.json`. |
 | **`academic-suite-orchestrator`** | [.agents/skills/academic-suite-orchestrator/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-suite-orchestrator) | User requests running end-to-end multi-stage research workflows, turnkey academic pipelines (empirical thesis, scale validation, qualitative study, meta-analysis, publication preparation), or managing research project dashboards. | Project config JSON or preset (`thesis_empirical`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`) | Coordinated stage deliverables + `orchestrator_manifest.json` + `PROJECT_DASHBOARD.md`. |
+| **`thesis-integrity-auditor`** | [.agents/skills/thesis-integrity-auditor/](file:///Users/saber/Desktop/academic_suite/.agents/skills/thesis-integrity-auditor) | User requests auditing, checking, or verifying a graduate thesis, proposal, or research project for hypothesis-result alignment, degrees of freedom ($df$) consistency, citation reconciliation (orphaned vs ghost references), or APA 7 compliance. | Master thesis document (`.docx`) or audit JSON payload | `گزارش_جامع_ممیزی_و_صحت‌سنجی_رساله.docx` + `annotated_citations.xlsx` + `thesis_audit_summary.json` with computed Integrity Score (TIS). |
 
 ---
 
@@ -325,6 +326,21 @@ python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
   --preset thesis_empirical \
   --out-dir "./my_thesis_project" \
   --step discussion
+```
+
+### Thesis Integrity & Cross-Chapter Forensic Audit:
+```bash
+# Persian Audit (گزارش ممیزی رساله، همخوانی فرضیات و درجات آزادی، و تطبیق مراجع)
+python3 .agents/skills/thesis-integrity-auditor/scripts/audit_engine.py \
+  --json "audit_payload.json" \
+  --out-dir "./thesis_audit_results" \
+  --lang fa
+
+# English / ISI Audit Mode
+python3 .agents/skills/thesis-integrity-auditor/scripts/audit_engine.py \
+  --json "audit_payload.json" \
+  --out-dir "./thesis_audit_results_en" \
+  --lang en
 ```
 
 ---

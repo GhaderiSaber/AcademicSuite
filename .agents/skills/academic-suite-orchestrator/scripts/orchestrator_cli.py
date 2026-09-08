@@ -126,6 +126,12 @@ SKILL_REGISTRY = {
         "skill": "academic-reference-extractor",
         "script": os.path.join(SKILLS_DIR, "academic-reference-extractor", "scripts", "extract_section_references.py"),
         "desc": "In-text citation matching & export to EndNote (.enw), RIS (.ris), and APA (.txt)"
+    },
+    "audit": {
+        "skill": "thesis-integrity-auditor",
+        "script": os.path.join(SKILLS_DIR, "thesis-integrity-auditor", "scripts", "audit_engine.py"),
+        "default_sample": os.path.join(SKILLS_DIR, "thesis-integrity-auditor", "examples", "sample_audit_payload.json"),
+        "desc": "Cross-chapter thesis integrity audit, hypothesis alignment, degrees of freedom & citation reconciliation"
     }
 }
 
@@ -497,6 +503,18 @@ class MasterAcademicOrchestrator:
             out_docx = os.path.join(step_dir, "گزارش_جامع_مرور_سیستماتیک_و_فراتحلیل.docx")
             self.manifest["artifacts"]["meta_docx"] = out_docx
             return cmd, {"docx": out_docx}
+
+        elif step == "audit":
+            script = info["script"]
+            json_payload = step_conf.get("payload_path") or info["default_sample"]
+            if not os.path.isabs(json_payload):
+                json_payload = os.path.join(REPO_ROOT, json_payload)
+            cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
+            out_docx = os.path.join(step_dir, "گزارش_جامع_ممیزی_و_صحت‌سنجی_رساله.docx" if self.lang == "fa" else "Thesis_Integrity_Audit_Report.docx")
+            self.manifest["artifacts"]["audit_docx"] = out_docx
+            self.manifest["artifacts"]["audit_json"] = os.path.join(step_dir, "thesis_audit_summary.json")
+            self.manifest["artifacts"]["audit_excel"] = os.path.join(step_dir, "annotated_citations.xlsx")
+            return cmd, {"docx": out_docx, "dir": step_dir}
 
         else:
             raise ValueError(f"Unknown step '{step}'. Valid steps are: {list(SKILL_REGISTRY.keys())}")

@@ -46,6 +46,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    End-to-end scale standardization, Classical Test Theory (CTT), and modern Item Response Theory (IRT) engine: verification of WHO/ITC translation protocols, quantitative Lawshe (1975) CVR against critical panel thresholds, Waltz & Bausell / Lynn (1986) CVI ($I\text{-}CVI$, $S\text{-}CVI/\text{Ave}$), Item Impact Scores, Exploratory Factor Analysis (EFA: KMO, Bartlett, Scree plot, Promax/Varimax), Confirmatory Factor Analysis (CFA: $\chi^2/df$, CFI, TLI, RMSEA, SRMR), Fornell & Larcker Convergent (AVE $\ge 0.50$, CR $\ge 0.70$) and Discriminant Validity, APA 7th Edition McDonald's Omega ($\omega$) and Cronbach's Alpha ($\alpha$), Test-Retest ICC, Item Response Theory (IRT) Graded Response Model (GRM: discrimination $a$, category thresholds $b_1-b_4$, Infit/Outfit MNSQ, Test Information Function TIF, and Differential Item Functioning DIF), Norm score conversions (Z, T, Percentiles), and ROC Curve clinical cut-off determination. Compiles defense-ready Chapter 4 Word reports (`.docx` with 8 APA 7 tables), 6-sheet Excel validation matrices, and dual 300-DPI visual plots.
 19. **Master Research Pipeline Orchestrator ([academic-suite-orchestrator](.agents/skills/academic-suite-orchestrator/))**:
    Unified research orchestration engine that executes multi-stage, inter-skill pipelines across all 18 skills with 5 turnkey presets (`thesis_empirical`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`), automatic artifact handoffs, dependency DAG validation (`--dry-run`), step-level resumption (`--resume-from`), execution manifest generation (`orchestrator_manifest.json`), and comprehensive Markdown project dashboards (`PROJECT_DASHBOARD.md`).
+20. **Thesis Integrity & Cross-Chapter Forensic Auditor ([thesis-integrity-auditor](.agents/skills/thesis-integrity-auditor/))**:
+   Automated academic jury, forensic proofreader, and cross-chapter consistency verification engine: audits hypothesis-result-discussion alignment (Ch 1 $\leftrightarrow$ Ch 4 $\leftrightarrow$ Ch 5), validates methodology sample sizes and degrees of freedom ($t$-test, ANOVA, ANCOVA, regression $df$), executes bidirectional citation reconciliation (orphaned in-text citations vs ghost bibliography entries, year mismatches), and enforces APA 7th Edition statistical formatting rules (leading zeroes, $p = .000$, effect sizes). Generates publication-grade audit Word reports (`.docx`), 5-sheet citation reconciliation workbooks (`.xlsx`), and machine-readable JSON summaries.
 
 ---
 
@@ -73,7 +75,8 @@ AcademicSuite/
 │       ├── psychometric-scale-validator/       # Scale standardization, EFA/CFA, IRT (GRM, TIF, DIF) & ROC
 │       ├── qualitative-data-analyst/           # Thematic analysis, grounded theory & Ch 4 qualitative reporter
 │       ├── statistical-data-analyst/           # Statistical testing & Chapter 4 builder
-│       └── systematic-review-meta-analyst/     # PRISMA 2020 & Cochrane meta-analysis engine
+│       ├── systematic-review-meta-analyst/     # PRISMA 2020 & Cochrane meta-analysis engine
+│       └── thesis-integrity-auditor/           # Cross-chapter integrity audit, hypothesis & citation reconciler
 ├── AGENTS.md                                   # Canonical agent behavioral rules & directives
 ├── SETUP_GUIDE.md                              # Migration guide for setting up on a new device
 ├── Questionnaires.xlsx                         # Master index of 4,800+ psychological instruments
@@ -308,8 +311,28 @@ python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
   --resume-from statistics
 ```
 
+### Thesis Integrity & Cross-Chapter Forensic Audit
+Execute an automated mock jury check on full theses to verify hypothesis-result alignment, degrees of freedom, and citation reconciliation:
+```bash
+# 1. Standard Persian Dissertation Audit Report (.docx, .xlsx, .json)
+python3 .agents/skills/thesis-integrity-auditor/scripts/audit_engine.py \
+  --json "audit_payload.json" \
+  --out-dir "./thesis_audit_results" \
+  --lang fa
+
+# 2. English / International Journal Thesis Mode
+python3 .agents/skills/thesis-integrity-auditor/scripts/audit_engine.py \
+  --json "audit_payload.json" \
+  --out-dir "./thesis_audit_results_en" \
+  --lang en
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
+- *"Audit my completed thesis: verify whether all Chapter 1 hypotheses are tested in Chapter 4 and discussed in Chapter 5."*
+- *"Check whether my degrees of freedom in ANCOVA and regression tables match the total sample size reported in Chapter 3."*
+- *"Reconcile all in-text citations against the reference list and flag any orphaned citations or ghost bibliography entries."*
+- *"Verify APA 7 statistical formatting compliance across my dissertation chapters (leading zeros, p-values, effect sizes)."*
 - *"Run the full empirical thesis pipeline from proposal to defense presentation slides for a study on ACT therapy and chronic pain."*
 - *"Execute the scale validation pipeline to standardize the Cognitive Flexibility Inventory (CFI) and generate the journal submission package."*
 - *"Run the qualitative study pipeline to analyze 15 interview transcripts on marital resilience and build Chapter 4, Chapter 5, and the master thesis."*

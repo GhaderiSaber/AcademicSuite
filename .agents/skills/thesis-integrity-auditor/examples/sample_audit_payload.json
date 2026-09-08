@@ -1,0 +1,183 @@
+{
+  "project_metadata": {
+    "title": "اثربخشی درمان مبتنی بر پذیرش و تعهد (ACT) بر انعطاف‌پذیری روان‌شناختی و تنظیم هیجان در بیماران مبتلا به دردهای مزمن",
+    "title_en": "Effectiveness of Acceptance and Commitment Therapy (ACT) on Psychological Flexibility and Emotion Regulation in Chronic Pain Patients",
+    "student_name": "صابر قادری",
+    "supervisor": "دکتر علی اسماعیلی",
+    "advisor": "دکتر مریم رضایی",
+    "university": "دانشگاه تهران",
+    "faculty": "دانشکده روان‌شناسی و علوم تربیتی",
+    "department": "گروه روان‌شناسی بالینی",
+    "degree": "کارشناسی ارشد روان‌شناسی بالینی",
+    "academic_year": "۱۴۰۳-۱۴۰۴"
+  },
+  "chapter1_hypotheses": [
+    {
+      "id": "H1",
+      "statement": "درمان مبتنی بر پذیرش و تعهد (ACT) بر افزایش انعطاف‌پذیری روان‌شناختی بیماران درد مزمن اثربخش است.",
+      "type": "directional",
+      "iv": "درمان مبتنی بر پذیرش و تعهد",
+      "dv": "انعطاف‌پذیری روان‌شناختی"
+    },
+    {
+      "id": "H2",
+      "statement": "درمان مبتنی بر پذیرش و تعهد (ACT) بر بهبود راهبردهای انطباقی تنظیم شناختی هیجان اثربخش است.",
+      "type": "directional",
+      "iv": "درمان مبتنی بر پذیرش و تعهد",
+      "dv": "راهبردهای انطباقی تنظیم هیجان"
+    },
+    {
+      "id": "H3",
+      "statement": "انعطاف‌پذیری روان‌شناختی و خودکارآمدی درد قادر به پیش‌بینی شدت تجربه درد در بیماران هستند.",
+      "type": "relational_regression",
+      "iv": "انعطاف‌پذیری روان‌شناختی و خودکارآمدی درد",
+      "dv": "شدت درد"
+    },
+    {
+      "id": "H4",
+      "statement": "اثر درمان مبتنی بر پذیرش و تعهد بر کاهش فاجعه‌آمیز پنداری درد در مرحله پیگیری دوماهه پایدار است.",
+      "type": "directional_maintenance",
+      "iv": "درمان مبتنی بر پذیرش و تعهد",
+      "dv": "فاجعه‌آمیز پنداری درد"
+    }
+  ],
+  "chapter3_methodology": {
+    "design": "نیمه‌آزمایشی با پیش‌آزمون، پس‌آزمون و گروه کنترل با پیگیری دوماهه",
+    "total_sample_size": 60,
+    "groups": [
+      { "name": "آزمایش (ACT)", "n": 30 },
+      { "name": "کنترل (لیست انتظار)", "n": 30 }
+    ],
+    "dropouts": 0,
+    "demographics": {
+      "gender": { "زن": 36, "مرد": 24 },
+      "age_mean": 38.45,
+      "age_sd": 6.82
+    },
+    "instruments": [
+      { "name": "پرسشنامه پذیرش و عمل ویرایش دوم (AAQ-II)", "items": 7 },
+      { "name": "پرسشنامه تنظیم شناختی هیجان (CERQ)", "items": 36 },
+      { "name": "مقیاس فاجعه‌آمیز پنداری درد (PCS)", "items": 13 }
+    ],
+    "analysis_plan": "تحلیل کوواریانس تک‌متغیری (ANCOVA)، رگرسیون چندگانه و تحلیل واریانس با اندازه‌گیری مکرر"
+  },
+  "chapter4_statistical_tests": [
+    {
+      "test_id": "T1",
+      "hypothesis_id": "H1",
+      "method": "ANCOVA",
+      "dv": "انعطاف‌پذیری روان‌شناختی",
+      "reported_stats": {
+        "f_value": 15.84,
+        "df_between": 1,
+        "df_error": 57,
+        "p_value": 0.0008,
+        "p_value_raw_text": ".000",
+        "eta_squared": 0.217,
+        "mean_exp_adjusted": 28.65,
+        "mean_ctrl_adjusted": 21.30
+      },
+      "verdict": "confirmed",
+      "conclusion_text": "با کنترل پیش‌آزمون، تفاوت بین دو گروه در انعطاف‌پذیری روان‌شناختی معنی‌دار بود و فرضیه اول تایید شد."
+    },
+    {
+      "test_id": "T2",
+      "hypothesis_id": "H2",
+      "method": "ANCOVA",
+      "dv": "راهبردهای انطباقی تنظیم هیجان",
+      "reported_stats": {
+        "f_value": 9.42,
+        "df_between": 1,
+        "df_error": 57,
+        "p_value": 0.003,
+        "p_value_raw_text": ".003",
+        "eta_squared": 0.142,
+        "mean_exp_adjusted": 62.40,
+        "mean_ctrl_adjusted": 54.15
+      },
+      "verdict": "confirmed",
+      "conclusion_text": "مداخله ACT منجر به بهبود معنادار راهبردهای انطباقی تنظیم هیجان گردید و فرضیه دوم تایید شد."
+    },
+    {
+      "test_id": "T3",
+      "hypothesis_id": "H3",
+      "method": "Multiple Regression",
+      "dv": "شدت درد",
+      "reported_stats": {
+        "f_value": 12.18,
+        "df_regression": 2,
+        "df_residual": 57,
+        "p_value": 0.001,
+        "p_value_raw_text": "0.001",
+        "r_squared": 0.299,
+        "beta_weights": { "انعطاف‌پذیری روان‌شناختی": -0.42, "خودکارآمدی درد": -0.28 }
+      },
+      "verdict": "confirmed",
+      "conclusion_text": "مدل رگرسیون ۲۹/۹ درصد از واریانس شدت درد را تبیین کرد و فرضیه سوم تایید شد."
+    },
+    {
+      "test_id": "T_PHANTOM",
+      "hypothesis_id": null,
+      "method": "Independent Samples t-test",
+      "dv": "تفاوت سن بین دو گروه",
+      "reported_stats": {
+        "t_value": 0.45,
+        "df": 60,
+        "p_value": 0.654,
+        "p_value_raw_text": ".654"
+      },
+      "verdict": "rejected",
+      "conclusion_text": "تفاوت سن بین دو گروه معنی‌دار نبود."
+    }
+  ],
+  "chapter5_discussions": [
+    {
+      "hypothesis_id": "H1",
+      "verdict_in_ch5": "confirmed",
+      "theoretical_mechanisms": ["گسلش شناختی (Cognitive Defusion)", "پذیرش تجربی (Experiential Acceptance)"],
+      "literature_comparisons": ["Hayes et al. (2018)", "Veehof et al. (2016)", "فتحی‌آشتیانی و همکاران (۱۳۹۸)"]
+    },
+    {
+      "hypothesis_id": "H2",
+      "verdict_in_ch5": "confirmed",
+      "theoretical_mechanisms": ["مدل فرآیندی تنظیم هیجان گروس (Gross Process Model)"],
+      "literature_comparisons": ["Gross (2015)", "Garnefski & Kraaij (2006)"]
+    },
+    {
+      "hypothesis_id": "H3",
+      "verdict_in_ch5": "confirmed",
+      "theoretical_mechanisms": ["نظریه شناخت درد و خودکارآمدی بندورا (Bandura Self-Efficacy)"],
+      "literature_comparisons": ["Bandura (2001)", "McCracken et al. (2010)"]
+    }
+  ],
+  "in_text_citations": [
+    { "raw": "Hayes et al., 2018", "author": "Hayes et al.", "year": 2018, "chapter": 1 },
+    { "raw": "Gross, 2015", "author": "Gross", "year": 2015, "chapter": 2 },
+    { "raw": "Garnefski & Kraaij, 2006", "author": "Garnefski & Kraaij", "year": 2006, "chapter": 2 },
+    { "raw": "Bandura, 2001", "author": "Bandura", "year": 2001, "chapter": 2 },
+    { "raw": "Veehof et al., 2016", "author": "Veehof et al.", "year": 2016, "chapter": 2 },
+    { "raw": "McCracken et al., 2010", "author": "McCracken et al.", "year": 2010, "chapter": 2 },
+    { "raw": "فتحی‌آشتیانی و همکاران، ۱۳۹۸", "author": "فتحی‌آشتیانی و همکاران", "year": 1398, "chapter": 2 },
+    { "raw": "Goleman, 1995", "author": "Goleman", "year": 1995, "chapter": 2 },
+    { "raw": "Linehan, 2014", "author": "Linehan", "year": 2014, "chapter": 2 },
+    { "raw": "بک و کلارک، ۲۰۱۰", "author": "بک و کلارک", "year": 2010, "chapter": 5 }
+  ],
+  "bibliography_references": [
+    { "raw": "Hayes, S. C., Strosahl, K. D., & Wilson, K. G. (2018). Acceptance and commitment therapy: The process and practice of mindful change. Guilford Press.", "author": "Hayes et al.", "year": 2018 },
+    { "raw": "Gross, J. J. (2015). Emotion regulation: Current status and future prospects. Psychological Inquiry, 26(1), 1-26.", "author": "Gross", "year": 2015 },
+    { "raw": "Garnefski, N., & Kraaij, V. (2006). Cognitive emotion regulation questionnaire–development of a short 18-item version (CERQ-short). Personality and Individual Differences, 41(6), 1045-1053.", "author": "Garnefski & Kraaij", "year": 2006 },
+    { "raw": "Bandura, A. (2001). Social cognitive theory: An agentic perspective. Annual Review of Psychology, 52(1), 1-26.", "author": "Bandura", "year": 2001 },
+    { "raw": "Veehof, M. M., Trompetter, H. R., Bohlmeijer, E. T., & Schreurs, K. M. (2016). Acceptance-and mindfulness-based interventions for the treatment of chronic pain: A meta-analytic review. Cognitive Behaviour Therapy, 45(1), 5-31.", "author": "Veehof et al.", "year": 2016 },
+    { "raw": "McCracken, L. M., Vowles, K. E., & Eccleston, C. (2010). Acceptance of pain: A review with focus on psychological flexibility. European Journal of Pain, 14(7), 675-680.", "author": "McCracken et al.", "year": 2010 },
+    { "raw": "فتحی‌آشتیانی، علی.، و داستانی، محبوبه. (۱۳۹۸). آزمون‌های روان‌شناختی: ارزشیابی شخصیت و سلامت روان. تهران: انتشارات بعثت.", "author": "فتحی‌آشتیانی و همکاران", "year": 1398 },
+    { "raw": "Linehan, M. M. (2015). DBT skills training manual. Guilford Publications.", "author": "Linehan", "year": 2015 },
+    { "raw": "بک، آرون تی.، و کلارک، دیوید ای. (۲۰۱۰). شناخت‌درمانی اضطراب. ترجمه مسعود حبیبی و همکاران (۱۳۹۵). تهران: ارجمند.", "author": "بک و کلارک", "year": 2010 },
+    { "raw": "Seligman, M. E. (2006). Learned optimism: How to change your mind and your life. Vintage.", "author": "Seligman", "year": 2006 }
+  ],
+  "apa7_formatting_audit": {
+    "sampled_paragraphs": [
+      "در این پژوهش مقادیر معنی‌داری به صورت p = 0.000 و r = 0.48 گزارش گردید که نیازمند تصحیح است.",
+      "ضریب رگرسیون چندگانه R2 = 0.299 و اندازه اثر اتا به میزان eta = 0.217 حاصل شد."
+    ]
+  }
+}
