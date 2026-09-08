@@ -1,0 +1,142 @@
+{
+  "project_title": "تحلیل علم‌سنجی و ترسیم نقشه دانش پژوهش‌های روان‌شناسی بالینی و سلامت (۲۰۱۸-۲۰۲۴)",
+  "language": "fa",
+  "timespan": [2018, 2024],
+  "articles": [
+    {
+      "id": "DOC_001",
+      "title": "اثربخشی درمان مبتنی بر پذیرش و تعهد بر ارتقای انعطاف‌پذیری روان‌شناختی و کاهش فرسودگی شغلی معلمان",
+      "authors": ["قادری، صابر", "اصغری، علی", "عزیزی، مسعود"],
+      "journal": "مطالعات روان‌شناختی",
+      "year": 2023,
+      "citations": 14,
+      "keywords": ["درمان مبتنی بر پذیرش و تعهد", "انعطاف‌پذیری روان‌شناختی", "فرسودگی شغلی", "گسلش شناختی"]
+    },
+    {
+      "id": "DOC_002",
+      "title": "Acceptance and Commitment Therapy for Chronic Pain: A Randomized Controlled Trial",
+      "authors": ["McCracken, L. M.", "Vowles, K. E."],
+      "journal": "Journal of Consulting and Clinical Psychology",
+      "year": 2022,
+      "citations": 48,
+      "keywords": ["Acceptance and Commitment Therapy", "Psychological Flexibility", "Chronic Pain", "Pain Anxiety"]
+    },
+    {
+      "id": "DOC_003",
+      "title": "مقایسه اثربخشی رفتاردرمانی شناختی و پذیرش و تعهد بر اضطراب درد و تاب‌آوری بیماران",
+      "authors": ["شکوهی‌یکتا، محسن", "پرند، اکرم"],
+      "journal": "روان‌شناسی بالینی و شخصیت",
+      "year": 2022,
+      "citations": 22,
+      "keywords": ["درمان مبتنی بر پذیرش و تعهد", "اضطراب درد", "تاب‌آوری", "درد مزمن"]
+    },
+    {
+      "id": "DOC_004",
+      "title": "Mindfulness-Based Cognitive Therapy for Persistent Depressive Symptoms and Rumination",
+      "authors": ["Kuyken, W.", "Teasdale, J."],
+      "journal": "The Lancet Psychiatry",
+      "year": 2023,
+      "citations": 65,
+      "keywords": ["Mindfulness", "Rumination", "Depression", "Cognitive Reappraisal"]
+    },
+    {
+      "id": "DOC_005",
+      "title": "Cognitive Reappraisal and Expressive Suppression in Emotional Well-Being",
+      "authors": ["Gross, J. J.", "John, O. P."],
+      "journal": "Journal of Personality and Social Psychology",
+      "year": 2021,
+      "citations": 92,
+      "keywords": ["Cognitive Reappraisal", "Expressive Suppression", "Emotion Regulation", "Negative Affect"]
+    },
+    {
+      "id": "DOC_006",
+      "title": "مدل‌یابی معادلات ساختاری ارتباط تنیدگی تحصیلی با نشخوار فکری: نقش میانجی ذهن‌آگاهی",
+      "authors": ["خسروی، زهره", "باقری، مریم"],
+      "journal": "پژوهش‌های کاربردی روان‌شناختی",
+      "year": 2021,
+      "citations": 18,
+      "keywords": ["نشخوار فکری", "ذهن‌آگاهی", "تنظیم هیجان", "افسردگی"]
+    },
+    {
+      "id": "DOC_007",
+      "title": "Digital Acceptance and Commitment Therapy for Workplace Stress and Burnout",
+      "authors": ["Dahl, J.", "Hayes, S. C."],
+      "journal": "Behaviour Research and Therapy",
+      "year": 2023,
+      "citations": 37,
+      "keywords": ["Acceptance and Commitment Therapy", "Psychological Flexibility", "Job Burnout", "Emotional Exhaustion"]
+    },
+    {
+      "id": "DOC_008",
+      "title": "The Mediating Role of Psychological Resilience in Childhood Trauma and Adult Anxiety",
+      "authors": ["Connor, K. M.", "Davidson, J. R."],
+      "journal": "Depression and Anxiety",
+      "year": 2022,
+      "citations": 54,
+      "keywords": ["Resilience", "Anxiety", "Psychological Hardiness", "Negative Affect"]
+    },
+    {
+      "id": "DOC_009",
+      "title": "اثربخشی برنامه کاهش استرس مبتنی بر ذهن‌آگاهی بر سرسختی روان‌شناختی پرستاران",
+      "authors": ["حسینی، سید حمید", "زارع، حسین"],
+      "journal": "علوم روان‌شناختی",
+      "year": 2023,
+      "citations": 12,
+      "keywords": ["ذهن‌آگاهی", "سرسختی روان‌شناختی", "تنظیم هیجان", "فرسودگی شغلی"]
+    },
+    {
+      "id": "DOC_010",
+      "title": "Mechanisms of Experiential Avoidance and Cognitive Defusion in ACT",
+      "authors": ["Hayes, S. C.", "Strosahl, K. D."],
+      "journal": "Annual Review of Clinical Psychology",
+      "year": 2020,
+      "citations": 110,
+      "keywords": ["Acceptance and Commitment Therapy", "Experiential Avoidance", "Cognitive Defusion", "Psychological Flexibility"]
+    },
+    {
+      "id": "DOC_011",
+      "title": "نقش اجتناب تجربه‌ای و گسلش شناختی در پیش‌بینی اضطراب و افسردگی دانشجویان",
+      "authors": ["نجاتی، وحید", "دلاور، علی"],
+      "journal": "روان‌شناسی بالینی و مشاوره",
+      "year": 2022,
+      "citations": 16,
+      "keywords": ["اجتناب تجربه‌ای", "گسلش شناختی", "اضطراب", "افسردگی"]
+    },
+    {
+      "id": "DOC_012",
+      "title": "Emotion Regulation Strategies as Transdiagnostic Predictors of Anxiety and Depression",
+      "authors": ["Aldao, A.", "Nolen-Hoeksema, S."],
+      "journal": "Clinical Psychology Review",
+      "year": 2019,
+      "citations": 140,
+      "keywords": ["Emotion Regulation", "Cognitive Reappraisal", "Rumination", "Anxiety", "Depression"]
+    },
+    {
+      "id": "DOC_013",
+      "title": "بررسی مقایسه‌ای بازتفسیر شناختی و فرونشانی ابراز در مهار پریشانی روان‌شناختی",
+      "authors": ["فتح‌آبادی، جلیل", "صادقی، منصوره"],
+      "journal": "پژوهش‌های روان‌شناسی اجتماعی",
+      "year": 2021,
+      "citations": 9,
+      "keywords": ["تنظیم هیجان", "بازتفسیر شناختی", "فرونشانی ابراز", "پریشانی روان‌شناختی"]
+    },
+    {
+      "id": "DOC_014",
+      "title": "Psychological Resilience and Pain Catastrophizing in Fibromyalgia Patients",
+      "authors": ["Wicksell, R. K.", "Olsson, G. L."],
+      "journal": "European Journal of Pain",
+      "year": 2021,
+      "citations": 31,
+      "keywords": ["Resilience", "Pain Catastrophizing", "Chronic Pain", "Psychological Flexibility"]
+    },
+    {
+      "id": "DOC_015",
+      "title": "فاجعه‌آمیز پنداری درد و ناتوانی عملکردی: نقش تعدیل‌کننده پذیرش درد",
+      "authors": ["اصغری، علی", "نیک‌فرجام، محمدرضا"],
+      "journal": "مجله پزشکی ارومیه",
+      "year": 2020,
+      "citations": 19,
+      "keywords": ["درد مزمن", "فاجعه‌آمیز پنداری درد", "پذیرش درد", "ناتوانی عملکردی"]
+    }
+  ]
+}

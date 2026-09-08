@@ -76,6 +76,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`gpower-sample-size-calculator`** | [.agents/skills/gpower-sample-size-calculator/](file:///Users/saber/Desktop/academic_suite/.agents/skills/gpower-sample-size-calculator) | User requests determining required sample size ($N$), computing a priori/post hoc power, modeling effect sizes (Cohen's $d, f, f^2$), rendering power curve figures ($1-\beta$ vs $N$), or writing Chapter 3 G*Power methodology justifications. | Target design, alpha, desired power, effect size, or study config JSON | `گزارش_محاسبه_حجم_نمونه_جی‌پاور.docx` + `power_curve_plot.png` (300 DPI) + `sample_size_calculator_matrix.xlsx` + `gpower_results.json`. |
 | **`ai-academic-tone-polisher`** | [.agents/skills/ai-academic-tone-polisher/](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher) | User requests humanizing AI-generated academic text, optimizing sentence cadence and burstiness ($CV \ge 0.50$), removing robotic LLM cliches (شایان ذکر است که، delve into), or refining Persian half-spaces (نیم‌فاصله) while preserving citations and statistics. | AI draft text (`.docx` / `.txt` / JSON) | `متن_ویراسته_و_دانشگاهی.docx` + `tone_burstiness_plot.png` (300 DPI) + `academic_tone_audit_matrix.xlsx` + `tone_polish_results.json`. |
 | **`literature-harvester`** | [.agents/skills/literature-harvester/](file:///Users/saber/Desktop/academic_suite/.agents/skills/literature-harvester) | User requests automated literature search, extracting empirical parameters (sample size N, design, scales, findings) from PubMed, CrossRef, Semantic Scholar, SID, or Magiran, or compiling Chapter 2 empirical review matrices and RIS citation files. | Research keywords or search query payload | `گزارش_جامع_پیشینه_پژوهش_استخراج‌شده.docx` + `harvested_empirical_studies.xlsx` + `harvested_citations.ris` + `harvested_studies.json`. |
+| **`bibliometric-network-analyst`** | [.agents/skills/bibliometric-network-analyst/](file:///Users/saber/Desktop/academic_suite/.agents/skills/bibliometric-network-analyst) | User requests science mapping, keyword co-occurrence analysis, Bradford's Law journal scattering, Lotka's author productivity, NetworkX centralities, Callon's 4-quadrant strategic diagram, or VOSviewer native map/network exports. | Literature payload (`.json`, `.csv`, `.ris`) | `گزارش_تحلیل_علم‌سنجی_و_ترسیم_نقشه_دانش.docx` + `bibliometric_network_map.png` + `thematic_strategic_map.png` + `vosviewer_map.txt` + `vosviewer_network.txt` + `bibliometric_matrix.xlsx` (5 sheets). |
 
 ---
 
@@ -390,6 +391,16 @@ python3 .agents/skills/literature-harvester/scripts/harvester_engine.py \
   --out-dir "./harvested_ch2" \
   --limit 10 \
   --lang fa
+```
+
+#### Run Bibliometric Science Mapping & Network Analyst (Skill #24):
+```bash
+python3 .agents/skills/bibliometric-network-analyst/scripts/bibliometric_engine.py \
+  --input .agents/skills/bibliometric-network-analyst/examples/sample_bibliometric_payload.json \
+  --output-dir "./biblio_results" \
+  --language fa \
+  --min-freq 1 \
+  --top-n 30
 ```
 
 ---

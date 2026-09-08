@@ -150,6 +150,12 @@ SKILL_REGISTRY = {
         "script": os.path.join(SKILLS_DIR, "literature-harvester", "scripts", "harvester_engine.py"),
         "default_sample": os.path.join(SKILLS_DIR, "literature-harvester", "examples", "sample_harvest_query.json"),
         "desc": "Multi-database literature search & Chapter 2 empirical background extractor (.docx, .xlsx, .ris)"
+    },
+    "bibliometrics": {
+        "skill": "bibliometric-network-analyst",
+        "script": os.path.join(SKILLS_DIR, "bibliometric-network-analyst", "scripts", "bibliometric_engine.py"),
+        "default_sample": os.path.join(SKILLS_DIR, "bibliometric-network-analyst", "examples", "sample_bibliometric_payload.json"),
+        "desc": "VOSviewer & Bibliometrix science mapping, keyword co-occurrence & Callon strategic diagram (.docx, .xlsx, .png, .txt)"
     }
 }
 
@@ -576,6 +582,24 @@ class MasterAcademicOrchestrator:
             self.manifest["artifacts"]["harvest_ris"] = os.path.join(step_dir, "harvested_citations.ris")
             self.manifest["artifacts"]["harvest_json"] = os.path.join(step_dir, "harvested_studies.json")
             return cmd, {"docx": out_docx, "dir": step_dir}
+
+        elif step == "bibliometrics":
+            script = info["script"]
+            json_payload = step_conf.get("payload_path") or info["default_sample"]
+            if not os.path.isabs(json_payload):
+                json_payload = os.path.join(REPO_ROOT, json_payload)
+            cmd = [PYTHON_BIN, script, "--input", json_payload, "--output-dir", step_dir, "--language", self.lang]
+            out_docx = os.path.join(step_dir, "گزارش_تحلیل_علم‌سنجی_و_ترسیم_نقشه_دانش.docx" if self.lang == "fa" else "Bibliometric_Science_Mapping_Report.docx")
+            net_plot = os.path.join(step_dir, "bibliometric_network_map.png")
+            strat_plot = os.path.join(step_dir, "thematic_strategic_map.png")
+            self.manifest["artifacts"]["bibliometric_docx"] = out_docx
+            self.manifest["artifacts"]["bibliometric_net_plot"] = net_plot
+            self.manifest["artifacts"]["bibliometric_strat_plot"] = strat_plot
+            self.manifest["artifacts"]["bibliometric_excel"] = os.path.join(step_dir, "bibliometric_matrix.xlsx")
+            self.manifest["artifacts"]["bibliometric_json"] = os.path.join(step_dir, "bibliometric_summary.json")
+            self.manifest["artifacts"]["vosviewer_map"] = os.path.join(step_dir, "vosviewer_map.txt")
+            self.manifest["artifacts"]["vosviewer_network"] = os.path.join(step_dir, "vosviewer_network.txt")
+            return cmd, {"docx": out_docx, "net_plot": net_plot, "strat_plot": strat_plot, "dir": step_dir}
 
         else:
             raise ValueError(f"Unknown step '{step}'. Valid steps are: {list(SKILL_REGISTRY.keys())}")

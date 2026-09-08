@@ -54,6 +54,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Advanced stylistic humanization and anti-AI detection refiner for graduate dissertations and peer-reviewed journal manuscripts: eliminates robotic LLM cliches (*«شایان ذکر است که»*, *«در این راستا»*, *"delve into"*, *"testament to"*), elevates sentence cadence and burstiness ($CV_{len} \ge 0.50$) to authentic human scholarly standards, and enforces official Persian half-spaces (نیم‌فاصله) while strictly preserving APA 7 in-text citations and statistical parameter formulas ($F, t, p, \eta_p^2$). Exports defense-ready Word reports (`.docx`), 300-DPI diagnostic plots (`tone_burstiness_plot.png`), and 4-sheet Excel audit matrices (`.xlsx`).
 23. **Multi-Database Literature Harvester & Extractor ([literature-harvester](.agents/skills/literature-harvester/))**:
    Automated academic literature search engine and empirical parameter extractor for international (PubMed, CrossRef, Semantic Scholar) and Iranian (SID, Magiran) databases: extracts participant sample sizes ($N$), research designs (RCT, ANCOVA, SEM), and psychometric instruments from abstracts. Generates defense-ready Chapter 2 Word reports (`.docx`) with APA 7 empirical tables and 5-part narrative formulas, 4-sheet Excel matrices (`.xlsx`), and standard RIS citation files (`.ris`) for EndNote and Zotero.
+24. **Bibliometric Science Mapping & Network Analyst ([bibliometric-network-analyst](.agents/skills/bibliometric-network-analyst/))**:
+   Automated bibliometric science mapping and network topology engine compatible with VOSviewer and Bibliometrix: evaluates Bradford's Law journal scattering (Zone 1 core vs peripheral), Lotka's Law author productivity, keyword co-occurrence centralities (Degree, Betweenness conceptual bridges, Closeness), and Callon's 4-Quadrant Strategic Diagram (Motor, Niche, Emerging/Declining, Basic Themes). Exports native VOSviewer map and network files (`vosviewer_map.txt`, `vosviewer_network.txt`), dual 300-DPI publication plots (`bibliometric_network_map.png`, `thematic_strategic_map.png`), 5-sheet Excel workbooks (`bibliometric_matrix.xlsx`), and defense-ready Chapter 2 Word reports (`.docx`) with OpenXML BiDi RTL.
 
 ---
 
@@ -67,6 +69,7 @@ AcademicSuite/
 │       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
 │       ├── academic-suite-orchestrator/        # Master multi-stage pipeline & DAG workflow orchestrator
 │       ├── ai-academic-tone-polisher/          # Academic tone polisher, burstiness optimizer & anti-AI refiner
+│       ├── bibliometric-network-analyst/       # VOSviewer/Bibliometrix science mapping & Callon strategic diagram
 │       ├── gpower-sample-size-calculator/      # G*Power sample size, power curves & Chapter 3 justifications
 │       ├── irandoc-plagiarism-reducer/         # Irandoc similarity reduction & academic paraphraser
 │       ├── journal-submission-assistant/       # Submission collateral, CRediT taxonomy & rebuttal tables
@@ -395,8 +398,31 @@ python3 .agents/skills/literature-harvester/scripts/harvester_engine.py \
   --lang en
 ```
 
+### Bibliometric Science Mapping & Callon's Strategic Diagram
+Construct keyword co-occurrence networks, compute Bradford's core journals, and generate VOSviewer datasets & 300-DPI visual plots:
+```bash
+# 1. Persian Psychology Thesis Science Mapping
+python3 .agents/skills/bibliometric-network-analyst/scripts/bibliometric_engine.py \
+  --input .agents/skills/bibliometric-network-analyst/examples/sample_bibliometric_payload.json \
+  --output-dir "./biblio_mapping_fa" \
+  --language fa \
+  --min-freq 1 \
+  --top-n 30
+
+# 2. English Bibliometric Review Paper
+python3 .agents/skills/bibliometric-network-analyst/scripts/bibliometric_engine.py \
+  --input "scopus_export.csv" \
+  --output-dir "./biblio_review_en" \
+  --language en \
+  --min-freq 2 \
+  --top-n 40
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
+- *"Conduct a bibliometric analysis on this literature dataset: generate the keyword co-occurrence network, Bradford's core journals table, Callon's strategic diagram, and native VOSviewer files."*
+- *"Map the intellectual structure and conceptual clusters for research on ACT therapy and emotion regulation, and compile the Chapter 2 bibliometric Word report."*
+- *"Evaluate Bradford's Law and Lotka's Law for my literature review corpus and export the 5-sheet Excel bibliometric matrix."*
 - *"Search PubMed and Iranian journals (SID/Magiran) for empirical studies on ACT therapy and teacher burnout, and compile the Chapter 2 empirical table and EndNote RIS file."*
 - *"Extract sample sizes, research designs, and psychometric instruments for recent cognitive reappraisal papers and build the empirical background narrative."*
 - *"Humanize this draft Chapter 5 text: remove robotic AI cliches, increase burstiness to scholarly standards, and enforce Persian half-spaces without altering any citations or statistical formulas."*
