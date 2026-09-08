@@ -61,6 +61,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`statistical-data-analyst`** | [.agents/skills/statistical-data-analyst/](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst) | User provides data (`.sav`, `.xlsx`, `.csv`) and requests analysis, hypothesis testing, or Chapter 4 writing. | Scored dataset + Hypotheses / Research Questions | `فصل چهارم: یافته‌های پژوهش.docx` + `stats_results.json` + APA 7 tables. |
 | **`persian-discussion-builder`** | [.agents/skills/persian-discussion-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-discussion-builder) | User requests writing Chapter 5 (بحث و نتیجه‌گیری) interpreting statistical findings against literature. | Chapter 4 results (`stats_results.json`) + Chapter 2 literature | `فصل پنجم: بحث و نتیجه‌گیری.docx` with clinical implications and limitations. |
 | **`persian-thesis-builder`** | [.agents/skills/persian-thesis-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-builder) | User wants to compile, merge, format, or assemble all modular thesis parts into a unified university document. | Master `.docx` template + Chapters 1-5 + References + Scales | `Thesis_Compiled.docx` (Complete dissertation meeting university formatting rules). |
+| **`irandoc-plagiarism-reducer`** | [.agents/skills/irandoc-plagiarism-reducer/](file:///Users/saber/Desktop/academic_suite/.agents/skills/irandoc-plagiarism-reducer) | User needs to reduce Irandoc (همانندجو) similarity score below 20% or 30%, rewrite flagged literature/discussion text, or eliminate cliches. | Flagged `.docx` or text + Irandoc report | `*_paraphrased.docx` + side-by-side comparison report (`.docx`). |
 | **`persian-thesis-revision-assistant`** | [.agents/skills/persian-thesis-revision-assistant/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-revision-assistant) | User needs to review, extract, and resolve supervisor/examiner comments and produce the formal response table. | Reviewed `.docx` with comments or feedback text | `جدول_پاسخ_به_نظرات_اساتید.docx` + revised chapters. |
 | **`persian-defense-presentation-builder`** | [.agents/skills/persian-defense-presentation-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-defense-presentation-builder) | User requests creating defense slides (.pptx) or preparing for the viva voce oral defense before examiners. | Completed thesis / chapters / stats_results.json | `جلسه_دفاع.pptx` (16:9 widescreen, RTL OpenXML, Iranian typography, and candidate Speaker Notes). |
 | **`academic-article-writer`** | [.agents/skills/academic-article-writer/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-article-writer) | User requests drafting, structuring, or compiling an academic journal article from thesis chapters and project data for ISI/Scopus (English) or ISC (Persian). | Full project artifacts (Proposal, Lit Review, Stats JSON, Ch 5) | `Academic_Article_Manuscript.docx` (English) or `مقاله_علمی_پژوهشی.docx` (Persian) meeting IMRaD & APA 7 standards. |
@@ -95,21 +96,35 @@ The skills are modular and designed to pass standard artifacts between each othe
                                                                                 │
                                         ┌───────────────────────────────────────┴───────────────────────────────────────┐
                                         ▼                                                                               ▼
-[Supervisor/Jury Review] ──► (persian-thesis-revision-assistant)                                [Completed Thesis & Data]
+[Irandoc Flagged Thesis] ──► (irandoc-plagiarism-reducer)                                       [Completed Thesis & Data]
                                         │                                                                               │
                                         ▼                                                                               ▼
-                            Response Table (.docx)                                              (academic-article-writer)
+                            فصل_بازنویسی_ایرانداک.docx                                          (academic-article-writer)
                                         │                                                                               │
                                         ▼                                                                               ▼
-[Defense Session Prep]   ──► (persian-defense-presentation-builder)                            Journal Manuscript (.docx)
+[Supervisor/Jury Review] ──► (persian-thesis-revision-assistant)                                Journal Manuscript (.docx)
                                         │                                                       ├── Track A: ISI / Scopus (EN)
                                         ▼                                                       └── Track B: ISC علمی-پژوهشی (FA)
+                            Response Table (.docx)
+                                        │
+                                        ▼
+[Defense Session Prep]   ──► (persian-defense-presentation-builder)
+                                        │
+                                        ▼
                             جلسه_دفاع.pptx (RTL OpenXML + Speaker Notes)
 ```
 
 ---
 
 ## 4. Python Environment & CLI Command Reference
+
+### Irandoc Paraphrasing & Similarity Reduction:
+```bash
+python3 .agents/skills/irandoc-plagiarism-reducer/scripts/paraphrase_engine.py \
+  --input "فصل_دوم_ادبیات_پژوهش.docx" \
+  --output-docx "فصل_دوم_بازنویسی_ایرانداک.docx" \
+  --output-report "گزارش_کاهش_همانندجویی.docx"
+```
 
 ### Intervention Protocol Compilation (Chapter 3 Table & Appendix Manual):
 ```bash

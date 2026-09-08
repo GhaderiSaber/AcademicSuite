@@ -24,11 +24,13 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Synthesizes Chapter 4 statistical findings with Chapter 2 literature to draft Chapter 5 (بحث و نتیجه‌گیری) using theoretical mechanisms, clinical implications, limitations, and recommendations.
 8. **Master Thesis Assembly ([persian-thesis-builder](.agents/skills/persian-thesis-builder/))**:
    Cross-platform OpenXML compilation engine (`compile_full_thesis.py`) that fuses institutional Master Word templates (`.docx`) with modular chapter drafts, unified references, dynamic questionnaire appendices, and Persian typography (*B Titr*, *B Nazanin*, *B Lotus*).
-9. **Supervisor Revision Assistant ([persian-thesis-revision-assistant](.agents/skills/persian-thesis-revision-assistant/))**:
+9. **Irandoc Plagiarism Reducer ([irandoc-plagiarism-reducer](.agents/skills/irandoc-plagiarism-reducer/))**:
+   Executes deep syntactic clause inversion, thematic literature synthesis, and scientific synonym substitution to lower Irandoc (همانندجو / سمیم‌نور) similarity percentages below university defense thresholds (typically < 20% or < 30%) while preserving APA 7 citations and نیم‌فاصله.
+10. **Supervisor Revision Assistant ([persian-thesis-revision-assistant](.agents/skills/persian-thesis-revision-assistant/))**:
    Extracts Word comments and margin annotations from reviewed drafts, triages requested edits, applies targeted revisions, and generates the official Point-by-Point Response Table (`جدول_پاسخ_به_نظرات_اساتید.docx`).
-10. **Master Thesis Defense Presentation ([persian-defense-presentation-builder](.agents/skills/persian-defense-presentation-builder/))**:
+11. **Master Thesis Defense Presentation ([persian-defense-presentation-builder](.agents/skills/persian-defense-presentation-builder/))**:
    Synthesizes thesis chapters, statistical findings, and discussion models into a defense-ready 16:9 widescreen PowerPoint presentation (`.pptx`) with native RTL OpenXML formatting, authentic Iranian academic typography (*B Titr*, *B Nazanin*), visual card containers, and comprehensive oral candidate Speaker Notes (متن گفتار دانشجو).
-11. **Academic Article Writer ([academic-article-writer](.agents/skills/academic-article-writer/))**:
+12. **Academic Article Writer ([academic-article-writer](.agents/skills/academic-article-writer/))**:
    Synthesizes all heterogeneous project artifacts (theses, Chapter 4 statistical data, translated literature, and psychometric scales) into high-impact, publication-grade academic journal articles adhering to international peer-review standards (IMRaD, APA 7th Edition, JARS) for both International English journals (ISI / Scopus Q1/Q2) and Iranian Scientific-Research journals (علمی-پژوهشی / ISC).
 
 ---
@@ -41,6 +43,7 @@ AcademicSuite/
 │   └── skills/
 │       ├── academic-article-writer/            # ISI/Scopus & ISC journal article compiler
 │       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
+│       ├── irandoc-plagiarism-reducer/         # Irandoc similarity reduction & academic paraphraser
 │       ├── persian-academic-translation/       # Psychology translation & terminology engine
 │       ├── persian-defense-presentation-builder/ # Defense slide deck (.pptx) & speaker notes compiler
 │       ├── persian-discussion-builder/         # Chapter 5 discussion & theoretical explanation
@@ -168,8 +171,18 @@ python3 .agents/skills/psychological-intervention-protocol-builder/scripts/compi
   --output-json "protocol_act.json"
 ```
 
+### Irandoc Paraphrasing & Similarity Reduction
+Rewrite high-similarity literature and discussion chapters to reduce Irandoc scores (< 20%) while preserving citations:
+```bash
+python3 .agents/skills/irandoc-plagiarism-reducer/scripts/paraphrase_engine.py \
+  --input "فصل_دوم_ادبیات_پژوهش.docx" \
+  --output-docx "فصل_دوم_بازنویسی_ایرانداک.docx" \
+  --output-report "گزارش_کاهش_همانندجویی.docx"
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
+- *"Rewrite Chapter 2 to reduce Irandoc similarity below 15% while keeping all citations intact."*
 - *"Generate an 8-session ACT intervention protocol and Chapter 3 table for chronic pain patients."*
 - *"Find the subscales, scoring method, and questions for Connor-Davidson Resilience Scale."*
 - *"Score this raw survey file using the Penn State Worry Questionnaire keys and reverse items."*
