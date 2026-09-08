@@ -42,6 +42,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    End-to-end qualitative analysis and reporting engine supporting **Braun & Clarke (2006, 2019, 2021) Reflexive Thematic Analysis** (6-phase pipeline, 3-tier theme hierarchy: Basic, Organizing, Global) and **Strauss & Corbin (1990, 1998) Systematic Grounded Theory** (open, axial, selective coding, and 6-dimension Paradigmatic Model). Computes inter-coder reliability (Holsti's PAO, Cohen's Kappa), conducts Lincoln & Guba (1985) trustworthiness audits, renders 300-DPI thematic network diagrams (`thematic_network.png`), exports 5-sheet coding matrices (`thematic_matrix.xlsx`), and compiles defense-ready Persian/English Chapter 4 Word reports (`.docx`).
 17. **Literature Review & Chapter 2 Synthesis ([persian-literature-review-builder](.agents/skills/persian-literature-review-builder/))**:
    Translates and integrates English theoretical foundations from foreign dissertations and literature (strictly avoiding copying from Persian theses to prevent cliches and high Irandoc similarity), organizes recent Iranian (Magiran, SID, ISC) and international (Scopus, PubMed, WoS) empirical literature using a 5-part reporting formula, embeds APA 7 borderless empirical summary tables, articulates research gaps and conceptual frameworks, and compiles defense-ready Word (`.docx`) and multi-sheet Excel workbooks.
+18. **Psychometric Scale Validator ([psychometric-scale-validator](.agents/skills/psychometric-scale-validator/))**:
+   End-to-end scale standardization and psychometric validation engine: verification of WHO/ITC translation protocols, quantitative Lawshe (1975) CVR against critical panel thresholds, Waltz & Bausell / Lynn (1986) CVI ($I\text{-}CVI$, $S\text{-}CVI/\text{Ave}$), Item Impact Scores, Exploratory Factor Analysis (EFA: KMO, Bartlett, Scree plot, Promax/Varimax), Confirmatory Factor Analysis (CFA: $\chi^2/df$, CFI, TLI, RMSEA, SRMR), Fornell & Larcker Convergent (AVE $\ge 0.50$, CR $\ge 0.70$) and Discriminant Validity, APA 7th Edition McDonald's Omega ($\omega$) and Cronbach's Alpha ($\alpha$), Test-Retest ICC, Norm score conversions (Z, T, Percentiles), and ROC Curve clinical cut-off determination. Compiles defense-ready Chapter 4 Word reports (`.docx`), 5-sheet Excel validation matrices, and 300-DPI visual plots.
 
 ---
 
@@ -65,6 +67,7 @@ AcademicSuite/
 │       ├── psychological-intervention-protocol-builder/ # Evidence-based treatment manual & Ch 3 table builder
 │       ├── psychometric-data-simulator/        # Monte Carlo SEM, Likert scale & RCT data simulator
 │       ├── psychometric-scale-resolver/        # Questionnaire resolution, scoring & psychometrics
+│       ├── psychometric-scale-validator/       # Scale standardization, EFA/CFA, CVR/CVI & ROC cut-offs
 │       ├── qualitative-data-analyst/           # Thematic analysis, grounded theory & Ch 4 qualitative reporter
 │       ├── statistical-data-analyst/           # Statistical testing & Chapter 4 builder
 │       └── systematic-review-meta-analyst/     # PRISMA 2020 & Cochrane meta-analysis engine
@@ -273,6 +276,15 @@ python3 .agents/skills/persian-literature-review-builder/scripts/literature_revi
   --lang fa
 ```
 
+### Psychometric Scale Standardization & Validation
+Conduct scale cultural adaptation, Lawshe CVR, Waltz-Bausell CVI, EFA/CFA, McDonald's $\omega$, and ROC clinical cut-off determination:
+```bash
+python3 .agents/skills/psychometric-scale-validator/scripts/psychometric_validator_engine.py \
+  --json "validation_payload.json" \
+  --out-dir "./validation_output" \
+  --lang fa
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
 - *"Rewrite Chapter 2 to reduce Irandoc similarity below 15% while keeping all citations intact."*
@@ -298,6 +310,8 @@ Simply instruct your Antigravity agent:
 - *"Calculate Holsti's inter-coder reliability index and Cohen's Kappa between two independent raters for my qualitative coding."*
 - *"Compile Chapter 2 from these translated foreign dissertation sections, summarize 6 Iranian and 6 foreign empirical studies, and generate the APA 7 summary table in Word."*
 - *"Extract the research gap and conceptual model for my thesis on Internet Gaming Disorder and Ego Strength in Chapter 2."*
+- *"Standardize this 20-item scale: calculate Lawshe CVR, Waltz-Bausell CVI, run EFA/CFA, compute McDonald's omega and test-retest ICC, and determine clinical cut-off using ROC curve analysis."*
+- *"Write Chapter 4 for my questionnaire standardization thesis in Persian Word format with all 7 APA 7 tables and dual Scree/ROC plots."*
 
 ---
 
