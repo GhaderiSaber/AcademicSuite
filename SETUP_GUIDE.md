@@ -72,13 +72,32 @@ The document generator formats Iranian university theses using standard Persian 
 
 ## 4. Activating in Google Antigravity
 
-When you open this folder in **Google Antigravity**:
-1. Open Antigravity and select **Open Workspace** $\rightarrow$ select the `AntigravitySkills` folder.
-2. **Automatic Skill Discovery**:
-   - Antigravity automatically detects the workspace customization folder `.agents/skills/`.
-   - All 4 skills (`persian-academic-translation`, `academic-reference-extractor`, `persian-thesis-builder`, and `statistical-data-analyst`) will immediately appear in the agent's available skills list.
-3. **Automatic Rule Injection**:
-   - Antigravity automatically reads `AGENTS.md` at the root of the workspace. Any agent turn will adhere to the APA 7th Edition standards, zero-hallucination rules, and typography guidelines.
+### Option A: Local Workspace Mode
+Open Antigravity and select **Open Workspace** → `AntigravitySkills`. The 4 skills and `AGENTS.md` are automatically loaded for this workspace.
+
+### Option B: Universal Global Plugin Mode (`academic_suite`) — (Recommended)
+To make these 4 skills and guidelines active across **ALL projects and workspaces** on your computer:
+```bash
+# 1. Create global plugin directory
+mkdir -p ~/.gemini/config/plugins/academic_suite/skills
+mkdir -p ~/.gemini/config/plugins/academic_suite/rules
+
+# 2. Add plugin manifest
+cat << 'EOF' > ~/.gemini/config/plugins/academic_suite/plugin.json
+{
+  "name": "academic_suite",
+  "version": "1.0.0",
+  "description": "Academic Thesis & Psychological Statistical Consultancy Suite for Antigravity",
+  "author": "Saber Ghaderi",
+  "license": "MIT"
+}
+EOF
+
+# 3. Symlink skills and copy rules
+ln -s <PATH_TO_AntigravitySkills>/.agents/skills/* ~/.gemini/config/plugins/academic_suite/skills/
+cp <PATH_TO_AntigravitySkills>/AGENTS.md ~/.gemini/config/plugins/academic_suite/rules/academic_guidelines.md
+```
+Once installed, open *any* folder or project in Antigravity, and all 4 academic skills and APA rules will be available everywhere!
 
 ---
 
