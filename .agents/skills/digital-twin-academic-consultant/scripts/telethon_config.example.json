@@ -1,0 +1,8 @@
+{
+  "api_id": 0,
+  "api_hash": "YOUR_TELEGRAM_API_HASH",
+  "phone_number": "+989XXXXXXXXX",
+  "session_name": "saber_userbot",
+  "auto_reply": false,
+  "saved_messages_desk": true
+}
