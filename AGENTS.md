@@ -53,31 +53,36 @@ When assembling or editing Persian Word documents (`.docx`):
 
 | Skill Name | Path | When to Activate | Core Inputs | Primary Deliverables |
 | :--- | :--- | :--- | :--- | :--- |
+| **`persian-proposal-builder`** | [.agents/skills/persian-proposal-builder/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/persian-proposal-builder) | User requests writing or refining a graduate research proposal (پروپوزال), drafting Chapter 1 or Chapter 3, or calculating sample size. | Research topic, variables, population, instruments | `پروپوزال_طرح_پژوهش.docx` meeting university review council rules. |
 | **`persian-academic-translation`** | [.agents/skills/persian-academic-translation/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/persian-academic-translation) | User requests translating English papers, book chapters, or theoretical frameworks into academic Persian. | English PDF / DOCX / TXT papers | `*_fa.docx` formatted with academic terminology and preserved citations. |
 | **`academic-reference-extractor`** | [.agents/skills/academic-reference-extractor/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/academic-reference-extractor) | User needs EndNote/Zotero citations for a translated paper or specific thesis chapter. | Translated text with citations + Master paper bibliography | `.enw` (EndNote), `.ris` (Zotero/Mendeley), and `.txt` (APA list). |
 | **`statistical-data-analyst`** | [.agents/skills/statistical-data-analyst/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/statistical-data-analyst) | User provides data (`.sav`, `.xlsx`, `.csv`) and requests analysis, hypothesis testing, or Chapter 4 writing. | Raw dataset + Hypotheses / Research Questions | `فصل چهارم: یافته‌های پژوهش.docx` + `stats_results.json` + APA 7 tables. |
+| **`persian-discussion-builder`** | [.agents/skills/persian-discussion-builder/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/persian-discussion-builder) | User requests writing Chapter 5 (بحث و نتیجه‌گیری) interpreting statistical findings against literature. | Chapter 4 results (`stats_results.json`) + Chapter 2 literature | `فصل پنجم: بحث و نتیجه‌گیری.docx` with clinical implications and limitations. |
 | **`persian-thesis-builder`** | [.agents/skills/persian-thesis-builder/](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/persian-thesis-builder) | User wants to compile, merge, format, or assemble all thesis parts into a unified university document. | Master `.docx` template + Proposal + Translated Chapters 2, 4, 5 + Questionnaires | `Thesis_Compiled.docx` (Complete dissertation meeting university formatting rules). |
 
 ---
 
 ## 3. Data & Artifact Workflow Architecture
 
-The skills are modular and designed to pass standard artifacts between each other:
+The skills are modular and designed to pass standard artifacts between each other across the entire thesis lifecycle:
 
 ```
-[Raw English Literature] ──► (persian-academic-translation) ──► Chapter 2 Lit (.docx)
+[Research Idea / Variables] ──► (persian-proposal-builder)    ──► Proposal / Ch 1 & 3 (.docx)
                                                                            │
                                                                            ▼
-[In-Text Citations]      ──► (academic-reference-extractor)   ──► .enw / .ris / .txt
+[Raw English Literature]    ──► (persian-academic-translation) ──► Chapter 2 Lit (.docx)
                                                                            │
                                                                            ▼
-[SPSS / Excel Dataset]   ──► (statistical-data-analyst)       ──► Chapter 4 (.docx)
+[In-Text Citations]         ──► (academic-reference-extractor)   ──► .enw / .ris / .txt
                                                                            │
                                                                            ▼
-[Hypotheses + Stats JSON]──► (persian-discussion-builder)     ──► Chapter 5 (.docx)
+[SPSS / Excel Dataset]      ──► (statistical-data-analyst)       ──► Chapter 4 (.docx)
                                                                            │
                                                                            ▼
-[All Chapters + Template]──► (persian-thesis-builder)         ──► Master Thesis (.docx)
+[Hypotheses + Stats JSON]   ──► (persian-discussion-builder)     ──► Chapter 5 (.docx)
+                                                                           │
+                                                                           ▼
+[All Chapters + Template]   ──► (persian-thesis-builder)         ──► Master Thesis (.docx)
 ```
 
 ---
