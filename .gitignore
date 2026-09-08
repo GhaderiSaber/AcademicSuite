@@ -9,9 +9,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Allow repository documentation, agent instructions, and dependencies
+# Allow repository documentation, agent instructions, dependencies, and psychometric registry
 !.gitignore
 !README.md
 !AGENTS.md
 !requirements.txt
 !SETUP_GUIDE.md
+!Questionnaires.xlsx

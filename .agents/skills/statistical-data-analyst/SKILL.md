@@ -62,30 +62,59 @@ The skill provides specialized workflows for the three standard psychology resea
 
 ## 3. Step-by-Step Execution Protocol
 
-When a student provides a dataset and asks for analysis or Chapter 4, follow this 5-step protocol:
+When a student provides a dataset and asks for analysis or Chapter 4, follow this 6-step protocol:
 
 ```
-[Student Data (.sav/.xlsx) + Hypotheses]
+[Raw Survey Items (.xlsx/.csv/.sav) + Project Info]
                    │
                    ▼
-       [Step 1: Data Triage]
-       - Inspect columns, sample size, missing values
+     [Step 0: Questionnaire Ingestion & Scoring]
+     - Resolve scale via Questionnaires.xlsx or Google Drive Library
+     - Extract subscales, item lists, Likert range, reverse items
+     - Reverse negative items: Item_rev = (min + max) - Item
+     - Compute subscale & total composites (Sum, Mean, Alpha)
                    │
                    ▼
-    [Step 2: Formulate Config JSON]
-    - Map hypotheses to tests (ANCOVA, Regression, Mediation)
+        [Step 1: Data Triage]
+        - Inspect columns, sample size, missing values
                    │
                    ▼
-  [Step 3: Run Deterministic Engine]
-  - python3 psychology_stats.py --auto --config study_config.json
+     [Step 2: Formulate Config JSON]
+     - Map hypotheses to tests (ANCOVA, Regression, Mediation)
                    │
                    ▼
-  [Step 4: Generate Word Document]
-  - python3 generate_apa_docx.py --json stats_results.json --mode chapter4
+   [Step 3: Run Deterministic Engine]
+   - python3 psychology_stats.py --auto --config study_config.json
                    │
                    ▼
-  [Step 5: Defense Review & Delivery]
-  - Verify tables, APA notation, and hypothesis conclusions
+   [Step 4: Generate Word Document]
+   - python3 generate_apa_docx.py --json stats_results.json --mode chapter4
+                   │
+                   ▼
+   [Step 5: Defense Review & Delivery]
+   - Verify tables, APA notation, and hypothesis conclusions
+```
+
+### Step 0: Questionnaire Ingestion & Factor Scoring
+When the student provides raw item responses (e.g. `Q1..Q25` or `R1..R25`), resolve the questionnaire using the 3-tier hierarchy:
+1. **Tier 1 (Project Folder)**: Check local project files or proposal text.
+2. **Tier 2 (Excel Registry)**: Query `Questionnaires.xlsx` (4,880 rows) for subscale item lists, scoring methods, and reverse keys.
+3. **Tier 3 (Google Drive Library)**: Search `/Pending Works/Questionnaire(s)/` (2,206 documents) for original instruments and scoring manuals.
+
+Execute automated scoring and factor extraction:
+```bash
+# Search registry & library
+python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py search "Connor-Davidson"
+
+# Inspect profile, subscales, and reverse keys
+python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py profile "Connor-Davidson Resilience Scale"
+
+# Automatically reverse negative items and compute subscale sums/means + Cronbach alpha
+python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py score \
+  --data "data_raw.xlsx" \
+  --scale "Connor-Davidson Resilience Scale" \
+  --prefix "Q" \
+  --out "data_scored.xlsx"
 ```
 
 ### Step 1: Inspect Dataset
@@ -183,7 +212,10 @@ When providing consultation notes to students, include answers to the most commo
 
 ## 6. Bundled Resources
 
-- [Statistical Decision Trees](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/statistical-data-analyst/references/statistical_decision_tree.md) — Comprehensive guide for test selection.
-- [APA 7 Reporting Guide](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/statistical-data-analyst/references/apa7_psychology_reporting_guide.md) — Exact bilingual reporting sentences and notation rules.
-- [psychology_stats.py](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/statistical-data-analyst/scripts/psychology_stats.py) — Core calculation engine.
-- [generate_apa_docx.py](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py) — Word document and table styling engine.
+- [Statistical Decision Trees](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/references/statistical_decision_tree.md) — Comprehensive guide for test selection.
+- [APA 7 Reporting Guide](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/references/apa7_psychology_reporting_guide.md) — Exact bilingual reporting sentences and notation rules.
+- [Questionnaire Scoring & Factor Guide](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/references/questionnaire_scoring_and_factor_guide.md) — 3-tier lookup hierarchy, subscale resolution, and reverse-scoring keys.
+- [psychology_stats.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/psychology_stats.py) — Core calculation and hypothesis testing engine.
+- [questionnaire_resolver.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py) — Master questionnaire resolution, item mapping, and automated dataset scoring engine.
+- [generate_apa_docx.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py) — Word document and table styling engine.
+

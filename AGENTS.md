@@ -116,6 +116,22 @@ python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.
   --lang fa
 ```
 
+### Questionnaire Lookup & Automated Factor Scoring:
+```bash
+# 1. Search Questionnaire Registry (Questionnaires.xlsx) & Google Drive Library
+python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py search "Connor-Davidson"
+
+# 2. Inspect Scale Scoring Profile, Subscales, and Reverse Keys
+python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py profile "Penn State Worry Questionnaire"
+
+# 3. Score Raw Survey Item Responses into Factors and Scale Composites
+python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py score \
+  --data "survey_raw.xlsx" \
+  --scale "Penn State Worry Questionnaire" \
+  --prefix "Q" \
+  --out "survey_scored.xlsx"
+```
+
 ### Run Automated Statistical Suite:
 ```bash
 python3 .agents/skills/statistical-data-analyst/scripts/psychology_stats.py \
@@ -126,6 +142,8 @@ python3 .agents/skills/statistical-data-analyst/scripts/psychology_stats.py \
 ```
 
 ### Run Specific Statistical Tasks:
+- **Score Scale & Factors**:
+  `python3 .agents/skills/statistical-data-analyst/scripts/psychology_stats.py --data data_raw.xlsx --task score_scale --scale "Connor-Davidson Resilience Scale" --prefix "Q" --out-scored data_scored.xlsx`
 - **Descriptives & Normality**:
   `python3 .agents/skills/statistical-data-analyst/scripts/psychology_stats.py --data data.xlsx --task descriptives --vars "Pre_Test,Post_Test,Resilience"`
 - **Scale Reliability ($\alpha$)**:
@@ -157,3 +175,19 @@ Before delivering any Chapter 4 or statistical output to a student, verify:
 - [ ] All tables contain only 3 horizontal lines (no vertical lines).
 - [ ] All $p$-values omit the leading zero ($p = .012$, not $p = 0.012$).
 - [ ] Every hypothesis has an unambiguous concluding sentence affirming or rejecting it.
+
+---
+
+## 6. Questionnaire Registry & Psychometric Scale Directives
+
+When preparing datasets, writing research proposals, or drafting methodology chapters:
+1. **3-Tier Hierarchy**:
+   - **Tier 1 (Project Folder)**: Prioritize client-provided questionnaires and project files.
+   - **Tier 2 (Excel Registry - `Questionnaires.xlsx`)**: 4,880 rows mapping English/Persian names, subscales, items, Likert anchors, theoretical means, and reverse items.
+   - **Tier 3 (Google Drive Library - `Pending Works/Questionnaire`)**: 2,206 original `.pdf`, `.docx`, and `.doc` instruments for item texts and scoring manuals.
+2. **Reverse Scoring Formula**:
+   - Always transform negatively keyed items using $Item_{\text{rev}} = (Min + Max) - Item$ before computing subscale sums, means, or Cronbach's alpha.
+3. **Subscale & Total Composite Reporting**:
+   - Report Cronbach's $\alpha$ for each subscale and total scale separately.
+   - Confirm theoretical score ranges and midpoints ($Mean_{\text{theor}} = \frac{Min + Max}{2}$) in the narrative.
+

@@ -104,8 +104,27 @@ python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.
   --lang fa
 ```
 
+### Questionnaire Factor Scoring & Psychometric Resolution
+Query `Questionnaires.xlsx` and the Google Drive library or score raw item datasets:
+```bash
+# 1. Search questionnaire registry and Google Drive library
+python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py search "Connor-Davidson"
+
+# 2. Inspect scoring keys, subscales, and reverse items
+python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py profile "Penn State Worry Questionnaire"
+
+# 3. Score raw survey responses (applies reverse scoring, subscale sums/means, and alpha)
+python3 .agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py score \
+  --data "survey_raw.xlsx" \
+  --scale "Penn State Worry Questionnaire" \
+  --prefix "Q" \
+  --out "survey_scored.xlsx"
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
+- *"Score this raw survey file using the Penn State Worry Questionnaire keys and reverse items."*
+- *"Find the subscales, scoring method, and questions for Connor-Davidson Resilience Scale."*
 - *"Analyze this SPSS dataset and write Chapter 4 in Persian Word format."*
 - *"Translate this psychological paper for Chapter 2 and preserve in-text citations."*
 - *"Extract EndNote citations for all references in Chapter 2."*

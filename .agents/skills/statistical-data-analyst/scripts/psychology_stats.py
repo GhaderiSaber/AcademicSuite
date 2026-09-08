@@ -26,6 +26,19 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+try:
+    from questionnaire_resolver import score_dataset, get_scale_profile, search_registry
+except ImportError:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    if script_dir not in sys.path:
+        sys.path.insert(0, script_dir)
+    try:
+        from questionnaire_resolver import score_dataset, get_scale_profile, search_registry
+    except ImportError:
+        score_dataset = None
+        get_scale_profile = None
+        search_registry = None
+
 def load_dataset(file_path: str) -> pd.DataFrame:
     """Load dataset from .xlsx, .csv, or .sav."""
     if not os.path.exists(file_path):
@@ -492,7 +505,7 @@ def analyze_bootstrap_mediation(df: pd.DataFrame, x_col: str, m_col: str, y_col:
 def main():
     parser = argparse.ArgumentParser(description="Psychology Statistical Analysis CLI Engine")
     parser.add_argument("--data", required=True, help="Path to .xlsx, .csv, or .sav data file")
-    parser.add_argument("--task", required=True, choices=["descriptives", "reliability", "correlation", "group_test", "ancova", "regression", "mediation", "auto"], help="Analysis task to execute")
+    parser.add_argument("--task", required=True, choices=["descriptives", "reliability", "correlation", "group_test", "ancova", "regression", "mediation", "score_scale", "auto"], help="Analysis task to execute")
     parser.add_argument("--vars", help="Comma-separated variable names")
     parser.add_argument("--items", help="Comma-separated item column names for reliability")
     parser.add_argument("--group", help="Group column name")
@@ -507,6 +520,9 @@ def main():
     parser.add_argument("--var2", help="Second variable for paired comparison")
     parser.add_argument("--method", default="pearson", choices=["pearson", "spearman"], help="Correlation method")
     parser.add_argument("--bootstraps", type=int, default=2000, help="Number of bootstrap resamples")
+    parser.add_argument("--scale", help="Scale name in registry for questionnaire scoring")
+    parser.add_argument("--prefix", default="Q", help="Item column prefix (e.g. 'Q' or 'R')")
+    parser.add_argument("--out-scored", help="Output path for scored dataset with subscales")
     parser.add_argument("--config", help="Path to a JSON configuration file for full auto-run")
     parser.add_argument("--out", default="stats_results.json", help="Output JSON path")
     
@@ -514,7 +530,17 @@ def main():
     df = load_dataset(args.data)
     
     results = {}
-    if args.task == "descriptives":
+    if args.task == "score_scale":
+        if not args.scale:
+            print("Error: --scale required for 'score_scale' task.", file=sys.stderr)
+            sys.exit(1)
+        if score_dataset is None:
+            print("Error: questionnaire_resolver module is not available.", file=sys.stderr)
+            sys.exit(1)
+        df, summary = score_dataset(args.data, args.scale, item_col_prefix=args.prefix, output_path=args.out_scored)
+        results["questionnaire_scoring"] = summary
+
+    elif args.task == "descriptives":
         var_list = [v.strip() for v in args.vars.split(",")]
         results["descriptives"] = analyze_descriptives_and_normality(df, var_list)
         
@@ -546,6 +572,16 @@ def main():
             sys.exit(1)
         with open(args.config, 'r', encoding='utf-8') as f:
             cfg = json.load(f)
+
+        # 0. Optional Questionnaire Scoring (enriches df with subscales/totals before hypothesis tests)
+        if "questionnaires" in cfg and score_dataset:
+            results["questionnaires"] = {}
+            for q_spec in cfg["questionnaires"]:
+                q_name = q_spec.get("scale") or q_spec.get("name")
+                q_pref = q_spec.get("prefix", "Q")
+                q_out = q_spec.get("save_scored_as")
+                df, q_sum = score_dataset(args.data, q_name, item_col_prefix=q_pref, output_path=q_out)
+                results["questionnaires"][q_name] = q_sum
             
         if "descriptives" in cfg:
             results["descriptives"] = analyze_descriptives_and_normality(df, cfg["descriptives"]["vars"])

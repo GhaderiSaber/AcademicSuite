@@ -55,11 +55,12 @@ The proposal follows the standard Iranian university template:
 - **Experimental / Interventions**: Minimum 15–20 participants per group (Experimental vs. Control) calculated via G*Power ($\alpha = .05$, Power $= .80$, medium effect size $f = .25$).
 
 ### C. Instrument Reporting Standard
-For every questionnaire selected, the proposal must state:
-1. Full name, author, and year of origin.
-2. Number of items and Likert response scale (e.g., 5-point Likert from 1 = Strongly Disagree to 5 = Strongly Agree).
-3. Subscale dimensions.
-4. Reliability (Cronbach's $\alpha$) and validity in original and Iranian standardization studies.
+For every questionnaire selected, query `Questionnaires.xlsx` and the Google Drive master library via `questionnaire_resolver.py search "<scale_name>"`:
+1. Full name (English and Persian), author, and year of origin.
+2. Number of items and exact Likert response scale (e.g., 5-point Likert from 1 = Strongly Disagree to 5 = Strongly Agree).
+3. Subscale dimensions and item mappings.
+4. Theoretical score ranges (Min, Max, Theoretical Mean) and reverse-scored items.
+5. Reliability (Cronbach's $\alpha$) and validity in original and Iranian standardization studies.
 
 ---
 

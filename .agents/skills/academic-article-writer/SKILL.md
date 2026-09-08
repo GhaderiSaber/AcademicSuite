@@ -3,9 +3,10 @@ name: academic-article-writer
 description: >-
   Expert academic journal article drafting and compilation skill for psychology, behavioral sciences, and social sciences.
   Harvests heterogeneous research artifacts from the project folder (full thesis, proposal, translated literature,
-  SPSS/Excel statistical results, and psychometric scales) to compose publication-ready, high-impact peer-reviewed
-  journal manuscripts adhering to international IMRaD and APA 7th Edition standards for both International English
-  journals (ISI, Scopus Q1/Q2, Web of Science) and Iranian Scientific-Research journals (علمی-پژوهشی / ISC).
+  SPSS/Excel statistical results, psychometric scales, and Questionnaires.xlsx) to compose publication-ready,
+  high-impact peer-reviewed journal manuscripts adhering to international IMRaD and APA 7th Edition standards
+  for both International English journals (ISI, Scopus Q1/Q2, Web of Science) and Iranian Scientific-Research
+  journals (علمی-پژوهشی / ISC).
 ---
 
 # Academic Journal Article Writer Skill (نگارش و تدوین مقالات علمی-پژوهشی و ISI)
@@ -77,6 +78,7 @@ Inspect the project directory to locate:
 - Statistical output: `stats_results.json` or `فصل چهارم: یافته‌های پژوهش.docx`.
 - Methodological details: `پروپوزال_طرح_پژوهش.docx` or Chapter 3.
 - Theoretical literature: `Translate/` folder or Chapter 2.
+- Psychometric instruments: Ingest from project files or query `Questionnaires.xlsx` and the Google Drive master library via `questionnaire_resolver.py search "<scale_name>"` for verified item counts, subscale factors, and Likert anchors.
 - Discussion points: Chapter 5.
 
 Confirm the target language track (`--lang en` for International ISI/Scopus, or `--lang fa` for Iranian ISC).
