@@ -1,0 +1,281 @@
+{
+  "meta_analysis_metadata": {
+    "title": "Efficacy of Acceptance and Commitment Therapy for Anxiety Disorders: A Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+    "short_title": "ACT for Anxiety Meta-Analysis",
+    "primary_outcome": "Anxiety Symptom Severity (Self-Reported)",
+    "effect_measure": "Hedges' g (Standardized Mean Difference)",
+    "analysis_model": "Random-Effects (DerSimonian-Laird)",
+    "pico": {
+      "population": "Adults (aged 18+) diagnosed with anxiety disorders or clinically elevated anxiety",
+      "intervention": "Acceptance and Commitment Therapy (ACT; individual or group format)",
+      "comparator": "Waitlist control, Treatment-as-Usual (TAU), or active psychological control",
+      "outcomes": "Post-treatment anxiety symptom severity (BAI, GAD-7, OASIS, HAM-A)",
+      "study_design": "Randomized Controlled Trials (RCTs)"
+    }
+  },
+  "prisma_flow": {
+    "identification": {
+      "database_counts": {
+        "PubMed / MEDLINE": 342,
+        "Scopus": 418,
+        "Web of Science": 285,
+        "PsycINFO": 194,
+        "Magiran & SID (Persian)": 86
+      },
+      "total_identified": 1325,
+      "duplicates_removed": 421
+    },
+    "screening": {
+      "records_screened": 904,
+      "records_excluded": 812
+    },
+    "eligibility": {
+      "reports_sought_for_retrieval": 92,
+      "reports_not_retrieved": 4,
+      "reports_assessed": 88,
+      "reports_excluded": 78,
+      "exclusion_reasons": {
+        "Non-randomized or quasi-experimental design": 32,
+        "Sub-clinical or non-validated anxiety outcome": 24,
+        "Multi-component blended intervention without isolated ACT arm": 14,
+        "Insufficient numerical data to compute effect size": 8
+      }
+    },
+    "inclusion": {
+      "qualitative_synthesis_count": 10,
+      "quantitative_meta_analysis_count": 10
+    }
+  },
+  "studies": [
+    {
+      "id": "study_01",
+      "authors_year": "Arch et al. (2012)",
+      "country": "USA",
+      "population": "Mixed Anxiety Disorders",
+      "n_intervention": 64,
+      "mean_intervention": 14.20,
+      "sd_intervention": 6.80,
+      "n_control": 64,
+      "mean_control": 20.50,
+      "sd_control": 7.40,
+      "intervention_label": "ACT (12 sessions)",
+      "control_label": "Waitlist Control",
+      "outcome_scale": "BAI (0-63)",
+      "rob2": {
+        "D1_randomization": "Low",
+        "D2_deviations": "Some concerns",
+        "D3_missing_data": "Low",
+        "D4_measurement": "Low",
+        "D5_reporting": "Low",
+        "overall": "Some concerns"
+      }
+    },
+    {
+      "id": "study_02",
+      "authors_year": "Roemer et al. (2014)",
+      "country": "USA",
+      "population": "Generalized Anxiety Disorder",
+      "n_intervention": 41,
+      "mean_intervention": 11.40,
+      "sd_intervention": 4.50,
+      "n_control": 40,
+      "mean_control": 16.80,
+      "sd_control": 5.20,
+      "intervention_label": "ABBT / ACT (16 sessions)",
+      "control_label": "Waitlist Control",
+      "outcome_scale": "HAM-A (0-56)",
+      "rob2": {
+        "D1_randomization": "Low",
+        "D2_deviations": "Low",
+        "D3_missing_data": "Low",
+        "D4_measurement": "Low",
+        "D5_reporting": "Low",
+        "overall": "Low"
+      }
+    },
+    {
+      "id": "study_03",
+      "authors_year": "Wetherell et al. (2016)",
+      "country": "USA",
+      "population": "Older Adults with GAD",
+      "n_intervention": 38,
+      "mean_intervention": 16.50,
+      "sd_intervention": 6.10,
+      "n_control": 36,
+      "mean_control": 22.10,
+      "sd_control": 6.80,
+      "intervention_label": "ACT (12 sessions)",
+      "control_label": "Treatment as Usual (TAU)",
+      "outcome_scale": "BAI (0-63)",
+      "rob2": {
+        "D1_randomization": "Low",
+        "D2_deviations": "Low",
+        "D3_missing_data": "Low",
+        "D4_measurement": "Low",
+        "D5_reporting": "Low",
+        "overall": "Low"
+      }
+    },
+    {
+      "id": "study_04",
+      "authors_year": "Twohig et al. (2018)",
+      "country": "USA",
+      "population": "Obsessive-Compulsive & Anxiety",
+      "n_intervention": 40,
+      "mean_intervention": 13.80,
+      "sd_intervention": 5.90,
+      "n_control": 39,
+      "mean_control": 18.90,
+      "sd_control": 6.30,
+      "intervention_label": "ACT (8 sessions)",
+      "control_label": "Progressive Relaxation",
+      "outcome_scale": "OASIS (0-20)",
+      "rob2": {
+        "D1_randomization": "Low",
+        "D2_deviations": "Some concerns",
+        "D3_missing_data": "Low",
+        "D4_measurement": "Low",
+        "D5_reporting": "Low",
+        "overall": "Some concerns"
+      }
+    },
+    {
+      "id": "study_05",
+      "authors_year": "Karekla et al. (2019)",
+      "country": "Cyprus",
+      "population": "Panic Disorder with Agoraphobia",
+      "n_intervention": 28,
+      "mean_intervention": 15.10,
+      "sd_intervention": 6.40,
+      "n_control": 26,
+      "mean_control": 23.40,
+      "sd_control": 7.10,
+      "intervention_label": "ACT (10 sessions)",
+      "control_label": "Waitlist Control",
+      "outcome_scale": "BAI (0-63)",
+      "rob2": {
+        "D1_randomization": "Low",
+        "D2_deviations": "Low",
+        "D3_missing_data": "Low",
+        "D4_measurement": "Low",
+        "D5_reporting": "Low",
+        "overall": "Low"
+      }
+    },
+    {
+      "id": "study_06",
+      "authors_year": "Moradi et al. (2020)",
+      "country": "Iran",
+      "population": "Social Anxiety Disorder",
+      "n_intervention": 30,
+      "mean_intervention": 18.60,
+      "sd_intervention": 7.20,
+      "n_control": 30,
+      "mean_control": 26.20,
+      "sd_control": 8.00,
+      "intervention_label": "ACT (8 sessions)",
+      "control_label": "Waitlist Control",
+      "outcome_scale": "LSAS (0-144)",
+      "rob2": {
+        "D1_randomization": "Low",
+        "D2_deviations": "Some concerns",
+        "D3_missing_data": "Low",
+        "D4_measurement": "Low",
+        "D5_reporting": "Low",
+        "overall": "Some concerns"
+      }
+    },
+    {
+      "id": "study_07",
+      "authors_year": "Craske et al. (2021)",
+      "country": "USA",
+      "population": "Treatment-Resistant Anxiety",
+      "n_intervention": 52,
+      "mean_intervention": 10.80,
+      "sd_intervention": 4.10,
+      "n_control": 50,
+      "mean_control": 14.50,
+      "sd_control": 4.80,
+      "intervention_label": "ACT (14 sessions)",
+      "control_label": "Active Support Group",
+      "outcome_scale": "GAD-7 (0-21)",
+      "rob2": {
+        "D1_randomization": "Low",
+        "D2_deviations": "Low",
+        "D3_missing_data": "Low",
+        "D4_measurement": "Low",
+        "D5_reporting": "Low",
+        "overall": "Low"
+      }
+    },
+    {
+      "id": "study_08",
+      "authors_year": "Bahrami et al. (2022)",
+      "country": "Iran",
+      "population": "Generalized Anxiety in Cancer Patients",
+      "n_intervention": 25,
+      "mean_intervention": 8.90,
+      "sd_intervention": 3.60,
+      "n_control": 25,
+      "mean_control": 14.10,
+      "sd_control": 4.20,
+      "intervention_label": "ACT (8 sessions)",
+      "control_label": "Treatment as Usual (TAU)",
+      "outcome_scale": "GAD-7 (0-21)",
+      "rob2": {
+        "D1_randomization": "Some concerns",
+        "D2_deviations": "Some concerns",
+        "D3_missing_data": "Low",
+        "D4_measurement": "Low",
+        "D5_reporting": "Low",
+        "overall": "Some concerns"
+      }
+    },
+    {
+      "id": "study_09",
+      "authors_year": "Eustis et al. (2023)",
+      "country": "UK",
+      "population": "Health Anxiety & Hypochondriasis",
+      "n_intervention": 34,
+      "mean_intervention": 13.50,
+      "sd_intervention": 5.30,
+      "n_control": 33,
+      "mean_control": 18.20,
+      "sd_control": 5.80,
+      "intervention_label": "Online Guided ACT",
+      "control_label": "Online Psychoeducation",
+      "outcome_scale": "SHAI (0-56)",
+      "rob2": {
+        "D1_randomization": "Low",
+        "D2_deviations": "Low",
+        "D3_missing_data": "Low",
+        "D4_measurement": "Low",
+        "D5_reporting": "Low",
+        "overall": "Low"
+      }
+    },
+    {
+      "id": "study_10",
+      "authors_year": "Rezaei et al. (2024)",
+      "country": "Iran",
+      "population": "Post-Traumatic Stress & Comorbid Anxiety",
+      "n_intervention": 30,
+      "mean_intervention": 16.70,
+      "sd_intervention": 6.50,
+      "n_control": 30,
+      "mean_control": 22.80,
+      "sd_control": 7.00,
+      "intervention_label": "Group ACT (10 sessions)",
+      "control_label": "Waitlist Control",
+      "outcome_scale": "BAI (0-63)",
+      "rob2": {
+        "D1_randomization": "Low",
+        "D2_deviations": "Some concerns",
+        "D3_missing_data": "Low",
+        "D4_measurement": "Low",
+        "D5_reporting": "Low",
+        "overall": "Some concerns"
+      }
+    }
+  ]
+}

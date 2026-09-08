@@ -34,6 +34,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Synthesizes all heterogeneous project artifacts (theses, Chapter 4 statistical data, translated literature, and psychometric scales) into high-impact, publication-grade academic journal articles adhering to international peer-review standards (IMRaD, APA 7th Edition, JARS) for both International English journals (ISI / Scopus Q1/Q2) and Iranian Scientific-Research journals (علمی-پژوهشی / ISC).
 13. **Journal Submission Assistant ([journal-submission-assistant](.agents/skills/journal-submission-assistant/))**:
    Packages research papers into publisher-compliant submission bundles for international (Elsevier, Springer, Wiley, MDPI) and Iranian ISC journals: formal Cover Letters to the Editor-in-Chief, Title Pages with standard 14 CRediT authorship taxonomy roles and ethical declarations, Highlights strictly validated to $\le 85$ characters, and APA 7 Point-by-Point Response to Reviewers rebuttal tables for Revise & Resubmit (R&R) decisions.
+14. **Systematic Review & Meta-Analyst ([systematic-review-meta-analyst](.agents/skills/systematic-review-meta-analyst/))**:
+   Conducts and synthesizes gold-standard systematic reviews and quantitative meta-analyses adhering to PRISMA 2020 and Cochrane Risk of Bias (RoB 2) standards: multi-database Boolean search strategies, PRISMA study flow tracking, deterministic Hedges' $g$ effect sizes, Fixed-Effect & DerSimonian-Laird Random-Effects pooling, heterogeneity quantification ($Q$, $I^2$, $\tau^2$), Egger's publication bias test, and high-resolution Forest and Funnel plots.
 
 ---
 
@@ -55,7 +57,8 @@ AcademicSuite/
 │       ├── persian-thesis-revision-assistant/  # Word comment extractor & response table builder
 │       ├── psychological-intervention-protocol-builder/ # Evidence-based treatment manual & Ch 3 table builder
 │       ├── psychometric-scale-resolver/        # Questionnaire resolution, scoring & psychometrics
-│       └── statistical-data-analyst/           # Statistical testing & Chapter 4 builder
+│       ├── statistical-data-analyst/           # Statistical testing & Chapter 4 builder
+│       └── systematic-review-meta-analyst/     # PRISMA 2020 & Cochrane meta-analysis engine
 ├── AGENTS.md                                   # Canonical agent behavioral rules & directives
 ├── SETUP_GUIDE.md                              # Migration guide for setting up on a new device
 ├── Questionnaires.xlsx                         # Master index of 4,800+ psychological instruments
@@ -199,6 +202,22 @@ python3 .agents/skills/journal-submission-assistant/scripts/compile_submission_p
   --lang fa
 ```
 
+### Systematic Review & Quantitative Meta-Analysis (PRISMA 2020)
+Pool clinical trial effect sizes, assess Cochrane RoB 2, test publication bias, and render high-res Forest and Funnel plots:
+```bash
+# English Synthesis (Forest Plot, Funnel Plot, APA 7 Manuscript)
+python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engine.py \
+  --json "meta_analysis_payload.json" \
+  --out-dir "./meta_analysis_output_en" \
+  --lang en
+
+# Persian Synthesis (علمی-پژوهشی / ISC)
+python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engine.py \
+  --json "meta_analysis_payload_fa.json" \
+  --out-dir "./meta_analysis_output_fa" \
+  --lang fa
+```
+
 ### In-Agent Prompt Examples
 Simply instruct your Antigravity agent:
 - *"Rewrite Chapter 2 to reduce Irandoc similarity below 15% while keeping all citations intact."*
@@ -215,6 +234,8 @@ Simply instruct your Antigravity agent:
 - *"Draft an ISC scientific-research article in Persian from this completed thesis."*
 - *"Prepare the journal submission collateral package (Cover Letter, Title Page with CRediT roles, and Highlights) for Elsevier."*
 - *"Draft a point-by-point response to reviewers rebuttal table for my revised manuscript."*
+- *"Conduct a quantitative meta-analysis on these 10 RCTs and generate the PRISMA 2020 flowchart, Forest plot, and Funnel plot."*
+- *"Evaluate the risk of bias using Cochrane RoB 2 and run Egger's regression test for publication bias."*
 
 ---
 

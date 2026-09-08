@@ -66,6 +66,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | **`persian-defense-presentation-builder`** | [.agents/skills/persian-defense-presentation-builder/](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-defense-presentation-builder) | User requests creating defense slides (.pptx) or preparing for the viva voce oral defense before examiners. | Completed thesis / chapters / stats_results.json | `جلسه_دفاع.pptx` (16:9 widescreen, RTL OpenXML, Iranian typography, and candidate Speaker Notes). |
 | **`academic-article-writer`** | [.agents/skills/academic-article-writer/](file:///Users/saber/Desktop/academic_suite/.agents/skills/academic-article-writer) | User requests drafting, structuring, or compiling an academic journal article from thesis chapters and project data for ISI/Scopus (English) or ISC (Persian). | Full project artifacts (Proposal, Lit Review, Stats JSON, Ch 5) | `Academic_Article_Manuscript.docx` (English) or `مقاله_علمی_پژوهشی.docx` (Persian) meeting IMRaD & APA 7 standards. |
 | **`journal-submission-assistant`** | [.agents/skills/journal-submission-assistant/](file:///Users/saber/Desktop/academic_suite/.agents/skills/journal-submission-assistant) | User needs journal submission collateral (Cover Letter, Title Page with 14 CRediT roles, Highlights <= 85 chars, Declarations) or Point-by-Point Response to Reviewers for Revise & Resubmit. | Manuscript draft, metadata, or reviewer comments | `Cover_Letter.docx`, `Title_Page.docx`, `Highlights.docx`, `Response_to_Reviewers.docx`. |
+| **`systematic-review-meta-analyst`** | [.agents/skills/systematic-review-meta-analyst/](file:///Users/saber/Desktop/academic_suite/.agents/skills/systematic-review-meta-analyst) | User conducts or reports systematic review or meta-analysis (PRISMA 2020 & Cochrane RoB 2), pooling Hedges' g, calculating heterogeneity (Q, I², τ²), testing publication bias (Egger), or generating Forest & Funnel plots. | Trial outcome datasets (means, SDs, Ns) or screening numbers | `Meta_Analysis_Report.docx` + `forest_plot.png` + `funnel_plot.png` + `meta_analysis_statistics.json`. |
 
 ---
 
@@ -157,6 +158,21 @@ python3 .agents/skills/journal-submission-assistant/scripts/compile_submission_p
 python3 .agents/skills/journal-submission-assistant/scripts/compile_submission_package.py \
   --json "submission_payload_fa.json" \
   --out-dir "./submission_package_fa" \
+  --lang fa
+```
+
+### Systematic Review & Quantitative Meta-Analysis (PRISMA 2020 & Cochrane RoB 2):
+```bash
+# English Synthesis (Forest Plot, Funnel Plot, APA 7 Manuscript)
+python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engine.py \
+  --json "meta_analysis_payload.json" \
+  --out-dir "./meta_analysis_output_en" \
+  --lang en
+
+# Persian Synthesis (علمی-پژوهشی / ISC)
+python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engine.py \
+  --json "meta_analysis_payload_fa.json" \
+  --out-dir "./meta_analysis_output_fa" \
   --lang fa
 ```
 
