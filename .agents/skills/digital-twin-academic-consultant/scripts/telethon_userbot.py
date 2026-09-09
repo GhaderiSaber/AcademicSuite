@@ -64,18 +64,44 @@ DEFAULT_SESSION_NAME = os.path.join(SCRIPT_DIR, "saber_userbot")
 DEFAULT_STORAGE_DIR = os.path.join(SCRIPT_DIR, "userbot_storage")
 
 
+def get_proxy_settings(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Parse proxy settings from config or auto-detect local SOCKS5 proxy."""
+    proxy = config.get("proxy")
+    if proxy and isinstance(proxy, dict) and proxy.get("addr"):
+        return proxy
+    # Auto-detect running local proxies (Karing, Clash, v2ray, etc.)
+    import socket
+    for port in [3066, 10808, 7890, 1080, 2080]:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(0.2)
+            if s.connect_ex(("127.0.0.1", port)) == 0:
+                return {
+                    "proxy_type": "socks5",
+                    "addr": "127.0.0.1",
+                    "port": port
+                }
+    return None
+
+
 def load_telethon_config(config_path: str = DEFAULT_CONFIG_PATH) -> Dict[str, Any]:
     """Load MTProto credentials from telethon_config.json."""
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as f:
             return json.load(f)
     return {
-        "api_id": 0,
-        "api_hash": "",
+        "api_id": 6,
+        "api_hash": "eb06d4abfb49dc3eeb1aeb98ae0f581e",
         "phone_number": "",
+        "bot_token": "",
+        "admin_id": 124911145,
         "session_name": DEFAULT_SESSION_NAME,
         "auto_reply": False,
-        "saved_messages_desk": True
+        "saved_messages_desk": True,
+        "proxy": {
+            "proxy_type": "socks5",
+            "addr": "127.0.0.1",
+            "port": 3066
+        }
     }
 
 
@@ -86,34 +112,48 @@ def save_telethon_config(config: Dict[str, Any], config_path: str = DEFAULT_CONF
 
 
 class SaberTelethonUserbot:
-    """MTProto client managing Saber's personal account automation."""
+    """MTProto client managing Saber's personal account or bot automation."""
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.api_id = config.get("api_id")
-        self.api_hash = config.get("api_hash")
+        self.api_id = config.get("api_id") or 6
+        self.api_hash = config.get("api_hash") or "eb06d4abfb49dc3eeb1aeb98ae0f581e"
         self.session_name = config.get("session_name", DEFAULT_SESSION_NAME)
         self.auto_reply = config.get("auto_reply", False)
+        self.admin_id = config.get("admin_id", 124911145)
         self.storage_dir = DEFAULT_STORAGE_DIR
         os.makedirs(self.storage_dir, exist_ok=True)
 
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
         self.quote_counter = 100
+        self.me = None
+        self.proxy = get_proxy_settings(self.config)
 
         if not self.api_id or not self.api_hash:
             self.client = None
         else:
-            self.client = TelegramClient(self.session_name, self.api_id, self.api_hash)
+            self.client = TelegramClient(self.session_name, self.api_id, self.api_hash, proxy=self.proxy)
 
-    async def init_client(self):
+    async def init_client(self, phone: Optional[str] = None, bot_token: Optional[str] = None):
         """Connect and authenticate."""
         if not self.client:
             raise ValueError("api_id and api_hash must be set in telethon_config.json")
-        await self.client.start(phone=self.config.get("phone_number"))
-        me = await self.client.get_me()
-        print(f"[+] Connected to Telegram as: {me.first_name} {me.last_name or ''} (@{me.username}) [ID: {me.id}]")
-        return me
+        
+        token = bot_token or self.config.get("bot_token")
+        phone_num = phone or self.config.get("phone_number")
+
+        if token:
+            await self.client.start(bot_token=token)
+        elif phone_num:
+            await self.client.start(phone=phone_num)
+        else:
+            await self.client.start()
+
+        self.me = await self.client.get_me()
+        mode_str = "Bot" if self.me.bot else "Userbot (Personal Account)"
+        print(f"[+] Connected to Telegram as {mode_str}: {self.me.first_name} {self.me.last_name or ''} (@{self.me.username}) [ID: {self.me.id}]")
+        return self.me
 
     async def crawl_recent_client_chats(self, limit_dialogs: int = 40, limit_messages: int = 100) -> Dict[str, Any]:
         """
@@ -197,9 +237,10 @@ class SaberTelethonUserbot:
             f"• نادیده گرفتن: `/ignore_{quote_id}`"
         )
 
-        # Send to Saber's Saved Messages
-        await self.client.send_message("me", alert_text)
-        print(f"[+] Posted draft quote {quote_id} for {client_name} to Saved Messages.")
+        # Alert destination: "me" for Userbot, admin_id for Bot
+        admin_target = "me" if (self.me and not self.me.bot) else self.admin_id
+        await self.client.send_message(admin_target, alert_text)
+        print(f"[+] Posted draft quote {quote_id} for {client_name} to Admin Desk ({admin_target}).")
 
         if self.auto_reply:
             ack_msg = (
@@ -208,12 +249,13 @@ class SaberTelethonUserbot:
             )
             await event.reply(ack_msg)
 
-    async def start_listening(self):
-        """Listen to real-time client DMs and Saved Messages admin commands."""
-        me = await self.init_client()
+    async def start_listening(self, phone: Optional[str] = None, bot_token: Optional[str] = None):
+        """Listen to real-time client DMs and Admin Desk commands."""
+        me = await self.init_client(phone=phone, bot_token=bot_token)
+        admin_chat = "me" if not me.bot else self.admin_id
 
-        # 1. Admin Desk in "Saved Messages" (me)
-        @self.client.on(events.NewMessage(chats="me"))
+        # 1. Admin Desk (/send_Q101, /adjust_Q101_5000000, /ignore_Q101)
+        @self.client.on(events.NewMessage(chats=admin_chat))
         async def admin_handler(event):
             txt = (event.message.message or "").strip()
             # Send quote command: /send_Q101
@@ -245,6 +287,14 @@ class SaberTelethonUserbot:
                 else:
                     await event.reply(f"❌ شناسه {qid} یافت نشد.")
 
+            # Ignore quote command: /ignore_Q101
+            m_ign = re.match(r"^/ignore_(Q\d+)", txt)
+            if m_ign:
+                qid = m_ign.group(1)
+                if qid in self.pending_quotes:
+                    del self.pending_quotes[qid]
+                    await event.reply(f"🗑️ پیش‌فاکتور {qid} نادیده گرفته و حذف شد.")
+
         # 2. Client Inbound Messages (Private Chats)
         @self.client.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
         async def client_handler(event):
@@ -253,10 +303,35 @@ class SaberTelethonUserbot:
                 return
 
             client_name = f"{sender.first_name} {sender.last_name or ''}".strip()
-            msg_text = event.message.message or ""
+            msg_text = (event.message.message or "").strip()
             print(f"[!] New DM from client {client_name} (ID: {sender.id}): {msg_text[:60]}")
 
-            # Check for attached document (.docx / .pdf)
+            # Bot-specific commands (/start, /help, /scale)
+            if me.bot:
+                if msg_text in ["/start", "سلام", "درود"]:
+                    welcome_msg = (
+                        f"سلام و درود، وقت شما بخیر {sender.first_name} گرامی.\n\n"
+                        "دستیار هوشمند و مشاور پژوهشی صابر قادری در خدمت شماست.\n"
+                        "خدمات قابل ارائه:\n"
+                        "• بررسی پروپوزال و صدور پیش‌فاکتور تفکیکی (ارسال فایل یا متن)\n"
+                        "• جستجوی پرسشنامه‌ها و مقیاس‌های روان‌سنجی: `/scale نام_پرسشنامه`\n"
+                        "• مشاوره روش‌شناسی و تحلیل آماری\n\n"
+                        "جهت استعلام هزینه و زمان‌بندی، فایل پروپوزال خود را ارسال بفرمایید."
+                    )
+                    await event.reply(welcome_msg)
+                    return
+
+                if msg_text == "/help":
+                    help_msg = (
+                        "📚 **راهنمای دستورات:**\n"
+                        "• ارسال فایل پروپوزال (.docx یا .pdf) برای ارزیابی و استعلام قیمت\n"
+                        "• `/scale <نام>`: جستجو در بانک ۴۸۸۰ پرسشنامه استاندارد\n"
+                        "• `/start`: نمایش پیام آغازین و معرفی خدمات"
+                    )
+                    await event.reply(help_msg)
+                    return
+
+            # Check for attached document (.docx / .pdf / .txt)
             if event.message.file and event.message.file.name:
                 fname = event.message.file.name
                 ext = os.path.splitext(fname)[1].lower()
@@ -275,43 +350,50 @@ class SaberTelethonUserbot:
                 await self.handle_proposal_message(event, msg_text, client_name)
                 return
 
-            # Check for questionnaire search query
-            if any(w in msg_text for w in ["پرسشنامه", "مقیاس", "آزمون"]) and len(msg_text.split()) <= 10:
-                q_clean = re.sub(r"(?:داری|دارید|رو\s*دارید|می‌خواستم|لطفاً|سلام|وقت\s*بخیر)", "", msg_text).strip()
+            # Check for questionnaire search query (/scale <name> or "پرسشنامه ...")
+            m_scale = re.match(r"^/scale\s+(.+)", msg_text)
+            is_scale_query = bool(m_scale) or (
+                any(w in msg_text for w in ["پرسشنامه", "مقیاس", "آزمون"]) and len(msg_text.split()) <= 10
+            )
+            if is_scale_query:
+                query_name = m_scale.group(1).strip() if m_scale else re.sub(
+                    r"(?:داری|دارید|رو\s*دارید|می‌خواستم|لطفاً|سلام|وقت\s*بخیر)", "", msg_text
+                ).strip()
                 if questionnaire_resolver is not None:
-                    profile = questionnaire_resolver.get_scale_profile(q_clean)
+                    profile = questionnaire_resolver.get_scale_profile(query_name)
                     if profile and profile.get("found_in_registry"):
                         scale_info = (
-                            f"سلام وقت بخیر.\n"
-                            f"پرسشنامه «{profile.get('scale_persian_name') or profile.get('scale_name')}» "
-                            f"با {profile.get('total_items_count', '')} گویه و مولفه‌های استاندارد در بانک ابزارها موجود است."
+                            f"📋 **اطلاعات ابزار اندازه‌گیری:**\n"
+                            f"• نام مقیاس: **{profile.get('scale_persian_name') or profile.get('scale_name')}**\n"
+                            f"• تعداد گویه‌ها: {profile.get('total_items_count', 'مشخص در شناسنامه')}\n"
+                            f"• وضعیت در بانک: موجود و استاندارد\n\n"
+                            "این ابزار به همراه نمره‌گذاری و مولفه‌های استاندارد آماده استفاده در پژوهش است."
                         )
-                        # Notify Saved Messages or reply
-                        await self.client.send_message(
-                            "me",
-                            f"📋 *درخواست پرسشنامه از {client_name}:*\n"
-                            f"پیام: {msg_text}\n"
-                            f"پاسخ آماده: {scale_info}\n"
-                            f"جهت ارسال به کاربر: به پیام ریپلای کنید یا بفرستید."
-                        )
+                        if me.bot:
+                            await event.reply(scale_info)
+                        else:
+                            await self.client.send_message(
+                                "me",
+                                f"📋 *درخواست پرسشنامه از {client_name}:*\n"
+                                f"پیام: {msg_text}\n"
+                                f"پاسخ آماده: {scale_info}"
+                            )
+                        return
 
-        print("[*] Telethon Userbot is active & listening to incoming client DMs...")
-        print("[*] Open your Telegram 'Saved Messages' (پیام‌های ذخیره‌شده) to view real-time proposal alerts & approve quotes.")
+        desk_location = "پیام‌های ذخیره‌شده (Saved Messages)" if not me.bot else f"چت با اکانت صابر (ID: {self.admin_id})"
+        print(f"[*] Telethon {'Userbot' if not me.bot else 'Bot'} is active & listening to incoming DMs...")
+        print(f"[*] Open {desk_location} to view real-time proposal alerts & approve quotes.")
         await self.client.run_until_disconnected()
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Telethon MTProto Userbot for Saber Ghaderi")
-    parser.add_argument("--config", "-c", type=str, default=DEFAULT_CONFIG_PATH, help="Path to telethon_config.json")
-    parser.add_argument("--crawl-chats", action="store_true", help="Crawl real Telegram client chats to calibrate persona & FAQs")
-    parser.add_argument("--listen", action="store_true", help="Run real-time listener for incoming client DMs")
-    parser.add_argument("--auto-reply", action="store_true", help="Enable automatic replies to clients")
-
-    args = parser.parse_args()
-
+async def main_async(args):
     config = load_telethon_config(args.config)
     if args.auto_reply:
         config["auto_reply"] = True
+    if args.phone:
+        config["phone_number"] = args.phone
+    if args.bot_token:
+        config["bot_token"] = args.bot_token
 
     if not config.get("api_id") or not config.get("api_hash"):
         print("[-] Telethon credentials (api_id & api_hash) are not set.")
@@ -320,7 +402,6 @@ def main():
         print("    2. Click on 'API development tools'.")
         print("    3. Create an app (any name, e.g., 'AcademicAssistant') and copy your api_id and api_hash.")
         print(f"    4. Save them into: {args.config}")
-        # Save a template config if not existing
         if not os.path.exists(args.config):
             save_telethon_config(config, args.config)
             print(f"[+] Created template configuration file at: {args.config}")
@@ -328,13 +409,25 @@ def main():
 
     userbot = SaberTelethonUserbot(config)
 
-    loop = asyncio.get_event_loop()
     if args.crawl_chats:
-        loop.run_until_complete(userbot.init_client())
-        loop.run_until_complete(userbot.crawl_recent_client_chats())
+        await userbot.init_client(phone=args.phone, bot_token=args.bot_token)
+        await userbot.crawl_recent_client_chats()
     else:
         # Default to listening
-        loop.run_until_complete(userbot.start_listening())
+        await userbot.start_listening(phone=args.phone, bot_token=args.bot_token)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Telethon MTProto Client / Digital Twin for Saber Ghaderi")
+    parser.add_argument("--config", "-c", type=str, default=DEFAULT_CONFIG_PATH, help="Path to telethon_config.json")
+    parser.add_argument("--phone", "-p", type=str, default=None, help="Phone number with country code (e.g., +98912XXXXXXX)")
+    parser.add_argument("--bot-token", "-b", type=str, default=None, help="Telegram Bot Token from @BotFather")
+    parser.add_argument("--crawl-chats", action="store_true", help="Crawl real Telegram client chats to calibrate persona & FAQs")
+    parser.add_argument("--listen", action="store_true", help="Run real-time listener for incoming client DMs")
+    parser.add_argument("--auto-reply", action="store_true", help="Enable automatic replies to clients")
+
+    args = parser.parse_args()
+    asyncio.run(main_async(args))
 
 
 if __name__ == "__main__":
