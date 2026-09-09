@@ -127,3 +127,5 @@ Before submitting the manuscript to an academic journal, verify:
 - [ ] All tables strictly adhere to APA 7: zero vertical borders, 3 horizontal borders, table captions above, notes below.
 - [ ] Discussion explicitly explains the *psychological and theoretical mechanisms* (e.g., Beck, Bandura, Gross) rather than simply repeating statistical figures.
 - [ ] Every in-text citation matches an entry in the References list (and vice versa).
+- [ ] **Word OMML Math Preservation**: If editing an existing manuscript, never use naive `p.text = "..."` replacement. Verify native Word math formulas (`<m:oMath>`) are preserved intact and extract visible text using `"".join([e.text or "" for e in p._p.iter() if e.tag.endswith("}t")])`.
+
