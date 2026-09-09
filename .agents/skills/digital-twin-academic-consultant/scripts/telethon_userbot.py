@@ -22,11 +22,12 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 try:
-    from telethon import TelegramClient, events
+    from telethon import TelegramClient, events, Button
     from telethon.tl.types import DocumentAttributeFilename, User
 except ImportError:
     TelegramClient = None
     events = None
+    Button = None
 
 # Local suite imports
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -147,12 +148,44 @@ class SaberTelethonUserbot:
         else:
             self.client = TelegramClient(self.session_name, self.api_id, self.api_hash, proxy=self.proxy)
 
+        self.bot_token = config.get("bot_token")
+        if TelegramClient is not None and self.bot_token and self.api_id and self.api_hash:
+            bot_session_path = os.path.join(self.storage_dir, "bot_session")
+            self.bot_client = TelegramClient(bot_session_path, self.api_id, self.api_hash, proxy=self.proxy)
+        else:
+            self.bot_client = None
+
     @property
     def admin_target(self):
         """Return the destination peer for admin desk notifications."""
         if self.admin_desk_chat_id:
             return self.admin_desk_chat_id
         return "me" if (self.me and not self.me.bot) else self.admin_id
+
+    async def send_to_desk(self, text: str, buttons=None, reply_to=None):
+        """
+        Send an alert/message to the Admin Desk.
+        If bot_client is available and admin_desk_chat_id is set, the message is sent
+        by Academic Assistant Bot rather than Saber's personal account!
+        """
+        if self.bot_client and self.admin_desk_chat_id:
+            try:
+                if not self.bot_client.is_connected():
+                    await self.bot_client.connect()
+                return await self.bot_client.send_message(
+                    self.admin_desk_chat_id,
+                    text,
+                    buttons=buttons,
+                    reply_to=reply_to
+                )
+            except Exception as e:
+                print(f"[-] Bot send to desk error: {e}, falling back to user client...")
+        return await self.client.send_message(
+            self.admin_target,
+            text,
+            buttons=buttons,
+            reply_to=reply_to
+        )
 
     async def login_with_qr(self):
         """Perform QR code login by displaying an ASCII QR code in the terminal."""
@@ -193,36 +226,39 @@ class SaberTelethonUserbot:
             raise ValueError("api_id and api_hash must be set in telethon_config.json")
 
         await self.client.connect()
-        if await self.client.is_user_authorized():
-            self.me = await self.client.get_me()
-            mode_str = "Bot" if self.me.bot else "Userbot (Personal Account)"
-            print(f"[+] Connected to Telegram as {mode_str}: {self.me.first_name} {self.me.last_name or ''} (@{self.me.username}) [ID: {self.me.id}]")
-            return self.me
-
-        token = bot_token or self.config.get("bot_token")
-        phone_num = phone or self.config.get("phone_number")
-
-        if token:
-            await self.client.start(bot_token=token)
-        elif use_qr:
-            await self.login_with_qr()
-        elif phone_num:
-            try:
-                await self.client.start(phone=phone_num)
-            except Exception as e:
-                err_str = str(e)
-                if "RECAPTCHA_CHECK" in err_str or "ForbiddenError" in err_str:
-                    print("\n[!] Telegram phone login requires reCAPTCHA for this app ID.")
-                    print("[*] Automatically switching to fast & secure QR Code Login...\n")
-                    await self.login_with_qr()
-                else:
-                    raise
-        else:
-            await self.login_with_qr()
+        if not await self.client.is_user_authorized():
+            phone_num = phone or self.config.get("phone_number")
+            if use_qr or not phone_num:
+                await self.login_with_qr()
+            else:
+                try:
+                    await self.client.start(phone=phone_num)
+                except Exception as e:
+                    err_str = str(e)
+                    if "RECAPTCHA_CHECK" in err_str or "ForbiddenError" in err_str:
+                        print("\n[!] Telegram phone login requires reCAPTCHA for this app ID.")
+                        print("[*] Automatically switching to fast & secure QR Code Login...\n")
+                        await self.login_with_qr()
+                    else:
+                        raise
 
         self.me = await self.client.get_me()
         mode_str = "Bot" if self.me.bot else "Userbot (Personal Account)"
         print(f"[+] Connected to Telegram as {mode_str}: {self.me.first_name} {self.me.last_name or ''} (@{self.me.username}) [ID: {self.me.id}]")
+
+        # Initialize Assistant Bot client if configured
+        b_token = bot_token or self.bot_token
+        if self.bot_client and b_token:
+            try:
+                if not self.bot_client.is_connected():
+                    await self.bot_client.connect()
+                if not await self.bot_client.is_user_authorized():
+                    await self.bot_client.start(bot_token=b_token)
+                me_bot = await self.bot_client.get_me()
+                print(f"[+] Connected to Assistant Bot: {me_bot.first_name} (@{me_bot.username}) [ID: {me_bot.id}]")
+            except Exception as e:
+                print(f"[-] Could not connect Assistant Bot: {e}")
+
         return self.me
 
     async def crawl_recent_client_chats(self, limit_dialogs: int = 40, limit_messages: int = 100) -> Dict[str, Any]:
@@ -332,9 +368,15 @@ class SaberTelethonUserbot:
             f"• نادیده گرفتن: `/ignore_{quote_id}`"
         )
 
-        admin_target = self.admin_target
-        await self.client.send_message(admin_target, alert_text)
-        print(f"[+] Posted draft quote {quote_id} for {client_name} to Admin Desk ({admin_target}).")
+        buttons = None
+        if Button is not None:
+            buttons = [
+                [Button.inline(f"🚀 تأیید و ارسال ({quote_id})", f"send_{quote_id}".encode()),
+                 Button.inline("🗑️ نادیده گرفتن", f"ignore_{quote_id}".encode())]
+            ]
+
+        await self.send_to_desk(alert_text, buttons=buttons)
+        print(f"[+] Posted draft quote {quote_id} for {client_name} to Admin Desk via Assistant Bot.")
         print(f"[+] Project folder synced: {project_dir}")
 
         if self.auto_reply:
@@ -364,8 +406,7 @@ class SaberTelethonUserbot:
 
         if not unread_clients:
             print("[+] No unread messages found from clients.")
-            if admin_target:
-                await self.client.send_message(admin_target, "✅ هیچ پیام خوانده‌نشده‌ای از مراجعین یافت نشد.")
+            await self.send_to_desk("✅ هیچ پیام خوانده‌نشده‌ای از مراجعین یافت نشد.")
             return
 
         print(f"[!] Found {len(unread_clients)} client(s) with unread messages.")
@@ -443,8 +484,15 @@ class SaberTelethonUserbot:
         summary_lines.append("─────────────────────\n⚙️ دستورات کاربری:\n• بررسی مجدد: `/unread`\n• فهرست پروژه‌ها: `/projects`")
         report_text = "\n".join(summary_lines)
 
-        await self.client.send_message(admin_target, report_text)
-        print(f"[+] Posted unread messages and project sync report to Admin Desk ({admin_target}).")
+        buttons = None
+        if Button is not None:
+            buttons = [
+                [Button.inline("🔄 بررسی مجدد", b"cmd_unread"),
+                 Button.inline("📂 فهرست پروژه‌ها", b"cmd_projects")]
+            ]
+
+        await self.send_to_desk(report_text, buttons=buttons)
+        print(f"[+] Posted unread messages and project sync report to Admin Desk via Assistant Bot.")
 
 
     async def start_listening(self, phone: Optional[str] = None, bot_token: Optional[str] = None, use_qr: bool = False):
@@ -615,6 +663,53 @@ class SaberTelethonUserbot:
                     del self.pending_quotes[qid]
                     await event.reply(f"🗑️ پیش‌فاکتور {qid} نادیده گرفته و حذف شد.")
 
+        if self.bot_client:
+            @self.bot_client.on(events.CallbackQuery)
+            async def bot_callback_handler(event):
+                data = (event.data or b"").decode("utf-8")
+                if data.startswith("send_"):
+                    qid = data.split("send_")[1]
+                    if qid in self.pending_quotes:
+                        entry = self.pending_quotes[qid]
+                        card = format_telegram_card(entry["quote"])
+                        await self.client.send_message(entry["chat_id"], card)
+                        await event.answer(f"✅ پیش‌فاکتور {qid} به مراجع ارسال شد!", alert=True)
+                        try:
+                            await event.edit(f"{event.message.text}\n\n✅ **پیش‌فاکتور توسط شما تأیید و به مراجع ارسال شد.**", buttons=None)
+                        except Exception:
+                            pass
+                        del self.pending_quotes[qid]
+                    else:
+                        await event.answer(f"❌ شناسه {qid} منقضی شده یا یافت نشد.", alert=True)
+                elif data.startswith("ignore_"):
+                    qid = data.split("ignore_")[1]
+                    if qid in self.pending_quotes:
+                        del self.pending_quotes[qid]
+                        await event.answer("🗑️ پیش‌فاکتور نادیده گرفته شد.", alert=True)
+                        try:
+                            await event.edit(f"{event.message.text}\n\n🗑️ **این پیش‌فاکتور نادیده گرفته شد.**", buttons=None)
+                        except Exception:
+                            pass
+                    else:
+                        await event.answer(f"❌ شناسه {qid} یافت نشد.", alert=True)
+                elif data == "cmd_projects":
+                    projs = self.project_manager.list_all_projects()
+                    await event.answer(f"تعداد {len(projs)} پروژه در گوگل درایو ثبت شده است.")
+                    if projs:
+                        lines = [f"📂 **فهرست پروژه‌های فعال در گوگل درایو ({len(projs)} مورد):**\n"]
+                        for p in projs[:12]:
+                            cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
+                            lines.append(f"• **{cname}** ({p.get('status', 'pending')}) | مسیر: `{p['folder_path']}`")
+                        await self.send_to_desk("\n".join(lines))
+                elif data == "cmd_unread":
+                    await event.answer("🔍 در حال بررسی پیام‌های مراجعین...")
+                    await self.scan_and_process_unread_messages()
+
+            if self.admin_desk_chat_id:
+                @self.bot_client.on(events.NewMessage(chats=self.admin_desk_chat_id))
+                async def bot_admin_handler(event):
+                    await admin_handler(event)
+
         # 2. Client Inbound Messages (Private Chats)
         @self.client.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
         async def client_handler(event):
@@ -709,8 +804,7 @@ class SaberTelethonUserbot:
                         if me.bot:
                             await event.reply(scale_info)
                         else:
-                            await self.client.send_message(
-                                self.admin_target,
+                            await self.send_to_desk(
                                 f"📋 *درخواست پرسشنامه از {client_name}:*\n"
                                 f"پیام: {msg_text}\n"
                                 f"پاسخ آماده: {scale_info}"
@@ -728,7 +822,13 @@ class SaberTelethonUserbot:
         # Scan and report any existing unread messages from clients on startup
         await self.scan_and_process_unread_messages()
 
-        await self.client.run_until_disconnected()
+        if self.bot_client and self.bot_client.is_connected():
+            await asyncio.gather(
+                self.client.run_until_disconnected(),
+                self.bot_client.run_until_disconnected()
+            )
+        else:
+            await self.client.run_until_disconnected()
 
 
 async def main_async(args):
