@@ -138,20 +138,71 @@ class SaberTelethonUserbot:
         else:
             self.client = TelegramClient(self.session_name, self.api_id, self.api_hash, proxy=self.proxy)
 
-    async def init_client(self, phone: Optional[str] = None, bot_token: Optional[str] = None):
+    async def login_with_qr(self):
+        """Perform QR code login by displaying an ASCII QR code in the terminal."""
+        import getpass
+        from telethon.errors import SessionPasswordNeededError
+        try:
+            import qrcode
+        except ImportError:
+            qrcode = None
+
+        qr_login = await self.client.qr_login()
+        print("\n" + "=" * 62)
+        print("📱 SCAN THIS QR CODE IN TELEGRAM TO LOG IN:")
+        print("   1. Open Telegram on your phone.")
+        print("   2. Go to Settings -> Devices -> Link Desktop Device (اتصال دستگاه).")
+        print("   3. Point your phone camera at the QR code below:")
+        print("=" * 62 + "\n")
+
+        if qrcode:
+            qr = qrcode.QRCode()
+            qr.add_data(qr_login.url)
+            qr.print_ascii(invert=True)
+        else:
+            print(f"Direct QR URL: {qr_login.url}")
+
+        print("\n[*] Waiting for you to scan the QR code on your phone...")
+        try:
+            user = await qr_login.wait()
+            return user
+        except SessionPasswordNeededError:
+            print("\n[*] Two-step verification (2FA) password required.")
+            pw = getpass.getpass("Enter your Telegram 2FA cloud password: ")
+            return await self.client.sign_in(password=pw)
+
+    async def init_client(self, phone: Optional[str] = None, bot_token: Optional[str] = None, use_qr: bool = False):
         """Connect and authenticate."""
         if not self.client:
             raise ValueError("api_id and api_hash must be set in telethon_config.json")
-        
+
+        await self.client.connect()
+        if await self.client.is_user_authorized():
+            self.me = await self.client.get_me()
+            mode_str = "Bot" if self.me.bot else "Userbot (Personal Account)"
+            print(f"[+] Connected to Telegram as {mode_str}: {self.me.first_name} {self.me.last_name or ''} (@{self.me.username}) [ID: {self.me.id}]")
+            return self.me
+
         token = bot_token or self.config.get("bot_token")
         phone_num = phone or self.config.get("phone_number")
 
         if token:
             await self.client.start(bot_token=token)
+        elif use_qr:
+            await self.login_with_qr()
         elif phone_num:
-            await self.client.start(phone=phone_num)
+            try:
+                await self.client.start(phone=phone_num)
+            except Exception as e:
+                err_str = str(e)
+                if "RECAPTCHA_CHECK" in err_str or "ForbiddenError" in err_str:
+                    print("\n[!] Telegram phone login requires reCAPTCHA for this app ID.")
+                    print("[*] Automatically switching to fast & secure QR Code Login...\n")
+                    await self.login_with_qr()
+                else:
+                    raise
         else:
-            await self.client.start()
+            await self.login_with_qr()
 
         self.me = await self.client.get_me()
         mode_str = "Bot" if self.me.bot else "Userbot (Personal Account)"
@@ -252,9 +303,9 @@ class SaberTelethonUserbot:
             )
             await event.reply(ack_msg)
 
-    async def start_listening(self, phone: Optional[str] = None, bot_token: Optional[str] = None):
+    async def start_listening(self, phone: Optional[str] = None, bot_token: Optional[str] = None, use_qr: bool = False):
         """Listen to real-time client DMs and Admin Desk commands."""
-        me = await self.init_client(phone=phone, bot_token=bot_token)
+        me = await self.init_client(phone=phone, bot_token=bot_token, use_qr=use_qr)
         admin_chat = "me" if not me.bot else self.admin_id
 
         # 1. Admin Desk (/send_Q101, /adjust_Q101_5000000, /ignore_Q101)
@@ -413,11 +464,11 @@ async def main_async(args):
     userbot = SaberTelethonUserbot(config)
 
     if args.crawl_chats:
-        await userbot.init_client(phone=args.phone, bot_token=args.bot_token)
+        await userbot.init_client(phone=args.phone, bot_token=args.bot_token, use_qr=args.qr)
         await userbot.crawl_recent_client_chats()
     else:
         # Default to listening
-        await userbot.start_listening(phone=args.phone, bot_token=args.bot_token)
+        await userbot.start_listening(phone=args.phone, bot_token=args.bot_token, use_qr=args.qr)
 
 
 def main():
@@ -425,6 +476,7 @@ def main():
     parser.add_argument("--config", "-c", type=str, default=DEFAULT_CONFIG_PATH, help="Path to telethon_config.json")
     parser.add_argument("--phone", "-p", type=str, default=None, help="Phone number with country code (e.g., +98912XXXXXXX)")
     parser.add_argument("--bot-token", "-b", type=str, default=None, help="Telegram Bot Token from @BotFather")
+    parser.add_argument("--qr", action="store_true", help="Log in by scanning a QR code in Telegram (bypasses reCAPTCHA & SMS)")
     parser.add_argument("--crawl-chats", action="store_true", help="Crawl real Telegram client chats to calibrate persona & FAQs")
     parser.add_argument("--listen", action="store_true", help="Run real-time listener for incoming client DMs")
     parser.add_argument("--auto-reply", action="store_true", help="Enable automatic replies to clients")
