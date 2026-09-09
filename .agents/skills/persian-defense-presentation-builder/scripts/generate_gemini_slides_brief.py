@@ -473,11 +473,22 @@ def generate_brief(input_path: str, output_dir: str = ".") -> dict:
         f.write(prompt_text)
 
     # 4. Automatic Google Drive Sync
-    cloud_drive_dir = "/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive"
+    cloud_candidates = [
+        "G:/My Drive",
+        "g:/My Drive",
+        os.path.expanduser("~/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive"),
+        os.path.expanduser("~/Google Drive")
+    ]
+    cloud_drive_dir = None
+    for cand in cloud_candidates:
+        if os.path.exists(cand):
+            cloud_drive_dir = cand
+            break
+
     synced_docx = None
     synced_md = None
     synced_prompt = None
-    if os.path.exists(cloud_drive_dir):
+    if cloud_drive_dir and os.path.exists(cloud_drive_dir):
         synced_docx = os.path.join(cloud_drive_dir, "Defense_Presentation_Brief.docx")
         synced_md = os.path.join(cloud_drive_dir, "Defense_Presentation_Brief.md")
         synced_prompt = os.path.join(cloud_drive_dir, "gemini_slides_prompt.txt")
@@ -485,6 +496,7 @@ def generate_brief(input_path: str, output_dir: str = ".") -> dict:
             shutil.copyfile(docx_path, synced_docx)
             shutil.copyfile(md_path, synced_md)
             shutil.copyfile(prompt_path, synced_prompt)
+            print(f"[*] Successfully synced Google Slides brief to Google Drive: {cloud_drive_dir}")
         except Exception as e:
             print(f"Warning: Cloud Drive sync error: {e}", file=sys.stderr)
 

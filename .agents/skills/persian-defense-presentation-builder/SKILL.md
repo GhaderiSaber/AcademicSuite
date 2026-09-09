@@ -75,6 +75,17 @@ If that answer is not clear, the slide is not ready to render.
 
 # 1. HARD NON-NEGOTIABLE RULES
 
+## 1.0 Mandatory Interactive Path Selection Directive (Always Ask the User First)
+
+When activating this skill or responding to any user request to build, generate, or prepare a thesis defense presentation:
+- If the user has **NOT** explicitly specified which generation path they wish to take (`html`, `pptx`, or `google_slides`), the AI agent **MUST NOT** guess or arbitrarily choose a default path.
+- The agent **MUST** proactively ask the user using an interactive multiple-choice prompt (e.g., via the `ask_question` tool) to select their desired path:
+  1. **Path 1 — Interactive Standalone HTML Presentation Deck**: Single-file browser runtime (`presentation.html`), responsive RTL layout, keyboard shortcuts (arrows, Space, F for fullscreen, N for speaker notes modal), theme parity (`academic_navy`), 100/100 automated QA.
+  2. **Path 2 — Native Microsoft PowerPoint (.pptx) Presentation**: 16:9 widescreen presentation (`.pptx`) with pure-Python OMML native math equations, 300-DPI Matplotlib publication diagrams, bounding-box geometry overlap auditing, and candidate defense speaker notes on 100% of slides.
+  3. **Path 3 — Google Drive @Document Bridge for Google Slides**: Rich Word brief (`Defense_Presentation_Brief.docx`) & Markdown blueprint synced directly to Google Drive root + 1-click tailored prompt for Gemini in Google Slides (`gemini_slides_prompt.txt`).
+  4. **Path 4 — All Formats (Full Suite)**: Automatically compile and deliver all three presentation paths simultaneously.
+- Only proceed to rendering and compilation after the path has been chosen or confirmed by the user.
+
 ## 1.1 One slide = one primary message
 
 Every content slide must have one dominant takeaway.
@@ -1588,6 +1599,13 @@ The skill provides a unified CLI (`main.py`) supporting three distinct output pa
 1. **Path 1 (`html`)**: Interactive standalone HTML slide decks (slide-creator runtime, Ghost Deck action titles, RTL typography, and 100/100 automated QA gate).
 2. **Path 2 (`pptx`)**: Native Microsoft PowerPoint (`.pptx`) presentations (300-DPI Matplotlib diagrams, pure-Python OMML native math, and bounding-box geometry overlap auditing).
 3. **Path 3 (`google_slides`)**: Google Drive `@Document` Bridge + Gemini AI prompt (`Defense_Presentation_Brief.docx` & `.md` synced to Google Drive root + 1-click prompt for Google Slides).
+
+### 23.0 Interactive Path Selection Protocol (MANDATORY)
+Whenever a user requests presentation generation or activates this skill, if the path was not explicitly stated in the initial prompt, the agent **MUST** stop and ask the user which path to take before compiling:
+- **Option 1**: Path 1 — Interactive HTML Slide Deck (`presentation.html` / `index.html`)
+- **Option 2**: Path 2 — Native Microsoft PowerPoint Presentation (`.pptx`)
+- **Option 3**: Path 3 — Google Drive @Document Bridge for Google Slides (`Defense_Presentation_Brief.docx` & `gemini_slides_prompt.txt`)
+- **Option 4**: All Formats — Full suite (HTML + PPTX + Google Slides Bridge)
 
 ### 23.1 Tri-Path CLI Commands
 
