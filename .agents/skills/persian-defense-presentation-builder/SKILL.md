@@ -1564,3 +1564,42 @@ The final deck should make a committee member think:
 > "I can immediately see what the study asked, how it was tested, what the evidence shows, and why the result matters."
 
 That is the quality standard for v3.
+
+---
+
+# 22. EXECUTION CLI & SLIDE-CREATOR ENGINE WORKFLOW
+
+The skill features full integration with the **kaisersong/slide-creator** deterministic rendering engine and intermediate representation (`BRIEF.json`) architecture, supporting dual-channel interactive HTML and DrawingML PowerPoint generation.
+
+### 22.1 Quick Start Commands
+
+From the skill directory (`.agents/skills/persian-defense-presentation-builder/`):
+
+```bash
+# 1. Direct generation from an Academic Defense Payload or BRIEF.json:
+python3 main.py --generate --brief examples/sample_defense_payload.json --output presentation.html --eval
+
+# 2. Direct generation from an explicit BRIEF.json:
+python3 main.py --generate --brief examples/defense_brief.json --output presentation.html --eval
+
+# 3. Validate a BRIEF artifact:
+python3 main.py --validate-brief --brief examples/defense_brief.json
+
+# 4. Generate native PowerPoint (.pptx) with DrawingML formatting:
+python3 scripts/compile_defense_presentation.py --input examples/sample_defense_payload.json --output defense_deck.pptx
+```
+
+### 22.2 Automatic Academic Payload Adaptation
+`main.py` and `low_context.py` feature transparent payload detection via `academic_brief_adapter.py`. When an academic JSON (containing research metadata, hypotheses, instruments, or statistical findings) is passed to `--brief`, it automatically:
+- Synthesizes an IR-first `BRIEF.json` narrative structure with 19 distinct academic narrative roles.
+- Enforces the `Academic Defense` preset with RTL Persian layout directionality (`dir="rtl"`).
+- Maps all slide titles, points, evidence stats, charts, tables, and candidate oral defense speaker notes (`data-notes`).
+- Enforces strict zero-consecutive layout repetition (`max_visual_family_run = 1`, `layout_variety >= 85%`).
+
+### 22.3 Interactive Presentation Features (HTML)
+- **Presenter Mode**: Press `P` or `F5` to open the synchronized dual-window presenter display with slide timer, elapsed time, current slide, next slide preview, and full Persian speaker notes.
+- **Inline Edit Mode**: Press `E` to toggle live `contenteditable` mode. Edits can be directly saved to disk via `saveFile`.
+- **Fullscreen**: Press `F` to toggle presentation fullscreen.
+- **Navigation**: Arrow keys, Space, PageUp/PageDown, or touch gestures.
+- **Zero Dependencies**: Self-contained HTML with embedded CSS, SVG icons, and vanilla JS engine. No external CDNs or network calls required.
+
