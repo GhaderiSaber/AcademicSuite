@@ -105,8 +105,38 @@ python3 .agents/skills/digital-twin-academic-consultant/scripts/telegram_chat_an
 
 ---
 
-### Script 3: `telegram_bot_daemon.py`
-Pure stdlib Telegram bot daemon supporting long-polling and test mode.
+---
+
+### Script 3: `telethon_userbot.py` & `project_drive_manager.py`
+Live MTProto userbot operating Saber's personal account (`@GhaderiSaber`, ID: `124911145`) integrated with the **Automated Google Drive Project Manager**.
+
+- **Automatic Project Provisioning**: Automatically discovers Google Drive `My Work` and provisions a standardized 4-tier directory (`01_raw_inputs`, `02_analysis_code`, `03_deliverables`, `04_references_and_lit`) matching `academic-drive-project-organizer`.
+- **Live Attachment Archival**: Client attachments (.docx, .pdf, .xlsx, .sav) are downloaded directly into `01_raw_inputs/`.
+- **Chat History & Transcripts**: Automatically generates structured `chat_history.json` and human-readable Persian `chat_transcript.md`.
+- **Client Dossier & Quotations**: Generates `client_profile.md`, updates `project_meta.json`, and prepares `03_deliverables/telegram_response_draft.md`.
+- **Saber's Saved Messages Desk**: Alerts Saber with the exact Google Drive folder path and one-tap approval buttons (`/send_Q101`, `/adjust_Q101_<price>`, `/ignore_Q101`).
+
+```bash
+# Run real-time listener (auto-provisions projects on incoming DMs & unread messages)
+python3 .agents/skills/digital-twin-academic-consultant/scripts/telethon_userbot.py --listen
+
+# Scan unread messages and sync project folders to Google Drive
+python3 .agents/skills/digital-twin-academic-consultant/scripts/telethon_userbot.py --scan-unread
+
+# List all managed client projects on Google Drive
+python3 .agents/skills/digital-twin-academic-consultant/scripts/telethon_userbot.py --list-projects
+
+# Archive and provision Google Drive project for a specific client
+python3 .agents/skills/digital-twin-academic-consultant/scripts/telethon_userbot.py --save-project "@Sepehr_rahimi_psy"
+
+# Sync all recent client chats (top 40) to Google Drive
+python3 .agents/skills/digital-twin-academic-consultant/scripts/telethon_userbot.py --sync-all-projects
+```
+
+---
+
+### Script 4: `telegram_bot_daemon.py`
+Pure stdlib Telegram bot daemon supporting long-polling and offline test simulation mode.
 
 ```bash
 # Offline simulation mode (Runs 5 test scenarios without network token)
@@ -128,9 +158,14 @@ python3 .agents/skills/digital-twin-academic-consultant/scripts/telegram_bot_dae
 | `/scale <name>` | Client / All | Searches 4,880 questionnaires in `Questionnaires.xlsx`. |
 | `/quote` | Client / All | Guides user on submitting proposal for price estimation. |
 | `/help` | Client / All | Displays full command list and support instructions. |
-| `/approve_<QID>` | Admin (`124911145`) | Approves draft quotation and delivers it to client. |
-| `/adjust_<QID>_<price>` | Admin (`124911145`) | Adjusts quote amount and delivers revised card. |
-| `/reject_<QID>` | Admin (`124911145`) | Declines proposal inquiry. |
+| `/unread` or `/scan` | Admin (`124911145`) | Scans unread client messages, syncs project folders, and reports summary. |
+| `/projects` | Admin (`124911145`) | Lists all active client projects in Google Drive with file counts and status. |
+| `/save_project <id_or_user>` | Admin (`124911145`) | Creates/syncs Google Drive project folder, downloads files, and archives chat. |
+| `/sync_projects` | Admin (`124911145`) | Syncs Google Drive project folders for all recent client dialogs. |
+| `/send_<QID>` | Admin (`124911145`) | Approves draft quotation and delivers it directly to client. |
+| `/adjust_<QID>_<price>` | Admin (`124911145`) | Adjusts quote amount and delivers revised quotation card to client. |
+| `/ignore_<QID>` | Admin (`124911145`) | Dismisses draft quotation inquiry. |
+
 
 ---
 

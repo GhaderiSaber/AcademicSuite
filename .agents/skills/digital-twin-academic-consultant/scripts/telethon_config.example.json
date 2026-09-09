@@ -1,8 +1,17 @@
 {
-  "api_id": 0,
+  "api_id": 6,
   "api_hash": "YOUR_TELEGRAM_API_HASH",
   "phone_number": "+989XXXXXXXXX",
+  "bot_token": "",
+  "admin_id": 124911145,
   "session_name": "saber_userbot",
   "auto_reply": false,
-  "saved_messages_desk": true
+  "saved_messages_desk": true,
+  "google_drive_work_dir": "/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive/My Work",
+  "proxy": {
+    "proxy_type": "socks5",
+    "addr": "127.0.0.1",
+    "port": 3066
+  }
 }
+

@@ -58,10 +58,36 @@ try:
 except Exception:
     questionnaire_resolver = None
 
+from project_drive_manager import (
+    ProjectDriveManager,
+    sanitize_filename,
+    resolve_google_drive_work_dir,
+    SUBFOLDERS
+)
+
 
 DEFAULT_CONFIG_PATH = os.path.join(SCRIPT_DIR, "telethon_config.json")
 DEFAULT_SESSION_NAME = os.path.join(SCRIPT_DIR, "saber_userbot")
 DEFAULT_STORAGE_DIR = os.path.join(SCRIPT_DIR, "userbot_storage")
+
+
+def get_proxy_settings(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Parse proxy settings from config or auto-detect local SOCKS5 proxy."""
+    proxy = config.get("proxy")
+    if proxy and isinstance(proxy, dict) and proxy.get("addr"):
+        return proxy
+    # Auto-detect running local proxies (Karing, Clash, v2ray, etc.)
+    import socket
+    for port in [3066, 10808, 7890, 1080, 2080]:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(0.2)
+            if s.connect_ex(("127.0.0.1", port)) == 0:
+                return {
+                    "proxy_type": "socks5",
+                    "addr": "127.0.0.1",
+                    "port": port
+                }
+    return None
 
 
 def load_telethon_config(config_path: str = DEFAULT_CONFIG_PATH) -> Dict[str, Any]:
@@ -70,12 +96,19 @@ def load_telethon_config(config_path: str = DEFAULT_CONFIG_PATH) -> Dict[str, An
         with open(config_path, "r", encoding="utf-8") as f:
             return json.load(f)
     return {
-        "api_id": 0,
-        "api_hash": "",
+        "api_id": 6,
+        "api_hash": "eb06d4abfb49dc3eeb1aeb98ae0f581e",
         "phone_number": "",
+        "bot_token": "",
+        "admin_id": 124911145,
         "session_name": DEFAULT_SESSION_NAME,
         "auto_reply": False,
-        "saved_messages_desk": True
+        "saved_messages_desk": True,
+        "proxy": {
+            "proxy_type": "socks5",
+            "addr": "127.0.0.1",
+            "port": 3066
+        }
     }
 
 
@@ -86,34 +119,103 @@ def save_telethon_config(config: Dict[str, Any], config_path: str = DEFAULT_CONF
 
 
 class SaberTelethonUserbot:
-    """MTProto client managing Saber's personal account automation."""
+    """MTProto client managing Saber's personal account or bot automation."""
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.api_id = config.get("api_id")
-        self.api_hash = config.get("api_hash")
+        self.api_id = config.get("api_id") or 6
+        self.api_hash = config.get("api_hash") or "eb06d4abfb49dc3eeb1aeb98ae0f581e"
         self.session_name = config.get("session_name", DEFAULT_SESSION_NAME)
         self.auto_reply = config.get("auto_reply", False)
+        self.admin_id = config.get("admin_id", 124911145)
         self.storage_dir = DEFAULT_STORAGE_DIR
         os.makedirs(self.storage_dir, exist_ok=True)
+        self.project_manager = ProjectDriveManager(self.config)
 
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
         self.quote_counter = 100
+        self.me = None
+        self.proxy = get_proxy_settings(self.config)
+
+        if TelegramClient is None:
+            raise RuntimeError("Telethon is not installed in the active Python environment. Please run: pip install telethon 'python-socks[asyncio]'")
 
         if not self.api_id or not self.api_hash:
             self.client = None
         else:
-            self.client = TelegramClient(self.session_name, self.api_id, self.api_hash)
+            self.client = TelegramClient(self.session_name, self.api_id, self.api_hash, proxy=self.proxy)
 
-    async def init_client(self):
+    async def login_with_qr(self):
+        """Perform QR code login by displaying an ASCII QR code in the terminal."""
+        import getpass
+        from telethon.errors import SessionPasswordNeededError
+        try:
+            import qrcode
+        except ImportError:
+            qrcode = None
+
+        qr_login = await self.client.qr_login()
+        print("\n" + "=" * 62)
+        print("📱 SCAN THIS QR CODE IN TELEGRAM TO LOG IN:")
+        print("   1. Open Telegram on your phone.")
+        print("   2. Go to Settings -> Devices -> Link Desktop Device (اتصال دستگاه).")
+        print("   3. Point your phone camera at the QR code below:")
+        print("=" * 62 + "\n")
+
+        if qrcode:
+            qr = qrcode.QRCode()
+            qr.add_data(qr_login.url)
+            qr.print_ascii(invert=True)
+        else:
+            print(f"Direct QR URL: {qr_login.url}")
+
+        print("\n[*] Waiting for you to scan the QR code on your phone...")
+        try:
+            user = await qr_login.wait()
+            return user
+        except SessionPasswordNeededError:
+            print("\n[*] Two-step verification (2FA) password required.")
+            pw = getpass.getpass("Enter your Telegram 2FA cloud password: ")
+            return await self.client.sign_in(password=pw)
+
+    async def init_client(self, phone: Optional[str] = None, bot_token: Optional[str] = None, use_qr: bool = False):
         """Connect and authenticate."""
         if not self.client:
             raise ValueError("api_id and api_hash must be set in telethon_config.json")
-        await self.client.start(phone=self.config.get("phone_number"))
-        me = await self.client.get_me()
-        print(f"[+] Connected to Telegram as: {me.first_name} {me.last_name or ''} (@{me.username}) [ID: {me.id}]")
-        return me
+
+        await self.client.connect()
+        if await self.client.is_user_authorized():
+            self.me = await self.client.get_me()
+            mode_str = "Bot" if self.me.bot else "Userbot (Personal Account)"
+            print(f"[+] Connected to Telegram as {mode_str}: {self.me.first_name} {self.me.last_name or ''} (@{self.me.username}) [ID: {self.me.id}]")
+            return self.me
+
+        token = bot_token or self.config.get("bot_token")
+        phone_num = phone or self.config.get("phone_number")
+
+        if token:
+            await self.client.start(bot_token=token)
+        elif use_qr:
+            await self.login_with_qr()
+        elif phone_num:
+            try:
+                await self.client.start(phone=phone_num)
+            except Exception as e:
+                err_str = str(e)
+                if "RECAPTCHA_CHECK" in err_str or "ForbiddenError" in err_str:
+                    print("\n[!] Telegram phone login requires reCAPTCHA for this app ID.")
+                    print("[*] Automatically switching to fast & secure QR Code Login...\n")
+                    await self.login_with_qr()
+                else:
+                    raise
+        else:
+            await self.login_with_qr()
+
+        self.me = await self.client.get_me()
+        mode_str = "Bot" if self.me.bot else "Userbot (Personal Account)"
+        print(f"[+] Connected to Telegram as {mode_str}: {self.me.first_name} {self.me.last_name or ''} (@{self.me.username}) [ID: {self.me.id}]")
+        return self.me
 
     async def crawl_recent_client_chats(self, limit_dialogs: int = 40, limit_messages: int = 100) -> Dict[str, Any]:
         """
@@ -165,8 +267,26 @@ class SaberTelethonUserbot:
         print(f"[+] Output written to: {out_md}")
         return analysis
 
-    async def handle_proposal_message(self, event, raw_text: str, client_name: str, file_name: Optional[str] = None):
-        """Process proposal received in private chat and post to Saved Messages."""
+    async def handle_proposal_message(
+        self,
+        event,
+        raw_text: str,
+        client_name: str,
+        file_name: Optional[str] = None,
+        sender_id: Optional[int] = None,
+        username: Optional[str] = None
+    ):
+        """Process proposal received in private chat, provision Google Drive project folder, and post to Saved Messages."""
+        # 1. Provision standard 4-tier project folder in Google Drive
+        project_paths = self.project_manager.provision_project(
+            client_name=client_name,
+            client_id=sender_id,
+            username=username,
+            status="proposal_received"
+        )
+        project_dir = project_paths["root"]
+
+        # 2. Analyze proposal text & calculate quotation
         analysis = analyze_proposal_text(raw_text)
         quote = calculate_quotation(analysis, self.persona)
 
@@ -178,16 +298,23 @@ class SaberTelethonUserbot:
             "sender_name": client_name,
             "quote": quote,
             "event": event,
+            "project_dir": project_dir,
             "created_at": datetime.now().isoformat()
         }
 
-        # Format Telegram quotation card
+        # 3. Format Telegram quotation card
         quote_card = format_telegram_card(quote)
 
-        # Notify Saber via "Saved Messages" (me)
+        # 4. Save quotation and draft response inside project deliverables
+        draft_deliverable = os.path.join(project_paths["deliverables"], "telegram_response_draft.md")
+        with open(draft_deliverable, "w", encoding="utf-8") as f:
+            f.write(f"# پیش‌نویس پیش‌فاکتور و پاسخ به مراجع ({client_name})\n\n{quote_card}\n")
+
+        # 5. Notify Saber via "Saved Messages" (me) with full Drive folder path
         alert_text = (
             f"🔔 *دریافت پروپوزال جدید از مراجع:* **{client_name}**\n"
             f"📁 *فایل/متن:* {file_name or 'متن پیام'}\n"
+            f"📂 *پوشه پروژه در گوگل درایو:*\n`{project_dir}`\n"
             f"🆔 *شناسه پیش‌فاکتور:* `{quote_id}`\n"
             "─────────────────────\n"
             f"{quote_card}\n\n"
@@ -197,9 +324,10 @@ class SaberTelethonUserbot:
             f"• نادیده گرفتن: `/ignore_{quote_id}`"
         )
 
-        # Send to Saber's Saved Messages
-        await self.client.send_message("me", alert_text)
-        print(f"[+] Posted draft quote {quote_id} for {client_name} to Saved Messages.")
+        admin_target = "me" if (self.me and not self.me.bot) else self.admin_id
+        await self.client.send_message(admin_target, alert_text)
+        print(f"[+] Posted draft quote {quote_id} for {client_name} to Admin Desk ({admin_target}).")
+        print(f"[+] Project folder synced: {project_dir}")
 
         if self.auto_reply:
             ack_msg = (
@@ -208,14 +336,237 @@ class SaberTelethonUserbot:
             )
             await event.reply(ack_msg)
 
-    async def start_listening(self):
-        """Listen to real-time client DMs and Saved Messages admin commands."""
-        me = await self.init_client()
+    async def scan_and_process_unread_messages(self, limit_dialogs: int = 100):
+        """
+        Scan unread direct messages from clients:
+        1. Automatically provisions or updates project folders in Google Drive 'My Work'.
+        2. Downloads incoming documents/scales into 01_raw_inputs/.
+        3. Persists chat_history.json, chat_transcript.md, and client_profile.md.
+        4. Detects proposals and prepares quotations.
+        5. Posts an executive summary to Saved Messages with Google Drive links.
+        """
+        print("[*] Scanning unread client messages and synchronizing Google Drive project folders...")
+        dialogs = await self.client.get_dialogs(limit=limit_dialogs)
+        unread_clients = [
+            dlg for dlg in dialogs 
+            if dlg.is_user and not dlg.entity.is_self and not dlg.entity.bot and dlg.unread_count > 0
+        ]
 
-        # 1. Admin Desk in "Saved Messages" (me)
-        @self.client.on(events.NewMessage(chats="me"))
+        admin_target = "me" if (self.me and not self.me.bot) else self.admin_id
+
+        if not unread_clients:
+            print("[+] No unread messages found from clients.")
+            if admin_target:
+                await self.client.send_message(admin_target, "✅ هیچ پیام خوانده‌نشده‌ای از مراجعین یافت نشد.")
+            return
+
+        print(f"[!] Found {len(unread_clients)} client(s) with unread messages.")
+        summary_lines = [f"📬 **گزارش پیام‌های خوانده‌نشده و همگام‌سازی پروژه‌ها ({len(unread_clients)} مراجع):**\n"]
+
+        for dlg in unread_clients:
+            client_name = dlg.name
+            unread_cnt = dlg.unread_count
+            user_entity = dlg.entity
+            username = getattr(user_entity, "username", None)
+            print(f"    • {client_name} ({dlg.id}): {unread_cnt} unread message(s)")
+
+            # Automatically archive chat and download unread files into Google Drive project folder
+            try:
+                archive_res = await self.project_manager.save_client_chat_and_files(
+                    client=self.client,
+                    entity=dlg.entity,
+                    client_name=client_name,
+                    client_id=dlg.id,
+                    username=username,
+                    limit_messages=max(unread_cnt + 20, 50),
+                    download_files=True
+                )
+                project_dir = archive_res["project_dir"]
+            except Exception as e:
+                print(f"    [-] Failed to archive project for {client_name}: {e}")
+                project_paths = self.project_manager.provision_project(client_name, client_id=dlg.id, username=username)
+                project_dir = project_paths["root"]
+
+            latest_text = ""
+            found_proposal = False
+
+            # Check unread messages for proposal files or text
+            async for msg in self.client.iter_messages(dlg.entity, limit=min(unread_cnt, 15)):
+                txt = (msg.message or "").strip()
+                if not latest_text and txt:
+                    latest_text = txt
+
+                # Check for proposal files
+                if msg.file and hasattr(msg.file, "name") and msg.file.name:
+                    fname = sanitize_filename(msg.file.name)
+                    ext = os.path.splitext(fname)[1].lower()
+                    if ext in [".docx", ".pdf", ".txt"]:
+                        print(f"      [+] Unread proposal file detected: {fname} from {client_name}")
+                        local_path = os.path.join(project_dir, "01_raw_inputs", fname)
+                        if not os.path.exists(local_path):
+                            try:
+                                local_path = await msg.download_media(file=local_path)
+                            except Exception:
+                                local_path = await msg.download_media(file=os.path.join(self.storage_dir, f"{dlg.id}_{fname}"))
+                        try:
+                            raw_content = extract_text_from_file(local_path)
+                            await self.handle_proposal_message(
+                                msg, raw_content, client_name, file_name=fname, sender_id=dlg.id, username=username
+                            )
+                            found_proposal = True
+                        except Exception as err:
+                            print(f"      [-] Error extracting proposal: {err}")
+
+                # Check for long text proposal
+                if len(txt) > 80 and any(w in txt for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
+                    await self.handle_proposal_message(
+                        msg, txt, client_name, sender_id=dlg.id, username=username
+                    )
+                    found_proposal = True
+
+            snippet = latest_text[:90] + ("..." if len(latest_text) > 90 else "")
+            status_tag = " (📄 پروپوزال تحلیل شد)" if found_proposal else ""
+            summary_lines.append(
+                f"👤 **{client_name}** (ID: `{dlg.id}`)\n"
+                f"📂 *پوشه در درایو:* `{project_dir}`\n"
+                f"💬 *آخرین پیام ({unread_cnt} پیام جدید):* «{snippet}»{status_tag}\n"
+            )
+
+        summary_lines.append("─────────────────────\n⚙️ دستورات کاربری:\n• بررسی مجدد: `/unread`\n• فهرست پروژه‌ها: `/projects`")
+        report_text = "\n".join(summary_lines)
+
+        await self.client.send_message(admin_target, report_text)
+        print(f"[+] Posted unread messages and project sync report to Admin Desk ({admin_target}).")
+
+
+    async def start_listening(self, phone: Optional[str] = None, bot_token: Optional[str] = None, use_qr: bool = False):
+        """Listen to real-time client DMs and Admin Desk commands."""
+        me = await self.init_client(phone=phone, bot_token=bot_token, use_qr=use_qr)
+        admin_chat = "me" if not me.bot else self.admin_id
+
+        # 1. Admin Desk (/send_Q101, /adjust_Q101_5000000, /ignore_Q101, /unread, /projects, /save_project, /sync_projects)
+        @self.client.on(events.NewMessage(chats=admin_chat))
         async def admin_handler(event):
             txt = (event.message.message or "").strip()
+
+            # Unread messages re-scan: /unread or /scan
+            if txt in ["/unread", "/scan"]:
+                await event.reply("🔍 در حال بررسی پیام‌های خوانده‌نشده مراجعین و همگام‌سازی پروژه‌ها...")
+                await self.scan_and_process_unread_messages()
+                return
+
+            # List Google Drive projects: /projects or /list_projects
+            if txt in ["/projects", "/list_projects"]:
+                projs = self.project_manager.list_all_projects()
+                if not projs:
+                    await event.reply("📂 هیچ پوشه پروژه‌ای در مسیر Google Drive یافت نشد.")
+                    return
+                lines = [f"📂 **فهرست پروژه‌های فعال در گوگل درایو ({len(projs)} پروژه):**\n"]
+                for p in projs:
+                    cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
+                    fc = p.get("file_count", 0)
+                    mc = p.get("message_count", 0)
+                    st = p.get("status", "pending")
+                    top = p.get("topic_fa") or p.get("topic") or "ثبت‌شده"
+                    lines.append(
+                        f"• **{cname}** ({st})\n"
+                        f"  ▫️ موضوع: {top[:40]}\n"
+                        f"  ▫️ آمار: {mc} پیام | {fc} فایل پیوست\n"
+                        f"  ▫️ مسیر: `{p['folder_path']}`\n"
+                    )
+                await event.reply("\n".join(lines))
+                return
+
+            # Manual Save / Archive Project: /save_project <name_or_id>
+            m_save = re.match(r"^/(?:save_project|archive_project)(?:\s+(.+))?", txt)
+            if m_save:
+                target = m_save.group(1).strip() if m_save.group(1) else None
+                if not target:
+                    await event.reply("⚠️ لطفاً نام یا شناسه مراجع را مشخص کنید:\nمثال: `/save_project @Sepehr_rahimi_psy` یا `/save_project 1098017329`")
+                    return
+
+                await event.reply(f"🔍 در حال جستجوی چت و ایجاد پوشه پروژه در گوگل درایو برای: `{target}`...")
+                target_dialog = None
+                dialogs = await self.client.get_dialogs(limit=100)
+                clean_target = target.lstrip("@").lower()
+
+                for dlg in dialogs:
+                    if not dlg.is_user or dlg.entity.is_self or dlg.entity.bot:
+                        continue
+                    uname = (getattr(dlg.entity, "username", None) or "").lower()
+                    dname = (dlg.name or "").lower()
+                    did_str = str(dlg.id)
+
+                    if clean_target == uname or clean_target in dname or clean_target == did_str:
+                        target_dialog = dlg
+                        break
+
+                if not target_dialog:
+                    try:
+                        ent = await self.client.get_entity(target)
+                        client_name = f"{getattr(ent, 'first_name', '')} {getattr(ent, 'last_name', '') or ''}".strip() or str(ent.id)
+                        res = await self.project_manager.save_client_chat_and_files(
+                            client=self.client,
+                            entity=ent,
+                            client_name=client_name,
+                            client_id=ent.id,
+                            username=getattr(ent, "username", None),
+                            limit_messages=200,
+                            download_files=True
+                        )
+                        await event.reply(
+                            f"✅ **پروژه با موفقیت ایجاد و همگام‌سازی شد:**\n"
+                            f"👤 مراجع: **{client_name}**\n"
+                            f"📁 مسیر درایو: `{res['project_dir']}`\n"
+                            f"📊 پیام‌ها: {res['messages_count']} | فایل‌ها: {res['files_count']}"
+                        )
+                        return
+                    except Exception as err:
+                        await event.reply(f"❌ مراجع با شناسه `{target}` یافت نشد: {err}")
+                        return
+
+                res = await self.project_manager.save_client_chat_and_files(
+                    client=self.client,
+                    entity=target_dialog.entity,
+                    client_name=target_dialog.name,
+                    client_id=target_dialog.id,
+                    username=getattr(target_dialog.entity, "username", None),
+                    limit_messages=200,
+                    download_files=True
+                )
+                await event.reply(
+                    f"✅ **پروژه در گوگل درایو همگام‌سازی شد:**\n"
+                    f"👤 مراجع: **{target_dialog.name}**\n"
+                    f"📁 پوشه پروژه: `{res['project_dir']}`\n"
+                    f"📊 آمار: {res['messages_count']} پیام ذخیره‌شده | {res['files_count']} فایل دریافت‌شده\n"
+                    f"📝 خلاصه پرونده: `{res['transcript_path']}`"
+                )
+                return
+
+            # Sync all recent projects: /sync_projects
+            if txt in ["/sync_projects", "/sync_all"]:
+                await event.reply("🔄 در حال همگام‌سازی و ایجاد پوشه پروژه در گوگل درایو برای تمام مراجعین اخیر...")
+                dialogs = await self.client.get_dialogs(limit=30)
+                client_dialogs = [d for d in dialogs if d.is_user and not d.entity.is_self and not d.entity.bot]
+                synced_count = 0
+                for cd in client_dialogs:
+                    try:
+                        await self.project_manager.save_client_chat_and_files(
+                            client=self.client,
+                            entity=cd.entity,
+                            client_name=cd.name,
+                            client_id=cd.id,
+                            username=getattr(cd.entity, "username", None),
+                            limit_messages=60,
+                            download_files=True
+                        )
+                        synced_count += 1
+                    except Exception as e:
+                        print(f"[-] Error syncing dialog {cd.name}: {e}")
+
+                await event.reply(f"✅ همگام‌سازی پایان یافت. تعداد {synced_count} پروژه مراجع در گوگل درایو به‌روزرسانی شد.\nدستور `/projects` را برای مشاهده لیست ارسال فرمایید.")
+                return
+
             # Send quote command: /send_Q101
             m_send = re.match(r"^/send_(Q\d+)", txt)
             if m_send:
@@ -245,6 +596,14 @@ class SaberTelethonUserbot:
                 else:
                     await event.reply(f"❌ شناسه {qid} یافت نشد.")
 
+            # Ignore quote command: /ignore_Q101
+            m_ign = re.match(r"^/ignore_(Q\d+)", txt)
+            if m_ign:
+                qid = m_ign.group(1)
+                if qid in self.pending_quotes:
+                    del self.pending_quotes[qid]
+                    await event.reply(f"🗑️ پیش‌فاکتور {qid} نادیده گرفته و حذف شد.")
+
         # 2. Client Inbound Messages (Private Chats)
         @self.client.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
         async def client_handler(event):
@@ -253,65 +612,121 @@ class SaberTelethonUserbot:
                 return
 
             client_name = f"{sender.first_name} {sender.last_name or ''}".strip()
-            msg_text = event.message.message or ""
+            msg_text = (event.message.message or "").strip()
             print(f"[!] New DM from client {client_name} (ID: {sender.id}): {msg_text[:60]}")
 
-            # Check for attached document (.docx / .pdf)
-            if event.message.file and event.message.file.name:
-                fname = event.message.file.name
-                ext = os.path.splitext(fname)[1].lower()
-                if ext in [".docx", ".pdf", ".txt"]:
-                    print(f"[+] Downloading proposal file: {fname}...")
-                    local_path = await event.download_media(file=os.path.join(self.storage_dir, f"{sender.id}_{fname}"))
-                    try:
-                        raw_content = extract_text_from_file(local_path)
-                        await self.handle_proposal_message(event, raw_content, client_name, file_name=fname)
-                    except Exception as err:
-                        print(f"[-] Error extracting proposal: {err}")
+            # Ensure client's Google Drive project folder is provisioned
+            self.project_manager.provision_project(
+                client_name=client_name,
+                client_id=sender.id,
+                username=sender.username,
+                phone=sender.phone
+            )
+
+            # Bot-specific commands (/start, /help, /scale)
+            if me.bot:
+                if msg_text in ["/start", "سلام", "درود"]:
+                    welcome_msg = (
+                        f"سلام و درود، وقت شما بخیر {sender.first_name} گرامی.\n\n"
+                        "دستیار هوشمند و مشاور پژوهشی صابر قادری در خدمت شماست.\n"
+                        "خدمات قابل ارائه:\n"
+                        "• بررسی پروپوزال و صدور پیش‌فاکتور تفکیکی (ارسال فایل یا متن)\n"
+                        "• جستجوی پرسشنامه‌ها و مقیاس‌های روان‌سنجی: `/scale نام_پرسشنامه`\n"
+                        "• مشاوره روش‌شناسی و تحلیل آماری\n\n"
+                        "جهت استعلام هزینه و زمان‌بندی، فایل پروپوزال خود را ارسال بفرمایید."
+                    )
+                    await event.reply(welcome_msg)
                     return
+
+                if msg_text == "/help":
+                    help_msg = (
+                        "📚 **راهنمای دستورات:**\n"
+                        "• ارسال فایل پروپوزال (.docx یا .pdf) برای ارزیابی و استعلام قیمت\n"
+                        "• `/scale <نام>`: جستجو در بانک ۴۸۸۰ پرسشنامه استاندارد\n"
+                        "• `/start`: نمایش پیام آغازین و معرفی خدمات"
+                    )
+                    await event.reply(help_msg)
+                    return
+
+            # Check for attached document (.docx / .pdf / .txt / .xlsx / .sav)
+            if event.message.file and event.message.file.name:
+                fname = sanitize_filename(event.message.file.name)
+                ext = os.path.splitext(fname)[1].lower()
+                print(f"[+] Client {client_name} sent attached file: {fname}. Saving directly to Google Drive project...")
+                try:
+                    local_path = await self.project_manager.save_single_file(
+                        msg=event.message,
+                        client_name=client_name,
+                        client_id=sender.id,
+                        username=sender.username
+                    )
+                    if ext in [".docx", ".pdf", ".txt"]:
+                        raw_content = extract_text_from_file(local_path)
+                        await self.handle_proposal_message(
+                            event, raw_content, client_name, file_name=fname, sender_id=sender.id, username=sender.username
+                        )
+                        return
+                except Exception as err:
+                    print(f"[-] Error saving incoming client file: {err}")
 
             # Check if long text proposal
             if len(msg_text) > 80 and any(w in msg_text for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
-                await self.handle_proposal_message(event, msg_text, client_name)
+                await self.handle_proposal_message(
+                    event, msg_text, client_name, sender_id=sender.id, username=sender.username
+                )
                 return
 
-            # Check for questionnaire search query
-            if any(w in msg_text for w in ["پرسشنامه", "مقیاس", "آزمون"]) and len(msg_text.split()) <= 10:
-                q_clean = re.sub(r"(?:داری|دارید|رو\s*دارید|می‌خواستم|لطفاً|سلام|وقت\s*بخیر)", "", msg_text).strip()
+            # Check for questionnaire search query (/scale <name> or "پرسشنامه ...")
+            m_scale = re.match(r"^/scale\s+(.+)", msg_text)
+            is_scale_query = bool(m_scale) or (
+                any(w in msg_text for w in ["پرسشنامه", "مقیاس", "آزمون"]) and len(msg_text.split()) <= 10
+            )
+            if is_scale_query:
+                query_name = m_scale.group(1).strip() if m_scale else re.sub(
+                    r"(?:داری|دارید|رو\s*دارید|می‌خواستم|لطفاً|سلام|وقت\s*بخیر)", "", msg_text
+                ).strip()
                 if questionnaire_resolver is not None:
-                    profile = questionnaire_resolver.get_scale_profile(q_clean)
+                    profile = questionnaire_resolver.get_scale_profile(query_name)
                     if profile and profile.get("found_in_registry"):
                         scale_info = (
-                            f"سلام وقت بخیر.\n"
-                            f"پرسشنامه «{profile.get('scale_persian_name') or profile.get('scale_name')}» "
-                            f"با {profile.get('total_items_count', '')} گویه و مولفه‌های استاندارد در بانک ابزارها موجود است."
+                            f"📋 **اطلاعات ابزار اندازه‌گیری:**\n"
+                            f"• نام مقیاس: **{profile.get('scale_persian_name') or profile.get('scale_name')}**\n"
+                            f"• تعداد گویه‌ها: {profile.get('total_items_count', 'مشخص در شناسنامه')}\n"
+                            f"• وضعیت در بانک: موجود و استاندارد\n\n"
+                            "این ابزار به همراه نمره‌گذاری و مولفه‌های استاندارد آماده استفاده در پژوهش است."
                         )
-                        # Notify Saved Messages or reply
-                        await self.client.send_message(
-                            "me",
-                            f"📋 *درخواست پرسشنامه از {client_name}:*\n"
-                            f"پیام: {msg_text}\n"
-                            f"پاسخ آماده: {scale_info}\n"
-                            f"جهت ارسال به کاربر: به پیام ریپلای کنید یا بفرستید."
-                        )
+                        if me.bot:
+                            await event.reply(scale_info)
+                        else:
+                            await self.client.send_message(
+                                "me",
+                                f"📋 *درخواست پرسشنامه از {client_name}:*\n"
+                                f"پیام: {msg_text}\n"
+                                f"پاسخ آماده: {scale_info}"
+                            )
+                        return
 
-        print("[*] Telethon Userbot is active & listening to incoming client DMs...")
-        print("[*] Open your Telegram 'Saved Messages' (پیام‌های ذخیره‌شده) to view real-time proposal alerts & approve quotes.")
+        desk_location = "پیام‌های ذخیره‌شده (Saved Messages)" if not me.bot else f"چت با اکانت صابر (ID: {self.admin_id})"
+        print(f"[*] Telethon {'Userbot' if not me.bot else 'Bot'} is active & listening to incoming DMs...")
+        print(f"[*] Google Drive Operational Root: {self.project_manager.work_dir}")
+        print(f"[*] Open {desk_location} to view real-time proposal alerts, approve quotes, or manage projects.")
+
+        # Scan and report any existing unread messages from clients on startup
+        await self.scan_and_process_unread_messages()
+
         await self.client.run_until_disconnected()
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Telethon MTProto Userbot for Saber Ghaderi")
-    parser.add_argument("--config", "-c", type=str, default=DEFAULT_CONFIG_PATH, help="Path to telethon_config.json")
-    parser.add_argument("--crawl-chats", action="store_true", help="Crawl real Telegram client chats to calibrate persona & FAQs")
-    parser.add_argument("--listen", action="store_true", help="Run real-time listener for incoming client DMs")
-    parser.add_argument("--auto-reply", action="store_true", help="Enable automatic replies to clients")
-
-    args = parser.parse_args()
-
+async def main_async(args):
     config = load_telethon_config(args.config)
     if args.auto_reply:
         config["auto_reply"] = True
+    if args.phone:
+        config["phone_number"] = args.phone
+    if args.bot_token:
+        config["bot_token"] = args.bot_token
+    if args.drive_dir:
+        config["google_drive_work_dir"] = args.drive_dir
 
     if not config.get("api_id") or not config.get("api_hash"):
         print("[-] Telethon credentials (api_id & api_hash) are not set.")
@@ -320,7 +735,6 @@ def main():
         print("    2. Click on 'API development tools'.")
         print("    3. Create an app (any name, e.g., 'AcademicAssistant') and copy your api_id and api_hash.")
         print(f"    4. Save them into: {args.config}")
-        # Save a template config if not existing
         if not os.path.exists(args.config):
             save_telethon_config(config, args.config)
             print(f"[+] Created template configuration file at: {args.config}")
@@ -328,13 +742,84 @@ def main():
 
     userbot = SaberTelethonUserbot(config)
 
-    loop = asyncio.get_event_loop()
-    if args.crawl_chats:
-        loop.run_until_complete(userbot.init_client())
-        loop.run_until_complete(userbot.crawl_recent_client_chats())
+    if args.list_projects:
+        projects = userbot.project_manager.list_all_projects()
+        print(f"\n📂 Managed Client Projects on Google Drive ({len(projects)} total):")
+        print("=" * 70)
+        for p in projects:
+            cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
+            print(f"• {cname} | Status: {p.get('status')} | Files: {p.get('file_count', 0)}")
+            print(f"  Path: {p['folder_path']}")
+        return
+
+    if args.save_project:
+        await userbot.init_client(phone=args.phone, bot_token=args.bot_token, use_qr=args.qr)
+        target = args.save_project.strip()
+        print(f"[*] Looking for client: {target}...")
+        ent = await userbot.client.get_entity(target)
+        cname = f"{getattr(ent, 'first_name', '')} {getattr(ent, 'last_name', '') or ''}".strip() or str(ent.id)
+        res = await userbot.project_manager.save_client_chat_and_files(
+            client=userbot.client,
+            entity=ent,
+            client_name=cname,
+            client_id=ent.id,
+            username=getattr(ent, "username", None),
+            limit_messages=200,
+            download_files=True
+        )
+        print(f"[+] Saved project to: {res['project_dir']}")
+        print(f"[+] Messages: {res['messages_count']}, Files: {res['files_count']}")
+        return
+
+    if args.sync_all_projects:
+        await userbot.init_client(phone=args.phone, bot_token=args.bot_token, use_qr=args.qr)
+        print("[*] Synchronizing all recent client chats to Google Drive...")
+        dialogs = await userbot.client.get_dialogs(limit=40)
+        client_dialogs = [d for d in dialogs if d.is_user and not d.entity.is_self and not d.entity.bot]
+        for cd in client_dialogs:
+            try:
+                await userbot.project_manager.save_client_chat_and_files(
+                    client=userbot.client,
+                    entity=cd.entity,
+                    client_name=cd.name,
+                    client_id=cd.id,
+                    username=getattr(cd.entity, "username", None),
+                    limit_messages=80,
+                    download_files=True
+                )
+            except Exception as e:
+                print(f"[-] Error: {cd.name}: {e}")
+        print("[+] All recent projects synchronized.")
+        return
+
+    if args.scan_unread:
+        await userbot.init_client(phone=args.phone, bot_token=args.bot_token, use_qr=args.qr)
+        await userbot.scan_and_process_unread_messages()
+    elif args.crawl_chats:
+        await userbot.init_client(phone=args.phone, bot_token=args.bot_token, use_qr=args.qr)
+        await userbot.crawl_recent_client_chats()
     else:
         # Default to listening
-        loop.run_until_complete(userbot.start_listening())
+        await userbot.start_listening(phone=args.phone, bot_token=args.bot_token, use_qr=args.qr)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Telethon MTProto Client & Google Drive Project Manager for Saber Ghaderi")
+    parser.add_argument("--config", "-c", type=str, default=DEFAULT_CONFIG_PATH, help="Path to telethon_config.json")
+    parser.add_argument("--phone", "-p", type=str, default=None, help="Phone number with country code (e.g., +98912XXXXXXX)")
+    parser.add_argument("--bot-token", "-b", type=str, default=None, help="Telegram Bot Token from @BotFather")
+    parser.add_argument("--qr", action="store_true", help="Log in by scanning a QR code in Telegram (bypasses reCAPTCHA & SMS)")
+    parser.add_argument("--drive-dir", type=str, default=None, help="Custom Google Drive 'My Work' operational directory")
+    parser.add_argument("--scan-unread", action="store_true", help="Scan unread messages, sync Drive projects, and report to Saved Messages")
+    parser.add_argument("--crawl-chats", action="store_true", help="Crawl real Telegram client chats to calibrate persona & FAQs")
+    parser.add_argument("--save-project", type=str, default=None, help="Archive and provision Google Drive project for specific client ID or username")
+    parser.add_argument("--sync-all-projects", action="store_true", help="Crawl and provision Google Drive projects for all recent client chats")
+    parser.add_argument("--list-projects", action="store_true", help="List all managed client projects in Google Drive")
+    parser.add_argument("--listen", action="store_true", help="Run real-time listener for incoming client DMs")
+    parser.add_argument("--auto-reply", action="store_true", help="Enable automatic replies to clients")
+
+    args = parser.parse_args()
+    asyncio.run(main_async(args))
 
 
 if __name__ == "__main__":
