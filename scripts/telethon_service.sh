@@ -1,0 +1,1 @@
+../.agents/skills/digital-twin-academic-consultant/scripts/manage_service.sh

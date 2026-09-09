@@ -120,6 +120,12 @@ Live MTProto userbot operating Saber's personal account (`@GhaderiSaber`, ID: `1
 # Run real-time listener (auto-provisions projects on incoming DMs & unread messages)
 python3 .agents/skills/digital-twin-academic-consultant/scripts/telethon_userbot.py --listen
 
+# Manage 24/7 background service via macOS launchd (zero manual runs needed)
+./scripts/telethon_service.sh status      # Check daemon status and view recent live logs
+./scripts/telethon_service.sh restart     # Restart daemon cleanly
+./scripts/telethon_service.sh logs        # Stream live logs in real-time
+./scripts/telethon_service.sh stop        # Stop background daemon
+
 # Scan unread messages and sync project folders to Google Drive
 python3 .agents/skills/digital-twin-academic-consultant/scripts/telethon_userbot.py --scan-unread
 

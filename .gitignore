@@ -3,6 +3,7 @@
 
 # Allow Antigravity agent configurations & skills
 !.agents/
+!scripts/
 
 # Ignore Python bytecode and caches inside skills
 __pycache__/
