@@ -303,15 +303,87 @@ class SaberTelethonUserbot:
             )
             await event.reply(ack_msg)
 
+    async def scan_and_process_unread_messages(self, limit_dialogs: int = 100):
+        """Scan unread direct messages from clients and post an executive summary + process proposals."""
+        print("[*] Scanning unread client messages...")
+        dialogs = await self.client.get_dialogs(limit=limit_dialogs)
+        unread_clients = [
+            dlg for dlg in dialogs 
+            if dlg.is_user and not dlg.entity.is_self and not dlg.entity.bot and dlg.unread_count > 0
+        ]
+
+        admin_target = "me" if (self.me and not self.me.bot) else self.admin_id
+
+        if not unread_clients:
+            print("[+] No unread messages found from clients.")
+            if admin_target:
+                await self.client.send_message(admin_target, "✅ هیچ پیام خوانده‌نشده‌ای از مراجعین یافت نشد.")
+            return
+
+        print(f"[!] Found {len(unread_clients)} client(s) with unread messages.")
+        summary_lines = [f"📬 **گزارش پیام‌های خوانده‌نشده ({len(unread_clients)} مراجع):**\n"]
+
+        for dlg in unread_clients:
+            client_name = dlg.name
+            unread_cnt = dlg.unread_count
+            print(f"    • {client_name} ({dlg.id}): {unread_cnt} unread message(s)")
+
+            latest_text = ""
+            found_proposal = False
+
+            # Collect unread messages
+            async for msg in self.client.iter_messages(dlg.entity, limit=min(unread_cnt, 10)):
+                txt = (msg.message or "").strip()
+                if not latest_text and txt:
+                    latest_text = txt
+
+                # Check for proposal files
+                if msg.file and hasattr(msg.file, "name"):
+                    fname = msg.file.name
+                    ext = os.path.splitext(fname)[1].lower()
+                    if ext in [".docx", ".pdf", ".txt"]:
+                        print(f"      [+] Unread proposal file detected: {fname} from {client_name}")
+                        local_path = await msg.download_media(file=os.path.join(self.storage_dir, f"{dlg.id}_{fname}"))
+                        try:
+                            raw_content = extract_text_from_file(local_path)
+                            await self.handle_proposal_message(msg, raw_content, client_name, file_name=fname)
+                            found_proposal = True
+                        except Exception as err:
+                            print(f"      [-] Error extracting proposal: {err}")
+
+                # Check for long text proposal
+                if len(txt) > 80 and any(w in txt for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
+                    await self.handle_proposal_message(msg, txt, client_name)
+                    found_proposal = True
+
+            snippet = latest_text[:90] + ("..." if len(latest_text) > 90 else "")
+            status_tag = " (📄 پروپوزال بررسی و تحلیل شد)" if found_proposal else ""
+            summary_lines.append(
+                f"👤 **{client_name}** (ID: `{dlg.id}`) — {unread_cnt} پیام{status_tag}\n"
+                f"💬 *آخرین پیام:* «{snippet}»\n"
+            )
+
+        summary_lines.append("─────────────────────\n⚙️ جهت بررسی مجدد: `/unread`")
+        report_text = "\n".join(summary_lines)
+
+        await self.client.send_message(admin_target, report_text)
+        print(f"[+] Posted unread messages report to Admin Desk ({admin_target}).")
+
     async def start_listening(self, phone: Optional[str] = None, bot_token: Optional[str] = None, use_qr: bool = False):
         """Listen to real-time client DMs and Admin Desk commands."""
         me = await self.init_client(phone=phone, bot_token=bot_token, use_qr=use_qr)
         admin_chat = "me" if not me.bot else self.admin_id
 
-        # 1. Admin Desk (/send_Q101, /adjust_Q101_5000000, /ignore_Q101)
+        # 1. Admin Desk (/send_Q101, /adjust_Q101_5000000, /ignore_Q101, /unread)
         @self.client.on(events.NewMessage(chats=admin_chat))
         async def admin_handler(event):
             txt = (event.message.message or "").strip()
+            # Unread messages re-scan: /unread or /scan
+            if txt in ["/unread", "/scan"]:
+                await event.reply("🔍 در حال بررسی پیام‌های خوانده‌نشده مراجعین...")
+                await self.scan_and_process_unread_messages()
+                return
+
             # Send quote command: /send_Q101
             m_send = re.match(r"^/send_(Q\d+)", txt)
             if m_send:
@@ -437,6 +509,10 @@ class SaberTelethonUserbot:
         desk_location = "پیام‌های ذخیره‌شده (Saved Messages)" if not me.bot else f"چت با اکانت صابر (ID: {self.admin_id})"
         print(f"[*] Telethon {'Userbot' if not me.bot else 'Bot'} is active & listening to incoming DMs...")
         print(f"[*] Open {desk_location} to view real-time proposal alerts & approve quotes.")
+
+        # Scan and report any existing unread messages from clients on startup
+        await self.scan_and_process_unread_messages()
+
         await self.client.run_until_disconnected()
 
 
@@ -463,7 +539,10 @@ async def main_async(args):
 
     userbot = SaberTelethonUserbot(config)
 
-    if args.crawl_chats:
+    if args.scan_unread:
+        await userbot.init_client(phone=args.phone, bot_token=args.bot_token, use_qr=args.qr)
+        await userbot.scan_and_process_unread_messages()
+    elif args.crawl_chats:
         await userbot.init_client(phone=args.phone, bot_token=args.bot_token, use_qr=args.qr)
         await userbot.crawl_recent_client_chats()
     else:
@@ -477,6 +556,7 @@ def main():
     parser.add_argument("--phone", "-p", type=str, default=None, help="Phone number with country code (e.g., +98912XXXXXXX)")
     parser.add_argument("--bot-token", "-b", type=str, default=None, help="Telegram Bot Token from @BotFather")
     parser.add_argument("--qr", action="store_true", help="Log in by scanning a QR code in Telegram (bypasses reCAPTCHA & SMS)")
+    parser.add_argument("--scan-unread", action="store_true", help="Scan and report unread client messages to Saved Messages")
     parser.add_argument("--crawl-chats", action="store_true", help="Crawl real Telegram client chats to calibrate persona & FAQs")
     parser.add_argument("--listen", action="store_true", help="Run real-time listener for incoming client DMs")
     parser.add_argument("--auto-reply", action="store_true", help="Enable automatic replies to clients")
