@@ -102,7 +102,13 @@ LAYOUT_DISPATCH = {
     "recommendations": build_recommendations_slide,
     "closing": build_closing_slide,
     "split_diagram": build_split_diagram_slide,
+    "path_diagram": build_split_diagram_slide,
+    "mediation_diagram": build_split_diagram_slide,
     "kpi_dashboard": build_kpi_dashboard_slide,
+    "kpi_panel": build_kpi_dashboard_slide,
+    "timeline": build_intervention_timeline_slide,
+    "process_flow": build_research_design_slide,
+    "before_after": build_comparison_slide,
     "cards": build_cards_slide
 }
 

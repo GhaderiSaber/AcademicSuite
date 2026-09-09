@@ -62,3 +62,8 @@ def generate_preview_report(pptx_path: str) -> bool:
     """Executes preview rendering pipeline."""
     pdf = convert_pptx_to_pdf(pptx_path)
     return pdf is not None
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        generate_preview_report(sys.argv[1])
+
