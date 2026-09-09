@@ -6,7 +6,8 @@
   "admin_id": 124911145,
   "session_name": "saber_userbot",
   "auto_reply": false,
-  "saved_messages_desk": true,
+  "saved_messages_desk": false,
+  "admin_desk_chat_id": -1004331808205,
   "google_drive_work_dir": "/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive/My Work",
   "proxy": {
     "proxy_type": "socks5",

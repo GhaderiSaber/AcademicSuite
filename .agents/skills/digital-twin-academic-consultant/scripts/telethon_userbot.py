@@ -131,6 +131,7 @@ class SaberTelethonUserbot:
         self.storage_dir = DEFAULT_STORAGE_DIR
         os.makedirs(self.storage_dir, exist_ok=True)
         self.project_manager = ProjectDriveManager(self.config)
+        self.admin_desk_chat_id = config.get("admin_desk_chat_id")
 
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
@@ -145,6 +146,13 @@ class SaberTelethonUserbot:
             self.client = None
         else:
             self.client = TelegramClient(self.session_name, self.api_id, self.api_hash, proxy=self.proxy)
+
+    @property
+    def admin_target(self):
+        """Return the destination peer for admin desk notifications."""
+        if self.admin_desk_chat_id:
+            return self.admin_desk_chat_id
+        return "me" if (self.me and not self.me.bot) else self.admin_id
 
     async def login_with_qr(self):
         """Perform QR code login by displaying an ASCII QR code in the terminal."""
@@ -324,7 +332,7 @@ class SaberTelethonUserbot:
             f"• نادیده گرفتن: `/ignore_{quote_id}`"
         )
 
-        admin_target = "me" if (self.me and not self.me.bot) else self.admin_id
+        admin_target = self.admin_target
         await self.client.send_message(admin_target, alert_text)
         print(f"[+] Posted draft quote {quote_id} for {client_name} to Admin Desk ({admin_target}).")
         print(f"[+] Project folder synced: {project_dir}")
@@ -352,7 +360,7 @@ class SaberTelethonUserbot:
             if dlg.is_user and not dlg.entity.is_self and not dlg.entity.bot and dlg.unread_count > 0
         ]
 
-        admin_target = "me" if (self.me and not self.me.bot) else self.admin_id
+        admin_target = self.admin_target
 
         if not unread_clients:
             print("[+] No unread messages found from clients.")
@@ -442,10 +450,13 @@ class SaberTelethonUserbot:
     async def start_listening(self, phone: Optional[str] = None, bot_token: Optional[str] = None, use_qr: bool = False):
         """Listen to real-time client DMs and Admin Desk commands."""
         me = await self.init_client(phone=phone, bot_token=bot_token, use_qr=use_qr)
-        admin_chat = "me" if not me.bot else self.admin_id
+        admin_chats = []
+        if self.admin_desk_chat_id:
+            admin_chats.append(self.admin_desk_chat_id)
+        admin_chats.append("me" if not me.bot else self.admin_id)
 
         # 1. Admin Desk (/send_Q101, /adjust_Q101_5000000, /ignore_Q101, /unread, /projects, /save_project, /sync_projects)
-        @self.client.on(events.NewMessage(chats=admin_chat))
+        @self.client.on(events.NewMessage(chats=admin_chats))
         async def admin_handler(event):
             txt = (event.message.message or "").strip()
 
@@ -699,14 +710,17 @@ class SaberTelethonUserbot:
                             await event.reply(scale_info)
                         else:
                             await self.client.send_message(
-                                "me",
+                                self.admin_target,
                                 f"📋 *درخواست پرسشنامه از {client_name}:*\n"
                                 f"پیام: {msg_text}\n"
                                 f"پاسخ آماده: {scale_info}"
                             )
                         return
 
-        desk_location = "پیام‌های ذخیره‌شده (Saved Messages)" if not me.bot else f"چت با اکانت صابر (ID: {self.admin_id})"
+        if self.admin_desk_chat_id:
+            desk_location = f"گروه کاری Academic Desk (ID: {self.admin_desk_chat_id})"
+        else:
+            desk_location = "پیام‌های ذخیره‌شده (Saved Messages)" if not me.bot else f"چت با اکانت صابر (ID: {self.admin_id})"
         print(f"[*] Telethon {'Userbot' if not me.bot else 'Bot'} is active & listening to incoming DMs...")
         print(f"[*] Google Drive Operational Root: {self.project_manager.work_dir}")
         print(f"[*] Open {desk_location} to view real-time proposal alerts, approve quotes, or manage projects.")
