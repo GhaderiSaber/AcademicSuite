@@ -130,6 +130,9 @@ class SaberTelethonUserbot:
         self.me = None
         self.proxy = get_proxy_settings(self.config)
 
+        if TelegramClient is None:
+            raise RuntimeError("Telethon is not installed in the active Python environment. Please run: pip install telethon 'python-socks[asyncio]'")
+
         if not self.api_id or not self.api_hash:
             self.client = None
         else:
