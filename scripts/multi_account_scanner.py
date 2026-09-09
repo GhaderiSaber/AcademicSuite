@@ -121,13 +121,22 @@ async def scan_single_account(acc_info: Dict[str, Any], drive_mgr: ProjectDriveM
     print("[*] Retrieving dialogs (scanning up to 150 items)...")
     dialogs = await client.get_dialogs(limit=150)
     
-    # Filter out non-user, self, bots, and Saber's own alternate accounts
+    # Filter out non-user, self, bots, and ignored non-academic contacts
+    ignored_reg = drive_mgr.load_ignored_registry()
+    ignored_ids = set(ignored_reg.get("telegram_ids", []))
+    ignored_usernames = set(ignored_reg.get("usernames", []))
+    ignored_names = set(ignored_reg.get("folder_names", []))
+
     client_dialogs = [
         d for d in dialogs 
-        if d.is_user and not d.entity.is_self and not d.entity.bot and d.id not in SELF_AND_SERVICE_IDS
+        if d.is_user and not d.entity.is_self and not d.entity.bot 
+        and d.id not in SELF_AND_SERVICE_IDS
+        and d.id not in ignored_ids
+        and (getattr(d.entity, "username", "") or "").lstrip("@").lower() not in ignored_usernames
+        and sanitize_filename(d.name) not in ignored_names
     ]
 
-    print(f"[+] Found {len(client_dialogs)} real client conversation(s).")
+    print(f"[+] Found {len(client_dialogs)} real academic project conversation(s).")
     scanned_results = []
 
     for d in client_dialogs:
@@ -156,6 +165,10 @@ async def scan_single_account(acc_info: Dict[str, Any], drive_mgr: ProjectDriveM
                 limit_messages=max(unread + 25, 40),
                 download_files=True
             )
+            if res.get("skipped_non_project") or not res.get("project_dir"):
+                print(f"    [-] مخاطب غیرپژوهشی نادیده گرفته شد.")
+                continue
+
             p_dir = res["project_dir"]
             msg_count = res["messages_count"]
             file_count = res["files_count"]

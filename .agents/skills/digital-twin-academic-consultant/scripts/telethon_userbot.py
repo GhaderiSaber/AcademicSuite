@@ -756,6 +756,15 @@ class SaberTelethonUserbot:
                 msg_text = (event.message.message or "").strip()
                 print(f"[!] [{account_label}] New DM from client {client_name} (ID: {sender.id}): {msg_text[:60]}")
 
+                # Check if contact is in the excluded non-academic contacts registry
+                is_excluded = self.project_manager.is_ignored(client_name, sender.id, sender.username)
+                has_doc = bool(event.message.file and getattr(event.message.file, "name", None))
+                has_prop = bool(len(msg_text) > 80 and any(w in msg_text for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]))
+
+                if is_excluded and not has_doc and not has_prop:
+                    # Silently skip casual message from excluded non-academic contact
+                    return
+
                 # Ensure client's Google Drive project folder is provisioned
                 self.project_manager.provision_project(
                     client_name=client_name,

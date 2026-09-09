@@ -88,6 +88,28 @@ class ProjectDriveManager:
         self.work_dir = resolve_google_drive_work_dir(self.config)
         os.makedirs(self.work_dir, exist_ok=True)
 
+    def load_ignored_registry(self) -> Dict[str, Any]:
+        """Load persistent exclusion registry of non-academic contacts."""
+        reg_file = os.path.join(os.path.dirname(__file__), "userbot_storage", "ignored_non_projects.json")
+        if os.path.exists(reg_file):
+            try:
+                with open(reg_file, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        return {"telegram_ids": [], "usernames": [], "folder_names": []}
+
+    def is_ignored(self, client_name: str, client_id: Optional[int] = None, username: Optional[str] = None) -> bool:
+        """Check if a contact is in the excluded non-academic contacts registry."""
+        reg = self.load_ignored_registry()
+        if client_id and client_id in reg.get("telegram_ids", []):
+            return True
+        if username and username.lstrip("@").lower() in reg.get("usernames", []):
+            return True
+        if client_name and sanitize_filename(client_name) in reg.get("folder_names", []):
+            return True
+        return False
+
     def find_existing_project_by_client(
         self, client_name: str, client_id: Optional[int] = None, username: Optional[str] = None
     ) -> Optional[str]:
@@ -212,6 +234,23 @@ class ProjectDriveManager:
         Crawl chat with client, save full history (JSON & Markdown transcript),
         download sent files into 01_raw_inputs/, and extract topic/scale clues.
         """
+        # If contact is in ignored registry and has no existing project on disk, verify if there are real research attachments
+        if self.is_ignored(client_name, client_id, username):
+            existing = self.find_existing_project_by_client(client_name, client_id, username)
+            if not existing:
+                has_documents = False
+                async for msg in client.iter_messages(entity, limit=min(limit_messages, 40)):
+                    if msg.file and getattr(msg.file, "name", None):
+                        ext = os.path.splitext(msg.file.name)[1].lower()
+                        if ext in [".docx", ".doc", ".pdf", ".sav", ".xlsx", ".xls", ".csv", ".rar", ".zip"]:
+                            has_documents = True
+                            break
+                    if len(msg.message or "") > 80 and any(w in (msg.message or "") for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
+                        has_documents = True
+                        break
+                if not has_documents:
+                    return {"project_dir": "", "messages_count": 0, "files_count": 0, "skipped_non_project": True}
+
         paths = self.provision_project(client_name, client_id=client_id, username=username)
         raw_dir = paths["raw"]
         me = await client.get_me()
