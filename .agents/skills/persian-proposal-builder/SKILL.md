@@ -106,16 +106,30 @@ Proposals must strictly adhere to the academic heading and typography hierarchy 
 5. **Dual Font Binding Protection (`<w:rFonts>`)**:
    - Every heading run must enforce `<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="B Titr" w:eastAsia="B Titr"/>` to prevent Word fallback engines on macOS/Windows from substituting headings with system fonts like Arial or Calibri.
 
-### C. Critical OpenXML Schema Sequence & Word for Mac RTL Standards (`CT_PPr` & `styles.xml`)
+### C. Critical OpenXML Standards: Text Direction vs. Text Alignment (`CT_PPr` & `styles.xml`)
 
 > [!CAUTION]
-> **STRICT OPENXML SCHEMA SEQUENCE (`CT_PPr`) REQUIREMENT:**
-> Microsoft Word on macOS strictly validates the child element sequence within `<w:pPr>` against the ISO/IEC 29500-1 / ECMA-376 standard:
+> **TWO DISTINCT CONTROLS IN MICROSOFT WORD: DIRECTION vs. ALIGNMENT**
+> In Microsoft Word, there are two separate and independent paragraph controls:
+> 1. **Text Direction (جهت متن)**: Left-to-Right (LTR) vs. Right-to-Left (RTL / راست‌به‌چپ).
+> 2. **Text Alignment (تراز متن)**: Left (چپ‌چین), Center (وسط‌چین), Right (راست‌چین), and Justify (هم‌تراز/تراز دوطرفه).
+>
+> **The BiDi Alignment Inversion Rule in Microsoft Word:**
+> - When a paragraph is given RTL direction via `<w:bidi w:val="1"/>`, Microsoft Word's natural leading-edge alignment is **RIGHT**.
+> - If `<w:jc w:val="right"/>` is explicitly added to an RTL paragraph, Word's rendering engine interprets `w:val="right"` as the trailing edge, causing Word on macOS/Windows to flip the alignment to **ALIGN LEFT (چپ‌چین)**!
+> - **The Golden Rule for RTL Right-Aligned Headings & Headers**:
+>   - Set `<w:bidi w:val="1"/>` for Direction.
+>   - **OMIT** `<w:jc>` entirely for Right Alignment. Word will naturally and strictly align it to the RIGHT.
+>   - For Justified narrative text: emit `<w:jc w:val="both"/>`.
+>   - For Centered titles/tables: emit `<w:jc w:val="center"/>`.
+>   - For LTR English references: omit `<w:bidi>` and emit `<w:jc w:val="left"/>`.
+>
+> **Strict Child Element Sequencing (`CT_PPr`):**
+> Under ISO/IEC 29500-1 / ECMA-376, `<w:pPr>` children must follow this exact order:
 > `w:pStyle` $\to$ `w:keepNext` $\to$ `w:bidi` $\to$ `w:spacing` $\to$ `w:ind` $\to$ `w:jc`
-> If `pStyle` or `keepNext` is appended at the end of `pPr` (after `bidi`, `spacing`, or `jc`), Word for Mac flags the XML as invalid or ignores subsequent tags, causing headings to silently drop their `<w:jc w:val="right"/>` and fall back to left-aligned/LTR.
-> - Always construct `<w:pPr>` using a unified XML generator (`set_strict_pPr`) that enforces this exact child element sequence.
+> - Always construct `<w:pPr>` using a unified XML generator (`set_strict_pPr`) enforcing this sequence.
+> - Always inject enhanced RTL definitions (`<w:bidi w:val="1"/>`, `<w:rtl/>`, and `B Titr`/`B Nazanin` font bindings) directly into `Normal`, `Heading1`, `Heading2`, `Heading3`, and `Heading4` within `word/styles.xml`, omitting `<w:jc w:val="right"/>`.
 > - Always ensure `<w:sectPr>` contains `<w:bidi/>` at section level.
-> - Always inject enhanced RTL definitions (`<w:bidi/>`, `<w:jc w:val="right"/>`, `<w:rtl/>`, and `B Titr`/`B Nazanin` font bindings) directly into `Normal`, `Heading1`, `Heading2`, `Heading3`, and `Heading4` within `word/styles.xml`.
 > - For all tables, always append `<w:bidiVisual/>` to `table._tbl.tblPr` and enforce `set_strict_pPr` on cell paragraphs.
 
 ## 5. Proposal Architecture & Key Components

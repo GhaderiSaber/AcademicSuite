@@ -34,7 +34,21 @@ def set_strict_pPr(p, style_val=None, keep_next=False, is_bidi=True, space_befor
     """
     Constructs schema-compliant <w:pPr> strictly adhering to ISO/IEC 29500-1 CT_PPr order:
     pStyle -> keepNext -> bidi -> spacing -> ind -> jc
-    Microsoft Word for Mac rejects out-of-order pPr child elements and silently falls back to style defaults.
+
+    CRITICAL BI-DIRECTIONAL & ALIGNMENT ARCHITECTURE FOR MICROSOFT WORD:
+    In Microsoft Word, there are two distinct text controls:
+    1. Text Direction: <w:bidi w:val="1"/> (Right-to-Left / راست‌به‌چپ)
+    2. Text Alignment: <w:jc w:val="..."/> (تراز متن: چپ‌چین، راست‌چین، وسط‌چین، هم‌تراز)
+
+    Under Word's BiDi text engine:
+    - Adding <w:bidi w:val="1"/> sets the paragraph direction to Right-to-Left (RTL).
+    - When paragraph direction is RTL, Word's natural leading-edge alignment is RIGHT.
+    - If <w:jc w:val="right"/> is explicitly appended to an RTL paragraph, Word treats
+      'right' as trailing-edge, causing Word on Mac/Windows to flip it to ALIGN LEFT!
+    - Therefore, for RTL Right-aligned text, <w:jc> MUST BE OMITTED.
+    - For Justified text (هم‌تراز): emit <w:jc w:val="both"/>
+    - For Centered text (وسط‌چین): emit <w:jc w:val="center"/>
+    - For LTR Left text (منابع انگلیسی): emit <w:jc w:val="left"/> with is_bidi=False
     """
     parts = []
     if style_val:
@@ -42,7 +56,7 @@ def set_strict_pPr(p, style_val=None, keep_next=False, is_bidi=True, space_befor
     if keep_next:
         parts.append('<w:keepNext/>')
     if is_bidi:
-        parts.append('<w:bidi/>')
+        parts.append('<w:bidi w:val="1"/>')
     before_dxa = int(space_before * 20)
     after_dxa = int(space_after * 20)
     line_dxa = int(line_spacing * 240)
@@ -57,8 +71,18 @@ def set_strict_pPr(p, style_val=None, keep_next=False, is_bidi=True, space_befor
     elif left_indent > 0:
         left_dxa = int(left_indent * 1440)
         parts.append(f'<w:ind w:left="{left_dxa}"/>')
-    if jc_val:
-        parts.append(f'<w:jc w:val="{jc_val}"/>')
+    
+    # Precise alignment mapping for Word
+    if jc_val == 'both':
+        parts.append('<w:jc w:val="both"/>')
+    elif jc_val == 'center':
+        parts.append('<w:jc w:val="center"/>')
+    elif jc_val == 'left' and not is_bidi:
+        parts.append('<w:jc w:val="left"/>')
+    elif jc_val == 'right' and not is_bidi:
+        parts.append('<w:jc w:val="right"/>')
+    # If is_bidi is True and jc_val is 'right', we omit <w:jc> so Word displays natural RTL right alignment!
+
     new_pPr = parse_xml(f'<w:pPr {nsdecls("w")}>\n  ' + '\n  '.join(parts) + '\n</w:pPr>')
     curr_pPr = p._p.find(qn('w:pPr'))
     if curr_pPr is not None:
@@ -168,8 +192,10 @@ def enhance_styles_xml(styles_xml_content):
     Injects RTL directionality and Persian font definitions into Word's default styles
     (Normal, Heading1, Heading2, Heading3, Heading4, and FootnoteReference)
     so that Word on Mac defaults to Right-to-Left and right alignment.
+    Notice: We do NOT inject <w:jc w:val="right"/> because under <w:bidi w:val="1"/>,
+    Word flips 'right' to left-aligned. Omitting w:jc leaves it naturally right-aligned.
     """
-    normal_pPr = '<w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr>'
+    normal_pPr = '<w:pPr><w:bidi w:val="1"/></w:pPr>'
     normal_rPr = '<w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="B Nazanin"/><w:rtl/><w:lang w:val="fa-IR" w:bidi="fa-IR"/></w:rPr>'
     old_normal = re.search(r'<w:style[^>]*w:styleId="Normal"[^>]*>.*?</w:style>', styles_xml_content, re.DOTALL)
     if old_normal:
@@ -189,9 +215,8 @@ def enhance_styles_xml(styles_xml_content):
     <w:qFormat/>
     <w:pPr>
       <w:keepNext/>
-      <w:bidi/>
+      <w:bidi w:val="1"/>
       <w:spacing w:before="480" w:after="140"/>
-      <w:jc w:val="right"/>
       <w:outlineLvl w:val="0"/>
     </w:pPr>
     <w:rPr>
@@ -213,9 +238,8 @@ def enhance_styles_xml(styles_xml_content):
     <w:qFormat/>
     <w:pPr>
       <w:keepNext/>
-      <w:bidi/>
+      <w:bidi w:val="1"/>
       <w:spacing w:before="320" w:after="120"/>
-      <w:jc w:val="right"/>
       <w:outlineLvl w:val="1"/>
     </w:pPr>
     <w:rPr>
@@ -237,9 +261,8 @@ def enhance_styles_xml(styles_xml_content):
     <w:qFormat/>
     <w:pPr>
       <w:keepNext/>
-      <w:bidi/>
+      <w:bidi w:val="1"/>
       <w:spacing w:before="240" w:after="80"/>
-      <w:jc w:val="right"/>
       <w:outlineLvl w:val="2"/>
     </w:pPr>
     <w:rPr>
@@ -261,9 +284,8 @@ def enhance_styles_xml(styles_xml_content):
     <w:qFormat/>
     <w:pPr>
       <w:keepNext/>
-      <w:bidi/>
+      <w:bidi w:val="1"/>
       <w:spacing w:before="160" w:after="60"/>
-      <w:jc w:val="right"/>
       <w:outlineLvl w:val="3"/>
     </w:pPr>
     <w:rPr>
