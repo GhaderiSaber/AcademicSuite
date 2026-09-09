@@ -6,7 +6,9 @@ Defines the intermediate slide specification, Research Truth Model,
 color palettes, and layout family classifications for 16:9 defense presentations.
 """
 
-from typing import Dict, List, Any, Optional
+import json
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Union
 from dataclasses import dataclass, field
 from pptx.dml.color import RGBColor
 
@@ -14,87 +16,208 @@ from pptx.dml.color import RGBColor
 # Visual Themes & Design Tokens (16:9 Widescreen: 13.333" x 7.5")
 # ---------------------------------------------------------------------------
 PALETTES: Dict[str, Dict[str, RGBColor]] = {
+    # 1. Official Academic Navy (Formal Defense Light Mode - University Hall Standard)
     "academic_navy": {
+        "primary": RGBColor(13, 32, 64),           # Deep Academic Navy #0D2040 (Titles & Accents)
+        "secondary": RGBColor(30, 62, 98),         # Classic University Navy #1E3E62
+        "accent": RGBColor(217, 119, 6),           # Warm Amber Gold #D97706
+        "accent_light": RGBColor(254, 243, 199),   # Soft Gold Tint #FEF3C7
+        "accent_dark": RGBColor(180, 83, 9),       # Deep Gold #B45309
+        "emerald": RGBColor(5, 150, 105),          # Forest Emerald #059669
+        "emerald_light": RGBColor(209, 250, 229),  # Soft Mint Tint #D1FAE5
+        "bg_slide": RGBColor(248, 250, 252),       # High-Legibility Off-White Paper #F8FAFC
+        "card_bg": RGBColor(255, 255, 255),        # Crisp Pure White Card #FFFFFF
+        "card_border": RGBColor(226, 232, 240),    # Soft Slate Border #E2E8F0
+        "card_border_gold": RGBColor(217, 119, 6), # Gold Border #D97706
+        "text_dark": RGBColor(15, 23, 42),         # Deep High-Contrast Slate #0F172A
+        "text_body": RGBColor(51, 65, 85),         # Highly Legible Body Slate #334155
+        "text_muted": RGBColor(100, 116, 139),     # Muted Slate 500 #64748B
+        "text_light": RGBColor(255, 255, 255),     # Crisp White for Dark Cards/Headers #FFFFFF
+        "tbl_header": RGBColor(13, 32, 64),        # Navy Header #0D2040
+        "tbl_stripe": RGBColor(241, 245, 249),     # Slate Stripe #F1F5F9
+        "badge_bg": RGBColor(238, 242, 255),       # Soft Indigo Badge Fill #EEF2FF
+        "badge_border": RGBColor(199, 210, 254),   # Soft Indigo Border #C7D2FE
+        "badge_text": RGBColor(30, 62, 98),        # Navy Badge Text #1E3E62
+        "cover_bg": RGBColor(13, 32, 64),          # Prestigious Dark Navy Cover #0D2040
+        "cover_card": RGBColor(27, 49, 87),        # Translucent Navy Cover Card #1B3157
+        "cover_border": RGBColor(45, 74, 122),     # Border #2D4A7A
+        "danger": RGBColor(220, 38, 38),           # Coral Red #DC2626
+        "danger_light": RGBColor(254, 242, 242)    # #FEF2F2
+    },
+    # 2. Modern Academic Dark (Sleek Glassmorphic & High-Contrast Monitor Dark Mode)
+    "academic_dark": {
         "primary": RGBColor(248, 250, 252),        # Crisp White #F8FAFC (Title & Main)
-        "secondary": RGBColor(96, 165, 250),      # Light Academic Sapphire #60A5FA
+        "secondary": RGBColor(96, 165, 250),       # Light Academic Sapphire #60A5FA
         "accent": RGBColor(245, 158, 11),          # Warm Amber Gold #F59E0B
-        "accent_light": RGBColor(254, 243, 199),  # Soft Gold Tint #FEF3C7
+        "accent_light": RGBColor(254, 243, 199),   # Soft Gold Tint #FEF3C7
         "accent_dark": RGBColor(217, 119, 6),      # Deep Warm Amber #D97706
         "emerald": RGBColor(16, 185, 129),         # Forest Emerald #10B981
-        "emerald_light": RGBColor(209, 250, 229), # Soft Mint Tint #ECFDF5
+        "emerald_light": RGBColor(209, 250, 229),  # Soft Mint Tint #ECFDF5
         "bg_slide": RGBColor(7, 13, 31),           # Modern Dark Midnight Navy #070D1F
         "card_bg": RGBColor(19, 32, 66),           # Deep Slate Navy Card #132042
         "card_border": RGBColor(37, 54, 98),       # Subtle Indigo/Slate Border #253662
         "card_border_gold": RGBColor(245, 158, 11),# Gold Border #F59E0B
         "text_dark": RGBColor(248, 250, 252),      # Text on Cards (Crisp White)
         "text_body": RGBColor(203, 213, 225),      # Slate 300 #CBD5E1
-        "text_muted": RGBColor(148, 163, 184),    # Slate 400 #94A3B8
-        "text_light": RGBColor(255, 255, 255),    # Crisp White #FFFFFF
-        "tbl_header": RGBColor(29, 46, 94),       # Header Blue #1D2E5E
-        "tbl_stripe": RGBColor(13, 23, 51),       # Stripe Navy #0D1733
-        "badge_bg": RGBColor(24, 39, 79),         # Badge Fill
-        "badge_border": RGBColor(59, 130, 246),   # Badge Border #3B82F6
-        "badge_text": RGBColor(96, 165, 250),     # Badge Text #60A5FA
-        "cover_bg": RGBColor(7, 13, 31),          # Midnight Obsidian #070D1F
-        "cover_card": RGBColor(19, 32, 66),       # Translucent Slate Card #132042
-        "cover_border": RGBColor(37, 54, 98),     # Slate Hairline #253662
-        "danger": RGBColor(239, 68, 68),          # Coral Red #EF4444
+        "text_muted": RGBColor(148, 163, 184),     # Slate 400 #94A3B8
+        "text_light": RGBColor(255, 255, 255),     # Crisp White #FFFFFF
+        "tbl_header": RGBColor(29, 46, 94),        # Header Blue #1D2E5E
+        "tbl_stripe": RGBColor(13, 23, 51),        # Stripe Navy #0D1733
+        "badge_bg": RGBColor(24, 39, 79),          # Badge Fill
+        "badge_border": RGBColor(59, 130, 246),    # Badge Border #3B82F6
+        "badge_text": RGBColor(96, 165, 250),      # Badge Text #60A5FA
+        "cover_bg": RGBColor(7, 13, 31),           # Midnight Obsidian #070D1F
+        "cover_card": RGBColor(19, 32, 66),        # Translucent Slate Card #132042
+        "cover_border": RGBColor(37, 54, 98),      # Slate Hairline #253662
+        "danger": RGBColor(239, 68, 68),           # Coral Red #EF4444
         "danger_light": RGBColor(127, 29, 29)
     },
+    # 3. Emerald Slate (Life Sciences, Healthcare, & Natural Science Light Mode)
     "emerald_slate": {
-        "primary": RGBColor(19, 78, 74),
-        "secondary": RGBColor(15, 118, 110),
-        "accent": RGBColor(5, 150, 105),
-        "accent_light": RGBColor(209, 250, 229),
-        "accent_dark": RGBColor(4, 120, 87),
+        "primary": RGBColor(19, 78, 74),           # Deep Forest Emerald #134E4A
+        "secondary": RGBColor(15, 118, 110),       # Teal #0F766E
+        "accent": RGBColor(5, 150, 105),           # Forest Green #059669
+        "accent_light": RGBColor(209, 250, 229),   # Mint Tint #D1FAE5
+        "accent_dark": RGBColor(4, 120, 87),       # Dark Forest #047857
         "emerald": RGBColor(5, 150, 105),
         "emerald_light": RGBColor(209, 250, 229),
-        "bg_slide": RGBColor(240, 253, 244),
-        "card_bg": RGBColor(255, 255, 255),
-        "card_border": RGBColor(209, 250, 229),
+        "bg_slide": RGBColor(240, 253, 244),       # Soft Mint Off-White #F0FDF4
+        "card_bg": RGBColor(255, 255, 255),        # Crisp Pure White #FFFFFF
+        "card_border": RGBColor(209, 250, 229),    # Soft Mint Border #D1FAE5
         "card_border_gold": RGBColor(5, 150, 105),
-        "text_dark": RGBColor(19, 42, 31),
-        "text_body": RGBColor(51, 65, 85),
-        "text_muted": RGBColor(75, 85, 99),
+        "text_dark": RGBColor(19, 42, 31),         # Deep Forest Slate #132A1F
+        "text_body": RGBColor(51, 65, 85),         # Slate 700 #334155
+        "text_muted": RGBColor(75, 85, 99),        # Gray 600 #4B5563
         "text_light": RGBColor(255, 255, 255),
         "tbl_header": RGBColor(19, 78, 74),
         "tbl_stripe": RGBColor(236, 253, 245),
         "badge_bg": RGBColor(236, 253, 245),
         "badge_border": RGBColor(167, 243, 208),
         "badge_text": RGBColor(4, 120, 87),
-        "cover_bg": RGBColor(12, 35, 33),
+        "cover_bg": RGBColor(12, 35, 33),          # Deep Pine Cover #0C2321
         "cover_card": RGBColor(19, 52, 49),
         "cover_border": RGBColor(30, 75, 71),
         "danger": RGBColor(190, 18, 60),
         "danger_light": RGBColor(255, 241, 242)
     },
+    # 4. Royal Burgundy (Humanities, Law, & Historical Arts Light Mode)
     "royal_burgundy": {
-        "primary": RGBColor(74, 14, 23),
-        "secondary": RGBColor(136, 19, 55),
-        "accent": RGBColor(197, 160, 89),
-        "accent_light": RGBColor(254, 243, 199),
-        "accent_dark": RGBColor(180, 83, 9),
+        "primary": RGBColor(74, 14, 23),           # Deep Burgundy #4A0E17
+        "secondary": RGBColor(136, 19, 55),        # Rose Wine #881337
+        "accent": RGBColor(197, 160, 89),          # Royal Gold #C5A059
+        "accent_light": RGBColor(254, 243, 199),   # Pale Gold Tint #FEF3C7
+        "accent_dark": RGBColor(180, 83, 9),       # Dark Amber #B45309
         "emerald": RGBColor(5, 150, 105),
         "emerald_light": RGBColor(209, 250, 229),
-        "bg_slide": RGBColor(255, 251, 235),
-        "card_bg": RGBColor(255, 255, 255),
-        "card_border": RGBColor(254, 215, 170),
+        "bg_slide": RGBColor(255, 251, 235),       # Soft Warm Cream #FFFBEB
+        "card_bg": RGBColor(255, 255, 255),        # Crisp Pure White #FFFFFF
+        "card_border": RGBColor(254, 215, 170),    # Soft Amber Border #FED7AA
         "card_border_gold": RGBColor(197, 160, 89),
-        "text_dark": RGBColor(31, 41, 55),
-        "text_body": RGBColor(51, 65, 85),
-        "text_muted": RGBColor(107, 114, 128),
+        "text_dark": RGBColor(31, 41, 55),         # Charcoal #1F2937
+        "text_body": RGBColor(51, 65, 85),         # Slate #334155
+        "text_muted": RGBColor(107, 114, 128),     # Gray #6B7280
         "text_light": RGBColor(255, 255, 255),
         "tbl_header": RGBColor(74, 14, 23),
         "tbl_stripe": RGBColor(254, 243, 199),
         "badge_bg": RGBColor(255, 241, 242),
         "badge_border": RGBColor(254, 205, 211),
         "badge_text": RGBColor(159, 18, 57),
-        "cover_bg": RGBColor(40, 8, 14),
+        "cover_bg": RGBColor(40, 8, 14),           # Deep Wine Cover #28080E
         "cover_card": RGBColor(60, 12, 21),
         "cover_border": RGBColor(85, 20, 32),
         "danger": RGBColor(190, 18, 60),
         "danger_light": RGBColor(255, 241, 242)
+    },
+    # 5. Persian Teal Rose (Clinical Psychology & Psychotherapy - Extracted from Saber Ghaderi EFT Deck)
+    "persian_teal_rose": {
+        "primary": RGBColor(37, 198, 227),         # Vibrant Cyan / Turquoise #25C6E3
+        "secondary": RGBColor(232, 5, 84),         # Rose Crimson #E80554
+        "accent": RGBColor(169, 226, 111),         # Spring Lime #A9E26F
+        "accent_light": RGBColor(236, 248, 223),   # Pale Mint Tint #ECF8DF
+        "accent_dark": RGBColor(118, 196, 39),     # Meadow Green #76C427
+        "emerald": RGBColor(16, 185, 129),
+        "emerald_light": RGBColor(209, 250, 229),
+        "bg_slide": RGBColor(255, 255, 255),       # Pure Crisp White #FFFFFF
+        "card_bg": RGBColor(255, 255, 255),
+        "card_border": RGBColor(226, 232, 240),
+        "card_border_gold": RGBColor(37, 198, 227),
+        "text_dark": RGBColor(15, 23, 42),         # Deep Navy Slate #0F172A
+        "text_body": RGBColor(30, 41, 59),
+        "text_muted": RGBColor(100, 116, 139),
+        "text_light": RGBColor(255, 255, 255),
+        "tbl_header": RGBColor(37, 198, 227),
+        "tbl_stripe": RGBColor(240, 253, 244),
+        "badge_bg": RGBColor(224, 247, 250),
+        "badge_border": RGBColor(128, 222, 234),
+        "badge_text": RGBColor(0, 131, 143),
+        "cover_bg": RGBColor(14, 59, 67),          # Deep Teal Cover #0E3B43
+        "cover_card": RGBColor(22, 84, 96),
+        "cover_border": RGBColor(37, 198, 227),
+        "danger": RGBColor(232, 5, 84),
+        "danger_light": RGBColor(255, 228, 230)
+    },
+    # 6. Tehran Classic Azure (Tehran University Defense Classic - Extracted from Azadeh / Elshan / Payannameh)
+    "tehran_classic_azure": {
+        "primary": RGBColor(91, 155, 213),         # Tehran Soft Azure #5B9BD5
+        "secondary": RGBColor(237, 125, 49),       # Warm Terracotta #ED7D31
+        "accent": RGBColor(217, 119, 6),           # Warm Amber Gold #D97706
+        "accent_light": RGBColor(254, 243, 199),
+        "accent_dark": RGBColor(180, 83, 9),
+        "emerald": RGBColor(16, 185, 129),
+        "emerald_light": RGBColor(209, 250, 229),
+        "bg_slide": RGBColor(248, 250, 252),       # Clean Slate Canvas #F8FAFC
+        "card_bg": RGBColor(255, 255, 255),
+        "card_border": RGBColor(226, 232, 240),
+        "card_border_gold": RGBColor(237, 125, 49),
+        "text_dark": RGBColor(15, 23, 42),
+        "text_body": RGBColor(51, 65, 85),
+        "text_muted": RGBColor(100, 116, 139),
+        "text_light": RGBColor(255, 255, 255),
+        "tbl_header": RGBColor(91, 155, 213),
+        "tbl_stripe": RGBColor(241, 245, 249),
+        "badge_bg": RGBColor(239, 246, 255),
+        "badge_border": RGBColor(191, 219, 254),
+        "badge_text": RGBColor(29, 78, 216),
+        "cover_bg": RGBColor(30, 58, 138),         # Deep Navy Cover #1E3A8A
+        "cover_card": RGBColor(30, 64, 175),
+        "cover_border": RGBColor(96, 165, 250),
+        "danger": RGBColor(220, 38, 38),
+        "danger_light": RGBColor(254, 226, 226)
     }
+}
+
+def hex_to_rgb(hex_str: str) -> RGBColor:
+    """Converts #RRGGBB or RRGGBB to pptx RGBColor tuple."""
+    hex_str = hex_str.lstrip("#")
+    if len(hex_str) != 6:
+        return RGBColor(128, 128, 128)
+    try:
+        return RGBColor(int(hex_str[0:2], 16), int(hex_str[2:4], 16), int(hex_str[4:6], 16))
+    except ValueError:
+        return RGBColor(128, 128, 128)
+
+def rgb_to_hex(color: RGBColor) -> str:
+    """Converts pptx RGBColor tuple to standard CSS hex string #RRGGBB."""
+    return f"#{color[0]:02x}{color[1]:02x}{color[2]:02x}"
+
+def load_theme_from_json(json_path: Path) -> Dict[str, RGBColor]:
+    """Loads an extracted theme JSON and returns a validated PALETTES-compatible dictionary."""
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    raw_palette = data.get("palette", {})
+    loaded = {}
+    default_pal = PALETTES["academic_navy"]
+    for key in default_pal:
+        if key in raw_palette:
+            val = raw_palette[key]
+            loaded[key] = hex_to_rgb(val) if isinstance(val, str) else val
+        else:
+            loaded[key] = default_pal[key]
+    return loaded
+
+PALETTES_HEX: Dict[str, Dict[str, str]] = {
+    theme_name: {key: rgb_to_hex(val) for key, val in pal.items()}
+    for theme_name, pal in PALETTES.items()
 }
 
 # ---------------------------------------------------------------------------

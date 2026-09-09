@@ -202,6 +202,7 @@ def adapt_academic_payload_to_brief(
     payload: Dict[str, Any],
     preset: str = "Academic Defense",
     language: str = "fa",
+    theme: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Transforms an academic defense payload (meta + slides) into a strictly valid BRIEF.json
@@ -216,7 +217,8 @@ def adapt_academic_payload_to_brief(
     university = meta.get("university", "دانشگاه")
     supervisor = meta.get("supervisor", "استاد راهنما")
 
-    # Map preset name
+    # Resolve theme and preset
+    resolved_theme = theme or payload.get("theme") or meta.get("theme") or "academic_navy"
     normalized_preset = preset
     if preset in ["academic_navy", "academic-navy", "academic_defense", "academic-defense"]:
         normalized_preset = "Academic Defense"
@@ -440,6 +442,7 @@ def adapt_academic_payload_to_brief(
         },
         "style": {
             "preset": normalized_preset,
+            "theme": resolved_theme,
             "tone": "آکادمیک، مستدل، فاخر و منطبق بر هنجارهای دفاع پایان‌نامه و رساله دکتری",
             "visual_density": "medium",
         },
@@ -510,10 +513,11 @@ def convert_academic_json_file_to_brief(
     output_path: Optional[Path] = None,
     preset: str = "Academic Defense",
     language: str = "fa",
+    theme: Optional[str] = None,
 ) -> Path:
     """Reads an academic JSON file and writes out a compliant BRIEF.json."""
     payload = load_academic_payload(input_path)
-    brief = adapt_academic_payload_to_brief(payload, preset=preset, language=language)
+    brief = adapt_academic_payload_to_brief(payload, preset=preset, language=language, theme=theme)
 
     if output_path is None:
         output_path = input_path.with_name("BRIEF.json")
@@ -531,8 +535,9 @@ if __name__ == "__main__":
     parser.add_argument("input", type=Path, help="Path to academic payload JSON")
     parser.add_argument("-o", "--output", type=Path, default=None, help="Output BRIEF.json path")
     parser.add_argument("--preset", default="Academic Defense", help="Design preset name")
+    parser.add_argument("--theme", default="academic_navy", choices=["academic_navy", "academic_dark", "emerald_slate", "royal_burgundy"], help="Color theme name")
     parser.add_argument("--lang", default="fa", help="Language code (fa/en)")
     args = parser.parse_args()
 
-    out = convert_academic_json_file_to_brief(args.input, args.output, preset=args.preset, language=args.lang)
+    out = convert_academic_json_file_to_brief(args.input, args.output, preset=args.preset, language=args.lang, theme=args.theme)
     print(f"Successfully adapted {args.input} to {out}")

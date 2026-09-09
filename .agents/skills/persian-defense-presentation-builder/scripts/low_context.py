@@ -633,10 +633,13 @@ def validate_brief_data(brief: Any) -> list[str]:
         errors.append("brief.style must be an object")
     else:
         required = {"preset", "tone", "visual_density"}
+        optional = {"theme"}
         _ensure_required_keys(style, "brief.style", errors, required)
-        _ensure_no_extra_keys(style, "brief.style", errors, required)
+        _ensure_no_extra_keys(style, "brief.style", errors, required | optional)
         if "preset" in style:
             _ensure_string(style["preset"], "brief.style.preset", errors)
+        if "theme" in style:
+            _ensure_string(style["theme"], "brief.style.theme", errors)
         if "tone" in style:
             _ensure_string(style["tone"], "brief.style.tone", errors)
         if "visual_density" in style:
@@ -9247,8 +9250,16 @@ body {
     brand_mark = _brand_mark_text(brief["title"], display_preset)
     provenance_attrs = _html_body_provenance_attrs(packet)
 
+    theme_slug = (
+        brief.get("style", {}).get("theme")
+        or brief.get("theme")
+        or (brief.get("academic_data", {}).get("theme") if isinstance(brief.get("academic_data"), dict) else None)
+        or "academic_navy"
+    )
+    theme_class = f"theme-{theme_slug.replace('_', '-')}"
+
     return f"""<!DOCTYPE html>
-<html lang="{_escape(brief['language'])}">
+<html lang="{_escape(brief['language'])}" data-theme="{_escape(theme_slug)}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -9307,7 +9318,7 @@ body.presenting .slide-credit {{ display: none !important; }}
 #editToggle.active, .edit-toggle.active {{ background: var(--kd-blue, #2971EB); color: #fff; border-color: var(--kd-blue, #2971EB); }}
 </style>
 </head>
-<body data-export-progress="true" data-preset="{_escape(display_preset)}" {provenance_attrs}>
+<body class="{_escape(theme_class)}" data-theme="{_escape(theme_slug)}" data-export-progress="true" data-preset="{_escape(display_preset)}" {provenance_attrs}>
 <span id="brand-mark">{_escape(brand_mark)}</span>
 {theme_decor}
 {slides_html}

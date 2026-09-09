@@ -40,38 +40,50 @@ plt.rcParams["axes.unicode_minus"] = False
 # Color Palettes tailored for Academic Defense Presentations
 PALETTES = {
     "academic_navy": {
-        "primary": "#1A365D",
-        "secondary": "#2B6CB0",
-        "accent": "#C59B27",
+        "primary": "#0D2040",
+        "secondary": "#1E3E62",
+        "accent": "#D97706",
         "bg": "#F8FAFC",
         "card": "#FFFFFF",
         "text": "#0F172A",
         "muted": "#64748B",
-        "border": "#CBD5E1",
-        "pass": "#0D9488",
-        "fail": "#E11D48"
+        "border": "#E2E8F0",
+        "pass": "#059669",
+        "fail": "#DC2626"
     },
-    "emerald_slate": {
-        "primary": "#064E3B",
-        "secondary": "#059669",
-        "accent": "#D97706",
-        "bg": "#F0FDF4",
-        "card": "#FFFFFF",
-        "text": "#064E3B",
-        "muted": "#4B5563",
-        "border": "#A7F3D0",
+    "academic_dark": {
+        "primary": "#60A5FA",
+        "secondary": "#93C5FD",
+        "accent": "#F59E0B",
+        "bg": "#070D1F",
+        "card": "#132042",
+        "text": "#F8FAFC",
+        "muted": "#94A3B8",
+        "border": "#253662",
         "pass": "#10B981",
         "fail": "#EF4444"
     },
-    "royal_burgundy": {
-        "primary": "#4C0519",
-        "secondary": "#9F1239",
-        "accent": "#B45309",
-        "bg": "#FFF1F2",
+    "emerald_slate": {
+        "primary": "#134E4A",
+        "secondary": "#0F766E",
+        "accent": "#059669",
+        "bg": "#F0FDF4",
         "card": "#FFFFFF",
-        "text": "#4C0519",
-        "muted": "#701A75",
-        "border": "#FECDD3",
+        "text": "#132A1F",
+        "muted": "#4B5563",
+        "border": "#D1FAE5",
+        "pass": "#059669",
+        "fail": "#DC2626"
+    },
+    "royal_burgundy": {
+        "primary": "#4A0E17",
+        "secondary": "#881337",
+        "accent": "#C5A059",
+        "bg": "#FFFBEB",
+        "card": "#FFFFFF",
+        "text": "#1F2937",
+        "muted": "#6B7280",
+        "border": "#FED7AA",
         "pass": "#059669",
         "fail": "#BE123C"
     }
@@ -342,7 +354,7 @@ def main():
     parser = argparse.ArgumentParser(description="Academic Diagram Renderer")
     parser.add_argument("spec_json", help="Path to diagram specification JSON")
     parser.add_argument("output_path", help="Path to output SVG or PNG file")
-    parser.add_argument("--theme", default="academic_navy", choices=["academic_navy", "emerald_slate", "royal_burgundy"])
+    parser.add_argument("--theme", default="academic_navy", choices=["academic_navy", "academic_dark", "emerald_slate", "royal_burgundy"])
     parser.add_argument("--dpi", type=int, default=300)
     args = parser.parse_args()
 

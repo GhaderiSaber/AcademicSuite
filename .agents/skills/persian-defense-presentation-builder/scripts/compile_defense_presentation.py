@@ -37,7 +37,8 @@ from presentation_schema import (
     PALETTES,
     validate_presentation_payload,
     ResearchTruthModel,
-    ProjectMeta
+    ProjectMeta,
+    load_theme_from_json
 )
 from content_planner import synthesize_storyboard_from_truth_model
 from layout_engine import (
@@ -132,7 +133,12 @@ def compile_presentation(payload: Dict[str, Any], output_path: str, theme_name: 
     prs.slide_width = Inches(13.333)  # 16:9 Widescreen standard
     prs.slide_height = Inches(7.5)
 
-    palette = PALETTES.get(theme_name, PALETTES["academic_navy"])
+    if isinstance(theme_name, str) and (theme_name.endswith(".json") or os.path.isfile(theme_name)):
+        palette = load_theme_from_json(Path(theme_name))
+    elif theme_name in PALETTES:
+        palette = PALETTES[theme_name]
+    else:
+        palette = PALETTES["academic_navy"]
     meta = payload.get("meta", {})
     slides = payload.get("slides", [])
     total_slides = len(slides)
@@ -215,7 +221,7 @@ def main():
     parser = argparse.ArgumentParser(description="Master Persian Academic Thesis Defense Presentation Compiler v3.0.0")
     parser.add_argument("--json", type=str, help="Path to structured presentation payload JSON")
     parser.add_argument("--output", type=str, default="Defense_Presentation.pptx", help="Path to output .pptx file")
-    parser.add_argument("--theme", type=str, default="academic_navy", choices=["academic_navy", "emerald_slate", "royal_burgundy"], help="Color theme")
+    parser.add_argument("--theme", type=str, default="academic_navy", choices=["academic_navy", "academic_dark", "emerald_slate", "royal_burgundy"], help="Color theme")
     
     # Metadata Overrides
     parser.add_argument("--title", type=str, help="Thesis title")

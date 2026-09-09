@@ -130,8 +130,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--theme",
         default="academic_navy",
-        choices=["academic_navy", "emerald_slate", "royal_burgundy"],
-        help="Color theme for PPTX and diagrams (default: academic_navy)",
+        choices=["academic_navy", "academic_dark", "emerald_slate", "royal_burgundy", "persian_teal_rose", "tehran_classic_azure"],
+        help="Color theme for PPTX, HTML, and diagrams (default: academic_navy)",
+    )
+    parser.add_argument(
+        "--theme-file",
+        help="Path to custom theme JSON file (e.g. from extracted_themes/themes/*.json)",
     )
 
     # Template Extraction & Geometry Audit options
@@ -194,6 +198,7 @@ def run_generate(
     eval_out: str | None = None,
     packet_out: str | None = None,
     extract_brief_out: str | None = None,
+    theme: str | None = None,
 ) -> int:
     def _has_canonical_provenance(html_text: str) -> bool:
         required_markers = (
@@ -225,6 +230,8 @@ def run_generate(
             if brief_path is None:
                 raise BriefValidationError("A BRIEF path or --context-file is required")
             brief = load_brief(brief_path)
+            if theme:
+                brief.setdefault("style", {})["theme"] = theme
             html_text, packet, _style_contract = render_from_brief(brief)
     except (BriefExtractionError, BriefValidationError) as exc:
         print(f"BRIEF ERROR: {exc}")
@@ -299,10 +306,11 @@ def run_compile_pptx(args) -> int:
         print("[!] Error: Either --json <payload.json> or --stats-json <stats.json> is required.", file=sys.stderr)
         return 1
 
+    theme_to_use = args.theme_file if getattr(args, "theme_file", None) else args.theme
     success = compile_presentation(
         payload=payload,
         output_path=output_path,
-        theme_name=args.theme,
+        theme_name=theme_to_use,
         run_qa=not args.skip_qa,
         preview=args.preview,
     )
@@ -391,7 +399,7 @@ def run_adapt_brief(args) -> int:
         with open(args.json, "r", encoding="utf-8") as f:
             payload = json.load(f)
 
-        brief = adapt_academic_payload_to_brief(payload, preset="academic_defense")
+        brief = adapt_academic_payload_to_brief(payload, preset="academic_defense", theme=args.theme)
         out_path = args.output or "BRIEF.json"
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(brief, f, ensure_ascii=False, indent=2)
@@ -432,6 +440,7 @@ def main() -> int:
             eval_out=args.eval_out,
             packet_out=args.packet_out,
             extract_brief_out=args.extract_brief_out,
+            theme=args.theme,
         )
 
     # 4. Native PPTX Compilation

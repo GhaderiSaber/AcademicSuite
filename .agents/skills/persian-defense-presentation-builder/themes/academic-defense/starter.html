@@ -18,18 +18,129 @@
 
     <style>
         :root {
-            --bg:           #0B192C;
-            --bg-secondary: #1E3E62;
-            --bg-card:      rgba(30, 62, 98, 0.55);
-            --border-card:  rgba(255, 255, 255, 0.12);
-            --text:         #F1F6F9;
-            --text-muted:   #9BA4B5;
-            --accent:       #00ADB5;
-            --accent-gold:  #F5A623;
+            /* 1. Default: Academic Navy (Formal Academic Light Mode) */
+            --bg:           #F8FAFC;
+            --bg-secondary: #EEF2F6;
+            --bg-card:      #FFFFFF;
+            --border-card:  #E2E8F0;
+            --text:         #0F172A;
+            --text-muted:   #64748B;
+            --accent:       #0D2040;
+            --accent-gold:  #D97706;
+            --accent-green: #059669;
+            --accent-red:   #DC2626;
+            --rule:         #E2E8F0;
+            --slide-count:  5;
+            --slide-bg-gradient: radial-gradient(circle at 90% 10%, rgba(13, 32, 64, 0.04) 0%, transparent 60%), #F8FAFC;
+            --card-shadow:  0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --eyebrow-bg:   #EEF2FF;
+            --eyebrow-border: #C7D2FE;
+            --eyebrow-text: #1E3E62;
+        }
+
+        /* 2. Modern Academic Dark (Sleek Glassmorphic Dark Mode) */
+        [data-theme="academic_dark"],
+        body.theme-academic-dark {
+            --bg:           #070D1F;
+            --bg-secondary: #132042;
+            --bg-card:      #132042;
+            --border-card:  #253662;
+            --text:         #F8FAFC;
+            --text-muted:   #94A3B8;
+            --accent:       #60A5FA;
+            --accent-gold:  #F59E0B;
             --accent-green: #10B981;
             --accent-red:   #EF4444;
-            --rule:         rgba(255, 255, 255, 0.15);
-            --slide-count:  5;
+            --rule:         rgba(255, 255, 255, 0.12);
+            --slide-bg-gradient: radial-gradient(circle at 85% 15%, rgba(96, 165, 250, 0.08) 0%, transparent 50%), radial-gradient(circle at 15% 85%, rgba(19, 32, 66, 0.4) 0%, transparent 60%), #070D1F;
+            --card-shadow:  0 8px 16px -2px rgba(0, 0, 0, 0.3);
+            --eyebrow-bg:   rgba(96, 165, 250, 0.15);
+            --eyebrow-border: rgba(96, 165, 250, 0.3);
+            --eyebrow-text: #60A5FA;
+        }
+
+        /* 3. Emerald Slate (Life Sciences Light Mode) */
+        [data-theme="emerald_slate"],
+        body.theme-emerald-slate {
+            --bg:           #F0FDF4;
+            --bg-secondary: #DCFCE7;
+            --bg-card:      #FFFFFF;
+            --border-card:  #D1FAE5;
+            --text:         #132A1F;
+            --text-muted:   #475569;
+            --accent:       #134E4A;
+            --accent-gold:  #D97706;
+            --accent-green: #059669;
+            --accent-red:   #DC2626;
+            --rule:         #D1FAE5;
+            --slide-bg-gradient: radial-gradient(circle at 90% 10%, rgba(19, 78, 74, 0.04) 0%, transparent 60%), #F0FDF4;
+            --card-shadow:  0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --eyebrow-bg:   #ECFDF5;
+            --eyebrow-border: #A7F3D0;
+            --eyebrow-text: #047857;
+        }
+
+        /* 4. Royal Burgundy (Humanities Light Mode) */
+        [data-theme="royal_burgundy"],
+        body.theme-royal-burgundy {
+            --bg:           #FFFBEB;
+            --bg-secondary: #FEF3C7;
+            --bg-card:      #FFFFFF;
+            --border-card:  #FED7AA;
+            --text:         #1F2937;
+            --text-muted:   #6B7280;
+            --accent:       #4A0E17;
+            --accent-gold:  #C5A059;
+            --accent-green: #059669;
+            --accent-red:   #BE123C;
+            --rule:         #FED7AA;
+            --slide-bg-gradient: radial-gradient(circle at 90% 10%, rgba(74, 14, 23, 0.04) 0%, transparent 60%), #FFFBEB;
+            --card-shadow:  0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --eyebrow-bg:   #FFF1F2;
+            --eyebrow-border: #FECDD3;
+            --eyebrow-text: #9F1239;
+        }
+
+        /* 5. Persian Teal Rose (Clinical Psychology & Psychotherapy Light Mode) */
+        [data-theme="persian_teal_rose"],
+        body.theme-persian-teal-rose {
+            --bg:           #FFFFFF;
+            --bg-secondary: #E0F7FA;
+            --bg-card:      #FFFFFF;
+            --border-card:  #E2E8F0;
+            --text:         #0F172A;
+            --text-muted:   #64748B;
+            --accent:       #25C6E3;
+            --accent-gold:  #A9E26F;
+            --accent-green: #10B981;
+            --accent-red:   #E80554;
+            --rule:         #E2E8F0;
+            --slide-bg-gradient: radial-gradient(circle at 90% 10%, rgba(37, 198, 227, 0.05) 0%, transparent 60%), #FFFFFF;
+            --card-shadow:  0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --eyebrow-bg:   #E0F7FA;
+            --eyebrow-border: #80DEEA;
+            --eyebrow-text: #00838F;
+        }
+
+        /* 6. Tehran Classic Azure (Tehran University Classic Light Mode) */
+        [data-theme="tehran_classic_azure"],
+        body.theme-tehran-classic-azure {
+            --bg:           #F8FAFC;
+            --bg-secondary: #EFF6FF;
+            --bg-card:      #FFFFFF;
+            --border-card:  #E2E8F0;
+            --text:         #0F172A;
+            --text-muted:   #64748B;
+            --accent:       #5B9BD5;
+            --accent-gold:  #ED7D31;
+            --accent-green: #10B981;
+            --accent-red:   #DC2626;
+            --rule:         #E2E8F0;
+            --slide-bg-gradient: radial-gradient(circle at 90% 10%, rgba(91, 155, 213, 0.05) 0%, transparent 60%), #F8FAFC;
+            --card-shadow:  0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --eyebrow-bg:   #EFF6FF;
+            --eyebrow-border: #BFDBFE;
+            --eyebrow-text: #1D4ED8;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -59,9 +170,7 @@
             padding: clamp(2rem, 5vw, 4rem) clamp(2.5rem, 7vw, 6rem);
             position: relative;
             overflow: hidden;
-            background: radial-gradient(circle at 85% 15%, rgba(0, 173, 181, 0.08) 0%, transparent 50%),
-                        radial-gradient(circle at 15% 85%, rgba(30, 62, 98, 0.25) 0%, transparent 60%),
-                        var(--bg);
+            background: var(--slide-bg-gradient, var(--bg));
         }
 
         .slide::after {
@@ -77,14 +186,14 @@
         .ad-eyebrow {
             font-size: 0.85rem;
             font-weight: 700;
-            color: var(--accent);
+            color: var(--eyebrow-text, var(--accent));
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            background: rgba(0, 173, 181, 0.15);
+            background: var(--eyebrow-bg, rgba(0, 173, 181, 0.15));
             padding: 0.35rem 0.9rem;
             border-radius: 9999px;
             display: inline-block;
-            border: 1px solid rgba(0, 173, 181, 0.3);
+            border: 1px solid var(--eyebrow-border, rgba(0, 173, 181, 0.3));
             margin-bottom: 1rem;
             align-self: flex-start;
         }
@@ -93,7 +202,7 @@
             font-size: clamp(1.8rem, 3.5vw, 3rem);
             font-weight: 800;
             line-height: 1.3;
-            color: var(--text);
+            color: var(--accent, var(--text));
             margin-bottom: 1.25rem;
         }
 
@@ -117,13 +226,14 @@
             border: 1px solid var(--border-card);
             border-radius: 12px;
             padding: 1.5rem;
+            box-shadow: var(--card-shadow);
             backdrop-filter: blur(10px);
             transition: transform 0.2s ease, border-color 0.2s ease;
         }
 
         .ad-card:hover {
             transform: translateY(-2px);
-            border-color: rgba(0, 173, 181, 0.4);
+            border-color: var(--accent);
         }
 
         .ad-card-title {

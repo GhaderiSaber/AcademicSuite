@@ -1567,37 +1567,55 @@ That is the quality standard for v3.
 
 ---
 
-# 22. UNIFIED CLI REFERENCE & EXECUTION WORKFLOW
+# 22. UNIFIED THEME SWITCHER & VISUAL DESIGN PARITY
+
+The presentation engine features a **Unified Theme Switcher** that guarantees 100% visual styling and color parity between the **Interactive HTML Deck** and the **PowerPoint (.pptx) Presentation**. 
+
+Selecting a theme configures the exact same slide canvas background, card fills, border colors, and typographic accents across both formats:
+
+| Theme Name | Visual Tone | Primary Context | Slide Background | Card Background | Primary / Titles | Accent |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`academic_navy`** *(Default)* | Classic Academic Light Mode | University defense halls, daylight auditoriums, printed slides | `#F8FAFC` (Off-white paper) | `#FFFFFF` (Crisp white) | `#0D2040` (Deep navy) | `#D97706` (Amber gold) |
+| **`academic_dark`** | Modern Viva Dark Mode | High-contrast monitors, dark rooms, tech/scientific defenses | `#070D1F` (Midnight obsidian) | `#132042` (Slate navy) | `#F8FAFC` (Crisp white) | `#F59E0B` (Radiant gold) |
+| **`emerald_slate`** | Life Sciences Light Mode | Medicine, nursing, health psychology, biological sciences | `#F0FDF4` (Soft mint off-white)| `#FFFFFF` (Crisp white) | `#134E4A` (Forest emerald) | `#059669` (Emerald) |
+| **`royal_burgundy`** | Humanities & Law Light Mode | Literature, counseling, law, philosophy, social sciences | `#FFFBEB` (Warm cream) | `#FFFFFF` (Crisp white) | `#4A0E17` (Deep burgundy) | `#C5A059` (Royal gold) |
+
+---
+
+# 23. UNIFIED CLI REFERENCE & EXECUTION WORKFLOW
 
 The skill provides a unified CLI (`main.py`) alongside dedicated modular scripts, offering full end-to-end automation for both **interactive HTML slide decks** and **native Microsoft PowerPoint (`.pptx`) presentations**.
 
-### 22.1 Core CLI Commands
+### 23.1 Core CLI Commands
 
 From the skill directory (`.agents/skills/persian-defense-presentation-builder/`):
 
 ```bash
-# 1. Native PowerPoint Compilation (with Diagram Rendering, OMML Math, and QA Gate)
+# 1. Native PowerPoint Compilation (Light Mode - Default)
 python3 main.py --compile-pptx --json examples/sample_defense_payload.json --output Defense_Presentation.pptx --theme academic_navy
 
-# 2. Geometric Bounding-Box & Collision Overlap Audit
+# 2. Native PowerPoint Compilation (Modern Dark Mode)
+python3 main.py --compile-pptx --json examples/sample_defense_payload.json --output Defense_Dark.pptx --theme academic_dark
+
+# 3. Geometric Bounding-Box & Collision Overlap Audit
 python3 main.py --audit-pptx Defense_Presentation.pptx --audit-json /tmp/audit_report.json
 
-# 3. 300-DPI Publication Diagram Generation (Mediation, CONSORT, Timeline)
+# 4. 300-DPI Publication Diagram Generation (Theme-Adaptive)
 python3 main.py --render-diagram diagram_spec.json --output diagram.png --theme academic_navy
 
-# 4. Extract Template Context, Fonts, Colors, and Layouts from PPTX
-python3 main.py --extract-template template.pptx --template-out extracted_template/
+# 5. Extract Template Context, Fonts, Colors, and Layouts from University PPTX
+python3 main.py --extract-template university_template.pptx --template-out extracted_template/
 
-# 5. Adapt Academic Payload to Canonical BRIEF.json (Ghost Deck Action Titles)
-python3 main.py --adapt-brief --json examples/sample_defense_payload.json --output BRIEF.json
+# 6. Adapt Academic Payload to Canonical BRIEF.json with Desired Theme
+python3 main.py --adapt-brief --json examples/sample_defense_payload.json --theme academic_navy --output BRIEF.json
 
-# 6. Validate BRIEF.json against Strict Schema
+# 7. Validate BRIEF.json against Strict Schema
 python3 main.py --validate-brief --brief BRIEF.json
 
-# 7. Generate Interactive Standalone HTML Slide Deck
-python3 main.py --generate --brief BRIEF.json --output presentation.html --eval
+# 8. Generate Interactive Standalone HTML Slide Deck (Inherits Theme)
+python3 main.py --generate --brief BRIEF.json --theme academic_navy --output presentation.html --eval
 
-# 8. Automated Planning Mode (Generates BRIEF from Topic / Research Questions)
+# 9. Automated Planning Mode (Generates BRIEF from Topic / Research Questions)
 python3 main.py --plan "بررسی اثربخشی درمان ACT بر انعطاف‌پذیری روان‌شناختی"
 ```
 
@@ -1664,7 +1682,7 @@ Following `pptx-skills`:
     ├── academic_brief_adapter.py        # Ghost Deck adapter converting academic JSON to BRIEF.json
     ├── check_overlaps.py                # Geometry bounding-box & collision overlap auditor
     ├── inject_omml.py                   # Pure-Python LaTeX -> MathML -> OMML Office Math injector
-    ├── render_diagrams.py               # 300-DPI Matplotlib vector diagram engine (Mediation/CONSORT/Timeline)
+    ├── batch_theme_extractor.py         # Batch OpenXML theme, color scheme, and typography extractor
     ├── extract_template.py              # PPTX template context, font, color, and layout extractor
     ├── low_context.py                   # slide-creator HTML engine runtime, validator, and evaluator
     └── visual_preview.py                # PDF and image contact-sheet generator for presentation review

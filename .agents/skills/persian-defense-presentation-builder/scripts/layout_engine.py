@@ -38,7 +38,13 @@ from rtl_typography import (
 # Global Header & Footer Helpers (Dynamic Project Metadata)
 # ---------------------------------------------------------------------------
 def add_slide_header(slide, meta: Dict[str, Any], slide_data: Dict[str, Any], palette: Dict[str, RGBColor]):
-    """Standard top header with section pill, category badge, and bold slide title."""
+    """Standard top header with full-bleed slide background, section indicator, and bold slide title."""
+    # 0. Slide Background Canvas (full-bleed 16:9)
+    bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
+    bg.fill.solid()
+    bg.fill.fore_color.rgb = palette["bg_slide"]
+    bg.line.fill.background()
+
     section = slide_data.get("section", "")
     title_text = slide_data.get("title", "")
     
