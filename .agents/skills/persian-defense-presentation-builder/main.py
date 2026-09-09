@@ -410,7 +410,10 @@ def run_path_google_slides(args) -> int:
         print("[!] Error: For --path google_slides, please provide --json <payload.json> or --stats-json <stats.json>", file=sys.stderr)
         return 1
 
-    out_dir = str(Path(args.output).parent) if args.output else "."
+    if args.output:
+        out_dir = args.output if (os.path.isdir(args.output) or not args.output.endswith(('.docx', '.md', '.txt'))) else str(Path(args.output).parent)
+    else:
+        out_dir = "."
     try:
         res = generate_brief(input_file, out_dir)
         print(f"\n[SUCCESS] Google Slides path generated successfully:")
