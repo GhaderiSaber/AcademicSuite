@@ -29,7 +29,7 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
 10. **Supervisor Revision Assistant ([persian-thesis-revision-assistant](.agents/skills/persian-thesis-revision-assistant/))**:
    Extracts Word comments and margin annotations from reviewed drafts, triages requested edits, applies targeted revisions, and generates the official Point-by-Point Response Table (`جدول_پاسخ_به_نظرات_اساتید.docx`).
 11. **Master Thesis Defense Presentation ([persian-defense-presentation-builder](.agents/skills/persian-defense-presentation-builder/))**:
-   Synthesizes thesis chapters, statistical findings, and discussion models into a defense-ready 16:9 widescreen PowerPoint presentation (`.pptx`) with native RTL OpenXML formatting, authentic Iranian academic typography (*B Titr*, *B Nazanin*), visual card containers, and comprehensive oral candidate Speaker Notes (متن گفتار دانشجو).
+   Synthesizes thesis chapters, statistical findings, and discussion models into defense presentations across three distinct paths: (1) **HTML** (`--path html`) interactive standalone browser decks with 100/100 automated QA, (2) **PowerPoint** (`--path pptx`) native `.pptx` decks with 300-DPI Matplotlib diagrams, pure-Python OMML native math, and RTL typography, and (3) **Google Slides** (`--path google_slides`) via Google Drive `@Document` Bridge + Gemini AI prompt (`Defense_Presentation_Brief.docx` & `.md` synced to Google Drive root).
 12. **Academic Article Writer ([academic-article-writer](.agents/skills/academic-article-writer/))**:
    Synthesizes all heterogeneous project artifacts (theses, Chapter 4 statistical data, translated literature, and psychometric scales) into high-impact, publication-grade academic journal articles adhering to international peer-review standards (IMRaD, APA 7th Edition, JARS) for both International English journals (ISI / Scopus Q1/Q2) and Iranian Scientific-Research journals (علمی-پژوهشی / ISC).
 13. **Journal Submission Assistant ([journal-submission-assistant](.agents/skills/journal-submission-assistant/))**:
@@ -181,13 +181,27 @@ python3 .agents/skills/persian-thesis-builder/scripts/compile_full_thesis.py \
   --scales "Connor-Davidson Resilience Scale, Penn State Worry Questionnaire"
 ```
 
-### Master Thesis Defense Presentation (PowerPoint .pptx)
-Generate a defense slide deck (16:9 widescreen, RTL OpenXML, B Titr/Nazanin) with candidate oral speaker notes:
+### Master Thesis Defense Presentation (HTML, PPTX & Google Slides)
+Generate defense presentations across any of the three supported paths:
 ```bash
-python3 .agents/skills/persian-defense-presentation-builder/scripts/compile_defense_presentation.py \
+# Path 1: Interactive HTML presentation
+python3 .agents/skills/persian-defense-presentation-builder/main.py \
+  --path html \
+  --json "defense_payload.json" \
+  --output "presentation.html" \
+  --theme academic_navy
+
+# Path 2: Native Microsoft PowerPoint (.pptx)
+python3 .agents/skills/persian-defense-presentation-builder/main.py \
+  --path pptx \
   --json "defense_payload.json" \
   --output "جلسه_دفاع_پایان_نامه.pptx" \
   --theme academic_navy
+
+# Path 3: Google Slides via Drive @Document Bridge + Gemini
+python3 .agents/skills/persian-defense-presentation-builder/main.py \
+  --path google_slides \
+  --json "defense_payload.json"
 ```
 
 ### Academic Article Compilation (ISI/Scopus or ISC)

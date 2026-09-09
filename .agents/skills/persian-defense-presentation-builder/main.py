@@ -2,14 +2,19 @@
 """
 Master Persian Academic Thesis Defense Presentation Builder v3.5
 ================================================================
-Unified CLI supporting both browser-grade HTML presentations (slide-creator)
-and native Microsoft PowerPoint (.pptx) presentations with:
-  - 100% Pure Python Microsoft Office Math (OMML) equation injection
-  - 300-DPI theme-adaptive diagram engine (Mediation, CONSORT, Timeline)
-  - Geometric bounding box & overlap collision auditor
-  - Template context & asset extractor (pptx-skills)
-  - Ghost Deck Action-Title academic narrative synthesis (academic-pptx-skill)
-  - Automated 100-point defense QA gate
+Unified CLI supporting three distinct presentation generation paths:
+  1. HTML ('--path html'): Interactive browser-grade presentations (slide-creator runtime,
+     Ghost Deck narrative, RTL typography, 100/100 automated QA gate)
+  2. PPTX ('--path pptx'): Native Microsoft PowerPoint (.pptx) presentations with:
+     - 100% Pure Python Microsoft Office Math (OMML) equation injection
+     - 300-DPI theme-adaptive diagram engine (Mediation, CONSORT, Timeline)
+     - Geometric bounding box & overlap collision auditor
+     - Template context & asset extractor
+     - Automated 100-point defense QA gate
+  3. Google Slides ('--path google_slides'): Automated Google Drive @Document Bridge
+     - Generates Defense_Presentation_Brief.docx & .md with varied slide archetypes
+     - Syncs directly to Google Drive root for instant @Defense_Presentation_Brief referencing
+     - Generates 1-click tailored prompt for Gemini in Google Slides
 """
 
 from __future__ import annotations
@@ -50,6 +55,7 @@ from extract_template import extract_template  # noqa: E402
 from check_overlaps import audit_presentation  # noqa: E402
 from render_diagrams import render_diagram  # noqa: E402
 from academic_brief_adapter import adapt_academic_payload_to_brief  # noqa: E402
+from generate_gemini_slides_brief import generate_brief  # noqa: E402
 
 PLAN_HELP = """\
 PLAN STEP REQUIRES SKILL INVOCATION
@@ -60,21 +66,33 @@ In a bare sandbox:
 1. Read `references/brief-template.json`
 2. Write `BRIEF.json` yourself (or extract one valid BRIEF from context)
 3. Run `python3 main.py --validate-brief --brief BRIEF.json`
-4. Run `python3 main.py --generate --brief BRIEF.json --output presentation.html`
+4. Run `python3 main.py --path html --brief BRIEF.json --output presentation.html`
 
 To generate native PowerPoint (.pptx):
 1. Prepare structured payload or stats_results.json
-2. Run `python3 main.py --compile-pptx --json payload.json --output presentation.pptx`
+2. Run `python3 main.py --path pptx --json payload.json --output presentation.pptx`
+
+To generate Google Slides presentation brief (Drive @Document Bridge):
+1. Prepare structured payload or stats_results.json
+2. Run `python3 main.py --path google_slides --json payload.json`
+3. Open slides.new in browser and type '@Defense_Presentation_Brief' in Gemini
 """
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Master Persian Academic Defense Presentation Builder v3.5 (HTML & PPTX)"
+        description="Master Persian Academic Defense Presentation Builder v3.5 (HTML, PPTX, Google Slides)"
     )
-    mode = parser.add_mutually_exclusive_group(required=True)
-    
-    # HTML slide-creator modes
+
+    # 1. Primary Tri-Path Selector
+    parser.add_argument(
+        "--path",
+        choices=["html", "pptx", "google_slides", "google-slides", "google_slide", "google-slide"],
+        help="Target presentation format/path: 'html' (interactive browser deck), 'pptx' (native PowerPoint), or 'google_slides' (Google Drive @Document Bridge + Gemini prompt)"
+    )
+
+    # 2. Legacy / Specialized operational modes
+    mode = parser.add_mutually_exclusive_group(required=False)
     mode.add_argument(
         "--plan",
         nargs="*",
@@ -84,19 +102,17 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument(
         "--generate",
         action="store_true",
-        help="Render HTML from BRIEF.json or a context artifact",
+        help="Render HTML from BRIEF.json or a context artifact (equivalent to --path html)",
     )
     mode.add_argument(
         "--validate-brief",
         action="store_true",
         help="Validate a BRIEF.json artifact",
     )
-    
-    # Native PPTX & Tool modes
     mode.add_argument(
         "--compile-pptx",
         action="store_true",
-        help="Compile native PowerPoint (.pptx) deck with diagrams, OMML math, and QA",
+        help="Compile native PowerPoint (.pptx) deck with diagrams, OMML math, and QA (equivalent to --path pptx)",
     )
     mode.add_argument(
         "--extract-template",
@@ -126,7 +142,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--brief", help="Path to BRIEF.json (defaults to ./BRIEF.json)")
     parser.add_argument("--context-file", help="Path to a context artifact containing exactly one valid BRIEF")
     parser.add_argument("--output", help="Output path (HTML, PPTX, PNG diagram, or adapted BRIEF.json)")
-    parser.add_argument("--json", help="Path to input JSON payload (for --compile-pptx or --adapt-brief)")
+    parser.add_argument("--json", help="Path to input JSON payload (for --compile-pptx, --adapt-brief, or --path)")
     parser.add_argument(
         "--theme",
         default="academic_navy",
@@ -154,11 +170,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--packet-out", help="Optional path to write the render packet as JSON")
     parser.add_argument("--extract-brief-out", help="Optional path to write the extracted BRIEF as JSON")
 
-    # Direct PPTX Synthesis inputs
+    # Direct PPTX & Metadata inputs
     parser.add_argument("--stats-json", help="Path to statistical results JSON for direct synthesis")
-    parser.add_argument("--ch1", help="Path to Chapter 1 DOCX")
-    parser.add_argument("--ch3", help="Path to Chapter 3 DOCX")
-    parser.add_argument("--ch5", help="Path to Chapter 5 DOCX")
+    parser.add_argument("--title", help="Presentation title")
+    parser.add_argument("--author", help="Candidate / Author name")
+    parser.add_argument("--supervisor", help="Supervisor name")
+    parser.add_argument("--degree", help="Degree / Academic program")
+    parser.add_argument("--university", help="University name")
     parser.add_argument("--skip-qa", action="store_true", help="Skip automated QA validation during compilation")
     parser.add_argument("--preview", action="store_true", help="Generate PDF / visual preview of presentation")
 
@@ -281,29 +299,91 @@ def run_generate(
     return 0
 
 
+def run_path_html(args) -> int:
+    """Executes the HTML presentation generation path."""
+    output = Path(args.output or "presentation.html")
+
+    # If already given brief or context-file, generate directly
+    if args.context_file or (args.brief and os.path.exists(args.brief)):
+        brief_path = _default_brief_path(args.brief) if not args.context_file else None
+        return run_generate(
+            brief_path=brief_path,
+            context_file=args.context_file,
+            output=output,
+            eval_enabled=args.eval,
+            eval_out=args.eval_out,
+            packet_out=args.packet_out,
+            extract_brief_out=args.extract_brief_out,
+            theme=args.theme,
+        )
+
+    # If payload JSON is provided, auto-adapt it to BRIEF.json first
+    input_file = args.json or args.stats_json
+    if not input_file:
+        for candidate in ["payload.json", "stats_results.json", str(ROOT / "examples" / "sample_defense_payload.json")]:
+            if os.path.exists(candidate):
+                input_file = candidate
+                break
+
+    if not input_file or not os.path.exists(input_file):
+        print("[!] Error: For --path html, please specify --brief, --context-file, --json <payload.json>, or --stats-json <stats.json>", file=sys.stderr)
+        return 1
+
+    try:
+        with open(input_file, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+
+        brief = adapt_academic_payload_to_brief(payload, preset="academic_defense", theme=args.theme)
+        brief_path = Path(args.extract_brief_out or "BRIEF.json")
+        with open(brief_path, "w", encoding="utf-8") as f:
+            json.dump(brief, f, ensure_ascii=False, indent=2)
+        print(f"[*] Adapted academic payload to {brief_path}")
+
+        return run_generate(
+            brief_path=brief_path,
+            context_file=None,
+            output=output,
+            eval_enabled=args.eval,
+            eval_out=args.eval_out,
+            packet_out=args.packet_out,
+            extract_brief_out=args.extract_brief_out,
+            theme=args.theme,
+        )
+    except Exception as e:
+        print(f"[!] Error in HTML generation path: {e}", file=sys.stderr)
+        return 1
+
+
 def run_compile_pptx(args) -> int:
+    """Executes the native PowerPoint (.pptx) presentation generation path."""
     output_path = args.output or "Defense_Presentation.pptx"
     payload = None
 
-    if args.json:
-        if not os.path.exists(args.json):
-            print(f"[!] Error: JSON payload file not found: {args.json}", file=sys.stderr)
-            return 1
-        with open(args.json, "r", encoding="utf-8") as f:
-            payload = json.load(f)
-    elif args.stats_json:
-        print("[*] Synthesizing presentation payload from research source files...")
-        meta_obj = ProjectMeta(
-            title=getattr(args, "title", None) or "عنوان رساله / پایان‌نامه",
-            degree=getattr(args, "degree", None) or "پایان‌نامه کارشناسی ارشد / رساله دکتری",
-            university=getattr(args, "university", None) or "",
-            author=getattr(args, "author", None) or "",
-            theme=args.theme,
-        )
-        truth = ResearchTruthModel(meta=meta_obj)
-        payload = synthesize_storyboard_from_truth_model(truth)
+    input_file = args.json or args.stats_json
+    if not input_file:
+        for candidate in ["payload.json", "stats_results.json", str(ROOT / "examples" / "sample_defense_payload.json")]:
+            if os.path.exists(candidate):
+                input_file = candidate
+                break
+
+    if input_file and os.path.exists(input_file):
+        with open(input_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if "slides" in data:
+            payload = data
+        else:
+            print("[*] Synthesizing presentation payload from research source files...")
+            meta_obj = ProjectMeta(
+                title=getattr(args, "title", None) or data.get("meta", {}).get("title") or "عنوان رساله / پایان‌نامه",
+                degree=getattr(args, "degree", None) or data.get("meta", {}).get("degree") or "پایان‌نامه کارشناسی ارشد / رساله دکتری",
+                university=getattr(args, "university", None) or data.get("meta", {}).get("university") or "",
+                author=getattr(args, "author", None) or data.get("meta", {}).get("author") or "",
+                theme=args.theme,
+            )
+            truth = ResearchTruthModel(meta=meta_obj)
+            payload = synthesize_storyboard_from_truth_model(truth)
     else:
-        print("[!] Error: Either --json <payload.json> or --stats-json <stats.json> is required.", file=sys.stderr)
+        print("[!] Error: Either --json <payload.json> or --stats-json <stats.json> is required for pptx.", file=sys.stderr)
         return 1
 
     theme_to_use = args.theme_file if getattr(args, "theme_file", None) else args.theme
@@ -315,6 +395,41 @@ def run_compile_pptx(args) -> int:
         preview=args.preview,
     )
     return 0 if success else 1
+
+
+def run_path_google_slides(args) -> int:
+    """Executes the Google Slides presentation path (Drive @Document Bridge + Gemini prompt)."""
+    input_file = args.json or args.stats_json
+    if not input_file:
+        for candidate in ["stats_results.json", "payload.json", str(ROOT / "examples" / "sample_defense_payload.json")]:
+            if os.path.exists(candidate):
+                input_file = candidate
+                break
+
+    if not input_file or not os.path.exists(input_file):
+        print("[!] Error: For --path google_slides, please provide --json <payload.json> or --stats-json <stats.json>", file=sys.stderr)
+        return 1
+
+    out_dir = str(Path(args.output).parent) if args.output else "."
+    try:
+        res = generate_brief(input_file, out_dir)
+        print(f"\n[SUCCESS] Google Slides path generated successfully:")
+        print(f"  - Word Brief: {res['local_docx']}")
+        print(f"  - Markdown Brief: {res['local_md']}")
+        print(f"  - 1-Click Prompt: {res['local_prompt']}")
+        if res.get("google_drive_docx"):
+            print(f"  - Cloud Sync (Google Drive): {res['google_drive_docx']}")
+        print(f"  - Slides Configured: {res['slide_count']}")
+        print("\n[Google Slides 1-Click Prompt]:")
+        print(res["prompt"])
+        print("\n[Next Step in Google Slides]:")
+        print("1. Open https://slides.new in your browser.")
+        print("2. Click the Gemini AI spark icon on the canvas.")
+        print("3. Paste the prompt above. Gemini will reference '@Defense_Presentation_Brief' from your Google Drive.")
+        return 0
+    except Exception as e:
+        print(f"[!] Error in Google Slides generation path: {e}", file=sys.stderr)
+        return 1
 
 
 def run_extract_template(template_pptx: str, out_dir: str) -> int:
@@ -418,40 +533,38 @@ def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
 
-    # 1. Planning mode
+    # 1. Tri-Path Routing
+    if args.path:
+        norm_path = args.path.lower().replace("-", "_")
+        if norm_path == "html":
+            return run_path_html(args)
+        elif norm_path == "pptx":
+            return run_compile_pptx(args)
+        elif norm_path in ("google_slides", "google_slide"):
+            return run_path_google_slides(args)
+
+    # 2. Planning mode
     if args.plan is not None:
         return run_plan(args.plan)
 
-    # 2. BRIEF Validation
+    # 3. BRIEF Validation
     if args.validate_brief:
         brief_path = _default_brief_path(args.brief)
         return run_validate_brief(brief_path)
 
-    # 3. HTML Generation (slide-creator)
+    # 4. HTML Generation (slide-creator)
     if args.generate:
-        if not args.output:
-            parser.error("--output is required with --generate")
-        brief_path = _default_brief_path(args.brief)
-        return run_generate(
-            brief_path=None if args.context_file else brief_path,
-            context_file=args.context_file,
-            output=Path(args.output),
-            eval_enabled=args.eval,
-            eval_out=args.eval_out,
-            packet_out=args.packet_out,
-            extract_brief_out=args.extract_brief_out,
-            theme=args.theme,
-        )
+        return run_path_html(args)
 
-    # 4. Native PPTX Compilation
+    # 5. Native PPTX Compilation
     if args.compile_pptx:
         return run_compile_pptx(args)
 
-    # 5. Template Extraction
+    # 6. Template Extraction
     if args.extract_template:
         return run_extract_template(args.extract_template, args.template_out)
 
-    # 6. PPTX Geometry & Overlap Audit
+    # 7. PPTX Geometry & Overlap Audit
     if args.audit_pptx:
         return run_audit_pptx(
             args.audit_pptx,
@@ -460,15 +573,20 @@ def main() -> int:
             args.min_gap,
         )
 
-    # 7. 300-DPI Diagram Rendering
+    # 8. 300-DPI Diagram Rendering
     if args.render_diagram:
         return run_render_diagram(args.render_diagram, args.output, args.theme)
 
-    # 8. Adapt Academic Payload to BRIEF.json
+    # 9. Adapt Academic Payload to BRIEF.json
     if args.adapt_brief:
         return run_adapt_brief(args)
 
-    parser.error("No valid action specified.")
+    # If no action or path is provided, show helpful guidance
+    parser.print_help()
+    print("\n[!] Please select a presentation path:")
+    print("  python3 main.py --path html          # Generate interactive HTML slide deck")
+    print("  python3 main.py --path pptx          # Generate native Microsoft PowerPoint (.pptx)")
+    print("  python3 main.py --path google_slides # Generate Google Drive @Document brief for Google Slides")
     return 2
 
 

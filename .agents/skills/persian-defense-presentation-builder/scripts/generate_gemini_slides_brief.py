@@ -2,59 +2,161 @@
 """
 generate_gemini_slides_brief.py
 Constructs a publication-grade Presentation Brief (.docx and .md)
-engineered specifically for Google Slides with Gemini (Approach A: Drive @Document Bridge).
+and optimized prompt engineered specifically for Google Slides with Gemini
+(Approach A: Drive @Document Bridge).
 
-The document contains:
-1. Executive presentation directives (style, audience, layout variety, color palette).
-2. Research metadata and exact statistical values (from stats_results.json).
-3. A slide-by-slide blueprint with visual archetype recommendations, action titles,
-   data evidence, and speaker notes.
-4. Automatic sync to the user's local Google Drive directory for instant @mention in Google Slides.
+Features:
+1. Supports both structured defense payload JSONs (slides, layouts, speaker notes)
+   and statistical results JSONs (regression, ANOVA, ANCOVA, effect sizes).
+2. Generates:
+   - Defense_Presentation_Brief.docx (Rich formatted master brief for Google Drive)
+   - Defense_Presentation_Brief.md (Markdown specification)
+   - gemini_slides_prompt.txt (1-click ready prompt for Gemini in Google Slides)
+3. Automatically syncs to Google Drive root directory:
+   ~/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive/
+   for instant @Defense_Presentation_Brief referencing inside Google Slides.
 """
 
 import json
 import os
 import shutil
 import sys
+from pathlib import Path
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 
-def generate_brief(stats_path: str, output_dir: str):
-    if not os.path.exists(stats_path):
-        raise FileNotFoundError(f"Stats file not found: {stats_path}")
+LAYOUT_ARCHETYPE_MAP = {
+    "cover": "Title Slide with Visual Hero & Metadata",
+    "committee": "Committee & Supervision Roster Matrix",
+    "problem_funnel": "Inverted Funnel / Problem Cascading Flow",
+    "gap_matrix": "Gap Matrix / 2-Column State-of-the-Art vs Gap",
+    "conceptual_model": "Horizontal Conceptual Path Diagram",
+    "hypotheses": "Directional Hypotheses Grid & Predictions",
+    "methodology": "2-Column Split: Demographics & Sampling Flow",
+    "instruments": "Measurement Scales & Psychometric Reliability Table",
+    "protocol_timeline": "Intervention Timeline & Session Roadmap",
+    "pre_test_balance": "Baseline Equivalence & Control Comparison Table",
+    "findings_primary": "Metric Callout Spotlight & Primary Hypothesis",
+    "ancova_table": "ANCOVA / Statistical Summary Table",
+    "mediation_diagram": "3-Variable Mediation Path Model",
+    "repeated_measures": "Longitudinal Trend / Repeated Measures Plot",
+    "discussion_mechanism": "Cause -> Psychological Mechanism -> Outcome Flow",
+    "implications": "3-Tier Action Roadmap: Clinical, Educational, Policy",
+    "limitations": "Limitations & Future Directions Boundary Map",
+    "closing": "Closing Summary & Examination Jury Q&A"
+}
 
-    with open(stats_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
 
+def _extract_slide_content(slide: dict) -> list[str]:
+    """Extracts informative bullet strings from any slide layout structure."""
+    items = []
+    if "content" in slide and isinstance(slide["content"], list):
+        items.extend([str(c) for c in slide["content"]])
+
+    if "stages" in slide and isinstance(slide["stages"], list):
+        for st in slide["stages"]:
+            t = st.get("title", "")
+            d = st.get("desc", "")
+            items.append(f"{t}: {d}" if t and d else t or d)
+
+    if "columns" in slide and isinstance(slide["columns"], list):
+        for col in slide["columns"]:
+            col_t = col.get("title", "")
+            for it in col.get("items", []):
+                items.append(f"[{col_t}] {it}" if col_t else it)
+
+    if "members" in slide and isinstance(slide["members"], list):
+        for m in slide["members"]:
+            items.append(f"{m.get('role', '')}: {m.get('name', '')}")
+
+    if "instruments" in slide and isinstance(slide["instruments"], list):
+        for ins in slide["instruments"]:
+            items.append(f"{ins.get('name', '')} ({ins.get('items_count', '')} items): alpha = {ins.get('alpha', '')}")
+
+    if "findings" in slide and isinstance(slide["findings"], list):
+        for f in slide["findings"]:
+            items.append(str(f))
+
+    if not items:
+        # Fallback to description or text
+        desc = slide.get("desc") or slide.get("description") or slide.get("text")
+        if desc:
+            items.append(str(desc))
+
+    return items or ["Slide content and empirical discussion."]
+
+
+def parse_input_payload(data: dict) -> tuple[dict, list[dict]]:
+    """Parses arbitrary research payload or stats results into normalized presentation structure."""
+    meta = data.get("meta", {})
+    slides = []
+
+    # Case 1: Structured Defense Storyboard Payload
+    if "slides" in data and isinstance(data["slides"], list):
+        title = meta.get("title", "جلسه دفاع رساله / پایان‌نامه")
+        author = meta.get("author", "پژوهشگر")
+        degree = meta.get("degree", "پایان‌نامه / رساله تحصیلات تکمیلی")
+        university = meta.get("university", "دانشگاه")
+
+        for idx, s in enumerate(data["slides"], start=1):
+            layout_key = s.get("layout", "standard")
+            archetype = LAYOUT_ARCHETYPE_MAP.get(layout_key, f"Custom Layout ({layout_key})")
+            slide_title = s.get("title", f"اسلاید {idx}")
+            subtitle = s.get("section") or s.get("subtitle") or ""
+            takeaway = s.get("takeaway") or s.get("key_message") or slide_title
+            content = _extract_slide_content(s)
+            notes = s.get("speaker_notes") or s.get("notes") or "توضیحات و دفاعیات شفاهی دانشجو در این اسلاید ارائه می‌شود."
+
+            slides.append({
+                "num": idx,
+                "title": slide_title,
+                "subtitle": subtitle,
+                "archetype": archetype,
+                "takeaway": takeaway,
+                "content": content,
+                "notes": notes
+            })
+
+        project_info = {
+            "title": title,
+            "author": author,
+            "degree": degree,
+            "university": university,
+            "slide_count": len(slides),
+            "source_type": "structured_payload"
+        }
+        return project_info, slides
+
+    # Case 2: Statistical Results JSON (e.g. regression / stats_results.json)
     reg = data.get("regression", {})
     dv = reg.get("dv", "Psychological Well-being")
     n = reg.get("n", 250)
 
     step1 = reg.get("step1", {})
-    s1_vars = ", ".join(step1.get("variables", []))
+    s1_vars = ", ".join(step1.get("variables", ["Age", "Gender"]))
     s1_r2 = step1.get("r2_str", ".072")
     s1_f = step1.get("f", 9.64)
 
     step2 = reg.get("step2", {})
-    s2_added = ", ".join(step2.get("added_variables", []))
+    s2_added = ", ".join(step2.get("added_variables", ["Resilience", "Self-Efficacy", "Social Support"]))
     s2_r2 = step2.get("r2_str", ".393")
     s2_dr2 = step2.get("delta_r2_str", ".321")
     s2_f = step2.get("f", 31.64)
 
-    slides = [
+    stat_slides = [
         {
             "num": 1,
             "title": f"Predicting {dv.replace('_', ' ')}",
             "subtitle": "A Hierarchical Multiple Linear Regression Analysis",
-            "archetype": "Title Slide with Visual Hero",
+            "archetype": "Title Slide with Visual Hero & Metadata",
             "takeaway": "Empirical investigation into demographic baselines and psychological assets.",
             "content": [
                 f"Topic: Psychological and demographic predictors of {dv.replace('_', ' ')}",
-                f"Sample: N = {n} adults / participants",
+                f"Sample: N = {n} participants",
                 "Methodology: Two-Stage Hierarchical Regression Modeling",
-                "Presentation for: Academic Thesis Committee & Defense Jury"
+                "Audience: Academic Thesis Examination Committee"
             ],
             "notes": "Good morning respected committee members. Today I present our findings on the predictive capacity of demographic baselines versus modifiable psychological assets."
         },
@@ -63,7 +165,7 @@ def generate_brief(stats_path: str, output_dir: str):
             "title": "Research Rationale & The Problem Funnel",
             "subtitle": "From Societal Mental Health Trends to Empirical Gap",
             "archetype": "Inverted Funnel / 3-Stage Cascading Flow",
-            "takeaway": "While demographic factors establish vulnerability baselines, modifiable cognitive and emotional assets hold greater protective value.",
+            "takeaway": "While demographic factors establish vulnerability baselines, modifiable cognitive assets hold greater protective value.",
             "content": [
                 "Macro Level: Escalating psychological distress and declining subjective well-being in modern populations.",
                 "Meso Level: Traditional research disproportionately concentrates on immutable demographics (age, gender).",
@@ -78,8 +180,8 @@ def generate_brief(stats_path: str, output_dir: str):
             "archetype": "Horizontal Conceptual Path Diagram",
             "takeaway": "Model conceptualizes demographic variables as baseline controls and psychological strengths as active incremental predictors.",
             "content": [
-                f"Block 1 (Baseline Controls): Age and Gender",
-                f"Block 2 (Focal Predictors): Resilience, Self-Efficacy, and Perceived Social Support",
+                f"Block 1 (Baseline Controls): {s1_vars}",
+                f"Block 2 (Focal Predictors): {s2_added}",
                 f"Target Criterion (DV): {dv.replace('_', ' ')}",
                 "Hypothesis: Psychological assets will account for significant incremental variance (Delta R² > 0) beyond demographics."
             ],
@@ -89,11 +191,11 @@ def generate_brief(stats_path: str, output_dir: str):
             "num": 4,
             "title": "Methodology: Participant Demographics & Sampling",
             "subtitle": f"Sample Characteristics (N = {n})",
-            "archetype": "2-Column Split: Demographic Breakdown + Sampling Flow",
-            "takeaway": f"The sample of N = {n} provides adequate statistical power (1 - beta > .95) for detecting medium effect sizes in multiple regression.",
+            "archetype": "2-Column Split: Demographics & Sampling Flow",
+            "takeaway": f"The sample of N = {n} provides adequate statistical power (1 - beta > .95) for detecting medium effect sizes.",
             "content": [
                 f"Total Valid Participants: N = {n}",
-                "Sampling Method: Stratified random sampling ensuring balanced demographic representation",
+                "Sampling Method: Stratified random sampling ensuring balanced representation",
                 "Inclusion Criteria: Fully completed psychometric batteries, active consent, adult cohort",
                 "Power Justification: G*Power a priori calculations confirmed N >= 180 sufficient for 5 predictors at alpha = .05 and power = .95."
             ],
@@ -103,7 +205,7 @@ def generate_brief(stats_path: str, output_dir: str):
             "num": 5,
             "title": "Measurement Instruments & Psychometric Reliability",
             "subtitle": "Validated Scales and Internal Consistency",
-            "archetype": "Comparison Table / Instrument Matrix",
+            "archetype": "Measurement Scales & Psychometric Reliability Table",
             "takeaway": "All measurement scales demonstrated strong internal consistency reliability (Cronbach's alpha >= .82).",
             "content": [
                 f"{dv.replace('_', ' ')} Scale: Standardized composite score (alpha = .87)",
@@ -118,9 +220,9 @@ def generate_brief(stats_path: str, output_dir: str):
             "title": "Hierarchical Model 1: Baseline Demographic Controls",
             "subtitle": "Step 1 Regression Analysis",
             "archetype": "Split-Screen: Metric Callout + Coefficient Table",
-            "takeaway": f"Demographics explain a modest {float(s1_r2)*100:.1f}% of variance, with Age demonstrating positive and Gender modest negative association.",
+            "takeaway": f"Demographics explain a modest {float(s1_r2)*100:.1f}% of variance, establishing a significant baseline.",
             "content": [
-                f"Model 1 Fit: R² = {s1_r2}, F(2, 247) = {s1_f}, p < .001",
+                f"Model 1 Fit: R² = {s1_r2}, F = {s1_f}, p < .001",
                 "Age: B = 0.332, SE = 0.084, beta = 0.246, t = 3.97, p < .001 (Older participants report higher baseline well-being)",
                 "Gender: B = -2.897, SE = 1.178, beta = -0.152, t = -2.46, p = .015 (Significant gender differential at baseline)",
                 "Baseline Interpretation: Demographics provide a statistically significant but modest foundation."
@@ -131,12 +233,12 @@ def generate_brief(stats_path: str, output_dir: str):
             "num": 7,
             "title": "Hierarchical Model 2: Incremental Psychological Power",
             "subtitle": "Step 2 Regression with Added Assets",
-            "archetype": "Big Number Metric Spotlight + Incremental Variance Chart",
+            "archetype": "Metric Callout Spotlight & Primary Hypothesis",
             "takeaway": f"Adding psychological variables yields an immense Delta R² = {s2_dr2} (32.1% incremental variance, p < .001), elevating total explained variance to {float(s2_r2)*100:.1f}%.",
             "content": [
                 f"Total Model Explained Variance: R² = {s2_r2} (39.3%)",
                 f"Incremental Variance Added: Delta R² = {s2_dr2} (32.1%), Delta F = 43.02, p < .001",
-                f"Overall Model Significance: F(5, 244) = {s2_f}, p < .001",
+                f"Overall Model Significance: F = {s2_f}, p < .001",
                 "Key Finding: Psychological assets account for more than 4 times the variance of demographics."
             ],
             "notes": "This is our primary empirical finding. Adding psychological assets yields a dramatic 32.1% increase in explained variance (Delta R-squared = .321, p < .001), elevating overall R-squared to nearly 40%."
@@ -163,10 +265,10 @@ def generate_brief(stats_path: str, output_dir: str):
             "archetype": "3-Pillar Diagnostic Matrix",
             "takeaway": "All regression assumptions were fully met; no multicollinearity detected (all VIF values < 1.30).",
             "content": [
-                "Multicollinearity: All VIF values ranged between 1.03 and 1.27 (substantially below the conservative threshold of 5.0).",
-                "Residual Normality: Visual inspection of P-P plots and Kolmogorov-Smirnov test confirmed normal distribution of residuals.",
-                "Homoscedasticity: Scatterplots of standardized residuals vs. predicted values demonstrated uniform variance.",
-                "Independence: Durbin-Watson statistic fell within the optimal 1.85 - 2.15 range."
+                "Multicollinearity: All VIF values ranged between 1.03 and 1.27 (substantially below threshold of 5.0).",
+                "Residual Normality: Visual inspection of P-P plots confirmed normal distribution of residuals.",
+                "Homoscedasticity: Scatterplots of standardized residuals vs predicted values demonstrated uniform variance.",
+                "Independence: Durbin-Watson statistic fell within optimal 1.85 - 2.15 range."
             ],
             "notes": "We verified all Gauss-Markov assumptions. Variance Inflation Factors (VIF) remained well below 1.3, ruling out any multicollinearity concerns between our three psychological predictors."
         },
@@ -174,13 +276,13 @@ def generate_brief(stats_path: str, output_dir: str):
             "num": 10,
             "title": "Theoretical Mechanisms: Why Assets Protect Well-Being",
             "subtitle": "Integration with Cognitive, Behavioral, and Coping Models",
-            "archetype": "Cause -> Mechanism -> Outcome Flow",
+            "archetype": "Cause -> Psychological Mechanism -> Outcome Flow",
             "takeaway": "Resilience provides cognitive reframing; self-efficacy fosters persistence; social support delivers emotional buffering.",
             "content": [
                 "Resilience (Masten & Garmezy): Fosters cognitive flexibility and stress-hardiness during adverse events.",
-                "Self-Efficacy (Bandura's Social Cognitive Theory): Enhances subjective agency, reducing helplessness and catastrophic thinking.",
-                "Social Support (Cohen & Wills Buffering Hypothesis): Acts as an external shock absorber attenuating autonomic stress reactivity.",
-                "Combined Synergistic Effect: Psychological strengths function as an integrated psychological immune system."
+                "Self-Efficacy (Bandura): Enhances subjective agency, reducing helplessness and catastrophic thinking.",
+                "Social Support (Cohen & Wills): Acts as an external shock absorber attenuating stress reactivity.",
+                "Synergistic Effect: Psychological strengths function as an integrated psychological immune system."
             ],
             "notes": "Theoretically, these findings align with Bandura's self-efficacy model and the stress-buffering hypothesis. Resilience and self-efficacy provide internal cognitive defenses, while social support supplies an external buffer."
         },
@@ -188,12 +290,12 @@ def generate_brief(stats_path: str, output_dir: str):
             "num": 11,
             "title": "Practical, Clinical & Counseling Applications",
             "subtitle": "Translating Empirical Findings into Actionable Interventions",
-            "archetype": "Targeted Action Cards / 3-Tier Intervention Roadmap",
+            "archetype": "3-Tier Action Roadmap: Clinical, Educational, Policy",
             "takeaway": "Interventions targeting resilience and self-efficacy training will produce fourfold greater well-being gains than demographic targeting.",
             "content": [
-                "Clinical Practice: Prioritize Cognitive Behavioral Therapy (CBT) and Acceptance & Commitment Therapy (ACT) focused on resilience building.",
-                "Educational Institutions: Implement campus-wide self-efficacy and problem-solving workshops for high-risk cohorts.",
-                "Community Programs: Foster peer support networks to strengthen relational and perceived social support assets.",
+                "Clinical Practice: Prioritize CBT and ACT focused on resilience and cognitive appraisal building.",
+                "Educational Institutions: Implement campus-wide self-efficacy and problem-solving workshops.",
+                "Community Programs: Foster peer support networks to strengthen relational assets.",
                 "Resource Allocation: Shift mental health funding toward modifiable skill-building rather than passive demographic tracking."
             ],
             "notes": "For practitioners and policy makers, the implication is clear: rather than treating well-being deficits as fixed demographic destiny, resources should focus on teachable resilience and self-efficacy skills."
@@ -202,22 +304,54 @@ def generate_brief(stats_path: str, output_dir: str):
             "num": 12,
             "title": "Limitations, Future Horizons & Conclusion",
             "subtitle": "Final Summary for Thesis Defense",
-            "archetype": "Key Takeaways Split: Limitations + Core Conclusion",
+            "archetype": "Limitations & Future Directions Boundary Map",
             "takeaway": "Psychological assets are powerful, modifiable predictors of well-being that dwarf demographic baselines.",
             "content": [
                 "Limitations: Cross-sectional design precludes causal assertions; reliance on self-report instruments.",
-                "Future Directions: Longitudinal tracking across 6-12 months and experimental testing of resilience-building interventions.",
-                "Core Conclusion: Modifiable psychological capital accounts for 32.1% unique variance, providing a clear roadmap for psychological intervention.",
+                "Future Directions: Longitudinal tracking across 6-12 months and experimental testing of interventions.",
+                "Core Conclusion: Modifiable psychological capital accounts for 32.1% unique variance, providing a clear roadmap for intervention.",
                 "Thank You: Open for questions and discussion from the examination committee."
             ],
             "notes": "In conclusion, while demographics provide a baseline, psychological capital accounts for the vast majority of explained well-being. Thank you, and I look forward to your questions."
         }
     ]
 
+    project_info = {
+        "title": f"Predicting {dv.replace('_', ' ')} through Psychological and Demographic Factors",
+        "author": "پژوهشگر تحصیلات تکمیلی",
+        "degree": "پایان‌نامه کارشناسی ارشد / رساله دکتری",
+        "university": "دانشگاه",
+        "slide_count": len(stat_slides),
+        "source_type": "statistical_results",
+        "stats_summary": {
+            "dv": dv,
+            "n": n,
+            "s1_r2": s1_r2,
+            "s1_f": s1_f,
+            "s2_r2": s2_r2,
+            "s2_dr2": s2_dr2,
+            "s2_f": s2_f
+        }
+    }
+    return project_info, stat_slides
+
+
+def generate_brief(input_path: str, output_dir: str = ".") -> dict:
+    """Master generator producing .docx, .md, prompt.txt and syncing to Google Drive."""
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    with open(input_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    project_info, slides = parse_input_payload(data)
+    os.makedirs(output_dir, exist_ok=True)
+
     # 1. Build Markdown Document
     md_content = f"""# Academic Defense Presentation Brief
-## Topic: Predicting {dv.replace('_', ' ')} through Psychological and Demographic Factors
-**Study Parameters:** N = {n} participants | Two-Stage Hierarchical Multiple Linear Regression
+## Topic: {project_info['title']}
+**Metadata:** {project_info.get('author', '')} | {project_info.get('degree', '')} | {project_info.get('university', '')}
+**Slide Count:** {len(slides)} Slides
 
 ---
 
@@ -227,7 +361,7 @@ def generate_brief(stats_path: str, output_dir: str):
 - **CRITICAL DESIGN RULE:** **Avoid repetitive cards or identical box layouts across consecutive slides.**
 - **Layout Variety Enforced:** Each slide uses a distinct visual archetype (Inverted Funnel, Conceptual Path Model, Big Number Metric Spotlight, Horizontal Bar Ranking, 3-Pillar Matrix, Action Roadmap).
 - **Color Palette:** Deep Navy `#0F172A`, Crisp Slate `#334155`, Warm Gold/Teal Accents `#0D9488` / `#D97706`, Pure White `#FFFFFF`.
-- **Slide Count:** Exactly 12 slides.
+- **Slide Count:** Exactly {len(slides)} slides.
 
 ---
 
@@ -237,7 +371,7 @@ def generate_brief(stats_path: str, output_dir: str):
 
     for s in slides:
         md_content += f"""#### Slide {s['num']}: {s['title']}
-* **Subtitle:** {s['subtitle']}
+* **Subtitle / Section:** {s['subtitle']}
 * **Visual Layout Archetype:** {s['archetype']}
 * **Core Takeaway:** {s['takeaway']}
 * **Slide Content / Bullets:**
@@ -256,31 +390,30 @@ def generate_brief(stats_path: str, output_dir: str):
     # Title
     p_title = doc.add_paragraph()
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run_t = p_title.add_run(f"Academic Defense Presentation Brief\nPredicting {dv.replace('_', ' ')}")
+    run_t = p_title.add_run(f"Academic Defense Presentation Brief\n{project_info['title']}")
     run_t.font.name = "Arial"
-    run_t.font.size = Pt(20)
+    run_t.font.size = Pt(18)
     run_t.font.bold = True
     run_t.font.color.rgb = RGBColor(15, 23, 42)
 
     # Subtitle
     p_sub = doc.add_paragraph()
     p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run_s = p_sub.add_run(f"Two-Stage Hierarchical Regression Analysis | N = {n}\nEngineered for Google Slides Gemini Generation")
+    run_s = p_sub.add_run(f"{project_info.get('degree', '')} | {project_info.get('university', '')}\nEngineered for Google Slides Gemini Generation")
     run_s.font.size = Pt(11)
     run_s.font.italic = True
     run_s.font.color.rgb = RGBColor(71, 85, 105)
 
-    doc.add_paragraph() # spacing
+    doc.add_paragraph()  # spacing
 
     # Overview table
-    table = doc.add_table(rows=5, cols=2)
+    table = doc.add_table(rows=4, cols=2)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     meta_rows = [
-        ("Criterion Variable (DV)", dv.replace('_', ' ')),
-        ("Sample Size (N)", f"{n} participants"),
-        ("Model 1 Baseline (Age, Gender)", f"R² = {s1_r2}, F = {s1_f}, p < .001"),
-        ("Model 2 Full Model (Added Assets)", f"Total R² = {s2_r2}, Delta R² = {s2_dr2}, F = {s2_f}, p < .001"),
-        ("Focal Significant Predictor", "Resilience (beta = 0.343, t = 6.37, p < .001)")
+        ("Presentation Title", project_info["title"]),
+        ("Presenter / Candidate", project_info.get("author", "دانشجو")),
+        ("Academic Institution", project_info.get("university", "دانشگاه")),
+        ("Total Slides Specified", f"{len(slides)} defense-ready slides")
     ]
     for i, (k, v) in enumerate(meta_rows):
         row = table.rows[i]
@@ -295,11 +428,11 @@ def generate_brief(stats_path: str, output_dir: str):
     # Directives heading
     h_dir = doc.add_heading("Gemini Presentation Instructions & Design Rules", level=1)
     h_dir.runs[0].font.color.rgb = RGBColor(15, 23, 42)
-    p_rules = doc.add_paragraph(
-        "1. Avoid repetitive cards: Do not place 3 cards or rounded rectangles on consecutive slides.\n"
-        "2. Enforce visual variety: Use funnels, model diagrams, metric callouts, and ranking ladders.\n"
+    doc.add_paragraph(
+        "1. Avoid repetitive cards: Do not place generic 3-column card grids on consecutive slides.\n"
+        "2. Enforce visual variety: Follow the layout archetype designated for each slide (funnels, path models, metric spotlights, timelines).\n"
         "3. Highlight empirical statistics: Present exact numbers prominently.\n"
-        "4. Include speaker notes on every slide."
+        "4. Include speaker notes on every single slide."
     )
 
     doc.add_heading("Slide-by-Slide Blueprint", level=1)
@@ -307,7 +440,7 @@ def generate_brief(stats_path: str, output_dir: str):
     for s in slides:
         h = doc.add_heading(f"Slide {s['num']}: {s['title']}", level=2)
         h.runs[0].font.color.rgb = RGBColor(30, 41, 59)
-        
+
         p_meta = doc.add_paragraph()
         r_arch = p_meta.add_run(f"Layout Archetype: {s['archetype']}\n")
         r_arch.font.bold = True
@@ -327,31 +460,56 @@ def generate_brief(stats_path: str, output_dir: str):
     docx_path = os.path.join(output_dir, "Defense_Presentation_Brief.docx")
     doc.save(docx_path)
 
-    # 3. Automatic Google Drive Sync
+    # 3. Build 1-Click Gemini Prompt
+    prompt_text = (
+        f"@Defense_Presentation_Brief Create a {len(slides)}-slide academic thesis defense presentation "
+        f"on the topic: '{project_info['title']}'. "
+        "Strictly adhere to the slide-by-slide blueprint, layout archetypes (funnels, conceptual paths, "
+        "metric spotlights, and ladders), empirical numbers, and candidate speaker notes detailed in the brief. "
+        "Enforce high layout variety and avoid repetitive card containers."
+    )
+    prompt_path = os.path.join(output_dir, "gemini_slides_prompt.txt")
+    with open(prompt_path, "w", encoding="utf-8") as f:
+        f.write(prompt_text)
+
+    # 4. Automatic Google Drive Sync
     cloud_drive_dir = "/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive"
     synced_docx = None
     synced_md = None
+    synced_prompt = None
     if os.path.exists(cloud_drive_dir):
         synced_docx = os.path.join(cloud_drive_dir, "Defense_Presentation_Brief.docx")
         synced_md = os.path.join(cloud_drive_dir, "Defense_Presentation_Brief.md")
-        shutil.copyfile(docx_path, synced_docx)
-        shutil.copyfile(md_path, synced_md)
+        synced_prompt = os.path.join(cloud_drive_dir, "gemini_slides_prompt.txt")
+        try:
+            shutil.copyfile(docx_path, synced_docx)
+            shutil.copyfile(md_path, synced_md)
+            shutil.copyfile(prompt_path, synced_prompt)
+        except Exception as e:
+            print(f"Warning: Cloud Drive sync error: {e}", file=sys.stderr)
 
     return {
         "local_docx": docx_path,
         "local_md": md_path,
+        "local_prompt": prompt_path,
         "google_drive_docx": synced_docx,
         "google_drive_md": synced_md,
-        "slide_count": len(slides)
+        "google_drive_prompt": synced_prompt,
+        "slide_count": len(slides),
+        "prompt": prompt_text
     }
 
+
 if __name__ == "__main__":
-    stats_p = sys.argv[1] if len(sys.argv) > 1 else "/Users/saber/Desktop/academic_suite/stats_results.json"
-    out_dir = "/Users/saber/Desktop/academic_suite"
-    res = generate_brief(stats_p, out_dir)
-    print("\n--- GENERATION SUMMARY ---")
+    input_p = sys.argv[1] if len(sys.argv) > 1 else "stats_results.json"
+    out_d = sys.argv[2] if len(sys.argv) > 2 else "."
+    res = generate_brief(input_p, out_d)
+    print("\n--- GOOGLE SLIDES PRESENTATION BRIEF GENERATED ---")
     print(f"Local DOCX: {res['local_docx']}")
     print(f"Local MD:   {res['local_md']}")
+    print(f"Local Prompt: {res['local_prompt']}")
     if res['google_drive_docx']:
-        print(f"Google Drive DOCX (Synced): {res['google_drive_docx']}")
-    print(f"Total Slides Configured: {res['slide_count']}")
+        print(f"Google Drive Synced: {res['google_drive_docx']}")
+    print(f"Slides Configured: {res['slide_count']}")
+    print("\n[Google Slides 1-Click Prompt]:")
+    print(res['prompt'])

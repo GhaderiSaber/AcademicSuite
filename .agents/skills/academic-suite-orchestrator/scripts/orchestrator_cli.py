@@ -485,22 +485,51 @@ class MasterAcademicOrchestrator:
             return cmd, {"docx": out_docx}
 
         elif step == "defense":
-            script = info["script"]
+            main_script = os.path.join(SKILLS_DIR, "persian-defense-presentation-builder", "main.py")
             json_payload = step_conf.get("payload_path") or info["default_sample"]
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
-            out_pptx = os.path.join(step_dir, "اسلایدهای_جلسه_دفاع.pptx")
-            cmd = [
-                PYTHON_BIN, script,
-                "--json", json_payload,
-                "--output", out_pptx,
-                "--title", self.config.get("project_title", "پژوهش رساله"),
-                "--author", self.config.get("author", "دانشجو"),
-                "--supervisor", self.config.get("supervisor", "استاد راهنما")
-            ]
-            self.context["defense_pptx"] = out_pptx
-            self.manifest["artifacts"]["defense_presentation_pptx"] = out_pptx
-            return cmd, {"pptx": out_pptx}
+            target_path = step_conf.get("presentation_path") or step_conf.get("path") or "pptx"
+            target_path = target_path.lower().replace("-", "_")
+
+            if target_path == "html":
+                out_html = os.path.join(step_dir, "اسلایدهای_جلسه_دفاع.html")
+                cmd = [
+                    PYTHON_BIN, main_script,
+                    "--path", "html",
+                    "--json", json_payload,
+                    "--output", out_html,
+                    "--theme", step_conf.get("theme", "academic_navy")
+                ]
+                self.context["defense_html"] = out_html
+                self.manifest["artifacts"]["defense_presentation_html"] = out_html
+                return cmd, {"html": out_html}
+            elif target_path in ("google_slides", "google_slide"):
+                out_docx = os.path.join(step_dir, "Defense_Presentation_Brief.docx")
+                cmd = [
+                    PYTHON_BIN, main_script,
+                    "--path", "google_slides",
+                    "--json", json_payload,
+                    "--output", out_docx
+                ]
+                self.context["defense_google_slides_brief"] = out_docx
+                self.manifest["artifacts"]["defense_google_slides_brief"] = out_docx
+                return cmd, {"docx": out_docx}
+            else:
+                out_pptx = os.path.join(step_dir, "اسلایدهای_جلسه_دفاع.pptx")
+                cmd = [
+                    PYTHON_BIN, main_script,
+                    "--path", "pptx",
+                    "--json", json_payload,
+                    "--output", out_pptx,
+                    "--title", self.config.get("project_title", "پژوهش رساله"),
+                    "--author", self.config.get("author", "دانشجو"),
+                    "--supervisor", self.config.get("supervisor", "استاد راهنما"),
+                    "--theme", step_conf.get("theme", "academic_navy")
+                ]
+                self.context["defense_pptx"] = out_pptx
+                self.manifest["artifacts"]["defense_presentation_pptx"] = out_pptx
+                return cmd, {"pptx": out_pptx}
 
         elif step == "plagiarism":
             script = info["script"]

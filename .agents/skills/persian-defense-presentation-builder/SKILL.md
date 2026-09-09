@@ -1,7 +1,7 @@
 ---
 name: persian-defense-presentation-builder
 version: 3.5.0
-description: Build professional Persian academic thesis/dissertation defense PowerPoint decks in 16:9. Treat the presentation as a visual argument, not a document conversion. Features Ghost Deck Action-Titles, pure-Python OMML native math injection, 300-DPI Matplotlib diagram engine (Mediation/CONSORT/Timeline), element overlap & geometry collision auditor, template context extractor, and dual-mode interactive HTML + native PowerPoint generation with 100/100 automated QA compliance.
+description: Build professional Persian academic thesis/dissertation defense presentations across three distinct paths: (1) interactive standalone HTML slide decks (slide-creator runtime, RTL typography, 100/100 automated QA), (2) native Microsoft PowerPoint (.pptx) decks (300-DPI Matplotlib diagrams, pure-Python OMML native math, bounding-box geometry overlap auditor), and (3) Google Drive @Document Bridge for Google Slides (Defense_Presentation_Brief.docx/md synced to Google Drive root + 1-click Gemini prompt).
 ---
 
 # Persian Defense Presentation Builder v3.5
@@ -1582,43 +1582,50 @@ Selecting a theme configures the exact same slide canvas background, card fills,
 
 ---
 
-# 23. UNIFIED CLI REFERENCE & EXECUTION WORKFLOW
+# 23. UNIFIED CLI REFERENCE & TRI-PATH EXECUTION WORKFLOW
 
-The skill provides a unified CLI (`main.py`) alongside dedicated modular scripts, offering full end-to-end automation for both **interactive HTML slide decks** and **native Microsoft PowerPoint (`.pptx`) presentations**.
+The skill provides a unified CLI (`main.py`) supporting three distinct output paths alongside dedicated modular tool scripts:
+1. **Path 1 (`html`)**: Interactive standalone HTML slide decks (slide-creator runtime, Ghost Deck action titles, RTL typography, and 100/100 automated QA gate).
+2. **Path 2 (`pptx`)**: Native Microsoft PowerPoint (`.pptx`) presentations (300-DPI Matplotlib diagrams, pure-Python OMML native math, and bounding-box geometry overlap auditing).
+3. **Path 3 (`google_slides`)**: Google Drive `@Document` Bridge + Gemini AI prompt (`Defense_Presentation_Brief.docx` & `.md` synced to Google Drive root + 1-click prompt for Google Slides).
 
-### 23.1 Core CLI Commands
+### 23.1 Tri-Path CLI Commands
 
 From the skill directory (`.agents/skills/persian-defense-presentation-builder/`):
 
 ```bash
-# 1. Native PowerPoint Compilation (Light Mode - Default)
-python3 main.py --compile-pptx --json examples/sample_defense_payload.json --output Defense_Presentation.pptx --theme academic_navy
+# Path 1: Interactive HTML Slide Deck
+python3 main.py --path html --json examples/sample_defense_payload.json --output presentation.html --theme academic_navy
 
-# 2. Native PowerPoint Compilation (Modern Dark Mode)
-python3 main.py --compile-pptx --json examples/sample_defense_payload.json --output Defense_Dark.pptx --theme academic_dark
+# Path 2: Native Microsoft PowerPoint (.pptx) Presentation
+python3 main.py --path pptx --json examples/sample_defense_payload.json --output Defense_Presentation.pptx --theme academic_navy
 
-# 3. Geometric Bounding-Box & Collision Overlap Audit
-python3 main.py --audit-pptx Defense_Presentation.pptx --audit-json /tmp/audit_report.json
-
-# 4. 300-DPI Publication Diagram Generation (Theme-Adaptive)
-python3 main.py --render-diagram diagram_spec.json --output diagram.png --theme academic_navy
-
-# 5. Extract Template Context, Fonts, Colors, and Layouts from University PPTX
-python3 main.py --extract-template university_template.pptx --template-out extracted_template/
-
-# 6. Adapt Academic Payload to Canonical BRIEF.json with Desired Theme
-python3 main.py --adapt-brief --json examples/sample_defense_payload.json --theme academic_navy --output BRIEF.json
-
-# 7. Validate BRIEF.json against Strict Schema
-python3 main.py --validate-brief --brief BRIEF.json
-
-# 8. Generate Interactive Standalone HTML Slide Deck (Inherits Theme)
-python3 main.py --generate --brief BRIEF.json --theme academic_navy --output presentation.html --eval
-
-# 9. Automated Planning Mode (Generates BRIEF from Topic / Research Questions)
-python3 main.py --plan "بررسی اثربخشی درمان ACT بر انعطاف‌پذیری روان‌شناختی"
+# Path 3: Google Drive @Document Bridge for Google Slides
+python3 main.py --path google_slides --json examples/sample_defense_payload.json
+# -> Generates Defense_Presentation_Brief.docx/md, syncs to Google Drive, and generates gemini_slides_prompt.txt
 ```
 
+### 23.2 Modular Tool Commands
+
+```bash
+# 1. Geometric Bounding-Box & Collision Overlap Audit
+python3 main.py --audit-pptx Defense_Presentation.pptx --audit-json /tmp/audit_report.json
+
+# 2. 300-DPI Publication Diagram Generation (Theme-Adaptive)
+python3 main.py --render-diagram diagram_spec.json --output diagram.png --theme academic_navy
+
+# 3. Extract Template Context, Fonts, Colors, and Layouts from University PPTX
+python3 main.py --extract-template university_template.pptx --template-out extracted_template/
+
+# 4. Adapt Academic Payload to Canonical BRIEF.json with Desired Theme
+python3 main.py --adapt-brief --json examples/sample_defense_payload.json --theme academic_navy --output BRIEF.json
+
+# 5. Validate BRIEF.json against Strict Schema
+python3 main.py --validate-brief --brief BRIEF.json
+
+# 6. Automated Planning Mode (Generates BRIEF from Topic / Research Questions)
+python3 main.py --plan "بررسی اثربخشی درمان ACT بر انعطاف‌پذیری روان‌شناختی"
+```
 ---
 
 # 23. SYNTHESIS OF EXTERNAL PRESENTATION ECOSYSTEM
