@@ -132,3 +132,5 @@ Inspect generated documents:
 2. `Title_Page.docx`: Verify author affiliations, ORCID links, CRediT statements, and word count.
 3. `Highlights.docx`: Confirm each bullet does not exceed 85 characters.
 4. `Response_to_Reviewers.docx`: Confirm clean APA 7 borders, clear reviewer quotation formatting, and explicit page/line citations.
+5. `Manuscript (.docx)`: Confirm all native Word OMML equations (`<m:oMath>`) and statistical expressions are fully preserved and never overwritten by naive `paragraph.text` assignments.
+

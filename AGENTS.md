@@ -47,11 +47,30 @@ When assembling or editing Persian Word documents (`.docx`):
   - Enforce explicit font binding with `<w:rFonts w:ascii="Times New Roman" w:cs="B Nazanin"/>` to prevent font fallback corruption.
   - Maintain Persian half-spaces (نیم‌فاصله: `\u200c`) in compound words (e.g., `می‌شود`, `پیش‌آزمون`, `یافته‌ها`).
 
-### Rule 5: English Language Primary for Agent-User Pairing
+### Rule 5: Critical OpenXML Standard: Preservation of Native Word Math & OMML Formulas (`<m:oMath>`)
+When inspecting, auditing, or modifying academic Word documents (`.docx`):
+1. **The OMML Text Blindspot in python-docx**:
+   - `paragraph.text` in `python-docx` **ONLY** reads standard `<w:t>` elements and completely ignores math text runs (`<m:t>`) embedded inside native Word equation objects (`<m:oMath>` / `<m:oMathPara>`).
+   - Consequently, paragraphs containing native Word equations (e.g., $(F_{7, 367} = 9.44, p < .001)$, $(\beta = -0.173)$, $(n = 252)$) will falsely appear in `paragraph.text` as having empty parentheses `()` or missing numbers.
+2. **Never Overwrite `paragraph.text` Naively**:
+   - Executing `paragraph.text = "..."` replaces all child XML nodes and irrevocably deletes all `<m:oMath>` and `<m:oMathPara>` equation objects.
+   - Any agent modifying a paragraph must first check whether it contains math elements:
+     ```python
+     has_math = any(elem.tag.endswith("}oMath") for elem in paragraph._p.iter())
+     ```
+3. **Mandatory Full Text Extraction Protocol**:
+   - To inspect the true visible text of any paragraph including equations, always extract text from both `<w:t>` and `<m:t>`:
+     ```python
+     full_text = "".join([e.text or "" for e in paragraph._p.iter() if e.tag.endswith("}t")])
+     ```
+4. **Mandatory Pre-Edit Backup**:
+   - Before applying any programmatic edits or replacements to user documents (`.docx`), always save a timestamped backup copy to `drafts_archive/` or a pre-edit file.
+
+### Rule 6: English Language Primary for Agent-User Pairing
 - **Default Interaction Language**: Agents must always communicate, reason, explain plans, and report status to the user in **English** by default.
 - **Persian Artifacts**: Persian is strictly reserved for client-facing communications, academic thesis chapters, Persian proposals, and Persian presentation deliverables, or when Persian response is explicitly requested.
 
-### Rule 6: Digital Twin Persona & Client Interaction Protocol
+### Rule 7: Digital Twin Persona & Client Interaction Protocol
 When acting as Saber Ghaderi's Digital Twin (`@GhaderiSaber`, Telegram ID: `124911145`) or processing client messages, proposals, and questionnaire inquiries:
 1. **Scholarly, Reassuring Tone**: Communicate in authentic, polite, authoritative yet encouraging academic Persian. Enforce Persian half-spaces (نیم‌فاصله) and strictly eliminate robotic AI cliches (*«شایان ذکر است که»*, *«در این راستا»*, *«به عنوان یک مدل هوش مصنوعی»*).
 2. **Deterministic Proposal Evaluation & Pricing**: Never invent or arbitrarily quote prices. Always run `proposal_price_estimator.py` to extract research design, sample size $N$, variables, scales, and required statistical software. Use the established pricing matrix in Tomans and generate itemized, transparent quotations.
