@@ -44,19 +44,22 @@ def add_slide_header(slide, meta: Dict[str, Any], slide_data: Dict[str, Any], pa
     
     # Section indicator
     if section:
-        s_box = slide.shapes.add_textbox(Inches(0.85), Inches(0.38), Inches(11.6), Inches(0.30))
+        s_box = slide.shapes.add_textbox(Inches(0.85), Inches(0.35), Inches(11.6), Inches(0.30))
         tf_s = s_box.text_frame
         tf_s.word_wrap = True
+        tf_s.margin_top = Inches(0)
+        tf_s.margin_bottom = Inches(0)
         p_s = tf_s.paragraphs[0]
         apply_p_rtl(p_s, PP_ALIGN.RIGHT)
         r_s = p_s.add_run()
         set_run_font(r_s, f"| {section}", FONT_BODY, 13.5, bold=True, color_rgb=palette["secondary"])
 
     # Slide Title
-    t_top = Inches(0.74) if section else Inches(0.50)
+    t_top = Inches(0.78) if section else Inches(0.50)
     t_box = slide.shapes.add_textbox(Inches(0.85), t_top, Inches(11.6), Inches(0.75))
     tf_t = t_box.text_frame
     tf_t.word_wrap = True
+    tf_t.margin_top = Inches(0)
     p_t = tf_t.paragraphs[0]
     apply_p_rtl(p_t, PP_ALIGN.RIGHT)
     r_t = p_t.add_run()

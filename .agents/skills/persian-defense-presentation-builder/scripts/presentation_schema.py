@@ -15,31 +15,31 @@ from pptx.dml.color import RGBColor
 # ---------------------------------------------------------------------------
 PALETTES: Dict[str, Dict[str, RGBColor]] = {
     "academic_navy": {
-        "primary": RGBColor(15, 23, 42),          # Midnight Slate #0F172A
-        "secondary": RGBColor(30, 58, 138),       # Royal Academic Sapphire #1E3A8A
-        "accent": RGBColor(197, 160, 89),         # Champagne Gold #C5A059
+        "primary": RGBColor(248, 250, 252),        # Crisp White #F8FAFC (Title & Main)
+        "secondary": RGBColor(96, 165, 250),      # Light Academic Sapphire #60A5FA
+        "accent": RGBColor(245, 158, 11),          # Warm Amber Gold #F59E0B
         "accent_light": RGBColor(254, 243, 199),  # Soft Gold Tint #FEF3C7
-        "accent_dark": RGBColor(180, 83, 9),      # Deep Warm Amber #B45309
-        "emerald": RGBColor(4, 120, 87),          # Forest Emerald #047857
-        "emerald_light": RGBColor(236, 253, 245), # Soft Mint Tint #ECFDF5
-        "bg_slide": RGBColor(248, 250, 252),      # Soft Platinum #F8FAFC
-        "card_bg": RGBColor(255, 255, 255),       # Pure White #FFFFFF
-        "card_border": RGBColor(226, 232, 240),   # Hairline Slate 200 #E2E8F0
-        "card_border_gold": RGBColor(197, 160, 89),
-        "text_dark": RGBColor(15, 23, 42),        # Obsidian #0F172A
-        "text_body": RGBColor(51, 65, 85),        # Slate 700 #334155
-        "text_muted": RGBColor(100, 116, 139),    # Slate 500 #64748B
+        "accent_dark": RGBColor(217, 119, 6),      # Deep Warm Amber #D97706
+        "emerald": RGBColor(16, 185, 129),         # Forest Emerald #10B981
+        "emerald_light": RGBColor(209, 250, 229), # Soft Mint Tint #ECFDF5
+        "bg_slide": RGBColor(7, 13, 31),           # Modern Dark Midnight Navy #070D1F
+        "card_bg": RGBColor(19, 32, 66),           # Deep Slate Navy Card #132042
+        "card_border": RGBColor(37, 54, 98),       # Subtle Indigo/Slate Border #253662
+        "card_border_gold": RGBColor(245, 158, 11),# Gold Border #F59E0B
+        "text_dark": RGBColor(248, 250, 252),      # Text on Cards (Crisp White)
+        "text_body": RGBColor(203, 213, 225),      # Slate 300 #CBD5E1
+        "text_muted": RGBColor(148, 163, 184),    # Slate 400 #94A3B8
         "text_light": RGBColor(255, 255, 255),    # Crisp White #FFFFFF
-        "tbl_header": RGBColor(15, 23, 42),       # Dark Slate #0F172A
-        "tbl_stripe": RGBColor(248, 250, 252),    # Platinum #F8FAFC
-        "badge_bg": RGBColor(239, 246, 255),      # Soft Blue Tint #EFF6FF
-        "badge_border": RGBColor(219, 234, 254),  # Blue 100 #DBEAFE
-        "badge_text": RGBColor(29, 78, 216),      # Sapphire #1D4ED8
-        "cover_bg": RGBColor(10, 17, 40),         # Midnight Obsidian #0A1128
-        "cover_card": RGBColor(17, 28, 56),       # Translucent Slate #111C38
-        "cover_border": RGBColor(36, 51, 86),     # Slate Hairline #243356
-        "danger": RGBColor(190, 18, 60),          # Crimson Rose #BE123C
-        "danger_light": RGBColor(255, 241, 242)
+        "tbl_header": RGBColor(29, 46, 94),       # Header Blue #1D2E5E
+        "tbl_stripe": RGBColor(13, 23, 51),       # Stripe Navy #0D1733
+        "badge_bg": RGBColor(24, 39, 79),         # Badge Fill
+        "badge_border": RGBColor(59, 130, 246),   # Badge Border #3B82F6
+        "badge_text": RGBColor(96, 165, 250),     # Badge Text #60A5FA
+        "cover_bg": RGBColor(7, 13, 31),          # Midnight Obsidian #070D1F
+        "cover_card": RGBColor(19, 32, 66),       # Translucent Slate Card #132042
+        "cover_border": RGBColor(37, 54, 98),     # Slate Hairline #253662
+        "danger": RGBColor(239, 68, 68),          # Coral Red #EF4444
+        "danger_light": RGBColor(127, 29, 29)
     },
     "emerald_slate": {
         "primary": RGBColor(19, 78, 74),
