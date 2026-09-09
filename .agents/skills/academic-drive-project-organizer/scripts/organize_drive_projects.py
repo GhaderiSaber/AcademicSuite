@@ -61,9 +61,15 @@ def classify_file_destination(filename: str, parent_folder_name: str = "") -> st
     lower = filename.lower()
     ext = os.path.splitext(lower)[1]
 
-    # Ignore system / lock files / manifests
-    if filename.startswith("~$") or filename in [".DS_Store", "Thumbs.db", "project_meta.json", "reorganize_manifest.json"]:
-        return "temp_junk" if filename.startswith("~$") or filename in [".DS_Store", "Thumbs.db"] else "meta_file"
+    # Ignore system / lock files / manifests / repository root files
+    WORKSPACE_ROOT_FILES = {
+        "agents.md", "readme.md", "setup_guide.md", "requirements.txt",
+        "questionnaires.xlsx", ".gitignore", "license", "license.md", "license.txt"
+    }
+    if filename.startswith("~$") or filename in [".DS_Store", "Thumbs.db"]:
+        return "temp_junk"
+    if filename in ["project_meta.json", "reorganize_manifest.json"] or lower in WORKSPACE_ROOT_FILES:
+        return "meta_file"
 
     # Already categorized folders
     if any(sub in parent_folder_name for sub in ["01_raw_inputs", "02_analysis_code", "03_deliverables", "04_references_and_lit"]):
@@ -72,21 +78,29 @@ def classify_file_destination(filename: str, parent_folder_name: str = "") -> st
     # 1. References & Literature
     if ext in [".enl", ".data", ".ris", ".enw", ".bib"]:
         return SUBFOLDERS["references"]
+    if lower.startswith("articles") or lower.startswith("literature") or lower.startswith("references"):
+        return SUBFOLDERS["references"]
+    if "journals" in lower:
+        return SUBFOLDERS["references"]
     if ext == ".pdf" and any(k in lower for k in ["article", "paper", "journal", "review", "springer", "elsevier", "wiley", "201", "202", "199"]):
         return SUBFOLDERS["references"]
 
-    # 2. Analysis Code & Syntax
-    if ext in [".sps", ".ipynb", ".r", ".py", ".splscb", ".dim", ".m", ".sas"]:
+    # 2. Analysis Code & Syntax (SPSS syntax, models, scripts, and SPSS outputs)
+    if ext in [".sps", ".spv", ".ipynb", ".r", ".py", ".splscb", ".dim", ".m", ".sas"]:
+        return SUBFOLDERS["code"]
+    if ext == ".pdf" and any(k in lower for k in ["output", "syntax", "model", "analysis"]):
         return SUBFOLDERS["code"]
 
-    # 3. Deliverables (Final Word docs, slides, summaries)
+    # 3. Deliverables (Final Word docs, slides, templates, summaries)
+    if "template" in lower:
+        return SUBFOLDERS["deliverables"]
     if ext in [".pptx", ".ppt"]:
         return SUBFOLDERS["deliverables"]
 
     is_word_doc = ext in [".docx", ".doc", ".gdoc"]
     if is_word_doc:
         # Check if it is a draft archive
-        if any(k in lower for k in ["(1)", "(2)", "(3)", "copy", "draft", "edit", "old", "backup", "نسخه قبلی"]):
+        if any(k in lower for k in ["(1)", "(2)", "(3)", "copy", "draft", "edit", "old", "backup", "نسخه قبلی", "-7199749465999597821", "(review)"]):
             return SUBFOLDERS["deliverables_archive"]
         # Deliverable keywords
         if any(k in lower for k in ["chapter", "فصل", "article", "مقاله", "نهایی", "final", "پایان", "رساله", "thesis", "report", "گزارش", "descriptive"]):
@@ -97,7 +111,7 @@ def classify_file_destination(filename: str, parent_folder_name: str = "") -> st
         return SUBFOLDERS["raw"]
     if ext in [".xlsx", ".xls"] and not any(k in lower for k in ["result", "table", "جدول", "خروجی"]):
         return SUBFOLDERS["raw"]
-    if any(k in lower for k in ["proposal", "پروپوزال", "طرح", "questionnaire", "پرسشنامه", "مقیاس", "آزمون"]):
+    if any(k in lower for k in ["proposal", "پروپوزال", "طرح", "questionnaire", "پرسشنامه", "مقیاس", "آزمون", "scales", "1_27463758866"]):
         return SUBFOLDERS["raw"]
     if ext in [".jpg", ".jpeg", ".png"] and ("photo_" in lower or "screenshot" in lower or "screen" in lower):
         return SUBFOLDERS["raw"]
