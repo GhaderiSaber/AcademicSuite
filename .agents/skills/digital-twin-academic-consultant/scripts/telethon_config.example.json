@@ -7,6 +7,7 @@
   "session_name": "saber_userbot",
   "auto_reply": false,
   "saved_messages_desk": true,
+  "google_drive_work_dir": "/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive/My Work",
   "proxy": {
     "proxy_type": "socks5",
     "addr": "127.0.0.1",

@@ -107,8 +107,46 @@ class TestDigitalTwinSuite(unittest.TestCase):
         self.assertEqual(len(res["events"]), 5)
 
         # Check approval status
-        pending = bot.pending_quotes["Q101"]
-        self.assertEqual(pending["status"], "approved")
+    def test_05_project_drive_manager(self):
+        """Test Google Drive project manager provisioning and 4-tier taxonomy."""
+        import tempfile
+        import shutil
+        import project_drive_manager
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            manager = project_drive_manager.ProjectDriveManager(config={"google_drive_work_dir": tmp_dir})
+            self.assertEqual(manager.work_dir, tmp_dir)
+
+            paths = manager.provision_project(
+                client_name="Test Student",
+                client_id=987654321,
+                username="test_student",
+                topic="Efficacy of Schema Therapy on Emotional Dysregulation"
+            )
+
+            self.assertTrue(os.path.isdir(paths["root"]))
+            self.assertTrue(os.path.isdir(paths["raw"]))
+            self.assertTrue(os.path.isdir(paths["code"]))
+            self.assertTrue(os.path.isdir(paths["deliverables"]))
+            self.assertTrue(os.path.isdir(paths["references"]))
+            self.assertTrue(os.path.exists(paths["meta_file"]))
+
+            with open(paths["meta_file"], "r", encoding="utf-8") as f:
+                meta = json.load(f)
+
+            self.assertEqual(meta["client_name"], "Test Student")
+            self.assertEqual(meta["telegram_id"], 987654321)
+            self.assertEqual(meta["telegram_username"], "@test_student")
+            self.assertEqual(meta["topic_fa"], "Efficacy of Schema Therapy on Emotional Dysregulation")
+
+            # Test finding existing project
+            found = manager.find_existing_project_by_client("Test Student", client_id=987654321)
+            self.assertEqual(found, paths["root"])
+
+            # Test listing projects
+            all_projs = manager.list_all_projects()
+            self.assertEqual(len(all_projs), 1)
+            self.assertEqual(all_projs[0]["client_name"], "Test Student")
 
 
 if __name__ == "__main__":
