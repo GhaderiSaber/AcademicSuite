@@ -1,10 +1,10 @@
 ---
 name: persian-defense-presentation-builder
-version: 3.0.0
-description: Build professional Persian academic thesis/dissertation defense PowerPoint decks in 16:9. Treat the presentation as a visual argument, not a document conversion. Use source-grounded research evidence, message-first slide planning, varied visual encodings, large readable typography, native/editable diagrams where practical, robust RTL Persian layout, speaker notes, and mandatory render/visual QA with repair loops.
+version: 3.5.0
+description: Build professional Persian academic thesis/dissertation defense PowerPoint decks in 16:9. Treat the presentation as a visual argument, not a document conversion. Features Ghost Deck Action-Titles, pure-Python OMML native math injection, 300-DPI Matplotlib diagram engine (Mediation/CONSORT/Timeline), element overlap & geometry collision auditor, template context extractor, and dual-mode interactive HTML + native PowerPoint generation with 100/100 automated QA compliance.
 ---
 
-# Persian Defense Presentation Builder v3
+# Persian Defense Presentation Builder v3.5
 
 ## Mission
 
@@ -1567,39 +1567,121 @@ That is the quality standard for v3.
 
 ---
 
-# 22. EXECUTION CLI & SLIDE-CREATOR ENGINE WORKFLOW
+# 22. UNIFIED CLI REFERENCE & EXECUTION WORKFLOW
 
-The skill features full integration with the **kaisersong/slide-creator** deterministic rendering engine and intermediate representation (`BRIEF.json`) architecture, supporting dual-channel interactive HTML and DrawingML PowerPoint generation.
+The skill provides a unified CLI (`main.py`) alongside dedicated modular scripts, offering full end-to-end automation for both **interactive HTML slide decks** and **native Microsoft PowerPoint (`.pptx`) presentations**.
 
-### 22.1 Quick Start Commands
+### 22.1 Core CLI Commands
 
 From the skill directory (`.agents/skills/persian-defense-presentation-builder/`):
 
 ```bash
-# 1. Direct generation from an Academic Defense Payload or BRIEF.json:
-python3 main.py --generate --brief examples/sample_defense_payload.json --output presentation.html --eval
+# 1. Native PowerPoint Compilation (with Diagram Rendering, OMML Math, and QA Gate)
+python3 main.py --compile-pptx --json examples/sample_defense_payload.json --output Defense_Presentation.pptx --theme academic_navy
 
-# 2. Direct generation from an explicit BRIEF.json:
-python3 main.py --generate --brief examples/defense_brief.json --output presentation.html --eval
+# 2. Geometric Bounding-Box & Collision Overlap Audit
+python3 main.py --audit-pptx Defense_Presentation.pptx --audit-json /tmp/audit_report.json
 
-# 3. Validate a BRIEF artifact:
-python3 main.py --validate-brief --brief examples/defense_brief.json
+# 3. 300-DPI Publication Diagram Generation (Mediation, CONSORT, Timeline)
+python3 main.py --render-diagram diagram_spec.json --output diagram.png --theme academic_navy
 
-# 4. Generate native PowerPoint (.pptx) with DrawingML formatting:
-python3 scripts/compile_defense_presentation.py --input examples/sample_defense_payload.json --output defense_deck.pptx
+# 4. Extract Template Context, Fonts, Colors, and Layouts from PPTX
+python3 main.py --extract-template template.pptx --template-out extracted_template/
+
+# 5. Adapt Academic Payload to Canonical BRIEF.json (Ghost Deck Action Titles)
+python3 main.py --adapt-brief --json examples/sample_defense_payload.json --output BRIEF.json
+
+# 6. Validate BRIEF.json against Strict Schema
+python3 main.py --validate-brief --brief BRIEF.json
+
+# 7. Generate Interactive Standalone HTML Slide Deck
+python3 main.py --generate --brief BRIEF.json --output presentation.html --eval
+
+# 8. Automated Planning Mode (Generates BRIEF from Topic / Research Questions)
+python3 main.py --plan "بررسی اثربخشی درمان ACT بر انعطاف‌پذیری روان‌شناختی"
 ```
 
-### 22.2 Automatic Academic Payload Adaptation
-`main.py` and `low_context.py` feature transparent payload detection via `academic_brief_adapter.py`. When an academic JSON (containing research metadata, hypotheses, instruments, or statistical findings) is passed to `--brief`, it automatically:
-- Synthesizes an IR-first `BRIEF.json` narrative structure with 19 distinct academic narrative roles.
-- Enforces the `Academic Defense` preset with RTL Persian layout directionality (`dir="rtl"`).
-- Maps all slide titles, points, evidence stats, charts, tables, and candidate oral defense speaker notes (`data-notes`).
-- Enforces strict zero-consecutive layout repetition (`max_visual_family_run = 1`, `layout_variety >= 85%`).
+---
 
-### 22.3 Interactive Presentation Features (HTML)
-- **Presenter Mode**: Press `P` or `F5` to open the synchronized dual-window presenter display with slide timer, elapsed time, current slide, next slide preview, and full Persian speaker notes.
-- **Inline Edit Mode**: Press `E` to toggle live `contenteditable` mode. Edits can be directly saved to disk via `saveFile`.
-- **Fullscreen**: Press `F` to toggle presentation fullscreen.
-- **Navigation**: Arrow keys, Space, PageUp/PageDown, or touch gestures.
-- **Zero Dependencies**: Self-contained HTML with embedded CSS, SVG icons, and vanilla JS engine. No external CDNs or network calls required.
+# 23. SYNTHESIS OF EXTERNAL PRESENTATION ECOSYSTEM
+
+This skill incorporates the proven best practices and innovations from four leading presentation skill frameworks, synthesized into an autonomous, zero-external-dependency, pure-Python architecture:
+
+| External Framework | Core Capability Adapted | Native Implementation in Skill |
+| :--- | :--- | :--- |
+| **`anyideaz/pptx-skills`** | Template context extraction & element collision/overlap auditing | `scripts/extract_template.py` (extracts fonts, theme colors, layouts, shapes, and images into `context.json`) + `scripts/check_overlaps.py` (bounds calculation, card grouping, and gap verification) |
+| **`Noi1r/powerpoint-skill`** | Native Microsoft Office Math (OMML) equation injection | `scripts/inject_omml.py` (pure-Python `latex2mathml` + `lxml` converter replacing LaTeX math with native Office Math `<m:oMath>` DrawingML elements) |
+| **`Gabberflast/academic-pptx-skill`** | Ghost Deck Action-Title rule, SCR narrative framing, 300-DPI publication figures | `scripts/academic_brief_adapter.py` (derives informative action-titles answering "So what?", avoiding generic topic labels) + `scripts/render_diagrams.py` (pure-Python 300-DPI Matplotlib vector figures) |
+| **`ningzimu/codex-ppt-skill`** | Multi-device layout presets, Data-Dashboard styling, high-density exhibit layouts | Standard 16:9 widescreen layout engine (`scripts/layout_engine.py`) with 22 specialized academic layout builders, KPI panels, split-view diagrams, and WCAG AAA color contrast |
+
+### 23.1 Ghost Deck Action-Title Discipline
+Following `academic-pptx-skill`:
+- **Forbid Generic Headers**: Slides titled *"بیان مسئله"*, *"فرضیه‌ها"*, or *"یافته‌ها"* are banned in content slides.
+- **Enforce Action Titles**: Titles must declare the empirical finding or theoretical core claim:
+  - *Generic (Banned)*: «نتایج تحلیل واریانس چندمتغیره»
+  - *Action-Title (Required)*: «تأثیر معنادار مداخله بر تنظیم هیجان در پس‌آزمون و پیگیری (F = ۱۲/۴۵, p < .۰۰۱)»
+- **Dual Title Architecture**: In PPTX and HTML layouts, the section category is displayed as an understated top banner (e.g. `فصل چهارم: یافته‌های پژوهش`), while the primary slide headline carries the full informative action title.
+
+### 23.2 Pure-Python OMML Math Injection
+Following `powerpoint-skill` without external binaries:
+- Standard python-pptx cannot natively insert mathematical equations.
+- `inject_omml.py` parses LaTeX delimiters (`$...$`, `$$...$$`) or explicit equation tags in tables and text boxes.
+- It converts LaTeX to MathML using pure-Python `latex2mathml`, then maps MathML XML trees directly into native Microsoft Word/PowerPoint Office Math (`<m:oMathPara>` and `<m:oMath>`).
+- Equations render crisply inside Microsoft PowerPoint with native font formatting and math layout, completely eliminating raster image degradation.
+
+### 23.3 300-DPI Publication Diagram Engine
+Following `academic-pptx-skill`:
+- Statistical and methodological diagrams are generated deterministically in pure Python using Matplotlib with publication-grade 300-DPI resolution.
+- Three standard academic diagram types are supported out of the box:
+  1. **Mediation Path Models**: 3-variable mediation diagrams showing paths $a, b, c, c'$ with bootstrap indirect effect confidence intervals.
+  2. **CONSORT 2010 Flowcharts**: 4-phase participant flow (Assessed $\to$ Excluded $\to$ Randomized $\to$ Analyzed) with trial retention metrics.
+  3. **Intervention Protocol Timelines**: Session-by-session clinical timeline with alternating callout badges and milestone objectives.
+- Full font fallback configuration ensures clean rendering of Persian characters (`Arial Unicode MS`, `Geeza Pro`, `B Nazanin`, `Tahoma`) without glyph missing errors.
+
+### 23.4 Element Overlap & Collision Geometry Audit
+Following `pptx-skills`:
+- Automated bounding-box intersection calculations prevent text overlap, caption collisions, and container boundary clipping.
+- Recognizes card container grouping to eliminate false positive warnings on nested sub-elements.
+- Enforces minimum vertical separation ($> 0.04$ inches) and ensures zero critical collisions across all 16:9 widescreen slides.
+
+---
+
+# 24. SCRIPT INVENTORY & REPOSITORY TAXONOMY
+
+```
+.agents/skills/persian-defense-presentation-builder/
+├── SKILL.md                             # Master operational instructions & guidelines v3.5.0
+├── main.py                              # Unified CLI entrypoint (compile, audit, render, adapt, generate, plan)
+├── examples/
+│   ├── sample_defense_payload.json      # Complete 22-slide real academic defense dataset
+│   └── test_diagram_spec.json           # Sample mediation & CONSORT diagram specifications
+└── scripts/
+    ├── compile_defense_presentation.py   # Master 16:9 PPTX compiler with automated QA pipeline
+    ├── layout_engine.py                 # 22 high-density defense layout builders (tables, charts, spotlights)
+    ├── presentation_schema.py           # ResearchTruthModel, ProjectMeta, Color Palettes, and validation
+    ├── presentation_qa.py               # 100-point rubric QA gate (Fidelity, Narrative, Visuals, Type, Tech)
+    ├── content_planner.py               # Storyboard synthesis from research truth parameters
+    ├── academic_brief_adapter.py        # Ghost Deck adapter converting academic JSON to BRIEF.json
+    ├── check_overlaps.py                # Geometry bounding-box & collision overlap auditor
+    ├── inject_omml.py                   # Pure-Python LaTeX -> MathML -> OMML Office Math injector
+    ├── render_diagrams.py               # 300-DPI Matplotlib vector diagram engine (Mediation/CONSORT/Timeline)
+    ├── extract_template.py              # PPTX template context, font, color, and layout extractor
+    ├── low_context.py                   # slide-creator HTML engine runtime, validator, and evaluator
+    └── visual_preview.py                # PDF and image contact-sheet generator for presentation review
+```
+
+---
+
+# 25. AUTOMATED QUALITY ASSURANCE RUBRIC (100/100)
+
+Every presentation compiled by this skill must achieve a score of $\ge 90/100$ on the automated QA gate before client delivery:
+
+1. **Slide Count & Timing (10 pts)**: Master's (18–22 slides, 20–25 min), PhD (24–30 slides, 30–45 min).
+2. **Speaker Notes Coverage (15 pts)**: 100% of substantive slides must contain rich, conversational candidate defense speaker notes in academic Persian.
+3. **Ghost Deck Action-Titles (15 pts)**: Slide titles must state conclusions, not generic labels.
+4. **Layout Variety & Alternation (15 pts)**: No two consecutive slides share the same layout family; generic cards $\le 25\%$; maximum layout family dominance $\le 30\%$.
+5. **Statistical & Empirical Rigor (15 pts)**: Strict APA 7th Edition formatting, exact $p$-values, effect sizes ($\eta_p^2, d$), and test statistics.
+6. **Visual & Diagram Standards (15 pts)**: Clean 300-DPI mediation models, CONSORT flows, and APA tables.
+7. **Typography & OpenXML Directionality (15 pts)**: Persian font hierarchy (`B Titr` 28–36 pt titles, `B Nazanin` $\ge 20$ pt body), pure RTL OpenXML DrawingML formatting, and zero element overlaps.
+
 

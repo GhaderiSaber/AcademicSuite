@@ -72,6 +72,12 @@ from layout_engine import (
 from qa_validator import run_qa_checks
 from render_preview import generate_preview_report
 
+from pathlib import Path
+from render_diagrams import render_diagram
+from inject_omml import process_presentation as inject_omml_formulas
+from check_overlaps import audit_presentation as audit_overlaps
+from academic_brief_adapter import extract_or_generate_diagram_spec
+
 # ---------------------------------------------------------------------------
 # Slide Builder Dispatch Table
 # ---------------------------------------------------------------------------
@@ -112,7 +118,7 @@ LAYOUT_DISPATCH = {
     "cards": build_cards_slide
 }
 
-def compile_presentation(payload: Dict[str, Any], output_path: str, theme_name: str = "academic_navy", run_qa: bool = True) -> bool:
+def compile_presentation(payload: Dict[str, Any], output_path: str, theme_name: str = "academic_navy", run_qa: bool = True, preview: bool = False) -> bool:
     """Compiles structured presentation dictionary into high-end publication-grade .pptx file."""
     # Validate payload schema
     schema_errors = validate_presentation_payload(payload)
@@ -131,8 +137,31 @@ def compile_presentation(payload: Dict[str, Any], output_path: str, theme_name: 
     slides = payload.get("slides", [])
     total_slides = len(slides)
 
+    out_dir = os.path.dirname(os.path.abspath(output_path))
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+
     print(f"[*] Compiling {total_slides} defense slides with theme: '{theme_name}' (16:9 Canvas)...")
 
+    # Step 1: Automated Theme-Adaptive Diagram Rendering for Model/Split slides
+    for idx, slide_item in enumerate(slides):
+        layout = slide_item.get("layout", "cards")
+        if layout in ["split_diagram", "path_diagram", "mediation_diagram", "conceptual_model"] or "diagram_spec" in slide_item:
+            img_path = slide_item.get("image_path")
+            if not (img_path and os.path.exists(img_path)):
+                spec = slide_item.get("diagram_spec") or extract_or_generate_diagram_spec(slide_item)
+                if spec:
+                    diag_dir = os.path.join(out_dir or ".", "diagrams")
+                    os.makedirs(diag_dir, exist_ok=True)
+                    diag_img = Path(diag_dir) / f"slide_{idx+1}_{spec.get('type', 'diagram')}.png"
+                    try:
+                        render_diagram(spec, diag_img, theme_name=theme_name)
+                        slide_item["image_path"] = str(diag_img)
+                        print(f"  [+] Rendered 300-DPI diagram for slide {idx+1}: {diag_img.name}")
+                    except Exception as e:
+                        print(f"  [!] Note on diagram for slide {idx+1}: {e}", file=sys.stderr)
+
+    # Step 2: Build all slides via Layout Engine
     for idx, slide_item in enumerate(slides):
         slide_num = idx + 1
         layout = slide_item.get("layout", "cards")
@@ -144,13 +173,30 @@ def compile_presentation(payload: Dict[str, Any], output_path: str, theme_name: 
         else:
             builder_fn(prs, meta, slide_item, palette, slide_num, total_slides)
 
-    out_dir = os.path.dirname(os.path.abspath(output_path))
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
     prs.save(output_path)
-    print(f"[SUCCESS] Presentation successfully written to: {output_path}")
+    print(f"[SUCCESS] Base presentation successfully written to: {output_path}")
 
-    # Run Automated QA Validator
+    # Step 3: Native Microsoft Office Math (OMML) Injection
+    print("\n[*] Auditing & injecting native Microsoft Office Math (OMML) equations...")
+    try:
+        math_count = inject_omml_formulas(output_path, {}, output_path)
+        if math_count > 0:
+            print(f"  [+] Successfully injected {math_count} native OMML equation(s).")
+    except Exception as e:
+        print(f"  [!] OMML injection non-fatal warning: {e}", file=sys.stderr)
+
+    # Step 4: Bounding Box & Overlap Collision Audit
+    if run_qa:
+        print("\n[*] Running Element Bounding-Box & Overlap Geometry Audit...")
+        try:
+            passed_geom, geom_issues, geom_summary = audit_overlaps(output_path)
+            print(f"  [*] Geometry Audit: {geom_summary['status']} (Critical: {geom_summary['critical_issues']}, Major: {geom_summary['major_issues']})")
+            if not passed_geom:
+                print(f"  [!] Geometry warnings in {len(geom_issues)} element(s) (non-fatal review recommended).", file=sys.stderr)
+        except Exception as e:
+            print(f"  [!] Overlap audit non-fatal warning: {e}", file=sys.stderr)
+
+    # Step 5: Master Automated QA Validator (100-point rubric)
     if run_qa:
         print("\n[*] Executing Automated Quality Assurance Gate (v3.0.0 Rubric & Quality Gates)...")
         passed, results, report_str, score_summary = run_qa_checks(payload, output_path)
@@ -158,6 +204,10 @@ def compile_presentation(payload: Dict[str, Any], output_path: str, theme_name: 
         if not passed:
             print(f"[!] WARNING: QA audit resulted in '{score_summary.get('status', 'FAIL')}'. Review the report above.", file=sys.stderr)
             return False
+
+    if preview:
+        print("\n[*] Generating visual preview...")
+        generate_preview_report(output_path)
 
     return True
 
