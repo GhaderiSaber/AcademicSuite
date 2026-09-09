@@ -148,6 +148,16 @@ class SaberTelethonUserbot:
         else:
             self.client = TelegramClient(self.session_name, self.api_id, self.api_hash, proxy=self.proxy)
 
+        # Second personal userbot account (optional)
+        self.second_account_config = config.get("second_account")
+        if self.second_account_config and self.api_id and self.api_hash and TelegramClient is not None:
+            s2_name = self.second_account_config.get("session_name", "saber_second_userbot")
+            s2_path = s2_name if os.path.isabs(s2_name) else os.path.join(SCRIPT_DIR, s2_name)
+            self.client2 = TelegramClient(s2_path, self.api_id, self.api_hash, proxy=self.proxy)
+        else:
+            self.client2 = None
+        self.me2 = None
+
         self.bot_token = config.get("bot_token")
         if TelegramClient is not None and self.bot_token and self.api_id and self.api_hash:
             bot_session_path = os.path.join(self.storage_dir, "bot_session")
@@ -246,6 +256,18 @@ class SaberTelethonUserbot:
         mode_str = "Bot" if self.me.bot else "Userbot (Personal Account)"
         print(f"[+] Connected to Telegram as {mode_str}: {self.me.first_name} {self.me.last_name or ''} (@{self.me.username}) [ID: {self.me.id}]")
 
+        # Initialize Second Account client if configured
+        if self.client2:
+            try:
+                await self.client2.connect()
+                if await self.client2.is_user_authorized():
+                    self.me2 = await self.client2.get_me()
+                    print(f"[+] Connected to Second Account: {self.me2.first_name} {self.me2.last_name or ''} (@{self.me2.username}) [ID: {self.me2.id}]")
+                else:
+                    print("[-] Second account is not authorized. Please run scripts/login_second_account.sh")
+            except Exception as e:
+                print(f"[-] Could not connect Second Account: {e}")
+
         # Initialize Assistant Bot client if configured
         b_token = bot_token or self.bot_token
         if self.bot_client and b_token:
@@ -318,7 +340,8 @@ class SaberTelethonUserbot:
         client_name: str,
         file_name: Optional[str] = None,
         sender_id: Optional[int] = None,
-        username: Optional[str] = None
+        username: Optional[str] = None,
+        client_source=None
     ):
         """Process proposal received in private chat, provision Google Drive project folder, and post to Saved Messages."""
         # 1. Provision standard 4-tier project folder in Google Drive
@@ -343,6 +366,7 @@ class SaberTelethonUserbot:
             "quote": quote,
             "event": event,
             "project_dir": project_dir,
+            "client_source": client_source or self.client,
             "created_at": datetime.now().isoformat()
         }
 
@@ -395,14 +419,18 @@ class SaberTelethonUserbot:
         4. Detects proposals and prepares quotations.
         5. Posts an executive summary to Saved Messages with Google Drive links.
         """
-        print("[*] Scanning unread client messages and synchronizing Google Drive project folders...")
-        dialogs = await self.client.get_dialogs(limit=limit_dialogs)
-        unread_clients = [
-            dlg for dlg in dialogs 
-            if dlg.is_user and not dlg.entity.is_self and not dlg.entity.bot and dlg.unread_count > 0
-        ]
+        print("[*] Scanning unread client messages and synchronizing Google Drive project folders across accounts...")
+        active_scan_clients = [("اکانت اصلی (@GhaderiSaber)", self.client)]
+        if self.client2 and self.client2.is_connected():
+            active_scan_clients.append(("اکانت دوم (@SaberGhaderi)", self.client2))
 
-        admin_target = self.admin_target
+        unread_clients = []
+        for acc_lbl, cl in active_scan_clients:
+            dialogs = await cl.get_dialogs(limit=limit_dialogs)
+            for dlg in dialogs:
+                if (dlg.is_user and not dlg.entity.is_self and not dlg.entity.bot and 
+                    dlg.id not in [124911145, 6328062294, 777000] and dlg.unread_count > 0):
+                    unread_clients.append((acc_lbl, cl, dlg))
 
         if not unread_clients:
             print("[+] No unread messages found from clients.")
@@ -412,17 +440,17 @@ class SaberTelethonUserbot:
         print(f"[!] Found {len(unread_clients)} client(s) with unread messages.")
         summary_lines = [f"📬 **گزارش پیام‌های خوانده‌نشده و همگام‌سازی پروژه‌ها ({len(unread_clients)} مراجع):**\n"]
 
-        for dlg in unread_clients:
+        for acc_lbl, cl, dlg in unread_clients:
             client_name = dlg.name
             unread_cnt = dlg.unread_count
             user_entity = dlg.entity
             username = getattr(user_entity, "username", None)
-            print(f"    • {client_name} ({dlg.id}): {unread_cnt} unread message(s)")
+            print(f"    • [{acc_lbl}] {client_name} ({dlg.id}): {unread_cnt} unread message(s)")
 
             # Automatically archive chat and download unread files into Google Drive project folder
             try:
                 archive_res = await self.project_manager.save_client_chat_and_files(
-                    client=self.client,
+                    client=cl,
                     entity=dlg.entity,
                     client_name=client_name,
                     client_id=dlg.id,
@@ -440,7 +468,7 @@ class SaberTelethonUserbot:
             found_proposal = False
 
             # Check unread messages for proposal files or text
-            async for msg in self.client.iter_messages(dlg.entity, limit=min(unread_cnt, 15)):
+            async for msg in cl.iter_messages(dlg.entity, limit=min(unread_cnt, 15)):
                 txt = (msg.message or "").strip()
                 if not latest_text and txt:
                     latest_text = txt
@@ -460,7 +488,7 @@ class SaberTelethonUserbot:
                         try:
                             raw_content = extract_text_from_file(local_path)
                             await self.handle_proposal_message(
-                                msg, raw_content, client_name, file_name=fname, sender_id=dlg.id, username=username
+                                msg, raw_content, client_name, file_name=fname, sender_id=dlg.id, username=username, client_source=cl
                             )
                             found_proposal = True
                         except Exception as err:
@@ -469,13 +497,14 @@ class SaberTelethonUserbot:
                 # Check for long text proposal
                 if len(txt) > 80 and any(w in txt for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
                     await self.handle_proposal_message(
-                        msg, txt, client_name, sender_id=dlg.id, username=username
+                        msg, txt, client_name, sender_id=dlg.id, username=username, client_source=cl
                     )
                     found_proposal = True
 
             snippet = latest_text[:90] + ("..." if len(latest_text) > 90 else "")
             status_tag = " (📄 پروپوزال تحلیل شد)" if found_proposal else ""
             summary_lines.append(
+                f"📱 *{acc_lbl}*\n"
                 f"👤 **{client_name}** (ID: `{dlg.id}`)\n"
                 f"📂 *پوشه در درایو:* `{project_dir}`\n"
                 f"💬 *آخرین پیام ({unread_cnt} پیام جدید):* «{snippet}»{status_tag}\n"
@@ -633,7 +662,8 @@ class SaberTelethonUserbot:
                 if qid in self.pending_quotes:
                     entry = self.pending_quotes[qid]
                     card = format_telegram_card(entry["quote"])
-                    await self.client.send_message(entry["chat_id"], card)
+                    target_client = entry.get("client_source") or self.client
+                    await target_client.send_message(entry["chat_id"], card)
                     await event.reply(f"✅ پیش‌فاکتور {qid} با موفقیت به {entry['sender_name']} ارسال شد.")
                     del self.pending_quotes[qid]
                 else:
@@ -649,7 +679,8 @@ class SaberTelethonUserbot:
                     entry["quote"]["total_price_tomans"] = new_price
                     entry["quote"]["total_price_formatted"] = f"{new_price:,.0f} تومان"
                     card = format_telegram_card(entry["quote"])
-                    await self.client.send_message(entry["chat_id"], card)
+                    target_client = entry.get("client_source") or self.client
+                    await target_client.send_message(entry["chat_id"], card)
                     await event.reply(f"✅ پیش‌فاکتور {qid} با مبلغ {new_price:,.0f} تومان به {entry['sender_name']} ارسال شد.")
                     del self.pending_quotes[qid]
                 else:
@@ -672,7 +703,8 @@ class SaberTelethonUserbot:
                     if qid in self.pending_quotes:
                         entry = self.pending_quotes[qid]
                         card = format_telegram_card(entry["quote"])
-                        await self.client.send_message(entry["chat_id"], card)
+                        target_client = entry.get("client_source") or self.client
+                        await target_client.send_message(entry["chat_id"], card)
                         await event.answer(f"✅ پیش‌فاکتور {qid} به مراجع ارسال شد!", alert=True)
                         try:
                             await event.edit(f"{event.message.text}\n\n✅ **پیش‌فاکتور توسط شما تأیید و به مراجع ارسال شد.**", buttons=None)
@@ -710,125 +742,133 @@ class SaberTelethonUserbot:
                 async def bot_admin_handler(event):
                     await admin_handler(event)
 
-        # 2. Client Inbound Messages (Private Chats)
-        @self.client.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
-        async def client_handler(event):
-            sender = await event.get_sender()
-            if not isinstance(sender, User) or sender.is_self or sender.bot:
-                return
-
-            client_name = f"{sender.first_name} {sender.last_name or ''}".strip()
-            msg_text = (event.message.message or "").strip()
-            print(f"[!] New DM from client {client_name} (ID: {sender.id}): {msg_text[:60]}")
-
-            # Ensure client's Google Drive project folder is provisioned
-            self.project_manager.provision_project(
-                client_name=client_name,
-                client_id=sender.id,
-                username=sender.username,
-                phone=sender.phone
-            )
-
-            # Bot-specific commands (/start, /help, /scale)
-            if me.bot:
-                if msg_text in ["/start", "سلام", "درود"]:
-                    welcome_msg = (
-                        f"سلام و درود، وقت شما بخیر {sender.first_name} گرامی.\n\n"
-                        "دستیار هوشمند و مشاور پژوهشی صابر قادری در خدمت شماست.\n"
-                        "خدمات قابل ارائه:\n"
-                        "• بررسی پروپوزال و صدور پیش‌فاکتور تفکیکی (ارسال فایل یا متن)\n"
-                        "• جستجوی پرسشنامه‌ها و مقیاس‌های روان‌سنجی: `/scale نام_پرسشنامه`\n"
-                        "• مشاوره روش‌شناسی و تحلیل آماری\n\n"
-                        "جهت استعلام هزینه و زمان‌بندی، فایل پروپوزال خود را ارسال بفرمایید."
-                    )
-                    await event.reply(welcome_msg)
+        # 2. Client Inbound Messages (Private Chats) across both personal accounts
+        def setup_inbound_listener(client_inst, account_label):
+            @client_inst.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
+            async def client_handler(event):
+                sender = await event.get_sender()
+                if not isinstance(sender, User) or sender.is_self or sender.bot:
+                    return
+                if sender.id in [124911145, 6328062294, 777000]:
                     return
 
-                if msg_text == "/help":
-                    help_msg = (
-                        "📚 **راهنمای دستورات:**\n"
-                        "• ارسال فایل پروپوزال (.docx یا .pdf) برای ارزیابی و استعلام قیمت\n"
-                        "• `/scale <نام>`: جستجو در بانک ۴۸۸۰ پرسشنامه استاندارد\n"
-                        "• `/start`: نمایش پیام آغازین و معرفی خدمات"
-                    )
-                    await event.reply(help_msg)
-                    return
+                client_name = f"{sender.first_name} {sender.last_name or ''}".strip()
+                msg_text = (event.message.message or "").strip()
+                print(f"[!] [{account_label}] New DM from client {client_name} (ID: {sender.id}): {msg_text[:60]}")
 
-            # Check for attached document (.docx / .pdf / .txt / .xlsx / .sav)
-            if event.message.file and event.message.file.name:
-                fname = sanitize_filename(event.message.file.name)
-                ext = os.path.splitext(fname)[1].lower()
-                print(f"[+] Client {client_name} sent attached file: {fname}. Saving directly to Google Drive project...")
-                try:
-                    local_path = await self.project_manager.save_single_file(
-                        msg=event.message,
-                        client_name=client_name,
-                        client_id=sender.id,
-                        username=sender.username
-                    )
-                    if ext in [".docx", ".pdf", ".txt"]:
-                        raw_content = extract_text_from_file(local_path)
-                        await self.handle_proposal_message(
-                            event, raw_content, client_name, file_name=fname, sender_id=sender.id, username=sender.username
-                        )
-                        return
-                except Exception as err:
-                    print(f"[-] Error saving incoming client file: {err}")
-
-            # Check if long text proposal
-            if len(msg_text) > 80 and any(w in msg_text for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
-                await self.handle_proposal_message(
-                    event, msg_text, client_name, sender_id=sender.id, username=sender.username
+                # Ensure client's Google Drive project folder is provisioned
+                self.project_manager.provision_project(
+                    client_name=client_name,
+                    client_id=sender.id,
+                    username=sender.username,
+                    phone=sender.phone
                 )
-                return
 
-            # Check for questionnaire search query (/scale <name> or "پرسشنامه ...")
-            m_scale = re.match(r"^/scale\s+(.+)", msg_text)
-            is_scale_query = bool(m_scale) or (
-                any(w in msg_text for w in ["پرسشنامه", "مقیاس", "آزمون"]) and len(msg_text.split()) <= 10
-            )
-            if is_scale_query:
-                query_name = m_scale.group(1).strip() if m_scale else re.sub(
-                    r"(?:داری|دارید|رو\s*دارید|می‌خواستم|لطفاً|سلام|وقت\s*بخیر)", "", msg_text
-                ).strip()
-                if questionnaire_resolver is not None:
-                    profile = questionnaire_resolver.get_scale_profile(query_name)
-                    if profile and profile.get("found_in_registry"):
-                        scale_info = (
-                            f"📋 **اطلاعات ابزار اندازه‌گیری:**\n"
-                            f"• نام مقیاس: **{profile.get('scale_persian_name') or profile.get('scale_name')}**\n"
-                            f"• تعداد گویه‌ها: {profile.get('total_items_count', 'مشخص در شناسنامه')}\n"
-                            f"• وضعیت در بانک: موجود و استاندارد\n\n"
-                            "این ابزار به همراه نمره‌گذاری و مولفه‌های استاندارد آماده استفاده در پژوهش است."
+                # Bot-specific commands (/start, /help, /scale)
+                if me.bot:
+                    if msg_text in ["/start", "سلام", "درود"]:
+                        welcome_msg = (
+                            f"سلام و درود، وقت شما بخیر {sender.first_name} گرامی.\n\n"
+                            "دستیار هوشمند و مشاور پژوهشی صابر قادری در خدمت شماست.\n"
+                            "خدمات قابل ارائه:\n"
+                            "• بررسی پروپوزال و صدور پیش‌فاکتور تفکیکی (ارسال فایل یا متن)\n"
+                            "• جستجوی پرسشنامه‌ها و مقیاس‌های روان‌سنجی: `/scale نام_پرسشنامه`\n"
+                            "• مشاوره روش‌شناسی و تحلیل آماری\n\n"
+                            "جهت استعلام هزینه و زمان‌بندی، فایل پروپوزال خود را ارسال بفرمایید."
                         )
-                        if me.bot:
-                            await event.reply(scale_info)
-                        else:
-                            await self.send_to_desk(
-                                f"📋 *درخواست پرسشنامه از {client_name}:*\n"
-                                f"پیام: {msg_text}\n"
-                                f"پاسخ آماده: {scale_info}"
-                            )
+                        await event.reply(welcome_msg)
                         return
+
+                    if msg_text == "/help":
+                        help_msg = (
+                            "📚 **راهنمای دستورات:**\n"
+                            "• ارسال فایل پروپوزال (.docx یا .pdf) برای ارزیابی و استعلام قیمت\n"
+                            "• `/scale <نام>`: جستجو در بانک ۴۸۸۰ پرسشنامه استاندارد\n"
+                            "• `/start`: نمایش پیام آغازین و معرفی خدمات"
+                        )
+                        await event.reply(help_msg)
+                        return
+
+                # Check for attached document (.docx / .pdf / .txt / .xlsx / .sav)
+                if event.message.file and event.message.file.name:
+                    fname = sanitize_filename(event.message.file.name)
+                    ext = os.path.splitext(fname)[1].lower()
+                    print(f"[+] Client {client_name} sent attached file: {fname}. Saving directly to Google Drive project...")
+                    try:
+                        local_path = await self.project_manager.save_single_file(
+                            msg=event.message,
+                            client_name=client_name,
+                            client_id=sender.id,
+                            username=sender.username
+                        )
+                        if ext in [".docx", ".pdf", ".txt"]:
+                            raw_content = extract_text_from_file(local_path)
+                            await self.handle_proposal_message(
+                                event, raw_content, client_name, file_name=fname, sender_id=sender.id, username=sender.username, client_source=client_inst
+                            )
+                            return
+                    except Exception as err:
+                        print(f"[-] Error saving incoming client file: {err}")
+
+                # Check if long text proposal
+                if len(msg_text) > 80 and any(w in msg_text for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
+                    await self.handle_proposal_message(
+                        event, msg_text, client_name, sender_id=sender.id, username=sender.username, client_source=client_inst
+                    )
+                    return
+
+                # Check for questionnaire search query (/scale <name> or "پرسشنامه ...")
+                m_scale = re.match(r"^/scale\s+(.+)", msg_text)
+                is_scale_query = bool(m_scale) or (
+                    any(w in msg_text for w in ["پرسشنامه", "مقیاس", "آزمون"]) and len(msg_text.split()) <= 10
+                )
+                if is_scale_query:
+                    query_name = m_scale.group(1).strip() if m_scale else re.sub(
+                        r"(?:داری|دارید|رو\s*دارید|می‌خواستم|لطفاً|سلام|وقت\s*بخیر)", "", msg_text
+                    ).strip()
+                    if questionnaire_resolver is not None:
+                        profile = questionnaire_resolver.get_scale_profile(query_name)
+                        if profile and profile.get("found_in_registry"):
+                            scale_info = (
+                                f"📋 **اطلاعات ابزار اندازه‌گیری:**\n"
+                                f"• نام مقیاس: **{profile.get('scale_persian_name') or profile.get('scale_name')}**\n"
+                                f"• تعداد گویه‌ها: {profile.get('total_items_count', 'مشخص در شناسنامه')}\n"
+                                f"• وضعیت در بانک: موجود و استاندارد\n\n"
+                                "این ابزار به همراه نمره‌گذاری و مولفه‌های استاندارد آماده استفاده در پژوهش است."
+                            )
+                            if me.bot:
+                                await event.reply(scale_info)
+                            else:
+                                await self.send_to_desk(
+                                    f"📋 *درخواست پرسشنامه از {client_name}:*\n"
+                                    f"پیام: {msg_text}\n"
+                                    f"پاسخ آماده: {scale_info}"
+                                )
+                            return
+
+        # Setup inbound listeners on both userbot accounts
+        setup_inbound_listener(self.client, "اکانت اصلی (@GhaderiSaber)")
+        if self.client2:
+            setup_inbound_listener(self.client2, "اکانت دوم (@SaberGhaderi)")
 
         if self.admin_desk_chat_id:
             desk_location = f"گروه کاری Academic Desk (ID: {self.admin_desk_chat_id})"
         else:
             desk_location = "پیام‌های ذخیره‌شده (Saved Messages)" if not me.bot else f"چت با اکانت صابر (ID: {self.admin_id})"
-        print(f"[*] Telethon {'Userbot' if not me.bot else 'Bot'} is active & listening to incoming DMs...")
+        print(f"[*] Telethon {'Userbot' if not me.bot else 'Bot'} is active & listening to incoming DMs on all accounts...")
         print(f"[*] Google Drive Operational Root: {self.project_manager.work_dir}")
         print(f"[*] Open {desk_location} to view real-time proposal alerts, approve quotes, or manage projects.")
 
         # Scan and report any existing unread messages from clients on startup
         await self.scan_and_process_unread_messages()
 
+        gather_tasks = [self.client.run_until_disconnected()]
+        if self.client2 and self.client2.is_connected():
+            gather_tasks.append(self.client2.run_until_disconnected())
         if self.bot_client and self.bot_client.is_connected():
-            await asyncio.gather(
-                self.client.run_until_disconnected(),
-                self.bot_client.run_until_disconnected()
-            )
-        else:
-            await self.client.run_until_disconnected()
+            gather_tasks.append(self.bot_client.run_until_disconnected())
+
+        await asyncio.gather(*gather_tasks)
 
 
 async def main_async(args):

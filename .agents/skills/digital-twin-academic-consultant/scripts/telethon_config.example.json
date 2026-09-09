@@ -5,6 +5,11 @@
   "bot_token": "",
   "admin_id": 124911145,
   "session_name": "saber_userbot",
+  "second_account": {
+    "phone_number": "+989YYYYYYYYY",
+    "session_name": "saber_second_userbot",
+    "admin_id": 6328062294
+  },
   "auto_reply": false,
   "saved_messages_desk": false,
   "admin_desk_chat_id": -1004331808205,
@@ -15,4 +20,3 @@
     "port": 3066
   }
 }
-
