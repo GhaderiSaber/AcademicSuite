@@ -106,6 +106,18 @@ Proposals must strictly adhere to the academic heading and typography hierarchy 
 5. **Dual Font Binding Protection (`<w:rFonts>`)**:
    - Every heading run must enforce `<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="B Titr" w:eastAsia="B Titr"/>` to prevent Word fallback engines on macOS/Windows from substituting headings with system fonts like Arial or Calibri.
 
+### C. Critical OpenXML Schema Sequence & Word for Mac RTL Standards (`CT_PPr` & `styles.xml`)
+
+> [!CAUTION]
+> **STRICT OPENXML SCHEMA SEQUENCE (`CT_PPr`) REQUIREMENT:**
+> Microsoft Word on macOS strictly validates the child element sequence within `<w:pPr>` against the ISO/IEC 29500-1 / ECMA-376 standard:
+> `w:pStyle` $\to$ `w:keepNext` $\to$ `w:bidi` $\to$ `w:spacing` $\to$ `w:ind` $\to$ `w:jc`
+> If `pStyle` or `keepNext` is appended at the end of `pPr` (after `bidi`, `spacing`, or `jc`), Word for Mac flags the XML as invalid or ignores subsequent tags, causing headings to silently drop their `<w:jc w:val="right"/>` and fall back to left-aligned/LTR.
+> - Always construct `<w:pPr>` using a unified XML generator (`set_strict_pPr`) that enforces this exact child element sequence.
+> - Always ensure `<w:sectPr>` contains `<w:bidi/>` at section level.
+> - Always inject enhanced RTL definitions (`<w:bidi/>`, `<w:jc w:val="right"/>`, `<w:rtl/>`, and `B Titr`/`B Nazanin` font bindings) directly into `Normal`, `Heading1`, `Heading2`, `Heading3`, and `Heading4` within `word/styles.xml`.
+> - For all tables, always append `<w:bidiVisual/>` to `table._tbl.tblPr` and enforce `set_strict_pPr` on cell paragraphs.
+
 ## 5. Proposal Architecture & Key Components
 
 The proposal follows the standard Iranian university template:

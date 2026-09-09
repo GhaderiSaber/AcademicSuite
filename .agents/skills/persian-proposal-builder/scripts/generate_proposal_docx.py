@@ -30,35 +30,65 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 
-def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.RIGHT):
-    """Enforce Persian BiDi RTL directionality on paragraph."""
-    p.alignment = align
-    pPr = p._p.get_or_add_pPr()
-    bidi = OxmlElement('w:bidi')
-    bidi.set(qn('w:val'), '1')
-    pPr.append(bidi)
+def set_strict_pPr(p, style_val=None, keep_next=False, is_bidi=True, space_before=0, space_after=6, line_spacing=1.35, first_line_indent=0, left_indent=0, hanging_indent=0, jc_val='right'):
+    """
+    Constructs schema-compliant <w:pPr> strictly adhering to ISO/IEC 29500-1 CT_PPr order:
+    pStyle -> keepNext -> bidi -> spacing -> ind -> jc
+    Microsoft Word for Mac rejects out-of-order pPr child elements and silently falls back to style defaults.
+    """
+    parts = []
+    if style_val:
+        parts.append(f'<w:pStyle w:val="{style_val}"/>')
+    if keep_next:
+        parts.append('<w:keepNext/>')
+    if is_bidi:
+        parts.append('<w:bidi/>')
+    before_dxa = int(space_before * 20)
+    after_dxa = int(space_after * 20)
+    line_dxa = int(line_spacing * 240)
+    parts.append(f'<w:spacing w:before="{before_dxa}" w:after="{after_dxa}" w:line="{line_dxa}" w:lineRule="auto"/>')
+    if hanging_indent > 0:
+        left_dxa = int(left_indent * 1440)
+        hanging_dxa = int(hanging_indent * 1440)
+        parts.append(f'<w:ind w:left="{left_dxa}" w:hanging="{hanging_dxa}"/>')
+    elif first_line_indent > 0:
+        indent_dxa = int(first_line_indent * 1440)
+        parts.append(f'<w:ind w:firstLine="{indent_dxa}"/>')
+    elif left_indent > 0:
+        left_dxa = int(left_indent * 1440)
+        parts.append(f'<w:ind w:left="{left_dxa}"/>')
+    if jc_val:
+        parts.append(f'<w:jc w:val="{jc_val}"/>')
+    new_pPr = parse_xml(f'<w:pPr {nsdecls("w")}>\n  ' + '\n  '.join(parts) + '\n</w:pPr>')
+    curr_pPr = p._p.find(qn('w:pPr'))
+    if curr_pPr is not None:
+        p._p.remove(curr_pPr)
+    p._p.insert(0, new_pPr)
 
-def add_run(p, text, font_fa='B Nazanin', font_en='Times New Roman', size=13, bold=False, italic=False):
-    """Add text run with explicit Persian and Latin font bindings and w:rtl."""
+def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.RIGHT, justify=True):
+    """Backwards-compatible wrapper around set_strict_pPr."""
+    jc_val = 'both' if justify else ('center' if align == WD_ALIGN_PARAGRAPH.CENTER else ('left' if align == WD_ALIGN_PARAGRAPH.LEFT else 'right'))
+    set_strict_pPr(p, is_bidi=True, jc_val=jc_val)
+
+def add_run(p, text, font_fa='B Nazanin', font_en='Times New Roman', size=13, bold=False, italic=False, color_hex='0F172A'):
+    """Add text run with explicit Persian and Latin font bindings, color, sz, szCs, and w:rtl."""
     run = p.add_run(text)
-    run.font.name = font_fa
-    run.font.size = Pt(size)
-    run.bold = bold
-    run.italic = italic
-    
-    rPr = run._r.get_or_add_rPr()
-    rFonts = parse_xml(
-        f'<w:rFonts {nsdecls("w")} '
-        f'w:ascii="{font_en}" w:hAnsi="{font_en}" '
-        f'w:cs="{font_fa}" w:eastAsia="{font_fa}"/>'
-    )
-    rPr.append(rFonts)
-    rtl = OxmlElement('w:rtl')
-    rPr.append(rtl)
-    lang = OxmlElement('w:lang')
-    lang.set(qn('w:val'), 'fa-IR')
-    lang.set(qn('w:bidi'), 'fa-IR')
-    rPr.append(lang)
+    sz_val = int(size * 2)
+    b_tags = '<w:b/><w:bCs/>' if bold else ''
+    i_tags = '<w:i/><w:iCs/>' if italic else ''
+    rPr_xml = f'''<w:rPr {nsdecls("w")}>
+      <w:rFonts w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}" w:eastAsia="{font_fa}"/>
+      {b_tags}
+      {i_tags}
+      <w:color w:val="{color_hex}"/>
+      <w:sz w:val="{sz_val}"/><w:szCs w:val="{sz_val}"/>
+      <w:rtl/>
+      <w:lang w:val="fa-IR" w:bidi="fa-IR"/>
+    </w:rPr>'''
+    curr_rPr = run._r.find(qn('w:rPr'))
+    if curr_rPr is not None:
+        run._r.remove(curr_rPr)
+    run._r.insert(0, parse_xml(rPr_xml))
     return run
 
 def add_native_footnote_reference(paragraph, fn_id, font_name="B Nazanin"):
@@ -94,11 +124,7 @@ def add_body_paragraph(doc, text, first_line_indent=0.35, line_spacing=1.35, spa
     and normalizing quote placements to prevent BiDi wrapping glitches.
     """
     p = doc.add_paragraph()
-    set_paragraph_bidi(p, WD_ALIGN_PARAGRAPH.JUSTIFY)
-    p.paragraph_format.line_spacing = line_spacing
-    p.paragraph_format.space_after = Pt(space_after)
-    if first_line_indent > 0:
-        p.paragraph_format.first_line_indent = Inches(first_line_indent)
+    set_strict_pPr(p, is_bidi=True, space_before=0, space_after=space_after, line_spacing=line_spacing, first_line_indent=first_line_indent, jc_val='both')
 
     # Normalize quotes around footnote tokens: «...[^15]» -> «...»[^15]
     clean_text = re.sub(r'«([^»\n]+)\[\^(\d+)\]»', r'«\1»[^\2]', text)
@@ -124,55 +150,140 @@ def add_section_heading(doc, text, level=2):
     - Level 4: B Nazanin Bold 12pt Bold, Right-aligned, space_before 6pt, space_after 2pt, Heading4, keepNext
     """
     p = doc.add_paragraph()
-    set_paragraph_bidi(p, WD_ALIGN_PARAGRAPH.RIGHT)
-    
     if level == 1:
-        p.paragraph_format.space_before = Pt(24)
-        p.paragraph_format.space_after = Pt(14)
-        size = 16
-        font = 'B Titr'
-        style_val = "Heading1"
+        space_before, space_after, size, font, style_val = 24, 14, 16, 'B Titr', "Heading1"
     elif level == 2:
-        p.paragraph_format.space_before = Pt(14)
-        p.paragraph_format.space_after = Pt(6)
-        size = 14
-        font = 'B Titr'
-        style_val = "Heading2"
+        space_before, space_after, size, font, style_val = 14, 6, 14, 'B Titr', "Heading2"
     elif level == 3:
-        p.paragraph_format.space_before = Pt(8)
-        p.paragraph_format.space_after = Pt(4)
-        size = 13
-        font = 'B Nazanin'
-        style_val = "Heading3"
+        space_before, space_after, size, font, style_val = 8, 4, 13, 'B Nazanin', "Heading3"
     else:
-        p.paragraph_format.space_before = Pt(6)
-        p.paragraph_format.space_after = Pt(2)
-        size = 12
-        font = 'B Nazanin'
-        style_val = "Heading4"
+        space_before, space_after, size, font, style_val = 6, 2, 12, 'B Nazanin', "Heading4"
         
-    pPr = p._p.get_or_add_pPr()
-    # Enforce keepNext to prevent orphan headings at bottom of page
-    keepNext = OxmlElement('w:keepNext')
-    pPr.append(keepNext)
-    # Enforce Word Navigation Pane Heading style
-    pStyle = OxmlElement('w:pStyle')
-    pStyle.set(qn('w:val'), style_val)
-    pPr.append(pStyle)
-    
+    set_strict_pPr(p, style_val=style_val, keep_next=True, is_bidi=True, space_before=space_before, space_after=space_after, first_line_indent=0, jc_val='right')
     add_run(p, text, font_fa=font, size=size, bold=True)
     return p
 
+def enhance_styles_xml(styles_xml_content):
+    """
+    Injects RTL directionality and Persian font definitions into Word's default styles
+    (Normal, Heading1, Heading2, Heading3, Heading4, and FootnoteReference)
+    so that Word on Mac defaults to Right-to-Left and right alignment.
+    """
+    normal_pPr = '<w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr>'
+    normal_rPr = '<w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="B Nazanin"/><w:rtl/><w:lang w:val="fa-IR" w:bidi="fa-IR"/></w:rPr>'
+    old_normal = re.search(r'<w:style[^>]*w:styleId="Normal"[^>]*>.*?</w:style>', styles_xml_content, re.DOTALL)
+    if old_normal:
+        new_normal = f'''<w:style w:type="paragraph" w:default="1" w:styleId="Normal">
+    <w:name w:val="Normal"/>
+    <w:qFormat/>
+    {normal_pPr}
+    {normal_rPr}
+  </w:style>'''
+        styles_xml_content = styles_xml_content.replace(old_normal.group(0), new_normal)
+
+    h1_xml = '''<w:style w:type="paragraph" w:styleId="Heading1">
+    <w:name w:val="heading 1"/>
+    <w:basedOn w:val="Normal"/>
+    <w:next w:val="Normal"/>
+    <w:uiPriority w:val="9"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:bidi/>
+      <w:spacing w:before="480" w:after="140"/>
+      <w:jc w:val="right"/>
+      <w:outlineLvl w:val="0"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="B Titr"/>
+      <w:b/><w:bCs/>
+      <w:color w:val="182B49"/>
+      <w:sz w:val="32"/><w:szCs w:val="32"/>
+      <w:rtl/>
+      <w:lang w:val="fa-IR" w:bidi="fa-IR"/>
+    </w:rPr>
+  </w:style>'''
+    styles_xml_content = re.sub(r'<w:style[^>]*w:styleId="Heading1"[^>]*>.*?</w:style>', h1_xml, styles_xml_content, flags=re.DOTALL)
+
+    h2_xml = '''<w:style w:type="paragraph" w:styleId="Heading2">
+    <w:name w:val="heading 2"/>
+    <w:basedOn w:val="Normal"/>
+    <w:next w:val="Normal"/>
+    <w:uiPriority w:val="9"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:bidi/>
+      <w:spacing w:before="320" w:after="120"/>
+      <w:jc w:val="right"/>
+      <w:outlineLvl w:val="1"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="B Titr"/>
+      <w:b/><w:bCs/>
+      <w:color w:val="182B49"/>
+      <w:sz w:val="28"/><w:szCs w:val="28"/>
+      <w:rtl/>
+      <w:lang w:val="fa-IR" w:bidi="fa-IR"/>
+    </w:rPr>
+  </w:style>'''
+    styles_xml_content = re.sub(r'<w:style[^>]*w:styleId="Heading2"[^>]*>.*?</w:style>', h2_xml, styles_xml_content, flags=re.DOTALL)
+
+    h3_xml = '''<w:style w:type="paragraph" w:styleId="Heading3">
+    <w:name w:val="heading 3"/>
+    <w:basedOn w:val="Normal"/>
+    <w:next w:val="Normal"/>
+    <w:uiPriority w:val="9"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:bidi/>
+      <w:spacing w:before="240" w:after="80"/>
+      <w:jc w:val="right"/>
+      <w:outlineLvl w:val="2"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="B Titr"/>
+      <w:b/><w:bCs/>
+      <w:color w:val="0D4E73"/>
+      <w:sz w:val="25"/><w:szCs w:val="25"/>
+      <w:rtl/>
+      <w:lang w:val="fa-IR" w:bidi="fa-IR"/>
+    </w:rPr>
+  </w:style>'''
+    styles_xml_content = re.sub(r'<w:style[^>]*w:styleId="Heading3"[^>]*>.*?</w:style>', h3_xml, styles_xml_content, flags=re.DOTALL)
+
+    h4_xml = '''<w:style w:type="paragraph" w:styleId="Heading4">
+    <w:name w:val="heading 4"/>
+    <w:basedOn w:val="Normal"/>
+    <w:next w:val="Normal"/>
+    <w:uiPriority w:val="9"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:bidi/>
+      <w:spacing w:before="160" w:after="60"/>
+      <w:jc w:val="right"/>
+      <w:outlineLvl w:val="3"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="B Nazanin"/>
+      <w:b/><w:bCs/>
+      <w:color w:val="334155"/>
+      <w:sz w:val="24"/><w:szCs w:val="24"/>
+      <w:rtl/>
+      <w:lang w:val="fa-IR" w:bidi="fa-IR"/>
+    </w:rPr>
+  </w:style>'''
+    styles_xml_content = re.sub(r'<w:style[^>]*w:styleId="Heading4"[^>]*>.*?</w:style>', h4_xml, styles_xml_content, flags=re.DOTALL)
+
+    return styles_xml_content
+
 def pack_native_footnotes(base_docx_path, output_docx_path, footnotes_list):
     """
-    Injects word/footnotes.xml and sets compatibilityMode = 15 in word/settings.xml.
-    footnotes_list: list of tuples (id: int, latin_text: str)
+    Injects word/footnotes.xml, enhances styles.xml, sets section-level bidi in document.xml,
+    and sets compatibilityMode = 15 in word/settings.xml.
     """
-    if not footnotes_list:
-        if base_docx_path != output_docx_path:
-            shutil.copy2(base_docx_path, output_docx_path)
-        return output_docx_path
-
     temp_dir = base_docx_path + "_extracted"
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir, ignore_errors=True)
@@ -198,7 +309,7 @@ def pack_native_footnotes(base_docx_path, output_docx_path, footnotes_list):
         with open(rels_file, 'w', encoding='utf-8') as f:
             f.write(rels_data)
 
-    # 3. Update styles.xml: FootnoteReference style with Persian fonts and vertAlign
+    # 3. Update styles.xml: FootnoteReference style with Persian fonts and vertAlign, plus enhance Normal & Heading1-4 styles
     styles_file = os.path.join(temp_dir, "word", "styles.xml")
     if os.path.exists(styles_file):
         with open(styles_file, 'r', encoding='utf-8') as f:
@@ -219,63 +330,74 @@ def pack_native_footnotes(base_docx_path, output_docx_path, footnotes_list):
 """
         if 'w:styleId="FootnoteReference"' not in styles_data:
             styles_data = styles_data.replace('</w:styles>', fn_style + '</w:styles>')
-            with open(styles_file, 'w', encoding='utf-8') as f:
-                f.write(styles_data)
+        styles_data = enhance_styles_xml(styles_data)
+        with open(styles_file, 'w', encoding='utf-8') as f:
+            f.write(styles_data)
 
-    # 4. Create word/footnotes.xml
-    fn_lines = [
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
-        '<w:footnotes xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">',
-        '  <w:footnote w:type="separator" w:id="-1">',
-        '    <w:p>',
-        '      <w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>',
-        '      <w:r><w:separator/></w:r>',
-        '    </w:p>',
-        '  </w:footnote>',
-        '  <w:footnote w:type="continuationSeparator" w:id="0">',
-        '    <w:p>',
-        '      <w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>',
-        '      <w:r><w:continuationSeparator/></w:r>',
-        '    </w:p>',
-        '  </w:footnote>'
-    ]
+    # 4. Ensure document.xml has <w:bidi/> in all <w:sectPr>
+    doc_file = os.path.join(temp_dir, "word", "document.xml")
+    if os.path.exists(doc_file):
+        with open(doc_file, 'r', encoding='utf-8') as f:
+            doc_xml = f.read()
+        doc_xml = re.sub(r'(<w:sectPr[^>]*>)(?!.*?<w:bidi/>)', r'\1<w:bidi/>', doc_xml)
+        with open(doc_file, 'w', encoding='utf-8') as f:
+            f.write(doc_xml)
 
-    for idx, latin in footnotes_list:
-        safe_latin = str(latin).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-        fn_lines.append(f'  <w:footnote w:id="{idx}">')
-        fn_lines.append('    <w:p>')
-        fn_lines.append('      <w:pPr>')
-        fn_lines.append('        <w:pStyle w:val="FootnoteText"/>')
-        fn_lines.append('        <w:jc w:val="left"/>')
-        fn_lines.append('        <w:spacing w:after="30" w:line="240" w:lineRule="auto"/>')
-        fn_lines.append('      </w:pPr>')
-        fn_lines.append('      <w:r>')
-        fn_lines.append('        <w:rPr>')
-        fn_lines.append('          <w:rStyle w:val="FootnoteReference"/>')
-        fn_lines.append('          <w:rFonts w:ascii="B Nazanin" w:hAnsi="B Nazanin" w:cs="B Nazanin"/>')
-        fn_lines.append('          <w:rtl/>')
-        fn_lines.append('          <w:lang w:val="fa-IR" w:bidi="fa-IR"/>')
-        fn_lines.append('        </w:rPr>')
-        fn_lines.append('        <w:footnoteRef/>')
-        fn_lines.append('      </w:r>')
-        fn_lines.append('      <w:r>')
-        fn_lines.append('        <w:rPr>')
-        fn_lines.append('          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>')
-        fn_lines.append('          <w:sz w:val="19"/>')
-        fn_lines.append('          <w:szCs w:val="19"/>')
-        fn_lines.append('        </w:rPr>')
-        fn_lines.append(f'        <w:t xml:space="preserve"> {safe_latin}</w:t>')
-        fn_lines.append('      </w:r>')
-        fn_lines.append('    </w:p>')
-        fn_lines.append('  </w:footnote>')
+    # 5. Create word/footnotes.xml
+    if footnotes_list:
+        fn_lines = [
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+            '<w:footnotes xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">',
+            '  <w:footnote w:type="separator" w:id="-1">',
+            '    <w:p>',
+            '      <w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>',
+            '      <w:r><w:separator/></w:r>',
+            '    </w:p>',
+            '  </w:footnote>',
+            '  <w:footnote w:type="continuationSeparator" w:id="0">',
+            '    <w:p>',
+            '      <w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>',
+            '      <w:r><w:continuationSeparator/></w:r>',
+            '    </w:p>',
+            '  </w:footnote>'
+        ]
 
-    fn_lines.append('</w:footnotes>')
-    fn_xml_content = "\n".join(fn_lines)
+        for idx, latin in footnotes_list:
+            safe_latin = str(latin).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+            fn_lines.append(f'  <w:footnote w:id="{idx}">')
+            fn_lines.append('    <w:p>')
+            fn_lines.append('      <w:pPr>')
+            fn_lines.append('        <w:pStyle w:val="FootnoteText"/>')
+            fn_lines.append('        <w:jc w:val="left"/>')
+            fn_lines.append('        <w:spacing w:after="30" w:line="240" w:lineRule="auto"/>')
+            fn_lines.append('      </w:pPr>')
+            fn_lines.append('      <w:r>')
+            fn_lines.append('        <w:rPr>')
+            fn_lines.append('          <w:rStyle w:val="FootnoteReference"/>')
+            fn_lines.append('          <w:rFonts w:ascii="B Nazanin" w:hAnsi="B Nazanin" w:cs="B Nazanin"/>')
+            fn_lines.append('          <w:rtl/>')
+            fn_lines.append('          <w:lang w:val="fa-IR" w:bidi="fa-IR"/>')
+            fn_lines.append('        </w:rPr>')
+            fn_lines.append('        <w:footnoteRef/>')
+            fn_lines.append('      </w:r>')
+            fn_lines.append('      <w:r>')
+            fn_lines.append('        <w:rPr>')
+            fn_lines.append('          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>')
+            fn_lines.append('          <w:sz w:val="19"/>')
+            fn_lines.append('          <w:szCs w:val="19"/>')
+            fn_lines.append('        </w:rPr>')
+            fn_lines.append(f'        <w:t xml:space="preserve"> {safe_latin}</w:t>')
+            fn_lines.append('      </w:r>')
+            fn_lines.append('    </w:p>')
+            fn_lines.append('  </w:footnote>')
 
-    with open(os.path.join(temp_dir, "word", "footnotes.xml"), 'w', encoding='utf-8') as f:
-        f.write(fn_xml_content)
+        fn_lines.append('</w:footnotes>')
+        fn_xml_content = "\n".join(fn_lines)
 
-    # 5. Update settings.xml: ensure compatibilityMode = 15 (Word 2013+ modern Bidi layout)
+        with open(os.path.join(temp_dir, "word", "footnotes.xml"), 'w', encoding='utf-8') as f:
+            f.write(fn_xml_content)
+
+    # 6. Update settings.xml: ensure compatibilityMode = 15 (Word 2013+ modern Bidi layout)
     settings_file = os.path.join(temp_dir, "word", "settings.xml")
     if os.path.exists(settings_file):
         with open(settings_file, 'r', encoding='utf-8') as f:
@@ -284,7 +406,7 @@ def pack_native_footnotes(base_docx_path, output_docx_path, footnotes_list):
         with open(settings_file, 'w', encoding='utf-8') as f:
             f.write(set_data)
 
-    # 6. Re-pack into output docx
+    # 7. Re-pack into output docx
     out_dir = os.path.dirname(output_docx_path)
     if out_dir and not os.path.exists(out_dir):
         os.makedirs(out_dir, exist_ok=True)
@@ -304,39 +426,32 @@ def pack_native_footnotes(base_docx_path, output_docx_path, footnotes_list):
 def build_proposal_document(data: dict, output_path: str):
     doc = docx.Document()
     
-    # Set standard page margins (2.5 cm on all sides)
+    # Set standard page margins (2.5 cm on all sides) & Section RTL
     for section in doc.sections:
         section.top_margin = Inches(0.98)
         section.bottom_margin = Inches(0.98)
         section.right_margin = Inches(1.18)
         section.left_margin = Inches(0.98)
+        sectPr = section._sectPr
+        bidi_s = sectPr.find(qn('w:bidi'))
+        if bidi_s is None:
+            sectPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")}/>'))
         
     # --- Header / Title (Strictly RTL & Right-Aligned, clean academic header) ---
     p_header = doc.add_paragraph()
-    set_paragraph_bidi(p_header, WD_ALIGN_PARAGRAPH.RIGHT)
-    p_header.paragraph_format.space_before = Pt(8)
-    p_header.paragraph_format.space_after = Pt(4)
+    set_strict_pPr(p_header, space_before=8, space_after=4, jc_val='right')
     add_run(p_header, "طرح پژوهش پایان‌نامه کارشناسی ارشد / رساله دکتری (پروپوزال)", font_fa='B Nazanin', size=10.5, bold=False)
     
     title_fa = data.get("title", "عنوان پژوهش تعیین نشده است")
     p_title = doc.add_paragraph()
-    set_paragraph_bidi(p_title, WD_ALIGN_PARAGRAPH.RIGHT)
-    p_title.paragraph_format.space_before = Pt(4)
-    p_title.paragraph_format.space_after = Pt(12)
-    pPr_t = p_title._p.get_or_add_pPr()
-    keepNext_t = OxmlElement('w:keepNext')
-    pPr_t.append(keepNext_t)
-    pStyle_t = OxmlElement('w:pStyle')
-    pStyle_t.set(qn('w:val'), 'Heading1')
-    pPr_t.append(pStyle_t)
+    set_strict_pPr(p_title, style_val='Heading1', keep_next=True, space_before=4, space_after=12, jc_val='right')
     add_run(p_title, f"عنوان طرح: {title_fa}", font_fa='B Titr', size=16, bold=True)
     
     # Metadata Block (Strictly RTL & Right-Aligned)
     meta = data.get("metadata", {})
     if meta:
         p_meta = doc.add_paragraph()
-        set_paragraph_bidi(p_meta, WD_ALIGN_PARAGRAPH.RIGHT)
-        p_meta.paragraph_format.space_after = Pt(14)
+        set_strict_pPr(p_meta, space_before=0, space_after=14, jc_val='right')
         meta_items = [
             f"دانشجو: {meta.get('student', 'نام دانشجو')}",
             f"استاد راهنما: {meta.get('supervisor', 'نام استاد راهنما')}",
@@ -454,11 +569,9 @@ def build_proposal_document(data: dict, output_path: str):
     add_section_heading(doc, "۸. فهرست منابع و مآخذ (References - APA 7th Edition)", level=2)
     refs = data.get("references", [])
     for ref in refs:
+        is_latin = any(ord(c) < 128 for c in ref[:10])
         p_ref = doc.add_paragraph()
-        set_paragraph_bidi(p_ref, WD_ALIGN_PARAGRAPH.LEFT if any(ord(c) < 128 for c in ref[:10]) else WD_ALIGN_PARAGRAPH.RIGHT)
-        p_ref.paragraph_format.left_indent = Inches(0.3)
-        p_ref.paragraph_format.first_line_indent = Inches(-0.3)
-        p_ref.paragraph_format.space_after = Pt(4)
+        set_strict_pPr(p_ref, is_bidi=not is_latin, space_after=4, left_indent=0.3, hanging_indent=0.3, jc_val='left' if is_latin else 'right')
         add_run(p_ref, ref, font_fa='B Nazanin', font_en='Times New Roman', size=10)
         
     footnotes = data.get("footnotes", [])
