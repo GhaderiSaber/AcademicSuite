@@ -22,56 +22,124 @@ Activate this skill when:
 1. The user asks to write, refine, or review a **graduate research proposal (پروپوزال / طرح تحقیق)**.
 2. The user needs help formulating **hypotheses (فرضیه‌ها)**, **objectives (اهداف)**, or **conceptual and operational definitions (تعاریف نظری و عملیاتی)**.
 3. The user needs to draft **Chapter 1 (کلیات پژوهش)** or **Chapter 3 (روش‌شناسی پژوهش)** of a thesis.
-4. The user needs sample size calculation logic (G*Power or Krejcie-Morgan) and selection of standardized Persian psychometric instruments.
+4. The user needs sample size calculation logic (G*Power, Kline/Hair 10-20x rule, or Krejcie-Morgan) and selection of standardized Persian psychometric instruments.
+5. The user needs to formulate the methodology for **scale validation, psychometric adaptation, or test standardization (هنجاریابی و اعتبارسنجی مقیاس)**.
 
 ---
 
-## 2. Proposal Architecture & Key Components
+## 2. Mandatory Writing Style: Continuous Academic Prose (سیاست نثر پیوسته و آکادمیک)
+
+> [!IMPORTANT]
+> **STRICT BAN ON FRAGMENTED BULLET-POINT PARAGRAPHS:**
+> Real, approved Iranian university proposals (in psychology, counseling, and behavioral sciences) are written in **mature, continuous, and connected academic paragraphs (نثر پیوسته، فخیم، منسجم و دانشگاهی)**. 
+> - **NEVER** output fragmented bullet outlines or clipped, telegraphic notes for the problem statement, significance, methodology, validity, reliability, or statistical analysis.
+> - **Every section must consist of full, well-developed paragraphs** with complete verbal predicates (جملات کامل با ترکیب‌های نحوی غنی دانشگاهی), theoretical depth, and formal transitional connectors (e.g., «بدین منظور...»، «در وهله نخست...»، «در ادامه جهت راستی‌آزمایی ساختار عاملی...»، «افزون بر این...»، «بر این اساس...»).
+> - Bullet points are **ONLY** permitted for itemized inclusion/exclusion criteria or demographic variable lists, and even in those cases, items must be grammatically complete sentences.
+> - Eliminate robotic generative AI cliches (*«شایان ذکر است که»*, *«در این راستا»*, *«به طور کلی می‌توان گفت»*, *«این امر نشان‌دهنده آن است که»*) and enforce proper Persian half-spaces (نیم‌فاصله).
+
+---
+
+## 3. Footnote & Terminology Standards (قواعد پانویس‌نویسی اصطلاحات و منابع)
+
+Proposals must strictly adhere to the academic footnote rules adopted across the suite (`persian-thesis-builder` and `persian-academic-translation`):
+
+1. **Footnote English Equivalents Instead of In-Text Parentheses (پانویس اصطلاحات به جای پرانتز در متن)**:
+   - **DO NOT** clutter Persian body text with Latin phrases or abbreviations inside parentheses (e.g., avoid «عدم تحمل بلاتکلیفی (Intolerance of Uncertainty - IU)» or «تحلیل عاملی تأییدی (CFA)» in running text).
+   - Write fluent Persian equivalents in the body text and place authentic English terms and acronyms in **footnotes (پانویس)** on their **first mention**:
+     - *In Text*: «بدخبرگردی[^1]» $\rightarrow$ *Footnote*: `[^1]: Doomscrolling`
+     - *In Text*: «تحلیل عاملی اکتشافی[^2]» $\rightarrow$ *Footnote*: `[^2]: Exploratory Factor Analysis (EFA)`
+     - *In Text*: «تحلیل عاملی تأییدی[^3]» $\rightarrow$ *Footnote*: `[^3]: Confirmatory Factor Analysis (CFA)`
+     - *In Text*: «کمیسیون بین‌المللی آزمون‌ها[^4]» $\rightarrow$ *Footnote*: `[^4]: International Test Commission (ITC)`
+2. **Transliterate Latin Authors in Persian Text + Footnote on First Occurrence (پانویس نام مؤلفان خارجی در نخستین ارجاع)**:
+   - In running text, foreign author names are transliterated into Persian, followed by year in parentheses: e.g., «شارما و همکاران[^5] (2022)».
+   - Attach a footnote containing the original Latin author surname(s) on the **first occurrence only**:
+     - *Footnote*: `[^5]: Sharma et al.`
+     - *Footnote*: `[^6]: Kline`
+     - *Footnote*: `[^7]: Hair et al.`
+     - *Footnote*: `[^8]: Lawshe`
+     - *Footnote*: `[^9]: Waltz & Bausell`
+     - *Footnote*: `[^10]: Fornell & Larcker`
+3. **Strict "First Occurrence Only" Rule (قاعده عدم تکرار پانویس)**:
+   - Footnote each unique specialized term, scale, and author **exactly once** in the entire document.
+   - On all subsequent occurrences, use solely the established Persian transliteration/term without adding redundant footnote markers.
+4. **Unified Footnote Stream (جریان یکپارچه شماره‌گذاری)**:
+   - Both in-text references (Latin author names) and technical terminology share a single continuous sequential footnote stream (۱، ۲، ۳...).
+5. **Quote & Punctuation Placement (محل قرارگیری پانویس نسبت به گیومه و علائم نگارشی)**:
+   - Footnote markers must always appear **immediately AFTER closing quotation marks or punctuation** (e.g., «بدخبرگردی»[^1] or «آزمون فرضیه»،[^2] — NEVER inside `«بدخبرگردی[^1]»`). Placing footnote tokens inside quotation marks splits the run and causes punctuation inversion.
+6. **Native OpenXML Word Implementation (قواعد فنی تولید در Word)**:
+   - Footnotes in `.docx` must be compiled as **true native OpenXML Word Footnotes** (`<w:footnoteReference>` linked to `word/footnotes.xml`), **never** raw bracket characters like `[^1]`.
+   - In-text references must use Persian numerals (`<w:rStyle w:val="FootnoteReference"/>`, `<w:rtl/>`, `<w:lang w:val="fa-IR"/>`).
+   - Footnote text in `footnotes.xml` must be Left-aligned (`<w:jc w:val="left"/>`), font `Times New Roman` 9.5 pt, single line spacing.
+   - **Crucial BiDi Line-Break Prevention**: Every single Persian text run (`<w:r>`) in paragraphs containing footnotes must explicitly include `<w:rtl/>` in its `<w:rPr>` to prevent Word's layout engine from prematurely breaking lines around footnote markers.
+   - `compatibilityMode = 15` in `word/settings.xml` must be set for modern Word layout engines.
+
+---
+
+## 4. Proposal Architecture & Key Components
 
 The proposal follows the standard Iranian university template:
 
 | Section | Title in Persian | Purpose & Core Content |
 | :--- | :--- | :--- |
 | **Header** | **اطلاعات عمومی طرح** | Exact title (Persian & English), Student, Supervisor, and Advisor details. |
-| **Section 1** | **بیان مسئله اساسی** | Inverted Triangle: Context $\to$ Construct definitions $\to$ Pathology/Prevalence in Iran $\to$ Research gap $\to$ Study purpose. |
-| **Section 2** | **اهمیت و ضرورت** | Theoretical necessity (deepening scientific literature) and Practical necessity (applications for clinics, schools, organizations). |
+| **Section 1** | **بیان مسئله اساسی** | Inverted Triangle: Context $\to$ Construct definitions $\to$ Pathology/Prevalence in Iran $\to$ Research gap $\to$ Study purpose (in full continuous prose). |
+| **Section 2** | **اهمیت و ضرورت** | Theoretical necessity (deepening scientific literature) and Practical necessity (applications for clinics, schools, organizations) in separate cohesive paragraphs. |
 | **Section 3** | **اهداف پژوهش** | General objective (هدف کلی) + Specific objectives (اهداف اختصاصی/ویژه). |
 | **Section 4** | **فرضیه‌ها و سؤالات** | Directional hypotheses (فرضیه‌های جهت‌دار) for all direct, comparative, and mediation pathways. |
-| **Section 5** | **تعاریف نظری و عملیاتی** | **نظری**: Citation of original theorist. **عملیاتی**: Specific questionnaire score and scoring range. |
-| **Section 6** | **روش‌شناسی پژوهش** | Research design, Target population, Sampling (G*Power / Krejcie-Morgan), Psychometric instruments with Iranian validity/reliability, Execution procedure, and Statistical analysis plan. |
-| **Section 7** | **ملاحظات اخلاقی** | Informed consent, confidentiality, right to withdraw, ethics code compliance. |
+| **Section 5** | **تعاریف نظری و عملیاتی** | **نظری**: Continuous paragraph citing original theorist. **عملیاتی**: Full paragraph explaining the exact questionnaire, Likert range, min/max score, and interpretation. |
+| **Section 6** | **روش‌شناسی پژوهش** | Research design, Target population, Sampling logic (G*Power & Kline/Hair ratios), Psychometric instruments with bilingual tables, Cultural adaptation protocol, Validity protocol (Face, CVR, CVI, EFA, CFA), Reliability protocol (Alpha, Omega, Test-Retest ICC), and Statistical analysis plan (SPSS & AMOS). |
+| **Section 7** | **ملاحظات اخلاقی** | Informed consent, confidentiality, right to withdraw, Helsinki code compliance. |
 | **Section 8** | **منابع و مآخذ** | APA 7th Edition bilingual bibliography (Persian and English). |
 
 ---
 
-## 3. Methodological Design Guardrails
+## 5. Methodological Design Guardrails by Study Type
 
-### A. Title Formulation Rules
-- Must include the **Independent Variable(s)**, **Mediator/Moderator** (if any), **Dependent Variable(s)**, and the **Target Population**.
-- Example: «اثربخشی درمان مبتنی بر پذیرش و تعهد (ACT) بر انعطاف‌پذیری روان‌شناختی و اضطراب مرگ در بیماران مبتلا به سرطان پستان»
+### A. Scale Standardization & Psychometric Adaptation (طرح‌های هنجاریابی و روان‌سنجی)
+For proposals validating, adapting, or standardizing a psychometric instrument:
+1. **Research Design**: Fundamental-applied, descriptive psychometric and cross-sectional scale validation design adhering to International Test Commission (ITC, 2017) and WHO guidelines.
+2. **Sample Size Determination**:
+   - Rule of thumb (Kline, 2016; Hair et al., 2019): 10 to 20 participants per item/observed variable (e.g., 15 items $\to$ 150–300 participants).
+   - Cross-Validation / Split-Half logic: Recommended total $N = 350–400$, enabling division into two independent subsamples ($N_1 \approx 175$ for EFA, and $N_2 \approx 175$ for CFA).
+   - Statistical power: G*Power 3.1 justification ($\alpha = .05, 1-\beta = .95$, medium effect size $w = .30$ or $f^2 = .15$).
+3. **Cross-Cultural Adaptation Protocol**:
+   - 4-stage Forward-Backward Translation Protocol (Forward translation by 2 independent experts $\to$ Synthesis & reconciliation $\to$ Backward translation to English by 2 blind bilinguals $\to$ Harmonization & expert committee review).
+4. **Validity Protocol**:
+   - **Face Validity**: Qualitative (10–15 target users) + Quantitative (Item Impact Score $\ge 1.5$ on 5-point importance scale).
+   - **Content Validity**: Qualitative (expert panel of 10–15 university professors) + Quantitative (Lawshe's CVR with formula and cut-off table, e.g., CVR $> 0.49$ for 15 experts; and Waltz & Bausell CVI with $I-CVI \ge 0.78$ and $S-CVI/Ave \ge 0.90$).
+   - **Construct Validity**: 
+     * EFA: KMO ($\ge .80$), Bartlett's Test of Sphericity ($p < .001$), Maximum Likelihood or PAF extraction, Promax/Varimax rotation, Scree plot, minimum loading $\ge .40$.
+     * CFA: Structural equation modeling in AMOS/LISREL with multi-index fit thresholds ($\chi^2/df < 3.0$, $CFI \ge .95$, $TLI \ge .95$, $RMSEA \le .06$, $SRMR \le .08$).
+     * Convergent & Discriminant: Fornell & Larcker criteria ($AVE \ge .50, CR \ge .70$) and criterion validity with Pearson correlation against established scales.
+5. **Reliability Protocol**:
+   - Internal Consistency: Cronbach's $\alpha \ge .80$ and McDonald's $\omega \ge .80$ (essential modern psychometrics), plus corrected item-total correlation $> .40$.
+   - Temporal Stability: Test-Retest on a 30–50 participant subsample with 2–4 weeks interval and Intraclass Correlation Coefficient ($ICC \ge .75$ under Two-way Random Effects Model).
+6. **Data Analysis Plan**:
+   - Descriptive statistics (Mean, SD, Skewness and Kurtosis within $\pm 2$ for normality screening, frequency/percentage distributions).
+   - Inferential statistics (KMO, Bartlett, EFA, CFA, CVR, CVI, Pearson r, Cronbach's alpha, McDonald's omega, ICC).
+   - Software specification: SPSS 28 and AMOS 26.
 
-### B. Sample Size Determination
-- **Correlational / SEM**: Minimum $N = 200–350$ (or 10–20 participants per observed variable).
-- **Experimental / Interventions**: Minimum 15–20 participants per group (Experimental vs. Control) calculated via G*Power ($\alpha = .05$, Power $= .80$, medium effect size $f = .25$).
+### B. Correlational / Structural Equation Modeling (طرح‌های همبستگی و معادلات ساختاری)
+- Sample size: Minimum $N = 200–350$ or 10–20 participants per observed variable.
+- Instruments: Query `Questionnaires.xlsx` for validated Persian scales with reported Iranian alpha and validity.
+- Analysis: SPSS for descriptive/correlations, AMOS for SEM path analysis, bootstrap mediation (5,000 resamples).
 
-### C. Instrument Reporting Standard
-For every questionnaire selected, query `Questionnaires.xlsx` and the Google Drive master library via `questionnaire_resolver.py search "<scale_name>"`:
-1. Full name (English and Persian), author, and year of origin.
-2. Number of items and exact Likert response scale (e.g., 5-point Likert from 1 = Strongly Disagree to 5 = Strongly Agree).
-3. Subscale dimensions and item mappings.
-4. Theoretical score ranges (Min, Max, Theoretical Mean) and reverse-scored items.
-5. Reliability (Cronbach's $\alpha$) and validity in original and Iranian standardization studies.
+### C. Experimental / Intervention Studies (طرح‌های آزمایشی و نیمه‌آزمایشی)
+- Design: Pretest-posttest with control group (and optional follow-up).
+- Sample size: Minimum 15–20 participants per group calculated via G*Power 3.1 ($F$-test ANCOVA, $\alpha = .05$, Power $= .80$, $f = .25$).
+- Protocol: Standardized clinical manual (ACT, CBT, Mindfulness) summarized session by session.
+- Analysis: Univariate or Multivariate Analysis of Covariance (ANCOVA/MANCOVA) in SPSS after testing assumptions (homogeneity of regression slopes, Levene's test, Shapiro-Wilk).
 
 ---
 
-## 4. Execution Workflow
+## 6. Execution Workflow
 
 1. **Intake Research Variables**:
-   Gather the research topic, independent/dependent variables, target population, and proposed intervention or correlational design.
+   Gather the research topic, variables, target population, and proposed design.
 2. **Consult Reference Guides**:
-   - Read [proposal_structure_guide.md](file:///Users/saber/Desktop/AntigravitySkills/.agents/skills/persian-proposal-builder/references/proposal_structure_guide.md) for structural standards.
-3. **Formulate Proposal Content JSON**:
-   Prepare a structured JSON containing problem statement, significance, objectives, hypotheses, definitions, instruments, and sampling.
+   - Read [proposal_structure_guide.md](file:///Users/saber/.gemini/config/plugins/academic_suite/skills/persian-proposal-builder/references/proposal_structure_guide.md) for detailed structural standards and continuous prose models.
+3. **Formulate Comprehensive Continuous Prose**:
+   Draft every section in mature, flowing academic paragraphs adhering to Section 2 and Section 4 above.
 4. **Generate Word Document**:
    Run the document generation script:
    ```bash
@@ -80,4 +148,4 @@ For every questionnaire selected, query `Questionnaires.xlsx` and the Google Dri
      --out "پروپوزال_طرح_پژوهش.docx"
    ```
 5. **Quality Review**:
-   Verify Persian typography (*B Titr* for headings, *B Nazanin* 13 pt for body text, 1.25 line spacing, RTL OpenXML flags).
+   Verify Persian typography (*B Titr* for headings, *B Nazanin* 12–13 pt for body text, 1.35 line spacing, 0.35-inch first-line indent, RTL OpenXML flags, and zero trailing page spillovers).
