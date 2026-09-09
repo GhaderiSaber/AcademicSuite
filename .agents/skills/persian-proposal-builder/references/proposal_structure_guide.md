@@ -38,7 +38,26 @@ Proposals adhere to the academic footnote rules from `persian-thesis-builder` an
 
 ---
 
-## 3. Standard Proposal Architecture Overview
+## 3. Heading Hierarchy & Typography Standards (قواعد عناوین، تیترها و سربرگ‌ها)
+
+Adheres strictly to the typography and layout rules in `persian-thesis-builder`:
+
+| المان | قلم (Font) | اندازه (Size) | تراز و جهت (Alignment) | فاصله‌گذاری (Spacing) | توضیحات OpenXML |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **عنوان سند / طرح (Heading 1)** | B Titr | 16pt یا 18pt | راست‌چین (RTL) | قبل ۲۴pt، بعد ۱۴pt | `<w:pStyle w:val="Heading1"/>`، بدون پیش‌عنوان زائد دولتی/نهادی |
+| **تیترهای اصلی بخش‌ها (Heading 2)** | B Titr | 14pt | راست‌چین (RTL) | قبل ۱۴pt، بعد ۶pt | `<w:pStyle w:val="Heading2"/>`، `<w:keepNext/>` |
+| **تیترهای فرعی (Heading 3)** | B Nazanin Bold | 13pt | راست‌چین (RTL) | قبل ۸-۱۰pt، بعد ۴pt | `<w:pStyle w:val="Heading3"/>`， `<w:keepNext/>` |
+| **متن پاراگراف‌ها (Normal)** | B Nazanin | 12-13pt | تراز دوطرفه (Justified) | خطوط ۱.۱۵ الی ۱.۳۵ | تورفتگی خط اول ۰.۳۵ اینچ، `<w:bidi w:val="1"/>` |
+| **سربرگ سند (Header)** | B Nazanin | 9-10pt | راست‌چین (RTL) | تک‌خطی | حذف پیش‌عنوان‌های کلیشه‌ای (نظیر «جمهوری اسلامی ایران —») |
+
+### الزامات اساسی تیترها:
+1. **جهت‌داری راست‌به‌چپ (RTL)**: کلیه تیترها، عناوین و سربرگ‌ها باید اکیداً راست‌چین و دارای ویژگی `<w:bidi w:val="1"/>` باشند.
+2. **پشتیبانی از نمای ناوبری Word**: با انتساب صریح سبک‌های `Heading 1`، `Heading 2` و `Heading 3`، عناوین در پنجره Navigation Pane نرم‌افزار Word قابل مشاهده و جهش سریع خواهند بود.
+3. **جلوگیری از یتیم‌شدن تیترها (`keepNext`)**: ویژگی `<w:keepNext/>` بر روی تمامی تیترها فعال می‌شود تا هیچ تیتری در انتهای صفحه بدون پاراگراف ذیل خود باقی نماند.
+
+---
+
+## 4. Standard Proposal Architecture Overview
 
 ```text
 پروپوزال طرح پژوهش
@@ -64,7 +83,7 @@ Proposals adhere to the academic footnote rules from `persian-thesis-builder` an
 
 ---
 
-## 4. Section-by-Section Drafting Blueprint
+## 5. Section-by-Section Drafting Blueprint
 
 ### A. Statement of the Problem (بیان مسئله اساسی)
 Must follow the **Inverted Triangle Model (مدل هرم وارونه)** in continuous prose:
@@ -85,7 +104,7 @@ Must develop two distinct, robust paragraphs:
 
 ---
 
-## 5. Methodology Blueprints by Study Archetype
+## 6. Methodology Blueprints by Study Archetype
 
 ### Archetype 1: Scale Standardization & Psychometric Adaptation (هنجاریابی و اعتبارسنجی مقیاس)
 1. **Design**: Descriptive psychometric cross-sectional validation conforming to International Test Commission (ITC, 2017) guidelines.
@@ -123,11 +142,14 @@ Must develop two distinct, robust paragraphs:
 
 ---
 
-## 6. Proposal Acceptance Defense Checklist (چک‌لیست کنترل کیفیت پیش از تحویل)
+## 7. Proposal Acceptance Defense Checklist (چک‌لیست کنترل کیفیت پیش از تحویل)
 
 Before submitting or sharing proposals:
 - [ ] Title accurately reflects Independent, Dependent, and Target Population.
 - [ ] Problem Statement follows the inverted triangle model in continuous prose without fragmented bullet points.
+- [ ] Header and titles are strictly RTL and Right-aligned without redundant political/state prefixes.
+- [ ] Major Section Headings use `B Titr` 14pt Bold, Right-aligned, `<w:pStyle w:val="Heading2"/>`, and `<w:keepNext/>`.
+- [ ] Subheadings use `B Nazanin Bold` 13pt Bold (or `B Titr` 12pt Bold), Right-aligned, `<w:pStyle w:val="Heading3"/>`, and `<w:keepNext/>`.
 - [ ] Footnote English equivalents instead of in-text parentheses on first mention (`[^1]: Doomscrolling`).
 - [ ] Transliterate foreign authors in Persian with Latin surname footnoted on first mention only (`[^2]: Sharma et al.`).
 - [ ] Enforce the "First Occurrence Only" rule and maintain a single continuous footnote numbering stream.

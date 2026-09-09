@@ -116,12 +116,50 @@ def add_body_paragraph(doc, text, first_line_indent=0.35, line_spacing=1.35, spa
     return p
 
 def add_section_heading(doc, text, level=2):
+    """
+    Adds standard academic section headings conforming to persian-thesis-builder:
+    - Level 1: B Titr 16pt Bold, Right-aligned, space_before 24pt, space_after 14pt, Heading1, keepNext
+    - Level 2: B Titr 14pt Bold, Right-aligned, space_before 14pt, space_after 6pt, Heading2, keepNext
+    - Level 3: B Nazanin Bold 13pt Bold, Right-aligned, space_before 8pt, space_after 4pt, Heading3, keepNext
+    - Level 4: B Nazanin Bold 12pt Bold, Right-aligned, space_before 6pt, space_after 2pt, Heading4, keepNext
+    """
     p = doc.add_paragraph()
-    set_paragraph_bidi(p)
-    p.paragraph_format.space_before = Pt(14)
-    p.paragraph_format.space_after = Pt(6)
-    size = 14 if level == 2 else 13
-    font = 'B Titr' if level == 2 else 'B Nazanin'
+    set_paragraph_bidi(p, WD_ALIGN_PARAGRAPH.RIGHT)
+    
+    if level == 1:
+        p.paragraph_format.space_before = Pt(24)
+        p.paragraph_format.space_after = Pt(14)
+        size = 16
+        font = 'B Titr'
+        style_val = "Heading1"
+    elif level == 2:
+        p.paragraph_format.space_before = Pt(14)
+        p.paragraph_format.space_after = Pt(6)
+        size = 14
+        font = 'B Titr'
+        style_val = "Heading2"
+    elif level == 3:
+        p.paragraph_format.space_before = Pt(8)
+        p.paragraph_format.space_after = Pt(4)
+        size = 13
+        font = 'B Nazanin'
+        style_val = "Heading3"
+    else:
+        p.paragraph_format.space_before = Pt(6)
+        p.paragraph_format.space_after = Pt(2)
+        size = 12
+        font = 'B Nazanin'
+        style_val = "Heading4"
+        
+    pPr = p._p.get_or_add_pPr()
+    # Enforce keepNext to prevent orphan headings at bottom of page
+    keepNext = OxmlElement('w:keepNext')
+    pPr.append(keepNext)
+    # Enforce Word Navigation Pane Heading style
+    pStyle = OxmlElement('w:pStyle')
+    pStyle.set(qn('w:val'), style_val)
+    pPr.append(pStyle)
+    
     add_run(p, text, font_fa=font, size=size, bold=True)
     return p
 
@@ -273,25 +311,31 @@ def build_proposal_document(data: dict, output_path: str):
         section.right_margin = Inches(1.18)
         section.left_margin = Inches(0.98)
         
-    # --- Header / Title ---
+    # --- Header / Title (Strictly RTL & Right-Aligned, clean academic header) ---
     p_header = doc.add_paragraph()
-    set_paragraph_bidi(p_header, WD_ALIGN_PARAGRAPH.CENTER)
-    p_header.paragraph_format.space_before = Pt(10)
+    set_paragraph_bidi(p_header, WD_ALIGN_PARAGRAPH.RIGHT)
+    p_header.paragraph_format.space_before = Pt(8)
     p_header.paragraph_format.space_after = Pt(4)
-    add_run(p_header, "طرح پژوهش پایان‌نامه کارشناسی ارشد / رساله دکتری (پروپوزال)", font_fa='B Titr', size=15, bold=True)
+    add_run(p_header, "طرح پژوهش پایان‌نامه کارشناسی ارشد / رساله دکتری (پروپوزال)", font_fa='B Nazanin', size=10.5, bold=False)
     
     title_fa = data.get("title", "عنوان پژوهش تعیین نشده است")
     p_title = doc.add_paragraph()
-    set_paragraph_bidi(p_title, WD_ALIGN_PARAGRAPH.CENTER)
-    p_title.paragraph_format.space_before = Pt(6)
-    p_title.paragraph_format.space_after = Pt(14)
-    add_run(p_title, f"عنوان: {title_fa}", font_fa='B Titr', size=13.5, bold=True)
+    set_paragraph_bidi(p_title, WD_ALIGN_PARAGRAPH.RIGHT)
+    p_title.paragraph_format.space_before = Pt(4)
+    p_title.paragraph_format.space_after = Pt(12)
+    pPr_t = p_title._p.get_or_add_pPr()
+    keepNext_t = OxmlElement('w:keepNext')
+    pPr_t.append(keepNext_t)
+    pStyle_t = OxmlElement('w:pStyle')
+    pStyle_t.set(qn('w:val'), 'Heading1')
+    pPr_t.append(pStyle_t)
+    add_run(p_title, f"عنوان طرح: {title_fa}", font_fa='B Titr', size=16, bold=True)
     
-    # Metadata Block
+    # Metadata Block (Strictly RTL & Right-Aligned)
     meta = data.get("metadata", {})
     if meta:
         p_meta = doc.add_paragraph()
-        set_paragraph_bidi(p_meta, WD_ALIGN_PARAGRAPH.CENTER)
+        set_paragraph_bidi(p_meta, WD_ALIGN_PARAGRAPH.RIGHT)
         p_meta.paragraph_format.space_after = Pt(14)
         meta_items = [
             f"دانشجو: {meta.get('student', 'نام دانشجو')}",
@@ -299,7 +343,7 @@ def build_proposal_document(data: dict, output_path: str):
             f"استاد مشاور: {meta.get('advisor', 'نام استاد مشاور')}",
             f"رشته و گرایش: {meta.get('field', 'روان‌شناسی')}"
         ]
-        add_run(p_meta, " | ".join(meta_items), font_fa='B Nazanin', size=10.5, bold=True)
+        add_run(p_meta, " | ".join(meta_items), font_fa='B Nazanin', size=10, bold=False)
         
     # --- 1. Problem Statement ---
     add_section_heading(doc, "۱. بیان مسئله اساسی پژوهش (Problem Statement)", level=2)

@@ -75,7 +75,38 @@ Proposals must strictly adhere to the academic footnote rules adopted across the
 
 ---
 
-## 4. Proposal Architecture & Key Components
+## 4. Typography, Heading Hierarchy & Header Standards (قواعد عناوین، تیترها و سربرگ‌ها)
+
+Proposals must strictly adhere to the academic heading and typography hierarchy established in `persian-thesis-builder`:
+
+### A. Heading Hierarchy & Font Specifications
+
+| Level / Element | Persian Name | Font & Weight | Size | Alignment & Direction | Spacing (Before / After) | OpenXML Specification |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Document Title (`Heading 1`)** | عنوان اصلی طرح / سربرگ | `B Titr` Bold | 16–18 pt | **Right-aligned (RTL)** | Before: 24–28 pt, After: 14–18 pt | `<w:pStyle w:val="Heading1"/>`, `<w:keepNext/>`, `<w:bidi w:val="1"/>`, `<w:jc w:val="right"/>` |
+| **Major Sections (`Heading 2`)** | تیترهای اصلی بخش‌ها (۱، ۲، ۳...) | `B Titr` Bold | 14 pt | **Right-aligned (RTL)** | Before: 14 pt, After: 6 pt | `<w:pStyle w:val="Heading2"/>`, `<w:keepNext/>`, `<w:bidi w:val="1"/>`, `<w:jc w:val="right"/>` |
+| **Subsections (`Heading 3`)** | تیترهای فرعی (۱-۱، ۲-۱...) | `B Nazanin Bold` (or `B Titr`) | 13 pt (or 12 pt Titr) | **Right-aligned (RTL)** | Before: 8–10 pt, After: 4 pt | `<w:pStyle w:val="Heading3"/>`, `<w:keepNext/>`, `<w:bidi w:val="1"/>`, `<w:jc w:val="right"/>` |
+| **Sub-subsections (`Heading 4`)** | زیرتیترهای خرد | `B Nazanin Bold` | 12 pt | **Right-aligned (RTL)** | Before: 6 pt, After: 2 pt | `<w:pStyle w:val="Heading4"/>`, `<w:keepNext/>`, `<w:bidi w:val="1"/>`, `<w:jc w:val="right"/>` |
+| **Body Paragraphs (`Normal`)** | متن اصلی پاراگراف‌ها | `B Nazanin` Regular | 12.5–13.5 pt | **Justified (RTL)** | Line spacing: 1.25–1.35, After: 6 pt | `<w:bidi w:val="1"/>`, `<w:jc w:val="both"/>`, First Line Indent: 0.35 in |
+| **Table & Figure Captions** | عنوان جداول و نمودارها | `B Nazanin Bold` | 11 pt | **Right-aligned (RTL)** | Before: 8 pt, After: 4 pt | Titles above tables; notes/sources below tables |
+| **Document / Page Header** | سربرگ صفحه و عنوان بالایی | `B Nazanin` Regular | 9–10 pt | **Right-aligned (RTL)** | Single line, clean academic | `<w:bidi w:val="1"/>`, `<w:jc w:val="right"/>`, zero political prefixes |
+
+### B. Core Structural & OpenXML Directives
+
+1. **Strictly RTL & Right-Aligned Headers (راست‌چین بودن کامل سربرگ و عناوین)**:
+   - All document titles, banner titles, section headers, and running page headers must be strictly Right-to-Left (RTL) and **Right-aligned** (`WD_ALIGN_PARAGRAPH.RIGHT` in DOCX, `direction: rtl; text-align: right;` in HTML/CSS).
+   - Ragged left, centered banners, or LTR alignments are unacceptable for Persian academic proposals.
+2. **Elimination of State / Political Pre-Titles (حذف پیش‌عنوان‌های زائد دولتی)**:
+   - Never insert generic or political pre-titles such as «جمهوری اسلامی ایران —» or bureaucratic government slogans in proposal headers.
+   - Use clean, authoritative academic headers: «طرح پژوهش پایان‌نامه کارشناسی ارشد (پروپوزال)» or «راهنمای تخصصی تدوین بخش روش‌شناسی و تحلیل آماری طرح پژوهش».
+3. **Native Word Navigation Pane Integration (`<w:pStyle>`)**:
+   - Every heading must be linked to standard Word heading styles (`Heading 1`, `Heading 2`, `Heading 3`) so that university review panels and supervisors can navigate the proposal structure seamlessly using Word's Navigation Pane (`نمای نقشه سند`).
+4. **Orphan Heading Prevention (`<w:keepNext/>`)**:
+   - In OpenXML, all heading paragraphs must enforce `<w:keepNext/>` (`p.paragraph_format.keep_with_next = True` or XML node insertion). This ensures a heading never sits isolated at the bottom of a page without at least two lines of the following narrative text.
+5. **Dual Font Binding Protection (`<w:rFonts>`)**:
+   - Every heading run must enforce `<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="B Titr" w:eastAsia="B Titr"/>` to prevent Word fallback engines on macOS/Windows from substituting headings with system fonts like Arial or Calibri.
+
+## 5. Proposal Architecture & Key Components
 
 The proposal follows the standard Iranian university template:
 
@@ -93,7 +124,7 @@ The proposal follows the standard Iranian university template:
 
 ---
 
-## 5. Methodological Design Guardrails by Study Type
+## 6. Methodological Design Guardrails by Study Type
 
 ### A. Scale Standardization & Psychometric Adaptation (طرح‌های هنجاریابی و روان‌سنجی)
 For proposals validating, adapting, or standardizing a psychometric instrument:
