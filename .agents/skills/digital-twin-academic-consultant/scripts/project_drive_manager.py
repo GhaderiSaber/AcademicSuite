@@ -20,8 +20,10 @@ import sys
 import glob
 import json
 import html
+import difflib
+import unicodedata
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 
 # Standard 4-Tier Subfolder Taxonomy
 SUBFOLDERS = {
@@ -79,6 +81,78 @@ def clean_drive_display_path(full_path: str) -> str:
     if len(parts) >= 2:
         return f"{parts[-2]}/{parts[-1]}"
     return parts[-1] if parts else full_path
+
+
+def normalize_az_phonetic(text: str) -> str:
+    """
+    Normalize Azerbaijani Latin, Persian, and English names to a canonical phonetic key.
+    Handles Azerbaijani characters (c -> j, ş -> sh, ç -> ch, ı/İ -> i, ə -> a, ö -> o, ü -> u, q -> gh, x -> kh),
+    Persian alphabet transliteration, double consonants, and silent terminal letters.
+    """
+    if not text:
+        return ""
+    text = unicodedata.normalize("NFC", text).lower()
+
+    char_map = {
+        # Azerbaijani Latin
+        "ə": "a", "ş": "sh", "ç": "ch", "c": "j", "ı": "i", "i̇": "i", "İ": "i",
+        "ö": "o", "ü": "u", "ğ": "gh", "q": "gh", "x": "kh", "w": "v", "y": "i",
+        # Persian Alphabet
+        "ا": "a", "آ": "a", "ب": "b", "پ": "p", "ت": "t", "ث": "s",
+        "ج": "j", "چ": "ch", "ح": "h", "خ": "kh", "د": "d", "ذ": "z",
+        "ر": "r", "ز": "z", "ژ": "zh", "س": "s", "ش": "sh", "ص": "s",
+        "ض": "z", "ط": "t", "ظ": "z", "ع": "a", "غ": "gh", "ف": "f",
+        "ق": "gh", "ک": "k", "ك": "k", "گ": "g", "ل": "l", "م": "m",
+        "ن": "n", "و": "v", "ه": "h", "ة": "h", "ی": "i", "ي": "i",
+        "ئ": "i", "ء": ""
+    }
+    for k, v in char_map.items():
+        text = text.replace(k, v)
+
+    text = re.sub(r'\b(?:article|thesis|data|model|dissertation|disssertation)\b', '', text)
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    text = re.sub(r"(.)\1+", r"\1", text)
+
+    words = text.split()
+    clean_words = []
+    for w in words:
+        if w.endswith("h"):
+            w = w[:-1]
+        if w.endswith("e"):
+            w = w[:-1] + "a"
+        clean_words.append(w)
+
+    return " ".join(clean_words)
+
+
+def match_client_names(name1: str, name2: str, threshold: float = 0.85) -> Tuple[bool, float]:
+    """
+    Check if two client names match across Azerbaijani, English, or Persian transliterations.
+    Returns (is_match, similarity_score).
+    """
+    k1 = normalize_az_phonetic(name1)
+    k2 = normalize_az_phonetic(name2)
+    if not k1 or not k2:
+        return False, 0.0
+    if len(k1) < 3 or len(k2) < 3:
+        return False, 0.0
+    if k1 == k2:
+        return True, 1.0
+
+    # Substring match only if both keys are sufficiently long
+    if len(k1) >= 5 and len(k2) >= 5:
+        if k1 in k2 or k2 in k1:
+            return True, 0.95
+
+    words1 = [w for w in k1.split() if len(w) >= 3]
+    words2 = [w for w in k2.split() if len(w) >= 3]
+    if len(words1) >= 2 and all(w in k2 for w in words1):
+        return True, 0.90
+    if len(words2) >= 2 and all(w in k1 for w in words2):
+        return True, 0.90
+
+    ratio = difflib.SequenceMatcher(None, k1, k2).ratio()
+    return (ratio >= threshold), ratio
 
 
 def format_client_mention_html(client_name: str, username: Optional[str] = None, client_id: Optional[int] = None) -> str:
@@ -170,8 +244,13 @@ class ProjectDriveManager:
                 return vip
             if username and vip.get("telegram_username") and vip["telegram_username"].lstrip("@").lower() == username.lstrip("@").lower():
                 return vip
-            if client_name and sanitize_filename(client_name).lower() == sanitize_filename(vip.get("client_name", "")).lower():
-                return vip
+            if client_name:
+                v_name = vip.get("client_name", "")
+                v_fa = vip.get("client_name_fa", "")
+                m1, _ = match_client_names(client_name, v_name)
+                m2, _ = match_client_names(client_name, v_fa)
+                if m1 or m2:
+                    return vip
         return None
 
     def is_ignored(self, client_name: str, client_id: Optional[int] = None, username: Optional[str] = None) -> bool:
@@ -185,8 +264,11 @@ class ProjectDriveManager:
             return True
         if username and username.lstrip("@").lower() in reg.get("usernames", []):
             return True
-        if client_name and sanitize_filename(client_name) in reg.get("folder_names", []):
-            return True
+        if client_name:
+            for fn in reg.get("folder_names", []):
+                matched, _ = match_client_names(client_name, fn)
+                if matched:
+                    return True
         return False
 
     def find_existing_project_by_client(
@@ -194,44 +276,77 @@ class ProjectDriveManager:
     ) -> Optional[str]:
         """
         Check if a project folder already exists for this client by folder name,
-        Telegram ID, Telegram username, or VIP umbrella directory registry.
+        phonetic match across Azerbaijani/English, Telegram ID, Telegram username,
+        or VIP umbrella directory across My Work, Pending Works, and Finished Works.
         """
         # 1. VIP Umbrella Directory check
         vip = self.is_vip_client(client_name, client_id, username)
         if vip and vip.get("umbrella_dir") and os.path.isdir(vip["umbrella_dir"]):
             return vip["umbrella_dir"]
 
-        if not os.path.exists(self.work_dir):
+        drive_root = os.path.dirname(self.work_dir)
+        search_roots = [
+            self.work_dir,
+            os.path.join(self.work_dir, "Pending Works"),
+            os.path.join(drive_root, "Pending Works"),
+            os.path.join(drive_root, "Finished Works")
+        ]
+        valid_roots = [r for r in search_roots if os.path.isdir(r)]
+        if not valid_roots:
             return None
 
         clean_name = sanitize_filename(client_name)
+
+        # 2. Check exact path in work_dir first
         exact_path = os.path.join(self.work_dir, clean_name)
         if os.path.isdir(exact_path):
             return exact_path
 
-        # Scan all directories in work_dir for matching metadata
-        for folder in os.listdir(self.work_dir):
-            folder_path = os.path.join(self.work_dir, folder)
-            if not os.path.isdir(folder_path):
-                continue
+        # 3. Search across all valid roots (My Work, Pending Works, Finished Works)
+        best_match = None
+        highest_score = 0.0
 
-            # Prefix match e.g. "Sepehr Rahimi - Chronic Shame"
-            if folder.startswith(clean_name):
-                return folder_path
+        for root in valid_roots:
+            for folder in os.listdir(root):
+                folder_path = os.path.join(root, folder)
+                if not os.path.isdir(folder_path) or folder.startswith("."):
+                    continue
 
-            meta_file = os.path.join(folder_path, "project_meta.json")
-            if os.path.exists(meta_file):
-                try:
-                    with open(meta_file, "r", encoding="utf-8") as f:
-                        meta = json.load(f)
-                    if client_id and meta.get("telegram_id") == client_id:
-                        return folder_path
-                    if username and meta.get("telegram_username"):
-                        cur_user = meta["telegram_username"].lstrip("@").lower()
-                        if cur_user == username.lstrip("@").lower():
+                if folder == "Pending Works":
+                    continue
+
+                meta_file = os.path.join(folder_path, "project_meta.json")
+                if os.path.exists(meta_file):
+                    try:
+                        with open(meta_file, "r", encoding="utf-8") as f:
+                            meta = json.load(f)
+                        if client_id and meta.get("telegram_id") == client_id:
                             return folder_path
-                except Exception:
-                    pass
+                        if username and meta.get("telegram_username"):
+                            cur_user = meta["telegram_username"].lstrip("@").lower()
+                            if cur_user == username.lstrip("@").lower():
+                                return folder_path
+                        if meta.get("client_name_az"):
+                            m, s = match_client_names(client_name, meta["client_name_az"])
+                            if m and s > highest_score:
+                                highest_score = s
+                                best_match = folder_path
+                        if meta.get("client_name"):
+                            m, s = match_client_names(client_name, meta["client_name"])
+                            if m and s > highest_score:
+                                highest_score = s
+                                best_match = folder_path
+                    except Exception:
+                        pass
+
+                # Phonetic and fuzzy match against folder name
+                is_match, score = match_client_names(client_name, folder)
+                if is_match and score > highest_score:
+                    highest_score = score
+                    best_match = folder_path
+
+        if best_match and highest_score >= 0.85:
+            return best_match
 
         return None
 
@@ -365,6 +480,8 @@ class ProjectDriveManager:
         now_iso = datetime.now().isoformat()
         meta.setdefault("client_name", clean_name)
         meta.setdefault("client_name_fa", clean_name)
+        meta["client_name_az"] = client_name
+        meta["folder_name"] = os.path.basename(project_dir)
         if client_id:
             meta["telegram_id"] = client_id
         if username:

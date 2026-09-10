@@ -24,6 +24,8 @@ import sys
 import json
 import shutil
 import argparse
+import difflib
+import unicodedata
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 
@@ -35,8 +37,21 @@ except ImportError:
 
 # Default Google Drive paths for Saber Ghaderi
 DEFAULT_DRIVE_ROOT = "/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive"
-DEFAULT_PENDING_DIR = os.path.join(DEFAULT_DRIVE_ROOT, "Pending Works")
 DEFAULT_MY_WORK_DIR = os.path.join(DEFAULT_DRIVE_ROOT, "My Work")
+
+
+def resolve_pending_dir(drive_root: str = DEFAULT_DRIVE_ROOT) -> str:
+    """Dynamically locate Pending Works either inside My Work or at root."""
+    cand1 = os.path.join(drive_root, "My Work", "Pending Works")
+    cand2 = os.path.join(drive_root, "Pending Works")
+    if os.path.exists(cand1):
+        return cand1
+    if os.path.exists(cand2):
+        return cand2
+    return cand1
+
+
+DEFAULT_PENDING_DIR = resolve_pending_dir(DEFAULT_DRIVE_ROOT)
 DEFAULT_FINISHED_DIR = os.path.join(DEFAULT_DRIVE_ROOT, "Finished Works")
 DEFAULT_DUZEN_BACKUP = os.path.join(DEFAULT_MY_WORK_DIR, "duzen_backup_2026-08-29.json")
 
@@ -54,6 +69,75 @@ STAGE_DIR_MAP = {
     "active": DEFAULT_MY_WORK_DIR,
     "finished": DEFAULT_FINISHED_DIR,
 }
+
+
+def normalize_az_phonetic(text: str) -> str:
+    """
+    Normalize Azerbaijani Latin, Persian, and English names to a canonical phonetic key.
+    Handles Azerbaijani characters (c -> j, ş -> sh, ç -> ch, ı/İ -> i, ə -> a, ö -> o, ü -> u, q -> gh, x -> kh),
+    Persian alphabet transliteration, double consonants, and silent terminal letters.
+    """
+    if not text:
+        return ""
+    text = unicodedata.normalize("NFC", text).lower()
+
+    char_map = {
+        # Azerbaijani Latin
+        "ə": "a", "ş": "sh", "ç": "ch", "c": "j", "ı": "i", "i̇": "i", "İ": "i",
+        "ö": "o", "ü": "u", "ğ": "gh", "q": "gh", "x": "kh", "w": "v", "y": "i",
+        # Persian Alphabet
+        "ا": "a", "آ": "a", "ب": "b", "پ": "p", "ت": "t", "ث": "s",
+        "ج": "j", "چ": "ch", "ح": "h", "خ": "kh", "د": "d", "ذ": "z",
+        "ر": "r", "ز": "z", "ژ": "zh", "س": "s", "ش": "sh", "ص": "s",
+        "ض": "z", "ط": "t", "ظ": "z", "ع": "a", "غ": "gh", "ف": "f",
+        "ق": "gh", "ک": "k", "ك": "k", "گ": "g", "ل": "l", "م": "m",
+        "ن": "n", "و": "v", "ه": "h", "ة": "h", "ی": "i", "ي": "i",
+        "ئ": "i", "ء": ""
+    }
+    for k, v in char_map.items():
+        text = text.replace(k, v)
+
+    text = re.sub(r'\b(?:article|thesis|data|model|dissertation|disssertation)\b', '', text)
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    text = re.sub(r"(.)\1+", r"\1", text)
+
+    words = text.split()
+    clean_words = []
+    for w in words:
+        if w.endswith("h"):
+            w = w[:-1]
+        if w.endswith("e"):
+            w = w[:-1] + "a"
+        clean_words.append(w)
+
+    return " ".join(clean_words)
+
+
+def match_client_names(name1: str, name2: str, threshold: float = 0.85) -> Tuple[bool, float]:
+    """Check if two client names match across Azerbaijani, English, or Persian transliterations."""
+    k1 = normalize_az_phonetic(name1)
+    k2 = normalize_az_phonetic(name2)
+    if not k1 or not k2:
+        return False, 0.0
+    if len(k1) < 3 or len(k2) < 3:
+        return False, 0.0
+    if k1 == k2:
+        return True, 1.0
+
+    # Substring match only if both keys are sufficiently long
+    if len(k1) >= 5 and len(k2) >= 5:
+        if k1 in k2 or k2 in k1:
+            return True, 0.95
+
+    words1 = [w for w in k1.split() if len(w) >= 3]
+    words2 = [w for w in k2.split() if len(w) >= 3]
+    if len(words1) >= 2 and all(w in k2 for w in words1):
+        return True, 0.90
+    if len(words2) >= 2 and all(w in k1 for w in words2):
+        return True, 0.90
+
+    ratio = difflib.SequenceMatcher(None, k1, k2).ratio()
+    return (ratio >= threshold), ratio
 
 
 def sanitize_filename(name: str) -> str:
@@ -453,18 +537,6 @@ def generate_duzen_cross_reference(
         pid = pm.get("projectId")
         payments_by_proj.setdefault(pid, []).append(pm)
 
-    def normalize_name(s: str) -> str:
-        s = (s or "").lower()
-        replacements = {
-            'ə': 'a', 'ş': 'sh', 'ç': 'ch', 'ı': 'i', 'ğ': 'gh', 'ö': 'o', 'ü': 'u',
-            'q': 'gh', 'c': 'j', 'kh': 'kh', 'x': 'kh',
-            'ی': 'i', 'ي': 'i', 'ک': 'k', 'ك': 'k', 'آ': 'a', 'ا': 'a', 'ه': 'h', 'ة': 'h'
-        }
-        for k, v in replacements.items():
-            s = s.replace(k, v)
-        s = re.sub(r'\b(?:article|thesis|data|model|disssertation)\b', '', s)
-        return re.sub(r'[\s_\-]+', ' ', s).strip()
-
     catalog = []
     folders_list = drive_folders or []
 
@@ -479,21 +551,27 @@ def generate_duzen_cross_reference(
         p_payments = payments_by_proj.get(pid, [])
         paid_amount = sum(float(pm.get("amount", 0)) for pm in p_payments if pm.get("amount"))
 
-        client_norm = normalize_name(client)
-        title_norm = normalize_name(title)
-
         matched_folder = None
+        best_score = 0.0
+
         for f in folders_list:
-            f_norm = normalize_name(f)
-            if client_norm and len(client_norm) > 3 and (client_norm in f_norm or f_norm in client_norm):
-                matched_folder = f
-                break
-            c_words = [w for w in client_norm.split() if len(w) > 3]
-            if c_words and all(w in f_norm for w in c_words):
-                matched_folder = f
-                break
-            if title_norm and len(title_norm) > 4 and (title_norm in f_norm or f_norm in title_norm):
-                matched_folder = f
+            clean_f = re.sub(r'^\[[^\]]+\]\s*', '', f)
+
+            # Match client name
+            if client:
+                m_client, s_client = match_client_names(client, clean_f)
+                if m_client and s_client > best_score:
+                    best_score = s_client
+                    matched_folder = f
+
+            # Match project title
+            if title:
+                m_title, s_title = match_client_names(title, clean_f)
+                if m_title and s_title > best_score:
+                    best_score = s_title
+                    matched_folder = f
+
+            if best_score >= 0.95:
                 break
 
         catalog.append({
@@ -880,11 +958,13 @@ def main():
     # 4. Sync with Duzen
     if args.sync_duzen:
         all_drive_folders = []
-        for root_p in [DEFAULT_PENDING_DIR, DEFAULT_MY_WORK_DIR, DEFAULT_FINISHED_DIR]:
-            if os.path.exists(root_p):
+        seen_roots = set()
+        for root_p in [DEFAULT_MY_WORK_DIR, DEFAULT_PENDING_DIR, DEFAULT_FINISHED_DIR]:
+            if os.path.exists(root_p) and os.path.abspath(root_p) not in seen_roots:
+                seen_roots.add(os.path.abspath(root_p))
                 tag = os.path.basename(root_p)
                 for f in os.listdir(root_p):
-                    if os.path.isdir(os.path.join(root_p, f)) and not f.startswith("."):
+                    if os.path.isdir(os.path.join(root_p, f)) and not f.startswith(".") and f != "Pending Works":
                         all_drive_folders.append(f"[{tag}] {f}")
 
         res = generate_duzen_cross_reference(args.duzen_backup, all_drive_folders)
