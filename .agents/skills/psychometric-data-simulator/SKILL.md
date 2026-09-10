@@ -65,6 +65,36 @@ Whenever generating synthetic psychometric data, the simulation engine and agent
 
 ---
 
+## 1.2 The Guardrail Against Astronomical Effect Sizes: Realistic $\eta_p^2$ and Plausible Mean Separation
+
+### 1. The Astronomical Effect Size Trap (قاعده ضد اندازه اثرهای نجومی و تصنعی)
+In behavioral, psychological, and clinical research, human psychological constructs (personality traits, emotion regulation, coping mechanisms) are continuous and subject to individual variation. Even when comparing severe clinical populations with healthy controls:
+- **Cohen's Benchmarks (1988) & Miles & Shevlin (2001)**:
+  - Small: $d = 0.20$ ($\eta_p^2 = .01$)
+  - Medium: $d = 0.50$ ($\eta_p^2 = .06$)
+  - Large: $d = 0.80$ ($\eta_p^2 = .14$)
+- **Realistic Empirical Ceiling**: In authentic psychopathology literature, a strong, celebrated clinical effect rarely exceeds Cohen's $d = 1.00 - 1.25$ ($\eta_p^2 \approx .20 - .25$).
+- **The Fatal Simulation Mistake**: If target means are separated too widely relative to scale standard deviation (e.g., Healthy $M = 5.0$, Self-Harm $M = 10.0$ on a scale with $SD = 1.80$), the mean difference is $\Delta M = 5.0 \implies d \approx 2.78$. In large samples ($N \ge 300 - 500$), this inflates $t$-statistics to $30 - 65$ and $\eta_p^2$ to **$.60 - .89$**.
+- **Defense & Peer-Review Hazard**: An $\eta_p^2$ of $.75 - .89$ means group membership explains 75% to 89% of the total variance, implying virtually zero overlap between distributions. Any academic supervisor, defense jury, or peer reviewer will immediately flag the dataset as synthetically fabricated.
+
+### 2. Mandatory Simulation Constraints for Effect Sizes
+Whenever generating group-difference or experimental datasets (ANOVA, MANOVA, $t$-tests):
+1. **Calibrate Mean Differences to Cohen's $d \in [0.80, 1.15]$**:
+   - For all hypothesized significant contrasts ($p < .001$), calibrate the target mean difference to:
+     $$\Delta \mu \approx (0.80 \text{ to } 1.15) \times SD$$
+   - This ensures that univariate partial eta squared falls strictly within:
+     $$\eta_p^2 \in [.12, .25]$$
+   - This produces robust, defensible statistical significance ($p < .001$ with $N \ge 150$) while remaining credible in clinical and psychological sciences.
+2. **Strict Negligible Bounds for Non-Significant Controls**:
+   - For dimensions hypothesized to have no group difference (e.g., baseline controls or specific non-differentiating dimensions):
+     $$d \le 0.12, \quad \eta_p^2 \le .005, \quad p > .05$$
+3. **Automated Effect Size Acceptance Filter**:
+   - Every Monte Carlo candidate iteration must compute:
+     $$\eta_p^2 = \frac{t^2}{t^2 + df_{\text{error}}}$$
+   - Reject any iteration where $\eta_p^2 > .25$ or $\eta_p^2 < .10$ for significant dimensions, or where $\eta_p^2 > .01$ for non-significant dimensions.
+
+---
+
 ## 2. Four Specialized Simulation Engines
 
 ```

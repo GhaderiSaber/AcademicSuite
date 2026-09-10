@@ -109,6 +109,23 @@ When generating or simulating synthetic research data, questionnaire Likert resp
      - Multivariate Significance (MANOVA Wilks' Lambda $p < .001$).
      - Hypothesized contrasts (significant differences where expected; $p > .05$ on controlled baseline or non-significant dimensions).
 
+### Rule 10: Realistic Empirical Effect Sizes in Psychometric Simulation (Zero Astronomical $\eta_p^2$ / Anti-Over-Separation Guardrail)
+When simulating group-difference or experimental research datasets (ANOVA, MANOVA, independent $t$-tests, clinical trials):
+1. **The Astronomical Effect Size Trap (قاعده ضد اندازه اثرهای نجومی و مصنوعی)**:
+   - In real-world psychological, behavioral, and clinical research, human constructs are continuous, multi-determined, and subject to natural overlap between groups.
+   - Even when comparing severe clinical populations with healthy controls, genuine empirical effect sizes rarely exceed Cohen's $d = 1.00 - 1.25$ or partial eta squared $\eta_p^2 \approx .20 - .25$ (Cohen, 1988; Miles & Shevlin, 2001).
+   - A naive simulation that separates target group means too far (e.g., $M = 5.0$ vs. $10.0$ on a scale with $SD = 1.80$) produces $\Delta M = 5.0 \implies d \approx 2.78$. In moderate-to-large samples ($N \ge 300 - 500$), this inflates $t$-statistics to $30 - 65$ and $\eta_p^2$ to $.60 - .89$.
+   - Reporting $\eta_p^2 = .70 - .89$ indicates that group membership accounts for 70% to 89% of the variance, implying virtually zero distribution overlap. This is an immediate red flag that will trigger accusations of data fabrication during thesis defenses and peer review.
+2. **Mandatory Bounded Target Differences**:
+   - For all hypothesized significant contrasts ($p < .001$), calibrate the target mean difference to:
+     $$\Delta \mu \approx (0.80 \text{ to } 1.15) \times SD \implies d \in [0.80, 1.15], \quad \eta_p^2 \in [.12, .25]$$
+   - This ensures robust statistical significance ($p < .001$) while remaining completely credible and defensible in psychological literature.
+3. **Strict Bounds on Control/Non-Significant Dimensions**:
+   - For dimensions hypothesized to show no significant difference (e.g. baseline controls, specific non-differentiating subscales):
+     $$d \le 0.12, \quad \eta_p^2 \le .005, \quad p > .05$$
+4. **Automated Iteration Filter**:
+   - All Monte Carlo simulation scripts must explicitly compute $\eta_p^2 = \frac{t^2}{t^2 + df_{\text{error}}}$ on candidate samples and discard any sample where $\eta_p^2 > .25$ on any subscale.
+
 ---
 
 ## 2. Skill Inventory & Activation Matrix
