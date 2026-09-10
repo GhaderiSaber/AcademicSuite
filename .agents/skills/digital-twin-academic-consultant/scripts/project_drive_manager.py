@@ -527,7 +527,7 @@ class ProjectDriveManager:
             os.makedirs(project_dir, exist_ok=True)
 
         # Ensure all 4-tier subdirectories exist
-        paths = {"root": project_dir}
+        paths = {"root": project_dir, "project_dir": project_dir}
         for key, sub in SUBFOLDERS.items():
             sub_path = os.path.join(project_dir, sub)
             os.makedirs(sub_path, exist_ok=True)
@@ -1063,6 +1063,109 @@ class ProjectDriveManager:
                 json.dump(meta, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"[-] Error recording follow-up in project_meta.json: {e}")
+
+    def list_project_deliverables(self, project_dir: str) -> List[Dict[str, Any]]:
+        """
+        List all deliverables available in a client project's 03_deliverables/ folder.
+        Returns filename, full path, file size in bytes, human-readable size, modified date,
+        and file extension.
+        """
+        deliv_dir = os.path.join(project_dir, SUBFOLDERS["deliverables"])
+        if not os.path.isdir(deliv_dir):
+            return []
+
+        results = []
+        for root, dirs, files in os.walk(deliv_dir):
+            if "drafts_archive" in root:
+                continue
+            for f in sorted(files):
+                if f.startswith(".") or f.endswith(".tmp") or f.endswith(".md~"):
+                    continue
+                full_f = os.path.join(root, f)
+                try:
+                    st = os.stat(full_f)
+                    size_b = st.st_size
+                    if size_b < 1024:
+                        size_str = f"{size_b} B"
+                    elif size_b < 1024 * 1024:
+                        size_str = f"{size_b / 1024:.1f} KB"
+                    else:
+                        size_str = f"{size_b / (1024 * 1024):.1f} MB"
+
+                    mtime = datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M")
+                    ext = os.path.splitext(f)[1].lower()
+
+                    results.append({
+                        "filename": f,
+                        "file_path": full_f,
+                        "size_bytes": size_b,
+                        "size_str": size_str,
+                        "modified_at": mtime,
+                        "ext": ext
+                    })
+                except Exception:
+                    continue
+        return results
+
+    def find_deliverable_file(self, project_dir: str, filename_query: str) -> Optional[Dict[str, Any]]:
+        """Find a specific deliverable file matching filename_query."""
+        files = self.list_project_deliverables(project_dir)
+        if not files:
+            return None
+        clean_q = filename_query.strip().lower()
+        # 1. Exact match
+        for item in files:
+            if item["filename"].lower() == clean_q:
+                return item
+        # 2. Substring match
+        for item in files:
+            if clean_q in item["filename"].lower():
+                return item
+        # 3. Fuzzy keyword match
+        for item in files:
+            if any(part in item["filename"].lower() for part in clean_q.split()):
+                return item
+        return None
+
+    def record_deliverable_dispatched(self, project_dir: str, filename: str, client_name: str) -> None:
+        """
+        Record that a deliverable was dispatched to client in project_meta.json
+        and archive a timestamped backup in 03_deliverables/drafts_archive/.
+        """
+        deliv_path = os.path.join(project_dir, SUBFOLDERS["deliverables"], filename)
+        archive_dir = os.path.join(project_dir, SUBFOLDERS["deliverables_archive"])
+        os.makedirs(archive_dir, exist_ok=True)
+
+        # Archive timestamped copy
+        if os.path.exists(deliv_path):
+            try:
+                base, ext = os.path.splitext(filename)
+                ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+                arch_name = f"{base}_{ts}{ext}"
+                shutil.copy2(deliv_path, os.path.join(archive_dir, arch_name))
+            except Exception as e:
+                print(f"[-] Warning: Failed to copy to drafts_archive: {e}")
+
+        # Update project_meta.json
+        meta_file = os.path.join(project_dir, "project_meta.json")
+        if os.path.exists(meta_file):
+            try:
+                with open(meta_file, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                now_iso = datetime.now().isoformat()
+                meta["status"] = "delivered"
+                meta["last_deliverable_sent"] = {
+                    "filename": filename,
+                    "date": now_iso
+                }
+                meta.setdefault("deliverables_history", []).append({
+                    "filename": filename,
+                    "date": now_iso
+                })
+                with open(meta_file, "w", encoding="utf-8") as f:
+                    json.dump(meta, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                print(f"[-] Error updating project_meta.json with deliverable dispatch: {e}")
 
     def _extract_advisor(self, text: str) -> Optional[str]:
         """Extract advisor name from chat text."""

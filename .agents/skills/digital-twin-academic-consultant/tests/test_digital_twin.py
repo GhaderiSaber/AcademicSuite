@@ -767,6 +767,124 @@ class TestDigitalTwinSuite(unittest.TestCase):
             self.assertIn("last_follow_up", up_meta)
             self.assertGreater(len(up_meta.get("follow_up_history", [])), 0)
 
+    def test_12_direct_client_deliverable_dispatch(self):
+        """Test Improvement 5: Direct Client Deliverable Dispatch (/send_file)."""
+        import asyncio
+        import tempfile
+        from project_drive_manager import ProjectDriveManager
+        from telethon_userbot import SaberTelethonUserbot, generate_deliverable_caption
+
+        with tempfile.TemporaryDirectory() as tmp_drive:
+            cfg = {"google_drive_work_dir": tmp_drive}
+            pdm = ProjectDriveManager(cfg)
+
+            # 1. Provision a project and add deliverable files
+            paths = pdm.provision_project(
+                client_name="زهرا جلالی",
+                client_id=777888,
+                username="zahra_jalali",
+                status="in_progress"
+            )
+            pdir = paths["project_dir"]
+            deliv_dir = paths["deliverables"]
+
+            doc_path = os.path.join(deliv_dir, "فصل_چهارم_یافته_های_پژوهش.docx")
+            with open(doc_path, "wb") as f:
+                f.write(b"PK\x03\x04mock_word_docx_binary_data_for_chapter_4")
+
+            xlsx_path = os.path.join(deliv_dir, "تحلیل_آماری_spss.xlsx")
+            with open(xlsx_path, "wb") as f:
+                f.write(b"PK\x03\x04mock_excel_spss_analysis_matrix")
+
+            # 2. Test list_project_deliverables
+            delivs = pdm.list_project_deliverables(pdir)
+            self.assertEqual(len(delivs), 2)
+            filenames = [d["filename"] for d in delivs]
+            self.assertIn("فصل_چهارم_یافته_های_پژوهش.docx", filenames)
+            self.assertIn("تحلیل_آماری_spss.xlsx", filenames)
+
+            # 3. Test find_deliverable_file (exact, substring, fuzzy)
+            f_found = pdm.find_deliverable_file(pdir, "فصل_چهارم")
+            self.assertIsNotNone(f_found)
+            self.assertEqual(f_found["filename"], "فصل_چهارم_یافته_های_پژوهش.docx")
+
+            f_spss = pdm.find_deliverable_file(pdir, "spss")
+            self.assertIsNotNone(f_spss)
+            self.assertEqual(f_spss["filename"], "تحلیل_آماری_spss.xlsx")
+
+            # 4. Test generate_deliverable_caption
+            cap = generate_deliverable_caption("زهرا جلالی", "فصل_چهارم_یافته_های_پژوهش.docx")
+            self.assertIn("زهرا جلالی", cap)
+            self.assertIn("فصل چهارم یافته های پژوهش", cap)
+            self.assertIn("می‌شود", cap)
+
+            # 5. Test Userbot Deliverable State & Dispatch Execution
+            sent_files = []
+            class MockClient:
+                async def send_file(self, entity, file, caption=None):
+                    sent_files.append({"entity": entity, "file": file, "caption": caption})
+                    return {"id": 999}
+                async def send_message(self, entity, text, parse_mode=None):
+                    return {"id": 888}
+
+            mock_user = MockClient()
+            ub_cfg = {
+                "api_id": 123,
+                "api_hash": "hash",
+                "admin_id": 124911145,
+                "admin_desk_chat_id": -1004331808205,
+                "google_drive_work_dir": tmp_drive
+            }
+            userbot = SaberTelethonUserbot(ub_cfg)
+            userbot.project_manager = pdm
+            userbot.client = mock_user
+
+            # Prepare deliverable draft
+            del_id = "DEL101"
+            userbot.pending_deliverables[del_id] = {
+                "del_id": del_id,
+                "client_name": "زهرا جلالی",
+                "telegram_id": 777888,
+                "username": "zahra_jalali",
+                "folder_path": pdir,
+                "file_path": doc_path,
+                "filename": "فصل_چهارم_یافته_های_پژوهش.docx",
+                "size_str": "45.0 KB",
+                "caption": cap,
+                "created_at": "2026-09-11T00:00:00"
+            }
+
+            # Execute dispatch simulation
+            entry = userbot.pending_deliverables[del_id]
+            async def run_dispatch():
+                await userbot.client.send_file(entry["telegram_id"], file=entry["file_path"], caption=entry["caption"])
+                pdm.record_deliverable_dispatched(entry["folder_path"], entry["filename"], entry["client_name"])
+                del userbot.pending_deliverables[del_id]
+
+            asyncio.run(run_dispatch())
+
+            # Verify file was dispatched
+            self.assertEqual(len(sent_files), 1)
+            self.assertEqual(sent_files[0]["entity"], 777888)
+            self.assertEqual(sent_files[0]["file"], doc_path)
+            self.assertIn("زهرا جلالی", sent_files[0]["caption"])
+            self.assertNotIn(del_id, userbot.pending_deliverables)
+
+            # Verify backup in drafts_archive
+            arch_dir = paths["deliverables_archive"]
+            self.assertTrue(os.path.isdir(arch_dir))
+            archived_files = os.listdir(arch_dir)
+            self.assertEqual(len(archived_files), 1)
+            self.assertTrue(archived_files[0].startswith("فصل_چهارم_یافته_های_پژوهش_"))
+
+            # Verify project_meta.json updated to 'delivered'
+            with open(paths["meta_file"], "r", encoding="utf-8") as f:
+                up_meta = json.load(f)
+            self.assertEqual(up_meta.get("status"), "delivered")
+            self.assertIn("last_deliverable_sent", up_meta)
+            self.assertEqual(up_meta["last_deliverable_sent"]["filename"], "فصل_چهارم_یافته_های_پژوهش.docx")
+            self.assertEqual(len(up_meta.get("deliverables_history", [])), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

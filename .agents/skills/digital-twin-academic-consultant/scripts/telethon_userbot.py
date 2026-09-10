@@ -133,6 +133,23 @@ def save_telethon_config(config: Dict[str, Any], config_path: str = DEFAULT_CONF
         json.dump(config, f, ensure_ascii=False, indent=2)
 
 
+def generate_deliverable_caption(client_name: str, filename: str) -> str:
+    """Generate scholarly, authentic Persian delivery caption with half-spaces."""
+    # Clean client name (remove parenthetical ID, username, or English tags)
+    display_name = client_name.split("(")[0].strip()
+    if display_name.startswith("@"):
+        display_name = display_name.lstrip("@")
+    if not display_name:
+        display_name = "مراجع"
+    base_name, _ = os.path.splitext(filename)
+    clean_base = base_name.replace("_", " ").strip()
+    return (
+        f"سلام و احترام، وقت شما بخیر {display_name} گرامی.\n\n"
+        f"فایل نهایی «{clean_base}» خدمتتون تقدیم می‌شود. لطفاً بررسی بفرمایید؛ "
+        "در صورت وجود هرگونه نظر، اصلاح یا بازخورد از سوی اساتید محترم، با کمال میل در خدمتتون هستم."
+    )
+
+
 class SaberTelethonUserbot:
     """MTProto client managing Saber's personal account or bot automation."""
 
@@ -155,6 +172,8 @@ class SaberTelethonUserbot:
         self.draft_counter = 100
         self.pending_followups: Dict[str, Dict[str, Any]] = {}
         self.followup_counter = 100
+        self.pending_deliverables: Dict[str, Dict[str, Any]] = {}
+        self.deliverable_counter = 100
         self.me = None
         self.proxy = get_proxy_settings(self.config)
 
@@ -535,7 +554,8 @@ class SaberTelethonUserbot:
             "\n─────────────────────\n"
             "⚙️ <b>Commands:</b>\n"
             "• Refresh Health: <code>/health</code>\n"
-            "• Project Catalog: <code>/projects</code>"
+            "• Project Catalog: <code>/projects</code>\n"
+            "• Deliverables: <code>/deliverables</code>"
         )
         summary_text = "\n".join(summary_lines)
 
@@ -543,7 +563,8 @@ class SaberTelethonUserbot:
         if Button is not None:
             buttons = [
                 [Button.inline("🔄 Refresh Health", b"cmd_health"),
-                 Button.inline("📂 Project Catalog", b"cmd_projects")],
+                 Button.inline("📂 Project Catalog", b"cmd_projects"),
+                 Button.inline("📦 Deliverables", b"cmd_deliverables")],
                 [Button.inline("❌ Dismiss Notice", b"cmd_close")]
             ]
 
@@ -734,6 +755,7 @@ class SaberTelethonUserbot:
             "⚙️ <b>Commands:</b>\n"
             "• Rescan: <code>/unread</code>\n"
             "• Project Catalog: <code>/projects</code>\n"
+            "• Deliverables: <code>/deliverables</code>\n"
             f"• Web Dashboard: <code>{dash_display}</code>"
         )
         report_text = "\n".join(summary_lines)
@@ -741,7 +763,8 @@ class SaberTelethonUserbot:
         buttons = None
         if Button is not None:
             dash_row = [Button.inline("🔄 Rescan Messages", b"cmd_unread"),
-                        Button.inline("📂 Project Catalog", b"cmd_projects")]
+                        Button.inline("📂 Project Catalog", b"cmd_projects"),
+                        Button.inline("📦 Deliverables", b"cmd_deliverables")]
             row2 = []
             if has_web_btn:
                 row2.append(Button.url("📱 Open Web Dashboard", webapp_url))
@@ -1034,6 +1057,253 @@ class SaberTelethonUserbot:
                     await event.reply(f"❌ Follow-up ID {fuid} not found.", parse_mode="html")
                 return
 
+            # Deliverables inspection command: /deliverables [client_query] or /files [client_query]
+            m_deliv = re.match(r"^/(?:deliverables|files)(?:\s+(.+))?", txt)
+            if m_deliv:
+                c_query = (m_deliv.group(1) or "").strip()
+                if not c_query:
+                    # Overview of all projects with deliverables
+                    projs = self.project_manager.list_all_projects()
+                    ready_list = []
+                    for p in projs:
+                        d_files = self.project_manager.list_project_deliverables(p["folder_path"])
+                        if d_files:
+                            ready_list.append((p, d_files))
+                    if not ready_list:
+                        await event.reply("📦 No completed deliverables currently waiting in Google Drive <code>03_deliverables/</code>.", parse_mode="html")
+                        return
+                    lines = [f"📦 <b>Client Projects with Ready Deliverables ({len(ready_list)} clients):</b>\n"]
+                    for p, dfs in ready_list[:15]:
+                        cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
+                        files_str = ", ".join([f"<code>{f['filename']}</code> ({f['size_str']})" for f in dfs[:3]])
+                        if len(dfs) > 3:
+                            files_str += f" and {len(dfs)-3} more"
+                        lines.append(
+                            f"• <b>{html.escape(cname)}</b> ({len(dfs)} files):\n"
+                            f"  ▫️ {files_str}\n"
+                            f"  👉 <code>/deliverables {html.escape(cname)}</code>"
+                        )
+                    await event.reply("\n".join(lines), parse_mode="html")
+                    return
+                else:
+                    # Find project for specific client
+                    clean_q = c_query.lstrip("@").lower()
+                    matched_pdir = self.project_manager.find_existing_project_by_client(clean_q)
+                    target_meta = {}
+                    if not matched_pdir and clean_q.isdigit():
+                        matched_pdir = self.project_manager.find_existing_project_by_client("Client", client_id=int(clean_q))
+                    if not matched_pdir:
+                        projs = self.project_manager.list_all_projects()
+                        for p in projs:
+                            if clean_q in (p.get("client_name") or "").lower() or \
+                               clean_q in (p.get("client_name_fa") or "").lower() or \
+                               clean_q in (p.get("folder_name") or "").lower() or \
+                               clean_q in (p.get("username") or "").lower():
+                                matched_pdir = p["folder_path"]
+                                target_meta = p
+                                break
+                    if not matched_pdir:
+                        await event.reply(f"❌ No project folder found for client <code>{html.escape(c_query)}</code>.", parse_mode="html")
+                        return
+
+                    if not target_meta and os.path.exists(os.path.join(matched_pdir, "project_meta.json")):
+                        try:
+                            with open(os.path.join(matched_pdir, "project_meta.json"), "r", encoding="utf-8") as f:
+                                target_meta = json.load(f)
+                        except Exception:
+                            pass
+
+                    cname = target_meta.get("client_name_fa") or target_meta.get("client_name") or os.path.basename(matched_pdir)
+                    d_files = self.project_manager.list_project_deliverables(matched_pdir)
+                    clean_p = clean_drive_display_path(matched_pdir)
+                    if not d_files:
+                        await event.reply(
+                            f"📦 Project folder found for <b>{html.escape(cname)}</b>, but <code>03_deliverables/</code> is empty.\n"
+                            f"📁 Folder: <code>{html.escape(clean_p)}</code>",
+                            parse_mode="html"
+                        )
+                        return
+
+                    lines = [
+                        f"📦 <b>Deliverables for {html.escape(cname)} ({len(d_files)} files):</b>",
+                        f"📁 <code>{html.escape(clean_p)}</code>\n"
+                    ]
+                    for idx, df in enumerate(d_files[:10], start=1):
+                        lines.append(
+                            f"{idx}. 📄 <b>{html.escape(df['filename'])}</b>\n"
+                            f"   ▫️ Size: <code>{df['size_str']}</code> | Modified: <code>{df['modified_at']}</code>\n"
+                            f"   👉 Dispatch draft: <code>/send_file {html.escape(cname)} {html.escape(df['filename'])}</code>"
+                        )
+                    await event.reply("\n".join(lines), parse_mode="html")
+                    return
+
+            # Prepare deliverable dispatch: /send_file <client_query> [filename_query]
+            m_send_file = re.match(r"^/(?:send_file|deliver)(?:\s+([^\s]+))?(?:\s+(.+))?", txt)
+            if m_send_file and not txt.startswith("/send_del_"):
+                c_query = (m_send_file.group(1) or "").strip()
+                file_query = (m_send_file.group(2) or "").strip()
+                if not c_query:
+                    await event.reply(
+                        "⚠️ Please specify client identifier and optional filename:\n"
+                        "Example: <code>/send_file @username</code> or <code>/send_file Zahra فصل_چهارم</code>",
+                        parse_mode="html"
+                    )
+                    return
+
+                clean_q = c_query.lstrip("@").lower()
+                matched_pdir = self.project_manager.find_existing_project_by_client(clean_q)
+                target_meta = {}
+                if not matched_pdir and clean_q.isdigit():
+                    matched_pdir = self.project_manager.find_existing_project_by_client("Client", client_id=int(clean_q))
+                if not matched_pdir:
+                    projs = self.project_manager.list_all_projects()
+                    for p in projs:
+                        if clean_q in (p.get("client_name") or "").lower() or \
+                           clean_q in (p.get("client_name_fa") or "").lower() or \
+                           clean_q in (p.get("folder_name") or "").lower() or \
+                           clean_q in (p.get("username") or "").lower():
+                            matched_pdir = p["folder_path"]
+                            target_meta = p
+                            break
+                if not matched_pdir:
+                    await event.reply(f"❌ No project folder found for client <code>{html.escape(c_query)}</code>.", parse_mode="html")
+                    return
+
+                if not target_meta and os.path.exists(os.path.join(matched_pdir, "project_meta.json")):
+                    try:
+                        with open(os.path.join(matched_pdir, "project_meta.json"), "r", encoding="utf-8") as f:
+                            target_meta = json.load(f)
+                    except Exception:
+                        pass
+
+                cname = target_meta.get("client_name_fa") or target_meta.get("client_name") or os.path.basename(matched_pdir)
+                cid = target_meta.get("telegram_id")
+                uname = target_meta.get("telegram_username") or target_meta.get("username")
+
+                # Locate deliverable file
+                if file_query:
+                    chosen_file = self.project_manager.find_deliverable_file(matched_pdir, file_query)
+                    if not chosen_file:
+                        await event.reply(f"❌ File matching <code>{html.escape(file_query)}</code> not found in <code>03_deliverables/</code> for <b>{html.escape(cname)}</b>.", parse_mode="html")
+                        return
+                else:
+                    d_files = self.project_manager.list_project_deliverables(matched_pdir)
+                    if not d_files:
+                        await event.reply(f"📦 <code>03_deliverables/</code> is empty for <b>{html.escape(cname)}</b>.", parse_mode="html")
+                        return
+                    if len(d_files) == 1:
+                        chosen_file = d_files[0]
+                    else:
+                        files_str = "\n".join([f"• <code>{f['filename']}</code> — <code>/send_file {html.escape(c_query)} {html.escape(f['filename'])}</code>" for f in d_files[:10]])
+                        await event.reply(
+                            f"📦 Multiple deliverables found for <b>{html.escape(cname)}</b>. Please specify which file to send:\n\n{files_str}",
+                            parse_mode="html"
+                        )
+                        return
+
+                self.deliverable_counter += 1
+                del_id = f"DEL{self.deliverable_counter}"
+                caption_text = generate_deliverable_caption(cname, chosen_file["filename"])
+
+                self.pending_deliverables[del_id] = {
+                    "del_id": del_id,
+                    "client_name": cname,
+                    "telegram_id": cid,
+                    "username": uname,
+                    "folder_path": matched_pdir,
+                    "file_path": chosen_file["file_path"],
+                    "filename": chosen_file["filename"],
+                    "size_str": chosen_file["size_str"],
+                    "caption": caption_text,
+                    "created_at": datetime.now().isoformat()
+                }
+
+                client_link = format_client_mention_html(cname, username=uname, client_id=cid)
+                clean_p = clean_drive_display_path(matched_pdir)
+                safe_cap = html.escape(caption_text)
+
+                card_text = (
+                    f"📦 <b>[Deliverable Dispatch Draft ({del_id})] {client_link}</b>\n"
+                    f"📁 <b>Project:</b> <code>{html.escape(clean_p)}</code>\n"
+                    f"📄 <b>File:</b> <code>{html.escape(chosen_file['filename'])}</code> ({chosen_file['size_str']})\n"
+                    "─────────────────────\n"
+                    "📝 <b>Persian Delivery Caption:</b>\n"
+                    f"<blockquote>{safe_cap}</blockquote>\n\n"
+                    "⚙️ <b>Actions & Commands:</b>\n"
+                    f"• Approve & Send File: <code>/send_del_{del_id}</code>\n"
+                    f"• Send with Custom Caption: <code>/send_del_{del_id} &lt;custom caption&gt;</code>\n"
+                    f"• Dismiss Delivery: <code>/ignore_del_{del_id}</code>"
+                )
+
+                card_btns = None
+                if Button is not None:
+                    card_btns = [
+                        [Button.inline(f"🚀 Send Deliverable ({del_id})", f"send_del_{del_id}".encode()),
+                         Button.inline("🗑️ Dismiss", f"ignore_del_{del_id}".encode())]
+                    ]
+
+                await self.send_to_desk(card_text, buttons=card_btns, parse_mode="html")
+                print(f"[+] Prepared Deliverable draft card {del_id} for {cname}: {chosen_file['filename']}")
+                return
+
+            # Approve & Send deliverable file: /send_del_DEL101 or /send_del_DEL101 <custom caption>
+            m_send_del = re.match(r"^/send_del_(DEL\d+)(?:\s+(.+))?", txt, flags=re.DOTALL)
+            if m_send_del:
+                del_id = m_send_del.group(1)
+                custom_caption = (m_send_del.group(2) or "").strip()
+                if del_id in self.pending_deliverables:
+                    entry = self.pending_deliverables[del_id]
+                    caption_to_send = custom_caption if custom_caption else entry["caption"]
+                    target_dest = entry.get("telegram_id")
+                    if target_dest is None:
+                        if entry.get("username"):
+                            target_dest = entry["username"].lstrip("@")
+                        else:
+                            target_dest = entry.get("client_name")
+                    elif isinstance(target_dest, str) and target_dest.isdigit():
+                        target_dest = int(target_dest)
+
+                    file_path = entry["file_path"]
+                    if not os.path.exists(file_path):
+                        await event.reply(f"❌ Deliverable file not found on disk: <code>{html.escape(file_path)}</code>", parse_mode="html")
+                        return
+
+                    target_client = entry.get("client_source") or self.client
+                    try:
+                        try:
+                            ent = await target_client.get_entity(target_dest)
+                        except Exception:
+                            ent = target_dest
+                        await target_client.send_file(ent, file=file_path, caption=caption_to_send)
+                        if entry.get("folder_path"):
+                            self.project_manager.record_deliverable_dispatched(
+                                entry["folder_path"],
+                                entry["filename"],
+                                entry["client_name"]
+                            )
+                        await event.reply(
+                            f"✅ Deliverable <b>{html.escape(entry['filename'])}</b> was successfully dispatched to <b>{html.escape(entry['client_name'])}</b> via Saber's personal account and archived in drafts_archive.",
+                            parse_mode="html"
+                        )
+                        del self.pending_deliverables[del_id]
+                    except Exception as send_err:
+                        await event.reply(f"❌ Failed to send deliverable {del_id}: {send_err}", parse_mode="html")
+                else:
+                    await event.reply(f"❌ Deliverable ID {del_id} not found or already sent.", parse_mode="html")
+                return
+
+            # Ignore deliverable draft: /ignore_del_DEL101
+            m_ign_del = re.match(r"^/ignore_del_(DEL\d+)", txt)
+            if m_ign_del:
+                del_id = m_ign_del.group(1)
+                if del_id in self.pending_deliverables:
+                    cname = self.pending_deliverables[del_id]["client_name"]
+                    del self.pending_deliverables[del_id]
+                    await event.reply(f"🗑️ Deliverable draft {del_id} for {cname} was dismissed.", parse_mode="html")
+                else:
+                    await event.reply(f"❌ Deliverable ID {del_id} not found.", parse_mode="html")
+                return
+
         if self.bot_client:
             @self.bot_client.on(events.CallbackQuery)
             async def bot_callback_handler(event):
@@ -1109,6 +1379,90 @@ class SaberTelethonUserbot:
                             pass
                     else:
                         await event.answer(f"❌ Follow-up ID {fuid} not found.", alert=True)
+                elif data.startswith("send_del_"):
+                    del_id = data.split("send_del_")[1]
+                    if del_id in self.pending_deliverables:
+                        entry = self.pending_deliverables[del_id]
+                        target_dest = entry.get("telegram_id")
+                        if target_dest is None:
+                            if entry.get("username"):
+                                target_dest = entry["username"].lstrip("@")
+                            else:
+                                target_dest = entry.get("client_name")
+                        elif isinstance(target_dest, str) and target_dest.isdigit():
+                            target_dest = int(target_dest)
+
+                        file_path = entry["file_path"]
+                        if not os.path.exists(file_path):
+                            await event.answer("❌ File not found on disk!", alert=True)
+                            return
+
+                        target_client = entry.get("client_source") or self.client
+                        try:
+                            try:
+                                ent = await target_client.get_entity(target_dest)
+                            except Exception:
+                                ent = target_dest
+                            await target_client.send_file(ent, file=file_path, caption=entry["caption"])
+                            if entry.get("folder_path"):
+                                self.project_manager.record_deliverable_dispatched(
+                                    entry["folder_path"],
+                                    entry["filename"],
+                                    entry["client_name"]
+                                )
+                            await event.answer(f"✅ Deliverable {entry['filename']} dispatched to {entry['client_name']}!", alert=True)
+                            try:
+                                await event.edit(
+                                    f"{event.message.text}\n\n✅ <b>Deliverable was approved and dispatched to client via Saber's personal account.</b>",
+                                    buttons=None,
+                                    parse_mode="html"
+                                )
+                            except Exception:
+                                pass
+                            del self.pending_deliverables[del_id]
+                        except Exception as e:
+                            await event.answer(f"❌ Send failed: {e}", alert=True)
+                    else:
+                        await event.answer(f"❌ Deliverable ID {del_id} expired or not found.", alert=True)
+                elif data.startswith("ignore_del_"):
+                    del_id = data.split("ignore_del_")[1]
+                    if del_id in self.pending_deliverables:
+                        del self.pending_deliverables[del_id]
+                        await event.answer("🗑️ Deliverable draft dismissed.", alert=True)
+                        try:
+                            await event.edit(
+                                f"{event.message.text}\n\n🗑️ <b>This deliverable dispatch draft was dismissed.</b>",
+                                buttons=None,
+                                parse_mode="html"
+                            )
+                        except Exception:
+                            pass
+                    else:
+                        await event.answer(f"❌ Deliverable ID {del_id} not found.", alert=True)
+                elif data == "cmd_deliverables":
+                    projs = self.project_manager.list_all_projects()
+                    ready_list = []
+                    for p in projs:
+                        d_files = self.project_manager.list_project_deliverables(p["folder_path"])
+                        if d_files:
+                            ready_list.append((p, d_files))
+                    if not ready_list:
+                        await event.answer("📦 No deliverables currently waiting in Google Drive.", alert=True)
+                    else:
+                        await event.answer(f"Found {len(ready_list)} clients with ready deliverables.")
+                        lines = [f"📦 <b>Client Projects with Ready Deliverables ({len(ready_list)} clients):</b>\n"]
+                        for p, dfs in ready_list[:15]:
+                            cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
+                            files_str = ", ".join([f"<code>{f['filename']}</code> ({f['size_str']})" for f in dfs[:3]])
+                            if len(dfs) > 3:
+                                files_str += f" and {len(dfs)-3} more"
+                            lines.append(
+                                f"• <b>{html.escape(cname)}</b> ({len(dfs)} files):\n"
+                                f"  ▫️ {files_str}\n"
+                                f"  👉 <code>/deliverables {html.escape(cname)}</code>"
+                            )
+                        btn = [[Button.inline("❌ Close Catalog", b"cmd_close")]] if Button is not None else None
+                        await self.send_to_desk("\n".join(lines), buttons=btn, parse_mode="html")
                 elif data == "cmd_health":
                     await event.answer("🔍 Auditing project health...")
                     await self.scan_and_report_project_health(trigger_event=event)
