@@ -315,7 +315,11 @@ def build_chapter4_document(data: dict, output_path: str):
         set_paragraph_bidi(p_note_corr)
         p_note_corr.paragraph_format.space_before = Pt(4)
         p_note_corr.paragraph_format.space_after = Pt(12)
-        add_run(p_note_corr, "یادداشت. * معناداری در سطح ۰/۰۵؛ ** معناداری در سطح ۰/۰۱.", size=10)
+        note_txt = "یادداشت. * معناداری در سطح ۰/۰۵؛ ** معناداری در سطح ۰/۰۱."
+        if "multiple_testing" in corr_info:
+            mt = corr_info["multiple_testing"]
+            note_txt += f" مقادیر p با رویه نرخ کشف نادرست بنجامینی-هاچبرگ (FDR) جهت کنترل انباشت خطای نوع اول در آزمون‌های چندگانه ({mt.get('m_comparisons', 0)} مقایسه) ارزیابی شدند."
+        add_run(p_note_corr, note_txt, size=10)
         table_counter += 1
 
     # --- Section 4: ANCOVA (Intervention Studies) ---

@@ -115,16 +115,20 @@ python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.
   --out "مقاله_علمی_پژوهشی_نهایی.docx" \
   --lang fa
 ```
-*Note: If `claims_matrix` is present in the payload, the compiler automatically exports a companion `<output>_claim_evidence_matrix.xlsx` audit sheet for peer-review defense.*
+*Note: If `claims_matrix` is present, the compiler exports a companion `<output>_claim_evidence_matrix.xlsx`. If `figures` are present, it exports `<output>_figure_planning_matrix.xlsx` and embeds the visual assets with APA 7 captions.*
 
 ---
 
-## 5. Claim-Evidence Traceability Matrix (ماتریس ردیابی ادعا-شواهد)
+## 5. Claim-Evidence Traceability & Figure-First Planning
 
-Inspired by Prof. Sida Peng's research auditing methodology, publication manuscripts benefit from explicit claim-evidence traceability:
-1. **Zero Unsupported Assertions**: Every substantive empirical claim in the Introduction and Discussion must link directly to a specific table, figure, or statistical parameter ($F, t, p, \eta_p^2, \beta$).
-2. **Standardized Schema**: Validated against `.agents/shared/schemas/claim_evidence.schema.json`.
-3. **Auditing Vulnerabilities**: Explicitly documents anticipated reviewer counter-arguments and methodological boundary conditions before submission.
+Inspired by Prof. Sida Peng's research auditing methodology and Nature/MedSci Figure-First publishing standards:
+1. **Claim-Evidence Mapping**: Every substantive empirical claim in the Introduction and Discussion must link directly to a specific table, figure, or statistical parameter ($F, t, p, \eta_p^2, \beta$), documented in `claim_evidence_matrix.xlsx`.
+2. **Figure-First Visual Evidence Planning**:
+   - Science is communicated through figures: every primary hypothesis must have a corresponding visual representation (e.g. CONSORT flowchart, PRISMA flow diagram, pre-post interaction plot, or group comparison with significance brackets).
+   - The compiler automatically exports `<output>_figure_planning_matrix.xlsx` mapping Figure ID, Title, Supported Claim, Statistical Parameter, Subpanels, and Asset Disk Status (`VERIFIED & EMBEDDED` vs `PENDING GENERATION`).
+3. **Pre-Flight Submission Readiness Score (SRS: 0–100%)**:
+   - Evaluates IMRaD completeness (40%), claim backing (25%), figure-first visual evidence (20%), and APA 7 typography (15%).
+   - Outputs an editorial grade ($A+, A, B, C$) and diagnosis prior to submission.
 
 ---
 
@@ -136,8 +140,10 @@ Before submitting the manuscript to an academic journal, verify:
 - [ ] Method section includes a formal G*Power 3.1 sample size justification.
 - [ ] For every psychometric instrument, Cronbach's $\alpha$ from the current study and sample items are reported.
 - [ ] All tables strictly adhere to APA 7: zero vertical borders, 3 horizontal borders, table captions above, notes below.
+- [ ] Planned figures are embedded with APA 7 numbering above and explanatory notes below.
 - [ ] Discussion explicitly explains the *psychological and theoretical mechanisms* (e.g., Beck, Bandura, Gross) rather than simply repeating statistical figures.
 - [ ] Major empirical claims are mapped to evidence sources via `claim_evidence_matrix.xlsx`.
+- [ ] Figure planning matrix (`figure_planning_matrix.xlsx`) confirms all visual evidence files are generated and verified.
+- [ ] Pre-flight Submission Readiness Score (SRS) achieves Grade A ($\ge 80\%$) or Grade A+ ($\ge 90\%$).
 - [ ] Every in-text citation matches an entry in the References list (and vice versa).
 - [ ] **Word OMML Math Preservation**: If editing an existing manuscript, never use naive `p.text = "..."` replacement. Verify native Word math formulas (`<m:oMath>`) are preserved intact and extract visible text using `"".join([e.text or "" for e in p._p.iter() if e.tag.endswith("}t")])`.
-

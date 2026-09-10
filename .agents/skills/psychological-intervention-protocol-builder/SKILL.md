@@ -101,6 +101,35 @@ The compiler script automatically highlights these triads in:
 
 ---
 
+## 📊 Automated CONSORT 2010 Flowchart Generation
+
+For randomized clinical trials and intervention studies requiring formal trial reporting, the skill provides [`generate_consort_flowchart.py`](scripts/generate_consort_flowchart.py):
+- Generates a publication-grade, 300-DPI vector-style CONSORT 2010 Participant Flow Diagram.
+- Tracks exact patient numbers across all 4 stages:
+  1. **Enrollment**: Assessed for eligibility ($N$), excluded (not meeting criteria, declined, other).
+  2. **Allocation**: Randomized and allocated to experimental intervention vs. control/waitlist.
+  3. **Follow-Up**: Session attendance, losses to follow-up, discontinued interventions with reasons.
+  4. **Analysis**: Numbers analyzed in each arm (Intention-To-Treat / Per-Protocol).
+
+### CLI Command:
+```bash
+# English publication mode (300 DPI):
+python3 .agents/skills/psychological-intervention-protocol-builder/scripts/generate_consort_flowchart.py \
+  --json "trial_data.json" \
+  --out "consort_flowchart.png" \
+  --dpi 300 \
+  --lang en
+
+# Persian thesis mode:
+python3 .agents/skills/psychological-intervention-protocol-builder/scripts/generate_consort_flowchart.py \
+  --json "trial_data.json" \
+  --out "نمودار_جریان_کنسورت.png" \
+  --dpi 300 \
+  --lang fa
+```
+
+---
+
 ## 📄 OpenXML Formatting & Typography Standards
 
 When generating the `.docx` manual:
@@ -110,3 +139,4 @@ When generating the `.docx` manual:
   - Clinical Metaphors and Experiential Exercises are wrapped in light gray/blue container callouts with subtle borders (`#E2E8F0`) and internal margins.
   - Method Triad containers feature a distinct violet/indigo border (`#4F46E5`) with multi-point structured fields.
 - **Directionality**: Enforces `<w:bidi w:val="1"/>` on every paragraph and `<w:bidiVisual/>` on all table elements.
+

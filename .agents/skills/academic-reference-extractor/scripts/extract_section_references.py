@@ -13,6 +13,7 @@ Usage:
 
 import os
 import sys
+import json
 import re
 import unicodedata
 import argparse
@@ -442,6 +443,11 @@ def main():
         default="apa7",
         help="Citation style profile: apa7 (default), tehran_univ (دانشگاه تهران), irandoc (ایرانداک), farhangestan (فرهنگستان)."
     )
+    parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="Execute active Anti-Hallucination Bibliographic Verification Gate (querying CrossRef/PubMed)."
+    )
 
     args = parser.parse_args()
 
@@ -487,6 +493,19 @@ def main():
     print(f"[✓] Exported EndNote: {enw_path}")
     print(f"[✓] Exported RIS: {ris_path}")
     print(f"[✓] Exported Text [{args.style}]: {txt_path}")
+
+    # Active Reference Verification Gate
+    if args.verify:
+        try:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            from verify_references import verify_all_references
+            v_summary = verify_all_references(parsed_records)
+            v_path = os.path.join(args.output_dir, f"{args.prefix}_verification_report.json")
+            with open(v_path, 'w', encoding='utf-8') as vf:
+                json.dump(v_summary, vf, indent=2, ensure_ascii=False)
+            print(f"[✓] Anti-Hallucination Verification Report exported: {v_path}")
+        except Exception as ve:
+            print(f"[!] Verification gate warning: {ve}")
 
 if __name__ == "__main__":
     main()

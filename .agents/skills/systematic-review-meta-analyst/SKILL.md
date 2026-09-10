@@ -116,10 +116,29 @@ python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engi
   --lang fa
 ```
 
-### Step 3: Inspect Generated Deliverables
-1. **`forest_plot.png`**: High-resolution forest plot illustrating each study's effect size ($g$), 95% CI, relative weight (%), and the pooled summary diamond.
-2. **`funnel_plot.png`**: Funnel plot of precision ($1 / SE$) or $SE$ vs. effect size with pseudo 95% confidence bounds.
-3. **`Meta_Analysis_Report.docx`**: APA 7 formatted synthesis containing:
+### Step 3: Generate High-Resolution PRISMA 2020 Flowchart (Optional / Dedicated Figure)
+To generate a standalone 300-DPI vector-quality PRISMA 2020 4-phase flow diagram:
+```bash
+python3 .agents/skills/systematic-review-meta-analyst/scripts/generate_prisma_flowchart.py \
+  --json study_data.json \
+  --out ./meta_analysis_results/prisma_2020_flowchart.png \
+  --dpi 300 \
+  --lang en
+```
+Or for Persian thesis/defense:
+```bash
+python3 .agents/skills/systematic-review-meta-analyst/scripts/generate_prisma_flowchart.py \
+  --json study_data.json \
+  --out ./meta_analysis_results/نمودار_جریان_پریسما_۲۰۲۰.png \
+  --dpi 300 \
+  --lang fa
+```
+
+### Step 4: Inspect Generated Deliverables
+1. **`prisma_2020_flowchart.png`**: Publication-grade 4-phase PRISMA 2020 flow diagram documenting exact study attrition across Identification, Screening, Eligibility, and Inclusion.
+2. **`forest_plot.png`**: High-resolution forest plot illustrating each study's effect size ($g$), 95% CI, relative weight (%), and the pooled summary diamond.
+3. **`funnel_plot.png`**: Funnel plot of precision ($1 / SE$) or $SE$ vs. effect size with pseudo 95% confidence bounds.
+4. **`Meta_Analysis_Report.docx`**: APA 7 formatted synthesis containing:
    - PRISMA 2020 Flow Numbers.
    - Characteristics of Included Studies Table.
    - Cochrane RoB 2 Quality Assessment Matrix.

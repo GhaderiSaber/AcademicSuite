@@ -69,6 +69,50 @@ def format_p_value(p: float) -> str:
     formatted = f"{p:.3f}"
     return formatted[1:] if formatted.startswith('0') else formatted
 
+def adjust_multiple_comparisons(p_values: list, method: str = "fdr_bh") -> tuple:
+    """
+    Adjust p-values for multiple hypothesis testing to control Type I error inflation.
+    Supports:
+      - 'fdr_bh': Benjamini-Hochberg False Discovery Rate (q-values)
+      - 'bonferroni': Single-step Bonferroni (p * m)
+      - 'holm': Holm-Bonferroni step-down
+    Returns:
+      (adjusted_p_values: list, reject_at_05: list)
+    """
+    m = len(p_values)
+    if m == 0:
+        return [], []
+    if m == 1:
+        val = float(p_values[0])
+        return [val], [val < 0.05]
+
+    p_arr = np.array([float(x) for x in p_values], dtype=float)
+    order = np.argsort(p_arr)
+    sorted_p = p_arr[order]
+
+    if method == "bonferroni":
+        adj_sorted = np.minimum(sorted_p * m, 1.0)
+    elif method == "holm":
+        adj_sorted = np.empty(m, dtype=float)
+        for i in range(m):
+            adj_sorted[i] = min(1.0, sorted_p[i] * (m - i))
+        # Enforce monotonicity: adj[i] <= adj[i+1]
+        for i in range(1, m):
+            adj_sorted[i] = max(adj_sorted[i], adj_sorted[i-1])
+    else:  # fdr_bh (Benjamini-Hochberg)
+        adj_sorted = np.empty(m, dtype=float)
+        for i in range(m):
+            adj_sorted[i] = min(1.0, (sorted_p[i] * m) / (i + 1))
+        # Enforce step-up monotonicity: q_(i) <= q_(i+1) backwards
+        for i in range(m - 2, -1, -1):
+            adj_sorted[i] = min(adj_sorted[i], adj_sorted[i + 1])
+
+    # Invert to original order
+    adj_p = np.empty(m, dtype=float)
+    adj_p[order] = adj_sorted
+    reject = (adj_p < 0.05).tolist()
+    return adj_p.tolist(), reject
+
 # --- 1. Descriptives & Normality ---
 def analyze_descriptives_and_normality(df: pd.DataFrame, variables: list) -> dict:
     results = {}
@@ -179,13 +223,43 @@ def analyze_correlation_matrix(df: pd.DataFrame, variables: list, method: str = 
                     r_val, p_val = stats.pearsonr(sub_df[v1], sub_df[v2])
                 corr_matrix[v1][v2] = round(float(r_val), 3)
                 p_matrix[v1][v2] = float(p_val)
+
+    # Calculate multiple-testing adjustments across all unique pairs (i < j)
+    pairs = []
+    raw_p_list = []
+    for i, v1 in enumerate(variables):
+        for j, v2 in enumerate(variables):
+            if i < j:
+                pairs.append((v1, v2))
+                raw_p_list.append(p_matrix[v1][v2])
+
+    q_fdr_list, reject_fdr = adjust_multiple_comparisons(raw_p_list, method="fdr_bh")
+    p_bonf_list, reject_bonf = adjust_multiple_comparisons(raw_p_list, method="bonferroni")
+
+    q_matrix = {v1: {v2: 1.0 for v2 in variables} for v1 in variables}
+    bonf_matrix = {v1: {v2: 1.0 for v2 in variables} for v1 in variables}
+
+    for (v1, v2), q_val, bonf_val in zip(pairs, q_fdr_list, p_bonf_list):
+        q_matrix[v1][v2] = round(float(q_val), 4)
+        q_matrix[v2][v1] = round(float(q_val), 4)
+        bonf_matrix[v1][v2] = round(float(bonf_val), 4)
+        bonf_matrix[v2][v1] = round(float(bonf_val), 4)
                 
     return {
         "method": method,
         "variables": variables,
         "n_cases": len(sub_df),
         "correlations": corr_matrix,
-        "p_values": p_matrix
+        "p_values": p_matrix,
+        "q_values_fdr": q_matrix,
+        "p_values_bonferroni": bonf_matrix,
+        "multiple_testing": {
+            "m_comparisons": len(pairs),
+            "fdr_method": "Benjamini-Hochberg (1995)",
+            "bonferroni_threshold": round(0.05 / len(pairs), 4) if pairs else 0.05,
+            "significant_fdr_count": sum(reject_fdr),
+            "significant_bonf_count": sum(reject_bonf)
+        }
     }
 
 # --- 4. Group Comparisons (t-test / Mann-Whitney) ---

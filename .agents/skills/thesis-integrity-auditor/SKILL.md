@@ -51,16 +51,30 @@ Activate this skill whenever:
 - **Parametric Assumption Vulnerabilities (`MAJOR`)**: Missing or violated Levene's test of homogeneity of variance, Box's M, or severe skewness/kurtosis (> |0.85|).
 - **Hostile Examiner Probes (`AUDIT`)**: Automated generation of targeted, probing defense questions addressing sample representativeness, common method variance, intervention fidelity, and cross-sectional causal claims.
 
+### 6. International EQUATOR Reporting Checklist Compliance (انطباق با راهنماهای بین‌المللی اکواتور)
+- **Automated Protocol Selection**: Automatically selects and audits against the relevant EQUATOR reporting guideline based on research design:
+  - **CONSORT 2010** (25 items): For randomized controlled trials and psychological interventions.
+  - **STROBE** (22 items): For observational, correlational, cross-sectional, and survey research.
+  - **PRISMA 2020** (27 items): For systematic reviews and meta-analyses.
+- **Item-Level Status Grading**: Every item evaluated as `PRESENT`, `PARTIAL`, or `MISSING`.
+- **Equator Score**:
+  $$\text{EQUATOR Score} = \frac{\text{count}(\text{PRESENT}) \times 1.0 + \text{count}(\text{PARTIAL}) \times 0.5}{\text{total items}} \times 100$$
+
 ---
 
-## 3. Thesis Integrity Score (TIS) & Readiness Thresholds
+## 3. Thesis Integrity Score (TIS) & Submission Readiness Score (SRS)
 
+### Thesis Integrity Score (TIS: 0–100%)
 $$\text{TIS} = \max(0, 100 - (15 \times N_{\text{critical}} + 5 \times N_{\text{major}} + 1 \times N_{\text{minor}}))$$
 
-- **$90 - 100\%$**: **Defense Ready (آماده جلسه دفاع)** — Excellent internal coherence; minor editorial polish only.
-- **$75 - 89\%$**: **Supervisor Revision Required (نیازمند بازبینی استاد راهنما)** — Core findings intact; citation or $df$ adjustments needed.
-- **$50 - 74\%$**: **Substantial Revision Required (نیازمند اصلاحات اساسی)** — Missing tests or degrees of freedom errors block defense.
-- **$< 50\%$**: **Critical Discrepancies (عدم انطباق ساختاری)** — Severe structural disconnect requiring comprehensive re-analysis.
+### Composite Submission Readiness Score (SRS: 0–100%)
+Reflecting international peer-review standards across editorial and technical domains:
+$$\text{SRS} = 0.40 \times \text{TIS} + 0.30 \times \text{EQUATOR} + 0.15 \times \text{ClaimEvidence} + 0.15 \times \text{APA7}$$
+
+- **Grade A+ ($\ge 90\%$)**: **Defense & Submission Ready (آماده دفاع ممتاز و سابمیت بین‌المللی)** — Comprehensive internal consistency and full EQUATOR reporting compliance.
+- **Grade A ($80 - 89\%$)**: **Ready with Minor Revisions (آماده با بازبینی جزیی)** — Solid structure; minor reporting or formatting touches recommended.
+- **Grade B ($70 - 79\%$)**: **Substantial Checklist Revisions Required (نیازمند تکمیل گزارش)** — Missing flowcharts, registry IDs, or power justifications before journal submission.
+- **Grade C ($< 70\%$)**: **Critical Deficiencies (عدم انطباق ساختاری)** — Severe reporting gaps, untested hypotheses, or mathematical discrepancies.
 
 ---
 
@@ -96,8 +110,8 @@ python3 .agents/skills/thesis-integrity-auditor/scripts/audit_engine.py \
 
 1. **`گزارش_جامع_ممیزی_و_صحت‌سنجی_رساله.docx`** (or `Thesis_Integrity_Audit_Report.docx`):
    - Professional Word document formatted with native RTL OpenXML BiDi and authentic Iranian typography (*B Titr*, *B Nazanin*).
-   - Executive TIS scorecard, 4 domain finding tables with severity badges, diagnostic details, actionable fixes, and pre-defense checklist.
+   - Executive scorecard showing both TIS and SRS scores, domain finding tables with severity badges, detailed EQUATOR Checklist matrix table, and pre-defense checklist.
 2. **`annotated_citations.xlsx`**:
-   - 5-sheet master workbook: `Overview & Summary`, `Matched Citations`, `Orphaned In-Text`, `Ghost Bibliography`, `Year Mismatches`.
+   - 6-sheet master workbook: `Overview & Summary`, `Matched Citations`, `Orphaned In-Text`, `Ghost Bibliography`, `Year Mismatches`, and `EQUATOR Checklist`.
 3. **`thesis_audit_summary.json`**:
-   - Machine-readable audit ledger for CI/CD pipelines, dashboard integration, and orchestrator workflows.
+   - Machine-readable audit ledger with subscores, finding tallies, and checklist items for CI/CD pipelines, dashboard integration, and orchestrator workflows.

@@ -58,6 +58,21 @@ The skill provides specialized workflows for the three standard psychology resea
 - **Internal Consistency**: Cronbach's alpha ($\alpha \ge .70$), McDonald's omega ($\omega$).
 - **Item Diagnostics**: Corrected item-total correlations ($r \ge .30$) and "alpha if item deleted".
 
+### D. Multiple-Testing Correction & False Discovery Rate (تعدیل آزمون‌های چندگانه)
+- **Problem**: Conducting dozens of simultaneous correlations or pairwise comparisons inflates family-wise Type I error.
+- **Engines Supported**:
+  - **Benjamini-Hochberg (FDR / $q$-values)**: Optimal balance of discovery and false positive control for correlation matrices and exploratory testing.
+  - **Bonferroni**: Conservative family-wise error rate control ($\alpha / m$).
+  - **Holm-Bonferroni**: Sequentially rejective step-down procedure.
+- **Automated Output**: In correlation analysis, `q_values_fdr`, `p_values_bonferroni`, and `multiple_testing` summaries are automatically calculated and reflected in APA 7 table footnotes.
+
+### E. Publication-Grade Scientific Visualizations (مصورسازی استاندارد نشر)
+- **Script**: `visualize_stats.py`
+- **Capabilities**:
+  1. **Group Comparisons with Significance Brackets**: Bar / violin / box plots with exact brackets indicating statistical significance levels (`* p < .05`, `** p < .01`, `*** p < .001`, `ns`).
+  2. **Pre-Post Repeated-Measures Interaction Plots**: Line plots with 95% confidence intervals displaying intervention trajectory across experimental and control arms.
+  3. **Editorial Aesthetics**: Colorblind-safe palettes (Nature, JAMA, Science), 300-DPI high-resolution output, clean sans-serif typography, and zero chartjunk.
+
 ---
 
 ## 3. Step-by-Step Execution Protocol
@@ -87,11 +102,15 @@ When a student provides a dataset and asks for analysis or Chapter 4, follow thi
    - python3 psychology_stats.py --auto --config study_config.json
                    │
                    ▼
-   [Step 4: Generate Word Document]
+   [Step 4: Generate Publication Visuals]
+   - python3 visualize_stats.py --json stats_results.json --out-dir ./plots
+                   │
+                   ▼
+   [Step 5: Generate Word Document]
    - python3 generate_apa_docx.py --json stats_results.json --mode chapter4
                    │
                    ▼
-   [Step 5: Defense Review & Delivery]
+   [Step 6: Defense Review & Delivery]
    - Verify tables, APA notation, and hypothesis conclusions
 ```
 
@@ -156,7 +175,15 @@ python3 .agents/skills/statistical-data-analyst/scripts/psychology_stats.py \
   --out "stats_results.json"
 ```
 
-### Step 4: Generate APA 7th Edition Word Document
+### Step 4: Generate Publication Figures (Optional / Journal Track)
+```bash
+python3 .agents/skills/statistical-data-analyst/scripts/visualize_stats.py \
+  --json "stats_results.json" \
+  --out-dir "./publication_figures" \
+  --dpi 300
+```
+
+### Step 5: Generate APA 7th Edition Word Document
 Run the Word generator script:
 ```bash
 python3 .agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py \
@@ -197,6 +224,8 @@ When providing consultation notes to students, include answers to the most commo
   - *Answer*: "Yes, we formally tested the homogeneity of regression slopes ($Group \times Pretest$, $p > .05$) and Levene's test of equality of error variances ($p > .05$)."
 - **Q: "Why did you use bootstrapping for mediation rather than the Sobel test?"**
   - *Answer*: "The Sobel test assumes normal distribution of the indirect effect $ab$, which is almost always skewed in finite samples. Preacher & Hayes (2008) recommend bootstrapping as it makes no distributional assumptions and provides robust bias-corrected confidence intervals."
+- **Q: "How did you protect against False Discovery Rates in multiple testing?"**
+  - *Answer*: "We implemented the Benjamini-Hochberg False Discovery Rate (FDR) adjustment to control family-wise Type I error inflation while retaining statistical power."
 
 ---
 
@@ -205,7 +234,9 @@ When providing consultation notes to students, include answers to the most commo
 - [Statistical Decision Trees](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/references/statistical_decision_tree.md) — Comprehensive guide for test selection.
 - [APA 7 Reporting Guide](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/references/apa7_psychology_reporting_guide.md) — Exact bilingual reporting sentences and notation rules.
 - [Questionnaire Scoring & Factor Guide](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/references/questionnaire_scoring_and_factor_guide.md) — 3-tier lookup hierarchy, subscale resolution, and reverse-scoring keys.
-- [psychology_stats.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/psychology_stats.py) — Core calculation and hypothesis testing engine.
+- [psychology_stats.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/psychology_stats.py) — Core calculation and hypothesis testing engine with Benjamini-Hochberg and Bonferroni adjustments.
+- [visualize_stats.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/visualize_stats.py) — Publication-grade scientific visualization engine with significance brackets (300 DPI).
 - [questionnaire_resolver.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py) — Master questionnaire resolution, item mapping, and automated dataset scoring engine.
 - [generate_apa_docx.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py) — Word document and table styling engine.
+
 

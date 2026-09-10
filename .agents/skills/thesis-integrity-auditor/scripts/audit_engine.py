@@ -115,6 +115,93 @@ def add_styled_paragraph(doc, text, bold=False, italic=False, size_pt=12, color_
     return p
 
 # ==============================================================================
+# EQUATOR Network Reporting Checklists (CONSORT 2010, STROBE, PRISMA 2020)
+# ==============================================================================
+
+CONSORT_CHECKLIST = [
+    {"id": "1a", "name_en": "Title identifying study as randomized trial", "name_fa": "عنوان مشخص‌کننده کارآزمایی تصادفی‌سازی‌شده", "criticality": "MAJOR"},
+    {"id": "1b", "name_en": "Structured summary abstract (design, methods, results, conclusion)", "name_fa": "چکیده ساختاریافته (طرح، روش، یافته‌ها، نتیجه‌گیری)", "criticality": "MAJOR"},
+    {"id": "2a", "name_en": "Scientific background and rationale", "name_fa": "مبانی نظری، پیشینه و ضرورت پژوهش", "criticality": "MAJOR"},
+    {"id": "2b", "name_en": "Specific objectives or directional hypotheses", "name_fa": "اهداف اختصاصی یا فرضیه‌های جهت‌دار پژوهش", "criticality": "MAJOR"},
+    {"id": "3a", "name_en": "Trial design (parallel, factorial, allocation ratio)", "name_fa": "شرح طرح کارآزمایی بالینی و نسبت تخصیص گروه‌ها", "criticality": "MAJOR"},
+    {"id": "4a", "name_en": "Eligibility criteria for participants", "name_fa": "معیارهای ورود و خروج شرکت‌کنندگان", "criticality": "MAJOR"},
+    {"id": "4b", "name_en": "Settings and locations where data were collected", "name_fa": "مکان، جامعه بالینی و بستر گردآوری داده‌ها", "criticality": "MINOR"},
+    {"id": "5", "name_en": "Interventions in detail for each group (sessions, protocol)", "name_fa": "شرح تفصیلی پروتکل مداخله و جلسات آموزشی/درمانی", "criticality": "CRITICAL"},
+    {"id": "6a", "name_en": "Completely defined primary and secondary outcomes", "name_fa": "تعریف دقیق پیامدهای اولیه و ثانویه", "criticality": "MAJOR"},
+    {"id": "7a", "name_en": "Sample size determination & G*Power power analysis", "name_fa": "تعیین حجم نمونه و توجیه توان آماری با G*Power", "criticality": "CRITICAL"},
+    {"id": "8a", "name_en": "Method used to generate random allocation sequence", "name_fa": "روش تولید توالی تخصیص تصادفی", "criticality": "MAJOR"},
+    {"id": "9", "name_en": "Allocation concealment mechanism", "name_fa": "سازوکار پنهان‌سازی تخصیص (Allocation Concealment)", "criticality": "MAJOR"},
+    {"id": "11a", "name_en": "Blinding/masking procedures (single/double blind)", "name_fa": "روش‌های کوربخش‌سازی یا دلایل عدم امکان آن", "criticality": "MINOR"},
+    {"id": "12a", "name_en": "Statistical methods used to compare groups (ANCOVA/RM-ANOVA)", "name_fa": "روش‌های آماری مقایسه گروه‌ها و کنترل پیش‌آزمون", "criticality": "CRITICAL"},
+    {"id": "13a", "name_en": "Participant flow diagram (CONSORT Flowchart)", "name_fa": "نمودار جریان شرکت‌کنندگان (CONSORT Flowchart)", "criticality": "MAJOR"},
+    {"id": "13b", "name_en": "Losses and exclusions after randomization (dropouts)", "name_fa": "مستندسازی ریزش، غیبت و حذف آزمودنی‌ها", "criticality": "MAJOR"},
+    {"id": "15", "name_en": "Baseline demographic and clinical characteristics table", "name_fa": "جدول ویژگی‌های جمعیت‌شناختی و بالینی خط پایه", "criticality": "MAJOR"},
+    {"id": "16", "name_en": "Numbers analysed in each group (ITT or per-protocol)", "name_fa": "تعداد تحلیل‌شده‌ها در هر گروه (قصد درمان / پروتکل)", "criticality": "MAJOR"},
+    {"id": "17a", "name_en": "Outcomes and estimation with effect sizes and 95% CI", "name_fa": "گزارش پیامدها با اندازه اثر (eta_p^2 / d) و فواصل اطمینان", "criticality": "CRITICAL"},
+    {"id": "18", "name_en": "Ancillary analyses (assumptions, subgroup adjustments)", "name_fa": "تحلیل‌های فرعی و آزمون‌های پیش‌فرض (لون، نرمالیتی)", "criticality": "MAJOR"},
+    {"id": "19", "name_en": "Harms and adverse events reported", "name_fa": "بررسی و گزارش عدم رخداد عوارض جانبی یا آسیب‌های ناخواسته", "criticality": "MINOR"},
+    {"id": "20", "name_en": "Trial limitations addressing sources of potential bias", "name_fa": "محدودیت‌های پژوهش و منابع احتمالی سوگیری", "criticality": "MAJOR"},
+    {"id": "21", "name_en": "Generalisability (external validity) of the findings", "name_fa": "قابلیت تعمیم‌پذیری یافته‌ها به جامعه هدف", "criticality": "MINOR"},
+    {"id": "22", "name_en": "Interpretation consistent with results and clinical evidence", "name_fa": "تفسیر نتایج، تبیین روان‌شناختی و دلالت‌های بالینی", "criticality": "MAJOR"},
+    {"id": "23", "name_en": "Registration number and name of trial registry (IRCT / ClinicalTrials)", "name_fa": "کد ثبت کارآزمایی بالینی (سامانه IRCT یا معادل بین‌المللی)", "criticality": "MAJOR"}
+]
+
+STROBE_CHECKLIST = [
+    {"id": "1", "name_en": "Title and abstract indicating observational study design", "name_fa": "عنوان و چکیده نشان‌دهنده طرح مشاهده‌ای/همبستگی", "criticality": "MAJOR"},
+    {"id": "2", "name_en": "Background and scientific rationale", "name_fa": "مبانی نظری و ضرورت پژوهش", "criticality": "MAJOR"},
+    {"id": "3", "name_en": "Specific objectives and hypotheses", "name_fa": "اهداف اختصاصی و فرضیه‌های پژوهش", "criticality": "MAJOR"},
+    {"id": "4", "name_en": "Key elements of study design", "name_fa": "طرح پژوهش (مقطعی، همبستگی، علّی-مقایسه‌ای)", "criticality": "MAJOR"},
+    {"id": "5", "name_en": "Setting, locations, and data collection dates", "name_fa": "مکان، جامعه هدف و بازه زمانی گردآوری داده‌ها", "criticality": "MINOR"},
+    {"id": "6", "name_en": "Participants eligibility criteria & sampling strategy", "name_fa": "معیارهای ورود/خروج و شیوه نمونه‌گیری", "criticality": "MAJOR"},
+    {"id": "7", "name_en": "Clearly defined variables (predictors, outcomes, covariates)", "name_fa": "تعریف متغیرهای پیش‌بین، ملاک، واسطه‌ای و تعدیل‌کننده", "criticality": "CRITICAL"},
+    {"id": "8", "name_en": "Data sources and measurement tools (psychometric validity/reliability)", "name_fa": "ابزارهای اندازه‌گیری و شاخص‌های روان‌سنجی (روایی/پایایی)", "criticality": "CRITICAL"},
+    {"id": "9", "name_en": "Efforts to address potential sources of bias", "name_fa": "بررسی و مهار منابع سوگیری (پاسخ‌دهی، همخطی)", "criticality": "MAJOR"},
+    {"id": "10", "name_en": "Study size justification (G*Power or N:q ratio for SEM)", "name_fa": "توجیه حجم نمونه بر پایه تحلیل توان G*Power یا نسبت N:q", "criticality": "CRITICAL"},
+    {"id": "11", "name_en": "Handling of quantitative continuous variables", "name_fa": "نحوه بررسی و نمره‌گذاری متغیرهای پیوسته", "criticality": "MINOR"},
+    {"id": "12", "name_en": "Statistical methods including assumption checks (normality, collinearity)", "name_fa": "روش‌های آماری و آزمون مفروضه‌ها (نرمالیتی، خطی‌بودن)", "criticality": "CRITICAL"},
+    {"id": "13", "name_en": "Participant numbers at each stage & response rate", "name_fa": "تعداد شرکت‌کنندگان و نرخ پاسخ‌دهی پرسشنامه‌ها", "criticality": "MAJOR"},
+    {"id": "14", "name_en": "Descriptive demographic characteristics", "name_fa": "آمار توصیفی جمعیت‌شناختی (سن، جنسیت، تحصیلات)", "criticality": "MAJOR"},
+    {"id": "15", "name_en": "Outcome and predictor descriptive statistics (M, SD)", "name_fa": "شاخص‌های توصیفی متغیرها (میانگین، انحراف معیار، چولگی)", "criticality": "MAJOR"},
+    {"id": "16", "name_en": "Main statistical results with parameter estimates and 95% CI", "name_fa": "نتایج اصلی با ضرایب مسیر، بتای رگرسیون و فواصل اطمینان", "criticality": "CRITICAL"},
+    {"id": "17", "name_en": "Other analyses (subgroups, model fit indices: CFI, RMSEA)", "name_fa": "شاخص‌های برازش مدل (CFI, TLI, RMSEA, SRMR) یا آزمون‌های فرعی", "criticality": "MAJOR"},
+    {"id": "18", "name_en": "Summary of key results mapped to objectives", "name_fa": "خلاصه یافته‌های اصلی متناظر با فرضیه‌ها", "criticality": "MAJOR"},
+    {"id": "19", "name_en": "Discussion of limitations and methodological biases", "name_fa": "محدودیت‌های متدولوژیک و تعمیم‌ناپذیری ابزارها", "criticality": "MAJOR"},
+    {"id": "20", "name_en": "Interpretation of results in theoretical context", "name_fa": "تفسیر یافته‌ها در پیوند با تئوری‌ها و پیشینه‌های تجربی", "criticality": "MAJOR"},
+    {"id": "21", "name_en": "Generalisability of findings", "name_fa": "قابلیت تعمیم به جامعه بیرونی", "criticality": "MINOR"},
+    {"id": "22", "name_en": "Funding, ethics approval, and conflict of interest declarations", "name_fa": "کد اخلاق پژوهش، عدم تعارض منافع و تامین مالی", "criticality": "MAJOR"}
+]
+
+PRISMA_CHECKLIST = [
+    {"id": "1", "name_en": "Title identifying report as systematic review or meta-analysis", "name_fa": "عنوان نشان‌دهنده مرور سیستماتیک یا فرا-تحلیل", "criticality": "MAJOR"},
+    {"id": "2", "name_en": "Structured summary abstract (PRISMA format)", "name_fa": "چکیده ساختاریافته مطابق قالب PRISMA", "criticality": "MAJOR"},
+    {"id": "3", "name_en": "Rationale in context of existing knowledge", "name_fa": "مبانی نظری و شکاف موجود در ادبیات پژوهش", "criticality": "MAJOR"},
+    {"id": "4", "name_en": "Explicit statement of objectives based on PICO", "name_fa": "اهداف مشخص بر پایه ساختار PICO/PECO", "criticality": "MAJOR"},
+    {"id": "5", "name_en": "Eligibility criteria (inclusion and exclusion)", "name_fa": "معیارهای ورود و خروج مقالات", "criticality": "CRITICAL"},
+    {"id": "6", "name_en": "Information sources and search dates (PubMed, Scopus, SID)", "name_fa": "پایگاه‌های اطلاعاتی و تاریخ‌های جستجو", "criticality": "CRITICAL"},
+    {"id": "7", "name_en": "Full search strategy with Boolean operators for at least one database", "name_fa": "استراتژی کامل جستجو با عملگرهای بولی برای حداقل یک پایگاه", "criticality": "MAJOR"},
+    {"id": "8", "name_en": "Study selection process (independent double screening)", "name_fa": "فرایند غربالگری مستقل دو پژوهشگر و حل اختلاف", "criticality": "MAJOR"},
+    {"id": "9", "name_en": "Data extraction process and coding forms", "name_fa": "فرایند استخراج داده‌ها و فرم‌های کدگذاری", "criticality": "MAJOR"},
+    {"id": "10", "name_en": "Data items extracted from studies", "name_fa": "فهرست متغیرها و اطلاعات استخراج‌شده", "criticality": "MAJOR"},
+    {"id": "11", "name_en": "Study risk of bias assessment tool (RoB 2, NOS, Newcastle)", "name_fa": "ابزار ارزیابی خطر سوگیری یا کیفیت مقالات", "criticality": "CRITICAL"},
+    {"id": "12", "name_en": "Effect measures (Hedges' g, Cohen's d, Odds Ratio)", "name_fa": "شاخص اندازه اثر ترکیبی استانداردشده", "criticality": "CRITICAL"},
+    {"id": "13", "name_en": "Synthesis methods & heterogeneity model (I², Q, tau²)", "name_fa": "مدل تلفیق (اثرات تصادفی/ثابت) و شاخص‌های ناهمگنی", "criticality": "CRITICAL"},
+    {"id": "14", "name_en": "Reporting bias assessment methods (Egger, Begg, Trim & Fill)", "name_fa": "روش‌های ارزیابی سوگیری انتشار (ایگر، قیفی)", "criticality": "MAJOR"},
+    {"id": "15", "name_en": "Certainty of evidence assessment (GRADE framework)", "name_fa": "ارزیابی قطعیت شواهد با رویکرد GRADE", "criticality": "MINOR"},
+    {"id": "16", "name_en": "Study selection results: PRISMA 2020 Flow Diagram", "name_fa": "نمودار جریان انتخاب مطالعات (PRISMA 2020 Flowchart)", "criticality": "CRITICAL"},
+    {"id": "17", "name_en": "Study characteristics table of included trials", "name_fa": "جدول مشخصات توصیفی مطالعات واردشده به فراتحلیل", "criticality": "MAJOR"},
+    {"id": "18", "name_en": "Risk of bias assessment results across studies", "name_fa": "نتایج تفصیلی ارزیابی خطر سوگیری مقالات", "criticality": "MAJOR"},
+    {"id": "19", "name_en": "Individual study results and Forest Plot", "name_fa": "نتایج مطالعات منفرد و نمودار انباشت (Forest Plot)", "criticality": "CRITICAL"},
+    {"id": "20", "name_en": "Synthesized results and pooled effect size with 95% CI", "name_fa": "اندازه اثر ترکیبی تجمیعی با فاصله اطمینان ۹۵٪ و سطح p", "criticality": "CRITICAL"},
+    {"id": "21", "name_en": "Reporting biases evaluation (Funnel Plot & Egger's p)", "name_fa": "نتایج سوگیری انتشار و نمودار قیفی (Funnel Plot)", "criticality": "MAJOR"},
+    {"id": "22", "name_en": "Certainty of evidence results summary", "name_fa": "خلاصه شواهد و درجه قطعیت نتایج", "criticality": "MINOR"},
+    {"id": "23", "name_en": "Discussion: interpretation in light of evidence", "name_fa": "بحث و تفسیر شواهد سنتزشده", "criticality": "MAJOR"},
+    {"id": "24", "name_en": "Limitations of evidence and review process", "name_fa": "محدودیت‌های مطالعات واردشده و فرایند مرور", "criticality": "MAJOR"},
+    {"id": "25", "name_en": "Conclusions and practical implications", "name_fa": "نتیجه‌گیری و دلالت‌های بالینی/پژوهشی", "criticality": "MAJOR"},
+    {"id": "26", "name_en": "Registration number and protocol (PROSPERO ID)", "name_fa": "کد ثبت پروتکل مرور سیستماتیک در PROSPERO", "criticality": "MAJOR"},
+    {"id": "27", "name_en": "Financial support, conflict of interest, and data availability", "name_fa": "حمایت مالی، اعلام عدم تعارض منافع و بیانیه دسترسی به داده", "criticality": "MAJOR"}
+]
+
+# ==============================================================================
 # Audit Analysis Engine
 # ==============================================================================
 
@@ -124,6 +211,11 @@ class ThesisIntegrityAuditor:
         self.metadata = payload.get("project_metadata", {})
         self.findings = []
         self.audit_summary = {}
+        self.equator_checklist_results = []
+        self.equator_score = 0.0
+        self.equator_guideline = ""
+        self.submission_readiness_score = 0.0
+        self.srs_grade = ""
 
     def audit_all(self):
         self._audit_hypotheses_alignment()
@@ -131,6 +223,7 @@ class ThesisIntegrityAuditor:
         self._audit_citations_and_bibliography()
         self._audit_apa7_compliance()
         self._audit_adversarial_defense()
+        self._audit_equator_reporting()
         self._compute_integrity_score()
         return self.audit_summary
 
@@ -564,8 +657,215 @@ class ThesisIntegrityAuditor:
             }
         ]
 
+    def _audit_equator_reporting(self):
+        """
+        Dimension 6: EQUATOR Reporting Checklist Compliance & Submission Readiness
+        Audits reporting completeness against international EQUATOR Network checklists:
+          - CONSORT 2010 (Randomized Controlled Trials & Interventions)
+          - STROBE (Observational, Correlational, Survey Studies)
+          - PRISMA 2020 (Systematic Reviews & Meta-Analyses)
+        """
+        study_type = str(self.payload.get("study_type", "auto")).lower()
+        title = (self.metadata.get("title", "") + " " + self.metadata.get("title_en", "")).lower()
+        design = str(self.payload.get("chapter3_methodology", {}).get("design", "")).lower()
+
+        if study_type == "auto":
+            if any(k in title or k in design for k in ["meta-analysis", "systematic review", "فراتحلیل", "مرور سیستماتیک", "متاآنالیز"]):
+                study_type = "prisma"
+            elif any(k in title or k in design for k in ["trial", "intervention", "rct", "experimental", "semi-experimental", "آزمایشی", "نیمه‌آزمایشی", "کارآزمایی", "مداخله"]):
+                study_type = "consort"
+            else:
+                study_type = "strobe"
+
+        if study_type == "prisma":
+            checklist_def = PRISMA_CHECKLIST
+            guideline_name = "PRISMA 2020"
+        elif study_type == "consort":
+            checklist_def = CONSORT_CHECKLIST
+            guideline_name = "CONSORT 2010"
+        else:
+            checklist_def = STROBE_CHECKLIST
+            guideline_name = "STROBE"
+
+        self.equator_guideline = guideline_name
+        self.equator_checklist_results = []
+
+        explicit_checklist = self.payload.get("equator_checklist", {})
+
+        ch1_hyps = self.payload.get("chapter1_hypotheses", [])
+        ch3_meth = self.payload.get("chapter3_methodology", {})
+        ch4_tests = self.payload.get("chapter4_statistical_tests", [])
+        ch4_assump = self.payload.get("chapter4_assumptions", {})
+        ch5_disc = self.payload.get("chapter5_discussion", {})
+        meta = self.metadata
+
+        for item in checklist_def:
+            i_id = item["id"]
+            name_en = item["name_en"]
+            name_fa = item["name_fa"]
+            crit = item["criticality"]
+
+            status = explicit_checklist.get(i_id) or explicit_checklist.get(str(i_id))
+            note = ""
+
+            if not status:
+                if guideline_name == "CONSORT 2010":
+                    if i_id in ["1a", "1b"]:
+                        status = "PRESENT" if meta.get("title") else "MISSING"
+                    elif i_id in ["2a", "2b"]:
+                        status = "PRESENT" if ch1_hyps else "MISSING"
+                    elif i_id == "3a":
+                        status = "PRESENT" if ch3_meth.get("design") else "PARTIAL"
+                    elif i_id in ["4a", "4b"]:
+                        status = "PRESENT" if (ch3_meth.get("inclusion_criteria") or meta.get("population") or ch3_meth.get("total_sample_size")) else "PARTIAL"
+                    elif i_id == "5":
+                        status = "PRESENT" if (ch3_meth.get("intervention_protocol") or "intervention" in str(ch3_meth).lower() or ch3_meth.get("groups")) else "PARTIAL"
+                    elif i_id == "6a":
+                        status = "PRESENT" if ch3_meth.get("instruments") else "PARTIAL"
+                    elif i_id == "7a":
+                        if ch3_meth.get("sample_size_justification") or "g*power" in str(ch3_meth).lower() or "توان" in str(ch3_meth):
+                            status = "PRESENT"
+                        elif ch3_meth.get("total_sample_size"):
+                            status = "PARTIAL"
+                            note = "Sample size reported but lacking formal G*Power justification"
+                        else:
+                            status = "MISSING"
+                    elif i_id in ["8a", "9"]:
+                        if "random" in design or "تصادفی" in design:
+                            status = "PRESENT" if ch3_meth.get("randomization") else "PARTIAL"
+                        else:
+                            status = "PARTIAL"
+                            note = "Quasi-experimental design; allocation concealment non-applicable or unmasked"
+                    elif i_id == "11a":
+                        status = "PRESENT" if ch3_meth.get("blinding") else "PARTIAL"
+                    elif i_id == "12a":
+                        status = "PRESENT" if ch4_tests else "MISSING"
+                    elif i_id == "13a":
+                        status = "PRESENT" if (self.payload.get("flowchart") or ch3_meth.get("flowchart") or self.payload.get("flowchart_path")) else "MISSING"
+                        if status == "MISSING":
+                            note = "CONSORT participant flowchart is missing"
+                    elif i_id == "13b":
+                        status = "PRESENT" if ("dropouts" in ch3_meth or ch3_meth.get("dropouts") is not None) else "PARTIAL"
+                    elif i_id == "15":
+                        status = "PRESENT" if (ch3_meth.get("demographics") or self.payload.get("baseline_characteristics")) else "PARTIAL"
+                    elif i_id == "16":
+                        status = "PRESENT" if (ch3_meth.get("groups") and all("n" in g for g in ch3_meth.get("groups", []))) else "PARTIAL"
+                    elif i_id == "17a":
+                        has_es = any(t.get("reported_stats", {}).get("eta_squared") is not None or t.get("statistics", {}).get("partial_eta_squared") is not None for t in ch4_tests)
+                        status = "PRESENT" if has_es else "PARTIAL"
+                    elif i_id == "18":
+                        status = "PRESENT" if (ch4_assump.get("homogeneity_of_variance_levene") or ch4_assump.get("normality_shapiro")) else "PARTIAL"
+                    elif i_id == "19":
+                        status = "PRESENT" if ("harms" in str(ch3_meth).lower() or "ملاحظات اخلاقی" in str(ch3_meth) or "ethics" in str(ch3_meth).lower()) else "PARTIAL"
+                    elif i_id in ["20", "21", "22"]:
+                        status = "PRESENT" if (ch5_disc.get("limitations") or "محدودیت" in str(ch5_disc)) else "PARTIAL"
+                    elif i_id == "23":
+                        status = "PRESENT" if (meta.get("irct_id") or self.payload.get("trial_registration")) else "PARTIAL"
+                        if status == "PARTIAL":
+                            note = "IRCT clinical trial registration ID not specified"
+                    else:
+                        status = "PARTIAL"
+
+                elif guideline_name == "PRISMA 2020":
+                    if i_id in ["1", "2", "3", "4"]:
+                        status = "PRESENT" if meta.get("title") else "MISSING"
+                    elif i_id in ["5", "6"]:
+                        status = "PRESENT" if (ch3_meth.get("databases") or ch3_meth.get("eligibility_criteria")) else "PARTIAL"
+                    elif i_id == "7":
+                        status = "PRESENT" if ch3_meth.get("search_strategy") else "PARTIAL"
+                    elif i_id in ["8", "9", "10"]:
+                        status = "PRESENT" if (ch3_meth.get("screening_process") or ch3_meth.get("data_extraction")) else "PARTIAL"
+                    elif i_id == "11":
+                        status = "PRESENT" if (ch3_meth.get("risk_of_bias_tool") or "rob" in str(ch3_meth).lower()) else "PARTIAL"
+                    elif i_id in ["12", "13"]:
+                        status = "PRESENT" if (ch4_tests or self.payload.get("meta_analysis_results")) else "MISSING"
+                    elif i_id == "14":
+                        status = "PRESENT" if (self.payload.get("publication_bias") or ch4_assump.get("egger_test")) else "PARTIAL"
+                    elif i_id == "15":
+                        status = "PRESENT" if self.payload.get("grade_assessment") else "PARTIAL"
+                    elif i_id == "16":
+                        status = "PRESENT" if (self.payload.get("flowchart") or self.payload.get("prisma_flowchart")) else "MISSING"
+                        if status == "MISSING":
+                            note = "PRISMA 2020 4-phase flowchart is missing"
+                    elif i_id in ["17", "18"]:
+                        status = "PRESENT" if self.payload.get("included_studies") else "PARTIAL"
+                    elif i_id == "19":
+                        status = "PRESENT" if self.payload.get("forest_plot") else "PARTIAL"
+                    elif i_id == "20":
+                        status = "PRESENT" if (ch4_tests or self.payload.get("pooled_effect_size")) else "PARTIAL"
+                    elif i_id == "21":
+                        status = "PRESENT" if self.payload.get("funnel_plot") else "PARTIAL"
+                    elif i_id in ["23", "24", "25"]:
+                        status = "PRESENT" if ch5_disc else "PARTIAL"
+                    elif i_id == "26":
+                        status = "PRESENT" if meta.get("prospero_id") else "PARTIAL"
+                    else:
+                        status = "PARTIAL"
+
+                else: # STROBE
+                    if i_id in ["1", "2", "3", "4"]:
+                        status = "PRESENT" if (meta.get("title") and ch1_hyps) else "PARTIAL"
+                    elif i_id in ["5", "6"]:
+                        status = "PRESENT" if (ch3_meth.get("total_sample_size") or ch3_meth.get("sampling_method")) else "PARTIAL"
+                    elif i_id in ["7", "8"]:
+                        status = "PRESENT" if ch3_meth.get("instruments") else "PARTIAL"
+                    elif i_id == "9":
+                        status = "PRESENT" if (ch4_assump.get("multicollinearity") or "bias" in str(ch3_meth).lower()) else "PARTIAL"
+                    elif i_id == "10":
+                        status = "PRESENT" if (ch3_meth.get("sample_size_justification") or "g*power" in str(ch3_meth).lower()) else "PARTIAL"
+                    elif i_id in ["11", "12"]:
+                        status = "PRESENT" if ch4_tests else "MISSING"
+                    elif i_id == "13":
+                        status = "PRESENT" if (self.payload.get("flowchart") or ch3_meth.get("response_rate")) else "PARTIAL"
+                    elif i_id in ["14", "15"]:
+                        status = "PRESENT" if ch3_meth.get("demographics") else "PARTIAL"
+                    elif i_id == "16":
+                        status = "PRESENT" if ch4_tests else "MISSING"
+                    elif i_id == "17":
+                        status = "PRESENT" if ch4_assump else "PARTIAL"
+                    elif i_id in ["18", "19", "20", "21"]:
+                        status = "PRESENT" if ch5_disc else "PARTIAL"
+                    elif i_id == "22":
+                        status = "PRESENT" if (meta.get("ethics_code") or meta.get("conflict_of_interest")) else "PARTIAL"
+                    else:
+                        status = "PARTIAL"
+
+            status = str(status).upper()
+            if status not in ["PRESENT", "PARTIAL", "MISSING"]:
+                status = "PARTIAL"
+
+            entry = {
+                "item_id": i_id,
+                "name_en": name_en,
+                "name_fa": name_fa,
+                "criticality": crit,
+                "status": status,
+                "note": note
+            }
+            self.equator_checklist_results.append(entry)
+
+            if status == "MISSING" or (status == "PARTIAL" and crit == "CRITICAL"):
+                sev = "MAJOR" if crit in ["CRITICAL", "MAJOR"] else "MINOR"
+                self._add_finding(
+                    domain="equator_compliance",
+                    severity=sev,
+                    title_fa=f"عدم انطباق با بند {i_id} چک‌لیست {guideline_name}: {name_fa}",
+                    title_en=f"{guideline_name} Item {i_id} Compliance Deficit: {name_en}",
+                    description_fa=f"مطابق استاندارد بین‌المللی {guideline_name}، بند {i_id} ({name_fa}) به صورت {status} ارزیابی شد. {note}",
+                    description_en=f"Under international {guideline_name} standards, Item {i_id} ({name_en}) is {status}. {note}",
+                    recommendation_fa=f"مستندات و بخش‌های مربوط به '{name_fa}' را قبل از ارسال مقاله/دفاع به پایان‌نامه اضافه نمایید.",
+                    recommendation_en=f"Document and include '{name_en}' in the relevant chapter before submission.",
+                    details={"item_id": i_id, "guideline": guideline_name, "status": status}
+                )
+
+        present_cnt = sum(1 for e in self.equator_checklist_results if e["status"] == "PRESENT")
+        partial_cnt = sum(1 for e in self.equator_checklist_results if e["status"] == "PARTIAL")
+        total_cnt = len(self.equator_checklist_results)
+
+        self.equator_score = round(((present_cnt * 1.0) + (partial_cnt * 0.5)) / total_cnt * 100.0, 1) if total_cnt > 0 else 100.0
+
     def _compute_integrity_score(self):
-        """Computes composite Thesis Integrity Score (TIS) 0-100%"""
+        """Computes composite Thesis Integrity Score (TIS) and Submission Readiness Score (SRS) 0-100%"""
         critical_count = sum(1 for f in self.findings if f["severity"] == "CRITICAL")
         major_count = sum(1 for f in self.findings if f["severity"] == "MAJOR")
         minor_count = sum(1 for f in self.findings if f["severity"] == "MINOR")
@@ -573,6 +873,48 @@ class ThesisIntegrityAuditor:
 
         tis = 100 - (15 * critical_count + 5 * major_count + 1 * minor_count)
         tis = max(0, min(100, tis))
+
+        # Claim-evidence score
+        ch1_hyps = self.payload.get("chapter1_hypotheses", [])
+        ch4_tests = self.payload.get("chapter4_statistical_tests", [])
+        if ch1_hyps:
+            tested_ids = set(t.get("hypothesis_id") for t in ch4_tests if t.get("hypothesis_id"))
+            hyp_ids = set(h.get("id") for h in ch1_hyps if h.get("id"))
+            if hyp_ids:
+                claim_evidence_score = round(len(hyp_ids.intersection(tested_ids)) / len(hyp_ids) * 100.0, 1)
+            else:
+                claim_evidence_score = 100.0
+        else:
+            claim_evidence_score = 100.0
+
+        # APA 7 score
+        apa_count = sum(1 for f in self.findings if f["domain"] == "apa7_formatting")
+        apa7_score = max(0.0, min(100.0, 100.0 - (apa_count * 5.0)))
+
+        # Submission Readiness Score (SRS)
+        equator_score = getattr(self, "equator_score", 100.0)
+        srs = round((0.40 * tis) + (0.30 * equator_score) + (0.15 * claim_evidence_score) + (0.15 * apa7_score), 1)
+        srs = max(0.0, min(100.0, srs))
+        self.submission_readiness_score = srs
+
+        if srs >= 90:
+            srs_grade = "A+"
+            srs_status_fa = "آماده دفاع ممتاز و ارسال به مجلات بین‌المللی (A+)"
+            srs_status_en = "Defense & Submission Ready (A+)"
+        elif srs >= 80:
+            srs_grade = "A"
+            srs_status_fa = "آماده با اصلاحات ویرایشی جزیی (A)"
+            srs_status_en = "Ready with Minor Revisions (A)"
+        elif srs >= 70:
+            srs_grade = "B"
+            srs_status_fa = "نیازمند تکمیل موارد چک‌لیست قبل از سابمیت (B)"
+            srs_status_en = "Checklist Revisions Required Before Submission (B)"
+        else:
+            srs_grade = "C"
+            srs_status_fa = "عدم انطباق با استانداردهای گزارش‌دهی (C)"
+            srs_status_en = "Critical Deficiencies - Not Submission Ready (C)"
+
+        self.srs_grade = srs_grade
 
         if tis >= 90:
             status_fa = "آماده جلسه دفاع (Defense Ready)"
@@ -591,11 +933,35 @@ class ThesisIntegrityAuditor:
             status_en = "Critical Discrepancies"
             verdict_desc_fa = "پایان‌نامه دارای تناقضات جدی در فرضیه‌ها، محاسبات یا ارجاعات است و نیازمند بازنگری ساختاری کامل می‌باشد."
 
+        present_cnt = sum(1 for e in getattr(self, "equator_checklist_results", []) if e["status"] == "PRESENT")
+        partial_cnt = sum(1 for e in getattr(self, "equator_checklist_results", []) if e["status"] == "PARTIAL")
+        missing_cnt = sum(1 for e in getattr(self, "equator_checklist_results", []) if e["status"] == "MISSING")
+
         self.audit_summary = {
             "thesis_integrity_score": tis,
+            "submission_readiness_score": srs,
+            "srs_grade": srs_grade,
+            "srs_status_fa": srs_status_fa,
+            "srs_status_en": srs_status_en,
             "readiness_status_fa": status_fa,
             "readiness_status_en": status_en,
             "verdict_description_fa": verdict_desc_fa,
+            "equator_audit": {
+                "guideline": getattr(self, "equator_guideline", "EQUATOR"),
+                "equator_score": equator_score,
+                "present_count": present_cnt,
+                "partial_count": partial_cnt,
+                "missing_count": missing_cnt,
+                "total_items": len(getattr(self, "equator_checklist_results", [])),
+                "items": getattr(self, "equator_checklist_results", [])
+            },
+            "subscores": {
+                "tis": tis,
+                "equator_score": equator_score,
+                "claim_evidence_score": claim_evidence_score,
+                "apa7_score": apa7_score,
+                "weights": "TIS: 40%, EQUATOR: 30%, Claim-Evidence: 15%, APA7: 15%"
+            },
             "finding_counts": {
                 "critical": critical_count,
                 "major": major_count,
@@ -642,30 +1008,37 @@ def generate_audit_docx(auditor, out_path, lang="fa"):
                          align=WD_ALIGN_PARAGRAPH.CENTER, space_after=18, is_bidi=is_fa)
 
     # Executive Summary Box Table
-    score_tbl = doc.add_table(rows=2, cols=4)
+    score_tbl = doc.add_table(rows=2, cols=6)
     score_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
     make_table_apa7(score_tbl, is_bidi=is_fa)
 
     headers = [
-        ("شاخص جامع انطباق (TIS)", "Integrity Score (TIS)"),
-        ("وضعیت آمادگی دفاع", "Defense Readiness"),
-        ("خطاهای بحرانی (Critical)", "Critical Errors"),
-        ("نیازمند اصلاح (Major)", "Major Revisions")
+        ("شاخص جامع انطباق (TIS)", "Integrity (TIS)"),
+        ("شاخص آمادگی سابمیت (SRS)", "Readiness (SRS)"),
+        ("چک‌لیست اکواتور", "EQUATOR Audit"),
+        ("وضعیت آمادگی دفاع", "Defense Status"),
+        ("خطاهای بحرانی (Critical)", "Critical"),
+        ("نیازمند اصلاح (Major)", "Major")
     ]
     for col_idx, (h_fa, h_en) in enumerate(headers):
         cell = score_tbl.cell(0, col_idx)
         set_cell_shading(cell, "2B3A4A")
         set_cell_margins(cell, top=120, bottom=120)
-        format_cell_text(cell, h_fa if is_fa else h_en, bold=True, size_pt=10, color_rgb=(255,255,255), is_bidi=is_fa)
+        format_cell_text(cell, h_fa if is_fa else h_en, bold=True, size_pt=9.5, color_rgb=(255,255,255), is_bidi=is_fa)
 
     status_str = summary["readiness_status_fa"] if is_fa else summary["readiness_status_en"]
-    row_vals = [f"{tis}%", status_str, str(counts["critical"]), str(counts["major"])]
+    srs_val = summary.get("submission_readiness_score", tis)
+    srs_grade = summary.get("srs_grade", "A")
+    eq_summary = summary.get("equator_audit", {})
+    eq_str = f"{eq_summary.get('guideline', 'EQUATOR')} ({eq_summary.get('equator_score', 0)}%)"
+
+    row_vals = [f"{tis}%", f"{srs_val}% ({srs_grade})", eq_str, status_str, str(counts["critical"]), str(counts["major"])]
     for col_idx, val in enumerate(row_vals):
         cell = score_tbl.cell(1, col_idx)
         set_cell_margins(cell, top=100, bottom=100)
-        bold = (col_idx == 0)
-        color = (180, 40, 40) if (col_idx == 2 and counts["critical"] > 0) else (30, 30, 30)
-        format_cell_text(cell, val, bold=bold, size_pt=11, color_rgb=color, is_bidi=is_fa)
+        bold = (col_idx in [0, 1])
+        color = (180, 40, 40) if (col_idx == 4 and counts["critical"] > 0) else (30, 30, 30)
+        format_cell_text(cell, val, bold=bold, size_pt=10, color_rgb=color, is_bidi=is_fa)
 
     add_styled_paragraph(doc, "", space_after=12)
 
@@ -692,7 +1065,8 @@ def generate_audit_docx(auditor, out_path, lang="fa"):
         ("methodology_statistics", "۳. ممیزی انطباق روش‌شناسی و درجات آزادی آماری", "3. Methodology & Statistical Consistency"),
         ("citations_bibliography", "۴. صحت‌سنجی دوطرفه ارجاعات درون‌متنی و منابع", "4. Citation & Bibliography Reconciliation"),
         ("apa7_formatting", "۵. رعایت استانداردهای نگارش آماری APA 7th Edition", "5. APA 7th Edition Formatting Compliance"),
-        ("adversarial_defense", "۶. شبیه‌سازی ارزیابی تخاصمی داوران و آمادگی جلسه دفاع", "6. Adversarial Defense & Peer-Review Simulation")
+        ("adversarial_defense", "۶. شبیه‌سازی ارزیابی تخاصمی داوران و آمادگی جلسه دفاع", "6. Adversarial Defense & Peer-Review Simulation"),
+        ("equator_compliance", "۷. انطباق با راهنماهای گزارش‌دهی استاندارد بین‌المللی (EQUATOR Compliance)", "7. International EQUATOR Reporting Checklist Compliance")
     ]
 
     for domain_key, domain_title_fa, domain_title_en in domains:
@@ -756,14 +1130,70 @@ def generate_audit_docx(auditor, out_path, lang="fa"):
 
         add_styled_paragraph(doc, "", space_after=12)
 
+    # Detailed EQUATOR Checklist Table
+    eq_items = getattr(auditor, "equator_checklist_results", [])
+    if eq_items:
+        eq_title = f"۸. ماتریس تفصیلی ارزیابی چک‌لیست {auditor.equator_guideline}" if is_fa else f"8. Detailed {auditor.equator_guideline} Reporting Checklist Matrix"
+        add_styled_paragraph(doc, eq_title, bold=True, size_pt=13, color_rgb=(20, 45, 80), space_after=6, is_bidi=is_fa)
+
+        eq_tbl = doc.add_table(rows=len(eq_items) + 1, cols=4)
+        eq_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+        make_table_apa7(eq_tbl, is_bidi=is_fa)
+
+        eq_tbl_headers = [
+            ("بند", "Item"),
+            ("عنوان و الزام چک‌لیست", "Requirement Description"),
+            ("وضعیت در متن", "Status"),
+            ("توضیحات تشخیصی", "Diagnostic Notes")
+        ]
+        for col_idx, (h_fa, h_en) in enumerate(eq_tbl_headers):
+            cell = eq_tbl.cell(0, col_idx)
+            set_cell_shading(cell, "2B3A4A")
+            set_cell_margins(cell, top=100, bottom=100)
+            format_cell_text(cell, h_fa if is_fa else h_en, bold=True, size_pt=9.5, color_rgb=(255,255,255), is_bidi=is_fa)
+
+        for row_idx, item in enumerate(eq_items, start=1):
+            st = item["status"]
+            status_colors = {
+                "PRESENT": (30, 130, 60),
+                "PARTIAL": (210, 130, 20),
+                "MISSING": (190, 30, 30)
+            }
+            c_rgb = status_colors.get(st, (50, 50, 50))
+
+            # Cell 0: ID
+            c0 = eq_tbl.cell(row_idx, 0)
+            set_cell_margins(c0, top=60, bottom=60)
+            format_cell_text(c0, item["item_id"], bold=True, size_pt=9, is_bidi=is_fa)
+
+            # Cell 1: Requirement
+            req_text = item["name_fa"] if is_fa else item["name_en"]
+            c1 = eq_tbl.cell(row_idx, 1)
+            set_cell_margins(c1, top=60, bottom=60)
+            format_cell_text(c1, req_text, size_pt=8.5, align=WD_ALIGN_PARAGRAPH.RIGHT if is_fa else WD_ALIGN_PARAGRAPH.LEFT, is_bidi=is_fa)
+
+            # Cell 2: Status
+            c2 = eq_tbl.cell(row_idx, 2)
+            set_cell_margins(c2, top=60, bottom=60)
+            format_cell_text(c2, st, bold=True, size_pt=9, color_rgb=c_rgb, is_bidi=is_fa)
+
+            # Cell 3: Note
+            note_str = item.get("note") or ("تایید شده" if st == "PRESENT" else "نیاز به درج")
+            c3 = eq_tbl.cell(row_idx, 3)
+            set_cell_margins(c3, top=60, bottom=60)
+            format_cell_text(c3, note_str, size_pt=8, align=WD_ALIGN_PARAGRAPH.RIGHT if is_fa else WD_ALIGN_PARAGRAPH.LEFT, is_bidi=is_fa)
+
+        add_styled_paragraph(doc, "", space_after=12)
+
     # Pre-Defense Checklist Section
-    add_styled_paragraph(doc, "۶. چک‌لیست نهایی تایید پیش از دفاع (Pre-Defense Checklist)", bold=True, size_pt=13, color_rgb=(20, 45, 80), is_bidi=is_fa)
+    add_styled_paragraph(doc, "۹. چک‌لیست نهایی تایید پیش از دفاع (Pre-Defense Checklist)", bold=True, size_pt=13, color_rgb=(20, 45, 80), is_bidi=is_fa)
     chk_items = [
         "تمام فرضیات فصل اول دارای آزمون آماری مشخص در فصل چهارم و بحث در فصل پنجم هستند.",
         "درجات آزادی تحلیل کوواریانس و رگرسیون با کسر تعداد گروه‌ها و متغیرها از حجم نمونه دقیقاً منطبق است.",
         "هیچ ارجاع درون‌متنی سرگردان (Orphaned Citation) خارج از فهرست مراجع انتهای پایان‌نامه وجود ندارد.",
         "تمامی مقادیر احتمالاتی به صورت p < .001 قید شده و عبارت نرم‌افزاری p = .000 کاملاً حذف شده است.",
-        "صفر قبل از ممیز در تمام ضرایب آماری مقید به بازه صفر تا یک (p, r, R², η²) حذف شده است."
+        "صفر قبل از ممیز در تمام ضرایب آماری مقید به بازه صفر تا یک (p, r, R², η²) حذف شده است.",
+        f"بندهای الزامی چک‌لیست بین‌المللی {auditor.equator_guideline} به طور کامل در متن لحاظ گردیده است."
     ]
     for chk in chk_items:
         add_styled_paragraph(doc, f"☐  {chk}", size_pt=10, space_after=4, is_bidi=is_fa)
@@ -867,6 +1297,38 @@ def generate_citations_excel(auditor, out_path):
         ref = item.get("reference", {})
         ws_year.append([cit.get("author"), item.get("year_in_text"), item.get("year_in_bib"), cit.get("raw"), ref.get("raw")])
 
+    # Sheet 6: EQUATOR Reporting Checklist
+    ws_eq = wb.create_sheet(title="EQUATOR Checklist")
+    ws_eq.append(["Item ID", "Guideline", "Requirement (EN)", "Requirement (FA)", "Status", "Criticality", "Diagnostic Notes"])
+    for c in range(1, 8):
+        cell = ws_eq.cell(1, c)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = align_center
+
+    eq_status_fills = {
+        "PRESENT": PatternFill(start_color="27AE60", end_color="27AE60", fill_type="solid"),
+        "PARTIAL": PatternFill(start_color="F39C12", end_color="F39C12", fill_type="solid"),
+        "MISSING": PatternFill(start_color="C0392B", end_color="C0392B", fill_type="solid")
+    }
+
+    for eq_item in getattr(auditor, "equator_checklist_results", []):
+        r_num = ws_eq.max_row + 1
+        st = eq_item.get("status", "PARTIAL")
+        ws_eq.append([
+            eq_item.get("item_id"),
+            auditor.equator_guideline,
+            eq_item.get("name_en"),
+            eq_item.get("name_fa"),
+            st,
+            eq_item.get("criticality"),
+            eq_item.get("note") or ("Verified" if st == "PRESENT" else "Action required")
+        ])
+        st_cell = ws_eq.cell(r_num, 5)
+        st_cell.fill = eq_status_fills.get(st, header_fill)
+        st_cell.font = Font(name="Arial", size=10, bold=True, color="FFFFFF")
+        st_cell.alignment = align_center
+
     # Adjust column widths
     for sheet in wb.worksheets:
         for col in sheet.columns:
@@ -910,9 +1372,14 @@ def main():
     summary = auditor.audit_all()
 
     tis = summary["thesis_integrity_score"]
+    srs = summary.get("submission_readiness_score", tis)
     counts = summary["finding_counts"]
+    eq = summary.get("equator_audit", {})
     print(f"\n[+] Audit Analysis Completed:")
     print(f"    - Thesis Integrity Score (TIS): {tis:.1f}%")
+    print(f"    - Submission Readiness Score (SRS): {srs:.1f}% (Grade: {summary.get('srs_grade', 'N/A')})")
+    print(f"    - EQUATOR Compliance ({eq.get('guideline', 'EQUATOR')}): {eq.get('equator_score', 0):.1f}% "
+          f"({eq.get('present_count', 0)} Present, {eq.get('partial_count', 0)} Partial, {eq.get('missing_count', 0)} Missing)")
     print(f"    - Defense Readiness Status: {summary['readiness_status_en']} / {summary['readiness_status_fa']}")
     print(f"    - Findings: {counts['critical']} Critical, {counts['major']} Major, {counts['minor']} Minor, {counts['info']} Info")
     print(f"    - Citation Reconciliation: {summary['citation_ledger_counts']['matched']} Matched, "
