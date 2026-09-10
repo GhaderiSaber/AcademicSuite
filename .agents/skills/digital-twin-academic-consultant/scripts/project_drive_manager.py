@@ -151,8 +151,35 @@ class ProjectDriveManager:
                 pass
         return {"telegram_ids": [], "usernames": [], "folder_names": []}
 
+    def load_vip_registry(self) -> Dict[str, Any]:
+        """Load persistent VIP/repeat client registry."""
+        vip_file = os.path.join(os.path.dirname(__file__), "userbot_storage", "vip_clients.json")
+        if os.path.exists(vip_file):
+            try:
+                with open(vip_file, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        return {"vip_clients": []}
+
+    def is_vip_client(self, client_name: str, client_id: Optional[int] = None, username: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """Check if contact is a designated VIP/repeat collaborator."""
+        vip_reg = self.load_vip_registry()
+        for vip in vip_reg.get("vip_clients", []):
+            if client_id and vip.get("telegram_id") == client_id:
+                return vip
+            if username and vip.get("telegram_username") and vip["telegram_username"].lstrip("@").lower() == username.lstrip("@").lower():
+                return vip
+            if client_name and sanitize_filename(client_name).lower() == sanitize_filename(vip.get("client_name", "")).lower():
+                return vip
+        return None
+
     def is_ignored(self, client_name: str, client_id: Optional[int] = None, username: Optional[str] = None) -> bool:
         """Check if a contact is in the excluded non-academic contacts registry."""
+        # VIP clients are NEVER ignored
+        if self.is_vip_client(client_name, client_id, username):
+            return False
+
         reg = self.load_ignored_registry()
         if client_id and client_id in reg.get("telegram_ids", []):
             return True
