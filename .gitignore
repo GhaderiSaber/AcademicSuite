@@ -28,3 +28,5 @@ bot_storage/
 !requirements.txt
 !SETUP_GUIDE.md
 !Questionnaires.xlsx
+!*.sps
+!DATASET_VERIFICATION_REPORT.md
