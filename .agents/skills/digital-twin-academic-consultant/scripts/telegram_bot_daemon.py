@@ -17,6 +17,7 @@ import re
 import sys
 import time
 import json
+import html
 import argparse
 import urllib.request
 import urllib.parse
@@ -279,7 +280,7 @@ class DigitalSaberBot:
     def handle_admin_action(self, admin_chat_id: int, command_text: str) -> str:
         """Handle Saber's approval or adjustment of quotes."""
         if admin_chat_id != self.admin_id:
-            return "شما دسترسی مدیریت به این ربات را ندارید."
+            return "Unauthorized access. Admin privileges required."
 
         # Approve: /approve_Q101
         m_app = re.match(r"^/approve_(Q\d+)", command_text)
@@ -288,15 +289,15 @@ class DigitalSaberBot:
             if qid in self.pending_quotes:
                 item = self.pending_quotes[qid]
                 client_chat_id = item["chat_id"]
-                tg_card = format_telegram_card(item["quote"])
+                tg_card = format_telegram_card(item["quote"], lang="fa")
                 
                 # Send to client if live
                 if self.tg:
-                    self.tg.send_message(client_chat_id, tg_card)
+                    self.tg.send_message(client_chat_id, tg_card, parse_mode="HTML")
                 
                 item["status"] = "approved"
-                return f"✅ پیش‌فاکتور {qid} با موفقیت تایید و برای {item['sender_name']} ارسال گردید."
-            return f"پیش‌فاکتور {qid} یافت نشد."
+                return f"✅ Quotation {qid} approved and dispatched to {item['sender_name']}."
+            return f"Quotation {qid} not found."
 
         # Adjust: /adjust_Q101_8500000
         m_adj = re.match(r"^/adjust_(Q\d+)_(\d+)", command_text)
@@ -308,16 +309,16 @@ class DigitalSaberBot:
                 item["quote"]["total_price_tomans"] = new_price
                 item["quote"]["total_price_formatted"] = f"{new_price:,.0f} تومان"
                 client_chat_id = item["chat_id"]
-                tg_card = format_telegram_card(item["quote"])
+                tg_card = format_telegram_card(item["quote"], lang="fa")
                 
                 if self.tg:
-                    self.tg.send_message(client_chat_id, tg_card)
+                    self.tg.send_message(client_chat_id, tg_card, parse_mode="HTML")
                 
                 item["status"] = "approved_adjusted"
-                return f"✅ پیش‌فاکتور {qid} با مبلغ اصلاحی {new_price:,.0f} تومان تایید و ارسال شد."
-            return f"پیش‌فاکتور {qid} یافت نشد."
+                return f"✅ Quotation {qid} adjusted to {new_price:,.0f} Tomans and dispatched to {item['sender_name']}."
+            return f"Quotation {qid} not found."
 
-        return "دستور نامعتبر است. فرمت: `/approve_Q101` یا `/adjust_Q101_8000000`"
+        return "Invalid command. Format: <code>/approve_Q101</code> or <code>/adjust_Q101_8000000</code>"
 
     def handle_incoming_text(self, chat_id: int, sender_name: str, text: str) -> str:
         """Route and answer text queries."""
@@ -347,13 +348,13 @@ class DigitalSaberBot:
             # Forward draft to admin
             if pending:
                 qid = list(self.pending_quotes.keys())[-1]
-                admin_card = format_telegram_card(pending["quote"], include_admin_actions=True, quote_id=qid)
+                admin_card = format_telegram_card(pending["quote"], include_admin_actions=True, quote_id=qid, lang="en")
                 admin_notice = (
-                    f"🔔 *درخواست پیش‌فاکتور جدید از {sender_name} (شناسه: {qid}):*\n\n"
+                    f"🔔 <b>New Quotation Request from {html.escape(sender_name)} (ID: {qid}):</b>\n\n"
                     f"{admin_card}"
                 )
                 if self.tg and self.admin_id:
-                    self.tg.send_message(self.admin_id, admin_notice)
+                    self.tg.send_message(self.admin_id, admin_notice, parse_mode="HTML")
             return resp
 
         # FAQ & Consulting logic
@@ -466,8 +467,8 @@ class DigitalSaberBot:
                                 self.tg.send_message(chat_id, reply)
                                 if pending and self.admin_id:
                                     qid = list(self.pending_quotes.keys())[-1]
-                                    adm_card = format_telegram_card(pending["quote"], include_admin_actions=True, quote_id=qid)
-                                    self.tg.send_message(self.admin_id, f"🔔 *پروپوزال جدید از {sender_name}:*\n\n{adm_card}")
+                                    adm_card = format_telegram_card(pending["quote"], include_admin_actions=True, quote_id=qid, lang="en")
+                                    self.tg.send_message(self.admin_id, f"🔔 <b>New Proposal from {html.escape(sender_name)}:</b>\n\n{adm_card}", parse_mode="HTML")
                             else:
                                 self.tg.send_message(chat_id, "خطا در دانلود فایل. لطفاً مجدداً ارسال فرمایید.")
 

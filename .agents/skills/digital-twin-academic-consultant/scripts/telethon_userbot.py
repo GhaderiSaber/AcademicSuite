@@ -561,26 +561,33 @@ class SaberTelethonUserbot:
                 await self.scan_and_process_unread_messages()
                 return
 
-            # List Google Drive projects: /projects or /list_projects
-            if txt in ["/projects", "/list_projects"]:
+            # List Google Drive projects: /projects or /list_projects [query]
+            m_proj = re.match(r"^/(?:projects|list_projects)(?:\s+(.+))?", txt)
+            if m_proj:
+                filter_term = (m_proj.group(1) or "").strip().lower()
                 projs = self.project_manager.list_all_projects()
+                if filter_term:
+                    projs = [p for p in projs if filter_term in (p.get("client_name") or "").lower() 
+                             or filter_term in (p.get("client_name_fa") or "").lower()
+                             or filter_term in (p.get("folder_name") or "").lower()]
                 if not projs:
-                    await event.reply("📂 No project folders found in Google Drive.", parse_mode="html")
+                    await event.reply("📂 No matching project folders found in Google Drive.", parse_mode="html")
                     return
-                lines = [f"📂 <b>Active Client Projects in Google Drive ({len(projs)} projects):</b>\n"]
-                for p in projs:
+                header = f"📂 <b>Client Projects in Google Drive ({len(projs)} found):</b>\n" if filter_term else f"📂 <b>Active Client Projects in Google Drive ({len(projs)} projects):</b>\n"
+                lines = [header]
+                display_limit = 20 if not filter_term else len(projs)
+                for p in projs[:display_limit]:
                     cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
                     fc = p.get("file_count", 0)
                     mc = p.get("message_count", 0)
                     st = p.get("status", "pending")
-                    top = p.get("topic_fa") or p.get("topic") or "Registered"
                     clean_p = clean_drive_display_path(p['folder_path'])
                     lines.append(
-                        f"• <b>{html.escape(cname)}</b> ({html.escape(st)})\n"
-                        f"  ▫️ Topic: {html.escape(top[:45])}\n"
-                        f"  ▫️ Stats: {mc} msgs | {fc} files\n"
-                        f"  ▫️ Drive: <code>{html.escape(clean_p)}</code>\n"
+                        f"• <b>{html.escape(cname)}</b> (<i>{html.escape(st)}</i>) | {mc} msgs, {fc} files\n"
+                        f"  ▫️ <code>{html.escape(clean_p)}</code>"
                     )
+                if len(projs) > display_limit:
+                    lines.append(f"\n<i>... and {len(projs) - display_limit} more projects. Use <code>/projects &lt;name&gt;</code> to filter.</i>")
                 await event.reply("\n".join(lines), parse_mode="html")
                 return
 
@@ -757,12 +764,14 @@ class SaberTelethonUserbot:
                     projs = self.project_manager.list_all_projects()
                     await event.answer(f"Found {len(projs)} active projects in Google Drive.")
                     if projs:
-                        lines = [f"📂 <b>Active Client Projects in Google Drive ({len(projs)} folders):</b>\n"]
-                        for p in projs[:12]:
+                        lines = [f"📂 <b>Active Client Projects in Google Drive ({len(projs)} projects):</b>\n"]
+                        for p in projs[:15]:
                             cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
                             cpath = clean_drive_display_path(p['folder_path'])
                             st = p.get('status', 'pending')
-                            lines.append(f"• <b>{html.escape(cname)}</b> ({html.escape(st)}) | <code>{html.escape(cpath)}</code>")
+                            lines.append(f"• <b>{html.escape(cname)}</b> (<i>{html.escape(st)}</i>) | <code>{html.escape(cpath)}</code>")
+                        if len(projs) > 15:
+                            lines.append(f"\n<i>... and {len(projs) - 15} more projects in Google Drive. Use <code>/projects &lt;name&gt;</code> to filter.</i>")
                         await self.send_to_desk("\n".join(lines), parse_mode="html")
                 elif data == "cmd_unread":
                     await event.answer("🔍 Scanning client messages...")
@@ -894,9 +903,9 @@ class SaberTelethonUserbot:
             setup_inbound_listener(self.client2, "Second Account (@SaberGhaderi)")
 
         if self.admin_desk_chat_id:
-            desk_location = f"گروه کاری Academic Desk (ID: {self.admin_desk_chat_id})"
+            desk_location = f"Academic Desk Group (ID: {self.admin_desk_chat_id})"
         else:
-            desk_location = "پیام‌های ذخیره‌شده (Saved Messages)" if not me.bot else f"چت با اکانت صابر (ID: {self.admin_id})"
+            desk_location = "Saved Messages" if not me.bot else f"Saber Private Chat (ID: {self.admin_id})"
         print(f"[*] Telethon {'Userbot' if not me.bot else 'Bot'} is active & listening to incoming DMs on all accounts...")
         print(f"[*] Google Drive Operational Root: {self.project_manager.work_dir}")
         print(f"[*] Open {desk_location} to view real-time proposal alerts, approve quotes, or manage projects.")

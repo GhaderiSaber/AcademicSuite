@@ -99,11 +99,14 @@ def analyze_proposal_text(text: str) -> Dict[str, Any]:
     clean_text = text.strip()
 
     # 1. Degree level
-    degree = "ارشد (Master)"
+    degree_fa = "ارشد (Master)"
+    degree_en = "Master's (M.A./M.Sc.)"
     if re.search(r"دکتری|دکترا|رساله|ph\.?d", clean_text, re.IGNORECASE):
-        degree = "دکتری (Ph.D.)"
+        degree_fa = "دکتری (Ph.D.)"
+        degree_en = "Doctorate (Ph.D.)"
     elif re.search(r"کارشناسی\s*ارشد|پایان[\s‌]*نامه\s*ارشد|مقطع\s*ارشد", clean_text, re.IGNORECASE):
-        degree = "ارشد (Master)"
+        degree_fa = "ارشد (Master)"
+        degree_en = "Master's (M.A./M.Sc.)"
 
     # 2. Extract Title
     title = "بررسی متغیرهای پژوهش در جامعه آماری هدف"
@@ -127,19 +130,24 @@ def analyze_proposal_text(text: str) -> Dict[str, Any]:
     # 3. Detect Research Design
     design_type = "correlation_regression"
     design_title_fa = "همبستگی و رگرسیون چندگانه"
+    design_title_en = "Correlation & Multiple Regression Analysis"
 
     if re.search(r"معادلات\s*ساختاری|مدل[\s‌]*یابی|تحلیل\s*مسیر|amos|pls|smartpls|lisrel|sem\b", clean_text, re.IGNORECASE):
         design_type = "sem_cfa_structural"
         design_title_fa = "مدل‌یابی معادلات ساختاری (SEM / CFA)"
+        design_title_en = "Structural Equation Modeling (SEM / CFA)"
     elif re.search(r"پیش[\s‌]*آزمون|پس[\s‌]*آزمون|کوواریانس|ancova|mancova|اندازه[\s‌]*گیری\s*مکرر|کارآزمایی|شبه[\s‌]*آزمایشی|آزمایشی", clean_text, re.IGNORECASE):
         design_type = "ancova_repeated_measures"
         design_title_fa = "شبه‌آزمایشی (تحلیل کوواریانس ANCOVA / اندازه‌گیری مکرر)"
+        design_title_en = "Quasi-Experimental (ANCOVA / Repeated Measures)"
     elif re.search(r"اعتبارسنجی|روان[\s‌]*سنجی|هنجاریابی|تحلیل\s*عاملی\s*اکتشافی|efa\b", clean_text, re.IGNORECASE):
         design_type = "scale_validation_factor"
         design_title_fa = "روان‌سنجی و اعتبارسنجی ابزار (EFA / CFA / IRT)"
+        design_title_en = "Scale Validation & Psychometrics (EFA / CFA / IRT)"
     elif re.search(r"کیفی|تحلیل\s*مضمون|گراندد\s*تئوری|داده[\s‌]*بنیاد|پدیدارشناسی|maxqda", clean_text, re.IGNORECASE):
         design_type = "qualitative_thematic"
         design_title_fa = "پژوهش کیفی (تحلیل مضمون / داده‌بنیاد)"
+        design_title_en = "Qualitative Research (Thematic Analysis / Grounded Theory)"
 
     # Normalize Persian / Arabic digits to English digits
     digit_map = {
@@ -235,9 +243,12 @@ def analyze_proposal_text(text: str) -> Dict[str, Any]:
 
     return {
         "title": title,
-        "degree": degree,
+        "degree": degree_fa,
+        "degree_fa": degree_fa,
+        "degree_en": degree_en,
         "design_type": design_type,
         "design_title_fa": design_title_fa,
+        "design_title_en": design_title_en,
         "sample_size": sample_size,
         "scales": scales_found,
         "scale_count": len(scales_found),
@@ -279,9 +290,13 @@ def calculate_quotation(
         line_items.append({
             "code": "ch3",
             "title": ch3_info.get("title", "فصل سوم: روش‌شناسی پژوهش و G*Power"),
+            "title_fa": "فصل سوم: روش‌شناسی پژوهش و G*Power",
+            "title_en": "Chapter 3: Research Methodology & G*Power",
             "price": price,
             "days": days,
-            "description": "طرح پژوهش، ابزارها، پایایی/روایی، تعیین دقیق حجم نمونه با G*Power"
+            "description": "طرح پژوهش، ابزارها، پایایی/روایی، تعیین دقیق حجم نمونه با G*Power",
+            "description_fa": "طرح پژوهش، ابزارها، پایایی/روایی، تعیین دقیق حجم نمونه با G*Power",
+            "description_en": "Research design, measurement scales, reliability/validity, and sample size power modeling"
         })
         total_price += price
         total_days += days
@@ -294,9 +309,13 @@ def calculate_quotation(
         line_items.append({
             "code": "simulation",
             "title": sim_info.get("title", "شبیه‌سازی داده‌های روان‌سنجی"),
+            "title_fa": "شبیه‌سازی داده‌های روان‌سنجی",
+            "title_en": "Psychometric Data Simulation (SimDat)",
             "price": price,
             "days": days,
-            "description": f"شبیه‌سازی مونت‌کارلو متناسب با {analysis['scale_count']} پرسشنامه و N={analysis['sample_size']}"
+            "description": f"شبیه‌سازی مونت‌کارلو متناسب با {analysis['scale_count']} پرسشنامه و N={analysis['sample_size']}",
+            "description_fa": f"شبیه‌سازی مونت‌کارلو متناسب با {analysis['scale_count']} پرسشنامه و N={analysis['sample_size']}",
+            "description_en": f"Monte Carlo simulation tailored to {analysis['scale_count']} scale(s) and N={analysis['sample_size']}"
         })
         total_price += price
         total_days += days
@@ -315,9 +334,13 @@ def calculate_quotation(
         line_items.append({
             "code": "ch4",
             "title": f"فصل چهارم: {sub.get('title')}",
+            "title_fa": f"فصل چهارم: {sub.get('title')}",
+            "title_en": "Chapter 4: Statistical Findings & Hypothesis Testing",
             "price": price,
             "days": days,
-            "description": "بررسی مفروضه‌ها، آزمون فرضیات، جداول APA 7 و خروجی‌های معتبر نرم‌افزاری"
+            "description": "بررسی مفروضه‌ها، آزمون فرضیات، جداول APA 7 و خروجی‌های معتبر نرم‌افزاری",
+            "description_fa": "بررسی مفروضه‌ها، آزمون فرضیات، جداول APA 7 و خروجی‌های معتبر نرم‌افزاری",
+            "description_en": "Assumption testing, inferential hypothesis testing, APA 7 tables, and software output files"
         })
         total_price += price
         total_days += days
@@ -330,9 +353,13 @@ def calculate_quotation(
         line_items.append({
             "code": "ch5",
             "title": ch5_info.get("title", "فصل پنجم: بحث و نتیجه‌گیری"),
+            "title_fa": "فصل پنجم: بحث و نتیجه‌گیری",
+            "title_en": "Chapter 5: Discussion & Theoretical Integration",
             "price": price,
             "days": days,
-            "description": "تبیین روان‌شناختی یافته‌ها، تطبیق با پیشینه ایرانی و خارجی، محدودیت‌ها و کاربردها"
+            "description": "تبیین روان‌شناختی یافته‌ها، تطبیق با پیشینه ایرانی و خارجی، محدودیت‌ها و کاربردها",
+            "description_fa": "تبیین روان‌شناختی یافته‌ها، تطبیق با پیشینه ایرانی و خارجی، محدودیت‌ها و کاربردها",
+            "description_en": "Psychological mechanisms, Iranian & international literature comparison, limitations, and clinical implications"
         })
         total_price += price
         total_days += days
@@ -345,9 +372,13 @@ def calculate_quotation(
         line_items.append({
             "code": "slides",
             "title": slides_info.get("title", "اسلایدهای دفاع"),
+            "title_fa": "اسلایدهای دفاع",
+            "title_en": "Viva Voce Defense Slides",
             "price": price,
             "days": days,
-            "description": "پاورپوینت حرفه‌ای جلسه دفاع همراه با نوت گفتار دانشجو برای هر اسلاید"
+            "description": "پاورپوینت حرفه‌ای جلسه دفاع همراه با نوت گفتار دانشجو برای هر اسلاید",
+            "description_fa": "پاورپوینت حرفه‌ای جلسه دفاع همراه با نوت گفتار دانشجو برای هر اسلاید",
+            "description_en": "Professional defense presentation deck with speaker script notes for each slide"
         })
         total_price += price
         total_days += days
@@ -360,43 +391,56 @@ def calculate_quotation(
         line_items.append({
             "code": "audit",
             "title": audit_info.get("title", "ممیزی و کنترل کیفیت جامع رساله"),
+            "title_fa": "ممیزی و کنترل کیفیت جامع رساله",
+            "title_en": "Comprehensive Thesis Integrity Audit",
             "price": price,
             "days": days,
-            "description": "هم‌ترازی فرضیه-یافته-بحث، تطبیق دوسویه ارجاعات درون‌متنی و منابع، بررسی درجات آزادی"
+            "description": "هم‌ترازی فرضیه-یافته-بحث، تطبیق دوسویه ارجاعات درون‌متنی و منابع، بررسی درجات آزادی",
+            "description_fa": "هم‌ترازی فرضیه-یافته-بحث، تطبیق دوسویه ارجاعات درون‌متنی و منابع، بررسی درجات آزادی",
+            "description_en": "Hypothesis-result alignment, degrees of freedom check, and bidirectional citation audit"
         })
         total_price += price
         total_days += days
 
     # Urgency Multiplier
-    urgency_mult = 1.0
-    if is_urgent:
-        urgency_mult = 1.3
-        total_price = int(total_price * urgency_mult)
-        total_days = max(2, int(total_days * 0.6))
+    urgency_mult = pricing.get("rules", {}).get("urgency_multipliers", {}).get("express_48h", 1.4) if is_urgent else 1.0
+    total_price = int(total_price * urgency_mult)
 
-    # Parallel pipeline adjustment: in practice, stages overlap, so real working timeline is compressed
-    realistic_working_days = max(3, int(total_days * 0.65)) if not is_urgent else max(2, int(total_days * 0.5))
+    # Package discount
+    if len(line_items) >= 4:
+        discount_rate = pricing.get("rules", {}).get("package_discounts", {}).get("full_thesis_package", 0.15)
+        total_price = int(total_price * (1.0 - discount_rate))
+
+    # Parallel working days estimate
+    realistic_working_days = max(total_days - 3, 3) if total_days > 4 else total_days
 
     return {
         "title": analysis["title"],
-        "degree": analysis["degree"],
+        "degree": analysis.get("degree_fa", analysis.get("degree")),
+        "degree_fa": analysis.get("degree_fa", "کارشناسی ارشد"),
+        "degree_en": analysis.get("degree_en", "Master's (M.A./M.Sc.)"),
         "design_title_fa": analysis["design_title_fa"],
+        "design_title_en": analysis.get("design_title_en", "Empirical Research Design"),
         "sample_size": analysis["sample_size"],
         "scales_detected": analysis["scales"],
         "softwares_recommended": analysis["softwares"],
+        "currency_fa": "تومان",
+        "currency_en": "Tomans",
         "currency": "تومان",
         "line_items": line_items,
         "subtotal_price": sum(item["price"] for item in line_items),
         "urgency_multiplier": urgency_mult,
         "is_urgent": is_urgent,
         "total_price_tomans": total_price,
+        "total_price_formatted_fa": f"{total_price:,.0f} تومان",
+        "total_price_formatted_en": f"{total_price:,.0f} Tomans",
         "total_price_formatted": f"{total_price:,.0f} تومان",
         "estimated_working_days": realistic_working_days,
         "total_sequential_days": total_days
     }
 
 
-def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = False, quote_id: str = "Q101", lang: str = "fa") -> str:
+def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = False, quote_id: str = "Q101", lang: str = "en") -> str:
     """Format quotation as a clean Telegram message card with HTML styling in Persian or English."""
     lines = []
     if lang == "en":
@@ -404,8 +448,8 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
         lines.append("👤 <b>Consultant:</b> Saber Ghaderi (@GhaderiSaber)")
         lines.append("─────────────────────")
         lines.append(f"📌 <b>Research Title:</b> {html.escape(quote.get('title', 'Academic Proposal'))}")
-        lines.append(f"🎯 <b>Academic Level:</b> {html.escape(quote.get('degree', 'Master'))}")
-        lines.append(f"🔬 <b>Research Design:</b> {html.escape(quote.get('design_title_fa', ''))}")
+        lines.append(f"🎯 <b>Academic Level:</b> {html.escape(quote.get('degree_en') or quote.get('degree', 'Master'))}")
+        lines.append(f"🔬 <b>Research Design:</b> {html.escape(quote.get('design_title_en') or quote.get('design_title_fa', 'Empirical Research'))}")
         lines.append(f"👥 <b>Sample Size:</b> N = {quote.get('sample_size', 'N/A')}")
         lines.append(f"💻 <b>Software:</b> {html.escape(', '.join(quote.get('softwares_recommended', [])))}")
         
@@ -419,14 +463,17 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
         lines.append("─────────────────────")
         lines.append("💰 <b>Itemized Investment Breakdown:</b>")
         for idx, item in enumerate(quote.get("line_items", []), 1):
-            lines.append(f"{idx}. <b>{html.escape(item['title'])}</b>")
+            t = item.get("title_en", item.get("title", ""))
+            d = item.get("description_en", item.get("description", ""))
+            lines.append(f"{idx}. <b>{html.escape(t)}</b>")
             lines.append(f"   ▫️ Fee: {item['price']:,.0f} Tomans ({item['days']} business days)")
-            lines.append(f"   ▫️ Scope: {html.escape(item['description'])}")
+            lines.append(f"   ▫️ Scope: {html.escape(d)}")
 
         lines.append("─────────────────────")
         if quote.get("is_urgent"):
             lines.append("⚡️ <b>Status:</b> Express Delivery (Urgency multiplier applied)")
-        lines.append(f"💎 <b>Total Investment:</b> <code>{quote.get('total_price_formatted', '')}</code>")
+        formatted_price = quote.get('total_price_formatted_en') or f"{quote.get('total_price_tomans', 0):,.0f} Tomans"
+        lines.append(f"💎 <b>Total Investment:</b> <code>{formatted_price}</code>")
         lines.append(f"⏳ <b>Estimated Delivery:</b> <code>{quote.get('estimated_working_days', 0)} Business Days</code>")
         lines.append("─────────────────────")
         lines.append("✨ <b>Quality Guarantees & Standards:</b>")
@@ -445,7 +492,7 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
         lines.append("👤 <b>مشاور:</b> صابر قادری (@GhaderiSaber)")
         lines.append("─────────────────────")
         lines.append(f"📌 <b>عنوان پژوهش:</b> {html.escape(quote.get('title', ''))}")
-        lines.append(f"🎯 <b>مقطع:</b> {html.escape(quote.get('degree', ''))}")
+        lines.append(f"🎯 <b>مقطع:</b> {html.escape(quote.get('degree_fa') or quote.get('degree', ''))}")
         lines.append(f"🔬 <b>طرح پژوهش:</b> {html.escape(quote.get('design_title_fa', ''))}")
         lines.append(f"👥 <b>حجم نمونه پیش‌بینی:</b> N = {quote.get('sample_size', 'N/A')}")
         lines.append(f"💻 <b>نرم‌افزارها:</b> {html.escape(', '.join(quote.get('softwares_recommended', [])))}")
@@ -460,9 +507,11 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
         lines.append("─────────────────────")
         lines.append("💰 <b>ریز هزینه‌های تفکیکی (قابل سفارش مجزا یا تجمیعی):</b>")
         for idx, item in enumerate(quote.get("line_items", []), 1):
-            lines.append(f"{idx}. <b>{html.escape(item['title'])}</b>")
+            t = item.get("title_fa", item.get("title", ""))
+            d = item.get("description_fa", item.get("description", ""))
+            lines.append(f"{idx}. <b>{html.escape(t)}</b>")
             lines.append(f"   ▫️ هزینه: {item['price']:,.0f} تومان ({item['days']} روز کاری)")
-            lines.append(f"   ▫️ شرح: {html.escape(item['description'])}")
+            lines.append(f"   ▫️ شرح: {html.escape(d)}")
 
         lines.append("─────────────────────")
         if quote.get("is_urgent"):

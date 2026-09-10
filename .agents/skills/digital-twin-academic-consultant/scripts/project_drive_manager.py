@@ -87,7 +87,7 @@ def format_client_mention_html(client_name: str, username: Optional[str] = None,
     When tapped, Telegram directly opens the DM chat with that client.
     Eliminates raw ID noise.
     """
-    safe_name = html.escape(client_name or "مراجع")
+    safe_name = html.escape(client_name or "Client")
     clean_username = (username or "").lstrip("@").strip()
     
     if clean_username:

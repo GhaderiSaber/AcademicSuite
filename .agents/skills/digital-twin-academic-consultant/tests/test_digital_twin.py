@@ -52,9 +52,13 @@ class TestDigitalTwinSuite(unittest.TestCase):
         self.assertGreater(quote["total_price_tomans"], 5000000)
         self.assertIn("تومان", quote["total_price_formatted"])
 
-        card = proposal_price_estimator.format_telegram_card(quote)
-        self.assertIn("پیش‌فاکتور", card)
-        self.assertIn("صابر قادری", card)
+        card_en = proposal_price_estimator.format_telegram_card(quote, lang="en")
+        self.assertIn("Research Consultancy & Project Quotation", card_en)
+        self.assertIn("Tomans", card_en)
+
+        card_fa = proposal_price_estimator.format_telegram_card(quote, lang="fa")
+        self.assertIn("پیش‌فاکتور", card_fa)
+        self.assertIn("صابر قادری", card_fa)
 
     def test_02_proposal_price_estimator_sem(self):
         """Test proposal extraction for doctoral SEM study."""
