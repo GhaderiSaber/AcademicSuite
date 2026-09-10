@@ -108,7 +108,7 @@ class TestDigitalTwinSuite(unittest.TestCase):
         )
         res = bot.run_test_simulation()
         self.assertEqual(res["status"], "success")
-        self.assertEqual(len(res["events"]), 7)
+        self.assertEqual(len(res["events"]), 11)
 
         # Check approval status
     def test_05_project_drive_manager(self):
@@ -275,6 +275,7 @@ class TestDigitalTwinSuite(unittest.TestCase):
                 admin_id=124911145,
                 admin_desk_chat_id=-1004331808205,
                 business_mode=True,
+                business_mode_policy="autonomous",
                 work_dir=tmp_dir
             )
 
@@ -312,19 +313,7 @@ class TestDigitalTwinSuite(unittest.TestCase):
             self.assertTrue(any("Telegram Business Connected" in m["text"] for m in sent_messages))
             sent_messages.clear()
 
-            # 2. Test Echo Filtering (Message sent by Saber in client chat)
-            saber_msg = {
-                "business_connection_id": "biz_conn_test_001",
-                "message_id": 10,
-                "chat": {"id": 987654321, "type": "private"},
-                "from": {"id": 124911145, "first_name": "Saber"},
-                "text": "سلام، پروپوزال شما دریافت شد."
-            }
-            res_saber = bot.handle_business_message(saber_msg)
-            self.assertIsNone(res_saber, "Outgoing messages from Saber must be filtered out")
-            self.assertEqual(len(sent_messages), 0)
-
-            # 3. Test Business Message from Client (Greeting)
+            # 2. Test Business Message from Client (Greeting)
             client_greeting = {
                 "business_connection_id": "biz_conn_test_001",
                 "message_id": 11,
@@ -340,6 +329,18 @@ class TestDigitalTwinSuite(unittest.TestCase):
             self.assertEqual(sent_messages[0]["business_connection_id"], "biz_conn_test_001")
             self.assertIn("مشاور پژوهشی صابر قادری", sent_messages[0]["text"])
             sent_messages.clear()
+
+            # 3. Test Echo Filtering (Message sent by Saber in client chat)
+            saber_msg = {
+                "business_connection_id": "biz_conn_test_001",
+                "message_id": 10,
+                "chat": {"id": 987654320, "type": "private"},
+                "from": {"id": 124911145, "first_name": "Saber"},
+                "text": "سلام، پروپوزال شما دریافت شد."
+            }
+            res_saber = bot.handle_business_message(saber_msg)
+            self.assertIsNone(res_saber, "Outgoing messages from Saber must be filtered out")
+            self.assertEqual(len(sent_messages), 0)
 
             # 4. Test Business Message from Client (Proposal inquiry text)
             proposal_text = (
@@ -381,6 +382,121 @@ class TestDigitalTwinSuite(unittest.TestCase):
             self.assertEqual(client_dispatched["business_connection_id"], "biz_conn_test_001")
             self.assertIn("پیش‌فاکتور", client_dispatched["text"])
             self.assertEqual(bot.pending_quotes[qid]["status"], "approved")
+
+    def test_09_copilot_shadow_mode_and_guardrails(self):
+        """Test Co-Pilot / Shadow Mode: zero autonomous client messages, draft generation, human takeover auto-mute, and emergency controls."""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            bot = telegram_bot_daemon.DigitalSaberBot(
+                token="",
+                admin_id=124911145,
+                admin_desk_chat_id=-1004331808205,
+                business_mode=True,
+                business_mode_policy="copilot_only",
+                auto_mute_hours=24,
+                work_dir=tmp_dir
+            )
+
+            sent_messages = []
+
+            class MockTGClient:
+                def send_message(self, chat_id, text, reply_to_message_id=None, reply_markup=None, parse_mode=None, business_connection_id=None):
+                    sent_messages.append({
+                        "chat_id": chat_id,
+                        "text": text,
+                        "reply_markup": reply_markup,
+                        "parse_mode": parse_mode,
+                        "business_connection_id": business_connection_id
+                    })
+                    return {"ok": True, "result": {"message_id": 2000 + len(sent_messages)}}
+
+            bot.tg = MockTGClient()
+
+            # Handshake
+            bot.handle_business_connection({
+                "id": "biz_conn_copilot",
+                "user": {"id": 124911145, "first_name": "Saber", "username": "GhaderiSaber"},
+                "can_reply": True,
+                "is_enabled": True
+            })
+            sent_messages.clear()
+
+            # 1. Test Client Greeting in Co-Pilot Mode (Must NOT message client, must produce draft in Admin Desk)
+            client_greet = {
+                "business_connection_id": "biz_conn_copilot",
+                "message_id": 50,
+                "chat": {"id": 888777, "type": "private"},
+                "from": {"id": 888777, "first_name": "مینا", "username": "mina_test"},
+                "text": "سلام وقتتون بخیر"
+            }
+            res_greet = bot.handle_business_message(client_greet)
+            self.assertEqual(res_greet["type"], "draft_greeting")
+            did = res_greet["draft_id"]
+            self.assertIn(did, bot.pending_drafts)
+
+            # Check that client received ZERO messages
+            client_sends = [m for m in sent_messages if m["chat_id"] == 888777]
+            self.assertEqual(len(client_sends), 0, "Co-Pilot mode must NEVER send autonomous messages to client")
+
+            # Check that Admin Desk received the draft suggestion
+            admin_sends = [m for m in sent_messages if m["chat_id"] == -1004331808205]
+            self.assertEqual(len(admin_sends), 1)
+            self.assertIn("[Co-Pilot Draft] New Client Inquiry", admin_sends[0]["text"])
+            self.assertIn(f"/send_msg_{did}", admin_sends[0]["text"])
+            sent_messages.clear()
+
+            # 2. Test Admin Dispatches the Draft to the Client
+            action_res = bot.handle_incoming_text(-1004331808205, "Saber", f"/send_msg_{did}")
+            self.assertIn("dispatched to مینا", action_res)
+            self.assertEqual(len(sent_messages), 1)
+            self.assertEqual(sent_messages[0]["chat_id"], 888777)
+            self.assertEqual(sent_messages[0]["business_connection_id"], "biz_conn_copilot")
+            self.assertIn("مشاور پژوهشی صابر قادری", sent_messages[0]["text"])
+            sent_messages.clear()
+
+            # 3. Test Human Takeover & Auto-Mute
+            saber_talks = {
+                "business_connection_id": "biz_conn_copilot",
+                "message_id": 51,
+                "chat": {"id": 888777, "type": "private"},
+                "from": {"id": 124911145, "first_name": "Saber"},
+                "text": "مینا خانم سلام، بفرمایید در خدمتم."
+            }
+            res_saber = bot.handle_business_message(saber_talks)
+            self.assertIsNone(res_saber)
+            self.assertIn(888777, bot.muted_chats, "Chat should be auto-muted after Saber personally speaks")
+
+            # When client sends follow-up chit-chat, bot is completely silent (muted)
+            client_followup = {
+                "business_connection_id": "biz_conn_copilot",
+                "message_id": 52,
+                "chat": {"id": 888777, "type": "private"},
+                "from": {"id": 888777, "first_name": "مینا"},
+                "text": "ممنون سلامت باشید"
+            }
+            res_followup = bot.handle_business_message(client_followup)
+            self.assertEqual(res_followup["type"], "muted")
+            self.assertEqual(len(sent_messages), 0, "Muted chat should produce no messages or alerts")
+
+            # 4. Test Emergency Pause & Resume
+            pause_reply = bot.handle_incoming_text(-1004331808205, "Saber", "/pause_business")
+            self.assertTrue(bot.business_paused)
+            self.assertIn("PAUSED", pause_reply)
+
+            # Any incoming message is ignored while paused
+            res_paused = bot.handle_business_message(client_greet)
+            self.assertEqual(res_paused["type"], "paused")
+
+            resume_reply = bot.handle_incoming_text(-1004331808205, "Saber", "/resume_business")
+            self.assertFalse(bot.business_paused)
+            self.assertIn("RESUMED", resume_reply)
+
+            # 5. Test Status Command
+            status_reply = bot.handle_incoming_text(-1004331808205, "Saber", "/status_business")
+            self.assertIn("copilot_only", status_reply)
+            self.assertIn("ACTIVE", status_reply)
+            self.assertIn("Muted Chats", status_reply)
 
 
 if __name__ == "__main__":

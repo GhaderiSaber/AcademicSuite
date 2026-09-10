@@ -24,7 +24,7 @@ import ssl
 import argparse
 import urllib.request
 import urllib.parse
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Tuple
 
 # SOCKS5 proxy support (PySocks) — essential for Iran
@@ -339,6 +339,8 @@ class DigitalSaberBot:
         admin_id: int = 124911145,
         admin_desk_chat_id: Optional[int] = -1004331808205,
         business_mode: bool = True,
+        business_mode_policy: str = "copilot_only",
+        auto_mute_hours: int = 24,
         auto_quote: bool = False,
         work_dir: Optional[str] = None,
         webapp_url: str = "",
@@ -348,6 +350,9 @@ class DigitalSaberBot:
         self.admin_id = admin_id
         self.admin_desk_chat_id = admin_desk_chat_id
         self.business_mode = business_mode
+        self.business_mode_policy = business_mode_policy
+        self.auto_mute_hours = auto_mute_hours
+        self.business_paused = False
         self.auto_quote = auto_quote
         self.webapp_url = webapp_url
         self.work_dir = work_dir or os.path.join(os.path.dirname(__file__), "bot_storage")
@@ -357,6 +362,9 @@ class DigitalSaberBot:
         self.tg = TelegramApiClient(self.token, proxy=proxy) if self.token else None
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
         self.quote_counter = 100
+        self.pending_drafts: Dict[str, Dict[str, Any]] = {}
+        self.draft_counter = 100
+        self.muted_chats: Dict[int, datetime] = {}
         self.running = True
         self.project_manager = ProjectDriveManager() if ProjectDriveManager else None
         self.business_connections_path = os.path.join(self.work_dir, "business_connections.json")
@@ -424,6 +432,10 @@ class DigitalSaberBot:
 
     def handle_business_message(self, b_msg: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Handle incoming messages inside connected business 1-on-1 chats."""
+        if self.business_paused:
+            print("[Business DM] Ignored (Business Co-Pilot is PAUSED)")
+            return {"type": "paused", "status": "ignored"}
+
         conn_id = b_msg.get("business_connection_id", "")
         chat = b_msg.get("chat", {})
         chat_id = chat.get("id")
@@ -437,13 +449,30 @@ class DigitalSaberBot:
         conn_info = self.business_connections.get(conn_id, {})
         owner_id = conn_info.get("user_id") or self.admin_id
         if sender_id == owner_id:
-            # Outgoing message from Saber inside client chat - ignore to avoid self-reply loop
+            # Outgoing message from Saber inside client chat:
+            # 1. Ignore to avoid self-reply loop
+            # 2. Human takeover detection: auto-mute this chat for auto_mute_hours
+            if chat_id:
+                mute_until = datetime.now() + timedelta(hours=self.auto_mute_hours)
+                self.muted_chats[chat_id] = mute_until
+                print(f"[Co-Pilot] Human takeover detected in chat {chat_id} ({sender_name}). Muted for {self.auto_mute_hours}h.")
             return None
+
+        # Check if chat is currently auto-muted due to human takeover
+        if chat_id and chat_id in self.muted_chats:
+            if datetime.now() < self.muted_chats[chat_id]:
+                # If not an explicit document upload, silence all bot interactions
+                doc = b_msg.get("document")
+                if not doc:
+                    print(f"[Co-Pilot] Chat {chat_id} is currently human-muted until {self.muted_chats[chat_id].strftime('%H:%M:%S')}. Skipping.")
+                    return {"type": "muted", "status": "ignored"}
+            else:
+                del self.muted_chats[chat_id]
 
         print(f"[Business DM] From {sender_name} (ID: {sender_id}): {msg_text[:60]}")
 
         # Ensure client project folder is provisioned in Google Drive
-        if self.project_manager:
+        if self.project_manager and chat_id:
             try:
                 self.project_manager.provision_project(
                     client_name=sender_name,
@@ -507,20 +536,73 @@ class DigitalSaberBot:
         if m_scale:
             query = m_scale.group(1).strip()
             scale_reply = self.handle_questionnaire_search(query)
-            if self.tg and conn_info.get("can_reply", True):
-                self.tg.send_message(chat_id, scale_reply, business_connection_id=conn_id)
-            return {"type": "scale_search", "query": query}
+            if self.business_mode_policy == "copilot_only":
+                # In Co-Pilot mode: do NOT send to client. Post draft to Admin Desk.
+                self.draft_counter += 1
+                draft_id = f"D{self.draft_counter}"
+                self.pending_drafts[draft_id] = {
+                    "chat_id": chat_id,
+                    "business_connection_id": conn_id,
+                    "client_name": sender_name,
+                    "type": "scale_search",
+                    "text": scale_reply,
+                    "created_at": datetime.now().isoformat()
+                }
+                if self.tg and desk_target:
+                    draft_card = (
+                        f"📝 <b>[Co-Pilot Draft] Scale Search Request</b>\n\n"
+                        f"👤 <b>Client:</b> {html.escape(sender_name)} (@{username or 'none'})\n"
+                        f"🔍 <b>Query:</b> <code>{html.escape(query)}</code>\n\n"
+                        f"📋 <b>Suggested Reply:</b>\n"
+                        f"<blockquote expandable>{html.escape(scale_reply[:600])}</blockquote>\n\n"
+                        f"⚙️ <b>Admin Actions:</b>\n"
+                        f"• Send to Client: <code>/send_msg_{draft_id}</code>\n"
+                        f"• Dismiss: <code>/ignore_{draft_id}</code>"
+                    )
+                    self.tg.send_message(desk_target, draft_card, parse_mode="HTML")
+                return {"type": "draft_scale", "draft_id": draft_id, "query": query}
+            else:
+                if self.tg and conn_info.get("can_reply", True):
+                    self.tg.send_message(chat_id, scale_reply, business_connection_id=conn_id)
+                return {"type": "scale_search", "query": query}
 
         # 4. Standard consultation greeting on first message or /start
-        if msg_text in ["/start", "سلام", "درود"]:
+        greeting_words = ["/start", "سلام", "درود", "صبح بخیر", "عصر بخیر", "شب بخیر", "وقت بخیر"]
+        if msg_text in ["/start"] or (len(msg_text.split()) <= 4 and any(msg_text.startswith(gw) or msg_text == gw for gw in greeting_words)):
             welcome = (
                 f"سلام و درود، وقت شما بخیر {sender.get('first_name', '')} گرامی.\n\n"
                 "دستیار هوشمند و مشاور پژوهشی صابر قادری در خدمت شماست.\n"
                 "در صورت تمایل به استعلام هزینه و زمان‌بندی، فایل پروپوزال (`.docx` یا `.pdf`) خود را ارسال بفرمایید."
             )
-            if self.tg and conn_info.get("can_reply", True):
-                self.tg.send_message(chat_id, welcome, business_connection_id=conn_id)
-            return {"type": "greeting", "status": "sent"}
+            if self.business_mode_policy == "copilot_only":
+                # In Co-Pilot mode: do NOT send to client. Post draft suggestion to Admin Desk.
+                self.draft_counter += 1
+                draft_id = f"D{self.draft_counter}"
+                self.pending_drafts[draft_id] = {
+                    "chat_id": chat_id,
+                    "business_connection_id": conn_id,
+                    "client_name": sender_name,
+                    "type": "greeting",
+                    "text": welcome,
+                    "created_at": datetime.now().isoformat()
+                }
+                if self.tg and desk_target:
+                    draft_card = (
+                        f"📝 <b>[Co-Pilot Draft] New Client Inquiry</b>\n\n"
+                        f"👤 <b>Client:</b> {html.escape(sender_name)} (@{username or 'none'})\n"
+                        f"💬 <b>Received:</b> <i>\"{html.escape(msg_text)}\"</i>\n\n"
+                        f"💡 <b>Suggested Response:</b>\n"
+                        f"<blockquote expandable>{html.escape(welcome)}</blockquote>\n\n"
+                        f"⚙️ <b>Admin Actions:</b>\n"
+                        f"• Send to Client: <code>/send_msg_{draft_id}</code>\n"
+                        f"• Dismiss: <code>/ignore_{draft_id}</code>"
+                    )
+                    self.tg.send_message(desk_target, draft_card, parse_mode="HTML")
+                return {"type": "draft_greeting", "draft_id": draft_id}
+            else:
+                if self.tg and conn_info.get("can_reply", True):
+                    self.tg.send_message(chat_id, welcome, business_connection_id=conn_id)
+                return {"type": "greeting", "status": "sent"}
 
         return {"type": "text", "status": "received"}
 
@@ -765,16 +847,77 @@ class DigitalSaberBot:
                 return f"✅ Quotation {qid} adjusted to {new_price:,.0f} Tomans and dispatched to {item['sender_name']}{channel_str}."
             return f"Quotation {qid} not found."
 
-        # Reject / Ignore
-        m_rej = re.match(r"^/(?:reject|ignore)_(Q\d+)", command_text)
-        if m_rej:
-            qid = m_rej.group(1)
-            if qid in self.pending_quotes:
-                self.pending_quotes[qid]["status"] = "rejected"
-                return f"❌ Quotation {qid} dismissed."
-            return f"Quotation {qid} not found."
+        # Send Draft Message: /send_msg_D101
+        m_draft = re.match(r"^/send_msg_(D\d+)", command_text)
+        if m_draft:
+            did = m_draft.group(1)
+            if did in self.pending_drafts:
+                item = self.pending_drafts[did]
+                client_chat_id = item["chat_id"]
+                conn_id = item.get("business_connection_id")
+                msg_text = item["text"]
+                if self.tg:
+                    self.tg.send_message(
+                        client_chat_id,
+                        msg_text,
+                        business_connection_id=conn_id
+                    )
+                item["status"] = "dispatched"
+                channel_str = " (via Telegram Business)" if conn_id else ""
+                return f"✅ Draft {did} dispatched to {item['client_name']}{channel_str}."
+            return f"Draft {did} not found."
 
-        return "Invalid command. Format: <code>/approve_Q101</code>, <code>/send_Q101</code>, or <code>/adjust_Q101_8000000</code>"
+        # Dismiss Draft: /ignore_D101 or /reject_D101
+        m_dis = re.match(r"^/(?:reject|ignore)_(D\d+)", command_text)
+        if m_dis:
+            did = m_dis.group(1)
+            if did in self.pending_drafts:
+                self.pending_drafts[did]["status"] = "dismissed"
+                return f"❌ Draft {did} dismissed."
+            return f"Draft {did} not found."
+
+        # Pause / Resume Business Co-Pilot
+        if command_text in ("/pause_business", "/pause_biz", "/pause"):
+            self.business_paused = True
+            return "⏸️ <b>Telegram Business Co-Pilot is now PAUSED.</b> Client messages will be held without alerts."
+
+        if command_text in ("/resume_business", "/resume_biz", "/resume"):
+            self.business_paused = False
+            return "▶️ <b>Telegram Business Co-Pilot is now RESUMED.</b>"
+
+        # Manual Mute: /mute_chat_12345
+        m_mute = re.match(r"^/mute_chat_(-?\d+)", command_text)
+        if m_mute:
+            cid = int(m_mute.group(1))
+            self.muted_chats[cid] = datetime.now() + timedelta(hours=self.auto_mute_hours)
+            return f"🔇 Chat {cid} muted for {self.auto_mute_hours} hours."
+
+        m_unmute = re.match(r"^/unmute_chat_(-?\d+)", command_text)
+        if m_unmute:
+            cid = int(m_unmute.group(1))
+            self.muted_chats.pop(cid, None)
+            return f"🔊 Chat {cid} unmuted."
+
+        # Business Status: /status_business
+        if command_text in ("/status_business", "/status_biz", "/status"):
+            active_mutes = len([c for c, exp in self.muted_chats.items() if datetime.now() < exp])
+            active_conns = len([c for c in self.business_connections.values() if c.get("is_enabled")])
+            pending_q = len([q for q in self.pending_quotes.values() if q.get("status") == "pending"])
+            pending_d = len([d for d in self.pending_drafts.values() if d.get("status") not in ("dispatched", "dismissed")])
+            state_str = "⏸️ PAUSED" if self.business_paused else "🟢 ACTIVE"
+            lines = [
+                "🛡️ <b>Telegram Business Co-Pilot Status:</b>\n",
+                f"• <b>Status:</b> {state_str}",
+                f"• <b>Policy:</b> <code>{self.business_mode_policy}</code> (Zero autonomous client messages)",
+                f"• <b>Active Connections:</b> {active_conns}",
+                f"• <b>Pending Proposals:</b> {pending_q}",
+                f"• <b>Pending Drafts:</b> {pending_d}",
+                f"• <b>Muted Chats (Human Active):</b> {active_mutes}",
+                f"• <b>Auto-Mute Duration:</b> {self.auto_mute_hours}h"
+            ]
+            return "\n".join(lines)
+
+        return "Invalid command. Format: <code>/send_Q101</code>, <code>/send_msg_D101</code>, <code>/status_business</code>, or <code>/pause_business</code>"
 
     def handle_incoming_text(self, chat_id: int, sender_name: str, text: str) -> str:
         """Route and answer text queries."""
@@ -784,7 +927,11 @@ class DigitalSaberBot:
         valid_admins = [self.admin_id]
         if self.admin_desk_chat_id:
             valid_admins.append(self.admin_desk_chat_id)
-        if chat_id in valid_admins and clean.startswith(("/approve_", "/send_", "/adjust_", "/reject_", "/ignore_")):
+        if chat_id in valid_admins and clean.startswith((
+            "/approve_", "/send_", "/send_msg_", "/adjust_", "/reject_", "/ignore_",
+            "/pause_business", "/pause_biz", "/pause", "/resume_business", "/resume_biz", "/resume",
+            "/mute_chat_", "/unmute_chat_", "/status_business", "/status_biz", "/status"
+        )):
             return self.handle_admin_action(chat_id, clean)
 
         # Standard commands & greetings
@@ -940,7 +1087,49 @@ class DigitalSaberBot:
         print(f"[Test 6b: Telegram Business Message]\nProposal processed from client Ali Rezaei: {res_bmsg}")
         events.append({"step": "business_message", "output": res_bmsg})
 
-        print("\n✅ All 6 simulation tests executed successfully!")
+        # Scenario 6c: Co-Pilot Greeting Draft (Zero Autonomous Client Sends)
+        test_greet = {
+            "business_connection_id": "conn_test_999",
+            "chat": {"id": 2003, "type": "private"},
+            "from": {"id": 2003, "first_name": "فرشاد", "username": "farshad_psy"},
+            "text": "سلام وقت بخیر",
+            "date": 1720000010
+        }
+        res_greet = self.handle_business_message(test_greet)
+        did = res_greet.get("draft_id", "D101")
+        print(f"\n[Test 6c: Co-Pilot Greeting Draft]\nDraft generated in Admin Desk: {res_greet}")
+        events.append({"step": "copilot_draft_greeting", "output": res_greet})
+
+        # Scenario 6d: Admin Dispatches Draft to Client
+        res_disp = self.handle_incoming_text(chat_id=self.admin_id, sender_name="Saber Ghaderi", text=f"/send_msg_{did}")
+        print(f"[Test 6d: Admin Dispatch Draft]\n{res_disp}")
+        events.append({"step": "copilot_dispatch_draft", "output": res_disp})
+
+        # Scenario 6e: Human Takeover Auto-Mute
+        saber_takeover = {
+            "business_connection_id": "conn_test_999",
+            "chat": {"id": 2003, "type": "private"},
+            "from": {"id": self.admin_id, "first_name": "Saber"},
+            "text": "سلام، فرشاد جان در خدمتم، فایل رو بفرستید."
+        }
+        self.handle_business_message(saber_takeover)
+        # Client sends follow-up casual text while muted
+        client_followup = {
+            "business_connection_id": "conn_test_999",
+            "chat": {"id": 2003, "type": "private"},
+            "from": {"id": 2003, "first_name": "فرشاد"},
+            "text": "ممنون الان می‌فرستم"
+        }
+        res_muted = self.handle_business_message(client_followup)
+        print(f"[Test 6e: Human Takeover Auto-Mute Check]\nResult: {res_muted}")
+        events.append({"step": "human_takeover_mute", "output": res_muted})
+
+        # Scenario 6f: Status Command
+        res_status = self.handle_incoming_text(chat_id=self.admin_id, sender_name="Saber Ghaderi", text="/status_business")
+        print(f"\n[Test 6f: Business Co-Pilot Status]\n{res_status}")
+        events.append({"step": "copilot_status", "output": res_status})
+
+        print("\n✅ All Co-Pilot simulation tests executed successfully!")
         return {"status": "success", "events": events}
 
     def start_polling(self):
@@ -1066,6 +1255,8 @@ def main():
 
     admin_desk_chat_id = -1004331808205
     business_mode = True
+    business_mode_policy = "copilot_only"
+    auto_mute_hours = 24
 
     # Load from config if present
     if os.path.exists(args.config):
@@ -1076,6 +1267,8 @@ def main():
                 admin_id = admin_id or cfg.get("admin_id", 124911145)
                 admin_desk_chat_id = cfg.get("admin_desk_chat_id", admin_desk_chat_id)
                 business_mode = cfg.get("business_mode", True)
+                business_mode_policy = cfg.get("business_mode_policy", "copilot_only")
+                auto_mute_hours = cfg.get("auto_mute_hours", 24)
                 webapp_url = webapp_url or cfg.get("webapp_url", "")
                 proxy_cfg = cfg.get("proxy")
         except Exception:
@@ -1086,6 +1279,8 @@ def main():
         admin_id=admin_id,
         admin_desk_chat_id=admin_desk_chat_id,
         business_mode=business_mode,
+        business_mode_policy=business_mode_policy,
+        auto_mute_hours=auto_mute_hours,
         auto_quote=args.auto_quote,
         webapp_url=webapp_url,
         proxy=proxy_cfg
