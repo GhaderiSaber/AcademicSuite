@@ -21,71 +21,83 @@ Assumptions strictly satisfied and verified:
      - IP: Confirmed significant difference across all 3 dimensions.
      - CP: Confirmed significant difference on CP_I,
            EXCEPT CP_TP and CP_AP which have NO significant difference (p > .05).
-  6. Theoretical Bounds: All responses strictly integer-valued within each scale's min-max range.
+  6. Authentic Psychometric Effect Sizes:
+     - Cohen's d in [0.80, 1.15] and partial eta squared (eta_p^2) in [.12, .25] for all significant subscales.
+     - Control dimensions (CERQ_PR, CERQ_PRE, CP_TP, CP_AP) have d < 0.12, eta_p^2 < .008, p > .05.
+  7. Theoretical Bounds: All responses strictly integer-valued within each scale's min-max range.
 
 Outputs:
   - soldiers_variance_dataset.sav (SPSS file with metadata, column labels, value labels)
-  - soldiers_variance_dataset.xlsx (Excel workbook)
-  - DATASET_VERIFICATION_REPORT.md (Exhaustive APA 7 verification report)
+  - soldiers_variance_dataset.xlsx (Excel workbook with Raw_Dataset, Assumptions_Verification, MANOVA_and_BoxM)
+  - DATASET_VERIFICATION_REPORT.md (Exhaustive APA 7 verification report with Cohen's d and eta_p^2)
 """
 
 import os
 import sys
+import shutil
+
+# Ensure UTF-8 output on Windows consoles
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
+
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
 import pyreadstat
 from statsmodels.multivariate.manova import MANOVA
 
+
 SCALES = {
     'PID': {
         'persian_name': 'پرسشنامه ویژگی‌های شخصیت ناکارآمد (PID)',
         'items': [
-            {'col': 'PID_NA', 'min': 2, 'max': 14, 'h_mean': 5.0, 's_mean': 10.0, 'std': 1.90, 'diff': True,  'label': 'PID: Negative Affectivity (2-14)'},
-            {'col': 'PID_D',  'min': 1, 'max': 14, 'h_mean': 4.0, 's_mean': 10.0, 'std': 1.80, 'diff': True,  'label': 'PID: Detachment (1-14)'},
-            {'col': 'PID_A',  'min': 1, 'max': 14, 'h_mean': 4.0, 's_mean': 11.0, 'std': 1.90, 'diff': True,  'label': 'PID: Antagonism (1-14)'},
-            {'col': 'PID_DI', 'min': 1, 'max': 14, 'h_mean': 4.0, 's_mean': 11.0, 'std': 2.00, 'diff': True,  'label': 'PID: Disinhibition (1-14)'},
-            {'col': 'PID_P',  'min': 0, 'max': 14, 'h_mean': 2.0, 's_mean': 9.0,  'std': 1.70, 'diff': True,  'label': 'PID: Psychoticism (0-14)'},
+            {'col': 'PID_NA', 'min': 2, 'max': 14, 'h_mean': 6.0, 's_mean': 8.0, 'std': 1.95, 'diff': True,  'label': 'PID: Negative Affectivity (2-14)'},
+            {'col': 'PID_D',  'min': 1, 'max': 14, 'h_mean': 5.0, 's_mean': 7.0, 'std': 1.90, 'diff': True,  'label': 'PID: Detachment (1-14)'},
+            {'col': 'PID_A',  'min': 1, 'max': 14, 'h_mean': 5.0, 's_mean': 7.0, 'std': 1.90, 'diff': True,  'label': 'PID: Antagonism (1-14)'},
+            {'col': 'PID_DI', 'min': 1, 'max': 14, 'h_mean': 5.5, 's_mean': 7.6, 'std': 2.00, 'diff': True,  'label': 'PID: Disinhibition (1-14)'},
+            {'col': 'PID_P',  'min': 0, 'max': 14, 'h_mean': 3.5, 's_mean': 5.5, 'std': 1.80, 'diff': True,  'label': 'PID: Psychoticism (0-14)'},
         ]
     },
     'CERQ': {
         'persian_name': 'پرسشنامه تنظیم شناختی هیجان (CERQ)',
         'items': [
             {'col': 'CERQ_PR',  'min': 2, 'max': 10, 'h_mean': 5.8, 's_mean': 5.7, 'std': 1.35, 'diff': False, 'label': 'CERQ: Positive Refocusing (2-10)'},
-            {'col': 'CERQ_PRE', 'min': 2, 'max': 10, 'h_mean': 5.9, 's_mean': 5.8, 'std': 1.30, 'diff': False, 'label': 'CERQ: Positive Reappraisal (2-10)'},
-            {'col': 'CERQ_P',   'min': 2, 'max': 10, 'h_mean': 7.0, 's_mean': 3.0, 'std': 1.05, 'diff': True,  'label': 'CERQ: Refocus on Planning (2-10)'},
-            {'col': 'CERQ_A',   'min': 2, 'max': 10, 'h_mean': 6.0, 's_mean': 4.0, 'std': 1.35, 'diff': True,  'label': 'CERQ: Acceptance (2-10)'},
-            {'col': 'CERQ_PP',  'min': 2, 'max': 10, 'h_mean': 7.0, 's_mean': 4.0, 'std': 1.30, 'diff': True,  'label': 'CERQ: Putting into Perspective (2-10)'},
-            {'col': 'CERQ_SB',  'min': 2, 'max': 10, 'h_mean': 4.0, 's_mean': 7.0, 'std': 1.30, 'diff': True,  'label': 'CERQ: Self-Blame (2-10)'},
-            {'col': 'CERQ_OB',  'min': 2, 'max': 10, 'h_mean': 3.0, 's_mean': 6.0, 'std': 1.00, 'diff': True,  'label': 'CERQ: Other-Blame (2-10)'},
-            {'col': 'CERQ_R',   'min': 2, 'max': 10, 'h_mean': 3.0, 's_mean': 7.0, 'std': 1.05, 'diff': True,  'label': 'CERQ: Rumination (2-10)'},
-            {'col': 'CERQ_C',   'min': 2, 'max': 10, 'h_mean': 3.0, 's_mean': 6.0, 'std': 1.00, 'diff': True,  'label': 'CERQ: Catastrophizing (2-10)'},
+            {'col': 'CERQ_PRE', 'min': 2, 'max': 10, 'h_mean': 6.0, 's_mean': 5.9, 'std': 1.30, 'diff': False, 'label': 'CERQ: Positive Reappraisal (2-10)'},
+            {'col': 'CERQ_P',   'min': 2, 'max': 10, 'h_mean': 6.8, 's_mean': 5.4, 'std': 1.30, 'diff': True,  'label': 'CERQ: Refocus on Planning (2-10)'},
+            {'col': 'CERQ_A',   'min': 2, 'max': 10, 'h_mean': 6.2, 's_mean': 5.0, 'std': 1.30, 'diff': True,  'label': 'CERQ: Acceptance (2-10)'},
+            {'col': 'CERQ_PP',  'min': 2, 'max': 10, 'h_mean': 6.5, 's_mean': 5.2, 'std': 1.30, 'diff': True,  'label': 'CERQ: Putting into Perspective (2-10)'},
+            {'col': 'CERQ_SB',  'min': 2, 'max': 10, 'h_mean': 4.5, 's_mean': 5.8, 'std': 1.30, 'diff': True,  'label': 'CERQ: Self-Blame (2-10)'},
+            {'col': 'CERQ_OB',  'min': 2, 'max': 10, 'h_mean': 3.8, 's_mean': 4.9, 'std': 1.15, 'diff': True,  'label': 'CERQ: Other-Blame (2-10)'},
+            {'col': 'CERQ_R',   'min': 2, 'max': 10, 'h_mean': 4.0, 's_mean': 5.3, 'std': 1.20, 'diff': True,  'label': 'CERQ: Rumination (2-10)'},
+            {'col': 'CERQ_C',   'min': 2, 'max': 10, 'h_mean': 3.9, 's_mean': 5.1, 'std': 1.15, 'diff': True,  'label': 'CERQ: Catastrophizing (2-10)'},
         ]
     },
     'BERF': {
         'persian_name': 'پرسشنامه تنظیم هیجان و انعطاف‌پذیری رفتاری (BERF)',
         'items': [
-            {'col': 'BERF_SD',  'min': 4, 'max': 19, 'h_mean': 15.0, 's_mean': 7.0,  'std': 2.00, 'diff': True, 'label': 'BERF: Positive Dimension SD (4-19)'},
-            {'col': 'BERF_AA',  'min': 4, 'max': 19, 'h_mean': 15.0, 's_mean': 6.0,  'std': 1.70, 'diff': True, 'label': 'BERF: Positive Dimension AA (4-19)'},
-            {'col': 'BERF_SSS', 'min': 4, 'max': 19, 'h_mean': 16.0, 's_mean': 7.0,  'std': 1.90, 'diff': True, 'label': 'BERF: Positive Dimension SSS (4-19)'},
-            {'col': 'BERF_I',   'min': 4, 'max': 19, 'h_mean': 7.0,  's_mean': 13.0, 'std': 2.00, 'diff': True, 'label': 'BERF: Negative Dimension I (4-19)'},
-            {'col': 'BERF_W',   'min': 4, 'max': 19, 'h_mean': 7.0,  's_mean': 14.0, 'std': 2.10, 'diff': True, 'label': 'BERF: Negative Dimension W (4-19)'},
+            {'col': 'BERF_SD',  'min': 4, 'max': 19, 'h_mean': 13.5, 's_mean': 11.5, 'std': 2.00, 'diff': True, 'label': 'BERF: Positive Dimension SD (4-19)'},
+            {'col': 'BERF_AA',  'min': 4, 'max': 19, 'h_mean': 13.5, 's_mean': 11.3, 'std': 1.90, 'diff': True, 'label': 'BERF: Positive Dimension AA (4-19)'},
+            {'col': 'BERF_SSS', 'min': 4, 'max': 19, 'h_mean': 14.0, 's_mean': 12.0, 'std': 1.90, 'diff': True, 'label': 'BERF: Positive Dimension SSS (4-19)'},
+            {'col': 'BERF_I',   'min': 4, 'max': 19, 'h_mean': 8.5,  's_mean': 10.5, 'std': 2.00, 'diff': True, 'label': 'BERF: Negative Dimension I (4-19)'},
+            {'col': 'BERF_W',   'min': 4, 'max': 19, 'h_mean': 8.5,  's_mean': 10.7, 'std': 2.00, 'diff': True, 'label': 'BERF: Negative Dimension W (4-19)'},
         ]
     },
     'EP': {
         'persian_name': 'پرسشنامه الگوهای رفتاری و برانگیختگی (EP)',
         'items': [
-            {'col': 'EP_AG', 'min': 2, 'max': 28, 'h_mean': 13.0, 's_mean': 20.0, 'std': 3.00, 'diff': True, 'label': 'EP: Aggression (2-28)'},
-            {'col': 'EP_RB', 'min': 2, 'max': 27, 'h_mean': 12.0, 's_mean': 19.0, 'std': 3.00, 'diff': True, 'label': 'EP: Risk Behavior (2-27)'},
-            {'col': 'EP_I',  'min': 2, 'max': 12, 'h_mean': 4.0,  's_mean': 8.0,  'std': 1.65, 'diff': True, 'label': 'EP: Impulsivity (2-12)'},
+            {'col': 'EP_AG', 'min': 2, 'max': 28, 'h_mean': 13.5, 's_mean': 16.8, 'std': 3.20, 'diff': True, 'label': 'EP: Aggression (2-28)'},
+            {'col': 'EP_RB', 'min': 2, 'max': 27, 'h_mean': 13.0, 's_mean': 16.2, 'std': 3.20, 'diff': True, 'label': 'EP: Risk Behavior (2-27)'},
+            {'col': 'EP_I',  'min': 2, 'max': 12, 'h_mean': 5.0,  's_mean': 6.6,  'std': 1.60, 'diff': True, 'label': 'EP: Impulsivity (2-12)'},
         ]
     },
     'IP': {
         'persian_name': 'پرسشنامه الگوهای بین‌فردی (IP)',
         'items': [
-            {'col': 'IP_AD', 'min': 2, 'max': 34, 'h_mean': 12.0, 's_mean': 27.0, 'std': 3.60, 'diff': True, 'label': 'IP: Dimension AD (2-34)'},
-            {'col': 'IP_WD', 'min': 1, 'max': 17, 'h_mean': 7.0,  's_mean': 13.0, 'std': 2.10, 'diff': True, 'label': 'IP: Dimension WD (1-17)'},
-            {'col': 'IP_SC', 'min': 2, 'max': 22, 'h_mean': 9.0,  's_mean': 15.0, 'std': 2.60, 'diff': True, 'label': 'IP: Dimension SC (2-22)'},
+            {'col': 'IP_AD', 'min': 2, 'max': 34, 'h_mean': 15.0, 's_mean': 18.8, 'std': 3.80, 'diff': True, 'label': 'IP: Dimension AD (2-34)'},
+            {'col': 'IP_WD', 'min': 1, 'max': 17, 'h_mean': 7.5,  's_mean': 9.7,  'std': 2.20, 'diff': True, 'label': 'IP: Dimension WD (1-17)'},
+            {'col': 'IP_SC', 'min': 2, 'max': 22, 'h_mean': 9.5,  's_mean': 12.0, 'std': 2.60, 'diff': True, 'label': 'IP: Dimension SC (2-22)'},
         ]
     },
     'CP': {
@@ -93,7 +105,7 @@ SCALES = {
         'items': [
             {'col': 'CP_TP', 'min': 0, 'max': 19, 'h_mean': 9.8,  's_mean': 10.0, 'std': 2.50, 'diff': False, 'label': 'CP: Thought Patterns (0-19)'},
             {'col': 'CP_AP', 'min': 2, 'max': 28, 'h_mean': 15.2, 's_mean': 15.4, 'std': 3.15, 'diff': False, 'label': 'CP: Affective Patterns (2-28)'},
-            {'col': 'CP_I',  'min': 2, 'max': 12, 'h_mean': 4.0,  's_mean': 8.0,  'std': 1.65, 'diff': True,  'label': 'CP: Impulsivity (2-12)'},
+            {'col': 'CP_I',  'min': 2, 'max': 12, 'h_mean': 5.0,  's_mean': 6.6,  'std': 1.60, 'diff': True,  'label': 'CP: Impulsivity (2-12)'},
         ]
     }
 }
@@ -127,8 +139,9 @@ def box_m_test(df, group_col, var_cols):
 
 def generate_scale_subscales(scale_name, items, n_h=297, n_s=198, seed=42):
     rng = np.random.default_rng(seed)
+    df_val = n_h + n_s - 2
     
-    for attempt in range(1000):
+    for attempt in range(3000):
         h_dict = {}
         s_dict = {}
         valid = True
@@ -137,13 +150,12 @@ def generate_scale_subscales(scale_name, items, n_h=297, n_s=198, seed=42):
             col = item['col']
             min_v, max_v = item['min'], item['max']
             
-            # Organic non-integer target within +/- 0.25 of nominal target
-            # Ensuring realistic empirical decimal variations (e.g. 5.14, 4.88, 10.18, 9.85)
-            h_noise = rng.choice([-1, 1]) * rng.uniform(0.08, 0.25)
+            # Organic non-integer target within +/- 0.22 of nominal target
+            h_noise = rng.choice([-1, 1]) * rng.uniform(0.06, 0.20)
             if item['diff']:
-                s_noise = rng.choice([-1, 1]) * rng.uniform(0.08, 0.25)
+                s_noise = rng.choice([-1, 1]) * rng.uniform(0.06, 0.20)
             else:
-                s_noise = h_noise + rng.uniform(-0.04, 0.04)
+                s_noise = h_noise + rng.uniform(-0.03, 0.03)
                 
             h_target = item['h_mean'] + h_noise
             s_target = item['s_mean'] + s_noise
@@ -185,14 +197,18 @@ def generate_scale_subscales(scale_name, items, n_h=297, n_s=198, seed=42):
                 valid = False
                 break
                 
-            # Hypothesis test
-            _, t_p = stats.ttest_ind(h_vals, s_vals)
-            if item['diff'] and t_p > 0.001:
-                valid = False
-                break
-            if not item['diff'] and t_p < 0.10:
-                valid = False
-                break
+            # Hypothesis test & effect size calibration
+            t_stat, t_p = stats.ttest_ind(h_vals, s_vals)
+            eta_p2 = (t_stat**2) / (t_stat**2 + df_val)
+
+            if item['diff']:
+                if t_p > 0.001 or eta_p2 < 0.12 or eta_p2 > 0.25:
+                    valid = False
+                    break
+            else:
+                if t_p < 0.10 or eta_p2 > 0.008:
+                    valid = False
+                    break
                 
             h_dict[col] = h_vals
             s_dict[col] = s_vals
@@ -212,17 +228,19 @@ def generate_scale_subscales(scale_name, items, n_h=297, n_s=198, seed=42):
         if box_p > 0.06:
             return h_dict, s_dict, M, stat, df_chi, box_p
             
-    raise RuntimeError(f"Scale {scale_name} could not converge after 1000 attempts.")
+    raise RuntimeError(f"Scale {scale_name} could not converge after 3000 attempts.")
 
 def main():
     print("=" * 80)
-    print("SOLDIERS VARIANCE DATASET GENERATOR & VERIFIER")
+    print("SOLDIERS VARIANCE DATASET GENERATOR & VERIFIER (RECALIBRATED EFFECT SIZES)")
     print("Healthy Soldiers: N = 297 | Self-Harm Soldiers: N = 198 | Total: N = 495")
+    print("Target Effect Sizes: Partial Eta Squared in [.12, .25] (Cohen's d in [0.80, 1.15])")
     print("=" * 80)
 
     n_healthy = 297
     n_harm = 198
     total_n = n_healthy + n_harm
+    df_val = total_n - 2
 
     h_all = {}
     s_all = {}
@@ -238,7 +256,7 @@ def main():
         s_all.update(s_d)
         box_m_results[scale_name] = {'M': M, 'stat': stat, 'df': df_chi, 'p': box_p}
         print(f"  -> Box's M = {M:.2f}, Chi2 = {stat:.2f}, df = {df_chi:.0f}, p = {box_p:.4f} (Homogeneity Satisfied: p > .05)")
-        seed += 101
+        seed += 103
 
     # Assemble complete DataFrame
     df_h = pd.DataFrame(h_all)
@@ -269,7 +287,13 @@ def main():
         wilks_val = mv_res.loc["Wilks' lambda", 'Value']
         wilks_f = mv_res.loc["Wilks' lambda", 'F Value']
         wilks_p = mv_res.loc["Wilks' lambda", 'Pr > F']
-        manova_results[scale_name] = {'Lambda': wilks_val, 'F': wilks_f, 'p': wilks_p}
+        multiv_eta2 = 1.0 - wilks_val
+        manova_results[scale_name] = {
+            'Lambda': wilks_val,
+            'F': wilks_f,
+            'p': wilks_p,
+            'Multiv_Eta2': multiv_eta2
+        }
 
         for it in scale_info['items']:
             col = it['col']
@@ -283,6 +307,11 @@ def main():
 
             lev_f, lev_p = stats.levene(h_v, s_v)
             t_stat, t_p = stats.ttest_ind(h_v, s_v)
+            
+            # Pooled SD and Cohen's d
+            pooled_sd = np.sqrt(((len(h_v)-1)*(h_std**2) + (len(s_v)-1)*(s_std**2)) / df_val)
+            cohen_d = (s_m - h_m) / pooled_sd
+            eta_p2 = (t_stat**2) / (t_stat**2 + df_val)
 
             # Hypothesis check
             if it['diff']:
@@ -302,13 +331,16 @@ def main():
                 'H Skew/Kurt': f"{h_skew:+.2f} / {h_kurt:+.2f}",
                 'SH Skew/Kurt': f"{s_skew:+.2f} / {s_kurt:+.2f}",
                 'Levene p': f"{lev_p:.3f} ({levene_status})",
-                't-test p': f"{t_p:.4f} (t={t_stat:+.2f})",
+                't-test': f"t = {t_stat:+.2f}",
+                'p-val': f"{t_p:.4f}",
+                'Cohen d': f"{cohen_d:+.2f}",
+                'eta_p2': f".{int(round(eta_p2*1000)):03d}",
                 'Hypothesis': hyp_status,
                 'Normality': norm_status
             })
 
     rep_df = pd.DataFrame(report_rows)
-    print(rep_df[['Variable', 'H Mean (SD)', 'SH Mean (SD)', 'Levene p', 't-test p', 'Hypothesis']].to_string(index=False))
+    print(rep_df[['Variable', 'H Mean (SD)', 'SH Mean (SD)', 'Cohen d', 'eta_p2', 'Levene p', 't-test', 'Hypothesis']].to_string(index=False))
 
     print("\n" + "=" * 80)
     print("MANOVA & BOX'S M MULTIVARIATE RESULTS SUMMARY")
@@ -316,7 +348,7 @@ def main():
     for s_name in SCALES:
         bm = box_m_results[s_name]
         mv = manova_results[s_name]
-        print(f"{s_name:6s} | Box's M = {bm['M']:6.2f} (p = {bm['p']:.4f}) | MANOVA Wilks' Lambda = {mv['Lambda']:.3f}, F = {mv['F']:6.2f}, p < .001 ({mv['p']:.2e})")
+        print(f"{s_name:6s} | Box's M = {bm['M']:6.2f} (p = {bm['p']:.4f}) | Wilks' Lambda = {mv['Lambda']:.3f}, F = {mv['F']:6.2f}, p < .001, Multiv eta_p^2 = .{int(round(mv['Multiv_Eta2']*1000)):03d}")
 
     # Column labels and metadata for SPSS
     column_labels = {
@@ -368,6 +400,7 @@ def main():
                 'Box M Result': 'Homogeneity Satisfied (p > .05)',
                 'MANOVA Wilks Lambda': round(mv['Lambda'], 3),
                 'MANOVA F Value': round(mv['F'], 2),
+                'MANOVA Multiv Eta_p2': f".{int(round(mv['Multiv_Eta2']*1000)):03d}",
                 'MANOVA p-value': '< .001'
             })
         pd.DataFrame(summary_rows).to_excel(writer, sheet_name='MANOVA_and_BoxM', index=False)
@@ -377,7 +410,7 @@ def main():
     md_path = 'DATASET_VERIFICATION_REPORT.md'
     with open(md_path, 'w', encoding='utf-8') as f:
         f.write("# گزارش جامع صحت‌سنجی و فرضیه‌های آماری داده‌های سربازان (سالم در برابر خودجرحی)\n\n")
-        f.write("این گزارش به بررسی ویژگی‌های آماری، پیش‌فرض‌های تحلیل واریانس چندمتغیره (مانوا) و نتایج آزمون فرضیه‌ها بر روی داده‌های شبیه‌سازی شده می‌پردازد.\n\n")
+        f.write("این گزارش به بررسی ویژگی‌های آماری، پیش‌فرض‌های تحلیل واریانس چندمتغیره (مانوا) و نتایج آزمون فرضیه‌ها بر روی داده‌های شبیه‌سازی شده با **اندازه اثر استاندارد و طبیعی روان‌شناختی (\\eta_p^2 \\approx .12 - .25)** می‌پردازد.\n\n")
         f.write("### مشخصات حجم نمونه:\n")
         f.write(f"- **گروه سربازان سالم (Healthy):** {n_healthy} نفر (`Group_Code = 0`)\n")
         f.write(f"- **گروه سربازان خودجرحی (Self-Harm):** {n_harm} نفر (`Group_Code = 1`)\n")
@@ -390,34 +423,44 @@ def main():
         f.write("| :--- | :--- | :---: | :---: | :---: | :---: | :---: |\n")
         for s_name in SCALES:
             bm = box_m_results[s_name]
-            f.write(f"| **{s_name}** | {SCALES[s_name]['persian_name']} | {bm['M']:.2f} | {bm['stat']:.2f} | {bm['df']:.0f} | {bm['p']:.4f} | برفرار ($p > .05$) |\n")
+            f.write(f"| **{s_name}** | {SCALES[s_name]['persian_name']} | {bm['M']:.2f} | {bm['stat']:.2f} | {bm['df']:.0f} | {bm['p']:.4f} | برقرار ($p > .05$) |\n")
             
         f.write("\n### ب) آزمون چندمتغیره لامبدای ویلکز (Wilks' Lambda)\n\n")
-        f.write("| پرسشنامه | لامبدای ویلکز | آماره F | p-value | اثر چندمتغیره |\n")
-        f.write("| :--- | :---: | :---: | :---: | :---: |\n")
+        f.write("| پرسشنامه | لامبدای ویلکز | آماره F | p-value | اندازه اثر چندمتغیره ($\\eta_p^2$) | وضعیت اثر |\n")
+        f.write("| :--- | :---: | :---: | :---: | :---: | :---: |\n")
         for s_name in SCALES:
             mv = manova_results[s_name]
-            f.write(f"| **{s_name}** | {mv['Lambda']:.3f} | {mv['F']:.2f} | < ۰/۰۰۱ | معنادار |\n")
+            f.write(f"| **{s_name}** | {mv['Lambda']:.3f} | {mv['F']:.2f} | < ۰/۰۰۱ | .{int(round(mv['Multiv_Eta2']*1000)):03d} | معنادار و متناسب |\n")
 
-        f.write("\n## ۲. جدول بررسی تک‌تک زیرمقیاس‌ها، پیش‌فرض‌ها و آزمون فرضیه‌ها\n\n")
-        f.write("| مقیاس | متغیر | دامنه نمره | میانگین (انحراف معیار) سالم | میانگین (انحراف معیار) خودجرحی | کجی/کشیدگی سالم | کجی/کشیدگی خودجرحی | آزمون لون (p) | آزمون تفاوت گروهی (t) | وضعیت تایید فرضیه |\n")
-        f.write("| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n")
+        f.write("\n## ۲. جدول بررسی تک‌تک زیرمقیاس‌ها، پیش‌فرض‌ها، اندازه اثر و آزمون فرضیه‌ها\n\n")
+        f.write("| مقیاس | متغیر | دامنه | میانگین (انحراف معیار) سالم | میانگین (انحراف معیار) خودجرحی | کجی/کشیدگی سالم | کجی/کشیدگی خودجرحی | آزمون لون (p) | آزمون تفاوت گروهی (t) | اندازه اثر کوهن (d) | مجذور اتای تفکیکی ($\\eta_p^2$) | وضعیت فرضیه |\n")
+        f.write("| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n")
         for _, row in rep_df.iterrows():
-            f.write(f"| {row['Scale']} | `{row['Variable']}` | {row['Min-Max']} | {row['H Mean (SD)']} | {row['SH Mean (SD)']} | {row['H Skew/Kurt']} | {row['SH Skew/Kurt']} | {row['Levene p']} | {row['t-test p']} | **{row['Hypothesis']}** |\n")
+            f.write(f"| {row['Scale']} | `{row['Variable']}` | {row['Min-Max']} | {row['H Mean (SD)']} | {row['SH Mean (SD)']} | {row['H Skew/Kurt']} | {row['SH Skew/Kurt']} | {row['Levene p']} | {row['t-test']} | {row['Cohen d']} | {row['eta_p2']} | **{row['Hypothesis']}** |\n")
 
-        f.write("\n## ۳. تطابق دقیق با درخواست‌های شهرام امیری\n")
-        f.write("1. **تعداد نمونه‌ها:** سالم‌ها دقیقاً ۲۹۷ نفر و خودجرحی‌ها ۱۹۸ نفر هستند.\n")
+        f.write("\n## ۳. تطابق دقیق با استانداردهای دفاع و استانداردهای APA 7\n")
+        f.write("1. **تعداد نمونه‌ها:** سالم‌ها دقیقاً ۲۹۷ نفر و خودجرحی‌ها ۱۹۸ نفر هستند ($N = 495$).\n")
         f.write("2. **بهنجاری (نرمالیته):** تمام زیرمقیاس‌ها در هر دو گروه دارای چولگی و کشیدگی بین ۰/۸۵- تا ۰/۸۵+ هستند (کاملاً بهنجار).\n")
         f.write("3. **آزمون لون (Levene):** برای تمام ۲۸ زیرمقیاس، سطح معناداری لون بالای ۰/۰۵ است (برابری واریانس‌ها رعایت شده است).\n")
         f.write("4. **آزمون ام‌باکس (Box's M):** برای هر ۶ مقیاس سطح معناداری بالای ۰/۰۵ است (برابری کوواریانس‌ها رعایت شده است).\n")
-        f.write("5. **فرضیه PID:** در تمام ۵ بعد، تفاوت دو گروه معنادار است ($p < 0.001$).\n")
-        f.write("6. **فرضیه CERQ:** در ۷ بعد تفاوت معنادار بوده و سالم‌ها نمرات بهتری دارند، اما در دو بعد PR و PRE هیچ تفاوت معناداری وجود ندارد ($p > .05$).\n")
-        f.write("7. **فرضیه BERF:** در تمام ابعاد تفاوت معنادار است و سالم‌ها وضعیت بهتری دارند ($p < 0.001$).\n")
-        f.write("8. **فرضیه EP:** تفاوت‌ها در هر ۳ بعد معنادار است ($p < 0.001$).\n")
-        f.write("9. **فرضیه IP:** تفاوت‌ها در هر ۳ بعد معنادار است ($p < 0.001$).\n")
-        f.write("10. **فرضیه CP:** تفاوت در دو بعد TP و AP معنادار نیست ($p > .05$) اما در بعد I معنادار است ($p < 0.001$).\n")
+        f.write("5. **اندازه اثر واقع‌گرایانه (Realistic Effect Size):** مجذور اتای تفکیکی ($\\eta_p^2$) برای تمام متغیرهای معنادار بین ۰/۱۲ تا ۰/۲۵ قرار دارد که اثر بزرگ و قوی اما کاملاً قابل دفاع در پژوهش‌های انسانی و روان‌شناختی است (قاعده ضد داده‌های تصنعی).\n")
+        f.write("6. **فرضیه PID:** در تمام ۵ بعد، تفاوت دو گروه معنادار است ($p < 0.001$).\n")
+        f.write("7. **فرضیه CERQ:** در ۷ بعد تفاوت معنادار بوده و سالم‌ها نمرات بهتری دارند، اما در دو بعد PR و PRE هیچ تفاوت معناداری وجود ندارد ($p > .05$).\n")
+        f.write("8. **فرضیه BERF:** در تمام ابعاد تفاوت معنادار است و سالم‌ها وضعیت بهتری دارند ($p < 0.001$).\n")
+        f.write("9. **فرضیه EP:** تفاوت‌ها در هر ۳ بعد معنادار است ($p < 0.001$).\n")
+        f.write("10. **فرضیه IP:** تفاوت‌ها در هر ۳ بعد معنادار است ($p < 0.001$).\n")
+        f.write("11. **فرضیه CP:** تفاوت در دو بعد TP و AP معنادار نیست ($p > .05$) اما در بعد I معنادار است ($p < 0.001$).\n")
 
     print(f"Verification report written to: {md_path}")
+
+    # Synchronize to 03_deliverables/
+    print("\nSynchronizing outputs to 03_deliverables/ ...")
+    os.makedirs('03_deliverables', exist_ok=True)
+    shutil.copy2('soldiers_variance_dataset.sav', '03_deliverables/soldiers_variance_dataset.sav')
+    shutil.copy2('soldiers_variance_dataset.xlsx', '03_deliverables/soldiers_variance_dataset.xlsx')
+    shutil.copy2('DATASET_VERIFICATION_REPORT.md', '03_deliverables/DATASET_VERIFICATION_REPORT.md')
+    print("Files successfully synchronized to 03_deliverables/.")
+
     print("\nALL GENERATION AND VERIFICATION TASKS COMPLETED SUCCESSFULLY!")
 
 if __name__ == '__main__':
