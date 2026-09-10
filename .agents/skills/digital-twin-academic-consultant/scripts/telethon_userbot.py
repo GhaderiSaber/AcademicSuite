@@ -66,13 +66,24 @@ from project_drive_manager import (
     resolve_google_drive_work_dir,
     SUBFOLDERS,
     clean_drive_display_path,
-    format_client_mention_html
+    format_client_mention_html,
+    resolve_media_details
 )
 
 
 DEFAULT_CONFIG_PATH = os.path.join(SCRIPT_DIR, "telethon_config.json")
 DEFAULT_SESSION_NAME = os.path.join(SCRIPT_DIR, "saber_userbot")
 DEFAULT_STORAGE_DIR = os.path.join(SCRIPT_DIR, "userbot_storage")
+
+
+def is_valid_telegram_button_url(url: Optional[str]) -> bool:
+    """Check if URL is valid for Telegram Button.url (must be external http/https or tg://, not localhost)."""
+    if not url or not isinstance(url, str):
+        return False
+    u = url.strip().lower()
+    if "localhost" in u or "127.0.0.1" in u:
+        return False
+    return u.startswith("https://") or u.startswith("http://") or u.startswith("tg://")
 
 
 def get_proxy_settings(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -484,12 +495,26 @@ class SaberTelethonUserbot:
             # Check unread messages for proposal files or text
             async for msg in cl.iter_messages(dlg.entity, limit=min(unread_cnt, 15)):
                 txt = (msg.message or "").strip()
-                if not latest_text and txt:
-                    latest_text = txt
+                if not latest_text:
+                    if txt:
+                        latest_text = txt
+                    else:
+                        m_fn, m_type, _, m_dur = resolve_media_details(msg)
+                        if m_type == "voice":
+                            dur_lbl = f" - {m_dur}s" if m_dur else ""
+                            latest_text = f"🎤 [پیام صوتی / Voice Note{dur_lbl}]"
+                        elif m_type == "photo":
+                            latest_text = "📷 [تصویر / Photo]"
+                        elif m_type == "video_note":
+                            dur_lbl = f" - {m_dur}s" if m_dur else ""
+                            latest_text = f"📹 [پیام ویدیویی / Video Note{dur_lbl}]"
+                        elif m_fn:
+                            latest_text = f"📎 [{m_fn}]"
 
                 # Check for proposal files
-                if msg.file and hasattr(msg.file, "name") and msg.file.name:
-                    fname = sanitize_filename(msg.file.name)
+                fn_detail, mt_detail, _, _ = resolve_media_details(msg)
+                if fn_detail and mt_detail == "document":
+                    fname = fn_detail
                     ext = os.path.splitext(fname)[1].lower()
                     if ext in [".docx", ".pdf", ".txt"]:
                         print(f"      [+] Unread proposal file detected: {fname} from {client_name}")
@@ -526,25 +551,30 @@ class SaberTelethonUserbot:
                 f"💬 <b>Latest Message ({unread_cnt} new):</b> «{snippet}»{status_tag}\n"
             )
 
+        webapp_url = self.config.get("webapp_url", "")
+        has_web_btn = is_valid_telegram_button_url(webapp_url)
+        dash_display = webapp_url if has_web_btn else "http://localhost:8080"
+
         summary_lines.append(
             "─────────────────────\n"
             "⚙️ <b>Commands:</b>\n"
             "• Rescan: <code>/unread</code>\n"
-            "• Project Catalog: <code>/projects</code>"
+            "• Project Catalog: <code>/projects</code>\n"
+            f"• Web Dashboard: <code>{dash_display}</code>"
         )
         report_text = "\n".join(summary_lines)
 
         buttons = None
         if Button is not None:
-            buttons = [
-                [Button.inline("🔄 Rescan Messages", b"cmd_unread"),
-                 Button.inline("📂 Project Catalog", b"cmd_projects")],
-                [Button.url("📱 Open Web Dashboard", "http://localhost:8080"),
-                 Button.inline("❌ Dismiss Notice", b"cmd_close")]
-            ]
+            dash_row = [Button.inline("🔄 Rescan Messages", b"cmd_unread"),
+                        Button.inline("📂 Project Catalog", b"cmd_projects")]
+            row2 = []
+            if has_web_btn:
+                row2.append(Button.url("📱 Open Web Dashboard", webapp_url))
+            row2.append(Button.inline("❌ Dismiss Notice", b"cmd_close"))
+            buttons = [dash_row, row2]
 
         await self.send_to_desk(report_text, buttons=buttons, parse_mode="html")
-        print(f"[+] Posted unread messages and project sync report to Admin Desk via Assistant Bot.")
         print(f"[+] Posted unread messages and project sync report to Admin Desk via Assistant Bot.")
 
 
@@ -570,14 +600,22 @@ class SaberTelethonUserbot:
             # WebApp / Mini App Dashboard: /webapp or /dashboard
             if txt in ["/webapp", "/dashboard", "/app"]:
                 projs = self.project_manager.list_all_projects()
+                webapp_url = self.config.get("webapp_url", "")
+                has_web_btn = is_valid_telegram_button_url(webapp_url)
+                dash_url_display = webapp_url if has_web_btn else "http://localhost:8080"
                 dash_text = (
                     f"📱 <b>Saber Academic Suite — Mini App & Dashboard</b>\n\n"
                     f"• <b>Live Projects:</b> {len(projs)} active client projects\n"
-                    f"• <b>Web Dashboard URL:</b> http://localhost:8080\n"
-                    f"• <b>Features:</b> Visual Kanban pipeline, live pricing calculator, psychometric scales explorer\n\n"
-                    f"Click below to launch the dashboard:"
+                    f"• <b>Web Dashboard URL:</b> <code>{dash_url_display}</code>\n"
+                    f"• <b>Features:</b> Visual Kanban pipeline, live pricing calculator, psychometric scales explorer"
                 )
-                btn = [[Button.url("📱 Open Mini App Dashboard", "http://localhost:8080")]] if Button is not None else None
+                btn = None
+                if Button is not None:
+                    if has_web_btn:
+                        btn = [[Button.url("📱 Open Mini App Dashboard", webapp_url)]]
+                    else:
+                        btn = [[Button.inline("📂 Project Catalog", b"cmd_projects"),
+                                Button.inline("🔄 Rescan Messages", b"cmd_unread")]]
                 await event.reply(dash_text, buttons=btn, parse_mode="html")
                 return
 
@@ -889,11 +927,29 @@ class SaberTelethonUserbot:
 
                 client_name = f"{sender.first_name} {sender.last_name or ''}".strip()
                 msg_text = (event.message.message or "").strip()
-                print(f"[!] [{account_label}] New DM from client {client_name} (ID: {sender.id}): {msg_text[:60]}")
+
+                # Resolve media details (documents, voice notes, photos, excluding stickers)
+                fname, mtype, fsize, duration = resolve_media_details(event.message)
+
+                # Terminal log preview
+                if msg_text:
+                    preview = msg_text[:60]
+                elif mtype == "voice":
+                    preview = f"[Voice Note: {duration}s]"
+                elif mtype == "photo":
+                    preview = "[Photo]"
+                elif mtype == "video_note":
+                    preview = f"[Video Note: {duration}s]"
+                elif fname:
+                    preview = f"[File: {fname}]"
+                else:
+                    preview = "[Sticker/Reaction]"
+
+                print(f"[!] [{account_label}] New DM from client {client_name} (ID: {sender.id}): {preview}")
 
                 # Check if contact is in the excluded non-academic contacts registry
                 is_excluded = self.project_manager.is_ignored(client_name, sender.id, sender.username)
-                has_doc = bool(event.message.file and getattr(event.message.file, "name", None))
+                has_doc = bool(fname and mtype in ["document", "voice", "photo", "video_note"])
                 has_prop = bool(len(msg_text) > 80 and any(w in msg_text for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]))
 
                 if is_excluded and not has_doc and not has_prop:
@@ -901,7 +957,7 @@ class SaberTelethonUserbot:
                     return
 
                 # Ensure client's Google Drive project folder is provisioned
-                self.project_manager.provision_project(
+                paths = self.project_manager.provision_project(
                     client_name=client_name,
                     client_id=sender.id,
                     username=sender.username,
@@ -910,18 +966,22 @@ class SaberTelethonUserbot:
 
                 # Bot-specific commands (/start, /help, /dashboard, /webapp, /scale)
                 if me.bot:
+                    webapp_url = self.config.get("webapp_url", "")
+                    has_web_btn = is_valid_telegram_button_url(webapp_url)
+
                     if msg_text in ["/webapp", "/dashboard", "داشبورد", "پنل"]:
+                        dash_url = webapp_url if has_web_btn else "http://localhost:8080"
                         dashboard_msg = (
                             "🎓 **سامانه هوشمند و داشبورد تعاملی صابر قادری**\n\n"
-                            "برای مشاهده وضعیت پروژه‌ها، محاسبه آنلاین پیش‌فاکتور تفکیکی، و جستجو در بانک ۴,۸۸۰ پرسشنامه استاندارد، از پیوند زیر استفاده نمایید:\n\n"
-                            "🌐 [ورود به داشبورد و مینی‌اپ](http://localhost:8080)\n\n"
+                            "برای مشاهده وضعیت پروژه‌ها، محاسبه آنلاین پیش‌فاکتور تفکیکی، و جستجو در بانک ۴,۸۸۰ پرسشنامه استاندارد:\n\n"
+                            f"🌐 آدرس پنل وب: `{dash_url}`\n\n"
                             "📌 *امکانات:*\n"
                             "• میز کار و پیگیری مراحل پروژه (Kanban Board)\n"
                             "• محاسبه‌گر آنلاین تعرفه فصل‌های ۳، ۴، ۵ و اسلایدهای دفاع\n"
                             "• شناسنامه مقیاس‌ها و عوامل پرسشنامه‌ها\n"
                             "• پشتیبانی دو زبانه (فارسی / انگلیسی)"
                         )
-                        btn = [[Button.url("🚀 باز کردن داشبورد", "http://localhost:8080")]] if Button is not None else None
+                        btn = [[Button.url("🚀 باز کردن داشبورد", webapp_url)]] if (Button is not None and has_web_btn) else None
                         await event.reply(dashboard_msg, buttons=btn)
                         return
 
@@ -936,7 +996,7 @@ class SaberTelethonUserbot:
                             "• مشاوره روش‌شناسی و تحلیل آماری\n\n"
                             "جهت استعلام هزینه و زمان‌بندی، فایل پروپوزال خود را ارسال بفرمایید یا داشبورد را باز کنید."
                         )
-                        btn = [[Button.url("📱 ورود به داشبورد تعاملی", "http://localhost:8080")]] if Button is not None else None
+                        btn = [[Button.url("📱 ورود به داشبورد تعاملی", webapp_url)]] if (Button is not None and has_web_btn) else None
                         await event.reply(welcome_msg, buttons=btn)
                         return
 
@@ -948,15 +1008,13 @@ class SaberTelethonUserbot:
                             "• `/scale <نام>`: جستجو در بانک ۴۸۸۰ پرسشنامه استاندارد\n"
                             "• `/start`: نمایش پیام آغازین و معرفی خدمات"
                         )
-                        btn = [[Button.url("📱 ورود به داشبورد تعاملی", "http://localhost:8080")]] if Button is not None else None
+                        btn = [[Button.url("📱 ورود به داشبورد تعاملی", webapp_url)]] if (Button is not None and has_web_btn) else None
                         await event.reply(help_msg, buttons=btn)
                         return
 
-                # Check for attached document (.docx / .pdf / .txt / .xlsx / .sav)
-                if event.message.file and event.message.file.name:
-                    fname = sanitize_filename(event.message.file.name)
-                    ext = os.path.splitext(fname)[1].lower()
-                    print(f"[+] Client {client_name} sent attached file: {fname}. Saving directly to Google Drive project...")
+                # Check for attached media (documents, voice notes, photos)
+                if fname:
+                    print(f"[+] Client {client_name} sent {mtype}: {fname}. Saving directly to Google Drive project...")
                     try:
                         local_path = await self.project_manager.save_single_file(
                             msg=event.message,
@@ -964,12 +1022,26 @@ class SaberTelethonUserbot:
                             client_id=sender.id,
                             username=sender.username
                         )
+                        ext = os.path.splitext(fname)[1].lower()
                         if ext in [".docx", ".pdf", ".txt"]:
                             raw_content = extract_text_from_file(local_path)
                             await self.handle_proposal_message(
                                 event, raw_content, client_name, file_name=fname, sender_id=sender.id, username=sender.username, client_source=client_inst
                             )
                             return
+                        elif mtype in ["voice", "photo", "video_note"]:
+                            # Notify Admin Desk about incoming voice or photo
+                            clean_p = clean_drive_display_path(local_path)
+                            client_link = format_client_mention_html(client_name, username=sender.username, client_id=sender.id)
+                            icon = "🎤" if mtype == "voice" else ("📷" if mtype == "photo" else "📹")
+                            type_title = "Voice Note" if mtype == "voice" else ("Photo" if mtype == "photo" else "Video Note")
+                            dur_label = f" ({duration}s)" if duration else ""
+                            await self.send_to_desk(
+                                f"{icon} <b>New {type_title}{dur_label} from {client_link}</b>\n"
+                                f"📁 <b>Saved to:</b> <code>{html.escape(clean_p)}</code>\n"
+                                f"📱 <b>Account:</b> {html.escape(account_label)}",
+                                parse_mode="html"
+                            )
                     except Exception as err:
                         print(f"[-] Error saving incoming client file: {err}")
 
@@ -1027,13 +1099,28 @@ class SaberTelethonUserbot:
         # Scan and report any existing unread messages from clients on startup
         await self.scan_and_process_unread_messages()
 
-        gather_tasks = [self.client.run_until_disconnected()]
-        if self.client2 and self.client2.is_connected():
-            gather_tasks.append(self.client2.run_until_disconnected())
-        if self.bot_client and self.bot_client.is_connected():
-            gather_tasks.append(self.bot_client.run_until_disconnected())
+        while True:
+            try:
+                gather_tasks = [self.client.run_until_disconnected()]
+                if self.client2 and self.client2.is_connected():
+                    gather_tasks.append(self.client2.run_until_disconnected())
+                if self.bot_client and self.bot_client.is_connected():
+                    gather_tasks.append(self.bot_client.run_until_disconnected())
 
-        await asyncio.gather(*gather_tasks)
+                await asyncio.gather(*gather_tasks)
+                break
+            except (ConnectionError, OSError, asyncio.CancelledError) as e:
+                print(f"[!] Userbot connection interrupted: {e}. Attempting auto-reconnect in 5s...")
+                await asyncio.sleep(5)
+                for cl_target in [self.client, self.client2, self.bot_client]:
+                    if cl_target and not cl_target.is_connected():
+                        try:
+                            await cl_target.connect()
+                        except Exception as rec_err:
+                            print(f"[-] Reconnect error for client: {rec_err}")
+            except Exception as e:
+                print(f"[-] Unexpected error in listening loop: {e}. Retrying in 5s...")
+                await asyncio.sleep(5)
 
 
 async def main_async(args):
