@@ -16,6 +16,7 @@ import os
 import re
 import sys
 import json
+import html
 import asyncio
 import argparse
 from datetime import datetime
@@ -63,7 +64,9 @@ from project_drive_manager import (
     ProjectDriveManager,
     sanitize_filename,
     resolve_google_drive_work_dir,
-    SUBFOLDERS
+    SUBFOLDERS,
+    clean_drive_display_path,
+    format_client_mention_html
 )
 
 
@@ -172,9 +175,9 @@ class SaberTelethonUserbot:
             return self.admin_desk_chat_id
         return "me" if (self.me and not self.me.bot) else self.admin_id
 
-    async def send_to_desk(self, text: str, buttons=None, reply_to=None):
+    async def send_to_desk(self, text: str, buttons=None, reply_to=None, parse_mode: str = "html"):
         """
-        Send an alert/message to the Admin Desk.
+        Send an alert/message to the Admin Desk in English with HTML formatting.
         If bot_client is available and admin_desk_chat_id is set, the message is sent
         by Academic Assistant Bot rather than Saber's personal account!
         """
@@ -186,7 +189,8 @@ class SaberTelethonUserbot:
                     self.admin_desk_chat_id,
                     text,
                     buttons=buttons,
-                    reply_to=reply_to
+                    reply_to=reply_to,
+                    parse_mode=parse_mode
                 )
             except Exception as e:
                 print(f"[-] Bot send to desk error: {e}, falling back to user client...")
@@ -194,7 +198,8 @@ class SaberTelethonUserbot:
             self.admin_target,
             text,
             buttons=buttons,
-            reply_to=reply_to
+            reply_to=reply_to,
+            parse_mode=parse_mode
         )
 
     async def login_with_qr(self):
@@ -370,36 +375,41 @@ class SaberTelethonUserbot:
             "created_at": datetime.now().isoformat()
         }
 
-        # 3. Format Telegram quotation card
-        quote_card = format_telegram_card(quote)
+        # 3. Format Telegram quotation cards (English for desk, Persian for client draft)
+        quote_card_fa = format_telegram_card(quote, lang="fa")
+        quote_card_en = format_telegram_card(quote, lang="en")
 
-        # 4. Save quotation and draft response inside project deliverables
+        # 4. Save quotation and draft response inside project deliverables (Persian for client)
         draft_deliverable = os.path.join(project_paths["deliverables"], "telegram_response_draft.md")
         with open(draft_deliverable, "w", encoding="utf-8") as f:
-            f.write(f"# پیش‌نویس پیش‌فاکتور و پاسخ به مراجع ({client_name})\n\n{quote_card}\n")
+            f.write(f"# پیش‌نویس پیش‌فاکتور و پاسخ به مراجع ({client_name})\n\n{quote_card_fa}\n")
 
-        # 5. Notify Saber via "Saved Messages" (me) with full Drive folder path
+        # 5. Notify Saber via Academic Desk in English with clean path & clickable user link
+        client_link = format_client_mention_html(client_name, username=username, client_id=sender_id)
+        clean_path = clean_drive_display_path(project_dir)
+        safe_fname = html.escape(file_name or "Direct chat message")
+
         alert_text = (
-            f"🔔 *دریافت پروپوزال جدید از مراجع:* **{client_name}**\n"
-            f"📁 *فایل/متن:* {file_name or 'متن پیام'}\n"
-            f"📂 *پوشه پروژه در گوگل درایو:*\n`{project_dir}`\n"
-            f"🆔 *شناسه پیش‌فاکتور:* `{quote_id}`\n"
+            f"🔔 <b>New Proposal Received from Client:</b> {client_link}\n"
+            f"📄 <b>File / Source:</b> <code>{safe_fname}</code>\n"
+            f"📁 <b>Google Drive:</b> <code>{html.escape(clean_path)}</code>\n"
+            f"🆔 <b>Quotation ID:</b> <code>{quote_id}</code>\n"
             "─────────────────────\n"
-            f"{quote_card}\n\n"
-            "⚙️ **دستورات تایید و اقدام:**\n"
-            f"• ارسال مستقیم به مراجع: `/send_{quote_id}`\n"
-            f"• تعدیل مبلغ و ارسال: `/adjust_{quote_id}_<مبلغ>`\n"
-            f"• نادیده گرفتن: `/ignore_{quote_id}`"
+            f"{quote_card_en}\n\n"
+            "⚙️ <b>Admin Actions & Commands:</b>\n"
+            f"• Approve & Send to Client: <code>/send_{quote_id}</code>\n"
+            f"• Adjust Price & Send: <code>/adjust_{quote_id}_&lt;amount&gt;</code>\n"
+            f"• Dismiss: <code>/ignore_{quote_id}</code>"
         )
 
         buttons = None
         if Button is not None:
             buttons = [
-                [Button.inline(f"🚀 تأیید و ارسال ({quote_id})", f"send_{quote_id}".encode()),
-                 Button.inline("🗑️ نادیده گرفتن", f"ignore_{quote_id}".encode())]
+                [Button.inline(f"🚀 Approve & Send ({quote_id})", f"send_{quote_id}".encode()),
+                 Button.inline("🗑️ Dismiss", f"ignore_{quote_id}".encode())]
             ]
 
-        await self.send_to_desk(alert_text, buttons=buttons)
+        await self.send_to_desk(alert_text, buttons=buttons, parse_mode="html")
         print(f"[+] Posted draft quote {quote_id} for {client_name} to Admin Desk via Assistant Bot.")
         print(f"[+] Project folder synced: {project_dir}")
 
@@ -420,9 +430,9 @@ class SaberTelethonUserbot:
         5. Posts an executive summary to Saved Messages with Google Drive links.
         """
         print("[*] Scanning unread client messages and synchronizing Google Drive project folders across accounts...")
-        active_scan_clients = [("اکانت اصلی (@GhaderiSaber)", self.client)]
+        active_scan_clients = [("Main Account (@GhaderiSaber)", self.client)]
         if self.client2 and self.client2.is_connected():
-            active_scan_clients.append(("اکانت دوم (@SaberGhaderi)", self.client2))
+            active_scan_clients.append(("Second Account (@SaberGhaderi)", self.client2))
 
         unread_clients = []
         for acc_lbl, cl in active_scan_clients:
@@ -434,11 +444,11 @@ class SaberTelethonUserbot:
 
         if not unread_clients:
             print("[+] No unread messages found from clients.")
-            await self.send_to_desk("✅ هیچ پیام خوانده‌نشده‌ای از مراجعین یافت نشد.")
+            await self.send_to_desk("✅ No unread client messages found.", parse_mode="html")
             return
 
         print(f"[!] Found {len(unread_clients)} client(s) with unread messages.")
-        summary_lines = [f"📬 **گزارش پیام‌های خوانده‌نشده و همگام‌سازی پروژه‌ها ({len(unread_clients)} مراجع):**\n"]
+        summary_lines = [f"📬 <b>Unread Client Messages & Project Sync ({len(unread_clients)} clients):</b>\n"]
 
         for acc_lbl, cl, dlg in unread_clients:
             client_name = dlg.name
@@ -501,26 +511,34 @@ class SaberTelethonUserbot:
                     )
                     found_proposal = True
 
-            snippet = latest_text[:90] + ("..." if len(latest_text) > 90 else "")
-            status_tag = " (📄 پروپوزال تحلیل شد)" if found_proposal else ""
+            clean_pdir = clean_drive_display_path(project_dir)
+            client_link = format_client_mention_html(client_name, username=username, client_id=dlg.id)
+            snippet = html.escape(latest_text[:90] + ("..." if len(latest_text) > 90 else ""))
+            status_tag = " <i>(📄 Proposal Analyzed)</i>" if found_proposal else ""
             summary_lines.append(
-                f"📱 *{acc_lbl}*\n"
-                f"👤 **{client_name}** (ID: `{dlg.id}`)\n"
-                f"📂 *پوشه در درایو:* `{project_dir}`\n"
-                f"💬 *آخرین پیام ({unread_cnt} پیام جدید):* «{snippet}»{status_tag}\n"
+                f"📱 <b>{html.escape(acc_lbl)}</b>\n"
+                f"👤 {client_link}\n"
+                f"📁 <b>Google Drive:</b> <code>{html.escape(clean_pdir)}</code>\n"
+                f"💬 <b>Latest Message ({unread_cnt} new):</b> «{snippet}»{status_tag}\n"
             )
 
-        summary_lines.append("─────────────────────\n⚙️ دستورات کاربری:\n• بررسی مجدد: `/unread`\n• فهرست پروژه‌ها: `/projects`")
+        summary_lines.append(
+            "─────────────────────\n"
+            "⚙️ <b>Commands:</b>\n"
+            "• Rescan: <code>/unread</code>\n"
+            "• Project Catalog: <code>/projects</code>"
+        )
         report_text = "\n".join(summary_lines)
 
         buttons = None
         if Button is not None:
             buttons = [
-                [Button.inline("🔄 بررسی مجدد", b"cmd_unread"),
-                 Button.inline("📂 فهرست پروژه‌ها", b"cmd_projects")]
+                [Button.inline("🔄 Rescan Messages", b"cmd_unread"),
+                 Button.inline("📂 Project Catalog", b"cmd_projects")]
             ]
 
-        await self.send_to_desk(report_text, buttons=buttons)
+        await self.send_to_desk(report_text, buttons=buttons, parse_mode="html")
+        print(f"[+] Posted unread messages and project sync report to Admin Desk via Assistant Bot.")
         print(f"[+] Posted unread messages and project sync report to Admin Desk via Assistant Bot.")
 
 
@@ -539,7 +557,7 @@ class SaberTelethonUserbot:
 
             # Unread messages re-scan: /unread or /scan
             if txt in ["/unread", "/scan"]:
-                await event.reply("🔍 در حال بررسی پیام‌های خوانده‌نشده مراجعین و همگام‌سازی پروژه‌ها...")
+                await event.reply("🔍 Scanning unread client messages and synchronizing Google Drive projects...", parse_mode="html")
                 await self.scan_and_process_unread_messages()
                 return
 
@@ -547,22 +565,23 @@ class SaberTelethonUserbot:
             if txt in ["/projects", "/list_projects"]:
                 projs = self.project_manager.list_all_projects()
                 if not projs:
-                    await event.reply("📂 هیچ پوشه پروژه‌ای در مسیر Google Drive یافت نشد.")
+                    await event.reply("📂 No project folders found in Google Drive.", parse_mode="html")
                     return
-                lines = [f"📂 **فهرست پروژه‌های فعال در گوگل درایو ({len(projs)} پروژه):**\n"]
+                lines = [f"📂 <b>Active Client Projects in Google Drive ({len(projs)} projects):</b>\n"]
                 for p in projs:
                     cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
                     fc = p.get("file_count", 0)
                     mc = p.get("message_count", 0)
                     st = p.get("status", "pending")
-                    top = p.get("topic_fa") or p.get("topic") or "ثبت‌شده"
+                    top = p.get("topic_fa") or p.get("topic") or "Registered"
+                    clean_p = clean_drive_display_path(p['folder_path'])
                     lines.append(
-                        f"• **{cname}** ({st})\n"
-                        f"  ▫️ موضوع: {top[:40]}\n"
-                        f"  ▫️ آمار: {mc} پیام | {fc} فایل پیوست\n"
-                        f"  ▫️ مسیر: `{p['folder_path']}`\n"
+                        f"• <b>{html.escape(cname)}</b> ({html.escape(st)})\n"
+                        f"  ▫️ Topic: {html.escape(top[:45])}\n"
+                        f"  ▫️ Stats: {mc} msgs | {fc} files\n"
+                        f"  ▫️ Drive: <code>{html.escape(clean_p)}</code>\n"
                     )
-                await event.reply("\n".join(lines))
+                await event.reply("\n".join(lines), parse_mode="html")
                 return
 
             # Manual Save / Archive Project: /save_project <name_or_id>
@@ -570,10 +589,10 @@ class SaberTelethonUserbot:
             if m_save:
                 target = m_save.group(1).strip() if m_save.group(1) else None
                 if not target:
-                    await event.reply("⚠️ لطفاً نام یا شناسه مراجع را مشخص کنید:\nمثال: `/save_project @Sepehr_rahimi_psy` یا `/save_project 1098017329`")
+                    await event.reply("⚠️ Please specify client name, username, or Telegram ID:\nExample: <code>/save_project @username</code>", parse_mode="html")
                     return
 
-                await event.reply(f"🔍 در حال جستجوی چت و ایجاد پوشه پروژه در گوگل درایو برای: `{target}`...")
+                await event.reply(f"🔍 Searching chat and archiving project folder in Google Drive for: <code>{html.escape(target)}</code>...", parse_mode="html")
                 target_dialog = None
                 dialogs = await self.client.get_dialogs(limit=100)
                 clean_target = target.lstrip("@").lower()
@@ -602,15 +621,17 @@ class SaberTelethonUserbot:
                             limit_messages=200,
                             download_files=True
                         )
+                        clean_p = clean_drive_display_path(res['project_dir'])
                         await event.reply(
-                            f"✅ **پروژه با موفقیت ایجاد و همگام‌سازی شد:**\n"
-                            f"👤 مراجع: **{client_name}**\n"
-                            f"📁 مسیر درایو: `{res['project_dir']}`\n"
-                            f"📊 پیام‌ها: {res['messages_count']} | فایل‌ها: {res['files_count']}"
+                            f"✅ <b>Project synchronized in Google Drive:</b>\n"
+                            f"👤 Client: <b>{html.escape(client_name)}</b>\n"
+                            f"📁 Drive Folder: <code>{html.escape(clean_p)}</code>\n"
+                            f"📊 Stats: {res['messages_count']} messages | {res['files_count']} files",
+                            parse_mode="html"
                         )
                         return
                     except Exception as err:
-                        await event.reply(f"❌ مراجع با شناسه `{target}` یافت نشد: {err}")
+                        await event.reply(f"❌ Client with identifier <code>{html.escape(target)}</code> not found: {err}", parse_mode="html")
                         return
 
                 res = await self.project_manager.save_client_chat_and_files(
@@ -622,18 +643,19 @@ class SaberTelethonUserbot:
                     limit_messages=200,
                     download_files=True
                 )
+                clean_p = clean_drive_display_path(res['project_dir'])
                 await event.reply(
-                    f"✅ **پروژه در گوگل درایو همگام‌سازی شد:**\n"
-                    f"👤 مراجع: **{target_dialog.name}**\n"
-                    f"📁 پوشه پروژه: `{res['project_dir']}`\n"
-                    f"📊 آمار: {res['messages_count']} پیام ذخیره‌شده | {res['files_count']} فایل دریافت‌شده\n"
-                    f"📝 خلاصه پرونده: `{res['transcript_path']}`"
+                    f"✅ <b>Project synchronized in Google Drive:</b>\n"
+                    f"👤 Client: <b>{html.escape(target_dialog.name)}</b>\n"
+                    f"📁 Drive Folder: <code>{html.escape(clean_p)}</code>\n"
+                    f"📊 Stats: {res['messages_count']} messages | {res['files_count']} files",
+                    parse_mode="html"
                 )
                 return
 
             # Sync all recent projects: /sync_projects
             if txt in ["/sync_projects", "/sync_all"]:
-                await event.reply("🔄 در حال همگام‌سازی و ایجاد پوشه پروژه در گوگل درایو برای تمام مراجعین اخیر...")
+                await event.reply("🔄 Synchronizing and provisioning Google Drive project folders for recent clients...", parse_mode="html")
                 dialogs = await self.client.get_dialogs(limit=30)
                 client_dialogs = [d for d in dialogs if d.is_user and not d.entity.is_self and not d.entity.bot]
                 synced_count = 0
@@ -652,7 +674,11 @@ class SaberTelethonUserbot:
                     except Exception as e:
                         print(f"[-] Error syncing dialog {cd.name}: {e}")
 
-                await event.reply(f"✅ همگام‌سازی پایان یافت. تعداد {synced_count} پروژه مراجع در گوگل درایو به‌روزرسانی شد.\nدستور `/projects` را برای مشاهده لیست ارسال فرمایید.")
+                await event.reply(
+                    f"✅ Synchronization complete. {synced_count} client project folders updated in Google Drive.\n"
+                    "Use <code>/projects</code> to view the catalog.",
+                    parse_mode="html"
+                )
                 return
 
             # Send quote command: /send_Q101
@@ -661,13 +687,14 @@ class SaberTelethonUserbot:
                 qid = m_send.group(1)
                 if qid in self.pending_quotes:
                     entry = self.pending_quotes[qid]
-                    card = format_telegram_card(entry["quote"])
+                    # Client message is authentic Persian with clean HTML
+                    card = format_telegram_card(entry["quote"], lang="fa")
                     target_client = entry.get("client_source") or self.client
-                    await target_client.send_message(entry["chat_id"], card)
-                    await event.reply(f"✅ پیش‌فاکتور {qid} با موفقیت به {entry['sender_name']} ارسال شد.")
+                    await target_client.send_message(entry["chat_id"], card, parse_mode="html")
+                    await event.reply(f"✅ Quotation {qid} was successfully dispatched to {entry['sender_name']}.", parse_mode="html")
                     del self.pending_quotes[qid]
                 else:
-                    await event.reply(f"❌ شناسه {qid} یافت نشد.")
+                    await event.reply(f"❌ Quotation ID {qid} not found.", parse_mode="html")
 
             # Adjust price command: /adjust_Q101_8500000
             m_adj = re.match(r"^/adjust_(Q\d+)_(\d+)", txt)
@@ -678,13 +705,14 @@ class SaberTelethonUserbot:
                     entry = self.pending_quotes[qid]
                     entry["quote"]["total_price_tomans"] = new_price
                     entry["quote"]["total_price_formatted"] = f"{new_price:,.0f} تومان"
-                    card = format_telegram_card(entry["quote"])
+                    # Client message is authentic Persian with clean HTML
+                    card = format_telegram_card(entry["quote"], lang="fa")
                     target_client = entry.get("client_source") or self.client
-                    await target_client.send_message(entry["chat_id"], card)
-                    await event.reply(f"✅ پیش‌فاکتور {qid} با مبلغ {new_price:,.0f} تومان به {entry['sender_name']} ارسال شد.")
+                    await target_client.send_message(entry["chat_id"], card, parse_mode="html")
+                    await event.reply(f"✅ Quotation {qid} adjusted to {new_price:,.0f} Tomans and dispatched to {entry['sender_name']}.", parse_mode="html")
                     del self.pending_quotes[qid]
                 else:
-                    await event.reply(f"❌ شناسه {qid} یافت نشد.")
+                    await event.reply(f"❌ Quotation ID {qid} not found.", parse_mode="html")
 
             # Ignore quote command: /ignore_Q101
             m_ign = re.match(r"^/ignore_(Q\d+)", txt)
@@ -692,7 +720,7 @@ class SaberTelethonUserbot:
                 qid = m_ign.group(1)
                 if qid in self.pending_quotes:
                     del self.pending_quotes[qid]
-                    await event.reply(f"🗑️ پیش‌فاکتور {qid} نادیده گرفته و حذف شد.")
+                    await event.reply(f"🗑️ Quotation {qid} was dismissed.", parse_mode="html")
 
         if self.bot_client:
             @self.bot_client.on(events.CallbackQuery)
@@ -702,39 +730,42 @@ class SaberTelethonUserbot:
                     qid = data.split("send_")[1]
                     if qid in self.pending_quotes:
                         entry = self.pending_quotes[qid]
-                        card = format_telegram_card(entry["quote"])
+                        # Client receives Persian quote
+                        card = format_telegram_card(entry["quote"], lang="fa")
                         target_client = entry.get("client_source") or self.client
-                        await target_client.send_message(entry["chat_id"], card)
-                        await event.answer(f"✅ پیش‌فاکتور {qid} به مراجع ارسال شد!", alert=True)
+                        await target_client.send_message(entry["chat_id"], card, parse_mode="html")
+                        await event.answer(f"✅ Quotation {qid} dispatched to client!", alert=True)
                         try:
-                            await event.edit(f"{event.message.text}\n\n✅ **پیش‌فاکتور توسط شما تأیید و به مراجع ارسال شد.**", buttons=None)
+                            await event.edit(f"{event.message.text}\n\n✅ <b>Quotation was approved and dispatched to client.</b>", buttons=None, parse_mode="html")
                         except Exception:
                             pass
                         del self.pending_quotes[qid]
                     else:
-                        await event.answer(f"❌ شناسه {qid} منقضی شده یا یافت نشد.", alert=True)
+                        await event.answer(f"❌ Quotation ID {qid} expired or not found.", alert=True)
                 elif data.startswith("ignore_"):
                     qid = data.split("ignore_")[1]
                     if qid in self.pending_quotes:
                         del self.pending_quotes[qid]
-                        await event.answer("🗑️ پیش‌فاکتور نادیده گرفته شد.", alert=True)
+                        await event.answer("🗑️ Quotation dismissed.", alert=True)
                         try:
-                            await event.edit(f"{event.message.text}\n\n🗑️ **این پیش‌فاکتور نادیده گرفته شد.**", buttons=None)
+                            await event.edit(f"{event.message.text}\n\n🗑️ <b>This quotation was dismissed.</b>", buttons=None, parse_mode="html")
                         except Exception:
                             pass
                     else:
-                        await event.answer(f"❌ شناسه {qid} یافت نشد.", alert=True)
+                        await event.answer(f"❌ Quotation ID {qid} not found.", alert=True)
                 elif data == "cmd_projects":
                     projs = self.project_manager.list_all_projects()
-                    await event.answer(f"تعداد {len(projs)} پروژه در گوگل درایو ثبت شده است.")
+                    await event.answer(f"Found {len(projs)} active projects in Google Drive.")
                     if projs:
-                        lines = [f"📂 **فهرست پروژه‌های فعال در گوگل درایو ({len(projs)} مورد):**\n"]
+                        lines = [f"📂 <b>Active Client Projects in Google Drive ({len(projs)} folders):</b>\n"]
                         for p in projs[:12]:
                             cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
-                            lines.append(f"• **{cname}** ({p.get('status', 'pending')}) | مسیر: `{p['folder_path']}`")
-                        await self.send_to_desk("\n".join(lines))
+                            cpath = clean_drive_display_path(p['folder_path'])
+                            st = p.get('status', 'pending')
+                            lines.append(f"• <b>{html.escape(cname)}</b> ({html.escape(st)}) | <code>{html.escape(cpath)}</code>")
+                        await self.send_to_desk("\n".join(lines), parse_mode="html")
                 elif data == "cmd_unread":
-                    await event.answer("🔍 در حال بررسی پیام‌های مراجعین...")
+                    await event.answer("🔍 Scanning client messages...")
                     await self.scan_and_process_unread_messages()
 
             if self.admin_desk_chat_id:
@@ -848,17 +879,19 @@ class SaberTelethonUserbot:
                             if me.bot:
                                 await event.reply(scale_info)
                             else:
+                                client_link = format_client_mention_html(client_name, username=sender.username, client_id=sender.id)
                                 await self.send_to_desk(
-                                    f"📋 *درخواست پرسشنامه از {client_name}:*\n"
-                                    f"پیام: {msg_text}\n"
-                                    f"پاسخ آماده: {scale_info}"
+                                    f"📋 <b>Scale Inquiry from {client_link}:</b>\n"
+                                    f"<b>Query:</b> {html.escape(msg_text)}\n\n"
+                                    f"<b>Prepared Persian Response:</b>\n{scale_info}",
+                                    parse_mode="html"
                                 )
                             return
 
         # Setup inbound listeners on both userbot accounts
-        setup_inbound_listener(self.client, "اکانت اصلی (@GhaderiSaber)")
+        setup_inbound_listener(self.client, "Main Account (@GhaderiSaber)")
         if self.client2:
-            setup_inbound_listener(self.client2, "اکانت دوم (@SaberGhaderi)")
+            setup_inbound_listener(self.client2, "Second Account (@SaberGhaderi)")
 
         if self.admin_desk_chat_id:
             desk_location = f"گروه کاری Academic Desk (ID: {self.admin_desk_chat_id})"

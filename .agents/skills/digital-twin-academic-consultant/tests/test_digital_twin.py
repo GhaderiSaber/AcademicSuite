@@ -148,6 +148,48 @@ class TestDigitalTwinSuite(unittest.TestCase):
             self.assertEqual(len(all_projs), 1)
             self.assertEqual(all_projs[0]["client_name"], "Test Student")
 
+    def test_06_ui_formatting_and_links(self):
+        """Test clean Google Drive path shortening, client mention hyperlinks, and HTML card rendering."""
+        import project_drive_manager
+        import telethon.extensions.html as thtml
+
+        # Test path shortening
+        raw_cloud_path = "/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive/My Work/Zəhra Cəlalı"
+        clean_path = project_drive_manager.clean_drive_display_path(raw_cloud_path)
+        self.assertEqual(clean_path, "My Work/Zəhra Cəlalı")
+
+        # Test client mention with username (opens chat on click)
+        mention_with_user = project_drive_manager.format_client_mention_html("Zahra Cəlalı", username="ZahraCalali", client_id=574632646)
+        self.assertIn('href="https://t.me/ZahraCalali"', mention_with_user)
+        self.assertIn("<b>Zahra Cəlalı</b>", mention_with_user)
+
+        # Test client mention without username (opens chat via tg://user?id=...)
+        mention_no_user = project_drive_manager.format_client_mention_html("Tabasom", username=None, client_id=1213759496)
+        self.assertIn('href="tg://user?id=1213759496"', mention_no_user)
+        self.assertIn("<b>Tabasom</b>", mention_no_user)
+
+        # Test HTML parse validity
+        text, ents = thtml.parse(mention_with_user)
+        self.assertTrue(any(getattr(e, "url", None) == "https://t.me/ZahraCalali" for e in ents))
+
+        # Test bilingual quotation cards
+        analysis = proposal_price_estimator.analyze_proposal_text("عنوان: بررسی اضطراب\nمقطع: ارشد\nطرح: کوواریانس\nجامعه: ۴۰ نفر")
+        quote = proposal_price_estimator.calculate_quotation(analysis, self.persona)
+
+        # English card
+        card_en = proposal_price_estimator.format_telegram_card(quote, lang="en")
+        self.assertIn("Research Consultancy", card_en)
+        self.assertIn("<b>Consultant:</b>", card_en)
+        _, ents_en = thtml.parse(card_en)
+        self.assertGreater(len(ents_en), 5)
+
+        # Persian card
+        card_fa = proposal_price_estimator.format_telegram_card(quote, lang="fa")
+        self.assertIn("پیش‌فاکتور", card_fa)
+        self.assertIn("<b>مشاور:</b>", card_fa)
+        _, ents_fa = thtml.parse(card_fa)
+        self.assertGreater(len(ents_fa), 5)
+
 
 if __name__ == "__main__":
     unittest.main()

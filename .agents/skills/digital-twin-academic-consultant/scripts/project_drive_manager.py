@@ -19,6 +19,7 @@ import re
 import sys
 import glob
 import json
+import html
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 
@@ -44,6 +45,57 @@ def sanitize_filename(name: str) -> str:
         return "Unnamed_Client"
     cleaned = re.sub(r'[\\/*?:"<>|]', "", name).strip()
     return cleaned or "Unnamed_Client"
+
+
+def clean_drive_display_path(full_path: str) -> str:
+    """
+    Convert full local CloudStorage or filesystem path into a clean, concise Google Drive display path.
+    Example:
+      '/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive/My Work/Zəhra Cəlalı'
+      -> 'My Work/Zəhra Cəlalı'
+    """
+    if not full_path:
+        return ""
+    normalized = full_path.replace("\\", "/")
+    
+    # Strip everything up to "My Drive/"
+    marker = "My Drive/"
+    idx = normalized.find(marker)
+    if idx != -1:
+        rel = normalized[idx + len(marker):].strip("/")
+        if rel:
+            return rel
+
+    # Strip CloudStorage account prefix if present
+    cloud_marker = "CloudStorage/"
+    c_idx = normalized.find(cloud_marker)
+    if c_idx != -1:
+        parts = normalized[c_idx + len(cloud_marker):].split("/")
+        if len(parts) > 2:
+            return "/".join(parts[2:]).strip("/")
+
+    # Fallback to last two directories (e.g. "My Work/Client Folder")
+    parts = [p for p in normalized.split("/") if p]
+    if len(parts) >= 2:
+        return f"{parts[-2]}/{parts[-1]}"
+    return parts[-1] if parts else full_path
+
+
+def format_client_mention_html(client_name: str, username: Optional[str] = None, client_id: Optional[int] = None) -> str:
+    """
+    Format a clean, clickable Telegram HTML mention for a client.
+    When tapped, Telegram directly opens the DM chat with that client.
+    Eliminates raw ID noise.
+    """
+    safe_name = html.escape(client_name or "مراجع")
+    clean_username = (username or "").lstrip("@").strip()
+    
+    if clean_username:
+        return f'<a href="https://t.me/{clean_username}"><b>{safe_name}</b></a> (@{clean_username})'
+    elif client_id:
+        return f'<a href="tg://user?id={client_id}"><b>{safe_name}</b></a>'
+    else:
+        return f'<b>{safe_name}</b>'
 
 
 def resolve_google_drive_work_dir(config: Optional[Dict[str, Any]] = None) -> str:

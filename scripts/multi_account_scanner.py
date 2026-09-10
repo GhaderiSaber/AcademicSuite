@@ -25,9 +25,15 @@ SKILL_SCRIPTS = os.path.join(SUITE_ROOT, ".agents/skills/digital-twin-academic-c
 if SKILL_SCRIPTS not in sys.path:
     sys.path.insert(0, SKILL_SCRIPTS)
 
+import html
 from telethon import TelegramClient, Button
 from telethon.tl.types import User
-from project_drive_manager import ProjectDriveManager, sanitize_filename
+from project_drive_manager import (
+    ProjectDriveManager,
+    sanitize_filename,
+    clean_drive_display_path,
+    format_client_mention_html
+)
 from proposal_price_estimator import (
     analyze_proposal_text,
     calculate_quotation,
@@ -53,13 +59,13 @@ SELF_AND_SERVICE_IDS = {124911145, 6328062294, 777000}
 ACCOUNTS = [
     {
         "id_tag": "acc1",
-        "label": "اکانت اصلی (@GhaderiSaber)",
+        "label": "Main Account (@GhaderiSaber)",
         "phone": "+989143932354",
         "session": os.path.join(SKILL_SCRIPTS, "saber_userbot")
     },
     {
         "id_tag": "acc2",
-        "label": "اکانت دوم (@SaberGhaderi)",
+        "label": "Second Account (@SaberGhaderi)",
         "phone": "+989142564775",
         "session": os.path.join(SKILL_SCRIPTS, "saber_second_userbot")
     }
@@ -362,31 +368,33 @@ async def main():
 
     urgent_list_str = ""
     if urgent_clients:
-        urgent_list_str = "\n🚨 **پیام‌های جدید و نیازمند پاسخ:**\n"
+        urgent_list_str = "\n🚨 <b>Unread Messages Requiring Attention:</b>\n"
         for acc_name, c in urgent_clients:
-            um_snip = c["unread_messages"][0][:50] if c["unread_messages"] else "..."
-            urgent_list_str += f"• **{c['client_name']}** ({c['unread_count']} پیام): «{um_snip}»\n"
+            um_snip = html.escape(c["unread_messages"][0][:50]) if c["unread_messages"] else "..."
+            c_link = format_client_mention_html(c['client_name'], username=c.get('username'), client_id=c.get('telegram_id'))
+            urgent_list_str += f"• {c_link} ({c['unread_count']} new): «{um_snip}»\n"
 
+    clean_work_dir = clean_drive_display_path(drive_mgr.work_dir)
     desk_summary = (
-        f"📊 **گزارش نهایی پویش همزمان دو اکانت تلگرام:**\n\n"
-        f"• اکانت ۱: **@GhaderiSaber** (+989143932354)\n"
-        f"• اکانت ۲: **@SaberGhaderi** (+989142564775)\n"
+        f"📊 <b>Multi-Account & Google Drive Sync Report:</b>\n\n"
+        f"• Account 1: <b>@GhaderiSaber</b> (+989143932354)\n"
+        f"• Account 2: <b>@SaberGhaderi</b> (+989142564775)\n"
         f"─────────────────────\n"
-        f"👥 **مجموع مراجعین:** {total_synced_clients} نفر\n"
-        f"📬 **پیام‌های خوانده‌نشده:** {total_unread} پیام\n"
-        f"📄 **پروپوزال‌ها و پیش‌فاکتورها:** {total_proposals} مورد\n"
+        f"👥 <b>Total Clients Synced:</b> {total_synced_clients}\n"
+        f"📬 <b>Unread Messages:</b> {total_unread}\n"
+        f"📄 <b>Proposals & Quotations:</b> {total_proposals}\n"
         f"{urgent_list_str}\n"
-        f"📁 تمامی پرونده‌ها در ساختار ۴ سطحی گوگل‌درایو ذخیره و به‌روزرسانی شدند.\n"
-        f"📄 گزارش کامل: `MULTI_ACCOUNT_SCAN_REPORT.md`"
+        f"📁 Google Drive: <code>{html.escape(clean_work_dir)}</code>\n"
+        f"📄 Detailed Report: <code>MULTI_ACCOUNT_SCAN_REPORT.md</code>"
     )
 
     buttons = [
-        [Button.inline("📂 فهرست پروژه‌های فعال", b"cmd_projects")],
-        [Button.inline("🔄 بررسی مجدد پیام‌ها", b"cmd_unread")]
+        [Button.inline("📂 Project Catalog", b"cmd_projects")],
+        [Button.inline("🔄 Rescan Messages", b"cmd_unread")]
     ]
 
     try:
-        sent = await bot_client.send_message(DESK_GROUP_ID, desk_summary, buttons=buttons)
+        sent = await bot_client.send_message(DESK_GROUP_ID, desk_summary, buttons=buttons, parse_mode="html")
         print(f"[+] Posted summary to Academic Desk! Message ID: {sent.id}")
     except Exception as e:
         print(f"[-] Could not post to desk group: {e}")
