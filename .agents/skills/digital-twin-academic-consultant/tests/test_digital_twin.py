@@ -108,7 +108,7 @@ class TestDigitalTwinSuite(unittest.TestCase):
         )
         res = bot.run_test_simulation()
         self.assertEqual(res["status"], "success")
-        self.assertEqual(len(res["events"]), 5)
+        self.assertEqual(len(res["events"]), 7)
 
         # Check approval status
     def test_05_project_drive_manager(self):
@@ -270,14 +270,13 @@ class TestDigitalTwinSuite(unittest.TestCase):
         import tempfile
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            config = {
-                "admin_id": 124911145,
-                "admin_desk_chat_id": -1004331808205,
-                "work_dir": tmp_dir,
-                "business_mode": True,
-                "google_drive_work_dir": os.path.join(tmp_dir, "drive"),
-            }
-            bot = telegram_bot_daemon.AcademicConsultantBot(config=config)
+            bot = telegram_bot_daemon.DigitalSaberBot(
+                token="",
+                admin_id=124911145,
+                admin_desk_chat_id=-1004331808205,
+                business_mode=True,
+                work_dir=tmp_dir
+            )
 
             sent_messages = []
 
