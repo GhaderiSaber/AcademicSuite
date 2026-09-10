@@ -151,6 +151,8 @@ class SaberTelethonUserbot:
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
         self.quote_counter = 100
+        self.pending_drafts: Dict[str, Dict[str, Any]] = {}
+        self.draft_counter = 100
         self.me = None
         self.proxy = get_proxy_settings(self.config)
 
@@ -430,6 +432,69 @@ class SaberTelethonUserbot:
                 "فایل پروپوزال شما دریافت شد و در حال بررسی دقیق است. پیش‌فاکتور تفکیکی به زودی خدمتتون ارسال می‌شود."
             )
             await event.reply(ack_msg)
+
+    async def create_and_post_draft(
+        self,
+        chat_id: int,
+        sender_name: str,
+        sender_id: int,
+        username: Optional[str],
+        inquiry_type: str,
+        client_message: str,
+        draft_reply: str,
+        client_source: Any = None,
+        account_label: str = "Main Account (@GhaderiSaber)"
+    ) -> str:
+        """
+        Create a Co-Pilot draft recommendation and post it to Academic Desk with 1-click dispatch buttons.
+        Zero autonomous messages are sent to the client.
+        """
+        self.draft_counter += 1
+        draft_id = f"D{self.draft_counter}"
+
+        self.pending_drafts[draft_id] = {
+            "draft_id": draft_id,
+            "chat_id": chat_id,
+            "sender_id": sender_id,
+            "sender_name": sender_name,
+            "username": username,
+            "inquiry_type": inquiry_type,
+            "client_message": client_message,
+            "draft_reply": draft_reply,
+            "client_source": client_source or self.client,
+            "account_label": account_label,
+            "created_at": datetime.now().isoformat()
+        }
+
+        client_link = format_client_mention_html(sender_name, username=username, client_id=sender_id)
+        snippet = html.escape(client_message[:140] + ("..." if len(client_message) > 140 else ""))
+        safe_draft = html.escape(draft_reply)
+
+        alert_text = (
+            f"💡 <b>[Co-Pilot Draft] Client Inquiry from {client_link}</b>\n"
+            f"📱 <b>Account:</b> {html.escape(account_label)}\n"
+            f"🏷️ <b>Category:</b> <code>{inquiry_type}</code>\n"
+            f"💬 <b>Client Message:</b> «{snippet}»\n"
+            f"🆔 <b>Draft ID:</b> <code>{draft_id}</code>\n"
+            "─────────────────────\n"
+            f"📝 <b>Suggested Persian Draft:</b>\n"
+            f"<blockquote>{safe_draft}</blockquote>\n\n"
+            "⚙️ <b>Admin Actions & Commands:</b>\n"
+            f"• Approve & Send to Client: <code>/send_msg_{draft_id}</code>\n"
+            f"• Send Custom Edits: <code>/send_msg_{draft_id} &lt;custom text&gt;</code>\n"
+            f"• Dismiss Draft: <code>/ignore_{draft_id}</code>"
+        )
+
+        buttons = None
+        if Button is not None:
+            buttons = [
+                [Button.inline(f"🚀 Send Response ({draft_id})", f"send_draft_{draft_id}".encode()),
+                 Button.inline("🗑️ Dismiss", f"ignore_draft_{draft_id}".encode())]
+            ]
+
+        await self.send_to_desk(alert_text, buttons=buttons, parse_mode="html")
+        print(f"[+] Posted Co-Pilot draft {draft_id} ({inquiry_type}) for {sender_name} to Academic Desk.")
+        return draft_id
 
     async def scan_and_process_unread_messages(self, limit_dialogs: int = 100, trigger_event: Optional[Any] = None):
         """
@@ -787,11 +852,75 @@ class SaberTelethonUserbot:
                     del self.pending_quotes[qid]
                     await event.reply(f"🗑️ Quotation {qid} was dismissed.", parse_mode="html")
 
+            # Send co-pilot draft command: /send_msg_D101 or /send_msg_D101 <custom text>
+            m_draft = re.match(r"^/send_msg_(D\d+)(?:\s+(.+))?", txt, flags=re.DOTALL)
+            if m_draft:
+                did = m_draft.group(1)
+                custom_text = (m_draft.group(2) or "").strip()
+                if did in self.pending_drafts:
+                    entry = self.pending_drafts[did]
+                    msg_to_send = custom_text if custom_text else entry["draft_reply"]
+                    target_client = entry.get("client_source") or self.client
+                    await target_client.send_message(entry["chat_id"], msg_to_send)
+                    await event.reply(
+                        f"✅ Response {did} was successfully dispatched to {entry['sender_name']} via {entry['account_label']}.",
+                        parse_mode="html"
+                    )
+                    del self.pending_drafts[did]
+                else:
+                    await event.reply(f"❌ Draft ID {did} not found or already sent.", parse_mode="html")
+                return
+
+            # Ignore co-pilot draft command: /ignore_D101
+            m_ign_draft = re.match(r"^/ignore_(D\d+)", txt)
+            if m_ign_draft:
+                did = m_ign_draft.group(1)
+                if did in self.pending_drafts:
+                    cname = self.pending_drafts[did]["sender_name"]
+                    del self.pending_drafts[did]
+                    await event.reply(f"🗑️ Draft {did} for {cname} was dismissed.", parse_mode="html")
+                else:
+                    await event.reply(f"❌ Draft ID {did} not found.", parse_mode="html")
+                return
+
         if self.bot_client:
             @self.bot_client.on(events.CallbackQuery)
             async def bot_callback_handler(event):
                 data = (event.data or b"").decode("utf-8")
-                if data.startswith("send_"):
+                if data.startswith("send_draft_"):
+                    did = data.split("send_draft_")[1]
+                    if did in self.pending_drafts:
+                        entry = self.pending_drafts[did]
+                        target_client = entry.get("client_source") or self.client
+                        await target_client.send_message(entry["chat_id"], entry["draft_reply"])
+                        await event.answer(f"✅ Response {did} dispatched to client!", alert=True)
+                        try:
+                            await event.edit(
+                                f"{event.message.text}\n\n✅ <b>Response was approved and dispatched to client via {entry['account_label']}.</b>",
+                                buttons=None,
+                                parse_mode="html"
+                            )
+                        except Exception:
+                            pass
+                        del self.pending_drafts[did]
+                    else:
+                        await event.answer(f"❌ Draft ID {did} expired or not found.", alert=True)
+                elif data.startswith("ignore_draft_"):
+                    did = data.split("ignore_draft_")[1]
+                    if did in self.pending_drafts:
+                        del self.pending_drafts[did]
+                        await event.answer("🗑️ Draft dismissed.", alert=True)
+                        try:
+                            await event.edit(
+                                f"{event.message.text}\n\n🗑️ <b>This draft recommendation was dismissed.</b>",
+                                buttons=None,
+                                parse_mode="html"
+                            )
+                        except Exception:
+                            pass
+                    else:
+                        await event.answer(f"❌ Draft ID {did} not found.", alert=True)
+                elif data.startswith("send_"):
                     qid = data.split("send_")[1]
                     if qid in self.pending_quotes:
                         entry = self.pending_quotes[qid]
@@ -1064,24 +1193,115 @@ class SaberTelethonUserbot:
                     if questionnaire_resolver is not None:
                         profile = questionnaire_resolver.get_scale_profile(query_name)
                         if profile and profile.get("found_in_registry"):
+                            p_name = profile.get("scale_persian_name") or profile.get("scale_name")
+                            n_items = profile.get("total_items_count", "مشخص در شناسنامه")
+                            subscales = profile.get("subscales", [])
+                            sub_text = "، ".join(subscales[:3]) if subscales else "تک‌عاملی"
                             scale_info = (
-                                f"📋 **اطلاعات ابزار اندازه‌گیری:**\n"
-                                f"• نام مقیاس: **{profile.get('scale_persian_name') or profile.get('scale_name')}**\n"
-                                f"• تعداد گویه‌ها: {profile.get('total_items_count', 'مشخص در شناسنامه')}\n"
-                                f"• وضعیت در بانک: موجود و استاندارد\n\n"
-                                "این ابزار به همراه نمره‌گذاری و مولفه‌های استاندارد آماده استفاده در پژوهش است."
+                                f"سلام و احترام، وقت شما بخیر {sender.first_name} گرامی.\n"
+                                f"پرسشنامه «{p_name}» ({n_items} گویه) با خرده‌مقیاس‌های استاندارد ({sub_text}) و شیوه نمره‌گذاری در بانک جامع مقیاس‌ها موجود است.\n"
+                                "در صورت نیاز بفرمایید تا مشخصات فنی و فایل ابزار برای استفاده در پژوهش خدمتتون ارسال شود."
                             )
-                            if me.bot:
-                                await event.reply(scale_info)
-                            else:
-                                client_link = format_client_mention_html(client_name, username=sender.username, client_id=sender.id)
-                                await self.send_to_desk(
-                                    f"📋 <b>Scale Inquiry from {client_link}:</b>\n"
-                                    f"<b>Query:</b> {html.escape(msg_text)}\n\n"
-                                    f"<b>Prepared Persian Response:</b>\n{scale_info}",
-                                    parse_mode="html"
-                                )
-                            return
+                        else:
+                            scale_info = (
+                                f"سلام و احترام، وقت شما بخیر {sender.first_name} گرامی.\n"
+                                f"در مورد مقیاس «{query_name}»، نسخه و مشخصات روان‌سنجی آن در حال بررسی در آرشیو پژوهشی است و اطلاعات تکمیلی به زودی خدمتتون ارسال می‌شود."
+                            )
+                    else:
+                        scale_info = (
+                            f"سلام و احترام، وقت شما بخیر {sender.first_name} گرامی.\n"
+                            f"پیام شما در خصوص مقیاس «{query_name}» دریافت شد. به زودی اطلاعات تکمیلی بررسی و خدمتتون ارسال می‌گردد."
+                        )
+
+                    if me.bot:
+                        await event.reply(scale_info)
+                    else:
+                        await self.create_and_post_draft(
+                            chat_id=event.chat_id,
+                            sender_name=client_name,
+                            sender_id=sender.id,
+                            username=sender.username,
+                            inquiry_type="scale_search",
+                            client_message=msg_text,
+                            draft_reply=scale_info,
+                            client_source=client_inst,
+                            account_label=account_label
+                        )
+                    return
+
+                # Check for greeting or first contact
+                greeting_words = ["سلام", "درود", "خسته نباشید", "وقت بخیر", "صبح بخیر", "عصر بخیر", "شب بخیر", "عرض ادب", "سلام علیکم"]
+                is_greeting = any(w in msg_text for w in greeting_words) and len(msg_text.split()) <= 7
+                if is_greeting:
+                    greet_draft = (
+                        f"سلام و عرض ادب، وقت شما بخیر {sender.first_name} گرامی.\n"
+                        "صابر قادری هستم، در خدمتم؛ لطفاً بفرمایید موضوع پژوهش، عنوان پایان‌نامه یا فایلی که مدنظرتون هست مربوط به چه موضوعی است تا دقیقاً راهنمایی‌تون کنم."
+                    )
+                    if me.bot:
+                        await event.reply(greet_draft)
+                    else:
+                        await self.create_and_post_draft(
+                            chat_id=event.chat_id,
+                            sender_name=client_name,
+                            sender_id=sender.id,
+                            username=sender.username,
+                            inquiry_type="greeting",
+                            client_message=msg_text,
+                            draft_reply=greet_draft,
+                            client_source=client_inst,
+                            account_label=account_label
+                        )
+                    return
+
+                # Check for statistical or methodology inquiry
+                stats_keywords = [
+                    "تحلیل", "آماری", "فصل چهار", "فصل ۴", "فصل پنجم", "فصل ۵", "spss", "pls", "amos", "smartpls",
+                    "پایان‌نامه", "رساله", "روان‌سنجی", "کواریانس", "رگرسیون", "حجم نمونه", "جی‌پاور", "gpower"
+                ]
+                is_stats = any(w in msg_text.lower() for w in stats_keywords)
+                if is_stats:
+                    stats_draft = (
+                        f"سلام و درود، وقت شما بخیر {sender.first_name} گرامی.\n"
+                        "تحلیل‌های آماری، آزمون فرضیه‌ها و نگارش کامل فصل چهارم و پنجم بر اساس استانداردهای APA ویرایش هفتم و خروجی‌های معتبر نرم‌افزاری انجام می‌شود.\n"
+                        "جهت بررسی دقیق‌تر و ارائه زمان‌بندی و هزینه، لطفاً فایل پروپوزال یا جدول متغیرها و فرضیه‌های خود را ارسال بفرمایید."
+                    )
+                    if me.bot:
+                        await event.reply(stats_draft)
+                    else:
+                        await self.create_and_post_draft(
+                            chat_id=event.chat_id,
+                            sender_name=client_name,
+                            sender_id=sender.id,
+                            username=sender.username,
+                            inquiry_type="statistical_inquiry",
+                            client_message=msg_text,
+                            draft_reply=stats_draft,
+                            client_source=client_inst,
+                            account_label=account_label
+                        )
+                    return
+
+                # General client inquiry (fallback for non-empty text)
+                if msg_text and len(msg_text.strip()) >= 2:
+                    general_draft = (
+                        f"سلام و احترام، وقت شما بخیر {sender.first_name} گرامی.\n"
+                        "پیام شما دریافت شد. در خدمتم؛ بفرمایید در رابطه با چه بخشی از کار پژوهشی نیاز به راهنمایی و همکاری دارید؟"
+                    )
+                    if me.bot:
+                        await event.reply(general_draft)
+                    else:
+                        await self.create_and_post_draft(
+                            chat_id=event.chat_id,
+                            sender_name=client_name,
+                            sender_id=sender.id,
+                            username=sender.username,
+                            inquiry_type="general_inquiry",
+                            client_message=msg_text,
+                            draft_reply=general_draft,
+                            client_source=client_inst,
+                            account_label=account_label
+                        )
+                    return
 
         # Setup inbound listeners on both userbot accounts
         setup_inbound_listener(self.client, "Main Account (@GhaderiSaber)")

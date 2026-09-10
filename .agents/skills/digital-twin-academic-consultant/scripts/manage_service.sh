@@ -114,9 +114,9 @@ case "$1" in
 
     restart)
         echo "[*] Restarting Telethon service..."
-        "$0" stop
+        bash "$0" stop
         sleep 1
-        "$0" start
+        bash "$0" start
         ;;
 
     status)

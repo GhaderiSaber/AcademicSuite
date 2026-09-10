@@ -498,7 +498,147 @@ class TestDigitalTwinSuite(unittest.TestCase):
             self.assertIn("ACTIVE", status_reply)
             self.assertIn("Muted Chats", status_reply)
 
+    def test_10_userbot_copilot_drafts(self):
+        """Test Userbot Improvement 1: Universal Co-Pilot Drafts & 1-Click Send in Academic Desk."""
+        import asyncio
+        import telethon_userbot
+        from telethon_userbot import SaberTelethonUserbot
+
+        desk_messages = []
+        client_messages = []
+
+        class MockUserbotClient:
+            def __init__(self, name="Main"):
+                self.name = name
+
+            async def send_message(self, chat_id, text, buttons=None, reply_to=None, parse_mode=None):
+                msg_entry = {
+                    "client": self.name,
+                    "chat_id": chat_id,
+                    "text": text,
+                    "buttons": buttons,
+                    "parse_mode": parse_mode
+                }
+                if chat_id in [-1004331808205, 124911145]:
+                    desk_messages.append(msg_entry)
+                else:
+                    client_messages.append(msg_entry)
+                return msg_entry
+
+        test_config = {
+            "api_id": 12345,
+            "api_hash": "dummy_hash",
+            "admin_id": 124911145,
+            "admin_desk_chat_id": -1004331808205,
+            "auto_reply": False
+        }
+
+        userbot = SaberTelethonUserbot(test_config)
+        mock_user = MockUserbotClient("GhaderiSaber")
+        mock_bot = MockUserbotClient("SaberAcademicBot")
+        userbot.client = mock_user
+        userbot.bot_client = mock_bot
+
+        async def mock_send_to_desk(text, buttons=None, reply_to=None, parse_mode="html"):
+            return await mock_bot.send_message(-1004331808205, text, buttons=buttons, reply_to=reply_to, parse_mode=parse_mode)
+
+        userbot.send_to_desk = mock_send_to_desk
+
+        # 1. Test Scale Search Inquiry Draft
+        async def run_tests():
+            draft_id1 = await userbot.create_and_post_draft(
+                chat_id=555111,
+                sender_name="سارا احمدی",
+                sender_id=555111,
+                username="sara_a",
+                inquiry_type="scale_search",
+                client_message="/scale تاب آوری کانر",
+                draft_reply="سلام و احترام وقت بخیر سارا گرامی. مقیاس تاب‌آوری در بانک موجود است.",
+                client_source=mock_user,
+                account_label="Main Account (@GhaderiSaber)"
+            )
+            return draft_id1
+
+        d1 = asyncio.run(run_tests())
+        self.assertEqual(d1, "D101")
+        self.assertIn("D101", userbot.pending_drafts)
+        self.assertEqual(len(client_messages), 0, "Zero autonomous messages to client")
+        self.assertEqual(len(desk_messages), 1, "Desk received draft card")
+        self.assertIn("Co-Pilot Draft", desk_messages[0]["text"])
+        self.assertIn("/send_msg_D101", desk_messages[0]["text"])
+        desk_messages.clear()
+
+        # 2. Test Greeting Inquiry Draft
+        async def run_greet():
+            draft_id2 = await userbot.create_and_post_draft(
+                chat_id=555222,
+                sender_name="محسن رضایی",
+                sender_id=555222,
+                username="mohsen_r",
+                inquiry_type="greeting",
+                client_message="سلام خسته نباشید",
+                draft_reply="سلام و عرض ادب، صابر قادری هستم در خدمتم.",
+                client_source=mock_user,
+                account_label="Main Account (@GhaderiSaber)"
+            )
+            return draft_id2
+
+        d2 = asyncio.run(run_greet())
+        self.assertEqual(d2, "D102")
+        self.assertIn("D102", userbot.pending_drafts)
+        self.assertEqual(len(client_messages), 0)
+        self.assertEqual(len(desk_messages), 1)
+        self.assertIn("/send_msg_D102", desk_messages[0]["text"])
+        desk_messages.clear()
+
+        # 3. Test Admin Dispatch (/send_msg_D101)
+        async def run_dispatch():
+            entry = userbot.pending_drafts[d1]
+            await entry["client_source"].send_message(entry["chat_id"], entry["draft_reply"])
+            del userbot.pending_drafts[d1]
+
+        asyncio.run(run_dispatch())
+        self.assertEqual(len(client_messages), 1, "Client received approved draft from user account")
+        self.assertEqual(client_messages[0]["chat_id"], 555111)
+        self.assertNotIn(d1, userbot.pending_drafts)
+        client_messages.clear()
+
+        # 4. Test Custom Text Dispatch (/send_msg_D102 <custom>)
+        async def run_custom_dispatch():
+            entry = userbot.pending_drafts[d2]
+            custom_msg = "سلام آقا محسن، فایل داده‌های اکسل رو بفرستید تا بررسی کنم."
+            await entry["client_source"].send_message(entry["chat_id"], custom_msg)
+            del userbot.pending_drafts[d2]
+
+        asyncio.run(run_custom_dispatch())
+        self.assertEqual(len(client_messages), 1)
+        self.assertEqual(client_messages[0]["chat_id"], 555222)
+        self.assertIn("فایل داده‌های اکسل", client_messages[0]["text"])
+        self.assertNotIn(d2, userbot.pending_drafts)
+        client_messages.clear()
+
+        # 5. Test Dismissal (/ignore_D103)
+        async def run_ignore():
+            draft_id3 = await userbot.create_and_post_draft(
+                chat_id=555333,
+                sender_name="امیر حسینی",
+                sender_id=555333,
+                username="amir_h",
+                inquiry_type="statistical_inquiry",
+                client_message="تحلیل آماری با SPSS چقدر زمان می‌بره؟",
+                draft_reply="سلام وقت بخیر. تحلیل فرضیه‌ها ۳ الی ۴ روز زمان می‌برد.",
+                client_source=mock_user,
+                account_label="Main Account (@GhaderiSaber)"
+            )
+            self.assertIn(draft_id3, userbot.pending_drafts)
+            del userbot.pending_drafts[draft_id3]
+            self.assertNotIn(draft_id3, userbot.pending_drafts)
+
+        asyncio.run(run_ignore())
+        self.assertEqual(len(client_messages), 0, "Dismissed draft never sends anything to client")
+
 
 if __name__ == "__main__":
     unittest.main()
+
 
