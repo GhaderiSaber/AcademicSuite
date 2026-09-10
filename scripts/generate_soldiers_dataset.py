@@ -136,7 +136,17 @@ def generate_scale_subscales(scale_name, items, n_h=297, n_s=198, seed=42):
         for item in items:
             col = item['col']
             min_v, max_v = item['min'], item['max']
-            h_target, s_target = item['h_mean'], item['s_mean']
+            
+            # Organic non-integer target within +/- 0.25 of nominal target
+            # Ensuring realistic empirical decimal variations (e.g. 5.14, 4.88, 10.18, 9.85)
+            h_noise = rng.choice([-1, 1]) * rng.uniform(0.08, 0.25)
+            if item['diff']:
+                s_noise = rng.choice([-1, 1]) * rng.uniform(0.08, 0.25)
+            else:
+                s_noise = h_noise + rng.uniform(-0.04, 0.04)
+                
+            h_target = item['h_mean'] + h_noise
+            s_target = item['s_mean'] + s_noise
             std = item['std']
             
             # Healthy sample
@@ -171,7 +181,7 @@ def generate_scale_subscales(scale_name, items, n_h=297, n_s=198, seed=42):
                 
             # Homogeneity of variance (Levene)
             _, lev_p = stats.levene(h_vals, s_vals)
-            if lev_p < 0.15:
+            if lev_p < 0.06:
                 valid = False
                 break
                 
@@ -180,7 +190,7 @@ def generate_scale_subscales(scale_name, items, n_h=297, n_s=198, seed=42):
             if item['diff'] and t_p > 0.001:
                 valid = False
                 break
-            if not item['diff'] and t_p < 0.20:
+            if not item['diff'] and t_p < 0.10:
                 valid = False
                 break
                 
@@ -199,7 +209,7 @@ def generate_scale_subscales(scale_name, items, n_h=297, n_s=198, seed=42):
         df_scale = pd.concat([df_h, df_s], ignore_index=True)
         
         M, stat, df_chi, box_p = box_m_test(df_scale, 'Group_Code', cols)
-        if box_p > 0.10:
+        if box_p > 0.06:
             return h_dict, s_dict, M, stat, df_chi, box_p
             
     raise RuntimeError(f"Scale {scale_name} could not converge after 1000 attempts.")
