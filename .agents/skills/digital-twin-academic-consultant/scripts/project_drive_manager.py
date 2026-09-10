@@ -194,8 +194,13 @@ class ProjectDriveManager:
     ) -> Optional[str]:
         """
         Check if a project folder already exists for this client by folder name,
-        Telegram ID, or Telegram username inside project_meta.json.
+        Telegram ID, Telegram username, or VIP umbrella directory registry.
         """
+        # 1. VIP Umbrella Directory check
+        vip = self.is_vip_client(client_name, client_id, username)
+        if vip and vip.get("umbrella_dir") and os.path.isdir(vip["umbrella_dir"]):
+            return vip["umbrella_dir"]
+
         if not os.path.exists(self.work_dir):
             return None
 
@@ -241,11 +246,98 @@ class ProjectDriveManager:
     ) -> Dict[str, str]:
         """
         Create or get standardized 4-tier project folder in Google Drive.
+        If the client is a VIP with an Umbrella Directory, automatically routes
+        to or provisions subprojects (P01, P02, P03...) under the master umbrella folder.
         Returns dictionary of paths.
         """
         clean_name = sanitize_filename(client_name)
         existing_dir = self.find_existing_project_by_client(clean_name, client_id, username)
 
+        # Check if existing directory is a Master Umbrella Client Folder
+        is_umbrella = False
+        umbrella_meta = {}
+        if existing_dir:
+            u_meta_file = os.path.join(existing_dir, "project_meta.json")
+            if os.path.exists(u_meta_file):
+                try:
+                    with open(u_meta_file, "r", encoding="utf-8") as f:
+                        umbrella_meta = json.load(f)
+                        is_umbrella = bool(umbrella_meta.get("is_umbrella_client_folder"))
+                except Exception:
+                    pass
+
+        if is_umbrella and existing_dir:
+            umbrella_dir = existing_dir
+            comm_dir = os.path.join(umbrella_dir, "00_general_communications")
+            os.makedirs(comm_dir, exist_ok=True)
+
+            # Determine target subproject under umbrella
+            subprojects = umbrella_meta.get("active_subprojects", [])
+            target_sub_dir = None
+
+            if topic:
+                clean_topic = sanitize_filename(topic)
+                # Check if an existing subproject matches topic
+                for sp in subprojects:
+                    folder = sp.get("folder", "")
+                    if clean_topic.lower() in folder.lower() or folder.lower() in clean_topic.lower():
+                        target_sub_dir = os.path.join(umbrella_dir, folder)
+                        break
+
+                if not target_sub_dir:
+                    # Provision new numbered subproject e.g. P04_NewTopic
+                    next_idx = len(subprojects) + 1
+                    sub_name = f"P{next_idx:02d}_{clean_topic}"
+                    target_sub_dir = os.path.join(umbrella_dir, sub_name)
+                    os.makedirs(target_sub_dir, exist_ok=True)
+
+                    subprojects.append({
+                        "id": f"P{next_idx:02d}",
+                        "folder": sub_name,
+                        "status": status,
+                        "title": topic
+                    })
+                    umbrella_meta["active_subprojects"] = subprojects
+                    umbrella_meta["updated_at"] = datetime.now().isoformat()
+                    with open(u_meta_file, "w", encoding="utf-8") as f:
+                        json.dump(umbrella_meta, f, ensure_ascii=False, indent=2)
+            else:
+                # Default to the most recent subproject, or P01
+                if subprojects:
+                    latest = subprojects[-1]
+                    target_sub_dir = os.path.join(umbrella_dir, latest.get("folder", "P01_Default"))
+                else:
+                    target_sub_dir = os.path.join(umbrella_dir, "P01_Main_Project")
+                os.makedirs(target_sub_dir, exist_ok=True)
+
+            # Ensure 4 standard tiers inside subproject
+            paths = {
+                "root": target_sub_dir,
+                "umbrella_root": umbrella_dir,
+                "general_comm": comm_dir
+            }
+            for key, sub in SUBFOLDERS.items():
+                sub_path = os.path.join(target_sub_dir, sub)
+                os.makedirs(sub_path, exist_ok=True)
+                paths[key] = sub_path
+
+            meta_file = os.path.join(target_sub_dir, "project_meta.json")
+            if not os.path.exists(meta_file):
+                now_iso = datetime.now().isoformat()
+                sub_meta = {
+                    "client_name": clean_name,
+                    "umbrella_dir": umbrella_dir,
+                    "topic_fa": topic or "پروژه فعال",
+                    "status": status,
+                    "created_at": now_iso,
+                    "updated_at": now_iso
+                }
+                with open(meta_file, "w", encoding="utf-8") as f:
+                    json.dump(sub_meta, f, ensure_ascii=False, indent=2)
+            paths["meta_file"] = meta_file
+            return paths
+
+        # Standard non-umbrella project provisioning
         if existing_dir:
             project_dir = existing_dir
         else:
@@ -447,6 +539,16 @@ class ProjectDriveManager:
             with open(profile_md_path, "w", encoding="utf-8") as f:
                 f.write(profile_content)
 
+        # 4b. Also mirror transcripts into umbrella general_comm if available
+        if paths.get("general_comm") and os.path.isdir(paths["general_comm"]):
+            try:
+                shutil.copy2(chat_json_path, os.path.join(paths["general_comm"], "chat_history.json"))
+                shutil.copy2(transcript_md_path, os.path.join(paths["general_comm"], "chat_transcript.md"))
+                if os.path.exists(profile_md_path):
+                    shutil.copy2(profile_md_path, os.path.join(paths["general_comm"], "client_profile.md"))
+            except Exception as e:
+                print(f"[-] Warning: Failed to mirror to general_comm: {e}")
+
         # 5. Update project_meta.json
         with open(paths["meta_file"], "r", encoding="utf-8") as f:
             meta = json.load(f)
@@ -510,6 +612,14 @@ class ProjectDriveManager:
 
             meta["folder_path"] = full_path
             meta["folder_name"] = d
+
+            # Format umbrella client directories prominently
+            if meta.get("is_umbrella_client_folder"):
+                sub_count = len(meta.get("active_subprojects", []))
+                orig_name = meta.get("client_name_fa") or meta.get("client_name") or d
+                meta["client_name_fa"] = f"🌟 {orig_name} [VIP چتر تجمیعی - {sub_count} زیرپروژه]"
+                meta["is_umbrella"] = True
+
             results.append(meta)
 
         return results

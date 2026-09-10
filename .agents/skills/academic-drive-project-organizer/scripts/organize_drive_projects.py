@@ -56,6 +56,14 @@ STAGE_DIR_MAP = {
 }
 
 
+def sanitize_filename(name: str) -> str:
+    """Strip illegal filesystem characters."""
+    if not name:
+        return ""
+    clean = re.sub(r'[\\/*?:"<>|]', "", name).strip()
+    return clean
+
+
 def classify_file_destination(filename: str, parent_folder_name: str = "") -> str:
     """Classify a single file into one of the 4 standard project subfolders."""
     lower = filename.lower()
@@ -620,6 +628,186 @@ def provision_new_project_folder(parent_dir: str, client_name: str, topic: Optio
     return target_dir
 
 
+def consolidate_vip_client(
+    client_query: str,
+    drive_root: str = DEFAULT_DRIVE_ROOT,
+    apply: bool = True
+) -> Dict[str, Any]:
+    """
+    Consolidates all scattered projects and folders for a high-volume VIP client
+    across Pending, My Work, and Finished stages into a unified Umbrella Architecture.
+    """
+    pending_dir = os.path.join(drive_root, "Pending Works")
+    my_work_dir = os.path.join(drive_root, "My Work")
+    finished_dir = os.path.join(drive_root, "Finished Works")
+
+    def norm(t: str) -> str:
+        t = t.lower()
+        t = t.replace("shahram", "sehram").replace("şəhram", "sehram").replace("amiri", "emiri").replace("əmiri", "emiri")
+        for c1, c2 in [("ş", "s"), ("ə", "e"), ("ı", "i"), ("ç", "c"), ("ğ", "g"), ("ö", "o"), ("ü", "u"), ("ي", "ی"), ("ك", "ک"), ("\u200c", " ")]:
+            t = t.replace(c1, c2)
+        return t
+
+    # Check VIP registry for canonical details
+    reg_paths = [
+        os.path.join(os.path.dirname(__file__), "..", "..", "digital-twin-academic-consultant", "scripts", "userbot_storage", "vip_clients.json"),
+        "/Users/saber/Desktop/academic_suite/.agents/skills/digital-twin-academic-consultant/scripts/userbot_storage/vip_clients.json"
+    ]
+    vip_entry = None
+    for rp in reg_paths:
+        if os.path.exists(rp):
+            try:
+                with open(rp, "r", encoding="utf-8") as f:
+                    vdata = json.load(f)
+                    for v in vdata.get("vip_clients", []):
+                        v_name_norm = norm(v.get("client_name", ""))
+                        v_fa_norm = norm(v.get("client_name_fa", ""))
+                        if any(norm(q) in v_name_norm or norm(q) in v_fa_norm for q in client_query.split() if len(q) > 2):
+                            vip_entry = v
+                            break
+            except Exception:
+                pass
+        if vip_entry:
+            break
+
+    canonical_name = vip_entry.get("client_name", client_query) if vip_entry else client_query
+    canonical_fa = vip_entry.get("client_name_fa", canonical_name) if vip_entry else canonical_name
+    client_id = vip_entry.get("telegram_id") if vip_entry else None
+    phone = vip_entry.get("phone") if vip_entry else ""
+
+    umbrella_dir = vip_entry.get("umbrella_dir") if (vip_entry and vip_entry.get("umbrella_dir")) else os.path.join(my_work_dir, sanitize_filename(canonical_name))
+
+    locations = [
+        ("My Work", my_work_dir),
+        ("Pending Works", pending_dir),
+        ("Finished Works", finished_dir)
+    ]
+
+    discovered = []
+    for loc_name, loc_path in locations:
+        if not os.path.exists(loc_path):
+            continue
+        for item in sorted(os.listdir(loc_path)):
+            full_p = os.path.join(loc_path, item)
+            if not os.path.isdir(full_p) or item.startswith("."):
+                continue
+            # Avoid matching the umbrella directory itself
+            if os.path.abspath(full_p) == os.path.abspath(umbrella_dir):
+                continue
+            # Match query keywords
+            query_words = [norm(w) for w in client_query.split() if len(w) > 2]
+            item_norm = norm(item)
+            if any(w in item_norm for w in query_words) and "hamid" not in item_norm:
+                try:
+                    f_count = len([f for f in os.listdir(full_p) if not f.startswith(".")])
+                except Exception:
+                    f_count = 0
+
+                lower = item.lower()
+                if "soldier" in lower or "variance" in lower or "manova" in lower:
+                    p_type = "Simulation & MANOVA (تحلیل واریانس چندمتغیره)"
+                elif "model" in lower or "amos" in lower or "pls" in lower:
+                    p_type = "Structural Equation Modeling (مدل‌یابی معادلات ساختاری)"
+                elif "case" in lower:
+                    p_type = "Single-Case Experimental Design (طرح‌های تک‌آزمودنی)"
+                elif "reference" in lower or "ref" in lower:
+                    p_type = "Reference & Bibliographic Extraction (استخراج منابع)"
+                elif "repeated" in lower:
+                    p_type = "Repeated Measures ANCOVA (اندازه‌گیری مکرر)"
+                elif "irt" in lower:
+                    p_type = "Item Response Theory (نظریه سوال‌پاسخ)"
+                elif "questionaire" in lower or "questionnaire" in lower:
+                    p_type = "Psychometric Questionnaire Scoring (نمره‌گذاری ابزارها)"
+                elif "article" in lower:
+                    p_type = "Journal Manuscript Compilation (نگارش و تدوین مقاله)"
+                else:
+                    p_type = "Statistical Consultation & Thesis Chapter (تحلیل آماری)"
+
+                status = "Completed (انجام‌شده)" if loc_name == "Finished Works" else ("Active (در حال انجام/تحویل)" if loc_name == "My Work" else "Pending (در انتظار تایید/پیشنهاد)")
+                if "soldier" in lower:
+                    status = "Completed & Verified (نهایی‌شده با پیش‌فرض‌ها)"
+
+                discovered.append({
+                    "Project Name": item,
+                    "Lifecycle Location": loc_name,
+                    "Research Type": p_type,
+                    "File Count": f_count,
+                    "Status": status,
+                    "Path": full_p
+                })
+
+    if apply:
+        os.makedirs(umbrella_dir, exist_ok=True)
+        comm_dir = os.path.join(umbrella_dir, "00_general_communications")
+        os.makedirs(comm_dir, exist_ok=True)
+
+        now_iso = datetime.now().isoformat()
+        u_meta_file = os.path.join(umbrella_dir, "project_meta.json")
+        existing_u_meta = {}
+        if os.path.exists(u_meta_file):
+            try:
+                with open(u_meta_file, "r", encoding="utf-8") as f:
+                    existing_u_meta = json.load(f)
+            except Exception:
+                existing_u_meta = {}
+
+        umbrella_meta = {
+            "is_umbrella_client_folder": True,
+            "client_name": canonical_name,
+            "client_name_fa": canonical_fa,
+            "telegram_id": client_id,
+            "phone": phone,
+            "vip_tier": vip_entry.get("tier", "tier_1_collaborator") if vip_entry else "tier_1_collaborator",
+            "pricing_discount_percent": vip_entry.get("pricing_discount_percent", 15) if vip_entry else 15,
+            "total_historical_projects": len(discovered),
+            "active_subprojects": existing_u_meta.get("active_subprojects", []),
+            "created_at": existing_u_meta.get("created_at", now_iso),
+            "updated_at": now_iso
+        }
+        with open(u_meta_file, "w", encoding="utf-8") as f:
+            json.dump(umbrella_meta, f, ensure_ascii=False, indent=2)
+
+        idx_file = os.path.join(umbrella_dir, "master_projects_index.json")
+        with open(idx_file, "w", encoding="utf-8") as f:
+            json.dump({
+                "client": {"name": canonical_name, "name_fa": canonical_fa, "id": client_id, "phone": phone},
+                "total_count": len(discovered),
+                "projects": discovered
+            }, f, ensure_ascii=False, indent=2)
+
+        ledger_path = os.path.join(umbrella_dir, "CLIENT_LEDGER.xlsx")
+        if HAS_PANDAS and discovered:
+            df_cat = pd.DataFrame(discovered)
+            with pd.ExcelWriter(ledger_path, engine="openpyxl") as writer:
+                df_active = df_cat[df_cat["Lifecycle Location"] == "My Work"]
+                df_active.to_excel(writer, sheet_name="Active_Projects", index=False)
+                df_pending = df_cat[df_cat["Lifecycle Location"] == "Pending Works"]
+                df_pending.to_excel(writer, sheet_name="Pending_Projects", index=False)
+                df_finished = df_cat[df_cat["Lifecycle Location"] == "Finished Works"]
+                df_finished.to_excel(writer, sheet_name="Historical_Finished", index=False)
+                summary_df = pd.DataFrame([
+                    {"Metric": "نام کلاینت", "Value": f"{canonical_fa} ({canonical_name})"},
+                    {"Metric": "شناسه تلگرام", "Value": client_id},
+                    {"Metric": "شماره تماس", "Value": f"+{phone}" if phone else "N/A"},
+                    {"Metric": "سطح همکاری (VIP Tier)", "Value": "همکار ارشد (Tier 1 Collaborator)"},
+                    {"Metric": "تخفیف ویژه همکار", "Value": "15%"},
+                    {"Metric": "تعداد کل پروژه‌ها در درایو", "Value": len(discovered)},
+                    {"Metric": "پروژه‌های در حال انجام (My Work)", "Value": len(df_active)},
+                    {"Metric": "پروژه‌های در انتظار بررسی (Pending Works)", "Value": len(df_pending)},
+                    {"Metric": "پروژه‌های نهایی‌شده (Finished Works)", "Value": len(df_finished)},
+                    {"Metric": "تاریخ آخرین به‌روزرسانی", "Value": datetime.now().strftime("%Y-%m-%d %H:%M")}
+                ])
+                summary_df.to_excel(writer, sheet_name="Client_Dossier_Summary", index=False)
+
+    return {
+        "client_name": canonical_name,
+        "discovered_count": len(discovered),
+        "umbrella_dir": umbrella_dir,
+        "ledger_path": os.path.join(umbrella_dir, "CLIENT_LEDGER.xlsx") if HAS_PANDAS else None,
+        "projects": discovered
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description="Academic Drive Project Organizer & Lifecycle Manager")
     parser.add_argument("--dir", "-d", type=str, default=DEFAULT_PENDING_DIR, help="Target directory to audit or reorganize")
@@ -636,11 +824,27 @@ def main():
     parser.add_argument("--move-project", type=str, help="Project name to move across lifecycle stages")
     parser.add_argument("--to", type=str, help="Target lifecycle stage: pending, my_work, active, finished")
     parser.add_argument("--undo", type=str, help="Path to reorganize_manifest.json to undo a previous reorganization")
+    parser.add_argument("--consolidate-vip", type=str, help="Consolidate all projects for a repeat VIP client into a master umbrella directory")
     parser.add_argument("--output-dir", "-o", type=str, default=".", help="Output directory for reports")
 
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
+
+    # 0. Consolidate VIP Client Umbrella
+    if args.consolidate_vip:
+        res = consolidate_vip_client(
+            client_query=args.consolidate_vip,
+            drive_root=DEFAULT_DRIVE_ROOT,
+            apply=True
+        )
+        print(f"[+] VIP Client Umbrella Consolidation Completed:")
+        print(f"    Client: {res.get('client_name')}")
+        print(f"    Discovered Projects Across Drive: {res.get('discovered_count', 0)}")
+        print(f"    Umbrella Directory: {res.get('umbrella_dir')}")
+        if res.get('ledger_path'):
+            print(f"    Consolidated Ledger: {res.get('ledger_path')}")
+        sys.exit(0)
 
     # 1. Undo operation
     if args.undo:
