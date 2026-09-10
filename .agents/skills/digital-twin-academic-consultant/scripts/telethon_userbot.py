@@ -420,7 +420,7 @@ class SaberTelethonUserbot:
             )
             await event.reply(ack_msg)
 
-    async def scan_and_process_unread_messages(self, limit_dialogs: int = 100):
+    async def scan_and_process_unread_messages(self, limit_dialogs: int = 100, trigger_event: Optional[Any] = None):
         """
         Scan unread direct messages from clients:
         1. Automatically provisions or updates project folders in Google Drive 'My Work'.
@@ -444,7 +444,11 @@ class SaberTelethonUserbot:
 
         if not unread_clients:
             print("[+] No unread messages found from clients.")
-            await self.send_to_desk("✅ No unread client messages found.", parse_mode="html")
+            if trigger_event:
+                now_str = datetime.now().strftime("%H:%M:%S")
+                await trigger_event.answer(f"✅ All client dialogs are up to date! (Checked at {now_str})", alert=True)
+            else:
+                await self.send_to_desk("✅ No unread client messages found.", parse_mode="html")
             return
 
         print(f"[!] Found {len(unread_clients)} client(s) with unread messages.")
@@ -534,7 +538,8 @@ class SaberTelethonUserbot:
         if Button is not None:
             buttons = [
                 [Button.inline("🔄 Rescan Messages", b"cmd_unread"),
-                 Button.inline("📂 Project Catalog", b"cmd_projects")]
+                 Button.inline("📂 Project Catalog", b"cmd_projects")],
+                [Button.inline("❌ Dismiss Notice", b"cmd_close")]
             ]
 
         await self.send_to_desk(report_text, buttons=buttons, parse_mode="html")
@@ -772,10 +777,85 @@ class SaberTelethonUserbot:
                             lines.append(f"• <b>{html.escape(cname)}</b> (<i>{html.escape(st)}</i>) | <code>{html.escape(cpath)}</code>")
                         if len(projs) > 15:
                             lines.append(f"\n<i>... and {len(projs) - 15} more projects in Google Drive. Use <code>/projects &lt;name&gt;</code> to filter.</i>")
-                        await self.send_to_desk("\n".join(lines), parse_mode="html")
+                        btn = [[Button.inline("❌ Close Catalog", b"cmd_close")]] if Button is not None else None
+                        await self.send_to_desk("\n".join(lines), buttons=btn, parse_mode="html")
                 elif data == "cmd_unread":
                     await event.answer("🔍 Scanning client messages...")
-                    await self.scan_and_process_unread_messages()
+                    await self.scan_and_process_unread_messages(trigger_event=event)
+                elif data == "cmd_close":
+                    try:
+                        await event.delete()
+                    except Exception:
+                        pass
+
+            @self.bot_client.on(events.InlineQuery)
+            async def bot_inline_handler(event):
+                query = (event.text or "").strip()
+                builder = event.builder
+                results = []
+
+                # 1. Questionnaire / Scale lookup: "@SaberAcademicBot scale <name>"
+                scale_query = re.sub(r"^(?:scale|پرسشنامه|مقیاس)\s+", "", query, flags=re.IGNORECASE).strip()
+                if questionnaire_resolver and scale_query:
+                    profile = questionnaire_resolver.get_scale_profile(scale_query)
+                    if profile and profile.get("found_in_registry"):
+                        p_name = profile.get("scale_persian_name") or profile.get("scale_name")
+                        n_items = profile.get("total_items_count", "N/A")
+                        subscales = profile.get("subscales", [])
+                        sub_text = "\n".join([f"  ▫️ {s}" for s in subscales[:4]]) if subscales else "تک‌عاملی"
+                        card_fa = (
+                            f"📋 <b>شناسنامه ابزار: {html.escape(p_name)}</b>\n\n"
+                            f"• <b>تعداد گویه‌ها:</b> {n_items}\n"
+                            f"• <b>نمره‌گذاری:</b> طیف لیکرت استاندارد\n"
+                            f"• <b>مولفه‌ها / خرده‌مقیاس‌ها:</b>\n{sub_text}\n\n"
+                            f"✅ <i>موجود در بانک ۴,۸۸۰ پرسشنامه استاندارد آماده اجرا.</i>"
+                        )
+                        results.append(
+                            await builder.article(
+                                title=f"Scale: {p_name}",
+                                description=f"{n_items} items | Ready for research",
+                                text=card_fa,
+                                parse_mode="html"
+                            )
+                        )
+
+                # 2. Quotation quick template: "@SaberAcademicBot quote"
+                if not query or any(w in query.lower() for w in ["quote", "price", "قیمت", "تعرفه"]):
+                    sample_quote = calculate_quotation(
+                        analyze_proposal_text("عنوان: تحلیل آماری فصل چهارم و پنجم پایان‌نامه کارشناسی ارشد\nطرح: همبستگی و رگرسیون\nنمونه: ۲۰۰ نفر"),
+                        self.persona
+                    )
+                    card_fa = format_telegram_card(sample_quote, lang="fa")
+                    results.append(
+                        await builder.article(
+                            title="Academic Thesis Quotation Template",
+                            description="Standard APA 7 Chapter 3-5 pricing & delivery timeline",
+                            text=card_fa,
+                            parse_mode="html"
+                        )
+                    )
+
+                # 3. Google Drive Projects: "@SaberAcademicBot projects"
+                if not query or any(w in query.lower() for w in ["projects", "drive", "پروژه"]):
+                    projs = self.project_manager.list_all_projects()
+                    top_projs = projs[:8]
+                    lines = [f"📂 <b>Active Client Projects ({len(projs)} registered):</b>\n"]
+                    for p in top_projs:
+                        cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
+                        st = p.get("status", "pending")
+                        cpath = clean_drive_display_path(p["folder_path"])
+                        lines.append(f"• <b>{html.escape(cname)}</b> (<i>{st}</i>) | <code>{html.escape(cpath)}</code>")
+                    results.append(
+                        await builder.article(
+                            title=f"Google Drive Projects ({len(projs)} active)",
+                            description="View current client project folders & statuses",
+                            text="\n".join(lines),
+                            parse_mode="html"
+                        )
+                    )
+
+                if results:
+                    await event.answer(results, cache_time=5)
 
             if self.admin_desk_chat_id:
                 @self.bot_client.on(events.NewMessage(chats=self.admin_desk_chat_id))

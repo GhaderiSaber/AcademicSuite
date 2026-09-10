@@ -461,6 +461,7 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
                 lines.append(f"  ▫️ and {len(quote['scales_detected']) - 4} more instruments")
 
         lines.append("─────────────────────")
+        lines.append("<blockquote expandable>")
         lines.append("💰 <b>Itemized Investment Breakdown:</b>")
         for idx, item in enumerate(quote.get("line_items", []), 1):
             t = item.get("title_en", item.get("title", ""))
@@ -468,6 +469,7 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
             lines.append(f"{idx}. <b>{html.escape(t)}</b>")
             lines.append(f"   ▫️ Fee: {item['price']:,.0f} Tomans ({item['days']} business days)")
             lines.append(f"   ▫️ Scope: {html.escape(d)}")
+        lines.append("</blockquote>")
 
         lines.append("─────────────────────")
         if quote.get("is_urgent"):
@@ -476,10 +478,12 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
         lines.append(f"💎 <b>Total Investment:</b> <code>{formatted_price}</code>")
         lines.append(f"⏳ <b>Estimated Delivery:</b> <code>{quote.get('estimated_working_days', 0)} Business Days</code>")
         lines.append("─────────────────────")
+        lines.append("<blockquote expandable>")
         lines.append("✨ <b>Quality Guarantees & Standards:</b>")
         lines.append("• Raw software output tables fully compliant with APA 7th Edition")
         lines.append("• Free revisions until full thesis committee & supervisor approval")
         lines.append("• Rigorous academic standard, zero cliches, and 100% original analysis")
+        lines.append("</blockquote>")
 
         if include_admin_actions:
             lines.append("\n⚙️ <b>Admin Actions:</b>")
@@ -505,6 +509,7 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
                 lines.append(f"  ▫️ و {len(quote['scales_detected']) - 4} ابزار دیگر")
 
         lines.append("─────────────────────")
+        lines.append("<blockquote expandable>")
         lines.append("💰 <b>ریز هزینه‌های تفکیکی (قابل سفارش مجزا یا تجمیعی):</b>")
         for idx, item in enumerate(quote.get("line_items", []), 1):
             t = item.get("title_fa", item.get("title", ""))
@@ -513,17 +518,20 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
             lines.append(f"   ▫️ هزینه: {item['price']:,.0f} تومان ({item['days']} روز کاری)")
             lines.append(f"   ▫️ شرح: {html.escape(d)}")
 
+        lines.append("</blockquote>")
         lines.append("─────────────────────")
         if quote.get("is_urgent"):
             lines.append("⚡️ <b>وضعیت:</b> تحویل فوری (با اعمال ضریب اولویت)")
         lines.append(f"💎 <b>مجموع کل سرمایه‌گذاری:</b> <code>{quote.get('total_price_formatted', '')}</code>")
         lines.append(f"⏳ <b>مدت زمان تحویل پیش‌بینی:</b> <code>{quote.get('estimated_working_days', 0)} روز کاری</code>")
         lines.append("─────────────────────")
+        lines.append("<blockquote expandable>")
         lines.append("✨ <b>تعهدات و ضمانت‌ها:</b>")
         lines.append("• همراه با تحلیل خروجی‌های اصلی نرم‌افزار و جداول مطابق با APA 7")
         lines.append("• بازبینی رایگان تا اعمال کامل نظرات استاد راهنما و مشاور")
         lines.append("• نگارش با لحن علمی استاندارد، بدون متن کلیشه‌ای و کاملاً اصیل")
         lines.append("")
+        lines.append("</blockquote>")
         lines.append("جهت تایید، شروع فرآیند یا اعمال تغییرات در خدمتتون هستم.")
 
         if include_admin_actions:
