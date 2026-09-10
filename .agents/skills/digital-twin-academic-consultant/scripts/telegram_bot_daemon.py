@@ -8,8 +8,9 @@ Automated Telegram bot daemon representing Saber Ghaderi for academic consulting
 3. Provides an Admin Review Desk (forwarding draft quotes to Saber at 124911145 for review/adjustment).
 4. Handles questionnaire search requests via psychometric-scale-resolver (Questionnaires.xlsx).
 5. Answers common methodology and statistical questions from calibrated FAQs.
-6. Zero mandatory external pip dependencies (built on Python standard library).
-7. Includes --test-mode to run end-to-end simulated scenarios offline.
+6. Telegram Mini App (WebApp) integration with inline keyboard launch buttons.
+7. SOCKS5 proxy support for regions where Telegram API is restricted.
+8. Includes --test-mode to run end-to-end simulated scenarios offline.
 """
 
 import os
@@ -18,11 +19,20 @@ import sys
 import time
 import json
 import html
+import socket
+import ssl
 import argparse
 import urllib.request
 import urllib.parse
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple
+
+# SOCKS5 proxy support (PySocks) — essential for Iran
+try:
+    import socks
+    HAS_PYSOCKS = True
+except ImportError:
+    HAS_PYSOCKS = False
 
 # Try importing questionnaire resolver
 try:
@@ -62,16 +72,133 @@ DEFAULT_PERSONA_PATH = os.path.join(
 
 
 class TelegramApiClient:
-    """Lightweight Telegram Bot API client using standard library."""
+    """Lightweight Telegram Bot API client with SOCKS5 proxy support."""
 
-    def __init__(self, token: str):
+    def __init__(self, token: str, proxy: Optional[Dict[str, Any]] = None):
         self.token = token.strip()
         self.base_url = f"https://api.telegram.org/bot{self.token}"
         self.file_base_url = f"https://api.telegram.org/file/bot{self.token}"
+        self.opener: Optional[urllib.request.OpenerDirector] = None
+        self._setup_proxy(proxy)
+
+    def _setup_proxy(self, proxy: Optional[Dict[str, Any]] = None):
+        """Configure SOCKS5 or HTTP proxy for Telegram API connectivity."""
+        if not proxy:
+            return
+
+        proxy_type = (proxy.get("proxy_type") or "").lower()
+        addr = proxy.get("addr", "127.0.0.1")
+        port = int(proxy.get("port", 1080))
+
+        if proxy_type in ("socks5", "socks4") and HAS_PYSOCKS:
+            # Store proxy config for per-request socket creation
+            self._socks_proxy = {
+                "type": socks.SOCKS5 if proxy_type == "socks5" else socks.SOCKS4,
+                "addr": addr,
+                "port": port,
+                "username": proxy.get("username"),
+                "password": proxy.get("password"),
+            }
+            # Create SSL context that accepts self-signed certs (common in Iran VPN setups)
+            self._ssl_ctx = ssl.create_default_context()
+            self._ssl_ctx.check_hostname = False
+            self._ssl_ctx.verify_mode = ssl.CERT_NONE
+            print(f"[Proxy] SOCKS5 proxy enabled: {addr}:{port}")
+        elif proxy_type in ("http", "https"):
+            proxy_url = f"http://{addr}:{port}"
+            # For HTTP proxies, also disable SSL verification
+            ssl_ctx = ssl.create_default_context()
+            ssl_ctx.check_hostname = False
+            ssl_ctx.verify_mode = ssl.CERT_NONE
+            handler = urllib.request.ProxyHandler({
+                "http": proxy_url,
+                "https": proxy_url
+            })
+            https_handler = urllib.request.HTTPSHandler(context=ssl_ctx)
+            self.opener = urllib.request.build_opener(handler, https_handler)
+            print(f"[Proxy] HTTP proxy enabled: {proxy_url}")
+        elif proxy_type in ("socks5", "socks4") and not HAS_PYSOCKS:
+            print(f"[Proxy] WARNING: PySocks not installed. Install with: pip install PySocks")
+            print(f"[Proxy] Attempting direct connection without proxy...")
+
+    def _socks_request(self, url: str, data: Optional[bytes] = None, headers: Optional[Dict[str, str]] = None) -> bytes:
+        """Make an HTTP request through SOCKS5 proxy with proper SSL handling."""
+        import re as _re
+        m = _re.match(r"https://([^/:]+)(:\d+)?(/.*)?", url)
+        if not m:
+            raise ValueError(f"Invalid HTTPS URL: {url}")
+        host = m.group(1)
+        port = int(m.group(2)[1:]) if m.group(2) else 443
+        path = m.group(3) or "/"
+
+        s = socks.socksocket()
+        s.set_proxy(
+            self._socks_proxy["type"],
+            self._socks_proxy["addr"],
+            self._socks_proxy["port"],
+            username=self._socks_proxy.get("username"),
+            password=self._socks_proxy.get("password"),
+        )
+        s.settimeout(35)
+        s.connect((host, port))
+        ss = self._ssl_ctx.wrap_socket(s, server_hostname=host)
+
+        method = "POST" if data else "GET"
+        req_headers = f"{method} {path} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n"
+        if headers:
+            for k, v in headers.items():
+                req_headers += f"{k}: {v}\r\n"
+        if data:
+            req_headers += f"Content-Length: {len(data)}\r\n"
+        req_headers += "\r\n"
+
+        ss.sendall(req_headers.encode() + (data or b""))
+        response = b""
+        while True:
+            chunk = ss.recv(8192)
+            if not chunk:
+                break
+            response += chunk
+        ss.close()
+
+        # Parse HTTP response: skip headers, handle chunked
+        header_end = response.find(b"\r\n\r\n")
+        if header_end == -1:
+            return response
+        headers_raw = response[:header_end].decode("utf-8", errors="replace").lower()
+        body = response[header_end + 4:]
+
+        if "transfer-encoding: chunked" in headers_raw:
+            # Decode chunked transfer encoding
+            decoded = b""
+            while body:
+                crlf = body.find(b"\r\n")
+                if crlf == -1:
+                    break
+                chunk_size = int(body[:crlf], 16)
+                if chunk_size == 0:
+                    break
+                decoded += body[crlf + 2: crlf + 2 + chunk_size]
+                body = body[crlf + 2 + chunk_size + 2:]
+            return decoded
+        return body
 
     def send_request(self, method: str, params: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
         url = f"{self.base_url}/{method}"
         try:
+            # Use raw SOCKS5 socket for regions where urllib can't handle the proxy SSL
+            if hasattr(self, "_socks_proxy"):
+                data = json.dumps(params).encode("utf-8") if params else None
+                headers = {"Content-Type": "application/json"} if data else None
+                body = self._socks_request(url, data=data, headers=headers)
+                result = json.loads(body.decode("utf-8"))
+                if result.get("ok"):
+                    return result
+                else:
+                    print(f"[Telegram API Error] {result.get('description')}")
+                    return None
+
+            # Standard urllib path (direct or HTTP proxy)
             if params:
                 data = json.dumps(params).encode("utf-8")
                 req = urllib.request.Request(
@@ -79,7 +206,13 @@ class TelegramApiClient:
                 )
             else:
                 req = urllib.request.Request(url)
-            with urllib.request.urlopen(req, timeout=35) as resp:
+
+            if self.opener:
+                resp = self.opener.open(req, timeout=35)
+            else:
+                resp = urllib.request.urlopen(req, timeout=35)
+
+            with resp:
                 result = json.loads(resp.read().decode("utf-8"))
                 if result.get("ok"):
                     return result
@@ -90,7 +223,11 @@ class TelegramApiClient:
             print(f"[HTTP Error] {method}: {e}")
             return None
 
-    def send_message(self, chat_id: int, text: str, parse_mode: str = "Markdown", reply_markup: Optional[Dict[str, Any]] = None) -> bool:
+    def send_message(
+        self, chat_id: int, text: str,
+        parse_mode: str = "Markdown",
+        reply_markup: Optional[Dict[str, Any]] = None
+    ) -> bool:
         payload: Dict[str, Any] = {
             "chat_id": chat_id,
             "text": text,
@@ -122,47 +259,149 @@ class TelegramApiClient:
         url = f"{self.file_base_url}/{file_path}"
         try:
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-            with urllib.request.urlopen(url, timeout=60) as resp, open(dest_path, "wb") as f:
-                f.write(resp.read())
+            if hasattr(self, "_socks_proxy"):
+                body = self._socks_request(url)
+                with open(dest_path, "wb") as f:
+                    f.write(body)
+            elif self.opener:
+                resp = self.opener.open(url, timeout=60)
+                with resp, open(dest_path, "wb") as f:
+                    f.write(resp.read())
+            else:
+                resp = urllib.request.urlopen(url, timeout=60)
+                with resp, open(dest_path, "wb") as f:
+                    f.write(resp.read())
             return True
         except Exception as e:
             print(f"[Download Error] {file_path}: {e}")
             return False
 
+    def set_chat_menu_button(self, webapp_url: str, text: str = "📊 Dashboard") -> bool:
+        """Set the bot's menu button to open the WebApp."""
+        payload = {
+            "menu_button": {
+                "type": "web_app",
+                "text": text,
+                "web_app": {"url": webapp_url}
+            }
+        }
+        res = self.send_request("setChatMenuButton", payload)
+        return res is not None
+
+    def set_default_menu_button(self) -> bool:
+        """Reset menu button to the default commands menu."""
+        payload = {"menu_button": {"type": "commands"}}
+        res = self.send_request("setChatMenuButton", payload)
+        return res is not None
+
+    def set_bot_commands(self, commands: List[Dict[str, str]]) -> bool:
+        """Register bot commands for the Telegram menu."""
+        payload = {"commands": commands}
+        res = self.send_request("setMyCommands", payload)
+        return res is not None
+
+    def get_me(self) -> Optional[Dict[str, Any]]:
+        """Verify bot token and get bot info."""
+        res = self.send_request("getMe")
+        if res and "result" in res:
+            return res["result"]
+        return None
+
 
 class DigitalSaberBot:
-    """Digital Twin of Saber Ghaderi for Telegram."""
+    """Digital Twin of Saber Ghaderi for Telegram with WebApp integration."""
 
     def __init__(
         self,
         token: str = "",
         admin_id: int = 124911145,
         auto_quote: bool = False,
-        work_dir: Optional[str] = None
+        work_dir: Optional[str] = None,
+        webapp_url: str = "",
+        proxy: Optional[Dict[str, Any]] = None
     ):
         self.token = token
         self.admin_id = admin_id
         self.auto_quote = auto_quote
+        self.webapp_url = webapp_url
         self.work_dir = work_dir or os.path.join(os.path.dirname(__file__), "bot_storage")
         os.makedirs(self.work_dir, exist_ok=True)
         
         self.persona = load_persona()
-        self.tg = TelegramApiClient(self.token) if self.token else None
+        self.tg = TelegramApiClient(self.token, proxy=proxy) if self.token else None
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
         self.quote_counter = 100
         self.running = True
 
+    def setup_bot_commands_and_menu(self):
+        """Register bot commands and set WebApp menu button on startup."""
+        if not self.tg:
+            return
+
+        # Verify bot identity
+        me = self.tg.get_me()
+        if me:
+            print(f"[Bot] Authenticated as @{me.get('username', '?')} (ID: {me.get('id')})")
+        else:
+            print("[Bot] WARNING: Could not verify bot token. Check your token and proxy.")
+            return
+
+        # Register slash commands
+        commands = [
+            {"command": "start", "description": "شروع و معرفی خدمات مشاوره"},
+            {"command": "help", "description": "راهنمای دستورات و امکانات ربات"},
+            {"command": "scale", "description": "جستجوی پرسشنامه در بانک ۴,۸۸۰ مقیاس"},
+            {"command": "quote", "description": "درخواست پیش‌فاکتور هزینه و زمان‌بندی"},
+            {"command": "dashboard", "description": "مشاهده داشبورد و وضعیت پروژه‌ها"},
+        ]
+        if self.tg.set_bot_commands(commands):
+            print(f"[Bot] Registered {len(commands)} slash commands.")
+
+        # Set WebApp menu button if URL is configured
+        if self.webapp_url:
+            if self.tg.set_chat_menu_button(self.webapp_url, text="📊 Dashboard"):
+                print(f"[Bot] Menu button set to WebApp: {self.webapp_url}")
+            else:
+                print("[Bot] WARNING: Failed to set menu button.")
+        else:
+            # Set default commands menu if no webapp URL
+            self.tg.set_default_menu_button()
+            print("[Bot] No webapp_url configured. Using default commands menu.")
+            print("[Bot] To enable WebApp, set 'webapp_url' in bot_config.json to your public HTTPS URL.")
+
+    def _build_start_reply_markup(self) -> Optional[Dict[str, Any]]:
+        """Build inline keyboard for /start with WebApp button."""
+        buttons = []
+
+        # WebApp launch button (only if URL configured)
+        if self.webapp_url:
+            buttons.append([{
+                "text": "📊 باز کردن داشبورد پروژه‌ها",
+                "web_app": {"url": self.webapp_url}
+            }])
+
+        # Quick action buttons
+        buttons.append([
+            {"text": "📋 جستجوی پرسشنامه", "callback_data": "action_scale_search"},
+            {"text": "💰 استعلام هزینه", "callback_data": "action_quote"},
+        ])
+        buttons.append([
+            {"text": "📞 ارتباط مستقیم با صابر قادری", "url": "https://t.me/GhaderiSaber"},
+        ])
+
+        return {"inline_keyboard": buttons}
+
     def generate_welcome_message(self, user_first_name: str = "پژوهشگر گرامی") -> str:
-        """Create greeting message explaining capabilities."""
+        """Create greeting message explaining capabilities (HTML format)."""
         msg = (
-            f"سلام و درود، {user_first_name} وقتتون بخیر.\n"
-            "من دستیار هوشمند و همزاد تخصصی **صابر قادری** هستم؛ پژوهشگر دکتری روان‌شناسی، متخصص متدولوژی، روان‌سنجی و تحلیل‌های آماری پیشرفته.\n\n"
-            "✨ **خدمات تخصصی قابل ارائه:**\n"
-            "1. 📊 **بررسی پروپوزال و استعلام هزینه:** ارسال فایل پروپوزال (`.docx` یا `.pdf`) جهت دریافت پیش‌فاکتور تفکیکی و زمان‌بندی دقیق.\n"
-            "2. 📋 **بانک پرسشنامه‌ها:** جستجوی فوری ۴,۸۸۰ آزمون روان‌شناختی همراه با کلید نمره‌گذاری و روایی/پایایی با دستور `/scale`.\n"
-            "3. 🔬 **مشاوره روش‌شناسی و آماری:** پاسخ به پرسش‌های آماری (AMOS، SPSS، SmartPLS، G*Power، تحلیل فرضیات و مدل‌یابی).\n"
-            "4. 📝 **ویرایش و کاهش همانندجویی:** بازنویسی علمی و کاهش درصد سمیم‌نور و ایران‌داک.\n\n"
-            "💡 برای شروع، می‌توانید فایل پروپوزال یا سوال تخصصی‌تون رو مستقیماً ارسال بفرمایید یا دستور `/help` رو لمس کنید."
+            f"سلام و درود، {html.escape(user_first_name)} وقتتون بخیر.\n"
+            "من دستیار هوشمند و همزاد تخصصی <b>صابر قادری</b> هستم؛ پژوهشگر دکتری روان‌شناسی، متخصص متدولوژی، روان‌سنجی و تحلیل‌های آماری پیشرفته.\n\n"
+            "✨ <b>خدمات تخصصی قابل ارائه:</b>\n"
+            "1. 📊 <b>بررسی پروپوزال و استعلام هزینه:</b> ارسال فایل پروپوزال (<code>.docx</code> یا <code>.pdf</code>) جهت دریافت پیش‌فاکتور تفکیکی و زمان‌بندی دقیق.\n"
+            "2. 📋 <b>بانک پرسشنامه‌ها:</b> جستجوی فوری ۴,۸۸۰ آزمون روان‌شناختی همراه با کلید نمره‌گذاری و روایی/پایایی با دستور /scale.\n"
+            "3. 🔬 <b>مشاوره روش‌شناسی و آماری:</b> پاسخ به پرسش‌های آماری (AMOS، SPSS، SmartPLS، G*Power، تحلیل فرضیات و مدل‌یابی).\n"
+            "4. 📝 <b>ویرایش و کاهش همانندجویی:</b> بازنویسی علمی و کاهش درصد سمیم‌نور و ایران‌داک.\n\n"
+            "💡 برای شروع، می‌توانید فایل پروپوزال یا سوال تخصصی‌تون رو مستقیماً ارسال بفرمایید یا دستور /help رو لمس کنید."
         )
         return msg
 
@@ -331,7 +570,42 @@ class DigitalSaberBot:
         # Standard commands & greetings
         greeting_words = ["/start", "سلام", "درود", "صبح بخیر", "عصر بخیر", "شب بخیر", "وقت بخیر"]
         if clean in ["/start", "/help"] or (len(clean.split()) <= 4 and any(clean.startswith(gw) or clean == gw for gw in greeting_words)):
-            return self.generate_welcome_message(sender_name)
+            welcome = self.generate_welcome_message(sender_name)
+            # Send with inline keyboard (WebApp button + quick actions)
+            markup = self._build_start_reply_markup()
+            if self.tg and markup:
+                self.tg.send_message(chat_id, welcome, parse_mode="HTML", reply_markup=markup)
+                return "__SENT__"  # Signal that message was already sent
+            return welcome
+
+        # Dashboard / WebApp command
+        if clean in ["/dashboard", "/webapp"]:
+            if self.webapp_url:
+                markup = {"inline_keyboard": [[
+                    {"text": "📊 باز کردن داشبورد", "web_app": {"url": self.webapp_url}}
+                ]]}
+                if self.tg:
+                    self.tg.send_message(
+                        chat_id,
+                        "🖥 برای مشاهده وضعیت پروژه‌ها، محاسبه‌گر هزینه و بانک پرسشنامه‌ها دکمه زیر را لمس کنید:",
+                        reply_markup=markup
+                    )
+                    return "__SENT__"
+                return "برای مشاهده داشبورد، از دکمه منوی ربات استفاده کنید."
+            return "داشبورد هنوز فعال نشده است. لطفاً با صابر قادری تماس بگیرید: @GhaderiSaber"
+
+        # Quote request command
+        if clean in ["/quote", "/price", "/estimate"]:
+            return (
+                "📌 **درخواست پیش‌فاکتور و استعلام هزینه:**\n\n"
+                "لطفاً فایل پروپوزال خود را (`.docx` یا `.pdf`) ارسال فرمایید، یا اطلاعات زیر را به صورت متنی ارسال کنید:\n\n"
+                "• **عنوان پژوهش**\n"
+                "• **مقطع تحصیلی** (ارشد / دکتری)\n"
+                "• **طرح پژوهش** (شبه‌آزمایشی، همبستگی، SEM و...)\n"
+                "• **حجم نمونه و جامعه آماری**\n"
+                "• **ابزارهای اندازه‌گیری** (نام پرسشنامه‌ها)\n\n"
+                "پس از دریافت، پیش‌فاکتور تفکیکی همراه با زمان‌بندی خدمتتون تقدیم می‌شود."
+            )
 
         if clean.startswith(("/scale", "/questionnaire")):
             query = re.sub(r"^/(?:scale|questionnaire)", "", clean).strip()
@@ -433,7 +707,15 @@ class DigitalSaberBot:
             print("[-] Telegram Bot Token is not configured. Run with --test-mode or set token in config.")
             return
 
+        # Setup commands and menu button on startup
+        self.setup_bot_commands_and_menu()
+
         print(f"[*] Digital Twin Saber Bot started. Admin ID: {self.admin_id}")
+        if self.webapp_url:
+            print(f"[*] WebApp URL: {self.webapp_url}")
+        else:
+            print("[*] WebApp URL not configured. Set 'webapp_url' in bot_config.json for Mini App integration.")
+        print(f"[*] Listening for updates via long-polling...")
         offset = 0
 
         while self.running:
@@ -442,6 +724,32 @@ class DigitalSaberBot:
                 for update in updates:
                     update_id = update.get("update_id", 0)
                     offset = max(offset, update_id + 1)
+
+                    # Handle callback queries (inline button presses)
+                    callback_query = update.get("callback_query")
+                    if callback_query:
+                        cb_data = callback_query.get("data", "")
+                        cb_chat = callback_query.get("message", {}).get("chat", {})
+                        cb_chat_id = cb_chat.get("id")
+                        cb_sender = callback_query.get("from", {})
+                        cb_name = cb_sender.get("first_name", "پژوهشگر")
+
+                        # Answer the callback to remove loading spinner
+                        self.tg.send_request("answerCallbackQuery", {
+                            "callback_query_id": callback_query.get("id")
+                        })
+
+                        if cb_data == "action_scale_search" and cb_chat_id:
+                            self.tg.send_message(
+                                cb_chat_id,
+                                "📋 نام پرسشنامه یا مقیاس مورد نظرتون رو ارسال کنید:\n"
+                                "مثال: `/scale تاب‌آوری کانر` یا `/scale Beck Depression`"
+                            )
+                        elif cb_data == "action_quote" and cb_chat_id:
+                            reply = self.handle_incoming_text(cb_chat_id, cb_name, "/quote")
+                            if reply != "__SENT__":
+                                self.tg.send_message(cb_chat_id, reply)
+                        continue
 
                     message = update.get("message", {})
                     chat = message.get("chat", {})
@@ -476,7 +784,8 @@ class DigitalSaberBot:
                     text = message.get("text")
                     if text and chat_id:
                         reply = self.handle_incoming_text(chat_id, sender_name, text)
-                        self.tg.send_message(chat_id, reply)
+                        if reply != "__SENT__":  # Skip if already sent with inline keyboard
+                            self.tg.send_message(chat_id, reply)
 
             except Exception as e:
                 print(f"[Polling Error] {e}")
@@ -491,12 +800,15 @@ def main():
     parser.add_argument("--admin-id", type=int, default=124911145, help="Saber's Telegram User ID (default: 124911145)")
     parser.add_argument("--auto-quote", action="store_true", help="Send quotations automatically without admin review")
     parser.add_argument("--test-mode", action="store_true", help="Run offline simulation test of all bot features")
+    parser.add_argument("--webapp-url", type=str, default="", help="Public HTTPS URL for Telegram Mini App")
     parser.add_argument("--config", "-c", type=str, default=DEFAULT_CONFIG_PATH, help="Path to bot_config.json")
 
     args = parser.parse_args()
 
     token = args.token
     admin_id = args.admin_id
+    webapp_url = args.webapp_url
+    proxy_cfg = None
 
     # Load from config if present
     if os.path.exists(args.config):
@@ -505,13 +817,17 @@ def main():
                 cfg = json.load(f)
                 token = token or cfg.get("bot_token", "")
                 admin_id = admin_id or cfg.get("admin_id", 124911145)
+                webapp_url = webapp_url or cfg.get("webapp_url", "")
+                proxy_cfg = cfg.get("proxy")
         except Exception:
             pass
 
     bot = DigitalSaberBot(
         token=token,
         admin_id=admin_id,
-        auto_quote=args.auto_quote
+        auto_quote=args.auto_quote,
+        webapp_url=webapp_url,
+        proxy=proxy_cfg
     )
 
     if args.test_mode or not token:
