@@ -20,6 +20,7 @@ import sys
 import glob
 import json
 import html
+import shutil
 import difflib
 import unicodedata
 from datetime import datetime
@@ -153,6 +154,71 @@ def match_client_names(name1: str, name2: str, threshold: float = 0.85) -> Tuple
 
     ratio = difflib.SequenceMatcher(None, k1, k2).ratio()
     return (ratio >= threshold), ratio
+
+
+def resolve_media_details(msg) -> Tuple[Optional[str], Optional[str], int, int]:
+    """
+    Extract (file_name, media_type, file_size, duration) for a Telegram message.
+    Returns (None, None, 0, 0) if message has no media or is an animated/static sticker.
+    media_type is one of: 'document', 'voice', 'photo', 'video_note', 'sticker', None.
+    """
+    if not msg or not msg.file:
+        return None, None, 0, 0
+
+    # 1. Filter out stickers
+    if getattr(msg, "sticker", None):
+        return None, "sticker", getattr(msg.file, "size", 0), 0
+    mime = getattr(msg.file, "mime_type", "") or ""
+    if "tgsticker" in mime or mime == "image/webp":
+        raw_n = getattr(msg.file, "name", "") or ""
+        if raw_n.endswith(".tgs") or not raw_n:
+            return None, "sticker", getattr(msg.file, "size", 0), 0
+
+    size = getattr(msg.file, "size", 0)
+    msg_date = msg.date.strftime("%Y%m%d_%H%M%S") if getattr(msg, "date", None) else "date"
+
+    # 2. Voice note
+    if getattr(msg, "voice", None):
+        duration = 0
+        attrs = getattr(msg.voice, "attributes", []) or getattr(msg.file, "attrs", []) or []
+        for attr in attrs:
+            if hasattr(attr, "duration"):
+                duration = attr.duration
+                break
+        ext = getattr(msg.file, "ext", None) or ".ogg"
+        fname = f"voice_{msg.id}_{msg_date}{ext}"
+        return sanitize_filename(fname), "voice", size, duration
+
+    # 3. Photo
+    if getattr(msg, "photo", None):
+        ext = getattr(msg.file, "ext", None) or ".jpg"
+        fname = f"photo_{msg.id}_{msg_date}{ext}"
+        return sanitize_filename(fname), "photo", size, 0
+
+    # 4. Video note
+    if getattr(msg, "video_note", None):
+        duration = 0
+        attrs = getattr(msg.file, "attrs", []) or []
+        for attr in attrs:
+            if hasattr(attr, "duration"):
+                duration = attr.duration
+                break
+        ext = getattr(msg.file, "ext", None) or ".mp4"
+        fname = f"videonote_{msg.id}_{msg_date}{ext}"
+        return sanitize_filename(fname), "video_note", size, duration
+
+    # 5. Named file document
+    raw_name = getattr(msg.file, "name", None)
+    if raw_name:
+        fname = sanitize_filename(raw_name)
+        if fname.lower().endswith(".tgs"):
+            return None, "sticker", size, 0
+        return fname, "document", size, 0
+
+    # 6. Unnamed document fallback
+    ext = getattr(msg.file, "ext", None) or ""
+    fname = f"attachment_{msg.id}_{msg_date}{ext}"
+    return sanitize_filename(fname), "document", size, 0
 
 
 def format_client_mention_html(client_name: str, username: Optional[str] = None, client_id: Optional[int] = None) -> str:
@@ -528,9 +594,10 @@ class ProjectDriveManager:
             if not existing:
                 has_documents = False
                 async for msg in client.iter_messages(entity, limit=min(limit_messages, 40)):
-                    if msg.file and getattr(msg.file, "name", None):
-                        ext = os.path.splitext(msg.file.name)[1].lower()
-                        if ext in [".docx", ".doc", ".pdf", ".sav", ".xlsx", ".xls", ".csv", ".rar", ".zip"]:
+                    fn, _, _, _ = resolve_media_details(msg)
+                    if fn:
+                        ext = os.path.splitext(fn)[1].lower()
+                        if ext in [".docx", ".doc", ".pdf", ".sav", ".xlsx", ".xls", ".csv", ".rar", ".zip", ".ogg"]:
                             has_documents = True
                             break
                     if len(msg.message or "") > 80 and any(w in (msg.message or "") for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
@@ -572,23 +639,29 @@ class ProjectDriveManager:
                 "text": msg_text
             }
 
-            # Check and download media/file
-            if msg.file and hasattr(msg.file, "name") and msg.file.name:
-                fname = sanitize_filename(msg.file.name)
+            # Check and download media/file (documents, voice notes, photos, excluding stickers)
+            fname, mtype, fsize, duration = resolve_media_details(msg)
+            if fname:
                 entry["file_name"] = fname
-                entry["file_size"] = getattr(msg.file, "size", 0)
+                entry["media_type"] = mtype
+                entry["file_size"] = fsize
+                if duration:
+                    entry["duration"] = duration
 
                 if download_files and not is_saber:
                     target_file = os.path.join(raw_dir, fname)
                     if not os.path.exists(target_file):
-                        print(f"    📥 Downloading client file: {fname} ({entry['file_size']:,} bytes)...")
+                        type_label = "voice note" if mtype == "voice" else ("photo" if mtype == "photo" else "client file")
+                        print(f"    📥 Downloading {type_label}: {fname} ({fsize:,} bytes)...")
                         try:
                             await msg.download_media(file=target_file)
                             downloaded_files.append({
                                 "file_name": fname,
                                 "file_path": target_file,
-                                "size_bytes": entry["file_size"],
-                                "date": entry["date"]
+                                "size_bytes": fsize,
+                                "date": entry["date"],
+                                "media_type": mtype,
+                                "duration": duration
                             })
                         except Exception as e:
                             print(f"    [-] Failed to download {fname}: {e}")
@@ -596,8 +669,9 @@ class ProjectDriveManager:
                         downloaded_files.append({
                             "file_name": fname,
                             "file_path": target_file,
-                            "size_bytes": entry["file_size"],
-                            "status": "already_exists"
+                            "size_bytes": fsize,
+                            "status": "already_exists",
+                            "media_type": mtype
                         })
 
             parsed_messages.append(entry)
@@ -628,7 +702,19 @@ class ProjectDriveManager:
             if m.get("text"):
                 transcript_lines.append(m["text"])
             if m.get("file_name"):
-                transcript_lines.append(f"> 📎 **فایل ضمیمه:** [{m['file_name']}]({m['file_name']}) ({m.get('file_size', 0):,} بایت)")
+                mtype = m.get("media_type")
+                dur = m.get("duration", 0)
+                fsize = m.get("file_size", 0)
+                if mtype == "voice":
+                    dur_str = f"{dur} ثانیه, " if dur else ""
+                    transcript_lines.append(f"> 🎤 **پیام صوتی (Voice Note):** [{m['file_name']}]({m['file_name']}) ({dur_str}{fsize:,} بایت)")
+                elif mtype == "photo":
+                    transcript_lines.append(f"> 📷 **تصویر ضمیمه (Photo):** [{m['file_name']}]({m['file_name']}) ({fsize:,} بایت)")
+                elif mtype == "video_note":
+                    dur_str = f"{dur} ثانیه, " if dur else ""
+                    transcript_lines.append(f"> 📹 **پیام ویدیویی (Video Note):** [{m['file_name']}]({m['file_name']}) ({dur_str}{fsize:,} بایت)")
+                else:
+                    transcript_lines.append(f"> 📎 **فایل ضمیمه:** [{m['file_name']}]({m['file_name']}) ({fsize:,} بایت)")
             transcript_lines.append("\n---\n")
 
         with open(transcript_md_path, "w", encoding="utf-8") as f:
@@ -698,9 +784,11 @@ class ProjectDriveManager:
 
     async def save_single_file(self, msg, client_name: str, client_id: Optional[int] = None, username: Optional[str] = None) -> str:
         """Save a single incoming file directly into 01_raw_inputs of the client's project."""
+        fname, mtype, _, _ = resolve_media_details(msg)
+        if not fname:
+            return ""
         paths = self.provision_project(client_name, client_id=client_id, username=username)
         raw_dir = paths["raw"]
-        fname = sanitize_filename(msg.file.name or "document")
         dest_path = os.path.join(raw_dir, fname)
         await msg.download_media(file=dest_path)
         print(f"[+] Saved incoming file directly to project: {dest_path}")

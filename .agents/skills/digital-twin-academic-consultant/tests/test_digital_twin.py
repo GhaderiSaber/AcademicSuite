@@ -194,6 +194,78 @@ class TestDigitalTwinSuite(unittest.TestCase):
         _, ents_fa = thtml.parse(card_fa)
         self.assertGreater(len(ents_fa), 5)
 
+    def test_07_media_resolution_and_button_url_validation(self):
+        """Test media extraction (voice, photo, document, sticker filtering) and button URL validation."""
+        import project_drive_manager
+        import telethon_userbot
+        from datetime import datetime
+
+        class MockFile:
+            def __init__(self, name=None, size=1024, ext=None, mime_type=""):
+                self.name = name
+                self.size = size
+                self.ext = ext
+                self.mime_type = mime_type
+                self.attrs = []
+
+        class MockVoiceAttr:
+            def __init__(self, duration=42):
+                self.duration = duration
+
+        class MockVoice:
+            def __init__(self, duration=42):
+                self.attributes = [MockVoiceAttr(duration)]
+
+        class MockMessage:
+            def __init__(self, msg_id=101, file=None, voice=None, photo=None, sticker=None, date=None):
+                self.id = msg_id
+                self.file = file
+                self.voice = voice
+                self.photo = photo
+                self.sticker = sticker
+                self.date = date or datetime(2026, 9, 10, 15, 30, 0)
+
+        # 1. Voice Note Resolution
+        v_msg = MockMessage(msg_id=201, file=MockFile(ext=".ogg", size=32000), voice=MockVoice(35))
+        fn, mtype, fsize, dur = project_drive_manager.resolve_media_details(v_msg)
+        self.assertEqual(mtype, "voice")
+        self.assertEqual(dur, 35)
+        self.assertEqual(fsize, 32000)
+        self.assertTrue(fn.startswith("voice_201_"))
+        self.assertTrue(fn.endswith(".ogg"))
+
+        # 2. Photo Resolution
+        p_msg = MockMessage(msg_id=202, file=MockFile(ext=".jpg", size=150000), photo=True)
+        fn, mtype, fsize, dur = project_drive_manager.resolve_media_details(p_msg)
+        self.assertEqual(mtype, "photo")
+        self.assertEqual(dur, 0)
+        self.assertEqual(fsize, 150000)
+        self.assertTrue(fn.startswith("photo_202_"))
+        self.assertTrue(fn.endswith(".jpg"))
+
+        # 3. Sticker Filtering (Must return None filename)
+        s_msg = MockMessage(msg_id=203, file=MockFile(name="AnimatedSticker.tgs", mime_type="application/x-tgsticker"), sticker=True)
+        fn, mtype, _, _ = project_drive_manager.resolve_media_details(s_msg)
+        self.assertIsNone(fn, "Stickers must not produce a downloadable project filename")
+        self.assertEqual(mtype, "sticker")
+
+        # 4. Standard Document
+        d_msg = MockMessage(msg_id=204, file=MockFile(name="Research_Proposal.docx", size=85000, ext=".docx"))
+        fn, mtype, fsize, _ = project_drive_manager.resolve_media_details(d_msg)
+        self.assertEqual(fn, "Research_Proposal.docx")
+        self.assertEqual(mtype, "document")
+        self.assertEqual(fsize, 85000)
+
+        # 5. Telegram Button URL Validation (prevent BUTTON_URL_INVALID)
+        self.assertFalse(telethon_userbot.is_valid_telegram_button_url("http://localhost:8080"))
+        self.assertFalse(telethon_userbot.is_valid_telegram_button_url("http://127.0.0.1:8080"))
+        self.assertFalse(telethon_userbot.is_valid_telegram_button_url(""))
+        self.assertFalse(telethon_userbot.is_valid_telegram_button_url(None))
+        self.assertTrue(telethon_userbot.is_valid_telegram_button_url("https://my-domain.com"))
+        self.assertTrue(telethon_userbot.is_valid_telegram_button_url("https://saber-academic.ngrok-free.app"))
+        self.assertTrue(telethon_userbot.is_valid_telegram_button_url("tg://user?id=124911145"))
+
 
 if __name__ == "__main__":
     unittest.main()
+
