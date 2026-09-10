@@ -829,6 +829,241 @@ class ProjectDriveManager:
 
         return results
 
+    def assess_project_health(self, meta: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Assess the operational and communication health of a single client project.
+        Evaluates days since last interaction, missing raw data, unanswered quotations,
+        and generates an authentic academic Persian follow-up message when appropriate.
+        """
+        status = meta.get("status", "pending")
+        client_name = meta.get("client_name_fa") or meta.get("client_name") or meta.get("folder_name", "پژوهشگر")
+        folder_path = meta.get("folder_path", "")
+        topic = meta.get("topic_fa") or meta.get("topic") or "پایان‌نامه / رساله"
+
+        # Calculate days since last interaction
+        last_int_str = meta.get("last_interaction") or meta.get("updated_at")
+        days_silent = 0
+        if last_int_str:
+            try:
+                clean_dt = re.sub(r"[+-]\d\d:\d\d$", "", last_int_str)
+                last_dt = datetime.fromisoformat(clean_dt)
+                days_silent = (datetime.now() - last_dt).days
+                if days_silent < 0:
+                    days_silent = 0
+            except Exception:
+                days_silent = 0
+        elif folder_path and os.path.exists(folder_path):
+            try:
+                mtime = datetime.fromtimestamp(os.path.getmtime(folder_path))
+                days_silent = max(0, (datetime.now() - mtime).days)
+            except Exception:
+                days_silent = 0
+
+        # Check for last follow-up cooldown (don't re-remind within 3 days)
+        last_fu_str = meta.get("last_follow_up")
+        days_since_fu = 999
+        if last_fu_str:
+            try:
+                clean_fudt = re.sub(r"[+-]\d\d:\d\d$", "", last_fu_str)
+                fu_dt = datetime.fromisoformat(clean_fudt)
+                days_since_fu = max(0, (datetime.now() - fu_dt).days)
+            except Exception:
+                pass
+
+        # Check raw files in 01_raw_inputs
+        raw_dir = os.path.join(folder_path, SUBFOLDERS["raw"]) if folder_path else None
+        has_dataset = False
+        if raw_dir and os.path.exists(raw_dir):
+            for f in os.listdir(raw_dir):
+                ext = os.path.splitext(f)[1].lower()
+                if ext in [".xlsx", ".xls", ".sav", ".csv", ".dta"]:
+                    has_dataset = True
+                    break
+
+        # Health assessment logic
+        health_code = "healthy"
+        health_badge = "🟢"
+        follow_up_needed = False
+        follow_up_type = ""
+        reason_en = "Project is active and progressing normally."
+        suggested_persian = ""
+
+        if status in ["completed", "archived"]:
+            health_code = "completed"
+            health_badge = "⚪"
+            reason_en = "Project is completed and archived."
+
+        elif status in ["quote_sent", "proposal_received"]:
+            if days_silent >= 3:
+                if days_silent >= 7:
+                    health_code = "stalled"
+                    health_badge = "🔴"
+                    reason_en = f"Proposal quote sent {days_silent} days ago with no client decision."
+                else:
+                    health_code = "attention_needed"
+                    health_badge = "🟡"
+                    reason_en = f"Proposal quote sent {days_silent} days ago awaiting client response."
+                
+                if days_since_fu >= 3:
+                    follow_up_needed = True
+                    follow_up_type = "unanswered_quote"
+                    suggested_persian = (
+                        f"سلام و احترام، وقت شما بخیر {client_name} گرامی.\n"
+                        f"پیرو ارسال پیش‌فاکتور تفکیکی و برنامه پیشنهادی پژوهش «{topic}»، خواستم جویای وضعیت بررسی طرح توسط شما و اساتید محترم باشم.\n"
+                        "در صورتی که نیاز به توضیح بیشتر، تعدیل مراحل یا هماهنگی در زمان‌بندی دارید، با کمال میل در خدمتم."
+                    )
+            else:
+                health_code = "healthy"
+                health_badge = "🟢"
+                reason_en = f"Quote sent recently ({days_silent} days ago)."
+
+        elif status in ["in_progress", "active"]:
+            if not has_dataset and days_silent >= 3:
+                if days_silent >= 7:
+                    health_code = "stalled"
+                    health_badge = "🔴"
+                else:
+                    health_code = "attention_needed"
+                    health_badge = "🟡"
+                reason_en = f"Awaiting raw questionnaire/dataset ({days_silent} days silence)."
+                if days_since_fu >= 3:
+                    follow_up_needed = True
+                    follow_up_type = "awaiting_data"
+                    suggested_persian = (
+                        f"سلام و درود، وقت شما بخیر {client_name} گرامی. امیدوارم حالتون عالی باشه.\n"
+                        "جهت شروع مراحل تحلیل آماری و تدوین گزارش یافته‌های فصل چهارم، آیا فایل اکسل داده‌ها یا پاسخنامه‌ها تکمیل شده است؟\n"
+                        "در صورت آماده بودن لطفاً فایل را ارسال بفرمایید تا مستقیماً وارد فاز اجرا بشیم."
+                    )
+            elif days_silent >= 5:
+                health_code = "attention_needed" if days_silent <= 8 else "stalled"
+                health_badge = "🟡" if days_silent <= 8 else "🔴"
+                reason_en = f"Active project in progress with {days_silent} days without communication."
+                if days_since_fu >= 4:
+                    follow_up_needed = True
+                    follow_up_type = "in_progress_checkin"
+                    suggested_persian = (
+                        f"سلام وقت شما بخیر {client_name} گرامی.\n"
+                        "مراحل تحلیل و تدوین گزارش نتایج طبق زمان‌بندی در حال انجام است. در صورتی که نکته، بازخورد یا اولویت خاصی مدنظرتون هست، خوشحال می‌شم در جریان قرارم بدید."
+                    )
+            else:
+                health_code = "healthy"
+                health_badge = "🟢"
+                reason_en = f"Active in progress ({days_silent} days since last interaction)."
+
+        elif status in ["delivered", "deliverables_sent", "review"]:
+            if days_silent >= 5:
+                health_code = "attention_needed"
+                health_badge = "🟡"
+                reason_en = f"Deliverables dispatched {days_silent} days ago; awaiting supervisor review."
+                if days_since_fu >= 4:
+                    follow_up_needed = True
+                    follow_up_type = "post_delivery_feedback"
+                    suggested_persian = (
+                        f"سلام و عرض ادب {client_name} گرامی.\n"
+                        "فایل‌های نهایی تحلیل و گزارش فصل خدمتتون ارسال شده بود؛ آیا استاد راهنما یا مشاور بازخوردی روی خروجی‌ها داشتند؟\n"
+                        "هرگونه نیاز به اصلاح، بازبینی یا آمادگی برای اسلایدهای جلسه دفاع در خدمت شما هستم."
+                    )
+            else:
+                health_code = "healthy"
+                health_badge = "🟢"
+                reason_en = f"Deliverables recently provided ({days_silent} days ago)."
+
+        else:
+            if days_silent >= 7:
+                health_code = "stalled"
+                health_badge = "🔴"
+                reason_en = f"No communication for {days_silent} days."
+                if days_since_fu >= 4:
+                    follow_up_needed = True
+                    follow_up_type = "general_checkin"
+                    suggested_persian = (
+                        f"سلام و احترام وقت شما بخیر {client_name} گرامی.\n"
+                        "خواستم جویای روند پیشرفت پژوهش و پایان‌نامه شما باشم. در صورت نیاز به ادامه مراحل یا مشاوره تکمیلی، در خدمتم."
+                    )
+            elif days_silent >= 3:
+                health_code = "attention_needed"
+                health_badge = "🟡"
+                reason_en = f"{days_silent} days since last message."
+            else:
+                health_code = "healthy"
+                health_badge = "🟢"
+                reason_en = "Recent interaction."
+
+        return {
+            "client_name": client_name,
+            "telegram_id": meta.get("telegram_id"),
+            "telegram_username": meta.get("telegram_username"),
+            "folder_name": meta.get("folder_name", ""),
+            "folder_path": folder_path,
+            "status": status,
+            "days_silent": days_silent,
+            "health_code": health_code,
+            "health_badge": health_badge,
+            "reason": reason_en,
+            "follow_up_needed": follow_up_needed,
+            "follow_up_type": follow_up_type,
+            "suggested_persian_followup": suggested_persian,
+            "has_dataset": has_dataset
+        }
+
+    def audit_all_projects_health(self) -> Dict[str, Any]:
+        """Audit health of all managed projects in Google Drive."""
+        projects = self.list_all_projects()
+        audits = []
+        follow_ups = []
+
+        healthy_cnt = 0
+        attention_cnt = 0
+        stalled_cnt = 0
+        completed_cnt = 0
+
+        for p in projects:
+            health = self.assess_project_health(p)
+            audits.append(health)
+
+            code = health["health_code"]
+            if code == "healthy":
+                healthy_cnt += 1
+            elif code == "attention_needed":
+                attention_cnt += 1
+            elif code == "stalled":
+                stalled_cnt += 1
+            elif code == "completed":
+                completed_cnt += 1
+
+            if health["follow_up_needed"]:
+                follow_ups.append(health)
+
+        return {
+            "total_projects": len(projects),
+            "healthy_count": healthy_cnt,
+            "attention_count": attention_cnt,
+            "stalled_count": stalled_cnt,
+            "completed_count": completed_cnt,
+            "audits": audits,
+            "follow_ups": follow_ups
+        }
+
+    def record_followup_dispatched(self, project_dir: str, followup_type: str, text: str) -> None:
+        """Update project_meta.json to record that a follow-up reminder was sent."""
+        meta_file = os.path.join(project_dir, "project_meta.json")
+        if not os.path.exists(meta_file):
+            return
+        try:
+            with open(meta_file, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+            now_iso = datetime.now().isoformat()
+            meta["last_follow_up"] = now_iso
+            meta.setdefault("follow_up_history", []).append({
+                "date": now_iso,
+                "type": followup_type,
+                "text_snippet": text[:100]
+            })
+            with open(meta_file, "w", encoding="utf-8") as f:
+                json.dump(meta, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"[-] Error recording follow-up in project_meta.json: {e}")
+
     def _extract_advisor(self, text: str) -> Optional[str]:
         """Extract advisor name from chat text."""
         patterns = [

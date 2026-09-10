@@ -153,6 +153,8 @@ class SaberTelethonUserbot:
         self.quote_counter = 100
         self.pending_drafts: Dict[str, Dict[str, Any]] = {}
         self.draft_counter = 100
+        self.pending_followups: Dict[str, Dict[str, Any]] = {}
+        self.followup_counter = 100
         self.me = None
         self.proxy = get_proxy_settings(self.config)
 
@@ -495,6 +497,113 @@ class SaberTelethonUserbot:
         await self.send_to_desk(alert_text, buttons=buttons, parse_mode="html")
         print(f"[+] Posted Co-Pilot draft {draft_id} ({inquiry_type}) for {sender_name} to Academic Desk.")
         return draft_id
+
+    async def scan_and_report_project_health(self, trigger_event: Optional[Any] = None) -> Dict[str, Any]:
+        """
+        Scan all managed client projects in Google Drive, assess project health,
+        identify clients requiring follow-ups, and post actionable cards to Academic Desk.
+        """
+        print("[*] Auditing client projects health across Google Drive...")
+        audit_res = self.project_manager.audit_all_projects_health()
+        total = audit_res["total_projects"]
+        healthy = audit_res["healthy_count"]
+        attention = audit_res["attention_count"]
+        stalled = audit_res["stalled_count"]
+        completed = audit_res["completed_count"]
+        follow_ups = audit_res["follow_ups"]
+
+        # 1. Post Overview Summary Card to Academic Desk
+        summary_lines = [
+            "📊 <b>Client Projects Health & Follow-Up Audit</b>\n",
+            f"• <b>Total Managed Projects:</b> {total}",
+            f"• 🟢 <b>Healthy / Active:</b> {healthy}",
+            f"• 🟡 <b>Attention Needed:</b> {attention}",
+            f"• 🔴 <b>Stalled / Dormant:</b> {stalled}",
+            f"• ⚪ <b>Completed:</b> {completed}\n",
+            f"🔔 <b>Actionable Follow-Up Reminders:</b> {len(follow_ups)} clients requiring attention"
+        ]
+
+        if stalled > 0 or attention > 0:
+            summary_lines.append("\n⚠️ <b>Top Projects Requiring Attention:</b>")
+            for item in (follow_ups[:4]):
+                cname = item["client_name"]
+                days = item["days_silent"]
+                badge = item["health_badge"]
+                summary_lines.append(f"• {badge} <b>{html.escape(cname)}</b>: {days} days silent (<i>{html.escape(item['reason'])}</i>)")
+
+        summary_lines.append(
+            "\n─────────────────────\n"
+            "⚙️ <b>Commands:</b>\n"
+            "• Refresh Health: <code>/health</code>\n"
+            "• Project Catalog: <code>/projects</code>"
+        )
+        summary_text = "\n".join(summary_lines)
+
+        buttons = None
+        if Button is not None:
+            buttons = [
+                [Button.inline("🔄 Refresh Health", b"cmd_health"),
+                 Button.inline("📂 Project Catalog", b"cmd_projects")],
+                [Button.inline("❌ Dismiss Notice", b"cmd_close")]
+            ]
+
+        await self.send_to_desk(summary_text, buttons=buttons, parse_mode="html")
+
+        # 2. Post individual 1-Click actionable Follow-Up cards for the top candidates
+        for item in follow_ups[:5]:
+            self.followup_counter += 1
+            fu_id = f"F{self.followup_counter}"
+
+            cname = item["client_name"]
+            uname = item.get("telegram_username")
+            cid = item.get("telegram_id")
+            pdir = item.get("folder_path", "")
+            badge = item.get("health_badge", "🟡")
+            days = item.get("days_silent", 0)
+            reason = item.get("reason", "")
+            fu_type = item.get("follow_up_type", "followup")
+            draft_text = item.get("suggested_persian_followup", "")
+
+            self.pending_followups[fu_id] = {
+                "fu_id": fu_id,
+                "client_name": cname,
+                "telegram_id": cid,
+                "username": uname,
+                "folder_path": pdir,
+                "followup_type": fu_type,
+                "draft_reply": draft_text,
+                "created_at": datetime.now().isoformat()
+            }
+
+            client_link = format_client_mention_html(cname, username=uname, client_id=cid)
+            clean_p = clean_drive_display_path(pdir)
+            safe_draft = html.escape(draft_text)
+
+            card_text = (
+                f"{badge} <b>[Follow-Up Reminder ({fu_id})] {client_link}</b>\n"
+                f"📁 <b>Project:</b> <code>{html.escape(clean_p)}</code>\n"
+                f"⏰ <b>Silence Duration:</b> <code>{days} days</code>\n"
+                f"💡 <b>Diagnosis:</b> <i>{html.escape(reason)}</i>\n"
+                "─────────────────────\n"
+                f"📝 <b>Suggested Persian Follow-Up:</b>\n"
+                f"<blockquote>{safe_draft}</blockquote>\n\n"
+                "⚙️ <b>Actions & Commands:</b>\n"
+                f"• Approve & Send to Client: <code>/send_fu_{fu_id}</code>\n"
+                f"• Send Custom Edits: <code>/send_fu_{fu_id} &lt;custom text&gt;</code>\n"
+                f"• Dismiss Reminder: <code>/ignore_fu_{fu_id}</code>"
+            )
+
+            card_btns = None
+            if Button is not None:
+                card_btns = [
+                    [Button.inline(f"🚀 Send Follow-Up ({fu_id})", f"send_fu_{fu_id}".encode()),
+                     Button.inline("🗑️ Dismiss", f"ignore_fu_{fu_id}".encode())]
+                ]
+
+            await self.send_to_desk(card_text, buttons=card_btns, parse_mode="html")
+            print(f"[+] Posted Follow-Up reminder {fu_id} for {cname} to Academic Desk.")
+
+        return audit_res
 
     async def scan_and_process_unread_messages(self, limit_dialogs: int = 100, trigger_event: Optional[Any] = None):
         """
@@ -883,6 +992,48 @@ class SaberTelethonUserbot:
                     await event.reply(f"❌ Draft ID {did} not found.", parse_mode="html")
                 return
 
+            # Health check & Follow-Up Reminders command: /health, /reminders, /followup
+            if txt in ["/health", "/reminders", "/followup", "/project_health"]:
+                await event.reply("🔍 Auditing project health and scanning for follow-up reminders...", parse_mode="html")
+                await self.scan_and_report_project_health(trigger_event=event)
+                return
+
+            # Send follow-up command: /send_fu_F101 or /send_fu_F101 <custom text>
+            m_fu = re.match(r"^/send_fu_(F\d+)(?:\s+(.+))?", txt, flags=re.DOTALL)
+            if m_fu:
+                fuid = m_fu.group(1)
+                custom_text = (m_fu.group(2) or "").strip()
+                if fuid in self.pending_followups:
+                    entry = self.pending_followups[fuid]
+                    msg_to_send = custom_text if custom_text else entry["draft_reply"]
+                    target_dest = entry.get("telegram_id") or entry.get("username") or entry.get("client_name")
+                    try:
+                        await self.client.send_message(target_dest, msg_to_send)
+                        if entry.get("folder_path"):
+                            self.project_manager.record_followup_dispatched(entry["folder_path"], entry["followup_type"], msg_to_send)
+                        await event.reply(
+                            f"✅ Follow-up {fuid} was successfully dispatched to <b>{entry['client_name']}</b> via Saber's personal account.",
+                            parse_mode="html"
+                        )
+                        del self.pending_followups[fuid]
+                    except Exception as send_err:
+                        await event.reply(f"❌ Failed to send follow-up {fuid}: {send_err}", parse_mode="html")
+                else:
+                    await event.reply(f"❌ Follow-up ID {fuid} not found or already sent.", parse_mode="html")
+                return
+
+            # Ignore follow-up command: /ignore_fu_F101
+            m_ign_fu = re.match(r"^/ignore_fu_(F\d+)", txt)
+            if m_ign_fu:
+                fuid = m_ign_fu.group(1)
+                if fuid in self.pending_followups:
+                    cname = self.pending_followups[fuid]["client_name"]
+                    del self.pending_followups[fuid]
+                    await event.reply(f"🗑️ Follow-up reminder {fuid} for {cname} was dismissed.", parse_mode="html")
+                else:
+                    await event.reply(f"❌ Follow-up ID {fuid} not found.", parse_mode="html")
+                return
+
         if self.bot_client:
             @self.bot_client.on(events.CallbackQuery)
             async def bot_callback_handler(event):
@@ -920,6 +1071,47 @@ class SaberTelethonUserbot:
                             pass
                     else:
                         await event.answer(f"❌ Draft ID {did} not found.", alert=True)
+                elif data.startswith("send_fu_"):
+                    fuid = data.split("send_fu_")[1]
+                    if fuid in self.pending_followups:
+                        entry = self.pending_followups[fuid]
+                        target_dest = entry.get("telegram_id") or entry.get("username") or entry.get("client_name")
+                        try:
+                            await self.client.send_message(target_dest, entry["draft_reply"])
+                            if entry.get("folder_path"):
+                                self.project_manager.record_followup_dispatched(entry["folder_path"], entry["followup_type"], entry["draft_reply"])
+                            await event.answer(f"✅ Follow-up {fuid} dispatched to {entry['client_name']}!", alert=True)
+                            try:
+                                await event.edit(
+                                    f"{event.message.text}\n\n✅ <b>Follow-up was approved and dispatched to client via Saber's personal account.</b>",
+                                    buttons=None,
+                                    parse_mode="html"
+                                )
+                            except Exception:
+                                pass
+                            del self.pending_followups[fuid]
+                        except Exception as e:
+                            await event.answer(f"❌ Send failed: {e}", alert=True)
+                    else:
+                        await event.answer(f"❌ Follow-up ID {fuid} expired or not found.", alert=True)
+                elif data.startswith("ignore_fu_"):
+                    fuid = data.split("ignore_fu_")[1]
+                    if fuid in self.pending_followups:
+                        del self.pending_followups[fuid]
+                        await event.answer("🗑️ Follow-up reminder dismissed.", alert=True)
+                        try:
+                            await event.edit(
+                                f"{event.message.text}\n\n🗑️ <b>This follow-up reminder was dismissed.</b>",
+                                buttons=None,
+                                parse_mode="html"
+                            )
+                        except Exception:
+                            pass
+                    else:
+                        await event.answer(f"❌ Follow-up ID {fuid} not found.", alert=True)
+                elif data == "cmd_health":
+                    await event.answer("🔍 Auditing project health...")
+                    await self.scan_and_report_project_health(trigger_event=event)
                 elif data.startswith("send_"):
                     qid = data.split("send_")[1]
                     if qid in self.pending_quotes:

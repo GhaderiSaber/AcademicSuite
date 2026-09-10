@@ -637,8 +637,139 @@ class TestDigitalTwinSuite(unittest.TestCase):
         asyncio.run(run_ignore())
         self.assertEqual(len(client_messages), 0, "Dismissed draft never sends anything to client")
 
+    def test_11_project_health_and_followup_reminders(self):
+        """Test Improvement 4: Client Project Health & Follow-Up Reminders."""
+        import asyncio
+        import tempfile
+        from datetime import datetime, timedelta
+        from project_drive_manager import ProjectDriveManager
+        from telethon_userbot import SaberTelethonUserbot
+
+        with tempfile.TemporaryDirectory() as tmp_drive:
+            cfg = {"google_drive_work_dir": tmp_drive}
+            pdm = ProjectDriveManager(cfg)
+
+            # Setup Mock Projects in Drive
+            # 1. Healthy active project (1 day silent)
+            p1_paths = pdm.provision_project(client_name="سارا کریمی", status="in_progress")
+            # Put dummy data file in raw
+            with open(os.path.join(p1_paths["raw"], "data.xlsx"), "w") as f:
+                f.write("mock_data")
+            # Set recent interaction
+            with open(p1_paths["meta_file"], "r", encoding="utf-8") as f:
+                m1 = json.load(f)
+            m1["last_interaction"] = (datetime.now() - timedelta(days=1)).isoformat()
+            with open(p1_paths["meta_file"], "w", encoding="utf-8") as f:
+                json.dump(m1, f)
+
+            # 2. Unanswered quote (4 days silent)
+            p2_paths = pdm.provision_project(client_name="علی محمدی", status="quote_sent", topic="اثربخشی درمان هیجان‌مدار")
+            with open(p2_paths["meta_file"], "r", encoding="utf-8") as f:
+                m2 = json.load(f)
+            m2["last_interaction"] = (datetime.now() - timedelta(days=4)).isoformat()
+            with open(p2_paths["meta_file"], "w", encoding="utf-8") as f:
+                json.dump(m2, f)
+
+            # 3. In-progress missing data (5 days silent)
+            p3_paths = pdm.provision_project(client_name="مهسا افشار", status="in_progress")
+            with open(p3_paths["meta_file"], "r", encoding="utf-8") as f:
+                m3 = json.load(f)
+            m3["last_interaction"] = (datetime.now() - timedelta(days=5)).isoformat()
+            with open(p3_paths["meta_file"], "w", encoding="utf-8") as f:
+                json.dump(m3, f)
+
+            # 4. Completed project
+            p4_paths = pdm.provision_project(client_name="رضا نادری", status="completed")
+            with open(p4_paths["meta_file"], "r", encoding="utf-8") as f:
+                m4 = json.load(f)
+
+            # A. Test assess_project_health
+            h1 = pdm.assess_project_health(m1)
+            self.assertEqual(h1["health_code"], "healthy")
+            self.assertFalse(h1["follow_up_needed"])
+
+            h2 = pdm.assess_project_health(m2)
+            self.assertEqual(h2["health_code"], "attention_needed")
+            self.assertTrue(h2["follow_up_needed"])
+            self.assertEqual(h2["follow_up_type"], "unanswered_quote")
+            self.assertIn("پیش‌فاکتور", h2["suggested_persian_followup"])
+
+            h3 = pdm.assess_project_health(m3)
+            self.assertTrue(h3["follow_up_needed"])
+            self.assertEqual(h3["follow_up_type"], "awaiting_data")
+            self.assertIn("فایل اکسل داده‌ها", h3["suggested_persian_followup"])
+
+            h4 = pdm.assess_project_health(m4)
+            self.assertEqual(h4["health_code"], "completed")
+            self.assertFalse(h4["follow_up_needed"])
+
+            # B. Test audit_all_projects_health
+            audit = pdm.audit_all_projects_health()
+            self.assertEqual(audit["total_projects"], 4)
+            self.assertEqual(audit["completed_count"], 1)
+            self.assertGreaterEqual(len(audit["follow_ups"]), 2)
+
+            # C. Test Userbot Co-Pilot Follow-Up Reminders Integration
+            desk_msgs = []
+            client_msgs = []
+
+            class MockClient:
+                async def send_message(self, chat_id, text, buttons=None, reply_to=None, parse_mode=None):
+                    entry = {"chat_id": chat_id, "text": text}
+                    if chat_id in [-1004331808205, 124911145]:
+                        desk_msgs.append(entry)
+                    else:
+                        client_msgs.append(entry)
+                    return entry
+
+            mock_user = MockClient()
+            mock_bot = MockClient()
+
+            ub_cfg = {
+                "api_id": 123,
+                "api_hash": "hash",
+                "admin_id": 124911145,
+                "admin_desk_chat_id": -1004331808205,
+                "google_drive_work_dir": tmp_drive
+            }
+            userbot = SaberTelethonUserbot(ub_cfg)
+            userbot.project_manager = pdm
+            userbot.client = mock_user
+            userbot.bot_client = mock_bot
+
+            async def mock_send_desk(text, buttons=None, reply_to=None, parse_mode="html"):
+                return await mock_bot.send_message(-1004331808205, text)
+            userbot.send_to_desk = mock_send_desk
+
+            async def run_health_scan():
+                return await userbot.scan_and_report_project_health()
+
+            asyncio.run(run_health_scan())
+            self.assertGreaterEqual(len(desk_msgs), 2, "Desk received summary card and follow-up cards")
+            self.assertGreaterEqual(len(userbot.pending_followups), 2)
+            fu_ids = list(userbot.pending_followups.keys())
+            fu_1 = fu_ids[0]
+
+            # D. Test Admin Dispatches Follow-Up to Client
+            fu_entry = userbot.pending_followups[fu_1]
+            async def run_fu_dispatch():
+                await userbot.client.send_message(555999, fu_entry["draft_reply"])
+                pdm.record_followup_dispatched(fu_entry["folder_path"], fu_entry["followup_type"], fu_entry["draft_reply"])
+                del userbot.pending_followups[fu_1]
+
+            asyncio.run(run_fu_dispatch())
+            self.assertEqual(len(client_msgs), 1, "Client received approved follow-up from user account")
+            self.assertNotIn(fu_1, userbot.pending_followups)
+
+            # Verify cooldown recorded in project_meta.json
+            with open(os.path.join(fu_entry["folder_path"], "project_meta.json"), "r", encoding="utf-8") as f:
+                up_meta = json.load(f)
+            self.assertIn("last_follow_up", up_meta)
+            self.assertGreater(len(up_meta.get("follow_up_history", [])), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 
 
