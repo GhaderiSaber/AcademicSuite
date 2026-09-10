@@ -97,6 +97,7 @@ Prepare a structured JSON file containing the condensed, high-density scientific
 - `method`: Design, G*Power sample size, measures with sample items and $\alpha$, procedure, analysis plan.
 - `results`: Narrative + 3–4 APA 7 tables.
 - `discussion`: Theoretical mechanisms, empirical comparisons, implications, limitations, conclusion.
+- `claims_matrix` (Optional but Recommended): Structured list of empirical claims adhering to `.agents/shared/schemas/claim_evidence.schema.json`. Each entry contains `claim_id`, `claim_statement`, `evidence_source`, `statistical_support`, `confidence_tier` (`CONFIRMED`, `PROVISIONAL`, `EXPLORATORY`), and `potential_counter_argument`.
 - `references`: APA 7th edition bibliography.
 
 ### Step 4: Compile Journal-Ready Word Document
@@ -114,10 +115,20 @@ python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.
   --out "مقاله_علمی_پژوهشی_نهایی.docx" \
   --lang fa
 ```
+*Note: If `claims_matrix` is present in the payload, the compiler automatically exports a companion `<output>_claim_evidence_matrix.xlsx` audit sheet for peer-review defense.*
 
 ---
 
-## 5. Peer-Review Submission Quality Checklist
+## 5. Claim-Evidence Traceability Matrix (ماتریس ردیابی ادعا-شواهد)
+
+Inspired by Prof. Sida Peng's research auditing methodology, publication manuscripts benefit from explicit claim-evidence traceability:
+1. **Zero Unsupported Assertions**: Every substantive empirical claim in the Introduction and Discussion must link directly to a specific table, figure, or statistical parameter ($F, t, p, \eta_p^2, \beta$).
+2. **Standardized Schema**: Validated against `.agents/shared/schemas/claim_evidence.schema.json`.
+3. **Auditing Vulnerabilities**: Explicitly documents anticipated reviewer counter-arguments and methodological boundary conditions before submission.
+
+---
+
+## 6. Peer-Review Submission Quality Checklist
 
 Before submitting the manuscript to an academic journal, verify:
 - [ ] Title contains independent, mediator, and dependent variables without fluff.
@@ -126,6 +137,7 @@ Before submitting the manuscript to an academic journal, verify:
 - [ ] For every psychometric instrument, Cronbach's $\alpha$ from the current study and sample items are reported.
 - [ ] All tables strictly adhere to APA 7: zero vertical borders, 3 horizontal borders, table captions above, notes below.
 - [ ] Discussion explicitly explains the *psychological and theoretical mechanisms* (e.g., Beck, Bandura, Gross) rather than simply repeating statistical figures.
+- [ ] Major empirical claims are mapped to evidence sources via `claim_evidence_matrix.xlsx`.
 - [ ] Every in-text citation matches an entry in the References list (and vice versa).
 - [ ] **Word OMML Math Preservation**: If editing an existing manuscript, never use naive `p.text = "..."` replacement. Verify native Word math formulas (`<m:oMath>`) are preserved intact and extract visible text using `"".join([e.text or "" for e in p._p.iter() if e.tag.endswith("}t")])`.
 

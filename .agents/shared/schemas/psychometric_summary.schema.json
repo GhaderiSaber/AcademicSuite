@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicSuite Psychometric Summary Schema",
+  "description": "JSON contract for psychometric validation, scale resolution, and factor analytical outputs.",
+  "type": "object",
+  "required": ["scale_name", "item_count", "sample_size", "reliability"],
+  "properties": {
+    "scale_name": { "type": "string" },
+    "acronym": { "type": "string" },
+    "item_count": { "type": "integer", "minimum": 1 },
+    "sample_size": { "type": "integer", "minimum": 1 },
+    "likert_points": { "type": "integer" },
+    "subscales": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["subscale_name", "items"],
+        "properties": {
+          "subscale_name": { "type": "string" },
+          "items": { "type": "array", "items": { "type": "integer" } },
+          "cronbach_alpha": { "type": "number" },
+          "mcdonald_omega": { "type": "number" }
+        }
+      }
+    },
+    "reliability": {
+      "type": "object",
+      "properties": {
+        "overall_cronbach_alpha": { "type": "number" },
+        "overall_mcdonald_omega": { "type": "number" }
+      }
+    },
+    "cfa_fit_indices": {
+      "type": "object",
+      "properties": {
+        "chi2_df": { "type": "number" },
+        "cfi": { "type": "number" },
+        "tli": { "type": "number" },
+        "rmsea": { "type": "number" },
+        "srmr": { "type": "number" }
+      }
+    }
+  }
+}

@@ -211,6 +211,222 @@ ENGLISH_AI_MARKERS = [
     }
 ]
 
+# ==============================================================================
+# 1.1 STANFORD SCIWRITE (DR. KRISTIN SAINANI) 5-PASS EDITORIAL CATALOGS
+# ==============================================================================
+
+SAINANI_CLUTTER_EN = [
+    {"pattern": r"(?i)\bdue to the fact that\b", "replacement": "because", "severity": "MAJOR", "rationale": "Dead-weight causal phrase"},
+    {"pattern": r"(?i)\ba majority of\b", "replacement": "most", "severity": "MINOR", "rationale": "Wordy quantifier"},
+    {"pattern": r"(?i)\bare of the same opinion\b", "replacement": "agree", "severity": "MINOR", "rationale": "Smothered agreement"},
+    {"pattern": r"(?i)\bgive rise to\b", "replacement": "cause", "severity": "MINOR", "rationale": "Cluttered causal verb"},
+    {"pattern": r"(?i)\bhave an effect on\b", "replacement": "affect", "severity": "MINOR", "rationale": "Nominalized impact"},
+    {"pattern": r"(?i)\bin the event that\b", "replacement": "if", "severity": "MINOR", "rationale": "Wordy conditional"},
+    {"pattern": r"(?i)\bat the present time\b", "replacement": "currently", "severity": "MINOR", "rationale": "Temporal clutter"},
+    {"pattern": r"(?i)\bin order to\b", "replacement": "to", "severity": "MINOR", "rationale": "Unnecessary infinitive padding"},
+    {"pattern": r"(?i)\ba number of\b", "replacement": "several", "severity": "MINOR", "rationale": "Vague wordy quantifier"},
+    {"pattern": r"(?i)\bon the basis of\b", "replacement": "based on", "severity": "MINOR", "rationale": "Overused prepositional idiom"},
+    {"pattern": r"(?i)\bin light of the fact that\b", "replacement": "since", "severity": "MAJOR", "rationale": "Heavyweight padding"},
+    {"pattern": r"(?i)\bit is worth noting that\b\s*", "replacement": "", "severity": "MAJOR", "rationale": "Introductory throat-clearing (delete)"},
+    {"pattern": r"(?i)\bit is important to note that\b\s*", "replacement": "", "severity": "MAJOR", "rationale": "Introductory throat-clearing (delete)"},
+    {"pattern": r"(?i)\bit is interesting to note that\b\s*", "replacement": "", "severity": "MAJOR", "rationale": "Empty introductory commentary (delete)"},
+    {"pattern": r"(?i)\bas it is well known[,\s]+", "replacement": "", "severity": "MAJOR", "rationale": "Uncited presumption; replace with primary citation"},
+    {"pattern": r"(?i)\bcompletely eliminate\b", "replacement": "eliminate", "severity": "MINOR", "rationale": "Redundant intensifier"},
+    {"pattern": r"(?i)\bfuture plans\b", "replacement": "plans", "severity": "MINOR", "rationale": "Tautological modifier"},
+    {"pattern": r"(?i)\bunexpected surprise\b", "replacement": "surprise", "severity": "MINOR", "rationale": "Tautological modifier"}
+]
+
+SAINANI_CLUTTER_FA = [
+    {"pattern": r"شایان\s+ذکر\s+است\s+که\s*", "replacement": "", "severity": "MAJOR", "rationale": "حشو آغازین بی‌اثر و کلیشه ترجمه هوش مصنوعی"},
+    {"pattern": r"لازم\s+به\s+ذکر\s+است\s+که\s*", "replacement": "", "severity": "MAJOR", "rationale": "حشو تعلیمی نامتناسب با نگارش پژوهشی"},
+    {"pattern": r"لازم\s+به\s+یادآوری\s+است\s+که\s*", "replacement": "", "severity": "MAJOR", "rationale": "حشو فاقد بار علمی"},
+    {"pattern": r"بدیهی\s+است\s+که\s*", "replacement": "", "severity": "MAJOR", "rationale": "تعمیم پیش‌فرض‌انگارانه بدون استناد تجربی"},
+    {"pattern": r"همان‌?طور\s+که\s+می‌?دانیم[،,\s]+", "replacement": "", "severity": "CRITICAL", "rationale": "عبارت عامیانه؛ باید به استناد مشخص متصل شود"},
+    {"pattern": r"به\s+منظور\s+اینکه", "replacement": "تا / برای اینکه", "severity": "MINOR", "rationale": "اطناب در بیان قصد و غایت"},
+    {"pattern": r"در\s+راستای\s+اینکه", "replacement": "برای آنکه", "severity": "MINOR", "rationale": "پیونددهنده مصنوعی و مکانیکی بندها"},
+    {"pattern": r"به\s+دلیل\s+اینکه", "replacement": "زیرا", "severity": "MINOR", "rationale": "اطناب در بیان علت"},
+    {"pattern": r"اکثریت\s+قریب\s+به\s+اتفاق", "replacement": "اغلب / اکثر", "severity": "MINOR", "rationale": "اطناب بلاغی نامناسب در مقاله تجربی"},
+    {"pattern": r"موجب\s+به\s+وجود\s+آمدن", "replacement": "موجب ایجاد / پدیدآورنده", "severity": "MINOR", "rationale": "اطناب در ترکیب فعل سببی"}
+]
+
+NOMINALIZATIONS_EN = [
+    {"pattern": r"(?i)\bprovides a review of\b", "replacement": "reviews", "severity": "MAJOR", "rationale": "Nominalization: resurrect 'reviews'"},
+    {"pattern": r"(?i)\boffers a confirmation of\b", "replacement": "confirms", "severity": "MAJOR", "rationale": "Nominalization: resurrect 'confirms'"},
+    {"pattern": r"(?i)\bshows a peak\b", "replacement": "peaks", "severity": "MINOR", "rationale": "Nominalization: resurrect 'peaks'"},
+    {"pattern": r"(?i)\bobtains an estimate of\b", "replacement": "estimates", "severity": "MAJOR", "rationale": "Nominalization: resurrect 'estimates'"},
+    {"pattern": r"(?i)\bconducts an assessment of\b", "replacement": "assesses", "severity": "MAJOR", "rationale": "Nominalization: resurrect 'assesses'"},
+    {"pattern": r"(?i)\bprovides a description of\b", "replacement": "describes", "severity": "MAJOR", "rationale": "Nominalization: resurrect 'describes'"},
+    {"pattern": r"(?i)\bmakes an adjustment to\b", "replacement": "adjusts", "severity": "MINOR", "rationale": "Nominalization: resurrect 'adjusts'"},
+    {"pattern": r"(?i)\bperforms an analysis of\b", "replacement": "analyzes", "severity": "MAJOR", "rationale": "Nominalization: resurrect 'analyzes'"},
+    {"pattern": r"(?i)\bachieves a reduction in\b", "replacement": "reduces", "severity": "MAJOR", "rationale": "Nominalization: resurrect 'reduces'"},
+    {"pattern": r"(?i)\bgives an explanation of\b", "replacement": "explains", "severity": "MAJOR", "rationale": "Nominalization: resurrect 'explains'"},
+    {"pattern": r"(?i)\bmakes a determination of\b", "replacement": "determines", "severity": "MAJOR", "rationale": "Nominalization: resurrect 'determines'"}
+]
+
+NOMINALIZATIONS_FA = [
+    {"pattern": r"مورد\s+بررسی\s+قرار\s+داد", "replacement": "بررسی کرد", "severity": "MAJOR", "rationale": "احیای فعل: تبدیل ساختار اسمی مجهول به فعل صریح"},
+    {"pattern": r"مورد\s+ارزیابی\s+قرار\s+داد", "replacement": "ارزیابی کرد / سنجید", "severity": "MAJOR", "rationale": "احیای فعل: جایگزینی ساختار سنگین با فعل اکتیو"},
+    {"pattern": r"مورد\s+تحلیل\s+قرار\s+گرفت", "replacement": "تحلیل شد", "severity": "MINOR", "rationale": "احیای فعل: حذف حشو ترکیب مجهول"},
+    {"pattern": r"به\s+مرحله\s+اجرا\s+درآورد", "replacement": "اجرا کرد", "severity": "MAJOR", "rationale": "احیای فعل: پیراستن از اطناب اسمی"},
+    {"pattern": r"اندازه‌?گیری\s+به\s+عمل\s+آمد", "replacement": "سنجیده شد / اندازه‌گیری شد", "severity": "MAJOR", "rationale": "احیای فعل: حذف گرته‌برداری ساختاری"},
+    {"pattern": r"ارائه\s+نمودن\s+گزارشی\s+از", "replacement": "گزارش کردن", "severity": "MINOR", "rationale": "احیای فعل صریح"},
+    {"pattern": r"فراهم\s+ساختن\s+تبیینی\s+برای", "replacement": "تبیین کردن", "severity": "MAJOR", "rationale": "احیای فعل مفهومی"},
+    {"pattern": r"به\s+انجام\s+رسید", "replacement": "انجام شد", "severity": "MINOR", "rationale": "ساده‌سازی ساختار فعلی"}
+]
+
+
+class SainaniEditorialAuditor:
+    """
+    Stanford SciWrite 5-Pass Editorial Auditor (Dr. Kristin Sainani methodology)
+    Pass 1: Clutter Extraction
+    Pass 2: Active Voice & Smothered Verb Resurrection
+    Pass 3: Sentence Architecture & Buried Predicates
+    Pass 4: Keyword Consistency & The Banana Rule
+    Pass 5: Numerical & Citation Telephone Game
+    """
+    def __init__(self, lang: str = "fa"):
+        self.lang = lang
+
+    def run_five_passes(self, text: str, sentences: List[str]) -> Dict[str, Any]:
+        findings = {
+            "pass1_clutter": [],
+            "pass2_voice_verbs": [],
+            "pass3_sentence_arch": [],
+            "pass4_keyword_consistency": [],
+            "pass5_numerical_citation": [],
+            "top_5_priorities": []
+        }
+
+        # ----------------------------------------------------------------------
+        # Pass 1: Clutter Extraction
+        # ----------------------------------------------------------------------
+        clutter_catalog = SAINANI_CLUTTER_FA if self.lang == "fa" else SAINANI_CLUTTER_EN
+        for item in clutter_catalog:
+            for s_idx, s in enumerate(sentences, 1):
+                m = re.search(item["pattern"], s)
+                if m:
+                    findings["pass1_clutter"].append({
+                        "sentence_num": s_idx,
+                        "original_phrase": m.group(0),
+                        "suggested_fix": item["replacement"] or "(حذف کامل حشو)",
+                        "severity": item["severity"],
+                        "rationale": item["rationale"]
+                    })
+
+        # ----------------------------------------------------------------------
+        # Pass 2: Active Voice & Nominalization Resurrection
+        # ----------------------------------------------------------------------
+        nom_catalog = NOMINALIZATIONS_FA if self.lang == "fa" else NOMINALIZATIONS_EN
+        for item in nom_catalog:
+            for s_idx, s in enumerate(sentences, 1):
+                m = re.search(item["pattern"], s)
+                if m:
+                    findings["pass2_voice_verbs"].append({
+                        "sentence_num": s_idx,
+                        "smothered_verb": m.group(0),
+                        "resurrected_verb": item["replacement"],
+                        "severity": item["severity"],
+                        "rationale": item["rationale"]
+                    })
+
+        # ----------------------------------------------------------------------
+        # Pass 3: Sentence Architecture & Buried Predicates
+        # ----------------------------------------------------------------------
+        for s_idx, s in enumerate(sentences, 1):
+            words = s.split()
+            w_count = len(words)
+            threshold = 20 if self.lang == "fa" else 14
+            if w_count > threshold + 10:
+                findings["pass3_sentence_arch"].append({
+                    "sentence_num": s_idx,
+                    "issue_type": "Buried Predicate / Over-Extended Sentence",
+                    "word_count": w_count,
+                    "severity": "MAJOR" if w_count > 35 else "MINOR",
+                    "snippet": " ".join(words[:12]) + " ...",
+                    "rationale": (
+                        f"فاصله زیاد میان نهاد و فعل پایانی ({w_count} کلمه)؛ موجب اختلال در بار پردازشی خواننده می‌شود."
+                        if self.lang == "fa" else
+                        f"Buried predicate: {w_count} words intervene across subordinate clauses. Consider splitting."
+                    )
+                })
+
+        # ----------------------------------------------------------------------
+        # Pass 4: Keyword Consistency & Banana Rule
+        # ----------------------------------------------------------------------
+        # Check if author varies core psychometric constructs
+        banana_constructs = [
+            ("social_anxiety", [r"اضطراب\s+اجتماعی", r"هراس\s+اجتماعی", r"فوبی\s+اجتماعی"]),
+            ("rumination", [r"نشخوار\s+فکری", r"تفکر\s+تکرارشونده", r"افکار\s+نشخواری"]),
+            ("self_regulation", [r"خودتنظیم‌?گری", r"تنظیم\s+رفتاری", r"مهار\s+خود"]),
+            ("mindfulness", [r"ذهن‌آگاهی", r"توجه‌آگاهی", r"هوشیاری\s+فراگیر"])
+        ] if self.lang == "fa" else [
+            ("social_anxiety", [r"(?i)social anxiety", r"(?i)social phobia"]),
+            ("rumination", [r"(?i)rumination", r"(?i)repetitive negative thinking"]),
+            ("mindfulness", [r"(?i)mindfulness", r"(?i)attentional awareness"])
+        ]
+
+        for const_id, variants in banana_constructs:
+            found_variants = []
+            for v_pat in variants:
+                if re.search(v_pat, text):
+                    found_variants.append(v_pat)
+            if len(found_variants) > 1:
+                findings["pass4_keyword_consistency"].append({
+                    "construct": const_id,
+                    "detected_variants": [re.sub(r"[?\()s+i]", "", p) for p in found_variants],
+                    "severity": "CRITICAL",
+                    "rationale": (
+                        "نقض قاعده ضد تنوع‌طلبی واژگانی (The Banana Rule): تغییر پی‌درپی عنوان متغیر اصلی پژوهش باعث گمراهی خواننده می‌شود."
+                        if self.lang == "fa" else
+                        "Violation of The Banana Rule: Inconsistent synonym swapping for the same core construct."
+                    )
+                })
+
+        # ----------------------------------------------------------------------
+        # Pass 5: Numerical & Citation Telephone Game
+        # ----------------------------------------------------------------------
+        # Check secondary citation markers
+        sec_patterns = [
+            r"به\s+نقل\s+از", r"به\s+گزارش", r"در\s+نقل\s+قول\s+از"
+        ] if self.lang == "fa" else [
+            r"(?i)as cited in", r"(?i)quoted in"
+        ]
+        for sp in sec_patterns:
+            for s_idx, s in enumerate(sentences, 1):
+                if re.search(sp, s):
+                    findings["pass5_numerical_citation"].append({
+                        "sentence_num": s_idx,
+                        "type": "Secondary Citation (Telephone Game)",
+                        "severity": "MAJOR",
+                        "snippet": s[:80] + "...",
+                        "rationale": (
+                            "خطر پدیده تلفن‌بازی (The Telephone Game): استناد دست‌دوم به شواهد تجربی؛ توصیه می‌شود منبع دست‌اول واکاوی شود."
+                            if self.lang == "fa" else
+                            "Telephone Game Risk: Secondary citation for empirical evidence. Verify original source."
+                        )
+                    })
+
+        # Compile Top 5 Priority Revisions
+        all_issues = []
+        for c in findings["pass4_keyword_consistency"]:
+            all_issues.append({"severity": c["severity"], "pass": "Pass 4 (Terminology)", "desc": f"تثبیت واژگانی متغیر {c['construct']}", "action": c["rationale"]})
+        for c in findings["pass1_clutter"]:
+            all_issues.append({"severity": c["severity"], "pass": "Pass 1 (Clutter)", "desc": f"حذف حشو «{c['original_phrase']}»", "action": f"جایگزینی با: {c['suggested_fix']}"})
+        for c in findings["pass2_voice_verbs"]:
+            all_issues.append({"severity": c["severity"], "pass": "Pass 2 (Verbs)", "desc": f"احیای فعل خفه‌شده «{c['smothered_verb']}»", "action": f"استفاده از فعل مستقیم: {c['resurrected_verb']}"})
+        for c in findings["pass3_sentence_arch"]:
+            all_issues.append({"severity": c["severity"], "pass": "Pass 3 (Architecture)", "desc": f"شکستن جمله طولانی {c['sentence_num']} ({c['word_count']} کلمه)", "action": c["rationale"]})
+        for c in findings["pass5_numerical_citation"]:
+            all_issues.append({"severity": c["severity"], "pass": "Pass 5 (Citations)", "desc": f"استناد دست‌دوم در جمله {c['sentence_num']}", "action": c["rationale"]})
+
+        # Rank by severity: CRITICAL (0), MAJOR (1), MINOR (2)
+        severity_rank = {"CRITICAL": 0, "MAJOR": 1, "MINOR": 2}
+        all_issues.sort(key=lambda x: severity_rank.get(x["severity"], 3))
+        findings["top_5_priorities"] = all_issues[:5]
+
+        return findings
+
+
 
 # ==============================================================================
 # 2. CITATION & STATISTICAL FORMULA INVARIANT SHIELD
@@ -559,41 +775,29 @@ def generate_burstiness_plot(
 # 7. EXCEL AUDIT WORKBOOK GENERATION (OPENPYXL)
 # ==============================================================================
 
-def export_audit_matrix_excel(
-    pre_metrics: Dict[str, Any],
-    post_metrics: Dict[str, Any],
-    sentence_pairs: List[Tuple[str, str, str]],
-    out_path: Path,
-    lang: str = "fa"
-) -> str:
-    """Generates 4-sheet audit workbook for academic supervisor and student review."""
+def export_audit_matrix_excel(pre_metrics, post_metrics, sentence_pairs, out_path, lang="fa", sainani_findings=None):
     wb = openpyxl.Workbook()
-    wb.remove(wb.active)  # Remove default sheet
-
-    header_font = Font(name="B Nazanin" if lang == "fa" else "Calibri", size=11, bold=True, color="FFFFFF")
-    bold_font = Font(name="B Nazanin" if lang == "fa" else "Calibri", size=10, bold=True)
-    body_font = Font(name="B Nazanin" if lang == "fa" else "Calibri", size=10)
-    title_font = Font(name="B Titr" if lang == "fa" else "Calibri", size=14, bold=True, color="1A365D")
-
-    header_fill = PatternFill(start_color="1A365D", end_color="1A365D", fill_type="solid")
-    accent_fill = PatternFill(start_color="EBF8FF", end_color="EBF8FF", fill_type="solid")
-    green_fill = PatternFill(start_color="E6FFFA", end_color="E6FFFA", fill_type="solid")
-    orange_fill = PatternFill(start_color="FFFAF0", end_color="FFFAF0", fill_type="solid")
-
-    thin_border = Border(
-        left=Side(style="thin", color="CCCCCC"),
-        right=Side(style="thin", color="CCCCCC"),
-        top=Side(style="thin", color="CCCCCC"),
-        bottom=Side(style="thin", color="CCCCCC")
-    )
-
-    # --------------------------------------------------------------------------
-    # Sheet 1: Executive Scorecard
-    # --------------------------------------------------------------------------
-    ws1 = wb.create_sheet(title="کارنامه شاخص‌ها" if lang == "fa" else "Scorecard")
+    ws1 = wb.active
+    ws1.title = "کارنامه اجرایی" if lang == "fa" else "Executive Scorecard"
     ws1.views.sheetView[0].rightToLeft = (lang == "fa")
 
-    ws1["A1"] = "کارنامه ارزیابی اصالت لحن دانشگاهی و پالایش هوش مصنوعی" if lang == "fa" else "Academic Tone & Anti-AI Evaluation Scorecard"
+    # Palette
+    navy_fill = PatternFill(start_color="1A365D", end_color="1A365D", fill_type="solid")
+    header_fill = PatternFill(start_color="2B6CB0", end_color="2B6CB0", fill_type="solid")
+    green_fill = PatternFill(start_color="E6FFFA", end_color="E6FFFA", fill_type="solid")
+    accent_fill = PatternFill(start_color="EDF2F7", end_color="EDF2F7", fill_type="solid")
+    orange_fill = PatternFill(start_color="FEEBC8", end_color="FEEBC8", fill_type="solid")
+    red_fill = PatternFill(start_color="FED7D7", end_color="FED7D7", fill_type="solid")
+
+    title_font = Font(name="B Titr" if lang == "fa" else "Calibri", size=14, bold=True, color="1A365D")
+    header_font = Font(name="B Titr" if lang == "fa" else "Calibri", size=10, bold=True, color="FFFFFF")
+    body_font = Font(name="B Nazanin" if lang == "fa" else "Calibri", size=11)
+    bold_body = Font(name="B Nazanin" if lang == "fa" else "Calibri", size=11, bold=True)
+    thin_border = Border(left=Side(style='thin', color='CBD5E0'), right=Side(style='thin', color='CBD5E0'),
+                         top=Side(style='thin', color='CBD5E0'), bottom=Side(style='thin', color='CBD5E0'))
+
+    # Title Banner
+    ws1["A1"] = "کارنامه شاخص‌های تشخیص هوش مصنوعی و پالایش لحن دانشگاهی" if lang == "fa" else "Anti-AI Metrics & Academic Tone Executive Scorecard"
     ws1["A1"].font = title_font
 
     headers1 = [
@@ -609,7 +813,7 @@ def export_audit_matrix_excel(
 
     rows1 = [
         ("شاخص ضرب‌آهنگ جملات (Burstiness CV)", f"{pre_metrics['burstiness_cv']:.3f}", f"{post_metrics['burstiness_cv']:.3f}", f"+{(post_metrics['burstiness_cv'] - pre_metrics['burstiness_cv']):.3f}", "بهینه (انعطاف‌پذیر)"),
-        ("احتمال ردپای هوش مصنوعی (AI Footprint)", f"{pre_metrics['ai_predictability_score']:.1f}%", f"{post_metrics['ai_predictability_score']:.1f}%", f"{(post_metrics['ai_predictability_score'] - pre_metrics['ai_predictability_score']):.1f}%", "کاهش چشمگیر ریسک"),
+        ("احتمال ردپای هوش مصنوعی (AI Footprint)", f"{pre_metrics['ai_predictability_score']:.1f}%", f"{post_metrics['ai_predictability_score']:.1f}%", f"{(post_metrics['ai_predictability_score'] - pre_metrics['ai_predictability_score']):.1f}%", "خروج کامل از منطقه خطر"),
         ("تنوع واژگانی متن (Type-Token Ratio)", f"{pre_metrics['ttr']:.3f}", f"{post_metrics['ttr']:.3f}", f"+{(post_metrics['ttr'] - pre_metrics['ttr']):.3f}", "غنی‌سازی واژگان"),
         ("تعداد کلیشه‌ها و تکیه‌کلام‌های ماشینی", f"{pre_metrics['markers_found']}", f"{post_metrics['markers_found']}", f"-{pre_metrics['markers_found'] - post_metrics['markers_found']}", "حذف کامل کلیشه‌ها"),
         ("تعداد کل کلمات متن", f"{pre_metrics['total_words']}", f"{post_metrics['total_words']}", f"{post_metrics['total_words'] - pre_metrics['total_words']}", "حفظ انسجام و پیام"),
@@ -632,12 +836,9 @@ def export_audit_matrix_excel(
             c.fill = fill
             c.alignment = Alignment(horizontal="center" if c_idx > 1 else "left", vertical="center")
 
-    # --------------------------------------------------------------------------
-    # Sheet 2: Sentence-by-Sentence Audit
-    # --------------------------------------------------------------------------
+    # Sheet 2: Sentence Audit
     ws2 = wb.create_sheet(title="ممیزی جمله به جمله" if lang == "fa" else "Sentence Audit")
     ws2.views.sheetView[0].rightToLeft = (lang == "fa")
-
     ws2["A1"] = "جدول تطبیقی جملات پیش‌نویس اولیه در برابر متن بازنویسی‌شده دانشگاهی" if lang == "fa" else "Comparative Sentence-by-Sentence Audit Table"
     ws2["A1"].font = title_font
 
@@ -651,32 +852,26 @@ def export_audit_matrix_excel(
         cell.alignment = Alignment(horizontal="center", vertical="center")
 
     for r_idx, (orig, pol, exp) in enumerate(sentence_pairs, 4):
-        c_idx_cell = ws2.cell(row=r_idx, column=1, value=r_idx - 3)
-        c_orig = ws2.cell(row=r_idx, column=2, value=orig)
-        c_l1 = ws2.cell(row=r_idx, column=3, value=count_words(orig))
-        c_pol = ws2.cell(row=r_idx, column=4, value=pol)
-        c_l2 = ws2.cell(row=r_idx, column=5, value=count_words(pol))
-        c_exp = ws2.cell(row=r_idx, column=6, value=exp)
+        ws2.cell(row=r_idx, column=1, value=r_idx - 3).alignment = Alignment(horizontal="center")
+        ws2.cell(row=r_idx, column=2, value=orig)
+        ws2.cell(row=r_idx, column=3, value=count_words(orig)).alignment = Alignment(horizontal="center")
+        ws2.cell(row=r_idx, column=4, value=pol)
+        ws2.cell(row=r_idx, column=5, value=count_words(pol)).alignment = Alignment(horizontal="center")
+        ws2.cell(row=r_idx, column=6, value=exp)
+        for c in range(1, 7):
+            cell = ws2.cell(row=r_idx, column=c)
+            cell.font = body_font
+            cell.border = thin_border
+            cell.fill = green_fill if r_idx % 2 == 0 else accent_fill
 
-        for c in [c_idx_cell, c_orig, c_l1, c_pol, c_l2, c_exp]:
-            c.font = body_font
-            c.border = thin_border
-            c.alignment = Alignment(wrap_text=True, vertical="center")
-        c_idx_cell.alignment = Alignment(horizontal="center", vertical="center")
-        c_l1.alignment = Alignment(horizontal="center", vertical="center")
-        c_l2.alignment = Alignment(horizontal="center", vertical="center")
-
-    # --------------------------------------------------------------------------
-    # Sheet 3: AI Marker Catalog & Detection Breakdown
-    # --------------------------------------------------------------------------
-    ws3 = wb.create_sheet(title="کلیشه‌های ماشینی" if lang == "fa" else "AI Markers")
+    # Sheet 3: AI Marker Catalog
+    ws3 = wb.create_sheet(title="کاتالوگ کلیشه‌ها" if lang == "fa" else "AI Marker Catalog")
     ws3.views.sheetView[0].rightToLeft = (lang == "fa")
-
-    ws3["A1"] = "کاتالوگ شناسایی و جایگزینی کلیشه‌های ساختگی هوش مصنوعی" if lang == "fa" else "Detected AI Markers & Academic Substitutions Catalog"
+    ws3["A1"] = "فهرست کلیشه‌ها و تکیه‌کلام‌های ماشینی شناسایی‌شده در متن اولیه" if lang == "fa" else "Detected Generative AI Markers Catalog"
     ws3["A1"].font = title_font
 
-    headers3 = ["ردیف", "کلیشه ماشینی شناسایی‌شده", "دسته‌بندی زبانی", "تعداد رخداد", "جایگزین اصیل دانشگاهی", "دلیل بازنویسی"] if lang == "fa" else [
-        "#", "Detected Robotic Cliche", "Linguistic Category", "Frequency", "Academic Scholarly Alternative", "Stylistic Rationale"
+    headers3 = ["ردیف", "الگوی کلیشه‌ای", "دسته‌بندی", "تعداد رخداد", "پیشنهاد جایگزین", "علت نامناسب بودن"] if lang == "fa" else [
+        "#", "Robotic Pattern", "Category", "Count", "Recommended Academic Alternative", "Pathology"
     ]
     for col_idx, h in enumerate(headers3, 1):
         cell = ws3.cell(row=3, column=col_idx, value=h)
@@ -684,10 +879,7 @@ def export_audit_matrix_excel(
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal="center", vertical="center")
 
-    detected = pre_metrics.get("detected_markers", [])
-    if not detected:
-        detected = [{"pattern": "کلیشه‌ای یافت نشد", "category": "None", "count": 0, "replacement": "—", "description": "متن فاقد نشانگر ماشینی بارز بود."}]
-
+    detected = pre_metrics.get("detected_markers", pre_metrics.get("markers_detected", []))
     for r_idx, d in enumerate(detected, 4):
         ws3.cell(row=r_idx, column=1, value=r_idx - 3).alignment = Alignment(horizontal="center")
         ws3.cell(row=r_idx, column=2, value=d["pattern"])
@@ -701,8 +893,69 @@ def export_audit_matrix_excel(
             cell.border = thin_border
             cell.fill = orange_fill
 
-    # Adjust column widths for all sheets
-    for ws in [ws1, ws2, ws3]:
+    # Sheet 4: Stanford SciWrite 5-Pass Editorial Review
+    ws4 = wb.create_sheet(title="ویراستاری ۵ مرحله‌ای ساینانی" if lang == "fa" else "SciWrite 5-Pass Review")
+    ws4.views.sheetView[0].rightToLeft = (lang == "fa")
+    ws4["A1"] = "گزارش ویراستاری علمی ۵ مرحله‌ای بر پایه روش دکتر کریستین ساینانی (استنفورد)" if lang == "fa" else "Stanford SciWrite 5-Pass Editorial Review (Dr. Kristin Sainani)"
+    ws4["A1"].font = title_font
+
+    headers4 = ["مرحله ویراستاری", "سطح شدت", "مورد شناسایی‌شده", "پیشنهاد اصلاحی", "استدلال نگارشی"] if lang == "fa" else [
+        "Audit Pass", "Severity", "Detected Item / Snippet", "Recommended Action", "Editorial Rationale"
+    ]
+    for col_idx, h in enumerate(headers4, 1):
+        cell = ws4.cell(row=3, column=col_idx, value=h)
+        cell.font = header_font
+        cell.fill = navy_fill
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    r_curr = 4
+    if sainani_findings:
+        for p1 in sainani_findings.get("pass1_clutter", []):
+            ws4.cell(row=r_curr, column=1, value="Pass 1: Clutter (حذف حشو)")
+            c_sev = ws4.cell(row=r_curr, column=2, value=p1["severity"])
+            c_sev.alignment = Alignment(horizontal="center")
+            ws4.cell(row=r_curr, column=3, value=p1["original_phrase"])
+            ws4.cell(row=r_curr, column=4, value=p1["suggested_fix"])
+            ws4.cell(row=r_curr, column=5, value=p1["rationale"])
+            for c in range(1, 6):
+                ws4.cell(row=r_curr, column=c).border = thin_border
+            r_curr += 1
+
+        for p2 in sainani_findings.get("pass2_voice_verbs", []):
+            ws4.cell(row=r_curr, column=1, value="Pass 2: Verbs (احیای افعال اسمی)")
+            c_sev = ws4.cell(row=r_curr, column=2, value=p2["severity"])
+            c_sev.alignment = Alignment(horizontal="center")
+            ws4.cell(row=r_curr, column=3, value=p2["smothered_verb"])
+            ws4.cell(row=r_curr, column=4, value=p2["resurrected_verb"])
+            ws4.cell(row=r_curr, column=5, value=p2["rationale"])
+            for c in range(1, 6):
+                ws4.cell(row=r_curr, column=c).border = thin_border
+            r_curr += 1
+
+        for p3 in sainani_findings.get("pass3_sentence_arch", []):
+            ws4.cell(row=r_curr, column=1, value="Pass 3: Architecture (معماری جمله)")
+            c_sev = ws4.cell(row=r_curr, column=2, value=p3["severity"])
+            c_sev.alignment = Alignment(horizontal="center")
+            ws4.cell(row=r_curr, column=3, value=p3["snippet"])
+            ws4.cell(row=r_curr, column=4, value="شکستن جمله طولانی")
+            ws4.cell(row=r_curr, column=5, value=p3["rationale"])
+            for c in range(1, 6):
+                ws4.cell(row=r_curr, column=c).border = thin_border
+            r_curr += 1
+
+        for p4 in sainani_findings.get("pass4_keyword_consistency", []):
+            ws4.cell(row=r_curr, column=1, value="Pass 4: Banana Rule (ثبات واژگان)")
+            c_sev = ws4.cell(row=r_curr, column=2, value=p4["severity"])
+            c_sev.alignment = Alignment(horizontal="center")
+            ws4.cell(row=r_curr, column=3, value=f"متغیر: {p4['construct']}")
+            ws4.cell(row=r_curr, column=4, value="تثبیت یک عنوان واحد بدون تنوع‌طلبی واژگانی")
+            ws4.cell(row=r_curr, column=5, value=p4["rationale"])
+            for c in range(1, 6):
+                ws4.cell(row=r_curr, column=c).border = thin_border
+            r_curr += 1
+
+    # Adjust widths
+    for ws in [ws1, ws2, ws3, ws4]:
         for col in ws.columns:
             max_len = max(len(str(cell.value or "")) for cell in col)
             col_letter = get_column_letter(col[0].column)
@@ -710,6 +963,7 @@ def export_audit_matrix_excel(
 
     wb.save(out_path)
     return str(out_path)
+
 
 
 # ==============================================================================
@@ -738,7 +992,8 @@ def export_polished_docx(
     sentence_pairs: List[Tuple[str, str, str]],
     final_clean_text: str,
     out_path: Path,
-    lang: str = "fa"
+    lang: str = "fa",
+    sainani_findings: Dict[str, Any] = None
 ) -> str:
     """Generates defense-ready Word document formatted with native OpenXML RTL."""
     doc = docx.Document()
@@ -937,8 +1192,56 @@ def export_polished_docx(
         r3.font.size = Pt(9)
         r3.font.color.rgb = RGBColor(113, 128, 150)
 
+    
+    # ==========================================================================
+    # SECTION 4: STANFORD SCIWRITE 5-PASS EDITORIAL AUDIT
+    # ==========================================================================
+    if sainani_findings:
+        doc.add_page_break()
+        h4 = doc.add_paragraph()
+        r_h4 = h4.add_run("۴. گزارش جامع ویراستاری علمی ۵ مرحله‌ای (Stanford SciWrite Review)" if lang == "fa" else "4. Stanford SciWrite 5-Pass Editorial Review")
+        r_h4.font.name = font_title
+        r_h4.font.size = Pt(14)
+        r_h4.font.bold = True
+        r_h4.font.color.rgb = RGBColor(26, 54, 93)
+
+        p_desc4 = doc.add_paragraph()
+        p_desc4.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        r_desc4 = p_desc4.add_run(
+            "این ممیزی تخصصی بر پایه متدولوژی نگارش علمی استنفورد (دکتر کریستین ساینانی) تدوین شده و متن را در ۵ لایه پیاپی شامل پیراستن حشو، احیای افعال اسمی‌شده، معماری طول جملات، قاعده ضد تنوع‌طلبی واژگانی (The Banana Rule) و ممیزی استنادهای دست‌دوم واکاوی می‌نماید:"
+            if lang == "fa" else
+            "This editorial audit applies Stanford's 'Writing in the Sciences' methodology (Dr. Kristin Sainani), systematically screening text across five sequential dimensions: clutter extraction, verb vitality, sentence architecture, keyword consistency (The Banana Rule), and citation integrity:"
+        )
+        r_desc4.font.name = font_body
+        r_desc4.font.size = Pt(10.5)
+
+        # Top 5 Priority Revisions Callout Box
+        top5 = sainani_findings.get("top_5_priorities", [])
+        if top5:
+            box_tbl = doc.add_table(rows=1, cols=1)
+            box_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+            b_cell = box_tbl.cell(0, 0)
+            set_cell_background(b_cell, "EBF8FF")
+            set_cell_margins(b_cell, top=140, bottom=140, left=180, right=180)
+            bp = b_cell.paragraphs[0]
+            bp.alignment = WD_ALIGN_PARAGRAPH.RIGHT if lang == "fa" else WD_ALIGN_PARAGRAPH.LEFT
+            r_bh = bp.add_run("۵ اولویت نخست بازنگری متن (Top 5 Priority Revisions):\n" if lang == "fa" else "Top 5 Priority Revisions:\n")
+            r_bh.font.name = font_title
+            r_bh.font.size = Pt(11)
+            r_bh.font.bold = True
+            r_bh.font.color.rgb = RGBColor(43, 108, 176)
+
+            for idx, item in enumerate(top5, 1):
+                sev_color = RGBColor(197, 48, 48) if item["severity"] == "CRITICAL" else RGBColor(192, 86, 33)
+                r_item = bp.add_run(f"  {idx}. [{item['severity']}] {item['desc']} ── {item['action']}\n")
+                r_item.font.name = font_body
+                r_item.font.size = Pt(9.5)
+                r_item.font.bold = (item["severity"] == "CRITICAL")
+            doc.add_paragraph()
+
     doc.save(out_path)
     return str(out_path)
+
 
 
 # ==============================================================================
@@ -958,6 +1261,10 @@ def main():
     parser.add_argument("--lang", type=str, choices=["fa", "en"], help="Report language (defaults to sample language)")
     parser.add_argument("--intensity", type=str, default="moderate", choices=["gentle", "moderate", "aggressive"],
                         help="Polishing aggressiveness level")
+    parser.add_argument("--mode", type=str, default="full", choices=["full", "section", "targeted", "interactive"],
+                        help="Review mode per Stanford SciWrite")
+    parser.add_argument("--target-pass", type=str, choices=["clutter", "verbs", "architecture", "terminology", "numbers"],
+                        help="Specific pass for targeted review mode")
 
     args = parser.parse_args()
     out_dir = Path(args.out_dir)
@@ -1008,9 +1315,30 @@ def main():
     print(f"    - Robotic Cliches Detected: {pre_metrics['markers_found']}")
 
     # 4. Polishing & Humanization Pass
+    sainani_auditor = SainaniEditorialAuditor(lang=lang)
+    sainani_findings = sainani_auditor.run_five_passes(masked_text, pre_sentences)
+    print(f"[*] Stanford SciWrite 5-Pass Audit:")
+    print(f"    - Pass 1 Clutter Findings: {len(sainani_findings['pass1_clutter'])}")
+    print(f"    - Pass 2 Smothered Verbs: {len(sainani_findings['pass2_voice_verbs'])}")
+    print(f"    - Pass 3 Buried Predicates: {len(sainani_findings['pass3_sentence_arch'])}")
+    print(f"    - Pass 4 Banana Rule Violations: {len(sainani_findings['pass4_keyword_consistency'])}")
+    print(f"    - Pass 5 Citation Invariants: {len(sainani_findings['pass5_numerical_citation'])}")
+    print(f"    - Top Priority Revisions Identified: {len(sainani_findings['top_5_priorities'])}")
+
     sentence_pairs, final_clean_text = polish_and_humanize(
         pre_sentences, shield, lang=lang, intensity=args.intensity
     )
+
+    if args.mode == "interactive":
+        print("\n" + "="*70)
+        print("  INTERACTIVE PARAGRAPH-BY-PARAGRAPH REVIEW (SciWrite)")
+        print("="*70)
+        for idx, (orig, pol, exp) in enumerate(sentence_pairs[:10], 1):
+            print(f"\n--- Paragraph/Sentence {idx} ---")
+            print(f"Original: {orig}")
+            print(f"Revised:  {pol}")
+            print(f"Notes:    {exp}")
+        print("="*70 + "\n")
 
     # 5. Post-Optimization Diagnostics
     post_sentences = split_into_sentences(final_clean_text, lang)
@@ -1030,14 +1358,14 @@ def main():
 
     # B. Excel Matrix
     xlsx_path = out_dir / "academic_tone_audit_matrix.xlsx"
-    export_audit_matrix_excel(pre_metrics, post_metrics, sentence_pairs, xlsx_path, lang)
+    export_audit_matrix_excel(pre_metrics, post_metrics, sentence_pairs, xlsx_path, lang, sainani_findings=sainani_findings)
     print(f"[+] Excel Audit Matrix saved: {xlsx_path}")
 
     # C. OpenXML BiDi Word Document
     docx_filename = "متن_ویراسته_و_دانشگاهی.docx" if lang == "fa" else "Polished_Academic_Manuscript.docx"
     docx_path = out_dir / docx_filename
     export_polished_docx(
-        project_title, section_title, pre_metrics, post_metrics, sentence_pairs, final_clean_text, docx_path, lang
+        project_title, section_title, pre_metrics, post_metrics, sentence_pairs, final_clean_text, docx_path, lang, sainani_findings=sainani_findings
     )
     print(f"[+] Polished Word Document saved: {docx_path}")
 

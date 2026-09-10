@@ -46,6 +46,11 @@ Activate this skill whenever:
 - **Illegal Software Output (`MINOR`)**: Reporting $p = .000$ instead of $p < .001$.
 - **Missing Effect Sizes (`MAJOR`/`MINOR`)**: Significant finding without $d, \eta_p^2$, or $R^2$.
 
+### 5. Adversarial Defense & Peer-Review Simulation (شبیه‌سازی دفاع متخاصم و داوری نقادانه)
+- **Rule 10 Effect Size Bound Violations (`CRITICAL`/`MAJOR`)**: Partial eta squared $\eta_p^2 > .25$ or Cohen's $d > 1.40$ in behavioral/psychological studies flagged as artificial/synthetic over-separation risks.
+- **Parametric Assumption Vulnerabilities (`MAJOR`)**: Missing or violated Levene's test of homogeneity of variance, Box's M, or severe skewness/kurtosis (> |0.85|).
+- **Hostile Examiner Probes (`AUDIT`)**: Automated generation of targeted, probing defense questions addressing sample representativeness, common method variance, intervention fidelity, and cross-sectional causal claims.
+
 ---
 
 ## 3. Thesis Integrity Score (TIS) & Readiness Thresholds

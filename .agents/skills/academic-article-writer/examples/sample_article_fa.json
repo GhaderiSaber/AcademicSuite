@@ -169,5 +169,34 @@
     "Bandura, A. (1997). Self-efficacy: The exercise of control. W. H. Freeman.",
     "Gross, J. J. (2015). Emotion regulation: Current status and future prospects. Philosophical Transactions of the Royal Society B, 370(1677), 20140235.",
     "Zeidner, M. (2014). Anxiety in education. In International handbook of emotions in education (pp. 265-288). Routledge."
+  ],
+  "claims_matrix": [
+    {
+      "claim_id": "CLM-01",
+      "section": "Abstract",
+      "claim_text": "مداخله ذهن‌آگاهی موجب کاهش معنادار اضطراب امتحان در دانش‌آموزان شد.",
+      "evidence_parameter": "F(1, 57) ANCOVA",
+      "statistical_value": "F = 48.22, p < .001, η_p^2 = .21",
+      "status": "supported",
+      "remedy_suggestion": "تاییدشده با شواهد مستقیم آماری"
+    },
+    {
+      "claim_id": "CLM-02",
+      "section": "Abstract",
+      "claim_text": "مداخله ذهن‌آگاهی تاب‌آوری روان‌شناختی دانش‌آموزان را افزایش داد.",
+      "evidence_parameter": "F(1, 57) ANCOVA",
+      "statistical_value": "F = 39.14, p < .001, η_p^2 = .19",
+      "status": "supported",
+      "remedy_suggestion": "تاییدشده با شواهد مستقیم آماری"
+    },
+    {
+      "claim_id": "CLM-03",
+      "section": "Discussion",
+      "claim_text": "کاهش اضطراب امتحان در مرحله پیگیری دوماهه پایدار باقی ماند.",
+      "evidence_parameter": "Repeated Measures / t-test",
+      "statistical_value": "t(29) = 1.12, p = .272",
+      "status": "supported",
+      "remedy_suggestion": "تایید پایداری به واسطه عدم تفاوت معنادار پس‌آزمون و پیگیری"
+    }
   ]
 }

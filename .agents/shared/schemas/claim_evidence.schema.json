@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicSuite Claim-Evidence Mapping Schema",
+  "description": "JSON contract for linking manuscript claims in Abstract, Introduction, and Discussion directly to statistical evidence.",
+  "type": "object",
+  "required": ["manuscript_title", "total_claims", "claims_matrix"],
+  "properties": {
+    "manuscript_title": { "type": "string" },
+    "total_claims": { "type": "integer", "minimum": 0 },
+    "verified_claims_count": { "type": "integer" },
+    "unsupported_claims_count": { "type": "integer" },
+    "claims_matrix": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim_id", "section", "claim_text", "status"],
+        "properties": {
+          "claim_id": { "type": "string" },
+          "section": { "type": "string", "enum": ["Abstract", "Introduction", "Method", "Results", "Discussion", "Conclusion"] },
+          "paragraph_role": { "type": "string", "enum": ["opening", "challenge", "method", "advantage", "evidence", "limitation"] },
+          "claim_text": { "type": "string" },
+          "evidence_parameter": { "type": "string" },
+          "statistical_value": { "type": "string" },
+          "p_value": { "type": "number" },
+          "effect_size": { "type": "string" },
+          "status": { "type": "string", "enum": ["supported", "needs_evidence", "overgeneralized", "unsupported"] },
+          "remedy_suggestion": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -189,7 +189,18 @@ For proposals validating, adapting, or standardizing a psychometric instrument:
 
 ---
 
-## 6. Execution Workflow
+## 7. The Method Triad in Methodology Defense (سه‌گانه روش‌شناختی طرح پژوهش)
+
+Proposals in psychological and behavioral research must formulate the methodology around the **Method Triad** (Motivation, Design, Advantage):
+1. **Motivation (چرایی و ضرورت روش‌شناختی)**: Clear articulation of why a specific research design, psychometric scale, or sampling scheme was selected over alternatives (e.g. controlling pre-test variance via ANCOVA).
+2. **Design (طراحی و پروتکل عملیاتی)**: Granular, replicable procedural roadmap (sample inclusion/exclusion criteria, experimental protocol phases, scoring mechanics).
+3. **Advantage (برتری فنی و مزیت رقابتی نسبت به بدیل‌ها)**: Justification of statistical power, construct sensitivity, and error-control advantages over traditional designs (e.g. why SEM mediation is preferred over Baron & Kenny regression).
+
+When `method_triad` is supplied in the proposal payload (or within individual instrument specifications), `generate_proposal_docx.py` automatically compiles dedicated subsection 9-6 and instrument notes.
+
+---
+
+## 8. Execution Workflow
 
 1. **Intake Research Variables**:
    Gather the research topic, variables, target population, and proposed design.

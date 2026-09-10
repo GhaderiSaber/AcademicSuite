@@ -155,6 +155,67 @@ def add_callout_box(doc: Document, title: str, content: str, box_type: str = "me
     p_space = doc.add_paragraph()
     apply_p_bidi(p_space, space_after=Pt(4))
 
+def add_triad_box(doc: Document, triad: Dict[str, str]):
+    """Create a high-impact callout container for the Method Triad (Motivation, Design, Advantage)."""
+    tbl = doc.add_table(rows=1, cols=1)
+    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tblPr = tbl._tbl.tblPr
+    bidiVisual = tblPr.find(qn('w:bidiVisual'))
+    if bidiVisual is None:
+        tblPr.append(parse_xml(f'<w:bidiVisual {nsdecls("w")}/>'))
+
+    bg_color = "F5F3FF"      # Subtle violet-tinted background
+    border_color = "4F46E5"  # Indigo 600
+
+    cell = tbl.cell(0, 0)
+    tcPr = cell._tc.get_or_add_tcPr()
+    tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:fill="{bg_color}"/>'))
+    tcPr.append(parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        f'  <w:right w:val="single" w:sz="24" w:space="0" w:color="{border_color}"/>'
+        f'  <w:top w:val="single" w:sz="4" w:space="0" w:color="DDD6FE"/>'
+        f'  <w:bottom w:val="single" w:sz="4" w:space="0" w:color="DDD6FE"/>'
+        f'  <w:left w:val="single" w:sz="4" w:space="0" w:color="DDD6FE"/>'
+        f'</w:tcBorders>'
+    ))
+    tcPr.append(parse_xml(
+        f'<w:tcMar {nsdecls("w")}>'
+        f'  <w:top w:w="120" w:type="dxa"/>'
+        f'  <w:bottom w:w="120" w:type="dxa"/>'
+        f'  <w:left w:w="160" w:type="dxa"/>'
+        f'  <w:right w:w="160" w:type="dxa"/>'
+        f'</w:tcMar>'
+    ))
+
+    # Title paragraph
+    p_t = cell.paragraphs[0]
+    apply_p_bidi(p_t, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=Pt(4))
+    add_run(p_t, "📐 سه‌گانه روش‌شناختی فنون جلسه (The Method Triad):", font_name=FONT_TITR, size_pt=12, bold=True, color_rgb=RGBColor(67, 56, 202))
+
+    # Motivation
+    if "motivation" in triad and triad["motivation"]:
+        p_m = cell.add_paragraph()
+        apply_p_bidi(p_m, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=Pt(3))
+        add_run(p_m, "• چرایی و ضرورت نظری (Motivation): ", font_name=FONT_TITR, size_pt=11, bold=True, color_rgb=RGBColor(30, 41, 59))
+        add_run(p_m, triad["motivation"], font_name=FONT_NAZANIN, size_pt=11.5, color_rgb=RGBColor(51, 65, 85))
+
+    # Design
+    if "design" in triad and triad["design"]:
+        p_d = cell.add_paragraph()
+        apply_p_bidi(p_d, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=Pt(3))
+        add_run(p_d, "• طراحی و فرایند عملیاتی (Design): ", font_name=FONT_TITR, size_pt=11, bold=True, color_rgb=RGBColor(30, 41, 59))
+        add_run(p_d, triad["design"], font_name=FONT_NAZANIN, size_pt=11.5, color_rgb=RGBColor(51, 65, 85))
+
+    # Advantage
+    if "advantage" in triad and triad["advantage"]:
+        p_a = cell.add_paragraph()
+        apply_p_bidi(p_a, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=Pt(2))
+        add_run(p_a, "• مزیت رقابتی نسبت به بدیل‌ها (Advantage): ", font_name=FONT_TITR, size_pt=11, bold=True, color_rgb=RGBColor(30, 41, 59))
+        add_run(p_a, triad["advantage"], font_name=FONT_NAZANIN, size_pt=11.5, color_rgb=RGBColor(51, 65, 85))
+
+    p_space = doc.add_paragraph()
+    apply_p_bidi(p_space, space_after=Pt(4))
+
 # ---------------------------------------------------------------------------
 # Document Builders
 # ---------------------------------------------------------------------------
@@ -240,7 +301,10 @@ def build_protocol_docx(payload: Dict[str, Any], output_path: str):
             add_run(p_2, f"تمرین: {tech.get('name', '')}\n", font_name=FONT_NAZANIN, size_pt=10, bold=True)
         ws = s.get("worksheet", {})
         if ws:
-            add_run(p_2, f"کاربرگ: {ws.get('title', '')}", font_name=FONT_NAZANIN, size_pt=9, italic=True)
+            add_run(p_2, f"کاربرگ: {ws.get('title', '')}\n", font_name=FONT_NAZANIN, size_pt=9, italic=True)
+        triad = s.get("method_triad", {})
+        if triad and triad.get("advantage"):
+            add_run(p_2, f"مزیت سه‌گانه: {triad.get('advantage')}", font_name=FONT_NAZANIN, size_pt=8.5, italic=True, color_rgb=RGBColor(67, 56, 202))
 
         # Col 3: Homework
         cell_3 = table.cell(row_idx, 3)
@@ -279,6 +343,11 @@ def build_protocol_docx(payload: Dict[str, Any], output_path: str):
         p_psy = doc.add_paragraph()
         apply_p_bidi(p_psy, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=Pt(6))
         add_run(p_psy, s.get("psychoeducation", ""), font_name=FONT_NAZANIN, size_pt=12.5)
+
+        # Method Triad Callout (Motivation, Design, Advantage)
+        triad = s.get("method_triad", {})
+        if triad:
+            add_triad_box(doc, triad)
 
         # 3. Clinical Metaphor
         metaphor = s.get("clinical_metaphor", {})
@@ -346,6 +415,7 @@ def export_protocol_json(payload: Dict[str, Any], output_path: str):
             "title": s.get("title"),
             "objectives": s.get("objectives", []),
             "techniques": tech_summary,
+            "method_triad": s.get("method_triad", {}),
             "homework": s.get("homework", [])
         })
 

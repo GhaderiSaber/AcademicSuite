@@ -92,6 +92,84 @@ def add_run(p, text, lang='fa', size=12, bold=False, italic=False):
         
     return run
 
+
+def export_claim_evidence_matrix_excel(claims_data: list, out_path: str, lang: str = "en"):
+    """
+    Exports a professional 3-color Claim-Evidence Mapping Matrix to Excel.
+    Enforces the rule that every claim in Abstract/Introduction/Discussion
+    must have direct empirical statistical backing.
+    """
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "ماتریس ادعا-شواهد" if lang == "fa" else "Claim-Evidence Matrix"
+    ws.views.sheetView[0].rightToLeft = (lang == "fa")
+
+    navy_fill = PatternFill(start_color="1A365D", end_color="1A365D", fill_type="solid")
+    green_fill = PatternFill(start_color="E6FFFA", end_color="E6FFFA", fill_type="solid")
+    amber_fill = PatternFill(start_color="FEFCBF", end_color="FEFCBF", fill_type="solid")
+    red_fill = PatternFill(start_color="FED7D7", end_color="FED7D7", fill_type="solid")
+
+    title_font = Font(name="B Titr" if lang == "fa" else "Calibri", size=14, bold=True, color="1A365D")
+    header_font = Font(name="B Titr" if lang == "fa" else "Calibri", size=10, bold=True, color="FFFFFF")
+    body_font = Font(name="B Nazanin" if lang == "fa" else "Calibri", size=10)
+    thin_border = Border(left=Side(style='thin', color='CBD5E0'), right=Side(style='thin', color='CBD5E0'),
+                         top=Side(style='thin', color='CBD5E0'), bottom=Side(style='thin', color='CBD5E0'))
+
+    ws["A1"] = "ماتریس تطبیق ادعاها با شواهد تجربی و آماری (Claim-Evidence Mapping Matrix)" if lang == "fa" else "Manuscript Claim-Evidence Mapping Matrix (Sida Peng Protocol)"
+    ws["A1"].font = title_font
+
+    headers = [
+        "شناسه", "بخش مقاله", "ادعای پژوهشی (Claim)", "پارامتر آماری موید (Evidence)", "مقدار آماری", "وضعیت انطباق", "پیشنهاد بازنگری"
+    ] if lang == "fa" else [
+        "ID", "Section", "Research Claim", "Empirical Evidence / Parameter", "Statistical Value", "Status", "Editorial Remedy"
+    ]
+
+    for col_idx, h in enumerate(headers, 1):
+        cell = ws.cell(row=3, column=col_idx, value=h)
+        cell.font = header_font
+        cell.fill = navy_fill
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    status_fill_map = {
+        "supported": green_fill,
+        "تاییدشده": green_fill,
+        "needs_evidence": amber_fill,
+        "نیازمند شواهد": amber_fill,
+        "overgeneralized": red_fill,
+        "تعمیم‌افراطی": red_fill
+    }
+
+    for r_idx, c_item in enumerate(claims_data, 4):
+        status = c_item.get("status", "supported").lower()
+        fill = status_fill_map.get(status, green_fill)
+        
+        ws.cell(row=r_idx, column=1, value=c_item.get("claim_id", f"C{r_idx-3}")).alignment = Alignment(horizontal="center")
+        ws.cell(row=r_idx, column=2, value=c_item.get("section", "Abstract")).alignment = Alignment(horizontal="center")
+        ws.cell(row=r_idx, column=3, value=c_item.get("claim_text", ""))
+        ws.cell(row=r_idx, column=4, value=c_item.get("evidence_parameter", ""))
+        ws.cell(row=r_idx, column=5, value=c_item.get("statistical_value", "")).alignment = Alignment(horizontal="center")
+        c_status = ws.cell(row=r_idx, column=6, value=c_item.get("status", "supported").upper())
+        c_status.alignment = Alignment(horizontal="center")
+        c_status.fill = fill
+        ws.cell(row=r_idx, column=7, value=c_item.get("remedy_suggestion", ""))
+
+        for col_i in range(1, 8):
+            ws.cell(row=r_idx, column=col_i).font = body_font
+            ws.cell(row=r_idx, column=col_i).border = thin_border
+
+    for col in ws.columns:
+        max_len = max(len(str(cell.value or "")) for cell in col)
+        col_letter = get_column_letter(col[0].column)
+        ws.column_dimensions[col_letter].width = min(50, max(12, max_len + 3))
+
+    wb.save(out_path)
+    print(f"Claim-Evidence Matrix successfully exported: {out_path}")
+
+
 def compile_article(data: dict, output_path: str, lang: str = 'en'):
     doc = docx.Document()
     is_fa = (lang == 'fa')
@@ -337,6 +415,12 @@ def compile_article(data: dict, output_path: str, lang: str = 'en'):
             p_ref.paragraph_format.first_line_indent = Inches(-0.5)
         p_ref.paragraph_format.space_after = Pt(4)
         add_run(p_ref, ref_str, lang=lang, size=10)
+
+    # Export Claim-Evidence Matrix if present
+    claims_matrix = data.get("claims_matrix") or data.get("claim_evidence_matrix", [])
+    if claims_matrix:
+        matrix_filename = output_path.replace(".docx", "_claim_evidence_matrix.xlsx")
+        export_claim_evidence_matrix_excel(claims_matrix, matrix_filename, lang=lang)
 
     doc.save(output_path)
     print(f"Academic Article successfully compiled at: {output_path}")

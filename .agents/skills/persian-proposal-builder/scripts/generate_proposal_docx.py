@@ -553,6 +553,10 @@ def build_proposal_document(data: dict, output_path: str):
         inst_name = inst.get("name", "ابزار")
         if inst_desc:
             add_body_paragraph(doc, f"«{inst_name}»: {inst_desc}")
+        if "method_triad" in inst:
+            t = inst["method_triad"]
+            t_text = f"سه‌گانه روش‌شناختی ابزار — ضرورت: {t.get('motivation', '')} | طراحی و سنجش: {t.get('design', '')} | مزیت رقابتی: {t.get('advantage', '')}"
+            add_body_paragraph(doc, t_text)
             
     # 6.4 Cross-Cultural Adaptation (if applicable)
     if "adaptation_protocol" in data:
@@ -577,6 +581,17 @@ def build_proposal_document(data: dict, output_path: str):
     # 6.8 Statistical Methods
     add_section_heading(doc, "۸-۶. روش‌های تجزیه‌وتحلیل داده‌ها", level=3)
     add_body_paragraph(doc, data.get("statistical_analysis_plan", "جهت تجزیه‌وتحلیل داده‌ها از آمار توصیفی و استنباطی..."))
+
+    # 6.9 The Method Triad (if applicable)
+    if "method_triad" in data:
+        add_section_heading(doc, "۹-۶. چارچوب سه‌گانه روش‌شناختی (The Method Triad)", level=3)
+        triad = data["method_triad"]
+        if "motivation" in triad:
+            add_body_paragraph(doc, f"«چرایی و ضرورت روش‌شناختی (Motivation)»: {triad['motivation']}")
+        if "design" in triad:
+            add_body_paragraph(doc, f"«طراحی و فرآیند عملیاتی اجرا (Design)»: {triad['design']}")
+        if "advantage" in triad:
+            add_body_paragraph(doc, f"«مزیت رقابتی نسبت به روش‌های سنتی و بدیل (Advantage)»: {triad['advantage']}")
     
     # --- 7. Ethical Considerations ---
     add_section_heading(doc, "۷. ملاحظات اخلاقی (Ethical Considerations)", level=2)

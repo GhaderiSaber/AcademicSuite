@@ -18,11 +18,20 @@ import unicodedata
 import argparse
 
 def strip_accents(text):
-    """Normalize text by converting accented and special characters to base ASCII."""
+    """Normalize text while preserving Persian and Latin alphabets."""
     if not text:
         return ""
     text = text.replace('\ufffd', 'e')
-    return unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8').lower()
+    # Normalize Persian digits to ASCII digits
+    persian_digits = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+    text = text.translate(persian_digits)
+    # Remove combining diacritics without stripping non-ASCII Persian letters
+    result = []
+    for ch in unicodedata.normalize('NFKD', text):
+        if unicodedata.combining(ch):
+            continue
+        result.append(ch)
+    return "".join(result).lower()
 
 def clean_entry_start(entry):
     """Strip stray publisher suffixes or previous book chapter lines preceding the real author."""
@@ -43,7 +52,7 @@ def extract_bibliography_entries(raw_bib_text):
     txt = re.sub(r'^\s*References\s*', '', txt.strip(), flags=re.IGNORECASE)
 
     # Detect publication years in parentheses: (YYYY) or (YYYYa)
-    pattern = r'(?<![/\w])\((\d{4}[a-z]?)\)(?:\.|\,|\s+[A-Z])'
+    pattern = r'(?<![/\w])\((\d{4}[a-z]?)\)(?:\.|\,|\s+[A-Z\u0600-\u06FF])'
     year_matches = list(re.finditer(pattern, txt))
 
     entries = []
@@ -55,11 +64,11 @@ def extract_bibliography_entries(raw_bib_text):
             prev_ym = year_matches[i-1]
             between = txt[prev_ym.end():curr_ym.start()]
             # Find author start
-            m = list(re.finditer(r'(?:https?://[^\s]+|\.(?:\s+|$))([A-Z][a-zA-Z\-\'\s]+,\s+[A-Z\.]|\bAmerican Psychiatric Association\b|\bVan den Bos\b|\bVan der Heiden\b|\bLe Poire\b|\bLissek\b|\bSarinopoulos\b|\bDeschenes\b)', between))
+            m = list(re.finditer(r'(?:https?://[^\s]+|\.(?:\s+|$))([A-Z\u0600-\u06FF][a-zA-Z\u0600-\u06FF\-\'\s]+,\s+[A-Z\.\u0600-\u06FF]|\bAmerican Psychiatric Association\b|\bVan den Bos\b|\bVan der Heiden\b|\bLe Poire\b|\bLissek\b|\bSarinopoulos\b|\bDeschenes\b)', between))
             if m:
                 entry_start = prev_ym.end() + m[-1].start(1)
             else:
-                m2 = list(re.finditer(r'([A-Z][a-zA-Z\-\'\s]+,\s+[A-Z\.]|\bAmerican Psychiatric Association\b|\bVan den Bos\b|\bVan der Heiden\b|\bLe Poire\b|\bLissek\b|\bSarinopoulos\b|\bDeschenes\b)', between))
+                m2 = list(re.finditer(r'([A-Z\u0600-\u06FF][a-zA-Z\u0600-\u06FF\-\'\s]+,\s+[A-Z\.\u0600-\u06FF]|\bAmerican Psychiatric Association\b|\bVan den Bos\b|\bVan der Heiden\b|\bLe Poire\b|\bLissek\b|\bSarinopoulos\b|\bDeschenes\b)', between))
                 if m2:
                     entry_start = prev_ym.end() + m2[-1].start(1)
                 else:
@@ -68,11 +77,11 @@ def extract_bibliography_entries(raw_bib_text):
         if i < len(year_matches) - 1:
             next_ym = year_matches[i+1]
             between_next = txt[curr_ym.end():next_ym.start()]
-            m_next = list(re.finditer(r'(?:https?://[^\s]+|\.(?:\s+|$))([A-Z][a-zA-Z\-\'\s]+,\s+[A-Z\.]|\bAmerican Psychiatric Association\b|\bVan den Bos\b|\bVan der Heiden\b|\bLe Poire\b|\bLissek\b|\bSarinopoulos\b|\bDeschenes\b)', between_next))
+            m_next = list(re.finditer(r'(?:https?://[^\s]+|\.(?:\s+|$))([A-Z\u0600-\u06FF][a-zA-Z\u0600-\u06FF\-\'\s]+,\s+[A-Z\.\u0600-\u06FF]|\bAmerican Psychiatric Association\b|\bVan den Bos\b|\bVan der Heiden\b|\bLe Poire\b|\bLissek\b|\bSarinopoulos\b|\bDeschenes\b)', between_next))
             if m_next:
                 entry_end = curr_ym.end() + m_next[-1].start(1)
             else:
-                m_next2 = list(re.finditer(r'([A-Z][a-zA-Z\-\'\s]+,\s+[A-Z\.]|\bAmerican Psychiatric Association\b|\bVan den Bos\b|\bVan der Heiden\b|\bLe Poire\b|\bLissek\b|\bSarinopoulos\b|\bDeschenes\b)', between_next))
+                m_next2 = list(re.finditer(r'([A-Z\u0600-\u06FF][a-zA-Z\u0600-\u06FF\-\'\s]+,\s+[A-Z\.\u0600-\u06FF]|\bAmerican Psychiatric Association\b|\bVan den Bos\b|\bVan der Heiden\b|\bLe Poire\b|\bLissek\b|\bSarinopoulos\b|\bDeschenes\b)', between_next))
                 if m_next2:
                     entry_end = curr_ym.end() + m_next2[-1].start(1)
                 else:
@@ -115,13 +124,14 @@ def extract_bibliography_entries(raw_bib_text):
 def index_bibliography(entries):
     """Index reference entries by author tokens and year for rapid fuzzy matching."""
     bib_index = []
+    STOP_WORDS = {"and", "eds", "for", "the", "al", "et", "در", "بر", "از", "با", "همکاران", "و"}
     for idx, entry in enumerate(entries):
         m_yr = re.search(r'\((\d{4}[a-z]?)\)', entry)
         year = m_yr.group(1).lower() if m_yr else ""
         authors_part = entry[:m_yr.start()] if m_yr else entry[:120]
         authors_part_norm = strip_accents(authors_part)
-        words = set(re.findall(r'\b[a-z]{3,}\b', authors_part_norm))
-        words = {w for w in words if w not in {"and", "eds", "for", "the"}}
+        words = set(re.findall(r'[a-z\u0600-\u06FF]{2,}', authors_part_norm))
+        words = {w for w in words if w not in STOP_WORDS}
         bib_index.append({
             "index": idx,
             "raw": entry,
@@ -134,19 +144,20 @@ def index_bibliography(entries):
 def match_section_citations(citation_list, bib_index):
     """
     Match a list of section citations/footnotes against the indexed bibliography.
-    citation_list is a list of strings: e.g. ["Carleton et al., 2007", "Van den Bos & Lind, 2002"]
+    citation_list is a list of strings: e.g. ["Carleton et al., 2007", "حسینی و محمدی، 1401"]
     """
     matched_entries = {}
     unmatched = []
+    STOP_WORDS = {"and", "al", "et", "the", "van", "den", "der", "des", "در", "بر", "از", "با", "همکاران", "و"}
 
     for fn_text in citation_list:
         clean_fn = re.sub(r'\[.*?\]', '', fn_text).strip()
         clean_fn_norm = strip_accents(clean_fn)
 
-        years = re.findall(r'\b(19\d\d|20\d\d)[a-z]?\b', clean_fn_norm)
-        fn_no_yr = re.sub(r'\b(19\d\d|20\d\d)[a-z]?\b', '', clean_fn_norm)
-        fn_authors = set(re.findall(r'\b[a-z]{3,}\b', fn_no_yr))
-        fn_authors = {w for w in fn_authors if w not in {"and", "al", "et", "the", "van", "den", "der", "des"}}
+        years = re.findall(r'\b(1[34]\d\d|19\d\d|20\d\d)[a-z]?\b', clean_fn_norm)
+        fn_no_yr = re.sub(r'\b(1[34]\d\d|19\d\d|20\d\d)[a-z]?\b', '', clean_fn_norm)
+        fn_authors = set(re.findall(r'[a-z\u0600-\u06FF]{2,}', fn_no_yr))
+        fn_authors = {w for w in fn_authors if w not in STOP_WORDS}
 
         target_years = years if years else [""]
         fn_found = False
@@ -335,11 +346,147 @@ def export_ris(records, output_path):
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write("\n\n".join(ris_lines) + "\n")
 
-def export_txt(entries, output_path, title_header="SECTION REFERENCES"):
-    """Export formatted APA reference list (.txt)."""
+def to_persian_digits(s: str) -> str:
+    """Convert ASCII digits to Persian digits."""
+    trans = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
+    return str(s).translate(trans)
+
+def format_entry_by_style(record: dict, style: str = "apa7") -> str:
+    """Format parsed bibliographic record into target academic citation style."""
+    raw = record.get("raw", "").strip()
+    authors = record.get("authors", [])
+    year = record.get("year", "")
+    title = record.get("title", "")
+    journal = record.get("journal", "")
+    volume = record.get("volume", "")
+    issue = record.get("issue", "")
+    pages = record.get("pages", "")
+    doi = record.get("doi", "")
+    url = record.get("url", "")
+
+    is_persian = any('\u0600' <= c <= '\u06FF' for c in (raw + title))
+
+    if style == "apa7":
+        return raw if raw else f"{', '.join(authors)} ({year}). {title}. {journal}, {volume}({issue}), {pages}."
+
+    elif style == "tehran_univ":
+        # شیوه‌نامه نگارش کتاب و مقاله دانشگاه تهران
+        auth_str = ", ".join(authors) if authors else "بدون مؤلف"
+        yr_str = f"({year})" if year else "(بی‌تا)"
+        vol_issue = f"{volume}({issue})" if issue else (volume if volume else "")
+        
+        if is_persian:
+            p_prefix = f"صص {pages}" if pages else ""
+            parts = [f"{auth_str} {yr_str}.", f"{title}.", f"{journal}"]
+            if vol_issue:
+                parts[-1] += f"، دوره {vol_issue}"
+            if p_prefix:
+                parts.append(p_prefix)
+            return " ".join(parts).rstrip('.') + "."
+        else:
+            p_prefix = f"pp. {pages}" if pages else ""
+            parts = [f"{auth_str} {yr_str}.", f"{title}.", f"{journal}"]
+            if vol_issue:
+                parts[-1] += f", Vol. {vol_issue}"
+            if p_prefix:
+                parts.append(p_prefix)
+            if doi:
+                parts.append(f"https://doi.org/{doi}")
+            return " ".join(parts).rstrip('.') + "."
+
+    elif style == "irandoc":
+        # شیوه‌نامه پایگاه اطلاعات علمی و پایان‌نامه‌های ایران (ایرانداک)
+        auth_str = ", ".join(authors) if authors else "نامشخص"
+        yr_str = f"{year}." if year else "بی‌تا."
+        issue_part = f"{volume}({issue}): {pages}" if (volume and issue and pages) else (f"{pages}" if pages else "")
+        return f"{auth_str} {yr_str} {title}. {journal}, {issue_part}".rstrip(',: ') + "."
+
+    elif style == "farhangestan":
+        # استانداردهای مصوب فرهنگستان زبان و ادب فارسی (اعداد فارسی و نیم‌فاصله‌ها)
+        auth_str = ", ".join(authors) if authors else "نامشخص"
+        fa_year = to_persian_digits(year) if year else "بی‌تا"
+        fa_pages = to_persian_digits(pages) if pages else ""
+        p_prefix = f"صص {fa_pages}" if fa_pages else ""
+        vol_issue = to_persian_digits(f"{volume}({issue})") if (volume and issue) else to_persian_digits(volume)
+        parts = [f"{auth_str} ({fa_year}).", f"«{title}».", f"{journal}"]
+        if vol_issue:
+            parts[-1] += f"، دوره {vol_issue}"
+        if p_prefix:
+            parts.append(p_prefix)
+        res = " ".join(parts).rstrip('.') + "."
+        return res
+
+    return raw
+
+def export_txt(entries, records, output_path, title_header="SECTION REFERENCES", style="apa7"):
+    """Export formatted academic reference list (.txt) under specified style profile."""
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(f"{title_header}\n")
+        f.write(f"{title_header} [{style.upper()}]\n")
         f.write(f"Total Unique References: {len(entries)}\n")
         f.write(f"=" * 70 + "\n\n")
-        for i, e in enumerate(entries, 1):
-            f.write(f"{i}. {e}\n\n")
+        for i, (e, r) in enumerate(zip(entries, records), 1):
+            formatted_entry = format_entry_by_style(r, style=style) if r else e
+            f.write(f"{i}. {formatted_entry}\n\n")
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Extract and export section bibliography in APA, EndNote (.enw), RIS (.ris), and Iranian styles."
+    )
+    parser.add_argument("--source-bib", required=True, help="Path to full master bibliography TXT file.")
+    parser.add_argument("--citations", required=True, help="Path to in-text citations or footnotes TXT file.")
+    parser.add_argument("--output-dir", default="./output_references", help="Directory to save output files.")
+    parser.add_argument("--prefix", default="Section_References", help="Filename prefix for generated artifacts.")
+    parser.add_argument(
+        "--style",
+        choices=["apa7", "tehran_univ", "irandoc", "farhangestan"],
+        default="apa7",
+        help="Citation style profile: apa7 (default), tehran_univ (دانشگاه تهران), irandoc (ایرانداک), farhangestan (فرهنگستان)."
+    )
+
+    args = parser.parse_args()
+
+    if not os.path.exists(args.source_bib):
+        print(f"[-] Error: Source bib file not found: {args.source_bib}", file=sys.stderr)
+        sys.exit(1)
+
+    if not os.path.exists(args.citations):
+        print(f"[-] Error: Citations file not found: {args.citations}", file=sys.stderr)
+        sys.exit(1)
+
+    with open(args.source_bib, 'r', encoding='utf-8', errors='replace') as f:
+        raw_bib = f.read()
+
+    with open(args.citations, 'r', encoding='utf-8', errors='replace') as f:
+        raw_citations = [line.strip() for line in f if line.strip()]
+
+    print(f"[*] Parsing master bibliography ({len(raw_bib)} chars)...")
+    entries = extract_bibliography_entries(raw_bib)
+    print(f"[✓] Extracted {len(entries)} candidate bibliography entries.")
+
+    bib_index = index_bibliography(entries)
+    print(f"[*] Matching {len(raw_citations)} section in-text citations/footnotes...")
+    matched_entries, unmatched = match_section_citations(raw_citations, bib_index)
+
+    matched_list = list(matched_entries.values())
+    print(f"[✓] Successfully matched: {len(matched_list)} / {len(raw_citations)} items.")
+    if unmatched:
+        print(f"[!] Unmatched citations ({len(unmatched)}): {unmatched[:3]}...")
+
+    # Parse records
+    parsed_records = [parse_record_fields(e) for e in matched_list]
+
+    os.makedirs(args.output_dir, exist_ok=True)
+    enw_path = os.path.join(args.output_dir, f"{args.prefix}.enw")
+    ris_path = os.path.join(args.output_dir, f"{args.prefix}.ris")
+    txt_path = os.path.join(args.output_dir, f"{args.prefix}_{args.style}.txt")
+
+    export_enw(parsed_records, enw_path)
+    export_ris(parsed_records, ris_path)
+    export_txt(matched_list, parsed_records, txt_path, style=args.style)
+
+    print(f"[✓] Exported EndNote: {enw_path}")
+    print(f"[✓] Exported RIS: {ris_path}")
+    print(f"[✓] Exported Text [{args.style}]: {txt_path}")
+
+if __name__ == "__main__":
+    main()

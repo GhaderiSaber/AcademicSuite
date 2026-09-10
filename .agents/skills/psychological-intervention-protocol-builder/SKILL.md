@@ -88,11 +88,25 @@ python3 .agents/skills/psychological-intervention-protocol-builder/scripts/compi
 
 ---
 
+## 📐 The Method Triad (چارچوب سه‌گانه روش‌شناختی فنون و جلسات)
+
+Inspired by Prof. Sida Peng's research defense standards, every intervention session and key experiential technique must be defensible against hostile examiner cross-examination via the **Method Triad**:
+1. **Motivation (چرایی و ضرورت نظری)**: Why this specific technique or session theme is essential; what psychological vulnerability, avoidance mechanism, or pathology it targets.
+2. **Design (چیستی و طراحی عملیاتی)**: Step-by-step procedure of how the technique, metaphor, or in-session exercise is executed and internalized by participants.
+3. **Advantage (برتری فنی و مزیت رقابتی)**: Explicit academic justification of why this approach outperforms traditional or alternative techniques (e.g. why ACT acceptance surpasses thought suppression, or why imagery rescripting outperforms verbal disputation).
+
+The compiler script automatically highlights these triads in:
+- **Chapter 3 Summary Table**: Condensed comparative advantages in the techniques column.
+- **Appendix Manual**: Formatted dual-tone callout boxes detailing Motivation, Design, and Advantage.
+
+---
+
 ## 📄 OpenXML Formatting & Typography Standards
 
 When generating the `.docx` manual:
 - **Title & Headers**: `B Titr` 16 pt Bold for session titles; `B Titr` 12 pt for phase headers.
 - **Body Text**: `B Nazanin` 13 pt Regular, Line Spacing 1.25, Justified.
 - **Visual Callouts (کادرهای ویژه)**:
-  - Clinical Metaphors and Experiential Exercises are wrapped in light gray/blue container callouts with subtle borders (`#E2E8F0`) and 5 pt internal margins.
+  - Clinical Metaphors and Experiential Exercises are wrapped in light gray/blue container callouts with subtle borders (`#E2E8F0`) and internal margins.
+  - Method Triad containers feature a distinct violet/indigo border (`#4F46E5`) with multi-point structured fields.
 - **Directionality**: Enforces `<w:bidi w:val="1"/>` on every paragraph and `<w:bidiVisual/>` on all table elements.

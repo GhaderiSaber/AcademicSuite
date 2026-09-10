@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicSuite Statistical Results Schema",
+  "description": "JSON contract for empirical statistical analysis outputs passed to article writers, discussion builders, and auditors.",
+  "type": "object",
+  "required": ["project_title", "sample_size", "analysis_timestamp", "hypotheses_results"],
+  "properties": {
+    "project_title": { "type": "string" },
+    "sample_size": { "type": "integer", "minimum": 1 },
+    "analysis_timestamp": { "type": "string" },
+    "descriptive_statistics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["variable", "n", "mean", "sd"],
+        "properties": {
+          "variable": { "type": "string" },
+          "group": { "type": "string" },
+          "n": { "type": "integer" },
+          "mean": { "type": "number" },
+          "sd": { "type": "number" },
+          "skewness": { "type": "number" },
+          "kurtosis": { "type": "number" }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "object",
+      "properties": {
+        "normality_p": { "type": "number" },
+        "levene_p": { "type": "number" },
+        "box_m_p": { "type": "number" },
+        "multicollinearity_vif_max": { "type": "number" }
+      }
+    },
+    "hypotheses_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["hypothesis_id", "test_type", "verdict"],
+        "properties": {
+          "hypothesis_id": { "type": "string" },
+          "formulation": { "type": "string" },
+          "test_type": { "type": "string" },
+          "test_statistic": { "type": "string" },
+          "value": { "type": "number" },
+          "df": { "type": ["string", "integer", "array"] },
+          "p_value": { "type": "number" },
+          "effect_size_type": { "type": "string" },
+          "effect_size_value": { "type": "number" },
+          "verdict": { "type": "string", "enum": ["confirmed", "rejected", "partially_confirmed"] }
+        }
+      }
+    }
+  }
+}

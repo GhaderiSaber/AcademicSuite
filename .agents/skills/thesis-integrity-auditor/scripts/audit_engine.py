@@ -130,6 +130,7 @@ class ThesisIntegrityAuditor:
         self._audit_methodology_and_statistics()
         self._audit_citations_and_bibliography()
         self._audit_apa7_compliance()
+        self._audit_adversarial_defense()
         self._compute_integrity_score()
         return self.audit_summary
 
@@ -451,6 +452,118 @@ class ThesisIntegrityAuditor:
                     details={"paragraph_index": p_idx}
                 )
 
+
+    def _audit_adversarial_defense(self):
+        """
+        Dimension 5: Adversarial Defense & Peer-Review Simulation (from Sida Peng & Rule 10)
+        Audits:
+          1. Effect size plausibility (Rule 10 anti-over-separation guardrail)
+          2. Methodological reproducibility & psychometric transparency
+          3. Assumption completeness (Box's M, Levene, Normality)
+          4. Hostile referee question simulation
+        """
+        tests = self.payload.get("chapter4_statistical_tests", [])
+        self.adversarial_questions = []
+
+        for t in tests:
+            test_id = t.get("test_id", "Test")
+            stats = t.get("statistics", {})
+            p_val = stats.get("p_value")
+            
+            # 1. Effect Size Plausibility Check (Rule 10)
+            eta_sq = stats.get("partial_eta_squared") or stats.get("eta_squared")
+            cohen_d = stats.get("cohen_d")
+
+            if eta_sq is not None:
+                try:
+                    eta_val = float(eta_sq)
+                    if eta_val > 0.25:
+                        self._add_finding(
+                            domain="adversarial_defense",
+                            severity="CRITICAL",
+                            title_fa=f"اندازه اثر نجومی و غیرواقعی در آزمون {test_id} (نقض قاعده ۱۰)",
+                            title_en=f"Astronomically Inflated Effect Size in Test {test_id} (Rule 10 Violation)",
+                            description_fa=f"اندازه اثر گزارش‌شده (eta_p^2 = {eta_val:.3f}) از سقف تجربی علوم رفتاری (۰/۲۵) فراتر رفته است. این مقدار به معنای تبیین بیش از ۲۵ تا ۸۰ درصد واریانس کل توسط متغیر مستقل و فقدان همپوشانی توزیع گروه‌ها است که در جلسه دفاع بلافاصله شبهه داده‌سازی را برمی‌انگیزد.",
+                            description_en=f"Reported partial eta squared ({eta_val:.3f}) exceeds the empirical threshold of .25. In psychological research, this implies virtually zero distribution overlap and will trigger data fabrication suspicions during peer review.",
+                            recommendation_fa="تفاوت میانگین گروه‌ها و انحراف استانداردها را به نحوی کالیبره کنید که اندازه اثر در دامنه متعارف و مستحکم (۰/۰۸ تا ۰/۲۲) قرار گیرد.",
+                            recommendation_en="Calibrate mean differences and variances so partial eta squared falls within credible empirical bounds (.08 to .22).",
+                            details={"test_id": test_id, "eta_squared": eta_val, "threshold": 0.25}
+                        )
+                    elif eta_val < 0.01 and p_val is not None and float(p_val) < 0.05:
+                        self._add_finding(
+                            domain="adversarial_defense",
+                            severity="MAJOR",
+                            title_fa=f"معناداری آماری کاذب با اندازه اثر ناچیز در آزمون {test_id}",
+                            title_en=f"Statistical Significance with Negligible Effect Size in Test {test_id}",
+                            description_fa=f"آزمون با مقدار p = {p_val} معنادار شده اما اندازه اثر (eta_p^2 = {eta_val:.3f}) بسیار ناچیز است و داوران پیرامون اثربخشی واقعی بالینی آن تشکیک خواهند کرد.",
+                            description_en=f"Test reached significance (p = {p_val}) but effect size is negligible (eta_p^2 = {eta_val:.3f}), raising doubts about clinical relevance.",
+                            recommendation_fa="در فصل ۵ تصریح نمایید که معناداری حاصل صرفاً به واسطه توان آزمون بوده و اندازه اثر نیازمند احتیاط بالینی است.",
+                            recommendation_en="Clarify in Chapter 5 that statistical significance must be interpreted cautiously due to trivial effect size.",
+                            details={"test_id": test_id, "eta_squared": eta_val}
+                        )
+                except (ValueError, TypeError):
+                    pass
+
+            if cohen_d is not None:
+                try:
+                    d_val = float(cohen_d)
+                    if d_val > 1.40:
+                        self._add_finding(
+                            domain="adversarial_defense",
+                            severity="CRITICAL",
+                            title_fa=f"مقدار d کوهن نجومی (d = {d_val:.2f}) در آزمون {test_id}",
+                            title_en=f"Astronomical Cohen's d (d = {d_val:.2f}) in Test {test_id}",
+                            description_fa=f"اندازه اثر کوهن d = {d_val:.2f} در پژوهش‌های رفتاری و مقایسه گروه‌ها به ندرت بالاتر از ۱/۲۰ مشاهده می‌شود و شبهه تفکیک ساختگی داده‌ها را ایجاد می‌کند.",
+                            description_en=f"Cohen's d of {d_val:.2f} is exceptionally rare in empirical psychology and indicates synthetic over-separation.",
+                            recommendation_fa="انحراف استانداردها و تفاضل میانگین را به دامنه طبیعی d در حدود ۰/۸۰ تا ۱/۱۵ تنظیم نمایید.",
+                            recommendation_en="Adjust parameters so Cohen's d remains within a defensible empirical range (0.80 to 1.15).",
+                            details={"test_id": test_id, "cohen_d": d_val}
+                        )
+                except (ValueError, TypeError):
+                    pass
+
+        # 2. Assumption Check Completeness
+        assumptions = self.payload.get("chapter4_assumptions", {})
+        if not assumptions.get("homogeneity_of_variance_levene") and any("ANCOVA" in t.get("method", "") or "ANOVA" in t.get("method", "") for t in tests):
+            self._add_finding(
+                domain="adversarial_defense",
+                severity="MAJOR",
+                title_fa="عدم گزارش آزمون لون برای همگنی واریانس‌ها",
+                title_en="Missing Levene's Test for Homogeneity of Variance",
+                description_fa="در تحلیل‌های واریانس یا کوواریانس، پیش‌فرض همگنی واریانس خطا (Levene's Test) گزارش نشده است. داوران روش‌شناس در گام اول عدم نقض این پیش‌فرض را طلب خواهند کرد.",
+                description_en="Levene's test for homogeneity of variance is absent in ANOVA/ANCOVA reporting, creating an immediate defense vulnerability.",
+                recommendation_fa="جدول نتایج آزمون لون (F و سطح معناداری p > .05) را به ابتدای یافته‌های فصل چهارم اضافه کنید.",
+                recommendation_en="Include Levene's test results (F and p > .05) prior to hypothesis testing tables in Chapter 4."
+            )
+
+        if not assumptions.get("homogeneity_of_covariance_box_m") and any("MANOVA" in t.get("method", "") for t in tests):
+            self._add_finding(
+                domain="adversarial_defense",
+                severity="MAJOR",
+                title_fa="عدم گزارش آزمون ام‌باکس برای همگنی ماتریس‌های کوواریانس",
+                title_en="Missing Box's M Test for Covariance Homogeneity",
+                description_fa="برای تحلیل واریانس چندمتغیره (مانوا)، آزمون ام‌باکس (Box's M) گزارش نشده است.",
+                description_en="Box's M test was not reported for MANOVA multivariate analyses.",
+                recommendation_fa="آزمون ام‌باکس (p > .05) را در مقدمه آزمون فرضیه‌ها درج نمایید.",
+                recommendation_en="Report Box's M test verifying covariance homogeneity prior to Wilks' Lambda."
+            )
+
+        # 3. Simulate Hostile Defense Examiner Probes
+        self.adversarial_questions = [
+            {
+                "probe_fa": "چرا با وجود معناداری آماری، اطمینان دارید که اثر مداخله ناشی از انتظارات مراجع (اثر هاوثورن یا دارونما) نبوده است؟",
+                "probe_en": "How can you ensure the significant intervention effect is not merely driven by the Hawthorne or placebo effect?",
+                "rebuttal_fa": "استفاده از گروه کنترل فعال/لیست انتظار، همتاسازی پیش‌آزمون، و ارزیابی پیگیری ۱ تا ۲ ماهه جهت اثبات پایداری تغییرات ساختاری.",
+                "rebuttal_en": "Use of waitlist/active control, baseline ANCOVA adjustment, and 2-month follow-up confirming sustained behavioral changes."
+            },
+            {
+                "probe_fa": "علت انتخاب این حجم نمونه مشخص و توان آماری حاصل بر مبنای تحلیل G*Power چه بوده است؟",
+                "probe_en": "What was the statistical power justification for your sample size according to G*Power?",
+                "rebuttal_fa": "محاسبه بر پایه اندازه اثر متوسط f = 0.25، آلفای ۰/۰۵ و توان آزمون ۰/۸۰ که حداقل حجم نمونه مورد نیاز را توجیه می‌نماید.",
+                "rebuttal_en": "A priori G*Power analysis with medium effect size f = .25, alpha = .05, and power = .80 justifying sample sufficiency."
+            }
+        ]
+
     def _compute_integrity_score(self):
         """Computes composite Thesis Integrity Score (TIS) 0-100%"""
         critical_count = sum(1 for f in self.findings if f["severity"] == "CRITICAL")
@@ -578,7 +691,8 @@ def generate_audit_docx(auditor, out_path, lang="fa"):
         ("hypothesis_alignment", "۲. ممیزی همخوانی فرضیه‌ها، یافته‌ها و بحث", "2. Hypothesis-Result-Discussion Alignment"),
         ("methodology_statistics", "۳. ممیزی انطباق روش‌شناسی و درجات آزادی آماری", "3. Methodology & Statistical Consistency"),
         ("citations_bibliography", "۴. صحت‌سنجی دوطرفه ارجاعات درون‌متنی و منابع", "4. Citation & Bibliography Reconciliation"),
-        ("apa7_formatting", "۵. رعایت استانداردهای نگارش آماری APA 7th Edition", "5. APA 7th Edition Formatting Compliance")
+        ("apa7_formatting", "۵. رعایت استانداردهای نگارش آماری APA 7th Edition", "5. APA 7th Edition Formatting Compliance"),
+        ("adversarial_defense", "۶. شبیه‌سازی ارزیابی تخاصمی داوران و آمادگی جلسه دفاع", "6. Adversarial Defense & Peer-Review Simulation")
     ]
 
     for domain_key, domain_title_fa, domain_title_en in domains:

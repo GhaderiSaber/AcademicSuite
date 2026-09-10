@@ -105,30 +105,74 @@ Deliver the filtered section references in three universal formats, saved in the
 2. **Universal RIS File (`.ris`)**:
    - Standard tags `TY  -`, `AU  -`, `PY  -`, `TI  -`, `JO  -`, `VL  -`, `IS  -`, `SP  -`, `EP  -`, `DO  -`, `UR  -`, `ER  -`.
    - Supported by Zotero, Mendeley, Citavi, Paperpile, and RefWorks.
-3. **Formatted APA Text File (`.txt`)**:
-   - Clean, numbered, alphabetically sorted reference list according to APA 7th Edition style.
+3. **Formatted Text File (`.txt`) with Citation Style Profiles**:
+   - Clean, numbered reference list formatted according to international or Iranian national citation standards:
+     * **`apa7`** (Default): APA 7th Edition standards.
+     * **`tehran_univ`**: University of Tehran style guide (شیوه‌نامه دانشگاه تهران) with explicit «صص» prefixes and Latin journal volume designations.
+     * **`irandoc`**: Irandoc thesis repository standard (شیوه‌نامه ایرانداک).
+     * **`farhangestan`**: Academy of Persian Language & Literature standards (اعداد فارسی، گیومه برای عناوین و نیم‌فاصله‌های مصوب).
    - **Zero Raw Markdown Asterisks**: When exporting or inserting references into Word documents (`.docx`), never leave literal asterisks (`*Journal Name*`) in the output. Render journal and book titles with native Word italic runs (`<w:i>`).
    - **Bilingual References Support**: When compiling theses or bilingual documents, partition references into Persian references (الف) منابع فارسی sorted by Persian alphabet) and English references (ب) منابع انگلیسی sorted A–Z).
 
 ---
 
-## 4. Deliverable File Naming Convention
+## 4. National Academic Citation Profiles & CLI Usage
+
+The automated reference extractor provides a unified CLI engine supporting both Western and Iranian citation profiles:
+
+```bash
+# Standard APA 7 extraction (creates .enw, .ris, and _apa7.txt):
+python3 .agents/skills/academic-reference-extractor/scripts/extract_section_references.py \
+  --source-bib "full_bibliography.txt" \
+  --citations "in_text_citations.txt" \
+  --output-dir "./chapter_references" \
+  --prefix "Chapter1_References" \
+  --style apa7
+
+# University of Tehran Thesis & Article Profile:
+python3 .agents/skills/academic-reference-extractor/scripts/extract_section_references.py \
+  --source-bib "full_bibliography.txt" \
+  --citations "in_text_citations.txt" \
+  --output-dir "./chapter_references" \
+  --prefix "Chapter1_References" \
+  --style tehran_univ
+
+# Irandoc National Thesis Repository Profile:
+python3 .agents/skills/academic-reference-extractor/scripts/extract_section_references.py \
+  --source-bib "full_bibliography.txt" \
+  --citations "in_text_citations.txt" \
+  --output-dir "./chapter_references" \
+  --prefix "Chapter1_References" \
+  --style irandoc
+
+# Farhangestan Standards (Persian Numerals & Half-Spaces):
+python3 .agents/skills/academic-reference-extractor/scripts/extract_section_references.py \
+  --source-bib "full_bibliography.txt" \
+  --citations "in_text_citations.txt" \
+  --output-dir "./chapter_references" \
+  --prefix "Chapter1_References" \
+  --style farhangestan
+```
+
+---
+
+## 5. Deliverable File Naming Convention
 
 Place generated files directly in the user's project directory with descriptive names:
 - `[Document_Name]_[Section_Name]_References.enw`
 - `[Document_Name]_[Section_Name]_References.ris`
-- `[Document_Name]_[Section_Name]_References_APA.txt`
+- `[Document_Name]_[Section_Name]_References_[style].txt`
 
 *Example*:
 - `Intolerance_of_Uncertainty_Pages_1-26_References.enw`
 - `Intolerance_of_Uncertainty_Pages_1-26_References.ris`
-- `Intolerance_of_Uncertainty_Pages_1-26_References_APA.txt`
+- `Intolerance_of_Uncertainty_Pages_1-26_References_tehran_univ.txt`
 
 ---
 
-## 5. Supporting Resources
+## 6. Supporting Resources
 
-- [extract_section_references.py](./scripts/extract_section_references.py): Production Python script for parsing, matching, and generating `.enw`, `.ris`, and `.txt` files.
+- [extract_section_references.py](./scripts/extract_section_references.py): Production Python script for parsing, matching, and generating `.enw`, `.ris`, and `.txt` files across APA 7 and Iranian profiles.
 - [enw_ris_formats.md](./references/enw_ris_formats.md): Field specifications and tag definitions for EndNote and RIS formats.
 - [citation_patterns.md](./references/citation_patterns.md): Regex patterns and common in-text citation variants.
 - [sample_workflow.md](./examples/sample_workflow.md): Complete walkthrough of section reference extraction for a dissertation chapter.

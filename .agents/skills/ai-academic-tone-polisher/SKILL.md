@@ -30,14 +30,20 @@ Activate this skill whenever:
 2. **AI Predictability / Uniformity Footprint ($S_{ai} \in [0, 100\%]$)**:
    - Composite penalty based on detected robotic markers per sentence, low burstiness, and Type-Token Ratio (TTR).
    - Target post-polishing threshold: $\mathbf{S_{ai} < 25\%}$.
-3. **Lexical Diversity**:
+3. **Stanford SciWrite 5-Pass Editorial Engine (Dr. Kristin Sainani Methodology)**:
+   - **Pass 1: Clutter Extraction**: Direct removal of dead-weight phrases (*due to the fact that* $\to$ *because*, *شایان ذکر است که* $\to$ حذف) and empty throat-clearing.
+   - **Pass 2: Active Voice & Nominalization Resurrection**: Converting smothered verbs (*provides a review of* $\to$ *reviews*, *مورد بررسی قرار داد* $\to$ *بررسی کرد*) to vigorous direct verbs.
+   - **Pass 3: Sentence Architecture & Buried Predicates**: Auditing distance between subject and verb (alert if $>12$ words in EN or $>20$ words in FA) to optimize cognitive ergonomics.
+   - **Pass 4: Keyword Consistency ("The Banana Rule")**: Strictly preventing synonym variation for defined psychometric constructs (*Social Anxiety* must never drift to *Social Phobia* without declaration).
+   - **Pass 5: Numerical & Citation Integrity**: Cross-checking sample sizes and auditing secondary citations ("The Telephone Game").
+4. **Lexical Diversity**:
    - Type-Token Ratio (TTR) and vocabulary enrichment replacing conversational verbs with disciplinary psychological nomenclature.
 
 ---
 
 ## 3. CLI Command Reference
 
-### Standard Persian Text Polishing (Chapter 5 Discussion):
+### Standard Persian Text Polishing with SciWrite 5-Pass Engine:
 ```bash
 python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py \
   --json .agents/skills/ai-academic-tone-polisher/examples/sample_ai_text_payload.json \
@@ -47,22 +53,21 @@ python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py
   --intensity moderate
 ```
 
-### English Manuscript Polishing:
+### Interactive Paragraph-by-Paragraph Review Mode:
 ```bash
 python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py \
-  --json .agents/skills/ai-academic-tone-polisher/examples/sample_ai_text_payload.json \
-  --sample english_draft \
-  --out-dir "./academic_tone_output" \
-  --lang en \
-  --intensity moderate
+  --text "شایان ذکر است که این مداخله نقش بسیار مهمی ایفا می‌کند (Beck et al., 2020)." \
+  --mode interactive \
+  --lang fa
 ```
 
-### Direct CLI Text Input:
+### English Targeted SciWrite Pass Review:
 ```bash
 python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py \
-  --text "شایان ذکر است که این مداخله نقش بسیار مهمی ایفا می‌کند (Gross, 2015)." \
-  --out-dir "./quick_polish" \
-  --lang fa
+  --file manuscript_intro.txt \
+  --mode targeted \
+  --target-pass verbs \
+  --lang en
 ```
 
 ---
@@ -74,15 +79,17 @@ python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py
    - **Section 1**: Executive Anti-AI & Stylistic Scorecard (Pre vs. Post comparison table).
    - **Section 2**: Clean Polished Academic Text (Defense-ready with APA paragraph indents).
    - **Section 3**: Side-by-Side Sentence Transformation Audit (Original vs. Polished with linguistic rationale).
+   - **Section 4**: Stanford SciWrite 5-Pass Editorial Report (Top 5 Priority Revisions + Pass-by-Pass breakdown).
 2. **`tone_burstiness_plot.png` (300 DPI)**:
    - Dual-panel diagnostic figure:
      - Left Panel: Sentence length histogram comparing narrow AI distribution vs. wide human scholarly distribution.
      - Right Panel: Comparative bar chart of Burstiness, AI Predictability, and Cliche Count.
 3. **`academic_tone_audit_matrix.xlsx`**:
-   - 4 dedicated sheets:
+   - 5 dedicated sheets:
      - `Executive Scorecard`: Key before/after indices and triage verdict.
      - `Sentence Audit`: Sentence-by-sentence comparison, lengths, and syntactic explanations.
      - `AI Marker Catalog`: Flagged cliches, frequencies, and authentic academic replacements.
+     - `SciWrite 5-Pass Review`: Pass-by-pass findings, severity tags (`CRITICAL`, `MAJOR`, `MINOR`), and editorial rationale.
      - `Lexical Diversity`: Type-Token metrics.
 4. **`tone_polish_results.json`**:
    - Complete machine-readable data ledger.

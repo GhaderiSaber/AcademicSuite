@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicSuite Thesis Integrity Audit Schema",
+  "description": "JSON contract for multi-dimensional thesis integrity and adversarial mock-jury audit findings.",
+  "type": "object",
+  "required": ["thesis_title", "audit_timestamp", "tis_score", "readiness_verdict", "dimensions"],
+  "properties": {
+    "thesis_title": { "type": "string" },
+    "audit_timestamp": { "type": "string" },
+    "tis_score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "readiness_verdict": { "type": "string" },
+    "discrepancy_counts": {
+      "type": "object",
+      "properties": {
+        "critical": { "type": "integer" },
+        "major": { "type": "integer" },
+        "minor": { "type": "integer" }
+      }
+    },
+    "dimensions": {
+      "type": "object",
+      "properties": {
+        "hypothesis_alignment": { "type": "array" },
+        "methodology_statistics": { "type": "array" },
+        "citation_reconciliation": { "type": "object" },
+        "apa7_typography": { "type": "array" },
+        "adversarial_defense": {
+          "type": "object",
+          "properties": {
+            "contribution_originality": { "type": "string" },
+            "effect_size_plausibility": { "type": "string" },
+            "method_reproducibility": { "type": "string" },
+            "assumption_completeness": { "type": "string" },
+            "claim_evidence_soundness": { "type": "string" },
+            "hostile_referee_questions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "dimension": { "type": "string" },
+                  "probe_question": { "type": "string" },
+                  "suggested_defense_response": { "type": "string" },
+                  "risk_level": { "type": "string", "enum": ["LOW", "MODERATE", "HIGH"] }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
