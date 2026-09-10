@@ -1,0 +1,853 @@
+// Pre-seeded Academic Projects & Psychometric Scales Registry
+window.ACADEMIC_PROJECTS = [
+  {
+    "id": "PRJ-100",
+    "client_name": "Aysan Shokri",
+    "status": "in_progress",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Aysan Shokri",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-101",
+    "client_name": "Client_94053156",
+    "status": "inquiry",
+    "file_count": 2,
+    "message_count": 40,
+    "folder_path": "My Work/Client_94053156",
+    "topic": "در مورد سامانه پژوهشیار هم صادق باشه",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-102",
+    "client_name": "Duzen",
+    "status": "pending",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Duzen",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-103",
+    "client_name": "Ehteşami",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 3,
+    "folder_path": "My Work/Ehteşami",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-104",
+    "client_name": "Emi Ishida",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 1,
+    "folder_path": "My Work/Emi Ishida",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-105",
+    "client_name": "Fada Talebi",
+    "status": "inquiry",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Fada Talebi",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-106",
+    "client_name": "Fada Taleby",
+    "status": "inquiry",
+    "file_count": 5,
+    "message_count": 40,
+    "folder_path": "My Work/Fada Taleby",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-107",
+    "client_name": "Fateme Niknam",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 40,
+    "folder_path": "My Work/Fateme Niknam",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-108",
+    "client_name": "Fatemeh Solati",
+    "status": "pending",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Fatemeh Solati",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-109",
+    "client_name": "Fatimə Söləti",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 40,
+    "folder_path": "My Work/Fatimə Söləti",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-110",
+    "client_name": "Finished Works",
+    "status": "finished",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Finished Works",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-111",
+    "client_name": "Fərzane Vətənxah",
+    "status": "inquiry",
+    "file_count": 2,
+    "message_count": 40,
+    "folder_path": "My Work/Fərzane Vətənxah",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-112",
+    "client_name": "Hamed",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 40,
+    "folder_path": "My Work/Hamed",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-113",
+    "client_name": "Kaşı",
+    "status": "inquiry",
+    "file_count": 6,
+    "message_count": 35,
+    "folder_path": "My Work/Kaşı",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-114",
+    "client_name": "Mahta Soleymani",
+    "status": "finished",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Mahta Soleymani",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-115",
+    "client_name": "Majedeh Saidi",
+    "status": "in_progress",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Majedeh Saidi",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-116",
+    "client_name": "Marziyeh Sinayi",
+    "status": "pending",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Marziyeh Sinayi",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-117",
+    "client_name": "Morteza Estaki",
+    "status": "pending",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Morteza Estaki",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-118",
+    "client_name": "Mörteza Estəki",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 40,
+    "folder_path": "My Work/Mörteza Estəki",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-119",
+    "client_name": "Nafiseh Rajabiyan",
+    "status": "pending",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Nafiseh Rajabiyan",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-120",
+    "client_name": "Nəfise Rəcəbiyan",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 40,
+    "folder_path": "My Work/Nəfise Rəcəbiyan",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-121",
+    "client_name": "Pending Works",
+    "status": "finished",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Pending Works",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-122",
+    "client_name": "Reyhane Həsəni",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 40,
+    "folder_path": "My Work/Reyhane Həsəni",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-123",
+    "client_name": "Reyhane Şəmsizade",
+    "status": "inquiry",
+    "file_count": 2,
+    "message_count": 40,
+    "folder_path": "My Work/Reyhane Şəmsizade",
+    "topic": "پژوهش روان‌شناختی در حوزه شرم",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-124",
+    "client_name": "Saber Abdolmaleki Article",
+    "status": "in_progress",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Saber Abdolmaleki Article",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-125",
+    "client_name": "Sajad",
+    "status": "inquiry",
+    "file_count": 2,
+    "message_count": 10,
+    "folder_path": "My Work/Sajad",
+    "topic": "پژوهش روان‌شناختی در حوزه شرم",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-126",
+    "client_name": "Sana Hesamiyan",
+    "status": "pending",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Sana Hesamiyan",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-127",
+    "client_name": "سپهر رحیمی",
+    "status": "consultation_in_progress",
+    "file_count": 2,
+    "message_count": 40,
+    "folder_path": "My Work/Sepehr Rahimi",
+    "topic": "رو هم نمیدونین ؟",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-128",
+    "client_name": "Sepide Emarəti",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 40,
+    "folder_path": "My Work/Sepide Emarəti",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-129",
+    "client_name": "Sepide Höseynı",
+    "status": "inquiry",
+    "file_count": 0,
+    "message_count": 27,
+    "folder_path": "My Work/Sepide Höseynı",
+    "topic": "از توش دراریم",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-130",
+    "client_name": "Sepideh Emarati",
+    "status": "in_progress",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Sepideh Emarati",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-131",
+    "client_name": "Sevgilim",
+    "status": "inquiry",
+    "file_count": 6,
+    "message_count": 40,
+    "folder_path": "My Work/Sevgilim",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-132",
+    "client_name": "Shadi",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 13,
+    "folder_path": "My Work/Shadi",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-133",
+    "client_name": "Shahram Article References",
+    "status": "in_progress",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Shahram Article References",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-134",
+    "client_name": "Shahram Case Study 1",
+    "status": "pending",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Shahram Case Study 1",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-135",
+    "client_name": "Sirvan",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 4,
+    "folder_path": "My Work/Sirvan",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-136",
+    "client_name": "SmartPLS WrokSpace",
+    "status": "in_progress",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/SmartPLS WrokSpace",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-137",
+    "client_name": "Səmaneh Firuzi",
+    "status": "inquiry",
+    "file_count": 4,
+    "message_count": 29,
+    "folder_path": "My Work/Səmaneh Firuzi",
+    "topic": "پژوهش روان‌شناختی در حوزه شرم",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-138",
+    "client_name": "Səna Hesamiyan",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 40,
+    "folder_path": "My Work/Səna Hesamiyan",
+    "topic": "پژوهش روان‌شناختی در حوزه شرم",
+    "degree": "کارشناسی ارشد",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-139",
+    "client_name": "Tabasom",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 16,
+    "folder_path": "My Work/Tabasom",
+    "topic": "پژوهش روان‌شناختی در حوزه اضطراب",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-140",
+    "client_name": "Tabason Khazayi",
+    "status": "inquiry",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Tabason Khazayi",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-141",
+    "client_name": "Varesi",
+    "status": "inquiry",
+    "file_count": 3,
+    "message_count": 40,
+    "folder_path": "My Work/Varesi",
+    "topic": "پژوهش روان‌شناختی در حوزه شرم",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-142",
+    "client_name": "Vecto",
+    "status": "finished",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Vecto",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-143",
+    "client_name": "Zahra Jalali",
+    "status": "pending",
+    "file_count": 0,
+    "message_count": 0,
+    "folder_path": "My Work/Zahra Jalali",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-144",
+    "client_name": "Zəhra Cəlalı",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 50,
+    "folder_path": "My Work/Zəhra Cəlalı",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-145",
+    "client_name": "arefe",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 16,
+    "folder_path": "My Work/arefe",
+    "topic": "موضوع پایان نامه رو بکشید و من داده هارو اول مهر ماه بهتون میدم",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-146",
+    "client_name": "h hm",
+    "status": "inquiry",
+    "file_count": 2,
+    "message_count": 11,
+    "folder_path": "My Work/h hm",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-147",
+    "client_name": "zαняα євяαнιмι",
+    "status": "inquiry",
+    "file_count": 4,
+    "message_count": 32,
+    "folder_path": "My Work/zαняα євяαнιмι",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-148",
+    "client_name": "İmaneh Əbbası",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 37,
+    "folder_path": "My Work/İmaneh Əbbası",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-149",
+    "client_name": "İrəvanı",
+    "status": "inquiry",
+    "file_count": 0,
+    "message_count": 28,
+    "folder_path": "My Work/İrəvanı",
+    "topic": "ات رو استخراج کردم",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-150",
+    "client_name": "Əlireza Baneşı",
+    "status": "inquiry",
+    "file_count": 0,
+    "message_count": 1,
+    "folder_path": "My Work/Əlireza Baneşı",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-151",
+    "client_name": "̶̶ف̶̶ـ̶̶ـ̶̶ـا̶̶ط̶̶ـ̶̶ـ̶̶ـ̶̶م̶̶ـ̶̶ـ̶̶ـه",
+    "status": "inquiry",
+    "file_count": 3,
+    "message_count": 40,
+    "folder_path": "My Work/̶̶ف̶̶ـ̶̶ـ̶̶ـا̶̶ط̶̶ـ̶̶ـ̶̶ـ̶̶م̶̶ـ̶̶ـ̶̶ـه",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-152",
+    "client_name": "زاد🌚",
+    "status": "inquiry",
+    "file_count": 2,
+    "message_count": 15,
+    "folder_path": "My Work/زاد🌚",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "دکتری تخصصی (Ph.D.)",
+    "design": "معادلات ساختاری (SEM)",
+    "sample_size": 350
+  },
+  {
+    "id": "PRJ-153",
+    "client_name": "❤️",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 26,
+    "folder_path": "My Work/❤️",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  },
+  {
+    "id": "PRJ-154",
+    "client_name": "🌷🏵julyna",
+    "status": "inquiry",
+    "file_count": 1,
+    "message_count": 2,
+    "folder_path": "My Work/🌷🏵julyna",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "شبه‌آزمایشی (ANCOVA)",
+    "sample_size": 40
+  },
+  {
+    "id": "PRJ-155",
+    "client_name": "🎈[̲͕̅͗Ɲ͕̲͗̅][̲͕̅͗A͕̲͗̅][̲͕̅͗R͕̲͗̅][̲͕̅͗J͕̲͗̅][̲͕̅͗Ɛ͕̲͗̅][̲͕̅͗S͕͗",
+    "status": "inquiry",
+    "file_count": 2,
+    "message_count": 29,
+    "folder_path": "My Work/🎈[̲͕̅͗Ɲ͕̲͗̅][̲͕̅͗A͕̲͗̅][̲͕̅͗R͕̲͗̅][̲͕̅͗J͕̲͗̅][̲͕̅͗Ɛ͕̲͗̅][̲͕̅͗S͕͗",
+    "topic": "پژوهش روان‌شناختی و تحلیل آماری رساله",
+    "degree": "کارشناسی ارشد",
+    "design": "همبستگی و رگرسیون",
+    "sample_size": 180
+  }
+];
+
+
+window.ACADEMIC_SCALES = [
+  {
+    "name_en": "Connor-Davidson Resilience Scale (CD-RISC-25)",
+    "name_fa": "مقیاس تاب‌آوری کانر و دیویدسون",
+    "items_count": 25,
+    "rating_scale": "لیکرت ۵ درجه‌ای (۰ تا ۴)",
+    "subscales": [
+      "شایستگی فردی",
+      "اعتماد به غرایز فردی",
+      "پذیرش مثبت تغییر",
+      "کنترل",
+      "تاثیرات معنوی"
+    ],
+    "category": "resilience",
+    "author": "Connor & Davidson (2003)"
+  },
+  {
+    "name_en": "Beck Depression Inventory-II (BDI-II)",
+    "name_fa": "پرسشنامه افسردگی بک - ویرایش دوم",
+    "items_count": 21,
+    "rating_scale": "چهار گزینه‌ای (۰ تا ۳)",
+    "subscales": [
+      "بعد شناختی-عاطفی",
+      "بعد جسمانی-نباتی"
+    ],
+    "category": "depression",
+    "author": "Beck et al. (1996)"
+  },
+  {
+    "name_en": "Beck Anxiety Inventory (BAI)",
+    "name_fa": "پرسشنامه اضطراب بک",
+    "items_count": 21,
+    "rating_scale": "لیکرت ۴ درجه‌ای (۰ تا ۳)",
+    "subscales": [
+      "نشانه‌های فیزیولوژیک",
+      "نشانه‌های شناختی و ذهنی"
+    ],
+    "category": "anxiety",
+    "author": "Beck et al. (1988)"
+  },
+  {
+    "name_en": "Self-Compassion Scale (SCS-Long Form)",
+    "name_fa": "مقیاس شفقت به خود نف",
+    "items_count": 26,
+    "rating_scale": "لیکرت ۵ درجه‌ای (۱ تا ۵)",
+    "subscales": [
+      "مهربانی با خود",
+      "قضاوت نسبت به خود",
+      "انسانیت مشترک",
+      "انزوا",
+      "ذهن‌آگاهی",
+      "همانندسازی افراطی"
+    ],
+    "category": "compassion",
+    "author": "Neff (2003)"
+  },
+  {
+    "name_en": "Cognitive Emotion Regulation Questionnaire (CERQ)",
+    "name_fa": "پرسشنامه تنظیم شناختی هیجان گرانفسکی",
+    "items_count": 36,
+    "rating_scale": "لیکرت ۵ درجه‌ای (۱ تا ۵)",
+    "subscales": [
+      "پذیرش",
+      "تمرکز مجدد مثبت",
+      "تمرکز مجدد بر برنامه‌ریزی",
+      "ارزیابی مجدد مثبت",
+      "دیدگاه‌پذیری",
+      "سرزنش خود",
+      "نشخوار فکری",
+      "فاجعه‌آمیز پنداری",
+      "سرزنش دیگران"
+    ],
+    "category": "emotion",
+    "author": "Garnefski & Kraaij (2006)"
+  },
+  {
+    "name_en": "Young Schema Questionnaire - Short Form (YSQ-S3)",
+    "name_fa": "پرسشنامه طرحواره‌های یانگ - فرم کوتاه",
+    "items_count": 75,
+    "rating_scale": "لیکرت ۶ درجه‌ای (۱ تا ۶)",
+    "subscales": [
+      "بریدگی و طرد",
+      "خودگردانی و عملکرد مختل",
+      "محدودیت‌های مختل",
+      "دیگرجهت‌مندی",
+      "گوش‌به‌زنگی و بازداری"
+    ],
+    "category": "schema",
+    "author": "Young (2005)"
+  },
+  {
+    "name_en": "World Health Organization Quality of Life (WHOQOL-BREF)",
+    "name_fa": "پرسشنامه کیفیت زندگی سازمان بهداشت جهانی",
+    "items_count": 26,
+    "rating_scale": "لیکرت ۵ درجه‌ای (۱ تا ۵)",
+    "subscales": [
+      "سلامت جسمانی",
+      "سلامت روان‌شناختی",
+      "روابط اجتماعی",
+      "محیط زندگی"
+    ],
+    "category": "quality_of_life",
+    "author": "WHO (1998)"
+  },
+  {
+    "name_en": "General Self-Efficacy Scale (GSE-10)",
+    "name_fa": "مقیاس خودکارآمدی عمومی شرر و بندورا",
+    "items_count": 10,
+    "rating_scale": "لیکرت ۴ درجه‌ای (۱ تا ۴)",
+    "subscales": [
+      "میل به آغازگری رفتار",
+      "گسترش تلاش برای مواجهه با موانع",
+      "مقاومت در برابر شکست"
+    ],
+    "category": "efficacy",
+    "author": "Schwarzer & Jerusalem (1995)"
+  },
+  {
+    "name_en": "Depression Anxiety Stress Scales (DASS-21)",
+    "name_fa": "مقیاس افسردگی، اضطراب و استرس",
+    "items_count": 21,
+    "rating_scale": "لیکرت ۴ درجه‌ای (۰ تا ۳)",
+    "subscales": [
+      "افسردگی",
+      "اضطراب",
+      "استرس / تنش عصبی"
+    ],
+    "category": "clinical",
+    "author": "Lovibond & Lovibond (1995)"
+  },
+  {
+    "name_en": "Difficulties in Emotion Regulation Scale (DERS)",
+    "name_fa": "مقیاس دشواری در تنظیم هیجان گراتز و رومر",
+    "items_count": 36,
+    "rating_scale": "لیکرت ۵ درجه‌ای (۱ تا ۵)",
+    "subscales": [
+      "عدم پذیرش پاسخ‌های هیجانی",
+      "دشواری در انجام رفتار هدفمند",
+      "دشواری در کنترل تکانه",
+      "فقدان آگاهی هیجانی",
+      "دسترسی محدود به راهبردهای تنظیم هیجان",
+      "فقدان شفافیت هیجانی"
+    ],
+    "category": "emotion",
+    "author": "Gratz & Roemer (2004)"
+  },
+  {
+    "name_en": "Mindful Attention Awareness Scale (MAAS)",
+    "name_fa": "مقیاس توجه و آگاهی ذهن‌آگاهانه براون و رایان",
+    "items_count": 15,
+    "rating_scale": "لیکرت ۶ درجه‌ای (۱ تا ۶)",
+    "subscales": [
+      "تک‌عاملی (حضور ذهن و آگاهی در لحظه حال)"
+    ],
+    "category": "mindfulness",
+    "author": "Brown & Ryan (2003)"
+  },
+  {
+    "name_en": "Enrich Marital Satisfaction Scale (Short Form 47)",
+    "name_fa": "پرسشنامه رضایت زناشویی انریچ (فرم ۴۷ سوالی)",
+    "items_count": 47,
+    "rating_scale": "لیکرت ۵ درجه‌ای (۱ تا ۵)",
+    "subscales": [
+      "موضوعات شخصیتی",
+      "ارتباط موثر",
+      "حل تعارض",
+      "مدیریت مالی",
+      "فعالیت‌های اوقات فراغت",
+      "روابط جنسی",
+      "فرزندپروری",
+      "روابط با خانواده و دوستان"
+    ],
+    "category": "marital",
+    "author": "Fowers & Olson (1989)"
+  }
+];

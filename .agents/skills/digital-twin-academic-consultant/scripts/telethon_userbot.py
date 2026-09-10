@@ -539,7 +539,8 @@ class SaberTelethonUserbot:
             buttons = [
                 [Button.inline("🔄 Rescan Messages", b"cmd_unread"),
                  Button.inline("📂 Project Catalog", b"cmd_projects")],
-                [Button.inline("❌ Dismiss Notice", b"cmd_close")]
+                [Button.url("📱 Open Web Dashboard", "http://localhost:8080"),
+                 Button.inline("❌ Dismiss Notice", b"cmd_close")]
             ]
 
         await self.send_to_desk(report_text, buttons=buttons, parse_mode="html")
@@ -564,6 +565,20 @@ class SaberTelethonUserbot:
             if txt in ["/unread", "/scan"]:
                 await event.reply("🔍 Scanning unread client messages and synchronizing Google Drive projects...", parse_mode="html")
                 await self.scan_and_process_unread_messages()
+                return
+
+            # WebApp / Mini App Dashboard: /webapp or /dashboard
+            if txt in ["/webapp", "/dashboard", "/app"]:
+                projs = self.project_manager.list_all_projects()
+                dash_text = (
+                    f"📱 <b>Saber Academic Suite — Mini App & Dashboard</b>\n\n"
+                    f"• <b>Live Projects:</b> {len(projs)} active client projects\n"
+                    f"• <b>Web Dashboard URL:</b> http://localhost:8080\n"
+                    f"• <b>Features:</b> Visual Kanban pipeline, live pricing calculator, psychometric scales explorer\n\n"
+                    f"Click below to launch the dashboard:"
+                )
+                btn = [[Button.url("📱 Open Mini App Dashboard", "http://localhost:8080")]] if Button is not None else None
+                await event.reply(dash_text, buttons=btn, parse_mode="html")
                 return
 
             # List Google Drive projects: /projects or /list_projects [query]
@@ -893,29 +908,48 @@ class SaberTelethonUserbot:
                     phone=sender.phone
                 )
 
-                # Bot-specific commands (/start, /help, /scale)
+                # Bot-specific commands (/start, /help, /dashboard, /webapp, /scale)
                 if me.bot:
+                    if msg_text in ["/webapp", "/dashboard", "داشبورد", "پنل"]:
+                        dashboard_msg = (
+                            "🎓 **سامانه هوشمند و داشبورد تعاملی صابر قادری**\n\n"
+                            "برای مشاهده وضعیت پروژه‌ها، محاسبه آنلاین پیش‌فاکتور تفکیکی، و جستجو در بانک ۴,۸۸۰ پرسشنامه استاندارد، از پیوند زیر استفاده نمایید:\n\n"
+                            "🌐 [ورود به داشبورد و مینی‌اپ](http://localhost:8080)\n\n"
+                            "📌 *امکانات:*\n"
+                            "• میز کار و پیگیری مراحل پروژه (Kanban Board)\n"
+                            "• محاسبه‌گر آنلاین تعرفه فصل‌های ۳، ۴، ۵ و اسلایدهای دفاع\n"
+                            "• شناسنامه مقیاس‌ها و عوامل پرسشنامه‌ها\n"
+                            "• پشتیبانی دو زبانه (فارسی / انگلیسی)"
+                        )
+                        btn = [[Button.url("🚀 باز کردن داشبورد", "http://localhost:8080")]] if Button is not None else None
+                        await event.reply(dashboard_msg, buttons=btn)
+                        return
+
                     if msg_text in ["/start", "سلام", "درود"]:
                         welcome_msg = (
                             f"سلام و درود، وقت شما بخیر {sender.first_name} گرامی.\n\n"
                             "دستیار هوشمند و مشاور پژوهشی صابر قادری در خدمت شماست.\n"
                             "خدمات قابل ارائه:\n"
                             "• بررسی پروپوزال و صدور پیش‌فاکتور تفکیکی (ارسال فایل یا متن)\n"
+                            "• داشبورد و محاسبه‌گر آنلاین هزینه: `/dashboard`\n"
                             "• جستجوی پرسشنامه‌ها و مقیاس‌های روان‌سنجی: `/scale نام_پرسشنامه`\n"
                             "• مشاوره روش‌شناسی و تحلیل آماری\n\n"
-                            "جهت استعلام هزینه و زمان‌بندی، فایل پروپوزال خود را ارسال بفرمایید."
+                            "جهت استعلام هزینه و زمان‌بندی، فایل پروپوزال خود را ارسال بفرمایید یا داشبورد را باز کنید."
                         )
-                        await event.reply(welcome_msg)
+                        btn = [[Button.url("📱 ورود به داشبورد تعاملی", "http://localhost:8080")]] if Button is not None else None
+                        await event.reply(welcome_msg, buttons=btn)
                         return
 
                     if msg_text == "/help":
                         help_msg = (
                             "📚 **راهنمای دستورات:**\n"
+                            "• `/dashboard`: باز کردن داشبورد تعاملی و محاسبه‌گر پیش‌فاکتور\n"
                             "• ارسال فایل پروپوزال (.docx یا .pdf) برای ارزیابی و استعلام قیمت\n"
                             "• `/scale <نام>`: جستجو در بانک ۴۸۸۰ پرسشنامه استاندارد\n"
                             "• `/start`: نمایش پیام آغازین و معرفی خدمات"
                         )
-                        await event.reply(help_msg)
+                        btn = [[Button.url("📱 ورود به داشبورد تعاملی", "http://localhost:8080")]] if Button is not None else None
+                        await event.reply(help_msg, buttons=btn)
                         return
 
                 # Check for attached document (.docx / .pdf / .txt / .xlsx / .sav)

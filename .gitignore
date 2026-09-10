@@ -4,6 +4,9 @@
 # Allow Antigravity agent configurations & skills
 !.agents/
 !scripts/
+!webapp/
+webapp/node_modules/
+webapp/dist/
 
 # Ignore Python bytecode and caches inside skills
 __pycache__/
