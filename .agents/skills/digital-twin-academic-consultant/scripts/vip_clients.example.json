@@ -1,0 +1,16 @@
+{
+  "vip_clients": [
+    {
+      "client_name": "Şəhram Əmiri",
+      "client_name_fa": "شهرام امیری",
+      "telegram_id": 5819750724,
+      "phone": "989165535654",
+      "tier": "tier_1_collaborator",
+      "umbrella_dir": "/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive/My Work/Şəhram Əmiri",
+      "protected_from_ignore": true,
+      "pricing_discount_percent": 15,
+      "auto_archive_files": true,
+      "notes": "High-volume institutional collaborator. Regularly commissions data simulations, MANOVA, and SEM analyses for multiple cohorts."
+    }
+  ]
+}

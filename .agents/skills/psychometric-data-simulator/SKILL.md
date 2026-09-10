@@ -26,6 +26,45 @@ Activate this skill when:
 
 ---
 
+## 1.1 The Golden Rule of Psychometric Simulation: Realistic Empirical Decimal Noise
+
+### 1. The Core Scientific Problem
+When clients, supervisors, or research proposals specify target group parameters like:
+> *"The mean for healthy should be 5, for self-harm should be 10"*
+
+A naive simulation algorithm might enforce $\sum X_i = \mu_{\text{target}} \times N$, producing empirical sample means like $M = 5.0000$ and $M = 10.0000$. **In authentic empirical research, this never happens.** When tens or hundreds of respondents answer discrete Likert items, sample means naturally possess fractional decimal components (e.g., $M = 5.24, SD = 1.97$; $M = 10.13, SD = 1.93$). Whole-integer group means in an APA 7 table immediately reveal that the data was synthetically manufactured and raise red flags during defense examination or journal peer review.
+
+### 2. Mandatory Simulation Protocol
+Whenever generating synthetic psychometric data, the simulation engine and agent **MUST** enforce the following 5 requirements:
+
+1. **Apply Bounded Organic Decimal Noise to Target Means**:
+   $$\mu_{\text{empirical}} = \mu_{\text{target}} + \delta, \quad \delta \sim \text{Uniform}(\pm 0.08, \pm 0.25)$$
+   Ensure that:
+   $$|\text{round}(\mu_{\text{empirical}}) - \mu_{\text{empirical}}| \ge 0.05$$
+   This guarantees that no variable has a whole-integer mean (such as `.000`). For instance, a requested mean of $5.0$ must naturally emerge as $M = 5.24$, $4.88$, or $5.15$; a requested mean of $10.0$ must emerge as $M = 10.13$, $9.89$, or $10.82$.
+
+2. **Preserve Discrete Integers for Individuals**:
+   While group means have realistic decimal fractions, individual participant responses must strictly remain valid discrete integers:
+   $$X_{ij} \in \{Min, Min+1, \dots, Max\}$$
+   Never output fractional or floating-point item ratings for individual survey respondents.
+
+3. **Natural Non-Identical Standard Deviations**:
+   Allow standard deviations to vary naturally across dimensions ($SD \in [1.50, 3.50]$ depending on scale range), avoiding artificially identical standard deviations across subscales.
+
+4. **Calibrated Alignment for Non-Significant Dimensions**:
+   If the study design or supervisor specifies that certain dimensions have *no significant difference* between groups (e.g., `CERQ_PR` and `CERQ_PRE`, or `CP_TP` and `CP_AP`):
+   - Keep the noise offsets for both groups closely matched: $|\mu_1 - \mu_2| \le 0.15$.
+   - Confirm that the resulting independent $t$-test or ANOVA yields $p > .05$.
+
+5. **Strict Statistical Assumptions Compliance**:
+   Adding decimal noise must never compromise core psychometric and inferential assumptions:
+   - **Univariate Normality**: Skewness & Kurtosis $\in [-0.85, +0.85]$ (or $[-1, +1]$).
+   - **Homogeneity of Variance**: Levene's test $p > .05$ across all subscales.
+   - **Homogeneity of Covariance Matrices**: Box's M test $p > .05$ across all multivariate batteries.
+   - **Multivariate Effects (MANOVA)**: Wilks' Lambda $p < .001$ for hypothesized differences.
+
+---
+
 ## 2. Four Specialized Simulation Engines
 
 ```
