@@ -45,6 +45,16 @@ try:
 except Exception:
     questionnaire_resolver = None
 
+try:
+    from project_drive_manager import (
+        ProjectDriveManager,
+        sanitize_filename,
+        clean_drive_display_path,
+        format_client_mention_html
+    )
+except ImportError:
+    ProjectDriveManager = None
+
 # Import proposal price estimator
 try:
     from proposal_price_estimator import (
@@ -226,13 +236,16 @@ class TelegramApiClient:
     def send_message(
         self, chat_id: int, text: str,
         parse_mode: str = "Markdown",
-        reply_markup: Optional[Dict[str, Any]] = None
+        reply_markup: Optional[Dict[str, Any]] = None,
+        business_connection_id: Optional[str] = None
     ) -> bool:
         payload: Dict[str, Any] = {
             "chat_id": chat_id,
             "text": text,
             "parse_mode": parse_mode
         }
+        if business_connection_id:
+            payload["business_connection_id"] = business_connection_id
         if reply_markup:
             payload["reply_markup"] = reply_markup
         res = self.send_request("sendMessage", payload)
@@ -242,7 +255,16 @@ class TelegramApiClient:
         payload = {
             "offset": offset,
             "timeout": timeout,
-            "allowed_updates": ["message", "callback_query"]
+            "allowed_updates": [
+                "message",
+                "edited_message",
+                "callback_query",
+                "inline_query",
+                "business_connection",
+                "business_message",
+                "edited_business_message",
+                "deleted_business_messages"
+            ]
         }
         res = self.send_request("getUpdates", payload)
         if res and "result" in res:
@@ -309,12 +331,14 @@ class TelegramApiClient:
 
 
 class DigitalSaberBot:
-    """Digital Twin of Saber Ghaderi for Telegram with WebApp integration."""
+    """Digital Twin of Saber Ghaderi for Telegram with WebApp and Business Mode integration."""
 
     def __init__(
         self,
         token: str = "",
         admin_id: int = 124911145,
+        admin_desk_chat_id: Optional[int] = -1004331808205,
+        business_mode: bool = True,
         auto_quote: bool = False,
         work_dir: Optional[str] = None,
         webapp_url: str = "",
@@ -322,6 +346,8 @@ class DigitalSaberBot:
     ):
         self.token = token
         self.admin_id = admin_id
+        self.admin_desk_chat_id = admin_desk_chat_id
+        self.business_mode = business_mode
         self.auto_quote = auto_quote
         self.webapp_url = webapp_url
         self.work_dir = work_dir or os.path.join(os.path.dirname(__file__), "bot_storage")
@@ -332,6 +358,171 @@ class DigitalSaberBot:
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
         self.quote_counter = 100
         self.running = True
+        self.project_manager = ProjectDriveManager() if ProjectDriveManager else None
+        self.business_connections_path = os.path.join(self.work_dir, "business_connections.json")
+        self.business_connections: Dict[str, Dict[str, Any]] = self._load_business_connections()
+
+    def _load_business_connections(self) -> Dict[str, Any]:
+        if os.path.exists(self.business_connections_path):
+            try:
+                with open(self.business_connections_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        return {}
+
+    def _save_business_connections(self):
+        try:
+            with open(self.business_connections_path, "w", encoding="utf-8") as f:
+                json.dump(self.business_connections, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"[-] Error saving business connections: {e}")
+
+    def handle_business_connection(self, conn: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle Telegram Business connection handshake, updates, and disconnections."""
+        conn_id = conn.get("id", "")
+        user = conn.get("user", {})
+        user_id = user.get("id")
+        user_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip() or "Saber Ghaderi"
+        username = user.get("username", "")
+        is_enabled = conn.get("is_enabled", False)
+        can_reply = conn.get("can_reply", False)
+
+        entry = {
+            "id": conn_id,
+            "user_id": user_id,
+            "user_name": user_name,
+            "username": username,
+            "is_enabled": is_enabled,
+            "can_reply": can_reply,
+            "updated_at": datetime.now().isoformat()
+        }
+        self.business_connections[conn_id] = entry
+        self._save_business_connections()
+
+        status_str = "ENABLED & ACTIVE" if is_enabled else "DISABLED"
+        print(f"[Business] Connection {conn_id}: {user_name} (@{username}) -> {status_str} (Can reply: {can_reply})")
+
+        desk_target = self.admin_desk_chat_id or self.admin_id
+        if self.tg and desk_target:
+            if is_enabled:
+                alert = (
+                    f"🤝 <b>Telegram Business Connected!</b>\n\n"
+                    f"• <b>Account:</b> {html.escape(user_name)} (@{html.escape(username)})\n"
+                    f"• <b>Connection ID:</b> <code>{conn_id}</code>\n"
+                    f"• <b>Can Reply:</b> {'Yes (Active)' if can_reply else 'No (Read-only)'}\n\n"
+                    f"<i>The bot is now authorized to assist clients in Saber's 1-on-1 private chats.</i>"
+                )
+            else:
+                alert = (
+                    f"⚠️ <b>Telegram Business Disconnected</b>\n"
+                    f"Connection with {html.escape(user_name)} was removed or deactivated."
+                )
+            self.tg.send_message(desk_target, alert, parse_mode="HTML")
+
+        return entry
+
+    def handle_business_message(self, b_msg: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Handle incoming messages inside connected business 1-on-1 chats."""
+        conn_id = b_msg.get("business_connection_id", "")
+        chat = b_msg.get("chat", {})
+        chat_id = chat.get("id")
+        sender = b_msg.get("from", {})
+        sender_id = sender.get("id")
+        sender_name = f"{sender.get('first_name', '')} {sender.get('last_name', '')}".strip() or "پژوهشگر"
+        username = sender.get("username")
+        msg_text = (b_msg.get("text") or "").strip()
+
+        # Check if message was sent by the business account owner (Saber)
+        conn_info = self.business_connections.get(conn_id, {})
+        owner_id = conn_info.get("user_id") or self.admin_id
+        if sender_id == owner_id:
+            # Outgoing message from Saber inside client chat - ignore to avoid self-reply loop
+            return None
+
+        print(f"[Business DM] From {sender_name} (ID: {sender_id}): {msg_text[:60]}")
+
+        # Ensure client project folder is provisioned in Google Drive
+        if self.project_manager:
+            try:
+                self.project_manager.provision_project(
+                    client_name=sender_name,
+                    client_id=sender_id,
+                    username=username
+                )
+            except Exception as e:
+                print(f"[-] Drive provisioning error: {e}")
+
+        desk_target = self.admin_desk_chat_id or self.admin_id
+
+        # 1. Handle Document Upload (.docx, .pdf, .sav, .xlsx)
+        doc = b_msg.get("document")
+        if doc and chat_id:
+            file_id = doc.get("file_id")
+            file_name = doc.get("file_name", "proposal.docx")
+            print(f"[Business DM] Client document received: {file_name} from {sender_name}")
+            local_dest = os.path.join(self.work_dir, f"{chat_id}_{file_name}")
+            if self.tg:
+                file_info = self.tg.get_file_info(file_id)
+                if file_info and "file_path" in file_info:
+                    if self.tg.download_file(file_info["file_path"], local_dest):
+                        reply, pending = self.handle_proposal_submission(
+                            chat_id, sender_name, file_path=local_dest
+                        )
+                        if pending:
+                            qid = list(self.pending_quotes.keys())[-1]
+                            self.pending_quotes[qid]["business_connection_id"] = conn_id
+                            self.pending_quotes[qid]["is_business"] = True
+                            adm_card = format_telegram_card(pending["quote"], include_admin_actions=True, quote_id=qid, lang="en")
+                            adm_notice = (
+                                f"🔔 <b>New Proposal via Telegram Business:</b>\n"
+                                f"👤 <b>Client:</b> {html.escape(sender_name)} (@{username or 'none'})\n"
+                                f"💬 <i>Received directly in Saber's 1-on-1 private chat</i>\n\n"
+                                f"{adm_card}"
+                            )
+                            self.tg.send_message(desk_target, adm_notice, parse_mode="HTML")
+                        return {"type": "document", "status": "processed", "file": file_name}
+            return {"type": "document", "status": "received"}
+
+        # 2. Check for proposal text (lengthy text with thesis keywords)
+        if len(msg_text) > 80 and any(w in msg_text for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
+            reply, pending = self.handle_proposal_submission(chat_id, sender_name, text_content=msg_text)
+            if pending:
+                qid = list(self.pending_quotes.keys())[-1]
+                self.pending_quotes[qid]["business_connection_id"] = conn_id
+                self.pending_quotes[qid]["is_business"] = True
+                adm_card = format_telegram_card(pending["quote"], include_admin_actions=True, quote_id=qid, lang="en")
+                adm_notice = (
+                    f"🔔 <b>New Proposal Inquiry via Telegram Business:</b>\n"
+                    f"👤 <b>Client:</b> {html.escape(sender_name)} (@{username or 'none'})\n"
+                    f"💬 <i>Received directly in Saber's 1-on-1 private chat</i>\n\n"
+                    f"{adm_card}"
+                )
+                if self.tg and desk_target:
+                    self.tg.send_message(desk_target, adm_notice, parse_mode="HTML")
+            return {"type": "proposal_text", "status": "quoted"}
+
+        # 3. Check for questionnaire / scale search (/scale <name>)
+        m_scale = re.match(r"^/scale\s+(.+)", msg_text)
+        if m_scale:
+            query = m_scale.group(1).strip()
+            scale_reply = self.handle_questionnaire_search(query)
+            if self.tg and conn_info.get("can_reply", True):
+                self.tg.send_message(chat_id, scale_reply, business_connection_id=conn_id)
+            return {"type": "scale_search", "query": query}
+
+        # 4. Standard consultation greeting on first message or /start
+        if msg_text in ["/start", "سلام", "درود"]:
+            welcome = (
+                f"سلام و درود، وقت شما بخیر {sender.get('first_name', '')} گرامی.\n\n"
+                "دستیار هوشمند و مشاور پژوهشی صابر قادری در خدمت شماست.\n"
+                "در صورت تمایل به استعلام هزینه و زمان‌بندی، فایل پروپوزال (`.docx` یا `.pdf`) خود را ارسال بفرمایید."
+            )
+            if self.tg and conn_info.get("can_reply", True):
+                self.tg.send_message(chat_id, welcome, business_connection_id=conn_id)
+            return {"type": "greeting", "status": "sent"}
+
+        return {"type": "text", "status": "received"}
 
     def setup_bot_commands_and_menu(self):
         """Register bot commands and set WebApp menu button on startup."""
@@ -518,24 +709,34 @@ class DigitalSaberBot:
 
     def handle_admin_action(self, admin_chat_id: int, command_text: str) -> str:
         """Handle Saber's approval or adjustment of quotes."""
-        if admin_chat_id != self.admin_id:
+        valid_admins = [self.admin_id]
+        if self.admin_desk_chat_id:
+            valid_admins.append(self.admin_desk_chat_id)
+        if admin_chat_id not in valid_admins:
             return "Unauthorized access. Admin privileges required."
 
-        # Approve: /approve_Q101
-        m_app = re.match(r"^/approve_(Q\d+)", command_text)
+        # Approve: /approve_Q101 or /send_Q101
+        m_app = re.match(r"^/(?:approve|send)_(Q\d+)", command_text)
         if m_app:
             qid = m_app.group(1)
             if qid in self.pending_quotes:
                 item = self.pending_quotes[qid]
                 client_chat_id = item["chat_id"]
+                conn_id = item.get("business_connection_id")
                 tg_card = format_telegram_card(item["quote"], lang="fa")
                 
                 # Send to client if live
                 if self.tg:
-                    self.tg.send_message(client_chat_id, tg_card, parse_mode="HTML")
+                    self.tg.send_message(
+                        client_chat_id,
+                        tg_card,
+                        parse_mode="HTML",
+                        business_connection_id=conn_id
+                    )
                 
                 item["status"] = "approved"
-                return f"✅ Quotation {qid} approved and dispatched to {item['sender_name']}."
+                channel_str = " (via Telegram Business)" if conn_id else ""
+                return f"✅ Quotation {qid} approved and dispatched to {item['sender_name']}{channel_str}."
             return f"Quotation {qid} not found."
 
         # Adjust: /adjust_Q101_8500000
@@ -545,26 +746,45 @@ class DigitalSaberBot:
             new_price = int(m_adj.group(2))
             if qid in self.pending_quotes:
                 item = self.pending_quotes[qid]
+                conn_id = item.get("business_connection_id")
                 item["quote"]["total_price_tomans"] = new_price
                 item["quote"]["total_price_formatted"] = f"{new_price:,.0f} تومان"
                 client_chat_id = item["chat_id"]
                 tg_card = format_telegram_card(item["quote"], lang="fa")
                 
                 if self.tg:
-                    self.tg.send_message(client_chat_id, tg_card, parse_mode="HTML")
+                    self.tg.send_message(
+                        client_chat_id,
+                        tg_card,
+                        parse_mode="HTML",
+                        business_connection_id=conn_id
+                    )
                 
                 item["status"] = "approved_adjusted"
-                return f"✅ Quotation {qid} adjusted to {new_price:,.0f} Tomans and dispatched to {item['sender_name']}."
+                channel_str = " (via Telegram Business)" if conn_id else ""
+                return f"✅ Quotation {qid} adjusted to {new_price:,.0f} Tomans and dispatched to {item['sender_name']}{channel_str}."
             return f"Quotation {qid} not found."
 
-        return "Invalid command. Format: <code>/approve_Q101</code> or <code>/adjust_Q101_8000000</code>"
+        # Reject / Ignore
+        m_rej = re.match(r"^/(?:reject|ignore)_(Q\d+)", command_text)
+        if m_rej:
+            qid = m_rej.group(1)
+            if qid in self.pending_quotes:
+                self.pending_quotes[qid]["status"] = "rejected"
+                return f"❌ Quotation {qid} dismissed."
+            return f"Quotation {qid} not found."
+
+        return "Invalid command. Format: <code>/approve_Q101</code>, <code>/send_Q101</code>, or <code>/adjust_Q101_8000000</code>"
 
     def handle_incoming_text(self, chat_id: int, sender_name: str, text: str) -> str:
         """Route and answer text queries."""
         clean = text.strip()
 
         # Admin commands
-        if chat_id == self.admin_id and clean.startswith(("/approve_", "/adjust_", "/reject_")):
+        valid_admins = [self.admin_id]
+        if self.admin_desk_chat_id:
+            valid_admins.append(self.admin_desk_chat_id)
+        if chat_id in valid_admins and clean.startswith(("/approve_", "/send_", "/adjust_", "/reject_", "/ignore_")):
             return self.handle_admin_action(chat_id, clean)
 
         # Standard commands & greetings
@@ -698,7 +918,29 @@ class DigitalSaberBot:
         print(f"\n[Test 5: Stats Consulting]\n{res5[:160]}...")
         events.append({"step": "stats_consulting", "output": res5})
 
-        print("\n✅ All 5 simulation tests executed successfully!")
+        # Scenario 6: Telegram Business Connection & Business Message
+        test_conn = {
+            "id": "conn_test_999",
+            "user": {"id": self.admin_id, "first_name": "Saber", "last_name": "Ghaderi", "username": "GhaderiSaber"},
+            "is_enabled": True,
+            "can_reply": True
+        }
+        res_conn = self.handle_business_connection(test_conn)
+        print(f"\n[Test 6: Telegram Business Connection]\nConnection Registered: {res_conn['id']} ({res_conn['user_name']})")
+        events.append({"step": "business_connection", "output": res_conn})
+
+        test_bmsg = {
+            "business_connection_id": "conn_test_999",
+            "chat": {"id": 2002, "type": "private"},
+            "from": {"id": 2002, "first_name": "علی", "last_name": "رضایی", "username": "ali_rezaei"},
+            "text": "عنوان: پیش‌بینی اشتیاق شغلی بر اساس تاب‌آوری و شفقت خود در کادر درمان\nطرح: همبستگی و رگرسیون چندگانه\nجامعه: ۲۵۰ نفر\nابزار: مقیاس اشتیاق شوفلی و تاب‌آوری کانر",
+            "date": 1720000000
+        }
+        res_bmsg = self.handle_business_message(test_bmsg)
+        print(f"[Test 6b: Telegram Business Message]\nProposal processed from client Ali Rezaei: {res_bmsg}")
+        events.append({"step": "business_message", "output": res_bmsg})
+
+        print("\n✅ All 6 simulation tests executed successfully!")
         return {"status": "success", "events": events}
 
     def start_polling(self):
@@ -725,7 +967,19 @@ class DigitalSaberBot:
                     update_id = update.get("update_id", 0)
                     offset = max(offset, update_id + 1)
 
-                    # Handle callback queries (inline button presses)
+                    # 1. Handle Business Connection update
+                    b_conn = update.get("business_connection")
+                    if b_conn:
+                        self.handle_business_connection(b_conn)
+                        continue
+
+                    # 2. Handle Business Message update
+                    b_msg = update.get("business_message")
+                    if b_msg:
+                        self.handle_business_message(b_msg)
+                        continue
+
+                    # 3. Handle callback queries (inline button presses)
                     callback_query = update.get("callback_query")
                     if callback_query:
                         cb_data = callback_query.get("data", "")
@@ -810,6 +1064,9 @@ def main():
     webapp_url = args.webapp_url
     proxy_cfg = None
 
+    admin_desk_chat_id = -1004331808205
+    business_mode = True
+
     # Load from config if present
     if os.path.exists(args.config):
         try:
@@ -817,6 +1074,8 @@ def main():
                 cfg = json.load(f)
                 token = token or cfg.get("bot_token", "")
                 admin_id = admin_id or cfg.get("admin_id", 124911145)
+                admin_desk_chat_id = cfg.get("admin_desk_chat_id", admin_desk_chat_id)
+                business_mode = cfg.get("business_mode", True)
                 webapp_url = webapp_url or cfg.get("webapp_url", "")
                 proxy_cfg = cfg.get("proxy")
         except Exception:
@@ -825,6 +1084,8 @@ def main():
     bot = DigitalSaberBot(
         token=token,
         admin_id=admin_id,
+        admin_desk_chat_id=admin_desk_chat_id,
+        business_mode=business_mode,
         auto_quote=args.auto_quote,
         webapp_url=webapp_url,
         proxy=proxy_cfg

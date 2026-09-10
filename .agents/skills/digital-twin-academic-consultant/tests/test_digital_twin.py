@@ -265,6 +265,124 @@ class TestDigitalTwinSuite(unittest.TestCase):
         self.assertTrue(telethon_userbot.is_valid_telegram_button_url("https://saber-academic.ngrok-free.app"))
         self.assertTrue(telethon_userbot.is_valid_telegram_button_url("tg://user?id=124911145"))
 
+    def test_08_telegram_business_connection_and_messages(self):
+        """Test Telegram Business connection handling, message routing, echo suppression, and quote dispatch."""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            config = {
+                "admin_id": 124911145,
+                "admin_desk_chat_id": -1004331808205,
+                "work_dir": tmp_dir,
+                "business_mode": True,
+                "google_drive_work_dir": os.path.join(tmp_dir, "drive"),
+            }
+            bot = telegram_bot_daemon.AcademicConsultantBot(config=config)
+
+            sent_messages = []
+
+            class MockTGClient:
+                def send_message(self, chat_id, text, reply_to_message_id=None, reply_markup=None, parse_mode=None, business_connection_id=None):
+                    sent_messages.append({
+                        "chat_id": chat_id,
+                        "text": text,
+                        "reply_markup": reply_markup,
+                        "parse_mode": parse_mode,
+                        "business_connection_id": business_connection_id
+                    })
+                    return {"ok": True, "result": {"message_id": 1000 + len(sent_messages)}}
+
+            bot.tg = MockTGClient()
+
+            # 1. Test Business Connection Handshake
+            conn_payload = {
+                "id": "biz_conn_test_001",
+                "user": {"id": 124911145, "first_name": "Saber", "last_name": "Ghaderi", "username": "GhaderiSaber"},
+                "user_chat_id": 124911145,
+                "date": 1789000000,
+                "can_reply": True,
+                "is_enabled": True
+            }
+            bot.handle_business_connection(conn_payload)
+
+            self.assertIn("biz_conn_test_001", bot.business_connections)
+            self.assertTrue(bot.business_connections["biz_conn_test_001"]["is_enabled"])
+            self.assertTrue(bot.business_connections["biz_conn_test_001"]["can_reply"])
+
+            # Verify admin desk alert was dispatched
+            self.assertTrue(any("Telegram Business Connected" in m["text"] for m in sent_messages))
+            sent_messages.clear()
+
+            # 2. Test Echo Filtering (Message sent by Saber in client chat)
+            saber_msg = {
+                "business_connection_id": "biz_conn_test_001",
+                "message_id": 10,
+                "chat": {"id": 987654321, "type": "private"},
+                "from": {"id": 124911145, "first_name": "Saber"},
+                "text": "سلام، پروپوزال شما دریافت شد."
+            }
+            res_saber = bot.handle_business_message(saber_msg)
+            self.assertIsNone(res_saber, "Outgoing messages from Saber must be filtered out")
+            self.assertEqual(len(sent_messages), 0)
+
+            # 3. Test Business Message from Client (Greeting)
+            client_greeting = {
+                "business_connection_id": "biz_conn_test_001",
+                "message_id": 11,
+                "chat": {"id": 987654321, "type": "private"},
+                "from": {"id": 987654321, "first_name": "Farhad", "username": "farhad_test"},
+                "text": "سلام"
+            }
+            res_greet = bot.handle_business_message(client_greeting)
+            self.assertEqual(res_greet["type"], "greeting")
+            # Verify reply sent to client with business_connection_id
+            self.assertEqual(len(sent_messages), 1)
+            self.assertEqual(sent_messages[0]["chat_id"], 987654321)
+            self.assertEqual(sent_messages[0]["business_connection_id"], "biz_conn_test_001")
+            self.assertIn("مشاور پژوهشی صابر قادری", sent_messages[0]["text"])
+            sent_messages.clear()
+
+            # 4. Test Business Message from Client (Proposal inquiry text)
+            proposal_text = (
+                "عنوان پژوهش: بررسی اثربخشی درمان مبتنی بر پذیرش و تعهد بر اضطراب مرگ بیماران قلبی\n"
+                "مقطع: کارشناسی ارشد روان‌شناسی بالینی\n"
+                "طرح پژوهش: نیمه‌آزمایشی پیش‌آزمون پس‌آزمون با گروه کنترل و تحلیل کوواریانس\n"
+                "جامعه و حجم نمونه: ۴۰ نفر (۲۰ نفر آزمایش، ۲۰ نفر کنترل)\n"
+                "نرم‌افزار آماری: SPSS 28"
+            )
+            client_prop_msg = {
+                "business_connection_id": "biz_conn_test_001",
+                "message_id": 12,
+                "chat": {"id": 987654321, "type": "private"},
+                "from": {"id": 987654321, "first_name": "Farhad", "username": "farhad_test"},
+                "text": proposal_text
+            }
+            res_prop = bot.handle_business_message(client_prop_msg)
+            self.assertEqual(res_prop["type"], "proposal_text")
+            self.assertEqual(res_prop["status"], "quoted")
+
+            # Verify admin desk received notification with action buttons
+            self.assertTrue(any("New Proposal Inquiry via Telegram Business" in m["text"] for m in sent_messages))
+            admin_msg = next(m for m in sent_messages if "New Proposal Inquiry via Telegram Business" in m["text"])
+            self.assertEqual(admin_msg["chat_id"], -1004331808205)
+
+            # Check pending quote
+            qid = list(bot.pending_quotes.keys())[-1]
+            self.assertEqual(bot.pending_quotes[qid]["business_connection_id"], "biz_conn_test_001")
+            self.assertTrue(bot.pending_quotes[qid]["is_business"])
+            sent_messages.clear()
+
+            # 5. Test Admin Dispatch (/send_Q... or /approve_Q...)
+            action_reply = bot.handle_incoming_text(-1004331808205, "Saber", f"/send_{qid}")
+            self.assertIn("approved and dispatched", action_reply)
+            self.assertIn("Telegram Business", action_reply)
+
+            # Verify quote was delivered to client chat using business_connection_id
+            client_dispatched = next(m for m in sent_messages if m["chat_id"] == 987654321)
+            self.assertEqual(client_dispatched["business_connection_id"], "biz_conn_test_001")
+            self.assertIn("پیش‌فاکتور", client_dispatched["text"])
+            self.assertEqual(bot.pending_quotes[qid]["status"], "approved")
+
 
 if __name__ == "__main__":
     unittest.main()
