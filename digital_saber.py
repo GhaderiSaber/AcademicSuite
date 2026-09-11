@@ -504,7 +504,7 @@ class DigitalSaber:
                 "academic-writer",
                 "final-judge"
             ],
-            "artifacts_generated": [ch4_docx, "فصل چهارم: یافته‌های پژوهش.docx", audit_docx, defense_docx, json_results],
+            "artifacts_generated": [ch4_docx, audit_docx, defense_docx, json_results],
             "audit_verdict": stat_audit["verdict"],
             "readiness_score": readiness_score,
             "decision_id": did
@@ -640,7 +640,7 @@ class DigitalSaber:
                 "academic-writer",
                 "final-judge"
             ],
-            "artifacts_generated": [prop_docx, "پروپوزال_طرح_پژوهش.docx", blueprint_json],
+            "artifacts_generated": [prop_docx, blueprint_json],
             "readiness_score": council_readiness,
             "decision_id": did
         }
@@ -763,7 +763,7 @@ class DigitalSaber:
                 "academic-writer",
                 "final-judge"
             ],
-            "artifacts_generated": [ch5_docx, "فصل پنجم: بحث و نتیجه‌گیری.docx", summary_json],
+            "artifacts_generated": [ch5_docx, summary_json],
             "readiness_score": defense_readiness,
             "decision_id": did
         }
@@ -872,7 +872,7 @@ class DigitalSaber:
                 "academic-writer",
                 "final-judge"
             ],
-            "artifacts_generated": [rebuttal_docx, "جدول_پاسخ_به_نظرات_استاد_راهنما_و_داوران.docx"],
+            "artifacts_generated": [rebuttal_docx],
             "comments_resolved": 14,
             "readiness_score": clearance_score,
             "decision_id": did
@@ -901,6 +901,24 @@ class DigitalSaber:
             print(f"📚 Total Cases in Case Memory: {self.case_memory.count()} cases.")
             print("=" * 80)
 
+    @property
+    def journal(self):
+        """Property alias for decision_journal."""
+        return self.decision_journal
+
+    def launch_shell(self, output_dir: str = "output"):
+        """Launches the interactive Digital Saber terminal REPL."""
+        from digital_saber_shell import run_shell
+        run_shell(saber=self, output_dir=output_dir)
+
+    def get_copilot_bridge(self):
+        """Returns instantiated TelegramCopilotBridge connecting cognitive layers to Telegram."""
+        COPILOT_DIR = os.path.join(ROOT_DIR, ".agents", "skills", "digital-twin-academic-consultant", "scripts")
+        if COPILOT_DIR not in sys.path:
+            sys.path.insert(0, COPILOT_DIR)
+        from copilot_bridge import TelegramCopilotBridge
+        return TelegramCopilotBridge(saber_instance=self)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Digital Saber — Professional AI Research Twin Master CLI")
@@ -921,11 +939,35 @@ def main():
     parser.add_argument("--workflow", type=str, help="Execute an Antigravity multi-agent workflow (chapter4, proposal, chapter5, thesis_revision)")
     parser.add_argument("--topic", type=str, default=None, help="Research topic or target file for workflow")
     parser.add_argument("--output-dir", type=str, default="output", help="Directory where generated OpenXML artifacts (.docx) are saved")
+    parser.add_argument("--shell", "-i", action="store_true", help="Launch interactive Digital Saber scholarly REPL shell")
+    parser.add_argument("--copilot", action="store_true", help="Display Telegram Co-Pilot status & daemon info")
+    parser.add_argument("--copilot-status", action="store_true", help="Display live status of Telegram Co-Pilot system")
+    parser.add_argument("--copilot-sim", action="store_true", help="Run full offline simulation of Telegram Co-Pilot")
+    parser.add_argument("--copilot-approve", type=str, default=None, metavar="QID", help="Approve a pending quotation by ID")
 
     args = parser.parse_args()
     saber = DigitalSaber()
 
-    if args.identity:
+    if args.shell:
+        saber.launch_shell(output_dir=args.output_dir)
+    elif args.copilot_status or args.copilot:
+        bridge = saber.get_copilot_bridge()
+        status = bridge.get_status()
+        print("\n" + "=" * 80)
+        print("🛡️ DIGITAL SABER TELEGRAM CO-PILOT STATUS")
+        print("=" * 80)
+        for k, v in status.items():
+            print(f"  • {k}: {v}")
+        print("=" * 80)
+    elif args.copilot_sim:
+        bridge = saber.get_copilot_bridge()
+        res = bridge.run_simulation()
+        print(f"\n✅ Co-Pilot Simulation Result: {res.get('status')}")
+    elif args.copilot_approve:
+        bridge = saber.get_copilot_bridge()
+        res = bridge.approve_quote(args.copilot_approve)
+        print(f"\nResult: {res.get('message')}")
+    elif args.identity:
         saber.show_identity()
     elif args.consult:
         saber.consult(args.consult)

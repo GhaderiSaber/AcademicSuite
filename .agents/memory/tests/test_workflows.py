@@ -85,7 +85,7 @@ class TestWorkflowsSuite(unittest.TestCase):
         self.assertIn("methodology-expert", res["subagents_executed"])
         self.assertIn("literature-expert", res["subagents_executed"])
         self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("پروپوزال_طرح_پژوهش.docx", res["artifacts_generated"])
+        self.assertTrue(any("پروپوزال_طرح_پژوهش.docx" in a for a in res["artifacts_generated"]))
         self.assertGreaterEqual(res["readiness_score"], 80.0)
         self.assertTrue(res["decision_id"].startswith("dec_"))
 
@@ -99,7 +99,7 @@ class TestWorkflowsSuite(unittest.TestCase):
         self.assertIn("literature-expert", res["subagents_executed"])
         self.assertIn("academic-writer", res["subagents_executed"])
         self.assertIn("final-judge", res["subagents_executed"])
-        self.assertIn("فصل پنجم: بحث و نتیجه‌گیری.docx", res["artifacts_generated"])
+        self.assertTrue(any("فصل_پنجم_بحث_و_نتیجه‌گیری.docx" in a for a in res["artifacts_generated"]))
         self.assertGreaterEqual(res["readiness_score"], 80.0)
         self.assertTrue(res["decision_id"].startswith("dec_"))
 
@@ -113,7 +113,7 @@ class TestWorkflowsSuite(unittest.TestCase):
         self.assertIn("statistical-auditor", res["subagents_executed"])
         self.assertIn("academic-writer", res["subagents_executed"])
         self.assertIn("final-judge", res["subagents_executed"])
-        self.assertIn("جدول_پاسخ_به_نظرات_استاد_راهنما_و_داوران.docx", res["artifacts_generated"])
+        self.assertTrue(any("جدول_پاسخ_به_نظرات_استاد_راهنما_و_داوران.docx" in a for a in res["artifacts_generated"]))
         self.assertGreaterEqual(res["readiness_score"], 80.0)
         self.assertTrue(res["decision_id"].startswith("dec_"))
 
