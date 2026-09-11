@@ -756,12 +756,36 @@ class DigitalSaber:
             "decision_id": did
         }
 
+    def harvest_drive_cases(self, project_id: Optional[str] = None):
+        """Scans and ingests historical academic projects from Google Drive into Case Memory."""
+        from case_harvester import DriveCaseHarvester
+        harvester = DriveCaseHarvester()
+        if project_id:
+            res = harvester.ingest_precedents([project_id])
+            print(f"✅ Ingested case: {res['ingested_case_ids']}")
+        else:
+            scan_res = harvester.scan_drive()
+            print("\n" + "=" * 80)
+            print("📂 DIGITAL SABER GOOGLE DRIVE HARVESTER")
+            print("=" * 80)
+            if "error" not in scan_res:
+                print(f"Drive Root:     {scan_res['drive_root']}")
+                print(f"Total Projects: {scan_res['total_projects']}")
+                for k, v in scan_res["roots_found"].items():
+                    print(f"  • {k}: {v} folders")
+            print("-" * 80)
+            ingest_res = harvester.ingest_precedents()
+            print(f"✅ Successfully ingested {ingest_res['cases_ingested_count']} historical precedent cases into Case Memory.")
+            print(f"📚 Total Cases in Case Memory: {self.case_memory.count()} cases.")
+            print("=" * 80)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Digital Saber — Professional AI Research Twin Master CLI")
     parser.add_argument("--identity", action="store_true", help="Display Saber Research Constitution & Philosophy")
     parser.add_argument("--consult", type=str, help="Run 3-stage statistical consultation on a topic or JSON profile")
     parser.add_argument("--cbr", type=str, help="Search Case Memory for historical research precedents")
+    parser.add_argument("--harvest", action="store_true", help="Harvest and ingest real historical cases from Google Drive")
     parser.add_argument("--epistemic", type=str, help="Evaluate evidence strength for an academic claim")
     parser.add_argument("--audit", type=str, nargs="?", const="default", help="Run multi-signal anomaly audit on JSON payload")
     parser.add_argument("--defense-sim", type=str, help="Simulate thesis defense viva voce examination")
@@ -784,6 +808,8 @@ def main():
         saber.consult(args.consult)
     elif args.cbr:
         saber.query_precedents(args.cbr)
+    elif args.harvest:
+        saber.harvest_drive_cases()
     elif args.epistemic:
         saber.evaluate_literature_claim(args.epistemic)
     elif args.audit:

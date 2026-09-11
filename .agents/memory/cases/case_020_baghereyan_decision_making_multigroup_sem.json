@@ -1,0 +1,47 @@
+{
+  "case_id": "case_020_baghereyan_decision_making_multigroup_sem",
+  "topic": "الگوی ساختاری تصمیم‌گیری بر اساس سبک‌های شناختی و هوش هیجانی با تحلیل چندگروهی در دانش‌آموزان دختر و پسر",
+  "title_fa": "مدل‌یابی معادلات ساختاری تصمیم‌گیری بر پایه هوش هیجانی و سبک‌های شناختی با مقایسه چندگروهی جنسیتی (پروژه دکتر باقریان)",
+  "title_en": "Structural Equation Modeling of Decision-Making Styles Based on Emotional Intelligence with Multigroup Gender Invariance (Bagheryan Project)",
+  "client": "Dr. Bagheryan",
+  "drive_folder": "Finished Works/Baghereyan (Modeling)",
+  "domain": "روان‌شناسی تربیتی و شناختی (Educational & Cognitive Psychology)",
+  "population": "دانش‌آموزان مقطع متوسطه دوره دوم (N = 600 شامل ۳۰۰ دختر و ۳۰۰ پسر)",
+  "design": "همبستگی از نوع مدل‌یابی معادلات ساختاری چندگروهی (Multigroup SEM)",
+  "sample_size": 600,
+  "groups": [
+    "دانش‌آموزان دختر (۳۰۰ نفر)",
+    "دانش‌آموزان پسر (۳۰۰ نفر)"
+  ],
+  "variables": [
+    "هوش هیجانی بار-آن (Exogenous X1)",
+    "سبک‌های شناختی کلمن (Exogenous X2)",
+    "سبک تصمیم‌گیری منطقی، شهودی، وابستگی، اجتنابی و آنی (Endogenous Y1-Y5)",
+    "جنسیت به عنوان متغیر تعدیل‌کننده گروهی (Moderating Group)"
+  ],
+  "measures": [
+    "پرسشنامه سبک‌های تصمیم‌گیری عمومی اسکات و بروس (GDMS)",
+    "پرسشنامه هوش هیجانی بار-آن (EQ-i)",
+    "پرسشنامه سبک‌های یادگیری و تفکر شناختی"
+  ],
+  "statistical_analysis": "مدل‌یابی ساختاری در AMOS با ارزیابی شاخص‌های برازش و آزمون عدم تغییر ساختاری چندگروهی (Measurement Invariance via Delta Chi-Square)",
+  "assumptions_encountered": [
+    "بررسی نرمال بودن چندمتغیری با ضریب ماردیا (Mardia's Kurtosis)",
+    "بررسی برازش مدل اندازه‌گیری با تحلیل عاملی تأییدی مرتبه اول و دوم",
+    "بررسی هم‌خطی متغیرهای پنهان"
+  ],
+  "decisions_made": [
+    "ارزیابی برازش مدل کلی با شاخص‌های ترکیبی (CFI = 0.94, TLI = 0.93, RMSEA = 0.048, SRMR = 0.042)",
+    "اجرای آزمون مقایسه مدل محدودشده (Constrained) با مدل نامحدود (Unconstrained) جهت بررسی تفاوت مسیرها بر اساس جنسیت",
+    "اثبات اینکه مسیر هوش هیجانی به تصمیم‌گیری منطقی در دختران به طور معناداری قوی‌تر از پسران است (Critical Ratio = 2.45, p < .05)"
+  ],
+  "supervisor_challenges": [
+    "استاد راهنما درخواست اثبات روایی واگرای مدل بر اساس معیار فورنل-لارکر (Fornell-Larcker) را مطرح کرد. تصمیم صابر: محاسبه جذر میانگین واریانس استخراج‌شده (AVE) و مقایسه آن با همبستگی سازه‌ها در جدول ماتریس روایی واگرا."
+  ],
+  "defense_guidance": "ارائه گام‌به‌گام مراحل برازش مدل ساختاری و تبیین روان‌شناختی سوگیری‌های تصمیم‌گیری جنسیتی.",
+  "final_verdict": "تکمیل فصل ۴ و مقالات مستخرج با موفقیت کامل در مقیاس کشوری.",
+  "confidence_score": 0.99,
+  "reinforcement_count": 3,
+  "harvested_at": "2026-09-11T09:24:16.105831",
+  "source_system": "GoogleDrive_FinishedWorks"
+}
