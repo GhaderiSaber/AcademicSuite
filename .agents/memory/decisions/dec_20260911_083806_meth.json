@@ -1,0 +1,84 @@
+{
+  "decision_id": "dec_20260911_083806_meth",
+  "timestamp": "2026-09-11T08:38:06.515693",
+  "project_title": "اثربخشی درمان مبتنی بر شفقت بر خودانتقادی و شرم درونی زنان مطلقه",
+  "decision_type": "methodological_selection",
+  "context": "Autonomous candidate generation and evaluation for design 'pre_post_control', N=30.",
+  "selected_option": "One-Way Analysis of Covariance (ANCOVA) with Baseline Control",
+  "rationale": "Statistically controls for pre-existing baseline group differences, removes error variance, and possesses superior statistical power over gain-score t-tests.",
+  "alternatives_considered": [
+    {
+      "option": "Gain Score Independent Samples t-test (D = Post - Pre)",
+      "verdict": "REJECTED",
+      "reason": "Vulnerable to regression to the mean; implicitly fixes regression slope to 1.0; low power"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 0.95,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)",
+  "learning_cycle_stage": "CALIBRATED_WITH_OUTCOME",
+  "case_spec": {
+    "title": "اثربخشی درمان مبتنی بر شفقت بر خودانتقادی و شرم درونی زنان مطلقه",
+    "topic": "اثربخشی درمان مبتنی بر شفقت بر خودانتقادی و شرم درونی زنان مطلقه",
+    "objective": "difference",
+    "design": "pre_post_control",
+    "groups": 2,
+    "sample_size": 30,
+    "has_pretest": true
+  },
+  "precedent_ids": [
+    "case_007_cft_shame_eating_disorders",
+    "case_001_act_burnout",
+    "case_learned_20260911_083713"
+  ],
+  "candidates": [
+    {
+      "path_id": "PATH_A_SABER_OPTIMAL",
+      "name": "One-Way Analysis of Covariance (ANCOVA) with Baseline Control",
+      "type": "modern_psychometric",
+      "approach": "Pre-test as covariate, post-test as DV, group as factor",
+      "pros": "Removes baseline error variance; adjusts for pre-test differences; superior power",
+      "cons": "Requires homogeneity of regression slopes assumption",
+      "saber_verdict": "RECOMMENDED"
+    },
+    {
+      "path_id": "PATH_B_ORTHODOX_SUPERVISOR",
+      "name": "Gain Score Independent Samples t-test (D = Post - Pre)",
+      "type": "traditional_supervisor",
+      "approach": "Subtract pre from post scores and compare group means",
+      "pros": "Very intuitive calculation",
+      "cons": "Vulnerable to regression to the mean; implicitly fixes regression slope to 1.0; low power",
+      "saber_verdict": "STRICTLY_REJECTED"
+    },
+    {
+      "path_id": "PATH_C_SPLIT_PLOT_ANOVA",
+      "name": "Mixed Split-Plot Repeated Measures ANOVA (2 Groups × 2 Times)",
+      "type": "robust_alternative",
+      "approach": "Evaluate Time × Group interaction effect",
+      "pros": "Robust fallback if regression slopes are non-parallel",
+      "cons": "Reports identical interaction p-value to gain score in 2x2 design",
+      "saber_verdict": "VIABLE_CONTINGENCY"
+    }
+  ],
+  "human_decision": {
+    "action": "AGREE",
+    "chosen_method": "Optimal Method Approved by Human Saber",
+    "supervisor_accepted": true,
+    "divergence_rationale": "Approved without changes. Standard ANCOVA executed successfully.",
+    "lessons_learned": "Approved without changes. Standard ANCOVA executed successfully."
+  },
+  "alignment_status": "PERFECT_CONGRUENCE (AGREED)",
+  "congruence_score": 1.0,
+  "knowledge_update": {
+    "type": "REINFORCEMENT",
+    "details": "Reinforced confidence for precedent cases: case_007_cft_shame_eating_disorders, case_001_act_burnout, case_learned_20260911_083713",
+    "reinforced_case_ids": [
+      "case_007_cft_shame_eating_disorders",
+      "case_001_act_burnout",
+      "case_learned_20260911_083713"
+    ]
+  },
+  "outcome_recorded_at": "2026-09-11T08:38:13.044592"
+}

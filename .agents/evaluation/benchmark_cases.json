@@ -152,6 +152,16 @@
       "saber_rationale": "A probability in continuous sampling distributions can never be mathematically equal to zero; SPSS truncates values < .0005. Reporting p = .000 is an immediate sign of amateurism in dissertation defense.",
       "rejected_options": ["Reporting p = .000 as printed by SPSS", "Rounding to p = .00", "Deleting the p-value"],
       "key_citations": ["APA Publication Manual 7th Edition (2020)"]
+    },
+    {
+      "id": "BENCH_16",
+      "category": "literature_judgment",
+      "dilemma_title": "Synthesizing Conflicting Domestic vs International Empirical Literature",
+      "scenario": "In a master's thesis on mindfulness for burnout, 8 international trials report large positive effects (d > 0.80), but 2 recent Iranian quasi-experiments found no significant difference. The student asks if they can omit the 2 Iranian studies from Chapter 2 to avoid confusing the defense committee.",
+      "saber_gold_decision": "Categorically refuse cherry-picking or omitting contradictory literature. Synthesize both international and domestic studies using Saber's 5-part epistemic paragraph structure, highlighting potential cultural, dosage, or measurement moderating factors.",
+      "saber_rationale": "Selective omission of conflicting findings (publication/confirmation bias) distorts scientific reality and leaves the candidate defenseless if examiners cite domestic studies. Highlighting conflicting empirical findings enriches Chapter 2 and provides theoretical ground for Chapter 5 discussion.",
+      "rejected_options": ["Omitting the Iranian studies from Chapter 2", "Cherry-picking only positive studies", "Dismissing domestic studies without empirical justification"],
+      "key_citations": ["Cooper (2017)", "Petticrew & Roberts (2006)", "Saber Academic Writing Style"]
     }
   ]
 }

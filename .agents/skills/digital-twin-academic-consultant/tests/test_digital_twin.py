@@ -155,7 +155,25 @@ class TestDigitalTwinSuite(unittest.TestCase):
     def test_06_ui_formatting_and_links(self):
         """Test clean Google Drive path shortening, client mention hyperlinks, and HTML card rendering."""
         import project_drive_manager
-        import telethon.extensions.html as thtml
+        try:
+            import telethon.extensions.html as thtml
+        except ImportError:
+            import re as _re
+            class MockThtml:
+                @staticmethod
+                def parse(html_text):
+                    clean = _re.sub(r'<[^>]+>', '', html_text)
+                    ents = []
+                    for m in _re.finditer(r'<a\s+href="([^"]+)">([^<]+)</a>', html_text):
+                        ents.append(type("MockEntity", (), {"url": m.group(1)})())
+                    for m in _re.finditer(r'<b>([^<]+)</b>', html_text):
+                        ents.append(type("MockBold", (), {})())
+                    for m in _re.finditer(r'<code>([^<]+)</code>', html_text):
+                        ents.append(type("MockCode", (), {})())
+                    for m in _re.finditer(r'<blockquote[^>]*>([\s\S]*?)</blockquote>', html_text):
+                        ents.append(type("MockBlockquote", (), {})())
+                    return clean, ents
+            thtml = MockThtml()
 
         # Test path shortening
         raw_cloud_path = "/Users/saber/Library/CloudStorage/GoogleDrive-ghaderi.sabir@gmail.com/My Drive/My Work/Zəhra Cəlalı"

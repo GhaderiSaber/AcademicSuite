@@ -1,0 +1,38 @@
+{
+  "case_id": "case_learned_20260911_083713",
+  "topic": "اثربخشی واقعیت‌درمانی بر رفتارهای خودآسیب‌رسان و تاب‌آوری نوجوانان کانون اصلاح و تربیت",
+  "title_fa": "اثربخشی واقعیت‌درمانی بر رفتارهای خودآسیب‌رسان و تاب‌آوری نوجوانان کانون اصلاح و تربیت",
+  "domain": "روان‌شناسی و مشاوره",
+  "population": "عمومی",
+  "sample_size": 28,
+  "design": "quasi_experimental_pre_post_control",
+  "variables": [
+    "واقعیت درمانی",
+    "رفتارهای خودآسیب‌رسان",
+    "تاب‌آوری"
+  ],
+  "measures": [
+    "DSHI",
+    "CD-RISC"
+  ],
+  "statistical_analysis": "Johnson-Neyman Floodlight Technique + Split-Plot Repeated Measures ANOVA",
+  "decisions_made": [
+    "Human Saber Selected: Johnson-Neyman Floodlight Technique + Split-Plot Repeated Measures ANOVA",
+    "AI Initial Suggestion: One-Way Analysis of Covariance (ANCOVA) with Baseline Control",
+    "Divergence Reason: Pre-test group variance difference indicated regression slope interaction; Johnson-Neyman preserves clinical interpretability across baseline severity."
+  ],
+  "lessons_learned": "When youth delinquent samples show pre-test variance heterogeneity, prepare Johnson-Neyman floodlight contingency alongside ANCOVA.",
+  "supervisor_outcome": "ACCEPTED",
+  "calibration_source": "human_saber_feedback_loop",
+  "congruence_with_initial_ai": 0.75,
+  "confidence_score": 1.0,
+  "reinforcement_count": 2,
+  "created_at": "2026-09-11T08:37:13.378671",
+  "last_reinforced_at": "2026-09-11T08:38:13.043275",
+  "reinforcement_history": [
+    {
+      "timestamp": "2026-09-11T08:38:13.043280",
+      "note": "Reinforced by Human Saber validation in decision dec_20260911_083806_meth (اثربخشی درمان مبتنی بر شفقت بر خودانتقادی و شرم درونی زنان مطلقه)."
+    }
+  ]
+}

@@ -35,6 +35,7 @@ for p in [MEMORY_DIR, REASONING_DIR, VERIFICATION_DIR, EVAL_DIR]:
 try:
     from case_memory_engine import CaseMemoryEngine
     from decision_journal_engine import DecisionJournalEngine
+    from continuous_learning_engine import ContinuousLearningEngine
     from statistical_reasoner import StatisticalReasoner
     from epistemic_literature_reasoner import EpistemicLiteratureReasoner
     from research_methodology_reasoner import ResearchMethodologyReasoner
@@ -52,6 +53,7 @@ class DigitalSaber:
     def __init__(self):
         self.case_memory = CaseMemoryEngine()
         self.decision_journal = DecisionJournalEngine()
+        self.learning_engine = ContinuousLearningEngine()
         self.stat_reasoner = StatisticalReasoner()
         self.lit_reasoner = EpistemicLiteratureReasoner()
         self.method_reasoner = ResearchMethodologyReasoner()
@@ -194,22 +196,126 @@ class DigitalSaber:
             print(f"    📚 رفرنس پشتیبان: {c['apa7_evidence']}")
             print("-" * 80)
 
-    def run_benchmark(self):
-        """Runs the Saber Similarity Score evaluation benchmark."""
-        res = self.evaluator.evaluate_all()
+    def learn_new_case(self, topic_or_file: str):
+        """Executes stages 1-5 of the continuous learning cycle: Ingest, Retrieve Precedents, Generate Candidates, Journal."""
+        case_spec = {}
+        if os.path.exists(topic_or_file):
+            with open(topic_or_file, "r", encoding="utf-8") as f:
+                case_spec = json.load(f)
+        else:
+            case_spec = {
+                "title": topic_or_file,
+                "topic": topic_or_file,
+                "objective": "difference",
+                "design": "pre_post_control",
+                "groups": 2,
+                "sample_size": 30,
+                "has_pretest": True
+            }
+
+        res = self.learning_engine.process_new_case(case_spec)
         print("\n" + "=" * 80)
-        print("🏆 DIGITAL SABER SIMILARITY BENCHMARK REPORT")
+        print("🧠 DIGITAL SABER CONTINUOUS LEARNING: DECISION RECOMMENDATION")
         print("=" * 80)
-        print(f"📊 Aggregate Saber Similarity Score: {res['aggregate_saber_similarity_score']}%")
-        print(f"🏅 Overall Congruence Verdict:     {res['overall_verdict']}")
-        print(f"📋 Total Dilemmas Evaluated:       {res['total_benchmark_cases_evaluated']} cases")
-        print("-" * 80)
-        print("ITEMIZED QUALITATIVE RUBRIC ACROSS 7 CORE DIMENSIONS:")
-        print(f"{'Dimension':<25} | {'Weight':<6} | {'Score':<6} | {'Qualitative Assessment Status'}")
-        print("-" * 80)
-        for r in res["itemized_qualitative_rubric"]:
-            print(f"{r['dimension']:<25} | {r['weight_percent']:>4}% | {r['average_score']:>5}% | {r['status']}")
+        print(f"Project Title: {res['project_title']}")
+        print(f"Decision ID:   {res['decision_id']}  [Status: PENDING_HUMAN_OUTCOME]")
+        print(f"\nRecommended Method: {res['recommendation']['selected_method']}")
+        print(f"Persian Method:     {res['recommendation']['method_fa']}")
+        print(f"Rationale:          {res['recommendation']['rationale']}")
+
+        print("\nEvaluated Candidate Decision Paths:")
+        for c in res['recommendation']['candidates_evaluated']:
+            marker = "⭐ [RECOMMENDED]" if c['saber_verdict'] == "RECOMMENDED" else "❌ [REJECTED/DEPRECATED]"
+            print(f"  • {c['path_id']}: {c['name']} {marker}")
+            print(f"    Approach: {c['approach']}")
+            print(f"    Why: {c['pros'] if marker.startswith('⭐') else c['cons']}")
+
+        print("\nRetrieved Historical Precedents:")
+        for p in res['precedents_retrieved']:
+            print(f"  📚 [{p['case_id']}] Match: {p['similarity']:.3f} | {p['topic']} ({p['analysis']})")
+
+        print("\nNext Action in Closed-Loop Cycle:")
+        print(f"  To record Human Saber outcome & calibrate knowledge base, run:")
+        print(f"  python3 digital_saber.py --record-outcome {res['decision_id']} --action AGREE (or ADJUST / OVERRIDE)")
         print("=" * 80)
+
+    def record_outcome(self, decision_id: str, action: str = "AGREE", notes: str = "", chosen_method: Optional[str] = None):
+        """Executes stages 6-8 of the continuous learning cycle: Record Human Saber Decision & Calibrate Precedents."""
+        human_dec = {
+            "action": action.upper(),
+            "chosen_method": chosen_method or "Optimal Method Approved by Human Saber",
+            "supervisor_accepted": True,
+            "divergence_rationale": notes,
+            "lessons_learned": notes or "Standard Saber decision validated and reinforced."
+        }
+        res = self.learning_engine.record_human_outcome(decision_id, human_dec)
+        if "error" in res:
+            print(f"❌ Error: {res['error']}")
+            return
+
+        print("\n" + "=" * 80)
+        print("🎯 DIGITAL SABER KNOWLEDGE BASE CALIBRATION RESULT")
+        print("=" * 80)
+        print(f"Decision ID:      {res['decision_id']}")
+        print(f"Project Title:    {res['project_title']}")
+        print(f"Alignment Status: {res['alignment_status']}")
+        print(f"Congruence Score: {res['congruence_score'] * 100:.1f}%")
+        print(f"Knowledge Update: {res['knowledge_update']['type']}")
+        print(f"Details:          {res['knowledge_update']['details']}")
+        print("=" * 80)
+
+    def show_learning_stats(self):
+        """Displays continuous learning engine metrics."""
+        stats = self.learning_engine.get_learning_stats()
+        print("\n" + "=" * 80)
+        print("🧠 DIGITAL SABER CONTINUOUS LEARNING & CALIBRATION METRICS")
+        print("=" * 80)
+        print(f"📚 Total Cases in Memory:          {stats['total_historical_cases_in_memory']}")
+        print(f"🌱 Cases Synthesized via Learning: {stats['newly_synthesized_learned_cases']}")
+        print(f"📋 Total Decisions Journaled:      {stats['total_decisions_journaled']}")
+        print(f"⏳ Pending Human Outcomes:         {stats['pending_human_outcomes']}")
+        print(f"🎯 Calibrated Decisions:           {stats['calibrated_decisions_count']}")
+        print(f"🤝 Human Saber Congruence Rate:    {stats['human_saber_congruence_rate']}%")
+        print(f"⚡ Learning Engine Status:         {stats['status']}")
+        print("=" * 80)
+
+    def run_benchmark(self, compare_baseline: bool = True):
+        """Runs the upgraded dynamic Saber Similarity Score evaluation benchmark."""
+        if compare_baseline:
+            comp = self.evaluator.run_comparative_benchmark()
+            saber_res = comp["digital_saber_details"]
+
+            print("\n" + "=" * 85)
+            print("🏆 DIGITAL SABER DYNAMIC SIMILARITY BENCHMARK: COMPARATIVE REPORT")
+            print("=" * 85)
+            print(f"🤖 Generic AI Baseline Score:         {comp['generic_baseline_score']}%  [Naive LLM default]")
+            print(f"🧠 Digital Saber (Cognitive Engines):  {comp['digital_saber_score']}%  [Active Reasoning Layers]")
+            print(f"🥇 Saber Gold Standard Upper Bound:    {comp['gold_standard_score']}%  [Human Expert Reference]")
+            print(f"⚡ Cognitive Advantage Delta:          +{comp['saber_cognitive_advantage_delta']}% over generic baseline")
+            print("-" * 85)
+            print(f"🏅 Digital Saber Verdict: {saber_res['overall_verdict']}")
+            print("-" * 85)
+            print("ITEMIZED QUALITATIVE RUBRIC ACROSS 7 CORE DIMENSIONS (DIGITAL SABER):")
+            print(f"{'Dimension':<25} | {'Weight':<6} | {'Score':<6} | {'Qualitative Assessment Status'}")
+            print("-" * 85)
+            for r in saber_res["itemized_qualitative_rubric"]:
+                print(f"{r['dimension']:<25} | {r['weight_percent']:>4}% | {r['average_score']:>5}% | {r['status']}")
+            print("=" * 85)
+        else:
+            res = self.evaluator.evaluate_all(solver_mode="digital_saber")
+            print("\n" + "=" * 85)
+            print("🏆 DIGITAL SABER DYNAMIC SIMILARITY BENCHMARK REPORT")
+            print("=" * 85)
+            print(f"📊 Aggregate Saber Similarity Score: {res['aggregate_saber_similarity_score']}%")
+            print(f"🏅 Overall Congruence Verdict:     {res['overall_verdict']}")
+            print(f"📋 Total Dilemmas Evaluated:       {res['total_benchmark_cases_evaluated']} cases")
+            print("-" * 85)
+            print("ITEMIZED QUALITATIVE RUBRIC ACROSS 7 CORE DIMENSIONS:")
+            print(f"{'Dimension':<25} | {'Weight':<6} | {'Score':<6} | {'Qualitative Assessment Status'}")
+            print("-" * 85)
+            for r in res["itemized_qualitative_rubric"]:
+                print(f"{r['dimension']:<25} | {r['weight_percent']:>4}% | {r['average_score']:>5}% | {r['status']}")
+            print("=" * 85)
 
 
 def main():
@@ -221,6 +327,12 @@ def main():
     parser.add_argument("--audit", type=str, nargs="?", const="default", help="Run multi-signal anomaly audit on JSON payload")
     parser.add_argument("--defense-sim", type=str, help="Simulate thesis defense viva voce examination")
     parser.add_argument("--benchmark", action="store_true", help="Run Saber Similarity Benchmark (both % and rubric)")
+    parser.add_argument("--learn", type=str, help="Process new case through continuous learning cycle (stages 1-5)")
+    parser.add_argument("--record-outcome", type=str, help="Record Human Saber decision to calibrate knowledge base (stages 6-8)")
+    parser.add_argument("--action", type=str, default="AGREE", choices=["AGREE", "ADJUST", "OVERRIDE"], help="Human feedback action")
+    parser.add_argument("--notes", type=str, default="", help="Notes or divergence rationale")
+    parser.add_argument("--chosen-method", type=str, default=None, help="Human chosen method (if adjusted)")
+    parser.add_argument("--learning-stats", action="store_true", help="Display continuous learning metrics")
 
     args = parser.parse_args()
     saber = DigitalSaber()
@@ -237,8 +349,14 @@ def main():
         saber.run_multi_signal_audit(None if args.audit == "default" else args.audit)
     elif args.defense_sim:
         saber.simulate_defense(args.defense_sim)
+    elif args.learn:
+        saber.learn_new_case(args.learn)
+    elif args.record_outcome:
+        saber.record_outcome(args.record_outcome, action=args.action, notes=args.notes, chosen_method=args.chosen_method)
+    elif args.learning_stats:
+        saber.show_learning_stats()
     elif args.benchmark or len(sys.argv) == 1:
-        saber.run_benchmark()
+        saber.run_benchmark(compare_baseline=True)
 
 
 if __name__ == "__main__":

@@ -88,6 +88,20 @@ class DecisionJournalEngine:
         self._load_decisions()
         return did
 
+    def update_decision(self, decision_id: str, updates: Dict[str, Any]) -> bool:
+        """Updates an existing decision record with outcome, human feedback, or calibration data."""
+        for d in self.decisions:
+            if d.get("decision_id") == decision_id:
+                fname = d.get("_file") or f"{decision_id}.json"
+                fpath = os.path.join(self.decisions_dir, fname)
+                d.update(updates)
+                save_data = {k: v for k, v in d.items() if k != "_file"}
+                with open(fpath, "w", encoding="utf-8") as f:
+                    json.dump(save_data, f, ensure_ascii=False, indent=2)
+                self._load_decisions()
+                return True
+        return False
+
     def query_decisions(self, keyword: Optional[str] = None, decision_type: Optional[str] = None) -> List[Dict[str, Any]]:
         """Queries historical decisions by keyword or category."""
         res = []

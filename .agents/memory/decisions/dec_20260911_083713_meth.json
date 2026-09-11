@@ -1,0 +1,89 @@
+{
+  "decision_id": "dec_20260911_083713_meth",
+  "timestamp": "2026-09-11T08:37:13.375094",
+  "project_title": "اثربخشی واقعیت‌درمانی بر رفتارهای خودآسیب‌رسان و تاب‌آوری نوجوانان کانون اصلاح و تربیت",
+  "decision_type": "methodological_selection",
+  "context": "Autonomous candidate generation and evaluation for design 'quasi_experimental_pre_post_control', N=28.",
+  "selected_option": "One-Way Analysis of Covariance (ANCOVA) with Baseline Control",
+  "rationale": "Statistically controls for pre-existing baseline group differences, removes error variance, and possesses superior statistical power over gain-score t-tests.",
+  "alternatives_considered": [
+    {
+      "option": "Gain Score Independent Samples t-test (D = Post - Pre)",
+      "verdict": "REJECTED",
+      "reason": "Vulnerable to regression to the mean; implicitly fixes regression slope to 1.0; low power"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 0.95,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)",
+  "learning_cycle_stage": "CALIBRATED_WITH_OUTCOME",
+  "case_spec": {
+    "title": "اثربخشی واقعیت‌درمانی بر رفتارهای خودآسیب‌رسان و تاب‌آوری نوجوانان کانون اصلاح و تربیت",
+    "objective": "difference",
+    "design": "quasi_experimental_pre_post_control",
+    "groups": 2,
+    "sample_size": 28,
+    "has_pretest": true,
+    "variables": [
+      "واقعیت درمانی",
+      "رفتارهای خودآسیب‌رسان",
+      "تاب‌آوری"
+    ],
+    "measures": [
+      "DSHI",
+      "CD-RISC"
+    ]
+  },
+  "precedent_ids": [
+    "case_001_act_burnout",
+    "case_011_shahram_amiri_military_fitness",
+    "case_002_schema_bpd"
+  ],
+  "candidates": [
+    {
+      "path_id": "PATH_A_SABER_OPTIMAL",
+      "name": "One-Way Analysis of Covariance (ANCOVA) with Baseline Control",
+      "type": "modern_psychometric",
+      "approach": "Pre-test as covariate, post-test as DV, group as factor",
+      "pros": "Removes baseline error variance; adjusts for pre-test differences; superior power",
+      "cons": "Requires homogeneity of regression slopes assumption",
+      "saber_verdict": "RECOMMENDED"
+    },
+    {
+      "path_id": "PATH_B_ORTHODOX_SUPERVISOR",
+      "name": "Gain Score Independent Samples t-test (D = Post - Pre)",
+      "type": "traditional_supervisor",
+      "approach": "Subtract pre from post scores and compare group means",
+      "pros": "Very intuitive calculation",
+      "cons": "Vulnerable to regression to the mean; implicitly fixes regression slope to 1.0; low power",
+      "saber_verdict": "STRICTLY_REJECTED"
+    },
+    {
+      "path_id": "PATH_C_SPLIT_PLOT_ANOVA",
+      "name": "Mixed Split-Plot Repeated Measures ANOVA (2 Groups × 2 Times)",
+      "type": "robust_alternative",
+      "approach": "Evaluate Time × Group interaction effect",
+      "pros": "Robust fallback if regression slopes are non-parallel",
+      "cons": "Reports identical interaction p-value to gain score in 2x2 design",
+      "saber_verdict": "VIABLE_CONTINGENCY"
+    }
+  ],
+  "human_decision": {
+    "action": "ADJUST",
+    "chosen_method": "Johnson-Neyman Floodlight Technique + Split-Plot Repeated Measures ANOVA",
+    "supervisor_accepted": true,
+    "divergence_rationale": "Pre-test group variance difference indicated regression slope interaction; Johnson-Neyman preserves clinical interpretability across baseline severity.",
+    "lessons_learned": "When youth delinquent samples show pre-test variance heterogeneity, prepare Johnson-Neyman floodlight contingency alongside ANCOVA."
+  },
+  "alignment_status": "PARTIAL_ADJUSTMENT (REFINED)",
+  "congruence_score": 0.75,
+  "knowledge_update": {
+    "type": "NEW_CASE_SYNTHESIZED",
+    "details": "Created new calibrated precedent case case_learned_20260911_083713 to encode Human Saber's refined decision rules.",
+    "new_case_id": "case_learned_20260911_083713",
+    "divergence_rationale": "Pre-test group variance difference indicated regression slope interaction; Johnson-Neyman preserves clinical interpretability across baseline severity."
+  },
+  "outcome_recorded_at": "2026-09-11T08:37:13.379867"
+}

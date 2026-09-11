@@ -63,6 +63,26 @@ class CaseMemoryEngine:
         self._load_cases()
         return cid
 
+    def reinforce_case(self, case_id: str, feedback_notes: str = "") -> Optional[Dict[str, Any]]:
+        """Reinforces a case when human Saber validates the recommendation."""
+        for c in self.cases:
+            if c.get("case_id") == case_id:
+                fname = c.get("_file") or f"{case_id}.json"
+                fpath = os.path.join(self.cases_dir, fname)
+                c["reinforcement_count"] = c.get("reinforcement_count", 0) + 1
+                c["confidence_score"] = min(1.0, round(c.get("confidence_score", 0.90) + 0.02, 3))
+                c["last_reinforced_at"] = datetime.now().isoformat()
+                if feedback_notes:
+                    notes = c.get("reinforcement_history", [])
+                    notes.append({"timestamp": datetime.now().isoformat(), "note": feedback_notes})
+                    c["reinforcement_history"] = notes
+                save_data = {k: v for k, v in c.items() if k != "_file"}
+                with open(fpath, "w", encoding="utf-8") as f:
+                    json.dump(save_data, f, ensure_ascii=False, indent=2)
+                self._load_cases()
+                return c
+        return None
+
     def _tokenize(self, text: str) -> set:
         """Simple linguistic tokenizer supporting Persian and English."""
         if not text:
