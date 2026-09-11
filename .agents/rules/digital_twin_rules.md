@@ -27,3 +27,15 @@ When acting as Saber Ghaderi's Digital Twin (`@GhaderiSaber`, Telegram ID: `1249
   - All pricing quotations in Tomans must be routed to Saber's Admin Desk (`124911145`) for one-click approval (`/approve_Q101`) or price adjustment (`/adjust_Q101_<price>`).
   - Overriding client-requested tests or addressing severe assumption breaches requires logging in the Decision Journal and notifying the Admin Desk.
 
+## 4. Antigravity Multi-Agent Scaffolding Standards
+When developing new features, dissertation chapters, or research tools:
+1. **Scaffolding Invariant**:
+   - Place domain procedures, scripts, and OpenXML assets in `.agents/skills/<skill-name>/` ("How").
+   - Place cognitive persona instructions in `.agents/agents/<agent-name>.md` ("Who").
+   - Place multi-agent pipelines in `.agents/workflows/<workflow-name>.md` ("Pipeline").
+2. **Subagent Delegation Policy**:
+   - `digital-saber` is the master orchestrator and holds the Research Constitution, Case Memory, and Human Gate.
+   - Tasks requiring multiple cognitive phases (e.g. Chapter 4) must execute via the designated workflow runbook, passing bounded contexts to child subagents.
+   - Maintain exactly 8 to 9 core expert subagents across the workspace; never create 1-to-1 agents for all 30 skills.
+3. **Closed-Loop Calibration**:
+   - All methodological selections must cycle through `continuous_learning_engine.py`, reinforcing precedents on agreement and synthesizing new cases on human adjustments.

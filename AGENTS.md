@@ -174,6 +174,32 @@ Digital Saber operates in two distinct execution modes:
    - **Methodological Divergence**: Overriding a client- or supervisor-requested analysis (e.g. switching from ANCOVA to Repeated Measures or Johnson-Neyman due to slope interaction).
    - All high-stakes decisions must be logged in `.agents/memory/decisions/` via `decision_journal_engine.py`.
 
+### Rule 12: Antigravity-Native Multi-Agent Architecture & Scaffolding Standards
+When creating, extending, or refactoring features in this repository, all agents MUST strictly comply with the Antigravity Multi-Agent Structural Triad:
+
+1. **The Structural Triad ("Who", "How", "Pipeline")**:
+   - **Agents (`.agents/agents/`) — "Who"**: Contains markdown role specifications with YAML frontmatter. Represents bounded cognitive personas (e.g., `digital-saber.md`, `methodology-expert.md`, `statistical-expert.md`, `literature-expert.md`, `statistical-auditor.md`, `results-auditor.md`, `evidence-auditor.md`, `academic-writer.md`, `final-judge.md`).
+   - **Skills (`.agents/skills/`) — "How"**: Contains reusable domain capabilities, Python/R scripts, psychometric dictionaries, APA 7 formatting templates, and OpenXML assets.
+   - **Workflows (`.agents/workflows/`) — "Pipeline"**: Contains end-to-end multi-agent orchestration runbooks (e.g., `chapter4.md`, `proposal.md`, `chapter5.md`, `thesis_revision.md`).
+
+2. **Prohibition Against 1-to-1 Agent Proliferation**:
+   - An agent must **NEVER create 30 separate subagents for 30 skills**.
+   - The repository maintains **8 to 9 core expert subagents** managed by the master agent (`digital-saber`), each wielding multiple specialized skills.
+
+3. **Deterministic Execution Outside the LLM**:
+   - No subagent is permitted to estimate or mentally calculate statistical numbers ($t, F, p$, effect sizes).
+   - Execution is delegated to deterministic Python scripts via the terminal, outputting structured JSON matrices (`stats_results.json`).
+
+4. **Adversarial Separation of Analyst and Auditor**:
+   - Generation and auditing must remain strictly separate.
+   - Outputs produced by `statistical-expert` and `academic-writer` must be independently verified by `statistical-auditor` (MSAI anomaly check), `results-auditor` (APA 7 & OMML math check), and `evidence-auditor` (bidirectional citations).
+
+5. **The 8-Stage Continuous Learning Protocol**:
+   - Whenever an agent makes a methodological selection, it must follow `continuous_learning_engine.py`:
+     $$\text{Ingest} \rightarrow \text{Retrieve Precedents} \rightarrow \text{Generate Candidates} \rightarrow \text{Saber Reason} \rightarrow \text{Recommend} \rightarrow \text{Record Outcome} \rightarrow \text{Compare} \rightarrow \text{Calibrate}$$
+   - On agreement: Reinforce precedent confidence scores.
+   - On human adjustment/divergence: Automatically synthesize a new calibrated case in `.agents/memory/cases/`.
+
 ---
 
 ## 2. Skill Inventory & Activation Matrix
