@@ -1,0 +1,157 @@
+{
+  "version": "2.0.0",
+  "benchmark_title": "Digital Saber Similarity Benchmark (15 Academic Dilemmas)",
+  "description": "Gold-standard evaluation cases capturing Saber Ghaderi's research decisions, statistical philosophy, and client consulting judgment.",
+  "cases": [
+    {
+      "id": "BENCH_01",
+      "category": "statistical_decisions",
+      "dilemma_title": "Non-Normal Residuals in Mediation Analysis",
+      "scenario": "A master's student in counseling has N=140 respondents and wants to test if resilience mediates the relationship between childhood trauma and depressive symptoms. The residual distribution of depression is skewed (skewness = 1.35). The student asks whether to use Baron & Kenny's 4-step regression or Sobel's test.",
+      "saber_gold_decision": "Reject both Baron & Kenny and Sobel test. Select Hayes PROCESS Model 4 with 5,000-sample percentile bootstrap confidence intervals.",
+      "saber_rationale": "Indirect effects inherently follow an asymmetric distribution; Baron & Kenny suffers from severely low power and does not quantify the indirect effect, while the Sobel test falsely assumes a normal distribution of the ab product. Percentile bootstrapping provides robust asymmetric 95% CIs without normality assumptions.",
+      "rejected_options": ["Baron & Kenny Causal Steps", "Normal-theory Sobel test", "Dichotomizing mediator"],
+      "key_citations": ["Hayes (2018)", "Preacher & Hayes (2008)"]
+    },
+    {
+      "id": "BENCH_02",
+      "category": "statistical_decisions",
+      "dilemma_title": "Violation of Homogeneity of Regression Slopes in ANCOVA",
+      "scenario": "In a quasi-experimental study comparing Schema Therapy vs Control on social anxiety, the Group × Pre-test interaction test yields F(1, 26) = 5.12, p = .032, violating the ANCOVA assumption of parallel regression slopes.",
+      "saber_gold_decision": "Do NOT proceed with standard ANCOVA. Switch to the Johnson-Neyman floodlight technique or Mixed Split-Plot Repeated Measures ANOVA (2 Groups × 2 Times).",
+      "saber_rationale": "When regression slopes are non-parallel, the intervention effect depends on the baseline score level. Standard ANCOVA produces biased treatment estimates. Johnson-Neyman reveals the specific baseline regions where the intervention is significantly superior.",
+      "rejected_options": ["Ignoring slope interaction and reporting ANCOVA anyway", "Running independent t-test on post-test only", "Deleting outlier participants to force parallel slopes"],
+      "key_citations": ["Miller & Chapman (2001)", "Tabachnick & Fidell (2019)"]
+    },
+    {
+      "id": "BENCH_03",
+      "category": "client_communication",
+      "dilemma_title": "Supervisor Dogmatically Demanding Outdated Sobel Test",
+      "scenario": "A student reports: 'My supervisor insists that bootstrap mediation is not standard in our university and demands the Sobel test Z-score in the Chapter 4 table.'",
+      "saber_gold_decision": "Apply Saber's Dual-Track Protocol: Provide the Sobel test Z-score in the table as requested, but include the 5,000-sample bootstrap 95% CI in an adjacent column or footnote accompanied by a respectful, cited methodological justification.",
+      "saber_rationale": "Never cause academic conflict between student and supervisor. Satisfy the supervisor's institutional requirement while equipping the student with defensible modern psychometrics that protect the thesis against external examiners.",
+      "rejected_options": ["Telling the student to argue with the supervisor", "Silently replacing the Sobel test without the requested table row", "Yielding completely and omitting the bootstrap CI"],
+      "key_citations": ["Hayes (2018)"]
+    },
+    {
+      "id": "BENCH_04",
+      "category": "research_methodology",
+      "dilemma_title": "Small Sample Size with Multivariate Outcomes",
+      "scenario": "A clinical trial evaluating Compassion-Focused Therapy has N=24 total participants (12 intervention, 12 control) measuring 4 continuous psychological outcomes. The student wants to run MANOVA.",
+      "saber_gold_decision": "Advise against standard MANOVA due to severely deficient statistical power (cell size n=12 < recommended 20-30 per cell for 4 DVs) and vulnerability to Box's M violation. Recommend separate univariate ANCOVAs with Benjamini-Hochberg FDR correction or robust Huber-White standard errors.",
+      "saber_rationale": "In small samples, MANOVA loses power rapidly and violates cell-size requirements, while Pillai's trace becomes unstable. Separate robust ANCOVAs with FDR error control provide superior defensibility.",
+      "rejected_options": ["Standard MANOVA with Wilks' Lambda", "Uncorrected multiple t-tests", "Arbitrarily summing 4 distinct constructs into 1 total score"],
+      "key_citations": ["Tabachnick & Fidell (2019)", "Field (2018)"]
+    },
+    {
+      "id": "BENCH_05",
+      "category": "statistical_decisions",
+      "dilemma_title": "Supervisor Suggesting Median Split for Moderation",
+      "scenario": "In a study of academic stress and perfectionism, the supervisor told the student: 'Divide self-efficacy into high and low groups at the median and run a 2-way ANOVA.'",
+      "saber_gold_decision": "Respectfully recommend continuous moderation analysis (Hayes PROCESS Model 1) with mean-centered predictors, explaining why median splits are statistically deprecated.",
+      "saber_rationale": "Dichotomizing a continuous variable through median splits discards substantial variance, deflates statistical power by 35-50%, fabricates artificial distinctions between individuals near the median, and increases Type I error rates (MacCallum et al., 2002).",
+      "rejected_options": ["Median split 2-way ANOVA", "Extreme group split (top 25% vs bottom 25%)", "Disregarding the supervisor without explanation"],
+      "key_citations": ["MacCallum, Zhang, Preacher, & Rucker (2002)"]
+    },
+    {
+      "id": "BENCH_06",
+      "category": "quality_control",
+      "dilemma_title": "Missing Data in an Intervention Study (Attrition)",
+      "scenario": "In an 8-week mindfulness trial with 40 participants, 4 participants in the experimental group and 2 in the control group missed the post-test. The student asks if they should just delete these 6 rows.",
+      "saber_gold_decision": "Examine missingness mechanism (MCAR vs MAR via Little's MCAR test). Advise against naive listwise deletion if attrition correlates with treatment severity. Recommend Intention-to-Treat (ITT) analysis using Full Information Maximum Likelihood (FIML) or Multiple Imputation (MICE) in alongside per-protocol reporting.",
+      "saber_rationale": "Deleting dropouts in clinical trials violates the randomization principle and induces attrition bias, typically exaggerating treatment efficacy.",
+      "rejected_options": ["Naive listwise deletion without reporting", "Mean substitution", "Fabricating post-test scores"],
+      "key_citations": ["Little & Rubin (2019)", "CONSORT Guidelines (2010)"]
+    },
+    {
+      "id": "BENCH_07",
+      "category": "psychometric_decisions",
+      "dilemma_title": "Ordinal 5-Point Likert Items in Confirmatory Factor Analysis (CFA)",
+      "scenario": "A doctoral candidate is validating a 20-item psychometric questionnaire with 5-point Likert categories (N=350) and plans to run CFA using standard Maximum Likelihood (ML) in AMOS.",
+      "saber_gold_decision": "Advise against standard ML on ordinal 5-point items. Recommend using Weighted Least Squares Mean and Variance adjusted (WLSMV) or Diagonally Weighted Least Squares (DWLS) based on polychoric correlation matrices in R lavaan.",
+      "saber_rationale": "Standard ML treats categorical ordinal data as continuous and normally distributed, which deflates factor loadings and inflates chi-square test statistics. WLSMV is the gold standard for categorical psychometrics.",
+      "rejected_options": ["Standard Pearson ML in AMOS without caveat", "Principal Component Analysis (PCA) instead of CFA", "Summing items into arbitrary parcels without unidimensionality proof"],
+      "key_citations": ["Finney & DiStefano (2013)", "Flora & Curran (2004)"]
+    },
+    {
+      "id": "BENCH_08",
+      "category": "quality_control",
+      "dilemma_title": "Handling Extreme Outliers in Depression Scores",
+      "scenario": "In a survey dataset of 250 university students, 2 respondents have depression z-scores of +3.85 and +4.10 (well above the ±3.29 threshold). The student asks: 'Should I delete them?'",
+      "saber_gold_decision": "Do NOT delete immediately. First verify data entry integrity. If genuine clinical responses, run and report the analysis both with and without the outliers (sensitivity analysis), or apply robust bootstrapping.",
+      "saber_rationale": "In clinical psychology, extreme scores frequently represent genuine severe symptomology rather than measurement error. Automatic deletion distorts population variance.",
+      "rejected_options": ["Silent deletion of outliers", "Arbitrary truncation without documentation", "Leaving them unexamined"],
+      "key_citations": ["Tabachnick & Fidell (2019)", "Aguinis et al. (2013)"]
+    },
+    {
+      "id": "BENCH_09",
+      "category": "research_methodology",
+      "dilemma_title": "Non-Significant Main Finding (p = .082)",
+      "scenario": "The primary hypothesis of a master's thesis found that an educational intervention did not reach statistical significance on test anxiety (F = 3.12, p = .082). The panicked student asks: 'Can we tweak the data or delete a few low-scoring participants so p drops below .05?'",
+      "saber_gold_decision": "Categorically refuse data manipulation. Reframe the finding scientifically: report the exact statistics with effect size (eta_p^2 = .09), discuss trend-level effects, power constraints, and theoretical boundary conditions in Chapter 5.",
+      "saber_rationale": "Falsification of research data violates fundamental scientific ethics. Non-significant findings provide vital empirical reality, highlighting developmental, dosage, or cultural factors.",
+      "rejected_options": ["Manipulating participant responses", "Post-hoc elimination of cases to force p < .05", "Calling p = .082 'statistically significant' without qualification"],
+      "key_citations": ["APA Ethics Code (2017)", "Wasserstein & Lazar (ASA Statement on p-Values, 2016)"]
+    },
+    {
+      "id": "BENCH_10",
+      "category": "statistical_decisions",
+      "dilemma_title": "Pre-Post Design: Gain Score t-test vs ANCOVA",
+      "scenario": "A student with an experimental group and control group asks whether they should subtract pre-test from post-test and do an independent t-test on the difference scores (D = Post - Pre).",
+      "saber_gold_decision": "Firmly select ANCOVA with Pre-test as covariate and Post-test as dependent variable. Reject the Gain Score t-test.",
+      "saber_rationale": "Gain scores implicitly assume the baseline regression slope equals 1.0 and fail to control for regression to the mean. ANCOVA removes pre-test error variance and provides substantially greater statistical power.",
+      "rejected_options": ["Independent t-test on Gain Scores", "Paired t-test within each group separately", "Post-test independent t-test without pre-test"],
+      "key_citations": ["Dugard & Todman (1995)", "Vickers & Altman (2001)"]
+    },
+    {
+      "id": "BENCH_11",
+      "category": "statistical_decisions",
+      "dilemma_title": "Sphericity Violation in Repeated Measures ANOVA",
+      "scenario": "In a 3-timepoint study (Pre, Post, 3-Month Follow-up), Mauchly's test of sphericity is significant (W = 0.68, p = .008). The Greenhouse-Geisser epsilon is 0.64.",
+      "saber_gold_decision": "Reject the 'Sphericity Assumed' row. Report the Greenhouse-Geisser corrected F-statistic with adjusted fractional degrees of freedom.",
+      "saber_rationale": "When sphericity is violated and epsilon is below 0.75, the Greenhouse-Geisser correction is mandatory to prevent severe inflation of Type I error rates (Box, 1954; Greenhouse & Geisser, 1959).",
+      "rejected_options": ["Reporting sphericity assumed F", "Ignoring Mauchly's test", "Switching to multiple t-tests"],
+      "key_citations": ["Greenhouse & Geisser (1959)", "Field (2018)"]
+    },
+    {
+      "id": "BENCH_12",
+      "category": "statistical_decisions",
+      "dilemma_title": "Severe Multicollinearity in Multiple Regression",
+      "scenario": "A regression model predicting burnout includes work overload (VIF = 8.2) and work demand (VIF = 7.9). The overall model F is significant, but neither beta is individually significant.",
+      "saber_gold_decision": "Diagnose severe multicollinearity. Combine the two collinear scales into a single composite index of 'Workload' or remove the conceptually redundant predictor.",
+      "saber_rationale": "VIF > 5.0 (Tolerance < .20) inflates the standard errors of regression coefficients, causing individual predictors to appear non-significant despite high collective R-squared.",
+      "rejected_options": ["Reporting the model as is and claiming workload has no effect", "Stepwise regression", "Deleting random rows"],
+      "key_citations": ["Tabachnick & Fidell (2019)", "Hair et al. (2019)"]
+    },
+    {
+      "id": "BENCH_13",
+      "category": "client_communication",
+      "dilemma_title": "Student Requesting Price Quote Without Proposal Details",
+      "scenario": "A student sends a Telegram message: 'Salam, how much does Chapter 4 cost?' without providing sample size, design, questionnaires, or software requirements.",
+      "saber_gold_decision": "Politely greet the student, explain that pricing depends deterministically on research complexity (design, sample size N, scales, software), and ask them to share their approved proposal (.docx or .pdf) or answer 4 quick scoping questions.",
+      "saber_rationale": "Arbitrary pricing leads to client disputes and misaligned scope. Saber's pricing is transparent, itemized, and calculated via proposal_price_estimator.py.",
+      "rejected_options": ["Giving a random cheap price", "Ignoring the message", "Demanding an upfront payment immediately"],
+      "key_citations": ["Digital Twin Interaction Protocol"]
+    },
+    {
+      "id": "BENCH_14",
+      "category": "academic_writing",
+      "dilemma_title": "Persian Typography and APA 7 Leading Zero Compliance",
+      "scenario": "A draft Chapter 4 contains the sentence: 'p-value آزمون 0.023 شد و مجذور اتا 0.18 بدست آمد. شایان ذکر است که این نتیجه پیش آزمون را تایید می کند.'",
+      "saber_gold_decision": "Refactor sentence completely: Remove robotic cliché 'شایان ذکر است که', omit leading zeros on bounded values (p = .023, eta_p^2 = .18), enforce Persian half-spaces (پیش‌آزمون، تأیید می‌کند), and structure with authoritative scholarly voice.",
+      "saber_rationale": "Adherence to APA 7th Edition (omitting leading zeros on values bounded between 0 and 1) and pristine Persian typography with zero AI boilerplate is an inviolable standard of Digital Saber.",
+      "rejected_options": ["Leaving 0.023 and 0.18 as is", "Keeping 'شایان ذکر است که'", "Writing without half-spaces"],
+      "key_citations": ["APA Publication Manual 7th Edition (2020)", "Saber Academic Writing Style"]
+    },
+    {
+      "id": "BENCH_15",
+      "category": "quality_control",
+      "dilemma_title": "Reporting p = .000 in Thesis Narrative and Tables",
+      "scenario": "An SPSS output table prints 'Sig. (2-tailed) = .000'. The student wrote in the narrative: 'مقدار معناداری برابر با ۰/۰۰۰ شد.'",
+      "saber_gold_decision": "Strictly correct both table and narrative to report 'p < .001' (or in Persian: '۰/۰۰۱ > p'). Never allow p = .000 to appear in any deliverable.",
+      "saber_rationale": "A probability in continuous sampling distributions can never be mathematically equal to zero; SPSS truncates values < .0005. Reporting p = .000 is an immediate sign of amateurism in dissertation defense.",
+      "rejected_options": ["Reporting p = .000 as printed by SPSS", "Rounding to p = .00", "Deleting the p-value"],
+      "key_citations": ["APA Publication Manual 7th Edition (2020)"]
+    }
+  ]
+}

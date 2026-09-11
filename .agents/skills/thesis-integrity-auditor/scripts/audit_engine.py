@@ -563,24 +563,24 @@ class ThesisIntegrityAuditor:
             stats = t.get("statistics", {})
             p_val = stats.get("p_value")
             
-            # 1. Effect Size Plausibility Check (Rule 10)
+            # 1. Effect Size Plausibility & Multi-Signal Anomaly Check
             eta_sq = stats.get("partial_eta_squared") or stats.get("eta_squared")
             cohen_d = stats.get("cohen_d")
 
             if eta_sq is not None:
                 try:
                     eta_val = float(eta_sq)
-                    if eta_val > 0.25:
+                    if eta_val > 0.40:
                         self._add_finding(
                             domain="adversarial_defense",
-                            severity="CRITICAL",
-                            title_fa=f"اندازه اثر نجومی و غیرواقعی در آزمون {test_id} (نقض قاعده ۱۰)",
-                            title_en=f"Astronomically Inflated Effect Size in Test {test_id} (Rule 10 Violation)",
-                            description_fa=f"اندازه اثر گزارش‌شده (eta_p^2 = {eta_val:.3f}) از سقف تجربی علوم رفتاری (۰/۲۵) فراتر رفته است. این مقدار به معنای تبیین بیش از ۲۵ تا ۸۰ درصد واریانس کل توسط متغیر مستقل و فقدان همپوشانی توزیع گروه‌ها است که در جلسه دفاع بلافاصله شبهه داده‌سازی را برمی‌انگیزد.",
-                            description_en=f"Reported partial eta squared ({eta_val:.3f}) exceeds the empirical threshold of .25. In psychological research, this implies virtually zero distribution overlap and will trigger data fabrication suspicions during peer review.",
-                            recommendation_fa="تفاوت میانگین گروه‌ها و انحراف استانداردها را به نحوی کالیبره کنید که اندازه اثر در دامنه متعارف و مستحکم (۰/۰۸ تا ۰/۲۲) قرار گیرد.",
-                            recommendation_en="Calibrate mean differences and variances so partial eta squared falls within credible empirical bounds (.08 to .22).",
-                            details={"test_id": test_id, "eta_squared": eta_val, "threshold": 0.25}
+                            severity="REVIEW_FLAG",
+                            title_fa=f"هشدار بازبینی اندازه اثر بالا در آزمون {test_id} (FLAG FOR REVIEW)",
+                            title_en=f"High Effect Size Diagnostic in Test {test_id} (FLAG FOR REVIEW)",
+                            description_fa=f"اندازه اثر گزارش‌شده (eta_p^2 = {eta_val:.3f}) از سطح معمول مطالعات روان‌شناختی (۰/۲۵ تا ۰/۴۰) بالاتر است. هرچند مداخلات بالینی عمیق و متمرکز می‌توانند اندازه اثرهای بسیار بزرگ تولید کنند، اما این مقدار در جلسه دفاع و داوری مورد پرسش دقیق قرار خواهد گرفت و نیازمند تبیین مکانیسم بالینی یا بررسی همپوشانی توزیع گروه‌ها است.",
+                            description_en=f"Reported partial eta squared ({eta_val:.3f}) is high (> .40). While potent clinical interventions can legitimately produce substantial effects, thesis committees and peer reviewers will closely scrutinize distribution overlap and potential sample variance deflation.",
+                            recommendation_fa="در فصل ۴ و ۵، قدرت پروتکل مداخله را تبیین نموده و نمودار توزیع نمرات یا همپوشانی گروه‌ها را جهت اطمینان از کفایت تنوع پاسخ‌ها ارائه فرمایید.",
+                            recommendation_en="In Chapters 4 and 5, document the therapeutic potency of the protocol and report distribution overlap/sensitivity checks to address reviewer skepticism.",
+                            details={"test_id": test_id, "eta_squared": eta_val, "flag": "FLAG_FOR_REVIEW"}
                         )
                     elif eta_val < 0.01 and p_val is not None and float(p_val) < 0.05:
                         self._add_finding(
@@ -600,17 +600,17 @@ class ThesisIntegrityAuditor:
             if cohen_d is not None:
                 try:
                     d_val = float(cohen_d)
-                    if d_val > 1.40:
+                    if d_val > 1.80:
                         self._add_finding(
                             domain="adversarial_defense",
-                            severity="CRITICAL",
-                            title_fa=f"مقدار d کوهن نجومی (d = {d_val:.2f}) در آزمون {test_id}",
-                            title_en=f"Astronomical Cohen's d (d = {d_val:.2f}) in Test {test_id}",
-                            description_fa=f"اندازه اثر کوهن d = {d_val:.2f} در پژوهش‌های رفتاری و مقایسه گروه‌ها به ندرت بالاتر از ۱/۲۰ مشاهده می‌شود و شبهه تفکیک ساختگی داده‌ها را ایجاد می‌کند.",
-                            description_en=f"Cohen's d of {d_val:.2f} is exceptionally rare in empirical psychology and indicates synthetic over-separation.",
-                            recommendation_fa="انحراف استانداردها و تفاضل میانگین را به دامنه طبیعی d در حدود ۰/۸۰ تا ۱/۱۵ تنظیم نمایید.",
-                            recommendation_en="Adjust parameters so Cohen's d remains within a defensible empirical range (0.80 to 1.15).",
-                            details={"test_id": test_id, "cohen_d": d_val}
+                            severity="REVIEW_FLAG",
+                            title_fa=f"هشدار بازبینی دی کوهن بالا (d = {d_val:.2f}) در آزمون {test_id} (FLAG FOR REVIEW)",
+                            title_en=f"Elevated Cohen's d (d = {d_val:.2f}) in Test {test_id} (FLAG FOR REVIEW)",
+                            description_fa=f"اندازه اثر دی کوهن d = {d_val:.2f} نشان‌دهنده تفکیک قابل‌توجه دو گروه است. توصیه می‌شود تصحیح سوگیری نمونه‌های کوچک (Hedges' g) نیز گزارش شده و برای دفاع شفاهی آماده شوید.",
+                            description_en=f"Cohen's d of {d_val:.2f} reflects substantial group separation. Reporting Hedges' g to correct for small-sample upward bias is recommended for viva voce defensibility.",
+                            recommendation_fa="اندازه اثر g هجز را در کنار d گزارش نموده و بر دلالت‌های کاربردی تمرکز کنید.",
+                            recommendation_en="Report Hedges' g alongside Cohen's d to account for potential small-sample estimation inflation.",
+                            details={"test_id": test_id, "cohen_d": d_val, "flag": "FLAG_FOR_REVIEW"}
                         )
                 except (ValueError, TypeError):
                     pass

@@ -1,0 +1,28 @@
+{
+  "decision_id": "dec_20260911_080730_stat",
+  "timestamp": "2026-09-11T08:07:30.959743",
+  "project_title": "Mindfulness & Burnout in Healthcare Workers",
+  "decision_type": "statistical_method",
+  "context": "Student requested Baron & Kenny causal steps mediation, but sample size is N=142 and residuals are skewed.",
+  "selected_option": "5,000-sample Percentile Bootstrap Mediation (Hayes PROCESS Model 4)",
+  "rationale": "Baron & Kenny suffers from low statistical power and assumes normal sampling distribution of indirect effect, which is skewed. Bootstrap provides robust 95% asymmetric CI.",
+  "alternatives_considered": [
+    {
+      "option": "Baron & Kenny Causal Steps",
+      "verdict": "REJECTED",
+      "reason": "Inferior power; does not formally quantify indirect effect"
+    },
+    {
+      "option": "Sobel Test",
+      "verdict": "REJECTED",
+      "reason": "Requires normality assumption of ab product; severely deflates power in N=142"
+    }
+  ],
+  "evidence_citations": [
+    "Hayes, A. F. (2018). Introduction to Mediation, Moderation, and Conditional Process Analysis. Guilford Press."
+  ],
+  "confidence": 0.98,
+  "human_gate_required": false,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}
