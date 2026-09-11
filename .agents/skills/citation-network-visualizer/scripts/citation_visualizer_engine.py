@@ -252,7 +252,14 @@ def build_citation_network(articles, main_path_type="global"):
         
         # Primary short label for diagrams (e.g. "Hayes (1999)")
         first_author = a.get('authors', ['Unknown'])[0].split(',')[0].strip() if a.get('authors') else 'Unknown'
-        year = a.get('year', 2020)
+        raw_year = a.get('year_ad') if a.get('year_ad') is not None else a.get('year', 2020)
+        try:
+            y_str = str(raw_year).strip()
+            for f_d, e_d in zip('۰۱۲۳۴۵۶۷۸۹', '0123456789'):
+                y_str = y_str.replace(f_d, e_d)
+            year = int(y_str)
+        except (ValueError, TypeError):
+            year = 2020
         short_label = f"{first_author} ({year})"
         
         G.add_node(

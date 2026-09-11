@@ -89,12 +89,14 @@ class DigitalSaberShell(cmd.Cmd):
         banner = f"""
 {self.c_cyan}╔═══════════════════════════════════════════════════════════════════════════════════════╗
 ║   🎓 DIGITAL SABER — Professional AI Research Twin (Terminal REPL)                    ║
-║   Memory: {cases_count} Real Precedents  |  Skills: 27 Specialized  |  Workflows: 4 Core         ║
+║   Memory: {cases_count} Real Precedents  |  Skills: 27 Specialized  |  Workflows: 5 Core         ║
 ║   Cognitive Layers: Constitution • Case Memory • Reasoners • OpenXML • QC Audit       ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════╝{self.c_reset}
 
 {self.c_bold}Available Commands:{self.c_reset}
-  {self.c_green}/workflow <name>{self.c_reset}    Execute dissertation workflow ({self.c_yellow}chapter4, proposal, chapter5, thesis_revision{self.c_reset})
+  {self.c_green}/workflow <name>{self.c_reset}    Execute dissertation workflow ({self.c_yellow}chapter2_literature, chapter4, proposal, chapter5, thesis_revision{self.c_reset})
+  {self.c_green}/literature <topic>{self.c_reset} Multi-database search, parameter extraction (N, instruments) & Chapter 2
+  {self.c_green}/biblio <topic>{self.c_reset}     VOSviewer keyword mapping & HistCite citation chronomap
   {self.c_green}/consult <query>{self.c_reset}    Statistical and methodological consultation with Case Precedents
   {self.c_green}/scale <name>{self.c_reset}       Search 4,880 psychometric instruments in Questionnaires.xlsx
   {self.c_green}/quote <text/file>{self.c_reset}  Extract proposal parameters, compute pricing in Tomans & Admin Card
@@ -120,18 +122,18 @@ class DigitalSaberShell(cmd.Cmd):
     # Command: /workflow
     # -------------------------------------------------------------------------
     def do_workflow(self, arg: str):
-        """Execute an Antigravity multi-agent workflow: /workflow <chapter4|proposal|chapter5|thesis_revision> [topic]"""
+        """Execute an Antigravity multi-agent workflow: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision> [topic]"""
         parts = shlex.split(arg) if arg else []
         if not parts:
-            print(f"{self.c_yellow}Usage: /workflow <chapter4|proposal|chapter5|thesis_revision> [optional_topic_or_file]{self.c_reset}")
+            print(f"{self.c_yellow}Usage: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision> [optional_topic_or_file]{self.c_reset}")
             return
 
         wf_name = parts[0].lower()
         topic = " ".join(parts[1:]) if len(parts) > 1 else None
 
-        valid_wfs = ["chapter4", "proposal", "chapter5", "thesis_revision"]
+        valid_wfs = ["chapter2_literature", "chapter4", "proposal", "chapter5", "thesis_revision", "chapter2", "literature"]
         if wf_name not in valid_wfs:
-            print(f"{self.c_yellow}Unknown workflow '{wf_name}'. Valid workflows: {', '.join(valid_wfs)}{self.c_reset}")
+            print(f"{self.c_yellow}Unknown workflow '{wf_name}'. Valid workflows: chapter2_literature, chapter4, proposal, chapter5, thesis_revision{self.c_reset}")
             return
 
         print(f"\n{self.c_cyan}[*] Launching workflow: {wf_name}...{self.c_reset}")
@@ -145,10 +147,47 @@ class DigitalSaberShell(cmd.Cmd):
                 print(f"    - {a}")
 
     def complete_workflow(self, text, line, begidx, endidx):
-        wfs = ["chapter4", "proposal", "chapter5", "thesis_revision"]
+        wfs = ["chapter2_literature", "chapter4", "proposal", "chapter5", "thesis_revision"]
         if text:
             return [w for w in wfs if w.startswith(text)]
         return wfs
+
+    # -------------------------------------------------------------------------
+    # Command: /literature
+    # -------------------------------------------------------------------------
+    def do_literature(self, arg: str):
+        """Harvest empirical studies across scientific databases and extract parameters: /literature <topic>"""
+        topic = arg.strip()
+        if not topic:
+            print(f"{self.c_yellow}Usage: /literature <research_topic_or_keywords> (e.g. /literature درمان مبتنی بر پذیرش و تعهد فرسودگی شغلی){self.c_reset}")
+            return
+
+        print(f"\n{self.c_cyan}[*] Querying multi-database literature engine for: '{topic}'...{self.c_reset}")
+        res = self.saber.run_workflow("chapter2_literature", topic_or_file=topic, output_dir=self.output_dir)
+        if res and res.get("status") == "SUCCESS":
+            print(f"\n{self.c_green}✅ Literature synthesis & Chapter 2 compiled successfully!{self.c_reset}")
+            print(f"  • Readiness Score: {res.get('readiness_score')}%")
+            print(f"  • Artifacts Generated in '{self.output_dir}':")
+            for a in res.get("artifacts_generated", []):
+                print(f"    - {a}")
+
+    # -------------------------------------------------------------------------
+    # Command: /biblio
+    # -------------------------------------------------------------------------
+    def do_biblio(self, arg: str):
+        """Generate VOSviewer science mapping & HistCite chronomap: /biblio <topic>"""
+        topic = arg.strip()
+        if not topic:
+            print(f"{self.c_yellow}Usage: /biblio <research_topic_or_keywords> (e.g. /biblio درمان مبتنی بر پذیرش و تعهد){self.c_reset}")
+            return
+
+        print(f"\n{self.c_cyan}[*] Constructing bibliometric co-occurrence & citation networks for: '{topic}'...{self.c_reset}")
+        res = self.saber.run_workflow("chapter2_literature", topic_or_file=topic, output_dir=self.output_dir)
+        if res and res.get("status") == "SUCCESS":
+            print(f"\n{self.c_green}✅ Science mapping & chronomaps generated!{self.c_reset}")
+            for a in res.get("artifacts_generated", []):
+                if a.endswith(".png") or a.endswith(".txt"):
+                    print(f"  • Science Map: {a}")
 
     # -------------------------------------------------------------------------
     # Command: /scale

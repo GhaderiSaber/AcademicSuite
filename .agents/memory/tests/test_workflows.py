@@ -44,6 +44,7 @@ class TestWorkflowsSuite(unittest.TestCase):
     def setUp(self):
         self.saber = DigitalSaber()
         self.expected_workflows = [
+            "chapter2_literature",
             "chapter4",
             "proposal",
             "chapter5",
@@ -51,7 +52,7 @@ class TestWorkflowsSuite(unittest.TestCase):
         ]
 
     def test_workflow_spec_files_exist(self):
-        """Validates that all 4 core workflow markdown files exist."""
+        """Validates that all 5 core workflow markdown files exist."""
         for wf in self.expected_workflows:
             wf_file = os.path.join(WORKFLOWS_DIR, f"{wf}.md")
             self.assertTrue(os.path.exists(wf_file), f"Missing workflow specification: {wf_file}")
@@ -62,6 +63,20 @@ class TestWorkflowsSuite(unittest.TestCase):
             self.assertIn("academic-writer", content)
             self.assertIn("final-judge", content)
             self.assertIn("124911145", content)  # Saber Human Gate Admin Desk ID
+
+    def test_chapter2_literature_workflow_execution(self):
+        """Tests end-to-end execution of Chapter 2 literature and science mapping workflow."""
+        res = self.saber.run_workflow("chapter2_literature")
+        self.assertIsNotNone(res)
+        self.assertEqual(res["status"], "SUCCESS")
+        self.assertEqual(res["workflow"], "chapter2_literature")
+        self.assertIn("digital-saber", res["subagents_executed"])
+        self.assertIn("literature-expert", res["subagents_executed"])
+        self.assertIn("academic-writer", res["subagents_executed"])
+        self.assertIn("final-judge", res["subagents_executed"])
+        self.assertTrue(any("فصل_دوم_پیشینه_پژوهش.docx" in a for a in res["artifacts_generated"]))
+        self.assertGreaterEqual(res["readiness_score"], 80.0)
+        self.assertTrue(res["decision_id"].startswith("dec_"))
 
     def test_chapter4_workflow_execution(self):
         """Tests end-to-end execution of Chapter 4 statistical workflow."""

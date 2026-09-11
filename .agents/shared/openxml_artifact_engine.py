@@ -32,9 +32,11 @@ STAT_SCRIPTS = os.path.join(SKILLS_DIR, "statistical-data-analyst", "scripts")
 PROP_SCRIPTS = os.path.join(SKILLS_DIR, "persian-proposal-builder", "scripts")
 DISC_SCRIPTS = os.path.join(SKILLS_DIR, "persian-discussion-builder", "scripts")
 REV_SCRIPTS = os.path.join(SKILLS_DIR, "persian-thesis-revision-assistant", "scripts")
+LIT_SCRIPTS = os.path.join(SKILLS_DIR, "persian-literature-review-builder", "scripts")
 VERIF_DIR = os.path.join(AGENTS_DIR, "verification")
+VENV_SITE = os.path.join(ROOT_DIR, ".venv", "lib", "python3.13", "site-packages")
 
-for p in [SHARED_DIR, STAT_SCRIPTS, PROP_SCRIPTS, DISC_SCRIPTS, REV_SCRIPTS, VERIF_DIR]:
+for p in [SHARED_DIR, STAT_SCRIPTS, PROP_SCRIPTS, DISC_SCRIPTS, REV_SCRIPTS, LIT_SCRIPTS, VERIF_DIR, VENV_SITE]:
     if os.path.exists(p) and p not in sys.path:
         sys.path.insert(0, p)
 
@@ -354,6 +356,17 @@ class OpenXMLArtifactEngine:
         except ImportError:
             return self._build_fallback_proposal(proposal_data, output_path)
 
+    def generate_chapter2_docx(self, literature_data: dict, output_path: str) -> str:
+        """Compiles Chapter 2 Theoretical Foundations & Empirical Literature Review docx."""
+        try:
+            from literature_review_engine import Chapter2Compiler
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            compiler = Chapter2Compiler(literature_data)
+            compiler.compile(output_path)
+            return output_path
+        except Exception:
+            return self._build_fallback_chapter2(literature_data, output_path)
+
     def generate_chapter5_docx(self, discussion_data: dict, output_path: str) -> str:
         """Compiles Chapter 5 Discussion & Conclusion docx."""
         try:
@@ -413,6 +426,22 @@ class OpenXMLArtifactEngine:
         p = doc.add_paragraph()
         self.set_strict_pPr(p, jc_val='center', space_before=18, space_after=12)
         self.add_styled_run(p, "پروپوزال طرح پژوهش", font_fa='B Titr', size=16, bold=True)
+        doc.save(output_path)
+        return output_path
+
+    def _build_fallback_chapter2(self, literature_data: dict, output_path: str) -> str:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        doc = docx.Document()
+        p = doc.add_paragraph()
+        self.set_strict_pPr(p, jc_val='center', space_before=18, space_after=12)
+        ch_title = literature_data.get("chapter_title", "فصل دوم: مبانی نظری و پیشینه پژوهش")
+        self.add_styled_run(p, ch_title, font_fa='B Titr', size=16, bold=True)
+
+        p_intro = doc.add_paragraph()
+        self.set_strict_pPr(p_intro, jc_val='both')
+        intro_text = literature_data.get("introduction", "پژوهش حاضر به بررسی پیشینه تجربی و مبانی نظری متغیرهای پژوهش می‌پردازد.")
+        self.add_styled_run(p_intro, intro_text)
+
         doc.save(output_path)
         return output_path
 

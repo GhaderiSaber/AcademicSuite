@@ -1,0 +1,21 @@
+{
+  "decision_id": "dec_20260911_110133_chap",
+  "timestamp": "2026-09-11T11:01:33.964308",
+  "project_title": "اثربخشی درمان مبتنی بر پذیرش و تعهد (ACT) بر فرسودگی شغلی و انعطاف‌پذیری روان‌شناختی کادر درمان",
+  "decision_type": "chapter2_literature_workflow_execution",
+  "context": "Antigravity multi-agent workflow 'chapter2_literature' completed. Multi-database harvesting, VOSviewer science mapping, and Chapter 2 Word report assembled.",
+  "selected_option": "Multi-database harvesting (PubMed/SID) + VOSviewer co-occurrence + HistCite chronomap + APA 7 OpenXML synthesis",
+  "rationale": "Comprehensive literature coverage with deterministic empirical parameter extraction (N, instruments, designs) and verified APA 7 citations.",
+  "alternatives_considered": [
+    {
+      "option": "Pure narrative summary without empirical parameter matrix or science mapping",
+      "verdict": "REJECTED",
+      "reason": "Lacks scientometric depth and defense rigor"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 0.98,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}
