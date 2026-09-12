@@ -1,95 +1,127 @@
 ---
 name: ai-academic-tone-polisher
-description: Master academic tone polisher, syntactic burstiness optimizer, and anti-AI detection refiner for graduate theses, dissertations, and peer-reviewed journal articles. Eliminates robotic LLM translationese and repetitive cliches (شایان ذکر است که، در این راستا، delve into), elevates sentence length variance (Burstiness CV >= 0.50) to authentic human scholarly standards, and enforces official Persian orthography (نیم‌فاصله) while strictly preserving APA 7 in-text citations and statistical formulas. Exports defense-ready Word reports (.docx), 300-DPI dual-panel diagnostic plots (.png), and 4-sheet Excel audit matrices (.xlsx).
+description: Master academic tone polisher, syntactic burstiness optimizer, and anti-AI detection refiner for graduate theses, dissertations, and peer-reviewed journal articles. Eliminates robotic LLM translationese and repetitive cliches (شایان ذکر است که، در این راستا، delve into), elevates sentence length variance (Burstiness CV >= 0.65-0.70) to authentic human scholarly standards, breaks macro-level section templates, and enforces official Persian orthography (نیم‌فاصله) while strictly preserving APA 7 in-text citations and Word OMML statistical formulas. Features offline diagnostic risk linter (lint_ai_risk.py), invariant entity masker (mask_invariants.py), and cadence balancer (cadence_inverter.py).
 ---
 
-# `ai-academic-tone-polisher` — Academic Tone Polisher & Anti-AI Refiner (Skill #22)
+# `ai-academic-tone-polisher` — Dual-Mode Academic Tone & Anti-AI Refiner (Skill #22)
 
-`ai-academic-tone-polisher` is the specialized stylistic humanization and anti-AI detection mitigation engine of the **AcademicSuite**. It analyzes graduate thesis chapters (Chapter 1 Introduction, Chapter 2 Theoretical Foundations, Chapter 5 Discussion) and peer-reviewed journal articles in Persian and English to eliminate robotic generative AI markers and restore authentic scholarly eloquence.
+`ai-academic-tone-polisher` is the specialized stylistic humanization and anti-AI detection mitigation engine of the **AcademicSuite**. It analyzes graduate thesis chapters (Chapter 1 Introduction, Chapter 2 Theoretical Foundations, Chapter 3 Methods, Chapter 4 Results, Chapter 5 Discussion) and peer-reviewed journal articles in Persian and English to eliminate robotic generative AI markers, break section-level template repetitions, and restore authentic scholarly eloquence.
 
 ---
 
 ## 1. When to Activate This Skill
 
 Activate this skill whenever:
-- The user asks to **humanize AI-generated text** or **refine academic tone** (بازنویسی به لحن اصیل دانشگاهی و انسان‌محور).
-- The user is concerned about **AI text detectors** (Turnitin AI, GPTZero, SamimNoor / همانندجو, CopyLeaks).
-- The text exhibits **monotonous sentence cadence** (low burstiness: all sentences are 18–22 words).
-- The text contains **robotic AI cliches** in Persian (*«شایان ذکر است که»*, *«در این راستا»*, *«به طور کلی می‌توان گفت که»*, *«این امر نشان‌دهنده آن است که»*, *«همان‌طور که می‌دانیم»*) or English (*"delve into"*, *"multifaceted tapestry"*, *"testament to"*, *"plays a crucial role"*).
-- The user requests **orthographic and half-space cleanup** (نیم‌فاصله) for Persian verbs (*می‌/نمی‌*), plurals (*ها/های*), and comparatives (*تر/ترین*).
-- The user needs to polish a section while **strictly guaranteeing zero alteration** of APA 7 in-text citations (`(Beck et al., 2020)`, `بک و همکاران، ۱۳۹۹`) and statistical parameter formulas ($F(1, 58) = 14.25, p < .001$).
+- The user asks to **audit or humanize AI-generated text** or **refine academic tone** (بازنویسی به لحن اصیل دانشگاهی و انسان‌محور).
+- The user is concerned about **AI text detectors** (QuillBot, Turnitin AI, GPTZero, SamimNoor / همانندجو, CopyLeaks).
+- The text exhibits **monotonous sentence cadence** (low burstiness: $CV < 0.50$, all sentences are 18–24 words).
+- The text contains **conversational rhetorical questions** (*"Why do two students...?"*, *"How does self-compassion...?"*).
+- The text contains **rigid ordinal enumerations** (*"First,... Second,... Third,... Finally,..."*).
+- The text exhibits **section template repetition** (identical structure repeated across measures, results, or limitations).
+- The text contains **robotic AI cliches** in Persian (*«شایان ذکر است که»*, *«در این راستا»*, *«به طور کلی می‌توان گفت که»*) or English (*"delve into"*, *"multifaceted tapestry"*, *"testament to"*, *"plays a crucial role"*).
+- The user needs to polish a section while **strictly guaranteeing zero alteration** of APA 7 in-text citations (`(Beck et al., 2020)`, `بک و همکاران، ۱۳۹۹`) and Word OMML statistical parameter formulas ($F(1, 58) = 14.25, p < .001$).
 
 ---
 
 ## 2. Theoretical & Metric Benchmarks
 
-1. **Sentence Cadence / Burstiness ($CV_{len}$)**:
-   - Evaluates sentence length variance: $CV_{len} = \sigma_{len} / \mu_{len}$.
-   - $CV_{len} < 0.35$: Severe robotic homogeneity (Triggers AI detection).
-   - $CV_{len} \ge 0.50$: Authentic scholarly cadence (Alternating between crisp thesis statements and complex analytical multi-clause syntheses).
-2. **AI Predictability / Uniformity Footprint ($S_{ai} \in [0, 100\%]$)**:
-   - Composite penalty based on detected robotic markers per sentence, low burstiness, and Type-Token Ratio (TTR).
-   - Target post-polishing threshold: $\mathbf{S_{ai} < 25\%}$.
-3. **Stanford SciWrite 5-Pass Editorial Engine (Dr. Kristin Sainani Methodology)**:
-   - **Pass 1: Clutter Extraction**: Direct removal of dead-weight phrases (*due to the fact that* $\to$ *because*, *شایان ذکر است که* $\to$ حذف) and empty throat-clearing.
-   - **Pass 2: Active Voice & Nominalization Resurrection**: Converting smothered verbs (*provides a review of* $\to$ *reviews*, *مورد بررسی قرار داد* $\to$ *بررسی کرد*) to vigorous direct verbs.
-   - **Pass 3: Sentence Architecture & Buried Predicates**: Auditing distance between subject and verb (alert if $>12$ words in EN or $>20$ words in FA) to optimize cognitive ergonomics.
-   - **Pass 4: Keyword Consistency ("The Banana Rule")**: Strictly preventing synonym variation for defined psychometric constructs (*Social Anxiety* must never drift to *Social Phobia* without declaration).
-   - **Pass 5: Numerical & Citation Integrity**: Cross-checking sample sizes and auditing secondary citations ("The Telephone Game").
-4. **Lexical Diversity**:
-   - Type-Token Ratio (TTR) and vocabulary enrichment replacing conversational verbs with disciplinary psychological nomenclature.
-
----
-
-## 3. CLI Command Reference
-
-### Standard Persian Text Polishing with SciWrite 5-Pass Engine:
-```bash
-python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py \
-  --json .agents/skills/ai-academic-tone-polisher/examples/sample_ai_text_payload.json \
-  --sample persian_draft \
-  --out-dir "./academic_tone_output" \
-  --lang fa \
-  --intensity moderate
-```
-
-### Interactive Paragraph-by-Paragraph Review Mode:
-```bash
-python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py \
-  --text "شایان ذکر است که این مداخله نقش بسیار مهمی ایفا می‌کند (Beck et al., 2020)." \
-  --mode interactive \
-  --lang fa
-```
-
-### English Targeted SciWrite Pass Review:
-```bash
-python3 .agents/skills/ai-academic-tone-polisher/scripts/tone_polisher_engine.py \
-  --file manuscript_intro.txt \
-  --mode targeted \
-  --target-pass verbs \
-  --lang en
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       CALIBRATION BENCHMARK TARGETS                         │
+├─────────────────────────┬───────────────────────────────────────────────────┤
+│ Sentence Burstiness     │ CV = σ / μ >= 0.65 - 0.70                         │
+│ (Sentence Cadence)      │ (Alternates staccato claims with periodic clauses)│
+├─────────────────────────┼───────────────────────────────────────────────────┤
+│ Generic Transitions     │ <= 10.0% of total sentences                       │
+│ (Signpost Density)      │ (Bans excessive Moreover, Furthermore, Notably)   │
+├─────────────────────────┼───────────────────────────────────────────────────┤
+│ Rhetorical Questions    │ Exactly 0 in empirical/literature text            │
+├─────────────────────────┼───────────────────────────────────────────────────┤
+│ Ordinal Lists           │ <= 1 isolated instance (No First, Second, Third)  │
+├─────────────────────────┼───────────────────────────────────────────────────┤
+│ AI Cliche Footprint     │ 0 cataloged clichés from the 38-pattern catalog   │
+├─────────────────────────┼───────────────────────────────────────────────────┤
+│ Invariant Preservation  │ 100% exact match for APA 7 citations & OMML math  │
+└─────────────────────────┴───────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 4. Multi-Modal Deliverables Generated
+## 3. The 3 Core Deterministic Scripts
 
-1. **`متن_ویراسته_و_دانشگاهی.docx` / `Polished_Academic_Manuscript.docx`**:
-   - Native Right-to-Left OpenXML BiDi document with *B Titr*, *B Nazanin*, and *Times New Roman*.
-   - **Section 1**: Executive Anti-AI & Stylistic Scorecard (Pre vs. Post comparison table).
-   - **Section 2**: Clean Polished Academic Text (Defense-ready with APA paragraph indents).
-   - **Section 3**: Side-by-Side Sentence Transformation Audit (Original vs. Polished with linguistic rationale).
-   - **Section 4**: Stanford SciWrite 5-Pass Editorial Report (Top 5 Priority Revisions + Pass-by-Pass breakdown).
-2. **`tone_burstiness_plot.png` (300 DPI)**:
-   - Dual-panel diagnostic figure:
-     - Left Panel: Sentence length histogram comparing narrow AI distribution vs. wide human scholarly distribution.
-     - Right Panel: Comparative bar chart of Burstiness, AI Predictability, and Cliche Count.
-3. **`academic_tone_audit_matrix.xlsx`**:
-   - 5 dedicated sheets:
-     - `Executive Scorecard`: Key before/after indices and triage verdict.
-     - `Sentence Audit`: Sentence-by-sentence comparison, lengths, and syntactic explanations.
-     - `AI Marker Catalog`: Flagged cliches, frequencies, and authentic academic replacements.
-     - `SciWrite 5-Pass Review`: Pass-by-pass findings, severity tags (`CRITICAL`, `MAJOR`, `MINOR`), and editorial rationale.
-     - `Lexical Diversity`: Type-Token metrics.
-4. **`tone_polish_results.json`**:
-   - Complete machine-readable data ledger.
+All diagnostic and mathematical tasks run outside the LLM in deterministic Python:
+
+### 1. Pre-Flight Diagnostic Scanner (`lint_ai_risk.py`)
+Evaluates text and outputs an immediate audit report with risk score and editorial grade:
+```bash
+# Audit a draft manuscript file:
+python3 .agents/skills/ai-academic-tone-polisher/scripts/lint_ai_risk.py --file scripts/polish_article_human.py
+
+# Export machine-readable JSON report:
+python3 .agents/skills/ai-academic-tone-polisher/scripts/lint_ai_risk.py --file manuscript.txt --out lint_report.json
+```
+
+### 2. Invariant Masking Engine (`mask_invariants.py`)
+Replaces APA 7 citations and statistical formulas with unique tokens (`__CIT_001__`, `__STAT_001__`) before any rewriting pass and restores them verbatim afterward:
+```python
+from mask_invariants import mask_invariants, unmask_invariants, audit_masking_fidelity
+
+masked_text, mask_dict = mask_invariants(raw_draft)
+# ... apply humanization rewriting pass ...
+final_text = unmask_invariants(rewritten_text, mask_dict)
+is_valid, missing = audit_masking_fidelity(raw_draft, final_text, mask_dict)
+assert is_valid, f"Missing entities: {missing}"
+```
+
+### 3. Cadence & Burstiness Inverter (`cadence_inverter.py`)
+Diagnoses paragraph rhythm and tests sentence length restructuring to ensure target $CV \ge 0.70$:
+```python
+from cadence_inverter import diagnose_paragraph_cadence, simulate_cadence_after_edit
+
+diag = diagnose_paragraph_cadence(paragraph_text)
+# Provides recommendations on periodic fusion (—, ;) vs staccato assertions
+```
+
+---
+
+## 4. Multi-Agent Orchestration Protocol (Rule 12 & Rule 13)
+
+When humanizing or writing an academic article, the existing agents execute in sequence:
+
+```text
+                               [User Request]
+                                      │
+                                      ▼
+                               [digital-saber]
+                                      │
+               ┌──────────────────────┴──────────────────────┐
+               ▼                                             ▼
+       [results-auditor]                             [academic-writer]
+      Runs lint_ai_risk.py                        Applies De-templating
+  (Pre-flight Risk Assessment)                   & Cadence Inversion Rules
+               │                                             │
+               │  High Risk Detected?                        │
+               └──────────────────► [Rewrites] ◄─────────────┘
+                                           │
+                                           ▼
+                                   [results-auditor]
+                               (Blind Verification Pass)
+                                           │
+                                           ▼
+                                [final-judge & Delivery]
+                              0% QuillBot / Turnitin Risk
+```
+
+1. **Step 1: Pre-flight Audit**: `results-auditor` executes `lint_ai_risk.py`. If Composite Risk Score $\le 20\%$, the text passes immediately without editing.
+2. **Step 2: Entity Masking**: Run `mask_invariants.py` to lock all citations and math.
+3. **Step 3: Surgical In-Place Rewriting**: `academic-writer` consults [section_de_templating_guide.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher/references/section_de_templating_guide.md) to restructure flagged sentences, eliminate rhetorical questions, and drive $CV \ge 0.70$.
+4. **Step 4: Unmasking & Verification**: Restore masked entities. `results-auditor` re-runs `lint_ai_risk.py` to confirm the text achieves Grade A+ with zero corruptions.
+
+---
+
+## 5. Reference Knowledge Base
+
+- [detection_heuristics.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher/references/detection_heuristics.md) — Mathematical mechanics of QuillBot, Turnitin, and GPTZero.
+- [ai_slop_and_cliche_catalog.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher/references/ai_slop_and_cliche_catalog.md) — 38 synthetic academic markers and human scholarly alternatives.
+- [section_de_templating_guide.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher/references/section_de_templating_guide.md) — Step-by-step methods for de-templating Methods, Results, and Discussion.
+- [academic_tone_and_humanization_standards.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher/references/academic_tone_and_humanization_standards.md) — Stanford SciWrite 5-pass editorial framework and Persian orthography (نیم‌فاصله).
