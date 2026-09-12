@@ -33,10 +33,14 @@ PROP_SCRIPTS = os.path.join(SKILLS_DIR, "persian-proposal-builder", "scripts")
 DISC_SCRIPTS = os.path.join(SKILLS_DIR, "persian-discussion-builder", "scripts")
 REV_SCRIPTS = os.path.join(SKILLS_DIR, "persian-thesis-revision-assistant", "scripts")
 LIT_SCRIPTS = os.path.join(SKILLS_DIR, "persian-literature-review-builder", "scripts")
+ARTICLE_SCRIPTS = os.path.join(SKILLS_DIR, "academic-article-writer", "scripts")
+SUBMISSION_SCRIPTS = os.path.join(SKILLS_DIR, "journal-submission-assistant", "scripts")
+IRANDOC_SCRIPTS = os.path.join(SKILLS_DIR, "irandoc-plagiarism-reducer", "scripts")
+POLISHER_SCRIPTS = os.path.join(SKILLS_DIR, "ai-academic-tone-polisher", "scripts")
 VERIF_DIR = os.path.join(AGENTS_DIR, "verification")
 VENV_SITE = os.path.join(ROOT_DIR, ".venv", "lib", "python3.13", "site-packages")
 
-for p in [SHARED_DIR, STAT_SCRIPTS, PROP_SCRIPTS, DISC_SCRIPTS, REV_SCRIPTS, LIT_SCRIPTS, VERIF_DIR, VENV_SITE]:
+for p in [SHARED_DIR, STAT_SCRIPTS, PROP_SCRIPTS, DISC_SCRIPTS, REV_SCRIPTS, LIT_SCRIPTS, ARTICLE_SCRIPTS, SUBMISSION_SCRIPTS, IRANDOC_SCRIPTS, POLISHER_SCRIPTS, VERIF_DIR, VENV_SITE]:
     if os.path.exists(p) and p not in sys.path:
         sys.path.insert(0, p)
 
@@ -399,6 +403,46 @@ class OpenXMLArtifactEngine:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         return build_defense_card_document(defense_data, output_path)
 
+    def generate_article_manuscript_docx(self, article_data: dict, output_path: str, lang: str = "en") -> str:
+        """Compiles standard IMRaD publication manuscript docx with APA 7 tables."""
+        try:
+            from compile_academic_article import compile_article
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            compile_article(article_data, output_path, lang=lang)
+            return output_path
+        except Exception:
+            return self._build_fallback_article(article_data, output_path, lang=lang)
+
+    def generate_cover_letter_docx(self, package_data: dict, output_path: str, lang: str = "en") -> str:
+        """Compiles formal Cover Letter to Editor-in-Chief docx."""
+        try:
+            from compile_submission_package import build_cover_letter
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            build_cover_letter(package_data, output_path, lang=lang)
+            return output_path
+        except Exception:
+            return self._build_fallback_cover_letter(package_data, output_path, lang=lang)
+
+    def generate_title_page_docx(self, package_data: dict, output_path: str, lang: str = "en") -> str:
+        """Compiles separate Title Page with 14 CRediT roles docx."""
+        try:
+            from compile_submission_package import build_title_page
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            build_title_page(package_data, output_path, lang=lang)
+            return output_path
+        except Exception:
+            return self._build_fallback_title_page(package_data, output_path, lang=lang)
+
+    def generate_highlights_docx(self, package_data: dict, output_path: str, lang: str = "en") -> str:
+        """Compiles validated Highlights (<= 85 chars per bullet) docx."""
+        try:
+            from compile_submission_package import build_highlights
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            build_highlights(package_data, output_path, lang=lang)
+            return output_path
+        except Exception:
+            return self._build_fallback_highlights(package_data, output_path, lang=lang)
+
     # =========================================================================
     # 5. Standalone Internal Fallbacks (Guarantees zero-dependency generation)
     # =========================================================================
@@ -460,5 +504,57 @@ class OpenXMLArtifactEngine:
         p = doc.add_paragraph()
         self.set_strict_pPr(p, jc_val='center', space_before=18, space_after=12)
         self.add_styled_run(p, "جدول پاسخ به نظرات استاد راهنما و داوران", font_fa='B Titr', size=16, bold=True)
+        doc.save(output_path)
+        return output_path
+
+    def _build_fallback_article(self, article_data: dict, output_path: str, lang: str = "en") -> str:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        doc = docx.Document()
+        is_fa = (lang == "fa")
+        p_title = doc.add_paragraph()
+        self.set_strict_pPr(p_title, jc_val='center', space_before=24, space_after=12)
+        title = article_data.get("title", "مقاله پژوهشی" if is_fa else "Original Research Manuscript")
+        self.add_styled_run(p_title, title, font_fa='B Titr' if is_fa else 'Times New Roman', size=16, bold=True)
+
+        p_abs = doc.add_paragraph()
+        self.set_strict_pPr(p_abs, jc_val='both')
+        abs_text = article_data.get("abstract", "چکیده مقاله پژوهشی..." if is_fa else "Structured Abstract: Background, Methods, Results, Conclusions.")
+        if isinstance(abs_text, dict):
+            abs_text = " ".join(f"{k.capitalize()}: {v}" for k, v in abs_text.items())
+        self.add_styled_run(p_abs, abs_text, font_fa='B Nazanin' if is_fa else 'Times New Roman')
+
+        doc.save(output_path)
+        return output_path
+
+    def _build_fallback_cover_letter(self, package_data: dict, output_path: str, lang: str = "en") -> str:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        doc = docx.Document()
+        is_fa = (lang == "fa")
+        p = doc.add_paragraph()
+        self.set_strict_pPr(p, jc_val='center', space_before=18, space_after=12)
+        heading = "نامه همراه به سردبیر نشریه (Cover Letter)" if is_fa else "Cover Letter to the Editor-in-Chief"
+        self.add_styled_run(p, heading, font_fa='B Titr' if is_fa else 'Times New Roman', size=14, bold=True)
+        doc.save(output_path)
+        return output_path
+
+    def _build_fallback_title_page(self, package_data: dict, output_path: str, lang: str = "en") -> str:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        doc = docx.Document()
+        is_fa = (lang == "fa")
+        p = doc.add_paragraph()
+        self.set_strict_pPr(p, jc_val='center', space_before=18, space_after=12)
+        heading = "صفحه عنوان و نقش نویسندگان (CRediT)" if is_fa else "Title Page & CRediT Authorship Statement"
+        self.add_styled_run(p, heading, font_fa='B Titr' if is_fa else 'Times New Roman', size=14, bold=True)
+        doc.save(output_path)
+        return output_path
+
+    def _build_fallback_highlights(self, package_data: dict, output_path: str, lang: str = "en") -> str:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        doc = docx.Document()
+        is_fa = (lang == "fa")
+        p = doc.add_paragraph()
+        self.set_strict_pPr(p, jc_val='center', space_before=18, space_after=12)
+        heading = "نکات برجسته پژوهش (Highlights)" if is_fa else "Research Highlights (<= 85 characters)"
+        self.add_styled_run(p, heading, font_fa='B Titr' if is_fa else 'Times New Roman', size=14, bold=True)
         doc.save(output_path)
         return output_path

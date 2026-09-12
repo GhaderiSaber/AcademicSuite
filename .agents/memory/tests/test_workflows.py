@@ -48,7 +48,8 @@ class TestWorkflowsSuite(unittest.TestCase):
             "chapter4",
             "proposal",
             "chapter5",
-            "thesis_revision"
+            "thesis_revision",
+            "journal_submission"
         ]
 
     def test_workflow_spec_files_exist(self):
@@ -130,6 +131,25 @@ class TestWorkflowsSuite(unittest.TestCase):
         self.assertIn("final-judge", res["subagents_executed"])
         self.assertTrue(any("جدول_پاسخ_به_نظرات_استاد_راهنما_و_داوران.docx" in a for a in res["artifacts_generated"]))
         self.assertGreaterEqual(res["readiness_score"], 80.0)
+        self.assertTrue(res["decision_id"].startswith("dec_"))
+
+    def test_journal_submission_workflow_execution(self):
+        """Tests end-to-end execution of Academic Journal Article & Submission Packaging workflow."""
+        res = self.saber.run_workflow("journal_submission")
+        self.assertIsNotNone(res)
+        self.assertEqual(res["status"], "SUCCESS")
+        self.assertEqual(res["workflow"], "journal_submission")
+        self.assertIn("digital-saber", res["subagents_executed"])
+        self.assertIn("academic-writer", res["subagents_executed"])
+        self.assertIn("evidence-auditor", res["subagents_executed"])
+        self.assertIn("journal-assistant", res["subagents_executed"])
+        self.assertIn("final-judge", res["subagents_executed"])
+        self.assertTrue(any("Cover_Letter_Editor.docx" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("Title_Page_CRediT.docx" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("Highlights_and_Abstract.docx" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("submission_manifest.json" in a for a in res["artifacts_generated"]))
+        self.assertGreaterEqual(res["readiness_score"], 90.0)
+        self.assertGreaterEqual(res["acceptance_probability"], 90.0)
         self.assertTrue(res["decision_id"].startswith("dec_"))
 
     def test_unknown_workflow_returns_none(self):

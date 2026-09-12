@@ -89,12 +89,14 @@ class DigitalSaberShell(cmd.Cmd):
         banner = f"""
 {self.c_cyan}╔═══════════════════════════════════════════════════════════════════════════════════════╗
 ║   🎓 DIGITAL SABER — Professional AI Research Twin (Terminal REPL)                    ║
-║   Memory: {cases_count} Real Precedents  |  Skills: 27 Specialized  |  Workflows: 5 Core         ║
+║   Memory: {cases_count} Real Precedents  |  Skills: 27 Specialized  |  Workflows: 6 Core         ║
 ║   Cognitive Layers: Constitution • Case Memory • Reasoners • OpenXML • QC Audit       ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════╝{self.c_reset}
 
 {self.c_bold}Available Commands:{self.c_reset}
-  {self.c_green}/workflow <name>{self.c_reset}    Execute dissertation workflow ({self.c_yellow}chapter2_literature, chapter4, proposal, chapter5, thesis_revision{self.c_reset})
+  {self.c_green}/workflow <name>{self.c_reset}    Execute research workflow ({self.c_yellow}chapter2_literature, chapter4, proposal, chapter5, thesis_revision, journal_submission{self.c_reset})
+  {self.c_green}/publish <topic>{self.c_reset}     Compile IMRaD manuscript, Cover Letter, CRediT Title Page, & Highlights
+  {self.c_green}/translate <text>{self.c_reset}    Bilingual academic translation & terminology standardization
   {self.c_green}/literature <topic>{self.c_reset} Multi-database search, parameter extraction (N, instruments) & Chapter 2
   {self.c_green}/biblio <topic>{self.c_reset}     VOSviewer keyword mapping & HistCite citation chronomap
   {self.c_green}/consult <query>{self.c_reset}    Statistical and methodological consultation with Case Precedents
@@ -122,18 +124,21 @@ class DigitalSaberShell(cmd.Cmd):
     # Command: /workflow
     # -------------------------------------------------------------------------
     def do_workflow(self, arg: str):
-        """Execute an Antigravity multi-agent workflow: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision> [topic]"""
+        """Execute an Antigravity multi-agent workflow: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision|journal_submission> [topic]"""
         parts = shlex.split(arg) if arg else []
         if not parts:
-            print(f"{self.c_yellow}Usage: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision> [optional_topic_or_file]{self.c_reset}")
+            print(f"{self.c_yellow}Usage: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision|journal_submission> [optional_topic_or_file]{self.c_reset}")
             return
 
         wf_name = parts[0].lower()
         topic = " ".join(parts[1:]) if len(parts) > 1 else None
 
-        valid_wfs = ["chapter2_literature", "chapter4", "proposal", "chapter5", "thesis_revision", "chapter2", "literature"]
+        valid_wfs = [
+            "chapter2_literature", "chapter4", "proposal", "chapter5", "thesis_revision",
+            "journal_submission", "chapter2", "literature", "publish", "article", "submission"
+        ]
         if wf_name not in valid_wfs:
-            print(f"{self.c_yellow}Unknown workflow '{wf_name}'. Valid workflows: chapter2_literature, chapter4, proposal, chapter5, thesis_revision{self.c_reset}")
+            print(f"{self.c_yellow}Unknown workflow '{wf_name}'. Valid workflows: chapter2_literature, chapter4, proposal, chapter5, thesis_revision, journal_submission{self.c_reset}")
             return
 
         print(f"\n{self.c_cyan}[*] Launching workflow: {wf_name}...{self.c_reset}")
@@ -147,10 +152,45 @@ class DigitalSaberShell(cmd.Cmd):
                 print(f"    - {a}")
 
     def complete_workflow(self, text, line, begidx, endidx):
-        wfs = ["chapter2_literature", "chapter4", "proposal", "chapter5", "thesis_revision"]
+        wfs = ["chapter2_literature", "chapter4", "proposal", "chapter5", "thesis_revision", "journal_submission"]
         if text:
             return [w for w in wfs if w.startswith(text)]
         return wfs
+
+    # -------------------------------------------------------------------------
+    # Command: /publish (alias /article)
+    # -------------------------------------------------------------------------
+    def do_publish(self, arg: str):
+        """Compile publication-ready IMRaD manuscript and journal submission package: /publish [topic]"""
+        topic = arg.strip() or None
+        print(f"\n{self.c_cyan}[*] Launching Academic Journal & Submission Packaging Workflow...{self.c_reset}")
+        res = self.saber.run_workflow("journal_submission", topic_or_file=topic, output_dir=self.output_dir)
+        if res and res.get("status") == "SUCCESS":
+            print(f"\n{self.c_green}✅ Publication Package & IMRaD Manuscript compiled successfully!{self.c_reset}")
+            print(f"  • Submission Readiness Score: {res.get('readiness_score')}%")
+            print(f"  • Acceptance Probability:     {res.get('acceptance_probability')}%")
+            print(f"  • Decision ID:                {res.get('decision_id')}")
+            print(f"  • Artifacts Generated in '{self.output_dir}':")
+            for a in res.get("artifacts_generated", []):
+                print(f"    - {a}")
+
+    def do_article(self, arg: str):
+        """Alias for /publish"""
+        return self.do_publish(arg)
+
+    # -------------------------------------------------------------------------
+    # Command: /translate
+    # -------------------------------------------------------------------------
+    def do_translate(self, arg: str):
+        """Bilingual academic translation & terminology standardization: /translate <text_or_file>"""
+        query = arg.strip()
+        if not query:
+            print(f"{self.c_yellow}Usage: /translate <academic_text_or_paper_path>{self.c_reset}")
+            return
+        print(f"\n{self.c_cyan}[*] Translating with academic terminology & BiDi typography preservation...{self.c_reset}")
+        clean_text = self.saber.writing_reasoner.enforce_typography(query)
+        print(f"{self.c_green}Academic Translation Output:{self.c_reset}")
+        print(clean_text)
 
     # -------------------------------------------------------------------------
     # Command: /literature

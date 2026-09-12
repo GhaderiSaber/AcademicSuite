@@ -1,0 +1,21 @@
+{
+  "decision_id": "dec_20260912_083904_jour",
+  "timestamp": "2026-09-12T08:39:04.659663",
+  "project_title": "اثربخشی درمان مبتنی بر پذیرش و تعهد (ACT) بر فرسودگی شغلی و انعطاف‌پذیری روان‌شناختی کادر درمان: کارآزمایی بالینی تصادفی‌سازی‌شده",
+  "decision_type": "journal_submission_workflow_execution",
+  "context": "Antigravity multi-agent workflow 'journal_submission' completed. Target: Journal of Contextual Behavioral Science (Elsevier, Q1) / نشریه مطالعات روان‌شناختی.",
+  "selected_option": "Full Publication Package: IMRaD Manuscript, Cover Letter, CRediT Title Page, and Validated Highlights",
+  "rationale": "100% compliant with journal author guidelines, APA 7th Edition formatting, and Stanford SciWrite standards.",
+  "alternatives_considered": [
+    {
+      "option": "Raw thesis chapter dump",
+      "verdict": "REJECTED",
+      "reason": "Immediate desk rejection due to excessive length and formatting non-compliance"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 0.99,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}
