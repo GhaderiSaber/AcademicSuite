@@ -245,6 +245,17 @@ Every AI agent writing, reviewing, or revising academic manuscripts, thesis chap
 4. **Zero Ghost Citations in Pre-Flight Audits**:
    - Before releasing any manuscript (`.docx`) to the user, the `thesis-integrity-auditor` must confirm that every in-text citation corresponds to a verified, existing source in `04_references_and_lit/`. Unbacked phantom citations will trigger an immediate audit rejection.
 
+### Rule 15: Temporal Anchor & Contemporary Literature Horizons (Current Year: 2026 / 1405 SH)
+All agents operating in this repository must anchor their temporal references, literature windows, and academic timelines to the current year: **2026 (۱۴۰۵ هجری شمسی)**:
+1. **The 2026 Temporal Reality Anchor**:
+   - The current operative calendar year is **2026** (1405 SH).
+   - Never assume or state that the present year is 2023, 2024, or 2025.
+2. **Contemporary Academic Literature Windows**:
+   - **Recent Empirical Horizon (پیشینه تجربی جدید)**: Defined as studies published within the trailing 3 to 5 years: **2021–2026** (۱۴۰۰–۱۴۰۵ هجری شمسی).
+   - **Baseline & Foundational Foundations (مبانی نظری و کلاسیک)**: Grounding in classic seminal literature (e.g., Beck, Gross, Bandura, Cohen) is preserved, but recent empirical support must prioritize **2021–2026**.
+   - When supervisors or journal editors request "recent citations" (پیشینه جدید), default search filters and queries must be configured for $2021 \le \text{Year} \le 2026$ (۱۳۹۹–۱۴۰۵ شمسی).
+3. **Academic Projections & Timelines**:
+   - Proposal timelines, ethics approval codes, data collection schedules, and journal submission dates must reflect the 2026 (1405 SH) operational horizon.
 
 ---
 

@@ -44,7 +44,7 @@ Must follow the **4-Paragraph Funnel**:
    - Ground the constructs in an established theory (e.g., Beck's Cognitive Schema, Gross's Emotion Regulation, Bandura's Social Cognitive Theory).
    - Show how the variables theoretically interact.
 3. **Paragraph 3: Critical Literature Synthesis & The "Gap"**:
-   - Synthesize empirical findings from the last 3–5 years (2020–2025).
+   - Synthesize empirical findings from the last 3–5 years (2021–2026).
    - Highlight the specific conflict, unanswered question, or unexamined mediator/moderator that existing literature has neglected.
 4. **Paragraph 4: Present Study & Directional Hypotheses**:
    - State how the study addresses the gap.

@@ -30,7 +30,7 @@ Activate this skill whenever:
 3. **Semantic Scholar Academic Graph API**:
    - Open access paper metadata, abstracts, and citation counts.
 4. **Iranian Databases (SID.ir & Magiran)**:
-   - Structured parsing of Iranian scientific-research journals (نشریات علمی-پژوهشی وزارت علوم و بهداشت) with Solar Hijri years (۱۳۹۹–۱۴۰۳) and Persian author names.
+   - Structured parsing of Iranian scientific-research journals (نشریات علمی-پژوهشی وزارت علوم و بهداشت) with Solar Hijri years (۱۳۹۹–۱۴۰۵ / 2020–2026) and Persian author names.
 5. **High-Impact Curated Corpus**:
    - Built-in resilient benchmark library ensuring uninterrupted operation during network latency, timeouts, or IP filtering.
 

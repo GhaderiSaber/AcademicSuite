@@ -17,7 +17,7 @@ This catalog documents the 38 most pervasive synthetic clichés, structural trop
 | **7** | **fosters a deeper understanding** | Formulaic wrap-up trope. | *clarifies the cognitive dynamics of*, *delineates the boundary conditions of* |
 | **8** | **intricate dance / web of** | Poetic LLM metaphor; immediate AI tell. | *interdependent pathways*, *systemic interaction*, *reciprocal feedback loop* |
 | **9** | **seamlessly integrated / blends** | Over-polished adverb cliché. | *integrated into*, *incorporated within*, *systematically embedded* |
-| **10** | **garnered significant attention** | Passive non-specific claim. | *has been extensively scrutinized in recent clinical trials (2020–2025)* |
+| **10** | **garnered significant attention** | Passive non-specific claim. | *has been extensively scrutinized in recent clinical trials (2021–2026)* |
 | **11** | **it is crucial/important to note that** | Wordy didactic filler; throat-clearing. | *Notably, ...* / *Crucially, ...* / direct factual integration |
 | **12** | **moreover / furthermore (at sentence starts)** | Rigid robotic cadence when starting > 10% of sentences. | Use adverbial clauses, semicolons, *Specifically*, *Concurrently*, or restructure |
 | **13** | **in this regard, ...** | Mechanical connective device. | *Under this conceptual model, ...* / *In theoretical convergence, ...* |

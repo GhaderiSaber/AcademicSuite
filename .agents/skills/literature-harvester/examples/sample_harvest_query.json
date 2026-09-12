@@ -6,7 +6,7 @@
       "target_field": "psychology",
       "sources": ["sid", "magiran", "pubmed", "crossref"],
       "limit": 10,
-      "year_range": [1398, 1403],
+      "year_range": [1400, 1405],
       "include_summary_docx": true,
       "include_excel_matrix": true,
       "include_ris": true
@@ -17,7 +17,7 @@
       "target_field": "psychology",
       "sources": ["pubmed", "crossref", "semanticscholar"],
       "limit": 10,
-      "year_range": [2019, 2025],
+      "year_range": [2021, 2026],
       "include_summary_docx": true,
       "include_excel_matrix": true,
       "include_ris": true

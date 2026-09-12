@@ -38,6 +38,8 @@ Activate this skill whenever:
 ### 3. Bidirectional Citation Reconciliation (صحت‌سنجی دوطرفه مراجع)
 - **Orphaned In-Text Citation (`CRITICAL`/`MAJOR`)**: Cited in body text but missing from the References section.
 - **Ghost Reference in Bibliography (`MAJOR`/`MINOR`)**: Listed in References but never cited anywhere in text.
+- **Unbacked Phantom Citation (`CRITICAL`)**: In-text citation not backed by a verified physical record/PDF in `04_references_and_lit/` (violates Rule 14 Anti-Hallucination Protocol).
+- **Outdated Empirical Literature Window (`MINOR`)**: Empirical review lacks contemporary studies from the 2021–2026 (۱۴۰۰–۱۴۰۵) window (violates Rule 15 Temporal Anchor).
 - **Year Discrepancy (`MINOR`)**: Publication year differs between body citation and bibliography entry.
 - **Author Surname Spelling Mismatch (`MINOR`)**: Slight typographic variation in author name.
 

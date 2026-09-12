@@ -35,7 +35,7 @@ The agent systematically scans the active project folder to harvest and condense
 ┌──────────────────────────────────────┐     ┌────────────────────────────────────┐
 │      Proposal / Chapters 1 & 3       │     │     Translated Literature (Ch 2)   │
 │ - Societal & clinical problem burden │     │ - Conceptual & theoretical models  │
-│ - Specific objectives & hypotheses   │     │ - Recent (2020-2025) empirical lit │
+│ - Specific objectives & hypotheses   │     │ - Recent (2021-2026) empirical lit │
 │ - Population, G*Power, instruments   │     │ - International & Iranian studies  │
 └──────────────────┬───────────────────┘     └─────────────────┬──────────────────┘
                    │                                           │

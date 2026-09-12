@@ -97,7 +97,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
   - Classifies each comment into one of 3 operational tiers:
     1. **Tier 1: FORMAT** (Margins, fonts, half-spaces `\u200c`, APA 7 3-line tables, Latin footnotes, Persian numbering).
     2. **Tier 2: STATS & METHODOLOGY** (Requests for additional assumption tests, effect sizes $\eta_p^2$, ANCOVA slope homogeneity verification, post hoc power, mediation bootstrap CIs).
-    3. **Tier 3: THEORY & DISCUSSION** (Requests for recent 2023–2025 citations, conceptual clarification, deeper psychological mechanism explanation, or expanding clinical implications).
+    3. **Tier 3: THEORY & DISCUSSION** (Requests for recent 2023–2026 citations, conceptual clarification, deeper psychological mechanism explanation, or expanding clinical implications).
 - **Output**: `triaged_comments.json`.
 
 ### Step 3: Targeted Remediation by Domain Subagents

@@ -76,7 +76,7 @@ Review each extracted comment and tag it:
 - **FORMAT**: Issues with margins, fonts, APA 7 table lines, Persian half-spaces (`\u200c`), Latin footnotes.
 - **STATS**: Requests for assumption tests (Shapiro-Wilk, Levene), effect sizes ($\eta_p^2$, Cohen's $d$), ANCOVA slope checks, or mediation bootstrap CIs.
   *Delegate to*: `statistical-data-analyst`.
-- **THEORY**: Requests for newer 2023/2024 literature, conceptual clarification, or deeper psychological explanations.
+- **THEORY**: Requests for newer 2024–2026 literature, conceptual clarification, or deeper psychological explanations.
   *Delegate to*: `persian-discussion-builder` or `persian-academic-translation`.
 
 ### Step 3: Apply Corrections to Thesis Files
