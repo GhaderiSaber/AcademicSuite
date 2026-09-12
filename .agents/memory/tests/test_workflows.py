@@ -51,11 +51,13 @@ class TestWorkflowsSuite(unittest.TestCase):
             "thesis_revision",
             "journal_submission",
             "defense_presentation",
-            "thesis_assembly"
+            "thesis_assembly",
+            "intervention_protocol",
+            "scale_validation"
         ]
 
     def test_workflow_spec_files_exist(self):
-        """Validates that all 8 core workflow markdown files exist."""
+        """Validates that all 10 core workflow markdown files exist."""
         for wf in self.expected_workflows:
             wf_file = os.path.join(WORKFLOWS_DIR, f"{wf}.md")
             self.assertTrue(os.path.exists(wf_file), f"Missing workflow specification: {wf_file}")
@@ -185,6 +187,40 @@ class TestWorkflowsSuite(unittest.TestCase):
         self.assertIn("final-judge", res["subagents_executed"])
         self.assertTrue(any("پایان‌نامه_کامل_تدوین‌شده.docx" in a for a in res["artifacts_generated"]))
         self.assertGreaterEqual(res["compliance_score"], 90.0)
+        self.assertTrue(res["decision_id"].startswith("dec_"))
+
+    def test_intervention_protocol_workflow_execution(self):
+        """Tests end-to-end execution of Clinical Intervention Protocol builder workflow."""
+        res = self.saber.run_workflow("intervention_protocol")
+        self.assertIsNotNone(res)
+        self.assertEqual(res["status"], "SUCCESS")
+        self.assertEqual(res["workflow"], "intervention_protocol")
+        self.assertIn("digital-saber", res["subagents_executed"])
+        self.assertIn("methodology-expert", res["subagents_executed"])
+        self.assertIn("academic-writer", res["subagents_executed"])
+        self.assertIn("final-judge", res["subagents_executed"])
+        self.assertTrue(any("پروتکل_مداخله_درمانی.docx" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("جدول_خلاصه_جلسات_مداخله.docx" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("consort_flowchart.png" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("protocol_blueprint.json" in a for a in res["artifacts_generated"]))
+        self.assertGreaterEqual(res["fidelity_score"], 90.0)
+        self.assertTrue(res["decision_id"].startswith("dec_"))
+
+    def test_scale_validation_workflow_execution(self):
+        """Tests end-to-end execution of Psychometric Scale Validation workflow."""
+        res = self.saber.run_workflow("scale_validation")
+        self.assertIsNotNone(res)
+        self.assertEqual(res["status"], "SUCCESS")
+        self.assertEqual(res["workflow"], "scale_validation")
+        self.assertIn("digital-saber", res["subagents_executed"])
+        self.assertIn("statistical-expert", res["subagents_executed"])
+        self.assertIn("statistical-auditor", res["subagents_executed"])
+        self.assertIn("final-judge", res["subagents_executed"])
+        self.assertTrue(any("گزارش_اعتباریابی_روانسنجی.docx" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("psychometric_validation_matrix.xlsx" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("cfa_lavaan_model.R" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("psychometric_validation_report.json" in a for a in res["artifacts_generated"]))
+        self.assertGreaterEqual(res["psychometric_score"], 90.0)
         self.assertTrue(res["decision_id"].startswith("dec_"))
 
     def test_unknown_workflow_returns_none(self):
