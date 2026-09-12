@@ -172,6 +172,16 @@ python3 .agents/skills/academic-reference-extractor/scripts/extract_section_refe
   --style farhangestan
 ```
 
+### Local PDF Corpus Ingestion & Parameter Extraction (pypdf):
+When local research papers (PDFs) are present in `04_references_and_lit/papers/`:
+```bash
+python3 .agents/skills/academic-reference-extractor/scripts/local_paper_extractor.py \
+  --dir "./04_references_and_lit/papers"
+```
+*Outputs:*
+1. `ingested_papers_corpus.json`: Structured corpus containing extracted titles, first authors, DOIs, sample sizes ($N$), designs, abstracts, and APA citations.
+2. `ingested_references_apa.txt`: Unified APA 7 reference list formatted for direct insertion into articles or theses.
+
 ---
 
 ## 5. Deliverable File Naming Convention

@@ -73,10 +73,15 @@ The agent systematically scans the active project folder to harvest and condense
 
 ## 4. Execution Workflow
 
-### Step 1: Ingest Project Data & Select Track
+### Step 1: Ingest Project Data, Literature Corpus & Select Track
 Inspect the project directory to locate:
 - Statistical output: `stats_results.json` or `فصل چهارم: یافته‌های پژوهش.docx`.
 - Methodological details: `پروپوزال_طرح_پژوهش.docx` or Chapter 3.
+- **Physical Research Papers (`04_references_and_lit/papers/`)**:
+  - Inspect `04_references_and_lit/papers/` for user-supplied research PDFs.
+  - If additional open-access literature is required, execute `paper_downloader.py` or `harvester_engine.py --download-pdf` to fetch 8–12 core open-access PDFs into this folder.
+  - Run `python3 .agents/skills/academic-reference-extractor/scripts/local_paper_extractor.py --dir "04_references_and_lit/papers"` to generate `ingested_papers_corpus.json`.
+  - Ground all external citations and mechanism comparisons in these physical, verified PDFs.
 - Theoretical literature: `Translate/` folder or Chapter 2.
 - Psychometric instruments: Ingest from project files or query `Questionnaires.xlsx` and the Google Drive master library via `questionnaire_resolver.py search "<scale_name>"` for verified item counts, subscale factors, and Likert anchors.
 - Discussion points: Chapter 5.

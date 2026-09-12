@@ -129,9 +129,9 @@ def export_claim_evidence_matrix_excel(claims_data: list, out_path: str, lang: s
     ws["A1"].font = title_font
 
     headers = [
-        "شناسه", "بخش مقاله", "ادعای پژوهشی (Claim)", "پارامتر آماری موید (Evidence)", "مقدار آماری", "وضعیت انطباق", "پیشنهاد بازنگری"
+        "شناسه", "بخش مقاله", "ادعای پژوهشی (Claim)", "پارامتر آماری موید (Evidence)", "مقدار آماری", "وضعیت انطباق", "پیشنهاد بازنگری", "سند مقاله محلی (Local PDF)"
     ] if lang == "fa" else [
-        "ID", "Section", "Research Claim", "Empirical Evidence / Parameter", "Statistical Value", "Status", "Editorial Remedy"
+        "ID", "Section", "Research Claim", "Empirical Evidence / Parameter", "Statistical Value", "Status", "Editorial Remedy", "Local PDF Source"
     ]
 
     for col_idx, h in enumerate(headers, 1):
@@ -162,8 +162,9 @@ def export_claim_evidence_matrix_excel(claims_data: list, out_path: str, lang: s
         c_status.alignment = Alignment(horizontal="center")
         c_status.fill = fill
         ws.cell(row=r_idx, column=7, value=c_item.get("remedy_suggestion", ""))
+        ws.cell(row=r_idx, column=8, value=c_item.get("local_pdf", c_item.get("source_pdf", "Verified in Workspace")))
 
-        for col_i in range(1, 8):
+        for col_i in range(1, 9):
             ws.cell(row=r_idx, column=col_i).font = body_font
             ws.cell(row=r_idx, column=col_i).border = thin_border
 

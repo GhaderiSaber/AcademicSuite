@@ -97,16 +97,20 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
   - Initializes project tracking in `.agents/memory/decision_journal_engine.py`.
 - **Output**: Journal publication project brief and editorial parameter ledger.
 
-### Step 2: Academic Writer Subagent (IMRaD Manuscript Extraction)
-- **Agent**: `academic-writer` (wielding `academic-article-writer`)
+### Step 2: Academic Writer Subagent (IMRaD Manuscript Extraction & Grounded Literature)
+- **Agent**: `academic-writer` (wielding `academic-article-writer`, `literature-harvester`, `academic-reference-extractor`)
 - **Action**:
-  - Condenses a 150-page dissertation into standard IMRaD format:
+  - **Literature Grounding & PDF Repository**:
+    - Scans `04_references_and_lit/papers/` for user-placed research PDFs.
+    - If needed, invokes `paper_downloader.py` to retrieve 8–12 core open-access full-text PDFs matching the study variables into `04_references_and_lit/papers/`.
+    - Executes `local_paper_extractor.py` to extract abstracts, sample sizes ($N$), and APA references into `ingested_papers_corpus.json`.
+  - Condenses dissertation and grounds external literature into standard IMRaD format:
     1. **Title & Abstract**: Informative, non-declarative title; 250-word structured abstract (Background, Methods, Results, Conclusions) + 5 MeSH-compliant keywords.
-    2. **Introduction**: 3-paragraph inverted triangle highlighting the theoretical gap (Beck, Hayes, Gross, Bandura) and directional hypotheses.
+    2. **Introduction**: 4-paragraph inverted triangle highlighting the theoretical gap (grounded in the ingested local papers: Beck, Hayes, Gross, Bandura) and directional hypotheses.
     3. **Methods**: Precise description of participants, experimental/correlational design, G*Power sampling justification, psychometric instruments (Cronbach's $\alpha$, scoring), and analytic software strategy.
     4. **Results**: APA 7th Edition three-line borderless tables, effect sizes ($\eta_p^2$, Cohen's $d$, $\beta$), exact $p$-values ($p < .001$ without leading zero).
-    5. **Discussion**: 4-element psychological interpretation, empirical concordance mapping (Iranian + ISI literature), clinical implications, and methodological limitations.
-- **Output**: Draft manuscript payload and claim-evidence matrix.
+    5. **Discussion**: 4-element psychological interpretation, empirical concordance mapping directly against the ingested local papers, clinical implications, and methodological limitations.
+- **Output**: Draft manuscript payload (`article_payload.json`), claim-evidence matrix with local PDF links, and compiled DOCX manuscript.
 
 ### Step 3: Tone Polisher Subagent (Anti-AI Clichés & Cadence Optimization)
 - **Agent**: `academic-writer` (wielding `ai-academic-tone-polisher`)

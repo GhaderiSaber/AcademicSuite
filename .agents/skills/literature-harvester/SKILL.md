@@ -56,6 +56,24 @@ python3 .agents/skills/literature-harvester/scripts/harvester_engine.py \
   --lang en
 ```
 
+### Automated Open-Access Full-Text PDF Downloader:
+```bash
+# Standalone paper downloader:
+python3 .agents/skills/literature-harvester/scripts/paper_downloader.py \
+  --query "self-compassion chronic pain university students" \
+  --out-dir "./04_references_and_lit/papers" \
+  --limit 10
+
+# Direct harvest with simultaneous PDF download:
+python3 .agents/skills/literature-harvester/scripts/harvester_engine.py \
+  --query "acceptance commitment therapy chronic pain" \
+  --out-dir "./harvested_act" \
+  --limit 10 \
+  --download-pdf \
+  --papers-dir "./04_references_and_lit/papers" \
+  --lang en
+```
+
 ### Run via JSON Search Payload:
 ```bash
 python3 .agents/skills/literature-harvester/scripts/harvester_engine.py \

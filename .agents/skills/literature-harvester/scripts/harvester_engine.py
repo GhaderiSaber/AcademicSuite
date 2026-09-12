@@ -771,6 +771,8 @@ def main():
     parser.add_argument("--out-dir", type=str, default=".", help="Directory to save deliverables")
     parser.add_argument("--lang", type=str, choices=["fa", "en"], help="Report language (default: auto-detected)")
     parser.add_argument("--offline", action="store_true", help="Force offline curated benchmark repository")
+    parser.add_argument("--download-pdf", action="store_true", help="Automatically download open-access full-text PDFs")
+    parser.add_argument("--papers-dir", type=str, default=None, help="Directory to save downloaded PDFs (default: out_dir/papers)")
 
     args = parser.parse_args()
     out_dir = Path(args.out_dir)
@@ -839,6 +841,19 @@ def main():
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(results_payload, f, ensure_ascii=False, indent=2)
     print(f"[+] Structured JSON Ledger saved: {json_path}")
+
+    # 5. Optional Automated Open-Access PDF Downloader
+    if args.download_pdf:
+        papers_dir = Path(args.papers_dir) if args.papers_dir else (out_dir / "papers")
+        print(f"\n[*] Initiating automated Open-Access PDF download to: {papers_dir}...")
+        try:
+            from paper_downloader import OpenAccessPaperDownloader
+            downloader = OpenAccessPaperDownloader(out_dir=str(papers_dir))
+            downloaded = downloader.download_papers(query=query, limit=limit)
+            print(f"[+] Downloaded {len(downloaded)} open-access research PDFs to: {papers_dir}")
+        except Exception as e:
+            print(f"[!] PDF download encountered an error: {e}")
+
     print(f"[✓] literature-harvester execution completed successfully.")
 
 if __name__ == "__main__":
