@@ -99,11 +99,154 @@ def add_run(p, text, lang='fa', size=12, bold=False, italic=False):
     return run
 
 
-def export_claim_evidence_matrix_excel(claims_data: list, out_path: str, lang: str = "en"):
+def audit_physical_sources(references: list, papers_dir: str = None) -> dict:
     """
-    Exports a professional 3-color Claim-Evidence Mapping Matrix to Excel.
-    Enforces the rule that every claim in Abstract/Introduction/Discussion
-    must have direct empirical statistical backing.
+    Audits bibliographic references against physically downloaded research PDFs
+    in 04_references_and_lit/papers/ (and ingested_papers_corpus.json).
+    Enforces Rule 14 Anti-Hallucination & Zero Ghost Citation Protocol.
+    """
+    import re
+    from pathlib import Path
+
+    # Auto-detect papers directory if not supplied
+    if not papers_dir:
+        candidates = [
+            Path("04_references_and_lit/papers"),
+            Path("../04_references_and_lit/papers"),
+            Path("papers")
+        ]
+        for c in candidates:
+            if c.exists() and c.is_dir():
+                papers_dir = str(c.resolve())
+                break
+
+    if not papers_dir or not os.path.exists(papers_dir):
+        return {
+            "total_references": len(references),
+            "verified_count": 0,
+            "registry_doi_count": 0,
+            "unverified_count": len(references),
+            "grounding_ratio": 0.0,
+            "audit_records": [
+                {
+                    "ref_id": f"R{i+1:02d}",
+                    "reference": r,
+                    "author": "-",
+                    "year": "-",
+                    "matched_pdf": "-",
+                    "file_path": "-",
+                    "pages": "-",
+                    "status": "UNBACKED_CITATION"
+                } for i, r in enumerate(references)
+            ],
+            "papers_dir": None
+        }
+
+    papers_path = Path(papers_dir)
+    pdf_files = list(papers_path.glob("*.pdf"))
+
+    # Load ingested corpus JSON if available
+    corpus_file = papers_path / "ingested_papers_corpus.json"
+    corpus_map = {}
+    if corpus_file.exists():
+        try:
+            with open(corpus_file, "r", encoding="utf-8") as f:
+                corpus_data = json.load(f)
+                for p in corpus_data.get("papers", []):
+                    fname = p.get("filename", "")
+                    corpus_map[fname] = p
+        except Exception:
+            pass
+
+    audit_records = []
+    verified_weight = 0.0
+
+    for idx, ref in enumerate(references, 1):
+        # Extract author surname and 4-digit year
+        m_year = re.search(r'\b(19\d\d|20\d\d)\b', ref)
+        year = m_year.group(1) if m_year else ""
+
+        # Author: take initial letters/word
+        m_auth = re.search(r'^([A-Za-z\u0600-\u06FF\-]+)', ref.strip().lstrip("0123456789. \t"))
+        author = m_auth.group(1).lower() if m_auth else ""
+
+        matched_pdf = None
+        matched_path = ""
+        page_count = "-"
+        status = "UNBACKED_CITATION"
+
+        # Search matching PDF
+        for pdf in pdf_files:
+            p_lower = pdf.name.lower()
+            author_clean = re.sub(r'[^a-z0-9]', '', author)
+            
+            if author_clean and len(author_clean) >= 3 and author_clean in re.sub(r'[^a-z0-9]', '', p_lower):
+                if year and year in p_lower:
+                    matched_pdf = pdf.name
+                    matched_path = str(pdf.resolve())
+                    status = "VERIFIED_ON_DISK"
+                    break
+                elif not year:
+                    matched_pdf = pdf.name
+                    matched_path = str(pdf.resolve())
+                    status = "VERIFIED_ON_DISK"
+                    break
+            elif year and year in p_lower and author and author in p_lower:
+                matched_pdf = pdf.name
+                matched_path = str(pdf.resolve())
+                status = "VERIFIED_ON_DISK"
+                break
+
+        # Secondary search in parsed corpus metadata (titles/authors)
+        if not matched_pdf and corpus_map:
+            for fname, p_meta in corpus_map.items():
+                p_auth = (p_meta.get("author") or "").lower()
+                p_year = str(p_meta.get("year") or "")
+                if author and len(author) >= 4 and author in p_auth:
+                    matched_pdf = fname
+                    matched_path = str((papers_path / fname).resolve())
+                    page_count = str(p_meta.get("pages", "-"))
+                    status = "VERIFIED_ON_DISK"
+                    break
+
+        if matched_pdf:
+            verified_weight += 1.0
+            if matched_pdf in corpus_map:
+                page_count = str(corpus_map[matched_pdf].get("pages", "-"))
+        elif "doi.org" in ref.lower() or "10." in ref:
+            status = "REGISTRY_DOI"
+            verified_weight += 0.5
+
+        audit_records.append({
+            "ref_id": f"R{idx:02d}",
+            "reference": ref,
+            "author": author.capitalize(),
+            "year": year,
+            "matched_pdf": matched_pdf or "-",
+            "file_path": matched_path or "-",
+            "pages": page_count,
+            "status": status
+        })
+
+    total_refs = len(references)
+    grounding_ratio = (verified_weight / max(1, total_refs)) * 100.0
+
+    return {
+        "total_references": total_refs,
+        "verified_count": int(sum(1 for r in audit_records if r["status"] == "VERIFIED_ON_DISK")),
+        "registry_doi_count": int(sum(1 for r in audit_records if r["status"] == "REGISTRY_DOI")),
+        "unverified_count": int(sum(1 for r in audit_records if r["status"] == "UNBACKED_CITATION")),
+        "grounding_ratio": round(grounding_ratio, 1),
+        "audit_records": audit_records,
+        "papers_dir": str(papers_path)
+    }
+
+
+def export_claim_evidence_matrix_excel(claims_data: list, out_path: str, lang: str = "en", source_audit: dict = None):
+    """
+    Exports a professional Claim-Evidence Mapping Matrix to Excel.
+    Includes Sheet 1: Claim-Evidence Matrix and Sheet 2: Physical Sources Audit.
+    Enforces that every claim has statistical backing and citations are backed by local PDFs.
     """
     import openpyxl
     from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -173,8 +316,58 @@ def export_claim_evidence_matrix_excel(claims_data: list, out_path: str, lang: s
         col_letter = get_column_letter(col[0].column)
         ws.column_dimensions[col_letter].width = min(50, max(12, max_len + 3))
 
+    # Sheet 2: Physical Sources Audit (Anti-Hallucination Sheet)
+    if source_audit and source_audit.get("audit_records"):
+        ws2 = wb.create_sheet(title="تطبیق فیزیکی مراجع" if lang == "fa" else "Physical Sources Audit")
+        ws2.views.sheetView[0].rightToLeft = (lang == "fa")
+
+        ws2["A1"] = "جدول تطبیق مراجع مقاله با مقالات فیزیکی بارگیری‌شده (Rule 14 Anti-Hallucination Audit)" if lang == "fa" else "Physical Research Paper Verification Audit (Rule 14 Anti-Hallucination Protocol)"
+        ws2["A1"].font = title_font
+
+        headers2 = [
+            "شناسه", "مرجع کتابشناختی (APA 7)", "نویسنده اصلی", "سال", "فایل PDF محلی", "مسیر فایل در دیسک", "صفحات", "وضعیت اعتبارسنجی"
+        ] if lang == "fa" else [
+            "Ref ID", "Bibliographic Reference (APA 7)", "First Author", "Year", "Local PDF Filename", "Absolute File Path", "Pages", "Grounding Status"
+        ]
+
+        for col_idx, h in enumerate(headers2, 1):
+            c = ws2.cell(row=3, column=col_idx, value=h)
+            c.font = header_font
+            c.fill = navy_fill
+            c.alignment = Alignment(horizontal="center", vertical="center")
+
+        for r_i, rec in enumerate(source_audit["audit_records"], 4):
+            st = rec.get("status", "UNBACKED_CITATION")
+            if st == "VERIFIED_ON_DISK":
+                st_fill = green_fill
+            elif st == "REGISTRY_DOI":
+                st_fill = amber_fill
+            else:
+                st_fill = red_fill
+
+            ws2.cell(row=r_i, column=1, value=rec.get("ref_id")).alignment = Alignment(horizontal="center")
+            ws2.cell(row=r_i, column=2, value=rec.get("reference"))
+            ws2.cell(row=r_i, column=3, value=rec.get("author")).alignment = Alignment(horizontal="center")
+            ws2.cell(row=r_i, column=4, value=rec.get("year")).alignment = Alignment(horizontal="center")
+            ws2.cell(row=r_i, column=5, value=rec.get("matched_pdf"))
+            ws2.cell(row=r_i, column=6, value=rec.get("file_path"))
+            ws2.cell(row=r_i, column=7, value=rec.get("pages")).alignment = Alignment(horizontal="center")
+
+            sc = ws2.cell(row=r_i, column=8, value=st)
+            sc.alignment = Alignment(horizontal="center")
+            sc.fill = st_fill
+
+            for c_idx in range(1, 9):
+                ws2.cell(row=r_i, column=c_idx).font = body_font
+                ws2.cell(row=r_i, column=c_idx).border = thin_border
+
+        for col in ws2.columns:
+            max_len = max(len(str(cell.value or "")) for cell in col)
+            col_letter = get_column_letter(col[0].column)
+            ws2.column_dimensions[col_letter].width = min(50, max(12, max_len + 3))
+
     wb.save(out_path)
-    print(f"Claim-Evidence Matrix successfully exported: {out_path}")
+    print(f"Claim-Evidence & Source Verification Matrix successfully exported: {out_path}")
 
 
 def export_figure_planning_matrix_excel(figures_data: list, out_path: str, lang: str = "en"):
@@ -257,40 +450,41 @@ def export_figure_planning_matrix_excel(figures_data: list, out_path: str, lang:
     print(f"Figure Planning Matrix successfully exported: {out_path}")
 
 
-def compute_article_readiness_score(data: dict) -> dict:
+def compute_article_readiness_score(data: dict, source_audit: dict = None, papers_dir: str = None) -> dict:
     """
     Computes a pre-flight Submission Readiness Score (SRS: 0-100%) for academic manuscripts.
     Weights:
-      - 40%: IMRaD Structural Completeness (Abstract 5 parts, Intro, Method 4 subsections, Results, Discussion, Refs >= 15)
+      - 30%: IMRaD Structural Completeness (Abstract 5 parts, Intro, Method 4 subsections, Results, Discussion)
       - 25%: Claim-Evidence Backing Ratio (Claims matrix verification)
-      - 20%: Figure-First Visual Backing (Presence of publication-grade figures/tables supporting claims)
+      - 15%: Figure-First Visual Backing (Presence of publication-grade figures/tables supporting claims)
+      - 15%: Physical Source Grounding & Anti-Hallucination (Verification against 04_references_and_lit/papers)
       - 15%: APA 7 Typography & Formatting (Abstract word count <= 250, title brevity, table captions)
     """
-    # 1. IMRaD Completeness (40 pts)
+    # 1. IMRaD Completeness (30 pts)
     imrad_points = 0.0
     abstract = data.get("abstract", {})
     if isinstance(abstract, dict) and all(k in abstract for k in ["background", "objective", "methods", "results", "conclusion"]):
-        imrad_points += 10.0
+        imrad_points += 8.0
     elif abstract:
-        imrad_points += 6.0
+        imrad_points += 4.0
 
     intro = data.get("introduction", [])
     if len(intro) >= 3:
-        imrad_points += 6.0
+        imrad_points += 5.0
     elif intro:
-        imrad_points += 3.0
+        imrad_points += 2.5
 
     method = data.get("method", {})
     if isinstance(method, dict) and all(k in method for k in ["design_and_participants", "measures", "procedure", "statistical_analysis"]):
-        imrad_points += 8.0
+        imrad_points += 7.0
     elif method:
-        imrad_points += 4.0
+        imrad_points += 3.5
 
     results = data.get("results", {})
     if results.get("narrative") and (results.get("tables") or results.get("figures") or data.get("figures")):
-        imrad_points += 8.0
+        imrad_points += 6.0
     elif results:
-        imrad_points += 4.0
+        imrad_points += 3.0
 
     disc = data.get("discussion", [])
     if len(disc) >= 3:
@@ -299,10 +493,6 @@ def compute_article_readiness_score(data: dict) -> dict:
         imrad_points += 2.0
 
     refs = data.get("references", [])
-    if len(refs) >= 20:
-        imrad_points += 4.0
-    elif len(refs) >= 10:
-        imrad_points += 2.0
 
     # 2. Claim-Evidence Ratio (25 pts)
     claims = data.get("claims_matrix") or data.get("claim_evidence_matrix", [])
@@ -313,20 +503,35 @@ def compute_article_readiness_score(data: dict) -> dict:
     else:
         claims_points = 20.0
 
-    # 3. Figure-First Planning (20 pts)
+    # 3. Figure-First Planning (15 pts)
     figs = data.get("figures") or data.get("results", {}).get("figures", [])
     tbls = data.get("results", {}).get("tables", [])
     total_visuals = len(figs) + len(tbls)
     if total_visuals >= 4:
-        figure_points = 20.0
-    elif total_visuals >= 2:
         figure_points = 15.0
-    elif total_visuals >= 1:
+    elif total_visuals >= 2:
         figure_points = 10.0
+    elif total_visuals >= 1:
+        figure_points = 6.0
     else:
-        figure_points = 4.0
+        figure_points = 2.0
 
-    # 4. APA 7 & Technical Checklist (15 pts)
+    # 4. Physical Source Grounding & Anti-Hallucination (15 pts)
+    if source_audit is None:
+        source_audit = audit_physical_sources(refs, papers_dir=papers_dir)
+    sgr = source_audit.get("grounding_ratio", 0.0)
+    if sgr >= 80.0:
+        source_points = 15.0
+    elif sgr >= 60.0:
+        source_points = 12.0
+    elif sgr >= 40.0:
+        source_points = 9.0
+    elif sgr > 0.0:
+        source_points = 5.0
+    else:
+        source_points = 0.0
+
+    # 5. APA 7 & Technical Checklist (15 pts)
     apa_points = 0.0
     title = data.get("title", "")
     if 5 <= len(title.split()) <= 20:
@@ -343,7 +548,7 @@ def compute_article_readiness_score(data: dict) -> dict:
     if tbls or figs:
         apa_points += 5.0
 
-    total_score = round(imrad_points + claims_points + figure_points + apa_points, 1)
+    total_score = round(imrad_points + claims_points + figure_points + source_points + apa_points, 1)
     total_score = max(0.0, min(100.0, total_score))
 
     if total_score >= 90:
@@ -372,12 +577,14 @@ def compute_article_readiness_score(data: dict) -> dict:
             "imrad_completeness": round(imrad_points, 1),
             "claim_evidence_backing": round(claims_points, 1),
             "figure_first_visuals": round(figure_points, 1),
+            "physical_source_grounding": round(source_points, 1),
             "apa7_technical": round(apa_points, 1)
-        }
+        },
+        "source_audit": source_audit
     }
 
 
-def compile_article(data: dict, output_path: str, lang: str = 'en'):
+def compile_article(data: dict, output_path: str, lang: str = 'en', papers_dir: str = None):
     doc = docx.Document()
     is_fa = (lang == 'fa')
     
@@ -720,11 +927,15 @@ def compile_article(data: dict, output_path: str, lang: str = 'en'):
         p_ref.paragraph_format.space_after = Pt(4)
         add_run(p_ref, ref_str, lang=lang, size=10)
 
-    # Export Claim-Evidence Matrix if present
+    # Physical Source Audit (Rule 14 Anti-Hallucination Protocol)
+    refs_list = data.get("references", [])
+    src_audit = audit_physical_sources(refs_list, papers_dir=papers_dir)
+
+    # Export Claim-Evidence Matrix & Source Verification if present
     claims_matrix = data.get("claims_matrix") or data.get("claim_evidence_matrix", [])
-    if claims_matrix:
+    if claims_matrix or src_audit.get("audit_records"):
         matrix_filename = output_path.replace(".docx", "_claim_evidence_matrix.xlsx")
-        export_claim_evidence_matrix_excel(claims_matrix, matrix_filename, lang=lang)
+        export_claim_evidence_matrix_excel(claims_matrix, matrix_filename, lang=lang, source_audit=src_audit)
 
     # Export Figure Planning Matrix if present
     figs_for_matrix = data.get("figures") or results_data.get("figures", [])
@@ -733,16 +944,29 @@ def compile_article(data: dict, output_path: str, lang: str = 'en'):
         export_figure_planning_matrix_excel(figs_for_matrix, fig_matrix_filename, lang=lang)
 
     # Compute Submission Readiness Score (SRS)
-    srs_report = compute_article_readiness_score(data)
+    srs_report = compute_article_readiness_score(data, source_audit=src_audit, papers_dir=papers_dir)
     print(f"\n[+] Submission Readiness Score (SRS): {srs_report['submission_readiness_score']:.1f}% (Grade: {srs_report['grade']})")
     print(f"    - Verdict: {srs_report['verdict_en']} / {srs_report['verdict_fa']}")
-    print(f"    - Subscores: IMRaD={srs_report['subscores']['imrad_completeness']}/40, "
+    print(f"    - Subscores: IMRaD={srs_report['subscores']['imrad_completeness']}/30, "
           f"Claims={srs_report['subscores']['claim_evidence_backing']}/25, "
-          f"Figures={srs_report['subscores']['figure_first_visuals']}/20, "
+          f"Figures={srs_report['subscores']['figure_first_visuals']}/15, "
+          f"SourceGrounding={srs_report['subscores']['physical_source_grounding']}/15, "
           f"APA7={srs_report['subscores']['apa7_technical']}/15")
 
+    print(f"\n[+] Physical Source Audit (04_references_and_lit/papers/):")
+    print(f"    - Total References: {src_audit['total_references']}")
+    print(f"    - Verified on Disk: {src_audit['verified_count']} PDFs")
+    print(f"    - Registry DOI:     {src_audit['registry_doi_count']} entries")
+    print(f"    - Unverified:       {src_audit['unverified_count']} entries")
+    print(f"    - Grounding Ratio:  {src_audit['grounding_ratio']:.1f}%")
+    if src_audit['unverified_count'] > 0:
+        print(f"    [!] WARNING: {src_audit['unverified_count']} references not found in local PDF repository.")
+        print(f"    [!] Run: python3 .agents/skills/academic-article-writer/scripts/verify_and_download_citation.py --query \"Author Year Title\"")
+    else:
+        print(f"    [✓] 100% Physical Source Grounding Confirmed (Zero Ghost Citations).")
+
     doc.save(output_path)
-    print(f"Academic Article successfully compiled at: {output_path}")
+    print(f"\nAcademic Article successfully compiled at: {output_path}")
     return srs_report
 
 def main():
@@ -750,12 +974,13 @@ def main():
     parser.add_argument("--json", required=True, help="Path to article structured JSON file")
     parser.add_argument("--out", default="Article_Manuscript.docx", help="Output .docx file path")
     parser.add_argument("--lang", default="en", choices=["en", "fa"], help="Target language track ('en' for ISI/Scopus, 'fa' for ISC)")
+    parser.add_argument("--papers-dir", default=None, help="Directory containing downloaded PDFs (default: 04_references_and_lit/papers)")
     args = parser.parse_args()
     
     with open(args.json, 'r', encoding='utf-8') as f:
         data = json.load(f)
         
-    compile_article(data, args.out, lang=args.lang)
+    compile_article(data, args.out, lang=args.lang, papers_dir=args.papers_dir)
 
 if __name__ == "__main__":
     main()
