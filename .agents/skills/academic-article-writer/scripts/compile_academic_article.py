@@ -10,6 +10,12 @@ Supports dual publishing tracks:
 
 import os
 import sys
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 import json
 import argparse
 import docx
@@ -653,6 +659,43 @@ def compile_article(data: dict, output_path: str, lang: str = 'en'):
         "In conclusion, mindfulness-based interventions represent a robust approach for adolescent mental health."
     ])
     add_section("۴. بحث و نتیجه‌گیری", "4. Discussion and Conclusion", discussion_paragraphs)
+
+    # --- 8b. Declarations ---
+    decls = data.get("declarations", {})
+    if decls:
+        p_dec_h = doc.add_paragraph()
+        if is_fa:
+            set_paragraph_bidi(p_dec_h)
+            add_run(p_dec_h, "ملاحظات اخلاقی و بیانیه‌ها", lang=lang, size=13, bold=True)
+        else:
+            p_dec_h.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            add_run(p_dec_h, "Declarations", lang=lang, size=12, bold=True)
+        p_dec_h.paragraph_format.space_before = Pt(14)
+        p_dec_h.paragraph_format.space_after = Pt(6)
+
+        decl_labels = [
+            ("ethics_approval", "تاییدیه اخلاقی: ", "Ethical Approval: "),
+            ("consent_to_participate", "رضایت آگاهانه: ", "Informed Consent: "),
+            ("data_availability", "دسترسی به داده‌ها: ", "Data Availability: "),
+            ("conflict_of_interest", "تعارض منافع: ", "Conflict of Interest: "),
+            ("funding", "حمایت مالی: ", "Funding: "),
+            ("authors_contributions", "سهم نویسندگان: ", "Authors' Contributions: "),
+            ("acknowledgements", "سپاسگزاری: ", "Acknowledgements: ")
+        ]
+        for key, fa_lbl, en_lbl in decl_labels:
+            if key in decls:
+                p_dec = doc.add_paragraph()
+                if is_fa:
+                    set_paragraph_bidi(p_dec, align_body)
+                    p_dec.paragraph_format.line_spacing = 1.2
+                    add_run(p_dec, fa_lbl, lang=lang, size=10, bold=True)
+                    add_run(p_dec, str(decls[key]), lang=lang, size=10)
+                else:
+                    p_dec.alignment = align_body
+                    p_dec.paragraph_format.line_spacing = 1.15
+                    add_run(p_dec, en_lbl, lang=lang, size=10, bold=True)
+                    add_run(p_dec, str(decls[key]), lang=lang, size=10)
+                p_dec.paragraph_format.space_after = Pt(4)
 
     # --- 9. References ---
     p_ref_h = doc.add_paragraph()
