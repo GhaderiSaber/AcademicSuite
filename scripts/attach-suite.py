@@ -60,8 +60,15 @@ DEFAULT_SUITES = {
     }
 }
 
-# ANSI colors (enable Virtual Terminal on Windows if supported)
+# ANSI colors & UTF-8 output on Windows
 if IS_WINDOWS:
+    try:
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
     try:
         import ctypes
         kernel32 = ctypes.windll.kernel32
@@ -136,8 +143,51 @@ def is_link_path(p: Path) -> bool:
     return False
 
 
-def create_dir_link(target: Path, link_path: Path):
-    """Creates a directory symlink (macOS/Linux) or Directory Junction (Windows 11)."""
+def copy_dir_tree(src: Path, dst: Path):
+    """Copies an entire directory tree, cleanly replacing any existing destination."""
+    if dst.exists():
+        if is_link_path(dst):
+            remove_link(dst)
+        elif dst.is_dir():
+            shutil.rmtree(dst)
+        else:
+            dst.unlink()
+    shutil.copytree(src, dst)
+
+
+def sync_newer_files(src_root: Path, dst_root: Path) -> list:
+    """Syncs files from src_root to dst_root if they are newer or missing in dst_root."""
+    synced = []
+    if not src_root.exists():
+        return synced
+    for p in src_root.rglob("*"):
+        if p.is_file():
+            # Skip python caches and git files
+            if "__pycache__" in p.parts or ".git" in p.parts:
+                continue
+            rel = p.relative_to(src_root)
+            dst_p = dst_root / rel
+            should_copy = False
+            if not dst_p.exists():
+                should_copy = True
+            else:
+                try:
+                    if p.stat().st_mtime > dst_p.stat().st_mtime + 1.0:
+                        should_copy = True
+                except Exception:
+                    pass
+            if should_copy:
+                dst_p.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(p, dst_p)
+                synced.append(str(rel))
+    return synced
+
+
+def create_dir_link(target: Path, link_path: Path, allow_fallback_copy: bool = True) -> str:
+    """
+    Creates a directory symlink (macOS/Linux) or Directory Junction (Windows 11).
+    Returns link type: 'junction', 'symlink', or 'copy'.
+    """
     if is_link_path(link_path):
         remove_link(link_path)
 
@@ -147,15 +197,45 @@ def create_dir_link(target: Path, link_path: Path):
     if IS_WINDOWS:
         # On Windows 11, Directory Junctions (mklink /J) require NO Admin or Developer Mode
         res = subprocess.run(["cmd", "/c", "mklink", "/J", link_str, target_str], capture_output=True, text=True)
-        if res.returncode != 0:
-            # Fallback to python os.symlink
+        if res.returncode == 0:
+            return "junction"
+
+        # Fallback to python os.symlink
+        try:
             os.symlink(target_str, link_str, target_is_directory=True)
+            return "symlink"
+        except OSError as e:
+            drive = link_path.drive or str(link_path)[:2]
+            if allow_fallback_copy:
+                print(f"{YELLOW}Notice: Filesystem on '{drive}' (Google Drive File Stream / FAT32) does not support NTFS Junctions or Symlinks.{RESET}")
+                print(f"{CYAN}Engaging Antigravity Pointer Link (linking via skills.json without copying files)...{RESET}")
+                link_path.mkdir(parents=True, exist_ok=True)
+                skills_json = link_path / "skills.json"
+                target_skills = target / "skills" if (target / "skills").exists() else target
+                with open(skills_json, "w", encoding="utf-8") as f:
+                    json.dump({"entries": [{"path": str(target_skills).replace("\\", "/")}]}, f, indent=2)
+                return "pointer"
+            else:
+                print(f"\n{RED}{BOLD}Error: Filesystem on '{drive}' does not support NTFS Directory Junctions or Symlinks.{RESET}")
+                print(f"{YELLOW}Root Cause:{RESET} Drive '{drive}' is a virtual streamed volume (Google Drive File Stream / FAT32),")
+                print(f"            which rejects NTFS reparse points: {e}")
+                sys.exit(1)
     else:
-        os.symlink(target_str, link_str)
+        try:
+            os.symlink(target_str, link_str)
+            return "symlink"
+        except OSError as e:
+            if allow_fallback_copy:
+                print(f"{YELLOW}Notice: Could not create symlink ({e}). Falling back to Copy Mode...{RESET}")
+                copy_dir_tree(target, link_path)
+                return "copy"
+            else:
+                print(f"\n{RED}Error: Could not create symlink on this filesystem: {e}{RESET}\n", file=sys.stderr)
+                sys.exit(1)
 
 
 def create_file_link(target: Path, link_path: Path):
-    """Creates a file symlink or hard link."""
+    """Creates a file symlink, hard link, or fallback copy."""
     if is_link_path(link_path) or link_path.exists():
         remove_link(link_path)
 
@@ -166,31 +246,36 @@ def create_file_link(target: Path, link_path: Path):
         # Try NTFS hard link first (mklink /H)
         res = subprocess.run(["cmd", "/c", "mklink", "/H", link_str, target_str], capture_output=True, text=True)
         if res.returncode != 0:
-            # Cross-volume fallback: copy file
+            # Cross-volume / FAT32 fallback: copy file
             shutil.copy2(target, link_path)
     else:
-        os.symlink(target_str, link_str)
+        try:
+            os.symlink(target_str, link_str)
+        except OSError:
+            shutil.copy2(target, link_path)
 
 
-def remove_link(link_path: Path):
+def remove_link(link_path: Path, allow_delete_dir: bool = False):
     """Safely removes a symlink, directory junction, or pointer without deleting target contents."""
     if not link_path.exists() and not is_link_path(link_path):
         return
 
-    if IS_WINDOWS:
-        # For Windows Junctions, use os.rmdir or rmdir command (does NOT delete target directory contents)
-        if link_path.is_dir() or is_link_path(link_path):
+    if is_link_path(link_path):
+        if IS_WINDOWS:
+            # For Windows Junctions, use os.rmdir or rmdir command (does NOT delete target directory contents)
             try:
                 os.rmdir(link_path)
             except OSError:
                 subprocess.run(["cmd", "/c", "rmdir", str(link_path)], capture_output=True)
         else:
             link_path.unlink()
-    else:
-        if link_path.is_symlink() or link_path.is_file():
-            link_path.unlink()
-        elif link_path.is_dir():
+    elif allow_delete_dir:
+        if link_path.is_dir():
             shutil.rmtree(link_path)
+        else:
+            link_path.unlink()
+    elif link_path.is_file():
+        link_path.unlink()
 
 
 def read_link_target(p: Path):
@@ -525,26 +610,30 @@ def cmd_attach(args):
         remove_link(existing_agents_md)
 
     # Step 4: Create Links
-    create_dir_link(agents_src, existing_agents)
-    link_label = "Directory Junction" if IS_WINDOWS else "Symlink"
-    print(f"{GREEN}✓ Linked .agents ({link_label}) ──► {agents_src}{RESET}")
+    force_copy = getattr(args, "copy", False)
+    link_type = create_dir_link(agents_src, existing_agents, allow_fallback_copy=True)
+    if force_copy and link_type != "copy":
+        copy_dir_tree(agents_src, existing_agents)
+        link_type = "copy"
+    link_label = "Directory Junction" if link_type == "junction" else ("Symlink" if link_type == "symlink" else "Copied Folder (Fallback)")
+    print(f"{GREEN}✓ Attached .agents ({link_label}) ──► {agents_src}{RESET}")
 
     agents_md_src = suite_path / "AGENTS.md"
     if agents_md_src.exists():
         create_file_link(agents_md_src, existing_agents_md)
-        print(f"{GREEN}✓ Linked AGENTS.md ──► {agents_md_src}{RESET}")
+        print(f"{GREEN}✓ Attached AGENTS.md ──► {agents_md_src}{RESET}")
 
     # Optionally link scripts
     scripts_src = suite_path / "scripts"
     scripts_dest = cwd / "scripts"
     if scripts_src.exists():
         if is_link_path(scripts_dest):
-            remove_link(scripts_dest)
-            create_dir_link(scripts_src, scripts_dest)
-            print(f"{GREEN}✓ Linked scripts/ ──► {scripts_src}{RESET}")
+            remove_link(scripts_dest, allow_delete_dir=True)
+            scripts_type = create_dir_link(scripts_src, scripts_dest)
+            print(f"{GREEN}✓ Attached scripts/ ({scripts_type}) ──► {scripts_src}{RESET}")
         elif not scripts_dest.exists():
-            create_dir_link(scripts_src, scripts_dest)
-            print(f"{GREEN}✓ Linked scripts/ ──► {scripts_src}{RESET}")
+            scripts_type = create_dir_link(scripts_src, scripts_dest)
+            print(f"{GREEN}✓ Attached scripts/ ({scripts_type}) ──► {scripts_src}{RESET}")
 
     # Save attachment metadata
     meta = {
@@ -552,7 +641,8 @@ def cmd_attach(args):
         "name": suite_info["name"],
         "path": str(suite_path),
         "attached_at": datetime.now().isoformat(),
-        "attached_os": current_os
+        "attached_os": current_os,
+        "link_type": link_type
     }
     with open(cwd / ".attached_suite.json", "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2)
@@ -592,6 +682,21 @@ def cmd_push(args):
     print(f"\n{BOLD}{CYAN}Pushing Suite Updates to GitHub:{RESET}")
     print(f"  Master Suite: {suite_path}")
     print(f"  Working Dir:  {cwd}\n")
+
+    st = subprocess.run(["git", "-C", str(suite_path), "status", "-s"], capture_output=True, text=True)
+    meta_file = cwd / ".attached_suite.json"
+    if meta_file.exists():
+        try:
+            with open(meta_file, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+            if meta.get("link_type") == "copy":
+                agents_dir = cwd / ".agents"
+                if agents_dir.exists() and (suite_path / ".agents").exists():
+                    synced = sync_newer_files(agents_dir, suite_path / ".agents")
+                    if synced:
+                        print(f"{CYAN}Synced {len(synced)} updated file(s) from project back to master suite.{RESET}")
+        except Exception as e:
+            print(f"{YELLOW}Warning during copy sync: {e}{RESET}")
 
     st = subprocess.run(["git", "-C", str(suite_path), "status", "-s"], capture_output=True, text=True)
     if not st.stdout.strip():
@@ -654,6 +759,7 @@ def main():
     p_attach = subparsers.add_parser("attach", help="Attach a suite to the current directory")
     p_attach.add_argument("suite", help="Suite name or alias (e.g., academic, brokerage, epsilonstat)")
     p_attach.add_argument("--keep-git", action="store_true", help="Do not remove redundant .git folder in cwd")
+    p_attach.add_argument("--copy", action="store_true", help="Force direct copy mode instead of directory links")
 
     # fix command
     subparsers.add_parser("fix", help="Automatically repair cross-OS links (Mac <-> Windows)")
