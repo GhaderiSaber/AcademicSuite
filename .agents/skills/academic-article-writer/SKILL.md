@@ -77,11 +77,19 @@ The agent systematically scans the active project folder to harvest and condense
 Inspect the project directory to locate:
 - Statistical output: `stats_results.json` or `فصل چهارم: یافته‌های پژوهش.docx`.
 - Methodological details: `پروپوزال_طرح_پژوهش.docx` or Chapter 3.
-- **Physical Research Papers (`04_references_and_lit/papers/`)**:
-  - Inspect `04_references_and_lit/papers/` for user-supplied research PDFs.
-  - If additional open-access literature is required, execute `paper_downloader.py` or `harvester_engine.py --download-pdf` to fetch 8–12 core open-access PDFs into this folder.
+- **Physical Research Papers & Anti-Hallucination Protocol (`04_references_and_lit/papers/`)**:
+  - **MANDATORY DIRECTIVE (Zero Ghost Citations / قاعده ضد استناد توهمی)**: If the agent uses generative memory to reference an article or author in the manuscript, the agent **MUST NOT** leave it as an ungrounded citation. The agent must execute `verify_and_download_citation.py` or `paper_downloader.py` to:
+    1. Confirm the authentic existence of the paper in scientific registries (CrossRef / OpenAlex / Europe PMC).
+    2. Download the legal, full-text Open-Access PDF directly into `04_references_and_lit/papers/`.
+    3. Cross-validate the drafted manuscript sentence against the paper's actual abstract and empirical findings to ensure 100% directional and statistical alignment.
+    ```bash
+    python3 .agents/skills/academic-article-writer/scripts/verify_and_download_citation.py \
+      --query "Author Year Title" \
+      --claim "The drafted sentence to be verified against the abstract" \
+      --out-dir "04_references_and_lit/papers"
+    ```
   - Run `python3 .agents/skills/academic-reference-extractor/scripts/local_paper_extractor.py --dir "04_references_and_lit/papers"` to generate `ingested_papers_corpus.json`.
-  - Ground all external citations and mechanism comparisons in these physical, verified PDFs.
+  - Ground all external citations and mechanism comparisons strictly in these physical, verified PDFs.
 - Theoretical literature: `Translate/` folder or Chapter 2.
 - Psychometric instruments: Ingest from project files or query `Questionnaires.xlsx` and the Google Drive master library via `questionnaire_resolver.py search "<scale_name>"` for verified item counts, subscale factors, and Likert anchors.
 - Discussion points: Chapter 5.
@@ -151,4 +159,5 @@ Before submitting the manuscript to an academic journal, verify:
 - [ ] Figure planning matrix (`figure_planning_matrix.xlsx`) confirms all visual evidence files are generated and verified.
 - [ ] Pre-flight Submission Readiness Score (SRS) achieves Grade A ($\ge 80\%$) or Grade A+ ($\ge 90\%$).
 - [ ] Every in-text citation matches an entry in the References list (and vice versa).
+- [ ] **Anti-Hallucination & Physical PDF Verification**: Every cited paper is deposited in `04_references_and_lit/papers/` (or possesses a verified registry DOI), and all narrative claims in the text are verified to strictly align with the paper's genuine empirical findings (zero fabricated conclusions or phantom citations).
 - [ ] **Word OMML Math Preservation**: If editing an existing manuscript, never use naive `p.text = "..."` replacement. Verify native Word math formulas (`<m:oMath>`) are preserved intact and extract visible text using `"".join([e.text or "" for e in p._p.iter() if e.tag.endswith("}t")])`.

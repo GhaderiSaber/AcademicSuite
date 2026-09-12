@@ -72,6 +72,13 @@ python3 .agents/skills/literature-harvester/scripts/harvester_engine.py \
   --download-pdf \
   --papers-dir "./04_references_and_lit/papers" \
   --lang en
+
+# On-Demand Anti-Hallucination Citation Verifier & Grounder:
+# Use whenever drafting claims from memory to confirm paper exists, download PDF, and verify claim alignment:
+python3 .agents/skills/academic-article-writer/scripts/verify_and_download_citation.py \
+  --query "Author Year Title" \
+  --claim "Sentence drafted in the manuscript" \
+  --out-dir "./04_references_and_lit/papers"
 ```
 
 ### Run via JSON Search Payload:

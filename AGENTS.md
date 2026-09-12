@@ -217,6 +217,34 @@ Every AI agent in this repository must operate with uncompromising intellectual 
 4. **Constructive, Solution-Oriented Candor**:
    - Identifying weaknesses must always be accompanied by realistic, methodologically defensible solutions (e.g., robust non-parametric alternatives, bootstrap resampling, boundary condition qualification, or in-place syntactic de-templating). Truth and empirical validity take precedence over convenience, comfort, or flattery at all times.
 
+### Rule 14: Anti-Hallucination, Zero Ghost Citations & Mandatory Source Ingestion Protocol (قاعده ضد توهم رفرنس، حذف مراجع ارواح و الزام دانلود فیزیکی منابع در 04_references_and_lit)
+Every AI agent writing, reviewing, or revising academic manuscripts, thesis chapters, proposals, or empirical discussions in this workspace must strictly comply with the Anti-Hallucination Reference Protocol:
+
+1. **Strict Prohibition Against Generative Citation Hallucination (ممنوعیت مطلق ارجاع ذهنی و ساختگی)**:
+   - An agent must **NEVER** fabricate author surnames, invent publication dates, synthesize phantom journal titles, or cite an academic paper from pure generative LLM memory without verifiable empirical proof.
+   - Citing unverified or hallucinated references is treated as severe scientific misconduct.
+
+2. **Mandatory Source Download & Placement in `04_references_and_lit/` (الزام دانلود فیزیکی منبع)**:
+   - Whenever an agent uses its knowledge base to reference an external study to support a scientific claim, the agent **MUST** verify the source against official scientific registries (CrossRef, OpenAlex, PubMed, Europe PMC, or SID/Magiran).
+   - The agent **MUST** download the actual full-text Open-Access PDF (or structured bibliographic record) directly into the project's `04_references_and_lit/papers/` directory and update `Literature_Synthesis_Matrix.xlsx` and `sources_library.ris`.
+   - Automated CLI Execution:
+     ```bash
+     python3 .agents/skills/academic-article-writer/scripts/verify_and_download_citation.py \
+       --query "Author Year Title" \
+       --claim "Sentence drafted in manuscript" \
+       --out-dir "04_references_and_lit/papers"
+     ```
+
+3. **Sentence-to-Reference Truth Alignment (انطباق صادقانه متن با یافته‌های واقعی مقاله)**:
+   - The drafted sentence in the manuscript or thesis chapter **MUST** strictly and truthfully reflect what the referenced authors actually investigated, found, and concluded:
+     - The true sample size $N$ and target population.
+     - The true psychometric instruments and research design.
+     - The genuine direction and statistical significance of the findings ($\beta, r, d, F, p$).
+   - Never twist, cherry-pick, or reverse empirical findings to artificially corroborate the student's or client's hypothesized model.
+
+4. **Zero Ghost Citations in Pre-Flight Audits**:
+   - Before releasing any manuscript (`.docx`) to the user, the `thesis-integrity-auditor` must confirm that every in-text citation corresponds to a verified, existing source in `04_references_and_lit/`. Unbacked phantom citations will trigger an immediate audit rejection.
+
 
 ---
 
