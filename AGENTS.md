@@ -110,7 +110,15 @@ When inspecting, auditing, or modifying academic Word documents (`.docx`):
      ```python
      full_text = "".join([e.text or "" for e in paragraph._p.iter() if e.tag.endswith("}t")])
      ```
-4. **Mandatory Pre-Edit Backup**:
+4. **Preservation of Word Drawings and Inline Images (`<w:drawing>` & `<a:blip>`)**:
+   - Assigning `paragraph.text = "..."` replaces all child XML nodes and irrevocably deletes all `<w:drawing>`, `<w:pict>`, and inline shape objects embedded within that paragraph.
+   - Any agent modifying a paragraph MUST first verify whether it contains drawing elements:
+     ```python
+     has_drawing = bool(paragraph._p.xpath('.//w:drawing') or paragraph._p.xpath('.//a:blip'))
+     ```
+   - If a paragraph contains a drawing, never overwrite `paragraph.text`. Modify only specific text runs or append sibling paragraphs.
+   - Whenever a manuscript, proposal, or thesis references a Figure (e.g. `Figure 1`), the agent must NEVER leave a blank placeholder or text-only caption. The agent MUST physically embed the high-resolution image (≥ 300 DPI) centered on the page, preceded by the bold Figure number and italic title, and followed by the APA 7 Note.
+5. **Mandatory Pre-Edit Backup**:
    - Before applying any programmatic edits or replacements to user documents (`.docx`), always save a timestamped backup copy to `drafts_archive/` or a pre-edit file.
 
 ### Rule 6: English Language Primary for Agent-User Pairing
@@ -256,6 +264,15 @@ All agents operating in this repository must anchor their temporal references, l
    - When supervisors or journal editors request "recent citations" (پیشینه جدید), default search filters and queries must be configured for $2021 \le \text{Year} \le 2026$ (۱۳۹۹–۱۴۰۵ شمسی).
 3. **Academic Projections & Timelines**:
    - Proposal timelines, ethics approval codes, data collection schedules, and journal submission dates must reflect the 2026 (1405 SH) operational horizon.
+
+### Rule 16: Mandatory EndNote Citation Compatibility for English Journal Manuscripts
+Every English academic manuscript prepared for journal submission or academic defense MUST be delivered with complete EndNote citation collateral:
+1. **EndNote Import Library (`.enw`)**: Containing all cited references with complete bibliographic tags (`%0`, `%T`, `%A`, `%D`, `%J`, `%V`, `%N`, `%P`, `%R`, `%U`, `%M`).
+2. **Universal RIS Library (`.ris`)**: Standard RIS format compatible with EndNote, Zotero, and Mendeley.
+3. **Dual Word Deliverables**:
+   - **Live CWYW Version (`_EndNote_CWYW.docx`)**: Real OpenXML `ADDIN EN.CITE` field codes with embedded Traveling Library records and `ADDIN EN.REFLIST` bibliography.
+   - **Unformatted Version (`_EndNote_Unformatted.docx`)**: Standard `{Author, Year #RecNum}` temporary citations for 1-click styling in Word.
+4. **Accent & Diacritic Normalization**: Name matching between citations and libraries must use `unicodedata` normalization (`strip_accents`) to ensure names with diacritics (e.g., `Bülbül`, `López`, `Pérez`) resolve without error.
 
 ---
 

@@ -130,6 +130,28 @@ python3 .agents/skills/academic-article-writer/scripts/compile_academic_article.
 ```
 *Note: If `claims_matrix` is present, the compiler exports a companion `<output>_claim_evidence_matrix.xlsx`. If `figures` are present, it exports `<output>_figure_planning_matrix.xlsx` and embeds the visual assets with APA 7 captions.*
 
+### Step 5: Visual Assets & Figure-First Embedding Invariant
+For every structural equation model, mediation path, or empirical chart:
+1. **Crop Excess Margins**: Tightly crop whitespace and margins from raw plots to maximize diagram legibility in Word.
+2. **Export 300-DPI Standalone Assets**:
+   - `Figure_X.png` (lossless PNG, 300 DPI)
+   - `Figure_X.tif` (LZW-compressed TIFF for Elsevier/Springer journal portals)
+   - `Figure_X.pdf` (vector/high-res PDF)
+3. **Embed Directly into Word Manuscript (Rule 5.4)**:
+   - Line 1: **Figure X** (bold, flush left, 12 pt Times New Roman)
+   - Line 2: *Figure Title* (italic, title case, flush left, 12 pt Times New Roman)
+   - Line 3: Centered image scaled to 6.2 inches wide (leaving 1-inch margins)
+   - Line 4: *Note.* Explanatory text, abbreviations, and goodness-of-fit indices (10 pt regular, justified)
+4. **OpenXML Preservation**: When revising documents containing figures, never call `paragraph.text = "..."` naively, which permanently destroys `<w:drawing>` and `<a:blip>`. Always check `bool(paragraph._p.xpath('.//w:drawing') or paragraph._p.xpath('.//a:blip'))`.
+
+### Step 6: EndNote 360° Publishing Pipeline (Rule 16)
+Every English manuscript prepared for peer-reviewed journal submission must execute `generate_endnote_suite.py` to produce:
+1. **`EndNote_Library_Article.enw`**: Structured EndNote tags (`%0`, `%T`, `%A`, `%D`, `%J`, `%V`, `%N`, `%P`, `%R`, `%U`, `%M`) with accent normalization (`strip_accents`).
+2. **`EndNote_Library_Article.ris`**: Standard RIS format for universal compatibility (EndNote, Zotero, Mendeley).
+3. **`[Manuscript]_EndNote_CWYW.docx`**: Word document containing live dynamic Cite-While-You-Write fields (`ADDIN EN.CITE` with embedded Traveling Library XML) and an `ADDIN EN.REFLIST` bibliography.
+4. **`[Manuscript]_EndNote_Unformatted.docx`**: Word document containing temporary `{Author, Year #RecNum}` markers for 1-click bibliographic reformatting.
+5. **`[Manuscript].docx`**: Clean APA 7 submission version with styled text citations and borderless tables.
+
 ---
 
 ## 5. Claim-Evidence Traceability & Figure-First Planning
@@ -153,11 +175,12 @@ Before submitting the manuscript to an academic journal, verify:
 - [ ] Method section includes a formal G*Power 3.1 sample size justification.
 - [ ] For every psychometric instrument, Cronbach's $\alpha$ from the current study and sample items are reported.
 - [ ] All tables strictly adhere to APA 7: zero vertical borders, 3 horizontal borders, table captions above, notes below.
-- [ ] Planned figures are embedded with APA 7 numbering above and explanatory notes below.
+- [ ] **Figure Embedding & OpenXML Image Preservation**: Planned figures are physically embedded with APA 7 numbering above and explanatory notes below. Standalone 300-DPI files (`.png`, `.tif`, `.pdf`) are exported in the submission package. All Word document edits verify and preserve `<w:drawing>` and `<a:blip>`.
+- [ ] **EndNote 360° Publishing Integration (Rule 16)**: Deliverables include companion `.enw` and `.ris` libraries, live CWYW Word document (`ADDIN EN.CITE` + `ADDIN EN.REFLIST`), and unformatted temporary citation document (`{Author, Year #RecNum}`).
 - [ ] Discussion explicitly explains the *psychological and theoretical mechanisms* (e.g., Beck, Bandura, Gross) rather than simply repeating statistical figures.
 - [ ] Major empirical claims are mapped to evidence sources via `claim_evidence_matrix.xlsx`.
 - [ ] Figure planning matrix (`figure_planning_matrix.xlsx`) confirms all visual evidence files are generated and verified.
 - [ ] Pre-flight Submission Readiness Score (SRS) achieves Grade A ($\ge 80\%$) or Grade A+ ($\ge 90\%$).
 - [ ] Every in-text citation matches an entry in the References list (and vice versa).
 - [ ] **Anti-Hallucination & Physical PDF Verification**: Every cited paper is deposited in `04_references_and_lit/papers/` (or possesses a verified registry DOI), and all narrative claims in the text are verified to strictly align with the paper's genuine empirical findings (zero fabricated conclusions or phantom citations).
-- [ ] **Word OMML Math Preservation**: If editing an existing manuscript, never use naive `p.text = "..."` replacement. Verify native Word math formulas (`<m:oMath>`) are preserved intact and extract visible text using `"".join([e.text or "" for e in p._p.iter() if e.tag.endswith("}t")])`.
+- [ ] **Word OMML Math Preservation (Rule 5)**: If editing an existing manuscript, never use naive `p.text = "..."` replacement. Verify native Word math formulas (`<m:oMath>`) are preserved intact and extract visible text using `"".join([e.text or "" for e in p._p.iter() if e.tag.endswith("}t")])`.

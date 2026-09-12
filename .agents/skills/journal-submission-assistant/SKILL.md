@@ -93,6 +93,19 @@ For Revise & Resubmit (R&R) submissions:
   2. *Author Response*: Scholarly explanation of the conceptual or empirical reasoning and how the concern was addressed.
   3. *Action & Manuscript Location*: Exact page numbers, line numbers, and excerpted block of modified/added text.
 
+### Deliverable E: High-Resolution Standalone Figures (Rule 5.4)
+Major publishers (Elsevier, Springer, Wiley) require separate graphic file uploads during submission:
+- Generate standalone high-resolution assets in `03_deliverables/submission_package/`:
+  - `Figure_X.png` (300 DPI, lossless)
+  - `Figure_X.tif` (300 DPI, LZW-compressed TIFF)
+  - `Figure_X.pdf` (vector/raster PDF)
+- Ensure all figures are registered in `submission_manifest.json` with caption, DPI, and format.
+
+### Deliverable F: EndNote Bibliographic Package (Rule 16)
+To enable co-authors, supervisors, and editors to manage citations:
+- Place `EndNote_Library_Article.enw` (EndNote import format) and `EndNote_Library_Article.ris` (universal format) in `03_deliverables/submission_package/`.
+- Provide `EndNote_Guide.md` detailing how to import the `.enw` library and format citations using Cite-While-You-Write (CWYW).
+
 ---
 
 ## 4. Execution Workflow
