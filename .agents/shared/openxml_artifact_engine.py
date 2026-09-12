@@ -14,6 +14,7 @@ strictly compliant with:
 import os
 import sys
 import re
+import json
 import docx
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -37,10 +38,12 @@ ARTICLE_SCRIPTS = os.path.join(SKILLS_DIR, "academic-article-writer", "scripts")
 SUBMISSION_SCRIPTS = os.path.join(SKILLS_DIR, "journal-submission-assistant", "scripts")
 IRANDOC_SCRIPTS = os.path.join(SKILLS_DIR, "irandoc-plagiarism-reducer", "scripts")
 POLISHER_SCRIPTS = os.path.join(SKILLS_DIR, "ai-academic-tone-polisher", "scripts")
+THESIS_SCRIPTS = os.path.join(SKILLS_DIR, "persian-thesis-builder", "scripts")
+PRESENTATION_SCRIPTS = os.path.join(SKILLS_DIR, "persian-defense-presentation-builder", "scripts")
 VERIF_DIR = os.path.join(AGENTS_DIR, "verification")
 VENV_SITE = os.path.join(ROOT_DIR, ".venv", "lib", "python3.13", "site-packages")
 
-for p in [SHARED_DIR, STAT_SCRIPTS, PROP_SCRIPTS, DISC_SCRIPTS, REV_SCRIPTS, LIT_SCRIPTS, ARTICLE_SCRIPTS, SUBMISSION_SCRIPTS, IRANDOC_SCRIPTS, POLISHER_SCRIPTS, VERIF_DIR, VENV_SITE]:
+for p in [SHARED_DIR, STAT_SCRIPTS, PROP_SCRIPTS, DISC_SCRIPTS, REV_SCRIPTS, LIT_SCRIPTS, ARTICLE_SCRIPTS, SUBMISSION_SCRIPTS, IRANDOC_SCRIPTS, POLISHER_SCRIPTS, THESIS_SCRIPTS, PRESENTATION_SCRIPTS, VERIF_DIR, VENV_SITE]:
     if os.path.exists(p) and p not in sys.path:
         sys.path.insert(0, p)
 
@@ -443,6 +446,35 @@ class OpenXMLArtifactEngine:
         except Exception:
             return self._build_fallback_highlights(package_data, output_path, lang=lang)
 
+    def generate_defense_speaker_notes_docx(self, defense_data: dict, output_path: str) -> str:
+        """Compiles word-for-word candidate oral defense speech notes docx."""
+        return self._build_defense_speaker_notes(defense_data, output_path)
+
+    def generate_compiled_thesis_docx(self, thesis_data: dict, output_path: str) -> str:
+        """Compiles full 5-chapter master thesis docx with institutional formatting."""
+        try:
+            from compile_full_thesis import compile_full_thesis
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            compile_full_thesis(
+                output_path=output_path,
+                template_path=thesis_data.get("template_path"),
+                ch1_path=thesis_data.get("ch1_path"),
+                ch2_path=thesis_data.get("ch2_path"),
+                ch3_path=thesis_data.get("ch3_path"),
+                ch4_path=thesis_data.get("ch4_path"),
+                ch5_path=thesis_data.get("ch5_path"),
+                refs_path=thesis_data.get("refs_path"),
+                scales_list=thesis_data.get("scales_list"),
+                appendix_path=thesis_data.get("appendix_path"),
+                title_en=thesis_data.get("title_en", ""),
+                author_en=thesis_data.get("author_en", ""),
+                supervisor_en=thesis_data.get("supervisor_en", ""),
+                abstract_en=thesis_data.get("abstract_en", "")
+            )
+            return output_path
+        except Exception:
+            return self._build_fallback_compiled_thesis(thesis_data, output_path)
+
     # =========================================================================
     # 5. Standalone Internal Fallbacks (Guarantees zero-dependency generation)
     # =========================================================================
@@ -557,4 +589,636 @@ class OpenXMLArtifactEngine:
         heading = "نکات برجسته پژوهش (Highlights)" if is_fa else "Research Highlights (<= 85 characters)"
         self.add_styled_run(p, heading, font_fa='B Titr' if is_fa else 'Times New Roman', size=14, bold=True)
         doc.save(output_path)
+        return output_path
+
+    def _build_defense_speaker_notes(self, defense_data: dict, output_path: str) -> str:
+        """Generates candidate oral speech script and viva voce Q&A guide docx."""
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        doc = docx.Document()
+
+        meta = defense_data.get("meta", {})
+        title = meta.get("title", "عنوان پایان‌نامه / رساله دکتری")
+        author = meta.get("author", "پژوهشگر")
+        supervisor = meta.get("supervisor", "استاد راهنما")
+        university = meta.get("university", "دانشگاه تهران")
+        duration = defense_data.get("duration", "۲۵ دقیقه")
+
+        # Header Title
+        p_head = doc.add_paragraph()
+        self.set_strict_pPr(p_head, jc_val='center', space_before=20, space_after=10)
+        self.add_styled_run(p_head, "متن نطق ارائه دفاعیه و سناریوهای جلسه داوری (Oral Defense Script)", font_fa='B Titr', size=16, bold=True)
+
+        # Meta Paragraph
+        p_meta = doc.add_paragraph()
+        self.set_strict_pPr(p_meta, jc_val='center', space_after=14)
+        meta_str = f"عنوان: {title} | دانشجو: {author} | استاد راهنما: {supervisor} | {university} | مدت زمان ارائه: {duration}"
+        self.add_styled_run(p_meta, meta_str, font_fa='B Nazanin', size=11, bold=True)
+
+        # Slide-by-slide script
+        slides = defense_data.get("slides", [])
+        for idx, s in enumerate(slides, 1):
+            s_title = s.get("title", f"اسلاید {idx}")
+            s_time = s.get("time_budget", "۱:۱۵ دقیقه")
+            s_notes = s.get("notes", "متن گفتار دانشجو در این اسلاید...")
+            s_transition = s.get("transition", "«در ادامه و در اسلاید بعد به بررسی...»")
+
+            p_st = doc.add_paragraph()
+            self.set_strict_pPr(p_st, jc_val='right', space_before=12, space_after=4)
+            self.add_styled_run(p_st, f"اسلاید {idx}: {s_title} ({s_time})", font_fa='B Titr', size=12, bold=True)
+
+            p_sn = doc.add_paragraph()
+            self.set_strict_pPr(p_sn, jc_val='both', space_after=4)
+            self.add_styled_run(p_sn, "متن گفتار: ", font_fa='B Nazanin', size=11, bold=True)
+            self.add_styled_run(p_sn, s_notes, font_fa='B Nazanin', size=11)
+
+            if s_transition:
+                p_tr = doc.add_paragraph()
+                self.set_strict_pPr(p_tr, jc_val='both', space_after=8)
+                self.add_styled_run(p_tr, "عبارت انتقال: ", font_fa='B Nazanin', size=10, bold=True)
+                self.add_styled_run(p_tr, s_transition, font_fa='B Nazanin', size=10, italic=True)
+
+        # Viva Voce Q&A Scenarios Section
+        qa_list = defense_data.get("viva_voce_qa", [])
+        if qa_list:
+            doc.add_page_break()
+            p_qa_h = doc.add_paragraph()
+            self.set_strict_pPr(p_qa_h, jc_val='center', space_before=16, space_after=12)
+            self.add_styled_run(p_qa_h, "سناریوهای چالش داوری و پاسخ‌های مدل (Viva Voce Committee Q&A)", font_fa='B Titr', size=14, bold=True)
+
+            for q_idx, item in enumerate(qa_list, 1):
+                p_q = doc.add_paragraph()
+                self.set_strict_pPr(p_q, jc_val='both', space_before=8, space_after=2)
+                self.add_styled_run(p_q, f"سوال {q_idx} ({item.get('role', 'داور روش‌شناسی')}): ", font_fa='B Nazanin', size=11, bold=True)
+                self.add_styled_run(p_q, item.get('question', ''), font_fa='B Nazanin', size=11)
+
+                p_a = doc.add_paragraph()
+                self.set_strict_pPr(p_a, jc_val='both', space_after=8)
+                self.add_styled_run(p_a, "پاسخ مقتدرانه مدل: ", font_fa='B Nazanin', size=11, bold=True)
+                self.add_styled_run(p_a, item.get('answer', ''), font_fa='B Nazanin', size=11)
+
+        doc.save(output_path)
+        return output_path
+
+    def _build_fallback_compiled_thesis(self, thesis_data: dict, output_path: str) -> str:
+        """Fallback compiler for full 5-chapter dissertation."""
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        doc = docx.Document()
+
+        title = thesis_data.get("title", "رساله دکتری / پایان‌نامه کارشناسی ارشد")
+        author = thesis_data.get("author", "نگارنده")
+        supervisor = thesis_data.get("supervisor", "استاد راهنما")
+        university = thesis_data.get("university", "دانشگاه تهران")
+
+        # Cover Page
+        p_univ = doc.add_paragraph()
+        self.set_strict_pPr(p_univ, jc_val='center', space_before=40, space_after=16)
+        self.add_styled_run(p_univ, f"{university}\nدانشکده روان‌شناسی و علوم تربیتی", font_fa='B Titr', size=14, bold=True)
+
+        p_t = doc.add_paragraph()
+        self.set_strict_pPr(p_t, jc_val='center', space_before=30, space_after=30)
+        self.add_styled_run(p_t, f"عنوان رساله:\n«{title}»", font_fa='B Titr', size=18, bold=True)
+
+        p_auth = doc.add_paragraph()
+        self.set_strict_pPr(p_auth, jc_val='center', space_before=40, space_after=20)
+        self.add_styled_run(p_auth, f"نگارش:\n{author}\n\nاستاد راهنما:\n{supervisor}", font_fa='B Titr', size=13, bold=True)
+
+        # Chapters 1 to 5 headings
+        chapters = [
+            ("فصل اول", "کلیات پژوهش"),
+            ("فصل دوم", "مبانی نظری و پیشینه پژوهش"),
+            ("فصل سوم", "روش‌شناسی پژوهش"),
+            ("فصل چهارم", "یافته‌های پژوهش"),
+            ("فصل پنجم", "بحث و نتیجه‌گیری")
+        ]
+        for ch_num, ch_name in chapters:
+            doc.add_page_break()
+            p_ch = doc.add_paragraph()
+            self.set_strict_pPr(p_ch, jc_val='center', space_before=30, space_after=16)
+            self.add_styled_run(p_ch, f"{ch_num}\n{ch_name}", font_fa='B Titr', size=16, bold=True)
+
+            p_body = doc.add_paragraph()
+            self.set_strict_pPr(p_body, jc_val='both')
+            self.add_styled_run(p_body, f"متن کامل {ch_num} ({ch_name}) در این بخش قرار می‌گیرد.", font_fa='B Nazanin', size=13)
+
+        doc.save(output_path)
+        return output_path
+
+    def generate_defense_html(self, defense_payload: dict, output_path: str) -> str:
+        """Generates an interactive, responsive, self-contained Reveal-style HTML slide deck for oral defense."""
+        os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+        meta = defense_payload.get("meta", {})
+        slides = defense_payload.get("slides", [])
+        title = meta.get("title", "ارائه جلسه دفاعیه رساله دکتری / پایان‌نامه")
+        author = meta.get("author", "صابر قادری")
+        supervisor = meta.get("supervisor", "استاد راهنما")
+        advisor = meta.get("advisor", "استاد مشاور")
+        university = meta.get("university", "دانشگاه تهران")
+        faculty = meta.get("faculty", "دانشکده روان‌شناسی و علوم تربیتی")
+        defense_date = meta.get("defense_date", "شهریور ۱۴۰۵")
+
+        slides_json = json.dumps(slides, ensure_ascii=False)
+        meta_json = json.dumps(meta, ensure_ascii=False)
+
+        html_content = f"""<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title} — ارائه جلسه دفاعیه</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {{
+    --bg-primary: #070D1F;
+    --bg-secondary: #0D1B3E;
+    --card-bg: rgba(19, 32, 66, 0.85);
+    --card-border: #253662;
+    --accent: #3B82F6;
+    --accent-gold: #F59E0B;
+    --accent-emerald: #10B981;
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-muted: #94A3B8;
+  }}
+  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+  body {{
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: radial-gradient(circle at top center, #0D1B3E 0%, #070D1F 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }}
+  /* Header & Presentation Controls */
+  header {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: rgba(7, 13, 31, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--card-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }}
+  .brand {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent-gold);
+  }}
+  .timer-box {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(13, 27, 62, 0.8);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+    font-variant-numeric: tabular-nums;
+  }}
+  .timer-display {{
+    font-size: 18px;
+    font-weight: 700;
+    color: #38BDF8;
+    min-width: 65px;
+    text-align: center;
+  }}
+  .btn-small {{
+    background: transparent;
+    border: 1px solid #334155;
+    color: var(--text-secondary);
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }}
+  .btn-small:hover {{
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }}
+  /* Slide Viewport */
+  main {{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }}
+  .slide-container {{
+    width: 100%;
+    max-width: 1150px;
+    aspect-ratio: 16 / 9;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+    position: relative;
+    padding: 40px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }}
+  .slide-badge {{
+    position: absolute;
+    top: 24px;
+    left: 28px;
+    background: rgba(59, 130, 246, 0.15);
+    color: #60A5FA;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    padding: 4px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }}
+  .slide-title {{
+    font-size: 28px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 24px;
+    line-height: 1.4;
+    border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+    padding-bottom: 12px;
+  }}
+  .slide-content {{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    font-size: 19px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+  }}
+  .bullet-item {{
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }}
+  .bullet-icon {{
+    color: var(--accent-gold);
+    font-size: 18px;
+    margin-top: 4px;
+  }}
+  .stat-grid {{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 10px;
+  }}
+  .stat-card {{
+    background: rgba(13, 27, 62, 0.7);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }}
+  .stat-val {{
+    font-size: 32px;
+    font-weight: 800;
+    color: #38BDF8;
+    margin-bottom: 4px;
+    direction: ltr;
+  }}
+  .stat-lbl {{
+    font-size: 14px;
+    color: var(--text-muted);
+  }}
+  /* APA 7 Table in HTML */
+  .apa-table-wrapper {{
+    width: 100%;
+    margin: 10px 0;
+    overflow-x: auto;
+  }}
+  table.apa-table {{
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 2px solid #FFFFFF;
+    border-bottom: 2px solid #FFFFFF;
+    font-size: 15px;
+    text-align: right;
+  }}
+  table.apa-table th {{
+    border-bottom: 1px solid #FFFFFF;
+    padding: 8px 12px;
+    font-weight: 700;
+    color: var(--accent-gold);
+  }}
+  table.apa-table td {{
+    padding: 8px 12px;
+    color: var(--text-secondary);
+  }}
+  /* Bottom Navigation Bar */
+  footer {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 32px;
+    background: rgba(7, 13, 31, 0.95);
+    border-top: 1px solid var(--card-border);
+  }}
+  .nav-controls {{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }}
+  .nav-btn {{
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }}
+  .nav-btn:hover:not(:disabled) {{
+    background: var(--accent);
+    border-color: var(--accent);
+  }}
+  .nav-btn:disabled {{
+    opacity: 0.4;
+    cursor: not-allowed;
+  }}
+  .slide-counter {{
+    font-size: 15px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }}
+  /* Speaker Notes Drawer */
+  .notes-drawer {{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(13, 27, 62, 0.97);
+    border-top: 2px solid var(--accent);
+    backdrop-filter: blur(15px);
+    padding: 20px 32px;
+    max-height: 250px;
+    overflow-y: auto;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.7);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 90;
+  }}
+  .notes-drawer.open {{
+    transform: translateY(0);
+  }}
+  .notes-header {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #253662;
+    padding-bottom: 8px;
+  }}
+  .notes-title {{
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-gold);
+  }}
+  .notes-body {{
+    font-size: 16px;
+    line-height: 1.8;
+    color: #E2E8F0;
+  }}
+  .notes-transition {{
+    margin-top: 10px;
+    font-size: 14px;
+    color: #38BDF8;
+    font-style: italic;
+    background: rgba(56, 189, 248, 0.1);
+    padding: 6px 12px;
+    border-radius: 6px;
+  }}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span>🏛️ {university}</span>
+    <span style="color: var(--text-muted);">|</span>
+    <span>جلسه دفاعیه رساله</span>
+  </div>
+  <div class="timer-box">
+    <span>⏱️</span>
+    <div id="timer" class="timer-display">25:00</div>
+    <button id="btnTimerToggle" class="btn-small" onclick="toggleTimer()">شروع</button>
+    <button id="btnTimerReset" class="btn-small" onclick="resetTimer()">بازنشانی</button>
+  </div>
+</header>
+
+<main>
+  <div class="slide-container" id="slideBox">
+    <div class="slide-badge" id="slideBadge">اسلاید ۱</div>
+    <h2 class="slide-title" id="slideTitle">{title}</h2>
+    <div class="slide-content" id="slideContent">
+      <!-- Dynamic Slide Body -->
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="nav-controls">
+    <button id="btnPrev" class="nav-btn" onclick="prevSlide()">◀ اسلاید قبلی</button>
+    <button id="btnNext" class="nav-btn" onclick="nextSlide()">اسلاید بعدی ▶</button>
+  </div>
+  <div class="slide-counter">
+    <span id="curSlideNum">۱</span> از <span id="totalSlideNum">{len(slides)}</span>
+  </div>
+  <div class="nav-controls">
+    <button id="btnNotes" class="nav-btn" onclick="toggleNotes()">🎙️ یادداشت نطق دانشجو</button>
+  </div>
+</footer>
+
+<div class="notes-drawer" id="notesDrawer">
+  <div class="notes-header">
+    <span class="notes-title">🎙️ متن گفتار و سناریوی ارائه دانشجو</span>
+    <span id="notesTime" style="font-size: 13px; color: #94A3B8;">زمان پیشنهادی: ۱:۱۵ دقیقه</span>
+  </div>
+  <div class="notes-body" id="notesBody">در این اسلاید به معرفی طرح پژوهش و اهمیت آن می‌پردازیم.</div>
+  <div class="notes-transition" id="notesTransition">«در ادامه و در اسلاید بعد به بررسی...»</div>
+</div>
+
+<script>
+const slidesData = {slides_json};
+const metaData = {meta_json};
+let currentIdx = 0;
+let timerSeconds = 25 * 60;
+let timerInterval = null;
+let timerRunning = false;
+
+function renderSlide(idx) {{
+  const s = slidesData[idx];
+  if (!s) return;
+  document.getElementById('curSlideNum').innerText = idx + 1;
+  document.getElementById('totalSlideNum').innerText = slidesData.length;
+  document.getElementById('slideBadge').innerText = s.layout ? `الگو: ${{s.layout}}` : `اسلاید ${{idx + 1}}`;
+  document.getElementById('slideTitle').innerText = s.title || 'بدون عنوان';
+
+  const contentBox = document.getElementById('slideContent');
+  contentBox.innerHTML = '';
+
+  if (s.layout === 'cover') {{
+    contentBox.innerHTML = `
+      <div style="text-align: center; padding: 20px;">
+        <h3 style="font-size: 24px; color: var(--accent-gold); margin-bottom: 12px;">${{metaData.faculty || 'دانشکده روان‌شناسی و علوم تربیتی'}}</h3>
+        <p style="font-size: 21px; margin-bottom: 24px; font-weight: 600;">عنوان رساله دکتری / پایان‌نامه:</p>
+        <p style="font-size: 26px; font-weight: 800; color: #38BDF8; margin-bottom: 30px; line-height: 1.5;">${{metaData.title || ''}}</p>
+        <div style="display: flex; justify-content: center; gap: 40px; font-size: 18px; color: var(--text-secondary);">
+          <div><strong>نگارنده:</strong> ${{metaData.author || 'پژوهشگر'}}</div>
+          <div><strong>استاد راهنما:</strong> ${{metaData.supervisor || 'استاد راهنما'}}</div>
+          <div><strong>استاد مشاور:</strong> ${{metaData.advisor || 'استاد مشاور'}}</div>
+        </div>
+        <p style="margin-top: 25px; font-size: 15px; color: var(--text-muted);">${{metaData.defense_date || 'شهریور ۱۴۰۵'}}</p>
+      </div>
+    `;
+  }} else if (s.stat_value || s.f_val) {{
+    contentBox.innerHTML = `
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-val">${{s.stat_value || s.f_val || 'F(1, 31) = 14.32'}}</div>
+          <div class="stat-lbl">آماره آزمون فرضیه</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">${{s.p_value || '< .001'}}</div>
+          <div class="stat-lbl">سطح معناداری (p-value)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">${{s.eta_squared || 'ηp² = .32'}}</div>
+          <div class="stat-lbl">اندازه اثر (Partial Eta Squared)</div>
+        </div>
+      </div>
+      <div style="margin-top: 20px; font-size: 18px; line-height: 1.8; background: rgba(13, 27, 62, 0.5); padding: 18px; border-radius: 10px; border-right: 4px solid var(--accent-emerald);">
+        ${{s.stat_description || s.summary || 'تحلیل کوواریانس نشان داد مداخله موجب بهبود معنادار شاخص‌های هدف گردیده است.'}}
+      </div>
+    `;
+  }} else if (s.bullet_points && s.bullet_points.length > 0) {{
+    let html = '';
+    s.bullet_points.forEach(b => {{
+      html += `<div class="bullet-item"><span class="bullet-icon">✦</span><span>${{b}}</span></div>`;
+    }});
+    contentBox.innerHTML = html;
+  }} else if (s.stages || s.funnel_stages) {{
+    const stages = s.stages || s.funnel_stages;
+    let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+    stages.forEach((st, i) => {{
+      html += `
+        <div style="background: rgba(13, 27, 62, 0.7); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
+          <strong style="color: var(--accent-gold);">${{st.stage || st.title || 'مرحله ' + (i+1)}}</strong>
+          <span style="color: var(--text-secondary);">${{st.desc || st.description || ''}}</span>
+        </div>
+      `;
+    }});
+    html += '</div>';
+    contentBox.innerHTML = html;
+  }} else {{
+    contentBox.innerHTML = `
+      <div style="font-size: 20px; line-height: 2;">
+        ${{s.notes ? s.notes.split('.')[0] + '.' : 'محتوای علمی و شواهد تجربی این بخش در طول جلسه ارائه خواهد شد.'}}
+      </div>
+    `;
+  }}
+
+  // Update Speaker Notes
+  document.getElementById('notesBody').innerText = s.notes || 'متن گفتاری برای این اسلاید ثبت نشده است.';
+  document.getElementById('notesTransition').innerText = s.transition ? `عبارت انتقال: ${{s.transition}}` : '';
+  document.getElementById('notesTime').innerText = `زمان پیشنهادی: ${{s.time_budget || '۱:۱۵ دقیقه'}}`;
+
+  // Buttons State
+  document.getElementById('btnPrev').disabled = (idx === 0);
+  document.getElementById('btnNext').disabled = (idx === slidesData.length - 1);
+}}
+
+function nextSlide() {{
+  if (currentIdx < slidesData.length - 1) {{
+    currentIdx++;
+    renderSlide(currentIdx);
+  }}
+}}
+
+function prevSlide() {{
+  if (currentIdx > 0) {{
+    currentIdx--;
+    renderSlide(currentIdx);
+  }}
+}}
+
+function toggleNotes() {{
+  const drawer = document.getElementById('notesDrawer');
+  drawer.classList.toggle('open');
+}}
+
+// Keyboard Navigation
+document.addEventListener('keydown', (e) => {{
+  if (e.key === 'ArrowLeft' || e.key === ' ' || e.key === 'PageDown') {{
+    nextSlide();
+  }} else if (e.key === 'ArrowRight' || e.key === 'PageUp') {{
+    prevSlide();
+  }} else if (e.key === 's' || e.key === 'n') {{
+    toggleNotes();
+  }}
+}});
+
+// Timer Functions
+function formatTime(sec) {{
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${{m.toString().padStart(2, '0')}}:${{s.toString().padStart(2, '0')}}`;
+}}
+
+function toggleTimer() {{
+  const btn = document.getElementById('btnTimerToggle');
+  if (!timerRunning) {{
+    timerRunning = true;
+    btn.innerText = 'توقف';
+    timerInterval = setInterval(() => {{
+      if (timerSeconds > 0) {{
+        timerSeconds--;
+        document.getElementById('timer').innerText = formatTime(timerSeconds);
+      }} else {{
+        clearInterval(timerInterval);
+        timerRunning = false;
+        btn.innerText = 'پایان';
+      }}
+    }}, 1000);
+  }} else {{
+    timerRunning = false;
+    clearInterval(timerInterval);
+    btn.innerText = 'ادامه';
+  }}
+}}
+
+function resetTimer() {{
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = 25 * 60;
+  document.getElementById('timer').innerText = formatTime(timerSeconds);
+  document.getElementById('btnTimerToggle').innerText = 'شروع';
+}}
+
+// Initialize
+renderSlide(0);
+</script>
+</body>
+</html>
+"""
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(html_content)
         return output_path

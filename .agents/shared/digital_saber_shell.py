@@ -89,12 +89,14 @@ class DigitalSaberShell(cmd.Cmd):
         banner = f"""
 {self.c_cyan}╔═══════════════════════════════════════════════════════════════════════════════════════╗
 ║   🎓 DIGITAL SABER — Professional AI Research Twin (Terminal REPL)                    ║
-║   Memory: {cases_count} Real Precedents  |  Skills: 27 Specialized  |  Workflows: 6 Core         ║
+║   Memory: {cases_count} Real Precedents  |  Skills: 27 Specialized  |  Workflows: 8 Core         ║
 ║   Cognitive Layers: Constitution • Case Memory • Reasoners • OpenXML • QC Audit       ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════╝{self.c_reset}
 
 {self.c_bold}Available Commands:{self.c_reset}
-  {self.c_green}/workflow <name>{self.c_reset}    Execute research workflow ({self.c_yellow}chapter2_literature, chapter4, proposal, chapter5, thesis_revision, journal_submission{self.c_reset})
+  {self.c_green}/workflow <name>{self.c_reset}    Execute research workflow ({self.c_yellow}chapter2_literature, chapter4, proposal, chapter5, thesis_revision, journal_submission, defense_presentation, thesis_assembly{self.c_reset})
+  {self.c_green}/defense [topic]{self.c_reset}    Compile 3-path defense presentation (HTML, PPTX, Word script, 20 Viva Voce Q&As)
+  {self.c_green}/assemble [dir]{self.c_reset}     Consolidate modular Chapters 1-5 into unified master dissertation (.docx)
   {self.c_green}/publish <topic>{self.c_reset}     Compile IMRaD manuscript, Cover Letter, CRediT Title Page, & Highlights
   {self.c_green}/translate <text>{self.c_reset}    Bilingual academic translation & terminology standardization
   {self.c_green}/literature <topic>{self.c_reset} Multi-database search, parameter extraction (N, instruments) & Chapter 2
@@ -124,10 +126,10 @@ class DigitalSaberShell(cmd.Cmd):
     # Command: /workflow
     # -------------------------------------------------------------------------
     def do_workflow(self, arg: str):
-        """Execute an Antigravity multi-agent workflow: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision|journal_submission> [topic]"""
+        """Execute an Antigravity multi-agent workflow: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision|journal_submission|defense_presentation|thesis_assembly> [topic]"""
         parts = shlex.split(arg) if arg else []
         if not parts:
-            print(f"{self.c_yellow}Usage: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision|journal_submission> [optional_topic_or_file]{self.c_reset}")
+            print(f"{self.c_yellow}Usage: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision|journal_submission|defense_presentation|thesis_assembly> [optional_topic_or_file]{self.c_reset}")
             return
 
         wf_name = parts[0].lower()
@@ -135,27 +137,64 @@ class DigitalSaberShell(cmd.Cmd):
 
         valid_wfs = [
             "chapter2_literature", "chapter4", "proposal", "chapter5", "thesis_revision",
-            "journal_submission", "chapter2", "literature", "publish", "article", "submission"
+            "journal_submission", "defense_presentation", "thesis_assembly",
+            "chapter2", "literature", "publish", "article", "submission",
+            "defense", "presentation", "assembly", "assemble"
         ]
         if wf_name not in valid_wfs:
-            print(f"{self.c_yellow}Unknown workflow '{wf_name}'. Valid workflows: chapter2_literature, chapter4, proposal, chapter5, thesis_revision, journal_submission{self.c_reset}")
+            print(f"{self.c_yellow}Unknown workflow '{wf_name}'. Valid workflows: chapter2_literature, chapter4, proposal, chapter5, thesis_revision, journal_submission, defense_presentation, thesis_assembly{self.c_reset}")
             return
 
         print(f"\n{self.c_cyan}[*] Launching workflow: {wf_name}...{self.c_reset}")
         res = self.saber.run_workflow(wf_name, topic_or_file=topic, output_dir=self.output_dir)
         if res and res.get("status") == "SUCCESS":
             print(f"\n{self.c_green}✅ Workflow '{wf_name}' completed successfully!{self.c_reset}")
-            print(f"  • Readiness Score: {res.get('readiness_score', 'N/A')}%")
+            print(f"  • Readiness Score: {res.get('readiness_score', res.get('compliance_score', 'N/A'))}%")
             print(f"  • Decision ID:     {res.get('decision_id', 'N/A')}")
             print(f"  • Artifacts Generated in '{self.output_dir}':")
             for a in res.get("artifacts_generated", []):
                 print(f"    - {a}")
 
     def complete_workflow(self, text, line, begidx, endidx):
-        wfs = ["chapter2_literature", "chapter4", "proposal", "chapter5", "thesis_revision", "journal_submission"]
+        wfs = [
+            "chapter2_literature", "chapter4", "proposal", "chapter5",
+            "thesis_revision", "journal_submission", "defense_presentation", "thesis_assembly"
+        ]
         if text:
             return [w for w in wfs if w.startswith(text)]
         return wfs
+
+    # -------------------------------------------------------------------------
+    # Command: /defense
+    # -------------------------------------------------------------------------
+    def do_defense(self, arg: str):
+        """Compile oral defense presentation across 3 paths (HTML, PPTX, Word script) + 20 Viva Voce Q&As: /defense [topic]"""
+        topic = arg.strip() if arg else None
+        print(f"\n{self.c_cyan}[*] Launching Viva Voce Oral Defense Presentation Workflow...{self.c_reset}")
+        res = self.saber.run_workflow("defense_presentation", topic_or_file=topic, output_dir=self.output_dir)
+        if res and res.get("status") == "SUCCESS":
+            print(f"\n{self.c_green}✅ Defense presentation suite compiled successfully!{self.c_reset}")
+            print(f"  • Viva Voce Readiness Score: {res.get('readiness_score')}% [DEFENSE READY]")
+            print(f"  • Decision ID:                {res.get('decision_id')}")
+            print(f"  • Artifacts Generated in '{self.output_dir}':")
+            for a in res.get("artifacts_generated", []):
+                print(f"    - {a}")
+
+    # -------------------------------------------------------------------------
+    # Command: /assemble
+    # -------------------------------------------------------------------------
+    def do_assemble(self, arg: str):
+        """Consolidate Chapters 1-5 into unified master dissertation (.docx): /assemble [target_or_dir]"""
+        target = arg.strip() if arg else None
+        print(f"\n{self.c_cyan}[*] Launching Master Dissertation Assembly Workflow...{self.c_reset}")
+        res = self.saber.run_workflow("thesis_assembly", topic_or_file=target, output_dir=self.output_dir)
+        if res and res.get("status") == "SUCCESS":
+            print(f"\n{self.c_green}✅ Master dissertation consolidated and formatted successfully!{self.c_reset}")
+            print(f"  • Council Compliance Index: {res.get('compliance_score')}% [APPROVED FOR BINDING]")
+            print(f"  • Decision ID:              {res.get('decision_id')}")
+            print(f"  • Artifacts Generated in '{self.output_dir}':")
+            for a in res.get("artifacts_generated", []):
+                print(f"    - {a}")
 
     # -------------------------------------------------------------------------
     # Command: /publish (alias /article)

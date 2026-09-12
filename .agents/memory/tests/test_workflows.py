@@ -49,11 +49,13 @@ class TestWorkflowsSuite(unittest.TestCase):
             "proposal",
             "chapter5",
             "thesis_revision",
-            "journal_submission"
+            "journal_submission",
+            "defense_presentation",
+            "thesis_assembly"
         ]
 
     def test_workflow_spec_files_exist(self):
-        """Validates that all 5 core workflow markdown files exist."""
+        """Validates that all 8 core workflow markdown files exist."""
         for wf in self.expected_workflows:
             wf_file = os.path.join(WORKFLOWS_DIR, f"{wf}.md")
             self.assertTrue(os.path.exists(wf_file), f"Missing workflow specification: {wf_file}")
@@ -150,6 +152,39 @@ class TestWorkflowsSuite(unittest.TestCase):
         self.assertTrue(any("submission_manifest.json" in a for a in res["artifacts_generated"]))
         self.assertGreaterEqual(res["readiness_score"], 90.0)
         self.assertGreaterEqual(res["acceptance_probability"], 90.0)
+        self.assertTrue(res["decision_id"].startswith("dec_"))
+
+    def test_defense_presentation_workflow_execution(self):
+        """Tests end-to-end execution of Viva Voce Oral Defense Presentation workflow."""
+        res = self.saber.run_workflow("defense_presentation")
+        self.assertIsNotNone(res)
+        self.assertEqual(res["status"], "SUCCESS")
+        self.assertEqual(res["workflow"], "defense_presentation")
+        self.assertIn("digital-saber", res["subagents_executed"])
+        self.assertIn("results-auditor", res["subagents_executed"])
+        self.assertIn("academic-writer", res["subagents_executed"])
+        self.assertIn("presentation-expert", res["subagents_executed"])
+        self.assertIn("final-judge", res["subagents_executed"])
+        self.assertTrue(any("defense_presentation.html" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("اسلایدهای_جلسه_دفاع.pptx" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("متن_نطق_ارائه_دفاع.docx" in a for a in res["artifacts_generated"]))
+        self.assertTrue(any("defense_committee_qa_card.json" in a for a in res["artifacts_generated"]))
+        self.assertGreaterEqual(res["readiness_score"], 90.0)
+        self.assertTrue(res["decision_id"].startswith("dec_"))
+
+    def test_thesis_assembly_workflow_execution(self):
+        """Tests end-to-end execution of Master Dissertation Assembly workflow."""
+        res = self.saber.run_workflow("thesis_assembly")
+        self.assertIsNotNone(res)
+        self.assertEqual(res["status"], "SUCCESS")
+        self.assertEqual(res["workflow"], "thesis_assembly")
+        self.assertIn("digital-saber", res["subagents_executed"])
+        self.assertIn("results-auditor", res["subagents_executed"])
+        self.assertIn("academic-writer", res["subagents_executed"])
+        self.assertIn("evidence-auditor", res["subagents_executed"])
+        self.assertIn("final-judge", res["subagents_executed"])
+        self.assertTrue(any("پایان‌نامه_کامل_تدوین‌شده.docx" in a for a in res["artifacts_generated"]))
+        self.assertGreaterEqual(res["compliance_score"], 90.0)
         self.assertTrue(res["decision_id"].startswith("dec_"))
 
     def test_unknown_workflow_returns_none(self):
