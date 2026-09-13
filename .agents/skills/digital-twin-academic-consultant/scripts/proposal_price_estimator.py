@@ -441,103 +441,98 @@ def calculate_quotation(
 
 
 def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = False, quote_id: str = "Q101", lang: str = "en") -> str:
-    """Format quotation as a clean Telegram message card with HTML styling in Persian or English."""
+    """Format quotation as a modern 2026 Telegram card with expandable blockquotes and clean typography."""
     lines = []
     if lang == "en":
-        lines.append("🎓 <b>Research Consultancy & Project Quotation</b>")
-        lines.append("👤 <b>Consultant:</b> Saber Ghaderi (@GhaderiSaber)")
-        lines.append("─────────────────────")
-        lines.append(f"📌 <b>Research Title:</b> {html.escape(quote.get('title', 'Academic Proposal'))}")
-        lines.append(f"🎯 <b>Academic Level:</b> {html.escape(quote.get('degree_en') or quote.get('degree', 'Master'))}")
-        lines.append(f"🔬 <b>Research Design:</b> {html.escape(quote.get('design_title_en') or quote.get('design_title_fa', 'Empirical Research'))}")
-        lines.append(f"👥 <b>Sample Size:</b> N = {quote.get('sample_size', 'N/A')}")
-        lines.append(f"💻 <b>Software:</b> {html.escape(', '.join(quote.get('softwares_recommended', [])))}")
+        lines.append("╭─ 📑 <b>RESEARCH CONSULTANCY & QUOTATION</b> ──────────")
+        lines.append(f"│ 👤 <b>Consultant:</b> Saber Ghaderi (@GhaderiSaber)")
+        lines.append(f"│ 🆔 <b>Quotation Ref:</b> <code>{quote_id}</code>")
+        lines.append(f"│ 📌 <b>Research Title:</b> {html.escape(quote.get('title', 'Academic Proposal'))}")
+        lines.append(f"│ 🎯 <b>Academic Level:</b> <code>{html.escape(quote.get('degree_en') or quote.get('degree', 'Master'))}</code>  •  👥 <b>Sample:</b> <code>N = {quote.get('sample_size', 'N/A')}</code>")
+        lines.append(f"│ 🔬 <b>Research Design:</b> <code>{html.escape(quote.get('design_title_en') or quote.get('design_title_fa', 'Empirical Research'))}</code>")
+        lines.append(f"│ 💻 <b>Software Tools:</b> <code>{html.escape(', '.join(quote.get('softwares_recommended', [])))}</code>")
+        lines.append("╰──────────────────────────────────────────────────")
         
         if quote.get("scales_detected"):
-            lines.append("📋 <b>Identified Instruments:</b>")
+            lines.append("\n📋 <b>PSYCHOMETRIC INSTRUMENTS IDENTIFIED</b>")
             for sc in quote["scales_detected"][:4]:
-                lines.append(f"  ▫️ {html.escape(sc)}")
+                lines.append(f"├ 🔹 <code>{html.escape(sc)}</code>")
             if len(quote["scales_detected"]) > 4:
-                lines.append(f"  ▫️ and {len(quote['scales_detected']) - 4} more instruments")
+                lines.append(f"└ 🔹 <i>and {len(quote['scales_detected']) - 4} additional instruments</i>")
 
-        lines.append("─────────────────────")
-        lines.append("<blockquote expandable>")
-        lines.append("💰 <b>Itemized Investment Breakdown:</b>")
-        for idx, item in enumerate(quote.get("line_items", []), 1):
+        lines.append("\n<blockquote expandable>")
+        lines.append("💰 <b>ITEMIZED INVESTMENT BREAKDOWN</b>")
+        items = quote.get("line_items", [])
+        for idx, item in enumerate(items, 1):
+            is_last = (idx == len(items))
+            pfx = "└" if is_last else "├"
             t = item.get("title_en", item.get("title", ""))
             d = item.get("description_en", item.get("description", ""))
-            lines.append(f"{idx}. <b>{html.escape(t)}</b>")
-            lines.append(f"   ▫️ Fee: {item['price']:,.0f} Tomans ({item['days']} business days)")
-            lines.append(f"   ▫️ Scope: {html.escape(d)}")
+            lines.append(f"{pfx} <b>{idx}. {html.escape(t)}</b>")
+            lines.append(f"│  💵 Fee: <code>{item['price']:,.0f} Tomans</code> ({item['days']} days)")
+            lines.append(f"│  📝 Scope: <i>{html.escape(d)}</i>")
         lines.append("</blockquote>")
 
-        lines.append("─────────────────────")
         if quote.get("is_urgent"):
-            lines.append("⚡️ <b>Status:</b> Express Delivery (Urgency multiplier applied)")
+            lines.append("⚡ <b>Priority:</b> <code>Express 48h Delivery Multiplier Applied</code>")
         formatted_price = quote.get('total_price_formatted_en') or f"{quote.get('total_price_tomans', 0):,.0f} Tomans"
-        lines.append(f"💎 <b>Total Investment:</b> <code>{formatted_price}</code>")
+        lines.append(f"\n💎 <b>Total Investment:</b> <code>{formatted_price}</code>")
         lines.append(f"⏳ <b>Estimated Delivery:</b> <code>{quote.get('estimated_working_days', 0)} Business Days</code>")
-        lines.append("─────────────────────")
-        lines.append("<blockquote expandable>")
-        lines.append("✨ <b>Quality Guarantees & Standards:</b>")
-        lines.append("• Raw software output tables fully compliant with APA 7th Edition")
-        lines.append("• Free revisions until full thesis committee & supervisor approval")
-        lines.append("• Rigorous academic standard, zero cliches, and 100% original analysis")
+
+        lines.append("\n<blockquote expandable>")
+        lines.append("✨ <b>ACADEMIC QUALITY ASSURANCE & GUARANTEES</b>")
+        lines.append("• Full compliance with APA 7th Edition typography and statistical reporting")
+        lines.append("• Unlimited free revisions until formal thesis committee & supervisor sign-off")
+        lines.append("• Zero cliches, zero hallucinations, and 100% verified empirical calculations")
         lines.append("</blockquote>")
 
         if include_admin_actions:
-            lines.append("\n⚙️ <b>Admin Actions:</b>")
-            lines.append(f"• Approve & Send to Client: <code>/send_{quote_id}</code>")
-            lines.append(f"• Adjust Price: <code>/adjust_{quote_id}_&lt;amount&gt;</code>")
-            lines.append(f"• Dismiss: <code>/ignore_{quote_id}</code>")
+            lines.append(f"\n<i>Tap inline button below or copy command:</i> <code>/send_{quote_id}</code>")
 
     else:
-        lines.append("🎓 <b>پیش‌فاکتور و برآورد زمان‌بندی تخصصی پژوهش</b>")
-        lines.append("👤 <b>مشاور:</b> صابر قادری (@GhaderiSaber)")
-        lines.append("─────────────────────")
-        lines.append(f"📌 <b>عنوان پژوهش:</b> {html.escape(quote.get('title', ''))}")
-        lines.append(f"🎯 <b>مقطع:</b> {html.escape(quote.get('degree_fa') or quote.get('degree', ''))}")
-        lines.append(f"🔬 <b>طرح پژوهش:</b> {html.escape(quote.get('design_title_fa', ''))}")
-        lines.append(f"👥 <b>حجم نمونه پیش‌بینی:</b> N = {quote.get('sample_size', 'N/A')}")
-        lines.append(f"💻 <b>نرم‌افزارها:</b> {html.escape(', '.join(quote.get('softwares_recommended', [])))}")
+        lines.append("╭─ 📑 <b>پیش‌فاکتور و برآورد زمان‌بندی تخصصی پژوهش</b> ────────")
+        lines.append(f"│ 👤 <b>مشاور علمی:</b> صابر قادری (@GhaderiSaber)")
+        lines.append(f"│ 🆔 <b>شناسه پیش‌فاکتور:</b> <code>{quote_id}</code>")
+        lines.append(f"│ 📌 <b>عنوان پژوهش:</b> {html.escape(quote.get('title', ''))}")
+        lines.append(f"│ 🎯 <b>مقطع تحصیلی:</b> <code>{html.escape(quote.get('degree_fa') or quote.get('degree', ''))}</code>  •  👥 <b>حجم نمونه:</b> <code>{quote.get('sample_size', 'N/A')} نفر</code>")
+        lines.append(f"│ 🔬 <b>طرح پژوهش:</b> <code>{html.escape(quote.get('design_title_fa', ''))}</code>")
+        lines.append(f"│ 💻 <b>نرم‌افزارهای تحلیلی:</b> <code>{html.escape(', '.join(quote.get('softwares_recommended', [])))}</code>")
+        lines.append("╰──────────────────────────────────────────────────")
         
         if quote.get("scales_detected"):
-            lines.append("📋 <b>ابزارهای شناسایی‌شده:</b>")
+            lines.append("\n📋 <b>ابزارهای سنجش و پرسشنامه‌های شناسایی‌شده</b>")
             for sc in quote["scales_detected"][:4]:
-                lines.append(f"  ▫️ {html.escape(sc)}")
+                lines.append(f"├ 🔹 <code>{html.escape(sc)}</code>")
             if len(quote["scales_detected"]) > 4:
-                lines.append(f"  ▫️ و {len(quote['scales_detected']) - 4} ابزار دیگر")
+                lines.append(f"└ 🔹 <i>و {len(quote['scales_detected']) - 4} مقیاس تکمیلی دیگر</i>")
 
-        lines.append("─────────────────────")
-        lines.append("<blockquote expandable>")
-        lines.append("💰 <b>ریز هزینه‌های تفکیکی (قابل سفارش مجزا یا تجمیعی):</b>")
-        for idx, item in enumerate(quote.get("line_items", []), 1):
+        lines.append("\n<blockquote expandable>")
+        lines.append("💰 <b>ریز هزینه‌های تفکیکی مراحل پژوهش</b>")
+        items = quote.get("line_items", [])
+        for idx, item in enumerate(items, 1):
+            is_last = (idx == len(items))
+            pfx = "└" if is_last else "├"
             t = item.get("title_fa", item.get("title", ""))
             d = item.get("description_fa", item.get("description", ""))
-            lines.append(f"{idx}. <b>{html.escape(t)}</b>")
-            lines.append(f"   ▫️ هزینه: {item['price']:,.0f} تومان ({item['days']} روز کاری)")
-            lines.append(f"   ▫️ شرح: {html.escape(d)}")
+            lines.append(f"{pfx} <b>{idx}. {html.escape(t)}</b>")
+            lines.append(f"│  💵 هزینه: <code>{item['price']:,.0f} تومان</code> ({item['days']} روز کاری)")
+            lines.append(f"│  📝 شرح خدمات: <i>{html.escape(d)}</i>")
+        lines.append("</blockquote>")
 
-        lines.append("</blockquote>")
-        lines.append("─────────────────────")
         if quote.get("is_urgent"):
-            lines.append("⚡️ <b>وضعیت:</b> تحویل فوری (با اعمال ضریب اولویت)")
-        lines.append(f"💎 <b>مجموع کل سرمایه‌گذاری:</b> <code>{quote.get('total_price_formatted', '')}</code>")
+            lines.append("⚡ <b>وضعیت سفارش:</b> <code>تحویل فوری با اولویت ویژه</code>")
+        lines.append(f"\n💎 <b>مجموع کل سرمایه‌گذاری:</b> <code>{quote.get('total_price_formatted', '')}</code>")
         lines.append(f"⏳ <b>مدت زمان تحویل پیش‌بینی:</b> <code>{quote.get('estimated_working_days', 0)} روز کاری</code>")
-        lines.append("─────────────────────")
-        lines.append("<blockquote expandable>")
-        lines.append("✨ <b>تعهدات و ضمانت‌ها:</b>")
-        lines.append("• همراه با تحلیل خروجی‌های اصلی نرم‌افزار و جداول مطابق با APA 7")
-        lines.append("• بازبینی رایگان تا اعمال کامل نظرات استاد راهنما و مشاور")
-        lines.append("• نگارش با لحن علمی استاندارد، بدون متن کلیشه‌ای و کاملاً اصیل")
-        lines.append("")
+
+        lines.append("\n<blockquote expandable>")
+        lines.append("✨ <b>تعهدات کیفی و استانداردهای پژوهشی</b>")
+        lines.append("• تنظیم دقیق کلیه جداول و خروجی‌های آماری مطابق با APA ویرایش هفتم")
+        lines.append("• پشتیبانی و بازبینی رایگان تا مرحله تصویب نهایی اساتید راهنما و داور")
+        lines.append("• تحلیل کاملاً اصیل، مبتنی بر شواهد تجربی و بدون هرگونه متن کلیشه‌ای")
         lines.append("</blockquote>")
-        lines.append("جهت تایید، شروع فرآیند یا اعمال تغییرات در خدمتتون هستم.")
 
         if include_admin_actions:
-            lines.append("\n⚙️ <b>میز تایید مدیریت (صابر قادری):</b>")
-            lines.append(f"• تایید و ارسال مستقیم به کاربر: <code>/approve_{quote_id}</code>")
-            lines.append(f"• تعدیل قیمت: <code>/adjust_{quote_id}_&lt;مبلغ&gt;</code>")
+            lines.append(f"\n<i>کلید تایید در زیر پیام فعال است؛ یا ارسال دستور:</i> <code>/approve_{quote_id}</code>")
             lines.append(f"• رد درخواست: <code>/reject_{quote_id}</code>")
 
     return "\n".join(lines)

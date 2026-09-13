@@ -172,8 +172,10 @@ class SaberTelethonUserbot:
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
         self.quote_counter = 100
-        self.pending_drafts: Dict[str, Dict[str, Any]] = {}
-        self.draft_counter = 100
+        self.drafts_file = os.path.join(self.storage_dir, "pending_drafts.json")
+        self.pending_drafts: Dict[str, Dict[str, Any]] = self._load_pending_drafts()
+        existing_d = [int(k[1:]) for k in self.pending_drafts.keys() if k.startswith("D") and k[1:].isdigit()]
+        self.draft_counter = max(existing_d) if existing_d else 100
         self.pending_followups: Dict[str, Dict[str, Any]] = {}
         self.followup_counter = 100
         self.pending_deliverables: Dict[str, Dict[str, Any]] = {}
@@ -206,6 +208,29 @@ class SaberTelethonUserbot:
         # Conversational burst debounce buffers: (account_label, sender_id) -> burst dict
         self.burst_buffers: Dict[Tuple[str, int], Dict[str, Any]] = {}
         self.burst_lock = asyncio.Lock()
+
+    def _load_pending_drafts(self) -> Dict[str, Dict[str, Any]]:
+        drafts_file = getattr(self, "drafts_file", os.path.join(self.storage_dir, "pending_drafts.json"))
+        if os.path.exists(drafts_file):
+            try:
+                with open(drafts_file, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception as e:
+                print(f"[-] Error loading pending drafts: {e}")
+        return {}
+
+    def _save_pending_drafts(self):
+        drafts_file = getattr(self, "drafts_file", os.path.join(self.storage_dir, "pending_drafts.json"))
+        try:
+            clean_dict = {}
+            for k, v in self.pending_drafts.items():
+                clean_v = dict(v)
+                clean_v.pop("client_source", None)
+                clean_dict[k] = clean_v
+            with open(drafts_file, "w", encoding="utf-8") as f:
+                json.dump(clean_dict, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"[-] Error saving pending drafts: {e}")
 
     @property
     def admin_target(self):
@@ -522,35 +547,74 @@ class SaberTelethonUserbot:
             "account_label": account_label,
             "created_at": datetime.now().isoformat()
         }
+        self._save_pending_drafts()
 
         client_link = format_client_mention_html(sender_name, username=username, client_id=sender_id)
-        snippet = html.escape(client_message[:200] + ("..." if len(client_message) > 200 else ""))
         safe_draft = html.escape(draft_reply)
 
-        meta_parts = [
-            f"💡 <b>[Co-Pilot Draft] Client Inquiry from {client_link}</b>",
-            f"📱 <b>Account:</b> {html.escape(account_label)}",
-            f"🏷️ <b>Category:</b> <code>{inquiry_type}</code>"
+        category_titles = {
+            "supervisor_defense_question": "🎓 SUPERVISOR DEFENSE DILEMMA",
+            "supervisor_revision_feedback": "🎓 SUPERVISOR REVISION FEEDBACK",
+            "quarterly_progress_report": "📋 QUARTERLY PROGRESS REPORT",
+            "statistical_consulting": "📊 STATISTICAL CONSULTING",
+            "statistical_inquiry": "📊 STATISTICAL ANALYSIS & INQUIRY",
+            "scale_search": "🔬 PSYCHOMETRIC SCALE RESOLUTION",
+            "scale_inquiry": "🔬 PSYCHOMETRIC SCALE INQUIRY",
+            "friendly_personal": "💡 CASUAL CLIENT COMMUNICATION",
+            "friendly_logistics": "💡 CLIENT LOGISTICS & COORDINATION",
+            "defense_preparation": "🎓 DEFENSE PRESENTATION & VIVA VOCE",
+            "progress_and_reports": "📋 PROGRESS & PORTAL DOCUMENTATION",
+            "greeting": "👋 CLIENT INITIAL GREETING",
+            "client_burst_inquiry": "💡 CO-PILOT ACADEMIC INQUIRY"
+        }
+        card_banner = category_titles.get(inquiry_type, "💡 CO-PILOT ACADEMIC INQUIRY")
+
+        header_lines = [
+            f"╭─ <b>{card_banner}</b> ─────────────",
+            f"│ 👤 <b>Client:</b> {client_link}  •  <code>#{sender_id}</code>",
+            f"│ 📱 <b>Routing:</b> <code>{html.escape(account_label)}</code>"
         ]
-        if admin_notes:
-            meta_parts.append(f"🧠 <b>Academic Intent:</b> <i>{html.escape(admin_notes)}</i>")
         if engine:
-            meta_parts.append(f"⚡ <b>AI Engine:</b> <code>{html.escape(engine)}</code>")
-        meta_parts.append(f"💬 <b>Client Message:</b> «{snippet}»")
-        meta_parts.append(f"🆔 <b>Draft ID:</b> <code>{draft_id}</code>")
-        meta_parts.append("─────────────────────")
-        meta_parts.append(f"📝 <b>Suggested Academic Draft:</b>\n<blockquote>{safe_draft}</blockquote>\n")
-        meta_parts.append("⚙️ <b>Admin Actions & Commands:</b>")
-        meta_parts.append(f"• Approve & Send to Client: <code>/send_msg_{draft_id}</code>")
-        meta_parts.append(f"• Send Custom Edits: <code>/send_msg_{draft_id} &lt;custom text&gt;</code>")
-        meta_parts.append(f"• Dismiss Draft: <code>/ignore_{draft_id}</code>")
+            header_lines.append(f"│ ⚡ <b>AI Engine:</b> <code>{html.escape(engine)}</code>")
+        header_lines.append(f"│ 🆔 <b>Draft ID:</b> <code>{draft_id}</code>")
+        header_lines.append("╰──────────────────────────────────────────────────")
 
-        alert_text = "\n".join(meta_parts)
+        body_parts = ["\n".join(header_lines)]
 
+        # Client message in expandable blockquote
+        clean_msg = client_message.strip()
+        body_parts.append(
+            f"\n💬 <b>INCOMING CLIENT MESSAGE</b>\n"
+            f"<blockquote expandable>«{html.escape(clean_msg)}»</blockquote>"
+        )
+
+        # AI Epistemic Assessment
+        if admin_notes:
+            body_parts.append(
+                f"\n🧠 <b>AI RESEARCH TWIN SYNTHESIS</b>\n"
+                f"├ 🎯 <b>Academic Intent:</b> <i>{html.escape(admin_notes)}</i>\n"
+                f"└ ⚡ <b>Status:</b> Ready for 1-click dispatch"
+            )
+
+        # Suggested Persian Draft in expandable blockquote
+        body_parts.append(
+            f"\n📝 <b>SUGGESTED SCHOLAR RESPONSE DRAFT</b>\n"
+            f"<blockquote expandable>{safe_draft}</blockquote>"
+        )
+
+        # Modern action guidance
+        body_parts.append(
+            f"\n<i>Tap button below to dispatch, or tap to copy command:</i> <code>/send_msg_{draft_id}</code>"
+        )
+
+        alert_text = "\n".join(body_parts)
+
+        # Modern 2-Row Interactive Keyboard Layout
         buttons = None
         if Button is not None:
             buttons = [
-                [Button.inline(f"🚀 Send Response ({draft_id})", f"send_draft_{draft_id}".encode()),
+                [Button.inline(f"🚀 Approve & Send ({draft_id})", f"send_draft_{draft_id}".encode())],
+                [Button.switch_inline("✏️ Edit & Reply", f"/send_msg_{draft_id} ", same_peer=True),
                  Button.inline("🗑️ Dismiss", f"ignore_draft_{draft_id}".encode())]
             ]
 
@@ -1610,24 +1674,31 @@ class SaberTelethonUserbot:
                     did = data.split("send_draft_")[1]
                     if did in self.pending_drafts:
                         entry = self.pending_drafts[did]
-                        target_client = entry.get("client_source") or self.client
+                        target_client = entry.get("client_source")
+                        if not target_client:
+                            if "Second Account" in entry.get("account_label", "") and self.client2:
+                                target_client = self.client2
+                            else:
+                                target_client = self.client
                         await target_client.send_message(entry["chat_id"], entry["draft_reply"])
                         await event.answer(f"✅ Response {did} dispatched to client!", alert=True)
                         try:
                             await event.edit(
-                                f"{event.message.text}\n\n✅ <b>Response was approved and dispatched to client via {entry['account_label']}.</b>",
+                                f"{event.message.text}\n\n✅ <b>Response was approved and dispatched to client via {entry.get('account_label', 'Personal Account')}.</b>",
                                 buttons=None,
                                 parse_mode="html"
                             )
                         except Exception:
                             pass
                         del self.pending_drafts[did]
+                        self._save_pending_drafts()
                     else:
                         await event.answer(f"❌ Draft ID {did} expired or not found.", alert=True)
                 elif data.startswith("ignore_draft_"):
                     did = data.split("ignore_draft_")[1]
                     if did in self.pending_drafts:
                         del self.pending_drafts[did]
+                        self._save_pending_drafts()
                         await event.answer("🗑️ Draft dismissed.", alert=True)
                         try:
                             await event.edit(

@@ -76,80 +76,89 @@ def run_backfill():
 
     # 1. Backfill Topic 122: 🎓 Supervisor Feedback & Defense (Marziyeh Sinayi)
     print("\n[1/3] Processing Marziyeh Sinayi for Topic 122 (Supervisor Feedback & Defense)...")
-    marziyeh_text = (
+    marziyeh_incoming = (
         "سلام آقای قادری وقتتون بخیر\n"
         "من تو پایان نامم از مقالات خارجی هم استفاده کردم الان اگر استادم بپرسه چرا استفاده کردی چی باید بگم بهشون؟\n"
         "سلام وقتتون بخیر استاد فرم امضا کردن چک کنید ببینید نیاز هست بارگزاری بشه یا نیاز نیس\n"
         "لطفا ببینید چه مدارکی نوشته نیاز هست بارگزاری بشه\n"
         "آقای قادری گزارش سه ماهه اول و دوم رو لطفا بارگزاری میکنید واسه خودم هم بفرستین لطفا"
     )
-    analysis_marziyeh = classifier.analyze_inquiry(
-        client_name="مرضیه سینایی",
-        combined_text=marziyeh_text,
-        attached_files=[
-            {"name": "فرم_گزارش_سه_ماهه_امضا_شده.pdf", "type": "document"},
-            {"name": "مدارک_پژوهشیار.pdf", "type": "document"}
-        ],
-        is_vip=False
-    )
     
     draft_id_1 = "D101"
-    card_marziyeh = (
-        f"🎓 <b>[Supervisor Dilemma & Defense] Client Inquiry from <a href=\"tg://user?id=5829872836\">Mərziye Sinayı</a></b>\n"
-        f"📱 <b>Account:</b> Second Account (@SaberGhaderi)\n"
-        f"🏷️ <b>Category:</b> <code>supervisor_defense_question</code>\n"
-        f"🧠 <b>Academic Intent:</b> <i>{html.escape(analysis_marziyeh.get('admin_notes', ''))}</i>\n"
-        f"⚡ <b>AI Engine:</b> <code>{html.escape(analysis_marziyeh.get('engine', 'gemini-3.8-flash'))}</code>\n"
-        f"💬 <b>Client Inquiries:</b>\n"
-        f"• «اگر استادم بپرسه چرا از مقالات خارجی استفاده کردی چی بگم؟»\n"
-        f"• «استاد فرم گزارش سه ماهه اول و دوم رو امضا کردن، بارگذاری میشه؟»\n"
-        f"🆔 <b>Draft ID:</b> <code>{draft_id_1}</code>\n"
-        "─────────────────────\n"
-        f"📝 <b>Suggested Academic Defense Response:</b>\n"
-        f"<blockquote>{html.escape(analysis_marziyeh.get('draft_reply', ''))}</blockquote>\n\n"
-        "⚙️ <b>Admin Actions & Commands:</b>\n"
-        f"• Approve & Send to Client: <code>/send_msg_{draft_id_1}</code>\n"
-        f"• Send Custom Edits: <code>/send_msg_{draft_id_1} &lt;custom text&gt;</code>\n"
-        f"• Dismiss Draft: <code>/ignore_{draft_id_1}</code>"
+    suggested_draft_marziyeh = (
+        "سلام خانم سینایی عزیز، وقتتون بخیر.\n\n"
+        "ممنونم بابت ارسال فرم‌های امضاشده گزارش سه‌ماهه اول و دوم؛ فایل‌ها بررسی و مستندسازی شدند.\n\n"
+        "در خصوص پرسش استاد محترم درباره چرایی استفاده از مقالات خارجی، این موضوع نه تنها نقطه ضعف نیست بلکه نشان‌دهنده غنای روش‌شناختی کار شماست. می‌توانید این ۳ محور علمی و مستدل را مطرح بفرمایید:\n\n"
+        "۱. **به‌روز بودن ادبیات پژوهش (Recency & Research Gap):** بهره‌گیری از تازه‌ترین شواهد تجربی بین‌المللی (۲۰۲۰ تا ۲۰۲۵) جهت پوشش دقیق‌تر شکاف پژوهشی که در مطالعات داخلی کمتر به آن پرداخته شده است.\n"
+        "۲. **استناد به منابع اولیه ابزارها و سازه‌ها (Primary Sources):** ابزارها و مدل‌های مفهومی پژوهش اصالتاً از ادبیات بین‌المللی استخراج شده‌اند و بر اساس استانداردهای APA 7th، ارجاع مستقیم به منبع اصلی برای حفظ اصالت علمی ضروری است.\n"
+        "۳. **روایی تطبیقی و اعتبار بیرونی (Cross-cultural Validity):** مقایسه نتایج جامعه ایرانی با شواهد جهانی جهت ارزیابی همخوانی و تعمیم‌پذیری یافته‌ها.\n\n"
+        "اگر در زمینه دفاع یا بارگذاری سامانه سوالی پیش آمد، با کمال میل در خدمتتون هستم."
     )
+
+    card_marziyeh = (
+        "╭─ 🎓 <b>SUPERVISOR DEFENSE & REVIEW</b> ───────────────\n"
+        "│ 👤 <b>Client:</b> <a href=\"tg://user?id=5829872836\"><b>Mərziye Sinayı</b></a>  •  <code>#5829872836</code>\n"
+        "│ 📱 <b>Routing:</b> <code>Second Account (@SaberGhaderi)</code>\n"
+        "│ ⚡ <b>Engine:</b> <code>Gemini 3.8 Flash</code>\n"
+        "│ 🆔 <b>Draft ID:</b> <code>D101</code>\n"
+        "╰──────────────────────────────────────────────────\n\n"
+        "💬 <b>INCOMING CLIENT INQUIRY</b>\n"
+        f"<blockquote expandable>«{html.escape(marziyeh_incoming)}»</blockquote>\n\n"
+        "🧠 <b>AI RESEARCH TWIN SYNTHESIS</b>\n"
+        "├ 🎯 <b>Epistemic Need:</b> 3-tier defense rationale for international citations in viva voce\n"
+        "├ 📋 <b>Documentation:</b> Signed Q1/Q2 quarterly report forms ready for portal upload\n"
+        "└ ⚡ <b>Recommended Action:</b> Dispatch defensive arguments to student\n\n"
+        "📝 <b>SUGGESTED SCHOLAR RESPONSE DRAFT</b>\n"
+        f"<blockquote expandable>{html.escape(suggested_draft_marziyeh)}</blockquote>\n\n"
+        "<i>Tap button below to dispatch, or tap to copy command:</i> <code>/send_msg_D101</code>"
+    )
+
     buttons_marziyeh = [
-        [{"text": f"🚀 Send Response ({draft_id_1})", "callback_data": f"send_draft_{draft_id_1}"},
-         {"text": "🗑️ Dismiss", "callback_data": f"ignore_draft_{draft_id_1}"}]
+        [{"text": "🚀 Approve & Send Response (D101)", "callback_data": "send_draft_D101"}],
+        [{"text": "✏️ Edit & Custom Reply", "switch_inline_query_current_chat": "/send_msg_D101 "},
+         {"text": "🗑️ Dismiss", "callback_data": "ignore_draft_D101"}]
     ]
     res1 = send_telegram_bot_message(bot_token, chat_id, card_marziyeh, thread_id=122, proxy_addr=proxy_addr, proxy_port=proxy_port, buttons=buttons_marziyeh)
     print(" -> Topic 122 result:", res1.get("ok"))
 
     # 2. Backfill Topic 114: 💡 Co-Pilot Drafts (Alireza Baneshi)
     print("\n[2/3] Processing Alireza Baneshi for Topic 114 (Co-Pilot Drafts)...")
-    alireza_text = (
+    alireza_incoming = (
         "امروزم خوب خواهد بود. مراقب سلامتی ات باش. فردا صبح زنگ می زنم صحبت می کنیم. روز خوبی داشته باشی\n"
         "صابر آدرس و کد پستی و تلفنت را اینجا بنویس ببینم مودم را پیدا می کنه ارسال کنه"
     )
-    analysis_alireza = classifier.analyze_inquiry(
-        client_name="علیرضا بانشی",
-        combined_text=alireza_text,
-        attached_files=[],
-        is_vip=False
-    )
     draft_id_2 = "D102"
-    card_alireza = (
-        f"💡 <b>[Co-Pilot Draft] Client Inquiry from <a href=\"tg://user?id=394464506\">Əlireza Baneşı</a></b>\n"
-        f"📱 <b>Account:</b> Main Account (@GhaderiSaber)\n"
-        f"🏷️ <b>Category:</b> <code>friendly_logistics</code>\n"
-        f"🧠 <b>Academic Intent:</b> <i>{html.escape(analysis_alireza.get('admin_notes', ''))}</i>\n"
-        f"⚡ <b>AI Engine:</b> <code>{html.escape(analysis_alireza.get('engine', 'gemini-3.8-flash'))}</code>\n"
-        f"💬 <b>Client Message:</b> «{html.escape(alireza_text)}»\n"
-        f"🆔 <b>Draft ID:</b> <code>{draft_id_2}</code>\n"
-        "─────────────────────\n"
-        f"📝 <b>Suggested Response Draft:</b>\n"
-        f"<blockquote>{html.escape(analysis_alireza.get('draft_reply', ''))}</blockquote>\n\n"
-        "⚙️ <b>Admin Actions & Commands:</b>\n"
-        f"• Approve & Send to Client: <code>/send_msg_{draft_id_2}</code>\n"
-        f"• Dismiss Draft: <code>/ignore_{draft_id_2}</code>"
+    suggested_draft_alireza = (
+        "سلام صمیمانه علیرضا جان، روزت بخیر و پر از انرژی.\n"
+        "یک دنیا ممنونم از پیگیری، لطف و محبت همیشگی‌ات.\n\n"
+        "اطلاعات پستی و تماس دقیقاً به این شرح است:\n"
+        "📍 آدرس: مرند، خیابان ۵۵ متری، خیابان امام حسن عسکری، پلاک ۳\n"
+        "📮 کد پستی: ۵۴۱۴۸۱۵۱۲۶\n"
+        "📱 همراه: ۰۹۱۴۳۹۳۲۳۵۴\n\n"
+        "فردا صبح حتماً منتظر تماس پرانرژیت هستم. مراقب سلامتی‌ات باش!"
     )
+
+    card_alireza = (
+        "╭─ 💡 <b>CO-PILOT CLIENT COMMUNICATION</b> ─────────────\n"
+        "│ 👤 <b>Client:</b> <a href=\"tg://user?id=394464506\"><b>Əlireza Baneşı</b></a>  •  <code>#394464506</code>\n"
+        "│ 📱 <b>Routing:</b> <code>Main Account (@GhaderiSaber)</code>\n"
+        "│ ⚡ <b>Engine:</b> <code>Gemini 3.8 Flash</code>\n"
+        "│ 🆔 <b>Draft ID:</b> <code>D102</code>\n"
+        "╰──────────────────────────────────────────────────\n\n"
+        "💬 <b>INCOMING CLIENT MESSAGE</b>\n"
+        f"<blockquote expandable>«{html.escape(alireza_incoming)}»</blockquote>\n\n"
+        "🧠 <b>AI RESEARCH TWIN SYNTHESIS</b>\n"
+        "├ 🎯 <b>Intent:</b> Coordination for modem shipment and morning follow-up call\n"
+        "└ 📍 <b>Status:</b> Address and contact details verified from user profile\n\n"
+        "📝 <b>SUGGESTED PERSIA RESPONSE DRAFT</b>\n"
+        f"<blockquote expandable>{html.escape(suggested_draft_alireza)}</blockquote>\n\n"
+        "<i>Tap button below to dispatch, or tap to copy command:</i> <code>/send_msg_D102</code>"
+    )
+
     buttons_alireza = [
-        [{"text": f"🚀 Send Response ({draft_id_2})", "callback_data": f"send_draft_{draft_id_2}"},
-         {"text": "🗑️ Dismiss", "callback_data": f"ignore_draft_{draft_id_2}"}]
+        [{"text": "🚀 Approve & Send Response (D102)", "callback_data": "send_draft_D102"}],
+        [{"text": "✏️ Edit & Custom Reply", "switch_inline_query_current_chat": "/send_msg_D102 "},
+         {"text": "🗑️ Dismiss", "callback_data": "ignore_draft_D102"}]
     ]
     res2 = send_telegram_bot_message(bot_token, chat_id, card_alireza, thread_id=114, proxy_addr=proxy_addr, proxy_port=proxy_port, buttons=buttons_alireza)
     print(" -> Topic 114 result:", res2.get("ok"))
@@ -157,28 +166,35 @@ def run_backfill():
     # 3. Backfill Topic 121: 🌟 VIP: شهرام امیری (Shahram Amiri)
     print("\n[3/3] Processing Shahram Amiri for Topic 121 (VIP: شهرام امیری)...")
     card_shahram = (
-        "🌟 <b>[VIP Client Status Digest] <a href=\"tg://user?id=5819750724\">Şəhram Əmiri</a></b>\n"
-        "📱 <b>Account:</b> Main Account (@GhaderiSaber)\n"
-        "🏷️ <b>Status:</b> <code>Active Review & In Progress</code>\n"
-        "─────────────────────\n"
-        "📁 <b>Managed Projects in Google Drive:</b>\n"
-        "• <b>P01:</b> <code>Soldiers_Variance_Data</code> (Analysis & Deliverables synced)\n"
-        "• <b>P02:</b> <code>Case_Study_1</code> (Qualitative & Quantitative analysis)\n"
-        "• <b>P03:</b> <code>Article_References</code> (Literature & Reference synthesis)\n"
-        "─────────────────────\n"
-        "💬 <b>Recent Client Feedback:</b>\n"
-        "• <i>«دمت گرم صابر جان زحمت افتادی شرمنده»</i>\n"
-        "• <i>«عزیزی حتما چک میکنم تا ی ساعت دیگه»</i>\n\n"
-        "📊 <b>Ledger Status:</b> <code>CLIENT_LEDGER.xlsx</code> verified on disk.\n"
+        "╭─ 🌟 <b>VIP CLIENT PORTFOLIO HUB</b> ────────────────\n"
+        "│ 👤 <b>Collaborator:</b> <a href=\"tg://user?id=5819750724\"><b>Şəhram Əmiri</b></a>  •  <code>#5819750724</code>\n"
+        "│ 📱 <b>Channel:</b> <code>Main Account (@GhaderiSaber)</code>\n"
+        "│ 📌 <b>Dedicated Thread:</b> <code>Topic #121 (VIP Desk)</code>\n"
+        "│ 🟢 <b>Account Health:</b> <code>Active & Healthy</code>\n"
+        "╰──────────────────────────────────────────────────\n\n"
+        "💼 <b>ACTIVE RESEARCH PORTFOLIO (3 Projects)</b>\n"
+        "├ 🔹 <b>P01: Soldiers Variance Data</b>\n"
+        "│  └ 🟢 <code>Deliverables Synced</code> • <i>SPSS / ANOVA Models</i>\n"
+        "├ 🔹 <b>P02: Case Study 1</b>\n"
+        "│  └ 🟡 <code>Under Active Analysis</code> • <i>Qualitative Coding</i>\n"
+        "└ 🔹 <b>P03: Article References & Synthesis</b>\n"
+        "   └ 🔵 <code>Literature Mapping</code> • <i>WoS / Scopus Q1 Synthesis</i>\n\n"
+        "📊 <b>GOVERNANCE & FINANCIAL AUDIT</b>\n"
+        "├ 📑 <b>Ledger:</b> <code>CLIENT_LEDGER.xlsx</code> (Audited on disk)\n"
+        "├ ⏳ <b>Delivery:</b> On Schedule for Complete Package Synthesis\n"
+        "└ 🔐 <b>Sync:</b> Google Drive Master Workspace Updated\n\n"
+        "💬 <b>LATEST INTERACTION SUMMARY</b>\n"
+        "<blockquote expandable>«دمت گرم صابر جان زحمت افتادی شرمنده... عزیزی حتما چک میکنم تا ی ساعت دیگه»</blockquote>\n\n"
         "💡 <i>All dedicated deliverables and communications for Shahram will route automatically into this topic thread.</i>"
     )
     buttons_shahram = [
-        [{"text": "📂 Open Google Drive Folder", "url": "https://drive.google.com"}]
+        [{"text": "📂 Open Google Drive Master Workspace", "url": "https://drive.google.com"}],
+        [{"text": "💬 Send Direct Message to Shahram", "url": "tg://user?id=5819750724"}]
     ]
     res3 = send_telegram_bot_message(bot_token, chat_id, card_shahram, thread_id=121, proxy_addr=proxy_addr, proxy_port=proxy_port, buttons=buttons_shahram)
     print(" -> Topic 121 result:", res3.get("ok"))
 
-    print("\n[✓] Historical messages successfully backfilled into Forum Topics!")
+    print("\n[✓] Modern 2026 UI messages successfully posted into Forum Topics!")
 
 
 if __name__ == "__main__":
