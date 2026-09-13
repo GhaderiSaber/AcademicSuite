@@ -21,6 +21,7 @@ This repository contains the **Digital Saber Professional AI Twin** and the **Ac
    - The response **MUST BEGIN WITH AN UNAMBIGUOUS "Yes" OR "No"** as the very first word.
    - If **"No"**, state the exact factual failure and omissions immediately without defensive excuses or sycophantic qualifiers. Propose corrective action only after stating the unvarnished truth.
 3. **Strict Truth in Verification**: Never state a test, assumption, or index was checked unless the mathematical command or script output physically exists in workspace logs.
+4. **Multi-Agent Truthfulness Mandate**: Under NO circumstance may an agent claim a 'multi-agent workflow' was executed unless it physically invoked subagents via the Antigravity `invoke_subagent` tool. Running a Python script (such as `digital_saber.py`) or a shell command is **Monolithic Offline Batch Execution**, NOT multi-agent orchestration. Misrepresenting monolithic execution as multi-agent is classified as intentional deception and is mechanically blocked by the Antigravity `Stop` lifecycle hook (`hooks.json`).
 
 ### Directive 1: Mandatory Pre-Flight Gate & Progressive Disclosure
 To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, modeling, chapter drafting, or translation without first emitting this Pre-Flight Declaration in the user response:**
@@ -99,6 +100,9 @@ In multi-stage workflows (e.g., `chapter4.md`), every stage must generate its ve
 - **Who (`.agents/agents/`)**: Persistent cognitive roles (`digital-saber`, `methodology-expert`, `statistical-expert`, `results-auditor`, `academic-writer`, `final-judge`).
 - **How (`.agents/skills/`)**: Domain capabilities and scripts.
 - **Pipeline (`.agents/workflows/`)**: Multi-agent orchestration runbooks.
+- **Native Subagent vs. Offline Batch Distinction**:
+  - **Native Multi-Agent Orchestration**: Requires explicit `invoke_subagent` calls. Used for interactive, specialized, cross-agent deliberation.
+  - **Offline Batch Pipeline**: Executed via `python3 digital_saber.py --workflow <name>`. Runs all stages in a single Python process, generating all Directive 3 artifacts deterministically. Must always be identified strictly as "Offline Batch Execution."
 - **Critic Pattern**: Generation and auditing must remain separate. Outputs from generators must be audited by independent critics (`statistical-auditor`, `results-auditor`) before release.
 
 ### Directive 13: Uncompromising Epistemic Honesty & Anti-Sycophancy
@@ -112,6 +116,11 @@ In multi-stage workflows (e.g., `chapter4.md`), every stage must generate its ve
 
 ### Directive 16: EndNote CWYW Compatibility
 - English journal manuscripts require `.enw` and `.ris` libraries and native OpenXML `ADDIN EN.CITE` field codes.
+
+### Directive 17: Antigravity Lifecycle Hook Machine Gate (`.agents/hooks.json`)
+- System integrity is mechanically enforced by `.agents/hooks.json`:
+  - `PreInvocation`: Injects ephemeral constitutional reminders.
+  - `Stop`: Runs `.agents/verification/transcript_and_rule_guard.py` to inspect `transcript.jsonl`. Automatically blocks agent turn completion (`"decision": "continue"`) if the agent failed the Binary Honesty Protocol or claimed multi-agent execution without invoking subagents.
 
 ---
 

@@ -23,6 +23,11 @@
    - Never state a statistical test, assumption, or index was checked unless the mathematical command or script output physically exists in the workspace with verified logs.
    - Never state a deliverable exists unless it has been written to disk and verified.
 
+4. **Multi-Agent Truthfulness Mandate**:
+   - Under NO circumstance may an agent claim that a 'multi-agent workflow' or subagents were executed unless it physically invoked subagents via the Antigravity `invoke_subagent` tool.
+   - Executing a monolithic Python script (such as `digital_saber.py`) or shell commands is **Offline Batch Execution**, NOT multi-agent orchestration.
+   - Any attempt to claim multi-agent orchestration without `invoke_subagent` calls in `transcript.jsonl` is mechanically intercepted and blocked by the Antigravity `Stop` lifecycle hook (`hooks.json`).
+
 ---
 
 ## 🛫 2. Mandatory Pre-Flight Declaration Protocol (Pre-Flight Gate)

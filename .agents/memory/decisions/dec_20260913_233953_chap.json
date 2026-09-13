@@ -1,0 +1,21 @@
+{
+  "decision_id": "dec_20260913_233953_chap",
+  "timestamp": "2026-09-13T23:39:53.470467",
+  "project_title": "اثربخشی مداخله آزمایشی بر بهبود Anxiety",
+  "decision_type": "chapter4_offline_batch_execution",
+  "context": "Antigravity monolithic offline batch execution completed deterministically on physical dataset.",
+  "selected_option": "ANCOVA with baseline pre-test control and 5-part epistemic narrative",
+  "rationale": "Empirically validated on N=120 with slope homogeneity satisfied (p=.872).",
+  "alternatives_considered": [
+    {
+      "option": "Gain score t-test",
+      "verdict": "REJECTED",
+      "reason": "Low power & regression to mean"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 1.0,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}

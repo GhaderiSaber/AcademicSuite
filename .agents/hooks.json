@@ -1,0 +1,19 @@
+{
+  "constitutional-guard": {
+    "enabled": true,
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python3 -c \"import os, sys; s = 'verification/transcript_and_rule_guard.py' if os.path.exists('verification/transcript_and_rule_guard.py') else '.agents/verification/transcript_and_rule_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreInvocation",
+        "timeout": 15
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 -c \"import os, sys; s = 'verification/transcript_and_rule_guard.py' if os.path.exists('verification/transcript_and_rule_guard.py') else '.agents/verification/transcript_and_rule_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event Stop",
+        "timeout": 15
+      }
+    ]
+  }
+}

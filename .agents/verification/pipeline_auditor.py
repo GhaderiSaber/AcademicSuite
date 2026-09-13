@@ -38,10 +38,16 @@ class PipelineAuditor:
 
     MANDATORY_ARTIFACTS: Dict[str, List[Tuple[Any, int]]] = {
         "chapter4": [
+            (["data_scored.xlsx", "simulated_rct_dataset.xlsx", "raw_data.xlsx", "dataset.xlsx", "simulated_rct_dataset.csv"], 500),
+            ("study_config.json", 50),
+            ("methodology_spec.json", 50),
+            ("statistical_plan.json", 50),
             ("stats_results.json", 100),
+            ("statistical_audit_report.json", 50),
+            ("results_qc_checklist.json", 50),
             ("Chapter_4_Results.docx", 1000),
             ("Statistical_Audit_and_QC_Report.docx", 1000),
-            ("Defense_Viva_Card_and_Questions.docx", 1000)
+            (["Defense_Viva_Voce_Brief.docx", "Defense_Viva_Card_and_Questions.docx"], 1000)
         ],
         "chapter5": [
             ("Chapter_5_Discussion_and_Conclusion.docx", 1000),
