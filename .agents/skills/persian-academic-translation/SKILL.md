@@ -64,9 +64,12 @@ This skill guides the agent in translating academic and scholarly literature (ar
   - Use Persian semicolon (`؛`) instead of English semicolon (`;`).
   - Use quotation guillemets (« ») instead of straight double quotes (" ").
   - Use Persian question mark (`؟`).
-- **Numbers and Statistics**:
+- **Numbers and Statistics (قاعده اعداد و اعشار در ترجمه فارسی)**:
   - In flowing Persian text, write Persian numerals where appropriate.
-  - In statistical notation (such as $p < 0.05$, $F(1, 654) = 4.32$, $\alpha = 0.88$, $M = 16.32$, $SD = 1.54$), keep the international mathematical notation intact.
+  - **Standard Dot ('.') Representation**: Decimal numbers must be written with the standard dot (`.`): `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۲.۵۰`, `۰.۴۰`, `۱.۱۱۸`.
+  - **Preserve Leading Zero (حفظ صفر قبل از ممیز)**: In Persian academic translations, NEVER drop the zero before the decimal point. Always write `۰.۰۰۱` (never `.۰۰۱` or `.001`), `۰.۰۵` (never `.۰۵`), and `p < ۰.۰۰۱` (یا `۰.۰۰۱ > p`).
+  - **Zero Slashes**: Never use forward slashes (`/`) for decimal numbers (do not write `۰/۰۵` or `۰/۰۰۱`).
+  - In pure Latin statistical equations ($F(1, 654) = 4.32, p < .001, \eta_p^2 = .32$), keep international notation intact.
 
 ### D. Handling In-Text References & Citations (مدیریت ارجاعات درون‌متنی)
 

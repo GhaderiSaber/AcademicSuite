@@ -79,14 +79,20 @@ Every compound word, prefix, and suffix in Persian must enforce unicode half-spa
 1. **Italicization of Latin Symbols**:
    - Strictly italicize: *$N, n, M, SD, t, F, p, r, R^2, \beta, B, z, SE, d$*
    - Non-italicized Greek symbols: $\alpha, \beta, \gamma, \eta_p^2, \chi^2, \omega, \Lambda$
-2. **The Leading Zero Rule**:
-   - Omit leading zero for numbers strictly bounded between 0 and 1:
+2. **The Leading Zero Rule (English APA vs. Persian Standard)**:
+   - **In English Text**: Omit leading zero for numbers strictly bounded between 0 and 1:
      - $p = .014$, $r = .52$, $R^2 = .31$, $\eta_p^2 = .18$, $\alpha = .84$
-   - Keep leading zero for numbers that can exceed 1.0:
-     - $M = 0.85$, $SD = 0.42$, $d = 0.78$, $t = 0.94$
+     - Keep leading zero for numbers that can exceed 1.0: $M = 0.85$, $SD = 0.42$, $d = 0.78$, $t = 0.94$
+   - **In Persian Reports & Deliverables (حفظ حتمی صفر قبل از ممیز در فارسی)**:
+     - **NEVER remove the zero before the decimal point in Persian**: Always write `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۰.۴۰`, `p < ۰.۰۰۱` (یا `۰.۰۰۱ > p`).
+     - Writing `.۰۰۱` or `.۰۵` in Persian is strictly forbidden as it violates Persian academic conventions.
+     - **Standard Dot ('.') Format**: Always use standard dot ('.') for decimal numbers in Persian (e.g., `۰.۰۰۱`, `۰.۸۵`, `۲.۵۰`).
+     - **Zero Slashes**: Never use forward slashes ('/') for decimals (do not write `۰/۰۵` or `۰/۰۰۱`).
 3. **The Exact $p$-Value Rule**:
    - Always report $p$ to three decimal places ($p = .038$).
-   - Never report $p = .000$. Report strictly as $p < .001$ (Persian: $۰/۰۰۱ > p$).
+   - Never report $p = .000$. Report strictly as:
+     - English: **$p < .001$**
+     - Persian: **$p < ۰.۰۰۱$** (یا: **$۰.۰۰۱ > p$**).
 4. **Table Architecture (APA 7)**:
    - Exactly 3 horizontal borders: Table top line (solid 0.75 pt), header underline (solid 0.5 pt), and bottom line (solid 0.75 pt).
    - Zero vertical borders.

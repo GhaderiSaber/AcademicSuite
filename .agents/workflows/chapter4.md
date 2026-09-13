@@ -137,8 +137,8 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 - **Action**:
   - Ingests raw data tables and test statistics.
   - Enforces APA 7th Edition rules:
-    - Zero leading zeros on bounded values ($p = .023$, $\eta_p^2 = .18$).
-    - Never reporting $p = .000$ (replaces with $p < .001$ or $۰/۰۰۱ > p$).
+    - Zero leading zeros on bounded values in English ($p = .023$, $\eta_p^2 = .18$); in Persian reports, strictly preserve leading zero (`۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`) with standard dot ('.') format and zero slashes.
+    - Never reporting $p = .000$ (replaces with $p < .001$ in English, or $p < ۰.۰۰۱$ / $۰.۰۰۱ > p$ in Persian).
     - Exactly 3 horizontal borders with zero vertical borders.
     - Verification of native Word OMML math equations (`<m:oMath>`) preservation.
 - **Output**: `results_qc_checklist.json`.

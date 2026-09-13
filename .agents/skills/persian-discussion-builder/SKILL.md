@@ -83,11 +83,12 @@ For each research hypothesis or question, the agent must synthesize the text usi
 3. **Formulate Discussion Content JSON**:
    Prepare a structured JSON file mapping each hypothesis, its empirical comparisons, theoretical explanations, implications, and limitations.
 4. **Generate Word Document**:
-   Execute the document generation script:
+   Execute the document generation script (using standard English filename per Rule 6):
    ```bash
    python3 .agents/skills/persian-discussion-builder/scripts/generate_chapter5_docx.py \
      --json "chapter5_input.json" \
-     --out "فصل پنجم: بحث و نتیجه‌گیری.docx"
+     --out "Chapter_5_Discussion_and_Conclusion.docx"
    ```
 5. **Quality Review**:
-   Ensure Persian half-spaces (نیم‌فاصله) are preserved, font styles match university templates (*B Titr* 14–18 pt Bold, *B Nazanin* 13 pt Regular, Line spacing 1.25), and OpenXML RTL tags are set.
+   - Ensure Persian half-spaces (نیم‌فاصله) are preserved, font styles match university templates (*B Titr* 14–18 pt Bold, *B Nazanin* 13 pt Regular, Line spacing 1.25), and OpenXML RTL tags are set.
+   - **Persian Number & Decimal Standards**: Decimal numbers in Persian text must use the standard dot (`.`): `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۲.۵۰`. Never omit the leading zero (write `۰.۰۰۱`, never `.۰۰۱`). Never use forward slashes (`/`) for decimals. Exact 3 decimal places for $p$-values (`p < ۰.۰۰۱` یا `۰.۰۰۱ > p`).

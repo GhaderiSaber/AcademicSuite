@@ -207,10 +207,15 @@ Ensure all generated chapter text strictly follows standard Iranian university c
    - Tables must have **no vertical borders**.
    - Exactly 3 horizontal borders: Top line, Header line, Bottom line.
    - Captions placed **above** the table: `جدول ۱-۴. شاخص‌های توصیفی...` (11 pt Bold).
-   - Notes placed **below** the table: `یادداشت. * p < .۰۵` (10 pt Regular).
+   - Notes placed **below** the table: `یادداشت. * p < ۰.۰۵` (یا `۰.۰۵ > p`، 10 pt Regular).
 4. **Hypothesis Conclusion Statement**:
    - Every hypothesis test must conclude with a clear verdict:
-     > «بنابراین با توجه به معناداری آماره آزمون در سطح ۰/۰۵، فرضیه پژوهش مبنی بر [عنوان فرضیه] مورد **تأیید** قرار گرفت.»
+     > «بنابراین با توجه به معناداری آماره آزمون در سطح ۰.۰۵، فرضیه پژوهش مبنی بر [عنوان فرضیه] مورد **تأیید** قرار گرفت.»
+5. **Mandatory Persian Number & Decimal Typography Standards**:
+   - **Standard Dot ('.') Format**: All decimal numbers in Persian Chapter 4 text and tables must be formatted using the standard dot (`.`): e.g. `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۲.۵۰`, `۰.۴۰`, `۱.۱۱۸`.
+   - **Preserve Leading Zero**: NEVER omit the leading zero before the decimal point in Persian text. Write `۰.۰۰۱` (never `.۰۰۱` or `.001`), `۰.۰۵` (never `.۰۵`).
+   - **3 Decimal Places for $p$-values**: Report exact $p$-values with 3 decimals (`p < ۰.۰۰۱` یا `۰.۰۰۱ > p`, `p = ۰.۰۱۴`). Never report $p = ۰.۰۰۰$.
+   - **Zero Inverted Slashes**: Never use forward slashes (`/`) for decimals (no `۰/۰۵` or `۰۰۱/۰`).
 
 ---
 

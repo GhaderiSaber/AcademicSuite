@@ -44,8 +44,11 @@ Activate this skill whenever:
 - **Author Surname Spelling Mismatch (`MINOR`)**: Slight typographic variation in author name.
 
 ### 4. APA 7th Edition Statistical Typography (استانداردهای نگارش آمار)
-- **Leading Zero Violations (`MINOR`)**: Number bounded by 1.0 ($p, r, R^2, \eta_p^2$) reporting zero before decimal point ($p = 0.024$).
-- **Illegal Software Output (`MINOR`)**: Reporting $p = .000$ instead of $p < .001$.
+- **Leading Zero Rules (English vs. Persian)**:
+  - **In English Text (`MINOR`)**: Number bounded by 1.0 ($p, r, R^2, \eta_p^2$) reporting zero before decimal point ($p = 0.024$ should be $p = .024$).
+  - **In Persian Text (`MINOR`)**: Omitting the leading zero before the decimal point is strictly prohibited (writing `.۰۰۱` or `.۰۵` violates Persian academic conventions; must be `۰.۰۰۱` or `۰.۰۵`).
+- **Standard Dot ('.') Format & Prohibited Slashes (`MINOR`)**: All decimals in Persian text must use the standard dot ('.'); flag any forward slashes (`/`) or inverted fraction tricks (`۰/۰۵` or `۰۰۱/۰`).
+- **Illegal Software Output (`MINOR`)**: Reporting $p = .000$ instead of $p < .001$ in English, or $p < ۰.۰۰۱$ (یا $۰.۰۰۱ > p$) in Persian.
 - **Missing Effect Sizes (`MAJOR`/`MINOR`)**: Significant finding without $d, \eta_p^2$, or $R^2$.
 
 ### 5. Adversarial Defense & Peer-Review Simulation (شبیه‌سازی دفاع متخاصم و داوری نقادانه)

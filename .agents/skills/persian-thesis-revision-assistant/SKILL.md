@@ -73,7 +73,7 @@ python3 .agents/skills/persian-thesis-revision-assistant/scripts/extract_docx_co
 
 ### Step 2: Categorize Comments by Domain
 Review each extracted comment and tag it:
-- **FORMAT**: Issues with margins, fonts, APA 7 table lines, Persian half-spaces (`\u200c`), Latin footnotes.
+- **FORMAT**: Issues with margins, fonts, APA 7 table lines, Persian half-spaces (`\u200c`), Latin footnotes, and Persian decimal typography (standard dot `.` format with leading zero preserved: `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`; never write `.۰۰۱` or use slashes `/`).
 - **STATS**: Requests for assumption tests (Shapiro-Wilk, Levene), effect sizes ($\eta_p^2$, Cohen's $d$), ANCOVA slope checks, or mediation bootstrap CIs.
   *Delegate to*: `statistical-data-analyst`.
 - **THEORY**: Requests for newer 2024–2026 literature, conceptual clarification, or deeper psychological explanations.
@@ -90,11 +90,11 @@ In `resolved_comments.json`, fill out `action_taken` and `location` for every co
 - State the exact page number.
 
 ### Step 5: Generate the Response Table Word Document
-Compile the formal submission document:
+Compile the formal submission document (using English filename per Rule 6):
 ```bash
 python3 .agents/skills/persian-thesis-revision-assistant/scripts/generate_revision_response_docx.py \
   --json "resolved_comments.json" \
-  --out "جدول_پاسخ_به_نظرات_استاد_راهنما_و_داوران.docx"
+  --out "Revision_Response_Table.docx"
 ```
 
 ---

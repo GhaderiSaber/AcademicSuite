@@ -537,43 +537,78 @@ class ThesisIntegrityAuditor:
                     severity="MINOR",
                     title_fa=f"گزارش مقدار غیرمجاز p = .000 در آزمون {t.get('test_id')}",
                     title_en=f"Illegal Software Output p = .000 Reported in Test {t.get('test_id')}",
-                    description_fa="طبق راهنمای APA 7th Edition و استانداردهای دانشگاهی، هیچ مقدار احتمالاتی نباید به صورت p = .000 گزارش شود و باید به صورت p < .001 قید گردد.",
+                    description_fa="طبق راهنمای APA 7th Edition و استانداردهای دانشگاهی، هیچ مقدار احتمالاتی نباید به صورت p = .000 گزارش شود و باید به صورت p < .001 (یا در فارسی ۰.۰۰۱ > p) قید گردد.",
                     description_en="According to APA 7 guidelines, probabilities must never be reported as p = .000; use p < .001 instead.",
-                    recommendation_fa="در جداول و متن فصل چهارم، تمام موارد p = .000 را به p < .001 (یا ۰/۰۰۱ > p) تغییر دهید.",
+                    recommendation_fa="در جداول و متن فصل چهارم، تمام موارد p = .000 را به p < .001 (یا ۰.۰۰۱ > p) تغییر دهید.",
                     recommendation_en="Replace all occurrences of p = .000 with p < .001 in Chapter 4 text and tables.",
                     details={"test_id": t.get("test_id")}
                 )
 
-            # 2. Leading zero in p-value
-            if raw_p.startswith("0."):
+            # 2. Leading zero and decimal formatting in p-value
+            # In English APA: numbers bounded by 1 omit leading zero (p = .014)
+            # In Persian reports: leading zero MUST BE PRESERVED (p < ۰.۰۰۱ / ۰.۰۰۱ > p, ۰.۰۵, ۰.۸۵). Never write .001 or .۰۰۱ in Persian!
+            is_fa = bool(re.search(r'[\u0600-\u06FF]', str(t)))
+            if not is_fa and raw_p.startswith("0."):
                 self._add_finding(
                     domain="apa7_formatting",
                     severity="MINOR",
-                    title_fa=f"عدم حذف صفر پیشین (Leading Zero) در مقدار p آزمون {t.get('test_id')}",
-                    title_en=f"Leading Zero Violation in p-value for Test {t.get('test_id')}",
-                    description_fa=f"مقدار معناداری به صورت '{raw_p}' درج شده است. اعدادی که نمی‌توانند از ۱ تجاوز کنند در APA 7 نباید صفر قبل از ممیز داشته باشند.",
-                    description_en=f"p-value reported as '{raw_p}'. Numbers bounded by 1 must omit the leading zero (e.g. .{raw_p.split('.')[1]}).",
-                    recommendation_fa=f"صفر پیشین را حذف نمایید: p = .{raw_p.split('.')[1]}",
-                    recommendation_en=f"Omit the leading zero: p = .{raw_p.split('.')[1]}",
+                    title_fa=f"عدم حذف صفر پیشین (Leading Zero) در مقدار p انگلیسی آزمون {t.get('test_id')}",
+                    title_en=f"Leading Zero Violation in English p-value for Test {t.get('test_id')}",
+                    description_fa=f"مقدار معناداری انگلیسی به صورت '{raw_p}' درج شده است. در متون انگلیسی APA 7، اعدادی که نمی‌توانند از ۱ تجاوز کنند نباید صفر قبل از ممیز داشته باشند.",
+                    description_en=f"English p-value reported as '{raw_p}'. Numbers bounded by 1 must omit the leading zero (e.g. .{raw_p.split('.')[1]}).",
+                    recommendation_fa=f"در متن انگلیسی صفر پیشین را حذف نمایید: p = .{raw_p.split('.')[1]}",
+                    recommendation_en=f"Omit the leading zero in English text: p = .{raw_p.split('.')[1]}",
                     details={"test_id": t.get("test_id"), "reported": raw_p}
                 )
 
-        # 3. Check sampled paragraphs for leading zero violations (r, R2, eta)
+        # 3. Check sampled paragraphs for decimal formatting, slash inversions, and leading zeros
         for p_idx, raw_entry in enumerate(sampled_paragraphs):
             text = raw_entry.get("text", "") if isinstance(raw_entry, dict) else str(raw_entry)
-            # Check for r = 0.xx
-            if re.search(r'[rR]\s*=\s*0\.\d+', text):
-                self._add_finding(
-                    domain="apa7_formatting",
-                    severity="MINOR",
-                    title_fa="وجود صفر پیشین در ضریب همبستگی در متن",
-                    title_en="Leading Zero Violation in Correlation Coefficient in Text",
-                    description_fa="در متن پاراگراف ضریب همبستگی با صفر پیشین (مانند r = 0.xx) درج شده است.",
-                    description_en="In-text correlation coefficient reports leading zero (e.g. r = 0.xx).",
-                    recommendation_fa="صفر قبل از ممیز ضریب همبستگی را حذف فرمایید (مثال: r = .xx).",
-                    recommendation_en="Remove the leading zero from correlation coefficient (e.g., r = .xx).",
-                    details={"paragraph_index": p_idx}
-                )
+            p_is_fa = bool(re.search(r'[\u0600-\u06FF]', text))
+
+            if p_is_fa:
+                # In Persian: Flag missing leading zero (e.g. .۰۰۱ or .001 or .۰۵)
+                missing_zero = re.findall(r'(?<![0-9۰-۹])\.[0-9۰-۹]+', text)
+                if missing_zero:
+                    self._add_finding(
+                        domain="apa7_formatting",
+                        severity="MINOR",
+                        title_fa="حذف غیرمجاز صفر پیشین در گزارش فارسی",
+                        title_en="Missing Mandatory Leading Zero in Persian Text",
+                        description_fa=f"در متن فارسی، صفر قبل از ممیز حذف شده است ({missing_zero[:3]}). بر خلاف زبان انگلیسی، در نگارش فارسی حفظ صفر قبل از ممیز (مانند ۰.۰۰۱ یا ۰.۰۵) الزامی است.",
+                        description_en=f"Persian text dropped leading zero ({missing_zero[:3]}). Persian academic standard strictly mandates preserving leading zero.",
+                        recommendation_fa="صفر قبل از ممیز را بازگردانید (مثال: ۰.۰۰۱ یا ۰.۰۵؛ هرگز .۰۰۱ ننویسید).",
+                        recommendation_en="Restore leading zero in Persian text (e.g., ۰.۰۰۱, ۰.۰۵; never omit zero).",
+                        details={"paragraph_index": p_idx, "samples": missing_zero[:5]}
+                    )
+                # In Persian: Flag slash decimal numbers (e.g. ۰/۰۵ or ۰۰۱/۰)
+                slash_decimals = re.findall(r'(?<![\w\d])([0-9۰-۹]+)/([0-9۰-۹]+)(?![\w\d])', text)
+                if slash_decimals:
+                    self._add_finding(
+                        domain="apa7_formatting",
+                        severity="MINOR",
+                        title_fa="استفاده از ممیز مایل (خط کسری / اسلش) در اعداد اعشاری فارسی",
+                        title_en="Prohibited Slash Decimal in Persian Text",
+                        description_fa=f"در متن فارسی از علامت خط کسری / اسلش برای اعشار استفاده شده است ({['/'.join(x) for x in slash_decimals[:3]]}). کلیه اعداد اعشاری در گزارش‌های فارسی باید با نقطه استاندارد (.) درج شوند.",
+                        description_en=f"Slash decimals used in Persian text ({['/'.join(x) for x in slash_decimals[:3]]}). All decimals must use standard dot ('.').",
+                        recommendation_fa="خط کسری را به نقطه اعشار استاندارد تبدیل کنید (مثال: ۰.۰۰۱ و ۲.۵۰).",
+                        recommendation_en="Replace slash decimals with standard dot (e.g. ۰.۰۰۱, ۲.۵۰).",
+                        details={"paragraph_index": p_idx, "samples": slash_decimals[:5]}
+                    )
+            else:
+                # In English: Check for r = 0.xx (should be r = .xx)
+                if re.search(r'[rR]\s*=\s*0\.\d+', text):
+                    self._add_finding(
+                        domain="apa7_formatting",
+                        severity="MINOR",
+                        title_fa="وجود صفر پیشین در ضریب همبستگی انگلیسی",
+                        title_en="Leading Zero Violation in English Correlation Coefficient",
+                        description_fa="در متن انگلیسی ضریب همبستگی با صفر پیشین (مانند r = 0.xx) درج شده است.",
+                        description_en="In-text English correlation coefficient reports leading zero (e.g. r = 0.xx).",
+                        recommendation_fa="در متن انگلیسی، صفر قبل از ممیز ضریب همبستگی را حذف فرمایید (مثال: r = .xx).",
+                        recommendation_en="Remove the leading zero from English correlation coefficient (e.g., r = .xx).",
+                        details={"paragraph_index": p_idx}
+                    )
 
 
     def _audit_adversarial_defense(self):
@@ -606,7 +641,7 @@ class ThesisIntegrityAuditor:
                             severity="REVIEW_FLAG",
                             title_fa=f"هشدار بازبینی اندازه اثر بالا در آزمون {test_id} (FLAG FOR REVIEW)",
                             title_en=f"High Effect Size Diagnostic in Test {test_id} (FLAG FOR REVIEW)",
-                            description_fa=f"اندازه اثر گزارش‌شده (eta_p^2 = {eta_val:.3f}) از سطح معمول مطالعات روان‌شناختی (۰/۲۵ تا ۰/۴۰) بالاتر است. هرچند مداخلات بالینی عمیق و متمرکز می‌توانند اندازه اثرهای بسیار بزرگ تولید کنند، اما این مقدار در جلسه دفاع و داوری مورد پرسش دقیق قرار خواهد گرفت و نیازمند تبیین مکانیسم بالینی یا بررسی همپوشانی توزیع گروه‌ها است.",
+                            description_fa=f"اندازه اثر گزارش‌شده (eta_p^2 = {eta_val:.3f}) از سطح معمول مطالعات روان‌شناختی (۰.۲۵ تا ۰.۴۰) بالاتر است. هرچند مداخلات بالینی عمیق و متمرکز می‌توانند اندازه اثرهای بسیار بزرگ تولید کنند، اما این مقدار در جلسه دفاع و داوری مورد پرسش دقیق قرار خواهد گرفت و نیازمند تبیین مکانیسم بالینی یا بررسی همپوشانی توزیع گروه‌ها است.",
                             description_en=f"Reported partial eta squared ({eta_val:.3f}) is high (> .40). While potent clinical interventions can legitimately produce substantial effects, thesis committees and peer reviewers will closely scrutinize distribution overlap and potential sample variance deflation.",
                             recommendation_fa="در فصل ۴ و ۵، قدرت پروتکل مداخله را تبیین نموده و نمودار توزیع نمرات یا همپوشانی گروه‌ها را جهت اطمینان از کفایت تنوع پاسخ‌ها ارائه فرمایید.",
                             recommendation_en="In Chapters 4 and 5, document the therapeutic potency of the protocol and report distribution overlap/sensitivity checks to address reviewer skepticism.",
@@ -682,7 +717,7 @@ class ThesisIntegrityAuditor:
             {
                 "probe_fa": "علت انتخاب این حجم نمونه مشخص و توان آماری حاصل بر مبنای تحلیل G*Power چه بوده است؟",
                 "probe_en": "What was the statistical power justification for your sample size according to G*Power?",
-                "rebuttal_fa": "محاسبه بر پایه اندازه اثر متوسط f = 0.25، آلفای ۰/۰۵ و توان آزمون ۰/۸۰ که حداقل حجم نمونه مورد نیاز را توجیه می‌نماید.",
+                "rebuttal_fa": "محاسبه بر پایه اندازه اثر متوسط f = 0.25، آلفای ۰.۰۵ و توان آزمون ۰.۸۰ که حداقل حجم نمونه مورد نیاز را توجیه می‌نماید.",
                 "rebuttal_en": "A priori G*Power analysis with medium effect size f = .25, alpha = .05, and power = .80 justifying sample sufficiency."
             }
         ]
