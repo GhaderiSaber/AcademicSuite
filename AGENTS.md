@@ -84,14 +84,20 @@ All statistical results (whether in Persian or English) must comply with APA 7th
 
 ### Rule 4: Persian Academic Typography & OpenXML Standards
 When assembling or editing Persian Word documents (`.docx`):
-- **Fonts**:
-  - Chapter Titles: `B Titr` 16–18 pt Bold, Centered.
-  - Headings 2 & 3: `B Titr` or `B Nazanin Bold` 13–14 pt Bold, Right-aligned.
-  - Body Paragraphs: `B Nazanin` or `B Lotus` 13–14 pt Regular, Line Spacing 1.15–1.3, Justified (`WD_ALIGN_PARAGRAPH.JUSTIFY`).
-  - Numbers and Statistics: `Times New Roman` 10–11 pt.
+- **Mandatory True Persian Font Binding**:
+  - When writing Persian text in Word (`.docx`), agents **MUST** use genuine Persian fonts for all Persian characters:
+    - Chapter Titles & Main Headers: `B Titr` (16–18 pt Bold, Centered).
+    - Headings 2 & 3: `B Titr` (13–14 pt Bold) or `B Nazanin Bold` (13–14 pt Bold, Right-aligned).
+    - Body Paragraphs, Descriptions & Callouts: `B Nazanin` (13–14 pt Regular, Line Spacing 1.15–1.3, Justified).
+    - Pure Latin Numbers, English Terms & Statistical Symbols ($M, SD, t, F, p, \beta, \text{RMSEA}$): `Times New Roman` (10–11 pt).
+  - **OpenXML Persian Font Binding Protocol**:
+    - For all Persian text runs, agents **MUST** set `w:ascii`, `w:hAnsi`, and `w:cs` to the designated Persian font (`B Nazanin` or `B Titr`), AND set `w:hint="cs"`.
+    - **NEVER** bind `w:ascii="Times New Roman"` to Persian text runs; doing so causes Microsoft Word on Windows to render Persian characters using Times New Roman's Arabic Naskh fallback glyphs instead of genuine Persian typography.
+    - Always inject `<w:rtl w:val="1"/>` into the run's `<w:rPr>` to force Right-to-Left script direction.
+    - Always inject `<w:szCs w:val="{half_pts}"/>` and `<w:bCs w:val="1"/>` to guarantee that font size and bold weight are applied to complex-script Persian glyphs in Microsoft Word.
+    - Explicitly set `run.font.name` to the Persian font name so Word's ribbon and font dropdown identify the active Persian font immediately.
 - **BiDi & OpenXML Directionality**:
   - Always enforce `<w:bidi w:val="1"/>` on Persian paragraphs and `<w:bidiVisual/>` on tables.
-  - Enforce explicit font binding with `<w:rFonts w:ascii="Times New Roman" w:cs="B Nazanin"/>` to prevent font fallback corruption.
   - Maintain Persian half-spaces (نیم‌فاصله: `\u200c`) in compound words (e.g., `می‌شود`, `پیش‌آزمون`, `یافته‌ها`, `روان‌شناختی`).
 
 ### Rule 5: Critical OpenXML Standard: Preservation of Native Word Math & OMML Formulas (`<m:oMath>`)
@@ -273,6 +279,29 @@ Every English academic manuscript prepared for journal submission or academic de
    - **Live CWYW Version (`_EndNote_CWYW.docx`)**: Real OpenXML `ADDIN EN.CITE` field codes with embedded Traveling Library records and `ADDIN EN.REFLIST` bibliography.
    - **Unformatted Version (`_EndNote_Unformatted.docx`)**: Standard `{Author, Year #RecNum}` temporary citations for 1-click styling in Word.
 4. **Accent & Diacritic Normalization**: Name matching between citations and libraries must use `unicodedata` normalization (`strip_accents`) to ensure names with diacritics (e.g., `Bülbül`, `López`, `Pérez`) resolve without error.
+
+### Rule 17: Mandatory English-Only File & Directory Naming Convention (الزام نام‌گذاری تمامی فایل‌ها و پوشه‌ها به زبان انگلیسی)
+Every AI agent operating in this repository **MUST** strictly adhere to the English-only file naming protocol for all generated, created, compiled, or refactored files and directories:
+
+1. **Strict Prohibition Against Non-English/Persian Filenames (ممنوعیت مطلق اسامی فارسی یا غیرلاتین)**:
+   - An agent must **NEVER** create, save, rename, or export any file, script, document (`.docx`), presentation (`.pptx`), spreadsheet (`.xlsx`), data artifact, figure, or directory using Persian, Arabic, or non-ASCII characters (e.g., never name a file `ارزیابی_مدل_ساختاری.pptx`, `پایان‌نامه_مرضیه.docx`, or `فصل۴.xlsx`).
+   - All filenames **MUST** consist strictly of English ASCII characters (`a-z`, `A-Z`, `0-9`, underscores `_`, and hyphens `-`).
+   - Standard casing conventions:
+     - Python scripts / data assets: `snake_case` (e.g., `build_client_defense_brief.py`, `stats_results.json`).
+     - Formal Word / PowerPoint deliverables: `Title_Case_With_Underscores` or `CamelCase` with descriptive English terms (e.g., `Client_Defense_Presentation_Brief.docx`, `Evaluating_Childhood_Trauma_and_High_Risk_Behaviors_Presentation.pptx`, `Thesis_Chapter4_Results.docx`).
+     - Documentation / Blueprints: `UPPER_CASE.md` or `Title_Case.md` (e.g., `AGENTS.md`, `README.md`, `Client_Defense_Presentation_Brief.md`).
+
+2. **Technical Rationale & Integrity Protections**:
+   - **Cross-Platform Sync & Cloud Compatibility**: Persian/non-ASCII characters cause catastrophic file encoding discrepancies between Windows (CP1252/CP1256/UTF-16), macOS, Linux, and Google Drive syncing layers.
+   - **Terminal & CLI Command Stability**: Scripts and build pipelines frequently crash with `UnicodeEncodeError` when shell processes parse non-ASCII paths.
+   - **OpenXML & Hyperlink Resilience**: Native Word and PowerPoint documents corrupt relative hyperlinks and media relationships when paths contain Persian diacritics or non-ASCII characters.
+
+3. **Content Language vs. Filename Language Separation**:
+   - The *content* of Persian deliverables (e.g., thesis chapters, slides text, questionnaires, client briefs, and defense speech scripts) remains authentic, scholarly academic Persian with full OpenXML `<w:bidi>` directionality and APA 7 typography.
+   - The *physical filename on disk* must ALWAYS be 100% English.
+
+4. **Remediation & Renaming Protocol for Existing Non-English Files**:
+   - If an agent discovers legacy files, client uploads, or intermediate outputs with Persian or non-ASCII names, the agent must systematically rename them to clean, descriptive English names and update all script references and path constants accordingly.
 
 ---
 
