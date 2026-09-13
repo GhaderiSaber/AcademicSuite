@@ -1019,32 +1019,37 @@ def main():
     # 4. Export Summary JSON
     summary_path = os.path.join(args.out_dir, "psychometric_summary.json")
     irt_mod = payload.get("irt_model", {})
+    tot_scale = payload.get("total_scale", {})
+    efa_diag = payload.get("efa_diagnostics", {})
+    cfa_fit = payload.get("cfa_fit_indices", {})
+    roc_diag = payload.get("roc_diagnostics", {})
+
     summary_data = {
         "scale_name": payload.get("scale_name", ""),
         "scale_name_en": payload.get("scale_name_en", ""),
         "items_count": len(payload.get("items", [])),
         "factors_count": len(payload.get("factors", [])),
-        "sample_size": payload.get("sample_size", 450),
+        "sample_size": payload.get("sample_size"),
         "content_validity": {
-            "expert_panel_size": payload.get("expert_panel_size", 12),
-            "lawshe_critical_cvr": payload.get("lawshe_critical_cvr", 0.56)
+            "expert_panel_size": payload.get("expert_panel_size"),
+            "lawshe_critical_cvr": payload.get("lawshe_critical_cvr")
         },
-        "efa_diagnostics": payload.get("efa_diagnostics", {}),
-        "cfa_fit_indices": payload.get("cfa_fit_indices", {}),
+        "efa_diagnostics": efa_diag,
+        "cfa_fit_indices": cfa_fit,
         "reliability": {
-            "cronbach_alpha": payload.get("total_scale", {}).get("cronbach_alpha", 0.912),
-            "mcdonald_omega": payload.get("total_scale", {}).get("mcdonald_omega", 0.918),
-            "retest_icc": payload.get("total_scale", {}).get("retest_icc", 0.878)
+            "cronbach_alpha": tot_scale.get("cronbach_alpha"),
+            "mcdonald_omega": tot_scale.get("mcdonald_omega"),
+            "retest_icc": tot_scale.get("retest_icc")
         },
         "irt_diagnostics": {
             "model_name": irt_mod.get("model_name", "Graded Response Model (GRM)"),
-            "mean_discrimination": irt_mod.get("mean_discrimination", 1.748),
-            "tif_peak_theta": irt_mod.get("tif_peak_theta", 0.45),
-            "tif_max_info": irt_mod.get("tif_max_info", 31.40),
-            "min_se": irt_mod.get("min_se", 0.178),
+            "mean_discrimination": irt_mod.get("mean_discrimination"),
+            "tif_peak_theta": irt_mod.get("tif_peak_theta"),
+            "tif_max_info": irt_mod.get("tif_max_info"),
+            "min_se": irt_mod.get("min_se"),
             "dif_summary": irt_mod.get("dif_analysis", {}).get("summary", "")
         },
-        "roc_diagnostics": payload.get("roc_diagnostics", {}),
+        "roc_diagnostics": roc_diag,
         "artifacts": {
             "chapter4_word": docx_path,
             "validation_excel": xlsx_path,
@@ -1058,13 +1063,17 @@ def main():
 
     print("\n======================================================================")
     print(" PSYCHOMETRIC SCALE VALIDATION COMPLETED SUCCESSFULLY (CTT & IRT)")
-    print(f" - Lawshe CVR & Waltz-Bausell CVI: All {len(payload.get('items', []))} items validated")
-    print(f" - EFA KMO: {payload.get('efa_diagnostics', {}).get('kmo', 0.884):.3f} (Variance: {payload.get('total_scale', {}).get('variance_percent', 58.4):.1f}%)")
-    print(f" - CFA CFI: {payload.get('cfa_fit_indices', {}).get('cfi', 0.948):.3f}, RMSEA: {payload.get('cfa_fit_indices', {}).get('rmsea', 0.054):.3f}")
-    print(f" - Total McDonald's Omega (ω): {payload.get('total_scale', {}).get('mcdonald_omega', 0.918):.3f}")
-    print(f" - IRT GRM Mean Discrimination (a): {irt_mod.get('mean_discrimination', 1.748):.2f} (Baker: Very High)")
-    print(f" - IRT TIF Max Info: {irt_mod.get('tif_max_info', 31.40):.1f} at θ = {irt_mod.get('tif_peak_theta', 0.45):.2f} (Min SE: {irt_mod.get('min_se', 0.178):.3f})")
-    print(f" - ROC AUC: {payload.get('roc_diagnostics', {}).get('auc', 0.872):.3f} (Optimal Cut-off: {payload.get('roc_diagnostics', {}).get('optimal_cutoff', 48.0)})")
+    print(f" - Validated items count: {len(payload.get('items', []))}")
+    if efa_diag.get("kmo") is not None:
+        print(f" - EFA KMO: {efa_diag.get('kmo'):.3f} (Variance: {tot_scale.get('variance_percent', 0.0):.1f}%)")
+    if cfa_fit.get("cfi") is not None and cfa_fit.get("rmsea") is not None:
+        print(f" - CFA CFI: {cfa_fit.get('cfi'):.3f}, RMSEA: {cfa_fit.get('rmsea'):.3f}")
+    if tot_scale.get("mcdonald_omega") is not None:
+        print(f" - Total McDonald's Omega (ω): {tot_scale.get('mcdonald_omega'):.3f}")
+    if irt_mod.get("mean_discrimination") is not None:
+        print(f" - IRT GRM Mean Discrimination (a): {irt_mod.get('mean_discrimination'):.2f}")
+    if roc_diag.get("auc") is not None:
+        print(f" - ROC AUC: {roc_diag.get('auc'):.3f} (Optimal Cut-off: {roc_diag.get('optimal_cutoff', 'N/A')})")
     print("======================================================================")
 
 

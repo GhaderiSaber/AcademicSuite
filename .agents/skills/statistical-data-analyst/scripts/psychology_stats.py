@@ -605,6 +605,9 @@ def analyze_ancova(df: pd.DataFrame, dv_col: str, group_col: str, covar_col: str
     anova_slopes = sm.stats.anova_lm(slope_model, typ=3)
     interaction_term = f"C({group_col}):{covar_col}"
     slope_p = float(anova_slopes.loc[interaction_term, "PR(>F)"]) if interaction_term in anova_slopes.index else 1.0
+    slope_f = float(anova_slopes.loc[interaction_term, "F"]) if interaction_term in anova_slopes.index else 0.0
+    slope_df1 = int(anova_slopes.loc[interaction_term, "df"]) if interaction_term in anova_slopes.index else 1
+    slope_df2 = int(anova_slopes.loc["Residual", "df"]) if "Residual" in anova_slopes.index else 1
     slope_homogeneity_met = (slope_p > 0.05)
     
     # 2. Fit Standard ANCOVA Model: DV ~ Covariate + Group
@@ -636,6 +639,9 @@ def analyze_ancova(df: pd.DataFrame, dv_col: str, group_col: str, covar_col: str
         "group_var": group_col,
         "covariate": covar_col,
         "n_total": len(sub_df),
+        "slope_homogeneity_f": round(float(slope_f), 2),
+        "slope_homogeneity_df1": slope_df1,
+        "slope_homogeneity_df2": slope_df2,
         "slope_homogeneity_p": float(slope_p),
         "slope_homogeneity_p_str": format_p_value(float(slope_p)),
         "slope_homogeneity_met": bool(slope_homogeneity_met),

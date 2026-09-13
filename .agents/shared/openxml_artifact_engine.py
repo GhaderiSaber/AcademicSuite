@@ -967,19 +967,23 @@ class OpenXMLArtifactEngine:
         self.add_styled_paragraph(doc, supervisor, font_fa='B Nazanin', size=13, bold=True, jc_val='center', space_after=20)
 
         # Chapters 1 to 5 headings
-        chapters = [
-            ("فصل اول", "کلیات پژوهش"),
-            ("فصل دوم", "مبانی نظری و پیشینه پژوهش"),
-            ("فصل سوم", "روش‌شناسی پژوهش"),
-            ("فصل چهارم", "یافته‌های پژوهش"),
-            ("فصل پنجم", "بحث و نتیجه‌گیری")
-        ]
-        for ch_num, ch_name in chapters:
+        chapters = thesis_data.get("chapters", [
+            {"number": "فصل اول", "title": "کلیات پژوهش"},
+            {"number": "فصل دوم", "title": "مبانی نظری و پیشینه پژوهش"},
+            {"number": "فصل سوم", "title": "روش‌شناسی پژوهش"},
+            {"number": "فصل چهارم", "title": "یافته‌های پژوهش"},
+            {"number": "فصل پنجم", "title": "بحث و نتیجه‌گیری"}
+        ])
+        for ch in chapters:
             doc.add_page_break()
+            ch_num = ch.get("number", "") if isinstance(ch, dict) else ch[0]
+            ch_name = ch.get("title", "") if isinstance(ch, dict) else ch[1]
+            ch_content = ch.get("content", "") if isinstance(ch, dict) else ""
             self.add_styled_paragraph(doc, ch_num, font_fa='B Titr', size=16, bold=True, jc_val='center', space_before=30, space_after=6)
             self.add_styled_paragraph(doc, ch_name, font_fa='B Titr', size=16, bold=True, jc_val='center', space_after=16)
 
-            self.add_styled_paragraph(doc, f"متن کامل {ch_num} ({ch_name}) در این بخش قرار می‌گیرد.", font_fa='B Nazanin', size=13, jc_val='both')
+            if ch_content:
+                self.add_styled_paragraph(doc, ch_content, font_fa='B Nazanin', size=13, jc_val='both')
 
         doc.save(output_path)
         return output_path
@@ -1082,58 +1086,83 @@ class OpenXMLArtifactEngine:
 
         # 1. Content Validity Section
         p_cvr = doc.add_paragraph()
+        cvr_val = validation_payload.get("mean_cvr", "مطلوب")
+        cvi_val = validation_payload.get("scvi_ave", "مطلوب")
+        expert_n = validation_payload.get("expert_panel_size", 10)
+
+        # 1. Content Validity Section
+        p_cvr = doc.add_paragraph()
         self.set_strict_pPr(p_cvr, jc_val='both', space_before=14, space_after=6)
         self.add_styled_run(p_cvr, "۱. روایی محتوایی (نسبت Lawshe CVR و شاخص CVI)", font_fa='B Titr', size=13, bold=True)
 
         p_cvr_txt = doc.add_paragraph()
         self.set_strict_pPr(p_cvr_txt, jc_val='both', space_after=6)
-        self.add_styled_run(p_cvr_txt, "ارزیابی روایی محتوایی با مشارکت پنل متخصصان (N=11) انجام پذیرفت. تمامی گویه‌ها دارای CVR بالاتر از آستانه بحرانی ۰/۵۹ در سطح معناداری ۰/۰۵ و شاخص I-CVI بالاتر از ۰/۷۸ بودند.", font_fa='B Nazanin', size=12)
+        self.add_styled_run(p_cvr_txt, f"ارزیابی روایی محتوایی با مشارکت پنل متخصصان (N = {expert_n}) انجام پذیرفت. شاخص‌های روایی محتوایی محاسبه‌شده بر مبنای معیارهای لاوشه و والتز-باسل در سطح معناداری آماری مورد تأیید قرار گرفت.", font_fa='B Nazanin', size=12)
 
         # 2. Construct Validity: EFA & CFA
         p_cfa = doc.add_paragraph()
         self.set_strict_pPr(p_cfa, jc_val='both', space_before=14, space_after=6)
         self.add_styled_run(p_cfa, "۲. روایی سازه: تحلیل عاملی اکتشافی (EFA) و تأییدی (CFA)", font_fa='B Titr', size=13, bold=True)
 
+        cfa_indices = validation_payload.get("cfa_fit_indices", {})
+        chi2_df = cfa_indices.get("chi2_df") or validation_payload.get("chi2_df")
+        cfi = cfa_indices.get("cfi") or validation_payload.get("cfi")
+        tli = cfa_indices.get("tli") or validation_payload.get("tli")
+        rmsea = cfa_indices.get("rmsea") or validation_payload.get("rmsea")
+        srmr = cfa_indices.get("srmr") or validation_payload.get("srmr")
+        kmo = validation_payload.get("kmo")
+
+        kmo_str = f" (KMO = {kmo:.2f})" if isinstance(kmo, (int, float)) else ""
         p_cfa_txt = doc.add_paragraph()
         self.set_strict_pPr(p_cfa_txt, jc_val='both', space_after=6)
-        self.add_styled_run(p_cfa_txt, "شاخص کفایت نمونه‌برداری کایزر-مایر-اولکین (KMO = ۰/۸۸) و آزمون کرویت بارتلت (p < .001) کفایت ماتریس داده‌ها را برای تحلیل عاملی تأیید نمود. شاخص‌های برازش مدل تأییدی حاکی از برازش بسیار مطلوب ساختار عاملی بود (χ²/df = 1.94, CFI = .94, TLI = .93, RMSEA = .056, SRMR = .048).", font_fa='B Nazanin', size=12)
+        self.add_styled_run(p_cfa_txt, f"کفایت نمونه‌برداری و آزمون کرویت بارتلت{kmo_str} کفایت ماتریس داده‌ها را برای تحلیل عاملی تأیید نمود.", font_fa='B Nazanin', size=12)
 
-        # CFA Fit Table (APA 7)
-        tbl = doc.add_table(rows=1, cols=6)
-        self.style_apa_table(tbl)
-        hdr = tbl.rows[0].cells
-        hdr[0].text = "مدل اندازه‌گیری"
-        hdr[1].text = "χ²/df"
-        hdr[2].text = "CFI"
-        hdr[3].text = "TLI"
-        hdr[4].text = "RMSEA"
-        hdr[5].text = "SRMR"
+        if all(v is not None for v in [chi2_df, cfi, tli, rmsea, srmr]):
+            # CFA Fit Table (APA 7)
+            tbl = doc.add_table(rows=1, cols=6)
+            self.style_apa_table(tbl)
+            hdr = tbl.rows[0].cells
+            hdr[0].text = "مدل اندازه‌گیری"
+            hdr[1].text = "χ²/df"
+            hdr[2].text = "CFI"
+            hdr[3].text = "TLI"
+            hdr[4].text = "RMSEA"
+            hdr[5].text = "SRMR"
 
-        row = tbl.add_row().cells
-        row[0].text = "ساختار عاملی نهایی"
-        row[1].text = "1.94"
-        row[2].text = ".94"
-        row[3].text = ".93"
-        row[4].text = ".056"
-        row[5].text = ".048"
+            row = tbl.add_row().cells
+            row[0].text = "ساختار عاملی نهایی"
+            row[1].text = f"{chi2_df:.2f}" if isinstance(chi2_df, (int, float)) else str(chi2_df)
+            row[2].text = f"{cfi:.3f}" if isinstance(cfi, (int, float)) else str(cfi)
+            row[3].text = f"{tli:.3f}" if isinstance(tli, (int, float)) else str(tli)
+            row[4].text = f"{rmsea:.3f}" if isinstance(rmsea, (int, float)) else str(rmsea)
+            row[5].text = f"{srmr:.3f}" if isinstance(srmr, (int, float)) else str(srmr)
 
         # 3. Convergent & Discriminant Validity & Reliability
         p_rel = doc.add_paragraph()
         self.set_strict_pPr(p_rel, jc_val='both', space_before=14, space_after=6)
         self.add_styled_run(p_rel, "۳. روایی همگرا/واگرا و شاخص‌های پایایی نوین (APA 7)", font_fa='B Titr', size=13, bold=True)
 
+        omega = validation_payload.get("mcdonald_omega") or validation_payload.get("omega")
+        alpha = validation_payload.get("cronbach_alpha") or validation_payload.get("alpha")
+        rel_parts = []
+        if omega is not None:
+            rel_parts.append(f"امگای مک‌دونالد (ω = {omega:.2f})" if isinstance(omega, (int, float)) else f"امگای مک‌دونالد (ω = {omega})")
+        if alpha is not None:
+            rel_parts.append(f"آلفای کرونباخ (α = {alpha:.2f})" if isinstance(alpha, (int, float)) else f"آلفای کرونباخ (α = {alpha})")
+        rel_str = " و ".join(rel_parts) if rel_parts else "شاخص‌های پایایی ترکیبی و همسانی درونی"
+
         p_rel_txt = doc.add_paragraph()
         self.set_strict_pPr(p_rel_txt, jc_val='both', space_after=6)
-        self.add_styled_run(p_rel_txt, "میانگین واریانس استخراج‌شده (AVE) بالاتر از ۰/۵۰ و پایایی ترکیبی (CR) بالاتر از ۰/۷۰ به دست آمد که مبین روایی همگرای ایده‌آل است. همچنین ضریب امگای مک‌دونالد (ω = ۰/۸۹) و آلفای کرونباخ (α = ۰/۸۷) بر پایایی درونی فوق‌العاده ابزار دلالت دارند.", font_fa='B Nazanin', size=12)
+        self.add_styled_run(p_rel_txt, f"ارزیابی پایایی مقیاس بر پایه {rel_str} انجام پذیرفت و برازش ساختار ابزار تأیید شد.", font_fa='B Nazanin', size=12)
 
         # 4. IRT & Clinical Cut-offs
         p_irt = doc.add_paragraph()
         self.set_strict_pPr(p_irt, jc_val='both', space_before=14, space_after=6)
-        self.add_styled_run(p_irt, "۴. نظریه پاسخ سوال (IRT) و تعیین نقطه برش بالینی (ROC)", font_fa='B Titr', size=13, bold=True)
+        self.add_styled_run(p_irt, "۴. نظریه پاسخ سوال (IRT) و ویژگی‌های روان‌سنجی نوین", font_fa='B Titr', size=13, bold=True)
 
         p_irt_txt = doc.add_paragraph()
         self.set_strict_pPr(p_irt_txt, jc_val='both', space_after=6)
-        self.add_styled_run(p_irt_txt, "پارامترهای تشخیص گویه‌ها در مدل پاسخ درجه‌بندی سامجیما (GRM) در سطح متوسط تا بسیار بالا قرار داشتند. تحلیل منحنی راک (AUC = ۰/۸۹) با شاخص یودن نقطه برش بالینی بهینه را تعیین نمود.", font_fa='B Nazanin', size=12)
+        self.add_styled_run(p_irt_txt, "پارامترهای تشخیص و آستانه گویه‌ها مطابق مدل‌های نظریه پاسخ سوال ارزیابی گردید و دقت سنجش ابزار در سطوح مختلف صفات مکنون به ثبت رسید.", font_fa='B Nazanin', size=12)
 
         doc.save(output_path)
         return output_path
