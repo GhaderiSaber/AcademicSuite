@@ -74,6 +74,7 @@ from academic_inquiry_classifier import AcademicInquiryClassifier
 from milestone_tracker import AcademicMilestoneTracker, milestone_tracker
 from morning_briefing import AcademicMorningBriefing
 from math_formatter import AcademicMathFormatter
+from voice_transcriber import AcademicVoiceTranscriber
 
 
 DEFAULT_CONFIG_PATH = os.path.join(SCRIPT_DIR, "telethon_config.json")
@@ -173,6 +174,7 @@ class SaberTelethonUserbot:
         self.classifier = AcademicInquiryClassifier(self.config)
         self.milestone_tracker = AcademicMilestoneTracker(self.project_manager.work_dir)
         self.morning_briefing = AcademicMorningBriefing(self.project_manager, self.milestone_tracker, storage_dir=self.storage_dir)
+        self.voice_transcriber = AcademicVoiceTranscriber(self.config)
 
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
@@ -187,6 +189,14 @@ class SaberTelethonUserbot:
         self.deliverable_counter = 100
         self.math_registry: Dict[str, Dict[str, Any]] = {}
         self.math_counter = 100
+        self.voice_registry: Dict[str, Dict[str, Any]] = {}
+        for k, v in self.pending_drafts.items():
+            if "voice_digest" in v:
+                self.voice_registry[k] = {
+                    "client_name": v.get("sender_name", "Client"),
+                    "voice_digest": v["voice_digest"],
+                    "topic_key": "supervisor_reviews" if v.get("inquiry_type") == "supervisor_defense_question" else "drafts",
+                }
         self.me = None
         self.proxy = get_proxy_settings(self.config)
 
@@ -1263,6 +1273,109 @@ class SaberTelethonUserbot:
             )
             return
 
+        # Check if burst contains a student voice note
+        voice_file = None
+        for f in files:
+            if f.get("type") == "voice" and f.get("local_path") and os.path.exists(f["local_path"]):
+                voice_file = f
+                break
+
+        voice_digest = None
+        if voice_file and self.voice_transcriber:
+            print(f"[*] Auto-transcribing voice note {voice_file['name']} from {client_name}...")
+            voice_digest = self.voice_transcriber.transcribe_and_digest(
+                audio_path=voice_file["local_path"],
+                client_name=client_name,
+                is_vip=self.topic_manager.is_vip_client(sender_id) if hasattr(self.topic_manager, "is_vip_client") else False,
+                duration=voice_file.get("duration", 0)
+            )
+
+        if voice_digest:
+            v_transcript = voice_digest.get("transcript_fa", "")
+            if v_transcript:
+                try:
+                    self.project_manager.append_message_to_history(
+                        client_name=client_name,
+                        client_id=sender_id,
+                        username=username,
+                        msg_id=messages[-1]["id"] if messages else 0,
+                        sender_label=client_name,
+                        sender_tag="Client (Voice Transcription)",
+                        text=f"[متن صوت:] {v_transcript}",
+                        file_name=voice_file["name"],
+                        media_type="voice",
+                        duration=voice_file.get("duration", 0)
+                    )
+                except Exception as err:
+                    print(f"[-] Error appending voice transcript: {err}")
+
+            if v_transcript:
+                combined_text = f"{combined_text}\n\n[متن صوت:] {v_transcript}".strip() if combined_text else f"[متن صوت:] {v_transcript}"
+
+            inquiry_type = voice_digest.get("inquiry_type", "supervisor_defense_question")
+            draft_reply = voice_digest.get("suggested_draft_fa", "")
+            target_topic = voice_digest.get("topic_key", "supervisor_reviews")
+            admin_notes = f"Voice Note ({voice_file.get('duration', 0)}s): {voice_digest.get('core_dilemma_fa', '')}"
+            thinking_points = voice_digest.get("thinking_points_en", [])
+            engine = voice_digest.get("audio_model", "Gemini Audio")
+
+            self.draft_counter += 1
+            draft_id = f"D{self.draft_counter}"
+
+            self.pending_drafts[draft_id] = {
+                "draft_id": draft_id,
+                "chat_id": chat_id,
+                "sender_id": sender_id,
+                "sender_name": client_name,
+                "username": username,
+                "inquiry_type": inquiry_type,
+                "client_message": combined_text,
+                "draft_reply": draft_reply,
+                "client_source": client_inst or self.client,
+                "account_label": account_label,
+                "thinking_points": thinking_points,
+                "voice_digest": voice_digest,
+                "created_at": datetime.now().isoformat()
+            }
+            self._save_pending_drafts()
+            self.voice_registry[draft_id] = {
+                "client_name": client_name,
+                "voice_digest": voice_digest,
+                "topic_key": target_topic,
+            }
+
+            client_link = format_client_mention_html(client_name, username=username, client_id=sender_id)
+            card_html, _ = self.voice_transcriber.build_voice_card(
+                voice_digest=voice_digest,
+                client_name=client_name,
+                client_link=client_link,
+                sender_id=sender_id,
+                draft_id=draft_id,
+                account_label=account_label
+            )
+
+            telegram_btns = self.build_approval_keyboard(
+                approve_label=f"🚀 Approve & Send ({draft_id})",
+                approve_data=f"send_draft_{draft_id}",
+                edit_label="✏️ Edit & Reply",
+                edit_query=f"/send_msg_{draft_id} ",
+                dismiss_label="🗑️ Dismiss",
+                dismiss_data=f"ignore_draft_{draft_id}"
+            )
+            if telegram_btns and len(telegram_btns) >= 2 and Button is not None:
+                telegram_btns[1].insert(0, Button.inline("📝 Full Transcript", f"voice_transcript_{draft_id}".encode("utf-8")))
+
+            await self.send_to_desk(
+                card_html,
+                buttons=telegram_btns,
+                topic_key=target_topic,
+                client_id=sender_id,
+                client_name=client_name,
+                parse_mode="html"
+            )
+            print(f"[+] Posted Voice Note Digest card for {client_name} ({draft_id}) to Topic {target_topic}")
+            return
+
         # Prepare summary of media attachments if any
         files_summary_lines = []
         if files:
@@ -1765,6 +1878,103 @@ class SaberTelethonUserbot:
                 await self.generate_and_post_math_defense(test_type=t_type, supervisor_dilemma_fa=extra or None, trigger_event=event)
                 return
 
+            # Voice transcription command: /transcribe [client_query] or /voice
+            m_trans = re.match(r"^/(?:transcribe|voice)(?:\s+(.+))?", txt)
+            if m_trans:
+                c_query = (m_trans.group(1) or "").strip()
+                if not c_query:
+                    await event.reply(
+                        "🎙️ <b>Digital Saber — Persian Voice Note Transcriber</b>\n\n"
+                        "Transcribe and analyze any client voice note from Google Drive.\n"
+                        "Usage: <code>/transcribe &lt;client_name&gt;</code>\n"
+                        "Example: <code>/transcribe Zahra Jalali</code>",
+                        parse_mode="html"
+                    )
+                    return
+                clean_q = c_query.lstrip("@").lower()
+                matched_pdir = self.project_manager.find_existing_project_by_client(clean_q)
+                if not matched_pdir and clean_q.isdigit():
+                    matched_pdir = self.project_manager.find_existing_project_by_client("Client", client_id=int(clean_q))
+                if not matched_pdir:
+                    projs = self.project_manager.list_all_projects()
+                    for p in projs:
+                        if clean_q in (p.get("client_name") or "").lower() or \
+                           clean_q in (p.get("client_name_fa") or "").lower() or \
+                           clean_q in (p.get("folder_name") or "").lower():
+                            matched_pdir = p["folder_path"]
+                            break
+                if not matched_pdir:
+                    await event.reply(f"❌ No project folder found for <code>{html.escape(c_query)}</code>.", parse_mode="html")
+                    return
+
+                raw_dir = os.path.join(matched_pdir, "01_raw_inputs")
+                v_files = []
+                if os.path.exists(raw_dir):
+                    for fn in os.listdir(raw_dir):
+                        if fn.lower().endswith((".oga", ".ogg", ".mp3", ".wav")):
+                            f_path = os.path.join(raw_dir, fn)
+                            v_files.append((f_path, os.path.getmtime(f_path)))
+                v_files.sort(key=lambda x: x[1], reverse=True)
+
+                if not v_files:
+                    await event.reply(f"🎙️ No voice notes found in <code>01_raw_inputs/</code> for {os.path.basename(matched_pdir)}.", parse_mode="html")
+                    return
+
+                target_voice = v_files[0][0]
+                await event.reply(f"⏳ Transcribing latest voice note (<code>{os.path.basename(target_voice)}</code>) via Gemini Audio...", parse_mode="html")
+
+                cname = os.path.basename(matched_pdir)
+                vd = self.voice_transcriber.transcribe_and_digest(target_voice, client_name=cname)
+                if vd:
+                    self.draft_counter += 1
+                    draft_id = f"D{self.draft_counter}"
+                    self.pending_drafts[draft_id] = {
+                        "draft_id": draft_id,
+                        "chat_id": event.chat_id,
+                        "sender_id": 0,
+                        "sender_name": cname,
+                        "username": None,
+                        "inquiry_type": vd.get("inquiry_type", "supervisor_defense_question"),
+                        "client_message": vd.get("transcript_fa", ""),
+                        "draft_reply": vd.get("suggested_draft_fa", ""),
+                        "client_source": self.client,
+                        "account_label": "Manual /transcribe",
+                        "thinking_points": vd.get("thinking_points_en", []),
+                        "voice_digest": vd,
+                        "created_at": datetime.now().isoformat()
+                    }
+                    self._save_pending_drafts()
+                    self.voice_registry[draft_id] = {
+                        "client_name": cname,
+                        "voice_digest": vd,
+                        "topic_key": "drafts",
+                    }
+                    card_html, _ = self.voice_transcriber.build_voice_card(
+                        voice_digest=vd,
+                        client_name=cname,
+                        client_link=cname,
+                        sender_id=0,
+                        draft_id=draft_id,
+                        account_label="Manual Inspection"
+                    )
+                    btns = self.build_approval_keyboard(
+                        approve_label=f"🚀 Approve & Send ({draft_id})",
+                        approve_data=f"send_draft_{draft_id}",
+                        edit_label="✏️ Edit & Reply",
+                        edit_query=f"/send_msg_{draft_id} ",
+                        dismiss_label="🗑️ Dismiss",
+                        dismiss_data=f"ignore_draft_{draft_id}"
+                    )
+                    if btns and len(btns) >= 2 and Button is not None:
+                        btns[1].insert(0, Button.inline("📝 Full Transcript", f"voice_transcript_{draft_id}".encode("utf-8")))
+
+                    t_key = vd.get("topic_key", "supervisor_reviews")
+                    await self.send_to_desk(card_html, buttons=btns, topic_key=t_key, parse_mode="html")
+                    await event.reply(f"✅ Voice note digest card ({draft_id}) posted to Topic {t_key}!", parse_mode="html")
+                else:
+                    await event.reply(f"❌ Failed to transcribe voice note for {cname}.", parse_mode="html")
+                return
+
             # Milestone & Progress tracker: /milestone [client_query] or /milestones or /progress
             m_ms = re.match(r"^/(?:milestone|milestones|progress)(?:\s+(.+))?", txt)
             if m_ms:
@@ -2048,6 +2258,31 @@ class SaberTelethonUserbot:
                             pass
                     else:
                         await event.answer(f"❌ Draft ID {did} not found.", alert=True)
+                elif data.startswith("voice_transcript_"):
+                    did = data.split("voice_transcript_")[1]
+                    entry = None
+                    if did in self.voice_registry:
+                        entry = self.voice_registry[did]
+                    elif did in self.pending_drafts and "voice_digest" in self.pending_drafts[did]:
+                        entry = {
+                            "client_name": self.pending_drafts[did].get("sender_name", "Client"),
+                            "voice_digest": self.pending_drafts[did]["voice_digest"],
+                            "topic_key": self.pending_drafts[did].get("topic_key", "drafts"),
+                        }
+                    if entry and "voice_digest" in entry:
+                        vd = entry["voice_digest"]
+                        transcript = vd.get("transcript_fa", "")
+                        cname = entry.get("client_name", "Client")
+                        await event.answer("📝 Full transcript retrieved!", alert=False)
+                        msg = (
+                            f"📝 <b>Persian Voice Note Transcription</b>\n"
+                            f"🆔 <code>{did}</code>  •  👤 <b>{html.escape(cname)}</b>\n\n"
+                            f"<blockquote expandable>«{html.escape(transcript)}»</blockquote>"
+                        )
+                        t_key = entry.get("topic_key", "drafts")
+                        await self.send_to_desk(msg, topic_key=t_key, parse_mode="html")
+                    else:
+                        await event.answer(f"❌ Voice transcript for {did} not found.", alert=True)
                 elif data.startswith("send_fu_"):
                     fuid = data.split("send_fu_")[1]
                     if fuid in self.pending_followups:
