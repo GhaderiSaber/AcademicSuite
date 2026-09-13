@@ -22,13 +22,20 @@ try:
 except ImportError:
     Button = None
 
+try:
+    from financial_ledger import format_toman
+except ImportError:
+    def format_toman(amount, lang="fa"):
+        return f"{amount:,}"
+
 
 class AcademicMorningBriefing:
     """Compiles and formats the daily morning executive briefing for Topic 116 (Health)."""
 
-    def __init__(self, project_manager, milestone_tracker, storage_dir: Optional[str] = None):
+    def __init__(self, project_manager, milestone_tracker, financial_ledger=None, storage_dir: Optional[str] = None):
         self.pm = project_manager
         self.mt = milestone_tracker
+        self.fl = financial_ledger
         self.storage_dir = storage_dir or os.path.join(os.path.dirname(__file__), "userbot_storage")
         os.makedirs(self.storage_dir, exist_ok=True)
         self.date_lock_file = os.path.join(self.storage_dir, "last_briefing_date.txt")
@@ -111,6 +118,14 @@ class AcademicMorningBriefing:
         # 4. Quotations
         pending_q_list = list((pending_quotes or {}).values())
 
+        # 5. Financial Pulse
+        fin_summary = None
+        if self.fl:
+            try:
+                fin_summary = self.fl.get_global_financial_summary()
+            except Exception as e:
+                print(f"[-] Error getting financial summary for briefing: {e}")
+
         return {
             "timestamp": datetime.now().isoformat(),
             "date_str": datetime.now().strftime("%A, %d %B %Y"),
@@ -123,7 +138,8 @@ class AcademicMorningBriefing:
             "milestone_states": milestone_states,
             "ready_deliverables": ready_deliverables,
             "follow_ups": follow_ups,
-            "pending_quotes_count": len(pending_q_list)
+            "pending_quotes_count": len(pending_q_list),
+            "financial_summary": fin_summary
         }
 
     def format_briefing_card(self, data: Dict[str, Any]) -> str:
@@ -141,6 +157,7 @@ class AcademicMorningBriefing:
         deliverables = data["ready_deliverables"]
         follow_ups = data["follow_ups"]
         pending_quotes = data["pending_quotes_count"]
+        fin_summary = data.get("financial_summary")
 
         lines = [
             "╭─ 🌅 <b>MORNING ACADEMIC EXECUTIVE BRIEFING</b> ────────",
@@ -186,7 +203,21 @@ class AcademicMorningBriefing:
                 lines.append(f"{pfx} 📁 <b>{cname}:</b> <code>{fname}</code> ({fsz}){extra}")
             lines.append("</blockquote>\n")
 
-        # Section 3: Stalled Client Inactivity Alerts
+        # Section 3: Financial Pulse & Receivables
+        if fin_summary and fin_summary.get("total_portfolio_tomans", 0) > 0:
+            coll_str = format_toman(fin_summary["total_collected_tomans"])
+            rec_str = format_toman(fin_summary["total_receivables_tomans"])
+            lines.append("💰 <b>FINANCIAL PULSE & RECEIVABLES</b>")
+            lines.append("<blockquote expandable>")
+            lines.append(f"├ 💵 <b>مجموع وصولی‌ها:</b> <code>{coll_str}</code> تومان")
+            lines.append(f"├ ⏳ <b>مطالبات در جریان:</b> <code>{rec_str}</code> تومان ({fin_summary['active_installment_count']} پرونده)")
+            if fin_summary.get("overdue_count", 0) > 0:
+                lines.append(f"└ ⚠️ <b>اقساط معوقه:</b> <b>{fin_summary['overdue_count']}</b> مورد نیازمند پیگیری")
+            else:
+                lines.append("└ ✅ <b>وضعیت اقساط:</b> منظم و بدون تاخیر سررسید")
+            lines.append("</blockquote>\n")
+
+        # Section 4: Stalled Client Inactivity Alerts
         if follow_ups:
             lines.append(f"⚠️ <b>CLIENTS REQUIRING ATTENTION & FOLLOW-UP ({len(follow_ups)} Clients)</b>")
             lines.append("<blockquote expandable>")
@@ -203,9 +234,9 @@ class AcademicMorningBriefing:
         else:
             lines.append("✨ <b>CLIENT ENGAGEMENT:</b> All active projects are within healthy interaction windows.\n")
 
-        # Section 4: Quotations status
+        # Section 5: Quotations status
         if pending_quotes > 0:
-            lines.append(f"💰 <b>COMMERCIAL QUOTATIONS:</b> <code>{pending_quotes} proposal(s)</code> pending client approval.\n")
+            lines.append(f"📑 <b>COMMERCIAL QUOTATIONS:</b> <code>{pending_quotes} proposal(s)</code> pending client approval.\n")
 
         lines.append("<i>Tap <b>Dispatch Follow-ups</b> to review stalled clients, or <b>Refresh</b> to rescan Google Drive.</i>")
 
@@ -228,6 +259,7 @@ class AcademicMorningBriefing:
         # Row 2: Secondary tools
         row2 = [
             Button.inline(f"📦 Deliverables ({d_count})", b"cmd_deliverables", style="primary"),
-            Button.inline("🔄 Refresh Briefing", b"cmd_briefing_refresh", style="primary")
+            Button.inline("💰 Financials", b"cmd_finance", style="primary"),
+            Button.inline("🔄 Refresh", b"cmd_briefing_refresh", style="primary")
         ]
         return [row1, row2]

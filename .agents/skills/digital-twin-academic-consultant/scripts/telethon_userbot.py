@@ -75,6 +75,7 @@ from milestone_tracker import AcademicMilestoneTracker, milestone_tracker
 from morning_briefing import AcademicMorningBriefing
 from math_formatter import AcademicMathFormatter
 from voice_transcriber import AcademicVoiceTranscriber
+from financial_ledger import AcademicFinancialLedger, format_toman
 
 
 DEFAULT_CONFIG_PATH = os.path.join(SCRIPT_DIR, "telethon_config.json")
@@ -173,7 +174,8 @@ class SaberTelethonUserbot:
         self.topic_manager = TopicManager(self.config, storage_dir=self.storage_dir)
         self.classifier = AcademicInquiryClassifier(self.config)
         self.milestone_tracker = AcademicMilestoneTracker(self.project_manager.work_dir)
-        self.morning_briefing = AcademicMorningBriefing(self.project_manager, self.milestone_tracker, storage_dir=self.storage_dir)
+        self.financial_ledger = AcademicFinancialLedger(self.project_manager.work_dir, storage_dir=self.storage_dir)
+        self.morning_briefing = AcademicMorningBriefing(self.project_manager, self.milestone_tracker, financial_ledger=self.financial_ledger, storage_dir=self.storage_dir)
         self.voice_transcriber = AcademicVoiceTranscriber(self.config)
 
         self.persona = load_persona()
@@ -197,6 +199,8 @@ class SaberTelethonUserbot:
                     "voice_digest": v["voice_digest"],
                     "topic_key": "supervisor_reviews" if v.get("inquiry_type") == "supervisor_defense_question" else "drafts",
                 }
+        self.pending_payments: Dict[str, Dict[str, Any]] = {}
+        self.payment_counter = 100
         self.me = None
         self.proxy = get_proxy_settings(self.config)
 
@@ -1376,6 +1380,89 @@ class SaberTelethonUserbot:
             print(f"[+] Posted Voice Note Digest card for {client_name} ({draft_id}) to Topic {target_topic}")
             return
 
+        # Check if burst is a financial payment or remittance notification
+        pay_keywords = ["واریز", "فیش", "کارت به کارت", "واریزی", "انتقال دادم", "مبلغ", "شماره پیگیری", "شماره ارجاع", "کد پیگیری", "پایا", "ساتنا", "پرداخت کردم"]
+        has_pay_keyword = any(k in combined_text for k in pay_keywords)
+
+        if has_pay_keyword:
+            cand_amount = 0
+            m_mil = re.search(r"(\d+(?:\.\d+)?)\s*(?:میلیون|ملیون)", combined_text)
+            if m_mil:
+                cand_amount = int(float(m_mil.group(1)) * 1000000)
+            else:
+                fa_to_en = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+                clean_t = combined_text.translate(fa_to_en)
+                m_dig = re.findall(r"\b(\d{1,3}(?:[,\s]\d{3})+|\d{6,9})\b", clean_t)
+                for d in m_dig:
+                    val = int(re.sub(r"[,\s]", "", d))
+                    if 100000 <= val <= 200000000:
+                        cand_amount = val
+                        break
+
+            clean_t = combined_text.translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789"))
+            m_track = re.search(r"(?:پیگیری|ارجاع|رهگیری|کد|شماره)\s*[:\-\s]*(\d{5,12})", clean_t)
+            tracking_code = m_track.group(1) if m_track else ""
+
+            matched_pdir = self.project_manager.find_existing_project_by_client(client_name, client_id=sender_id)
+            if matched_pdir:
+                ledger_data = self.financial_ledger.load_ledger(matched_pdir)
+                tot_c = ledger_data.get("total_contract_tomans", 0)
+                tot_p = ledger_data.get("total_paid_tomans", 0)
+                bal = ledger_data.get("balance_due_tomans", 0)
+                settled_pct = ledger_data.get("settlement_pct", 0)
+
+                self.payment_counter += 1
+                pid = f"PAY{self.payment_counter}"
+                self.pending_payments[pid] = {
+                    "pid": pid,
+                    "client_name": client_name,
+                    "sender_id": sender_id,
+                    "chat_id": chat_id,
+                    "project_dir": matched_pdir,
+                    "detected_amount": cand_amount,
+                    "tracking_code": tracking_code,
+                    "client_message": combined_text,
+                    "client_source": client_inst or self.client,
+                    "created_at": datetime.now().isoformat()
+                }
+
+                cand_str = format_toman(cand_amount) if cand_amount > 0 else "نیاز به تایید دستی"
+                tot_c_str = format_toman(tot_c)
+                tot_p_str = format_toman(tot_p)
+                bal_str = format_toman(bal)
+                client_link = format_client_mention_html(client_name, username=username, client_id=sender_id)
+
+                pay_card = (
+                    f"╭─ 💳 <b>NEW PAYMENT NOTIFICATION</b> ────────────────\n"
+                    f"│ 👤 <b>Client:</b> {client_link}\n"
+                    f"│ 💵 <b>Detected Amount:</b> <code>{cand_str}</code> تومان\n"
+                    f"│ 🔢 <b>Tracking / Ref:</b> <code>{tracking_code or 'فاقد کد صریح'}</code>\n"
+                    f"│ 📊 <b>Ledger State:</b> <code>{tot_p_str} / {tot_c_str}</code> ت (<b>{settled_pct}%</b>)\n"
+                    f"│ ⏳ <b>Current Balance:</b> <code>{bal_str}</code> تومان\n"
+                    f"╰──────────────────────────────────────────────────\n\n"
+                    f"💬 <b>Client Message:</b>\n"
+                    f"<blockquote expandable>«{html.escape(combined_text)}»</blockquote>"
+                )
+
+                pay_btns = [
+                    [Button.inline(f"✅ Confirm & Record ({pid})", f"pay_confirm_{pid}".encode("utf-8"), style="success")],
+                    [
+                        Button.switch_inline("✏️ Custom /pay", f"/pay {client_name} {cand_amount or ''} {tracking_code} ", same_peer=True),
+                        Button.inline("🧾 View Ledger", f"pay_ledger_{client_name.replace(' ', '_')[:20]}".encode("utf-8"), style="primary")
+                    ],
+                    [Button.inline("🗑️ Dismiss", f"pay_dismiss_{pid}".encode("utf-8"), style="danger")]
+                ] if Button is not None else None
+
+                await self.send_to_desk(
+                    pay_card,
+                    buttons=pay_btns,
+                    topic_key="health",
+                    client_id=sender_id,
+                    client_name=client_name,
+                    parse_mode="html"
+                )
+                print(f"[+] Detected payment notification from {client_name} ({pid}), posted to Topic health")
+
         # Prepare summary of media attachments if any
         files_summary_lines = []
         if files:
@@ -2032,6 +2119,190 @@ class SaberTelethonUserbot:
                     await event.reply("📋 Milestone card posted to Desk!", parse_mode="html")
                     return
 
+            # Financial commands: /pay, /ledger, /invoice, /contract, /receipt, /finance
+            m_pay = re.match(r"^/pay(?:\s+([^\s]+))?(?:\s+([^\s]+))?(?:\s+([^\s]+))?(?:\s+(.+))?", txt)
+            if m_pay:
+                c_query = (m_pay.group(1) or "").strip()
+                amt_str = (m_pay.group(2) or "").strip()
+                code_str = (m_pay.group(3) or "").strip()
+                notes_str = (m_pay.group(4) or "").strip()
+
+                if not c_query or not amt_str:
+                    await event.reply(
+                        "💳 <b>Digital Saber — Record Payment</b>\n\n"
+                        "Usage: <code>/pay &lt;client_name&gt; &lt;amount_tomans&gt; [tracking_code] [notes]</code>\n"
+                        "Example: <code>/pay Zahra 4000000 482910 قسط_اول</code>",
+                        parse_mode="html"
+                    )
+                    return
+
+                clean_q = c_query.lstrip("@").lower()
+                matched_pdir = self.project_manager.find_existing_project_by_client(clean_q)
+                if not matched_pdir and clean_q.isdigit():
+                    matched_pdir = self.project_manager.find_existing_project_by_client("Client", client_id=int(clean_q))
+                if not matched_pdir:
+                    projs = self.project_manager.list_all_projects()
+                    for p in projs:
+                        if clean_q in (p.get("client_name") or "").lower() or \
+                           clean_q in (p.get("client_name_fa") or "").lower() or \
+                           clean_q in (p.get("folder_name") or "").lower():
+                            matched_pdir = p["folder_path"]
+                            break
+                if not matched_pdir:
+                    await event.reply(f"❌ No project folder found for <code>{html.escape(c_query)}</code>.", parse_mode="html")
+                    return
+
+                fa_to_en = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+                clean_amt = re.sub(r"[,\s]", "", amt_str.translate(fa_to_en))
+                if not clean_amt.isdigit():
+                    await event.reply("❌ Invalid amount. Please enter a valid number in Tomans.", parse_mode="html")
+                    return
+                amt_int = int(clean_amt)
+
+                tx = self.financial_ledger.record_transaction(
+                    matched_pdir,
+                    amount_tomans=amt_int,
+                    tracking_code=code_str,
+                    notes=notes_str
+                )
+                rec_card = self.financial_ledger.format_receipt_card(tx, matched_pdir)
+                cname = os.path.basename(matched_pdir)
+                clean_cname = cname.replace(" ", "_")[:20]
+
+                rec_btns = [
+                    [Button.inline("🚀 Send Receipt to Client", f"pay_sendrec_{tx['receipt_id']}_{clean_cname}".encode("utf-8"), style="success")],
+                    [Button.inline("💳 View Full Ledger", f"pay_ledger_{clean_cname}".encode("utf-8"), style="primary")]
+                ] if Button is not None else None
+
+                await self.send_to_desk(rec_card, buttons=rec_btns, topic_key="health", parse_mode="html")
+                await event.reply(f"✅ Payment of {format_toman(amt_int)} Tomans recorded ({tx['receipt_id']})!", parse_mode="html")
+                return
+
+            m_ledger = re.match(r"^/(?:ledger|invoice)(?:\s+(.+))?", txt)
+            if m_ledger:
+                c_query = (m_ledger.group(1) or "").strip()
+                if not c_query:
+                    await event.reply(
+                        "📊 <b>Client Financial Ledger</b>\n\n"
+                        "Usage: <code>/ledger &lt;client_name&gt;</code>\n"
+                        "Example: <code>/ledger Zahra Jalali</code>",
+                        parse_mode="html"
+                    )
+                    return
+                clean_q = c_query.lstrip("@").lower()
+                matched_pdir = self.project_manager.find_existing_project_by_client(clean_q)
+                if not matched_pdir and clean_q.isdigit():
+                    matched_pdir = self.project_manager.find_existing_project_by_client("Client", client_id=int(clean_q))
+                if not matched_pdir:
+                    projs = self.project_manager.list_all_projects()
+                    for p in projs:
+                        if clean_q in (p.get("client_name") or "").lower() or \
+                           clean_q in (p.get("client_name_fa") or "").lower() or \
+                           clean_q in (p.get("folder_name") or "").lower():
+                            matched_pdir = p["folder_path"]
+                            break
+                if not matched_pdir:
+                    await event.reply(f"❌ No project folder found for <code>{html.escape(c_query)}</code>.", parse_mode="html")
+                    return
+
+                l_card, l_btns = self.financial_ledger.format_ledger_card(matched_pdir)
+                await self.send_to_desk(l_card, buttons=l_btns, topic_key="health", parse_mode="html")
+                await event.reply("💳 Financial ledger card posted to Topic Health!", parse_mode="html")
+                return
+
+            m_contract = re.match(r"^/contract(?:\s+([^\s]+))?(?:\s+([^\s]+))?(?:\s+(.+))?", txt)
+            if m_contract:
+                c_query = (m_contract.group(1) or "").strip()
+                tot_str = (m_contract.group(2) or "").strip()
+                scope_str = (m_contract.group(3) or "full_thesis").strip()
+
+                if not c_query or not tot_str:
+                    await event.reply(
+                        "📝 <b>Initialize / Update Contract</b>\n\n"
+                        "Usage: <code>/contract &lt;client_name&gt; &lt;total_tomans&gt; [scope]</code>\n"
+                        "Example: <code>/contract Zahra 12000000 chapter4_only</code>",
+                        parse_mode="html"
+                    )
+                    return
+
+                clean_q = c_query.lstrip("@").lower()
+                matched_pdir = self.project_manager.find_existing_project_by_client(clean_q)
+                if not matched_pdir and clean_q.isdigit():
+                    matched_pdir = self.project_manager.find_existing_project_by_client("Client", client_id=int(clean_q))
+                if not matched_pdir:
+                    projs = self.project_manager.list_all_projects()
+                    for p in projs:
+                        if clean_q in (p.get("client_name") or "").lower() or \
+                           clean_q in (p.get("client_name_fa") or "").lower() or \
+                           clean_q in (p.get("folder_name") or "").lower():
+                            matched_pdir = p["folder_path"]
+                            break
+                if not matched_pdir:
+                    await event.reply(f"❌ No project folder found for <code>{html.escape(c_query)}</code>.", parse_mode="html")
+                    return
+
+                fa_to_en = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+                clean_tot = re.sub(r"[,\s]", "", tot_str.translate(fa_to_en))
+                if not clean_tot.isdigit():
+                    await event.reply("❌ Invalid contract total amount.", parse_mode="html")
+                    return
+                tot_int = int(clean_tot)
+
+                cname = os.path.basename(matched_pdir)
+                self.financial_ledger.initialize_contract(
+                    matched_pdir,
+                    total_tomans=tot_int,
+                    client_name=cname,
+                    scope=scope_str,
+                    installment_count=3
+                )
+                l_card, l_btns = self.financial_ledger.format_ledger_card(matched_pdir)
+                await self.send_to_desk(l_card, buttons=l_btns, topic_key="health", parse_mode="html")
+                await event.reply(f"✅ Contract initialized for {cname} ({format_toman(tot_int)} Toman)!", parse_mode="html")
+                return
+
+            m_receipt = re.match(r"^/receipt(?:\s+(.+))?", txt)
+            if m_receipt:
+                c_query = (m_receipt.group(1) or "").strip()
+                if not c_query:
+                    await event.reply("Usage: <code>/receipt &lt;client_name&gt;</code>", parse_mode="html")
+                    return
+                clean_q = c_query.lstrip("@").lower()
+                matched_pdir = self.project_manager.find_existing_project_by_client(clean_q)
+                if not matched_pdir:
+                    projs = self.project_manager.list_all_projects()
+                    for p in projs:
+                        if clean_q in (p.get("client_name") or "").lower() or clean_q in (p.get("folder_name") or "").lower():
+                            matched_pdir = p["folder_path"]
+                            break
+                if not matched_pdir:
+                    await event.reply(f"❌ No project folder found for <code>{html.escape(c_query)}</code>.", parse_mode="html")
+                    return
+
+                ld = self.financial_ledger.load_ledger(matched_pdir)
+                txs = ld.get("transactions", [])
+                if not txs:
+                    await event.reply("❌ No payment transactions recorded yet for this client.", parse_mode="html")
+                    return
+
+                rec_card = self.financial_ledger.format_receipt_card(txs[-1], matched_pdir)
+                cname = os.path.basename(matched_pdir)
+                clean_cname = cname.replace(" ", "_")[:20]
+                rec_btns = [
+                    [Button.inline("🚀 Send Receipt to Client", f"pay_sendrec_{txs[-1]['receipt_id']}_{clean_cname}".encode("utf-8"), style="success")],
+                    [Button.inline("💳 View Full Ledger", f"pay_ledger_{clean_cname}".encode("utf-8"), style="primary")]
+                ] if Button is not None else None
+                await self.send_to_desk(rec_card, buttons=rec_btns, topic_key="health", parse_mode="html")
+                await event.reply("🧾 Official receipt card posted to Topic Health!", parse_mode="html")
+                return
+
+            if txt.strip() in ["/finance", "/fin", "/financials"]:
+                f_card = self.financial_ledger.format_global_summary_card()
+                btns = [[Button.inline("🔄 Refresh Financials", b"cmd_finance", style="primary")]] if Button is not None else None
+                await self.send_to_desk(f_card, buttons=btns, topic_key="health", parse_mode="html")
+                await event.reply("💰 Executive financial portfolio card posted to Topic Health!", parse_mode="html")
+                return
+
             # Prepare deliverable dispatch: /send_file <client_query> [filename_query]
             m_send_file = re.match(r"^/(?:send_file|deliver)(?:\s+([^\s]+))?(?:\s+(.+))?", txt)
             if m_send_file and not txt.startswith("/send_del_"):
@@ -2597,6 +2868,118 @@ class SaberTelethonUserbot:
                         await event.delete()
                     except Exception:
                         pass
+                elif data == "cmd_finance":
+                    await event.answer("💰 Loading portfolio financial summary...", alert=False)
+                    f_card = self.financial_ledger.format_global_summary_card()
+                    btns = [[Button.inline("🔄 Refresh Financials", b"cmd_finance", style="primary")]] if Button is not None else None
+                    try:
+                        await event.edit(f_card, buttons=btns, parse_mode="html")
+                    except Exception:
+                        await self.send_to_desk(f_card, buttons=btns, topic_key="health", parse_mode="html")
+                elif data.startswith("pay_confirm_"):
+                    pid = data.split("pay_confirm_")[1]
+                    if pid in self.pending_payments:
+                        entry = self.pending_payments[pid]
+                        amt = entry.get("detected_amount", 0)
+                        if amt <= 0:
+                            await event.answer("⚠️ Amount is 0 or invalid. Please use /pay to specify amount.", alert=True)
+                        else:
+                            tx = self.financial_ledger.record_transaction(
+                                entry["project_dir"],
+                                amount_tomans=amt,
+                                tracking_code=entry.get("tracking_code", ""),
+                                payer_name=entry.get("client_name", "")
+                            )
+                            await event.answer(f"✅ Recorded {format_toman(amt)} Tomans ({tx['receipt_id']})!", alert=False)
+                            try:
+                                done_badge = [[Button.inline(f"✅ Payment Recorded ({tx['receipt_id']}) at {now_str}", b"noop", style="success")]] if Button is not None else None
+                                await event.edit(
+                                    f"{event.message.text}\n\n✅ <b>Payment was verified and recorded in Google Drive at {now_str}.</b>",
+                                    buttons=done_badge,
+                                    parse_mode="html"
+                                )
+                            except Exception:
+                                pass
+
+                            rec_card = self.financial_ledger.format_receipt_card(tx, entry["project_dir"])
+                            clean_cname = entry["client_name"].replace(" ", "_")[:20]
+                            rec_btns = [
+                                [Button.inline("🚀 Send Receipt to Client", f"pay_sendrec_{tx['receipt_id']}_{clean_cname}".encode("utf-8"), style="success")],
+                                [Button.inline("💳 View Full Ledger", f"pay_ledger_{clean_cname}".encode("utf-8"), style="primary")]
+                            ] if Button is not None else None
+                            await self.send_to_desk(rec_card, buttons=rec_btns, topic_key="health", parse_mode="html")
+                            del self.pending_payments[pid]
+                    else:
+                        await event.answer(f"❌ Payment notification {pid} expired or not found.", alert=True)
+                elif data.startswith("pay_dismiss_"):
+                    pid = data.split("pay_dismiss_")[1]
+                    if pid in self.pending_payments:
+                        del self.pending_payments[pid]
+                        await event.answer("🗑️ Payment notification dismissed.", alert=False)
+                        try:
+                            await event.edit(f"╭─ 🗑️ <b>PAYMENT NOTIFICATION DISMISSED</b> ───\n│ 🆔 {pid} • {now_str}\n╰──────────────────────────────────────", buttons=None, parse_mode="html")
+                        except Exception:
+                            pass
+                    else:
+                        await event.answer("❌ Item expired.", alert=True)
+                elif data.startswith("pay_ledger_"):
+                    c_key = data.split("pay_ledger_")[1].replace("_", " ")
+                    matched_pdir = self.project_manager.find_existing_project_by_client(c_key)
+                    if matched_pdir:
+                        l_card, l_btns = self.financial_ledger.format_ledger_card(matched_pdir)
+                        await event.answer("💳 Loaded client financial ledger!", alert=False)
+                        await self.send_to_desk(l_card, buttons=l_btns, topic_key="health", parse_mode="html")
+                    else:
+                        await event.answer("❌ Project directory not found.", alert=True)
+                elif data.startswith("pay_refresh_"):
+                    c_key = data.split("pay_refresh_")[1].replace("_", " ")
+                    matched_pdir = self.project_manager.find_existing_project_by_client(c_key)
+                    if matched_pdir:
+                        l_card, l_btns = self.financial_ledger.format_ledger_card(matched_pdir)
+                        await event.answer("🔄 Ledger refreshed!", alert=False)
+                        try:
+                            await event.edit(l_card, buttons=l_btns, parse_mode="html")
+                        except Exception:
+                            pass
+                    else:
+                        await event.answer("❌ Project not found.", alert=True)
+                elif data.startswith("pay_sendrec_"):
+                    parts = data.split("pay_sendrec_")[1].split("_", 1)
+                    rec_id = parts[0]
+                    c_key = parts[1].replace("_", " ") if len(parts) > 1 else ""
+                    matched_pdir = self.project_manager.find_existing_project_by_client(c_key)
+                    if matched_pdir:
+                        ld = self.financial_ledger.load_ledger(matched_pdir)
+                        matched_tx = None
+                        for t in ld.get("transactions", []):
+                            if t.get("receipt_id") == rec_id:
+                                matched_tx = t
+                                break
+                        if not matched_tx and ld.get("transactions"):
+                            matched_tx = ld["transactions"][-1]
+
+                        if matched_tx:
+                            rec_text = self.financial_ledger.format_receipt_card(matched_tx, matched_pdir)
+                            p_meta = {}
+                            meta_path = os.path.join(matched_pdir, "project_meta.json")
+                            if os.path.exists(meta_path):
+                                with open(meta_path, "r", encoding="utf-8") as f:
+                                    p_meta = json.load(f)
+                            target_dest = p_meta.get("telegram_id") or p_meta.get("telegram_username") or c_key
+                            try:
+                                await self.client.send_message(target_dest, rec_text, parse_mode="html")
+                                await event.answer(f"🚀 Receipt {rec_id} dispatched to client!", alert=False)
+                                try:
+                                    done_btn = [[Button.inline(f"✅ Receipt Sent at {now_str}", b"noop", style="success")]] if Button is not None else None
+                                    await event.edit(f"{event.message.text}\n\n✅ <b>Official receipt was sent to client via Telegram at {now_str}.</b>", buttons=done_btn, parse_mode="html")
+                                except Exception:
+                                    pass
+                            except Exception as e:
+                                await event.answer(f"❌ Failed to dispatch receipt: {e}", alert=True)
+                        else:
+                            await event.answer("❌ Receipt not found.", alert=True)
+                    else:
+                        await event.answer("❌ Project not found.", alert=True)
 
             @self.bot_client.on(events.InlineQuery)
             async def bot_inline_handler(event):
