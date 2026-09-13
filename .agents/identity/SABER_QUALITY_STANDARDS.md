@@ -22,7 +22,7 @@ Before any statistical deliverable, thesis chapter, or research artifact is rele
 ### B. Statistical Reporting & APA 7 Precision
 - [ ] Latin symbols italicized (*M, SD, t, F, p, r, R², β, B, z, SE, d*).
 - [ ] Leading zeros omitted on bounded values ($p = .012$, not $p = 0.012$; $r = .48$, not $r = 0.48$).
-- [ ] Three decimal places for all $p$-values. Zero instance of $p = .000$ (reported as $p < .001$ / $۰/۰۰۱ > p$).
+- [ ] Three decimal places for all $p$-values. Zero instance of $p = .000$ (reported as $p < .001$ in English, and $p < ۰.۰۰۱$ / $۰.۰۰۱ > p$ in Persian).
 - [ ] Two decimal places for Means, SDs, test statistics ($t, F$), and effect sizes.
 - [ ] Exact 95% Confidence Intervals reported for mediation indirect effects ($[LLCI, ULCI]$).
 
@@ -36,9 +36,10 @@ Before any statistical deliverable, thesis chapter, or research artifact is rele
   - Subheadings: `B Titr` or `B Nazanin Bold` 13–14 pt Bold
   - Body: `B Nazanin` 13–14 pt Regular, Line Spacing 1.15–1.25, Justified
   - Numbers/Latin stats: `Times New Roman` 10–11 pt Regular
-- [ ] **Persian Slash Decimal Inversion Rule**:
-  - **Writing**: When injecting slash decimal numbers (`A/B`) into Word, swap parts before and after slash (`A/B` $\to$ `B/A`, e.g. `۰/۰۰۱` $\to$ `۰۰۱/۰`, `۰/۸۵` $\to$ `۸۵/۰`, `۲/۵۰` $\to$ `۵۰/۲`) so Word's RTL BiDi fraction engine displays them visually in correct order (`۰/۰۰۱`, `۰/۸۵`, `۲/۵۰`).
-  - **Reading & Interpretation**: When auditing or parsing text from Word documents, recognize that `B/A` (e.g. `۰۰۱/۰`, `۸۵/۰`, `۵۰/۲`) is the Word-swapped representation of `A/B` ($0.001$, $0.85$, $2.50$). Never misinterpret `۰۰۱/۰` as an error.
+- [ ] **Persian Standard Number & Decimal Standards**:
+  - All decimal numbers in Persian reports must use standard dot ('.') format: `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۲.۵۰`, `۰.۴۰`.
+  - **Leading Zero Preserved**: In Persian writing, NEVER remove the zero before the decimal point (always write `۰.۰۰۱`, never `.۰۰۱`).
+  - Prohibition of slash swapping tricks (`۰۰۱/۰`) to prevent confusion among readers and examiners.
 
 ---
 

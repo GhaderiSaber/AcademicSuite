@@ -71,12 +71,13 @@ All statistical results (whether in Persian or English) must comply with APA 7th
 2. **Decimal Places**:
    - Means, SDs, test statistics ($t, F$), effect sizes: **2 decimal places** (e.g., $M = 24.35$, $t = 3.88$, $d = 0.78$).
    - $p$-values: **Exactly 3 decimal places** (e.g., $p = .014$).
-3. **The Leading Zero Rule**:
-   - Numbers bounded between 0 and 1 ($p$, $r$, $R^2$, $\eta_p^2$, $\alpha$, $\beta$) **must omit the leading zero**:
-     - Correct: $p = .023$, $r = .48$, $\eta_p^2 = .19$
-     - Incorrect: $p = 0.023$, $r = 0.48$, $\eta_p^2 = 0.19$
+3. **The Leading Zero Rule (English APA vs. Persian Standard)**:
+   - **In English Text**: Numbers bounded between 0 and 1 ($p$, $r$, $R^2$, $\eta_p^2$, $\alpha$, $\beta$) omit the leading zero ($p = .023$, $r = .48$, $\eta_p^2 = .19$).
+   - **In Persian Reports & Deliverables (حفظ حتمی صفر قبل از ممیز در فارسی)**:
+     - **NEVER remove the zero before the decimal point in Persian**: Always write `۰.۰۰۱` (یا `۰.۰۰۱ > p`), `۰.۰۵`, `۰.۸۵`, `۰.۴۰`.
+     - Writing `.۰۰۱` or `.۰۵` in Persian is strictly forbidden as it violates Persian academic conventions.
 4. **Never Report $p = .000$**:
-   - If a software outputs $.000$, report it strictly as **$p < .001$** (یا در فارسی: **۰/۰۰۱ > p**).
+   - If a software outputs $.000$, report it strictly as **$p < .001$** in English, and as **$p < ۰.۰۰۱$** (یا: **۰.۰۰۱ > p**) in Persian with 3 decimal places.
 5. **APA 7 Table Rules**:
    - Tables must have **zero vertical borders**.
    - Exactly 3 horizontal borders: Top line (solid 0.75 pt), Header bottom underline (solid 0.5 pt), and Table bottom line (solid 0.75 pt).
@@ -162,30 +163,14 @@ When assembling or editing Persian Word documents (`.docx`):
     - Every header, title, and subtitle MUST be instantiated as an independent paragraph object (`<w:p>`).
     - NEVER use manual line breaks (`<w:br/>` / `\n`) to break headers across lines.
     - Header spacing MUST be managed via `paragraph_format.space_before` and `space_after` in `Pt(...)`.
-- **Mandatory Persian Slash Decimal Inversion Rule (قاعده جابجایی اعشار خط کسری در ورد)**:
-  - **The BiDi Fraction Inversion Mechanism**: In Microsoft Word RTL paragraphs (`<w:bidi w:val="1"/>`), Word's BiDi text layout engine treats the ASCII forward slash `/` between digits (`[0-9۰-۹]+/[0-9۰-۹]+`) as an Arabic fraction separator (خط کسری). Under RTL, Word places the numerator on the right (leading edge) and denominator on the left (trailing edge). Consequently, writing `۰/۰۰۱` causes Word to visually invert it on screen as `۰۰۱/۰` (and `۰/۸۵` as `۸۵/۰`, `۲/۵۰` as `۵۰/۲`, `۰/۴۰` as `۴۰/۰`).
-  - **The Writing Directive (قاعده نگارش)**:
-    - Whenever generating, writing, or injecting Persian text containing slash decimal numbers into Word documents (`.docx`, proposals, theses, articles, defense presentation briefs, tables):
-    - **REPLACE AFTER OF SLASH WITH BEFORE OF SLASH (`A/B` $\to$ `B/A`)**:
-      - To display `۰/۰۰۱` visually in Word $\implies$ Write `۰۰۱/۰`
-      - To display `۰/۸۵` visually in Word $\implies$ Write `۸۵/۰`
-      - To display `۲/۵۰` visually in Word $\implies$ Write `۵۰/۲`
-      - To display `۰/۴۰` visually in Word $\implies$ Write `۴۰/۰`
-      - To display `۰/۰۵` visually in Word $\implies$ Write `۰۵/۰`
-      - To display `۰/۰۱` visually in Word $\implies$ Write `۰۱/۰`
-      - To display `۱۵/۲` visually in Word $\implies$ Write `۲/۱۵`
-      - To display `۱/۱۱۸` visually in Word $\implies$ Write `۱۱۸/۱`
-    - When Word renders this swapped string in an RTL paragraph/run, Word's fraction inversion automatically displays it in natural, flawless visual order (`۰/۰۰۱`, `۰/۸۵`, `۲/۵۰`).
-  - **The Interpretation & Reading Directive (قاعده خواندن و تفسیر هوش مصنوعی)**:
-    - When AI agents read, extract, audit, or analyze text from Persian Word documents (`.docx`), any slash number in RTL context written in swapped form `B/A` (such as `۰۰۱/۰`, `۸۵/۰`, `۵۰/۲`, `۴۰/۰`, `۰۵/۰`):
-    - **AGENTS MUST RECOGNIZE THAT THIS REPRESENTS THE DECIMAL NUMBER `A/B`**:
-      - `۰۰۱/۰` $\implies$ $0.001$ ($p < .001$)
-      - `۸۵/۰` $\implies$ $0.85$ ($r = .85$)
-      - `۵۰/۲` $\implies$ $2.50$ ($\text{VIF} = 2.50$)
-      - `۴۰/۰` $\implies$ $0.40$ ($\text{Tolerance} = .40$)
-      - `۰۵/۰` $\implies$ $0.05$ ($p < .05$)
-      - `۱۱۸/۱` $\implies$ $1.118$ ($\chi^2/df = 1.118$)
-    - Agents must NEVER misinterpret `۰۰۱/۰` as an error or zero-division; it is the deliberate Word RTL swapped representation of `۰/۰۰۱`.
+- **Mandatory Persian Number & Decimal Typography Standards (قاعده استاندارد اعداد و اعشار در گزارش‌های فارسی)**:
+  - **Standard Dot ('.') Representation**: In all Persian academic reports, theses, articles, proposals, and presentations, decimal numbers MUST be written in the standard dot (`.`) format: e.g., `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۲.۵۰`, `۰.۴۰`, `۱.۱۱۸`, `۱۵.۲`.
+  - **Never Remove Leading Zero in Persian (حفظ حتمی صفر قبل از ممیز در زبان فارسی)**:
+    - In Persian, agents and authors **MUST NEVER** remove the leading zero before the dot:
+      - **Correct**: `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۰.۴۰`, `۰.۰۰۱ > p` (یا: `p < ۰.۰۰۱`).
+      - **Strictly Prohibited**: `.۰۰۱`, `.۰۵`, `.۸۵`, `.۴۰`, `.۰۰۱ > p`.
+    - Reporting numbers with 3 decimal places for $p$-values: always write `۰.۰۰۱` (never `.۰۰۱`).
+  - **Prohibition of Inverted Slashes**: Never use forward slashes (`/`) or reversed fraction tricks (such as swapping digits `۰۰۱/۰`), as they confuse human readers, supervisors, and editing pipelines.
 
 ### Rule 5: Critical OpenXML Standard: Preservation of Native Word Math & OMML Formulas (`<m:oMath>`)
 When inspecting, auditing, or modifying academic Word documents (`.docx`):

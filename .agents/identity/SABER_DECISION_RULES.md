@@ -131,31 +131,23 @@ When a supervisor insists on an outdated or flawed procedure:
 
 ---
 
-## 8. Persian Academic Typography & Slash Decimal Inversion Rule
+## 8. Persian Academic Typography & Number Representation Rules
 
 ```text
-Decision Crossroads: Handling Slash Decimal Numbers in Persian Word (.docx) Documents
+Decision Crossroads: Representing Numbers and Decimals in Persian Academic Deliverables
 │
-├── WRITING & GENERATION DIRECTIVE:
-│   └── Problem: In RTL paragraphs (<w:bidi w:val="1"/>), Word's BiDi engine treats ASCII '/' as an Arabic fraction,
-│                displaying the numerator on the right and denominator on the left (inverting '۰/۰۰۱' to '۰۰۱/۰').
-│   └── MANDATORY ACTION: Replace after of slash with before of slash ('A/B' -> 'B/A').
-│       • To display ۰/۰۰۱ visually in Word ⟹ Write ۰۰۱/۰
-│       • To display ۰/۸۵ visually in Word ⟹ Write ۸۵/۰
-│       • To display ۲/۵۰ visually in Word ⟹ Write ۵۰/۲
-│       • To display ۰/۴۰ visually in Word ⟹ Write ۴۰/۰
-│       • To display ۰/۰۵ visually in Word ⟹ Write ۰۵/۰
-│       • To display ۱۵/۲ visually in Word ⟹ Write ۲/۱۵
-│       • To display ۱/۱۱۸ visually in Word ⟹ Write ۱۱۸/۱
+├── DECIMAL SEPARATOR STANDARD:
+│   ├── Always write decimal numbers in standard '.' version (e.g. ۰.۰۰۱, ۰.۰۵, ۰.۸۵, ۲.۵۰, ۰.۴۰).
+│   └── DO NOT use forward slashes ('/') or inverted fraction swap tricks ('۰۰۱/۰'), as they cause severe confusion.
 │
-└── INTERPRETATION & READING DIRECTIVE (AI AGENTS):
-    └── When AI agents read, extract, or audit Persian Word documents, any slash number formatted as 'B/A':
-    └── MANDATORY RECOGNITION: The agent MUST recognize that 'B/A' represents the decimal number 'A/B'.
-        • '۰۰۱/۰' ⟹ p < .001 (0.001)
-        • '۸۵/۰' ⟹ r = .85 (0.85)
-        • '۵۰/۲' ⟹ VIF = 2.50 (2.50)
-        • '۴۰/۰' ⟹ Tolerance = .40 (0.40)
-        • '۰۵/۰' ⟹ p < .05 (0.05)
-        • '۱۱۸/۱' ⟹ χ²/df = 1.118 (1.118)
-    └── Zero False Flags: Never flag '۰۰۱/۰' as zero-division or corrupted data; it is Word's intentional RTL swap.
+├── LEADING ZERO PRESERVATION IN PERSIAN (MANDATORY):
+│   ├── English APA 7 omits leading zero for bounded values (e.g., p = .023, r = .48).
+│   └── Persian Academic Standard MANDATES preserving the leading zero:
+│       • Correct: ۰.۰۰۱ (یا p < ۰.۰۰۱ / ۰.۰۰۱ > p)
+│       • Correct: ۰.۰۵, ۰.۸۵, ۰.۴۰
+│       • STRICTLY PROHIBITED in Persian: .۰۰۱, .۰۵, .۸۵, .۴۰
+│
+└── PRECISION STANDARDS:
+    ├── p-values: Exactly 3 decimal places (۰.۰۰۱, ۰.۰۱۴, ۰.۰۵۰). Never report p = ۰.۰۰۰ (use p < ۰.۰۰۱).
+    └── Means, SDs, test statistics (t, F), effect sizes: Exactly 2 decimal places (e.g. ۲۴.۳۵, ۳.۸۸, ۰.۷۸).
 ```

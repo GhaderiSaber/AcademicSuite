@@ -6,10 +6,16 @@ Unit Tests for OpenXML Artifact Engine, OMML Equation Builder, and Workflow Comp
 
 import os
 import sys
+import re
 import unittest
 import tempfile
 import shutil
 import docx
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
 
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 SHARED_DIR = os.path.abspath(os.path.join(TESTS_DIR, ".."))
@@ -88,29 +94,23 @@ class TestOpenXMLArtifactEngine(unittest.TestCase):
         self.assertIn("روان\u200cشناختی", cleaned)
         self.assertIn("متغیر\u200cهای", cleaned)
 
-    def test_04b_persian_slash_decimal_swap(self):
-        """Verifies the Persian Slash Decimal Inversion Rule (Writing: A/B -> B/A; Reading: B/A -> A/B)."""
-        raw_text = "در سطح خطای ۰/۰۰۱ و ضریب ۰/۸۵ و شاخص VIF کمتر از ۲/۵۰ و تحمل ۰/۴۰ محاسبه گردید."
-        # 1. Writing: swap A/B -> B/A
-        swapped = self.engine.swap_slash_decimals(raw_text)
-        self.assertIn("۰۰۱/۰", swapped)
-        self.assertIn("۸۵/۰", swapped)
-        self.assertIn("۵۰/۲", swapped)
-        self.assertIn("۴۰/۰", swapped)
+    def test_04b_persian_standard_number_normalization(self):
+        """Verifies Persian Standard Dot ('.') format, leading zero preservation, and normalization."""
+        raw_text = "در سطح خطای .۰۰۱ و ضریب ۰/۸۵ و شاخص VIF کمتر از ۲/۵۰ و تحمل .۴۰ و p < .001 محاسبه گردید."
+        normalized = self.engine.normalize_persian_numbers(raw_text)
+        self.assertIn("۰.۰۰۱", normalized)
+        self.assertIn("۰.۸۵", normalized)
+        self.assertIn("۲.۵۰", normalized)
+        self.assertIn("۰.۴۰", normalized)
+        # Verify leading zero is strictly preserved and no dots lack leading zero
+        self.assertIsNone(re.search(r'(?<![0-9۰-۹])\.[0-9۰-۹]+', normalized))
+        self.assertNotIn("۰/۰۰۱", normalized)
 
-        # 2. Reading/Interpretation: unswap B/A -> A/B
-        unswapped = self.engine.unswap_slash_decimals(swapped)
-        self.assertIn("۰/۰۰۱", unswapped)
-        self.assertIn("۰/۸۵", unswapped)
-        self.assertIn("۲/۵۰", unswapped)
-        self.assertIn("۰/۴۰", unswapped)
-
-        # 3. Automatic clean_persian_typography integration
+        # Automatic clean_persian_typography integration
         cleaned = self.engine.clean_persian_typography(raw_text)
-        self.assertIn("۰۰۱/۰", cleaned)
-        self.assertIn("۸۵/۰", cleaned)
-        self.assertIn("۵۰/۲", cleaned)
-        self.assertIn("۴۰/۰", cleaned)
+        self.assertIn("۰.۰۰۱", cleaned)
+        self.assertIn("۰.۸۵", cleaned)
+        self.assertIn("۲.۵۰", cleaned)
 
     def test_05_generate_audit_report_docx(self):
         """Verifies generation of official pre-defense audit report."""

@@ -369,38 +369,26 @@ class OpenXMLArtifactEngine:
                     rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
 
     @staticmethod
-    def swap_slash_decimals(text: str) -> str:
+    def normalize_persian_numbers(text: str) -> str:
         """
-        Word BiDi Slash Decimal Inversion Rule (Writing: A/B -> B/A):
-        In Microsoft Word RTL paragraphs (<w:bidi w:val="1"/>), Word treats
-        the ASCII forward slash '/' between digits as an Arabic fraction, visually
-        displaying the numerator on the right and denominator on the left.
-        Therefore, to display a decimal number like '۰/۰۰۱' (0.001) or '۲/۵۰' (2.50)
-        correctly on screen, the text string written into Word MUST swap the parts
-        before and after the slash: 'A/B' -> 'B/A' (e.g., '۰/۰۰۱' -> '۰۰۱/۰', '۲/۵۰' -> '۵۰/۲').
+        Persian Standard Number & Decimal Normalization:
+        1. Preserves the leading zero in Persian text (never write .001 or .۰۰۱; always ۰.۰۰۱).
+        2. Standardizes decimal separators to the standard dot '.' format (e.g. ۰.۰۰۱, ۰.۸۵, ۲.۵۰).
+        3. Eliminates confusing slash inversions, ensuring clarity across editors and readers.
         """
         if not text:
             return ""
-        pattern = r'(?<![\w\d])([0-9۰-۹]+)/([0-9۰-۹]+)(?![\w\d])'
-        return re.sub(pattern, r'\2/\1', text)
+        s = text
+        # Restore leading zero if omitted before dot in Persian context (e.g., .۰۰۱ -> ۰.۰۰۱, .001 -> ۰.۰۰۱)
+        s = re.sub(r'(?<![\w\d])\.([۰-۹]+)', r'۰.\1', s)
+        s = re.sub(r'(?<![\w\d])\.(\d{2,3})(?![\w\d])', r'۰.\1', s)
+        # Standardize accidental slash decimals to standard dot (e.g., ۰/۰۰۱ -> ۰.۰۰۱, ۲/۵۰ -> ۲.۵۰)
+        s = re.sub(r'(?<![\w\d])([0-9۰-۹]+)/([0-9۰-۹]+)(?![\w\d])', r'\1.\2', s)
+        return s
 
     @staticmethod
-    def unswap_slash_decimals(text: str) -> str:
-        """
-        Agent Interpretation Decoder for Word BiDi Slash Decimals (Reading: B/A -> A/B):
-        When reading or interpreting Persian Word documents where slash numbers
-        were written in swapped format (e.g., '۰۰۱/۰', '۸۵/۰', '۵۰/۲'),
-        this decodes them back to standard mathematical decimal values:
-        'B/A' -> 'A/B' (e.g., '۰۰۱/۰' -> '۰/۰۰۱' = 0.001, '۵۰/۲' -> '۲/۵۰' = 2.50).
-        """
-        if not text:
-            return ""
-        pattern = r'(?<![\w\d])([0-9۰-۹]+)/([0-9۰-۹]+)(?![\w\d])'
-        return re.sub(pattern, r'\2/\1', text)
-
-    @staticmethod
-    def clean_persian_typography(text: str, swap_decimals: bool = True) -> str:
-        """Enforces Persian half-spaces in common prefixes and affixes, and applies the slash decimal swap rule."""
+    def clean_persian_typography(text: str, normalize_numbers: bool = True) -> str:
+        """Enforces Persian half-spaces in common prefixes and affixes, and standardizes numbers to dot format with leading zeros."""
         if not text:
             return ""
         s = text
@@ -422,9 +410,9 @@ class OpenXMLArtifactEngine:
         s = re.sub(r'چند\s+متغیری', 'چند' + zwnj + 'متغیری', s)
         s = re.sub(r'تک\s+متغیری', 'تک' + zwnj + 'متغیری', s)
         
-        # Word BiDi Slash Decimal Inversion: swap A/B -> B/A so Word displays A/B correctly
-        if swap_decimals:
-            s = OpenXMLArtifactEngine.swap_slash_decimals(s)
+        # Standard Persian decimal format: dot '.' with leading zero preserved (۰.۰۰۱)
+        if normalize_numbers:
+            s = OpenXMLArtifactEngine.normalize_persian_numbers(s)
             
         return s
 
