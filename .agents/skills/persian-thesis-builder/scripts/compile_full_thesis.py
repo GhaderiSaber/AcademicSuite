@@ -90,30 +90,48 @@ def add_header_underline(cell):
     )
     tcPr.append(tcBorders)
 
-def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.RIGHT):
-    """Enforce Persian BiDi RTL directionality on paragraph."""
+def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
+    """Enforce Persian BiDi RTL directionality and alignment on paragraph."""
     p.alignment = align
     pPr = p._p.get_or_add_pPr()
-    bidi = OxmlElement('w:bidi')
-    bidi.set(qn('w:val'), '1')
-    pPr.append(bidi)
+    if not pPr.xpath('./w:bidi'):
+        bidi = parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>')
+        pPr.insert(0, bidi)
 
 def add_persian_run(p, text, font_name="B Nazanin", font_size=13, bold=False, italic=False):
-    """Add text run with explicit OpenXML Persian/English font bindings."""
-    run = p.add_run(text)
+    """Add text run with explicit OpenXML Persian/English font bindings, w:rtl, and complex script formatting."""
+    run = p.add_run(str(text))
     run.font.size = Pt(font_size)
     run.bold = bold
     run.italic = italic
     run.font.name = font_name
     
     rPr = run._r.get_or_add_rPr()
-    font_en = "Times New Roman"
-    rFonts = parse_xml(
-        f'<w:rFonts {nsdecls("w")} '
-        f'w:ascii="{font_en}" w:hAnsi="{font_en}" '
-        f'w:cs="{font_name}" w:eastAsia="{font_name}"/>'
-    )
-    rPr.append(rFonts)
+    sz_val = int(font_size * 2)
+    has_persian = any('\u0600' <= ch <= '\u06FF' or '\uFB50' <= ch <= '\uFDFF' or '\uFE70' <= ch <= '\uFEFF' for ch in str(text))
+    if has_persian:
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_name}" w:hAnsi="{font_name}" '
+            f'w:cs="{font_name}" w:eastAsia="{font_name}" w:hint="cs"/>'
+        )
+        rPr.append(rFonts)
+        rtl = parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>')
+        rPr.append(rtl)
+    else:
+        font_en = "Times New Roman"
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_en}" w:hAnsi="{font_en}" '
+            f'w:cs="{font_name}" w:eastAsia="{font_name}"/>'
+        )
+        rPr.append(rFonts)
+
+    szCs = parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>')
+    rPr.append(szCs)
+    if bold:
+        bCs = parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>')
+        rPr.append(bCs)
     return run
 
 def add_chapter_heading(doc, title_text, chapter_number_str=""):

@@ -54,29 +54,47 @@ def set_cell_shading(cell, color_hex="F2F2F2"):
     shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{color_hex}"/>')
     tcPr.append(shd)
 
-def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.RIGHT):
-    """Enforce Persian BiDi RTL directionality on paragraph."""
+def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
+    """Enforce Persian BiDi RTL directionality and alignment on paragraph."""
     p.alignment = align
     pPr = p._p.get_or_add_pPr()
-    bidi = OxmlElement('w:bidi')
-    bidi.set(qn('w:val'), '1')
-    pPr.append(bidi)
+    if not pPr.xpath('./w:bidi'):
+        bidi = parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>')
+        pPr.insert(0, bidi)
 
 def add_run(p, text, font_fa='B Nazanin', font_en='Times New Roman', size=12, bold=False, italic=False):
-    """Add text run with explicit Persian and Latin font bindings."""
-    run = p.add_run(text)
+    """Add text run with explicit Persian/Latin font bindings, w:rtl, and complex script formatting."""
+    run = p.add_run(str(text))
     run.font.name = font_fa
     run.font.size = Pt(size)
     run.bold = bold
     run.italic = italic
     
     rPr = run._r.get_or_add_rPr()
-    rFonts = parse_xml(
-        f'<w:rFonts {nsdecls("w")} '
-        f'w:ascii="{font_en}" w:hAnsi="{font_en}" '
-        f'w:cs="{font_fa}" w:eastAsia="{font_fa}"/>'
-    )
-    rPr.append(rFonts)
+    sz_val = int(size * 2)
+    has_persian = any('\u0600' <= ch <= '\u06FF' or '\uFB50' <= ch <= '\uFDFF' or '\uFE70' <= ch <= '\uFEFF' for ch in str(text))
+    if has_persian:
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_fa}" w:hAnsi="{font_fa}" '
+            f'w:cs="{font_fa}" w:eastAsia="{font_fa}" w:hint="cs"/>'
+        )
+        rPr.append(rFonts)
+        rtl = parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>')
+        rPr.append(rtl)
+    else:
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_en}" w:hAnsi="{font_en}" '
+            f'w:cs="{font_fa}" w:eastAsia="{font_fa}"/>'
+        )
+        rPr.append(rFonts)
+
+    szCs = parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>')
+    rPr.append(szCs)
+    if bold:
+        bCs = parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>')
+        rPr.append(bCs)
     return run
 
 def build_response_document(data: dict, output_path: str):

@@ -45,20 +45,29 @@ def set_run_font(run, font_name: str = "B Nazanin", size_pt: float = 13, bold: b
         rFonts = OxmlElement('w:rFonts')
         rPr.append(rFonts)
     
+    sz_val = int(size_pt * 2)
     if is_latin:
         rFonts.set(qn('w:ascii'), 'Times New Roman')
         rFonts.set(qn('w:hAnsi'), 'Times New Roman')
         rFonts.set(qn('w:cs'), font_name)
     else:
-        rFonts.set(qn('w:ascii'), 'Times New Roman')
-        rFonts.set(qn('w:hAnsi'), 'Times New Roman')
+        rFonts.set(qn('w:ascii'), font_name)
+        rFonts.set(qn('w:hAnsi'), font_name)
         rFonts.set(qn('w:cs'), font_name)
+        rFonts.set(qn('w:eastAsia'), font_name)
+        rFonts.set(qn('w:hint'), 'cs')
         
         # Add RTL marker
         rtl = rPr.find(qn('w:rtl'))
         if rtl is None:
-            rtl = OxmlElement('w:rtl')
+            rtl = parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>')
             rPr.append(rtl)
+
+    szCs = parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>')
+    rPr.append(szCs)
+    if bold:
+        bCs = parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>')
+        rPr.append(bCs)
 
 
 def set_p_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_before: float = 0, space_after: float = 6, line_spacing: float = 1.25):

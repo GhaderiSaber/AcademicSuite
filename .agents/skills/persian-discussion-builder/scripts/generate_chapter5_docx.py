@@ -24,29 +24,47 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 
-def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.RIGHT):
-    """Enforce Persian BiDi RTL directionality on paragraph."""
+def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
+    """Enforce Persian BiDi RTL directionality and alignment on paragraph."""
     p.alignment = align
     pPr = p._p.get_or_add_pPr()
-    bidi = OxmlElement('w:bidi')
-    bidi.set(qn('w:val'), '1')
-    pPr.append(bidi)
+    if not pPr.xpath('./w:bidi'):
+        bidi = parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>')
+        pPr.insert(0, bidi)
 
 def add_run(p, text, font_fa='B Nazanin', font_en='Times New Roman', size=13, bold=False, italic=False):
-    """Add text run with explicit Persian and Latin font bindings."""
-    run = p.add_run(text)
+    """Add text run with explicit Persian/Latin font bindings, w:rtl, and complex script formatting."""
+    run = p.add_run(str(text))
     run.font.name = font_fa
     run.font.size = Pt(size)
     run.bold = bold
     run.italic = italic
     
     rPr = run._r.get_or_add_rPr()
-    rFonts = parse_xml(
-        f'<w:rFonts {nsdecls("w")} '
-        f'w:ascii="{font_en}" w:hAnsi="{font_en}" '
-        f'w:cs="{font_fa}" w:eastAsia="{font_fa}"/>'
-    )
-    rPr.append(rFonts)
+    sz_val = int(size * 2)
+    has_persian = any('\u0600' <= ch <= '\u06FF' or '\uFB50' <= ch <= '\uFDFF' or '\uFE70' <= ch <= '\uFEFF' for ch in str(text))
+    if has_persian:
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_fa}" w:hAnsi="{font_fa}" '
+            f'w:cs="{font_fa}" w:eastAsia="{font_fa}" w:hint="cs"/>'
+        )
+        rPr.append(rFonts)
+        rtl = parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>')
+        rPr.append(rtl)
+    else:
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_en}" w:hAnsi="{font_en}" '
+            f'w:cs="{font_fa}" w:eastAsia="{font_fa}"/>'
+        )
+        rPr.append(rFonts)
+
+    szCs = parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>')
+    rPr.append(szCs)
+    if bold:
+        bCs = parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>')
+        rPr.append(bCs)
     return run
 
 def build_chapter5_document(data: dict, output_path: str):
@@ -73,7 +91,7 @@ def build_chapter5_document(data: dict, output_path: str):
     
     # --- 1-5. Introduction ---
     p_h1 = doc.add_paragraph()
-    set_paragraph_bidi(p_h1)
+    set_paragraph_bidi(p_h1, WD_ALIGN_PARAGRAPH.RIGHT)
     p_h1.paragraph_format.space_before = Pt(14)
     p_h1.paragraph_format.space_after = Pt(6)
     add_run(p_h1, "۱-۵. مقدمه", font_fa='B Titr', size=14, bold=True)
@@ -93,7 +111,7 @@ def build_chapter5_document(data: dict, output_path: str):
     
     # --- 2-5. Hypothesis Discussions ---
     p_h2 = doc.add_paragraph()
-    set_paragraph_bidi(p_h2)
+    set_paragraph_bidi(p_h2, WD_ALIGN_PARAGRAPH.RIGHT)
     p_h2.paragraph_format.space_before = Pt(16)
     p_h2.paragraph_format.space_after = Pt(6)
     add_run(p_h2, "۲-۵. بحث و بررسی پیرامون یافته‌های حاصل از فرضیه‌ها", font_fa='B Titr', size=14, bold=True)
@@ -101,7 +119,7 @@ def build_chapter5_document(data: dict, output_path: str):
     hypotheses = data.get("hypotheses", [])
     for idx, hyp in enumerate(hypotheses):
         p_hyp_title = doc.add_paragraph()
-        set_paragraph_bidi(p_hyp_title)
+        set_paragraph_bidi(p_hyp_title, WD_ALIGN_PARAGRAPH.RIGHT)
         p_hyp_title.paragraph_format.space_before = Pt(12)
         p_hyp_title.paragraph_format.space_after = Pt(4)
         add_run(p_hyp_title, f"۱-۲-۵. بررسی و تبیین {hyp.get('title', f'فرضیه شماره {idx+1}')}", font_fa='B Nazanin', size=13, bold=True)
@@ -119,7 +137,7 @@ def build_chapter5_document(data: dict, output_path: str):
         
     # --- 3-5. Implications ---
     p_h3 = doc.add_paragraph()
-    set_paragraph_bidi(p_h3)
+    set_paragraph_bidi(p_h3, WD_ALIGN_PARAGRAPH.RIGHT)
     p_h3.paragraph_format.space_before = Pt(16)
     p_h3.paragraph_format.space_after = Pt(6)
     add_run(p_h3, "۳-۵. پیامدهای کاربردی و بالینی پژوهش", font_fa='B Titr', size=14, bold=True)
@@ -137,7 +155,7 @@ def build_chapter5_document(data: dict, output_path: str):
     
     # --- 4-5. Limitations ---
     p_h4 = doc.add_paragraph()
-    set_paragraph_bidi(p_h4)
+    set_paragraph_bidi(p_h4, WD_ALIGN_PARAGRAPH.RIGHT)
     p_h4.paragraph_format.space_before = Pt(16)
     p_h4.paragraph_format.space_after = Pt(6)
     add_run(p_h4, "۴-۵. محدودیت‌های پژوهش", font_fa='B Titr', size=14, bold=True)
@@ -157,14 +175,14 @@ def build_chapter5_document(data: dict, output_path: str):
         
     # --- 5-5. Recommendations ---
     p_h5 = doc.add_paragraph()
-    set_paragraph_bidi(p_h5)
+    set_paragraph_bidi(p_h5, WD_ALIGN_PARAGRAPH.RIGHT)
     p_h5.paragraph_format.space_before = Pt(16)
     p_h5.paragraph_format.space_after = Pt(6)
     add_run(p_h5, "۵-۵. پیشنهادهای پژوهش", font_fa='B Titr', size=14, bold=True)
     
     # 5-5-1 Research Recommendations
     p_h5_1 = doc.add_paragraph()
-    set_paragraph_bidi(p_h5_1)
+    set_paragraph_bidi(p_h5_1, WD_ALIGN_PARAGRAPH.RIGHT)
     p_h5_1.paragraph_format.space_before = Pt(10)
     p_h5_1.paragraph_format.space_after = Pt(4)
     add_run(p_h5_1, "۱-۵-۵. پیشنهادهای پژوهشی (برای محققان آینده)", font_fa='B Nazanin', size=13, bold=True)
@@ -183,7 +201,7 @@ def build_chapter5_document(data: dict, output_path: str):
         
     # 5-5-2 Practical Recommendations
     p_h5_2 = doc.add_paragraph()
-    set_paragraph_bidi(p_h5_2)
+    set_paragraph_bidi(p_h5_2, WD_ALIGN_PARAGRAPH.RIGHT)
     p_h5_2.paragraph_format.space_before = Pt(10)
     p_h5_2.paragraph_format.space_after = Pt(4)
     add_run(p_h5_2, "۲-۵-۵. پیشنهادهای کاربردی (برای سازمان‌ها و درمانگران)", font_fa='B Nazanin', size=13, bold=True)
@@ -201,7 +219,7 @@ def build_chapter5_document(data: dict, output_path: str):
         
     # --- 6-5. Final Conclusion ---
     p_h6 = doc.add_paragraph()
-    set_paragraph_bidi(p_h6)
+    set_paragraph_bidi(p_h6, WD_ALIGN_PARAGRAPH.RIGHT)
     p_h6.paragraph_format.space_before = Pt(16)
     p_h6.paragraph_format.space_after = Pt(6)
     add_run(p_h6, "۶-۵. نتیجه‌گیری نهایی", font_fa='B Titr', size=14, bold=True)

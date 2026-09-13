@@ -139,3 +139,36 @@ Microsoft Word features two independent controls for text formatting:
   1. Never concatenate lines with `\n` inside `p.add_run("Line 1\nLine 2")`. Every line, prompt, metadata entry, quote, bullet, or speaking script MUST be instantiated as an independent paragraph object (`doc.add_paragraph()` or `cell.add_paragraph()`).
   2. Spacing between elements must be controlled exclusively through paragraph formatting properties (`p.paragraph_format.space_before = Pt(...)`, `p.paragraph_format.space_after = Pt(...)`), never by inserting empty paragraphs containing `\n` or manual breaks.
   3. Every paragraph MUST receive explicit RTL direction (`set_rtl(p, align=...)`) and appropriate alignment (`both` for substantive text, `right` for headers, `center` for titles).
+
+### 2.6 Table Formatting Protocol (Font, Direction, Alignment & Paragraph Marks)
+1. **Fonts in Tables**:
+   - Column & Row Headers / Category Labels: `B Titr` (10–11 pt Bold, Centered or Right-aligned).
+   - Data / Body Cells: `B Nazanin` (10–10.5 pt Regular, Line Spacing 1.15–1.2).
+   - Latin Terms & Statistical Symbols: `Times New Roman` (10–10.5 pt, Italic for $M, SD, t, F, p, \beta$).
+   - Full OpenXML binding (`w:ascii`, `w:hAnsi`, `w:cs` set to Persian font name, `w:hint="cs"`, `<w:rtl w:val="1"/>`, `<w:szCs>`, `<w:bCs>`).
+2. **Direction & Alignment in Tables**:
+   - Always inject `<w:bidiVisual/>` into `<w:tblPr>` so column order starts Right-to-Left.
+   - Inject `<w:bidi w:val="1"/>` into `<w:pPr>` and `<w:rtl w:val="1"/>` into `<w:rPr>` for EVERY paragraph in EVERY table cell.
+   - Headers: Center (`center`) or Right (`right`) alignment.
+   - Narrative & Multi-line cell text: **MUST BE JUSTIFIED** (`<w:jc w:val="both"/>`).
+   - Short status badges / numeric codes: Center (`center`) alignment.
+3. **Paragraph Marks in Tables (Zero Manual Line Breaks)**:
+   - **NEVER use manual line breaks (`<w:br/>` / `\n`) inside table cells**.
+   - Every bullet item, script paragraph, note, cue, or sub-entry inside a cell MUST be created as an independent paragraph object (`cell.add_paragraph()` / `<w:p>`).
+   - Spacing between cell paragraphs must be regulated via `p.paragraph_format.space_after = Pt(...)`.
+
+### 2.7 Header & Heading Protocol (Font, Direction & Paragraph Marks)
+1. **Fonts in Headings**:
+   - Document Title / Cover Header: `B Titr` (16–18 pt Bold, Centered).
+   - Level 1 Section / Chapter Headings: `B Titr` (14–16 pt Bold, Right-aligned).
+   - Level 2 & 3 Headings (Slide Titles, Question Headings, Rule Titles): `B Titr` (12–13.5 pt Bold, Right-aligned).
+   - Section Sub-labels, Question Prompts & Callout Titles: `B Titr` (10.5–11.5 pt Bold, Right-aligned).
+2. **Direction & Alignment in Headings**:
+   - All headings MUST enforce RTL text direction (`<w:bidi w:val="1"/>` in `pPr` and `<w:rtl w:val="1"/>` in `rPr`).
+   - Cover/Document Titles: Centered (`center`) with RTL.
+   - Section/Slide/Question Headings: Right-aligned (`right`) with RTL.
+3. **Paragraph Marks in Headings**:
+   - Every heading, title, and subtitle MUST be its own independent paragraph object (`<w:p>`).
+   - NEVER use manual line breaks (`<w:br/>` / `\n`) inside headings.
+   - Spacing above and below headings must be controlled via `p.paragraph_format.space_before` and `space_after` in `Pt(...)`.
+

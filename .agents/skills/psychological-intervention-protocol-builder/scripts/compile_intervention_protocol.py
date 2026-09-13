@@ -42,23 +42,40 @@ def apply_p_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=Pt(6), line_sp
     p.paragraph_format.line_spacing = line_spacing
 
 def add_run(p, text: str, font_name: str = FONT_NAZANIN, size_pt: float = 13, bold: bool = False, italic: bool = False, color_rgb: Optional[RGBColor] = None):
-    """Add run with explicit complex script font binding and Latin fallback."""
-    run = p.add_run(text)
+    """Add run with explicit complex script font binding, w:rtl, and Latin fallback."""
+    run = p.add_run(str(text))
     run.font.name = font_name
     run.font.size = Pt(size_pt)
-    run.font.bold = bold
-    run.font.italic = italic
+    run.bold = bold
+    run.italic = italic
     if color_rgb:
         run.font.color.rgb = color_rgb
 
-    # Inject <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="B Nazanin"/>
     rPr = run._r.get_or_add_rPr()
-    rFonts = rPr.find(qn('w:rFonts'))
-    if rFonts is None:
-        rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{FONT_ENG}" w:hAnsi="{FONT_ENG}" w:cs="{font_name}"/>')
+    sz_val = int(size_pt * 2)
+    has_persian = any('\u0600' <= ch <= '\u06FF' or '\uFB50' <= ch <= '\uFDFF' or '\uFE70' <= ch <= '\uFEFF' for ch in str(text))
+    if has_persian:
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_name}" w:hAnsi="{font_name}" '
+            f'w:cs="{font_name}" w:eastAsia="{font_name}" w:hint="cs"/>'
+        )
         rPr.append(rFonts)
+        rtl = parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>')
+        rPr.append(rtl)
     else:
-        rFonts.set(qn('w:cs'), font_name)
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{FONT_ENG}" w:hAnsi="{FONT_ENG}" '
+            f'w:cs="{font_name}" w:eastAsia="{font_name}"/>'
+        )
+        rPr.append(rFonts)
+
+    szCs = parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>')
+    rPr.append(szCs)
+    if bold:
+        bCs = parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>')
+        rPr.append(bCs)
     return run
 
 def apply_table_rtl_and_borders(table, col_widths: Optional[List[float]] = None):

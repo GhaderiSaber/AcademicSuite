@@ -210,7 +210,7 @@ class OpenXMLArtifactEngine:
         """
         Constructs schema-compliant <w:pPr> strictly adhering to ISO/IEC 29500-1 order:
         pStyle -> keepNext -> bidi -> spacing -> ind -> jc
-        Fixes Word's RTL alignment bug (omits <w:jc> for right-alignment under RTL).
+        Enforces both Text Direction (RTL) via <w:bidi w:val="1"/> and Text Alignment (Justify) via <w:jc w:val="both"/>.
         """
         parts = []
         if style_val:
@@ -225,9 +225,8 @@ class OpenXMLArtifactEngine:
         parts.append(f'<w:spacing {nsdecls("w")} w:before="{before_dxa}" w:after="{after_dxa}" w:line="{line_val}" w:lineRule="auto"/>')
 
         if is_bidi:
-            if jc_val in ('both', 'center', 'left'):
+            if jc_val in ('both', 'center', 'left', 'right'):
                 parts.append(f'<w:jc {nsdecls("w")} w:val="{jc_val}"/>')
-            # Note: For RTL natural right alignment, <w:jc> is omitted to prevent left flipping in Word.
         else:
             if jc_val:
                 parts.append(f'<w:jc {nsdecls("w")} w:val="{jc_val}"/>')
@@ -239,7 +238,7 @@ class OpenXMLArtifactEngine:
 
     @staticmethod
     def add_styled_run(p, text: str, font_fa='B Nazanin', font_en='Times New Roman', size=13, bold=False, italic=False, color: Optional[str] = None):
-        """Adds a text run with explicit Persian and Latin font bindings and half-space normalization."""
+        """Adds a text run with explicit Persian and Latin font bindings, complex-script properties, w:rtl, and half-space normalization."""
         clean_text = OpenXMLArtifactEngine.clean_persian_typography(text)
         run = p.add_run(clean_text)
         run.font.name = font_fa
@@ -250,12 +249,35 @@ class OpenXMLArtifactEngine:
             run.font.color.rgb = RGBColor.from_string(color)
 
         rPr = run._r.get_or_add_rPr()
-        rFonts = parse_xml(
-            f'<w:rFonts {nsdecls("w")} '
-            f'w:ascii="{font_en}" w:hAnsi="{font_en}" '
-            f'w:cs="{font_fa}" w:eastAsia="{font_fa}"/>'
-        )
-        rPr.append(rFonts)
+        sz_val = int(size * 2)
+
+        # Check if text contains Persian / Arabic characters
+        has_persian = any('\u0600' <= ch <= '\u06FF' or '\uFB50' <= ch <= '\uFDFF' or '\uFE70' <= ch <= '\uFEFF' for ch in clean_text)
+        if has_persian:
+            rFonts = parse_xml(
+                f'<w:rFonts {nsdecls("w")} '
+                f'w:ascii="{font_fa}" w:hAnsi="{font_fa}" '
+                f'w:cs="{font_fa}" w:eastAsia="{font_fa}" w:hint="cs"/>'
+            )
+            rPr.append(rFonts)
+            rtl = parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>')
+            rPr.append(rtl)
+        else:
+            rFonts = parse_xml(
+                f'<w:rFonts {nsdecls("w")} '
+                f'w:ascii="{font_en}" w:hAnsi="{font_en}" '
+                f'w:cs="{font_fa}" w:eastAsia="{font_fa}"/>'
+            )
+            rPr.append(rFonts)
+
+        szCs = parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>')
+        rPr.append(szCs)
+        if bold:
+            bCs = parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>')
+            rPr.append(bCs)
+        if italic:
+            iCs = parse_xml(f'<w:iCs {nsdecls("w")} w:val="1"/>')
+            rPr.append(iCs)
         return run
 
     @staticmethod

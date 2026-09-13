@@ -85,40 +85,62 @@ def format_cell_text(cell, text, bold=False, italic=False, size_pt=10, color_rgb
     cell.text = ""
     p = cell.paragraphs[0]
     p.alignment = align
-    if is_bidi:
-        pPr = p._element.get_or_add_pPr()
-        pPr.append(parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>'))
+    pPr = p._element.get_or_add_pPr()
+    if is_bidi and not pPr.xpath('./w:bidi'):
+        pPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>'))
     
-    run = p.add_run(str(text))
-    run.font.name = font_en
+    clean_text = str(text)
+    run = p.add_run(clean_text)
+    run.font.name = font_fa if is_bidi else font_en
     run.font.size = Pt(size_pt)
     run.font.bold = bold
     run.font.italic = italic
     run.font.color.rgb = RGBColor(*color_rgb)
     rPr = run._element.get_or_add_rPr()
-    rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}"/>')
-    rPr.append(rFonts)
+    sz_val = int(size_pt * 2)
+    has_persian = any('\u0600' <= ch <= '\u06FF' or '\uFB50' <= ch <= '\uFDFF' or '\uFE70' <= ch <= '\uFEFF' for ch in clean_text)
+    if has_persian:
+        rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_fa}" w:hAnsi="{font_fa}" w:cs="{font_fa}" w:eastAsia="{font_fa}" w:hint="cs"/>')
+        rPr.append(rFonts)
+        rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
+    else:
+        rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}"/>')
+        rPr.append(rFonts)
+    rPr.append(parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>'))
+    if bold:
+        rPr.append(parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>'))
 
 def add_styled_paragraph(doc, text, bold=False, italic=False, size_pt=12, color_rgb=(30,30,30),
-                         align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=6, line_spacing=1.15,
+                         align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=6, line_spacing=1.15,
                          font_fa="B Nazanin", font_en="Times New Roman", is_bidi=True):
     p = doc.add_paragraph()
     p.alignment = align
     p.paragraph_format.space_after = Pt(space_after)
     p.paragraph_format.line_spacing = line_spacing
-    if is_bidi:
-        pPr = p._element.get_or_add_pPr()
-        pPr.append(parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>'))
+    pPr = p._element.get_or_add_pPr()
+    if is_bidi and not pPr.xpath('./w:bidi'):
+        pPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>'))
     
-    run = p.add_run(text)
-    run.font.name = font_en
+    clean_text = str(text)
+    run = p.add_run(clean_text)
+    run.font.name = font_fa if is_bidi else font_en
     run.font.size = Pt(size_pt)
     run.font.bold = bold
     run.font.italic = italic
     run.font.color.rgb = RGBColor(*color_rgb)
     rPr = run._element.get_or_add_rPr()
-    rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}"/>')
-    rPr.append(rFonts)
+    sz_val = int(size_pt * 2)
+    has_persian = any('\u0600' <= ch <= '\u06FF' or '\uFB50' <= ch <= '\uFDFF' or '\uFE70' <= ch <= '\uFEFF' for ch in clean_text)
+    if has_persian:
+        rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_fa}" w:hAnsi="{font_fa}" w:cs="{font_fa}" w:eastAsia="{font_fa}" w:hint="cs"/>')
+        rPr.append(rFonts)
+        rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
+    else:
+        rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}"/>')
+        rPr.append(rFonts)
+    rPr.append(parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>'))
+    if bold:
+        rPr.append(parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>'))
     return p
 
 # ==============================================================================

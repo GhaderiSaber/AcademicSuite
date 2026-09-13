@@ -111,6 +111,34 @@ When assembling or editing Persian Word documents (`.docx`):
   - **USE PARAGRAPH MARKS (`<w:p>`) EVERYWHERE**: Every distinct line, prompt, metadata entry, quote, bullet, or speaking script MUST be instantiated as an independent paragraph object (`doc.add_paragraph()` or `cell.add_paragraph()`).
   - **Why this is catastrophic in Justified text**: In Microsoft Word, when a paragraph is justified (`<w:jc w:val="both"/>`), Word treats a manual line break (`<w:br/>` / Shift+Enter) as an internal line continuation and forces the line to justify across the full margin width, creating absurdly wide gaps between characters and words. Only a true paragraph mark (`<w:p>`) signals the legitimate end of a paragraph block, allowing Word's justification engine to format the line naturally without distortion.
   - **Paragraph Spacing**: Control spacing between elements exclusively through paragraph formatting properties (`p.paragraph_format.space_before` and `space_after` in `Pt(...)`), never by inserting empty paragraphs containing manual line breaks.
+- **Mandatory Table Standards (Font, Direction, Alignment & Paragraph Marks)**:
+  - **Table Fonts**:
+    - Table Headers (Columns & Rows) and Category Labels: `B Titr` (10–11 pt Bold, Centered or Right-aligned).
+    - Table Data & Narrative Content: `B Nazanin` (10–10.5 pt Regular, Line Spacing 1.15–1.2).
+    - Latin Terms, Symbols & English Metrics: `Times New Roman` (10–10.5 pt, Italic for statistical symbols $M, SD, t, F, p, \beta$).
+  - **Table Directionality**:
+    - Every table MUST have `<w:bidiVisual/>` injected into `<w:tblPr>` so column order renders strictly Right-to-Left.
+    - Every single paragraph in every table cell MUST enforce RTL text direction (`<w:bidi w:val="1"/>` in `pPr` and `<w:rtl w:val="1"/>` in `rPr`).
+  - **Table Text Alignment**:
+    - Headers, status badges, and discrete codes/metrics: Centered (`<w:jc w:val="center"/>`).
+    - Row labels and short descriptors: Right-aligned (`<w:jc w:val="right"/>`).
+    - Substantive multi-line descriptions, speech scripts, and narrative cell content: **MUST BE JUSTIFIED** (`<w:jc w:val="both"/>`).
+  - **Strict Paragraph Mark Policy in Tables (No Manual Line Breaks)**:
+    - **NEVER use manual line breaks (`<w:br/>` / `\n`) inside table cells**.
+    - Every bullet point, sub-item, speech segment, or distinct note within a table cell MUST be created as an independent paragraph object (`cell.add_paragraph()` / `<w:p>`).
+    - Cell paragraph spacing MUST be regulated via `paragraph_format.space_before` and `space_after` in `Pt(...)`, never by inserting blank lines.
+- **Mandatory Header & Heading Standards (Font, Direction, Alignment & Paragraph Marks)**:
+  - **Header Fonts**:
+    - Main Document Title / Cover Header: `B Titr` (16–18 pt Bold, Centered, RTL).
+    - Level 1 Section / Chapter Headings: `B Titr` (14–16 pt Bold, Right-aligned, RTL).
+    - Level 2 & 3 Headings (Slide Titles, Question Headings, Rule Titles): `B Titr` (12–13.5 pt Bold, Right-aligned, RTL).
+    - Section Sub-labels, Question Prompts & Callout Titles: `B Titr` (10.5–11.5 pt Bold, Right-aligned, RTL).
+  - **Header Directionality**:
+    - All headers MUST enforce RTL text direction (`<w:bidi w:val="1"/>` in `pPr` and `<w:rtl w:val="1"/>` in `rPr`).
+  - **Header Paragraph Marks**:
+    - Every header, title, and subtitle MUST be instantiated as an independent paragraph object (`<w:p>`).
+    - NEVER use manual line breaks (`<w:br/>` / `\n`) to break headers across lines.
+    - Header spacing MUST be managed via `paragraph_format.space_before` and `space_after` in `Pt(...)`.
 
 ### Rule 5: Critical OpenXML Standard: Preservation of Native Word Math & OMML Formulas (`<m:oMath>`)
 When inspecting, auditing, or modifying academic Word documents (`.docx`):

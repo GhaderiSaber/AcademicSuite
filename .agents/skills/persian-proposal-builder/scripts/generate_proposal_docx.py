@@ -96,17 +96,22 @@ def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.RIGHT, justify=True):
 
 def add_run(p, text, font_fa='B Nazanin', font_en='Times New Roman', size=13, bold=False, italic=False, color_hex='0F172A'):
     """Add text run with explicit Persian and Latin font bindings, color, sz, szCs, and w:rtl."""
-    run = p.add_run(text)
+    run = p.add_run(str(text))
     sz_val = int(size * 2)
     b_tags = '<w:b/><w:bCs/>' if bold else ''
     i_tags = '<w:i/><w:iCs/>' if italic else ''
+    has_persian = any('\u0600' <= ch <= '\u06FF' or '\uFB50' <= ch <= '\uFDFF' or '\uFE70' <= ch <= '\uFEFF' for ch in str(text))
+    ascii_font = font_fa if has_persian else font_en
+    hansi_font = font_fa if has_persian else font_en
+    hint_tag = 'w:hint="cs"' if has_persian else ''
+    rtl_tag = '<w:rtl/>' if has_persian else ''
     rPr_xml = f'''<w:rPr {nsdecls("w")}>
-      <w:rFonts w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}" w:eastAsia="{font_fa}"/>
+      <w:rFonts w:ascii="{ascii_font}" w:hAnsi="{hansi_font}" w:cs="{font_fa}" w:eastAsia="{font_fa}" {hint_tag}/>
       {b_tags}
       {i_tags}
       <w:color w:val="{color_hex}"/>
       <w:sz w:val="{sz_val}"/><w:szCs w:val="{sz_val}"/>
-      <w:rtl/>
+      {rtl_tag}
       <w:lang w:val="fa-IR" w:bidi="fa-IR"/>
     </w:rPr>'''
     curr_rPr = run._r.find(qn('w:rPr'))

@@ -98,21 +98,22 @@ def set_table_header_underline(row):
         tcBorders.append(bottom)
         tcPr.append(tcBorders)
 
-def set_paragraph_bidi(p, is_rtl=True):
+def set_paragraph_bidi(p, is_rtl=True, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
+    p.alignment = align if is_rtl else WD_ALIGN_PARAGRAPH.LEFT
     pPr = p._p.get_or_add_pPr()
-    if is_rtl:
-        bidi = OxmlElement('w:bidi')
-        bidi.set(qn('w:val'), '1')
-        pPr.append(bidi)
+    if is_rtl and not pPr.xpath('./w:bidi'):
+        bidi = parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>')
+        pPr.insert(0, bidi)
 
 def set_table_bidi(table, is_rtl=True):
     if is_rtl:
         tblPr = table._tbl.tblPr
-        tblBidi = OxmlElement('w:bidiVisual')
-        tblPr.append(tblBidi)
+        if tblPr.find(qn('w:bidiVisual')) is None:
+            tblBidi = parse_xml(f'<w:bidiVisual {nsdecls("w")}/>')
+            tblPr.append(tblBidi)
 
 def add_persian_run(paragraph, text, font_name="B Nazanin", size_pt=13, bold=False, italic=False, color_rgb=(0, 0, 0)):
-    run = paragraph.add_run(text)
+    run = paragraph.add_run(str(text))
     run.font.name = font_name
     run.font.size = Pt(size_pt)
     run.bold = bold
@@ -120,15 +121,30 @@ def add_persian_run(paragraph, text, font_name="B Nazanin", size_pt=13, bold=Fal
     run.font.color.rgb = RGBColor(*color_rgb)
     
     rPr = run._r.get_or_add_rPr()
-    rFonts = OxmlElement('w:rFonts')
-    rFonts.set(qn('w:ascii'), "Times New Roman")
-    rFonts.set(qn('w:hAnsi'), "Times New Roman")
-    rFonts.set(qn('w:cs'), font_name)
-    rPr.append(rFonts)
-    
-    rtl_el = OxmlElement('w:rtl')
-    rtl_el.set(qn('w:val'), '1')
-    rPr.append(rtl_el)
+    sz_val = int(size_pt * 2)
+    has_persian = any('\u0600' <= ch <= '\u06FF' or '\uFB50' <= ch <= '\uFDFF' or '\uFE70' <= ch <= '\uFEFF' for ch in str(text))
+    if has_persian:
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_name}" w:hAnsi="{font_name}" '
+            f'w:cs="{font_name}" w:eastAsia="{font_name}" w:hint="cs"/>'
+        )
+        rPr.append(rFonts)
+        rtl = parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>')
+        rPr.append(rtl)
+    else:
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="Times New Roman" w:hAnsi="Times New Roman" '
+            f'w:cs="{font_name}" w:eastAsia="{font_name}"/>'
+        )
+        rPr.append(rFonts)
+
+    szCs = parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>')
+    rPr.append(szCs)
+    if bold:
+        bCs = parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>')
+        rPr.append(bCs)
     return run
 
 def add_blockquote(doc, quote_text, participant_tag, is_rtl=True):
