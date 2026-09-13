@@ -163,12 +163,24 @@ class TopicManager:
                 expected_title = f"⭐ {cname}"
                 expected_lower = expected_title.strip().lower()
 
-                # Check if existing topic matches or if previously saved ID is valid
+                # Check if previously saved ID is still valid in Telegram
                 if tid in vip_map and vip_map[tid] in existing_by_id:
                     continue
 
+                # Check if any existing topic matches expected title or client names
+                matched_id = None
                 if expected_lower in existing_by_title:
-                    vip_map[tid] = existing_by_title[expected_lower]
+                    matched_id = existing_by_title[expected_lower]
+                else:
+                    c_en = (vip.get("client_name") or "").strip().lower()
+                    c_fa = (vip.get("client_name_fa") or "").strip().lower()
+                    for ex_title, ex_id in existing_by_title.items():
+                        if (c_fa and c_fa in ex_title) or (c_en and c_en in ex_title):
+                            matched_id = ex_id
+                            break
+
+                if matched_id:
+                    vip_map[tid] = matched_id
                 else:
                     try:
                         r = random.randint(1, 2**63 - 1)
