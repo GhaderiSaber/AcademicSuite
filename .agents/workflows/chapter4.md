@@ -47,7 +47,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                          ┌───────────────────────────┐
                          │ STEP 7: ACADEMIC WRITER   │
                          │5-Part Epistemic Paragraphs│
-                         │  (فصل چهارم_یافته‌ها.docx) │
+                         │  (Chapter_4_Results.docx) │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
@@ -154,12 +154,12 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     4. **یافته‌های استنباطی و آزمون فرضیه‌ها** (Each hypothesis formulated with Saber's 5-part epistemic paragraph formula)
   - Enforces Persian half-spaces (`\u200c`), natural cadence ($CV \ge 0.50$), and zero AI clichés.
   - Compiles final Word document with OpenXML directionality `<w:bidi w:val="1"/>`.
-- **Output**: `فصل چهارم: یافته‌های پژوهش.docx`.
+- **Output**: `Chapter_4_Results.docx`.
 
 ### Step 8: Final Judge Subagent (Defense Viva Voce Simulator)
 - **Agent**: `final-judge`
 - **Action**:
-  - Reviews `فصل چهارم: یافته‌های پژوهش.docx`.
+  - Reviews `Chapter_4_Results.docx`.
   - Simulates external examiner cross-examination with 5 critical questions.
   - Formulates defense model answers with APA 7 literature citations.
   - Calculates Committee Defense Readiness Score ($0\text{--}100\%$).

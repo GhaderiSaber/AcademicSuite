@@ -61,7 +61,7 @@ class TestInterventionAndValidationWorkflow(unittest.TestCase):
             content_inte = f.read()
         self.assertIn("METHODOLOGY EXPERT", content_inte)
         self.assertIn("Method Triad", content_inte)
-        self.assertIn("پروتکل_مداخله_درمانی.docx", content_inte)
+        self.assertIn("Intervention_Protocol_Manual.docx", content_inte)
 
         with open(scal_path, "r", encoding="utf-8") as f:
             content_scal = f.read()
@@ -69,7 +69,7 @@ class TestInterventionAndValidationWorkflow(unittest.TestCase):
         self.assertIn("Lawshe", content_scal)
         self.assertIn("Fornell & Larcker", content_scal)
         self.assertIn("Graded Response Model", content_scal)
-        self.assertIn("گزارش_اعتباریابی_روانسنجی.docx", content_scal)
+        self.assertIn("Psychometric_Validation_Report.docx", content_scal)
 
     def test_intervention_protocol_workflow_execution(self):
         """2. Execute intervention protocol workflow and verify generated artifacts."""
@@ -83,8 +83,8 @@ class TestInterventionAndValidationWorkflow(unittest.TestCase):
         self.assertGreaterEqual(res.get("fidelity_score", 0), 95.0)
 
         # Verify artifacts
-        manual_docx = os.path.join(self.test_output_dir, "پروتکل_مداخله_درمانی.docx")
-        summary_docx = os.path.join(self.test_output_dir, "جدول_خلاصه_جلسات_مداخله.docx")
+        manual_docx = os.path.join(self.test_output_dir, "Intervention_Protocol_Manual.docx")
+        summary_docx = os.path.join(self.test_output_dir, "Intervention_Sessions_Summary.docx")
         consort_img = os.path.join(self.test_output_dir, "consort_flowchart.png")
         blueprint_json = os.path.join(self.test_output_dir, "protocol_blueprint.json")
         manifest_json = os.path.join(self.test_output_dir, "intervention_manifest.json")
@@ -111,7 +111,7 @@ class TestInterventionAndValidationWorkflow(unittest.TestCase):
         self.assertGreaterEqual(res.get("psychometric_score", 0), 95.0)
 
         # Verify artifacts
-        report_docx = os.path.join(self.test_output_dir, "گزارش_اعتباریابی_روانسنجی.docx")
+        report_docx = os.path.join(self.test_output_dir, "Psychometric_Validation_Report.docx")
         matrix_xlsx = os.path.join(self.test_output_dir, "psychometric_validation_matrix.xlsx")
         lavaan_r = os.path.join(self.test_output_dir, "cfa_lavaan_model.R")
         report_json = os.path.join(self.test_output_dir, "psychometric_validation_report.json")
@@ -153,12 +153,12 @@ class TestInterventionAndValidationWorkflow(unittest.TestCase):
 
         # Test do_protocol
         shell.do_protocol("schema")
-        manual_docx = os.path.join(self.test_output_dir, "پروتکل_مداخله_درمانی.docx")
+        manual_docx = os.path.join(self.test_output_dir, "Intervention_Protocol_Manual.docx")
         self.assertTrue(os.path.exists(manual_docx))
 
         # Test do_validate
         shell.do_validate("مقیاس بهزیستی روان‌شناختی ریف")
-        report_docx = os.path.join(self.test_output_dir, "گزارش_اعتباریابی_روانسنجی.docx")
+        report_docx = os.path.join(self.test_output_dir, "Psychometric_Validation_Report.docx")
         self.assertTrue(os.path.exists(report_docx))
 
         # Test do_simulate

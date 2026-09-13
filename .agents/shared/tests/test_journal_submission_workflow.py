@@ -96,7 +96,7 @@ class TestJournalSubmissionWorkflow(unittest.TestCase):
 
         # Check physical existence of generated artifacts
         expected_artifacts = [
-            "مقاله_علمی_پژوهشی.docx",
+            "Academic_Article_Manuscript.docx",
             "Cover_Letter_Editor.docx",
             "Title_Page_CRediT.docx",
             "Highlights_and_Abstract.docx",

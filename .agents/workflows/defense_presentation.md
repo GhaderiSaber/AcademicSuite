@@ -55,9 +55,9 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                                        │
                                        ▼
                               FINAL DELIVERABLES
-               • اسلایدهای_جلسه_دفاع.pptx (16:9 Presentation Canvas)
+               • Defense_Presentation_Slides.pptx (16:9 Presentation Canvas)
                • defense_presentation.html (Interactive Reveal.js Deck)
-               • متن_نطق_ارائه_دفاع.docx (Full Candidate Oral Script)
+               • Defense_Speech_Notes.docx (Full Candidate Oral Script)
                • defense_committee_qa_card.json (20 Viva Voce Scenarios)
                • defense_manifest.json (Defense Timing & Presentation Ledger)
 ```
@@ -134,8 +134,8 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
   - Compiles the presentation across the target paths:
     - **Path A (HTML)**: Interactive single-file Reveal.js deck with dark/navy academic theme, responsive layouts, and slide-level timer indicators.
     - **Path B (PPTX)**: Native 16:9 PowerPoint file using `compile_defense_presentation.py` with RTL text direction, 300-DPI rendered diagrams, native Microsoft Office Math (`<m:oMath>`) equations, and geometric collision auditing.
-    - **Path C (Speaker Notes)**: Word document (`متن_نطق_ارائه_دفاع.docx`) containing word-for-word candidate speech scripts for each slide, specifying exact transition phrases (*«همان‌گونه که در اسلاید بعد ملاحظه می‌فرمایید...»*) and time budget markers.
-- **Output**: `اسلایدهای_جلسه_دفاع.pptx`, `defense_presentation.html`, `متن_نطق_ارائه_دفاع.docx`.
+    - **Path C (Speaker Notes)**: Word document (`Defense_Speech_Notes.docx`) containing word-for-word candidate speech scripts for each slide, specifying exact transition phrases (*«همان‌گونه که در اسلاید بعد ملاحظه می‌فرمایید...»*) and time budget markers.
+- **Output**: `Defense_Presentation_Slides.pptx`, `defense_presentation.html`, `Defense_Speech_Notes.docx`.
 
 ### Step 5: Final Judge Subagent (Defense Committee Viva Voce Simulator)
 - **Agent**: `final-judge`
@@ -160,8 +160,8 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 
 | # | Artifact | Description | Target Path |
 |---|---|---|---|
-| 1 | **`اسلایدهای_جلسه_دفاع.pptx`** | Native 16:9 PowerPoint slide deck with RTL typography, APA 7 borderless tables, OMML formulas, and embedded 300-DPI diagrams. | `output/` |
+| 1 | **`Defense_Presentation_Slides.pptx`** | Native 16:9 PowerPoint slide deck with RTL typography, APA 7 borderless tables, OMML formulas, and embedded 300-DPI diagrams. | `output/` |
 | 2 | **`defense_presentation.html`** | Interactive browser-based Reveal.js slide deck with glassmorphism, slide transitions, and presentation timer. | `output/` |
-| 3 | **`متن_نطق_ارائه_دفاع.docx`** | Word-for-word candidate oral speech script for each slide with time budget markers and smooth transitions. | `output/` |
+| 3 | **`Defense_Speech_Notes.docx`** | Word-for-word candidate oral speech script for each slide with time budget markers and smooth transitions. | `output/` |
 | 4 | **`defense_committee_qa_card.json`** | 20 anticipated viva voce examiner questions and structured authoritative responses. | `output/` |
 | 5 | **`defense_manifest.json`** | Machine-readable defense metadata (slide count, duration, committee, integrity index). | `output/` |

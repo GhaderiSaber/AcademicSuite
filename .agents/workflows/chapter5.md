@@ -74,7 +74,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 
 ## Prerequisites & Required Inputs
 
-- **Quantitative Findings**: Verified `stats_results.json` or final `فصل چهارم: یافته‌های پژوهش.docx`.
+- **Quantitative Findings**: Verified `stats_results.json` or final `Chapter_4_Results.docx`.
 - **Empirical & Theoretical Literature**: Chapter 2 citations and theoretical frameworks (CBT, ACT, EFT, Attachment, Schema Therapy, Self-Determination Theory).
 - **Target Population & Context**: Exact sample characteristics (clinical, educational, organizational).
 
@@ -151,7 +151,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     6. **۵-۶. نتیجه‌گیری نهایی** (Holistic closing synthesis of scientific contribution).
   - Enforces Persian half-spaces (`\u200c`), natural sentence cadence ($CV \ge 0.50$), and OpenXML RTL typography (`B Nazanin` 13 pt, `B Titr` headings, Line spacing 1.25).
   - Compiles Word deliverable via `generate_chapter5_docx.py`.
-- **Output**: `فصل پنجم: بحث و نتیجه‌گیری.docx`.
+- **Output**: `Chapter_5_Discussion_and_Conclusion.docx`.
 
 ### Step 8: Final Judge Subagent (Defense Committee Viva Voce Simulator)
 - **Agent**: `final-judge`

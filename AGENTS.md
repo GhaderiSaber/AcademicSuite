@@ -106,6 +106,11 @@ When assembling or editing Persian Word documents (`.docx`):
       5. Document default style (`Normal`): Must enforce `paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` and `<w:bidi w:val="1"/>` with `<w:jc w:val="both"/>`.
   - Always enforce `<w:bidiVisual/>` on tables (`<w:tblPr>`).
   - Maintain Persian half-spaces (نیم‌فاصله: `\u200c`) in compound words (e.g., `می‌شود`, `پیش‌آزمون`, `یافته‌ها`, `روان‌شناختی`).
+- **Zero Manual Line Breaks Policy (قاعده منع شکست دستی خط / Shift+Enter)**:
+  - **NEVER use manual line breaks (`<w:br/>` / `\n` in run text)**.
+  - **USE PARAGRAPH MARKS (`<w:p>`) EVERYWHERE**: Every distinct line, prompt, metadata entry, quote, bullet, or speaking script MUST be instantiated as an independent paragraph object (`doc.add_paragraph()` or `cell.add_paragraph()`).
+  - **Why this is catastrophic in Justified text**: In Microsoft Word, when a paragraph is justified (`<w:jc w:val="both"/>`), Word treats a manual line break (`<w:br/>` / Shift+Enter) as an internal line continuation and forces the line to justify across the full margin width, creating absurdly wide gaps between characters and words. Only a true paragraph mark (`<w:p>`) signals the legitimate end of a paragraph block, allowing Word's justification engine to format the line naturally without distortion.
+  - **Paragraph Spacing**: Control spacing between elements exclusively through paragraph formatting properties (`p.paragraph_format.space_before` and `space_after` in `Pt(...)`), never by inserting empty paragraphs containing manual line breaks.
 
 ### Rule 5: Critical OpenXML Standard: Preservation of Native Word Math & OMML Formulas (`<m:oMath>`)
 When inspecting, auditing, or modifying academic Word documents (`.docx`):

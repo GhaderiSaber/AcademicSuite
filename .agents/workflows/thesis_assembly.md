@@ -53,7 +53,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                                        │
                                        ▼
                               FINAL DELIVERABLES
-               • پایان‌نامه_کامل_تدوین‌شده.docx / Thesis_Compiled.docx
+               • Complete_Graduate_Thesis.docx / Thesis_Compiled.docx
                • thesis_manifest.json (Compilation Ledger & Structural Specs)
 ```
 
@@ -144,5 +144,5 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 
 | # | Artifact | Description | Target Path |
 |---|---|---|---|
-| 1 | **`پایان‌نامه_کامل_تدوین‌شده.docx` / `Thesis_Compiled.docx`** | Complete 150-page master thesis / doctoral dissertation containing all front matter, Chapters 1–5, APA 7 tables, appendices, and bilingual back matter. | `output/` |
+| 1 | **`Complete_Graduate_Thesis.docx` / `Thesis_Compiled.docx`** | Complete 150-page master thesis / doctoral dissertation containing all front matter, Chapters 1–5, APA 7 tables, appendices, and bilingual back matter. | `output/` |
 | 2 | **`thesis_manifest.json`** | Machine-readable compilation ledger (chapter word counts, table counts, figure counts, scales included, and council approval score). | `output/` |

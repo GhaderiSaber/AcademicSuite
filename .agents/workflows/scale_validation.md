@@ -72,7 +72,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                                        │
                                        ▼
                               FINAL DELIVERABLES
-               • گزارش_اعتباریابی_روانسنجی.docx (Chapter 4 Psychometric Report)
+               • Psychometric_Validation_Report.docx (Chapter 4 Psychometric Report)
                • psychometric_validation_matrix.xlsx (6-Sheet Master Matrix)
                • psychometric_scree_roc_plots.png & irt_plots.png (300-DPI Plots)
                • cfa_lavaan_model.R (Executable CFA Analysis Script)
@@ -170,7 +170,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 ### Step 7: OpenXML Physical Document Compilation
 - **Agent**: `academic-writer` (wielding `openxml_artifact_engine`)
 - **Action**:
-  - Compiles `گزارش_اعتباریابی_روانسنجی.docx`:
+  - Compiles `Psychometric_Validation_Report.docx`:
     - 8 APA 7th Edition borderless tables (Demographics, CVR/CVI, EFA, CFA, Fornell-Larcker, Reliability, IRT, Norms).
     - BiDi directionality (`<w:bidi w:val="1"/>` and `<w:bidiVisual/>`).
     - Embedded 300-DPI visual plots.
@@ -190,7 +190,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 ---
 
 ## Deliverables Checklist
-- [ ] `گزارش_اعتباریابی_روانسنجی.docx` — Complete Chapter 4 psychometric validation report with 8 APA 7 tables.
+- [ ] `Psychometric_Validation_Report.docx` — Complete Chapter 4 psychometric validation report with 8 APA 7 tables.
 - [ ] `psychometric_validation_matrix.xlsx` — 6-sheet master psychometric Excel matrix.
 - [ ] `psychometric_scree_roc_plots.png` — 300-DPI Scree & ROC curve plots.
 - [ ] `psychometric_irt_plots.png` — 300-DPI IRT TIF & Item Characteristic Curves.

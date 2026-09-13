@@ -93,8 +93,8 @@ class TestDefensePresentationWorkflow(unittest.TestCase):
         # Check physical existence of generated artifacts
         expected_artifacts = [
             "defense_presentation.html",
-            "اسلایدهای_جلسه_دفاع.pptx",
-            "متن_نطق_ارائه_دفاع.docx",
+            "Defense_Presentation_Slides.pptx",
+            "Defense_Speech_Notes.docx",
             "defense_committee_qa_card.json",
             "defense_manifest.json"
         ]
@@ -134,7 +134,7 @@ class TestDefensePresentationWorkflow(unittest.TestCase):
 
         # Check physical existence of generated artifacts
         expected_artifacts = [
-            "پایان‌نامه_کامل_تدوین‌شده.docx",
+            "Complete_Graduate_Thesis.docx",
             "Thesis_Compiled.docx",
             "thesis_manifest.json"
         ]
@@ -208,11 +208,11 @@ class TestDefensePresentationWorkflow(unittest.TestCase):
         # Test do_defense
         shell.do_defense("اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی شغلی")
         self.assertTrue(os.path.exists(os.path.join(shell_out, "defense_presentation.html")))
-        self.assertTrue(os.path.exists(os.path.join(shell_out, "اسلایدهای_جلسه_دفاع.pptx")))
+        self.assertTrue(os.path.exists(os.path.join(shell_out, "Defense_Presentation_Slides.pptx")))
 
         # Test do_assemble
         shell.do_assemble("رساله کامل دکتری")
-        self.assertTrue(os.path.exists(os.path.join(shell_out, "پایان‌نامه_کامل_تدوین‌شده.docx")))
+        self.assertTrue(os.path.exists(os.path.join(shell_out, "Complete_Graduate_Thesis.docx")))
 
 
 if __name__ == "__main__":

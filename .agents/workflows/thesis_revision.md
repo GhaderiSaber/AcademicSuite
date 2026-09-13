@@ -127,9 +127,9 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     ```bash
     python3 .agents/skills/persian-thesis-revision-assistant/scripts/generate_revision_response_docx.py \
       --json "resolved_comments.json" \
-      --out "جدول_پاسخ_به_نظرات_استاد_راهنما_و_داوران.docx"
+      --out "Revision_Response_Table.docx"
     ```
-- **Output**: Revised chapter files and `جدول_پاسخ_به_نظرات_استاد_راهنما_و_داوران.docx`.
+- **Output**: Revised chapter files and `Revision_Response_Table.docx`.
 
 ### Step 5: Statistical QC Subagent (Recalculation Fidelity & Anomaly Check)
 - **Agent**: `statistical-auditor`
@@ -162,6 +162,6 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - Total Comments Triaged & Resolved (Format, Stats, Theory).
     - Key Modifications & Methodological Adjustments.
     - Committee Sign-Off Approval Readiness Score.
-    - Attached Deliverables: `جدول_پاسخ_به_نظرات_استاد_راهنما_و_داوران.docx` + Revised Chapters.
+    - Attached Deliverables: `Revision_Response_Table.docx` + Revised Chapters.
     - Commands: `/approve_revision` or `/adjust_revision`.
   - Upon sign-off, updates project status to `COMPLETED_AND_RELEASED` in `decision_journal_engine.py`.

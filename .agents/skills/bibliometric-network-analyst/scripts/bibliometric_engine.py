@@ -13,7 +13,7 @@ Exports:
   1. VOSviewer Native Files: `vosviewer_map.txt` & `vosviewer_network.txt`.
   2. Dual 300-DPI Publication Visual Plots: `bibliometric_network_map.png` & `thematic_strategic_map.png`.
   3. 5-Sheet Excel Workbook: `bibliometric_matrix.xlsx`.
-  4. Publication-Ready Chapter 2 Word Report: `گزارش_تحلیل_علم‌سنجی_و_ترسیم_نقشه_دانش.docx` / `Bibliometric_Science_Mapping_Report.docx`.
+  4. Publication-Ready Chapter 2 Word Report: `Bibliometric_Science_Mapping_Report.docx`.
   5. Machine-Readable JSON Ledger: `bibliometric_summary.json`.
 """
 
@@ -857,7 +857,7 @@ def export_word_report(articles, bradford_res, lotka_res, network_data, project_
                        network_map_img, strategic_map_img, output_dir, language='fa'):
     """
     Compiles defense-ready APA 7th Edition Word document:
-    `گزارش_تحلیل_علم‌سنجی_و_ترسیم_نقشه_دانش.docx` or `Bibliometric_Science_Mapping_Report.docx`.
+    `Bibliometric_Science_Mapping_Report.docx`.
     With authentic Persian typography (B Titr, B Nazanin) and OpenXML BiDi tags.
     """
     doc = docx.Document()

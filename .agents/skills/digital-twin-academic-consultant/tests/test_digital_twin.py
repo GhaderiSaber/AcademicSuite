@@ -806,11 +806,11 @@ class TestDigitalTwinSuite(unittest.TestCase):
             pdir = paths["project_dir"]
             deliv_dir = paths["deliverables"]
 
-            doc_path = os.path.join(deliv_dir, "فصل_چهارم_یافته_های_پژوهش.docx")
+            doc_path = os.path.join(deliv_dir, "Chapter_4_Results.docx")
             with open(doc_path, "wb") as f:
                 f.write(b"PK\x03\x04mock_word_docx_binary_data_for_chapter_4")
 
-            xlsx_path = os.path.join(deliv_dir, "تحلیل_آماری_spss.xlsx")
+            xlsx_path = os.path.join(deliv_dir, "spss_data_analysis.xlsx")
             with open(xlsx_path, "wb") as f:
                 f.write(b"PK\x03\x04mock_excel_spss_analysis_matrix")
 
@@ -818,22 +818,22 @@ class TestDigitalTwinSuite(unittest.TestCase):
             delivs = pdm.list_project_deliverables(pdir)
             self.assertEqual(len(delivs), 2)
             filenames = [d["filename"] for d in delivs]
-            self.assertIn("فصل_چهارم_یافته_های_پژوهش.docx", filenames)
-            self.assertIn("تحلیل_آماری_spss.xlsx", filenames)
+            self.assertIn("Chapter_4_Results.docx", filenames)
+            self.assertIn("spss_data_analysis.xlsx", filenames)
 
             # 3. Test find_deliverable_file (exact, substring, fuzzy)
-            f_found = pdm.find_deliverable_file(pdir, "فصل_چهارم")
+            f_found = pdm.find_deliverable_file(pdir, "Chapter_4")
             self.assertIsNotNone(f_found)
-            self.assertEqual(f_found["filename"], "فصل_چهارم_یافته_های_پژوهش.docx")
+            self.assertEqual(f_found["filename"], "Chapter_4_Results.docx")
 
             f_spss = pdm.find_deliverable_file(pdir, "spss")
             self.assertIsNotNone(f_spss)
-            self.assertEqual(f_spss["filename"], "تحلیل_آماری_spss.xlsx")
+            self.assertEqual(f_spss["filename"], "spss_data_analysis.xlsx")
 
             # 4. Test generate_deliverable_caption
-            cap = generate_deliverable_caption("زهرا جلالی", "فصل_چهارم_یافته_های_پژوهش.docx")
+            cap = generate_deliverable_caption("زهرا جلالی", "Chapter_4_Results.docx")
             self.assertIn("زهرا جلالی", cap)
-            self.assertIn("فصل چهارم یافته های پژوهش", cap)
+            self.assertIn("Chapter 4 Results", cap)
             self.assertIn("می‌شود", cap)
 
             # 5. Test Userbot Deliverable State & Dispatch Execution
@@ -866,7 +866,7 @@ class TestDigitalTwinSuite(unittest.TestCase):
                 "username": "zahra_jalali",
                 "folder_path": pdir,
                 "file_path": doc_path,
-                "filename": "فصل_چهارم_یافته_های_پژوهش.docx",
+                "filename": "Chapter_4_Results.docx",
                 "size_str": "45.0 KB",
                 "caption": cap,
                 "created_at": "2026-09-11T00:00:00"
@@ -893,14 +893,14 @@ class TestDigitalTwinSuite(unittest.TestCase):
             self.assertTrue(os.path.isdir(arch_dir))
             archived_files = os.listdir(arch_dir)
             self.assertEqual(len(archived_files), 1)
-            self.assertTrue(archived_files[0].startswith("فصل_چهارم_یافته_های_پژوهش_"))
+            self.assertTrue(archived_files[0].startswith("Chapter_4_Results_"))
 
             # Verify project_meta.json updated to 'delivered'
             with open(paths["meta_file"], "r", encoding="utf-8") as f:
                 up_meta = json.load(f)
             self.assertEqual(up_meta.get("status"), "delivered")
             self.assertIn("last_deliverable_sent", up_meta)
-            self.assertEqual(up_meta["last_deliverable_sent"]["filename"], "فصل_چهارم_یافته_های_پژوهش.docx")
+            self.assertEqual(up_meta["last_deliverable_sent"]["filename"], "Chapter_4_Results.docx")
             self.assertEqual(len(up_meta.get("deliverables_history", [])), 1)
 
 

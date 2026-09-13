@@ -49,7 +49,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                          ┌───────────────────────────┐
                          │ STEP 7: ACADEMIC WRITER   │
                          │ Proposal Compilation      │
-                         │ (پروپوزال_طرح_پژوهش.docx) │
+                         │ (Research_Proposal.docx) │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
@@ -130,7 +130,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 ### Step 7: Academic Writer Subagent (Proposal Compilation)
 - **Agent**: `academic-writer`
 - **Action**:
-  - Compiles the full proposal document in academic Persian (`پروپوزال_طرح_پژوهش.docx`).
+  - Compiles the full proposal document in academic Persian (`Research_Proposal.docx`).
   - Sections:
     1. مشخصات دانشجو و استاد راهنما
     2. بیان مسئله (Problem Statement)
@@ -142,7 +142,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     8. روش تحلیل داده‌ها (Statistical Plan)
     9. فهرست منابع بر اساس APA 7 (References)
   - Enforces Persian half-spaces (`\u200c`), B Nazanin/B Titr typography, and OpenXML `<w:bidi/>` directionality.
-- **Output**: `پروپوزال_طرح_پژوهش.docx`.
+- **Output**: `Research_Proposal.docx`.
 
 ### Step 8: Final Judge Subagent (Council Review Simulation)
 - **Agent**: `final-judge`

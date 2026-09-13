@@ -90,7 +90,7 @@ class TestOpenXMLArtifactEngine(unittest.TestCase):
 
     def test_05_generate_audit_report_docx(self):
         """Verifies generation of official pre-defense audit report."""
-        out_path = os.path.join(self.test_dir, "گزارش_ممیزی_و_کنترل_کیفیت_آماری.docx")
+        out_path = os.path.join(self.test_dir, "Statistical_Audit_and_QC_Report.docx")
         payload = {
             "title": "اثربخشی درمان مبتنی بر شفقت بر خودانتقادی دانشجویان",
             "anomaly_index": 12,
@@ -108,7 +108,7 @@ class TestOpenXMLArtifactEngine(unittest.TestCase):
 
     def test_06_generate_defense_card_docx(self):
         """Verifies generation of viva voce defense committee simulator card."""
-        out_path = os.path.join(self.test_dir, "کارت_جلسه_دفاع_و_سوالات_داوران.docx")
+        out_path = os.path.join(self.test_dir, "Defense_Viva_Card_and_Questions.docx")
         payload = {
             "topic": "اثربخشی طرحواره‌درمانی بر اختلالات خوردن",
             "readiness_score": 96.5

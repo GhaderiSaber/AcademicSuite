@@ -130,3 +130,12 @@ Microsoft Word features two independent controls for text formatting:
    - Tables: inject `<w:bidiVisual/>` into `<w:tblPr>` so column order starts from the right.
 4. **Persian Typography**:
    - Maintain Persian zero-width non-joiners (نیم‌فاصله: `\u200c`) in compound words (e.g., `می‌شود`, `پیش‌آزمون`, `یافته‌ها`).
+
+### 2.5 Zero Manual Line Breaks Policy (قاعده منع شکست دستی خط / Shift+Enter)
+- **CRITICAL DIRECTIVE**: **NEVER USE MANUAL LINE BREAKS (`<w:br/>` / Shift+Enter / `\n` in text runs). USE PARAGRAPH MARKS (`<w:p>`) EVERYWHERE.**
+- **Why this is catastrophic in Justified text**:
+  In Microsoft Word, when a paragraph has Justified alignment (`<w:jc w:val="both"/>`), Word distributes spaces evenly across the entire line so that both left and right edges align with the margins. If a line ends with a manual line break (`<w:br/>`), Word treats it as an internal continuation line of the paragraph and forces the line to justify across the full margin width, creating absurdly wide gaps between characters and words. Only a true paragraph mark (`<w:p>`) signals the legitimate end of a paragraph block, allowing Word's justification engine to naturally format the final line unstretched.
+- **Implementation Standards**:
+  1. Never concatenate lines with `\n` inside `p.add_run("Line 1\nLine 2")`. Every line, prompt, metadata entry, quote, bullet, or speaking script MUST be instantiated as an independent paragraph object (`doc.add_paragraph()` or `cell.add_paragraph()`).
+  2. Spacing between elements must be controlled exclusively through paragraph formatting properties (`p.paragraph_format.space_before = Pt(...)`, `p.paragraph_format.space_after = Pt(...)`), never by inserting empty paragraphs containing `\n` or manual breaks.
+  3. Every paragraph MUST receive explicit RTL direction (`set_rtl(p, align=...)`) and appropriate alignment (`both` for substantive text, `right` for headers, `center` for titles).

@@ -12,7 +12,7 @@ illuminate the historical intellectual backbone and paradigm shifts of scientifi
 Exports:
   1. Dual 300-DPI Visual Figures: `citation_chronomap.png` & `main_path_trajectory.png`.
   2. 5-Sheet Excel Matrix: `citation_matrix.xlsx`.
-  3. Publication-Grade Word Report: `گزارش_تحلیل_مسیر_اصلی_و_نگاشت_تاریخی_استنادات.docx` / `Historiographic_Citation_Network_Report.docx`.
+  3. Publication-Grade Word Report: `Historiographic_Citation_Network_Report.docx`.
   4. Machine-Readable JSON Ledger: `citation_summary.json`.
 """
 
@@ -789,7 +789,7 @@ def export_excel_matrix(citation_data, articles, domain, output_dir, language='f
 def export_word_report(citation_data, project_title, domain, chronomap_img, trajectory_img, output_dir, language='fa'):
     """
     Compiles defense-ready APA 7th Edition Word document:
-    `گزارش_تحلیل_مسیر_اصلی_و_نگاشت_تاریخی_استنادات.docx` / `Historiographic_Citation_Network_Report.docx`.
+    `Historiographic_Citation_Network_Report.docx`.
     """
     doc = docx.Document()
     is_bidi = (language == 'fa')

@@ -163,7 +163,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - True font binding (`Times New Roman` for Latin/numbers, `B Nazanin` for body, `B Titr` for headings).
     - Preserved native OMML equations (`<m:oMath>`) and zero vertical borders on APA 7 tables.
     - Persian half-spaces (نیم‌فاصله: `\u200c`) in all compound words.
-- **Output**: `فصل_دوم_پیشینه_پژوهش.docx`.
+- **Output**: `Chapter_2_Literature_Review.docx`.
 
 ### Step 7: Final Judge Subagent (Viva Voce Literature Defense Simulation)
 - **Agent**: `final-judge`
@@ -189,7 +189,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 
 | # | Artifact | Description | Target Path |
 |---|---|---|---|
-| 1 | **`فصل_دوم_پیشینه_پژوهش.docx`** | Complete Chapter 2 thesis document with theoretical foundations, empirical review, and APA 7 table. | `output/` |
+| 1 | **`Chapter_2_Literature_Review.docx`** | Complete Chapter 2 thesis document with theoretical foundations, empirical review, and APA 7 table. | `output/` |
 | 2 | **`bibliometric_network_map.png`** | 300-DPI VOSviewer keyword co-occurrence science mapping plot. | `output/` |
 | 3 | **`thematic_strategic_map.png`** | 300-DPI Callon 4-quadrant strategic thematic diagram. | `output/` |
 | 4 | **`citation_chronomap.png`** | 300-DPI HistCite chronological citation chronomap. | `output/` |

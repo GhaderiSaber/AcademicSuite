@@ -63,7 +63,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                                        │
                                        ▼
                               FINAL DELIVERABLES
-               • مقاله_علمی_پژوهشی.docx / Manuscript_Main_Text.docx
+               • Academic_Article_Manuscript.docx / Manuscript_Main_Text.docx
                • Cover_Letter_Editor.docx
                • Title_Page_CRediT.docx
                • Highlights_and_Abstract.docx
@@ -166,7 +166,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 
 | # | Artifact | Description | Target Path |
 |---|---|---|---|
-| 1 | **`مقاله_علمی_پژوهشی.docx` / `Manuscript_Main_Text.docx`** | Complete 5,000–6,500 word publication manuscript with abstract, introduction, methods, results (APA 7 tables), and discussion. | `output/` |
+| 1 | **`Academic_Article_Manuscript.docx` / `Manuscript_Main_Text.docx`** | Complete 5,000–6,500 word publication manuscript with abstract, introduction, methods, results (APA 7 tables), and discussion. | `output/` |
 | 2 | **`Cover_Letter_Editor.docx`** | Formal, courteous Cover Letter to the Editor-in-Chief highlighting paper novelty and ethical declarations. | `output/` |
 | 3 | **`Title_Page_CRediT.docx`** | Separate title page with author affiliations, corresponding author details, and 14 standard CRediT authorship taxonomy roles. | `output/` |
 | 4 | **`Highlights_and_Abstract.docx`** | 3–5 bullet point highlights strictly validated to $\le 85$ characters, plus bilingual abstracts. | `output/` |

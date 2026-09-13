@@ -54,8 +54,8 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                                        │
                                        ▼
                               FINAL DELIVERABLES
-               • پروتکل_مداخله_درمانی.docx (Full Appendix Clinical Manual)
-               • جدول_خلاصه_جلسات_مداخله.docx (Chapter 3 APA 7 Summary Table)
+               • Intervention_Protocol_Manual.docx (Full Appendix Clinical Manual)
+               • Intervention_Sessions_Summary.docx (Chapter 3 APA 7 Summary Table)
                • consort_flowchart.png (300-DPI Clinical Trial Flowchart)
                • protocol_blueprint.json (Machine-Readable Session Architecture)
 ```
@@ -117,11 +117,11 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 ### Step 4: OpenXML Physical Document Compilation
 - **Agent**: `academic-writer` (wielding `openxml_artifact_engine`)
 - **Action**:
-  - Compiles `پروتکل_مداخله_درمانی.docx` (Complete dissertation Appendix manual):
+  - Compiles `Intervention_Protocol_Manual.docx` (Complete dissertation Appendix manual):
     - Persian typography: `B Titr` 16–18 pt (Titles), `B Nazanin` 13–14 pt (Body), `Times New Roman` (Latin/Stats).
     - Dual-tone callout boxes for clinical metaphors and Method Triad summaries.
     - Full procedural worksheets and homework logs for participants.
-  - Compiles `جدول_خلاصه_جلسات_مداخله.docx`:
+  - Compiles `Intervention_Sessions_Summary.docx`:
     - Clean, 3-border APA 7 summary table summarizing Session Number, Objective, Core Techniques, and Homework for direct insertion into Chapter 3.
   - Exports `protocol_blueprint.json` containing the machine-readable ledger of all sessions.
 - **Output**: Binding-ready Word documents and JSON ledger.
@@ -146,7 +146,7 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 ---
 
 ## Deliverables Checklist
-- [ ] `پروتکل_مداخله_درمانی.docx` — Complete session-by-session clinical manual for thesis Appendix.
-- [ ] `جدول_خلاصه_جلسات_مداخله.docx` — Defense-ready APA 7 summary table for Chapter 3 / Proposal.
+- [ ] `Intervention_Protocol_Manual.docx` — Complete session-by-session clinical manual for thesis Appendix.
+- [ ] `Intervention_Sessions_Summary.docx` — Defense-ready APA 7 summary table for Chapter 3 / Proposal.
 - [ ] `consort_flowchart.png` — 300-DPI CONSORT 2010 participant allocation flowchart.
 - [ ] `protocol_blueprint.json` — Structured JSON schema of the intervention.
