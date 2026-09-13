@@ -71,6 +71,7 @@ from project_drive_manager import (
 )
 from group_topics import TopicManager
 from academic_inquiry_classifier import AcademicInquiryClassifier
+from milestone_tracker import AcademicMilestoneTracker, milestone_tracker
 
 
 DEFAULT_CONFIG_PATH = os.path.join(SCRIPT_DIR, "telethon_config.json")
@@ -168,6 +169,7 @@ class SaberTelethonUserbot:
         self.admin_desk_chat_id = config.get("admin_desk_chat_id")
         self.topic_manager = TopicManager(self.config, storage_dir=self.storage_dir)
         self.classifier = AcademicInquiryClassifier(self.config)
+        self.milestone_tracker = AcademicMilestoneTracker(self.project_manager.work_dir)
 
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
@@ -274,6 +276,36 @@ class SaberTelethonUserbot:
             if edit_label and edit_query:
                 row2.append(Button.switch_inline(edit_label, edit_query, same_peer=True))
             row2.append(Button.inline(dismiss_label, dismiss_bytes))
+            return [row1, row2]
+
+    def build_milestone_keyboard(self, project_dir: str, state: Dict[str, Any]) -> Optional[List[List[Any]]]:
+        """
+        Build a 2026 Telegram 2-row styled action keyboard for project milestone card:
+        Row 1: [ 🚀 Advance Stage ({code}) ] (style="success" -> vibrant green pill)
+        Row 2: [ 📁 Refresh from Drive ] (style="primary") + [ 🔀 Scope: {scope_short} ] (style="primary")
+        """
+        if Button is None:
+            return None
+        folder_name = os.path.basename(project_dir)
+        stage_code = state.get("current_stage_code", "Next")
+        scope_short = state.get("scope_short", "Scope")
+        adv_data = f"ms_adv_{folder_name}".encode("utf-8")
+        ref_data = f"ms_ref_{folder_name}".encode("utf-8")
+        scp_data = f"ms_scp_{folder_name}".encode("utf-8")
+
+        try:
+            row1 = [Button.inline(f"🚀 Advance Stage ({stage_code})", adv_data, style="success")]
+            row2 = [
+                Button.inline("📁 Refresh from Drive", ref_data, style="primary"),
+                Button.inline(f"🔀 Scope: {scope_short}", scp_data, style="primary")
+            ]
+            return [row1, row2]
+        except Exception:
+            row1 = [Button.inline(f"🚀 Advance Stage ({stage_code})", adv_data)]
+            row2 = [
+                Button.inline("📁 Refresh from Drive", ref_data),
+                Button.inline(f"🔀 Scope: {scope_short}", scp_data)
+            ]
             return [row1, row2]
 
     @property
@@ -1583,6 +1615,63 @@ class SaberTelethonUserbot:
                     await event.reply("\n".join(lines), parse_mode="html")
                     return
 
+            # Milestone & Progress tracker: /milestone [client_query] or /milestones or /progress
+            m_ms = re.match(r"^/(?:milestone|milestones|progress)(?:\s+(.+))?", txt)
+            if m_ms:
+                c_query = (m_ms.group(1) or "").strip()
+                if not c_query:
+                    projs = self.project_manager.list_all_projects()
+                    if not projs:
+                        await event.reply("📋 No active projects found in Google Drive.", parse_mode="html")
+                        return
+                    lines = [f"📋 <b>Active Research Projects & Milestones ({len(projs)} clients):</b>\n"]
+                    for p in projs[:12]:
+                        p_dir = p["folder_path"]
+                        state = self.milestone_tracker.evaluate_milestones(p_dir)
+                        cname = state.get("client_name") or p.get("folder_name")
+                        bar = state["progress_bar"]
+                        pct = state["progress_pct"]
+                        scope_badge = state["scope_badge"]
+                        lines.append(
+                            f"• <b>{html.escape(cname)}</b>: <code>[{bar}] {pct}%</code> ({scope_badge})\n"
+                            f"  👉 View card: <code>/milestone {html.escape(os.path.basename(p_dir))}</code>"
+                        )
+                    if len(projs) > 12:
+                        lines.append(f"\n<i>... and {len(projs) - 12} more projects. Use <code>/milestone &lt;client&gt;</code> to inspect.</i>")
+                    await event.reply("\n".join(lines), parse_mode="html")
+                    return
+                else:
+                    clean_q = c_query.lstrip("@").lower()
+                    matched_pdir = self.project_manager.find_existing_project_by_client(clean_q)
+                    if not matched_pdir and clean_q.isdigit():
+                        matched_pdir = self.project_manager.find_existing_project_by_client("Client", client_id=int(clean_q))
+                    if not matched_pdir:
+                        projs = self.project_manager.list_all_projects()
+                        for p in projs:
+                            if clean_q in (p.get("client_name") or "").lower() or \
+                               clean_q in (p.get("client_name_fa") or "").lower() or \
+                               clean_q in (p.get("folder_name") or "").lower() or \
+                               clean_q in (p.get("username") or "").lower():
+                                matched_pdir = p["folder_path"]
+                                break
+                    if not matched_pdir:
+                        await event.reply(f"❌ No project folder found for client <code>{html.escape(c_query)}</code>.", parse_mode="html")
+                        return
+
+                    state = self.milestone_tracker.evaluate_milestones(matched_pdir)
+                    card = self.milestone_tracker.format_milestone_card(state)
+                    btns = self.build_milestone_keyboard(matched_pdir, state)
+                    await self.send_to_desk(
+                        card,
+                        buttons=btns,
+                        topic_key="health",
+                        client_id=state.get("client_id"),
+                        client_name=state.get("client_name"),
+                        parse_mode="html"
+                    )
+                    await event.reply("📋 Milestone card posted to Desk!", parse_mode="html")
+                    return
+
             # Prepare deliverable dispatch: /send_file <client_query> [filename_query]
             m_send_file = re.match(r"^/(?:send_file|deliver)(?:\s+([^\s]+))?(?:\s+(.+))?", txt)
             if m_send_file and not txt.startswith("/send_del_"):
@@ -1979,6 +2068,54 @@ class SaberTelethonUserbot:
                             pass
                     else:
                         await event.answer(f"❌ Quotation ID {qid} not found.", alert=True)
+                elif data.startswith("ms_adv_"):
+                    p_name = data.split("ms_adv_")[1]
+                    p_dir = os.path.join(self.project_manager.work_dir, p_name)
+                    if not os.path.exists(p_dir):
+                        p_dir = self.project_manager.find_existing_project_by_client(p_name)
+                    if p_dir and os.path.exists(p_dir):
+                        new_state = self.milestone_tracker.advance_stage(p_dir)
+                        card = self.milestone_tracker.format_milestone_card(new_state)
+                        btns = self.build_milestone_keyboard(p_dir, new_state)
+                        await event.answer(f"🚀 Advanced to {new_state['current_stage_code']} ({new_state['progress_pct']}%)!", alert=False)
+                        try:
+                            await event.edit(card, buttons=btns, parse_mode="html")
+                        except Exception:
+                            pass
+                    else:
+                        await event.answer("❌ Project directory not found.", alert=True)
+                elif data.startswith("ms_ref_"):
+                    p_name = data.split("ms_ref_")[1]
+                    p_dir = os.path.join(self.project_manager.work_dir, p_name)
+                    if not os.path.exists(p_dir):
+                        p_dir = self.project_manager.find_existing_project_by_client(p_name)
+                    if p_dir and os.path.exists(p_dir):
+                        new_state = self.milestone_tracker.evaluate_milestones(p_dir)
+                        card = self.milestone_tracker.format_milestone_card(new_state)
+                        btns = self.build_milestone_keyboard(p_dir, new_state)
+                        await event.answer(f"🔄 Milestones refreshed ({new_state['progress_pct']}% complete)", alert=False)
+                        try:
+                            await event.edit(card, buttons=btns, parse_mode="html")
+                        except Exception:
+                            pass
+                    else:
+                        await event.answer("❌ Project directory not found.", alert=True)
+                elif data.startswith("ms_scp_"):
+                    p_name = data.split("ms_scp_")[1]
+                    p_dir = os.path.join(self.project_manager.work_dir, p_name)
+                    if not os.path.exists(p_dir):
+                        p_dir = self.project_manager.find_existing_project_by_client(p_name)
+                    if p_dir and os.path.exists(p_dir):
+                        new_state = self.milestone_tracker.cycle_scope(p_dir)
+                        card = self.milestone_tracker.format_milestone_card(new_state)
+                        btns = self.build_milestone_keyboard(p_dir, new_state)
+                        await event.answer(f"🔀 Switched scope to {new_state['scope_short']}", alert=False)
+                        try:
+                            await event.edit(card, buttons=btns, parse_mode="html")
+                        except Exception:
+                            pass
+                    else:
+                        await event.answer("❌ Project directory not found.", alert=True)
                 elif data == "cmd_projects":
                     projs = self.project_manager.list_all_projects()
                     await event.answer(f"Found {len(projs)} active projects in Google Drive.")
