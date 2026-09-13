@@ -99,11 +99,18 @@ def set_table_header_underline(row):
         tcPr.append(tcBorders)
 
 def set_paragraph_bidi(p, is_rtl=True, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
-    p.alignment = align if is_rtl else WD_ALIGN_PARAGRAPH.LEFT
     pPr = p._p.get_or_add_pPr()
     if is_rtl and not pPr.xpath('./w:bidi'):
         bidi = parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>')
         pPr.insert(0, bidi)
+    if is_rtl and align == WD_ALIGN_PARAGRAPH.RIGHT:
+        # In Word RTL BiDi, omitting <w:jc> renders natural leading-edge Right alignment.
+        # Explicitly setting w:jc="right" can cause Word to flip to align Left.
+        jc = pPr.find(qn('w:jc'))
+        if jc is not None:
+            pPr.remove(jc)
+    else:
+        p.alignment = align if is_rtl else WD_ALIGN_PARAGRAPH.LEFT
 
 def set_table_bidi(table, is_rtl=True):
     if is_rtl:
@@ -132,6 +139,8 @@ def add_persian_run(paragraph, text, font_name="B Nazanin", size_pt=13, bold=Fal
         rPr.append(rFonts)
         rtl = parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>')
         rPr.append(rtl)
+        lang = parse_xml(f'<w:lang {nsdecls("w")} w:val="fa-IR" w:bidi="fa-IR"/>')
+        rPr.append(lang)
     else:
         rFonts = parse_xml(
             f'<w:rFonts {nsdecls("w")} '
@@ -139,6 +148,8 @@ def add_persian_run(paragraph, text, font_name="B Nazanin", size_pt=13, bold=Fal
             f'w:cs="{font_name}" w:eastAsia="{font_name}"/>'
         )
         rPr.append(rFonts)
+        lang = parse_xml(f'<w:lang {nsdecls("w")} w:val="en-US"/>')
+        rPr.append(lang)
 
     szCs = parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>')
     rPr.append(szCs)

@@ -985,12 +985,19 @@ def set_cell_margins(cell, top=100, bottom=100, left=150, right=150):
     tcPr.append(tcMar)
 
 def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
-    p.alignment = align
     pPr = p._p.get_or_add_pPr()
     if not any(child.tag.endswith('}bidi') for child in pPr):
         bidi = OxmlElement('w:bidi')
         bidi.set(qn('w:val'), '1')
         pPr.insert(0, bidi)
+    if align == WD_ALIGN_PARAGRAPH.RIGHT:
+        # In Word RTL BiDi, omitting <w:jc> renders natural leading-edge Right alignment.
+        # Explicitly setting w:jc="right" can cause Word to flip to align Left.
+        jc = pPr.find(qn('w:jc'))
+        if jc is not None:
+            pPr.remove(jc)
+    else:
+        p.alignment = align
 
 def set_table_bidi(table):
     tblPr = table._tbl.tblPr
@@ -1014,12 +1021,15 @@ def add_styled_run(p, text, font_name="B Nazanin", size_pt=11, bold=False, itali
         )
         rPr.append(rFonts)
         rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
+        rPr.append(parse_xml(f'<w:lang {nsdecls("w")} w:val="fa-IR" w:bidi="fa-IR"/>'))
         sz_half_pts = int(size_pt * 2)
         rPr.append(parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_half_pts}"/>'))
         if bold:
             rPr.append(parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>'))
     else:
         run.font.name = "Times New Roman"
+        rPr = run._r.get_or_add_rPr()
+        rPr.append(parse_xml(f'<w:lang {nsdecls("w")} w:val="en-US"/>'))
     return run
 
 def export_polished_docx(
@@ -1037,13 +1047,18 @@ def export_polished_docx(
     doc = docx.Document()
     is_fa = (lang == "fa")
 
-    # Configure Margins (1 inch / 2.54 cm standard)
+    # Configure Margins (1 inch / 2.54 cm standard) & Section RTL
     sections = doc.sections
     for section in sections:
         section.top_margin = Inches(1.0)
         section.bottom_margin = Inches(1.0)
         section.left_margin = Inches(1.0)
         section.right_margin = Inches(1.0)
+        if is_fa:
+            sectPr = section._sectPr
+            bidi_s = sectPr.find(qn('w:bidi'))
+            if bidi_s is None:
+                sectPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")}/>'))
 
     font_title = "B Titr" if is_fa else "Calibri"
     font_body = "B Nazanin" if is_fa else "Calibri"

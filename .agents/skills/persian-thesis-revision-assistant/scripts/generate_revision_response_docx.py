@@ -56,11 +56,18 @@ def set_cell_shading(cell, color_hex="F2F2F2"):
 
 def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
     """Enforce Persian BiDi RTL directionality and alignment on paragraph."""
-    p.alignment = align
     pPr = p._p.get_or_add_pPr()
     if not pPr.xpath('./w:bidi'):
         bidi = parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>')
         pPr.insert(0, bidi)
+    if align == WD_ALIGN_PARAGRAPH.RIGHT:
+        # In Word RTL BiDi, omitting <w:jc> renders natural leading-edge Right alignment.
+        # Explicitly setting w:jc="right" can cause Word to flip to align Left.
+        jc = pPr.find(qn('w:jc'))
+        if jc is not None:
+            pPr.remove(jc)
+    else:
+        p.alignment = align
 
 def add_run(p, text, font_fa='B Nazanin', font_en='Times New Roman', size=12, bold=False, italic=False):
     """Add text run with explicit Persian/Latin font bindings, w:rtl, and complex script formatting."""
@@ -82,6 +89,8 @@ def add_run(p, text, font_fa='B Nazanin', font_en='Times New Roman', size=12, bo
         rPr.append(rFonts)
         rtl = parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>')
         rPr.append(rtl)
+        lang = parse_xml(f'<w:lang {nsdecls("w")} w:val="fa-IR" w:bidi="fa-IR"/>')
+        rPr.append(lang)
     else:
         rFonts = parse_xml(
             f'<w:rFonts {nsdecls("w")} '
@@ -89,6 +98,8 @@ def add_run(p, text, font_fa='B Nazanin', font_en='Times New Roman', size=12, bo
             f'w:cs="{font_fa}" w:eastAsia="{font_fa}"/>'
         )
         rPr.append(rFonts)
+        lang = parse_xml(f'<w:lang {nsdecls("w")} w:val="en-US"/>')
+        rPr.append(lang)
 
     szCs = parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>')
     rPr.append(szCs)
@@ -100,12 +111,16 @@ def add_run(p, text, font_fa='B Nazanin', font_en='Times New Roman', size=12, bo
 def build_response_document(data: dict, output_path: str):
     doc = docx.Document()
     
-    # Page setup (A4 Landscape or Portrait - standard portrait with 2.5cm margins)
+    # Page setup (A4 Landscape or Portrait - standard portrait with 2.5cm margins) & Section RTL
     for section in doc.sections:
         section.top_margin = Inches(1.0)
         section.bottom_margin = Inches(1.0)
         section.right_margin = Inches(1.0)
         section.left_margin = Inches(1.0)
+        sectPr = section._sectPr
+        bidi_s = sectPr.find(qn('w:bidi'))
+        if bidi_s is None:
+            sectPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")}/>'))
         
     # Title
     p_title = doc.add_paragraph()

@@ -141,13 +141,21 @@ def add_styled_paragraph(doc, text, bold=False, italic=False, size_pt=12, color_
 
     clean_text = (text or "").rstrip('\r\n')
     p = doc.add_paragraph()
-    p.alignment = align
     p.paragraph_format.space_after = Pt(space_after)
     p.paragraph_format.line_spacing = line_spacing
     if is_bidi:
         pPr = p._element.get_or_add_pPr()
         if not any(child.tag.endswith('}bidi') for child in pPr):
             pPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>'))
+    if is_bidi and align == WD_ALIGN_PARAGRAPH.RIGHT:
+        # In Word RTL BiDi, omitting <w:jc> renders natural leading-edge Right alignment.
+        # Explicitly setting w:jc="right" causes Word to flip alignment to Left.
+        pPr = p._element.get_or_add_pPr()
+        jc = pPr.find(qn('w:jc'))
+        if jc is not None:
+            pPr.remove(jc)
+    else:
+        p.alignment = align
     
     run = p.add_run(clean_text)
     run.font.size = Pt(size_pt)
@@ -164,6 +172,7 @@ def add_styled_paragraph(doc, text, bold=False, italic=False, size_pt=12, color_
         )
         rPr.append(rFonts)
         rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
+        rPr.append(parse_xml(f'<w:lang {nsdecls("w")} w:val="fa-IR" w:bidi="fa-IR"/>'))
         sz_half_pts = int(size_pt * 2)
         rPr.append(parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_half_pts}"/>'))
         if bold:
@@ -172,6 +181,7 @@ def add_styled_paragraph(doc, text, bold=False, italic=False, size_pt=12, color_
         run.font.name = font_en
         rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}"/>')
         rPr.append(rFonts)
+        rPr.append(parse_xml(f'<w:lang {nsdecls("w")} w:val="en-US"/>'))
     return p
 
 

@@ -206,11 +206,24 @@ class OpenXMLArtifactEngine:
     # =========================================================================
 
     @staticmethod
-    def set_strict_pPr(p, style_val=None, keep_next=False, is_bidi=True, space_before=0, space_after=6, line_spacing=1.30, jc_val='both'):
+    def set_strict_pPr(p, style_val=None, keep_next=False, is_bidi=True, space_before=0, space_after=6, line_spacing=1.30, first_line_indent=0, left_indent=0, hanging_indent=0, jc_val='both'):
         """
         Constructs schema-compliant <w:pPr> strictly adhering to ISO/IEC 29500-1 order:
         pStyle -> keepNext -> bidi -> spacing -> ind -> jc
-        Enforces both Text Direction (RTL) via <w:bidi w:val="1"/> and Text Alignment (Justify) via <w:jc w:val="both"/>.
+
+        CRITICAL BI-DIRECTIONAL & ALIGNMENT ARCHITECTURE (Learned from Proposal Skill):
+        1. Text Direction: <w:bidi w:val="1"/> (Right-to-Left / راست‌به‌چپ)
+        2. Text Alignment: <w:jc w:val="..."/> (تراز متن: هم‌تراز، وسط‌چین، راست‌چین، چپ‌چین)
+
+        Under Word's BiDi text engine:
+        - Adding <w:bidi w:val="1"/> sets the paragraph direction to Right-to-Left (RTL).
+        - When paragraph direction is RTL, Word's natural leading-edge alignment is RIGHT.
+        - If <w:jc w:val="right"/> is explicitly appended to an RTL paragraph, Word treats
+          'right' as trailing-edge, causing Word on macOS/Windows to flip it to ALIGN LEFT!
+        - Therefore, for RTL Right-aligned text, <w:jc> MUST BE OMITTED.
+        - For Justified text (هم‌تراز): emit <w:jc w:val="both"/>
+        - For Centered text (وسط‌چین): emit <w:jc w:val="center"/>
+        - For LTR Left text (منابع انگلیسی): emit <w:jc w:val="left"/> with is_bidi=False
         """
         parts = []
         if style_val:
@@ -224,21 +237,51 @@ class OpenXMLArtifactEngine:
         line_val = int(line_spacing * 240)
         parts.append(f'<w:spacing {nsdecls("w")} w:before="{before_dxa}" w:after="{after_dxa}" w:line="{line_val}" w:lineRule="auto"/>')
 
-        if is_bidi:
-            if jc_val in ('both', 'center', 'left', 'right'):
-                parts.append(f'<w:jc {nsdecls("w")} w:val="{jc_val}"/>')
-        else:
-            if jc_val:
-                parts.append(f'<w:jc {nsdecls("w")} w:val="{jc_val}"/>')
+        if hanging_indent > 0:
+            left_dxa = int(left_indent * 1440)
+            hanging_dxa = int(hanging_indent * 1440)
+            parts.append(f'<w:ind {nsdecls("w")} w:left="{left_dxa}" w:hanging="{hanging_dxa}"/>')
+        elif first_line_indent > 0:
+            indent_dxa = int(first_line_indent * 1440)
+            parts.append(f'<w:ind {nsdecls("w")} w:firstLine="{indent_dxa}"/>')
+        elif left_indent > 0:
+            left_dxa = int(left_indent * 1440)
+            parts.append(f'<w:ind {nsdecls("w")} w:left="{left_dxa}"/>')
 
-        pPr_xml = f'<w:pPr {nsdecls("w")}>' + "".join(parts) + '</w:pPr>'
+        # Precise alignment mapping for Word BiDi
+        if jc_val == 'both':
+            parts.append(f'<w:jc {nsdecls("w")} w:val="both"/>')
+        elif jc_val == 'center':
+            parts.append(f'<w:jc {nsdecls("w")} w:val="center"/>')
+        elif jc_val == 'left' and not is_bidi:
+            parts.append(f'<w:jc {nsdecls("w")} w:val="left"/>')
+        elif jc_val == 'right' and not is_bidi:
+            parts.append(f'<w:jc {nsdecls("w")} w:val="right"/>')
+        # If is_bidi is True and jc_val is 'right', we omit <w:jc> so Word displays natural RTL right alignment!
+
+        pPr_xml = f'<w:pPr {nsdecls("w")}>\n  ' + "\n  ".join(parts) + '\n</w:pPr>'
         new_pPr = parse_xml(pPr_xml)
-        old_pPr = p._p.get_or_add_pPr()
-        p._p.replace(old_pPr, new_pPr)
+        curr_pPr = p._p.find(qn('w:pPr'))
+        if curr_pPr is not None:
+            p._p.remove(curr_pPr)
+        p._p.insert(0, new_pPr)
+
+    @staticmethod
+    def setup_document_rtl(doc, top_in=0.98, bottom_in=0.98, right_in=1.18, left_in=0.98):
+        """Sets standard academic page margins and ensures section-level <w:bidi/> in all sections."""
+        for section in doc.sections:
+            section.top_margin = Inches(top_in)
+            section.bottom_margin = Inches(bottom_in)
+            section.right_margin = Inches(right_in)
+            section.left_margin = Inches(left_in)
+            sectPr = section._sectPr
+            bidi_s = sectPr.find(qn('w:bidi'))
+            if bidi_s is None:
+                sectPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")}/>'))
 
     @staticmethod
     def add_styled_run(p, text: str, font_fa='B Nazanin', font_en='Times New Roman', size=13, bold=False, italic=False, color: Optional[str] = None):
-        """Adds a text run with explicit Persian and Latin font bindings, complex-script properties, w:rtl, and half-space normalization."""
+        """Add text run with explicit Persian and Latin font bindings, complex-script properties, w:rtl, and half-space normalization."""
         clean_text = OpenXMLArtifactEngine.clean_persian_typography(text)
         # Guardrail: strip trailing newlines to prevent rogue <w:br/> elements
         clean_text = clean_text.rstrip('\r\n')
@@ -264,6 +307,8 @@ class OpenXMLArtifactEngine:
             rPr.append(rFonts)
             rtl = parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>')
             rPr.append(rtl)
+            lang = parse_xml(f'<w:lang {nsdecls("w")} w:val="fa-IR" w:bidi="fa-IR"/>')
+            rPr.append(lang)
         else:
             rFonts = parse_xml(
                 f'<w:rFonts {nsdecls("w")} '
@@ -271,6 +316,8 @@ class OpenXMLArtifactEngine:
                 f'w:cs="{font_fa}" w:eastAsia="{font_fa}"/>'
             )
             rPr.append(rFonts)
+            lang = parse_xml(f'<w:lang {nsdecls("w")} w:val="en-US"/>')
+            rPr.append(lang)
 
         szCs = parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_val}"/>')
         rPr.append(szCs)

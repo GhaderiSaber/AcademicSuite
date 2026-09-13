@@ -433,12 +433,19 @@ def add_row_bottom_border(cell, color="E0E0E0"):
     tcPr.append(tcBorders)
 
 def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
-    p.alignment = align
     pPr = p._p.get_or_add_pPr()
     if not any(child.tag.endswith('}bidi') for child in pPr):
         bidi = OxmlElement('w:bidi')
         bidi.set(qn('w:val'), '1')
         pPr.insert(0, bidi)
+    if align == WD_ALIGN_PARAGRAPH.RIGHT:
+        # In Word RTL BiDi, omitting <w:jc> renders natural leading-edge Right alignment.
+        # Explicitly setting w:jc="right" can cause Word to flip to align Left.
+        jc = pPr.find(qn('w:jc'))
+        if jc is not None:
+            pPr.remove(jc)
+    else:
+        p.alignment = align
 
 def add_run(p, text, lang='en', size=11, bold=False, italic=False, color=None):
     run = p.add_run(text)
@@ -461,24 +468,32 @@ def add_run(p, text, lang='en', size=11, bold=False, italic=False, color=None):
         )
         rPr.append(rFonts)
         rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
+        rPr.append(parse_xml(f'<w:lang {nsdecls("w")} w:val="fa-IR" w:bidi="fa-IR"/>'))
         sz_half_pts = int(size * 2)
         rPr.append(parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_half_pts}"/>'))
         if bold:
             rPr.append(parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>'))
     else:
         run.font.name = font_en
+        rPr = run._r.get_or_add_rPr()
+        rPr.append(parse_xml(f'<w:lang {nsdecls("w")} w:val="en-US"/>'))
     return run
 
 def compile_meta_analysis_report(payload, meta_res, forest_img_path, funnel_img_path, out_docx_path, lang='en'):
     doc = docx.Document()
     is_fa = (lang == 'fa')
     
-    # 1-inch margins
+    # 1-inch margins & Section RTL
     for sec in doc.sections:
         sec.top_margin = Inches(1.0)
         sec.bottom_margin = Inches(1.0)
         sec.left_margin = Inches(1.0)
         sec.right_margin = Inches(1.0)
+        if is_fa:
+            sectPr = sec._sectPr
+            bidi_s = sectPr.find(qn('w:bidi'))
+            if bidi_s is None:
+                sectPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")}/>'))
         
     meta = payload.get("meta_analysis_metadata", {})
     prisma = payload.get("prisma_flow", {})

@@ -106,11 +106,27 @@ When assembling or editing Persian Word documents (`.docx`):
 - **BiDi & OpenXML Directionality & Mandatory Text Justification**:
   - **Dual Control in Microsoft Word (Text Direction vs. Text Alignment)**:
     - Microsoft Word provides two distinct controls for text:
-      1. **Text Direction (جهت متن / BiDi)**: Controls the reading flow, punctuation placement, and cursor movement. In Persian, **Text Direction MUST ALWAYS be Right-to-Left (RTL)**. In OpenXML, this requires injecting `<w:bidi w:val="1"/>` into `<w:pPr>` and `<w:rtl w:val="1"/>` into `<w:rPr>`. Setting alignment to Right while leaving text direction LTR is an error that breaks sentence-final dots, parentheses, and punctuation.
-      2. **Text Alignment (تراز متن / Justification)**: In Persian, agents **MUST JUSTIFY all substantive text** (`paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`), including body paragraphs, descriptions, literature reviews, candidate speeches, callouts, and multi-line answers. Never leave Persian narrative text ragged on the left side.
-      3. For titles and cover banners, use Center alignment (`WD_ALIGN_PARAGRAPH.CENTER`, `<w:jc w:val="center"/>`) with RTL text direction.
-      4. For section headings, slide titles, and table labels, use Right alignment (`WD_ALIGN_PARAGRAPH.RIGHT`, `<w:jc w:val="right"/>`) with RTL text direction.
-      5. Document default style (`Normal`): Must enforce `paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` and `<w:bidi w:val="1"/>` with `<w:jc w:val="both"/>`.
+      1. **Text Direction (جهت متن / BiDi)**: Controls the reading flow, punctuation placement, and cursor movement. In Persian, **Text Direction MUST ALWAYS be Right-to-Left (RTL)**. In OpenXML, this requires injecting `<w:bidi w:val="1"/>` into `<w:pPr>`, `<w:rtl w:val="1"/>` into `<w:rPr>`, and `<w:bidiVisual/>` into `<w:tblPr>`. Setting alignment to Right while leaving text direction LTR is an error that breaks sentence-final dots, parentheses, and punctuation.
+      2. **Text Alignment (تراز متن / Justification)**: In Persian, agents **MUST JUSTIFY all substantive narrative text** (`paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`), including body paragraphs, descriptions, literature reviews, candidate speeches, callouts, and multi-line answers. Never leave Persian narrative text ragged on the left side.
+      3. **The BiDi Alignment Inversion Rule (Architecture Learned from Proposal Skill)**:
+         - Under Word's BiDi text engine, adding `<w:bidi w:val="1"/>` makes the paragraph's natural leading-edge alignment **RIGHT**.
+         - If `<w:jc w:val="right"/>` is explicitly added to an RTL paragraph, Word treats `w:val="right"` as the trailing edge, causing Word on macOS/Windows to flip the alignment to **ALIGN LEFT (چپ‌چین)**!
+         - **The Golden Rule for RTL Right-Aligned Text (Headings, Headers, Labels)**:
+           - Enforce `<w:bidi w:val="1"/>` for RTL Direction.
+           - **OMIT** `<w:jc>` entirely for Right Alignment so Word naturally and strictly aligns text to the RIGHT.
+           - For Justified narrative text: emit `<w:jc w:val="both"/>`.
+           - For Centered titles and banners: emit `<w:jc w:val="center"/>`.
+           - For LTR English references: omit `<w:bidi>` and emit `<w:jc w:val="left"/>`.
+      4. **Strict Child Element Sequencing (`CT_PPr`)**:
+         - Under ISO/IEC 29500-1 / ECMA-376, child elements in `<w:pPr>` must strictly follow this exact order:
+           `w:pStyle` $\to$ `w:keepNext` $\to$ `w:bidi` $\to$ `w:spacing` $\to$ `w:ind` $\to$ `w:jc`
+      5. **Section-Level BiDi & Modern Word Compatibility**:
+         - Every section in `<w:sectPr>` must contain `<w:bidi/>`.
+         - In `word/settings.xml`, ensure `compatibilityMode = 15` (Word 2013+ modern BiDi layout engine).
+         - In `word/styles.xml`, inject RTL directionality (`<w:bidi w:val="1"/>`, `<w:rtl/>`) and genuine Persian font definitions (`B Titr` / `B Nazanin`) into `Normal`, `Heading1`, `Heading2`, `Heading3`, `Heading4`, and `FootnoteReference`.
+      6. **Language Proofing & Script Binding Tag**:
+         - All Persian text runs must include `<w:lang w:val="fa-IR" w:bidi="fa-IR"/>` to guarantee correct Persian ligatures, vowel placement, and proofing without red squiggly lines or Arabic fallback rendering.
+      7. Document default style (`Normal`): Must enforce `paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` and `<w:bidi w:val="1"/>` with `<w:jc w:val="both"/>`.
   - Always enforce `<w:bidiVisual/>` on tables (`<w:tblPr>`).
   - Maintain Persian half-spaces (نیم‌فاصله: `\u200c`) in compound words (e.g., `می‌شود`, `پیش‌آزمون`, `یافته‌ها`, `روان‌شناختی`).
 - **Zero Manual Line Breaks Policy (قاعده منع شکست دستی خط / Shift+Enter)**:
