@@ -1058,14 +1058,21 @@ def export_polished_docx(
     add_styled_run(p_title, title_text, font_name=font_title, size_pt=18, bold=True, color=RGBColor(26, 54, 93), lang=lang)
 
     # Subtitle / Section
-    p_sub = doc.add_paragraph()
+    p_proj = doc.add_paragraph()
     if is_fa:
-        set_paragraph_bidi(p_sub, WD_ALIGN_PARAGRAPH.CENTER)
+        set_paragraph_bidi(p_proj, WD_ALIGN_PARAGRAPH.CENTER)
     else:
-        p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    add_styled_run(p_sub, f"{project_title}\n{section_title}", font_name=font_body, size_pt=12, color=RGBColor(74, 85, 104), lang=lang)
+        p_proj.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    add_styled_run(p_proj, project_title, font_name=font_body, size_pt=12, color=RGBColor(74, 85, 104), lang=lang)
+    p_proj.paragraph_format.space_after = Pt(2)
 
-    doc.add_paragraph()  # Spacer
+    p_sec = doc.add_paragraph()
+    if is_fa:
+        set_paragraph_bidi(p_sec, WD_ALIGN_PARAGRAPH.CENTER)
+    else:
+        p_sec.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    add_styled_run(p_sec, section_title, font_name=font_body, size_pt=11, color=RGBColor(100, 116, 139), lang=lang)
+    p_sec.paragraph_format.space_after = Pt(12)
 
     # ==========================================================================
     # SECTION 1: EXECUTIVE ANT-AI & STYLISTIC SCORECARD
@@ -1281,13 +1288,21 @@ def export_polished_docx(
                 set_paragraph_bidi(bp, WD_ALIGN_PARAGRAPH.JUSTIFY)
             else:
                 bp.alignment = WD_ALIGN_PARAGRAPH.LEFT
-            top5_hdr = "۵ اولویت نخست بازنگری متن (Top 5 Priority Revisions):\n" if is_fa else "Top 5 Priority Revisions:\n"
+            top5_hdr = "۵ اولویت نخست بازنگری متن (Top 5 Priority Revisions):" if is_fa else "Top 5 Priority Revisions:"
             add_styled_run(bp, top5_hdr, font_name=font_title, size_pt=11, bold=True, color=RGBColor(43, 108, 176), lang=lang)
+            bp.paragraph_format.space_after = Pt(4)
 
             for idx, item in enumerate(top5, 1):
+                p_item = b_cell.add_paragraph()
+                if is_fa:
+                    set_paragraph_bidi(p_item, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                else:
+                    p_item.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                p_item.paragraph_format.space_before = Pt(1)
+                p_item.paragraph_format.space_after = Pt(2)
                 sev_color = RGBColor(197, 48, 48) if item["severity"] == "CRITICAL" else RGBColor(192, 86, 33)
-                item_text = f"  {idx}. [{item['severity']}] {item['desc']} ── {item['action']}\n"
-                add_styled_run(bp, item_text, font_name=font_body, size_pt=9.5, bold=(item["severity"] == "CRITICAL"), color=sev_color, lang=lang)
+                item_text = f"  {idx}. [{item['severity']}] {item['desc']} ── {item['action']}"
+                add_styled_run(p_item, item_text, font_name=font_body, size_pt=9.5, bold=(item["severity"] == "CRITICAL"), color=sev_color, lang=lang)
             doc.add_paragraph()
 
     doc.save(out_path)

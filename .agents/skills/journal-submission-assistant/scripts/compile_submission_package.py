@@ -234,13 +234,17 @@ def build_cover_letter(data, out_path, lang='en'):
         
         p_dest = doc.add_paragraph()
         set_paragraph_bidi(p_dest, WD_ALIGN_PARAGRAPH.RIGHT)
-        add_run(p_dest, f"سردبیر محترم نشریه علمی-پژوهشی {journal_name}\n", lang='fa', size=12, bold=True)
-        add_run(p_dest, "با سلام و احترام؛\n", lang='fa', size=12)
-        p_dest.paragraph_format.space_after = Pt(10)
+        add_run(p_dest, f"سردبیر محترم نشریه علمی-پژوهشی {journal_name}", lang='fa', size=12, bold=True)
+        p_dest.paragraph_format.space_after = Pt(3)
+
+        p_salut = doc.add_paragraph()
+        set_paragraph_bidi(p_salut, WD_ALIGN_PARAGRAPH.RIGHT)
+        add_run(p_salut, "با سلام و احترام؛", lang='fa', size=12)
+        p_salut.paragraph_format.space_after = Pt(10)
         
         p_sub = doc.add_paragraph()
         set_paragraph_bidi(p_sub, WD_ALIGN_PARAGRAPH.RIGHT)
-        add_run(p_sub, "موضوع: ارسال مقاله پژوهشی جهت بررسی و انتشار\n", lang='fa', size=12, bold=True)
+        add_run(p_sub, "موضوع: ارسال مقاله پژوهشی جهت بررسی و انتشار", lang='fa', size=12, bold=True)
         p_sub.paragraph_format.space_after = Pt(8)
         
         p_body1 = doc.add_paragraph()
@@ -260,23 +264,44 @@ def build_cover_letter(data, out_path, lang='en'):
         add_run(p_body3, cover.get("fit_with_journal", f"این پژوهش به طور کامل با اهداف و چشم‌انداز نشریه {journal_name} همخوانی دارد."), lang='fa', size=12)
         p_body3.paragraph_format.space_after = Pt(10)
         
-        p_assurances = doc.add_paragraph()
-        set_paragraph_bidi(p_assurances, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        assurances_fa = (
-            "نویسندگان این مقاله بدین‌وسیله گواهی می‌نمایند که:\n"
-            "۱. این اثر یک پژوهش اصیل بوده و پیش از این در هیچ نشریه‌ای منتشر نشده و هم‌زمان برای نشریه دیگری ارسال نگردیده است.\n"
-            "۲. کلیه موازین و اصول اخلاق پژوهشی (کد اخلاق: " + decl.get("ethics_approval", "تأییدیه کمیته اخلاق") + ") رعایت گردیده و رضایت آگاهانه کتبی از آزمودنی‌ها اخذ شده است.\n"
+        p_assur_hdr = doc.add_paragraph()
+        set_paragraph_bidi(p_assur_hdr, WD_ALIGN_PARAGRAPH.JUSTIFY)
+        add_run(p_assur_hdr, "نویسندگان این مقاله بدین‌وسیله گواهی می‌نمایند که:", lang='fa', size=11, bold=True)
+        p_assur_hdr.paragraph_format.space_after = Pt(3)
+
+        assur_items = [
+            "۱. این اثر یک پژوهش اصیل بوده و پیش از این در هیچ نشریه‌ای منتشر نشده و هم‌زمان برای نشریه دیگری ارسال نگردیده است.",
+            "۲. کلیه موازین و اصول اخلاق پژوهشی (کد اخلاق: " + decl.get("ethics_approval", "تأییدیه کمیته اخلاق") + ") رعایت گردیده و رضایت آگاهانه کتبی از آزمودنی‌ها اخذ شده است.",
             "۳. این پژوهش فاقد هرگونه تعارض منافع است و کلیه نویسندگان نسخه نهایی را بررسی و تایید نموده‌اند."
-        )
-        add_run(p_assurances, assurances_fa, lang='fa', size=11)
-        p_assurances.paragraph_format.space_after = Pt(18)
+        ]
+        for item in assur_items:
+            p_ai = doc.add_paragraph()
+            set_paragraph_bidi(p_ai, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            add_run(p_ai, item, lang='fa', size=11)
+            p_ai.paragraph_format.space_after = Pt(2)
+        p_ai.paragraph_format.space_after = Pt(14)
         
-        p_sign = doc.add_paragraph()
-        set_paragraph_bidi(p_sign, WD_ALIGN_PARAGRAPH.LEFT)
-        add_run(p_sign, "با تشکر و احترام فائق،\n", lang='fa', size=12)
-        add_run(p_sign, f"{corr.get('name', 'نویسنده مسئول')}\n", lang='fa', size=12, bold=True)
-        add_run(p_sign, f"{corr.get('department', '')}\n{corr.get('institution', '')}\n", lang='fa', size=11)
-        add_run(p_sign, f"پست الکترونیکی: {corr.get('email', '')} | تلفن: {corr.get('phone', '')}", lang='fa', size=10)
+        p_sign1 = doc.add_paragraph()
+        set_paragraph_bidi(p_sign1, WD_ALIGN_PARAGRAPH.LEFT)
+        add_run(p_sign1, "با تشکر و احترام فائق،", lang='fa', size=12)
+        p_sign1.paragraph_format.space_after = Pt(2)
+
+        p_sign2 = doc.add_paragraph()
+        set_paragraph_bidi(p_sign2, WD_ALIGN_PARAGRAPH.LEFT)
+        add_run(p_sign2, corr.get('name', 'نویسنده مسئول'), lang='fa', size=12, bold=True)
+        p_sign2.paragraph_format.space_after = Pt(2)
+
+        if corr.get('department') or corr.get('institution'):
+            affil_parts = [p for p in [corr.get('department'), corr.get('institution')] if p]
+            p_affil = doc.add_paragraph()
+            set_paragraph_bidi(p_affil, WD_ALIGN_PARAGRAPH.LEFT)
+            add_run(p_affil, "، ".join(affil_parts), lang='fa', size=11)
+            p_affil.paragraph_format.space_after = Pt(2)
+
+        p_contact = doc.add_paragraph()
+        set_paragraph_bidi(p_contact, WD_ALIGN_PARAGRAPH.LEFT)
+        add_run(p_contact, f"پست الکترونیکی: {corr.get('email', '')} | تلفن: {corr.get('phone', '')}", lang='fa', size=10)
+        p_contact.paragraph_format.space_after = Pt(12)
         
     else:
         # English Cover Letter

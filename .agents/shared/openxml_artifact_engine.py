@@ -240,6 +240,8 @@ class OpenXMLArtifactEngine:
     def add_styled_run(p, text: str, font_fa='B Nazanin', font_en='Times New Roman', size=13, bold=False, italic=False, color: Optional[str] = None):
         """Adds a text run with explicit Persian and Latin font bindings, complex-script properties, w:rtl, and half-space normalization."""
         clean_text = OpenXMLArtifactEngine.clean_persian_typography(text)
+        # Guardrail: strip trailing newlines to prevent rogue <w:br/> elements
+        clean_text = clean_text.rstrip('\r\n')
         run = p.add_run(clean_text)
         run.font.name = font_fa
         run.font.size = Pt(size)
@@ -279,6 +281,45 @@ class OpenXMLArtifactEngine:
             iCs = parse_xml(f'<w:iCs {nsdecls("w")} w:val="1"/>')
             rPr.append(iCs)
         return run
+
+    @staticmethod
+    def add_styled_paragraph(container, text: str, font_fa='B Nazanin', font_en='Times New Roman', size=13,
+                             bold=False, italic=False, color: Optional[str] = None, jc_val='both',
+                             space_before=0, space_after=6, line_spacing=1.30, keep_next=False, is_bidi=True):
+        """
+        Creates one or more schema-compliant paragraphs adhering to the Zero Manual Line Breaks policy.
+        If 'text' contains newline characters (\n), it automatically splits them into independent
+        <w:p> paragraph objects instead of inserting destructive <w:br/> manual line breaks.
+        """
+        raw_lines = text.split('\n') if text else [""]
+        paragraphs = []
+        for line in raw_lines:
+            line_str = line.strip()
+            if not line_str and len(raw_lines) > 1:
+                continue
+            p = container.add_paragraph()
+            OpenXMLArtifactEngine.set_strict_pPr(
+                p, keep_next=keep_next, is_bidi=is_bidi,
+                space_before=space_before, space_after=space_after,
+                line_spacing=line_spacing, jc_val=jc_val
+            )
+            if line_str:
+                OpenXMLArtifactEngine.add_styled_run(
+                    p, line_str, font_fa=font_fa, font_en=font_en,
+                    size=size, bold=bold, italic=italic, color=color
+                )
+            paragraphs.append(p)
+        return paragraphs[-1] if len(paragraphs) == 1 else paragraphs
+
+    @staticmethod
+    def format_cell_rtl(cell, jc_val='both', font_fa='B Nazanin', font_en='Times New Roman', size=10.5):
+        """Ensures all paragraphs in a table cell enforce RTL text direction and proper justification."""
+        for p in cell.paragraphs:
+            OpenXMLArtifactEngine.set_strict_pPr(p, jc_val=jc_val, space_before=2, space_after=2, line_spacing=1.15)
+            for r in p.runs:
+                rPr = r._r.get_or_add_rPr()
+                if not any(child.tag.endswith('}rtl') for child in rPr):
+                    rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
 
     @staticmethod
     def clean_persian_typography(text: str) -> str:
@@ -717,17 +758,17 @@ class OpenXMLArtifactEngine:
         university = thesis_data.get("university", "دانشگاه تهران")
 
         # Cover Page
-        p_univ = doc.add_paragraph()
-        self.set_strict_pPr(p_univ, jc_val='center', space_before=40, space_after=16)
-        self.add_styled_run(p_univ, f"{university}\nدانشکده روان‌شناسی و علوم تربیتی", font_fa='B Titr', size=14, bold=True)
+        self.add_styled_paragraph(doc, university, font_fa='B Titr', size=14, bold=True, jc_val='center', space_before=40, space_after=6)
+        self.add_styled_paragraph(doc, "دانشکده روان‌شناسی و علوم تربیتی", font_fa='B Titr', size=14, bold=True, jc_val='center', space_after=16)
 
-        p_t = doc.add_paragraph()
-        self.set_strict_pPr(p_t, jc_val='center', space_before=30, space_after=30)
-        self.add_styled_run(p_t, f"عنوان رساله:\n«{title}»", font_fa='B Titr', size=18, bold=True)
+        self.add_styled_paragraph(doc, "عنوان رساله:", font_fa='B Titr', size=16, bold=True, jc_val='center', space_before=30, space_after=6)
+        self.add_styled_paragraph(doc, f"«{title}»", font_fa='B Titr', size=18, bold=True, jc_val='center', space_after=30)
 
-        p_auth = doc.add_paragraph()
-        self.set_strict_pPr(p_auth, jc_val='center', space_before=40, space_after=20)
-        self.add_styled_run(p_auth, f"نگارش:\n{author}\n\nاستاد راهنما:\n{supervisor}", font_fa='B Titr', size=13, bold=True)
+        self.add_styled_paragraph(doc, "نگارش:", font_fa='B Titr', size=12, bold=True, jc_val='center', space_before=30, space_after=4)
+        self.add_styled_paragraph(doc, author, font_fa='B Nazanin', size=13, bold=True, jc_val='center', space_after=16)
+
+        self.add_styled_paragraph(doc, "استاد راهنما:", font_fa='B Titr', size=12, bold=True, jc_val='center', space_before=16, space_after=4)
+        self.add_styled_paragraph(doc, supervisor, font_fa='B Nazanin', size=13, bold=True, jc_val='center', space_after=20)
 
         # Chapters 1 to 5 headings
         chapters = [
@@ -739,13 +780,10 @@ class OpenXMLArtifactEngine:
         ]
         for ch_num, ch_name in chapters:
             doc.add_page_break()
-            p_ch = doc.add_paragraph()
-            self.set_strict_pPr(p_ch, jc_val='center', space_before=30, space_after=16)
-            self.add_styled_run(p_ch, f"{ch_num}\n{ch_name}", font_fa='B Titr', size=16, bold=True)
+            self.add_styled_paragraph(doc, ch_num, font_fa='B Titr', size=16, bold=True, jc_val='center', space_before=30, space_after=6)
+            self.add_styled_paragraph(doc, ch_name, font_fa='B Titr', size=16, bold=True, jc_val='center', space_after=16)
 
-            p_body = doc.add_paragraph()
-            self.set_strict_pPr(p_body, jc_val='both')
-            self.add_styled_run(p_body, f"متن کامل {ch_num} ({ch_name}) در این بخش قرار می‌گیرد.", font_fa='B Nazanin', size=13)
+            self.add_styled_paragraph(doc, f"متن کامل {ch_num} ({ch_name}) در این بخش قرار می‌گیرد.", font_fa='B Nazanin', size=13, jc_val='both')
 
         doc.save(output_path)
         return output_path
@@ -816,9 +854,15 @@ class OpenXMLArtifactEngine:
             self.set_strict_pPr(p_s, jc_val='both', space_before=14, space_after=4)
             self.add_styled_run(p_s, f"جلسه {s_num}: {s_title}", font_fa='B Titr', size=13, bold=True)
 
-            p_phases = doc.add_paragraph()
-            self.set_strict_pPr(p_phases, jc_val='both', space_after=6)
-            self.add_styled_run(p_phases, "• فاز ۱: بازبینی خط پایه خلقی و تکالیف جلسه قبل\n• فاز ۲: آموزش روانی و مفهوم‌بندی موضوع محوری\n• فاز ۳: تمرین تجربی و کاربست استعاره‌های بالینی\n• فاز ۴: کاربرگ کتبی و تعمیق بینش درون‌جلسه‌ای\n• فاز ۵: تعیین تکالیف رفتاری بین‌جلسه‌ای\n• فاز ۶: جمع‌بندی و دریافت بازخورد پایانی", font_fa='B Nazanin', size=12)
+            phases_text = (
+                "• فاز ۱: بازبینی خط پایه خلقی و تکالیف جلسه قبل\n"
+                "• فاز ۲: آموزش روانی و مفهوم‌بندی موضوع محوری\n"
+                "• فاز ۳: تمرین تجربی و کاربست استعاره‌های بالینی\n"
+                "• فاز ۴: کاربرگ کتبی و تعمیق بینش درون‌جلسه‌ای\n"
+                "• فاز ۵: تعیین تکالیف رفتاری بین‌جلسه‌ای\n"
+                "• فاز ۶: جمع‌بندی و دریافت بازخورد پایانی"
+            )
+            self.add_styled_paragraph(doc, phases_text, font_fa='B Nazanin', size=12, jc_val='both', space_before=1, space_after=3)
 
         doc.save(output_path)
         return output_path

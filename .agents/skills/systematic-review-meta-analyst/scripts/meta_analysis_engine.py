@@ -493,16 +493,26 @@ def compile_meta_analysis_report(payload, meta_res, forest_img_path, funnel_img_
     outcome = meta.get("primary_outcome", "Clinical Outcome")
     
     # Document Header
+    # Document Header
     p_title = doc.add_paragraph()
     if is_fa:
         set_paragraph_bidi(p_title, WD_ALIGN_PARAGRAPH.CENTER)
-        add_run(p_title, "گزارش جامع مرور سیستماتیک و فراتحلیل (PRISMA 2020)\n", lang='fa', size=16, bold=True)
-        add_run(p_title, title, lang='fa', size=14, bold=True)
+        add_run(p_title, "گزارش جامع مرور سیستماتیک و فراتحلیل (PRISMA 2020)", lang='fa', size=16, bold=True)
+        p_title.paragraph_format.space_after = Pt(4)
+
+        p_sub = doc.add_paragraph()
+        set_paragraph_bidi(p_sub, WD_ALIGN_PARAGRAPH.CENTER)
+        add_run(p_sub, title, lang='fa', size=13, bold=True)
+        p_sub.paragraph_format.space_after = Pt(14)
     else:
         p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        add_run(p_title, "Systematic Review & Quantitative Meta-Analysis Report\n", lang='en', size=16, bold=True)
-        add_run(p_title, f'"{title}"', lang='en', size=13, italic=True)
-    p_title.paragraph_format.space_after = Pt(14)
+        add_run(p_title, "Systematic Review & Quantitative Meta-Analysis Report", lang='en', size=16, bold=True)
+        p_title.paragraph_format.space_after = Pt(4)
+
+        p_sub = doc.add_paragraph()
+        p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        add_run(p_sub, f'"{title}"', lang='en', size=13, italic=True)
+        p_sub.paragraph_format.space_after = Pt(14)
     
     # PICOS Box
     p_pico_h = doc.add_paragraph()

@@ -388,21 +388,40 @@ def generate_brief(input_path: str, output_dir: str = ".") -> dict:
     doc = Document()
 
     # Title
-    p_title = doc.add_paragraph()
-    p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run_t = p_title.add_run(f"Academic Defense Presentation Brief\n{project_info['title']}")
-    run_t.font.name = "Arial"
-    run_t.font.size = Pt(18)
-    run_t.font.bold = True
-    run_t.font.color.rgb = RGBColor(15, 23, 42)
+    p_title1 = doc.add_paragraph()
+    p_title1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run_t1 = p_title1.add_run("Academic Defense Presentation Brief")
+    run_t1.font.name = "Arial"
+    run_t1.font.size = Pt(16)
+    run_t1.font.bold = True
+    run_t1.font.color.rgb = RGBColor(15, 23, 42)
+    p_title1.paragraph_format.space_after = Pt(4)
+
+    p_title2 = doc.add_paragraph()
+    p_title2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run_t2 = p_title2.add_run(project_info['title'])
+    run_t2.font.name = "Arial"
+    run_t2.font.size = Pt(18)
+    run_t2.font.bold = True
+    run_t2.font.color.rgb = RGBColor(15, 23, 42)
+    p_title2.paragraph_format.space_after = Pt(10)
 
     # Subtitle
-    p_sub = doc.add_paragraph()
-    p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run_s = p_sub.add_run(f"{project_info.get('degree', '')} | {project_info.get('university', '')}\nEngineered for Google Slides Gemini Generation")
-    run_s.font.size = Pt(11)
-    run_s.font.italic = True
-    run_s.font.color.rgb = RGBColor(71, 85, 105)
+    p_sub1 = doc.add_paragraph()
+    p_sub1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run_s1 = p_sub1.add_run(f"{project_info.get('degree', '')} | {project_info.get('university', '')}")
+    run_s1.font.size = Pt(11)
+    run_s1.font.italic = True
+    run_s1.font.color.rgb = RGBColor(71, 85, 105)
+    p_sub1.paragraph_format.space_after = Pt(2)
+
+    p_sub2 = doc.add_paragraph()
+    p_sub2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run_s2 = p_sub2.add_run("Engineered for Google Slides Gemini Generation")
+    run_s2.font.size = Pt(10.5)
+    run_s2.font.italic = True
+    run_s2.font.color.rgb = RGBColor(100, 116, 139)
+    p_sub2.paragraph_format.space_after = Pt(14)
 
     doc.add_paragraph()  # spacing
 
@@ -428,12 +447,15 @@ def generate_brief(input_path: str, output_dir: str = ".") -> dict:
     # Directives heading
     h_dir = doc.add_heading("Gemini Presentation Instructions & Design Rules", level=1)
     h_dir.runs[0].font.color.rgb = RGBColor(15, 23, 42)
-    doc.add_paragraph(
-        "1. Avoid repetitive cards: Do not place generic 3-column card grids on consecutive slides.\n"
-        "2. Enforce visual variety: Follow the layout archetype designated for each slide (funnels, path models, metric spotlights, timelines).\n"
-        "3. Highlight empirical statistics: Present exact numbers prominently.\n"
+    directives = [
+        "1. Avoid repetitive cards: Do not place generic 3-column card grids on consecutive slides.",
+        "2. Enforce visual variety: Follow the layout archetype designated for each slide (funnels, path models, metric spotlights, timelines).",
+        "3. Highlight empirical statistics: Present exact numbers prominently.",
         "4. Include speaker notes on every single slide."
-    )
+    ]
+    for d_item in directives:
+        p_d = doc.add_paragraph(d_item)
+        p_d.paragraph_format.space_after = Pt(3)
 
     doc.add_heading("Slide-by-Slide Blueprint", level=1)
 
@@ -441,21 +463,26 @@ def generate_brief(input_path: str, output_dir: str = ".") -> dict:
         h = doc.add_heading(f"Slide {s['num']}: {s['title']}", level=2)
         h.runs[0].font.color.rgb = RGBColor(30, 41, 59)
 
-        p_meta = doc.add_paragraph()
-        r_arch = p_meta.add_run(f"Layout Archetype: {s['archetype']}\n")
+        p_arch = doc.add_paragraph()
+        r_arch = p_arch.add_run(f"Layout Archetype: {s['archetype']}")
         r_arch.font.bold = True
         r_arch.font.color.rgb = RGBColor(13, 148, 136)
-        r_take = p_meta.add_run(f"Core Message: {s['takeaway']}")
-        r_take.font.italic = True
+        p_arch.paragraph_format.space_after = Pt(2)
 
-        p_items = doc.add_paragraph()
+        p_take = doc.add_paragraph()
+        r_take = p_take.add_run(f"Core Message: {s['takeaway']}")
+        r_take.font.italic = True
+        p_take.paragraph_format.space_after = Pt(6)
+
         for item in s['content']:
-            p_items.add_run(f"• {item}\n")
+            p_item = doc.add_paragraph(f"• {item}")
+            p_item.paragraph_format.space_after = Pt(2)
 
         p_notes = doc.add_paragraph()
         r_nh = p_notes.add_run("Speaker Notes: ")
         r_nh.font.bold = True
         p_notes.add_run(s['notes'])
+        p_notes.paragraph_format.space_after = Pt(8)
 
     docx_path = os.path.join(output_dir, "Defense_Presentation_Brief.docx")
     doc.save(docx_path)

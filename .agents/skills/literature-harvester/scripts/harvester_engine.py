@@ -705,15 +705,23 @@ def export_word_report(
     title_text = "گزارش جامع پیشینه تجربی پژوهش (استخراج‌شده از پایگاه‌های داده)" if is_fa else "Comprehensive Harvested Empirical Literature Review"
     add_styled_run(p_title, title_text, font_name=font_title, size_pt=18, bold=True, color=RGBColor(26, 54, 93), lang=lang)
 
-    p_sub = doc.add_paragraph()
+    p_sub1 = doc.add_paragraph()
     if is_fa:
-        set_paragraph_bidi(p_sub, WD_ALIGN_PARAGRAPH.CENTER)
+        set_paragraph_bidi(p_sub1, WD_ALIGN_PARAGRAPH.CENTER)
     else:
-        p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    sub_text = f"عبارت جستجو / کلیدواژه‌ها: {query}\nتعداد پژوهش‌های استخراج‌شده: {len(studies)} مطالعه"
-    add_styled_run(p_sub, sub_text, font_name=font_body, size_pt=11, color=RGBColor(74, 85, 104), lang=lang)
+        p_sub1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    sub_text1 = f"عبارت جستجو / کلیدواژه‌ها: {query}" if is_fa else f"Search Query: {query}"
+    add_styled_run(p_sub1, sub_text1, font_name=font_body, size_pt=11, color=RGBColor(74, 85, 104), lang=lang)
+    p_sub1.paragraph_format.space_after = Pt(2)
 
-    doc.add_paragraph()
+    p_sub2 = doc.add_paragraph()
+    if is_fa:
+        set_paragraph_bidi(p_sub2, WD_ALIGN_PARAGRAPH.CENTER)
+    else:
+        p_sub2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    sub_text2 = f"تعداد پژوهش‌های استخراج‌شده: {len(studies)} مطالعه" if is_fa else f"Harvested Studies: {len(studies)}"
+    add_styled_run(p_sub2, sub_text2, font_name=font_body, size_pt=10.5, italic=True, color=RGBColor(100, 116, 139), lang=lang)
+    p_sub2.paragraph_format.space_after = Pt(12)
 
     # Section 1: Executive Summary
     h1 = doc.add_paragraph()

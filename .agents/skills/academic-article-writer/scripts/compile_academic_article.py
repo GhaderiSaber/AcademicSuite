@@ -749,16 +749,23 @@ def compile_article(data: dict, output_path: str, lang: str = 'en', papers_dir: 
     # Add Tables if present in data
     tables_data = results_data.get("tables", [])
     for t_idx, tbl_info in enumerate(tables_data):
-        p_tcap = doc.add_paragraph()
         if is_fa:
+            p_tcap = doc.add_paragraph()
             set_paragraph_bidi(p_tcap)
             add_run(p_tcap, f"جدول {t_idx+1}. {tbl_info.get('title', '')}", lang=lang, size=11, bold=True)
+            p_tcap.paragraph_format.space_before = Pt(8)
+            p_tcap.paragraph_format.space_after = Pt(4)
         else:
+            p_tnum = doc.add_paragraph()
+            p_tnum.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            add_run(p_tnum, f"Table {t_idx+1}", lang=lang, size=11, bold=True)
+            p_tnum.paragraph_format.space_before = Pt(8)
+            p_tnum.paragraph_format.space_after = Pt(2)
+
+            p_tcap = doc.add_paragraph()
             p_tcap.alignment = WD_ALIGN_PARAGRAPH.LEFT
-            add_run(p_tcap, f"Table {t_idx+1}\n", lang=lang, size=11, bold=True)
             add_run(p_tcap, tbl_info.get('title', ''), lang=lang, size=11, italic=True)
-        p_tcap.paragraph_format.space_before = Pt(8)
-        p_tcap.paragraph_format.space_after = Pt(4)
+            p_tcap.paragraph_format.space_after = Pt(4)
         
         headers = tbl_info.get("headers", [])
         rows = tbl_info.get("rows", [])
@@ -815,24 +822,33 @@ def compile_article(data: dict, output_path: str, lang: str = 'en', papers_dir: 
         note = fig_info.get("note", "")
 
         # Caption above figure
-        p_fcap = doc.add_paragraph()
         if is_fa:
+            p_fcap = doc.add_paragraph()
             set_paragraph_bidi(p_fcap)
             add_run(p_fcap, f"شکل {f_idx + 1}. {fig_title}", lang=lang, size=11, bold=True)
+            p_fcap.paragraph_format.space_before = Pt(10)
+            p_fcap.paragraph_format.space_after = Pt(4)
             if panels:
                 p_pan = doc.add_paragraph()
                 set_paragraph_bidi(p_pan)
                 add_run(p_pan, f"پنل‌ها: {', '.join(panels)}", lang=lang, size=10, italic=True)
+                p_pan.paragraph_format.space_after = Pt(4)
         else:
+            p_fid = doc.add_paragraph()
+            p_fid.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            add_run(p_fid, fig_id, lang=lang, size=11, bold=True)
+            p_fid.paragraph_format.space_before = Pt(10)
+            p_fid.paragraph_format.space_after = Pt(2)
+
+            p_fcap = doc.add_paragraph()
             p_fcap.alignment = WD_ALIGN_PARAGRAPH.LEFT
-            add_run(p_fcap, f"{fig_id}\n", lang=lang, size=11, bold=True)
             add_run(p_fcap, fig_title, lang=lang, size=11, italic=True)
+            p_fcap.paragraph_format.space_after = Pt(4)
             if panels:
                 p_pan = doc.add_paragraph()
                 p_pan.alignment = WD_ALIGN_PARAGRAPH.LEFT
                 add_run(p_pan, f"Subpanels: {', '.join(panels)}", lang=lang, size=10, italic=True)
-        p_fcap.paragraph_format.space_before = Pt(10)
-        p_fcap.paragraph_format.space_after = Pt(4)
+                p_pan.paragraph_format.space_after = Pt(4)
 
         # Image Embed
         if img_path and os.path.exists(img_path):

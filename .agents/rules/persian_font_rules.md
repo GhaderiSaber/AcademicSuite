@@ -20,6 +20,14 @@ Whenever an AI agent generates, modifies, or inspects Microsoft Word documents (
 | **Callouts & Speaker Speeches** | `B Nazanin` | 11.5–12 pt | Regular | Justified |
 | **Pure Latin Terms & Statistics** | `Times New Roman` | 10–11 pt | Italic for symbols ($M, SD, t, F, p$) | Inline / LTR |
 
+### 1.1 Microsoft Word Three Controls Matrix for Persian
+
+| Control Feature | Persian Requirement | OpenXML Implementation |
+| :--- | :--- | :--- |
+| **Text Direction (جهت متن / BiDi)** | Right-to-Left (RTL) | `<w:bidi w:val="1"/>` in paragraph properties (`<w:pPr>`), `<w:rtl w:val="1"/>` in text run properties (`<w:rPr>`), and `<w:bidiVisual/>` in table properties (`<w:tblPr>`). |
+| **Text Alignment (تراز متن / Justification)** | Justified (both) | Substantive narrative text (paragraphs, literature reviews, descriptions, candidate answers, callouts) must enforce `paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`. Centered for banners (`<w:jc w:val="center"/>`) and Right-aligned for headings (`<w:jc w:val="right"/>`). |
+| **Persian Font Binding & Complex-Script Attributes** | Genuine Persian Fonts | Binds `w:ascii`, `w:hAnsi`, `w:cs`, and `w:eastAsia` to genuine Persian fonts (`B Nazanin` or `B Titr`) with `w:hint="cs"`, `<w:szCs>`, and `<w:bCs>` to avoid fallback Arabic Naskh rendering in Microsoft Word for Windows. |
+
 ---
 
 ## ⚙️ 2. OpenXML Technical Protocol in Word (`.docx`)
@@ -46,15 +54,17 @@ def set_run_fonts(run, cs_font='B Nazanin', size_pt=12, bold=False, italic=False
         rFonts.set(qn('w:ascii'), 'Times New Roman')
         rFonts.set(qn('w:hAnsi'), 'Times New Roman')
         rFonts.set(qn('w:cs'), fa_font)
+        rFonts.set(qn('w:eastAsia'), 'Times New Roman')
     else:
         # 1. Assign run.font.name so Word UI shows genuine Persian font
         run.font.name = fa_font
         rFonts = rPr.get_or_add_rFonts()
         
-        # 2. Bind Persian font across ALL font slots
+        # 2. Bind Persian font across ALL font slots (ascii, hAnsi, cs, eastAsia)
         rFonts.set(qn('w:ascii'), fa_font)
         rFonts.set(qn('w:hAnsi'), fa_font)
         rFonts.set(qn('w:cs'), fa_font)
+        rFonts.set(qn('w:eastAsia'), fa_font)
         rFonts.set(qn('w:hint'), 'cs')
         
         # 3. Enforce Right-to-Left (RTL) run property
@@ -106,6 +116,7 @@ rFonts_norm = OxmlElement('w:rFonts')
 rFonts_norm.set(qn('w:ascii'), 'B Nazanin')
 rFonts_norm.set(qn('w:hAnsi'), 'B Nazanin')
 rFonts_norm.set(qn('w:cs'), 'B Nazanin')
+rFonts_norm.set(qn('w:eastAsia'), 'B Nazanin')
 rFonts_norm.set(qn('w:hint'), 'cs')
 rPr_norm.append(rFonts_norm)
 

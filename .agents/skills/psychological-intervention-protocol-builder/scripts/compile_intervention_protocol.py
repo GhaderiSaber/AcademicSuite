@@ -302,33 +302,55 @@ def build_protocol_docx(payload: Dict[str, Any], output_path: str):
         cell_1 = table.cell(row_idx, 1)
         p_1 = cell_1.paragraphs[0]
         apply_p_bidi(p_1, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=Pt(2))
-        add_run(p_1, f"{s.get('title', '')}\n", font_name=FONT_TITR, size_pt=10, bold=True)
+        add_run(p_1, s.get('title', ''), font_name=FONT_TITR, size_pt=10, bold=True)
         for obj in s.get("objectives", []):
-            add_run(p_1, f"• {obj}\n", font_name=FONT_NAZANIN, size_pt=10)
+            p_obj = cell_1.add_paragraph()
+            apply_p_bidi(p_obj, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=Pt(1))
+            add_run(p_obj, f"• {obj}", font_name=FONT_NAZANIN, size_pt=10)
 
         # Col 2: Metaphor & Experiential Technique
         cell_2 = table.cell(row_idx, 2)
         p_2 = cell_2.paragraphs[0]
-        apply_p_bidi(p_2, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=Pt(2))
         metaphor = s.get("clinical_metaphor", {})
-        if metaphor:
-            add_run(p_2, f"استعاره: {metaphor.get('name', '')}\n", font_name=FONT_TITR, size_pt=10, bold=True)
         tech = s.get("experiential_technique", {})
-        if tech:
-            add_run(p_2, f"تمرین: {tech.get('name', '')}\n", font_name=FONT_NAZANIN, size_pt=10, bold=True)
         ws = s.get("worksheet", {})
-        if ws:
-            add_run(p_2, f"کاربرگ: {ws.get('title', '')}\n", font_name=FONT_NAZANIN, size_pt=9, italic=True)
         triad = s.get("method_triad", {})
+
+        first_p2 = True
+        if metaphor:
+            p_cur = p_2 if first_p2 else cell_2.add_paragraph()
+            first_p2 = False
+            apply_p_bidi(p_cur, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=Pt(2))
+            add_run(p_cur, f"استعاره: {metaphor.get('name', '')}", font_name=FONT_TITR, size_pt=10, bold=True)
+        if tech:
+            p_cur = p_2 if first_p2 else cell_2.add_paragraph()
+            first_p2 = False
+            apply_p_bidi(p_cur, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=Pt(2))
+            add_run(p_cur, f"تمرین: {tech.get('name', '')}", font_name=FONT_NAZANIN, size_pt=10, bold=True)
+        if ws:
+            p_cur = p_2 if first_p2 else cell_2.add_paragraph()
+            first_p2 = False
+            apply_p_bidi(p_cur, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=Pt(2))
+            add_run(p_cur, f"کاربرگ: {ws.get('title', '')}", font_name=FONT_NAZANIN, size_pt=9, italic=True)
         if triad and triad.get("advantage"):
-            add_run(p_2, f"مزیت سه‌گانه: {triad.get('advantage')}", font_name=FONT_NAZANIN, size_pt=8.5, italic=True, color_rgb=RGBColor(67, 56, 202))
+            p_cur = p_2 if first_p2 else cell_2.add_paragraph()
+            first_p2 = False
+            apply_p_bidi(p_cur, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=Pt(2))
+            add_run(p_cur, f"مزیت سه‌گانه: {triad.get('advantage')}", font_name=FONT_NAZANIN, size_pt=8.5, italic=True, color_rgb=RGBColor(67, 56, 202))
+        if first_p2:
+            apply_p_bidi(p_2, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=Pt(2))
 
         # Col 3: Homework
         cell_3 = table.cell(row_idx, 3)
-        p_3 = cell_3.paragraphs[0]
-        apply_p_bidi(p_3, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=Pt(2))
-        for hw in s.get("homework", []):
-            add_run(p_3, f"• {hw}\n", font_name=FONT_NAZANIN, size_pt=10)
+        hw_list = s.get("homework", [])
+        if hw_list:
+            for hw_idx, hw in enumerate(hw_list):
+                p_hw = cell_3.paragraphs[0] if hw_idx == 0 else cell_3.add_paragraph()
+                apply_p_bidi(p_hw, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=Pt(1))
+                add_run(p_hw, f"• {hw}", font_name=FONT_NAZANIN, size_pt=10)
+        else:
+            p_3 = cell_3.paragraphs[0]
+            apply_p_bidi(p_3, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=Pt(2))
 
     # -----------------------------------------------------------------------
     # SECTION 2: Appendix Detailed Clinical Manual

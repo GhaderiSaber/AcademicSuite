@@ -84,6 +84,13 @@ All statistical results (whether in Persian or English) must comply with APA 7th
 
 ### Rule 4: Persian Academic Typography & OpenXML Standards
 When assembling or editing Persian Word documents (`.docx`):
+
+| Control Feature | Persian Requirement | OpenXML Implementation |
+| :--- | :--- | :--- |
+| **Text Direction (جهت متن / BiDi)** | Right-to-Left (RTL) | `<w:bidi w:val="1"/>` in paragraph properties (`<w:pPr>`), `<w:rtl w:val="1"/>` in text run properties (`<w:rPr>`), and `<w:bidiVisual/>` in table properties (`<w:tblPr>`). |
+| **Text Alignment (تراز متن / Justification)** | Justified (both) | Substantive narrative text (paragraphs, literature reviews, descriptions, candidate answers, callouts) must enforce `paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`. Centered for banners (`<w:jc w:val="center"/>`) and Right-aligned for headings (`<w:jc w:val="right"/>`). |
+| **Persian Font Binding & Complex-Script Attributes** | Genuine Persian Fonts | Binds `w:ascii`, `w:hAnsi`, `w:cs`, and `w:eastAsia` to genuine Persian fonts (`B Nazanin` or `B Titr`) with `w:hint="cs"`, `<w:szCs>`, and `<w:bCs>` to avoid fallback Arabic Naskh rendering in Microsoft Word for Windows. |
+
 - **Mandatory True Persian Font Binding**:
   - When writing Persian text in Word (`.docx`), agents **MUST** use genuine Persian fonts for all Persian characters:
     - Chapter Titles & Main Headers: `B Titr` (16–18 pt Bold, Centered).
@@ -91,7 +98,7 @@ When assembling or editing Persian Word documents (`.docx`):
     - Body Paragraphs, Descriptions & Callouts: `B Nazanin` (13–14 pt Regular, Line Spacing 1.15–1.3, Justified).
     - Pure Latin Numbers, English Terms & Statistical Symbols ($M, SD, t, F, p, \beta, \text{RMSEA}$): `Times New Roman` (10–11 pt).
   - **OpenXML Persian Font Binding Protocol**:
-    - For all Persian text runs, agents **MUST** set `w:ascii`, `w:hAnsi`, and `w:cs` to the designated Persian font (`B Nazanin` or `B Titr`), AND set `w:hint="cs"`.
+    - For all Persian text runs, agents **MUST** set `w:ascii`, `w:hAnsi`, `w:cs`, and `w:eastAsia` to the designated Persian font (`B Nazanin` or `B Titr`), AND set `w:hint="cs"`.
     - **NEVER** bind `w:ascii="Times New Roman"` to Persian text runs; doing so causes Microsoft Word on Windows to render Persian characters using Times New Roman's Arabic Naskh fallback glyphs instead of genuine Persian typography.
     - Always inject `<w:rtl w:val="1"/>` into the run's `<w:rPr>` to force Right-to-Left script direction.
     - Always inject `<w:szCs w:val="{half_pts}"/>` and `<w:bCs w:val="1"/>` to guarantee that font size and bold weight are applied to complex-script Persian glyphs in Microsoft Word.
