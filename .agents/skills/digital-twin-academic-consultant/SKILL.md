@@ -44,7 +44,7 @@ Activate this skill when:
 │ Greeting &   │ │ /scale Query  │ │ Proposal (.docx / .pdf)│
 │ FAQs         │ │               │ │                        │
 │ (Persona     │ │ (Questionnaire│ │ proposal_price_        │
-│  Knowledge)  │ │  Resolver)    │ │ estimator.py           │
+│  Knowledge)  │ │  Resolver)    │ │ estimator engine       │
 └──────────────┘ └───────────────┘ └───────────┬────────────┘
                                                │
                                                ▼

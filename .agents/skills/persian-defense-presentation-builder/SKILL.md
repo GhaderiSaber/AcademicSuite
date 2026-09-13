@@ -1142,57 +1142,40 @@ Recommended architecture:
 
 ```text
 presentation_schema.py
-research_truth_model.py
-storyboard.py
-content_selector.py
+content_planner.py
 layout_engine.py
-visual_encodings.py
 chart_renderer.py
 rtl_typography.py
-notes_builder.py
-powerpoint_renderer.py
-qa_rules.py
+qa_validator.py
 render_preview.py
-compile_presentation.py
+compile_defense_presentation.py
 ```
 
 Responsibilities:
 
-### `research_truth_model.py`
-Normalize source evidence and provenance.
+### `presentation_schema.py`
+Data contracts, `ResearchTruthModel`, project metadata, and schema validation.
 
-### `storyboard.py`
-Create the narrative sequence and slide messages.
-
-### `content_selector.py`
-Decide what material belongs on each slide.
+### `content_planner.py`
+Create the narrative storyboard sequence and select content for each slide.
 
 ### `layout_engine.py`
-Choose layout families and place objects.
-
-### `visual_encodings.py`
-Provide reusable diagrams and visual patterns.
+Choose layout families and place PPTX shapes (22 high-density defense layout templates).
 
 ### `chart_renderer.py`
-Generate data-driven charts.
+Generate data-driven charts and reusable visual diagrams.
 
 ### `rtl_typography.py`
 Handle Persian/RTL-specific formatting and mixed-language strings.
 
-### `notes_builder.py`
-Generate source-grounded speaker notes.
-
-### `powerpoint_renderer.py`
-Render the visual specification to PPTX.
-
-### `qa_rules.py`
-Run structural and heuristic visual validations.
+### `qa_validator.py`
+Run structural, rubric (100-point gate), and heuristic visual validations.
 
 ### `render_preview.py`
 Render PPTX to PDF/images and produce inspection artifacts.
 
-### `compile_presentation.py`
-Orchestrate the pipeline; do not contain every layout implementation.
+### `compile_defense_presentation.py`
+Master 16:9 PPTX compiler orchestrating the pipeline, notes, and visual rendering.
 
 ---
 
@@ -1702,7 +1685,7 @@ Following `pptx-skills`:
     ├── compile_defense_presentation.py   # Master 16:9 PPTX compiler with automated QA pipeline
     ├── layout_engine.py                 # 22 high-density defense layout builders (tables, charts, spotlights)
     ├── presentation_schema.py           # ResearchTruthModel, ProjectMeta, Color Palettes, and validation
-    ├── presentation_qa.py               # 100-point rubric QA gate (Fidelity, Narrative, Visuals, Type, Tech)
+    ├── qa_validator.py                  # 100-point rubric QA gate (Fidelity, Narrative, Visuals, Type, Tech)
     ├── content_planner.py               # Storyboard synthesis from research truth parameters
     ├── academic_brief_adapter.py        # Ghost Deck adapter converting academic JSON to BRIEF.json
     ├── check_overlaps.py                # Geometry bounding-box & collision overlap auditor
@@ -1710,7 +1693,7 @@ Following `pptx-skills`:
     ├── batch_theme_extractor.py         # Batch OpenXML theme, color scheme, and typography extractor
     ├── extract_template.py              # PPTX template context, font, color, and layout extractor
     ├── low_context.py                   # slide-creator HTML engine runtime, validator, and evaluator
-    └── visual_preview.py                # PDF and image contact-sheet generator for presentation review
+    └── render_preview.py                # PDF and image contact-sheet generator for presentation review
 ```
 
 ---

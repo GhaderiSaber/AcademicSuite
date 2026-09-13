@@ -174,4 +174,4 @@ The engine deterministically compiles:
 - **Output Linkage**:
   - `academic-reference-extractor`: Scans `فصل_دوم_مبانی_نظری_و_پیشینه_پژوهش.docx` to extract all citations into EndNote (`.enw`), Zotero (`.ris`), and APA 7 (`.txt`).
   - `irandoc-plagiarism-reducer`: Checks similarity if required.
-  - `persian-thesis-builder`: Direct input as `--ch2` in `compile_full_thesis.py`.
+  - `persian-thesis-builder`: Direct input as `--ch2` in `.agents/skills/persian-thesis-builder/scripts/compile_full_thesis.py`.

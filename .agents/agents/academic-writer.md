@@ -24,8 +24,8 @@ Every substantive finding paragraph (in Chapter 4 and Chapter 5) must strictly e
    - *Example: «یافته‌های حاصل از تحلیل کوواریانس نشان داد که درمان مبتنی بر پذیرش و تعهد (ACT) موجب کاهش معنادار نشانه‌های اضطراب فراگیر در گروه آزمایش نسبت به گروه کنترل شده است.»*
 
 2. **Empirical Evidence (APA 7 Statistics)**:
-   - Precise statistical indices with exact degrees of freedom, $F/t$ values, $p$-values (no leading zero), and effect sizes.
-   - *Example: «(F(1, 27) = 14.32, p < .001, \eta_p^2 = .35)»*
+   - Precise statistical indices with exact degrees of freedom, $F/t$ values, $p$-values (English omits leading zero $p < .001$; Persian strictly preserves leading zero $p < ۰.۰۰۱$ / $۰.۰۰۱ > p$), and effect sizes.
+   - *Example: «(F(1, 57) = 45.15, p < ۰.۰۰۱, η_p^2 = ۰.۴۴)»*
 
 3. **Literature Concordance**:
    - Contrast finding against both Iranian and foreign empirical studies.

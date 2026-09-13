@@ -57,7 +57,7 @@ Commercial detectors (QuillBot, Turnitin AI, GPTZero, CopyLeaks) rely on deep ne
 
 3. **Post-Humanization Bidirectional Citation Reconciliation Pass**:
    - **The Vulnerability**: External humanizers (QuillBot Paraphraser) aggressively condense text and silently drop author citations or mangle publication years.
-   - **The Mandate**: Whenever text undergoes humanization or condensation, the agent must run `reconcile_post_humanization_citations.py` to audit in-text citations against the master EndNote/RIS library, prune orphaned bibliography entries, and re-inject any dropped citations.
+   - **The Mandate**: Whenever text undergoes humanization or condensation, the agent must run `.agents/skills/academic-reference-extractor/scripts/reconcile_post_humanization_citations.py` to audit in-text citations against the master EndNote/RIS library, prune orphaned bibliography entries, and re-inject any dropped citations.
 
 ---
 

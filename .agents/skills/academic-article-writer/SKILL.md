@@ -78,7 +78,7 @@ Inspect the project directory to locate:
 - Statistical output: `stats_results.json` or `فصل چهارم: یافته‌های پژوهش.docx`.
 - Methodological details: `پروپوزال_طرح_پژوهش.docx` or Chapter 3.
 - **Physical Research Papers & Anti-Hallucination Protocol (`04_references_and_lit/papers/`)**:
-  - **MANDATORY DIRECTIVE (Zero Ghost Citations / قاعده ضد استناد توهمی)**: If the agent uses generative memory to reference an article or author in the manuscript, the agent **MUST NOT** leave it as an ungrounded citation. The agent must execute `verify_and_download_citation.py` or `paper_downloader.py` to:
+  - **MANDATORY DIRECTIVE (Zero Ghost Citations / قاعده ضد استناد توهمی)**: If the agent uses generative memory to reference an article or author in the manuscript, the agent **MUST NOT** leave it as an ungrounded citation. The agent must execute `verify_and_download_citation.py` or `.agents/skills/literature-harvester/scripts/paper_downloader.py` to:
     1. Confirm the authentic existence of the paper in scientific registries (CrossRef / OpenAlex / Europe PMC).
     2. Download the legal, full-text Open-Access PDF directly into `04_references_and_lit/papers/`.
     3. Cross-validate the drafted manuscript sentence against the paper's actual abstract and empirical findings to ensure 100% directional and statistical alignment.
@@ -91,7 +91,7 @@ Inspect the project directory to locate:
   - Run `python3 .agents/skills/academic-reference-extractor/scripts/local_paper_extractor.py --dir "04_references_and_lit/papers"` to generate `ingested_papers_corpus.json`.
   - Ground all external citations and mechanism comparisons strictly in these physical, verified PDFs.
 - Theoretical literature: `Translate/` folder or Chapter 2.
-- Psychometric instruments: Ingest from project files or query `Questionnaires.xlsx` and the Google Drive master library via `questionnaire_resolver.py search "<scale_name>"` for verified item counts, subscale factors, and Likert anchors.
+- Psychometric instruments: Ingest from project files or query `Questionnaires.xlsx` and the Google Drive master library via `python3 .agents/skills/psychometric-scale-resolver/scripts/questionnaire_resolver.py search "<scale_name>"` for verified item counts, subscale factors, and Likert anchors.
 - Discussion points: Chapter 5.
 
 Confirm the target language track (`--lang en` for International ISI/Scopus, or `--lang fa` for Iranian ISC).
@@ -145,7 +145,7 @@ For every structural equation model, mediation path, or empirical chart:
 4. **OpenXML Preservation**: When revising documents containing figures, never call `paragraph.text = "..."` naively, which permanently destroys `<w:drawing>` and `<a:blip>`. Always check `bool(paragraph._p.xpath('.//w:drawing') or paragraph._p.xpath('.//a:blip'))`.
 
 ### Step 6: EndNote 360° Publishing Pipeline (Rule 16)
-Every English manuscript prepared for peer-reviewed journal submission must execute `generate_endnote_suite.py` to produce:
+Every English manuscript prepared for peer-reviewed journal submission must execute `.agents/skills/academic-reference-extractor/scripts/generate_endnote_suite.py` to produce:
 1. **`EndNote_Library_Article.enw`**: Structured EndNote tags (`%0`, `%T`, `%A`, `%D`, `%J`, `%V`, `%N`, `%P`, `%R`, `%U`, `%M`) with accent normalization (`strip_accents`).
 2. **`EndNote_Library_Article.ris`**: Standard RIS format for universal compatibility (EndNote, Zotero, Mendeley).
 3. **`[Manuscript]_EndNote_CWYW.docx`**: Word document containing live dynamic Cite-While-You-Write fields (`ADDIN EN.CITE` with embedded Traveling Library XML) and an `ADDIN EN.REFLIST` bibliography.

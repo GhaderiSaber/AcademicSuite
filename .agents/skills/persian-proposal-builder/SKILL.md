@@ -210,7 +210,7 @@ When `method_triad` is supplied in the proposal payload (or within individual in
 1. **Intake Research Variables**:
    Gather the research topic, variables, target population, and proposed design.
 2. **Consult Reference Guides**:
-   - Read [proposal_structure_guide.md](file:///Users/saber/.gemini/config/plugins/academic_suite/skills/persian-proposal-builder/references/proposal_structure_guide.md) for detailed structural standards and continuous prose models.
+   - Read [proposal_structure_guide.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-proposal-builder/references/proposal_structure_guide.md) for detailed structural standards and continuous prose models.
 3. **Formulate Comprehensive Continuous Prose**:
    Draft every section in mature, flowing academic paragraphs adhering to Section 2 and Section 4 above.
 4. **Generate Word Document**:

@@ -108,7 +108,7 @@ When a student provides a dataset and asks for analysis or Chapter 4, follow thi
                    │
                    ▼
    [Step 3: Run Deterministic Engine]
-   - python3 psychology_stats.py --data data.xlsx --task auto --config study_config.json --out stats_results.json
+   - python3 .agents/skills/statistical-data-analyst/scripts/psychology_stats.py --data data.xlsx --task auto --config study_config.json --out stats_results.json
                    │
                    ▼
    [Step 4: Generate Publication Visuals]
@@ -116,7 +116,7 @@ When a student provides a dataset and asks for analysis or Chapter 4, follow thi
                    │
                    ▼
    [Step 5: Generate Full Defense-Ready Word Document]
-   - python3 generate_apa_docx.py --json stats_results.json --out Chapter_4_Results.docx
+   - python3 .agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py --json stats_results.json --out Chapter_4_Results.docx
                    │
                    ▼
    [Step 6: Defense Review & Delivery]
@@ -291,10 +291,10 @@ When providing consultation notes to students, include answers to the most commo
 
 - [Statistical Decision Trees](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/references/statistical_decision_tree.md) — Comprehensive guide for test selection.
 - [APA 7 Reporting Guide](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/references/apa7_psychology_reporting_guide.md) — Exact bilingual reporting sentences and notation rules.
-- [Questionnaire Scoring & Factor Guide](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/references/questionnaire_scoring_and_factor_guide.md) — 3-tier lookup hierarchy, subscale resolution, and reverse-scoring keys.
+- [Questionnaire Scoring & Factor Guide](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychometric-scale-resolver/references/questionnaire_scoring_and_factor_guide.md) — 3-tier lookup hierarchy, subscale resolution, and reverse-scoring keys.
 - [psychology_stats.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/psychology_stats.py) — Core calculation and hypothesis testing engine with Benjamini-Hochberg and Bonferroni adjustments.
 - [visualize_stats.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/visualize_stats.py) — Publication-grade scientific visualization engine with significance brackets (300 DPI).
-- [questionnaire_resolver.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/questionnaire_resolver.py) — Master questionnaire resolution, item mapping, and automated dataset scoring engine.
+- [.agents/skills/psychometric-scale-resolver/scripts/questionnaire_resolver.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychometric-scale-resolver/scripts/questionnaire_resolver.py) — Master questionnaire resolution, item mapping, and automated dataset scoring engine.
 - [generate_apa_docx.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py) — Word document and table styling engine.
 
 
