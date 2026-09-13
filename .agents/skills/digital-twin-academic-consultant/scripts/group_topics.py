@@ -46,6 +46,11 @@ CORE_TOPICS = {
         "color": 9367192,      # Green
         "description": "Daily briefings, stalled project follow-ups, and health checks"
     },
+    "supervisor_reviews": {
+        "title": "🎓 Supervisor Feedback & Defense",
+        "color": 16478047,     # Red/Coral
+        "description": "Supervisor comments, committee revisions, and viva voce defense questions"
+    },
     "system": {
         "title": "⚙️ System & Drive Sync",
         "color": 16749490,     # Rose
@@ -256,6 +261,12 @@ class TopicManager:
         except Exception as e:
             print(f"[-] Error creating VIP topic for {client_name}: {e}")
         return None
+
+    def is_vip_client(self, client_id: Optional[int]) -> bool:
+        """Check if client has a registered VIP topic."""
+        if not client_id:
+            return False
+        return str(client_id) in self.topics.get("vip", {})
 
     def resolve_topic_id(
         self,

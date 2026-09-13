@@ -70,6 +70,7 @@ from project_drive_manager import (
     resolve_media_details
 )
 from group_topics import TopicManager
+from academic_inquiry_classifier import AcademicInquiryClassifier
 
 
 DEFAULT_CONFIG_PATH = os.path.join(SCRIPT_DIR, "telethon_config.json")
@@ -166,6 +167,7 @@ class SaberTelethonUserbot:
         self.project_manager = ProjectDriveManager(self.config)
         self.admin_desk_chat_id = config.get("admin_desk_chat_id")
         self.topic_manager = TopicManager(self.config, storage_dir=self.storage_dir)
+        self.classifier = AcademicInquiryClassifier(self.config)
 
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
@@ -495,7 +497,10 @@ class SaberTelethonUserbot:
         client_message: str,
         draft_reply: str,
         client_source: Any = None,
-        account_label: str = "Main Account (@GhaderiSaber)"
+        account_label: str = "Main Account (@GhaderiSaber)",
+        topic_key: Optional[str] = None,
+        admin_notes: Optional[str] = None,
+        engine: Optional[str] = None
     ) -> str:
         """
         Create a Co-Pilot draft recommendation and post it to Academic Desk with 1-click dispatch buttons.
@@ -519,23 +524,28 @@ class SaberTelethonUserbot:
         }
 
         client_link = format_client_mention_html(sender_name, username=username, client_id=sender_id)
-        snippet = html.escape(client_message[:140] + ("..." if len(client_message) > 140 else ""))
+        snippet = html.escape(client_message[:200] + ("..." if len(client_message) > 200 else ""))
         safe_draft = html.escape(draft_reply)
 
-        alert_text = (
-            f"💡 <b>[Co-Pilot Draft] Client Inquiry from {client_link}</b>\n"
-            f"📱 <b>Account:</b> {html.escape(account_label)}\n"
-            f"🏷️ <b>Category:</b> <code>{inquiry_type}</code>\n"
-            f"💬 <b>Client Message:</b> «{snippet}»\n"
-            f"🆔 <b>Draft ID:</b> <code>{draft_id}</code>\n"
-            "─────────────────────\n"
-            f"📝 <b>Suggested Persian Draft:</b>\n"
-            f"<blockquote>{safe_draft}</blockquote>\n\n"
-            "⚙️ <b>Admin Actions & Commands:</b>\n"
-            f"• Approve & Send to Client: <code>/send_msg_{draft_id}</code>\n"
-            f"• Send Custom Edits: <code>/send_msg_{draft_id} &lt;custom text&gt;</code>\n"
-            f"• Dismiss Draft: <code>/ignore_{draft_id}</code>"
-        )
+        meta_parts = [
+            f"💡 <b>[Co-Pilot Draft] Client Inquiry from {client_link}</b>",
+            f"📱 <b>Account:</b> {html.escape(account_label)}",
+            f"🏷️ <b>Category:</b> <code>{inquiry_type}</code>"
+        ]
+        if admin_notes:
+            meta_parts.append(f"🧠 <b>Academic Intent:</b> <i>{html.escape(admin_notes)}</i>")
+        if engine:
+            meta_parts.append(f"⚡ <b>AI Engine:</b> <code>{html.escape(engine)}</code>")
+        meta_parts.append(f"💬 <b>Client Message:</b> «{snippet}»")
+        meta_parts.append(f"🆔 <b>Draft ID:</b> <code>{draft_id}</code>")
+        meta_parts.append("─────────────────────")
+        meta_parts.append(f"📝 <b>Suggested Academic Draft:</b>\n<blockquote>{safe_draft}</blockquote>\n")
+        meta_parts.append("⚙️ <b>Admin Actions & Commands:</b>")
+        meta_parts.append(f"• Approve & Send to Client: <code>/send_msg_{draft_id}</code>")
+        meta_parts.append(f"• Send Custom Edits: <code>/send_msg_{draft_id} &lt;custom text&gt;</code>")
+        meta_parts.append(f"• Dismiss Draft: <code>/ignore_{draft_id}</code>")
+
+        alert_text = "\n".join(meta_parts)
 
         buttons = None
         if Button is not None:
@@ -544,7 +554,21 @@ class SaberTelethonUserbot:
                  Button.inline("🗑️ Dismiss", f"ignore_draft_{draft_id}".encode())]
             ]
 
-        target_topic = "scales" if inquiry_type == "scale_search" else "drafts"
+        # Determine target topic
+        if not topic_key:
+            if inquiry_type == "scale_search":
+                target_topic = "scales"
+            elif inquiry_type in [
+                "supervisor_defense_question",
+                "supervisor_revision_feedback",
+                "quarterly_progress_report"
+            ]:
+                target_topic = "supervisor_reviews"
+            else:
+                target_topic = "drafts"
+        else:
+            target_topic = topic_key
+
         await self.send_to_desk(
             alert_text,
             buttons=buttons,
@@ -553,7 +577,7 @@ class SaberTelethonUserbot:
             client_name=sender_name,
             parse_mode="html"
         )
-        print(f"[+] Posted Co-Pilot draft {draft_id} ({inquiry_type}) for {sender_name} to Academic Desk.")
+        print(f"[+] Posted Co-Pilot draft {draft_id} ({inquiry_type}) for {sender_name} to topic '{target_topic}'.")
         return draft_id
 
     async def scan_and_report_project_health(self, trigger_event: Optional[Any] = None) -> Dict[str, Any]:
@@ -952,43 +976,20 @@ class SaberTelethonUserbot:
 
         files_summary = "\n".join(files_summary_lines)
 
-        # Categorize conversational intent
-        first_name = client_name.split()[0] if client_name else "پژوهشگر"
-        stats_keywords = ["تحلیل", "آماری", "فصل چهار", "فصل ۴", "فصل پنجم", "فصل ۵", "spss", "pls", "amos", "smartpls", "پایان‌نامه", "رساله", "روان‌سنجی", "کواریانس", "رگرسیون", "حجم نمونه", "جی‌پاور", "gpower"]
-        defense_keywords = ["دفاع", "اسلاید", "پاورپوینت", "داور", "استاد راهنما", "جلسه دفاع", "اصلاحیه", "کامنت"]
-        report_keywords = ["گزارش", "سه ماهه", "بارگذاری", "فرم", "امضا", "سامانه", "آموزش", "مدارک"]
+        # AI-Powered Academic Semantic Analysis via Gemini 3.8 (with automatic fallback)
+        is_vip = self.topic_manager.is_vip_client(sender_id) if hasattr(self.topic_manager, "is_vip_client") else False
+        analysis = self.classifier.analyze_inquiry(
+            client_name=client_name,
+            combined_text=combined_text,
+            attached_files=files,
+            is_vip=is_vip
+        )
 
-        if any(w in combined_text.lower() for w in stats_keywords):
-            inquiry_type = "statistical_inquiry"
-            draft_reply = (
-                f"سلام و درود، وقت شما بخیر {first_name} گرامی.\n"
-                "تحلیل‌های آماری، آزمون فرضیه‌ها و نگارش کامل فصول چهارم و پنجم بر اساس استانداردهای APA ویرایش هفتم انجام می‌شود.\n"
-                "جهت بررسی دقیق‌تر و ارائه زمان‌بندی و برآورد، لطفاً فایل پروپوزال، داده‌ها یا جدول متغیرهای خود را ارسال بفرمایید."
-            )
-        elif any(w in combined_text.lower() for w in defense_keywords):
-            inquiry_type = "defense_preparation"
-            draft_reply = (
-                f"سلام و عرض ادب، وقت شما بخیر {first_name} گرامی.\n"
-                "پیام شما بررسی شد. در خصوص ارائه و دفاع، سناریوی ارائه، فایل اسلایدها و نکات کلیدی متناسب با نظرات اساتید راهنما و داور خدمتتون آماده و تقدیم می‌شود."
-            )
-        elif any(w in combined_text.lower() for w in report_keywords):
-            inquiry_type = "progress_and_reports"
-            draft_reply = (
-                f"سلام و عرض احترام، وقت شما بخیر {first_name} گرامی.\n"
-                "فایل و پیام شما دریافت شد؛ فرم و مستندات ارسالی رو با دقت بررسی می‌کنم و موارد لازم جهت بارگذاری در سامانه رو خدمتتون هماهنگ خواهم کرد."
-            )
-        elif any(w in combined_text.lower() for w in ["سلام", "درود", "وقت بخیر", "صبح بخیر", "عصر بخیر"]) and len(combined_text.split()) <= 6:
-            inquiry_type = "greeting"
-            draft_reply = (
-                f"سلام و عرض ادب، وقت شما بخیر {first_name} گرامی.\n"
-                "صابر قادری هستم، در خدمتم؛ لطفاً بفرمایید موضوع پژوهش یا فایلی که مدنظرتون هست چیست تا دقیقاً راهنمایی‌تون کنم."
-            )
-        else:
-            inquiry_type = "client_burst_inquiry"
-            draft_reply = (
-                f"سلام و احترام، وقت شما بخیر {first_name} گرامی.\n"
-                "پیام‌های شما دریافت شد. در خدمتم؛ موارد ارسالی رو بررسی و خدمتتون راهنمایی لازم رو ارائه خواهم داد."
-            )
+        inquiry_type = analysis.get("inquiry_type", "client_burst_inquiry")
+        draft_reply = analysis.get("draft_reply")
+        target_topic = analysis.get("topic_key", "drafts")
+        admin_notes = analysis.get("admin_notes")
+        engine = analysis.get("engine")
 
         client_msg_display = combined_text
         if files_summary:
@@ -1004,7 +1005,10 @@ class SaberTelethonUserbot:
             client_message=client_msg_display,
             draft_reply=draft_reply,
             client_source=client_inst,
-            account_label=account_label
+            account_label=account_label,
+            topic_key=target_topic,
+            admin_notes=admin_notes,
+            engine=engine
         )
 
     async def start_listening(self, phone: Optional[str] = None, bot_token: Optional[str] = None, use_qr: bool = False):
