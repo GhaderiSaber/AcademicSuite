@@ -574,7 +574,8 @@ class SaberTelethonUserbot:
         account_label: str = "Main Account (@GhaderiSaber)",
         topic_key: Optional[str] = None,
         admin_notes: Optional[str] = None,
-        engine: Optional[str] = None
+        engine: Optional[str] = None,
+        thinking_points: Optional[List[str]] = None
     ) -> str:
         """
         Create a Co-Pilot draft recommendation and post it to Academic Desk with 1-click dispatch buttons.
@@ -594,6 +595,7 @@ class SaberTelethonUserbot:
             "draft_reply": draft_reply,
             "client_source": client_source or self.client,
             "account_label": account_label,
+            "thinking_points": thinking_points or [],
             "created_at": datetime.now().isoformat()
         }
         self._save_pending_drafts()
@@ -637,8 +639,26 @@ class SaberTelethonUserbot:
             f"<blockquote expandable>«{html.escape(clean_msg)}»</blockquote>"
         )
 
-        # AI Epistemic Assessment
-        if admin_notes:
+        # AI Epistemic Assessment & Thinking Process
+        if thinking_points and isinstance(thinking_points, list) and len(thinking_points) > 0:
+            engine_label = engine or "Gemini 3.8 Flash"
+            intent_line = f"├ 🎯 <b>Academic Intent:</b> <i>{html.escape(admin_notes)}</i>\n" if admin_notes else ""
+            t_bullets = []
+            for pt in thinking_points:
+                clean_pt = pt.strip()
+                if clean_pt.startswith("•") or clean_pt.startswith("-"):
+                    clean_pt = clean_pt.lstrip("•-").strip()
+                if ":" in clean_pt:
+                    k, v = clean_pt.split(":", 1)
+                    t_bullets.append(f"• <b>{html.escape(k.strip())}:</b> {html.escape(v.strip())}")
+                else:
+                    t_bullets.append(f"• {html.escape(clean_pt)}")
+            body_parts.append(
+                f"\n🧠 <b>AI EPISTEMIC REASONING PROCESS</b> (<code>{html.escape(engine_label)}</code>)\n"
+                f"{intent_line}"
+                f"<blockquote expandable>{chr(10).join(t_bullets)}</blockquote>"
+            )
+        elif admin_notes:
             body_parts.append(
                 f"\n🧠 <b>AI RESEARCH TWIN SYNTHESIS</b>\n"
                 f"├ 🎯 <b>Academic Intent:</b> <i>{html.escape(admin_notes)}</i>\n"
@@ -1079,7 +1099,14 @@ class SaberTelethonUserbot:
                 client_message=combined_text,
                 draft_reply=scale_info,
                 client_source=client_inst,
-                account_label=account_label
+                account_label=account_label,
+                admin_notes=f"Psychometric scale resolution for {query_name}",
+                engine="Psychometric Registry (4,880 Scales)",
+                thinking_points=[
+                    f"Methodology: Standardized psychological measurement instrument lookup for «{query_name}».",
+                    "Epistemic Rule: Multi-factor construct validity and Iranian psychometric normative scoring.",
+                    "Consulting Strategy: Direct extraction from Questionnaires.xlsx master database with 1-click delivery."
+                ]
             )
             return
 
@@ -1108,6 +1135,7 @@ class SaberTelethonUserbot:
         draft_reply = analysis.get("draft_reply")
         target_topic = analysis.get("topic_key", "drafts")
         admin_notes = analysis.get("admin_notes")
+        thinking_points = analysis.get("thinking_points", [])
         engine = analysis.get("engine")
 
         client_msg_display = combined_text
@@ -1127,7 +1155,8 @@ class SaberTelethonUserbot:
             account_label=account_label,
             topic_key=target_topic,
             admin_notes=admin_notes,
-            engine=engine
+            engine=engine,
+            thinking_points=thinking_points
         )
 
     async def start_listening(self, phone: Optional[str] = None, bot_token: Optional[str] = None, use_qr: bool = False):
@@ -1730,6 +1759,12 @@ class SaberTelethonUserbot:
             @self.bot_client.on(events.CallbackQuery)
             async def bot_callback_handler(event):
                 data = (event.data or b"").decode("utf-8")
+                now_str = datetime.now().strftime("%H:%M")
+
+                if data == "noop":
+                    await event.answer("ℹ️ This item has already been dispatched.", alert=False)
+                    return
+
                 if data.startswith("send_draft_"):
                     did = data.split("send_draft_")[1]
                     if did in self.pending_drafts:
@@ -1741,11 +1776,12 @@ class SaberTelethonUserbot:
                             else:
                                 target_client = self.client
                         await target_client.send_message(entry["chat_id"], entry["draft_reply"])
-                        await event.answer(f"✅ Response {did} dispatched to client!", alert=True)
+                        await event.answer(f"🚀 Response {did} dispatched to client!", alert=False)
                         try:
+                            done_badge = [[Button.inline(f"✅ Dispatched ({did}) at {now_str}", b"noop", style="success")]] if Button is not None else None
                             await event.edit(
-                                f"{event.message.text}\n\n✅ <b>Response was approved and dispatched to client via {entry.get('account_label', 'Personal Account')}.</b>",
-                                buttons=None,
+                                f"{event.message.text}\n\n✅ <b>Response was approved and dispatched to client at {now_str} via {entry.get('account_label', 'Personal Account')}.</b>",
+                                buttons=done_badge,
                                 parse_mode="html"
                             )
                         except Exception:
@@ -1757,15 +1793,18 @@ class SaberTelethonUserbot:
                 elif data.startswith("ignore_draft_"):
                     did = data.split("ignore_draft_")[1]
                     if did in self.pending_drafts:
+                        cname = self.pending_drafts[did].get("sender_name", "Client")
                         del self.pending_drafts[did]
                         self._save_pending_drafts()
-                        await event.answer("🗑️ Draft dismissed.", alert=True)
+                        await event.answer("🗑️ Draft dismissed.", alert=False)
                         try:
-                            await event.edit(
-                                f"{event.message.text}\n\n🗑️ <b>This draft recommendation was dismissed.</b>",
-                                buttons=None,
-                                parse_mode="html"
+                            tombstone = (
+                                f"╭─ 🗑️ <b>DRAFT DISMISSED</b> ─────────────────────────\n"
+                                f"│ 🆔 <b>Draft ID:</b> <code>{did}</code>  •  <code>{now_str}</code>\n"
+                                f"│ 👤 <b>Client:</b> {html.escape(cname)}\n"
+                                f"╰──────────────────────────────────────────────────"
                             )
+                            await event.edit(tombstone, buttons=None, parse_mode="html")
                         except Exception:
                             pass
                     else:
@@ -1779,11 +1818,12 @@ class SaberTelethonUserbot:
                             await self.client.send_message(target_dest, entry["draft_reply"])
                             if entry.get("folder_path"):
                                 self.project_manager.record_followup_dispatched(entry["folder_path"], entry["followup_type"], entry["draft_reply"])
-                            await event.answer(f"✅ Follow-up {fuid} dispatched to {entry['client_name']}!", alert=True)
+                            await event.answer(f"🚀 Follow-up {fuid} dispatched to {entry['client_name']}!", alert=False)
                             try:
+                                done_badge = [[Button.inline(f"✅ Dispatched ({fuid}) at {now_str}", b"noop", style="success")]] if Button is not None else None
                                 await event.edit(
-                                    f"{event.message.text}\n\n✅ <b>Follow-up was approved and dispatched to client via Saber's personal account.</b>",
-                                    buttons=None,
+                                    f"{event.message.text}\n\n✅ <b>Follow-up reminder dispatched to client at {now_str} via Saber's personal account.</b>",
+                                    buttons=done_badge,
                                     parse_mode="html"
                                 )
                             except Exception:
@@ -1796,14 +1836,17 @@ class SaberTelethonUserbot:
                 elif data.startswith("ignore_fu_"):
                     fuid = data.split("ignore_fu_")[1]
                     if fuid in self.pending_followups:
+                        cname = self.pending_followups[fuid].get("client_name", "Client")
                         del self.pending_followups[fuid]
-                        await event.answer("🗑️ Follow-up reminder dismissed.", alert=True)
+                        await event.answer("🗑️ Follow-up reminder dismissed.", alert=False)
                         try:
-                            await event.edit(
-                                f"{event.message.text}\n\n🗑️ <b>This follow-up reminder was dismissed.</b>",
-                                buttons=None,
-                                parse_mode="html"
+                            tombstone = (
+                                f"╭─ 🗑️ <b>FOLLOW-UP DISMISSED</b> ─────────────────────\n"
+                                f"│ 🆔 <b>Follow-Up ID:</b> <code>{fuid}</code>  •  <code>{now_str}</code>\n"
+                                f"│ 👤 <b>Client:</b> {html.escape(cname)}\n"
+                                f"╰──────────────────────────────────────────────────"
                             )
+                            await event.edit(tombstone, buttons=None, parse_mode="html")
                         except Exception:
                             pass
                     else:
@@ -1839,11 +1882,12 @@ class SaberTelethonUserbot:
                                     entry["filename"],
                                     entry["client_name"]
                                 )
-                            await event.answer(f"✅ Deliverable {entry['filename']} dispatched to {entry['client_name']}!", alert=True)
+                            await event.answer(f"🚀 Deliverable {entry['filename']} dispatched to {entry['client_name']}!", alert=False)
                             try:
+                                done_badge = [[Button.inline(f"✅ Delivered ({del_id}) at {now_str}", b"noop", style="success")]] if Button is not None else None
                                 await event.edit(
-                                    f"{event.message.text}\n\n✅ <b>Deliverable was approved and dispatched to client via Saber's personal account.</b>",
-                                    buttons=None,
+                                    f"{event.message.text}\n\n✅ <b>Deliverable file dispatched to client at {now_str} via Saber's personal account.</b>",
+                                    buttons=done_badge,
                                     parse_mode="html"
                                 )
                             except Exception:
@@ -1856,14 +1900,17 @@ class SaberTelethonUserbot:
                 elif data.startswith("ignore_del_"):
                     del_id = data.split("ignore_del_")[1]
                     if del_id in self.pending_deliverables:
+                        cname = self.pending_deliverables[del_id].get("client_name", "Client")
                         del self.pending_deliverables[del_id]
-                        await event.answer("🗑️ Deliverable draft dismissed.", alert=True)
+                        await event.answer("🗑️ Deliverable draft dismissed.", alert=False)
                         try:
-                            await event.edit(
-                                f"{event.message.text}\n\n🗑️ <b>This deliverable dispatch draft was dismissed.</b>",
-                                buttons=None,
-                                parse_mode="html"
+                            tombstone = (
+                                f"╭─ 🗑️ <b>DELIVERABLE DISMISSED</b> ───────────────────\n"
+                                f"│ 🆔 <b>Deliverable ID:</b> <code>{del_id}</code>  •  <code>{now_str}</code>\n"
+                                f"│ 👤 <b>Client:</b> {html.escape(cname)}\n"
+                                f"╰──────────────────────────────────────────────────"
                             )
+                            await event.edit(tombstone, buttons=None, parse_mode="html")
                         except Exception:
                             pass
                     else:
@@ -1903,9 +1950,14 @@ class SaberTelethonUserbot:
                         card = format_telegram_card(entry["quote"], lang="fa")
                         target_client = entry.get("client_source") or self.client
                         await target_client.send_message(entry["chat_id"], card, parse_mode="html")
-                        await event.answer(f"✅ Quotation {qid} dispatched to client!", alert=True)
+                        await event.answer(f"🚀 Quotation {qid} dispatched to client!", alert=False)
                         try:
-                            await event.edit(f"{event.message.text}\n\n✅ <b>Quotation was approved and dispatched to client.</b>", buttons=None, parse_mode="html")
+                            done_badge = [[Button.inline(f"✅ Dispatched ({qid}) at {now_str}", b"noop", style="success")]] if Button is not None else None
+                            await event.edit(
+                                f"{event.message.text}\n\n✅ <b>Quotation was approved and dispatched to client at {now_str}.</b>",
+                                buttons=done_badge,
+                                parse_mode="html"
+                            )
                         except Exception:
                             pass
                         del self.pending_quotes[qid]
@@ -1915,9 +1967,14 @@ class SaberTelethonUserbot:
                     qid = data.split("ignore_")[1]
                     if qid in self.pending_quotes:
                         del self.pending_quotes[qid]
-                        await event.answer("🗑️ Quotation dismissed.", alert=True)
+                        await event.answer("🗑️ Quotation dismissed.", alert=False)
                         try:
-                            await event.edit(f"{event.message.text}\n\n🗑️ <b>This quotation was dismissed.</b>", buttons=None, parse_mode="html")
+                            tombstone = (
+                                f"╭─ 🗑️ <b>QUOTATION DISMISSED</b> ─────────────────────\n"
+                                f"│ 🆔 <b>Quotation ID:</b> <code>{qid}</code>  •  <code>{now_str}</code>\n"
+                                f"╰──────────────────────────────────────────────────"
+                            )
+                            await event.edit(tombstone, buttons=None, parse_mode="html")
                         except Exception:
                             pass
                     else:

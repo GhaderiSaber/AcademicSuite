@@ -440,6 +440,44 @@ def calculate_quotation(
     }
 
 
+def _format_box_table(items: List[Dict[str, Any]], lang: str = "en") -> str:
+    """Format proposal line items as an aligned Unicode box-drawing table."""
+    col1_w = 26
+    col2_w = 8
+    col3_w = 14
+
+    if lang == "en":
+        h1, h2, h3 = "Research Module", "Days", "Fee (Tomans)"
+        tot_label = "Total Investment"
+    else:
+        h1, h2, h3 = "مرحله پژوهش", "زمان", "تعرفه (تومان)"
+        tot_label = "مجموع کل سرمایه‌گذاری"
+
+    lines = []
+    lines.append("┌" + "─" * col1_w + "┬" + "─" * col2_w + "┬" + "─" * col3_w + "┐")
+    lines.append(f"│ {h1:<{col1_w-2}} │ {h2:^{col2_w-2}} │ {h3:>{col3_w-2}} │")
+    lines.append("├" + "─" * col1_w + "┼" + "─" * col2_w + "┼" + "─" * col3_w + "┤")
+
+    tot_price = 0
+    tot_days = 0
+    for idx, it in enumerate(items, 1):
+        t = it.get("title_en" if lang == "en" else "title_fa", it.get("title", ""))
+        t_clean = t.replace("\n", " ").strip()
+        t_short = (t_clean[:col1_w - 5] + "..") if len(t_clean) > col1_w - 2 else t_clean
+        d = f"{it.get('days', 0)}d" if lang == "en" else f"{it.get('days', 0)} روز"
+        p = f"{it.get('price', 0):,.0f}"
+        tot_price += it.get("price", 0)
+        tot_days += it.get("days", 0)
+        lines.append(f"│ {t_short:<{col1_w-2}} │ {d:^{col2_w-2}} │ {p:>{col3_w-2}} │")
+
+    lines.append("├" + "─" * col1_w + "┼" + "─" * col2_w + "┼" + "─" * col3_w + "┤")
+    tot_p_str = f"{tot_price:,.0f}"
+    tot_d_str = f"{tot_days}d" if lang == "en" else f"{tot_days} روز"
+    lines.append(f"│ {tot_label:<{col1_w-2}} │ {tot_d_str:^{col2_w-2}} │ {tot_p_str:>{col3_w-2}} │")
+    lines.append("└" + "─" * col1_w + "┴" + "─" * col2_w + "┴" + "─" * col3_w + "┘")
+    return "\n".join(lines)
+
+
 def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = False, quote_id: str = "Q101", lang: str = "en") -> str:
     """Format quotation as a modern 2026 Telegram card with expandable blockquotes and clean typography."""
     lines = []
@@ -463,14 +501,15 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
         lines.append("\n<blockquote expandable>")
         lines.append("💰 <b>ITEMIZED INVESTMENT BREAKDOWN</b>")
         items = quote.get("line_items", [])
-        for idx, item in enumerate(items, 1):
-            is_last = (idx == len(items))
-            pfx = "└" if is_last else "├"
-            t = item.get("title_en", item.get("title", ""))
-            d = item.get("description_en", item.get("description", ""))
-            lines.append(f"{pfx} <b>{idx}. {html.escape(t)}</b>")
-            lines.append(f"│  💵 Fee: <code>{item['price']:,.0f} Tomans</code> ({item['days']} days)")
-            lines.append(f"│  📝 Scope: <i>{html.escape(d)}</i>")
+        if items:
+            lines.append("<pre>")
+            lines.append(_format_box_table(items, lang="en"))
+            lines.append("</pre>")
+            lines.append("📌 <b>Scope Specifications:</b>")
+            for idx, item in enumerate(items, 1):
+                t = item.get("title_en", item.get("title", ""))
+                d = item.get("description_en", item.get("description", ""))
+                lines.append(f"• <b>{idx}. {html.escape(t)}:</b> <i>{html.escape(d)}</i>")
         lines.append("</blockquote>")
 
         if quote.get("is_urgent"):
@@ -507,16 +546,17 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
                 lines.append(f"└ 🔹 <i>و {len(quote['scales_detected']) - 4} مقیاس تکمیلی دیگر</i>")
 
         lines.append("\n<blockquote expandable>")
-        lines.append("💰 <b>ریز هزینه‌های تفکیکی مراحل پژوهش</b>")
+        lines.append("💰 <b>جدول تفکیکی هزینه‌ها و مراحل پژوهش</b>")
         items = quote.get("line_items", [])
-        for idx, item in enumerate(items, 1):
-            is_last = (idx == len(items))
-            pfx = "└" if is_last else "├"
-            t = item.get("title_fa", item.get("title", ""))
-            d = item.get("description_fa", item.get("description", ""))
-            lines.append(f"{pfx} <b>{idx}. {html.escape(t)}</b>")
-            lines.append(f"│  💵 هزینه: <code>{item['price']:,.0f} تومان</code> ({item['days']} روز کاری)")
-            lines.append(f"│  📝 شرح خدمات: <i>{html.escape(d)}</i>")
+        if items:
+            lines.append("<pre>")
+            lines.append(_format_box_table(items, lang="fa"))
+            lines.append("</pre>")
+            lines.append("📌 <b>شرح تفصیلی تعهدات مراحل:</b>")
+            for idx, item in enumerate(items, 1):
+                t = item.get("title_fa", item.get("title", ""))
+                d = item.get("description_fa", item.get("description", ""))
+                lines.append(f"• <b>{idx}. {html.escape(t)}:</b> <i>{html.escape(d)}</i>")
         lines.append("</blockquote>")
 
         if quote.get("is_urgent"):

@@ -148,6 +148,11 @@ Your task is to analyze an incoming Telegram message burst from a master's or do
   "inquiry_type": "<one of the categories above>",
   "topic_key": "<proposals | drafts | scales | health | supervisor_reviews | system>",
   "client_need_summary_en": "<1-sentence clear summary of what the client needs in English>",
+  "thinking_process_en": [
+    "Methodology: <1-line assessment of the student's research design, variables, or dilemma>",
+    "Epistemic Rule: <1-line reference to APA 7th, statistical assumption, or literature precedent>",
+    "Consulting Strategy: <1-line scholar stance or defense recommendation for the client>"
+  ],
   "suggested_draft_fa": "<The authentic, polished Persian response draft for Saber to send with 1-click>"
 }}
 """
@@ -162,6 +167,7 @@ Your task is to analyze an incoming Telegram message burst from a master's or do
                         "inquiry_type": parsed.get("inquiry_type", "client_inquiry"),
                         "topic_key": parsed.get("topic_key", "drafts"),
                         "admin_notes": parsed.get("client_need_summary_en", ""),
+                        "thinking_points": parsed.get("thinking_process_en", []),
                         "draft_reply": parsed.get("suggested_draft_fa", ""),
                         "engine": used_model
                     }
@@ -193,6 +199,11 @@ Your task is to analyze an incoming Telegram message burst from a master's or do
                 "inquiry_type": "supervisor_defense_question",
                 "topic_key": "supervisor_reviews",
                 "admin_notes": f"Client asked how to justify methodological choices (foreign literature) to supervisor/defense committee.",
+                "thinking_points": [
+                    "Methodology: Justifying international Scopus/WoS literature vs. localized research sources.",
+                    "Epistemic Rule: Theoretical origins dictate primary international source citation (APA 7th).",
+                    "Consulting Strategy: Provide a 3-part epistemic defense (conceptual origin, 2020-2025 currency, cross-cultural validity)."
+                ],
                 "draft_reply": draft,
                 "engine": "rule_fallback"
             }
@@ -207,6 +218,11 @@ Your task is to analyze an incoming Telegram message burst from a master's or do
                 "inquiry_type": "supervisor_revision_feedback",
                 "topic_key": "supervisor_reviews",
                 "admin_notes": f"Supervisor-signed form or revision feedback received.",
+                "thinking_points": [
+                    "Methodology: Supervisor feedback triage across structural, statistical, and formatting layers.",
+                    "Epistemic Rule: Point-by-point compliance table required for formal thesis approval.",
+                    "Consulting Strategy: Reassure client and systematically audit supervisor changes before implementation."
+                ],
                 "draft_reply": draft,
                 "engine": "rule_fallback"
             }
@@ -221,6 +237,11 @@ Your task is to analyze an incoming Telegram message burst from a master's or do
                 "inquiry_type": "quarterly_progress_report",
                 "topic_key": "supervisor_reviews",
                 "admin_notes": f"Request for quarterly progress reports and portal upload.",
+                "thinking_points": [
+                    "Methodology: University thesis progress tracking & portal milestone verification.",
+                    "Epistemic Rule: Institutional tracking forms require matching approved proposal timelines.",
+                    "Consulting Strategy: Guide candidate on required supervisor signatures and portal upload."
+                ],
                 "draft_reply": draft,
                 "engine": "rule_fallback"
             }
@@ -235,6 +256,11 @@ Your task is to analyze an incoming Telegram message burst from a master's or do
                 "inquiry_type": "friendly_personal",
                 "topic_key": "drafts",
                 "admin_notes": f"Friendly/personal discussion regarding modem and contact address.",
+                "thinking_points": [
+                    "Methodology: Non-academic relational communication & logistics.",
+                    "Epistemic Rule: Professional warm rapport.",
+                    "Consulting Strategy: Prompt, courteous response acknowledging details."
+                ],
                 "draft_reply": draft,
                 "engine": "rule_fallback"
             }
@@ -249,6 +275,11 @@ Your task is to analyze an incoming Telegram message burst from a master's or do
                 "inquiry_type": "greeting",
                 "topic_key": "drafts",
                 "admin_notes": f"Standard initial greeting.",
+                "thinking_points": [
+                    "Methodology: Initial prospective research inquiry.",
+                    "Epistemic Rule: Polite scholarly reception and inquiry scoping.",
+                    "Consulting Strategy: Warm greeting asking for research topic or draft file."
+                ],
                 "draft_reply": draft,
                 "engine": "rule_fallback"
             }
@@ -262,6 +293,11 @@ Your task is to analyze an incoming Telegram message burst from a master's or do
             "inquiry_type": "client_burst_inquiry",
             "topic_key": "drafts",
             "admin_notes": f"General client inquiry.",
+            "thinking_points": [
+                "Methodology: Exploratory research consultation inquiry.",
+                "Epistemic Rule: Scoping client objectives prior to methodological recommendation.",
+                "Consulting Strategy: Invite research question details or proposal draft for evaluation."
+            ],
             "draft_reply": draft,
             "engine": "rule_fallback"
         }
