@@ -96,14 +96,14 @@ In multi-stage workflows (e.g., `chapter4.md`), every stage must generate its ve
 ### Directive 11: Dual-Track Autonomy & Decision Journaling
 - Routine analyses run autonomously. High-stakes choices (pricing, overriding supervisor requests, final release) require Human Gate approval and logging in `.agents/memory/decisions/` via `decision_journal_engine.py`.
 
-### Directive 12: Pragmatic Multi-Agent Architecture (Who, How, Pipeline)
+### Directive 12: Hybrid Multi-Agent Deliberation Architecture (Hands vs. Brains)
 - **Who (`.agents/agents/`)**: Persistent cognitive roles (`digital-saber`, `methodology-expert`, `statistical-expert`, `results-auditor`, `academic-writer`, `final-judge`).
-- **How (`.agents/skills/`)**: Domain capabilities and scripts.
-- **Pipeline (`.agents/workflows/`)**: Multi-agent orchestration runbooks.
-- **Native Subagent vs. Offline Batch Distinction**:
-  - **Native Multi-Agent Orchestration**: Requires explicit `invoke_subagent` calls. Used for interactive, specialized, cross-agent deliberation.
-  - **Offline Batch Pipeline**: Executed via `python3 digital_saber.py --workflow <name>`. Runs all stages in a single Python process, generating all Directive 3 artifacts deterministically. Must always be identified strictly as "Offline Batch Execution."
-- **Critic Pattern**: Generation and auditing must remain separate. Outputs from generators must be audited by independent critics (`statistical-auditor`, `results-auditor`) before release.
+- **How (`.agents/skills/`)**: Domain capabilities and deterministic scripts.
+- **Specification (`.agents/architecture/HYBRID_MULTI_AGENT_SPEC.md`)**: Complete architectural blueprint for the hybrid division of labor.
+- **Dual-Mode Execution Model**:
+  - **Mode 1 (Offline Batch Execution)**: Single-process batch execution via `python3 -c "from digital_saber import DigitalSaber; DigitalSaber().run_workflow('<name>')"` or `offline_batch_runner.py`. Runs all stages in a single Python process, generating all Directive 3 artifacts deterministically. Must always be identified strictly as `MONOLITHIC_OFFLINE_BATCH`.
+  - **Mode 2 (Antigravity Native Multi-Agent Deliberation)**: Invoked during interactive sessions via Antigravity's native `invoke_subagent` tool. Used for high-stakes qualitative debate, viva voce defense cross-examinations, peer review rebuttals, and supervisor feedback triage.
+- **Critic Pattern**: Generation and auditing must remain strictly separate. Outputs from generators must be audited by independent critics (`statistical-auditor`, `results-auditor`) before release.
 
 ### Directive 13: Uncompromising Epistemic Honesty & Anti-Sycophancy
 - Zero flattery (*"Great question!"*). Report non-significant findings ($p > .05$), assumption violations, and high AI detection risks candidly without sugarcoating.

@@ -171,3 +171,23 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 | 3 | **`Title_Page_CRediT.docx`** | Separate title page with author affiliations, corresponding author details, and 14 standard CRediT authorship taxonomy roles. | `output/` |
 | 4 | **`Highlights_and_Abstract.docx`** | 3–5 bullet point highlights strictly validated to $\le 85$ characters, plus bilingual abstracts. | `output/` |
 | 5 | **`submission_manifest.json`** | Machine-readable submission metadata (word counts, author taxonomy, similarity scores, readiness index). | `output/` |
+
+---
+
+## Dual Execution Modes (Directive 12 & HYBRID_MULTI_AGENT_SPEC)
+
+### Mode 1: Monolithic Offline Batch Execution
+For automated batch compilation of journal submission packages:
+```bash
+python3 -c "from digital_saber import DigitalSaber; DigitalSaber().run_workflow('journal_submission', output_dir='output')"
+```
+*Generates full IMRaD manuscript, cover letter, CRediT title page, highlights, and submission manifest in a single deterministic Python run.*
+
+### Mode 2: Antigravity Native Multi-Agent Deliberation
+For adversarial peer-review simulation and Revise & Resubmit (R&R) rebuttal defense:
+1. Deterministic article package is compiled and placed on disk.
+2. The coordinator agent calls `invoke_subagent` to spawn:
+   - `final-judge`: Acts as **Editor-in-Chief / Reviewer 1 (Methodological Critic)**, checking internal validity, sample size power, and alternative explanations.
+   - `evidence-auditor`: Acts as **Reviewer 2 (Theoretical / Citation Critic)**, cross-examining literature synthesis, citations, and potential bias.
+   - `academic-writer`: Acts as the **Corresponding Author**, drafting courteous, evidence-grounded point-by-point responses.
+3. The peer-review rebuttal table and editorial acceptance probability are computed based on the deliberation.
