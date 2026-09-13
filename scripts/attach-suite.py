@@ -130,17 +130,49 @@ def resolve_suite(query, suites):
 
 
 def is_link_path(p: Path) -> bool:
-    """Checks whether a path is a symlink or Windows directory junction."""
-    if not p.exists() and not p.is_symlink():
+    """Checks whether a path is a symlink, directory junction, or reparse point."""
+    if p is None:
         return False
-    if p.is_symlink():
-        return True
+    try:
+        if p.is_symlink():
+            return True
+    except Exception:
+        pass
     if IS_WINDOWS:
+        try:
+            st = os.lstat(str(p))
+            FILE_ATTRIBUTE_REPARSE_POINT = 0x400
+            if getattr(st, "st_file_attributes", 0) & FILE_ATTRIBUTE_REPARSE_POINT:
+                return True
+        except Exception:
+            pass
+        try:
+            os.readlink(str(p))
+            return True
+        except Exception:
+            pass
+        try:
+            return os.path.islink(str(p))
+        except Exception:
+            pass
+    else:
         try:
             return os.path.islink(str(p))
         except Exception:
             pass
     return False
+
+
+def is_attached_agents_md(p: Path) -> bool:
+    """Checks if an AGENTS.md file was placed by a suite."""
+    if not p.is_file():
+        return False
+    try:
+        with open(p, "r", encoding="utf-8", errors="ignore") as f:
+            header = f.read(500)
+            return "AGENTS.md — " in header or "Digital Saber" in header or "Cognitive Architecture" in header or "Freight Brokerage" in header
+    except Exception:
+        return False
 
 
 
@@ -213,11 +245,25 @@ def remove_link(link_path: Path, allow_delete_dir: bool = False):
 
     if is_link_path(link_path):
         if IS_WINDOWS:
-            # For Windows Junctions, use os.rmdir or rmdir command (does NOT delete target directory contents)
+            is_dir = False
             try:
-                os.rmdir(link_path)
-            except OSError:
-                subprocess.run(["cmd", "/c", "rmdir", str(link_path)], capture_output=True)
+                st = os.lstat(str(link_path))
+                FILE_ATTRIBUTE_DIRECTORY = 0x10
+                if getattr(st, "st_file_attributes", 0) & FILE_ATTRIBUTE_DIRECTORY:
+                    is_dir = True
+            except Exception:
+                is_dir = link_path.is_dir()
+
+            if is_dir:
+                try:
+                    os.rmdir(link_path)
+                except OSError:
+                    subprocess.run(["cmd", "/c", "rmdir", str(link_path)], capture_output=True)
+            else:
+                try:
+                    link_path.unlink()
+                except OSError:
+                    subprocess.run(["cmd", "/c", "del", "/f", "/q", str(link_path)], capture_output=True)
         else:
             link_path.unlink()
     elif allow_delete_dir:
@@ -232,7 +278,10 @@ def remove_link(link_path: Path, allow_delete_dir: bool = False):
 def read_link_target(p: Path):
     """Safely reads the target of a link or junction."""
     try:
-        return os.readlink(p)
+        t = os.readlink(p)
+        if t and t.startswith("\\\\?\\"):
+            t = t[4:]
+        return t
     except Exception:
         return None
 
@@ -241,12 +290,13 @@ def is_foreign_os_link(target_str: str) -> bool:
     """Detects if a link target was created on a different OS (e.g. Mac path on Windows)."""
     if not target_str:
         return False
+    clean = target_str[4:] if target_str.startswith("\\\\?\\") else target_str
     if IS_WINDOWS:
         # On Windows, if link starts with /Users/ or /home/, it's from Mac/Linux
-        return target_str.startswith("/Users/") or target_str.startswith("/home/")
+        return clean.startswith("/Users/") or clean.startswith("/home/")
     else:
         # On Mac/Linux, if link starts with C:\ or G:\, it's from Windows
-        return len(target_str) > 2 and target_str[1] == ":"
+        return len(clean) > 2 and clean[1] == ":"
 
 
 def get_attached_suite_path(target_dir: Path):
@@ -372,7 +422,8 @@ def cmd_list(args):
 
 
 def cmd_status(args):
-    cwd = Path.cwd()
+    target_path = getattr(args, "path", ".") or "."
+    cwd = Path(target_path).resolve()
     status = get_status(cwd)
     suite_path = get_attached_suite_path(cwd)
     current_os = "Windows 11" if IS_WINDOWS else "macOS"
@@ -463,25 +514,92 @@ def cmd_fix(args):
 
 
 def cmd_detach(args):
-    cwd = Path.cwd()
+    target_path = getattr(args, "path", ".") or "."
+    cwd = Path(target_path).resolve()
     print(f"\n{BOLD}Detaching suite from:{RESET} {cwd}")
 
-    removed = []
-    for item_name in [".agents", "AGENTS.md", "scripts", "digital_saber.py", "digital_broker.py"]:
-        p = cwd / item_name
-        if is_link_path(p) or p.is_symlink():
-            remove_link(p)
-            removed.append(item_name)
+    # Safety check: Never detach the master suite from inside its own root repository!
+    suites = load_suites()
+    for key, info in suites.items():
+        try:
+            if Path(info["path"]).resolve() == cwd:
+                print(f"\n{RED}Error: Current directory is the master suite '{key}'.{RESET}")
+                print(f"{YELLOW}Cannot detach the master suite repository itself.{RESET}\n")
+                return
+        except Exception:
+            pass
 
     meta_file = cwd / ".attached_suite.json"
+    has_meta = meta_file.exists()
+
+    removed = []
+
+    # 1. Detach .agents
+    agents_dir = cwd / ".agents"
+    if is_link_path(agents_dir):
+        remove_link(agents_dir)
+        removed.append(".agents (link)")
+    elif agents_dir.exists() and (has_meta or (agents_dir / "skills.json").exists()):
+        try:
+            shutil.rmtree(agents_dir)
+            removed.append(".agents (pointer directory)")
+        except Exception as e:
+            print(f"{YELLOW}Could not remove .agents directory: {e}{RESET}")
+
+    # Restore pre-attach backup if one exists
+    backup_agents = cwd / ".agents_backup_pre_attach"
+    if backup_agents.exists() and not (cwd / ".agents").exists():
+        try:
+            backup_agents.rename(cwd / ".agents")
+            removed.append("restored original .agents from backup")
+        except Exception as e:
+            print(f"{YELLOW}Could not restore backup .agents: {e}{RESET}")
+
+    # 2. Detach AGENTS.md
+    agents_md = cwd / "AGENTS.md"
+    if is_link_path(agents_md):
+        remove_link(agents_md)
+        removed.append("AGENTS.md (link)")
+    elif agents_md.exists() and (has_meta or is_attached_agents_md(agents_md)):
+        try:
+            agents_md.unlink()
+            removed.append("AGENTS.md")
+        except Exception as e:
+            print(f"{YELLOW}Could not remove AGENTS.md: {e}{RESET}")
+
+    # 3. Detach scripts if linked
+    scripts_dir = cwd / "scripts"
+    if is_link_path(scripts_dir):
+        remove_link(scripts_dir, allow_delete_dir=True)
+        removed.append("scripts/ (link)")
+
+    # 4. Detach launcher files
+    for item_name in ["digital_saber.py", "digital_broker.py"]:
+        p = cwd / item_name
+        if is_link_path(p):
+            remove_link(p)
+            removed.append(f"{item_name} (link)")
+        elif p.exists() and has_meta:
+            try:
+                p.unlink()
+                removed.append(item_name)
+            except Exception:
+                pass
+
+    # 5. Remove metadata file
     if meta_file.exists():
-        meta_file.unlink()
-        removed.append(".attached_suite.json")
+        try:
+            meta_file.unlink()
+            removed.append(".attached_suite.json")
+        except Exception as e:
+            print(f"{YELLOW}Could not remove metadata file: {e}{RESET}")
 
     if removed:
-        print(f"{GREEN}✓ Successfully detached links:{RESET} {', '.join(removed)}")
+        print(f"\n{GREEN}✓ Successfully detached suite:{RESET}")
+        for r in removed:
+            print(f"   - {r}")
     else:
-        print(f"{YELLOW}No active suite links found to detach.{RESET}")
+        print(f"\n{YELLOW}No active suite links or attached metadata found to detach in: {cwd}{RESET}")
     print()
 
 
@@ -698,13 +816,15 @@ def main():
     subparsers.add_parser("fix", help="Automatically repair cross-OS links (Mac <-> Windows)")
 
     # status command
-    subparsers.add_parser("status", help="Show current attached suite status")
+    p_status = subparsers.add_parser("status", help="Show current attached suite status")
+    p_status.add_argument("path", nargs="?", default=".", help="Directory to inspect status for (default: current directory)")
 
     # list command
     subparsers.add_parser("list", help="List all available suites on this OS")
 
     # detach command
-    subparsers.add_parser("detach", help="Detach the current suite from the directory")
+    p_detach = subparsers.add_parser("detach", help="Detach the current suite from the directory")
+    p_detach.add_argument("path", nargs="?", default=".", help="Directory to detach suite from (default: current directory)")
 
     # clean command
     subparsers.add_parser("clean", help="Clean orphaned locks and Google Drive conflict duplicates")
