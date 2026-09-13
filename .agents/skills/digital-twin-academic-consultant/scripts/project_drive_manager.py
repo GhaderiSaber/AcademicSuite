@@ -683,42 +683,9 @@ class ProjectDriveManager:
 
         # 2. Generate human-readable Persian chat_transcript.md
         transcript_md_path = os.path.join(raw_dir, "chat_transcript.md")
-        transcript_lines = [
-            f"# رونوشت کامل مکالمات تلگرام — {client_name}",
-            "",
-            f"- **نام مراجع:** {client_name}",
-            f"- **شناسه کاربری تلگرام:** @{username or ''} (ID: `{client_id or ''}`)",
-            f"- **تاریخ استخراج:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-            f"- **تعداد کل پیام‌ها:** {len(parsed_messages)}",
-            "",
-            "---",
-            ""
-        ]
-
-        for m in parsed_messages:
-            sender_icon = "👤 **صابر قادری**" if m["sender_tag"] == "Saber Ghaderi" else f"💬 **{m['from']}**"
-            date_str = m["date"][:19].replace("T", " ") if m.get("date") else ""
-            transcript_lines.append(f"### {sender_icon} — <small>`{date_str}`</small>")
-            if m.get("text"):
-                transcript_lines.append(m["text"])
-            if m.get("file_name"):
-                mtype = m.get("media_type")
-                dur = m.get("duration", 0)
-                fsize = m.get("file_size", 0)
-                if mtype == "voice":
-                    dur_str = f"{dur} ثانیه, " if dur else ""
-                    transcript_lines.append(f"> 🎤 **پیام صوتی (Voice Note):** [{m['file_name']}]({m['file_name']}) ({dur_str}{fsize:,} بایت)")
-                elif mtype == "photo":
-                    transcript_lines.append(f"> 📷 **تصویر ضمیمه (Photo):** [{m['file_name']}]({m['file_name']}) ({fsize:,} بایت)")
-                elif mtype == "video_note":
-                    dur_str = f"{dur} ثانیه, " if dur else ""
-                    transcript_lines.append(f"> 📹 **پیام ویدیویی (Video Note):** [{m['file_name']}]({m['file_name']}) ({dur_str}{fsize:,} بایت)")
-                else:
-                    transcript_lines.append(f"> 📎 **فایل ضمیمه:** [{m['file_name']}]({m['file_name']}) ({fsize:,} بایت)")
-            transcript_lines.append("\n---\n")
-
+        transcript_content = self._render_transcript_md(client_name, client_id, username, parsed_messages)
         with open(transcript_md_path, "w", encoding="utf-8") as f:
-            f.write("\n".join(transcript_lines))
+            f.write(transcript_content)
 
         # 3. Extract research topics, scales, and advisor clues
         combined_text = "\n".join(text_corpus)
@@ -781,6 +748,146 @@ class ProjectDriveManager:
             "meta_path": paths["meta_file"],
             "transcript_path": transcript_md_path
         }
+
+    def _render_transcript_md(
+        self,
+        client_name: str,
+        client_id: Optional[int],
+        username: Optional[str],
+        parsed_messages: List[Dict[str, Any]]
+    ) -> str:
+        """Render clean, human-readable Persian markdown transcript from parsed messages."""
+        transcript_lines = [
+            f"# رونوشت کامل مکالمات تلگرام — {client_name}",
+            "",
+            f"- **نام مراجع:** {client_name}",
+            f"- **شناسه کاربری تلگرام:** @{username or ''} (ID: `{client_id or ''}`)",
+            f"- **تاریخ به‌روزرسانی:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            f"- **تعداد کل پیام‌ها:** {len(parsed_messages)}",
+            "",
+            "---",
+            ""
+        ]
+
+        for m in parsed_messages:
+            sender_icon = "👤 **صابر قادری**" if m.get("sender_tag") == "Saber Ghaderi" else f"💬 **{m.get('from', client_name)}**"
+            date_str = m["date"][:19].replace("T", " ") if m.get("date") else ""
+            transcript_lines.append(f"### {sender_icon} — <small>`{date_str}`</small>")
+            if m.get("text"):
+                transcript_lines.append(m["text"])
+            if m.get("file_name"):
+                mtype = m.get("media_type")
+                dur = m.get("duration", 0)
+                fsize = m.get("file_size", 0)
+                if mtype == "voice":
+                    dur_str = f"{dur} ثانیه, " if dur else ""
+                    transcript_lines.append(f"> 🎤 **پیام صوتی (Voice Note):** [{m['file_name']}]({m['file_name']}) ({dur_str}{fsize:,} بایت)")
+                elif mtype == "photo":
+                    transcript_lines.append(f"> 📷 **تصویر ضمیمه (Photo):** [{m['file_name']}]({m['file_name']}) ({fsize:,} بایت)")
+                elif mtype == "video_note":
+                    dur_str = f"{dur} ثانیه, " if dur else ""
+                    transcript_lines.append(f"> 📹 **پیام ویدیویی (Video Note):** [{m['file_name']}]({m['file_name']}) ({dur_str}{fsize:,} بایت)")
+                else:
+                    transcript_lines.append(f"> 📎 **فایل ضمیمه:** [{m['file_name']}]({m['file_name']}) ({fsize:,} بایت)")
+            transcript_lines.append("\n---\n")
+
+        return "\n".join(transcript_lines)
+
+    def append_message_to_history(
+        self,
+        client_name: str,
+        client_id: Optional[int] = None,
+        username: Optional[str] = None,
+        msg_id: Optional[int] = None,
+        sender_label: Optional[str] = None,
+        sender_tag: Optional[str] = None,
+        text: Optional[str] = None,
+        file_name: Optional[str] = None,
+        media_type: Optional[str] = None,
+        file_size: Optional[int] = None,
+        duration: Optional[int] = None,
+        date_iso: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Append a single real-time incoming or outgoing message directly to chat_history.json
+        and regenerates chat_transcript.md immediately so client transcripts are never stale.
+        """
+        paths = self.provision_project(client_name, client_id=client_id, username=username)
+        raw_dir = paths["raw"]
+        chat_json_path = os.path.join(raw_dir, "chat_history.json")
+        transcript_md_path = os.path.join(raw_dir, "chat_transcript.md")
+
+        parsed_messages = []
+        if os.path.exists(chat_json_path):
+            try:
+                with open(chat_json_path, "r", encoding="utf-8") as f:
+                    parsed_messages = json.load(f)
+            except Exception:
+                parsed_messages = []
+
+        # Deduplicate if message ID already exists
+        if msg_id and any(m.get("id") == msg_id for m in parsed_messages):
+            if file_name:
+                for m in parsed_messages:
+                    if m.get("id") == msg_id and not m.get("file_name"):
+                        m["file_name"] = file_name
+                        m["media_type"] = media_type
+                        m["file_size"] = file_size or 0
+                        if duration:
+                            m["duration"] = duration
+                        with open(chat_json_path, "w", encoding="utf-8") as f:
+                            json.dump(parsed_messages, f, ensure_ascii=False, indent=2)
+                        md_content = self._render_transcript_md(client_name, client_id, username, parsed_messages)
+                        with open(transcript_md_path, "w", encoding="utf-8") as f:
+                            f.write(md_content)
+                        break
+            return {"updated": False, "exists": True, "count": len(parsed_messages)}
+
+        entry = {
+            "id": msg_id,
+            "date": date_iso or datetime.now().isoformat(),
+            "from_id": f"user{client_id}" if client_id else "",
+            "from": sender_label or client_name,
+            "sender_tag": sender_tag or "Client",
+            "text": text or ""
+        }
+        if file_name:
+            entry["file_name"] = file_name
+            entry["media_type"] = media_type
+            entry["file_size"] = file_size or 0
+            if duration:
+                entry["duration"] = duration
+
+        parsed_messages.append(entry)
+
+        with open(chat_json_path, "w", encoding="utf-8") as f:
+            json.dump(parsed_messages, f, ensure_ascii=False, indent=2)
+
+        md_content = self._render_transcript_md(client_name, client_id, username, parsed_messages)
+        with open(transcript_md_path, "w", encoding="utf-8") as f:
+            f.write(md_content)
+
+        # Mirror to umbrella general_comm if available
+        if paths.get("general_comm") and os.path.isdir(paths["general_comm"]):
+            try:
+                shutil.copy2(chat_json_path, os.path.join(paths["general_comm"], "chat_history.json"))
+                shutil.copy2(transcript_md_path, os.path.join(paths["general_comm"], "chat_transcript.md"))
+            except Exception:
+                pass
+
+        # Update last interaction in project_meta.json
+        if os.path.exists(paths["meta_file"]):
+            try:
+                with open(paths["meta_file"], "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                meta["message_count"] = len(parsed_messages)
+                meta["last_interaction"] = entry["date"]
+                with open(paths["meta_file"], "w", encoding="utf-8") as f:
+                    json.dump(meta, f, ensure_ascii=False, indent=2)
+            except Exception:
+                pass
+
+        return {"updated": True, "count": len(parsed_messages), "transcript_path": transcript_md_path}
 
     async def save_single_file(self, msg, client_name: str, client_id: Optional[int] = None, username: Optional[str] = None) -> str:
         """Save a single incoming file directly into 01_raw_inputs of the client's project."""

@@ -20,7 +20,7 @@ import html
 import asyncio
 import argparse
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 
 try:
     from telethon import TelegramClient, events, Button
@@ -198,6 +198,10 @@ class SaberTelethonUserbot:
             self.bot_client = TelegramClient(bot_session_path, self.api_id, self.api_hash, proxy=self.proxy)
         else:
             self.bot_client = None
+
+        # Conversational burst debounce buffers: (account_label, sender_id) -> burst dict
+        self.burst_buffers: Dict[Tuple[str, int], Dict[str, Any]] = {}
+        self.burst_lock = asyncio.Lock()
 
     @property
     def admin_target(self):
@@ -768,9 +772,202 @@ class SaberTelethonUserbot:
             row2.append(Button.inline("❌ Dismiss Notice", b"cmd_close"))
             buttons = [dash_row, row2]
 
-        await self.send_to_desk(report_text, buttons=buttons, parse_mode="html")
-        print(f"[+] Posted unread messages and project sync report to Admin Desk via Assistant Bot.")
+    @staticmethod
+    def _is_casual_or_acknowledgment(text: str) -> bool:
+        """Check if conversational text is purely casual greetings/thanks/reactions without inquiry."""
+        if not text or not text.strip():
+            return True
+        clean = re.sub(r"[\s\d.,!?:؛،\-_()（）*#@\/\\+\=~`\"\'«»|]+", "", text).strip()
+        if not clean:
+            return True
+        casual_exact = {
+            "ممنون", "خیلی ممنون", "مرسی", "دمت گرم", "تشکر", "سپاس", "سلامت باشید",
+            "خدا قوت", "خداقوت", "باشه", "اوکی", "ok", "چشم", "دست شما درد نکنه",
+            "دستت درد نکنه", "قربونت", "فدات", "ممنونم", "بسیار عالی", "عالی", "خخخ",
+            "سلامتی", "همچنین", "خواهش میکنم", "زنده باشی", "مبارک باشه", "ممنون دستت درد نکنه",
+            "خوبم", "قربانت", "فدای شما", "سلام صابر", "سلامتی صابر", "تو چه خبر", "خوشحالم که تو هم امیدواری"
+        }
+        if clean in casual_exact:
+            return True
+        words = text.strip().split()
+        if len(words) <= 4:
+            if any(term in text for term in ["خیلی ممنون", "دمت گرم", "ممنونم ازت", "دستت درد نکنه", "دست شما درد نکنه", "قربانت", "فدات", "سپاسگزارم"]):
+                return True
+        return False
 
+    async def _process_client_burst(self, burst_key: Tuple[str, int], delay: int = 40):
+        """
+        Processes an aggregated conversational burst after `delay` seconds of silence from a client.
+        Combines fragmented messages and media into ONE high-signal Co-Pilot draft / alert card.
+        """
+        try:
+            await asyncio.sleep(delay)
+        except asyncio.CancelledError:
+            return
+
+        async with self.burst_lock:
+            buf = self.burst_buffers.pop(burst_key, None)
+
+        if not buf:
+            return
+
+        account_label = buf["account_label"]
+        client_name = buf["client_name"]
+        sender_id = buf["sender_id"]
+        username = buf["username"]
+        client_inst = buf["client_inst"]
+        chat_id = buf["chat_id"]
+        messages = buf["messages"]
+        files = buf["files"]
+
+        # Combine text messages chronologically
+        text_parts = [m["text"].strip() for m in messages if m.get("text") and m["text"].strip()]
+        combined_text = "\n".join(text_parts).strip()
+        last_event = messages[-1]["event"]
+
+        # Check if entirely casual / acknowledgment without any attached media
+        if not files and self._is_casual_or_acknowledgment(combined_text):
+            print(f"[*] Burst from {client_name} ({len(messages)} msgs) is casual acknowledgment. Recorded to transcript, skipping desk card.")
+            return
+
+        # Check for proposal file (.docx, .pdf, .txt)
+        proposal_file = None
+        for f in files:
+            ext = os.path.splitext(f["name"])[1].lower()
+            if ext in [".docx", ".pdf", ".txt"] and f.get("local_path"):
+                proposal_file = f
+                break
+
+        has_proposal_text = (len(combined_text) > 80 and any(w in combined_text for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]))
+
+        if proposal_file:
+            print(f"[+] Processing debounced proposal file: {proposal_file['name']} from {client_name}")
+            raw_content = extract_text_from_file(proposal_file["local_path"])
+            if combined_text:
+                raw_content = f"{raw_content}\n\n[توضیحات مراجع:]\n{combined_text}"
+            await self.handle_proposal_message(
+                last_event, raw_content, client_name, file_name=proposal_file["name"], sender_id=sender_id, username=username, client_source=client_inst
+            )
+            return
+        elif has_proposal_text:
+            print(f"[+] Processing debounced proposal text from {client_name}")
+            await self.handle_proposal_message(
+                last_event, combined_text, client_name, sender_id=sender_id, username=username, client_source=client_inst
+            )
+            return
+
+        # Check for scale query
+        m_scale = re.search(r"^/scale\s+(.+)", combined_text, re.MULTILINE)
+        is_scale_query = bool(m_scale) or (
+            any(w in combined_text for w in ["پرسشنامه", "مقیاس", "آزمون"]) and len(combined_text.split()) <= 12
+        )
+        if is_scale_query:
+            query_name = m_scale.group(1).strip() if m_scale else re.sub(
+                r"(?:داری|دارید|رو\s*دارید|می‌خواستم|لطفاً|سلام|وقت\s*بخیر)", "", combined_text
+            ).strip()
+            first_name = client_name.split()[0] if client_name else "پژوهشگر"
+            if questionnaire_resolver is not None:
+                profile = questionnaire_resolver.get_scale_profile(query_name)
+                if profile and profile.get("found_in_registry"):
+                    p_name = profile.get("scale_persian_name") or profile.get("scale_name")
+                    n_items = profile.get("total_items_count", "مشخص در شناسنامه")
+                    subscales = profile.get("subscales", [])
+                    sub_text = "، ".join(subscales[:3]) if subscales else "تک‌عاملی"
+                    scale_info = (
+                        f"سلام و احترام، وقت شما بخیر {first_name} گرامی.\n"
+                        f"پرسشنامه «{p_name}» ({n_items} گویه) با خرده‌مقیاس‌های استاندارد ({sub_text}) و شیوه نمره‌گذاری در بانک جامع مقیاس‌ها موجود است.\n"
+                        "در صورت نیاز بفرمایید تا مشخصات فنی و فایل ابزار برای استفاده در پژوهش خدمتتون ارسال شود."
+                    )
+                else:
+                    scale_info = (
+                        f"سلام و احترام، وقت شما بخیر {first_name} گرامی.\n"
+                        f"در مورد مقیاس «{query_name}»، مشخصات روان‌سنجی آن در حال بررسی در آرشیو پژوهشی است و اطلاعات تکمیلی به زودی خدمتتون ارسال می‌شود."
+                    )
+            else:
+                scale_info = (
+                    f"سلام و احترام، وقت شما بخیر {first_name} گرامی.\n"
+                    f"پیام شما در خصوص مقیاس «{query_name}» دریافت شد. به زودی اطلاعات تکمیلی بررسی و خدمتتون ارسال می‌گردد."
+                )
+
+            await self.create_and_post_draft(
+                chat_id=chat_id,
+                sender_name=client_name,
+                sender_id=sender_id,
+                username=username,
+                inquiry_type="scale_search",
+                client_message=combined_text,
+                draft_reply=scale_info,
+                client_source=client_inst,
+                account_label=account_label
+            )
+            return
+
+        # Prepare summary of media attachments if any
+        files_summary_lines = []
+        if files:
+            for f in files:
+                mtype = f["type"]
+                fname = f["name"]
+                icon = "🎤" if mtype == "voice" else ("📷" if mtype == "photo" else "📹" if mtype == "video_note" else "📎")
+                dur_lbl = f" ({f['duration']}s)" if f.get("duration") else ""
+                files_summary_lines.append(f"{icon} <code>{html.escape(fname)}</code>{dur_lbl}")
+
+        files_summary = "\n".join(files_summary_lines)
+
+        # Categorize conversational intent
+        first_name = client_name.split()[0] if client_name else "پژوهشگر"
+        stats_keywords = ["تحلیل", "آماری", "فصل چهار", "فصل ۴", "فصل پنجم", "فصل ۵", "spss", "pls", "amos", "smartpls", "پایان‌نامه", "رساله", "روان‌سنجی", "کواریانس", "رگرسیون", "حجم نمونه", "جی‌پاور", "gpower"]
+        defense_keywords = ["دفاع", "اسلاید", "پاورپوینت", "داور", "استاد راهنما", "جلسه دفاع", "اصلاحیه", "کامنت"]
+        report_keywords = ["گزارش", "سه ماهه", "بارگذاری", "فرم", "امضا", "سامانه", "آموزش", "مدارک"]
+
+        if any(w in combined_text.lower() for w in stats_keywords):
+            inquiry_type = "statistical_inquiry"
+            draft_reply = (
+                f"سلام و درود، وقت شما بخیر {first_name} گرامی.\n"
+                "تحلیل‌های آماری، آزمون فرضیه‌ها و نگارش کامل فصول چهارم و پنجم بر اساس استانداردهای APA ویرایش هفتم انجام می‌شود.\n"
+                "جهت بررسی دقیق‌تر و ارائه زمان‌بندی و برآورد، لطفاً فایل پروپوزال، داده‌ها یا جدول متغیرهای خود را ارسال بفرمایید."
+            )
+        elif any(w in combined_text.lower() for w in defense_keywords):
+            inquiry_type = "defense_preparation"
+            draft_reply = (
+                f"سلام و عرض ادب، وقت شما بخیر {first_name} گرامی.\n"
+                "پیام شما بررسی شد. در خصوص ارائه و دفاع، سناریوی ارائه، فایل اسلایدها و نکات کلیدی متناسب با نظرات اساتید راهنما و داور خدمتتون آماده و تقدیم می‌شود."
+            )
+        elif any(w in combined_text.lower() for w in report_keywords):
+            inquiry_type = "progress_and_reports"
+            draft_reply = (
+                f"سلام و عرض احترام، وقت شما بخیر {first_name} گرامی.\n"
+                "فایل و پیام شما دریافت شد؛ فرم و مستندات ارسالی رو با دقت بررسی می‌کنم و موارد لازم جهت بارگذاری در سامانه رو خدمتتون هماهنگ خواهم کرد."
+            )
+        elif any(w in combined_text.lower() for w in ["سلام", "درود", "وقت بخیر", "صبح بخیر", "عصر بخیر"]) and len(combined_text.split()) <= 6:
+            inquiry_type = "greeting"
+            draft_reply = (
+                f"سلام و عرض ادب، وقت شما بخیر {first_name} گرامی.\n"
+                "صابر قادری هستم، در خدمتم؛ لطفاً بفرمایید موضوع پژوهش یا فایلی که مدنظرتون هست چیست تا دقیقاً راهنمایی‌تون کنم."
+            )
+        else:
+            inquiry_type = "client_burst_inquiry"
+            draft_reply = (
+                f"سلام و احترام، وقت شما بخیر {first_name} گرامی.\n"
+                "پیام‌های شما دریافت شد. در خدمتم؛ موارد ارسالی رو بررسی و خدمتتون راهنمایی لازم رو ارائه خواهم داد."
+            )
+
+        client_msg_display = combined_text
+        if files_summary:
+            burst_note = f"📁 <b>{len(files)} attachment(s):</b>\n{files_summary}"
+            client_msg_display = f"{client_msg_display}\n\n{burst_note}" if client_msg_display else burst_note
+
+        await self.create_and_post_draft(
+            chat_id=chat_id,
+            sender_name=client_name,
+            sender_id=sender_id,
+            username=username,
+            inquiry_type=inquiry_type,
+            client_message=client_msg_display,
+            draft_reply=draft_reply,
+            client_source=client_inst,
+            account_label=account_label
+        )
 
     async def start_listening(self, phone: Optional[str] = None, bot_token: Optional[str] = None, use_qr: bool = False):
         """Listen to real-time client DMs and Admin Desk commands."""
@@ -1684,7 +1881,8 @@ class SaberTelethonUserbot:
                         await event.reply(help_msg, buttons=btn)
                         return
 
-                # Check for attached media (documents, voice notes, photos)
+                # 1. Real-time file saving directly to 01_raw_inputs
+                local_path = None
                 if fname:
                     print(f"[+] Client {client_name} sent {mtype}: {fname}. Saving directly to Google Drive project...")
                     try:
@@ -1694,157 +1892,66 @@ class SaberTelethonUserbot:
                             client_id=sender.id,
                             username=sender.username
                         )
-                        ext = os.path.splitext(fname)[1].lower()
-                        if ext in [".docx", ".pdf", ".txt"]:
-                            raw_content = extract_text_from_file(local_path)
-                            await self.handle_proposal_message(
-                                event, raw_content, client_name, file_name=fname, sender_id=sender.id, username=sender.username, client_source=client_inst
-                            )
-                            return
-                        elif mtype in ["voice", "photo", "video_note"]:
-                            # Notify Admin Desk about incoming voice or photo
-                            clean_p = clean_drive_display_path(local_path)
-                            client_link = format_client_mention_html(client_name, username=sender.username, client_id=sender.id)
-                            icon = "🎤" if mtype == "voice" else ("📷" if mtype == "photo" else "📹")
-                            type_title = "Voice Note" if mtype == "voice" else ("Photo" if mtype == "photo" else "Video Note")
-                            dur_label = f" ({duration}s)" if duration else ""
-                            await self.send_to_desk(
-                                f"{icon} <b>New {type_title}{dur_label} from {client_link}</b>\n"
-                                f"📁 <b>Saved to:</b> <code>{html.escape(clean_p)}</code>\n"
-                                f"📱 <b>Account:</b> {html.escape(account_label)}",
-                                parse_mode="html"
-                            )
                     except Exception as err:
                         print(f"[-] Error saving incoming client file: {err}")
 
-                # Check if long text proposal
-                if len(msg_text) > 80 and any(w in msg_text for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
-                    await self.handle_proposal_message(
-                        event, msg_text, client_name, sender_id=sender.id, username=sender.username, client_source=client_inst
+                # 2. Real-time transcript appending directly to Google Drive chat_transcript.md & chat_history.json
+                try:
+                    self.project_manager.append_message_to_history(
+                        client_name=client_name,
+                        client_id=sender.id,
+                        username=sender.username,
+                        msg_id=event.message.id,
+                        sender_label=client_name,
+                        sender_tag="Client",
+                        text=msg_text,
+                        file_name=fname,
+                        media_type=mtype,
+                        file_size=fsize,
+                        duration=duration,
+                        date_iso=event.message.date.isoformat() if event.message.date else None
                     )
-                    return
+                except Exception as err:
+                    print(f"[-] Error appending to chat transcript: {err}")
 
-                # Check for questionnaire search query (/scale <name> or "پرسشنامه ...")
-                m_scale = re.match(r"^/scale\s+(.+)", msg_text)
-                is_scale_query = bool(m_scale) or (
-                    any(w in msg_text for w in ["پرسشنامه", "مقیاس", "آزمون"]) and len(msg_text.split()) <= 10
-                )
-                if is_scale_query:
-                    query_name = m_scale.group(1).strip() if m_scale else re.sub(
-                        r"(?:داری|دارید|رو\s*دارید|می‌خواستم|لطفاً|سلام|وقت\s*بخیر)", "", msg_text
-                    ).strip()
-                    if questionnaire_resolver is not None:
-                        profile = questionnaire_resolver.get_scale_profile(query_name)
-                        if profile and profile.get("found_in_registry"):
-                            p_name = profile.get("scale_persian_name") or profile.get("scale_name")
-                            n_items = profile.get("total_items_count", "مشخص در شناسنامه")
-                            subscales = profile.get("subscales", [])
-                            sub_text = "، ".join(subscales[:3]) if subscales else "تک‌عاملی"
-                            scale_info = (
-                                f"سلام و احترام، وقت شما بخیر {sender.first_name} گرامی.\n"
-                                f"پرسشنامه «{p_name}» ({n_items} گویه) با خرده‌مقیاس‌های استاندارد ({sub_text}) و شیوه نمره‌گذاری در بانک جامع مقیاس‌ها موجود است.\n"
-                                "در صورت نیاز بفرمایید تا مشخصات فنی و فایل ابزار برای استفاده در پژوهش خدمتتون ارسال شود."
-                            )
-                        else:
-                            scale_info = (
-                                f"سلام و احترام، وقت شما بخیر {sender.first_name} گرامی.\n"
-                                f"در مورد مقیاس «{query_name}»، نسخه و مشخصات روان‌سنجی آن در حال بررسی در آرشیو پژوهشی است و اطلاعات تکمیلی به زودی خدمتتون ارسال می‌شود."
-                            )
+                # 3. Buffer conversational burst for debounced, high-signal processing (40-second window)
+                burst_key = (account_label, sender.id)
+                async with self.burst_lock:
+                    if burst_key in self.burst_buffers:
+                        prev_task = self.burst_buffers[burst_key].get("task")
+                        if prev_task and not prev_task.done():
+                            prev_task.cancel()
+                        buf = self.burst_buffers[burst_key]
                     else:
-                        scale_info = (
-                            f"سلام و احترام، وقت شما بخیر {sender.first_name} گرامی.\n"
-                            f"پیام شما در خصوص مقیاس «{query_name}» دریافت شد. به زودی اطلاعات تکمیلی بررسی و خدمتتون ارسال می‌گردد."
-                        )
+                        buf = {
+                            "chat_id": event.chat_id,
+                            "client_name": client_name,
+                            "sender_id": sender.id,
+                            "username": sender.username,
+                            "account_label": account_label,
+                            "client_inst": client_inst,
+                            "messages": [],
+                            "files": []
+                        }
+                        self.burst_buffers[burst_key] = buf
 
-                    if me.bot:
-                        await event.reply(scale_info)
-                    else:
-                        await self.create_and_post_draft(
-                            chat_id=event.chat_id,
-                            sender_name=client_name,
-                            sender_id=sender.id,
-                            username=sender.username,
-                            inquiry_type="scale_search",
-                            client_message=msg_text,
-                            draft_reply=scale_info,
-                            client_source=client_inst,
-                            account_label=account_label
-                        )
-                    return
+                    buf["messages"].append({
+                        "id": event.message.id,
+                        "text": msg_text,
+                        "date": event.message.date,
+                        "event": event
+                    })
+                    if fname:
+                        buf["files"].append({
+                            "name": fname,
+                            "type": mtype,
+                            "size": fsize,
+                            "duration": duration,
+                            "local_path": local_path
+                        })
 
-                # Check for greeting or first contact
-                greeting_words = ["سلام", "درود", "خسته نباشید", "وقت بخیر", "صبح بخیر", "عصر بخیر", "شب بخیر", "عرض ادب", "سلام علیکم"]
-                is_greeting = any(w in msg_text for w in greeting_words) and len(msg_text.split()) <= 7
-                if is_greeting:
-                    greet_draft = (
-                        f"سلام و عرض ادب، وقت شما بخیر {sender.first_name} گرامی.\n"
-                        "صابر قادری هستم، در خدمتم؛ لطفاً بفرمایید موضوع پژوهش، عنوان پایان‌نامه یا فایلی که مدنظرتون هست مربوط به چه موضوعی است تا دقیقاً راهنمایی‌تون کنم."
-                    )
-                    if me.bot:
-                        await event.reply(greet_draft)
-                    else:
-                        await self.create_and_post_draft(
-                            chat_id=event.chat_id,
-                            sender_name=client_name,
-                            sender_id=sender.id,
-                            username=sender.username,
-                            inquiry_type="greeting",
-                            client_message=msg_text,
-                            draft_reply=greet_draft,
-                            client_source=client_inst,
-                            account_label=account_label
-                        )
-                    return
-
-                # Check for statistical or methodology inquiry
-                stats_keywords = [
-                    "تحلیل", "آماری", "فصل چهار", "فصل ۴", "فصل پنجم", "فصل ۵", "spss", "pls", "amos", "smartpls",
-                    "پایان‌نامه", "رساله", "روان‌سنجی", "کواریانس", "رگرسیون", "حجم نمونه", "جی‌پاور", "gpower"
-                ]
-                is_stats = any(w in msg_text.lower() for w in stats_keywords)
-                if is_stats:
-                    stats_draft = (
-                        f"سلام و درود، وقت شما بخیر {sender.first_name} گرامی.\n"
-                        "تحلیل‌های آماری، آزمون فرضیه‌ها و نگارش کامل فصل چهارم و پنجم بر اساس استانداردهای APA ویرایش هفتم و خروجی‌های معتبر نرم‌افزاری انجام می‌شود.\n"
-                        "جهت بررسی دقیق‌تر و ارائه زمان‌بندی و هزینه، لطفاً فایل پروپوزال یا جدول متغیرها و فرضیه‌های خود را ارسال بفرمایید."
-                    )
-                    if me.bot:
-                        await event.reply(stats_draft)
-                    else:
-                        await self.create_and_post_draft(
-                            chat_id=event.chat_id,
-                            sender_name=client_name,
-                            sender_id=sender.id,
-                            username=sender.username,
-                            inquiry_type="statistical_inquiry",
-                            client_message=msg_text,
-                            draft_reply=stats_draft,
-                            client_source=client_inst,
-                            account_label=account_label
-                        )
-                    return
-
-                # General client inquiry (fallback for non-empty text)
-                if msg_text and len(msg_text.strip()) >= 2:
-                    general_draft = (
-                        f"سلام و احترام، وقت شما بخیر {sender.first_name} گرامی.\n"
-                        "پیام شما دریافت شد. در خدمتم؛ بفرمایید در رابطه با چه بخشی از کار پژوهشی نیاز به راهنمایی و همکاری دارید؟"
-                    )
-                    if me.bot:
-                        await event.reply(general_draft)
-                    else:
-                        await self.create_and_post_draft(
-                            chat_id=event.chat_id,
-                            sender_name=client_name,
-                            sender_id=sender.id,
-                            username=sender.username,
-                            inquiry_type="general_inquiry",
-                            client_message=msg_text,
-                            draft_reply=general_draft,
-                            client_source=client_inst,
-                            account_label=account_label
-                        )
-                    return
+                    # Schedule single consolidated card after 40 seconds of client silence
+                    buf["task"] = asyncio.create_task(self._process_client_burst(burst_key, delay=40))
 
         # Setup inbound listeners on both userbot accounts
         setup_inbound_listener(self.client, "Main Account (@GhaderiSaber)")
