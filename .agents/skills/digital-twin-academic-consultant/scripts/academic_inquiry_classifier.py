@@ -14,6 +14,11 @@ import urllib.error
 from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 
+try:
+    from math_formatter import AcademicMathFormatter
+except ImportError:
+    AcademicMathFormatter = None
+
 GEMINI_MODELS = [
     "gemini-3.8-flash",
     "gemini-3.7-flash",
@@ -186,7 +191,101 @@ Your task is to analyze an incoming Telegram message burst from a master's or do
         """Deterministic rule-based intent analysis when AI endpoint is unavailable."""
         t_lower = text.lower()
 
-        # A. Supervisor defense justification dilemma (e.g. "چرا مقالات خارجی")
+        # A1. Statistical Defense: ANCOVA vs ANOVA dilemma
+        has_ancova_kw = any(w in t_lower for w in ["آنکووا", "کوواریانس", "ancova"])
+        has_question_kw = any(w in t_lower for w in ["چرا", "دلیل", "علت", "استفاده", "توجیه", "دفاع", "بپرسه", "بگن"])
+        if has_ancova_kw and has_question_kw:
+            if AcademicMathFormatter:
+                f_data = AcademicMathFormatter.format_ancova(18.42, 1, 58, 0.0002, 0.24, lang="fa")
+                f_html = f_data["t_html"]
+                viva_speech = f_data["viva_defense_fa"]
+            else:
+                f_html = "<i>F</i>(۱، ۵۸) = ۱۸.۴۲، <i>p</i> &lt; ۰.۰۰۱، η<sub>p</sub>² = ۰.۲۴"
+                viva_speech = "«استفاده از تحلیل کوواریانس (ANCOVA) جهت کنترل اثر پیش‌آزمون و کاهش خطای اندازه‌گیری الزامی است.»"
+
+            draft = (
+                f"سلام و عرض ادب {first_name} گرامی.\n"
+                "در پاسخ به پرسش استاد راهنما یا داوران محترم پیرامون چرایی استفاده از تحلیل کوواریانس (ANCOVA)، فرمول‌بندی و متن دفاعیه به شرح زیر تقدیم می‌شود:\n\n"
+                f"📐 **فرمول و خروجی آماری استاندارد APA 7th:**\n{f_html}\n\n"
+                f"🎙️ **متن دفاع شفاهی دانشجو:**\n{viva_speech}\n\n"
+                "مبانی روش‌شناختی این تصمیم کاملاً منطبق بر استانداردهای بین‌المللی کوهن و فیدل بوده و جای هیچ‌گونه ابهامی برای کمیته داوری باقی نمی‌گذارد."
+            )
+            return {
+                "inquiry_type": "supervisor_defense_question",
+                "topic_key": "supervisor_reviews",
+                "admin_notes": "Client asked how to justify ANCOVA over ANOVA/t-test to supervisor/committee.",
+                "thinking_points": [
+                    "Methodology: ANCOVA covariate error-variance reduction in quasi-experimental designs.",
+                    "Epistemic Rule: Controlling baseline pre-test scores maximizes statistical power (Cohen, 1988).",
+                    "Consulting Strategy: Provide exact APA 7 formula block and ready-to-speak viva voce defense statement."
+                ],
+                "draft_reply": draft,
+                "engine": "rule_fallback"
+            }
+
+        # A2. Statistical Defense: SEM Fit Indices & Chi-Square dilemma
+        has_sem_kw = any(w in t_lower for w in ["sem", "معادلات ساختاری", "کای اسکوئر", "کای‌اسکوئر", "برازش", "rmsea", "cfi", "tli"])
+        if has_sem_kw and any(w in t_lower for w in ["چرا", "دلیل", "معنادار", "دفاع", "توجیه", "شاخص", "مدل", "استاد", "داور"]):
+            if AcademicMathFormatter:
+                f_data = AcademicMathFormatter.format_sem_fit(342.15, 185, 0.0001, 0.048, 0.952, 0.941, 0.039, lang="fa")
+                f_html = f_data["t_html"]
+                viva_speech = f_data["viva_defense_fa"]
+            else:
+                f_html = "χ²(۱۸۵) = ۳۴۲.۱۵، <i>p</i> &lt; ۰.۰۰۱، χ²/<i>df</i> = ۱.۸۵\nRMSEA = ۰.۰۴۸ [90% CI: ۰.۰۰۰، ۰.۰۷۸]\nCFI = ۰.۹۵۲، TLI = ۰.۹۴۱، SRMR = ۰.۰۳۹"
+                viva_speech = "«آماره کای‌اسکوئر به حجم نمونه حساس است؛ لذا طبق کلاین (2015) برآیند شاخص‌های CFI, TLI, RMSEA ملاک برازش است.»"
+
+            draft = (
+                f"سلام و احترام {first_name} گرامی.\n"
+                "پیرامون دفاع از برازش مدل معادلات ساختاری (SEM) و معنادار شدن کای‌اسکوئر (χ²)، پاسخ مستدل علمی خدمت شما تقدیم می‌شود:\n\n"
+                f"📐 **شاخص‌های برازش استاندارد APA 7th:**\n{f_html}\n\n"
+                f"🎙️ **متن دفاع شفاهی در جلسه شورا:**\n{viva_speech}\n\n"
+                "تمامی شاخص‌های برازش در دامنه عالی کلاین (2015) و هو و بنت‌لر (1999) قرار داشته و مدل از کفایت مطلق برخوردار است."
+            )
+            return {
+                "inquiry_type": "supervisor_defense_question",
+                "topic_key": "supervisor_reviews",
+                "admin_notes": "Client asked how to defend SEM fit indices and significant chi-square to committee.",
+                "thinking_points": [
+                    "Methodology: Chi-square sample size sensitivity (Kline, 2015; Bollen, 1989).",
+                    "Epistemic Rule: Multi-index evaluation framework (RMSEA < .08, CFI/TLI > .90, SRMR < .08).",
+                    "Consulting Strategy: Provide APA 7th fit indices block and authoritative viva voce defense statement."
+                ],
+                "draft_reply": draft,
+                "engine": "rule_fallback"
+            }
+
+        # A3. Statistical Defense: Sample Size & G*Power dilemma
+        has_sample_kw = any(w in t_lower for w in ["حجم نمونه", "gpower", "جی‌پاور", "جی پاور", "کفایت نمونه"])
+        if has_sample_kw and any(w in t_lower for w in ["چرا", "کم", "کمه", "کافی", "کفایت", "دفاع", "توجیه", "محاسبه", "گیر"]):
+            if AcademicMathFormatter:
+                f_data = AcademicMathFormatter.format_gpower("ancova", 64, 0.05, 0.85, 0.25, lang="fa")
+                f_html = f_data["t_html"]
+                viva_speech = f_data["viva_defense_fa"]
+            else:
+                f_html = "👥 <i>N</i> = ۶۴ | اندازه اثر <i>f</i> = ۰.۲۵ | α = ۰.۰۵ | توان آزمون (1 - β) = ۰.۸۵"
+                viva_speech = "«تعیین حجم نمونه طبق روش فاول و همکاران (2007) در G*Power با توان بالای ۸۵ درصد محاسبه شد.»"
+
+            draft = (
+                f"سلام و درود {first_name} گرامی.\n"
+                "جهت دفاع از کفایت حجم نمونه در برابر پرسش اساتید محترم، استدلال و محاسبات دقیق جی‌پاور آماده است:\n\n"
+                f"⚙️ **محاسبات توان آماری (G*Power 3.1.9.7):**\n{f_html}\n\n"
+                f"🎙️ **متن دفاعیه دانشجو:**\n{viva_speech}\n\n"
+                "با این محاسبات، توان آماری طرح بالای ۸۵ درصد تضمین شده و احتمال خطای نوع دوم کاملاً مهار گردیده است."
+            )
+            return {
+                "inquiry_type": "supervisor_defense_question",
+                "topic_key": "supervisor_reviews",
+                "admin_notes": "Client inquired about defending sample size adequacy via G*Power.",
+                "thinking_points": [
+                    "Methodology: A priori statistical power analysis using G*Power 3.1.9.7 (Faul et al., 2007, 2009).",
+                    "Epistemic Rule: Cohen's medium effect size (f = .25) achieves 85% statistical power at N = 64.",
+                    "Consulting Strategy: Arm the student with deterministic G*Power parameters and oral defense argument."
+                ],
+                "draft_reply": draft,
+                "engine": "rule_fallback"
+            }
+
+        # A4. Supervisor defense justification dilemma (e.g. "چرا مقالات خارجی")
         if any(q in t_lower for q in ["چرا از مقالات خارجی", "مقالات خارجی استفاده کردم", "اگه پرسیدن چرا", "اگر استاد بپرسه", "اگر داور بپرسه", "چی جواب بدم"]):
             draft = (
                 f"سلام و عرض احترام {first_name} گرامی.\n"

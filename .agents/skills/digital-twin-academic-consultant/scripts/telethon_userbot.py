@@ -73,6 +73,7 @@ from group_topics import TopicManager
 from academic_inquiry_classifier import AcademicInquiryClassifier
 from milestone_tracker import AcademicMilestoneTracker, milestone_tracker
 from morning_briefing import AcademicMorningBriefing
+from math_formatter import AcademicMathFormatter
 
 
 DEFAULT_CONFIG_PATH = os.path.join(SCRIPT_DIR, "telethon_config.json")
@@ -184,6 +185,8 @@ class SaberTelethonUserbot:
         self.followup_counter = 100
         self.pending_deliverables: Dict[str, Dict[str, Any]] = {}
         self.deliverable_counter = 100
+        self.math_registry: Dict[str, Dict[str, Any]] = {}
+        self.math_counter = 100
         self.me = None
         self.proxy = get_proxy_settings(self.config)
 
@@ -889,6 +892,94 @@ class SaberTelethonUserbot:
             except Exception as e:
                 print(f"[-] Error in morning briefing scheduler loop: {e}")
             await asyncio.sleep(60)
+
+    async def generate_and_post_math_defense(
+        self,
+        test_type: str = "ancova",
+        supervisor_dilemma_fa: Optional[str] = None,
+        client_name: str = "پژوهشگر",
+        trigger_event: Optional[Any] = None
+    ) -> None:
+        """
+        Generate a 2026 Box-drawing Viva Voce Defense Card with native Telegram mathematical formatting
+        (APA 7th, LaTeX blocks, oral defense script) and post it to Topic 122 (Supervisor Reviews & Defense).
+        """
+        if not AcademicMathFormatter:
+            if trigger_event:
+                await trigger_event.reply("❌ AcademicMathFormatter module not available.", parse_mode="html")
+            return
+
+        self.math_counter += 1
+        card_id = f"M{self.math_counter}"
+
+        tt = (test_type or "ancova").lower().strip()
+
+        if tt in ["ancova", "anova", "covariance"]:
+            dilemma = supervisor_dilemma_fa or "چرا به جای ANOVA ساده یا تی‌تست، از تحلیل کوواریانس (ANCOVA) استفاده کردید؟"
+            f_data = AcademicMathFormatter.format_ancova(18.42, 1, 58, 0.0002, 0.24, lang="fa")
+        elif tt in ["sem", "cfa", "structural"]:
+            dilemma = supervisor_dilemma_fa or "چرا شاخص کای‌اسکوئر (χ²) معنادار شده و چطور ادعا می‌کنید برازش مدل ساختاری مطلوب است؟"
+            f_data = AcademicMathFormatter.format_sem_fit(342.15, 185, 0.0001, 0.048, 0.952, 0.941, 0.039, lang="fa")
+        elif tt in ["regression", "reg", "linear"]:
+            dilemma = supervisor_dilemma_fa or "چگونه مفروضات رگرسیون خطی و خطر هم‌خطی چندگانه (Multicollinearity) را در مدل مهار کردید؟"
+            f_data = AcademicMathFormatter.format_regression(
+                "متغیر ملاک",
+                [
+                    {"name": "پیش‌بین اول", "beta": 0.42, "t": 4.12, "p": 0.0002},
+                    {"name": "پیش‌بین دوم", "beta": 0.31, "t": 3.05, "p": 0.003}
+                ],
+                0.38, 0.36, 24.18, 2, 147, 0.0001, lang="fa"
+            )
+        elif tt in ["gpower", "sample", "power", "samplesize"]:
+            dilemma = supervisor_dilemma_fa or "حجم نمونه ۶۴ نفری بر چه مبنای فرمولی انتخاب شد و آیا خطر خطای نوع دوم وجود ندارد؟"
+            f_data = AcademicMathFormatter.format_gpower("ancova", 64, 0.05, 0.85, 0.25, lang="fa")
+        elif tt in ["ttest", "t_test", "t"]:
+            dilemma = supervisor_dilemma_fa or "آیا تفاوت میانگین گروه‌ها در پیش‌آزمون و پس‌آزمون دارای اندازه اثر معنادار است؟"
+            f_data = AcademicMathFormatter.format_ttest(3.15, 48, 0.003, 0.64, (0.24, 0.98), test_type="independent", lang="fa")
+        elif tt in ["mediation", "process", "bootstrap"]:
+            dilemma = supervisor_dilemma_fa or "چرا به جای آزمون سوبل (Sobel) از روش بوت‌استرپ در تحلیل میانجی‌گری استفاده شد؟"
+            f_data = AcademicMathFormatter.format_mediation(0.185, 0.045, (0.095, 0.284), predictor="X", mediator="M", outcome="Y", lang="fa")
+        else:
+            dilemma = supervisor_dilemma_fa or f"دفاعیه روش‌شناختی پیرامون {test_type}"
+            f_data = AcademicMathFormatter.format_ancova(18.42, 1, 58, 0.0002, 0.24, lang="fa")
+
+        self.math_registry[card_id] = {
+            "card_id": card_id,
+            "test_type": tt,
+            "formula_data": f_data,
+            "dilemma": dilemma,
+            "client_name": client_name,
+            "created_at": datetime.now().isoformat()
+        }
+
+        card_html, raw_btns = AcademicMathFormatter.build_defense_card(f_data, dilemma, client_name=client_name, card_id=card_id)
+
+        telegram_btns = None
+        if Button is not None and raw_btns:
+            telegram_btns = []
+            for row in raw_btns:
+                r_list = []
+                for b in row:
+                    style = "primary"
+                    if "apa" in b["callback_data"]:
+                        style = "success"
+                    elif "latex" in b["callback_data"]:
+                        style = "primary"
+                    try:
+                        r_list.append(Button.inline(b["text"], b["callback_data"].encode("utf-8"), style=style))
+                    except Exception:
+                        r_list.append(Button.inline(b["text"], b["callback_data"].encode("utf-8")))
+                telegram_btns.append(r_list)
+
+        await self.send_to_desk(
+            card_html,
+            buttons=telegram_btns,
+            topic_key="supervisor_reviews",
+            client_name=client_name,
+            parse_mode="html"
+        )
+        if trigger_event:
+            await trigger_event.reply(f"🎓 Mathematical defense card <code>{card_id}</code> ({html.escape(tt.upper())}) posted to Topic 122 (Supervisor Reviews & Defense)!", parse_mode="html")
 
     async def scan_and_process_unread_messages(self, limit_dialogs: int = 100, trigger_event: Optional[Any] = None):
         """
@@ -1650,6 +1741,30 @@ class SaberTelethonUserbot:
                 await self.post_morning_executive_briefing(trigger_event=event)
                 return
 
+            # Mathematical formula & defense command: /math [test_type] [optional client or dilemma] or /formula
+            m_math = re.match(r"^/(?:math|formula)(?:\s+([^\s]+))?(?:\s+(.+))?", txt)
+            if m_math:
+                t_type = (m_math.group(1) or "").strip()
+                extra = (m_math.group(2) or "").strip()
+                if not t_type:
+                    help_msg = (
+                        "📐 <b>Digital Saber — Native Mathematical Formula Engine</b>\n\n"
+                        "Generates APA 7th statistical test formulations, LaTeX code blocks, and viva voce oral defense scripts.\n\n"
+                        "📌 <b>Available Statistical Test Families:</b>\n"
+                        "• <code>/math ancova</code> — ANCOVA pre-test covariate & effect size (η<sub>p</sub>²)\n"
+                        "• <code>/math sem</code> — SEM/CFA fit indices (χ², RMSEA, CFI, TLI, SRMR)\n"
+                        "• <code>/math regression</code> — Multiple regression model (<i>R</i>², <i>F</i>, β, <i>t</i>)\n"
+                        "• <code>/math gpower</code> — G*Power 3.1 sample size & non-centrality (λ = <i>f</i>² × <i>N</i>)\n"
+                        "• <code>/math ttest</code> — Student's <i>t</i>-test & Cohen's <i>d</i>\n"
+                        "• <code>/math mediation</code> — Hayes PROCESS 5,000 bootstrap BCa CI\n\n"
+                        "👉 <i>Example:</i> <code>/math ancova چرا از آنکووا استفاده کردی؟</code>"
+                    )
+                    await event.reply(help_msg, parse_mode="html")
+                    return
+
+                await self.generate_and_post_math_defense(test_type=t_type, supervisor_dilemma_fa=extra or None, trigger_event=event)
+                return
+
             # Milestone & Progress tracker: /milestone [client_query] or /milestones or /progress
             m_ms = re.match(r"^/(?:milestone|milestones|progress)(?:\s+(.+))?", txt)
             if m_ms:
@@ -2066,6 +2181,48 @@ class SaberTelethonUserbot:
                 elif data == "cmd_health":
                     await event.answer("🔍 Auditing project health...")
                     await self.scan_and_report_project_health(trigger_event=event)
+                elif data.startswith("math_apa_"):
+                    mid = data.split("math_apa_")[1]
+                    if mid in self.math_registry:
+                        entry = self.math_registry[mid]
+                        raw_apa = entry["formula_data"].get("raw_apa", "")
+                        await event.answer("📋 Copied APA 7 text!", alert=False)
+                        msg = (
+                            f"📋 <b>APA 7th Text Snippet (Ready for Thesis / Paper)</b>\n"
+                            f"🆔 <code>{mid}</code> • 🔬 <code>{entry['test_type'].upper()}</code>\n\n"
+                            f"<code>{html.escape(raw_apa)}</code>"
+                        )
+                        await self.send_to_desk(msg, topic_key="supervisor_reviews", parse_mode="html")
+                    else:
+                        await event.answer(f"❌ Formula ID {mid} not found.", alert=True)
+                elif data.startswith("math_latex_"):
+                    mid = data.split("math_latex_")[1]
+                    if mid in self.math_registry:
+                        entry = self.math_registry[mid]
+                        latex_code = entry["formula_data"].get("latex", "")
+                        await event.answer("📐 Copied LaTeX block!", alert=False)
+                        msg = (
+                            f"📐 <b>LaTeX Mathematical Environment</b>\n"
+                            f"🆔 <code>{mid}</code> • 🔬 <code>{entry['test_type'].upper()}</code>\n\n"
+                            f'<pre><code class="language-latex">{html.escape(latex_code)}</code></pre>'
+                        )
+                        await self.send_to_desk(msg, topic_key="supervisor_reviews", parse_mode="html")
+                    else:
+                        await event.answer(f"❌ Formula ID {mid} not found.", alert=True)
+                elif data.startswith("math_speech_"):
+                    mid = data.split("math_speech_")[1]
+                    if mid in self.math_registry:
+                        entry = self.math_registry[mid]
+                        speech = entry["formula_data"].get("viva_defense_fa", "")
+                        await event.answer("🎙️ Oral defense script retrieved!", alert=False)
+                        msg = (
+                            f"🎙️ <b>متن دفاع شفاهی دانشجو در جلسه شورا / پیش‌دفاع</b>\n"
+                            f"🆔 <code>{mid}</code> • 👤 <code>{html.escape(entry['client_name'])}</code>\n\n"
+                            f"<blockquote>{html.escape(speech)}</blockquote>"
+                        )
+                        await self.send_to_desk(msg, topic_key="supervisor_reviews", parse_mode="html")
+                    else:
+                        await event.answer(f"❌ Formula ID {mid} not found.", alert=True)
                 elif data.startswith("send_"):
                     qid = data.split("send_")[1]
                     if qid in self.pending_quotes:

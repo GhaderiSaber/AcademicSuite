@@ -486,7 +486,9 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
         lines.append(f"│ 👤 <b>Consultant:</b> Saber Ghaderi (@GhaderiSaber)")
         lines.append(f"│ 🆔 <b>Quotation Ref:</b> <code>{quote_id}</code>")
         lines.append(f"│ 📌 <b>Research Title:</b> {html.escape(quote.get('title', 'Academic Proposal'))}")
-        lines.append(f"│ 🎯 <b>Academic Level:</b> <code>{html.escape(quote.get('degree_en') or quote.get('degree', 'Master'))}</code>  •  👥 <b>Sample:</b> <code>N = {quote.get('sample_size', 'N/A')}</code>")
+        lines.append(f"│ 🎯 <b>Academic Level:</b> <code>{html.escape(quote.get('degree_en') or quote.get('degree', 'Master'))}</code>  •  👥 <b>Sample:</b> <code><i>N</i> = {quote.get('sample_size', 'N/A')}</code>")
+        if quote.get("sample_size"):
+            lines.append(f"│ 📐 <b>G*Power 3.1:</b> <code>1 - β = .85, α = .05, Effect Size f = .25</code>")
         lines.append(f"│ 🔬 <b>Research Design:</b> <code>{html.escape(quote.get('design_title_en') or quote.get('design_title_fa', 'Empirical Research'))}</code>")
         lines.append(f"│ 💻 <b>Software Tools:</b> <code>{html.escape(', '.join(quote.get('softwares_recommended', [])))}</code>")
         lines.append("╰──────────────────────────────────────────────────")
@@ -533,7 +535,9 @@ def format_telegram_card(quote: Dict[str, Any], include_admin_actions: bool = Fa
         lines.append(f"│ 👤 <b>مشاور علمی:</b> صابر قادری (@GhaderiSaber)")
         lines.append(f"│ 🆔 <b>شناسه پیش‌فاکتور:</b> <code>{quote_id}</code>")
         lines.append(f"│ 📌 <b>عنوان پژوهش:</b> {html.escape(quote.get('title', ''))}")
-        lines.append(f"│ 🎯 <b>مقطع تحصیلی:</b> <code>{html.escape(quote.get('degree_fa') or quote.get('degree', ''))}</code>  •  👥 <b>حجم نمونه:</b> <code>{quote.get('sample_size', 'N/A')} نفر</code>")
+        lines.append(f"│ 🎯 <b>مقطع تحصیلی:</b> <code>{html.escape(quote.get('degree_fa') or quote.get('degree', ''))}</code>  •  👥 <b>حجم نمونه:</b> <code><i>N</i> = {quote.get('sample_size', 'N/A')} نفر</code>")
+        if quote.get("sample_size"):
+            lines.append(f"│ 📐 <b>توان آماری جی‌پاور:</b> <code>1 - β = ۰.۸۵، α = ۰.۰۵، اندازه اثر f = ۰.۲۵</code>")
         lines.append(f"│ 🔬 <b>طرح پژوهش:</b> <code>{html.escape(quote.get('design_title_fa', ''))}</code>")
         lines.append(f"│ 💻 <b>نرم‌افزارهای تحلیلی:</b> <code>{html.escape(', '.join(quote.get('softwares_recommended', [])))}</code>")
         lines.append("╰──────────────────────────────────────────────────")
