@@ -88,7 +88,7 @@ When assembling or editing Persian Word documents (`.docx`):
 | Control Feature | Persian Requirement | OpenXML Implementation |
 | :--- | :--- | :--- |
 | **Text Direction (جهت متن / BiDi)** | Right-to-Left (RTL) | `<w:bidi w:val="1"/>` in paragraph properties (`<w:pPr>`), `<w:rtl w:val="1"/>` in text run properties (`<w:rPr>`), and `<w:bidiVisual/>` in table properties (`<w:tblPr>`). |
-| **Text Alignment (تراز متن / Justification)** | Justified (both) | Substantive narrative text (paragraphs, literature reviews, descriptions, candidate answers, callouts) must enforce `paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`. Centered for banners (`<w:jc w:val="center"/>`) and Right-aligned for headings (`<w:jc w:val="right"/>`). |
+| **Text Alignment (تراز متن / Justification)** | Justified (both) | Substantive narrative text (paragraphs, literature reviews, descriptions, candidate answers, callouts) must enforce `paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`. Centered for banners (`<w:jc w:val="center"/>`). For Right-aligned headings/labels: omit `<w:jc>` under `<w:bidi w:val="1"/>` to prevent Word's trailing-edge flip to Align Left, or set `<w:jc w:val="both"/>` for justified. |
 | **Persian Font Binding & Complex-Script Attributes** | Genuine Persian Fonts | Binds `w:ascii`, `w:hAnsi`, `w:cs`, and `w:eastAsia` to genuine Persian fonts (`B Nazanin` or `B Titr`) with `w:hint="cs"`, `<w:szCs>`, and `<w:bCs>` to avoid fallback Arabic Naskh rendering in Microsoft Word for Windows. |
 
 - **Mandatory True Persian Font Binding**:
