@@ -72,7 +72,10 @@ if IS_WINDOWS:
     try:
         import ctypes
         kernel32 = ctypes.windll.kernel32
-        kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+        h_out = kernel32.GetStdHandle(-11)
+        mode = ctypes.c_ulong()
+        if kernel32.GetConsoleMode(h_out, ctypes.byref(mode)):
+            kernel32.SetConsoleMode(h_out, mode.value | 0x0004)  # ENABLE_VIRTUAL_TERMINAL_PROCESSING
     except Exception:
         pass
 
@@ -461,7 +464,7 @@ def cmd_status(args):
             valid = Path(target).exists() if target else False
             color = GREEN if valid else RED
             link_type = "Symlink" if (cwd / ".agents").is_symlink() else ("Junction" if IS_WINDOWS else "Symlink")
-            print(f"  {BOLD}.agents:{RESET}          {CYAN}{link_type} ──► {target}{RESET} [{color}{'Valid' if valid else 'Broken'}{RESET}]")
+            print(f"  {BOLD}.agents:{RESET}          {CYAN}{link_type} --> {target}{RESET} [{color}{'Valid' if valid else 'Broken'}{RESET}]")
     elif status["agents_exists"]:
         print(f"  {BOLD}.agents:{RESET}          {YELLOW}Physical Directory (Not a link){RESET}")
     else:
@@ -470,7 +473,7 @@ def cmd_status(args):
     # Check AGENTS.md
     if status["agents_md_is_link"]:
         md_type = "Symlink" if (cwd / "AGENTS.md").is_symlink() else "Link"
-        print(f"  {BOLD}AGENTS.md:{RESET}        {CYAN}{md_type} ──► {status['agents_md_target']}{RESET}")
+        print(f"  {BOLD}AGENTS.md:{RESET}        {CYAN}{md_type} --> {status['agents_md_target']}{RESET}")
     elif (cwd / "AGENTS.md").exists():
         print(f"  {BOLD}AGENTS.md:{RESET}        {YELLOW}Physical File{RESET}")
     else:
@@ -692,13 +695,13 @@ def cmd_attach(args):
     # Step 4: Create Links
     link_type = create_dir_link(agents_src, existing_agents)
     link_label = "Symbolic Link" if link_type == "symlink" else ("Directory Junction" if link_type == "junction" else "Pointer Link")
-    print(f"{GREEN}✓ Attached .agents ({link_label}) ──► {agents_src}{RESET}")
+    print(f"{GREEN}✓ Attached .agents ({link_label}) --> {agents_src}{RESET}")
 
     agents_md_src = suite_path / "AGENTS.md"
     if agents_md_src.exists():
         file_type = create_file_link(agents_md_src, existing_agents_md)
         file_label = "Symbolic Link" if file_type == "symlink" else ("Hard Link" if file_type == "hardlink" else "File Copy")
-        print(f"{GREEN}✓ Attached AGENTS.md ({file_label}) ──► {agents_md_src}{RESET}")
+        print(f"{GREEN}✓ Attached AGENTS.md ({file_label}) --> {agents_md_src}{RESET}")
 
     # Optionally link scripts
     scripts_src = suite_path / "scripts"
@@ -708,11 +711,11 @@ def cmd_attach(args):
             remove_link(scripts_dest, allow_delete_dir=True)
             scripts_type = create_dir_link(scripts_src, scripts_dest)
             scripts_label = "Symbolic Link" if scripts_type == "symlink" else ("Directory Junction" if scripts_type == "junction" else "Pointer Link")
-            print(f"{GREEN}✓ Attached scripts/ ({scripts_label}) ──► {scripts_src}{RESET}")
+            print(f"{GREEN}✓ Attached scripts/ ({scripts_label}) --> {scripts_src}{RESET}")
         elif not scripts_dest.exists():
             scripts_type = create_dir_link(scripts_src, scripts_dest)
             scripts_label = "Symbolic Link" if scripts_type == "symlink" else ("Directory Junction" if scripts_type == "junction" else "Pointer Link")
-            print(f"{GREEN}✓ Attached scripts/ ({scripts_label}) ──► {scripts_src}{RESET}")
+            print(f"{GREEN}✓ Attached scripts/ ({scripts_label}) --> {scripts_src}{RESET}")
 
     # Save attachment metadata
     meta = {
