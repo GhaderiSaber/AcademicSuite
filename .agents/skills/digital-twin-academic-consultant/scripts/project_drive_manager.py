@@ -319,6 +319,46 @@ class ProjectDriveManager:
                     return vip
         return None
 
+    def add_vip_client(
+        self,
+        client_name: str,
+        telegram_id: int,
+        client_name_fa: Optional[str] = None,
+        phone: Optional[str] = None,
+        tier: str = "tier_1_collaborator",
+        notes: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Register or update a client as VIP in vip_clients.json."""
+        vip_file = os.path.join(os.path.dirname(__file__), "userbot_storage", "vip_clients.json")
+        reg = self.load_vip_registry()
+        vips = reg.get("vip_clients", [])
+        existing = next((v for v in vips if v.get("telegram_id") == telegram_id), None)
+        if existing:
+            existing["client_name"] = client_name
+            if client_name_fa:
+                existing["client_name_fa"] = client_name_fa
+            if notes:
+                existing["notes"] = notes
+            entry = existing
+        else:
+            entry = {
+                "client_name": client_name,
+                "client_name_fa": client_name_fa or client_name,
+                "telegram_id": telegram_id,
+                "phone": phone or "",
+                "tier": tier,
+                "umbrella_dir": os.path.join(self.work_dir, client_name),
+                "protected_from_ignore": True,
+                "pricing_discount_percent": 10,
+                "auto_archive_files": True,
+                "notes": notes or "Designated VIP client."
+            }
+            vips.append(entry)
+        reg["vip_clients"] = vips
+        with open(vip_file, "w", encoding="utf-8") as f:
+            json.dump(reg, f, ensure_ascii=False, indent=2)
+        return entry
+
     def is_ignored(self, client_name: str, client_id: Optional[int] = None, username: Optional[str] = None) -> bool:
         """Check if a contact is in the excluded non-academic contacts registry."""
         # VIP clients are NEVER ignored

@@ -69,6 +69,7 @@ from project_drive_manager import (
     format_client_mention_html,
     resolve_media_details
 )
+from group_topics import TopicManager
 
 
 DEFAULT_CONFIG_PATH = os.path.join(SCRIPT_DIR, "telethon_config.json")
@@ -164,6 +165,7 @@ class SaberTelethonUserbot:
         os.makedirs(self.storage_dir, exist_ok=True)
         self.project_manager = ProjectDriveManager(self.config)
         self.admin_desk_chat_id = config.get("admin_desk_chat_id")
+        self.topic_manager = TopicManager(self.config, storage_dir=self.storage_dir)
 
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
@@ -210,12 +212,33 @@ class SaberTelethonUserbot:
             return self.admin_desk_chat_id
         return "me" if (self.me and not self.me.bot) else self.admin_id
 
-    async def send_to_desk(self, text: str, buttons=None, reply_to=None, parse_mode: str = "html"):
+    async def send_to_desk(
+        self,
+        text: str,
+        buttons=None,
+        reply_to=None,
+        topic_key: Optional[str] = None,
+        client_id: Optional[int] = None,
+        client_name: Optional[str] = None,
+        parse_mode: str = "html"
+    ):
         """
         Send an alert/message to the Admin Desk in English with HTML formatting.
+        Automatically routes to the appropriate Forum Topic thread:
+        1. Dedicated VIP topic if client_id or client_name is registered as VIP.
+        2. Functional topic if topic_key provided ('proposals', 'drafts', 'scales', 'health', 'system').
+        3. reply_to if passed explicitly.
         If bot_client is available and admin_desk_chat_id is set, the message is sent
         by Academic Assistant Bot rather than Saber's personal account!
         """
+        target_reply_to = reply_to
+        if not target_reply_to and self.topic_manager:
+            target_reply_to = self.topic_manager.resolve_topic_id(
+                topic_key=topic_key,
+                client_id=client_id,
+                client_name=client_name
+            )
+
         if self.bot_client and self.admin_desk_chat_id:
             try:
                 if not self.bot_client.is_connected():
@@ -224,7 +247,7 @@ class SaberTelethonUserbot:
                     self.admin_desk_chat_id,
                     text,
                     buttons=buttons,
-                    reply_to=reply_to,
+                    reply_to=target_reply_to,
                     parse_mode=parse_mode
                 )
             except Exception as e:
@@ -233,7 +256,7 @@ class SaberTelethonUserbot:
             self.admin_target,
             text,
             buttons=buttons,
-            reply_to=reply_to,
+            reply_to=target_reply_to,
             parse_mode=parse_mode
         )
 
@@ -444,7 +467,14 @@ class SaberTelethonUserbot:
                  Button.inline("🗑️ Dismiss", f"ignore_{quote_id}".encode())]
             ]
 
-        await self.send_to_desk(alert_text, buttons=buttons, parse_mode="html")
+        await self.send_to_desk(
+            alert_text,
+            buttons=buttons,
+            topic_key="proposals",
+            client_id=sender_id,
+            client_name=client_name,
+            parse_mode="html"
+        )
         print(f"[+] Posted draft quote {quote_id} for {client_name} to Admin Desk via Assistant Bot.")
         print(f"[+] Project folder synced: {project_dir}")
 
@@ -514,7 +544,15 @@ class SaberTelethonUserbot:
                  Button.inline("🗑️ Dismiss", f"ignore_draft_{draft_id}".encode())]
             ]
 
-        await self.send_to_desk(alert_text, buttons=buttons, parse_mode="html")
+        target_topic = "scales" if inquiry_type == "scale_search" else "drafts"
+        await self.send_to_desk(
+            alert_text,
+            buttons=buttons,
+            topic_key=target_topic,
+            client_id=sender_id,
+            client_name=sender_name,
+            parse_mode="html"
+        )
         print(f"[+] Posted Co-Pilot draft {draft_id} ({inquiry_type}) for {sender_name} to Academic Desk.")
         return draft_id
 
@@ -569,7 +607,7 @@ class SaberTelethonUserbot:
                 [Button.inline("❌ Dismiss Notice", b"cmd_close")]
             ]
 
-        await self.send_to_desk(summary_text, buttons=buttons, parse_mode="html")
+        await self.send_to_desk(summary_text, buttons=buttons, topic_key="health", parse_mode="html")
 
         # 2. Post individual 1-Click actionable Follow-Up cards for the top candidates
         for item in follow_ups[:5]:
@@ -622,7 +660,7 @@ class SaberTelethonUserbot:
                      Button.inline("🗑️ Dismiss", f"ignore_fu_{fu_id}".encode())]
                 ]
 
-            await self.send_to_desk(card_text, buttons=card_btns, parse_mode="html")
+            await self.send_to_desk(card_text, buttons=card_btns, topic_key="health", client_id=cid, client_name=cname, parse_mode="html")
             print(f"[+] Posted Follow-Up reminder {fu_id} for {cname} to Academic Desk.")
 
         return audit_res
@@ -655,7 +693,7 @@ class SaberTelethonUserbot:
                 now_str = datetime.now().strftime("%H:%M:%S")
                 await trigger_event.answer(f"✅ All client dialogs are up to date! (Checked at {now_str})", alert=True)
             else:
-                await self.send_to_desk("✅ No unread client messages found.", parse_mode="html")
+                await self.send_to_desk("✅ No unread client messages found.", topic_key="health", parse_mode="html")
             return
 
         print(f"[!] Found {len(unread_clients)} client(s) with unread messages.")
@@ -977,10 +1015,72 @@ class SaberTelethonUserbot:
             admin_chats.append(self.admin_desk_chat_id)
         admin_chats.append("me" if not me.bot else self.admin_id)
 
-        # 1. Admin Desk (/send_Q101, /adjust_Q101_5000000, /ignore_Q101, /unread, /projects, /save_project, /sync_projects)
+        # Synchronize and ensure Forum Topics in Academic Desk
+        if self.client and self.admin_desk_chat_id:
+            try:
+                vip_reg = self.project_manager.load_vip_registry()
+                await self.topic_manager.sync_and_ensure_topics(
+                    self.client,
+                    self.admin_desk_chat_id,
+                    vip_clients=vip_reg.get("vip_clients", [])
+                )
+                print(f"[+] Academic Desk Forum Topics active: {len(self.topic_manager.topics.get('functional', {}))} functional, {len(self.topic_manager.topics.get('vip', {}))} VIP.")
+            except Exception as e:
+                print(f"[-] Topic synchronization warning: {e}")
+
+        # 1. Admin Desk (/send_Q101, /adjust_Q101_5000000, /ignore_Q101, /unread, /projects, /save_project, /sync_projects, /topics, /make_vip)
         @self.client.on(events.NewMessage(chats=admin_chats))
         async def admin_handler(event):
             txt = (event.message.message or "").strip()
+
+            # Forum Topics status: /topics or /topic_status
+            if txt in ["/topics", "/topic_status"]:
+                summary = self.topic_manager.format_topics_summary()
+                await event.reply(summary, parse_mode="html")
+                return
+
+            # Refresh & sync topics: /sync_topics
+            if txt in ["/sync_topics", "/refresh_topics"]:
+                await event.reply("🔄 Synchronizing forum topics with Academic Desk...", parse_mode="html")
+                vip_reg = self.project_manager.load_vip_registry()
+                await self.topic_manager.sync_and_ensure_topics(
+                    self.client,
+                    self.admin_desk_chat_id,
+                    vip_clients=vip_reg.get("vip_clients", [])
+                )
+                summary = self.topic_manager.format_topics_summary()
+                await event.reply(f"✅ <b>Topics successfully synchronized:</b>\n\n{summary}", parse_mode="html")
+                return
+
+            # Promote client to VIP and create dedicated forum topic: /make_vip <client_name or id>
+            m_vip = re.match(r"^/make_vip(?:\s+(.+))?", txt)
+            if m_vip:
+                q = (m_vip.group(1) or "").strip()
+                if not q:
+                    await event.reply("⚠️ Usage: <code>/make_vip &lt;client_name or telegram_id&gt;</code>", parse_mode="html")
+                    return
+                matched_id = int(q) if q.isdigit() else None
+                matched_name = q if not q.isdigit() else f"Client {q}"
+                if not matched_id:
+                    for p in self.project_manager.list_all_projects():
+                        if q.lower() in (p.get("client_name") or "").lower() or q.lower() in (p.get("client_name_fa") or "").lower():
+                            matched_id = p.get("client_id")
+                            matched_name = p.get("client_name_fa") or p.get("client_name")
+                            break
+                if not matched_id:
+                    await event.reply(f"❌ Could not find client matching <code>{html.escape(q)}</code> with a known Telegram ID.", parse_mode="html")
+                    return
+
+                self.project_manager.add_vip_client(client_name=matched_name, telegram_id=matched_id)
+                t_id = await self.topic_manager.create_vip_topic(self.client, self.admin_desk_chat_id, matched_name, matched_id)
+                await event.reply(
+                    f"⭐ <b>VIP Client Configured!</b>\n"
+                    f"• <b>Client:</b> {html.escape(matched_name)} (ID: <code>{matched_id}</code>)\n"
+                    f"• <b>Dedicated Forum Topic ID:</b> <code>{t_id}</code>\n"
+                    f"All future messages and draft cards for this client will route to their dedicated topic thread.",
+                    parse_mode="html"
+                )
+                return
 
             # Unread messages re-scan: /unread or /scan
             if txt in ["/unread", "/scan"]:
@@ -1436,7 +1536,7 @@ class SaberTelethonUserbot:
                          Button.inline("🗑️ Dismiss", f"ignore_del_{del_id}".encode())]
                     ]
 
-                await self.send_to_desk(card_text, buttons=card_btns, parse_mode="html")
+                await self.send_to_desk(card_text, buttons=card_btns, topic_key="proposals", client_name=cname, parse_mode="html")
                 print(f"[+] Prepared Deliverable draft card {del_id} for {cname}: {chosen_file['filename']}")
                 return
 
@@ -1656,7 +1756,7 @@ class SaberTelethonUserbot:
                                 f"  👉 <code>/deliverables {html.escape(cname)}</code>"
                             )
                         btn = [[Button.inline("❌ Close Catalog", b"cmd_close")]] if Button is not None else None
-                        await self.send_to_desk("\n".join(lines), buttons=btn, parse_mode="html")
+                        await self.send_to_desk("\n".join(lines), buttons=btn, topic_key="system", parse_mode="html")
                 elif data == "cmd_health":
                     await event.answer("🔍 Auditing project health...")
                     await self.scan_and_report_project_health(trigger_event=event)
@@ -1700,7 +1800,7 @@ class SaberTelethonUserbot:
                         if len(projs) > 15:
                             lines.append(f"\n<i>... and {len(projs) - 15} more projects in Google Drive. Use <code>/projects &lt;name&gt;</code> to filter.</i>")
                         btn = [[Button.inline("❌ Close Catalog", b"cmd_close")]] if Button is not None else None
-                        await self.send_to_desk("\n".join(lines), buttons=btn, parse_mode="html")
+                        await self.send_to_desk("\n".join(lines), buttons=btn, topic_key="system", parse_mode="html")
                 elif data == "cmd_unread":
                     await event.answer("🔍 Scanning client messages...")
                     await self.scan_and_process_unread_messages(trigger_event=event)

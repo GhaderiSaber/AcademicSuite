@@ -557,7 +557,7 @@ class TestDigitalTwinSuite(unittest.TestCase):
         userbot.client = mock_user
         userbot.bot_client = mock_bot
 
-        async def mock_send_to_desk(text, buttons=None, reply_to=None, parse_mode="html"):
+        async def mock_send_to_desk(text, buttons=None, reply_to=None, parse_mode="html", **kwargs):
             return await mock_bot.send_message(-1004331808205, text, buttons=buttons, reply_to=reply_to, parse_mode=parse_mode)
 
         userbot.send_to_desk = mock_send_to_desk
@@ -755,7 +755,7 @@ class TestDigitalTwinSuite(unittest.TestCase):
             userbot.client = mock_user
             userbot.bot_client = mock_bot
 
-            async def mock_send_desk(text, buttons=None, reply_to=None, parse_mode="html"):
+            async def mock_send_desk(text, buttons=None, reply_to=None, parse_mode="html", **kwargs):
                 return await mock_bot.send_message(-1004331808205, text)
             userbot.send_to_desk = mock_send_desk
 
