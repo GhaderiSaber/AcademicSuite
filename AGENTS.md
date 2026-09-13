@@ -162,6 +162,30 @@ When assembling or editing Persian Word documents (`.docx`):
     - Every header, title, and subtitle MUST be instantiated as an independent paragraph object (`<w:p>`).
     - NEVER use manual line breaks (`<w:br/>` / `\n`) to break headers across lines.
     - Header spacing MUST be managed via `paragraph_format.space_before` and `space_after` in `Pt(...)`.
+- **Mandatory Persian Slash Decimal Inversion Rule (قاعده جابجایی اعشار خط کسری در ورد)**:
+  - **The BiDi Fraction Inversion Mechanism**: In Microsoft Word RTL paragraphs (`<w:bidi w:val="1"/>`), Word's BiDi text layout engine treats the ASCII forward slash `/` between digits (`[0-9۰-۹]+/[0-9۰-۹]+`) as an Arabic fraction separator (خط کسری). Under RTL, Word places the numerator on the right (leading edge) and denominator on the left (trailing edge). Consequently, writing `۰/۰۰۱` causes Word to visually invert it on screen as `۰۰۱/۰` (and `۰/۸۵` as `۸۵/۰`, `۲/۵۰` as `۵۰/۲`, `۰/۴۰` as `۴۰/۰`).
+  - **The Writing Directive (قاعده نگارش)**:
+    - Whenever generating, writing, or injecting Persian text containing slash decimal numbers into Word documents (`.docx`, proposals, theses, articles, defense presentation briefs, tables):
+    - **REPLACE AFTER OF SLASH WITH BEFORE OF SLASH (`A/B` $\to$ `B/A`)**:
+      - To display `۰/۰۰۱` visually in Word $\implies$ Write `۰۰۱/۰`
+      - To display `۰/۸۵` visually in Word $\implies$ Write `۸۵/۰`
+      - To display `۲/۵۰` visually in Word $\implies$ Write `۵۰/۲`
+      - To display `۰/۴۰` visually in Word $\implies$ Write `۴۰/۰`
+      - To display `۰/۰۵` visually in Word $\implies$ Write `۰۵/۰`
+      - To display `۰/۰۱` visually in Word $\implies$ Write `۰۱/۰`
+      - To display `۱۵/۲` visually in Word $\implies$ Write `۲/۱۵`
+      - To display `۱/۱۱۸` visually in Word $\implies$ Write `۱۱۸/۱`
+    - When Word renders this swapped string in an RTL paragraph/run, Word's fraction inversion automatically displays it in natural, flawless visual order (`۰/۰۰۱`, `۰/۸۵`, `۲/۵۰`).
+  - **The Interpretation & Reading Directive (قاعده خواندن و تفسیر هوش مصنوعی)**:
+    - When AI agents read, extract, audit, or analyze text from Persian Word documents (`.docx`), any slash number in RTL context written in swapped form `B/A` (such as `۰۰۱/۰`, `۸۵/۰`, `۵۰/۲`, `۴۰/۰`, `۰۵/۰`):
+    - **AGENTS MUST RECOGNIZE THAT THIS REPRESENTS THE DECIMAL NUMBER `A/B`**:
+      - `۰۰۱/۰` $\implies$ $0.001$ ($p < .001$)
+      - `۸۵/۰` $\implies$ $0.85$ ($r = .85$)
+      - `۵۰/۲` $\implies$ $2.50$ ($\text{VIF} = 2.50$)
+      - `۴۰/۰` $\implies$ $0.40$ ($\text{Tolerance} = .40$)
+      - `۰۵/۰` $\implies$ $0.05$ ($p < .05$)
+      - `۱۱۸/۱` $\implies$ $1.118$ ($\chi^2/df = 1.118$)
+    - Agents must NEVER misinterpret `۰۰۱/۰` as an error or zero-division; it is the deliberate Word RTL swapped representation of `۰/۰۰۱`.
 
 ### Rule 5: Critical OpenXML Standard: Preservation of Native Word Math & OMML Formulas (`<m:oMath>`)
 When inspecting, auditing, or modifying academic Word documents (`.docx`):

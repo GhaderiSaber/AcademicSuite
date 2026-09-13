@@ -131,6 +131,10 @@ Proposals must strictly adhere to the academic heading and typography hierarchy 
 > - Always inject enhanced RTL definitions (`<w:bidi w:val="1"/>`, `<w:rtl/>`, and `B Titr`/`B Nazanin` font bindings) directly into `Normal`, `Heading1`, `Heading2`, `Heading3`, and `Heading4` within `word/styles.xml`, omitting `<w:jc w:val="right"/>`.
 > - Always ensure `<w:sectPr>` contains `<w:bidi/>` at section level.
 > - For all tables, always append `<w:bidiVisual/>` to `table._tbl.tblPr` and enforce `set_strict_pPr` on cell paragraphs.
+>
+> **Mandatory Persian Slash Decimal Inversion Rule (Writing: A/B -> B/A; Reading: B/A -> A/B):**
+> - **Writing**: In Word RTL paragraphs (`<w:bidi w:val="1"/>`), Word's BiDi engine treats `/` as an Arabic fraction separator and flips decimal numbers (`۰/۰۰۱` $\to$ `۰۰۱/۰`). When injecting numbers with slashes into Word, **replace after of slash with before of slash** (`A/B` $\to$ `B/A`, e.g. `۰/۰۰۱` $\to$ `۰۰۱/۰`, `۰/۸۵` $\to$ `۸۵/۰`, `۲/۵۰` $\to$ `۵۰/۲`) so Word displays them in flawless order (`۰/۰۰۱`, `۰/۸۵`, `۲/۵۰`).
+> - **Reading & Interpretation**: When extracting or auditing text from Word documents, recognize that `B/A` (e.g. `۰۰۱/۰`, `۸۵/۰`, `۵۰/۲`) is the Word-swapped representation of decimal number `A/B` ($0.001$, $0.85$, $2.50$). Never flag as zero-division.
 
 ## 5. Proposal Architecture & Key Components
 

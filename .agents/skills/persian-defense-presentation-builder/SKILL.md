@@ -1725,6 +1725,6 @@ Every presentation compiled by this skill must achieve a score of $\ge 90/100$ o
 4. **Layout Variety & Alternation (15 pts)**: No two consecutive slides share the same layout family; generic cards $\le 25\%$; maximum layout family dominance $\le 30\%$.
 5. **Statistical & Empirical Rigor (15 pts)**: Strict APA 7th Edition formatting, exact $p$-values, effect sizes ($\eta_p^2, d$), and test statistics.
 6. **Visual & Diagram Standards (15 pts)**: Clean 300-DPI mediation models, CONSORT flows, and APA tables.
-7. **Typography & OpenXML Directionality (15 pts)**: Persian font hierarchy (`B Titr` 28–36 pt titles, `B Nazanin` $\ge 20$ pt body), pure RTL OpenXML DrawingML formatting, and zero element overlaps.
+7. **Typography & OpenXML Directionality (15 pts)**: Persian font hierarchy (`B Titr` 28–36 pt titles, `B Nazanin` $\ge 20$ pt body), pure RTL OpenXML DrawingML formatting, zero element overlaps, and strict adherence to the **Persian Slash Decimal Inversion Rule** (Writing: `A/B` $\to$ `B/A`, e.g. `۰/۰۰۱` $\to$ `۰۰۱/۰`, `۰/۸۵` $\to$ `۸۵/۰`, `۲/۵۰` $\to$ `۵۰/۲`; Reading: recognize `B/A` as decimal number `A/B`).
 
 

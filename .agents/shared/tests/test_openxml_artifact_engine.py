@@ -88,6 +88,30 @@ class TestOpenXMLArtifactEngine(unittest.TestCase):
         self.assertIn("روان\u200cشناختی", cleaned)
         self.assertIn("متغیر\u200cهای", cleaned)
 
+    def test_04b_persian_slash_decimal_swap(self):
+        """Verifies the Persian Slash Decimal Inversion Rule (Writing: A/B -> B/A; Reading: B/A -> A/B)."""
+        raw_text = "در سطح خطای ۰/۰۰۱ و ضریب ۰/۸۵ و شاخص VIF کمتر از ۲/۵۰ و تحمل ۰/۴۰ محاسبه گردید."
+        # 1. Writing: swap A/B -> B/A
+        swapped = self.engine.swap_slash_decimals(raw_text)
+        self.assertIn("۰۰۱/۰", swapped)
+        self.assertIn("۸۵/۰", swapped)
+        self.assertIn("۵۰/۲", swapped)
+        self.assertIn("۴۰/۰", swapped)
+
+        # 2. Reading/Interpretation: unswap B/A -> A/B
+        unswapped = self.engine.unswap_slash_decimals(swapped)
+        self.assertIn("۰/۰۰۱", unswapped)
+        self.assertIn("۰/۸۵", unswapped)
+        self.assertIn("۲/۵۰", unswapped)
+        self.assertIn("۰/۴۰", unswapped)
+
+        # 3. Automatic clean_persian_typography integration
+        cleaned = self.engine.clean_persian_typography(raw_text)
+        self.assertIn("۰۰۱/۰", cleaned)
+        self.assertIn("۸۵/۰", cleaned)
+        self.assertIn("۵۰/۲", cleaned)
+        self.assertIn("۴۰/۰", cleaned)
+
     def test_05_generate_audit_report_docx(self):
         """Verifies generation of official pre-defense audit report."""
         out_path = os.path.join(self.test_dir, "Statistical_Audit_and_QC_Report.docx")

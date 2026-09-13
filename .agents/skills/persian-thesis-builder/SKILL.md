@@ -99,6 +99,9 @@ All assembled chapters, tables, and front matter must strictly adhere to Iranian
 1. **Paragraph Direction**: Enforce `<w:bidi w:val="1"/>` on all Persian paragraphs.
 2. **Font Fallback Protection**: Enforce explicit font binding with `<w:rFonts w:ascii="Times New Roman" w:cs="B Nazanin"/>`.
 3. **Table BiDi**: Enforce `<w:bidiVisual/>` on table properties to guarantee Right-to-Left column ordering.
+4. **Persian Slash Decimal Inversion Rule (Writing: A/B -> B/A; Reading: B/A -> A/B)**:
+   - **Writing**: In Word RTL paragraphs (`<w:bidi w:val="1"/>`), Word's fraction engine inverts slash decimal numbers (`۰/۰۰۱` $\to$ `۰۰۱/۰`). When writing into Word, **replace after of slash with before of slash** (`A/B` $\to$ `B/A`, e.g. `۰/۰۰۱` $\to$ `۰۰۱/۰`, `۰/۸۵` $\to$ `۸۵/۰`, `۲/۵۰` $\to$ `۵۰/۲`) so Word renders them in natural order (`۰/۰۰۱`, `۰/۸۵`, `۲/۵۰`).
+   - **Reading & Interpretation**: When parsing text from Word documents, recognize `B/A` (e.g. `۰۰۱/۰`, `۸۵/۰`, `۵۰/۲`) as the decimal number `A/B` ($0.001$, $0.85$, $2.50$).
 
 ---
 

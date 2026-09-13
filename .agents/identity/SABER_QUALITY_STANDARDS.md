@@ -36,6 +36,9 @@ Before any statistical deliverable, thesis chapter, or research artifact is rele
   - Subheadings: `B Titr` or `B Nazanin Bold` 13–14 pt Bold
   - Body: `B Nazanin` 13–14 pt Regular, Line Spacing 1.15–1.25, Justified
   - Numbers/Latin stats: `Times New Roman` 10–11 pt Regular
+- [ ] **Persian Slash Decimal Inversion Rule**:
+  - **Writing**: When injecting slash decimal numbers (`A/B`) into Word, swap parts before and after slash (`A/B` $\to$ `B/A`, e.g. `۰/۰۰۱` $\to$ `۰۰۱/۰`, `۰/۸۵` $\to$ `۸۵/۰`, `۲/۵۰` $\to$ `۵۰/۲`) so Word's RTL BiDi fraction engine displays them visually in correct order (`۰/۰۰۱`, `۰/۸۵`, `۲/۵۰`).
+  - **Reading & Interpretation**: When auditing or parsing text from Word documents, recognize that `B/A` (e.g. `۰۰۱/۰`, `۸۵/۰`, `۵۰/۲`) is the Word-swapped representation of `A/B` ($0.001$, $0.85$, $2.50$). Never misinterpret `۰۰۱/۰` as an error.
 
 ---
 

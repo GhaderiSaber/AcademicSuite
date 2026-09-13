@@ -369,8 +369,38 @@ class OpenXMLArtifactEngine:
                     rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
 
     @staticmethod
-    def clean_persian_typography(text: str) -> str:
-        """Enforces Persian half-spaces in common prefixes and affixes."""
+    def swap_slash_decimals(text: str) -> str:
+        """
+        Word BiDi Slash Decimal Inversion Rule (Writing: A/B -> B/A):
+        In Microsoft Word RTL paragraphs (<w:bidi w:val="1"/>), Word treats
+        the ASCII forward slash '/' between digits as an Arabic fraction, visually
+        displaying the numerator on the right and denominator on the left.
+        Therefore, to display a decimal number like '۰/۰۰۱' (0.001) or '۲/۵۰' (2.50)
+        correctly on screen, the text string written into Word MUST swap the parts
+        before and after the slash: 'A/B' -> 'B/A' (e.g., '۰/۰۰۱' -> '۰۰۱/۰', '۲/۵۰' -> '۵۰/۲').
+        """
+        if not text:
+            return ""
+        pattern = r'(?<![\w\d])([0-9۰-۹]+)/([0-9۰-۹]+)(?![\w\d])'
+        return re.sub(pattern, r'\2/\1', text)
+
+    @staticmethod
+    def unswap_slash_decimals(text: str) -> str:
+        """
+        Agent Interpretation Decoder for Word BiDi Slash Decimals (Reading: B/A -> A/B):
+        When reading or interpreting Persian Word documents where slash numbers
+        were written in swapped format (e.g., '۰۰۱/۰', '۸۵/۰', '۵۰/۲'),
+        this decodes them back to standard mathematical decimal values:
+        'B/A' -> 'A/B' (e.g., '۰۰۱/۰' -> '۰/۰۰۱' = 0.001, '۵۰/۲' -> '۲/۵۰' = 2.50).
+        """
+        if not text:
+            return ""
+        pattern = r'(?<![\w\d])([0-9۰-۹]+)/([0-9۰-۹]+)(?![\w\d])'
+        return re.sub(pattern, r'\2/\1', text)
+
+    @staticmethod
+    def clean_persian_typography(text: str, swap_decimals: bool = True) -> str:
+        """Enforces Persian half-spaces in common prefixes and affixes, and applies the slash decimal swap rule."""
         if not text:
             return ""
         s = text
@@ -391,6 +421,11 @@ class OpenXMLArtifactEngine:
         s = re.sub(r'خود\s+انتقادی', 'خود' + zwnj + 'انتقادی', s)
         s = re.sub(r'چند\s+متغیری', 'چند' + zwnj + 'متغیری', s)
         s = re.sub(r'تک\s+متغیری', 'تک' + zwnj + 'متغیری', s)
+        
+        # Word BiDi Slash Decimal Inversion: swap A/B -> B/A so Word displays A/B correctly
+        if swap_decimals:
+            s = OpenXMLArtifactEngine.swap_slash_decimals(s)
+            
         return s
 
     # =========================================================================
