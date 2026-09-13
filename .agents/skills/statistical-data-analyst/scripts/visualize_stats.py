@@ -18,6 +18,7 @@ from typing import List, Dict, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from scipy import stats
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -158,9 +159,108 @@ def plot_pre_post_interaction(groups: List[str], pre_means: List[float], post_me
     plt.close()
     print(f"[✓] Pre-post interaction trajectory figure exported: {output_path}")
 
+def plot_regression_residual_diagnostics(zresiduals: Union[List[float], np.ndarray],
+                                         output_prefix: str,
+                                         dv_name: str = "DV",
+                                         title_fa: Optional[str] = None,
+                                         dpi: int = 300) -> Tuple[str, str]:
+    """
+    Generate APA 7 / SPSS standard diagnostic plots for regression standardized residuals:
+    1. Histogram of Standardized Residuals with fitted Theoretical Normal Distribution Curve.
+    2. Normal P-P Plot (Observed Cumulative Probability vs. Expected Cumulative Probability).
+    
+    Returns tuple of filepaths: (hist_path, pp_path)
+    """
+    zres = np.array(zresiduals, dtype=float)
+    zres = zres[~np.isnan(zres)]
+    n = len(zres)
+    if n < 5:
+        raise ValueError("Insufficient data points for residual diagnostic plots.")
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_prefix)), exist_ok=True)
+    hist_path = f"{output_prefix}_hist.png"
+    pp_path = f"{output_prefix}_pp.png"
+
+    # -------------------------------------------------------------
+    # 1. SPSS-Style Histogram with Fitted Normal Curve
+    # -------------------------------------------------------------
+    fig, ax = plt.subplots(figsize=(7.2, 4.8), dpi=dpi)
+    mean_val = float(np.mean(zres))
+    sd_val = float(np.std(zres, ddof=1))
+
+    # Plot histogram bars (SPSS blue style)
+    bins_range = np.linspace(-3.5, 3.5, 21)
+    counts, bins, patches = ax.hist(zres, bins=bins_range, density=False, color='#0288D1',
+                                    edgecolor='white', alpha=0.95, linewidth=0.8)
+
+    # Overlay scaled normal curve
+    x_axis = np.linspace(-3.5, 3.5, 250)
+    bin_width = bins[1] - bins[0]
+    normal_curve = stats.norm.pdf(x_axis, mean_val, sd_val) * n * bin_width
+    ax.plot(x_axis, normal_curve, color='#000000', linewidth=2.2)
+
+    # SPSS-style top right stats text
+    info_text = f"Mean = {mean_val:.2e}\nStd. Dev. = {sd_val:.3f}\nN = {n}"
+    ax.text(0.96, 0.94, info_text, transform=ax.transAxes, ha='right', va='top',
+            fontsize=9.5, family='sans-serif', color='#000000')
+
+    ax.set_title("Histogram\n", fontsize=13, fontweight='bold', pad=2, color='#000000')
+    ax.text(0.5, 1.02, f"Dependent Variable: {dv_name}", transform=ax.transAxes,
+            ha='center', va='bottom', fontsize=11, fontweight='bold', color='#000000')
+    ax.set_xlabel("Regression Standardized Residual", fontsize=11, fontweight='bold', color='#000000', labelpad=10)
+    ax.set_ylabel("Frequency", fontsize=11, fontweight='bold', color='#000000', labelpad=8)
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.grid(axis='y', linestyle='-', color='#CCCCCC', alpha=0.7)
+    ax.set_xlim(-3.8, 3.8)
+    ax.set_ylim(0, max(counts) * 1.25)
+
+    plt.tight_layout()
+    plt.savefig(hist_path, dpi=dpi, bbox_inches='tight')
+    plt.close()
+
+    # -------------------------------------------------------------
+    # 2. SPSS-Style Normal P-P Plot of Standardized Residuals
+    # -------------------------------------------------------------
+    fig, ax = plt.subplots(figsize=(6.2, 5.2), dpi=dpi)
+
+    sorted_res = np.sort(zres)
+    # Observed cumulative probabilities
+    obs_cum_prob = (np.arange(1, n + 1) - 0.5) / n
+    # Expected cumulative probabilities under normal distribution
+    exp_cum_prob = stats.norm.cdf(sorted_res, loc=mean_val, scale=sd_val)
+
+    # 45-degree diagonal reference line
+    ax.plot([0, 1], [0, 1], color='#000000', linewidth=1.5, linestyle='-')
+    # Scatter points (SPSS style: cyan circles with thin black outline)
+    ax.scatter(exp_cum_prob, obs_cum_prob, facecolor='#29B6F6', edgecolor='#000000',
+               s=22, alpha=0.9, linewidth=0.6)
+
+    ax.set_title("Normal P-P Plot of Regression Standardized Residual\n", fontsize=11.5, fontweight='bold', pad=2, color='#000000')
+    ax.text(0.5, 1.02, f"Dependent Variable: {dv_name}", transform=ax.transAxes,
+            ha='center', va='bottom', fontsize=10.5, fontweight='bold', color='#000000')
+    ax.set_xlabel("Observed Cum Prob", fontsize=10.5, fontweight='bold', color='#000000', labelpad=8)
+    ax.set_ylabel("Expected Cum Prob", fontsize=10.5, fontweight='bold', color='#000000', labelpad=8)
+
+    ax.set_xlim(0.0, 1.0)
+    ax.set_ylim(0.0, 1.0)
+    ax.set_aspect('equal', adjustable='box')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.grid(axis='y', linestyle='-', color='#CCCCCC', alpha=0.7)
+
+    plt.tight_layout()
+    plt.savefig(pp_path, dpi=dpi, bbox_inches='tight')
+    plt.close()
+
+    print(f"[✓] Residual diagnostics exported: {hist_path} and {pp_path}")
+    return hist_path, pp_path
+
 def main():
     parser = argparse.ArgumentParser(description="Publication-Grade Statistical Visualization Engine")
     parser.add_argument("--demo", action="store_true", help="Generate sample publication demonstration plots.")
+    parser.add_argument("--residuals-demo", action="store_true", help="Generate sample regression residual diagnostic plots.")
     parser.add_argument("--out-dir", default="./publication_plots", help="Directory to save generated figures.")
     args = parser.parse_args()
 
@@ -190,6 +290,17 @@ def main():
             output_path=os.path.join(args.out_dir, "pre_post_interaction_demo.png")
         )
         print("[✓] Demo scientific visualization figures successfully generated!")
+
+    if args.residuals_demo:
+        os.makedirs(args.out_dir, exist_ok=True)
+        rng = np.random.default_rng(42)
+        mock_zres = rng.normal(loc=0.0, scale=1.0, size=260)
+        h, p = plot_regression_residual_diagnostics(
+            mock_zres,
+            output_prefix=os.path.join(args.out_dir, "hypothesis_1_residuals"),
+            title_fa="سبک‌های فرزندپروری بر اضطراب فراگیر"
+        )
+        print(f"[✓] Residuals demo plots created: {h}, {p}")
 
 if __name__ == "__main__":
     main()

@@ -143,18 +143,21 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - Verification of native Word OMML math equations (`<m:oMath>`) preservation.
 - **Output**: `results_qc_checklist.json`.
 
-### Step 7: Academic Writer Subagent (Persian Chapter 4 Drafting)
+### Step 7: Academic Writer Subagent (Persian Chapter 4 Drafting - 7-Part Deep Architecture)
 - **Agent**: `academic-writer`
 - **Action**:
-  - Ingests verified tables and statistical results.
-  - Drafts Chapter 4 in academic Persian structured into:
-    1. **مقدمه فصل چهارم** (Chapter Overview)
-    2. **یافته‌های توصیفی** (Descriptive statistics, sample demographics, composite means/SDs)
-    3. **بررسی مفروضه‌های آماری** (Detailed assumption verification tables)
-    4. **یافته‌های استنباطی و آزمون فرضیه‌ها** (Each hypothesis formulated with Saber's 5-part epistemic paragraph formula)
-  - Enforces Persian half-spaces (`\u200c`), natural cadence ($CV \ge 0.50$), and zero AI clichés.
-  - Compiles final Word document with OpenXML directionality `<w:bidi w:val="1"/>`.
-- **Output**: `Chapter_4_Results.docx`.
+  - Ingests verified tables, statistical results (`stats_results.json`), and generated 300-DPI plots.
+  - Drafts Chapter 4 in authentic academic Persian structured strictly into Saber Ghaderi's **7-Part Architecture**:
+    1. **مقدمه فصل چهارم** (Chapter Overview, analytical scope, and roadmap)
+    2. **ویژگی‌های جمعیت‌شناختی نمونه** (Categorical frequency tables for gender, education, marital status, and age binning with dominant profile narratives)
+    3. **یافته‌های توصیفی متغیرها** (The 9-column master table [متغیر, مؤلفه, N, M, SD, KU, SK, Min, Max] with Kline/strict normality interpretations)
+    4. **بررسی مفروضه‌های ۶ گانه آزمون‌های پارامتریک** (Normality, Multicollinearity with Tolerance/VIF, Durbin-Watson independence, Breusch-Pagan homoscedasticity, Mahalanobis $D^2$ outlier screening, and G*Power/sample size justification)
+    5. **یافته‌های استنباطی و آزمون فرضیه‌ها** (Each hypothesis formulated with Saber's **4-Tier Sequence**: Tier 1 Bivariate Correlation $\to$ Tier 2 Combined ANOVA & Model Summary $\to$ Tier 3 Regression Coefficients $\to$ Tier 4 Diagnostic Residual Plots)
+    6. **تحلیل مدل‌های ساختاری / میانجی‌گری** (Hayes PROCESS Model 6 serial mediation with 5,000 bootstrap iterations or R lavaan SEM with 11 fit indices and path diagram)
+    7. **سنتز و جدول ماتریس خلاصه آزمون فرضیه‌ها** (Executive summary table of all hypotheses and final empirical verdicts)
+  - Enforces Persian half-spaces (`\u200c`), standard dot notation for decimals, preserving leading zero (`۰.۰۰۱`, `۰.۰۵`), and eliminating all AI clichés.
+  - Compiles publication-ready Word document with OpenXML directionality `<w:bidi w:val="1"/>`, borderless APA 7 tables, and physically embedded 300-DPI figures via `generate_apa_docx.py`.
+- **Output**: `Chapter_4_Results.docx` (yielding authentic 2,500 to 10,000+ words).
 
 ### Step 8: Final Judge Subagent (Defense Viva Voce Simulator)
 - **Agent**: `final-judge`

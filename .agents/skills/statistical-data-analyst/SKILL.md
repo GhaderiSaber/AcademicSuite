@@ -46,13 +46,19 @@ The skill provides specialized workflows for the three standard psychology resea
 
 ### B. Correlational, Predictive & Mediation Studies (طرح‌های همبستگی و مدل‌های ساختاری)
 - **Correlation Matrix**: Pearson $r$ (parametric) or Spearman $\rho$ (non-parametric) with significance stars (*, **).
-- **Hierarchical Multiple Regression**:
-  - Step 1: Control/demographic variables (Age, Gender, Education).
-  - Step 2: Primary psychological predictors.
-  - Reporting: $R^2$, $\Delta R^2$, $F$, $\Delta F$, standardized $\beta$, $t$, and Collinearity VIF ($< 5.0$).
-- **Mediation Analysis (Hayes PROCESS Model 4)**:
-  - Path $a$ ($X \to M$), Path $b$ ($M \to Y$), Path $c$ (Total), Path $c'$ (Direct).
-  - **Indirect Effect**: Evaluated using **5,000 bootstrap resamples** with 95% bias-corrected confidence intervals (CI). Confirmed if 95% CI does not span zero.
+- **The 4-Tier Saber Regression Sequence (استاندارد چهارمرحله‌ای فرضیات رگرسیونی صابر قادری)**:
+  - *Tier 1*: Subscale Bivariate Correlation Matrix (رابطه اولیه متغیر ملاک با تک‌تک ابعاد پیش‌بین).
+  - *Tier 2*: 11-Column Combined ANOVA & Model Summary Table ($SS, df, MS, F, p, R, R^2, \text{Adj } R^2, SE, \text{Durbin-Watson}$).
+  - *Tier 3*: Multiple Regression Coefficients Table ($B, SE, \beta, t, p, \text{Tolerance}, \text{VIF}$).
+  - *Tier 4*: 300-DPI Residual Diagnostics Plots (Normal Curve Histogram & Normal P-P Plot embedded directly into Word document).
+- **Serial Mediation Analysis (Hayes PROCESS Model 6: الگوی میانجی‌گری سریالی)**:
+  - Chains: $X \to M_1 \to M_2 \to Y$.
+  - Evaluates direct paths ($a_1, a_2, d_{21}, b_1, b_2, c', c$) and indirect trajectories ($\text{Ind}_1, \text{Ind}_2, \text{Ind}_3\text{ serial}, \text{Total Indirect}$).
+  - **Indirect Effects**: Evaluated using **5,000 bootstrap resamples** with 95% bias-corrected confidence intervals (CI). Diagnoses full vs. partial serial mediation.
+- **Structural Equation Modeling (SEM via lavaan & semPlot)**:
+  - 11-Pillar Fit Indices: $\chi^2, df, \chi^2/df, \text{CFI}, \text{TLI}, \text{GFI}, \text{AGFI}, \text{NFI}, \text{IFI}, \text{RMSEA}, \text{SRMR}$.
+  - Direct & indirect standardized path estimates.
+  - High-resolution 300-DPI LISREL-style path diagram rendering (`semPaths`).
 
 ### C. Psychometric Scale Standardization (اعتباریابی و هنجاریابی ابزارها)
 - **Internal Consistency**: Cronbach's alpha ($\alpha \ge .70$), McDonald's omega ($\omega$).
@@ -70,12 +76,12 @@ The skill provides specialized workflows for the three standard psychology resea
 - **Script**: `visualize_stats.py`
 - **Capabilities**:
   1. **Group Comparisons with Significance Brackets**: Bar / violin / box plots with exact brackets indicating statistical significance levels (`* p < .05`, `** p < .01`, `*** p < .001`, `ns`).
-  2. **Pre-Post Repeated-Measures Interaction Plots**: Line plots with 95% confidence intervals displaying intervention trajectory across experimental and control arms.
+  2. **Regression Residual Diagnostics (Normal P-P & Histogram)**: SPSS-exact 300-DPI diagnostic plots displaying standardized residuals with normal bell curve overlay.
   3. **Editorial Aesthetics**: Colorblind-safe palettes (Nature, JAMA, Science), 300-DPI high-resolution output, clean sans-serif typography, and zero chartjunk.
 
 ---
 
-## 3. Step-by-Step Execution Protocol
+## 3. Step-by-Step Execution Protocol (Digital Saber Parity)
 
 When a student provides a dataset and asks for analysis or Chapter 4, follow this 6-step protocol:
 
@@ -94,24 +100,27 @@ When a student provides a dataset and asks for analysis or Chapter 4, follow thi
         - Inspect columns, sample size, missing values
                    │
                    ▼
-     [Step 2: Formulate Config JSON]
-     - Map hypotheses to tests (ANCOVA, Regression, Mediation)
+     [Step 2: Formulate Config JSON (study_config.json)]
+     - Demographics: Continuous age binning + categorical mappings
+     - Descriptives: 9-column master constructs dictionary
+     - Assumptions Suite: 6-pillar specifications across all models
+     - Hypotheses: 4-tier regression / mediation / SEM mapping
                    │
                    ▼
    [Step 3: Run Deterministic Engine]
-   - python3 psychology_stats.py --auto --config study_config.json
+   - python3 psychology_stats.py --data data.xlsx --task auto --config study_config.json --out stats_results.json
                    │
                    ▼
    [Step 4: Generate Publication Visuals]
-   - python3 visualize_stats.py --json stats_results.json --out-dir ./plots
+   - Auto-generated during hypothesis testing (histograms, P-P plots, SEM diagrams)
                    │
                    ▼
-   [Step 5: Generate Word Document]
-   - python3 generate_apa_docx.py --json stats_results.json --mode chapter4
+   [Step 5: Generate Full Defense-Ready Word Document]
+   - python3 generate_apa_docx.py --json stats_results.json --out Chapter_4_Results.docx
                    │
                    ▼
    [Step 6: Defense Review & Delivery]
-   - Verify tables, APA notation, and hypothesis conclusions
+   - Verify 14+ tables, APA 7 borderless formatting, and 2,500+ authentic narrative words
 ```
 
 ### Step 0: Psychometric Ingestion & Factor Scoring
@@ -133,33 +142,61 @@ python3 -c "import pandas as pd; df = pd.read_excel('data.xlsx'); print(df.info(
 ```
 
 ### Step 2: Formulate `study_config.json`
-Create a study configuration mapping all variables and hypotheses:
+Create a study configuration mapping all variables and hypotheses according to Saber's 7-part architecture:
 ```json
 {
-  "descriptives": {
-    "vars": ["Pre_Anxiety", "Post_Anxiety", "Resilience", "Self_Efficacy"]
+  "plot_dir": "./plots",
+  "demographics": {
+    "vars": [
+      {
+        "column": "gender",
+        "name_fa": "جنسیت",
+        "value_labels": {"1": "زن", "2": "مرد"}
+      },
+      {
+        "column": "education",
+        "name_fa": "تحصیلات",
+        "value_labels": {"1": "کارشناسی", "2": "کارشناسی ارشد", "3": "دکتری"}
+      }
+    ],
+    "age_col": "age",
+    "age_bins": [0, 25, 30, 35, 40, 150],
+    "age_labels": ["کمتر از ۲۵ سال", "۲۵ - ۳۰ سال", "۳۰ - ۳۵ سال", "۳۵ - ۴۰ سال", "بیشتر از ۴۰ سال"]
   },
-  "reliability": {
-    "Resilience_Scale": ["R1", "R2", "R3", "R4", "R5"],
-    "Self_Efficacy_Scale": ["SE1", "SE2", "SE3", "SE4"]
+  "comprehensive_descriptives": {
+    "شدت علائم اضطراب فراگیر (GAD-7)": [
+      {"subscale": "نمره کل اضطراب فراگیر", "col": "GAD_T"}
+    ],
+    "سبک‌های فرزندپروری مادر (بامریند)": [
+      {"subscale": "سبک مقتدر مادر", "col": "MAS"},
+      {"subscale": "سبک استبدادی مادر", "col": "MW"},
+      {"subscale": "سبک سهل‌گیر مادر", "col": "MI"}
+    ]
   },
-  "correlation": {
-    "vars": ["Resilience", "Self_Efficacy", "Post_Anxiety"],
-    "method": "pearson"
+  "assumptions_suite": {
+    "models": [
+      {
+        "dv": "GAD_T",
+        "predictors": ["MI", "MAS", "MW"]
+      }
+    ]
   },
-  "ancova": [
+  "saber_hypotheses": [
     {
-      "dv": "Post_Anxiety",
-      "group": "Group",
-      "covar": "Pre_Anxiety"
+      "hypothesis_number": 1,
+      "hypothesis_title": "سبک‌های فرزندپروری مادر توان پیش‌بینی اضطراب فراگیر را دارند",
+      "dv": "GAD_T",
+      "predictors": ["MI", "MAS", "MW"],
+      "subscales": ["MI", "MAS", "MW"]
     }
   ],
-  "mediation": [
+  "serial_mediation": [
     {
-      "x": "Pre_Anxiety",
-      "m": "Resilience",
-      "y": "Post_Anxiety",
-      "bootstraps": 2000
+      "x": "MAS",
+      "m1": "IUS_T",
+      "m2": "PSW_T",
+      "y": "GAD_T",
+      "bootstraps": 5000
     }
   ]
 }
@@ -211,6 +248,22 @@ Ensure all generated chapter text strictly follows standard Iranian university c
 4. **Hypothesis Conclusion Statement**:
    - Every hypothesis test must conclude with a clear verdict:
      > «بنابراین با توجه به معناداری آماره آزمون در سطح ۰.۰۵، فرضیه پژوهش مبنی بر [عنوان فرضیه] مورد **تأیید** قرار گرفت.»
+
+### 4.1. The 5-Part Epistemic Paragraph Formula (قالب پنج‌بخشی روایت فرضیه‌ها)
+In Saber Ghaderi's theses, every hypothesis is written using a rigorous 5-part structure:
+1. **P1: Empirical Context & Operational Target**: Stating the formal hypothesis and designating predictor ($X$) vs. criterion ($Y$) variables.
+2. **P2: Preliminary Correlation Assessment (Tier 1)**: Reporting zero-order Pearson correlations between criterion and each predictor subscale.
+3. **P3: Overall Model Fit & Variance Explained (Tier 2)**: Reporting $R, R^2, \text{Adj } R^2, F, df, p$, and standard error of estimate.
+4. **P4: Relative Contribution of Predictors (Tier 3)**: Comparing standardized $\beta$, $t$-statistics, and $p$-values to evaluate the unique contribution of each predictor.
+5. **P5: Diagnostic Residual Assurance & Theoretical Verdict (Tier 4)**: Citing residual normality and collinearity diagnostics, followed by the formal confirmation/rejection verdict.
+
+### 4.2. Multi-Pass Epistemic Orchestration Pattern (رویه چندمرحله‌ای تدوین فصل چهارم)
+To achieve authentic 10,000+ word thesis depth without arithmetic hallucinations:
+- **Pass 1 (Data Crunching)**: Run `psychology_stats.py` in `--task auto` mode to extract all exact statistics into `stats_results.json`.
+- **Pass 2 (Visual Generation)**: Automatically render 300-DPI residual histograms and Normal P-P plots via `visualize_stats.py`.
+- **Pass 3 (Document Assembly)**: Compile publication-grade APA 7 tables and embed high-resolution figures into `.docx` via `generate_apa_docx.py`.
+- **Pass 4 (Epistemic Narrative Synthesis)**: The AI agent reads the exact numbers from `stats_results.json` and enriches the Word narrative using the 5-Part Formula, embedding theoretical implications and psychometric insights.
+
 5. **Mandatory Persian Number & Decimal Typography Standards**:
    - **Standard Dot ('.') Format**: All decimal numbers in Persian Chapter 4 text and tables must be formatted using the standard dot (`.`): e.g. `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۲.۵۰`, `۰.۴۰`, `۱.۱۱۸`.
    - **Preserve Leading Zero**: NEVER omit the leading zero before the decimal point in Persian text. Write `۰.۰۰۱` (never `.۰۰۱` or `.001`), `۰.۰۵` (never `.۰۵`).
