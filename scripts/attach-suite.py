@@ -179,8 +179,8 @@ def is_attached_agents_md(p: Path) -> bool:
 
 def create_dir_link(target: Path, link_path: Path) -> str:
     """
-    Creates a directory symlink (macOS/Linux) or Directory Junction (Windows 11).
-    Returns link type: 'junction', 'symlink', or 'pointer'.
+    Creates a directory symlink (macOS/Linux/Windows Developer Mode) or Directory Junction (Windows fallback).
+    Returns link type: 'symlink', 'junction', or 'pointer'.
     """
     if is_link_path(link_path):
         remove_link(link_path)
@@ -189,25 +189,28 @@ def create_dir_link(target: Path, link_path: Path) -> str:
     link_str = str(link_path.resolve())
 
     if IS_WINDOWS:
-        # On Windows 11, Directory Junctions (mklink /J) require NO Admin or Developer Mode
+        # 1. Prioritize native Directory Symbolic Link (works with Windows Developer Mode enabled or Admin)
+        try:
+            os.symlink(target_str, link_str, target_is_directory=True)
+            return "symlink"
+        except OSError:
+            pass
+
+        # 2. Fallback to Directory Junction (mklink /J) if Developer Mode is off
         res = subprocess.run(["cmd", "/c", "mklink", "/J", link_str, target_str], capture_output=True, text=True)
         if res.returncode == 0:
             return "junction"
 
-        # Fallback to python os.symlink
-        try:
-            os.symlink(target_str, link_str, target_is_directory=True)
-            return "symlink"
-        except OSError as e:
-            drive = link_path.drive or str(link_path)[:2]
-            print(f"{YELLOW}Notice: Filesystem on '{drive}' (Google Drive File Stream / FAT32) does not support NTFS Junctions or Symlinks.{RESET}")
-            print(f"{CYAN}Engaging Antigravity Pointer Link (linking via skills.json without copying files)...{RESET}")
-            link_path.mkdir(parents=True, exist_ok=True)
-            skills_json = link_path / "skills.json"
-            target_skills = target / "skills" if (target / "skills").exists() else target
-            with open(skills_json, "w", encoding="utf-8") as f:
-                json.dump({"entries": [{"path": str(target_skills).replace("\\", "/")}]}, f, indent=2)
-            return "pointer"
+        # 3. Fallback to Antigravity Pointer Link for non-NTFS/virtual filesystems (Google Drive File Stream / FAT32)
+        drive = link_path.drive or str(link_path)[:2]
+        print(f"{YELLOW}Notice: Filesystem on '{drive}' does not support NTFS Symbolic Links or Junctions.{RESET}")
+        print(f"{CYAN}Engaging Antigravity Pointer Link (linking via skills.json without copying files)...{RESET}")
+        link_path.mkdir(parents=True, exist_ok=True)
+        skills_json = link_path / "skills.json"
+        target_skills = target / "skills" if (target / "skills").exists() else target
+        with open(skills_json, "w", encoding="utf-8") as f:
+            json.dump({"entries": [{"path": str(target_skills).replace("\\", "/")}]}, f, indent=2)
+        return "pointer"
     else:
         try:
             os.symlink(target_str, link_str)
@@ -217,7 +220,7 @@ def create_dir_link(target: Path, link_path: Path) -> str:
             sys.exit(1)
 
 
-def create_file_link(target: Path, link_path: Path):
+def create_file_link(target: Path, link_path: Path) -> str:
     """Creates a file symlink, hard link, or fallback copy."""
     if is_link_path(link_path) or link_path.exists():
         remove_link(link_path)
@@ -225,17 +228,24 @@ def create_file_link(target: Path, link_path: Path):
     target_str = str(target.resolve())
     link_str = str(link_path.resolve())
 
+    # 1. Prioritize native File Symbolic Link (works on Windows with Developer Mode and on POSIX)
+    try:
+        os.symlink(target_str, link_str)
+        return "symlink"
+    except OSError:
+        pass
+
     if IS_WINDOWS:
-        # Try NTFS hard link first (mklink /H)
+        # 2. Fallback to NTFS hard link (mklink /H) if Developer Mode is off
         res = subprocess.run(["cmd", "/c", "mklink", "/H", link_str, target_str], capture_output=True, text=True)
-        if res.returncode != 0:
-            # Cross-volume / FAT32 fallback: copy file
-            shutil.copy2(target, link_path)
+        if res.returncode == 0:
+            return "hardlink"
+        # 3. Cross-volume / FAT32 fallback: copy file
+        shutil.copy2(target, link_path)
+        return "file"
     else:
-        try:
-            os.symlink(target_str, link_str)
-        except OSError:
-            shutil.copy2(target, link_path)
+        shutil.copy2(target, link_path)
+        return "file"
 
 
 def remove_link(link_path: Path, allow_delete_dir: bool = False):
@@ -450,7 +460,7 @@ def cmd_status(args):
         else:
             valid = Path(target).exists() if target else False
             color = GREEN if valid else RED
-            link_type = "Junction" if IS_WINDOWS else "Symlink"
+            link_type = "Symlink" if (cwd / ".agents").is_symlink() else ("Junction" if IS_WINDOWS else "Symlink")
             print(f"  {BOLD}.agents:{RESET}          {CYAN}{link_type} ──► {target}{RESET} [{color}{'Valid' if valid else 'Broken'}{RESET}]")
     elif status["agents_exists"]:
         print(f"  {BOLD}.agents:{RESET}          {YELLOW}Physical Directory (Not a link){RESET}")
@@ -459,7 +469,8 @@ def cmd_status(args):
 
     # Check AGENTS.md
     if status["agents_md_is_link"]:
-        print(f"  {BOLD}AGENTS.md:{RESET}        {CYAN}Link ──► {status['agents_md_target']}{RESET}")
+        md_type = "Symlink" if (cwd / "AGENTS.md").is_symlink() else "Link"
+        print(f"  {BOLD}AGENTS.md:{RESET}        {CYAN}{md_type} ──► {status['agents_md_target']}{RESET}")
     elif (cwd / "AGENTS.md").exists():
         print(f"  {BOLD}AGENTS.md:{RESET}        {YELLOW}Physical File{RESET}")
     else:
@@ -680,13 +691,14 @@ def cmd_attach(args):
 
     # Step 4: Create Links
     link_type = create_dir_link(agents_src, existing_agents)
-    link_label = "Directory Junction" if link_type == "junction" else ("Symlink" if link_type == "symlink" else "Pointer Link")
+    link_label = "Symbolic Link" if link_type == "symlink" else ("Directory Junction" if link_type == "junction" else "Pointer Link")
     print(f"{GREEN}✓ Attached .agents ({link_label}) ──► {agents_src}{RESET}")
 
     agents_md_src = suite_path / "AGENTS.md"
     if agents_md_src.exists():
-        create_file_link(agents_md_src, existing_agents_md)
-        print(f"{GREEN}✓ Attached AGENTS.md ──► {agents_md_src}{RESET}")
+        file_type = create_file_link(agents_md_src, existing_agents_md)
+        file_label = "Symbolic Link" if file_type == "symlink" else ("Hard Link" if file_type == "hardlink" else "File Copy")
+        print(f"{GREEN}✓ Attached AGENTS.md ({file_label}) ──► {agents_md_src}{RESET}")
 
     # Optionally link scripts
     scripts_src = suite_path / "scripts"
@@ -695,10 +707,12 @@ def cmd_attach(args):
         if is_link_path(scripts_dest):
             remove_link(scripts_dest, allow_delete_dir=True)
             scripts_type = create_dir_link(scripts_src, scripts_dest)
-            print(f"{GREEN}✓ Attached scripts/ ({scripts_type}) ──► {scripts_src}{RESET}")
+            scripts_label = "Symbolic Link" if scripts_type == "symlink" else ("Directory Junction" if scripts_type == "junction" else "Pointer Link")
+            print(f"{GREEN}✓ Attached scripts/ ({scripts_label}) ──► {scripts_src}{RESET}")
         elif not scripts_dest.exists():
             scripts_type = create_dir_link(scripts_src, scripts_dest)
-            print(f"{GREEN}✓ Attached scripts/ ({scripts_type}) ──► {scripts_src}{RESET}")
+            scripts_label = "Symbolic Link" if scripts_type == "symlink" else ("Directory Junction" if scripts_type == "junction" else "Pointer Link")
+            print(f"{GREEN}✓ Attached scripts/ ({scripts_label}) ──► {scripts_src}{RESET}")
 
     # Save attachment metadata
     meta = {
