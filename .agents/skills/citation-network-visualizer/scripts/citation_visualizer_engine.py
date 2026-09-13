@@ -124,7 +124,22 @@ def format_cell_text(cell, text, bold=False, italic=False, size_pt=10, color_rgb
 def add_styled_paragraph(doc, text, bold=False, italic=False, size_pt=12, color_rgb=(30,30,30),
                          align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=6, line_spacing=1.15,
                          font_fa="B Nazanin", font_en="Times New Roman", is_bidi=True):
-    """Add a bidirectional paragraph with custom typography."""
+    """Add a bidirectional paragraph with custom typography. Splits multiline strings into independent paragraphs."""
+    if text and '\n' in text:
+        paragraphs = []
+        for line in text.split('\n'):
+            line_str = line.strip()
+            if line_str:
+                p_sub = add_styled_paragraph(
+                    doc, line_str, bold=bold, italic=italic, size_pt=size_pt,
+                    color_rgb=color_rgb, align=align, space_after=space_after,
+                    line_spacing=line_spacing, font_fa=font_fa, font_en=font_en,
+                    is_bidi=is_bidi
+                )
+                paragraphs.append(p_sub)
+        return paragraphs[-1] if paragraphs else None
+
+    clean_text = (text or "").rstrip('\r\n')
     p = doc.add_paragraph()
     p.alignment = align
     p.paragraph_format.space_after = Pt(space_after)
@@ -134,10 +149,10 @@ def add_styled_paragraph(doc, text, bold=False, italic=False, size_pt=12, color_
         if not any(child.tag.endswith('}bidi') for child in pPr):
             pPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>'))
     
-    run = p.add_run(text)
+    run = p.add_run(clean_text)
     run.font.size = Pt(size_pt)
-    run.font.bold = bold
-    run.font.italic = italic
+    run.bold = bold
+    run.italic = italic
     run.font.color.rgb = RGBColor(*color_rgb)
     rPr = run._element.get_or_add_rPr()
     if is_bidi:

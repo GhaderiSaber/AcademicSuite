@@ -669,10 +669,15 @@ def build_rebuttal(data, out_path, lang='en'):
         add_run(p_h, "جدول پاسخ به نظرات داوران و سردبیر (Response to Reviewers)", lang='fa', size=15, bold=True)
         p_h.paragraph_format.space_after = Pt(10)
         
-        p_meta = doc.add_paragraph()
-        set_paragraph_bidi(p_meta, WD_ALIGN_PARAGRAPH.RIGHT)
-        add_run(p_meta, f"کد رهگیری مقاله: {manuscript_id} | عنوان: {title}\nنشریه: {journal_name} | تاریخ تصمیم: {decision_date}", lang='fa', size=10, italic=True)
-        p_meta.paragraph_format.space_after = Pt(12)
+        p_meta1 = doc.add_paragraph()
+        set_paragraph_bidi(p_meta1, WD_ALIGN_PARAGRAPH.RIGHT)
+        add_run(p_meta1, f"کد رهگیری مقاله: {manuscript_id} | عنوان: {title}", lang='fa', size=10, italic=True)
+        p_meta1.paragraph_format.space_after = Pt(2)
+
+        p_meta2 = doc.add_paragraph()
+        set_paragraph_bidi(p_meta2, WD_ALIGN_PARAGRAPH.RIGHT)
+        add_run(p_meta2, f"نشریه: {journal_name} | تاریخ تصمیم: {decision_date}", lang='fa', size=10, italic=True)
+        p_meta2.paragraph_format.space_after = Pt(12)
         
         if intro_letter:
             p_intro = doc.add_paragraph()
@@ -701,11 +706,15 @@ def build_rebuttal(data, out_path, lang='en'):
                 add_row_bottom_border(cell, "E0E0E0")
                 
             # Cell 0: Reviewer & Comment
-            p0 = row_cells[0].paragraphs[0]
-            set_paragraph_bidi(p0, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p0_lbl = row_cells[0].paragraphs[0]
+            set_paragraph_bidi(p0_lbl, WD_ALIGN_PARAGRAPH.JUSTIFY)
             rev_label = f"{pt.get('reviewer', '')} ({pt.get('comment_id', '')})"
-            add_run(p0, rev_label + "\n", lang='fa', size=10, bold=True)
-            add_run(p0, pt.get("comment", ""), lang='fa', size=10)
+            add_run(p0_lbl, rev_label, lang='fa', size=10, bold=True)
+            p0_lbl.paragraph_format.space_after = Pt(2)
+
+            p0_comm = row_cells[0].add_paragraph()
+            set_paragraph_bidi(p0_comm, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            add_run(p0_comm, pt.get("comment", ""), lang='fa', size=10)
             
             # Cell 1: Author Response
             p1 = row_cells[1].paragraphs[0]
@@ -713,11 +722,14 @@ def build_rebuttal(data, out_path, lang='en'):
             add_run(p1, pt.get("author_response", ""), lang='fa', size=10)
             
             # Cell 2: Action & Excerpt
-            p2 = row_cells[2].paragraphs[0]
-            set_paragraph_bidi(p2, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            add_run(p2, pt.get("manuscript_action", "") + "\n\n", lang='fa', size=10, bold=True)
+            p2_act = row_cells[2].paragraphs[0]
+            set_paragraph_bidi(p2_act, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            add_run(p2_act, pt.get("manuscript_action", ""), lang='fa', size=10, bold=True)
+            p2_act.paragraph_format.space_after = Pt(4)
             if pt.get("excerpt"):
-                add_run(p2, pt.get("excerpt"), lang='fa', size=9, italic=True)
+                p2_exc = row_cells[2].add_paragraph()
+                set_paragraph_bidi(p2_exc, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                add_run(p2_exc, pt.get("excerpt"), lang='fa', size=9, italic=True)
                 
     else:
         # English Rebuttal
@@ -726,10 +738,15 @@ def build_rebuttal(data, out_path, lang='en'):
         add_run(p_h, "Point-by-Point Response to Reviewers", lang='en', size=15, bold=True)
         p_h.paragraph_format.space_after = Pt(8)
         
-        p_meta = doc.add_paragraph()
-        p_meta.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        add_run(p_meta, f"Manuscript ID: {manuscript_id} | Journal: {journal_name}\nTitle: \"{title}\"", lang='en', size=10, italic=True)
-        p_meta.paragraph_format.space_after = Pt(14)
+        p_meta1 = doc.add_paragraph()
+        p_meta1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        add_run(p_meta1, f"Manuscript ID: {manuscript_id} | Journal: {journal_name}", lang='en', size=10, italic=True)
+        p_meta1.paragraph_format.space_after = Pt(2)
+
+        p_meta2 = doc.add_paragraph()
+        p_meta2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        add_run(p_meta2, f'Title: "{title}"', lang='en', size=10, italic=True)
+        p_meta2.paragraph_format.space_after = Pt(14)
         
         if intro_letter:
             p_intro = doc.add_paragraph()
@@ -762,10 +779,13 @@ def build_rebuttal(data, out_path, lang='en'):
                 add_row_bottom_border(cell, "E0E0E0")
                 
             # Cell 0: Reviewer Comment
-            p0 = row_cells[0].paragraphs[0]
+            p0_lbl = row_cells[0].paragraphs[0]
             rev_label = f"{pt.get('reviewer', 'Reviewer')} - Comment {pt.get('comment_id', '')}"
-            add_run(p0, rev_label + "\n", lang='en', size=10, bold=True)
-            add_run(p0, pt.get("comment", ""), lang='en', size=10)
+            add_run(p0_lbl, rev_label, lang='en', size=10, bold=True)
+            p0_lbl.paragraph_format.space_after = Pt(2)
+
+            p0_comm = row_cells[0].add_paragraph()
+            add_run(p0_comm, pt.get("comment", ""), lang='en', size=10)
             
             # Cell 1: Author Response
             p1 = row_cells[1].paragraphs[0]
@@ -773,11 +793,14 @@ def build_rebuttal(data, out_path, lang='en'):
             add_run(p1, pt.get("author_response", ""), lang='en', size=10)
             
             # Cell 2: Action & Excerpt
-            p2 = row_cells[2].paragraphs[0]
-            p2.paragraph_format.line_spacing = 1.15
-            add_run(p2, pt.get("manuscript_action", "") + "\n\n", lang='en', size=10, bold=True)
+            p2_act = row_cells[2].paragraphs[0]
+            p2_act.paragraph_format.line_spacing = 1.15
+            add_run(p2_act, pt.get("manuscript_action", ""), lang='en', size=10, bold=True)
+            p2_act.paragraph_format.space_after = Pt(4)
             if pt.get("excerpt"):
-                add_run(p2, pt.get("excerpt"), lang='en', size=9, italic=True)
+                p2_exc = row_cells[2].add_paragraph()
+                p2_exc.paragraph_format.line_spacing = 1.15
+                add_run(p2_exc, pt.get("excerpt"), lang='en', size=9, italic=True)
                 
     doc.save(out_path)
     return out_path
