@@ -72,6 +72,7 @@ from project_drive_manager import (
 from group_topics import TopicManager
 from academic_inquiry_classifier import AcademicInquiryClassifier
 from milestone_tracker import AcademicMilestoneTracker, milestone_tracker
+from morning_briefing import AcademicMorningBriefing
 
 
 DEFAULT_CONFIG_PATH = os.path.join(SCRIPT_DIR, "telethon_config.json")
@@ -170,6 +171,7 @@ class SaberTelethonUserbot:
         self.topic_manager = TopicManager(self.config, storage_dir=self.storage_dir)
         self.classifier = AcademicInquiryClassifier(self.config)
         self.milestone_tracker = AcademicMilestoneTracker(self.project_manager.work_dir)
+        self.morning_briefing = AcademicMorningBriefing(self.project_manager, self.milestone_tracker, storage_dir=self.storage_dir)
 
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
@@ -859,6 +861,34 @@ class SaberTelethonUserbot:
             print(f"[+] Posted Follow-Up reminder {fu_id} for {cname} to Academic Desk.")
 
         return audit_res
+
+    async def post_morning_executive_briefing(self, trigger_event: Optional[Any] = None):
+        """Compile and post the daily morning executive briefing card to Topic 116 (Health)."""
+        data = self.morning_briefing.compile_briefing_data(pending_quotes=self.pending_quotes)
+        card = self.morning_briefing.format_briefing_card(data)
+        buttons = self.morning_briefing.build_briefing_keyboard(data)
+        await self.send_to_desk(
+            card,
+            buttons=buttons,
+            topic_key="health",
+            parse_mode="html"
+        )
+        self.morning_briefing.mark_fired_today()
+        print(f"[+] Posted Morning Executive Briefing to Topic 116 (Health).")
+        if trigger_event:
+            await trigger_event.reply("🌅 Morning executive briefing posted to Topic 116!", parse_mode="html")
+
+    async def _morning_briefing_scheduler_loop(self):
+        """Autonomous background loop: checks time every 60s and posts briefing at target morning time."""
+        briefing_time = self.config.get("morning_briefing_time", "08:30")
+        while True:
+            try:
+                if self.morning_briefing.should_fire_today(target_time_str=briefing_time):
+                    print(f"[*] Firing scheduled morning briefing ({briefing_time}) to Topic 116...")
+                    await self.post_morning_executive_briefing()
+            except Exception as e:
+                print(f"[-] Error in morning briefing scheduler loop: {e}")
+            await asyncio.sleep(60)
 
     async def scan_and_process_unread_messages(self, limit_dialogs: int = 100, trigger_event: Optional[Any] = None):
         """
@@ -1615,6 +1645,11 @@ class SaberTelethonUserbot:
                     await event.reply("\n".join(lines), parse_mode="html")
                     return
 
+            # Morning Executive Briefing: /briefing or /morning
+            if re.match(r"^/(?:briefing|morning)\b", txt):
+                await self.post_morning_executive_briefing(trigger_event=event)
+                return
+
             # Milestone & Progress tracker: /milestone [client_query] or /milestones or /progress
             m_ms = re.match(r"^/(?:milestone|milestones|progress)(?:\s+(.+))?", txt)
             if m_ms:
@@ -2116,6 +2151,38 @@ class SaberTelethonUserbot:
                             pass
                     else:
                         await event.answer("❌ Project directory not found.", alert=True)
+                elif data == "cmd_briefing_refresh":
+                    data_br = self.morning_briefing.compile_briefing_data(pending_quotes=self.pending_quotes)
+                    card = self.morning_briefing.format_briefing_card(data_br)
+                    btns = self.morning_briefing.build_briefing_keyboard(data_br)
+                    await event.answer("🔄 Morning briefing refreshed!", alert=False)
+                    try:
+                        await event.edit(card, buttons=btns, parse_mode="html")
+                    except Exception:
+                        pass
+                elif data == "cmd_briefing_followups":
+                    await event.answer("⚡ Preparing follow-up drafts for stalled clients...", alert=False)
+                    await self.scan_and_report_project_health(trigger_event=event)
+                elif data == "cmd_deliverables":
+                    await event.answer("📦 Inspecting ready deliverables...", alert=False)
+                    projs = self.project_manager.list_all_projects()
+                    ready_list = []
+                    for p in projs:
+                        d_files = self.project_manager.list_project_deliverables(p["folder_path"])
+                        if d_files:
+                            ready_list.append((p, d_files))
+                    if ready_list:
+                        lines = [f"📦 <b>Client Projects with Ready Deliverables ({len(ready_list)} clients):</b>\n"]
+                        for p, dfs in ready_list[:12]:
+                            cname = p.get("client_name_fa") or p.get("client_name") or p.get("folder_name")
+                            files_str = ", ".join([f"<code>{f['filename']}</code>" for f in dfs[:2]])
+                            if len(dfs) > 2:
+                                files_str += f" (+{len(dfs)-2} more)"
+                            lines.append(f"• <b>{html.escape(cname)}</b>: {files_str}")
+                        btn = [[Button.inline("❌ Close", b"cmd_close", style="danger")]] if Button is not None else None
+                        await self.send_to_desk("\n".join(lines), buttons=btn, topic_key="health", parse_mode="html")
+                    else:
+                        await event.answer("📦 No deliverables currently waiting in Drive.", alert=False)
                 elif data == "cmd_projects":
                     projs = self.project_manager.list_all_projects()
                     await event.answer(f"Found {len(projs)} active projects in Google Drive.")
@@ -2397,6 +2464,9 @@ class SaberTelethonUserbot:
 
         # Scan and report any existing unread messages from clients on startup
         await self.scan_and_process_unread_messages()
+
+        # Launch morning briefing autonomous background scheduler loop
+        asyncio.create_task(self._morning_briefing_scheduler_loop())
 
         while True:
             try:
