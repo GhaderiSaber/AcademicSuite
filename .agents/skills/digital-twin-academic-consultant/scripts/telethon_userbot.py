@@ -20,7 +20,7 @@ import html
 import asyncio
 import argparse
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Union
 
 try:
     from telethon import TelegramClient, events, Button
@@ -231,6 +231,50 @@ class SaberTelethonUserbot:
                 json.dump(clean_dict, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"[-] Error saving pending drafts: {e}")
+
+    def build_approval_keyboard(
+        self,
+        approve_label: str,
+        approve_data: Union[str, bytes],
+        edit_label: Optional[str] = None,
+        edit_query: Optional[str] = None,
+        dismiss_label: str = "🗑️ Dismiss",
+        dismiss_data: Union[str, bytes] = b"cmd_close",
+        approve_icon: Optional[int] = None,
+        edit_icon: Optional[int] = None,
+        dismiss_icon: Optional[int] = None
+    ) -> Optional[List[List[Any]]]:
+        """
+        Build a 2026 Telegram 2-row styled action keyboard:
+        Row 1: [ 🚀 Approve & Send ] (style="success" -> vibrant green pill)
+        Row 2: [ ✏️ Edit & Reply ] (style="primary" -> vibrant blue pill) + [ 🗑️ Dismiss ] (style="danger" -> soft red pill)
+        Supports optional Telegram custom emoji document IDs via icon parameter.
+        """
+        if Button is None:
+            return None
+
+        custom_icons = self.config.get("custom_emoji_icons", {}) if hasattr(self, "config") and isinstance(self.config, dict) else {}
+        a_icon = approve_icon if approve_icon is not None else custom_icons.get("approve")
+        e_icon = edit_icon if edit_icon is not None else custom_icons.get("edit")
+        d_icon = dismiss_icon if dismiss_icon is not None else custom_icons.get("dismiss")
+
+        data_bytes = approve_data.encode("utf-8") if isinstance(approve_data, str) else approve_data
+        dismiss_bytes = dismiss_data.encode("utf-8") if isinstance(dismiss_data, str) else dismiss_data
+
+        try:
+            row1 = [Button.inline(approve_label, data_bytes, style="success", icon=a_icon)]
+            row2 = []
+            if edit_label and edit_query:
+                row2.append(Button.switch_inline(edit_label, edit_query, same_peer=True, style="primary", icon=e_icon))
+            row2.append(Button.inline(dismiss_label, dismiss_bytes, style="danger", icon=d_icon))
+            return [row1, row2]
+        except Exception:
+            row1 = [Button.inline(approve_label, data_bytes)]
+            row2 = []
+            if edit_label and edit_query:
+                row2.append(Button.switch_inline(edit_label, edit_query, same_peer=True))
+            row2.append(Button.inline(dismiss_label, dismiss_bytes))
+            return [row1, row2]
 
     @property
     def admin_target(self):
@@ -474,25 +518,30 @@ class SaberTelethonUserbot:
         clean_path = clean_drive_display_path(project_dir)
         safe_fname = html.escape(file_name or "Direct chat message")
 
+        header_lines = [
+            "╭─ <b>📥 NEW RESEARCH PROPOSAL RECEIVED</b> ─────────────",
+            f"│ 👤 <b>Client:</b> {client_link}  •  <code>#{sender_id}</code>",
+            f"│ 📄 <b>File / Source:</b> <code>{safe_fname}</code>",
+            f"│ 📁 <b>Drive:</b> <code>{html.escape(clean_path)}</code>",
+            f"│ 🆔 <b>Quotation ID:</b> <code>{quote_id}</code>",
+            "╰──────────────────────────────────────────────────"
+        ]
+
         alert_text = (
-            f"🔔 <b>New Proposal Received from Client:</b> {client_link}\n"
-            f"📄 <b>File / Source:</b> <code>{safe_fname}</code>\n"
-            f"📁 <b>Google Drive:</b> <code>{html.escape(clean_path)}</code>\n"
-            f"🆔 <b>Quotation ID:</b> <code>{quote_id}</code>\n"
-            "─────────────────────\n"
-            f"{quote_card_en}\n\n"
-            "⚙️ <b>Admin Actions & Commands:</b>\n"
-            f"• Approve & Send to Client: <code>/send_{quote_id}</code>\n"
-            f"• Adjust Price & Send: <code>/adjust_{quote_id}_&lt;amount&gt;</code>\n"
-            f"• Dismiss: <code>/ignore_{quote_id}</code>"
+            f"{chr(10).join(header_lines)}\n\n"
+            f"📊 <b>DETAILED PROPOSAL BREAKDOWN & QUOTATION</b>\n"
+            f"<blockquote expandable>{quote_card_en}</blockquote>\n\n"
+            f"<i>Tap button below to dispatch, or tap to copy command:</i> <code>/send_{quote_id}</code>"
         )
 
-        buttons = None
-        if Button is not None:
-            buttons = [
-                [Button.inline(f"🚀 Approve & Send ({quote_id})", f"send_{quote_id}".encode()),
-                 Button.inline("🗑️ Dismiss", f"ignore_{quote_id}".encode())]
-            ]
+        buttons = self.build_approval_keyboard(
+            approve_label=f"🚀 Approve & Send ({quote_id})",
+            approve_data=f"send_{quote_id}",
+            edit_label="✏️ Adjust Price",
+            edit_query=f"/adjust_{quote_id}_",
+            dismiss_label="🗑️ Dismiss",
+            dismiss_data=f"ignore_{quote_id}"
+        )
 
         await self.send_to_desk(
             alert_text,
@@ -609,14 +658,15 @@ class SaberTelethonUserbot:
 
         alert_text = "\n".join(body_parts)
 
-        # Modern 2-Row Interactive Keyboard Layout
-        buttons = None
-        if Button is not None:
-            buttons = [
-                [Button.inline(f"🚀 Approve & Send ({draft_id})", f"send_draft_{draft_id}".encode())],
-                [Button.switch_inline("✏️ Edit & Reply", f"/send_msg_{draft_id} ", same_peer=True),
-                 Button.inline("🗑️ Dismiss", f"ignore_draft_{draft_id}".encode())]
-            ]
+        # Modern 2026 2-Row Styled Action Keyboard (Green / Blue / Red)
+        buttons = self.build_approval_keyboard(
+            approve_label=f"🚀 Approve & Send ({draft_id})",
+            approve_data=f"send_draft_{draft_id}",
+            edit_label="✏️ Edit & Reply",
+            edit_query=f"/send_msg_{draft_id} ",
+            dismiss_label="🗑️ Dismiss",
+            dismiss_data=f"ignore_draft_{draft_id}"
+        )
 
         # Determine target topic
         if not topic_key:
@@ -689,10 +739,10 @@ class SaberTelethonUserbot:
         buttons = None
         if Button is not None:
             buttons = [
-                [Button.inline("🔄 Refresh Health", b"cmd_health"),
-                 Button.inline("📂 Project Catalog", b"cmd_projects"),
-                 Button.inline("📦 Deliverables", b"cmd_deliverables")],
-                [Button.inline("❌ Dismiss Notice", b"cmd_close")]
+                [Button.inline("🔄 Refresh Health", b"cmd_health", style="primary"),
+                 Button.inline("📂 Project Catalog", b"cmd_projects", style="primary"),
+                 Button.inline("📦 Deliverables", b"cmd_deliverables", style="primary")],
+                [Button.inline("❌ Dismiss Notice", b"cmd_close", style="danger")]
             ]
 
         await self.send_to_desk(summary_text, buttons=buttons, topic_key="health", parse_mode="html")
@@ -727,26 +777,31 @@ class SaberTelethonUserbot:
             clean_p = clean_drive_display_path(pdir)
             safe_draft = html.escape(draft_text)
 
+            header_lines = [
+                f"╭─ <b>{badge} FOLLOW-UP REMINDER</b> ─────────────",
+                f"│ 👤 <b>Client:</b> {client_link}  •  <code>#{cid}</code>",
+                f"│ 📁 <b>Project:</b> <code>{html.escape(clean_p)}</code>",
+                f"│ ⏰ <b>Silence:</b> <code>{days} days</code>",
+                f"│ 💡 <b>Diagnosis:</b> <i>{html.escape(reason)}</i>",
+                f"│ 🆔 <b>Follow-Up ID:</b> <code>{fu_id}</code>",
+                "╰──────────────────────────────────────────────────"
+            ]
+
             card_text = (
-                f"{badge} <b>[Follow-Up Reminder ({fu_id})] {client_link}</b>\n"
-                f"📁 <b>Project:</b> <code>{html.escape(clean_p)}</code>\n"
-                f"⏰ <b>Silence Duration:</b> <code>{days} days</code>\n"
-                f"💡 <b>Diagnosis:</b> <i>{html.escape(reason)}</i>\n"
-                "─────────────────────\n"
-                f"📝 <b>Suggested Persian Follow-Up:</b>\n"
-                f"<blockquote>{safe_draft}</blockquote>\n\n"
-                "⚙️ <b>Actions & Commands:</b>\n"
-                f"• Approve & Send to Client: <code>/send_fu_{fu_id}</code>\n"
-                f"• Send Custom Edits: <code>/send_fu_{fu_id} &lt;custom text&gt;</code>\n"
-                f"• Dismiss Reminder: <code>/ignore_fu_{fu_id}</code>"
+                f"{chr(10).join(header_lines)}\n\n"
+                f"📝 <b>SUGGESTED PERSIAN FOLLOW-UP DRAFT</b>\n"
+                f"<blockquote expandable>{safe_draft}</blockquote>\n\n"
+                f"<i>Tap button below to dispatch, or tap to copy command:</i> <code>/send_fu_{fu_id}</code>"
             )
 
-            card_btns = None
-            if Button is not None:
-                card_btns = [
-                    [Button.inline(f"🚀 Send Follow-Up ({fu_id})", f"send_fu_{fu_id}".encode()),
-                     Button.inline("🗑️ Dismiss", f"ignore_fu_{fu_id}".encode())]
-                ]
+            card_btns = self.build_approval_keyboard(
+                approve_label=f"🚀 Send Follow-Up ({fu_id})",
+                approve_data=f"send_fu_{fu_id}",
+                edit_label="✏️ Edit & Reply",
+                edit_query=f"/send_msg_{cid} ",
+                dismiss_label="🗑️ Dismiss",
+                dismiss_data=f"ignore_fu_{fu_id}"
+            )
 
             await self.send_to_desk(card_text, buttons=card_btns, topic_key="health", client_id=cid, client_name=cname, parse_mode="html")
             print(f"[+] Posted Follow-Up reminder {fu_id} for {cname} to Academic Desk.")
@@ -889,13 +944,13 @@ class SaberTelethonUserbot:
 
         buttons = None
         if Button is not None:
-            dash_row = [Button.inline("🔄 Rescan Messages", b"cmd_unread"),
-                        Button.inline("📂 Project Catalog", b"cmd_projects"),
-                        Button.inline("📦 Deliverables", b"cmd_deliverables")]
+            dash_row = [Button.inline("🔄 Rescan Messages", b"cmd_unread", style="primary"),
+                        Button.inline("📂 Project Catalog", b"cmd_projects", style="primary"),
+                        Button.inline("📦 Deliverables", b"cmd_deliverables", style="primary")]
             row2 = []
             if has_web_btn:
                 row2.append(Button.url("📱 Open Web Dashboard", webapp_url))
-            row2.append(Button.inline("❌ Dismiss Notice", b"cmd_close"))
+            row2.append(Button.inline("❌ Dismiss Notice", b"cmd_close", style="danger"))
             buttons = [dash_row, row2]
 
     @staticmethod
@@ -1173,8 +1228,8 @@ class SaberTelethonUserbot:
                     if has_web_btn:
                         btn = [[Button.url("📱 Open Mini App Dashboard", webapp_url)]]
                     else:
-                        btn = [[Button.inline("📂 Project Catalog", b"cmd_projects"),
-                                Button.inline("🔄 Rescan Messages", b"cmd_unread")]]
+                        btn = [[Button.inline("📂 Project Catalog", b"cmd_projects", style="primary"),
+                                Button.inline("🔄 Rescan Messages", b"cmd_unread", style="primary")]]
                 await event.reply(dash_text, buttons=btn, parse_mode="html")
                 return
 
@@ -1584,25 +1639,30 @@ class SaberTelethonUserbot:
                 clean_p = clean_drive_display_path(matched_pdir)
                 safe_cap = html.escape(caption_text)
 
+                header_lines = [
+                    "╭─ <b>📦 DELIVERABLE DISPATCH READY</b> ─────────────",
+                    f"│ 👤 <b>Client:</b> {client_link}  •  <code>#{cid}</code>",
+                    f"│ 📁 <b>Project:</b> <code>{html.escape(clean_p)}</code>",
+                    f"│ 📄 <b>File:</b> <code>{html.escape(chosen_file['filename'])}</code> ({chosen_file['size_str']})",
+                    f"│ 🆔 <b>Deliverable ID:</b> <code>{del_id}</code>",
+                    "╰──────────────────────────────────────────────────"
+                ]
+
                 card_text = (
-                    f"📦 <b>[Deliverable Dispatch Draft ({del_id})] {client_link}</b>\n"
-                    f"📁 <b>Project:</b> <code>{html.escape(clean_p)}</code>\n"
-                    f"📄 <b>File:</b> <code>{html.escape(chosen_file['filename'])}</code> ({chosen_file['size_str']})\n"
-                    "─────────────────────\n"
-                    "📝 <b>Persian Delivery Caption:</b>\n"
-                    f"<blockquote>{safe_cap}</blockquote>\n\n"
-                    "⚙️ <b>Actions & Commands:</b>\n"
-                    f"• Approve & Send File: <code>/send_del_{del_id}</code>\n"
-                    f"• Send with Custom Caption: <code>/send_del_{del_id} &lt;custom caption&gt;</code>\n"
-                    f"• Dismiss Delivery: <code>/ignore_del_{del_id}</code>"
+                    f"{chr(10).join(header_lines)}\n\n"
+                    f"📝 <b>PERSIAN DELIVERY CAPTION</b>\n"
+                    f"<blockquote expandable>{safe_cap}</blockquote>\n\n"
+                    f"<i>Tap button below to dispatch, or tap to copy command:</i> <code>/send_del_{del_id}</code>"
                 )
 
-                card_btns = None
-                if Button is not None:
-                    card_btns = [
-                        [Button.inline(f"🚀 Send Deliverable ({del_id})", f"send_del_{del_id}".encode()),
-                         Button.inline("🗑️ Dismiss", f"ignore_del_{del_id}".encode())]
-                    ]
+                card_btns = self.build_approval_keyboard(
+                    approve_label=f"🚀 Send Deliverable ({del_id})",
+                    approve_data=f"send_del_{del_id}",
+                    edit_label="✏️ Edit & Send",
+                    edit_query=f"/send_del_{del_id} ",
+                    dismiss_label="🗑️ Dismiss",
+                    dismiss_data=f"ignore_del_{del_id}"
+                )
 
                 await self.send_to_desk(card_text, buttons=card_btns, topic_key="proposals", client_name=cname, parse_mode="html")
                 print(f"[+] Prepared Deliverable draft card {del_id} for {cname}: {chosen_file['filename']}")
@@ -1830,7 +1890,7 @@ class SaberTelethonUserbot:
                                 f"  ▫️ {files_str}\n"
                                 f"  👉 <code>/deliverables {html.escape(cname)}</code>"
                             )
-                        btn = [[Button.inline("❌ Close Catalog", b"cmd_close")]] if Button is not None else None
+                        btn = [[Button.inline("❌ Close Catalog", b"cmd_close", style="danger")]] if Button is not None else None
                         await self.send_to_desk("\n".join(lines), buttons=btn, topic_key="system", parse_mode="html")
                 elif data == "cmd_health":
                     await event.answer("🔍 Auditing project health...")
@@ -1874,7 +1934,7 @@ class SaberTelethonUserbot:
                             lines.append(f"• <b>{html.escape(cname)}</b> (<i>{html.escape(st)}</i>) | <code>{html.escape(cpath)}</code>")
                         if len(projs) > 15:
                             lines.append(f"\n<i>... and {len(projs) - 15} more projects in Google Drive. Use <code>/projects &lt;name&gt;</code> to filter.</i>")
-                        btn = [[Button.inline("❌ Close Catalog", b"cmd_close")]] if Button is not None else None
+                        btn = [[Button.inline("❌ Close Catalog", b"cmd_close", style="danger")]] if Button is not None else None
                         await self.send_to_desk("\n".join(lines), buttons=btn, topic_key="system", parse_mode="html")
                 elif data == "cmd_unread":
                     await event.answer("🔍 Scanning client messages...")
