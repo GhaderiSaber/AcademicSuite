@@ -76,6 +76,7 @@ from morning_briefing import AcademicMorningBriefing
 from math_formatter import AcademicMathFormatter
 from voice_transcriber import AcademicVoiceTranscriber
 from financial_ledger import AcademicFinancialLedger, format_toman
+from deliverable_dispatcher import AcademicDeliverableDispatcher
 
 
 DEFAULT_CONFIG_PATH = os.path.join(SCRIPT_DIR, "telethon_config.json")
@@ -177,6 +178,7 @@ class SaberTelethonUserbot:
         self.financial_ledger = AcademicFinancialLedger(self.project_manager.work_dir, storage_dir=self.storage_dir)
         self.morning_briefing = AcademicMorningBriefing(self.project_manager, self.milestone_tracker, financial_ledger=self.financial_ledger, storage_dir=self.storage_dir)
         self.voice_transcriber = AcademicVoiceTranscriber(self.config)
+        self.deliverable_dispatcher = AcademicDeliverableDispatcher(self.project_manager, self.financial_ledger, self.milestone_tracker)
 
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
@@ -2369,7 +2371,15 @@ class SaberTelethonUserbot:
 
                 self.deliverable_counter += 1
                 del_id = f"DEL{self.deliverable_counter}"
-                caption_text = generate_deliverable_caption(cname, chosen_file["filename"])
+                card_text, card_btns, caption_text = self.deliverable_dispatcher.format_dispatch_card(
+                    del_id=del_id,
+                    client_name=cname,
+                    username=uname,
+                    telegram_id=cid,
+                    project_dir=matched_pdir,
+                    chosen_file=chosen_file,
+                    all_files=d_files if "d_files" in locals() else [chosen_file]
+                )
 
                 self.pending_deliverables[del_id] = {
                     "del_id": del_id,
@@ -2379,42 +2389,80 @@ class SaberTelethonUserbot:
                     "folder_path": matched_pdir,
                     "file_path": chosen_file["file_path"],
                     "filename": chosen_file["filename"],
-                    "size_str": chosen_file["size_str"],
+                    "size_str": chosen_file.get("size_str", "N/A"),
+                    "caption": caption_text,
+                    "all_files": d_files if "d_files" in locals() else [chosen_file],
+                    "created_at": datetime.now().isoformat()
+                }
+
+                await self.send_to_desk(card_text, buttons=card_btns, topic_key="health", client_name=cname, parse_mode="html")
+                print(f"[+] Prepared Deliverable dispatch card {del_id} for {cname}: {chosen_file['filename']}")
+                return
+
+            # Bundle all deliverables into .zip: /bundle <client_query>
+            m_bundle = re.match(r"^/bundle(?:\s+(.+))?", txt)
+            if m_bundle:
+                c_query = (m_bundle.group(1) or "").strip()
+                if not c_query:
+                    await event.reply("📦 <b>Bundle Deliverables</b>\nUsage: <code>/bundle &lt;client_name&gt;</code>\nExample: <code>/bundle Zahra Jalali</code>", parse_mode="html")
+                    return
+                clean_q = c_query.lstrip("@").lower()
+                matched_pdir = self.project_manager.find_existing_project_by_client(clean_q)
+                if not matched_pdir:
+                    projs = self.project_manager.list_all_projects()
+                    for p in projs:
+                        if clean_q in (p.get("client_name") or "").lower() or clean_q in (p.get("folder_name") or "").lower():
+                            matched_pdir = p["folder_path"]
+                            break
+                if not matched_pdir:
+                    await event.reply(f"❌ No project folder found for <code>{html.escape(c_query)}</code>.", parse_mode="html")
+                    return
+
+                d_files = self.project_manager.list_project_deliverables(matched_pdir)
+                if not d_files:
+                    await event.reply("📦 <code>03_deliverables/</code> is empty for this project.", parse_mode="html")
+                    return
+
+                file_paths = [f["file_path"] for f in d_files if not f["file_path"].endswith(".zip")]
+                if not file_paths:
+                    await event.reply("❌ No uncompressed files found to bundle.", parse_mode="html")
+                    return
+
+                zip_path = self.deliverable_dispatcher.bundle_deliverables_zip(matched_pdir, file_paths)
+                z_size = os.path.getsize(zip_path)
+                z_size_str = f"{z_size / (1024*1024):.1f} MB" if z_size > 1024*1024 else f"{z_size / 1024:.1f} KB"
+                z_file_info = {
+                    "filename": os.path.basename(zip_path),
+                    "file_path": zip_path,
+                    "size_str": z_size_str
+                }
+
+                self.deliverable_counter += 1
+                del_id = f"DEL{self.deliverable_counter}"
+                cname = os.path.basename(matched_pdir)
+                card_text, card_btns, caption_text = self.deliverable_dispatcher.format_dispatch_card(
+                    del_id=del_id,
+                    client_name=cname,
+                    username=None,
+                    telegram_id=None,
+                    project_dir=matched_pdir,
+                    chosen_file=z_file_info,
+                    all_files=[z_file_info]
+                )
+
+                self.pending_deliverables[del_id] = {
+                    "del_id": del_id,
+                    "client_name": cname,
+                    "folder_path": matched_pdir,
+                    "file_path": zip_path,
+                    "filename": os.path.basename(zip_path),
+                    "size_str": z_size_str,
                     "caption": caption_text,
                     "created_at": datetime.now().isoformat()
                 }
 
-                client_link = format_client_mention_html(cname, username=uname, client_id=cid)
-                clean_p = clean_drive_display_path(matched_pdir)
-                safe_cap = html.escape(caption_text)
-
-                header_lines = [
-                    "╭─ <b>📦 DELIVERABLE DISPATCH READY</b> ─────────────",
-                    f"│ 👤 <b>Client:</b> {client_link}  •  <code>#{cid}</code>",
-                    f"│ 📁 <b>Project:</b> <code>{html.escape(clean_p)}</code>",
-                    f"│ 📄 <b>File:</b> <code>{html.escape(chosen_file['filename'])}</code> ({chosen_file['size_str']})",
-                    f"│ 🆔 <b>Deliverable ID:</b> <code>{del_id}</code>",
-                    "╰──────────────────────────────────────────────────"
-                ]
-
-                card_text = (
-                    f"{chr(10).join(header_lines)}\n\n"
-                    f"📝 <b>PERSIAN DELIVERY CAPTION</b>\n"
-                    f"<blockquote expandable>{safe_cap}</blockquote>\n\n"
-                    f"<i>Tap button below to dispatch, or tap to copy command:</i> <code>/send_del_{del_id}</code>"
-                )
-
-                card_btns = self.build_approval_keyboard(
-                    approve_label=f"🚀 Send Deliverable ({del_id})",
-                    approve_data=f"send_del_{del_id}",
-                    edit_label="✏️ Edit & Send",
-                    edit_query=f"/send_del_{del_id} ",
-                    dismiss_label="🗑️ Dismiss",
-                    dismiss_data=f"ignore_del_{del_id}"
-                )
-
-                await self.send_to_desk(card_text, buttons=card_btns, topic_key="proposals", client_name=cname, parse_mode="html")
-                print(f"[+] Prepared Deliverable draft card {del_id} for {cname}: {chosen_file['filename']}")
+                await self.send_to_desk(card_text, buttons=card_btns, topic_key="health", parse_mode="html")
+                await event.reply(f"📦 Zipped {len(file_paths)} files into <code>{os.path.basename(zip_path)}</code> ({z_size_str}) and staged dispatch card ({del_id})!", parse_mode="html")
                 return
 
             # Approve & Send deliverable file: /send_del_DEL101 or /send_del_DEL101 <custom caption>
@@ -2627,6 +2675,10 @@ class SaberTelethonUserbot:
                                     entry["filename"],
                                     entry["client_name"]
                                 )
+                                try:
+                                    self.milestone_tracker.advance_stage(entry["folder_path"])
+                                except Exception:
+                                    pass
                             await event.answer(f"🚀 Deliverable {entry['filename']} dispatched to {entry['client_name']}!", alert=False)
                             try:
                                 done_badge = [[Button.inline(f"✅ Delivered ({del_id}) at {now_str}", b"noop", style="success")]] if Button is not None else None
@@ -2642,6 +2694,54 @@ class SaberTelethonUserbot:
                             await event.answer(f"❌ Send failed: {e}", alert=True)
                     else:
                         await event.answer(f"❌ Deliverable ID {del_id} expired or not found.", alert=True)
+                elif data.startswith("bundle_del_"):
+                    del_id = data.split("bundle_del_")[1]
+                    if del_id in self.pending_deliverables:
+                        entry = self.pending_deliverables[del_id]
+                        folder_p = entry.get("folder_path")
+                        all_f = entry.get("all_files", [])
+                        if not all_f and folder_p:
+                            all_f = self.project_manager.list_project_deliverables(folder_p)
+
+                        file_paths = [f["file_path"] for f in all_f if not f["file_path"].endswith(".zip")]
+                        if not file_paths:
+                            await event.answer("❌ No uncompressed files to bundle!", alert=True)
+                            return
+
+                        zip_path = self.deliverable_dispatcher.bundle_deliverables_zip(folder_p, file_paths)
+                        target_dest = entry.get("telegram_id") or entry.get("username") or entry.get("client_name")
+                        target_client = entry.get("client_source") or self.client
+
+                        b_info = {"type_code": "bundled_package", "filename": os.path.basename(zip_path)}
+                        b_caption = self.deliverable_dispatcher.generate_delivery_manifest_caption(entry["client_name"], b_info)
+
+                        try:
+                            try:
+                                ent = await target_client.get_entity(target_dest)
+                            except Exception:
+                                ent = target_dest
+                            await target_client.send_file(ent, file=zip_path, caption=b_caption)
+                            if folder_p:
+                                self.project_manager.record_deliverable_dispatched(folder_p, os.path.basename(zip_path), entry["client_name"])
+                                try:
+                                    self.milestone_tracker.advance_stage(folder_p)
+                                except Exception:
+                                    pass
+                            await event.answer(f"📦 Bundled package dispatched to {entry['client_name']}!", alert=False)
+                            try:
+                                done_badge = [[Button.inline(f"✅ Bundled Package Sent at {now_str}", b"noop", style="success")]] if Button is not None else None
+                                await event.edit(
+                                    f"{event.message.text}\n\n✅ <b>Bundled deliverables package ({len(file_paths)} files) was zipped and dispatched to client at {now_str}.</b>",
+                                    buttons=done_badge,
+                                    parse_mode="html"
+                                )
+                            except Exception:
+                                pass
+                            del self.pending_deliverables[del_id]
+                        except Exception as e:
+                            await event.answer(f"❌ Send failed: {e}", alert=True)
+                    else:
+                        await event.answer(f"❌ Deliverable ID {del_id} expired.", alert=True)
                 elif data.startswith("ignore_del_"):
                     del_id = data.split("ignore_del_")[1]
                     if del_id in self.pending_deliverables:
