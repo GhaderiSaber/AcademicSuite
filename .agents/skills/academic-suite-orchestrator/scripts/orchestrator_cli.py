@@ -394,7 +394,7 @@ class MasterAcademicOrchestrator:
             json_payload = step_conf.get("payload_path") or info["default_sample"]
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
-            out_docx = os.path.join(step_dir, "پروپوزال_پژوهش.docx")
+            out_docx = os.path.join(step_dir, "Research_Proposal.docx")
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx]
             self.context["proposal_docx"] = out_docx
             self.manifest["artifacts"]["proposal_docx"] = out_docx
@@ -406,7 +406,7 @@ class MasterAcademicOrchestrator:
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
-            out_docx = os.path.join(step_dir, "فصل_دوم_مبانی_نظری_و_پیشینه_پژوهش.docx")
+            out_docx = os.path.join(step_dir, "Chapter_2_Literature_Review.docx")
             self.context["ch2_docx"] = out_docx
             self.manifest["artifacts"]["ch2_docx"] = out_docx
             return cmd, {"docx": out_docx}
@@ -426,7 +426,7 @@ class MasterAcademicOrchestrator:
             # Uses generate_apa_docx with standard verified sample or results
             script = info["script_doc"]
             json_payload = info["default_sample"]
-            out_docx = os.path.join(step_dir, "فصل_چهارم_یافته‌های_پژوهش.docx")
+            out_docx = os.path.join(step_dir, "Chapter_4_Results.docx")
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx, "--mode", "chapter4"]
             self.context["ch4_docx"] = out_docx
             self.context["stats_json"] = json_payload
@@ -440,7 +440,7 @@ class MasterAcademicOrchestrator:
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
-            out_docx = os.path.join(step_dir, "فصل_چهارم_ویژگی‌های_روان‌سنجی_و_هنجاریابی.docx")
+            out_docx = os.path.join(step_dir, "Chapter_4_Psychometric_Validation.docx")
             out_xlsx = os.path.join(step_dir, "psychometric_validation_matrix.xlsx")
             self.context["ch4_docx"] = out_docx
             self.context["validation_xlsx"] = out_xlsx
@@ -454,7 +454,7 @@ class MasterAcademicOrchestrator:
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
-            out_docx = os.path.join(step_dir, "فصل_چهارم_یافته‌های_کیفی.docx")
+            out_docx = os.path.join(step_dir, "Chapter_4_Qualitative_Findings.docx")
             self.context["ch4_docx"] = out_docx
             self.manifest["artifacts"]["ch4_qual_docx"] = out_docx
             return cmd, {"docx": out_docx}
@@ -464,7 +464,7 @@ class MasterAcademicOrchestrator:
             json_payload = step_conf.get("payload_path") or info["default_sample"]
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
-            out_docx = os.path.join(step_dir, "فصل_پنجم_بحث_و_نتیجه‌گیری.docx")
+            out_docx = os.path.join(step_dir, "Chapter_5_Discussion_and_Conclusion.docx")
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx]
             self.context["ch5_docx"] = out_docx
             self.manifest["artifacts"]["ch5_docx"] = out_docx
@@ -472,7 +472,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "thesis":
             script = info["script"]
-            out_docx = os.path.join(step_dir, "رساله_کامل_دانشگاهی.docx")
+            out_docx = os.path.join(step_dir, "Complete_Graduate_Thesis.docx")
             ch4_file = self.context.get("ch4_docx")
             ch5_file = self.context.get("ch5_docx")
             cmd = [PYTHON_BIN, script, "--output", out_docx]
@@ -493,7 +493,7 @@ class MasterAcademicOrchestrator:
             target_path = target_path.lower().replace("-", "_")
 
             if target_path == "html":
-                out_html = os.path.join(step_dir, "اسلایدهای_جلسه_دفاع.html")
+                out_html = os.path.join(step_dir, "Defense_Presentation_Slides.html")
                 cmd = [
                     PYTHON_BIN, main_script,
                     "--path", "html",
@@ -516,7 +516,7 @@ class MasterAcademicOrchestrator:
                 self.manifest["artifacts"]["defense_google_slides_brief"] = out_docx
                 return cmd, {"docx": out_docx}
             else:
-                out_pptx = os.path.join(step_dir, "اسلایدهای_جلسه_دفاع.pptx")
+                out_pptx = os.path.join(step_dir, "Defense_Presentation_Slides.pptx")
                 cmd = [
                     PYTHON_BIN, main_script,
                     "--path", "pptx",
@@ -534,8 +534,8 @@ class MasterAcademicOrchestrator:
         elif step == "plagiarism":
             script = info["script"]
             input_file = self.context.get("full_thesis_docx") or os.path.join(REPO_ROOT, "AGENTS.md")
-            out_docx = os.path.join(step_dir, "متن_بازنویسی_کاهش_همانندجویی.docx")
-            out_rep = os.path.join(step_dir, "گزارش_کاهش_همانندجویی.docx")
+            out_docx = os.path.join(step_dir, "Rewritten_Plagiarism_Reduced_Text.docx")
+            out_rep = os.path.join(step_dir, "Plagiarism_Reduction_Report.docx")
             cmd = [PYTHON_BIN, script, "--input", input_file, "--output-docx", out_docx, "--output-report", out_rep]
             self.manifest["artifacts"]["rewritten_docx"] = out_docx
             return cmd, {"docx": out_docx, "report": out_rep}
@@ -549,7 +549,7 @@ class MasterAcademicOrchestrator:
             json_payload = step_conf.get("payload_path") or default_art
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
-            out_docx = os.path.join(step_dir, "مقاله_علمی_پژوهشی.docx" if self.lang == "fa" else "Academic_Article_Manuscript.docx")
+            out_docx = os.path.join(step_dir, "Academic_Article_Manuscript.docx")
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx, "--lang", self.lang]
             self.context["article_docx"] = out_docx
             self.manifest["artifacts"]["article_docx"] = out_docx
@@ -574,7 +574,7 @@ class MasterAcademicOrchestrator:
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
-            out_docx = os.path.join(step_dir, "گزارش_جامع_مرور_سیستماتیک_و_فراتحلیل.docx")
+            out_docx = os.path.join(step_dir, "Systematic_Review_and_Meta_Analysis_Report.docx")
             self.manifest["artifacts"]["meta_docx"] = out_docx
             return cmd, {"docx": out_docx}
 
@@ -584,7 +584,7 @@ class MasterAcademicOrchestrator:
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
-            out_docx = os.path.join(step_dir, "گزارش_جامع_ممیزی_و_صحت‌سنجی_رساله.docx" if self.lang == "fa" else "Thesis_Integrity_Audit_Report.docx")
+            out_docx = os.path.join(step_dir, "Thesis_Integrity_Audit_Report.docx")
             self.manifest["artifacts"]["audit_docx"] = out_docx
             self.manifest["artifacts"]["audit_json"] = os.path.join(step_dir, "thesis_audit_summary.json")
             self.manifest["artifacts"]["audit_excel"] = os.path.join(step_dir, "annotated_citations.xlsx")
@@ -596,7 +596,7 @@ class MasterAcademicOrchestrator:
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
-            out_docx = os.path.join(step_dir, "گزارش_محاسبه_حجم_نمونه_جی‌پاور.docx" if self.lang == "fa" else "GPower_Sample_Size_Report.docx")
+            out_docx = os.path.join(step_dir, "GPower_Sample_Size_Report.docx")
             plot_path = os.path.join(step_dir, "power_curve_plot.png")
             self.manifest["artifacts"]["gpower_docx"] = out_docx
             self.manifest["artifacts"]["gpower_plot"] = plot_path
@@ -611,7 +611,7 @@ class MasterAcademicOrchestrator:
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             sample_name = "persian_draft" if self.lang == "fa" else "english_draft"
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--sample", sample_name, "--out-dir", step_dir, "--lang", self.lang]
-            out_docx = os.path.join(step_dir, "متن_ویراسته_و_دانشگاهی.docx" if self.lang == "fa" else "Polished_Academic_Manuscript.docx")
+            out_docx = os.path.join(step_dir, "Polished_Academic_Manuscript.docx")
             plot_path = os.path.join(step_dir, "tone_burstiness_plot.png")
             self.manifest["artifacts"]["tone_polish_docx"] = out_docx
             self.manifest["artifacts"]["tone_polish_plot"] = plot_path
@@ -626,7 +626,7 @@ class MasterAcademicOrchestrator:
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             sample_name = "act_psychological_flexibility_fa" if self.lang == "fa" else "cognitive_reappraisal_mindfulness_en"
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--sample", sample_name, "--out-dir", step_dir, "--lang", self.lang]
-            out_docx = os.path.join(step_dir, "گزارش_جامع_پیشینه_پژوهش_استخراج‌شده.docx" if self.lang == "fa" else "Harvested_Literature_Review.docx")
+            out_docx = os.path.join(step_dir, "Harvested_Literature_Review.docx")
             self.context["harvest_json"] = os.path.join(step_dir, "harvested_studies.json")
             self.context["harvest_docx"] = out_docx
             self.context["harvest_excel"] = os.path.join(step_dir, "harvested_empirical_studies.xlsx")
@@ -643,7 +643,7 @@ class MasterAcademicOrchestrator:
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--input", json_payload, "--output-dir", step_dir, "--language", self.lang]
-            out_docx = os.path.join(step_dir, "گزارش_تحلیل_علم‌سنجی_و_ترسیم_نقشه_دانش.docx" if self.lang == "fa" else "Bibliometric_Science_Mapping_Report.docx")
+            out_docx = os.path.join(step_dir, "Bibliometric_Science_Mapping_Report.docx")
             net_plot = os.path.join(step_dir, "bibliometric_network_map.png")
             strat_plot = os.path.join(step_dir, "thematic_strategic_map.png")
             self.context["bibliometric_docx"] = out_docx
@@ -666,7 +666,7 @@ class MasterAcademicOrchestrator:
             if not os.path.isabs(json_payload):
                 json_payload = os.path.join(REPO_ROOT, json_payload)
             cmd = [PYTHON_BIN, script, "--input", json_payload, "--output-dir", step_dir, "--language", self.lang]
-            out_docx = os.path.join(step_dir, "گزارش_تحلیل_مسیر_اصلی_و_نگاشت_تاریخی_استنادات.docx" if self.lang == "fa" else "Historiographic_Citation_Network_Report.docx")
+            out_docx = os.path.join(step_dir, "Historiographic_Citation_Network_Report.docx")
             chrono_plot = os.path.join(step_dir, "citation_chronomap.png")
             traj_plot = os.path.join(step_dir, "main_path_trajectory.png")
             self.context["historiography_docx"] = out_docx

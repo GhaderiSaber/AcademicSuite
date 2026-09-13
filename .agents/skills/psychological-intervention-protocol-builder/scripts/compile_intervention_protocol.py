@@ -477,7 +477,7 @@ def main():
     parser.add_argument("--preset", type=str, default="act", choices=["act", "cbt", "schema", "cft", "mbsr", "positive", "mindful_parenting"], help="Built-in clinical preset archetype")
     parser.add_argument("--target-population", type=str, help="Target population description in Persian")
     parser.add_argument("--title", type=str, help="Custom protocol title")
-    parser.add_argument("--output-docx", type=str, default="پروتکل_مداخله.docx", help="Output Word document path")
+    parser.add_argument("--output-docx", type=str, default="Intervention_Protocol.docx", help="Output Word document path")
     parser.add_argument("--output-json", type=str, default="protocol_summary.json", help="Output JSON summary path")
     args = parser.parse_args()
 

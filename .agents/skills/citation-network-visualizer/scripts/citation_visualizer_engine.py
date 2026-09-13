@@ -1026,7 +1026,7 @@ def export_word_report(citation_data, project_title, domain, chronomap_img, traj
     )
     add_styled_paragraph(doc, directives, size_pt=11, space_after=12, is_bidi=is_bidi)
     
-    file_name = "گزارش_تحلیل_مسیر_اصلی_و_نگاشت_تاریخی_استنادات.docx" if is_bidi else "Historiographic_Citation_Network_Report.docx"
+    file_name = "Historiographic_Citation_Network_Report.docx"
     doc_path = os.path.join(output_dir, file_name)
     doc.save(doc_path)
     return doc_path

@@ -184,7 +184,7 @@ def build_response_document(data: dict, output_path: str):
 def main():
     parser = argparse.ArgumentParser(description="Supervisor Revision Response Document Generator")
     parser.add_argument("--json", required=True, help="Path to JSON file with resolved comments")
-    parser.add_argument("--out", default="جدول_پاسخ_به_نظرات_اساتید.docx", help="Output .docx file path")
+    parser.add_argument("--out", default="Revision_Response_Table.docx", help="Output .docx file path")
     args = parser.parse_args()
     
     with open(args.json, 'r', encoding='utf-8') as f:

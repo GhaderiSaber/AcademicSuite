@@ -1201,7 +1201,7 @@ def export_word_report(articles, bradford_res, lotka_res, network_data, project_
     )
     add_styled_paragraph(doc, implications_text, size_pt=11, space_after=12, is_bidi=is_bidi)
     
-    file_name = "گزارش_تحلیل_علم‌سنجی_و_ترسیم_نقشه_دانش.docx" if is_bidi else "Bibliometric_Science_Mapping_Report.docx"
+    file_name = "Bibliometric_Science_Mapping_Report.docx"
     doc_path = os.path.join(output_dir, file_name)
     doc.save(doc_path)
     return doc_path

@@ -1362,7 +1362,7 @@ def main():
     print(f"[+] Excel Audit Matrix saved: {xlsx_path}")
 
     # C. OpenXML BiDi Word Document
-    docx_filename = "متن_ویراسته_و_دانشگاهی.docx" if lang == "fa" else "Polished_Academic_Manuscript.docx"
+    docx_filename = "Polished_Academic_Manuscript.docx"
     docx_path = out_dir / docx_filename
     export_polished_docx(
         project_title, section_title, pre_metrics, post_metrics, sentence_pairs, final_clean_text, docx_path, lang, sainani_findings=sainani_findings

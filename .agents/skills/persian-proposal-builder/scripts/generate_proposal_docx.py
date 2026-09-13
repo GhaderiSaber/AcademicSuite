@@ -625,7 +625,7 @@ def build_proposal_document(data: dict, output_path: str):
 def main():
     parser = argparse.ArgumentParser(description="Persian Research Proposal Word Generator")
     parser.add_argument("--json", required=True, help="Path to proposal JSON content")
-    parser.add_argument("--out", default="پروپوزال_طرح_پژوهش.docx", help="Output .docx file path")
+    parser.add_argument("--out", default="Research_Proposal.docx", help="Output .docx file path")
     args = parser.parse_args()
     
     with open(args.json, 'r', encoding='utf-8') as f:

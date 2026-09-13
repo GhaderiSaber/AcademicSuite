@@ -222,7 +222,7 @@ def build_chapter5_document(data: dict, output_path: str):
 def main():
     parser = argparse.ArgumentParser(description="Chapter 5 Persian Word Document Generator")
     parser.add_argument("--json", required=True, help="Path to JSON file containing Chapter 5 discussion content")
-    parser.add_argument("--out", default="فصل_پنجم_بحث_و_نتیجه‌گیری.docx", help="Output .docx file path")
+    parser.add_argument("--out", default="Chapter_5_Discussion_and_Conclusion.docx", help="Output .docx file path")
     args = parser.parse_args()
     
     with open(args.json, 'r', encoding='utf-8') as f:

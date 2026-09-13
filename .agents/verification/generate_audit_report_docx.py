@@ -177,6 +177,6 @@ def build_audit_report_document(audit_data: Dict[str, Any], output_path: str) ->
 
 
 if __name__ == "__main__":
-    test_out = os.path.join(AGENTS_DIR, "output", "گزارش_ممیزی_و_کنترل_کیفیت_آماری.docx")
+    test_out = os.path.join(AGENTS_DIR, "output", "Statistical_Audit_and_QC_Report.docx")
     build_audit_report_document({}, test_out)
     print(f"Audit report created at {test_out}")

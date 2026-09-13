@@ -818,7 +818,7 @@ def main():
     print(f"[+] Excel Empirical Matrix saved: {xlsx_path}")
 
     # 3. OpenXML BiDi Word Document
-    docx_filename = "گزارش_جامع_پیشینه_پژوهش_استخراج‌شده.docx" if lang == "fa" else "Harvested_Literature_Review.docx"
+    docx_filename = "Harvested_Literature_Review.docx"
     docx_path = out_dir / docx_filename
     export_word_report(query, studies, docx_path, lang=lang)
     print(f"[+] Word Synthesis Document saved: {docx_path}")

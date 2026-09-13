@@ -566,7 +566,7 @@ class DigitalSaber:
             "international_studies": formatted_intl
         }
 
-        ch2_docx = os.path.join(output_dir, "فصل_دوم_پیشینه_پژوهش.docx")
+        ch2_docx = os.path.join(output_dir, "Chapter_2_Literature_Review.docx")
         self.openxml_engine.generate_chapter2_docx(ch2_payload, ch2_docx)
 
         # Save literature synthesis json
@@ -736,9 +736,9 @@ class DigitalSaber:
 
         # Step 10: OpenXML Physical Document Compilation Layer
         os.makedirs(output_dir, exist_ok=True)
-        ch4_docx = os.path.join(output_dir, "فصل_چهارم_یافته‌های_پژوهش.docx")
-        audit_docx = os.path.join(output_dir, "گزارش_ممیزی_و_کنترل_کیفیت_آماری.docx")
-        defense_docx = os.path.join(output_dir, "کارت_جلسه_دفاع_و_سوالات_داوران.docx")
+        ch4_docx = os.path.join(output_dir, "Chapter_4_Results.docx")
+        audit_docx = os.path.join(output_dir, "Statistical_Audit_and_QC_Report.docx")
+        defense_docx = os.path.join(output_dir, "Defense_Viva_Card_and_Questions.docx")
         json_results = os.path.join(output_dir, "stats_results.json")
 
         stats_payload = {
@@ -900,7 +900,7 @@ class DigitalSaber:
 
         # Step 10: OpenXML Physical Document Compilation Layer
         os.makedirs(output_dir, exist_ok=True)
-        prop_docx = os.path.join(output_dir, "پروپوزال_طرح_پژوهش.docx")
+        prop_docx = os.path.join(output_dir, "Research_Proposal.docx")
         blueprint_json = os.path.join(output_dir, "proposal_blueprint.json")
 
         blueprint_data = {
@@ -1020,7 +1020,7 @@ class DigitalSaber:
 
         # Step 10: OpenXML Physical Document Compilation Layer
         os.makedirs(output_dir, exist_ok=True)
-        ch5_docx = os.path.join(output_dir, "فصل_پنجم_بحث_و_نتیجه‌گیری.docx")
+        ch5_docx = os.path.join(output_dir, "Chapter_5_Discussion_and_Conclusion.docx")
         summary_json = os.path.join(output_dir, "discussion_summary.json")
 
         discussion_data = {
@@ -1131,7 +1131,7 @@ class DigitalSaber:
 
         # Step 9: OpenXML Physical Document Compilation Layer
         os.makedirs(output_dir, exist_ok=True)
-        rebuttal_docx = os.path.join(output_dir, "جدول_پاسخ_به_نظرات_استاد_راهنما_و_داوران.docx")
+        rebuttal_docx = os.path.join(output_dir, "Revision_Response_Table.docx")
 
         revision_data = {
             "thesis_title": target,
@@ -1427,7 +1427,7 @@ class DigitalSaber:
 
         # Step 8: OpenXML Physical Document Compilation Layer
         print("\n[Step 8: OpenXML Physical Document Compilation]")
-        ms_name = "مقاله_علمی_پژوهشی.docx" if is_fa else "Manuscript_Main_Text.docx"
+        ms_name = "Academic_Article_Manuscript.docx" if is_fa else "Manuscript_Main_Text.docx"
         manuscript_docx = os.path.join(output_dir, ms_name)
         cover_letter_docx = os.path.join(output_dir, "Cover_Letter_Editor.docx")
         title_page_docx = os.path.join(output_dir, "Title_Page_CRediT.docx")
@@ -1759,9 +1759,9 @@ class DigitalSaber:
 
         # Step 4: Presentation Expert Subagent (Tri-Path Compilation)
         print("\n[Step 4: presentation-expert / persian-defense-presentation-builder (Tri-Path Compilation)]")
-        pptx_file = os.path.join(output_dir, "اسلایدهای_جلسه_دفاع.pptx")
+        pptx_file = os.path.join(output_dir, "Defense_Presentation_Slides.pptx")
         html_file = os.path.join(output_dir, "defense_presentation.html")
-        docx_file = os.path.join(output_dir, "متن_نطق_ارائه_دفاع.docx")
+        docx_file = os.path.join(output_dir, "Defense_Speech_Notes.docx")
         qa_json_file = os.path.join(output_dir, "defense_committee_qa_card.json")
         manifest_file = os.path.join(output_dir, "defense_manifest.json")
 
@@ -1950,7 +1950,7 @@ class DigitalSaber:
 
         # Step 3: Academic Writer Subagent (Master Document Consolidation)
         print("\n[Step 3: academic-writer / persian-thesis-builder (Master Document Synthesis)]")
-        thesis_docx = os.path.join(output_dir, "پایان‌نامه_کامل_تدوین‌شده.docx")
+        thesis_docx = os.path.join(output_dir, "Complete_Graduate_Thesis.docx")
         thesis_alias_docx = os.path.join(output_dir, "Thesis_Compiled.docx")
         manifest_file = os.path.join(output_dir, "thesis_manifest.json")
 
@@ -2141,8 +2141,8 @@ class DigitalSaber:
 
         # Step 4: OpenXML Physical Document Compilation
         print("\n[Step 4: academic-writer / openxml_artifact_engine (Physical Document Compilation)]")
-        manual_docx = os.path.join(output_dir, "پروتکل_مداخله_درمانی.docx")
-        summary_docx = os.path.join(output_dir, "جدول_خلاصه_جلسات_مداخله.docx")
+        manual_docx = os.path.join(output_dir, "Intervention_Protocol_Manual.docx")
+        summary_docx = os.path.join(output_dir, "Intervention_Sessions_Summary.docx")
         blueprint_json = os.path.join(output_dir, "protocol_blueprint.json")
 
         self.openxml_engine.generate_intervention_protocol_docx(protocol_payload, manual_docx)
@@ -2304,7 +2304,7 @@ class DigitalSaber:
 
         # Step 7: OpenXML & Excel Artifact Generation
         print("\n[Step 7: openxml_artifact_engine (Report, 6-Sheet Matrix, Plots & R Script)]")
-        docx_report = os.path.join(output_dir, "گزارش_اعتباریابی_روانسنجی.docx")
+        docx_report = os.path.join(output_dir, "Psychometric_Validation_Report.docx")
         xlsx_matrix = os.path.join(output_dir, "psychometric_validation_matrix.xlsx")
         scree_roc_plot = os.path.join(output_dir, "psychometric_scree_roc_plots.png")
         irt_plot = os.path.join(output_dir, "psychometric_irt_plots.png")

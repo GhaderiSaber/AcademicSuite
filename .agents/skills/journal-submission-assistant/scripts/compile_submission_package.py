@@ -743,21 +743,21 @@ def main():
     
     # 1. Cover Letter
     if args.only in ["all", "cover_letter"]:
-        cl_path = os.path.join(args.out_dir, "Cover_Letter.docx" if args.lang == "en" else "نامه_سردبیر_Cover_Letter.docx")
+        cl_path = os.path.join(args.out_dir, "Cover_Letter.docx")
         build_cover_letter(data, cl_path, lang=args.lang)
         generated.append(cl_path)
         print(f"[SUCCESS] Generated Cover Letter: {cl_path}")
         
     # 2. Title Page
     if args.only in ["all", "title_page"]:
-        tp_path = os.path.join(args.out_dir, "Title_Page.docx" if args.lang == "en" else "صفحه_عنوان_Title_Page.docx")
+        tp_path = os.path.join(args.out_dir, "Title_Page.docx")
         build_title_page(data, tp_path, lang=args.lang)
         generated.append(tp_path)
         print(f"[SUCCESS] Generated Title Page with CRediT taxonomy: {tp_path}")
         
     # 3. Highlights
     if args.only in ["all", "highlights"]:
-        hl_path = os.path.join(args.out_dir, "Highlights.docx" if args.lang == "en" else "نکات_برجسته_Highlights.docx")
+        hl_path = os.path.join(args.out_dir, "Highlights.docx")
         build_highlights(data, hl_path, lang=args.lang)
         generated.append(hl_path)
         print(f"[SUCCESS] Generated Research Highlights: {hl_path}")
@@ -765,7 +765,7 @@ def main():
     # 4. Response to Reviewers (if data exists)
     if args.only in ["all", "rebuttal"]:
         if data.get("revision_rebuttal"):
-            rb_path = os.path.join(args.out_dir, "Response_to_Reviewers.docx" if args.lang == "en" else "جدول_پاسخ_به_داوران_Response_to_Reviewers.docx")
+            rb_path = os.path.join(args.out_dir, "Response_to_Reviewers.docx")
             build_rebuttal(data, rb_path, lang=args.lang)
             generated.append(rb_path)
             print(f"[SUCCESS] Generated Response to Reviewers: {rb_path}")

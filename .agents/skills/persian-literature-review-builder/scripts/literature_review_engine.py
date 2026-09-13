@@ -475,7 +475,7 @@ def main():
     print("======================================================================")
 
     # 1. Compile Word Chapter 2 Document
-    docx_filename = "فصل_دوم_مبانی_نظری_و_پیشینه_پژوهش.docx" if args.lang == "fa" else "Chapter_2_Literature_Review.docx"
+    docx_filename = "Chapter_2_Literature_Review.docx"
     docx_path = os.path.join(args.out_dir, docx_filename)
     compiler = Chapter2Compiler(payload, lang=args.lang)
     compiler.compile(docx_path)

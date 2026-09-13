@@ -867,7 +867,7 @@ def main():
     print(f"[SUCCESS] Generated Funnel Plot: {funnel_path}")
     
     # 3. Generate Word Report
-    report_name = "Systematic_Review_and_Meta_Analysis_Report.docx" if args.lang == "en" else "گزارش_جامع_مرور_سیستماتیک_و_فراتحلیل.docx"
+    report_name = "Systematic_Review_and_Meta_Analysis_Report.docx"
     report_path = os.path.join(args.out_dir, report_name)
     compile_meta_analysis_report(payload, meta_res, forest_path, funnel_path, report_path, lang=args.lang)
     print(f"[SUCCESS] Generated APA 7 Manuscript: {report_path}")

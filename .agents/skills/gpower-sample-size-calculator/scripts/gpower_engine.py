@@ -909,7 +909,7 @@ def main():
     print(f"[+] Rendered 300-DPI Power Curve Figure: {plot_path}")
 
     # Generate Word Document Report
-    docx_filename = "گزارش_محاسبه_حجم_نمونه_جی‌پاور.docx" if args.lang == "fa" else "GPower_Sample_Size_Report.docx"
+    docx_filename = "GPower_Sample_Size_Report.docx"
     docx_path = os.path.join(args.out_dir, docx_filename)
     generate_gpower_docx(payload, primary_res, alt_results, sem_res, plot_path, docx_path, lang=args.lang)
     print(f"[+] Generated Chapter 3 Methodology Report: {docx_path}")

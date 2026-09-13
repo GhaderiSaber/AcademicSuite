@@ -89,7 +89,7 @@ class TestChapter2LiteratureWorkflow(unittest.TestCase):
 
         # Check physical existence of generated artifacts
         expected_artifacts = [
-            "فصل_دوم_پیشینه_پژوهش.docx",
+            "Chapter_2_Literature_Review.docx",
             "literature_synthesis.json",
             "bibliometric_network_map.png",
             "thematic_strategic_map.png",

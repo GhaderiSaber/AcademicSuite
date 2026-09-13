@@ -96,8 +96,15 @@ When assembling or editing Persian Word documents (`.docx`):
     - Always inject `<w:rtl w:val="1"/>` into the run's `<w:rPr>` to force Right-to-Left script direction.
     - Always inject `<w:szCs w:val="{half_pts}"/>` and `<w:bCs w:val="1"/>` to guarantee that font size and bold weight are applied to complex-script Persian glyphs in Microsoft Word.
     - Explicitly set `run.font.name` to the Persian font name so Word's ribbon and font dropdown identify the active Persian font immediately.
-- **BiDi & OpenXML Directionality**:
-  - Always enforce `<w:bidi w:val="1"/>` on Persian paragraphs and `<w:bidiVisual/>` on tables.
+- **BiDi & OpenXML Directionality & Mandatory Text Justification**:
+  - **Dual Control in Microsoft Word (Text Direction vs. Text Alignment)**:
+    - Microsoft Word provides two distinct controls for text:
+      1. **Text Direction (جهت متن / BiDi)**: Controls the reading flow, punctuation placement, and cursor movement. In Persian, **Text Direction MUST ALWAYS be Right-to-Left (RTL)**. In OpenXML, this requires injecting `<w:bidi w:val="1"/>` into `<w:pPr>` and `<w:rtl w:val="1"/>` into `<w:rPr>`. Setting alignment to Right while leaving text direction LTR is an error that breaks sentence-final dots, parentheses, and punctuation.
+      2. **Text Alignment (تراز متن / Justification)**: In Persian, agents **MUST JUSTIFY all substantive text** (`paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`), including body paragraphs, descriptions, literature reviews, candidate speeches, callouts, and multi-line answers. Never leave Persian narrative text ragged on the left side.
+      3. For titles and cover banners, use Center alignment (`WD_ALIGN_PARAGRAPH.CENTER`, `<w:jc w:val="center"/>`) with RTL text direction.
+      4. For section headings, slide titles, and table labels, use Right alignment (`WD_ALIGN_PARAGRAPH.RIGHT`, `<w:jc w:val="right"/>`) with RTL text direction.
+      5. Document default style (`Normal`): Must enforce `paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` and `<w:bidi w:val="1"/>` with `<w:jc w:val="both"/>`.
+  - Always enforce `<w:bidiVisual/>` on tables (`<w:tblPr>`).
   - Maintain Persian half-spaces (نیم‌فاصله: `\u200c`) in compound words (e.g., `می‌شود`, `پیش‌آزمون`, `یافته‌ها`, `روان‌شناختی`).
 
 ### Rule 5: Critical OpenXML Standard: Preservation of Native Word Math & OMML Formulas (`<m:oMath>`)
@@ -127,9 +134,15 @@ When inspecting, auditing, or modifying academic Word documents (`.docx`):
 5. **Mandatory Pre-Edit Backup**:
    - Before applying any programmatic edits or replacements to user documents (`.docx`), always save a timestamped backup copy to `drafts_archive/` or a pre-edit file.
 
-### Rule 6: English Language Primary for Agent-User Pairing
+### Rule 6: English Language Primary & Mandatory English-Only File Naming
 - **Default Interaction Language**: Agents must always communicate, reason, explain plans, and report status to the user in **English** by default.
 - **Persian Artifacts**: Persian is strictly reserved for client-facing communications, academic thesis chapters, Persian proposals, and Persian presentation deliverables, or when Persian response is explicitly requested.
+- **Mandatory English-Only File & Directory Naming (Universal Requirement)**:
+  - **Zero Non-ASCII / Persian Filenames**: Every file, script, dataset, table, presentation, report, artifact, or directory created, generated, compiled, exported, or refactored in this repository **MUST** be named strictly using English ASCII characters (`a-z`, `A-Z`, `0-9`, `_`, `-`, `.`).
+  - **Strict Content vs. Filename Separation**: Even when the internal text of a document is in authentic academic Persian (such as Persian thesis chapters, proposals, questionnaires, slides, defense briefs, or point-by-point rebuttal tables), the physical filename on disk **MUST ALWAYS** be in English (e.g., `Chapter_4_Results.docx`, `Research_Proposal.docx`, `Defense_Presentation_Slides.pptx`, `Revision_Response_Table.docx`, `Thesis_Integrity_Audit_Report.docx`, `Intervention_Protocol.docx`).
+  - **Technical Failure Prevention**: Non-ASCII filenames trigger fatal terminal encoding failures (`cp1252` `UnicodeEncodeError` on Windows), cloud synchronization breaks (Google Drive, OneDrive, Dropbox), and OpenXML relationship package errors.
+  - **Automatic Sanitization**: Any existing or client-uploaded file with non-English characters must be immediately normalized to a clean, descriptive English name before processing.
+  - **Reference Specification**: Refer to `.agents/rules/file_naming_rules.md` for standardized casing patterns across all categories.
 
 ### Rule 7: Digital Twin Persona & Client Interaction Protocol
 When acting as Saber Ghaderi's Digital Twin (`@GhaderiSaber`, Telegram ID: `124911145`) or processing client messages, proposals, and questionnaire inquiries:

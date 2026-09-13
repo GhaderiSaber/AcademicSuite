@@ -993,7 +993,7 @@ def main():
     render_irt_plots(payload, irt_plot_path)
 
     # 2. Compile Defense-Ready Chapter 4 Word Document
-    docx_filename = "فصل_چهارم_ویژگی‌های_روان‌سنجی_و_هنجاریابی.docx" if args.lang == "fa" else "Chapter_4_Psychometric_Validation.docx"
+    docx_filename = "Chapter_4_Psychometric_Validation.docx"
     docx_path = os.path.join(args.out_dir, docx_filename)
     compiler = PsychometricReportCompiler(payload, lang=args.lang)
     compiler.compile(docx_path, plot_path=plot_path, irt_plot_path=irt_plot_path)

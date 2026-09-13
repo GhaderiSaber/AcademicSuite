@@ -767,7 +767,7 @@ def main():
     print(f"[SUCCESS] Exported 5-Sheet Coding Matrix: {excel_path}")
     
     # 4. Compile Defense-Ready Chapter 4 Word Document (.docx)
-    docx_filename = "فصل_چهارم_یافته‌های_کیفی.docx" if lang == "fa" else "Chapter4_Qualitative_Findings.docx"
+    docx_filename = "Chapter_4_Qualitative_Findings.docx"
     docx_path = os.path.join(args.out_dir, docx_filename)
     compile_qualitative_chapter4_docx(payload, flat_codes, png_path, docx_path, lang=lang)
     print(f"[SUCCESS] Compiled Defense-Ready Chapter 4: {docx_path}")

@@ -13,7 +13,7 @@ Audits:
   4. APA 7th Edition Statistical Typography Compliance (Leading zeroes, p = .000, effect sizes)
 
 Outputs:
-  - گزارش_جامع_ممیزی_و_صحت‌سنجی_رساله.docx (or Thesis_Integrity_Audit_Report.docx)
+  - Thesis_Integrity_Audit_Report.docx
   - annotated_citations.xlsx (5-sheet comprehensive citation ledger)
   - thesis_audit_summary.json (Machine-readable audit findings)
 """
@@ -1402,7 +1402,7 @@ def main():
     print(f"[+] Saved Machine-Readable Audit Summary: {summary_path}")
 
     # Generate DOCX report
-    docx_filename = "گزارش_جامع_ممیزی_و_صحت‌سنجی_رساله.docx" if args.lang == "fa" else "Thesis_Integrity_Audit_Report.docx"
+    docx_filename = "Thesis_Integrity_Audit_Report.docx"
     docx_path = os.path.join(args.out_dir, docx_filename)
     generate_audit_docx(auditor, docx_path, lang=args.lang)
     print(f"[+] Generated Publication-Grade Audit Report: {docx_path}")

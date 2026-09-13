@@ -150,6 +150,6 @@ def build_defense_card_document(defense_data: Dict[str, Any], output_path: str) 
 
 
 if __name__ == "__main__":
-    test_out = os.path.join(AGENTS_DIR, "output", "کارت_جلسه_دفاع_و_سوالات_داوران.docx")
+    test_out = os.path.join(AGENTS_DIR, "output", "Defense_Viva_Card_and_Questions.docx")
     build_defense_card_document({}, test_out)
     print(f"Defense card created at {test_out}")

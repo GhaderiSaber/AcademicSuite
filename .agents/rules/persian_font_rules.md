@@ -85,16 +85,21 @@ def set_run_fonts(run, cs_font='B Nazanin', size_pt=12, bold=False, italic=False
 ```
 
 ### 2.3 Document-Level Style Defaults
-Always configure `doc.styles['Normal']` upon document initialization:
+Always configure `doc.styles['Normal']` upon document initialization with RTL direction and Justified alignment:
 ```python
 normal_style = doc.styles['Normal']
 normal_style.font.name = 'B Nazanin'
 normal_style.font.size = Pt(12)
+normal_style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
 pPr_norm = normal_style._element.get_or_add_pPr()
 bidi_norm = OxmlElement('w:bidi')
 bidi_norm.set(qn('w:val'), '1')
 pPr_norm.append(bidi_norm)
+
+jc_norm = OxmlElement('w:jc')
+jc_norm.set(qn('w:val'), 'both')
+pPr_norm.append(jc_norm)
 
 rPr_norm = normal_style._element.get_or_add_rPr()
 rFonts_norm = OxmlElement('w:rFonts')
@@ -109,7 +114,19 @@ rtl_norm.set(qn('w:val'), '1')
 rPr_norm.append(rtl_norm)
 ```
 
-### 2.4 Paragraph and Table Directionality
-- Paragraphs: inject `<w:bidi w:val="1"/>` into `<w:pPr>`.
-- Tables: inject `<w:bidiVisual/>` into `<w:tblPr>`.
-- Maintain Persian zero-width non-joiners (نیم‌فاصله: `\u200c`).
+### 2.4 Dual Control: Text Direction (BiDi) vs. Text Alignment (Justification)
+Microsoft Word features two independent controls for text formatting:
+1. **Text Direction (جهت متن / BiDi)**:
+   - Sets reading order, punctuation behavior, and cursor navigation.
+   - **MUST ALWAYS be Right-to-Left (RTL)** for Persian.
+   - Inject `<w:bidi w:val="1"/>` into `<w:pPr>` and `<w:rtl w:val="1"/>` into `<w:rPr>`.
+   - Never confuse Right-alignment with true RTL Text Direction! Leaving direction LTR breaks sentence-final periods, parentheses, and numerals.
+2. **Text Alignment (تراز متن / Justification)**:
+   - **MUST JUSTIFY all substantive Persian text** (`paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`).
+   - Body paragraphs, research descriptions, literature reviews, candidate speeches, callout texts, and multi-line answers must always be justified from both margins. Never leave Persian text ragged on the left.
+   - Document/cover titles: Centered (`WD_ALIGN_PARAGRAPH.CENTER`) with RTL direction.
+   - Section headings & short labels: Right-aligned (`WD_ALIGN_PARAGRAPH.RIGHT`) with RTL direction.
+3. **Table Directionality**:
+   - Tables: inject `<w:bidiVisual/>` into `<w:tblPr>` so column order starts from the right.
+4. **Persian Typography**:
+   - Maintain Persian zero-width non-joiners (نیم‌فاصله: `\u200c`) in compound words (e.g., `می‌شود`, `پیش‌آزمون`, `یافته‌ها`).
