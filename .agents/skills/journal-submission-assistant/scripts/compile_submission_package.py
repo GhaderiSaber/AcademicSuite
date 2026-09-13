@@ -309,14 +309,24 @@ def build_cover_letter(data, out_path, lang='en'):
         add_run(p_date, date_str, lang='en', size=11)
         p_date.paragraph_format.space_after = Pt(12)
         
-        p_editor = doc.add_paragraph()
-        add_run(p_editor, f"{editor}\n", lang='en', size=11, bold=True)
-        add_run(p_editor, f"Editor-in-Chief, {journal_name}\n", lang='en', size=11, italic=True)
+        p_ed1 = doc.add_paragraph()
+        add_run(p_ed1, editor, lang='en', size=11, bold=True)
+        p_ed1.paragraph_format.space_after = Pt(2)
+
+        p_ed2 = doc.add_paragraph()
+        add_run(p_ed2, f"Editor-in-Chief, {journal_name}", lang='en', size=11, italic=True)
+        p_ed2.paragraph_format.space_after = Pt(2)
+
         if publisher:
-            add_run(p_editor, f"{publisher}\n", lang='en', size=11)
+            p_pub = doc.add_paragraph()
+            add_run(p_pub, publisher, lang='en', size=11)
+            p_pub.paragraph_format.space_after = Pt(2)
         if editorial_office:
-            add_run(p_editor, f"{editorial_office}\n", lang='en', size=11)
-        p_editor.paragraph_format.space_after = Pt(12)
+            p_off = doc.add_paragraph()
+            add_run(p_off, editorial_office, lang='en', size=11)
+            p_off.paragraph_format.space_after = Pt(2)
+        p_sal_space = doc.add_paragraph()
+        p_sal_space.paragraph_format.space_after = Pt(8)
         
         salutation = f"Dear {editor}," if not editor.startswith("Dr.") and not editor.startswith("Prof.") else f"Dear {editor},"
         p_sal = doc.add_paragraph()
@@ -368,16 +378,34 @@ def build_cover_letter(data, out_path, lang='en'):
                 p_r.paragraph_format.space_after = Pt(2)
             doc.add_paragraph().paragraph_format.space_after = Pt(8)
             
-        p_close = doc.add_paragraph()
-        add_run(p_close, "Thank you very much for your time and consideration of our work.\n\nSincerely,\n", lang='en', size=12)
-        add_run(p_close, f"{corr.get('name', 'Corresponding Author')}\n", lang='en', size=12, bold=True)
+        p_close1 = doc.add_paragraph()
+        add_run(p_close1, "Thank you very much for your time and consideration of our work.", lang='en', size=12)
+        p_close1.paragraph_format.space_after = Pt(8)
+
+        p_close2 = doc.add_paragraph()
+        add_run(p_close2, "Sincerely,", lang='en', size=12)
+        p_close2.paragraph_format.space_after = Pt(4)
+
+        p_cauth = doc.add_paragraph()
+        add_run(p_cauth, corr.get('name', 'Corresponding Author'), lang='en', size=12, bold=True)
+        p_cauth.paragraph_format.space_after = Pt(2)
+
         if corr.get('department'):
-            add_run(p_close, f"{corr.get('department')}\n", lang='en', size=11)
+            p_cdep = doc.add_paragraph()
+            add_run(p_cdep, corr.get('department'), lang='en', size=11)
+            p_cdep.paragraph_format.space_after = Pt(2)
         if corr.get('institution'):
-            add_run(p_close, f"{corr.get('institution')}\n", lang='en', size=11)
+            p_cinst = doc.add_paragraph()
+            add_run(p_cinst, corr.get('institution'), lang='en', size=11)
+            p_cinst.paragraph_format.space_after = Pt(2)
         if corr.get('address'):
-            add_run(p_close, f"{corr.get('address')}\n", lang='en', size=10)
-        add_run(p_close, f"Email: {corr.get('email', '')} | Tel: {corr.get('phone', '')}", lang='en', size=10)
+            p_caddr = doc.add_paragraph()
+            add_run(p_caddr, corr.get('address'), lang='en', size=10)
+            p_caddr.paragraph_format.space_after = Pt(2)
+
+        p_ccontact = doc.add_paragraph()
+        add_run(p_ccontact, f"Email: {corr.get('email', '')} | Tel: {corr.get('phone', '')}", lang='en', size=10)
+        p_ccontact.paragraph_format.space_after = Pt(12)
         
     doc.save(out_path)
     return out_path
