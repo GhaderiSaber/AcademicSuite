@@ -26,6 +26,13 @@ import argparse
 from datetime import datetime
 from difflib import SequenceMatcher
 
+if sys.stdout.encoding != 'utf-8':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 import docx
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -530,7 +537,8 @@ class ThesisIntegrityAuditor:
                 )
 
         # 3. Check sampled paragraphs for leading zero violations (r, R2, eta)
-        for p_idx, text in enumerate(sampled_paragraphs):
+        for p_idx, raw_entry in enumerate(sampled_paragraphs):
+            text = raw_entry.get("text", "") if isinstance(raw_entry, dict) else str(raw_entry)
             # Check for r = 0.xx
             if re.search(r'[rR]\s*=\s*0\.\d+', text):
                 self._add_finding(
