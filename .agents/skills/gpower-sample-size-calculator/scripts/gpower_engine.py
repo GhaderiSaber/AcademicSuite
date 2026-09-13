@@ -83,20 +83,35 @@ def format_cell_text(cell, text, bold=False, italic=False, size_pt=10, color_rgb
     p.alignment = align
     if is_bidi:
         pPr = p._element.get_or_add_pPr()
-        pPr.append(parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>'))
+        if not any(child.tag.endswith('}bidi') for child in pPr):
+            pPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>'))
     
     run = p.add_run(str(text))
-    run.font.name = font_en
     run.font.size = Pt(size_pt)
     run.font.bold = bold
     run.font.italic = italic
     run.font.color.rgb = RGBColor(*color_rgb)
     rPr = run._element.get_or_add_rPr()
-    rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}"/>')
-    rPr.append(rFonts)
+    if is_bidi:
+        run.font.name = font_fa
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_fa}" w:hAnsi="{font_fa}" '
+            f'w:cs="{font_fa}" w:eastAsia="{font_fa}" w:hint="cs"/>'
+        )
+        rPr.append(rFonts)
+        rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
+        sz_half_pts = int(size_pt * 2)
+        rPr.append(parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_half_pts}"/>'))
+        if bold:
+            rPr.append(parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>'))
+    else:
+        run.font.name = font_en
+        rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}"/>')
+        rPr.append(rFonts)
 
 def add_styled_paragraph(doc, text, bold=False, italic=False, size_pt=12, color_rgb=(30,30,30),
-                         align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=6, line_spacing=1.15,
+                         align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=6, line_spacing=1.15,
                          font_fa="B Nazanin", font_en="Times New Roman", is_bidi=True):
     p = doc.add_paragraph()
     p.alignment = align
@@ -104,17 +119,32 @@ def add_styled_paragraph(doc, text, bold=False, italic=False, size_pt=12, color_
     p.paragraph_format.line_spacing = line_spacing
     if is_bidi:
         pPr = p._element.get_or_add_pPr()
-        pPr.append(parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>'))
+        if not any(child.tag.endswith('}bidi') for child in pPr):
+            pPr.insert(0, parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>'))
     
     run = p.add_run(text)
-    run.font.name = font_en
     run.font.size = Pt(size_pt)
     run.font.bold = bold
     run.font.italic = italic
     run.font.color.rgb = RGBColor(*color_rgb)
     rPr = run._element.get_or_add_rPr()
-    rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}"/>')
-    rPr.append(rFonts)
+    if is_bidi:
+        run.font.name = font_fa
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_fa}" w:hAnsi="{font_fa}" '
+            f'w:cs="{font_fa}" w:eastAsia="{font_fa}" w:hint="cs"/>'
+        )
+        rPr.append(rFonts)
+        rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
+        sz_half_pts = int(size_pt * 2)
+        rPr.append(parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_half_pts}"/>'))
+        if bold:
+            rPr.append(parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>'))
+    else:
+        run.font.name = font_en
+        rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_en}" w:hAnsi="{font_en}" w:cs="{font_fa}"/>')
+        rPr.append(rFonts)
     return p
 
 # ==============================================================================

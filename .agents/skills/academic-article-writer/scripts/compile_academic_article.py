@@ -66,13 +66,14 @@ def add_header_underline(cell):
     )
     tcPr.append(tcBorders)
 
-def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.RIGHT):
+def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
     """Enforce Persian BiDi RTL directionality on paragraph."""
     p.alignment = align
     pPr = p._p.get_or_add_pPr()
-    bidi = OxmlElement('w:bidi')
-    bidi.set(qn('w:val'), '1')
-    pPr.append(bidi)
+    if not any(child.tag.endswith('}bidi') for child in pPr):
+        bidi = OxmlElement('w:bidi')
+        bidi.set(qn('w:val'), '1')
+        pPr.insert(0, bidi)
 
 def add_run(p, text, lang='fa', size=12, bold=False, italic=False):
     """Add run with appropriate font bindings based on language."""
@@ -89,10 +90,15 @@ def add_run(p, text, lang='fa', size=12, bold=False, italic=False):
         rPr = run._r.get_or_add_rPr()
         rFonts = parse_xml(
             f'<w:rFonts {nsdecls("w")} '
-            f'w:ascii="{font_en}" w:hAnsi="{font_en}" '
-            f'w:cs="{font_fa}" w:eastAsia="{font_fa}"/>'
+            f'w:ascii="{font_fa}" w:hAnsi="{font_fa}" '
+            f'w:cs="{font_fa}" w:eastAsia="{font_fa}" w:hint="cs"/>'
         )
         rPr.append(rFonts)
+        rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
+        sz_half_pts = int(size * 2)
+        rPr.append(parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_half_pts}"/>'))
+        if bold:
+            rPr.append(parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>'))
     else:
         run.font.name = font_en
         

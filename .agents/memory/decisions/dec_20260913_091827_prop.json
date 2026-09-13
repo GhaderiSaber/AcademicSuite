@@ -1,0 +1,21 @@
+{
+  "decision_id": "dec_20260913_091827_prop",
+  "timestamp": "2026-09-13T09:18:27.812195",
+  "project_title": "طراحی و ارزیابی مدل علّی سلامت روان بر اساس انعطاف‌پذیری روان‌شناختی با میانجی‌گری تنظیم شناختی هیجان",
+  "decision_type": "proposal_workflow_execution",
+  "context": "Antigravity multi-agent workflow 'proposal' completed. Ready for university council submission.",
+  "selected_option": "SEM mediation model with 5,000 bootstrap resamples and validated Persian psychometric scales",
+  "rationale": "Meets all doctoral/master's council requirements with verified G*Power power analysis and validated instruments.",
+  "alternatives_considered": [
+    {
+      "option": "Baron & Kenny causal steps",
+      "verdict": "REJECTED",
+      "reason": "Low statistical power & ignores indirect effect distribution"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 0.97,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}

@@ -1,0 +1,21 @@
+{
+  "decision_id": "dec_20260913_091828_chap",
+  "timestamp": "2026-09-13T09:18:28.781386",
+  "project_title": "اثربخشی درمان مبتنی بر پذیرش و تعهد (ACT) بر فرسودگی شغلی و انعطاف‌پذیری روان‌شناختی کادر درمان",
+  "decision_type": "chapter5_workflow_execution",
+  "context": "Antigravity multi-agent workflow 'chapter5' completed. Standard 6-part architecture verified.",
+  "selected_option": "4-Element Psychological Model with Beck/Gross/Hayes theoretical mechanisms",
+  "rationale": "Rigorous empirical alignment, bidirectional citation check, and zero orphaned findings.",
+  "alternatives_considered": [
+    {
+      "option": "Surface descriptive reporting without theoretical mechanisms",
+      "verdict": "REJECTED",
+      "reason": "Fails defense committee standards"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 0.98,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}

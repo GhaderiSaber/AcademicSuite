@@ -1,0 +1,21 @@
+{
+  "decision_id": "dec_20260913_091832_thes",
+  "timestamp": "2026-09-13T09:18:32.692266",
+  "project_title": "رساله دکتری: مدل‌یابی ساختاری فرسودگی شغلی و انعطاف‌پذیری روان‌شناختی",
+  "decision_type": "thesis_revision_workflow_execution",
+  "context": "Antigravity multi-agent workflow 'thesis_revision' completed. 14/14 comments resolved.",
+  "selected_option": "Official Point-by-Point Rebuttal Table with page references and recalculated slope tests",
+  "rationale": "Completely satisfies supervisor and examiner revisions with formal academic etiquette and proof.",
+  "alternatives_considered": [
+    {
+      "option": "Ad-hoc informal email response without structured table",
+      "verdict": "REJECTED",
+      "reason": "Violates university graduate council regulations"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 0.99,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}

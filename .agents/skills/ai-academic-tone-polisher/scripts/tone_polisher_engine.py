@@ -984,6 +984,44 @@ def set_cell_margins(cell, top=100, bottom=100, left=150, right=150):
         tcMar.append(node)
     tcPr.append(tcMar)
 
+def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
+    p.alignment = align
+    pPr = p._p.get_or_add_pPr()
+    if not any(child.tag.endswith('}bidi') for child in pPr):
+        bidi = OxmlElement('w:bidi')
+        bidi.set(qn('w:val'), '1')
+        pPr.insert(0, bidi)
+
+def set_table_bidi(table):
+    tblPr = table._tbl.tblPr
+    if not any(child.tag.endswith('}bidiVisual') for child in tblPr):
+        tblPr.append(parse_xml(f'<w:bidiVisual {nsdecls("w")}/>'))
+
+def add_styled_run(p, text, font_name="B Nazanin", size_pt=11, bold=False, italic=False, color=None, lang="fa"):
+    run = p.add_run(text)
+    run.font.size = Pt(size_pt)
+    run.bold = bold
+    run.italic = italic
+    if color:
+        run.font.color.rgb = color
+    if lang == "fa":
+        run.font.name = font_name
+        rPr = run._r.get_or_add_rPr()
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_name}" w:hAnsi="{font_name}" '
+            f'w:cs="{font_name}" w:eastAsia="{font_name}" w:hint="cs"/>'
+        )
+        rPr.append(rFonts)
+        rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
+        sz_half_pts = int(size_pt * 2)
+        rPr.append(parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_half_pts}"/>'))
+        if bold:
+            rPr.append(parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>'))
+    else:
+        run.font.name = "Times New Roman"
+    return run
+
 def export_polished_docx(
     project_title: str,
     section_title: str,
@@ -997,6 +1035,7 @@ def export_polished_docx(
 ) -> str:
     """Generates defense-ready Word document formatted with native OpenXML RTL."""
     doc = docx.Document()
+    is_fa = (lang == "fa")
 
     # Configure Margins (1 inch / 2.54 cm standard)
     sections = doc.sections
@@ -1006,28 +1045,25 @@ def export_polished_docx(
         section.left_margin = Inches(1.0)
         section.right_margin = Inches(1.0)
 
-    font_title = "B Titr" if lang == "fa" else "Calibri"
-    font_body = "B Nazanin" if lang == "fa" else "Calibri"
-    font_latin = "Times New Roman"
+    font_title = "B Titr" if is_fa else "Calibri"
+    font_body = "B Nazanin" if is_fa else "Calibri"
 
     # Document Header Title
     p_title = doc.add_paragraph()
-    p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_title = p_title.add_run(
-        "گزارش جامع پالایش لحن دانشگاهی و اصالت‌سنجی نگارش" if lang == "fa" else "Academic Tone Polishing & Anti-AI Refinement Report"
-    )
-    r_title.font.name = font_title
-    r_title.font.size = Pt(18)
-    r_title.font.bold = True
-    r_title.font.color.rgb = RGBColor(26, 54, 93)
+    if is_fa:
+        set_paragraph_bidi(p_title, WD_ALIGN_PARAGRAPH.CENTER)
+    else:
+        p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title_text = "گزارش جامع پالایش لحن دانشگاهی و اصالت‌سنجی نگارش" if is_fa else "Academic Tone Polishing & Anti-AI Refinement Report"
+    add_styled_run(p_title, title_text, font_name=font_title, size_pt=18, bold=True, color=RGBColor(26, 54, 93), lang=lang)
 
     # Subtitle / Section
     p_sub = doc.add_paragraph()
-    p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_sub = p_sub.add_run(f"{project_title}\n{section_title}")
-    r_sub.font.name = font_body
-    r_sub.font.size = Pt(12)
-    r_sub.font.color.rgb = RGBColor(74, 85, 104)
+    if is_fa:
+        set_paragraph_bidi(p_sub, WD_ALIGN_PARAGRAPH.CENTER)
+    else:
+        p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    add_styled_run(p_sub, f"{project_title}\n{section_title}", font_name=font_body, size_pt=12, color=RGBColor(74, 85, 104), lang=lang)
 
     doc.add_paragraph()  # Spacer
 
@@ -1035,27 +1071,33 @@ def export_polished_docx(
     # SECTION 1: EXECUTIVE ANT-AI & STYLISTIC SCORECARD
     # ==========================================================================
     h1 = doc.add_paragraph()
-    r_h1 = h1.add_run("۱. کارنامه ارزیابی اصالت سبک و شاخص‌های تشخیص هوش مصنوعی" if lang == "fa" else "1. Executive Anti-AI & Stylistic Scorecard")
-    r_h1.font.name = font_title
-    r_h1.font.size = Pt(14)
-    r_h1.font.bold = True
-    r_h1.font.color.rgb = RGBColor(43, 108, 176)
+    if is_fa:
+        set_paragraph_bidi(h1, WD_ALIGN_PARAGRAPH.RIGHT)
+    else:
+        h1.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    h1_text = "۱. کارنامه ارزیابی اصالت سبک و شاخص‌های تشخیص هوش مصنوعی" if is_fa else "1. Executive Anti-AI & Stylistic Scorecard"
+    add_styled_run(h1, h1_text, font_name=font_title, size_pt=14, bold=True, color=RGBColor(43, 108, 176), lang=lang)
 
     intro_p = doc.add_paragraph()
-    r_intro = intro_p.add_run(
+    if is_fa:
+        set_paragraph_bidi(intro_p, WD_ALIGN_PARAGRAPH.JUSTIFY)
+    else:
+        intro_p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    intro_text = (
         "جدول زیر نشان‌دهنده ارزیابی کمی و مقایسه‌ای متن پیش‌نویس در برابر نسخه نهایی دانشگاهی است. الگوریتم‌های همانندجویی و شناسایی هوش مصنوعی (نظیر سمیم‌نور، همانندجو، و Turnitin AI) بر دو شاخص بنیادین ناهمگونی طول جملات (Burstiness) و غیرقابل‌پیش‌بینی بودن واژگانی (Perplexity) تمرکز دارند:"
-        if lang == "fa" else
+        if is_fa else
         "The scorecard below details the comparative evaluation between the raw draft and the polished academic version. Leading academic AI detection algorithms (Turnitin AI, GPTZero, SamimNoor) primarily target sentence length variance (Burstiness) and lexical predictability (Perplexity):"
     )
-    r_intro.font.name = font_body
-    r_intro.font.size = Pt(11)
+    add_styled_run(intro_p, intro_text, font_name=font_body, size_pt=11, lang=lang)
 
     table1 = doc.add_table(rows=7, cols=5)
     table1.alignment = WD_TABLE_ALIGNMENT.CENTER
+    if is_fa:
+        set_table_bidi(table1)
 
     headers1 = [
         "شاخص ارزیابی", "پیش‌نویس اولیه", "نسخه دانشگاهی", "میزان تغییر", "ارزیابی نهایی"
-    ] if lang == "fa" else [
+    ] if is_fa else [
         "Evaluation Metric", "Raw Draft (AI)", "Polished Academic", "Shift", "Verdict"
     ]
 
@@ -1064,12 +1106,11 @@ def export_polished_docx(
         set_cell_background(cell, "1A365D")
         set_cell_margins(cell, top=120, bottom=120, left=150, right=150)
         p = cell.paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run(text)
-        run.font.name = font_title
-        run.font.size = Pt(10)
-        run.font.bold = True
-        run.font.color.rgb = RGBColor(255, 255, 255)
+        if is_fa:
+            set_paragraph_bidi(p, WD_ALIGN_PARAGRAPH.CENTER)
+        else:
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        add_styled_run(p, text, font_name=font_title, size_pt=10, bold=True, color=RGBColor(255, 255, 255), lang=lang)
 
     metrics_rows = [
         ("شاخص ضرب‌آهنگ (Burstiness CV)", f"{pre_metrics['burstiness_cv']:.3f}", f"{post_metrics['burstiness_cv']:.3f}", f"+{(post_metrics['burstiness_cv'] - pre_metrics['burstiness_cv']):.3f}", "ضرب‌آهنگ طبیعی و اصیل"),
@@ -1078,7 +1119,7 @@ def export_polished_docx(
         ("تعداد کلیشه‌های ماشینی", f"{pre_metrics['markers_found']}", f"{post_metrics['markers_found']}", f"-{pre_metrics['markers_found'] - post_metrics['markers_found']}", "پالایش کامل عبارات حشو"),
         ("میانگین طول جملات (کلمه)", f"{pre_metrics['mean_len']:.1f}", f"{post_metrics['mean_len']:.1f}", f"{(post_metrics['mean_len'] - pre_metrics['mean_len']):.1f}", "تعادل ساختاری"),
         ("تعداد کل کلمات", f"{pre_metrics['total_words']}", f"{post_metrics['total_words']}", f"{post_metrics['total_words'] - pre_metrics['total_words']}", "حفظ مفاهیم اصلی")
-    ] if lang == "fa" else [
+    ] if is_fa else [
         ("Burstiness Index (CV_len)", f"{pre_metrics['burstiness_cv']:.3f}", f"{post_metrics['burstiness_cv']:.3f}", f"+{(post_metrics['burstiness_cv'] - pre_metrics['burstiness_cv']):.3f}", "Authentic Cadence"),
         ("AI Predictability Footprint", f"{pre_metrics['ai_predictability_score']:.1f}%", f"{post_metrics['ai_predictability_score']:.1f}%", f"{(post_metrics['ai_predictability_score'] - pre_metrics['ai_predictability_score']):.1f}%", "Cleared Risk Threshold"),
         ("Lexical Diversity (TTR)", f"{pre_metrics['ttr']:.3f}", f"{post_metrics['ttr']:.3f}", f"+{(post_metrics['ttr'] - pre_metrics['ttr']):.3f}", "Enriched Academic Lexicon"),
@@ -1094,13 +1135,13 @@ def export_polished_docx(
             set_cell_background(cell, bg)
             set_cell_margins(cell, top=80, bottom=80, left=120, right=120)
             p = cell.paragraphs[0]
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER if col_idx > 0 else WD_ALIGN_PARAGRAPH.RIGHT
-            run = p.add_run(val)
-            run.font.name = font_body
-            run.font.size = Pt(10)
-            if col_idx == 4:
-                run.font.bold = True
-                run.font.color.rgb = RGBColor(39, 174, 96)
+            col_align = WD_ALIGN_PARAGRAPH.CENTER if col_idx > 0 else (WD_ALIGN_PARAGRAPH.RIGHT if is_fa else WD_ALIGN_PARAGRAPH.LEFT)
+            if is_fa:
+                set_paragraph_bidi(p, col_align)
+            else:
+                p.alignment = col_align
+            run_color = RGBColor(39, 174, 96) if col_idx == 4 else None
+            add_styled_run(p, val, font_name=font_body, size_pt=10, bold=(col_idx == 4), color=run_color, lang=lang)
 
     doc.add_paragraph()  # Spacer
 
@@ -1108,20 +1149,22 @@ def export_polished_docx(
     # SECTION 2: CLEAN POLISHED ACADEMIC TEXT (READY FOR THESIS INSERTION)
     # ==========================================================================
     h2 = doc.add_paragraph()
-    r_h2 = h2.add_run("۲. متن ویراسته و اصیل دانشگاهی (آماده درج در رساله یا مقاله)" if lang == "fa" else "2. Final Polished Academic Text (Defense-Ready)")
-    r_h2.font.name = font_title
-    r_h2.font.size = Pt(14)
-    r_h2.font.bold = True
-    r_h2.font.color.rgb = RGBColor(43, 108, 176)
+    if is_fa:
+        set_paragraph_bidi(h2, WD_ALIGN_PARAGRAPH.RIGHT)
+    else:
+        h2.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    h2_text = "۲. متن ویراسته و اصیل دانشگاهی (آماده درج در رساله یا مقاله)" if is_fa else "2. Final Polished Academic Text (Defense-Ready)"
+    add_styled_run(h2, h2_text, font_name=font_title, size_pt=14, bold=True, color=RGBColor(43, 108, 176), lang=lang)
 
-    # Polished text box container
+    # Polished text box container - strictly justified
     p_body = doc.add_paragraph()
     p_body.paragraph_format.first_line_indent = Inches(0.5)
     p_body.paragraph_format.line_spacing = 1.3
-    p_body.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    r_body = p_body.add_run(final_clean_text)
-    r_body.font.name = font_body
-    r_body.font.size = Pt(12)
+    if is_fa:
+        set_paragraph_bidi(p_body, WD_ALIGN_PARAGRAPH.JUSTIFY)
+    else:
+        p_body.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    add_styled_run(p_body, final_clean_text, font_name=font_body, size_pt=12, lang=lang)
 
     doc.add_paragraph()  # Spacer
 
@@ -1129,16 +1172,19 @@ def export_polished_docx(
     # SECTION 3: COMPARATIVE SENTENCE-BY-SENTENCE AUDIT
     # ==========================================================================
     h3 = doc.add_paragraph()
-    r_h3 = h3.add_run("۳. جدول تطبیقی و تحلیل دگرگونی‌های نحوی (جمله به جمله)" if lang == "fa" else "3. Comparative Sentence Transformation Audit")
-    r_h3.font.name = font_title
-    r_h3.font.size = Pt(14)
-    r_h3.font.bold = True
-    r_h3.font.color.rgb = RGBColor(43, 108, 176)
+    if is_fa:
+        set_paragraph_bidi(h3, WD_ALIGN_PARAGRAPH.RIGHT)
+    else:
+        h3.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    h3_text = "۳. جدول تطبیقی و تحلیل دگرگونی‌های نحوی (جمله به جمله)" if is_fa else "3. Comparative Sentence Transformation Audit"
+    add_styled_run(h3, h3_text, font_name=font_title, size_pt=14, bold=True, color=RGBColor(43, 108, 176), lang=lang)
 
     table2 = doc.add_table(rows=len(sentence_pairs) + 1, cols=4)
     table2.alignment = WD_TABLE_ALIGNMENT.CENTER
+    if is_fa:
+        set_table_bidi(table2)
 
-    headers2 = ["ردیف", "پیش‌نویس اولیه (AI Draft)", "نسخه ویراسته دانشگاهی", "شرح دگرگونی نحوی و اصطلاحی"] if lang == "fa" else [
+    headers2 = ["ردیف", "پیش‌نویس اولیه (AI Draft)", "نسخه ویراسته دانشگاهی", "شرح دگرگونی نحوی و اصطلاحی"] if is_fa else [
         "#", "Original Draft (AI)", "Polished Academic Text", "Linguistic Transformation Rationale"
     ]
 
@@ -1147,12 +1193,11 @@ def export_polished_docx(
         set_cell_background(cell, "2B6CB0")
         set_cell_margins(cell, top=120, bottom=120, left=150, right=150)
         p = cell.paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run(text)
-        run.font.name = font_title
-        run.font.size = Pt(10)
-        run.font.bold = True
-        run.font.color.rgb = RGBColor(255, 255, 255)
+        if is_fa:
+            set_paragraph_bidi(p, WD_ALIGN_PARAGRAPH.CENTER)
+        else:
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        add_styled_run(p, text, font_name=font_title, size_pt=10, bold=True, color=RGBColor(255, 255, 255), lang=lang)
 
     for r_idx, (orig, pol, exp) in enumerate(sentence_pairs, 1):
         bg = "FFFFFF" if r_idx % 2 == 1 else "F7FAFC"
@@ -1160,83 +1205,89 @@ def export_polished_docx(
         c0 = table2.cell(r_idx, 0)
         set_cell_background(c0, bg)
         p0 = c0.paragraphs[0]
-        p0.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p0.add_run(str(r_idx)).font.name = font_body
+        if is_fa:
+            set_paragraph_bidi(p0, WD_ALIGN_PARAGRAPH.CENTER)
+        else:
+            p0.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        add_styled_run(p0, str(r_idx), font_name=font_body, size_pt=9.5, lang=lang)
 
         # Col 1: Original
         c1 = table2.cell(r_idx, 1)
         set_cell_background(c1, "FFF5F5")  # Slight reddish tint for AI draft
         p1 = c1.paragraphs[0]
-        p1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        r1 = p1.add_run(orig)
-        r1.font.name = font_body
-        r1.font.size = Pt(9.5)
+        if is_fa:
+            set_paragraph_bidi(p1, WD_ALIGN_PARAGRAPH.JUSTIFY)
+        else:
+            p1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        add_styled_run(p1, orig, font_name=font_body, size_pt=9.5, lang=lang)
 
         # Col 2: Polished
         c2 = table2.cell(r_idx, 2)
         set_cell_background(c2, "F0FFF4")  # Slight green tint for polished
         p2 = c2.paragraphs[0]
-        p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        r2 = p2.add_run(pol)
-        r2.font.name = font_body
-        r2.font.size = Pt(9.5)
-        r2.font.bold = True
+        if is_fa:
+            set_paragraph_bidi(p2, WD_ALIGN_PARAGRAPH.JUSTIFY)
+        else:
+            p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        add_styled_run(p2, pol, font_name=font_body, size_pt=9.5, bold=True, lang=lang)
 
         # Col 3: Explanation
         c3 = table2.cell(r_idx, 3)
         set_cell_background(c3, bg)
         p3 = c3.paragraphs[0]
-        p3.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        r3 = p3.add_run(exp)
-        r3.font.name = font_body
-        r3.font.size = Pt(9)
-        r3.font.color.rgb = RGBColor(113, 128, 150)
+        if is_fa:
+            set_paragraph_bidi(p3, WD_ALIGN_PARAGRAPH.JUSTIFY)
+        else:
+            p3.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        add_styled_run(p3, exp, font_name=font_body, size_pt=9, color=RGBColor(113, 128, 150), lang=lang)
 
-    
     # ==========================================================================
     # SECTION 4: STANFORD SCIWRITE 5-PASS EDITORIAL AUDIT
     # ==========================================================================
     if sainani_findings:
         doc.add_page_break()
         h4 = doc.add_paragraph()
-        r_h4 = h4.add_run("۴. گزارش جامع ویراستاری علمی ۵ مرحله‌ای (Stanford SciWrite Review)" if lang == "fa" else "4. Stanford SciWrite 5-Pass Editorial Review")
-        r_h4.font.name = font_title
-        r_h4.font.size = Pt(14)
-        r_h4.font.bold = True
-        r_h4.font.color.rgb = RGBColor(26, 54, 93)
+        if is_fa:
+            set_paragraph_bidi(h4, WD_ALIGN_PARAGRAPH.RIGHT)
+        else:
+            h4.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        h4_text = "۴. گزارش جامع ویراستاری علمی ۵ مرحله‌ای (Stanford SciWrite Review)" if is_fa else "4. Stanford SciWrite 5-Pass Editorial Review"
+        add_styled_run(h4, h4_text, font_name=font_title, size_pt=14, bold=True, color=RGBColor(26, 54, 93), lang=lang)
 
         p_desc4 = doc.add_paragraph()
-        p_desc4.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        r_desc4 = p_desc4.add_run(
+        if is_fa:
+            set_paragraph_bidi(p_desc4, WD_ALIGN_PARAGRAPH.JUSTIFY)
+        else:
+            p_desc4.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        desc4_text = (
             "این ممیزی تخصصی بر پایه متدولوژی نگارش علمی استنفورد (دکتر کریستین ساینانی) تدوین شده و متن را در ۵ لایه پیاپی شامل پیراستن حشو، احیای افعال اسمی‌شده، معماری طول جملات، قاعده ضد تنوع‌طلبی واژگانی (The Banana Rule) و ممیزی استنادهای دست‌دوم واکاوی می‌نماید:"
-            if lang == "fa" else
+            if is_fa else
             "This editorial audit applies Stanford's 'Writing in the Sciences' methodology (Dr. Kristin Sainani), systematically screening text across five sequential dimensions: clutter extraction, verb vitality, sentence architecture, keyword consistency (The Banana Rule), and citation integrity:"
         )
-        r_desc4.font.name = font_body
-        r_desc4.font.size = Pt(10.5)
+        add_styled_run(p_desc4, desc4_text, font_name=font_body, size_pt=10.5, lang=lang)
 
         # Top 5 Priority Revisions Callout Box
         top5 = sainani_findings.get("top_5_priorities", [])
         if top5:
             box_tbl = doc.add_table(rows=1, cols=1)
             box_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+            if is_fa:
+                set_table_bidi(box_tbl)
             b_cell = box_tbl.cell(0, 0)
             set_cell_background(b_cell, "EBF8FF")
             set_cell_margins(b_cell, top=140, bottom=140, left=180, right=180)
             bp = b_cell.paragraphs[0]
-            bp.alignment = WD_ALIGN_PARAGRAPH.RIGHT if lang == "fa" else WD_ALIGN_PARAGRAPH.LEFT
-            r_bh = bp.add_run("۵ اولویت نخست بازنگری متن (Top 5 Priority Revisions):\n" if lang == "fa" else "Top 5 Priority Revisions:\n")
-            r_bh.font.name = font_title
-            r_bh.font.size = Pt(11)
-            r_bh.font.bold = True
-            r_bh.font.color.rgb = RGBColor(43, 108, 176)
+            if is_fa:
+                set_paragraph_bidi(bp, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            else:
+                bp.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            top5_hdr = "۵ اولویت نخست بازنگری متن (Top 5 Priority Revisions):\n" if is_fa else "Top 5 Priority Revisions:\n"
+            add_styled_run(bp, top5_hdr, font_name=font_title, size_pt=11, bold=True, color=RGBColor(43, 108, 176), lang=lang)
 
             for idx, item in enumerate(top5, 1):
                 sev_color = RGBColor(197, 48, 48) if item["severity"] == "CRITICAL" else RGBColor(192, 86, 33)
-                r_item = bp.add_run(f"  {idx}. [{item['severity']}] {item['desc']} ── {item['action']}\n")
-                r_item.font.name = font_body
-                r_item.font.size = Pt(9.5)
-                r_item.font.bold = (item["severity"] == "CRITICAL")
+                item_text = f"  {idx}. [{item['severity']}] {item['desc']} ── {item['action']}\n"
+                add_styled_run(bp, item_text, font_name=font_body, size_pt=9.5, bold=(item["severity"] == "CRITICAL"), color=sev_color, lang=lang)
             doc.add_paragraph()
 
     doc.save(out_path)

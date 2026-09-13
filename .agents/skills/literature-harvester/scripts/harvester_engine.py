@@ -639,6 +639,44 @@ def export_excel_matrix(studies: List[Dict[str, Any]], out_path: Path, lang: str
     return str(out_path)
 
 
+def set_paragraph_bidi(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
+    p.alignment = align
+    pPr = p._p.get_or_add_pPr()
+    if not any(child.tag.endswith('}bidi') for child in pPr):
+        bidi = OxmlElement('w:bidi')
+        bidi.set(qn('w:val'), '1')
+        pPr.insert(0, bidi)
+
+def set_table_bidi(table):
+    tblPr = table._tbl.tblPr
+    if not any(child.tag.endswith('}bidiVisual') for child in tblPr):
+        tblPr.append(parse_xml(f'<w:bidiVisual {nsdecls("w")}/>'))
+
+def add_styled_run(p, text, font_name="B Nazanin", size_pt=11.5, bold=False, italic=False, color=None, lang="fa"):
+    run = p.add_run(text)
+    run.font.size = Pt(size_pt)
+    run.bold = bold
+    run.italic = italic
+    if color:
+        run.font.color.rgb = color
+    if lang == "fa":
+        run.font.name = font_name
+        rPr = run._r.get_or_add_rPr()
+        rFonts = parse_xml(
+            f'<w:rFonts {nsdecls("w")} '
+            f'w:ascii="{font_name}" w:hAnsi="{font_name}" '
+            f'w:cs="{font_name}" w:eastAsia="{font_name}" w:hint="cs"/>'
+        )
+        rPr.append(rFonts)
+        rPr.append(parse_xml(f'<w:rtl {nsdecls("w")} w:val="1"/>'))
+        sz_half_pts = int(size_pt * 2)
+        rPr.append(parse_xml(f'<w:szCs {nsdecls("w")} w:val="{sz_half_pts}"/>'))
+        if bold:
+            rPr.append(parse_xml(f'<w:bCs {nsdecls("w")} w:val="1"/>'))
+    else:
+        run.font.name = "Times New Roman"
+    return run
+
 def export_word_report(
     query: str,
     studies: List[Dict[str, Any]],
@@ -647,6 +685,7 @@ def export_word_report(
 ) -> str:
     """Exports Chapter 2 Empirical Literature Review Word document with OpenXML BiDi RTL."""
     doc = docx.Document()
+    is_fa = (lang == "fa")
 
     for section in doc.sections:
         section.top_margin = Inches(1.0)
@@ -654,44 +693,46 @@ def export_word_report(
         section.left_margin = Inches(1.0)
         section.right_margin = Inches(1.0)
 
-    font_title = "B Titr" if lang == "fa" else "Calibri"
-    font_body = "B Nazanin" if lang == "fa" else "Calibri"
+    font_title = "B Titr" if is_fa else "Calibri"
+    font_body = "B Nazanin" if is_fa else "Calibri"
 
     # Header
     p_title = doc.add_paragraph()
-    p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_title = p_title.add_run(
-        "گزارش جامع پیشینه تجربی پژوهش (استخراج‌شده از پایگاه‌های داده)" if lang == "fa" else "Comprehensive Harvested Empirical Literature Review"
-    )
-    r_title.font.name = font_title
-    r_title.font.size = Pt(18)
-    r_title.font.bold = True
-    r_title.font.color.rgb = RGBColor(26, 54, 93)
+    if is_fa:
+        set_paragraph_bidi(p_title, WD_ALIGN_PARAGRAPH.CENTER)
+    else:
+        p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title_text = "گزارش جامع پیشینه تجربی پژوهش (استخراج‌شده از پایگاه‌های داده)" if is_fa else "Comprehensive Harvested Empirical Literature Review"
+    add_styled_run(p_title, title_text, font_name=font_title, size_pt=18, bold=True, color=RGBColor(26, 54, 93), lang=lang)
 
     p_sub = doc.add_paragraph()
-    p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_sub = p_sub.add_run(f"عبارت جستجو / کلیدواژه‌ها: {query}\nتعداد پژوهش‌های استخراج‌شده: {len(studies)} مطالعه")
-    r_sub.font.name = font_body
-    r_sub.font.size = Pt(11)
-    r_sub.font.color.rgb = RGBColor(74, 85, 104)
+    if is_fa:
+        set_paragraph_bidi(p_sub, WD_ALIGN_PARAGRAPH.CENTER)
+    else:
+        p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    sub_text = f"عبارت جستجو / کلیدواژه‌ها: {query}\nتعداد پژوهش‌های استخراج‌شده: {len(studies)} مطالعه"
+    add_styled_run(p_sub, sub_text, font_name=font_body, size_pt=11, color=RGBColor(74, 85, 104), lang=lang)
 
     doc.add_paragraph()
 
     # Section 1: Executive Summary
     h1 = doc.add_paragraph()
-    r_h1 = h1.add_run("۱. شناسنامه پژوهش‌های استخراج‌شده و ماتریس پیشینه" if lang == "fa" else "1. Harvested Studies Synthesis Matrix")
-    r_h1.font.name = font_title
-    r_h1.font.size = Pt(14)
-    r_h1.font.bold = True
-    r_h1.font.color.rgb = RGBColor(43, 108, 176)
+    if is_fa:
+        set_paragraph_bidi(h1, WD_ALIGN_PARAGRAPH.RIGHT)
+    else:
+        h1.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    h1_text = "۱. شناسنامه پژوهش‌های استخراج‌شده و ماتریس پیشینه" if is_fa else "1. Harvested Studies Synthesis Matrix"
+    add_styled_run(h1, h1_text, font_name=font_title, size_pt=14, bold=True, color=RGBColor(43, 108, 176), lang=lang)
 
     # APA 7 Table
     table = doc.add_table(rows=len(studies) + 1, cols=6)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    if is_fa:
+        set_table_bidi(table)
 
     headers = [
         "ردیف", "پژوهشگر (سال)", "عنوان مقاله", "جامعه و حجم نمونه", "ابزارها", "یافته‌های محوری"
-    ] if lang == "fa" else [
+    ] if is_fa else [
         "#", "Author (Year)", "Study Title", "Sample (N)", "Instruments", "Key Findings"
     ]
 
@@ -700,12 +741,11 @@ def export_word_report(
         shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="1A365D"/>')
         cell._tc.get_or_add_tcPr().append(shd)
         p = cell.paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run(h)
-        run.font.name = font_title
-        run.font.size = Pt(9.5)
-        run.font.bold = True
-        run.font.color.rgb = RGBColor(255, 255, 255)
+        if is_fa:
+            set_paragraph_bidi(p, WD_ALIGN_PARAGRAPH.CENTER)
+        else:
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        add_styled_run(p, h, font_name=font_title, size_pt=9.5, bold=True, color=RGBColor(255, 255, 255), lang=lang)
 
     for r_idx, s in enumerate(studies, 1):
         bg = "FFFFFF" if r_idx % 2 == 1 else "F7FAFC"
@@ -724,32 +764,36 @@ def export_word_report(
             shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{bg}"/>')
             cell._tc.get_or_add_tcPr().append(shd)
             p = cell.paragraphs[0]
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c_idx in [0, 1] else WD_ALIGN_PARAGRAPH.RIGHT
-            run = p.add_run(val)
-            run.font.name = font_body
-            run.font.size = Pt(8.5)
+            if is_fa:
+                cell_align = WD_ALIGN_PARAGRAPH.CENTER if c_idx in [0, 1] else (WD_ALIGN_PARAGRAPH.JUSTIFY if c_idx == 5 else WD_ALIGN_PARAGRAPH.RIGHT)
+                set_paragraph_bidi(p, cell_align)
+            else:
+                p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c_idx in [0, 1] else WD_ALIGN_PARAGRAPH.LEFT
+            add_styled_run(p, val, font_name=font_body, size_pt=8.5, lang=lang)
 
     doc.add_paragraph()
 
     # Section 2: Standard 5-Part Academic Narrative (Ready to paste into Chapter 2)
     h2 = doc.add_paragraph()
-    r_h2 = h2.add_run("۲. سنتز روایی پیشینه پژوهش (آماده درج مستقیم در فصل دوم پایان‌نامه)" if lang == "fa" else "2. Narrative Chapter 2 Synthesis (Defense-Ready)")
-    r_h2.font.name = font_title
-    r_h2.font.size = Pt(14)
-    r_h2.font.bold = True
-    r_h2.font.color.rgb = RGBColor(43, 108, 176)
+    if is_fa:
+        set_paragraph_bidi(h2, WD_ALIGN_PARAGRAPH.RIGHT)
+    else:
+        h2.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    h2_text = "۲. سنتز روایی پیشینه پژوهش (آماده درج مستقیم در فصل دوم پایان‌نامه)" if is_fa else "2. Narrative Chapter 2 Synthesis (Defense-Ready)"
+    add_styled_run(h2, h2_text, font_name=font_title, size_pt=14, bold=True, color=RGBColor(43, 108, 176), lang=lang)
 
-    # Narrative paragraphs for each study
+    # Narrative paragraphs for each study - strictly justified
     for s in studies:
         p_narrative = doc.add_paragraph()
         p_narrative.paragraph_format.first_line_indent = Inches(0.5)
         p_narrative.paragraph_format.line_spacing = 1.3
-        p_narrative.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        if is_fa:
+            set_paragraph_bidi(p_narrative, WD_ALIGN_PARAGRAPH.JUSTIFY)
+        else:
+            p_narrative.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
         narrative_text = EmpiricalParameterExtractor.build_5part_narrative(s, lang=lang)
-        r_n = p_narrative.add_run(narrative_text)
-        r_n.font.name = font_body
-        r_n.font.size = Pt(11.5)
+        add_styled_run(p_narrative, narrative_text, font_name=font_body, size_pt=11.5, lang=lang)
 
     doc.save(out_path)
     return str(out_path)
