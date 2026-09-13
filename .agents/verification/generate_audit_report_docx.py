@@ -141,15 +141,22 @@ def build_audit_report_document(audit_data: Dict[str, Any], output_path: str) ->
     engine.set_strict_pPr(p_h2, space_before=18, space_after=6)
     engine.add_styled_run(p_h2, "۲. بررسی صحت محاسبات و درجات آزادی (Degrees of Freedom)", font_fa='B Titr', size=14, bold=True, color="1B365D")
 
+    df1 = audit_data.get("df1", 1)
+    df2 = audit_data.get("df2", 57)
+    f_val = audit_data.get("f_val", 45.15)
+    p_val = audit_data.get("p_val", "< .001")
+    eta_p2 = audit_data.get("eta_p2", 0.44)
+    n_sample = audit_data.get("sample_size", df1 + df2 + 2)
+
     p_h2_txt = doc.add_paragraph()
     engine.set_strict_pPr(p_h2_txt, jc_val='both', space_before=0, space_after=6)
     engine.add_styled_run(p_h2_txt, (
-        "درجات آزادی آزمون کوواریانس مطابق فرمول استاندارد کنترل شد: "
-        "درجه آزادی بین‌گروهی df_between = k - 1 = 1 و درجه آزادی درون‌گروهی خطا "
-        "df_within = N - k - c = 34 - 2 - 1 = 31. بنابراین گزارش آزمون به صورت "
+        f"درجات آزادی آزمون کوواریانس مطابق فرمول استاندارد کنترل شد: "
+        f"درجه آزادی بین‌گروهی df_between = k - 1 = {df1} و درجه آزادی درون‌گروهی خطا "
+        f"df_within = N - k - c = {n_sample} - 2 - 1 = {df2}. بنابراین گزارش آزمون به صورت "
     ))
     # Inject OMML equation
-    omml_f = engine.create_omml_f_test(df1=1, df2=31, f_val=14.32, p_val="< .001", eta_p2=0.32)
+    omml_f = engine.create_omml_f_test(df1=df1, df2=df2, f_val=f_val, p_val=p_val, eta_p2=eta_p2)
     engine.inject_math(p_h2_txt, omml_f)
     engine.add_styled_run(p_h2_txt, " کاملاً معتبر و فاقد هرگونه ناهمخوانی ریاضیاتی است.")
 

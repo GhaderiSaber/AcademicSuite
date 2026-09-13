@@ -20,6 +20,7 @@ telethon_config.json
 bot_config.json
 userbot_storage/
 bot_storage/
+.agents/output/
 
 # Allow repository documentation, agent instructions, dependencies, and psychometric registry
 !.gitignore

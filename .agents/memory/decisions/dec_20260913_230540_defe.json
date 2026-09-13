@@ -1,0 +1,21 @@
+{
+  "decision_id": "dec_20260913_230540_defe",
+  "timestamp": "2026-09-13T23:05:40.651326",
+  "project_title": "اثربخشی درمان مبتنی بر پذیرش و تعهد (ACT) بر فرسودگی شغلی و انعطاف‌پذیری روان‌شناختی کادر درمان",
+  "decision_type": "defense_presentation_workflow_execution",
+  "context": "Antigravity multi-agent workflow 'defense_presentation' completed. Tri-path presentation suite compiled.",
+  "selected_option": "Tri-Path Presentation Suite: Interactive HTML + 16:9 PPTX + Word Oral Script + 20 Viva Voce Scenarios",
+  "rationale": "Comprehensive defense preparation ensuring 100% legibility, timing compliance, and viva voce cross-examination readiness.",
+  "alternatives_considered": [
+    {
+      "option": "Raw slides without speaker speech notes or committee simulator",
+      "verdict": "REJECTED",
+      "reason": "High candidate anxiety and defense risk"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 0.99,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}

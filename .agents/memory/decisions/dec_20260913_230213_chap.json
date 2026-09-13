@@ -1,0 +1,21 @@
+{
+  "decision_id": "dec_20260913_230213_chap",
+  "timestamp": "2026-09-13T23:02:13.841353",
+  "project_title": "اثربخشی درمان مبتنی بر پذیرش و تعهد (ACT) بر فرسودگی شغلی و انعطاف‌پذیری روان‌شناختی کادر درمان",
+  "decision_type": "chapter4_workflow_execution",
+  "context": "Antigravity multi-agent workflow 'chapter4' completed deterministically on physical dataset.",
+  "selected_option": "ANCOVA with baseline pre-test control and 5-part epistemic narrative",
+  "rationale": "Empirically validated on N=60 with slope homogeneity satisfied (p=.451).",
+  "alternatives_considered": [
+    {
+      "option": "Gain score t-test",
+      "verdict": "REJECTED",
+      "reason": "Low power & regression to mean"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 1.0,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}

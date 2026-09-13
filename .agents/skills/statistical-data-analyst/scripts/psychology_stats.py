@@ -593,9 +593,11 @@ def analyze_group_comparison(df: pd.DataFrame, var_col: str, group_col: str, pai
             "mann_whitney_p_str": format_p_value(float(u_p))
         }
 
-# --- 5. One-Way ANCOVA (Intervention Studies) ---
 def analyze_ancova(df: pd.DataFrame, dv_col: str, group_col: str, covar_col: str) -> dict:
-    sub_df = df[[dv_col, group_col, covar_col]].apply(pd.to_numeric, errors='coerce').dropna()
+    sub_df = df[[dv_col, group_col, covar_col]].copy()
+    sub_df[dv_col] = pd.to_numeric(sub_df[dv_col], errors='coerce')
+    sub_df[covar_col] = pd.to_numeric(sub_df[covar_col], errors='coerce')
+    sub_df = sub_df.dropna(subset=[dv_col, covar_col, group_col])
     sub_df[group_col] = sub_df[group_col].astype(str)
     
     # 1. Test Homogeneity of Slopes: DV ~ Group * Covariate
