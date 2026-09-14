@@ -75,15 +75,22 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
             }
 
     transcript_path = payload.get("transcriptPath")
+    cid = payload.get("conversationId")
     if not transcript_path:
-        cid = payload.get("conversationId")
         if cid:
             cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
             if os.path.exists(cand):
                 transcript_path = cand
+            else:
+                sys.stderr.write(
+                    f"[transcript_and_rule_guard WARNING] conversationId '{cid}' provided but transcript.jsonl "
+                    f"not found at '{cand}'. Guard cannot audit conversation transcript.\n"
+                )
 
     records = load_transcript(transcript_path) if transcript_path else []
     if not records:
+        if transcript_path and not os.path.exists(transcript_path):
+            sys.stderr.write(f"[transcript_and_rule_guard WARNING] transcript_path '{transcript_path}' does not exist on disk.\n")
         return {"decision": "allow"}
 
     subagent_calls_count = 0
@@ -133,10 +140,15 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
         r"multi[- ]agent workflow [\"']?\w+[\"']? completed",
         r"completed,? multi[- ]agent [a-zA-Z0-9_-]+ (?:empirical )?pipeline",
         r"subagents executed:\s*\[",
-        r"subagents? (?:were|have been) (?:invoked|executed|run|deliberated)",
-        r"delegated to (?:our|the) subagents?",
+        r"subagents? (?:were|have been|are) (?:invoked|executed|run|deliberated|coordinated)",
+        r"delegated to (?:our|the)? subagents?",
         r"subagent deliberation completed",
-        r"orchestrated (?:the )?(?:14 )?subagents"
+        r"orchestrated (?:the )?(?:14|15 )?subagents",
+        r"autonomous agents? (?:executed|deliberated|coordinated)",
+        r"multi[- ]agent team (?:has )?(?:completed|executed|deliberated|analyzed)",
+        r"pipeline run by (?:the )?subagents",
+        r"ساب[‌ ]?ایجنت[‌ ]?ها (?:اجرا|بررسی|فراخوانی)",
+        r"فرایند چند[‌ ]?عاملی"
     ]
     asst_lower = last_assistant_msg.lower()
     claims_multiagent = any(re.search(pat, asst_lower) for pat in claim_patterns)

@@ -198,19 +198,56 @@ class DigitalSaber:
         print(f"Advice: {res['defense_readiness_advice']}")
         print("=" * 80)
 
-    def simulate_defense(self, topic: str):
-        """Simulates oral defense viva voce examination."""
-        prof = {"title": topic, "design": "ancova", "sample_size": 30, "iv": "مداخله روان‌شناختی", "dv": "نشانه‌های بالینی"}
+    def simulate_defense(self, topic_or_file: str):
+        """Simulates oral defense viva voce examination grounded in actual empirical results or case precedents."""
+        prof = {}
+        if os.path.exists(topic_or_file):
+            with open(topic_or_file, "r", encoding="utf-8") as f:
+                loaded = json.load(f)
+            prof["title"] = loaded.get("study_title") or loaded.get("title") or os.path.basename(topic_or_file)
+            prof["design"] = loaded.get("design") or loaded.get("statistical_test") or "ancova"
+            prof["sample_size"] = loaded.get("total_sample_size") or loaded.get("sample_size") or 30
+            prof["iv"] = loaded.get("independent_variable") or loaded.get("iv") or "مداخله روان‌شناختی"
+            prof["dv"] = loaded.get("dependent_variable") or loaded.get("dv") or "نشانه‌های بالینی"
+            prof["stats_results"] = loaded.get("stats_results", loaded)
+            prof["audit_metrics"] = loaded.get("audit_metrics", {})
+        else:
+            # Query case memory to ground the simulation in closest historical empirical case
+            prec = self.case_memory.search_precedents(topic_or_file, top_k=1)
+            if prec:
+                matched_case = prec[0].get("case", {})
+                prof["title"] = topic_or_file
+                prof["design"] = matched_case.get("design", "ancova")
+                prof["sample_size"] = matched_case.get("sample_size", 30)
+                prof["iv"] = matched_case.get("independent_variable", "مداخله پژوهش")
+                prof["dv"] = matched_case.get("dependent_variable", "متغیر وابسته")
+            else:
+                prof = {
+                    "title": topic_or_file,
+                    "design": "ancova",
+                    "sample_size": 30,
+                    "iv": "مداخله روان‌شناختی",
+                    "dv": "نشانه‌های بالینی"
+                }
+
         res = self.defense_sim.generate_defense_cross_examination(prof)
-        print("\n" + "=" * 80)
-        print(f"🎯 DIGITAL SABER DEFENSE COMMITTEE SIMULATION: {topic}")
-        print("=" * 80)
+        print("\n" + "=" * 85)
+        print(f"🎯 DIGITAL SABER DEFENSE COMMITTEE SIMULATION: {prof['title']}")
+        print("=" * 85)
+        dri = res["defense_readiness_summary"]
+        print(f"📊 Defense Readiness Index (DRI): {dri['defense_readiness_percentage']}%  [{dri['clearance_status']}]")
+        print(f"🏅 Committee Verdict:            {dri['overall_verdict']}")
+        print("-" * 85)
+        print("ITEMIZED 5-DIMENSIONAL DEFENSE READINESS RUBRIC (FINAL JUDGE SPEC):")
+        for dim, val in dri["rubric_weights"].items():
+            print(f"  • {dim:<25} | Weight: {val['weight']*100:>2.0f}% | Subscore: {val['score']*100:>5.1f}%")
+        print("-" * 85)
         for idx, c in enumerate(res["challenges"], 1):
             print(f"[{idx}] {c['examiner_role']}:")
             print(f"    ❓ سوال داور: {c['challenge_fa']}")
             print(f"    💬 پاسخ مستدل دانشجو: {c['model_answer_fa']}")
             print(f"    📚 رفرنس پشتیبان: {c['apa7_evidence']}")
-            print("-" * 80)
+            print("-" * 85)
 
     def learn_new_case(self, topic_or_file: str):
         """Executes stages 1-5 of the continuous learning cycle: Ingest, Retrieve Precedents, Generate Candidates, Journal."""
