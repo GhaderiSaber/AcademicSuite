@@ -1337,6 +1337,91 @@ def run_rct_simulation(payload, n_per_group=30, seed=42):
         "rct_dataset": df_rct
     }
 
+def simulate_saber_doctoral_dataset(n: int = 260, seed: int = 42) -> pd.DataFrame:
+    """
+    Simulates a full doctoral dissertation research dataset modeled on
+    Saber Ghaderi's Sepideh Emarati & Majedeh Saidi dissertations.
+    Includes:
+      - 5 categorical/continuous demographics (Age, Gender, Education, Field, Marital Status)
+      - Parenting Styles (Mother & Father: Autonomy, Warmth, Involvement + Total)
+      - Intolerance of Uncertainty (Prospective, Inhibitory + Total)
+      - Pathological Worry (PSWQ Total)
+      - Generalized Anxiety (Somatic, Cognitive + Total)
+      - Experimental RCT variables (Group, Pre_Score, Post_Score with baseline control)
+    """
+    rng = np.random.default_rng(seed)
+
+    # Demographics
+    age = np.clip(np.round(rng.normal(28.4, 6.1, size=n)), 19, 54).astype(int)
+    gender = rng.choice(["زن", "مرد"], size=n, p=[0.62, 0.38])
+    education = rng.choice(["کارشناسی", "کارشناسی ارشد", "دکتری"], size=n, p=[0.55, 0.35, 0.10])
+    field = rng.choice(["علوم انسانی", "فنی و مهندسی", "علوم پایه", "علوم پزشکی"], size=n, p=[0.40, 0.30, 0.15, 0.15])
+    marital = rng.choice(["مجرد", "متأهل"], size=n, p=[0.58, 0.42])
+
+    # Latent factors & dimensions
+    z_parenting_autonomy = rng.normal(0, 1, size=n)
+    z_parenting_warmth = 0.65 * z_parenting_autonomy + math.sqrt(1 - 0.65**2) * rng.normal(0, 1, size=n)
+    z_parenting_involvement = 0.50 * z_parenting_warmth + math.sqrt(1 - 0.50**2) * rng.normal(0, 1, size=n)
+
+    m_autonomy = np.round(np.clip(26.4 + 5.8 * (0.8 * z_parenting_autonomy + 0.6 * rng.normal(0, 0.5, size=n)), 10, 35), 2)
+    m_warmth = np.round(np.clip(28.2 + 6.1 * (0.8 * z_parenting_warmth + 0.6 * rng.normal(0, 0.5, size=n)), 10, 35), 2)
+    m_involve = np.round(np.clip(24.5 + 5.2 * (0.8 * z_parenting_involvement + 0.6 * rng.normal(0, 0.5, size=n)), 10, 35), 2)
+
+    f_autonomy = np.round(np.clip(23.8 + 5.9 * (0.7 * z_parenting_autonomy + 0.7 * rng.normal(0, 0.5, size=n)), 10, 35), 2)
+    f_warmth = np.round(np.clip(25.1 + 6.3 * (0.7 * z_parenting_warmth + 0.7 * rng.normal(0, 0.5, size=n)), 10, 35), 2)
+    f_involve = np.round(np.clip(22.4 + 5.0 * (0.7 * z_parenting_involvement + 0.7 * rng.normal(0, 0.5, size=n)), 10, 35), 2)
+    parenting_total = np.round(m_autonomy + m_warmth + m_involve + f_autonomy + f_warmth + f_involve, 2)
+
+    # Intolerance of uncertainty
+    z_ius = -0.35 * z_parenting_autonomy + math.sqrt(1 - 0.35**2) * rng.normal(0, 1, size=n)
+    prospective_ius = np.round(np.clip(29.3 + 7.1 * (0.85 * z_ius + 0.5 * rng.normal(0, 0.5, size=n)), 12, 45), 2)
+    inhibitory_ius = np.round(np.clip(22.8 + 5.6 * (0.80 * z_ius + 0.5 * rng.normal(0, 0.5, size=n)), 9, 35), 2)
+    ius_total = np.round(prospective_ius + inhibitory_ius, 2)
+
+    # Pathological worry (PSWQ)
+    z_worry = 0.50 * z_ius - 0.20 * z_parenting_warmth + math.sqrt(max(0.05, 1 - 0.50**2 - 0.20**2)) * rng.normal(0, 1, size=n)
+    pswq_total = np.round(np.clip(54.2 + 11.4 * (0.9 * z_worry + 0.4 * rng.normal(0, 0.5, size=n)), 20, 80), 2)
+
+    # Generalized anxiety (GAD-7)
+    z_gad = 0.45 * z_worry + 0.25 * z_ius - 0.25 * z_parenting_autonomy + math.sqrt(max(0.05, 1 - 0.45**2 - 0.25**2 - 0.25**2)) * rng.normal(0, 1, size=n)
+    gad_somatic = np.round(np.clip(12.8 + 3.8 * (0.85 * z_gad + 0.5 * rng.normal(0, 0.5, size=n)), 4, 21), 2)
+    gad_cognitive = np.round(np.clip(14.2 + 4.1 * (0.85 * z_gad + 0.5 * rng.normal(0, 0.5, size=n)), 4, 21), 2)
+    gad_total = np.round(gad_somatic + gad_cognitive, 2)
+
+    # Experimental trial columns (N=60 subset or full N)
+    group_labels = ["کنترل"] * (n // 2) + ["مداخله"] * (n - n // 2)
+    pre_score = np.round(gad_total * 0.9 + rng.normal(0, 2, size=n), 2)
+    post_score = pre_score.copy()
+    int_mask = np.array([g == "مداخله" for g in group_labels])
+    post_score[int_mask] = np.round(post_score[int_mask] - 12.5 + rng.normal(0, 1.8, size=int(np.sum(int_mask))), 2)
+
+    df = pd.DataFrame({
+        "Subject_ID": np.arange(1, n + 1),
+        "سن": age,
+        "جنسیت": gender,
+        "تحصیلات": education,
+        "رشته تحصیلی": field,
+        "وضعیت تأهل": marital,
+        "حمایت از خودمختاری مادر": m_autonomy,
+        "گرمی مادر": m_warmth,
+        "اشتغال مادر به فرزند": m_involve,
+        "حمایت از خودمختاری پدر": f_autonomy,
+        "گرمی پدر": f_warmth,
+        "اشتغال پدر به فرزند": f_involve,
+        "نمره کل فرزندپروری ادراک‌شده": parenting_total,
+        "عدم تحمل آینده‌نگر": prospective_ius,
+        "عدم تحمل بازدارنده": inhibitory_ius,
+        "نمره کل عدم تحمل عدم قطعیت": ius_total,
+        "نمره کل نگرانی بیمارگونه": pswq_total,
+        "علائم جسمانی اضطراب": gad_somatic,
+        "علائم شناختی اضطراب": gad_cognitive,
+        "نمره کل اضطراب فراگیر": gad_total,
+        "Group": group_labels,
+        "Pre_Score": pre_score,
+        "Post_Score": post_score
+    })
+    return df
+
 # ==============================================================================
 # 11. RESEARCH PRESETS DICTIONARY
 # ==============================================================================

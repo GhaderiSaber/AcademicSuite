@@ -490,7 +490,10 @@ class OpenXMLArtifactEngine:
                 return output_path
             else:
                 return self._build_real_chapter4(stats_data, output_path)
-        except Exception:
+        except Exception as e:
+            print(f"[ERROR] Failed to compile master Chapter 4 document: {e}")
+            import traceback
+            traceback.print_exc()
             return self._build_real_chapter4(stats_data, output_path)
 
     def generate_proposal_docx(self, proposal_data: dict, output_path: str) -> str:

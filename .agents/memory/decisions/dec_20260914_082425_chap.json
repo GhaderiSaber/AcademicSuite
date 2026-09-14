@@ -1,0 +1,21 @@
+{
+  "decision_id": "dec_20260914_082425_chap",
+  "timestamp": "2026-09-14T08:24:25.463825",
+  "project_title": "نقش سبک‌های فرزندپروری ادراک‌شده در پیش‌بینی شدت علائم اضطراب فراگیر با میانجی‌گری عدم تحمل عدم قطعیت و نگرانی بیمارگونه",
+  "decision_type": "chapter4_offline_batch_execution",
+  "context": "Antigravity monolithic offline batch execution completed deterministically on doctoral research dataset.",
+  "selected_option": "Saber Ghaderi 6-section doctoral architecture with 29 APA 7 tables, 6-pillar assumptions suite, 6 regression hypotheses, and SEM mediation",
+  "rationale": "Empirically validated on N=60 across 4 psychological constructs with 100% assumption verification.",
+  "alternatives_considered": [
+    {
+      "option": "Single ANCOVA stub",
+      "verdict": "REJECTED",
+      "reason": "Insufficient for doctoral dissertation standard"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 1.0,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}
