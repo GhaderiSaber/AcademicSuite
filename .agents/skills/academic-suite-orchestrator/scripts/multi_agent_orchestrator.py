@@ -60,6 +60,96 @@ class MultiAgentOrchestrator:
             "context_dir": context_path
         }
 
+        # Handle Thesis Revision & Examiner Rebuttal Workflow
+        if workflow.lower() in ("thesis_revision", "revision"):
+            triaged_file = os.path.join(context_path, "triaged_comments.json")
+            resolved_file = os.path.join(context_path, "resolved_comments.json")
+            stats_audit_file = os.path.join(context_path, "revision_stats_audit.json")
+            clearance_file = os.path.join(context_path, "committee_clearance_report.json")
+            rebuttal_docx = os.path.join(context_path, "Revision_Response_Table.docx")
+
+            if role == "results-auditor":
+                return {
+                    **base_packet,
+                    "role_title": "Format & APA 7 Revision Auditor",
+                    "mandate": "Audit Tier 1 formatting comments, table borders (3 horizontal lines, 0 vertical lines), Persian leading zeros (۰.۰۰۱), and OpenXML BiDi RTL.",
+                    "artifacts_to_inspect": [triaged_file, rebuttal_docx],
+                    "instructions": [
+                        f"Call view_file on {triaged_file} and verify all Tier 1 comments.",
+                        "Confirm that all revised tables follow APA 7 (zero vertical borders, exactly 3 horizontal borders).",
+                        "Verify Persian leading zero rule: always '۰.۰۰۱' or '۰.۰۵', never '.۰۰۱'.",
+                        "Confirm OpenXML BiDi RTL (<w:bidiVisual/>) on the response table.",
+                        "Return a JSON QC checklist."
+                    ],
+                    "expected_return_schema": {
+                        "format_audit_passed": True,
+                        "leading_zero_concordance": True,
+                        "table_borders_apa7": True,
+                        "defects_found": []
+                    }
+                }
+
+            elif role == "statistical-auditor":
+                return {
+                    **base_packet,
+                    "role_title": "Statistical Recalculation & Assumption Auditor",
+                    "mandate": "Audit Tier 2 statistical recalculations (regression slope homogeneity, normality, degrees of freedom, effect sizes) against stats_results.json.",
+                    "artifacts_to_inspect": [stats_results_file, stats_audit_file],
+                    "instructions": [
+                        f"Inspect calculated metrics in {stats_audit_file} and {stats_results_file}.",
+                        "Verify degrees of freedom concordance and slope homogeneity test (F, df, p-value).",
+                        "Audit Multi-Signal Anomaly Index (MSAI) score.",
+                        "Return a JSON statistical recalculation audit report."
+                    ],
+                    "expected_return_schema": {
+                        "audit_verdict": "string",
+                        "degrees_of_freedom_verified": True,
+                        "slope_homogeneity_verified": True,
+                        "recalculation_fidelity": True
+                    }
+                }
+
+            elif role == "academic-writer":
+                return {
+                    **base_packet,
+                    "role_title": "Academic Rebuttal Drafter & Etiquette Specialist",
+                    "mandate": "Draft and audit polite, respectful Persian academic responses (academic_rebuttal_etiquette_fa.md) with exact thesis page references.",
+                    "artifacts_to_inspect": [resolved_file],
+                    "instructions": [
+                        f"Inspect resolved comments in {resolved_file}.",
+                        "Verify that responses strictly adhere to academic etiquette (e.g., «با تشکر و امتنان فراوان از دقت نظر استاد محترم...»).",
+                        "Confirm exact page and table references are provided for every single comment.",
+                        "Return a JSON evaluation with rebuttal_etiquette_approved and comments_audited."
+                    ],
+                    "expected_return_schema": {
+                        "rebuttal_etiquette_approved": True,
+                        "all_pages_referenced": True,
+                        "persian_typography_valid": True,
+                        "comments_audited": 14
+                    }
+                }
+
+            elif role == "final-judge":
+                return {
+                    **base_packet,
+                    "role_title": "Thesis Defense Committee Clearance Judge",
+                    "mandate": "Evaluate supervisor and examiner comment resolution completeness, compute committee clearance score (0-100), and issue sign-off verdict.",
+                    "artifacts_to_inspect": [clearance_file, resolved_file],
+                    "instructions": [
+                        f"Inspect {clearance_file} and {resolved_file}.",
+                        "Verify 100% resolution coverage across all tiers (Format, Stats, Theory).",
+                        "Confirm committee sign-off readiness score (0-100%).",
+                        "Issue clearance verdict: APPROVED_FOR_SIGN_OFF or FURTHER_REVISIONS_REQUIRED."
+                    ],
+                    "expected_return_schema": {
+                        "verdict": "APPROVED_FOR_SIGN_OFF",
+                        "readiness_score": 99.0,
+                        "resolution_rate": 100.0,
+                        "clearance_summary": "string"
+                    }
+                }
+
+        # Default / Chapter 4 Workflow Handling
         if role == "methodology-expert":
             return {
                 **base_packet,
@@ -177,9 +267,10 @@ class MultiAgentOrchestrator:
                 "instructions": ["Inspect context artifacts and return structured feedback."]
             }
 
-    def validate_critique_payload(self, role: str, payload: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    def validate_critique_payload(self, role: str, payload: Dict[str, Any], workflow: str = "chapter4") -> Tuple[bool, List[str]]:
         """Validates that a subagent returned the required schema fields."""
         errors = []
+        is_rev = workflow.lower() in ("thesis_revision", "revision")
         if role == "methodology-expert":
             for k in ["methodology_approved", "power_adequate"]:
                 if k not in payload:
@@ -189,13 +280,32 @@ class MultiAgentOrchestrator:
                 if k not in payload:
                     errors.append(f"Missing required key '{k}' in statistical auditor critique.")
         elif role == "results-auditor":
-            for k in ["qc_passed", "leading_zero_concordance"]:
-                if k not in payload:
-                    errors.append(f"Missing required key '{k}' in results auditor QC checklist.")
+            if is_rev:
+                for k in ["format_audit_passed", "leading_zero_concordance"]:
+                    if k not in payload:
+                        errors.append(f"Missing required key '{k}' in results auditor revision checklist.")
+            else:
+                for k in ["qc_passed", "leading_zero_concordance"]:
+                    if k not in payload:
+                        errors.append(f"Missing required key '{k}' in results auditor QC checklist.")
+        elif role == "academic-writer":
+            if is_rev:
+                for k in ["rebuttal_etiquette_approved", "all_pages_referenced"]:
+                    if k not in payload:
+                        errors.append(f"Missing required key '{k}' in academic writer rebuttal audit.")
+            else:
+                for k in ["draft_complete"]:
+                    if k not in payload:
+                        errors.append(f"Missing required key '{k}' in academic writer draft status.")
         elif role == "final-judge":
-            for k in ["verdict", "defense_readiness_score", "viva_voce_challenges"]:
-                if k not in payload:
-                    errors.append(f"Missing required key '{k}' in final judge defense verdict.")
+            if is_rev:
+                for k in ["verdict", "readiness_score"]:
+                    if k not in payload:
+                        errors.append(f"Missing required key '{k}' in final judge clearance verdict.")
+            else:
+                for k in ["verdict", "defense_readiness_score"]:
+                    if k not in payload:
+                        errors.append(f"Missing required key '{k}' in final judge defense verdict.")
         return len(errors) == 0, errors
 
 

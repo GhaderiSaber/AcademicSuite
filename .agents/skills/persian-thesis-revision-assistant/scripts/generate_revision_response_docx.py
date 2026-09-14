@@ -40,10 +40,10 @@ def set_table_borders_and_bidi(table):
         f'<w:tblBorders {nsdecls("w")}>\n'
         f'  <w:top w:val="single" w:sz="6" w:space="0" w:color="000000"/>\n'
         f'  <w:bottom w:val="single" w:sz="6" w:space="0" w:color="000000"/>\n'
-        f'  <w:left w:val="single" w:sz="6" w:space="0" w:color="000000"/>\n'
-        f'  <w:right w:val="single" w:sz="6" w:space="0" w:color="000000"/>\n'
+        f'  <w:left w:val="none"/>\n'
+        f'  <w:right w:val="none"/>\n'
         f'  <w:insideH w:val="single" w:sz="4" w:space="0" w:color="D3D3D3"/>\n'
-        f'  <w:insideV w:val="single" w:sz="4" w:space="0" w:color="D3D3D3"/>\n'
+        f'  <w:insideV w:val="none"/>\n'
         f'</w:tblBorders>'
     )
     tblPr.append(tblBorders)
@@ -184,7 +184,7 @@ def build_response_document(data: dict, output_path: str):
         set_cell_margins(row_cells[1], top=80, bottom=80)
         p1 = row_cells[1].paragraphs[0]
         set_paragraph_bidi(p1, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        author = item.get("author", "استاد")
+        author = item.get("reviewer") or item.get("author", "استاد")
         comment = item.get("comment", "")
         add_run(p1, f"[{author}]: ", size=10, bold=True)
         add_run(p1, comment, size=10)
@@ -193,14 +193,14 @@ def build_response_document(data: dict, output_path: str):
         set_cell_margins(row_cells[2], top=80, bottom=80)
         p2 = row_cells[2].paragraphs[0]
         set_paragraph_bidi(p2, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        action = item.get("action_taken", "اصلاحات مطابق نظر استاد اعمال شد.")
+        action = item.get("action_taken") or item.get("response", "اصلاحات مطابق نظر استاد اعمال شد.")
         add_run(p2, action, size=10)
         
         # Location
         set_cell_margins(row_cells[3], top=80, bottom=80)
         p3 = row_cells[3].paragraphs[0]
         set_paragraph_bidi(p3, WD_ALIGN_PARAGRAPH.CENTER)
-        loc = item.get("location", "متن رساله")
+        loc = item.get("location") or item.get("page_target", "متن رساله")
         add_run(p3, loc, size=10)
         
     # Outro
