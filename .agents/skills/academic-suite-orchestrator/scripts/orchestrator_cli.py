@@ -216,7 +216,16 @@ PIPELINE_PRESETS = {
 # ==============================================================================
 
 class MasterAcademicOrchestrator:
-    """Controls the execution, data routing, artifact logging, and dashboard compilation."""
+    """
+    Deterministic Batch CLI Pipeline Runner ('The Hands').
+    Controls sequential command execution, data routing, artifact logging, and dashboard compilation.
+
+    CONSTITUTIONAL NOTICE (Directive 12.1):
+    This engine executes purely deterministic Python scripts via CLI on local disk.
+    It does NOT manage, simulate, or dispatch LLM subagents. In AcademicSuite, multi-agent
+    deliberation and quality auditing are led natively by the Antigravity Lead Agent
+    in chat sessions via 'invoke_subagent'.
+    """
 
     def __init__(self, config_path: str, out_dir: str, pipeline_name: Optional[str] = None,
                  custom_steps: Optional[List[str]] = None, dry_run: bool = False,

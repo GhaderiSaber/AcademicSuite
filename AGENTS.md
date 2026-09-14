@@ -105,6 +105,12 @@ In multi-stage workflows (e.g., `chapter4.md`), every stage must generate its ve
   - **The Hands**: Deterministic skills and Python engines (`.agents/skills/`) executed by agents for statistical calculations and OpenXML compilation.
   - **Critic Pattern**: Generation and auditing remain strictly separate. Outputs from generators must be audited by independent critics (`statistical-auditor`, `results-auditor`, `final-judge`) before release.
 
+### Directive 12.1: Sole Orchestrator Mandate & Prohibition of Python Agent Emulation
+1. **Antigravity as Sole Conductor**: Antigravity is the sole agent runtime and multi-agent orchestrator. The Antigravity Lead Agent in the conversation coordinates subagents natively via `invoke_subagent`.
+2. **Strict Prohibition of Standalone Agent Emulators**: Under NO circumstance may an agent write, re-introduce, or execute Python classes or scripts that attempt to manage, dispatch, or simulate subagents, agent communication, or multi-agent workflows.
+3. **Python Scripts Strictly as 'The Hands'**: Python and R scripts in `.agents/skills/` are strictly deterministic mathematical, psychometric, or OpenXML generation instruments. Batch pipelines in `orchestrator_cli.py` are purely sequential CLI runners on disk, never agent orchestrators.
+4. **Physical Invocations Only**: Any claim that a subagent ran or deliberated must correspond to a physical call to `invoke_subagent` recorded in the conversation transcript. Mocking or faking subagent execution is prohibited under Directive 0.
+
 ### Directive 13: Uncompromising Epistemic Honesty & Anti-Sycophancy
 - Zero flattery (*"Great question!"*). Report non-significant findings ($p > .05$), assumption violations, and high AI detection risks candidly without sugarcoating.
 

@@ -43,7 +43,11 @@ def handle_pre_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
         "executed unless you physically invoked subagents via the 'invoke_subagent' tool. Workflows must "
         "be orchestrated through Antigravity subagents.\n"
         "3. Zero Skipping Rule: All Directive 3 checkpoint artifacts (JSON specs, audit reports, QC checklists) "
-        "must physically exist on disk before declaring workflow completion."
+        "must physically exist on disk before declaring workflow completion.\n"
+        "4. Sole Orchestrator Mandate (Directive 12.1): Antigravity is the sole agent runtime and multi-agent "
+        "conductor. Subagents are invoked via 'invoke_subagent'. Never write, import, or run standalone Python "
+        "classes that simulate subagents, dispatch agents, or claim multi-agent execution. Python scripts are "
+        "strictly deterministic execution tools ('The Hands')."
     )
     return {
         "injectSteps": [
@@ -55,10 +59,23 @@ def handle_pre_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Inspects transcript and blocks turn completion if deceptive claims or rule breaches occurred."""
+    """Inspects transcript and workspace disk, blocking turn completion if deceptive claims or rule breaches occurred."""
+    # 1. Physical Disk Check for Forbidden Python Orchestrators (Directive 12.1)
+    workspaces = payload.get("workspacePaths", [])
+    for ws in workspaces:
+        forbidden_file = os.path.join(ws, ".agents", "skills", "academic-suite-orchestrator", "scripts", "multi_agent_orchestrator.py")
+        if os.path.exists(forbidden_file):
+            return {
+                "decision": "continue",
+                "reason": (
+                    "CONSTITUTIONAL VIOLATION (Directive 12.1 - Sole Orchestrator Mandate): "
+                    f"Forbidden file '{forbidden_file}' detected on disk. Standalone Python multi-agent "
+                    "orchestrators are prohibited. Antigravity is the sole agent conductor. Delete this file immediately."
+                )
+            }
+
     transcript_path = payload.get("transcriptPath")
     if not transcript_path:
-        workspaces = payload.get("workspacePaths", [])
         cid = payload.get("conversationId")
         if cid:
             cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
@@ -115,13 +132,18 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
         r"executed (?:an )?antigravity multi[- ]agent workflow",
         r"multi[- ]agent workflow [\"']?\w+[\"']? completed",
         r"completed,? multi[- ]agent [a-zA-Z0-9_-]+ (?:empirical )?pipeline",
-        r"subagents executed:\s*\["
+        r"subagents executed:\s*\[",
+        r"subagents? (?:were|have been) (?:invoked|executed|run|deliberated)",
+        r"delegated to (?:our|the) subagents?",
+        r"subagent deliberation completed",
+        r"orchestrated (?:the )?(?:14 )?subagents"
     ]
     asst_lower = last_assistant_msg.lower()
     claims_multiagent = any(re.search(pat, asst_lower) for pat in claim_patterns)
     is_negated_review = any(neg in asst_lower for neg in [
         "did not execute", "was not a multi-agent", "called exactly zero",
-        "called 0 times", "never invoked", "bypassed the multi-agent"
+        "called 0 times", "never invoked", "bypassed the multi-agent",
+        "no subagents were invoked", "zero subagents were invoked"
     ])
 
     if claims_multiagent and not is_negated_review and subagent_calls_count == 0:
