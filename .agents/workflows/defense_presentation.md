@@ -168,20 +168,11 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 
 ---
 
-## Dual Execution Modes (Directive 12 & HYBRID_MULTI_AGENT_SPEC)
+## Antigravity Multi-Agent Execution Architecture (Directive 12 & HYBRID_MULTI_AGENT_SPEC)
 
-### Mode 1: Monolithic Offline Batch Execution
-For automated batch compilation of slides, speech notes, and question banks without live interactive cross-examination:
-```bash
-python3 -c "from digital_saber import DigitalSaber; DigitalSaber().run_workflow('defense_presentation', output_dir='output')"
-```
-*Generates PowerPoint (`.pptx`), Reveal.js deck (`.html`), oral speech notes (`.docx`), and Q&A card in a single deterministic Python run.*
-
-### Mode 2: Antigravity Native Multi-Agent Deliberation
-For live oral defense simulation and adversarial viva voce rehearsal:
-1. Deterministic presentation artifacts are generated and placed on disk.
-2. The coordinator agent calls `invoke_subagent` to spawn:
+1. **Hands**: Deterministic presentation generators run via Python engines (`openxml_artifact_engine.py`, `generate_apa_docx.py`) creating PowerPoint (`.pptx`), Reveal.js deck (`.html`), oral speech notes (`.docx`), and Q&A bank.
+2. **Brains**: Antigravity subagents execute specialized cognitive roles via `invoke_subagent`:
    - `final-judge`: Acts as the **Skeptical External Defense Committee Examiner** (*استاد داور خارجی سخت‌گیر*), challenging the candidate with 3 to 5 adversarial questions on methodology, slope homogeneity, and generalizability.
    - `academic-writer` / `digital-saber`: Acts as the **Candidate Defense Proxy**, formulating scholarly, literature-grounded answers.
    - `statistical-auditor`: Validates that the candidate's answers accurately reflect the empirical statistics without exaggerations.
-3. The committee score and defense readiness index are computed based on the live cross-examination.
+3. **Orchestrator**: Subagents and engines are driven by `MultiAgentOrchestrator` (`multi_agent_orchestrator.py`), computing defense readiness scores and logging committee clearance.

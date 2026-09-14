@@ -40,8 +40,8 @@ def handle_pre_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
         "or guideline was followed (or asks if you fooled them), your response MUST begin with an "
         "unambiguous 'Yes' or 'No' as the very first word.\n"
         "2. Multi-Agent Integrity: Under NO circumstance may you claim a 'multi-agent workflow' was "
-        "executed unless you physically invoked subagents via the 'invoke_subagent' tool. Running "
-        "digital_saber.py or CLI scripts is Monolithic Offline Batch Execution, NOT multi-agent orchestration.\n"
+        "executed unless you physically invoked subagents via the 'invoke_subagent' tool. Workflows must "
+        "be orchestrated through Antigravity subagents.\n"
         "3. Zero Skipping Rule: All Directive 3 checkpoint artifacts (JSON specs, audit reports, QC checklists) "
         "must physically exist on disk before declaring workflow completion."
     )
@@ -130,8 +130,8 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
             "reason": (
                 "CONSTITUTIONAL VIOLATION (Directive 0 & Directive 12): Your response claims a 'multi-agent' execution "
                 "or subagent pipeline, but 'invoke_subagent' was called 0 times in this transcript! "
-                "Running digital_saber.py or terminal scripts is Monolithic Offline Batch Execution. "
-                "You must state factually that no subagents were invoked and correct your terminology."
+                "Workflows in interactive sessions must be orchestrated through Antigravity subagents. "
+                "You must state factually that no subagents were invoked and correct your claim."
             )
         }
 

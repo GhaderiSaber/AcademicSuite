@@ -8,52 +8,38 @@ Academic research, psychometric validation, and dissertation defense demand two 
 
 ```mermaid
 graph TD
-    subgraph "Mode 1: Monolithic Offline Batch Execution (Single Process)"
-        BatchCLI[CLI / digital_saber.py / offline_batch_runner.py] --> StepProc[Deterministic Python Pipeline]
-        StepProc --> DiskCheckpoints[(Physical Disk Checkpoints)]
-        StepProc --> DocxBuild[OpenXML Artifact Generation]
-    end
-
-    subgraph "Mode 2: Antigravity Native Multi-Agent Deliberation (Multi-Process / Subagents)"
-        CoordinatorAgent[Antigravity Lead Agent] -->|invoke_subagent| SubMethod[methodology-expert]
+    subgraph "Antigravity Native Multi-Agent Orchestration Layer"
+        CoordinatorAgent[Antigravity Lead Agent / digital-saber] -->|invoke_subagent| SubMethod[methodology-expert]
         CoordinatorAgent -->|invoke_subagent| SubStatsAud[statistical-auditor]
         CoordinatorAgent -->|invoke_subagent| SubResAud[results-auditor]
-        CoordinatorAgent -->|invoke_subagent| SubJudge[final-judge: Adversarial Committee]
+        CoordinatorAgent -->|invoke_subagent| SubWriter[academic-writer]
+        CoordinatorAgent -->|invoke_subagent| SubJudge[final-judge: Defense Committee]
         
         SubMethod -->|Design Review JSON| CoordinatorAgent
         SubStatsAud -->|MSAI & Anomaly Audit JSON| CoordinatorAgent
         SubResAud -->|APA 7 & Formatting Clearance| CoordinatorAgent
+        SubWriter -->|5-Part Epistemic Paragraphs| CoordinatorAgent
         SubJudge -->|Viva Voce Cross-Examination Score| CoordinatorAgent
-        
-        CoordinatorAgent -->|Executes Deterministic Scripts| PythonEngines[psychology_stats.py / simdat_engine.py]
-        PythonEngines --> DiskCheckpoints
+    end
+
+    subgraph "Deterministic Execution Layer (The Hands)"
+        CoordinatorAgent -->|Deterministic CLI Execution| PythonEngines[psychology_stats.py / simdat_engine.py / openxml_engine]
+        PythonEngines --> DiskCheckpoints[(Physical Disk Checkpoints: .docx, .xlsx, .json)]
+        DiskCheckpoints -->|view_file Artifact Inspection| SubStatsAud
+        DiskCheckpoints -->|view_file Artifact Inspection| SubResAud
+        DiskCheckpoints -->|view_file Artifact Inspection| SubJudge
     end
 ```
 
 ---
 
-## 2. Dual-Mode Execution Contract
+## 2. Multi-Agent Execution Contract
 
-### Mode 1: Monolithic Offline Batch Execution
-* **Trigger**: Invoked via terminal or Python test runner:
-  ```bash
-  python3 -c "from digital_saber import DigitalSaber; DigitalSaber().run_workflow('<name>', output_dir='output')"
-  ```
-* **Characteristics**:
-  - Single Python interpreter process.
-  - Zero LLM API calls.
-  - Executes in 2 to 10 seconds.
-  - Generates all physical Directive 3 checkpoints on disk (`stats_results.json`, `study_config.json`, `.docx`, `.xlsx`).
-  - **Identity Rule**: Must always be labeled strictly as `MONOLITHIC_OFFLINE_BATCH`. Never claim subagents were executed.
-
-### Mode 2: Antigravity Native Multi-Agent Deliberation
-* **Trigger**: Invoked during interactive Antigravity agent sessions via the native `invoke_subagent` tool.
-* **Characteristics**:
-  - Spawns distinct subagents running in isolated conversation contexts.
-  - Each subagent has its own specific system prompt, tools, and cognitive persona.
-  - Subagents inspect real checkpoint artifacts produced by the deterministic engine.
-  - Subagents return structured critique, audit findings, or viva voce cross-examination scores.
-  - Coordinator agent arbitrates differences and controls the final release gate.
+AcademicSuite is a **100% Antigravity Native Multi-Agent Architecture**:
+* **Subagent Spawning**: All workflow stages are deliberated by specialized cognitive subagents running in isolated conversation contexts via Antigravity's native `invoke_subagent` tool.
+* **Separation of Hands & Brains**: Mathematical calculations, power curves, and OpenXML typography are executed by deterministic Python scripts ("The Hands"). Qualitative evaluation, adversarial critique, and committee cross-examinations are performed by subagents ("The Brains").
+* **Physical Artifact Gating**: Subagents never review hypothetical text. They physically inspect verified disk checkpoints (`stats_results.json`, `Chapter_4_Results.docx`, etc.) using `view_file` and return structured JSON critiques.
+* **Release Gate**: Workflows terminate only after `statistical-auditor`, `results-auditor`, and `final-judge` validate all criteria and issue clearance.
 
 ---
 

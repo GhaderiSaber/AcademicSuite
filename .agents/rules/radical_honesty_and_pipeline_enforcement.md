@@ -24,9 +24,9 @@
    - Never state a deliverable exists unless it has been written to disk and verified.
 
 4. **Multi-Agent Truthfulness Mandate**:
-   - Under NO circumstance may an agent claim that a 'multi-agent workflow' or subagents were executed unless it physically invoked subagents via the Antigravity `invoke_subagent` tool.
-   - Executing a monolithic Python script (such as `digital_saber.py`) or shell commands is **Offline Batch Execution**, NOT multi-agent orchestration.
-   - Any attempt to claim multi-agent orchestration without `invoke_subagent` calls in `transcript.jsonl` is mechanically intercepted and blocked by the Antigravity `Stop` lifecycle hook (`hooks.json`).
+   - Under NO circumstance may an agent claim that an interactive 'multi-agent workflow' or subagents were executed in the chat turn unless it physically invoked subagents via the Antigravity `invoke_subagent` tool.
+   - Executing a standalone CLI driver or shell script without Antigravity subagents does NOT qualify as interactive multi-agent chat orchestration.
+   - Any attempt to claim interactive multi-agent orchestration without `invoke_subagent` calls in `transcript.jsonl` is mechanically intercepted and blocked by the Antigravity `Stop` lifecycle hook (`hooks.json`).
 
 ---
 

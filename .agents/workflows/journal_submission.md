@@ -174,20 +174,11 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 
 ---
 
-## Dual Execution Modes (Directive 12 & HYBRID_MULTI_AGENT_SPEC)
+## Antigravity Multi-Agent Execution Architecture (Directive 12 & HYBRID_MULTI_AGENT_SPEC)
 
-### Mode 1: Monolithic Offline Batch Execution
-For automated batch compilation of journal submission packages:
-```bash
-python3 -c "from digital_saber import DigitalSaber; DigitalSaber().run_workflow('journal_submission', output_dir='output')"
-```
-*Generates full IMRaD manuscript, cover letter, CRediT title page, highlights, and submission manifest in a single deterministic Python run.*
-
-### Mode 2: Antigravity Native Multi-Agent Deliberation
-For adversarial peer-review simulation and Revise & Resubmit (R&R) rebuttal defense:
-1. Deterministic article package is compiled and placed on disk.
-2. The coordinator agent calls `invoke_subagent` to spawn:
+1. **Hands**: Deterministic article compilation and package generation run via Python engines (`article_writer_engine.py`, `generate_apa_docx.py`, `harvester_engine.py`) generating the full IMRaD manuscript, cover letter, CRediT title page, highlights, and submission manifest.
+2. **Brains**: Antigravity subagents execute specialized cognitive roles via `invoke_subagent`:
    - `final-judge`: Acts as **Editor-in-Chief / Reviewer 1 (Methodological Critic)**, checking internal validity, sample size power, and alternative explanations.
    - `evidence-auditor`: Acts as **Reviewer 2 (Theoretical / Citation Critic)**, cross-examining literature synthesis, citations, and potential bias.
    - `academic-writer`: Acts as the **Corresponding Author**, drafting courteous, evidence-grounded point-by-point responses.
-3. The peer-review rebuttal table and editorial acceptance probability are computed based on the deliberation.
+3. **Orchestrator**: Subagents and engines are driven by `MultiAgentOrchestrator` (`multi_agent_orchestrator.py`), computing submission readiness scores and enforcing journal guidelines.

@@ -179,22 +179,12 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 
 ---
 
-## Dual Execution Modes (Directive 12 & HYBRID_MULTI_AGENT_SPEC)
+## Antigravity Multi-Agent Execution Architecture (Directive 12 & HYBRID_MULTI_AGENT_SPEC)
 
-### Mode 1: Monolithic Offline Batch Execution
-For automated batch compilation, background pipelines, and CI/CD tests without interactive deliberation:
-```bash
-python3 -c "from digital_saber import DigitalSaber; DigitalSaber().run_workflow('chapter4', output_dir='output')"
-```
-*Executes all 10 stages in a single Python process, deterministically generating all Directive 3 artifacts on disk.*
-
-### Mode 2: Antigravity Native Multi-Agent Deliberation
-For interactive high-stakes dissertation review, viva voce cross-examination, and adversarial auditing:
-1. Deterministic calculation runs via Python CLI to generate physical `stats_results.json`.
-2. The coordinator agent calls `invoke_subagent` to spawn independent reviewer subagents:
+1. **Hands**: Deterministic statistical calculations run via Python CLI (`psychology_stats.py`, `generate_apa_docx.py`, `simdat_engine.py`) generating physical `stats_results.json` and APA 7 tables.
+2. **Brains**: Antigravity subagents execute specialized cognitive roles via `invoke_subagent`:
    - `methodology-expert`: Audits design, power, and validity.
    - `statistical-auditor`: Runs adversarial MSAI anomaly checks on `stats_results.json`.
    - `results-auditor`: Verifies APA 7 rules, leading zero compliance, and OpenXML layout.
    - `final-judge`: Simulates viva voce oral defense cross-examination.
-3. Subagents run concurrently in separate contexts and report findings back to the coordinator.
-4. Coordinator reconciles critiques and commits approved deliverables.
+3. **Orchestrator**: Cognitive roles and deterministic hands are orchestrated by `MultiAgentOrchestrator` (`multi_agent_orchestrator.py`), enforcing artifact gates and decision journaling.

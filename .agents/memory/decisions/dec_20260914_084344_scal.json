@@ -1,0 +1,21 @@
+{
+  "decision_id": "dec_20260914_084344_scal",
+  "timestamp": "2026-09-14T08:43:44.462431",
+  "project_title": "پرسشنامه انعطاف‌پذیری روان‌شناختی (AAQ-II)",
+  "decision_type": "scale_validation_workflow_execution",
+  "context": "Digital Saber offline batch workflow 'scale_validation' completed. Comprehensive CTT and IRT validation conducted.",
+  "selected_option": "Dual CTT + IRT Graded Response Model with Fornell-Larcker & McDonald's Omega",
+  "rationale": "Robust psychometric adaptation meeting APA 7th Edition reporting and modern psychometric evaluation standards.",
+  "alternatives_considered": [
+    {
+      "option": "Cronbach's alpha only without CFA or IRT",
+      "verdict": "REJECTED",
+      "reason": "Fails modern psychometric standards and dissertation rigor"
+    }
+  ],
+  "evidence_citations": [],
+  "confidence": 0.99,
+  "human_gate_required": true,
+  "human_gate_approved": true,
+  "approved_by": "GhaderiSaber (124911145)"
+}

@@ -37,11 +37,12 @@ REF_EXTRACT_DIR = os.path.join(SKILLS_DIR, "academic-reference-extractor", "scri
 META_DIR = os.path.join(SKILLS_DIR, "systematic-review-meta-analyst", "scripts")
 STATS_DIR = os.path.join(SKILLS_DIR, "statistical-data-analyst", "scripts")
 SIMDAT_DIR = os.path.join(SKILLS_DIR, "psychometric-data-simulator", "scripts")
+ORCH_DIR = os.path.join(SKILLS_DIR, "academic-suite-orchestrator", "scripts")
 VENV_SITE = os.path.join(ROOT_DIR, ".venv", "lib", "python3.13", "site-packages")
 
 # Add paths to sys.path
 for p in [SHARED_DIR, MEMORY_DIR, REASONING_DIR, VERIFICATION_DIR, EVAL_DIR,
-          LIT_HARVESTER_DIR, BIBLIO_DIR, CITATION_DIR, LIT_REVIEW_DIR, REF_EXTRACT_DIR, META_DIR, STATS_DIR, SIMDAT_DIR, VENV_SITE]:
+          LIT_HARVESTER_DIR, BIBLIO_DIR, CITATION_DIR, LIT_REVIEW_DIR, REF_EXTRACT_DIR, META_DIR, STATS_DIR, SIMDAT_DIR, ORCH_DIR, VENV_SITE]:
     if os.path.exists(p) and p not in sys.path:
         sys.path.insert(0, p)
 
@@ -334,10 +335,10 @@ class DigitalSaber:
 
 
     def run_workflow(self, workflow_name: str, topic_or_file: Optional[str] = None, output_dir: str = "output") -> Optional[Dict[str, Any]]:
-        """Delegates offline batch workflow execution to internal OfflineBatchRunner."""
-        from offline_batch_runner import OfflineBatchRunner
-        runner = OfflineBatchRunner(saber=self)
-        return runner.run_workflow(workflow_name, topic_or_file=topic_or_file, output_dir=output_dir)
+        """Delegates workflow execution to internal MultiAgentOrchestrator."""
+        from multi_agent_orchestrator import MultiAgentOrchestrator
+        orchestrator = MultiAgentOrchestrator(workspace_root=ROOT_DIR, saber=self)
+        return orchestrator.run_workflow(workflow_name, topic_or_file=topic_or_file, output_dir=output_dir)
 
     def harvest_drive_cases(self, project_id: Optional[str] = None):
         """Scans and ingests historical academic projects from Google Drive into Case Memory."""

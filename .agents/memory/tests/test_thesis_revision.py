@@ -194,7 +194,7 @@ class TestThesisRevisionSuite(unittest.TestCase):
         self.assertIsNotNone(res)
         self.assertEqual(res["status"], "SUCCESS")
         self.assertEqual(res["workflow"], "thesis_revision")
-        self.assertEqual(res["execution_mode"], "MONOLITHIC_OFFLINE_BATCH")
+        self.assertEqual(res["execution_mode"], "ANTIGRAVITY_MULTI_AGENT")
         self.assertEqual(res["comments_resolved"], 14)
         self.assertGreaterEqual(res["readiness_score"], 90.0)
         self.assertTrue(res["decision_id"].startswith("dec_"))

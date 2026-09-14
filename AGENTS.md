@@ -21,7 +21,7 @@ This repository contains the **Digital Saber Professional AI Twin** and the **Ac
    - The response **MUST BEGIN WITH AN UNAMBIGUOUS "Yes" OR "No"** as the very first word.
    - If **"No"**, state the exact factual failure and omissions immediately without defensive excuses or sycophantic qualifiers. Propose corrective action only after stating the unvarnished truth.
 3. **Strict Truth in Verification**: Never state a test, assumption, or index was checked unless the mathematical command or script output physically exists in workspace logs.
-4. **Multi-Agent Truthfulness Mandate**: Under NO circumstance may an agent claim a 'multi-agent workflow' was executed unless it physically invoked subagents via the Antigravity `invoke_subagent` tool. Running a Python script (such as `digital_saber.py`) or a shell command is **Monolithic Offline Batch Execution**, NOT multi-agent orchestration. Misrepresenting monolithic execution as multi-agent is classified as intentional deception and is mechanically blocked by the Antigravity `Stop` lifecycle hook (`hooks.json`).
+4. **Multi-Agent Truthfulness Mandate**: Under NO circumstance may an agent claim a 'multi-agent workflow' was executed unless it physically invoked subagents via the Antigravity `invoke_subagent` tool. Workflows must always execute through designated subagents. Misrepresenting uninvoked execution as multi-agent is classified as intentional deception and is mechanically blocked by the Antigravity `Stop` lifecycle hook (`hooks.json`).
 
 ### Directive 1: Mandatory Pre-Flight Gate & Progressive Disclosure
 To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, modeling, chapter drafting, or translation without first emitting this Pre-Flight Declaration in the user response:**
@@ -100,10 +100,10 @@ In multi-stage workflows (e.g., `chapter4.md`), every stage must generate its ve
 - **Who (`.agents/agents/`)**: 14 persistent cognitive roles (`digital-saber`, `methodology-expert`, `statistical-expert`, `statistical-auditor`, `results-auditor`, `academic-writer`, `literature-expert`, `evidence-auditor`, `final-judge`, `psychometric-expert`, `qualitative-analyst`, `meta-analyst`, `journal-strategist`, `intervention-designer`).
 - **How (`.agents/skills/`)**: Domain capabilities and deterministic scripts.
 - **Specification (`.agents/architecture/HYBRID_MULTI_AGENT_SPEC.md`)**: Complete architectural blueprint for the hybrid division of labor.
-- **Dual-Mode Execution Model**:
-  - **Mode 1 (Offline Batch Execution)**: Single-process batch execution via `python3 -c "from digital_saber import DigitalSaber; DigitalSaber().run_workflow('<name>')"` or `offline_batch_runner.py`. Runs all stages in a single Python process, generating all Directive 3 artifacts deterministically. Must always be identified strictly as `MONOLITHIC_OFFLINE_BATCH`.
-  - **Mode 2 (Antigravity Native Multi-Agent Deliberation)**: Invoked during interactive sessions via Antigravity's native `invoke_subagent` tool. Used for high-stakes qualitative debate, viva voce defense cross-examinations, peer review rebuttals, and supervisor feedback triage.
-- **Critic Pattern**: Generation and auditing must remain strictly separate. Outputs from generators must be audited by independent critics (`statistical-auditor`, `results-auditor`) before release.
+- **Unified Antigravity Multi-Agent Architecture**:
+  - **The Brains & Critics**: 14 persistent cognitive roles (`.agents/agents/`) invoked via Antigravity's native `invoke_subagent` tool for qualitative review, cross-examination, and decision gates.
+  - **The Hands**: Deterministic skills and Python engines (`.agents/skills/`) executed by agents for statistical calculations and OpenXML compilation.
+  - **Critic Pattern**: Generation and auditing remain strictly separate. Outputs from generators must be audited by independent critics (`statistical-auditor`, `results-auditor`, `final-judge`) before release.
 
 ### Directive 13: Uncompromising Epistemic Honesty & Anti-Sycophancy
 - Zero flattery (*"Great question!"*). Report non-significant findings ($p > .05$), assumption violations, and high AI detection risks candidly without sugarcoating.
