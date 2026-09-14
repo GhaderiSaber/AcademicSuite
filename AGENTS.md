@@ -97,11 +97,11 @@ In multi-stage workflows (e.g., `chapter4.md`), every stage must generate its ve
 - Routine analyses run autonomously. High-stakes choices (pricing, overriding supervisor requests, final release) require Human Gate approval and logging in `.agents/memory/decisions/` via `decision_journal_engine.py`.
 
 ### Directive 12: Hybrid Multi-Agent Deliberation Architecture (Hands vs. Brains)
-- **Who (`.agents/agents/`)**: 14 persistent cognitive roles (`digital-saber`, `methodology-expert`, `statistical-expert`, `statistical-auditor`, `results-auditor`, `academic-writer`, `literature-expert`, `evidence-auditor`, `final-judge`, `psychometric-expert`, `qualitative-analyst`, `meta-analyst`, `journal-strategist`, `intervention-designer`).
+- **Who (`.agents/agents/`)**: 15 persistent cognitive roles (`digital-saber`, `methodology-expert`, `statistical-expert`, `statistical-auditor`, `results-auditor`, `academic-writer`, `literature-expert`, `evidence-auditor`, `final-judge`, `psychometric-expert`, `qualitative-analyst`, `meta-analyst`, `journal-strategist`, `intervention-designer`, `data-curator`).
 - **How (`.agents/skills/`)**: Domain capabilities and deterministic scripts.
 - **Specification (`.agents/architecture/HYBRID_MULTI_AGENT_SPEC.md`)**: Complete architectural blueprint for the hybrid division of labor.
 - **Unified Antigravity Multi-Agent Architecture**:
-  - **The Brains & Critics**: 14 persistent cognitive roles (`.agents/agents/`) invoked via Antigravity's native `invoke_subagent` tool for qualitative review, cross-examination, and decision gates.
+  - **The Brains & Critics**: 15 persistent cognitive roles (`.agents/agents/`) invoked via Antigravity's native `invoke_subagent` tool for qualitative review, cross-examination, and decision gates.
   - **The Hands**: Deterministic skills and Python engines (`.agents/skills/`) executed by agents for statistical calculations and OpenXML compilation.
   - **Critic Pattern**: Generation and auditing remain strictly separate. Outputs from generators must be audited by independent critics (`statistical-auditor`, `results-auditor`, `final-judge`) before release.
 

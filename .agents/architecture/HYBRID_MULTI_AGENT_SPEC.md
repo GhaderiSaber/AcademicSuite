@@ -61,6 +61,7 @@ AcademicSuite is a **100% Antigravity Native Multi-Agent Architecture**:
 | **`meta-analyst`** | PRISMA 2020 study flow, Cochrane RoB 2 risk of bias, Hedges' $g$ random-effects pooling, Cochran's $Q$, $I^2$, and Egger's publication bias. | Read, Bash | Primary study effect sizes, PICO strings | Forest & Funnel plots, Meta-analysis report |
 | **`journal-strategist`** | IMRaD packaging for ISI/Scopus Q1/Q2 and ISC journals, Editor Cover Letters, 14 CRediT roles, character-capped highlights, and R&R rebuttals. | Read, Write | Full dissertation chapters, Journal guidelines | Submission manifest, Cover letter, Rebuttal tables |
 | **`intervention-designer`** | Standardized 8–12 session clinical manuals (ACT, CBT, Schema Therapy, CFT), experiential techniques, worksheets, and treatment fidelity checklists. | Read, Write | Intervention specifications, Clinical literature | Clinical protocol manual (`.docx`), APA 7 session table |
+| **`data-curator`** | Raw data hygiene, Little's MCAR missingness diagnosis, unengaged straight-liner filtering, univariate ($|Z| > 3.29$) & multivariate ($D^2$) outlier screening, and demographic data dictionary compilation. | Read, Write, Bash | Raw dataset (`.xlsx`, `.csv`, `.sav`) | `data_curated.xlsx`, `data_curation_report.json`, `data_dictionary.json` |
 
 ---
 

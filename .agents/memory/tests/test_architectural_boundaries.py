@@ -118,11 +118,12 @@ class TestArchitecturalBoundaries(unittest.TestCase):
                 f"Workflow spec {wf} must specify Antigravity-native orchestration."
             )
 
-    def test_05_all_14_subagents_configured_for_native_invocation(self):
-        """Assert all 14 subagent definitions exist and have valid YAML frontmatter for invoke_subagent."""
+    def test_05_all_15_subagents_configured_for_native_invocation(self):
+        """Assert all 15 subagent definitions exist and have valid YAML frontmatter for invoke_subagent."""
         agents_dir = os.path.join(ROOT_DIR, ".agents", "agents")
         expected_agents = [
             "academic-writer.md",
+            "data-curator.md",
             "digital-saber.md",
             "evidence-auditor.md",
             "final-judge.md",
@@ -138,7 +139,7 @@ class TestArchitecturalBoundaries(unittest.TestCase):
             "statistical-expert.md"
         ]
         
-        self.assertEqual(len(os.listdir(agents_dir)), 14)
+        self.assertEqual(len(os.listdir(agents_dir)), 15)
         for agent_file in expected_agents:
             path = os.path.join(agents_dir, agent_file)
             self.assertTrue(os.path.exists(path), f"Missing subagent file: {agent_file}")

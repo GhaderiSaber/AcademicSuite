@@ -46,11 +46,12 @@ class TestAgentRoster(unittest.TestCase):
         "qualitative-analyst",
         "meta-analyst",
         "journal-strategist",
-        "intervention-designer"
+        "intervention-designer",
+        "data-curator"
     ]
 
-    def test_all_14_subagent_files_exist(self):
-        """Verify that all 14 subagent markdown definitions exist in .agents/agents/."""
+    def test_all_15_subagent_files_exist(self):
+        """Verify that all 15 subagent markdown definitions exist in .agents/agents/."""
         self.assertTrue(os.path.isdir(AGENTS_DEF_DIR), f"Directory not found: {AGENTS_DEF_DIR}")
         for role in self.EXPECTED_ROLES:
             filepath = os.path.join(AGENTS_DEF_DIR, f"{role}.md")
@@ -83,9 +84,9 @@ class TestAgentRoster(unittest.TestCase):
             self.assertGreater(len(body), 150, f"{role}.md body content is too short or empty")
 
     def test_agent_roles_count_and_parity(self):
-        """Verify .agents/agents/ has exact 14 roles matching expected roster."""
+        """Verify .agents/agents/ has exact 15 roles matching expected roster."""
         actual_files = [f.replace(".md", "") for f in os.listdir(AGENTS_DEF_DIR) if f.endswith(".md")]
-        self.assertEqual(len(actual_files), 14)
+        self.assertEqual(len(actual_files), 15)
         self.assertEqual(set(actual_files), set(self.EXPECTED_ROLES))
 
     def test_subagent_markdown_system_prompts(self):
