@@ -34,8 +34,6 @@ bot_storage/
 !data/questionnaires/
 !data/questionnaires/**
 data/templates/
-!reports/
-!reports/**
 !tools/
 !tools/**
 *.session
