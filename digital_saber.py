@@ -235,19 +235,28 @@ class DigitalSaber:
         print(f"🎯 DIGITAL SABER DEFENSE COMMITTEE SIMULATION: {prof['title']}")
         print("=" * 85)
         dri = res["defense_readiness_summary"]
+        print(f"🏅 Final Defense Grade:          {dri.get('final_grade_out_of_20', 20.00):.2f} / 20.00")
         print(f"📊 Defense Readiness Index (DRI): {dri['defense_readiness_percentage']}%  [{dri['clearance_status']}]")
-        print(f"🏅 Committee Verdict:            {dri['overall_verdict']}")
+        print(f"⚖️ Committee Verdict:            {dri['overall_verdict']}")
         print("-" * 85)
-        print("ITEMIZED 5-DIMENSIONAL DEFENSE READINESS RUBRIC (FINAL JUDGE SPEC):")
+        print("ITEMIZED DEDUCTIONS LEDGER (IRANIAN DEFENSE GRADING RUBRIC):")
+        if dri.get("deductions_ledger"):
+            for idx, d in enumerate(dri["deductions_ledger"], 1):
+                print(f"  [{idx}] {d['category']}: -{d['deduction']:.2f} pts ({d['item']})")
+        else:
+            print("  • No deductions applied. Flawless defense clearance.")
+        print("-" * 85)
+        print("5-DIMENSIONAL DEFENSE READINESS RUBRIC WEIGHTS:")
         for dim, val in dri["rubric_weights"].items():
             print(f"  • {dim:<25} | Weight: {val['weight']*100:>2.0f}% | Subscore: {val['score']*100:>5.1f}%")
         print("-" * 85)
+        print("5-ROLE VIVA VOCE CROSS-EXAMINATION CHALLENGES:")
         for idx, c in enumerate(res["challenges"], 1):
-            print(f"[{idx}] {c['examiner_role']}:")
+            print(f"\n[{idx}] {c['examiner_role']}:")
             print(f"    ❓ سوال داور: {c['challenge_fa']}")
             print(f"    💬 پاسخ مستدل دانشجو: {c['model_answer_fa']}")
             print(f"    📚 رفرنس پشتیبان: {c['apa7_evidence']}")
-            print("-" * 85)
+        print("=" * 85 + "\n")
 
     def learn_new_case(self, topic_or_file: str):
         """Executes stages 1-5 of the continuous learning cycle: Ingest, Retrieve Precedents, Generate Candidates, Journal."""

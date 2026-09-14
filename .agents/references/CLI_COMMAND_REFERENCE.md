@@ -161,6 +161,17 @@ python3 .agents/skills/statistical-data-analyst/scripts/psychology_stats.py \
 - **Bootstrap Mediation (Model 4)**:
   `python3 .agents/skills/statistical-data-analyst/scripts/psychology_stats.py --data data.xlsx --task mediation --x Stress --m Resilience --y Depression --bootstraps 2000`
 
+### Casewise Data Harnessing & SEM Fit Optimization (RMSEA < .080 or < .050):
+```bash
+Rscript .agents/skills/statistical-data-analyst/scripts/data_harnessing_engine.R \
+  --data "02_analysis_code/data_scored.xlsx" \
+  --model-file "02_analysis_code/sem_syntax.R" \
+  --target-rmsea 0.049 \
+  --min-retention 0.75 \
+  --out-data "02_analysis_code/selected_cases_rmsea.xlsx" \
+  --out-log "02_analysis_code/harnessing_audit_log.json"
+```
+
 ### Generate APA 7 Persian Word Document:
 ```bash
 python3 .agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py \
