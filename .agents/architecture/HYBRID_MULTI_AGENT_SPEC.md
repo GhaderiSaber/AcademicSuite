@@ -61,13 +61,20 @@ graph TD
 
 | Subagent Role (`TypeName`) | Primary Cognitive Responsibility | Tools Available | Input Artifacts Inspected | Output Artifacts Generated |
 | :--- | :--- | :--- | :--- | :--- |
+| **`digital-saber`** | Master Research Project Lead, Cognitive Architect, and Digital Twin of Saber Ghaderi. | All Read/Write/CLI Tools | Project Proposals, Case Memory, Decision Journal | Workflow routing, Price quotations, Release cards |
 | **`methodology-expert`** | Evaluates research design (RCT, ANCOVA, SEM), sample size adequacy via G*Power, and threats to internal/external validity. | Read, Web Search, Graph | Research Proposal, `study_config.json` | `methodology_spec.json` |
 | **`statistical-expert`** | Formulates inferential analysis plan, selects parametric tests, verifies assumption checklist. | Read, Bash, Graph | Dataset (`.xlsx`, `.csv`), Variable Mapping | `statistical_plan.json` |
 | **`statistical-auditor`** | Adversarially audits degrees of freedom, variance deflation, regression slope homogeneity, and Multi-Signal Anomaly Index (MSAI). | Read, Bash | `stats_results.json`, Dataset | `statistical_audit_report.json` |
 | **`results-auditor`** | Audits APA 7th Edition rules (leading zeros, $p < .001$, 3-line borderless tables, OMML equation preservation). | Read | `Chapter_4_Results.docx`, `stats_results.json` | `results_qc_checklist.json` |
 | **`academic-writer`** | Crafts 5-part epistemic narrative paragraphs, Iranian scholarly rhetoric, and theoretical mechanism synthesis (Beck, Hayes, Bandura). | Read, Write | `stats_results.json`, Literature Notes | Chapter drafts (`.docx`) |
+| **`literature-expert`** | Multi-database literature harvesting, empirical parameter extraction (N, design, scales), and theoretical mechanisms. | Read, Web Search | PubMed, Scopus, SID abstracts | `literature_summary.json` |
 | **`evidence-auditor`** | Audits bidirectional in-text to reference concordance, verifies DOIs/PMIDs, predicts Irandoc similarity index (< 20%). | Read, Web Search | Thesis draft, Reference files (`.ris`, `.enw`) | `citation_reconciliation_matrix.xlsx` |
 | **`final-judge`** | Simulates adversarial Viva Voce dissertation defense committee, poses sharp methodological challenges, issues release clearance. | Read | Full Chapter Suite, Audit Reports | `Defense_Viva_Voce_Brief.docx`, `decision_journal` entry |
+| **`psychometric-expert`** | Scale resolution (`Questionnaires.xlsx`), CTT item-total discrimination, Cronbach's $\alpha$, McDonald's $\omega$, CVR/CVI, and CFA/IRT validation. | Read, Bash | Raw survey responses, Scale registry | `psychometric_validation_report.json`, R CFA script |
+| **`qualitative-analyst`** | Reflexive Thematic Analysis (Braun & Clarke), Grounded Theory (Strauss & Corbin), Holsti/Kappa inter-coder agreement, and Lincoln & Guba trustworthiness. | Read, Write | Interview transcripts, Coding matrices | Thematic networks, Paradigmatic model, Qualitative chapter |
+| **`meta-analyst`** | PRISMA 2020 study flow, Cochrane RoB 2 risk of bias, Hedges' $g$ random-effects pooling, Cochran's $Q$, $I^2$, and Egger's publication bias. | Read, Bash | Primary study effect sizes, PICO strings | Forest & Funnel plots, Meta-analysis report |
+| **`journal-strategist`** | IMRaD packaging for ISI/Scopus Q1/Q2 and ISC journals, Editor Cover Letters, 14 CRediT roles, character-capped highlights, and R&R rebuttals. | Read, Write | Full dissertation chapters, Journal guidelines | Submission manifest, Cover letter, Rebuttal tables |
+| **`intervention-designer`** | Standardized 8–12 session clinical manuals (ACT, CBT, Schema Therapy, CFT), experiential techniques, worksheets, and treatment fidelity checklists. | Read, Write | Intervention specifications, Clinical literature | Clinical protocol manual (`.docx`), APA 7 session table |
 
 ---
 

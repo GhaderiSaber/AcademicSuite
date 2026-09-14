@@ -36,7 +36,10 @@ def find_excel_registry(custom_path: Optional[str] = None) -> Optional[str]:
     candidates = []
     if custom_path:
         candidates.append(custom_path)
+    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
     candidates.extend([
+        os.path.join(root_dir, "data", "questionnaires", "Questionnaires.xlsx"),
+        os.path.join(root_dir, "Questionnaires.xlsx"),
         os.path.abspath("Questionnaires.xlsx"),
         os.path.join(os.path.dirname(__file__), "..", "..", "..", "Questionnaires.xlsx"),
         DEFAULT_EXCEL_REGISTRY

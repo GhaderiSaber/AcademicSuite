@@ -30,3 +30,16 @@ bot_storage/
 !SETUP_GUIDE.md
 !Questionnaires.xlsx
 !digital_saber.py
+!data/
+!data/questionnaires/
+!data/questionnaires/**
+data/templates/
+!reports/
+!reports/**
+!tools/
+!tools/**
+*.session
+*.session-journal
+tools/**/*.session
+tools/**/*.session-journal
+tools/**/*.png

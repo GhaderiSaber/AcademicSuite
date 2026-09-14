@@ -97,7 +97,7 @@ In multi-stage workflows (e.g., `chapter4.md`), every stage must generate its ve
 - Routine analyses run autonomously. High-stakes choices (pricing, overriding supervisor requests, final release) require Human Gate approval and logging in `.agents/memory/decisions/` via `decision_journal_engine.py`.
 
 ### Directive 12: Hybrid Multi-Agent Deliberation Architecture (Hands vs. Brains)
-- **Who (`.agents/agents/`)**: Persistent cognitive roles (`digital-saber`, `methodology-expert`, `statistical-expert`, `results-auditor`, `academic-writer`, `final-judge`).
+- **Who (`.agents/agents/`)**: 14 persistent cognitive roles (`digital-saber`, `methodology-expert`, `statistical-expert`, `statistical-auditor`, `results-auditor`, `academic-writer`, `literature-expert`, `evidence-auditor`, `final-judge`, `psychometric-expert`, `qualitative-analyst`, `meta-analyst`, `journal-strategist`, `intervention-designer`).
 - **How (`.agents/skills/`)**: Domain capabilities and deterministic scripts.
 - **Specification (`.agents/architecture/HYBRID_MULTI_AGENT_SPEC.md`)**: Complete architectural blueprint for the hybrid division of labor.
 - **Dual-Mode Execution Model**:

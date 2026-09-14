@@ -32,9 +32,15 @@ class MultiAgentOrchestrator:
         "statistical-auditor",
         "results-auditor",
         "academic-writer",
+        "literature-expert",
         "evidence-auditor",
         "final-judge",
-        "digital-saber"
+        "digital-saber",
+        "psychometric-expert",
+        "qualitative-analyst",
+        "meta-analyst",
+        "journal-strategist",
+        "intervention-designer"
     ]
 
     def __init__(self, workspace_root: Optional[str] = None):
@@ -53,8 +59,11 @@ class MultiAgentOrchestrator:
         study_config_file = os.path.join(context_path, "study_config.json")
 
         base_packet = {
-            "workflow": workflow,
+            "task_id": f"{workflow}-{role}-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "role": role,
             "target_role": role,
+            "workflow": workflow,
+            "stage": workflow,
             "generated_at": datetime.now().isoformat(),
             "workspace_root": self.workspace_root,
             "context_dir": context_path
@@ -258,13 +267,203 @@ class MultiAgentOrchestrator:
                 }
             }
 
+        elif role == "psychometric-expert":
+            psychometrics_report = os.path.join(context_path, "psychometric_validation_report.json")
+            return {
+                **base_packet,
+                "role_title": "Psychometrician & Construct Validation Specialist",
+                "mandate": "Audit psychometric construct validity, CFA factor loadings, CTT reliability (alpha/omega), and CVR/CVI content validity.",
+                "artifacts_to_inspect": [psychometrics_report],
+                "instructions": [
+                    f"Call view_file on {psychometrics_report} to verify psychometric properties.",
+                    "Verify item factor loadings (lambda >= 0.40) and global fit indices (CFI >= 0.90, RMSEA <= 0.08).",
+                    "Confirm convergent validity (AVE >= 0.50, CR >= 0.70) and reliability (alpha >= 0.70, omega >= 0.70).",
+                    "Return a JSON summary with 'psychometrics_valid', 'cfa_fit_adequate', and 'reliability_verified'."
+                ],
+                "expected_return_schema": {
+                    "psychometrics_valid": True,
+                    "cfa_fit_adequate": True,
+                    "reliability_verified": True,
+                    "flagged_items": []
+                }
+            }
+
+        elif role == "qualitative-analyst":
+            qual_findings = os.path.join(context_path, "Chapter_4_Qualitative_Findings.docx")
+            return {
+                **base_packet,
+                "role_title": "Qualitative Research & Thematic Analysis Specialist",
+                "mandate": "Audit 6-phase reflexive thematic analysis, 3-tier theme hierarchy, inter-coder reliability, and Lincoln & Guba trustworthiness.",
+                "artifacts_to_inspect": [qual_findings],
+                "instructions": [
+                    f"Inspect qualitative findings in {qual_findings}.",
+                    "Verify 3-tier thematic hierarchy (Basic -> Organizing -> Global Themes).",
+                    "Audit inter-coder reliability (Holsti PAO >= 80%, Cohen's Kappa >= 0.70).",
+                    "Verify Lincoln & Guba 4-pillar trustworthiness audit (Credibility, Transferability, Dependability, Confirmability).",
+                    "Return a JSON qualitative audit report."
+                ],
+                "expected_return_schema": {
+                    "thematic_structure_valid": True,
+                    "inter_coder_agreement_percent": 85.0,
+                    "trustworthiness_audit_passed": True,
+                    "themes_count": {"basic": 24, "organizing": 6, "global": 2}
+                }
+            }
+
+        elif role == "meta-analyst":
+            meta_report = os.path.join(context_path, "meta_analysis_report.json")
+            return {
+                **base_packet,
+                "role_title": "Systematic Review & Quantitative Meta-Analyst",
+                "mandate": "Audit PRISMA 2020 study flow, Cochrane RoB 2 risk of bias assessments, pooled effect sizes, heterogeneity (I^2), and publication bias.",
+                "artifacts_to_inspect": [meta_report],
+                "instructions": [
+                    f"Call view_file on {meta_report} to examine pooled effect estimates.",
+                    "Verify Cochrane RoB 2 domain assessments across included trials.",
+                    "Audit heterogeneity indices (Cochran's Q, I^2, tau^2) and random-effects pooling.",
+                    "Verify publication bias diagnostics (Egger's regression, Funnel plot asymmetry).",
+                    "Return a JSON meta-analysis audit report."
+                ],
+                "expected_return_schema": {
+                    "prisma_flow_compliant": True,
+                    "pooled_effect_significant": True,
+                    "heterogeneity_level": "moderate",
+                    "publication_bias_detected": False
+                }
+            }
+
+        elif role == "journal-strategist":
+            submission_manifest = os.path.join(context_path, "submission_manifest.json")
+            return {
+                **base_packet,
+                "role_title": "Publication Packaging & Peer-Review Rebuttal Strategist",
+                "mandate": "Audit IMRaD manuscript packaging, 14 CRediT roles, character-capped highlights (<= 85 chars), and journal scope fit.",
+                "artifacts_to_inspect": [submission_manifest],
+                "instructions": [
+                    f"Call view_file on {submission_manifest} to verify submission collateral.",
+                    "Verify Editor-in-Chief Cover Letter and 14 CRediT authorship declarations.",
+                    "Check highlights bullet points: each must strictly be <= 85 characters.",
+                    "Confirm target journal alignment (ISI/Scopus Q1/Q2 or Persian ISC).",
+                    "Return a JSON journal packaging clearance report."
+                ],
+                "expected_return_schema": {
+                    "imrad_structure_compliant": True,
+                    "credit_roles_assigned": 14,
+                    "highlights_within_limit": True,
+                    "target_journal_aligned": True
+                }
+            }
+
+        elif role == "intervention-designer":
+            protocol_spec = os.path.join(context_path, "intervention_protocol_spec.json")
+            return {
+                **base_packet,
+                "role_title": "Psychological Intervention Protocol Architect",
+                "mandate": "Verify 8-12 session evidence-based intervention manual, standardized session anatomy, and treatment fidelity checklists.",
+                "artifacts_to_inspect": [protocol_spec],
+                "instructions": [
+                    f"Inspect protocol specifications in {protocol_spec}.",
+                    "Verify standardized 6-part session anatomy (Objective, Rationale, Metaphor, Exercise, Worksheet, Homework).",
+                    "Confirm Chapter 3 APA 7 borderless session summary table.",
+                    "Audit treatment adherence and therapist fidelity checklists.",
+                    "Return a JSON protocol architecture audit report."
+                ],
+                "expected_return_schema": {
+                    "protocol_sessions_count": 8,
+                    "session_anatomy_complete": True,
+                    "treatment_fidelity_verified": True,
+                    "apa7_summary_table": True
+                }
+            }
+
+        elif role == "literature-expert":
+            lit_notes = os.path.join(context_path, "literature_summary.json")
+            return {
+                **base_packet,
+                "role_title": "Literature & Epistemic Evidence Synthesizer",
+                "mandate": "Conduct multi-database literature search, extract empirical parameters (N, design, scales), and synthesize theoretical mechanisms.",
+                "artifacts_to_inspect": [lit_notes],
+                "instructions": [
+                    "Examine empirical literature harvested across PubMed, Scopus, SID, and Magiran.",
+                    "Ensure anti-cherry-picking covenant: synthesize both domestic and international trials.",
+                    "Synthesize psychological mechanisms for Chapter 2 and Chapter 5.",
+                    "Return a JSON literature synthesis report."
+                ],
+                "expected_return_schema": {
+                    "studies_harvested": 10,
+                    "epistemic_evidence_weight": "STRONG",
+                    "mechanisms_synthesized": True
+                }
+            }
+
+        elif role == "evidence-auditor":
+            audit_matrix = os.path.join(context_path, "citation_reconciliation_matrix.xlsx")
+            return {
+                **base_packet,
+                "role_title": "Epistemic Integrity & Citation Auditor",
+                "mandate": "Audit bidirectional in-text to reference concordance, verify DOIs/PMIDs, and predict Irandoc similarity (< 20%).",
+                "artifacts_to_inspect": [audit_matrix],
+                "instructions": [
+                    "Reconcile in-text citations against bibliography (zero ghost references or orphaned citations).",
+                    "Check Irandoc similarity estimation (< 20%).",
+                    "Ensure AI cliches and robotic translationese are purged.",
+                    "Return a JSON evidence audit report."
+                ],
+                "expected_return_schema": {
+                    "citation_concordance_rate": 100.0,
+                    "irandoc_similarity_predicted": 12.5,
+                    "ghost_citations_detected": 0
+                }
+            }
+
+        elif role == "statistical-expert":
+            return {
+                **base_packet,
+                "role_title": "Statistical Analysis Planner & Hypothesis Evaluator",
+                "mandate": "Formulate statistical analysis strategy, evaluate parametric assumptions, and report test statistics.",
+                "artifacts_to_inspect": [stats_results_file, study_config_file],
+                "instructions": [
+                    f"Call view_file on {stats_results_file} and {study_config_file}.",
+                    "Verify statistical hypothesis testing plan (ANCOVA, Repeated Measures, SEM, t-tests).",
+                    "Verify assumption checks (Normality, Homogeneity of Variance, Slope Homogeneity).",
+                    "Return a JSON summary with 'primary_analysis_type', 'assumptions_met', and 'hypotheses_evaluated'."
+                ],
+                "expected_return_schema": {
+                    "primary_analysis_type": "ANCOVA",
+                    "assumptions_met": True,
+                    "hypotheses_evaluated": True
+                }
+            }
+
+        elif role == "digital-saber":
+            return {
+                **base_packet,
+                "role_title": "Master Cognitive Architect & Research Lead",
+                "mandate": "Oversee end-to-end dissertation pipeline, arbitrate inter-agent deliberations, and gate final release.",
+                "artifacts_to_inspect": [stats_results_file, ch4_docx],
+                "instructions": [
+                    "Oversee stage progression and verify Directive 3 artifact checkpoints.",
+                    "Arbitrate disputes between authors and adversarial auditors.",
+                    "Enforce APA 7 typography and OpenXML Persian styling standards.",
+                    "Return orchestration verdict and milestone sign-off."
+                ],
+                "expected_return_schema": {
+                    "orchestration_status": "COMPLETED",
+                    "workflow_verdict": "APPROVED"
+                }
+            }
+
         else:
             return {
                 **base_packet,
                 "role_title": f"Subagent {role}",
                 "mandate": f"Execute specialized cognitive assessment for role {role}.",
                 "artifacts_to_inspect": [stats_results_file],
-                "instructions": ["Inspect context artifacts and return structured feedback."]
+                "instructions": ["Inspect context artifacts and return structured feedback."],
+                "expected_return_schema": {
+                    "verdict": "string",
+                    "evaluation_summary": "string"
+                }
             }
 
     def validate_critique_payload(self, role: str, payload: Dict[str, Any], workflow: str = "chapter4") -> Tuple[bool, List[str]]:
@@ -306,6 +505,46 @@ class MultiAgentOrchestrator:
                 for k in ["verdict", "defense_readiness_score"]:
                     if k not in payload:
                         errors.append(f"Missing required key '{k}' in final judge defense verdict.")
+        elif role == "psychometric-expert":
+            for k in ["psychometrics_valid", "reliability_verified"]:
+                if k not in payload:
+                    errors.append(f"Missing required key '{k}' in psychometric expert audit.")
+        elif role == "qualitative-analyst":
+            for k in ["thematic_structure_valid", "trustworthiness_audit_passed"]:
+                if k not in payload:
+                    errors.append(f"Missing required key '{k}' in qualitative analyst audit.")
+        elif role == "meta-analyst":
+            for k in ["prisma_flow_compliant", "pooled_effect_significant"]:
+                if k not in payload:
+                    errors.append(f"Missing required key '{k}' in meta-analyst audit.")
+        elif role == "journal-strategist":
+            for k in ["imrad_structure_compliant", "highlights_within_limit"]:
+                if k not in payload:
+                    errors.append(f"Missing required key '{k}' in journal strategist report.")
+        elif role == "intervention-designer":
+            for k in ["protocol_sessions_count", "session_anatomy_complete"]:
+                if k not in payload:
+                    errors.append(f"Missing required key '{k}' in intervention protocol audit.")
+        elif role == "literature-expert":
+            for k in ["epistemic_evidence_weight"]:
+                if k not in payload:
+                    errors.append(f"Missing required key '{k}' in literature expert report.")
+        elif role == "evidence-auditor":
+            for k in ["citation_concordance_rate"]:
+                if k not in payload:
+                    errors.append(f"Missing required key '{k}' in evidence auditor report.")
+        elif role == "statistical-expert":
+            for k in ["primary_analysis_type", "assumptions_met"]:
+                if k not in payload:
+                    errors.append(f"Missing required key '{k}' in statistical expert report.")
+        elif role == "digital-saber":
+            for k in ["orchestration_status", "workflow_verdict"]:
+                if k not in payload:
+                    errors.append(f"Missing required key '{k}' in digital saber orchestration status.")
+        else:
+            for k in ["verdict"]:
+                if k not in payload:
+                    errors.append(f"Missing required key '{k}' in {role} critique.")
         return len(errors) == 0, errors
 
 
