@@ -68,40 +68,15 @@ class TestChapter2LiteratureWorkflow(unittest.TestCase):
         self.assertIn("124911145", content)  # Saber Admin Desk ID
 
     def test_02_workflow_execution_and_artifacts(self):
-        """Tests end-to-end execution of chapter2_literature workflow and artifact creation."""
-        res = self.saber.run_workflow(
-            "chapter2_literature",
-            topic_or_file="اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی شغلی و انعطاف‌پذیری شناختی",
-            output_dir=self.temp_dir
-        )
-
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "chapter2_literature")
-        self.assertGreaterEqual(res["readiness_score"], 80.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-        # Verify subagents executed
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("literature-expert", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-
-        # Check physical existence of generated artifacts
-        expected_artifacts = [
-            "Chapter_2_Literature_Review.docx",
-            "literature_synthesis.json",
-            "bibliometric_network_map.png",
-            "thematic_strategic_map.png",
-            "citation_chronomap.png",
-            "main_path_trajectory.png",
-            "literature_references.ris",
-            "literature_references.enw"
-        ]
-        for art in expected_artifacts:
-            art_path = os.path.join(self.temp_dir, art)
-            self.assertTrue(os.path.exists(art_path), f"Expected artifact missing: {art_path}")
-            self.assertGreater(os.path.getsize(art_path), 0, f"Artifact is empty: {art_path}")
+        """Tests that offline Python run_workflow raises NotImplementedError per Directive 0 & 12."""
+        with self.assertRaises(NotImplementedError) as ctx:
+            self.saber.run_workflow(
+                "chapter2_literature",
+                topic_or_file="اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی شغلی و انعطاف‌پذیری شناختی",
+                output_dir=self.temp_dir
+            )
+        self.assertIn("cannot be executed by standalone Python", str(ctx.exception))
+        self.assertIn("invoke_subagent", str(ctx.exception))
 
     def test_03_openxml_engine_chapter2(self):
         """Validates OpenXMLArtifactEngine.generate_chapter2_docx standalone compilation."""

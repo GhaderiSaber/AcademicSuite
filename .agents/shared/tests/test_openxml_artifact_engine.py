@@ -145,37 +145,14 @@ class TestOpenXMLArtifactEngine(unittest.TestCase):
         self.assertGreaterEqual(len(loaded_doc.paragraphs), 10)
         self.assertGreaterEqual(len(loaded_doc.tables), 1)
 
-    def test_07_all_workflows_end_to_end_artifact_compilation(self):
-        """Executes all 4 multi-agent workflows and verifies that physical .docx files are created."""
+    def test_07_offline_workflow_rejection_enforces_directive_0_and_12(self):
+        """Validates that standalone Python run_workflow raises NotImplementedError per Directive 0 & 12."""
         saber = DigitalSaber()
-
-        # 1. Chapter 4 Workflow
-        ch4_res = saber.run_workflow("chapter4", output_dir=self.test_dir)
-        self.assertEqual(ch4_res["status"], "SUCCESS")
-        for f in ch4_res["artifacts_generated"]:
-            self.assertTrue(os.path.exists(f), f"File {f} not generated")
-            self.assertGreater(os.path.getsize(f), 0, f"File {f} is empty")
-
-        # 2. Proposal Workflow
-        prop_res = saber.run_workflow("proposal", output_dir=self.test_dir)
-        self.assertEqual(prop_res["status"], "SUCCESS")
-        for f in prop_res["artifacts_generated"]:
-            self.assertTrue(os.path.exists(f), f"File {f} not generated")
-            self.assertGreater(os.path.getsize(f), 0, f"File {f} is empty")
-
-        # 3. Chapter 5 Workflow
-        ch5_res = saber.run_workflow("chapter5", output_dir=self.test_dir)
-        self.assertEqual(ch5_res["status"], "SUCCESS")
-        for f in ch5_res["artifacts_generated"]:
-            self.assertTrue(os.path.exists(f), f"File {f} not generated")
-            self.assertGreater(os.path.getsize(f), 0, f"File {f} is empty")
-
-        # 4. Thesis Revision Workflow
-        rev_res = saber.run_workflow("thesis_revision", output_dir=self.test_dir)
-        self.assertEqual(rev_res["status"], "SUCCESS")
-        for f in rev_res["artifacts_generated"]:
-            self.assertTrue(os.path.exists(f), f"File {f} not generated")
-            self.assertGreater(os.path.getsize(f), 0, f"File {f} is empty")
+        for wf in ["chapter4", "proposal", "chapter5", "thesis_revision"]:
+            with self.assertRaises(NotImplementedError) as ctx:
+                saber.run_workflow(wf, output_dir=self.test_dir)
+            self.assertIn("cannot be executed by standalone Python", str(ctx.exception))
+            self.assertIn("invoke_subagent", str(ctx.exception))
 
 
 if __name__ == "__main__":

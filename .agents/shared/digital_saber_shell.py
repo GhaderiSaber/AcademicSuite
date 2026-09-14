@@ -151,7 +151,11 @@ class DigitalSaberShell(cmd.Cmd):
             return
 
         print(f"\n{self.c_cyan}[*] Launching workflow: {wf_name}...{self.c_reset}")
-        res = self.saber.run_workflow(wf_name, topic_or_file=topic, output_dir=self.output_dir)
+        try:
+            res = self.saber.run_workflow(wf_name, topic_or_file=topic, output_dir=self.output_dir)
+        except NotImplementedError as nie:
+            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
+            return
         if res and res.get("status") == "SUCCESS":
             print(f"\n{self.c_green}✅ Workflow '{wf_name}' completed successfully!{self.c_reset}")
             score_key = next((k for k in ("readiness_score", "compliance_score", "fidelity_score", "psychometric_score") if k in res), None)
@@ -179,7 +183,11 @@ class DigitalSaberShell(cmd.Cmd):
         """Compile oral defense presentation across 3 paths (HTML, PPTX, Word script) + 20 Viva Voce Q&As: /defense [topic]"""
         topic = arg.strip() if arg else None
         print(f"\n{self.c_cyan}[*] Launching Viva Voce Oral Defense Presentation Workflow...{self.c_reset}")
-        res = self.saber.run_workflow("defense_presentation", topic_or_file=topic, output_dir=self.output_dir)
+        try:
+            res = self.saber.run_workflow("defense_presentation", topic_or_file=topic, output_dir=self.output_dir)
+        except NotImplementedError as nie:
+            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
+            return
         if res and res.get("status") == "SUCCESS":
             print(f"\n{self.c_green}✅ Defense presentation suite compiled successfully!{self.c_reset}")
             print(f"  • Viva Voce Readiness Score: {res.get('readiness_score')}% [DEFENSE READY]")
@@ -195,7 +203,11 @@ class DigitalSaberShell(cmd.Cmd):
         """Consolidate Chapters 1-5 into unified master dissertation (.docx): /assemble [target_or_dir]"""
         target = arg.strip() if arg else None
         print(f"\n{self.c_cyan}[*] Launching Master Dissertation Assembly Workflow...{self.c_reset}")
-        res = self.saber.run_workflow("thesis_assembly", topic_or_file=target, output_dir=self.output_dir)
+        try:
+            res = self.saber.run_workflow("thesis_assembly", topic_or_file=target, output_dir=self.output_dir)
+        except NotImplementedError as nie:
+            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
+            return
         if res and res.get("status") == "SUCCESS":
             print(f"\n{self.c_green}✅ Master dissertation consolidated and formatted successfully!{self.c_reset}")
             print(f"  • Council Compliance Index: {res.get('compliance_score')}% [APPROVED FOR BINDING]")
@@ -211,7 +223,11 @@ class DigitalSaberShell(cmd.Cmd):
         """Compile clinical intervention manual & Chapter 3 summary table: /protocol [topic_or_preset]"""
         target = arg.strip() if arg else None
         print(f"\n{self.c_cyan}[*] Launching Clinical Intervention Protocol Workflow...{self.c_reset}")
-        res = self.saber.run_workflow("intervention_protocol", topic_or_file=target, output_dir=self.output_dir)
+        try:
+            res = self.saber.run_workflow("intervention_protocol", topic_or_file=target, output_dir=self.output_dir)
+        except NotImplementedError as nie:
+            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
+            return
         if res and res.get("status") == "SUCCESS":
             print(f"\n{self.c_green}✅ Clinical intervention protocol compiled successfully!{self.c_reset}")
             print(f"  • Clinical Protocol Fidelity Index: {res.get('fidelity_score')}% [APPROVED FOR TRIAL]")
@@ -231,7 +247,11 @@ class DigitalSaberShell(cmd.Cmd):
         """Standardize and validate psychometric scale (CTT, EFA, CFA, IRT, ROC): /validate [scale_name_or_data]"""
         target = arg.strip() if arg else None
         print(f"\n{self.c_cyan}[*] Launching Psychometric Scale Validation Workflow...{self.c_reset}")
-        res = self.saber.run_workflow("scale_validation", topic_or_file=target, output_dir=self.output_dir)
+        try:
+            res = self.saber.run_workflow("scale_validation", topic_or_file=target, output_dir=self.output_dir)
+        except NotImplementedError as nie:
+            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
+            return
         if res and res.get("status") == "SUCCESS":
             print(f"\n{self.c_green}✅ Psychometric scale validation completed successfully!{self.c_reset}")
             print(f"  • Psychometric Rigor Score: {res.get('psychometric_score')}% [DEFENSE READY]")
@@ -309,7 +329,11 @@ class DigitalSaberShell(cmd.Cmd):
         """Compile publication-ready IMRaD manuscript and journal submission package: /publish [topic]"""
         topic = arg.strip() or None
         print(f"\n{self.c_cyan}[*] Launching Academic Journal & Submission Packaging Workflow...{self.c_reset}")
-        res = self.saber.run_workflow("journal_submission", topic_or_file=topic, output_dir=self.output_dir)
+        try:
+            res = self.saber.run_workflow("journal_submission", topic_or_file=topic, output_dir=self.output_dir)
+        except NotImplementedError as nie:
+            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
+            return
         if res and res.get("status") == "SUCCESS":
             print(f"\n{self.c_green}✅ Publication Package & IMRaD Manuscript compiled successfully!{self.c_reset}")
             print(f"  • Submission Readiness Score: {res.get('readiness_score')}%")
@@ -348,7 +372,11 @@ class DigitalSaberShell(cmd.Cmd):
             return
 
         print(f"\n{self.c_cyan}[*] Querying multi-database literature engine for: '{topic}'...{self.c_reset}")
-        res = self.saber.run_workflow("chapter2_literature", topic_or_file=topic, output_dir=self.output_dir)
+        try:
+            res = self.saber.run_workflow("chapter2_literature", topic_or_file=topic, output_dir=self.output_dir)
+        except NotImplementedError as nie:
+            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
+            return
         if res and res.get("status") == "SUCCESS":
             print(f"\n{self.c_green}✅ Literature synthesis & Chapter 2 compiled successfully!{self.c_reset}")
             print(f"  • Readiness Score: {res.get('readiness_score')}%")
@@ -367,7 +395,11 @@ class DigitalSaberShell(cmd.Cmd):
             return
 
         print(f"\n{self.c_cyan}[*] Constructing bibliometric co-occurrence & citation networks for: '{topic}'...{self.c_reset}")
-        res = self.saber.run_workflow("chapter2_literature", topic_or_file=topic, output_dir=self.output_dir)
+        try:
+            res = self.saber.run_workflow("chapter2_literature", topic_or_file=topic, output_dir=self.output_dir)
+        except NotImplementedError as nie:
+            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
+            return
         if res and res.get("status") == "SUCCESS":
             print(f"\n{self.c_green}✅ Science mapping & chronomaps generated!{self.c_reset}")
             for a in res.get("artifacts_generated", []):

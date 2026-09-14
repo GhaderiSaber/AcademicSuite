@@ -5,8 +5,8 @@ test_agent_roster.py — Cognitive Subagent Roster & Architecture Verification
 ----------------------------------------------------------------------------
 Validates:
   1. Existence and valid YAML frontmatter for all 14 subagents in .agents/agents/
-  2. Task packet generation across all 14 roles in MultiAgentOrchestrator
-  3. Strict schema validation (valid & invalid payloads) across all 14 roles
+  2. Cognitive subagent specifications across all 14 roles
+  3. System prompts and persona definitions across all 14 roles
   4. Questionnaire registry path resolution (data/questionnaires/ & root symlink)
   5. Constitutional alignment in AGENTS.md and HYBRID_MULTI_AGENT_SPEC.md
 """
@@ -20,11 +20,9 @@ import re
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, ROOT_DIR)
 
-# Dynamically import multi_agent_orchestrator and questionnaire_resolver
-sys.path.insert(0, os.path.join(ROOT_DIR, ".agents", "skills", "academic-suite-orchestrator", "scripts"))
+# Dynamically import questionnaire_resolver
 sys.path.insert(0, os.path.join(ROOT_DIR, ".agents", "skills", "psychometric-scale-resolver", "scripts"))
 
-from multi_agent_orchestrator import MultiAgentOrchestrator
 from questionnaire_resolver import find_excel_registry, search_registry, get_scale_profile
 
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
@@ -50,9 +48,6 @@ class TestAgentRoster(unittest.TestCase):
         "journal-strategist",
         "intervention-designer"
     ]
-
-    def setUp(self):
-        self.orchestrator = MultiAgentOrchestrator(workspace_root=ROOT_DIR)
 
     def test_all_14_subagent_files_exist(self):
         """Verify that all 14 subagent markdown definitions exist in .agents/agents/."""
@@ -87,123 +82,25 @@ class TestAgentRoster(unittest.TestCase):
             # Verify substantial markdown content
             self.assertGreater(len(body), 150, f"{role}.md body content is too short or empty")
 
-    def test_orchestrator_roles_count_and_parity(self):
-        """Verify MultiAgentOrchestrator.ROLES has exact 14 roles matching expected roster."""
-        self.assertEqual(len(self.orchestrator.ROLES), 14)
-        self.assertEqual(set(self.orchestrator.ROLES), set(self.EXPECTED_ROLES))
+    def test_agent_roles_count_and_parity(self):
+        """Verify .agents/agents/ has exact 14 roles matching expected roster."""
+        actual_files = [f.replace(".md", "") for f in os.listdir(AGENTS_DEF_DIR) if f.endswith(".md")]
+        self.assertEqual(len(actual_files), 14)
+        self.assertEqual(set(actual_files), set(self.EXPECTED_ROLES))
 
-    def test_task_packet_generation_for_all_14_roles(self):
-        """Verify generate_task_packet produces a valid, actionable packet for all 14 roles."""
+    def test_subagent_markdown_system_prompts(self):
+        """Verify that each subagent specification defines clear cognitive directives and responsibilities."""
         for role in self.EXPECTED_ROLES:
-            packet = self.orchestrator.generate_task_packet(
-                workflow="chapter4",
-                role=role,
-                context_dir="output"
-            )
-            self.assertIsInstance(packet, dict, f"Task packet for {role} must be a dict")
-            self.assertIn("task_id", packet, f"Task packet for {role} missing 'task_id'")
-            self.assertEqual(packet.get("role"), role, f"Task packet role mismatch for {role}")
-            self.assertIn("stage", packet, f"Task packet for {role} missing 'stage'")
-            self.assertIn("instructions", packet, f"Task packet for {role} missing 'instructions'")
+            filepath = os.path.join(AGENTS_DEF_DIR, f"{role}.md")
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            # Subagents must define their role, responsibilities, and guidelines
+            self.assertIn("# ", content, f"{role}.md missing top-level markdown heading")
             self.assertTrue(
-                "expected_return_schema" in packet or "expected_output_schema" in packet,
-                f"Task packet for {role} missing expected schema"
+                any(k.lower() in content.lower() for k in ["دستورالعمل", "directive", "responsibilities", "وظایف", "guidelines", "rule", "philosophy", "mission"]),
+                f"{role}.md missing explicit behavioral directives"
             )
-            self.assertGreater(len(packet["instructions"]), 0, f"Instructions for {role} are empty")
-
-    def test_schema_validation_valid_payloads(self):
-        """Verify schema validation accepts valid payloads across all 14 roles."""
-        valid_mock_payloads = {
-            "methodology-expert": {
-                "methodology_approved": True,
-                "power_adequate": True,
-                "sampling_power": {"target_power": 0.80, "calculated_n": 60},
-                "design_safeguards": ["Random allocation", "Active control"]
-            },
-            "statistical-expert": {
-                "primary_analysis_type": "ANCOVA",
-                "assumptions_met": True,
-                "hypotheses_evaluated": True
-            },
-            "statistical-auditor": {
-                "audit_verdict": "NORMAL_EMPIRICAL",
-                "degrees_of_freedom_verified": True,
-                "slope_homogeneity_verified": True,
-                "msai_score": 0.12
-            },
-            "results-auditor": {
-                "qc_passed": True,
-                "leading_zero_concordance": True,
-                "p_value_formatting_valid": True,
-                "omml_math_preserved": True
-            },
-            "academic-writer": {
-                "draft_complete": True,
-                "section_word_counts": {"findings": 1250},
-                "cadence_burstiness_cv": 0.58,
-                "persian_half_space_count": 85
-            },
-            "literature-expert": {
-                "epistemic_evidence_weight": "STRONG",
-                "harvested_studies_count": 18,
-                "theoretical_mechanisms_identified": ["Beck Cognitive Triad"]
-            },
-            "evidence-auditor": {
-                "citation_concordance_rate": 1.0,
-                "orphaned_citations": [],
-                "ghost_references": [],
-                "irandoc_similarity_risk": "LOW"
-            },
-            "final-judge": {
-                "verdict": "APPROVED_FOR_DEFENSE",
-                "defense_readiness_score": 92.5,
-                "viva_voce_challenges": [{"challenge": "C1", "model_answer": "A1"}]
-            },
-            "digital-saber": {
-                "orchestration_status": "COMPLETED",
-                "workflow_verdict": "APPROVED",
-                "stages_verified": [0, 3, 4, 5, 6, 7, 8]
-            },
-            "psychometric-expert": {
-                "psychometrics_valid": True,
-                "reliability_verified": True,
-                "instruments_validated": ["BDI-II", "STAI"]
-            },
-            "qualitative-analyst": {
-                "thematic_structure_valid": True,
-                "trustworthiness_audit_passed": True,
-                "paradigm": "THEMATIC_ANALYSIS"
-            },
-            "meta-analyst": {
-                "prisma_flow_compliant": True,
-                "pooled_effect_significant": True,
-                "heterogeneity": {"I2": 42.5, "Q_p": 0.08}
-            },
-            "journal-strategist": {
-                "imrad_structure_compliant": True,
-                "highlights_within_limit": True,
-                "target_tier": "ISI_Q1"
-            },
-            "intervention-designer": {
-                "protocol_sessions_count": 8,
-                "session_anatomy_complete": True,
-                "approach": "ACT"
-            }
-        }
-
-        for role in self.EXPECTED_ROLES:
-            payload = valid_mock_payloads[role]
-            is_valid, errors = self.orchestrator.validate_critique_payload(role, payload)
-            self.assertTrue(is_valid, f"Role {role} failed validation on valid payload: {errors}")
-            self.assertEqual(len(errors), 0)
-
-    def test_schema_validation_catches_missing_fields(self):
-        """Verify schema validation rejects payloads missing required fields."""
-        for role in self.EXPECTED_ROLES:
-            empty_payload = {}
-            is_valid, errors = self.orchestrator.validate_critique_payload(role, empty_payload)
-            self.assertFalse(is_valid, f"Role {role} should have failed on empty payload")
-            self.assertGreater(len(errors), 0, f"Role {role} should report missing fields")
 
     def test_questionnaire_registry_resolution(self):
         """Verify questionnaire resolver finds Questionnaires.xlsx in data/questionnaires/."""

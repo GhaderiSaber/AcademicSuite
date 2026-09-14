@@ -181,4 +181,4 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
    - `final-judge`: Acts as **Editor-in-Chief / Reviewer 1 (Methodological Critic)**, checking internal validity, sample size power, and alternative explanations.
    - `evidence-auditor`: Acts as **Reviewer 2 (Theoretical / Citation Critic)**, cross-examining literature synthesis, citations, and potential bias.
    - `academic-writer`: Acts as the **Corresponding Author**, drafting courteous, evidence-grounded point-by-point responses.
-3. **Orchestrator**: Subagents and engines are driven by `MultiAgentOrchestrator` (`multi_agent_orchestrator.py`), computing submission readiness scores and enforcing journal guidelines.
+3. **Orchestrator**: Subagents and engines are orchestrated directly by the Antigravity Lead Agent in the conversation using `invoke_subagent`, computing submission readiness scores and enforcing journal guidelines.

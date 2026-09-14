@@ -334,11 +334,18 @@ class DigitalSaber:
             print("=" * 85)
 
 
-    def run_workflow(self, workflow_name: str, topic_or_file: Optional[str] = None, output_dir: str = "output") -> Optional[Dict[str, Any]]:
-        """Delegates workflow execution to internal MultiAgentOrchestrator."""
-        from multi_agent_orchestrator import MultiAgentOrchestrator
-        orchestrator = MultiAgentOrchestrator(workspace_root=ROOT_DIR, saber=self)
-        return orchestrator.run_workflow(workflow_name, topic_or_file=topic_or_file, output_dir=output_dir)
+    def run_workflow(self, workflow_name: str, topic_or_file: Optional[str] = None, output_dir: str = "output") -> Dict[str, Any]:
+        """
+        Explains that multi-agent workflows are led natively by Antigravity in chat sessions.
+        Offline Python processes cannot invoke Antigravity subagents.
+        """
+        raise NotImplementedError(
+            f"Workflow '{workflow_name}' cannot be executed by standalone Python. "
+            "In accordance with Digital Saber Constitutional Directive 0 & Directive 12, "
+            "multi-agent deliberation is led natively by the Antigravity Lead Agent "
+            "via the 'invoke_subagent' tool. For deterministic offline CLI pipelines, "
+            "use '.agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py'."
+        )
 
     def harvest_drive_cases(self, project_id: Optional[str] = None):
         """Scans and ingests historical academic projects from Google Drive into Case Memory."""

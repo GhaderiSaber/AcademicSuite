@@ -189,4 +189,4 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
    - `statistical-auditor`: Runs adversarial MSAI anomaly checks on `stats_results.json`.
    - `results-auditor`: Verifies APA 7 rules, leading zero compliance, and OpenXML layout.
    - `final-judge`: Simulates viva voce oral defense cross-examination.
-3. **Orchestrator**: Cognitive roles and deterministic hands are orchestrated by `MultiAgentOrchestrator` (`multi_agent_orchestrator.py`), enforcing artifact gates and decision journaling.
+3. **Orchestrator**: Cognitive roles and deterministic hands are orchestrated directly by the Antigravity Lead Agent in the conversation using `invoke_subagent`, enforcing physical artifact gates and decision journaling.

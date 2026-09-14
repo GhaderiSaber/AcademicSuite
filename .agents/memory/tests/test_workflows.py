@@ -57,176 +57,37 @@ class TestWorkflowsSuite(unittest.TestCase):
         ]
 
     def test_workflow_spec_files_exist(self):
-        """Validates that all 10 core workflow markdown files exist."""
+        """Validates that all 10 core workflow markdown files exist and define cognitive roles."""
         for wf in self.expected_workflows:
             wf_file = os.path.join(WORKFLOWS_DIR, f"{wf}.md")
             self.assertTrue(os.path.exists(wf_file), f"Missing workflow specification: {wf_file}")
             with open(wf_file, "r", encoding="utf-8") as f:
                 content = f.read()
             self.assertGreater(len(content), 500, f"Workflow spec {wf} is too short.")
-            self.assertIn("digital-saber", content)
-            self.assertIn("academic-writer", content)
-            self.assertIn("final-judge", content)
+            self.assertTrue(
+                "invoke_subagent" in content or "Subagent" in content or "Roles" in content or "subagent" in content,
+                f"Workflow spec {wf} does not define cognitive subagent orchestration."
+            )
             self.assertIn("124911145", content)  # Saber Human Gate Admin Desk ID
 
-    def test_chapter2_literature_workflow_execution(self):
-        """Tests end-to-end execution of Chapter 2 literature and science mapping workflow."""
-        res = self.saber.run_workflow("chapter2_literature")
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "chapter2_literature")
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("literature-expert", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-        self.assertTrue(any("Chapter_2_Literature_Review.docx" in a for a in res["artifacts_generated"]))
-        self.assertGreaterEqual(res["readiness_score"], 80.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
+    def test_run_workflow_offline_rejection_enforces_directive_0_and_12(self):
+        """Validates that standalone Python run_workflow raises NotImplementedError across all workflows."""
+        for wf in self.expected_workflows:
+            with self.assertRaises(NotImplementedError) as ctx:
+                self.saber.run_workflow(wf)
+            self.assertIn("cannot be executed by standalone Python", str(ctx.exception))
+            self.assertIn("invoke_subagent", str(ctx.exception))
 
-    def test_chapter4_workflow_execution(self):
-        """Tests end-to-end execution of Chapter 4 statistical workflow."""
-        res = self.saber.run_workflow("chapter4")
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "chapter4")
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("statistical-expert", res["subagents_executed"])
-        self.assertIn("statistical-auditor", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertGreaterEqual(res["readiness_score"], 80.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-    def test_proposal_workflow_execution(self):
-        """Tests end-to-end execution of Research Proposal workflow."""
-        res = self.saber.run_workflow("proposal")
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "proposal")
-        self.assertIn("methodology-expert", res["subagents_executed"])
-        self.assertIn("literature-expert", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertTrue(any("Research_Proposal.docx" in a for a in res["artifacts_generated"]))
-        self.assertGreaterEqual(res["readiness_score"], 80.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-    def test_chapter5_workflow_execution(self):
-        """Tests end-to-end execution of Chapter 5 discussion workflow."""
-        res = self.saber.run_workflow("chapter5")
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "chapter5")
-        self.assertIn("statistical-expert", res["subagents_executed"])
-        self.assertIn("literature-expert", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-        self.assertTrue(any("Chapter_5_Discussion_and_Conclusion.docx" in a for a in res["artifacts_generated"]))
-        self.assertGreaterEqual(res["readiness_score"], 80.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-    def test_thesis_revision_workflow_execution(self):
-        """Tests end-to-end execution of Thesis Revision & Rebuttal Table workflow."""
-        res = self.saber.run_workflow("thesis_revision")
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "thesis_revision")
-        self.assertIn("results-auditor", res["subagents_executed"])
-        self.assertIn("statistical-auditor", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-        self.assertTrue(any("Revision_Response_Table.docx" in a for a in res["artifacts_generated"]))
-        self.assertGreaterEqual(res["readiness_score"], 80.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-    def test_journal_submission_workflow_execution(self):
-        """Tests end-to-end execution of Academic Journal Article & Submission Packaging workflow."""
-        res = self.saber.run_workflow("journal_submission")
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "journal_submission")
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("evidence-auditor", res["subagents_executed"])
-        self.assertIn("journal-assistant", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-        self.assertTrue(any("Cover_Letter_Editor.docx" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("Title_Page_CRediT.docx" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("Highlights_and_Abstract.docx" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("submission_manifest.json" in a for a in res["artifacts_generated"]))
-        self.assertGreaterEqual(res["readiness_score"], 90.0)
-        self.assertGreaterEqual(res["acceptance_probability"], 90.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-    def test_defense_presentation_workflow_execution(self):
-        """Tests end-to-end execution of Viva Voce Oral Defense Presentation workflow."""
-        res = self.saber.run_workflow("defense_presentation")
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "defense_presentation")
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("results-auditor", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("presentation-expert", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-        self.assertTrue(any("defense_presentation.html" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("Defense_Presentation_Slides.pptx" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("Defense_Speech_Notes.docx" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("defense_committee_qa_card.json" in a for a in res["artifacts_generated"]))
-        self.assertGreaterEqual(res["readiness_score"], 90.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-    def test_thesis_assembly_workflow_execution(self):
-        """Tests end-to-end execution of Master Dissertation Assembly workflow."""
-        res = self.saber.run_workflow("thesis_assembly")
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "thesis_assembly")
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("results-auditor", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("evidence-auditor", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-        self.assertTrue(any("Complete_Graduate_Thesis.docx" in a for a in res["artifacts_generated"]))
-        self.assertGreaterEqual(res["compliance_score"], 90.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-    def test_intervention_protocol_workflow_execution(self):
-        """Tests end-to-end execution of Clinical Intervention Protocol builder workflow."""
-        res = self.saber.run_workflow("intervention_protocol")
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "intervention_protocol")
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("methodology-expert", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-        self.assertTrue(any("Intervention_Protocol_Manual.docx" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("Intervention_Sessions_Summary.docx" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("consort_flowchart.png" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("protocol_blueprint.json" in a for a in res["artifacts_generated"]))
-        self.assertGreaterEqual(res["fidelity_score"], 90.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-    def test_scale_validation_workflow_execution(self):
-        """Tests end-to-end execution of Psychometric Scale Validation workflow."""
-        res = self.saber.run_workflow("scale_validation")
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "scale_validation")
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("statistical-expert", res["subagents_executed"])
-        self.assertIn("statistical-auditor", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-        self.assertTrue(any("Psychometric_Validation_Report.docx" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("psychometric_validation_matrix.xlsx" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("cfa_lavaan_model.R" in a for a in res["artifacts_generated"]))
-        self.assertTrue(any("psychometric_validation_report.json" in a for a in res["artifacts_generated"]))
-        self.assertGreaterEqual(res["psychometric_score"], 90.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-    def test_unknown_workflow_returns_none(self):
-        """Tests that an unregistered workflow name returns None gracefully."""
-        res = self.saber.run_workflow("non_existent_workflow")
-        self.assertIsNone(res)
+    def test_orchestrator_cli_presets_parity(self):
+        """Verifies that orchestrator_cli.py provides deterministic CLI pipeline presets for research execution."""
+        sys.path.insert(0, os.path.join(AGENTS_DIR, "skills", "academic-suite-orchestrator", "scripts"))
+        from orchestrator_cli import PIPELINE_PRESETS, SKILL_REGISTRY
+        self.assertGreater(len(PIPELINE_PRESETS), 0)
+        self.assertIn("thesis_empirical", PIPELINE_PRESETS)
+        self.assertIn("scale_validation", PIPELINE_PRESETS)
+        self.assertIn("qualitative_study", PIPELINE_PRESETS)
+        self.assertIn("meta_analysis", PIPELINE_PRESETS)
+        self.assertGreater(len(SKILL_REGISTRY), 10)
 
 
 if __name__ == "__main__":

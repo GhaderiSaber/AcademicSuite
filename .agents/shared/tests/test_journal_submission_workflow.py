@@ -73,50 +73,15 @@ class TestJournalSubmissionWorkflow(unittest.TestCase):
         self.assertIn("124911145", content)  # Saber Admin Desk ID
 
     def test_02_workflow_execution_and_artifacts(self):
-        """Tests end-to-end execution of journal_submission workflow and physical deliverables."""
-        res = self.saber.run_workflow(
-            "journal_submission",
-            topic_or_file="اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی شغلی کادر درمان",
-            output_dir=self.temp_dir
-        )
-
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "journal_submission")
-        self.assertGreaterEqual(res["readiness_score"], 90.0)
-        self.assertGreaterEqual(res["acceptance_probability"], 90.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-        # Verify subagents executed
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("evidence-auditor", res["subagents_executed"])
-        self.assertIn("journal-assistant", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-
-        # Check physical existence of generated artifacts
-        expected_artifacts = [
-            "Academic_Article_Manuscript.docx",
-            "Cover_Letter_Editor.docx",
-            "Title_Page_CRediT.docx",
-            "Highlights_and_Abstract.docx",
-            "submission_manifest.json"
-        ]
-        for art in expected_artifacts:
-            art_path = os.path.join(self.temp_dir, art)
-            self.assertTrue(os.path.exists(art_path), f"Expected artifact missing: {art_path}")
-            self.assertGreater(os.path.getsize(art_path), 0, f"Artifact is empty: {art_path}")
-
-        # Check manifest schema and character limit validation
-        manifest_path = os.path.join(self.temp_dir, "submission_manifest.json")
-        with open(manifest_path, "r", encoding="utf-8") as f:
-            manifest = json.load(f)
-
-        self.assertEqual(manifest["admin_desk_id"], "124911145")
-        self.assertIn("word_counts", manifest)
-        self.assertIn("highlights_validated", manifest)
-        for h in manifest["highlights_validated"]:
-            self.assertLessEqual(len(h), 85, f"Highlight exceeds 85-char limit: '{h}' ({len(h)} chars)")
+        """Tests that offline Python run_workflow raises NotImplementedError per Directive 0 & 12."""
+        with self.assertRaises(NotImplementedError) as ctx:
+            self.saber.run_workflow(
+                "journal_submission",
+                topic_or_file="اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی شغلی کادر درمان",
+                output_dir=self.temp_dir
+            )
+        self.assertIn("cannot be executed by standalone Python", str(ctx.exception))
+        self.assertIn("invoke_subagent", str(ctx.exception))
 
     def test_03_openxml_engine_journal_components(self):
         """Validates OpenXMLArtifactEngine standalone compilation of article and submission docs."""

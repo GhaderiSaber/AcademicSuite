@@ -72,61 +72,26 @@ class TestInterventionAndValidationWorkflow(unittest.TestCase):
         self.assertIn("Psychometric_Validation_Report.docx", content_scal)
 
     def test_intervention_protocol_workflow_execution(self):
-        """2. Execute intervention protocol workflow and verify generated artifacts."""
-        res = self.saber.run_workflow(
-            "intervention_protocol",
-            topic_or_file="اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی کادر درمان",
-            output_dir=self.test_output_dir
-        )
-        self.assertIsNotNone(res)
-        self.assertEqual(res.get("status"), "SUCCESS")
-        self.assertGreaterEqual(res.get("fidelity_score", 0), 95.0)
-
-        # Verify artifacts
-        manual_docx = os.path.join(self.test_output_dir, "Intervention_Protocol_Manual.docx")
-        summary_docx = os.path.join(self.test_output_dir, "Intervention_Sessions_Summary.docx")
-        consort_img = os.path.join(self.test_output_dir, "consort_flowchart.png")
-        blueprint_json = os.path.join(self.test_output_dir, "protocol_blueprint.json")
-        manifest_json = os.path.join(self.test_output_dir, "intervention_manifest.json")
-
-        self.assertTrue(os.path.exists(manual_docx), f"Missing: {manual_docx}")
-        self.assertTrue(os.path.exists(summary_docx), f"Missing: {summary_docx}")
-        self.assertTrue(os.path.exists(blueprint_json), f"Missing: {blueprint_json}")
-        self.assertTrue(os.path.exists(manifest_json), f"Missing: {manifest_json}")
-
-        with open(manifest_json, "r", encoding="utf-8") as f:
-            manifest = json.load(f)
-        self.assertEqual(manifest.get("workflow"), "intervention_protocol")
-        self.assertEqual(manifest.get("admin_desk_id"), "124911145")
+        """2. Tests that offline Python run_workflow raises NotImplementedError per Directive 0 & 12."""
+        with self.assertRaises(NotImplementedError) as ctx:
+            self.saber.run_workflow(
+                "intervention_protocol",
+                topic_or_file="اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی کادر درمان",
+                output_dir=self.test_output_dir
+            )
+        self.assertIn("cannot be executed by standalone Python", str(ctx.exception))
+        self.assertIn("invoke_subagent", str(ctx.exception))
 
     def test_scale_validation_workflow_execution(self):
-        """3. Execute scale validation workflow and verify generated artifacts."""
-        res = self.saber.run_workflow(
-            "scale_validation",
-            topic_or_file="پرسشنامه انعطاف‌پذیری روان‌شناختی (AAQ-II)",
-            output_dir=self.test_output_dir
-        )
-        self.assertIsNotNone(res)
-        self.assertEqual(res.get("status"), "SUCCESS")
-        self.assertGreaterEqual(res.get("psychometric_score", 0), 95.0)
-
-        # Verify artifacts
-        report_docx = os.path.join(self.test_output_dir, "Psychometric_Validation_Report.docx")
-        matrix_xlsx = os.path.join(self.test_output_dir, "psychometric_validation_matrix.xlsx")
-        lavaan_r = os.path.join(self.test_output_dir, "cfa_lavaan_model.R")
-        report_json = os.path.join(self.test_output_dir, "psychometric_validation_report.json")
-
-        self.assertTrue(os.path.exists(report_docx), f"Missing: {report_docx}")
-        self.assertTrue(os.path.exists(matrix_xlsx), f"Missing: {matrix_xlsx}")
-        self.assertTrue(os.path.exists(lavaan_r), f"Missing: {lavaan_r}")
-        self.assertTrue(os.path.exists(report_json), f"Missing: {report_json}")
-
-        with open(report_json, "r", encoding="utf-8") as f:
-            rep = json.load(f)
-        self.assertIn("cvr_cvi", rep)
-        self.assertIn("cfa", rep)
-        self.assertIn("reliability", rep)
-        self.assertGreaterEqual(rep["reliability"]["mcdonald_omega"], 0.70)
+        """3. Tests that offline Python run_workflow raises NotImplementedError per Directive 0 & 12."""
+        with self.assertRaises(NotImplementedError) as ctx:
+            self.saber.run_workflow(
+                "scale_validation",
+                topic_or_file="پرسشنامه انعطاف‌پذیری روان‌شناختی (AAQ-II)",
+                output_dir=self.test_output_dir
+            )
+        self.assertIn("cannot be executed by standalone Python", str(ctx.exception))
+        self.assertIn("invoke_subagent", str(ctx.exception))
 
     def test_openxml_artifact_engine_generators(self):
         """4. Verify direct OpenXML generators for intervention and validation."""
@@ -151,17 +116,11 @@ class TestInterventionAndValidationWorkflow(unittest.TestCase):
         """5. Verify interactive shell commands for Pipeline 5."""
         shell = DigitalSaberShell(saber_instance=self.saber, output_dir=self.test_output_dir)
 
-        # Test do_protocol
+        # Test do_protocol and do_validate handle offline workflow safely
         shell.do_protocol("schema")
-        manual_docx = os.path.join(self.test_output_dir, "Intervention_Protocol_Manual.docx")
-        self.assertTrue(os.path.exists(manual_docx))
-
-        # Test do_validate
         shell.do_validate("مقیاس بهزیستی روان‌شناختی ریف")
-        report_docx = os.path.join(self.test_output_dir, "Psychometric_Validation_Report.docx")
-        self.assertTrue(os.path.exists(report_docx))
 
-        # Test do_simulate
+        # Test do_simulate directly synthesizes dataset
         shell.do_simulate("rct 40")
         csv_sim = os.path.join(self.test_output_dir, "simulated_empirical_dataset.csv")
         self.assertTrue(os.path.exists(csv_sim))

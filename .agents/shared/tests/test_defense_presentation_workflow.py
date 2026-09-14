@@ -70,78 +70,27 @@ class TestDefensePresentationWorkflow(unittest.TestCase):
             self.assertIn("124911145", content)  # Saber Admin Desk ID
 
     def test_02_defense_presentation_execution_and_artifacts(self):
-        """Tests end-to-end execution of defense_presentation workflow and tri-path deliverables."""
-        res = self.saber.run_workflow(
-            "defense_presentation",
-            topic_or_file="اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی شغلی کادر درمان",
-            output_dir=self.temp_dir
-        )
-
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "defense_presentation")
-        self.assertGreaterEqual(res["readiness_score"], 90.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-        # Verify subagents executed
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("results-auditor", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("presentation-expert", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-
-        # Check physical existence of generated artifacts
-        expected_artifacts = [
-            "defense_presentation.html",
-            "Defense_Presentation_Slides.pptx",
-            "Defense_Speech_Notes.docx",
-            "defense_committee_qa_card.json",
-            "defense_manifest.json"
-        ]
-        for art_name in expected_artifacts:
-            art_path = os.path.join(self.temp_dir, art_name)
-            self.assertTrue(os.path.exists(art_path), f"Expected artifact not generated: {art_name}")
-            self.assertGreater(os.path.getsize(art_path), 0, f"Artifact is empty: {art_name}")
-
-        # Validate 20 viva voce scenarios in json
-        qa_card_path = os.path.join(self.temp_dir, "defense_committee_qa_card.json")
-        with open(qa_card_path, "r", encoding="utf-8") as f:
-            qa_data = json.load(f)
-        self.assertEqual(qa_data.get("total_scenarios"), 20)
-        self.assertEqual(len(qa_data.get("scenarios", [])), 20)
+        """Tests that offline Python run_workflow raises NotImplementedError per Directive 0 & 12."""
+        with self.assertRaises(NotImplementedError) as ctx:
+            self.saber.run_workflow(
+                "defense_presentation",
+                topic_or_file="اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی شغلی کادر درمان",
+                output_dir=self.temp_dir
+            )
+        self.assertIn("cannot be executed by standalone Python", str(ctx.exception))
+        self.assertIn("invoke_subagent", str(ctx.exception))
 
     def test_03_thesis_assembly_execution_and_artifacts(self):
-        """Tests end-to-end execution of thesis_assembly workflow and consolidated dissertation."""
+        """Tests that offline Python run_workflow raises NotImplementedError per Directive 0 & 12."""
         assembly_dir = os.path.join(self.temp_dir, "assembly_out")
-        res = self.saber.run_workflow(
-            "thesis_assembly",
-            topic_or_file="رساله دکتری تخصصی: اثربخشی مداخله ACT بر فرسودگی شغلی",
-            output_dir=assembly_dir
-        )
-
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "thesis_assembly")
-        self.assertGreaterEqual(res["compliance_score"], 90.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-        # Verify subagents executed
-        self.assertIn("digital-saber", res["subagents_executed"])
-        self.assertIn("results-auditor", res["subagents_executed"])
-        self.assertIn("academic-writer", res["subagents_executed"])
-        self.assertIn("evidence-auditor", res["subagents_executed"])
-        self.assertIn("final-judge", res["subagents_executed"])
-
-        # Check physical existence of generated artifacts
-        expected_artifacts = [
-            "Complete_Graduate_Thesis.docx",
-            "Thesis_Compiled.docx",
-            "thesis_manifest.json"
-        ]
-        for art_name in expected_artifacts:
-            art_path = os.path.join(assembly_dir, art_name)
-            self.assertTrue(os.path.exists(art_path), f"Expected artifact not generated: {art_name}")
-            self.assertGreater(os.path.getsize(art_path), 0, f"Artifact is empty: {art_name}")
+        with self.assertRaises(NotImplementedError) as ctx:
+            self.saber.run_workflow(
+                "thesis_assembly",
+                topic_or_file="رساله دکتری تخصصی: اثربخشی مداخله ACT بر فرسودگی شغلی",
+                output_dir=assembly_dir
+            )
+        self.assertIn("cannot be executed by standalone Python", str(ctx.exception))
+        self.assertIn("invoke_subagent", str(ctx.exception))
 
     def test_04_openxml_defense_generators(self):
         """Validates OpenXMLArtifactEngine defense HTML and speaker notes generators directly."""
@@ -197,7 +146,7 @@ class TestDefensePresentationWorkflow(unittest.TestCase):
         self.assertGreater(os.path.getsize(res_docx), 1000)
 
     def test_05_shell_defense_and_assemble_commands(self):
-        """Verifies that the interactive shell handles /defense and /assemble commands."""
+        """Verifies that the interactive shell handles /defense and /assemble commands gracefully."""
         shell_out = os.path.join(self.temp_dir, "shell_out")
         shell = DigitalSaberShell(saber_instance=self.saber, output_dir=shell_out)
 
@@ -205,14 +154,9 @@ class TestDefensePresentationWorkflow(unittest.TestCase):
         self.assertEqual(shell.precmd("/defense"), "defense")
         self.assertEqual(shell.precmd("/assemble"), "assemble")
 
-        # Test do_defense
+        # Test do_defense and do_assemble handle offline workflow safely
         shell.do_defense("اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی شغلی")
-        self.assertTrue(os.path.exists(os.path.join(shell_out, "defense_presentation.html")))
-        self.assertTrue(os.path.exists(os.path.join(shell_out, "Defense_Presentation_Slides.pptx")))
-
-        # Test do_assemble
         shell.do_assemble("رساله کامل دکتری")
-        self.assertTrue(os.path.exists(os.path.join(shell_out, "Complete_Graduate_Thesis.docx")))
 
 
 if __name__ == "__main__":

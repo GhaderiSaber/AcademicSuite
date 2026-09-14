@@ -9,8 +9,8 @@ Validates:
   4. Polite Academic Rebuttal Synthesis & Typography Rules
   5. Committee Re-Defense Clearance Simulation
   6. OpenXML Response Table Word Document & BiDi RTL
-  7. MultiAgentOrchestrator Task Packets & Schema Validation
-  8. Full End-to-End Workflow Execution via DigitalSaber
+  7. Thesis Revision Workflow Specification Validation
+  8. Offline Workflow Enforcement & DigitalSaber Rejection
 """
 
 import os
@@ -27,7 +27,6 @@ sys.path.insert(0, os.path.join(ROOT_DIR, ".agents", "skills", "persian-thesis-r
 
 from digital_saber import DigitalSaber
 from revision_triage_engine import RevisionTriageEngine
-from multi_agent_orchestrator import MultiAgentOrchestrator
 
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
 
@@ -55,7 +54,6 @@ class TestThesisRevisionSuite(unittest.TestCase):
 
     def setUp(self):
         self.engine = RevisionTriageEngine(workspace_root=ROOT_DIR)
-        self.orchestrator = MultiAgentOrchestrator(workspace_root=ROOT_DIR)
         self.saber = DigitalSaber()
 
     def test_01_comment_ingestion_benchmark(self):
@@ -164,42 +162,18 @@ class TestThesisRevisionSuite(unittest.TestCase):
             self.assertIn('w:right w:val="none"', doc_xml)
             self.assertIn('w:insideV w:val="none"', doc_xml)
 
-    def test_07_multiagent_orchestrator_packets(self):
-        """Validates task packet generation and critique schema validation for thesis_revision."""
+    def test_07_workflow_specification_contract(self):
+        """Validates that thesis_revision.md workflow spec defines all required roles and artifacts."""
+        spec_path = os.path.join(AGENTS_DIR, "workflows", "thesis_revision.md")
+        self.assertTrue(os.path.exists(spec_path), f"Missing workflow spec: {spec_path}")
+        with open(spec_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
         roles = ["results-auditor", "statistical-auditor", "academic-writer", "final-judge"]
         for r in roles:
-            packet = self.orchestrator.generate_task_packet("thesis_revision", r, context_dir="output")
-            self.assertEqual(packet["workflow"], "thesis_revision")
-            self.assertEqual(packet["target_role"], r)
-            self.assertIn("role_title", packet)
-            self.assertIn("mandate", packet)
-            self.assertIn("artifacts_to_inspect", packet)
-            self.assertGreater(len(packet["instructions"]), 0)
-            self.assertIn("expected_return_schema", packet)
+            self.assertIn(r, content, f"thesis_revision.md missing subagent role: {r}")
 
-        # Validate schema validation
-        valid_judge = {"verdict": "APPROVED_FOR_SIGN_OFF", "readiness_score": 99.0}
-        ok, errs = self.orchestrator.validate_critique_payload("final-judge", valid_judge, workflow="thesis_revision")
-        self.assertTrue(ok)
-        self.assertEqual(len(errs), 0)
-
-        invalid_judge = {"some_other_key": 123}
-        ok, errs = self.orchestrator.validate_critique_payload("final-judge", invalid_judge, workflow="thesis_revision")
-        self.assertFalse(ok)
-        self.assertGreater(len(errs), 0)
-
-    def test_08_end_to_end_saber_workflow_execution(self):
-        """Validates full end-to-end execution of thesis_revision via DigitalSaber."""
-        res = self.saber.run_workflow("thesis_revision", output_dir=self.test_output_dir)
-        self.assertIsNotNone(res)
-        self.assertEqual(res["status"], "SUCCESS")
-        self.assertEqual(res["workflow"], "thesis_revision")
-        self.assertEqual(res["execution_mode"], "ANTIGRAVITY_MULTI_AGENT")
-        self.assertEqual(res["comments_resolved"], 14)
-        self.assertGreaterEqual(res["readiness_score"], 90.0)
-        self.assertTrue(res["decision_id"].startswith("dec_"))
-
-        # Verify all 6 Directive 3 physical artifacts exist
+        # Verify Directive 3 checkpoint artifacts
         expected_artifacts = [
             "extracted_comments.json",
             "triaged_comments.json",
@@ -209,9 +183,14 @@ class TestThesisRevisionSuite(unittest.TestCase):
             "Revision_Response_Table.docx"
         ]
         for name in expected_artifacts:
-            full_path = os.path.join(self.test_output_dir, name)
-            self.assertTrue(os.path.exists(full_path), f"Missing artifact: {full_path}")
-            self.assertGreater(os.path.getsize(full_path), 0, f"Empty artifact: {full_path}")
+            self.assertIn(name, content, f"thesis_revision.md missing checkpoint artifact: {name}")
+
+    def test_08_run_workflow_offline_rejection(self):
+        """Validates that standalone Python run_workflow raises NotImplementedError per Directive 0 & 12."""
+        with self.assertRaises(NotImplementedError) as ctx:
+            self.saber.run_workflow("thesis_revision", output_dir=self.test_output_dir)
+        self.assertIn("cannot be executed by standalone Python", str(ctx.exception))
+        self.assertIn("invoke_subagent", str(ctx.exception))
 
 
 if __name__ == "__main__":

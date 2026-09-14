@@ -175,4 +175,4 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
    - `final-judge`: Acts as the **Skeptical External Defense Committee Examiner** (*استاد داور خارجی سخت‌گیر*), challenging the candidate with 3 to 5 adversarial questions on methodology, slope homogeneity, and generalizability.
    - `academic-writer` / `digital-saber`: Acts as the **Candidate Defense Proxy**, formulating scholarly, literature-grounded answers.
    - `statistical-auditor`: Validates that the candidate's answers accurately reflect the empirical statistics without exaggerations.
-3. **Orchestrator**: Subagents and engines are driven by `MultiAgentOrchestrator` (`multi_agent_orchestrator.py`), computing defense readiness scores and logging committee clearance.
+3. **Orchestrator**: Subagents and engines are orchestrated directly by the Antigravity Lead Agent in the conversation using `invoke_subagent`, computing defense readiness scores and logging committee clearance.
