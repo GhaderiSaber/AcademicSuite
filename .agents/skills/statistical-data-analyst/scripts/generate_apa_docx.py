@@ -196,39 +196,43 @@ def add_figure_image(doc, img_path: str, caption_text: str, note_text: str = "",
 
 # --- Epistemic Narrative Builders (Saber Voice) ---
 
-def get_demo_interpretation(label_fa: str, dom_cat: str, dom_pct: float) -> str:
-    """Generate rich ecological narrative for individual demographic tables."""
+def get_demo_interpretation(label_fa: str, dom_cat: str, dom_pct: float, table_num_str: str = "") -> str:
+    """Generate rich ecological narrative placed directly above individual demographic tables."""
+    tbl_ref = f" (جدول {table_num_str}-۴)" if table_num_str else ""
     if "جنسیت" in label_fa:
         return (
-            f"بر اساس یافته‌های مندرج در جدول فوق، بیشترین فراوانی در متغیر جنسیت مربوط به گروه «{dom_cat}» با "
-            f"{format_persian_number(dom_pct)} درصد است. توزیع متوازن و حضور مؤثر هر دو گروه جنسیتی در نمونه آماری، "
-            f"ضمن به حداقل رساندن سوگیری تک‌جنسیتی، قابلیت تعمیم‌پذیری یافته‌های پژوهش را در جامعه دانشجویی افزایش می‌دهد."
+            f"متغیر جنسیت به عنوان یکی از شاخص‌های جمعیت‌شناختی کلیدی مورد ارزیابی قرار گرفت تا وضعیت مشارکت و ترکیب نسبی آزمودنی‌ها مشخص شود{tbl_ref}. "
+            f"بر اساس یافته‌ها، بیشترین فراوانی مربوط به گروه «{dom_cat}» با {format_persian_number(dom_pct)} درصد است. "
+            f"توزیع متوازن هر دو جنسیت، ضمن کاهش سوگیری تک‌جنسیتی، زمینه مناسبی را برای تعمیم نتایج پژوهش فراهم می‌آورد."
         )
     elif "مقطع" in label_fa or "تحصیل" in label_fa:
         return (
-            f"توزیع شرکت‌کنندگان بر حسب مقطع تحصیلی حاکی از آن است که گروه «{dom_cat}» با اختصاص "
-            f"{format_persian_number(dom_pct)} درصد از حجم نمونه، غالب‌ترین طبقه تحصیلی را تشکیل می‌دهد. "
-            f"این ترکیب منعکس‌کننده هرم جمعیتی دانشگاه‌های جامع کشور بوده و زمینه مناسبی را برای ارزیابی سازه‌های روان‌شناختی فراهم می‌سازد."
+            f"توزیع فراوانی و تحلیل توصیفی مقطع تحصیلی شرکت‌کنندگان به عنوان یکی دیگر از شاخص‌های جمعیت‌شناختی بررسی شد{tbl_ref}. "
+            f"یافته‌ها حاکی از آن است که گروه «{dom_cat}» با اختصاص {format_persian_number(dom_pct)} درصد از حجم نمونه، غالب‌ترین طبقه تحصیلی را به خود اختصاص داده است. "
+            f"این ساختار منعکس‌کننده هرم جمعیتی جامعه دانشگاهی هدف بوده و اعتبار بیرونی یافته‌ها را تقویت می‌کند."
         )
     elif "رشته" in label_fa:
         return (
-            f"بررسی توزیع آزمودنی‌ها بر حسب حوزه تحصیلی نشان می‌دهد که بیشترین درصد فراوانی به طبقه «{dom_cat}» با "
-            f"{format_persian_number(dom_pct)} درصد تعلق دارد. تنوع رشته‌های تحصیلی مانع از شکل‌گیری اثرات مداخله‌گر ناشی از بافت یک رشته خاص بر نتایج آزمون‌ها می‌گردد."
+            f"جهت واکاوی پراکندگی دانشجویان بر حسب حوزه‌های علمی، متغیر رشته تحصیلی آزمودنی‌ها طبقه‌بندی و بررسی شد{tbl_ref}. "
+            f"بر این اساس، بیشترین درصد فراوانی به گروه «{dom_cat}» با {format_persian_number(dom_pct)} درصد تعلق دارد. "
+            f"گستردگی حوزه‌های تحصیلی از تمرکز سوگیرانه بر یک بافت رشته‌ای خاص جلوگیری می‌نماید."
         )
     elif "تأهل" in label_fa or "تاهل" in label_fa:
         return (
-            f"از منظر وضعیت تأهل، دسته «{dom_cat}» با {format_persian_number(dom_pct)} درصد دارای بیشترین حجم فراوانی است. "
-            f"این ویژگی جمعیتی متناسب با گروه سنی نمونه، بستری پژوهشی را برای تبیین اثرات تجارب خانواده مبدأ و سبک‌های فرزندپروری بر اضطراب فراهم می‌آورد."
+            f"متغیر وضعیت تأهل شرکت‌کنندگان نیز به منظور شناخت دقیق‌تر بافت خانوادگی آزمودنی‌ها مورد ارزیابی قرار گرفت{tbl_ref}. "
+            f"نتایج نشان داد که دسته «{dom_cat}» با {format_persian_number(dom_pct)} درصد دارای بیشترین فراوانی است. "
+            f"این توزیع با دامنه سنی جامعه پژوهش همخوانی کامل داشته و نیم‌رخ زمینه‌ای مناسبی ارائه می‌دهد."
         )
     elif "سن" in label_fa:
         return (
-            f"یافته‌های جدول سن نشان می‌دهد که بیشترین تمرکز سنی آزمودنی‌ها در رده «{dom_cat}» با "
-            f"{format_persian_number(dom_pct)} درصد قرار دارد. استقرار اکثریت آزمودنی‌ها در این مرحله سنی، بیانگر دوران گذار هویتی و تحصیلی است که از دیدگاه بالینی دوره حساسی برای تحول باورهای مربوط به قطعیت و نگرانی محسوب می‌شود."
+            f"ارزیابی سن شرکت‌کنندگان به عنوان یکی از شاخص‌های دموگرافیک اساسی، به منظور شناخت ترکیب سنی جامعه نمونه انجام گرفت که جزئیات آن در جدول زیر منعکس شده است{tbl_ref}. "
+            f"بررسی‌ها نشان می‌دهد که بیشترین تمرکز سنی آزمودنی‌ها در رده «{dom_cat}» با {format_persian_number(dom_pct)} درصد قرار دارد. "
+            f"استقرار اکثریت افراد در این بازه سنی بیانگر دوره تحولی و هویتی حساسی در پژوهش‌های رفتاری و شناختی است."
         )
     else:
         return (
-            f"بررسی داده‌های جدول فوق در خصوص متغیر {label_fa} نشان می‌دهد که بیشترین فراوانی مربوط به طبقه «{dom_cat}» با "
-            f"{format_persian_number(dom_pct)} درصد است که نشان‌دهنده پراکندگی طبیعی داده‌ها در نمونه مورد بررسی می‌باشد."
+            f"بررسی ویژگی جمعیت‌شناختی {label_fa} آزمودنی‌ها به منظور شناخت نیم‌رخ نمونه پژوهش انجام شد{tbl_ref}. "
+            f"یافته‌ها نشان می‌دهد که بیشترین فراوانی مربوط به طبقه «{dom_cat}» با {format_persian_number(dom_pct)} درصد بوده و توزیع داده‌ها گویای پراکندگی طبیعی متغیر در جامعه آماری است."
         )
 
 def get_hypothesis_intro_narrative(h_num: int, h_title: str, dv_name: str, preds: List[str]) -> List[str]:
@@ -461,12 +465,29 @@ def build_chapter4_document(data: dict, output_path: str):
         add_run(p_demo_txt, demo_narr)
 
         for var_name, d_stat in demo_dict.items():
+            tbl_num_persian = to_persian_digits(table_counter)
+            dom_entry = d_stat.get("dominant_category", {})
+
+            # Ecological narrative placed DIRECTLY ABOVE table caption
+            p_d_eval = doc.add_paragraph()
+            set_paragraph_bidi(p_d_eval, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_d_eval.paragraph_format.line_spacing = 1.25
+            p_d_eval.paragraph_format.space_before = Pt(10)
+            p_d_eval.paragraph_format.space_after = Pt(4)
+            interp_text = get_demo_interpretation(
+                d_stat['display_label'],
+                dom_entry.get("category", ""),
+                dom_entry.get("percentage", 0),
+                table_num_str=tbl_num_persian
+            )
+            add_run(p_d_eval, interp_text)
+
             # Table Caption
             p_cap_d = doc.add_paragraph()
             set_paragraph_bidi(p_cap_d, WD_ALIGN_PARAGRAPH.RIGHT)
-            p_cap_d.paragraph_format.space_before = Pt(8)
+            p_cap_d.paragraph_format.space_before = Pt(6)
             p_cap_d.paragraph_format.space_after = Pt(4)
-            add_run(p_cap_d, f"جدول {to_persian_digits(table_counter)}-۴. توزیع فراوانی و درصدی آزمودنی‌ها بر حسب {d_stat['display_label']}", font_fa='B Titr', size=11, bold=True)
+            add_run(p_cap_d, f"جدول {tbl_num_persian}-۴. توزیع فراوانی و درصدی آزمودنی‌ها بر حسب {d_stat['display_label']}", font_fa='B Titr', size=11, bold=True)
 
             rows_data = d_stat["table_rows"] + [d_stat["total_row"]]
             tbl_d = doc.add_table(rows=len(rows_data) + 1, cols=4)
@@ -499,20 +520,6 @@ def build_chapter4_document(data: dict, output_path: str):
                     add_run(p, val_str, font_fa='B Titr' if is_tot else 'B Nazanin', size=10.5, bold=is_tot)
 
             table_counter += 1
-
-            # Ecological Interpretation after each demographic table
-            dom_entry = d_stat.get("dominant_category", {})
-            p_d_eval = doc.add_paragraph()
-            set_paragraph_bidi(p_d_eval, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_d_eval.paragraph_format.line_spacing = 1.25
-            p_d_eval.paragraph_format.space_before = Pt(4)
-            p_d_eval.paragraph_format.space_after = Pt(10)
-            interp_text = get_demo_interpretation(
-                d_stat['display_label'],
-                dom_entry.get("category", ""),
-                dom_entry.get("percentage", 0)
-            )
-            add_run(p_d_eval, interp_text)
 
     # -------------------------------------------------------------
     # Section 2: Comprehensive 9-Column Descriptives & Normality

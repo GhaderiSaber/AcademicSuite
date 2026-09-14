@@ -143,19 +143,21 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - Verification of native Word OMML math equations (`<m:oMath>`) preservation.
 - **Output**: `results_qc_checklist.json`.
 
-### Step 7: Academic Writer Subagent (Persian Chapter 4 Drafting — Saber Empirical Blueprint)
+### Step 7: Academic Writer Subagent (Persian Chapter 4 Drafting — Section & Table Grounded Architecture)
 - **Agent**: `academic-writer`
 - **Reference**: Emulates [.agents/references/saber_chapter4_exemplars.md](file:///.agents/references/saber_chapter4_exemplars.md)
 - **Action**:
-  - Ingests verified tables, statistical results (`stats_results.json`), and generated 300-DPI plots.
-  - Drafts Chapter 4 in authentic academic Persian structured strictly into Saber Ghaderi's **Empirical Architecture**:
-    1. **مقدمه فصل چهارم** (Chapter Overview, analytical scope, and roadmap)
-    2. **ویژگی‌های جمعیت‌شناختی نمونه** (Categorical 4-column frequency tables for gender, education, marital status, and age binning with dominant profile narratives)
-    3. **یافته‌های توصیفی متغیرها** (The master 9-column table `[متغیر, مؤلفه, N, M, SD, KU, SK, Min, Max]` with standard Persian footnote)
-    4. **بررسی مفروضه‌های آزمون‌های پارامتریک** (Normality, Multicollinearity with Tolerance/VIF, Durbin-Watson independence, Levene's test, Box's M)
-    5. **یافته‌های استنباطی و آزمون فرضیه‌ها** (Each hypothesis formulated with Saber's **4-Tier Sequence**: Tier 1 Bivariate Correlation $\to$ Tier 2 Combined ANOVA & Model Summary $\to$ Tier 3 Regression Coefficients $\to$ Tier 4 Diagnostic Residual Plots)
-    6. **تحلیل مدل‌های ساختاری / میانجی‌گری** (Hayes PROCESS Model 6 serial mediation with 5,000 bootstrap iterations or R lavaan SEM with 11 fit indices and path diagram)
-    7. **سنتز و جدول ماتریس خلاصه آزمون فرضیه‌ها** (Executive summary table of all hypotheses and final empirical verdicts)
+  - Ingests verified Word tables, statistical results (`stats_results.json`), and generated 300-DPI plots.
+  - Executes Saber's **Section-by-Section & Step-by-Step AI Drafting Protocol**:
+    1. **Section Introductions (مقدمه بخش‌ها)**: Drafts contextual roadmaps for the Chapter, Demographics, Descriptives, Assumptions, and Inferential sections.
+    2. **Table Explanations (تحلیل استاندارد بالای هر جدول)**: For each table (`جدول ۴- X`), drafts the substantive academic narrative placed **DIRECTLY ABOVE** the table caption, strictly following the 4-element formula:
+       - *تحلیل زمینه و متغیر (Context & Objective)*.
+       - *واکاوی داده‌ها و مقادیر کلیدی (Key Numerical Highlights from table)*.
+       - *ارجاع رسمی به جدول (Formal In-Text Reference `(جدول ۴- X)`)*.
+       - *استنتاج آماری اولیه (Preliminary Statistical Verdict)*.
+    3. **Diagnostic Figures Explanations (تحلیل نمودارها)**: Interprets residual histograms, normal P-P plots, or SEM diagrams directly adjacent to each figure.
+    4. **Hypothesis Summarizing Verdicts (خلاصه و تصمیم‌گیری نهایی فرضیه)**: Following each hypothesis's set of tables and figures, drafts a dedicated synthesis paragraph summarizing model fit, total variance explained ($R^2$ / $\eta_p^2$), relative predictor ranking, and the decisive empirical verdict (تأیید یا رد فرضیه).
+    5. **Master Chapter Synthesis & Bridge**: Produces the executive summary matrix and transition bridge to Chapter 5.
   - **Strict Empirical Guardrail**: **ZERO literature comparisons (e.g. Beck, Bandura, Hayes) and ZERO psychological theoretical mechanisms in Chapter 4**. All literature discussions and theoretical interpretations are strictly deferred to **Chapter 5**.
   - Enforces Persian half-spaces (`\u200c`), standard dot notation for decimals, preserving leading zero (`۰.۰۰۱`, `۰.۰۵`), and eliminating all AI clichés.
   - Compiles publication-ready Word document with OpenXML directionality `<w:bidi w:val="1"/>`, borderless APA 7 tables, and physically embedded 300-DPI figures via `generate_apa_docx.py`.

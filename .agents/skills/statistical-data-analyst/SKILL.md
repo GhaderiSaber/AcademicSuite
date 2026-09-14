@@ -95,9 +95,9 @@ The skill provides specialized workflows for the three standard psychology resea
 
 ---
 
-## 3. Step-by-Step Execution Protocol (Digital Saber Parity)
+## 3. Step-by-Step Execution Protocol (Digital Saber 5-Stage Lifecycle)
 
-When a student provides a dataset and asks for analysis or Chapter 4, follow this 6-step protocol:
+When a student provides a dataset and asks for analysis or Chapter 4, follow Saber's **5-Stage Production Lifecycle**:
 
 ```
 [Raw Survey Items (.xlsx/.csv/.sav) + Project Info]
@@ -105,36 +105,38 @@ When a student provides a dataset and asks for analysis or Chapter 4, follow thi
                    ▼
      [Step 0: Questionnaire Ingestion & Scoring]
      - Resolve scale via Questionnaires.xlsx or Google Drive Library
-     - Extract subscales, item lists, Likert range, reverse items
-     - Reverse negative items: Item_rev = (min + max) - Item
-     - Compute subscale & total composites (Sum, Mean, Alpha)
+     - Invert reverse items and compute factor composites
                    │
                    ▼
-        [Step 1: Data Triage]
-        - Inspect columns, sample size, missing values
+     [Stage 1: Triaged Analysis Planning]
+     - Hypotheses tests first (ANCOVA, Multiple Regression, SEM)
+     - Assumptions suite (Normality, VIF, D-W, Levene)
+     - Demographics & Descriptives mapping -> study_config.json
                    │
                    ▼
-     [Step 2: Formulate Config JSON (study_config.json)]
-     - Demographics: Continuous age binning + categorical mappings
-     - Descriptives: 9-column master constructs dictionary
-     - Assumptions Suite: 6-pillar specifications across all models
-     - Hypotheses: 4-tier regression / mediation / SEM mapping
+     [Stage 2: Iterative Analysis Execution & Verification]
+     - python3 .agents/skills/statistical-data-analyst/scripts/psychology_stats.py
+     - Review results & assumptions; adjust/re-run if needed until sound
+     - Freeze stats_results.json & generate 300-DPI diagnostic plots
                    │
                    ▼
-   [Step 3: Run Deterministic Engine]
-   - python3 .agents/skills/statistical-data-analyst/scripts/psychology_stats.py --data data.xlsx --task auto --config study_config.json --out stats_results.json
+     [Stage 3: Physical APA 7 Table Generation in Word]
+     - Populate Word tables with exact numbers, 3 APA borders & Persian fonts
+     - Demographics, Descriptives, Correlations, Assumptions, Regressions
                    │
                    ▼
-   [Step 4: Generate Publication Visuals]
-   - Auto-generated during hypothesis testing (histograms, P-P plots, SEM diagrams)
+     [Stage 4: Section-by-Section & Table-by-Table AI Narrative Drafting]
+     - Prompt academic-writer subagent systematically across structural sections:
+       * Section Intros (Roadmap, Demographics, Descriptives, Inferential)
+       * Table Explanations (placed DIRECTLY ABOVE each table: Context -> Highlights -> (جدول ۴- X) -> Verdict)
+       * Diagnostic Figures Explanations
+       * Hypothesis Summarizing Verdicts (R², effect size, confirmation/rejection)
+       * Master Chapter Synthesis Matrix & Chapter 5 Transition Bridge
                    │
                    ▼
-   [Step 5: Generate Full Defense-Ready Word Document]
-   - python3 .agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py --json stats_results.json --out Chapter_4_Results.docx
-                   │
-                   ▼
-   [Step 6: Defense Review & Delivery]
-   - Verify 14+ tables, APA 7 borderless formatting, and 2,500+ authentic narrative words
+     [Stage 5: Holistic Document Assembly, Review & Delivery]
+     - Assemble full Chapter_4_Results.docx via generate_apa_docx.py
+     - End-to-end polish for narrative flow, zero AI clichés, and Persian half-spaces
 ```
 
 ### Step 0: Psychometric Ingestion & Factor Scoring

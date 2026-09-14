@@ -7,34 +7,46 @@ All agents (specifically `academic-writer` and `statistical-data-analyst`) MUST 
 
 ---
 
-## 🏛️ 1. Saber's 4-Stage Chapter 4 Macro-Architecture
+## 🏛️ 1. Saber's 5-Stage Chapter 4 Production Lifecycle & Prompting Architecture
 
 In authentic psychological and behavioral research, Chapter 4 is strictly **empirical and objective**. It contains ZERO literature comparisons (e.g., Beck, Bandura, Hayes) or deep psychological theoretical mechanisms. Those are strictly reserved for **Chapter 5 (بحث و نتیجه‌گیری)**.
 
-Chapter 4 strictly proceeds through four sequential stages:
-
+### The 5-Stage Production Lifecycle
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
-│ STAGE 1: مقدمه (Introduction & Chapter Roadmap)                        │
-│ Clear framing of the research purpose, sample, and analytic flow.      │
+│ STAGE 1: برنامه‌ریزی تحلیلی (Triaged Analysis Planning)                  │
+│ Identify hypotheses analyses -> Assumption tests -> Demographics/Desc. │
 ├────────────────────────────────────────────────────────────────────────┤
-│ STAGE 2: یافته‌های توصیفی (Descriptive Findings)                         │
-│ • ویژگی‌های جمعیت‌شناختی (Demographic Frequencies & Percentages)        │
-│ • شاخص‌های توصیفی متغیرها (Mean, SD, Skewness, Kurtosis, Min, Max)     │
-│ • ماتریس همبستگی پیرسون (Bivariate Correlation Matrix)                 │
+│ STAGE 2: اجرای محاسباتی و بازبینی (Iterative Analysis & Verification)   │
+│ Run deterministic Python/R code; review results; iterate if needed.    │
 ├────────────────────────────────────────────────────────────────────────┤
-│ STAGE 3: بررسی مفروضه‌های آماری (Statistical Assumptions)               │
-│ • نرمال بودن (چولگی و کشیدگی، شاپیرو-ویلک / کلموگروف-اسمیرنوف)         │
-│ • هم‌خطی چندگانه (Tolerance > 0.10, VIF < 10 یا < 5)                   │
-│ • استقلال خطاها (آماره دوربین-واتسون: ۱.۵ تا ۲.۵)                      │
-│ • همگنی واریانس‌ها (آزمون لوین) و شیب‌های رگرسیون (برای ANCOVA)         │
+│ STAGE 3: استقرار جداول آماری در ورد (Physical APA 7 Table Generation)   │
+│ Create all Word tables with exact numbers, 3 APA borders & Persian font│
 ├────────────────────────────────────────────────────────────────────────┤
-│ STAGE 4: یافته‌های استنباطی و آزمون فرضیه‌ها (Inferential Findings)    │
-│ • سازمان‌یافته به تفکیک دقیق فرضیه‌ها (فرضیه اول، فرضیه دوم...)         │
-│ • جداول تلفیقی ANOVA و خلاصه مدل + جداول ضرایب رگرسیون (B, SE, Beta, t)│
-│ • اعلام شفاف تأیید یا رد فرضیه با اندازه اثر (R², η_p²)                │
+│ STAGE 4: تدوین بخش‌به‌بخش و جدول‌به‌جدول متن (Step-by-Step AI Drafting)   │
+│ Prompt AI section-by-section (Section Intros -> Table Narratives ABOVE │
+│ each table -> Diagnostic Figures -> Hypothesis Summarizing Verdicts).  │
+├────────────────────────────────────────────────────────────────────────┤
+│ STAGE 5: بازخوانی یکپارچه و ویرایش نهایی (Holistic End-to-End Polish)   │
+│ Review complete document for narrative flow, transitions, and APA 7.   │
 └────────────────────────────────────────────────────────────────────────┘
 ```
+
+### The Section-by-Section Prompting Protocol (قالب پرامپت‌های تفکیکی صابر قادری)
+Never feed an entire chapter to AI in one generic prompt. Prompt the AI systematically in this sequence:
+1. **Prompt 1: مقدمه کلی فصل چهارم** (Chapter Roadmap).
+2. **Prompt 2: مقدمه بخش جمعیت‌شناختی** (Demographic Section Overview).
+3. **Prompts 3 to N: متن تحلیلی بالای هر جدول جمعیت‌شناختی** (Table 4-1, Table 4-2, etc. - placed directly above table).
+4. **Prompt N+1: مقدمه و تحلیل بالای جدول توصیفی جامع** (Table 4-N: Descriptive Statistics Master Table).
+5. **Prompt N+2: مقدمه و تحلیل بالای ماتریس همبستگی پیرسون** (Table 4-(N+1): Correlation Matrix).
+6. **Prompt N+3: مقدمه و تحلیل بسته مفروضه‌های آماری** (Assumptions Suite: Normality, VIF/Tolerance, Durbin-Watson, Levene).
+7. **For each hypothesis (به تفکیک هر فرضیه)**:
+   - **Hypothesis Framing Prompt**: صورت‌بندی فرضیه و متغیرها.
+   - **Model Summary & ANOVA Table Prompt**: تحلیل متنی بالای جدول خلاصه رگرسیون.
+   - **Coefficients Table Prompt**: تحلیل متنی بالای جدول ضرایب رگرسیون (B, SE, Beta, t, p, VIF).
+   - **Diagnostic Plots Prompt**: تحلیل متنی نمودارهای هیستوگرام و P-P خطاهای رگرسیون.
+   - **Hypothesis Summary & Verdict Prompt**: بند جمع‌بندی نهایی، سهم تبیین ($R^2$) و تصمیم‌گیری پیرامون تأیید یا رد فرضیه.
+8. **Final Prompt: ماتریس جمع‌بندی نتایج فرضیات و پل انتقال به فصل پنجم**.
 
 ---
 

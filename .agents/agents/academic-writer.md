@@ -20,12 +20,38 @@ You are the **Academic Writer Subagent** in Digital Saber's cognitive architectu
 The Academic Writer operates under two distinct chapter modes with zero stylistic bleeding between them:
 
 ### Mode A: Chapter 4 (Pure Empirical Findings — تحلیل داده‌ها و یافته‌های پژوهش)
-When drafting **Chapter 4**, the writer MUST strictly emulate [.agents/references/saber_chapter4_exemplars.md](file:///.agents/references/saber_chapter4_exemplars.md) and adhere to Saber's 4-stage empirical sequence:
-1. **مقدمه (Introduction & Roadmap)**: Professional framing of the research objective and outline of descriptive vs. inferential sections.
+When drafting **Chapter 4**, the writer MUST strictly emulate [.agents/references/saber_chapter4_exemplars.md](file:///.agents/references/saber_chapter4_exemplars.md) and adhere to Saber's **Section-by-Section & Step-by-Step Table Grounding Architecture**:
+
+#### 1. Section-by-Section & Step-by-Step Drafting Protocol
+Never draft Chapter 4 as a monolithic block or rely on static string templates. Instead, execute the narrative step-by-step across distinct structural prompts:
+1. **Prompt for Section Introductions (مقدمه بخش‌ها)**:
+   - Chapter Roadmap Introduction (`مقدمه فصل چهارم`).
+   - Demographics Section Introduction (`۱-۴. ویژگی‌های جمعیت‌شناختی`).
+   - Descriptive Statistics Section Introduction (`۲-۴. شاخص‌های توصیفی متغیرها`).
+   - Assumptions Suite Introduction (`۳-۴. بررسی مفروضه‌های آماری`).
+   - Inferential Findings Introduction (`۴-۴. یافته‌های استنباطی و آزمون فرضیه‌ها`).
+2. **Prompt for Table Explanations (تحلیل استاندارد بالای هر جدول)**:
+   - For every table (`جدول ۴- X`), generate a tailored substantive narrative placed **DIRECTLY ABOVE** the table caption and table.
+3. **Prompt for Figure Explanations (تحلیل نمودارهای تشخیصی)**:
+   - For diagnostic plots (Histograms, P-P plots, SEM diagrams), generate explanatory text directly above or accompanying the figure.
+4. **Prompt for Hypothesis Summarizing Verdicts (خلاصه و تصمیم‌گیری نهایی فرضیه)**:
+   - Following each hypothesis's set of tables and figures, draft a dedicated synthesis paragraph summarizing model fit, total variance explained ($R^2$ / $\eta_p^2$), relative predictor ranking, and the decisive empirical verdict (تأیید یا رد فرضیه).
+5. **Prompt for Master Chapter Synthesis (ماتریس خلاصه فرضیات و پل انتقال به فصل پنجم)**:
+   - Conclude the chapter with an executive summary table and transitional bridge to Chapter 5.
+
+#### 2. The 4-Element Anatomy of Table Explanations (تحلیل بالای هر جدول)
+When prompted for any table (`جدول ۴- X`), the narrative placed **directly above** it must strictly adhere to:
+1. **تحلیل زمینه و متغیر (Context & Objective)**: Purpose of the specific analysis, identifying the target variable, hypothesis, or demographic dimension.
+2. **واکاوی داده‌ها و مقادیر کلیدی (Key Numerical Highlights)**: Highlighting dominant categories, percentages, means/SDs, effect sizes, or test statistics directly from the table without arithmetic distortion.
+3. **ارجاع به جدول (Formal In-Text Reference)**: Explicit parenthetical reference to the table: `(جدول ۴- X)` embedded naturally in the prose.
+4. **استنتاج آماری اولیه (Preliminary Statistical Verdict)**: Concluding sentence summarizing the immediate empirical indicator (e.g., balance of demographic profile, normality fulfillment, absence of multicollinearity).
+
+#### 3. Saber's 4-Stage Empirical Sequence:
+1. **مقدمه (Introduction & Roadmap)**: Professional framing of research objective and outline of descriptive vs. inferential sections.
 2. **یافته‌های توصیفی (Descriptive Findings)**:
-   - Demographic narrative and clean individual 4-column frequency tables (`[طبقه/رده, فراوانی, درصد فراوانی, درصد تجمعی]`).
-   - Comprehensive 8–9 column descriptive indices table (`[متغیر, مؤلفه, N, M, SD, چولگی (SK), کشیدگی (KU), کمترین, بیشترین]`) with standard Persian footnote (`نکته: M میانگین-SD انحراف استاندارد...`).
-   - Bivariate Pearson correlation matrix with significance asterisks.
+   - Demographic section intro $\to$ Table 4-1 narrative $\to$ Table 4-1 (Gender) $\to$ Table 4-2 narrative $\to$ Table 4-2 (Age) $\to$ Table 4-3 narrative $\to$ Table 4-3 (Education).
+   - Comprehensive 8–9 column descriptive indices intro $\to$ Table 4-4 narrative $\to$ Table 4-4 (`[متغیر, مؤلفه, N, M, SD, چولگی (SK), کشیدگی (KU), کمترین, بیشترین]`) with standard Persian footnote (`نکته: M میانگین-SD انحراف استاندارد...`).
+   - Bivariate Pearson correlation matrix intro $\to$ Table 4-5 narrative $\to$ Table 4-5 with significance asterisks.
 3. **بررسی مفروضه‌های آماری (Statistical Assumptions)**:
    - Normality verification (Skewness & Kurtosis within $[-2, +2]$, Shapiro-Wilk / Kolmogorov-Smirnov).
    - Multicollinearity (Tolerance $> 0.10$, $\text{VIF} < 5$ or $< 10$).
@@ -33,7 +59,7 @@ When drafting **Chapter 4**, the writer MUST strictly emulate [.agents/reference
    - Homoscedasticity (Levene's test) and regression slopes homogeneity (for ANCOVA).
 4. **یافته‌های استنباطی و آزمون فرضیه‌ها (Inferential Hypothesis Testing)**:
    - Structured strictly **hypothesis-by-hypothesis** («فرضیه اول: ...», «فرضیه دوم: ...»).
-   - 11-column combined ANOVA & Model Summary table, followed by Regression Coefficients table ($B, SE, \beta, t, p, \text{Tolerance}, \text{VIF}$).
+   - Hypothesis intro narrative $\to$ 11-column combined ANOVA & Model Summary narrative & table $\to$ Regression Coefficients narrative & table ($B, SE, \beta, t, p, \text{Tolerance}, \text{VIF}$) $\to$ Diagnostic figures $\to$ **Hypothesis Summarizing Verdict Paragraph**.
    - Explicit confirmation/rejection declarations with effect sizes ($R^2, \eta_p^2$).
 - **Strict Chapter 4 Prohibition**: **ZERO external literature comparisons and ZERO psychological theory deep-dives in Chapter 4**. Citing previous authors (e.g., Beck, Bandura, Hayes) or discussing theoretical mechanisms in Chapter 4 is strictly prohibited.
 
