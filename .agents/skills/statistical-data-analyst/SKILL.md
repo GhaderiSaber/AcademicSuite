@@ -278,20 +278,41 @@ Ensure all generated chapter text strictly follows standard Iranian university c
    - Every hypothesis test must conclude with a clear verdict:
      > «بنابراین با توجه به معناداری آماره آزمون در سطح ۰.۰۵، فرضیه پژوهش مبنی بر [عنوان فرضیه] مورد **تأیید** قرار گرفت.»
 
-### 4.1. The 5-Part Epistemic Paragraph Formula (قالب پنج‌بخشی روایت فرضیه‌ها)
-In Saber Ghaderi's theses, every hypothesis is written using a rigorous 5-part structure:
-1. **P1: Empirical Context & Operational Target**: Stating the formal hypothesis and designating predictor ($X$) vs. criterion ($Y$) variables.
-2. **P2: Preliminary Correlation Assessment (Tier 1)**: Reporting zero-order Pearson correlations between criterion and each predictor subscale.
-3. **P3: Overall Model Fit & Variance Explained (Tier 2)**: Reporting $R, R^2, \text{Adj } R^2, F, df, p$, and standard error of estimate.
-4. **P4: Relative Contribution of Predictors (Tier 3)**: Comparing standardized $\beta$, $t$-statistics, and $p$-values to evaluate the unique contribution of each predictor.
-5. **P5: Diagnostic Residual Assurance & Theoretical Verdict (Tier 4)**: Citing residual normality and collinearity diagnostics, followed by the formal confirmation/rejection verdict.
+### 4.1. The 5-Part Epistemic Paragraph Formula & 3-Table Standard for Relationship Hypotheses
+In Saber Ghaderi's theses, every relationship hypothesis is reported through **3 distinct APA 7 tables** and a rigorous 5-part structure:
+- **Table 1: Bivariate Correlation Matrix**: Zero-order Pearson correlation between predictor(s) and criterion variable with sample size, descriptive stats, and significance.
+- **Table 2: Model Summary & ANOVA**: $R, R^2, \text{Adj } R^2, SE$, and ANOVA test statistic ($F, df, p$).
+- **Table 3: Regression Coefficients & Collinearity Diagnostics**: Unstandardized coefficients ($B, SE$), standardized beta ($\beta$), $t$-statistic, $p$-value, Tolerance, and VIF.
+- **Narrative Progression**:
+  1. **P1: Empirical Context & Operational Target**: Stating the formal hypothesis and designating predictor ($X$) vs. criterion ($Y$) variables.
+  2. **P2: Preliminary Correlation Assessment (Tier 1)**: Reporting zero-order Pearson correlations between criterion and each predictor subscale.
+  3. **P3: Overall Model Fit & Variance Explained (Tier 2)**: Reporting $R, R^2, \text{Adj } R^2, F, df, p$, and standard error of estimate.
+  4. **P4: Relative Contribution of Predictors (Tier 3)**: Comparing standardized $\beta$, $t$-statistics, and $p$-values to evaluate the unique contribution of each predictor.
+  5. **P5: Diagnostic Residual Assurance & Theoretical Verdict (Tier 4)**: Citing residual normality and collinearity diagnostics, followed by the formal confirmation/rejection verdict.
 
-### 4.2. Multi-Pass Epistemic Orchestration Pattern (رویه چندمرحله‌ای تدوین فصل چهارم)
+### 4.2. SEM Macro-to-Micro Reporting Architecture
+When testing mediation, serial mediation, or structural paths deriving from an overarching SEM model:
+1. **Macro SEM Results First**: Report the overall model comprehensively BEFORE individual hypotheses:
+   - **Table A: Model Goodness-of-Fit Table**: 11 indices ($\chi^2, df, \chi^2/df, p$, CFI, TLI, GFI, AGFI, NFI, RMSEA with 90% CI, SRMR) comparing baseline vs. harnessed models against Kline (2016) and Hu & Bentler (1999) cutoffs.
+   - **Figure B: Structural Path Diagram**: 300-DPI publication visual showing path coefficients and $R^2$ values.
+   - **Table C: Direct Structural Paths Table**: Complete parameter estimates ($B, SE, \beta, t/z, p$) for all direct paths.
+   - **Table D: Indirect & Serial Mediation Paths Table**: 5,000 BCa bootstrap resamples reporting point estimates ($\beta$), bootstrap $SE$, 95% confidence intervals [LLCI, ULCI], exact $p$-values, and empirical verdicts.
+2. **Dedicated Individual Hypothesis Subsections**: Followed by an independent subsection for each SEM-related hypothesis (e.g. Hypotheses 3 to 8) with deep empirical dissection.
+
+### 4.3. The Gold Standard for Academic Table Explanations (Doctoral Caliber)
+Table explanations must adhere to the highest academic standards of scholarship. **Superficial, 1-2 sentence, tiny, or juvenile explanations are strictly forbidden:**
+- **Demographic Tables**: Concise distribution and frequency breakdown is sufficient.
+- **Bivariate Correlation Matrix Table**: Mandatory multi-paragraph scholarly analysis detailing the magnitude, direction, and significance of every bivariate pairing, evaluating construct discriminant validity, verifying absence of multicollinearity ($r < .85$), and confirming theoretical alignments.
+- **SEM Fit Indices Table**: Deep narrative detailing chi-square discrepancy, sensitivity to sample size, evaluation of absolute, comparative, and parsimonious fit indices, and methodological justification of data harnessing.
+- **Direct & Indirect Paths Tables**: In-depth breakdown of parameter estimates, critical ratios, bootstrap 95% BCa confidence intervals, non-zero exclusion, and suppression or cognitive absorption effects.
+- **Comprehensive Chapter 4 Summary**: Must span **1 to 2 full pages** (strictly prohibiting short single-paragraph summaries), featuring the Master Hypotheses Decision Matrix Table (`جدول ماتریس جمع‌بندی نهایی فرضیات`) and the Conceptual Transition Bridge to Chapter 5.
+
+### 4.4. Multi-Pass Epistemic Orchestration Pattern (رویه چندمرحله‌ای تدوین فصل چهارم)
 To achieve authentic 10,000+ word thesis depth without arithmetic hallucinations:
 - **Pass 1 (Data Crunching)**: Run `psychology_stats.py` in `--task auto` mode to extract all exact statistics into `stats_results.json`.
 - **Pass 2 (Visual Generation)**: Automatically render 300-DPI residual histograms and Normal P-P plots via `visualize_stats.py`.
 - **Pass 3 (Document Assembly)**: Compile publication-grade APA 7 tables and embed high-resolution figures into `.docx` via `generate_apa_docx.py`.
-- **Pass 4 (Epistemic Narrative Synthesis)**: The AI agent reads the exact numbers from `stats_results.json` and enriches the Word narrative using the 5-Part Formula, embedding theoretical implications and psychometric insights.
+- **Pass 4 (Epistemic Narrative Synthesis)**: The AI agent reads the exact numbers from `stats_results.json` and enriches the Word narrative using the Gold Standard Formula, embedding statistical mechanics and psychometric insights.
 
 5. **Mandatory Persian Number & Decimal Typography Standards**:
    - **Standard Dot ('.') Format**: All decimal numbers in Persian Chapter 4 text and tables must be formatted using the standard dot (`.`): e.g. `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۲.۵۰`, `۰.۴۰`, `۱.۱۱۸`.
