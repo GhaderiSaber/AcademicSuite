@@ -1,11 +1,7 @@
 ---
 name: academic-reference-extractor
-description: >-
-  Use this skill to extract bibliographic references cited in specific translated sections of
-  academic papers, theses, dissertations, or books. Matches in-text citations or footnotes against
-  the source document's bibliography, resolves missing or partial references, and generates EndNote
-  (.enw), RIS (.ris), and formatted APA text (.txt) citation files containing exclusively the
-  references for those translated sections.
+description: Extract in-text citations from academic text, match against bibliographies,
+  resolve DOIs, and export clean EndNote (.enw), RIS (.ris), and APA text files.
 ---
 
 # Academic Section Reference Extractor Skill

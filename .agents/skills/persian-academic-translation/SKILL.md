@@ -1,10 +1,7 @@
 ---
 name: persian-academic-translation
-description: >-
-  Use this skill whenever translating academic papers, research articles, thesis chapters,
-  proposals, or technical documents into Persian (فارسی). Guides extracting document content,
-  applying domain-specific academic terminology (psychology, behavioral science, methodology,
-  statistics), maintaining Persian typography rules (نیم‌فاصله), and formatting translations.
+description: Academic translation of papers, chapters, and scales from English to
+  Persian with domain terminology, APA standards, and strict Persian typography rules.
 ---
 
 # Academic Persian Translation Skill

@@ -1,11 +1,7 @@
 ---
 name: persian-proposal-builder
-description: >-
-  Expert academic research proposal (طرح تحقیق / پروپوزال) and methodology drafting skill for Iranian master's
-  and doctoral students in Psychology, Counseling, and Behavioral Sciences. Guides formulating clear titles,
-  structuring the problem statement (بیان مسئله) via the inverted-triangle model, formulating directional hypotheses,
-  defining conceptual and operational definitions, designing rigorous methodologies (G*Power sample size,
-  validated Persian instruments, statistical analysis plans), and compiling defense-ready Word (.docx) proposal documents.
+description: Draft defense-ready research proposals (طرح تحقیق / پروپوزال) with inverted-triangle
+  problem statements, directional hypotheses, G*Power sampling, and DOCX export.
 ---
 
 # Persian Research Proposal Builder Skill (نگارش پروپوزال و طرح پژوهش)

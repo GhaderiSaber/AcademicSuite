@@ -1,6 +1,7 @@
 ---
 name: ai-academic-tone-polisher
-description: Master academic tone polisher, syntactic burstiness optimizer, and anti-AI detection refiner for graduate theses, dissertations, and peer-reviewed journal articles. Eliminates robotic LLM translationese and repetitive cliches (شایان ذکر است که، در این راستا، delve into), elevates sentence length variance (Burstiness CV >= 0.65-0.70) to authentic human scholarly standards, breaks macro-level section templates, and enforces official Persian orthography (نیم‌فاصله) while strictly preserving APA 7 in-text citations and Word OMML statistical formulas. Features offline diagnostic risk linter (lint_ai_risk.py), invariant entity masker (mask_invariants.py), and cadence balancer (cadence_inverter.py).
+description: Polish Persian academic text, eliminate AI clichés and inflated prose,
+  enforce scholarly sobriety, formal register, and proper typography (half-spaces).
 ---
 
 # `ai-academic-tone-polisher` — Dual-Mode Academic Tone & Anti-AI Refiner (Skill #22)

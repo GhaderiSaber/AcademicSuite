@@ -1,12 +1,8 @@
 ---
 name: academic-suite-orchestrator
-description: >-
-  Master research lifecycle CLI pipeline and orchestration engine for AcademicSuite. Coordinates and chains all 18 specialized
-  skills into automated, resilient, and reproducible end-to-end research pipelines. Supports standard presets: empirical thesis
-  (thesis_empirical: Proposal -> Simulation -> Stats Ch4 -> Discussion Ch5 -> Full Thesis -> Defense Slides), scale standardization
-  (scale_validation: CTT/IRT validation -> Article -> Submission), qualitative research (qualitative_study), systematic reviews
-  (meta_analysis), and publishing (thesis_to_publication). Manages intermediate data routing, checkpointing (--resume-from),
-  dry-run DAG validation (--dry-run), audit logging (orchestrator_manifest.json), and executive dashboards (PROJECT_DASHBOARD.md).
+description: End-to-end pipeline runner orchestrating multi-stage thesis workflows
+  from proposal and data simulation to statistical analysis, defense slides, and DOCX/PPTX
+  compilation.
 ---
 
 # AcademicSuite Master Orchestrator Skill (موتور جامع فرماندهی و اجرای خودکار پایپ‌لاین‌های پژوهشی)

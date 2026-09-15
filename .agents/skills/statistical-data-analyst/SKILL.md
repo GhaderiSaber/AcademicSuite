@@ -1,11 +1,8 @@
 ---
 name: statistical-data-analyst
-description: >-
-  Expert statistical data analysis and Chapter 4 reporting skill tailored for psychological, educational,
-  and behavioral research. Ingests SPSS (.sav), Excel (.xlsx), and CSV datasets, verifies statistical
-  assumptions (normality, homoscedasticity, multicollinearity), executes hypothesis tests (ANCOVA, Repeated Measures,
-  t-tests, hierarchical regression, bootstrap mediation, Cronbach's alpha), and generates publication-grade
-  APA 7th Edition Word (.docx) tables and defense-ready Chapter 4 reports in academic Persian and English.
+description: Execute hypothesis tests (ANCOVA, Repeated Measures, regression, bootstrap
+  mediation), verify parametric assumptions, and generate APA 7 Chapter 4 reports
+  in DOCX.
 ---
 
 # Psychology Statistical Data Analyst & Chapter 4 Builder Skill

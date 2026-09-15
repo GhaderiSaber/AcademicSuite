@@ -1,14 +1,7 @@
 ---
 name: persian-literature-review-builder
-description: >-
-  Expert Chapter 2 (فصل دوم: مبانی نظری و پیشینه پژوهش) synthesis and compilation skill for graduate theses and
-  dissertations in psychology, counseling, behavioral sciences, and education. Translates and integrates English
-  theoretical foundations (strictly avoiding copying from Persian theses to prevent cliches and high Irandoc similarity),
-  structures multi-variable conceptual models, synthesizes recent Iranian (Magiran, SID, ISC) and international
-  (Scopus, PubMed, WoS) empirical literature using a standardized 5-part reporting formula, embeds APA 7 borderless
-  empirical summary tables, identifies empirical research gaps, and compiles defense-ready Word (.docx) documents
-  formatted with authentic Iranian typography (B Titr, B Nazanin, Times New Roman, and OpenXML BiDi RTL) alongside
-  multi-sheet Excel literature matrices.
+description: Synthesize Chapter 2 (Literature Review) with theoretical foundations,
+  inverted-triangle narrative, empirical background tables, and APA 7 Persian citations.
 ---
 
 # Persian Literature Review & Chapter 2 Builder Skill (نگارش و تدوین فصل دوم: مبانی نظری و پیشینه پژوهش)

@@ -1,6 +1,8 @@
 ---
 name: psychological-intervention-protocol-builder
-description: Expert psychological and educational intervention protocol drafting skill for experimental and quasi-experimental graduate theses in psychology, counseling, and behavioral sciences. Generates standardized Chapter 3 APA 7 session summary tables and comprehensive Appendix session-by-session clinical manuals (ACT, CBT, Schema Therapy, CFT, MBSR, Positive Psychotherapy, Mindful Parenting) complete with theoretical rationale, experiential techniques, clinical metaphors, in-session worksheets, and behavioral homework assignments in Word (.docx) and structured JSON format.
+description: Design standardized evidence-based psychological intervention manuals
+  and Chapter 3 session tables (ACT, CBT, Schema, CFT, MBSR) with clinical worksheets
+  in DOCX.
 ---
 
 # Psychological Intervention Protocol Builder (طراحی و تدوین پروتکل مداخله و بسته آموزشی/درمانی)

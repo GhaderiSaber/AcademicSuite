@@ -1,11 +1,7 @@
 ---
 name: persian-thesis-revision-assistant
-description: >-
-  Specialized skill for reviewing, resolving, and applying supervisor and defense examiner comments on Iranian
-  graduate theses, dissertations, and proposals. Extracts Word (.docx) track changes and margin annotations,
-  triages feedback into formatting, statistical, and theoretical categories, coordinates targeted chapter edits,
-  and compiles the mandatory formal Point-by-Point Response Table (جدول پاسخ به نظرات استاد راهنما و داوران)
-  in polished academic Persian.
+description: Triage and resolve supervisor and examiner defense comments, apply Word
+  track changes, and compile formal Point-by-Point Response Tables (جدول پاسخ به داوران).
 ---
 
 # Persian Thesis Supervisor Revision Assistant Skill (مدیریت و اعمال اصلاحات اساتید و داوران)

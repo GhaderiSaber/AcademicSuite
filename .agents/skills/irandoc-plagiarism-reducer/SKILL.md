@@ -1,6 +1,7 @@
 ---
 name: irandoc-plagiarism-reducer
-description: Expert academic paraphrasing and similarity reduction skill for Iranian graduate theses and dissertations submitted to Irandoc (همانندجو / سمیم‌نور). Executes deep syntactic clause inversion, thematic literature synthesis, and scientific synonym substitution to reduce similarity scores below university defense thresholds (typically < 20% or < 30%) while strictly preserving APA 7 in-text citations, scientific terminology, Persian half-spaces (نیم‌فاصله), and OpenXML typography. Generates both a revised Word document (.docx) and a side-by-side comparison report.
+description: Analyze and reduce Irandoc / SamimNoor similarity percentages in Persian
+  academic text via structural paraphrasing, synonym substitution, and citation repairs.
 ---
 
 # Irandoc Plagiarism Reducer (کاهش همانندجویی و بازنویسی آکادمیک ایرانداک)

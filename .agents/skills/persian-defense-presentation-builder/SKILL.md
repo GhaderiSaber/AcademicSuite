@@ -1,11 +1,8 @@
 ---
 name: persian-defense-presentation-builder
-description: >-
-  Advanced academic thesis and dissertation defense presentation (جلسه دفاع پایان‌نامه و رساله) builder for
-  Iranian graduate students. Generates high-density, presentation-grade slide decks across three decoupled paths:
-  Interactive HTML, Native PowerPoint (.pptx), and Google Drive @Document Bridge for Google Slides. Strictly adheres
-  to AGENTS.md Directives 4.1-4.3 and 5.1-5.2 (Persian typography, RTL controllers, dual-slot font binding,
-  action-titles, zero emojis, zero English words, automatic transitions/animations, and dedicated hypothesis slides).
+description: Build 16:9 thesis and dissertation defense presentations (HTML, PPTX,
+  Google Slides) with native SmartArt RTL, decoupled LTR stats, and dedicated hypothesis
+  slides.
 ---
 
 # Persian Defense Presentation Builder (طراحی اسلایدهای پیشرفته جلسه دفاع)

@@ -1,6 +1,7 @@
 ---
 name: citation-network-visualizer
-description: Historical direct citation network and algorithmic historiography engine based on Eugene Garfield's HistCite framework and Hummon & Doreian's (1989) Main Path Analysis (MPA). Generates chronological citation graphs (chronomaps), calculates Local Citation Score (LCS) vs. Global Citation Score (GCS), Search Path Count (SPC) edge weights, and identifies the intellectual backbone trajectory across paradigm shifts. Exports publication-grade 300-DPI visual plots (.png), 5-sheet Excel matrices (.xlsx), and defense-ready Chapter 2 Word reports (.docx) in Persian and English.
+description: Construct and visualize citation, co-citation, and bibliographic coupling
+  networks. Computes network centralities and exports 300-DPI publication graphs.
 ---
 
 # `citation-network-visualizer` — Algorithmic Historiography & Main Path Analysis Engine (Skill #25)

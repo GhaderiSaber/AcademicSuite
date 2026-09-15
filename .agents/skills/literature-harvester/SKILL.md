@@ -1,6 +1,7 @@
 ---
 name: literature-harvester
-description: Automated multi-database academic literature search engine, empirical parameter extractor, and Chapter 2 empirical background compiler. Queries PubMed / NCBI Entrez, CrossRef, Semantic Scholar, and Iranian databases (SID.ir & Magiran). Automatically extracts participant sample sizes (N), research designs (RCT, ANCOVA, SEM), and psychometric instruments from abstracts. Generates defense-ready Chapter 2 Word reports (.docx) with APA 7 empirical tables and 5-part narrative formulas, 4-sheet Excel matrices (.xlsx), and standard RIS citation files (.ris) for EndNote and Zotero.
+description: Automated literature harvesting across PubMed, CrossRef, Semantic Scholar,
+  SID, and Magiran. Extracts sample sizes, designs, and scales for Chapter 2.
 ---
 
 # `literature-harvester` — Multi-Database Literature Harvester & Extractor (Skill #23)

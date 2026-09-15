@@ -1,13 +1,7 @@
 ---
 name: qualitative-data-analyst
-description: >-
-  Expert qualitative data analysis and Chapter 4 reporting skill tailored for psychology, counseling, behavioral
-  sciences, and education. Executes Braun & Clarke (2006, 2019, 2021) Reflexive Thematic Analysis (6-phase thematic
-  network extraction, 3-tier theme hierarchy: Basic, Organizing, Global) and Strauss & Corbin (1990, 1998) Grounded
-  Theory (open, axial, selective coding, and 6-dimension Paradigmatic Model). Computes inter-coder reliability
-  (Holsti's PAO, Cohen's Kappa), validates trustworthiness (Lincoln & Guba 4-dimension audit), generates 300-DPI
-  thematic network diagrams, 5-sheet master coding Excel workbooks, and compiles defense-ready APA 7th Edition Word
-  reports (.docx) in academic Persian or English.
+description: Execute Braun & Clarke Reflexive Thematic Analysis and Strauss & Corbin
+  Grounded Theory. Computes inter-coder reliability, theme hierarchies, and DOCX reports.
 ---
 
 # Qualitative Data Analyst Skill (تحلیل داده‌های کیفی و نگارش فصل چهارم)

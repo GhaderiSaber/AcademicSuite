@@ -1,12 +1,7 @@
 ---
 name: persian-discussion-builder
-description: >-
-  Expert Chapter 5 (بحث و نتیجه‌گیری / Discussion & Conclusion) synthesis and drafting skill for psychology,
-  counseling, and behavioral sciences graduate theses. Ingests Chapter 4 statistical findings (stats_results.json),
-  evaluates confirmed/rejected hypotheses, compares results against Iranian and foreign empirical literature,
-  provides in-depth psychological and theoretical mechanisms (Beck, Bandura, Gross, Bowlby, Mindfulness),
-  and generates defense-ready Word (.docx) documents complete with clinical implications, methodological limitations,
-  and research recommendations.
+description: Draft Chapter 5 (Discussion and Conclusion) synthesizing statistical
+  findings, psychological mechanisms, literature concordance, implications, and limitations.
 ---
 
 # Persian Discussion Builder Skill (فصل پنجم: بحث و نتیجه‌گیری)

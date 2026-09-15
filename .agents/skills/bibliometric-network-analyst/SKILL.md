@@ -1,6 +1,7 @@
 ---
 name: bibliometric-network-analyst
-description: VOSviewer and Bibliometrix science mapping, keyword co-occurrence, co-citation, and co-authorship network analysis engine. Computes Bradford's Law journal scattering, Lotka's Law author productivity, NetworkX centralities (Degree, Betweenness, Closeness), and Callon's 4-quadrant strategic diagram (Motor, Niche, Emerging/Declining, Basic Themes). Exports native VOSviewer files (.txt), dual 300-DPI publication plots (.png), 5-sheet Excel matrices (.xlsx), and defense-ready Chapter 2 Word reports (.docx) in Persian and English.
+description: Science mapping, co-occurrence, co-citation, and co-authorship analysis.
+  Computes Bradford/Lotka laws, Callon diagrams, and exports VOSviewer files and plots.
 ---
 
 # `bibliometric-network-analyst` — Science Mapping & Network Analysis Engine (Skill #24)

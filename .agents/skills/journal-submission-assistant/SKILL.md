@@ -1,12 +1,7 @@
 ---
 name: journal-submission-assistant
-description: >-
-  Expert academic journal submission collateral and peer-review rebuttal packaging skill.
-  Prepares comprehensive submission files for international (ISI, Scopus Q1–Q4, Web of Science, PubMed)
-  and Iranian (علمی-پژوهشی / ISC) journals. Generates formal Cover Letters to the Editor-in-Chief,
-  Title Pages with standard 14 CRediT authorship taxonomy roles and ethical declarations, Highlights strictly
-  validated to <= 85 characters, Data Availability Statements, and APA 7 Point-by-Point Response to Reviewers
-  rebuttal tables for Revise & Resubmit (R&R) decisions.
+description: Match manuscripts to target WoS/Scopus/ISC journals, format title pages
+  and cover letters, enforce author guidelines, and prepare submission packages.
 ---
 
 # Academic Journal Submission Assistant Skill (دستیار ارسال مقاله و پاسخ به داوران ژورنال)

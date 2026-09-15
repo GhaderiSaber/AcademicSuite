@@ -1,13 +1,7 @@
 ---
 name: academic-drive-project-organizer
-description: >-
-  Automated project lifecycle manager and structural organizer for academic research projects
-  across Google Drive ('My Work', 'Pending Works', 'Finished Works'). Audits directories for
-  loose files, lock files, and fragmented folders, restructures project contents into a
-  deterministic 4-tier taxonomy (01_raw_inputs, 02_analysis_code, 03_deliverables, 04_references_and_lit),
-  cross-references Duzen milestones and payments into unified Master Project Catalogs (.xlsx and .md),
-  provisions standardized new client folders with metadata, and safely manages lifecycle stage transitions
-  with reversible undo manifests.
+description: Organize academic research projects, Google Drive folders, datasets,
+  drafts, and bibliographic libraries into standardized thesis directory structures.
 ---
 
 # Academic Drive Project Organizer & Lifecycle Manager (سامانه مدیریت و ساختاردهی پروژه‌های درایو)

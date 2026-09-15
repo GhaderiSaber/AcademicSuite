@@ -1,16 +1,8 @@
 ---
 name: psychometric-scale-validator
-description: >-
-  Expert psychometric scale standardization, validation, and Item Response Theory (IRT) skill for psychology, counseling,
-  educational assessment, and behavioral sciences. Conducts complete classical and modern validation pipelines: WHO/ITC
-  translation verification, quantitative Lawshe (1975) Content Validity Ratio (CVR) and Waltz & Bausell / Lynn (1986)
-  Content Validity Index (CVI), Item Impact Scores, Exploratory Factor Analysis (EFA: KMO, Bartlett, Scree plot, Promax/Varimax),
-  Confirmatory Factor Analysis (CFA: chi2/df, CFI, TLI, RMSEA, SRMR), Fornell & Larcker Convergent (AVE >= 0.50, CR >= 0.70)
-  and Discriminant Validity, APA 7th Edition McDonald's Omega (ω) and Cronbach's Alpha (α), Test-Retest ICC, Item Response
-  Theory (IRT) Graded Response Model (GRM: discrimination a, category thresholds b1-b4, Infit/Outfit MNSQ, Test Information
-  Function TIF, and Differential Item Functioning DIF), Norm score transformations (Z, T, Percentile Ranks), and clinical
-  ROC Curve Cut-off determination (Sensitivity, Specificity, AUC, Youden's J). Compiles defense-ready Chapter 4 Word reports
-  (.docx), 6-sheet Excel validation matrices, and dual 300-DPI visual plots.
+description: 'Comprehensive scale validation and psychometrics: CVR/CVI, EFA, CFA,
+  convergent/discriminant validity, Omega/Alpha, IRT Graded Response Model, and ROC
+  curves.'
 ---
 
 # Psychometric Scale Validator Skill (هنجاریابی، روان‌سنجی و اعتباریابی ابزارهای اندازه‌گیری با CTT و IRT)

@@ -1,11 +1,7 @@
 ---
 name: digital-twin-academic-consultant
-description: >-
-  Digital Twin academic consultant and automated Telegram assistant for Saber Ghaderi.
-  Ingests student proposals (.docx, .pdf, text), extracts research parameters (design, sample size N, variables, scales),
-  computes itemized pricing quotations and working timelines in Tomans, searches 4,880 psychometric instruments
-  (Questionnaires.xlsx), answers methodology and statistical queries in authentic academic Persian, provides an Admin Review
-  Desk for Saber (ID: 124911145), and analyzes Telegram chat exports to calibrate consulting FAQs.
+description: Digital Twin consultant and Telegram assistant for Saber Ghaderi. Evaluates
+  proposals, estimates pricing in Tomans, and answers methodology/statistical queries.
 ---
 
 # Digital Twin Academic Consultant (همزاد دیجیتال و دستیار تلگرام صابر قادری)

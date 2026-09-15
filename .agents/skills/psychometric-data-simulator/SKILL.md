@@ -1,12 +1,8 @@
 ---
 name: psychometric-data-simulator
-description: >-
-  Advanced Monte Carlo psychometric simulation engine ported from GhaderiSaber/SimDat.
-  Generates synthetic structural equation models (SEM) and Confirmatory Factor Analysis (CFA)
-  datasets, discrete Likert-scale questionnaire item responses (1-5, 1-7, 1-10) with specified
-  factor loadings and target Cronbach's alpha, randomized clinical trial (RCT) pre-post-followup
-  repeated measures with ANCOVA effect sizes, and correlated demographic attributes. Exports
-  SPSS-ready multi-sheet Excel files (.xlsx), CSV, and executable R lavaan analysis scripts.
+description: Monte Carlo psychometric data simulation for SEM, CFA, Likert scales,
+  RCT pre-post repeated measures, ANCOVA, and correlated demographics. Exports SPSS
+  XLSX/CSV.
 ---
 
 # Psychometric Data Simulator Skill (شبیه‌ساز داده‌های روان‌سنجی و معادلات ساختاری)

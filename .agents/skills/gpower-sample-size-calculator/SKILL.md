@@ -1,6 +1,7 @@
 ---
 name: gpower-sample-size-calculator
-description: Automated sample size determination and statistical power analysis engine based on Faul et al.'s (2007, 2009) G*Power 3.1 methodology and Cohen's (1988) statistical power framework. Computes a priori, post hoc, and sensitivity power for t-tests, ANOVA, ANCOVA, Repeated Measures, Multiple Linear Regression, Pearson r correlation, and SEM/CFA. Exports publication-grade Chapter 3 methodology defense justifications (.docx), 300-DPI dual-panel power curve plots (.png), multi-sheet Excel matrices (.xlsx), and machine-readable JSON summaries.
+description: A priori, post hoc, and sensitivity statistical power analysis (G*Power
+  3.1 & Cohen 1988) for t-tests, ANOVA, ANCOVA, regression, mediation, and SEM.
 ---
 
 # `gpower-sample-size-calculator` — Academic Sample Size & Power Determination Engine (Skill #21)

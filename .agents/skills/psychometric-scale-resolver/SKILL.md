@@ -1,10 +1,8 @@
 ---
 name: psychometric-scale-resolver
-description: >-
-  Expert psychometric measurement and scale resolution skill for psychology and behavioral research. Searches and
-  extracts questionnaire specifications, factor subscale structures, scoring methods (Likert ranges), theoretical means,
-  and reverse-scoring keys from Questionnaires.xlsx (4,880 entries) and the Google Drive master library (2,206 documents).
-  Automatically inverts negatively keyed items and computes subscale and total composite scores on raw survey response datasets.
+description: Search, extract, reverse-code, and compute subscale and composite scores
+  from 4,880 validated psychological questionnaires in Questionnaires.xlsx and Drive
+  library.
 ---
 
 # Psychometric Scale Resolver & Factor Scoring Skill (روان‌سنجی و نمره‌گذاری ابزارهای پژوهش)

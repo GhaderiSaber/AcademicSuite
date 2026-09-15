@@ -1,12 +1,8 @@
 ---
 name: systematic-review-meta-analyst
-description: >-
-  Expert systematic review and quantitative meta-analysis skill adhering to PRISMA 2020 standards and Cochrane
-  Risk of Bias (RoB 2). Formulates PICO search strings for international (PubMed, Scopus, Web of Science, PsycINFO)
-  and Iranian (Magiran, SID, Irandoc) databases, generates PRISMA 4-phase study flow diagrams, executes RoB 2
-  evaluations, deterministically computes Hedges' g effect sizes, pooled effects (Fixed-Effect and DerSimonian-Laird
-  Random-Effects), heterogeneity (Q, I², τ²), and publication bias (Egger's regression), generating high-resolution
-  Forest and Funnel plots alongside publication-ready APA 7 Word manuscripts (.docx) in English or Persian.
+description: 'PRISMA 2020 systematic reviews and meta-analysis: PICO search, Cochrane
+  RoB 2, Hedges'' g pooling, heterogeneity, publication bias, and Forest/Funnel plot
+  generation.'
 ---
 
 # Systematic Review & Meta-Analyst Skill (مرور سیستماتیک و فراتحلیل بر اساس PRISMA 2020)

@@ -1,6 +1,7 @@
 ---
 name: thesis-integrity-auditor
-description: Automated academic jury, forensic proofreader, and cross-chapter consistency verification engine for graduate theses and dissertations in psychology, counseling, educational measurement, and behavioral sciences. Audits hypothesis-result-discussion alignment (Chapter 1 <-> Chapter 4 <-> Chapter 5), verifies methodology sample sizes and degrees of freedom (t-test, ANOVA, ANCOVA, regression df), executes bidirectional in-text citation and bibliography reconciliation (orphaned citations vs ghost references, year mismatches), and enforces APA 7th Edition statistical formatting rules (leading zeroes, p = .000 violations, effect sizes). Generates publication-grade defense audit reports (.docx), 5-sheet citation reconciliation workbooks (.xlsx), and machine-readable JSON summaries.
+description: Forensic cross-chapter consistency audit (Ch 1 vs Ch 4 vs Ch 5), hypothesis-result
+  alignment, df verification, citation-reference reconciliation, and APA 7 QC.
 ---
 
 # `thesis-integrity-auditor` — Academic Thesis & Cross-Chapter Integrity Auditor (Skill #20)

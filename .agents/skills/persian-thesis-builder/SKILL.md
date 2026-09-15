@@ -1,11 +1,8 @@
 ---
 name: persian-thesis-builder
-description: >-
-  Use this skill to assemble, synthesize, format, and compile full academic theses (رساله / پایان‌نامه)
-  in Persian from modular research documents: institutional Word template (.docx), research proposal
-  (for chapter 1, chapter 2 empirical background, and chapter 3), translated literature reviews (for
-  chapter 2 theoretical foundations), statistical analysis document (chapter 4), discussion document
-  (chapter 5), psychometric scales (appendices), and unified bilingual bibliographies (Persian & English APA references).
+description: Assemble, synthesize, format, and compile full 5-chapter Persian graduate
+  theses (رساله / پایان‌نامه) from modular research artifacts into institutional Word
+  DOCX.
 ---
 
 # Persian Academic Thesis Builder & Compiler Skill (تدوین و یکپارچه‌سازی پایان‌نامه و رساله دانشگاهی)
