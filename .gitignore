@@ -3,6 +3,7 @@
 
 # Allow Antigravity agent configurations & skills
 !.agents/
+!.github/
 !scripts/
 !webapp/
 webapp/node_modules/
