@@ -74,6 +74,35 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                 )
             }
 
+    # 2. Skill Modularity & Context Budget Check (Directive 18)
+    check_dirs = [os.path.join(ws, ".agents", "skills") for ws in workspaces]
+    default_skills_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "skills"))
+    if default_skills_dir not in check_dirs and os.path.exists(default_skills_dir):
+        check_dirs.append(default_skills_dir)
+
+    for s_dir in check_dirs:
+        if os.path.exists(s_dir):
+            guard_path = os.path.join(os.path.dirname(__file__), "skill_size_guard.py")
+            if os.path.exists(guard_path):
+                import importlib.util
+                spec = importlib.util.spec_from_file_location("skill_size_guard", guard_path)
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                res = mod.audit_skill_sizes(s_dir)
+                if not res.get("passed", True):
+                    violation_details = "; ".join(
+                        [f"{v['skill']} ({v['line_count']} lines, {v['byte_size']} bytes)" for v in res["violations"]]
+                    )
+                    return {
+                        "decision": "continue",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 18 - Skill Modularity Standard): "
+                            f"The following skill(s) exceed single-view limits (max 500 lines, 40,000 bytes): "
+                            f"{violation_details}. Modularize extended guidelines into 'references/' before proceeding."
+                        )
+                    }
+
+
     transcript_path = payload.get("transcriptPath")
     cid = payload.get("conversationId")
     if not transcript_path:

@@ -203,7 +203,15 @@ All Persian text in Microsoft Word (`.docx`) and Microsoft PowerPoint (`.pptx`) 
   - `PreInvocation`: Injects ephemeral constitutional reminders.
   - `Stop`: Runs `.agents/verification/transcript_and_rule_guard.py` to inspect `transcript.jsonl`. Automatically blocks agent turn completion (`"decision": "continue"`) if the agent failed the Binary Honesty Protocol or claimed multi-agent execution without invoking subagents.
 
+### Directive 18: Skill Modularity & Context Budget Standard (Single-View Invariant)
+- **Hard Single-View Ceilings**: To guarantee that any agent can ingest 100% of a skill in a single `view_file` call without truncation, every `SKILL.md` in `.agents/skills/` must strictly observe:
+  - **Line Limit**: Maximum **500 lines** (Antigravity tool buffer is 800 lines).
+  - **Size Limit**: Maximum **40,000 bytes** (Antigravity tool buffer is 46,080 bytes).
+- **Progressive Disclosure Architecture**: Extended specifications, deep rubrics, visual contracts, and layout templates must never be inlined into `SKILL.md`. They must be modularized into the skill's `references/` subdirectory and linked from `SKILL.md`.
+- **Machine Enforcement**: `.agents/verification/skill_size_guard.py` is invoked during the Antigravity `Stop` lifecycle hook. Turns attempting to commit or finalize an oversized skill are mechanically blocked.
+
 ---
+
 
 ## 📚 ARCHITECTURE & REFERENCE DIRECTORY
 
