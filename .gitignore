@@ -30,6 +30,8 @@ bot_storage/
 !SETUP_GUIDE.md
 !Questionnaires.xlsx
 !digital_saber.py
+!run_tests.py
+!tests/
 !data/
 !data/questionnaires/
 !data/questionnaires/**
