@@ -325,53 +325,69 @@ def synthesize_storyboard_from_truth_model(truth: ResearchTruthModel) -> Dict[st
         "speaker_notes": "زمان پیشنهادی: ۲۰ ثانیه.\nاکنون وارد تبیین چرایی یافته‌ها و پیامدهای کاربردی می‌شویم."
     })
     
-    # Slide 18: Discussion Mechanism
-    slides.append({
-        "slide_number": 18,
-        "layout": "discussion_mechanism",
-        "section": "فصل پنجم: بحث و نتیجه‌گیری",
-        "title": "تبیین مکانیزم روان‌شناختی اثربخشی مداخله",
-        "mechanism_stages": [
-            {"title": "۱. گسلش شناختی", "desc": "کاهش درآمیختگی با افکار منفی خودکار و ایجاد فاصله مشاهده‌گرانه."},
-            {"title": "۲. پذیرش فعال", "desc": "توقف تقلاهای ناکارآمد اجتنابی و مواجهه منعطف با هیجانات دشوار."},
-            {"title": "۳. هدایت ارزشی", "desc": "بازتعریف اهداف زندگی و پیگیری رفتار متعهدانه بر پایه ارزش‌ها."},
-            {"title": "۴. نتیجه بالینی", "desc": "کاهش بار رنج روانی، ارتقای بهزیستی و تنظیم هیجانی بهینه."}
-        ],
-        "speaker_notes": (
-            "زمان پیشنهادی: ۱ دقیقه.\n"
-            "تبیین روان‌شناختی یافته‌ها بر مبنای فرآیند شش‌گانه پذیرش استوار است: با تکنیک‌های گسلش و پذیرش، اجتناب متوقف شده و انرژی روانی صرف اعمال ارزشمند گردیده است."
-        )
-    })
-    
-    # Slide 19: Consistency with Literature
-    slides.append({
-        "slide_number": 19,
-        "layout": "two_column",
-        "section": "فصل پنجم: بحث و نتیجه‌گیری",
-        "title": "همسویی یافته‌ها با پژوهش‌های داخلی و بین‌المللی",
-        "columns": [
-            {
-                "title": "شواهد بین‌المللی همسو",
-                "items": [
-                    "همسویی با فراتحلیل‌های هیز و همکاران (Hayes et al., 2021) در اثربخشی موج سوم.",
-                    "مطابقت با پژوهش مک‌کراکن (McCracken, 2020) پیرامون انعطاف‌پذیری هیجانی.",
-                    "تأیید مدل فرآیندی تنظیم هیجان گراس (Gross, 2015)."
-                ]
-            },
-            {
-                "title": "شواهد تجربی داخلی",
-                "items": [
-                    "همسویی با پژوهش‌های کارآزمایی بالینی متخصصان برجسته در کشور.",
-                    "انطباق با یافته‌های ثبت‌شده در پایگاه‌های استنادی ایران‌پژوهش و مگیران.",
-                    "تأیید روایی بومی پروتکل در جامعه مورد مطالعه."
-                ]
-            }
-        ],
-        "speaker_notes": (
-            "زمان پیشنهادی: ۱ دقیقه.\n"
-            "یافته‌های این رساله کاملاً در راستای مدل نظری هیز و گراس و فراتحلیل‌های سال‌های اخیر قرار دارد و همگرایی تجربی بالایی را نشان می‌دهد."
-        )
-    })
+    # Dedicated Hypothesis Explanation Slides (v3.6.0 Deep Discussion Standard)
+    hypo_explanations = getattr(truth, "hypothesis_explanations", []) or (truth.results.get("hypotheses_explanations", []) if isinstance(truth.results, dict) else [])
+    if hypo_explanations:
+        for idx, h_exp in enumerate(hypo_explanations):
+            slides.append({
+                "slide_number": len(slides) + 1,
+                "layout": "hypothesis_explanation",
+                "section": "فصل پنجم: بحث و نتیجه‌گیری",
+                "title": h_exp.get("title", f"تبیین فرضیه {idx+1}"),
+                "subtitle": h_exp.get("subtitle", "تحلیل سه‌سطحی: یافته تجربی، مکانیزم نظری و پیشینه همسو"),
+                "finding_text": h_exp.get("finding_text", h_exp.get("statistic", "")),
+                "mechanism_text": h_exp.get("mechanism_text", h_exp.get("interpretation", "")),
+                "literature_text": h_exp.get("literature_text", h_exp.get("concordance", "")),
+                "speaker_notes": h_exp.get("speaker_notes", f"زمان پیشنهادی: ۱ دقیقه.\nتبیین تفصیلی فرضیه {idx+1} بر مبنای سازوکارهای روانی-عصبی و انطباق با پیشینه تجربی.")
+            })
+    else:
+        # Default single Discussion Mechanism
+        slides.append({
+            "slide_number": len(slides) + 1,
+            "layout": "discussion_mechanism",
+            "section": "فصل پنجم: بحث و نتیجه‌گیری",
+            "title": "تبیین مکانیزم روان‌شناختی اثربخشی مداخله",
+            "mechanism_stages": [
+                {"title": "۱. گسلش شناختی", "desc": "کاهش درآمیختگی با افکار منفی خودکار و ایجاد فاصله مشاهده‌گرانه."},
+                {"title": "۲. پذیرش فعال", "desc": "توقف تقلاهای ناکارآمد اجتنابی و مواجهه منعطف با هیجانات دشوار."},
+                {"title": "۳. هدایت ارزشی", "desc": "بازتعریف اهداف زندگی و پیگیری رفتار متعهدانه بر پایه ارزش‌ها."},
+                {"title": "۴. نتیجه بالینی", "desc": "کاهش بار رنج روانی، ارتقای بهزیستی و تنظیم هیجانی بهینه."}
+            ],
+            "speaker_notes": (
+                "زمان پیشنهادی: ۱ دقیقه.\n"
+                "تبیین روان‌شناختی یافته‌ها بر مبنای فرآیند شش‌گانه پذیرش استوار است: با تکنیک‌های گسلش و پذیرش، اجتناب متوقف شده و انرژی روانی صرف اعمال ارزشمند گردیده است."
+            )
+        })
+        
+        # Slide: Consistency with Literature
+        slides.append({
+            "slide_number": len(slides) + 1,
+            "layout": "two_column",
+            "section": "فصل پنجم: بحث و نتیجه‌گیری",
+            "title": "همسویی یافته‌ها با پژوهش‌های داخلی و بین‌المللی",
+            "columns": [
+                {
+                    "title": "شواهد بین‌المللی همسو",
+                    "items": [
+                        "همسویی با فراتحلیل‌های هیز و همکاران (Hayes et al., 2021) در اثربخشی موج سوم.",
+                        "مطابقت با پژوهش مک‌کراکن (McCracken, 2020) پیرامون انعطاف‌پذیری هیجانی.",
+                        "تأیید مدل فرآیندی تنظیم هیجان گراس (Gross, 2015)."
+                    ]
+                },
+                {
+                    "title": "شواهد تجربی داخلی",
+                    "items": [
+                        "همسویی با پژوهش‌های کارآزمایی بالینی متخصصان برجسته در کشور.",
+                        "انطباق با یافته‌های ثبت‌شده در پایگاه‌های استنادی ایران‌پژوهش و مگیران.",
+                        "تأیید روایی بومی پروتکل در جامعه مورد مطالعه."
+                    ]
+                }
+            ],
+            "speaker_notes": (
+                "زمان پیشنهادی: ۱ دقیقه.\n"
+                "یافته‌های این رساله کاملاً در راستای مدل نظری هیز و گراس و فراتحلیل‌های سال‌های اخیر قرار دارد و همگرایی تجربی بالایی را نشان می‌دهد."
+            )
+        })
     
     # Slide 20: Implications Slide
     slides.append({
@@ -419,6 +435,10 @@ def synthesize_storyboard_from_truth_model(truth: ResearchTruthModel) -> Dict[st
         )
     })
     
+    # Ensure sequential slide numbering
+    for idx, sl in enumerate(slides):
+        sl["slide_number"] = idx + 1
+        
     return {
         "meta": {
             "title": m.title,

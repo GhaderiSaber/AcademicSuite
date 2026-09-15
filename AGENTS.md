@@ -67,6 +67,48 @@ In multi-stage workflows (e.g., `chapter4.md`), every stage must generate its ve
 4. **Prohibition of $p = .000$**: If software outputs $.000$, report strictly as **$p < .001$** in English and **$p < ۰.۰۰۱$** (یا **۰.۰۰۱ > p**) in Persian.
 5. **APA 7 Tables**: Zero vertical borders. Exactly 3 horizontal borders (Top 0.75 pt, Header bottom 0.5 pt, Table bottom 0.75 pt). Table title above; notes below.
 
+### Directive 4.1: Strict Prohibition of Emojis & English Words in Persian Deliverables
+1. **Zero Emojis in Academic Deliverables**: Under NO circumstance may an agent use emojis (📊, 🎯, 🧠, 💡, 🚀, 🧪, 📌, ✅, ❌, etc.) in dissertation chapters, proposals, academic defense presentations, slide cards, tables, or candidate speaker notes. Maintain absolute scholarly sobriety.
+2. **Zero English Words in Persian Slides**: Never leave English titles, card headings, or category names in Persian slides (e.g., replace "Direct Paths" with «مسیرهای مستقیم»، "Statistical Finding" with «یافته آماری و تجربی»، "Theoretical Mechanisms" with «سازوکارهای تبیین نظری»، "Literature Concordance" with «پیشینه پژوهشی همسو»). Latin characters are permitted strictly for standardized statistical symbols ($M, SD, t, F, p, \beta, z$) and fit indices ($\chi^2/df, \text{RMSEA}, \text{CFI}, \text{TLI}, \text{SRMR}$) in `Times New Roman` italic.
+3. **Exact Template Fidelity**: Presentations must replicate the exact palette, geometry, and layout structure of supervisor-provided templates without inventing decorative cards or deviating from university branding.
+
+### Directive 4.2: Academic Tone Sobriety, Scientific Neutrality & BiDi Mathematical Formatting
+1. **Academic Tone Sobriety (Zero Sycophancy / Zero Exaggeration)**:
+   - Deliverables must maintain strict scholarly sobriety. Colloquial jargon (e.g., "نقشه راه", "Roadmap") is prohibited in formal slide titles.
+   - Evaluative puffery and exaggerated descriptors (e.g., «عالی»، «فوق‌العاده»، «نقطه عطف دفاع»، «کشف بنیادین»، «شاهکار»، «تراز اول») are strictly forbidden in narrative text, tables, and card headings. Report findings with neutral, objective terminology (e.g., «برازش مطلوب»، «تحلیل سهم مسیرها»).
+   - Closing slides must avoid excessive or sycophantic praise. Prohibit declarations of readiness to answer questions («آماده پاسخگویی به سؤالات...»). Express dignified, concise scholarly gratitude only.
+2. **First Slide Academic Sobriety**:
+   - Accurately state faculty affiliation (e.g., «دانشکده پزشکی»). Never display student ID numbers or ethics committee approval codes on cover slides.
+3. **Fit Indices & Latin Acronym Non-Reversal Rule**:
+   - In PowerPoint and Word BiDi text, Latin statistical acronyms ($\chi^2/df, \text{RMSEA}, \text{CFI}, \text{TLI}, \text{SRMR}, \text{SPSS}, \text{MLM}$) must NEVER be embedded inside a run with `lang="fa-IR"`. They must always be emitted as a decoupled Left-to-Right run (`lang="en-US"` in `Times New Roman` with zero complex script tags) to prevent character and word reversal.
+4. **Negative Number Formatting in RTL Tables**:
+   - The minus sign must ALWAYS be placed to the left of negative numbers (e.g., $−0.32, −0.18$). In table numeric cells, enforce LTR paragraph semantics (`rtl="0"`) and `lang="en-US"` to prevent the minus sign from jumping to the right ($0.32-$).
+
+### Directive 4.3: Academic Defense Presentation Advanced Visuals, Automatic Motion & 40-Slide Architecture
+1. **Dedicated Hypothesis Slides (Results & Discussion Sections)**:
+   - For empirical and structural equation modeling (SEM/mediation) theses, every research hypothesis ($H_1$ to $H_n$) must have its own separate, dedicated slide in **BOTH** the Results section (یافته‌ها) and the Discussion section (بحث و نتیجه‌گیری).
+   - In Results: Pair a 3D-elevated focal KPI badge on the left with an RTL process flow on top and an empirical structural interpretation card below.
+   - In Discussion: Place a full-width top SmartArt mechanism banner across the top (`w = 9.6 in`), paired with dual lower containers for theoretical mechanisms and empirical literature concordance.
+2. **Native PowerPoint SmartArt (Persian RTL & Genuine Font Binding Standard)**:
+   - When generating process flows, causal chains, or mediation sequences, inject native PowerPoint SmartArt (`Basic Process`) via COM automation.
+   - **MANDATORY RTL REVERSAL**: Always set `SmartArt.Reverse = 1` so that process arrows point **Right-to-Left** ($\leftarrow$), strictly honoring Persian reading order.
+   - **GENUINE PERSIAN FONT BINDING IN SMARTART**: All text nodes inside SmartArt must explicitly bind Persian fonts (e.g. `node.TextFrame2.TextRange.Font.Name = "B Titr"` or `"B Nazanin"`), preventing default Calibri/Arial fallback and Latin glyph distortion.
+3. **Table Cells BiDi Direction & Persian Typography**:
+   - Every table cell must enforce RTL text frame (`apply_text_frame_rtl`) and paragraph RTL (`apply_p_rtl`).
+   - Persian cell text must bind to genuine Persian fonts (`B Nazanin` for body text, `B Titr` for column headers).
+   - Numeric cells must be decoupled to LTR (`rtl="0"`) with Latin font (`Times New Roman`) to ensure minus signs precede negative values ($−0.32$).
+4. **Automatic Transitions & Automatic Motion**:
+   - Slide transitions and sequence animations **MUST BE AUTOMATIC**:
+     - Transitions: Set professional `Fade` transitions (`SlideShowTransition.EntryEffect = 3844`, duration 0.5s) across all slides.
+     - Animations: Sequence entrance animations on SmartArt nodes and focal KPI plaques must trigger automatically (`msoAnimTriggerAfterPrevious` or `msoAnimTriggerWithPrevious`) without halting the presentation flow.
+5. **3D Shape Elevation & Beveling**:
+   - Apply native 3D circle beveling (`ThreeD.BevelTopType = 4`, `ThreeD.Depth = 6`) to focal statistical plaques.
+6. **Visual VAF & Structural Decomposition (Zero-Overlap Mini-Table Policy)**:
+   - When presenting variance accounted for (VAF) or effect decomposition, **NEVER** draw freeform floating progress bars over text containers.
+   - Always use a structured 2-column DrawingML mini-table inside the container with alternating row fills, explicit column widths, and decoupled LTR numbers (`rtl="0"`) for percentages and beta coefficients ($51.30\%$ VAF, $48.05\%$ VAF, $\beta = 0.24$) to guarantee zero overlap.
+7. **Modern Light Academic Blue Palette & Drop Shadows**:
+   - Modern light academic blue theme (`#2563EB`, `#0284C7`, `#0EA5E9`, `#EFF6FF`, `#BFDBFE`) with subtle outer drop shadows (`blurRad="120000"`, `dist="35000"`, `alpha="10000"`).
+
 ### Directive 5: Persian Academic Typography & OpenXML Standards
 - **Text Direction (BiDi)**: Enforce Right-to-Left (RTL) via `<w:bidi w:val="1"/>` in `<w:pPr>`, `<w:rtl w:val="1"/>` in `<w:rPr>`, and `<w:bidiVisual/>` in `<w:tblPr>`.
 - **Text Alignment (Justification)**: Substantive narrative text **MUST BE JUSTIFIED** (`paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`). Centered for banners. For RTL right-aligned headings: **OMIT `<w:jc>`** under `<w:bidi w:val="1"/>` to prevent Word's trailing-edge flip to Align Left.
@@ -74,6 +116,39 @@ In multi-stage workflows (e.g., `chapter4.md`), every stage must generate its ve
 - **Zero Manual Line Breaks Policy**: **NEVER use `<w:br/>` / `\n` in run text**. Manual breaks in justified text cause catastrophic character stretching. Use independent paragraph marks (`<w:p>`) everywhere.
 - **Preservation of Word OMML Math (`<m:oMath>`)**: Never assign `paragraph.text = "..."` naively, which irrevocably destroys native Word equation XML. Extract text via `elem.tag.endswith("}t")` across both `<w:t>` and `<m:t>`.
 *(Full technical XML specification in `.agents/references/OPENXML_STANDARDS_MANUAL.md`)*.
+
+### Directive 5.1: The Three Direction Controllers for RTL (Word & PowerPoint)
+All Persian text in Microsoft Word (`.docx`) and Microsoft PowerPoint (`.pptx`) must enforce Right-to-Left (RTL) across all three architectural levels:
+1. **Level 1: Container / Body / Document Level**:
+   - Word: `<w:sectPr><w:bidi/></w:sectPr>` and styles `<w:style ...><w:pPr><w:bidi w:val="1"/></w:pPr></w:style>`.
+   - PowerPoint: TextFrame / Shape body property `<a:bodyPr rtlCol="1"/>`.
+2. **Level 2: Paragraph Level**:
+   - Word: `<w:pPr><w:bidi w:val="1"/></w:pPr>`. Enforce BiDi Alignment Inversion Rule (omit `<w:jc>` for Right-alignment, or `<w:jc w:val="both"/>` for Justified).
+   - PowerPoint: `<a:pPr rtl="1" algn="r"/>` (or `algn="ctr"` for centered titles).
+3. **Level 3: Run / Character Level**:
+   - Word: `<w:rPr><w:rtl w:val="1"/><w:lang w:val="fa-IR"/></w:rPr>` + binding all font slots (`w:ascii`, `w:hAnsi`, `w:cs`, `w:eastAsia`) to `B Nazanin` or `B Titr` with `w:hint="cs"`.
+   - PowerPoint: `<a:rPr lang="fa-IR"><a:cs typeface="B Nazanin"/></a:rPr>`.
+4. **Tables**:
+   - Word: Table-level visual BiDi `<w:tblPr><w:bidiVisual/></w:tblPr>` + cell paragraph RTL.
+   - PowerPoint: Right-to-Left column sequencing + `<a:pPr rtl="1"/>` in all table cells.
+
+### Directive 5.2: Presentation Typographic Legibility & Dual-Slot Font Binding
+1. **Dual-Slot Font Binding (Zero Missing Glyphs / Box Prevention)**:
+   - In PowerPoint DrawingML (`.pptx`), NEVER assign a Persian font (e.g. `B Nazanin`, `B Titr`) to the `<a:latin>` slot, because traditional Persian fonts lack ASCII/Latin glyphs and will cause English letters, numbers, and symbols to render as square boxes (`□□□`).
+   - ALWAYS bind font slots independently:
+     - `<a:cs typeface="B Nazanin"/>` (or `B Titr` for titles) for Persian text.
+     - `<a:latin typeface="Times New Roman"/>` (or `Calibri`) for Latin characters, numbers, and statistical notation.
+     - `<a:ea typeface="B Nazanin"/>` for East Asian fallback.
+2. **Widescreen Presentation Legibility Scale (Supervisor Parity)**:
+   - In 16:9 widescreen slides, text must be legible from a distance. The following minimum size hierarchy is strictly enforced:
+     - Slide Header Title: **24–28 pt Bold**
+     - Slide Subtitle: **13–14 pt Regular**
+     - Sidebar Menu Title: **22–24 pt Bold**
+     - Sidebar Navigation Pills: **16–17 pt Bold**
+     - Card / Container Titles: **16–18 pt Bold**
+     - Body Narrative / Bullet Points: **14–15 pt Regular** (NEVER below 14 pt in widescreen presentations)
+     - Table Cell Text: **12–14 pt**
+   - Microscopic text (10–11 pt) in slide body containers is strictly prohibited.
 
 ### Directive 6: English Primary Interaction & Mandatory English-Only File Naming
 - **Default Interaction Language**: Agents communicate, reason, plan, and report to the user in **English**. Persian is reserved strictly for academic deliverables and client messages.

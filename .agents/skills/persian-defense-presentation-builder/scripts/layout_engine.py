@@ -17,6 +17,7 @@ from pptx.dml.color import RGBColor
 from presentation_schema import PALETTES
 from rtl_typography import (
     apply_p_rtl,
+    apply_text_frame_rtl,
     set_run_font,
     attach_speaker_notes,
     FONT_TITLE,
@@ -879,4 +880,213 @@ def build_cards_slide(prs, meta: Dict[str, Any], slide_data: Dict[str, Any], pal
             r2 = p2.add_run()
             set_run_font(r2, desc, FONT_BODY, SCALE_BODY, bold=False, color_rgb=palette["text_dark"])
             
+    attach_speaker_notes(slide, slide_data.get("speaker_notes", ""))
+
+
+# ---------------------------------------------------------------------------
+# Supervisor Sidebar & Deep Discussion Enhancements (v3.6.0)
+# ---------------------------------------------------------------------------
+
+def add_sidebar_navigation_menu(
+    slide,
+    active_index: int = 0,
+    chapters: Optional[List[str]] = None,
+    palette: Optional[Dict[str, RGBColor]] = None
+):
+    """
+    Renders a persistent vertical right-hand navigation sidebar (Supervisor Format).
+    Matches Dr. Amiri's layout template (presentation title 1.pptm):
+    - Width: 2.60", Height: 6.40", Right margin: ~0.25" (x ≈ 10.45")
+    - 5 pill buttons for Chapters 1-5
+    - Active chapter highlighted with primary solid fill and crisp white text.
+    - Inactive chapters in soft muted slate with text_muted color.
+    """
+    if chapters is None:
+        chapters = [
+            "فصل اول: کلیات پژوهش",
+            "فصل دوم: مبانی و پیشینه",
+            "فصل سوم: روش‌شناسی",
+            "فصل چهارم: یافته‌های پژوهش",
+            "فصل پنجم: بحث و نتیجه‌گیری"
+        ]
+    
+    if palette is None:
+        palette = PALETTES["academic_navy"]
+        
+    sb_left = Inches(10.45)
+    sb_top = Inches(0.45)
+    sb_width = Inches(2.60)
+    sb_height = Inches(6.40)
+    
+    # Outer sidebar container card
+    bg = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, sb_left, sb_top, sb_width, sb_height)
+    bg.fill.solid()
+    bg.fill.fore_color.rgb = palette.get("tbl_stripe", RGBColor(241, 245, 249))
+    bg.line.color.rgb = palette.get("card_border", RGBColor(226, 232, 240))
+    bg.line.width = Pt(1.2)
+    
+    # Sidebar Header Pill: "فهرست مطالب"
+    h_pill = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, sb_left + Inches(0.2), sb_top + Inches(0.2), Inches(2.20), Inches(0.55))
+    h_pill.fill.solid()
+    h_pill.fill.fore_color.rgb = palette.get("primary", RGBColor(13, 32, 64))
+    h_pill.line.fill.background()
+    tf_h = h_pill.text_frame
+    tf_h.word_wrap = True
+    apply_text_frame_rtl(tf_h)
+    p_h = tf_h.paragraphs[0]
+    apply_p_rtl(p_h, PP_ALIGN.CENTER)
+    r_h = p_h.add_run()
+    set_run_font(r_h, "فهرست مطالب", FONT_TITLE, 22.0, bold=True, color_rgb=palette.get("text_light", RGBColor(255, 255, 255)))
+    
+    # Chapter Pills
+    pill_y_start = sb_top + Inches(0.95)
+    pill_h = Inches(0.85)
+    pill_gap = Inches(0.18)
+    
+    for idx, ch_text in enumerate(chapters[:5]):
+        cur_y = pill_y_start + idx * (pill_h + pill_gap)
+        pill = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, sb_left + Inches(0.2), cur_y, Inches(2.20), pill_h)
+        pill.fill.solid()
+        
+        is_active = (idx == active_index)
+        if is_active:
+            pill.fill.fore_color.rgb = palette.get("primary", RGBColor(13, 32, 64))
+            pill.line.color.rgb = palette.get("accent", RGBColor(217, 119, 6))
+            pill.line.width = Pt(2.0)
+            text_color = palette.get("text_light", RGBColor(255, 255, 255))
+        else:
+            pill.fill.fore_color.rgb = palette.get("card_bg", RGBColor(255, 255, 255))
+            pill.line.color.rgb = palette.get("card_border", RGBColor(226, 232, 240))
+            pill.line.width = Pt(1.0)
+            text_color = palette.get("text_muted", RGBColor(100, 116, 139))
+            
+        tf_p = pill.text_frame
+        tf_p.word_wrap = True
+        apply_text_frame_rtl(tf_p)
+        p_p = tf_p.paragraphs[0]
+        apply_p_rtl(p_p, PP_ALIGN.CENTER)
+        r_p = p_p.add_run()
+        set_run_font(r_p, ch_text, FONT_TITLE if is_active else FONT_BODY, 16.5 if is_active else 15.5, bold=is_active, color_rgb=text_color)
+
+
+def build_hypothesis_explanation_slide(prs, meta: Dict[str, Any], slide_data: Dict[str, Any], palette: Dict[str, RGBColor], slide_num: int, total_slides: int):
+    """
+    28. Dedicated 3-Tier Hypothesis Explanation Slide (Chapter 5 Deep Discussion Standard).
+    Specifically created to solve the recurring university committee criticism:
+    "مطالب مربوط به فصل پنج و تبیین‌ها کم است... فرضیه‌ها را به صورت کامل و جامع بنویسید".
+    
+    Structure:
+    - Tier 1: یافته آماری و تجربی (Empirical Findings & Path Statistics)
+    - Tier 2: تبیین روان‌شناختی و عصب‌تحولی (Theoretical Mechanisms)
+    - Tier 3: انطباق با پیشینه پژوهشی (Iranian & International Empirical Concordance)
+    """
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    
+    use_sidebar = slide_data.get("use_sidebar", False)
+    if use_sidebar:
+        # Background canvas
+        bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
+        bg.fill.solid()
+        bg.fill.fore_color.rgb = palette.get("bg_slide", RGBColor(248, 250, 252))
+        bg.line.fill.background()
+        
+        # Sidebar menu with Chapter 5 active
+        active_ch = slide_data.get("sidebar_active_index", 4)
+        add_sidebar_navigation_menu(slide, active_index=active_ch, palette=palette)
+        
+        # Title area on left canvas
+        title_text = slide_data.get("title", "تبیین فرضیه پژوهش")
+        subtitle_text = slide_data.get("subtitle", "")
+        t_box = slide.shapes.add_textbox(Inches(0.60), Inches(0.35), Inches(9.60), Inches(1.0))
+        tf_t = t_box.text_frame
+        tf_t.word_wrap = True
+        p_t = tf_t.paragraphs[0]
+        apply_p_rtl(p_t, PP_ALIGN.RIGHT)
+        r_t = p_t.add_run()
+        set_run_font(r_t, title_text, FONT_TITLE, 24.0, bold=True, color_rgb=palette.get("primary", RGBColor(13, 32, 64)))
+        if subtitle_text:
+            p_sub = tf_t.add_paragraph()
+            apply_p_rtl(p_sub, PP_ALIGN.RIGHT)
+            r_sub = p_sub.add_run()
+            set_run_font(r_sub, subtitle_text, FONT_BODY, 13.5, bold=False, color_rgb=palette.get("text_muted", RGBColor(100, 116, 139)))
+            
+        content_left = Inches(0.60)
+        content_width = Inches(9.60)
+    else:
+        add_slide_header(slide, meta, slide_data, palette)
+        add_slide_footer(slide, meta, palette, slide_num, total_slides)
+        content_left = Inches(0.85)
+        content_width = Inches(11.60)
+
+    # 3-Tier Card Layout
+    # -------------------------------------------------------------
+    # Tier 1: یافته آماری و تجربی (Empirical / Statistical Finding)
+    t1_top = Inches(1.50)
+    t1_h = Inches(1.30)
+    t1_box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, content_left, t1_top, content_width, t1_h)
+    t1_box.fill.solid()
+    t1_box.fill.fore_color.rgb = palette.get("accent_light", RGBColor(254, 243, 199))
+    t1_box.line.color.rgb = palette.get("accent", RGBColor(217, 119, 6))
+    t1_box.line.width = Pt(1.5)
+    
+    tf1 = t1_box.text_frame
+    tf1.word_wrap = True
+    apply_text_frame_rtl(tf1)
+    p1_head = tf1.paragraphs[0]
+    apply_p_rtl(p1_head, PP_ALIGN.RIGHT)
+    r1_head = p1_head.add_run()
+    set_run_font(r1_head, "۱. یافته آماری و تجربی: ", FONT_TITLE, 16.0, bold=True, color_rgb=palette.get("accent_dark", RGBColor(180, 83, 9)))
+    
+    stat_summary = slide_data.get("finding_text", slide_data.get("statistic", ""))
+    p1_body = tf1.add_paragraph()
+    apply_p_rtl(p1_body, PP_ALIGN.RIGHT)
+    r1_body = p1_body.add_run()
+    set_run_font(r1_body, stat_summary, FONT_BODY, 14.5, bold=False, color_rgb=palette.get("text_dark", RGBColor(15, 23, 42)))
+    
+    # Tier 2: تبیین عمیق روان‌شناختی و عصب‌تحولی (Theoretical & Psychological Mechanisms)
+    t2_top = Inches(2.95)
+    t2_h = Inches(2.40)
+    t2_box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, content_left, t2_top, content_width, t2_h)
+    t2_box.fill.solid()
+    t2_box.fill.fore_color.rgb = palette.get("card_bg", RGBColor(255, 255, 255))
+    t2_box.line.color.rgb = palette.get("card_border", RGBColor(226, 232, 240))
+    t2_box.line.width = Pt(1.5)
+    
+    tf2 = t2_box.text_frame
+    tf2.word_wrap = True
+    apply_text_frame_rtl(tf2)
+    p2_head = tf2.paragraphs[0]
+    apply_p_rtl(p2_head, PP_ALIGN.RIGHT)
+    r2_head = p2_head.add_run()
+    set_run_font(r2_head, "۲. تبیین سازوکار و مبانی نظری روان‌شناختی: ", FONT_TITLE, 16.0, bold=True, color_rgb=palette.get("primary", RGBColor(13, 32, 64)))
+    
+    mech_text = slide_data.get("mechanism_text", slide_data.get("interpretation", ""))
+    p2_body = tf2.add_paragraph()
+    apply_p_rtl(p2_body, PP_ALIGN.RIGHT)
+    r2_body = p2_body.add_run()
+    set_run_font(r2_body, mech_text, FONT_BODY, 14.0, bold=False, color_rgb=palette.get("text_body", RGBColor(51, 65, 85)))
+    
+    # Tier 3: انطباق با پیشینه پژوهشی (Literature Concordance)
+    t3_top = Inches(5.50)
+    t3_h = Inches(1.40)
+    t3_box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, content_left, t3_top, content_width, t3_h)
+    t3_box.fill.solid()
+    t3_box.fill.fore_color.rgb = palette.get("emerald_light", RGBColor(209, 250, 229))
+    t3_box.line.color.rgb = palette.get("emerald", RGBColor(5, 150, 105))
+    t3_box.line.width = Pt(1.5)
+    
+    tf3 = t3_box.text_frame
+    tf3.word_wrap = True
+    apply_text_frame_rtl(tf3)
+    p3_head = tf3.paragraphs[0]
+    apply_p_rtl(p3_head, PP_ALIGN.RIGHT)
+    r3_head = p3_head.add_run()
+    set_run_font(r3_head, "۳. انطباق با پیشینه تجربی داخلی و بین‌المللی: ", FONT_TITLE, 16.0, bold=True, color_rgb=palette.get("emerald", RGBColor(5, 150, 105)))
+    
+    lit_text = slide_data.get("literature_text", slide_data.get("concordance", ""))
+    p3_body = tf3.add_paragraph()
+    apply_p_rtl(p3_body, PP_ALIGN.RIGHT)
+    r3_body = p3_body.add_run()
+    set_run_font(r3_body, lit_text, FONT_BODY, 14.0, bold=False, color_rgb=palette.get("text_dark", RGBColor(15, 23, 42)))
+    
     attach_speaker_notes(slide, slide_data.get("speaker_notes", ""))

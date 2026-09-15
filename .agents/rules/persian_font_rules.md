@@ -183,3 +183,92 @@ Microsoft Word features two independent controls for text formatting:
    - NEVER use manual line breaks (`<w:br/>` / `\n`) inside headings.
    - Spacing above and below headings must be controlled via `p.paragraph_format.space_before` and `space_after` in `Pt(...)`.
 
+### 2.8 Microsoft PowerPoint Three Direction Controllers for RTL
+When generating PowerPoint presentations (`.pptx` via `python-pptx` or DrawingML):
+1. **Controller 1 (Shape & Text Frame Level)**:
+   ```python
+   # In DrawingML, enforce rtlCol="1" on the body properties
+   bodyPr = text_frame._element.find(qn('a:bodyPr'))
+   if bodyPr is not None:
+       bodyPr.set('rtlCol', '1')
+   ```
+2. **Controller 2 (Paragraph Level)**:
+   ```python
+   p.alignment = align
+   pPr = p._p.get_or_add_pPr()
+   pPr.set('rtl', '1')
+   pPr.set('algn', 'r' if align == PP_ALIGN.RIGHT else 'ctr')
+   ```
+3. **Controller 3 (Run Level & Complex Script Binding)**:
+   ```python
+   rPr = run._r.get_or_add_rPr()
+   rPr.set('lang', 'fa-IR')
+   # Inject complex-script typeface
+   cs = parse_xml(f'<a:cs {nsdecls("a")} typeface="{font_name}"/>')
+   rPr.append(cs)
+   ```
+4. **Table Level in PowerPoint**:
+   - Every single cell in PowerPoint tables must enforce Controller 1 (`rtlCol="1"` on `cell.text_frame`) and Controller 2 (`rtl="1"` on cell paragraphs).
+   - Columns must be arranged in natural Persian Right-to-Left order.
+
+### 2.9 Strict Prohibition of Emojis in Academic Deliverables
+1. **Zero Emojis Mandate**: Emojis (📊, 🎯, 🧠, 💡, 🚀, 🧪, 📌, ✅, ❌, etc.) are **strictly forbidden** in:
+   - Graduate theses, dissertations, and research proposals.
+   - Viva voce academic defense presentations, slide cards, headers, and footers.
+   - Statistical result tables, hypothesis matrices, and candidate speaker notes.
+2. **Formal Scholarly Replacement**: Use clear, formal Persian academic status phrases (e.g. `تأیید فرضیه`, `عدم تأیید فرضیه`, `معنادار`, `سطح خطای ۰.۰۱`) and clean vector card borders instead of decorative icons.
+
+### 2.10 Zero English Words in Persian Slide Content
+1. **Full Persian Linguistic Purity**:
+   - Slide titles, subtitle bars, card headings, category badges, and narrative explanations must be composed strictly in formal academic Persian.
+   - Never leave English phrases in Persian slide bodies (e.g. replace `Direct Paths` with `مسیرهای مستقیم`, `Statistical Finding` with `یافته آماری و تجربی`, `Theoretical Mechanisms` with `سازوکارهای تبیین نظری`, `Literature Concordance` with `انطباق با پیشینه تجربی`, `SEM Lavaan` with `مدل‌سازی ساختاری در لاوان`).
+2. **Permitted Mathematical / Statistical Symbols**:
+   - Standard Latin statistical symbols (*M, SD, t, F, p, β, B, z, SE, d, df, n, N*) and SEM fit indices (*χ²/df, RMSEA, CFI, TLI, SRMR*) are permitted as standardized international mathematical notation, rendered strictly in `Times New Roman` italic with proper Persian leading zeros (e.g., `۰.۰۰۱ > p`).
+
+### 2.11 PowerPoint Dual-Slot Font Binding & Presentation Legibility Scale
+1. **Dual-Slot Font Binding (Missing Glyph / Box Glyphs `□□□` Prevention)**:
+   - Traditional Persian fonts (`B Nazanin`, `B Titr`) contain no Latin glyphs. Binding `<a:latin typeface="B Nazanin"/>` causes PowerPoint to render any Latin characters, numbers, and symbols as undefined square boxes (`□□□`).
+   - ALWAYS bind font slots independently:
+     - Complex Script slot (`<a:cs typeface="B Nazanin"/>` or `B Titr`) for Persian text.
+     - Latin slot (`<a:latin typeface="Times New Roman"/>`) for ASCII/Latin characters, numbers, and statistical notation.
+   - Set `<a:defRPr>` on the paragraph level (`<a:pPr>`) to guarantee proper fallback:
+     ```python
+     def set_run_font(run, font_name="B Nazanin", size_pt=14, bold=False, italic=False, color_rgb=None):
+         run.font.name = "Times New Roman"  # Protects latin slot from missing glyphs
+         run.font.size = Pt(size_pt)
+         run.font.bold = bold
+         run.font.italic = italic
+         if color_rgb:
+             run.font.color.rgb = color_rgb
+         rPr = run._r.get_or_add_rPr()
+         rPr.set("lang", "fa-IR")
+         cs = rPr.find(qn("a:cs"))
+         if cs is None:
+             cs = parse_xml(f'<a:cs xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" typeface="{font_name}"/>')
+             rPr.append(cs)
+         else:
+             cs.set("typeface", font_name)
+     ```
+2. **Widescreen Presentation Legibility Scale (Supervisor Template Baseline)**:
+   In 16:9 widescreen presentations ($13.333 \times 7.50\text{ in}$), text must be clearly legible from a distance:
+   - Slide Header Title: **24–28 pt Bold**
+   - Slide Subtitle: **13–14 pt Regular**
+   - Sidebar Menu Title: **22–24 pt Bold**
+   - Sidebar Navigation Pills: **16–17 pt Bold**
+   - Card / Container Titles: **16–18 pt Bold**
+   - Card Body Text / Bullet Points: **14–15 pt Regular** (NEVER below 14 pt in widescreen slides)
+   - Table Cell Text: **12–14 pt**
+   - Persian Numerals: Always use authentic Persian digits (`۰۱`، `۰۲`، `۰۳`, etc.).
+
+### 2.12 Academic Tone Sobriety & BiDi Minus Sign Positioning
+1. **Prohibition of Exaggerated & Sycophantic Terms**:
+   - Deliverables must maintain strict academic sobriety and objective scholarly terminology.
+   - Replace evaluative puffery such as «عالی» and «فوق‌العاده» in statistical tables and cards with «برازش مطلوب» or «وضعیت مطلوب».
+   - Replace colloquial jargon like «نقشه راه» with formal academic titles such as «ساختار و سرفصل‌ها».
+   - Remove student ID numbers and ethics committee codes from presentation cover slides. State the correct faculty affiliation (e.g. «دانشکده پزشکی»).
+   - Closing slides must express concise, dignified gratitude without sycophancy or declarations of readiness to answer questions.
+2. **Minus Sign Positioning in RTL Tables**:
+   - Negative numbers in table cells must display the minus sign strictly to the left of the digits (e.g. `−0.32`, `−0.18`), never to the right (`0.32-`).
+   - In PowerPoint DrawingML tables, enforce LTR paragraph semantics (`rtl="0"`) on numeric data cells and format numbers with Unicode minus (`\u2212`).
+3. **Decoupled Latin Runs for Fit Indices**:
+   - In BiDi slides, lists of statistical indices ($\chi^2/df, \text{RMSEA}, \text{CFI}, \text{TLI}, \text{SRMR}$) must not be mixed within a Persian run. Decouple into independent Persian (`lang="fa-IR"`) and Latin (`lang="en-US"`, `Times New Roman`) runs to prevent reversed text.

@@ -14,7 +14,7 @@ from pptx.util import Pt
 from pptx.enum.text import PP_ALIGN
 from pptx.dml.color import RGBColor
 from pptx.oxml import parse_xml
-from pptx.oxml.ns import nsdecls
+from pptx.oxml.ns import nsdecls, qn
 
 # ---------------------------------------------------------------------------
 # Strict Legibility Scales (16:9 Canvas in Defense Room)
@@ -84,10 +84,21 @@ def normalize_persian_text(text: str) -> str:
     return text.strip()
 
 # ---------------------------------------------------------------------------
-# OpenXML DrawingML Formatting Helpers (Native RTL & Font Bindings)
+# OpenXML DrawingML Formatting Helpers (Three RTL Direction Controllers)
 # ---------------------------------------------------------------------------
+def apply_text_frame_rtl(text_frame):
+    """Controller 1: Enforce rtlCol=1 on DrawingML TextFrame body properties (<a:bodyPr rtlCol="1"/>)."""
+    if text_frame is None or not hasattr(text_frame, "_element"):
+        return
+    try:
+        bodyPr = text_frame._element.find(qn('a:bodyPr'))
+        if bodyPr is not None:
+            bodyPr.set("rtlCol", "1")
+    except Exception:
+        pass
+
 def apply_p_rtl(p, align=PP_ALIGN.RIGHT):
-    """Enforce Right-to-Left (rtl=1) and text alignment in DrawingML."""
+    """Controller 2: Enforce Right-to-Left (rtl=1) and text alignment in DrawingML paragraph."""
     p.alignment = align
     pPr = p._p.get_or_add_pPr()
     pPr.set("rtl", "1")
@@ -98,27 +109,32 @@ def apply_p_rtl(p, align=PP_ALIGN.RIGHT):
     elif align == PP_ALIGN.LEFT:
         pPr.set("algn", "l")
 
-def set_run_font(run, text: str, font_name: str, size_pt: float, bold: bool = False, color_rgb: Optional[RGBColor] = None):
-    """Set text, font size, bold, color, and inject DrawingML complex script typeface."""
+def set_run_font(run, text: str, font_name: str, size_pt: float, bold: bool = False, color_rgb: Optional[RGBColor] = None, latin_font: str = LATIN_FONT):
+    """Controller 3: Dual-slot font binding. Enforces Times New Roman for Latin/digits and B Nazanin/B Titr for Persian CS, preventing missing glyph boxes (□□□)."""
     clean_text = normalize_persian_text(text)
     run.text = clean_text
-    run.font.name = font_name
+    # Latin slot bound to safe font with full ASCII/Latin glyph coverage
+    run.font.name = latin_font
     run.font.size = Pt(size_pt)
     run.font.bold = bold
     if color_rgb:
         run.font.color.rgb = color_rgb
 
-    # Inject DrawingML complex script (<a:cs typeface="..."/>)
+    # Inject DrawingML complex script (<a:cs typeface="..."/>), East Asian fallback, and language proofing tag
     rPr = run._r.get_or_add_rPr()
     rPr.set("b", "1" if bold else "0")
+    rPr.set("lang", "fa-IR")
+    rPr.set("altLang", "en-US")
     
-    # Remove any existing cs element to avoid duplicates
+    # Remove any existing cs or ea elements to avoid duplicates
     for child in list(rPr):
-        if child.tag.endswith("cs"):
+        if child.tag.endswith("cs") or child.tag.endswith("ea"):
             rPr.remove(child)
 
     cs = parse_xml(f'<a:cs {nsdecls("a")} typeface="{font_name}"/>')
     rPr.append(cs)
+    ea = parse_xml(f'<a:ea {nsdecls("a")} typeface="{font_name}"/>')
+    rPr.append(ea)
 
 def attach_speaker_notes(slide, notes_text: str):
     """Injects oral defense speaker notes into PowerPoint slide notes frame with RTL styling."""

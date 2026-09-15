@@ -1,10 +1,10 @@
 ---
 name: persian-defense-presentation-builder
-version: 3.5.0
-description: Build professional Persian academic thesis/dissertation defense presentations across three distinct paths: (1) interactive standalone HTML slide decks (slide-creator runtime, RTL typography, 100/100 automated QA), (2) native Microsoft PowerPoint (.pptx) decks (300-DPI Matplotlib diagrams, pure-Python OMML native math, bounding-box geometry overlap auditor), and (3) Google Drive @Document Bridge for Google Slides (Defense_Presentation_Brief.docx/md synced to Google Drive root + 1-click Gemini prompt).
+version: 3.7.0
+description: Build professional Persian academic thesis/dissertation defense presentations across four distinct pathways: (1) interactive standalone HTML slide decks, (2) native Microsoft PowerPoint (.pptx) decks, (3) Google Drive @Document Bridge for Google Slides, and (4) Supervisor Template & 40-Slide Creative Complete Architecture (preset_supervisor_sidebar.py) featuring persistent sidebar ribbons, dedicated H1-H7 hypothesis slides in Results and Discussion, native RTL SmartArt (Reverse=1) with genuine Persian fonts, 3D shape beveling, automatic transitions/animations, zero-overlap VAF decomposition tables, and automated headless COM vector PDF export.
 ---
 
-# Persian Defense Presentation Builder v3.5
+# Persian Defense Presentation Builder v3.7
 
 ## Mission
 
@@ -83,7 +83,8 @@ When activating this skill or responding to any user request to build, generate,
   1. **Path 1 — Interactive Standalone HTML Presentation Deck**: Single-file browser runtime (`presentation.html`), responsive RTL layout, keyboard shortcuts (arrows, Space, F for fullscreen, N for speaker notes modal), theme parity (`academic_navy`), 100/100 automated QA.
   2. **Path 2 — Native Microsoft PowerPoint (.pptx) Presentation**: 16:9 widescreen presentation (`.pptx`) with pure-Python OMML native math equations, 300-DPI Matplotlib publication diagrams, bounding-box geometry overlap auditing, and candidate defense speaker notes on 100% of slides.
   3. **Path 3 — Google Drive @Document Bridge for Google Slides**: Rich Word brief (`Defense_Presentation_Brief.docx`) & Markdown blueprint synced directly to Google Drive root + 1-click tailored prompt for Gemini in Google Slides (`gemini_slides_prompt.txt`).
-  4. **Path 4 — All Formats (Full Suite)**: Automatically compile and deliver all three presentation paths simultaneously.
+  4. **Path 4 — Supervisor Template Format (40-Slide Creative Complete Architecture & Sidebar Ribbon)**: 16:9 widescreen presentation (`preset_supervisor_sidebar.py`) matching faculty/supervisor templates, featuring persistent 5-chapter right navigation pills, dedicated slides for every hypothesis (H1–H7) in both Results and Discussion, native RTL SmartArt (`Reverse = 1`) with genuine Persian font binding, automatic transitions and animations, 3D focal KPI plaques, zero-overlap VAF decomposition tables, candidate notes, and automated headless COM vector PDF export.
+  5. **Path 5 — All Formats (Full Suite)**: Automatically compile and deliver all presentation paths simultaneously.
 - Only proceed to rendering and compilation after the path has been chosen or confirmed by the user.
 
 ## 1.1 One slide = one primary message
@@ -171,6 +172,7 @@ Recommended families include:
 26. Limitation / boundary map
 27. Recommendation roadmap
 28. Closing / Q&A
+29. Dedicated 3-tier hypothesis explanation (Chapter 5 deep discussion: empirical finding → psychological/neurodevelopmental mechanism → literature concordance)
 
 ## 1.5 Never shrink text to make content fit
 
@@ -261,6 +263,78 @@ The final status may be:
 - `FAIL`
 
 Only `PASS` may be described as final.
+
+## 1.10 Zero English Words in Slide Text (قاعده اصالت زبان فارسی و منع عبارات انگلیسی)
+
+All text in defense presentations, slide cards, chapter pills, table headers, and explanation notes must be composed in **authentic academic Persian**:
+- **Strictly Prohibited**: Using English phrases or categories in Persian slides (e.g., avoid `Direct Paths`, `Bootstrap Mediation`, `Statistical Finding`, `Theoretical Mechanisms`, `Literature Concordance`, `SEM Lavaan`, `Confirmed`).
+- **Required Persian Equivalents**: Write `مسیرهای مستقیم`, `آزمون میانجی‌گری بوت‌استراپ`, `یافته آماری و تجربی`, `سازوکارهای تبیین نظری`, `پیشینه پژوهشی همسو`, `مدل‌سازی معادلات ساختاری در لاوان`, `تأیید شد`.
+- **Latin Characters Permitted Strictly for Standard Mathematical Symbols**: Latin letters are permitted exclusively for recognized international statistical metrics ($M, SD, t, F, p, \beta, z, SE, R^2, d, df, n, N$) and fit indices ($\chi^2/df, \text{RMSEA}, \text{CFI}, \text{TLI}, \text{SRMR}$) formatted in `Times New Roman` italic with proper Persian leading zeros (`۰.۰۰۱ > p`).
+
+## 1.11 Strict Prohibition of Emojis in Academic Presentations (قاعده منع مطلق اموجی در ارائه‌های دفاع)
+
+Under **NO** circumstance may an agent use emojis (📊, 🎯, 🧠, 💡, 🚀, 🧪, 📌, ✅, ❌, etc.) in academic defense presentations, slides, tables, speaker notes, or deliverables.
+- Maintain absolute scholarly gravity and university decorum.
+- Use clean colored card containers, subtle borders, and precise Persian status labels (`تأیید فرضیه`, `عدم تأیید فرضیه`, `معنادار`) instead of decorative icons.
+
+## 1.12 Exact Template Style & Color Parity (انطباق دقیق بر قالب، رنگ و ساختار استاد راهنما)
+
+When a candidate or supervisor provides an existing PowerPoint/PowerPoint Macro template (e.g. `presentation title 1.pptm`):
+- Replicate the exact palette, ribbon geometry, active pill highlighting, and card layout without inventing decorative variations.
+- Preserve the persistent right-hand 5-chapter navigation sidebar (`preset_supervisor_sidebar.py`).
+
+## 1.13 The Three Direction Controllers for RTL in Slides and Tables (کنترل‌های سه‌گانه جهت متن در پاورپوینت)
+
+Every slide element containing Persian text must enforce Right-to-Left (RTL) across all three architectural levels:
+1. **Controller 1 (Shape & Text Frame Level)**: `<a:bodyPr rtlCol="1"/>` (`apply_text_frame_rtl`).
+2. **Controller 2 (Paragraph Level)**: `<a:pPr rtl="1" algn="r"/>` (`apply_p_rtl`).
+3. **Controller 3 (Run Level & Complex Script Binding)**: `<a:rPr lang="fa-IR"><a:cs typeface="B Nazanin"/></a:rPr>` (`set_run_font`).
+4. **Tables**: Enforce Controller 1 and Controller 2 in every table cell, with columns ordered Right-to-Left.
+
+## 1.14 Presentation Legibility Scale & Dual-Slot Font Binding (مقیاس خوانایی و نگاشت دوگانه قلم‌ها)
+
+1. **Dual-Slot Font Binding (Anti-Missing-Glyph Rule)**:
+   - Traditional Persian fonts (`B Nazanin`, `B Titr`) contain no Latin glyphs. Never bind `<a:latin typeface="B Nazanin"/>`; doing so causes PowerPoint to render English letters, numbers, and symbols as undefined square boxes (`□□□`).
+   - Decouple font slots:
+     - Complex Script slot (`<a:cs typeface="B Nazanin"/>` / `B Titr`) for Persian text.
+     - Latin slot (`<a:latin typeface="Times New Roman"/>`) for ASCII/Latin characters, numbers, and statistical notation.
+2. **Widescreen Presentation Legibility Scale (Supervisor Baseline)**:
+   In 16:9 widescreen slides ($13.333 \times 7.50\text{ in}$), text must remain legible from the back of the defense hall:
+   - Slide Header Title: **24–28 pt Bold** (never below 24 pt)
+   - Slide Subtitle: **13–14 pt Regular**
+   - Sidebar Menu Title: **22–24 pt Bold**
+   - Sidebar Navigation Pills: **16–17 pt Bold** (supervisor baseline: 20 pt)
+   - Card / Container Titles: **16–18 pt Bold**
+   - Card Body Text / Bullet Points: **14–15 pt Regular** (NEVER below 14 pt in widescreen slides)
+   - Table Headers: **13–14 pt Bold** | Table Body: **12–13 pt Regular**
+   - Numbers: Use genuine Persian digits (`۰۱`، `۰۲`، `۰۳`, etc.) in titles and section headers.
+
+## 1.15 Academic Tone Sobriety & Anti-Sycophancy (قاعده وقار علمی، زبان خنثی و نفی زبان مبالغه‌آمیز)
+
+All content across defense slides, tables, and candidate speaking notes must maintain uncompromising scholarly sobriety:
+- **Zero Colloquial Jargon**: Avoid informal expressions such as «نقشه راه» (Roadmap) in formal slide titles. Use standard academic phrases such as «ساختار و سرفصل‌های جلسه دفاع».
+- **Zero Evaluative Puffery**: Avoid subjective, emotionally charged, or exaggerated adjectives (e.g. «عالی»، «فوق‌العاده»، «نقطه عطف دفاع»، «تراز اول»، «کشف بنیادین»، «شاهکار»). Describe findings objectively (e.g. replace «برازش فوق‌العاده مدل» with «برازش مطلوب مدل ساختاری»).
+- **Dignified Closing Slide**: Conclude presentations with concise, formal academic gratitude without sycophancy. Strictly prohibit self-announcements of readiness to answer questions («آماده پاسخگویی به سؤالات...»).
+
+## 1.16 First Slide Affiliation & Identifier Integrity (انطباق اطلاعات هویتی و پرهیز از کدهای غیراضطراری)
+
+- **Accurate Academic Affiliation**: Ensure the exact faculty and department are specified (e.g. «دانشکده پزشکی»، نه عناوین کلی یا اشتباه).
+- **Prohibition of Non-Essential Administrative Identifiers**: Never display the student ID number (`شماره دانشجویی`) or research ethics committee approval code (`کد اخلاق`) on the title slide of an academic defense presentation unless explicitly demanded by the university's written defense manual.
+
+## 1.17 Decoupled Left-to-Right Runs for Statistical Fit Indices (قاعده تفکیک قطعات لاتین و ممانعت از معکوس‌شدن شاخص‌ها)
+
+In PowerPoint BiDi rendering:
+- Embedding multiple Latin acronyms, slashes, and separators ($\chi^2/df, \text{RMSEA}, \text{CFI}, \text{TLI}, \text{SRMR}$) inside a paragraph or run with `lang="fa-IR"` causes the text engine to flip the reading stream backwards (e.g. rendering `RMRS ,ILT ,IFC ,AESMR ,fd/2χ`).
+- **Decoupled Architecture**: Always split the text into independent DrawingML runs:
+  1. Persian run for label/bullet: `<a:r><a:rPr lang="fa-IR"><a:cs typeface="B Nazanin"/></a:rPr><a:t>• شاخص‌های برازش: </a:t></a:r>`
+  2. Pure Latin LTR run: `<a:r><a:rPr lang="en-US"><a:latin typeface="Times New Roman"/></a:rPr><a:t>χ²/df, RMSEA, CFI, TLI, SRMR</a:t></a:r>`
+
+## 1.18 Minus Sign Placement Invariant in RTL Tables (قاعده قرارگیری علامت منفی در سمت چپ اعداد)
+
+In Persian and academic tables:
+- Negative numerical values must display the minus sign strictly to the **LEFT** of the number (e.g. `−0.32`, `−0.18`), never trailing on the right (`0.32-`).
+- Setting `rtl="1"` on numeric table paragraphs causes standard ASCII hyphens (`-`) to flip to the right edge.
+- **Mandatory Table Cell Fix**: For all numeric cells, enforce Left-to-Right paragraph direction (`rtl="0"`) and format negative numbers with the explicit Unicode minus sign (`\u2212`).
 
 ---
 
@@ -1709,5 +1783,94 @@ Every presentation compiled by this skill must achieve a score of $\ge 90/100$ o
 5. **Statistical & Empirical Rigor (15 pts)**: Strict APA 7th Edition formatting, exact $p$-values, effect sizes ($\eta_p^2, d$), and test statistics.
 6. **Visual & Diagram Standards (15 pts)**: Clean 300-DPI mediation models, CONSORT flows, and APA tables.
 7. **Typography & OpenXML Directionality (15 pts)**: Persian font hierarchy (`B Titr` 28–36 pt titles, `B Nazanin` $\ge 20$ pt body), pure RTL OpenXML DrawingML formatting, zero element overlaps, and strict adherence to **Persian Standard Number & Decimal Standards** (standard dot '.' format: `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۲.۵۰`; mandatory preservation of leading zero: `۰.۰۰۱`, never `.۰۰۱`; zero slash fraction inversions).
+
+---
+
+# 26. POWERPOINT ADVANCED CREATIVE ENGINE (SMARTART, 3D, AUTOMATIC MOTION & 40-SLIDE ARCHITECTURE)
+
+In high-stakes Master's and PhD defense presentations where faculty demand advanced visual fidelity, deep hypothesis coverage, and supervisor template compliance, activate the **PowerPoint Advanced Creative Engine** via headless COM automation (`win32com.client`).
+
+### 26.1 Dedicated Hypothesis Architecture (Results & Discussion Chapters)
+For complex structural equation models (SEM) and mediation designs, presentations expand to **~40 dedicated widescreen slides**:
+- **Chapter 4 (Results: Slides 21–26)**:
+  - **Slides 21–25 (Direct Paths H1 to H5)**: Split layout featuring a **3D-elevated focal KPI badge** on the left (`x = 0.6 in`, `w = 3.6 in`, `h = 5.65 in`), an RTL SmartArt process flow on the top-right (`x = 4.5 in`, `y = 1.45 in`, `w = 5.7 in`), and an empirical structural interpretation card below (`y = 3.0 in`, `h = 4.1 in`).
+  - **Slide 26 (Mediation & VAF: H6 & H7)**: Top 7-column bootstrap summary table (`5000` resamples, $95\%$ CI), bottom-right analytical interpretation card, and bottom-left structured APA mini-table for VAF decomposition.
+- **Chapter 5 (Discussion: Slides 27–33)**:
+  - **Slides 27–33 (Dedicated Discussion H1 to H7)**: Top full-width SmartArt mechanism banner (`x = 0.6 in`, `y = 1.4 in`, `w = 9.6 in`, `h = 1.25 in`), paired with dual deep containers below (`y = 2.8 in`, `h = 4.3 in`): Right container details **Theoretical & Psychological Mechanisms**; Left container details **Literature Concordance & Clinical Implications**.
+
+### 26.2 Native PowerPoint SmartArt with Persian RTL & Genuine Font Binding
+Standard Python-pptx cannot generate native SmartArt. Inject it via PowerPoint COM automation:
+```python
+powerpoint = win32com.client.Dispatch("PowerPoint.Application")
+pres = powerpoint.Presentations.Open(pptx_abs_path, WithWindow=False)
+
+# Locate Basic Process layout
+basic_process_layout = None
+for i in range(1, powerpoint.SmartArtLayouts.Count + 1):
+    if powerpoint.SmartArtLayouts.Item(i).Name == "Basic Process":
+        basic_process_layout = powerpoint.SmartArtLayouts.Item(i)
+        break
+
+# Inject SmartArt shape
+sa_shape = slide.Shapes.AddSmartArt(basic_process_layout, left_pts, top_pts, width_pts, height_pts)
+sa = sa_shape.SmartArt
+
+# CRITICAL MANDATE 1: Reverse=1 flips arrow direction to Right-to-Left (Persian reading order)
+sa.Reverse = 1
+
+# CRITICAL MANDATE 2: Genuine Persian Font Binding on SmartArt Nodes
+for n_idx, txt in enumerate(nodes_text):
+    if n_idx < sa.AllNodes.Count:
+        node = sa.AllNodes.Item(n_idx + 1)
+        node.TextFrame2.TextRange.Text = txt
+        node.TextFrame2.TextRange.Font.Name = "B Titr"  # Prevent default Calibri Latin fallback
+```
+
+### 26.3 Table Cells BiDi Direction & Genuine Persian Font Binding
+Tables must maintain pure BiDi stability across all cells:
+1. **Container & Paragraph RTL**: Every cell must enforce RTL text frame (`bodyPr.set("rtlCol", "1")`) and paragraph RTL (`pPr.set("rtl", "1")`, `pPr.set("algn", "r")`).
+2. **Persian Typography**: Bind Persian cell text runs to `B Nazanin` (body, 11–13 pt) or `B Titr` (headers, 12–14 pt Bold).
+3. **Numeric Decoupling**: For numbers and statistical values ($M, SD, \beta, t, F, p$), decouple paragraph semantics to LTR (`rtl="0"`) and font to `Times New Roman` so minus signs precede numbers ($−0.32$, never $0.32−$).
+
+### 26.4 Automatic Slide Transitions & Automatic Entrance Animations
+All motion effects must trigger **automatically** to maintain a polished, professional cadence during the defense:
+```python
+# 1. Automatic SlideShow Transitions
+for s in pres.Slides:
+    s.SlideShowTransition.EntryEffect = 3844  # ppEffectFade
+    s.SlideShowTransition.Duration = 0.5
+
+# 2. Automatic Sequence Entrance Animations on Focal Elements
+eff = slide.TimeLine.MainSequence.AddEffect(sa_shape, 10, 0, 1)  # 10 = ppEffectFade
+eff.Timing.TriggerType = 3  # msoAnimTriggerAfterPrevious (Triggers automatically after slide entrance)
+eff.Timing.Duration = 0.4
+```
+
+### 26.5 3D Shape Beveling & Modern Depth Elevation
+Enhance focal KPI summary cards with subtle 3D physical elevation:
+```python
+for shp in slide.Shapes:
+    if shp.HasTextFrame and "شاخص‌های آماری" in shp.TextFrame.TextRange.Text:
+        shp.ThreeD.BevelTopType = 4  # msoBevelCircle
+        shp.ThreeD.BevelTopDepth = 4
+        shp.ThreeD.Depth = 6
+```
+
+### 26.6 Zero-Overlap VAF Decomposition Mini-Tables
+Never draw freeform floating shapes or progress bars over text containers. Use a clean DrawingML 2-column mini-table:
+```python
+# Place 2-column table cleanly inside the card container
+vaf_table_shape = slide.shapes.add_table(5, 2, Inches(0.72), Inches(4.20), Inches(4.26), Inches(2.70))
+vaf_table = vaf_table_shape.table
+vaf_table.columns[0].width = Inches(2.80)
+vaf_table.columns[1].width = Inches(1.46)
+
+# Header
+format_table_cell(vaf_table.cell(0, 0), "سازوکار اثر در الگوی ساختاری", COLOR_PRIMARY_BLUE, font_name="B Titr", font_size=11.5, is_bold=True)
+format_table_cell(vaf_table.cell(0, 1), "سهم تبیین / وضعیت", COLOR_PRIMARY_BLUE, font_name="B Titr", font_size=11.5, is_bold=True)
+
+# Data Rows with Decoupled LTR Percentages & RTL Descriptions
+# Alternating row backgrounds (COLOR_INACTIVE_BG / COLOR_WHITE)
+```
 
 

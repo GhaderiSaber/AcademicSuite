@@ -68,7 +68,8 @@ from layout_engine import (
     build_closing_slide,
     build_split_diagram_slide,
     build_kpi_dashboard_slide,
-    build_cards_slide
+    build_cards_slide,
+    build_hypothesis_explanation_slide
 )
 from qa_validator import run_qa_checks
 from render_preview import generate_preview_report
@@ -103,6 +104,7 @@ LAYOUT_DISPATCH = {
     "stat_table": build_table_slide,
     "table": build_table_slide,
     "hypothesis_matrix": build_hypothesis_matrix_slide,
+    "hypothesis_explanation": build_hypothesis_explanation_slide,
     "discussion_mechanism": build_discussion_mechanism_slide,
     "implications": build_implications_slide,
     "limitations": build_limitations_slide,

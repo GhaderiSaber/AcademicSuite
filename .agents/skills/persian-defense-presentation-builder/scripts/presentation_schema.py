@@ -291,6 +291,8 @@ SUPPORTED_LAYOUTS = [
     "recommendations",
     # 28. Closing / Q&A
     "closing",
+    # 29. Dedicated 3-Tier Hypothesis Explanation (v3.6.0)
+    "hypothesis_explanation",
     # Administrative & Legacy Aliases
     "committee",
     "two_column",
@@ -341,6 +343,7 @@ LAYOUT_FAMILY_MAPPING = {
     "stat_table": "table",                # Family 21: Statistical result table
     "table": "table",
     "hypothesis_matrix": "hypothesis_matrix", # Family 22: Hypothesis matrix
+    "hypothesis_explanation": "hypothesis_explanation", # Family 29 (v3.6.0): 3-Tier Deep Discussion
     "mediation_diagram": "mediation_diagram", # Family 23: Mediation diagram
     "discussion_mechanism": "discussion_mechanism", # Family 24: Discussion mechanism diagram
     "implications": "implication_map",    # Family 25: Implication map
