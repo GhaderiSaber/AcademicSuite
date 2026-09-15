@@ -3345,23 +3345,43 @@ class SaberTelethonUserbot:
 
         while True:
             try:
-                gather_tasks = [self.client.run_until_disconnected()]
-                if self.client2 and self.client2.is_connected():
-                    gather_tasks.append(self.client2.run_until_disconnected())
-                if self.bot_client and self.bot_client.is_connected():
-                    gather_tasks.append(self.bot_client.run_until_disconnected())
-
-                await asyncio.gather(*gather_tasks)
-                break
-            except (ConnectionError, OSError, asyncio.CancelledError) as e:
-                print(f"[!] Userbot connection interrupted: {e}. Attempting auto-reconnect in 5s...")
-                await asyncio.sleep(5)
-                for cl_target in [self.client, self.client2, self.bot_client]:
+                # Ensure all active clients are connected
+                for cl_target, cl_label in [
+                    (self.client, "Main Account"),
+                    (self.client2, "Second Account"),
+                    (self.bot_client, "Assistant Bot")
+                ]:
                     if cl_target and not cl_target.is_connected():
                         try:
                             await cl_target.connect()
-                        except Exception as rec_err:
-                            print(f"[-] Reconnect error for client: {rec_err}")
+                        except Exception as conn_err:
+                            print(f"[-] Reconnect error for {cl_label}: {conn_err}")
+
+                tasks = []
+                if self.client and self.client.is_connected():
+                    tasks.append(asyncio.create_task(self.client.run_until_disconnected()))
+                if self.client2 and self.client2.is_connected():
+                    tasks.append(asyncio.create_task(self.client2.run_until_disconnected()))
+                if self.bot_client and self.bot_client.is_connected():
+                    tasks.append(asyncio.create_task(self.bot_client.run_until_disconnected()))
+
+                if not tasks:
+                    print("[-] No clients currently connected. Retrying in 5s...")
+                    await asyncio.sleep(5)
+                    continue
+
+                done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+                for p in pending:
+                    p.cancel()
+
+                print("[!] A Telegram client connection closed. Attempting auto-reconnect in 5s...")
+                await asyncio.sleep(5)
+            except (asyncio.CancelledError, KeyboardInterrupt):
+                print("[*] Listener received stop signal. Shutting down cleanly...")
+                break
+            except (ConnectionError, OSError) as e:
+                print(f"[!] Userbot connection interrupted: {e}. Attempting auto-reconnect in 5s...")
+                await asyncio.sleep(5)
             except Exception as e:
                 print(f"[-] Unexpected error in listening loop: {e}. Retrying in 5s...")
                 await asyncio.sleep(5)

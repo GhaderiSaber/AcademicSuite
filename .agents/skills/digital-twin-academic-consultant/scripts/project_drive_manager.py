@@ -937,8 +937,9 @@ class ProjectDriveManager:
         paths = self.provision_project(client_name, client_id=client_id, username=username)
         raw_dir = paths["raw"]
         dest_path = os.path.join(raw_dir, fname)
-        await msg.download_media(file=dest_path)
-        print(f"[+] Saved incoming file directly to project: {dest_path}")
+        if not (os.path.exists(dest_path) and os.path.getsize(dest_path) > 0):
+            await msg.download_media(file=dest_path)
+            print(f"[+] Saved incoming file directly to project: {dest_path}")
         return dest_path
 
     def list_all_projects(self) -> List[Dict[str, Any]]:
