@@ -213,53 +213,53 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
   - Preserves univariate normality (Skewness & Kurtosis within $[-0.85, +0.85]$).
 - **Output**: Clean, organic psychometric simulation datasets.
 
-### Micro-Stage Execution Sequence & Anti-Shortcut Protocol (Directive 3 & 11)
+### Micro-Stage Execution Sequence & Triad Artifact Invariant (Directive 3 & 11)
 
-To prevent shortcutting, scale validation reporting is strictly partitioned into independent micro-stages:
+To prevent shortcutting, scale validation reporting is strictly partitioned into independent micro-stages. Monolithic execution is prohibited. **Triad Artifact Invariant**: Every stage generates `.docx` (APA 7 OpenXML), `.md` (Markdown narrative & tables), and `.json` (structured data/audit).
 
 #### Stage V.1: Content Validity Ratio (CVR) & Index (CVI)
 - **Agent**: `psychometric-expert` + `academic-writer`
-- **Output**: `01_content_validity.docx` (Lawshe CVR and Lynn CVI expert panel ratings).
+- **Output**: `01_content_validity.docx`, `01_content_validity.md`, `01_content_validity.json` (Lawshe CVR and Lynn CVI expert panel ratings).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage V.2: Item Analysis & Classical Descriptives
 - **Agent**: `psychometric-expert` + `academic-writer`
-- **Output**: `02_item_analysis.docx` (Corrected item-total correlations, alpha-if-item-deleted, loop discrimination).
+- **Output**: `02_item_analysis.docx`, `02_item_analysis.md`, `02_item_analysis.json` (Corrected item-total correlations, alpha-if-item-deleted, loop discrimination).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage V.3: Exploratory Factor Analysis (EFA)
 - **Agent**: `psychometric-expert` + `academic-writer`
-- **Output**: `03_efa_results.docx` (KMO, Bartlett test of sphericity, scree plot, Promax/Varimax rotation).
+- **Output**: `03_efa_results.docx`, `03_efa_results.md`, `03_efa_results.json` (KMO, Bartlett test of sphericity, scree plot, Promax/Varimax rotation).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage V.4: Confirmatory Factor Analysis (CFA)
 - **Agent**: `psychometric-expert` + `academic-writer`
-- **Output**: `04_cfa_results.docx` (Standardized factor loadings, modification indices, 11 fit indices).
+- **Output**: `04_cfa_results.docx`, `04_cfa_results.md`, `04_cfa_results.json` (Standardized factor loadings, modification indices, 11 fit indices).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage V.5: Convergent & Discriminant Validity
 - **Agent**: `psychometric-expert` + `academic-writer`
-- **Output**: `05_construct_validity.docx` (AVE, CR, HTMT matrix, Fornell-Larcker criterion).
+- **Output**: `05_construct_validity.docx`, `05_construct_validity.md`, `05_construct_validity.json` (AVE, CR, HTMT matrix, Fornell-Larcker criterion).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage V.6: Scale Reliability & Measurement Invariance
 - **Agent**: `psychometric-expert` + `academic-writer`
-- **Output**: `06_reliability_inv.docx` (Cronbach's $\alpha$, McDonald's $\omega$, multigroup configural/metric/scalar invariance).
+- **Output**: `06_reliability_inv.docx`, `06_reliability_inv.md`, `06_reliability_inv.json` (Cronbach's $\alpha$, McDonald's $\omega$, multigroup configural/metric/scalar invariance).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage V.7: Modern Psychometrics (IRT & ROC Diagnostics)
 - **Agent**: `statistical-expert` + `academic-writer`
-- **Output**: `07_irt_roc.docx` (Samejima GRM parameters, Test Information Functions, ROC optimal cut-offs).
+- **Output**: `07_irt_roc.docx`, `07_irt_roc.md`, `07_irt_roc.json` (Samejima GRM parameters, Test Information Functions, ROC optimal cut-offs).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage V.8: Scale Validation Report Assembly
 - **Agent**: Execution Layer via `orchestrator_cli.py --assemble-chapter Scale_Validation_Report.docx`
-- **Output**: `Scale_Validation_Report.docx` (Concatenated from verified section documents).
+- **Output**: `Scale_Validation_Report.docx` + `Scale_Validation_Report.md` (Concatenated from verified section documents).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage V.9: Final Psychometric Defense Simulator
 - **Agent**: `final-judge`
-- **Output**: `XX_val_defense_brief.docx` (Cross-examination on invariance, DIF, and diagnostic cut-offs).
+- **Output**: `XX_val_defense_brief.docx`, `XX_val_defense_brief.md`, `defense_readiness.json` (Cross-examination on invariance, DIF, and diagnostic cut-offs).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 ---

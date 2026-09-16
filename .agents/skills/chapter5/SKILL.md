@@ -155,63 +155,63 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
   - Ensures Irandoc similarity compliance ($< 20\%$).
 - **Output**: `evidence_audit_report.json`.
 
-### Micro-Stage Execution Sequence & One-Hypothesis-One-Stage Protocol (Directive 3 & 11)
+### Micro-Stage Execution Sequence & Triad Artifact Invariant (Directive 3 & 11)
 
-To prevent shortcutting, Chapter 5 discussion drafting is strictly partitioned into independent micro-stages:
+To prevent shortcutting, Chapter 5 discussion drafting is strictly partitioned into independent micro-stages. Monolithic execution is prohibited. **Triad Artifact Invariant**: Every stage generates `.docx` (APA 7 OpenXML), `.md` (Markdown narrative & tables), and `.json` (structured data/audit).
 
 #### Stage 5.1: Problem Recap & Empirical Findings Summary
 - **Agent**: `academic-writer`
-- **Output**: `01_findings_recap.docx` (Problem overview, research questions roadmap, holistic summary of empirical outcomes).
+- **Output**: `01_findings_recap.docx`, `01_findings_recap.md`, `01_findings_recap.json` (Problem overview, research questions roadmap, holistic summary of empirical outcomes).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 5.2.1: Hypothesis 1 Deep Discussion (One-Hypothesis-One-Stage Invariant)
 - **Agent**: `academic-writer`
-- **Output**: `02_hypothesis_1_discussion.docx` (The 4-Element Psychological Discussion Model: exact stats, Iranian/international empirical concordance, underlying cognitive/behavioral/neurobiological mechanisms via Beck/Hayes/Bandura/Gross, and methodological nuances).
+- **Output**: `02_hypothesis_1_discussion.docx`, `02_hypothesis_1_discussion.md`, `02_hypothesis_1_discussion.json` (The 4-Element Psychological Discussion Model: exact stats, Iranian/international empirical concordance, underlying cognitive/behavioral/neurobiological mechanisms via Beck/Hayes/Bandura/Gross, and methodological nuances).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 5.2.k: Hypothesis k Deep Discussion (Dedicated Independent Stages)
 - **Agent**: `academic-writer`
-- **Output**: `XX_hypothesis_k_discussion.docx` (Each subsequent hypothesis is analyzed and drafted in its own dedicated stage).
+- **Output**: `XX_hypothesis_k_discussion.docx`, `XX_hypothesis_k_discussion.md`, `XX_hypothesis_k_discussion.json` (Each subsequent hypothesis is analyzed and drafted in its own dedicated stage).
 - **Stage-Gate**: Emit Completion Report and await user confirmation after each hypothesis.
 
 #### Stage 5.3: Unexpected & Non-Significant Findings Epistemic Analysis
 - **Agent**: `methodology-expert` + `academic-writer`
-- **Output**: `XX_non_significant_findings.docx` (Deep epistemological dive into unconfirmed hypotheses or anomalous effect sizes).
+- **Output**: `XX_non_significant_findings.docx`, `XX_non_significant_findings.md`, `XX_non_significant_findings.json` (Deep epistemological dive into unconfirmed hypotheses or anomalous effect sizes).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 5.4: Theoretical, Clinical & Practical Implications
 - **Agent**: `academic-writer`
-- **Output**: `XX_implications.docx` (Actionable translational guidance for clinicians, organizations, educators, and theorists).
+- **Output**: `XX_implications.docx`, `XX_implications.md`, `XX_implications.json` (Actionable translational guidance for clinicians, organizations, educators, and theorists).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 5.5: Methodological & Sampling Limitations
 - **Agent**: `academic-writer`
-- **Output**: `XX_limitations.docx` (Candid appraisal of internal validity, sampling constraints, measurement artifacts, and generalizability boundaries).
+- **Output**: `XX_limitations.docx`, `XX_limitations.md`, `XX_limitations.json` (Candid appraisal of internal validity, sampling constraints, measurement artifacts, and generalizability boundaries).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 5.6: Future Research & Actionable Recommendations
 - **Agent**: `academic-writer`
-- **Output**: `XX_recommendations.docx` (Rigidly partitioned into research suggestions vs. practical/clinical recommendations).
+- **Output**: `XX_recommendations.docx`, `XX_recommendations.md`, `XX_recommendations.json` (Rigidly partitioned into research suggestions vs. practical/clinical recommendations).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 5.7: Results QC (APA 7 & Cross-Fidelity Audit)
 - **Agent**: `results-auditor`
-- **Output**: `XX_results_fidelity_report.json` (Cross-checks all numerical mentions against Chapter 4 results).
+- **Output**: `XX_results_fidelity_report.json`, `XX_results_fidelity_report.md` (Cross-checks all numerical mentions against Chapter 4 results).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 5.8: Evidence QC (Bidirectional Citation & Plagiarism Audit)
 - **Agent**: `evidence-auditor`
-- **Output**: `XX_evidence_audit_report.json` (Zero orphaned citations, Irandoc similarity < 20%, elimination of AI clichés).
+- **Output**: `XX_evidence_audit_report.json`, `XX_evidence_audit_report.md` (Zero orphaned citations, Irandoc similarity < 20%, elimination of AI clichés).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-#### Stage 5.9: Chapter Assembly & OpenXML Merging
+#### Stage 5.9: Chapter Assembly & Merging
 - **Agent**: Execution Layer via `orchestrator_cli.py --assemble-chapter Chapter_5_Discussion.docx`
-- **Output**: `Chapter_5_Discussion.docx` (Concatenated from verified section documents).
+- **Output**: `Chapter_5_Discussion.docx` + `Chapter_5_Discussion.md` (Concatenated from verified section documents).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 5.10: Final Committee Defense Simulator
 - **Agent**: `final-judge`
-- **Output**: `XX_defense_discussion_brief.docx` + `defense_readiness.json` (Examiner cross-examination questions & defense model answers).
+- **Output**: `XX_defense_discussion_brief.docx`, `XX_defense_discussion_brief.md`, `defense_readiness.json` (Examiner cross-examination questions & defense model answers).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 ---

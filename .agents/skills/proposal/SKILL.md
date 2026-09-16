@@ -163,48 +163,48 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
   - Checks for elimination of AI boilerplate clichés.
 - **Output**: `proposal_audit_report.json`.
 
-### Micro-Stage Execution Sequence & Anti-Shortcut Protocol (Directive 3 & 11)
+### Micro-Stage Execution Sequence & Triad Artifact Invariant (Directive 3 & 11)
 
-To prevent shortcutting, research proposal drafting is strictly partitioned into independent micro-stages:
+To prevent shortcutting, research proposal drafting is strictly partitioned into independent micro-stages. Monolithic execution is prohibited. **Triad Artifact Invariant**: Every stage generates `.docx` (APA 7 OpenXML), `.md` (Markdown narrative & tables), and `.json` (structured data/audit).
 
 #### Stage P.1: Problem Statement & Research Gap
 - **Agent**: `methodology-expert` + `academic-writer`
-- **Output**: `01_problem_statement.docx` (Inverted-triangle contextual grounding, epidemiologic burden, documented research gap).
+- **Output**: `01_problem_statement.docx`, `01_problem_statement.md`, `01_problem_statement.json` (Inverted-triangle contextual grounding, epidemiologic burden, documented research gap).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage P.2: Theoretical & Practical Significance
 - **Agent**: `academic-writer`
-- **Output**: `02_significance.docx` (Theoretical contributions, scientific novelty, clinical/organizational benefits).
+- **Output**: `02_significance.docx`, `02_significance.md`, `02_significance.json` (Theoretical contributions, scientific novelty, clinical/organizational benefits).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage P.3: Objectives, Research Questions & Directional Hypotheses
 - **Agent**: `statistical-expert` + `academic-writer`
-- **Output**: `03_hypotheses.docx` (Primary/secondary objectives, formal hypotheses with operationalized variables).
+- **Output**: `03_hypotheses.docx`, `03_hypotheses.md`, `03_hypotheses.json` (Primary/secondary objectives, formal hypotheses with operationalized variables).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage P.4: Methodological Design & G*Power Sampling
 - **Agent**: `methodology-expert`
-- **Output**: `04_methodology_samp.docx` (Design taxonomy, G*Power 3.1 power curves, attrition adjustment).
+- **Output**: `04_methodology_samp.docx`, `04_methodology_samp.md`, `04_methodology_samp.json` (Design taxonomy, G*Power 3.1 power curves, attrition adjustment).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage P.5: Measurement Instruments & Psychometrics
 - **Agent**: `psychometric-expert` + `academic-writer`
-- **Output**: `05_instruments.docx` (Questionnaires, subscale items, scoring protocols, psychometric precedents).
+- **Output**: `05_instruments.docx`, `05_instruments.md`, `05_instruments.json` (Questionnaires, subscale items, scoring protocols, psychometric precedents).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage P.6: Data Analysis Plan & Ethical Considerations
 - **Agent**: `statistical-expert` + `academic-writer`
-- **Output**: `06_analysis_plan.docx` (Inferential statistical sequence, parametric verification, IR.REC ethics approval guidelines).
+- **Output**: `06_analysis_plan.docx`, `06_analysis_plan.md`, `06_analysis_plan.json` (Inferential statistical sequence, parametric verification, IR.REC ethics approval guidelines).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-#### Stage P.7: Proposal Assembly & OpenXML Merging
+#### Stage P.7: Proposal Assembly & Merging
 - **Agent**: Execution Layer via `orchestrator_cli.py --assemble-chapter Research_Proposal.docx`
-- **Output**: `Research_Proposal.docx` (Concatenated from verified section documents).
+- **Output**: `Research_Proposal.docx` + `Research_Proposal.md` (Concatenated from verified section documents).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage P.8: Graduate Council Review Simulation
 - **Agent**: `final-judge`
-- **Output**: `XX_proposal_council_brief.docx` + `proposal_council_readiness_score.json` (Review council defense challenges & approval index).
+- **Output**: `XX_proposal_council_brief.docx`, `XX_proposal_council_brief.md`, `proposal_council_readiness_score.json` (Review council defense challenges & approval index).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 ---

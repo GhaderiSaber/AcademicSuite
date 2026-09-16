@@ -817,9 +817,29 @@ class MasterAcademicOrchestrator:
 
 def assemble_chapter_docx(sections_dir: str, output_path: str) -> str:
     """
-    Concatenates micro-stage section documents into a unified chapter Word DOCX (Directive 3).
+    Concatenates micro-stage section documents into a unified chapter Word DOCX and Markdown (.md) (Directive 3).
     Ensures that monolithic drafting is eliminated by assembling separately verified section artifacts.
+    Produces both Chapter_X.docx and Chapter_X.md.
     """
+    # 1. Assemble Markdown (.md)
+    md_output_path = os.path.splitext(output_path)[0] + ".md"
+    md_files = sorted(glob.glob(os.path.join(sections_dir, "*.md")))
+    md_files = [f for f in md_files if not os.path.basename(f).lower().startswith("chapter_")]
+    if md_files:
+        combined_md = []
+        for mf in md_files:
+            try:
+                with open(mf, "r", encoding="utf-8") as f:
+                    combined_md.append(f.read().strip())
+            except Exception as e:
+                print(f"[WARNING] Could not read {mf}: {e}")
+        if combined_md:
+            os.makedirs(os.path.dirname(os.path.abspath(md_output_path)), exist_ok=True)
+            with open(md_output_path, "w", encoding="utf-8") as f:
+                f.write("\n\n---\n\n".join(combined_md) + "\n")
+            print(f"[ASSEMBLER] Successfully assembled {len(md_files)} markdown sections into {md_output_path}")
+
+    # 2. Assemble Word (.docx)
     try:
         from docx import Document
     except ImportError:
@@ -833,7 +853,10 @@ def assemble_chapter_docx(sections_dir: str, output_path: str) -> str:
     docx_files = [f for f in docx_files if not os.path.basename(f).lower().startswith("chapter_")]
 
     if not docx_files:
-        raise FileNotFoundError(f"No section DOCX files found in '{sections_dir}' to assemble.")
+        if md_files:
+            print(f"[ASSEMBLER] No section DOCX files found, but Markdown assembled into {md_output_path}")
+            return md_output_path
+        raise FileNotFoundError(f"No section DOCX or MD files found in '{sections_dir}' to assemble.")
 
     master_doc = Document(docx_files[0])
     for next_file in docx_files[1:]:
@@ -844,7 +867,7 @@ def assemble_chapter_docx(sections_dir: str, output_path: str) -> str:
 
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     master_doc.save(output_path)
-    print(f"[ASSEMBLER] Successfully assembled {len(docx_files)} sections into {output_path}")
+    print(f"[ASSEMBLER] Successfully assembled {len(docx_files)} DOCX sections into {output_path}")
     return output_path
 
 

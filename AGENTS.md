@@ -41,41 +41,47 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 - Always execute the bundled Python scripts in `.agents/skills/<skill>/scripts/` via terminal (`run_command`) on the real dataset (`.xlsx`, `.csv`, `.sav`).
 - Extract exact values from the script's output JSON/table and paste them directly into reports.
 
-### Directive 3: Artifact-Gated Stage Execution, Micro-Stage Granularity & One-Hypothesis-One-Stage Invariant
+### Directive 3: Artifact-Gated Stage Execution, Micro-Stage Granularity, Triad Artifact Invariant & One-Hypothesis-One-Stage Invariant
 1. **Zero Skipping Rule**: Jumping stages without physical checkpoint files existing on disk is strictly invalid.
-2. **Micro-Stage Granularity Invariant**: Monolithic drafting prompts ("Draft Chapter X in full") are strictly prohibited to prevent shortcutting. Each section must be generated as an independent, verified artifact on disk (`01_...docx`, `02_...docx`, etc.) before assembly.
+2. **Micro-Stage Granularity & Triad Artifact Invariant (اصل سه‌گانه مستندسازی: DOCX + MD + JSON)**:
+   - Monolithic drafting prompts ("Draft Chapter X in full") are strictly prohibited to prevent shortcutting.
+   - **Triad Artifact Invariant (الزام تولید همزمان ۳ فرمت برای هر مرحله)**: For EVERY micro-stage and individual hypothesis stage, the system **MUST GENERATE A SYNCHRONIZED TRIAD OF PHYSICAL ARTIFACTS ON DISK**:
+     a) **Structured Data / Statistics (`.json`)**: Exact numerical values, test statistics, parameters, and audit checklists.
+     b) **Markdown Narrative & Tables (`.md`)**: Human-readable scholarly narrative, APA 7 markdown tables, and statistical interpretations for immediate preview, inspection, and diffing.
+     c) **OpenXML Word Document (`.docx`)**: Institutional document with strict Persian typography (`B Nazanin` / `B Titr`), decoupled LTR numbers, 3-line borders, and Word OMML math equations (`<m:oMath>`).
+   - Chapter assembly merges both `Chapter_X.docx` and `Chapter_X.md` from these micro-stage components.
 3. **The One-Hypothesis-One-Stage Invariant (اصل یک فرضیه = یک مرحله مجزا)**:
-   - In Chapter 4 (Findings) and Chapter 5 (Discussion), every individual hypothesis (Hypothesis 1, 2, ..., $k$, and each indirect mediation path) **MUST HAVE ITS OWN DEDICATED, INDEPENDENT STAGE**. Never lump multiple hypotheses into a single calculation or drafting step.
+   - In Chapter 4 (Findings) and Chapter 5 (Discussion), every individual hypothesis (Hypothesis 1, 2, ..., $k$, and each indirect mediation path) **MUST HAVE ITS OWN DEDICATED, INDEPENDENT STAGE** producing its dedicated triad (`06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json`). Never lump multiple hypotheses into a single calculation or drafting step.
 4. **Mandatory Micro-Stage Sequences**:
    - **Chapter 4 Findings**:
-     - *Stage 4.0*: Data Curation & Preprocessing (`00_data_curation_report.json` + `data_cleaned.xlsx`)
-     - *Stage 4.1*: Demographics Profiling (`01_demographics.docx`)
-     - *Stage 4.2*: Descriptives & Scale Reliability ($\alpha, \omega$) (`02_descriptives_and_reliability.docx`)
-     - *Stage 4.3*: Parametric Assumptions Verification (`03_parametric_assumptions.docx`)
-     - *Stage 4.4*: Bivariate Correlation Matrix Analysis (`04_bivariate_correlations.docx`)
-     - *Stage 4.5*: Macro SEM Model Fit (11 Fit Indices vs Hu/Bentler) OR Primary Model (`05_macro_model.docx`)
-     - *Stage 4.6.1*: Hypothesis 1 Testing & Narrative Dissection (`06_hypothesis_1.docx`)
-     - *Stage 4.6.2*: Hypothesis 2 Testing & Narrative Dissection (`07_hypothesis_2.docx`)
-     - *Stage 4.6.k*: Hypothesis $k$ Testing & Narrative Dissection (`XX_hypothesis_k.docx`)
-     - *Stage 4.7.1*: Indirect / Mediation Path 1 (Bootstrap 5,000 & 95% BCa CI) (`XX_mediation_1.docx`)
-     - *Stage 4.8*: Master Hypotheses Decision Matrix & Chapter Summary (1-2 pages) (`XX_chapter_summary.docx`)
-     - *Stage 4.9*: Statistical QC & MSAI Anomaly Audit (`XX_statistical_audit_report.json`)
-     - *Stage 4.10*: Results QC & APA 7 Typography (`XX_results_qc_checklist.json`)
-     - *Stage 4.11*: OpenXML Chapter Assembly (`Chapter_4_Results.docx`)
-     - *Stage 4.12*: Committee Defense Viva Voce Simulation (`XX_defense_cross_examination_brief.docx`)
+     - *Stage 4.0*: Data Curation & Preprocessing (`00_data_curation_report.json` + `00_data_curation_report.md` + `data_cleaned.xlsx`)
+     - *Stage 4.1*: Demographics Profiling (`01_demographics.docx`, `01_demographics.md`, `01_demographics.json`)
+     - *Stage 4.2*: Descriptives & Scale Reliability ($\alpha, \omega$) (`02_descriptives_and_reliability.docx`, `.md`, `.json`)
+     - *Stage 4.3*: Parametric Assumptions Verification (`03_parametric_assumptions.docx`, `.md`, `.json`)
+     - *Stage 4.4*: Bivariate Correlation Matrix Analysis (`04_bivariate_correlations.docx`, `.md`, `.json`)
+     - *Stage 4.5*: Macro SEM Model Fit (11 Fit Indices vs Hu/Bentler) OR Primary Model (`05_macro_model.docx`, `.md`, `.json`)
+     - *Stage 4.6.1*: Hypothesis 1 Testing & Narrative Dissection (`06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json`)
+     - *Stage 4.6.2*: Hypothesis 2 Testing & Narrative Dissection (`07_hypothesis_2.docx`, `07_hypothesis_2.md`, `07_hypothesis_2.json`)
+     - *Stage 4.6.k*: Hypothesis $k$ Testing & Narrative Dissection (`XX_hypothesis_k.docx`, `XX_hypothesis_k.md`, `XX_hypothesis_k.json`)
+     - *Stage 4.7.1*: Indirect / Mediation Path 1 (Bootstrap 5,000 & 95% BCa CI) (`XX_mediation_1.docx`, `.md`, `.json`)
+     - *Stage 4.8*: Master Hypotheses Decision Matrix & Chapter Summary (`XX_chapter_summary.docx`, `.md`, `.json`)
+     - *Stage 4.9*: Statistical QC & MSAI Anomaly Audit (`XX_statistical_audit_report.json`, `.md`)
+     - *Stage 4.10*: Results QC & APA 7 Typography (`XX_results_qc_checklist.json`, `.md`)
+     - *Stage 4.11*: OpenXML & Markdown Chapter Assembly (`Chapter_4_Results.docx` + `Chapter_4_Results.md`)
+     - *Stage 4.12*: Committee Defense Viva Voce Simulation (`XX_defense_brief.docx`, `.md`, `.json`)
    - **Chapter 5 Discussion**:
-     - *Stage 5.1*: Findings Overview & Purpose Recap (`01_findings_recap.docx`)
-     - *Stage 5.2.1*: Hypothesis 1 Deep Discussion (Psychological Mechanism & Literature Concordance) (`02_hypothesis_1_discussion.docx`)
-     - *Stage 5.2.2*: Hypothesis 2 Deep Discussion (`03_hypothesis_2_discussion.docx`)
-     - *Stage 5.2.k*: Hypothesis $k$ Deep Discussion (`XX_hypothesis_k_discussion.docx`)
-     - *Stage 5.3*: Unexpected / Non-Significant Findings Epistemic Analysis (`XX_non_significant_findings.docx`)
-     - *Stage 5.4*: Theoretical, Clinical & Practical Implications (`XX_implications.docx`)
-     - *Stage 5.5*: Methodological, Sampling & Instrument Limitations (`XX_limitations.docx`)
-     - *Stage 5.6*: Future Research & Actionable Recommendations (`XX_recommendations.docx`)
-     - *Stage 5.7*: Chapter 5 Consolidation & Assembly (`Chapter_5_Discussion.docx`)
-   - **Chapter 2 Literature Review**: Stages 2.1 to 2.7 (Foundations $\rightarrow$ Bibliometrics $\rightarrow$ International $\rightarrow$ Iranian $\rightarrow$ Synthesis $\rightarrow$ Matrix Table $\rightarrow$ Assembly).
-   - **Research Proposal**: Stages P.1 to P.8 (Problem $\rightarrow$ Significance $\rightarrow$ Hypotheses $\rightarrow$ Methodology $\rightarrow$ Instruments $\rightarrow$ Procedure $\rightarrow$ Ethics $\rightarrow$ Assembly).
-   - **Scale Validation**: Stages V.1 to V.8 (CVR/CVI $\rightarrow$ Item Analysis $\rightarrow$ EFA $\rightarrow$ CFA $\rightarrow$ Construct Validity $\rightarrow$ Invariance $\rightarrow$ IRT/ROC $\rightarrow$ Assembly).
+     - *Stage 5.1*: Findings Overview & Purpose Recap (`01_findings_recap.docx`, `.md`, `.json`)
+     - *Stage 5.2.1*: Hypothesis 1 Deep Discussion (Psychological Mechanism & Literature Concordance) (`02_hypothesis_1_discussion.docx`, `.md`, `.json`)
+     - *Stage 5.2.2*: Hypothesis 2 Deep Discussion (`03_hypothesis_2_discussion.docx`, `.md`, `.json`)
+     - *Stage 5.2.k*: Hypothesis $k$ Deep Discussion (`XX_hypothesis_k_discussion.docx`, `.md`, `.json`)
+     - *Stage 5.3*: Unexpected / Non-Significant Findings Epistemic Analysis (`XX_non_significant_findings.docx`, `.md`, `.json`)
+     - *Stage 5.4*: Theoretical, Clinical & Practical Implications (`XX_implications.docx`, `.md`, `.json`)
+     - *Stage 5.5*: Methodological, Sampling & Instrument Limitations (`XX_limitations.docx`, `.md`, `.json`)
+     - *Stage 5.6*: Future Research & Actionable Recommendations (`XX_recommendations.docx`, `.md`, `.json`)
+     - *Stage 5.7*: Chapter 5 Consolidation & Assembly (`Chapter_5_Discussion.docx` + `Chapter_5_Discussion.md`)
+   - **Chapter 2 Literature Review**: Stages 2.1 to 2.8 (Foundations $\rightarrow$ Bibliometrics $\rightarrow$ International $\rightarrow$ Iranian $\rightarrow$ Synthesis $\rightarrow$ Matrix Table $\rightarrow$ Assembly, each producing `.docx`, `.md`, `.json`).
+   - **Research Proposal**: Stages P.1 to P.8 (Problem $\rightarrow$ Significance $\rightarrow$ Hypotheses $\rightarrow$ Methodology $\rightarrow$ Instruments $\rightarrow$ Procedure $\rightarrow$ Ethics $\rightarrow$ Assembly, each producing `.docx`, `.md`, `.json`).
+   - **Scale Validation**: Stages V.1 to V.9 (CVR/CVI $\rightarrow$ Item Analysis $\rightarrow$ EFA $\rightarrow$ CFA $\rightarrow$ Construct Validity $\rightarrow$ Invariance $\rightarrow$ IRT/ROC $\rightarrow$ Assembly, each producing `.docx`, `.md`, `.json`).
 
 ---
 

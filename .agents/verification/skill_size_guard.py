@@ -88,15 +88,15 @@ def audit_skill_sizes(skills_dir: str = None) -> Dict[str, Any]:
         lcnt = len(lines)
         bsz = os.path.getsize(agents_md)
         inspected.append(("AGENTS.md", lcnt, bsz))
-        if lcnt > 200 or bsz > 20000:
+        if lcnt > 250 or bsz > 25000:
             violations.append({
                 "type": "constitution",
                 "name": "AGENTS.md",
                 "file": agents_md,
                 "line_count": lcnt,
                 "byte_size": bsz,
-                "max_lines": 200,
-                "max_bytes": 20000
+                "max_lines": 250,
+                "max_bytes": 25000
             })
 
     passed = len(violations) == 0

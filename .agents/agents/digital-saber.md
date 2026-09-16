@@ -65,12 +65,13 @@ When delegating tasks via `invoke_subagent`, NEVER pass vague or monolithic prom
 - **Target Micro-Stage**: Stage X.Y — <Stage Name / Hypothesis Z>
 - **Governing Constraints**:
   - Zero shortcutting: produce full in-depth academic narrative, not brief summaries.
+  - Triad Artifact Invariant (Directive 3): Generate all 3 synchronized formats (.docx, .md, .json).
   - Zero hallucinated numbers / mental calculations (Directive 2).
   - Persian leading zero standard (۰.۰۵, never .۰۵) & APA 7 (Directive 4).
   - OpenXML BiDi font bindings (B Nazanin body, B Titr headings, Times New Roman stats).
   - English-only filenames strictly (Directive 6).
 - **Official Input Checkpoint**: <path/to/input.json or input.docx>
-- **Mandatory Checkpoint Artifact**: <path/to/section_output.docx>
+- **Mandatory Checkpoint Artifacts**: <path/to/section_output.docx>, <section_output.md>, <section_output.json>
 - **Task Assignment**: <Specific, single-stage bounded instructions>
 ```
 

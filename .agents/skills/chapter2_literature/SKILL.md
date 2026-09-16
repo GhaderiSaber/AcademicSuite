@@ -189,48 +189,48 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - Clean text bibliography (`literature_references.txt`).
 - **Output**: Verified reference bundles and audit clearance.
 
-### Micro-Stage Execution Sequence & Anti-Shortcut Protocol (Directive 3 & 11)
+### Micro-Stage Execution Sequence & Triad Artifact Invariant (Directive 3 & 11)
 
-To prevent shortcutting, Chapter 2 literature review drafting is strictly partitioned into independent micro-stages:
+To prevent shortcutting, Chapter 2 literature review drafting is strictly partitioned into independent micro-stages. Monolithic execution is prohibited. **Triad Artifact Invariant**: Every stage generates `.docx` (APA 7 OpenXML), `.md` (Markdown narrative & tables), and `.json` (structured data/audit).
 
 #### Stage 2.1: Theoretical Foundations & Conceptual Definitions
 - **Agent**: `academic-writer`
-- **Output**: `01_theoretical_foundations.docx` (Foundational theories, historical evolution, operational constructs).
+- **Output**: `01_theoretical_foundations.docx`, `01_theoretical_foundations.md`, `01_theoretical_foundations.json` (Foundational theories, historical evolution, operational constructs).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 2.2: Bibliometrics & Callon Strategic Thematic Mapping
 - **Agent**: `bibliometric-network-analyst`
-- **Output**: `02_bibliometrics.docx` + `bibliometric_network_map.png` + `thematic_strategic_map.png`.
+- **Output**: `02_bibliometrics.docx`, `02_bibliometrics.md`, `02_bibliometrics.json` + `bibliometric_network_map.png` + `thematic_strategic_map.png`.
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 2.3: International Empirical Studies Review
 - **Agent**: `literature-expert` + `academic-writer`
-- **Output**: `03_intl_studies.docx` (Foreign studies structured with Saber's 5-Part Epistemic Chain).
+- **Output**: `03_intl_studies.docx`, `03_intl_studies.md`, `03_intl_studies.json` (Foreign studies structured with Saber's 5-Part Epistemic Chain).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 2.4: Iranian Empirical Studies Review
 - **Agent**: `literature-expert` + `academic-writer`
-- **Output**: `04_iranian_studies.docx` (Iranian domestic empirical research with 5-Part Epistemic Chain).
+- **Output**: `04_iranian_studies.docx`, `04_iranian_studies.md`, `04_iranian_studies.json` (Iranian domestic empirical research with 5-Part Epistemic Chain).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 2.5: Inverted-Triangle Synthesis, Research Gap & Conceptual Model
 - **Agent**: `academic-writer`
-- **Output**: `05_synthesis_model.docx` (Inverted-triangle synthesis, explicit empirical gaps, conceptual framework).
+- **Output**: `05_synthesis_model.docx`, `05_synthesis_model.md`, `05_synthesis_model.json` (Inverted-triangle synthesis, explicit empirical gaps, conceptual framework).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 2.6: Comprehensive Empirical Literature Matrix Table
 - **Agent**: `literature-expert`
-- **Output**: `06_literature_matrix.docx` + `empirical_literature_matrix.xlsx` (Full comparative table of studies).
+- **Output**: `06_literature_matrix.docx`, `06_literature_matrix.md`, `06_literature_matrix.json` + `empirical_literature_matrix.xlsx` (Full comparative table of studies).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-#### Stage 2.7: Chapter Assembly & OpenXML Merging
+#### Stage 2.7: Chapter Assembly & Merging
 - **Agent**: Execution Layer via `orchestrator_cli.py --assemble-chapter Chapter_2_Literature_Review.docx`
-- **Output**: `Chapter_2_Literature_Review.docx` (Concatenated from verified section documents).
+- **Output**: `Chapter_2_Literature_Review.docx` + `Chapter_2_Literature_Review.md` (Concatenated from verified section documents).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 2.8: Final Committee Defense Simulator
 - **Agent**: `final-judge`
-- **Output**: `XX_lit_defense_brief.docx` (Scrutiny on theoretical gaps, sample benchmarks, and divergent findings).
+- **Output**: `XX_lit_defense_brief.docx`, `XX_lit_defense_brief.md`, `defense_readiness.json` (Scrutiny on theoretical gaps, sample benchmarks, and divergent findings).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 ---

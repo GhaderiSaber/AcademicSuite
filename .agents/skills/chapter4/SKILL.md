@@ -186,78 +186,78 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - Verification of native Word OMML math equations (`<m:oMath>`) preservation.
 - **Output**: `results_qc_checklist.json`.
 
-### Micro-Stage Execution Sequence & One-Hypothesis-One-Stage Protocol (Directive 3 & 11)
+### Micro-Stage Execution Sequence & Triad Artifact Invariant (Directive 3 & 11)
 
-To prevent shortcutting, Chapter 4 drafting is strictly partitioned into independent micro-stages. Monolithic execution is prohibited:
+To prevent shortcutting, Chapter 4 drafting is strictly partitioned into independent micro-stages. Monolithic execution is prohibited. **Triad Artifact Invariant**: Every stage generates `.docx` (APA 7 OpenXML), `.md` (Markdown narrative & tables), and `.json` (structured data/audit).
 
 #### Stage 4.0: Data Curation & Preprocessing
 - **Agent**: `data-curator`
-- **Output**: `00_data_curation_report.json` + `data_cleaned.xlsx` (Little's MCAR test, unengaged response filtering, Mahalanobis $D^2$).
+- **Output**: `00_data_curation_report.json`, `00_data_curation_report.md` + `data_cleaned.xlsx` (Little's MCAR test, unengaged response filtering, Mahalanobis $D^2$).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.1: Demographic Profiling & Participant Attributes
 - **Agent**: `academic-writer`
-- **Output**: `01_demographics.docx` (Frequency tables, percentages, APA 7 demographic narrative).
+- **Output**: `01_demographics.docx`, `01_demographics.md`, `01_demographics.json` (Frequency tables, percentages, APA 7 demographic narrative).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.2: Psychometrics & Scale Reliability
 - **Agent**: `statistical-expert` + `academic-writer`
-- **Output**: `02_descriptives_and_reliability.docx` (Construct, subscale, $N, M, SD$, Skewness, Kurtosis, Cronbach's $\alpha$, McDonald's $\omega$).
+- **Output**: `02_descriptives_and_reliability.docx`, `02_descriptives_and_reliability.md`, `02_descriptives_and_reliability.json` (Construct, subscale, $N, M, SD$, Skewness, Kurtosis, Cronbach's $\alpha$, McDonald's $\omega$).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.3: Parametric Assumptions Suite
 - **Agent**: `statistical-expert`
-- **Output**: `03_parametric_assumptions.docx` (Shapiro-Wilk, Levene's test, regression slope homogeneity, collinearity VIF/Tolerance, linearity).
+- **Output**: `03_parametric_assumptions.docx`, `03_parametric_assumptions.md`, `03_parametric_assumptions.json` (Shapiro-Wilk, Levene's test, regression slope homogeneity, collinearity VIF/Tolerance, linearity).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.4: Bivariate Correlation Matrix Analysis
 - **Agent**: `academic-writer`
-- **Output**: `04_bivariate_correlations.docx` (Subscale correlation matrix, discriminant validity evaluation, multi-paragraph scholarly narrative directly above the table).
+- **Output**: `04_bivariate_correlations.docx`, `04_bivariate_correlations.md`, `04_bivariate_correlations.json` (Subscale correlation matrix, discriminant validity evaluation, multi-paragraph scholarly narrative directly above the table).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.5: Macro SEM Model Fit / Primary Omnibus Model
 - **Agent**: `statistical-expert` + `academic-writer`
-- **Output**: `05_macro_model.docx` (11 Goodness-of-Fit indices table vs Hu/Bentler criteria + 300-DPI Structural Path Diagram).
+- **Output**: `05_macro_model.docx`, `05_macro_model.md`, `05_macro_model.json` (11 Goodness-of-Fit indices table vs Hu/Bentler criteria + 300-DPI Structural Path Diagram).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.6.1: Hypothesis 1 Testing & Dissection (One-Hypothesis-One-Stage Invariant)
 - **Agent**: `academic-writer`
-- **Output**: `06_hypothesis_1.docx` (3-table standard: correlation, ANOVA summary, regression coefficients + deep narrative dissection).
+- **Output**: `06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json` (3-table standard: correlation, ANOVA summary, regression coefficients + deep narrative dissection).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.6.k: Hypothesis k Testing & Dissection (Dedicated Independent Stages)
 - **Agent**: `academic-writer`
-- **Output**: `XX_hypothesis_k.docx` (Each subsequent hypothesis is analyzed and drafted in its own dedicated stage).
+- **Output**: `XX_hypothesis_k.docx`, `XX_hypothesis_k.md`, `XX_hypothesis_k.json` (Each subsequent hypothesis is analyzed and drafted in its own dedicated stage).
 - **Stage-Gate**: Emit Completion Report and await user confirmation after each hypothesis.
 
 #### Stage 4.7.1 to 4.7.k: Indirect Mediation Paths (Bootstrap 5,000)
 - **Agent**: `statistical-expert` + `academic-writer`
-- **Output**: `XX_mediation_k.docx` (Indirect effects, 5,000 resamples, 95% BCa CI).
+- **Output**: `XX_mediation_k.docx`, `XX_mediation_k.md`, `XX_mediation_k.json` (Indirect effects, 5,000 resamples, 95% BCa CI).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.8: Master Decision Matrix & Chapter 4 Summary
 - **Agent**: `academic-writer`
-- **Output**: `XX_chapter_summary.docx` (Comprehensive 1-2 page synthesis, Master Hypotheses Decision Table, transition bridge to Chapter 5).
+- **Output**: `XX_chapter_summary.docx`, `XX_chapter_summary.md`, `XX_chapter_summary.json` (Comprehensive 1-2 page synthesis, Master Hypotheses Decision Table, transition bridge to Chapter 5).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.9: Statistical QC (MSAI Anomaly Audit)
 - **Agent**: `statistical-auditor`
-- **Output**: `XX_statistical_audit_report.json` (Multi-Signal Anomaly Index audit on all numbers across sections).
+- **Output**: `XX_statistical_audit_report.json`, `XX_statistical_audit_report.md` (Multi-Signal Anomaly Index audit on all numbers across sections).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.10: Results QC (APA 7 & OpenXML Typography)
 - **Agent**: `results-auditor`
-- **Output**: `XX_results_qc_checklist.json` (Leading zero check `۰.۰۰۱`, 3-line borders, OMML equation preservation).
+- **Output**: `XX_results_qc_checklist.json`, `XX_results_qc_checklist.md` (Leading zero check `۰.۰۰۱`, 3-line borders, OMML equation preservation).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-#### Stage 4.11: Chapter Assembly & OpenXML Merging
+#### Stage 4.11: Chapter Assembly & Merging
 - **Agent**: Execution Layer via `orchestrator_cli.py --assemble-chapter Chapter_4_Results.docx`
-- **Output**: `Chapter_4_Results.docx` (Concatenated from verified section documents).
+- **Output**: `Chapter_4_Results.docx` + `Chapter_4_Results.md` (Concatenated from verified section documents).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 #### Stage 4.12: Final Committee Defense Simulator
 - **Agent**: `final-judge`
-- **Output**: `XX_defense_cross_examination_brief.docx` + `defense_readiness.json` (5 examiner cross-examination questions & defense model answers).
+- **Output**: `XX_defense_cross_examination_brief.docx`, `XX_defense_cross_examination_brief.md`, `defense_readiness.json` (5 examiner cross-examination questions & defense model answers).
 - **Stage-Gate**: Emit Completion Report and await user confirmation.
 
 ---

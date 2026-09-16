@@ -54,7 +54,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
             }
 
         # Directive 3: Micro-Stage & Hypothesis Section Gating for Chapter 4
-        if basename.lower() in ("chapter_4_results.docx", "chapter4_results.docx"):
+        if basename.lower() in ("chapter_4_results.docx", "chapter4_results.docx", "chapter_4_results.md", "chapter4_results.md"):
             target_dir = os.path.dirname(target) or "."
             check_dirs = [target_dir] + workspaces
             
@@ -66,19 +66,19 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     "decision": "deny",
                     "reason": (
                         "CONSTITUTIONAL VIOLATION (Directive 3 - Zero Skipping Rule): "
-                        "Cannot generate Chapter 4 DOCX before Stage 4 (stats_results.json) "
+                        "Cannot assemble Chapter 4 before Stage 4 (stats_results.json) "
                         "and Stage 5 (statistical_audit_report.json) checkpoint artifacts exist on disk."
                     )
                 }
 
             # 2. Micro-stage section artifacts (Anti-Shortcut Guarantee)
             required_sections = [
-                ("01_demographics.docx", ["*demographic*.docx"]),
-                ("02_descriptives_and_reliability.docx", ["*descriptive*.docx", "*reliability*.docx"]),
-                ("03_parametric_assumptions.docx", ["*assumption*.docx"]),
-                ("04_bivariate_correlations.docx", ["*correlation*.docx"]),
-                ("hypothesis_1.docx", ["*hypothesis_1*.docx", "*hypo_1*.docx"]),
-                ("chapter_summary.docx", ["*chapter_summary*.docx", "*summary*.docx"])
+                ("01_demographics", ["*demographic*.docx", "*demographic*.md"]),
+                ("02_descriptives_and_reliability", ["*descriptive*.docx", "*descriptive*.md", "*reliability*.docx", "*reliability*.md"]),
+                ("03_parametric_assumptions", ["*assumption*.docx", "*assumption*.md"]),
+                ("04_bivariate_correlations", ["*correlation*.docx", "*correlation*.md"]),
+                ("hypothesis_1", ["*hypothesis_1*.docx", "*hypothesis_1*.md", "*hypo_1*.docx", "*hypo_1*.md"]),
+                ("chapter_summary", ["*chapter_summary*.docx", "*chapter_summary*.md", "*summary*.docx", "*summary*.md"])
             ]
             missing_sections = []
             for label, patterns in required_sections:
@@ -97,22 +97,22 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 return {
                     "decision": "deny",
                     "reason": (
-                        f"CONSTITUTIONAL VIOLATION (Directive 3 - Micro-Stage & One-Hypothesis-One-Stage Invariant): "
+                        f"CONSTITUTIONAL VIOLATION (Directive 3 - Micro-Stage, Triad Artifact & One-Hypothesis-One-Stage Invariant): "
                         f"Cannot compile Chapter 4 in one shot. Missing required micro-stage section artifacts: "
                         f"{missing_sections}. Each section and hypothesis must be generated as an independent, "
-                        f"verified artifact on disk first before assembly to prevent the model from taking shortcuts."
+                        f"verified artifact on disk (triad: .docx, .md, .json) before assembly."
                     )
                 }
 
         # Directive 3: Micro-Stage Gating for Chapter 5 final deliverable
-        if basename.lower() in ("chapter_5_discussion.docx", "chapter5_discussion.docx"):
+        if basename.lower() in ("chapter_5_discussion.docx", "chapter5_discussion.docx", "chapter_5_discussion.md", "chapter5_discussion.md"):
             target_dir = os.path.dirname(target) or "."
             check_dirs = [target_dir] + workspaces
             required_ch5_sections = [
-                ("01_findings_recap.docx", ["*recap*.docx", "*findings*.docx"]),
-                ("hypothesis_1_discussion.docx", ["*hypothesis_1_discussion*.docx", "*hypo_1_disc*.docx"]),
-                ("implications.docx", ["*implication*.docx"]),
-                ("limitations.docx", ["*limitation*.docx"])
+                ("01_findings_recap", ["*recap*.docx", "*recap*.md", "*findings*.docx", "*findings*.md"]),
+                ("hypothesis_1_discussion", ["*hypothesis_1_discussion*.docx", "*hypothesis_1_discussion*.md", "*hypo_1_disc*.docx", "*hypo_1_disc*.md"]),
+                ("implications", ["*implication*.docx", "*implication*.md"]),
+                ("limitations", ["*limitation*.docx", "*limitation*.md"])
             ]
             missing_ch5 = []
             for label, patterns in required_ch5_sections:
@@ -131,9 +131,9 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 return {
                     "decision": "deny",
                     "reason": (
-                        f"CONSTITUTIONAL VIOLATION (Directive 3 - Micro-Stage & One-Hypothesis-One-Stage Invariant): "
+                        f"CONSTITUTIONAL VIOLATION (Directive 3 - Micro-Stage, Triad Artifact & One-Hypothesis-One-Stage Invariant): "
                         f"Cannot compile Chapter 5 in one shot. Missing required micro-stage section artifacts: "
-                        f"{missing_ch5}. Each hypothesis discussion and section must be drafted independently first."
+                        f"{missing_ch5}. Each hypothesis discussion and section must be drafted independently (triad: .docx, .md, .json) first."
                     )
                 }
 
@@ -175,8 +175,8 @@ def handle_pre_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
     reminder = (
         "🚨 CONSTITUTIONAL ENFORCEMENT ACTIVE (Directive 0, 3 & 11):\n"
         "1. Binary Honesty Protocol: If asked a compliance question, your response MUST begin with 'Yes' or 'No'.\n"
-        "2. Micro-Stages & One-Hypothesis-One-Stage Invariant (Directive 3): Monolithic drafting in one shot is prohibited. "
-        "Every section and every hypothesis must be generated as an independent, verified disk artifact before assembly.\n"
+        "2. Micro-Stages, Triad Artifacts & One-Hypothesis-One-Stage Invariant (Directive 3): Monolithic drafting in one shot is prohibited. "
+        "Every section and individual hypothesis must generate a synchronized triad of disk artifacts: .docx (Word), .md (Markdown), and .json (Data/Stats) before assembly.\n"
         "3. Interactive Stage-Gate Protocol (Directive 11): At the end of each stage, emit the Stage Completion Report "
         "(What was done + What will be done next), then STOP and wait for user confirmation before advancing.\n"
         "4. Multi-Agent Integrity: Under NO circumstance claim a multi-agent workflow unless you physically invoked "
