@@ -32,6 +32,61 @@ def get_os_name() -> str:
     return sys.platform
 
 
+def get_cwd(target_path: str = ".") -> Path:
+    """
+    Safely retrieves the current working directory or resolves a target path.
+    Handles FUSE cloud mounts (e.g. rclone / Google Drive) where os.getcwd()
+    can raise FileNotFoundError: [Errno 2] No such file or directory due to
+    stale dentry inodes or FUSE parent directory lookup disconnects.
+    """
+    if target_path and target_path != ".":
+        p = Path(target_path).expanduser()
+        try:
+            return p.resolve()
+        except Exception:
+            return p
+
+    # 1. Try standard Path.cwd()
+    try:
+        return Path.cwd().resolve()
+    except (FileNotFoundError, OSError):
+        pass
+
+    # 2. Fallback to PWD environment variable (standard in bash/zsh shells)
+    pwd_env = os.environ.get("PWD")
+    if pwd_env:
+        p = Path(pwd_env)
+        if p.exists():
+            try:
+                os.chdir(pwd_env)
+            except Exception:
+                pass
+            try:
+                return p.resolve()
+            except Exception:
+                return p
+
+    # 3. Fallback to /bin/pwd command
+    try:
+        res = subprocess.run(["pwd"], capture_output=True, text=True)
+        if res.returncode == 0 and res.stdout.strip():
+            p_str = res.stdout.strip()
+            p = Path(p_str)
+            if p.exists():
+                try:
+                    os.chdir(p_str)
+                except Exception:
+                    pass
+                try:
+                    return p.resolve()
+                except Exception:
+                    return p
+    except Exception:
+        pass
+
+    return Path(".").absolute()
+
+
 CONFIG_DIR = Path.home() / ".config" / "attach-suite"
 CONFIG_FILE = CONFIG_DIR / "suites.json"
 
@@ -546,7 +601,7 @@ def cmd_list(args):
 
 def cmd_status(args):
     target_path = getattr(args, "path", ".") or "."
-    cwd = Path(target_path).resolve()
+    cwd = get_cwd(target_path)
     status = get_status(cwd)
     suite_path = get_attached_suite_path(cwd)
     current_os = get_os_name()
@@ -622,7 +677,7 @@ def cmd_status(args):
 
 def cmd_fix(args):
     """Automatically repairs cross-OS links (e.g. Mac path on Windows or Windows path on Mac)."""
-    cwd = Path.cwd()
+    cwd = get_cwd()
     meta_file = cwd / ".attached_suite.json"
     if not meta_file.exists():
         print(f"{YELLOW}No attached suite metadata (.attached_suite.json) found in current directory.{RESET}")
@@ -646,7 +701,7 @@ def cmd_fix(args):
 
 def cmd_detach(args):
     target_path = getattr(args, "path", ".") or "."
-    cwd = Path(target_path).resolve()
+    cwd = get_cwd(target_path)
     print(f"\n{BOLD}Detaching suite from:{RESET} {cwd}")
 
     # Safety check: Never detach the master suite from inside its own root repository!
@@ -735,7 +790,7 @@ def cmd_detach(args):
 
 
 def cmd_clean(args):
-    cwd = Path.cwd()
+    cwd = get_cwd()
     print(f"\n{BOLD}Scanning for Google Drive conflict files and stale locks in:{RESET} {cwd}")
     cleaned = clean_conflicts_and_locks(cwd)
     if cleaned:
@@ -748,7 +803,7 @@ def cmd_clean(args):
 
 
 def cmd_attach(args):
-    cwd = Path.cwd().resolve()
+    cwd = get_cwd()
     suites = load_suites()
     suite_key, suite_info = resolve_suite(args.suite, suites)
 
@@ -871,7 +926,7 @@ def cmd_attach(args):
 
 def cmd_git_passthrough(args, unknown_args):
     """Runs any arbitrary git command against the master suite repo from current directory."""
-    cwd = Path.cwd()
+    cwd = get_cwd()
     suite_path = get_attached_suite_path(cwd)
     if not suite_path:
         print(f"{RED}Error: No suite is attached to the current directory.{RESET}", file=sys.stderr)
@@ -886,7 +941,7 @@ def cmd_git_passthrough(args, unknown_args):
 
 def cmd_push(args):
     """Stages changes in the attached suite, commits them, and pushes to remote."""
-    cwd = Path.cwd()
+    cwd = get_cwd()
     suite_path = get_attached_suite_path(cwd)
     if not suite_path:
         print(f"{RED}Error: No suite is attached to the current directory.{RESET}", file=sys.stderr)
@@ -925,7 +980,7 @@ def cmd_push(args):
 
 def cmd_pull(args):
     """Pulls latest remote changes into the master suite from GitHub."""
-    cwd = Path.cwd()
+    cwd = get_cwd()
     suite_path = get_attached_suite_path(cwd)
     if not suite_path:
         print(f"{RED}Error: No suite is attached to the current directory.{RESET}", file=sys.stderr)
@@ -939,7 +994,7 @@ def cmd_pull(args):
 
 def cmd_diff(args):
     """Shows git diff on the master suite."""
-    cwd = Path.cwd()
+    cwd = get_cwd()
     suite_path = get_attached_suite_path(cwd)
     if not suite_path:
         print(f"{RED}Error: No suite is attached to the current directory.{RESET}", file=sys.stderr)
