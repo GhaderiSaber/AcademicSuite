@@ -12,6 +12,21 @@ import sys
 import time
 import unittest
 
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Dynamically discover site-packages from any local virtualenv (.venv or venv)
+for venv_name in [".venv", "venv"]:
+    venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
+    if os.path.isdir(venv_lib):
+        try:
+            for entry in os.listdir(venv_lib):
+                sp = os.path.join(venv_lib, entry, "site-packages")
+                if os.path.isdir(sp) and sp not in sys.path:
+                    sys.path.insert(0, sp)
+        except OSError:
+            pass
+
+
 def main():
     print("=" * 70)
     print("🏛️  Digital Saber Academic Suite — Master Test Runner")
@@ -38,6 +53,12 @@ def main():
         sys.exit(0)
     else:
         print("❌ TEST SUITE FAILED: See tracebacks above.")
+        has_import_error = any("ModuleNotFoundError" in str(err) or "ImportError" in str(err) for _, err in result.errors)
+        if has_import_error:
+            print("\n💡 Tip: Missing dependencies detected in host Python environment.")
+            print("   To install dependencies in a local venv, run:")
+            print("     bash scripts/bootstrap_env.sh")
+            print("   Or run with active venv: .venv/bin/python run_tests.py")
         sys.exit(1)
 
 if __name__ == "__main__":

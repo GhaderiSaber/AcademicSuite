@@ -38,45 +38,104 @@ META_DIR = os.path.join(SKILLS_DIR, "systematic-review-meta-analyst", "scripts")
 STATS_DIR = os.path.join(SKILLS_DIR, "statistical-data-analyst", "scripts")
 SIMDAT_DIR = os.path.join(SKILLS_DIR, "psychometric-data-simulator", "scripts")
 ORCH_DIR = os.path.join(SKILLS_DIR, "academic-suite-orchestrator", "scripts")
-VENV_SITE = os.path.join(ROOT_DIR, ".venv", "lib", "python3.13", "site-packages")
 
 # Add paths to sys.path
-for p in [SHARED_DIR, MEMORY_DIR, REASONING_DIR, VERIFICATION_DIR, EVAL_DIR,
-          LIT_HARVESTER_DIR, BIBLIO_DIR, CITATION_DIR, LIT_REVIEW_DIR, REF_EXTRACT_DIR, META_DIR, STATS_DIR, SIMDAT_DIR, ORCH_DIR, VENV_SITE]:
+CORE_PATHS = [
+    SHARED_DIR, MEMORY_DIR, REASONING_DIR, VERIFICATION_DIR, EVAL_DIR,
+    LIT_HARVESTER_DIR, BIBLIO_DIR, CITATION_DIR, LIT_REVIEW_DIR,
+    REF_EXTRACT_DIR, META_DIR, STATS_DIR, SIMDAT_DIR, ORCH_DIR
+]
+for p in CORE_PATHS:
     if os.path.exists(p) and p not in sys.path:
         sys.path.insert(0, p)
 
+# Dynamically discover site-packages from any local virtualenv (.venv or venv)
+for venv_name in [".venv", "venv"]:
+    venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
+    if os.path.isdir(venv_lib):
+        try:
+            for entry in os.listdir(venv_lib):
+                sp = os.path.join(venv_lib, entry, "site-packages")
+                if os.path.isdir(sp) and sp not in sys.path:
+                    sys.path.insert(0, sp)
+        except OSError:
+            pass
+
+# Layer 2: Memory & Precedents
 try:
     from case_memory_engine import CaseMemoryEngine
+except ImportError:
+    CaseMemoryEngine = None
+
+try:
     from decision_journal_engine import DecisionJournalEngine
+except ImportError:
+    DecisionJournalEngine = None
+
+try:
     from continuous_learning_engine import ContinuousLearningEngine
+except ImportError:
+    ContinuousLearningEngine = None
+
+# Layer 3: Reasoning Engines
+try:
     from statistical_reasoner import StatisticalReasoner
+except ImportError:
+    StatisticalReasoner = None
+
+try:
     from epistemic_literature_reasoner import EpistemicLiteratureReasoner
+except ImportError:
+    EpistemicLiteratureReasoner = None
+
+try:
     from research_methodology_reasoner import ResearchMethodologyReasoner
+except ImportError:
+    ResearchMethodologyReasoner = None
+
+try:
     from writing_reasoner import AcademicWritingReasoner
+except ImportError:
+    AcademicWritingReasoner = None
+
+# Layer 5: Verification & Quality Control
+try:
     from multi_signal_anomaly_detector import MultiSignalAnomalyDetector
+except ImportError:
+    MultiSignalAnomalyDetector = None
+
+try:
     from defense_committee_simulator import DefenseCommitteeSimulator
+except ImportError:
+    DefenseCommitteeSimulator = None
+
+try:
     from saber_similarity_evaluator import SaberSimilarityEvaluator
+except ImportError:
+    SaberSimilarityEvaluator = None
+
+# Layer 4 / Shared: OpenXML Artifact Engine (requires python-docx)
+try:
     from openxml_artifact_engine import OpenXMLArtifactEngine
-except ImportError as e:
-    print(f"Warning: Module import failed: {e}", file=sys.stderr)
+except ImportError:
+    OpenXMLArtifactEngine = None
 
 
 class DigitalSaber:
     """Master controller for the Digital Saber cognitive architecture."""
 
     def __init__(self):
-        self.case_memory = CaseMemoryEngine()
-        self.decision_journal = DecisionJournalEngine()
-        self.learning_engine = ContinuousLearningEngine()
-        self.stat_reasoner = StatisticalReasoner()
-        self.lit_reasoner = EpistemicLiteratureReasoner()
-        self.method_reasoner = ResearchMethodologyReasoner()
-        self.writing_reasoner = AcademicWritingReasoner()
-        self.anomaly_detector = MultiSignalAnomalyDetector()
-        self.defense_sim = DefenseCommitteeSimulator()
-        self.evaluator = SaberSimilarityEvaluator()
-        self.openxml_engine = OpenXMLArtifactEngine()
+        self.case_memory = CaseMemoryEngine() if CaseMemoryEngine is not None else None
+        self.decision_journal = DecisionJournalEngine() if DecisionJournalEngine is not None else None
+        self.learning_engine = ContinuousLearningEngine() if ContinuousLearningEngine is not None else None
+        self.stat_reasoner = StatisticalReasoner() if StatisticalReasoner is not None else None
+        self.lit_reasoner = EpistemicLiteratureReasoner() if EpistemicLiteratureReasoner is not None else None
+        self.method_reasoner = ResearchMethodologyReasoner() if ResearchMethodologyReasoner is not None else None
+        self.writing_reasoner = AcademicWritingReasoner() if AcademicWritingReasoner is not None else None
+        self.anomaly_detector = MultiSignalAnomalyDetector() if MultiSignalAnomalyDetector is not None else None
+        self.defense_sim = DefenseCommitteeSimulator() if DefenseCommitteeSimulator is not None else None
+        self.evaluator = SaberSimilarityEvaluator() if SaberSimilarityEvaluator is not None else None
+        self.openxml_engine = OpenXMLArtifactEngine() if OpenXMLArtifactEngine is not None else None
 
     def show_identity(self):
         """Displays Saber's Core Research Constitution & Philosophy."""
