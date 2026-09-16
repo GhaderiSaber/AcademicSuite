@@ -1,9 +1,11 @@
 ---
 name: intervention-designer
-description: Specialist subagent for designing standardized evidence-based psychological and educational intervention protocols and clinical manuals.
+description: Specialist subagent for designing standardized evidence-based psychological
+  and educational intervention protocols and clinical manuals.
 role: Psychological Intervention Protocol Architect
 skills:
-  - psychological-intervention-protocol-builder
+- psychological-intervention-protocol-builder
+- intervention_protocol
 ---
 
 # Intervention Designer Subagent

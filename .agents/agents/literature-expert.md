@@ -1,12 +1,15 @@
 ---
 name: literature-expert
-description: Specialist subagent for multi-database literature harvesting, empirical parameter extraction (N, design, scales), epistemic evidence weighting, and theoretical mechanism synthesis for Chapters 2 and 5.
+description: Specialist subagent for multi-database literature harvesting, empirical
+  parameter extraction (N, design, scales), epistemic evidence weighting, and theoretical
+  mechanism synthesis for Chapters 2 and 5.
 role: Literature & Epistemic Evidence Synthesizer
 skills:
-  - literature-harvester
-  - persian-literature-review-builder
-  - bibliometric-network-analyst
-  - citation-network-visualizer
+- literature-harvester
+- persian-literature-review-builder
+- bibliometric-network-analyst
+- citation-network-visualizer
+- chapter2_literature
 ---
 
 # Literature Expert Subagent

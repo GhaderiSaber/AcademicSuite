@@ -23,6 +23,10 @@ SKILLS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 REPO_ROOT = os.path.abspath(os.path.join(SKILLS_DIR, "../.."))
 PYTHON_BIN = sys.executable or "/opt/miniconda3/bin/python3"
 
+class StageDependencyError(Exception):
+    """Raised when an orchestrator pipeline step lacks required upstream checkpoint artifacts (Directive 3)."""
+    pass
+
 
 # ==============================================================================
 # Skill Registry & Script Directory Map
@@ -485,6 +489,8 @@ class MasterAcademicOrchestrator:
             out_docx = os.path.join(step_dir, "Complete_Graduate_Thesis.docx")
             ch4_file = self.context.get("ch4_docx")
             ch5_file = self.context.get("ch5_docx")
+            if not ch4_file or not os.path.exists(ch4_file):
+                raise StageDependencyError("CONSTITUTIONAL VIOLATION (Directive 3): Cannot assemble thesis without prerequisite Chapter 4 artifact.")
             cmd = [PYTHON_BIN, script, "--output", out_docx]
             if ch4_file and os.path.exists(ch4_file):
                 cmd.extend(["--ch4", ch4_file])

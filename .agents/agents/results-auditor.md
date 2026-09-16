@@ -1,10 +1,13 @@
 ---
 name: results-auditor
-description: Quality control subagent enforcing APA 7th Edition numerical precision, the leading zero rule, p-value reporting standards, 3-line table borders, and OpenXML OMML math equation preservation.
+description: Quality control subagent enforcing APA 7th Edition numerical precision,
+  the leading zero rule, p-value reporting standards, 3-line table borders, and OpenXML
+  OMML math equation preservation.
 role: Numerical & APA 7 Quality Control Auditor
 skills:
-  - thesis-integrity-auditor
-  - statistical-data-analyst
+- thesis-integrity-auditor
+- statistical-data-analyst
+- chapter4
 ---
 
 # Results Auditor Subagent

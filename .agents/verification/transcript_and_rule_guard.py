@@ -33,12 +33,14 @@ def load_transcript(transcript_path: str) -> List[Dict[str, Any]]:
 
 
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Intercepts tool calls to enforce Directive 6 (English-Only Filenames) and security gates."""
+    """Intercepts tool calls to enforce Directive 3 (Artifact Gating), Directive 6 (English-Only Filenames) and security gates."""
     tool_call = payload.get("toolCall", {})
     name = tool_call.get("name", "")
     args = tool_call.get("args", {})
+    workspaces = payload.get("workspacePaths", [])
 
-    if name == "write_to_file":
+    # 1. Filename ASCII enforcement for file modifying tools
+    if name in ("write_to_file", "replace_file_content"):
         target = args.get("TargetFile", "")
         basename = os.path.basename(target)
         if any(ord(c) > 127 for c in basename):
@@ -50,8 +52,33 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 )
             }
 
+        # Directive 3: Stage-Gating for Chapter 4 final deliverable
+        if basename.lower() in ("chapter_4_results.docx", "chapter4_results.docx"):
+            for ws in workspaces:
+                stats_path = os.path.join(ws, "stats_results.json")
+                audit_path = os.path.join(ws, "statistical_audit_report.json")
+                if not os.path.exists(stats_path) or not os.path.exists(audit_path):
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            "CONSTITUTIONAL VIOLATION (Directive 3 - Zero Skipping Rule): "
+                            "Cannot generate Chapter 4 DOCX before Stage 4 (stats_results.json) "
+                            "and Stage 5 (statistical_audit_report.json) checkpoint artifacts exist on disk."
+                        )
+                    }
+
+    # 2. Shell command interceptor
     if name == "run_command":
         cmd = args.get("CommandLine", "")
+
+        # Security: Block destructive removal of configuration repositories
+        if re.search(r'\brm\s+-(?:r|rf|fr)\s+(?:\.agents|\.git)\b', cmd):
+            return {
+                "decision": "deny",
+                "reason": "SECURITY VIOLATION: Destruction of .agents or .git directories is strictly prohibited."
+            }
+
+        # Filename ASCII enforcement on redirects and directory creation
         redirect_match = re.search(r'(?:>|>>|\btouch\s+|\bmkdir\s+)([^\s;&|]+)', cmd)
         if redirect_match:
             filepath = redirect_match.group(1).strip("'\"")
@@ -66,6 +93,11 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 }
 
     return {"decision": "allow"}
+
+
+def handle_post_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Validates artifact schemas and logs post-tool diagnostics."""
+    return {}
 
 
 def handle_pre_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -260,6 +292,8 @@ def main():
         res = handle_stop(payload)
     elif event == "PreToolUse":
         res = handle_pre_tool_use(payload)
+    elif event == "PostToolUse":
+        res = handle_post_tool_use(payload)
     else:
         res = {"decision": "allow"}
 

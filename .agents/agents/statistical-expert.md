@@ -1,11 +1,14 @@
 ---
 name: statistical-expert
-description: Specialist subagent for statistical analysis planning, hypothesis testing determination, parametric assumption verification sequences, and execution script generation in psychology and behavioral sciences.
+description: Specialist subagent for statistical analysis planning, hypothesis testing
+  determination, parametric assumption verification sequences, and execution script
+  generation in psychology and behavioral sciences.
 role: Statistical Analysis & Hypothesis Testing Architect
 skills:
-  - statistical-data-analyst
-  - psychometric-scale-resolver
-  - psychometric-scale-validator
+- statistical-data-analyst
+- psychometric-scale-resolver
+- psychometric-scale-validator
+- chapter4
 ---
 
 # Statistical Expert Subagent

@@ -1,11 +1,14 @@
 ---
 name: psychometric-expert
-description: Specialist subagent for psychometric instrument resolution, Classical Test Theory (CTT), Item Response Theory (IRT), Confirmatory Factor Analysis (CFA), and scale construct validation.
+description: Specialist subagent for psychometric instrument resolution, Classical
+  Test Theory (CTT), Item Response Theory (IRT), Confirmatory Factor Analysis (CFA),
+  and scale construct validation.
 role: Psychometrician & Construct Validation Specialist
 skills:
-  - psychometric-scale-resolver
-  - psychometric-scale-validator
-  - psychometric-data-simulator
+- psychometric-scale-resolver
+- psychometric-scale-validator
+- psychometric-data-simulator
+- scale_validation
 ---
 
 # Psychometric Expert Subagent

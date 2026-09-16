@@ -1,10 +1,13 @@
 ---
 name: statistical-auditor
-description: Adversarial quality auditor subagent for statistical assumptions, degrees of freedom concordance, variance deflation, and Multi-Signal Anomaly Index (MSAI) scoring.
+description: Adversarial quality auditor subagent for statistical assumptions, degrees
+  of freedom concordance, variance deflation, and Multi-Signal Anomaly Index (MSAI)
+  scoring.
 role: Adversarial Statistical Quality Auditor
 skills:
-  - thesis-integrity-auditor
-  - statistical-data-analyst
+- thesis-integrity-auditor
+- statistical-data-analyst
+- chapter4
 ---
 
 # Statistical Auditor Subagent

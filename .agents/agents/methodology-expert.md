@@ -1,11 +1,14 @@
 ---
 name: methodology-expert
-description: Specialist subagent for research methodology, experimental design, sampling power determination (G*Power), and internal/external validity safeguards in psychology and behavioral sciences.
+description: Specialist subagent for research methodology, experimental design, sampling
+  power determination (G*Power), and internal/external validity safeguards in psychology
+  and behavioral sciences.
 role: Research Methodology & Experimental Design Specialist
 skills:
-  - gpower-sample-size-calculator
-  - persian-proposal-builder
-  - psychological-intervention-protocol-builder
+- gpower-sample-size-calculator
+- persian-proposal-builder
+- psychological-intervention-protocol-builder
+- proposal
 ---
 
 # Methodology Expert Subagent

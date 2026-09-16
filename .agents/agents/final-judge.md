@@ -1,10 +1,12 @@
 ---
 name: final-judge
-description: Final dissertation defense committee simulator, viva voce cross-examiner, and administrative human-in-the-loop release gatekeeper.
+description: Final dissertation defense committee simulator, viva voce cross-examiner,
+  and administrative human-in-the-loop release gatekeeper.
 role: Defense Committee Viva Voce Simulator & Release Gatekeeper
 skills:
-  - thesis-integrity-auditor
-  - persian-defense-presentation-builder
+- thesis-integrity-auditor
+- persian-defense-presentation-builder
+- defense_presentation
 ---
 
 # Final Judge Subagent

@@ -1,11 +1,13 @@
 ---
 name: journal-strategist
-description: Specialist subagent for academic journal article packaging, target journal selection, and peer-review rebuttal management.
+description: Specialist subagent for academic journal article packaging, target journal
+  selection, and peer-review rebuttal management.
 role: Publication Packaging & Peer-Review Rebuttal Strategist
 skills:
-  - academic-article-writer
-  - journal-submission-assistant
-  - ai-academic-tone-polisher
+- academic-article-writer
+- journal-submission-assistant
+- ai-academic-tone-polisher
+- journal_submission
 ---
 
 # Journal Strategist Subagent
