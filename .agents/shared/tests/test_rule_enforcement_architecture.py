@@ -18,6 +18,7 @@ import sys
 import json
 import glob
 import yaml
+import tempfile
 import unittest
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
@@ -150,6 +151,68 @@ class TestRuleEnforcementArchitecture(unittest.TestCase):
         ephemeral = inject_steps[0].get("ephemeralMessage", "")
         self.assertIn("CONSTITUTIONAL ENFORCEMENT ACTIVE", ephemeral)
         self.assertIn("Binary Honesty Protocol", ephemeral)
+
+    def test_09_pre_tool_use_blocks_chapter4_when_missing_micro_sections(self):
+        """Verifies PreToolUse blocks Chapter 4 DOCX when section artifacts are missing (Directive 3)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create prerequisite JSONs but no section DOCX files
+            with open(os.path.join(tmpdir, "stats_results.json"), "w") as f:
+                f.write("{}")
+            with open(os.path.join(tmpdir, "statistical_audit_report.json"), "w") as f:
+                f.write("{}")
+
+            payload = {
+                "toolCall": {
+                    "name": "write_to_file",
+                    "args": {"TargetFile": os.path.join(tmpdir, "Chapter_4_Results.docx")}
+                },
+                "workspacePaths": [tmpdir]
+            }
+            res = handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Micro-Stage & One-Hypothesis-One-Stage Invariant", res.get("reason", ""))
+
+    def test_10_pre_tool_use_allows_chapter4_when_all_micro_sections_present(self):
+        """Verifies PreToolUse allows Chapter 4 DOCX when all section artifacts are present."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with open(os.path.join(tmpdir, "stats_results.json"), "w") as f:
+                f.write("{}")
+            with open(os.path.join(tmpdir, "statistical_audit_report.json"), "w") as f:
+                f.write("{}")
+            for sec in [
+                "01_demographics.docx",
+                "02_descriptives_and_reliability.docx",
+                "03_parametric_assumptions.docx",
+                "04_bivariate_correlations.docx",
+                "06_hypothesis_1.docx",
+                "08_chapter_summary.docx"
+            ]:
+                with open(os.path.join(tmpdir, sec), "w") as f:
+                    f.write("dummy")
+
+            payload = {
+                "toolCall": {
+                    "name": "write_to_file",
+                    "args": {"TargetFile": os.path.join(tmpdir, "Chapter_4_Results.docx")}
+                },
+                "workspacePaths": [tmpdir]
+            }
+            res = handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "allow")
+
+    def test_11_pre_tool_use_blocks_chapter5_when_missing_hypothesis_discussion(self):
+        """Verifies PreToolUse blocks Chapter 5 DOCX when hypothesis discussion documents are absent."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            payload = {
+                "toolCall": {
+                    "name": "write_to_file",
+                    "args": {"TargetFile": os.path.join(tmpdir, "Chapter_5_Discussion.docx")}
+                },
+                "workspacePaths": [tmpdir]
+            }
+            res = handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Micro-Stage & One-Hypothesis-One-Stage Invariant", res.get("reason", ""))
 
 
 if __name__ == "__main__":

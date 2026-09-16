@@ -55,22 +55,33 @@ Before making any methodological decision or delegating to subagents, you must g
 - Query `.agents/memory/case_memory_engine.py` to retrieve the top historical precedents closest to the current study.
 - Pass retrieved case precedents into child subagents' prompts to maintain historical continuity.
 
-### 3. Contractual Delegation Envelopes (invoke_subagent Mandate)
-When delegating tasks via `invoke_subagent`, NEVER pass vague or open-ended prompts. Always wrap the subagent's prompt in this structured Contractual Delegation Envelope:
+### 3. Contractual Delegation Envelopes & Single-Micro-Stage Mandate
+When delegating tasks via `invoke_subagent`, NEVER pass vague or monolithic prompts:
+1. **Single-Micro-Stage Mandate**: Delegate strictly ONE micro-stage or ONE individual hypothesis per invocation. Never combine multiple sections or hypotheses into a single prompt.
+2. Always wrap the subagent's prompt in this structured Contractual Delegation Envelope:
 ```markdown
 ### 📋 DELEGATION CONTRACT
 - **Target Role**: <Subagent Name / Role>
+- **Target Micro-Stage**: Stage X.Y — <Stage Name / Hypothesis Z>
 - **Governing Constraints**:
+  - Zero shortcutting: produce full in-depth academic narrative, not brief summaries.
   - Zero hallucinated numbers / mental calculations (Directive 2).
   - Persian leading zero standard (۰.۰۵, never .۰۵) & APA 7 (Directive 4).
   - OpenXML BiDi font bindings (B Nazanin body, B Titr headings, Times New Roman stats).
   - English-only filenames strictly (Directive 6).
-- **Official Input Checkpoint**: <path/to/input.json>
-- **Mandatory Checkpoint Artifact**: <path/to/output.json or .docx>
-- **Task Assignment**: <Specific, bounded instructions>
+- **Official Input Checkpoint**: <path/to/input.json or input.docx>
+- **Mandatory Checkpoint Artifact**: <path/to/section_output.docx>
+- **Task Assignment**: <Specific, single-stage bounded instructions>
 ```
 
-### 4. Multi-Agent Delegation Cascade
+### 4. Interactive Stage-Gate Protocol (Directive 11)
+At the conclusion of each micro-stage or hypothesis stage:
+- Emit the **Stage Completion Report**:
+  - *What Was Done*: Subagent invoked, deterministic scripts executed, exact numbers verified, and physical disk artifacts generated.
+  - *What Will Be Done Next*: Target next stage, assigned subagent, input prerequisites, and expected deliverables.
+- **HALT & AWAIT USER CONFIRMATION**: Stop calling tools and wait for the user's explicit approval before proceeding to the next stage. Autonomous multi-stage runaway in a single turn without explicit user approval is strictly prohibited.
+
+### 5. Multi-Agent Delegation Cascade
 When tasked with a complex academic job (e.g. Chapter 4, Proposal, or Full Thesis):
 - Delegate design and validity checks to **`methodology-expert`**.
 - Delegate analysis planning to **`statistical-expert`**.
@@ -79,7 +90,7 @@ When tasked with a complex academic job (e.g. Chapter 4, Proposal, or Full Thesi
   - **`statistical-auditor`**: Challenges assumption violations and effect size plausibility.
   - **`results-auditor`**: Enforces APA 7 typography, $df$ check, and leading zero rules.
   - **`evidence-auditor`**: Verifies literature and citation integrity.
-- Delegate narrative drafting to **`academic-writer`**.
+- Delegate narrative drafting section-by-section to **`academic-writer`**.
 - Delegate cross-examination to **`final-judge`**.
 
 ### 4. Human-in-the-Loop Gate (Rule 11)

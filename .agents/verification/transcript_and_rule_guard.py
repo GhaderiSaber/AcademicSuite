@@ -13,6 +13,7 @@ import sys
 import os
 import json
 import re
+import glob
 from typing import Dict, Any, List, Optional
 
 
@@ -52,20 +53,89 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 )
             }
 
-        # Directive 3: Stage-Gating for Chapter 4 final deliverable
+        # Directive 3: Micro-Stage & Hypothesis Section Gating for Chapter 4
         if basename.lower() in ("chapter_4_results.docx", "chapter4_results.docx"):
-            for ws in workspaces:
-                stats_path = os.path.join(ws, "stats_results.json")
-                audit_path = os.path.join(ws, "statistical_audit_report.json")
-                if not os.path.exists(stats_path) or not os.path.exists(audit_path):
-                    return {
-                        "decision": "deny",
-                        "reason": (
-                            "CONSTITUTIONAL VIOLATION (Directive 3 - Zero Skipping Rule): "
-                            "Cannot generate Chapter 4 DOCX before Stage 4 (stats_results.json) "
-                            "and Stage 5 (statistical_audit_report.json) checkpoint artifacts exist on disk."
-                        )
-                    }
+            target_dir = os.path.dirname(target) or "."
+            check_dirs = [target_dir] + workspaces
+            
+            # 1. Prerequisite data & audit artifacts
+            has_stats = any(os.path.exists(os.path.join(d, "stats_results.json")) for d in check_dirs)
+            has_audit = any(os.path.exists(os.path.join(d, "statistical_audit_report.json")) for d in check_dirs)
+            if not has_stats or not has_audit:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Directive 3 - Zero Skipping Rule): "
+                        "Cannot generate Chapter 4 DOCX before Stage 4 (stats_results.json) "
+                        "and Stage 5 (statistical_audit_report.json) checkpoint artifacts exist on disk."
+                    )
+                }
+
+            # 2. Micro-stage section artifacts (Anti-Shortcut Guarantee)
+            required_sections = [
+                ("01_demographics.docx", ["*demographic*.docx"]),
+                ("02_descriptives_and_reliability.docx", ["*descriptive*.docx", "*reliability*.docx"]),
+                ("03_parametric_assumptions.docx", ["*assumption*.docx"]),
+                ("04_bivariate_correlations.docx", ["*correlation*.docx"]),
+                ("hypothesis_1.docx", ["*hypothesis_1*.docx", "*hypo_1*.docx"]),
+                ("chapter_summary.docx", ["*chapter_summary*.docx", "*summary*.docx"])
+            ]
+            missing_sections = []
+            for label, patterns in required_sections:
+                found = False
+                for d in check_dirs:
+                    for pat in patterns:
+                        if glob.glob(os.path.join(d, pat)):
+                            found = True
+                            break
+                    if found:
+                        break
+                if not found:
+                    missing_sections.append(label)
+
+            if missing_sections:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 3 - Micro-Stage & One-Hypothesis-One-Stage Invariant): "
+                        f"Cannot compile Chapter 4 in one shot. Missing required micro-stage section artifacts: "
+                        f"{missing_sections}. Each section and hypothesis must be generated as an independent, "
+                        f"verified artifact on disk first before assembly to prevent the model from taking shortcuts."
+                    )
+                }
+
+        # Directive 3: Micro-Stage Gating for Chapter 5 final deliverable
+        if basename.lower() in ("chapter_5_discussion.docx", "chapter5_discussion.docx"):
+            target_dir = os.path.dirname(target) or "."
+            check_dirs = [target_dir] + workspaces
+            required_ch5_sections = [
+                ("01_findings_recap.docx", ["*recap*.docx", "*findings*.docx"]),
+                ("hypothesis_1_discussion.docx", ["*hypothesis_1_discussion*.docx", "*hypo_1_disc*.docx"]),
+                ("implications.docx", ["*implication*.docx"]),
+                ("limitations.docx", ["*limitation*.docx"])
+            ]
+            missing_ch5 = []
+            for label, patterns in required_ch5_sections:
+                found = False
+                for d in check_dirs:
+                    for pat in patterns:
+                        if glob.glob(os.path.join(d, pat)):
+                            found = True
+                            break
+                    if found:
+                        break
+                if not found:
+                    missing_ch5.append(label)
+
+            if missing_ch5:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 3 - Micro-Stage & One-Hypothesis-One-Stage Invariant): "
+                        f"Cannot compile Chapter 5 in one shot. Missing required micro-stage section artifacts: "
+                        f"{missing_ch5}. Each hypothesis discussion and section must be drafted independently first."
+                    )
+                }
 
     # 2. Shell command interceptor
     if name == "run_command":
@@ -103,19 +173,16 @@ def handle_post_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
 def handle_pre_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Injects ephemeral prompt reminding the agent of strict constitutional directives."""
     reminder = (
-        "🚨 CONSTITUTIONAL ENFORCEMENT ACTIVE (Directive 0 & Directive 3):\n"
-        "1. Binary Honesty Protocol: If the user asks whether a workflow, rule, check, package, "
-        "or guideline was followed (or asks if you fooled them), your response MUST begin with an "
-        "unambiguous 'Yes' or 'No' as the very first word.\n"
-        "2. Multi-Agent Integrity: Under NO circumstance may you claim a 'multi-agent workflow' was "
-        "executed unless you physically invoked subagents via the 'invoke_subagent' tool. Workflows must "
-        "be orchestrated through Antigravity subagents.\n"
-        "3. Zero Skipping Rule: All Directive 3 checkpoint artifacts (JSON specs, audit reports, QC checklists) "
-        "must physically exist on disk before declaring workflow completion.\n"
-        "4. Sole Orchestrator Mandate (Directive 12.1): Antigravity is the sole agent runtime and multi-agent "
-        "conductor. Subagents are invoked via 'invoke_subagent'. Never write, import, or run standalone Python "
-        "classes that simulate subagents, dispatch agents, or claim multi-agent execution. Python scripts are "
-        "strictly deterministic execution tools ('The Hands')."
+        "🚨 CONSTITUTIONAL ENFORCEMENT ACTIVE (Directive 0, 3 & 11):\n"
+        "1. Binary Honesty Protocol: If asked a compliance question, your response MUST begin with 'Yes' or 'No'.\n"
+        "2. Micro-Stages & One-Hypothesis-One-Stage Invariant (Directive 3): Monolithic drafting in one shot is prohibited. "
+        "Every section and every hypothesis must be generated as an independent, verified disk artifact before assembly.\n"
+        "3. Interactive Stage-Gate Protocol (Directive 11): At the end of each stage, emit the Stage Completion Report "
+        "(What was done + What will be done next), then STOP and wait for user confirmation before advancing.\n"
+        "4. Multi-Agent Integrity: Under NO circumstance claim a multi-agent workflow unless you physically invoked "
+        "subagents via 'invoke_subagent'.\n"
+        "5. Sole Orchestrator Mandate (Directive 12.1): Antigravity is the sole agent runtime. Python scripts are strictly "
+        "deterministic execution tools ('The Hands'). Never run agent emulators."
     )
     return {
         "injectSteps": [

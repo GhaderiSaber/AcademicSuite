@@ -41,16 +41,41 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 - Always execute the bundled Python scripts in `.agents/skills/<skill>/scripts/` via terminal (`run_command`) on the real dataset (`.xlsx`, `.csv`, `.sav`).
 - Extract exact values from the script's output JSON/table and paste them directly into reports.
 
-### Directive 3: Artifact-Gated Stage Execution (No Skipping)
-In multi-stage pipelines (such as Chapter 4 empirical results), every stage must generate its verified checkpoint artifact before the next stage can begin:
-- **Stage 0**: `data_scored.xlsx` + `scoring_log.json` (Scales resolved, alphas verified).
-- **Stage 3**: `study_config.json` (Locked parameter mapping).
-- **Stage 4**: `stats_results.json` + plots (Deterministic CLI output).
-- **Stage 5**: `statistical_audit_report.json` (Calculated MSAI anomaly audit).
-- **Stage 6**: `results_qc_checklist.json` (APA 7 & OpenXML verification).
-- **Stage 7**: `Chapter_4_Results.docx` (Full Persian dissertation chapter).
-- **Stage 8**: `Defense_Viva_Voce_Brief.docx` (Committee Q&A).
-**Zero Skipping Rule**: Jumping stages without physical files existing on disk is strictly invalid.
+### Directive 3: Artifact-Gated Stage Execution, Micro-Stage Granularity & One-Hypothesis-One-Stage Invariant
+1. **Zero Skipping Rule**: Jumping stages without physical checkpoint files existing on disk is strictly invalid.
+2. **Micro-Stage Granularity Invariant**: Monolithic drafting prompts ("Draft Chapter X in full") are strictly prohibited to prevent shortcutting. Each section must be generated as an independent, verified artifact on disk (`01_...docx`, `02_...docx`, etc.) before assembly.
+3. **The One-Hypothesis-One-Stage Invariant (اصل یک فرضیه = یک مرحله مجزا)**:
+   - In Chapter 4 (Findings) and Chapter 5 (Discussion), every individual hypothesis (Hypothesis 1, 2, ..., $k$, and each indirect mediation path) **MUST HAVE ITS OWN DEDICATED, INDEPENDENT STAGE**. Never lump multiple hypotheses into a single calculation or drafting step.
+4. **Mandatory Micro-Stage Sequences**:
+   - **Chapter 4 Findings**:
+     - *Stage 4.0*: Data Curation & Preprocessing (`00_data_curation_report.json` + `data_cleaned.xlsx`)
+     - *Stage 4.1*: Demographics Profiling (`01_demographics.docx`)
+     - *Stage 4.2*: Descriptives & Scale Reliability ($\alpha, \omega$) (`02_descriptives_and_reliability.docx`)
+     - *Stage 4.3*: Parametric Assumptions Verification (`03_parametric_assumptions.docx`)
+     - *Stage 4.4*: Bivariate Correlation Matrix Analysis (`04_bivariate_correlations.docx`)
+     - *Stage 4.5*: Macro SEM Model Fit (11 Fit Indices vs Hu/Bentler) OR Primary Model (`05_macro_model.docx`)
+     - *Stage 4.6.1*: Hypothesis 1 Testing & Narrative Dissection (`06_hypothesis_1.docx`)
+     - *Stage 4.6.2*: Hypothesis 2 Testing & Narrative Dissection (`07_hypothesis_2.docx`)
+     - *Stage 4.6.k*: Hypothesis $k$ Testing & Narrative Dissection (`XX_hypothesis_k.docx`)
+     - *Stage 4.7.1*: Indirect / Mediation Path 1 (Bootstrap 5,000 & 95% BCa CI) (`XX_mediation_1.docx`)
+     - *Stage 4.8*: Master Hypotheses Decision Matrix & Chapter Summary (1-2 pages) (`XX_chapter_summary.docx`)
+     - *Stage 4.9*: Statistical QC & MSAI Anomaly Audit (`XX_statistical_audit_report.json`)
+     - *Stage 4.10*: Results QC & APA 7 Typography (`XX_results_qc_checklist.json`)
+     - *Stage 4.11*: OpenXML Chapter Assembly (`Chapter_4_Results.docx`)
+     - *Stage 4.12*: Committee Defense Viva Voce Simulation (`XX_defense_cross_examination_brief.docx`)
+   - **Chapter 5 Discussion**:
+     - *Stage 5.1*: Findings Overview & Purpose Recap (`01_findings_recap.docx`)
+     - *Stage 5.2.1*: Hypothesis 1 Deep Discussion (Psychological Mechanism & Literature Concordance) (`02_hypothesis_1_discussion.docx`)
+     - *Stage 5.2.2*: Hypothesis 2 Deep Discussion (`03_hypothesis_2_discussion.docx`)
+     - *Stage 5.2.k*: Hypothesis $k$ Deep Discussion (`XX_hypothesis_k_discussion.docx`)
+     - *Stage 5.3*: Unexpected / Non-Significant Findings Epistemic Analysis (`XX_non_significant_findings.docx`)
+     - *Stage 5.4*: Theoretical, Clinical & Practical Implications (`XX_implications.docx`)
+     - *Stage 5.5*: Methodological, Sampling & Instrument Limitations (`XX_limitations.docx`)
+     - *Stage 5.6*: Future Research & Actionable Recommendations (`XX_recommendations.docx`)
+     - *Stage 5.7*: Chapter 5 Consolidation & Assembly (`Chapter_5_Discussion.docx`)
+   - **Chapter 2 Literature Review**: Stages 2.1 to 2.7 (Foundations $\rightarrow$ Bibliometrics $\rightarrow$ International $\rightarrow$ Iranian $\rightarrow$ Synthesis $\rightarrow$ Matrix Table $\rightarrow$ Assembly).
+   - **Research Proposal**: Stages P.1 to P.8 (Problem $\rightarrow$ Significance $\rightarrow$ Hypotheses $\rightarrow$ Methodology $\rightarrow$ Instruments $\rightarrow$ Procedure $\rightarrow$ Ethics $\rightarrow$ Assembly).
+   - **Scale Validation**: Stages V.1 to V.8 (CVR/CVI $\rightarrow$ Item Analysis $\rightarrow$ EFA $\rightarrow$ CFA $\rightarrow$ Construct Validity $\rightarrow$ Invariance $\rightarrow$ IRT/ROC $\rightarrow$ Assembly).
 
 ---
 
@@ -97,8 +122,12 @@ In multi-stage pipelines (such as Chapter 4 empirical results), every stage must
 ### Directive 10: Multi-Signal Anomaly Scoring (MSAI)
 - Never accuse data fabrication on a single threshold ($d > 1.40$). Evaluate Multi-Signal Anomaly Index (MSAI) combining effect size, variance deflation, group overlap, and alpha. Issue `FLAG FOR REVIEW` with diagnostic guidance.
 
-### Directive 11: Dual-Track Autonomy & Decision Journaling
-- Routine analyses run autonomously. High-stakes choices (pricing, overriding supervisor requests, final release) require Human Gate approval and logging in `.agents/memory/decisions/` via `decision_journal_engine.py`.
+### Directive 11: Dual-Track Autonomy & Interactive Stage-Gate Protocol
+- **Interactive Stage-Gate Protocol**: At the conclusion of each micro-stage / hypothesis stage, the agent **MUST emit the Stage Completion Report** specifying:
+  1. *What Was Done*: Subagent invoked, deterministic scripts executed, exact numbers verified, and physical disk artifacts generated.
+  2. *What Will Be Done Next*: Target next stage, assigned subagent, input prerequisites, and expected deliverables.
+- **Mandatory Confirmation Pause**: The agent **MUST STOP and await user confirmation** before advancing to the next stage. Autonomous multi-stage runaway in a single turn without explicit user approval is strictly prohibited.
+- **High-Stakes Decisions**: Pricing, overriding supervisor feedback, and final deliverable release require Human Gate approval (Saber Admin Desk `124911145`) and logging in `.agents/memory/decisions/` via `decision_journal_engine.py`.
 
 ### Directive 12: Hybrid Multi-Agent Deliberation Architecture (Hands vs. Brains)
 - **Who (`.agents/agents/`)**: 15 persistent cognitive roles (`digital-saber`, `methodology-expert`, `statistical-expert`, `statistical-auditor`, `results-auditor`, `academic-writer`, `literature-expert`, `evidence-auditor`, `final-judge`, `psychometric-expert`, `qualitative-analyst`, `meta-analyst`, `journal-strategist`, `intervention-designer`, `data-curator`).

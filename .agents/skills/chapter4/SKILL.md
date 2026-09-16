@@ -15,59 +15,96 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │   STEP 1: DIGITAL SABER   │
-                         │   Master Lead Assessment  │
-                         │  (Precedent CBR Retrieval)│
+                         │   STAGE 4.0: CURATION     │
+                         │ Data Curator (MCAR / Out) │
+                         │(00_data_curation_report)  │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │ STEP 2: METHODOLOGY EXPERT│
-                         │ Design & Validity Threats │
+                         │  STAGE 4.1: DEMOGRAPHICS  │
+                         │ Frequency & Profile Table │
+                         │   (01_demographics.docx)  │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │ STEP 3: STATISTICAL EXPERT│
-                         │ Inferential Analysis Plan │
+                         │  STAGE 4.2: DESCRIPTIVES  │
+                         │ Psychometrics, Alpha/Omega│
+                         │(02_descriptives_reliab)   │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │ STEP 4: EXECUTION LAYER   │
-                         │ Deterministic Python / CLI│
-                         │   (stats_results.json)    │
+                         │   STAGE 4.3: ASSUMPTIONS  │
+                         │ Normality, Levene, VIF    │
+                         │ (03_assumptions.docx)     │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │  STAGE 4.4: CORRELATIONS  │
+                         │ Bivariate Matrix & Discrim│
+                         │ (04_correlations.docx)    │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │  STAGE 4.5: MACRO MODEL   │
+                         │ SEM 11 Fit Indices/Primary│
+                         │   (05_macro_model.docx)   │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │ STAGE 4.6.1: HYPOTHESIS 1 │
+                         │ Dedicated 3-Table Testing │
+                         │  (06_hypothesis_1.docx)   │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │ STAGE 4.6.k: HYPOTHESIS k │
+                         │ Dedicated Testing (k = 2+)│
+                         │  (XX_hypothesis_k.docx)   │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │ STAGE 4.7: MEDIATION PATHS│
+                         │ Bootstrap 5,000 / 95% BCa │
+                         │   (XX_mediation_1.docx)   │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │  STAGE 4.8: CH 4 SUMMARY  │
+                         │ Master Decision Matrix    │
+                         │  (XX_chapter_summary.docx)│
                          └─────────────┬─────────────┘
                                        │
                 ┌──────────────────────┴──────────────────────┐
                 ▼                                             ▼
   ┌───────────────────────────┐                 ┌───────────────────────────┐
-  │ STEP 5: STATISTICAL QC    │                 │   STEP 6: RESULTS QC      │
-  │   Statistical Auditor     │                 │     Results Auditor       │
-  │ (MSAI & Assumption Check) │                 │(APA 7 & OMML Typography)  │
+  │  STAGE 4.9: STATISTICAL QC│                 │   STAGE 4.10: RESULTS QC  │
+  │     Statistical Auditor   │                 │       Results Auditor     │
+  │ (MSAI Multi-Signal Audit) │                 │  (APA 7 & Leading Zero)   │
   └─────────────┬─────────────┘                 └─────────────┬─────────────┘
                 │                                             │
                 └──────────────────────┬──────────────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │ STEP 7: ACADEMIC WRITER   │
-                         │5-Part Epistemic Paragraphs│
+                         │  STAGE 4.11: CH ASSEMBLY  │
+                         │ OpenXML Section Assembly  │
                          │  (Chapter_4_Results.docx) │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │    STEP 8: FINAL JUDGE    │
+                         │  STAGE 4.12: FINAL JUDGE  │
                          │ Viva Voce Defense Sim     │
-                         │ Approval Readiness (0-100)│
-                         └─────────────┬─────────────┘
-                                       │
-                                       ▼
-                         ┌───────────────────────────┐
-                         │ STEP 9: SABER HUMAN GATE  │
-                         │ Admin Desk Sign-Off       │
-                         │     (ID: 124911145)       │
+                         │(XX_defense_brief.docx)    │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
@@ -149,47 +186,92 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - Verification of native Word OMML math equations (`<m:oMath>`) preservation.
 - **Output**: `results_qc_checklist.json`.
 
-### Step 7: Academic Writer Subagent (Persian Chapter 4 Drafting — Section & Table Grounded Architecture)
+### Micro-Stage Execution Sequence & One-Hypothesis-One-Stage Protocol (Directive 3 & 11)
+
+To prevent shortcutting, Chapter 4 drafting is strictly partitioned into independent micro-stages. Monolithic execution is prohibited:
+
+#### Stage 4.0: Data Curation & Preprocessing
+- **Agent**: `data-curator`
+- **Output**: `00_data_curation_report.json` + `data_cleaned.xlsx` (Little's MCAR test, unengaged response filtering, Mahalanobis $D^2$).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.1: Demographic Profiling & Participant Attributes
 - **Agent**: `academic-writer`
-- **Reference**: Emulates [.agents/references/saber_chapter4_exemplars.md](file:///.agents/references/saber_chapter4_exemplars.md)
-- **Action**:
-  - Ingests verified Word tables, statistical results (`stats_results.json`), and generated 300-DPI plots.
-  - Executes Saber's **Section-by-Section & Step-by-Step AI Drafting Protocol**:
-    1. **Section Introductions (مقدمه بخش‌ها)**: Drafts contextual roadmaps for the Chapter, Demographics, Descriptives, Assumptions, and Inferential sections.
-    2. **Gold Standard for Academic Table Explanations (تحلیل استاندارد عمیق و آکادمیک جداول)**: Every substantive table (descriptives, assumptions, correlation matrix, regressions, SEM fit indices, direct paths, indirect bootstrap paths, and summary matrix) MUST have an extensive, multi-paragraph scholarly narrative placed **DIRECTLY ABOVE** the table caption. Superficial, 1-2 sentence, tiny, or juvenile explanations are strictly forbidden:
-       - *Bivariate Correlation Matrix*: Mandatory in-depth scholarly analysis evaluating sign, magnitude, significance, discriminant validity, and multicollinearity safeguards ($r < .85$).
-       - *Context & Objective (تحلیل زمینه و متغیر)*: Grounding the statistical purpose.
-       - *Key Numerical Highlights (واکاوی داده‌ها و مقادیر کلیدی)*: Dissecting exact numbers, variances, effect sizes, and bootstrap confidence intervals.
-       - *Formal In-Text Reference (ارجاع رسمی به جدول)*: e.g. `(جدول ۴- X)`.
-       - *Empirical Verdict (استنتاج آماری اولیه)*: Definitive empirical conclusion.
-    3. **3-Table Standard for Relationship Hypotheses**: For every relationship hypothesis, presents exactly 3 distinct tables: Table 1 (Bivariate Correlation Matrix), Table 2 (Model Summary & ANOVA), and Table 3 (Regression Coefficients & Collinearity Diagnostics).
-    4. **SEM Macro-to-Micro Reporting Architecture**: When testing mediation/structural paths from an overarching model:
-       - *Macro-Level Section First*: Reports overall SEM results comprehensively BEFORE individual hypotheses: Table A (11 Goodness-of-Fit indices comparing baseline vs. harnessed model against Kline & Hu/Bentler criteria), Figure B (300-DPI Structural Path Diagram), Table C (Direct Structural Paths Table with $B, SE, \beta, t/z, p$), Table D (Indirect & Serial Bootstrap 5,000 Table with 95% BCa CIs).
-       - *Dedicated Individual Hypothesis Subsections*: Followed by an independent subsection for each SEM-related hypothesis (e.g. Hypotheses 3 to 8) with deep empirical dissection.
-    5. **Diagnostic Figures Explanations (تحلیل نمودارها)**: Interprets residual histograms, normal P-P plots, or SEM diagrams directly adjacent to each figure.
-    6. **Comprehensive Whole Chapter Summary (خلاصه و جمع‌بندی جامع فصل چهارم)**: Concludes Chapter 4 with an extensive synthesis spanning **1 to 2 full pages** (strictly prohibiting short single-paragraph summaries), featuring the Master Hypotheses Decision Matrix Table (`جدول ماتریس جمع‌بندی نهایی فرضیات`) and the Conceptual Transition Bridge to Chapter 5.
-  - **Strict Empirical Guardrail**: **ZERO literature comparisons (e.g. Beck, Bandura, Hayes) and ZERO psychological theoretical mechanisms in Chapter 4**. All literature discussions and theoretical interpretations are strictly deferred to **Chapter 5**.
-  - Enforces Persian half-spaces (`\u200c`), standard dot notation for decimals, preserving leading zero (`۰.۰۰۱`, `۰.۰۵`), and eliminating all AI clichés.
-  - Compiles publication-ready Word document with OpenXML directionality `<w:bidi w:val="1"/>`, borderless APA 7 tables, and physically embedded 300-DPI figures via `generate_apa_docx.py`.
-- **Output**: `Chapter_4_Results.docx` (yielding authentic 3,500 to 12,000+ words).
+- **Output**: `01_demographics.docx` (Frequency tables, percentages, APA 7 demographic narrative).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-### Step 8: Final Judge Subagent (Defense Viva Voce Simulator)
+#### Stage 4.2: Psychometrics & Scale Reliability
+- **Agent**: `statistical-expert` + `academic-writer`
+- **Output**: `02_descriptives_and_reliability.docx` (Construct, subscale, $N, M, SD$, Skewness, Kurtosis, Cronbach's $\alpha$, McDonald's $\omega$).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.3: Parametric Assumptions Suite
+- **Agent**: `statistical-expert`
+- **Output**: `03_parametric_assumptions.docx` (Shapiro-Wilk, Levene's test, regression slope homogeneity, collinearity VIF/Tolerance, linearity).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.4: Bivariate Correlation Matrix Analysis
+- **Agent**: `academic-writer`
+- **Output**: `04_bivariate_correlations.docx` (Subscale correlation matrix, discriminant validity evaluation, multi-paragraph scholarly narrative directly above the table).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.5: Macro SEM Model Fit / Primary Omnibus Model
+- **Agent**: `statistical-expert` + `academic-writer`
+- **Output**: `05_macro_model.docx` (11 Goodness-of-Fit indices table vs Hu/Bentler criteria + 300-DPI Structural Path Diagram).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.6.1: Hypothesis 1 Testing & Dissection (One-Hypothesis-One-Stage Invariant)
+- **Agent**: `academic-writer`
+- **Output**: `06_hypothesis_1.docx` (3-table standard: correlation, ANOVA summary, regression coefficients + deep narrative dissection).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.6.k: Hypothesis k Testing & Dissection (Dedicated Independent Stages)
+- **Agent**: `academic-writer`
+- **Output**: `XX_hypothesis_k.docx` (Each subsequent hypothesis is analyzed and drafted in its own dedicated stage).
+- **Stage-Gate**: Emit Completion Report and await user confirmation after each hypothesis.
+
+#### Stage 4.7.1 to 4.7.k: Indirect Mediation Paths (Bootstrap 5,000)
+- **Agent**: `statistical-expert` + `academic-writer`
+- **Output**: `XX_mediation_k.docx` (Indirect effects, 5,000 resamples, 95% BCa CI).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.8: Master Decision Matrix & Chapter 4 Summary
+- **Agent**: `academic-writer`
+- **Output**: `XX_chapter_summary.docx` (Comprehensive 1-2 page synthesis, Master Hypotheses Decision Table, transition bridge to Chapter 5).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.9: Statistical QC (MSAI Anomaly Audit)
+- **Agent**: `statistical-auditor`
+- **Output**: `XX_statistical_audit_report.json` (Multi-Signal Anomaly Index audit on all numbers across sections).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.10: Results QC (APA 7 & OpenXML Typography)
+- **Agent**: `results-auditor`
+- **Output**: `XX_results_qc_checklist.json` (Leading zero check `۰.۰۰۱`, 3-line borders, OMML equation preservation).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.11: Chapter Assembly & OpenXML Merging
+- **Agent**: Execution Layer via `orchestrator_cli.py --assemble-chapter Chapter_4_Results.docx`
+- **Output**: `Chapter_4_Results.docx` (Concatenated from verified section documents).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 4.12: Final Committee Defense Simulator
 - **Agent**: `final-judge`
-- **Action**:
-  - Reviews `Chapter_4_Results.docx`.
-  - Simulates external examiner cross-examination with 5 critical questions.
-  - Formulates defense model answers with APA 7 literature citations.
-  - Calculates Committee Defense Readiness Score ($0\text{--}100\%$).
-- **Output**: `defense_cross_examination_report.docx` and JSON summary.
+- **Output**: `XX_defense_cross_examination_brief.docx` + `defense_readiness.json` (5 examiner cross-examination questions & defense model answers).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-### Step 9: Saber Human Gate Sign-off (Rule 11)
-- **Agent**: `digital-saber`
-- **Action**:
-  - Posts the complete project summary card to Saber's Admin Desk (`124911145`):
-    - Title, Design, $N$, Hypotheses, Key Statistics.
-    - Audit results and Defense Readiness score.
-    - Interactive commands: `/approve_chapter4` or `/adjust_chapter4`.
-  - Upon approval, deliverable is marked `RELEASED` and logged in `.agents/memory/decision_journal_engine.py`.
+---
+
+### Interactive Stage-Gate Communication Format (Directive 11)
+At the completion of each micro-stage above, the agent MUST output:
+```markdown
+### 🏁 Stage X Completion Report: <Stage Name>
+- **What Was Done**: Subagent used, deterministic scripts executed, exact numbers verified, and physical disk artifacts generated.
+- **What Will Be Done Next**: Target next stage name, assigned subagent, input prerequisites, and expected deliverables.
+
+> **Awaiting Confirmation**: Please review the above stage results. Reply to confirm or adjust, and I will proceed to **Stage X+1: `<Next Stage Name>`**.
+```
+The agent **MUST STOP and wait for user confirmation** before advancing. Monolithic multi-stage execution in a single turn is prohibited.
 
 ---
 

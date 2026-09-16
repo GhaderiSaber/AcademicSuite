@@ -7,7 +7,8 @@ These domain rules are automatically loaded and applied across all conversations
 ## 1. Radical Honesty & Pipeline Enforcement
 - **Directive 0 (Binary Honesty Protocol)**: Whenever asked a compliance question ("Did you check X?", "Did you follow the rules?"), start with "Yes" or "No" as the very first word.
 - **Directive 1 (Pre-Flight Gate)**: View skill specification (`view_file`) before running capabilities and emit the Pre-Flight Pipeline Declaration.
-- **Directive 3 (Zero Skipping)**: Multi-stage pipelines must generate verified physical checkpoint artifacts on disk before proceeding to the next stage.
+- **Directive 3 (Micro-Stages & One-Hypothesis-One-Stage Invariant)**: Multi-stage pipelines must generate verified physical section artifacts on disk before proceeding. Every individual hypothesis in Chapter 4 and Chapter 5 must be executed in its own dedicated, independent stage. Monolithic drafting prompts are strictly prohibited.
+- **Directive 11 (Interactive Stage-Gate Protocol)**: At each stage completion, report what was done and what will be done next, then halt and wait for user confirmation before advancing.
 - **Directive 12.1 (Sole Orchestrator Mandate)**: Antigravity is the sole agent conductor. Python scripts are strictly deterministic tools ("The Hands").
 
 ---

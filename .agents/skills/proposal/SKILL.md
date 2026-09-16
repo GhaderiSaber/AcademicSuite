@@ -47,29 +47,59 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
   │ STEP 5: RESULTS QC        │                 │   STEP 6: EVIDENCE QC     │
   │     Results Auditor       │                 │     Evidence Auditor      │
   │ (APA 7 & Council Rules)   │                 │ (Citation Integrity)      │
-  └─────────────┬─────────────┘                 └─────────────┬─────────────┘
-                │                                             │
-                └──────────────────────┬──────────────────────┘
-                                       │
-                                       ▼
                          ┌───────────────────────────┐
-                         │ STEP 7: ACADEMIC WRITER   │
-                         │ Proposal Compilation      │
-                         │ (Research_Proposal.docx) │
+                         │ STAGE P.1: PROBLEM & GAP  │
+                         │ Inverted-Triangle Context │
+                         │ (01_problem_statement)   │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │    STEP 8: FINAL JUDGE    │
-                         │ Review Council Readiness  │
-                         │ Committee Defense Index   │
+                         │   STAGE P.2: SIGNIFICANCE │
+                         │ Theoretical & Practical   │
+                         │   (02_significance.docx)  │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │ STEP 9: SABER HUMAN GATE  │
-                         │ Admin Desk Sign-Off       │
-                         │     (ID: 124911145)       │
+                         │  STAGE P.3: HYPOTHESES    │
+                         │ Directional Hypotheses    │
+                         │  (03_hypotheses.docx)     │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │   STAGE P.4: METHODOLOGY  │
+                         │ Design & G*Power Sampling │
+                         │ (04_methodology_samp.docx)│
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │   STAGE P.5: INSTRUMENTS  │
+                         │ Questionnaires & Validity │
+                         │   (05_instruments.docx)   │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │ STAGE P.6: ETHICS & PLAN  │
+                         │ Statistical Analysis Plan │
+                         │   (06_analysis_plan.docx) │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │ STAGE P.7: PROPOSAL ASSM  │
+                         │ OpenXML Section Assembly  │
+                         │  (Research_Proposal.docx) │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │ STAGE P.8: COUNCIL REVIEW │
+                         │ Council Readiness Sim     │
+                         │ (XX_council_readiness)    │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
@@ -133,37 +163,62 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
   - Checks for elimination of AI boilerplate clichés.
 - **Output**: `proposal_audit_report.json`.
 
-### Step 7: Academic Writer Subagent (Proposal Compilation)
+### Micro-Stage Execution Sequence & Anti-Shortcut Protocol (Directive 3 & 11)
+
+To prevent shortcutting, research proposal drafting is strictly partitioned into independent micro-stages:
+
+#### Stage P.1: Problem Statement & Research Gap
+- **Agent**: `methodology-expert` + `academic-writer`
+- **Output**: `01_problem_statement.docx` (Inverted-triangle contextual grounding, epidemiologic burden, documented research gap).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage P.2: Theoretical & Practical Significance
 - **Agent**: `academic-writer`
-- **Action**:
-  - Compiles the full proposal document in academic Persian (`Research_Proposal.docx`).
-  - Sections:
-    1. مشخصات دانشجو و استاد راهنما
-    2. بیان مسئله (Problem Statement)
-    3. ضرورت و اهمیت پژوهش (Significance)
-    4. پیشینه پژوهش (Empirical Background)
-    5. اهداف و فرضیه‌های پژوهش (Aims & Hypotheses)
-    6. تعاریف مفهومی و عملیاتی (Definitions)
-    7. روش‌شناسی، جامعه، نمونه و ابزارهای پژوهش (Methodology & Scales)
-    8. روش تحلیل داده‌ها (Statistical Plan)
-    9. فهرست منابع بر اساس APA 7 (References)
-  - Enforces Persian half-spaces (`\u200c`), B Nazanin/B Titr typography, and OpenXML `<w:bidi/>` directionality.
-- **Output**: `Research_Proposal.docx`.
+- **Output**: `02_significance.docx` (Theoretical contributions, scientific novelty, clinical/organizational benefits).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-### Step 8: Final Judge Subagent (Council Review Simulation)
+#### Stage P.3: Objectives, Research Questions & Directional Hypotheses
+- **Agent**: `statistical-expert` + `academic-writer`
+- **Output**: `03_hypotheses.docx` (Primary/secondary objectives, formal hypotheses with operationalized variables).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage P.4: Methodological Design & G*Power Sampling
+- **Agent**: `methodology-expert`
+- **Output**: `04_methodology_samp.docx` (Design taxonomy, G*Power 3.1 power curves, attrition adjustment).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage P.5: Measurement Instruments & Psychometrics
+- **Agent**: `psychometric-expert` + `academic-writer`
+- **Output**: `05_instruments.docx` (Questionnaires, subscale items, scoring protocols, psychometric precedents).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage P.6: Data Analysis Plan & Ethical Considerations
+- **Agent**: `statistical-expert` + `academic-writer`
+- **Output**: `06_analysis_plan.docx` (Inferential statistical sequence, parametric verification, IR.REC ethics approval guidelines).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage P.7: Proposal Assembly & OpenXML Merging
+- **Agent**: Execution Layer via `orchestrator_cli.py --assemble-chapter Research_Proposal.docx`
+- **Output**: `Research_Proposal.docx` (Concatenated from verified section documents).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage P.8: Graduate Council Review Simulation
 - **Agent**: `final-judge`
-- **Action**:
-  - Cross-examines proposal against university council rejection risks (e.g. insufficient sample size, unvalidated instrument, ambiguous operational definition).
-  - Calculates Review Council Approval Index ($0\text{--}100\%$).
-- **Output**: `proposal_council_readiness_score.json`.
+- **Output**: `XX_proposal_council_brief.docx` + `proposal_council_readiness_score.json` (Review council defense challenges & approval index).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-### Step 9: Saber Human Gate Sign-off (Rule 11)
-- **Agent**: `digital-saber`
-- **Action**:
-  - Generates Admin Desk Approval Card for Saber (`124911145`):
-    - Proposed Topic, Design, $N$, Instruments, Council Readiness Index.
-    - One-click commands: `/approve_proposal` or `/adjust_proposal`.
-  - Upon approval, proposal is released to client.
+---
+
+### Interactive Stage-Gate Communication Format (Directive 11)
+At the completion of each micro-stage above, the agent MUST output:
+```markdown
+### 🏁 Stage X Completion Report: <Stage Name>
+- **What Was Done**: Subagent used, deterministic scripts executed, exact numbers verified, and physical disk artifacts generated.
+- **What Will Be Done Next**: Target next stage name, assigned subagent, input prerequisites, and expected deliverables.
+
+> **Awaiting Confirmation**: Please review the above stage results. Reply to confirm or adjust, and I will proceed to **Stage X+1: `<Next Stage Name>`**.
+```
+The agent **MUST STOP and wait for user confirmation** before advancing. Monolithic multi-stage execution in a single turn is prohibited.
 
 ---
 

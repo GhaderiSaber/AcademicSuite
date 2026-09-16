@@ -54,29 +54,63 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                                        │
                                        ▼
                         ┌──────────────────────────────┐
-                        │   STEP 6: ACADEMIC WRITER    │
-                        │ 5-Part Epistemic Paragraphs  │
-                        │ OpenXML BiDi Chapter 2 DOCX  │
-                        │(persian-literature-builder)  │
+                        │   STAGE 2.1: FOUNDATIONS     │
+                        │ Theoretical & Definitions    │
+                        │ (01_theoretical_found.docx)  │
                         └──────────────┬───────────────┘
                                        │
                                        ▼
                         ┌──────────────────────────────┐
-                        │     STEP 7: FINAL JUDGE      │
-                        │ Literature Gap & Viva Voce   │
-                        │ Simulation (Readiness 0-100) │
+                        │   STAGE 2.2: BIBLIOMETRICS   │
+                        │ Callon Strategic Map / Net   │
+                        │ (02_bibliometrics.docx)      │
                         └──────────────┬───────────────┘
                                        │
                                        ▼
                         ┌──────────────────────────────┐
-                        │  STEP 8: SABER HUMAN GATE    │
-                        │ Admin Desk Approval Card     │
-                        │     (ID: 124911145)          │
+                        │ STAGE 2.3: INTL STUDIES      │
+                        │ Foreign Empirical Review     │
+                        │ (03_intl_studies.docx)       │
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                        ┌──────────────────────────────┐
+                        │ STAGE 2.4: IRANIAN STUDIES   │
+                        │ Iranian Empirical Review     │
+                        │ (04_iranian_studies.docx)    │
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                        ┌──────────────────────────────┐
+                        │ STAGE 2.5: SYNTHESIS & MODEL │
+                        │ Research Gap & Concept Model │
+                        │ (05_synthesis_model.docx)    │
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                        ┌──────────────────────────────┐
+                        │ STAGE 2.6: MATRIX TABLE      │
+                        │ Comprehensive Empirical Table│
+                        │ (06_literature_matrix.docx)  │
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                        ┌──────────────────────────────┐
+                        │ STAGE 2.7: CH 2 ASSEMBLY     │
+                        │ OpenXML Section Assembly     │
+                        │(Chapter_2_Lit_Review.docx)   │
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                        ┌──────────────────────────────┐
+                        │   STAGE 2.8: FINAL JUDGE     │
+                        │ Literature Gap Defense Sim   │
+                        │(XX_lit_defense_brief.docx)   │
                         └──────────────┬───────────────┘
                                        │
                                        ▼
                               FINAL DELIVERABLES
-               • فصل_دوم_پیشینه_پژوهش.docx
+               • Chapter_2_Literature_Review.docx
                • bibliometric_network_map.png & thematic_strategic_map.png
                • citation_chronomap.png & main_path_trajectory.png
                • literature_references.ris & .enw
@@ -155,39 +189,62 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - Clean text bibliography (`literature_references.txt`).
 - **Output**: Verified reference bundles and audit clearance.
 
-### Step 6: Academic Writer Subagent (5-Part Formula Narrative & OpenXML DOCX Compilation)
-- **Agent**: `academic-writer` (wielding `persian-literature-review-builder`)
-- **Action**:
-  - Assembles the complete Chapter 2 narrative following Saber Ghaderi's **5-Part Epistemic Chain**:
-    1. **Context & Objective**: *هدف پژوهشگر(ان) و پیوند با مبانی نظری*.
-    2. **Sample & Target Population**: *جامعه آماری و حجم نمونه ($N$)*.
-    3. **Methodology & Design**: *طرح پژوهش (پیش‌آزمون-پس‌آزمون، کوواریانس، معادلات ساختاری)*.
-    4. **Psychometric Instruments**: *ابزارهای سنجش و پرسشنامه‌های استاندارد*.
-    5. **Empirical Findings & Effect**: *یافته‌های تجربی و جهت‌گیری آماری نتایج*.
-  - Compiles Word document with OpenXML BiDi RTL standards:
-    - `<w:bidi w:val="1"/>` on all paragraphs and `<w:bidiVisual/>` on tables.
-    - True font binding (`Times New Roman` for Latin/numbers, `B Nazanin` for body, `B Titr` for headings).
-    - Preserved native OMML equations (`<m:oMath>`) and zero vertical borders on APA 7 tables.
-    - Persian half-spaces (نیم‌فاصله: `\u200c`) in all compound words.
-- **Output**: `Chapter_2_Literature_Review.docx`.
+### Micro-Stage Execution Sequence & Anti-Shortcut Protocol (Directive 3 & 11)
 
-### Step 7: Final Judge Subagent (Viva Voce Literature Defense Simulation)
+To prevent shortcutting, Chapter 2 literature review drafting is strictly partitioned into independent micro-stages:
+
+#### Stage 2.1: Theoretical Foundations & Conceptual Definitions
+- **Agent**: `academic-writer`
+- **Output**: `01_theoretical_foundations.docx` (Foundational theories, historical evolution, operational constructs).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 2.2: Bibliometrics & Callon Strategic Thematic Mapping
+- **Agent**: `bibliometric-network-analyst`
+- **Output**: `02_bibliometrics.docx` + `bibliometric_network_map.png` + `thematic_strategic_map.png`.
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 2.3: International Empirical Studies Review
+- **Agent**: `literature-expert` + `academic-writer`
+- **Output**: `03_intl_studies.docx` (Foreign studies structured with Saber's 5-Part Epistemic Chain).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 2.4: Iranian Empirical Studies Review
+- **Agent**: `literature-expert` + `academic-writer`
+- **Output**: `04_iranian_studies.docx` (Iranian domestic empirical research with 5-Part Epistemic Chain).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 2.5: Inverted-Triangle Synthesis, Research Gap & Conceptual Model
+- **Agent**: `academic-writer`
+- **Output**: `05_synthesis_model.docx` (Inverted-triangle synthesis, explicit empirical gaps, conceptual framework).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 2.6: Comprehensive Empirical Literature Matrix Table
+- **Agent**: `literature-expert`
+- **Output**: `06_literature_matrix.docx` + `empirical_literature_matrix.xlsx` (Full comparative table of studies).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 2.7: Chapter Assembly & OpenXML Merging
+- **Agent**: Execution Layer via `orchestrator_cli.py --assemble-chapter Chapter_2_Literature_Review.docx`
+- **Output**: `Chapter_2_Literature_Review.docx` (Concatenated from verified section documents).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 2.8: Final Committee Defense Simulator
 - **Agent**: `final-judge`
-- **Action**:
-  - Simulates the external defense examiner questioning:
-    - *Theoretical Gap*: Why does the empirical evidence warrant this specific study?
-    - *Methodological Precedent*: How does the chosen sample size ($N$) align with literature benchmarks?
-    - *Contradictory Findings*: How are divergent findings in prior literature accounted for?
-  - Scores Literature Defense Readiness on 100-point scale (Methodological Coverage, Theoretical Integration, Bibliographic Accuracy, BiDi Compliance).
-- **Output**: Defense examination card and readiness assessment.
+- **Output**: `XX_lit_defense_brief.docx` (Scrutiny on theoretical gaps, sample benchmarks, and divergent findings).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-### Step 8: Digital Saber Human-in-the-Loop Sign-Off (Admin Desk ID: 124911145)
-- **Agent**: `digital-saber`
-- **Action**:
-  - Generates the Admin Desk summary card for Saber Ghaderi (`124911145`).
-  - Appends record to `.agents/memory/decisions/dec_*.json` via `decision_journal_engine.py`.
-  - Holds final client delivery pending one-click approval (`/approve_L201`).
-- **Output**: Final deliverable package ready for supervisor/client review.
+---
+
+### Interactive Stage-Gate Communication Format (Directive 11)
+At the completion of each micro-stage above, the agent MUST output:
+```markdown
+### 🏁 Stage X Completion Report: <Stage Name>
+- **What Was Done**: Subagent used, deterministic scripts executed, exact numbers verified, and physical disk artifacts generated.
+- **What Will Be Done Next**: Target next stage name, assigned subagent, input prerequisites, and expected deliverables.
+
+> **Awaiting Confirmation**: Please review the above stage results. Reply to confirm or adjust, and I will proceed to **Stage X+1: `<Next Stage Name>`**.
+```
+The agent **MUST STOP and wait for user confirmation** before advancing. Monolithic multi-stage execution in a single turn is prohibited.
 
 ---
 

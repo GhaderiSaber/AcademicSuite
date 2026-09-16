@@ -15,36 +15,57 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │   STEP 1: DIGITAL SABER   │
-                         │   Master Lead Assessment  │
-                         │  (Precedent CBR Retrieval)│
+                         │   STAGE 5.1: RECAP        │
+                         │ Findings Overview & Recap │
+                         │  (01_findings_recap.docx) │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │ STEP 2: STATISTICAL EXPERT│
-                         │ Hypothesis Status Triage  │
-                         │ (Confirmed vs. Rejected)  │
+                         │ STAGE 5.2.1: HYPOTHESIS 1 │
+                         │ Dedicated Deep Discussion │
+                         │ (02_hypo_1_discussion)   │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │ STEP 3: LITERATURE EXPERT │
-                         │ Empirical Concordance Map │
-                         │ (Iranian & International) │
+                         │ STAGE 5.2.k: HYPOTHESIS k │
+                         │ Dedicated Deep Discussion │
+                         │ (XX_hypo_k_discussion)   │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │STEP 4: METHODOLOGY EXPERT │
-                         │ Limitations & Implications│
-                         │ (Internal/External Validity)
+                         │ STAGE 5.3: NON-SIGNIFICANT│
+                         │ Epistemic Deep Dive       │
+                         │(XX_non_significant.docx)  │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │   STAGE 5.4: IMPLICATIONS │
+                         │ Theoretical & Clinical    │
+                         │   (XX_implications.docx)  │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │   STAGE 5.5: LIMITATIONS  │
+                         │ Methodological Boundaries │
+                         │   (XX_limitations.docx)   │
+                         └─────────────┬─────────────┘
+                                       │
+                                       ▼
+                         ┌───────────────────────────┐
+                         │STAGE 5.6: RECOMMENDATIONS │
+                         │ Research & Actionable     │
+                         │ (XX_recommendations.docx) │
                          └─────────────┬─────────────┘
                                        │
                 ┌──────────────────────┴──────────────────────┐
                 ▼                                             ▼
   ┌───────────────────────────┐                 ┌───────────────────────────┐
-  │   STEP 5: RESULTS QC      │                 │   STEP 6: EVIDENCE QC     │
+  │   STAGE 5.7: RESULTS QC   │                 │   STAGE 5.8: EVIDENCE QC  │
   │     Results Auditor       │                 │     Evidence Auditor      │
   │  (APA 7 & Stats Fidelity) │                 │(Bidirectional Citations)  │
   └─────────────┬─────────────┘                 └─────────────┬─────────────┘
@@ -53,23 +74,16 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │ STEP 7: ACADEMIC WRITER   │
-                         │4-Element Discussion Model │
-                         │ (فصل پنجم_بحث_نتیجه‌گیری) │
+                         │  STAGE 5.9: CH 5 ASSEMBLY │
+                         │ OpenXML Section Assembly  │
+                         │(Chapter_5_Discussion.docx)│
                          └─────────────┬─────────────┘
                                        │
                                        ▼
                          ┌───────────────────────────┐
-                         │    STEP 8: FINAL JUDGE    │
+                         │  STAGE 5.10: FINAL JUDGE  │
                          │ Viva Voce Defense Sim     │
-                         │ Approval Readiness (0-100)│
-                         └─────────────┬─────────────┘
-                                       │
-                                       ▼
-                         ┌───────────────────────────┐
-                         │ STEP 9: SABER HUMAN GATE  │
-                         │ Admin Desk Sign-Off       │
-                         │     (ID: 124911145)       │
+                         │(XX_defense_brief.docx)    │
                          └─────────────┬─────────────┘
                                        │
                                        ▼
@@ -141,44 +155,77 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
   - Ensures Irandoc similarity compliance ($< 20\%$).
 - **Output**: `evidence_audit_report.json`.
 
-### Step 7: Academic Writer Subagent (Drafting Chapter 5 in Academic Persian)
+### Micro-Stage Execution Sequence & One-Hypothesis-One-Stage Protocol (Directive 3 & 11)
+
+To prevent shortcutting, Chapter 5 discussion drafting is strictly partitioned into independent micro-stages:
+
+#### Stage 5.1: Problem Recap & Empirical Findings Summary
 - **Agent**: `academic-writer`
-- **Action**:
-  - Synthesizes Chapter 5 into the standard 6-part Iranian university architecture:
-    1. **۵-۱. مقدمه** (Brief recap of problem, research questions, and chapter roadmap).
-    2. **۵-۲. بحث پیرامون یافته‌ها** (Hypothesis-by-hypothesis synthesis using the **4-Element Psychological Discussion Model**):
-       - *عنصر ۱: بیان فرضیه و یافته آماری دقیق* (Test stat, $p$-value, effect size).
-       - *عنصر ۲: مقایسه با پیشینه تجربی داخلی و خارجی* (Concordant & divergent studies).
-       - *عنصر ۳: تبیین سازوکار روان‌شناختی و نظری* (Cognitive, behavioral, emotional, and neurobiological mechanisms via Beck, Bandura, Gross, Hayes, Bowlby, Gilbert).
-       - *عنصر ۴: توجیه روش‌شناختی یافته‌های ناهمسو یا غیرمعنادار*.
-    3. **۵-۳. پیامدهای کاربردی و بالینی** (Direct clinical and practical translations).
-    4. **۵-۴. محدودیت‌های پژوهش** (Honest methodological boundaries).
-    5. **۵-۵. پیشنهادهای پژوهش** (Rigidly partitioned into research vs. applied recommendations).
-    6. **۵-۶. نتیجه‌گیری نهایی** (Holistic closing synthesis of scientific contribution).
-  - Enforces Persian half-spaces (`\u200c`), natural sentence cadence ($CV \ge 0.50$), and OpenXML RTL typography (`B Nazanin` 13 pt, `B Titr` headings, Line spacing 1.25).
-  - Compiles Word deliverable via `generate_chapter5_docx.py`.
-- **Output**: `Chapter_5_Discussion_and_Conclusion.docx`.
+- **Output**: `01_findings_recap.docx` (Problem overview, research questions roadmap, holistic summary of empirical outcomes).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-### Step 8: Final Judge Subagent (Defense Committee Viva Voce Simulator)
+#### Stage 5.2.1: Hypothesis 1 Deep Discussion (One-Hypothesis-One-Stage Invariant)
+- **Agent**: `academic-writer`
+- **Output**: `02_hypothesis_1_discussion.docx` (The 4-Element Psychological Discussion Model: exact stats, Iranian/international empirical concordance, underlying cognitive/behavioral/neurobiological mechanisms via Beck/Hayes/Bandura/Gross, and methodological nuances).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 5.2.k: Hypothesis k Deep Discussion (Dedicated Independent Stages)
+- **Agent**: `academic-writer`
+- **Output**: `XX_hypothesis_k_discussion.docx` (Each subsequent hypothesis is analyzed and drafted in its own dedicated stage).
+- **Stage-Gate**: Emit Completion Report and await user confirmation after each hypothesis.
+
+#### Stage 5.3: Unexpected & Non-Significant Findings Epistemic Analysis
+- **Agent**: `methodology-expert` + `academic-writer`
+- **Output**: `XX_non_significant_findings.docx` (Deep epistemological dive into unconfirmed hypotheses or anomalous effect sizes).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 5.4: Theoretical, Clinical & Practical Implications
+- **Agent**: `academic-writer`
+- **Output**: `XX_implications.docx` (Actionable translational guidance for clinicians, organizations, educators, and theorists).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 5.5: Methodological & Sampling Limitations
+- **Agent**: `academic-writer`
+- **Output**: `XX_limitations.docx` (Candid appraisal of internal validity, sampling constraints, measurement artifacts, and generalizability boundaries).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 5.6: Future Research & Actionable Recommendations
+- **Agent**: `academic-writer`
+- **Output**: `XX_recommendations.docx` (Rigidly partitioned into research suggestions vs. practical/clinical recommendations).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 5.7: Results QC (APA 7 & Cross-Fidelity Audit)
+- **Agent**: `results-auditor`
+- **Output**: `XX_results_fidelity_report.json` (Cross-checks all numerical mentions against Chapter 4 results).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 5.8: Evidence QC (Bidirectional Citation & Plagiarism Audit)
+- **Agent**: `evidence-auditor`
+- **Output**: `XX_evidence_audit_report.json` (Zero orphaned citations, Irandoc similarity < 20%, elimination of AI clichés).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 5.9: Chapter Assembly & OpenXML Merging
+- **Agent**: Execution Layer via `orchestrator_cli.py --assemble-chapter Chapter_5_Discussion.docx`
+- **Output**: `Chapter_5_Discussion.docx` (Concatenated from verified section documents).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage 5.10: Final Committee Defense Simulator
 - **Agent**: `final-judge`
-- **Action**:
-  - Simulates external defense examiner challenges specifically scrutinizing the discussion:
-    - *«چرا فرضیه سوم تأیید نشد و تبیین روان‌شناختی شما چیست؟»*
-    - *«چگونه اثر ابزار خودگزارش‌دهی را از اثر واقعی مداخله تفکیک کردید؟»*
-    - *«تفاوت تبیین نظری مدل شما با مدل‌های سنتی در چیست؟»*
-  - Provides bulletproof APA 7 supported student answers.
-  - Calculates Discussion Defense Readiness Index ($0\text{--}100\%$).
-- **Output**: `defense_discussion_qa.docx` and readiness index.
+- **Output**: `XX_defense_discussion_brief.docx` + `defense_readiness.json` (Examiner cross-examination questions & defense model answers).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
 
-### Step 9: Saber Human Gate Sign-off (Rule 11)
-- **Agent**: `digital-saber`
-- **Action**:
-  - Transmits Admin Desk Approval Card to Saber (`124911145`):
-    - Topic, Hypotheses Count, Confirmed/Rejected Breakdown.
-    - Key Theoretical Mechanisms & Literature Concordance Summary.
-    - Defense Readiness Index.
-    - Interactive commands: `/approve_chapter5` or `/adjust_chapter5`.
-  - Upon human sign-off, records completed decision in `decision_journal_engine.py` with status `RELEASED`.
+---
+
+### Interactive Stage-Gate Communication Format (Directive 11)
+At the completion of each micro-stage above, the agent MUST output:
+```markdown
+### 🏁 Stage X Completion Report: <Stage Name>
+- **What Was Done**: Subagent used, deterministic scripts executed, exact numbers verified, and physical disk artifacts generated.
+- **What Will Be Done Next**: Target next stage name, assigned subagent, input prerequisites, and expected deliverables.
+
+> **Awaiting Confirmation**: Please review the above stage results. Reply to confirm or adjust, and I will proceed to **Stage X+1: `<Next Stage Name>`**.
+```
+The agent **MUST STOP and wait for user confirmation** before advancing. Monolithic multi-stage execution in a single turn is prohibited.
 
 ---
 

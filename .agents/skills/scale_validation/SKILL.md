@@ -55,34 +55,74 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
                                        │
                                        ▼
                         ┌──────────────────────────────┐
-                        │  STEP 6: DATA SIMULATOR      │
-                        │ Monte Carlo Empirical Noise  │
-                        │ (Rule 9 Non-Integer Means)   │
-                        │ (psychometric-data-simulator)│
+                        │ STAGE V.1: CONTENT VALIDITY  │
+                        │ Lawshe CVR & Lynn CVI Panel  │
+                        │ (01_content_validity.docx)   │
                         └──────────────┬───────────────┘
                                        │
                                        ▼
                         ┌──────────────────────────────┐
-                        │ STEP 7: OPENXML COMPILATION  │
-                        │ 8-Table APA 7 Report (.docx) │
-                        │ 6-Sheet Matrix (.xlsx), Plots│
-                        │ (openxml_artifact_engine)    │
+                        │   STAGE V.2: ITEM ANALYSIS   │
+                        │ Loop Discrimination & Loop   │
+                        │ (02_item_analysis.docx)      │
                         └──────────────┬───────────────┘
                                        │
                                        ▼
                         ┌──────────────────────────────┐
-                        │     STEP 8: FINAL JUDGE      │
-                        │ Committee Defense Simulation │
-                        │ & Saber Human Gate (124911145│
+                        │   STAGE V.3: EFA FACTORING   │
+                        │ KMO, Bartlett, Scree Plot    │
+                        │ (03_efa_results.docx)        │
                         └──────────────┬───────────────┘
                                        │
                                        ▼
-                              FINAL DELIVERABLES
-               • Psychometric_Validation_Report.docx (Chapter 4 Psychometric Report)
-               • psychometric_validation_matrix.xlsx (6-Sheet Master Matrix)
-               • psychometric_scree_roc_plots.png & irt_plots.png (300-DPI Plots)
-               • cfa_lavaan_model.R (Executable CFA Analysis Script)
-               • psychometric_validation_report.json (Structured Metrics Ledger)
+                        ┌──────────────────────────────┐
+                        │   STAGE V.4: CFA MODELING    │
+                        │ lavaan Fit Indices & Loadings│
+                        │ (04_cfa_results.docx)        │
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                        ┌──────────────────────────────┐
+                        │ STAGE V.5: CONSTRUCT VALIDITY│
+                        │ AVE, CR, HTMT, Fornell-Larck │
+                        │ (05_construct_validity.docx) │
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                        ┌──────────────────────────────┐
+                        │ STAGE V.6: RELIABILITY & INV │
+                        │ Alpha, Omega, Multigroup Inv │
+                        │ (06_reliability_inv.docx)    │
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                        ┌──────────────────────────────┐
+                        │ STAGE V.7: IRT & ROC CURVES  │
+                        │ Samejima GRM, TIF & Cut-offs │
+                        │ (07_irt_roc.docx)            │
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                        ┌──────────────────────────────┐
+                        │ STAGE V.8: REPORT ASSEMBLY   │
+                        │ OpenXML Section Assembly     │
+                        │(Scale_Validation_Report.docx)│
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                        ┌──────────────────────────────┐
+                        │   STAGE V.9: FINAL JUDGE     │
+                        │ Psychometric Defense Sim     │
+                        │(XX_val_defense_brief.docx)   │
+                        └──────────────┬───────────────┘
+                                       │
+                                       ▼
+                               FINAL DELIVERABLES
+                • Scale_Validation_Report.docx (Chapter 4 Psychometric Report)
+                • psychometric_validation_matrix.xlsx (6-Sheet Master Matrix)
+                • psychometric_scree_roc_plots.png & irt_plots.png (300-DPI Plots)
+                • cfa_lavaan_model.R (Executable CFA Analysis Script)
+                • psychometric_validation_report.json (Structured Metrics Ledger)
 ```
 
 ---
@@ -173,25 +213,67 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
   - Preserves univariate normality (Skewness & Kurtosis within $[-0.85, +0.85]$).
 - **Output**: Clean, organic psychometric simulation datasets.
 
-### Step 7: OpenXML Physical Document Compilation
-- **Agent**: `academic-writer` (wielding `openxml_artifact_engine`)
-- **Action**:
-  - Compiles `Psychometric_Validation_Report.docx`:
-    - 8 APA 7th Edition borderless tables (Demographics, CVR/CVI, EFA, CFA, Fornell-Larcker, Reliability, IRT, Norms).
-    - BiDi directionality (`<w:bidi w:val="1"/>` and `<w:bidiVisual/>`).
-    - Embedded 300-DPI visual plots.
-  - Compiles `psychometric_validation_matrix.xlsx`:
-    - 6 formatted Excel sheets (Item Analysis, EFA Loadings, CFA Fit, IRT GRM Parameters, Norm Conversions, ROC Diagnostics).
-  - Compiles `cfa_lavaan_model.R` and `psychometric_validation_report.json`.
-- **Output**: Complete validation document package.
+### Micro-Stage Execution Sequence & Anti-Shortcut Protocol (Directive 3 & 11)
 
-### Step 8: Final Judge Subagent & Human Gate
-- **Agent**: `final-judge` and `digital-saber`
-- **Action**:
-  - Evaluates Psychometric Rigor & Defense Readiness Index (Target: $\ge 95\%$).
-  - Submits review card to Saber Admin Desk (`124911145`) under **Rule 11**.
-  - Logs entry in `DecisionJournalEngine`.
-- **Output**: Final approved psychometric validation package.
+To prevent shortcutting, scale validation reporting is strictly partitioned into independent micro-stages:
+
+#### Stage V.1: Content Validity Ratio (CVR) & Index (CVI)
+- **Agent**: `psychometric-expert` + `academic-writer`
+- **Output**: `01_content_validity.docx` (Lawshe CVR and Lynn CVI expert panel ratings).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage V.2: Item Analysis & Classical Descriptives
+- **Agent**: `psychometric-expert` + `academic-writer`
+- **Output**: `02_item_analysis.docx` (Corrected item-total correlations, alpha-if-item-deleted, loop discrimination).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage V.3: Exploratory Factor Analysis (EFA)
+- **Agent**: `psychometric-expert` + `academic-writer`
+- **Output**: `03_efa_results.docx` (KMO, Bartlett test of sphericity, scree plot, Promax/Varimax rotation).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage V.4: Confirmatory Factor Analysis (CFA)
+- **Agent**: `psychometric-expert` + `academic-writer`
+- **Output**: `04_cfa_results.docx` (Standardized factor loadings, modification indices, 11 fit indices).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage V.5: Convergent & Discriminant Validity
+- **Agent**: `psychometric-expert` + `academic-writer`
+- **Output**: `05_construct_validity.docx` (AVE, CR, HTMT matrix, Fornell-Larcker criterion).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage V.6: Scale Reliability & Measurement Invariance
+- **Agent**: `psychometric-expert` + `academic-writer`
+- **Output**: `06_reliability_inv.docx` (Cronbach's $\alpha$, McDonald's $\omega$, multigroup configural/metric/scalar invariance).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage V.7: Modern Psychometrics (IRT & ROC Diagnostics)
+- **Agent**: `statistical-expert` + `academic-writer`
+- **Output**: `07_irt_roc.docx` (Samejima GRM parameters, Test Information Functions, ROC optimal cut-offs).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage V.8: Scale Validation Report Assembly
+- **Agent**: Execution Layer via `orchestrator_cli.py --assemble-chapter Scale_Validation_Report.docx`
+- **Output**: `Scale_Validation_Report.docx` (Concatenated from verified section documents).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+#### Stage V.9: Final Psychometric Defense Simulator
+- **Agent**: `final-judge`
+- **Output**: `XX_val_defense_brief.docx` (Cross-examination on invariance, DIF, and diagnostic cut-offs).
+- **Stage-Gate**: Emit Completion Report and await user confirmation.
+
+---
+
+### Interactive Stage-Gate Communication Format (Directive 11)
+At the completion of each micro-stage above, the agent MUST output:
+```markdown
+### 🏁 Stage X Completion Report: <Stage Name>
+- **What Was Done**: Subagent used, deterministic scripts executed, exact numbers verified, and physical disk artifacts generated.
+- **What Will Be Done Next**: Target next stage name, assigned subagent, input prerequisites, and expected deliverables.
+
+> **Awaiting Confirmation**: Please review the above stage results. Reply to confirm or adjust, and I will proceed to **Stage X+1: `<Next Stage Name>`**.
+```
+The agent **MUST STOP and wait for user confirmation** before advancing. Monolithic multi-stage execution in a single turn is prohibited.
 
 ---
 

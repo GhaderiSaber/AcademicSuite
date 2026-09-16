@@ -11,6 +11,7 @@ automated sequential pipelines on disk. Strictly an execution instrument
 
 import os
 import sys
+import glob
 import json
 import time
 import shutil
@@ -212,6 +213,18 @@ PIPELINE_PRESETS = {
         "historiography",
         "article",
         "submission"
+    ],
+    "chapter4_micro": [
+        "statistics",
+        "audit"
+    ],
+    "chapter2_micro": [
+        "harvest",
+        "literature_review"
+    ],
+    "chapter5_micro": [
+        "discussion",
+        "audit"
     ]
 }
 
@@ -801,6 +814,40 @@ class MasterAcademicOrchestrator:
         print(f"[DASHBOARD] Compiled executive project dashboard: {dashboard_path}")
 
 
+
+def assemble_chapter_docx(sections_dir: str, output_path: str) -> str:
+    """
+    Concatenates micro-stage section documents into a unified chapter Word DOCX (Directive 3).
+    Ensures that monolithic drafting is eliminated by assembling separately verified section artifacts.
+    """
+    try:
+        from docx import Document
+    except ImportError:
+        raise ImportError(
+            "python-docx is required to assemble DOCX sections. "
+            "Install via: pip install python-docx"
+        )
+
+    # Find section files sorted alphabetically
+    docx_files = sorted(glob.glob(os.path.join(sections_dir, "*.docx")))
+    docx_files = [f for f in docx_files if not os.path.basename(f).lower().startswith("chapter_")]
+
+    if not docx_files:
+        raise FileNotFoundError(f"No section DOCX files found in '{sections_dir}' to assemble.")
+
+    master_doc = Document(docx_files[0])
+    for next_file in docx_files[1:]:
+        master_doc.add_page_break()
+        sub_doc = Document(next_file)
+        for element in sub_doc.element.body:
+            master_doc.element.body.append(element)
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    master_doc.save(output_path)
+    print(f"[ASSEMBLER] Successfully assembled {len(docx_files)} sections into {output_path}")
+    return output_path
+
+
 # ==============================================================================
 # CLI Entry Point
 # ==============================================================================
@@ -814,10 +861,18 @@ def main():
     parser.add_argument("--steps", help="Comma-separated custom step sequence (overrides preset)")
     parser.add_argument("--resume-from", help="Resume pipeline from a specific step (skips earlier steps)")
     parser.add_argument("--step", help="Execute only a single isolated step")
+    parser.add_argument("--assemble-chapter", help="Concatenate section documents into unified chapter DOCX (e.g. Chapter_4_Results.docx)")
+    parser.add_argument("--sections-dir", help="Directory containing micro-stage section DOCX files to assemble")
     parser.add_argument("--dry-run", action="store_true", help="Simulate pipeline DAG and validate inputs without running heavy tasks")
     parser.add_argument("--lang", default="fa", choices=["fa", "en"], help="Target language (default: fa)")
 
     args = parser.parse_args()
+
+    if args.assemble_chapter:
+        s_dir = args.sections_dir or args.out_dir
+        out_file = os.path.join(args.out_dir, args.assemble_chapter)
+        assemble_chapter_docx(s_dir, out_file)
+        return
 
     custom_steps = [s.strip() for s in args.steps.split(",")] if args.steps else None
 
