@@ -13,6 +13,8 @@ import sys
 import json
 import math
 import argparse
+import re
+from collections import Counter
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
@@ -27,6 +29,14 @@ class CaseMemoryEngine:
         self.cases_dir = cases_dir or CASES_DIR
         os.makedirs(self.cases_dir, exist_ok=True)
         self.cases: List[Dict[str, Any]] = []
+        self.bm25_fields = ["topic", "design", "variables", "domain"]
+        self.bm25_weights = {"topic": 0.40, "design": 0.25, "variables": 0.25, "domain": 0.10}
+        self.doc_tokens: Dict[str, List[List[str]]] = {}
+        self.tf: Dict[str, List[Counter]] = {}
+        self.df: Dict[str, Counter] = {}
+        self.doc_len: Dict[str, List[int]] = {}
+        self.avg_doc_len: Dict[str, float] = {}
+        self.idf: Dict[str, Dict[str, float]] = {}
         self._load_cases()
 
     def _load_cases(self):
@@ -46,6 +56,7 @@ class CaseMemoryEngine:
                             self.cases.append(data)
                 except Exception as e:
                     print(f"Warning: Could not load case {fname}: {e}", file=sys.stderr)
+        self._build_bm25_indices()
 
     def count(self) -> int:
         return len(self.cases)
@@ -83,34 +94,81 @@ class CaseMemoryEngine:
                 return c
         return None
 
-    def _tokenize(self, text: str) -> set:
-        """Simple linguistic tokenizer supporting Persian and English."""
+    def _normalize_text(self, text: str) -> str:
+        """Normalizes Persian and English text (half-spaces, Arabic chars, diacritics, punctuation)."""
         if not text:
-            return set()
-        clean = text.lower().replace("‌", " ").replace("-", " ").replace("_", " ")
-        for ch in [".", ",", "،", ";", ":", "(", ")", "[", "]", "{", "}", "\"", "'", "/", "\\"]:
-            clean = clean.replace(ch, " ")
-        return {w for w in clean.split() if len(w) > 1}
+            return ""
+        t = str(text).lower()
+        t = t.replace("\u200c", " ")
+        replacements = {
+            "ي": "ی", "ك": "ک", "ة": "ه", "ؤ": "و",
+            "إ": "ا", "أ": "ا", "آ": "ا"
+        }
+        for k, v in replacements.items():
+            t = t.replace(k, v)
+        t = re.sub(r"[\u064b-\u065f\u0670]", "", t)
+        t = re.sub(r"[\.\,\،\;\:\(\)\[\]\{\}\"\'\?\؟\!\-\_\/\\\|\+\=\*\&\^\%\$\#\@\~\`<>]", " ", t)
+        return re.sub(r"\s+", " ", t).strip()
+
+    def _tokenize_bm25(self, text: str) -> List[str]:
+        """Tokenizes text preserving token frequency for BM25 calculation."""
+        norm = self._normalize_text(text)
+        return [w for w in norm.split() if len(w) > 1]
+
+    def _build_bm25_indices(self):
+        """Constructs multi-field inverted index and BM25 statistics."""
+        self.doc_tokens = {fld: [] for fld in self.bm25_fields}
+        self.tf = {fld: [] for fld in self.bm25_fields}
+        self.df = {fld: Counter() for fld in self.bm25_fields}
+        self.doc_len = {fld: [] for fld in self.bm25_fields}
+        self.avg_doc_len = {fld: 0.0 for fld in self.bm25_fields}
+        self.idf = {fld: {} for fld in self.bm25_fields}
+
+        N = len(self.cases)
+        if N == 0:
+            return
+
+        for case in self.cases:
+            ftexts = {
+                "topic": f"{case.get('topic', '')} {case.get('title_fa', '')} {case.get('title_en', '')}",
+                "design": f"{case.get('design', '')} {case.get('methodology', '')} {case.get('statistical_analysis', '')}",
+                "variables": " ".join([str(v) for v in case.get("variables", [])] + [str(m) for m in case.get("measures", [])] + [str(q) for q in case.get("questionnaires", [])]),
+                "domain": f"{case.get('domain', '')} {case.get('population', '')}"
+            }
+            for fld in self.bm25_fields:
+                toks = self._tokenize_bm25(ftexts[fld])
+                self.doc_tokens[fld].append(toks)
+                self.doc_len[fld].append(len(toks))
+                c_tf = Counter(toks)
+                self.tf[fld].append(c_tf)
+                for term in c_tf.keys():
+                    self.df[fld][term] += 1
+
+        for fld in self.bm25_fields:
+            self.avg_doc_len[fld] = sum(self.doc_len[fld]) / max(1, N)
+            for term, term_df in self.df[fld].items():
+                self.idf[fld][term] = math.log(1.0 + (N - term_df + 0.5) / (term_df + 0.5))
+
+    def _tokenize(self, text: str) -> set:
+        """Legacy linguistic tokenizer supporting Persian and English."""
+        norm = self._normalize_text(text)
+        return {w for w in norm.split() if len(w) > 1}
 
     def _calculate_similarity(self, query_tokens: set, case: Dict[str, Any], weights: Dict[str, float]) -> float:
-        """Calculates multi-attribute similarity between query and case."""
+        """Legacy multi-attribute Jaccard similarity between query and case."""
         score = 0.0
-
-        # Topic & title similarity (weight 0.35)
         title_text = f"{case.get('topic', '')} {case.get('title_fa', '')} {case.get('title_en', '')}"
         title_tokens = self._tokenize(title_text)
         if title_tokens and query_tokens:
             jaccard_title = len(query_tokens & title_tokens) / len(query_tokens | title_tokens)
             score += jaccard_title * weights.get("topic", 0.35)
 
-        # Design & methodology similarity (weight 0.25)
         design_text = f"{case.get('design', '')} {case.get('methodology', '')} {case.get('statistical_analysis', '')}"
         design_tokens = self._tokenize(design_text)
         if design_tokens and query_tokens:
             jaccard_design = len(query_tokens & design_tokens) / len(query_tokens | design_tokens)
             score += jaccard_design * weights.get("design", 0.25)
 
-        # Variables & instruments similarity (weight 0.25)
         vars_list = case.get("variables", [])
         scales_list = case.get("measures", []) + case.get("questionnaires", [])
         var_text = " ".join([str(v) for v in vars_list] + [str(s) for s in scales_list])
@@ -119,7 +177,6 @@ class CaseMemoryEngine:
             jaccard_var = len(query_tokens & var_tokens) / len(query_tokens | var_tokens)
             score += jaccard_var * weights.get("variables", 0.25)
 
-        # Domain / population similarity (weight 0.15)
         domain_text = f"{case.get('domain', '')} {case.get('population', '')}"
         domain_tokens = self._tokenize(domain_text)
         if domain_tokens and query_tokens:
@@ -128,23 +185,66 @@ class CaseMemoryEngine:
 
         return score
 
+    def _calculate_bm25_similarity(self, query: str, case_idx: int, k1: float = 1.2, b: float = 0.75) -> float:
+        """Calculates multi-field BM25 similarity with subword matching and bounded [0.0, 1.0] scaling."""
+        q_toks = self._tokenize_bm25(query)
+        if not q_toks:
+            return 0.0
+
+        N = len(self.cases)
+        if case_idx >= N:
+            return 0.0
+
+        case = self.cases[case_idx]
+        norm_q = self._normalize_text(query)
+        total_score = 0.0
+
+        # Exact phrase bonus in topic or title
+        topic_all = self._normalize_text(f"{case.get('topic', '')} {case.get('title_fa', '')} {case.get('title_en', '')}")
+        if norm_q and norm_q in topic_all:
+            total_score += 1.5
+
+        for fld in self.bm25_fields:
+            fld_score = 0.0
+            fld_tf = self.tf[fld][case_idx]
+            L = self.doc_len[fld][case_idx]
+            avg_L = self.avg_doc_len[fld]
+
+            for q in set(q_toks):
+                count = fld_tf.get(q, 0)
+                term_idf = self.idf[fld].get(q, 0.0)
+
+                # Subword/substring fallback if exact term not present
+                if count == 0:
+                    sub_matches = sum(freq for t, freq in fld_tf.items() if (q in t or t in q) and min(len(q), len(t)) >= 3)
+                    if sub_matches > 0:
+                        count = sub_matches * 0.5
+                        term_idf = math.log(1.0 + (N + 0.5) / (max(1, self.df[fld].get(q, 1)) + 0.5))
+
+                if count > 0 and term_idf > 0:
+                    num = count * (k1 + 1.0)
+                    den = count + k1 * (1.0 - b + b * (L / max(1.0, avg_L)))
+                    fld_score += term_idf * (num / den)
+
+            total_score += self.bm25_weights.get(fld, 0.25) * fld_score
+
+        # Map to bounded [0.0, 1.0] interval with smooth saturation curve
+        return round(total_score / (total_score + 2.0), 4)
+
     def search_precedents(self, query: str, top_k: int = 3, filter_design: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Searches historical cases for the closest precedents."""
+        """Searches historical cases for the closest precedents using multi-field BM25."""
         if not self.cases:
             return []
 
-        query_tokens = self._tokenize(query)
-        weights = {"topic": 0.35, "design": 0.25, "variables": 0.25, "domain": 0.15}
-
         scored = []
-        for case in self.cases:
+        for idx, case in enumerate(self.cases):
             if filter_design:
                 cdesign = case.get("design", "").lower()
                 if filter_design.lower() not in cdesign:
                     continue
 
-            sim = self._calculate_similarity(query_tokens, case, weights)
-            scored.append({"case": case, "similarity_score": round(sim, 4)})
+            sim = self._calculate_bm25_similarity(query, idx)
+            scored.append({"case": case, "similarity_score": sim})
 
         scored.sort(key=lambda x: x["similarity_score"], reverse=True)
         return scored[:top_k]
