@@ -17,6 +17,20 @@ from pathlib import Path
 from datetime import datetime
 
 IS_WINDOWS = sys.platform == "win32"
+IS_LINUX = sys.platform.startswith("linux")
+IS_MACOS = sys.platform == "darwin"
+
+
+def get_os_name() -> str:
+    """Returns a clean display name of the current operating system."""
+    if IS_WINDOWS:
+        return "Windows 11"
+    elif IS_MACOS:
+        return "macOS"
+    elif IS_LINUX:
+        return "Linux"
+    return sys.platform
+
 
 CONFIG_DIR = Path.home() / ".config" / "attach-suite"
 CONFIG_FILE = CONFIG_DIR / "suites.json"
@@ -24,13 +38,13 @@ CONFIG_FILE = CONFIG_DIR / "suites.json"
 DEFAULT_SUITES = {
     "academic": {
         "name": "Academic Thesis & Statistical Consultancy Suite",
-        "aliases": ["thesis", "saber", "academic_suite"],
-        "path": str(Path.home() / "Desktop" / "academic_suite"),
+        "aliases": ["thesis", "saber", "academic_suite", "academicsuite"],
+        "path": str(Path.home() / "Desktop" / "AcademicSuite"),
         "description": "Digital Saber, 27 academic & statistical skills, APA 7, psychometrics"
     },
     "brokerage": {
         "name": "Freight Brokerage & Logistics Suite",
-        "aliases": ["freight", "freight_brokerage", "broker"],
+        "aliases": ["freight", "freight_brokerage", "broker", "freightbrokerage"],
         "path": str(Path.home() / "Desktop" / "freight_brokerage"),
         "description": "Digital Broker, CMR manifests, freight orders, logistics workflows"
     },
@@ -59,6 +73,51 @@ DEFAULT_SUITES = {
         "description": "Algorithmic trading & market level analysis"
     }
 }
+
+
+def find_existing_suite_path(configured_path: str, key: str = "", aliases: list = None) -> Path:
+    """
+    Intelligently finds the suite path on disk.
+    Handles case-sensitive Linux filesystems and alternate naming conventions
+    (e.g., AcademicSuite vs academic_suite, FreightBrokerage vs freight_brokerage).
+    """
+    p = Path(configured_path).expanduser()
+    try:
+        p_resolved = p.resolve()
+        if p_resolved.exists() and (p_resolved / ".agents").exists():
+            return p_resolved
+    except Exception:
+        pass
+
+    # 1. Check if the script itself is running from or installed from inside the target suite repo
+    try:
+        current_script_repo = Path(__file__).resolve().parent.parent
+        if (current_script_repo / ".agents").exists():
+            repo_norm = current_script_repo.name.lower().replace("_", "").replace("-", "")
+            target_norm = key.lower().replace("_", "").replace("-", "")
+            if repo_norm == target_norm or (aliases and any(repo_norm == a.lower().replace("_", "").replace("-", "") for a in aliases)):
+                return current_script_repo
+    except Exception:
+        pass
+
+    # 2. Check candidate directories in parent (e.g. ~/Desktop)
+    parent_dir = p.parent
+    if parent_dir.exists() and parent_dir.is_dir():
+        all_names = [key] + (aliases or [])
+        clean_targets = {name.lower().replace("_", "").replace("-", "") for name in all_names if name}
+        clean_targets.add(p.name.lower().replace("_", "").replace("-", ""))
+
+        try:
+            for item in parent_dir.iterdir():
+                if item.is_dir() and (item / ".agents").exists():
+                    item_norm = item.name.lower().replace("_", "").replace("-", "")
+                    if item_norm in clean_targets:
+                        return item.resolve()
+        except Exception:
+            pass
+
+    return p.resolve() if p.is_absolute() else p
+
 
 # ANSI colors & UTF-8 output on Windows
 if IS_WINDOWS:
@@ -90,7 +149,7 @@ GRAY = "\033[90m"
 
 
 def load_suites():
-    """Loads configured suites combining defaults and custom registrations."""
+    """Loads configured suites combining defaults and custom registrations, resolving active paths."""
     suites = dict(DEFAULT_SUITES)
     if CONFIG_FILE.exists():
         try:
@@ -99,6 +158,13 @@ def load_suites():
                 suites.update(custom)
         except Exception as e:
             print(f"{YELLOW}Warning: Could not read {CONFIG_FILE}: {e}{RESET}", file=sys.stderr)
+
+    # Dynamically resolve existing suite paths (essential on Linux for case differences)
+    for key, info in suites.items():
+        found = find_existing_suite_path(info.get("path", ""), key, info.get("aliases", []))
+        if found.exists():
+            info["path"] = str(found)
+
     return suites
 
 
@@ -121,6 +187,10 @@ def resolve_suite(query, suites):
     q = query.strip().lower()
     for key, info in suites.items():
         if key.lower() == q or q in [a.lower() for a in info.get("aliases", [])]:
+            # Ensure path is updated to existing location if found
+            found = find_existing_suite_path(info.get("path", ""), key, info.get("aliases", []))
+            if found.exists():
+                info["path"] = str(found)
             return key, info
     p = Path(query).expanduser().resolve()
     if p.exists() and (p / ".agents").exists():
@@ -185,11 +255,11 @@ def create_dir_link(target: Path, link_path: Path) -> str:
     Creates a directory symlink (macOS/Linux/Windows Developer Mode) or Directory Junction (Windows fallback).
     Returns link type: 'symlink', 'junction', or 'pointer'.
     """
-    if is_link_path(link_path):
-        remove_link(link_path)
+    if is_link_path(link_path) or link_path.exists():
+        remove_link(link_path, allow_delete_dir=True)
 
     target_str = str(target.resolve())
-    link_str = str(link_path.resolve())
+    link_str = str(link_path.absolute())
 
     if IS_WINDOWS:
         # 1. Prioritize native Directory Symbolic Link (works with Windows Developer Mode enabled or Admin)
@@ -229,7 +299,7 @@ def create_file_link(target: Path, link_path: Path) -> str:
         remove_link(link_path)
 
     target_str = str(target.resolve())
-    link_str = str(link_path.resolve())
+    link_str = str(link_path.absolute())
 
     # 1. Prioritize native File Symbolic Link (works on Windows with Developer Mode and on POSIX)
     try:
@@ -247,6 +317,7 @@ def create_file_link(target: Path, link_path: Path) -> str:
         shutil.copy2(target, link_path)
         return "file"
     else:
+        # POSIX fallback: copy file
         shutil.copy2(target, link_path)
         return "file"
 
@@ -300,16 +371,21 @@ def read_link_target(p: Path):
 
 
 def is_foreign_os_link(target_str: str) -> bool:
-    """Detects if a link target was created on a different OS (e.g. Mac path on Windows)."""
+    """Detects if a link target was created on a different OS (e.g. Windows path on Linux/Mac, or vice versa)."""
     if not target_str:
         return False
     clean = target_str[4:] if target_str.startswith("\\\\?\\") else target_str
     if IS_WINDOWS:
-        # On Windows, if link starts with /Users/ or /home/, it's from Mac/Linux
+        # On Windows, foreign if starting with /Users/ (macOS) or /home/ (Linux)
         return clean.startswith("/Users/") or clean.startswith("/home/")
+    elif IS_LINUX:
+        # On Linux, foreign if starting with Windows drive (C:\, D:\) or /Users/ (macOS)
+        has_win_drive = len(clean) > 1 and clean[1] == ":"
+        return has_win_drive or clean.startswith("\\\\") or clean.startswith("/Users/")
     else:
-        # On Mac/Linux, if link starts with C:\ or G:\, it's from Windows
-        return len(clean) > 2 and clean[1] == ":"
+        # On macOS, foreign if starting with Windows drive or /home/ (Linux)
+        has_win_drive = len(clean) > 1 and clean[1] == ":"
+        return has_win_drive or clean.startswith("\\\\") or clean.startswith("/home/")
 
 
 def get_attached_suite_path(target_dir: Path):
@@ -354,8 +430,12 @@ def clean_conflicts_and_locks(target_dir: Path):
         except Exception as e:
             print(f"{YELLOW}Could not remove lock file: {e}{RESET}")
 
+    ignore_dirs = {".git", ".agents", ".venv", "node_modules"}
+
     # Clean ' 2' conflict files
     for item in target_dir.rglob("* 2.*"):
+        if any(ignored in item.parts for ignored in ignore_dirs):
+            continue
         if "03_deliverables" in str(item) or "01_raw_inputs" in str(item):
             continue
         if item.is_file():
@@ -366,6 +446,8 @@ def clean_conflicts_and_locks(target_dir: Path):
                 pass
 
     for d in target_dir.rglob("* 2"):
+        if any(ignored in d.parts for ignored in ignore_dirs):
+            continue
         if "03_deliverables" in str(d) or "01_raw_inputs" in str(d):
             continue
         if d.is_dir() and not is_link_path(d):
@@ -413,7 +495,7 @@ def get_status(target_dir: Path):
 
 def cmd_list(args):
     suites = load_suites()
-    current_os = "Windows 11" if IS_WINDOWS else "macOS / POSIX"
+    current_os = get_os_name()
     print(f"\n{BOLD}{CYAN}Available Domain Suites on {current_os}:{RESET}")
     print("=" * 65)
     for key, info in sorted(suites.items()):
@@ -439,7 +521,7 @@ def cmd_status(args):
     cwd = Path(target_path).resolve()
     status = get_status(cwd)
     suite_path = get_attached_suite_path(cwd)
-    current_os = "Windows 11" if IS_WINDOWS else "macOS"
+    current_os = get_os_name()
 
     print(f"\n{BOLD}{CYAN}Suite Attachment Status ({current_os}):{RESET} {cwd}")
     print("=" * 65)
@@ -520,7 +602,8 @@ def cmd_fix(args):
         print(f"{RED}Error reading metadata: {e}{RESET}")
         return
 
-    print(f"\n{BOLD}{CYAN}Repairing cross-OS link for suite '{suite_name}' on {('Windows 11' if IS_WINDOWS else 'macOS')}...{RESET}")
+    current_os = get_os_name()
+    print(f"\n{BOLD}{CYAN}Repairing cross-OS link for suite '{suite_name}' on {current_os}...{RESET}")
     # Call attach for this suite
     args.suite = suite_name
     args.keep_git = False
@@ -631,7 +714,7 @@ def cmd_clean(args):
 
 
 def cmd_attach(args):
-    cwd = Path.cwd()
+    cwd = Path.cwd().resolve()
     suites = load_suites()
     suite_key, suite_info = resolve_suite(args.suite, suites)
 
@@ -650,12 +733,18 @@ def cmd_attach(args):
         print()
         sys.exit(1)
 
+    # Safety check: Never attach a suite to its own repository
+    if cwd == suite_path:
+        print(f"\n{RED}Error: Current directory is the master suite itself ({suite_path}).{RESET}")
+        print(f"{YELLOW}You cannot attach a suite to its own master repository.{RESET}\n")
+        sys.exit(1)
+
     agents_src = suite_path / ".agents"
     if not agents_src.exists():
         print(f"\n{RED}Error: Suite does not contain a .agents directory:{RESET} {agents_src}\n")
         sys.exit(1)
 
-    current_os = "Windows 11" if IS_WINDOWS else "macOS"
+    current_os = get_os_name()
     print(f"\n{BOLD}{CYAN}Attaching Suite ({current_os}):{RESET} {BOLD}{suite_info['name']}{RESET}")
     print(f"  Source:  {suite_path}")
     print(f"  Target:  {cwd}\n")
@@ -817,6 +906,68 @@ def cmd_diff(args):
     subprocess.run(["git", "-C", str(suite_path), "diff"] + (args.extra or []))
 
 
+def cmd_install(args):
+    """Installs attach-suite CLI into system/user PATH for direct terminal execution."""
+    script_path = Path(__file__).resolve()
+    current_os = get_os_name()
+    print(f"\n{BOLD}{CYAN}Installing attach-suite for {current_os}...{RESET}")
+    print(f"  Source script: {script_path}")
+
+    # Ensure python script is executable on POSIX
+    if not IS_WINDOWS:
+        try:
+            mode = script_path.stat().st_mode
+            script_path.chmod(mode | 0o755)
+            print(f"  {GREEN}✓ Set executable permission (755) on {script_path.name}{RESET}")
+        except Exception as e:
+            print(f"  {YELLOW}Warning: Could not chmod {script_path.name}: {e}{RESET}")
+
+    if IS_WINDOWS:
+        win_bin = Path.home() / "AppData" / "Local" / "Microsoft" / "WindowsApps"
+        bat_dest = win_bin / "attach-suite.bat"
+        try:
+            win_bin.mkdir(parents=True, exist_ok=True)
+            with open(bat_dest, "w", encoding="utf-8") as f:
+                f.write(f"@echo off\r\npython \"{script_path}\" %*\r\n")
+            print(f"  {GREEN}✓ Created Windows CLI wrapper: {bat_dest}{RESET}")
+            print(f"\n{BOLD}{GREEN}Installation successful!{RESET} You can now run {BOLD}{CYAN}attach-suite{RESET} anywhere in your terminal.\n")
+        except Exception as e:
+            print(f"  {RED}Error: Could not install to {win_bin}: {e}{RESET}")
+    else:
+        # Linux / macOS
+        is_global = getattr(args, "global_install", False) or (hasattr(os, "geteuid") and os.geteuid() == 0)
+        dest_dir = Path("/usr/local/bin") if is_global else (Path.home() / ".local" / "bin")
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        link_dest = dest_dir / "attach-suite"
+
+        if link_dest.is_symlink() or link_dest.exists():
+            try:
+                link_dest.unlink()
+            except Exception:
+                pass
+
+        try:
+            link_dest.symlink_to(script_path)
+            print(f"  {GREEN}✓ Created CLI symlink:{RESET} {link_dest} -> {script_path}")
+        except OSError:
+            # Fallback wrapper
+            with open(link_dest, "w", encoding="utf-8") as f:
+                f.write(f"#!/usr/bin/env bash\nexec python3 \"{script_path}\" \"$@\"\n")
+            link_dest.chmod(0o755)
+            print(f"  {GREEN}✓ Created CLI wrapper script:{RESET} {link_dest}")
+
+        # Check PATH
+        path_dirs = os.environ.get("PATH", "").split(os.pathsep)
+        in_path = str(dest_dir) in path_dirs or str(dest_dir.resolve()) in path_dirs
+        if in_path:
+            print(f"  {GREEN}✓ Directory '{dest_dir}' is already in your PATH!{RESET}")
+            print(f"\n{BOLD}{GREEN}Installation successful!{RESET} You can now run {BOLD}{CYAN}attach-suite{RESET} anywhere in your terminal.\n")
+        else:
+            print(f"  {YELLOW}Notice: '{dest_dir}' is not currently in your PATH.{RESET}")
+            print(f"  Add it by running:")
+            print(f"    echo 'export PATH=\"{dest_dir}:$PATH\"' >> ~/.bashrc && source ~/.bashrc\n")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="attach-suite",
@@ -830,7 +981,7 @@ def main():
     p_attach.add_argument("--keep-git", action="store_true", help="Do not remove redundant .git folder in cwd")
 
     # fix command
-    subparsers.add_parser("fix", help="Automatically repair cross-OS links (Mac <-> Windows)")
+    subparsers.add_parser("fix", help="Automatically repair cross-OS links (Mac <-> Windows <-> Linux)")
 
     # status command
     p_status = subparsers.add_parser("status", help="Show current attached suite status")
@@ -860,8 +1011,12 @@ def main():
     # git command
     p_git = subparsers.add_parser("git", help="Run any git command directly on the master suite")
 
+    # install command
+    p_install = subparsers.add_parser("install", help="Install attach-suite into system/user PATH")
+    p_install.add_argument("--global", dest="global_install", action="store_true", help="Install to /usr/local/bin (requires sudo)")
+
     args_list = sys.argv[1:]
-    known_cmds = ["attach", "fix", "status", "list", "detach", "clean", "push", "pull", "diff", "git", "-h", "--help"]
+    known_cmds = ["attach", "fix", "status", "list", "detach", "clean", "push", "pull", "diff", "git", "install", "-h", "--help"]
 
     if args_list and args_list[0] == "git":
         cmd_git_passthrough(None, args_list[1:])
@@ -894,6 +1049,8 @@ def main():
         cmd_pull(args)
     elif args.command == "diff":
         cmd_diff(args)
+    elif args.command == "install":
+        cmd_install(args)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# attach-suite Linux/macOS CLI Wrapper
+# Runs python3 on attach-suite.py located in the same directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec python3 "${SCRIPT_DIR}/attach-suite.py" "$@"
