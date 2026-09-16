@@ -1,0 +1,32 @@
+{
+  "status": "STAGE_0_CURATION_COMPLETE",
+  "dataset": "projects/study_act_burnout/01_raw_inputs/data_raw.xlsx",
+  "sample_size_N": 60,
+  "variables_count": 10,
+  "total_missing_cells": 0,
+  "overall_missing_pct": 0.0,
+  "variable_missing_counts": {
+    "participant_id": 0,
+    "gender": 0,
+    "age": 0,
+    "education": 0,
+    "experience_years": 0,
+    "group": 0,
+    "burnout_pre": 0,
+    "burnout_post": 0,
+    "flexibility_pre": 0,
+    "flexibility_post": 0
+  },
+  "straight_liners_count": 0,
+  "straight_liner_cases": [],
+  "univariate_outliers_count": 0,
+  "univariate_outliers": [],
+  "group_distribution": {
+    "ACT": 30,
+    "Control": 30
+  },
+  "artifacts_generated": [
+    "projects/study_act_burnout/01_raw_inputs/data_scored.xlsx",
+    "projects/study_act_burnout/01_raw_inputs/scoring_log.json"
+  ]
+}

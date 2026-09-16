@@ -6,6 +6,7 @@
 !.github/
 !scripts/
 !webapp/
+!projects/
 webapp/node_modules/
 webapp/dist/
 

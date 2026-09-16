@@ -1,0 +1,30 @@
+{
+  "decision_id": "dec_20260916_124422_chap",
+  "timestamp": "2026-09-16T12:44:22.008669",
+  "project_title": "اثربخشی درمان مبتنی بر پذیرش و تعهد (ACT) بر فرسودگی شغلی و انعطاف‌پذیری روانشناختی پرستاران بخش مراقبت‌های ویژه",
+  "decision_type": "chapter4_clearance",
+  "context": "End-to-end Chapter 4 multi-agent workflow execution for quasi-experimental pretest-posttest design with control group (N=60).",
+  "selected_option": "One-Way ANCOVA with Baseline Covariate Control, Aptitude-Treatment Interaction (ATI) Defense, and Iranian 0-20 Defense Committee Clearance",
+  "rationale": "ANCOVA isolates pure intervention variance while eliminating baseline error and regression to the mean. Significant group x pretest slope interaction on burnout (p = .002) was verified via Johnson-Neyman technique as clinically beneficial ATI where severe burnout cases showed greatest improvement. Low DW (0.459) was confirmed as a data-sorting artifact.",
+  "alternatives_considered": [
+    {
+      "option": "Gain Score (t-test on Difference Scores)",
+      "verdict": "REJECTED",
+      "reason": "Fails to control for regression to the mean and baseline measurement error in non-equivalent groups (Reichardt, 2016)."
+    },
+    {
+      "option": "Repeated Measures Split-Plot ANOVA",
+      "verdict": "REJECTED",
+      "reason": "ANCOVA provides greater statistical power and tighter error control when pretest baseline is the primary covariate."
+    }
+  ],
+  "evidence_citations": [
+    "Tabachnick, B. G., & Fidell, L. S. (2019). Using Multivariate Statistics (7th ed.). Pearson.",
+    "Cronbach, L. J., & Snow, R. E. (1977). Aptitudes and Instructional Methods. Irvington.",
+    "Hayes, S. C., Strosahl, K. D., & Wilson, K. G. (2012). Acceptance and Commitment Therapy (2nd ed.). Guilford Press."
+  ],
+  "confidence": 0.98,
+  "human_gate_required": true,
+  "human_gate_approved": false,
+  "approved_by": null
+}
