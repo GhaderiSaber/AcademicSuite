@@ -36,7 +36,8 @@ STATIC_DIR = DIST_DIR if os.path.isdir(DIST_DIR) else WEBAPP_DIR
 # Add skill script directories to path for imports
 DIGITAL_TWIN_SCRIPTS = os.path.join(ROOT_DIR, ".agents", "skills", "digital-twin-academic-consultant", "scripts")
 PSYCHOMETRIC_SCRIPTS = os.path.join(ROOT_DIR, ".agents", "skills", "psychometric-scale-resolver", "scripts")
-for path in [DIGITAL_TWIN_SCRIPTS, PSYCHOMETRIC_SCRIPTS]:
+MEMORY_DIR = os.path.join(ROOT_DIR, ".agents", "memory")
+for path in [DIGITAL_TWIN_SCRIPTS, PSYCHOMETRIC_SCRIPTS, MEMORY_DIR]:
     if path not in sys.path and os.path.exists(path):
         sys.path.insert(0, path)
 
@@ -56,6 +57,16 @@ try:
     from questionnaire_resolver import search_registry
 except ImportError:
     search_registry = None
+
+try:
+    from copilot_bridge import TelegramCopilotBridge
+except ImportError:
+    TelegramCopilotBridge = None
+
+try:
+    from decision_journal_engine import DecisionJournalEngine
+except ImportError:
+    DecisionJournalEngine = None
 
 
 def load_fallback_projects() -> List[Dict[str, Any]]:
@@ -150,15 +161,19 @@ class AcademicSuiteHTTPHandler(SimpleHTTPRequestHandler):
             query_params = urllib.parse.parse_qs(parsed_url.query)
             q = query_params.get("q", [""])[0]
             self.handle_scales(q)
+        elif path == "/api/admin/status":
+            self.handle_admin_status()
+        elif path == "/api/admin/pending":
+            self.handle_admin_pending()
+        elif path in ["/", "/index.html", "/standalone", "/standalone.html"]:
+            self.handle_spa_root()
         else:
-            # SPA fallback: serve static files, or index.html for unknown paths
+            # SPA fallback: serve static files, or standalone SPA for client-side routing
             requested_file = os.path.join(STATIC_DIR, path.lstrip("/"))
             if os.path.isfile(requested_file):
                 super().do_GET()
             else:
-                # Serve index.html for client-side routing (SPA fallback)
-                self.path = "/index.html"
-                super().do_GET()
+                self.handle_spa_root()
 
     def do_POST(self):
         parsed_url = urllib.parse.urlparse(self.path)
@@ -166,8 +181,96 @@ class AcademicSuiteHTTPHandler(SimpleHTTPRequestHandler):
 
         if path == "/api/quote":
             self.handle_quote()
+        elif path == "/api/admin/approve":
+            self.handle_admin_approve()
         else:
             self.send_error(404, "Endpoint not found")
+
+    def handle_spa_root(self):
+        """Serves dist/index.html if built, otherwise falls back cleanly to standalone.html."""
+        dist_index = os.path.join(DIST_DIR, "index.html")
+        standalone_file = os.path.join(WEBAPP_DIR, "standalone.html")
+        if os.path.isfile(dist_index):
+            self.path = "/index.html"
+            super().do_GET()
+        elif os.path.isfile(standalone_file):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            with open(standalone_file, "rb") as f:
+                content = f.read()
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        else:
+            self.path = "/index.html"
+            super().do_GET()
+
+    def handle_admin_status(self):
+        status = {
+            "admin_id": 124911145,
+            "admin_name": "Saber Ghaderi (@GhaderiSaber)",
+            "service": "AcademicSuite Admin Approval Desk",
+            "active": True
+        }
+        if TelegramCopilotBridge:
+            try:
+                bridge = TelegramCopilotBridge()
+                status.update(bridge.get_status())
+            except Exception as e:
+                status["bridge_error"] = str(e)
+        self.send_json_response(status)
+
+    def handle_admin_pending(self):
+        pending = {"pending_quotes": {}, "pending_drafts": {}}
+        if TelegramCopilotBridge:
+            try:
+                bridge = TelegramCopilotBridge()
+                pending["pending_quotes"] = bridge.state.get("pending_quotes", {})
+                pending["pending_drafts"] = bridge.state.get("pending_drafts", {})
+            except Exception as e:
+                pending["error"] = str(e)
+        self.send_json_response(pending)
+
+    def handle_admin_approve(self):
+        try:
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length) if content_length > 0 else b"{}"
+            req_data = json.loads(body.decode("utf-8")) if body else {}
+            quote_id = req_data.get("quote_id")
+            adjusted_price = req_data.get("adjusted_price")
+            if not quote_id:
+                self.send_json_response({"error": "quote_id is required"}, status=400)
+                return
+
+            res = {"status": "error", "message": "Bridge unavailable"}
+            if TelegramCopilotBridge:
+                bridge = TelegramCopilotBridge()
+                res = bridge.approve_quote(quote_id, adjusted_price)
+
+            # Record in Decision Journal Engine
+            if res.get("status") == "success" and DecisionJournalEngine:
+                try:
+                    journal = DecisionJournalEngine()
+                    did = journal.log_decision(
+                        decision_type="pricing",
+                        context=f"Quotation {quote_id} intake for client '{res.get('client_name', 'Student')}'",
+                        selected_option=f"Approve {res.get('total_price', 0):,} Tomans",
+                        rationale="Approved by Saber's Admin Desk via WebApp approval interface (ID: 124911145)",
+                        alternatives_considered=[
+                            {"option": f"Approved Price: {res.get('total_price', 0):,} Tomans", "notes": "Authorized release via WebApp"}
+                        ],
+                        confidence=1.0,
+                        human_gate_required=True,
+                        human_gate_approved=True,
+                        approved_by="GhaderiSaber (124911145)"
+                    )
+                    res["decision_id"] = did
+                except Exception as je:
+                    res["journal_warning"] = str(je)
+
+            self.send_json_response(res, status=200 if res.get("status") == "success" else 400)
+        except Exception as e:
+            self.send_json_response({"error": str(e)}, status=400)
 
     def handle_health(self):
         projects = get_live_projects()
@@ -321,6 +424,13 @@ def test_server():
         quote = calculate_quotation(analysis, persona, {"include_ch3": True, "include_ch4": True})
         assert "total_price_tomans" in quote
         print(f"[TEST] Quote computed: {quote['total_price_tomans']} Tomans.")
+
+    print("[TEST] Verifying Admin Desk endpoints and static files...")
+    standalone_file = os.path.join(WEBAPP_DIR, "standalone.html")
+    assert os.path.isfile(standalone_file), "webapp/standalone.html must exist!"
+    assert os.path.isfile(os.path.join(WEBAPP_DIR, "css", "style.css")), "css/style.css must exist!"
+    assert os.path.isfile(os.path.join(WEBAPP_DIR, "js", "app.js")), "js/app.js must exist!"
+    print(f"[TEST] Verified standalone distribution assets.")
 
     print("[TEST] All server tests passed successfully!")
     return 0

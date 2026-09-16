@@ -23,8 +23,10 @@ SCHEMAS_DIR = os.path.join(SHARED_DIR, "schemas")
 MEMORY_DIR = os.path.join(REPO_ROOT, ".agents", "memory")
 REASONING_DIR = os.path.join(REPO_ROOT, ".agents", "reasoning")
 VERIF_DIR = os.path.join(REPO_ROOT, ".agents", "verification")
+SCRIPTS_DIR = os.path.join(REPO_ROOT, "scripts")
+COPILOT_DIR = os.path.join(REPO_ROOT, ".agents", "skills", "digital-twin-academic-consultant", "scripts")
 
-for p in [SHARED_DIR, MEMORY_DIR, REASONING_DIR, VERIF_DIR]:
+for p in [SHARED_DIR, MEMORY_DIR, REASONING_DIR, VERIF_DIR, SCRIPTS_DIR, COPILOT_DIR]:
     if p not in sys.path and os.path.isdir(p):
         sys.path.insert(0, p)
 
@@ -33,6 +35,8 @@ from decision_journal_engine import DecisionJournalEngine
 from multi_signal_anomaly_detector import MultiSignalAnomalyDetector
 from defense_committee_simulator import DefenseCommitteeSimulator
 from statistical_reasoner import StatisticalReasoner
+from copilot_bridge import TelegramCopilotBridge
+from serve_webapp import test_server
 
 
 def validate_json_contract(payload: dict, schema: dict) -> tuple[bool, list]:
@@ -260,6 +264,61 @@ class TestSingleOrchestratorDeliberationFlow(unittest.TestCase):
         # Rejected alternatives must explicitly reject gain-score t-test
         rejected_names = [alt["option"] for alt in res["rejected_alternatives"]]
         self.assertTrue(any("Gain Score" in opt for opt in rejected_names))
+
+    def test_admin_desk_and_decision_journaling(self):
+        """Directive 7 & 11: Asserts Admin Desk (124911145) approval gate and decision journaling."""
+        bridge = TelegramCopilotBridge()
+        proposal_text = "اثربخشی درمان مبتنی بر پذیرش و تعهد بر اضطراب مرگ بیماران قلبی"
+        record = bridge.draft_proposal_quote(proposal_text, client_name="تست سیستم")
+        qid = record["quote_id"]
+        self.assertIn("Q", qid)
+
+        # Approve via Admin Desk ID 124911145
+        approval = bridge.approve_quote(qid, adjusted_price=7500000)
+        self.assertEqual(approval["status"], "success")
+        self.assertEqual(approval["total_price"], 7500000)
+
+        # Log to decision journal
+        journal = DecisionJournalEngine()
+        did = journal.log_decision(
+            decision_type="pricing",
+            context=f"Test quotation {qid} release",
+            selected_option="Approve 7,500,000 Tomans",
+            rationale="Admin Gate clearance test",
+            alternatives_considered=[{"option": "7,500,000 Tomans"}],
+            human_gate_required=True,
+            human_gate_approved=True,
+            approved_by="GhaderiSaber (124911145)"
+        )
+        self.assertTrue(did.startswith("dec_"))
+
+        # Verify decision file on disk
+        decision_path = os.path.join(MEMORY_DIR, "decisions", f"{did}.json")
+        self.assertTrue(os.path.isfile(decision_path))
+        with open(decision_path, "r", encoding="utf-8") as f:
+            saved_dec = json.load(f)
+        self.assertEqual(saved_dec["approved_by"], "GhaderiSaber (124911145)")
+        self.assertTrue(saved_dec["human_gate_approved"])
+
+        # Clean up test decision file
+        if os.path.exists(decision_path):
+            os.remove(decision_path)
+
+    def test_webapp_standalone_and_rest_endpoints(self):
+        """Pillar 5: Asserts standalone WebApp assets exist and serve_webapp diagnostics pass."""
+        webapp_dir = os.path.join(REPO_ROOT, "webapp")
+        standalone_html = os.path.join(webapp_dir, "standalone.html")
+        style_css = os.path.join(webapp_dir, "css", "style.css")
+        app_js = os.path.join(webapp_dir, "js", "app.js")
+        seed_js = os.path.join(webapp_dir, "data", "seed_data.js")
+
+        for fpath in [standalone_html, style_css, app_js, seed_js]:
+            self.assertTrue(os.path.isfile(fpath), f"Missing required asset: {fpath}")
+            self.assertGreater(os.path.getsize(fpath), 500, f"Asset {fpath} is unexpectedly small")
+
+        # Run serve_webapp test suite
+        res = test_server()
+        self.assertEqual(res, 0)
 
 
 if __name__ == "__main__":

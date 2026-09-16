@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Saber Academic Suite — Mini App & Dashboard</title>
+  
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Google Fonts: Inter & Vazirmatn -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Glassmorphic Theme Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Header Panel -->
+    <header class="app-header">
+      <div class="header-branding">
+        <div class="logo-shield">
+          <span class="logo-icon">🎓</span>
+        </div>
+        <div class="header-titles">
+          <h1 id="app-title" data-i18n="app_title">Saber Academic Suite</h1>
+          <p id="app-subtitle" data-i18n="app_subtitle">Thesis Consultancy & Project Operations Hub</p>
+        </div>
+      </div>
+      
+      <button id="btn-lang-toggle" class="btn-pill" aria-label="Toggle Language">
+        <span class="lang-flag">🇮🇷</span>
+        <span class="lang-text">فارسی</span>
+      </button>
+    </header>
+
+    <!-- Status Ribbon -->
+    <div class="status-ribbon glass-panel">
+      <div class="ribbon-item">
+        <span class="pulse-dot"></span>
+        <span id="txt-drive-status">Google Drive: <b>Connected (My Work)</b></span>
+      </div>
+      <div class="ribbon-item">
+        <span id="badge-total-projects" class="badge-accent">0 Projects Active</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab active" data-tab="kanban" role="tab" aria-selected="true">
+        <span>📋</span>
+        <span data-i18n="tab_kanban">Project Pipeline</span>
+      </button>
+      <button class="nav-tab" data-tab="calculator" role="tab" aria-selected="false">
+        <span>💰</span>
+        <span data-i18n="tab_calculator">Pricing Calculator</span>
+      </button>
+      <button class="nav-tab" data-tab="scales" role="tab" aria-selected="false">
+        <span>📊</span>
+        <span data-i18n="tab_scales">Scales Registry</span>
+      </button>
+      <button class="nav-tab" data-tab="consultant" role="tab" aria-selected="false">
+        <span>👨‍🏫</span>
+        <span data-i18n="tab_consultant">Consultant Profile</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- ===================================================================
+           TAB 1: Kanban Pipeline
+           =================================================================== -->
+      <section id="tab-kanban" class="tab-pane active" role="tabpanel">
+        <div class="controls-bar">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="kanban-search" placeholder="Search client name, topic, or path..." data-i18n-placeholder="search_projects" />
+            <button id="btn-clear-kanban-search" class="btn-icon-clear hidden" aria-label="Clear Search">✕</button>
+          </div>
+          <div class="filter-chips">
+            <button class="chip active" data-filter="all" data-i18n="filter_all">All</button>
+            <button class="chip" data-filter="inquiry" data-i18n="status_inquiry">Inquiry</button>
+            <button class="chip" data-filter="pending" data-i18n="status_pending">Pending Quote</button>
+            <button class="chip" data-filter="in_progress" data-i18n="status_in_progress">In Progress</button>
+            <button class="chip" data-filter="finished" data-i18n="status_finished">Finished</button>
+          </div>
+        </div>
+
+        <div class="kanban-grid">
+          <!-- Column: Inquiry -->
+          <div class="kanban-column col-inquiry">
+            <div class="column-header">
+              <h3 data-i18n="col_inquiry">Inquiry & Intake</h3>
+              <span id="count-inquiry" class="col-counter">0</span>
+            </div>
+            <div id="cards-inquiry" class="column-cards"></div>
+          </div>
+
+          <!-- Column: Pending -->
+          <div class="kanban-column col-pending">
+            <div class="column-header">
+              <h3 data-i18n="col_pending">Pending Approval</h3>
+              <span id="count-pending" class="col-counter">0</span>
+            </div>
+            <div id="cards-pending" class="column-cards"></div>
+          </div>
+
+          <!-- Column: In Progress -->
+          <div class="kanban-column col-progress">
+            <div class="column-header">
+              <h3 data-i18n="col_in_progress">Active Analysis & Writing</h3>
+              <span id="count-in_progress" class="col-counter">0</span>
+            </div>
+            <div id="cards-in_progress" class="column-cards"></div>
+          </div>
+
+          <!-- Column: Finished -->
+          <div class="kanban-column col-finished">
+            <div class="column-header">
+              <h3 data-i18n="col_finished">Defense-Ready & Archived</h3>
+              <span id="count-finished" class="col-counter">0</span>
+            </div>
+            <div id="cards-finished" class="column-cards"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 2: Pricing Calculator
+           =================================================================== -->
+      <section id="tab-calculator" class="tab-pane" role="tabpanel">
+        <div class="calc-layout">
+          
+          <!-- Left: Parameters Form -->
+          <div class="calc-form-card glass-panel">
+            <div class="section-title">
+              <span>⚙️</span>
+              <h3 data-i18n="calc_params_title">Research Study Parameters</h3>
+            </div>
+
+            <!-- Degree Level -->
+            <div class="form-group">
+              <label for="calc-degree" data-i18n="lbl_degree">Academic Degree Level</label>
+              <select id="calc-degree" class="form-select">
+                <option value="master" data-i18n="opt_master">Master's (M.A. / M.Sc.) — کارشناسی ارشد</option>
+                <option value="phd" data-i18n="opt_phd">Doctorate (Ph.D.) — دکتری تخصصی</option>
+              </select>
+            </div>
+
+            <!-- Research Design -->
+            <div class="form-group">
+              <label for="calc-design" data-i18n="lbl_design">Methodology & Research Design</label>
+              <select id="calc-design" class="form-select">
+                <option value="ancova" data-i18n="design_ancova">Quasi-Experimental (ANCOVA / Repeated Measures)</option>
+                <option value="sem" data-i18n="design_sem">Structural Equation Modeling (SEM / CFA - AMOS/PLS)</option>
+                <option value="regression" data-i18n="design_regression">Correlation & Multiple Hierarchical Regression</option>
+                <option value="scale_val" data-i18n="design_scale_val">Psychometric Validation (EFA / CFA / IRT)</option>
+                <option value="qualitative" data-i18n="design_qualitative">Qualitative Thematic Analysis (MAXQDA)</option>
+              </select>
+            </div>
+
+            <!-- Sample Size Slider -->
+            <div class="form-group">
+              <div class="slider-header">
+                <label for="calc-sample-size" data-i18n="lbl_sample_size">Sample Size (N)</label>
+                <span id="val-sample-size" class="slider-badge">N = 40</span>
+              </div>
+              <input type="range" id="calc-sample-size" class="form-range" min="15" max="600" step="5" value="40" />
+              <div class="slider-ticks">
+                <span>15</span>
+                <span>100</span>
+                <span>250</span>
+                <span>400</span>
+                <span>600</span>
+              </div>
+            </div>
+
+            <!-- Scales Count Slider -->
+            <div class="form-group">
+              <div class="slider-header">
+                <label for="calc-scales-count" data-i18n="lbl_scales_count">Psychometric Questionnaires Count</label>
+                <span id="val-scales-count" class="slider-badge">2 Scales</span>
+              </div>
+              <input type="range" id="calc-scales-count" class="form-range" min="1" max="8" step="1" value="2" />
+              <div class="slider-ticks">
+                <span>1</span>
+                <span>2</span>
+                <span>4</span>
+                <span>6</span>
+                <span>8</span>
+              </div>
+            </div>
+
+            <!-- Express Delivery Toggle -->
+            <div class="form-group">
+              <div class="toggle-urgency">
+                <label class="switch-container">
+                  <input type="checkbox" id="calc-urgent" />
+                  <span class="switch-slider"></span>
+                </label>
+                <div class="switch-label">
+                  <b data-i18n="lbl_urgent">Express Priority Delivery (48h)</b>
+                  <p data-i18n="desc_urgent">Fast-track pipeline with 1.4x urgency coefficient</p>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="section-subtitle" data-i18n="lbl_select_services">Select Required Deliverable Modules:</h4>
+
+            <!-- Deliverable Checkboxes -->
+            <div class="services-checklist">
+              <label class="service-check-item">
+                <input type="checkbox" id="svc-ch3" checked />
+                <div class="service-info">
+                  <div class="service-name" data-i18n="svc_ch3_name">Chapter 3: Methodology & G*Power</div>
+                  <div class="service-meta" data-i18n="svc_ch3_meta">Research design, instruments, sample power calculation</div>
+                </div>
+                <span id="price-ch3" class="service-price">1,500,000 T</span>
+              </label>
+
+              <label class="service-check-item">
+                <input type="checkbox" id="svc-sim" checked />
+                <div class="service-info">
+                  <div class="service-name" data-i18n="svc_sim_name">SimDat Psychometric Data Simulation</div>
+                  <div class="service-meta" data-i18n="svc_sim_meta">Monte Carlo discrete Likert simulation with real factor covariance</div>
+                </div>
+                <span id="price-sim" class="service-price">1,200,000 T</span>
+              </label>
+
+              <label class="service-check-item">
+                <input type="checkbox" id="svc-ch4" checked />
+                <div class="service-info">
+                  <div class="service-name" data-i18n="svc_ch4_name">Chapter 4: Statistical Analysis & APA 7 Tables</div>
+                  <div class="service-meta" data-i18n="svc_ch4_meta">Normality, inferential hypothesis testing, raw output files</div>
+                </div>
+                <span id="price-ch4" class="service-price">3,000,000 T</span>
+              </label>
+
+              <label class="service-check-item">
+                <input type="checkbox" id="svc-ch5" checked />
+                <div class="service-info">
+                  <div class="service-name" data-i18n="svc_ch5_name">Chapter 5: Discussion & Theoretical Mechanisms</div>
+                  <div class="service-meta" data-i18n="svc_ch5_meta">Findings integration, Iranian/foreign literature, limitations</div>
+                </div>
+                <span id="price-ch5" class="service-price">2,500,000 T</span>
+              </label>
+
+              <label class="service-check-item">
+                <input type="checkbox" id="svc-slides" />
+                <div class="service-info">
+                  <div class="service-name" data-i18n="svc_slides_name">Viva Voce Defense Slides Deck</div>
+                  <div class="service-meta" data-i18n="svc_slides_meta">Widescreen 16:9 presentation with speaker script notes</div>
+                </div>
+                <span id="price-slides" class="service-price">1,200,000 T</span>
+              </label>
+
+              <label class="service-check-item">
+                <input type="checkbox" id="svc-audit" checked />
+                <div class="service-info">
+                  <div class="service-name" data-i18n="svc_audit_name">Comprehensive Thesis Integrity Audit</div>
+                  <div class="service-meta" data-i18n="svc_audit_meta">Hypothesis alignment, df verification, bidirectional citation check</div>
+                </div>
+                <span id="price-audit" class="service-price">1,000,000 T</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Right: Output Card -->
+          <div class="calc-output-card glass-panel">
+            <div class="quote-card-header">
+              <span class="badge-consultant">Saber Academic Consulting</span>
+              <h3 data-i18n="quote_summary_title">Official Quotation & Schedule</h3>
+            </div>
+
+            <div class="quote-highlights">
+              <div class="highlight-box">
+                <span class="hl-label" data-i18n="lbl_total_price">Total Investment</span>
+                <span id="quote-total-price" class="hl-value-price">0 Tomans</span>
+                <span id="quote-discount-badge" class="badge-discount">15% Full Package Discount Applied</span>
+              </div>
+              <div class="highlight-box">
+                <span class="hl-label" data-i18n="lbl_total_days">Estimated Turnaround</span>
+                <span id="quote-total-days" class="hl-value-days">4 Business Days</span>
+                <span class="hl-sub" data-i18n="parallel_timeline_note">With parallel analytical pipelines</span>
+              </div>
+            </div>
+
+            <div class="quote-breakdown">
+              <h4 data-i18n="summary_breakdown">Selected Services Breakdown:</h4>
+              <ul id="quote-breakdown-list" class="summary-list"></ul>
+            </div>
+
+            <div class="quote-actions">
+              <button id="btn-copy-quote" class="btn-primary" style="flex: 1;">
+                <span>📋</span>
+                <span data-i18n="btn_copy_quote">Copy Telegram Card</span>
+              </button>
+              <button id="btn-send-quote" class="btn-telegram" style="flex: 1;">
+                <span>✈️</span>
+                <span data-i18n="btn_send_telegram">Direct Inquiry to Saber</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 3: Scales Registry Explorer
+           =================================================================== -->
+      <section id="tab-scales" class="tab-pane" role="tabpanel">
+        <div class="controls-bar">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="scales-search" placeholder="Search across 4,880 instruments (e.g., resilience, Beck, schema, DASS)..." data-i18n-placeholder="search_scales" />
+            <button id="btn-clear-scale-search" class="btn-icon-clear hidden" aria-label="Clear Search">✕</button>
+          </div>
+          <div id="scale-category-chips" class="filter-chips">
+            <button class="chip active" data-cat="all" data-i18n="cat_all">All Instruments</button>
+            <button class="chip" data-cat="clinical">Clinical & Psychopathology</button>
+            <button class="chip" data-cat="personality">Personality & Schemas</button>
+            <button class="chip" data-cat="health">Health & Well-being</button>
+            <button class="chip" data-cat="educational">Educational & Cognitive</button>
+            <button class="chip" data-cat="organizational">Organizational & Burnout</button>
+          </div>
+        </div>
+
+        <div id="scales-container" class="scales-grid"></div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 4: Consultant Profile
+           =================================================================== -->
+      <section id="tab-consultant" class="tab-pane" role="tabpanel">
+        <div class="profile-layout">
+          <!-- Profile Card -->
+          <div class="profile-card glass-panel">
+            <div class="profile-header">
+              <div class="avatar-shield">👨‍🏫</div>
+              <div class="profile-title">
+                <h2>صابر قادری (Saber Ghaderi)</h2>
+                <p>مشاور ارشد روش‌شناسی پژوهش، مدل‌یابی معادلات ساختاری و روان‌سنجی</p>
+                <div class="profile-badges">
+                  <span class="badge-tag">M.A. Psychometrics</span>
+                  <span class="badge-tag">Ph.D. Methodology Consultant</span>
+                  <span class="badge-tag">Digital Twin Lead</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-bio">
+              <p>
+                مرکز مشاوره تخصصی رساله‌های دکتری و پایان‌نامه‌های کارشناسی ارشد در حیطه علوم رفتاری، روان‌شناسی بالینی و سلامت.
+                مجهز به معماری شناختی ۵ لایه هوش مصنوعی دیجیتال صابر، رعایت استانداردهای بنیادین APA ویرایش هفتم، کدنویسی شفاف بدون هالوسینیشن ذهنی و تضمین تایید در جلسه دفاع (Viva Voce).
+              </p>
+            </div>
+
+            <!-- Core Competencies -->
+            <div class="profile-competencies">
+              <h3 data-i18n="profile_expertise_title">Core Competencies & Services</h3>
+              <div class="competency-grid">
+                <div class="comp-card">
+                  <div class="comp-icon">📐</div>
+                  <h4>طرح پژوهش و نمونه‌گیری</h4>
+                  <p>محاسبه توان آماری با G*Power 3.1، طراحی پروتکل‌های کارآزمایی بالینی (RCT) و شبیه‌سازی ماتریس کوواریانس</p>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-icon">📊</div>
+                  <h4>تحلیل آماری پیشرفته</h4>
+                  <p>مدل‌یابی معادلات ساختاری (SEM)، تحلیل چندمیانجی‌گری با PROCESS مدل ۴ و ۶، تحلیل کوواریانس (ANCOVA) و اندازه‌گیری مکرر</p>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-icon">🔍</div>
+                  <h4>ممیزی آنومالی آماری (MSAI)</h4>
+                  <p>غربالگری تقلب داده‌ها، کشف تورم تصنعی پایایی آلفا و اعتبارسنجی فرضیات قبل از تدوین فصل چهارم</p>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-icon">🛡️</div>
+                  <h4>شبیه‌ساز جلسه دفاع (Viva Voce)</h4>
+                  <p>شبیه‌سازی چالش‌های هیئت داوران در ۵ نقش تخصصی و نگارش اسلایدهای حرفه‌ای ۱۶:۹ با متن سخنرانی</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact & Admin Desk -->
+            <div class="profile-contact glass-panel">
+              <h3 data-i18n="profile_contact_title">Direct Communication & Admin Desk</h3>
+              <div class="contact-details">
+                <div class="contact-item">
+                  <span class="contact-label">Telegram Handle:</span>
+                  <a href="https://t.me/GhaderiSaber" target="_blank" rel="noopener noreferrer" class="contact-link">@GhaderiSaber</a>
+                </div>
+                <div class="contact-item">
+                  <span class="contact-label">Admin Approval Desk:</span>
+                  <span class="contact-val">ID: <code>124911145</code> (Saber Ghaderi)</span>
+                </div>
+                <div class="contact-item">
+                  <span class="contact-label">Direct Channel:</span>
+                  <span class="contact-val">Academic Research & Data Analysis Consultancy</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>Saber Academic Suite &copy; 2026. All rights reserved.</span>
+      <span class="footer-meta">v2.0 • Digital Twin Hybrid Architecture</span>
+    </footer>
+
+    <!-- Popover Toast Alert -->
+    <div id="toast" class="toast" role="alert">
+      <span id="toast-message"></span>
+    </div>
+
+  </div>
+
+  <!-- Pre-seeded Projects & Scales Registry -->
+  <script src="data/seed_data.js"></script>
+
+  <!-- Mini App Logic & Telegram WebApp SDK Integration -->
+  <script src="js/app.js"></script>
+</body>
+</html>
