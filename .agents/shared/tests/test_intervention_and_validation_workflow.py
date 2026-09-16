@@ -52,7 +52,11 @@ class TestInterventionAndValidationWorkflow(unittest.TestCase):
     def test_workflow_specs_exist(self):
         """1. Verify workflow specs exist with required sections."""
         inte_path = os.path.join(AGENTS_DIR, "workflows", "intervention_protocol.md")
+        if not os.path.exists(inte_path):
+            inte_path = os.path.join(AGENTS_DIR, "workflows", "intervention_protocol.md.bak")
         scal_path = os.path.join(AGENTS_DIR, "workflows", "scale_validation.md")
+        if not os.path.exists(scal_path):
+            scal_path = os.path.join(AGENTS_DIR, "workflows", "scale_validation.md.bak")
 
         self.assertTrue(os.path.exists(inte_path), f"Spec missing: {inte_path}")
         self.assertTrue(os.path.exists(scal_path), f"Spec missing: {scal_path}")

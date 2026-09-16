@@ -1,77 +1,47 @@
-# Google Antigravity Comprehensive Architecture & Engineering Guide
-**Agents, Subagents, Skills, Workflows, and Runtime Topology**  
+# Google Antigravity Architecture & Customization Guide
+**Agents, Subagents, Skills, and Workflows**  
 *Document Version: 2026.09.16 | Operative Date: September 16, 2026*
 
 ---
 
 ## Executive Summary & System Overview
 
-**Google Antigravity (AGY)** is an agent-first Integrated Development Environment (IDE) and developer platform engineered to orchestrate autonomous AI agents across the code editor, terminal, browser, and background operating system processes. Operating on a continuous **Plan → Execute → Verify** cognitive loop, Antigravity structures complex software engineering and research workflows around **Agent Skills**, **Subagents**, and **Dynamic Execution Graphs**, eliminating context bloat while maintaining strict human-in-the-loop (HITL) governance.
+**Google Antigravity (AGY)** is an agent-first software development and research platform designed to orchestrate autonomous AI agents across codebases, developer tools, terminals, and web environments. Operating on a **Plan → Execute → Verify** cognitive loop, Antigravity enables complex multi-step workflows to run either interactively with human developers or fully autonomously.
 
-As of September 2026, Antigravity spans four core operational surfaces:
-1. **Antigravity 2.0 Desktop Application**: An Electron-based command center for multi-workspace orchestration, real-time background task monitoring, scheduled cron jobs/timers, and artifact inspection.
-2. **Antigravity IDE**: Standalone or extension-based environment (e.g., VS Code integration) featuring inline code lenses, AST-aware diff reviews, and context-aware chat sidebars.
-3. **Antigravity CLI (`agy`)**: A lightweight, terminal-native text user interface (TUI) and headless CLI optimized for local development and remote SSH sessions.
-4. **Google Antigravity Python SDK (`google-antigravity`)**: A programmatic framework allowing developers to instantiate, configure, and orchestrate custom agents and multi-tier subagent hierarchies in code.
+As of late 2026, Antigravity provides four primary development surfaces:
+1. **Antigravity 2.0 Desktop Application**: An Electron-based command center for multi-agent orchestration, workspace management, scheduled tasks (cron/timers), and real-time artifact inspection.
+2. **Antigravity IDE**: Standalone or extension-based environment (e.g., VS Code integration) featuring inline code lenses, diff reviews, and context-aware chat sidebars.
+3. **Antigravity CLI (`agy`)**: A lightweight, terminal-native text user interface (TUI) optimized for local development and headless remote SSH sessions.
+4. **Google Antigravity Python SDK (`google-antigravity`)**: A programmatic framework allowing developers to instantiate, configure, and orchestrate agents and multi-tier subagent hierarchies in code.
 
----
-
-## 1. System Architecture & Runtime Topology
-
-Antigravity operates on a multi-tiered architecture bridging developer user interfaces, an execution runtime daemon, model context engines, and isolated OS-level execution sandboxes:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Developer UI (IDE / CLI)                 │
-│         (/agents panel, editor lenses, interactive chat)    │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ IPC / gRPC
-┌──────────────────────────────▼──────────────────────────────┐
-│                  Antigravity Core Daemon                    │
-│  ┌───────────────────────┐      ┌────────────────────────┐  │
-│  │ Skill Indexer & Cache │      │ Orchestrator / Planner │  │
-│  └───────────────────────┘      └───────────┬────────────┘  │
-│  ┌───────────────────────┐                  │               │
-│  │ Permission Broker     │◄─────────────────┘               │
-│  └───────────────────────┘                                  │
-└───────────────┬──────────────────────────────┬──────────────┘
-                │ LSP / MCP Protocol           │ Subagent RPC
-┌───────────────▼──────────────┐ ┌─────────────▼──────────────┐
-│ Context Providers & Tooling  │ │ Subagent Runtime Sandbox   │
-│ - Language Server (AST)      │ │ - Worktree Isolation       │
-│ - Browser Engine (CDP)       │ │ - Resource Cgroups         │
-│ - Local Vector Embeddings    │ │ - Ephemeral Token Budgets  │
-└──────────────────────────────┘ └────────────────────────────┘
-```
-
-### 1.1 Protocol Integrations
-*   **Language Server Protocol (LSP) Bridge**: Unlike legacy chat tools relying on brute-force regex or string grep, Antigravity’s orchestrator hooks directly into the active LSP. It resolves references, verifies symbol definitions, queries compiler diagnostics (type errors, linter output), and validates Abstract Syntax Tree (AST) correctness *before* committing edits to disk.
-*   **Model Context Protocol (MCP) Client**: External enterprise datasources, APIs, and cloud services connect via MCP servers. Skills register MCP endpoints dynamically, enabling agents to query databases, call cloud APIs, or trigger CI/CD pipelines natively.
-*   **Terminal & PTY Multiplexer**: Terminal actions run inside pseudo-terminals (PTY) managed by the core daemon. It intercepts process signals, strips ANSI control escape sequences, normalizes streaming output, and calculates token-efficient diffs of process outputs.
+A major architectural evolution in 2026 is the consolidation of the customization system: **Agent Skills** have formally replaced legacy **Workflows** (which are scheduled for complete sunset on November 1, 2026). This guide provides the complete, authoritative reference for creating and managing **Agents**, **Subagents**, **Skills**, and **Workflows** within the Antigravity ecosystem.
 
 ---
 
-## 2. Primary Agents: Architecture & Governance
+## 1. Primary Agents
 
-### 2.1 Foundational Pillars
+### 1.1 Core Architecture & Pillars
 
-Every Antigravity session is anchored by a **Primary Agent** (Lead Agent / Orchestrator). In both the core runtime and the Python SDK, three foundational pillars govern execution:
+Every Antigravity session is anchored by a **Primary Agent** (also referred to as the Lead Agent or Orchestrator). In the underlying architecture (such as the Python SDK), three foundational pillars govern execution:
 
-*   **Agent**: The configuration and policy interface. Manages model selection, tool permissions, capabilities, system instructions (personas), sandbox rules, and lifecycle hooks.
-*   **Conversation**: The stateful session engine. Tracks step history, turns, context compaction, and handles streaming interactions (`chat()`).
-*   **Connection**: The transport layer to the model backend:
-    *   `LocalConnectionStrategy`: Connects to Google AI Studio (Gemini Developer API) or Gemini Enterprise Agent Platform (formerly Vertex AI; supporting Standard ADC and Express API Key modes).
-    *   `LiteRTConnectionStrategy`: Runs models locally on-device using LiteRT-LM (e.g., Gemma 2/3) with zero network traffic.
-    *   `LocalOpenAIConnectionStrategy`: Connects to local OpenAI-compatible inference servers (Ollama, LM Studio, vLLM).
+*   **Agent**: The configuration and policy interface. It manages models, tools, capabilities, system instructions (personas), security sandbox policies, and lifecycle hooks.
+*   **Conversation**: The stateful session engine. It maintains turn history, aggregates multi-step tool calls, controls context window compaction, and handles streaming interactions.
+*   **Connection**: The transport layer to the model backend. Antigravity supports multiple connection strategies:
+    *   `LocalConnectionStrategy`: Connects to Google AI Studio / Gemini Developer API or Gemini Enterprise Agent Platform (formerly Vertex AI).
+    *   `LiteRTConnectionStrategy`: Runs models locally on-device using LiteRT-LM (e.g., Gemma 2/3 variants) with zero external network calls.
+    *   `LocalOpenAIConnectionStrategy`: Connects to any local OpenAI-compatible inference server (such as Ollama, LM Studio, or vLLM).
 
-### 2.2 Operational Execution Behaviors (`agent_behavior`)
-*   **Autonomous Mode (`AgentBehavior.AUTONOMOUS`)** *(Default)*: Automated end-to-end task execution. The agent plans, calls tools, handles failures, and verifies outcomes without prompting the user for minor decisions.
-*   **Interactive Mode (`AgentBehavior.INTERACTIVE`)**: Collaborative execution. The agent invokes interactive UI tools (`ask_question`) to prompt the user for design sign-offs, requirements clarification, and permission gates.
+### 1.2 Agent Configuration & Behavioral Modes
 
-### 2.3 Python SDK Configuration Example
+In both configuration files and the SDK, agents support two primary execution modes:
+*   **Autonomous Mode (`AgentBehavior.AUTONOMOUS`)** *(Default)*: The agent acts autonomously from start to finish. It plans, invokes tools, resolves errors, and verifies its own outputs without prompting the user for approval at every minor step.
+*   **Interactive Mode (`AgentBehavior.INTERACTIVE`)**: Collaborative mode. The agent utilizes interactive tools (e.g., `ask_question`) to prompt the user for requirements clarification, solicit design decisions, and pause before executing high-impact actions.
+
+#### Python SDK Agent Configuration Example
 ```python
 from google.antigravity import Agent, LocalAgentConfig, types
 
+# Configure a primary agent with custom persona, budget controls, and interactive mode
 config = LocalAgentConfig(
     model="gemini-3.7-flash",  # Default model; or gemini-3.8-flash / pro
     system_instructions="You are a Principal Software Architect and Research Lead.",
@@ -85,36 +55,46 @@ config = LocalAgentConfig(
         max_tool_calls=100,
         max_total_tokens=500_000,
     ),
-    app_data_dir="/absolute/path/to/custom/storage",  # Absolute path override
+    app_data_dir="/absolute/path/to/custom/storage",  # Absolute path override for artifacts/brain
 )
 
 async def main():
     async with Agent(config=config) as agent:
-        response = await agent.chat("Design the OAuth2 authentication module.")
+        response = await agent.chat("Analyze the system architecture and propose an implementation plan.")
         print(await response.text())
 ```
 
-### 2.4 Permissions, Security & Sandboxing
-*   **Tool Execution Policy**: `always-proceed`, `request-review`, `strict`, or `proceed-in-sandbox`.
-*   **Terminal Sandbox**: Enforces restricted container/cgroup isolation on shell commands.
-*   **File Access Policy**: `allow`, `ask`, or `deny` access outside the workspace root.
-*   **Internet Access Policy**: Controls whether outbound web search, URL fetching, or HTTP calls are allowed.
+### 1.3 Permissions, Security & Sandboxing
+
+Antigravity implements granular security and tool execution policies at both global (`~/.gemini/antigravity/`) and project levels (`.agents/`):
+*   **Tool Execution Policy**:
+    *   `always-proceed`: Executes terminal commands automatically.
+    *   `request-review`: Requires explicit human approval before running commands.
+    *   `strict`: Denies destructive or untrusted commands.
+    *   `proceed-in-sandbox`: Runs all shell commands in a restricted terminal sandbox.
+*   **File Access Policy**: `allow`, `ask`, or `deny` access to files outside the workspace root.
+*   **Internet Access Policy**: Controls whether web search, URL fetching, or external HTTP requests are permitted.
+*   **Allowlist / Denylist**: Regex patterns for permissible commands, domains, and filesystem paths.
 
 ---
 
-## 3. Subagent Orchestration Engine
+## 2. Subagents
 
-As development tasks scale, executing everything in a single conversation thread causes context poisoning, token exhaustion, and thread locking. Antigravity resolves this via **Subagents**.
+### 2.1 Concept & Purpose of Subagents
 
-### 3.1 Role & Purpose
-*   **Parallel Execution**: The orchestrator spawns multiple subagents in parallel to execute isolated operations—such as codebase refactoring sweeps, test runs, and background documentation builds.
-*   **Ephemeral Token Budgets**: Each subagent runs in its own thread with isolated prompt memory, preventing token bloat in the primary conversation.
-*   **Task Delegation Tools**: Controlled via dedicated tools: `define_subagent`, `invoke_subagent`, and `manage_subagents`.
+Subagents are specialized, semi-isolated AI worker agents spawned by the primary agent to handle specific subtasks. Spawning subagents offers three critical architectural advantages:
+1. **Context Window Hygiene**: Complex research, test runs, or repetitive file scans run in isolated contexts, preventing token bloat in the primary conversation.
+2. **Role Specialization**: Subagents can be provisioned with specialized system prompts, tailored tool permissions (e.g., read-only vs. full write access), and specific model tiers.
+3. **Parallelism & Delegation**: Multiple subagents can run concurrently to inspect different services or implement parallel features.
 
-### 3.2 The Three Subagent Creation Paradigms
+Subagents operate under a maximum recursion depth (up to 10 layers, configurable via `max_subagent_depth`) and inherit security boundaries from the parent agent.
+
+### 2.2 Methods for Creating Subagents
+
+Antigravity supports three distinct paradigms for defining and invoking subagents:
 
 #### Paradigm A: Declarative Workspace Subagents (`.agents/agents/<name>.md`)
-Subagents can be defined declaratively inside `.agents/agents/` (or `.agent/agents/`, `_agents/agents/`):
+In an Antigravity project workspace, subagents can be defined declaratively as Markdown files with YAML frontmatter inside `.agents/agents/` (or `.agent/agents/`, `_agents/agents/`).
 
 ```markdown
 ---
@@ -136,23 +116,43 @@ When delegated a task:
 4. Report findings in a structured table: Severity | File | Issue | Proposed Fix.
 ```
 
+**Frontmatter Specification:**
+*   `name` (string, required): Lowercase identifier used when invoking the subagent.
+*   `description` (string, required): Explains what the subagent does and when the lead agent should delegate to it.
+*   `role` (string, optional): Display title (e.g., "Codebase Researcher", "Database Debugger").
+*   `skills` (list of strings, optional): Pre-assigned skills automatically mounted into this subagent's context.
+
 #### Paradigm B: Dynamic Runtime Subagents (Antigravity Tools)
-During an ongoing session, the orchestrator invokes subagents dynamically:
+During an ongoing session, the lead agent can define and invoke subagents on the fly using built-in agent management tools:
 
 | Tool Name | Parameters | Purpose |
 | :--- | :--- | :--- |
-| `define_subagent` | `name`, `description`, `system_prompt`, `enable_write_tools`, `enable_subagent_tools`, `enable_mcp_tools` | Dynamically registers a new subagent type for the session. |
-| `invoke_subagent` | `Subagents` array: `TypeName`, `Role`, `Prompt`, `Model`, `Workspace` | Spawns one or more subagents concurrently. |
-| `manage_subagents` | `Action` (`list`, `kill`, `kill_all`), `ConversationIds` | Monitors states (`running`, `idle`, `errored`) or terminates executions. |
-| `send_message` | `Recipient` (conversation ID), `Message` | Inter-agent messaging between orchestrator and subagents. |
+| `define_subagent` | `name`, `description`, `system_prompt`, `enable_write_tools`, `enable_subagent_tools`, `enable_mcp_tools` | Dynamically registers a new subagent type for the remainder of the session. |
+| `invoke_subagent` | `Subagents` array: `TypeName`, `Role`, `Prompt`, `Model`, `Workspace` | Spawns one or more subagents concurrently in the background. |
+| `manage_subagents` | `Action` (`list`, `kill`, `kill_all`), `ConversationIds` | Inspects live states (`running`, `idle`, `errored`) or terminates subagent executions. |
+| `send_message` | `Recipient` (conversation ID), `Message` | Sends follow-up instructions or queries to an active or idle subagent. |
 
-*   **Model Selection**: `inherit` (default), `flash_lite` (lightweight lookups), `flash` (standard tasks), `pro` (complex reasoning).
-*   **Workspace Strategy**: `inherit` (same directory), `branch` (isolated clone), `share` (git worktree).
+**Runtime Invocation Parameters (`invoke_subagent`):**
+*   `TypeName`: The registered name of the subagent (e.g., `research`, `code-reviewer`, or a custom name).
+*   `Role`: Brief 2–5 word description of the assignment.
+*   `Prompt`: Actionable instructions for the subagent.
+*   `Model`:
+    *   `inherit` *(Default)*: Inherits the parent's model.
+    *   `flash_lite`: Lightweight model for high-speed, cost-efficient filtering or lookups.
+    *   `flash`: Balanced model for standard research, file reading, or script running.
+    *   `pro`: High-reasoning model for complex refactoring, mathematical proofs, or architecture design.
+*   `Workspace`:
+    *   `inherit` *(Default)*: Operates in the same directory as the parent.
+    *   `branch`: Creates an isolated workspace branched/cloned from the parent.
+    *   `share`: Shares the underlying repository via worktree/share mechanics.
 
-#### Paradigm C: Programmatic Hierarchies in Python SDK
+#### Paradigm C: Programmatic Subagents in the Python SDK
+When building custom agentic systems with `google-antigravity`, subagents and delegation graphs are declared using `SubagentConfig` and `SubagentCapabilities`:
+
 ```python
 from google.antigravity import Agent, LocalAgentConfig, types
 
+# 1. Define a leaf-tier fact-checker (Read-only, cannot spawn subagents)
 fact_checker = types.SubagentConfig(
     name="fact_checker",
     description="Verifies claims against internal data.",
@@ -162,325 +162,238 @@ fact_checker = types.SubagentConfig(
     ),
 )
 
+# 2. Define an intermediary lead-researcher (Can view files and delegate to fact_checker)
 lead_researcher = types.SubagentConfig(
     name="lead_researcher",
-    description="Conducts domain research and delegates verification.",
+    description="Conducts deep domain research and delegates verification.",
     capabilities=types.SubagentCapabilities(
-        enabled_tools=[types.BuiltinTools.VIEW_FILE, types.BuiltinTools.START_SUBAGENT],
+        enabled_tools=[
+            types.BuiltinTools.VIEW_FILE,
+            types.BuiltinTools.START_SUBAGENT,
+        ],
         allowed_subagents=["fact_checker"],
     ),
 )
 
+# 3. Configure root agent with hierarchical depth ceiling
 root_config = LocalAgentConfig(
     subagents=[lead_researcher, fact_checker],
     capabilities=types.CapabilitiesConfig(
         enable_subagents=True,
-        max_subagent_depth=3,
-        allowed_subagents=["lead_researcher"],
+        max_subagent_depth=3,             # Session-wide recursion depth ceiling
+        allowed_subagents=["lead_researcher"],  # Root can only call lead_researcher
     ),
 )
 ```
 
-### 3.3 The Subagent Invocation Contract & Response Envelope
+---
 
-#### Invocation Contract (JSON Payload)
+## 3. Skills (Agent Skills Specification)
+
+### 3.1 What are Skills?
+
+**Skills** are modular packages of procedural knowledge, runbooks, executable scripts, and reference documents that extend an agent's capabilities. Formally conforming to the [Agent Skills Standard](https://agentskills.io), skills provide:
+*   **Context Cheat Sheets**: Direct, unambiguous domain instructions that prevent model hallucinations.
+*   **Progressive Disclosure**: Only skill names and descriptions are loaded into the initial context window. The complete instructions (`SKILL.md`) are fetched on-demand only when triggered by user prompt or explicit slash command.
+*   **First-Class Slash Commands**: Any skill named `my-skill` automatically registers a slash command `/<my-skill>` in the Antigravity UI.
+*   **Multi-File Encapsulation**: Skills can include helper scripts ("The Hands"), reference documentation, and static templates.
+
+### 3.2 Directory Structure & File Hierarchy
+
+A valid Antigravity skill must be placed in a `skills/` directory and structured as follows:
+
+```text
+skills/<skill-name>/
+├── SKILL.md            # [REQUIRED] Main instruction file with YAML frontmatter
+├── scripts/            # [OPTIONAL] Deterministic Python, Bash, or Node helper scripts
+├── references/         # [OPTIONAL] Deep documentation, API manuals, and extended specs
+├── examples/           # [OPTIONAL] Reference implementations and exemplar outputs
+└── resources/          # [OPTIONAL] Static assets, templates, or seed files
+```
+
+### 3.3 Skill Instruction File Anatomy (`SKILL.md`)
+
+The entrypoint file `SKILL.md` consists of a mandatory YAML frontmatter header followed by standard Markdown body instructions:
+
+```markdown
+---
+name: data-pipeline-runner
+description: Validates, cleans, and runs ETL data pipelines on incoming CSV and Parquet files. Use when the user requests data ingestion or pipeline verification.
+---
+
+# Data Pipeline Runner
+
+This skill guides the agent through validating raw datasets and executing the deterministic ETL pipeline.
+
+## Execution Sequence
+
+1. **Schema Pre-Check**:
+   Run the schema validator script:
+   `python3 .agents/skills/data-pipeline-runner/scripts/validate_schema.py --input <path/to/data>`
+
+2. **Pipeline Execution**:
+   If validation passes, execute the transformation:
+   `python3 .agents/skills/data-pipeline-runner/scripts/run_etl.py --config config.json`
+
+3. **Verification**:
+   Inspect the generated `output/summary.json` and report record counts and anomalous rows.
+
+## References
+For full database schema specifications, consult [references/schema_guide.md](references/schema_guide.md).
+```
+
+#### Critical Rules for `SKILL.md`:
+1. **`name`**: Must be lowercase, hyphenated, and match the directory name.
+2. **`description`**: The single most critical piece of text. The primary agent scans this description during routing to decide whether to activate the skill. It should clearly declare **what** the skill does and **under what conditions** to use it.
+3. **Single-View Context Ceiling**: To prevent context window saturation, `SKILL.md` should remain concise (recommended: $\le 500$ lines, $\le 40$ KB). Bulky reference tables, schemas, or lengthy exemplars must be placed in `references/` and linked via relative markdown links.
+4. **Executable Separation ("Hands vs. Brains")**: Complex calculations, statistical tests, or OpenXML generation should not be performed mentally by the LLM. Instead, package them as deterministic scripts in `scripts/` that the agent executes via `run_command`.
+
+### 3.4 Discovery Locations & Precedence
+
+Antigravity discovers skills across three hierarchical levels:
+
+1. **Workspace Project**:
+   *   Path: `.agents/skills/` (or `.agent/skills/`, `_agents/skills/`, `_agent/skills/`)
+   *   Highest precedence. Overrides global or built-in skills with the same name. Can be checked into git to share with team members.
+2. **Explicit Manifest (`skills.json`)**:
+   *   Allows referencing skills stored outside default paths or inheriting from shared directories.
+3. **Global Machine Configuration**:
+   *   Path: `~/.gemini/config/skills/`
+   *   Available to all workspaces and sessions on the local machine.
+4. **Built-in System Skills**:
+   *   Default skills bundled with Antigravity (e.g., `antigravity-guide`, `migrate-workflows`, `generative_ui`).
+
+---
+
+## 4. Workflows (Legacy System & Migration)
+
+### 4.1 Historical Role of Workflows
+
+In earlier releases of Antigravity, **Workflows** were standalone Markdown files stored in:
+*   Workspace: `.agents/workflows/<workflow-name>.md`
+*   Global: `~/.gemini/config/workflows/<workflow-name>.md`
+*   Manifest: `workflows.json`
+
+Workflows functioned as predefined prompt templates or procedural recipes for repeatable tasks (such as PR review checklists, release runbooks, or deployment instructions).
+
+### 4.2 Deprecation & Sunset Timeline (2026)
+
+In mid-2026, the Antigravity architecture transitioned to the unified **Agent Skills Standard**:
+*   **Status**: Legacy Workflows are formally **deprecated**.
+*   **Sunset Date**: Complete retirement takes effect on **November 1, 2026**.
+*   **Why Skills Replaced Workflows**:
+    *   *Semantic Discovery*: Workflows required the user to know and manually trigger the workflow via slash commands. Skills are semantically discovered by the LLM based on user intent.
+    *   *Multi-File Capabilities*: Workflows were restricted to single `.md` files, whereas skills encapsulate scripts (`scripts/`), reference manuals (`references/`), and templates (`resources/`).
+    *   *Context Management*: Skills natively integrate with progressive disclosure and context budgeting.
+
+### 4.3 Automated Migration via `/migrate-workflows`
+
+Antigravity provides an automated migration skill (`migrate-workflows`) that safely transitions legacy workflows to modern skills:
+
+1. **Invocation**: Type `/migrate-workflows` in the chat canvas or CLI.
+2. **Discovery**: Scans workspace and global directories for `.agents/workflows/*.md` and `workflows.json`.
+3. **Conversion**:
+   *   Extracts existing frontmatter or title.
+   *   Creates `.agents/skills/<name>/SKILL.md` with standardized YAML frontmatter (`name` and `description`).
+   *   Preserves all operational instructions and guidelines.
+   *   Applies overwrite protection (does not overwrite existing skills).
+4. **Safe Archiving**: Renames the legacy `.md` workflow file to `<name>.md.bak` rather than deleting it.
+
+```text
+Migration Mapping:
+.agents/workflows/deploy.md  ──►  .agents/skills/deploy/SKILL.md
+                                  .agents/workflows/deploy.md.bak (Archived)
+```
+
+### 4.4 Conceptual Workflows in Modern Multi-Agent Architecture
+
+While single-file *legacy workflow files* are deprecated, **conceptual multi-agent workflows** remain fundamental to Antigravity. In modern systems, multi-stage pipelines are structured through **Artifact-Gated Stages**:
+*   **Stage Checkpoints**: Each pipeline stage produces a deterministic artifact on disk (e.g., `data_scored.xlsx`, `stats_results.json`, `audit_report.json`).
+*   **Strict Hand-Offs**: Subsequent stages cannot proceed until upstream checkpoint artifacts exist and are validated.
+*   **Adversarial Critic Gates**: Generation and auditing are separated. A generator subagent (e.g., `academic-writer`) drafts content, which must be approved by an independent auditor subagent (e.g., `results-auditor`) before final release.
+
+---
+
+## 5. Ecosystem Customizations: Rules, Hooks, and Plugins
+
+To complete the Antigravity customization landscape, three complementary mechanisms work alongside Agents, Subagents, and Skills:
+
+### 5.1 Workspace & Project Rules (`AGENTS.md` / `GEMINI.md`)
+
+Rules enforce behavioral invariants, coding standards, and project constraints:
+*   **File Locations**: Placed at repository root or inside subdirectories as `AGENTS.md` or `GEMINI.md`.
+*   **Hierarchical Scope**: When the agent operates on a file, it walks up the directory tree to the project root, loading all rules in scope.
+*   **Deduplication**: Rules are deduplicated by canonical file path and injected once per turn.
+
+### 5.2 Lifecycle Hooks (`hooks.json`)
+
+Hooks allow executing shell scripts at deterministic points in the agent's execution loop:
+*   **Location**: `.agents/hooks.json` (or `~/.gemini/config/hooks.json`).
+*   **Execution**: Hooks communicate via JSON on `stdin` and `stdout` using protojson `camelCase` keys.
+
+| Hook Event | Trigger Point | Use Cases |
+| :--- | :--- | :--- |
+| `PreToolUse` | Before a tool executes | Security gates, blocking unsafe commands (`decision: "deny"`), argument rewriting (`overwrite`). |
+| `PostToolUse` | After a tool finishes | Auto-formatting code, running linters, logging. |
+| `PreInvocation` | Before the LLM is called | Injecting ephemeral system instructions or dynamic reminders. |
+| `PostInvocation` | After LLM tool calls finish | Forcing turn continuation (`terminationBehavior: "force_continue"`). |
+| `Stop` | When the agent execution loop ends | Machine-guarding completion; preventing agent exit if tests fail (`decision: "continue"`). |
+
+#### Example: `.agents/hooks.json`
 ```json
 {
-  "name": "invoke_subagent",
-  "arguments": {
-    "role": "code-auditor",
-    "goal": "Scan all controllers in src/api/ for unauthenticated routes.",
-    "workspace_strategy": "git_worktree",
-    "token_budget": 16000,
-    "timeout_seconds": 300,
-    "input_artifacts": [
-      "src/api/v1/auth.ts",
-      "src/api/v1/billing.ts"
-    ],
-    "context_briefing": "Focus exclusively on missing @RequireAuth() decorators. Ignore rate-limiting checks."
+  "safety-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/verify_command_safety.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
+  "completion-gate": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 .agents/verification/completion_guard.py",
+        "timeout": 30
+      }
+    ]
   }
 }
 ```
 
-#### Subagent Response Envelope
-```json
-{
-  "status": "completed",
-  "exit_code": 0,
-  "execution_time_ms": 14200,
-  "token_usage": {
-    "prompt_tokens": 12840,
-    "completion_tokens": 890
-  },
-  "summary": "Audited 14 controllers. Found 2 unauthenticated endpoints in billing.ts.",
-  "patch_ref": "git:refs/worktrees/subagent-auditor-17a4",
-  "artifacts": [
-    {
-      "path": "reports/audit-findings.json",
-      "action": "created"
-    }
-  ]
-}
-```
+### 5.3 Plugins (`plugin.json`)
 
-### 3.4 Git Worktree Isolation Mechanics
-To prevent subagents from creating merge conflicts, breaking active builds, or corrupting uncommitted user changes:
-
-1. **Worktree Provisioning**: The daemon executes:
-   ```bash
-   git worktree add .agents/worktrees/agent-<id> -b agent-branch-<id> HEAD
-   ```
-2. **Context Anchoring**: The subagent's root working directory is pinned to this auxiliary directory. Reads and writes cannot mutate the active working tree directly.
-3. **Automated Conflict-Free Staging**:
-   * The subagent commits changes locally to `agent-branch-<id>`.
-   * A structural AST diff is compiled against the main branch.
-   * The orchestrator presents the changes to the user in the UI as a unified diff.
-4. **Pruning**: On merge or rejection, the worktree is dismantled via `git worktree remove --force`.
-
-### 3.5 Permission Bubbling & Security Attenuation
-*   **Principle of Least Privilege**: A subagent inherits only a subset of the primary agent’s capabilities.
-*   **Permission Bubbling**: When a subagent hits a capability boundary (e.g., executing an unapproved command or accessing sensitive files):
-    1. The subagent suspends execution via RPC `YIELD_PERMISSION_WAIT`.
-    2. The primary agent captures the suspension.
-    3. A high-priority event registers in the `/agents` panel for human approval:
-       ```text
-       [Subagent: Performance-Tester] 
-       Requesting approval: Execute shell command
-       Command: `docker run -d -p 5432:5432 postgres:16-alpine`
-       Risk Tier: Medium | Worktree: .agents/worktrees/agent-98ef
-       [Approve] [Deny] [Terminate Subagent]
-       ```
-    4. Execution resumes only after explicit user intervention.
+Plugins are shareable, distributable bundles packaging skills, rules, hooks, and MCP servers into a single directory (`plugins/<plugin-name>/`):
+*   `plugin.json`: Manifest file declaring the plugin name.
+*   `skills/`: Packaged skills.
+*   `rules/AGENTS.md`: Bundled rules.
+*   `hooks.json`: Bundled lifecycle hooks.
+*   `mcp_config.json`: Bundled Model Context Protocol server configurations.
 
 ---
 
-## 4. Agent Skills: The Modern Production Standard
-
-### 4.1 What are Skills?
-**Skills** are modular, directory-based instruction packages adhering to the open **Agent Skills Standard** (`agentskills.io`). They serve as runbooks teaching agents how to perform specific domain workflows without context bloat.
-
-### 4.2 The Three-Tier Progressive Disclosure Pipeline
-```
-Tier 1: Static Metadata Index (~50–100 tokens per skill)
-  Loaded on IDE boot. Formats high-level routing tables in the system prompt.
-       │
-       ▼ (Condition: Prompt match or deliberate agent lookup)
-Tier 2: Active Instructions & Dynamic Prompts (~500–2,500 tokens)
-  The core SKILL.md body, parameter definitions, and guidelines inject into working context.
-       │
-       ▼ (Condition: Step requires external logic / deterministic tool)
-Tier 3: Execution Assets & Scripts (0 context tokens)
-  Bundled scripts, schemas, and binaries execute directly in the OS/subshell;
-  only their structured stdout/stderr passes back into the context.
-```
-
-### 4.3 Production Skill Directory Anatomy
-```text
-.agents/skills/db-schema-migration/
-├── SKILL.md                  # Entrypoint, frontmatter metadata, execution guidelines
-├── config.json               # Default parameters & environment requirements
-├── schemas/
-│   └── migration-spec.json   # JSON-schema for validating output structures
-├── scripts/
-│   ├── dry_run.py            # Local deterministic dry-run verification
-│   └── rollback_check.sh     # Safety validator for backwards compatibility
-└── templates/
-    └── migration.sql.jinja   # Deterministic code templates
-```
-
-### 4.4 Complete `SKILL.md` Specification
-```yaml
----
-name: db-schema-migration
-version: 1.2.0
-description: |
-  Analyzes, drafts, and safely validates PostgreSQL schema migrations.
-  Invoked when altering tables, creating indexes, or updating ORM models.
-tools:
-  - execute_bash
-  - lsp_find_references
-  - ask_question
-allowed-subagents:
-  - migration-tester
-  - performance-evaluator
-parameters:
-  type: object
-  properties:
-    target_table:
-      type: string
-      description: The primary database table undergoing changes.
-    destructive:
-      type: boolean
-      default: false
-      description: Set to true if columns or tables are being dropped.
-  required: [target_table]
----
-
-# Database Schema Migration Protocol
-
-## Phase 1: Impact Analysis
-1. Inspect the target model definition using `lsp_find_references`.
-2. Locate all consuming code paths (services, repositories, APIs).
-3. If `destructive == true`, trigger `ask_question` to require developer sign-off.
-
-## Phase 2: Generating Migration Script
-1. Apply templates from `./templates/migration.sql.jinja`.
-2. Run `./scripts/dry_run.py` to ensure migration runs in transaction mode without locking active writes.
-
-## Phase 3: Subagent Verification
-Spawn `migration-tester` to execute rollback tests against local Docker test instances.
-```
-
-### 4.5 State Hydration & Scratchpad Pattern
-Skills support local disk-backed state serialization. If a multi-step procedure is interrupted:
-* Intermediate planning state is saved to `.agents/cache/<skill-name>/state.json`.
-* Upon resumption, runtime hooks re-inject this JSON payload into the active context buffer, preventing drift and hallucinations.
-
----
-
-## 5. Workflows: Architecture, DAGs & Legacy Migration
-
-### 5.1 Dynamic Execution Graphs (Workflow Architecture)
-
-Antigravity executes complex engineering tasks as dynamic Directed Acyclic Graphs (DAGs), coordinating multiple subagents and skills in parallel:
-
-```
-                   User Request: "Migrate auth system to OAuth2"
-                                      │
-                                      ▼
-                        [Orchestrator Agent]
-                                      │
-              Loads Skill: `oauth2-implementation-protocol`
-                                      │
-         ┌────────────────────────────┴────────────────────────────┐
-         │                                                         │
-         ▼ (Worktree A)                                            ▼ (Worktree B)
- [Subagent 1: Backend Refactor]                          [Subagent 2: Test Generator]
- - Updates Express handlers                               - Drafts mock OAuth providers
- - Injects token validators                               - Generates integration tests
-         │                                                         │
-         └────────────────────────────┬────────────────────────────┘
-                                      │ (Both branches complete)
-                                      ▼
-                        [Orchestrator Verification]
-                                      │
-                                      ▼ (Isolated Sandbox)
-                         [Subagent 3: Runner & Auditor]
-                         - Merges Worktree A + Worktree B
-                         - Executes: `npm run test:e2e`
-                                      │
-                      ┌───────────────┴───────────────┐
-                      │ PASS                          │ FAIL
-                      ▼                               ▼
-            [Interactive Sign-Off]       [Orchestrator Self-Heal]
-            - Surfaces final diff        - Injects test error logs
-            - Commits to main branch     - Instructs Subagent 1 to fix
-```
-
-### 5.2 Legacy Workflows vs. Modern Agent Skills
-
-| Feature | Legacy Workflows | Modern Agent Skills |
-| :--- | :--- | :--- |
-| **Format** | Single monolithic `.md` file | Directory bundle (`SKILL.md` + scripts/references/schemas) |
-| **Workspace Location** | `.agents/workflows/<name>.md` | `.agents/skills/<name>/SKILL.md` |
-| **Context Loading** | Entire file loaded at once | **Progressive disclosure** (metadata first, body on-demand) |
-| **Interoperability** | Proprietary Antigravity format | Open Agent Skills Standard (`agentskills.io`) |
-| **Subagent Integration** | Linear prompt flow | Deep integration: triggers tools, subagents, and worktrees |
-| **Status** | Deprecated (Sunset: Nov 1, 2026) | Current official standard |
-
-### 5.3 Automated Migration via `/migrate-workflows`
-Type `/migrate-workflows` in the chat canvas or CLI:
-1. Automatically scans workspace and global directories for legacy `.md` workflows and manifests.
-2. Formats YAML frontmatter (`name`, `description`).
-3. Writes target `skills/<name>/SKILL.md` with overwrite protection.
-4. Safely renames legacy files to `<name>.md.bak`.
-
----
-
-## 6. Advanced Antigravity CLI (`agy`) Usage
-
-The `agy` CLI provides low-level, scriptable control over the Antigravity engine for terminal power users and headless CI/CD automation:
-
-```bash
-# 1. Run a skill directly with JSON parameters
-agy run skill db-schema-migration --params '{"target_table": "users", "destructive": false}'
-
-# 2. Inspect running subagents
-agy agents list --detailed
-```
-*Output sample:*
-```text
-ID         ROLE             STATUS     TOKENS    MEMORY    WORKTREE
-sub-481    react-generator  RUNNING    4.2k/32k  128MB     .agents/worktrees/agent-sub-481
-sub-482    test-runner      IDLE       1.1k/16k  64MB      .agents/worktrees/agent-sub-482
-```
-
-```bash
-# 3. Stream real-time subagent logs
-agy agents logs sub-481 --follow --format=json
-
-# 4. Lint and validate custom skills
-agy skill lint .agents/skills/db-schema-migration
-
-# 5. Force merge a subagent worktree after validation
-agy agents merge sub-481 --strategy=theirs --clean
-```
-
----
-
-## 7. Debugging, Observability & The Inspection Stack
-
-1. **Deterministic Event Replay**:
-   Every event (tool dispatch, LSP response, subagent spawn, human prompt) writes to `.agents/sessions/<session-id>.jsonl`. The IDE session player allows developers to step forward and backward through execution history, inspecting the exact context frame at every step.
-
-2. **Context Window Allocation Heatmaps**:
-   The `/agents` inspector visually breaks down token allocation within the model's active context window:
-   * **System Prompt & Personas**: ~1,200 tokens (Static configuration)
-   * **Skill Injections (Tier 2)**: ~2,400 tokens (Loaded via progressive disclosure)
-   * **LSP Metadata / AST Snapshots**: ~4,800 tokens
-   * **Conversation History**: ~12,000 tokens (Managed with rolling FIFO truncation)
-   * **Subagent Briefing Buffers**: ~2,000 tokens
-
-3. **Subagent Recursion Guard (`ERR_AGENT_RECURSION_LIMIT_EXCEEDED`)**:
-   If Subagent A spawns Subagent B, which recursively invokes Subagent C, Antigravity tracks the recursion stack. At **depth 10**, the runtime halts execution, dumps the call stack frame, and alerts the developer, preventing infinite token drain.
-
----
-
-## 8. Ecosystem Extensions: Rules, Hooks, and Plugins
-
-### 8.1 Workspace & Directory Rules (`AGENTS.md` / `GEMINI.md`)
-*   **Scope**: Placed in project root or subdirectories; automatically inherited downward.
-*   **Application**: Applies coding conventions, architectural bans, and compliance standards unconditionally or conditionally.
-*   **Deduplication**: Automatically deduplicated across directory paths.
-
-### 8.2 Lifecycle Hooks (`hooks.json`)
-Hooks execute deterministic shell scripts on agent lifecycle events via JSON stdin/stdout:
-*   `PreToolUse`: Gating or modifying tool arguments (`"decision": "deny" | "ask" | "allow"`, `"overwrite": {...}`).
-*   `PostToolUse`: Post-processing, running auto-formatters, or running linters.
-*   `PreInvocation`: Injecting ephemeral system prompts or reminders.
-*   `PostInvocation`: Forcing continuation (`"terminationBehavior": "force_continue"`).
-*   `Stop`: Enforcing completion criteria before allowing the agent to exit (`"decision": "continue"`).
-
-### 8.3 Plugins (`plugin.json`)
-Plugins package skills, rules, hooks, and MCP configurations into a single distributable directory (`plugins/<name>/`) for team-wide sharing.
-
----
-
-## 9. Summary Comparison Matrix
+## 6. Summary Comparison Matrix
 
 | Component | Primary Location | Activation Mechanism | Key Purpose |
 | :--- | :--- | :--- | :--- |
-| **Primary Agent** | IDE / CLI / SDK Config | Started on session launch | High-level goal decomposition, orchestration, and developer interaction. |
-| **Subagent** | `.agents/agents/<name>.md` or runtime tools | Delegated via `invoke_subagent` | Isolated execution (research, test sweeps, builds) using Git worktrees and ephemeral token budgets. |
-| **Skill** | `.agents/skills/<name>/SKILL.md` | Semantic intent discovery or slash command `/<name>` | Modular procedural runbook with 3-tier progressive disclosure and helper scripts. |
-| **Legacy Workflow** *(Deprecated)* | `.agents/workflows/<name>.md` | Manual slash command | Legacy monolithic prompt template; superseded by Skills (sunset Nov 1, 2026). |
-| **Rule** | `AGENTS.md` / `GEMINI.md` | Contextual directory walk | Behavioral constraints, coding standards, and compliance rules. |
+| **Primary Agent** | IDE / CLI / SDK Config | Started on session launch | High-level goal decomposition, orchestration, and user interaction. |
+| **Subagent** | `.agents/agents/<name>.md` or runtime tools | Delegated by Primary Agent via `invoke_subagent` | Isolated, domain-specific execution (research, testing, auditing) with independent context. |
+| **Skill** | `.agents/skills/<name>/SKILL.md` | Semantic intent discovery or slash command `/<name>` | Modular procedural runbook with progressive disclosure and helper scripts. |
+| **Legacy Workflow** *(Deprecated)* | `.agents/workflows/<name>.md` | Manual slash command | Legacy prompt template; superseded by Skills (sunset Nov 1, 2026). |
+| **Rule** | `AGENTS.md` / `GEMINI.md` | Contextual / Directory walk | Project-wide behavioral constraints, coding standards, and ethical directives. |
 | **Hook** | `.agents/hooks.json` | Agent lifecycle events | Deterministic external shell scripts guarding tool calls and turn termination. |
 | **Plugin** | `.agents/plugins/<name>/` | Config enablement | Distributable bundle combining skills, rules, hooks, and MCP servers. |
 
 ---
 
-## 10. Hands-on Implementation Walkthrough
+## 7. Hands-on Implementation Walkthrough
 
 ### Step 1: Create a Custom Subagent
 Create `.agents/agents/qa-engineer.md`:
@@ -517,4 +430,4 @@ description: Executes project unit test suites and outputs structured test resul
 ### Step 3: Verify the Customizations
 *   In the chat interface, type `/test-runner` to test slash command execution.
 *   Prompt the agent: *"Use your QA Engineer to run tests and verify that the authentication module passes."*
-*   The primary agent detects the subagent, invokes it with `TypeName: "qa-engineer"`, and mounts the `test-runner` skill into the subagent's execution context.
+*   The primary agent will detect the subagent, invoke it with `TypeName: "qa-engineer"`, and mount the `test-runner` skill into the subagent's execution context.

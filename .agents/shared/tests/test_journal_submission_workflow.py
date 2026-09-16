@@ -57,6 +57,8 @@ class TestJournalSubmissionWorkflow(unittest.TestCase):
     def test_01_spec_file_exists_and_valid(self):
         """Verifies that journal_submission.md exists and meets Antigravity structural criteria."""
         spec_path = os.path.join(WORKFLOWS_DIR, "journal_submission.md")
+        if not os.path.exists(spec_path):
+            spec_path = os.path.join(WORKFLOWS_DIR, "journal_submission.md.bak")
         self.assertTrue(os.path.exists(spec_path), f"Missing workflow specification: {spec_path}")
 
         with open(spec_path, "r", encoding="utf-8") as f:

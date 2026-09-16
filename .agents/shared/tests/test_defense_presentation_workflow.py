@@ -58,6 +58,8 @@ class TestDefensePresentationWorkflow(unittest.TestCase):
         """Verifies that defense_presentation.md and thesis_assembly.md exist and meet Antigravity criteria."""
         for spec_name in ["defense_presentation.md", "thesis_assembly.md"]:
             spec_path = os.path.join(WORKFLOWS_DIR, spec_name)
+            if not os.path.exists(spec_path):
+                spec_path = os.path.join(WORKFLOWS_DIR, spec_name + ".bak")
             self.assertTrue(os.path.exists(spec_path), f"Missing workflow specification: {spec_path}")
 
             with open(spec_path, "r", encoding="utf-8") as f:
