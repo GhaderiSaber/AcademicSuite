@@ -1,13 +1,15 @@
 ---
 name: academic-suite-orchestrator
-description: End-to-end pipeline runner orchestrating multi-stage thesis workflows
-  from proposal and data simulation to statistical analysis, defense slides, and DOCX/PPTX
-  compilation.
+description: Deterministic batch pipeline CLI runner executing multi-stage script
+  sequences and artifact handoffs on disk ("The Hands").
 ---
 
-# AcademicSuite Master Orchestrator Skill (موتور جامع فرماندهی و اجرای خودکار پایپ‌لاین‌های پژوهشی)
+# AcademicSuite Batch Pipeline CLI Runner (موتور اجرای متوالی اسکریپت‌ها و پایپ‌لاین‌های آماری)
 
-The **AcademicSuite Orchestrator** is the **Master Automation and Execution Engine** for AcademicSuite. It unifies, coordinates, and executes multi-stage academic research workflows by orchestrating the 18 specialized skills into automated, reproducible, and resilient pipelines.
+> **Architectural Note (Directive 12.1 — Sole Orchestrator Mandate)**:  
+> **Google Antigravity is the sole agent runtime and multi-agent orchestrator**. There are no parallel or external agent orchestrators. This skill is strictly **"The Hands"**: a deterministic CLI runner (`orchestrator_cli.py`) that chains sequential Python/R scripts on disk to pass generated artifacts between workflow stages.
+
+The **AcademicSuite Batch Pipeline CLI Runner** automates low-level batch execution of disk-level research scripts. It chains the specialized skill tools into reproducible, automated, and verifiable pipelines.
 
 ---
 

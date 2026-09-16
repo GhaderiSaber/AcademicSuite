@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-AcademicSuite Master Research Lifecycle CLI Pipeline & Orchestration Engine
-(موتور جامع فرماندهی و اجرای خودکار پایپ‌لاین‌های پژوهشی AcademicSuite)
+AcademicSuite Deterministic Batch Pipeline CLI Runner ("The Hands")
+(موتور اجرای متوالی اسکریپت‌ها و پایپ‌لاین‌های پژوهشی AcademicSuite)
 
-Coordinates and chains the 18 specialized skills of AcademicSuite into
-reproducible, automated, and resilient end-to-end research pipelines.
+Chains low-level CLI tools across AcademicSuite skills into reproducible,
+automated sequential pipelines on disk. Strictly an execution instrument
+("The Hands") operating under the orchestration of Google Antigravity.
 """
 
 import os

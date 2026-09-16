@@ -4,6 +4,18 @@ An autonomous, modular AI skill suite designed for **Google Antigravity** and ag
 
 ---
 
+## 🏛️ System Architecture: The Sole Orchestrator Standard
+
+In strict accordance with **Directive 12.1 (Sole Orchestrator Mandate)**, there are **no parallel orchestrators**:
+
+- **Google Antigravity is the Sole Agent Runtime & Conductor:** Antigravity orchestrates all cognitive operations, manages context budgets, schedules background tasks, and enforces constitutional lifecycle hooks (`.agents/hooks.json`).
+- **Digital Saber is the Cognitive Research Lead:** The persistent AI Twin of Saber Ghaderi directing research philosophy, scientific ethics, and thesis decision gates.
+- **The Brains & Critics (15 Subagents):** Persistent cognitive specialists in `.agents/agents/` invoked exclusively through Antigravity's native `invoke_subagent` tool. Generation and auditing remain strictly independent.
+- **The Hands (27 Specialized Skills):** Deterministic Python/R scripts executed via `run_command` to perform exact statistical calculations, psychometrics, and OpenXML document generation without mental calculation or hallucination.
+- **Batch CLI Runner (`orchestrator_cli.py`):** Strictly a low-level CLI batch runner ("The Hands") for sequential script chaining on disk, never an autonomous agent orchestrator.
+
+---
+
 ## 🌟 Overview & Key Capabilities
 
 This repository equips Antigravity with dedicated, professional-grade capabilities to deliver high-stakes academic projects across the entire research lifecycle:
@@ -44,8 +56,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Translates and integrates English theoretical foundations from foreign dissertations and literature (strictly avoiding copying from Persian theses to prevent cliches and high Irandoc similarity), organizes recent Iranian (Magiran, SID, ISC) and international (Scopus, PubMed, WoS) empirical literature using a 5-part reporting formula, embeds APA 7 borderless empirical summary tables, articulates research gaps and conceptual frameworks, and compiles defense-ready Word (`.docx`) and multi-sheet Excel workbooks.
 18. **Psychometric Scale Validator ([psychometric-scale-validator](.agents/skills/psychometric-scale-validator/))**:
    End-to-end scale standardization, Classical Test Theory (CTT), and modern Item Response Theory (IRT) engine: verification of WHO/ITC translation protocols, quantitative Lawshe (1975) CVR against critical panel thresholds, Waltz & Bausell / Lynn (1986) CVI ($I\text{-}CVI$, $S\text{-}CVI/\text{Ave}$), Item Impact Scores, Exploratory Factor Analysis (EFA: KMO, Bartlett, Scree plot, Promax/Varimax), Confirmatory Factor Analysis (CFA: $\chi^2/df$, CFI, TLI, RMSEA, SRMR), Fornell & Larcker Convergent (AVE $\ge 0.50$, CR $\ge 0.70$) and Discriminant Validity, APA 7th Edition McDonald's Omega ($\omega$) and Cronbach's Alpha ($\alpha$), Test-Retest ICC, Item Response Theory (IRT) Graded Response Model (GRM: discrimination $a$, category thresholds $b_1-b_4$, Infit/Outfit MNSQ, Test Information Function TIF, and Differential Item Functioning DIF), Norm score conversions (Z, T, Percentiles), and ROC Curve clinical cut-off determination. Compiles defense-ready Chapter 4 Word reports (`.docx` with 8 APA 7 tables), 6-sheet Excel validation matrices, and dual 300-DPI visual plots.
-19. **Master Research Pipeline Orchestrator ([academic-suite-orchestrator](.agents/skills/academic-suite-orchestrator/))**:
-   Unified research orchestration engine that executes multi-stage, inter-skill pipelines across all 18 skills with 6 turnkey presets (`thesis_empirical`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`, `bibliometric_pipeline`), automatic artifact handoffs, dependency DAG validation (`--dry-run`), step-level resumption (`--resume-from`), execution manifest generation (`orchestrator_manifest.json`), and comprehensive Markdown project dashboards (`PROJECT_DASHBOARD.md`).
+19. **Deterministic Batch Pipeline CLI Runner ([academic-suite-orchestrator](.agents/skills/academic-suite-orchestrator/)) — "The Hands"**:
+   Deterministic command-line batch runner (`orchestrator_cli.py`) that chains multi-stage script sequences and artifact handoffs on disk across skills with 6 turnkey presets (`thesis_empirical`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`, `bibliometric_pipeline`), dependency DAG validation (`--dry-run`), step-level resumption (`--resume-from`), and execution manifests (`orchestrator_manifest.json`). *(Note: Under Directive 12.1, this is strictly a disk execution utility for script chaining, never an agent orchestrator).*
 20. **Thesis Integrity & Cross-Chapter Forensic Auditor ([thesis-integrity-auditor](.agents/skills/thesis-integrity-auditor/))**:
    Automated academic jury, forensic proofreader, and cross-chapter consistency verification engine: audits hypothesis-result-discussion alignment (Ch 1 $\leftrightarrow$ Ch 4 $\leftrightarrow$ Ch 5), validates methodology sample sizes and degrees of freedom ($t$-test, ANOVA, ANCOVA, regression $df$), executes bidirectional citation reconciliation (orphaned in-text citations vs ghost bibliography entries, year mismatches), and enforces APA 7th Edition statistical formatting rules (leading zeroes, $p = .000$, effect sizes). Generates publication-grade audit Word reports (`.docx`), 5-sheet citation reconciliation workbooks (`.xlsx`), and machine-readable JSON summaries.
 21. **G*Power Academic Sample Size & Power Engine ([gpower-sample-size-calculator](.agents/skills/gpower-sample-size-calculator/))**:
@@ -74,7 +86,7 @@ AcademicSuite/
 │       ├── academic-article-writer/            # ISI/Scopus & ISC journal article compiler
 │       ├── academic-drive-project-organizer/   # Google Drive project organizer, 4-tier taxonomy & Duzen sync
 │       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
-│       ├── academic-suite-orchestrator/        # Master multi-stage pipeline & DAG workflow orchestrator
+│       ├── academic-suite-orchestrator/        # Deterministic batch pipeline CLI runner ("The Hands")
 │       ├── ai-academic-tone-polisher/          # Academic tone polisher, burstiness optimizer & anti-AI refiner
 │       ├── bibliometric-network-analyst/       # VOSviewer/Bibliometrix science mapping & Callon strategic diagram
 │       ├── citation-network-visualizer/        # HistCite chronomaps, LCS/GCS & Main Path Analysis (SPC)
@@ -326,8 +338,8 @@ python3 .agents/skills/psychometric-scale-validator/scripts/psychometric_validat
   --lang fa
 ```
 
-### End-to-End Academic Pipeline Orchestration
-Coordinate and execute multi-stage research pipelines with turnkey presets, artifact handoffs, and executive project dashboards:
+### Batch Pipeline CLI Execution ("The Hands")
+Execute sequential multi-stage research scripts on disk with turnkey presets, artifact handoffs, and executive project dashboards:
 ```bash
 # 1. Run complete empirical thesis pipeline (Proposal -> Simulation -> Stats -> Ch 5 -> Full Thesis -> Defense Slides)
 python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
