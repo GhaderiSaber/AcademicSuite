@@ -32,6 +32,42 @@ def load_transcript(transcript_path: str) -> List[Dict[str, Any]]:
     return records
 
 
+def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Intercepts tool calls to enforce Directive 6 (English-Only Filenames) and security gates."""
+    tool_call = payload.get("toolCall", {})
+    name = tool_call.get("name", "")
+    args = tool_call.get("args", {})
+
+    if name == "write_to_file":
+        target = args.get("TargetFile", "")
+        basename = os.path.basename(target)
+        if any(ord(c) > 127 for c in basename):
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 6 - English-Only Filename Standard): "
+                    f"Target filename '{basename}' contains non-ASCII characters. Filenames must use English ASCII only."
+                )
+            }
+
+    if name == "run_command":
+        cmd = args.get("CommandLine", "")
+        redirect_match = re.search(r'(?:>|>>|\btouch\s+|\bmkdir\s+)([^\s;&|]+)', cmd)
+        if redirect_match:
+            filepath = redirect_match.group(1).strip("'\"")
+            basename = os.path.basename(filepath)
+            if any(ord(c) > 127 for c in basename):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 6 - English-Only Filename Standard): "
+                        f"Command attempts to create non-ASCII file/directory '{basename}'."
+                    )
+                }
+
+    return {"decision": "allow"}
+
+
 def handle_pre_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Injects ephemeral prompt reminding the agent of strict constitutional directives."""
     reminder = (
@@ -222,6 +258,8 @@ def main():
         res = handle_pre_invocation(payload)
     elif event == "Stop":
         res = handle_stop(payload)
+    elif event == "PreToolUse":
+        res = handle_pre_tool_use(payload)
     else:
         res = {"decision": "allow"}
 
