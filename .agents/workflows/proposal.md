@@ -158,3 +158,18 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - Proposed Topic, Design, $N$, Instruments, Council Readiness Index.
     - One-click commands: `/approve_proposal` or `/adjust_proposal`.
   - Upon approval, proposal is released to client.
+
+---
+
+## Antigravity Multi-Agent Execution Architecture (Directive 12, 12.1 & PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL)
+
+1. **The Hands**: Deterministic tools (`gpower_engine.py`, `generate_proposal_docx.py`) run via CLI to compute sample power curves, format APA 7 tables, and inject OpenXML Persian typography on disk.
+2. **The Brains & Critics**: Antigravity subagents execute specialized cognitive roles via `invoke_subagent`:
+   - `methodology-expert`: Structures inverted-triangle problem statements and samples.
+   - `statistical-expert`: Formulates directional hypotheses and analytical designs.
+   - `evidence-auditor`: Reconciles APA 7 bibliographic references and cross-checks instruments.
+   - `results-auditor`: Audits council guidelines and eliminates AI cliches.
+   - `academic-writer`: Compiles publication-grade Persian proposal sections (`.docx`).
+   - `final-judge`: Simulates graduate review council cross-examination and scores approval readiness.
+3. **Sole Orchestrator**: Subagents and execution instruments are orchestrated directly and exclusively by the Antigravity Lead Agent in the conversation using `invoke_subagent`, enforcing physical artifact gates and the Critic-Generator Barrier.
+

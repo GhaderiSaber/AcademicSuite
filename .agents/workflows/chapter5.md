@@ -173,3 +173,17 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - Defense Readiness Index.
     - Interactive commands: `/approve_chapter5` or `/adjust_chapter5`.
   - Upon human sign-off, records completed decision in `decision_journal_engine.py` with status `RELEASED`.
+
+---
+
+## Antigravity Multi-Agent Execution Architecture (Directive 12, 12.1 & PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL)
+
+1. **The Hands**: Deterministic tools (`generate_chapter5_docx.py`, `literature_concordance_engine.py`) run via CLI to compile OpenXML Word documents and map statistical findings to empirical literature.
+2. **The Brains & Critics**: Antigravity subagents execute specialized cognitive roles via `invoke_subagent`:
+   - `literature-expert`: Synthesizes theoretical mechanisms (Beck, Hayes, Bandura) and empirical literature concordance.
+   - `methodology-expert`: Formulates methodological justifications for non-significant or divergent findings.
+   - `academic-writer`: Drafts the 6-part chapter structure with natural sentence cadence ($CV \ge 0.50$).
+   - `results-auditor`: Verifies that reported statistical parameters in narrative strictly match Chapter 4 results.
+   - `final-judge`: Simulates viva voce oral defense cross-examination and scores discussion defense readiness.
+3. **Sole Orchestrator**: Subagents and execution instruments are orchestrated directly and exclusively by the Antigravity Lead Agent in the conversation using `invoke_subagent`, enforcing physical artifact gates and the Critic-Generator Barrier.
+

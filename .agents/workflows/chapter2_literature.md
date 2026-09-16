@@ -197,3 +197,16 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 | 6 | **`literature_references.ris`** | Standard RIS citation package for Zotero / Mendeley. | `output/` |
 | 7 | **`literature_references.enw`** | Standard EndNote import citation package. | `output/` |
 | 8 | **`literature_synthesis.json`** | Structured machine-readable empirical parameter ledger ($N$, designs, tools). | `output/` |
+
+---
+
+## Antigravity Multi-Agent Execution Architecture (Directive 12, 12.1 & PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL)
+
+1. **The Hands**: Deterministic tools (`literature_review_engine.py`, `extract_section_references.py`, `vosviewer_exporter.py`) run via CLI to harvest parameters, generate VOSviewer maps, extract RIS/ENW files, and compile OpenXML Word tables on disk.
+2. **The Brains & Critics**: Antigravity subagents execute specialized cognitive roles via `invoke_subagent`:
+   - `literature-expert`: Harvests multi-database literature and synthesizes theoretical mechanisms.
+   - `evidence-auditor`: Executes bidirectional citation matching and predicts Irandoc similarity ($< 20\%$).
+   - `academic-writer`: Compiles the 5-part empirical chain narrative in pristine Persian typography.
+   - `final-judge`: Simulates external defense committee scrutiny on theoretical gaps and methodology precedents.
+3. **Sole Orchestrator**: Subagents and execution instruments are orchestrated directly and exclusively by the Antigravity Lead Agent in the conversation using `invoke_subagent`, enforcing physical artifact gates and the Critic-Generator Barrier.
+

@@ -150,3 +150,16 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 - [ ] `Intervention_Sessions_Summary.docx` — Defense-ready APA 7 summary table for Chapter 3 / Proposal.
 - [ ] `consort_flowchart.png` — 300-DPI CONSORT 2010 participant allocation flowchart.
 - [ ] `protocol_blueprint.json` — Structured JSON schema of the intervention.
+
+---
+
+## Antigravity Multi-Agent Execution Architecture (Directive 12, 12.1 & PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL)
+
+1. **The Hands**: Deterministic tools (`protocol_engine.py`, `generate_manual_docx.py`) run via CLI to compile OpenXML clinical manuals, APA 7 session tables, and CONSORT flowcharts on disk.
+2. **The Brains & Critics**: Antigravity subagents execute specialized cognitive roles via `invoke_subagent`:
+   - `intervention-designer`: Formulates evidence-based session blueprints, experiential exercises, and clinical worksheets.
+   - `methodology-expert`: Confirms randomized trial designs (RCT, pre-post with control) and treatment fidelity safeguards.
+   - `academic-writer`: Compiles standardized thesis manuals and Chapter 3 summary tables in formal Persian.
+   - `final-judge`: Simulates hostile clinical committee audits on therapist adherence and patient safety.
+3. **Sole Orchestrator**: Subagents and execution instruments are orchestrated directly and exclusively by the Antigravity Lead Agent in the conversation using `invoke_subagent`, enforcing physical artifact gates and the Critic-Generator Barrier.
+

@@ -165,3 +165,17 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
     - Attached Deliverables: `Revision_Response_Table.docx` + Revised Chapters.
     - Commands: `/approve_revision` or `/adjust_revision`.
   - Upon sign-off, updates project status to `COMPLETED_AND_RELEASED` in `decision_journal_engine.py`.
+
+---
+
+## Antigravity Multi-Agent Execution Architecture (Directive 12, 12.1 & PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL)
+
+1. **The Hands**: Deterministic revision tools (`parse_docx_comments.py`, `generate_revision_response_docx.py`) run via CLI to extract Word annotations, apply tracked edits, and compile official Point-by-Point Response Tables on disk.
+2. **The Brains & Critics**: Antigravity subagents execute specialized cognitive roles via `invoke_subagent`:
+   - `results-auditor`: Triages examiner and supervisor feedback into Format, Stats, and Theory categories.
+   - `statistical-auditor`: Re-audits modified tables using MSAI and confirms degree-of-freedom consistency.
+   - `evidence-auditor`: Cross-checks newly added literature citations and verifies Irandoc similarity $< 20\%$.
+   - `academic-writer`: Formulates respectful, rigorous Persian rebuttal responses with page/table citations.
+   - `final-judge`: Simulates committee re-defense sign-off and computes approval readiness score.
+3. **Sole Orchestrator**: Subagents and execution instruments are orchestrated directly and exclusively by the Antigravity Lead Agent in the conversation using `invoke_subagent`, enforcing physical artifact gates and the Critic-Generator Barrier.
+

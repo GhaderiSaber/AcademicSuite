@@ -146,3 +146,17 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 |---|---|---|---|
 | 1 | **`Complete_Graduate_Thesis.docx` / `Thesis_Compiled.docx`** | Complete 150-page master thesis / doctoral dissertation containing all front matter, Chapters 1–5, APA 7 tables, appendices, and bilingual back matter. | `output/` |
 | 2 | **`thesis_manifest.json`** | Machine-readable compilation ledger (chapter word counts, table counts, figure counts, scales included, and council approval score). | `output/` |
+
+---
+
+## Antigravity Multi-Agent Execution Architecture (Directive 12, 12.1 & PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL)
+
+1. **The Hands**: Deterministic compilation tools (`compile_full_thesis.py`, `merge_dissertation.py`) run via CLI to assemble chapter XML trees, enforce standard university margins, bind Persian fonts, and unify APA 7 references on disk.
+2. **The Brains & Critics**: Antigravity subagents execute specialized cognitive roles via `invoke_subagent`:
+   - `data-curator`: Validates front-matter specifications, student metadata, and ethics approvals.
+   - `evidence-auditor`: Unifies and cross-reconciles in-text citations with master bibliography across all 5 chapters.
+   - `results-auditor`: Verifies numbering continuity, table border consistency, and BiDi visual properties.
+   - `academic-writer`: Compiles unified preliminary sections, abstracts, and Persian/English cover pages.
+   - `final-judge`: Simulates University Graduate Council formatting and binding audit (Approval Probability $\ge 95\%$).
+3. **Sole Orchestrator**: Subagents and execution instruments are orchestrated directly and exclusively by the Antigravity Lead Agent in the conversation using `invoke_subagent`, enforcing physical artifact gates and the Critic-Generator Barrier.
+

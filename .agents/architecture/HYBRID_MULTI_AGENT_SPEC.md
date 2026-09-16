@@ -95,5 +95,8 @@ AcademicSuite is a **100% Antigravity Native Multi-Agent Architecture**:
 ---
 
 ## 5. Machine Enforcement & Truthfulness Guarantee
+- **Sole Orchestrator Mandate (Directive 12.1)**: Google Antigravity is the sole agent runtime and multi-agent orchestrator. Subagents are orchestrated strictly via `invoke_subagent`. External Python classes or standalone scripts are prohibited from emulating agent dispatch.
+- **Pure Antigravity Deliberation Protocol**: Full protocol specifications, Critic-Generator barriers, and `invoke_subagent` payload schemas are documented in [PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL.md](file:///.agents/architecture/PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL.md).
 - **Antigravity Stop Hook (`.agents/hooks.json`)**: Automatically scans the conversation transcript. If an assistant claims multi-agent execution while `invoke_subagent` was never physically invoked, the hook mechanically blocks completion.
 - **Binary Honesty Protocol**: Whenever the user asks whether a workflow, rule, or subagent was executed, the response MUST begin with an unambiguous **"Yes"** or **"No"**.
+

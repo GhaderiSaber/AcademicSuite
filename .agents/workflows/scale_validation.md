@@ -196,3 +196,17 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 - [ ] `psychometric_irt_plots.png` — 300-DPI IRT TIF & Item Characteristic Curves.
 - [ ] `cfa_lavaan_model.R` — Executable CFA lavaan model script.
 - [ ] `psychometric_validation_report.json` — Machine-readable psychometric metrics ledger.
+
+---
+
+## Antigravity Multi-Agent Execution Architecture (Directive 12, 12.1 & PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL)
+
+1. **The Hands**: Deterministic tools (`psychometric_validator_engine.py`, `generate_validation_docx.py`, `simdat_engine.py`) run via CLI to compute CVR/CVI, EFA/CFA, IRT parameters, ROC curves, and OpenXML tables on disk.
+2. **The Brains & Critics**: Antigravity subagents execute specialized cognitive roles via `invoke_subagent`:
+   - `psychometric-expert`: Formulates scale adaptation protocol, item discrimination, and IRT/CFA model specifications.
+   - `statistical-auditor`: Audits factor loadings, AVE/CR convergent-discriminant validity, and Multi-Signal Anomaly Index.
+   - `results-auditor`: Verifies strict APA 7 table formatting and psychometric symbol notation ($\omega, \alpha, \lambda, \theta$).
+   - `academic-writer`: Compiles the 8-table psychometric validation report in academic Persian.
+   - `final-judge`: Cross-examines measurement invariance, differential item functioning (DIF), and clinical cut-off determination.
+3. **Sole Orchestrator**: Subagents and execution instruments are orchestrated directly and exclusively by the Antigravity Lead Agent in the conversation using `invoke_subagent`, enforcing physical artifact gates and the Critic-Generator Barrier.
+
