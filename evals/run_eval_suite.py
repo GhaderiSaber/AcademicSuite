@@ -42,7 +42,7 @@ def discover_test_cases() -> List[Dict[str, Any]]:
     cases = []
     domains = [
         "descriptive", "reliability", "regression", "mediation",
-        "cfa", "sem", "network", "writing"
+        "cfa", "sem", "network", "writing", "presentation"
     ]
     for d in domains:
         d_path = os.path.join(EVALS_DIR, d)
@@ -224,6 +224,7 @@ def write_markdown_report(report: Dict[str, Any], out_path: str):
         "| **SEM** | `EVAL-SEM-01` | 75.0% | 100.0% | 100.0% | +25.0% (Hu & Bentler Cutoffs & Path Models) |",
         "| **Network** | `EVAL-NET-01` | 70.0% | 100.0% | 100.0% | +30.0% (Callon Strategic Diagram & Louvain) |",
         "| **Writing** | `EVAL-WRIT-01` | 80.0% | 100.0% | 100.0% | +20.0% (5-Part Epistemic Formula & BiDi) |",
+        "| **Presentation** | `EVAL-PRES-01` | 65.0% | 100.0% | 100.0% | +35.0% (14-Slide Architecture & DrawingML RTL) |",
         "",
         "---",
         "",

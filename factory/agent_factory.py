@@ -94,6 +94,132 @@ Always execute the following domain procedures:
     return content
 
 
+def generate_contract_markdown(
+    name: str,
+    role: str,
+    mission: str,
+    skills: List[str],
+    responsibilities: Optional[List[str]] = None,
+    non_responsibilities: Optional[List[str]] = None,
+    forbidden_actions: Optional[List[str]] = None
+) -> str:
+    """
+    Generates the formal 12-section contract Markdown adhering to Phase 4 & Option 1 standards.
+    """
+    can_items = responsibilities or [
+        f"Execute domain analytical workflows for {role}.",
+        "Generate structured analysis results and machine-readable JSON checkpoints.",
+        "Produce verified tables and narrative drafts adhering to APA 7 standards."
+    ]
+    cannot_items = non_responsibilities or [
+        "Calculate, estimate, or hallucinate statistical numbers mentally (Directive 2).",
+        "Modify raw empirical datasets or overwrite files in place.",
+        "Self-validate deliverables without independent review by validation-agent."
+    ]
+    forbidden = forbidden_actions or [
+        "Zero Mental Math: Never guess or estimate parameters mentally (Directive 2).",
+        "Zero Non-ASCII Filenames: Strictly use English ASCII characters for all disk files (Directive 6).",
+        "Zero Unverified Citations: Never invent bibliographic data (Directive 14)."
+    ]
+
+    can_md = "\n".join([f"- {item}" for item in can_items])
+    cannot_md = "\n".join([f"- {item}" for item in cannot_items])
+    skills_md = "\n".join([f"- `{s}`" for s in skills])
+    forbidden_md = "\n".join([f"- **{f.split(':')[0]}:**{':'.join(f.split(':')[1:])}" if ':' in f else f"- {f}" for f in forbidden])
+
+    return f"""# Agent Contract: {role}
+
+**Role Identifier:** `{name}`  
+**Operational Tier:** Tier 2 — Domain Specialist  
+**Contract Version:** 1.0.0  
+**Effective Date:** September 2026 (1405 SH)  
+
+---
+
+## MISSION
+{mission}
+
+---
+
+## RESPONSIBILITIES
+
+### CAN:
+{can_md}
+
+---
+
+## NON-RESPONSIBILITIES
+
+### CANNOT:
+{cannot_md}
+
+---
+
+## INPUTS
+- Target dataset or input payload checkpoint (`.xlsx`, `.json`, `.docx`).
+- Research questions, variable definitions, and model specifications.
+
+---
+
+## OUTPUTS
+- Structured JSON checkpoints: `stats_results.json`, `findings.json`.
+- APA 7 tables and narrative report files.
+- Synchronized micro-stage triads (`.docx`, `.md`, `.json`).
+
+---
+
+## ALLOWED TOOLS
+- `view_file` (Inspect input payloads and skill specifications)
+- `write_to_file` & `replace_file_content` (Export outputs and draft narrative)
+- `run_command` (Execute deterministic scripts in `.agents/skills/`)
+- `list_dir`, `grep_search`, `find_by_name` (Search and inspect workspace assets)
+
+---
+
+## REQUIRED SKILLS
+{skills_md}
+
+---
+
+## FORBIDDEN ACTIONS
+{forbidden_md}
+
+---
+
+## HANDOFF FORMAT
+The {role} hands off structured artifacts:
+```markdown
+### 📦 {role} Handoff
+- **Domain:** {name}
+- **Artifacts Generated on Disk (Triad):**
+  - `<output_dir>/output.docx`
+  - `<output_dir>/output.md`
+  - `<output_dir>/output.json`
+- **Validation Status:** PASS
+```
+
+---
+
+## VALIDATION REQUIREMENTS
+- Deterministic script execution logs present in workspace.
+- Passage through independent validators before handoff.
+- Verification of synchronized triad on disk.
+
+---
+
+## COMPLETION CRITERIA
+- Domain outputs completely generated and saved on disk.
+- Zero validator errors across numerical and reporting consistency.
+
+---
+
+## FAILURE CONDITIONS
+- Discrepancy between calculated data and narrative text.
+- Missing required outputs or non-ASCII filenames on disk.
+- Unhandled model errors or failed validator checks.
+"""
+
+
 def create_agent(
     name: str,
     role: str,
@@ -105,11 +231,19 @@ def create_agent(
     target_dir: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Creates and writes a verified agent specification to disk.
+    Creates and writes a verified agent specification package to disk (Option 1 Standard):
+    1. Dedicated directory: target_dir/<name>/
+    2. Co-located runtime prompt: target_dir/<name>/agent.md
+    3. Co-located 12-section contract: target_dir/<name>/contract.md
+    4. Flat discovery symlink: target_dir/<name>.md -> <name>/agent.md
     """
     out_dir = target_dir or AGENTS_DIR
-    os.makedirs(out_dir, exist_ok=True)
-    file_path = os.path.join(out_dir, f"{name}.md")
+    agent_dir = os.path.join(out_dir, name)
+    os.makedirs(agent_dir, exist_ok=True)
+
+    agent_file = os.path.join(agent_dir, "agent.md")
+    contract_file = os.path.join(agent_dir, "contract.md")
+    symlink_path = os.path.join(out_dir, f"{name}.md")
 
     md_content = generate_agent_markdown(
         name=name,
@@ -121,12 +255,30 @@ def create_agent(
         anti_patterns=anti_patterns
     )
 
-    with open(file_path, "w", encoding="utf-8") as f:
+    contract_content = generate_contract_markdown(
+        name=name,
+        role=role,
+        mission=mission,
+        skills=skills
+    )
+
+    with open(agent_file, "w", encoding="utf-8") as f:
         f.write(md_content)
+
+    with open(contract_file, "w", encoding="utf-8") as f:
+        f.write(contract_content)
+
+    # Maintain backward-compatible flat discovery symlink
+    if os.path.islink(symlink_path) or os.path.exists(symlink_path):
+        os.remove(symlink_path)
+    os.symlink(f"{name}/agent.md", symlink_path)
 
     return {
         "status": "SUCCESS",
         "agent_name": name,
-        "file_path": file_path,
+        "agent_dir": agent_dir,
+        "agent_file": agent_file,
+        "contract_file": contract_file,
+        "file_path": symlink_path,
         "size_bytes": len(md_content.encode("utf-8"))
     }

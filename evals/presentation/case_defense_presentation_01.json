@@ -1,0 +1,87 @@
+{
+  "test_id": "EVAL-PRES-01",
+  "domain": "presentation",
+  "title": "14-Slide Vertical Slice Defense Presentation Architecture & Viva Voce Simulation (Clinical Psychology SEM)",
+  "version_target": "Academic Suite v1 / v2 / v3",
+  "INPUT": {
+    "data_path": "evals/presentation/data/defense_findings_payload.json",
+    "format": "json",
+    "sample_n": 258,
+    "predictors": [
+      "spiritual_intelligence"
+    ],
+    "dependent_variable": "illness_perception",
+    "mediators": [
+      "death_anxiety",
+      "health_hardiness",
+      "distress_tolerance"
+    ],
+    "model_spec": "SEM with 3 Parallel Mediators (Kashan University, Summer 1405/2026)"
+  },
+  "EXPECTED_ANALYSIS": {
+    "model_type": "8-Stage Defense Presentation Vertical Slice (Stages D.0 to D.7)",
+    "methodology": "14-Slide Architecture, RTL DrawingML Dual-Slot Font Binding, Viva Voce Committee Simulation",
+    "standard_applied": "Directive 3 & 4.1 Academic Defense Presentation Standards",
+    "tool_script": ".agents/skills/persian-defense-presentation-builder/scripts/generate_defense_deck.py"
+  },
+  "EXPECTED_N": 258,
+  "EXPECTED_VARIABLES": [
+    "spiritual_intelligence",
+    "death_anxiety",
+    "health_hardiness",
+    "distress_tolerance",
+    "illness_perception"
+  ],
+  "EXPECTED_KEY_STATISTICS": {
+    "sample_size": 258,
+    "direct_paths_count": 4,
+    "indirect_paths_count": 3,
+    "total_hypotheses": 10,
+    "fit_indices": {
+      "chisq_df": 1.74,
+      "cfi": 0.942,
+      "tli": 0.931,
+      "rmsea": 0.054,
+      "srmr": 0.048
+    },
+    "viva_voce_score": {
+      "base_score": 20.0,
+      "publication_point_withholding": -1.5,
+      "maximum_attainable": 18.5
+    }
+  },
+  "EXPECTED_TABLES": [
+    {
+      "table_number": 1,
+      "title": "ماتریس فرضیات ده‌گانه، ضرایب مسیر ساختاری و فاصله اطمینان بوت‌استرپ ۹۵ درصد",
+      "columns": 7,
+      "format": "APA 7"
+    },
+    {
+      "table_number": 2,
+      "title": "شاخص‌های ۱۱ گانه برازش مدل معادلات ساختاری در برابر آستانه‌های هو و بنتلر",
+      "columns": 5,
+      "format": "APA 7"
+    }
+  ],
+  "EXPECTED_INTERPRETATION_CONSTRAINTS": {
+    "language": "Persian (Farsi)",
+    "paragraph_structure": "Stage D.1 14-Slide Architecture",
+    "leading_zero_persian": true,
+    "table_placement": "Directly integrated into DrawingML slides",
+    "zero_citations_in_results": false,
+    "zero_ai_cliches": true,
+    "effect_size_reporting": true,
+    "zero_emojis": true,
+    "zero_english_words_in_slides": true,
+    "decoupled_ltr_stats": true
+  },
+  "EXPECTED_VALIDATION": {
+    "data_integrity": "PASS",
+    "numerical_consistency": "PASS",
+    "reporting_consistency": "PASS",
+    "result_consistency": "PASS",
+    "statistical_assumptions": "PASS",
+    "state_schema_validation": "PASS"
+  }
+}

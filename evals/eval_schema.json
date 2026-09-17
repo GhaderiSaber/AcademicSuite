@@ -30,9 +30,10 @@
         "cfa",
         "sem",
         "network",
-        "writing"
+        "writing",
+        "presentation"
       ],
-      "description": "One of the 8 canonical evaluation domains"
+      "description": "One of the canonical evaluation domains"
     },
     "title": {
       "type": "string",

@@ -1,9 +1,9 @@
 {
   "benchmark_suite": "Academic Suite Permanent Evaluation Suite (evals/)",
   "version_evaluated": "Academic Suite v2 (Unit Test)",
-  "timestamp": "2026-09-17T17:36:16.479590+00:00",
-  "total_test_cases": 9,
-  "passed_test_cases": 9,
+  "timestamp": "2026-09-17T19:04:57.948702+00:00",
+  "total_test_cases": 10,
+  "passed_test_cases": 10,
   "overall_benchmark_score": 100.0,
   "overall_verdict": "PASS",
   "domain_results": [
@@ -125,6 +125,20 @@
       "version": "Academic Suite v2 (Unit Test)",
       "title": "Master Chapter 4 Findings Triad Narrative Synthesis",
       "expected_n": 100,
+      "dataset_verified": true,
+      "numerical_accuracy_pct": 100.0,
+      "table_fidelity_pct": 100.0,
+      "rule_compliance_pct": 100.0,
+      "validation_gate_pct": 100.0,
+      "composite_benchmark_score": 100.0,
+      "status": "PASS"
+    },
+    {
+      "test_id": "EVAL-PRES-01",
+      "domain": "presentation",
+      "version": "Academic Suite v2 (Unit Test)",
+      "title": "14-Slide Vertical Slice Defense Presentation Architecture & Viva Voce Simulation (Clinical Psychology SEM)",
+      "expected_n": 258,
       "dataset_verified": true,
       "numerical_accuracy_pct": 100.0,
       "table_fidelity_pct": 100.0,

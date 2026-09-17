@@ -31,7 +31,7 @@ class TestEvalSuite(unittest.TestCase):
     EVALS_DIR = os.path.join(ROOT_DIR, "evals")
     REQUIRED_DOMAINS = [
         "descriptive", "reliability", "regression", "mediation",
-        "cfa", "sem", "network", "writing"
+        "cfa", "sem", "network", "writing", "presentation"
     ]
 
     def test_01_schema_exists_and_is_valid(self):
