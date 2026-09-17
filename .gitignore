@@ -8,7 +8,6 @@
 !webapp/
 !projects/
 !docs/
-!agents/
 !validators/
 !evals/
 !recovery/
