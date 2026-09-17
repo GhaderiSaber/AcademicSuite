@@ -1,0 +1,80 @@
+{
+  "stage_id": "05_moderation_macro",
+  "title": "Macro Moderation Model (Hierarchical Regression Step 1 vs Step 2)",
+  "model_type": "PROCESS Model 1 (Simple Moderation)",
+  "sample_size": 320,
+  "variables": {
+    "iv": "job_demands",
+    "moderator": "psy_capital",
+    "dv": "emotional_exhaustion"
+  },
+  "hierarchical_summary": [
+    {
+      "step": 1,
+      "label": "Main Effects",
+      "predictors": ["job_demands", "psy_capital"],
+      "r": 0.577,
+      "r2": 0.333,
+      "adj_r2": 0.329,
+      "se": 0.481,
+      "delta_r2": 0.333,
+      "f_change": 79.069,
+      "df1": 2,
+      "df2": 317,
+      "p_change": 0.001
+    },
+    {
+      "step": 2,
+      "label": "Interaction Term Added",
+      "predictors": ["job_demands", "psy_capital", "job_demands_x_psy_capital"],
+      "r": 0.601,
+      "r2": 0.361,
+      "adj_r2": 0.355,
+      "se": 0.472,
+      "delta_r2": 0.028,
+      "f_change": 13.995,
+      "df1": 1,
+      "df2": 316,
+      "p_change": 0.001
+    }
+  ],
+  "coefficients": {
+    "const": {
+      "b": 2.91,
+      "se": 0.026,
+      "beta": null,
+      "t": 110.289,
+      "p_value": 0.001,
+      "ci_lower": 2.858,
+      "ci_upper": 2.962
+    },
+    "job_demands": {
+      "b": 0.357,
+      "se": 0.04,
+      "beta": 0.402,
+      "t": 8.931,
+      "p_value": 0.001,
+      "ci_lower": 0.278,
+      "ci_upper": 0.435
+    },
+    "psy_capital": {
+      "b": -0.373,
+      "se": 0.039,
+      "beta": -0.432,
+      "t": -9.582,
+      "p_value": 0.001,
+      "ci_lower": -0.45,
+      "ci_upper": -0.297
+    },
+    "job_demands_x_psy_capital": {
+      "b": -0.222,
+      "se": 0.059,
+      "beta": -0.169,
+      "t": -3.741,
+      "p_value": 0.001,
+      "ci_lower": -0.339,
+      "ci_upper": -0.105
+    }
+  },
+  "moderation_verdict": "SUPPORTED"
+}

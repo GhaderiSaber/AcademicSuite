@@ -1,0 +1,54 @@
+{
+  "stage_id": "07_hypothesis_2_simple_slopes",
+  "title": "Simple Slopes & Johnson-Neyman Significance Regions Analysis",
+  "model_type": "PROCESS Model 1 Conditional Effects",
+  "sample_size": 320,
+  "moderator": "psy_capital",
+  "simple_slopes": [
+    {
+      "level": "-1 SD (Low)",
+      "w_centered": -0.679,
+      "w_raw": 2.716,
+      "simple_slope": 0.508,
+      "se": 0.058,
+      "t": 8.759,
+      "p_value": 0.001,
+      "ci_lower": 0.394,
+      "ci_upper": 0.622,
+      "significant": true,
+      "interpretation": "Strong positive impact of demands on exhaustion under low psychological capital"
+    },
+    {
+      "level": "Mean (Average)",
+      "w_centered": 0.0,
+      "w_raw": 3.396,
+      "simple_slope": 0.357,
+      "se": 0.04,
+      "t": 8.931,
+      "p_value": 0.001,
+      "ci_lower": 0.278,
+      "ci_upper": 0.435,
+      "significant": true,
+      "interpretation": "Moderate positive impact of demands on exhaustion under average psychological capital"
+    },
+    {
+      "level": "+1 SD (High)",
+      "w_centered": 0.679,
+      "w_raw": 4.075,
+      "simple_slope": 0.206,
+      "se": 0.056,
+      "t": 3.705,
+      "p_value": 0.001,
+      "ci_lower": 0.097,
+      "ci_upper": 0.315,
+      "significant": true,
+      "interpretation": "Significantly attenuated impact of demands on exhaustion under high psychological capital"
+    }
+  ],
+  "johnson_neyman": {
+    "transition_point_raw": 4.385,
+    "transition_point_centered": 0.989,
+    "interpretation": "Conditional effect of job demands on emotional exhaustion is statistically significant for psychological capital values below 4.385"
+  },
+  "verdict": "SUPPORTED"
+}

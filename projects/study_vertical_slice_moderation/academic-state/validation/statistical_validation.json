@@ -1,0 +1,38 @@
+{
+  "validator": "Academic Suite Statistical Consistency Validator",
+  "timestamp": "2026-09-17T10:30:00.000000+00:00",
+  "overall_verdict": "PASS",
+  "results": [
+    {
+      "validator": "moderation_model1_validator",
+      "verdict": "PASS",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "sample_size": 320,
+        "step1_r2": 0.333,
+        "step2_r2": 0.361,
+        "delta_r2": 0.028,
+        "f_change": 13.995,
+        "interaction_b": -0.222,
+        "interaction_t": -3.741,
+        "interaction_p": "< .001",
+        "moderation_verdict": "SUPPORTED"
+      }
+    },
+    {
+      "validator": "modmed_model7_validator",
+      "verdict": "PASS",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "sample_size": 320,
+        "bootstrap_samples": 5000,
+        "index_of_moderated_mediation": -0.072,
+        "ci_lower": -0.116,
+        "ci_upper": -0.038,
+        "modmed_verdict": "SUPPORTED"
+      }
+    }
+  ]
+}
