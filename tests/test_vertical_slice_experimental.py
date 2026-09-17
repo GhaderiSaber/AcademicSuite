@@ -196,12 +196,18 @@ class TestVerticalSliceExperimental(unittest.TestCase):
         self.assertFalse(post_vs_fu["significant"], "Maintenance requires no significant change between post and follow-up")
 
     def test_07_synchronized_triad_artifacts_exist(self):
-        """Micro-stage triads (.docx, .md, .json) must exist on disk for all 4 stages."""
+        """Micro-stage triads (.docx, .md, .json) must exist on disk for all 10 stages."""
         expected_triads = [
+            "00_data_curation_report",
+            "01_demographics",
+            "02_descriptives_and_reliability",
             "03_experimental_assumptions",
+            "04_bivariate_correlations",
             "06_hypothesis_1_ancova_post",
             "07_hypothesis_2_ancova_followup",
-            "08_hypothesis_3_repeated_measures"
+            "08_hypothesis_3_repeated_measures",
+            "09_chapter_summary",
+            "10_defense_brief"
         ]
         for base in expected_triads:
             docx_p = os.path.join(self.OUTPUTS_DIR, f"{base}.docx")
@@ -219,6 +225,40 @@ class TestVerticalSliceExperimental(unittest.TestCase):
         report = run_suite(self.OUTPUTS_DIR)
         self.assertEqual(report["overall_verdict"], "PASS")
         self.assertGreaterEqual(len(report["results"]), 10)
+
+    def test_09_master_deliverable_package_exists(self):
+        """Master deliverable package must exist with Word DOCX, Markdown, 6-sheet Excel, and 300-DPI plot."""
+        pkg_dir = os.path.join(self.OUTPUTS_DIR, "08_master_package")
+        self.assertTrue(os.path.isdir(pkg_dir), f"Missing master package dir: {pkg_dir}")
+
+        docx_p = os.path.join(pkg_dir, "Experimental_Study_Report.docx")
+        md_p = os.path.join(pkg_dir, "Experimental_Study_Report.md")
+        xlsx_p = os.path.join(pkg_dir, "experimental_analysis_matrix.xlsx")
+        png_p = os.path.join(pkg_dir, "experimental_trajectory_plots.png")
+
+        self.assertTrue(os.path.exists(docx_p), f"Missing master DOCX: {docx_p}")
+        self.assertTrue(os.path.exists(md_p), f"Missing master MD: {md_p}")
+        self.assertTrue(os.path.exists(xlsx_p), f"Missing master Excel: {xlsx_p}")
+        self.assertTrue(os.path.exists(png_p), f"Missing master plot: {png_p}")
+
+        self.assertGreater(os.path.getsize(docx_p), 5000)
+        self.assertGreater(os.path.getsize(md_p), 5000)
+        self.assertGreater(os.path.getsize(xlsx_p), 5000)
+        self.assertGreater(os.path.getsize(png_p), 10000)
+
+    def test_10_defense_brief_simulation(self):
+        """Defense brief must contain 4 viva voce examiner scenarios and readiness score >= 95%."""
+        brief_json = os.path.join(self.OUTPUTS_DIR, "10_defense_brief.json")
+        self.assertTrue(os.path.exists(brief_json), f"Missing defense brief JSON: {brief_json}")
+
+        with open(brief_json, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        self.assertEqual(data.get("stage_id"), "10_defense_brief")
+        self.assertGreaterEqual(data.get("defense_readiness_score", 0), 95.0)
+        self.assertEqual(data.get("verdict"), "SUPPORTED")
+        scenarios = data.get("committee_scenarios", [])
+        self.assertEqual(len(scenarios), 4)
 
 
 if __name__ == '__main__':
