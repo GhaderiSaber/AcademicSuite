@@ -33,7 +33,7 @@ if ROOT_DIR not in sys.path:
 from factory.agent_factory import create_agent, generate_agent_markdown
 from factory.skill_factory import create_skill, generate_skill_markdown, MAX_LINES, MAX_BYTES
 from factory.validator_factory import create_validator
-from factory.meta_factory import run_preregistration_sandbox_test
+from factory.meta_factory import run_preregistration_sandbox_test, create_specialist
 
 
 class TestFactoryMetaLayer(unittest.TestCase):
@@ -161,6 +161,119 @@ class TestFactoryMetaLayer(unittest.TestCase):
 
         self.assertEqual(manifest["registration_status"], "CERTIFIED_AND_REGISTERED")
         self.assertEqual(manifest["preregistration_sandbox_test"]["overall_verdict"], "PASS")
+
+    def test_06_create_specialist_generalized(self):
+        """create_specialist must dynamically generate, sandbox, validate, and certify arbitrary specialists."""
+        custom_spec = {
+            "name": "synthetic-screener",
+            "role": "Synthetic Data Quality Screener",
+            "description": "Dynamic specialist for screening data quality in unit test.",
+            "mission": "You screen data quality dynamically.",
+            "decision_rules": [
+                "Always check for missingness across all features.",
+                "Enforce APA 7 formatting for summary tables."
+            ],
+            "skills": ["data-audit", "apa-reporting"],
+            "skill_name": "synthetic-screener",
+            "skill_description": "Executes screening on test payloads.",
+            "skill_sections": {
+                "Overview": "Dynamic screening capability.",
+                "Execution Instructions": "Run via CLI with --data and --output."
+            },
+            "script_name": "run_synthetic_screening.py",
+            "script_code": """#!/usr/bin/env python3
+import json, argparse, sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--data', required=True)
+parser.add_argument('--output', required=True)
+args = parser.parse_args()
+
+with open(args.data, 'r', encoding='utf-8') as f:
+    payload = json.load(f)
+
+res = {
+    "screening_verdict": "PASS",
+    "sample_size": payload.get("sample_size", 100),
+    "records_audited": len(payload.get("data", []))
+}
+
+with open(args.output, 'w', encoding='utf-8') as f:
+    json.dump(res, f, indent=2)
+""",
+            "validator_name": "synthetic_screener",
+            "validator_description": "Validates screening output structure.",
+            "validator_custom_logic": """    try:
+        with open(input_path, 'r', encoding='utf-8') as f:
+            d = json.load(f)
+        if d.get("screening_verdict") != "PASS":
+            errors.append("Screening verdict was not PASS.")
+        if d.get("sample_size", 0) <= 0:
+            errors.append("Invalid sample size.")
+    except Exception as e:
+        errors.append(f"Validation error: {str(e)}")""",
+            "fixture_file_name": "synthetic_screener_data.json",
+            "fixture_content": {"sample_size": 120, "data": [1, 2, 3, 4, 5]},
+            "eval_domain": "reliability",
+            "eval_case_filename": "case_synthetic_screener_01.json",
+            "eval_case": {
+                "test_id": "EVAL-REL-SYNTH-01",
+                "domain": "reliability",
+                "title": "Synthetic Screening Test",
+                "version_target": "Academic Suite v2",
+                "INPUT": {
+                    "data_path": "evals/reliability/data/synthetic_screener_data.json",
+                    "format": "json",
+                    "sample_n": 120
+                },
+                "EXPECTED_ANALYSIS": {
+                    "model_type": "Synthetic Screening",
+                    "methodology": "Automated deterministic scan",
+                    "standard_applied": "Academic Suite v2",
+                    "tool_script": ".agents/skills/synthetic-screener/scripts/run_synthetic_screening.py"
+                },
+                "EXPECTED_N": 120,
+                "EXPECTED_VARIABLES": ["x1", "x2"],
+                "EXPECTED_KEY_STATISTICS": {
+                    "screening_verdict": {"value": "PASS"}
+                },
+                "EXPECTED_TABLES": [
+                    {"table_number": 1, "title": "Screening Results", "columns": 3, "format": "APA 7"}
+                ],
+                "EXPECTED_INTERPRETATION_CONSTRAINTS": {
+                    "language": "Persian (Farsi)",
+                    "paragraph_structure": "5-Part Epistemic Formula",
+                    "leading_zero_persian": True,
+                    "table_placement": "narrative_above_table",
+                    "zero_citations_in_results": True,
+                    "zero_ai_cliches": True,
+                    "effect_size_reporting": True
+                },
+                "EXPECTED_VALIDATION": {
+                    "data_integrity": "PASS",
+                    "numerical_consistency": "PASS",
+                    "reporting_consistency": "PASS"
+                }
+            },
+            "update_primary_manifest": False
+        }
+
+        manifest = create_specialist(custom_spec, target_root=self.temp_dir, run_sandbox=True)
+
+        self.assertEqual(manifest["specialist_name"], "synthetic-screener")
+        self.assertEqual(manifest["registration_status"], "CERTIFIED_AND_REGISTERED")
+        self.assertEqual(manifest["preregistration_sandbox_test"]["overall_verdict"], "PASS")
+
+        # Verify artifacts exist on disk in isolated sandbox
+        self.assertTrue(os.path.exists(manifest["agent"]["file_path"]))
+        self.assertTrue(os.path.exists(manifest["skill"]["skill_file"]))
+        self.assertTrue(os.path.exists(manifest["skill"]["script_path"]))
+        self.assertTrue(os.path.exists(manifest["validator"]["file_path"]))
+        self.assertTrue(os.path.exists(manifest["evaluation_case"]))
+        self.assertTrue(os.path.exists(manifest["data_fixture"]))
+
+        specific_manifest = os.path.join(self.temp_dir, "factory", "synthetic-screener_manifest.json")
+        self.assertTrue(os.path.exists(specific_manifest))
 
 
 if __name__ == '__main__':

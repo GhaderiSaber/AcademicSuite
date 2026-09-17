@@ -8,6 +8,7 @@ from factory.agent_factory import create_agent, generate_agent_markdown
 from factory.skill_factory import create_skill, generate_skill_markdown
 from factory.validator_factory import create_validator
 from factory.meta_factory import (
+    create_specialist,
     build_longitudinal_modmed_specialist,
     run_preregistration_sandbox_test
 )
@@ -18,6 +19,7 @@ __all__ = [
     "create_skill",
     "generate_skill_markdown",
     "create_validator",
+    "create_specialist",
     "build_longitudinal_modmed_specialist",
     "run_preregistration_sandbox_test"
 ]
