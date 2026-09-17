@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicSuiteFailureIncidentSchema",
+  "description": "Standard schema for failure incident records and targeted remediation plans in Academic Suite.",
+  "type": "object",
+  "required": [
+    "incident_id",
+    "failure_type",
+    "severity",
+    "stage_id",
+    "status",
+    "error_message",
+    "diagnostic_summary",
+    "routing_plan",
+    "timestamp"
+  ],
+  "properties": {
+    "incident_id": {
+      "type": "string",
+      "description": "Unique incident identifier (e.g. INC-SEM-20260917-001)"
+    },
+    "failure_type": {
+      "type": "string",
+      "enum": [
+        "DATA",
+        "TOOL",
+        "STATISTICAL",
+        "METHODOLOGICAL",
+        "VALIDATION",
+        "PERMISSION",
+        "AGENT"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    },
+    "stage_id": {
+      "type": "string",
+      "description": "Micro-stage identifier where the failure occurred (e.g. 05_macro_model, 00_data_curation)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DETECTED",
+        "DIAGNOSED",
+        "ROUTED",
+        "IN_REMEDIATION",
+        "RECOVERED",
+        "FAILED",
+        "ESCALATED"
+      ]
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Raw or normalized error message / exception trace"
+    },
+    "diagnostic_summary": {
+      "type": "string",
+      "description": "Deterministic root-cause explanation"
+    },
+    "preserved_upstream_stages": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of successfully completed stages that MUST NOT be reset or restarted"
+    },
+    "routing_plan": {
+      "type": "object",
+      "required": [
+        "assigned_handler",
+        "handler_type",
+        "strategy",
+        "target_stage",
+        "remediation_action",
+        "verification_gate"
+      ],
+      "properties": {
+        "assigned_handler": {
+          "type": "string",
+          "description": "Designated subagent or deterministic tool handler"
+        },
+        "handler_type": {
+          "type": "string",
+          "enum": ["subagent", "tool", "human_gate"]
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "RETRY_TOOL_FALLBACK",
+            "DELEGATE_DATA_AGENT",
+            "DELEGATE_STATISTICS_AGENT",
+            "DELEGATE_METHODOLOGY_AGENT",
+            "DELEGATE_WRITING_AGENT",
+            "DELEGATE_VALIDATION_AGENT",
+            "HUMAN_GATE_APPROVAL",
+            "SUBAGENT_RETRY"
+          ]
+        },
+        "target_stage": {
+          "type": "string",
+          "description": "The specific micro-stage requiring remediation"
+        },
+        "remediation_action": {
+          "type": "string",
+          "description": "Concrete instructions or CLI command to execute for recovery"
+        },
+        "remediation_command": {
+          "type": ["string", "null"],
+          "description": "Optional deterministic shell command"
+        },
+        "verification_gate": {
+          "type": "string",
+          "description": "Specific validator command to certify recovery"
+        }
+      },
+      "additionalProperties": false
+    },
+    "resolution_details": {
+      "type": "object",
+      "properties": {
+        "resolved_at": { "type": "string" },
+        "resolved_by": { "type": "string" },
+        "verification_verdict": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

@@ -11,6 +11,7 @@
 !agents/
 !validators/
 !evals/
+!recovery/
 !ANTIGRAVITY_ARCHITECTURE_GUIDE.md
 webapp/node_modules/
 webapp/dist/

@@ -285,7 +285,51 @@ def validate_state(project_path: str) -> Dict[str, Any]:
             report["overall_verdict"] = "FAIL"
             report["errors"].append(f"Error reading/validating {rel_path}: {str(e)}")
 
+    # Validate incidents directory if present
+    inc_dir = os.path.join(state_dir, "incidents")
+    inc_schema_path = os.path.join(ROOT_DIR, "recovery", "incident_schema.json")
+    if os.path.isdir(inc_dir) and os.path.exists(inc_schema_path):
+        try:
+            with open(inc_schema_path, "r", encoding="utf-8") as isf:
+                inc_schema = json.load(isf)
+            for ifname in sorted(os.listdir(inc_dir)):
+                if ifname.endswith(".json"):
+                    ipath = os.path.join(inc_dir, ifname)
+                    try:
+                        with open(ipath, "r", encoding="utf-8") as ifile:
+                            i_data = json.load(ifile)
+                        jsonschema.validate(instance=i_data, schema=inc_schema)
+                        report["validated_files"].append({"file": f"incidents/{ifname}", "status": "VALID", "schema": "incident_schema.json"})
+                    except jsonschema.ValidationError as ve:
+                        report["overall_verdict"] = "FAIL"
+                        report["errors"].append(f"Schema validation failed for incidents/{ifname}: {ve.message}")
+                    except Exception as e:
+                        report["overall_verdict"] = "FAIL"
+                        report["errors"].append(f"Error reading incidents/{ifname}: {str(e)}")
+        except Exception as e:
+            report["warnings"].append(f"Error loading incident_schema.json: {str(e)}")
+
     return report
+
+
+def log_incident(project_path: str, stage_id: str, error_message: str) -> Dict[str, Any]:
+    """Logs a failure incident in academic-state/incidents/ using the recovery engine."""
+    from recovery.recovery_engine import create_incident
+    return create_incident(stage_id=stage_id, error_message=error_message, project_path=project_path)
+
+
+def list_incidents(project_path: str) -> List[Dict[str, Any]]:
+    """Returns all incident records in academic-state/incidents/."""
+    state_dir = get_state_dir(project_path)
+    inc_dir = os.path.join(state_dir, "incidents")
+    if not os.path.isdir(inc_dir):
+        return []
+    incidents = []
+    for fname in sorted(os.listdir(inc_dir)):
+        if fname.endswith(".json"):
+            with open(os.path.join(inc_dir, fname), "r", encoding="utf-8") as f:
+                incidents.append(json.load(f))
+    return incidents
 
 
 def get_status_summary(project_path: str) -> Dict[str, Any]:
@@ -427,6 +471,16 @@ def main():
     p_stage.add_argument("--stage", required=True, help="New stage ID (e.g. 04_bivariate_correlations)")
     p_stage.add_argument("--status", choices=["in_progress", "awaiting_validation", "stage_completed", "final_approved", "blocked"])
 
+    # log-incident
+    p_inc = subparsers.add_parser("log-incident", help="Log a failure incident in academic-state/incidents/")
+    p_inc.add_argument("project_path", help="Path to project directory")
+    p_inc.add_argument("--stage", required=True, help="Failing stage ID")
+    p_inc.add_argument("--error", required=True, help="Error message")
+
+    # list-incidents
+    p_list_inc = subparsers.add_parser("list-incidents", help="List all recorded failure incidents")
+    p_list_inc.add_argument("project_path", help="Path to project directory")
+
     args = parser.parse_args()
 
     if args.command == "init":
@@ -439,6 +493,10 @@ def main():
         res = record_decision(args.project_path, args.category, args.decision, args.rationale, args.agent)
     elif args.command == "set-stage":
         res = set_stage(args.project_path, args.stage, args.status)
+    elif args.command == "log-incident":
+        res = log_incident(args.project_path, args.stage, args.error)
+    elif args.command == "list-incidents":
+        res = list_incidents(args.project_path)
     else:
         res = {"error": f"Unknown command {args.command}"}
 
