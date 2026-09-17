@@ -1,0 +1,52 @@
+{
+  "stage": "Stage 4.6.1: Hypothesis 1 Testing — Multiple Regression",
+  "base_name": "06_hypothesis_1_regression",
+  "hypothesis": "Workplace stress and psychological flexibility significantly predict job burnout among employees.",
+  "hypothesis_persian": "استرس شغلی و انعطاف‌پذیری روان‌شناختی به طور معناداری فرسودگی شغلی کارکنان را پیش‌بینی می‌کنند.",
+  "sample_size": 100,
+  "n": 100,
+  "dv": "job_burnout",
+  "ivs": [
+    "workplace_stress",
+    "psychological_flexibility"
+  ],
+  "model_summary": {
+    "r": 0.644,
+    "r2": 0.415,
+    "adj_r2": 0.403,
+    "f_stat": 34.389,
+    "df1": 2,
+    "df2": 97,
+    "p_value": "< .001",
+    "p_value_persian": "۰.۰۰۱ > p"
+  },
+  "f_stat": 34.389,
+  "r2": 0.415,
+  "coefficients": [
+    {
+      "predictor": "workplace_stress",
+      "predictor_persian": "استرس شغلی",
+      "b": 0.466,
+      "se": 0.081,
+      "beta": 0.464,
+      "t": 5.756,
+      "p_value": "< .001",
+      "p_value_persian": "۰.۰۰۱ > p",
+      "vif": 1.09
+    },
+    {
+      "predictor": "psychological_flexibility",
+      "predictor_persian": "انعطاف‌پذیری روان‌شناختی",
+      "b": -0.362,
+      "se": 0.086,
+      "beta": -0.340,
+      "t": -4.224,
+      "p_value": "< .001",
+      "p_value_persian": "۰.۰۰۱ > p",
+      "vif": 1.09
+    }
+  ],
+  "decision": "SUPPORTED",
+  "decision_persian": "تأیید فرضیه",
+  "triad_complete": true
+}

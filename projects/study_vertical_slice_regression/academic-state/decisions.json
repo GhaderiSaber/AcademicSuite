@@ -1,0 +1,17 @@
+{
+  "decisions": [
+    {
+      "decision_id": "DEC-001",
+      "timestamp": "2026-09-17T05:36:28.479703+00:00",
+      "category": "methodology",
+      "decision": "Project initialized using CORRELATIONAL methodology framework.",
+      "rationale": "Aligned with approved research proposal and structural hypothesis testing.",
+      "alternatives_considered": [
+        "Multiple Regression",
+        "ANCOVA"
+      ],
+      "agent": "academic-orchestrator",
+      "supervisor_approval": true
+    }
+  ]
+}

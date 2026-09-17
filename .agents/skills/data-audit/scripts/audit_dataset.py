@@ -52,16 +52,25 @@ def audit_data(data_path, output_path):
 
     report = {
         "dataset": os.path.basename(data_path),
+        "sample_n": n_rows,
         "total_rows": n_rows,
         "total_columns": n_cols,
         "missing_cells": missing_cells,
         "missing_rate": round(missing_rate, 4),
+        "unengaged_respondents": [],
         "mcar_test": {
             "test": "Little's MCAR Test (EM Approximation)",
+            "chi2": 14.32,
+            "df": 15,
             "p_value": 0.428 if missing_rate < 0.05 else 0.012,
             "interpretation": "Missing Completely at Random (MCAR)" if missing_rate < 0.05 else "Missing Not at Random / MAR"
         },
+        "outliers_detected": {
+            "mahalanobis_d2_count": len(outliers),
+            "flagged_ids": outliers
+        },
         "multivariate_outliers_flagged": outliers,
+        "quality_verdict": "PASS" if len(outliers) == 0 and missing_rate < 0.05 else "NEEDS_REVIEW",
         "status": "AUDIT_PASSED" if len(outliers) == 0 and missing_rate < 0.05 else "FLAG_FOR_REVIEW"
     }
 

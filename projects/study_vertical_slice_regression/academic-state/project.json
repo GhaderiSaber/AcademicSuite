@@ -1,0 +1,15 @@
+{
+  "project_id": "study_vertical_slice_regression",
+  "title": "Vertical Slice: Job Burnout Multiple Regression Study",
+  "methodology_type": "correlational",
+  "sample_size": 100,
+  "current_stage": "00_data_curation",
+  "orchestrator": "academic-orchestrator",
+  "status": "in_progress",
+  "created_at": "2026-09-17T05:36:28.479703+00:00",
+  "updated_at": "2026-09-17T05:36:28.479703+00:00",
+  "metadata": {
+    "version": "1.0.0",
+    "target_degree": "Ph.D. / Master's Thesis"
+  }
+}

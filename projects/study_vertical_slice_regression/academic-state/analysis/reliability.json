@@ -1,0 +1,43 @@
+{
+  "sample_size": 100,
+  "scales": [
+    {
+      "scale_name": "Workplace Stress",
+      "items_count": 5,
+      "n_items": 5,
+      "cronbach_alpha": 0.84,
+      "mcdonald_omega": 0.752,
+      "adequate": true,
+      "benchmark_passed": true,
+      "status": "RELIABILITY_VERIFIED"
+    },
+    {
+      "scale_name": "Psychological Flexibility",
+      "items_count": 5,
+      "n_items": 5,
+      "cronbach_alpha": 0.795,
+      "mcdonald_omega": 0.692,
+      "adequate": false,
+      "benchmark_passed": false,
+      "status": "RELIABILITY_VERIFIED"
+    },
+    {
+      "scale_name": "Job Burnout",
+      "items_count": 5,
+      "n_items": 5,
+      "cronbach_alpha": 0.822,
+      "mcdonald_omega": 0.735,
+      "adequate": true,
+      "benchmark_passed": true,
+      "status": "RELIABILITY_VERIFIED"
+    }
+  ],
+  "scale_name": "Job Burnout",
+  "items_count": 5,
+  "n_items": 5,
+  "cronbach_alpha": 0.822,
+  "mcdonald_omega": 0.735,
+  "adequate": true,
+  "benchmark_passed": true,
+  "status": "RELIABILITY_VERIFIED"
+}

@@ -56,9 +56,27 @@ def run_descriptives(data_path, vars_list, output_path):
             "normality_skew_status": "NORMAL" if abs(skew) <= 0.85 else "SLIGHT_ASYMMETRY" if abs(skew) <= 2.0 else "NON_NORMAL"
         })
 
+    report = {
+        "sample_size": results[0]["n"] if results else 0,
+        "variables": [
+            {
+                "name": r["variable"],
+                "mean": r["mean"],
+                "sd": r["sd"],
+                "se": r["se"],
+                "min": r["min"],
+                "max": r["max"],
+                "skewness": r["skewness"],
+                "kurtosis": r["kurtosis"]
+            }
+            for r in results
+        ],
+        "descriptives": results
+    }
+
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump({"descriptives": results}, f, indent=2)
+        json.dump(report, f, indent=2)
     print(f"Descriptive statistics exported to {output_path}")
 
 if __name__ == '__main__':

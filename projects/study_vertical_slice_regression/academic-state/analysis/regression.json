@@ -1,0 +1,26 @@
+{
+  "dv": "job_burnout",
+  "n": 100,
+  "r2": 0.415,
+  "adj_r2": 0.403,
+  "f_stat": 34.389,
+  "f_pvalue": "< .001",
+  "coefficients": [
+    {
+      "predictor": "workplace_stress",
+      "b": 0.466,
+      "se": 0.081,
+      "beta": 0.464,
+      "t": 5.756,
+      "p_value": "< .001"
+    },
+    {
+      "predictor": "psychological_flexibility",
+      "b": -0.362,
+      "se": 0.086,
+      "beta": -0.34,
+      "t": -4.224,
+      "p_value": "< .001"
+    }
+  ]
+}

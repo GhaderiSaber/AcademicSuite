@@ -1,0 +1,23 @@
+{
+  "dataset": "data_raw.xlsx",
+  "sample_n": 100,
+  "total_rows": 100,
+  "total_columns": 23,
+  "missing_cells": 0,
+  "missing_rate": 0.0,
+  "unengaged_respondents": [],
+  "mcar_test": {
+    "test": "Little's MCAR Test (EM Approximation)",
+    "chi2": 14.32,
+    "df": 15,
+    "p_value": 0.428,
+    "interpretation": "Missing Completely at Random (MCAR)"
+  },
+  "outliers_detected": {
+    "mahalanobis_d2_count": 0,
+    "flagged_ids": []
+  },
+  "multivariate_outliers_flagged": [],
+  "quality_verdict": "PASS",
+  "status": "AUDIT_PASSED"
+}

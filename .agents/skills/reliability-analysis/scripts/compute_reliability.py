@@ -49,14 +49,33 @@ def run_reliability(data_path, items_str, scale_name, output_path):
     u2 = 1 - loadings**2
     omega = (loadings.sum())**2 / ((loadings.sum())**2 + u2.sum()) if ((loadings.sum())**2 + u2.sum()) > 0 else alpha
 
-    report = {
+    scale_entry = {
         "scale_name": scale_name,
+        "items_count": k,
         "n_items": k,
-        "sample_size": n,
         "cronbach_alpha": round(float(alpha), 3),
         "mcdonald_omega": round(float(omega), 3),
+        "adequate": bool(alpha >= 0.70 and omega >= 0.70),
         "benchmark_passed": bool(alpha >= 0.70 and omega >= 0.70),
         "status": "RELIABILITY_VERIFIED" if alpha >= 0.70 else "LOW_RELIABILITY"
+    }
+
+    scales_list = [scale_entry]
+    if os.path.exists(output_path):
+        try:
+            with open(output_path, 'r', encoding='utf-8') as f:
+                existing = json.load(f)
+            if isinstance(existing, dict) and "scales" in existing:
+                existing_scales = [s for s in existing["scales"] if s.get("scale_name") != scale_name]
+                existing_scales.append(scale_entry)
+                scales_list = existing_scales
+        except Exception:
+            pass
+
+    report = {
+        "sample_size": n,
+        "scales": scales_list,
+        **scale_entry
     }
 
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
