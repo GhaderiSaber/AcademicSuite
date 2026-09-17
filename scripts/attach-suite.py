@@ -95,39 +95,78 @@ DEFAULT_SUITES = {
         "name": "Academic Thesis & Statistical Consultancy Suite",
         "aliases": ["thesis", "saber", "academic_suite", "academicsuite"],
         "path": str(Path.home() / "Desktop" / "AcademicSuite"),
+        "repo_url": "https://github.com/GhaderiSaber/AcademicSuite.git",
         "description": "Digital Saber, 27 academic & statistical skills, APA 7, psychometrics"
     },
     "brokerage": {
         "name": "Freight Brokerage & Logistics Suite",
         "aliases": ["freight", "freight_brokerage", "broker", "freightbrokerage"],
         "path": str(Path.home() / "Desktop" / "freight_brokerage"),
+        "repo_url": "",
         "description": "Digital Broker, CMR manifests, freight orders, logistics workflows"
     },
     "epsilonstat": {
         "name": "EpsilonStat WebApp Suite",
         "aliases": ["webapp", "epsilon"],
         "path": str(Path.home() / "Desktop" / "EpsilonStat"),
+        "repo_url": "",
         "description": "Full-stack React/Node statistical analysis web application"
     },
     "zarcloud": {
         "name": "ZarCloud Project Suite",
         "aliases": ["zar"],
         "path": str(Path.home() / "Desktop" / "ZarCloud"),
+        "repo_url": "",
         "description": "Cloud services & financial pricing dashboard"
     },
     "duzen": {
         "name": "Duzen Workflow Suite",
         "aliases": [],
         "path": str(Path.home() / "Desktop" / "Duzen"),
+        "repo_url": "",
         "description": "Automation and project organizer workflows"
     },
     "leveltrader": {
         "name": "LevelTrader Trading Suite",
         "aliases": ["trader"],
         "path": str(Path.home() / "Desktop" / "LevelTrader"),
+        "repo_url": "",
         "description": "Algorithmic trading & market level analysis"
     }
 }
+
+# Items in the master suite repository that must NEVER be attached to user project folders
+EXCLUDED_SUITE_ITEMS = {
+    ".git",
+    ".github",
+    ".gitignore",
+    ".venv",
+    "venv",
+    "env",
+    "projects",
+    "scratch",
+    "academic-state",
+    ".attached_suite.json",
+    ".agents_backup_pre_attach",
+    "__pycache__",
+    ".pytest_cache",
+    ".DS_Store",
+    "Thumbs.db",
+}
+
+
+def is_excluded_suite_item(item_path: Path) -> bool:
+    """Checks if a repository item should be excluded from being attached to a project folder."""
+    name = item_path.name
+    if name in EXCLUDED_SUITE_ITEMS:
+        return True
+    if name.endswith(".session") or name.endswith(".session-journal"):
+        return True
+    if name.endswith(".pyc") or name.endswith(".pyo"):
+        return True
+    if name.endswith(" 2") or " 2." in name:
+        return True
+    return False
 
 
 def find_existing_suite_path(configured_path: str, key: str = "", aliases: list = None) -> Path:
@@ -237,16 +276,59 @@ def save_custom_suite(key, data):
         json.dump(custom, f, indent=2, ensure_ascii=False)
 
 
-def resolve_suite(query, suites):
-    """Resolves a suite name, alias, or path."""
-    q = query.strip().lower()
+def resolve_suite(query: str, suites: dict):
+    """Resolves a suite name, alias, local path, or Git repository URL."""
+    if not query:
+        query = "academic"
+    q = str(query).strip()
+    q_lower = q.lower()
+
+    # 1. Match against known suite keys and aliases
     for key, info in suites.items():
-        if key.lower() == q or q in [a.lower() for a in info.get("aliases", [])]:
-            # Ensure path is updated to existing location if found
+        if key.lower() == q_lower or q_lower in [a.lower() for a in info.get("aliases", [])]:
             found = find_existing_suite_path(info.get("path", ""), key, info.get("aliases", []))
             if found.exists():
                 info["path"] = str(found)
             return key, info
+
+    # 2. Match against Git repository URLs in configured suites
+    clean_q_url = q_lower[:-4] if q_lower.endswith(".git") else q_lower
+    for key, info in suites.items():
+        url = info.get("repo_url", "").lower()
+        if url:
+            clean_url = url[:-4] if url.endswith(".git") else url
+            if clean_q_url == clean_url or clean_q_url.endswith("/" + key.lower()) or clean_q_url.endswith("/" + key.lower().replace("_", "")):
+                found = find_existing_suite_path(info.get("path", ""), key, info.get("aliases", []))
+                if found.exists():
+                    info["path"] = str(found)
+                return key, info
+
+    # 3. Handle explicit Git URLs (e.g., https://github.com/... or git@...)
+    if q.startswith("http://") or q.startswith("https://") or q.startswith("git@") or q.endswith(".git"):
+        # Match AcademicSuite repo specifically
+        if "academicsuite" in q_lower.replace("-", "").replace("_", ""):
+            info = dict(suites.get("academic", DEFAULT_SUITES["academic"]))
+            info["repo_url"] = q
+            found = find_existing_suite_path(info.get("path", ""), "academic", info.get("aliases", []))
+            if found.exists():
+                info["path"] = str(found)
+            return "academic", info
+
+        # Derive repo name from generic URL
+        repo_name = q.rstrip("/").split("/")[-1]
+        if repo_name.endswith(".git"):
+            repo_name = repo_name[:-4]
+        key = repo_name.lower().replace("-", "_")
+        dest_path = Path.home() / "Desktop" / repo_name
+        return key, {
+            "name": f"{repo_name} Suite",
+            "aliases": [],
+            "path": str(dest_path),
+            "repo_url": q,
+            "description": f"Git repository suite from {q}"
+        }
+
+    # 4. Check if query is an existing local directory path with .agents
     p = Path(query).expanduser().resolve()
     if p.exists() and (p / ".agents").exists():
         return p.name.lower(), {
@@ -254,6 +336,14 @@ def resolve_suite(query, suites):
             "path": str(p),
             "description": f"Custom local suite at {p}"
         }
+
+    # 5. Default fallback to academic if query == 'academic'
+    if "academic" in suites:
+        found = find_existing_suite_path(suites["academic"].get("path", ""), "academic", suites["academic"].get("aliases", []))
+        if found.exists():
+            suites["academic"]["path"] = str(found)
+        return "academic", suites["academic"]
+
     return None, None
 
 
@@ -544,7 +634,7 @@ def clean_conflicts_and_locks(target_dir: Path):
 
 
 def get_status(target_dir: Path):
-    """Inspects the current working directory for attached suites."""
+    """Inspects the current working directory for attached suites and repository items."""
     meta_file = target_dir / ".attached_suite.json"
     agents_link = target_dir / ".agents"
     agents_md = target_dir / "AGENTS.md"
@@ -562,6 +652,32 @@ def get_status(target_dir: Path):
     agents_target = read_link_target(agents_link) if agents_is_link else None
     agents_foreign = is_foreign_os_link(agents_target) if agents_target else False
 
+    attached_items = []
+    if attached_info and "attached_items" in attached_info:
+        for item_name in attached_info["attached_items"]:
+            p = target_dir / item_name
+            is_link = is_link_path(p)
+            target = read_link_target(p) if is_link else None
+            valid = False
+            if is_link and target:
+                valid = Path(target).exists()
+            elif p.exists():
+                valid = True
+            attached_items.append({
+                "name": item_name,
+                "is_dir": p.is_dir(),
+                "is_link": is_link,
+                "target": target,
+                "valid": valid,
+                "foreign": is_foreign_os_link(target) if target else False
+            })
+
+    # Check if any separate suite subfolder was created in project folder
+    separate_folders = [
+        name for name in ["AcademicSuite", "Academic_Suite", "academic_suite", "freight_brokerage", "EpsilonStat"]
+        if (target_dir / name).is_dir() and not is_link_path(target_dir / name) and ((target_dir / name) / ".git").exists()
+    ]
+
     return {
         "has_meta": meta_file.exists(),
         "meta": attached_info,
@@ -573,6 +689,8 @@ def get_status(target_dir: Path):
         "agents_md_target": read_link_target(agents_md) if is_link_path(agents_md) else None,
         "has_local_git": git_dir.exists(),
         "is_git_link": is_link_path(git_dir),
+        "attached_items": attached_items,
+        "separate_folders": separate_folders
     }
 
 
@@ -616,45 +734,70 @@ def cmd_status(args):
             print(f"  {BOLD}Local Path:{RESET}       {GREEN}{suite_path}{RESET}")
         else:
             print(f"  {BOLD}Recorded Path:{RESET}    {YELLOW}{status['meta'].get('path', 'Unknown')}{RESET}")
+        if status["meta"].get("repo_url"):
+            print(f"  {BOLD}Repo URL:{RESET}         {CYAN}{status['meta']['repo_url']}{RESET}")
     else:
         print(f"  {BOLD}Attached Suite:{RESET}   {YELLOW}None recorded in .attached_suite.json{RESET}")
 
-    # Check .agents
-    if status["agents_is_link"]:
-        target = status["agents_target"]
-        if status["agents_foreign"]:
-            print(f"  {BOLD}.agents:{RESET}          {YELLOW}Link created on another OS ({target}){RESET}")
-            print(f"  {BOLD}Cross-OS Fix:{RESET}     {CYAN}Run 'attach-suite fix' to re-link on this OS{RESET}")
-        else:
-            valid = Path(target).exists() if target else False
-            color = GREEN if valid else RED
-            link_type = "Symlink" if (cwd / ".agents").is_symlink() else ("Junction" if IS_WINDOWS else "Symlink")
-            print(f"  {BOLD}.agents:{RESET}          {CYAN}{link_type} --> {target}{RESET} [{color}{'Valid' if valid else 'Broken'}{RESET}]")
-    elif status["agents_exists"]:
-        if (cwd / ".agents" / "skills.json").exists():
-            print(f"  {BOLD}.agents:{RESET}          {CYAN}Pointer Link (skills.json){RESET} [{GREEN}Valid{RESET}]")
-        else:
-            print(f"  {BOLD}.agents:{RESET}          {YELLOW}Physical Directory (Not a link){RESET}")
+    # Report if separate subfolder exists
+    if status.get("separate_folders"):
+        print(f"  {BOLD}Separate Folder:{RESET}  {RED}Warning: Found nested suite folder(s): {', '.join(status['separate_folders'])}{RESET}")
     else:
-        print(f"  {BOLD}.agents:{RESET}          {GRAY}Not present{RESET}")
+        print(f"  {BOLD}Project Structure:{RESET}{GREEN} Clean (No separate repo folder; content attached to project root){RESET}")
 
-    # Check AGENTS.md
-    if status["agents_md_is_link"]:
-        md_type = "Symlink" if (cwd / "AGENTS.md").is_symlink() else "Link"
-        print(f"  {BOLD}AGENTS.md:{RESET}        {CYAN}{md_type} --> {status['agents_md_target']}{RESET}")
-    elif (cwd / "AGENTS.md").exists():
-        if is_attached_agents_md(cwd / "AGENTS.md"):
-            print(f"  {BOLD}AGENTS.md:{RESET}        {CYAN}Attached File Copy{RESET} [{GREEN}Valid{RESET}]")
-        else:
-            print(f"  {BOLD}AGENTS.md:{RESET}        {YELLOW}Physical File{RESET}")
+    # Check attached repo contents
+    items = status.get("attached_items", [])
+    if items:
+        print(f"\n  {BOLD}Attached Repository Contents ({len(items)} items in root):{RESET}")
+        for it in items:
+            name_str = f"{it['name']}/" if it['is_dir'] else it['name']
+            if it["is_link"]:
+                if it["foreign"]:
+                    print(f"    {YELLOW}! {name_str}{RESET} (Link created on foreign OS: {it['target']})")
+                elif it["valid"]:
+                    print(f"    {GREEN}✓ {name_str}{RESET} -> {GRAY}{it['target']}{RESET}")
+                else:
+                    print(f"    {RED}✗ {name_str}{RESET} -> {RED}[Broken link: {it['target']}]{RESET}")
+            elif it["valid"]:
+                print(f"    {GREEN}✓ {name_str}{RESET} [Physical / Pointer Link]")
+            else:
+                print(f"    {GRAY}- {name_str} [Missing]{RESET}")
     else:
-        print(f"  {BOLD}AGENTS.md:{RESET}        {GRAY}Not present{RESET}")
+        # Fallback check for .agents and AGENTS.md
+        if status["agents_is_link"]:
+            target = status["agents_target"]
+            if status["agents_foreign"]:
+                print(f"  {BOLD}.agents:{RESET}          {YELLOW}Link created on another OS ({target}){RESET}")
+                print(f"  {BOLD}Cross-OS Fix:{RESET}     {CYAN}Run 'attach-suite fix' to re-link on this OS{RESET}")
+            else:
+                valid = Path(target).exists() if target else False
+                color = GREEN if valid else RED
+                link_type = "Symlink" if (cwd / ".agents").is_symlink() else ("Junction" if IS_WINDOWS else "Symlink")
+                print(f"  {BOLD}.agents:{RESET}          {CYAN}{link_type} --> {target}{RESET} [{color}{'Valid' if valid else 'Broken'}{RESET}]")
+        elif status["agents_exists"]:
+            if (cwd / ".agents" / "skills.json").exists():
+                print(f"  {BOLD}.agents:{RESET}          {CYAN}Pointer Link (skills.json){RESET} [{GREEN}Valid{RESET}]")
+            else:
+                print(f"  {BOLD}.agents:{RESET}          {YELLOW}Physical Directory (Not a link){RESET}")
+        else:
+            print(f"  {BOLD}.agents:{RESET}          {GRAY}Not present{RESET}")
+
+        if status["agents_md_is_link"]:
+            md_type = "Symlink" if (cwd / "AGENTS.md").is_symlink() else "Link"
+            print(f"  {BOLD}AGENTS.md:{RESET}        {CYAN}{md_type} --> {status['agents_md_target']}{RESET}")
+        elif (cwd / "AGENTS.md").exists():
+            if is_attached_agents_md(cwd / "AGENTS.md"):
+                print(f"  {BOLD}AGENTS.md:{RESET}        {CYAN}Attached File Copy{RESET} [{GREEN}Valid{RESET}]")
+            else:
+                print(f"  {BOLD}AGENTS.md:{RESET}        {YELLOW}Physical File{RESET}")
+        else:
+            print(f"  {BOLD}AGENTS.md:{RESET}        {GRAY}Not present{RESET}")
 
     # Check .git
     if status["has_local_git"]:
-        print(f"  {BOLD}.git Directory:{RESET}   {YELLOW}Present in working directory (May cause Google Drive lock issues){RESET}")
+        print(f"\n  {BOLD}.git Directory:{RESET}   {YELLOW}Present in project folder (May cause cloud drive sync locks){RESET}")
     else:
-        print(f"  {BOLD}.git Directory:{RESET}   {GREEN}None in cloud folder (Clean! Immune to sync locks){RESET}")
+        print(f"\n  {BOLD}.git Directory:{RESET}   {GREEN}None in project folder (Clean! Master Git safely centralized){RESET}")
 
     # Check Git status on the master suite if attached
     if suite_path and (suite_path / ".git").exists():
@@ -671,6 +814,9 @@ def cmd_status(args):
                 print(f"  {BOLD}Suite Git Status:{RESET} {GREEN}Clean, master repository is up to date{RESET}")
         except Exception:
             pass
+
+    if not status["meta"]:
+        print(f"\n  {YELLOW}Tip: Run 'attach-suite attach' to attach AcademicSuite to this project.{RESET}")
 
     print("=" * 65 + "\n")
 
@@ -717,20 +863,51 @@ def cmd_detach(args):
 
     meta_file = cwd / ".attached_suite.json"
     has_meta = meta_file.exists()
+    attached_items_from_meta = []
+
+    if has_meta:
+        try:
+            with open(meta_file, "r", encoding="utf-8") as f:
+                info = json.load(f)
+                attached_items_from_meta = info.get("attached_items", [])
+        except Exception:
+            pass
 
     removed = []
 
-    # 1. Detach .agents
-    agents_dir = cwd / ".agents"
-    if is_link_path(agents_dir):
-        remove_link(agents_dir)
-        removed.append(".agents (link)")
-    elif agents_dir.exists() and (has_meta or (agents_dir / "skills.json").exists()):
-        try:
-            shutil.rmtree(agents_dir)
-            removed.append(".agents (pointer directory)")
-        except Exception as e:
-            print(f"{YELLOW}Could not remove .agents directory: {e}{RESET}")
+    # Items to check and detach
+    items_to_detach = set(attached_items_from_meta)
+    default_candidates = [
+        ".agents", "AGENTS.md", "ANTIGRAVITY_ARCHITECTURE_GUIDE.md",
+        "Questionnaires.xlsx", "digital_saber.py", "digital_broker.py",
+        "agents", "data", "docs", "evals", "factory", "recovery",
+        "scripts", "tests", "validators", "webapp", "requirements.txt",
+        "run_tests.py", "SETUP_GUIDE.md"
+    ]
+    items_to_detach.update(default_candidates)
+
+    for item_name in sorted(items_to_detach):
+        p = cwd / item_name
+        if not p.exists() and not is_link_path(p):
+            continue
+
+        if is_link_path(p):
+            remove_link(p, allow_delete_dir=p.is_dir())
+            removed.append(f"{item_name} (link)")
+        elif p.is_dir():
+            if item_name == ".agents" and (has_meta or (p / "skills.json").exists()):
+                try:
+                    shutil.rmtree(p)
+                    removed.append(".agents (pointer directory)")
+                except Exception as e:
+                    print(f"{YELLOW}Could not remove .agents directory: {e}{RESET}")
+        elif p.is_file():
+            if item_name == "AGENTS.md" and (has_meta or is_attached_agents_md(p)):
+                try:
+                    p.unlink()
+                    removed.append("AGENTS.md")
+                except Exception as e:
+                    print(f"{YELLOW}Could not remove AGENTS.md: {e}{RESET}")
 
     # Restore pre-attach backup if one exists
     backup_agents = cwd / ".agents_backup_pre_attach"
@@ -741,38 +918,7 @@ def cmd_detach(args):
         except Exception as e:
             print(f"{YELLOW}Could not restore backup .agents: {e}{RESET}")
 
-    # 2. Detach AGENTS.md
-    agents_md = cwd / "AGENTS.md"
-    if is_link_path(agents_md):
-        remove_link(agents_md)
-        removed.append("AGENTS.md (link)")
-    elif agents_md.exists() and (has_meta or is_attached_agents_md(agents_md)):
-        try:
-            agents_md.unlink()
-            removed.append("AGENTS.md")
-        except Exception as e:
-            print(f"{YELLOW}Could not remove AGENTS.md: {e}{RESET}")
-
-    # 3. Detach scripts if linked
-    scripts_dir = cwd / "scripts"
-    if is_link_path(scripts_dir):
-        remove_link(scripts_dir, allow_delete_dir=True)
-        removed.append("scripts/ (link)")
-
-    # 4. Detach launcher files
-    for item_name in ["digital_saber.py", "digital_broker.py"]:
-        p = cwd / item_name
-        if is_link_path(p):
-            remove_link(p)
-            removed.append(f"{item_name} (link)")
-        elif p.exists() and has_meta:
-            try:
-                p.unlink()
-                removed.append(item_name)
-            except Exception:
-                pass
-
-    # 5. Remove metadata file
+    # Remove metadata file
     if meta_file.exists():
         try:
             meta_file.unlink()
@@ -781,7 +927,7 @@ def cmd_detach(args):
             print(f"{YELLOW}Could not remove metadata file: {e}{RESET}")
 
     if removed:
-        print(f"\n{GREEN}✓ Successfully detached suite:{RESET}")
+        print(f"\n{GREEN}✓ Successfully detached suite repository contents:{RESET}")
         for r in removed:
             print(f"   - {r}")
     else:
@@ -805,22 +951,45 @@ def cmd_clean(args):
 def cmd_attach(args):
     cwd = get_cwd()
     suites = load_suites()
-    suite_key, suite_info = resolve_suite(args.suite, suites)
+    suite_arg = getattr(args, "suite", "academic") or "academic"
+    suite_key, suite_info = resolve_suite(suite_arg, suites)
 
     if not suite_info:
-        print(f"\n{RED}Error: Unknown suite '{args.suite}'.{RESET}")
+        print(f"\n{RED}Error: Unknown suite '{suite_arg}'.{RESET}")
         print(f"Run {BOLD}attach-suite list{RESET} to see all available suites.\n")
         sys.exit(1)
 
     suite_path = Path(suite_info["path"]).resolve()
+
+    # If suite repository does not exist on this machine, automatically clone it
+    # CRITICAL: Cloned to suite_path (e.g. ~/Desktop/AcademicSuite), NEVER inside cwd (project folder)!
     if not suite_path.exists():
-        print(f"\n{RED}Error: Suite directory does not exist on this machine:{RESET} {suite_path}")
-        if IS_WINDOWS:
-            print(f"{YELLOW}Tip: On Windows 11, please clone {suite_key} to:{RESET} {suite_path}")
+        repo_url = suite_info.get("repo_url")
+        if not repo_url and suite_key == "academic":
+            repo_url = "https://github.com/GhaderiSaber/AcademicSuite.git"
+            suite_info["repo_url"] = repo_url
+
+        if repo_url:
+            current_os = get_os_name()
+            print(f"\n{BOLD}{CYAN}Suite '{suite_key}' not found locally at:{RESET} {suite_path}")
+            print(f"{BOLD}{CYAN}Automatically cloning suite repository on {current_os}...{RESET}")
+            print(f"  Repo URL:    {repo_url}")
+            print(f"  Destination: {suite_path} (Centralized Master Suite)\n")
+            try:
+                suite_path.parent.mkdir(parents=True, exist_ok=True)
+                subprocess.run(["git", "clone", repo_url, str(suite_path)], check=True)
+                print(f"{GREEN}✓ Successfully cloned {suite_key} repository to {suite_path}!{RESET}\n")
+            except Exception as e:
+                print(f"\n{RED}Error: Failed to clone repository from {repo_url}: {e}{RESET}\n", file=sys.stderr)
+                sys.exit(1)
         else:
-            print(f"{YELLOW}Tip: Please clone or pull {suite_key} to:{RESET} {suite_path}")
-        print()
-        sys.exit(1)
+            print(f"\n{RED}Error: Suite directory does not exist on this machine:{RESET} {suite_path}")
+            if IS_WINDOWS:
+                print(f"{YELLOW}Tip: On Windows 11, please clone {suite_key} to:{RESET} {suite_path}")
+            else:
+                print(f"{YELLOW}Tip: Please clone or pull {suite_key} to:{RESET} {suite_path}")
+            print()
+            sys.exit(1)
 
     # Safety check: Never attach a suite to its own repository
     if cwd == suite_path:
@@ -834,9 +1003,10 @@ def cmd_attach(args):
         sys.exit(1)
 
     current_os = get_os_name()
-    print(f"\n{BOLD}{CYAN}Attaching Suite ({current_os}):{RESET} {BOLD}{suite_info['name']}{RESET}")
-    print(f"  Source:  {suite_path}")
-    print(f"  Target:  {cwd}\n")
+    print(f"\n{BOLD}{CYAN}Attaching Suite Repository ({current_os}):{RESET} {BOLD}{suite_info['name']}{RESET}")
+    print(f"  Source Repo:    {suite_path}")
+    print(f"  Target Project: {cwd}")
+    print(f"  Policy:         Attaching repository content directly to project root (no separate repo folder)\n")
 
     # Step 1: Clean conflicts and stale locks
     cleaned = clean_conflicts_and_locks(cwd)
@@ -847,13 +1017,22 @@ def cmd_attach(args):
     git_dir = cwd / ".git"
     if git_dir.exists() and not is_link_path(git_dir):
         if not getattr(args, 'keep_git', False):
-            print(f"{YELLOW}Notice: Found local .git directory in Google Drive folder.{RESET}")
-            print(f"{YELLOW}Removing local .git so Google Drive will never lock Git files...{RESET}")
+            has_suite_remote = False
             try:
-                shutil.rmtree(git_dir)
-                print(f"{GREEN}✓ Removed redundant .git (master repository remains safe at {suite_path}){RESET}")
-            except Exception as e:
-                print(f"{RED}Could not remove .git: {e}{RESET}")
+                res = subprocess.run(["git", "-C", str(cwd), "remote", "-v"], capture_output=True, text=True)
+                if "AcademicSuite" in res.stdout or suite_key in res.stdout.lower():
+                    has_suite_remote = True
+            except Exception:
+                pass
+
+            if has_suite_remote:
+                print(f"{YELLOW}Notice: Found local .git directory in Google Drive folder pointing to suite.{RESET}")
+                print(f"{YELLOW}Removing local .git so Google Drive will never lock Git files...{RESET}")
+                try:
+                    shutil.rmtree(git_dir)
+                    print(f"{GREEN}✓ Removed redundant .git (master repository remains safe at {suite_path}){RESET}")
+                except Exception as e:
+                    print(f"{RED}Could not remove .git: {e}{RESET}")
 
     # Step 3: Handle existing .agents
     existing_agents = cwd / ".agents"
@@ -872,45 +1051,61 @@ def cmd_attach(args):
             print(f"{YELLOW}Moving physical .agents folder to {backup_dir.name}...{RESET}")
             existing_agents.rename(backup_dir)
 
-    existing_agents_md = cwd / "AGENTS.md"
-    if is_link_path(existing_agents_md) or existing_agents_md.exists():
-        remove_link(existing_agents_md)
+    # Step 4: Attach all content of the repository directly to project folder
+    attached_items = []
+    skipped_items = []
 
-    # Step 4: Create Links
-    link_type = create_dir_link(agents_src, existing_agents)
-    link_label = "Symbolic Link" if link_type == "symlink" else ("Directory Junction" if link_type == "junction" else "Pointer Link")
-    print(f"{GREEN}✓ Attached .agents ({link_label}) --> {agents_src}{RESET}")
+    # Iterate over top-level items in suite_path
+    for item in sorted(suite_path.iterdir()):
+        if is_excluded_suite_item(item):
+            continue
 
-    agents_md_src = suite_path / "AGENTS.md"
-    if agents_md_src.exists():
-        file_type = create_file_link(agents_md_src, existing_agents_md)
-        file_label = "Symbolic Link" if file_type == "symlink" else ("Hard Link" if file_type == "hardlink" else "File Copy")
-        print(f"{GREEN}✓ Attached AGENTS.md ({file_label}) --> {agents_md_src}{RESET}")
+        item_name = item.name
+        dest = cwd / item_name
 
-    # Optionally link scripts
-    scripts_src = suite_path / "scripts"
-    scripts_dest = cwd / "scripts"
-    if scripts_src.exists():
-        if is_link_path(scripts_dest):
-            remove_link(scripts_dest, allow_delete_dir=True)
-            scripts_type = create_dir_link(scripts_src, scripts_dest)
-            scripts_label = "Symbolic Link" if scripts_type == "symlink" else ("Directory Junction" if scripts_type == "junction" else "Pointer Link")
-            print(f"{GREEN}✓ Attached scripts/ ({scripts_label}) --> {scripts_src}{RESET}")
-        elif not scripts_dest.exists():
-            try:
-                os.symlink(str(scripts_src.resolve()), str(scripts_dest.absolute()))
-                print(f"{GREEN}✓ Attached scripts/ (Symbolic Link) --> {scripts_src}{RESET}")
-            except OSError:
-                pass
+        if item.is_dir():
+            if dest.name == ".agents":
+                link_type = create_dir_link(item, dest)
+                link_label = "Symbolic Link" if link_type == "symlink" else ("Directory Junction" if link_type == "junction" else "Pointer Link")
+                print(f"{GREEN}✓ Attached .agents ({link_label}) --> {item}{RESET}")
+                attached_items.append(item_name)
+            elif is_link_path(dest):
+                remove_link(dest, allow_delete_dir=True)
+                link_type = create_dir_link(item, dest)
+                attached_items.append(item_name)
+            elif not dest.exists():
+                link_type = create_dir_link(item, dest)
+                link_label = "Symbolic Link" if link_type == "symlink" else ("Directory Junction" if link_type == "junction" else "Pointer Link")
+                print(f"{GREEN}✓ Attached {item_name}/ ({link_label}) --> {item}{RESET}")
+                attached_items.append(item_name)
+            else:
+                skipped_items.append(f"{item_name}/ (kept existing project directory)")
+        elif item.is_file() or item.is_symlink():
+            if is_link_path(dest):
+                remove_link(dest)
+                file_type = create_file_link(item, dest)
+                attached_items.append(item_name)
+            elif not dest.exists():
+                file_type = create_file_link(item, dest)
+                file_label = "Symbolic Link" if file_type == "symlink" else ("Hard Link" if file_type == "hardlink" else "File Copy")
+                print(f"{GREEN}✓ Attached {item_name} ({file_label}) --> {item}{RESET}")
+                attached_items.append(item_name)
+            elif dest.name == "AGENTS.md" and is_attached_agents_md(dest):
+                remove_link(dest)
+                file_type = create_file_link(item, dest)
+                attached_items.append(item_name)
+            else:
+                skipped_items.append(f"{item_name} (kept existing project file)")
 
     # Save attachment metadata
     meta = {
         "suite": suite_key,
         "name": suite_info["name"],
         "path": str(suite_path),
+        "repo_url": suite_info.get("repo_url", "https://github.com/GhaderiSaber/AcademicSuite.git"),
         "attached_at": datetime.now().isoformat(),
         "attached_os": current_os,
-        "link_type": link_type
+        "attached_items": attached_items
     }
     with open(cwd / ".attached_suite.json", "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2)
@@ -918,10 +1113,13 @@ def cmd_attach(args):
     # Count active skills
     skills = [s.name for s in (agents_src / "skills").iterdir() if s.is_dir()] if (agents_src / "skills").exists() else []
 
-    print(f"\n{BOLD}{GREEN}Successfully attached {suite_key} on {current_os}!{RESET}")
-    print(f"Antigravity will now automatically load {len(skills)} {suite_key} skills:")
-    print(f"{GRAY}{', '.join(skills[:12])}{'...' if len(skills) > 12 else ''}{RESET}")
-    print(f"\n{BOLD}Result:{RESET} Zero Google Drive Git locks. Zero cross-domain token pollution.\n")
+    print(f"\n{BOLD}{GREEN}Successfully attached repository content of {suite_key} on {current_os}!{RESET}")
+    print(f"  {BOLD}Directly attached to project root:{RESET} {len(attached_items)} items")
+    print(f"  {GRAY}{', '.join(attached_items)}{RESET}")
+    if skipped_items:
+        print(f"  {YELLOW}Preserved {len(skipped_items)} existing project items:{RESET} {GRAY}{', '.join(skipped_items)}{RESET}")
+    print(f"  Antigravity will load {len(skills)} skills directly in this project.")
+    print(f"\n{BOLD}Result:{RESET} Zero nested repo folders. Repo contents directly attached. Zero Git locks.\n")
 
 
 def cmd_git_passthrough(args, unknown_args):
@@ -1074,7 +1272,7 @@ def main():
 
     # attach command
     p_attach = subparsers.add_parser("attach", help="Attach a suite to the current directory")
-    p_attach.add_argument("suite", help="Suite name or alias (e.g., academic, brokerage, epsilonstat)")
+    p_attach.add_argument("suite", nargs="?", default="academic", help="Suite name, alias, or Git repo URL (default: academic)")
     p_attach.add_argument("--keep-git", action="store_true", help="Do not remove redundant .git folder in cwd")
 
     # fix command
