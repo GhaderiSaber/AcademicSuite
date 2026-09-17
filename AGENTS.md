@@ -8,7 +8,7 @@ This repository contains the **Digital Saber Professional AI Twin** and the **Ac
 1. **Layer 1: Identity & Constitution** (`.agents/identity/`): Research ethics, 10-step statistical decision tree, APA 7 & OpenXML typography.
 2. **Layer 2: Memory & Precedents** (`.agents/memory/`): Case-Based Reasoning (`cases/`) and auditable Decision Journal (`decisions/`).
 3. **Layer 3: Reasoning Engines** (`.agents/reasoning/`): Statistical, Epistemic Literature, Research Methodology, and Academic Writing reasoners.
-4. **Layer 4: Specialized Skills (Hands)** (`.agents/skills/`): 37 production capabilities with deterministic Python/R scripts.
+4. **Layer 4: Specialized Skills (Hands)** (`.agents/skills/`): 43 production capabilities with deterministic Python/R scripts.
 5. **Layer 5: Quality Control & Defense Committee** (`.agents/verification/`): Multi-Signal Anomaly Index (MSAI) and Viva Voce defense simulator.
 
 ---
@@ -146,13 +146,13 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 - **High-Stakes Decisions**: Pricing, overriding supervisor feedback, and final deliverable release require Human Gate approval (Saber Admin Desk `124911145`) and logging in `.agents/memory/decisions/` via `decision_journal_engine.py`.
 
 ### Directive 12: Hybrid Multi-Agent Deliberation Architecture (Hands vs. Brains)
-- **Who (`.agents/agents/`)**: 15 persistent cognitive roles (`digital-saber`, `methodology-expert`, `statistical-expert`, `statistical-auditor`, `results-auditor`, `academic-writer`, `literature-expert`, `evidence-auditor`, `final-judge`, `psychometric-expert`, `qualitative-analyst`, `meta-analyst`, `journal-strategist`, `intervention-designer`, `data-curator`).
-- **How (`.agents/skills/`)**: Domain capabilities and deterministic scripts.
+- **Who (`.agents/agents/`)**: 22 persistent cognitive roles (6 core primary roles: `academic-orchestrator`, `research-agent`, `data-agent`, `statistics-agent`, `writing-agent`, `validation-agent`, plus 16 specialized domain roles: `digital-saber`, `methodology-expert`, `statistical-expert`, `statistical-auditor`, `results-auditor`, `academic-writer`, `literature-expert`, `evidence-auditor`, `final-judge`, `psychometric-expert`, `qualitative-analyst`, `meta-analyst`, `journal-strategist`, `intervention-designer`, `data-curator`, `longitudinal-modmed-expert`).
+- **How (`.agents/skills/`)**: Domain capabilities and deterministic scripts across 43 production skills.
 - **Specification (`.agents/architecture/HYBRID_MULTI_AGENT_SPEC.md`)**: Complete architectural blueprint.
 - **Unified Antigravity Multi-Agent Architecture**:
-  - **The Brains & Critics**: 15 persistent cognitive roles (`.agents/agents/`) invoked via Antigravity's native `invoke_subagent` tool.
+  - **The Brains & Critics**: 22 persistent cognitive roles (`.agents/agents/`) invoked via Antigravity's native `invoke_subagent` tool.
   - **The Hands**: Deterministic skills and Python engines (`.agents/skills/`) executed by agents for statistical calculations and OpenXML compilation.
-  - **Critic Pattern**: Generation and auditing remain strictly separate. Outputs from generators must be audited by independent critics (`statistical-auditor`, `results-auditor`, `final-judge`) before release.
+  - **Critic Pattern**: Generation and auditing remain strictly separate. Outputs from generators must be audited by independent critics (`statistical-auditor`, `results-auditor`, `final-judge`, `validation-agent`) before release.
 
 ### Directive 12.1: Sole Orchestrator Mandate & Prohibition of Python Agent Emulation
 1. **Antigravity as Sole Conductor**: Antigravity is the sole agent runtime and multi-agent orchestrator. The Antigravity Lead Agent coordinates subagents natively via `invoke_subagent`.
@@ -190,7 +190,7 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 ## 📚 ARCHITECTURE & REFERENCE DIRECTORY
 
 Detailed reference guides and operational specifications are modularized in `.agents/references/`:
-1. **Skill Activation Matrix & Data Architecture**: [SKILL_ACTIVATION_MATRIX.md](file:///.agents/references/SKILL_ACTIVATION_MATRIX.md) — Complete 37-skill directory, activation triggers, inputs, and deliverables.
+1. **Skill Activation Matrix & Data Architecture**: [SKILL_ACTIVATION_MATRIX.md](file:///.agents/references/SKILL_ACTIVATION_MATRIX.md) — Complete 43-skill directory, activation triggers, inputs, and deliverables.
 2. **Deterministic CLI Command Reference**: [CLI_COMMAND_REFERENCE.md](file:///.agents/references/CLI_COMMAND_REFERENCE.md) — Exact bash commands for statistical analysis, meta-analysis, psychometrics, and OpenXML generation.
 3. **OpenXML Standards Deep Dive**: [OPENXML_STANDARDS_MANUAL.md](file:///.agents/references/OPENXML_STANDARDS_MANUAL.md) — Child element sequencing, BiDi table properties, and OMML equation preservation.
 4. **Academic Defense Presentation Standards**: [PRESENTATION_STANDARDS_MANUAL.md](file:///.agents/references/PRESENTATION_STANDARDS_MANUAL.md) — SmartArt RTL reversal, DrawingML dual-slot font binding, widescreen legibility, and automatic motion.

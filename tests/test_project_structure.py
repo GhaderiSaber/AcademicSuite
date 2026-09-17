@@ -79,6 +79,38 @@ class TestProjectStructure(unittest.TestCase):
         for s in active_skills:
             self.assertIn(f"`{s}`", content, f"Skill {s} is not documented in docs/SKILL_INVENTORY.md")
 
+    def test_agent_inventory_documents_all_agents(self):
+        """Asserts docs/AGENT_INVENTORY.md comprehensively documents all 22 agents."""
+        inv_path = os.path.join(REPO_ROOT, "docs", "AGENT_INVENTORY.md")
+        self.assertTrue(os.path.isfile(inv_path), "Missing docs/AGENT_INVENTORY.md")
+        with open(inv_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        agents_dir = os.path.join(REPO_ROOT, ".agents", "agents")
+        active_agents = [
+            d for d in os.listdir(agents_dir)
+            if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_"))
+        ]
+        self.assertEqual(len(active_agents), 22, f"Expected 22 agents, found {len(active_agents)}")
+        
+        for a in active_agents:
+            self.assertIn(f"`{a}`", content, f"Agent {a} is not documented in docs/AGENT_INVENTORY.md")
+
+    def test_activation_matrix_documents_all_skills(self):
+        """Asserts .agents/references/SKILL_ACTIVATION_MATRIX.md documents all 43 active production skills."""
+        mat_path = os.path.join(REPO_ROOT, ".agents", "references", "SKILL_ACTIVATION_MATRIX.md")
+        self.assertTrue(os.path.isfile(mat_path), "Missing SKILL_ACTIVATION_MATRIX.md")
+        with open(mat_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        skills_dir = os.path.join(REPO_ROOT, ".agents", "skills")
+        active_skills = [
+            d for d in os.listdir(skills_dir)
+            if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith((".", "_"))
+        ]
+        for s in active_skills:
+            self.assertIn(f"`{s}`", content, f"Skill {s} is missing from SKILL_ACTIVATION_MATRIX.md")
+
 
 if __name__ == "__main__":
     unittest.main()

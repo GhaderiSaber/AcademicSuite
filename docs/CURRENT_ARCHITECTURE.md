@@ -98,9 +98,9 @@ Modular Python classes encapsulating domain reasoning rules:
 - `writing_reasoner.py`: Evaluates paragraph cadence, vocabulary diversity, and Iranian academic register.
 
 ### Layer 4: Specialized Skills & Hands (`.agents/skills/`)
-The practical execution modules (37 total skills):
-- **27 Modern Production Skills**: Complete capabilities containing deterministic Python/R scripts, reference guidelines, and OpenXML compilers.
-- **10 Legacy Workflow Shells**: Legacy orchestration scripts migrated from `.agents/workflows/` (detailed in `docs/LEGACY_INVENTORY.md`).
+The practical execution modules (43 active production skills):
+- **43 Focused Production Skills**: Complete capabilities containing deterministic Python/R scripts, reference guidelines, canonical example payloads, and input/output JSON schemas.
+- **10 Retired Legacy Workflow Shells**: Archived to `legacy/skills/` with documentation (detailed in `docs/LEGACY_INVENTORY.md` and `docs/SKILL_INVENTORY.md`).
 
 ### Layer 5: Quality Control & Defense Committee (`.agents/verification/`)
 Adversarial quality gates protecting deliverable integrity:
@@ -117,7 +117,7 @@ Adversarial quality gates protecting deliverable integrity:
 ```text
 AcademicSuite/
 ├── .agents/                               # Digital Saber Cognitive Subsystem
-│   ├── agents/                            # 15 Antigravity agent definition markdown files
+│   ├── agents/                            # 22 Option-1 Packaged Agents (agent.md + contract.md + symlinks)
 │   ├── architecture/                      # Multi-agent protocols and deliberation specifications
 │   │   ├── ADVERSARIAL_CRITIC_PROTOCOL.md
 │   │   ├── HYBRID_MULTI_AGENT_SPEC.md
@@ -131,11 +131,11 @@ AcademicSuite/
 │   ├── references/                        # Master reference documents & standards manuals (5 docs)
 │   ├── rules/                             # 6 modular domain rule markdown files
 │   ├── shared/                            # Core engines: digital_saber_shell.py, openxml_artifact_engine.py
-│   ├── skills/                            # 37 skills (27 modern with scripts, 10 legacy workflow shells)
+│   ├── skills/                            # 43 active production skills (scripts, resources, examples, schemas)
 │   ├── skills.json                        # Skill registry configuration
 │   ├── templates/                         # PROJECT_BRIEF_TEMPLATE.md
 │   ├── verification/                      # 8 verification engines & guards
-│   └── workflows/                         # Legacy workflow backups (10 .md.bak files + chapter4/ dir)
+│   └── workflows/                         # Deprecated directory (archived to legacy/workflows/)
 ├── AGENTS.md                              # Repository Root Constitutional Directives (Directives 0-18)
 ├── ANTIGRAVITY_ARCHITECTURE_GUIDE.md      # Comprehensive technical Antigravity integration guide
 ├── Questionnaires.xlsx                    # Psychometric scale database (4,880 validated instruments)
@@ -206,7 +206,6 @@ Antigravity Lifecycle Event
 ---
 
 ## 7. Current Architecture Health & Overlap Summary
-
-1. **Agent Redundancy**: Clean separation of 15 cognitive roles, but 11 agent definitions contain stale references to legacy skill names (e.g. `chapter4`, `chapter5`, `proposal`, `scale_validation`).
-2. **Skill Redundancy**: 10 out of 37 skills are legacy migrated workflow shells with 0 scripts and 0 references, duplicating the functionality of the 27 modern kebab-case skills.
-3. **Orchestrator Legacy**: Root `digital_saber.py` and `.agents/shared/digital_saber_shell.py` contain legacy Python-based agent dispatcher logic that was superseded by Antigravity's native `invoke_subagent` architecture under **Directive 12.1**.
+1. **Agent Governance (Phase 4 Complete)**: Exactly 22 agents packaged into Option-1 directories (`agent.md` + 12-section `contract.md` + flat symlinks). Zero stale legacy skill references remain.
+2. **Skills Consolidation (Phase 16 Complete)**: Exactly 43 active production skills in `.agents/skills/`. The 10 legacy workflow-converted shells have been safely retired to `legacy/skills/`.
+3. **Sole Orchestrator Mandate (Directive 12.1 Enforced)**: Antigravity is the sole agent orchestrator. Python scripts operate strictly as deterministic computational tools ("The Hands"). All legacy emulators are deprecated.

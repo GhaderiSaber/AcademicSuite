@@ -1,220 +1,249 @@
 # Agent Inventory & Cognitive Role Audit
 
-**Document Version:** 1.0.0 (Phase 1 Audit)  
-**Total Agents Defined:** 15  
+**Document Version:** 2.0.0 (Phase 4 Option 1 Complete)  
+**Total Agents Defined:** 22  
 **Runtime Architecture:** Antigravity Native Multi-Agent System (`invoke_subagent`)  
+**Behavioral Contracts:** 100% of agents possess a verified 12-section `contract.md`  
 
 ---
 
 ## 1. Executive Summary
 
-In the Academic Suite architecture, agents are specialized cognitive roles that reason, plan, draft, and audit academic research. The system strictly decouples **Cognitive Agents ("The Brains")** from **Deterministic Scripts ("The Hands")** and enforces an **Adversarial Critic Model** separating content generation from quality auditing.
+In the Academic Suite architecture, agents are specialized cognitive roles that reason, plan, draft, and audit academic research. The system strictly decouples **Cognitive Agents ('The Brains')** from **Deterministic Scripts ('The Hands')** and enforces an **Adversarial Critic Model** separating content generation from quality auditing.
+
+Every agent is packaged as an **Option 1 Directory Package** containing:
+
+- `agent.md`: Antigravity runtime system prompt, YAML frontmatter, and skill declarations.
+- `contract.md`: 12-section non-negotiable behavioral contract (`MISSION`, `CAN`, `CANNOT`, `INPUTS`, `OUTPUTS`, `ALLOWED TOOLS`, `REQUIRED SKILLS`, `FORBIDDEN ACTIONS`, `HANDOFF FORMAT`, `VALIDATION REQUIREMENTS`, `COMPLETION CRITERIA`, `FAILURE CONDITIONS`).
+- `<role>.md`: Symlink for backward-compatible flat discovery by Antigravity.
 
 ---
 
 ## 2. Agent Taxonomy & Classification
 
-| Tier | Role Category | Agent Name | Primary Responsibility |
-|---|---|---|---|
-| **Tier 1** | **Sole Conductor & Digital Twin** | `digital-saber` | Master Research Project Lead, Cognitive Architect, Case-Based Memory Retriver, Client Gatekeeper |
-| **Tier 2** | **Design & Methodological Brains** | `methodology-expert` | Research methodology, experimental design, sampling power determination (G*Power) |
-| | | `statistical-expert` | Statistical analysis planning, parametric assumption trees, inferential test mapping |
-| | | `psychometric-expert` | Scale resolution (4,880 questionnaires), CTT/IRT validation, EFA/CFA, psychometric simulation |
-| | | `intervention-designer` | Standardized psychological intervention protocols (ACT, CBT, Schema), CONSORT diagrams |
-| | | `qualitative-analyst` | Reflexive Thematic Analysis (Braun & Clarke), Grounded Theory, qualitative coding |
-| | | `data-curator` | Data hygiene, Little's MCAR test, unengaged response screening, Mahalanobis $D^2$ outliers |
-| **Tier 3** | **Literature & Evidence Brains** | `literature-expert` | Multi-database literature harvesting (CrossRef, PubMed, SID), Chapter 2 theoretical synthesis |
-| | | `meta-analyst` | PRISMA 2020 systematic reviews, Cochrane RoB 2 risk of bias, quantitative meta-analysis |
-| **Tier 4** | **Drafting & Packaging Brains** | `academic-writer` | Chapter drafting (Ch 1–5), authentic Persian rhetoric, 5-part epistemic paragraph structure |
-| | | `journal-strategist` | Extraction of journal manuscripts, journal matchmaking (WoS/Scopus/ISC), rebuttal triage |
-| **Tier 5** | **Adversarial Auditors & Critics** | `statistical-auditor` | Adversarial statistical QC, degrees of freedom check, Multi-Signal Anomaly Index (MSAI) |
-| | | `results-auditor` | APA 7 typography enforcement, leading zero rule (`۰.۰۰۱`), OMML math preservation |
-| | | `evidence-auditor` | In-text citation reconciliation, Irandoc plagiarism risk screening, AI cliché elimination |
-| | | `final-judge` | Dissertation committee defense simulation (5 examiner personas), viva voce gatekeeper |
+| Category | Agent Name | Primary Mandate | Behavioral Contract |
+| :--- | :--- | :--- | :--- |
+| Core Primary Agent (Phase 3) | `academic-orchestrator` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/academic-orchestrator/contract.md) |
+| Domain Specialist Subagent | `academic-writer` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/academic-writer/contract.md) |
+| Core Primary Agent (Phase 3) | `data-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/data-agent/contract.md) |
+| Domain Specialist Subagent | `data-curator` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/data-curator/contract.md) |
+| Domain Specialist Subagent | `digital-saber` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/digital-saber/contract.md) |
+| Domain Specialist Subagent | `evidence-auditor` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/evidence-auditor/contract.md) |
+| Domain Specialist Subagent | `final-judge` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/final-judge/contract.md) |
+| Domain Specialist Subagent | `intervention-designer` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/intervention-designer/contract.md) |
+| Domain Specialist Subagent | `journal-strategist` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/journal-strategist/contract.md) |
+| Domain Specialist Subagent | `literature-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/literature-expert/contract.md) |
+| Domain Specialist Subagent | `longitudinal-modmed-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/longitudinal-modmed-expert/contract.md) |
+| Domain Specialist Subagent | `meta-analyst` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/meta-analyst/contract.md) |
+| Domain Specialist Subagent | `methodology-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/methodology-expert/contract.md) |
+| Domain Specialist Subagent | `psychometric-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/psychometric-expert/contract.md) |
+| Domain Specialist Subagent | `qualitative-analyst` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/qualitative-analyst/contract.md) |
+| Core Primary Agent (Phase 3) | `research-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/research-agent/contract.md) |
+| Domain Specialist Subagent | `results-auditor` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/results-auditor/contract.md) |
+| Domain Specialist Subagent | `statistical-auditor` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/statistical-auditor/contract.md) |
+| Domain Specialist Subagent | `statistical-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/statistical-expert/contract.md) |
+| Core Primary Agent (Phase 3) | `statistics-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/statistics-agent/contract.md) |
+| Core Primary Agent (Phase 3) | `validation-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/validation-agent/contract.md) |
+| Core Primary Agent (Phase 3) | `writing-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/writing-agent/contract.md) |
 
 ---
 
 ## 3. Comprehensive Agent Profile Registry
 
-### 1. `digital-saber`
-- **File:** `.agents/agents/digital-saber.md`
-- **Classification:** Primary Orchestrator & Project Lead (Lead Agent Twin)
-- **Role:** Master Research Project Lead & Cognitive Orchestrator
-- **Modern Skills Assigned:** `academic-suite-orchestrator`, `digital-twin-academic-consultant`, `thesis-integrity-auditor`
-- **Legacy Skills Listed:** `chapter4`, `thesis_revision`
-- **Tools Assigned:** Full Antigravity Agent toolset (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`, etc.)
-- **MCP Usage:** None (0 MCP servers active)
-- **Core Responsibilities:** Ingests research problem, retrieves historical precedents via `case_memory_engine.py`, records major milestones in `decision_journal_engine.py`, coordinates subagents across pipeline stages, enforces the Interactive Stage-Gate Protocol (Directive 11).
+### 1. `academic-orchestrator`
+- **Package Path:** `.agents/agents/academic-orchestrator/`
+- **Runtime Prompt:** `.agents/agents/academic-orchestrator/agent.md`
+- **Behavioral Contract:** [`.agents/agents/academic-orchestrator/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/academic-orchestrator/contract.md) (12 Sections Verified)
+- **Classification:** Core Primary Role (Phase 3)
+- **Description:** Primary academic master conductor and research project lead. Understands holistic research requirements, decomposes multi-chapter pipelines into bounded micro-stages, maps capabilities to skills and specialist subagents, delegates with strict context isolation, tracks artifact dependencies, coordinates adversarial validation, manages retry loops, and synthesizes final deliverables.
+- **Active Skills Bound (10):** `invoke_subagent`, `manage_subagents`, `send_message`, `list_dir`, `grep_search`, `find_by_name`, `ask_question`, `academic-suite-orchestrator`, `digital-twin-academic-consultant`, `thesis-integrity-auditor`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 2. `methodology-expert`
-- **File:** `.agents/agents/methodology-expert.md`
-- **Classification:** Specialist Subagent (Methodology Brain)
-- **Role:** Research Methodology & Experimental Design Specialist
-- **Modern Skills Assigned:** `gpower-sample-size-calculator`, `persian-proposal-builder`, `psychological-intervention-protocol-builder`
-- **Legacy Skills Listed:** `proposal`
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Classifies study designs (pretest-posttest control group, Solomon four-group, cross-sectional, SEM), calculates statistical power ($1-\beta \ge .80$), formulates directional hypotheses, guards against internal/external validity threats.
+### 2. `academic-writer`
+- **Package Path:** `.agents/agents/academic-writer/`
+- **Runtime Prompt:** `.agents/agents/academic-writer/agent.md`
+- **Behavioral Contract:** [`.agents/agents/academic-writer/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/academic-writer/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Master academic chapter drafter and Persian rhetoric specialist. Formulates
+- **Active Skills Bound (7):** `persian-thesis-builder`, `persian-discussion-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `chapter-4-writing`, `persian-discussion-builder`, `persian-thesis-builder`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 3. `statistical-expert`
-- **File:** `.agents/agents/statistical-expert.md`
-- **Classification:** Specialist Subagent (Statistical Brain)
-- **Role:** Statistical Analysis & Hypothesis Testing Architect
-- **Modern Skills Assigned:** `statistical-data-analyst`, `psychometric-scale-resolver`, `psychometric-scale-validator`
-- **Legacy Skills Listed:** `chapter4`
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Governs the 10-step parametric decision sequence (Shapiro-Wilk, Levene, regression slope homogeneity, sphericity, collinearity), selects appropriate tests (ANCOVA, RM-ANOVA, PROCESS bootstrap mediation), and compiles execution configurations for deterministic scripts.
+### 3. `data-agent`
+- **Package Path:** `.agents/agents/data-agent/`
+- **Runtime Prompt:** `.agents/agents/data-agent/agent.md`
+- **Behavioral Contract:** [`.agents/agents/data-agent/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/data-agent/contract.md) (12 Sections Verified)
+- **Classification:** Core Primary Role (Phase 3)
+- **Description:** Specialized domain subagent for raw dataset ingestion, data discovery, schema mapping, data quality screening, missing value diagnostics (Little's MCAR), reverse-coding from 4,880 validated instruments, variable transformations, psychometric simulation, and data integrity verification.
+- **Active Skills Bound (7):** `list_dir`, `grep_search`, `find_by_name`, `statistical-data-analyst`, `psychometric-scale-resolver`, `psychometric-scale-validator`, `psychometric-data-simulator`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
 ### 4. `data-curator`
-- **File:** `.agents/agents/data-curator.md`
-- **Classification:** Specialist Subagent (Data Screening Brain)
-- **Role:** Data Hygiene, Missing Value Diagnostics & Screening Specialist
-- **Modern Skills Assigned:** `statistical-data-analyst`, `psychometric-scale-resolver`
-- **Legacy Skills Listed:** None
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Executes Stage 4.0 data curation, tests missingness patterns (Little's MCAR), screens unengaged respondents (zero variance, straight-lining), identifies multivariate outliers (Mahalanobis $D^2$, Cook's distance), exports `data_cleaned.xlsx` and `00_data_curation_report.json`.
+- **Package Path:** `.agents/agents/data-curator/`
+- **Runtime Prompt:** `.agents/agents/data-curator/agent.md`
+- **Behavioral Contract:** [`.agents/agents/data-curator/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/data-curator/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Specialist subagent for raw dataset ingestion, missing data pattern diagnosis (MCAR/MAR/MNAR), unengaged response filtering, multivariate outlier screening (Mahalanobis D2, Cook's distance), demographic standardization, and data dictionary compilation.
+- **Active Skills Bound (2):** `statistical-data-analyst`, `psychometric-scale-resolver`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 5. `psychometric-expert`
-- **File:** `.agents/agents/psychometric-expert.md`
-- **Classification:** Specialist Subagent (Psychometrics Brain)
-- **Role:** Psychometrician & Construct Validation Specialist
-- **Modern Skills Assigned:** `psychometric-scale-resolver`, `psychometric-scale-validator`, `psychometric-data-simulator`
-- **Legacy Skills Listed:** `scale_validation`
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Resolves instruments and reverse-coding keys from `Questionnaires.xlsx`, evaluates scale reliability (Cronbach's $\alpha$, McDonald's $\omega$), validates factor structure (EFA/CFA, convergent/discriminant validity), simulates psychometric distributions with empirical noise.
+### 5. `digital-saber`
+- **Package Path:** `.agents/agents/digital-saber/`
+- **Runtime Prompt:** `.agents/agents/digital-saber/agent.md`
+- **Behavioral Contract:** [`.agents/agents/digital-saber/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/digital-saber/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Master Research Project Lead, Cognitive Architect, and Digital Twin of
+- **Active Skills Bound (5):** `academic-suite-orchestrator`, `digital-twin-academic-consultant`, `thesis-integrity-auditor`, `chapter-4-writing`, `persian-thesis-revision-assistant`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 6. `intervention-designer`
-- **File:** `.agents/agents/intervention-designer.md`
-- **Classification:** Specialist Subagent (Clinical Protocol Brain)
-- **Role:** Psychological Intervention Protocol Architect
-- **Modern Skills Assigned:** `psychological-intervention-protocol-builder`
-- **Legacy Skills Listed:** `intervention_protocol`
-- **Tools Assigned:** Antigravity read tools + `run_command` + `write_to_file`
-- **MCP Usage:** None
-- **Core Responsibilities:** Formulates evidence-based intervention manuals (ACT, CBT, Schema Therapy, Mindfulness), creates Chapter 3 session-by-session clinical protocol tables, and designs CONSORT 2010 participant flowcharts.
+### 6. `evidence-auditor`
+- **Package Path:** `.agents/agents/evidence-auditor/`
+- **Runtime Prompt:** `.agents/agents/evidence-auditor/agent.md`
+- **Behavioral Contract:** [`.agents/agents/evidence-auditor/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/evidence-auditor/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Epistemic integrity and citation verification subagent auditing bidirectional in-text to bibliography concordance, Irandoc similarity compliance (< 20%), and robotic AI cliché elimination.
+- **Active Skills Bound (2):** `academic-reference-extractor`, `irandoc-plagiarism-reducer`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 7. `literature-expert`
-- **File:** `.agents/agents/literature-expert.md`
-- **Classification:** Specialist Subagent (Literature Brain)
-- **Role:** Literature & Epistemic Evidence Synthesizer
-- **Modern Skills Assigned:** `literature-harvester`, `persian-literature-review-builder`, `bibliometric-network-analyst`, `citation-network-visualizer`
-- **Legacy Skills Listed:** `chapter2_literature`
-- **Tools Assigned:** Antigravity read tools, `search_web`, `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Harvester across CrossRef/PubMed/SID/Magiran, extracts empirical study parameters ($N$, designs, findings), constructs co-citation and bibliometric science maps, synthesizes inverted-triangle Chapter 2 reviews.
+### 7. `final-judge`
+- **Package Path:** `.agents/agents/final-judge/`
+- **Runtime Prompt:** `.agents/agents/final-judge/agent.md`
+- **Behavioral Contract:** [`.agents/agents/final-judge/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/final-judge/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Final dissertation defense committee simulator, viva voce cross-examiner,
+- **Active Skills Bound (3):** `thesis-integrity-auditor`, `persian-defense-presentation-builder`, `persian-defense-presentation-builder`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 8. `meta-analyst`
-- **File:** `.agents/agents/meta-analyst.md`
-- **Classification:** Specialist Subagent (Meta-Analysis Brain)
-- **Role:** Systematic Review & Quantitative Meta-Analyst
-- **Modern Skills Assigned:** `systematic-review-meta-analyst`, `literature-harvester`
-- **Legacy Skills Listed:** None
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Formulates PICO search strings, conducts Cochrane RoB 2 risk of bias assessments, pools standardized mean differences (Hedges' $g$), calculates $I^2$ heterogeneity, runs Egger's regression, and generates PRISMA 2020 flowcharts and Forest/Funnel plots.
+### 8. `intervention-designer`
+- **Package Path:** `.agents/agents/intervention-designer/`
+- **Runtime Prompt:** `.agents/agents/intervention-designer/agent.md`
+- **Behavioral Contract:** [`.agents/agents/intervention-designer/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/intervention-designer/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Specialist subagent for designing standardized evidence-based psychological
+- **Active Skills Bound (2):** `psychological-intervention-protocol-builder`, `psychological-intervention-protocol-builder`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 9. `qualitative-analyst`
-- **File:** `.agents/agents/qualitative-analyst.md`
-- **Classification:** Specialist Subagent (Qualitative Brain)
-- **Role:** Qualitative Research & Thematic Analysis Specialist
-- **Modern Skills Assigned:** `qualitative-data-analyst`
-- **Legacy Skills Listed:** None
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Conducts Braun & Clarke Reflexive Thematic Analysis and Strauss & Corbin Grounded Theory (open, axial, selective coding), computes inter-coder reliability (Holsti index, Cohen's $\kappa$), and exports theme hierarchy matrices.
+### 9. `journal-strategist`
+- **Package Path:** `.agents/agents/journal-strategist/`
+- **Runtime Prompt:** `.agents/agents/journal-strategist/agent.md`
+- **Behavioral Contract:** [`.agents/agents/journal-strategist/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/journal-strategist/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Specialist subagent for academic journal article packaging, target journal
+- **Active Skills Bound (4):** `academic-article-writer`, `journal-submission-assistant`, `ai-academic-tone-polisher`, `journal-submission-assistant`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 10. `academic-writer`
-- **File:** `.agents/agents/academic-writer.md`
-- **Classification:** Specialist Subagent (Drafting & Rhetoric Brain)
-- **Role:** Persian Academic Chapter Drafter & Rhetoric Specialist
-- **Modern Skills Assigned:** `persian-thesis-builder`, `persian-discussion-builder`, `academic-article-writer`, `ai-academic-tone-polisher`
-- **Legacy Skills Listed:** `chapter4`, `chapter5`, `thesis_assembly`
-- **Tools Assigned:** Antigravity read tools + `write_to_file` + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Drafts defense-ready thesis chapters adhering to Saber's 5-part epistemic paragraph structure, enforces natural cadence variability ($CV \ge 0.50$), incorporates half-space formatting, decouples LTR statistical numbers, and maintains APA 7 compliance.
+### 10. `literature-expert`
+- **Package Path:** `.agents/agents/literature-expert/`
+- **Runtime Prompt:** `.agents/agents/literature-expert/agent.md`
+- **Behavioral Contract:** [`.agents/agents/literature-expert/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/literature-expert/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Specialist subagent for multi-database literature harvesting, empirical
+- **Active Skills Bound (5):** `literature-harvester`, `persian-literature-review-builder`, `bibliometric-network-analyst`, `citation-network-visualizer`, `persian-literature-review-builder`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 11. `journal-strategist`
-- **File:** `.agents/agents/journal-strategist.md`
-- **Classification:** Specialist Subagent (Publication Packaging Brain)
-- **Role:** Publication Packaging & Peer-Review Rebuttal Strategist
-- **Modern Skills Assigned:** `academic-article-writer`, `journal-submission-assistant`, `ai-academic-tone-polisher`
-- **Legacy Skills Listed:** `journal_submission`
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Extracts stand-alone empirical articles from completed dissertations, screens target WoS/Scopus/ISC journals against author guidelines, prepares submission packages (Title Page, Blind Manuscript, Cover Letter), drafts reviewer rebuttal tables.
+### 11. `longitudinal-modmed-expert`
+- **Package Path:** `.agents/agents/longitudinal-modmed-expert/`
+- **Runtime Prompt:** `.agents/agents/longitudinal-modmed-expert/agent.md`
+- **Behavioral Contract:** [`.agents/agents/longitudinal-modmed-expert/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/longitudinal-modmed-expert/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** >-
+- **Active Skills Bound (3):** `longitudinal-moderated-mediation`, `mediation`, `apa-reporting`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 12. `statistical-auditor`
-- **File:** `.agents/agents/statistical-auditor.md`
-- **Classification:** Independent Critic / Auditor
-- **Role:** Adversarial Statistical Quality Auditor
-- **Modern Skills Assigned:** `thesis-integrity-auditor`, `statistical-data-analyst`
-- **Legacy Skills Listed:** `chapter4`
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Adversarial cross-check of statistical calculations. Evaluates the Multi-Signal Anomaly Index (MSAI), checks degrees of freedom concordance ($df_{\text{error}} = N - k - 1$), audits variance deflation ($SD < 0.10 \times Range$), flags synthetic data anomalies, and issues `AUDIT_PASSED` or `FLAG_FOR_REVIEW`.
+### 12. `meta-analyst`
+- **Package Path:** `.agents/agents/meta-analyst/`
+- **Runtime Prompt:** `.agents/agents/meta-analyst/agent.md`
+- **Behavioral Contract:** [`.agents/agents/meta-analyst/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/meta-analyst/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Specialist subagent for PRISMA 2020 systematic literature reviews, Cochrane RoB 2 risk of bias evaluations, and quantitative meta-analysis.
+- **Active Skills Bound (2):** `systematic-review-meta-analyst`, `literature-harvester`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 13. `results-auditor`
-- **File:** `.agents/agents/results-auditor.md`
-- **Classification:** Independent Critic / Auditor
-- **Role:** Numerical & APA 7 Quality Control Auditor
-- **Modern Skills Assigned:** `thesis-integrity-auditor`, `statistical-data-analyst`
-- **Legacy Skills Listed:** `chapter4`
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Strictly enforces APA 7 typography: preserves Persian leading zeros (`۰.۰۰۱`), eliminates $p = .000$, verifies 3-line table borders, checks italicization of Latin symbols (*M, SD, t, F, p*), and audits preservation of Word OMML math equations (`<m:oMath>`).
+### 13. `methodology-expert`
+- **Package Path:** `.agents/agents/methodology-expert/`
+- **Runtime Prompt:** `.agents/agents/methodology-expert/agent.md`
+- **Behavioral Contract:** [`.agents/agents/methodology-expert/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/methodology-expert/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Specialist subagent for research methodology, experimental design, sampling
+- **Active Skills Bound (4):** `gpower-sample-size-calculator`, `persian-proposal-builder`, `psychological-intervention-protocol-builder`, `persian-proposal-builder`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 14. `evidence-auditor`
-- **File:** `.agents/agents/evidence-auditor.md`
-- **Classification:** Independent Critic / Auditor
-- **Role:** Epistemic Integrity & Citation Verification Auditor
-- **Modern Skills Assigned:** `academic-reference-extractor`, `irandoc-plagiarism-reducer`
-- **Legacy Skills Listed:** None
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Bidirectional concordance check between in-text citations and the reference list, screens for fabricated / ghost citations via CrossRef/PubMed API, audits Irandoc/SamimNoor similarity risk (< 20%), and purges robotic AI clichés.
+### 14. `psychometric-expert`
+- **Package Path:** `.agents/agents/psychometric-expert/`
+- **Runtime Prompt:** `.agents/agents/psychometric-expert/agent.md`
+- **Behavioral Contract:** [`.agents/agents/psychometric-expert/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/psychometric-expert/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Specialist subagent for psychometric instrument resolution, Classical
+- **Active Skills Bound (4):** `psychometric-scale-resolver`, `psychometric-scale-validator`, `psychometric-data-simulator`, `psychometric-scale-validator`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 15. `final-judge`
-- **File:** `.agents/agents/final-judge.md`
-- **Classification:** Independent Critic & Defense Committee Simulator
-- **Role:** Defense Committee Viva Voce Simulator & Release Gatekeeper
-- **Modern Skills Assigned:** `thesis-integrity-auditor`, `persian-defense-presentation-builder`
-- **Legacy Skills Listed:** `defense_presentation`
-- **Tools Assigned:** Antigravity read tools + `run_command`
-- **MCP Usage:** None
-- **Core Responsibilities:** Acts as mock defense committee chair. Simulates 5 examiner cross-examination questions, evaluates candidate defense readiness, compiles the viva voce brief, and serves as final gatekeeper before client delivery.
+### 15. `qualitative-analyst`
+- **Package Path:** `.agents/agents/qualitative-analyst/`
+- **Runtime Prompt:** `.agents/agents/qualitative-analyst/agent.md`
+- **Behavioral Contract:** [`.agents/agents/qualitative-analyst/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/qualitative-analyst/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Specialist subagent for qualitative data analysis, Reflexive Thematic Analysis (Braun & Clarke), and Grounded Theory (Strauss & Corbin).
+- **Active Skills Bound (1):** `qualitative-data-analyst`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
----
+### 16. `research-agent`
+- **Package Path:** `.agents/agents/research-agent/`
+- **Runtime Prompt:** `.agents/agents/research-agent/agent.md`
+- **Behavioral Contract:** [`.agents/agents/research-agent/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/research-agent/contract.md) (12 Sections Verified)
+- **Classification:** Core Primary Role (Phase 3)
+- **Description:** Specialized domain subagent for scientific literature harvesting, research question formulation, experimental and quasi-experimental research design, methodology specification, statistical power determination (G*Power), epistemic evidence synthesis, and citation integrity.
+- **Active Skills Bound (13):** `list_dir`, `grep_search`, `find_by_name`, `read_url_content`, `search_web`, `literature-harvester`, `persian-literature-review-builder`, `bibliometric-network-analyst`, `citation-network-visualizer`, `gpower-sample-size-calculator`, `persian-proposal-builder`, `systematic-review-meta-analyst`, `qualitative-data-analyst`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-## 4. Responsibility Overlap Analysis
+### 17. `results-auditor`
+- **Package Path:** `.agents/agents/results-auditor/`
+- **Runtime Prompt:** `.agents/agents/results-auditor/agent.md`
+- **Behavioral Contract:** [`.agents/agents/results-auditor/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/results-auditor/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Quality control subagent enforcing APA 7th Edition numerical precision,
+- **Active Skills Bound (3):** `thesis-integrity-auditor`, `statistical-data-analyst`, `chapter-4-writing`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-| Functional Domain | Assigned Agents | Overlap & Boundary Definition | Recommended Refactoring |
-|---|---|---|---|
-| **Statistical Analysis vs. Quality Control** | `statistical-expert`<br>`statistical-auditor`<br>`results-auditor` | `statistical-expert` plans tests and executes initial scripts; `statistical-auditor` runs adversarial MSAI anomaly checks; `results-auditor` verifies typographical formatting and APA 7 precision. Clean critic separation, but all three share `statistical-data-analyst` scripts. | Maintain strict separation of concerns; update agent frontmatters to remove legacy `chapter4` skill bindings. |
-| **Literature Harvesting vs. Meta-Analysis** | `literature-expert`<br>`meta-analyst` | Both invoke `literature-harvester` to query APIs. `literature-expert` focuses on narrative inverted-triangle synthesis for Chapter 2, while `meta-analyst` extracts quantitative effect sizes ($d, r, g$) and evaluates risk of bias. | Distinct analytical goals; share underlying harvesting scripts cleanly. |
-| **Methodology vs. Intervention Design** | `methodology-expert`<br>`intervention-designer` | `methodology-expert` designs research design, sampling, and validity controls; `intervention-designer` writes clinical session guides. | `methodology-expert` should focus on Chapter 3 methodology, leaving clinical treatment protocol details to `intervention-designer`. |
-| **Text Polishing vs. Plagiarism Auditing** | `academic-writer`<br>`evidence-auditor` | `academic-writer` creates scholarly text; `evidence-auditor` verifies citation integrity and audits Irandoc similarity. | Clean generator-critic relationship. |
+### 18. `statistical-auditor`
+- **Package Path:** `.agents/agents/statistical-auditor/`
+- **Runtime Prompt:** `.agents/agents/statistical-auditor/agent.md`
+- **Behavioral Contract:** [`.agents/agents/statistical-auditor/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/statistical-auditor/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Adversarial quality auditor subagent for statistical assumptions, degrees
+- **Active Skills Bound (3):** `thesis-integrity-auditor`, `statistical-data-analyst`, `chapter-4-writing`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
----
+### 19. `statistical-expert`
+- **Package Path:** `.agents/agents/statistical-expert/`
+- **Runtime Prompt:** `.agents/agents/statistical-expert/agent.md`
+- **Behavioral Contract:** [`.agents/agents/statistical-expert/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/statistical-expert/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Specialist subagent for statistical analysis planning, hypothesis testing
+- **Active Skills Bound (4):** `statistical-data-analyst`, `psychometric-scale-resolver`, `psychometric-scale-validator`, `chapter-4-writing`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-## 5. Stale / Legacy Skill Bindings in Agent Definitions
+### 20. `statistics-agent`
+- **Package Path:** `.agents/agents/statistics-agent/`
+- **Runtime Prompt:** `.agents/agents/statistics-agent/agent.md`
+- **Behavioral Contract:** [`.agents/agents/statistics-agent/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/statistics-agent/contract.md) (12 Sections Verified)
+- **Classification:** Core Primary Role (Phase 3)
+- **Description:** Specialized domain subagent for inferential statistical analysis planning, parametric assumption verification sequences, deterministic Python and R execution, advanced statistical modeling (ANCOVA, RM-ANOVA, PROCESS bootstrap mediation, SEM), results extraction, APA 7 tables, and 300-DPI figures.
+- **Active Skills Bound (7):** `list_dir`, `grep_search`, `find_by_name`, `statistical-data-analyst`, `psychometric-scale-validator`, `psychometric-data-simulator`, `systematic-review-meta-analyst`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-The following 11 agents currently reference legacy workflow skill names in their YAML frontmatter:
+### 21. `validation-agent`
+- **Package Path:** `.agents/agents/validation-agent/`
+- **Runtime Prompt:** `.agents/agents/validation-agent/agent.md`
+- **Behavioral Contract:** [`.agents/agents/validation-agent/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/validation-agent/contract.md) (12 Sections Verified)
+- **Classification:** Core Primary Role (Phase 3)
+- **Description:** Independent adversarial quality auditor, Viva Voce defense simulator, and institutional release gatekeeper. Conducts independent checking of draft deliverables, verifies cross-chapter consistency, validates institutional and APA 7 requirements, audits methodological validity, verifies statistical integrity via Multi-Signal Anomaly Index (MSAI), and verifies physical artifact completeness.
+- **Active Skills Bound (7):** `list_dir`, `grep_search`, `find_by_name`, `thesis-integrity-auditor`, `academic-reference-extractor`, `irandoc-plagiarism-reducer`, `persian-thesis-revision-assistant`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-1. `academic-writer`: Contains `chapter4`, `chapter5`, `thesis_assembly`
-2. `digital-saber`: Contains `chapter4`, `thesis_revision`
-3. `evidence-auditor`: Clean (no legacy bindings)
-4. `final-judge`: Contains `defense_presentation`
-5. `intervention-designer`: Contains `intervention_protocol`
-6. `journal-strategist`: Contains `journal_submission`
-7. `literature-expert`: Contains `chapter2_literature`
-8. `meta-analyst`: Clean (no legacy bindings)
-9. `methodology-expert`: Contains `proposal`
-10. `psychometric-expert`: Contains `scale_validation`
-11. `qualitative-analyst`: Clean (no legacy bindings)
-12. `results-auditor`: Contains `chapter4`
-13. `statistical-auditor`: Contains `chapter4`
-14. `statistical-expert`: Contains `chapter4`
-15. `data-curator`: Clean (no legacy bindings)
+### 22. `writing-agent`
+- **Package Path:** `.agents/agents/writing-agent/`
+- **Runtime Prompt:** `.agents/agents/writing-agent/agent.md`
+- **Behavioral Contract:** [`.agents/agents/writing-agent/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/writing-agent/contract.md) (12 Sections Verified)
+- **Classification:** Core Primary Role (Phase 3)
+- **Description:** Master academic chapter drafter and Persian rhetoric specialist. Formulates defense-ready thesis chapters (Ch 1–5), empirical journal articles, and clinical intervention protocols adhering to Saber's 5-part epistemic paragraph structure, natural cadence variability (CV >= 0.50), strict APA 7 presentation, results narrative, and deep psychological discussion.
+- **Active Skills Bound (10):** `list_dir`, `grep_search`, `find_by_name`, `persian-thesis-builder`, `persian-discussion-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `psychological-intervention-protocol-builder`, `journal-submission-assistant`, `persian-defense-presentation-builder`
+- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
