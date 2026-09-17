@@ -115,6 +115,24 @@ python3 .agents/skills/academic-drive-project-organizer/scripts/organize_drive_p
   --move-project "Aysan Shokri" --to finished --apply
 ```
 
+### 3.7 Generate or Batch-Refresh Project Briefs (Project Passport)
+```bash
+# Generate / refresh PROJECT_BRIEF.md for a specific project folder
+python3 .agents/skills/academic-drive-project-organizer/scripts/organize_drive_projects.py \
+  --init-brief --dir "/path/to/Client Name - Topic"
+
+# Batch scan an entire folder of projects (safe dry-run preview)
+python3 .agents/skills/academic-drive-project-organizer/scripts/organize_drive_projects.py \
+  --batch-briefs --dir "/path/to/My Work"
+
+# Batch write PROJECT_BRIEF.md across all projects in directory
+python3 .agents/skills/academic-drive-project-organizer/scripts/organize_drive_projects.py \
+  --batch-briefs --dir "/path/to/My Work" --apply
+```
+*Outputs:*
+- `PROJECT_BRIEF.md`: Markdown Single Source of Truth capturing client scope, physical asset inventory, gaps, and next action.
+- `project_meta.json`: Synchronized machine-readable asset summary and timestamps.
+
 ---
 
 ## 4. Safety-First Guarantees

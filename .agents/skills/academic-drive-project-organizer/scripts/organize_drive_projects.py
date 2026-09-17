@@ -148,6 +148,25 @@ def sanitize_filename(name: str) -> str:
     return clean
 
 
+def clean_drive_display_path(full_path: str) -> str:
+    """
+    Convert full local CloudStorage or filesystem path into a clean, concise display path.
+    """
+    if not full_path:
+        return ""
+    normalized = full_path.replace("\\", "/")
+    marker = "My Drive/"
+    idx = normalized.find(marker)
+    if idx != -1:
+        rel = normalized[idx + len(marker):].strip("/")
+        if rel:
+            return rel
+    parts = [p for p in normalized.split("/") if p]
+    if len(parts) >= 2:
+        return f"{parts[-2]}/{parts[-1]}"
+    return parts[-1] if parts else full_path
+
+
 def classify_file_destination(filename: str, parent_folder_name: str = "") -> str:
     """Classify a single file into one of the 4 standard project subfolders."""
     lower = filename.lower()
@@ -678,8 +697,321 @@ def export_duzen_catalog_excel(catalog_res: Dict[str, Any], output_path: str):
         df.to_excel(writer, sheet_name="Master Catalog", index=False)
 
 
+def scan_project_assets(project_dir: str) -> Dict[str, Any]:
+    """
+    Inspects standard 4-tier folders in project_dir and analyzes asset readiness.
+    Categorizes raw inputs (proposals, data, scales), code, deliverables, and references.
+    """
+    assets = {
+        "raw_inputs": [],
+        "analysis_code": [],
+        "deliverables": [],
+        "references": [],
+        "has_proposal": False,
+        "has_data": False,
+        "has_scales": False,
+        "has_code": False,
+        "has_deliverables": False,
+        "proposal_files": [],
+        "data_files": [],
+        "deliverable_files": [],
+        "gaps": []
+    }
+
+    sub_map = {
+        "raw_inputs": os.path.join(project_dir, SUBFOLDERS["raw"]),
+        "analysis_code": os.path.join(project_dir, SUBFOLDERS["code"]),
+        "deliverables": os.path.join(project_dir, SUBFOLDERS["deliverables"]),
+        "references": os.path.join(project_dir, SUBFOLDERS["references"])
+    }
+
+    # 1. Raw Inputs
+    raw_p = sub_map["raw_inputs"]
+    if os.path.exists(raw_p):
+        for f in sorted(os.listdir(raw_p)):
+            if f.startswith(".") or f.startswith("~$"):
+                continue
+            assets["raw_inputs"].append(f)
+            lf = f.lower()
+            if any(k in lf for k in ["proposal", "tarh", "پروپوزال"]) or (lf.endswith((".docx", ".pdf")) and not any(k in lf for k in ["scale", "quest", "پرسشنامه", "chap", "fasl"])):
+                assets["has_proposal"] = True
+                assets["proposal_files"].append(f)
+            if lf.endswith((".sav", ".csv", ".dta")) or (lf.endswith((".xlsx", ".xls")) and not any(k in lf for k in ["scale", "quest", "پرسشنامه", "scoring"])):
+                assets["has_data"] = True
+                assets["data_files"].append(f)
+            if any(k in lf for k in ["scale", "quest", "پرسشنامه", "آزمون", "scale_resolution"]):
+                assets["has_scales"] = True
+
+    # 2. Analysis Code
+    code_p = sub_map["analysis_code"]
+    if os.path.exists(code_p):
+        for f in sorted(os.listdir(code_p)):
+            if f.startswith(".") or f.startswith("~$"):
+                continue
+            assets["analysis_code"].append(f)
+            assets["has_code"] = True
+
+    # 3. Deliverables
+    deliv_p = sub_map["deliverables"]
+    if os.path.exists(deliv_p):
+        for f in sorted(os.listdir(deliv_p)):
+            if f.startswith(".") or f.startswith("~$") or f == "drafts_archive":
+                continue
+            assets["deliverables"].append(f)
+            assets["has_deliverables"] = True
+            assets["deliverable_files"].append(f)
+
+    # 4. References
+    ref_p = sub_map["references"]
+    if os.path.exists(ref_p):
+        for f in sorted(os.listdir(ref_p)):
+            if f.startswith(".") or f.startswith("~$"):
+                continue
+            assets["references"].append(f)
+
+    # Evaluate Gaps
+    if not assets["has_proposal"]:
+        assets["gaps"].append("- [!] **Missing approved proposal / research problem statement** in `01_raw_inputs/`")
+    if not assets["has_data"]:
+        assets["gaps"].append("- [!] **Missing raw survey dataset** (`.sav`, `.xlsx`, `.csv`) in `01_raw_inputs/`")
+    if not assets["has_scales"]:
+        assets["gaps"].append("- [?] **Measurement instruments & scoring keys** need verification in `01_raw_inputs/`")
+    if not assets["gaps"]:
+        assets["gaps"].append("- [x] **All essential baseline raw assets present on disk.** Ready for pipeline execution.")
+
+    return assets
+
+
+def generate_project_brief(
+    project_dir: str,
+    client_name: Optional[str] = None,
+    topic: Optional[str] = None,
+    apply: bool = True
+) -> Dict[str, Any]:
+    """
+    Generates or updates PROJECT_BRIEF.md (Project Passport) and synchronizes project_meta.json.
+    """
+    os.makedirs(project_dir, exist_ok=True)
+    meta_path = os.path.join(project_dir, "project_meta.json")
+    brief_path = os.path.join(project_dir, "PROJECT_BRIEF.md")
+
+    existing_meta = {}
+    if os.path.exists(meta_path):
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                existing_meta = json.load(f)
+        except Exception:
+            existing_meta = {}
+
+    # Extract or infer client name and topic
+    base_folder = os.path.basename(os.path.abspath(project_dir))
+    inferred_client = client_name or existing_meta.get("client_name")
+    inferred_topic = topic or existing_meta.get("project_title")
+
+    if not inferred_client:
+        if " - " in base_folder:
+            parts = base_folder.split(" - ", 1)
+            inferred_client = parts[0].strip()
+            if not inferred_topic:
+                inferred_topic = parts[1].strip()
+        else:
+            inferred_client = base_folder
+            if not inferred_topic:
+                inferred_topic = base_folder
+
+    if not inferred_topic:
+        inferred_topic = inferred_client
+
+    # Scan physical assets
+    assets = scan_project_assets(project_dir)
+
+    # Format file inventory markdown lists
+    def fmt_list(flist: List[str], empty_msg: str) -> str:
+        if not flist:
+            return f"  - *({empty_msg})*"
+        return "\n".join([f"  - [x] `{f}`" for f in flist])
+
+    raw_list_md = fmt_list(assets["raw_inputs"], "No files currently found in 01_raw_inputs/")
+    code_list_md = fmt_list(assets["analysis_code"], "No code files currently found in 02_analysis_code/")
+    deliv_list_md = fmt_list(assets["deliverables"], "No deliverables compiled yet in 03_deliverables/")
+    ref_list_md = fmt_list(assets["references"], "No reference files currently found in 04_references_and_lit/")
+    gaps_md = "\n".join(assets["gaps"])
+
+    # Determine readiness and active next step
+    if not assets["has_data"]:
+        data_status = "Pending Ingestion (Awaiting client `.sav`/`.xlsx`)"
+        next_step = "Obtain raw dataset from client and place into `01_raw_inputs/`."
+    else:
+        data_status = f"Present on disk ({', '.join(assets['data_files'])})"
+        if not assets["has_deliverables"]:
+            next_step = "Execute Stage 0: Data Curation, Outlier Screening & Scale Scoring via `data-curator`."
+        else:
+            next_step = "Conduct APA 7 and OpenXML Quality Check via `results-auditor` and prepare defense brief."
+
+    missing_status = "Pending screening (Little's MCAR)" if assets["has_data"] else "Awaiting dataset"
+    outlier_status = "Pending screening (|Z| > 3.29, Mahalanobis D^2)" if assets["has_data"] else "Awaiting dataset"
+    scale_status = "Verified in raw inputs" if assets["has_scales"] else "Pending scale extraction"
+    rel_status = "Pending verification (Cronbach's α, McDonald's ω)" if assets["has_data"] else "Awaiting dataset"
+
+    # Try to load template from file or fallback
+    template_candidates = [
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "templates", "PROJECT_BRIEF_TEMPLATE.md")),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "references", "PROJECT_BRIEF_TEMPLATE.md")),
+        os.path.abspath("/home/ghaderi-saber/Desktop/AcademicSuite/.agents/templates/PROJECT_BRIEF_TEMPLATE.md")
+    ]
+    template_content = None
+    for cand in template_candidates:
+        if os.path.exists(cand):
+            try:
+                with open(cand, "r", encoding="utf-8") as tf:
+                    template_content = tf.read()
+                break
+            except Exception:
+                pass
+
+    if not template_content:
+        template_content = (
+            "# Project Brief: {client_name} — {project_title}\n\n"
+            "> **Project Passport & Single Source of Truth (SSOT)**\n"
+            "> *Last Updated: {updated_at} | Status: {status}*\n\n"
+            "| Attribute | Detail |\n"
+            "| :--- | :--- |\n"
+            "| **Client Name** | {client_name} {client_name_fa} |\n"
+            "| **Project Title / Topic** | {project_title} |\n"
+            "| **Degree & Field** | {degree_level} in {field_of_study} |\n"
+            "| **University / Faculty** | {university} |\n"
+            "| **Supervisor(s)** | {supervisors} |\n"
+            "| **Current Lifecycle Stage** | {lifecycle_stage} (`{lifecycle_dir}`) |\n"
+            "| **Designated Workflow** | `{designated_workflow}` |\n"
+            "| **Next Action / Gate** | {next_action} |\n\n"
+            "---\n\n"
+            "## 1. Client Scope & Objectives *(What does the client want?)*\n\n"
+            "### 1.1 Target Deliverables\n"
+            "- [ ] Chapter 4 (Results)\n"
+            "- [ ] Chapter 5 (Discussion)\n"
+            "- [ ] Defense Presentation (16:9 PPTX)\n\n"
+            "---\n\n"
+            "## 2. Baseline & Asset Inventory *(Where are we right now?)*\n\n"
+            "### 2.1 File & Directory Inventory\n"
+            "- **01_raw_inputs/**:\n{inventory_raw_inputs}\n"
+            "- **02_analysis_code/**:\n{inventory_analysis_code}\n"
+            "- **03_deliverables/**:\n{inventory_deliverables}\n"
+            "- **04_references_and_lit/**:\n{inventory_references}\n\n"
+            "### 2.2 Identified Gaps & Missing Assets\n{identified_gaps}\n\n"
+            "---\n\n"
+            "## 3. Action Roadmap *(What should we do?)*\n"
+            "> **Immediate Focus**: {active_next_step}\n"
+        )
+
+    # Derive lifecycle directory representation
+    parent_basename = os.path.basename(os.path.dirname(os.path.abspath(project_dir)))
+    lifecycle_stage = existing_meta.get("lifecycle_stage", parent_basename if parent_basename in ["My Work", "Pending Works", "Finished Works"] else "Active")
+
+    now_iso = datetime.now().isoformat()
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    brief_text = template_content.format(
+        client_name=inferred_client,
+        client_name_fa=existing_meta.get("client_name_fa", ""),
+        project_title=inferred_topic,
+        degree_level=existing_meta.get("degree_level", "Graduate Degree (MSc / PhD)"),
+        field_of_study=existing_meta.get("field_of_study", "Psychology / Behavioral Sciences"),
+        university=existing_meta.get("university", "Academic Institution"),
+        supervisors=existing_meta.get("supervisors", "To be specified"),
+        lifecycle_stage=lifecycle_stage,
+        lifecycle_dir=clean_drive_display_path(project_dir),
+        designated_workflow=existing_meta.get("designated_workflow", "chapter4.md"),
+        next_action=next_step,
+        required_software=existing_meta.get("required_software", "SPSS 29 / SmartPLS 4 / R lavaan"),
+        deadline_draft=existing_meta.get("deadline_draft", "TBD"),
+        deadline_supervisor=existing_meta.get("deadline_supervisor", "TBD"),
+        deadline_defense=existing_meta.get("deadline_defense", "TBD"),
+        inventory_raw_inputs=raw_list_md,
+        inventory_analysis_code=code_list_md,
+        inventory_deliverables=deliv_list_md,
+        inventory_references=ref_list_md,
+        sample_size=existing_meta.get("sample_size", "To be determined during data curation"),
+        target_power=existing_meta.get("target_power", "1 - β = 0.80 (α = .05)"),
+        data_ingestion_status=data_status,
+        missing_data_status=missing_status,
+        outlier_status=outlier_status,
+        scale_scoring_status=scale_status,
+        reliability_status=rel_status,
+        identified_gaps=gaps_md,
+        target_deliverable_filename=existing_meta.get("target_deliverable_filename", "Chapter_4_Results.docx"),
+        active_next_step=next_step,
+        updated_at=now_str,
+        status=existing_meta.get("status", "Active / In Progress")
+    )
+
+    if apply:
+        with open(brief_path, "w", encoding="utf-8") as f:
+            f.write(brief_text)
+
+        # Update metadata
+        existing_meta.update({
+            "client_name": inferred_client,
+            "project_title": inferred_topic,
+            "has_brief": True,
+            "brief_updated_at": now_iso,
+            "assets_summary": {
+                "has_proposal": assets["has_proposal"],
+                "has_data": assets["has_data"],
+                "has_code": assets["has_code"],
+                "has_deliverables": assets["has_deliverables"],
+                "file_count": sum(len(fl) for fl in [assets["raw_inputs"], assets["analysis_code"], assets["deliverables"], assets["references"]])
+            }
+        })
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump(existing_meta, f, ensure_ascii=False, indent=2)
+
+    return {
+        "project_dir": project_dir,
+        "client_name": inferred_client,
+        "topic": inferred_topic,
+        "brief_path": brief_path,
+        "has_data": assets["has_data"],
+        "has_proposal": assets["has_proposal"],
+        "has_deliverables": assets["has_deliverables"],
+        "gaps_count": len(assets["gaps"]),
+        "mode": "APPLIED" if apply else "DRY-RUN",
+        "brief_content": brief_text
+    }
+
+
+def batch_generate_briefs(target_dir: str, apply: bool = False) -> Dict[str, Any]:
+    """
+    Sweeps a directory of project folders and generates or refreshes PROJECT_BRIEF.md.
+    Safe-by-default: defaults to dry-run unless apply=True.
+    """
+    if not os.path.exists(target_dir):
+        return {"error": f"Target directory does not exist: {target_dir}", "scanned": 0, "results": []}
+
+    results = []
+    for item in sorted(os.listdir(target_dir)):
+        p_dir = os.path.join(target_dir, item)
+        if not os.path.isdir(p_dir) or item.startswith(".") or item in ["Pending Works", "drafts_archive"]:
+            continue
+        has_subfolders = any(os.path.exists(os.path.join(p_dir, sf)) for sf in SUBFOLDERS.values())
+        has_meta = os.path.exists(os.path.join(p_dir, "project_meta.json"))
+
+        if has_subfolders or has_meta or " - " in item:
+            res = generate_project_brief(p_dir, apply=apply)
+            results.append(res)
+
+    return {
+        "target_dir": target_dir,
+        "total_scanned": len(results),
+        "mode": "APPLIED" if apply else "DRY-RUN",
+        "projects_with_data": len([r for r in results if r["has_data"]]),
+        "projects_with_proposal": len([r for r in results if r["has_proposal"]]),
+        "projects_with_deliverables": len([r for r in results if r["has_deliverables"]]),
+        "results": results
+    }
+
+
 def provision_new_project_folder(parent_dir: str, client_name: str, topic: Optional[str] = None) -> str:
-    """Create a standardized new project folder."""
+    """Create a standardized new project folder with project_meta.json and PROJECT_BRIEF.md."""
     clean_name = re.sub(r'[\\/*?:"<>|]', "", client_name).strip()
     if topic:
         clean_topic = re.sub(r'[\\/*?:"<>|]', "", topic).strip()
@@ -702,6 +1034,9 @@ def provision_new_project_folder(parent_dir: str, client_name: str, topic: Optio
     }
     with open(os.path.join(target_dir, "project_meta.json"), "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)
+
+    # Immediately generate and anchor PROJECT_BRIEF.md
+    generate_project_brief(target_dir, client_name=clean_name, topic=topic, apply=True)
 
     return target_dir
 
@@ -899,6 +1234,8 @@ def main():
     parser.add_argument("--duzen-backup", type=str, default=DEFAULT_DUZEN_BACKUP, help="Path to duzen_backup_*.json")
     parser.add_argument("--new-project", type=str, help="Provision a new standardized project folder with this client name")
     parser.add_argument("--topic", type=str, help="Topic for new project")
+    parser.add_argument("--init-brief", action="store_true", help="Generate or update PROJECT_BRIEF.md (Project Passport) for target project")
+    parser.add_argument("--batch-briefs", action="store_true", help="Batch generate or refresh PROJECT_BRIEF.md across all projects in target dir (dry-run by default, use --apply to write)")
     parser.add_argument("--move-project", type=str, help="Project name to move across lifecycle stages")
     parser.add_argument("--to", type=str, help="Target lifecycle stage: pending, my_work, active, finished")
     parser.add_argument("--undo", type=str, help="Path to reorganize_manifest.json to undo a previous reorganization")
@@ -950,9 +1287,47 @@ def main():
         sys.exit(0)
 
     # 3. Provision new project
-    if args.new_project:
+    if args.new_project and not args.init_brief:
         p_dir = provision_new_project_folder(args.dir, args.new_project, args.topic)
         print(f"[+] Successfully provisioned standard project folder:\n    {p_dir}")
+        sys.exit(0)
+
+    # 3.1 Generate or refresh single Project Brief (Project Passport)
+    if args.init_brief:
+        target_p = args.dir
+        if args.project:
+            target_p = os.path.join(args.dir, args.project)
+        res = generate_project_brief(
+            project_dir=target_p,
+            client_name=args.new_project or args.project,
+            topic=args.topic,
+            apply=args.apply or True
+        )
+        print(f"[+] Project Brief Generation ({res['mode']}):")
+        print(f"    Project Dir:  {res['project_dir']}")
+        print(f"    Brief Path:   {res['brief_path']}")
+        print(f"    Has Proposal: {res['has_proposal']}")
+        print(f"    Has Data:     {res['has_data']}")
+        print(f"    Has Output:   {res['has_deliverables']}")
+        print(f"    Active Gaps:  {res['gaps_count']}")
+        sys.exit(0)
+
+    # 3.2 Batch scan and generate Project Briefs across all projects
+    if args.batch_briefs:
+        res = batch_generate_briefs(args.dir, apply=args.apply)
+        if "error" in res:
+            print(f"[-] Error: {res['error']}")
+            sys.exit(1)
+        print(f"[+] Batch Project Brief Scan ({res['mode']}):")
+        print(f"    Directory Scanned:     {res['target_dir']}")
+        print(f"    Total Projects:        {res['total_scanned']}")
+        print(f"    With Data Files:       {res['projects_with_data']}")
+        print(f"    With Approved Proposal:{res['projects_with_proposal']}")
+        print(f"    With Deliverables:     {res['projects_with_deliverables']}")
+        if not args.apply:
+            print(f"    [i] Safe dry-run complete. Run with --apply to write PROJECT_BRIEF.md files.")
+        else:
+            print(f"    [+] Successfully written PROJECT_BRIEF.md files to all project folders.")
         sys.exit(0)
 
     # 4. Sync with Duzen

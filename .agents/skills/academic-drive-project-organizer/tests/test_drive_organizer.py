@@ -176,6 +176,59 @@ class TestAcademicDriveOrganizer(unittest.TestCase):
         self.assertIn("ali rezaei", audit["fragmented_clients"])
         self.assertEqual(len(audit["fragmented_clients"]["ali rezaei"]), 3)
 
+    def test_06_project_brief_and_asset_scanning(self):
+        """Test automatic PROJECT_BRIEF.md creation, asset scanning, and gap analysis."""
+        proj_dir = odp.provision_new_project_folder(self.test_dir, "Soroush Ahmadi", "Academic Burnout SEM")
+        self.assertTrue(os.path.exists(proj_dir))
+        
+        meta_path = os.path.join(proj_dir, "project_meta.json")
+        brief_path = os.path.join(proj_dir, "PROJECT_BRIEF.md")
+        self.assertTrue(os.path.exists(meta_path))
+        self.assertTrue(os.path.exists(brief_path))
+
+        with open(brief_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("Soroush Ahmadi", content)
+        self.assertIn("Academic Burnout SEM", content)
+        self.assertIn("Project Passport", content)
+
+        # Add physical assets to 01_raw_inputs
+        raw_dir = os.path.join(proj_dir, odp.SUBFOLDERS["raw"])
+        with open(os.path.join(raw_dir, "proposal_final.docx"), "w") as f:
+            f.write("proposal mock")
+        with open(os.path.join(raw_dir, "burnout_responses.sav"), "w") as f:
+            f.write("sav mock")
+
+        # Refresh brief
+        res = odp.generate_project_brief(proj_dir, apply=True)
+        self.assertTrue(res["has_proposal"])
+        self.assertTrue(res["has_data"])
+        self.assertEqual(res["mode"], "APPLIED")
+
+        with open(brief_path, "r", encoding="utf-8") as f:
+            updated_content = f.read()
+        self.assertIn("proposal_final.docx", updated_content)
+        self.assertIn("burnout_responses.sav", updated_content)
+
+    def test_07_batch_project_briefs(self):
+        """Test batch discovery and generation of Project Briefs across multiple projects."""
+        # Create second project without brief
+        proj2 = os.path.join(self.test_dir, "Neda Karimi - Schema Therapy")
+        os.makedirs(os.path.join(proj2, "01_raw_inputs"), exist_ok=True)
+        with open(os.path.join(proj2, "project_meta.json"), "w", encoding="utf-8") as f:
+            json.dump({"client_name": "Neda Karimi", "project_title": "Schema Therapy"}, f)
+
+        # Dry run batch scan
+        dry_res = odp.batch_generate_briefs(self.test_dir, apply=False)
+        self.assertEqual(dry_res["mode"], "DRY-RUN")
+        self.assertGreaterEqual(dry_res["total_scanned"], 1)
+
+        # Live applied batch scan
+        live_res = odp.batch_generate_briefs(self.test_dir, apply=True)
+        self.assertEqual(live_res["mode"], "APPLIED")
+        brief_proj2 = os.path.join(proj2, "PROJECT_BRIEF.md")
+        self.assertTrue(os.path.exists(brief_proj2))
+
 
 if __name__ == "__main__":
     unittest.main()

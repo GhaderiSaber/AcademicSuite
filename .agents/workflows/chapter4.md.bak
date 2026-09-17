@@ -72,7 +72,8 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 
 ## Prerequisites & Required Inputs
 
-- **Dataset**: Physical dataset file (`.sav`, `.xlsx`, `.csv`).
+- **Project Brief (SSOT)**: Verified `PROJECT_BRIEF.md` (Client scope, target deliverables, deadlines, and physical asset inventory).
+- **Dataset**: Physical dataset file (`.sav`, `.xlsx`, `.csv`) in `01_raw_inputs/`.
 - **Research Specification**:
   - Research Topic & Title.
   - Formal Hypotheses or Research Questions.
@@ -82,6 +83,15 @@ This workflow defines the **Antigravity-Native Multi-Agent Orchestration Sequenc
 ---
 
 ## Step-by-Step Subagent Execution Protocol
+
+### Step 0: Project Discovery & Baseline Verification (Project Passport)
+- **Agent**: `digital-saber` / `data-curator`
+- **Action**:
+  - Inspects `PROJECT_BRIEF.md` in the project root to anchor client requirements, target deliverables, and deadlines.
+  - If missing, executes:
+    `python3 .agents/skills/academic-drive-project-organizer/scripts/organize_drive_projects.py --init-brief --dir "/path/to/project"`
+  - Verifies that raw datasets and approved proposals are present on disk before triggering analytical pipelines.
+- **Output**: Verified `PROJECT_BRIEF.md` with active gap checklist.
 
 ### Step 1: Digital Saber Project Lead (Scoping & Precedent Retrieval)
 - **Agent**: `digital-saber`
