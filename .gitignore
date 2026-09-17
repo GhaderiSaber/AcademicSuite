@@ -9,6 +9,7 @@
 !projects/
 !docs/
 !agents/
+!validators/
 !ANTIGRAVITY_ARCHITECTURE_GUIDE.md
 webapp/node_modules/
 webapp/dist/
