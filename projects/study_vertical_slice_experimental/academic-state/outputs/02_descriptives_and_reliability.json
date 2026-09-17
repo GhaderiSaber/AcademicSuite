@@ -1,0 +1,128 @@
+{
+    "reliability": {
+        "anxiety": {
+            "alpha": 0.829,
+            "omega": 0.841
+        },
+        "inflexibility": {
+            "alpha": 0.895,
+            "omega": 0.91
+        }
+    },
+    "descriptives": {
+        "Total": {
+            "anxiety_pre": {
+                "Mean": 3.45,
+                "SD": 0.54,
+                "Skewness": 0.111,
+                "Kurtosis": -0.454
+            },
+            "anxiety_post": {
+                "Mean": 2.92,
+                "SD": 0.78,
+                "Skewness": 0.28,
+                "Kurtosis": -0.782
+            },
+            "anxiety_followup": {
+                "Mean": 2.9,
+                "SD": 0.72,
+                "Skewness": 0.238,
+                "Kurtosis": -0.447
+            },
+            "inflex_pre": {
+                "Mean": 3.59,
+                "SD": 0.61,
+                "Skewness": -0.082,
+                "Kurtosis": -0.522
+            },
+            "inflex_post": {
+                "Mean": 2.87,
+                "SD": 0.83,
+                "Skewness": 0.547,
+                "Kurtosis": -0.214
+            },
+            "inflex_followup": {
+                "Mean": 2.88,
+                "SD": 0.81,
+                "Skewness": 0.585,
+                "Kurtosis": -0.15
+            }
+        },
+        "Experimental": {
+            "anxiety_pre": {
+                "Mean": 3.43,
+                "SD": 0.56,
+                "Skewness": 0.118,
+                "Kurtosis": -0.601
+            },
+            "anxiety_post": {
+                "Mean": 2.3,
+                "SD": 0.4,
+                "Skewness": -0.242,
+                "Kurtosis": -0.878
+            },
+            "anxiety_followup": {
+                "Mean": 2.35,
+                "SD": 0.41,
+                "Skewness": -0.523,
+                "Kurtosis": 1.003
+            },
+            "inflex_pre": {
+                "Mean": 3.69,
+                "SD": 0.6,
+                "Skewness": -0.485,
+                "Kurtosis": 0.341
+            },
+            "inflex_post": {
+                "Mean": 2.24,
+                "SD": 0.39,
+                "Skewness": -0.076,
+                "Kurtosis": -0.178
+            },
+            "inflex_followup": {
+                "Mean": 2.26,
+                "SD": 0.37,
+                "Skewness": 0.037,
+                "Kurtosis": -0.603
+            }
+        },
+        "Control": {
+            "anxiety_pre": {
+                "Mean": 3.47,
+                "SD": 0.52,
+                "Skewness": 0.131,
+                "Kurtosis": -0.128
+            },
+            "anxiety_post": {
+                "Mean": 3.53,
+                "SD": 0.55,
+                "Skewness": 0.029,
+                "Kurtosis": -0.757
+            },
+            "anxiety_followup": {
+                "Mean": 3.44,
+                "SD": 0.53,
+                "Skewness": 0.206,
+                "Kurtosis": -1.07
+            },
+            "inflex_pre": {
+                "Mean": 3.5,
+                "SD": 0.61,
+                "Skewness": 0.306,
+                "Kurtosis": -0.722
+            },
+            "inflex_post": {
+                "Mean": 3.5,
+                "SD": 0.64,
+                "Skewness": 0.503,
+                "Kurtosis": -0.007
+            },
+            "inflex_followup": {
+                "Mean": 3.5,
+                "SD": 0.62,
+                "Skewness": 0.63,
+                "Kurtosis": 0.245
+            }
+        }
+    }
+}

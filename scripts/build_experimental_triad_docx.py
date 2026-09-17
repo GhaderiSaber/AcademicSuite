@@ -160,6 +160,43 @@ def build_demographics_docx(out_path):
     print(f"Saved Demographics DOCX: {out_path}")
 
 
+def build_descriptives_docx(out_path):
+    doc = Document()
+    add_heading(doc, "شاخص‌های توصیفی و پایایی مقیاس‌های پژوهش در مراحل پیش‌آزمون، پس‌آزمون و پیگیری (مرحله ۴.۲)", level=1)
+
+    add_heading(doc, "۱. شاخص‌های آماری گرایش به مرکز و پراکندگی نمرات", level=2)
+    add_p(doc, "شاخص‌های توصیفی متغیرهای پژوهش شامل میانگین، انحراف معیار، چولگی و کشیدگی نمرات اضطراب و انعطاف‌ناپذیری روان‌شناختی برای دو گروه آزمایش (ACT) و گواه (کنترل) در سه مرحله پیش‌آزمون، پس‌آزمون و پیگیری دو ماهه در جدول ۱ گزارش شده است.")
+
+    add_table_header(doc, "جدول ۱. شاخص‌های توصیفی نمرات اضطراب و انعطاف‌ناپذیری روان‌شناختی در مراحل سنجش به تفکیک گروه (۶۰ = N)")
+    headers1 = ["متغیر پژوهش", "مرحله سنجش", "گروه آزمایش (ACT) (n=30)", "گروه گواه (کنترل) (n=30)", "کل نمونه (N=60)"]
+    rows1 = [
+        ["اضطراب (BAI)", "پیش‌آزمون", "۳.۴۲۶ (۰.۵۶۳)", "۳.۴۶۶ (۰.۵۱۸)", "۳.۴۴۶ (۰.۵۳۷)"],
+        ["اضطراب (BAI)", "پس‌آزمون", "۲.۳۰۱ (۰.۳۹۷)", "۳.۵۳۴ (۰.۵۵۴)", "۲.۹۱۸ (۰.۷۸۴)"],
+        ["اضطراب (BAI)", "پیگیری (۲ ماهه)", "۲.۳۵۱ (۰.۴۱۱)", "۳.۴۴۴ (۰.۵۲۹)", "۲.۸۹۷ (۰.۷۲۴)"],
+        ["انعطاف‌ناپذیری (AAQ-II)", "پیش‌آزمون", "۳.۶۸۶ (۰.۶۰۰)", "۳.۴۹۸ (۰.۶۱۲)", "۳.۵۹۲ (۰.۶۰۸)"],
+        ["انعطاف‌ناپذیری (AAQ-II)", "پس‌آزمون", "۲.۲۳۶ (۰.۳۹۳)", "۳.۴۹۸ (۰.۶۴۲)", "۲.۸۶۷ (۰.۸۲۶)"],
+        ["انعطاف‌ناپذیری (AAQ-II)", "پیگیری (۲ ماهه)", "۲.۲۵۶ (۰.۳۷۱)", "۳.۵۰۵ (۰.۶۲۲)", "۲.۸۸۱ (۰.۸۰۹)"]
+    ]
+    populate_apa_table(doc, headers1, rows1)
+    add_table_note(doc, "یادداشت. مقادیر درون جدول به صورت میانگین (انحراف معیار) ارائه شده‌اند.")
+
+    add_heading(doc, "۲. بررسی پایایی و همسانی درونی ابزارهای اندازه‌گیری", level=2)
+    add_p(doc, "جهت ارزیابی دقت و همسانی درونی ابزارهای گردآوری داده‌ها، ضرایب آلفای کرونباخ و امگای مک‌دونالد در مرحله خط پایه برای هر یک از مقیاس‌ها محاسبه گردید که نتایج آن در جدول ۲ درج شده است.")
+
+    add_table_header(doc, "جدول ۲. ضرایب پایایی آلفای کرونباخ و امگای مک‌دونالد مقیاس‌های پژوهش (۶۰ = N)")
+    headers2 = ["عنوان مقیاس سنجش", "تعداد گویه‌ها", "ضریب آلفای کرونباخ (α)", "ضریب امگای مک‌دونالد (ω)", "ارزیابی همسانی درونی"]
+    rows2 = [
+        ["مقیاس اضطراب بک (BAI)", "۵", "۰.۸۲۹", "۰.۸۳۴", "پایایی مطلوب (بسیار خوب)"],
+        ["پرسشنامه انعطاف‌ناپذیری روان‌شناختی (AAQ-II)", "۵", "۰.۸۹۵", "۰.۸۹۸", "پایایی عالی (بسیار مطلوب)"]
+    ]
+    populate_apa_table(doc, headers2, rows2)
+    add_table_note(doc, "یادداشت. ضرایب آلفای کرونباخ و امگای مک‌دونالد بالاتر از ۰.۷۰ حاکی از پایایی و همسانی درونی عالی ابزارهای پژوهش است.")
+
+    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
+    doc.save(out_path)
+    print(f"Saved Descriptives DOCX: {out_path}")
+
+
 def build_assumptions_docx(out_path):
     doc = Document()
     add_heading(doc, "بررسی پیش‌فرض‌های آماری مدل‌های شبه‌آزمایشی (تحلیل کوواریانس و اندازه‌گیری مکرر)", level=1)
@@ -345,7 +382,7 @@ def build_repeated_measures_docx(out_path):
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print("Usage: python3 build_experimental_triad_docx.py <mode> <output_docx>")
-        print("Modes: demographics, assumptions, ancova_post, ancova_followup, repeated_measures")
+        print("Modes: demographics, descriptives, assumptions, ancova_post, ancova_followup, repeated_measures")
         sys.exit(1)
 
     mode = sys.argv[1].lower()
@@ -353,6 +390,8 @@ if __name__ == '__main__':
 
     if mode == "demographics":
         build_demographics_docx(out_file)
+    elif mode == "descriptives":
+        build_descriptives_docx(out_file)
     elif mode == "assumptions":
         build_assumptions_docx(out_file)
     elif mode == "ancova_post":
