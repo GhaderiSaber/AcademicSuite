@@ -1,10 +1,11 @@
 # Skill Inventory & Execution Tools Audit
 
-**Document Version:** 1.0.0 (Phase 1 Audit)  
-**Total Skills in Registry:** 37  
+**Document Version:** 2.0.0 (Phase 5 Focused Skills Update)  
+**Total Skills in Registry:** 52 (27 Legacy-Modern + 10 Deprecated Workflow Shells + 15 Rebuilt Focused Skills)  
+**Rebuilt Focused Skills:** 15  
 **Modern Production Skills:** 27  
 **Legacy Migrated Workflow Shells:** 10  
-**Total Executable Scripts in Skills:** 111  
+**Total Executable Scripts in Skills:** 126  
 
 ---
 
@@ -12,9 +13,12 @@
 
 Skills in the Academic Suite ecosystem represent the **Deterministic Hands** and domain guidelines of the platform. Under **Directive 12.1**, skills are strictly deterministic CLI instruments or reference standards executed by Antigravity agents; they do not possess autonomous agency or manage agent lifecycles.
 
-The registry currently contains 37 skills. An architectural split exists between:
-1. **27 Modern Production Skills**: Contain full implementations with executable Python/R scripts, comprehensive reference documentation, and OpenXML compilers.
-2. **10 Legacy Workflow Shells**: Empty skill shells migrated from `.agents/workflows/*.md.bak` containing zero scripts and zero reference files.
+In Phase 5, the skills layer was rebuilt into **15 Focused Capabilities Skills** adhering to progressive disclosure standards. Each skill contains:
+- `SKILL.md` (bounded, single capability, strictly under 500 lines / 40 KB)
+- `scripts/` (deterministic CLI execution scripts)
+- `resources/` (formal cutoffs, benchmark tables, and decision rules)
+- `examples/` (sample inputs and outputs)
+- `schemas/` (JSON schemas for input specifications and output artifacts)
 
 ---
 

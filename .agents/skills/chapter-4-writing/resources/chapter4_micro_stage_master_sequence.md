@@ -1,0 +1,16 @@
+# Chapter 4 Micro-Stage Master Sequence
+
+- **Stage 4.0**: Data Curation & Preprocessing (`00_data_curation_report.*`)
+- **Stage 4.1**: Demographic Profiling (`01_demographics.*`)
+- **Stage 4.2**: Descriptives & Scale Reliability (`02_descriptives_and_reliability.*`)
+- **Stage 4.3**: Parametric Assumptions Verification (`03_parametric_assumptions.*`)
+- **Stage 4.4**: Bivariate Correlation Matrix (`04_bivariate_correlations.*`)
+- **Stage 4.5**: Macro SEM Model Fit / Primary Omnibus (`05_macro_model.*`)
+- **Stage 4.6.1**: Hypothesis 1 Testing & Narrative Dissection (`06_hypothesis_1.*`)
+- **Stage 4.6.k**: Hypothesis $k$ Testing & Dissection (`XX_hypothesis_k.*`)
+- **Stage 4.7.1**: Indirect Mediation Path 1 (`XX_mediation_1.*`)
+- **Stage 4.8**: Master Hypotheses Decision Matrix (`XX_chapter_summary.*`)
+- **Stage 4.9**: Statistical QC (MSAI Audit)
+- **Stage 4.10**: Results QC (APA 7 & Leading Zero)
+- **Stage 4.11**: OpenXML Chapter Assembly (`Chapter_4_Results.docx` + `.md`)
+- **Stage 4.12**: Viva Voce Defense Simulator (`XX_defense_brief.*`)

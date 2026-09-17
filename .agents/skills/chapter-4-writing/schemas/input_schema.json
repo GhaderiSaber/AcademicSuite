@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "chapter-4-writing Input Schema",
+  "type": "object",
+  "properties": {
+    "data_path": {
+      "type": "string"
+    },
+    "spec": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "data_path"
+  ]
+}
