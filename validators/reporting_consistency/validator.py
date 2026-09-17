@@ -27,7 +27,7 @@ def validate_reporting(file_path):
     warnings = []
 
     # 1. Check prohibited p = .000
-    if re.search(r'p\s*=\s*\.?000', text, re.IGNORECASE) or '۰.۰۰۰' in text or '.۰۰۰' in text:
+    if re.search(r'p\s*=\s*0?\.000', text, re.IGNORECASE) or re.search(r'p\s*=\s*۰?\.۰۰۰', text) or re.search(r'۰?\.۰۰۰\s*=\s*p', text):
         errors.append("Prohibited p = .000 found. Must report strictly as p < .001 or ۰.۰۰۱ > p.")
 
     # 2. Check Persian leading zero violation: e.g. " .۰۵" or " .۰۰۱" without leading zero
@@ -41,9 +41,10 @@ def validate_reporting(file_path):
 
     # 4. Check 3-Table Standard for Regression / Relationship Hypotheses
     is_regression_hypothesis = (
-        ("رگرسیون" in text or "regression" in text.lower()) and
+        ("رگرسیون خطی" in text or "multiple regression" in text.lower() or "رگرسیون چندگانه" in text) and
         ("فرضیه" in text or "hypothesis" in text.lower()) and
-        ("جدول" in text or "table" in text.lower())
+        ("جدول" in text or "table" in text.lower()) and
+        not any(k in text.lower() for k in ["معادلات ساختاری", "sem", "مسیر ساختاری", "ساختاری", "path analysis", "میانجی"])
     )
     if is_regression_hypothesis:
         has_t1 = "جدول ۱" in text or "Table 1" in text
@@ -55,6 +56,20 @@ def validate_reporting(file_path):
                 "Must provide exactly 3 distinct tables: "
                 "Table 1 (Correlation Matrix), Table 2 (Model Summary & ANOVA), and Table 3 (Coefficients & Collinearity)."
             )
+
+    # 5. Check SEM Macro Reporting Standard (Table A Fit Indices, Table C Direct Paths, Table D Indirect Paths)
+    is_sem_macro = (
+        ("معادلات ساختاری" in text or "sem" in text.lower()) and
+        ("کلان" in text or "macro" in text.lower()) and
+        ("برازش" in text or "fit" in text.lower())
+    )
+    if is_sem_macro:
+        has_fit = any(k in text for k in ["جدول الف", "Table A", "شاخص‌های برازش", "Goodness-of-Fit"])
+        has_direct = any(k in text for k in ["جدول ج", "Table C", "مسیرهای مستقیم", "Direct Paths"])
+        if not has_fit:
+            errors.append("SEM Macro Reporting violation: Table A (Goodness-of-Fit indices) is missing.")
+        if not has_direct:
+            errors.append("SEM Macro Reporting violation: Table C (Direct structural paths) is missing.")
 
     verdict = "FAIL" if errors else ("NEEDS_REVIEW" if warnings else "PASS")
     return {

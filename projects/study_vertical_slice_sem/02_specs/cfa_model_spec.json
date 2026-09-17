@@ -1,0 +1,26 @@
+{
+  "model_name": "Three-Factor Measurement Model (CFA)",
+  "factors": {
+    "Workplace_Mindfulness": [
+      "mind_1",
+      "mind_2",
+      "mind_3",
+      "mind_4",
+      "mind_5"
+    ],
+    "Psychological_Flexibility": [
+      "flex_1",
+      "flex_2",
+      "flex_3",
+      "flex_4",
+      "flex_5"
+    ],
+    "Occupational_Wellbeing": [
+      "well_1",
+      "well_2",
+      "well_3",
+      "well_4",
+      "well_5"
+    ]
+  }
+}

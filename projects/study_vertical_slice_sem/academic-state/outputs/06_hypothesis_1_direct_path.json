@@ -1,0 +1,44 @@
+{
+  "stage_id": "06_hypothesis_1_direct_path",
+  "sample_size": 250,
+  "paths": [
+    {
+      "hypothesis_id": "H1",
+      "from": "Workplace_Mindfulness",
+      "to": "Psychological_Flexibility",
+      "beta": 0.591,
+      "b": 0.576,
+      "se": 0.085,
+      "z": 6.775,
+      "p_value": 0.001,
+      "verdict": "SUPPORTED"
+    },
+    {
+      "hypothesis_id": "H2",
+      "from": "Psychological_Flexibility",
+      "to": "Occupational_Wellbeing",
+      "beta": 0.357,
+      "b": 0.325,
+      "se": 0.084,
+      "z": 3.889,
+      "p_value": 0.001,
+      "verdict": "SUPPORTED"
+    },
+    {
+      "hypothesis_id": "H3",
+      "from": "Workplace_Mindfulness",
+      "to": "Occupational_Wellbeing",
+      "beta": 0.447,
+      "b": 0.396,
+      "se": 0.085,
+      "z": 4.669,
+      "p_value": 0.001,
+      "verdict": "SUPPORTED"
+    }
+  ],
+  "r_squared": {
+    "Psychological_Flexibility": 0.349,
+    "Occupational_Wellbeing": 0.485
+  },
+  "overall_verdict": "PASS"
+}

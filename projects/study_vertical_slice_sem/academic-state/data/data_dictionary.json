@@ -1,0 +1,33 @@
+{
+  "total_items": 1,
+  "scales": [
+    {
+      "scale_id": "PRED",
+      "name": "Predictor Scale",
+      "author_year": "Standard, 2020",
+      "items_count": 1,
+      "item_range": [
+        1,
+        5
+      ],
+      "reverse_items": [],
+      "subscales": {}
+    }
+  ],
+  "columns": [
+    {
+      "column_name": "predictor",
+      "scale_id": "PRED",
+      "type": "scale_composite",
+      "label": "Predictor Variable Composite",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "outcome",
+      "scale_id": "PRED",
+      "type": "scale_composite",
+      "label": "Outcome Variable Composite",
+      "is_reverse_coded": false
+    }
+  ]
+}
