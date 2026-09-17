@@ -1,0 +1,122 @@
+{
+    "sample_n": 60,
+    "groups": {
+        "experimental_n": 30,
+        "control_n": 30
+    },
+    "age": {
+        "total": {
+            "N": 60,
+            "Mean": 35.6,
+            "SD": 9.5,
+            "Min": 22,
+            "Max": 52
+        },
+        "experimental": {
+            "N": 30,
+            "Mean": 38.27,
+            "SD": 8.51,
+            "Min": 22,
+            "Max": 52
+        },
+        "control": {
+            "N": 30,
+            "Mean": 32.93,
+            "SD": 9.82,
+            "Min": 22,
+            "Max": 51
+        },
+        "t_test": {
+            "t": 2.248,
+            "df": 58,
+            "p": 0.028
+        }
+    },
+    "gender": {
+        "total": {
+            "Male": {
+                "count": 30,
+                "percent": 50.0
+            },
+            "Female": {
+                "count": 30,
+                "percent": 50.0
+            }
+        },
+        "experimental": {
+            "Male": {
+                "count": 16,
+                "percent": 53.3
+            },
+            "Female": {
+                "count": 14,
+                "percent": 46.7
+            }
+        },
+        "control": {
+            "Female": {
+                "count": 16,
+                "percent": 53.3
+            },
+            "Male": {
+                "count": 14,
+                "percent": 46.7
+            }
+        },
+        "chi_square": {
+            "chi2": 0.067,
+            "df": 1,
+            "p": 0.796
+        }
+    },
+    "education": {
+        "total": {
+            "BSc": {
+                "count": 26,
+                "percent": 43.3
+            },
+            "MSc": {
+                "count": 25,
+                "percent": 41.7
+            },
+            "PhD": {
+                "count": 9,
+                "percent": 15.0
+            }
+        },
+        "experimental": {
+            "MSc": {
+                "count": 15,
+                "percent": 50.0
+            },
+            "BSc": {
+                "count": 11,
+                "percent": 36.7
+            },
+            "PhD": {
+                "count": 4,
+                "percent": 13.3
+            }
+        },
+        "control": {
+            "BSc": {
+                "count": 15,
+                "percent": 50.0
+            },
+            "MSc": {
+                "count": 10,
+                "percent": 33.3
+            },
+            "PhD": {
+                "count": 5,
+                "percent": 16.7
+            }
+        },
+        "chi_square": {
+            "chi2": 1.726,
+            "df": 2,
+            "p": 0.422
+        }
+    },
+    "baseline_equivalency_verdict": "SUPPORTED"
+}
