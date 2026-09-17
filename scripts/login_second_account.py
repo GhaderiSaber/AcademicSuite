@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""
+login_second_account.py — Authenticate Saber's Second Telegram Account via QR Code
+-----------------------------------------------------------------------------------
+Telegram requires QR login to bypass reCAPTCHA.
+This script:
+1. Connects to Telegram via the active SOCKS5 proxy.
+2. Generates a QR login code and displays it as ASCII art + saves /tmp/telegram_qr.png.
+3. Waits for you to scan via:
+   Telegram -> Settings -> Devices -> Link Desktop Device (اتصال دستگاه).
+4. Saves 'saber_second_userbot.session'.
+5. Updates 'telethon_config.json' with second_account.
+6. Restarts 'telethon-userbot.service' to listen to both accounts 24/7!
+"""
+
+import os
+import sys
+import json
+import asyncio
+import argparse
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+SKILL_DIR = os.path.join(ROOT_DIR, ".agents/skills/digital-twin-academic-consultant/scripts")
+CONFIG_PATH = os.path.join(SKILL_DIR, "telethon_config.json")
+SESSION_PATH = os.path.join(SKILL_DIR, "saber_second_userbot")
+
+from telethon import TelegramClient
+from telethon.errors import SessionPasswordNeededError
+import qrcode
+
+async def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--password", "-p", default=None, help="2FA cloud password if enabled")
+    args = parser.parse_args()
+
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        cfg = json.load(f)
+
+    proxy = (cfg["proxy"]["proxy_type"], cfg["proxy"]["addr"], cfg["proxy"]["port"])
+    client = TelegramClient(SESSION_PATH, cfg["api_id"], cfg["api_hash"], proxy=proxy)
+
+    await client.connect()
+    if await client.is_user_authorized():
+        me = await client.get_me()
+        print(f"[✓] Already authorized as: {me.first_name} (@{me.username}) ID: {me.id}")
+        await client.disconnect()
+        return
+
+    print("=" * 65)
+    print("📱 TELEGRAM QR CODE LOGIN (Bypasses SMS & reCAPTCHA)")
+    print("   1. Open Telegram on your phone (Account: +989142564775).")
+    print("   2. Go to: Settings -> Devices -> Link Desktop Device")
+    print("             (تنظیمات -> دستگاه‌ها -> اتصال دستگاه)")
+    print("   3. Scan the QR code below or open the generated image:")
+    print("=" * 65 + "\n")
+
+    qr_login = await client.qr_login()
+    
+    # Save image for easy viewing
+    qr_img = qrcode.make(qr_login.url)
+    img_path = "/home/ghaderi-saber/Desktop/telegram_qr.png"
+    qr_img.save(img_path)
+    print(f"[+] QR Code image saved to Desktop: {img_path}")
+    print(f"[+] Raw Login URL: {qr_login.url}\n")
+
+    # Print ASCII QR
+    qr = qrcode.QRCode()
+    qr.add_data(qr_login.url)
+    qr.print_ascii(invert=True)
+
+    print("\n[*] Waiting for QR scan from Telegram mobile app (valid for ~60s)...")
+    try:
+        user = await qr_login.wait(timeout=75)
+    except SessionPasswordNeededError:
+        print("\n[*] Two-step verification (2FA) cloud password is required.")
+        if args.password:
+            user = await client.sign_in(password=args.password)
+        else:
+            import getpass
+            pw = getpass.getpass("Enter 2FA password: ")
+            user = await client.sign_in(password=pw)
+    except asyncio.TimeoutError:
+        print("\n[-] QR code expired. Please run the script again to refresh the code.")
+        await client.disconnect()
+        sys.exit(1)
+
+    print("\n" + "=" * 65)
+    print(f"[✓] SUCCESS! Authenticated as: {user.first_name} {user.last_name or ''} (@{user.username}) [ID: {user.id}]")
+    print(f"[✓] Session saved: {SESSION_PATH}.session")
+    
+    # Update telethon_config.json
+    cfg["second_account"] = {
+        "phone_number": "+989142564775",
+        "session_name": "saber_second_userbot",
+        "admin_id": user.id
+    }
+    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, ensure_ascii=False, indent=2)
+    print(f"[✓] Updated {CONFIG_PATH} with second_account (ID: {user.id})")
+
+    # Clean up desktop image
+    if os.path.exists(img_path):
+        try:
+            os.remove(img_path)
+        except Exception:
+            pass
+
+    await client.disconnect()
+
+    # Restart background daemon
+    print("[*] Restarting telethon-userbot.service...")
+    os.system(f"{ROOT_DIR}/scripts/telethon_service.sh restart")
+    print("[✓] Dual-account 24/7 background listener is now ACTIVE!")
+    print("=" * 65)
+
+if __name__ == "__main__":
+    asyncio.run(main())
