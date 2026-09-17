@@ -21,7 +21,15 @@ Activate this skill when:
 ---
 
 ## 2. Hard Non-Negotiable Directives
-This skill strictly enforces the Digital Saber Constitutional Directives:
+- **Mandatory 8-Stage Presentation Sequence (Directive 3)**: Monolithic slide generation in a single prompt is strictly forbidden. The agent MUST execute the 8-stage sequence producing verified physical artifacts on disk:
+  - *Stage D.0*: Findings Ingestion & Payload Verification (`00_defense_findings_payload.json`)
+  - *Stage D.1*: Storyboard & 14-Slide Architecture (`01_defense_storyboard.docx`, `.md`, `.json`)
+  - *Stage D.2*: Dedicated Statistical & Hypothesis Slide Triads (`02_hypothesis_slides.docx`, `.md`, `.json`)
+  - *Stage D.3*: Deterministic Deck Compilation (`Defense_Presentation.pptx` + `presentation.html`)
+  - *Stage D.4*: High-Resolution 300-DPI Publication Diagram (`structural_model_diagram.png`)
+  - *Stage D.5*: Candidate 20-Minute Defense Script & Q&A Guide (`04_defense_script.docx`, `.md`, `.json`)
+  - *Stage D.6*: Geometry Collision, Font Dual-Slot & Typography Audit (`05_presentation_qa_audit.json`, `.md`)
+  - *Stage D.7*: Committee Viva Voce Oral Defense Simulation (`06_defense_committee_simulation.docx`, `.md`, `.json`)
 - **Interactive Path Selection**: Prompt the user to choose an execution path before compiling (see Section 3).
 - **Zero Emojis in Academic Slides (Directive 4.1)**: Strictly prohibited across all slides, tables, and candidate speaker notes.
 - **Zero English Words in Persian Slides (Directive 4.1)**: All text, headings, and labels must be Persian. Latin characters are restricted to standardized statistical symbols ($M, SD, t, F, p, \beta, z$) and fit indices in `Times New Roman` italic.

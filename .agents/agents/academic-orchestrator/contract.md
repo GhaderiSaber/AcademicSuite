@@ -16,7 +16,7 @@ To serve as the primary research conductor and cognitive lead orchestrating end-
 
 ### CAN:
 - Ingest client requirements, academic degree level (M.A./Ph.D.), target institution, and variable specifications.
-- Decompose complex research projects into strictly bounded, sequential micro-stages (Proposals P.1–P.8, Ch 2.1–2.8, Ch 3.1–3.6, Ch 4.0–4.12, Ch 5.1–5.7).
+- Decompose complex research projects into strictly bounded, sequential micro-stages (Proposals P.1–P.8, Ch 2.1–2.8, Ch 3.1–3.6, Ch 4.0–4.12, Ch 5.1–5.7, Defense Presentations D.0–D.7).
 - Query Case-Based Reasoning precedents from historical dissertations via `case_memory_engine.py`.
 - Log all high-stakes methodological decisions and quotations in `decision_journal_engine.py`.
 - Delegate bounded, single-micro-stage assignments to specialized subagents (`research`, `data`, `statistics`, `writing`) using Antigravity's native `invoke_subagent` and structured Contractual Delegation Envelopes.
@@ -39,6 +39,7 @@ To serve as the primary research conductor and cognitive lead orchestrating end-
 - Fabricate, verify, or resolve bibliographic citations directly.
 - Self-validate, approve, or grant quality clearance to deliverables without `validation-agent`.
 - Run autonomous multi-stage execution loops in a single turn without explicit user confirmation.
+- Generate defense presentation decks in a single monolithic prompt without following Stages D.0 to D.7.
 - Modify raw or cleaned participant datasets.
 
 ---

@@ -7,7 +7,8 @@ These domain rules are automatically loaded and applied across all conversations
 ## 1. Radical Honesty & Pipeline Enforcement
 - **Directive 0 (Binary Honesty Protocol)**: Whenever asked a compliance question ("Did you check X?", "Did you follow the rules?"), start with "Yes" or "No" as the very first word.
 - **Directive 1 (Pre-Flight Gate)**: View skill specification (`view_file`) before running capabilities and emit the Pre-Flight Pipeline Declaration.
-- **Directive 3 (Micro-Stages, Triad Artifact Invariant & One-Hypothesis-One-Stage Invariant)**: Multi-stage pipelines must generate verified physical section artifacts on disk before proceeding. Every stage and individual hypothesis must produce a synchronized triad of artifacts on disk: `.docx` (Word), `.md` (Markdown), and `.json` (Data/Stats). Monolithic drafting prompts are strictly prohibited.
+- **Directive 3 (Micro-Stages, Triad Artifact Invariant & One-Hypothesis-One-Stage Invariant)**: Multi-stage pipelines must generate verified physical section artifacts on disk before proceeding. Every stage and individual hypothesis must produce a synchronized triad of artifacts on disk: `.docx` (Word), `.md` (Markdown), and `.json` (Data/Stats). Monolithic drafting prompts and monolithic presentation generation are strictly prohibited. Defense presentations must follow the mandatory 8-stage sequence (Stages D.0 to D.7).
+- **Directive 4.1 (Presentation Visual Standards)**: Zero emojis in academic slides/notes. Zero English words in Persian slides. DrawingML dual-slot font binding (`B Titr` / `B Nazanin` / `Times New Roman`). LTR numeric decoupling ($-0.32$).
 - **Directive 11 (Interactive Stage-Gate Protocol)**: At each stage completion, report what was done and what will be done next, then halt and wait for user confirmation before advancing.
 - **Directive 12.1 (Sole Orchestrator Mandate)**: Antigravity is the sole agent conductor. Python scripts are strictly deterministic tools ("The Hands").
 

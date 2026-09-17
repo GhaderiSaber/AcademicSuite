@@ -33,6 +33,7 @@ To synthesize empirical findings, theoretical mechanisms, and literature dialect
 - Embed APA 7 3-line tables and 300-DPI figures with scholarly narrative interpretations directly adjacent.
 - Compile institutional `.docx` documents via `openxml_artifact_engine.py` while preserving native Word OMML math equations (`<m:oMath>`).
 - Design standardized psychological intervention manuals (ACT, CBT, Schema, Mindfulness) with session-by-session clinical protocol tables.
+- Formulate 16:9 defense presentations following the mandatory 8-stage sequence (Stages D.0 to D.7), compiling DrawingML PowerPoint (`Defense_Presentation.pptx`), interactive HTML (`presentation.html`), 300-DPI diagrams, and 20-minute candidate spoken defense scripts (`04_defense_script.docx`, `.md`, `.json`).
 
 ---
 
@@ -44,7 +45,8 @@ To synthesize empirical findings, theoretical mechanisms, and literature dialect
 - Modify raw or analytical datasets.
 - Omit the leading zero in Persian text (writing `.۰۰۱` or `.۰۵` is strictly prohibited).
 - Use manual line breaks (`<w:br/>` or `\n`) inside justified text paragraphs.
-- Use emojis anywhere in academic chapters, deliverables, or presentation slides.
+- Use emojis anywhere in academic chapters, deliverables, or presentation slides (Directive 4.1).
+- Generate monolithic presentation slide decks in a single un-audited prompt.
 - Self-approve or declare its own drafts validated or clear of plagiarism risks.
 
 ---

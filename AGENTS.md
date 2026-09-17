@@ -82,6 +82,15 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
    - **Chapter 2 Literature Review**: Stages 2.1 to 2.8 (Foundations $\rightarrow$ Bibliometrics $\rightarrow$ International $\rightarrow$ Iranian $\rightarrow$ Synthesis $\rightarrow$ Matrix Table $\rightarrow$ Assembly, each producing `.docx`, `.md`, `.json`).
    - **Research Proposal**: Stages P.1 to P.8 (Problem $\rightarrow$ Significance $\rightarrow$ Hypotheses $\rightarrow$ Methodology $\rightarrow$ Instruments $\rightarrow$ Procedure $\rightarrow$ Ethics $\rightarrow$ Assembly, each producing `.docx`, `.md`, `.json`).
    - **Scale Validation**: Stages V.1 to V.9 (CVR/CVI $\rightarrow$ Item Analysis $\rightarrow$ EFA $\rightarrow$ CFA $\rightarrow$ Construct Validity $\rightarrow$ Invariance $\rightarrow$ IRT/ROC $\rightarrow$ Assembly, each producing `.docx`, `.md`, `.json`).
+   - **Defense Presentation Builder (طراحی اسلایدهای پیشرفته جلسه دفاع)**: Stages D.0 to D.7 (Mandatory Vertical Slice Invariant):
+     - *Stage D.0*: Findings Ingestion & Verification (`00_defense_findings_payload.json`)
+     - *Stage D.1*: Storyboard & 14-Slide Architecture (`01_defense_storyboard.docx`, `.md`, `.json`)
+     - *Stage D.2*: Dedicated Statistical & Hypothesis Slide Triads (`02_hypothesis_slides.docx`, `.md`, `.json`)
+     - *Stage D.3*: Deterministic Deck Compilation (`Defense_Presentation.pptx` + `presentation.html`)
+     - *Stage D.4*: High-Resolution 300-DPI Publication Diagram (`structural_model_diagram.png`)
+     - *Stage D.5*: Candidate 20-Minute Defense Script & Q&A Guide (`04_defense_script.docx`, `.md`, `.json`)
+     - *Stage D.6*: Geometry Collision, Font Dual-Slot & Typography Audit (`05_presentation_qa_audit.json`, `.md`)
+     - *Stage D.7*: Committee Viva Voce Oral Defense Simulation (`06_defense_committee_simulation.docx`, `.md`, `.json`)
 
 ---
 
@@ -98,9 +107,10 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 5. **APA 7 Tables**: Zero vertical borders. Exactly 3 horizontal borders (Top 0.75 pt, Header bottom 0.5 pt, Table bottom 0.75 pt). Table title above; notes below.
 
 ### Directive 4.1: Presentation Visual Standards & Academic Sobriety
-1. **Zero Emojis**: Emojis (📊, 🎯, 🧠, etc.) are strictly prohibited in academic deliverables, chapters, proposals, and slides.
-2. **Zero English Words in Persian Slides**: Persian slides must use Persian terminology («مسیرهای مستقیم»، «یافته آماری»، «سازوکارهای تبیین نظری»). Latin characters reserved strictly for statistical notation (*M, SD, t, F, p, β, z*) and fit indices in `Times New Roman` italic.
-3. **Presentation Manual Compliance**: Widescreen typography scale, native RTL SmartArt (`Reverse = 1`), decoupled LTR numbers, and 3D plaques must strictly adhere to [.agents/references/PRESENTATION_STANDARDS_MANUAL.md](file:///.agents/references/PRESENTATION_STANDARDS_MANUAL.md).
+1. **Monolithic Slide Generation Prohibited**: Generating an entire defense deck in a single un-audited prompt is strictly forbidden. Every defense presentation MUST follow the 8-stage sequence (Stages D.0 to D.7) with verified physical artifacts on disk, dual deliverable compilation (DrawingML PPTX + 16:9 HTML), candidate speaker scripts, and zero-collision geometry audit.
+2. **Zero Emojis**: Emojis (📊, 🎯, 🧠, etc.) are strictly prohibited in academic deliverables, chapters, proposals, and slides.
+3. **Zero English Words in Persian Slides**: Persian slides must use Persian terminology («مسیرهای مستقیم»، «یافته آماری»، «سازوکارهای تبیین نظری»). Latin characters reserved strictly for statistical notation (*M, SD, t, F, p, β, z*) and fit indices in `Times New Roman` italic.
+4. **Presentation Manual Compliance**: Widescreen typography scale, native RTL SmartArt (`Reverse = 1`), decoupled LTR numbers, and 3D plaques must strictly adhere to [.agents/references/PRESENTATION_STANDARDS_MANUAL.md](file:///.agents/references/PRESENTATION_STANDARDS_MANUAL.md).
 
 ### Directive 5: Persian Academic Typography & OpenXML Standards
 - **Text Direction (BiDi)**: Enforce RTL via `<w:bidi w:val="1"/>` in `<w:pPr>`, `<w:rtl w:val="1"/>` in `<w:rPr>`, and `<w:bidiVisual/>` in `<w:tblPr>`.
