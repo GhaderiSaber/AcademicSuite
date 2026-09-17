@@ -33,12 +33,85 @@ def load_transcript(transcript_path: str) -> List[Dict[str, Any]]:
     return records
 
 
+def is_raw_data_path(path: str) -> bool:
+    """Detects whether a file path points to an immutable raw dataset or directory."""
+    if not path:
+        return False
+    norm = os.path.normpath(path).replace("\\", "/")
+    parts = norm.split("/")
+    basename = os.path.basename(norm).lower()
+
+    # Check directory hierarchy
+    for p in parts[:-1]:
+        p_lower = p.lower()
+        if p_lower in ("raw", "raw_data", "raw_inputs", "01_raw_inputs", "01_raw", "raw-data"):
+            return True
+        if "raw_input" in p_lower or "raw_data" in p_lower:
+            return True
+
+    # Check filename
+    raw_prefixes = ("raw_", "raw-")
+    raw_exact = (
+        "raw.xlsx", "raw.csv", "raw.sav", "raw.tsv",
+        "data_raw.xlsx", "data_raw.csv", "data_raw.sav",
+        "dataset_raw.xlsx", "dataset_raw.csv", "dataset_raw.sav"
+    )
+    if basename in raw_exact:
+        return True
+    if any(basename.startswith(pre) for pre in raw_prefixes):
+        return True
+    if "_raw." in basename or "-raw." in basename:
+        return True
+    if "raw_data" in basename or "raw-data" in basename:
+        return True
+
+    return False
+
+
+def is_raw_data_command(cmd: str) -> bool:
+    """Detects whether a bash command attempts to modify, overwrite, or delete raw data."""
+    if not cmd:
+        return False
+    patterns = [
+        r'\brm\s+[^;&|]*(?:raw_data|data_raw|01_raw_inputs|raw_inputs|/raw/)[^;&|\s]*',
+        r'\bmv\s+[^;&|]*(?:raw_data|data_raw|01_raw_inputs|raw_inputs|/raw/)[^;&|\s]*',
+        r'(?:>|>>)\s*[\'"]?[^;&|\s]*(?:raw_data|data_raw|01_raw_inputs|raw_inputs|/raw/)[^;&|\s]*',
+        r'\b(?:truncate|sed\s+-i|perl\s+-i)\b.*(?:raw_data|data_raw|01_raw_inputs|raw_inputs|/raw/)',
+        r'\bcp\s+[^;&|]+\s+[^;&|]*(?:raw_data|data_raw|01_raw_inputs|raw_inputs|/raw/)[^;&|\s]*'
+    ]
+    return any(re.search(pat, cmd, re.IGNORECASE) for pat in patterns)
+
+
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Intercepts tool calls to enforce Directive 3 (Artifact Gating), Directive 6 (English-Only Filenames) and security gates."""
     tool_call = payload.get("toolCall", {})
     name = tool_call.get("name", "")
     args = tool_call.get("args", {})
     workspaces = payload.get("workspacePaths", [])
+
+    # 0. Raw-Data Protection Gate (Phase 9 Hard Hook)
+    if name in ("write_to_file", "replace_file_content"):
+        target = args.get("TargetFile", "")
+        if is_raw_data_path(target):
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"HARD HOOK ENFORCEMENT (Raw-Data Immutability Guard): Modification of raw dataset file '{target}' "
+                    f"is strictly prohibited. Raw datasets are immutable. Transform data into "
+                    f"separate analytical/cleaned files (e.g., 'data_cleaned.xlsx', 'data_scored.xlsx') instead."
+                )
+            }
+
+    if name == "run_command":
+        cmd = args.get("CommandLine", "")
+        if is_raw_data_command(cmd):
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"HARD HOOK ENFORCEMENT (Raw-Data Immutability Guard): Command attempts to modify, overwrite, "
+                    f"or delete raw data files ('{cmd}'). Raw datasets are strictly immutable."
+                )
+            }
 
     # 1. Filename ASCII enforcement for file modifying tools
     if name in ("write_to_file", "replace_file_content"):
@@ -166,7 +239,69 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def handle_post_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Validates artifact schemas and logs post-tool diagnostics."""
+    """Logs tool execution event to .agents/memory/audit_log.jsonl (Phase 9 Hard Hook)."""
+    try:
+        from datetime import datetime, timezone
+
+        workspaces = payload.get("workspacePaths", [])
+        mem_dir = None
+        for ws in workspaces:
+            cand = os.path.join(ws, ".agents", "memory")
+            if os.path.exists(cand):
+                mem_dir = cand
+                break
+        if not mem_dir:
+            default_mem = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "memory"))
+            if os.path.exists(default_mem):
+                mem_dir = default_mem
+            else:
+                mem_dir = os.path.join(workspaces[0], ".agents", "memory") if workspaces else ".agents/memory"
+                os.makedirs(mem_dir, exist_ok=True)
+
+        audit_file = os.path.join(mem_dir, "audit_log.jsonl")
+
+        cid = payload.get("conversationId", "")
+        step_idx = payload.get("stepIdx")
+        error = payload.get("error")
+        tool_call = payload.get("toolCall", {})
+
+        tool_name = tool_call.get("name", "")
+        tool_args = tool_call.get("args", {})
+
+        if not tool_name:
+            transcript_path = payload.get("transcriptPath")
+            if not transcript_path and cid:
+                cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
+                if os.path.exists(cand):
+                    transcript_path = cand
+            records = load_transcript(transcript_path) if transcript_path else []
+            for r in reversed(records):
+                tcs = r.get("tool_calls", [])
+                if tcs:
+                    last_tc = tcs[-1]
+                    if isinstance(last_tc, dict):
+                        tool_name = last_tc.get("name", "")
+                        tool_args = last_tc.get("args", {})
+                    break
+
+        sanitized_args = {k: v for k, v in tool_args.items() if k not in ("CodeContent", "ReplacementContent")}
+
+        event_record = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "conversation_id": cid,
+            "step_index": step_idx,
+            "tool_name": tool_name or "unknown",
+            "tool_args": sanitized_args,
+            "error": error,
+            "status": "ERROR" if error else "SUCCESS"
+        }
+
+        with open(audit_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(event_record, ensure_ascii=False) + "\n")
+
+    except Exception as e:
+        sys.stderr.write(f"[transcript_and_rule_guard] Error writing audit log: {e}\n")
+
     return {}
 
 
@@ -237,6 +372,88 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         )
                     }
 
+    # 3. Required Validation & Triad Artifact Gate (Phase 9 Hard Hook)
+    active_stage_dirs = []
+    for ws in workspaces:
+        proj_dir = os.path.join(ws, "projects")
+        if os.path.exists(proj_dir):
+            for root, dirs, files in os.walk(proj_dir):
+                if any(re.search(r'^(?:\d+_)?[a-zA-Z0-9_-]+\.(?:docx|md|json)$', f) for f in files):
+                    if any(re.search(r'(?:hypothesis|demographic|descriptive|assumption|correlation|model|curation|deliverable)', f, re.I) for f in files):
+                        active_stage_dirs.append(root)
+
+    for s_dir in set(active_stage_dirs):
+        files = os.listdir(s_dir)
+        # Check Triad Artifact Invariant for stage deliverables (e.g. 01_demographics, 06_hypothesis_1)
+        stage_prefixes = set()
+        for f in files:
+            m = re.match(r'^(\d+_[a-zA-Z0-9_-]+)\.(?:docx|md|json)$', f)
+            if m:
+                stage_prefixes.add(m.group(1))
+
+        for pfx in stage_prefixes:
+            has_docx = f"{pfx}.docx" in files
+            has_md = f"{pfx}.md" in files
+            has_json = f"{pfx}.json" in files
+            missing = []
+            if not has_docx: missing.append(f"{pfx}.docx")
+            if not has_md: missing.append(f"{pfx}.md")
+            if not has_json: missing.append(f"{pfx}.json")
+            if missing and (has_docx or has_md or has_json):
+                return {
+                    "decision": "continue",
+                    "reason": (
+                        f"HARD HOOK ENFORCEMENT (Directive 3 - Triad Artifact Invariant): "
+                        f"Stage '{pfx}' in '{s_dir}' has incomplete physical artifacts. Missing: {missing}. "
+                        f"Every stage and individual hypothesis must generate a synchronized triad: .docx, .md, and .json."
+                    )
+                }
+
+        # Check existing validation reports in stage directory
+        val_rep_path = os.path.join(s_dir, "validation_report.json")
+        if os.path.exists(val_rep_path):
+            try:
+                with open(val_rep_path, "r", encoding="utf-8") as f:
+                    val_data = json.load(f)
+                if val_data.get("overall_verdict") == "FAIL":
+                    return {
+                        "decision": "continue",
+                        "reason": (
+                            f"HARD HOOK ENFORCEMENT (Required Validation Gate): Stage artifacts in '{s_dir}' "
+                            f"failed deterministic validation (overall_verdict: FAIL). Fix errors before completing."
+                        )
+                    }
+            except Exception:
+                pass
+
+        # Dynamically execute validator suite if both json and md artifacts exist
+        has_jsons = any(f.endswith(".json") and not f.startswith("validation_") for f in files)
+        has_mds = any(f.endswith(".md") for f in files)
+        if has_jsons and has_mds:
+            validator_runner = None
+            for ws in workspaces:
+                cand = os.path.join(ws, "validators", "run_all_validators.py")
+                if os.path.exists(cand):
+                    validator_runner = cand
+                    break
+            if validator_runner:
+                try:
+                    import importlib.util
+                    spec = importlib.util.spec_from_file_location("val_runner", validator_runner)
+                    vmod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(vmod)
+                    rep = vmod.run_suite(s_dir)
+                    if rep.get("overall_verdict") == "FAIL":
+                        failed_tests = [r for r in rep.get("results", []) if r.get("verdict") == "FAIL"]
+                        return {
+                            "decision": "continue",
+                            "reason": (
+                                f"HARD HOOK ENFORCEMENT (Required Validation Gate): Automated deterministic validation "
+                                f"failed for stage directory '{s_dir}'. Failures: {failed_tests}. Resolve errors before finishing."
+                            )
+                        }
+                except Exception as e:
+                    sys.stderr.write(f"[transcript_and_rule_guard] Error executing validation suite: {e}\n")
 
     transcript_path = payload.get("transcriptPath")
     cid = payload.get("conversationId")

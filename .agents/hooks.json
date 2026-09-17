@@ -15,7 +15,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "run_command|write_to_file",
+        "matcher": "run_command|write_to_file|replace_file_content",
         "hooks": [
           {
             "type": "command",

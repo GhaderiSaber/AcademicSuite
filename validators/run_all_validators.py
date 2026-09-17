@@ -39,6 +39,37 @@ def run_suite(stage_dir):
         if res["verdict"] == "FAIL": overall_fail = True
         elif res["verdict"] == "NEEDS_REVIEW": overall_review = True
 
+    # Check data integrity if curation/audit files exist
+    from data_integrity.validator import validate_data
+    for j in json_files:
+        b = os.path.basename(j).lower()
+        if "curation" in b or "data_audit" in b or "data_quality" in b:
+            res = validate_data(j)
+            report["results"].append(res)
+            if res["verdict"] == "FAIL": overall_fail = True
+            elif res["verdict"] == "NEEDS_REVIEW": overall_review = True
+
+    # Check statistical assumptions if assumption files exist
+    from statistical_assumptions.validator import validate_assumptions
+    for j in json_files:
+        b = os.path.basename(j).lower()
+        if "assumption" in b:
+            res = validate_assumptions(j)
+            report["results"].append(res)
+            if res["verdict"] == "FAIL": overall_fail = True
+            elif res["verdict"] == "NEEDS_REVIEW": overall_review = True
+
+    # Check result consistency between matched json and md artifacts
+    from result_consistency.validator import validate_results
+    for j in json_files:
+        base = os.path.splitext(j)[0]
+        md_candidate = base + ".md"
+        if os.path.exists(md_candidate):
+            res = validate_results(j, md_candidate)
+            report["results"].append(res)
+            if res["verdict"] == "FAIL": overall_fail = True
+            elif res["verdict"] == "NEEDS_REVIEW": overall_review = True
+
     if overall_fail:
         report["overall_verdict"] = "FAIL"
     elif overall_review:

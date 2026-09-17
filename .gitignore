@@ -27,6 +27,7 @@ bot_config.json
 userbot_storage/
 bot_storage/
 .agents/output/
+.agents/memory/audit_log.jsonl
 
 # Allow repository documentation, agent instructions, dependencies, and psychometric registry
 !.gitignore
