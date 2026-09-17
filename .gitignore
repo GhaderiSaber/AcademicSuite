@@ -8,6 +8,7 @@
 !webapp/
 !projects/
 !docs/
+!markdown/
 !validators/
 !evals/
 !recovery/
