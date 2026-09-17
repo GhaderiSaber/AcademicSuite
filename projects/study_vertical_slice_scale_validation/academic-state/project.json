@@ -1,0 +1,15 @@
+{
+  "project_id": "study_vertical_slice_scale_validation",
+  "title": "Cyber-Aggression and Cyber-Victimization Scale (CAV-S) Validation",
+  "methodology_type": "cfa_scale_validation",
+  "sample_size": 450,
+  "current_stage": "00_data_curation",
+  "orchestrator": "academic-orchestrator",
+  "status": "in_progress",
+  "created_at": "2026-09-17T07:18:09.126130+00:00",
+  "updated_at": "2026-09-17T07:18:09.126130+00:00",
+  "metadata": {
+    "version": "1.0.0",
+    "target_degree": "Ph.D. / Master's Thesis"
+  }
+}

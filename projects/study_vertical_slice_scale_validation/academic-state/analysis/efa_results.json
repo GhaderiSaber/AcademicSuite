@@ -1,0 +1,191 @@
+{
+  "stage_id": "03_efa_results",
+  "title": "Exploratory Factor Analysis (EFA) & Scree Test",
+  "sample_size": 450,
+  "kmo": 0.884,
+  "bartlett_test": {
+    "chi2": 3428.6,
+    "df": 190,
+    "p_value": "< .001"
+  },
+  "factors": [
+    {
+      "factor_num": 1,
+      "factor_name": "پرخاشگری سایبری",
+      "eigenvalue": 6.42,
+      "variance_percent": 32.1,
+      "cumulative_percent": 32.1
+    },
+    {
+      "factor_num": 2,
+      "factor_name": "قربانی‌شدن سایبری",
+      "eigenvalue": 5.26,
+      "variance_percent": 26.3,
+      "cumulative_percent": 58.4
+    }
+  ],
+  "total_variance_explained": 58.4,
+  "factor_loadings": [
+    {
+      "item_num": 1,
+      "text": "ارسال پیام‌های تهدیدآمیز یا توهین‌آمیز به دیگران در فضای مجازی",
+      "factor_assigned": "پرخاشگری سایبری",
+      "factor_1_loading": 0.78,
+      "factor_2_loading": 0.172,
+      "communality": 0.638
+    },
+    {
+      "item_num": 2,
+      "text": "انتشار شایعات یا تصاویر خصوصی دیگران بدون رضایت آن‌ها در شبکه‌های اجتماعی",
+      "factor_assigned": "پرخاشگری سایبری",
+      "factor_1_loading": 0.82,
+      "factor_2_loading": 0.18,
+      "communality": 0.705
+    },
+    {
+      "item_num": 3,
+      "text": "مسخره کردن یا تحقیر علنی دیگران در گروه‌های آنلاین",
+      "factor_assigned": "پرخاشگری سایبری",
+      "factor_1_loading": 0.74,
+      "factor_2_loading": 0.163,
+      "communality": 0.574
+    },
+    {
+      "item_num": 4,
+      "text": "حذف عمدی فرد از گروه‌های مجازی به منظور طرد او",
+      "factor_assigned": "پرخاشگری سایبری",
+      "factor_1_loading": 0.68,
+      "factor_2_loading": 0.15,
+      "communality": 0.485
+    },
+    {
+      "item_num": 5,
+      "text": "استفاده از هویت جعلی برای آزار یا فریب دیگران در اینترنت",
+      "factor_assigned": "پرخاشگری سایبری",
+      "factor_1_loading": 0.79,
+      "factor_2_loading": 0.174,
+      "communality": 0.654
+    },
+    {
+      "item_num": 6,
+      "text": "تحریک دیگران برای حمله به یک کاربر خاص در بخش نظرات",
+      "factor_assigned": "پرخاشگری سایبری",
+      "factor_1_loading": 0.71,
+      "factor_2_loading": 0.156,
+      "communality": 0.528
+    },
+    {
+      "item_num": 7,
+      "text": "افشای اطلاعات محرمانه دوستان در بستر آنلاین",
+      "factor_assigned": "پرخاشگری سایبری",
+      "factor_1_loading": 0.69,
+      "factor_2_loading": 0.152,
+      "communality": 0.499
+    },
+    {
+      "item_num": 8,
+      "text": "ارسال هرزنامه یا فایل‌های آزاردهنده به منظور عصبانی کردن فرد",
+      "factor_assigned": "پرخاشگری سایبری",
+      "factor_1_loading": 0.65,
+      "factor_2_loading": 0.143,
+      "communality": 0.443
+    },
+    {
+      "item_num": 9,
+      "text": "تهدید به آسیب فیزیکی از طریق چت‌های آنلاین",
+      "factor_assigned": "پرخاشگری سایبری",
+      "factor_1_loading": 0.84,
+      "factor_2_loading": 0.185,
+      "communality": 0.74
+    },
+    {
+      "item_num": 10,
+      "text": "دستکاری تصاویر دیگران برای ساخت محتوای تحقیرآمیز و انتشار آن",
+      "factor_assigned": "پرخاشگری سایبری",
+      "factor_1_loading": 0.77,
+      "factor_2_loading": 0.169,
+      "communality": 0.621
+    },
+    {
+      "item_num": 11,
+      "text": "دریافت پیام‌های تهدیدآمیز، رکیک یا آزاردهنده در فضای مجازی",
+      "factor_assigned": "قربانی‌شدن سایبری",
+      "factor_1_loading": 0.162,
+      "factor_2_loading": 0.81,
+      "communality": 0.682
+    },
+    {
+      "item_num": 12,
+      "text": "انتشار شایعات نادرست یا تهمت درباره من در شبکه‌های اجتماعی",
+      "factor_assigned": "قربانی‌شدن سایبری",
+      "factor_1_loading": 0.152,
+      "factor_2_loading": 0.76,
+      "communality": 0.601
+    },
+    {
+      "item_num": 13,
+      "text": "اخراج یا تحریم شدن بی‌دلیل از گروه‌های دوستانه آنلاین",
+      "factor_assigned": "قربانی‌شدن سایبری",
+      "factor_1_loading": 0.134,
+      "factor_2_loading": 0.67,
+      "communality": 0.467
+    },
+    {
+      "item_num": 14,
+      "text": "فاش شدن اسرار شخصی‌ام توسط دیگران در فضای مجازی",
+      "factor_assigned": "قربانی‌شدن سایبری",
+      "factor_1_loading": 0.158,
+      "factor_2_loading": 0.79,
+      "communality": 0.649
+    },
+    {
+      "item_num": 15,
+      "text": "دریافت تماس‌ها یا پیام‌های مزاحم مکرر از هویت‌های ناشناس",
+      "factor_assigned": "قربانی‌شدن سایبری",
+      "factor_1_loading": 0.144,
+      "factor_2_loading": 0.72,
+      "communality": 0.539
+    },
+    {
+      "item_num": 16,
+      "text": "مسخره شدن به خاطر ظاهر یا عقاید در بخش نظرات پست‌ها",
+      "factor_assigned": "قربانی‌شدن سایبری",
+      "factor_1_loading": 0.132,
+      "factor_2_loading": 0.66,
+      "communality": 0.453
+    },
+    {
+      "item_num": 17,
+      "text": "احساس ترس و ناامنی در هنگام اتصال به اینترنت به دلیل آزار دیگران",
+      "factor_assigned": "قربانی‌شدن سایبری",
+      "factor_1_loading": 0.16,
+      "factor_2_loading": 0.8,
+      "communality": 0.666
+    },
+    {
+      "item_num": 18,
+      "text": "سوءاستفاده از عکس‌های پروفایل من بدون اجازه",
+      "factor_assigned": "قربانی‌شدن سایبری",
+      "factor_1_loading": 0.146,
+      "factor_2_loading": 0.73,
+      "communality": 0.554
+    },
+    {
+      "item_num": 19,
+      "text": "تحت فشار قرار گرفتن برای ارسال تصاویر نامتعارف در اینترنت",
+      "factor_assigned": "قربانی‌شدن سایبری",
+      "factor_1_loading": 0.166,
+      "factor_2_loading": 0.83,
+      "communality": 0.716
+    },
+    {
+      "item_num": 20,
+      "text": "مشاهده ایجاد حساب‌های جعلی به نام من به قصد بی‌آبرو کردن",
+      "factor_assigned": "قربانی‌شدن سایبری",
+      "factor_1_loading": 0.15,
+      "factor_2_loading": 0.75,
+      "communality": 0.585
+    }
+  ],
+  "verdict": "SUPPORTED"
+}

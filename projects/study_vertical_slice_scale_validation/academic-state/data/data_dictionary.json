@@ -1,0 +1,68 @@
+{
+  "total_items": 20,
+  "scales": [
+    {
+      "scale_id": "CAV_S",
+      "name": "Cyber-Aggression and Cyber-Victimization Scale (CAV-S)",
+      "author_year": "Corcoran et al., 2015",
+      "items_count": 20,
+      "item_range": [1, 5],
+      "reverse_items": [],
+      "subscales": {
+        "cyber_aggression": ["cav_1", "cav_2", "cav_3", "cav_4", "cav_5", "cav_6", "cav_7", "cav_8", "cav_9", "cav_10"],
+        "cyber_victimization": ["cav_11", "cav_12", "cav_13", "cav_14", "cav_15", "cav_16", "cav_17", "cav_18", "cav_19", "cav_20"]
+      }
+    }
+  ],
+  "columns": [
+    {
+      "column_name": "gender",
+      "scale_id": "DESIGN",
+      "type": "categorical",
+      "label": "Gender (1=Female, 2=Male)",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "age",
+      "scale_id": "DEMO",
+      "type": "numeric",
+      "label": "Participant Age in Years",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "aggression_total",
+      "scale_id": "CAV_S",
+      "type": "subscale",
+      "label": "Cyber-Aggression Subscale Total",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "victimization_total",
+      "scale_id": "CAV_S",
+      "type": "subscale",
+      "label": "Cyber-Victimization Subscale Total",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "scale_total",
+      "scale_id": "CAV_S",
+      "type": "scale_composite",
+      "label": "CAV-S Scale Total Composite",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "retest_total",
+      "scale_id": "RETEST",
+      "type": "numeric",
+      "label": "4-Week Retest Total Score (n=60)",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "clinical_criterion",
+      "scale_id": "CRITERION",
+      "type": "categorical",
+      "label": "Clinical Risk Screening Criterion (0=Normal, 1=Clinical)",
+      "is_reverse_coded": false
+    }
+  ]
+}
