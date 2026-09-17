@@ -3296,11 +3296,9 @@ class SaberTelethonUserbot:
 
                 # Check if contact is in the excluded non-academic contacts registry
                 is_excluded = self.project_manager.is_ignored(client_name, sender.id, sender.username)
-                has_doc = bool(fname and mtype in ["document", "voice", "photo", "video_note"])
-                has_prop = bool(len(msg_text) > 80 and any(w in msg_text for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]))
-
-                if is_excluded and not has_doc and not has_prop:
-                    # Silently skip casual message from excluded non-academic contact
+                if is_excluded:
+                    # Silently skip all messages from excluded non-academic personal contacts
+                    print(f"[-] Ignoring message from excluded personal contact {client_name} ({sender.id})")
                     return
 
                 # Ensure client's Google Drive project folder is provisioned

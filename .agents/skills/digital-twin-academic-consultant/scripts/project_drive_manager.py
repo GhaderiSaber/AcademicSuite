@@ -722,23 +722,9 @@ class ProjectDriveManager:
         Crawl chat with client, save full history (JSON & Markdown transcript),
         download sent files into 01_raw_inputs/, and extract topic/scale clues.
         """
-        # If contact is in ignored registry and has no existing project on disk, verify if there are real research attachments
+        # If contact is in ignored registry, skip immediately (strictly non-academic / personal)
         if self.is_ignored(client_name, client_id, username):
-            existing = self.find_existing_project_by_client(client_name, client_id, username)
-            if not existing:
-                has_documents = False
-                async for msg in client.iter_messages(entity, limit=min(limit_messages, 40)):
-                    fn, _, _, _ = resolve_media_details(msg)
-                    if fn:
-                        ext = os.path.splitext(fn)[1].lower()
-                        if ext in [".docx", ".doc", ".pdf", ".sav", ".xlsx", ".xls", ".csv", ".rar", ".zip", ".ogg"]:
-                            has_documents = True
-                            break
-                    if len(msg.message or "") > 80 and any(w in (msg.message or "") for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
-                        has_documents = True
-                        break
-                if not has_documents:
-                    return {"project_dir": "", "messages_count": 0, "files_count": 0, "skipped_non_project": True}
+            return {"project_dir": "", "messages_count": 0, "files_count": 0, "skipped_non_project": True}
 
         paths = self.provision_project(client_name, client_id=client_id, username=username)
         raw_dir = paths["raw"]
