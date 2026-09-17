@@ -1,0 +1,6 @@
+{
+  "data_path": "data/raw_data.xlsx",
+  "spec": {
+    "target": "academic-drive-project-organizer"
+  }
+}

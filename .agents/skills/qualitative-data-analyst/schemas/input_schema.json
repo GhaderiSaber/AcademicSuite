@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "qualitative-data-analyst Input Schema",
+  "type": "object",
+  "properties": {
+    "data_path": {
+      "type": "string",
+      "description": "Path to input dataset or payload"
+    },
+    "spec": {
+      "type": "object",
+      "description": "Model specification or parameters"
+    }
+  },
+  "required": [
+    "data_path"
+  ]
+}
