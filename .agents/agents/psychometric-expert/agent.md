@@ -8,7 +8,7 @@ skills:
 - psychometric-scale-resolver
 - psychometric-scale-validator
 - psychometric-data-simulator
-- scale_validation
+- psychometric-scale-validator
 ---
 
 # Psychometric Expert Subagent

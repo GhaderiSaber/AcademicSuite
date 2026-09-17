@@ -6,7 +6,7 @@ role: Defense Committee Viva Voce Simulator & Release Gatekeeper
 skills:
 - thesis-integrity-auditor
 - persian-defense-presentation-builder
-- defense_presentation
+- persian-defense-presentation-builder
 ---
 
 # Final Judge Subagent

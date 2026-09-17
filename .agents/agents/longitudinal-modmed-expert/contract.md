@@ -62,7 +62,7 @@ To model longitudinal conditional process mechanisms across 3 waves (Wave 1 Pred
 - `mediation` (Bootstrap indirect effect estimation)
 - `moderation` (Conditional process modeling and simple slopes)
 - `apa-reporting` (APA 7 3-line tables)
-- `chapter4` (Statistical findings orchestration)
+- `chapter-4-writing` (Statistical findings orchestration)
 
 ---
 

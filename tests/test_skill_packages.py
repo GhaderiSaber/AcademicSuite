@@ -26,8 +26,21 @@ class TestSkillPackages(unittest.TestCase):
         ]
 
     def test_total_skills_count(self):
-        """Asserts all 53 skills are present."""
-        self.assertGreaterEqual(len(self.skill_names), 50, f"Expected >= 50 skills, found {len(self.skill_names)}")
+        """Asserts exactly 43 active production skills are present."""
+        self.assertEqual(len(self.skill_names), 43, f"Expected exactly 43 production skills, found {len(self.skill_names)}")
+
+    def test_retired_skills_in_legacy(self):
+        """Asserts the 10 retired legacy workflow skill shells reside in legacy/skills/."""
+        legacy_skills_dir = os.path.join(REPO_ROOT, "legacy", "skills")
+        self.assertTrue(os.path.isdir(legacy_skills_dir), "Missing legacy/skills/ directory")
+        expected_retired = [
+            "chapter2_literature", "chapter4", "chapter5", "defense_presentation",
+            "intervention_protocol", "journal_submission", "proposal",
+            "scale_validation", "thesis_assembly", "thesis_revision"
+        ]
+        for s in expected_retired:
+            self.assertTrue(os.path.isdir(os.path.join(legacy_skills_dir, s)), f"Retired skill {s} missing from legacy/skills/")
+        self.assertTrue(os.path.isfile(os.path.join(legacy_skills_dir, "README.md")), "Missing legacy/skills/README.md")
 
     def test_all_skills_have_required_subdirectories(self):
         """Asserts each skill package contains scripts, resources, examples, schemas, and SKILL.md."""

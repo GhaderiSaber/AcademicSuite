@@ -7,7 +7,7 @@ role: Adversarial Statistical Quality Auditor
 skills:
 - thesis-integrity-auditor
 - statistical-data-analyst
-- chapter4
+- chapter-4-writing
 ---
 
 # Statistical Auditor Subagent

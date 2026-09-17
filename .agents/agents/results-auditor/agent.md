@@ -7,7 +7,7 @@ role: Numerical & APA 7 Quality Control Auditor
 skills:
 - thesis-integrity-auditor
 - statistical-data-analyst
-- chapter4
+- chapter-4-writing
 ---
 
 # Results Auditor Subagent

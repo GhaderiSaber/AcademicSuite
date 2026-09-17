@@ -8,8 +8,8 @@ skills:
 - academic-suite-orchestrator
 - digital-twin-academic-consultant
 - thesis-integrity-auditor
-- chapter4
-- thesis_revision
+- chapter-4-writing
+- persian-thesis-revision-assistant
 ---
 
 # Digital Saber — Master Agent & Project Lead

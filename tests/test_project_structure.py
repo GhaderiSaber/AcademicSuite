@@ -36,10 +36,13 @@ class TestProjectStructure(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(p, "run_eval_suite.py")), "evaluations should expose run_eval_suite.py")
 
     def test_legacy_archiving_exists(self):
-        """Asserts legacy/ contains workflows/ with archived workflows."""
+        """Asserts legacy/ contains workflows/ and skills/ with archived components."""
         legacy_wf = os.path.join(REPO_ROOT, "legacy", "workflows")
         self.assertTrue(os.path.isdir(legacy_wf), "Missing legacy/workflows/")
+        legacy_sk = os.path.join(REPO_ROOT, "legacy", "skills")
+        self.assertTrue(os.path.isdir(legacy_sk), "Missing legacy/skills/")
         self.assertTrue(os.path.isfile(os.path.join(REPO_ROOT, "legacy", "README.md")), "Missing legacy/README.md")
+        self.assertTrue(os.path.isfile(os.path.join(legacy_sk, "README.md")), "Missing legacy/skills/README.md")
         self.assertTrue(os.path.isfile(os.path.join(REPO_ROOT, ".agents", "workflows", "README.md")), "Missing .agents/workflows/README.md")
 
     def test_docs_and_protocols_exist(self):

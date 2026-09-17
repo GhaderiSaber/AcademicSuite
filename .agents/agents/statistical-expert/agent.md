@@ -8,7 +8,7 @@ skills:
 - statistical-data-analyst
 - psychometric-scale-resolver
 - psychometric-scale-validator
-- chapter4
+- chapter-4-writing
 ---
 
 # Statistical Expert Subagent

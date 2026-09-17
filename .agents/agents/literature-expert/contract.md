@@ -65,7 +65,7 @@ To harvest, evaluate, extract, and synthesize academic literature across interna
 - `persian-literature-review-builder` (Chapter 2 synthesis and inverted-triangle framing)
 - `bibliometric-network-analyst` (Science mapping and Callon diagrams)
 - `citation-network-visualizer` (Citation networks and 300-DPI graphs)
-- `chapter2_literature` (Theoretical framework synthesis)
+- `persian-literature-review-builder` (Theoretical framework synthesis)
 - `academic-reference-extractor` (Citation extraction and EndNote CWYW export)
 
 ---

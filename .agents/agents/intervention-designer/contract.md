@@ -66,7 +66,7 @@ To construct standardized, evidence-based psychological intervention protocols, 
 
 ## REQUIRED SKILLS
 - `psychological-intervention-protocol-builder` (Standardized evidence-based manual design)
-- `intervention_protocol` (Clinical intervention protocols and session guidelines)
+- `psychological-intervention-protocol-builder` (Clinical intervention protocols and session guidelines)
 - `persian-thesis-builder` (Chapter compilation and OpenXML formatting)
 - `ai-academic-tone-polisher` (Persian academic rhetoric and half-space enforcement)
 

@@ -9,9 +9,9 @@ skills:
 - persian-discussion-builder
 - academic-article-writer
 - ai-academic-tone-polisher
-- chapter4
-- chapter5
-- thesis_assembly
+- chapter-4-writing
+- persian-discussion-builder
+- persian-thesis-builder
 ---
 
 # Academic Writer Subagent

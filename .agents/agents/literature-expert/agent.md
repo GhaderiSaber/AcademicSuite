@@ -9,7 +9,7 @@ skills:
 - persian-literature-review-builder
 - bibliometric-network-analyst
 - citation-network-visualizer
-- chapter2_literature
+- persian-literature-review-builder
 ---
 
 # Literature Expert Subagent

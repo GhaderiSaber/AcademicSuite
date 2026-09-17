@@ -7,7 +7,7 @@ skills:
 - academic-article-writer
 - journal-submission-assistant
 - ai-academic-tone-polisher
-- journal_submission
+- journal-submission-assistant
 ---
 
 # Journal Strategist Subagent

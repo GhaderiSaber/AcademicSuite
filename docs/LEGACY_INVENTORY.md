@@ -94,9 +94,10 @@ Two legacy Python files contain deprecated dispatcher and orchestration logic cr
 
 ---
 
-## 6. Recommended Phase 2 Refactoring Roadmap (For Planning)
+## 6. Migration & Retirement Status (Phase 16 Complete)
 
-1. **Safely Retire `.agents/workflows/`**: Archive or remove the `.md.bak` files and empty directory.
-2. **Consolidate Skills from 37 to 27**: Remove the 10 legacy workflow shell directories from `.agents/skills/`.
-3. **Clean Agent YAML Frontmatters**: Remove the 10 legacy skill names from the 11 agent definitions so agents only reference active, tool-backed production skills.
-4. **Clarify Python CLI Tools**: Ensure `digital_saber.py` and `digital_saber_shell.py` are documented strictly as deterministic helper scripts, eliminating any pseudo-agent emulation code.
+All technical debt and legacy migration items have been formally resolved:
+1. **Retired `.agents/workflows/`**: All 10 `.md.bak` files have been moved to `legacy/workflows/`, and `.agents/workflows/README.md` documents deprecation.
+2. **Consolidated Skills to 43 Production Skills**: The 10 legacy workflow shells were safely retired to `legacy/skills/`, leaving exactly 43 active, tool-backed production packages in `.agents/skills/`.
+3. **Cleaned Agent Definitions & Contracts**: All 22 agent definition files (`agent.md`) and behavioral contracts (`contract.md`) have been re-bound to canonical production skills with zero stale references remaining.
+4. **Deterministic Python CLI Tools**: Clarified that Python scripts act strictly as deterministic computational tools ("The Hands") under Directive 12.1.

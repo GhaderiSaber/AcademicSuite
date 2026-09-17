@@ -72,7 +72,7 @@ To simulate the final dissertation defense committee (*جلسه دفاع رسا�
 ## REQUIRED SKILLS
 - `thesis-integrity-auditor` (Final release gatekeeping and forensic check)
 - `persian-defense-presentation-builder` (8-stage defense deck compilation)
-- `defense_presentation` (Presentation standards and Q&A guides)
+- `persian-defense-presentation-builder` (Presentation standards and Q&A guides)
 
 ---
 

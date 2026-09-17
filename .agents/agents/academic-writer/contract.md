@@ -71,7 +71,7 @@ To draft publication-grade, defense-ready Persian academic chapters, empirical j
 - `ai-academic-tone-polisher` (Persian rhetoric sobriety and half-space enforcement)
 - `chapter-4-writing` (One-Hypothesis-One-Stage micro-stages and 3-Table Standard)
 - `apa-reporting` (APA 7 3-line tables and symbol italicization)
-- `thesis_assembly` (Multi-chapter consolidation and front matter)
+- `persian-thesis-builder` (Multi-chapter consolidation and front matter)
 
 ---
 

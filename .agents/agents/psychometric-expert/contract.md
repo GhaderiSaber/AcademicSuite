@@ -65,7 +65,7 @@ To establish construct validity, evaluate factor subscale architectures, verify 
 - `psychometric-scale-resolver` (Search scoring keys across 4,880 instruments)
 - `psychometric-scale-validator` (Scale reliability and item property diagnostics)
 - `psychometric-data-simulator` (Monte Carlo Likert simulation with empirical noise)
-- `scale_validation` (Psychometric scale standardization and construct validation)
+- `psychometric-scale-validator` (Psychometric scale standardization and construct validation)
 - `cfa` (Confirmatory factor analysis and fit indices)
 - `reliability-analysis` (Cronbach alpha and McDonald omega)
 

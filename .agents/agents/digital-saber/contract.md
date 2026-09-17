@@ -74,9 +74,9 @@ To serve as the Master Orchestrator, Lead Principal Investigator, and cognitive 
 - `academic-suite-orchestrator` (Deterministic batch pipeline CLI runner)
 - `digital-twin-academic-consultant` (Pricing estimation, Telegram client consulting, Saber persona)
 - `thesis-integrity-auditor` (Forensic cross-chapter consistency and APA 7 validation)
-- `chapter4` (Statistical findings orchestration)
-- `chapter5` (Discussion synthesis and theoretical mechanisms)
-- `thesis_revision` (Supervisor feedback triage and response tables)
+- `chapter-4-writing` (Statistical findings orchestration)
+- `persian-discussion-builder` (Discussion synthesis and theoretical mechanisms)
+- `persian-thesis-revision-assistant` (Supervisor feedback triage and response tables)
 
 ---
 

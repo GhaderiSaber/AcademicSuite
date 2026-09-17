@@ -73,7 +73,7 @@ To act as an adversarial external statistical auditor, rigorously challenging st
 ## REQUIRED SKILLS
 - `thesis-integrity-auditor` (Forensic assumption and consistency audit)
 - `statistical-data-analyst` (Verification of statistical outputs)
-- `chapter4` (Findings validation and MSAI scoring)
+- `chapter-4-writing` (Findings validation and MSAI scoring)
 
 ---
 

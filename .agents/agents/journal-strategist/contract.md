@@ -63,7 +63,7 @@ To package empirical dissertations into publication-ready journal articles, craf
 - `academic-article-writer` (Draft and format APA 7 empirical manuscripts)
 - `journal-submission-assistant` (Match journals, format title pages and cover letters)
 - `ai-academic-tone-polisher` (Persian academic rhetoric and half-space enforcement)
-- `journal_submission` (Academic journal article packaging)
+- `journal-submission-assistant` (Academic journal article packaging)
 - `apa-reporting` (APA 7 3-line tables and symbol italicization)
 
 ---

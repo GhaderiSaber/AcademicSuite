@@ -8,7 +8,7 @@ skills:
 - gpower-sample-size-calculator
 - persian-proposal-builder
 - psychological-intervention-protocol-builder
-- proposal
+- persian-proposal-builder
 ---
 
 # Methodology Expert Subagent

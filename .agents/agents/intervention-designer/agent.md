@@ -5,7 +5,7 @@ description: Specialist subagent for designing standardized evidence-based psych
 role: Psychological Intervention Protocol Architect
 skills:
 - psychological-intervention-protocol-builder
-- intervention_protocol
+- psychological-intervention-protocol-builder
 ---
 
 # Intervention Designer Subagent

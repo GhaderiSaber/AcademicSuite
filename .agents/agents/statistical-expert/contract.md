@@ -67,7 +67,7 @@ To architect the most rigorous, defensible inferential analysis plan for academi
 - `statistical-data-analyst` (ANCOVA, Repeated Measures, regression, assumption testing)
 - `psychometric-scale-resolver` (Questionnaire scoring and reverse-coding keys)
 - `psychometric-scale-validator` (CFA, construct validity, reliability)
-- `chapter4` (Statistical findings orchestration)
+- `chapter-4-writing` (Statistical findings orchestration)
 - `regression` (Standard, hierarchical, and stepwise multiple regression)
 - `mediation` (Preacher & Hayes bootstrap mediation)
 - `moderation` (Interaction analysis and simple slopes)

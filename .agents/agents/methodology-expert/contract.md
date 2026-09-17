@@ -61,7 +61,7 @@ To architect scientifically rigorous and institutionally defensible methodologic
 - `gpower-sample-size-calculator` (A priori, post hoc, sensitivity power analysis)
 - `persian-proposal-builder` (Research proposal design and inverted-triangle framing)
 - `psychological-intervention-protocol-builder` (Standardized manual and session tables)
-- `proposal` (Sampling determination and proposal compilation)
+- `persian-proposal-builder` (Sampling determination and proposal compilation)
 - `methodology-review` (Validity safeguards and Chapter 3 scaffolding)
 
 ---

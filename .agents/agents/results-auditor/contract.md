@@ -63,7 +63,7 @@ To enforce absolute typographical, numerical, and formatting compliance with APA
 ## REQUIRED SKILLS
 - `thesis-integrity-auditor` (Forensic APA 7 and OpenXML QC audit)
 - `statistical-data-analyst` (Numerical validation of findings)
-- `chapter4` (Findings reporting standards)
+- `chapter-4-writing` (Findings reporting standards)
 - `apa-reporting` (APA 7 3-line tables and symbol italicization)
 
 ---
