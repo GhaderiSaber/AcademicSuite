@@ -1,0 +1,42 @@
+{
+  "significance_alpha": 0.05,
+  "power_target": 0.8,
+  "bootstrap_resamples": 5000,
+  "planned_sequence": [
+    {
+      "stage_id": "01_demographics",
+      "title": "Demographic Profiling & Frequencies",
+      "engine": "python",
+      "script": ".agents/skills/descriptive-statistics/scripts/compute_descriptives.py",
+      "output_artifact": "academic-state/analysis/descriptive.json",
+      "assigned_subagent": "statistics-agent"
+    },
+    {
+      "stage_id": "02_reliability",
+      "title": "Scale Reliability Analysis (Alpha & Omega)",
+      "engine": "python",
+      "script": ".agents/skills/reliability-analysis/scripts/cronbach_alpha.py",
+      "output_artifact": "academic-state/analysis/reliability.json",
+      "assigned_subagent": "statistics-agent"
+    },
+    {
+      "stage_id": "03_sem_model",
+      "title": "Structural Equation Modeling & Hypotheses Testing",
+      "engine": "r",
+      "script": ".agents/skills/sem/scripts/run_sem.R",
+      "output_artifact": "academic-state/analysis/sem.json",
+      "assigned_subagent": "statistics-agent"
+    }
+  ],
+  "variables": {
+    "independent": [
+      "predictor"
+    ],
+    "dependent": [
+      "outcome"
+    ],
+    "mediators": [],
+    "moderators": [],
+    "covariates": []
+  }
+}

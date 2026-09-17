@@ -29,11 +29,20 @@ def validate_numbers(stats_path, sample_n=None):
             errors.append(f"Invalid SEM degrees of freedom: {df_val}")
 
     # Check regression/ANCOVA parameters if present
-    for coef in data.get("coefficients", []):
-        t_val = coef.get("t")
-        p_val = coef.get("p_value")
-        if p_val == "0" or p_val == ".000" or p_val == "0.000":
-            errors.append(f"Prohibited p = .000 reported for predictor {coef.get('predictor')}. Must use p < .001.")
+    coefs = data.get("coefficients", [])
+    if isinstance(coefs, dict):
+        coef_list = list(coefs.values()) if all(isinstance(v, dict) for v in coefs.values()) else [coefs]
+    elif isinstance(coefs, list):
+        coef_list = coefs
+    else:
+        coef_list = []
+
+    for coef in coef_list:
+        if isinstance(coef, dict):
+            t_val = coef.get("t")
+            p_val = coef.get("p_value")
+            if p_val == "0" or p_val == ".000" or p_val == "0.000":
+                errors.append(f"Prohibited p = .000 reported for predictor {coef.get('predictor')}. Must use p < .001.")
 
     verdict = "FAIL" if errors else ("NEEDS_REVIEW" if warnings else "PASS")
     return {

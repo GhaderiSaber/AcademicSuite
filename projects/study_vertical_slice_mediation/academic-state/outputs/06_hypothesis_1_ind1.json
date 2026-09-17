@@ -1,0 +1,21 @@
+{
+  "stage_id": "06_hypothesis_1_ind1",
+  "hypothesis_id": "H1_Ind1",
+  "model_type": "PROCESS Model 6 (Indirect Path 1)",
+  "path_label": "Transformational Leadership -> Psychological Safety -> Innovative Behavior",
+  "sample_size": 300,
+  "bootstrap_samples": 5000,
+  "coefficients": {
+    "path_a1": 0.425,
+    "path_b1": 0.283,
+    "indirect_effect_b": 0.12,
+    "indirect_effect_beta": 0.115,
+    "bootstrap_se": 0.03,
+    "ci_lower": 0.066,
+    "ci_upper": 0.183,
+    "ci_level": 0.95,
+    "p_value": 0.001
+  },
+  "verdict": "SUPPORTED",
+  "mediation_status": "SIGNIFICANT"
+}
