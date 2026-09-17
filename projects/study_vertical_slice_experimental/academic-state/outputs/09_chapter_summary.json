@@ -1,0 +1,29 @@
+{
+  "hypotheses_verdicts": [
+    {
+      "hypothesis_id": "H1",
+      "hypothesis_text": "مداخله روان‌شناختی بر بهبود متغیر وابسته در مرحله پس‌آزمون اثربخش است.",
+      "test_statistic": "208.52",
+      "p_value": "< .001",
+      "effect_size": "0.785",
+      "decision": "SUPPORTED"
+    },
+    {
+      "hypothesis_id": "H2",
+      "hypothesis_text": "اثربخشی مداخله روان‌شناختی بر متغیر وابسته در مرحله پیگیری تداوم دارد.",
+      "test_statistic": "131.87",
+      "p_value": "< .001",
+      "effect_size": "0.698",
+      "decision": "SUPPORTED"
+    },
+    {
+      "hypothesis_id": "H3",
+      "hypothesis_text": "اثر تعاملی زمان و گروه بر تغییرات متغیر وابسته در طول زمان معنادار است.",
+      "test_statistic": "76.01",
+      "p_value": "< .001",
+      "effect_size": "0.571",
+      "decision": "SUPPORTED"
+    }
+  ],
+  "chapter_conclusion": "The findings consistently supported all experimental hypotheses, indicating a significant and sustained therapeutic effect of the intervention."
+}

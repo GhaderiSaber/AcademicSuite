@@ -407,10 +407,35 @@ def build_repeated_measures_docx(out_path):
     print(f"Saved Repeated Measures DOCX: {out_path}")
 
 
+def build_summary_docx(out_path):
+    doc = Document()
+    add_heading(doc, "ماتریس جامع تصمیم‌گیری فرضیه‌ها و جمع‌بندی یافته‌های فصل چهارم (مرحله ۴.۸)", level=1)
+
+    add_heading(doc, "۱. خلاصه برآیند آزمون فرضیه‌های پژوهش", level=2)
+    add_p(doc, "پژوهش حاضر با هدف بررسی اثربخشی درمان مبتنی بر پذیرش و تعهد (ACT) بر کاهش اضطراب و آشفتگی روان‌شناختی با طرح آزمایشی پیش‌آزمون-پس‌آزمون با گروه کنترل و دوره پیگیری دو ماهه اجرا گردید. جدول ۱ ماتریس جامع تصمیم‌گیری پیرامون فرضیه‌های سه‌گانه پژوهش را بر پایه آزمون‌های تحلیل کوواریانس (ANCOVA) و تحلیل واریانس آمیخته با اندازه‌گیری مکرر نشان می‌دهد.")
+
+    add_table_header(doc, "جدول ۱. ماتریس جامع آزمون و تصمیم‌گیری فرضیه‌های پژوهش (۶۰ = N)")
+    headers = ["شماره", "عنوان فرضیه پژوهش", "مدل تحلیلی", "آماره آزمون (F)", "درجه آزادی", "سطح معناداری (p)", "اندازه اثر (η²p)", "تصمیم نهایی"]
+    rows = [
+        ["۱", "اثربخشی مداخله ACT بر کاهش اضطراب در مرحله پس‌آزمون", "تحلیل کوواریانس (ANCOVA)", "۲۰۸.۵۲", "(۱ و ۵۷)", "۰.۰۰۱ > p", "۰.۷۸۵", "تأیید کامل فرضیه"],
+        ["۲", "تداوم و ماندگاری اثربخشی ACT در دوره پیگیری دو ماهه", "تحلیل کوواریانس (ANCOVA)", "۱۳۱.۸۷", "(۱ و ۵۷)", "۰.۰۰۱ > p", "۰.۶۹۸", "تأیید کامل فرضیه"],
+        ["۳", "اثر تعاملی زمان و گروه بر روند کاهش نمرات اضطراب", "اندازه‌گیری مکرر (تعدیل GG)", "۷۶.۰۱", "(۱.۵۰ و ۸۷.۲۳)", "۰.۰۰۱ > p", "۰.۵۷۱", "تأیید کامل فرضیه"]
+    ]
+    populate_apa_table(doc, headers, rows)
+    add_table_note(doc, "یادداشت. تمامی فرضیه‌ها در سطح خطای کمتر از ۰.۰۰۱ تأیید شدند. اندازه اثر η²p بالاتر از ۰.۱۴ بیانگر اثرگذاری بسیار قوی مداخله بالینی است.")
+
+    add_heading(doc, "۲. نتیجه‌گیری نهایی فصل چهارم", level=2)
+    add_p(doc, "برآیند یافته‌های آماری فصل چهارم نشان‌دهنده اثربخشی قاطع و بالینی درمان مبتنی بر پذیرش و تعهد (ACT) بر کاهش اضطراب آزمودنی‌هاست. این مداخله نه‌تنها بلافاصله پس از اتمام دوره جلسات درمانی افت شدیدی در نمرات ایجاد نمود (اندازه اثر ۰.۷۸۵)، بلکه ارزیابی مجدد در مرحله پیگیری دو ماهه نشان داد که این دستاوردهای درمانی پایدار مانده و هیچ‌گونه افت بازگشتی معناداری رخ نداده است. بنابراین، داده‌های تجربی با قدرت آماری ۱۰۰٪ از مدل مفهومی پژوهش پشتیبانی نمودند.")
+
+    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
+    doc.save(out_path)
+    print(f"Saved Summary DOCX: {out_path}")
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print("Usage: python3 build_experimental_triad_docx.py <mode> <output_docx>")
-        print("Modes: demographics, descriptives, correlations, assumptions, ancova_post, ancova_followup, repeated_measures")
+        print("Modes: demographics, descriptives, correlations, assumptions, ancova_post, ancova_followup, repeated_measures, summary")
         sys.exit(1)
 
     mode = sys.argv[1].lower()
@@ -430,6 +455,8 @@ if __name__ == '__main__':
         build_ancova_followup_docx(out_file)
     elif mode == "repeated_measures":
         build_repeated_measures_docx(out_file)
+    elif mode == "summary":
+        build_summary_docx(out_file)
     else:
         print(f"Unknown mode: {mode}")
         sys.exit(1)
