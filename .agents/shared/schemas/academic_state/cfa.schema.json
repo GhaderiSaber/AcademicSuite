@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicCFAResults",
+  "type": "object",
+  "required": [
+    "sample_size",
+    "factors",
+    "model_fit"
+  ],
+  "properties": {
+    "sample_size": {"type": "integer"},
+    "factors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor_name", "items", "composite_reliability", "average_variance_extracted"],
+        "properties": {
+          "factor_name": {"type": "string"},
+          "composite_reliability": {"type": "number"},
+          "average_variance_extracted": {"type": "number"},
+          "convergent_validity": {"type": "string", "enum": ["SUPPORTED", "UNSUPPORTED"]},
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["item_name", "loading", "se", "p_value"],
+              "properties": {
+                "item_name": {"type": "string"},
+                "loading": {"type": "number"},
+                "se": {"type": "number"},
+                "p_value": {"type": "number"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "model_fit": {
+      "type": "object",
+      "required": ["chi2", "df", "cfi", "tli", "rmsea", "srmr"],
+      "properties": {
+        "chi2": {"type": "number"},
+        "df": {"type": "integer"},
+        "cfi": {"type": "number"},
+        "tli": {"type": "number"},
+        "rmsea": {"type": "number"},
+        "srmr": {"type": "number"}
+      }
+    }
+  },
+  "additionalProperties": true
+}

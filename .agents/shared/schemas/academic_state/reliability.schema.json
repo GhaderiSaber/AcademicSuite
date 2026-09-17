@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicReliability",
+  "type": "object",
+  "required": ["sample_size", "scales"],
+  "properties": {
+    "sample_size": {"type": "integer"},
+    "scales": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scale_name", "cronbach_alpha", "mcdonald_omega", "items_count"],
+        "properties": {
+          "scale_name": {"type": "string"},
+          "cronbach_alpha": {"type": "number"},
+          "mcdonald_omega": {"type": "number"},
+          "items_count": {"type": "integer"},
+          "adequate": {"type": "boolean"}
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

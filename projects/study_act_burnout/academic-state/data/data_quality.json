@@ -1,0 +1,15 @@
+{
+  "sample_n": 60,
+  "missing_rate": 0.0,
+  "unengaged_respondents": [],
+  "mcar_test": {
+    "chi2": 0.0,
+    "df": 0,
+    "p_value": 1.0
+  },
+  "outliers_detected": {
+    "mahalanobis_d2_count": 0,
+    "flagged_ids": []
+  },
+  "quality_verdict": "PASS"
+}

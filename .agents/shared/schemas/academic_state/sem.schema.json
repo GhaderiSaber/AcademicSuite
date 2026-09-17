@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicSEMResults",
+  "type": "object",
+  "required": [
+    "sample_size",
+    "fit_indices",
+    "paths",
+    "hypotheses_verdicts"
+  ],
+  "properties": {
+    "sample_size": {"type": "integer"},
+    "fit_indices": {
+      "type": "object",
+      "required": ["chi2", "df", "chi2_df", "cfi", "tli", "rmsea", "srmr"],
+      "properties": {
+        "chi2": {"type": "number"},
+        "df": {"type": "integer"},
+        "chi2_df": {"type": "number"},
+        "cfi": {"type": "number"},
+        "tli": {"type": "number"},
+        "rmsea": {"type": "number"},
+        "srmr": {"type": "number"},
+        "gfi": {"type": "number"},
+        "agfi": {"type": "number"},
+        "nfi": {"type": "number"},
+        "ifi": {"type": "number"},
+        "model_fit_verdict": {
+          "type": "string",
+          "enum": ["EXCELLENT", "ACCEPTABLE", "POOR"]
+        }
+      }
+    },
+    "paths": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "beta", "b", "se", "t_or_z", "p_value"],
+        "properties": {
+          "from": {"type": "string"},
+          "to": {"type": "string"},
+          "beta": {"type": "number"},
+          "b": {"type": "number"},
+          "se": {"type": "number"},
+          "t_or_z": {"type": "number"},
+          "p_value": {"type": "number"}
+        }
+      }
+    },
+    "indirect_effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "point_estimate", "ci_lower", "ci_upper", "bootstrap_samples"],
+        "properties": {
+          "path": {"type": "string"},
+          "point_estimate": {"type": "number"},
+          "ci_lower": {"type": "number"},
+          "ci_upper": {"type": "number"},
+          "ci_level": {"type": "number"},
+          "bootstrap_samples": {"type": "integer"},
+          "significant": {"type": "boolean"}
+        }
+      }
+    },
+    "r_squared": {
+      "type": "object"
+    },
+    "hypotheses_verdicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["hypothesis_id", "decision"],
+        "properties": {
+          "hypothesis_id": {"type": "string"},
+          "decision": {
+            "type": "string",
+            "enum": ["SUPPORTED", "REJECTED"]
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

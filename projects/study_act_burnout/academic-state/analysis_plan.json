@@ -1,0 +1,62 @@
+{
+  "significance_alpha": 0.05,
+  "power_target": 0.865,
+  "bootstrap_resamples": 5000,
+  "planned_sequence": [
+    {
+      "stage_id": "01_demographics",
+      "title": "Demographic Profiling & Frequencies",
+      "engine": "python",
+      "script": "projects/study_act_burnout/02_analysis_code/build_chapter_4_docx.py",
+      "output_artifact": "academic-state/analysis/descriptive.json",
+      "assigned_subagent": "statistics-agent"
+    },
+    {
+      "stage_id": "02_reliability",
+      "title": "Scale Reliability Analysis (MBI & AAQ-II)",
+      "engine": "python",
+      "script": "projects/study_act_burnout/02_analysis_code/build_chapter_4_docx.py",
+      "output_artifact": "academic-state/analysis/reliability.json",
+      "assigned_subagent": "statistics-agent"
+    },
+    {
+      "stage_id": "03_ancova_assumptions",
+      "title": "ANCOVA Assumptions (Levene, Slope Homogeneity, Normality)",
+      "engine": "python",
+      "script": "projects/study_act_burnout/02_analysis_code/build_chapter_4_docx.py",
+      "output_artifact": "academic-state/validation/statistical_validation.json",
+      "assigned_subagent": "statistics-agent"
+    },
+    {
+      "stage_id": "04_hypothesis_1_ancova_burnout",
+      "title": "Hypothesis 1 Testing: ANCOVA on Job Burnout",
+      "engine": "python",
+      "script": "projects/study_act_burnout/02_analysis_code/build_chapter_4_docx.py",
+      "output_artifact": "academic-state/analysis/ancova_burnout.json",
+      "assigned_subagent": "statistics-agent"
+    },
+    {
+      "stage_id": "05_hypothesis_2_ancova_flexibility",
+      "title": "Hypothesis 2 Testing: ANCOVA on Psychological Flexibility",
+      "engine": "python",
+      "script": "projects/study_act_burnout/02_analysis_code/build_chapter_4_docx.py",
+      "output_artifact": "academic-state/analysis/ancova_flexibility.json",
+      "assigned_subagent": "statistics-agent"
+    }
+  ],
+  "variables": {
+    "independent": [
+      "group"
+    ],
+    "dependent": [
+      "burnout_post",
+      "flexibility_post"
+    ],
+    "mediators": [],
+    "moderators": [],
+    "covariates": [
+      "burnout_pre",
+      "flexibility_pre"
+    ]
+  }
+}

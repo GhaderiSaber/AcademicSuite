@@ -1,0 +1,18 @@
+{
+  "validator": "statistical_assumptions",
+  "timestamp": "2026-09-17T08:45:00Z",
+  "overall_verdict": "PASS",
+  "results": [
+    {
+      "validator": "statistical_assumptions",
+      "verdict": "PASS",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "levene_burnout_p": 0.34,
+        "levene_flexibility_p": 0.42,
+        "normality_shapiro_all_p_gt_05": true
+      }
+    }
+  ]
+}

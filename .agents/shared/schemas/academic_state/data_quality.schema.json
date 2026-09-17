@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicDataQualityReport",
+  "type": "object",
+  "required": [
+    "sample_n",
+    "missing_rate",
+    "mcar_test",
+    "outliers_detected",
+    "quality_verdict"
+  ],
+  "properties": {
+    "sample_n": {"type": "integer"},
+    "missing_rate": {"type": "number", "minimum": 0, "maximum": 1},
+    "unengaged_respondents": {
+      "type": "array",
+      "items": {"type": "integer"}
+    },
+    "mcar_test": {
+      "type": "object",
+      "required": ["chi2", "df", "p_value"],
+      "properties": {
+        "chi2": {"type": "number"},
+        "df": {"type": "integer"},
+        "p_value": {"type": "number"}
+      }
+    },
+    "outliers_detected": {
+      "type": "object",
+      "required": ["mahalanobis_d2_count"],
+      "properties": {
+        "mahalanobis_d2_count": {"type": "integer"},
+        "flagged_ids": {
+          "type": "array",
+          "items": {"type": "integer"}
+        }
+      }
+    },
+    "quality_verdict": {
+      "type": "string",
+      "enum": ["PASS", "NEEDS_REVIEW", "FAIL"]
+    }
+  },
+  "additionalProperties": true
+}

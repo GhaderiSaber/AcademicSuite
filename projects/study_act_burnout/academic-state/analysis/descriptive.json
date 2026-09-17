@@ -1,0 +1,49 @@
+{
+  "sample_size": 60,
+  "variables": [
+    {
+      "name": "burnout_pre",
+      "label": "پیش‌آزمون فرسودگی شغلی",
+      "mean": 38.45,
+      "sd": 6.12,
+      "se": 0.79,
+      "min": 24.0,
+      "max": 52.0,
+      "skewness": 0.18,
+      "kurtosis": -0.22
+    },
+    {
+      "name": "burnout_post",
+      "label": "پس‌آزمون فرسودگی شغلی",
+      "mean": 30.17,
+      "sd": 7.84,
+      "se": 1.01,
+      "min": 18.0,
+      "max": 48.0,
+      "skewness": 0.24,
+      "kurtosis": -0.45
+    },
+    {
+      "name": "flexibility_pre",
+      "label": "پیش‌آزمون انعطاف‌پذیری روانشناختی",
+      "mean": 21.65,
+      "sd": 4.38,
+      "se": 0.57,
+      "min": 12.0,
+      "max": 32.0,
+      "skewness": -0.14,
+      "kurtosis": -0.18
+    },
+    {
+      "name": "flexibility_post",
+      "label": "پس‌آزمون انعطاف‌پذیری روانشناختی",
+      "mean": 26.76,
+      "sd": 6.25,
+      "se": 0.81,
+      "min": 14.0,
+      "max": 40.0,
+      "skewness": 0.12,
+      "kurtosis": -0.36
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicDataDictionary",
+  "type": "object",
+  "required": ["total_items", "scales", "columns"],
+  "properties": {
+    "total_items": {"type": "integer"},
+    "scales": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scale_id", "name", "items_count", "item_range"],
+        "properties": {
+          "scale_id": {"type": "string"},
+          "name": {"type": "string"},
+          "author_year": {"type": "string"},
+          "items_count": {"type": "integer"},
+          "item_range": {
+            "type": "array",
+            "items": {"type": "integer"}
+          },
+          "reverse_items": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "subscales": {"type": "object"}
+        }
+      }
+    },
+    "columns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["column_name", "scale_id", "type", "label"],
+        "properties": {
+          "column_name": {"type": "string"},
+          "scale_id": {"type": "string"},
+          "type": {
+            "type": "string",
+            "enum": ["numeric", "categorical", "ordinal", "scale_composite", "subscale"]
+          },
+          "label": {"type": "string"},
+          "is_reverse_coded": {"type": "boolean"}
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

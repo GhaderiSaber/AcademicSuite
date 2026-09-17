@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicProjectState",
+  "type": "object",
+  "required": [
+    "project_id",
+    "title",
+    "methodology_type",
+    "sample_size",
+    "current_stage",
+    "orchestrator",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "project_id": {"type": "string"},
+    "title": {"type": "string"},
+    "methodology_type": {
+      "type": "string",
+      "enum": [
+        "correlational",
+        "experimental",
+        "quasi_experimental",
+        "sem",
+        "cfa_scale_validation",
+        "mixed_methods",
+        "meta_analysis"
+      ]
+    },
+    "sample_size": {"type": "integer", "minimum": 1},
+    "current_stage": {"type": "string"},
+    "orchestrator": {"type": "string"},
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "awaiting_validation",
+        "stage_completed",
+        "final_approved",
+        "blocked"
+      ]
+    },
+    "created_at": {"type": "string"},
+    "updated_at": {"type": "string"},
+    "metadata": {"type": "object"}
+  },
+  "additionalProperties": true
+}

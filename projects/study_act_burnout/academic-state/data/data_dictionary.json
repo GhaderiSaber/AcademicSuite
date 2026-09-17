@@ -1,0 +1,95 @@
+{
+  "total_items": 29,
+  "scales": [
+    {
+      "scale_id": "MBI",
+      "name": "Maslach Burnout Inventory (MBI)",
+      "author_year": "Maslach & Jackson, 1981",
+      "items_count": 22,
+      "item_range": [
+        0,
+        6
+      ],
+      "reverse_items": [],
+      "subscales": {
+        "emotional_exhaustion": 9,
+        "depersonalization": 5,
+        "personal_accomplishment": 8
+      }
+    },
+    {
+      "scale_id": "AAQ_II",
+      "name": "Acceptance and Action Questionnaire - II (AAQ-II)",
+      "author_year": "Bond et al., 2011",
+      "items_count": 7,
+      "item_range": [
+        1,
+        7
+      ],
+      "reverse_items": [
+        "all_items_reversed_for_flexibility"
+      ],
+      "subscales": {
+        "psychological_flexibility": 7
+      }
+    }
+  ],
+  "columns": [
+    {
+      "column_name": "group",
+      "scale_id": "DEMO",
+      "type": "categorical",
+      "label": "گروه مطالعه (ACT / Control)",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "gender",
+      "scale_id": "DEMO",
+      "type": "categorical",
+      "label": "جنسیت (زن / مرد)",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "age",
+      "scale_id": "DEMO",
+      "type": "numeric",
+      "label": "سن (سال)",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "experience_years",
+      "scale_id": "DEMO",
+      "type": "numeric",
+      "label": "سابقه کار (سال)",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "burnout_pre",
+      "scale_id": "MBI",
+      "type": "scale_composite",
+      "label": "پیش‌آزمون فرسودگی شغلی",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "burnout_post",
+      "scale_id": "MBI",
+      "type": "scale_composite",
+      "label": "پس‌آزمون فرسودگی شغلی",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "flexibility_pre",
+      "scale_id": "AAQ_II",
+      "type": "scale_composite",
+      "label": "پیش‌آزمون انعطاف‌پذیری روانشناختی",
+      "is_reverse_coded": false
+    },
+    {
+      "column_name": "flexibility_post",
+      "scale_id": "AAQ_II",
+      "type": "scale_composite",
+      "label": "پس‌آزمون انعطاف‌پذیری روانشناختی",
+      "is_reverse_coded": false
+    }
+  ]
+}

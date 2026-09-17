@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicValidationReport",
+  "type": "object",
+  "required": [
+    "validator",
+    "overall_verdict",
+    "results"
+  ],
+  "properties": {
+    "validator": {"type": "string"},
+    "timestamp": {"type": "string"},
+    "overall_verdict": {
+      "type": "string",
+      "enum": ["PASS", "NEEDS_REVIEW", "FAIL"]
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["validator", "verdict"],
+        "properties": {
+          "validator": {"type": "string"},
+          "verdict": {
+            "type": "string",
+            "enum": ["PASS", "NEEDS_REVIEW", "FAIL"]
+          },
+          "errors": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "warnings": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "metrics": {"type": "object"}
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

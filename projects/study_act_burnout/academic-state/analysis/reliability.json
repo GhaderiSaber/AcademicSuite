@@ -1,0 +1,19 @@
+{
+  "sample_size": 60,
+  "scales": [
+    {
+      "scale_name": "Maslach Burnout Inventory (MBI)",
+      "cronbach_alpha": 0.88,
+      "mcdonald_omega": 0.89,
+      "items_count": 22,
+      "adequate": true
+    },
+    {
+      "scale_name": "Acceptance and Action Questionnaire - II (AAQ-II)",
+      "cronbach_alpha": 0.84,
+      "mcdonald_omega": 0.85,
+      "items_count": 7,
+      "adequate": true
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicRequirements",
+  "type": "object",
+  "required": [
+    "research_questions",
+    "hypotheses",
+    "institutional_guidelines",
+    "deliverables"
+  ],
+  "properties": {
+    "research_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question"],
+        "properties": {
+          "id": {"type": "string"},
+          "question": {"type": "string"},
+          "target_variables": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "statement", "type", "independent_variable", "dependent_variable"],
+        "properties": {
+          "id": {"type": "string"},
+          "statement": {"type": "string"},
+          "type": {
+            "type": "string",
+            "enum": ["direct", "mediation", "moderation", "mean_difference", "measurement"]
+          },
+          "independent_variable": {"type": "string"},
+          "dependent_variable": {"type": "string"},
+          "mediator": {"type": "string"},
+          "moderator": {"type": "string"},
+          "direction": {
+            "type": "string",
+            "enum": ["positive", "negative", "non_directional"]
+          }
+        }
+      }
+    },
+    "institutional_guidelines": {
+      "type": "object",
+      "required": ["style", "language"],
+      "properties": {
+        "style": {"type": "string"},
+        "language": {"type": "string"},
+        "persian_fonts": {"type": "object"},
+        "citation_style": {"type": "string"}
+      }
+    },
+    "deliverables": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  },
+  "additionalProperties": true
+}
