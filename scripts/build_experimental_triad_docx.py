@@ -197,6 +197,34 @@ def build_descriptives_docx(out_path):
     print(f"Saved Descriptives DOCX: {out_path}")
 
 
+def build_correlations_docx(out_path):
+    doc = Document()
+    add_heading(doc, "ماتریس همبستگی پیرسون متغیرهای پژوهش در مراحل پیش‌آزمون، پس‌آزمون و پیگیری (مرحله ۴.۴)", level=1)
+
+    add_heading(doc, "۱. ضرایب همبستگی دو متغیری متغیرهای اضطراب و انعطاف‌ناپذیری روان‌شناختی", level=2)
+    add_p(doc, "به منظور بررسی اولیه پیوستگی زمانی و روابط درونی میان متغیرهای پژوهش در طول سه نوبت سنجش، ضرایب همبستگی گشتاوری پیرسون میان نمرات اضطراب و انعطاف‌ناپذیری روان‌شناختی در کل نمونه (۶۰ = N) محاسبه گردید. نتایج این ماتریس در جدول ۱ خلاصه شده است.")
+
+    add_table_header(doc, "جدول ۱. ماتریس همبستگی پیرسون و شاخص‌های توصیفی متغیرهای پژوهش در طول زمان (۶۰ = N)")
+    headers = ["متغیر پژوهش", "۱", "۲", "۳", "۴", "۵", "۶", "M", "SD"]
+    rows = [
+        ["۱. اضطراب (پیش‌آزمون)", "۱", "-", "-", "-", "-", "-", "۳.۴۵", "۰.۵۴"],
+        ["۲. اضطراب (پس‌آزمون)", "۰.۴۸***", "۱", "-", "-", "-", "-", "۲.۹۲", "۰.۷۸"],
+        ["۳. اضطراب (پیگیری)", "۰.۴۵***", "۰.۸۵***", "۱", "-", "-", "-", "۲.۹۰", "۰.۷۲"],
+        ["۴. انعطاف‌ناپذیری (پیش)", "۰.۰۴", "۰.۱۸-", "۰.۱۹-", "۱", "-", "-", "۳.۵۹", "۰.۶۱"],
+        ["۵. انعطاف‌ناپذیری (پس)", "۰.۰۲", "۰.۵۸***", "۰.۵۳***", "۰.۳۶**", "۱", "-", "۲.۸۷", "۰.۸۳"],
+        ["۶. انعطاف‌ناپذیری (پیگیری)", "۰.۰۵", "۰.۵۸***", "۰.۵۶***", "۰.۳۰*", "۰.۹۰***", "۱", "۲.۸۸", "۰.۸۱"]
+    ]
+    populate_apa_table(doc, headers, rows)
+    add_table_note(doc, "یادداشت. * p < ۰.۰۵، ** p < ۰.۰۱، *** p < ۰.۰۰۱. مقادیر r بیانگر همبستگی خطی پیرسون است.")
+
+    add_heading(doc, "۲. تفسیر و تبیین ساختار همبستگی‌ها", level=2)
+    add_p(doc, "یافته‌های جدول ۱ نشان‌دهنده همبستگی درونی نیرومند و معنادار نمرات اضطراب پس‌آزمون با مرحله پیگیری (۰.۸۵ = r، ۰.۰۰۱ > p) و همبستگی مشابه در ابعاد انعطاف‌ناپذیری روان‌شناختی (۰.۹۰ = r، ۰.۰۰۱ > p) است که ثبات و پایایی تغییرات درمانی حاصل از مداخله ACT را تأیید می‌کند. افزون بر این، همبستگی مثبت معنادار میان اضطراب و انعطاف‌ناپذیری در پس‌آزمون (۰.۵۸ = r) و پیگیری (۰.۵۶ = r) همگرایی نظری سازوکار انعطاف‌پذیری روان‌شناختی با کاهش پریشانی هیجانی را آشکار می‌سازد.")
+
+    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
+    doc.save(out_path)
+    print(f"Saved Correlations DOCX: {out_path}")
+
+
 def build_assumptions_docx(out_path):
     doc = Document()
     add_heading(doc, "بررسی پیش‌فرض‌های آماری مدل‌های شبه‌آزمایشی (تحلیل کوواریانس و اندازه‌گیری مکرر)", level=1)
@@ -382,7 +410,7 @@ def build_repeated_measures_docx(out_path):
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print("Usage: python3 build_experimental_triad_docx.py <mode> <output_docx>")
-        print("Modes: demographics, descriptives, assumptions, ancova_post, ancova_followup, repeated_measures")
+        print("Modes: demographics, descriptives, correlations, assumptions, ancova_post, ancova_followup, repeated_measures")
         sys.exit(1)
 
     mode = sys.argv[1].lower()
@@ -392,6 +420,8 @@ if __name__ == '__main__':
         build_demographics_docx(out_file)
     elif mode == "descriptives":
         build_descriptives_docx(out_file)
+    elif mode == "correlations":
+        build_correlations_docx(out_file)
     elif mode == "assumptions":
         build_assumptions_docx(out_file)
     elif mode == "ancova_post":
