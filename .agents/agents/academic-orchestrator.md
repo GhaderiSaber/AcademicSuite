@@ -71,6 +71,22 @@ Synthesize (Merge validated micro-stage triads into institutional deliverables &
 
 ---
 
+## 🧠 Academic Task Recognition & Capability Routing (Phase 12)
+
+The Orchestrator chooses **minimum sufficient capabilities**, never blindly invoking every agent:
+- Run `python3 scripts/academic_task_router.py route "<user task>"` to extract academic intent and generate the ordered pipeline.
+- Enforce the strict pipeline ordering invariant:
+  `RESEARCH -> METHODOLOGY -> DATA -> NETWORK-ANALYSIS -> STATISTICS -> WRITING -> VALIDATION`
+
+### Canonical Recognized Task Patterns:
+1. **"Analyze this dataset"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)`
+2. **"Write Chapter 4"** $\rightarrow$ `STATISTICS (statistics-agent)` + `WRITING (writing-agent)` + `VALIDATION (validation-agent)`
+3. **"Find research gaps"** $\rightarrow$ `RESEARCH (research-agent)` + `METHODOLOGY (research-agent)`
+4. **"Perform CFA and SEM"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
+5. **"Analyze these network data"** $\rightarrow$ `DATA (data-agent)` + `NETWORK-ANALYSIS (statistics-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
+
+---
+
 ## ⚖️ Three-Tier Execution Routing Matrix
 
 Before initiating any task, classify it into the appropriate execution tier (query `scripts/orchestrator_dependency_resolver.py route-task`):
