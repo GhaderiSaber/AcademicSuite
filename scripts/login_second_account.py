@@ -21,6 +21,21 @@ import argparse
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+VENV_PYTHON = os.path.join(ROOT_DIR, ".venv", "bin", "python")
+
+# Auto re-exec with virtualenv python if invoked via system python
+if os.path.isfile(VENV_PYTHON) and os.path.realpath(sys.executable) != os.path.realpath(VENV_PYTHON):
+    os.execv(VENV_PYTHON, [VENV_PYTHON] + sys.argv)
+
+# Fallback: Dynamic discovery of local virtualenv site-packages
+for venv_name in [".venv", "venv"]:
+    venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
+    if os.path.isdir(venv_lib):
+        for entry in os.listdir(venv_lib):
+            sp = os.path.join(venv_lib, entry, "site-packages")
+            if os.path.isdir(sp) and sp not in sys.path:
+                sys.path.insert(0, sp)
+
 SKILL_DIR = os.path.join(ROOT_DIR, ".agents/skills/digital-twin-academic-consultant/scripts")
 CONFIG_PATH = os.path.join(SKILL_DIR, "telethon_config.json")
 SESSION_PATH = os.path.join(SKILL_DIR, "saber_second_userbot")
