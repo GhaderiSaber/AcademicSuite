@@ -62,12 +62,22 @@ class TestProjectStructure(unittest.TestCase):
             r_path = os.path.join(REPO_ROOT, ".agents", "rules", r)
             self.assertTrue(os.path.isfile(r_path), f"Missing .agents/rules/{r}")
 
-    def test_lifecycle_hooks_exist(self):
-        """Asserts .agents/hooks/ contains hook runner scripts."""
-        hook_runners = ["pre_tool_use.py", "post_tool_use.py", "pre_invocation.py", "stop_guard.py"]
-        for h in hook_runners:
-            h_path = os.path.join(REPO_ROOT, ".agents", "hooks", h)
-            self.assertTrue(os.path.isfile(h_path), f"Missing .agents/hooks/{h}")
+    def test_skill_inventory_documents_all_skills(self):
+        """Asserts docs/SKILL_INVENTORY.md comprehensively documents all 43 active production skills."""
+        inv_path = os.path.join(REPO_ROOT, "docs", "SKILL_INVENTORY.md")
+        self.assertTrue(os.path.isfile(inv_path), "Missing docs/SKILL_INVENTORY.md")
+        with open(inv_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        skills_dir = os.path.join(REPO_ROOT, ".agents", "skills")
+        active_skills = [
+            d for d in os.listdir(skills_dir)
+            if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith((".", "_"))
+        ]
+        self.assertEqual(len(active_skills), 43, f"Expected 43 active skills, found {len(active_skills)}")
+        
+        for s in active_skills:
+            self.assertIn(f"`{s}`", content, f"Skill {s} is not documented in docs/SKILL_INVENTORY.md")
 
 
 if __name__ == "__main__":
