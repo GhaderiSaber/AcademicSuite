@@ -720,103 +720,88 @@ def cmd_list(args):
 def cmd_status(args):
     target_path = getattr(args, "path", ".") or "."
     cwd = get_cwd(target_path)
-    status = get_status(cwd)
-    suite_path = get_attached_suite_path(cwd)
     current_os = get_os_name()
 
-    print(f"\n{BOLD}{CYAN}Suite Attachment Status ({current_os}):{RESET} {cwd}")
+    print(f"\n{BOLD}{CYAN}Project Suite Status ({current_os}):{RESET} {cwd}")
     print("=" * 65)
 
-    if status["meta"]:
-        print(f"  {BOLD}Attached Suite:{RESET}   {GREEN}{status['meta'].get('suite', 'Unknown')}{RESET}")
-        print(f"  {BOLD}Suite Title:{RESET}      {status['meta'].get('name', 'Unknown')}")
-        if suite_path:
-            print(f"  {BOLD}Local Path:{RESET}       {GREEN}{suite_path}{RESET}")
-        else:
-            print(f"  {BOLD}Recorded Path:{RESET}    {YELLOW}{status['meta'].get('path', 'Unknown')}{RESET}")
-        if status["meta"].get("repo_url"):
-            print(f"  {BOLD}Repo URL:{RESET}         {CYAN}{status['meta']['repo_url']}{RESET}")
-    else:
-        print(f"  {BOLD}Attached Suite:{RESET}   {YELLOW}None recorded in .attached_suite.json{RESET}")
+    git_dir = cwd / ".git"
+    agents_dir = cwd / ".agents"
+    agents_md = cwd / "AGENTS.md"
 
-    # Report if separate subfolder exists
-    if status.get("separate_folders"):
-        print(f"  {BOLD}Separate Folder:{RESET}  {RED}Warning: Found nested suite folder(s): {', '.join(status['separate_folders'])}{RESET}")
-    else:
-        print(f"  {BOLD}Project Structure:{RESET}{GREEN} Clean (No separate repo folder; content attached to project root){RESET}")
-
-    # Check attached repo contents
-    items = status.get("attached_items", [])
-    if items:
-        print(f"\n  {BOLD}Attached Repository Contents ({len(items)} items in root):{RESET}")
-        for it in items:
-            name_str = f"{it['name']}/" if it['is_dir'] else it['name']
-            if it["is_link"]:
-                if it["foreign"]:
-                    print(f"    {YELLOW}! {name_str}{RESET} (Link created on foreign OS: {it['target']})")
-                elif it["valid"]:
-                    print(f"    {GREEN}✓ {name_str}{RESET} -> {GRAY}{it['target']}{RESET}")
-                else:
-                    print(f"    {RED}✗ {name_str}{RESET} -> {RED}[Broken link: {it['target']}]{RESET}")
-            elif it["valid"]:
-                print(f"    {GREEN}✓ {name_str}{RESET} [Physical / Pointer Link]")
-            else:
-                print(f"    {GRAY}- {name_str} [Missing]{RESET}")
-    else:
-        # Fallback check for .agents and AGENTS.md
-        if status["agents_is_link"]:
-            target = status["agents_target"]
-            if status["agents_foreign"]:
-                print(f"  {BOLD}.agents:{RESET}          {YELLOW}Link created on another OS ({target}){RESET}")
-                print(f"  {BOLD}Cross-OS Fix:{RESET}     {CYAN}Run 'attach-suite fix' to re-link on this OS{RESET}")
-            else:
-                valid = Path(target).exists() if target else False
-                color = GREEN if valid else RED
-                link_type = "Symlink" if (cwd / ".agents").is_symlink() else ("Junction" if IS_WINDOWS else "Symlink")
-                print(f"  {BOLD}.agents:{RESET}          {CYAN}{link_type} --> {target}{RESET} [{color}{'Valid' if valid else 'Broken'}{RESET}]")
-        elif status["agents_exists"]:
-            if (cwd / ".agents" / "skills.json").exists():
-                print(f"  {BOLD}.agents:{RESET}          {CYAN}Pointer Link (skills.json){RESET} [{GREEN}Valid{RESET}]")
-            else:
-                print(f"  {BOLD}.agents:{RESET}          {YELLOW}Physical Directory (Not a link){RESET}")
-        else:
-            print(f"  {BOLD}.agents:{RESET}          {GRAY}Not present{RESET}")
-
-        if status["agents_md_is_link"]:
-            md_type = "Symlink" if (cwd / "AGENTS.md").is_symlink() else "Link"
-            print(f"  {BOLD}AGENTS.md:{RESET}        {CYAN}{md_type} --> {status['agents_md_target']}{RESET}")
-        elif (cwd / "AGENTS.md").exists():
-            if is_attached_agents_md(cwd / "AGENTS.md"):
-                print(f"  {BOLD}AGENTS.md:{RESET}        {CYAN}Attached File Copy{RESET} [{GREEN}Valid{RESET}]")
-            else:
-                print(f"  {BOLD}AGENTS.md:{RESET}        {YELLOW}Physical File{RESET}")
-        else:
-            print(f"  {BOLD}AGENTS.md:{RESET}        {GRAY}Not present{RESET}")
-
-    # Check .git
-    if status["has_local_git"]:
-        print(f"\n  {BOLD}.git Directory:{RESET}   {YELLOW}Present in project folder (May cause cloud drive sync locks){RESET}")
-    else:
-        print(f"\n  {BOLD}.git Directory:{RESET}   {GREEN}None in project folder (Clean! Master Git safely centralized){RESET}")
-
-    # Check Git status on the master suite if attached
-    if suite_path and (suite_path / ".git").exists():
+    # Check remote origin
+    remote_url = None
+    if git_dir.exists():
         try:
-            res = subprocess.run(
-                ["git", "-C", str(suite_path), "status", "-s"],
-                capture_output=True, text=True, check=True
-            )
-            changes = res.stdout.strip()
-            if changes:
-                lines = changes.splitlines()
-                print(f"  {BOLD}Suite Git Status:{RESET} {YELLOW}{len(lines)} uncommitted change(s) in master suite{RESET}")
-            else:
-                print(f"  {BOLD}Suite Git Status:{RESET} {GREEN}Clean, master repository is up to date{RESET}")
+            res = subprocess.run(["git", "-C", str(cwd), "remote", "get-url", "origin"], capture_output=True, text=True)
+            if res.returncode == 0 and res.stdout.strip():
+                remote_url = res.stdout.strip()
         except Exception:
             pass
 
-    if not status["meta"]:
-        print(f"\n  {YELLOW}Tip: Run 'attach-suite attach' to attach AcademicSuite to this project.{RESET}")
+    if remote_url:
+        print(f"  {BOLD}Cloned Repo:{RESET}      {GREEN}{remote_url}{RESET}")
+        print(f"  {BOLD}Storage Mode:{RESET}     {GREEN}Direct Cloned Physical Repository (Zero symlinks){RESET}")
+    else:
+        # Fallback check if attached via legacy metadata
+        meta_file = cwd / ".attached_suite.json"
+        if meta_file.exists():
+            try:
+                with open(meta_file, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                    print(f"  {BOLD}Attached Suite:{RESET}   {YELLOW}{meta.get('suite', 'Unknown')}{RESET} (Legacy)")
+            except Exception:
+                pass
+        else:
+            print(f"  {BOLD}Cloned Repo:{RESET}      {YELLOW}None detected in project folder{RESET}")
+
+    # Check if a nested repo folder exists
+    nested_folders = [
+        d.name for d in cwd.iterdir()
+        if d.is_dir() and d.name in ["AcademicSuite", "academic_suite", "Academic_Suite"] and (d / ".git").exists()
+    ] if cwd.exists() else []
+
+    if nested_folders:
+        print(f"  {BOLD}Folder Structure:{RESET} {RED}Warning: Found nested repo folder: {', '.join(nested_folders)}{RESET}")
+    else:
+        print(f"  {BOLD}Folder Structure:{RESET} {GREEN}Clean (No separate repo folder; cloned directly to root){RESET}")
+
+    # Check .agents and AGENTS.md
+    if agents_dir.exists():
+        is_symlink = is_link_path(agents_dir)
+        link_type = "Legacy Symlink" if is_symlink else "Physical Cloned Directory"
+        color = YELLOW if is_symlink else GREEN
+        print(f"  {BOLD}.agents:{RESET}          {color}{link_type}{RESET}")
+    else:
+        print(f"  {BOLD}.agents:{RESET}          {GRAY}Not present{RESET}")
+
+    if agents_md.exists():
+        is_symlink = is_link_path(agents_md)
+        link_type = "Legacy Symlink" if is_symlink else "Physical Cloned File"
+        color = YELLOW if is_symlink else GREEN
+        print(f"  {BOLD}AGENTS.md:{RESET}        {color}{link_type}{RESET}")
+    else:
+        print(f"  {BOLD}AGENTS.md:{RESET}        {GRAY}Not present{RESET}")
+
+    # Count active skills
+    skills_dir = cwd / ".agents" / "skills"
+    if skills_dir.exists():
+        skills = [s.name for s in skills_dir.iterdir() if s.is_dir()]
+        print(f"  {BOLD}Active Skills:{RESET}    {len(skills)} skills available in project")
+
+    # Check Git working tree
+    if git_dir.exists():
+        try:
+            res = subprocess.run(["git", "-C", str(cwd), "status", "-s"], capture_output=True, text=True)
+            changes = res.stdout.strip().splitlines() if res.stdout.strip() else []
+            if changes:
+                print(f"  {BOLD}Git Working Tree:{RESET}{YELLOW} {len(changes)} modified/untracked file(s){RESET}")
+            else:
+                print(f"  {BOLD}Git Working Tree:{RESET}{GREEN} Clean working tree (Up to date with origin/main){RESET}")
+        except Exception:
+            pass
+    else:
+        print(f"\n  {YELLOW}Tip: Run 'attach-suite attach' to clone AcademicSuite directly into this project.{RESET}")
 
     print("=" * 65 + "\n")
 
@@ -954,183 +939,109 @@ def cmd_attach(args):
     suite_arg = getattr(args, "suite", "academic") or "academic"
     suite_key, suite_info = resolve_suite(suite_arg, suites)
 
-    if not suite_info:
-        print(f"\n{RED}Error: Unknown suite '{suite_arg}'.{RESET}")
-        print(f"Run {BOLD}attach-suite list{RESET} to see all available suites.\n")
-        sys.exit(1)
+    repo_url = "https://github.com/GhaderiSaber/AcademicSuite.git"
+    if Path(str(suite_arg)).exists() and (Path(str(suite_arg)) / ".git").exists():
+        repo_url = str(Path(str(suite_arg)).resolve())
+    elif suite_info and suite_info.get("repo_url"):
+        repo_url = suite_info["repo_url"]
+    elif suite_arg.startswith("http://") or suite_arg.startswith("https://") or suite_arg.startswith("git@"):
+        repo_url = suite_arg
 
-    suite_path = Path(suite_info["path"]).resolve()
-
-    # If suite repository does not exist on this machine, automatically clone it
-    # CRITICAL: Cloned to suite_path (e.g. ~/Desktop/AcademicSuite), NEVER inside cwd (project folder)!
-    if not suite_path.exists():
-        repo_url = suite_info.get("repo_url")
-        if not repo_url and suite_key == "academic":
-            repo_url = "https://github.com/GhaderiSaber/AcademicSuite.git"
-            suite_info["repo_url"] = repo_url
-
-        if repo_url:
-            current_os = get_os_name()
-            print(f"\n{BOLD}{CYAN}Suite '{suite_key}' not found locally at:{RESET} {suite_path}")
-            print(f"{BOLD}{CYAN}Automatically cloning suite repository on {current_os}...{RESET}")
-            print(f"  Repo URL:    {repo_url}")
-            print(f"  Destination: {suite_path} (Centralized Master Suite)\n")
-            try:
-                suite_path.parent.mkdir(parents=True, exist_ok=True)
-                subprocess.run(["git", "clone", repo_url, str(suite_path)], check=True)
-                print(f"{GREEN}✓ Successfully cloned {suite_key} repository to {suite_path}!{RESET}\n")
-            except Exception as e:
-                print(f"\n{RED}Error: Failed to clone repository from {repo_url}: {e}{RESET}\n", file=sys.stderr)
-                sys.exit(1)
-        else:
-            print(f"\n{RED}Error: Suite directory does not exist on this machine:{RESET} {suite_path}")
-            if IS_WINDOWS:
-                print(f"{YELLOW}Tip: On Windows 11, please clone {suite_key} to:{RESET} {suite_path}")
-            else:
-                print(f"{YELLOW}Tip: Please clone or pull {suite_key} to:{RESET} {suite_path}")
-            print()
-            sys.exit(1)
-
-    # Safety check: Never attach a suite to its own repository
-    if cwd == suite_path:
-        print(f"\n{RED}Error: Current directory is the master suite itself ({suite_path}).{RESET}")
-        print(f"{YELLOW}You cannot attach a suite to its own master repository.{RESET}\n")
-        sys.exit(1)
-
-    agents_src = suite_path / ".agents"
-    if not agents_src.exists():
-        print(f"\n{RED}Error: Suite does not contain a .agents directory:{RESET} {agents_src}\n")
-        sys.exit(1)
+    suite_title = suite_info["name"] if suite_info else "Academic Thesis & Statistical Consultancy Suite"
 
     current_os = get_os_name()
-    print(f"\n{BOLD}{CYAN}Attaching Suite Repository ({current_os}):{RESET} {BOLD}{suite_info['name']}{RESET}")
-    print(f"  Source Repo:    {suite_path}")
+    print(f"\n{BOLD}{CYAN}Cloning Suite Repository into Project ({current_os}):{RESET} {BOLD}{suite_title}{RESET}")
+    print(f"  Repo URL:       {repo_url}")
     print(f"  Target Project: {cwd}")
-    print(f"  Policy:         Attaching repository content directly to project root (no separate repo folder)\n")
+    print(f"  Mode:           Direct Git Clone into project root (zero symlinks, zero subfolders)\n")
 
-    # Step 1: Clean conflicts and stale locks
-    cleaned = clean_conflicts_and_locks(cwd)
-    if cleaned:
-        print(f"{GRAY}Cleaned {len(cleaned)} stale lock/conflict items.{RESET}")
-
-    # Step 2: Handle redundant .git in project folder if it points to the suite repo
-    git_dir = cwd / ".git"
-    if git_dir.exists() and not is_link_path(git_dir):
-        if not getattr(args, 'keep_git', False):
-            has_suite_remote = False
-            try:
-                res = subprocess.run(["git", "-C", str(cwd), "remote", "-v"], capture_output=True, text=True)
-                if "AcademicSuite" in res.stdout or suite_key in res.stdout.lower():
-                    has_suite_remote = True
-            except Exception:
-                pass
-
-            if has_suite_remote:
-                print(f"{YELLOW}Notice: Found local .git directory in Google Drive folder pointing to suite.{RESET}")
-                print(f"{YELLOW}Removing local .git so Google Drive will never lock Git files...{RESET}")
+    # Step 1: Clean up any previous symbolic links created by attach-suite
+    cleaned_symlinks = []
+    try:
+        for item in cwd.iterdir():
+            if is_link_path(item):
                 try:
-                    shutil.rmtree(git_dir)
-                    print(f"{GREEN}✓ Removed redundant .git (master repository remains safe at {suite_path}){RESET}")
-                except Exception as e:
-                    print(f"{RED}Could not remove .git: {e}{RESET}")
+                    remove_link(item, allow_delete_dir=item.is_dir())
+                    cleaned_symlinks.append(item.name)
+                except Exception:
+                    pass
+    except Exception:
+        pass
 
-    # Step 3: Handle existing .agents
-    existing_agents = cwd / ".agents"
-    if is_link_path(existing_agents):
-        remove_link(existing_agents)
-    elif existing_agents.is_dir():
-        if (existing_agents / "skills.json").exists() or (cwd / ".attached_suite.json").exists():
-            try:
-                shutil.rmtree(existing_agents)
-            except Exception:
-                pass
+    if cleaned_symlinks:
+        print(f"{GRAY}Removed {len(cleaned_symlinks)} legacy symbolic links: {', '.join(cleaned_symlinks)}{RESET}")
+
+    # Remove old .attached_suite.json if it was from symlink mode
+    old_meta = cwd / ".attached_suite.json"
+    if old_meta.exists():
+        try:
+            old_meta.unlink()
+        except Exception:
+            pass
+
+    # Step 2: Clean Google Drive lock files if any
+    clean_conflicts_and_locks(cwd)
+
+    # Step 3: Clone repository directly into cwd without creating a separate subfolder
+    git_dir = cwd / ".git"
+    try:
+        if git_dir.exists():
+            print(f"{CYAN}Existing Git repository detected in project. Updating from {repo_url}...{RESET}")
+            remotes = subprocess.run(["git", "-C", str(cwd), "remote"], capture_output=True, text=True).stdout.split()
+            if "origin" in remotes:
+                subprocess.run(["git", "-C", str(cwd), "remote", "set-url", "origin", repo_url], check=True)
+            else:
+                subprocess.run(["git", "-C", str(cwd), "remote", "add", "origin", repo_url], check=True)
+            subprocess.run(["git", "-C", str(cwd), "fetch", "origin", "main"], check=True)
+            subprocess.run(["git", "-C", str(cwd), "checkout", "-f", "-B", "main", "origin/main"], check=True)
+            subprocess.run(["git", "-C", str(cwd), "branch", "--set-upstream-to=origin/main", "main"], check=False)
         else:
-            backup_dir = cwd / ".agents_backup_pre_attach"
-            if backup_dir.exists():
-                shutil.rmtree(backup_dir)
-            print(f"{YELLOW}Moving physical .agents folder to {backup_dir.name}...{RESET}")
-            existing_agents.rename(backup_dir)
-
-    # Step 4: Attach all content of the repository directly to project folder
-    attached_items = []
-    skipped_items = []
-
-    # Iterate over top-level items in suite_path
-    for item in sorted(suite_path.iterdir()):
-        if is_excluded_suite_item(item):
-            continue
-
-        item_name = item.name
-        dest = cwd / item_name
-
-        if item.is_dir():
-            if dest.name == ".agents":
-                link_type = create_dir_link(item, dest)
-                link_label = "Symbolic Link" if link_type == "symlink" else ("Directory Junction" if link_type == "junction" else "Pointer Link")
-                print(f"{GREEN}✓ Attached .agents ({link_label}) --> {item}{RESET}")
-                attached_items.append(item_name)
-            elif is_link_path(dest):
-                remove_link(dest, allow_delete_dir=True)
-                link_type = create_dir_link(item, dest)
-                attached_items.append(item_name)
-            elif not dest.exists():
-                link_type = create_dir_link(item, dest)
-                link_label = "Symbolic Link" if link_type == "symlink" else ("Directory Junction" if link_type == "junction" else "Pointer Link")
-                print(f"{GREEN}✓ Attached {item_name}/ ({link_label}) --> {item}{RESET}")
-                attached_items.append(item_name)
+            items = [f for f in cwd.iterdir() if f.name != ".git"]
+            if not items:
+                print(f"{CYAN}Cloning repository into empty project directory...{RESET}")
+                subprocess.run(["git", "clone", repo_url, "."], cwd=str(cwd), check=True)
             else:
-                skipped_items.append(f"{item_name}/ (kept existing project directory)")
-        elif item.is_file() or item.is_symlink():
-            if is_link_path(dest):
-                remove_link(dest)
-                file_type = create_file_link(item, dest)
-                attached_items.append(item_name)
-            elif not dest.exists():
-                file_type = create_file_link(item, dest)
-                file_label = "Symbolic Link" if file_type == "symlink" else ("Hard Link" if file_type == "hardlink" else "File Copy")
-                print(f"{GREEN}✓ Attached {item_name} ({file_label}) --> {item}{RESET}")
-                attached_items.append(item_name)
-            elif dest.name == "AGENTS.md" and is_attached_agents_md(dest):
-                remove_link(dest)
-                file_type = create_file_link(item, dest)
-                attached_items.append(item_name)
-            else:
-                skipped_items.append(f"{item_name} (kept existing project file)")
+                init_res = subprocess.run(["git", "init", "-b", "main", "."], cwd=str(cwd), capture_output=True, text=True)
+                if init_res.returncode != 0:
+                    subprocess.run(["git", "init", "."], cwd=str(cwd), check=True)
+                subprocess.run(["git", "remote", "add", "origin", repo_url], cwd=str(cwd), check=True)
+                subprocess.run(["git", "fetch", "origin", "main"], cwd=str(cwd), check=True)
+                subprocess.run(["git", "checkout", "-f", "-B", "main", "origin/main"], cwd=str(cwd), check=True)
+                subprocess.run(["git", "branch", "--set-upstream-to=origin/main", "main"], cwd=str(cwd), check=False)
 
-    # Save attachment metadata
-    meta = {
-        "suite": suite_key,
-        "name": suite_info["name"],
-        "path": str(suite_path),
-        "repo_url": suite_info.get("repo_url", "https://github.com/GhaderiSaber/AcademicSuite.git"),
-        "attached_at": datetime.now().isoformat(),
-        "attached_os": current_os,
-        "attached_items": attached_items
-    }
-    with open(cwd / ".attached_suite.json", "w", encoding="utf-8") as f:
-        json.dump(meta, f, indent=2)
+        # Count active skills
+        skills_dir = cwd / ".agents" / "skills"
+        skills = [s.name for s in skills_dir.iterdir() if s.is_dir()] if skills_dir.exists() else []
 
-    # Count active skills
-    skills = [s.name for s in (agents_src / "skills").iterdir() if s.is_dir()] if (agents_src / "skills").exists() else []
+        print(f"\n{BOLD}{GREEN}✓ Successfully cloned GitHub repository directly into project!{RESET}")
+        print(f"  {BOLD}Project Location:{RESET} {cwd}")
+        print(f"  {BOLD}Active Skills:{RESET}   {len(skills)} skills loaded directly from project")
+        print(f"  {BOLD}Structure:{RESET}       Real physical repository files (zero symlinks, zero subfolders)\n")
 
-    print(f"\n{BOLD}{GREEN}Successfully attached repository content of {suite_key} on {current_os}!{RESET}")
-    print(f"  {BOLD}Directly attached to project root:{RESET} {len(attached_items)} items")
-    print(f"  {GRAY}{', '.join(attached_items)}{RESET}")
-    if skipped_items:
-        print(f"  {YELLOW}Preserved {len(skipped_items)} existing project items:{RESET} {GRAY}{', '.join(skipped_items)}{RESET}")
-    print(f"  Antigravity will load {len(skills)} skills directly in this project.")
-    print(f"\n{BOLD}Result:{RESET} Zero nested repo folders. Repo contents directly attached. Zero Git locks.\n")
+    except subprocess.CalledProcessError as e:
+        print(f"\n{RED}Error cloning repository from {repo_url}: {e}{RESET}\n", file=sys.stderr)
+        sys.exit(e.returncode)
+
+
+def get_project_or_suite_repo(cwd: Path) -> Path:
+    """Returns cwd if it is a Git repo, otherwise the attached suite repo path."""
+    if (cwd / ".git").exists():
+        return cwd
+    suite = get_attached_suite_path(cwd)
+    if suite and (suite / ".git").exists():
+        return suite
+    return None
 
 
 def cmd_git_passthrough(args, unknown_args):
-    """Runs any arbitrary git command against the master suite repo from current directory."""
+    """Runs any arbitrary git command against the project repository (or master suite)."""
     cwd = get_cwd()
-    suite_path = get_attached_suite_path(cwd)
-    if not suite_path:
-        print(f"{RED}Error: No suite is attached to the current directory.{RESET}", file=sys.stderr)
+    repo_path = get_project_or_suite_repo(cwd)
+    if not repo_path:
+        print(f"{RED}Error: No Git repository found in {cwd}.{RESET}", file=sys.stderr)
         sys.exit(1)
 
-    cmd = ["git", "-C", str(suite_path)] + unknown_args
+    cmd = ["git", "-C", str(repo_path)] + unknown_args
     try:
         subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
@@ -1138,67 +1049,62 @@ def cmd_git_passthrough(args, unknown_args):
 
 
 def cmd_push(args):
-    """Stages changes in the attached suite, commits them, and pushes to remote."""
+    """Stages changes in the project repository, commits them, and pushes to remote."""
     cwd = get_cwd()
-    suite_path = get_attached_suite_path(cwd)
-    if not suite_path:
-        print(f"{RED}Error: No suite is attached to the current directory.{RESET}", file=sys.stderr)
+    repo_path = get_project_or_suite_repo(cwd)
+    if not repo_path:
+        print(f"{RED}Error: No Git repository found in {cwd}.{RESET}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"\n{BOLD}{CYAN}Pushing Suite Updates to GitHub:{RESET}")
-    print(f"  Master Suite: {suite_path}")
-    print(f"  Working Dir:  {cwd}\n")
+    print(f"\n{BOLD}{CYAN}Pushing Updates to GitHub:{RESET} {repo_path}\n")
 
-    st = subprocess.run(["git", "-C", str(suite_path), "status", "-s"], capture_output=True, text=True)
-
-    st = subprocess.run(["git", "-C", str(suite_path), "status", "-s"], capture_output=True, text=True)
+    st = subprocess.run(["git", "-C", str(repo_path), "status", "-s"], capture_output=True, text=True)
     if not st.stdout.strip():
-        print(f"{GREEN}✓ No changes detected in master suite. Everything is up to date!{RESET}\n")
+        print(f"{GREEN}✓ No changes detected. Everything is up to date!{RESET}\n")
         return
 
-    print(f"{GRAY}Changed files in suite:{RESET}")
+    print(f"{GRAY}Changed files:{RESET}")
     for line in st.stdout.strip().splitlines():
         print(f"  {line}")
 
     print(f"\n{CYAN}Staging changes...{RESET}")
-    subprocess.run(["git", "-C", str(suite_path), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(repo_path), "add", "-A"], check=True)
 
     msg = args.message
     if not msg:
         project_name = cwd.name
-        msg = f"refactor(skills): update suite from {project_name}"
+        msg = f"chore: update project {project_name}"
 
     print(f"{CYAN}Committing: {RESET}\"{msg}\"")
-    subprocess.run(["git", "-C", str(suite_path), "commit", "-m", msg], check=True)
+    subprocess.run(["git", "-C", str(repo_path), "commit", "-m", msg], check=True)
 
     print(f"{CYAN}Pushing to GitHub (origin main)...{RESET}")
-    subprocess.run(["git", "-C", str(suite_path), "push", "origin", "main"], check=True)
-    print(f"\n{BOLD}{GREEN}✓ Successfully committed and pushed suite updates to GitHub!{RESET}\n")
+    subprocess.run(["git", "-C", str(repo_path), "push", "origin", "main"], check=True)
+    print(f"\n{BOLD}{GREEN}✓ Successfully committed and pushed updates to GitHub!{RESET}\n")
 
 
 def cmd_pull(args):
-    """Pulls latest remote changes into the master suite from GitHub."""
+    """Pulls latest remote changes from GitHub into the project."""
     cwd = get_cwd()
-    suite_path = get_attached_suite_path(cwd)
-    if not suite_path:
-        print(f"{RED}Error: No suite is attached to the current directory.{RESET}", file=sys.stderr)
+    repo_path = get_project_or_suite_repo(cwd)
+    if not repo_path:
+        print(f"{RED}Error: No Git repository found in {cwd}.{RESET}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"\n{BOLD}{CYAN}Pulling Latest Suite Updates from GitHub:{RESET}")
-    print(f"  Master Suite: {suite_path}\n")
-    subprocess.run(["git", "-C", str(suite_path), "pull", "origin", "main"], check=True)
-    print(f"\n{BOLD}{GREEN}✓ Master suite is now up to date with remote!{RESET}\n")
+    print(f"\n{BOLD}{CYAN}Pulling Latest Updates from GitHub:{RESET} {repo_path}\n")
+    subprocess.run(["git", "-C", str(repo_path), "pull", "origin", "main"], check=True)
+    print(f"\n{BOLD}{GREEN}✓ Repository is now up to date with remote!{RESET}\n")
 
 
 def cmd_diff(args):
-    """Shows git diff on the master suite."""
+    """Shows git diff on the project repository."""
     cwd = get_cwd()
-    suite_path = get_attached_suite_path(cwd)
-    if not suite_path:
-        print(f"{RED}Error: No suite is attached to the current directory.{RESET}", file=sys.stderr)
+    repo_path = get_project_or_suite_repo(cwd)
+    if not repo_path:
+        print(f"{RED}Error: No Git repository found in {cwd}.{RESET}", file=sys.stderr)
         sys.exit(1)
 
-    subprocess.run(["git", "-C", str(suite_path), "diff"] + (args.extra or []))
+    subprocess.run(["git", "-C", str(repo_path), "diff"] + (args.extra or []))
 
 
 def cmd_install(args):

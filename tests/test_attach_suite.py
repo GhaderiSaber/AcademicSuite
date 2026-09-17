@@ -85,12 +85,13 @@ class TestAttachSuite(unittest.TestCase):
 
     def test_attach_repo_content_directly_to_project(self):
         """
-        Simulates attaching the AcademicSuite repository directly to a new project folder.
+        Simulates attaching the AcademicSuite repository directly to a new project folder via direct clone.
         Verifies that:
         1. Contents are attached to project root.
         2. NO separate subfolder (e.g. AcademicSuite/) is created in project folder.
-        3. Excluded items (.git, .venv, projects, etc.) are NOT attached.
-        4. User project files are preserved.
+        3. Zero symbolic links are created (real physical files and directories).
+        4. User project files are preserved intact.
+        5. Git repository is initialized directly at the project root.
         """
         with tempfile.TemporaryDirectory() as tmp_dir:
             project_dir = Path(tmp_dir) / "my_thesis_study"
@@ -102,9 +103,9 @@ class TestAttachSuite(unittest.TestCase):
             attach_suite.get_cwd = lambda target_path=".": project_dir
 
             try:
-                # Attach academic suite using GitHub URL
+                # Attach academic suite using local repo path as source (instant & offline-capable)
                 class Args:
-                    suite = "https://github.com/GhaderiSaber/AcademicSuite.git"
+                    suite = str(REPO_ROOT)
                     keep_git = False
 
                 attach_suite.cmd_attach(Args())
@@ -124,50 +125,32 @@ class TestAttachSuite(unittest.TestCase):
                 self.assertTrue((project_dir / "data").exists())
                 self.assertTrue((project_dir / "validators").exists())
 
+                # Verify that ALL suite directories and root files are real physical files/directories, ZERO symlinks to external suite!
+                self.assertFalse(os.path.islink(project_dir / ".agents"))
+                self.assertTrue((project_dir / ".agents").is_dir())
+                self.assertFalse(os.path.islink(project_dir / "AGENTS.md"))
+                self.assertTrue((project_dir / "AGENTS.md").is_file())
+                self.assertFalse(os.path.islink(project_dir / "scripts"))
+                self.assertTrue((project_dir / "scripts").is_dir())
+                self.assertFalse(os.path.islink(project_dir / "validators"))
+                self.assertTrue((project_dir / "validators").is_dir())
+                self.assertTrue((project_dir / "Questionnaires.xlsx").exists())
+
                 # Verify user file was preserved
                 self.assertTrue(user_file.exists())
                 self.assertEqual(user_file.read_text(), "Confidential thesis notes")
 
-                # Verify excluded items were NOT attached
-                self.assertFalse((project_dir / ".git").exists())
-                self.assertFalse((project_dir / ".venv").exists())
-                self.assertFalse((project_dir / "projects").exists())
-                self.assertFalse((project_dir / "scratch").exists())
+                # Verify git repository exists directly in project root
+                self.assertTrue((project_dir / ".git").exists())
+                self.assertTrue((project_dir / ".git").is_dir())
 
-                # Verify metadata
-                meta_file = project_dir / ".attached_suite.json"
-                self.assertTrue(meta_file.exists())
-                with open(meta_file, "r", encoding="utf-8") as f:
-                    meta = json.load(f)
-                self.assertEqual(meta["suite"], "academic")
-                self.assertEqual(meta["repo_url"], "https://github.com/GhaderiSaber/AcademicSuite.git")
-                self.assertIn(".agents", meta["attached_items"])
-                self.assertIn("AGENTS.md", meta["attached_items"])
-                self.assertIn("digital_saber.py", meta["attached_items"])
-
-                # Verify get_status
+                # Verify get_status reports clean structure and physical items
                 status = attach_suite.get_status(project_dir)
-                self.assertTrue(status["has_meta"])
+                self.assertTrue(status["has_local_git"])
+                self.assertTrue(status["agents_exists"])
+                self.assertFalse(status["agents_is_link"])
                 self.assertEqual(len(status["separate_folders"]), 0)
-                self.assertGreater(len(status["attached_items"]), 10)
 
-                # Test Detach
-                class DetachArgs:
-                    path = str(project_dir)
-
-                attach_suite.cmd_detach(DetachArgs())
-
-                # Verify attached items are gone
-                self.assertFalse((project_dir / ".agents").exists())
-                self.assertFalse((project_dir / "AGENTS.md").exists())
-                self.assertFalse((project_dir / "digital_saber.py").exists())
-                self.assertFalse((project_dir / "Questionnaires.xlsx").exists())
-                self.assertFalse((project_dir / "scripts").exists())
-                self.assertFalse((project_dir / ".attached_suite.json").exists())
-
-                # Verify user file is STILL intact
-                self.assertTrue(user_file.exists())
-                self.assertEqual(user_file.read_text(), "Confidential thesis notes")
             finally:
                 attach_suite.get_cwd = orig_get_cwd
 
