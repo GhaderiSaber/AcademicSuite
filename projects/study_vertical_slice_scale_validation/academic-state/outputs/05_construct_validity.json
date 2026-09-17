@@ -1,0 +1,35 @@
+{
+  "stage_id": "05_construct_validity",
+  "title": "Convergent & Discriminant Validity (Fornell-Larcker & HTMT)",
+  "sample_size": 450,
+  "convergent_validity": {
+    "factor_1": {
+      "name": "پرخاشگری سایبری",
+      "ave": 0.542,
+      "cr": 0.892,
+      "ave_threshold_met": true,
+      "cr_threshold_met": true
+    },
+    "factor_2": {
+      "name": "قربانی‌شدن سایبری",
+      "ave": 0.518,
+      "cr": 0.885,
+      "ave_threshold_met": true,
+      "cr_threshold_met": true
+    }
+  },
+  "discriminant_validity": {
+    "fornell_larcker": {
+      "inter_factor_r": 0.42,
+      "sqrt_ave_factor_1": 0.736,
+      "sqrt_ave_factor_2": 0.72,
+      "fornell_larcker_met": true
+    },
+    "htmt": {
+      "htmt_ratio": 0.473,
+      "htmt_threshold": 0.85,
+      "htmt_met": true
+    }
+  },
+  "verdict": "SUPPORTED"
+}
