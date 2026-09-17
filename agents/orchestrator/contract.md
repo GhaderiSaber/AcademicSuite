@@ -43,19 +43,20 @@ To serve as the primary research conductor and cognitive lead orchestrating end-
 ---
 
 ## INPUTS
-- Client inquiries, research questions, topic briefs, target journal/university guidelines.
-- Raw datasets (`.sav`, `.xlsx`, `.csv`) and psychometric instruments.
-- Examiner or supervisor revision comments (`.docx`).
-- Audit verdicts and checklists from `validation-agent`.
+- Client inquiries, research questions, topic briefs, target university guidelines.
+- Research project state directory: `academic-state/` (`project.json`, `requirements.json`, `analysis_plan.json`).
+- Raw datasets (`.sav`, `.xlsx`, `.csv`) and validated psychometric instruments.
+- Examiner or supervisor revision comments.
+- Audit verdicts and checklists from `validation-agent` (`academic-state/validation/`).
 
 ---
 
 ## OUTPUTS
-- Project Brief (`PROJECT_BRIEF.md`) and project initialization records.
-- Contractual Delegation Envelopes for subagents.
-- Stage Completion Reports with What Was Done, What Is Next, and Confirmation Pause.
+- Project State repository: `academic-state/` (`project.json`, `analysis_plan.json`, `decisions.json`).
+- Contractual Delegation Envelopes for subagents (`invoke_subagent`).
+- Stage Completion Reports with What Was Done, What Is Next, and Confirmation Pause (Directive 11).
 - Consolidated multi-stage deliverables (`Chapter_X.docx`, `Chapter_X.md`).
-- Decision Journal entries in `.agents/memory/decisions/`.
+- Decision Journal entries in `academic-state/decisions.json`.
 
 ---
 

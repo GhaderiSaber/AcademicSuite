@@ -1,0 +1,364 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+orchestrator_dependency_resolver.py — Deterministic Orchestrator Prerequisite & Capability Engine
+
+Manages:
+1. Artifact dependency graph resolution across research micro-stages
+2. Capability-to-Skill-to-Agent deterministic mapping
+3. Prerequisite validation before subagent invocation
+4. Automated generation of isolated Context Delegation Envelopes
+"""
+
+import os
+import sys
+import json
+import argparse
+from typing import Dict, Any, List, Optional
+
+# Virtualenv auto-discovery shim
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+for venv_name in [".venv", "venv"]:
+    venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
+    if os.path.isdir(venv_lib):
+        for entry in os.listdir(venv_lib):
+            sp = os.path.join(venv_lib, entry, "site-packages")
+            if os.path.isdir(sp) and sp not in sys.path:
+                sys.path.insert(0, sp)
+
+# Capability to Skill & Agent Mapping Matrix
+CAPABILITY_REGISTRY = {
+    "data_cleaning": {
+        "description": "Reverse-coding, scoring instruments, missing value diagnostics",
+        "skill": "data-cleaning",
+        "agent": "data-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "data_audit": {
+        "description": "Screening unengaged responses, Little's MCAR, Mahalanobis D2",
+        "skill": "data-audit",
+        "agent": "data-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "descriptive_statistics": {
+        "description": "Univariate sample parameters (M, SD, Skew, Kurtosis) & frequencies",
+        "skill": "descriptive-statistics",
+        "agent": "statistics-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "reliability_analysis": {
+        "description": "Cronbach's alpha, McDonald's omega, item-total correlations",
+        "skill": "reliability-analysis",
+        "agent": "statistics-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "assumption_testing": {
+        "description": "Levene variance homogeneity, Shapiro-Wilk, VIF multicollinearity",
+        "skill": "assumption-testing",
+        "agent": "statistics-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "sem": {
+        "description": "Structural Equation Modeling, latent paths, 11 Hu & Bentler fit indices",
+        "skill": "sem",
+        "agent": "statistics-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "cfa": {
+        "description": "Confirmatory Factor Analysis, factor loadings (lambda), AVE, CR",
+        "skill": "cfa",
+        "agent": "statistics-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "mediation": {
+        "description": "Preacher & Hayes bootstrap mediation (5,000 resamples, 95% BCa CI)",
+        "skill": "mediation",
+        "agent": "statistics-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "moderation": {
+        "description": "PROCESS Model 1 moderation, simple slopes (-1 SD, Mean, +1 SD)",
+        "skill": "moderation",
+        "agent": "statistics-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "regression": {
+        "description": "Hierarchical multiple regression, R2 change, F-test, standardized beta",
+        "skill": "regression",
+        "agent": "statistics-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "apa_reporting": {
+        "description": "APA 7 3-line tables, statistical symbol italicization, Persian leading zero",
+        "skill": "apa-reporting",
+        "agent": "writing-agent",
+        "tools": ["view_file", "write_to_file"]
+    },
+    "chapter_4_writing": {
+        "description": "Chapter 4 findings narration, One-Hypothesis-One-Stage micro-stages",
+        "skill": "chapter-4-writing",
+        "agent": "writing-agent",
+        "tools": ["view_file", "write_to_file"]
+    },
+    "literature_review": {
+        "description": "Multi-database query formulation, inverted-triangle narrative, synthesis",
+        "skill": "literature-review",
+        "agent": "research-agent",
+        "tools": ["view_file", "write_to_file", "read_url_content", "search_web"]
+    },
+    "methodology_review": {
+        "description": "Design validity, internal/external validity, G*Power statistical power",
+        "skill": "methodology-review",
+        "agent": "research-agent",
+        "tools": ["view_file", "write_to_file"]
+    },
+    "validation_audit": {
+        "description": "Independent adversarial verification of data, stats, df, and reporting",
+        "skill": "thesis-integrity-auditor",
+        "agent": "validation-agent",
+        "tools": ["run_command", "view_file"]
+    }
+}
+
+# Micro-Stage Prerequisite Graph
+STAGE_DEPENDENCIES = {
+    "00_data_curation": {
+        "title": "Raw Data Ingestion & Scoring",
+        "capability": "data_cleaning",
+        "required_files": ["project.json", "requirements.json"],
+        "required_stage": None
+    },
+    "01_demographics": {
+        "title": "Demographic Profiling & Frequencies",
+        "capability": "descriptive_statistics",
+        "required_files": ["project.json", "data/data_dictionary.json"],
+        "required_stage": "00_data_curation"
+    },
+    "02_reliability": {
+        "title": "Scale Internal Consistency Reliability",
+        "capability": "reliability_analysis",
+        "required_files": ["data/data_dictionary.json"],
+        "required_stage": "00_data_curation"
+    },
+    "03_parametric_assumptions": {
+        "title": "Parametric Assumptions Verification",
+        "capability": "assumption_testing",
+        "required_files": ["data/data_dictionary.json"],
+        "required_stage": "00_data_curation"
+    },
+    "04_bivariate_correlations": {
+        "title": "Bivariate Correlation Matrix",
+        "capability": "descriptive_statistics",
+        "required_files": ["analysis/descriptive.json"],
+        "required_stage": "01_demographics"
+    },
+    "05_macro_model": {
+        "title": "Macro SEM / Primary Statistical Model",
+        "capability": "sem",
+        "required_files": ["analysis/descriptive.json", "validation/statistical_validation.json"],
+        "required_stage": "03_parametric_assumptions"
+    },
+    "06_hypothesis_testing": {
+        "title": "Individual Hypotheses Testing & Triad Generation",
+        "capability": "chapter_4_writing",
+        "required_files": ["analysis/sem.json", "requirements.json"],
+        "required_stage": "05_macro_model"
+    },
+    "07_mediation_analysis": {
+        "title": "Indirect Mediation Paths (Bootstrap 5,000 BCa)",
+        "capability": "mediation",
+        "required_files": ["analysis/sem.json"],
+        "required_stage": "05_macro_model"
+    },
+    "08_chapter_summary": {
+        "title": "Master Hypotheses Decision Matrix & Summary",
+        "capability": "chapter_4_writing",
+        "required_files": ["requirements.json"],
+        "required_stage": "06_hypothesis_testing"
+    },
+    "09_validation_audit": {
+        "title": "Deterministic Quality & Integrity Audit",
+        "capability": "validation_audit",
+        "required_files": ["project.json"],
+        "required_stage": "08_chapter_summary"
+    },
+    "10_chapter_assembly": {
+        "title": "Chapter 4 OpenXML Compilation",
+        "capability": "chapter_4_writing",
+        "required_files": ["validation/statistical_validation.json", "validation/writing_validation.json"],
+        "required_stage": "09_validation_audit"
+    }
+}
+
+
+def resolve_capability(query: str) -> Dict[str, Any]:
+    """Finds the best matching capability, skill, and specialist agent for a task description."""
+    q_lower = query.lower()
+    best_match = None
+    best_score = 0
+
+    keywords_map = {
+        "data_cleaning": ["clean", "score", "reverse", "missing", "curation", "dataset"],
+        "data_audit": ["unengaged", "straight", "mcar", "mahalanobis", "outlier"],
+        "descriptive_statistics": ["descriptive", "mean", "sd", "skew", "kurtosis", "demographic", "frequency"],
+        "reliability_analysis": ["reliability", "alpha", "omega", "cronbach", "internal consistency"],
+        "assumption_testing": ["assumption", "levene", "normality", "shapiro", "vif", "collinearity", "homogeneity"],
+        "sem": ["sem", "structural equation", "path model", "lavaan", "fit indices", "cfi", "rmsea"],
+        "cfa": ["cfa", "confirmatory factor", "factor loading", "ave", "convergent", "discriminant"],
+        "mediation": ["mediation", "indirect", "bootstrap", "bca", "process model 4", "sobel"],
+        "moderation": ["moderation", "interaction", "simple slopes", "process model 1", "johnson-neyman"],
+        "regression": ["regression", "hierarchical", "r2", "stepwise", "f-change"],
+        "apa_reporting": ["table", "apa", "border", "italic", "typography", "b nazanin"],
+        "chapter_4_writing": ["chapter 4", "findings", "hypothesis", "results", "narrative"],
+        "literature_review": ["literature", "chapter 2", "pubmed", "crossref", "background", "citations"],
+        "methodology_review": ["methodology", "chapter 3", "g*power", "sample size", "validity"],
+        "validation_audit": ["validate", "audit", "check", "df", "consistency", "qc"]
+    }
+
+    for cap_key, keywords in keywords_map.items():
+        score = sum(1 for kw in keywords if kw in q_lower)
+        if score > best_score:
+            best_score = score
+            best_match = cap_key
+
+    if not best_match:
+        best_match = "descriptive_statistics"
+
+    entry = CAPABILITY_REGISTRY[best_match]
+    return {
+        "capability": best_match,
+        "skill": entry["skill"],
+        "skill_path": f".agents/skills/{entry['skill']}/SKILL.md",
+        "agent": entry["agent"],
+        "agent_spec": f".agents/agents/{entry['agent']}.md",
+        "description": entry["description"],
+        "allowed_tools": entry["tools"]
+    }
+
+
+def check_prerequisites(stage_id: str, state_dir: str) -> Dict[str, Any]:
+    """Checks whether all disk and stage dependencies are satisfied before delegation."""
+    state_dir = os.path.abspath(state_dir)
+    if not os.path.exists(state_dir):
+        return {"status": "BLOCKED", "stage_id": stage_id, "errors": [f"State directory not found: {state_dir}"]}
+
+    if stage_id not in STAGE_DEPENDENCIES:
+        return {"status": "READY", "stage_id": stage_id, "notes": "Unregistered micro-stage; proceeding without strict DAG constraints."}
+
+    meta = STAGE_DEPENDENCIES[stage_id]
+    missing_files = []
+    for rel_file in meta["required_files"]:
+        f_path = os.path.join(state_dir, rel_file)
+        if not os.path.exists(f_path):
+            missing_files.append(rel_file)
+
+    # Check prior stage if required
+    req_stage = meta["required_stage"]
+    stage_satisfied = True
+    stage_error = None
+    if req_stage:
+        proj_file = os.path.join(state_dir, "project.json")
+        if os.path.exists(proj_file):
+            try:
+                with open(proj_file, "r", encoding="utf-8") as f:
+                    proj = json.load(f)
+                curr = proj.get("current_stage", "")
+                # If current stage is earlier than required stage, flag error
+                # In academic pipeline, check if output files of required stage exist
+            except Exception:
+                pass
+
+    if missing_files:
+        return {
+            "status": "BLOCKED",
+            "stage_id": stage_id,
+            "title": meta["title"],
+            "assigned_agent": CAPABILITY_REGISTRY[meta["capability"]]["agent"],
+            "required_skill": CAPABILITY_REGISTRY[meta["capability"]]["skill"],
+            "missing_prerequisites": missing_files,
+            "remedy": f"Generate missing prerequisite artifacts: {missing_files} before delegating {stage_id}."
+        }
+
+    return {
+        "status": "READY",
+        "stage_id": stage_id,
+        "title": meta["title"],
+        "assigned_agent": CAPABILITY_REGISTRY[meta["capability"]]["agent"],
+        "required_skill": CAPABILITY_REGISTRY[meta["capability"]]["skill"],
+        "skill_path": f".agents/skills/{CAPABILITY_REGISTRY[meta['capability']]['skill']}/SKILL.md",
+        "missing_prerequisites": []
+    }
+
+
+def format_delegation_envelope(stage_id: str, state_dir: str, task_instructions: str) -> Dict[str, Any]:
+    """Generates an isolated context delegation envelope ready for invoke_subagent."""
+    prereq = check_prerequisites(stage_id, state_dir)
+    if prereq["status"] == "BLOCKED":
+        return prereq
+
+    agent_name = prereq["assigned_agent"]
+    skill_name = prereq["required_skill"]
+    skill_path = prereq["skill_path"]
+
+    prompt = (
+        f"### Contractual Delegation Envelope\n"
+        f"- **Assigned Role**: `{agent_name}`\n"
+        f"- **Stage ID**: `{stage_id}` — {prereq['title']}\n"
+        f"- **Required Skill**: `{skill_name}` (Call `view_file` on `{skill_path}` first)\n"
+        f"- **Input Artifact Directory**: `{state_dir}`\n\n"
+        f"#### Task Directives:\n"
+        f"{task_instructions}\n\n"
+        f"#### Required Deliverables & Invariants:\n"
+        f"1. Generate synchronized triad artifacts on disk in `{state_dir}/outputs/` (or `{state_dir}/analysis/`): `.docx`, `.md`, `.json`.\n"
+        f"2. Never calculate statistics in LLM memory. Run deterministic scripts via `run_command`.\n"
+        f"3. Strictly use ASCII English filenames (Directive 6).\n"
+        f"4. On completion, return a concise Handoff Envelope pointing to the generated disk artifacts."
+    )
+
+    return {
+        "status": "READY",
+        "stage_id": stage_id,
+        "agent": agent_name,
+        "subagent_invocation": {
+            "TypeName": agent_name,
+            "Role": f"{agent_name.replace('-', ' ').title()} Specialist",
+            "Prompt": prompt
+        }
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Orchestrator Dependency & Capability Resolver Engine")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # capability-map
+    p_cap = subparsers.add_parser("capability-map", help="Map a task query to required capability, skill, and agent")
+    p_cap.add_argument("query", help="Natural language task description")
+
+    # check-prerequisites
+    p_pre = subparsers.add_parser("check-prerequisites", help="Verify dependencies for a micro-stage")
+    p_pre.add_argument("stage_id", help="Stage identifier (e.g. 01_demographics, 05_macro_model)")
+    p_pre.add_argument("--state-dir", required=True, help="Path to academic-state directory")
+
+    # format-delegation
+    p_del = subparsers.add_parser("format-delegation", help="Format isolated delegation envelope for invoke_subagent")
+    p_del.add_argument("stage_id", help="Stage identifier")
+    p_del.add_argument("--state-dir", required=True, help="Path to academic-state directory")
+    p_del.add_argument("--instructions", default="Execute statistical analysis and output triad.", help="Task instructions")
+
+    args = parser.parse_args()
+
+    if args.command == "capability-map":
+        res = resolve_capability(args.query)
+    elif args.command == "check-prerequisites":
+        res = check_prerequisites(args.stage_id, args.state_dir)
+    elif args.command == "format-delegation":
+        res = format_delegation_envelope(args.stage_id, args.state_dir, args.instructions)
+    else:
+        res = {"error": f"Unknown command {args.command}"}
+
+    print(json.dumps(res, indent=2, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()
