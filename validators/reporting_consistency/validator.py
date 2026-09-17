@@ -39,6 +39,23 @@ def validate_reporting(file_path):
         if c in text:
             errors.append(f"Forbidden robotic AI cliché detected: «{c}». Rephrase into formal academic Persian.")
 
+    # 4. Check 3-Table Standard for Regression / Relationship Hypotheses
+    is_regression_hypothesis = (
+        ("رگرسیون" in text or "regression" in text.lower()) and
+        ("فرضیه" in text or "hypothesis" in text.lower()) and
+        ("جدول" in text or "table" in text.lower())
+    )
+    if is_regression_hypothesis:
+        has_t1 = "جدول ۱" in text or "Table 1" in text
+        has_t2 = "جدول ۲" in text or "Table 2" in text
+        has_t3 = "جدول ۳" in text or "Table 3" in text
+        if not (has_t1 and has_t2 and has_t3):
+            errors.append(
+                "Violation of 3-Table Standard for Regression Hypotheses: "
+                "Must provide exactly 3 distinct tables: "
+                "Table 1 (Correlation Matrix), Table 2 (Model Summary & ANOVA), and Table 3 (Coefficients & Collinearity)."
+            )
+
     verdict = "FAIL" if errors else ("NEEDS_REVIEW" if warnings else "PASS")
     return {
         "validator": "reporting_consistency",

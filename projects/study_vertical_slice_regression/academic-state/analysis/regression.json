@@ -1,6 +1,183 @@
 {
   "dv": "job_burnout",
+  "ivs": [
+    "workplace_stress",
+    "psychological_flexibility"
+  ],
   "n": 100,
+  "three_table_standard": true,
+  "table_1_correlations": {
+    "title": "Bivariate Correlation Matrix & Descriptives",
+    "title_persian": "\u0645\u0627\u062a\u0631\u06cc\u0633 \u0647\u0645\u0628\u0633\u062a\u06af\u06cc \u067e\u06cc\u0631\u0633\u0648\u0646 \u0648 \u0634\u0627\u062e\u0635\u200c\u0647\u0627\u06cc \u062a\u0648\u0635\u06cc\u0641\u06cc \u0645\u062a\u063a\u06cc\u0631\u0647\u0627\u06cc \u067e\u0698\u0648\u0647\u0634",
+    "variables": [
+      "job_burnout",
+      "workplace_stress",
+      "psychological_flexibility"
+    ],
+    "sample_size": 100,
+    "descriptives": [
+      {
+        "variable": "job_burnout",
+        "mean": 3.17,
+        "sd": 0.67
+      },
+      {
+        "variable": "workplace_stress",
+        "mean": 3.36,
+        "sd": 0.67
+      },
+      {
+        "variable": "psychological_flexibility",
+        "mean": 3.36,
+        "sd": 0.63
+      }
+    ],
+    "correlation_matrix": [
+      {
+        "variable": "job_burnout",
+        "order": 1,
+        "correlations": [
+          {
+            "r": 1.0,
+            "p": 1.0,
+            "display": "1"
+          },
+          {
+            "r": null,
+            "p": null,
+            "display": "-"
+          },
+          {
+            "r": null,
+            "p": null,
+            "display": "-"
+          }
+        ]
+      },
+      {
+        "variable": "workplace_stress",
+        "order": 2,
+        "correlations": [
+          {
+            "r": 0.554,
+            "p": 0.0,
+            "p_display": "< .001",
+            "display": "0.55***"
+          },
+          {
+            "r": 1.0,
+            "p": 1.0,
+            "display": "1"
+          },
+          {
+            "r": null,
+            "p": null,
+            "display": "-"
+          }
+        ]
+      },
+      {
+        "variable": "psychological_flexibility",
+        "order": 3,
+        "correlations": [
+          {
+            "r": -0.464,
+            "p": 0.0,
+            "p_display": "< .001",
+            "display": "-0.46***"
+          },
+          {
+            "r": -0.266,
+            "p": 0.007,
+            "p_display": "0.007",
+            "display": "-0.27**"
+          },
+          {
+            "r": 1.0,
+            "p": 1.0,
+            "display": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "table_2_model_summary_anova": {
+    "title": "Model Summary & ANOVA",
+    "title_persian": "\u062e\u0644\u0627\u0635\u0647 \u0645\u062f\u0644 \u0631\u06af\u0631\u0633\u06cc\u0648\u0646 \u0648 \u062a\u062d\u0644\u06cc\u0644 \u0648\u0627\u0631\u06cc\u0627\u0646\u0633 (ANOVA)",
+    "model_summary": {
+      "r": 0.644,
+      "r2": 0.415,
+      "adj_r2": 0.403,
+      "se_est": 0.522,
+      "durbin_watson": 2.115
+    },
+    "anova": {
+      "regression": {
+        "source": "\u0631\u06af\u0631\u0633\u06cc\u0648\u0646",
+        "ss": 18.708,
+        "df": 2,
+        "ms": 9.354,
+        "f": 34.389,
+        "p_value": "< .001"
+      },
+      "residual": {
+        "source": "\u0628\u0627\u0642\u06cc\u200c\u0645\u0627\u0646\u062f\u0647",
+        "ss": 26.385,
+        "df": 97,
+        "ms": 0.272
+      },
+      "total": {
+        "source": "\u06a9\u0644",
+        "ss": 45.092,
+        "df": 99
+      }
+    }
+  },
+  "table_3_coefficients": {
+    "title": "Regression Coefficients & Collinearity Diagnostics",
+    "title_persian": "\u0636\u0631\u0627\u06cc\u0628 \u0631\u06af\u0631\u0633\u06cc\u0648\u0646 \u0686\u0646\u062f\u06af\u0627\u0646\u0647 \u0648 \u0634\u0627\u062e\u0635\u200c\u0647\u0627\u06cc \u0647\u0645\u200c\u062e\u0637\u06cc",
+    "coefficients": [
+      {
+        "predictor": "Constant",
+        "predictor_persian": "\u0645\u0642\u062f\u0627\u0631 \u062b\u0627\u0628\u062a",
+        "b": 2.824,
+        "se": 0.449,
+        "beta": null,
+        "t": 6.289,
+        "p_value": "< .001",
+        "ci_lower": 1.933,
+        "ci_upper": 3.715,
+        "tolerance": null,
+        "vif": null
+      },
+      {
+        "predictor": "workplace_stress",
+        "predictor_persian": "workplace_stress",
+        "b": 0.466,
+        "se": 0.081,
+        "beta": 0.464,
+        "t": 5.756,
+        "p_value": "< .001",
+        "ci_lower": 0.305,
+        "ci_upper": 0.627,
+        "tolerance": 0.929,
+        "vif": 1.076
+      },
+      {
+        "predictor": "psychological_flexibility",
+        "predictor_persian": "psychological_flexibility",
+        "b": -0.362,
+        "se": 0.086,
+        "beta": -0.34,
+        "t": -4.224,
+        "p_value": "< .001",
+        "ci_lower": -0.532,
+        "ci_upper": -0.192,
+        "tolerance": 0.929,
+        "vif": 1.076
+      }
+    ]
+  },
   "r2": 0.415,
   "adj_r2": 0.403,
   "f_stat": 34.389,
@@ -8,19 +185,29 @@
   "coefficients": [
     {
       "predictor": "workplace_stress",
+      "predictor_persian": "workplace_stress",
       "b": 0.466,
       "se": 0.081,
       "beta": 0.464,
       "t": 5.756,
-      "p_value": "< .001"
+      "p_value": "< .001",
+      "ci_lower": 0.305,
+      "ci_upper": 0.627,
+      "tolerance": 0.929,
+      "vif": 1.076
     },
     {
       "predictor": "psychological_flexibility",
+      "predictor_persian": "psychological_flexibility",
       "b": -0.362,
       "se": 0.086,
       "beta": -0.34,
       "t": -4.224,
-      "p_value": "< .001"
+      "p_value": "< .001",
+      "ci_lower": -0.532,
+      "ci_upper": -0.192,
+      "tolerance": 0.929,
+      "vif": 1.076
     }
   ]
 }

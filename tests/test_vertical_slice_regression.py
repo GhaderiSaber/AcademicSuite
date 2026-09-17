@@ -167,6 +167,42 @@ class TestVerticalSliceRegression(unittest.TestCase):
         self.assertEqual(res["overall_verdict"], "PASS", f"Schema errors: {res.get('errors')}")
         self.assertEqual(len(res["errors"]), 0)
 
+    def test_09_three_table_standard_compliance(self):
+        """Regression deliverable must strictly comply with the institutional 3-Table Standard."""
+        md_path = os.path.join(self.OUTPUTS_DIR, "06_hypothesis_1_regression.md")
+        json_path = os.path.join(self.OUTPUTS_DIR, "06_hypothesis_1_regression.json")
+
+        with open(md_path, "r", encoding="utf-8") as f:
+            md_text = f.read()
+        with open(json_path, "r", encoding="utf-8") as f:
+            js_data = json.load(f)
+
+        # 1. JSON must contain all 3 tables
+        self.assertTrue(js_data.get("three_table_standard"))
+        self.assertIn("table_1_correlations", js_data)
+        self.assertIn("table_2_model_summary_anova", js_data)
+        self.assertIn("table_3_coefficients", js_data)
+
+        # 2. Markdown narrative must contain all 3 tables with appropriate headers
+        self.assertIn("جدول ۱", md_text)
+        self.assertIn("جدول ۲", md_text)
+        self.assertIn("جدول ۳", md_text)
+
+        # Table 1: Bivariate correlations
+        self.assertIn("ماتریس همبستگی پیرسون", md_text)
+        # Table 2: Model Summary & ANOVA
+        self.assertIn("خلاصه مدل رگرسیون", md_text)
+        self.assertIn("مجموع مجذورات", md_text)
+        self.assertIn("دوربین-واتسون", md_text)
+        # Table 3: Coefficients & Collinearity
+        self.assertIn("ضرایب رگرسیون چندگانه", md_text)
+        self.assertIn("تولرانس", md_text)
+        self.assertIn("VIF", md_text)
+
+        # 3. Validator must confirm PASS
+        rep = validate_reporting(md_path)
+        self.assertEqual(rep["verdict"], "PASS")
+
 
 if __name__ == "__main__":
     unittest.main()
