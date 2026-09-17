@@ -12,6 +12,7 @@
 !validators/
 !evals/
 !recovery/
+!factory/
 !ANTIGRAVITY_ARCHITECTURE_GUIDE.md
 webapp/node_modules/
 webapp/dist/

@@ -51,7 +51,7 @@ class TestEvalSuite(unittest.TestCase):
 
     def test_02_all_8_domains_have_test_cases(self):
         cases = discover_test_cases()
-        self.assertEqual(len(cases), 8, f"Expected 8 test cases, found {len(cases)}")
+        self.assertGreaterEqual(len(cases), 8, f"Expected at least 8 test cases, found {len(cases)}")
 
         found_domains = set(c["domain"] for c in cases)
         for dom in self.REQUIRED_DOMAINS:
@@ -62,15 +62,15 @@ class TestEvalSuite(unittest.TestCase):
         cases = discover_test_cases()
         summary = validate_test_cases(schema, cases)
         self.assertEqual(summary["verdict"], "PASS", f"Validation errors: {summary.get('errors')}")
-        self.assertEqual(summary["valid_cases"], 8)
+        self.assertEqual(summary["valid_cases"], len(cases))
         self.assertEqual(len(summary["errors"]), 0)
 
     def test_04_eval_runner_produces_passing_benchmark(self):
         report = run_benchmark_suite(version_name="Academic Suite v2 (Unit Test)")
         self.assertEqual(report["overall_verdict"], "PASS")
         self.assertGreaterEqual(report["overall_benchmark_score"], 95.0)
-        self.assertEqual(report["passed_test_cases"], 8)
-        self.assertEqual(report["total_test_cases"], 8)
+        self.assertEqual(report["passed_test_cases"], report["total_test_cases"])
+        self.assertGreaterEqual(report["total_test_cases"], 8)
 
     def test_05_benchmark_reports_exist_on_disk(self):
         json_rep = os.path.join(self.EVALS_DIR, "results", "benchmark_report.json")

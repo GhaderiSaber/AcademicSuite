@@ -1,9 +1,9 @@
 {
   "benchmark_suite": "Academic Suite Permanent Evaluation Suite (evals/)",
   "version_evaluated": "Academic Suite v2 (Unit Test)",
-  "timestamp": "2026-09-17T11:36:00.167925+00:00",
-  "total_test_cases": 8,
-  "passed_test_cases": 8,
+  "timestamp": "2026-09-17T11:42:56.019567+00:00",
+  "total_test_cases": 9,
+  "passed_test_cases": 9,
   "overall_benchmark_score": 100.0,
   "overall_verdict": "PASS",
   "domain_results": [
@@ -41,6 +41,20 @@
       "version": "Academic Suite v2 (Unit Test)",
       "title": "Multiple Linear OLS Regression Modeling (Digital Saber 3-Table Standard)",
       "expected_n": 100,
+      "dataset_verified": true,
+      "numerical_accuracy_pct": 100.0,
+      "table_fidelity_pct": 100.0,
+      "rule_compliance_pct": 100.0,
+      "validation_gate_pct": 100.0,
+      "composite_benchmark_score": 100.0,
+      "status": "PASS"
+    },
+    {
+      "test_id": "EVAL-LMM-01",
+      "domain": "mediation",
+      "version": "Academic Suite v2 (Unit Test)",
+      "title": "3-Wave Longitudinal Moderated Mediation with Autoregressive Baseline Controls",
+      "expected_n": 200,
       "dataset_verified": true,
       "numerical_accuracy_pct": 100.0,
       "table_fidelity_pct": 100.0,
