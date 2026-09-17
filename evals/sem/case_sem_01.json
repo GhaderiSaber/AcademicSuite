@@ -1,0 +1,91 @@
+{
+  "test_id": "EVAL-SEM-01",
+  "domain": "sem",
+  "title": "Macro Latent Structural Equation Modeling (SEM)",
+  "version_target": "Academic Suite v1 / v2 / v3",
+  "INPUT": {
+    "data_path": "evals/sem/data/sem_data.xlsx",
+    "format": "xlsx",
+    "sample_n": 250,
+    "model_spec": "projects/study_vertical_slice_sem/02_specs/sem_model_spec.txt"
+  },
+  "EXPECTED_ANALYSIS": {
+    "model_type": "Full Latent Structural Equation Modeling",
+    "methodology": "Two-step SEM (Anderson & Gerbing) with ML estimation",
+    "standard_applied": "Digital Saber 11-Pillar SEM Standard",
+    "tool_script": ".agents/skills/sem/scripts/run_sem.py"
+  },
+  "EXPECTED_N": 250,
+  "EXPECTED_VARIABLES": [
+    "mindfulness",
+    "self_compassion",
+    "psych_wellbeing"
+  ],
+  "EXPECTED_KEY_STATISTICS": {
+    "macro_fit": {
+      "cfi": {
+        "value": 0.957,
+        "tolerance": 0.01,
+        "threshold_min": 0.95
+      },
+      "tli": {
+        "value": 0.951,
+        "tolerance": 0.01,
+        "threshold_min": 0.95
+      },
+      "rmsea": {
+        "value": 0.046,
+        "tolerance": 0.005,
+        "threshold_max": 0.06
+      },
+      "srmr": {
+        "value": 0.042,
+        "tolerance": 0.005,
+        "threshold_max": 0.08
+      }
+    },
+    "structural_paths": {
+      "mindfulness_to_wellbeing": {
+        "beta": 0.385,
+        "tolerance": 0.01,
+        "p_value": "p < 0.001"
+      },
+      "compassion_to_wellbeing": {
+        "beta": 0.342,
+        "tolerance": 0.01,
+        "p_value": "p < 0.001"
+      }
+    }
+  },
+  "EXPECTED_TABLES": [
+    {
+      "table_number": 1,
+      "title": "شاخص‌های برازش کلی مدل ساختاری در مقایسه با مقادیر بحرانی استاندارد",
+      "columns": 5,
+      "format": "APA 7"
+    },
+    {
+      "table_number": 2,
+      "title": "ضرایب مسیر مستقیم و پارامترهای ساختاری مدل مفهومی پژوهش",
+      "columns": 7,
+      "format": "APA 7"
+    }
+  ],
+  "EXPECTED_INTERPRETATION_CONSTRAINTS": {
+    "language": "Persian (Farsi)",
+    "paragraph_structure": "5-Part Epistemic Formula",
+    "leading_zero_persian": true,
+    "table_placement": "Directly below explanatory narrative",
+    "zero_citations_in_results": true,
+    "zero_ai_cliches": true,
+    "effect_size_reporting": true
+  },
+  "EXPECTED_VALIDATION": {
+    "data_integrity": "PASS",
+    "numerical_consistency": "PASS",
+    "reporting_consistency": "PASS",
+    "result_consistency": "PASS",
+    "statistical_assumptions": "PASS",
+    "state_schema_validation": "PASS"
+  }
+}

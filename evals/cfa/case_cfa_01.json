@@ -1,0 +1,107 @@
+{
+  "test_id": "EVAL-CFA-01",
+  "domain": "cfa",
+  "title": "Confirmatory Factor Analysis Measurement Model Evaluation",
+  "version_target": "Academic Suite v1 / v2 / v3",
+  "INPUT": {
+    "data_path": "evals/cfa/data/cfa_data.xlsx",
+    "format": "xlsx",
+    "sample_n": 450,
+    "model_spec": "aggression =~ item_1 + ... + item_10; victimization =~ item_11 + ... + item_20"
+  },
+  "EXPECTED_ANALYSIS": {
+    "model_type": "Confirmatory Factor Analysis (CFA) Measurement Model",
+    "methodology": "Maximum Likelihood / Robust estimation",
+    "standard_applied": "Hu & Bentler (1999) 11-Pillar Fit Indices Standard",
+    "tool_script": ".agents/skills/cfa/scripts/run_cfa.py"
+  },
+  "EXPECTED_N": 450,
+  "EXPECTED_VARIABLES": [
+    "cyber_aggression_items",
+    "cyber_victimization_items"
+  ],
+  "EXPECTED_KEY_STATISTICS": {
+    "fit_indices": {
+      "chi2_df": {
+        "value": 2.298,
+        "tolerance": 0.05,
+        "threshold_max": 3.0
+      },
+      "cfi": {
+        "value": 0.948,
+        "tolerance": 0.01,
+        "threshold_min": 0.9
+      },
+      "tli": {
+        "value": 0.942,
+        "tolerance": 0.01,
+        "threshold_min": 0.9
+      },
+      "rmsea": {
+        "value": 0.054,
+        "ci_lower": 0.047,
+        "ci_upper": 0.061,
+        "threshold_max": 0.08
+      },
+      "srmr": {
+        "value": 0.048,
+        "tolerance": 0.005,
+        "threshold_max": 0.08
+      }
+    },
+    "factor_loadings": {
+      "minimum_loading": 0.65,
+      "all_significant": true,
+      "z_scores_min": 12.0
+    },
+    "construct_validity": {
+      "factor_1_ave": {
+        "value": 0.542,
+        "threshold_min": 0.5
+      },
+      "factor_1_cr": {
+        "value": 0.892,
+        "threshold_min": 0.7
+      },
+      "factor_2_ave": {
+        "value": 0.518,
+        "threshold_min": 0.5
+      },
+      "factor_2_cr": {
+        "value": 0.885,
+        "threshold_min": 0.7
+      }
+    }
+  },
+  "EXPECTED_TABLES": [
+    {
+      "table_number": 1,
+      "title": "بارهای عاملی استاندارد، خطای استاندارد و اعتبار سازه الگوی اندازه‌گیری",
+      "columns": 7,
+      "format": "APA 7"
+    },
+    {
+      "table_number": 2,
+      "title": "شاخص‌های برازش الگوی تحلیل عاملی تاییدی در مقایسه با معیارهای هو و بنتلر",
+      "columns": 5,
+      "format": "APA 7"
+    }
+  ],
+  "EXPECTED_INTERPRETATION_CONSTRAINTS": {
+    "language": "Persian (Farsi)",
+    "paragraph_structure": "5-Part Epistemic Formula",
+    "leading_zero_persian": true,
+    "table_placement": "Directly below explanatory narrative",
+    "zero_citations_in_results": true,
+    "zero_ai_cliches": true,
+    "effect_size_reporting": true
+  },
+  "EXPECTED_VALIDATION": {
+    "data_integrity": "PASS",
+    "numerical_consistency": "PASS",
+    "reporting_consistency": "PASS",
+    "result_consistency": "PASS",
+    "statistical_assumptions": "PASS",
+    "state_schema_validation": "PASS"
+  }
+}

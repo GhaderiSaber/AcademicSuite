@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicSuiteEvaluationTestCaseSchema",
+  "description": "Standard schema for permanent benchmark test cases across statistical and academic writing domains in Academic Suite.",
+  "type": "object",
+  "required": [
+    "test_id",
+    "domain",
+    "INPUT",
+    "EXPECTED_ANALYSIS",
+    "EXPECTED_N",
+    "EXPECTED_VARIABLES",
+    "EXPECTED_KEY_STATISTICS",
+    "EXPECTED_TABLES",
+    "EXPECTED_INTERPRETATION_CONSTRAINTS",
+    "EXPECTED_VALIDATION"
+  ],
+  "properties": {
+    "test_id": {
+      "type": "string",
+      "description": "Unique identifier for the evaluation test case (e.g., EVAL-REG-01)"
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "descriptive",
+        "reliability",
+        "regression",
+        "mediation",
+        "cfa",
+        "sem",
+        "network",
+        "writing"
+      ],
+      "description": "One of the 8 canonical evaluation domains"
+    },
+    "title": {
+      "type": "string",
+      "description": "Descriptive title of the evaluation test case"
+    },
+    "version_target": {
+      "type": "string",
+      "description": "Target benchmark versions (e.g. Academic Suite v1 / v2 / v3)"
+    },
+    "INPUT": {
+      "type": "object",
+      "required": ["data_path", "format"],
+      "properties": {
+        "data_path": {
+          "type": "string",
+          "description": "Path to the permanent test dataset or input payload file"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["xlsx", "csv", "json", "sav"]
+        },
+        "sample_n": {
+          "type": "integer"
+        },
+        "predictors": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "dependent_variable": {
+          "type": "string"
+        },
+        "mediators": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "moderators": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "model_spec": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "EXPECTED_ANALYSIS": {
+      "type": "object",
+      "required": ["model_type"],
+      "properties": {
+        "model_type": {
+          "type": "string",
+          "description": "Statistical / psychometric model type"
+        },
+        "methodology": {
+          "type": "string"
+        },
+        "standard_applied": {
+          "type": "string"
+        },
+        "tool_script": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "EXPECTED_N": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Exact sample size N required for analysis"
+    },
+    "EXPECTED_VARIABLES": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Exact variable or factor names included in evaluation"
+    },
+    "EXPECTED_KEY_STATISTICS": {
+      "type": "object",
+      "description": "Exact numerical statistics, effect sizes, and tolerances"
+    },
+    "EXPECTED_TABLES": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["table_number", "title", "format"],
+        "properties": {
+          "table_number": {"type": "integer"},
+          "title": {"type": "string"},
+          "columns": {"type": "integer"},
+          "format": {"type": "string"}
+        }
+      },
+      "minItems": 1,
+      "description": "Expected APA 7 tables generated"
+    },
+    "EXPECTED_INTERPRETATION_CONSTRAINTS": {
+      "type": "object",
+      "required": ["language"],
+      "properties": {
+        "language": {"type": "string"},
+        "paragraph_structure": {"type": "string"},
+        "leading_zero_persian": {"type": "boolean"},
+        "table_placement": {"type": "string"},
+        "zero_citations_in_results": {"type": "boolean"},
+        "zero_ai_cliches": {"type": "boolean"},
+        "effect_size_reporting": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "EXPECTED_VALIDATION": {
+      "type": "object",
+      "required": [
+        "data_integrity",
+        "numerical_consistency",
+        "reporting_consistency"
+      ],
+      "properties": {
+        "data_integrity": {"type": "string", "enum": ["PASS", "FAIL"]},
+        "numerical_consistency": {"type": "string", "enum": ["PASS", "FAIL"]},
+        "reporting_consistency": {"type": "string", "enum": ["PASS", "FAIL"]},
+        "result_consistency": {"type": "string", "enum": ["PASS", "FAIL"]},
+        "statistical_assumptions": {"type": "string", "enum": ["PASS", "FAIL", "N/A"]},
+        "state_schema_validation": {"type": "string", "enum": ["PASS", "FAIL"]}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,82 @@
+{
+  "test_id": "EVAL-NET-01",
+  "domain": "network",
+  "title": "Bibliometric Co-occurrence and Callon Strategic Thematic Mapping",
+  "version_target": "Academic Suite v1 / v2 / v3",
+  "INPUT": {
+    "data_path": "evals/network/data/bibliometric_corpus.csv",
+    "format": "csv",
+    "sample_n": 1250,
+    "predictors": [
+      "keywords",
+      "authors",
+      "citations"
+    ]
+  },
+  "EXPECTED_ANALYSIS": {
+    "model_type": "Bibliometric Keyword Co-occurrence & Callon Diagram",
+    "methodology": "Equivalence index, Louvain clustering, Callon centrality-density mapping",
+    "standard_applied": "Callon (1991) Strategic Diagram Standard",
+    "tool_script": ".agents/skills/network-analysis/scripts/run_network_analysis.py"
+  },
+  "EXPECTED_N": 1250,
+  "EXPECTED_VARIABLES": [
+    "core_themes",
+    "emerging_methods",
+    "specialized_niches"
+  ],
+  "EXPECTED_KEY_STATISTICS": {
+    "network_topology": {
+      "total_nodes": {
+        "value": 64,
+        "tolerance": 2
+      },
+      "total_edges": {
+        "value": 192,
+        "tolerance": 5
+      }
+    },
+    "callon_quadrants": {
+      "motor_themes_q1": {
+        "centrality": 0.88,
+        "density": 0.82,
+        "status": "Core Themes"
+      },
+      "basic_transversal_q4": {
+        "centrality": 0.74,
+        "density": 0.35,
+        "status": "Emerging Methods"
+      },
+      "highly_developed_q2": {
+        "centrality": 0.28,
+        "density": 0.79,
+        "status": "Specialized Niches"
+      }
+    }
+  },
+  "EXPECTED_TABLES": [
+    {
+      "table_number": 1,
+      "title": "مختصات تراکم و مرکزیت خوشه‌های موضوعی بر پایه نمودار راهبردی کالون",
+      "columns": 5,
+      "format": "APA 7"
+    }
+  ],
+  "EXPECTED_INTERPRETATION_CONSTRAINTS": {
+    "language": "Persian (Farsi)",
+    "paragraph_structure": "Epistemic Callon Quadrant Interpretation",
+    "leading_zero_persian": true,
+    "table_placement": "Directly below explanatory narrative",
+    "zero_citations_in_results": false,
+    "zero_ai_cliches": true,
+    "effect_size_reporting": false
+  },
+  "EXPECTED_VALIDATION": {
+    "data_integrity": "PASS",
+    "numerical_consistency": "PASS",
+    "reporting_consistency": "PASS",
+    "result_consistency": "PASS",
+    "statistical_assumptions": "N/A",
+    "state_schema_validation": "PASS"
+  }
+}

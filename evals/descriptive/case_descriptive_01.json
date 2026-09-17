@@ -1,0 +1,102 @@
+{
+  "test_id": "EVAL-DESC-01",
+  "domain": "descriptive",
+  "title": "Demographics and Longitudinal Repeated Measures Descriptives in Experimental RCT",
+  "version_target": "Academic Suite v1 / v2 / v3",
+  "INPUT": {
+    "data_path": "evals/descriptive/data/descriptive_data.xlsx",
+    "format": "xlsx",
+    "sample_n": 60,
+    "predictors": [
+      "group",
+      "gender",
+      "age",
+      "education"
+    ],
+    "dependent_variable": "anxiety"
+  },
+  "EXPECTED_ANALYSIS": {
+    "model_type": "Univariate and Longitudinal Central Tendency & Equivalence",
+    "methodology": "Means, SDs, Skewness, Kurtosis, Independent t-test, Chi-square",
+    "standard_applied": "APA 7th Edition Demographics & Descriptives Standard",
+    "tool_script": ".agents/skills/descriptive-statistics/scripts/compute_descriptives.py"
+  },
+  "EXPECTED_N": 60,
+  "EXPECTED_VARIABLES": [
+    "gender",
+    "age",
+    "education",
+    "anxiety_pre",
+    "anxiety_post",
+    "anxiety_followup"
+  ],
+  "EXPECTED_KEY_STATISTICS": {
+    "sample_size": {
+      "total": 60,
+      "experimental": 30,
+      "control": 30
+    },
+    "age": {
+      "mean": 35.6,
+      "sd": 9.5,
+      "t_stat": 2.248,
+      "p_value": 0.028
+    },
+    "gender_chi2": {
+      "chi2": 0.067,
+      "df": 1,
+      "p_value": 0.796
+    },
+    "education_chi2": {
+      "chi2": 1.726,
+      "df": 2,
+      "p_value": 0.422
+    },
+    "anxiety_pre": {
+      "mean_exp": 3.426,
+      "mean_ctl": 3.466,
+      "tolerance": 0.01
+    },
+    "anxiety_post": {
+      "mean_exp": 2.301,
+      "mean_ctl": 3.534,
+      "tolerance": 0.01
+    },
+    "anxiety_followup": {
+      "mean_exp": 2.351,
+      "mean_ctl": 3.444,
+      "tolerance": 0.01
+    }
+  },
+  "EXPECTED_TABLES": [
+    {
+      "table_number": 1,
+      "title": "مشخصات جمعیت‌شناختی آزمودنی‌ها به تفکیک گروه و آزمون‌های برابری خط پایه",
+      "columns": 6,
+      "format": "APA 7"
+    },
+    {
+      "table_number": 2,
+      "title": "شاخص‌های توصیفی نمرات اضطراب و انعطاف‌ناپذیری روان‌شناختی در مراحل سنجش به تفکیک گروه",
+      "columns": 5,
+      "format": "APA 7"
+    }
+  ],
+  "EXPECTED_INTERPRETATION_CONSTRAINTS": {
+    "language": "Persian (Farsi)",
+    "paragraph_structure": "5-Part Epistemic Formula",
+    "leading_zero_persian": true,
+    "table_placement": "Directly below explanatory narrative",
+    "zero_citations_in_results": true,
+    "zero_ai_cliches": true,
+    "effect_size_reporting": false
+  },
+  "EXPECTED_VALIDATION": {
+    "data_integrity": "PASS",
+    "numerical_consistency": "PASS",
+    "reporting_consistency": "PASS",
+    "result_consistency": "PASS",
+    "statistical_assumptions": "PASS",
+    "state_schema_validation": "PASS"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "test_id": "EVAL-MED-01",
+  "domain": "mediation",
+  "title": "Serial Two-Mediator Bootstrap Mediation (Hayes PROCESS Model 6)",
+  "version_target": "Academic Suite v1 / v2 / v3",
+  "INPUT": {
+    "data_path": "evals/mediation/data/mediation_data.xlsx",
+    "format": "xlsx",
+    "sample_n": 300,
+    "predictors": [
+      "trans_leadership"
+    ],
+    "mediators": [
+      "psych_safety",
+      "work_engagement"
+    ],
+    "dependent_variable": "innovative_behavior"
+  },
+  "EXPECTED_ANALYSIS": {
+    "model_type": "Serial Two-Mediator Mediation Model (PROCESS Model 6)",
+    "methodology": "Ordinary Least Squares path modeling with 5,000 bootstrap resamples",
+    "standard_applied": "Preacher & Hayes 95% BCa Confidence Interval Standard",
+    "tool_script": ".agents/skills/mediation/scripts/run_mediation.py"
+  },
+  "EXPECTED_N": 300,
+  "EXPECTED_VARIABLES": [
+    "trans_leadership",
+    "psych_safety",
+    "work_engagement",
+    "innovative_behavior"
+  ],
+  "EXPECTED_KEY_STATISTICS": {
+    "direct_effect_c_prime": {
+      "beta": 0.166,
+      "tolerance": 0.01,
+      "t": 2.76,
+      "p_value": 0.006
+    },
+    "total_effect_c": {
+      "beta": 0.608,
+      "tolerance": 0.01,
+      "t": 13.24,
+      "p_value": "p < 0.001"
+    },
+    "indirect_effects": {
+      "indirect_1_m1": {
+        "point_estimate": 0.188,
+        "boot_ci_lower": 0.124,
+        "boot_ci_upper": 0.263,
+        "significant": true
+      },
+      "indirect_2_m2": {
+        "point_estimate": 0.165,
+        "boot_ci_lower": 0.108,
+        "boot_ci_upper": 0.231,
+        "significant": true
+      },
+      "indirect_3_serial": {
+        "point_estimate": 0.089,
+        "boot_ci_lower": 0.048,
+        "boot_ci_upper": 0.142,
+        "significant": true
+      },
+      "total_indirect": {
+        "point_estimate": 0.442,
+        "boot_ci_lower": 0.334,
+        "boot_ci_upper": 0.562,
+        "significant": true
+      }
+    },
+    "mediation_type": "Partial Serial Mediation"
+  },
+  "EXPECTED_TABLES": [
+    {
+      "table_number": 1,
+      "title": "ضرایب مسیر مستقیم و مدل‌های رگرسیونی الگوی میانجی‌گری سریالی",
+      "columns": 7,
+      "format": "APA 7"
+    },
+    {
+      "table_number": 2,
+      "title": "برآورد اثرات غیرمستقیم و فواصل اطمینان بوت‌استراپ (۵۰۰۰ بار نمونه‌برداری مجدد)",
+      "columns": 6,
+      "format": "APA 7"
+    }
+  ],
+  "EXPECTED_INTERPRETATION_CONSTRAINTS": {
+    "language": "Persian (Farsi)",
+    "paragraph_structure": "5-Part Epistemic Formula",
+    "leading_zero_persian": true,
+    "table_placement": "Directly below explanatory narrative",
+    "zero_citations_in_results": true,
+    "zero_ai_cliches": true,
+    "effect_size_reporting": true
+  },
+  "EXPECTED_VALIDATION": {
+    "data_integrity": "PASS",
+    "numerical_consistency": "PASS",
+    "reporting_consistency": "PASS",
+    "result_consistency": "PASS",
+    "statistical_assumptions": "PASS",
+    "state_schema_validation": "PASS"
+  }
+}

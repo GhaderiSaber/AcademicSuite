@@ -1,0 +1,24 @@
+{
+  "model_type": "Multiple Regression",
+  "sample_n": 100,
+  "f_stat": 39.4,
+  "df1": 2,
+  "df2": 97,
+  "p_value": 0.001,
+  "r_squared": 0.448,
+  "adj_r_squared": 0.437,
+  "coefficients": [
+    {
+      "variable": "workplace_stress",
+      "beta": 0.478,
+      "t": 6.12,
+      "p": 0.001
+    },
+    {
+      "variable": "psychological_flexibility",
+      "beta": -0.342,
+      "t": -4.38,
+      "p": 0.001
+    }
+  ]
+}
