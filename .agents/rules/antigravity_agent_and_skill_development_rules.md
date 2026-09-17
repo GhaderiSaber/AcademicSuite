@@ -112,3 +112,23 @@ To prevent context overflow and guarantee that any agent can ingest 100% of a sk
 - **The Brains (LLM / Subagent)**: Epistemic evaluation, narrative synthesis, hypothesis testing strategy.
 - **The Hands (Deterministic Scripts in `scripts/`)**: Matrix math, effect size calculations, $p$-values, OpenXML document generation, and statistical modeling.
 - **Absolute Rule**: Never calculate or guess statistical values in the prompt. Always run bundled scripts and extract exact numbers from output JSON files.
+
+---
+
+## 4. AcademicSuite Specific Repository Conventions
+
+All agents, subagents, and skills created within the AcademicSuite repository MUST adhere to these workspace-specific conventions:
+
+1. **Dual-Entry Subagent Architecture**:
+   - Create `.agents/agents/<name>/agent.md` containing full prompt and operational modes.
+   - Maintain the root-level entrypoint `.agents/agents/<name>.md` with frontmatter `skills` and `role`.
+   - Optionally add `.agents/agents/<name>/contract.md` defining artifact handoffs.
+2. **Constitutional Invariant Header**:
+   - Every agent system prompt MUST include the mandatory Directives block from `AGENTS.md` (Directive 0 Binary Honesty, Directive 2 Deterministic Calculations, Directive 4 APA 7 & Persian Leading Zero Standard, Directive 5 BiDi OpenXML & Font Binding, Directive 6 English-Only Filenames, Directive 14 Anti-Hallucination, Directive 15 Temporal Reality Anchor: 2026).
+3. **Triad Artifact Invariant (Directive 3)**:
+   - Multi-stage pipelines must emit synchronized triads on disk: `.docx` (Word), `.md` (Markdown), and `.json` (Data/Stats).
+4. **Registration in Activation Matrix**:
+   - Every newly created skill must be cataloged in `.agents/references/SKILL_ACTIVATION_MATRIX.md` with trigger conditions, inputs, outputs, and assigned subagent role.
+5. **English-Only ASCII Filenames (Directive 6)**:
+   - All files, directories, and scripts MUST use English ASCII characters strictly (`[a-zA-Z0-9_.-]`).
+

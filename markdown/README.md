@@ -22,6 +22,7 @@ Antigravity is an agent-first software development and research platform enginee
 | **[04. Cutting-Edge Multi-Agent Patterns (2026)](04_cutting_edge_multi_agent_patterns_2026.md)** | Advanced architectural patterns | Orchestrator-Worker, Parallel Fan-Out/Fan-In, Generator-Critic / Viva Voce Committee, Dynamic Swarms, "Hands vs. Brains" invariant, Artifact-Gated pipelines. |
 | **[05. Lifecycle Hooks & Governance](05_lifecycle_hooks_and_governance.md)** | Deterministic policy enforcement | `hooks.json` engine, `PreToolUse`, `PostToolUse`, `PreInvocation`, `Stop` gates, argument rewriting, least-privilege scoping. |
 | **[06. Practical Blueprints & Templates](06_practical_blueprints_and_templates.md)** | Ready-to-use production configurations | Declarative YAML agent templates, Python SDK multi-tier scripts, dynamic tool invocation schemas, automated CI hook configurations. |
+| **[07. AcademicSuite Repo Structure Guide](07_academic_suite_repo_structure_guide.md)** | AcademicSuite specific implementation standards | 5 Cognitive Layers, dual-entry agents (`.agents/agents/<name>/agent.md`), deterministic skills in `.agents/skills/`, Triad Invariant, and Hands vs Brains separation. |
 
 ---
 
