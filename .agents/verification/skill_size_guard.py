@@ -127,10 +127,15 @@ def main():
         print(f"✅ All {result['total_checked']} items are within single-view context limits.")
         sys.exit(0)
     else:
-        print(f"❌ {len(result['violations'])} skill(s) exceeded the single-view threshold:\n")
+        print(f"❌ {len(result['violations'])} item(s) exceeded the single-view threshold:\n")
         for v in result["violations"]:
-            print(f"  - {v['skill']}: {v['line_count']} lines (limit: {v['max_lines']}), {v['byte_size']} bytes (limit: {v['max_bytes']})")
-            print(f"    Path: {v['file']}")
+            name = v.get("name", "unknown")
+            vtype = v.get("type", "item")
+            if "error" in v:
+                print(f"  - [{vtype}] {name}: Error reading file: {v['error']}")
+            else:
+                print(f"  - [{vtype}] {name}: {v.get('line_count', 0)} lines (limit: {v.get('max_lines', 0)}), {v.get('byte_size', 0)} bytes (limit: {v.get('max_bytes', 0)})")
+            print(f"    Path: {v.get('file', '')}")
             print("    Remediation: Modularize extended rules, contracts, and examples into the 'references/' directory.\n")
         sys.exit(1)
 
