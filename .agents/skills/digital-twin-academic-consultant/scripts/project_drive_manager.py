@@ -33,7 +33,7 @@ import html
 import shutil
 import difflib
 import unicodedata
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Tuple
 
 # Standard 4-Tier Subfolder Taxonomy
@@ -1035,6 +1035,44 @@ class ProjectDriveManager:
             await msg.download_media(file=dest_path)
             print(f"[+] Saved incoming file directly to project: {dest_path}")
         return dest_path
+
+    def get_project_latest_message_date(self, folder_path: str) -> Optional[datetime]:
+        """
+        Extract the datetime of the latest recorded message from chat_history.json
+        or project_meta.json.
+        """
+        if not os.path.isdir(folder_path):
+            return None
+
+        # 1. Check chat_history.json
+        hist_path = os.path.join(folder_path, "01_raw_inputs", "chat_history.json")
+        if os.path.exists(hist_path):
+            try:
+                with open(hist_path, "r", encoding="utf-8") as f:
+                    msgs = json.load(f)
+                if msgs and isinstance(msgs, list):
+                    for m in reversed(msgs):
+                        d_str = m.get("date")
+                        if d_str:
+                            clean_d = re.sub(r"[+-]\d\d:\d\d$", "", d_str[:19])
+                            return datetime.fromisoformat(clean_d)
+            except Exception:
+                pass
+
+        # 2. Check project_meta.json
+        meta_path = os.path.join(folder_path, "project_meta.json")
+        if os.path.exists(meta_path):
+            try:
+                with open(meta_path, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                for k in ["last_interaction", "last_message_date", "updated_at"]:
+                    if meta.get(k):
+                        clean_d = re.sub(r"[+-]\d\d:\d\d$", "", meta[k][:19])
+                        return datetime.fromisoformat(clean_d)
+            except Exception:
+                pass
+
+        return None
 
     def list_all_projects(self) -> List[Dict[str, Any]]:
         """List all managed client project folders in Google Drive."""

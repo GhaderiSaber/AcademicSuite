@@ -219,7 +219,14 @@ class SaberTelethonUserbot:
         if not self.api_id or not self.api_hash or TelegramClient is None:
             self.client = None
         else:
-            self.client = TelegramClient(self.session_name, self.api_id, self.api_hash, proxy=self.proxy)
+            s1_name = self.session_name
+            if not os.path.isabs(s1_name):
+                repo_p = os.path.join(ROOT_DIR, s1_name)
+                script_p = os.path.join(SCRIPT_DIR, s1_name)
+                s1_path = repo_p if os.path.exists(repo_p + ".session") else (script_p if os.path.exists(script_p + ".session") else repo_p)
+            else:
+                s1_path = s1_name
+            self.client = TelegramClient(s1_path, self.api_id, self.api_hash, proxy=self.proxy)
 
         # Second personal userbot account (optional)
         self.second_account_config = config.get("second_account")
@@ -919,6 +926,18 @@ class SaberTelethonUserbot:
                 print(f"[-] Error in morning briefing scheduler loop: {e}")
             await asyncio.sleep(60)
 
+    async def _periodic_catchup_sync_loop(self):
+        """Autonomous background loop: periodically checks all client dialogs to catch offline messages and deltas."""
+        # Initial wait so startup scan finishes first
+        await asyncio.sleep(180)
+        while True:
+            try:
+                print("[*] Running periodic offline catch-up sync across client dialogs...")
+                await self.scan_and_process_unread_messages(limit_dialogs=40)
+            except Exception as e:
+                print(f"[-] Error in periodic catch-up sync loop: {e}")
+            await asyncio.sleep(300)
+
     async def generate_and_post_math_defense(
         self,
         test_type: str = "ancova",
@@ -1025,30 +1044,67 @@ class SaberTelethonUserbot:
         for acc_lbl, cl in active_scan_clients:
             dialogs = await cl.get_dialogs(limit=limit_dialogs)
             for dlg in dialogs:
-                if (dlg.is_user and not dlg.entity.is_self and not dlg.entity.bot and 
-                    dlg.id not in [124911145, 6328062294, 777000] and dlg.unread_count > 0):
-                    unread_clients.append((acc_lbl, cl, dlg))
+                if not dlg.is_user or dlg.entity.is_self or dlg.entity.bot:
+                    continue
+                if dlg.id in [124911145, 6328062294, 777000]:
+                    continue
+
+                # Ignore excluded non-academic contacts
+                if self.project_manager.is_ignored(dlg.name, dlg.id, getattr(dlg.entity, "username", None)):
+                    continue
+
+                needs_sync = False
+                sync_reason = ""
+
+                # Condition 1: Unread count > 0
+                if dlg.unread_count > 0:
+                    needs_sync = True
+                    sync_reason = f"{dlg.unread_count} unread"
+                else:
+                    # Condition 2: Offline delta check (Telegram has newer messages than local disk)
+                    existing_dir = self.project_manager.find_existing_project_by_client(
+                        dlg.name, client_id=dlg.id, username=getattr(dlg.entity, "username", None)
+                    )
+                    if existing_dir:
+                        local_last_date = self.project_manager.get_project_latest_message_date(existing_dir)
+                        if dlg.date and local_last_date:
+                            dlg_dt = dlg.date.replace(tzinfo=None)
+                            # If Telegram dialog date is newer than local date by > 5 seconds
+                            if (dlg_dt - local_last_date).total_seconds() > 5:
+                                needs_sync = True
+                                sync_reason = f"offline catch-up (Telegram: {dlg_dt.strftime('%m-%d %H:%M')} > Local: {local_last_date.strftime('%m-%d %H:%M')})"
+                        elif dlg.date and not local_last_date:
+                            needs_sync = True
+                            sync_reason = "missing local chat history"
+                    elif dlg.date:
+                        dlg_dt = dlg.date.replace(tzinfo=None)
+                        if (datetime.now() - dlg_dt).days <= 30:
+                            needs_sync = True
+                            sync_reason = "active dialog without local folder"
+
+                if needs_sync:
+                    unread_clients.append((acc_lbl, cl, dlg, sync_reason))
 
         if not unread_clients:
-            print("[+] No unread messages found from clients.")
+            print("[+] All client dialogs are up to date (no unread or offline delta messages).")
             if trigger_event:
                 now_str = datetime.now().strftime("%H:%M:%S")
                 await trigger_event.answer(f"✅ All client dialogs are up to date! (Checked at {now_str})", alert=True)
             else:
-                await self.send_to_desk("✅ No unread client messages found.", topic_key="health", parse_mode="html")
+                await self.send_to_desk("✅ No unread or offline delta client messages found.", topic_key="health", parse_mode="html")
             return
 
-        print(f"[!] Found {len(unread_clients)} client(s) with unread messages.")
-        summary_lines = [f"📬 <b>Unread Client Messages & Project Sync ({len(unread_clients)} clients):</b>\n"]
+        print(f"[!] Found {len(unread_clients)} client(s) with unread or offline delta messages.")
+        summary_lines = [f"📬 <b>Client Messages Sync ({len(unread_clients)} clients):</b>\n"]
 
-        for acc_lbl, cl, dlg in unread_clients:
+        for acc_lbl, cl, dlg, sync_reason in unread_clients:
             client_name = dlg.name
             unread_cnt = dlg.unread_count
             user_entity = dlg.entity
             username = getattr(user_entity, "username", None)
-            print(f"    • [{acc_lbl}] {client_name} ({dlg.id}): {unread_cnt} unread message(s)")
+            print(f"    • [{acc_lbl}] {client_name} ({dlg.id}): {sync_reason}")
 
-            # Automatically archive chat and download unread files into Google Drive project folder
+            # Automatically archive chat and download unread/offline files into Google Drive project folder
             try:
                 archive_res = await self.project_manager.save_client_chat_and_files(
                     client=cl,
@@ -1056,7 +1112,7 @@ class SaberTelethonUserbot:
                     client_name=client_name,
                     client_id=dlg.id,
                     username=username,
-                    limit_messages=max(unread_cnt + 20, 50),
+                    limit_messages=max(unread_cnt + 20, 60),
                     download_files=True
                 )
                 project_dir = archive_res["project_dir"]
@@ -1068,8 +1124,9 @@ class SaberTelethonUserbot:
             latest_text = ""
             found_proposal = False
 
-            # Check unread messages for proposal files or text
-            async for msg in cl.iter_messages(dlg.entity, limit=min(unread_cnt, 15)):
+            # Check recent messages for proposal files or text
+            scan_depth = max(unread_cnt, 10)
+            async for msg in cl.iter_messages(dlg.entity, limit=min(scan_depth, 25)):
                 txt = (msg.message or "").strip()
                 if not latest_text:
                     if txt:
@@ -3399,6 +3456,8 @@ class SaberTelethonUserbot:
 
         # Launch morning briefing autonomous background scheduler loop
         asyncio.create_task(self._morning_briefing_scheduler_loop())
+        # Launch periodic offline catch-up sync loop (every 5 minutes)
+        asyncio.create_task(self._periodic_catchup_sync_loop())
 
         while True:
             try:
