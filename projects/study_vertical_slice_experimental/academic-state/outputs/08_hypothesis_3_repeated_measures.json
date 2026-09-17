@@ -1,0 +1,177 @@
+{
+  "stage_id": "08_hypothesis_3_repeated_measures",
+  "model_type": "2x3 Mixed Factorial Repeated Measures ANOVA",
+  "sample_size": 60,
+  "factors": {
+    "between_subjects": "Group (ACT vs Control)",
+    "within_subjects": "Time (Pre, Post, Follow-Up)"
+  },
+  "descriptive_means": {
+    "1": {
+      "Pre-Test": {
+        "mean": 3.426,
+        "sd": 0.563,
+        "se": 0.103
+      },
+      "Post-Test": {
+        "mean": 2.301,
+        "sd": 0.397,
+        "se": 0.073
+      },
+      "Follow-Up": {
+        "mean": 2.351,
+        "sd": 0.411,
+        "se": 0.075
+      }
+    },
+    "2": {
+      "Pre-Test": {
+        "mean": 3.466,
+        "sd": 0.518,
+        "se": 0.095
+      },
+      "Post-Test": {
+        "mean": 3.534,
+        "sd": 0.554,
+        "se": 0.101
+      },
+      "Follow-Up": {
+        "mean": 3.444,
+        "sd": 0.529,
+        "se": 0.097
+      }
+    }
+  },
+  "anova_table": {
+    "group_between": {
+      "sum_sq": 28.019,
+      "df": 1,
+      "mean_sq": 28.019,
+      "f_stat": 48.014,
+      "p_value": 0.001,
+      "partial_eta_squared": 0.453
+    },
+    "error_between": {
+      "sum_sq": 33.846,
+      "df": 58,
+      "mean_sq": 0.584
+    },
+    "time_within": {
+      "sum_sq": 11.598,
+      "df": 2,
+      "df_gg_adj": 1.504,
+      "mean_sq": 5.799,
+      "f_stat": 69.938,
+      "p_value": 0.001,
+      "p_gg_adjusted": 0.001,
+      "partial_eta_squared": 0.547
+    },
+    "interaction_group_time": {
+      "sum_sq": 12.781,
+      "df": 2,
+      "df_gg_adj": 1.504,
+      "mean_sq": 6.39,
+      "f_stat": 77.071,
+      "p_value": 0.001,
+      "p_gg_adjusted": 0.001,
+      "partial_eta_squared": 0.571
+    },
+    "error_within": {
+      "sum_sq": 9.618,
+      "df": 116,
+      "df_gg_adj": 87.232,
+      "mean_sq": 0.083
+    }
+  },
+  "sphericity_epsilon": 0.752,
+  "pairwise_bonferroni": {
+    "within_experimental": [
+      {
+        "comparison": "Pre-Test vs Post-Test",
+        "mean_diff": 1.125,
+        "t_stat": 14.517,
+        "df": 29,
+        "p_raw": 0.0,
+        "p_bonferroni": 0.001,
+        "significant": true
+      },
+      {
+        "comparison": "Pre-Test vs Follow-Up",
+        "mean_diff": 1.075,
+        "t_stat": 12.909,
+        "df": 29,
+        "p_raw": 0.0,
+        "p_bonferroni": 0.001,
+        "significant": true
+      },
+      {
+        "comparison": "Post-Test vs Follow-Up",
+        "mean_diff": -0.05,
+        "t_stat": -0.779,
+        "df": 29,
+        "p_raw": 0.442,
+        "p_bonferroni": 1.0,
+        "significant": false
+      }
+    ],
+    "within_control": [
+      {
+        "comparison": "Pre-Test vs Post-Test",
+        "mean_diff": -0.069,
+        "t_stat": -1.186,
+        "df": 29,
+        "p_raw": 0.245,
+        "p_bonferroni": 0.736,
+        "significant": false
+      },
+      {
+        "comparison": "Pre-Test vs Follow-Up",
+        "mean_diff": 0.021,
+        "t_stat": 0.298,
+        "df": 29,
+        "p_raw": 0.768,
+        "p_bonferroni": 1.0,
+        "significant": false
+      },
+      {
+        "comparison": "Post-Test vs Follow-Up",
+        "mean_diff": 0.09,
+        "t_stat": 1.035,
+        "df": 29,
+        "p_raw": 0.309,
+        "p_bonferroni": 0.927,
+        "significant": false
+      }
+    ],
+    "between_groups": [
+      {
+        "occasion": "Pre-Test",
+        "mean_diff_exp_minus_ctl": -0.04,
+        "t_stat": -0.285,
+        "df": 58,
+        "p_raw": 0.777,
+        "p_bonferroni": 1.0,
+        "significant": false
+      },
+      {
+        "occasion": "Post-Test",
+        "mean_diff_exp_minus_ctl": -1.234,
+        "t_stat": -9.919,
+        "df": 58,
+        "p_raw": 0.0,
+        "p_bonferroni": 0.001,
+        "significant": true
+      },
+      {
+        "occasion": "Follow-Up",
+        "mean_diff_exp_minus_ctl": -1.094,
+        "t_stat": -8.938,
+        "df": 58,
+        "p_raw": 0.0,
+        "p_bonferroni": 0.001,
+        "significant": true
+      }
+    ]
+  },
+  "interaction_verdict": "SUPPORTED"
+}

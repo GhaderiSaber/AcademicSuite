@@ -1,0 +1,58 @@
+{
+  "stage_id": "07_hypothesis_2_ancova_followup",
+  "sample_size": 60,
+  "dv": "anxiety_followup",
+  "covariate": "anxiety_pre",
+  "unadjusted_descriptives": {
+    "1": {
+      "n": 30,
+      "mean": 2.351,
+      "sd": 0.411,
+      "se": 0.075
+    },
+    "2": {
+      "n": 30,
+      "mean": 3.444,
+      "sd": 0.529,
+      "se": 0.097
+    }
+  },
+  "adjusted_means": {
+    "1": {
+      "mean_adj": 2.362,
+      "se": 0.066,
+      "ci_lower": 2.233,
+      "ci_upper": 2.491
+    },
+    "2": {
+      "mean_adj": 3.433,
+      "se": 0.066,
+      "ci_lower": 3.304,
+      "ci_upper": 3.562
+    }
+  },
+  "ancova_table": {
+    "covariate": {
+      "sum_sq": 5.604,
+      "df": 1,
+      "mean_sq": 5.604,
+      "f_stat": 43.05,
+      "p_value": 0.001,
+      "partial_eta_squared": 0.43
+    },
+    "group": {
+      "sum_sq": 17.174,
+      "df": 1,
+      "mean_sq": 17.174,
+      "f_stat": 131.929,
+      "p_value": 0.001,
+      "partial_eta_squared": 0.698
+    },
+    "error": {
+      "sum_sq": 7.42,
+      "df": 57,
+      "mean_sq": 0.13
+    }
+  },
+  "verdict": "SUPPORTED"
+}
