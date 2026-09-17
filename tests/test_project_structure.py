@@ -111,6 +111,32 @@ class TestProjectStructure(unittest.TestCase):
         for s in active_skills:
             self.assertIn(f"`{s}`", content, f"Skill {s} is missing from SKILL_ACTIVATION_MATRIX.md")
 
+    def test_readme_documents_all_skills_and_agents(self):
+        """Asserts README.md documents all 43 active production skills and 22 agents."""
+        readme_path = os.path.join(REPO_ROOT, "README.md")
+        self.assertTrue(os.path.isfile(readme_path), "Missing README.md")
+        with open(readme_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        skills_dir = os.path.join(REPO_ROOT, ".agents", "skills")
+        active_skills = [
+            d for d in os.listdir(skills_dir)
+            if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith((".", "_"))
+        ]
+        self.assertEqual(len(active_skills), 43)
+        for s in active_skills:
+            self.assertIn(s, content, f"Skill {s} is missing from README.md")
+
+        agents_dir = os.path.join(REPO_ROOT, ".agents", "agents")
+        active_agents = [
+            d for d in os.listdir(agents_dir)
+            if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_"))
+        ]
+        self.assertEqual(len(active_agents), 22)
+        for a in active_agents:
+            self.assertIn(f"`{a}`", content, f"Agent {a} is missing from README.md")
+
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -10,9 +10,41 @@ In strict accordance with **Directive 12.1 (Sole Orchestrator Mandate)**, there 
 
 - **Google Antigravity is the Sole Agent Runtime & Conductor:** Antigravity orchestrates all cognitive operations, manages context budgets, schedules background tasks, and enforces constitutional lifecycle hooks (`.agents/hooks.json`).
 - **Digital Saber is the Cognitive Research Lead:** The persistent AI Twin of Saber Ghaderi directing research philosophy, scientific ethics, and thesis decision gates.
-- **The Brains & Critics (15 Subagents):** Persistent cognitive specialists in `.agents/agents/` invoked exclusively through Antigravity's native `invoke_subagent` tool. Generation and auditing remain strictly independent.
-- **The Hands (27 Specialized Skills):** Deterministic Python/R scripts executed via `run_command` to perform exact statistical calculations, psychometrics, and OpenXML document generation without mental calculation or hallucination.
+- **The Brains & Critics (22 Subagents):** Persistent cognitive specialists in `.agents/agents/` (6 core primary roles plus 16 specialized domain roles) invoked exclusively through Antigravity's native `invoke_subagent` tool. Generation and auditing remain strictly independent.
+- **The Hands (43 Specialized Production Skills):** Deterministic Python/R scripts executed via `run_command` to perform exact statistical calculations, psychometrics, and OpenXML document generation without mental calculation or hallucination.
 - **Batch CLI Runner (`orchestrator_cli.py`):** Strictly a low-level CLI batch runner ("The Hands") for sequential script chaining on disk, never an autonomous agent orchestrator.
+
+### 🧠 Cognitive Specialists & Autonomous Subagents (22 Roles)
+
+The architecture establishes 22 persistent cognitive roles in `.agents/agents/` invoked via Antigravity's native `invoke_subagent` tool. Every role is equipped with an Option 1 directory package (`agent.md`, 12-section behavioral `contract.md`, and backward-compatible `<role>.md` symlink):
+
+#### Core Primary Roles (6)
+1. **`academic-orchestrator`**: Central multi-phase research coordinator and pipeline director.
+2. **`research-agent`**: Scientific literature harvesting, research question formulation, and G*Power methodology specification.
+3. **`data-agent`**: Raw dataset ingestion, data discovery, schema mapping, and reverse-coding from 4,880 validated instruments.
+4. **`statistics-agent`**: Inferential statistical modeling (ANCOVA, RM-ANOVA, PROCESS mediation, SEM), APA 7 tables, and 300-DPI figures.
+5. **`writing-agent`**: Master academic chapter drafter and Persian rhetoric specialist using Saber's 5-part epistemic paragraph structure.
+6. **`validation-agent`**: Independent adversarial quality auditor, Viva Voce defense simulator, and institutional gatekeeper.
+
+#### Specialized Domain Roles (16)
+7. **`digital-saber`**: Master Research Project Lead, Cognitive Architect, and Digital Twin of Saber Ghaderi.
+8. **`methodology-expert`**: Research methodology, experimental designs, and internal/external validity safeguards.
+9. **`statistical-expert`**: Statistical analysis planning and parametric assumption verification sequences.
+10. **`statistical-auditor`**: Adversarial quality auditor for statistical assumptions, degrees of freedom concordance, and MSAI scoring.
+11. **`results-auditor`**: Quality control auditor enforcing APA 7th Edition precision, Persian leading zero rule, and 3-line tables.
+12. **`academic-writer`**: Master academic chapter drafter specializing in thesis chapters and empirical journal articles.
+13. **`literature-expert`**: Multi-database literature harvesting, empirical parameter extraction, and theoretical synthesis.
+14. **`evidence-auditor`**: Epistemic integrity auditor verifying in-text citations vs. bibliography and Irandoc similarity (< 20%).
+15. **`final-judge`**: Final dissertation defense committee simulator, viva voce cross-examiner, and release gatekeeper.
+16. **`psychometric-expert`**: Scale resolution, Classical Test Theory (CTT), Item Response Theory (IRT), and construct validation.
+17. **`qualitative-analyst`**: Braun & Clarke Reflexive Thematic Analysis and Strauss & Corbin Grounded Theory specialist.
+18. **`meta-analyst`**: PRISMA 2020 systematic literature reviews, Cochrane RoB 2 risk of bias, and meta-analysis.
+19. **`journal-strategist`**: Academic journal article packaging, target journal selection, and peer-review rebuttal management.
+20. **`intervention-designer`**: Clinical intervention protocol designer (ACT, CBT, Schema, CFT, MBSR) and manual compiler.
+21. **`data-curator`**: Missing data diagnosis (MCAR/MAR/MNAR), unengaged response filtering, and outlier screening ($D^2$).
+22. **`longitudinal-modmed-expert`**: 3-wave longitudinal moderated mediation modeling (Cole & Maxwell, Hayes Models 7/14 over time).
+
+*(See [docs/AGENT_INVENTORY.md](docs/AGENT_INVENTORY.md) for complete 12-section behavioral contracts and tool configurations).*
 
 ---
 
@@ -73,7 +105,39 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
 26. **Digital Twin Academic Consultant & Telegram Bot ([digital-twin-academic-consultant](.agents/skills/digital-twin-academic-consultant/))**:
    Automated Telegram client consulting and quotation engine representing Saber Ghaderi (`@GhaderiSaber`, ID: `124911145`): automatically ingests client proposals (`.docx`, `.pdf`, text), extracts research designs, sample sizes, and required statistical software, computes itemized pricing in Tomans with realistic timelines, searches 4,880 questionnaires in `Questionnaires.xlsx`, provides an Admin Review Desk for quotation approval, and ingests Telegram chat exports (`result.json`) to calibrate consulting FAQs.
 27. **Academic Drive Project Organizer & Lifecycle Manager ([academic-drive-project-organizer](.agents/skills/academic-drive-project-organizer/))**:
-   Automated project lifecycle manager and structural organizer for academic research projects across Google Drive (`Pending Works`, `My Work`, `Finished Works`): audits directories for loose and fragmented client files, reorganizes project assets into a deterministic 4-tier taxonomy (`01_raw_inputs`, `02_analysis_code`, `03_deliverables`, `04_references_and_lit`), cross-references Duzen project milestones and payments to generate unified Master Project Catalogs (`.xlsx` and `.md`), provisions clean client folders with metadata, and executes safe lifecycle stage migrations with automated undo manifests.
+   Automates client research project lifecycle management and Google Drive folder synchronization across `Pending Works`, `My Work`, and `Finished Works`, enforcing a deterministic 4-tier taxonomy (`01_raw_inputs`, `02_analysis_code`, `03_deliverables`, `04_references_and_lit`) and reconciling with Duzen task backups.
+28. **Data Quality Audit & Screening ([data-audit](.agents/skills/data-audit/))**:
+   Ingests raw survey datasets, screens straight-lining and unengaged respondents, conducts Little's MCAR missingness tests, and screens multivariate outliers using Mahalanobis $D^2$ ($\alpha = .001$). Generates `data_quality.json` and diagnostic audit scorecards.
+29. **Psychometric Data Cleaning & Scoring ([data-cleaning](.agents/skills/data-cleaning/))**:
+   Automated reverse-coding engine utilizing 4,880 validated questionnaire scoring keys in `Questionnaires.xlsx`, composite and subscale score aggregation, and missing value imputation. Exports clean, analysis-ready datasets (`data_cleaned.xlsx`).
+30. **Univariate & Demographic Statistics ([descriptive-statistics](.agents/skills/descriptive-statistics/))**:
+   Computes univariate descriptive parameters ($N$, Mean, $SD$, Min, Max, Skewness, Kurtosis, $SE$) and demographic frequency distributions. Generates publication-ready APA 7 tables and `descriptive.json`.
+31. **Scale Reliability & Internal Consistency ([reliability-analysis](.agents/skills/reliability-analysis/))**:
+   Calculates Classical Test Theory internal consistency parameters: Cronbach's alpha ($\alpha$), McDonald's omega ($\omega$), corrected item-total correlations, and alpha-if-item-deleted diagnostics. Outputs `reliability.json`.
+32. **Parametric Assumptions Verification ([assumption-testing](.agents/skills/assumption-testing/))**:
+   Executes the 10-step parametric decision sequence: Shapiro-Wilk and Kolmogorov-Smirnov normality, Levene homoscedasticity, Box's M covariance equality, multicollinearity ($VIF < 5$, Tolerance $> 0.20$), and Durbin-Watson residual independence.
+33. **Multiple & Hierarchical Linear Regression ([regression](.agents/skills/regression/))**:
+   Executes standard, stepwise, and hierarchical multiple regression modeling under the institutional 3-Table Standard: Model Summary ($R, R^2, \Delta R^2$), ANOVA ($F, p$), and Parameter Coefficients ($\beta, t, p$, Collinearity). Outputs `regression.json`.
+34. **Preacher & Hayes Bootstrap Mediation ([mediation](.agents/skills/mediation/))**:
+   Calculates direct, indirect, and total effects using Preacher & Hayes (2004, 2008) PROCESS Model 4 with 5,000 bootstrap resamples and 95% bias-corrected and accelerated (BCa) confidence intervals.
+35. **Moderation & Interaction Slopes ([moderation](.agents/skills/moderation/))**:
+   Executes PROCESS Model 1 moderation analysis: mean-centering predictors, estimating interaction terms ($X \times W$), plotting conditional simple slopes at $\pm 1\text{ SD}$ and Mean of the moderator, and determining Johnson-Neyman regions of significance.
+36. **Confirmatory Factor Analysis & Construct Validity ([cfa](.agents/skills/cfa/))**:
+   Estimates measurement models via Confirmatory Factor Analysis (CFA), reporting standardized factor loadings ($\lambda \ge 0.40$), construct reliability ($CR \ge 0.70$), convergent validity (Average Variance Extracted $AVE \ge 0.50$), and 5 primary fit indices.
+37. **Structural Equation Modeling ([sem](.agents/skills/sem/))**:
+   Estimates complex latent structural equation models, evaluating structural path coefficients ($\beta, z, p$) and 11 Goodness-of-Fit indices against Hu & Bentler (1999) cutoffs ($\chi^2/df < 3.0$, $\text{CFI} \ge .95$, $\text{TLI} \ge .95$, $\text{RMSEA} \le .06$, $\text{SRMR} \le .08$).
+38. **Longitudinal Moderated Mediation ([longitudinal-moderated-mediation](.agents/skills/longitudinal-moderated-mediation/))**:
+   Advanced 3-wave autoregressive longitudinal moderated mediation engine (Cole & Maxwell; Hayes Model 7/14 over time), controlling for baseline stability paths and estimating cross-lagged conditional indirect trajectories with 5,000 bootstrap resamples.
+39. **Psychometric & Bibliometric Network Analysis ([network-analysis](.agents/skills/network-analysis/))**:
+   Constructs and visualizes Gaussian Graphical Models (GGM) and bibliometric keyword networks, computing node centralities (Expected Influence, Strength, Betweenness, Closeness) and exporting 300-DPI publication graphs.
+40. **Inverted-Triangle Literature Review ([literature-review](.agents/skills/literature-review/))**:
+   Scaffolds Chapter 2 theoretical frameworks using the inverted-triangle epistemic formula, synthesizing theoretical foundations, international empirical studies, and Iranian research into APA 7 comparative matrices.
+41. **Methodology & Validity Safeguards ([methodology-review](.agents/skills/methodology-review/))**:
+   Audits research methodology designs, sampling adequacy, statistical power ($1-\beta \ge .80$), internal validity threats (history, maturation, testing effects), and external ecological validity safeguards for Chapter 3.
+42. **APA 7th Edition Typography & Formatting ([apa-reporting](.agents/skills/apa-reporting/))**:
+   Automates APA 7th Edition presentation rules: borderless tables with exactly 3 horizontal rules, statistical symbol italicization (*M, SD, t, F, p, β*), Persian leading zero preservation (`۰.۰۰۱`), standard decimal dots, and OpenXML decoupled LTR numeric runs.
+43. **Chapter 4 Findings Orchestrator ([chapter-4-writing](.agents/skills/chapter-4-writing/))**:
+   End-to-end orchestration engine for Chapter 4 (یافته‌های پژوهش), strictly enforcing the One-Hypothesis-One-Stage invariant, synchronized triad artifacts (`.docx` + `.md` + `.json`), 5-part epistemic narrative formula, and Master Hypotheses Decision Matrix.
 
 ---
 
@@ -81,40 +145,42 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
 
 ```text
 AcademicSuite/
-├── .agents/
-│   └── skills/
-│       ├── academic-article-writer/            # ISI/Scopus & ISC journal article compiler
-│       ├── academic-drive-project-organizer/   # Google Drive project organizer, 4-tier taxonomy & Duzen sync
-│       ├── academic-reference-extractor/       # EndNote, RIS, APA citation extractor
-│       ├── academic-suite-orchestrator/        # Deterministic batch pipeline CLI runner ("The Hands")
-│       ├── ai-academic-tone-polisher/          # Academic tone polisher, burstiness optimizer & anti-AI refiner
-│       ├── bibliometric-network-analyst/       # VOSviewer/Bibliometrix science mapping & Callon strategic diagram
-│       ├── citation-network-visualizer/        # HistCite chronomaps, LCS/GCS & Main Path Analysis (SPC)
-│       ├── digital-twin-academic-consultant/   # Digital Saber Telegram bot, proposal pricing & scale search
-│       ├── gpower-sample-size-calculator/      # G*Power sample size, power curves & Chapter 3 justifications
-│       ├── irandoc-plagiarism-reducer/         # Irandoc similarity reduction & academic paraphraser
-│       ├── journal-submission-assistant/       # Submission collateral, CRediT taxonomy & rebuttal tables
-│       ├── literature-harvester/               # Multi-database literature search & Chapter 2 empirical extractor
-│       ├── persian-academic-translation/       # Psychology translation & terminology engine
-│       ├── persian-defense-presentation-builder/ # Defense slide deck (.pptx) & speaker notes compiler
-│       ├── persian-discussion-builder/         # Chapter 5 discussion & theoretical explanation
-│       ├── persian-literature-review-builder/  # Chapter 2 theoretical & empirical literature synthesizer
-│       ├── persian-proposal-builder/           # Research proposal & methodology builder
-│       ├── persian-thesis-builder/             # Generic cross-platform thesis compiler
-│       ├── persian-thesis-revision-assistant/  # Word comment extractor & response table builder
-│       ├── psychological-intervention-protocol-builder/ # Evidence-based treatment manual & Ch 3 table builder
-│       ├── psychometric-data-simulator/        # Monte Carlo SEM, Likert scale & RCT data simulator
-│       ├── psychometric-scale-resolver/        # Questionnaire resolution, scoring & psychometrics
-│       ├── psychometric-scale-validator/       # Scale standardization, EFA/CFA, IRT (GRM, TIF, DIF) & ROC
-│       ├── qualitative-data-analyst/           # Thematic analysis, grounded theory & Ch 4 qualitative reporter
-│       ├── statistical-data-analyst/           # Statistical testing & Chapter 4 builder
-│       ├── systematic-review-meta-analyst/     # PRISMA 2020 & Cochrane meta-analysis engine
-│       └── thesis-integrity-auditor/           # Cross-chapter integrity audit, hypothesis & citation reconciler
-├── AGENTS.md                                   # Canonical agent behavioral rules & directives
-├── SETUP_GUIDE.md                              # Migration guide for setting up on a new device
-├── Questionnaires.xlsx                         # Master index of 4,800+ psychological instruments
-├── requirements.txt                            # Python dependencies
-└── README.md                                   # Project documentation
+├── .agents/                               # Digital Saber Cognitive Subsystem
+│   ├── agents/                            # 22 Option-1 Packaged Agents (agent.md + contract.md + symlinks)
+│   ├── skills/                            # 43 Active Production Skills (scripts, resources, examples, schemas)
+│   ├── rules/                             # Constitutional Directives & Guardrails (academic, data, conventions)
+│   ├── hooks/                             # Antigravity Lifecycle Hook Runner Scripts
+│   ├── hooks.json                         # Hooks Configuration Manifest
+│   ├── identity/                          # Digital Saber Persona & Core Ethics
+│   ├── memory/                            # Case-Based Reasoning (16 cases) & Decision Journal
+│   └── verification/                      # MSAI Anomaly Detector & Committee Viva Voce Simulator
+├── tools/                                 # Deterministic Computational Engines ("The Hands")
+│   ├── python/                            # Statistical runners & OpenXML formatting helpers
+│   └── r/                                 # R lavaan SEM and bootstrapping runners
+├── artifacts/                             # Global Cross-Agent Artifact Handoff Bus (Phase 7)
+│   ├── project/                           # Master project specifications (project.json, requirements.json)
+│   ├── analysis/                          # Checkpoint statistical artifacts (descriptive, SEM, modmed)
+│   ├── validation/                        # Gatekeeper audit scorecards & compliance reports
+│   └── reports/                           # Assembled deliverables (dissertations, presentations, articles)
+├── evals/ & evaluations/                  # Permanent Evaluation Benchmark Suite (Phase 14)
+├── docs/                                  # Centralized Documentation, Contracts & Protocols
+│   ├── architecture.md                    # Master Architecture Blueprint
+│   ├── agent-contracts/                   # 12-Section Behavioral Contract Registry
+│   ├── protocols/                         # Stage-Gate, Triad Invariant, Binary Honesty & Failure Recovery
+│   ├── AGENT_INVENTORY.md                 # 22-Agent Cognitive Role Inventory
+│   ├── SKILL_INVENTORY.md                 # 43-Skill Execution Tools Catalog
+│   └── LEGACY_INVENTORY.md                # Technical Debt & Deprecation Audit
+├── validators/                            # Deterministic Quality Gatekeepers (Phase 8)
+├── recovery/                              # Failure Recovery & Diagnostics Engine (Phase 15)
+├── factory/                               # Agent & Skill Generative Meta-Factory (Phase 17)
+├── legacy/                                # Retired Components Archive (Phase 16)
+│   ├── workflows/                         # Archived legacy workflow definitions (.md.bak)
+│   └── skills/                            # Archived legacy workflow-derived skill shells
+├── projects/                              # Active Thesis Projects & Vertical Slices
+├── Questionnaires.xlsx                    # Psychometric database (4,880 validated instruments)
+├── AGENTS.md                              # Repository Root Constitutional Directives (Directives 0-18)
+├── requirements.txt                       # Python dependencies
+└── README.md                              # Project documentation
 ```
 
 ---
