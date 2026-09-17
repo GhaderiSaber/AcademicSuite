@@ -1,149 +1,33 @@
 {
-  "stage": "Stage 4.6.1: Hypothesis 1 Testing — Multiple Regression (3-Table Standard)",
-  "base_name": "06_hypothesis_1_regression",
-  "hypothesis": "Workplace stress and psychological flexibility significantly predict job burnout among employees.",
-  "hypothesis_persian": "استرس شغلی و انعطاف‌پذیری روان‌شناختی به طور همزمان فرسودگی شغلی کارکنان را پیش‌بینی می‌کنند.",
-  "sample_size": 100,
-  "n": 100,
+  "hypothesis": 1,
+  "description": "Predicting job burnout based on workplace stress and psychological flexibility",
   "dv": "job_burnout",
-  "dv_persian": "فرسودگی شغلی",
-  "ivs": [
-    "workplace_stress",
-    "psychological_flexibility"
-  ],
-  "three_table_standard": true,
-  "table_1_correlations": {
-    "title": "Bivariate Correlation Matrix & Descriptives",
-    "title_persian": "ماتریس همبستگی پیرسون و شاخص‌های توصیفی متغیرهای پژوهش",
-    "variables": [
-      "job_burnout",
-      "workplace_stress",
-      "psychological_flexibility"
-    ],
-    "variables_persian": [
-      "فرسودگی شغلی",
-      "استرس شغلی",
-      "انعطاف‌پذیری روان‌شناختی"
-    ],
-    "descriptives": [
-      {"variable": "job_burnout", "variable_persian": "فرسودگی شغلی", "mean": 3.17, "sd": 0.67},
-      {"variable": "workplace_stress", "variable_persian": "استرس شغلی", "mean": 3.36, "sd": 0.67},
-      {"variable": "psychological_flexibility", "variable_persian": "انعطاف‌پذیری روان‌شناختی", "mean": 3.36, "sd": 0.63}
-    ],
-    "matrix": [
-      {"variable": "۱. فرسودگی شغلی", "r1": "۱", "r2": "-", "r3": "-"},
-      {"variable": "۲. استرس شغلی", "r1": "۰.۵۵***", "r2": "۱", "r3": "-"},
-      {"variable": "۳. انعطاف‌پذیری روان‌شناختی", "r1": "۰.۴۶-***", "r2": "۰.۲۷-**", "r3": "۱"}
-    ]
-  },
-  "table_2_model_summary_anova": {
-    "title": "Model Summary & ANOVA",
-    "title_persian": "خلاصه مدل رگرسیون چندگانه و تحلیل واریانس (ANOVA)",
-    "model_summary": {
-      "r": 0.644,
-      "r2": 0.415,
-      "adj_r2": 0.403,
-      "se_est": 0.522,
-      "durbin_watson": 2.115
+  "ivs": ["workplace_stress", "psychological_flexibility"],
+  "n": 100,
+  "tables": {
+    "table_1": {
+      "headers": ["متغیرها", "میانگین", "انحراف استاندارد", "۱", "۲", "۳"],
+      "rows": [
+        ["۱. فرسودگی شغلی", "۳.۱۷", "۰.۶۷", "۱", "—", "—"],
+        ["۲. استرس شغلی", "۳.۳۶", "۰.۶۷", "۰.۵۵***", "۱", "—"],
+        ["۳. انعطاف‌پذیری روان‌شناختی", "۳.۳۶", "۰.۶۳", "۰.۴۶-***", "۰.۲۷-**", "۱"]
+      ]
     },
-    "anova": {
-      "regression": {
-        "source": "رگرسیون",
-        "ss": 18.708,
-        "df": 2,
-        "ms": 9.354,
-        "f": 34.389,
-        "p_value": "< .001",
-        "p_value_persian": "۰.۰۰۱ > p"
-      },
-      "residual": {
-        "source": "باقی‌مانده",
-        "ss": 26.385,
-        "df": 97,
-        "ms": 0.272
-      },
-      "total": {
-        "source": "کل",
-        "ss": 45.092,
-        "df": 99
-      }
-    }
-  },
-  "table_3_coefficients": {
-    "title": "Regression Coefficients & Collinearity Diagnostics",
-    "title_persian": "ضرایب رگرسیون چندگانه و شاخص‌های هم‌خطی متغیرهای پیش‌بین",
-    "coefficients": [
-      {
-        "predictor": "Constant",
-        "predictor_persian": "مقدار ثابت",
-        "b": 2.824,
-        "se": 0.449,
-        "beta": null,
-        "t": 6.289,
-        "p_value": "< .001",
-        "p_value_persian": "۰.۰۰۱ > p",
-        "ci_lower": 1.933,
-        "ci_upper": 3.715,
-        "tolerance": null,
-        "vif": null
-      },
-      {
-        "predictor": "workplace_stress",
-        "predictor_persian": "استرس شغلی",
-        "b": 0.466,
-        "se": 0.081,
-        "beta": 0.464,
-        "t": 5.756,
-        "p_value": "< .001",
-        "p_value_persian": "۰.۰۰۱ > p",
-        "ci_lower": 0.305,
-        "ci_upper": 0.627,
-        "tolerance": 0.929,
-        "vif": 1.076
-      },
-      {
-        "predictor": "psychological_flexibility",
-        "predictor_persian": "انعطاف‌پذیری روان‌شناختی",
-        "b": -0.362,
-        "se": 0.086,
-        "beta": -0.340,
-        "t": -4.224,
-        "p_value": "< .001",
-        "p_value_persian": "۰.۰۰۱ > p",
-        "ci_lower": -0.532,
-        "ci_upper": -0.192,
-        "tolerance": 0.929,
-        "vif": 1.076
-      }
-    ]
-  },
-  "f_stat": 34.389,
-  "r2": 0.415,
-  "coefficients": [
-    {
-      "predictor": "workplace_stress",
-      "predictor_persian": "استرس شغلی",
-      "b": 0.466,
-      "se": 0.081,
-      "beta": 0.464,
-      "t": 5.756,
-      "p_value": "< .001",
-      "p_value_persian": "۰.۰۰۱ > p",
-      "vif": 1.076
+    "table_2": {
+      "headers": ["منبع تغییرات", "مجموع مجذورات (SS)", "درجه آزادی (df)", "میانگین مجذورات (MS)", "F", "سطح معناداری (p)", "R", "R²", "R² تعدیل‌شده", "خطای معیار", "دوربین-واتسون"],
+      "rows": [
+        ["رگرسیون", "۱۸.۷۰۸", "۲", "۹.۳۵۴", "34.389", "۰.۰۰۱ > p", "۰.۶۴۴", "0.415", "۰.۴۰۳", "۰.۵۲۲", "۲.۱۱۵"],
+        ["باقی‌مانده", "۲۶.۳۸۵", "۹۷", "۰.۲۷۲", "—", "—", "—", "—", "—", "—", "—"],
+        ["کل", "۴۵.۰۹۲", "۹۹", "—", "—", "—", "—", "—", "—", "—", "—"]
+      ]
     },
-    {
-      "predictor": "psychological_flexibility",
-      "predictor_persian": "انعطاف‌پذیری روان‌شناختی",
-      "b": -0.362,
-      "se": 0.086,
-      "beta": -0.340,
-      "t": -4.224,
-      "p_value": "< .001",
-      "p_value_persian": "۰.۰۰۱ > p",
-      "vif": 1.076
+    "table_3": {
+      "headers": ["متغیرهای مدل", "B", "SE", "β", "t", "سطح معناداری (p)", "فاصله اطمینان ۹۵٪", "تولرانس", "VIF"],
+      "rows": [
+        ["مقدار ثابت", "۲.۸۲۴", "۰.۴۴۹", "—", "۶.۲۸۹", "۰.۰۰۱ > p", "[۱.۹۳۳ ، ۳.۷۱۵]", "—", "—"],
+        ["استرس شغلی", "۰.۴۶۶", "۰.۰۸۱", "۰.۴۶۴", "۵.۷۵۶", "۰.۰۰۱ > p", "[۰.۳۰۵ ، ۰.۶۲۷]", "۰.۹۲۹", "۱.۰۷۶"],
+        ["انعطاف‌پذیری روان‌شناختی", "۰.۳۶۲-", "۰.۰۸۶", "۰.۳۴۰-", "۴.۲۲۴-", "۰.۰۰۱ > p", "[۰.۵۳۲- ، ۰.۱۹۲-]", "۰.۹۲۹", "۱.۰۷۶"]
+      ]
     }
-  ],
-  "decision": "SUPPORTED",
-  "decision_persian": "تأیید فرضیه",
-  "triad_complete": true
+  }
 }

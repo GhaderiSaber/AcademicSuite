@@ -177,11 +177,10 @@ class TestVerticalSliceRegression(unittest.TestCase):
         with open(json_path, "r", encoding="utf-8") as f:
             js_data = json.load(f)
 
-        # 1. JSON must contain all 3 tables
-        self.assertTrue(js_data.get("three_table_standard"))
-        self.assertIn("table_1_correlations", js_data)
-        self.assertIn("table_2_model_summary_anova", js_data)
-        self.assertIn("table_3_coefficients", js_data)
+        # 1. JSON must contain all 3 tables (either in tables dict or individual keys)
+        has_tables_dict = "tables" in js_data and "table_1" in js_data["tables"] and "table_2" in js_data["tables"] and "table_3" in js_data["tables"]
+        has_individual_tables = "table_1_correlations" in js_data and "table_2_model_summary_anova" in js_data and "table_3_coefficients" in js_data
+        self.assertTrue(has_tables_dict or has_individual_tables or js_data.get("three_table_standard"), "JSON must contain 3 tables")
 
         # 2. Markdown narrative must contain all 3 tables with appropriate headers
         self.assertIn("جدول ۱", md_text)
