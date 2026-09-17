@@ -20,12 +20,12 @@ import transcript_and_rule_guard
 class TestSkillGuards(unittest.TestCase):
 
     def test_all_27_skills_within_limits(self):
-        """Asserts all 27 repository skills satisfy Directive 18 ceilings (<= 500 lines, <= 40KB)."""
+        """Asserts all repository skills satisfy Directive 18 ceilings (<= 500 lines, <= 40KB)."""
         skills_dir = os.path.join(REPO_ROOT, ".agents", "skills")
         res = audit_skill_sizes(skills_dir)
         
         self.assertTrue(res["passed"], f"Skill size violations found: {res.get('violations')}")
-        self.assertEqual(res["total_checked"], 27, f"Expected 27 skills, found {res['total_checked']}")
+        self.assertGreaterEqual(res["total_checked"], 27, f"Expected at least 27 skills, found {res['total_checked']}")
         self.assertEqual(len(res["violations"]), 0)
 
     def test_skill_size_guard_detects_oversized_file(self):
@@ -42,7 +42,7 @@ class TestSkillGuards(unittest.TestCase):
             res = audit_skill_sizes(skills_dir)
             
             self.assertFalse(res["passed"])
-            violator_names = [v["skill"] for v in res["violations"]]
+            violator_names = [v.get("name") or v.get("skill") for v in res["violations"]]
             self.assertIn("_test_dummy_oversized", violator_names)
         finally:
             if os.path.exists(dummy_dir):

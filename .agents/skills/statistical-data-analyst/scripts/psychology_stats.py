@@ -15,7 +15,9 @@ Capabilities:
 7. Bootstrap Mediation (Path a, b, c, c', indirect effect with 95% bootstrap CI)
 """
 
+import os
 import sys
+import json
 # Dynamic discovery of local virtualenv site-packages (.venv / venv)
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
 for venv_name in [".venv", "venv"]:
@@ -25,9 +27,6 @@ for venv_name in [".venv", "venv"]:
             sp = os.path.join(venv_lib, entry, "site-packages")
             if os.path.isdir(sp) and sp not in sys.path:
                 sys.path.insert(0, sp)
-
-import os
-import json
 import argparse
 import subprocess
 import tempfile
