@@ -52,45 +52,14 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
    - Chapter assembly merges both `Chapter_X.docx` and `Chapter_X.md` from these micro-stage components.
 3. **The One-Hypothesis-One-Stage Invariant (اصل یک فرضیه = یک مرحله مجزا)**:
    - In Chapter 4 (Findings) and Chapter 5 (Discussion), every individual hypothesis (Hypothesis 1, 2, ..., $k$, and each indirect mediation path) **MUST HAVE ITS OWN DEDICATED, INDEPENDENT STAGE** producing its dedicated triad (`06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json`). Never lump multiple hypotheses into a single calculation or drafting step.
-4. **Mandatory Micro-Stage Sequences**:
-   - **Chapter 4 Findings**:
-     - *Stage 4.0*: Data Curation & Preprocessing (`00_data_curation_report.json` + `00_data_curation_report.md` + `data_cleaned.xlsx`)
-     - *Stage 4.1*: Demographics Profiling (`01_demographics.docx`, `01_demographics.md`, `01_demographics.json`)
-     - *Stage 4.2*: Descriptives & Scale Reliability ($\alpha, \omega$) (`02_descriptives_and_reliability.docx`, `.md`, `.json`)
-     - *Stage 4.3*: Parametric Assumptions Verification (`03_parametric_assumptions.docx`, `.md`, `.json`)
-     - *Stage 4.4*: Bivariate Correlation Matrix Analysis (`04_bivariate_correlations.docx`, `.md`, `.json`)
-     - *Stage 4.5*: Macro SEM Model Fit (11 Fit Indices vs Hu/Bentler) OR Primary Model (`05_macro_model.docx`, `.md`, `.json`)
-     - *Stage 4.6.1*: Hypothesis 1 Testing & Narrative Dissection (`06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json`)
-     - *Stage 4.6.2*: Hypothesis 2 Testing & Narrative Dissection (`07_hypothesis_2.docx`, `07_hypothesis_2.md`, `07_hypothesis_2.json`)
-     - *Stage 4.6.k*: Hypothesis $k$ Testing & Narrative Dissection (`XX_hypothesis_k.docx`, `XX_hypothesis_k.md`, `XX_hypothesis_k.json`)
-     - *Stage 4.7.1*: Indirect / Mediation Path 1 (Bootstrap 5,000 & 95% BCa CI) (`XX_mediation_1.docx`, `.md`, `.json`)
-     - *Stage 4.8*: Master Hypotheses Decision Matrix & Chapter Summary (`XX_chapter_summary.docx`, `.md`, `.json`)
-     - *Stage 4.9*: Statistical QC & MSAI Anomaly Audit (`XX_statistical_audit_report.json`, `.md`)
-     - *Stage 4.10*: Results QC & APA 7 Typography (`XX_results_qc_checklist.json`, `.md`)
-     - *Stage 4.11*: OpenXML & Markdown Chapter Assembly (`Chapter_4_Results.docx` + `Chapter_4_Results.md`)
-     - *Stage 4.12*: Committee Defense Viva Voce Simulation (`XX_defense_brief.docx`, `.md`, `.json`)
-   - **Chapter 5 Discussion**:
-     - *Stage 5.1*: Findings Overview & Purpose Recap (`01_findings_recap.docx`, `.md`, `.json`)
-     - *Stage 5.2.1*: Hypothesis 1 Deep Discussion (Psychological Mechanism & Literature Concordance) (`02_hypothesis_1_discussion.docx`, `.md`, `.json`)
-     - *Stage 5.2.2*: Hypothesis 2 Deep Discussion (`03_hypothesis_2_discussion.docx`, `.md`, `.json`)
-     - *Stage 5.2.k*: Hypothesis $k$ Deep Discussion (`XX_hypothesis_k_discussion.docx`, `.md`, `.json`)
-     - *Stage 5.3*: Unexpected / Non-Significant Findings Epistemic Analysis (`XX_non_significant_findings.docx`, `.md`, `.json`)
-     - *Stage 5.4*: Theoretical, Clinical & Practical Implications (`XX_implications.docx`, `.md`, `.json`)
-     - *Stage 5.5*: Methodological, Sampling & Instrument Limitations (`XX_limitations.docx`, `.md`, `.json`)
-     - *Stage 5.6*: Future Research & Actionable Recommendations (`XX_recommendations.docx`, `.md`, `.json`)
-     - *Stage 5.7*: Chapter 5 Consolidation & Assembly (`Chapter_5_Discussion.docx` + `Chapter_5_Discussion.md`)
-   - **Chapter 2 Literature Review**: Stages 2.1 to 2.8 (Foundations $\rightarrow$ Bibliometrics $\rightarrow$ International $\rightarrow$ Iranian $\rightarrow$ Synthesis $\rightarrow$ Matrix Table $\rightarrow$ Assembly, each producing `.docx`, `.md`, `.json`).
-   - **Research Proposal**: Stages P.1 to P.8 (Problem $\rightarrow$ Significance $\rightarrow$ Hypotheses $\rightarrow$ Methodology $\rightarrow$ Instruments $\rightarrow$ Procedure $\rightarrow$ Ethics $\rightarrow$ Assembly, each producing `.docx`, `.md`, `.json`).
-   - **Scale Validation**: Stages V.1 to V.9 (CVR/CVI $\rightarrow$ Item Analysis $\rightarrow$ EFA $\rightarrow$ CFA $\rightarrow$ Construct Validity $\rightarrow$ Invariance $\rightarrow$ IRT/ROC $\rightarrow$ Assembly, each producing `.docx`, `.md`, `.json`).
-   - **Defense Presentation Builder (طراحی اسلایدهای پیشرفته جلسه دفاع)**: Stages D.0 to D.7 (Mandatory Vertical Slice Invariant):
-     - *Stage D.0*: Findings Ingestion & Verification (`00_defense_findings_payload.json`)
-     - *Stage D.1*: Storyboard & 14-Slide Architecture (`01_defense_storyboard.docx`, `.md`, `.json`)
-     - *Stage D.2*: Dedicated Statistical & Hypothesis Slide Triads (`02_hypothesis_slides.docx`, `.md`, `.json`)
-     - *Stage D.3*: Deterministic Deck Compilation (`Defense_Presentation.pptx` + `presentation.html`)
-     - *Stage D.4*: High-Resolution 300-DPI Publication Diagram (`structural_model_diagram.png`)
-     - *Stage D.5*: Candidate 20-Minute Defense Script & Q&A Guide (`04_defense_script.docx`, `.md`, `.json`)
-     - *Stage D.6*: Geometry Collision, Font Dual-Slot & Typography Audit (`05_presentation_qa_audit.json`, `.md`)
-     - *Stage D.7*: Committee Viva Voce Oral Defense Simulation (`06_defense_committee_simulation.docx`, `.md`, `.json`)
+4. **Mandatory Micro-Stage Sequences & Triad Matrices**:
+   - Full, authoritative per-stage breakdowns, assigned subagents, and exact triad deliverables are codified in [MICRO_STAGE_SEQUENCES.md](file:///.agents/references/MICRO_STAGE_SEQUENCES.md). All pipelines must strictly execute each sequence in sequential order:
+     - **Chapter 4 Findings**: Stages 4.0 through 4.12 (Data Curation $\rightarrow$ Demographics $\rightarrow$ Descriptives/Reliability $\rightarrow$ Assumptions $\rightarrow$ Correlations $\rightarrow$ Macro Model Fit $\rightarrow$ Hypotheses 1..k $\rightarrow$ Mediation $\rightarrow$ Decision Matrix $\rightarrow$ Statistical QC $\rightarrow$ Typography QC $\rightarrow$ OpenXML Assembly $\rightarrow$ Viva Voce Simulation).
+     - **Chapter 5 Discussion**: Stages 5.1 through 5.7 (Findings Recap $\rightarrow$ Hypotheses 1..k Deep Discussion $\rightarrow$ Non-Significant Findings $\rightarrow$ Implications $\rightarrow$ Limitations $\rightarrow$ Recommendations $\rightarrow$ Consolidation).
+     - **Chapter 2 Literature Review**: Stages 2.1 through 2.8 (Foundations $\rightarrow$ Bibliometrics $\rightarrow$ International $\rightarrow$ Iranian $\rightarrow$ Synthesis $\rightarrow$ Matrix Table $\rightarrow$ Grounding $\rightarrow$ Assembly).
+     - **Research Proposal**: Stages P.1 through P.8 (Problem $\rightarrow$ Significance $\rightarrow$ Hypotheses $\rightarrow$ Methodology $\rightarrow$ Sampling/Power $\rightarrow$ Instruments $\rightarrow$ Procedure/Ethics $\rightarrow$ Assembly).
+     - **Scale Validation**: Stages V.1 through V.9 (CVR/CVI $\rightarrow$ Item Analysis $\rightarrow$ EFA $\rightarrow$ CFA $\rightarrow$ Construct Validity $\rightarrow$ Invariance $\rightarrow$ Reliability $\rightarrow$ IRT/ROC $\rightarrow$ Assembly).
+     - **Defense Presentation Builder**: Stages D.0 through D.7 (Payload Ingestion $\rightarrow$ Storyboard $\rightarrow$ Hypothesis Slide Triads $\rightarrow$ Deck Compilation $\rightarrow$ Publication Diagram $\rightarrow$ Script $\rightarrow$ QA Audit $\rightarrow$ Viva Voce Simulation).
 
 ---
 
@@ -195,3 +164,4 @@ Detailed reference guides and operational specifications are modularized in `.ag
 3. **OpenXML Standards Deep Dive**: [OPENXML_STANDARDS_MANUAL.md](file:///.agents/references/OPENXML_STANDARDS_MANUAL.md) — Child element sequencing, BiDi table properties, and OMML equation preservation.
 4. **Academic Defense Presentation Standards**: [PRESENTATION_STANDARDS_MANUAL.md](file:///.agents/references/PRESENTATION_STANDARDS_MANUAL.md) — SmartArt RTL reversal, DrawingML dual-slot font binding, widescreen legibility, and automatic motion.
 5. **Google Antigravity Architecture Guide**: [ANTIGRAVITY_ARCHITECTURE_GUIDE.md](file:///ANTIGRAVITY_ARCHITECTURE_GUIDE.md) — Complete technical specification for Agents, Subagents, Skills, and Workflows.
+6. **Thesis Pipeline Micro-Stage Reference Manual**: [MICRO_STAGE_SEQUENCES.md](file:///.agents/references/MICRO_STAGE_SEQUENCES.md) — Authoritative micro-stage breakdown, assigned subagents, deterministic scripts, and physical triad artifacts across all 6 core pipelines.
