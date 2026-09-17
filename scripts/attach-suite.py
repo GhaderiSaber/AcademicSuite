@@ -992,7 +992,9 @@ def cmd_attach(args):
                 subprocess.run(["git", "-C", str(cwd), "remote", "set-url", "origin", repo_url], check=True)
             else:
                 subprocess.run(["git", "-C", str(cwd), "remote", "add", "origin", repo_url], check=True)
-            subprocess.run(["git", "-C", str(cwd), "fetch", "origin", "main"], check=True)
+            fetch_res = subprocess.run(["git", "-C", str(cwd), "fetch", "origin", "main"], capture_output=True, text=True)
+            if fetch_res.returncode != 0:
+                subprocess.run(["git", "-C", str(cwd), "fetch", "--depth", "1", "origin", "main"], check=True)
             subprocess.run(["git", "-C", str(cwd), "checkout", "-f", "-B", "main", "origin/main"], check=True)
             subprocess.run(["git", "-C", str(cwd), "branch", "--set-upstream-to=origin/main", "main"], check=False)
         else:
@@ -1005,7 +1007,9 @@ def cmd_attach(args):
                 if init_res.returncode != 0:
                     subprocess.run(["git", "init", "."], cwd=str(cwd), check=True)
                 subprocess.run(["git", "remote", "add", "origin", repo_url], cwd=str(cwd), check=True)
-                subprocess.run(["git", "fetch", "origin", "main"], cwd=str(cwd), check=True)
+                fetch_res = subprocess.run(["git", "fetch", "origin", "main"], cwd=str(cwd), capture_output=True, text=True)
+                if fetch_res.returncode != 0:
+                    subprocess.run(["git", "fetch", "--depth", "1", "origin", "main"], cwd=str(cwd), check=True)
                 subprocess.run(["git", "checkout", "-f", "-B", "main", "origin/main"], cwd=str(cwd), check=True)
                 subprocess.run(["git", "branch", "--set-upstream-to=origin/main", "main"], cwd=str(cwd), check=False)
 
