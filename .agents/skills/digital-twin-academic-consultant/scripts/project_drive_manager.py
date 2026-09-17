@@ -1190,7 +1190,7 @@ class ProjectDriveManager:
                     pass
 
             if last_date is None:
-                for k in ["updated_at", "last_message_date", "created_at"]:
+                for k in ["last_interaction", "last_message_date"]:
                     if meta.get(k):
                         try:
                             d = datetime.fromisoformat(meta[k][:19])
@@ -1201,8 +1201,23 @@ class ProjectDriveManager:
                             pass
 
             if last_date is None:
-                last_date = datetime.fromtimestamp(os.path.getmtime(project_path))
-                date_source = "directory_mtime"
+                # Check newest non-system document file modification time
+                raw_dir = os.path.join(project_path, "01_raw_inputs")
+                search_dir = raw_dir if os.path.isdir(raw_dir) else project_path
+                mtimes = [
+                    os.path.getmtime(os.path.join(r, f))
+                    for r, _, files in os.walk(search_dir)
+                    for f in files
+                    if not f.startswith(".") and f not in ["project_meta.json", "chat_history.json", "reorganize_manifest.json"]
+                ]
+                if mtimes:
+                    last_date = datetime.fromtimestamp(max(mtimes))
+                    date_source = "file_mtime"
+
+            if last_date is None:
+                # If completely empty with zero files, treat as dormant (epoch)
+                last_date = datetime.fromtimestamp(0)
+                date_source = "no_activity_found"
 
             days_inactive = (now - last_date).days
             status = meta.get("status", "inquiry")

@@ -1053,6 +1053,14 @@ class SaberTelethonUserbot:
                 if self.project_manager.is_ignored(dlg.name, dlg.id, getattr(dlg.entity, "username", None)):
                     continue
 
+                # STRICT 30-DAY INACTIVITY GUARD:
+                # Never sync or pull dialogs whose latest interaction is older than 30 days.
+                # Old unread messages from months or years ago must remain dormant in archive.
+                if dlg.date:
+                    dlg_dt = dlg.date.replace(tzinfo=None)
+                    if (datetime.now() - dlg_dt).days > 30:
+                        continue
+
                 needs_sync = False
                 sync_reason = ""
 
