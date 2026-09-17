@@ -1,8 +1,8 @@
 # Academic Suite Permanent Evaluation Suite Benchmark Report
-**Evaluated Version**: `Academic Suite v2 (Unit Test)`  
+**Evaluated Version**: `Academic Suite v2`  
 **Benchmark Verdict**: **`PASS`** (8/8 Cases Passed)  
 **Overall Benchmark Index**: **`100.00%`**  
-**Execution Timestamp**: `2026-09-17T11:25:27.702470+00:00`  
+**Execution Timestamp**: `2026-09-17T11:27:57.342180+00:00`  
 
 ---
 
