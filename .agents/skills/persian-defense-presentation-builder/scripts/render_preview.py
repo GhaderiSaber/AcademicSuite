@@ -8,6 +8,16 @@ PDF and PNG slide previews (via PowerPoint COM on Windows or LibreOffice headles
 
 import os
 import sys
+# Dynamic discovery of local virtualenv site-packages (.venv / venv)
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+for venv_name in [".venv", "venv"]:
+    venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
+    if os.path.isdir(venv_lib):
+        for entry in os.listdir(venv_lib):
+            sp = os.path.join(venv_lib, entry, "site-packages")
+            if os.path.isdir(sp) and sp not in sys.path:
+                sys.path.insert(0, sp)
+
 import subprocess
 from typing import Optional, List
 

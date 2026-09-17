@@ -5,6 +5,16 @@ Usage: python3 screenshot-demos.py [demos-dir] [output-dir]
 Requires: pip install playwright; playwright install --with-deps chromium (or use system Chrome)
 """
 import sys
+# Dynamic discovery of local virtualenv site-packages (.venv / venv)
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+for venv_name in [".venv", "venv"]:
+    venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
+    if os.path.isdir(venv_lib):
+        for entry in os.listdir(venv_lib):
+            sp = os.path.join(venv_lib, entry, "site-packages")
+            if os.path.isdir(sp) and sp not in sys.path:
+                sys.path.insert(0, sp)
+
 import os
 import pathlib
 import time
