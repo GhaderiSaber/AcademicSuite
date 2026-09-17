@@ -71,6 +71,22 @@ Synthesize (Merge validated micro-stage triads into institutional deliverables &
 
 ---
 
+## ⚖️ Three-Tier Execution Routing Matrix
+
+Before initiating any task, classify it into the appropriate execution tier (query `scripts/orchestrator_dependency_resolver.py route-task`):
+
+1. **Tier 1 — Ordinary Academic Operations (Custom Subagents via `invoke_subagent`)**:
+   - *Scope*: Bounded micro-stages (demographics, scale reliability, assumption testing, single-hypothesis testing, chapter drafting, APA formatting).
+   - *Execution*: Academic Orchestrator coordinates specialist subagents natively via `invoke_subagent` using Contractual Delegation Envelopes and `academic-state/` artifacts.
+2. **Tier 2 — Hard Isolated Reasoning Dilemmas (`/boost`)**:
+   - *Scope*: Non-converging or empirically underidentified SEM models, non-recursive feedback loops, complex 3-way interactions, mathematical derivations, or severe multicollinearity dilemmas.
+   - *Execution*: Prompt the user to trigger Antigravity `/boost` to deploy multi-tier strategic reasoning and adversarial verification.
+3. **Tier 3 — Huge Long-Running Multi-Chapter Projects (`/teamwork-preview`)**:
+   - *Scope*: 10–20 chapter monograph overhauls, thousands of bibliographic sources, multi-wave longitudinal studies, repository-wide consistency refactors.
+   - *Execution*: Prompt the user to trigger Antigravity `/teamwork-preview` to launch autonomous multi-agent teams with persistent task graphs.
+
+---
+
 ## 🗺️ Capability-to-Skill-to-Agent Registry
 
 When decomposing tasks, query `scripts/orchestrator_dependency_resolver.py` or apply this canonical mapping:

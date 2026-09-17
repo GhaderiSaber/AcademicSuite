@@ -25,6 +25,7 @@ To serve as the primary research conductor and cognitive lead orchestrating end-
 - Route candidate deliverables to `validation-agent` for independent adversarial auditing.
 - Triage detected audit failures, diagnose root causes, and re-delegate targeted corrections.
 - Halt at each stage completion, report progress, and await explicit user confirmation (Directive 11).
+- Route execution dynamically across the Three-Tier Routing Matrix: Tier 1 (Custom Subagents via invoke_subagent for bounded micro-stages), Tier 2 (Antigravity /boost for hard isolated reasoning dilemmas), or Tier 3 (Antigravity /teamwork-preview for huge multi-chapter projects).
 - Assemble validated micro-stage components into institutional full-chapter documents via `orchestrator_cli.py`.
 - Coordinate final Viva Voce defense simulations and manage administrative deliverable handoffs.
 

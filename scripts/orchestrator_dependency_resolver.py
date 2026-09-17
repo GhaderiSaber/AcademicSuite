@@ -327,6 +327,76 @@ def format_delegation_envelope(stage_id: str, state_dir: str, task_instructions:
     }
 
 
+def route_task(description: str, file_count: int = 1, chapter_count: int = 1) -> Dict[str, Any]:
+    """Determines whether a task should route to Custom Subagents, /boost, or /teamwork-preview."""
+    desc_lower = description.lower()
+
+    # Tier 3: Huge Long-Running Projects -> /teamwork-preview
+    teamwork_keywords = [
+        "20-chapter", "twenty chapter", "multi-chapter monograph",
+        "entire dissertation", "full thesis overhaul", "thousands of source files",
+        "repository-wide", "multi-study repository", "longitudinal multi-wave overhaul",
+        "large project", "complex multi-year"
+    ]
+    is_teamwork = (
+        chapter_count >= 10
+        or file_count >= 100
+        or any(k in desc_lower for k in teamwork_keywords)
+    )
+
+    if is_teamwork:
+        return {
+            "tier": "tier_3_teamwork",
+            "recommended_mechanism": "/teamwork-preview",
+            "slash_command": "/teamwork-preview",
+            "primary_conductor": "Antigravity Teamwork Multi-Agent System",
+            "rationale": (
+                "Task scope involves extensive multi-chapter restructuring, broad repository audits, "
+                "or thousands of source documents. Antigravity Teamwork provides persistent task graphs, "
+                "autonomous agent dispatching, and independent background verification."
+            ),
+            "suggested_action": "Recommend the user invoke `/teamwork-preview` to coordinate autonomous multi-agent teamwork."
+        }
+
+    # Tier 2: Hard Isolated Reasoning Problem -> /boost
+    boost_keywords = [
+        "underidentified", "non-converging", "non-recursive", "mathematical proof",
+        "identification equation", "singular matrix", "severe multicollinearity",
+        "feedback loop", "derivation", "deep reasoning", "hard reasoning",
+        "complex 3-way interaction", "heckman selection correction", "instrumental variable dilemma"
+    ]
+    is_boost = any(k in desc_lower for k in boost_keywords)
+
+    if is_boost:
+        return {
+            "tier": "tier_2_boost",
+            "recommended_mechanism": "/boost",
+            "slash_command": "/boost",
+            "primary_conductor": "Antigravity Multi-Tier Boost Engine",
+            "rationale": (
+                "Task presents an isolated, highly non-linear statistical, psychometric, or mathematical dilemma. "
+                "Antigravity /boost deploys multi-tier, multi-perspective strategic reasoning and adversarial verification."
+            ),
+            "suggested_action": "Recommend the user invoke `/boost` for deep multi-perspective reasoning and verification."
+        }
+
+    # Tier 1: Ordinary Academic Task -> Custom Subagents via invoke_subagent
+    cap_info = resolve_capability(description)
+    return {
+        "tier": "tier_1_custom_subagents",
+        "recommended_mechanism": "invoke_subagent",
+        "slash_command": None,
+        "primary_conductor": "academic-orchestrator",
+        "assigned_subagent": cap_info["agent"],
+        "assigned_skill": cap_info["skill"],
+        "rationale": (
+            "Standard bounded research micro-stage. Managed natively by the Academic Orchestrator coordinating "
+            f"specialist subagents (`{cap_info['agent']}`) using isolated context envelopes and academic-state/ artifacts."
+        ),
+        "suggested_action": f"Delegate bounded task to `{cap_info['agent']}` using native `invoke_subagent`."
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description="Orchestrator Dependency & Capability Resolver Engine")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -346,6 +416,12 @@ def main():
     p_del.add_argument("--state-dir", required=True, help="Path to academic-state directory")
     p_del.add_argument("--instructions", default="Execute statistical analysis and output triad.", help="Task instructions")
 
+    # route-task
+    p_route = subparsers.add_parser("route-task", help="Classify task into custom_subagents, boost, or teamwork")
+    p_route.add_argument("--description", required=True, help="Task description")
+    p_route.add_argument("--file-count", type=int, default=1, help="Estimated number of files involved")
+    p_route.add_argument("--chapter-count", type=int, default=1, help="Number of thesis chapters")
+
     args = parser.parse_args()
 
     if args.command == "capability-map":
@@ -354,6 +430,8 @@ def main():
         res = check_prerequisites(args.stage_id, args.state_dir)
     elif args.command == "format-delegation":
         res = format_delegation_envelope(args.stage_id, args.state_dir, args.instructions)
+    elif args.command == "route-task":
+        res = route_task(args.description, args.file_count, args.chapter_count)
     else:
         res = {"error": f"Unknown command {args.command}"}
 
