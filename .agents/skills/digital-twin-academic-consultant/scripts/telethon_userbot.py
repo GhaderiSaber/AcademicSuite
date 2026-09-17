@@ -1657,6 +1657,38 @@ class SaberTelethonUserbot:
                 await event.reply("\n".join(lines), parse_mode="html")
                 return
 
+            # Triage inactive projects: /triage or /triage_run [days]
+            m_triage = re.match(r"^/triage(?:_(run|execute))?(?:\s+(\d+))?", txt)
+            if m_triage:
+                is_run = bool(m_triage.group(1))
+                days_arg = int(m_triage.group(2)) if m_triage.group(2) else 30
+                mode_str = "اجرای قطعی جابجایی" if is_run else "پیش‌نمایش (Dry Run)"
+                await event.reply(f"🧹 <b>در حال غربالگری پروژه‌های غیرفعال ({mode_str} — آستانه: {days_arg} روز)...</b>", parse_mode="html")
+                report = self.project_manager.triage_inactive_projects(inactivity_days=days_arg, dry_run=not is_run)
+
+                resp_lines = [
+                    f"🧹 <b>گزارش مدیریت چرخه عمر پروژه‌ها ({mode_str})</b>\n",
+                    f"⏱ <b>آستانه عدم فعالیت:</b> {days_arg} روز",
+                    f"🟢 <b>پروژه‌های فعال نگه‌داشته‌شده:</b> {len(report['active_retained'])} مورد",
+                    f"📦 <b>انتقال به پوشه معلق (Pending Works):</b> {len(report['moved_to_pending'])} مورد",
+                    f"🏁 <b>انتقال به پوشه خاتمه‌یافته (Finished Works):</b> {len(report['moved_to_finished'])} مورد",
+                    f"⭐ <b>پروژه‌های معاف/VIP:</b> {len(report['pinned_exempt'])} مورد\n"
+                ]
+                if report['moved_to_pending']:
+                    resp_lines.append("<b>نمونه پروژه‌های انتقال‌یافته به Pending Works:</b>")
+                    for p in report['moved_to_pending'][:10]:
+                        resp_lines.append(f"• <code>{p['folder']}</code> ({p['days_inactive']} روز)")
+                    if len(report['moved_to_pending']) > 10:
+                        resp_lines.append(f"• <i>... و {len(report['moved_to_pending']) - 10} پروژه دیگر</i>")
+
+                if not is_run and (report['moved_to_pending'] or report['moved_to_finished']):
+                    resp_lines.append("\n💡 <i>برای اجرای قطعی جابجایی، دستور <code>/triage_run</code> را ارسال فرمایید.</i>")
+                elif is_run:
+                    resp_lines.append("\n✅ <b>پوشه My Work با موفقیت پاکسازی و خلوت گردید.</b>")
+
+                await event.reply("\n".join(resp_lines), parse_mode="html")
+                return
+
             # Manual Save / Archive Project: /save_project <name_or_id>
             m_save = re.match(r"^/(?:save_project|archive_project)(?:\s+(.+))?", txt)
             if m_save:
@@ -3213,6 +3245,21 @@ class SaberTelethonUserbot:
                     username=sender.username,
                     phone=sender.phone
                 )
+
+                # Send auto-restoration alert if project was awakened from Pending/Finished Works
+                if paths.get("was_restored"):
+                    days_dormant = paths.get("days_dormant", 30)
+                    restored_card = (
+                        f"🔄 <b>پروژه مراجع بازیابی و فعال شد</b>\n\n"
+                        f"👤 <b>مراجع:</b> {format_client_mention_html(client_name, sender.id, sender.username)}\n"
+                        f"📁 <b>پوشه پروژه:</b> <code>{clean_drive_display_path(paths['root'])}</code>\n"
+                        f"⏳ <b>مدت عدم فعالیت:</b> {days_dormant} روز\n"
+                        f"ℹ️ با دریافت پیام جدید، پوشه این مراجع به‌صورت خودکار از بایگانی به <code>My Work</code> بازگردانده شد."
+                    )
+                    try:
+                        await self.send_to_desk(restored_card, parse_mode="html", topic_key="inquiries")
+                    except Exception as e:
+                        print(f"[-] Error sending restoration alert: {e}")
 
                 # Bot-specific commands (/start, /help, /dashboard, /webapp, /scale)
                 if me.bot:

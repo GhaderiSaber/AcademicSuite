@@ -242,6 +242,11 @@ case "$1" in
         fi
         ;;
 
+    triage)
+        shift
+        "${PYTHON_BIN}" "${ROOT_DIR}/scripts/triage_projects.py" "$@"
+        ;;
+
     uninstall)
         echo "[*] Removing Telethon service..."
         bash "$0" stop
@@ -256,7 +261,7 @@ case "$1" in
         ;;
 
     *)
-        echo "Usage: $0 {install|start|stop|restart|run|status|logs|uninstall}"
+        echo "Usage: $0 {install|start|stop|restart|run|status|logs|triage|uninstall}"
         echo ""
         echo "Commands:"
         echo "  install    : Create service and start background daemon (runs 24/7 on login)"
@@ -266,6 +271,7 @@ case "$1" in
         echo "  run        : Run directly in foreground (for testing/debugging)"
         echo "  status     : Show process and service status with recent logs"
         echo "  logs       : Follow live output logs"
+        echo "  triage     : Scan and organize inactive client projects (use --execute to apply)"
         echo "  uninstall  : Stop and remove the service"
         exit 1
         ;;

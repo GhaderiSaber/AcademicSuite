@@ -466,6 +466,80 @@ class ProjectDriveManager:
 
         return None
 
+    def is_in_archive_dir(self, folder_path: str) -> bool:
+        """Check if folder_path resides within an archive directory (Pending Works or Finished Works)."""
+        if not folder_path:
+            return False
+        norm = os.path.abspath(folder_path)
+        archive_names = ["Pending Works", "Finished Works"]
+        parts = norm.split(os.sep)
+        return any(a in parts for a in archive_names)
+
+    def restore_project_to_active(self, project_dir: str) -> Tuple[str, bool, int]:
+        """
+        Restore a project from Pending Works or Finished Works back to active self.work_dir.
+        Returns (new_project_path, was_restored, days_dormant).
+        """
+        if not os.path.isdir(project_dir):
+            return project_dir, False, 0
+
+        # Check if already in active work_dir
+        parent = os.path.dirname(os.path.abspath(project_dir))
+        if os.path.abspath(parent) == os.path.abspath(self.work_dir):
+            return project_dir, False, 0
+
+        folder_name = os.path.basename(project_dir)
+        target_path = os.path.join(self.work_dir, folder_name)
+
+        # Calculate dormancy days from metadata or mtime
+        days_dormant = 30
+        meta_file = os.path.join(project_dir, "project_meta.json")
+        now = datetime.now()
+        if os.path.exists(meta_file):
+            try:
+                with open(meta_file, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                last_d = meta.get("last_message_date") or meta.get("updated_at") or meta.get("created_at")
+                if last_d:
+                    dt = datetime.fromisoformat(last_d[:19])
+                    days_dormant = max(0, (now - dt).days)
+            except Exception:
+                pass
+        else:
+            try:
+                mtime = datetime.fromtimestamp(os.path.getmtime(project_dir))
+                days_dormant = max(0, (now - mtime).days)
+            except Exception:
+                pass
+
+        if os.path.exists(target_path) and os.path.abspath(target_path) != os.path.abspath(project_dir):
+            target_path = os.path.join(self.work_dir, f"{folder_name}_restored")
+
+        try:
+            shutil.move(project_dir, target_path)
+            print(f"[+] Restored dormant project from archive -> {target_path}")
+        except Exception as e:
+            print(f"[-] Could not restore project {project_dir}: {e}")
+            return project_dir, False, days_dormant
+
+        # Update metadata to active
+        target_meta_file = os.path.join(target_path, "project_meta.json")
+        if os.path.exists(target_meta_file):
+            try:
+                with open(target_meta_file, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                meta["lifecycle_state"] = "active"
+                if meta.get("status") in ["pending", "inquiry", "unknown", "done"]:
+                    meta["status"] = "in_progress"
+                meta["reactivated_at"] = now.isoformat()
+                meta["updated_at"] = now.isoformat()
+                with open(target_meta_file, "w", encoding="utf-8") as f:
+                    json.dump(meta, f, ensure_ascii=False, indent=2)
+            except Exception:
+                pass
+
+        return target_path, True, days_dormant
+
     def provision_project(
         self,
         client_name: str,
@@ -569,15 +643,25 @@ class ProjectDriveManager:
             return paths
 
         # Standard non-umbrella project provisioning
+        was_restored = False
+        days_dormant = 0
         if existing_dir:
-            project_dir = existing_dir
+            if self.is_in_archive_dir(existing_dir):
+                project_dir, was_restored, days_dormant = self.restore_project_to_active(existing_dir)
+            else:
+                project_dir = existing_dir
         else:
             folder_name = f"{clean_name} - {sanitize_filename(topic)}" if topic else clean_name
             project_dir = os.path.join(self.work_dir, folder_name)
             os.makedirs(project_dir, exist_ok=True)
 
         # Ensure all 4-tier subdirectories exist
-        paths = {"root": project_dir, "project_dir": project_dir}
+        paths = {
+            "root": project_dir,
+            "project_dir": project_dir,
+            "was_restored": was_restored,
+            "days_dormant": days_dormant
+        }
         for key, sub in SUBFOLDERS.items():
             sub_path = os.path.join(project_dir, sub)
             os.makedirs(sub_path, exist_ok=True)
@@ -986,6 +1070,155 @@ class ProjectDriveManager:
             results.append(meta)
 
         return results
+
+    def triage_inactive_projects(
+        self, inactivity_days: int = 30, dry_run: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Scan active self.work_dir and archive projects that have had no client
+        interaction for > inactivity_days.
+        Completed projects (status='done') move to Finished Works.
+        Other inactive projects move to Pending Works.
+        Pinned / VIP projects are exempt.
+        """
+        now = datetime.now()
+        pending_dir = os.path.join(self.work_dir, "Pending Works")
+        finished_dir = os.path.join(self.work_dir, "Finished Works")
+        os.makedirs(pending_dir, exist_ok=True)
+        os.makedirs(finished_dir, exist_ok=True)
+
+        system_folders = {
+            "Pending Works", "Finished Works", ".agents", ".venv", "venv",
+            "SmartPLS WrokSpace", "Shahram Article References", "_Resources"
+        }
+
+        report = {
+            "timestamp": now.isoformat(),
+            "inactivity_days_threshold": inactivity_days,
+            "dry_run": dry_run,
+            "active_retained": [],
+            "moved_to_pending": [],
+            "moved_to_finished": [],
+            "pinned_exempt": [],
+            "errors": []
+        }
+
+        if not os.path.isdir(self.work_dir):
+            return report
+
+        for item in sorted(os.listdir(self.work_dir)):
+            project_path = os.path.join(self.work_dir, item)
+            if not os.path.isdir(project_path) or item.startswith(".") or item in system_folders:
+                continue
+
+            meta_path = os.path.join(project_path, "project_meta.json")
+            hist_path = os.path.join(project_path, "01_raw_inputs", "chat_history.json")
+
+            meta = {}
+            if os.path.exists(meta_path):
+                try:
+                    with open(meta_path, "r", encoding="utf-8") as f:
+                        meta = json.load(f)
+                except Exception:
+                    pass
+
+            # Exemption checks: Pinned, VIP, Master Umbrella
+            if meta.get("pinned") is True or meta.get("is_vip_client") or meta.get("is_umbrella_client_folder"):
+                report["pinned_exempt"].append({"folder": item, "reason": "Pinned/VIP"})
+                continue
+
+            vip_info = self.is_vip_client(item, meta.get("telegram_id"), meta.get("telegram_username"))
+            if vip_info:
+                report["pinned_exempt"].append({"folder": item, "reason": "VIP Registry"})
+                continue
+
+            # Determine last interaction date
+            last_date = None
+            date_source = None
+
+            if os.path.exists(hist_path):
+                try:
+                    with open(hist_path, "r", encoding="utf-8") as f:
+                        msgs = json.load(f)
+                    if msgs and isinstance(msgs, list):
+                        for m in reversed(msgs):
+                            d_str = m.get("date")
+                            if d_str:
+                                d = datetime.fromisoformat(d_str[:19])
+                                if last_date is None or d > last_date:
+                                    last_date = d
+                                    date_source = "chat_history"
+                except Exception:
+                    pass
+
+            if last_date is None:
+                for k in ["updated_at", "last_message_date", "created_at"]:
+                    if meta.get(k):
+                        try:
+                            d = datetime.fromisoformat(meta[k][:19])
+                            if last_date is None or d > last_date:
+                                last_date = d
+                                date_source = f"meta.{k}"
+                        except Exception:
+                            pass
+
+            if last_date is None:
+                last_date = datetime.fromtimestamp(os.path.getmtime(project_path))
+                date_source = "directory_mtime"
+
+            days_inactive = (now - last_date).days
+            status = meta.get("status", "inquiry")
+
+            if days_inactive <= inactivity_days:
+                report["active_retained"].append({
+                    "folder": item,
+                    "days_inactive": days_inactive,
+                    "last_date": last_date.strftime("%Y-%m-%d"),
+                    "source": date_source,
+                    "status": status
+                })
+            else:
+                is_done = (status == "done" or meta.get("lifecycle_stage") == "completed")
+                target_root = finished_dir if is_done else pending_dir
+                target_list = report["moved_to_finished"] if is_done else report["moved_to_pending"]
+                target_name = "Finished Works" if is_done else "Pending Works"
+                dst_path = os.path.join(target_root, item)
+
+                entry = {
+                    "folder": item,
+                    "days_inactive": days_inactive,
+                    "last_date": last_date.strftime("%Y-%m-%d"),
+                    "source": date_source,
+                    "status": status,
+                    "destination": target_name
+                }
+
+                if not dry_run:
+                    try:
+                        if os.path.exists(dst_path):
+                            dst_path = os.path.join(target_root, f"{item}_{int(now.timestamp())}")
+                        shutil.move(project_path, dst_path)
+
+                        # Update archived meta
+                        dst_meta_path = os.path.join(dst_path, "project_meta.json")
+                        if os.path.exists(dst_meta_path):
+                            try:
+                                with open(dst_meta_path, "r", encoding="utf-8") as f:
+                                    mdata = json.load(f)
+                                mdata["lifecycle_state"] = "finished_archive" if is_done else "pending_dormant"
+                                mdata["archived_at"] = now.isoformat()
+                                mdata["archived_reason"] = f"Inactive for {days_inactive} days (> {inactivity_days})"
+                                with open(dst_meta_path, "w", encoding="utf-8") as f:
+                                    json.dump(mdata, f, ensure_ascii=False, indent=2)
+                            except Exception:
+                                pass
+                        target_list.append(entry)
+                    except Exception as e:
+                        report["errors"].append({"folder": item, "error": str(e)})
+                else:
+                    target_list.append(entry)
+
+        return report
 
     def assess_project_health(self, meta: Dict[str, Any]) -> Dict[str, Any]:
         """
