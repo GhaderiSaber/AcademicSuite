@@ -8,9 +8,6 @@ mainAgent: false
 subagent: true
 commandExecutionPolicy: request-review
 tools:
-  - invoke_subagent
-  - manage_subagents
-  - send_message
   - view_file
   - list_dir
   - grep_search
@@ -21,9 +18,7 @@ skills:
   - thesis-integrity-auditor
   - irandoc-plagiarism-reducer
   - academic-reference-extractor
-agents:
-  - results-auditor
-  - academic-challenger
+agents: []
 inheritCustomizations: true
 ---
 

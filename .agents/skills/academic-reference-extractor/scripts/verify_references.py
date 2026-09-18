@@ -121,6 +121,33 @@ def search_pubmed(query_text: str) -> Tuple[bool, str]:
         pass
     return False, ""
 
+def check_local_persian_bibliography(title: str, authors: List[str], raw: str) -> bool:
+    """Checks whether a Persian citation matches a real verified local bibliography file."""
+    if not title and not raw:
+        return False
+    search_paths = [
+        "04_references_and_lit/references.bib",
+        "04_references_and_lit/references.json",
+        "references.bib",
+        "references.json"
+    ]
+    cur = os.getcwd()
+    for _ in range(4):
+        for sp in search_paths:
+            full = os.path.join(cur, sp)
+            if os.path.isfile(full):
+                try:
+                    with open(full, "r", encoding="utf-8", errors="ignore") as f:
+                        content = f.read()
+                        if title and len(title) > 8 and title in content:
+                            return True
+                        if raw and len(raw) > 15 and raw in content:
+                            return True
+                except Exception:
+                    pass
+        cur = os.path.dirname(cur)
+    return False
+
 def verify_bibliographic_record(record: Dict[str, Any]) -> Dict[str, Any]:
     """Verify single bibliographic record against CrossRef and PubMed."""
     raw = record.get("raw", "")
@@ -132,14 +159,34 @@ def verify_bibliographic_record(record: Dict[str, Any]) -> Dict[str, Any]:
 
     is_persian = any('\u0600' <= c <= '\u06FF' for c in (raw + title))
 
-    # Persian entries: CrossRef generally covers Latin ISI records
+    # Persian entries: Check against DOI or local verified bibliography
     if is_persian:
+        if doi:
+            ok, details = check_doi_crossref(doi)
+            if ok:
+                return {
+                    "status": "VERIFIED (DOI CONFIRMED)",
+                    "source": "CrossRef Official API",
+                    "is_verified": True,
+                    "confidence": 1.0,
+                    "verified_doi": details.get("verified_doi"),
+                    "official_title": details.get("official_title"),
+                    "official_journal": details.get("official_journal")
+                }
+        if check_local_persian_bibliography(title, authors, raw):
+            return {
+                "status": "VERIFIED (LOCAL VERIFIED BIBLIOGRAPHY)",
+                "source": "Verified Project Bibliography",
+                "is_verified": True,
+                "confidence": 0.95,
+                "details": "Matched verified local Persian bibliographic entry"
+            }
         return {
-            "status": "VERIFIED (NATIONAL IRANIAN REPOSITORY / SID / MAGIRAN)",
+            "status": "UNVERIFIED (LOCAL PERSIAN RECORD REQUIRES PROOF)",
             "source": "Local Persian Academic Corpus",
-            "is_verified": True,
-            "confidence": 0.90,
-            "details": "Persian academic thesis/article record"
+            "is_verified": False,
+            "confidence": 0.0,
+            "details": "Persian citation requires verified bibliography entry or DOI."
         }
 
     # 1. If explicit DOI provided, check direct resolution

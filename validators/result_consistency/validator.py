@@ -230,7 +230,88 @@ def find_contradictions_in_text(
                     f"contradicts JSON parameter = {eta_val}."
                 )
 
+    # 5. Standardized Beta coefficients check (ATK-13)
+    beta_keys = [k for k in params if k.startswith("beta_") or k == "beta"]
+    if beta_keys:
+        expected_betas = [params[k] for k in beta_keys]
+        evidence["beta_coefficients"] = {"expected": {k: params[k] for k in beta_keys}}
+        beta_matches = re.findall(r'(?:[βΒ]|\\beta|\bbeta\b)\s*=\s*([+-]?[0-9]+\.?[0-9]*)', norm_text, re.IGNORECASE)
+        if beta_matches:
+            found_betas = [float(x) for x in beta_matches if x]
+            evidence["beta_coefficients"]["found_in_text"] = found_betas
+            unmatched_betas = [b for b in found_betas if not any(abs(b - exp) < 0.05 for exp in expected_betas)]
+            if unmatched_betas:
+                errors.append(
+                    f"Contradiction in {artifact_name}: Standardized beta coefficient(s) reported as {unmatched_betas} "
+                    f"contradict JSON parameters {expected_betas}."
+                )
+
+    # 6. t-statistic check (ATK-13)
+    t_keys = [k for k in params if k == "t_stat" or k.startswith("t_")]
+    if t_keys:
+        expected_ts = [params[k] for k in t_keys]
+        evidence["t_statistics"] = {"expected": {k: params[k] for k in t_keys}}
+        t_matches = re.findall(r'(?<![a-zA-Z\\])t\s*(?:\([0-9\s,.]+\))?\s*=\s*([+-]?[0-9]+\.?[0-9]*)', norm_text)
+        if t_matches:
+            found_ts = [float(x) for x in t_matches if x]
+            evidence["t_statistics"]["found_in_text"] = found_ts
+            unmatched_ts = [t for t in found_ts if not any(abs(t - exp) < 0.1 for exp in expected_ts)]
+            if unmatched_ts:
+                errors.append(
+                    f"Contradiction in {artifact_name}: t-statistic(s) reported as {unmatched_ts} "
+                    f"contradict JSON parameters {expected_ts}."
+                )
+
+    # 7. z-value check
+    z_keys = [k for k in params if k == "z_stat" or k.startswith("z_") or k == "z"]
+    if z_keys:
+        expected_zs = [params[k] for k in z_keys]
+        evidence["z_statistics"] = {"expected": {k: params[k] for k in z_keys}}
+        z_matches = re.findall(r'(?<![a-zA-Z\\])z\s*=\s*([+-]?[0-9]+\.?[0-9]*)', norm_text)
+        if z_matches:
+            found_zs = [float(x) for x in z_matches if x]
+            evidence["z_statistics"]["found_in_text"] = found_zs
+            unmatched_zs = [z for z in found_zs if not any(abs(z - exp) < 0.1 for exp in expected_zs)]
+            if unmatched_zs:
+                errors.append(
+                    f"Contradiction in {artifact_name}: z-value(s) reported as {unmatched_zs} "
+                    f"contradict JSON parameters {expected_zs}."
+                )
+
+    # 8. Unstandardized B coefficients check
+    b_keys = [k for k in params if k.startswith("b_")]
+    if b_keys:
+        expected_bs = [params[k] for k in b_keys]
+        evidence["b_coefficients"] = {"expected": {k: params[k] for k in b_keys}}
+        b_matches = re.findall(r'(?<![a-zA-Z\\])[bB]\s*=\s*([+-]?[0-9]+\.?[0-9]*)', norm_text)
+        if b_matches:
+            found_bs = [float(x) for x in b_matches if x]
+            evidence["b_coefficients"]["found_in_text"] = found_bs
+            unmatched_bs = [b for b in found_bs if not any(abs(b - exp) < 0.05 for exp in expected_bs)]
+            if unmatched_bs:
+                errors.append(
+                    f"Contradiction in {artifact_name}: Unstandardized B coefficient(s) reported as {unmatched_bs} "
+                    f"contradict JSON parameters {expected_bs}."
+                )
+
+    # 9. SEM Fit Indices check
+    fit_keys = [k for k in params if k.startswith("fit_")]
+    if fit_keys:
+        for fidx in ["cfi", "tli", "rmsea", "srmr"]:
+            fk = f"fit_{fidx}"
+            if fk in params:
+                exp_fit = params[fk]
+                fit_matches = re.findall(rf'(?<![a-zA-Z\\]){fidx}\s*=\s*([0-9]+\.?[0-9]*)', norm_text, re.IGNORECASE)
+                if fit_matches:
+                    found_fits = [float(x) for x in fit_matches if x]
+                    if not any(abs(x - exp_fit) < 0.05 for x in found_fits):
+                        errors.append(
+                            f"Contradiction in {artifact_name}: Fit index {fidx.upper()} reported as {found_fits} "
+                            f"contradicts JSON parameter = {exp_fit}."
+                        )
+
     return errors, warnings, evidence
+
 
 
 def validate_cross_artifacts(

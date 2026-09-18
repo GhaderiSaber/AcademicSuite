@@ -71,6 +71,13 @@ DISALLOWED_WORKER_TOOLS: Set[str] = {
     "define_subagent",
 }
 
+# Retired / Deprecated Agents that must never be regenerated (ATK-14)
+RETIRED_AGENTS: Set[str] = {
+    "writing-agent",
+    "legacy-orchestrator",
+    "orchestrator-agent",
+}
+
 # Target Durable Agents (Tier 1 Orchestrators & Tier 2 Domain Authorities)
 TARGET_DURABLE_AGENTS: List[str] = [
     "digital-saber",
@@ -277,9 +284,14 @@ def validate_agent_spec(
     12. No circular dependencies
     13. No excessive dependency depth
     """
-    # 1. Unique Name
+    # 1. Unique Name & Retired Agent Guard (ATK-14)
     if not spec.name or not isinstance(spec.name, str):
         raise AgentValidationError("Agent name must be a non-empty string.")
+    if spec.name in RETIRED_AGENTS:
+        raise AgentValidationError(
+            f"Agent '{spec.name}' is retired and cannot be created or regenerated. "
+            f"Refer to docs/migration/09_REMOVALS.md for active replacements."
+        )
     if not re.match(r"^[a-z0-9]+(-[a-z0-9]+)*$", spec.name):
         raise AgentValidationError(
             f"Invalid agent name '{spec.name}'. Must be lowercase ASCII alphanumeric with single hyphens."

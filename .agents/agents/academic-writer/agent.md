@@ -8,9 +8,6 @@ mainAgent: false
 subagent: true
 commandExecutionPolicy: request-review
 tools:
-  - invoke_subagent
-  - manage_subagents
-  - send_message
   - view_file
   - list_dir
   - grep_search
@@ -29,9 +26,7 @@ skills:
   - psychological-intervention-protocol-builder
   - journal-submission-assistant
   - persian-defense-presentation-builder
-agents:
-  - research-agent
-  - literature-expert
+agents: []
 inheritCustomizations: true
 ---
 

@@ -15,6 +15,8 @@ import json
 import argparse
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 for venv_name in [".venv", "venv"]:
     venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
     if os.path.isdir(venv_lib):
@@ -169,5 +171,14 @@ if __name__ == '__main__':
     parser.add_argument('--spec', required=True, help="Path to SEM model spec text file")
     parser.add_argument('--output', default="sem_results.json", help="Path to output JSON")
     parser.add_argument('--boot', type=int, default=5000, help="Number of bootstrap resamples")
+    parser.add_argument('--mode', default="production", choices=["production", "demo", "test", "dry_run"], help="Execution mode")
+    parser.add_argument('--plan', default=None, help="Path to approved AnalysisPlan JSON")
     args = parser.parse_args()
+
+    from scripts.script_execution_guard import enforce_script_safety
+    prov = enforce_script_safety(dataset_path=args.data, mode=args.mode, plan_path=args.plan)
+    if args.mode == "dry_run":
+        print(f"Dry-run validated successfully for SEM on {args.data}. No computation performed.")
+        sys.exit(0)
+
     run_sem(args.data, args.spec, args.output, args.boot)

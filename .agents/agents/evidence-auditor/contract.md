@@ -47,9 +47,6 @@ You are the **Evidence Auditor** in Digital Saber's cognitive architecture. Your
 ---
 
 ## ALLOWED TOOLS
-- `invoke_subagent`
-- `manage_subagents`
-- `send_message`
 - `view_file`
 - `list_dir`
 - `grep_search`

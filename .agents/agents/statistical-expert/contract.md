@@ -55,7 +55,6 @@ You are the **Statistical Expert** in Digital Saber's cognitive architecture. Yo
 - `grep_search`
 - `find_by_name`
 - `write_to_file`
-- `run_command`
 
 ---
 

@@ -193,6 +193,26 @@ class PermissionManager:
             sys.stderr.write(f"[PermissionManager] Error setting perms on '{target_path}': {e}\n")
             return False
 
+    def lock_raw_data_directory(self, dir_path: str) -> int:
+        """
+        Recursively locks down all files in a raw inputs directory to strictly read-only (0444 / S_IREAD).
+        Returns the number of files locked.
+        """
+        if not os.path.exists(dir_path):
+            return 0
+        count = 0
+        if os.path.isfile(dir_path):
+            if self.enforce_file_permission(dir_path, CAT_RAW_DATA):
+                count += 1
+            return count
+
+        for root, dirs, files in os.walk(dir_path):
+            for f in files:
+                fp = os.path.join(root, f)
+                if self.enforce_file_permission(fp, CAT_RAW_DATA):
+                    count += 1
+        return count
+
     def audit_path(self, target_path: str) -> Dict[str, Any]:
         """Audits an individual path and reports whether it satisfies least privilege."""
         if not os.path.exists(target_path):

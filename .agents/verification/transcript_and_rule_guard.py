@@ -14,6 +14,7 @@ import os
 import json
 import re
 import glob
+import stat
 from typing import Dict, Any, List, Optional
 
 
@@ -49,7 +50,10 @@ def is_raw_data_path(path: str) -> bool:
         if "raw_input" in p_lower or "raw_data" in p_lower or "raw_dataset" in p_lower:
             return True
 
-    # Check filename
+    # Check filename (only for dataset files, not code or markdown outside raw dirs)
+    if basename.endswith((".py", ".sh", ".md", ".yaml", ".yml", ".jsonl")):
+        return False
+
     raw_prefixes = ("raw_", "raw-")
     raw_exact = (
         "raw.xlsx", "raw.csv", "raw.sav", "raw.tsv",
@@ -62,7 +66,7 @@ def is_raw_data_path(path: str) -> bool:
         return True
     if "_raw." in basename or "-raw." in basename:
         return True
-    if "raw_data" in basename or "raw-data" in basename:
+    if "raw_data." in basename or "raw-data." in basename:
         return True
 
     return False
@@ -143,12 +147,63 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     args = tool_call.get("args", {})
     workspaces = payload.get("workspacePaths", [])
 
+    # 0a. Subagent Delegation Gate (ATK-03: Unauthorized Worker Delegation Guard)
+    if name == "invoke_subagent":
+        caller = (
+            payload.get("agentName") or
+            payload.get("agentRole") or
+            payload.get("agent") or
+            payload.get("caller") or ""
+        ).lower()
+        unauthorized_workers = {
+            "academic-writer",
+            "evidence-auditor",
+            "final-judge",
+            "statistics-agent",
+            "data-agent",
+            "data-curator",
+            "results-auditor",
+            "statistical-auditor",
+            "psychometric-expert",
+            "qualitative-analyst",
+            "meta-analyst",
+            "literature-expert",
+            "research-agent",
+        }
+        for w in unauthorized_workers:
+            if w in caller:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 12 - Worker Delegation Guard): "
+                        f"Specialist worker subagent '{caller}' is forbidden from invoking secondary subagents. "
+                        f"Multi-agent invocation is strictly reserved for Tier 1 orchestrator."
+                    )
+                }
+
+        # Dynamic nesting depth guard (ATK-17)
+        depth = payload.get("depth") or payload.get("subagentDepth") or len(payload.get("parentConversationIds", []))
+        if isinstance(depth, int) and depth >= 3:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 12 - Excessive Nesting Guard): "
+                    f"Dynamic subagent delegation depth ({depth} >= 3) exceeds the maximum allowed nesting ceiling. "
+                    f"Flatten workflow into Tier 1 orchestration."
+                )
+            }
+
     # 0. Raw-Data & Unauthorized Mutation Protection across all mutation tools
     if name in MUTATION_TOOLS:
         targets = extract_target_paths(name, args)
         for target in targets:
             # Check raw data immutability
             if is_raw_data_path(target):
+                if os.path.exists(target):
+                    try:
+                        os.chmod(target, stat.S_IREAD if sys.platform == "win32" else 0o444)
+                    except Exception:
+                        pass
                 return {
                     "decision": "deny",
                     "reason": (

@@ -136,6 +136,11 @@ class StaleApprovalError(StateManagementError):
     """Raised when an approval is applied to a modified or stale milestone state."""
     pass
 
+class MilestoneValidationRequiredError(StateManagementError):
+    """Raised when an APPROVED transition is attempted without a valid passing validation report."""
+    pass
+
+
 
 # ==============================================================================
 # Milestone Lifecycle & Legal Transitions
@@ -389,12 +394,19 @@ class StrictStateMachine:
                            required_input_artifacts: Optional[List[str]] = None,
                            required_output_artifacts: Optional[List[str]] = None,
                            active_agent: str = "academic-orchestrator",
-                           current_stage: str = "") -> Dict[str, Any]:
+                           current_stage: str = "",
+                           requires_validation: Optional[bool] = None) -> Dict[str, Any]:
         """Registers a milestone in CREATED state with explicit dependency validation."""
         dependencies = dependencies or []
         for dep in dependencies:
             if dep not in self.milestones:
                 raise UnknownDependencyError(f"Milestone '{milestone_id}' references unknown dependency '{dep}'.")
+
+        if requires_validation is None:
+            requires_validation = (
+                milestone_id.startswith(("M0_", "M1_", "M2_", "M3_", "M4_", "M5_", "M6_", "M7_", "M8_", "M9_")) or
+                any(m.get("milestone_id") == milestone_id for m in DEFAULT_MILESTONES)
+            )
 
         now_iso = datetime.now(timezone.utc).isoformat()
         entry = {
@@ -406,6 +418,7 @@ class StrictStateMachine:
             "dependencies": dependencies,
             "required_input_artifacts": required_input_artifacts or [],
             "required_output_artifacts": required_output_artifacts or [],
+            "requires_validation": requires_validation,
             "created_at": now_iso,
             "updated_at": now_iso,
             "history": [
@@ -481,7 +494,7 @@ class StrictStateMachine:
                             f"Milestone '{milestone_id}' cannot become READY because required input artifact '{art_rel}' is missing on disk."
                         )
 
-        # 4. Gate on Transition to APPROVED: Explicit Human Approval & Output Artifacts
+        # 4. Gate on Transition to APPROVED: Explicit Human Approval, Output Artifacts & Validation Report
         if target_enum == MilestoneState.APPROVED:
             matching_approvals = [
                 a for a in self.approvals
@@ -500,6 +513,52 @@ class StrictStateMachine:
                         raise MissingRequiredArtifactError(
                             f"Milestone '{milestone_id}' cannot become APPROVED because required output artifact '{art_rel}' is missing on disk."
                         )
+
+            # Mandatory validation report check
+            candidate_reports = []
+            direct_report = os.path.join(self.state_dir, "validation_report.json")
+            if os.path.isfile(direct_report):
+                candidate_reports.append(direct_report)
+
+            mid_report = os.path.join(self.state_dir, f"{milestone_id.lower()}_validation.json")
+            if os.path.isfile(mid_report):
+                candidate_reports.append(mid_report)
+
+            val_dir = os.path.join(self.state_dir, "validation")
+            if os.path.isdir(val_dir):
+                for vf in os.listdir(val_dir):
+                    if vf.endswith(".json"):
+                        candidate_reports.append(os.path.join(val_dir, vf))
+
+            for art in self.artifacts:
+                if isinstance(art, dict) and art.get("milestone_id") == milestone_id and art.get("artifact_type") in ["validation_report", "validation"]:
+                    art_p = art.get("filepath", "")
+                    art_full = art_p if os.path.isabs(art_p) else os.path.join(self.state_dir, art_p)
+                    if os.path.isfile(art_full):
+                        candidate_reports.append(art_full)
+
+            requires_val = current_data.get("requires_validation", False)
+            if not candidate_reports and requires_val:
+                raise MilestoneValidationRequiredError(
+                    f"Milestone '{milestone_id}' cannot become APPROVED without a passing validation report. "
+                    f"No validation_report.json or validation artifact found on disk."
+                )
+
+            for cr in set(candidate_reports):
+                try:
+                    with open(cr, "r", encoding="utf-8") as f:
+                        cdata = json.load(f)
+                    verdict = str(cdata.get("overall_verdict", cdata.get("verdict", ""))).strip().upper()
+                    if verdict != "PASS":
+                        raise MilestoneValidationRequiredError(
+                            f"Milestone '{milestone_id}' cannot become APPROVED: validation report '{os.path.basename(cr)}' "
+                            f"has non-passing verdict '{verdict}' (expected 'PASS')."
+                        )
+                except json.JSONDecodeError:
+                    raise MilestoneValidationRequiredError(
+                        f"Milestone '{milestone_id}' cannot become APPROVED: validation report '{os.path.basename(cr)}' is corrupt or unreadable."
+                    )
+
 
         # Apply transition
         now_iso = datetime.now(timezone.utc).isoformat()
