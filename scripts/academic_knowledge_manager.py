@@ -59,7 +59,8 @@ from contracts.contract_validator import (
     validate_anti_pattern,
     validate_exemplar,
     validate_lesson,
-    validate_skill_memory_record
+    validate_skill_memory_record,
+    validate_contradiction_record
 )
 
 
@@ -134,6 +135,9 @@ class AcademicKnowledgeManager:
         self.anti_patterns_dir = os.path.join(self.knowledge_dir, "anti-patterns")
         self.principles_dir = os.path.join(self.knowledge_dir, "principles")
         self.exemplars_dir = os.path.join(self.knowledge_dir, "exemplars")
+        self.contradictions_dir = os.path.join(self.knowledge_dir, "contradictions")
+        self.snapshots_dir = os.path.join(self.learning_dir, "snapshots")
+        self.skill_snapshots_dir = os.path.join(self.snapshots_dir, "skills")
 
         self._ensure_directories()
 
@@ -147,6 +151,9 @@ class AcademicKnowledgeManager:
             self.anti_patterns_dir,
             self.principles_dir,
             self.exemplars_dir,
+            self.contradictions_dir,
+            self.snapshots_dir,
+            self.skill_snapshots_dir,
             self.skill_memory_dir
         ]
         for cap in self.CANONICAL_CAPABILITIES:
@@ -561,6 +568,79 @@ class AcademicKnowledgeManager:
             })
         return contradictions
 
+    def add_contradiction_record(self, contradiction_dict: Dict[str, Any]) -> str:
+        """
+        Validate and store a detected contradiction record between learned directives.
+        Disambiguates competing rules with explicit contextual applicability conditions.
+        """
+        item = dict(contradiction_dict)
+        item.setdefault("contract_version", "1.0.0")
+        item.setdefault("status", "RESOLVED_WITH_CONDITIONS")
+        item.setdefault("detected_at", datetime.now(timezone.utc).isoformat())
+
+        if "contradiction_id" not in item:
+            item["contradiction_id"] = f"CTD-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+
+        val_res = validate_contradiction_record(item)
+        if not val_res["valid"]:
+            raise ContractValidationError(f"Invalid contradiction contract: {val_res.get('errors')}")
+
+        file_path = os.path.join(self.contradictions_dir, f"{item['contradiction_id']}.json")
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(item, f, indent=2, ensure_ascii=False)
+
+        self._append_index(
+            self.contradictions_dir,
+            {
+                "contradiction_id": item["contradiction_id"],
+                "target_skill": item["target_skill"],
+                "lesson_a_id": item["lesson_a_id"],
+                "lesson_b_id": item["lesson_b_id"],
+                "conflict_type": item["conflict_type"],
+                "status": item["status"],
+                "detected_at": item["detected_at"],
+                "file_path": file_path
+            }
+        )
+
+        # Link in relationship graph
+        self.link_items(
+            source_id=item["lesson_a_id"],
+            target_id=item["lesson_b_id"],
+            relation_type="contradicts",
+            description=f"Contradiction reconciled: {item['conflict_type']}"
+        )
+
+        return item["contradiction_id"]
+
+    def get_active_contradictions(
+        self,
+        target_skill: Optional[str] = None,
+        capability: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Retrieve active contradiction records to inform applicability conditions."""
+        canon_cap = self.normalize_capability(capability)
+        results = []
+        if not os.path.isdir(self.contradictions_dir):
+            return results
+
+        for fn in os.listdir(self.contradictions_dir):
+            if not fn.endswith(".json") or fn == "index.jsonl":
+                continue
+            fp = os.path.join(self.contradictions_dir, fn)
+            try:
+                with open(fp, "r", encoding="utf-8") as f:
+                    rec = json.load(f)
+                if target_skill and rec.get("target_skill") != target_skill:
+                    continue
+                if canon_cap and canon_cap.lower() not in json.dumps(rec).lower():
+                    continue
+                results.append(rec)
+            except Exception:
+                continue
+
+        return results
+
     # -------------------------------------------------------------------------
     # Versioning & Superseding
     # -------------------------------------------------------------------------
@@ -827,6 +907,7 @@ class AcademicKnowledgeManager:
         tags: Optional[List[str]] = None,
         project_id: Optional[str] = None,
         item_types: Optional[List[str]] = None,
+        include_superseded: bool = False,
         limit: int = 20
     ) -> List[Dict[str, Any]]:
         """
@@ -862,6 +943,11 @@ class AcademicKnowledgeManager:
                     with open(fp, "r", encoding="utf-8") as f:
                         item = json.load(f)
                 except Exception:
+                    continue
+
+                # 0. Active Status Gate: exclude obsolete, superseded, or rejected items by default
+                status = item.get("status")
+                if not include_superseded and status in ["RETIRED_OBSOLETE", "SUPERSEDED", "REJECTED", "DEPRECATED"]:
                     continue
 
                 # 1. Scope Containment Gate
@@ -1042,6 +1128,7 @@ class AcademicKnowledgeManager:
             "exemplars": exemplars,
             "principles": principles,
             "patterns": patterns,
+            "contradictions": self.get_active_contradictions(target_skill=skill, capability=canon_cap),
             "capability_summary": {
                 "total_invocations": cap_memory.get("total_invocations", 0) if cap_memory else 0,
                 "success_count": cap_memory.get("success_count", 0) if cap_memory else 0,

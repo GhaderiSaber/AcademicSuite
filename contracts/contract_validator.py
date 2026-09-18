@@ -61,7 +61,8 @@ SCHEMA_FILES = {
     "evaluation_result": "evolution/evaluation_result.schema.json",
     "promotion_decision": "evolution/promotion_decision.schema.json",
     "capability_profile": "evolution/capability_profile.schema.json",
-    "curriculum_task": "evolution/curriculum_task.schema.json"
+    "curriculum_task": "evolution/curriculum_task.schema.json",
+    "contradiction_record": "evolution/contradiction_record.schema.json"
 }
 
 
@@ -208,4 +209,8 @@ def validate_capability_profile(instance: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_curriculum_task(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "curriculum_task")
+
+
+def validate_contradiction_record(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "contradiction_record")
 

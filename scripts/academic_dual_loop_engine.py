@@ -59,6 +59,7 @@ from scripts.academic_evaluation_lab import AcademicEvaluationLab
 from scripts.academic_counterfactual_evaluator import AcademicCounterfactualEvaluator
 from scripts.academic_promotion_engine import AcademicPromotionEngine
 from scripts.academic_curriculum_builder import AcademicCurriculumBuilder
+from scripts.academic_behavior_consolidator import AcademicBehaviorConsolidator
 
 
 class DualLoopError(Exception):
@@ -153,6 +154,7 @@ class AcademicDualLoopEngine:
         self.counterfactual_evaluator = AcademicCounterfactualEvaluator(base_dir=self.base_dir)
         self.promotion_engine = AcademicPromotionEngine(base_dir=self.base_dir)
         self.curriculum_builder = AcademicCurriculumBuilder(base_dir=self.base_dir)
+        self.consolidator = AcademicBehaviorConsolidator(base_dir=self.base_dir)
 
     # -------------------------------------------------------------------------
     # Telemetry & Cooldown Tracking
@@ -566,11 +568,15 @@ class AcademicDualLoopEngine:
                     "promotion_result": promotion_res
                 })
 
+            # 7. Run Periodic Consolidation of Learned Behavior
+            consolidation_report = self.consolidator.run_periodic_consolidation(dry_run=False)
+
             return {
                 "loop": "SLOW",
                 "status": "COMPLETED",
                 "evolved_capabilities_count": len(slow_loop_results),
-                "details": slow_loop_results
+                "details": slow_loop_results,
+                "consolidation": consolidation_report
             }
 
     # -------------------------------------------------------------------------
@@ -656,6 +662,7 @@ def main():
     parser = argparse.ArgumentParser(description="AcademicSuite Dual Evolution Loops Engine")
     parser.add_argument("--fast-loop", action="store_true", help="Trigger Fast Evolution Loop")
     parser.add_argument("--slow-loop", action="store_true", help="Trigger Slow Evolution Loop")
+    parser.add_argument("--consolidate", action="store_true", help="Trigger periodic behavior consolidation")
     parser.add_argument("--prompt", type=str, default="Analyze study results.", help="Task prompt for fast loop")
     parser.add_argument("--correction", type=str, default=None, help="User correction message")
     parser.add_argument("--skill", type=str, default="statistical-data-analyst", help="Target skill")
@@ -675,6 +682,11 @@ def main():
 
     if args.slow_loop:
         res = engine.run_slow_loop(top_weaknesses=2)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        sys.exit(0)
+
+    if args.consolidate:
+        res = engine.consolidator.run_periodic_consolidation(target_skill=args.skill if args.skill != "statistical-data-analyst" else None)
         print(json.dumps(res, indent=2, ensure_ascii=False))
         sys.exit(0)
 

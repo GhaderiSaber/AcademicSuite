@@ -89,7 +89,23 @@ def format_markdown_briefing(briefing: Dict[str, Any]) -> str:
         lines.append("- *No specific exemplar registered for this task.*")
     lines.append("")
 
-    # 4. Capability Telemetry & Calibrated Defaults
+    # 4. Reconciled Methodological Contradictions & Applicability Bounds
+    contradictions = briefing.get("contradictions", [])
+    if contradictions:
+        lines.append("#### ⚖️ Reconciled Methodological Contradictions & Applicability Bounds:")
+        for ctd in contradictions:
+            cid = ctd.get("contradiction_id", "CTD")
+            ctype = ctd.get("conflict_type", "CONFLICT")
+            desc = ctd.get("description", "")
+            conds = ctd.get("applicability_conditions", {})
+            lines.append(f"- **[{cid}] {ctype}**: {desc}")
+            if conds.get("condition_for_a"):
+                lines.append(f"  *When Rule A applies*: {conds.get('condition_for_a')}")
+            if conds.get("condition_for_b"):
+                lines.append(f"  *When Rule B applies*: {conds.get('condition_for_b')}")
+        lines.append("")
+
+    # 5. Capability Telemetry & Calibrated Defaults
     cap_sum = briefing.get("capability_summary")
     if cap_sum and cap_sum.get("total_invocations", 0) > 0:
         lines.append("#### 🎯 Calibrated Parameter Defaults & Known Operational Bounds:")

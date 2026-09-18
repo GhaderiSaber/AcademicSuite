@@ -159,6 +159,7 @@
         "VALIDATED",
         "REJECTED",
         "SUPERSEDED",
+        "RETIRED_OBSOLETE",
         "PROMOTED_TO_KNOWLEDGE"
       ]
     },
@@ -169,6 +170,39 @@
     "derived_by": {
       "type": "string",
       "description": "Diagnostician agent deriving the lesson (e.g. academic-challenger, statistical-auditor)."
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "source_lessons": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "source_experiences": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "supporting_evaluations": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "consolidated_at": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "superseded_by": {
+      "type": "string"
+    },
+    "superseded_at": {
+      "type": "string"
+    },
+    "obsolete_reason": {
+      "type": "string"
+    },
+    "retired_at": {
+      "type": "string"
     }
   },
   "additionalProperties": false
