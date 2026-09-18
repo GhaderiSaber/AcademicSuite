@@ -8,7 +8,6 @@
     "contract_version",
     "lesson_id",
     "source_experience_id",
-    "observed_failure",
     "desired_behavior",
     "generalization",
     "scope",
@@ -28,9 +27,48 @@
       "type": "string",
       "description": "Unique identifier for this lesson record (e.g. LSN-2026-CH4-001)."
     },
+    "lesson_type": {
+      "type": "string",
+      "enum": ["WHAT_NOT_TO_DO", "WHAT_WORKED_WELL"],
+      "default": "WHAT_NOT_TO_DO",
+      "description": "Distinguishes failure prevention lessons (WHAT NOT TO DO) from positive exemplar lessons (WHAT WORKED WELL)."
+    },
+    "trigger_source": {
+      "type": "string",
+      "enum": [
+        "USER_FEEDBACK",
+        "VALIDATOR_FAILURE",
+        "CHALLENGER_FAILURE",
+        "AUDITOR_FAILURE",
+        "SUCCESSFUL_TRAJECTORY",
+        "REPEATED_REVISION",
+        "RECURRING_MISTAKE"
+      ]
+    },
     "source_experience_id": {
       "type": "string",
       "description": "Pointer to the originating experience ID (e.g. EXP-2026-CH4-001)."
+    },
+    "diagnosis": {
+      "type": "object",
+      "description": "Structured breakdown answering what happened, causal behavior, required behavior, and rationale.",
+      "properties": {
+        "what_happened": {"type": "string", "minLength": 5},
+        "behavior_caused_outcome": {"type": "string", "minLength": 5},
+        "what_should_have_happened": {"type": "string", "minLength": 5},
+        "rationale_why": {"type": "string", "minLength": 5}
+      },
+      "additionalProperties": false
+    },
+    "applicability_conditions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Explicit preconditions under which this lesson applies."
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Scenarios or designs where this lesson explicitly does not apply."
     },
     "observed_failure": {
       "type": "object",
@@ -92,6 +130,10 @@
         "observed_value": {},
         "threshold_value": {},
         "supporting_report_ids": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "supporting_artifact_paths": {
           "type": "array",
           "items": {"type": "string"}
         }
