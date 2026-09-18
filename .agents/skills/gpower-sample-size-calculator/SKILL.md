@@ -1,101 +1,117 @@
 ---
 name: gpower-sample-size-calculator
-description: A priori, post hoc, and sensitivity statistical power analysis (G*Power
-  3.1 & Cohen 1988) for t-tests, ANOVA, ANCOVA, regression, mediation, and SEM.
+description: A priori, post hoc, and sensitivity statistical power analysis (G*Power 3.1 & Cohen 1988) for t-tests, ANOVA, ANCOVA, regression, mediation, and SEM.
 ---
 
-# `gpower-sample-size-calculator` — Academic Sample Size & Power Determination Engine (Skill #21)
+# G*Power Sample Size Calculator & Power Analysis Skill
 
-`gpower-sample-size-calculator` is the official academic sample size justification and statistical power analysis engine of the **AcademicSuite**. It provides exact, defense-ready sample size calculations and power curve visualizations adhering strictly to Cohen's (1988) power framework and Faul et al.'s (2007, 2009) G*Power 3.1.9.7 algorithms.
-
----
-
-## 1. When to Activate This Skill
-
-Activate this skill whenever:
-- The user requests **calculating sample size** or **statistical power** for a research proposal, dissertation Chapter 3, or journal article.
-- The user asks: *"How many subjects do I need for an ANCOVA with 2 groups and 1 pre-test covariate?"*
-- The user asks for a **G*Power calculation** or **power curve figure** for their defense presentation.
-- The user needs an **official Chapter 3 methodology writeup** citing Faul et al. (2007, 2009) and Cohen (1988).
-- The user wants to conduct a **sensitivity analysis** (what is the minimum detectable effect size for my sample of $N = 60$?).
-- The user needs to verify sample size adequacy for **Structural Equation Modeling (SEM)** or **Confirmatory Factor Analysis (CFA)** using Westland (2010) or Bentler & Chou (1987) rules.
+This skill provides deterministic statistical power calculations, sample size justifications, and power curve visualizations following Cohen's (1988) power framework and Faul et al.'s (2007, 2009) G*Power 3.1 algorithms.
 
 ---
 
-## 2. Statistical Test Families Supported
+## 1. WHEN TO USE (Activation Criteria)
+Activate this skill when:
+- Conducting *A Priori* power analysis to determine required minimum sample size $N$ for a research proposal, grant, or Chapter 3 methodology.
+- Conducting *Post Hoc* power analysis to determine achieved power ($1-\beta$) given sample size, observed effect size, and $\alpha$.
+- Conducting *Sensitivity* power analysis to determine minimum detectable effect size for a fixed available sample.
+- Calculating required sample sizes for ANCOVA, ANOVA, Repeated Measures, Multiple Regression, $t$-tests, or SEM/CFA.
 
-1. **Analysis of Covariance (ANCOVA)**:
-   - Evaluates required $N$ controlling for $c$ baseline covariates across $k$ experimental groups.
-   - Non-centrality $\lambda = f^2 \times N$, $df_1 = k - 1, df_2 = N - k - c$.
-2. **Analysis of Variance (ANOVA)**:
-   - One-Way ANOVA, Factorial ANOVA ($2 \times 2, 2 \times 3, 3 \times 3$).
-3. **Repeated Measures ANOVA**:
-   - Within factors, Between-Within interaction across $m$ measurements with correlation $r$ and sphericity correction $\epsilon$.
-4. **Multiple Linear Regression**:
-   - Fixed model ($R^2$ deviation from zero), hierarchical step 2 $R^2$ increase ($f^2 = \frac{R^2}{1-R^2}$).
-5. **$t$-Tests**:
-   - Independent samples $t$-test (with group allocation ratio $\kappa = n_2/n_1$), Paired samples $t$-test ($d_z$).
-6. **Bivariate Correlation**:
-   - Pearson $r$ (two-tailed / one-tailed).
-7. **Structural Equation Modeling (SEM / CFA)**:
-   - Westland (2010) lower-bound sample sizes, Bentler-Chou $10:1$ parameter ratio, and Kline (2015) graduate consensus thresholds ($N \ge 200$).
+## 2. WHEN NOT TO USE (Exclusion Criteria)
+Do NOT use this skill when:
+- The task requires running inferential hypothesis tests on an empirical dataset $\to$ use `statistical-data-analyst`.
+- The task requires sampling design strategy, cluster sampling weights, or sampling frame selection $\to$ use `methodology-review`.
+- The task requires psychometric item parameter recovery in IRT $\to$ use `psychometric-scale-validator`.
 
----
+## 3. REQUIRED DATA
+- **Analysis Type**: `a_priori`, `post_hoc`, or `sensitivity`.
+- **Target Test**: `ancova`, `anova`, `regression`, `t_test_ind`, `t_test_paired`, `correlation`, or `sem`.
+- **Design Parameters**:
+  - $\alpha$ level (standard $.05$).
+  - Desired power $1-\beta$ (standard $.80$ to $.95$).
+  - Anticipated effect size ($d = 0.50$ medium, $f = 0.25$ medium, $f^2 = 0.15$ medium, $r = 0.30$ medium).
+  - Number of groups, covariates, or predictors.
 
-## 3. Cohen's Effect Size Benchmarks
+## 4. ASSUMPTIONS
+1. **Accurate Effect Size Estimation**: Effect sizes should derive from published meta-analyses or Cohen's empirical benchmarks, never arbitrarily inflated.
+2. **Type I Error Rate ($\alpha$)**: Standard two-tailed $\alpha = .05$ unless directional hypothesis justification is established.
+3. **Non-Central Distributions**: Power calculations rely on non-central $t$, $F$, or $\chi^2$ distributions with non-centrality parameter $\lambda$.
+4. **Sample Homogeneity and Equal Allocation**: Default assumes equal group sizes unless allocation ratio $\kappa$ is explicitly declared.
 
-| Metric | Small | Medium (Standard) | Large |
-| :---: | :---: | :---: | :---: |
-| **Cohen's $d$** ($t$-tests) | $0.20$ | **$0.50$** | $0.80$ |
-| **Cohen's $f$** (ANOVA/ANCOVA) | $0.10$ | **$0.25$** | $0.40$ |
-| **Cohen's $f^2$** (Regression) | $0.02$ | **$0.15$** | $0.35$ |
-| **Pearson $r$** (Correlation) | $0.10$ | **$0.30$** | $0.50$ |
+## 5. DECISION TREE
 
----
+```
+Power Analysis & Sample Size Determination
+  │
+  ├─► Analysis Goal:
+  │     ├─► Planning Stage (Sample size unknown):
+  │     │     └─► [A Priori Analysis] -> Input: alpha, power (0.80/0.85), effect size -> Output: Required N
+  │     ├─► Post-Data Collection (Sample size fixed):
+  │     │     └─► [Post Hoc Analysis] -> Input: alpha, N, observed effect size -> Output: Achieved Power (1 - beta)
+  │     └─► Resource-Constrained (Fixed N available):
+  │           └─► [Sensitivity Analysis] -> Input: alpha, power (0.80), N -> Output: Minimum Detectable Effect
+  │
+  └─► Statistical Test Family:
+        ├─► Group Comparisons with Covariates:
+        │     └─► [ANCOVA]: df1 = groups - 1, df2 = N - groups - covariates, lambda = f^2 × N
+        ├─► Multi-Group Mean Comparisons:
+        │     └─► [ANOVA]: One-Way (f), Factorial (f), Repeated-Measures (epsilon, correlation)
+        ├─► 2-Group Comparison:
+        │     ├─► Independent: [t-test Independent] (Cohen's d, allocation ratio)
+        │     └─► Within-Subjects: [t-test Paired] (Cohen's dz)
+        ├─► Regression & Prediction:
+        │     └─► [Multiple Linear Regression]: f^2 = R^2 / (1 - R^2), number of predictors
+        └─► Latent Variable SEM / CFA:
+              ├─► Westland (2010) lower-bound sample algorithm
+              └─► Rule-of-thumb: Bentler-Chou 10:1 ratio; Kline (2016) N >= 200 threshold
+```
 
-## 4. CLI Command Reference
-
-### Standard ANCOVA Calculation (Persian Chapter 3 Report):
+## 6. EXECUTION SCRIPT
+Deterministic calculation and deliverable compilation:
 ```bash
+# ANCOVA Power Analysis (Persian Chapter 3 output):
 python3 .agents/skills/gpower-sample-size-calculator/scripts/gpower_engine.py \
   --test ancova \
   --groups 2 \
   --covariates 1 \
   --power 0.85 \
   --effect-size 0.25 \
-  --out-dir "./sample_size_ancova" \
+  --out-dir "gpower_results_ancova" \
   --lang fa
-```
 
-### Multiple Regression Calculation (English Mode):
-```bash
+# Multiple Regression Power Analysis:
 python3 .agents/skills/gpower-sample-size-calculator/scripts/gpower_engine.py \
   --test regression \
   --predictors 4 \
   --power 0.80 \
   --effect-size 0.15 \
-  --out-dir "./sample_size_regression" \
+  --out-dir "gpower_results_regression" \
   --lang en
 ```
 
-### Full Multi-Test JSON Payload:
-```bash
-python3 .agents/skills/gpower-sample-size-calculator/scripts/gpower_engine.py \
-  --json "sample_gpower_payload.json" \
-  --out-dir "./gpower_results" \
-  --lang fa
-```
+## 7. OUTPUT CONTRACT
+The engine generates:
+- `gpower_results.json`:
+  ```json
+  {
+    "test": "ANCOVA",
+    "analysis_type": "a_priori",
+    "alpha": 0.05,
+    "power": 0.85,
+    "effect_size_f": 0.25,
+    "num_groups": 2,
+    "num_covariates": 1,
+    "critical_f": 4.07,
+    "required_n": 58,
+    "actual_power": 0.854,
+    "citations": ["Faul et al. (2007)", "Cohen (1988)"]
+  }
+  ```
+- Physical institutional OpenXML Word deliverable: `GPower_Sample_Size_Report.docx`.
+- 300-DPI publication power curve: `power_curve_plot.png`.
+- 4-sheet calculation workbook: `sample_size_calculator_matrix.xlsx`.
 
----
-
-## 5. Generated Deliverables
-
-1. **`گزارش_محاسبه_حجم_نمونه_جی‌پاور.docx`** (or `GPower_Sample_Size_Report.docx`):
-   - Professional Word document formatted with native RTL OpenXML BiDi and authentic Iranian typography (*B Titr*, *B Nazanin*, *Times New Roman*).
-   - Chapter 3 ready-to-paste narrative paragraph, APA 7 parameter input-output table, and embedded 300-DPI power curve figure.
-2. **`power_curve_plot.png` (300 DPI)**:
-   - High-resolution dual-panel figure: Left panel displays Power ($1-\beta$) vs Sample Size ($N$) across Small, Medium, Large effect sizes; Right panel displays the central vs non-central critical distribution.
-3. **`sample_size_calculator_matrix.xlsx`**:
-   - 4-sheet Excel workbook: `Executive Summary`, `Power Curve Data`, `Sensitivity Analysis`, `SEM & CFA Rules`.
-4. **`gpower_results.json`**:
-   - Machine-readable results schema for seamless integration into research proposals and dissertation pipelines.
+## 8. VALIDATION
+- Total required $N$ must round UP to the nearest integer.
+- Actual achieved power must equal or exceed target power ($1-\beta \ge \text{target}$).
+- Group allocation ratios must yield integer sample allocations per cell.
+- Persian Word deliverable must strictly enforce OpenXML BiDi RTL (`<w:bidi w:val="1"/>`) and `B Nazanin` / `B Titr` typography.

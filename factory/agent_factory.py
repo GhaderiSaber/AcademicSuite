@@ -690,6 +690,7 @@ def create_agent(
     create_symlink: bool = False,
     validate: bool = True,
     allow_name_collision: bool = False,
+    available_skills: Optional[Set[str]] = None,
     **kwargs: Any,
 ) -> Dict[str, Any]:
     """
@@ -704,17 +705,26 @@ def create_agent(
         )
 
     if spec is None:
-        agent_name = name or ""
-        agent_role = role or ""
-        agent_desc = description or ""
-        agent_skills = skills or []
-        agent_mission = mission or f"Execute domain analytical workflows for {agent_role}."
-        agent_rules = decision_rules or ["Always execute deterministic scripts on real data."]
-        agent_anti = anti_patterns
-
+        if not name:
+            raise ValueError("Must provide either an AgentSpec or name.")
+        agent_name = name
+        agent_role = role or f"{name.replace('-', ' ').title()} Specialist"
+        agent_desc = description or f"Specialist agent for {agent_name}."
+        agent_mission = mission or f"Deliver flawless results for {agent_name}."
+        agent_rules = decision_rules or [
+            "Produce synchronized triad deliverables (.docx, .md, .json) for every micro-stage.",
+            "Execute deterministic Python calculation scripts on the real dataset.",
+            "Enforce APA 7th Edition reporting and never omit the Persian leading zero.",
+        ]
+        agent_anti = anti_patterns or [
+            "Calculating or hallucinating statistics mentally.",
+            "Skipping micro-stages without generating physical triad artifacts on disk.",
+            "Using non-ASCII English characters in generated filenames.",
+        ]
+        agent_skills = skills if skills is not None else [agent_name, "apa-reporting"]
         is_main = mainAgent if mainAgent is not None else False
         is_sub = subagent if subagent is not None else True
-        selected_model = model or ("pro" if is_main else "inherit")
+        selected_model = model or "inherit"
         policy = commandExecutionPolicy or "request-review"
 
         default_tools = (
@@ -761,7 +771,16 @@ def create_agent(
         )
 
     if validate:
-        validate_agent_spec(spec, allow_name_collision=allow_name_collision)
+        if available_skills is None and target_dir:
+            skills_candidate = os.path.abspath(os.path.join(target_dir, "..", "skills"))
+            if os.path.isdir(skills_candidate):
+                available_skills = get_available_skills(skills_candidate)
+                available_skills.update(get_available_skills(SKILLS_DIR))
+        validate_agent_spec(
+            spec,
+            allow_name_collision=allow_name_collision,
+            available_skills=available_skills,
+        )
 
     out_dir = target_dir or AGENTS_DIR
     agent_dir = os.path.join(out_dir, spec.name)

@@ -1,143 +1,129 @@
 ---
 name: systematic-review-meta-analyst
-description: 'PRISMA 2020 systematic reviews and meta-analysis: PICO search, Cochrane
-  RoB 2, Hedges'' g pooling, heterogeneity, publication bias, and Forest/Funnel plot
-  generation.'
+description: PRISMA 2020 systematic reviews and meta-analysis including PICO search, Cochrane RoB 2, Hedges' g pooling, heterogeneity, publication bias, and Forest/Funnel plot generation.
 ---
 
-# Systematic Review & Meta-Analyst Skill (مرور سیستماتیک و فراتحلیل بر اساس PRISMA 2020)
+# Systematic Review & Meta-Analyst Skill
 
-This skill empowers Antigravity to act as an elite evidence synthesis specialist and quantitative meta-analyst. It navigates the complete lifecycle of **Systematic Reviews and Meta-Analyses** (Level 1 scientific evidence) according to **PRISMA 2020 (Preferred Reporting Items for Systematic Reviews and Meta-Analyses)** and the **Cochrane Handbook for Systematic Reviews of Interventions**.
+This skill empowers Antigravity to act as an evidence synthesis specialist and quantitative meta-analyst. It navigates the complete lifecycle of Systematic Reviews and Meta-Analyses according to PRISMA 2020 and the Cochrane Handbook for Systematic Reviews of Interventions.
 
 ---
 
-## 1. When to Activate This Skill
-
+## 1. WHEN TO USE (Activation Criteria)
 Activate this skill when:
-1. The user requests conducting or reporting a **Systematic Review (مرور سیستماتیک)** or **Meta-Analysis (فراتحلیل)** in psychology, psychiatry, counseling, or behavioral medicine.
-2. The user needs to construct a **PRISMA 2020 Flow Diagram** documenting study identification, screening, eligibility, and inclusion numbers.
-3. The user needs to evaluate the methodological quality or risk of bias of studies using **Cochrane RoB 2 (Randomized Controlled Trials)** or **ROBINS-I (Non-randomized studies)**.
-4. The user has study-level quantitative data ($N$, Mean, SD, or events/totals) and needs to pool effect sizes (**Cohen's $d$, Hedges' $g$, Odds Ratio**), compute heterogeneity ($Q$, $I^2$, $\tau^2$), and test publication bias (**Egger's test**, Begg's test).
-5. The user needs to generate publication-grade **Forest Plots** and **Funnel Plots** or compile an APA 7 synthesis Word document (`.docx`).
+- Conducting or reporting a Systematic Review or Meta-Analysis in behavioral, psychological, or medical sciences.
+- Documenting study selection attrition via a PRISMA 2020 4-phase flow diagram (Identification, Screening, Eligibility, Inclusion).
+- Appraising study risk of bias using Cochrane RoB 2 (RCTs) or ROBINS-I (Non-randomized studies).
+- Pooling study-level effect sizes into Hedges' $g$ (or Cohen's $d$, Odds Ratios) with small-sample bias correction.
+- Evaluating statistical heterogeneity ($Q, I^2, \tau^2$) and testing publication bias via Egger's linear regression and Begg's rank test.
+- Generating publication-grade 300-DPI Forest plots and Funnel plots.
 
----
+## 2. WHEN NOT TO USE (Exclusion Criteria)
+Do NOT use this skill when:
+- The task is a traditional narrative literature review for Chapter 2 $\to$ use `persian-literature-review-builder`.
+- The task is primary empirical data collection or hypothesis testing on a single participant dataset $\to$ use `statistical-data-analyst`.
+- The task is searching scientific databases for initial bibliographic citation mapping $\to$ use `literature-harvester` or `bibliometric-network-analyst`.
 
-## 2. Evidence Synthesis Architecture & Lifecycle
+## 3. REQUIRED DATA
+- **Study Extraction Data**: Extracted parameters per study:
+  - Study identification: Author, year, sample sizes ($n_1, n_2$).
+  - Quantitative outcomes: Means and standard deviations ($M_1, SD_1, M_2, SD_2$) or binary event rates ($e_1, n_1, e_2, n_2$).
+- **PRISMA Tracking Counts**: Record counts across Identification, Screening, Eligibility, and Inclusion.
+- **Risk of Bias Assessments**: Judgments across the 5 Cochrane RoB 2 domains.
+
+## 4. ASSUMPTIONS
+1. **Conceptual Homogeneity**: Included studies share sufficient methodological similarity to justify a pooled summary estimate.
+2. **Small-Sample Adjustment**: Cohen's $d$ is positively biased in small samples; Hedges' $g$ correction ($J = 1 - \frac{3}{4df - 1}$) is mandatory.
+3. **Model Selection**:
+   - Fixed-Effect Model: Assumes a single true effect size; appropriate only when studies are functionally identical and $I^2 < 25\%$.
+   - Random-Effects Model (DerSimonian-Laird): Assumes a distribution of true effects; mandatory when clinical or methodological heterogeneity exists ($I^2 \ge 25\%$).
+4. **Publication Bias**: Funnel plot symmetry implies absence of small-study reporting bias; tested via Egger's regression ($p < .05$ indicates asymmetry).
+
+## 5. DECISION TREE
 
 ```
-[PICO Research Question & Scope]
-               │
-               ▼
-[Phase 1: Identification]
-├── Boolean search across PubMed, Scopus, WoS, PsycINFO, Magiran, SID
-└── Automated deduplication tracking
-               │
-               ▼
-[Phase 2: Screening]
-├── Title and abstract screening based on inclusion/exclusion criteria
-└── Document reasons for exclusion
-               │
-               ▼
-[Phase 3: Eligibility & Appraisal]
-├── Full-text retrieval and eligibility assessment
-└── Cochrane RoB 2 appraisal across 5 domains
-               │
-               ▼
-[Phase 4: Quantitative Synthesis & Meta-Analysis]
-├── Effect size computation (Hedges' g with small-sample correction)
-├── Model pooling: Fixed-Effect & Random-Effects (DerSimonian-Laird)
-├── Heterogeneity triage (Cochran's Q, Higgins' I², Tau²)
-├── Publication bias diagnostics (Egger's regression, Funnel plot)
-└── Visual Forest Plot & APA 7 Systematic Review Manuscript (.docx)
+Systematic Review & Meta-Analytic Workflow
+  │
+  ├─► Study Selection & Screening:
+  │     └─► [PRISMA 2020 Protocol]
+  │           - Track Identification -> Screening -> Eligibility -> Inclusion
+  │           - Generate 4-phase PRISMA flow diagram
+  │
+  ├─► Methodological Quality Appraisal:
+  │     ├─► Randomized Controlled Trials (RCTs):
+  │     │     └─► [Cochrane RoB 2 (5 Domains)]
+  │     │           - D1: Randomization, D2: Deviations, D3: Missing data,
+  │     │             D4: Measurement, D5: Selection of reported result
+  │     └─► Non-Randomized Studies:
+  │           └─► [ROBINS-I Tool]
+  │
+  └─► Quantitative Synthesis (Meta-Analysis):
+        ├─► Effect Size Metric:
+        │     ├─► Continuous: Convert to Hedges' g (small-sample J correction)
+        │     └─► Binary: Odds Ratio (OR) / Risk Ratio (RR)
+        │
+        ├─► Heterogeneity Evaluation:
+        │     ├─► Cochran's Q (p < .10 indicates significant heterogeneity)
+        │     ├─► Higgins' I²:
+        │     │     ├─► I² < 25% (Low): Fixed-Effect Model (Inverse-Variance)
+        │     │     └─► I² >= 25% (Moderate to High): Random-Effects Model (DerSimonian-Laird)
+        │     └─► Between-study variance tau²
+        │
+        └─► Publication Bias & Small-Study Effects:
+              ├─► Egger's Linear Regression (Significant intercept p < .05 = Bias)
+              ├─► Begg & Mazumdar Rank Correlation
+              └─► Funnel Plot Visual Inspection with Pseudo 95% Confidence Bounds
 ```
 
----
-
-## 3. Methodological Pillars & Standards
-
-### Pillar A: PRISMA 2020 Compliance
-- Strict tracking across the 4 stages of the PRISMA 2020 statement:
-  1. *Identification*: Records identified from databases, registers, and other sources.
-  2. *Screening*: Records screened by title and abstract, and duplicates removed.
-  3. *Eligibility*: Full-text reports assessed against explicit inclusion and exclusion criteria.
-  4. *Inclusion*: Studies included in qualitative systematic review and quantitative meta-analysis.
-- Comprehensive 27-item checklist verification.
-
-### Pillar B: Cochrane Risk of Bias 2 (RoB 2) Appraisal
-Each randomized trial is evaluated across 5 mandatory bias domains:
-- **Domain 1**: Bias arising from the randomization process (allocation sequence concealment, baseline balance).
-- **Domain 2**: Bias due to deviations from intended interventions (blinding of participants and personnel).
-- **Domain 3**: Bias due to missing outcome data (attrition rates, intention-to-treat analysis).
-- **Domain 4**: Bias in measurement of the outcome (blinding of outcome assessors, standardized instruments).
-- **Domain 5**: Bias in selection of the reported result (pre-registered protocol / trial registry alignment).
-- **Overall Judgment**: Categorized as *Low risk of bias*, *Some concerns*, or *High risk of bias*.
-
-### Pillar C: Deterministic Meta-Analytic Algebra
-- **Small-Sample Bias Correction**: Always converts Cohen's $d$ into **Hedges' $g$** via the exact correction factor:
-  $$J = 1 - \frac{3}{4(N_1 + N_2 - 2) - 1}$$
-  $$g = d \times J$$
-- **Dual Pooling Models**:
-  - *Fixed-Effect Model*: Weighted by inverse variance ($w_i = 1 / v_i$).
-  - *Random-Effects Model*: Incorporates between-study variance via the DerSimonian-Laird estimator:
-    $$\tau^2 = \max\left(0, \frac{Q - (k - 1)}{\sum w_i - \frac{\sum w_i^2}{\sum w_i}}\right)$$
-    $$w_i^* = \frac{1}{v_i + \tau^2}$$
-- **Heterogeneity Reporting**:
-  - Cochran's $Q$ test ($df = k - 1, p_Q$).
-  - Higgins' $I^2 = \max\left(0, \frac{Q - df}{Q}\right) \times 100\%$ ($< 25\%$ Low, $25\% - 75\%$ Moderate, $> 75\%$ High).
-  - Between-study variance $\tau^2$ and standard deviation $\tau$.
-- **Publication Bias**:
-  - **Egger's Linear Regression**: Regresses standardized effect size ($SND = g_i / SE_i$) on precision ($1 / SE_i$). Significant intercept ($p < .05$) indicates funnel plot asymmetry and publication bias.
-  - Begg and Mazumdar's rank correlation test.
-
----
-
-## 4. Execution Workflow
-
-### Step 1: Prepare Study-Level Payload
-Format extracted study parameters and screening counts into `meta_analysis_payload.json` following the schema in `examples/sample_meta_analysis_payload.json`.
-
-### Step 2: Run Meta-Analysis Engine
-Execute the Python computational pipeline:
+## 6. EXECUTION SCRIPT
+Deterministic execution scripts:
 ```bash
+# 1. Run quantitative meta-analysis pipeline:
 python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engine.py \
-  --json study_data.json \
-  --out-dir ./meta_analysis_results \
-  --lang en
-```
-For Persian thesis or journal publication (ISC):
-```bash
-python3 .agents/skills/systematic-review-meta-analyst/scripts/meta_analysis_engine.py \
-  --json study_data.json \
-  --out-dir ./meta_analysis_results_fa \
+  --json "study_data.json" \
+  --out-dir "meta_analysis_results" \
   --lang fa
-```
 
-### Step 3: Generate High-Resolution PRISMA 2020 Flowchart (Optional / Dedicated Figure)
-To generate a standalone 300-DPI vector-quality PRISMA 2020 4-phase flow diagram:
-```bash
+# 2. Render 300-DPI PRISMA 2020 Flowchart:
 python3 .agents/skills/systematic-review-meta-analyst/scripts/generate_prisma_flowchart.py \
-  --json study_data.json \
-  --out ./meta_analysis_results/prisma_2020_flowchart.png \
-  --dpi 300 \
-  --lang en
-```
-Or for Persian thesis/defense:
-```bash
-python3 .agents/skills/systematic-review-meta-analyst/scripts/generate_prisma_flowchart.py \
-  --json study_data.json \
-  --out ./meta_analysis_results/نمودار_جریان_پریسما_۲۰۲۰.png \
+  --json "study_data.json" \
+  --out "meta_analysis_results/prisma_2020_flowchart.png" \
   --dpi 300 \
   --lang fa
 ```
 
-### Step 4: Inspect Generated Deliverables
-1. **`prisma_2020_flowchart.png`**: Publication-grade 4-phase PRISMA 2020 flow diagram documenting exact study attrition across Identification, Screening, Eligibility, and Inclusion.
-2. **`forest_plot.png`**: High-resolution forest plot illustrating each study's effect size ($g$), 95% CI, relative weight (%), and the pooled summary diamond.
-3. **`funnel_plot.png`**: Funnel plot of precision ($1 / SE$) or $SE$ vs. effect size with pseudo 95% confidence bounds.
-4. **`Meta_Analysis_Report.docx`**: APA 7 formatted synthesis containing:
-   - PRISMA 2020 Flow Numbers.
-   - Characteristics of Included Studies Table.
-   - Cochrane RoB 2 Quality Assessment Matrix.
-   - Quantitative Meta-Analysis Results Table (Pooled $g$, 95% CI, $Z$, $p$, $Q$, $I^2$, $\tau^2$, Egger's $t$ & $p$).
-   - Embedded Forest and Funnel plots.
-   - Narrative synthesis and clinical interpretation.
+## 7. OUTPUT CONTRACT
+The skill produces:
+- `meta_analysis_results.json`:
+  ```json
+  {
+    "model_type": "Random-Effects (DerSimonian-Laird)",
+    "k_studies": 14,
+    "total_n": 1240,
+    "pooled_hedges_g": 0.54,
+    "ci_95": [0.38, 0.70],
+    "z_statistic": 6.62,
+    "p_value": 0.0001,
+    "heterogeneity": {
+      "cochran_q": 28.45,
+      "df": 13,
+      "p_value": 0.008,
+      "i_squared": 54.3,
+      "tau_squared": 0.062
+    },
+    "publication_bias": {
+      "eggers_intercept": 1.24,
+      "eggers_p": 0.185,
+      "interpretation": "No significant small-study publication bias"
+    }
+  }
+  ```
+- Physical institutional OpenXML Word report: `Meta_Analysis_Report.docx`.
+- 300-DPI publication figures: `forest_plot.png`, `funnel_plot.png`, `prisma_2020_flowchart.png`.
+
+## 8. VALIDATION
+- Filenames must be strictly English ASCII characters (Directive 6).
+- Every continuous effect size must use Hedges' $g$ rather than uncorrected Cohen's $d$.
+- When $I^2 \ge 25\%$, the random-effects pooled estimate must be reported as the primary finding.
+- Publication bias claims must cite both visual funnel inspection and Egger's regression test statistic.
+- All numbers in narrative tables must strictly match `meta_analysis_results.json`.

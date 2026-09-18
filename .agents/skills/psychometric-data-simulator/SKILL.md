@@ -1,236 +1,121 @@
 ---
 name: psychometric-data-simulator
-description: Monte Carlo psychometric data simulation for SEM, CFA, Likert scales,
-  RCT pre-post repeated measures, ANCOVA, and correlated demographics. Exports SPSS
-  XLSX/CSV.
+description: Monte Carlo psychometric data simulation for SEM, CFA, Likert scales, RCT pre-post repeated measures, ANCOVA, and correlated demographics. Exports SPSS XLSX/CSV.
 ---
 
-# Psychometric Data Simulator Skill (شبیه‌ساز داده‌های روان‌سنجی و معادلات ساختاری)
+# Psychometric Data Simulator Skill
 
-This skill equips Antigravity to act as an elite quantitative psychometrician and Monte Carlo simulation engineer. Based on algorithms ported from the [`GhaderiSaber/SimDat`](https://github.com/GhaderiSaber/SimDat.git) suite, it simulates realistic psychological research datasets matching complex empirical properties: latent structural equation models (SEM), confirmatory factor analysis (CFA), discrete Likert questionnaire items, correlated demographics, and experimental randomized clinical trials (RCTs).
+This skill provides deterministic Monte Carlo data simulation algorithms ported from the SimDat suite. It simulates realistic psychological and behavioral research datasets matching complex empirical properties: latent SEM/CFA models, discrete Likert items, correlated demographics, and experimental clinical trials (RCTs).
 
 ---
 
-## 1. When to Activate This Skill
-
+## 1. WHEN TO USE (Activation Criteria)
 Activate this skill when:
-1. The user needs to **simulate realistic psychological data** for a thesis, dissertation, pilot study, or methodological workshop.
-2. The user needs to generate **item-level Likert responses** (`q1, q2, ...`) for established questionnaires (e.g., from `Questionnaires.xlsx`) with realistic factor structures, reverse scoring, and target Cronbach's $\alpha$.
-3. The user needs to simulate a **Structural Equation Model (SEM)** or **Path Model** with defined exogenous predictors, mediators, criteria, structural path coefficients ($\beta, \gamma$), and indirect mediation effects ($a \times b$).
-4. The user needs to simulate an **Experimental Randomized Controlled Trial (RCT)** with intervention vs. control groups across repeated measurement occasions (Pretest, Posttest, Follow-up) and pre-specified effect sizes ($d, \eta_p^2$).
-5. The user needs **SPSS-ready Excel files** (`.xlsx` with discrete integers and value labels), CSV datasets, or executable **R `lavaan` analysis scripts**.
+- Simulating realistic synthetic data for methodology workshops, power sensitivity pilots, or pipeline testing.
+- Generating item-level Likert responses (`q1, q2, ...`) for established scales with realistic factor structures, reverse-coded items, and target internal consistency ($\alpha$).
+- Simulating experimental trial datasets (Pre-test, Post-test, Follow-up) with calibrated Cohen's $d$ or $\eta_p^2$.
+- Simulating structural equation models (SEM) or path models with specified latent covariances and structural path coefficients.
 
----
+## 2. WHEN NOT TO USE (Exclusion Criteria)
+Do NOT use this skill when:
+- **PRODUCTION DATA INTEGRITY MANDATE**: NEVER use this skill to fabricate or substitute data for real empirical studies, client thesis analyses, or journal submissions (Directive 0 violation).
+- The user has provided real participant data (`.xlsx`, `.csv`, `.sav`) $\to$ use `data-audit`, `data-cleaning`, or `statistical-data-analyst`.
+- Calculating real empirical statistics or testing hypotheses on observed data $\to$ use `statistical-data-analyst`.
 
-## 1.1 The Golden Rule of Psychometric Simulation: Realistic Empirical Decimal Noise
+## 3. REQUIRED DATA
+- **Input Parameters**: JSON specification defining:
+  - Sample size $N$ and random seed.
+  - Mode: `sem`, `scale`, `rct`, `regression`, `anova`, or `repeated_measures`.
+  - Factor loading matrix ($\mathbf{\Lambda}$) or structural path coefficients ($\mathbf{B}$).
+  - Target means, standard deviations, and group separation.
+- **Demographic Specifications**: Optional demographic columns (age, gender, education, SES) with correlation targets.
 
-### 1. The Core Scientific Problem
-When clients, supervisors, or research proposals specify target group parameters like:
-> *"The mean for healthy should be 5, for self-harm should be 10"*
-
-A naive simulation algorithm might enforce $\sum X_i = \mu_{\text{target}} \times N$, producing empirical sample means like $M = 5.0000$ and $M = 10.0000$. **In authentic empirical research, this never happens.** When tens or hundreds of respondents answer discrete Likert items, sample means naturally possess fractional decimal components (e.g., $M = 5.24, SD = 1.97$; $M = 10.13, SD = 1.93$). Whole-integer group means in an APA 7 table immediately reveal that the data was synthetically manufactured and raise red flags during defense examination or journal peer review.
-
-### 2. Mandatory Simulation Protocol
-Whenever generating synthetic psychometric data, the simulation engine and agent **MUST** enforce the following 5 requirements:
-
-1. **Apply Bounded Organic Decimal Noise to Target Means**:
+## 4. ASSUMPTIONS & SIMULATION GUARDRAILS
+1. **Realistic Empirical Decimal Noise (Mandatory)**:
    $$\mu_{\text{empirical}} = \mu_{\text{target}} + \delta, \quad \delta \sim \text{Uniform}(\pm 0.08, \pm 0.25)$$
-   Ensure that:
-   $$|\text{round}(\mu_{\text{empirical}}) - \mu_{\text{empirical}}| \ge 0.05$$
-   This guarantees that no variable has a whole-integer mean (such as `.000`). For instance, a requested mean of $5.0$ must naturally emerge as $M = 5.24$, $4.88$, or $5.15$; a requested mean of $10.0$ must emerge as $M = 10.13$, $9.89$, or $10.82$.
+   Zero synthetic whole-integer means (e.g., $M = 5.0000$ or $10.0000$ is strictly prohibited). Means must have natural decimal components ($M = 5.24, 10.13$).
+2. **Discrete Integers for Individual Respondents**:
+   $$X_{ij} \in \{\text{Min}, \text{Min}+1, \dots, \text{Max}\}$$
+   Individual Likert responses must remain discrete integers (never continuous floats).
+3. **Guardrail Against Astronomical Effect Sizes**:
+   - Hypothesized significant group differences must calibrate to Cohen's $d \in [0.80, 1.15]$ ($\eta_p^2 \in [.12, .25]$).
+   - Reject any iteration where $\eta_p^2 > .25$ or where non-significant controls yield $d > 0.12$.
+4. **Assumption Compliance**: Simulated data must satisfy normality (skewness/kurtosis $\in [-1, +1]$) and variance homogeneity (Levene $p > .05$).
 
-2. **Preserve Discrete Integers for Individuals**:
-   While group means have realistic decimal fractions, individual participant responses must strictly remain valid discrete integers:
-   $$X_{ij} \in \{Min, Min+1, \dots, Max\}$$
-   Never output fractional or floating-point item ratings for individual survey respondents.
-
-3. **Natural Non-Identical Standard Deviations**:
-   Allow standard deviations to vary naturally across dimensions ($SD \in [1.50, 3.50]$ depending on scale range), avoiding artificially identical standard deviations across subscales.
-
-4. **Calibrated Alignment for Non-Significant Dimensions**:
-   If the study design or supervisor specifies that certain dimensions have *no significant difference* between groups (e.g., `CERQ_PR` and `CERQ_PRE`, or `CP_TP` and `CP_AP`):
-   - Keep the noise offsets for both groups closely matched: $|\mu_1 - \mu_2| \le 0.15$.
-   - Confirm that the resulting independent $t$-test or ANOVA yields $p > .05$.
-
-5. **Strict Statistical Assumptions Compliance**:
-   Adding decimal noise must never compromise core psychometric and inferential assumptions:
-   - **Univariate Normality**: Skewness & Kurtosis $\in [-0.85, +0.85]$ (or $[-1, +1]$).
-   - **Homogeneity of Variance**: Levene's test $p > .05$ across all subscales.
-   - **Homogeneity of Covariance Matrices**: Box's M test $p > .05$ across all multivariate batteries.
-   - **Multivariate Effects (MANOVA)**: Wilks' Lambda $p < .001$ for hypothesized differences.
-
----
-
-## 1.2 The Guardrail Against Astronomical Effect Sizes: Realistic $\eta_p^2$ and Plausible Mean Separation
-
-### 1. The Astronomical Effect Size Trap (قاعده ضد اندازه اثرهای نجومی و تصنعی)
-In behavioral, psychological, and clinical research, human psychological constructs (personality traits, emotion regulation, coping mechanisms) are continuous and subject to individual variation. Even when comparing severe clinical populations with healthy controls:
-- **Cohen's Benchmarks (1988) & Miles & Shevlin (2001)**:
-  - Small: $d = 0.20$ ($\eta_p^2 = .01$)
-  - Medium: $d = 0.50$ ($\eta_p^2 = .06$)
-  - Large: $d = 0.80$ ($\eta_p^2 = .14$)
-- **Realistic Empirical Ceiling**: In authentic psychopathology literature, a strong, celebrated clinical effect rarely exceeds Cohen's $d = 1.00 - 1.25$ ($\eta_p^2 \approx .20 - .25$).
-- **The Fatal Simulation Mistake**: If target means are separated too widely relative to scale standard deviation (e.g., Healthy $M = 5.0$, Self-Harm $M = 10.0$ on a scale with $SD = 1.80$), the mean difference is $\Delta M = 5.0 \implies d \approx 2.78$. In large samples ($N \ge 300 - 500$), this inflates $t$-statistics to $30 - 65$ and $\eta_p^2$ to **$.60 - .89$**.
-- **Defense & Peer-Review Hazard**: An $\eta_p^2$ of $.75 - .89$ means group membership explains 75% to 89% of the total variance, implying virtually zero overlap between distributions. Any academic supervisor, defense jury, or peer reviewer will immediately flag the dataset as synthetically fabricated.
-
-### 2. Mandatory Simulation Constraints for Effect Sizes
-Whenever generating group-difference or experimental datasets (ANOVA, MANOVA, $t$-tests):
-1. **Calibrate Mean Differences to Cohen's $d \in [0.80, 1.15]$**:
-   - For all hypothesized significant contrasts ($p < .001$), calibrate the target mean difference to:
-     $$\Delta \mu \approx (0.80 \text{ to } 1.15) \times SD$$
-   - This ensures that univariate partial eta squared falls strictly within:
-     $$\eta_p^2 \in [.12, .25]$$
-   - This produces robust, defensible statistical significance ($p < .001$ with $N \ge 150$) while remaining credible in clinical and psychological sciences.
-2. **Strict Negligible Bounds for Non-Significant Controls**:
-   - For dimensions hypothesized to have no group difference (e.g., baseline controls or specific non-differentiating dimensions):
-     $$d \le 0.12, \quad \eta_p^2 \le .005, \quad p > .05$$
-3. **Automated Effect Size Acceptance Filter**:
-   - Every Monte Carlo candidate iteration must compute:
-     $$\eta_p^2 = \frac{t^2}{t^2 + df_{\text{error}}}$$
-   - Reject any iteration where $\eta_p^2 > .25$ or $\eta_p^2 < .10$ for significant dimensions, or where $\eta_p^2 > .01$ for non-significant dimensions.
-
----
-
-## 2. Four Specialized Simulation Engines
+## 5. DECISION TREE
 
 ```
-                           [User Configuration / JSON Payload]
-                                            │
-         ┌──────────────────┬───────────────┴───────────────┬──────────────────┐
-         ▼                  ▼                               ▼                  ▼
-   [1. SEM / CFA]    [2. Scale Items]                [3. RCT Trial]     [4. Demographics]
-   ├── Cholesky     ├── Multi-item Likert           ├── Pre/Post/FU     ├── Age & Income
-   ├── Path DAG β   ├── Factor loadings λ           ├── Control vs Int  ├── Gender & SES
-   ├── Mediation    ├── Cronbach's α noise          ├── ANCOVA d & η²   ├── Education
-   └── Fit indices  └── Reverse item keying         └── Slope balance   └── Construct r
-         │                  │                               │                  │
-         └──────────────────┴───────────────┬───────────────┴──────────────────┘
-                                            │
-                                            ▼
-                           [Multi-Format Exporter]
-                           ├── 1. Excel Workbook (.xlsx)
-                           │   ├── Sheet 1: Rescaled_Data (SPSS Integer Likert Items)
-                           │   ├── Sheet 2: Composite_Scores (Subscale Sums & Means)
-                           │   ├── Sheet 3: Latent_Continuous (Underlying Standardized z)
-                           │   └── Sheet 4: Parameters_and_Fit (Loadings, Paths, Fit)
-                           ├── 2. CSV Dataset (.csv)
-                           ├── 3. R lavaan Analysis Script (.R)
-                           └── 4. Simulation Summary Metrics (.json)
+Psychometric Data Simulation Architecture
+  │
+  ├─► Purpose Check:
+  │     ├─► Real Thesis / Empirical Study:
+  │     │     └─► HALT: Data simulation prohibited on real empirical research.
+  │     └─► Testing / Methodology / Workshop:
+  │           └─► Proceed with Simulation Engines:
+  │
+  ├─► Study Design Engine Selection:
+  │     ├─► Latent Construct / Factor Analysis:
+  │     │     ├─► Structural Equation Modeling: [--mode sem] (Cholesky factorization + DAG propagation)
+  │     │     ├─► Confirmatory Factor Analysis: [--mode cfa] (Target factor loadings lambda >= .50)
+  │     │     └─► Discrete Survey Scales: [--mode scale] (Rescaling continuous z -> discrete Likert 1-5)
+  │     │
+  │     ├─► Experimental / Clinical Trials:
+  │     │     ├─► Pre-Post with Control: [--mode rct] (Calibrated Cohen's d in [0.80, 1.15], pretest balance)
+  │     │     └─► Multi-Wave Longitudinal: [--mode repeated_measures] (AR(1) temporal covariance, sphericity epsilon)
+  │     │
+  │     └─► Predictive & Correlational:
+  │           ├─► Multiple / Hierarchical: [--mode regression] (Step 1 controls -> Step 2 psychological predictors)
+  │           └─► Moderation Model 1: [--mode moderation] (Mean-centered X, W, X*W interaction)
+  │
+  └─► Quality & Noise Verification:
+        ├─► Verify |round(Mean) - Mean| >= 0.05 (No whole integers)
+        ├─► Verify eta_p^2 in [0.12, 0.25] (No astronomical effect sizes)
+        └─► Verify discrete Likert integers for every individual
 ```
 
-### Engine 1: Structural Equation Modeling & CFA (`--mode sem`)
-- **Latent Factor Generation**: Uses Cholesky factorization of population correlation matrices ($\mathbf{\Sigma} = \mathbf{L}\mathbf{L}^T$) for CFA models.
-- **Structural Path Propagation**: Directed Acyclic Graph (DAG) recursive propagation:
-  $$\eta_{crit} = \sum \beta \eta_{pred} + \epsilon, \quad \epsilon \sim \mathcal{N}(0, \sigma^2_\epsilon)$$
-- **Mediation & Defined Parameters**: Calculates indirect effects ($a \times b$), total effects ($c = c' + a \times b$), and Sobel test statistics.
-- **Goodness-of-Fit Estimation**: Evaluates sample implied covariance against empirical covariance, reporting $\chi^2$, $df$, $p$-value, CFI, TLI, RMSEA, and SRMR.
-- **R `lavaan` Scripting**: Generates ready-to-run R scripts with `cfa()` or `sem()` syntax.
-
-### Engine 2: Questionnaire & Likert Item Simulator (`--mode scale`)
-- **Item Rescaling & Quantization**: Converts continuous latent scores into discrete Likert integer responses (1–5, 1–7, or 1–10):
-  $$y^*_{ij} = \lambda_j \eta_i + \epsilon_{ij}, \quad \epsilon_{ij} \sim \mathcal{N}(0, \theta_j)$$
-  $$y_{ij} = \text{clip}\left(\text{round}\left(\frac{y^*_{ij}}{\sqrt{\lambda_j^2 + \theta_j}} \cdot \sigma_{item} + \mu_{item}\right), \; Min, \; Max\right)$$
-- **Reverse Scoring Keying**: Accurately simulates negatively worded items using $(Min + Max) - Item$ algebra.
-- **Cronbach's $\alpha$ Control**: Regulates indicator measurement error variances ($\theta_j$) to guarantee target internal consistency ($\alpha \approx .75 - .92$).
-
-### Engine 3: Experimental Clinical Trial Simulator (`--mode rct`)
-- **Repeated Measures Design**: Generates multivariate data for experimental and control groups across Pretest, Posttest, and 3-month Follow-up.
-- **Effect Size Injection**: Shifts intervention posttest distributions by pre-specified Cohen's $d$ ($0.50$ medium, $0.80$ large) or partial eta squared ($\eta_p^2 = 0.14 - 0.35$).
-- **ANCOVA Assumptions Built-In**: Maintains baseline homogeneity ($p > .05$ on pretest) and homogeneity of regression slopes.
-
-### Engine 4: Demographic Correlates (`--demographics`)
-- **Continuous Features**: Age ($\mathcal{N}(\mu, \sigma)$ clipped to realistic bounds), Monthly Income, Work Experience.
-- **Categorical Features**: Gender (e.g., Male/Female/Other), Educational Level (High School, Bachelor's, Master's, Ph.D.), Socioeconomic Status (Low, Middle, High), Marital Status.
-- **Latent Construct Correlations**: Connects demographics to psychological variables (e.g., Age positively correlated with Resilience, SES negatively correlated with Psychological Distress).
-
-### Engine 5: Multiple & Hierarchical Regression (`--mode regression`)
-- **Multiple Regression**: Target $R^2$, standardized $\beta$ coefficients, and controlled VIF multicollinearity.
-- **Hierarchical Regression**: Step 1 (Demographics / Control covariates) $\to$ Step 2 (Main psychological predictors) with $\Delta R^2$, $F$, and $\Delta F$ $p$-value.
-- **Moderated Regression (PROCESS Model 1)**: Mean-centered predictors $X$, $W$, and interaction $X \times W$ with conditional simple slopes at $-1 SD$, Mean, and $+1 SD$.
-
-### Engine 6: ANOVA Family & Mean Differences (`--mode anova`)
-- **Independent & Paired $t$-tests**: 2 groups with target Cohen's $d$ or paired pre-post correlation with $d_z$.
-- **One-Way ANOVA**: 3+ groups with planned post-hoc contrasts (Tukey HSD pairwise comparisons).
-- **Two-Way Factorial ANOVA ($A \times B$)**: Main effect Factor A, Main effect Factor B, Interaction effect ($A \times B$), and Partial $\eta^2$.
-- **MANOVA**: Multiple correlated DVs with specified inter-correlation matrix across groups, reporting Wilks' Lambda ($\Lambda$).
-
-### Engine 7: Mixed Split-Plot Repeated Measures (`--mode repeated_measures`)
-- **Between Factor $\times$ Within Factor**: Groups (e.g., Intervention vs. Control) $\times$ Time waves (Pre, Post, 1-mo FU, 3-mo FU).
-- **Temporal Covariance**: Autoregressive AR(1) or compound symmetry structure with sphericity parameter control ($\epsilon$).
-- **Dual Formats**: Generates both wide format (SPSS) and long format (mixed-effects models).
-
-### Engine 8: Binary Logistic Regression (`--mode logistic`)
-- **Logit Inversion**: Simulates binary endpoints ($0/1$, e.g., Clinical Diagnosis, Treatment Remission, Relapse) from log-odds $z_i = \beta_0 + \sum \beta_j X_{ij}$.
-- **Odds Ratios (OR)**: Calibrated directly from specified target odds ratios $\exp(\beta_j)$.
-- **Classification Metrics**: Confusion matrix, classification accuracy, sensitivity, and specificity.
-
-### Engine 9: Exploratory Factor Analysis (`--mode efa`)
-- **Multi-Factor Structure**: Primary factor loadings ($\ge .50$), cross-loadings ($[.15, .35]$), and communalities ($h^2$).
-- **Psychometric Diagnostics**: Kaiser-Meyer-Olkin (KMO) sampling adequacy, Bartlett's test of sphericity, and eigenvalues.
-
-### Engine 10: Non-Parametric & Categorical (`--mode non_parametric`)
-- **Skewed Continuous Data**: Gamma and Log-normal distributions for testing Mann-Whitney $U$, Wilcoxon Signed-Rank, and Kruskal-Wallis $H$.
-- **Contingency Tables**: $r \times c$ categorical cross-tabulations for Pearson Chi-Square ($\chi^2$) and Cramér's $V$.
-
----
-
-## 3. Built-in Research Presets (`--preset <name>`)
-
-Instantly generate publication-ready synthetic datasets with one command:
-| Preset Flag | Analysis / Design | Sample Size | Primary Output |
-| :--- | :--- | :--- | :--- |
-| **`--preset hierarchical_regression`** | Demographics (Age, Gender) $\to$ Resilience, Self-Efficacy predicting Wellbeing | $N = 250$ | Step 1/2 $\Delta R^2$, $\Delta F$, coefficients |
-| **`--preset moderation_model1`** | Stress $\to$ Burnout moderated by Social Support | $N = 200$ | $X \times W$ interaction & simple slopes at $\pm 1 SD$ |
-| **`--preset factorial_anova`** | $2 \times 3$ Factorial ANOVA (Gender $\times$ Treatment [Waitlist, CBT, ACT]) on QoL | $N = 180$ | Main effects A & B, interaction $A \times B$, $\eta_p^2$ |
-| **`--preset mixed_split_plot`** | $2 \times 4$ Mixed Repeated Measures (Group $\times$ Pre, Post, 1m FU, 3m FU) on Pain | $N = 60$ | Time, Group, Time $\times$ Group, Sphericity $\epsilon$ |
-| **`--preset ancova_trial`** | RCT Pre-Post Clinical Trial on Anxiety & Depression | $N = 60$ | Baseline balance, Cohen's $d = 1.15$ posttest |
-| **`--preset logistic_diagnosis`** | Trauma, Sleep, Family History predicting Depression Diagnosis (0/1) | $N = 200$ | Odds Ratios, Confusion Matrix, ROC-AUC |
-| **`--preset efa_battery`** | 3-factor 15-item survey with cross-loadings & communalities | $N = 350$ | KMO, Bartlett's $\chi^2$, Eigenvalues |
-| **`--preset non_parametric_skewed`** | Skewed clinical severity scores across 3 severity groups | $N = 120$ | Kruskal-Wallis $H$, Medians, and IQRs |
-
----
-
-## 4. CLI Execution Examples
-
-### 1. Instant Run via Research Preset:
+## 6. EXECUTION SCRIPT
+Deterministic simulation CLI commands:
 ```bash
+# 1. Simulate dataset via research preset:
 python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
   --preset hierarchical_regression \
-  --out-dir "./sim_hierarchical_results"
-```
+  --out-dir "sim_hierarchical_results"
 
-### 2. Factorial ANOVA Simulation:
-```bash
+# 2. Simulate experimental clinical trial (RCT):
 python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
-  --preset factorial_anova \
-  --out-dir "./sim_factorial_results"
-```
+  --preset ancova_trial \
+  --out-dir "sim_ancova_results"
 
-### 3. Mixed Split-Plot Repeated Measures:
-```bash
-python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
-  --preset mixed_split_plot \
-  --out-dir "./sim_repeated_measures_results"
-```
-
-### 4. Custom JSON Configuration:
-```bash
+# 3. Custom JSON specification:
 python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
   --mode regression \
-  --json "my_regression_config.json" \
+  --json "sim_config.json" \
   --n 300 \
   --seed 42 \
-  --out-dir "./custom_sim_output"
+  --out-dir "custom_sim_output"
 ```
 
----
+## 7. OUTPUT CONTRACT
+The engine generates:
+- `simulated_<mode>_dataset.xlsx`: Multi-sheet SPSS-ready workbook (`Dataset`, `Composite_Scores`, `Parameters_and_Fit`).
+- `simulated_<mode>_dataset.csv`: Standard CSV dataset for R, SPSS, jamovi.
+- `simulation_summary.json`:
+  ```json
+  {
+    "design": "ancova_trial",
+    "sample_size": 60,
+    "group_means": {"experimental": 24.38, "control": 18.15},
+    "mean_difference": 6.23,
+    "cohens_d": 0.94,
+    "partial_eta_squared": 0.182,
+    "pretest_balance_p": 0.482,
+    "noise_injection_verified": true
+  }
+  ```
+- `lavaan_syntax.R` (for SEM/CFA models): Executable R script replicating the population model.
 
-## 5. Output Artifacts & Formats
-
-1. **`simulated_<mode>_dataset.xlsx`**: Multi-sheet Excel workbook tailored to the design:
-   - `Dataset` / `Rescaled_Data`: Clean SPSS-ready dataset.
-   - `Summary_and_Tests`: Descriptive statistics, ANOVA tables, regression steps, and fit indices.
-   - `Parameters_and_Effects`: Standardized coefficients, effect sizes ($R^2$, $\eta_p^2$, Cohen's $d$, OR), and loadings.
-2. **`simulated_<mode>_dataset.csv`**: Standard CSV format for SPSS, jamovi, JASP, R, and Python.
-3. **`simulation_summary.json`**: Complete structured JSON summary of empirical statistics and effect sizes.
-4. **`lavaan_syntax.R`** *(for SEM/CFA)*: Executable R script replicating the latent model.
+## 8. VALIDATION
+- Reject datasets where sample means equal integer values ($M = 5.000$).
+- Reject datasets where effect size exceeds empirical reality ($\eta_p^2 > .25$ for psychology).
+- Individual participant values must be strictly discrete integers matching Likert bounds.
+- Datasets must include complete metadata and never be passed into production without synthetic tagging.

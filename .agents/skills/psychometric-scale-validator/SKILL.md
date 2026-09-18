@@ -1,132 +1,115 @@
 ---
 name: psychometric-scale-validator
-description: 'Comprehensive scale validation and psychometrics: CVR/CVI, EFA, CFA,
-  convergent/discriminant validity, Omega/Alpha, IRT Graded Response Model, and ROC
-  curves.'
+description: Comprehensive scale validation and psychometrics including CVR/CVI, EFA, CFA, convergent/discriminant validity, Omega/Alpha, IRT Graded Response Model, and ROC curves.
 ---
 
-# Psychometric Scale Validator Skill (هنجاریابی، روان‌سنجی و اعتباریابی ابزارهای اندازه‌گیری با CTT و IRT)
+# Psychometric Scale Validator Skill
 
-This skill empowers Antigravity to act as an elite psychometrician, measurement specialist, and scale validation researcher. It orchestrates the entire lifecycle of **Psychometric Adaptation, Standardization, and Validation Studies** in psychology, counseling, educational measurement (سنجش و اندازه‌گیری), and behavioral sciences under both **Classical Test Theory (CTT)** and **Modern Item Response Theory (IRT)**.
+This skill turns Antigravity into an expert psychometrician and measurement specialist. It executes end-to-end psychometric adaptation, standardization, and validation workflows under Classical Test Theory (CTT) and Modern Item Response Theory (IRT).
 
 ---
 
-## 1. When to Activate This Skill
-
+## 1. WHEN TO USE (Activation Criteria)
 Activate this skill when:
-1. The user conducts a **Scale Standardization or Validation Thesis/Dissertation (پایان‌نامه/رساله هنجاریابی و اعتباریابی مقیاس)**:
-   *(«بررسی ویژگی‌های روان‌سنجی، ساختار عاملی و هنجاریابی نسخه فارسی مقیاس...»)*.
-2. The user needs to evaluate **Content Validity**:
-   - **Lawshe (1975) Content Validity Ratio ($CVR$)** tested against expert panel size critical thresholds ($p < .05$).
-   - **Waltz & Bausell / Lynn (1986) Content Validity Index ($CVI$)**: $I\text{-}CVI \ge 0.78$ and $S\text{-}CVI/\text{Ave} \ge 0.80$.
-   - **Item Impact Score**: $\ge 1.5$.
-3. The user needs to verify **Construct Validity**:
-   - **Exploratory Factor Analysis (EFA)**: KMO sampling adequacy, Bartlett's sphericity, Scree plot, Promax/Varimax factor loadings ($\lambda \ge 0.40$), and cumulative explained variance.
-   - **Confirmatory Factor Analysis (CFA)**: Fit indices ($\chi^2/df < 3$, CFI $\ge .90$, TLI $\ge .90$, RMSEA $\le .08$, SRMR $\le .08$).
-   - **Fornell & Larcker Convergent & Discriminant Validity**: $AVE \ge 0.50$, $CR \ge 0.70$, and $\sqrt{AVE} > r$.
-4. The user needs to report **Modern Reliability Metrics**:
-   - **McDonald's Omega ($\omega_t$ & $\omega_h$)**: Mandatory under APA 7th Edition guidelines.
-   - Cronbach's Alpha ($\alpha$) with "alpha-if-item-deleted" diagnostics.
-   - Test-Retest Intraclass Correlation Coefficient ($ICC$, two-way mixed model, absolute agreement).
-   - Split-Half reliability (Guttman and Spearman-Brown coefficients).
-5. The user needs **Modern Item Response Theory (IRT) Analysis**:
-   - **Samejima's Graded Response Model (GRM)** for polytomous Likert-scale data.
-   - **Item Discrimination ($a$)**: Categorized according to Baker (2001) criteria ($<0.35$ Very Low to $\ge 1.70$ Very High).
-   - **Category Boundary / Threshold Difficulty Parameters ($b_{ik}$)**.
-   - **Item Fit Statistics**: Infit and Outfit Mean Square ($MNSQ \in [0.60, 1.40]$).
-   - **Information Functions**: Item Information Functions (IIF), Test Information Function (TIF), and conditional Standard Error of Measurement ($SE(\theta) = 1/\sqrt{I(\theta)}$).
-   - **Differential Item Functioning (DIF)**: Mantel-Haenszel evaluation and ETS classification (Class A, B, C) across gender or target demographic sub-groups.
-6. The user needs **Norms & Clinical Cut-off Scores**:
-   - Score conversion tables: Raw Score $\to$ Z-Score $\to$ T-Score $\to$ Percentile Rank ($PR$).
-   - **Receiver Operating Characteristic (ROC) Curve Analysis**: Sensitivity, Specificity, Area Under the Curve ($AUC \ge 0.80$), and Youden's Index ($J$) for optimal clinical screening cut-offs.
-7. The user needs a defense-ready **Chapter 4 Word report (`.docx`)** with 8 APA 7 tables, a 6-sheet **Validation Matrix Excel (`.xlsx`)**, or dual 300-DPI **Scree, ROC, TIF & CCC plots (`.png`)**.
+- Conducting scale standardization, adaptation, or psychometric validation studies.
+- Evaluating Content Validity: Lawshe (1975) CVR against panel critical thresholds ($p < .05$), Waltz & Bausell / Lynn (1986) I-CVI ($\ge .78$) and S-CVI/Ave ($\ge .80$).
+- Verifying Construct Validity: EFA (KMO $\ge .70$, Bartlett sphericity $p < .001$), CFA ($\chi^2/df < 3$, CFI/TLI $\ge .90$, RMSEA/SRMR $\le .08$), and Fornell-Larcker ($AVE \ge .50$, $CR \ge .70$, $\sqrt{AVE} > r$).
+- Estimating Modern Reliability: McDonald's $\omega$ ($\omega_t, \omega_h \ge .70$) alongside Cronbach's $\alpha$, test-retest ICC, and split-half reliability.
+- Estimating Modern IRT Parameters: Samejima's Graded Response Model (GRM) for Likert items, item discrimination ($a_i$), category thresholds ($b_{ik}$), Infit/Outfit MNSQ, IIF/TIF information functions, and Differential Item Functioning (DIF).
+- Determining Clinical Cut-offs: Receiver Operating Characteristic (ROC) curve analysis, Area Under Curve (AUC $\ge .80$), and Youden's $J$ index.
 
----
+## 2. WHEN NOT TO USE (Exclusion Criteria)
+Do NOT use this skill when:
+- The task is simply scoring an established questionnaire using fixed scoring keys $\to$ use `psychometric-scale-resolver`.
+- The task tests structural relations, mediation, or regression between established constructs rather than measuring tool properties $\to$ use `statistical-data-analyst`, `mediation`, or `sem`.
+- The task requires raw data cleaning, reverse item coding, or missing value imputation without psychometric evaluation $\to$ use `data-cleaning`.
 
-## 2. Methodological Standards & Decision Rules
+## 3. REQUIRED DATA
+- **Raw Item Matrix**: Item-level responses (`.xlsx`, `.csv`) with $N \ge 200\text{--}300$ for EFA/CFA, or $N \ge 300\text{--}500$ for IRT GRM estimation.
+- **Expert Ratings**: Content validity ratings from expert panel ($N \ge 5\text{--}15$ judges) for CVR/CVI calculation.
+- **Retest Subsample**: 2-4 week retest data ($n \ge 30\text{--}50$) for test-retest ICC.
+- **Criterion/Gold Standard**: Binary diagnostic classification for ROC curve analysis.
 
-### Pillar 1: Lawshe Critical CVR Thresholds ($p < .05$)
-$$CVR = \frac{n_e - \frac{N}{2}}{\frac{N}{2}}$$
-| Panel Size ($N$) | Min CVR | Panel Size ($N$) | Min CVR | Panel Size ($N$) | Min CVR |
-| :---: | :---: | :---: | :---: | :---: | :---: |
-| **5** | 0.99 | **9** | 0.78 | **13** | 0.54 |
-| **6** | 0.99 | **10** | 0.62 | **14** | 0.51 |
-| **7** | 0.99 | **11** | 0.59 | **15** | 0.49 |
-| **8** | 0.75 | **12** | 0.56 | **20** | 0.42 |
+## 4. ASSUMPTIONS
+1. **Unidimensionality**: Each factor/subscale reflects a single dominant latent trait (essential for IRT and McDonald's $\omega$).
+2. **Local Independence**: Conditioning on the latent trait, item responses are statistically independent ($Q_3 < .20$).
+3. **Monotonicity**: Probability of endorsing higher categories increases monotonically with latent trait $\theta$.
+4. **Adequate Sampling Adequacy**: KMO $> .70$ and significant Bartlett's test ($p < .001$).
+5. **No Multicollinearity among Indicators**: Indicator correlations $r < .85$.
 
-### Pillar 2: Fornell & Larcker (1981) Construct Validity
-- **Average Variance Extracted ($AVE$)**:
-  $$AVE = \frac{\sum \lambda_i^2}{\sum \lambda_i^2 + \sum (1 - \lambda_i^2)} \ge 0.50$$
-- **Composite Reliability ($CR$)**:
-  $$CR = \frac{(\sum \lambda_i)^2}{(\sum \lambda_i)^2 + \sum (1 - \lambda_i^2)} \ge 0.70$$
-- **Discriminant Validity**:
-  $$\sqrt{AVE_j} > r_{jk} \quad (\forall k \neq j)$$
+## 5. DECISION TREE
 
-### Pillar 3: Item Response Theory (IRT) & Samejima's GRM
-For polytomous Likert-scale items:
-$$P^*_{ik}(\theta) = \frac{1}{1 + \exp\left(-1.702 \cdot a_i (\theta - b_{ik})\right)}$$
-- **Baker (2001) Discrimination ($a$)**: $<0.35$ Very Low, $0.35-0.64$ Low, $0.65-1.34$ Moderate, $1.35-1.69$ High, $\ge 1.70$ Very High.
-- **Infit & Outfit $MNSQ$**: $0.60 \le MNSQ \le 1.40$ (Wright & Linacre, 1994).
-- **Test Information Function (TIF)**: $I(\theta) = \sum I_i(\theta)$ with conditional error $SE(\theta) = 1/\sqrt{I(\theta)}$.
-- **Differential Item Functioning (DIF)**: ETS Class A ($|\Delta \alpha| < 1.0$), Class B (Moderate), Class C (Large).
+```
+Scale Validation & Psychometric Assessment
+  │
+  ├─► Qualitative / Expert Phase:
+  │     ├─► Lawshe CVR: Test against panel size critical threshold (p < .05)
+  │     └─► Lynn I-CVI (>= .78) & S-CVI/Ave (>= .80)
+  │
+  ├─► Factor Structure Evaluation:
+  │     ├─► Exploratory / First-Time Adaptation:
+  │     │     └─► [EFA (Exploratory Factor Analysis)]
+  │     │           - Check KMO (>= .70) & Bartlett (p < .001)
+  │     │           - Extraction: Principal Axis Factoring (PAF) or Maximum Likelihood
+  │     │           - Rotation: Oblimin / Promax (correlated factors)
+  │     │           - Retain factors: Parallel Analysis / Scree inflection
+  │     │           - Factor loadings: lambda >= .40, cross-loadings < .30
+  │     │
+  │     └─► Established Theoretical Structure:
+  │           └─► [CFA (Confirmatory Factor Analysis)]
+  │                 - Fit indices: Chi2/df < 3, CFI >= .90, TLI >= .90, RMSEA <= .08
+  │                 - Convergent: AVE >= .50, CR >= .70
+  │                 - Discriminant: sqrt(AVE) > inter-construct r (or HTMT < .85)
+  │
+  ├─► Item Response Theory (IRT) Evaluation:
+  │     ├─► Polytomous Likert Items (3+ ordinal categories):
+  │     │     └─► [Samejima Graded Response Model (GRM)]
+  │     │           - Baker (2001) discrimination: a >= 0.65 (Moderate to Very High)
+  │     │           - Infit / Outfit MNSQ: 0.60 to 1.40
+  │     │           - Test Information Function (TIF) & conditional SE(theta)
+  │     │           - Differential Item Functioning (DIF) across demographics
+  │     │
+  │     └─► Dichotomous Items (Correct / Incorrect):
+  │           └─► [2-PL / 3-PL IRT or Rasch Model]
+  │
+  └─► Diagnostic Cut-off Determination:
+        └─► [ROC Curve Analysis]
+              - AUC >= .80, Youden's J = Sensitivity + Specificity - 1
+              - Generate Z-score, T-score, and Percentile Rank norms
+```
 
-### Pillar 4: McDonald's Omega ($\omega$) under APA 7
-$$\omega = \frac{(\sum \lambda_i)^2}{(\sum \lambda_i)^2 + \sum \theta_i} \ge 0.70$$
-
-### Pillar 5: Clinical Cut-off & Youden's J Index
-$$J = \text{Sensitivity} + \text{Specificity} - 1$$
-
----
-
-## 3. Execution Workflow
-
-### Step 1: Prepare the Psychometric Validation Payload
-Construct `validation_payload.json` containing:
-- Scale metadata and translation protocol.
-- Item text and expert panel ratings ($n_e$, $relevant$, impact score).
-- EFA parameters (KMO, Bartlett, loadings).
-- CFA fit indices ($\chi^2/df$, CFI, TLI, RMSEA, SRMR).
-- IRT parameters ($a_i$, $b_{ik}$, Infit/Outfit MNSQ, DIF status).
-- Factor metrics ($AVE$, $CR$, Cronbach's $\alpha$, McDonald's $\omega$, ICC).
-- Norm data (Z, T, Percentiles) and ROC diagnostics (AUC, optimal cut-off).
-
-### Step 2: Run the Automated Validation Engine
+## 6. EXECUTION SCRIPT
+Execute deterministic psychometric calculations:
 ```bash
 python3 .agents/skills/psychometric-scale-validator/scripts/psychometric_validator_engine.py \
-  --json path/to/validation_payload.json \
-  --out-dir path/to/output_directory \
+  --json "validation_payload.json" \
+  --out-dir "output_psychometrics" \
   --lang fa
 ```
 
-### Step 3: Inspect Multi-Modal Deliverables
-1. `فصل_چهارم_ویژگی‌های_روان‌سنجی_و_هنجاریابی.docx`:
-   - Full Chapter 4 dissertation text with authentic Iranian typography (*B Titr*, *B Nazanin*, *Times New Roman*), BiDi RTL OpenXML (`<w:bidi w:val="1"/>`), and `<w:bidiVisual/>`.
-   - **8 APA 7 borderless tables**:
-     - Table 4-1: Face & Content Validity (Item Impact, CVR, I-CVI).
-     - Table 4-2: EFA Factor Loadings, Eigenvalues, and Explained Variance.
-     - Table 4-3: CFA Goodness-of-Fit Indices.
-     - Table 4-4: Convergent (AVE, CR) & Discriminant Validity Matrix.
-     - Table 4-5: Multi-method Reliability (Alpha, Omega, ICC, Split-half).
-     - Table 4-6: Item Response Theory (IRT) GRM Parameters, Infit/Outfit & DIF.
-     - Table 4-7: Standardization & Norm Conversion (Raw $\to$ Z $\to$ T $\to$ PR).
-     - Table 4-8: ROC Curve Diagnostics & Optimal Cut-off Score.
-   - Embedded 300-DPI visual figures (Figure 4-1: Scree & ROC; Figure 4-2: TIF & CCC).
-2. `psychometric_validation_matrix.xlsx`:
-   - 6 professional sheets: `Overview & Metrics`, `Item Analysis (CVR & CVI)`, `EFA & Factor Loadings`, `CFA & Fornell-Larcker`, `IRT & Graded Response Model`, `Norms & ROC`.
-3. Visual Charts:
-   - `scree_and_roc_plots.png` (300 DPI Scree plot & ROC curve).
-   - `irt_tif_and_ccc_plots.png` (300 DPI Test Information Function & Category Characteristic Curves).
-4. `psychometric_summary.json`:
-   - Complete machine-readable summary schema with IRT diagnostics.
+## 7. OUTPUT CONTRACT
+The skill produces:
+- `psychometric_summary.json`:
+  ```json
+  {
+    "scale_name": "Example Resilience Scale",
+    "sample_size": 350,
+    "cvr_cvi": {"mean_cvr": 0.85, "s_cvi_ave": 0.92},
+    "cfa": {"chi2_df": 2.14, "cfi": 0.942, "tli": 0.931, "rmsea": 0.057, "srmr": 0.048},
+    "construct_validity": {"ave": 0.54, "cr": 0.82, "fornell_larcker_pass": true},
+    "reliability": {"cronbach_alpha": 0.86, "mcdonald_omega": 0.88, "icc": 0.84},
+    "irt_grm": {"mean_discrimination": 1.42, "infit_mnsq_range": [0.82, 1.18]},
+    "roc": {"auc": 0.89, "optimal_cutoff": 28.5, "sensitivity": 0.86, "specificity": 0.82}
+  }
+  ```
+- Physical institutional OpenXML Word report: `Chapter_4_Psychometrics.docx`.
+- Master 6-sheet Excel matrix: `psychometric_validation_matrix.xlsx`.
+- 300-DPI visual charts: `scree_and_roc_plots.png`, `irt_tif_and_ccc_plots.png`.
 
----
-
-## 4. AcademicSuite Integration
-
-- **Upstream Linkage**:
-  - `persian-proposal-builder`: Generates proposal and Chapter 3 methodology for validation theses.
-  - `psychometric-scale-resolver`: Queries `Questionnaires.xlsx` for original English/Persian items, factor structures, and reverse items.
-  - `psychometric-data-simulator`: Simulates raw Likert response data with target factor loadings ($\mathbf{\Lambda}$) for testing and synthetic modeling.
-- **Downstream Linkage**:
-  - `persian-thesis-builder`: Direct ingestion as `--ch4` in full thesis compilation.
-  - `academic-article-writer`: Synthesizes psychometric findings into a standardization journal article for ISI or ISC publication.
+## 8. VALIDATION
+- CVR values verified against Lawshe critical tables matching panel size $N$.
+- S-CVI/Ave must exceed $.80$ and I-CVI must exceed $.78$.
+- Factor loadings must exceed $.40$ without cross-loading discrepancies.
+- AVE $\ge .50$ and CR $\ge .70$ mandatory for claiming convergent validity.
+- McDonald's $\omega$ mandatory under APA 7th Edition guidelines.
+- Item fit statistics for IRT must fall within $[0.60, 1.40]$.

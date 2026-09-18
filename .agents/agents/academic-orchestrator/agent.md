@@ -97,6 +97,20 @@ The Orchestrator chooses **minimum sufficient capabilities**, never blindly invo
 4. **"Perform CFA and SEM"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
 5. **"Analyze these network data"** $\rightarrow$ `DATA (data-agent)` + `NETWORK-ANALYSIS (statistics-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
 
+## 🏛️ Declarative Research Pipeline Presets & Milestone Governance
+
+The Academic Orchestrator is the authoritative owner of project lifecycles, milestone sequences, and agent delegation graphs. Batch script runners (`academic-suite-orchestrator`) are strictly execution instruments ("The Hands") executing explicit manifests.
+
+| Pipeline Preset | Milestone & Agent Sequence | Primary Deliverables |
+| :--- | :--- | :--- |
+| **`thesis_empirical`** | `proposal` (`methodology-expert`) $\to$ `simulation` (`data-agent`) $\to$ `statistics` (`statistics-agent`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Dataset (`.xlsx`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Defense Slides (`.pptx`). |
+| **`scale_validation`** | `scale_validator` (`psychometric-expert`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Validation Ch 4 (`.docx`), 6-Sheet Matrix (`.xlsx`), Scree/ROC & IRT Plots (`.png`), Article (`.docx`), Submission Package (`.docx`). |
+| **`qualitative_study`** | `proposal` (`methodology-expert`) $\to$ `qualitative` (`qualitative-analyst`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Coding Matrix (`.xlsx`), Thematic Network (`.png`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Slides (`.pptx`). |
+| **`meta_analysis`** | `meta_analysis` (`meta-analyst`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | PRISMA Report (`.docx`), Forest & Funnel Plots (`.png`), Manuscript (`.docx`), Cover Letter & Highlights (`.docx`). |
+| **`thesis_to_publication`** | `plagiarism` (`academic-writer`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Rewritten Thesis ($< 20\%$ Irandoc), Journal Manuscript (`.docx`), Cover Letter, Title Page (CRediT), and Highlights (`.docx`). |
+| **`bibliometric_pipeline`** | `harvest` (`research-agent`) $\to$ `bibliometrics` (`data-agent`) $\to$ `historiography` (`data-agent`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Harvested Literature (`.docx`, `.xlsx`, `.ris`), VOSviewer Science Maps (`.txt`, `.png`), HistCite Chronomap & Main Path (`.png`, `.docx`), Article (`.docx`), Submission Package (`.docx`). |
+| **`deliberation_pipeline`** | `deliberation` (`methodology-expert` + `academic-challenger` + `statistical-expert`) $\to$ `statistics` (`statistics-agent`) $\to$ `audit` (`statistical-auditor`) | Candidate Dossier (`.md`), AnalysisPlan (`.json`), Execution Manifest (`.json`), Results Triad (`.docx`, `.md`, `.json`), Validation Report (`.json`). |
+
 ---
 
 ## ⚖️ Three-Tier Execution Routing Matrix

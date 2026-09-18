@@ -41,7 +41,7 @@ try:
 except ImportError:
     jsonschema = None
 
-from factory.agent_factory import create_agent
+from factory.agent_factory import create_agent, get_available_skills, SKILLS_DIR
 from factory.skill_factory import create_skill
 from factory.validator_factory import create_validator
 
@@ -174,18 +174,7 @@ def create_specialist(
     if "apa-reporting" not in agent_skills:
         agent_skills.append("apa-reporting")
 
-    agent_info = create_agent(
-        name=agent_name,
-        role=agent_role,
-        description=agent_desc,
-        skills=agent_skills,
-        mission=agent_mission,
-        decision_rules=agent_rules,
-        anti_patterns=spec.get("anti_patterns"),
-        target_dir=agents_dir
-    )
-
-    # 2. Resolve Skill parameters
+    # 1. Resolve and Create Skill parameters FIRST
     skill_desc = spec.get("skill_description") or agent_desc
     skill_sections = spec.get("skill_sections") or spec.get("sections", {
         "Overview & Scope": f"This skill provides deterministic estimation for {agent_role}.",
@@ -204,6 +193,23 @@ def create_specialist(
         script_name=script_name,
         script_code=script_code,
         target_dir=skills_dir
+    )
+
+    # 2. Create Agent SECOND with available_skills including newly created skill
+    available_skills = get_available_skills(skills_dir)
+    available_skills.update(get_available_skills(SKILLS_DIR))
+    available_skills.add(skill_name)
+
+    agent_info = create_agent(
+        name=agent_name,
+        role=agent_role,
+        description=agent_desc,
+        skills=agent_skills,
+        mission=agent_mission,
+        decision_rules=agent_rules,
+        anti_patterns=spec.get("anti_patterns"),
+        target_dir=agents_dir,
+        available_skills=available_skills
     )
 
     # 3. Resolve Validator parameters
