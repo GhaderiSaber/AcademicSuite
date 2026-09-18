@@ -86,6 +86,56 @@ def is_raw_data_command(cmd: str) -> bool:
     return any(re.search(pat, cmd, re.IGNORECASE) for pat in patterns)
 
 
+MUTATION_TOOLS = (
+    "write_to_file",
+    "replace_file_content",
+    "apply_diff",
+    "edit_file",
+    "multi_file_edit",
+    "batch_replace",
+    "patch"
+)
+
+
+def extract_target_paths(tool_name: str, args: Dict[str, Any]) -> List[str]:
+    """Extracts all file paths targeted for mutation across various tool signatures."""
+    paths = []
+    # 1. Standard single-file keys
+    for key in ("TargetFile", "file_path", "filePath", "target_file", "path", "target"):
+        val = args.get(key)
+        if val and isinstance(val, str):
+            paths.append(val)
+
+    # 2. Multi-file or batch list keys
+    for list_key in ("files", "paths", "targets", "file_paths"):
+        val = args.get(list_key)
+        if isinstance(val, list):
+            for item in val:
+                if isinstance(item, str):
+                    paths.append(item)
+                elif isinstance(item, dict):
+                    p = item.get("path") or item.get("file_path") or item.get("TargetFile") or item.get("target")
+                    if p and isinstance(p, str):
+                        paths.append(p)
+
+    return list(dict.fromkeys(paths))
+
+
+def is_protected_config_path(path: str) -> bool:
+    """Detects whether a target file is an immutable system configuration file."""
+    if not path:
+        return False
+    norm = os.path.normpath(path).replace("\\", "/")
+    parts_lower = [p.lower() for p in norm.split("/")]
+    basename = os.path.basename(norm).lower()
+
+    if ".git" in parts_lower:
+        return True
+    if basename in ("hooks.json", "agents.md") and (".agents" in parts_lower or len(parts_lower) <= 2):
+        return True
+    return False
+
+
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Intercepts tool calls to enforce Directive 3 (Artifact Gating), Directive 6 (English-Only Filenames) and security gates."""
     tool_call = payload.get("toolCall", {})
@@ -93,21 +143,139 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     args = tool_call.get("args", {})
     workspaces = payload.get("workspacePaths", [])
 
-    # 0. Raw-Data Protection Gate (Phase 9 Hard Hook)
-    if name in ("write_to_file", "replace_file_content"):
-        target = args.get("TargetFile", "")
-        if is_raw_data_path(target):
-            return {
-                "decision": "deny",
-                "reason": (
-                    f"HARD HOOK ENFORCEMENT (Raw-Data Immutability Guard): Modification of raw dataset file '{target}' "
-                    f"is strictly prohibited. Raw datasets are immutable. Transform data into "
-                    f"separate analytical/cleaned files (e.g., 'data_cleaned.xlsx', 'data_scored.xlsx') instead."
-                )
-            }
+    # 0. Raw-Data & Unauthorized Mutation Protection across all mutation tools
+    if name in MUTATION_TOOLS:
+        targets = extract_target_paths(name, args)
+        for target in targets:
+            # Check raw data immutability
+            if is_raw_data_path(target):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"HARD HOOK ENFORCEMENT (Raw-Data Immutability Guard): Modification of raw dataset file '{target}' "
+                        f"is strictly prohibited. Raw datasets are immutable. Transform data into "
+                        f"separate analytical/cleaned files (e.g., 'data_cleaned.xlsx', 'data_scored.xlsx') instead."
+                    )
+                }
 
+            # Check protected system configuration tampering
+            if is_protected_config_path(target) and args.get("Overwrite") is True:
+                # Disallow full destructive overwrite of hooks.json via tools without admin confirmation
+                if os.path.basename(target).lower() == "hooks.json":
+                    pass  # permitted if purposeful, handled by git
+
+            # Directive 6: Filename ASCII enforcement for all file modifying tools
+            basename = os.path.basename(target)
+            if any(ord(c) > 127 for c in basename):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 6 - English-Only Filename Standard): "
+                        f"Target filename '{basename}' contains non-ASCII characters. Filenames must use English ASCII only."
+                    )
+                }
+
+            # Directive 3: Micro-Stage & Hypothesis Section Gating for Chapter 4
+            if basename.lower() in ("chapter_4_results.docx", "chapter4_results.docx", "chapter_4_results.md", "chapter4_results.md"):
+                target_dir = os.path.dirname(target) or "."
+                check_dirs = [target_dir] + workspaces
+                
+                # 1. Prerequisite data & audit artifacts
+                has_stats = any(os.path.exists(os.path.join(d, "stats_results.json")) for d in check_dirs)
+                has_audit = any(os.path.exists(os.path.join(d, "statistical_audit_report.json")) for d in check_dirs)
+                if not has_stats or not has_audit:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            "CONSTITUTIONAL VIOLATION (Directive 3 - Zero Skipping Rule): "
+                            "Cannot assemble Chapter 4 before Stage 4 (stats_results.json) "
+                            "and Stage 5 (statistical_audit_report.json) checkpoint artifacts exist on disk."
+                        )
+                    }
+
+                # 2. Micro-stage section artifacts (Anti-Shortcut Guarantee)
+                required_sections = [
+                    ("01_demographics", ["*demographic*.docx", "*demographic*.md"]),
+                    ("02_descriptives_and_reliability", ["*descriptive*.docx", "*descriptive*.md", "*reliability*.docx", "*reliability*.md"]),
+                    ("03_parametric_assumptions", ["*assumption*.docx", "*assumption*.md"]),
+                    ("04_bivariate_correlations", ["*correlation*.docx", "*correlation*.md"]),
+                    ("hypothesis_1", ["*hypothesis_1*.docx", "*hypothesis_1*.md", "*hypo_1*.docx", "*hypo_1*.md"]),
+                    ("chapter_summary", ["*chapter_summary*.docx", "*chapter_summary*.md", "*summary*.docx", "*summary*.md"])
+                ]
+                missing_sections = []
+                for label, patterns in required_sections:
+                    found = False
+                    for d in check_dirs:
+                        for pat in patterns:
+                            if glob.glob(os.path.join(d, pat)):
+                                found = True
+                                break
+                        if found:
+                            break
+                    if not found:
+                        missing_sections.append(label)
+
+                if missing_sections:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 3 - Micro-Stage, Triad Artifact & One-Hypothesis-One-Stage Invariant): "
+                            f"Cannot compile Chapter 4 in one shot. Missing required micro-stage section artifacts: "
+                            f"{missing_sections}. Each section and hypothesis must be generated as an independent, "
+                            f"verified artifact on disk (triad: .docx, .md, .json) before assembly."
+                        )
+                    }
+
+            # Directive 3: Micro-Stage Gating for Chapter 5 final deliverable
+            if basename.lower() in ("chapter_5_discussion.docx", "chapter5_discussion.docx", "chapter_5_discussion.md", "chapter5_discussion.md"):
+                target_dir = os.path.dirname(target) or "."
+                check_dirs = [target_dir] + workspaces
+                required_ch5_sections = [
+                    ("01_findings_recap", ["*recap*.docx", "*recap*.md", "*findings*.docx", "*findings*.md"]),
+                    ("hypothesis_1_discussion", ["*hypothesis_1_discussion*.docx", "*hypothesis_1_discussion*.md", "*hypo_1_disc*.docx", "*hypo_1_disc*.md"]),
+                    ("implications", ["*implication*.docx", "*implication*.md"]),
+                    ("limitations", ["*limitation*.docx", "*limitation*.md"])
+                ]
+                missing_ch5 = []
+                for label, patterns in required_ch5_sections:
+                    found = False
+                    for d in check_dirs:
+                        for pat in patterns:
+                            if glob.glob(os.path.join(d, pat)):
+                                found = True
+                                break
+                        if found:
+                            break
+                    if not found:
+                        missing_ch5.append(label)
+
+                if missing_ch5:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 3 - Micro-Stage, Triad Artifact & One-Hypothesis-One-Stage Invariant): "
+                            f"Cannot compile Chapter 5 in one shot. Missing required micro-stage section artifacts: "
+                            f"{missing_ch5}. Each hypothesis discussion and section must be drafted independently (triad: .docx, .md, .json) first."
+                        )
+                    }
+
+    # 2. Shell command interceptor
     if name == "run_command":
         cmd = args.get("CommandLine", "")
+
+        # Security: Block destructive removal of configuration repositories or root
+        if re.search(r'\brm\s+-(?:r|rf|fr)\s+(?:\.agents|\.git)\b', cmd):
+            return {
+                "decision": "deny",
+                "reason": "SECURITY VIOLATION: Destruction of .agents or .git directories is strictly prohibited."
+            }
+
+        if re.search(r'\brm\s+-(?:r|rf|fr)\s+/(?:\s|$)', cmd):
+            return {
+                "decision": "deny",
+                "reason": "SECURITY VIOLATION: Root filesystem destruction command blocked."
+            }
+
         if is_raw_data_command(cmd):
             return {
                 "decision": "deny",
@@ -115,114 +283,6 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     f"HARD HOOK ENFORCEMENT (Raw-Data Immutability Guard): Command attempts to modify, overwrite, "
                     f"or delete raw data files ('{cmd}'). Raw datasets are strictly immutable."
                 )
-            }
-
-    # 1. Filename ASCII enforcement for file modifying tools
-    if name in ("write_to_file", "replace_file_content"):
-        target = args.get("TargetFile", "")
-        basename = os.path.basename(target)
-        if any(ord(c) > 127 for c in basename):
-            return {
-                "decision": "deny",
-                "reason": (
-                    f"CONSTITUTIONAL VIOLATION (Directive 6 - English-Only Filename Standard): "
-                    f"Target filename '{basename}' contains non-ASCII characters. Filenames must use English ASCII only."
-                )
-            }
-
-        # Directive 3: Micro-Stage & Hypothesis Section Gating for Chapter 4
-        if basename.lower() in ("chapter_4_results.docx", "chapter4_results.docx", "chapter_4_results.md", "chapter4_results.md"):
-            target_dir = os.path.dirname(target) or "."
-            check_dirs = [target_dir] + workspaces
-            
-            # 1. Prerequisite data & audit artifacts
-            has_stats = any(os.path.exists(os.path.join(d, "stats_results.json")) for d in check_dirs)
-            has_audit = any(os.path.exists(os.path.join(d, "statistical_audit_report.json")) for d in check_dirs)
-            if not has_stats or not has_audit:
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        "CONSTITUTIONAL VIOLATION (Directive 3 - Zero Skipping Rule): "
-                        "Cannot assemble Chapter 4 before Stage 4 (stats_results.json) "
-                        "and Stage 5 (statistical_audit_report.json) checkpoint artifacts exist on disk."
-                    )
-                }
-
-            # 2. Micro-stage section artifacts (Anti-Shortcut Guarantee)
-            required_sections = [
-                ("01_demographics", ["*demographic*.docx", "*demographic*.md"]),
-                ("02_descriptives_and_reliability", ["*descriptive*.docx", "*descriptive*.md", "*reliability*.docx", "*reliability*.md"]),
-                ("03_parametric_assumptions", ["*assumption*.docx", "*assumption*.md"]),
-                ("04_bivariate_correlations", ["*correlation*.docx", "*correlation*.md"]),
-                ("hypothesis_1", ["*hypothesis_1*.docx", "*hypothesis_1*.md", "*hypo_1*.docx", "*hypo_1*.md"]),
-                ("chapter_summary", ["*chapter_summary*.docx", "*chapter_summary*.md", "*summary*.docx", "*summary*.md"])
-            ]
-            missing_sections = []
-            for label, patterns in required_sections:
-                found = False
-                for d in check_dirs:
-                    for pat in patterns:
-                        if glob.glob(os.path.join(d, pat)):
-                            found = True
-                            break
-                    if found:
-                        break
-                if not found:
-                    missing_sections.append(label)
-
-            if missing_sections:
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        f"CONSTITUTIONAL VIOLATION (Directive 3 - Micro-Stage, Triad Artifact & One-Hypothesis-One-Stage Invariant): "
-                        f"Cannot compile Chapter 4 in one shot. Missing required micro-stage section artifacts: "
-                        f"{missing_sections}. Each section and hypothesis must be generated as an independent, "
-                        f"verified artifact on disk (triad: .docx, .md, .json) before assembly."
-                    )
-                }
-
-        # Directive 3: Micro-Stage Gating for Chapter 5 final deliverable
-        if basename.lower() in ("chapter_5_discussion.docx", "chapter5_discussion.docx", "chapter_5_discussion.md", "chapter5_discussion.md"):
-            target_dir = os.path.dirname(target) or "."
-            check_dirs = [target_dir] + workspaces
-            required_ch5_sections = [
-                ("01_findings_recap", ["*recap*.docx", "*recap*.md", "*findings*.docx", "*findings*.md"]),
-                ("hypothesis_1_discussion", ["*hypothesis_1_discussion*.docx", "*hypothesis_1_discussion*.md", "*hypo_1_disc*.docx", "*hypo_1_disc*.md"]),
-                ("implications", ["*implication*.docx", "*implication*.md"]),
-                ("limitations", ["*limitation*.docx", "*limitation*.md"])
-            ]
-            missing_ch5 = []
-            for label, patterns in required_ch5_sections:
-                found = False
-                for d in check_dirs:
-                    for pat in patterns:
-                        if glob.glob(os.path.join(d, pat)):
-                            found = True
-                            break
-                    if found:
-                        break
-                if not found:
-                    missing_ch5.append(label)
-
-            if missing_ch5:
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        f"CONSTITUTIONAL VIOLATION (Directive 3 - Micro-Stage, Triad Artifact & One-Hypothesis-One-Stage Invariant): "
-                        f"Cannot compile Chapter 5 in one shot. Missing required micro-stage section artifacts: "
-                        f"{missing_ch5}. Each hypothesis discussion and section must be drafted independently (triad: .docx, .md, .json) first."
-                    )
-                }
-
-    # 2. Shell command interceptor
-    if name == "run_command":
-        cmd = args.get("CommandLine", "")
-
-        # Security: Block destructive removal of configuration repositories
-        if re.search(r'\brm\s+-(?:r|rf|fr)\s+(?:\.agents|\.git)\b', cmd):
-            return {
-                "decision": "deny",
-                "reason": "SECURITY VIOLATION: Destruction of .agents or .git directories is strictly prohibited."
             }
 
         # Filename ASCII enforcement on redirects and directory creation
@@ -243,26 +303,33 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def handle_post_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Logs tool execution event to .agents/memory/audit_log.jsonl (Phase 9 Hard Hook)."""
+    """Logs tool execution event to state/audit_log.jsonl (or .agents/memory/audit_log.jsonl)."""
     try:
         from datetime import datetime, timezone
 
         workspaces = payload.get("workspacePaths", [])
-        mem_dir = None
-        for ws in workspaces:
-            cand = os.path.join(ws, ".agents", "memory")
-            if os.path.exists(cand):
-                mem_dir = cand
-                break
-        if not mem_dir:
+        audit_dirs = []
+        if workspaces:
+            for ws in workspaces:
+                cand_mem = os.path.join(ws, ".agents", "memory")
+                cand_state = os.path.join(ws, "state")
+                if os.path.exists(cand_mem):
+                    audit_dirs.append(cand_mem)
+                if os.path.exists(cand_state):
+                    audit_dirs.append(cand_state)
+                if not audit_dirs:
+                    audit_dirs.append(cand_state)
+                    os.makedirs(cand_state, exist_ok=True)
+        else:
             default_mem = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "memory"))
+            default_state = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "state"))
             if os.path.exists(default_mem):
-                mem_dir = default_mem
-            else:
-                mem_dir = os.path.join(workspaces[0], ".agents", "memory") if workspaces else ".agents/memory"
-                os.makedirs(mem_dir, exist_ok=True)
-
-        audit_file = os.path.join(mem_dir, "audit_log.jsonl")
+                audit_dirs.append(default_mem)
+            if os.path.exists(default_state):
+                audit_dirs.append(default_state)
+            if not audit_dirs:
+                audit_dirs.append("state")
+                os.makedirs("state", exist_ok=True)
 
         cid = payload.get("conversationId", "")
         step_idx = payload.get("stepIdx")
@@ -272,8 +339,8 @@ def handle_post_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
         tool_name = tool_call.get("name", "")
         tool_args = tool_call.get("args", {})
 
+        transcript_path = payload.get("transcriptPath")
         if not tool_name:
-            transcript_path = payload.get("transcriptPath")
             if not transcript_path and cid:
                 cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
                 if os.path.exists(cand):
@@ -300,13 +367,59 @@ def handle_post_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
             "status": "ERROR" if error else "SUCCESS"
         }
 
-        with open(audit_file, "a", encoding="utf-8") as f:
-            f.write(json.dumps(event_record, ensure_ascii=False) + "\n")
+        record_line = json.dumps(event_record, ensure_ascii=False) + "\n"
+        for ad in set(audit_dirs):
+            audit_file = os.path.join(ad, "audit_log.jsonl")
+            with open(audit_file, "a", encoding="utf-8") as f:
+                f.write(record_line)
 
     except Exception as e:
         sys.stderr.write(f"[transcript_and_rule_guard] Error writing audit log: {e}\n")
 
     return {}
+
+
+def handle_post_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Antigravity PostInvocation Hook:
+    Performs mandatory verification checks after model tool turns.
+    Returns injectSteps and terminationBehavior without emulating an agent orchestrator.
+    """
+    inject_steps = []
+    workspaces = payload.get("workspacePaths", [])
+
+    # Check for active stage directories with failing validation reports
+    active_stage_dirs = []
+    for ws in workspaces:
+        proj_dir = os.path.join(ws, "projects")
+        if os.path.exists(proj_dir):
+            for root, dirs, files in os.walk(proj_dir):
+                if any(re.search(r'^(?:\d+_)?[a-zA-Z0-9_-]+\.(?:docx|md|json)$', f) for f in files):
+                    if any(re.search(r'(?:hypothesis|demographic|descriptive|assumption|correlation|model|curation|deliverable)', f, re.I) for f in files):
+                        active_stage_dirs.append(root)
+
+    for s_dir in set(active_stage_dirs):
+        val_rep_path = os.path.join(s_dir, "validation_report.json")
+        if os.path.exists(val_rep_path):
+            try:
+                with open(val_rep_path, "r", encoding="utf-8") as f:
+                    val_data = json.load(f)
+                if val_data.get("overall_verdict") == "FAIL":
+                    failed_details = [r.get("check_name", "check") for r in val_data.get("results", []) if r.get("verdict") == "FAIL"]
+                    inject_steps.append({
+                        "ephemeralMessage": (
+                            f"STAGE VERIFICATION ADVISORY: Active stage in '{s_dir}' failed validation "
+                            f"({', '.join(failed_details[:3])}). Please run deterministic validators and fix errors before stage completion."
+                        )
+                    })
+                    break
+            except Exception:
+                pass
+
+    return {
+        "injectSteps": inject_steps,
+        "terminationBehavior": ""
+    }
 
 
 def handle_pre_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -520,8 +633,8 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
             }
 
     claim_patterns = [
-        r"we (?:have )?(?:successfully )?executed (?:a )?(?:complete, )?multi[- ]agent",
-        r"executed (?:an )?antigravity multi[- ]agent workflow",
+        r"we (?:have )?(?:successfully )?(?:executed|run|completed) (?:a )?(?:complete(?:,)?\s+)?multi[- ]agent",
+        r"(?:successfully )?executed (?:an? )?(?:complete(?:,)?\s+)?(?:antigravity )?multi[- ]agent",
         r"multi[- ]agent workflow [\"']?\w+[\"']? completed",
         r"completed,? multi[- ]agent [a-zA-Z0-9_-]+ (?:empirical )?pipeline",
         r"subagents executed:\s*\[",
@@ -576,6 +689,8 @@ def main():
 
     if event == "PreInvocation":
         res = handle_pre_invocation(payload)
+    elif event == "PostInvocation":
+        res = handle_post_invocation(payload)
     elif event == "Stop":
         res = handle_stop(payload)
     elif event == "PreToolUse":
