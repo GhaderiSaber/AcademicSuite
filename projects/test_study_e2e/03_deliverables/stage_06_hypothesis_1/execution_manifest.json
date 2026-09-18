@@ -1,0 +1,111 @@
+{
+  "contract_version": "1.0.0",
+  "manifest_id": "MANIFEST-1789739677",
+  "project_id": "test_study_e2e",
+  "milestone_id": "06_hypothesis_testing",
+  "generated_by": "statistical-expert",
+  "execution_mode": "production",
+  "timestamp": "2026-09-18T13:54:37.399007+00:00",
+  "analysis_plan_hash": "61491769566778ccd0fbf5b3672319055209db9cd57b9343a1d1fe490a19854d",
+  "input_dataset_hash": "11e34ea22ab2bbd159501802ce4bccc74a78ed059f944a9f5b11c32b3452f964",
+  "dataset_provenance": {
+    "dataset_identifier": "DATASET-RAW-11E34EA22A",
+    "file_size_bytes": 8056,
+    "sha256": "11e34ea22ab2bbd159501802ce4bccc74a78ed059f944a9f5b11c32b3452f964",
+    "schema_fingerprint": {
+      "num_rows": 80,
+      "num_columns": 6,
+      "row_count": 80,
+      "column_count": 6,
+      "columns": [
+        "participant_id",
+        "group",
+        "gender",
+        "age",
+        "burnout_pre",
+        "burnout_post"
+      ],
+      "dtypes": {
+        "participant_id": "str",
+        "group": "str",
+        "gender": "str",
+        "age": "int64",
+        "burnout_pre": "float64",
+        "burnout_post": "float64"
+      },
+      "missing_counts": {
+        "participant_id": 0,
+        "group": 0,
+        "gender": 0,
+        "age": 0,
+        "burnout_pre": 0,
+        "burnout_post": 0
+      },
+      "null_counts": {
+        "participant_id": 0,
+        "group": 0,
+        "gender": 0,
+        "age": 0,
+        "burnout_pre": 0,
+        "burnout_post": 0
+      },
+      "total_missing": 0,
+      "schema_hash": "e2f508e37406f56d5170ef7867443d03f9d8d000751576f95e367613a6b66220"
+    },
+    "recorded_at": "2026-09-18T13:54:37.400785+00:00",
+    "is_read_only": true
+  },
+  "code_identity": "statistical_pipeline_engine.py:69585441ebe94971a47eca2ba36a0877a8fa09c3d905b8722b473945f00808c4",
+  "command": "python3 /home/ghaderi-saber/Desktop/AcademicSuite/scripts/statistical_pipeline_engine.py --plan PLAN-2026-SYNTH-1789739677 --dataset /home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/01_raw_inputs/test_academic_study_data.xlsx --mode production",
+  "exit_code": 0,
+  "dry_run": false,
+  "execution_environment": {
+    "working_directory": "/home/ghaderi-saber/Desktop/AcademicSuite",
+    "python_interpreter": "/usr/bin/python3",
+    "r_script_binary": "Rscript",
+    "environment_variables": {
+      "PLATFORM": "Linux-7.0.0-31-generic-x86_64-with-glibc2.43",
+      "PYTHON_VERSION": "3.14.4"
+    }
+  },
+  "steps": [
+    {
+      "step_number": 1,
+      "stage_id": "06_hypothesis_testing",
+      "capability": "statistical_modeling",
+      "assigned_subagent": "statistics-agent",
+      "skill_name": "statistical-data-analyst",
+      "script_path": "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/statistical_pipeline_engine.py",
+      "input_artifacts": [
+        "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/01_raw_inputs/test_academic_study_data.xlsx"
+      ],
+      "output_artifacts": [
+        "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/03_deliverables/stage_06_hypothesis_1/stats_results.json",
+        "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/03_deliverables/stage_06_hypothesis_1/stats_table.md",
+        "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/03_deliverables/stage_06_hypothesis_1/stats_summary.md"
+      ],
+      "timeout_seconds": 300,
+      "required_validation": {
+        "validator_suite_required": true,
+        "expected_verdict": "PASS"
+      }
+    }
+  ],
+  "produced_artifacts": [
+    {
+      "path": "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/03_deliverables/stage_06_hypothesis_1/stats_results.json",
+      "sha256": "60d490bd6f79c9252cc7ba61d3ffa42d1eb06a8b8238f47440c5a99460d2d6a0",
+      "type": "data_json"
+    },
+    {
+      "path": "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/03_deliverables/stage_06_hypothesis_1/stats_table.md",
+      "sha256": "bd0523a3f1fd3e7e6bc680d13501fe6eb24e03a4158d0d53b7dc8b9bf6af640c",
+      "type": "markdown_table"
+    },
+    {
+      "path": "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/03_deliverables/stage_06_hypothesis_1/stats_summary.md",
+      "sha256": "3fbf3158e5878095b8f5b868a2b6c69cf5241cf97968ba4e190b7eb17d861a67",
+      "type": "markdown_narrative"
+    }
+  ]
+}

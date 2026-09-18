@@ -343,6 +343,11 @@ class StrictStateMachine:
             except Exception:
                 pass
 
+    @property
+    def events(self) -> List[Dict[str, Any]]:
+        """Convenience accessor to read durable events from events.jsonl."""
+        return self.event_engine.read_events(validate_schema=False, enforce_ordering=False)
+
     def save_all(self) -> None:
         """Atomically persists state snapshots to disk."""
         now_iso = datetime.now(timezone.utc).isoformat()

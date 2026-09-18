@@ -1,0 +1,55 @@
+{
+  "contract_version": "1.0.0",
+  "report_id": "VAL-2026-E2E-CH4-HYPO1",
+  "validator_name": "statistical-auditor",
+  "target_artifacts": [
+    "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/03_deliverables/stage_06_hypothesis_1/06_hypothesis_1.docx",
+    "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/03_deliverables/stage_06_hypothesis_1/06_hypothesis_1.md",
+    "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/03_deliverables/stage_06_hypothesis_1/06_hypothesis_1.json"
+  ],
+  "stage_id": "06_hypothesis_1",
+  "milestone": "M4_CHAPTER4",
+  "timestamp": "2026-09-18T12:05:00Z",
+  "overall_verdict": "PASS",
+  "evidence_summary": {
+    "total_evidence_items_evaluated": 3,
+    "total_checks_run": 3,
+    "checks_passed": 3,
+    "checks_failed": 0,
+    "checks_blocked": 0
+  },
+  "results": [
+    {
+      "check_id": "CHK-DF-01",
+      "rule": "Degrees of freedom match sample size N=80 (df_total=79)",
+      "verdict": "PASS",
+      "evidence": {
+        "description": "df_total = 79 verified exactly.",
+        "sample_size": 80,
+        "df_total": 79
+      }
+    },
+    {
+      "check_id": "CHK-ASSUMP-01",
+      "rule": "Levene test for equality of variance p > .05",
+      "verdict": "PASS",
+      "evidence": {
+        "description": "Levene p = .248 satisfies assumption.",
+        "p_value": 0.248
+      }
+    },
+    {
+      "check_id": "CHK-MSAI-01",
+      "rule": "Multi-Signal Anomaly Index (MSAI) must remain below 0.50",
+      "verdict": "PASS",
+      "evidence": {
+        "description": "MSAI = 0.12 (well below 0.50 threshold).",
+        "msai_score": 0.12
+      }
+    }
+  ],
+  "metadata": {
+    "git_commit_hash": "eb28113",
+    "execution_mode": "production"
+  }
+}

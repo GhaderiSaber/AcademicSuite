@@ -850,11 +850,11 @@ class StatisticalMethodologySynthesizer:
                 }
             },
             "variables": {
-                "outcome_variables": [selected_cand.get("data_requirements", {}).get("variables", ["burnout_post"])[-1]],
-                "predictors": [selected_cand.get("data_requirements", {}).get("variables", ["group"])[0]],
-                "covariates": [v for v in selected_cand.get("data_requirements", {}).get("variables", []) if "pre" in v or "covar" in v] or [selected_cand.get("data_requirements", {}).get("variables", ["burnout_pre"])[1]] if len(selected_cand.get("data_requirements", {}).get("variables", [])) > 2 else [],
-                "independent": [selected_cand.get("data_requirements", {}).get("variables", ["group"])[0]],
-                "dependent": [selected_cand.get("data_requirements", {}).get("variables", ["burnout_post"])[-1]]
+                "outcome_variables": study_context.get("variables", {}).get("dependent") or [selected_cand.get("data_requirements", {}).get("variables", ["burnout_post"])[-1]],
+                "predictors": study_context.get("variables", {}).get("independent") or [selected_cand.get("data_requirements", {}).get("variables", ["group"])[0]],
+                "covariates": study_context.get("variables", {}).get("covariates") or ([v for v in selected_cand.get("data_requirements", {}).get("variables", []) if "pre" in v or "covar" in v] or ([selected_cand.get("data_requirements", {}).get("variables", ["burnout_pre"])[1]] if len(selected_cand.get("data_requirements", {}).get("variables", [])) > 2 else [])),
+                "independent": study_context.get("variables", {}).get("independent") or [selected_cand.get("data_requirements", {}).get("variables", ["group"])[0]],
+                "dependent": study_context.get("variables", {}).get("dependent") or [selected_cand.get("data_requirements", {}).get("variables", ["burnout_post"])[-1]]
             },
             "estimands": [
                 {

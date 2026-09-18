@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0.0",
+  "artifacts": [
+    {
+      "contract_version": "1.0.0",
+      "artifact_id": "ART-2026-E2E-CH4-HYPO1-DOCX",
+      "milestone": "M4_CHAPTER4",
+      "stage_id": "06_hypothesis_1",
+      "producer": {
+        "agent": "academic-writer",
+        "script_or_generator": "scripts/generate_hypothesis_triad_docx.py"
+      },
+      "consumers": [
+        "academic-orchestrator",
+        "validation-agent"
+      ],
+      "type": "word_document",
+      "path": "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_study_e2e/03_deliverables/stage_06_hypothesis_1/06_hypothesis_1.docx",
+      "schema": "contracts/analysis_plan.schema.json",
+      "hash": "9beb156818690e7bb27348fffd374ccdb384f61c4a3557740736fe8304a6393f",
+      "creation_timestamp": "2026-09-18T13:54:37.472851+00:00",
+      "validation_status": "VALID",
+      "provenance": {
+        "source_dataset": "real_input",
+        "deterministic_tool": "scripts/generate_hypothesis_triad_docx.py",
+        "command_line": "python3 scripts/generate_hypothesis_triad_docx.py"
+      },
+      "dependencies": []
+    }
+  ]
+}

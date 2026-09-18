@@ -768,7 +768,7 @@ class StatisticalPipelineEngine:
         covar = covar_list[0] if covar_list else None
 
         # Clean NaN
-        clean_cols = [c for c in [dv, iv, covar] if c and c in df.columns]
+        clean_cols = list(dict.fromkeys([c for c in [dv, iv, covar] if c and c in df.columns]))
         sub_df = df[clean_cols].dropna()
         n = len(sub_df)
 
@@ -785,13 +785,14 @@ class StatisticalPipelineEngine:
             group_descriptives = {}
             group_arrays = []
             for g in groups:
-                g_vals = sub_df[sub_df[iv] == g][dv].values
+                g_vals = np.asarray(sub_df[sub_df[iv] == g][dv].values, dtype=float).ravel()
                 group_arrays.append(g_vals)
+                sem_val = float(stats.sem(g_vals)) if len(g_vals) > 1 else 0.0
                 group_descriptives[str(g)] = {
                     "n": int(len(g_vals)),
                     "mean": round(float(np.mean(g_vals)), 2),
                     "sd": round(float(np.std(g_vals, ddof=1)), 2),
-                    "se": round(float(stats.sem(g_vals)), 2)
+                    "se": round(sem_val, 2)
                 }
 
             # Levene test for homogeneity of variance
