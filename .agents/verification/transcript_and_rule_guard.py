@@ -17,6 +17,10 @@ import glob
 import stat
 from typing import Dict, Any, List, Optional
 
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 
 def load_transcript(transcript_path: str) -> List[Dict[str, Any]]:
     """Loads and parses transcript.jsonl safely."""
@@ -615,6 +619,15 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     vmod = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(vmod)
                     rep = vmod.run_suite(s_dir)
+                    # Continuous Self-Improvement: Auto-capture structured experience
+                    try:
+                        from scripts.academic_experience_recorder import AcademicExperienceRecorder
+                        rec = AcademicExperienceRecorder(project_root=ROOT_DIR)
+                        rec_outcome = "FAILURE" if rep.get("overall_verdict") == "FAIL" else "SUCCESS"
+                        rec.record_from_stage(s_dir, outcome=rec_outcome)
+                    except Exception as e_rec:
+                        sys.stderr.write(f"[transcript_and_rule_guard] Experience recording note: {e_rec}\n")
+
                     if rep.get("overall_verdict") == "FAIL":
                         failed_tests = [r for r in rep.get("results", []) if r.get("verdict") == "FAIL"]
                         return {

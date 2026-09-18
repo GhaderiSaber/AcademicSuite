@@ -91,6 +91,24 @@ except ImportError:
         PitfallNotFoundError,
     )
 
+try:
+    from scripts.academic_experience_recorder import (
+        AcademicExperienceRecorder,
+        ExperienceRecordingError,
+        ExperienceValidationError,
+    )
+except ImportError:
+    try:
+        from academic_experience_recorder import (
+            AcademicExperienceRecorder,
+            ExperienceRecordingError,
+            ExperienceValidationError,
+        )
+    except ImportError:
+        AcademicExperienceRecorder = None
+        ExperienceRecordingError = Exception
+        ExperienceValidationError = Exception
+
 
 # ==============================================================================
 # Custom Exceptions (Fail-Closed Hierarchy)
@@ -313,6 +331,11 @@ class StrictStateMachine:
 
         self.event_engine = AcademicEventEngine(self.events_path, project_id=self.project_id)
         self.pitfall_registry = AcademicPitfallRegistry(self.pitfalls_path, project_id=self.project_id)
+
+        self.project_root = os.path.dirname(self.state_dir)
+        self.experience_recorder = None
+        if AcademicExperienceRecorder is not None:
+            self.experience_recorder = AcademicExperienceRecorder(project_root=self.project_root)
 
         self.load_from_disk()
 
@@ -616,6 +639,27 @@ class StrictStateMachine:
         )
 
         self.save_all()
+
+        # Automatic Structured Experience Capture (Continuous Behavioral Self-Improvement)
+        if self.experience_recorder is not None and target_enum in [
+            MilestoneState.APPROVED,
+            MilestoneState.FAILED,
+            MilestoneState.REJECTED,
+            MilestoneState.SUPERSEDED
+        ]:
+            try:
+                outcome_ovr = "SUCCESS" if target_enum == MilestoneState.APPROVED else (
+                    "FAILURE" if target_enum == MilestoneState.FAILED else "PARTIAL"
+                )
+                self.experience_recorder.record_from_milestone(
+                    sm=self,
+                    milestone_id=milestone_id,
+                    outcome_override=outcome_ovr,
+                    active_agent=actor
+                )
+            except Exception as rec_err:
+                sys.stderr.write(f"[StrictStateMachine Experience Capture Warning] {rec_err}\n")
+
         return {
             "status": "TRANSITIONED",
             "milestone_id": milestone_id,
