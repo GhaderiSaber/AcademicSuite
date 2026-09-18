@@ -26,6 +26,7 @@ import os
 import sys
 import json
 import time
+import argparse
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Union, Tuple
 
@@ -70,6 +71,14 @@ class NoDefensibleCandidateError(CandidateDeliberationError):
 
 class InvalidCandidateError(CandidateDeliberationError):
     """Raised when a candidate analysis plan fails schema validation."""
+    pass
+
+class MissingProductionDataError(CandidateDeliberationError):
+    """Raised when real production empirical candidates payload is missing in production mode."""
+    pass
+
+class ProductionSampleFallbackBlockedError(CandidateDeliberationError):
+    """Raised when an attempt is made to fall back to sample/demo candidate data in production mode."""
     pass
 
 
@@ -877,3 +886,170 @@ def create_unverified_plan_guard():
         "CONSTITUTIONAL VIOLATION: An AnalysisPlan cannot be created without executing the "
         "Candidate -> Falsifier -> Synthesis deliberation sequence."
     )
+
+
+# ==============================================================================
+# Markdown Report Generation & CLI Entry Point
+# ==============================================================================
+
+def generate_deliberation_markdown(delib_result: Dict[str, Any], study_context: Dict[str, Any]) -> str:
+    """
+    Generates an executive APA-style markdown report detailing candidate evaluations,
+    Academic Challenger categorical findings, avoided pitfalls, and the synthesized plan.
+    """
+    plan = delib_result.get("analysis_plan", {})
+    selected_id = delib_result.get("selected_candidate_id", "N/A")
+    category = delib_result.get("selection_category", "N/A")
+    rationale = delib_result.get("synthesis_rationale", "N/A")
+    findings = delib_result.get("challenger_findings", [])
+    rejected = delib_result.get("rejected_candidates", [])
+    model_family = plan.get("statistical_models", [{}])[0].get("family", "N/A")
+    estimand_def = plan.get("estimands", [{}])[0].get("description", "N/A")
+
+    lines = [
+        "# Methodological Deliberation & Academic Challenger Report",
+        "",
+        "## Executive Summary",
+        f"- **Project ID**: `{study_context.get('project_id', 'N/A')}`",
+        f"- **Design Type**: `{study_context.get('design_type', 'N/A')}`",
+        f"- **Time Structure**: `{study_context.get('time_structure', 'N/A')}`",
+        f"- **Selected Candidate**: `{selected_id}` (`{model_family}`)",
+        f"- **Selection Verdict**: **{category}**",
+        f"- **Synthesis Rationale**: {rationale}",
+        "",
+        "---",
+        "",
+        "## 1. Candidate Evaluation & Challenger Invalidation Matrix",
+        "",
+        "| Candidate ID | Challenger Verdict | Methodological Vulnerabilities / Conditions | Avoided Pitfalls |",
+        "| :--- | :---: | :--- | :--- |"
+    ]
+
+    for f in findings:
+        cand_id = f.get("candidate_id", "N/A")
+        verdict = f.get("verdict", "UNKNOWN")
+        flaws = []
+        for r_reason in f.get("rejection_reasons", []):
+            flaws.append(f"**FATAL**: {r_reason}")
+        for c_cond in f.get("conditions_for_acceptance", []):
+            flaws.append(f"**CONDITION**: {c_cond}")
+        for w_warn in f.get("methodological_warnings", []):
+            flaws.append(f"**WARN**: {w_warn}")
+        flaw_str = "<br>".join(flaws) if flaws else "None (Fully Defensible)"
+
+        pf_match = f.get("historical_pitfall_match")
+        pf_str = f"`{pf_match.get('pitfall_id', '')}`" if pf_match else "None"
+
+        lines.append(f"| `{cand_id}` | **{verdict}** | {flaw_str} | {pf_str} |")
+
+    lines.extend([
+        "",
+        "---",
+        "",
+        "## 2. Canonical Pitfalls Registry Action",
+        ""
+    ])
+
+    if rejected:
+        lines.append(f"The Academic Challenger invalidated {len(rejected)} candidate approach(es) and permanently recorded them to `state/pitfalls.jsonl`:")
+        for r in rejected:
+            p_reasons = "; ".join(r.get("rejection_reasons", ["Methodological flaw detected"]))
+            lines.append(f"- **`{r.get('candidate_id', '')}`** ({r.get('method', '')}): *{p_reasons}*")
+    else:
+        lines.append("No candidates were rejected in this deliberation cycle.")
+
+    lines.extend([
+        "",
+        "---",
+        "",
+        "## 3. Synthesized Analysis Plan Summary",
+        f"- **Primary Hypothesis**: {plan.get('hypotheses', [{}])[0].get('statement', 'N/A')}",
+        f"- **Estimand**: {estimand_def}",
+        f"- **Model Family**: `{model_family}`",
+        f"- **Software Engine**: `{plan.get('execution_specification', {}).get('engine', 'N/A')}`",
+        f"- **Assigned Subagent**: `{plan.get('execution_specification', {}).get('assigned_subagent', 'N/A')}`",
+        f"- **Artifact Triad Path**: `{plan.get('execution_specification', {}).get('expected_triad_artifacts', {}).get('json_path', '06_hypothesis_1.json')}`",
+        "",
+        "> [!NOTE]",
+        "> Complete formal specification written to `analysis_plan.json` conforming to `contracts/analysis_plan.schema.json`."
+    ])
+
+    return "\n".join(lines)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="AcademicSuite Candidate -> Falsifier -> Synthesis Deliberation Engine")
+    parser.add_argument("--candidates", required=True, help="Path to JSON file containing candidates or deliberation payload")
+    parser.add_argument("--out-dir", required=True, help="Output directory for generated artifacts")
+    parser.add_argument("--pitfalls", default=DEFAULT_PITFALLS_FILE, help="Path to pitfalls.jsonl registry")
+    parser.add_argument("--context", help="Path to optional study context JSON file")
+    parser.add_argument("--mode", default="production", choices=["production", "demo", "test"], help="Execution mode (default: production)")
+    parser.add_argument("--preferred", help="Optional preferred candidate ID")
+
+    args = parser.parse_args()
+
+    # Safety checks in production mode
+    if args.mode == "production":
+        norm_cand = os.path.abspath(args.candidates).replace("\\", "/")
+        if "/examples/" in norm_cand or "sample_" in os.path.basename(norm_cand):
+            raise ProductionSampleFallbackBlockedError(
+                f"CRITICAL SAFETY VIOLATION: Production execution attempted with sample/demo candidates payload '{args.candidates}'. "
+                f"Production mode strictly requires real empirical candidates on disk."
+            )
+
+    if not os.path.isfile(args.candidates):
+        raise MissingProductionDataError(f"Candidates file not found: {args.candidates}")
+
+    with open(args.candidates, "r", encoding="utf-8") as f:
+        raw_data = json.load(f)
+
+    if isinstance(raw_data, list):
+        candidates_list = raw_data
+        study_context = {}
+    elif isinstance(raw_data, dict):
+        candidates_list = raw_data.get("candidates", [])
+        study_context = raw_data.get("study_context", {})
+    else:
+        raise InvalidCandidateError(f"Malformed candidates data in {args.candidates}")
+
+    if args.context and os.path.isfile(args.context):
+        with open(args.context, "r", encoding="utf-8") as f:
+            study_context.update(json.load(f))
+
+    os.makedirs(args.out_dir, exist_ok=True)
+    pitfalls_path = os.path.abspath(args.pitfalls)
+
+    registry = CanonicalPitfallRegistry(registry_path=pitfalls_path)
+    synthesizer = StatisticalMethodologySynthesizer(pitfall_registry=registry)
+
+    # Challenge & Synthesize
+    delib_res = synthesizer.synthesize_and_select(
+        candidates=candidates_list,
+        study_context=study_context,
+        project_id=study_context.get("project_id", "academic_project")
+    )
+
+    # 3. Output artifacts
+    plan_path = os.path.join(args.out_dir, "analysis_plan.json")
+    with open(plan_path, "w", encoding="utf-8") as f:
+        json.dump(delib_res["analysis_plan"], f, indent=2, ensure_ascii=False)
+
+    report_json_path = os.path.join(args.out_dir, "deliberation_report.json")
+    with open(report_json_path, "w", encoding="utf-8") as f:
+        json.dump(delib_res, f, indent=2, ensure_ascii=False)
+
+    report_md_path = os.path.join(args.out_dir, "deliberation_report.md")
+    md_content = generate_deliberation_markdown(delib_res, study_context)
+    with open(report_md_path, "w", encoding="utf-8") as f:
+        f.write(md_content)
+
+    print(f"[SUCCESS] Synthesized AnalysisPlan: {plan_path}")
+    print(f"[SUCCESS] Deliberation Report JSON: {report_json_path}")
+    print(f"[SUCCESS] Deliberation Report MD: {report_md_path}")
+    print(f"[DELIBERATION] Selected Candidate: {delib_res['selected_candidate_id']} ({delib_res['selection_category']})")
+    if delib_res["rejected_candidates"]:
+        print(f"[PITFALLS] Recorded {len(delib_res['rejected_candidates'])} rejected candidate(s) to {pitfalls_path}")
+
+
+if __name__ == "__main__":
+    main()

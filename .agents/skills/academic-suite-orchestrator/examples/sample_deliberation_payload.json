@@ -1,0 +1,163 @@
+{
+  "study_context": {
+    "project_id": "study_act_burnout_trial",
+    "design_type": "experimental",
+    "time_structure": "pre_post_repeated_measures",
+    "has_baseline": true,
+    "is_randomized": true,
+    "sample_size": 120,
+    "missing_rate": 0.05
+  },
+  "candidates": [
+    {
+      "contract_version": "1.0.0",
+      "candidate_id": "CAND-ANCOVA-01",
+      "proposed_by": "statistical-expert",
+      "method": "One-Way ANCOVA",
+      "research_question": "Does Acceptance and Commitment Therapy (ACT) reduce posttest job burnout while controlling for pretest baseline levels?",
+      "estimand": "Average Treatment Effect (ATE) on posttest burnout adjusted for baseline burnout score",
+      "assumptions": [
+        "Homogeneity of regression slopes across intervention and control groups",
+        "Linear relationship between pretest covariate and posttest outcome",
+        "Homogeneity of error variances across treatment conditions (Levene test p > .05)",
+        "Normally distributed model residuals (Shapiro-Wilk test p > .05)"
+      ],
+      "data_requirements": {
+        "minimum_sample_size": 60,
+        "variables": [
+          "group",
+          "pretest_burnout",
+          "posttest_burnout"
+        ],
+        "time_structure": "pre_post_two_waves",
+        "measurement_level": "continuous_interval"
+      },
+      "diagnostics": [
+        "Group by baseline interaction test for regression slope homogeneity",
+        "Levene variance homogeneity test",
+        "Residual normality Q-Q plot and Shapiro-Wilk test",
+        "Studentized deleted residuals for outlier detection"
+      ],
+      "strengths": [
+        "Maximizes statistical power by conditioning on baseline variance",
+        "Controls for baseline chance imbalances in randomized trials",
+        "Provides an unconfounded conditional treatment effect estimate"
+      ],
+      "limitations": [
+        "Requires strict homogeneity of regression slopes",
+        "Assumes linear relationship between baseline and posttest scores"
+      ],
+      "expected_interpretation": "Intervention effect on burnout reduction after partialling out pre-existing baseline variance.",
+      "execution_requirements": {
+        "engine": "python",
+        "scripts": [
+          "scripts/statistical_pipeline_engine.py"
+        ],
+        "assigned_subagent": "statistics-agent",
+        "runtime_dependencies": [
+          "numpy",
+          "scipy",
+          "pandas",
+          "statsmodels"
+        ]
+      }
+    },
+    {
+      "contract_version": "1.0.0",
+      "candidate_id": "CAND-POST-ANOVA-02",
+      "proposed_by": "statistical-expert",
+      "method": "Raw Posttest Independent Samples t-test / One-Way ANOVA",
+      "research_question": "Does ACT group differ from control group on posttest burnout ignoring baseline scores?",
+      "estimand": "Unadjusted posttest mean difference between treatment and control",
+      "assumptions": [
+        "Independent observations",
+        "Homogeneity of variances",
+        "Normality of posttest scores within groups"
+      ],
+      "data_requirements": {
+        "minimum_sample_size": 60,
+        "variables": [
+          "group",
+          "pretest_burnout",
+          "posttest_burnout"
+        ],
+        "time_structure": "pre_post_two_waves",
+        "measurement_level": "continuous_interval"
+      },
+      "diagnostics": [
+        "Levene test for equality of variances",
+        "Shapiro-Wilk test for normality"
+      ],
+      "strengths": [
+        "Computationally simple",
+        "Fewer parameter assumptions than ANCOVA"
+      ],
+      "limitations": [
+        "Discards pretest baseline measurement entirely",
+        "Vulnerable to baseline chance imbalances",
+        "Lower statistical power and larger residual error"
+      ],
+      "expected_interpretation": "Direct comparison of unadjusted posttest scores across intervention groups.",
+      "execution_requirements": {
+        "engine": "python",
+        "scripts": [
+          "scripts/statistical_pipeline_engine.py"
+        ],
+        "assigned_subagent": "statistics-agent",
+        "runtime_dependencies": [
+          "scipy",
+          "pandas"
+        ]
+      }
+    },
+    {
+      "contract_version": "1.0.0",
+      "candidate_id": "CAND-REP-ANOVA-03",
+      "proposed_by": "methodology-expert",
+      "method": "Two-Way Mixed Repeated Measures ANOVA",
+      "research_question": "Is there a significant Group by Time interaction on burnout from pretest to posttest?",
+      "estimand": "Group-by-Time interaction effect (differential change over time)",
+      "assumptions": [
+        "Normality of difference scores",
+        "Homogeneity of intercorrelations / compound symmetry",
+        "Missing at Random (MAR) or complete longitudinal cases"
+      ],
+      "data_requirements": {
+        "minimum_sample_size": 60,
+        "variables": [
+          "group",
+          "pretest_burnout",
+          "posttest_burnout"
+        ],
+        "time_structure": "pre_post_two_waves",
+        "measurement_level": "continuous_interval"
+      },
+      "diagnostics": [
+        "Boxs M test for covariance matrices equality",
+        "Levene test at each measurement occasion",
+        "Mauchly test of sphericity (for > 2 waves)"
+      ],
+      "strengths": [
+        "Directly models trajectories and Group-by-Time interaction",
+        "Evaluates both within-subject change and between-group differences"
+      ],
+      "limitations": [
+        "Can be susceptible to regression to the mean without baseline adjustment",
+        "Complete-case listwise deletion can induce attrition bias if dropouts occur"
+      ],
+      "expected_interpretation": "Differential trajectory of burnout reduction across time points as a function of treatment condition.",
+      "execution_requirements": {
+        "engine": "python",
+        "scripts": [
+          "scripts/statistical_pipeline_engine.py"
+        ],
+        "assigned_subagent": "statistics-agent",
+        "runtime_dependencies": [
+          "statsmodels",
+          "scipy",
+          "pandas"
+        ]
+      }
+    }
+  ]
+}

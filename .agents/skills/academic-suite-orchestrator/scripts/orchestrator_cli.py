@@ -186,6 +186,12 @@ SKILL_REGISTRY = {
         "script": os.path.join(SKILLS_DIR, "citation-network-visualizer", "scripts", "citation_visualizer_engine.py"),
         "default_sample": os.path.join(SKILLS_DIR, "citation-network-visualizer", "examples", "sample_citation_network_payload.json"),
         "desc": "Algorithmic historiography, HistCite chronomaps & Main Path Analysis (SPC) (.docx, .xlsx, .png, .json)"
+    },
+    "deliberation": {
+        "skill": "academic-suite-orchestrator",
+        "script": os.path.join(REPO_ROOT, "scripts", "candidate_falsifier_engine.py"),
+        "default_sample": os.path.join(SKILLS_DIR, "academic-suite-orchestrator", "examples", "sample_deliberation_payload.json"),
+        "desc": "Candidate -> Falsifier -> Synthesis deliberation, pitfall check & AnalysisPlan generation (.json & .md)"
     }
 }
 
@@ -195,6 +201,11 @@ SKILL_REGISTRY = {
 # ==============================================================================
 
 PIPELINE_PRESETS = {
+    "deliberation_pipeline": [
+        "deliberation",
+        "statistics",
+        "audit"
+    ],
     "thesis_empirical": [
         "proposal",
         "simulation",
@@ -513,17 +524,61 @@ class MasterAcademicOrchestrator:
             self.manifest["artifacts"]["simulated_dataset"] = sim_xlsx
             return cmd, {"xlsx": sim_xlsx}
 
+        elif step == "deliberation":
+            script = info["script"]
+            json_payload = self._resolve_payload("deliberation", step_conf, default_sample=info["default_sample"])
+            out_plan = os.path.join(step_dir, "analysis_plan.json")
+            out_report = os.path.join(step_dir, "deliberation_report.json")
+            out_md = os.path.join(step_dir, "deliberation_report.md")
+            cmd = [
+                PYTHON_BIN, script,
+                "--candidates", json_payload,
+                "--out-dir", step_dir,
+                "--mode", self.mode
+            ]
+            self.context["analysis_plan"] = out_plan
+            self.context["deliberation_report"] = out_report
+            self.manifest["artifacts"]["analysis_plan"] = out_plan
+            self.manifest["artifacts"]["deliberation_report"] = out_report
+            self.manifest["artifacts"]["deliberation_report_md"] = out_md
+            return cmd, {"json": out_plan, "report": out_report, "md": out_md}
+
         elif step == "statistics":
-            # Uses generate_apa_docx with standard verified sample or results
-            script = info["script_doc"]
-            json_payload = self._resolve_payload("statistics", step_conf, context_keys=["stats_json"], default_sample=info["default_sample"])
-            out_docx = os.path.join(step_dir, "Chapter_4_Results.docx")
-            cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx, "--mode", "chapter4"]
-            self.context["ch4_docx"] = out_docx
-            self.context["stats_json"] = json_payload
-            self.manifest["artifacts"]["ch4_docx"] = out_docx
-            self.manifest["artifacts"]["stats_json"] = json_payload
-            return cmd, {"docx": out_docx, "json": json_payload}
+            # Check if this is an AnalysisPlan-driven statistical pipeline execution
+            plan_file = self.context.get("analysis_plan") or step_conf.get("plan_path")
+            dataset_file = self.context.get("simulated_data") or step_conf.get("dataset_path")
+            if plan_file and dataset_file and (step_conf.get("use_pipeline_engine") or os.path.exists(plan_file)):
+                pipeline_script = os.path.join(REPO_ROOT, "scripts", "statistical_pipeline_engine.py")
+                cmd = [
+                    PYTHON_BIN, pipeline_script,
+                    "--plan", plan_file,
+                    "--dataset", dataset_file,
+                    "--out-dir", step_dir,
+                    "--mode", self.mode,
+                    "--audit"
+                ]
+                out_results = os.path.join(step_dir, "stats_results.json")
+                out_manifest = os.path.join(step_dir, "execution_manifest.json")
+                out_table = os.path.join(step_dir, "stats_table.md")
+                out_summary = os.path.join(step_dir, "stats_summary.md")
+                self.context["stats_json"] = out_results
+                self.context["execution_manifest"] = out_manifest
+                self.manifest["artifacts"]["stats_results_json"] = out_results
+                self.manifest["artifacts"]["execution_manifest"] = out_manifest
+                self.manifest["artifacts"]["stats_table_md"] = out_table
+                self.manifest["artifacts"]["stats_summary_md"] = out_summary
+                return cmd, {"json": out_results, "manifest": out_manifest, "table": out_table, "summary": out_summary}
+            else:
+                # Standard generate_apa_docx execution
+                script = info["script_doc"]
+                json_payload = self._resolve_payload("statistics", step_conf, context_keys=["stats_json"], default_sample=info["default_sample"])
+                out_docx = os.path.join(step_dir, "Chapter_4_Results.docx")
+                cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx, "--mode", "chapter4"]
+                self.context["ch4_docx"] = out_docx
+                self.context["stats_json"] = json_payload
+                self.manifest["artifacts"]["ch4_docx"] = out_docx
+                self.manifest["artifacts"]["stats_json"] = json_payload
+                return cmd, {"docx": out_docx, "json": json_payload}
 
         elif step == "scale_validator":
             script = info["script"]

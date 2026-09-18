@@ -117,6 +117,12 @@ CAPABILITY_REGISTRY = {
         "skill": "thesis-integrity-auditor",
         "agent": "validation-agent",
         "tools": ["run_command", "view_file"]
+    },
+    "statistical_deliberation": {
+        "description": "Multi-candidate methodology deliberation, Academic Challenger falsification, pitfall memory, and AnalysisPlan synthesis",
+        "skill": "academic-suite-orchestrator",
+        "agent": "statistical-expert",
+        "tools": ["run_command", "view_file", "write_to_file"]
     }
 }
 
@@ -182,6 +188,12 @@ STAGE_DEPENDENCIES = {
         "required_files": ["project.json"],
         "required_stage": "08_chapter_summary"
     },
+    "04_statistical_deliberation": {
+        "title": "Methodological Candidate Deliberation & Challenger Invalidation",
+        "capability": "statistical_deliberation",
+        "required_files": ["project.json"],
+        "required_stage": "00_data_curation"
+    },
     "10_chapter_assembly": {
         "title": "Chapter 4 OpenXML Compilation",
         "capability": "chapter_4_writing",
@@ -212,7 +224,8 @@ def resolve_capability(query: str) -> Dict[str, Any]:
         "chapter_4_writing": ["chapter 4", "findings", "hypothesis", "results", "narrative"],
         "literature_review": ["literature", "chapter 2", "pubmed", "crossref", "background", "citations"],
         "methodology_review": ["methodology", "chapter 3", "g*power", "sample size", "validity"],
-        "validation_audit": ["validate", "audit", "check", "df", "consistency", "qc"]
+        "validation_audit": ["validate", "audit", "check", "df", "consistency", "qc"],
+        "statistical_deliberation": ["deliberat", "falsif", "candidate", "competing", "challenger", "analysis plan", "estimand"]
     }
 
     for cap_key, keywords in keywords_map.items():
