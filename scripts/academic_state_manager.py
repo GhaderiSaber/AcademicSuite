@@ -333,6 +333,7 @@ class StrictStateMachine:
         self.pitfall_registry = AcademicPitfallRegistry(self.pitfalls_path, project_id=self.project_id)
 
         self.project_root = os.path.dirname(self.state_dir)
+        self.enable_learning_hub = True
         self.experience_recorder = None
         if AcademicExperienceRecorder is not None:
             self.experience_recorder = AcademicExperienceRecorder(project_root=self.project_root)
@@ -641,6 +642,7 @@ class StrictStateMachine:
         self.save_all()
 
         # Automatic Structured Experience Capture (Continuous Behavioral Self-Improvement)
+        captured_exp = None
         if self.experience_recorder is not None and target_enum in [
             MilestoneState.APPROVED,
             MilestoneState.FAILED,
@@ -651,7 +653,7 @@ class StrictStateMachine:
                 outcome_ovr = "SUCCESS" if target_enum == MilestoneState.APPROVED else (
                     "FAILURE" if target_enum == MilestoneState.FAILED else "PARTIAL"
                 )
-                self.experience_recorder.record_from_milestone(
+                captured_exp = self.experience_recorder.record_from_milestone(
                     sm=self,
                     milestone_id=milestone_id,
                     outcome_override=outcome_ovr,
@@ -661,26 +663,28 @@ class StrictStateMachine:
                 sys.stderr.write(f"[StrictStateMachine Experience Capture Warning] {rec_err}\n")
 
         # Integrated Continuous Learning Lifecycle Hook (Meaningful Boundary Gated)
-        try:
-            from scripts.academic_integrated_learning_hub import (
-                AcademicIntegratedLearningHub,
-                ResearchIntegrityViolationError
-            )
-            hub = AcademicIntegratedLearningHub(base_dir=self.project_root)
-            hub.process_milestone_transition(
-                milestone_id=milestone_id,
-                from_state=current_enum.value,
-                to_state=target_enum.value,
-                sm=self,
-                actor=actor,
-                rationale=rationale
-            )
-        except ResearchIntegrityViolationError:
-            # Scientific integrity violation must fail closed to protect research validity
-            raise
-        except Exception as hub_err:
-            # Failure isolation: internal learning errors never corrupt or abort research transactions
-            sys.stderr.write(f"[IntegratedLearningHub State Isolation] {hub_err}\n")
+        if getattr(self, "enable_learning_hub", True):
+            try:
+                from scripts.academic_integrated_learning_hub import (
+                    AcademicIntegratedLearningHub,
+                    ResearchIntegrityViolationError
+                )
+                hub = AcademicIntegratedLearningHub(base_dir=self.project_root)
+                hub.process_milestone_transition(
+                    milestone_id=milestone_id,
+                    from_state=current_enum.value,
+                    to_state=target_enum.value,
+                    sm=self,
+                    actor=actor,
+                    rationale=rationale,
+                    experience_id=captured_exp.get("experience_id") if isinstance(captured_exp, dict) else None
+                )
+            except ResearchIntegrityViolationError:
+                # Scientific integrity violation must fail closed to protect research validity
+                raise
+            except Exception as hub_err:
+                # Failure isolation: internal learning errors never corrupt or abort research transactions
+                sys.stderr.write(f"[IntegratedLearningHub State Isolation] {hub_err}\n")
 
         return {
             "status": "TRANSITIONED",

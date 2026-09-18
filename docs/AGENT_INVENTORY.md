@@ -1,7 +1,7 @@
 # Agent Inventory & Cognitive Role Audit
 
-**Document Version:** 2.1.0 (Target Architecture Complete)  
-**Total Agents Defined:** 22  
+**Document Version:** 2.2.0 (Continuous Learning Subagents Integrated)  
+**Total Agents Defined:** 28 (22 Domain & Research Roles + 6 Continuous Learning Subagents)  
 **Runtime Architecture:** Antigravity Native Multi-Agent System (`invoke_subagent`)  
 **Behavioral Contracts:** 100% of agents possess a verified 12-section `contract.md`  
 
@@ -45,6 +45,12 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 | Domain Specialist Subagent | `statistical-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/statistical-expert/contract.md) |
 | Core Primary Agent (Phase 3) | `statistics-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/statistics-agent/contract.md) |
 | Core Primary Agent (Phase 3) | `validation-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/validation-agent/contract.md) |
+| Continuous Learning Subagent | `behavior-analyst` | Causal root-cause analysis and diagnosis of agent behavior | [contract.md](../../.agents/agents/behavior-analyst/contract.md) |
+| Continuous Learning Subagent | `curriculum-builder` | Graduated complexity benchmark scenarios and practice tasks | [contract.md](../../.agents/agents/curriculum-builder/contract.md) |
+| Continuous Learning Subagent | `evaluation-agent` | Deterministic evaluation lab harness and counterfactual tests | [contract.md](../../.agents/agents/evaluation-agent/contract.md) |
+| Continuous Learning Subagent | `knowledge-curator` | Synthesis of episodic experiences into reusable knowledge | [contract.md](../../.agents/agents/knowledge-curator/contract.md) |
+| Continuous Learning Subagent | `skill-evolver` | Candidate Skill mutations and behavioral instructions diffs | [contract.md](../../.agents/agents/skill-evolver/contract.md) |
+| Continuous Learning Subagent | `trajectory-analyzer` | Reconstructs observable tool calls, exit codes, and artifacts | [contract.md](../../.agents/agents/trajectory-analyzer/contract.md) |
 
 ---
 

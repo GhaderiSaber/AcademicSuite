@@ -1,0 +1,5 @@
+{
+  "capability": "longitudinal-analysis",
+  "project_id": "test_project_001",
+  "task": "Repeated measures ANCOVA vs LMM"
+}

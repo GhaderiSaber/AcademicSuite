@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicAdaptiveContextOutputSchema",
+  "description": "Output schema for academic adaptive context queries",
+  "type": "object",
+  "required": ["capability", "briefing"],
+  "properties": {
+    "capability": {
+      "type": "string",
+      "description": "Target research or statistical capability"
+    },
+    "briefing": {
+      "type": "string",
+      "description": "Synthesized pre-task context briefing text"
+    },
+    "lessons": {
+      "type": "array",
+      "items": {"type": "object"},
+      "description": "Relevant active lessons retrieved"
+    },
+    "anti_patterns": {
+      "type": "array",
+      "items": {"type": "object"},
+      "description": "Relevant active anti-patterns retrieved"
+    },
+    "exemplars": {
+      "type": "array",
+      "items": {"type": "object"},
+      "description": "Relevant active exemplars retrieved"
+    }
+  },
+  "additionalProperties": false
+}

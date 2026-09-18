@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicAdaptiveContextInputSchema",
+  "description": "Input schema for academic adaptive context queries",
+  "type": "object",
+  "required": ["capability"],
+  "properties": {
+    "capability": {
+      "type": "string",
+      "description": "Target research or statistical capability"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Target agent or domain"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Current active project identifier"
+    },
+    "task": {
+      "type": "string",
+      "description": "Description of the task to be performed"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,17 @@
+{
+  "capability": "longitudinal-analysis",
+  "briefing": "Avoid complete-case listwise deletion when attrition exists; evaluate linear mixed models (LMM).",
+  "lessons": [
+    {
+      "lesson_id": "LSN-SAMPLE-001",
+      "summary": "Compare candidate longitudinal approaches against missingness, imbalance, covariance structure, and estimand."
+    }
+  ],
+  "anti_patterns": [
+    {
+      "pattern_id": "AP-SAMPLE-001",
+      "name": "Blind RM-ANOVA with attrition"
+    }
+  ],
+  "exemplars": []
+}

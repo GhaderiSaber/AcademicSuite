@@ -48,6 +48,7 @@
 | **`methodology-review`** | [.agents/skills/methodology-review/](file:///.agents/skills/methodology-review) | Auditing internal/external validity safeguards and research design scaffolds. | Study proposal or Chapter 3 draft | Methodology validation scorecard, design recommendations. |
 | **`apa-reporting`** | [.agents/skills/apa-reporting/](file:///.agents/skills/apa-reporting) | Formatting OpenXML tables and narrative to APA 7th Edition standards with Persian leading zero (`۰.۰۰۱`). | Statistical outputs (`stats.json`) | APA 7 3-line Word tables, decoupled LTR numeric runs, OMML math blocks. |
 | **`chapter-4-writing`** | [.agents/skills/chapter-4-writing/](file:///.agents/skills/chapter-4-writing) | Orchestrating Chapter 4 findings under the One-Hypothesis-One-Stage invariant and synchronized triad protocol. | Full statistical results + project config | Synchronized Triad (`Chapter_4.docx` + `.md` + `.json`), Master Decision Matrix. |
+| **`academic-adaptive-context`** | [.agents/skills/academic-adaptive-context/](file:///.agents/skills/academic-adaptive-context) | Retrieving active behavioral context, anti-patterns, and exemplars prior to task execution. | Task capability and domain tags | Structured pre-task briefing, relevant lessons, and anti-patterns. |
 
 ---
 

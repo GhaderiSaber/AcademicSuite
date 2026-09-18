@@ -256,7 +256,8 @@ class AcademicDualLoopEngine:
         target_agent: str = "statistics-agent",
         target_skill: str = "statistical-data-analyst",
         capability: str = "statistical-data-analyst",
-        artifacts: Optional[Dict[str, Any]] = None
+        artifacts: Optional[Dict[str, Any]] = None,
+        existing_experience_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Executes the FAST EVOLUTION LOOP:
@@ -284,62 +285,70 @@ class AcademicDualLoopEngine:
                 }
 
             # 2. Record Experience
-            exp_id = f"EXP-FAST-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
-            trj_id = f"TRJ-FAST-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
             now_iso = datetime.now(timezone.utc).isoformat()
-
-            exp_data = {
-                "contract_version": "1.0.0",
-                "experience_id": exp_id,
-                "project_id": "fast_loop_project",
-                "task_id": "fast_loop_task",
-                "milestone_id": "M_FAST_LOOP",
-                "agent": target_agent,
-                "skill": target_skill,
-                "start_time": now_iso,
-                "end_time": now_iso,
-                "duration_seconds": 1.0,
-                "outcome": "FAILURE" if user_correction else "SUCCESS",
-                "artifact_references": [],
-                "validation_status": {
-                    "verdict": "FAIL" if user_correction else "PASS"
-                },
-                "metadata": {
-                    "prompt": task_prompt
+            if existing_experience_id:
+                exp_id = existing_experience_id
+                exp_record = {"experience_id": exp_id}
+                exp_data = self.experience_recorder.get_experience(exp_id) or {
+                    "outcome": "FAILURE" if user_correction else "SUCCESS"
                 }
-            }
+                traj_data = self.experience_recorder.get_trajectory(exp_id) or {}
+            else:
+                exp_id = f"EXP-FAST-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+                trj_id = f"TRJ-FAST-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
 
-            traj_data = {
-                "contract_version": "1.0.0",
-                "trajectory_id": trj_id,
-                "experience_id": exp_id,
-                "project_id": "fast_loop_project",
-                "task_id": "fast_loop_task",
-                "ordered_actions": [
-                    {
-                        "step_number": 1,
-                        "action_type": "SKILL_INVOCATION",
-                        "actor": target_agent,
-                        "timestamp": now_iso,
-                        "description": f"Executed fast loop task for {target_skill}",
-                        "observable_input": {"prompt": task_prompt},
-                        "observable_output": {"status": "SUCCESS" if not user_correction else "FAILURE"}
+                exp_data = {
+                    "contract_version": "1.0.0",
+                    "experience_id": exp_id,
+                    "project_id": "fast_loop_project",
+                    "task_id": "fast_loop_task",
+                    "milestone_id": "M_FAST_LOOP",
+                    "agent": target_agent,
+                    "skill": target_skill,
+                    "start_time": now_iso,
+                    "end_time": now_iso,
+                    "duration_seconds": 1.0,
+                    "outcome": "FAILURE" if user_correction else "SUCCESS",
+                    "artifact_references": [],
+                    "validation_status": {
+                        "verdict": "FAIL" if user_correction else "PASS"
+                    },
+                    "metadata": {
+                        "prompt": task_prompt
                     }
-                ],
-                "tool_usages": [],
-                "skill_activations": [],
-                "subagent_delegations": [],
-                "important_decisions": [],
-                "outputs": [],
-                "validation_events": [],
-                "feedback": [],
-                "outcome": "FAILURE" if user_correction else "SUCCESS"
-            }
+                }
 
-            exp_record = self.experience_recorder.record_experience(
-                experience_data=exp_data,
-                trajectory_data=traj_data
-            )
+                traj_data = {
+                    "contract_version": "1.0.0",
+                    "trajectory_id": trj_id,
+                    "experience_id": exp_id,
+                    "project_id": "fast_loop_project",
+                    "task_id": "fast_loop_task",
+                    "ordered_actions": [
+                        {
+                            "step_number": 1,
+                            "action_type": "SKILL_INVOCATION",
+                            "actor": target_agent,
+                            "timestamp": now_iso,
+                            "description": f"Executed fast loop task for {target_skill}",
+                            "observable_input": {"prompt": task_prompt},
+                            "observable_output": {"status": "SUCCESS" if not user_correction else "FAILURE"}
+                        }
+                    ],
+                    "tool_usages": [],
+                    "skill_activations": [],
+                    "subagent_delegations": [],
+                    "important_decisions": [],
+                    "outputs": [],
+                    "validation_events": [],
+                    "feedback": [],
+                    "outcome": "FAILURE" if user_correction else "SUCCESS"
+                }
+
+                exp_record = self.experience_recorder.record_experience(
+                    experience_data=exp_data,
+                    trajectory_data=traj_data
+                )
 
             # 3. Detect & Classify Feedback
             feedback_record = None

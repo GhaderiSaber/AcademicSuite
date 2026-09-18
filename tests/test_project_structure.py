@@ -74,13 +74,13 @@ class TestProjectStructure(unittest.TestCase):
             d for d in os.listdir(skills_dir)
             if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith((".", "_"))
         ]
-        self.assertEqual(len(active_skills), 43, f"Expected 43 active skills, found {len(active_skills)}")
+        self.assertEqual(len(active_skills), 44, f"Expected 44 active skills, found {len(active_skills)}")
         
         for s in active_skills:
             self.assertIn(f"`{s}`", content, f"Skill {s} is not documented in docs/SKILL_INVENTORY.md")
 
     def test_agent_inventory_documents_all_agents(self):
-        """Asserts docs/AGENT_INVENTORY.md comprehensively documents all 22 agents."""
+        """Asserts docs/AGENT_INVENTORY.md comprehensively documents all 28 agents."""
         inv_path = os.path.join(REPO_ROOT, "docs", "AGENT_INVENTORY.md")
         self.assertTrue(os.path.isfile(inv_path), "Missing docs/AGENT_INVENTORY.md")
         with open(inv_path, "r", encoding="utf-8") as f:
@@ -91,13 +91,13 @@ class TestProjectStructure(unittest.TestCase):
             d for d in os.listdir(agents_dir)
             if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_"))
         ]
-        self.assertEqual(len(active_agents), 22, f"Expected 22 agents, found {len(active_agents)}")
+        self.assertEqual(len(active_agents), 28, f"Expected 28 agents, found {len(active_agents)}")
         
         for a in active_agents:
             self.assertIn(f"`{a}`", content, f"Agent {a} is not documented in docs/AGENT_INVENTORY.md")
 
     def test_activation_matrix_documents_all_skills(self):
-        """Asserts .agents/references/SKILL_ACTIVATION_MATRIX.md documents all 43 active production skills."""
+        """Asserts .agents/references/SKILL_ACTIVATION_MATRIX.md documents all 44 active production skills."""
         mat_path = os.path.join(REPO_ROOT, ".agents", "references", "SKILL_ACTIVATION_MATRIX.md")
         self.assertTrue(os.path.isfile(mat_path), "Missing SKILL_ACTIVATION_MATRIX.md")
         with open(mat_path, "r", encoding="utf-8") as f:
@@ -112,7 +112,7 @@ class TestProjectStructure(unittest.TestCase):
             self.assertIn(f"`{s}`", content, f"Skill {s} is missing from SKILL_ACTIVATION_MATRIX.md")
 
     def test_readme_documents_all_skills_and_agents(self):
-        """Asserts README.md documents all 43 active production skills and 22 agents."""
+        """Asserts README.md documents all 44 active production skills and 28 agents."""
         readme_path = os.path.join(REPO_ROOT, "README.md")
         self.assertTrue(os.path.isfile(readme_path), "Missing README.md")
         with open(readme_path, "r", encoding="utf-8") as f:
@@ -123,7 +123,7 @@ class TestProjectStructure(unittest.TestCase):
             d for d in os.listdir(skills_dir)
             if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith((".", "_"))
         ]
-        self.assertEqual(len(active_skills), 43)
+        self.assertEqual(len(active_skills), 44)
         for s in active_skills:
             self.assertIn(s, content, f"Skill {s} is missing from README.md")
 
@@ -132,7 +132,7 @@ class TestProjectStructure(unittest.TestCase):
             d for d in os.listdir(agents_dir)
             if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_"))
         ]
-        self.assertEqual(len(active_agents), 22)
+        self.assertEqual(len(active_agents), 28)
         for a in active_agents:
             self.assertIn(f"`{a}`", content, f"Agent {a} is missing from README.md")
 

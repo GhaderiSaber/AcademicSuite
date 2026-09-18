@@ -26,8 +26,8 @@ class TestSkillPackages(unittest.TestCase):
         ]
 
     def test_total_skills_count(self):
-        """Asserts exactly 43 active production skills are present."""
-        self.assertEqual(len(self.skill_names), 43, f"Expected exactly 43 production skills, found {len(self.skill_names)}")
+        """Asserts exactly 44 active production skills are present."""
+        self.assertEqual(len(self.skill_names), 44, f"Expected exactly 44 production skills, found {len(self.skill_names)}")
 
     def test_retired_skills_in_legacy(self):
         """Asserts the 10 retired legacy workflow skill shells reside in legacy/skills/."""

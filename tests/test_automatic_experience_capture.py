@@ -61,6 +61,7 @@ class TestAutomaticExperienceCapture(unittest.TestCase):
             project_root=self.temp_dir
         )
         self.sm = StrictStateMachine(state_dir=self.state_dir, project_id="test_exp_proj_001")
+        self.sm.enable_learning_hub = False
         # Direct state machine to use our test learning store
         self.sm.experience_recorder = self.recorder
 

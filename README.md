@@ -10,13 +10,13 @@ In strict accordance with **Directive 12.1 (Sole Orchestrator Mandate)**, there 
 
 - **Google Antigravity is the Sole Agent Runtime & Conductor:** Antigravity orchestrates all cognitive operations, manages context budgets, schedules background tasks, and enforces constitutional lifecycle hooks (`.agents/hooks.json`).
 - **Digital Saber is the Cognitive Research Lead:** The persistent AI Twin of Saber Ghaderi directing research philosophy, scientific ethics, and thesis decision gates.
-- **The Brains & Critics (22 Subagents):** Persistent cognitive specialists in `.agents/agents/` (6 core primary roles plus 16 specialized domain roles) invoked exclusively through Antigravity's native `invoke_subagent` tool. Generation and auditing remain strictly independent.
-- **The Hands (43 Specialized Production Skills):** Deterministic Python/R scripts executed via `run_command` to perform exact statistical calculations, psychometrics, and OpenXML document generation without mental calculation or hallucination.
+- **The Brains & Critics (28 Subagents):** Persistent cognitive specialists in `.agents/agents/` (6 core primary roles, 16 specialized domain roles, and 6 continuous learning subagents) invoked exclusively through Antigravity's native `invoke_subagent` tool. Generation and auditing remain strictly independent.
+- **The Hands (44 Specialized Production Skills):** Deterministic Python/R scripts executed via `run_command` to perform exact statistical calculations, psychometrics, and OpenXML document generation without mental calculation or hallucination.
 - **Batch CLI Runner (`orchestrator_cli.py`):** Strictly a low-level CLI batch runner ("The Hands") for sequential script chaining on disk, never an autonomous agent orchestrator.
 
-### 🧠 Cognitive Specialists & Autonomous Subagents (23 Roles)
+### 🧠 Cognitive Specialists & Autonomous Subagents (28 Roles)
 
-The architecture establishes 23 persistent cognitive roles in `.agents/agents/` invoked via Antigravity's native `invoke_subagent` tool. Every role is equipped with an Option 1 directory package (`agent.md`, 12-section behavioral `contract.md`, and backward-compatible `<role>.md` symlink):
+The architecture establishes 28 persistent cognitive roles in `.agents/agents/` invoked via Antigravity's native `invoke_subagent` tool. Every role is equipped with an Option 1 directory package (`agent.md`, 12-section behavioral `contract.md`, and backward-compatible `<role>.md` symlink):
 
 #### Core Primary Roles (6)
 1. **`academic-orchestrator`**: Central multi-phase research coordinator and pipeline director.
@@ -43,7 +43,14 @@ The architecture establishes 23 persistent cognitive roles in `.agents/agents/` 
 20. **`intervention-designer`**: Clinical intervention protocol designer (ACT, CBT, Schema, CFT, MBSR) and manual compiler.
 21. **`data-curator`**: Missing data diagnosis (MCAR/MAR/MNAR), unengaged response filtering, and outlier screening ($D^2$).
 22. **`longitudinal-modmed-expert`**: 3-wave longitudinal moderated mediation modeling (Cole & Maxwell, Hayes Models 7/14 over time).
-23. **`academic-challenger`**: Adversarial methodology reviewer identifying flaws, p-hacking, publication bias, and unmeasured confounding.
+
+#### Continuous Learning Subagents (6)
+23. **`behavior-analyst`**: Causal root-cause analysis and diagnosis of agent behavior.
+24. **`curriculum-builder`**: Graduated complexity benchmark scenarios and practice tasks.
+25. **`evaluation-agent`**: Deterministic evaluation lab harness and counterfactual tests.
+26. **`knowledge-curator`**: Synthesis of episodic experiences into reusable knowledge.
+27. **`skill-evolver`**: Candidate Skill mutations and behavioral instructions diffs.
+28. **`trajectory-analyzer`**: Reconstructs observable tool calls, exit codes, and artifacts.
 
 *(See [docs/AGENT_INVENTORY.md](docs/AGENT_INVENTORY.md) for complete 12-section behavioral contracts and tool configurations).*
 
@@ -139,6 +146,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    Automates APA 7th Edition presentation rules: borderless tables with exactly 3 horizontal rules, statistical symbol italicization (*M, SD, t, F, p, β*), Persian leading zero preservation (`۰.۰۰۱`), standard decimal dots, and OpenXML decoupled LTR numeric runs.
 43. **Chapter 4 Findings Orchestrator ([chapter-4-writing](.agents/skills/chapter-4-writing/))**:
    End-to-end orchestration engine for Chapter 4 (یافته‌های پژوهش), strictly enforcing the One-Hypothesis-One-Stage invariant, synchronized triad artifacts (`.docx` + `.md` + `.json`), 5-part epistemic narrative formula, and Master Hypotheses Decision Matrix.
+44. **Academic Adaptive Context ([academic-adaptive-context](.agents/skills/academic-adaptive-context/))**:
+   Retrieves targeted active behavioral context (lessons, anti-patterns, exemplars, calibrated defaults) relevant to the current task from the persistent learning store without dumping irrelevant records.
 
 ---
 
@@ -147,8 +156,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
 ```text
 AcademicSuite/
 ├── .agents/                               # Digital Saber Cognitive Subsystem
-│   ├── agents/                            # 22 Option-1 Packaged Agents (agent.md + contract.md + symlinks)
-│   ├── skills/                            # 43 Active Production Skills (scripts, resources, examples, schemas)
+│   ├── agents/                            # 28 Option-1 Packaged Agents (agent.md + contract.md + symlinks)
+│   ├── skills/                            # 44 Active Production Skills (scripts, resources, examples, schemas)
 │   ├── rules/                             # Constitutional Directives & Guardrails (academic, data, conventions)
 │   ├── hooks/                             # Antigravity Lifecycle Hook Runner Scripts
 │   ├── hooks.json                         # Hooks Configuration Manifest
@@ -168,8 +177,8 @@ AcademicSuite/
 │   ├── architecture.md                    # Master Architecture Blueprint
 │   ├── agent-contracts/                   # 12-Section Behavioral Contract Registry
 │   ├── protocols/                         # Stage-Gate, Triad Invariant, Binary Honesty & Failure Recovery
-│   ├── AGENT_INVENTORY.md                 # 22-Agent Cognitive Role Inventory
-│   ├── SKILL_INVENTORY.md                 # 43-Skill Execution Tools Catalog
+│   ├── AGENT_INVENTORY.md                 # 28-Agent Cognitive Role Inventory
+│   ├── SKILL_INVENTORY.md                 # 44-Skill Execution Tools Catalog
 │   └── LEGACY_INVENTORY.md                # Technical Debt & Deprecation Audit
 ├── validators/                            # Deterministic Quality Gatekeepers (Phase 8)
 ├── recovery/                              # Failure Recovery & Diagnostics Engine (Phase 15)

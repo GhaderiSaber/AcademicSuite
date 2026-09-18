@@ -1,7 +1,7 @@
 # Skill Inventory & Execution Tools Audit
 
-**Document Version:** 3.0.0 (Phase 16 Migration Complete)  
-**Total Active Production Skills:** 43 (in `.agents/skills/`)  
+**Document Version:** 3.1.0 (Continuous Learning Integrated)  
+**Total Active Production Skills:** 44 (in `.agents/skills/`)  
 **Retired Workflow Shells:** 10 (Archived in `legacy/skills/`)  
 **All Skills Verified:** Fully packaged with `scripts/`, `resources/`, `examples/`, `schemas/`, and `SKILL.md` satisfying Directive 18 ceilings (<= 500 lines, <= 40 KB).  
 
@@ -322,6 +322,13 @@ The skills layer consists of **43 Focused Capability Packages** adhering to prog
 - **Description:** Forensic cross-chapter consistency audit (Ch 1 vs Ch 4 vs Ch 5), hypothesis-result
 - **Scripts (1):** `audit_engine.py`
 - **Resources (1):** `thesis_integrity_auditor_guidelines.md`
+- **Examples & Schemas:** `examples/sample_input.json`, `examples/sample_output.json`, `schemas/input_schema.json`, `schemas/output_schema.json`
+
+### 44. `academic-adaptive-context`
+- **Path:** `.agents/skills/academic-adaptive-context/`
+- **Description:** Retrieve targeted active behavioral context (lessons, anti-patterns, exemplars, calibrated defaults) relevant to the current task from the persistent learning store without dumping irrelevant records.
+- **Scripts (1):** `academic_adaptive_context_cli.py`
+- **Resources (1):** `adaptive_context_guide.md`
 - **Examples & Schemas:** `examples/sample_input.json`, `examples/sample_output.json`, `schemas/input_schema.json`, `schemas/output_schema.json`
 
 ---

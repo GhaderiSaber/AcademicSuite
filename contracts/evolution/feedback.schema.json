@@ -110,6 +110,14 @@
       "type": "string",
       "format": "date-time"
     },
+    "is_correction": {
+      "type": "boolean",
+      "description": "Whether this feedback represents an active behavioral correction."
+    },
+    "is_project_specific": {
+      "type": "boolean",
+      "description": "Whether this feedback is scoped strictly to the current project."
+    },
     "context": {
       "type": "object",
       "properties": {

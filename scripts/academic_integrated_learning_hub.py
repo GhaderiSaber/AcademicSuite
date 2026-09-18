@@ -276,7 +276,8 @@ class AcademicIntegratedLearningHub:
         sm: Optional[Any] = None,
         actor: str = "user",
         rationale: str = "",
-        deliverable_payload: Optional[Dict[str, Any]] = None
+        deliverable_payload: Optional[Dict[str, Any]] = None,
+        experience_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Intercepts milestone transitions at meaningful boundaries:
@@ -333,13 +334,6 @@ class AcademicIntegratedLearningHub:
                         "reason": verification_reason
                     }
 
-                if sm and hasattr(sm, "experience_recorder") and sm.experience_recorder:
-                    sm.experience_recorder.record_from_milestone(
-                        sm=sm,
-                        milestone_id=milestone_id,
-                        outcome_override="SUCCESS",
-                        active_agent=actor
-                    )
                 self.log_activity("MILESTONE_APPROVED_RECORDED", {"milestone_id": milestone_id})
                 return {
                     "action": "MILESTONE_SUCCESS_RECORDED",
@@ -358,7 +352,8 @@ class AcademicIntegratedLearningHub:
                     fast_res = self.dual_loop_engine.run_fast_loop(
                         task_prompt=f"Repeated revision on milestone {milestone_id}",
                         user_correction=correction_msg,
-                        target_skill="academic-suite-orchestrator"
+                        target_skill="academic-suite-orchestrator",
+                        existing_experience_id=experience_id
                     )
                     self.log_activity("REPEATED_REVISION_EVOLUTION", {
                         "milestone_id": milestone_id,
@@ -388,7 +383,8 @@ class AcademicIntegratedLearningHub:
                 fast_res = self.dual_loop_engine.run_fast_loop(
                     task_prompt=f"Milestone {milestone_id} failure recovery",
                     user_correction=defect_msg,
-                    target_skill="academic-suite-orchestrator"
+                    target_skill="academic-suite-orchestrator",
+                    existing_experience_id=experience_id
                 )
                 self.log_activity("MILESTONE_FAILURE_EVOLUTION", {
                     "milestone_id": milestone_id,
