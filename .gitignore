@@ -63,6 +63,9 @@ learning/archive/index.jsonl
 learning/promotions/PRM-*
 learning/promotions/index.jsonl
 !learning/promotions/.gitkeep
+learning/telemetry/improvement_history.jsonl
+!learning/telemetry/.gitkeep
+learning/evolution.lock
 !legacy/
 !config/
 !config/**
