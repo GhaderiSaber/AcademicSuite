@@ -26,6 +26,7 @@ import os
 import sys
 import json
 import time
+import uuid
 import argparse
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Union, Tuple
@@ -48,6 +49,29 @@ from contracts.contract_validator import (
     validate_analysis_plan,
     validate_pitfall
 )
+
+try:
+    from scripts.academic_pitfall_registry import (
+        AcademicPitfallRegistry,
+        PitfallError,
+        PitfallSchemaValidationError,
+        DuplicatePitfallError,
+        MalformedPitfallError,
+        InvalidPitfallQueryError,
+        PitfallNotFoundError,
+        VALID_CATEGORIES
+    )
+except ImportError:
+    from academic_pitfall_registry import (
+        AcademicPitfallRegistry,
+        PitfallError,
+        PitfallSchemaValidationError,
+        DuplicatePitfallError,
+        MalformedPitfallError,
+        InvalidPitfallQueryError,
+        PitfallNotFoundError,
+        VALID_CATEGORIES
+    )
 
 DEFAULT_STATE_DIR = os.path.join(ROOT_DIR, "state")
 DEFAULT_PITFALLS_FILE = os.path.join(DEFAULT_STATE_DIR, "pitfalls.jsonl")
@@ -175,34 +199,19 @@ class AnalysisCandidate:
 # Canonical Pitfall Registry
 # ==============================================================================
 
-class CanonicalPitfallRegistry:
+class CanonicalPitfallRegistry(AcademicPitfallRegistry):
     """
     Manages the persistence, audit, and retrieval of methodological pitfalls in state/pitfalls.jsonl.
     Enforces contracts/pitfall.schema.json for every persisted entry.
-    Allows future runs to retrieve past failed approaches.
+    Subclasses AcademicPitfallRegistry to provide full backward-compatibility and research-memory indexing.
     """
 
-    def __init__(self, registry_path: Optional[str] = None):
-        self.registry_path = os.path.abspath(registry_path or DEFAULT_PITFALLS_FILE)
-        os.makedirs(os.path.dirname(self.registry_path), exist_ok=True)
+    def __init__(self, registry_path: Optional[str] = None, project_id: Optional[str] = None):
+        super().__init__(registry_path=registry_path, project_id=project_id)
 
     def load_pitfalls(self) -> List[Dict[str, Any]]:
         """Loads all recorded pitfalls from the JSONL registry."""
-        if not os.path.exists(self.registry_path):
-            return []
-
-        pitfalls = []
-        with open(self.registry_path, "r", encoding="utf-8") as f:
-            for line_no, line in enumerate(f, start=1):
-                clean_line = line.strip()
-                if not clean_line:
-                    continue
-                try:
-                    record = json.loads(clean_line)
-                    pitfalls.append(record)
-                except json.JSONDecodeError as jde:
-                    print(f"[WARNING] Skipping malformed line {line_no} in {self.registry_path}: {jde}", file=sys.stderr)
-        return pitfalls
+        return self.read(validate_schema=False)
 
     def record_pitfall(
         self,
@@ -212,7 +221,11 @@ class CanonicalPitfallRegistry:
         corrective_action: str,
         adapted_approach: str,
         stage: str = "methodological_candidate_selection",
-        verification_check: str = "Re-evaluate against study design and baseline characteristics."
+        verification_check: str = "Re-evaluate against study design and baseline characteristics.",
+        project: Optional[str] = None,
+        milestone: Optional[str] = None,
+        category: str = "methodological",
+        related_artifacts: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Creates and appends a structured pitfall record conforming to contracts/pitfall.schema.json.
@@ -220,39 +233,27 @@ class CanonicalPitfallRegistry:
         cand_dict = candidate.to_dict() if isinstance(candidate, AnalysisCandidate) else candidate
         cand_id = cand_dict.get("candidate_id", "CAND-UNKNOWN")
         method = cand_dict.get("method", "Unknown Method")
+        rq = cand_dict.get("research_question", "target research question")
+        candidate_approach_str = f"{method} for '{rq}'"
 
-        pitfall_id = f"PIT-{int(time.time())}-{cand_id}"
-        record = {
-            "contract_version": "1.0.0",
-            "pitfall_id": pitfall_id,
-            "stage": stage,
-            "candidate_approach": f"{method} for '{cand_dict.get('research_question', 'target research question')}'",
-            "problem": problem,
-            "evidence": {
-                "description": evidence_description,
-                "metric_or_statistic": "methodological_defect",
-                "observed_value": method,
-                "threshold_value": "Defensible Design Concordance"
-            },
-            "detected_by": "academic-challenger",
-            "resolution": {
-                "corrective_action": corrective_action,
-                "adapted_approach": adapted_approach,
-                "verification_check": verification_check
-            },
-            "reusable": True
-        }
+        pid = f"PIT-{int(time.time())}-{cand_id}-{uuid.uuid4().hex[:4].upper()}"
 
-        # Validate against schema
-        val_res = validate_pitfall(record)
-        if not val_res.get("valid", False):
-            raise CandidateDeliberationError(f"Pitfall record failed contracts schema: {val_res.get('errors')}")
-
-        # Append to JSONL registry
-        with open(self.registry_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(record, ensure_ascii=False) + "\n")
-
-        return record
+        return self.create(
+            candidate_approach=candidate_approach_str,
+            problem=problem,
+            evidence=evidence_description,
+            corrective_action=corrective_action,
+            adapted_approach=adapted_approach,
+            detected_by="academic-challenger",
+            category=category,
+            stage=stage,
+            milestone=milestone or stage,
+            project=project or self.project_id or "academic_project",
+            reusable=True,
+            pitfall_id=pid,
+            verification_check=verification_check,
+            related_artifacts=related_artifacts or []
+        )
 
     def find_matching_pitfalls(
         self,
@@ -264,10 +265,16 @@ class CanonicalPitfallRegistry:
         """
         cand_dict = candidate.to_dict() if isinstance(candidate, AnalysisCandidate) else candidate
         cand_method = cand_dict.get("method", "").lower().strip()
-        time_structure = cand_dict.get("data_requirements", {}).get("time_structure", "").lower()
+        data_req = cand_dict.get("data_requirements", {})
+        if isinstance(data_req, dict):
+            time_structure = data_req.get("time_structure", "").lower()
+        elif isinstance(data_req, str):
+            time_structure = data_req.lower()
+        else:
+            time_structure = ""
 
         matches = []
-        for p in self.load_pitfalls():
+        for p in self.read(validate_schema=False):
             appr = p.get("candidate_approach", "").lower()
             prob = p.get("problem", "").lower()
             # Match method name
@@ -300,8 +307,15 @@ class AcademicChallenger:
     Zero numeric scores or rankings.
     """
 
-    def __init__(self, pitfall_registry: Optional[CanonicalPitfallRegistry] = None):
-        self.pitfall_registry = pitfall_registry or CanonicalPitfallRegistry()
+    def __init__(
+        self,
+        pitfall_registry: Optional[Union[CanonicalPitfallRegistry, Any]] = None,
+        pitfall_file: Optional[str] = None
+    ):
+        if pitfall_file:
+            self.pitfall_registry = CanonicalPitfallRegistry(pitfall_file)
+        else:
+            self.pitfall_registry = pitfall_registry or CanonicalPitfallRegistry()
 
     def challenge_candidate(
         self,
@@ -318,8 +332,15 @@ class AcademicChallenger:
         method_lower = method.lower()
         design_type = study_context.get("design_type", "").lower()
         time_structure = study_context.get("time_structure", "").lower()
-        has_baseline = study_context.get("has_baseline", False)
+        has_baseline = (
+            study_context.get("has_baseline", False)
+            or study_context.get("baseline_collected", False)
+            or "pre_post" in design_type
+        )
         missing_rate = study_context.get("missing_rate", 0.0)
+        if not missing_rate and "missing_percentage" in study_context:
+            mp = float(study_context["missing_percentage"])
+            missing_rate = mp / 100.0 if mp > 1.0 else mp
         is_randomized = study_context.get("is_randomized", True)
         sample_size = study_context.get("sample_size", 100)
 
@@ -347,7 +368,12 @@ class AcademicChallenger:
 
         # 1. Design Compatibility
         # E.g. Using pure Between-Subjects ANOVA when baseline or repeated measures exist
-        if "between" in method_lower and "anova" in method_lower and "ancova" not in method_lower and has_baseline:
+        if (
+            ("between" in method_lower or "post-test" in method_lower or "one-way" in method_lower)
+            and "anova" in method_lower
+            and "ancova" not in method_lower
+            and has_baseline
+        ):
             evaluations.append({
                 "question": "Is the proposed model compatible with the study design?",
                 "verdict": "FAIL",
@@ -437,7 +463,13 @@ class AcademicChallenger:
 
         # 4. Missingness Vulnerability
         if missing_rate > 0.05:
-            req_missing = cand.get("data_requirements", {}).get("missing_data_strategy", "")
+            data_req = cand.get("data_requirements", {})
+            if isinstance(data_req, dict):
+                req_missing = data_req.get("missing_data_strategy", "")
+            elif isinstance(data_req, str):
+                req_missing = data_req
+            else:
+                req_missing = ""
             if "listwise" in req_missing.lower() or "deletion" in req_missing.lower():
                 evaluations.append({
                     "question": "Does missingness affect the proposed method?",
@@ -599,7 +631,10 @@ class AcademicChallenger:
                 problem=primary_problem,
                 evidence_description=evidence_desc,
                 corrective_action="Discard approach; adopt robust competing candidate that satisfies design constraints.",
-                adapted_approach="Condition on baseline via ANCOVA or adopt Linear Mixed Model for longitudinal unbalanced data."
+                adapted_approach="Condition on baseline via ANCOVA or adopt Linear Mixed Model for longitudinal unbalanced data.",
+                project=study_context.get("project_id", "academic_project"),
+                milestone=study_context.get("milestone_id", "M7_HYPOTHESIS_TESTING"),
+                category="methodological"
             )
 
         return finding

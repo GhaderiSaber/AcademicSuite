@@ -18,7 +18,7 @@ import hashlib
 import argparse
 from enum import Enum
 from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional, Set, Union
+from typing import Dict, Any, List, Optional, Set, Union, Tuple
 
 # Virtualenv auto-discovery shim
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -68,6 +68,27 @@ except ImportError:
         MissingArtifactEventError,
         VALID_EVENT_TYPES,
         compute_file_sha256,
+    )
+
+try:
+    from scripts.academic_pitfall_registry import (
+        AcademicPitfallRegistry,
+        PitfallError,
+        PitfallSchemaValidationError,
+        DuplicatePitfallError,
+        MalformedPitfallError,
+        InvalidPitfallQueryError,
+        PitfallNotFoundError,
+    )
+except ImportError:
+    from academic_pitfall_registry import (
+        AcademicPitfallRegistry,
+        PitfallError,
+        PitfallSchemaValidationError,
+        DuplicatePitfallError,
+        MalformedPitfallError,
+        InvalidPitfallQueryError,
+        PitfallNotFoundError,
     )
 
 
@@ -286,6 +307,7 @@ class StrictStateMachine:
         self.pitfalls_path = os.path.join(self.state_dir, "pitfalls.jsonl")
 
         self.event_engine = AcademicEventEngine(self.events_path, project_id=self.project_id)
+        self.pitfall_registry = AcademicPitfallRegistry(self.pitfalls_path, project_id=self.project_id)
 
         self.load_from_disk()
 
@@ -765,6 +787,93 @@ class StrictStateMachine:
             "approvals_count": len(self.approvals),
             "artifacts_count": len(self.artifacts)
         }
+
+    def record_pitfall(
+        self,
+        candidate_approach: str,
+        problem: str,
+        evidence: Union[str, Dict[str, Any]],
+        corrective_action: str,
+        adapted_approach: str,
+        detected_by: str = "academic-challenger",
+        category: str = "methodological",
+        milestone_id: Optional[str] = None,
+        reusable: bool = True,
+        pitfall_id: Optional[str] = None,
+        verification_check: Optional[str] = None,
+        related_artifacts: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Records a methodological, statistical, execution, evidence, or validation pitfall in state/pitfalls.jsonl."""
+        m_id = milestone_id or "M_UNSPECIFIED"
+        return self.pitfall_registry.create(
+            candidate_approach=candidate_approach,
+            problem=problem,
+            evidence=evidence,
+            corrective_action=corrective_action,
+            adapted_approach=adapted_approach,
+            detected_by=detected_by,
+            category=category,
+            stage=m_id,
+            milestone=m_id,
+            project=self.project_id,
+            reusable=reusable,
+            pitfall_id=pitfall_id,
+            verification_check=verification_check,
+            related_artifacts=related_artifacts
+        )
+
+    def query_pitfalls(
+        self,
+        category: Optional[str] = None,
+        milestone: Optional[str] = None,
+        detected_by: Optional[str] = None,
+        reusable: Optional[bool] = None,
+        keyword: Optional[str] = None,
+        candidate_method: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Queries the persistent pitfall registry with deterministic filtering."""
+        return self.pitfall_registry.query(
+            category=category,
+            project=self.project_id if self.project_id else None,
+            milestone=milestone,
+            detected_by=detected_by,
+            reusable=reusable,
+            keyword=keyword,
+            candidate_method=candidate_method
+        )
+
+    def is_approach_invalidated(
+        self,
+        candidate_approach: Union[str, Dict[str, Any]],
+        category: Optional[str] = None
+    ) -> Tuple[bool, List[Dict[str, Any]]]:
+        """Checks if a proposed candidate approach matches an invalidated reusable pitfall in the registry."""
+        return self.pitfall_registry.is_approach_invalidated(candidate_approach, category=category)
+
+    def surface_reusable_pitfalls(
+        self,
+        category: Optional[str] = None,
+        milestone: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Surfaces all reusable historical pitfalls relevant to the milestone or category."""
+        return self.pitfall_registry.surface_reusable_pitfalls(category=category, milestone=milestone)
+
+    def resolve_pitfall(
+        self,
+        pitfall_id: str,
+        corrective_action: str,
+        adapted_approach: str,
+        resolved_by: str,
+        verification_check: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Updates resolution metadata for a recorded pitfall."""
+        return self.pitfall_registry.resolve_pitfall(
+            pitfall_id=pitfall_id,
+            corrective_action=corrective_action,
+            adapted_approach=adapted_approach,
+            resolved_by=resolved_by,
+            verification_check=verification_check
+        )
 
 
 # ==============================================================================

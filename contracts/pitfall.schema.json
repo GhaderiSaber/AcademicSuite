@@ -28,22 +28,47 @@
       "type": "string",
       "description": "Stage or milestone where pitfall occurred (e.g. 03_parametric_assumptions, 05_macro_model, Viva_Voce)."
     },
+    "project": {
+      "type": "string",
+      "description": "Project ID or study workspace identifier where the pitfall occurred."
+    },
+    "milestone": {
+      "type": "string",
+      "description": "Milestone identifier (e.g. M0_INGESTION, M7_HYPOTHESIS_TESTING)."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "methodological",
+        "statistical",
+        "execution",
+        "evidence",
+        "validation"
+      ],
+      "description": "Domain failure taxonomy category."
+    },
     "candidate_approach": {
       "type": "string",
+      "minLength": 1,
       "description": "Initial or proposed approach that contained the defect (e.g. Standard ANCOVA with unequal variances)."
     },
     "problem": {
       "type": "string",
+      "minLength": 1,
       "description": "Exact methodological, statistical, or typography defect identified."
     },
     "evidence": {
       "type": "object",
       "required": ["description"],
       "properties": {
-        "description": {"type": "string"},
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
         "metric_or_statistic": {"type": "string"},
         "observed_value": {},
-        "threshold_value": {}
+        "threshold_value": {},
+        "details": {"type": "object"}
       }
     },
     "detected_by": {
@@ -56,12 +81,24 @@
       "properties": {
         "corrective_action": {"type": "string"},
         "adapted_approach": {"type": "string"},
-        "verification_check": {"type": "string"}
+        "verification_check": {"type": "string"},
+        "resolved_at": {"type": "string"},
+        "resolved_by": {"type": "string"}
       }
     },
     "reusable": {
       "type": "boolean",
       "description": "Flag indicating whether this pitfall pattern should be indexed in case-based memory for future projects."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when pitfall was detected or recorded."
+    },
+    "related_artifacts": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Artifact paths or IDs directly implicated by or produced during this pitfall."
     }
   },
   "additionalProperties": true
