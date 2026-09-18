@@ -45,7 +45,8 @@ SCHEMA_FILES = {
     "validation_report": "validation_report.schema.json",
     "handoff": "handoff.schema.json",
     "pitfall": "pitfall.schema.json",
-    "execution_manifest": "execution_manifest.schema.json"
+    "execution_manifest": "execution_manifest.schema.json",
+    "teamwork_boundary": "teamwork_boundary.schema.json"
 }
 
 

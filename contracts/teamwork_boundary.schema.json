@@ -1,0 +1,193 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicSuite Teamwork Boundary Contract",
+  "description": "Authoritative contract governing the boundary interface between AcademicSuite domain governance and native Antigravity Teamwork runtime.",
+  "type": "object",
+  "required": [
+    "boundary_version",
+    "task_id",
+    "task_description",
+    "complexity_level",
+    "governance",
+    "teamwork_runtime",
+    "deliverables"
+  ],
+  "properties": {
+    "boundary_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the boundary contract schema."
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "description": "Unique identifier for the research task."
+    },
+    "task_description": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Natural language or technical description of the research task."
+    },
+    "complexity_level": {
+      "type": "string",
+      "enum": ["L0", "L1", "L2", "L3", "L4"],
+      "description": "Graduated task complexity classification governing team formation."
+    },
+    "governance": {
+      "type": "object",
+      "description": "Domain standards, contracts, and validation rules owned by AcademicSuite.",
+      "required": [
+        "research_contracts",
+        "analysis_plan_required",
+        "artifact_schemas",
+        "provenance_required",
+        "statistical_execution_contract",
+        "validation_rules",
+        "academic_acceptance_criteria",
+        "human_approval_required"
+      ],
+      "properties": {
+        "research_contracts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Contract schemas governing the research task (e.g. analysis_plan, execution_manifest)."
+        },
+        "analysis_plan_required": {
+          "type": "boolean",
+          "description": "Whether execution requires an approved AnalysisPlan before starting."
+        },
+        "artifact_schemas": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Schemas governing generated artifacts."
+        },
+        "provenance_required": {
+          "type": "boolean",
+          "description": "Whether raw dataset SHA-256 fingerprinting and provenance logging are mandatory."
+        },
+        "statistical_execution_contract": {
+          "type": "string",
+          "description": "Governing protocol for empirical calculations (e.g., 'deterministic_hands_only')."
+        },
+        "validation_rules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Deterministic validation engines and constitutional directives that must pass."
+        },
+        "academic_acceptance_criteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Domain-specific criteria required for thesis or defense readiness."
+        },
+        "human_approval_required": {
+          "type": "boolean",
+          "description": "Whether Saber Admin Desk (124911145) approval is mandatory before release."
+        }
+      },
+      "additionalProperties": false
+    },
+    "teamwork_runtime": {
+      "type": "object",
+      "description": "Teamwork runtime execution parameters managed by Antigravity.",
+      "required": [
+        "team_formation_mode",
+        "isolated_workspaces",
+        "role_roster"
+      ],
+      "properties": {
+        "team_formation_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "bounded_single",
+            "sequential_audited",
+            "full_milestone_pipeline",
+            "dynamic_teamwork"
+          ],
+          "description": "Runtime team formation topology matched to complexity level."
+        },
+        "isolated_workspaces": {
+          "type": "boolean",
+          "description": "Whether subagents should execute in isolated workspaces ('branch' / 'share')."
+        },
+        "recommended_slash_command": {
+          "type": ["string", "null"],
+          "description": "Optional Antigravity slash command (e.g., '/teamwork-preview' for L4, '/boost' for complex proofs)."
+        },
+        "role_roster": {
+          "type": "array",
+          "description": "Dynamic mapping of Teamwork abstract roles to AcademicSuite cognitive roles.",
+          "items": {
+            "type": "object",
+            "required": [
+              "teamwork_role",
+              "academicsuite_agent",
+              "purpose",
+              "required_skills",
+              "workspace_mode"
+            ],
+            "properties": {
+              "teamwork_role": {
+                "type": "string",
+                "enum": [
+                  "Explorer",
+                  "Worker",
+                  "Critic",
+                  "Challenger",
+                  "Auditor",
+                  "Success Auditor"
+                ]
+              },
+              "academicsuite_agent": {
+                "type": "string",
+                "description": "AcademicSuite durable cognitive role name (e.g., 'statistics-agent')."
+              },
+              "purpose": {
+                "type": "string",
+                "description": "Specific functional responsibility for this agent."
+              },
+              "required_skills": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Production capabilities to execute ('The Hands')."
+              },
+              "workspace_mode": {
+                "type": "string",
+                "enum": ["inherit", "branch", "share"],
+                "description": "Antigravity workspace isolation mode."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "max_concurrent_workers": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "description": "Suggested concurrency limit; null indicates dynamic runtime management."
+        }
+      },
+      "additionalProperties": false
+    },
+    "deliverables": {
+      "type": "object",
+      "description": "Deliverable contracts and physical artifact specifications.",
+      "required": [
+        "expected_triads",
+        "output_directory"
+      ],
+      "properties": {
+        "expected_triads": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Triad artifact extensions expected per stage (e.g. ['docx', 'md', 'json'])."
+        },
+        "output_directory": {
+          "type": "string",
+          "description": "Target filesystem directory for milestone deliverables."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

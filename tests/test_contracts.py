@@ -43,8 +43,9 @@ from contracts.contract_validator import (
 class TestContractSystem(unittest.TestCase):
 
     def test_01_all_nine_schema_files_exist_and_compile(self):
-        """All 9 contract schemas must exist in contracts/ and compile as valid Draft-7 schemas."""
-        self.assertEqual(len(SCHEMA_FILES), 9)
+        """All contract schemas must exist in contracts/ and compile as valid Draft-7 schemas."""
+        self.assertGreaterEqual(len(SCHEMA_FILES), 9)
+        self.assertIn("teamwork_boundary", SCHEMA_FILES)
         for key, fname in SCHEMA_FILES.items():
             schema = load_schema(key)
             self.assertIsInstance(schema, dict, f"Schema '{key}' is not a valid JSON object.")

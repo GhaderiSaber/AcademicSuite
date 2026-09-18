@@ -341,7 +341,14 @@ def format_delegation_envelope(stage_id: str, state_dir: str, task_instructions:
 
 
 def route_task(description: str, file_count: int = 1, chapter_count: int = 1) -> Dict[str, Any]:
-    """Determines whether a task should route to Custom Subagents, /boost, or /teamwork-preview."""
+    """Determines whether a task should route to Custom Subagents, /boost, or /teamwork-preview, enriched with complexity levels L0-L4."""
+    try:
+        from teamwork_boundary_adapter import classify_complexity
+        c_meta = classify_complexity(description, file_count=file_count, chapter_count=chapter_count)
+        complexity_level = c_meta["complexity_level"]
+    except Exception:
+        complexity_level = "L1"
+
     desc_lower = description.lower()
 
     # Tier 3: Huge Long-Running Projects -> /teamwork-preview
@@ -355,11 +362,13 @@ def route_task(description: str, file_count: int = 1, chapter_count: int = 1) ->
         chapter_count >= 10
         or file_count >= 100
         or any(k in desc_lower for k in teamwork_keywords)
+        or complexity_level == "L4"
     )
 
     if is_teamwork:
         return {
             "tier": "tier_3_teamwork",
+            "complexity_level": "L4",
             "recommended_mechanism": "/teamwork-preview",
             "slash_command": "/teamwork-preview",
             "primary_conductor": "Antigravity Teamwork Multi-Agent System",
@@ -383,6 +392,7 @@ def route_task(description: str, file_count: int = 1, chapter_count: int = 1) ->
     if is_boost:
         return {
             "tier": "tier_2_boost",
+            "complexity_level": complexity_level if complexity_level in ("L2", "L3") else "L2",
             "recommended_mechanism": "/boost",
             "slash_command": "/boost",
             "primary_conductor": "Antigravity Multi-Tier Boost Engine",
@@ -397,6 +407,7 @@ def route_task(description: str, file_count: int = 1, chapter_count: int = 1) ->
     cap_info = resolve_capability(description)
     return {
         "tier": "tier_1_custom_subagents",
+        "complexity_level": complexity_level,
         "recommended_mechanism": "invoke_subagent",
         "slash_command": None,
         "primary_conductor": "academic-orchestrator",

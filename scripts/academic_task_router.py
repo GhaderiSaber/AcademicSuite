@@ -371,9 +371,23 @@ class CapabilityResolver:
         else:
             durable_primary_agent = "academic-orchestrator"
 
+        # Determine complexity level and compile teamwork boundary package
+        try:
+            from teamwork_boundary_adapter import classify_complexity, build_teamwork_boundary_package
+            c_meta = classify_complexity(prompt, resolved_capabilities=list(detected_caps))
+            complexity_level = c_meta["complexity_level"]
+            teamwork_boundary = build_teamwork_boundary_package(
+                task_description=prompt,
+                resolved_capabilities=ordered_execution_chain
+            )
+        except Exception:
+            complexity_level = "L1"
+            teamwork_boundary = {}
+
         return {
             "status": "RESOLVED",
             "task_prompt": prompt,
+            "complexity_level": complexity_level,
             "required_capabilities": list(detected_caps),
             "topological_capability_order": resolved_order,
             "durable_agent": durable_primary_agent,
@@ -388,8 +402,9 @@ class CapabilityResolver:
             "output_artifacts": output_artifacts,
             "validation_requirements": validation_requirements,
             "ordered_execution_chain": ordered_execution_chain,
+            "teamwork_boundary": teamwork_boundary,
             "orchestration_directive": (
-                f"Resolved {len(resolved_order)} capability stages: {' ──► '.join(resolved_order)}. "
+                f"Resolved {len(resolved_order)} capability stages ({complexity_level}): {' ──► '.join(resolved_order)}. "
                 f"Primary agent: {durable_primary_agent}. Required workers: {', '.join(execution_workers)}. "
                 f"Auditors: {', '.join(reviewers)}. Challengers: {', '.join(challengers)}."
             )
@@ -561,6 +576,7 @@ def main():
     # 2. resolve (modern capability resolver)
     p_resolve = subparsers.add_parser("resolve", help="Resolve task prompt to capabilities, workers, reviewers, and artifacts")
     p_resolve.add_argument("prompt", help="User task instruction prompt")
+    p_resolve.add_argument("--teamwork-boundary", action="store_true", help="Output only the pure Antigravity Teamwork boundary manifest")
 
     # 3. explain (human-readable summary)
     p_exp = subparsers.add_parser("explain", help="Print human-readable routing summary")
@@ -580,7 +596,10 @@ def main():
 
     elif args.command == "resolve":
         res = _RESOLVER.resolve(args.prompt)
-        print(json.dumps(res, indent=2, ensure_ascii=False))
+        if getattr(args, "teamwork_boundary", False) and "teamwork_boundary" in res:
+            print(json.dumps(res["teamwork_boundary"], indent=2, ensure_ascii=False))
+        else:
+            print(json.dumps(res, indent=2, ensure_ascii=False))
 
     elif args.command == "explain":
         res = build_pipeline(args.prompt)
