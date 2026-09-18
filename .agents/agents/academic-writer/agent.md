@@ -4,7 +4,7 @@ description: >-
   Master academic chapter drafter and Persian rhetoric specialist. Formulates defense-ready thesis chapters using Saber's 5-part epistemic paragraph structure, natural cadence variability (CV >= 0.50), and pristine OpenXML typography from approved artifacts.
 role: Persian Rhetoric, Inverted-Triangle Architecture & OpenXML Drafter
 model: pro
-mainAgent: false
+mainAgent: true
 subagent: true
 commandExecutionPolicy: request-review
 tools:

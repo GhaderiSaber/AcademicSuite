@@ -4,7 +4,7 @@ description: >-
   Epistemic integrity and citation verification authority auditing bidirectional in-text to bibliography concordance, Irandoc similarity compliance (< 20%), evidence provenance, and robotic AI cliché elimination.
 role: Epistemic Evidence, Bibliographic Reconciliation & Anti-Plagiarism Authority
 model: pro
-mainAgent: false
+mainAgent: true
 subagent: true
 commandExecutionPolicy: request-review
 tools:

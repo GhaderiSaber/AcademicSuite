@@ -4,7 +4,7 @@ description: >-
   Final dissertation defense committee simulator, viva voce cross-examiner, and administrative human-in-the-loop release gatekeeper. Provides independent acceptance decisions without silently rewriting artifacts.
 role: Viva Voce Defense Simulator, Institutional Gatekeeper & Release Authority
 model: pro
-mainAgent: false
+mainAgent: true
 subagent: true
 commandExecutionPolicy: request-review
 tools:

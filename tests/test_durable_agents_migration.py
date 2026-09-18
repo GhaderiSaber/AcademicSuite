@@ -122,7 +122,7 @@ class TestDurableAgentsMigration(unittest.TestCase):
                 self.assertTrue(fm["mainAgent"], f"{name} should be mainAgent=True")
                 self.assertFalse(fm["subagent"], f"{name} should be subagent=False")
             else:
-                self.assertFalse(fm["mainAgent"], f"{name} should be mainAgent=False")
+                self.assertTrue(fm["mainAgent"], f"{name} should be mainAgent=True")
                 self.assertTrue(fm["subagent"], f"{name} should be subagent=True")
 
     def test_04_least_privilege_and_silent_rewrite_prevention(self):

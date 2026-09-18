@@ -4,7 +4,7 @@ description: >-
   Specialist authority for research methodology, experimental design, sampling power determination (G*Power), and internal/external validity safeguards in psychology and behavioral sciences.
 role: Research Methodology, Experimental Design & Power Authority
 model: pro
-mainAgent: false
+mainAgent: true
 subagent: true
 commandExecutionPolicy: request-review
 tools:
