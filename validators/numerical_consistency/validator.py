@@ -15,8 +15,18 @@ def validate_numbers(stats_path, sample_n=None):
     if not os.path.exists(stats_path):
         return {"verdict": "FAIL", "errors": [f"Stats file not found: {stats_path}"]}
 
-    with open(stats_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    try:
+        with open(stats_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        return {
+            "validator": "numerical_consistency",
+            "verdict": "FAIL",
+            "status": "FAIL",
+            "errors": [f"Malformed JSON artifact '{stats_path}': {str(e)}"],
+            "warnings": [],
+            "sample_size_audited": None
+        }
 
     errors = []
     warnings = []

@@ -16,8 +16,18 @@ def validate_data(report_path):
     if not os.path.exists(report_path):
         return {"verdict": "FAIL", "errors": [f"Curation report not found: {report_path}"]}
 
-    with open(report_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    try:
+        with open(report_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        return {
+            "validator": "data_integrity",
+            "verdict": "FAIL",
+            "status": "FAIL",
+            "errors": [f"Malformed curation report '{report_path}': {str(e)}"],
+            "warnings": [],
+            "metrics": {}
+        }
 
     errors = []
     warnings = []

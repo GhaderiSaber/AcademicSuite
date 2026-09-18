@@ -15,8 +15,17 @@ def validate_assumptions(assumptions_path):
     if not os.path.exists(assumptions_path):
         return {"verdict": "FAIL", "errors": [f"Assumptions file not found: {assumptions_path}"]}
 
-    with open(assumptions_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    try:
+        with open(assumptions_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        return {
+            "validator": "statistical_assumptions",
+            "verdict": "FAIL",
+            "status": "FAIL",
+            "errors": [f"Malformed assumptions file '{assumptions_path}': {str(e)}"],
+            "warnings": []
+        }
 
     errors = []
     warnings = []
