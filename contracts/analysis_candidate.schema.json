@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/analysis_candidate.schema.json",
+  "title": "AcademicAnalysisCandidateContract",
+  "description": "Contract schema for competing candidate statistical analysis plans evaluated under the Candidate -> Falsifier -> Synthesis pattern.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "candidate_id",
+    "method",
+    "research_question",
+    "estimand",
+    "assumptions",
+    "data_requirements",
+    "diagnostics",
+    "strengths",
+    "limitations",
+    "expected_interpretation",
+    "execution_requirements"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of the contract schema."
+    },
+    "candidate_id": {
+      "type": "string",
+      "description": "Unique identifier for this candidate (e.g. CAND-ANCOVA-01)."
+    },
+    "proposed_by": {
+      "type": "string",
+      "description": "Agent or expert proposing the candidate (e.g. statistical-expert, methodology-expert)."
+    },
+    "method": {
+      "type": "string",
+      "description": "Specific statistical method or model family (e.g. One-Way ANCOVA, Linear Mixed-Effects Model, RM-ANOVA, Difference-in-Differences)."
+    },
+    "research_question": {
+      "type": "string",
+      "description": "The precise research question addressed by this candidate."
+    },
+    "estimand": {
+      "type": "string",
+      "description": "Explicit target parameter or causal contrast (e.g. Average treatment effect adjusted for baseline, Within-person rate of change)."
+    },
+    "assumptions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"},
+      "description": "Mathematical and design assumptions required by the method."
+    },
+    "data_requirements": {
+      "type": "object",
+      "description": "Variables, sample size requirements, measurement scales, and time points needed.",
+      "required": ["variables", "minimum_sample_size"],
+      "properties": {
+        "variables": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "minimum_sample_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "time_structure": {"type": "string"},
+        "measurement_level": {"type": "string"}
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"},
+      "description": "Empirical diagnostic tests to assess assumption validity."
+    },
+    "strengths": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"},
+      "description": "Key methodological advantages of this candidate for the target research question."
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"},
+      "description": "Methodological vulnerabilities, bias risks, and constraints of this candidate."
+    },
+    "expected_interpretation": {
+      "type": "string",
+      "description": "Scholarly narrative interpretation that results from this model without exceeding design boundaries."
+    },
+    "execution_requirements": {
+      "type": "object",
+      "description": "Technical requirements for deterministic execution.",
+      "required": ["assigned_subagent", "engine"],
+      "properties": {
+        "assigned_subagent": {"type": "string"},
+        "engine": {"type": "string"},
+        "scripts": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -208,7 +208,7 @@
       "properties": {
         "strategy": {
           "type": "string",
-          "enum": ["listwise_deletion", "fiml_full_information_maximum_likelihood", "multiple_imputation_ch困ned_equations", "expectation_maximization"]
+          "enum": ["listwise_deletion", "fiml_full_information_maximum_likelihood", "multiple_imputation_chained_equations", "multiple_imputation", "expectation_maximization"]
         },
         "mcar_diagnostic_required": {"type": "boolean"},
         "maximum_allowed_missing_rate": {"type": "number", "minimum": 0.0, "maximum": 0.5},

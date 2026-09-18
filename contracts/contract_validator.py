@@ -132,3 +132,7 @@ def validate_pitfall(instance: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_execution_manifest(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "execution_manifest")
+
+
+def validate_analysis_candidate(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "analysis_candidate")
