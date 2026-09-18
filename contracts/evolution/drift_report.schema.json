@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/drift_report.schema.json",
+  "title": "AcademicDriftReportContract",
+  "description": "Contract schema for behavior-drift audit reports detecting cross-capability regressions, unexplainable methodological inconsistencies, and automated rollbacks.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "report_id",
+    "target_type",
+    "target_id",
+    "trigger",
+    "dimension_scores",
+    "dimension_deltas",
+    "cross_capability_regressions",
+    "methodological_inconsistencies",
+    "rollback_executed",
+    "verdict",
+    "timestamp"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "report_id": {
+      "type": "string",
+      "description": "Unique audit report identifier (e.g. DRIFT-20260918-XXXX)."
+    },
+    "target_type": {
+      "type": "string",
+      "enum": ["agent", "skill"]
+    },
+    "target_id": {
+      "type": "string"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": ["POST_PROMOTION", "PERIODIC_MONITOR", "REGRESSION_AUDIT"]
+    },
+    "promotion_id": {
+      "type": "string"
+    },
+    "candidate_id": {
+      "type": "string"
+    },
+    "dimension_scores": {
+      "type": "object",
+      "required": [
+        "correctness",
+        "methodology",
+        "statistical_validity",
+        "evidence_grounding",
+        "integrity",
+        "robustness",
+        "consistency",
+        "efficiency"
+      ],
+      "properties": {
+        "correctness": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "methodology": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "statistical_validity": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "evidence_grounding": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "integrity": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "robustness": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "consistency": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "efficiency": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      },
+      "additionalProperties": false
+    },
+    "dimension_deltas": {
+      "type": "object",
+      "required": [
+        "correctness",
+        "methodology",
+        "statistical_validity",
+        "evidence_grounding",
+        "integrity",
+        "robustness",
+        "consistency",
+        "efficiency"
+      ],
+      "properties": {
+        "correctness": {"type": "number"},
+        "methodology": {"type": "number"},
+        "statistical_validity": {"type": "number"},
+        "evidence_grounding": {"type": "number"},
+        "integrity": {"type": "number"},
+        "robustness": {"type": "number"},
+        "consistency": {"type": "number"},
+        "efficiency": {"type": "number"}
+      },
+      "additionalProperties": false
+    },
+    "cross_capability_regressions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "target_capability",
+          "target_status",
+          "regressed_capability",
+          "baseline_score",
+          "current_score",
+          "delta",
+          "description"
+        ],
+        "properties": {
+          "target_capability": {"type": "string"},
+          "target_status": {"type": "string"},
+          "regressed_capability": {"type": "string"},
+          "baseline_score": {"type": "number"},
+          "current_score": {"type": "number"},
+          "delta": {"type": "number"},
+          "description": {"type": "string"}
+        },
+        "additionalProperties": false
+      },
+      "description": "Details instances where target capability improved but protected non-target capability regressed."
+    },
+    "methodological_inconsistencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "evidence_hash",
+          "previous_decision",
+          "current_decision",
+          "inputs_changed",
+          "design_changed",
+          "explainable",
+          "verdict"
+        ],
+        "properties": {
+          "evidence_hash": {"type": "string"},
+          "previous_decision": {"type": "string"},
+          "current_decision": {"type": "string"},
+          "inputs_changed": {"type": "boolean"},
+          "design_changed": {"type": "boolean"},
+          "explainable": {"type": "boolean"},
+          "explanation": {"type": "string"},
+          "verdict": {
+            "type": "string",
+            "enum": ["CONSISTENT", "JUSTIFIED_DIFFERENCE", "UNEXPLAINABLE_INCONSISTENCY"]
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Analysis of methodological decisions on identical or equivalent evidence footprints."
+    },
+    "rollback_executed": {
+      "type": "boolean"
+    },
+    "rollback_details": {
+      "type": "object",
+      "properties": {
+        "snapshot_id": {"type": "string"},
+        "restored_component": {"type": "string"},
+        "deactivated_candidate_id": {"type": "string"},
+        "action_timestamp": {"type": "string", "format": "date-time"},
+        "reason": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["PASS", "WARNING_DRIFT", "CRITICAL_REGRESSION_ROLLBACK"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

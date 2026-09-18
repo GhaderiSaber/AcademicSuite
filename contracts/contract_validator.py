@@ -62,7 +62,9 @@ SCHEMA_FILES = {
     "promotion_decision": "evolution/promotion_decision.schema.json",
     "capability_profile": "evolution/capability_profile.schema.json",
     "curriculum_task": "evolution/curriculum_task.schema.json",
-    "contradiction_record": "evolution/contradiction_record.schema.json"
+    "contradiction_record": "evolution/contradiction_record.schema.json",
+    "behavioral_profile": "evolution/behavioral_profile.schema.json",
+    "drift_report": "evolution/drift_report.schema.json"
 }
 
 
@@ -213,4 +215,12 @@ def validate_curriculum_task(instance: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_contradiction_record(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "contradiction_record")
+
+
+def validate_behavioral_profile(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "behavioral_profile")
+
+
+def validate_drift_report(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "drift_report")
 

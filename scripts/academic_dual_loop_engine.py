@@ -60,6 +60,7 @@ from scripts.academic_counterfactual_evaluator import AcademicCounterfactualEval
 from scripts.academic_promotion_engine import AcademicPromotionEngine
 from scripts.academic_curriculum_builder import AcademicCurriculumBuilder
 from scripts.academic_behavior_consolidator import AcademicBehaviorConsolidator
+from scripts.academic_behavior_drift_monitor import AcademicBehaviorDriftMonitor
 
 
 class DualLoopError(Exception):
@@ -155,6 +156,7 @@ class AcademicDualLoopEngine:
         self.promotion_engine = AcademicPromotionEngine(base_dir=self.base_dir)
         self.curriculum_builder = AcademicCurriculumBuilder(base_dir=self.base_dir)
         self.consolidator = AcademicBehaviorConsolidator(base_dir=self.base_dir)
+        self.drift_monitor = AcademicBehaviorDriftMonitor(base_dir=self.base_dir)
 
     # -------------------------------------------------------------------------
     # Telemetry & Cooldown Tracking
@@ -416,6 +418,17 @@ class AcademicDualLoopEngine:
                 evaluation_report=eval_report
             )
 
+            # 7.1 Post-Promotion Behavior-Drift Guard
+            drift_report = None
+            if promotion_result.get("decision") == "PROMOTED":
+                drift_report = self.drift_monitor.audit_drift(
+                    target_id=target_skill,
+                    target_type="skill",
+                    candidate_id=cid,
+                    promotion_id=promotion_result.get("promotion_id"),
+                    trigger="POST_PROMOTION"
+                )
+
             # 8. Record Telemetry
             self.record_telemetry(
                 loop_type="FAST",
@@ -438,7 +451,8 @@ class AcademicDualLoopEngine:
                 "status": "COMPLETED",
                 "candidate_id": cid,
                 "mutation_type": candidate.get("mutation_type"),
-                "promotion_result": promotion_result
+                "promotion_result": promotion_result,
+                "drift_report": drift_report
             }
 
     # -------------------------------------------------------------------------
@@ -561,11 +575,22 @@ class AcademicDualLoopEngine:
                     }
                 )
 
+                drift_report = None
+                if promotion_res.get("decision") == "PROMOTED":
+                    drift_report = self.drift_monitor.audit_drift(
+                        target_id=target_skill,
+                        target_type="skill",
+                        candidate_id=cid,
+                        promotion_id=promotion_res.get("promotion_id"),
+                        trigger="POST_PROMOTION"
+                    )
+
                 slow_loop_results.append({
                     "capability": cap,
                     "curriculum_case": curriculum_case.get("case_id"),
                     "candidate_id": cid,
-                    "promotion_result": promotion_res
+                    "promotion_result": promotion_res,
+                    "drift_report": drift_report
                 })
 
             # 7. Run Periodic Consolidation of Learned Behavior
@@ -663,6 +688,7 @@ def main():
     parser.add_argument("--fast-loop", action="store_true", help="Trigger Fast Evolution Loop")
     parser.add_argument("--slow-loop", action="store_true", help="Trigger Slow Evolution Loop")
     parser.add_argument("--consolidate", action="store_true", help="Trigger periodic behavior consolidation")
+    parser.add_argument("--monitor-drift", action="store_true", help="Trigger behavior-drift monitoring audit")
     parser.add_argument("--prompt", type=str, default="Analyze study results.", help="Task prompt for fast loop")
     parser.add_argument("--correction", type=str, default=None, help="User correction message")
     parser.add_argument("--skill", type=str, default="statistical-data-analyst", help="Target skill")
@@ -687,6 +713,16 @@ def main():
 
     if args.consolidate:
         res = engine.consolidator.run_periodic_consolidation(target_skill=args.skill if args.skill != "statistical-data-analyst" else None)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        sys.exit(0)
+
+    if args.monitor_drift:
+        res = engine.drift_monitor.audit_drift(
+            target_id=args.skill,
+            target_type="skill",
+            candidate_id=None,
+            trigger="PERIODIC_MONITOR"
+        )
         print(json.dumps(res, indent=2, ensure_ascii=False))
         sys.exit(0)
 

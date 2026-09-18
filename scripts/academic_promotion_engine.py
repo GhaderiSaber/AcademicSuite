@@ -556,6 +556,26 @@ class AcademicPromotionEngine:
             "candidate_id": candidate_id
         }
 
+    def audit_post_promotion_drift(
+        self,
+        candidate_id: str,
+        target_skill: str,
+        promotion_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Runs behavior-drift monitoring on protected capabilities post-promotion.
+        Automatically triggers snapshot rollback and candidate deactivation if critical regressions occur.
+        """
+        from scripts.academic_behavior_drift_monitor import AcademicBehaviorDriftMonitor
+        monitor = AcademicBehaviorDriftMonitor(base_dir=self.base_dir)
+        return monitor.audit_drift(
+            target_id=target_skill,
+            target_type="skill",
+            candidate_id=candidate_id,
+            promotion_id=promotion_id,
+            trigger="POST_PROMOTION"
+        )
+
     # -------------------------------------------------------------------------
     # Active Deployment & Lineage Tracking
     # -------------------------------------------------------------------------

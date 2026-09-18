@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/behavioral_profile.schema.json",
+  "title": "AcademicBehavioralProfileContract",
+  "description": "Contract schema for longitudinal behavioral profiling of durable agents and production Skills across 8 key dimensions.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "profile_id",
+    "target_type",
+    "target_id",
+    "dimensions",
+    "dimension_baselines",
+    "decision_footprints",
+    "evaluation_history",
+    "status",
+    "last_updated_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "profile_id": {
+      "type": "string",
+      "description": "Unique profile identifier (e.g. PROF-SKILL-STAT-001, PROF-AGENT-WRITER-001)."
+    },
+    "target_type": {
+      "type": "string",
+      "enum": ["agent", "skill"]
+    },
+    "target_id": {
+      "type": "string",
+      "description": "Identifier of the target agent (e.g. statistics-agent) or skill (e.g. statistical-data-analyst)."
+    },
+    "dimensions": {
+      "type": "object",
+      "required": [
+        "correctness",
+        "methodology",
+        "statistical_validity",
+        "evidence_grounding",
+        "integrity",
+        "robustness",
+        "consistency",
+        "efficiency"
+      ],
+      "properties": {
+        "correctness": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "methodology": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "statistical_validity": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "evidence_grounding": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "integrity": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "robustness": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "consistency": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "efficiency": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      },
+      "additionalProperties": false
+    },
+    "dimension_baselines": {
+      "type": "object",
+      "required": [
+        "correctness",
+        "methodology",
+        "statistical_validity",
+        "evidence_grounding",
+        "integrity",
+        "robustness",
+        "consistency",
+        "efficiency"
+      ],
+      "properties": {
+        "correctness": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "methodology": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "statistical_validity": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "evidence_grounding": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "integrity": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "robustness": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "consistency": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "efficiency": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      },
+      "additionalProperties": false
+    },
+    "decision_footprints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_hash", "decision", "recorded_at"],
+        "properties": {
+          "evidence_hash": {"type": "string"},
+          "inputs_summary": {"type": "string"},
+          "design": {"type": "string"},
+          "decision": {"type": "string"},
+          "rationale": {"type": "string"},
+          "recorded_at": {"type": "string", "format": "date-time"}
+        },
+        "additionalProperties": false
+      },
+      "description": "Footprint index of evidence hashes mapped to methodological decisions for inconsistency detection."
+    },
+    "evaluation_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evaluation_id", "timestamp", "verdict"],
+        "properties": {
+          "evaluation_id": {"type": "string"},
+          "timestamp": {"type": "string", "format": "date-time"},
+          "verdict": {"type": "string"},
+          "overall_score": {"type": "number"},
+          "regressions_detected": {"type": "integer"},
+          "metadata": {"type": "object"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ACTIVE", "DEGRADED", "FROZEN", "UNDER_REVIEW"]
+    },
+    "last_drift_check": {
+      "type": "object",
+      "properties": {
+        "timestamp": {"type": "string", "format": "date-time"},
+        "verdict": {"type": "string"},
+        "drift_detected": {"type": "boolean"},
+        "report_path": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "last_updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}
