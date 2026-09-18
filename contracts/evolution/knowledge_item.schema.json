@@ -35,6 +35,14 @@
     "scope": {
       "type": "string",
       "enum": [
+        "project",
+        "domain",
+        "cross-project",
+        "global-in-project",
+        "PROJECT",
+        "DOMAIN",
+        "CROSS_PROJECT",
+        "GLOBAL_IN_PROJECT",
         "UNIVERSAL",
         "PSYCHOMETRICS",
         "EXPERIMENTAL_DESIGN",
@@ -43,6 +51,22 @@
         "EVIDENTIARY_SYNTHESIS",
         "QUALITATIVE_INQUIRY"
       ]
+    },
+    "item_type": {
+      "type": "string",
+      "enum": ["principle", "pattern", "rule", "standard", "knowledge_item"]
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Optional project ID when scope is project or global-in-project."
+    },
+    "domain": {
+      "type": "string",
+      "description": "Optional research or methodological domain (e.g. mediation, sem, psychometrics)."
+    },
+    "capability": {
+      "type": "string",
+      "description": "Optional capability identifier associated with this knowledge item."
     },
     "applicability": {
       "type": "object",
@@ -93,6 +117,36 @@
         "additionalProperties": false
       },
       "description": "Explicit documentation of rejected counter-paradigms (e.g. Baron & Kenny vs Bootstrap)."
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["relation_type", "target_id"],
+        "properties": {
+          "relation_type": {
+            "type": "string",
+            "enum": [
+              "related_to",
+              "caused_by",
+              "tested_by",
+              "implemented_by",
+              "contradicts",
+              "supersedes",
+              "derived_from"
+            ]
+          },
+          "target_id": {"type": "string"},
+          "description": {"type": "string"}
+        },
+        "additionalProperties": false
+      },
+      "description": "Explicit relational links to other knowledge, lessons, anti-patterns, evaluations, or skills."
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Topical and methodological keywords for fast indexing and query retrieval."
     },
     "status": {
       "type": "string",

@@ -66,6 +66,73 @@
     "last_evaluated_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "capability": {
+      "type": "string",
+      "description": "Optional capability identifier (e.g. longitudinal-analysis, mediation, SEM, psychometrics)."
+    },
+    "successful_examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["exemplar_id"],
+        "properties": {
+          "exemplar_id": {"type": "string"},
+          "task_type": {"type": "string"},
+          "summary": {"type": "string"}
+        },
+        "additionalProperties": true
+      },
+      "description": "Collection of verified successful exemplar IDs and summaries for this capability."
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["experience_id"],
+        "properties": {
+          "experience_id": {"type": "string"},
+          "defect_type": {"type": "string"},
+          "summary": {"type": "string"}
+        },
+        "additionalProperties": true
+      },
+      "description": "Collection of recorded failure experiences and defect summaries."
+    },
+    "lessons": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "IDs of lessons specifically applicable to this skill or capability."
+    },
+    "anti_patterns": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "IDs of anti-patterns relevant to this skill or capability."
+    },
+    "related_knowledge": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "IDs of related principles, patterns, and knowledge items."
+    },
+    "evaluation_cases": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Benchmark evaluation case IDs associated with this capability."
+    },
+    "evaluation_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evaluation_id", "verdict", "timestamp"],
+        "properties": {
+          "evaluation_id": {"type": "string"},
+          "verdict": {"type": "string"},
+          "timestamp": {"type": "string"},
+          "summary": {"type": "string"}
+        },
+        "additionalProperties": true
+      },
+      "description": "Historical benchmark evaluations run against this capability."
     }
   },
   "additionalProperties": false
