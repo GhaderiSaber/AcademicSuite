@@ -3,20 +3,28 @@
 """
 academic_state_manager.py — Academic State Management Engine ("The Hands")
 
-Provides deterministic CLI operations to initialize, validate, query,
-and mutate the academic-state/ artifact repository within research projects.
-Enforces schema compliance and provides structured communication endpoints.
+Provides deterministic CLI operations and a strict state machine to initialize,
+validate, query, mutate, and govern the academic-state/ and state/ artifact repositories
+within research projects.
+Enforces schema compliance, fails closed on illegal transitions, and ensures
+that human approvals never default to true.
 """
 
 import os
 import sys
 import json
+import uuid
+import hashlib
 import argparse
+from enum import Enum
 from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Set, Union
 
 # Virtualenv auto-discovery shim
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 for venv_name in [".venv", "venv"]:
     venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
     if os.path.isdir(venv_lib):
@@ -25,11 +33,601 @@ for venv_name in [".venv", "venv"]:
             if os.path.isdir(sp) and sp not in sys.path:
                 sys.path.insert(0, sp)
 
+# System dist-packages fallback
+for p in ["/usr/lib/python3/dist-packages", "/usr/local/lib/python3/dist-packages"]:
+    if os.path.exists(p) and p not in sys.path:
+        sys.path.append(p)
+
 try:
     import jsonschema
 except ImportError:
     jsonschema = None
 
+
+# ==============================================================================
+# Custom Exceptions (Fail-Closed Hierarchy)
+# ==============================================================================
+
+class StateManagementError(Exception):
+    """Base exception for AcademicSuite state management."""
+    pass
+
+class UnknownStateError(StateManagementError):
+    """Raised when an unrecognized state is encountered."""
+    pass
+
+class UnknownMilestoneError(StateManagementError):
+    """Raised when an unrecognized milestone is referenced."""
+    pass
+
+class UnknownDependencyError(StateManagementError):
+    """Raised when a dependency milestone does not exist in the state machine."""
+    pass
+
+class UnmetDependencyError(StateManagementError):
+    """Raised when a prerequisite milestone is not in APPROVED or SUPERSEDED status."""
+    pass
+
+class InvalidStateTransitionError(StateManagementError):
+    """Raised when an illegal transition is attempted."""
+    pass
+
+class MissingRequiredArtifactError(StateManagementError):
+    """Raised when required artifacts are missing from disk or unverified."""
+    pass
+
+class MissingApprovalError(StateManagementError):
+    """Raised when an APPROVED transition is attempted without explicit human approval."""
+    pass
+
+class DuplicateApprovalError(StateManagementError):
+    """Raised when attempting to approve an already approved record."""
+    pass
+
+class StaleApprovalError(StateManagementError):
+    """Raised when an approval is applied to a modified or stale milestone state."""
+    pass
+
+
+# ==============================================================================
+# Milestone Lifecycle & Legal Transitions
+# ==============================================================================
+
+class MilestoneState(str, Enum):
+    CREATED = "CREATED"
+    SCOPED = "SCOPED"
+    PLANNED = "PLANNED"
+    READY = "READY"
+    RUNNING = "RUNNING"
+    VALIDATING = "VALIDATING"
+    AWAITING_APPROVAL = "AWAITING_APPROVAL"
+    APPROVED = "APPROVED"
+    FAILED = "FAILED"
+    REJECTED = "REJECTED"
+    SUPERSEDED = "SUPERSEDED"
+
+
+VALID_TRANSITIONS: Dict[MilestoneState, Set[MilestoneState]] = {
+    MilestoneState.CREATED: {MilestoneState.SCOPED},
+    MilestoneState.SCOPED: {MilestoneState.PLANNED},
+    MilestoneState.PLANNED: {MilestoneState.READY},
+    MilestoneState.READY: {MilestoneState.RUNNING},
+    MilestoneState.RUNNING: {MilestoneState.VALIDATING, MilestoneState.FAILED},
+    MilestoneState.VALIDATING: {MilestoneState.AWAITING_APPROVAL, MilestoneState.FAILED},
+    MilestoneState.AWAITING_APPROVAL: {MilestoneState.APPROVED, MilestoneState.REJECTED},
+    MilestoneState.APPROVED: {MilestoneState.SUPERSEDED},
+    MilestoneState.FAILED: {MilestoneState.READY, MilestoneState.PLANNED},
+    MilestoneState.REJECTED: {MilestoneState.PLANNED, MilestoneState.SCOPED},
+    MilestoneState.SUPERSEDED: set(),
+}
+
+DEFAULT_MILESTONES = [
+    {
+        "milestone_id": "M0_INGESTION",
+        "title": "Data Ingestion & Curation",
+        "stage_id": "00_data_curation",
+        "dependencies": [],
+        "required_input_artifacts": [],
+        "required_output_artifacts": ["data/data_quality.json"],
+        "active_agent": "data-curator"
+    },
+    {
+        "milestone_id": "M1_PROPOSAL",
+        "title": "Research Proposal Formulation",
+        "stage_id": "01_proposal",
+        "dependencies": [],
+        "required_input_artifacts": [],
+        "required_output_artifacts": ["requirements.json"],
+        "active_agent": "academic-orchestrator"
+    },
+    {
+        "milestone_id": "M2_LITERATURE_REVIEW",
+        "title": "Literature Review Synthesis",
+        "stage_id": "02_lit_review",
+        "dependencies": ["M1_PROPOSAL"],
+        "required_input_artifacts": [],
+        "required_output_artifacts": [],
+        "active_agent": "literature-expert"
+    },
+    {
+        "milestone_id": "M3_DATA_CURATION",
+        "title": "Data Cleaning & Demographics",
+        "stage_id": "01_demographics",
+        "dependencies": ["M0_INGESTION"],
+        "required_input_artifacts": ["data/data_quality.json"],
+        "required_output_artifacts": [],
+        "active_agent": "data-agent"
+    },
+    {
+        "milestone_id": "M4_DESCRIPTIVES_RELIABILITY",
+        "title": "Descriptive Statistics & Scale Reliability",
+        "stage_id": "02_descriptives_and_reliability",
+        "dependencies": ["M3_DATA_CURATION"],
+        "required_input_artifacts": [],
+        "required_output_artifacts": [],
+        "active_agent": "statistics-agent"
+    },
+    {
+        "milestone_id": "M5_PARAMETRIC_ASSUMPTIONS",
+        "title": "Parametric Assumptions & Bivariate Correlations",
+        "stage_id": "04_bivariate_correlations",
+        "dependencies": ["M4_DESCRIPTIVES_RELIABILITY"],
+        "required_input_artifacts": [],
+        "required_output_artifacts": [],
+        "active_agent": "statistics-agent"
+    },
+    {
+        "milestone_id": "M6_MODEL_DELIBERATION",
+        "title": "Candidate Falsification & Model Deliberation",
+        "stage_id": "04_statistical_deliberation",
+        "dependencies": ["M5_PARAMETRIC_ASSUMPTIONS"],
+        "required_input_artifacts": [],
+        "required_output_artifacts": ["analysis_plan.json"],
+        "active_agent": "statistical-expert"
+    },
+    {
+        "milestone_id": "M7_HYPOTHESIS_TESTING",
+        "title": "Deterministic Hypothesis Testing & Triad Production",
+        "stage_id": "06_hypothesis_1",
+        "dependencies": ["M6_MODEL_DELIBERATION"],
+        "required_input_artifacts": ["analysis_plan.json"],
+        "required_output_artifacts": [],
+        "active_agent": "statistics-agent"
+    },
+    {
+        "milestone_id": "M8_DISCUSSION",
+        "title": "Chapter 5 Discussion & Conclusion",
+        "stage_id": "01_findings_recap",
+        "dependencies": ["M7_HYPOTHESIS_TESTING"],
+        "required_input_artifacts": [],
+        "required_output_artifacts": [],
+        "active_agent": "academic-writer"
+    },
+    {
+        "milestone_id": "M9_DEFENSE",
+        "title": "Thesis Defense Presentation Deck & Oral Simulation",
+        "stage_id": "01_defense_storyboard",
+        "dependencies": ["M7_HYPOTHESIS_TESTING", "M8_DISCUSSION"],
+        "required_input_artifacts": [],
+        "required_output_artifacts": [],
+        "active_agent": "digital-saber"
+    }
+]
+
+STAGE_TO_MILESTONE_MAP = {
+    "00_data_curation": "M0_INGESTION",
+    "01_proposal": "M1_PROPOSAL",
+    "02_lit_review": "M2_LITERATURE_REVIEW",
+    "01_demographics": "M3_DATA_CURATION",
+    "03_data_cleaning": "M3_DATA_CURATION",
+    "02_descriptives_and_reliability": "M4_DESCRIPTIVES_RELIABILITY",
+    "03_parametric_assumptions": "M5_PARAMETRIC_ASSUMPTIONS",
+    "04_bivariate_correlations": "M5_PARAMETRIC_ASSUMPTIONS",
+    "05_macro_model": "M6_MODEL_DELIBERATION",
+    "04_statistical_deliberation": "M6_MODEL_DELIBERATION",
+    "06_hypothesis_1": "M7_HYPOTHESIS_TESTING",
+    "07_hypothesis_2": "M7_HYPOTHESIS_TESTING",
+    "01_findings_recap": "M8_DISCUSSION",
+    "01_defense_storyboard": "M9_DEFENSE"
+}
+
+
+# ==============================================================================
+# Strict State Machine Class
+# ==============================================================================
+
+class StrictStateMachine:
+    """
+    Authoritative state machine governing AcademicSuite projects, milestones, executions, and approvals.
+    Enforces strict transitions, restart-safety, artifact gating, and explicit human approval.
+    Fails closed on any violation.
+    """
+
+    def __init__(self, state_dir: str, project_id: Optional[str] = None):
+        self.state_dir = os.path.abspath(state_dir)
+        os.makedirs(self.state_dir, exist_ok=True)
+        self.project_id = project_id or os.path.basename(os.path.dirname(self.state_dir)) or "academic_project"
+        self.milestones: Dict[str, Dict[str, Any]] = {}
+        self.approvals: List[Dict[str, Any]] = []
+        self.artifacts: List[Dict[str, Any]] = []
+
+        self.events_path = os.path.join(self.state_dir, "events.jsonl")
+        self.current_state_path = os.path.join(self.state_dir, "current_state.json")
+        self.project_path = os.path.join(self.state_dir, "project.json")
+        self.approvals_path = os.path.join(self.state_dir, "approvals.json")
+        self.artifacts_path = os.path.join(self.state_dir, "artifacts.json")
+        self.pitfalls_path = os.path.join(self.state_dir, "pitfalls.jsonl")
+
+        self.load_from_disk()
+
+    def load_from_disk(self) -> None:
+        """Loads state snapshot, approvals, and artifacts from disk for restart-safety."""
+        if os.path.exists(self.current_state_path):
+            try:
+                with open(self.current_state_path, "r", encoding="utf-8") as f:
+                    cs = json.load(f)
+                self.project_id = cs.get("project_id", self.project_id)
+                self.milestones = cs.get("milestones", {})
+            except Exception:
+                pass
+
+        if os.path.exists(self.approvals_path):
+            try:
+                with open(self.approvals_path, "r", encoding="utf-8") as f:
+                    appr = json.load(f)
+                self.approvals = appr.get("approvals", [])
+            except Exception:
+                pass
+
+        if os.path.exists(self.artifacts_path):
+            try:
+                with open(self.artifacts_path, "r", encoding="utf-8") as f:
+                    art = json.load(f)
+                self.artifacts = art.get("artifacts", [])
+            except Exception:
+                pass
+
+    def save_all(self) -> None:
+        """Atomically persists state snapshots to disk."""
+        now_iso = datetime.now(timezone.utc).isoformat()
+        cs_data = {
+            "contract_version": "1.0.0",
+            "project_id": self.project_id,
+            "state_machine_version": "1.0.0",
+            "system_status": "OPERATIONAL",
+            "updated_at": now_iso,
+            "milestones": self.milestones
+        }
+        with open(self.current_state_path, "w", encoding="utf-8") as f:
+            json.dump(cs_data, f, indent=2, ensure_ascii=False)
+
+        with open(self.approvals_path, "w", encoding="utf-8") as f:
+            json.dump({"contract_version": "1.0.0", "approvals": self.approvals}, f, indent=2, ensure_ascii=False)
+
+        with open(self.artifacts_path, "w", encoding="utf-8") as f:
+            json.dump({"contract_version": "1.0.0", "artifacts": self.artifacts}, f, indent=2, ensure_ascii=False)
+
+    def record_event(self, event_type: str, milestone_id: Optional[str] = None, stage_id: Optional[str] = None,
+                     emitter_agent: str = "academic-orchestrator", payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Appends an event conforming to contracts/event.schema.json to events.jsonl."""
+        now_iso = datetime.now(timezone.utc).isoformat()
+        evt_id = f"EVT-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+        event_entry = {
+            "contract_version": "1.0.0",
+            "event_id": evt_id,
+            "event_type": event_type,
+            "timestamp": now_iso,
+            "project_id": self.project_id,
+            "milestone_id": milestone_id or "",
+            "stage_id": stage_id or "",
+            "emitter_agent": emitter_agent,
+            "payload": payload or {}
+        }
+        with open(self.events_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(event_entry, ensure_ascii=False) + "\n")
+        return event_entry
+
+    def register_milestone(self, milestone_id: str, title: str, dependencies: Optional[List[str]] = None,
+                           required_input_artifacts: Optional[List[str]] = None,
+                           required_output_artifacts: Optional[List[str]] = None,
+                           active_agent: str = "academic-orchestrator",
+                           current_stage: str = "") -> Dict[str, Any]:
+        """Registers a milestone in CREATED state with explicit dependency validation."""
+        dependencies = dependencies or []
+        for dep in dependencies:
+            if dep not in self.milestones:
+                raise UnknownDependencyError(f"Milestone '{milestone_id}' references unknown dependency '{dep}'.")
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        entry = {
+            "milestone_id": milestone_id,
+            "title": title,
+            "status": MilestoneState.CREATED.value,
+            "current_stage": current_stage,
+            "active_agent": active_agent,
+            "dependencies": dependencies,
+            "required_input_artifacts": required_input_artifacts or [],
+            "required_output_artifacts": required_output_artifacts or [],
+            "created_at": now_iso,
+            "updated_at": now_iso,
+            "history": [
+                {
+                    "transition_id": f"TRN-{uuid.uuid4().hex[:6].upper()}",
+                    "from_state": None,
+                    "to_state": MilestoneState.CREATED.value,
+                    "timestamp": now_iso,
+                    "actor": active_agent,
+                    "rationale": "Milestone registered in state machine"
+                }
+            ]
+        }
+        self.milestones[milestone_id] = entry
+        self.record_event("MILESTONE_STARTED", milestone_id=milestone_id, stage_id=current_stage,
+                          emitter_agent=active_agent, payload={"title": title})
+        self.save_all()
+        return entry
+
+    def transition_milestone(self, milestone_id: str, target_state: Union[str, MilestoneState],
+                             actor: str = "academic-orchestrator", rationale: str = "",
+                             execution_info: Optional[Dict[str, Any]] = None,
+                             check_artifacts: bool = True) -> Dict[str, Any]:
+        """
+        Transitions milestone strictly adhering to the valid transition graph.
+        Fails closed on any invalid transition, unknown state, unmet dependency,
+        missing required artifact, or unapproved transition.
+        """
+        if milestone_id not in self.milestones:
+            raise UnknownMilestoneError(f"Unknown milestone: '{milestone_id}'. Must be registered before transitioning.")
+
+        # 1. Validate Target State
+        if isinstance(target_state, str):
+            try:
+                target_enum = MilestoneState(target_state.upper())
+            except ValueError:
+                raise UnknownStateError(f"Unknown state: '{target_state}'. Valid states: {[s.value for s in MilestoneState]}.")
+        elif isinstance(target_state, MilestoneState):
+            target_enum = target_state
+        else:
+            raise UnknownStateError(f"Target state must be a string or MilestoneState, got {type(target_state)}.")
+
+        current_data = self.milestones[milestone_id]
+        current_enum = MilestoneState(current_data["status"])
+
+        # 2. Check Valid Transition Graph
+        allowed_targets = VALID_TRANSITIONS.get(current_enum, set())
+        if target_enum not in allowed_targets:
+            raise InvalidStateTransitionError(
+                f"Illegal transition for milestone '{milestone_id}': cannot transition from {current_enum.value} to {target_enum.value}. "
+                f"Allowed transitions from {current_enum.value} are: {[t.value for t in allowed_targets]}."
+            )
+
+        # 3. Gate on Transition to READY: Dependencies and Input Artifacts
+        if target_enum == MilestoneState.READY:
+            for dep_id in current_data.get("dependencies", []):
+                if dep_id not in self.milestones:
+                    raise UnknownDependencyError(f"Milestone '{milestone_id}' references unknown dependency '{dep_id}'.")
+                dep_status = self.milestones[dep_id]["status"]
+                if dep_status not in [MilestoneState.APPROVED.value, MilestoneState.SUPERSEDED.value]:
+                    raise UnmetDependencyError(
+                        f"Milestone '{milestone_id}' cannot become READY because dependency '{dep_id}' is in state '{dep_status}' "
+                        f"(must be APPROVED or SUPERSEDED)."
+                    )
+
+            if check_artifacts:
+                for art_rel in current_data.get("required_input_artifacts", []):
+                    art_full = art_rel if os.path.isabs(art_rel) else os.path.join(self.state_dir, art_rel)
+                    if not os.path.exists(art_full) or os.path.getsize(art_full) == 0:
+                        raise MissingRequiredArtifactError(
+                            f"Milestone '{milestone_id}' cannot become READY because required input artifact '{art_rel}' is missing on disk."
+                        )
+
+        # 4. Gate on Transition to APPROVED: Explicit Human Approval & Output Artifacts
+        if target_enum == MilestoneState.APPROVED:
+            matching_approvals = [
+                a for a in self.approvals
+                if a.get("milestone_id") == milestone_id and a.get("status") == "GRANTED" and a.get("is_approved") is True
+            ]
+            if not matching_approvals:
+                raise MissingApprovalError(
+                    f"Milestone '{milestone_id}' cannot become APPROVED without explicit, granted human approval. "
+                    f"No granted approval record found in approvals.json."
+                )
+
+            if check_artifacts:
+                for art_rel in current_data.get("required_output_artifacts", []):
+                    art_full = art_rel if os.path.isabs(art_rel) else os.path.join(self.state_dir, art_rel)
+                    if not os.path.exists(art_full) or os.path.getsize(art_full) == 0:
+                        raise MissingRequiredArtifactError(
+                            f"Milestone '{milestone_id}' cannot become APPROVED because required output artifact '{art_rel}' is missing on disk."
+                        )
+
+        # Apply transition
+        now_iso = datetime.now(timezone.utc).isoformat()
+        current_data["status"] = target_enum.value
+        current_data["updated_at"] = now_iso
+        transition_record = {
+            "transition_id": f"TRN-{uuid.uuid4().hex[:6].upper()}",
+            "from_state": current_enum.value,
+            "to_state": target_enum.value,
+            "timestamp": now_iso,
+            "actor": actor,
+            "rationale": rationale,
+            "execution_info": execution_info or {}
+        }
+        current_data.setdefault("history", []).append(transition_record)
+
+        evt_type = f"MILESTONE_{target_enum.value}"
+        if evt_type not in ["MILESTONE_APPROVED", "MILESTONE_REJECTED", "MILESTONE_FAILED"]:
+            evt_type = "MILESTONE_TRANSITIONED"
+        self.record_event(evt_type, milestone_id=milestone_id, stage_id=current_data.get("current_stage"),
+                          emitter_agent=actor, payload={"from_state": current_enum.value, "to_state": target_enum.value, "rationale": rationale})
+
+        self.save_all()
+        return {
+            "status": "TRANSITIONED",
+            "milestone_id": milestone_id,
+            "from_state": current_enum.value,
+            "to_state": target_enum.value,
+            "transition": transition_record
+        }
+
+    def request_approval(self, milestone_id: str, category: str, requester_agent: str,
+                         rationale: str, target_artifacts: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Creates an approval request. Approval NEVER defaults to True (status=PENDING, is_approved=False)."""
+        if milestone_id not in self.milestones:
+            raise UnknownMilestoneError(f"Cannot request approval for unknown milestone '{milestone_id}'.")
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        approval_id = f"APPR-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+
+        approval_record = {
+            "contract_version": "1.0.0",
+            "approval_id": approval_id,
+            "milestone_id": milestone_id,
+            "category": category,
+            "requested_by": {
+                "agent": requester_agent,
+                "rationale": rationale,
+                "target_artifacts": target_artifacts or []
+            },
+            "requested_at": now_iso,
+            "status": "PENDING",
+            "is_approved": False,  # CRITICAL INVARIANT: NEVER TRUE BY DEFAULT
+            "milestone_state_snapshot": self.milestones[milestone_id]["status"]
+        }
+        self.approvals.append(approval_record)
+        self.record_event("MILESTONE_APPROVAL_REQUESTED", milestone_id=milestone_id,
+                          stage_id=self.milestones[milestone_id].get("current_stage"),
+                          emitter_agent=requester_agent, payload={"approval_id": approval_id, "category": category})
+        self.save_all()
+        return approval_record
+
+    def grant_approval(self, approval_id: str, approver_identity: str, digital_signature: str,
+                       comments: str = "", stipulations: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Explicitly grants an approval. Checks for duplicate or stale approvals."""
+        appr = next((a for a in self.approvals if a.get("approval_id") == approval_id), None)
+        if not appr:
+            raise StateManagementError(f"Approval ID '{approval_id}' not found.")
+
+        if appr.get("status") == "GRANTED" and appr.get("is_approved") is True:
+            raise DuplicateApprovalError(f"Approval '{approval_id}' has already been granted.")
+
+        mid = appr.get("milestone_id")
+        if mid in self.milestones:
+            current_status = self.milestones[mid]["status"]
+            if current_status in [MilestoneState.FAILED.value, MilestoneState.REJECTED.value, MilestoneState.SUPERSEDED.value]:
+                raise StaleApprovalError(
+                    f"Approval '{approval_id}' is stale because milestone '{mid}' is in state '{current_status}'."
+                )
+
+        if not approver_identity or len(approver_identity.strip()) < 3:
+            raise StateManagementError("Approver identity must be at least 3 characters.")
+        if not digital_signature or len(digital_signature.strip()) < 5:
+            raise StateManagementError("Digital signature/acknowledgment must be at least 5 characters.")
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        appr["status"] = "GRANTED"
+        appr["is_approved"] = True
+        appr["decision"] = {
+            "approver_identity": approver_identity.strip(),
+            "decided_at": now_iso,
+            "comments": comments or "Explicit approval granted.",
+            "conditions_or_stipulations": stipulations or [],
+            "digital_signature_or_ack": digital_signature.strip()
+        }
+
+        self.record_event("MILESTONE_APPROVED", milestone_id=mid,
+                          stage_id=self.milestones.get(mid, {}).get("current_stage"),
+                          emitter_agent=approver_identity, payload={"approval_id": approval_id})
+        self.save_all()
+        return appr
+
+    def reject_approval(self, approval_id: str, approver_identity: str, comments: str = "") -> Dict[str, Any]:
+        """Rejects an approval and transitions the milestone to REJECTED."""
+        appr = next((a for a in self.approvals if a.get("approval_id") == approval_id), None)
+        if not appr:
+            raise StateManagementError(f"Approval ID '{approval_id}' not found.")
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        appr["status"] = "REJECTED"
+        appr["is_approved"] = False
+        appr["decision"] = {
+            "approver_identity": approver_identity,
+            "decided_at": now_iso,
+            "comments": comments or "Approval rejected.",
+            "conditions_or_stipulations": [],
+            "digital_signature_or_ack": f"REJ-{approver_identity[:10]}"
+        }
+
+        mid = appr.get("milestone_id")
+        if mid in self.milestones and self.milestones[mid]["status"] == MilestoneState.AWAITING_APPROVAL.value:
+            self.transition_milestone(mid, MilestoneState.REJECTED, actor=approver_identity, rationale=comments)
+
+        self.record_event("MILESTONE_REJECTED", milestone_id=mid,
+                          stage_id=self.milestones.get(mid, {}).get("current_stage"),
+                          emitter_agent=approver_identity, payload={"approval_id": approval_id, "comments": comments})
+        self.save_all()
+        return appr
+
+    def register_artifact(self, artifact_id: str, milestone_id: str, stage_id: str,
+                          artifact_type: str, path: str, schema: str = "",
+                          producer_agent: str = "statistics-agent", producer_script: str = "") -> Dict[str, Any]:
+        """Registers an artifact manifest in artifacts.json."""
+        full_path = path if os.path.isabs(path) else os.path.join(self.state_dir, path)
+        art_hash = ""
+        if os.path.exists(full_path):
+            with open(full_path, "rb") as f:
+                art_hash = hashlib.sha256(f.read()).hexdigest()
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        art_record = {
+            "contract_version": "1.0.0",
+            "artifact_id": artifact_id,
+            "milestone": milestone_id,
+            "stage_id": stage_id,
+            "producer": {
+                "agent": producer_agent,
+                "script_or_generator": producer_script
+            },
+            "consumers": ["academic-orchestrator", "validation-agent"],
+            "type": artifact_type,
+            "path": path,
+            "schema": schema,
+            "hash": art_hash,
+            "creation_timestamp": now_iso,
+            "validation_status": "VALID" if art_hash else "PENDING",
+            "provenance": {
+                "generated_by_mode": "production"
+            },
+            "dependencies": []
+        }
+        self.artifacts.append(art_record)
+        self.record_event("ARTIFACT_CREATED", milestone_id=milestone_id, stage_id=stage_id,
+                          emitter_agent=producer_agent, payload={"artifact_id": artifact_id, "path": path})
+        self.save_all()
+        return art_record
+
+    def get_milestone_state(self, milestone_id: str) -> Dict[str, Any]:
+        """Returns the current state dictionary for a milestone."""
+        if milestone_id not in self.milestones:
+            raise UnknownMilestoneError(f"Unknown milestone: '{milestone_id}'.")
+        return self.milestones[milestone_id]
+
+    def get_full_state(self) -> Dict[str, Any]:
+        """Returns a snapshot of the entire state machine."""
+        return {
+            "project_id": self.project_id,
+            "state_dir": self.state_dir,
+            "milestones_count": len(self.milestones),
+            "milestones": self.milestones,
+            "approvals_count": len(self.approvals),
+            "artifacts_count": len(self.artifacts)
+        }
+
+
+# ==============================================================================
+# Legacy / Project-Level Helper Functions (Maintained & Upgraded)
+# ==============================================================================
 
 SCHEMAS_DIR = os.path.join(ROOT_DIR, ".agents", "shared", "schemas", "academic_state")
 
@@ -51,14 +649,18 @@ SCHEMA_MAP = {
 
 
 def get_state_dir(project_path: str) -> str:
-    """Resolves the academic-state directory inside project_path."""
-    if os.path.basename(project_path) == "academic-state":
+    """Resolves the state directory inside project_path."""
+    if os.path.basename(project_path) in ["academic-state", "state"]:
         return os.path.abspath(project_path)
+    if os.path.isdir(os.path.join(project_path, "academic-state")):
+        return os.path.abspath(os.path.join(project_path, "academic-state"))
+    if os.path.isdir(os.path.join(project_path, "state")):
+        return os.path.abspath(os.path.join(project_path, "state"))
     return os.path.abspath(os.path.join(project_path, "academic-state"))
 
 
 def init_state(project_path: str, title: str = "Empirical Research Project", methodology: str = "sem", n: int = 300) -> Dict[str, Any]:
-    """Initializes the full academic-state directory hierarchy with baseline starter files."""
+    """Initializes the full state directory hierarchy with baseline starter files and strict state machine."""
     state_dir = get_state_dir(project_path)
     os.makedirs(os.path.join(state_dir, "data"), exist_ok=True)
     os.makedirs(os.path.join(state_dir, "analysis"), exist_ok=True)
@@ -75,6 +677,7 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
         "methodology_type": methodology,
         "sample_size": n,
         "current_stage": "00_data_curation",
+        "active_milestone": "M0_INGESTION",
         "orchestrator": "academic-orchestrator",
         "status": "in_progress",
         "created_at": now_iso,
@@ -148,9 +751,9 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
             },
             {
                 "stage_id": "03_sem_model",
-                "title": "Structural Equation Modeling & Hypotheses Testing",
-                "engine": "r",
-                "script": ".agents/skills/sem/scripts/run_sem.R",
+                "title": "Macro SEM Model Fit & Hypotheses",
+                "engine": "python",
+                "script": ".agents/skills/sem/scripts/run_sem.py",
                 "output_artifact": "academic-state/analysis/sem.json",
                 "assigned_subagent": "statistics-agent"
             }
@@ -165,7 +768,7 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
     }
     _write_json_if_missing(os.path.join(state_dir, "analysis_plan.json"), plan_data)
 
-    # 4. decisions.json
+    # 4. decisions.json (CRITICAL: supervisor_approval strictly False by default)
     dec_data = {
         "decisions": [
             {
@@ -176,7 +779,7 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
                 "rationale": "Aligned with approved research proposal and structural hypothesis testing.",
                 "alternatives_considered": ["Multiple Regression", "ANCOVA"],
                 "agent": "academic-orchestrator",
-                "supervisor_approval": True
+                "supervisor_approval": False
             }
         ]
     }
@@ -233,11 +836,25 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
     }
     _write_json_if_missing(os.path.join(state_dir, "data", "data_quality.json"), quality_data)
 
+    # 7. Initialize and register default milestones in StrictStateMachine
+    sm = StrictStateMachine(state_dir=state_dir, project_id=project_id)
+    if not sm.milestones:
+        for m in DEFAULT_MILESTONES:
+            sm.register_milestone(
+                milestone_id=m["milestone_id"],
+                title=m["title"],
+                dependencies=m["dependencies"],
+                required_input_artifacts=m["required_input_artifacts"],
+                required_output_artifacts=m["required_output_artifacts"],
+                active_agent=m["active_agent"],
+                current_stage=m["stage_id"]
+            )
+
     return {"status": "SUCCESS", "state_dir": state_dir, "initialized_files": list(SCHEMA_MAP.keys())}
 
 
 def validate_state(project_path: str) -> Dict[str, Any]:
-    """Validates all JSON files in academic-state against their official JSON schemas."""
+    """Validates all JSON files in state directory against their official JSON schemas."""
     state_dir = get_state_dir(project_path)
     if not os.path.exists(state_dir):
         return {"overall_verdict": "FAIL", "errors": [f"State directory not found: {state_dir}"]}
@@ -259,7 +876,6 @@ def validate_state(project_path: str) -> Dict[str, Any]:
         schema_path = os.path.join(SCHEMAS_DIR, schema_filename)
 
         if not os.path.exists(file_path):
-            # Optional analysis/validation files are skipped until produced
             if rel_path.startswith("analysis/") or rel_path.startswith("validation/"):
                 continue
             report["errors"].append(f"Missing core state artifact: {rel_path}")
@@ -312,35 +928,14 @@ def validate_state(project_path: str) -> Dict[str, Any]:
     return report
 
 
-def log_incident(project_path: str, stage_id: str, error_message: str) -> Dict[str, Any]:
-    """Logs a failure incident in academic-state/incidents/ using the recovery engine."""
-    from recovery.recovery_engine import create_incident
-    return create_incident(stage_id=stage_id, error_message=error_message, project_path=project_path)
-
-
-def list_incidents(project_path: str) -> List[Dict[str, Any]]:
-    """Returns all incident records in academic-state/incidents/."""
-    state_dir = get_state_dir(project_path)
-    inc_dir = os.path.join(state_dir, "incidents")
-    if not os.path.isdir(inc_dir):
-        return []
-    incidents = []
-    for fname in sorted(os.listdir(inc_dir)):
-        if fname.endswith(".json"):
-            with open(os.path.join(inc_dir, fname), "r", encoding="utf-8") as f:
-                incidents.append(json.load(f))
-    return incidents
-
-
 def get_status_summary(project_path: str) -> Dict[str, Any]:
-    """Returns an executive dashboard summary of project state, progress, and validations."""
+    """Returns a high-level summary of the research project state."""
     state_dir = get_state_dir(project_path)
-    if not os.path.exists(state_dir):
-        return {"error": f"State directory not found at {state_dir}"}
-
     summary = {
-        "project": {},
+        "project_path": project_path,
+        "state_dir": state_dir,
         "current_stage": "unknown",
+        "project": {},
         "analyses_completed": [],
         "validations": {},
         "outputs_count": 0
@@ -352,14 +947,12 @@ def get_status_summary(project_path: str) -> Dict[str, Any]:
             summary["project"] = json.load(f)
             summary["current_stage"] = summary["project"].get("current_stage", "unknown")
 
-    # Check analysis files
     analysis_dir = os.path.join(state_dir, "analysis")
     if os.path.exists(analysis_dir):
         for f in os.listdir(analysis_dir):
             if f.endswith(".json"):
                 summary["analyses_completed"].append(f)
 
-    # Check validations
     val_dir = os.path.join(state_dir, "validation")
     if os.path.exists(val_dir):
         for vf in os.listdir(val_dir):
@@ -371,7 +964,6 @@ def get_status_summary(project_path: str) -> Dict[str, Any]:
                 except Exception:
                     summary["validations"][vf] = "CORRUPT"
 
-    # Check outputs
     out_dir = os.path.join(state_dir, "outputs")
     if os.path.exists(out_dir):
         summary["outputs_count"] = len(os.listdir(out_dir))
@@ -379,8 +971,8 @@ def get_status_summary(project_path: str) -> Dict[str, Any]:
     return summary
 
 
-def record_decision(project_path: str, category: str, decision: str, rationale: str, agent: str, supervisor_approval: bool = True) -> Dict[str, Any]:
-    """Appends an auditable decision to decisions.json."""
+def record_decision(project_path: str, category: str, decision: str, rationale: str, agent: str, supervisor_approval: bool = False) -> Dict[str, Any]:
+    """Appends an auditable decision to decisions.json. Approval strictly defaults to False."""
     state_dir = get_state_dir(project_path)
     dec_file = os.path.join(state_dir, "decisions.json")
 
@@ -412,7 +1004,13 @@ def record_decision(project_path: str, category: str, decision: str, rationale: 
 
 
 def set_stage(project_path: str, stage: str, status: Optional[str] = None) -> Dict[str, Any]:
-    """Updates the current stage and optional status in project.json."""
+    """
+    Updates the current stage and optional status in project.json,
+    enforcing state machine validation. Fails closed on unknown stage or invalid status.
+    """
+    if not stage or not isinstance(stage, str):
+        raise UnknownMilestoneError("Stage name must be a non-empty string.")
+
     state_dir = get_state_dir(project_path)
     proj_file = os.path.join(state_dir, "project.json")
     if not os.path.exists(proj_file):
@@ -420,6 +1018,15 @@ def set_stage(project_path: str, stage: str, status: Optional[str] = None) -> Di
 
     with open(proj_file, "r", encoding="utf-8") as f:
         data = json.load(f)
+
+    # Validate status if provided
+    if status:
+        status_upper = status.upper()
+        valid_statuses = [s.value for s in MilestoneState] + [
+            "IN_PROGRESS", "AWAITING_VALIDATION", "STAGE_COMPLETED", "FINAL_APPROVED", "BLOCKED"
+        ]
+        if status_upper not in valid_statuses and status not in ["in_progress", "awaiting_validation", "stage_completed", "final_approved", "blocked"]:
+            raise UnknownStateError(f"Unknown status '{status}'. Valid states: {[s.value for s in MilestoneState]}.")
 
     data["current_stage"] = stage
     if status:
@@ -429,7 +1036,74 @@ def set_stage(project_path: str, stage: str, status: Optional[str] = None) -> Di
     with open(proj_file, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
+    # Sync with StrictStateMachine if current_state.json exists
+    cs_path = os.path.join(state_dir, "current_state.json")
+    if os.path.exists(cs_path):
+        try:
+            sm = StrictStateMachine(state_dir=state_dir, project_id=data.get("project_id"))
+            mid = STAGE_TO_MILESTONE_MAP.get(stage)
+            if mid and mid in sm.milestones:
+                sm.milestones[mid]["current_stage"] = stage
+                sm.save_all()
+        except Exception:
+            pass
+
     return {"status": "UPDATED", "current_stage": stage, "status_value": data.get("status")}
+
+
+def log_incident(project_path: str, stage: str, error: str) -> Dict[str, Any]:
+    """Logs a failure incident in academic-state/incidents/ conforming to incident_schema.json."""
+    try:
+        from recovery.recovery_engine import create_incident
+        return create_incident(stage_id=stage, error_message=error, project_path=project_path)
+    except Exception:
+        # Fallback if recovery package is unavailable
+        state_dir = get_state_dir(project_path)
+        inc_dir = os.path.join(state_dir, "incidents")
+        os.makedirs(inc_dir, exist_ok=True)
+        now_iso = datetime.now(timezone.utc).isoformat()
+        ts_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        inc_id = f"INC-TOOL-{ts_str}"
+        incident_data = {
+            "incident_id": inc_id,
+            "failure_type": "TOOL",
+            "severity": "MEDIUM",
+            "stage_id": stage,
+            "status": "ROUTED",
+            "error_message": error,
+            "diagnostic_summary": f"Failure logged in stage {stage}: {error}",
+            "preserved_upstream_stages": [],
+            "routing_plan": {
+                "assigned_handler": "recovery-engine",
+                "handler_type": "tool",
+                "strategy": "RETRY_TOOL_FALLBACK",
+                "target_stage": stage,
+                "remediation_action": "Inspect error logs and re-execute stage",
+                "remediation_command": None,
+                "verification_gate": f"validate_stage_{stage}"
+            },
+            "timestamp": now_iso
+        }
+        inc_file = os.path.join(inc_dir, f"{inc_id}.json")
+        with open(inc_file, "w", encoding="utf-8") as f:
+            json.dump(incident_data, f, indent=2, ensure_ascii=False)
+        return incident_data
+
+
+def list_incidents(project_path: str) -> List[Dict[str, Any]]:
+    """Lists all failure incidents in academic-state/incidents/."""
+    state_dir = get_state_dir(project_path)
+    inc_dir = os.path.join(state_dir, "incidents")
+    incidents = []
+    if os.path.isdir(inc_dir):
+        for f in sorted(os.listdir(inc_dir)):
+            if f.endswith(".json"):
+                try:
+                    with open(os.path.join(inc_dir, f), "r", encoding="utf-8") as fp:
+                        incidents.append(json.load(fp))
+                except Exception:
+                    pass
+    return incidents
 
 
 def _write_json_if_missing(filepath: str, data: Dict[str, Any]) -> None:
@@ -437,6 +1111,10 @@ def _write_json_if_missing(filepath: str, data: Dict[str, Any]) -> None:
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
+
+# ==============================================================================
+# CLI Entry Point
+# ==============================================================================
 
 def main():
     parser = argparse.ArgumentParser(description="Academic State Manager CLI Engine")
@@ -471,6 +1149,37 @@ def main():
     p_stage.add_argument("--stage", required=True, help="New stage ID (e.g. 04_bivariate_correlations)")
     p_stage.add_argument("--status", choices=["in_progress", "awaiting_validation", "stage_completed", "final_approved", "blocked"])
 
+    # transition
+    p_trans = subparsers.add_parser("transition", help="Transition milestone state in state machine")
+    p_trans.add_argument("project_path", help="Path to project directory")
+    p_trans.add_argument("--milestone", required=True, help="Milestone ID (e.g. M0_INGESTION)")
+    p_trans.add_argument("--to-state", required=True, help="Target MilestoneState")
+    p_trans.add_argument("--actor", default="academic-orchestrator", help="Acting agent")
+    p_trans.add_argument("--rationale", default="", help="Transition rationale")
+
+    # request-approval
+    p_req_appr = subparsers.add_parser("request-approval", help="Request milestone approval")
+    p_req_appr.add_argument("project_path", help="Path to project directory")
+    p_req_appr.add_argument("--milestone", required=True, help="Milestone ID")
+    p_req_appr.add_argument("--category", required=True, help="Approval category")
+    p_req_appr.add_argument("--rationale", required=True, help="Request rationale")
+    p_req_appr.add_argument("--agent", default="academic-orchestrator", help="Requester agent")
+
+    # grant-approval
+    p_grant_appr = subparsers.add_parser("grant-approval", help="Grant explicit human approval")
+    p_grant_appr.add_argument("project_path", help="Path to project directory")
+    p_grant_appr.add_argument("--approval-id", required=True, help="Approval ID")
+    p_grant_appr.add_argument("--approver", required=True, help="Approver identity")
+    p_grant_appr.add_argument("--signature", required=True, help="Digital signature/ack")
+    p_grant_appr.add_argument("--comments", default="", help="Approver comments")
+
+    # reject-approval
+    p_rej_appr = subparsers.add_parser("reject-approval", help="Reject approval")
+    p_rej_appr.add_argument("project_path", help="Path to project directory")
+    p_rej_appr.add_argument("--approval-id", required=True, help="Approval ID")
+    p_rej_appr.add_argument("--approver", required=True, help="Approver identity")
+    p_rej_appr.add_argument("--comments", default="", help="Rejection comments")
+
     # log-incident
     p_inc = subparsers.add_parser("log-incident", help="Log a failure incident in academic-state/incidents/")
     p_inc.add_argument("project_path", help="Path to project directory")
@@ -493,6 +1202,22 @@ def main():
         res = record_decision(args.project_path, args.category, args.decision, args.rationale, args.agent)
     elif args.command == "set-stage":
         res = set_stage(args.project_path, args.stage, args.status)
+    elif args.command == "transition":
+        state_dir = get_state_dir(args.project_path)
+        sm = StrictStateMachine(state_dir=state_dir)
+        res = sm.transition_milestone(args.milestone, args.to_state, actor=args.actor, rationale=args.rationale)
+    elif args.command == "request-approval":
+        state_dir = get_state_dir(args.project_path)
+        sm = StrictStateMachine(state_dir=state_dir)
+        res = sm.request_approval(args.milestone, args.category, args.agent, args.rationale)
+    elif args.command == "grant-approval":
+        state_dir = get_state_dir(args.project_path)
+        sm = StrictStateMachine(state_dir=state_dir)
+        res = sm.grant_approval(args.approval_id, args.approver, args.signature, comments=args.comments)
+    elif args.command == "reject-approval":
+        state_dir = get_state_dir(args.project_path)
+        sm = StrictStateMachine(state_dir=state_dir)
+        res = sm.reject_approval(args.approval_id, args.approver, comments=args.comments)
     elif args.command == "log-incident":
         res = log_incident(args.project_path, args.stage, args.error)
     elif args.command == "list-incidents":

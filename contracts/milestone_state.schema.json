@@ -37,12 +37,21 @@
     "status": {
       "type": "string",
       "enum": [
+        "CREATED",
+        "SCOPED",
+        "PLANNED",
+        "READY",
+        "RUNNING",
+        "VALIDATING",
+        "AWAITING_APPROVAL",
+        "APPROVED",
+        "FAILED",
+        "REJECTED",
+        "SUPERSEDED",
         "PENDING",
         "IN_PROGRESS",
-        "VALIDATING",
         "APPROVAL_PENDING",
         "COMPLETED",
-        "FAILED",
         "BLOCKED"
       ]
     },
