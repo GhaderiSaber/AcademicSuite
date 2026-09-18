@@ -222,6 +222,7 @@ CATEGORY_PATTERNS: List[Tuple[str, str, List[str]]] = [
 # Teaching and correction trigger markers
 CORRECTION_TRIGGER_PATTERNS = [
     r"\byou (?:forgot|need to|should have|must|ought to|didn'?t)\b",
+    r"\balways (?:report|use|include|check|calculate)\b",
     r"\bthis (?:is not|isn'?t|method is not|writing is too|table doesn'?t|result doesn'?t)\b",
     r"\bdon'?t (?:say|claim|use|omit|forget)\b",
     r"\bnever (?:report|use|claim|skip)\b",

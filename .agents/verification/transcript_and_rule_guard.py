@@ -635,7 +635,6 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     vmod = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(vmod)
                     rep = vmod.run_suite(s_dir)
-                    # Continuous Self-Improvement: Auto-capture structured experience
                     try:
                         from scripts.academic_experience_recorder import AcademicExperienceRecorder
                         rec = AcademicExperienceRecorder(project_root=ROOT_DIR)
@@ -643,6 +642,19 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         rec.record_from_stage(s_dir, outcome=rec_outcome)
                     except Exception as e_rec:
                         sys.stderr.write(f"[transcript_and_rule_guard] Experience recording note: {e_rec}\n")
+
+                    # Integrated Continuous Learning: Process validation failures
+                    if rep.get("overall_verdict") == "FAIL":
+                        try:
+                            from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
+                            hub = AcademicIntegratedLearningHub(base_dir=ROOT_DIR)
+                            hub.process_validation_failure(
+                                stage_dir=s_dir,
+                                validator_results=rep.get("results", []),
+                                is_challenger=False
+                            )
+                        except Exception as e_hub:
+                            sys.stderr.write(f"[transcript_and_rule_guard] Hub validation note: {e_hub}\n")
 
                     if rep.get("overall_verdict") == "FAIL":
                         failed_tests = [r for r in rep.get("results", []) if r.get("verdict") == "FAIL"]
@@ -704,6 +716,15 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
             break
 
     clean_user = re.sub(r"<[^>]+>", "", last_user_msg).strip()
+
+    # Seamless Continuous Learning: Process user turn for corrections without manual commands
+    if clean_user:
+        try:
+            from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
+            hub = AcademicIntegratedLearningHub(base_dir=ROOT_DIR)
+            hub.process_user_turn(user_text=clean_user)
+        except Exception as e_hub:
+            sys.stderr.write(f"[transcript_and_rule_guard] Hub user turn note: {e_hub}\n")
 
     compliance_keywords = [
         "did you", "did the agent", "is the agent do correct", "did it follow",

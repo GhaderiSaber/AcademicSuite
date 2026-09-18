@@ -660,6 +660,28 @@ class StrictStateMachine:
             except Exception as rec_err:
                 sys.stderr.write(f"[StrictStateMachine Experience Capture Warning] {rec_err}\n")
 
+        # Integrated Continuous Learning Lifecycle Hook (Meaningful Boundary Gated)
+        try:
+            from scripts.academic_integrated_learning_hub import (
+                AcademicIntegratedLearningHub,
+                ResearchIntegrityViolationError
+            )
+            hub = AcademicIntegratedLearningHub(base_dir=self.project_root)
+            hub.process_milestone_transition(
+                milestone_id=milestone_id,
+                from_state=current_enum.value,
+                to_state=target_enum.value,
+                sm=self,
+                actor=actor,
+                rationale=rationale
+            )
+        except ResearchIntegrityViolationError:
+            # Scientific integrity violation must fail closed to protect research validity
+            raise
+        except Exception as hub_err:
+            # Failure isolation: internal learning errors never corrupt or abort research transactions
+            sys.stderr.write(f"[IntegratedLearningHub State Isolation] {hub_err}\n")
+
         return {
             "status": "TRANSITIONED",
             "milestone_id": milestone_id,
