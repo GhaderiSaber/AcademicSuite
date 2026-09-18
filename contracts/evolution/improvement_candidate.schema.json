@@ -112,6 +112,64 @@
     "associated_pitfall_id": {
       "type": "string",
       "description": "Reference to pitfall in state/pitfalls.jsonl motivating this candidate."
+    },
+    "target_skill": {
+      "type": "string",
+      "description": "Identifier of the target skill being improved (e.g. statistical-data-analyst, chapter-4-writing)."
+    },
+    "mutation_type": {
+      "type": "string",
+      "enum": [
+        "INSTRUCTION_REFINEMENT",
+        "DECISION_TREE_ADDITION",
+        "MISSING_STEP_ADDITION",
+        "EXEMPLAR_ADDITION",
+        "ANTI_PATTERN_ADDITION",
+        "VERIFICATION_CHECKPOINT",
+        "RETRIEVAL_IMPROVEMENT",
+        "CLARIFICATION_APPLICABILITY_EXCLUSIONS",
+        "DELEGATION_GUIDANCE"
+      ],
+      "description": "Taxonomy of behavioral mutation applied in this candidate."
+    },
+    "source_lessons": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of lesson identifiers motivating this candidate improvement."
+    },
+    "expected_benefit": {
+      "type": "string",
+      "description": "Detailed explanation of the expected behavioral improvement and defect resolution."
+    },
+    "possible_downside": {
+      "type": "string",
+      "description": "Potential risks, side effects, token overhead, or edge cases introduced by this mutation."
+    },
+    "testable_hypothesis": {
+      "type": "string",
+      "description": "Empirical scientific hypothesis testable against the evaluation lab (e.g. If the skill includes a model comparison decision tree, the agent will achieve 0% missing reasoning failures on repeated measures tasks)."
+    },
+    "reflective_diagnosis": {
+      "type": "object",
+      "properties": {
+        "root_cause": {"type": "string"},
+        "failure_mechanism": {"type": "string"},
+        "generalizability": {"type": "string"},
+        "evidence_sources": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "pareto_rank": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Pareto rank in multi-dimensional evolutionary search."
+    },
+    "evaluation_verdicts": {
+      "type": "object",
+      "description": "Deterministic evaluation results and pass rates from test suites."
     }
   },
   "additionalProperties": false

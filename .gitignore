@@ -37,9 +37,12 @@ learning/skill-memory/**/index.jsonl
 learning/evaluations/**/index.jsonl
 learning/evaluations/results/EVR-*
 learning/evaluations/results/*.json
+learning/candidates/CAND-*
+learning/candidates/index.jsonl
 !learning/experience/.gitkeep
 !learning/experience/feedback/.gitkeep
 !learning/experience/feedback/candidates/.gitkeep
+!learning/candidates/.gitkeep
 !learning/knowledge/lessons/.gitkeep
 !learning/knowledge/patterns/.gitkeep
 !learning/knowledge/anti-patterns/.gitkeep
