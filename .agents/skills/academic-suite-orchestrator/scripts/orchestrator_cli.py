@@ -42,7 +42,7 @@ class MissingProductionDataError(StageDependencyError):
     """Raised when real production data/payload is missing in production mode."""
     pass
 
-class ProductionSampleFallbackBlockedError(StageDependencyError):
+class ProductionSampleFallbackBlockedError(StageDependencyError, ValueError):
     """Raised when an attempt is made to fall back to sample/demo data in production mode."""
     pass
 
@@ -278,14 +278,18 @@ class MasterAcademicOrchestrator:
                  custom_steps: Optional[List[str]] = None, dry_run: bool = False,
                  resume_from: Optional[str] = None, single_step: Optional[str] = None,
                  lang: str = "fa", mode: str = "production"):
-        if mode not in ("production", "demo", "test"):
-            raise ValueError(f"Invalid mode '{mode}'. Must be one of: 'production', 'demo', 'test'")
-        self.mode = mode
+        norm_mode = mode.lower().strip()
+        if norm_mode not in ("production", "demo", "test", "dry_run"):
+            raise ValueError(f"Invalid mode '{mode}'. Must be one of: 'production', 'demo', 'test', 'dry_run'")
+        self.mode = norm_mode
+        self.dry_run = dry_run or (self.mode == "dry_run")
+        if self.dry_run:
+            self.mode = "dry_run"
+
         self.config_path = os.path.abspath(config_path) if config_path else None
         self.out_dir = os.path.abspath(out_dir)
         self.pipeline_name = pipeline_name or "thesis_empirical"
         self.custom_steps = custom_steps
-        self.dry_run = dry_run
         self.resume_from = resume_from
         self.single_step = single_step
         self.lang = lang
@@ -296,6 +300,7 @@ class MasterAcademicOrchestrator:
             "start_time": datetime.now().isoformat(),
             "pipeline": self.pipeline_name,
             "mode": self.mode,
+            "dry_run": self.dry_run,
             "status": "INITIALIZING",
             "out_dir": self.out_dir,
             "steps_executed": [],
@@ -311,7 +316,11 @@ class MasterAcademicOrchestrator:
         In 'production' mode: silent fallback to sample/demo data is strictly BLOCKED.
         In 'demo' or 'test' mode: fallback to verified default_sample is permitted with notice.
         """
-        payload = step_conf.get("payload_path")
+        if self.mode == "production":
+            # Hard invariant: default_sample is strictly purged in production
+            default_sample = None
+
+        payload = step_conf.get("payload_path") or step_conf.get("payload")
         if not payload and context_keys:
             for k in context_keys:
                 if self.context.get(k):
@@ -327,6 +336,8 @@ class MasterAcademicOrchestrator:
             elif default_sample:
                 payload = default_sample
                 print(f"    [{self.mode.upper()}-MODE] Using sample payload for step '{step}': {default_sample}")
+            elif self.mode == "dry_run":
+                payload = os.path.join(self.out_dir, f"dry_run_{step}_payload.json")
             else:
                 raise MissingProductionDataError(
                     f"Missing required input payload for step '{step}' in {self.mode} mode."
@@ -338,7 +349,13 @@ class MasterAcademicOrchestrator:
         # In production mode, explicitly reject pointers to sample/examples
         if self.mode == "production":
             norm_payload = os.path.abspath(payload).replace("\\", "/")
-            if "/examples/" in norm_payload or "sample_" in os.path.basename(norm_payload):
+            base_lower = os.path.basename(norm_payload).lower()
+            if (
+                "/examples/" in norm_payload
+                or "sample_" in base_lower
+                or "default_" in base_lower
+                or "demo_" in base_lower
+            ):
                 raise ProductionSampleFallbackBlockedError(
                     f"CRITICAL SAFETY VIOLATION: Production execution attempted with sample/demo payload '{payload}'. "
                     f"Production mode strictly requires real empirical artifacts on disk."
@@ -986,8 +1003,9 @@ def main():
     parser.add_argument("--sections-dir", help="Directory containing micro-stage section DOCX files to assemble")
     parser.add_argument("--dry-run", action="store_true", help="Simulate pipeline DAG and validate inputs without running heavy tasks")
     parser.add_argument("--lang", default="fa", choices=["fa", "en"], help="Target language (default: fa)")
-    parser.add_argument("--mode", default="production", choices=["production", "demo", "test"],
-                        help="Execution mode: production (strict real empirical data, no fallbacks), demo (allows sample fallbacks), test (allows fixtures)")
+    parser.add_argument("--mode", default="production",
+                        choices=["production", "demo", "test", "dry_run", "PRODUCTION", "DEMO", "TEST", "DRY_RUN"],
+                        help="Execution mode: production (strict real empirical data, no fallbacks), demo (allows sample fallbacks), test (allows fixtures), dry_run (validation only)")
 
     args = parser.parse_args()
 

@@ -1111,6 +1111,9 @@ def main():
     parser.add_argument("--main-path", default="global", choices=["global", "local", "key-route"],
                         help="Main Path traversal algorithm (default: global)")
     parser.add_argument("--title", help="Custom project title for the report")
+    parser.add_argument("--mode", default="production",
+                        choices=["production", "demo", "test", "dry_run", "PRODUCTION", "DEMO", "TEST", "DRY_RUN"],
+                        help="Execution mode: production requires explicit --input; demo/test allows sample fallback.")
     
     args = parser.parse_args()
     
@@ -1118,16 +1121,27 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
     
     # 1. Data Ingestion
+    norm_mode = args.mode.lower().strip()
     if args.input:
         input_file = os.path.abspath(args.input)
+        if not os.path.exists(input_file):
+            raise FileNotFoundError(f"Input file not found: {input_file}")
     else:
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        skill_root = os.path.dirname(script_dir)
-        default_sample = os.path.join(skill_root, "examples", "sample_citation_network_payload.json")
-        if os.path.exists(default_sample):
-            input_file = default_sample
+        if norm_mode in ("demo", "test"):
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            skill_root = os.path.dirname(script_dir)
+            default_sample = os.path.join(skill_root, "examples", "sample_citation_network_payload.json")
+            if os.path.exists(default_sample):
+                print(f"[!] No input file supplied. Using DEMO sample payload: {default_sample}")
+                input_file = default_sample
+            else:
+                raise FileNotFoundError("No input file supplied and sample payload not found.")
         else:
-            raise FileNotFoundError("No input file supplied and sample payload not found.")
+            raise ValueError(
+                "Execution mode 'production' requires an explicit real empirical dataset via --input. "
+                "Silent fallback to sample data is strictly prohibited in production. "
+                "Use --mode demo to run with sample data."
+            )
     
     print(f"[*] Ingesting direct citation data: {input_file}")
     articles, file_title, file_lang, domain = load_citation_data(input_file)

@@ -803,6 +803,7 @@ class StatisticalMethodologySynthesizer:
             "project_id": project_id,
             "created_at": now_iso,
             "decided_by": "statistical-expert",
+            "status": "APPROVED",
             "significance_alpha": 0.05,
             "power_target": 0.85,
             "bootstrap_resamples": 5000,

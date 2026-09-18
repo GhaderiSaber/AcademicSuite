@@ -156,6 +156,34 @@ class StatisticalPipelineEngine:
 
         return validate_analysis_plan(plan_data)
 
+    def _get_dataset_provenance(self, dataset_path: str, df: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
+        """Computes cryptographic dataset provenance for execution manifest."""
+        if not os.path.exists(dataset_path):
+            return {}
+        h = compute_file_sha256(dataset_path)
+        size = os.path.getsize(dataset_path)
+        is_ro = not os.access(dataset_path, os.W_OK)
+        
+        fp = {}
+        try:
+            from data_curation_engine import compute_schema_fingerprint
+            if df is not None:
+                fp = compute_schema_fingerprint(df)
+            else:
+                loaded = self._load_dataframe(dataset_path)
+                fp = compute_schema_fingerprint(loaded)
+        except Exception:
+            pass
+
+        return {
+            "dataset_identifier": f"DATASET-RAW-{h[:10].upper()}",
+            "file_size_bytes": size,
+            "sha256": h,
+            "schema_fingerprint": fp,
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
+            "is_read_only": is_ro
+        }
+
     def execute_statistical_pipeline(
         self,
         analysis_plan: Union[Dict[str, Any], str],
@@ -174,8 +202,10 @@ class StatisticalPipelineEngine:
           5. Complete provenance recording in execution manifest.
           6. Production of machine-readable stats_results.json and strictly derived markdown artifacts.
         """
-        if mode not in ("production", "demo", "test"):
-            raise ValueError(f"Invalid mode '{mode}'. Must be one of: 'production', 'demo', 'test'.")
+        norm_mode = mode.lower().strip()
+        if norm_mode not in ("production", "demo", "test", "dry_run"):
+            raise ValueError(f"Invalid mode '{mode}'. Must be one of: 'production', 'demo', 'test', 'dry_run'.")
+        mode = norm_mode
 
         # 1. Dataset Safety Gate
         if not dataset_path:
@@ -199,7 +229,7 @@ class StatisticalPipelineEngine:
                     f"CRITICAL SAFETY VIOLATION: Production execution attempted with sample/demo dataset '{dataset_path}'. "
                     f"Production mode strictly requires real empirical data on disk. Silent fallback is prohibited."
                 )
-        else:
+        elif mode != "dry_run":
             if not os.path.exists(dataset_path):
                 raise MissingProductionDataError(
                     f"Dataset not found on disk: {dataset_path}"
@@ -225,6 +255,14 @@ class StatisticalPipelineEngine:
                 f"{json.dumps(validation_result.get('errors', []), indent=2)}"
             )
 
+        # Enforce that statistics-agent executes ONLY approved AnalysisPlans
+        plan_status = str(plan.get("status", "")).upper()
+        if plan_status != "APPROVED":
+            raise InvalidAnalysisPlanError(
+                f"CRITICAL PLAN REJECTION: statistics-agent may execute ONLY an approved AnalysisPlan. "
+                f"Current plan '{plan.get('plan_id')}' has status '{plan.get('status')}'. Must be 'APPROVED'."
+            )
+
         # 3. Method Lock Enforcement
         models = plan.get("statistical_models", [])
         if not models:
@@ -245,10 +283,78 @@ class StatisticalPipelineEngine:
 
         # 4. Deterministic Execution Setup
         os.makedirs(out_dir, exist_ok=True)
-        dataset_hash = compute_file_sha256(dataset_path)
+        dataset_hash = compute_file_sha256(dataset_path) if os.path.exists(dataset_path) else "0" * 64
         engine_script = os.path.abspath(__file__)
         code_hash = compute_file_sha256(engine_script)
         code_identity = f"statistical_pipeline_engine.py:{code_hash}"
+
+        # 5. Handle DRY_RUN mode vs Empirical Execution
+        if mode == "dry_run":
+            # DRY_RUN: Validate inputs and schema without performing empirical calculation
+            stats_results_path = os.path.join(out_dir, "stats_results.json")
+            stats_table_path = os.path.join(out_dir, "stats_table.md")
+            stats_summary_path = os.path.join(out_dir, "stats_summary.md")
+            manifest_path = os.path.join(out_dir, "execution_manifest.json")
+
+            dataset_prov = self._get_dataset_provenance(dataset_path)
+            manifest = {
+                "contract_version": "1.0.0",
+                "manifest_id": f"MANIFEST-DRYRUN-{int(time.time())}",
+                "project_id": plan.get("project_id", "academic_project"),
+                "milestone_id": "06_hypothesis_testing",
+                "generated_by": "statistical-expert",
+                "execution_mode": mode,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "analysis_plan_hash": plan_hash,
+                "input_dataset_hash": dataset_hash,
+                "dataset_provenance": dataset_prov,
+                "code_identity": code_identity,
+                "command": f"python3 {engine_script} --plan {plan.get('plan_id')} --dataset {dataset_path} --mode dry_run",
+                "exit_code": 0,
+                "dry_run": True,
+                "execution_environment": {
+                    "working_directory": os.getcwd(),
+                    "python_interpreter": sys.executable,
+                    "r_script_binary": "Rscript",
+                    "environment_variables": {
+                        "PLATFORM": platform.platform(),
+                        "PYTHON_VERSION": sys.version.split()[0]
+                    }
+                },
+                "steps": [
+                    {
+                        "step_number": 1,
+                        "stage_id": "06_hypothesis_testing",
+                        "capability": "statistical_modeling",
+                        "assigned_subagent": "statistics-agent",
+                        "skill_name": "statistical-data-analyst",
+                        "script_path": engine_script,
+                        "input_artifacts": [dataset_path],
+                        "output_artifacts": [stats_results_path, stats_table_path, stats_summary_path],
+                        "timeout_seconds": 300,
+                        "required_validation": {
+                            "validator_suite_required": True,
+                            "expected_verdict": "PASS"
+                        }
+                    }
+                ],
+                "produced_artifacts": []
+            }
+            manifest_val = validate_execution_manifest(manifest)
+            if not manifest_val.get("valid", False):
+                raise ExecutionIntegrityError(f"Generated dry-run manifest failed schema: {manifest_val.get('errors')}")
+
+            with open(manifest_path, "w", encoding="utf-8") as f:
+                json.dump(manifest, f, ensure_ascii=False, indent=2)
+
+            return {
+                "status": "DRY_RUN_VALIDATED",
+                "execution_mode": mode,
+                "analysis_plan_id": plan.get("plan_id"),
+                "manifest_path": manifest_path,
+                "manifest": manifest,
+                "dry_run": True
+            }
 
         # 5. Load Dataset & Perform Mathematical Calculation
         df = self._load_dataframe(dataset_path)
@@ -286,6 +392,7 @@ class StatisticalPipelineEngine:
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "analysis_plan_hash": plan_hash,
             "input_dataset_hash": dataset_hash,
+            "dataset_provenance": self._get_dataset_provenance(dataset_path, df),
             "code_identity": code_identity,
             "command": f"python3 {engine_script} --plan {plan.get('plan_id')} --dataset {dataset_path} --mode {mode}",
             "exit_code": 0,

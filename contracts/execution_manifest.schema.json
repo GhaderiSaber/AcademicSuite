@@ -34,8 +34,8 @@
     },
     "execution_mode": {
       "type": "string",
-      "enum": ["production", "demo", "test"],
-      "description": "Execution context mode strictly separating live empirical production from demo/test."
+      "enum": ["production", "demo", "test", "dry_run", "PRODUCTION", "DEMO", "TEST", "DRY_RUN"],
+      "description": "Execution context mode strictly separating live empirical production from demo/test/dry_run."
     },
     "timestamp": {
       "type": "string",
@@ -48,6 +48,18 @@
     "input_dataset_hash": {
       "type": "string",
       "description": "SHA-256 cryptographic hash of the input dataset file."
+    },
+    "dataset_provenance": {
+      "type": "object",
+      "description": "Full cryptographic provenance metadata of the dataset (SHA-256, size, schema fingerprint, timestamp, ID).",
+      "properties": {
+        "dataset_identifier": {"type": "string"},
+        "file_size_bytes": {"type": "integer"},
+        "sha256": {"type": "string"},
+        "schema_fingerprint": {"type": "object"},
+        "recorded_at": {"type": "string"},
+        "is_read_only": {"type": "boolean"}
+      }
     },
     "code_identity": {
       "type": "string",

@@ -82,6 +82,7 @@ class TestStatisticalPipelineSeparation(unittest.TestCase):
             "project_id": "study_act_burnout",
             "created_at": "2026-09-18T07:45:00Z",
             "decided_by": "statistical-expert",
+            "status": "APPROVED",
             "research_questions": [
                 {
                     "id": "RQ1",

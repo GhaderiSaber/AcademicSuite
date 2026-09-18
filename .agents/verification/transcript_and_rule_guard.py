@@ -44,9 +44,9 @@ def is_raw_data_path(path: str) -> bool:
     # Check directory hierarchy
     for p in parts[:-1]:
         p_lower = p.lower()
-        if p_lower in ("raw", "raw_data", "raw_inputs", "01_raw_inputs", "01_raw", "raw-data"):
+        if p_lower in ("raw", "raw_data", "raw_inputs", "01_raw_inputs", "01_raw", "raw-data", "raw_dataset"):
             return True
-        if "raw_input" in p_lower or "raw_data" in p_lower:
+        if "raw_input" in p_lower or "raw_data" in p_lower or "raw_dataset" in p_lower:
             return True
 
     # Check filename
@@ -72,12 +72,16 @@ def is_raw_data_command(cmd: str) -> bool:
     """Detects whether a bash command attempts to modify, overwrite, or delete raw data."""
     if not cmd:
         return False
+    raw_token = r'(?:raw_data|data_raw|01_raw_inputs|raw_inputs|raw_dataset|raw_file|/raw/|_raw\.[a-zA-Z0-9]+|raw\.[a-zA-Z0-9]+)'
     patterns = [
-        r'\brm\s+[^;&|]*(?:raw_data|data_raw|01_raw_inputs|raw_inputs|/raw/)[^;&|\s]*',
-        r'\bmv\s+[^;&|]*(?:raw_data|data_raw|01_raw_inputs|raw_inputs|/raw/)[^;&|\s]*',
-        r'(?:>|>>)\s*[\'"]?[^;&|\s]*(?:raw_data|data_raw|01_raw_inputs|raw_inputs|/raw/)[^;&|\s]*',
-        r'\b(?:truncate|sed\s+-i|perl\s+-i)\b.*(?:raw_data|data_raw|01_raw_inputs|raw_inputs|/raw/)',
-        r'\bcp\s+[^;&|]+\s+[^;&|]*(?:raw_data|data_raw|01_raw_inputs|raw_inputs|/raw/)[^;&|\s]*'
+        rf'\brm\s+[^;&|]*{raw_token}[^;&|\s]*',
+        rf'\bmv\s+[^;&|]*{raw_token}[^;&|\s]*',
+        rf'(?:>|>>)\s*[\'"]?[^;&|\s]*{raw_token}[^;&|\s]*',
+        rf'\b(?:truncate|sed\s+-i|perl\s+-i)\b.*{raw_token}',
+        rf'\bcp\s+[^;&|]+\s+[^;&|]*{raw_token}[^;&|\s]*',
+        rf'\bchmod\s+[^;&|]*(?:\+w|777|666|0777|0666)[^;&|]*{raw_token}',
+        rf'\btee\s+(?:-a\s+)?[\'"]?[^;&|\s]*{raw_token}',
+        rf'\btouch\s+[\'"]?[^;&|\s]*{raw_token}'
     ]
     return any(re.search(pat, cmd, re.IGNORECASE) for pat in patterns)
 

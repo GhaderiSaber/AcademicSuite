@@ -46,6 +46,11 @@
       "type": "string",
       "description": "Durable authority who formulated the plan (e.g. statistical-expert, methodology-expert)."
     },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "PENDING_APPROVAL", "APPROVED", "REJECTED"],
+      "description": "Lifecycle approval status of the AnalysisPlan."
+    },
     "research_questions": {
       "type": "array",
       "minItems": 1,
