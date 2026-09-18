@@ -51,9 +51,11 @@ learning/candidates/index.jsonl
 !learning/skill-memory/.gitkeep
 !learning/skill-memory/**/.gitkeep
 !learning/evaluations/.gitkeep
+!learning/evaluations/*/.gitkeep
 !learning/evaluations/*/*.json
 !learning/evaluations/heldout/manifest.sha256
 learning/evaluations/results/*.json
+learning/evaluations/reports/*.json
 !legacy/
 !config/
 !config/**
