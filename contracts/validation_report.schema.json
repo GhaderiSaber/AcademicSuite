@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/validation_report.schema.json",
+  "title": "AcademicValidationReportContract",
+  "description": "Contract schema for deterministic and adversarial validation reports. Structurally forbids PASS verdict when evidence is missing.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "report_id",
+    "validator_name",
+    "target_artifacts",
+    "timestamp",
+    "overall_verdict",
+    "results",
+    "evidence_summary"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "report_id": {
+      "type": "string",
+      "description": "Unique identifier for the validation report (e.g. VAL-2026-CH4-001)."
+    },
+    "validator_name": {
+      "type": "string",
+      "description": "Name of the validator engine or auditor subagent (e.g. run_all_validators, statistical-auditor, results-auditor)."
+    },
+    "target_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"},
+      "description": "Paths to the physical files on disk inspected by the validator."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "overall_verdict": {
+      "type": "string",
+      "enum": ["PASS", "FAIL", "BLOCKED", "INCOMPLETE", "UNKNOWN"],
+      "description": "Composite verdict. PASS is impossible without affirmative evidence."
+    },
+    "evidence_summary": {
+      "type": "object",
+      "required": ["total_evidence_items_evaluated", "total_checks_run", "checks_passed", "checks_failed"],
+      "properties": {
+        "total_evidence_items_evaluated": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of distinct empirical evidence elements inspected (numbers, df, tables, citations)."
+        },
+        "total_checks_run": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "checks_passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "checks_failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "checks_blocked": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["check_id", "rule", "verdict", "evidence"],
+        "properties": {
+          "check_id": {"type": "string"},
+          "rule": {"type": "string"},
+          "verdict": {
+            "type": "string",
+            "enum": ["PASS", "FAIL", "BLOCKED", "INCOMPLETE", "UNKNOWN"]
+          },
+          "errors": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "warnings": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "evidence": {
+            "type": "object",
+            "description": "Mandatory concrete evidence for the check. Cannot be empty for PASS.",
+            "minProperties": 1
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "overall_verdict": {"const": "PASS"}
+        }
+      },
+      "then": {
+        "properties": {
+          "evidence_summary": {
+            "properties": {
+              "total_evidence_items_evaluated": {"minimum": 1},
+              "total_checks_run": {"minimum": 1},
+              "checks_passed": {"minimum": 1},
+              "checks_failed": {"const": 0},
+              "checks_blocked": {"const": 0}
+            },
+            "required": ["total_evidence_items_evaluated", "total_checks_run", "checks_passed", "checks_failed"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "evidence_summary": {
+            "properties": {
+              "total_evidence_items_evaluated": {"const": 0}
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "overall_verdict": {
+            "enum": ["FAIL", "BLOCKED", "INCOMPLETE", "UNKNOWN"]
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}

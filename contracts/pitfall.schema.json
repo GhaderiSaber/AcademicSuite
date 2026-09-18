@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/pitfall.schema.json",
+  "title": "AcademicPitfallChallengeContract",
+  "description": "Contract schema for capturing methodological pitfalls, statistical traps, detected errors, and reusable resolutions.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "pitfall_id",
+    "stage",
+    "candidate_approach",
+    "problem",
+    "evidence",
+    "detected_by",
+    "resolution",
+    "reusable"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "pitfall_id": {
+      "type": "string",
+      "description": "Unique identifier for the pitfall record (e.g. PIT-2026-CH4-001)."
+    },
+    "stage": {
+      "type": "string",
+      "description": "Stage or milestone where pitfall occurred (e.g. 03_parametric_assumptions, 05_macro_model, Viva_Voce)."
+    },
+    "candidate_approach": {
+      "type": "string",
+      "description": "Initial or proposed approach that contained the defect (e.g. Standard ANCOVA with unequal variances)."
+    },
+    "problem": {
+      "type": "string",
+      "description": "Exact methodological, statistical, or typography defect identified."
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["description"],
+      "properties": {
+        "description": {"type": "string"},
+        "metric_or_statistic": {"type": "string"},
+        "observed_value": {},
+        "threshold_value": {}
+      }
+    },
+    "detected_by": {
+      "type": "string",
+      "description": "Agent or validator that identified the defect (e.g. statistical-auditor, academic-challenger, evidence-auditor)."
+    },
+    "resolution": {
+      "type": "object",
+      "required": ["corrective_action", "adapted_approach"],
+      "properties": {
+        "corrective_action": {"type": "string"},
+        "adapted_approach": {"type": "string"},
+        "verification_check": {"type": "string"}
+      }
+    },
+    "reusable": {
+      "type": "boolean",
+      "description": "Flag indicating whether this pitfall pattern should be indexed in case-based memory for future projects."
+    }
+  },
+  "additionalProperties": true
+}

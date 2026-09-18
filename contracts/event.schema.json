@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/event.schema.json",
+  "title": "AcademicEventContract",
+  "description": "Contract schema for auditable state transitions, milestone progression, and execution lifecycle events.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "event_id",
+    "event_type",
+    "timestamp",
+    "project_id",
+    "emitter_agent",
+    "payload"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Unique identifier for this event (e.g. EVT-2026-0918-0001)."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "PROJECT_CREATED",
+        "MILESTONE_STARTED",
+        "PLAN_CREATED",
+        "ARTIFACT_CREATED",
+        "EXECUTION_STARTED",
+        "EXECUTION_COMPLETED",
+        "VALIDATION_STARTED",
+        "VALIDATION_FAILED",
+        "CRITIQUE_CREATED",
+        "REVISION_REQUESTED",
+        "MILESTONE_APPROVAL_REQUESTED",
+        "MILESTONE_APPROVED",
+        "MILESTONE_REJECTED",
+        "MILESTONE_FAILED"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "milestone_id": {
+      "type": "string"
+    },
+    "stage_id": {
+      "type": "string"
+    },
+    "emitter_agent": {
+      "type": "string",
+      "description": "Agent emitting the event (e.g. academic-orchestrator, statistical-expert, validation-agent)."
+    },
+    "recipient_agent": {
+      "type": "string",
+      "description": "Intended target agent for the event notification, if applicable."
+    },
+    "payload": {
+      "type": "object",
+      "description": "Structured event-specific payload.",
+      "required": ["summary"],
+      "properties": {
+        "summary": {"type": "string"},
+        "artifact_ids": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "metrics": {"type": "object"},
+        "details": {"type": "object"}
+      }
+    }
+  },
+  "additionalProperties": true
+}

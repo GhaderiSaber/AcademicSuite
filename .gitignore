@@ -15,6 +15,7 @@
 !recovery/
 !factory/
 !artifacts/
+!contracts/
 !legacy/
 !ANTIGRAVITY_ARCHITECTURE_GUIDE.md
 webapp/node_modules/

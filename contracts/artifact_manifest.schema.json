@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/artifact_manifest.schema.json",
+  "title": "AcademicArtifactManifestContract",
+  "description": "Contract schema for artifact manifests tracking provenance, hashes, validation status, and dependencies across stages.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "artifact_id",
+    "milestone",
+    "stage_id",
+    "producer",
+    "consumers",
+    "type",
+    "path",
+    "schema",
+    "hash",
+    "creation_timestamp",
+    "validation_status",
+    "provenance",
+    "dependencies"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "artifact_id": {
+      "type": "string",
+      "description": "Unique identifier for the physical artifact (e.g. ART-2026-CH4-HYPO1-JSON)."
+    },
+    "milestone": {
+      "type": "string",
+      "description": "High-level study milestone (e.g. M1_PROPOSAL, M2_DATA_CURATION, M3_ANALYSIS, M4_CHAPTER4, M5_DEFENSE)."
+    },
+    "stage_id": {
+      "type": "string",
+      "description": "Micro-stage identifier (e.g. 06_hypothesis_1)."
+    },
+    "producer": {
+      "type": "object",
+      "required": ["agent", "script_or_generator"],
+      "properties": {
+        "agent": {"type": "string"},
+        "script_or_generator": {"type": "string"},
+        "execution_id": {"type": "string"}
+      }
+    },
+    "consumers": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of agents or pipeline stages authorized to consume this artifact."
+    },
+    "type": {
+      "type": "string",
+      "enum": ["data_cleaned", "data_quality_report", "stats_json", "narrative_markdown", "openxml_word", "presentation_deck", "validation_report", "decision_log", "diagram_png"]
+    },
+    "path": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_/.-]+$",
+      "description": "Relative or absolute ASCII-only path to physical artifact on disk."
+    },
+    "schema": {
+      "type": "string",
+      "description": "URI or relative path to the JSON Schema or validation specification governing this artifact."
+    },
+    "hash": {
+      "type": "object",
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": {"type": "string", "enum": ["sha256", "sha512", "md5"]},
+        "value": {"type": "string"}
+      }
+    },
+    "creation_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": ["UNVALIDATED", "VALIDATED_PASS", "VALIDATED_FAIL", "VALIDATED_NEEDS_REVIEW"]
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["source_dataset", "deterministic_tool", "command_line"],
+      "properties": {
+        "source_dataset": {"type": "string"},
+        "deterministic_tool": {"type": "string"},
+        "command_line": {"type": "string"},
+        "parameters": {"type": "object"},
+        "git_commit_hash": {"type": "string"}
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["artifact_id", "path", "hash_at_consumption"],
+        "properties": {
+          "artifact_id": {"type": "string"},
+          "path": {"type": "string"},
+          "hash_at_consumption": {"type": "string"}
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

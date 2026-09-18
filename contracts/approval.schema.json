@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/approval.schema.json",
+  "title": "AcademicHumanApprovalContract",
+  "description": "Contract schema for human-in-the-loop and supervisory approvals. Structurally enforces that approval NEVER defaults to true.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "approval_id",
+    "milestone_id",
+    "category",
+    "requested_by",
+    "requested_at",
+    "status",
+    "is_approved"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "approval_id": {
+      "type": "string",
+      "description": "Unique identifier for the approval record (e.g. APPR-2026-CH4-001)."
+    },
+    "milestone_id": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "project_pricing",
+        "methodology_specification",
+        "supervisor_comment_override",
+        "raw_data_exception",
+        "final_dissertation_release",
+        "defense_readiness_clearance"
+      ]
+    },
+    "requested_by": {
+      "type": "object",
+      "required": ["agent", "rationale"],
+      "properties": {
+        "agent": {"type": "string"},
+        "rationale": {"type": "string"},
+        "target_artifacts": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PENDING", "GRANTED", "REJECTED"]
+    },
+    "is_approved": {
+      "type": "boolean",
+      "description": "Explicit boolean flag. Must NEVER be true unless status is GRANTED."
+    },
+    "decision": {
+      "type": "object",
+      "properties": {
+        "approver_identity": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Identity of the human approver (e.g. Saber Admin Desk 124911145, PI Name)."
+        },
+        "decided_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "comments": {"type": "string"},
+        "conditions_or_stipulations": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "digital_signature_or_ack": {
+          "type": "string",
+          "minLength": 5
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {"enum": ["PENDING", "REJECTED"]}
+        }
+      },
+      "then": {
+        "properties": {
+          "is_approved": {"const": false}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "is_approved": {"const": true}
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {"const": "GRANTED"}
+        },
+        "required": ["decision"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "GRANTED"}
+        }
+      },
+      "then": {
+        "properties": {
+          "is_approved": {"const": true}
+        },
+        "required": ["decision"]
+      }
+    }
+  ],
+  "additionalProperties": true
+}
