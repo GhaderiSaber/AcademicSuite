@@ -480,7 +480,7 @@ class AcademicChallenger:
                     "verdict": "WARN",
                     "rationale": "Change/gain score handles baseline via subtraction rather than regression conditioning."
                 })
-            elif "anova" in method_lower:
+            else:
                 evaluations.append({
                     "question": "Is baseline adjustment justified?",
                     "verdict": "FAIL",
@@ -731,20 +731,56 @@ class StatisticalMethodologySynthesizer:
         model_family = selected_cand.get("method", "").lower().replace(" ", "_").replace("-", "_")
         if "ancova" in model_family:
             family_key = "ancova_analysis_of_covariance"
-        elif "mixed" in model_family:
-            family_key = "linear_mixed_effects_model"
-        elif "regression" in model_family:
-            family_key = "multiple_regression"
+            hyp_type = "group_comparison"
+        elif "repeated" in model_family or "rm_anova" in model_family or "mixed" in model_family:
+            family_key = "repeated_measures_anova"
+            hyp_type = "group_comparison"
+        elif "sem" in model_family or "structural" in model_family:
+            family_key = "sem_structural_equation_modeling"
+            hyp_type = "direct"
+        elif "cfa" in model_family or "factor" in model_family:
+            family_key = "cfa_confirmatory_factor_analysis"
+            hyp_type = "measurement_cfa"
+        elif "process_4" in model_family or "mediation" in model_family:
+            family_key = "process_model_4_mediation"
+            hyp_type = "indirect_mediation"
+        elif "process_7" in model_family or "modmed" in model_family:
+            family_key = "process_model_7_modmed"
+            hyp_type = "moderated_mediation"
+        elif "process_1" in model_family or "moderation" in model_family:
+            family_key = "process_model_1_moderation"
+            hyp_type = "moderation"
+        elif "meta" in model_family:
+            family_key = "meta_analytic_random_effects"
+            hyp_type = "direct"
+        elif "anova" in model_family or "t_test" in model_family or "ttest" in model_family or "comparison" in model_family:
+            family_key = "ancova_analysis_of_covariance"
+            hyp_type = "group_comparison"
         else:
-            family_key = "general_linear_model"
+            family_key = "linear_regression"
+            hyp_type = "direct"
 
         # Build final AnalysisPlan conforming strictly to contracts/analysis_plan.schema.json
+        # and backwards-compatible with academic_state schema
         final_plan = {
             "contract_version": "1.0.0",
             "plan_id": plan_id,
             "project_id": project_id,
             "created_at": now_iso,
             "decided_by": "statistical-expert",
+            "significance_alpha": 0.05,
+            "power_target": 0.85,
+            "bootstrap_resamples": 5000,
+            "planned_sequence": [
+                {
+                    "stage_id": "06_hypothesis_1",
+                    "title": f"{selected_cand.get('method')} Hypothesis Testing",
+                    "engine": "python",
+                    "script": "scripts/statistical_pipeline_engine.py",
+                    "output_artifact": "06_hypothesis_1.docx",
+                    "assigned_subagent": "statistics-agent"
+                }
+            ],
             "research_questions": [
                 {
                     "id": "RQ1",
@@ -756,7 +792,7 @@ class StatisticalMethodologySynthesizer:
                 {
                     "id": "H1",
                     "statement": selected_cand.get("expected_interpretation", "Intervention produces directional change in outcome."),
-                    "type": "group_comparison" if "ancova" in family_key else "relationship",
+                    "type": hyp_type,
                     "direction": "negative",
                     "independent_variable": selected_cand.get("data_requirements", {}).get("variables", ["group"])[0],
                     "dependent_variable": selected_cand.get("data_requirements", {}).get("variables", ["outcome"])[-1]
@@ -780,7 +816,9 @@ class StatisticalMethodologySynthesizer:
             "variables": {
                 "outcome_variables": [selected_cand.get("data_requirements", {}).get("variables", ["burnout_post"])[-1]],
                 "predictors": [selected_cand.get("data_requirements", {}).get("variables", ["group"])[0]],
-                "covariates": selected_cand.get("data_requirements", {}).get("variables", ["burnout_pre"])[1:-1] if len(selected_cand.get("data_requirements", {}).get("variables", [])) > 2 else []
+                "covariates": [v for v in selected_cand.get("data_requirements", {}).get("variables", []) if "pre" in v or "covar" in v] or [selected_cand.get("data_requirements", {}).get("variables", ["burnout_pre"])[1]] if len(selected_cand.get("data_requirements", {}).get("variables", [])) > 2 else [],
+                "independent": [selected_cand.get("data_requirements", {}).get("variables", ["group"])[0]],
+                "dependent": [selected_cand.get("data_requirements", {}).get("variables", ["burnout_post"])[-1]]
             },
             "estimands": [
                 {

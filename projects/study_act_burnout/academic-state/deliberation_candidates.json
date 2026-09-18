@@ -1,0 +1,162 @@
+{
+  "study_context": {
+    "project_id": "study_act_burnout",
+    "design_type": "quasi_experimental",
+    "time_structure": "pre_post_repeated_measures",
+    "has_baseline": true,
+    "is_randomized": false,
+    "sample_size": 60,
+    "missing_rate": 0.0
+  },
+  "candidates": [
+    {
+      "contract_version": "1.0.0",
+      "candidate_id": "CAND-ANCOVA-BURNOUT-01",
+      "proposed_by": "statistical-expert",
+      "method": "One-Way ANCOVA",
+      "research_question": "Does Acceptance and Commitment Therapy (ACT) significantly reduce posttest job burnout among ICU nurses when controlling for pretest baseline burnout?",
+      "estimand": "Average treatment contrast on posttest burnout adjusted for baseline burnout score",
+      "assumptions": [
+        "Homogeneity of regression slopes between ACT and control groups",
+        "Linear relationship between pretest covariate and posttest outcome",
+        "Homogeneity of error variances across groups (Levene p > .05)",
+        "Normally distributed model residuals (Shapiro-Wilk p > .05)"
+      ],
+      "data_requirements": {
+        "minimum_sample_size": 50,
+        "variables": [
+          "group",
+          "burnout_pre",
+          "burnout_post"
+        ],
+        "time_structure": "pre_post_two_waves",
+        "measurement_level": "continuous_interval"
+      },
+      "diagnostics": [
+        "Group by pretest interaction term test for slope homogeneity",
+        "Levene test for equality of variance",
+        "Residual normality Q-Q plot and skewness/kurtosis",
+        "Cooks distance for influential observations"
+      ],
+      "strengths": [
+        "Controls for non-equivalent baseline differences in quasi-experimental designs",
+        "Reduces unexplained error variance, increasing statistical precision and power",
+        "Complies with Lords paradox recommendations for non-randomized pre-post groups"
+      ],
+      "limitations": [
+        "Requires strict homogeneity of regression slopes across conditions",
+        "Residual confounding possible if unmeasured baseline covariates exist"
+      ],
+      "expected_interpretation": "Significant main effect indicates ACT intervention reduces nurse burnout beyond pretest differences.",
+      "execution_requirements": {
+        "engine": "python",
+        "scripts": [
+          "scripts/statistical_pipeline_engine.py"
+        ],
+        "assigned_subagent": "statistics-agent",
+        "runtime_dependencies": [
+          "numpy",
+          "scipy",
+          "pandas",
+          "statsmodels"
+        ]
+      }
+    },
+    {
+      "contract_version": "1.0.0",
+      "candidate_id": "CAND-POST-TTEST-02",
+      "proposed_by": "statistical-expert",
+      "method": "Raw Posttest Independent Samples t-test",
+      "research_question": "Does ACT group differ from control group on posttest burnout ignoring baseline scores?",
+      "estimand": "Unadjusted posttest mean contrast between ACT and control groups",
+      "assumptions": [
+        "Independent observations",
+        "Homogeneity of group variances",
+        "Normal distribution of posttest scores within each group"
+      ],
+      "data_requirements": {
+        "minimum_sample_size": 50,
+        "variables": [
+          "group",
+          "burnout_post"
+        ],
+        "time_structure": "cross_sectional",
+        "measurement_level": "continuous_interval"
+      },
+      "diagnostics": [
+        "Levene test for equality of variance",
+        "Shapiro-Wilk test for normality"
+      ],
+      "strengths": [
+        "Computational simplicity",
+        "Does not assume linear relationship with baseline"
+      ],
+      "limitations": [
+        "Discards pretest baseline measurement entirely",
+        "Highly vulnerable to pre-existing non-equivalent group differences in quasi-experiments",
+        "Severely deflates statistical power by leaving baseline variance in error term"
+      ],
+      "expected_interpretation": "Simple mean difference between groups at posttest measurement.",
+      "execution_requirements": {
+        "engine": "python",
+        "scripts": [
+          "scripts/statistical_pipeline_engine.py"
+        ],
+        "assigned_subagent": "statistics-agent",
+        "runtime_dependencies": [
+          "scipy",
+          "pandas"
+        ]
+      }
+    },
+    {
+      "contract_version": "1.0.0",
+      "candidate_id": "CAND-REP-ANOVA-03",
+      "proposed_by": "methodology-expert",
+      "method": "Two-Way Mixed Repeated Measures ANOVA",
+      "research_question": "Is there a significant Group by Time interaction on burnout from pretest to posttest?",
+      "estimand": "Group by Time interaction effect on burnout trajectory",
+      "assumptions": [
+        "Compound symmetry and sphericity of covariance matrices",
+        "Normality of difference scores",
+        "Homogeneity of variance across groups at each time point"
+      ],
+      "data_requirements": {
+        "minimum_sample_size": 50,
+        "variables": [
+          "group",
+          "burnout_pre",
+          "burnout_post"
+        ],
+        "time_structure": "pre_post_repeated_measures",
+        "measurement_level": "continuous_interval"
+      },
+      "diagnostics": [
+        "Boxs M test for covariance equality",
+        "Levene test at pretest and posttest",
+        "Residual normality tests"
+      ],
+      "strengths": [
+        "Tests both within-subject change and between-subject differences simultaneously",
+        "Directly evaluates change trajectory"
+      ],
+      "limitations": [
+        "Does not control for baseline differences as effectively as ANCOVA in quasi-experiments",
+        "Susceptible to regression toward the mean artifact in non-randomized groups"
+      ],
+      "expected_interpretation": "Differential trajectory of burnout reduction across time points as a function of treatment condition.",
+      "execution_requirements": {
+        "engine": "python",
+        "scripts": [
+          "scripts/statistical_pipeline_engine.py"
+        ],
+        "assigned_subagent": "statistics-agent",
+        "runtime_dependencies": [
+          "statsmodels",
+          "scipy",
+          "pandas"
+        ]
+      }
+    }
+  ]
+}

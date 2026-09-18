@@ -721,7 +721,7 @@ class StatisticalPipelineEngine:
                 "test_statistics": {
                     "F": round(f_val, 2),
                     "p_value": round(p_val, 4),
-                    "p_formatted": f"p < .001" if p_val < 0.001 else f"p = {p_val:.3f}",
+                    "p_formatted": f"p < 0.001" if p_val < 0.001 else f"p = {p_val:.3f}",
                     "eta_sq_partial": round(eta_p2, 3),
                     "sum_of_squares_effect": round(ss_group, 2),
                     "sum_of_squares_error": round(ss_error, 2)
@@ -856,12 +856,24 @@ class StatisticalPipelineEngine:
         df_b = df_dict.get("df_between", 1)
         df_w = df_dict.get("df_within", results.get("sample_size", 0) - 2)
 
+        # Enforce Directive 4: Prohibition of p = .000 and retention of leading zero
+        p_formatted = test_stats.get("p_formatted")
+        if not p_formatted or p_formatted == "N/A":
+            if isinstance(p_val, (int, float)):
+                p_formatted = "< 0.001" if p_val < 0.001 else f"{p_val:.3f}"
+            else:
+                p_formatted = str(p_val)
+        else:
+            p_formatted = p_formatted.replace("p = ", "").replace("p < ", "< ")
+            if p_formatted.startswith("< ."):
+                p_formatted = p_formatted.replace("< .", "< 0.")
+
         lines = [
             f"### Table 1: APA 7 Summary of {model_type}",
             "",
             "| Source / Parameter | *SS* | *df* | *MS* | *F* | *p* | *η_p²* |",
             "| :--- | :---: | :---: | :---: | :---: | :---: | :---: |",
-            f"| Group Effect | {test_stats.get('sum_of_squares_effect', '-')} | {df_b} | - | {f_val} | {p_val} | {eta_p2} |",
+            f"| Group Effect | {test_stats.get('sum_of_squares_effect', '-')} | {df_b} | - | {f_val} | {p_formatted} | {eta_p2} |",
             f"| Error (Residual) | {test_stats.get('sum_of_squares_error', '-')} | {df_w} | - | - | - | - |",
             f"| Total | - | {df_dict.get('df_total', results.get('sample_size', 0)-1)} | - | - | - | - |",
             "",
