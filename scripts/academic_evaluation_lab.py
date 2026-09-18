@@ -484,6 +484,24 @@ class AcademicEvaluationLab:
             ],
             "candidate_model_comparison": [
                 "candidate_model_comparison", "model comparison", "compare models", "comparing lmm", "rm-anova vs", "lmm vs", "aic", "bic", "likelihood ratio", "مقایسه مدل"
+            ],
+            "apa_statistical_typography": [
+                "apa_statistical_typography", "typography", "apa", "جدول", "تحلیل واریانس", "گزارش", "انحراف معیار"
+            ],
+            "persian_leading_zero": [
+                "persian_leading_zero", "leading zero", "۰.", "صفر قبل از ممیز", "۰.۰"
+            ],
+            "practical_significance_interpretation": [
+                "practical_significance_interpretation", "practical significance", "clinical significance", "اثر بالینی", "اثر مداخله"
+            ],
+            "precision_interpretation": [
+                "precision_interpretation", "precision", "فاصله اطمینان", "بازه", "اطمینان"
+            ],
+            "associative_language_discipline": [
+                "associative_language_discipline", "associative", "همبستگی", "پیش‌بینی"
+            ],
+            "epistemic_honesty": [
+                "epistemic_honesty", "alternative", "توجیه", "فرضیه", "تبیین"
             ]
         }
 

@@ -172,6 +172,20 @@
       "type": "string",
       "format": "date-time",
       "description": "Timestamp when this failure pattern was most recently observed."
+    },
+    "curriculum_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Graduated ladder level for curriculum practice tasks (1-10)."
+    },
+    "level_name": {
+      "type": "string",
+      "description": "Descriptive title of the curriculum challenge level."
+    },
+    "targeted_weakness": {
+      "type": "string",
+      "description": "Specific diagnosed capability defect targeted by this curriculum case."
     }
   },
   "additionalProperties": false
