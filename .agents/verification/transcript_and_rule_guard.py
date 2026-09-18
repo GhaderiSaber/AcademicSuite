@@ -482,7 +482,23 @@ def handle_post_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def handle_pre_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Injects ephemeral prompt reminding the agent of strict constitutional directives."""
+    """Injects ephemeral prompt reminding the agent of strict constitutional directives and scans for user corrections."""
+    # Continuous Self-Improvement: Automatically detect meaningful user corrections without /learn
+    transcript_path = payload.get("transcriptPath")
+    cid = payload.get("conversationId")
+    if not transcript_path and cid:
+        cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
+        if os.path.exists(cand):
+            transcript_path = cand
+
+    if transcript_path and os.path.isfile(transcript_path):
+        try:
+            from scripts.academic_correction_detector import AcademicCorrectionDetector
+            detector = AcademicCorrectionDetector(project_root=ROOT_DIR)
+            detector.scan_transcript(transcript_path, mark_recorded=True)
+        except Exception as e_det:
+            sys.stderr.write(f"[transcript_and_rule_guard] PreInvocation correction scan note: {e_det}\n")
+
     reminder = (
         "🚨 CONSTITUTIONAL ENFORCEMENT ACTIVE (Directive 0, 3 & 11):\n"
         "1. Binary Honesty Protocol: If asked a compliance question, your response MUST begin with 'Yes' or 'No'.\n"
@@ -658,6 +674,15 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
         if transcript_path and not os.path.exists(transcript_path):
             sys.stderr.write(f"[transcript_and_rule_guard WARNING] transcript_path '{transcript_path}' does not exist on disk.\n")
         return {"decision": "allow"}
+
+    # Continuous Self-Improvement: Automatically detect user corrections
+    if transcript_path and os.path.isfile(transcript_path):
+        try:
+            from scripts.academic_correction_detector import AcademicCorrectionDetector
+            detector = AcademicCorrectionDetector(project_root=ROOT_DIR)
+            detector.scan_transcript(transcript_path, mark_recorded=True)
+        except Exception as e_det:
+            sys.stderr.write(f"[transcript_and_rule_guard] Stop hook correction scan note: {e_det}\n")
 
     subagent_calls_count = 0
     for r in records:

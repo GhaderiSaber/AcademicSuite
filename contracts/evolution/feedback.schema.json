@@ -51,8 +51,16 @@
     "type": {
       "type": "string",
       "enum": [
-        "METHODOLOGICAL_CORRECTION",
+        "METHODOLOGY_CORRECTION",
         "STATISTICAL_CORRECTION",
+        "DATA_ANALYSIS_CORRECTION",
+        "WRITING_CORRECTION",
+        "EVIDENCE_CORRECTION",
+        "COMPLETENESS_CORRECTION",
+        "PROCESS_CORRECTION",
+        "RESEARCH_INTEGRITY_CORRECTION",
+        "QUALITY_STYLE_CORRECTION",
+        "METHODOLOGICAL_CORRECTION",
         "TYPOGRAPHY_CORRECTION",
         "CITATION_CORRECTION",
         "CRITIQUE",
@@ -82,10 +90,12 @@
       "type": "string",
       "enum": [
         "PROJECT_SPECIFIC",
+        "REUSABLE_PROCEDURAL",
+        "POTENTIAL_GLOBAL_INVARIANT",
         "DOMAIN_WIDE",
         "UNIVERSAL"
       ],
-      "description": "Scope of applicability: whether the feedback applies only to this project or generalizes."
+      "description": "Scope of applicability: whether the feedback applies only to this project, procedural reuse, or global system invariant."
     },
     "severity": {
       "type": "string",
@@ -106,10 +116,46 @@
         "project_id": {"type": "string"},
         "milestone_id": {"type": "string"},
         "stage_id": {"type": "string"},
+        "source_transcript_path": {"type": "string"},
+        "turn_index": {"type": "integer"},
         "related_artifact_paths": {
           "type": "array",
           "items": {"type": "string"}
         }
+      },
+      "additionalProperties": false
+    },
+    "generalization_candidate": {
+      "type": "object",
+      "required": [
+        "candidate_id",
+        "suggested_rule",
+        "scope",
+        "repetition_count",
+        "signature_hash",
+        "evaluation_status"
+      ],
+      "properties": {
+        "candidate_id": {"type": "string"},
+        "suggested_rule": {"type": "string", "minLength": 5},
+        "suggested_target_skill": {"type": "string"},
+        "scope": {
+          "type": "string",
+          "enum": [
+            "PROJECT_SPECIFIC",
+            "REUSABLE_PROCEDURAL",
+            "POTENTIAL_GLOBAL_INVARIANT",
+            "DOMAIN_WIDE",
+            "UNIVERSAL"
+          ]
+        },
+        "repetition_count": {"type": "integer", "minimum": 1},
+        "signature_hash": {"type": "string"},
+        "evaluation_status": {
+          "type": "string",
+          "enum": ["PENDING", "FLAGGED_FALSE_POSITIVE", "CONFIRMED_VALID"]
+        },
+        "flag_rationale": {"type": "string"}
       },
       "additionalProperties": false
     }

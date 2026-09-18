@@ -20,7 +20,11 @@
 !learning/**
 learning/experience/EXP-*
 learning/experience/index.jsonl
+learning/experience/feedback/FDB-*
+learning/experience/feedback/index.jsonl
 !learning/experience/.gitkeep
+!learning/experience/feedback/.gitkeep
+!learning/experience/feedback/candidates/.gitkeep
 !legacy/
 !config/
 !config/**
