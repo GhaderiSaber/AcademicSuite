@@ -56,6 +56,12 @@ learning/candidates/index.jsonl
 !learning/evaluations/heldout/manifest.sha256
 learning/evaluations/results/*.json
 learning/evaluations/reports/*.json
+learning/archive/ARC-*
+learning/archive/index.jsonl
+!learning/archive/.gitkeep
+learning/promotions/PRM-*
+learning/promotions/index.jsonl
+!learning/promotions/.gitkeep
 !legacy/
 !config/
 !config/**

@@ -158,6 +158,19 @@
       },
       "additionalProperties": false
     },
+    "lineage": {
+      "type": "object",
+      "properties": {
+        "originating_experience": {"type": "string"},
+        "source_lessons": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "candidate_id": {"type": "string"},
+        "lifecycle_state": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
     "timestamp": {
       "type": "string",
       "format": "date-time"

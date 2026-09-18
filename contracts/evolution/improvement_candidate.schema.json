@@ -97,6 +97,12 @@
     "status": {
       "type": "string",
       "enum": [
+        "OBSERVED",
+        "LESSON",
+        "CANDIDATE",
+        "EVALUATED",
+        "VALIDATED",
+        "ACTIVE",
         "STAGED",
         "TESTING",
         "EVALUATION_PASSED",
