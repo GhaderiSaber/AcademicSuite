@@ -160,9 +160,9 @@ class AgentSpec:
             fm["tools"] = list(self.tools)
         if self.skills:
             fm["skills"] = list(self.skills)
-        if self.agents:
+        if self.agents is not None:
             fm["agents"] = list(self.agents)
-        if self.mcpServers:
+        if self.mcpServers is not None:
             fm["mcpServers"] = list(self.mcpServers)
         if self.inheritCustomizations is not None:
             fm["inheritCustomizations"] = self.inheritCustomizations

@@ -33,6 +33,7 @@ REQUIRED_CONTRACT_SECTIONS = [
 ]
 
 EXPECTED_ROLES = [
+    "academic-challenger",
     "academic-orchestrator",
     "academic-writer",
     "data-agent",

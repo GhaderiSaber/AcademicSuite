@@ -1,7 +1,7 @@
 # Agent Inventory & Cognitive Role Audit
 
-**Document Version:** 2.0.0 (Phase 4 Option 1 Complete)  
-**Total Agents Defined:** 22  
+**Document Version:** 2.1.0 (Target Architecture Complete)  
+**Total Agents Defined:** 23  
 **Runtime Architecture:** Antigravity Native Multi-Agent System (`invoke_subagent`)  
 **Behavioral Contracts:** 100% of agents possess a verified 12-section `contract.md`  
 
@@ -23,6 +23,7 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 
 | Category | Agent Name | Primary Mandate | Behavioral Contract |
 | :--- | :--- | :--- | :--- |
+| Domain Specialist Subagent | `academic-challenger` | Adversarial methodology, bias & statistical challenger | [contract.md](../../.agents/agents/academic-challenger/contract.md) |
 | Core Primary Agent (Phase 3) | `academic-orchestrator` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/academic-orchestrator/contract.md) |
 | Domain Specialist Subagent | `academic-writer` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/academic-writer/contract.md) |
 | Core Primary Agent (Phase 3) | `data-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/data-agent/contract.md) |
@@ -243,7 +244,17 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 - **Package Path:** `.agents/agents/writing-agent/`
 - **Runtime Prompt:** `.agents/agents/writing-agent/agent.md`
 - **Behavioral Contract:** [`.agents/agents/writing-agent/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/writing-agent/contract.md) (12 Sections Verified)
-- **Classification:** Core Primary Role (Phase 3)
+- **Classification:** Core Primary Role (Phase 3 - Deprecated, retained for compatibility)
 - **Description:** Master academic chapter drafter and Persian rhetoric specialist. Formulates defense-ready thesis chapters (Ch 1–5), empirical journal articles, and clinical intervention protocols adhering to Saber's 5-part epistemic paragraph structure, natural cadence variability (CV >= 0.50), strict APA 7 presentation, results narrative, and deep psychological discussion.
 - **Active Skills Bound (10):** `list_dir`, `grep_search`, `find_by_name`, `persian-thesis-builder`, `persian-discussion-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `psychological-intervention-protocol-builder`, `journal-submission-assistant`, `persian-defense-presentation-builder`
 - **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
+
+### 23. `academic-challenger`
+- **Package Path:** `.agents/agents/academic-challenger/`
+- **Runtime Prompt:** `.agents/agents/academic-challenger/agent.md`
+- **Behavioral Contract:** [`.agents/agents/academic-challenger/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/academic-challenger/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent (Adversarial Critic)
+- **Description:** Specialist adversarial reviewer identifying methodology flaws, p-hacking, publication bias, unmeasured confounding, and statistical fragility before committee submission.
+- **Active Skills Bound (2):** `thesis-integrity-auditor`, `methodology-review`
+- **Tools Whitelist:** `view_file`, `list_dir`, `grep_search`, `find_by_name`, `write_to_file`
+

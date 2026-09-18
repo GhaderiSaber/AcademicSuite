@@ -14,9 +14,9 @@ In strict accordance with **Directive 12.1 (Sole Orchestrator Mandate)**, there 
 - **The Hands (43 Specialized Production Skills):** Deterministic Python/R scripts executed via `run_command` to perform exact statistical calculations, psychometrics, and OpenXML document generation without mental calculation or hallucination.
 - **Batch CLI Runner (`orchestrator_cli.py`):** Strictly a low-level CLI batch runner ("The Hands") for sequential script chaining on disk, never an autonomous agent orchestrator.
 
-### 🧠 Cognitive Specialists & Autonomous Subagents (22 Roles)
+### 🧠 Cognitive Specialists & Autonomous Subagents (23 Roles)
 
-The architecture establishes 22 persistent cognitive roles in `.agents/agents/` invoked via Antigravity's native `invoke_subagent` tool. Every role is equipped with an Option 1 directory package (`agent.md`, 12-section behavioral `contract.md`, and backward-compatible `<role>.md` symlink):
+The architecture establishes 23 persistent cognitive roles in `.agents/agents/` invoked via Antigravity's native `invoke_subagent` tool. Every role is equipped with an Option 1 directory package (`agent.md`, 12-section behavioral `contract.md`, and backward-compatible `<role>.md` symlink):
 
 #### Core Primary Roles (6)
 1. **`academic-orchestrator`**: Central multi-phase research coordinator and pipeline director.
@@ -43,6 +43,7 @@ The architecture establishes 22 persistent cognitive roles in `.agents/agents/` 
 20. **`intervention-designer`**: Clinical intervention protocol designer (ACT, CBT, Schema, CFT, MBSR) and manual compiler.
 21. **`data-curator`**: Missing data diagnosis (MCAR/MAR/MNAR), unengaged response filtering, and outlier screening ($D^2$).
 22. **`longitudinal-modmed-expert`**: 3-wave longitudinal moderated mediation modeling (Cole & Maxwell, Hayes Models 7/14 over time).
+23. **`academic-challenger`**: Adversarial methodology reviewer identifying flaws, p-hacking, publication bias, and unmeasured confounding.
 
 *(See [docs/AGENT_INVENTORY.md](docs/AGENT_INVENTORY.md) for complete 12-section behavioral contracts and tool configurations).*
 
