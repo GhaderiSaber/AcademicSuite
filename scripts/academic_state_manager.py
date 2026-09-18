@@ -43,6 +43,33 @@ try:
 except ImportError:
     jsonschema = None
 
+try:
+    from scripts.academic_event_engine import (
+        AcademicEventEngine,
+        EventError,
+        EventSchemaValidationError,
+        DuplicateEventError,
+        MalformedEventError,
+        EventOrderingError,
+        ArtifactEventMismatchError,
+        MissingArtifactEventError,
+        VALID_EVENT_TYPES,
+        compute_file_sha256,
+    )
+except ImportError:
+    from academic_event_engine import (
+        AcademicEventEngine,
+        EventError,
+        EventSchemaValidationError,
+        DuplicateEventError,
+        MalformedEventError,
+        EventOrderingError,
+        ArtifactEventMismatchError,
+        MissingArtifactEventError,
+        VALID_EVENT_TYPES,
+        compute_file_sha256,
+    )
+
 
 # ==============================================================================
 # Custom Exceptions (Fail-Closed Hierarchy)
@@ -258,6 +285,8 @@ class StrictStateMachine:
         self.artifacts_path = os.path.join(self.state_dir, "artifacts.json")
         self.pitfalls_path = os.path.join(self.state_dir, "pitfalls.jsonl")
 
+        self.event_engine = AcademicEventEngine(self.events_path, project_id=self.project_id)
+
         self.load_from_disk()
 
     def load_from_disk(self) -> None:
@@ -308,24 +337,31 @@ class StrictStateMachine:
             json.dump({"contract_version": "1.0.0", "artifacts": self.artifacts}, f, indent=2, ensure_ascii=False)
 
     def record_event(self, event_type: str, milestone_id: Optional[str] = None, stage_id: Optional[str] = None,
-                     emitter_agent: str = "academic-orchestrator", payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Appends an event conforming to contracts/event.schema.json to events.jsonl."""
-        now_iso = datetime.now(timezone.utc).isoformat()
-        evt_id = f"EVT-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
-        event_entry = {
-            "contract_version": "1.0.0",
-            "event_id": evt_id,
-            "event_type": event_type,
-            "timestamp": now_iso,
-            "project_id": self.project_id,
-            "milestone_id": milestone_id or "",
-            "stage_id": stage_id or "",
-            "emitter_agent": emitter_agent,
-            "payload": payload or {}
-        }
-        with open(self.events_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(event_entry, ensure_ascii=False) + "\n")
-        return event_entry
+                     emitter_agent: str = "academic-orchestrator", payload: Optional[Dict[str, Any]] = None,
+                     summary: Optional[str] = None) -> Dict[str, Any]:
+        """Appends an event conforming to contracts/event.schema.json to events.jsonl via AcademicEventEngine."""
+        p = payload or {}
+        event_summary = summary or p.get("summary") or f"Event {event_type} on milestone {milestone_id or 'global'}"
+        details = p.get("details", {k: v for k, v in p.items() if k not in ("summary", "artifact_ids", "metrics")})
+        artifact_ids = p.get("artifact_ids")
+        metrics = p.get("metrics")
+
+        # Map legacy transition event types if passed
+        canonical_event_type = event_type
+        if event_type == "MILESTONE_TRANSITIONED":
+            canonical_event_type = "MILESTONE_STARTED"
+
+        return self.event_engine.emit(
+            event_type=canonical_event_type,
+            emitter_agent=emitter_agent,
+            summary=event_summary,
+            milestone_id=milestone_id,
+            stage_id=stage_id,
+            artifact_ids=artifact_ids,
+            metrics=metrics,
+            details=details,
+            project_id=self.project_id
+        )
 
     def register_milestone(self, milestone_id: str, title: str, dependencies: Optional[List[str]] = None,
                            required_input_artifacts: Optional[List[str]] = None,
@@ -363,7 +399,9 @@ class StrictStateMachine:
         }
         self.milestones[milestone_id] = entry
         self.record_event("MILESTONE_STARTED", milestone_id=milestone_id, stage_id=current_stage,
-                          emitter_agent=active_agent, payload={"title": title})
+                          emitter_agent=active_agent,
+                          summary=f"Milestone '{milestone_id}' registered and started: {title}",
+                          payload={"details": {"title": title}})
         self.save_all()
         return entry
 
@@ -456,11 +494,40 @@ class StrictStateMachine:
         }
         current_data.setdefault("history", []).append(transition_record)
 
-        evt_type = f"MILESTONE_{target_enum.value}"
-        if evt_type not in ["MILESTONE_APPROVED", "MILESTONE_REJECTED", "MILESTONE_FAILED"]:
-            evt_type = "MILESTONE_TRANSITIONED"
-        self.record_event(evt_type, milestone_id=milestone_id, stage_id=current_data.get("current_stage"),
-                          emitter_agent=actor, payload={"from_state": current_enum.value, "to_state": target_enum.value, "rationale": rationale})
+        # Transition to valid event type mapping from contracts/event.schema.json
+        transition_event_map = {
+            MilestoneState.SCOPED: "MILESTONE_STARTED",
+            MilestoneState.PLANNED: "PLAN_CREATED",
+            MilestoneState.READY: "MILESTONE_STARTED",
+            MilestoneState.RUNNING: "EXECUTION_STARTED",
+            MilestoneState.VALIDATING: "VALIDATION_STARTED",
+            MilestoneState.AWAITING_APPROVAL: "MILESTONE_APPROVAL_REQUESTED",
+            MilestoneState.APPROVED: "MILESTONE_APPROVED",
+            MilestoneState.REJECTED: "MILESTONE_REJECTED",
+            MilestoneState.FAILED: "MILESTONE_FAILED",
+            MilestoneState.SUPERSEDED: "REVISION_REQUESTED",
+        }
+
+        # If transitioning from RUNNING to VALIDATING, emit EXECUTION_COMPLETED first
+        if current_enum == MilestoneState.RUNNING and target_enum == MilestoneState.VALIDATING:
+            self.record_event(
+                "EXECUTION_COMPLETED",
+                milestone_id=milestone_id,
+                stage_id=current_data.get("current_stage"),
+                emitter_agent=actor,
+                summary=f"Milestone '{milestone_id}' execution completed before validation.",
+                payload={"details": {"from_state": current_enum.value, "to_state": target_enum.value, "rationale": rationale}}
+            )
+
+        evt_type = transition_event_map.get(target_enum, "MILESTONE_STARTED")
+        self.record_event(
+            evt_type,
+            milestone_id=milestone_id,
+            stage_id=current_data.get("current_stage"),
+            emitter_agent=actor,
+            summary=f"Milestone '{milestone_id}' transitioned from {current_enum.value} to {target_enum.value}: {rationale or 'Transition recorded'}",
+            payload={"details": {"from_state": current_enum.value, "to_state": target_enum.value, "rationale": rationale}}
+        )
 
         self.save_all()
         return {
@@ -496,9 +563,14 @@ class StrictStateMachine:
             "milestone_state_snapshot": self.milestones[milestone_id]["status"]
         }
         self.approvals.append(approval_record)
-        self.record_event("MILESTONE_APPROVAL_REQUESTED", milestone_id=milestone_id,
-                          stage_id=self.milestones[milestone_id].get("current_stage"),
-                          emitter_agent=requester_agent, payload={"approval_id": approval_id, "category": category})
+        self.record_event(
+            "MILESTONE_APPROVAL_REQUESTED",
+            milestone_id=milestone_id,
+            stage_id=self.milestones[milestone_id].get("current_stage"),
+            emitter_agent=requester_agent,
+            summary=f"Approval requested for milestone '{milestone_id}' by {requester_agent}: {rationale}",
+            payload={"details": {"approval_id": approval_id, "category": category, "target_artifacts": target_artifacts or []}}
+        )
         self.save_all()
         return approval_record
 
@@ -536,9 +608,14 @@ class StrictStateMachine:
             "digital_signature_or_ack": digital_signature.strip()
         }
 
-        self.record_event("MILESTONE_APPROVED", milestone_id=mid,
-                          stage_id=self.milestones.get(mid, {}).get("current_stage"),
-                          emitter_agent=approver_identity, payload={"approval_id": approval_id})
+        self.record_event(
+            "MILESTONE_APPROVED",
+            milestone_id=mid,
+            stage_id=self.milestones.get(mid, {}).get("current_stage"),
+            emitter_agent=approver_identity,
+            summary=f"Approval '{approval_id}' granted for milestone '{mid}' by {approver_identity}: {comments or 'Granted'}",
+            payload={"details": {"approval_id": approval_id, "approver": approver_identity, "comments": comments}}
+        )
         self.save_all()
         return appr
 
@@ -563,23 +640,40 @@ class StrictStateMachine:
         if mid in self.milestones and self.milestones[mid]["status"] == MilestoneState.AWAITING_APPROVAL.value:
             self.transition_milestone(mid, MilestoneState.REJECTED, actor=approver_identity, rationale=comments)
 
-        self.record_event("MILESTONE_REJECTED", milestone_id=mid,
-                          stage_id=self.milestones.get(mid, {}).get("current_stage"),
-                          emitter_agent=approver_identity, payload={"approval_id": approval_id, "comments": comments})
+        self.record_event(
+            "MILESTONE_REJECTED",
+            milestone_id=mid,
+            stage_id=self.milestones.get(mid, {}).get("current_stage"),
+            emitter_agent=approver_identity,
+            summary=f"Approval '{approval_id}' rejected for milestone '{mid}' by {approver_identity}: {comments or 'Rejected'}",
+            payload={"details": {"approval_id": approval_id, "comments": comments}}
+        )
         self.save_all()
         return appr
 
     def register_artifact(self, artifact_id: str, milestone_id: str, stage_id: str,
                           artifact_type: str, path: str, schema: str = "",
-                          producer_agent: str = "statistics-agent", producer_script: str = "") -> Dict[str, Any]:
-        """Registers an artifact manifest in artifacts.json."""
+                          producer_agent: str = "statistics-agent", producer_script: str = "",
+                          provenance: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Registers an artifact manifest in artifacts.json and emits an ARTIFACT_CREATED event with full provenance."""
         full_path = path if os.path.isabs(path) else os.path.join(self.state_dir, path)
+        project_root = os.path.dirname(self.state_dir)
+        if not os.path.exists(full_path):
+            alt_path = os.path.join(project_root, path)
+            if os.path.exists(alt_path):
+                full_path = alt_path
+
         art_hash = ""
         if os.path.exists(full_path):
-            with open(full_path, "rb") as f:
-                art_hash = hashlib.sha256(f.read()).hexdigest()
+            art_hash = compute_file_sha256(full_path)
 
         now_iso = datetime.now(timezone.utc).isoformat()
+        prov = provenance or {
+            "source_dataset": "real_input",
+            "deterministic_tool": producer_script or "academic_state_manager.py",
+            "command_line": f"python3 {producer_script}" if producer_script else "internal"
+        }
+
         art_record = {
             "contract_version": "1.0.0",
             "artifact_id": artifact_id,
@@ -596,16 +690,64 @@ class StrictStateMachine:
             "hash": art_hash,
             "creation_timestamp": now_iso,
             "validation_status": "VALID" if art_hash else "PENDING",
-            "provenance": {
-                "generated_by_mode": "production"
-            },
+            "provenance": prov,
             "dependencies": []
         }
         self.artifacts.append(art_record)
-        self.record_event("ARTIFACT_CREATED", milestone_id=milestone_id, stage_id=stage_id,
-                          emitter_agent=producer_agent, payload={"artifact_id": artifact_id, "path": path})
+
+        if os.path.exists(full_path):
+            self.event_engine.emit_artifact_created(
+                artifact_id=artifact_id,
+                artifact_path=path,
+                milestone_id=milestone_id,
+                producer_agent=producer_agent,
+                producer_script=producer_script,
+                provenance=prov,
+                stage_id=stage_id,
+                summary=f"Artifact '{artifact_id}' ({artifact_type}) registered by {producer_agent}",
+                project_root=project_root
+            )
+        else:
+            self.record_event(
+                "ARTIFACT_CREATED",
+                milestone_id=milestone_id,
+                stage_id=stage_id,
+                emitter_agent=producer_agent,
+                summary=f"Artifact '{artifact_id}' ({artifact_type}) registered by {producer_agent} (file pending on disk)",
+                payload={
+                    "artifact_ids": [artifact_id],
+                    "details": {
+                        "artifact_id": artifact_id,
+                        "path": path,
+                        "hash": {"algorithm": "sha256", "value": ""},
+                        "milestone": milestone_id,
+                        "producer": {"agent": producer_agent, "script_or_generator": producer_script},
+                        "provenance": prov
+                    }
+                }
+            )
+
         self.save_all()
         return art_record
+
+    def verify_artifact_alignment(self, check_disk_files: bool = True,
+                                  scanned_disk_paths: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Verifies that all registered artifacts align with events.jsonl and physical disk state."""
+        project_root = os.path.dirname(self.state_dir)
+        return self.event_engine.verify_artifact_alignment(
+            self.artifacts,
+            project_root=project_root,
+            check_disk_files=check_disk_files,
+            scanned_disk_paths=scanned_disk_paths
+        )
+
+    def reconstruct_workflow(self) -> Dict[str, Any]:
+        """Reconstructs the full project workflow directly from events.jsonl."""
+        return self.event_engine.reconstruct_workflow()
+
+    def explain_transition(self, milestone_id: str, target_state: str) -> Dict[str, Any]:
+        """Explains the causal sequence of events justifying a milestone transition."""
+        return self.event_engine.explain_transition(milestone_id, target_state)
 
     def get_milestone_state(self, milestone_id: str) -> Dict[str, Any]:
         """Returns the current state dictionary for a milestone."""
@@ -838,6 +980,18 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
 
     # 7. Initialize and register default milestones in StrictStateMachine
     sm = StrictStateMachine(state_dir=state_dir, project_id=project_id)
+
+    # Emit PROJECT_CREATED event if not already present
+    existing_events = sm.event_engine.read_events(validate_schema=False, enforce_ordering=False)
+    if not any(e.get("event_type") == "PROJECT_CREATED" for e in existing_events):
+        sm.event_engine.emit(
+            "PROJECT_CREATED",
+            emitter_agent="academic-orchestrator",
+            summary=f"Project '{project_id}' initialized with {methodology.upper()} methodology framework.",
+            project_id=project_id,
+            details={"title": title, "methodology": methodology, "sample_size": n}
+        )
+
     if not sm.milestones:
         for m in DEFAULT_MILESTONES:
             sm.register_milestone(
