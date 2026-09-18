@@ -15,7 +15,7 @@ When presented with a prompt:
 1. The **Academic Orchestrator** analyzes the prompt using `scripts/academic_task_router.py`.
 2. The router identifies the exact required capabilities (e.g. `DATA`, `STATISTICS`, `WRITING`).
 3. The router generates an ordered, dependency-verified execution pipeline.
-4. Only the necessary specialist subagents (`data-agent`, `statistics-agent`, `writing-agent`, `research-agent`, `validation-agent`) are invoked via Antigravity's native `invoke_subagent`.
+4. Only the necessary specialist subagents (`data-agent`, `statistics-agent`, `academic-writer`, `research-agent`, `validation-agent`) are invoked via Antigravity's native `invoke_subagent`.
 5. Unneeded capabilities and agents are completely pruned.
 
 ---
@@ -42,7 +42,7 @@ The router is tuned against five canonical academic research archetypes:
    - **Rationale**: Requires dataset ingestion, reverse-coding, missing value screening (`data-agent`), followed by sample descriptives, reliability, and inferential tests (`statistics-agent`). Does not trigger writing or formal defense validation unless requested.
 2. **"Write Chapter 4"**
    - **Formula**: `STATISTICS + WRITING + VALIDATION`
-   - **Rationale**: Drafting findings requires certified statistical models (`statistics-agent`), scholarly APA 7 prose drafting (`writing-agent`), and mandatory adversarial verification of degrees of freedom and APA tables (`validation-agent`).
+   - **Rationale**: Drafting findings requires certified statistical models (`statistics-agent`), scholarly APA 7 prose drafting (`academic-writer`), and mandatory adversarial verification of degrees of freedom and APA tables (`validation-agent`).
 3. **"Find research gaps"**
    - **Formula**: `RESEARCH + METHODOLOGY`
    - **Rationale**: Investigates existing empirical literature across PubMed/CrossRef (`research-agent`), identifies theoretical contradictions, and formulates rigorous research questions and methodological safeguards (`research-agent`).
@@ -84,7 +84,7 @@ Every capability maps directly to a specialist subagent, a primary Skill, and ex
 | **`DATA`** | `data-agent` | `data-cleaning` | `projects/*/01_raw_inputs/*` | `academic-state/data/data_quality.json` |
 | **`NETWORK-ANALYSIS`** | `statistics-agent` | `network-analysis` | `academic-state/data/data_dictionary.json` | `academic-state/analysis/network_results.json` |
 | **`STATISTICS`** | `statistics-agent` | `sem` | `academic-state/data/data_quality.json` | `academic-state/analysis/sem.json` |
-| **`WRITING`** | `writing-agent` | `chapter-4-writing` | `academic-state/analysis/sem.json` | `academic-state/outputs/Chapter_4_Results.docx` |
+| **`WRITING`** | `academic-writer` | `chapter-4-writing` | `academic-state/analysis/sem.json` | `academic-state/outputs/Chapter_4_Results.docx` |
 | **`VALIDATION`** | `validation-agent` | `thesis-integrity-auditor` | `academic-state/outputs/*` | `academic-state/validation/statistical_validation.json` |
 
 ---

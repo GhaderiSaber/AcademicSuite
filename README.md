@@ -23,7 +23,7 @@ The architecture establishes 23 persistent cognitive roles in `.agents/agents/` 
 2. **`research-agent`**: Scientific literature harvesting, research question formulation, and G*Power methodology specification.
 3. **`data-agent`**: Raw dataset ingestion, data discovery, schema mapping, and reverse-coding from 4,880 validated instruments.
 4. **`statistics-agent`**: Inferential statistical modeling (ANCOVA, RM-ANOVA, PROCESS mediation, SEM), APA 7 tables, and 300-DPI figures.
-5. **`writing-agent`**: Master academic chapter drafter and Persian rhetoric specialist using Saber's 5-part epistemic paragraph structure.
+5. **`academic-writer`**: Master academic chapter drafter and Persian rhetoric specialist using Saber's 5-part epistemic paragraph structure.
 6. **`validation-agent`**: Independent adversarial quality auditor, Viva Voce defense simulator, and institutional gatekeeper.
 
 #### Specialized Domain Roles (16)
@@ -32,7 +32,7 @@ The architecture establishes 23 persistent cognitive roles in `.agents/agents/` 
 9. **`statistical-expert`**: Statistical analysis planning and parametric assumption verification sequences.
 10. **`statistical-auditor`**: Adversarial quality auditor for statistical assumptions, degrees of freedom concordance, and MSAI scoring.
 11. **`results-auditor`**: Quality control auditor enforcing APA 7th Edition precision, Persian leading zero rule, and 3-line tables.
-12. **`academic-writer`**: Master academic chapter drafter specializing in thesis chapters and empirical journal articles.
+12. **`academic-challenger`**: Adversarial methodology challenger, detecting p-hacking, assumption violations, and sample leakage.
 13. **`literature-expert`**: Multi-database literature harvesting, empirical parameter extraction, and theoretical synthesis.
 14. **`evidence-auditor`**: Epistemic integrity auditor verifying in-text citations vs. bibliography and Irandoc similarity (< 20%).
 15. **`final-judge`**: Final dissertation defense committee simulator, viva voce cross-examiner, and release gatekeeper.

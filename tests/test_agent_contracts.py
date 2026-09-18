@@ -54,8 +54,7 @@ EXPECTED_ROLES = [
     "statistical-auditor",
     "statistical-expert",
     "statistics-agent",
-    "validation-agent",
-    "writing-agent"
+    "validation-agent"
 ]
 
 

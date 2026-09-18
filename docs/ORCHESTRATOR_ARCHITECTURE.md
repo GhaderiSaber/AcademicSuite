@@ -12,7 +12,7 @@ The Academic Orchestrator serves as the **master conductor** and cognitive lead 
 1. **The Orchestrator Does NOT Contain Every Statistical Method**: The Orchestrator does not embed statistical formulas, regression algorithms, or psychometric calculations in its context.
 2. **Skills are the Procedures ("The Method")**: Explicit methodologies, checklists, and commands reside in `.agents/skills/` (< 500 lines, < 40 KB per Directive 18).
 3. **Python & R Scripts are the Instruments ("The Hands")**: Deterministic computation is strictly executed via CLI scripts (`python3`, `Rscript`).
-4. **Subagents are the Specialist Workers ("The Brains")**: Autonomous domain agents (`data-agent`, `statistics-agent`, `writing-agent`, `validation-agent`, `research-agent`) execute bounded tasks in isolated contexts.
+4. **Subagents are the Specialist Workers ("The Brains")**: Autonomous domain agents (`data-agent`, `statistics-agent`, `academic-writer`, `validation-agent`, `research-agent`) execute bounded tasks in isolated contexts.
 5. **Antigravity is the Sole Conductor (Directive 12.1)**: Orchestration occurs natively through Antigravity's `invoke_subagent` tool. Standalone Python agent dispatchers or loop emulators are strictly prohibited.
 
 ---
@@ -68,8 +68,8 @@ The Orchestrator resolves task requirements using the deterministic registry in 
 | `mediation` | Bootstrap 5,000 resamples, 95% BCa CI | `mediation` | `statistics-agent` | `mediation.json` |
 | `moderation` | PROCESS Model 1, simple slopes | `moderation` | `statistics-agent` | `moderation.json` |
 | `regression` | Multiple hierarchical regression | `regression` | `statistics-agent` | `regression.json` |
-| `apa_reporting` | APA 7 3-line tables, Persian leading zero | `apa-reporting` | `writing-agent` | Table `.docx` + `.md` |
-| `chapter_4_writing` | Findings narrative, One-Hypothesis-One-Stage | `chapter-4-writing` | `writing-agent` | Triad artifacts |
+| `apa_reporting` | APA 7 3-line tables, Persian leading zero | `apa-reporting` | `academic-writer` | Table `.docx` + `.md` |
+| `chapter_4_writing` | Findings narrative, One-Hypothesis-One-Stage | `chapter-4-writing` | `academic-writer` | Triad artifacts |
 | `literature_review` | Theoretical synthesis, empirical tables | `literature-review` | `research-agent` | Chapter 2 draft |
 | `methodology_review` | Design validity, G*Power sampling | `methodology-review` | `research-agent` | Chapter 3 draft |
 | `validation_audit` | Independent audit of df, data, stats | `thesis-integrity-auditor`| `validation-agent`| `validation_report.json`|

@@ -26,12 +26,12 @@ Over previous iterations, the suite underwent major enhancements:
 ### Key Paradigm Alignment: Dynamic Delegation vs. Rigid Pipeline
 As correctly articulated in the target vision:
 > **Academic Suite must NOT enforce a rigid, fixed linear pipeline (`Research → Data → Statistics → Writing`).**  
-> Instead, all specialist agents (`research-agent`, `data-agent`, `statistics-agent`, `writing-agent`, `validation-agent`) must be exposed as modular, contract-bound subagents to the **Academic Orchestrator**. The Orchestrator leverages Google Antigravity's native multi-agent orchestration (`invoke_subagent`) to dynamically assemble only the agents and skills required for any specific task.
+> Instead, all specialist agents (`research-agent`, `data-agent`, `statistics-agent`, `academic-writer`, `validation-agent`) must be exposed as modular, contract-bound subagents to the **Academic Orchestrator**. The Orchestrator leverages Google Antigravity's native multi-agent orchestration (`invoke_subagent`) to dynamically assemble only the agents and skills required for any specific task.
 
 For example, when given:
 > *"Analyze these data and produce Chapter 4 according to the research questions."*
 
-The Orchestrator dynamically identifies that `data-agent`, `statistics-agent`, `writing-agent`, and `validation-agent` are necessary, while completely bypassing irrelevant agents (such as `research-agent`, `literature-expert`, `qualitative-analyst`, or `intervention-designer`).
+The Orchestrator dynamically identifies that `data-agent`, `statistics-agent`, `academic-writer`, and `validation-agent` are necessary, while completely bypassing irrelevant agents (such as `research-agent`, `literature-expert`, `qualitative-analyst`, or `intervention-designer`).
 
 ---
 
@@ -39,7 +39,7 @@ The Orchestrator dynamically identifies that `data-agent`, `statistics-agent`, `
 
 | Component | Target Architecture | Current Physical Location | Status & Harmonization Plan |
 | :--- | :--- | :--- | :--- |
-| **Agents** | `.agents/agents/`<br>• `academic-orchestrator/`<br>• `research-agent/`<br>• `data-agent/`<br>• `statistics-agent/`<br>• `writing-agent/`<br>• `validation-agent/` | `.agents/agents/*.md`<br>+ `agents/` root directory with symlinks/folders for the 6 core roles. | **CONVERGED (Enhanced)**: All 6 core roles exist, plus 15 domain specialists. Can be modularized into directory packages or retained with clean frontmatter specs. |
+| **Agents** | `.agents/agents/`<br>• `academic-orchestrator/`<br>• `research-agent/`<br>• `data-agent/`<br>• `statistics-agent/`<br>• `academic-writer/`<br>• `validation-agent/` | `.agents/agents/*.md`<br>+ `agents/` root directory with symlinks/folders for the 6 core roles. | **CONVERGED (Enhanced)**: All 6 core roles exist, plus 16 domain specialists. Packaged as canonical directory packages. |
 | **Skills** | `.agents/skills/`<br>• `data-audit/`<br>• `descriptive-statistics/`<br>• `reliability/`<br>• `regression/`<br>• `mediation/`<br>• `moderation/`<br>• `cfa/`<br>• `sem/`<br>• `network-analysis/`<br>• `literature-review/`<br>• `apa-reporting/` | `.agents/skills/` (53 modular skill packages). | **CONVERGED**: All 11 target skills exist (along with expanded capabilities). All comply with Directive 18 single-view ceilings. |
 | **Rules** | `.agents/rules/`<br>• `academic-integrity.md`<br>• `data-integrity.md`<br>• `project-conventions.md` | `.agents/rules/*.md`<br>• `persian_font_rules.md`<br>• `file_naming_rules.md`<br>• `radical_honesty...md`<br>• `chapter4_hypothesis...md`<br>• `git_lifecycle_rules.md`<br>• `digital_twin_rules.md` | **HARMONIZATION NEEDED**: The rules are currently distributed into 6 specialized files. They can be cleanly synthesized or aliased into the 3 canonical files (`academic-integrity.md`, `data-integrity.md`, `project-conventions.md`). |
 | **Hooks** | `.agents/hooks/` | `.agents/hooks.json`<br>+ `.agents/verification/` scripts. | **NEAR TARGET**: Currently implemented via standard Antigravity `.agents/hooks.json` referencing Python guards. Can create `.agents/hooks/` directory to hold standalone hook scripts. |
@@ -108,7 +108,7 @@ Antigravity's native subagent architecture (`invoke_subagent`) operates as a **h
       │ - Literature required? NO  → Bypass research-agent   │
       │ - Data curation needed? YES → Invoke data-agent       │
       │ - Modeling needed? YES      → Invoke statistics-agent │
-      │ - Findings narrative? YES   → Invoke writing-agent    │
+      │ - Findings narrative? YES   → Invoke academic-writer  │
       │ - Independent audit? YES    → Invoke validation-agent │
       └───────────────────────────┬───────────────────────────┘
                                   │
@@ -116,9 +116,10 @@ Antigravity's native subagent architecture (`invoke_subagent`) operates as a **h
          │                        │                        │
          ▼ (1)                    ▼ (2)                    ▼ (3)
   ┌──────────────┐         ┌──────────────┐         ┌──────────────┐
-  │  data-agent  │         │  statistics- │         │writing-agent │
-  │ (Data Audit, │         │    agent     │         │ (5-Part APA, │
-  │  Curate, N)  │         │ (SEM, Regr)  │         │  Triad DOCX) │
+  │  data-agent  │         │  statistics- │         │academic-     │
+  │ (Data Audit, │         │    agent     │         │  writer      │
+  │  Curate, N)  │         │ (SEM, Regr)  │         │ (5-Part APA, │
+  │              │         │              │         │  Triad DOCX) │
   └──────┬───────┘         └──────┬───────┘         └──────┬───────┘
          │                        │                        │
          ▼ Checkpoint             ▼ Checkpoint             ▼ Checkpoint
@@ -158,9 +159,9 @@ Antigravity's native subagent architecture (`invoke_subagent`) operates as a **h
   - `research-agent.md`: Literature harvester, PICO formulator, methodology designer.
   - `data-agent.md`: Raw dataset auditor, missing data patterns, reverse-coding, unengaged response screener.
   - `statistics-agent.md`: Parametric assumptions, regression, mediation, moderation, CFA, SEM, repeated measures.
-  - `writing-agent.md`: 5-part epistemic Persian paragraph drafter, APA 7 tables, OpenXML Word compiler.
+  - `academic-writer.md`: 5-part epistemic Persian paragraph drafter, APA 7 tables, OpenXML Word compiler.
   - `validation-agent.md`: Adversarial quality auditor, numerical consistency checker, reporting compliance, Viva Voce simulator.
-- **15 Domain Specialist Roles**: Available for deep niche requirements (e.g. `psychometric-expert`, `meta-analyst`, `qualitative-analyst`, `longitudinal-modmed-expert`, `intervention-designer`, `journal-strategist`).
+- **16 Domain Specialist Roles**: Available for deep niche requirements (e.g. `psychometric-expert`, `meta-analyst`, `qualitative-analyst`, `academic-challenger`, `longitudinal-modmed-expert`, `intervention-designer`, `journal-strategist`).
 - **Audit Finding**: The agent layer is fully defined, conforms to constitutional directives, and correctly supports both broad multi-agent tasks and narrow specialist inquiries.
 
 ### 5.2 The Skills Layer (`.agents/skills/`)

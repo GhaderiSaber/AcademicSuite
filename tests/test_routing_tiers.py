@@ -27,8 +27,8 @@ class TestRoutingTiers(unittest.TestCase):
         tasks = [
             ("Compute descriptive statistics for sample of 120 students", "statistics-agent"),
             ("Reverse-code items and screen missing data using MCAR", "data-agent"),
-            ("Format APA 7 three-line table with Persian typography", "writing-agent"),
-            ("Draft findings narrative for hypothesis 1", "writing-agent"),
+            ("Format APA 7 three-line table with Persian typography", "academic-writer"),
+            ("Draft findings narrative for hypothesis 1", "academic-writer"),
             ("Audit degrees of freedom and check statistical consistency", "validation-agent")
         ]
         for query, expected_agent in tasks:

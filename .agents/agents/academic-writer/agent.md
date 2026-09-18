@@ -23,8 +23,12 @@ skills:
   - persian-literature-review-builder
   - persian-discussion-builder
   - persian-thesis-builder
+  - academic-article-writer
   - ai-academic-tone-polisher
   - apa-reporting
+  - psychological-intervention-protocol-builder
+  - journal-submission-assistant
+  - persian-defense-presentation-builder
 agents:
   - research-agent
   - literature-expert

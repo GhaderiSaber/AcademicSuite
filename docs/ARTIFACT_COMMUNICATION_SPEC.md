@@ -14,7 +14,7 @@ In complex multi-agent academic workflows (such as dissertation analysis, psycho
 ### The Artifact-First Solution
 - **The Producers ("The Hands")**: Execute deterministic Python/R scripts, write exact structured results to disk in `academic-state/`.
 - **The Handoff Envelope**: Subagents emit lightweight pointer envelopes containing execution status, artifact paths, and high-level summaries.
-- **The Consumers**: Downstream agents (`writing-agent`, `validation-agent`, `digital-saber`) inspect artifacts directly via `view_file` or CLI commands.
+- **The Consumers**: Downstream agents (`academic-writer`, `validation-agent`, `digital-saber`) inspect artifacts directly via `view_file` or CLI commands.
 - **The Single Source of Truth**: The physical `academic-state/` directory maintains the verified state of the research project.
 
 ---
@@ -92,7 +92,7 @@ When an Antigravity subagent finishes an execution micro-stage, it returns a **l
 ```
 
 ### Downstream Consumer Consumption
-1. **Writing Agent (`writing-agent`)**:
+1. **Writing Agent (`academic-writer`)**:
    - Calls `view_file` on `academic-state/analysis/sem.json`.
    - Extracts exact $\beta$, $t$, and $p$-values.
    - Formulates APA 7 narrative and 3-line tables adhering to Persian leading zero standard (`۰.۰۰۱ > p`).

@@ -7,15 +7,17 @@ This guide documents the orchestration architecture, inter-skill data exchange c
 
 ## 1. Architectural Overview & Design Philosophy
 
-The AcademicSuite comprises 18 specialized, domain-tailored skills covering the complete academic research lifecycle in psychology, counseling, educational assessment, and behavioral sciences.
+The AcademicSuite comprises 43 specialized production capabilities and deterministic skills covering the complete academic research lifecycle in psychology, counseling, educational assessment, and behavioral sciences.
 
-The **AcademicSuite Orchestrator (`academic-suite-orchestrator`)** serves as the **Master Automation Engine** (مهندس و فرمانده پایپ‌لاین‌های پژوهشی). It connects individual atomic skills into cohesive, automated, and reproducible research workflows.
+> **Architectural Boundary (Directive 12.1 — Sole Orchestrator Mandate)**:  
+> **Google Antigravity and the `academic-orchestrator` cognitive agent are the sole multi-agent orchestrators**.  
+> The `academic-suite-orchestrator` skill is strictly **"The Hands"**: a deterministic CLI runner (`orchestrator_cli.py`) that chains sequential Python/R script executions, validates disk artifacts, tracks manifests, and generates dashboard tables. It does **NOT** select agents, conduct deliberation, or manage multi-agent communication.
 
 ```
                            [Project Config (JSON)]
                                       │
                                       ▼
-                      [Master Orchestrator Engine]
+                   [Deterministic CLI Batch Runner ("The Hands")]
                                       │
         ┌─────────────────────────────┼─────────────────────────────┐
         ▼                             ▼                             ▼
@@ -96,14 +98,14 @@ The Orchestrator automatically handles state transfers between upstream and down
 
 | Upstream Producer | Produced Artifact | Downstream Consumer | Ingested Parameter / Role |
 | :--- | :--- | :--- | :--- |
-| `persian-proposal-builder` | `پروپوزال_تست.docx` | `persian-thesis-builder` | Supplies Chapter 1 problem statement & Chapter 3 methodology. |
+| `persian-proposal-builder` | `proposal_draft.docx` | `persian-thesis-builder` | Supplies Chapter 1 problem statement & Chapter 3 methodology. |
 | `psychometric-data-simulator` | `simulated_dataset.xlsx` | `statistical-data-analyst` | Primary raw empirical survey dataset (`--data`). |
 | `statistical-data-analyst` | `stats_results.json` | `persian-discussion-builder` | Ingested via `--stats-json` to populate confirmed/rejected hypotheses. |
-| `statistical-data-analyst` | `فصل_چهارم_یافته‌های_پژوهش.docx` | `persian-thesis-builder` | Ingested via `--ch4` in full thesis assembly. |
-| `persian-discussion-builder` | `فصل_پنجم_تست.docx` | `persian-thesis-builder` | Ingested via `--ch5` in full thesis assembly. |
-| `persian-thesis-builder` | `رساله_کامل.docx` | `persian-defense-presentation-builder` | Source document for defense slides and candidate speaker notes. |
-| `persian-thesis-builder` | `رساله_کامل.docx` | `academic-article-writer` | Source document for condensing into journal article. |
-| `academic-article-writer` | `مقاله_علمی_پژوهشی.docx` | `journal-submission-assistant` | Target manuscript for cover letter & highlights extraction. |
+| `statistical-data-analyst` | `chapter_4_findings.docx` | `persian-thesis-builder` | Ingested via `--ch4` in full thesis assembly. |
+| `persian-discussion-builder` | `chapter_5_discussion.docx` | `persian-thesis-builder` | Ingested via `--ch5` in full thesis assembly. |
+| `persian-thesis-builder` | `thesis_full.docx` | `persian-defense-presentation-builder` | Source document for defense slides and candidate speaker notes. |
+| `persian-thesis-builder` | `thesis_full.docx` | `academic-article-writer` | Source document for condensing into journal article. |
+| `academic-article-writer` | `academic_article.docx` | `journal-submission-assistant` | Target manuscript for cover letter & highlights extraction. |
 
 ---
 

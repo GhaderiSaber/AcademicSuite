@@ -36,7 +36,7 @@ class TestAcademicOrchestrator(unittest.TestCase):
 
         apa_res = odr.resolve_capability("Format APA 7 three line tables with Persian font")
         self.assertEqual(apa_res["skill"], "apa-reporting")
-        self.assertEqual(apa_res["agent"], "writing-agent")
+        self.assertEqual(apa_res["agent"], "academic-writer")
 
         lit_res = odr.resolve_capability("Synthesize literature review from pubmed and crossref")
         self.assertEqual(lit_res["skill"], "literature-review")

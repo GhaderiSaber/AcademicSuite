@@ -91,13 +91,13 @@ CAPABILITY_REGISTRY = {
     "apa_reporting": {
         "description": "APA 7 3-line tables, statistical symbol italicization, Persian leading zero",
         "skill": "apa-reporting",
-        "agent": "writing-agent",
+        "agent": "academic-writer",
         "tools": ["view_file", "write_to_file"]
     },
     "chapter_4_writing": {
         "description": "Chapter 4 findings narration, One-Hypothesis-One-Stage micro-stages",
         "skill": "chapter-4-writing",
-        "agent": "writing-agent",
+        "agent": "academic-writer",
         "tools": ["view_file", "write_to_file"]
     },
     "literature_review": {

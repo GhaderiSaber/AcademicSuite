@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary & Validation Mandate
 
-In autonomous agent pipelines, allowing generator agents (`writing-agent`, `statistics-agent`) to evaluate their own work creates circular confirmation bias, unchecked hallucinations, and corrupted deliverables.
+In autonomous agent pipelines, allowing generator agents (`academic-writer`, `statistics-agent`) to evaluate their own work creates circular confirmation bias, unchecked hallucinations, and corrupted deliverables.
 
 Under **Phase 8**, the Academic Suite establishes an independent, adversarial validation layer consisting of:
 1. **`validation-agent`:** The cognitive evaluator and Viva Voce defense committee simulator.
@@ -17,7 +17,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
 ```text
 +-----------------------------------------------------------------------------+
 |                            PRODUCER AGENT                                   |
-|   (e.g. statistics-agent, writing-agent, data-agent)                        |
+|   (e.g. statistics-agent, academic-writer, data-agent)                      |
 |                                                                             |
 |                     Generates physical candidate artifacts:                 |
 |                     - sem_results.json / data_cleaned.xlsx                  |

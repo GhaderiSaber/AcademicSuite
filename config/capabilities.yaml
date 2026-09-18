@@ -627,7 +627,7 @@ capabilities:
       - "chapter-4-writing"
       - "apa-reporting"
       - "thesis-integrity-auditor"
-    primary_agent: "writing-agent"
+    primary_agent: "academic-writer"
     execution_worker: "academic-writer"
     reviewer: "results-auditor"
     challenger: "academic-challenger"
@@ -663,7 +663,7 @@ capabilities:
     required_skills:
       - "persian-discussion-builder"
       - "ai-academic-tone-polisher"
-    primary_agent: "writing-agent"
+    primary_agent: "academic-writer"
     execution_worker: "academic-writer"
     reviewer: "results-auditor"
     challenger: "academic-challenger"
@@ -693,7 +693,7 @@ capabilities:
       - "\\bاسلایدهای?\\s+دفاع\\b"
     required_skills:
       - "persian-defense-presentation-builder"
-    primary_agent: "writing-agent"
+    primary_agent: "academic-writer"
     execution_worker: "academic-writer"
     reviewer: "results-auditor"
     challenger: "academic-challenger"

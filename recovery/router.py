@@ -127,12 +127,12 @@ def route_failure(
 
     elif ft == FailureType.VALIDATION.value:
         plan = {
-            "assigned_handler": "writing-agent",
+            "assigned_handler": "academic-writer",
             "handler_type": "subagent",
             "strategy": RecoveryStrategy.DELEGATE_WRITING_AGENT.value,
             "target_stage": stage_id,
             "remediation_action": (
-                f"Writing Agent must repair formatting/typography errors: eliminate prohibited 'p = .000' (enforce '۰.۰۰۱ > p'), "
+                f"Academic Writer must repair formatting/typography errors: eliminate prohibited 'p = .000' (enforce '۰.۰۰۱ > p'), "
                 f"restore Persian leading zero ('۰.۰۵'), or format missing tables according to the 3-Table Standard without re-estimating statistics."
             ),
             "remediation_command": None,

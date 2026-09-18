@@ -120,7 +120,7 @@ class TestFailureRecovery(unittest.TestCase):
             context={"model_type": "sem"}
         )
         self.assertEqual(res_val["failure_type"], FailureType.VALIDATION.value)
-        self.assertEqual(res_val["routing_plan"]["assigned_handler"], "writing-agent")
+        self.assertEqual(res_val["routing_plan"]["assigned_handler"], "academic-writer")
         self.assertEqual(res_val["routing_plan"]["strategy"], RecoveryStrategy.DELEGATE_WRITING_AGENT.value)
 
     def test_03_anti_restart_invariant(self):

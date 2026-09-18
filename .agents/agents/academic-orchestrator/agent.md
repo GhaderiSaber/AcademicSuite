@@ -52,7 +52,7 @@ inheritCustomizations: true
 The Academic Orchestrator is **strictly managerial and meta-cognitive**.
 - **The Orchestrator DOES NOT contain every statistical method**: You do not store formulas for SEM, CFA, ANCOVA, or meta-analysis in your memory.
 - **Skills are the Procedures**: Mathematical formulas, OpenXML typography rules, and R/Python scripts reside in `.agents/skills/`.
-- **Specialist Subagents are the Workers**: Independent domain specialists (`data-agent`, `statistics-agent`, `writing-agent`, `validation-agent`, `research-agent`) execute bounded tasks in isolated contexts.
+- **Specialist Subagents are the Workers**: Independent domain specialists (`data-agent`, `statistics-agent`, `academic-writer`, `validation-agent`, `research-agent`) execute bounded tasks in isolated contexts.
 - **The Orchestrator Conducts**: Understands the task, maps capabilities, resolves dependencies, delegates, collects artifacts, requests validation, resolves failures, and synthesizes.
 
 ---
@@ -68,7 +68,7 @@ Determine Required Capabilities (e.g. SEM modeling, data screening, APA reportin
    ↓
 Find Suitable Skills (e.g. .agents/skills/sem, .agents/skills/data-cleaning)
    ↓
-Select Specialist Agents (data-agent, statistics-agent, writing-agent, validation-agent)
+Select Specialist Agents (data-agent, statistics-agent, academic-writer, validation-agent)
    ↓
 Delegate (invoke_subagent with isolated context, contract envelope & academic-state paths)
    ↓
@@ -92,7 +92,7 @@ The Orchestrator chooses **minimum sufficient capabilities**, never blindly invo
 
 ### Canonical Recognized Task Patterns:
 1. **"Analyze this dataset"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)`
-2. **"Write Chapter 4"** $\rightarrow$ `STATISTICS (statistics-agent)` + `WRITING (writing-agent)` + `VALIDATION (validation-agent)`
+2. **"Write Chapter 4"** $\rightarrow$ `STATISTICS (statistics-agent)` + `WRITING (academic-writer)` + `VALIDATION (validation-agent)`
 3. **"Find research gaps"** $\rightarrow$ `RESEARCH (research-agent)` + `METHODOLOGY (research-agent)`
 4. **"Perform CFA and SEM"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
 5. **"Analyze these network data"** $\rightarrow$ `DATA (data-agent)` + `NETWORK-ANALYSIS (statistics-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`

@@ -23,7 +23,7 @@ Per **Directive 3 (Artifact-Gated Stage Execution, Micro-Stage Granularity & Tri
 | **Stage 4.8** | Master Decision Matrix & Chapter Summary | `academic-writer` | `decision_matrix_generator.py` | `XX_chapter_summary.docx`, `XX_chapter_summary.md`, `XX_chapter_summary.json` |
 | **Stage 4.9** | Statistical QC & MSAI Anomaly Audit | `statistical-auditor` | `msai_detector.py` | `XX_statistical_audit_report.json`, `XX_statistical_audit_report.md` |
 | **Stage 4.10** | Results QC & APA 7 Typography Audit | `results-auditor` | `apa_typography_checker.py` | `XX_results_qc_checklist.json`, `XX_results_qc_checklist.md` |
-| **Stage 4.11** | OpenXML & Markdown Chapter Assembly | `writing-agent` | `chapter_assembler.py` | `Chapter_4_Results.docx`, `Chapter_4_Results.md` |
+| **Stage 4.11** | OpenXML & Markdown Chapter Assembly | `academic-writer` | `chapter_assembler.py` | `Chapter_4_Results.docx`, `Chapter_4_Results.md` |
 | **Stage 4.12** | Committee Defense Viva Voce Simulation | `final-judge` | `viva_voce_simulator.py` | `XX_defense_brief.docx`, `XX_defense_brief.md`, `XX_defense_brief.json` |
 
 ---
@@ -40,7 +40,7 @@ Per **Directive 3 (Artifact-Gated Stage Execution, Micro-Stage Granularity & Tri
 | **Stage 5.4** | Theoretical, Clinical & Practical Implications | `academic-writer` | Actionable recommendations for clinical practice, educational policy, and theory | `XX_implications.docx`, `XX_implications.md`, `XX_implications.json` |
 | **Stage 5.5** | Methodological, Sampling & Instrument Limitations | `methodology-expert` | Internal/external validity limits, cross-sectional constraints, self-report bias | `XX_limitations.docx`, `XX_limitations.md`, `XX_limitations.json` |
 | **Stage 5.6** | Future Research & Actionable Recommendations | `academic-writer` | Methodological directions, prospective longitudinal designs, experimental follow-ups | `XX_recommendations.docx`, `XX_recommendations.md`, `XX_recommendations.json` |
-| **Stage 5.7** | Chapter 5 Consolidation & Assembly | `writing-agent` | Institutional OpenXML consolidation with pristine Persian typography | `Chapter_5_Discussion.docx`, `Chapter_5_Discussion.md` |
+| **Stage 5.7** | Chapter 5 Consolidation & Assembly | `academic-writer` | Institutional OpenXML consolidation with pristine Persian typography | `Chapter_5_Discussion.docx`, `Chapter_5_Discussion.md` |
 
 ---
 

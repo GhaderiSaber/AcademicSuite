@@ -23,11 +23,11 @@ In accordance with **Phase 4 (Design Agent Contracts)** of the Academic Suite Ar
 - [research-agent](../../.agents/agents/research-agent/contract.md): Literature harvesting, research questions & design.
 - [data-agent](../../.agents/agents/data-agent/contract.md): Data ingestion, Little's MCAR & screening.
 - [statistics-agent](../../.agents/agents/statistics-agent/contract.md): Statistical modeling, R/Python calculation & tables.
-- [writing-agent](../../.agents/agents/writing-agent/contract.md): 5-part epistemic chapter prose & APA 7 presentation.
+- [academic-writer](../../.agents/agents/academic-writer/contract.md): Master chapter drafter, Persian rhetoric & 5-part epistemic structure.
 - [validation-agent](../../.agents/agents/validation-agent/contract.md): Adversarial quality gatekeeper & Viva Voce defense simulation.
 
 ### Specialized Domain Agents
-- [academic-writer](../../.agents/agents/academic-writer/contract.md): Master chapter drafter and Persian academic prose specialist.
+- [academic-challenger](../../.agents/agents/academic-challenger/contract.md): Adversarial methodology challenger, detecting p-hacking, bias & statistical fragility.
 - [data-curator](../../.agents/agents/data-curator/contract.md): Deep missingness and Mahalanobis D2 outlier specialist.
 - [digital-saber](../../.agents/agents/digital-saber/contract.md): Cognitive Twin of Saber Ghaderi & project principal.
 - [evidence-auditor](../../.agents/agents/evidence-auditor/contract.md): In-text citation reconciliation & Irandoc audit.

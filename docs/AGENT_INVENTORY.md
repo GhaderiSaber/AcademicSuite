@@ -1,7 +1,7 @@
 # Agent Inventory & Cognitive Role Audit
 
 **Document Version:** 2.1.0 (Target Architecture Complete)  
-**Total Agents Defined:** 23  
+**Total Agents Defined:** 22  
 **Runtime Architecture:** Antigravity Native Multi-Agent System (`invoke_subagent`)  
 **Behavioral Contracts:** 100% of agents possess a verified 12-section `contract.md`  
 
@@ -25,7 +25,7 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 | :--- | :--- | :--- | :--- |
 | Domain Specialist Subagent | `academic-challenger` | Adversarial methodology, bias & statistical challenger | [contract.md](../../.agents/agents/academic-challenger/contract.md) |
 | Core Primary Agent (Phase 3) | `academic-orchestrator` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/academic-orchestrator/contract.md) |
-| Domain Specialist Subagent | `academic-writer` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/academic-writer/contract.md) |
+| Core Primary Agent (Phase 3) | `academic-writer` | Master academic chapter drafter, Persian rhetoric specialist & durable writing authority | [contract.md](../../.agents/agents/academic-writer/contract.md) |
 | Core Primary Agent (Phase 3) | `data-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/data-agent/contract.md) |
 | Domain Specialist Subagent | `data-curator` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/data-curator/contract.md) |
 | Domain Specialist Subagent | `digital-saber` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/digital-saber/contract.md) |
@@ -45,7 +45,6 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 | Domain Specialist Subagent | `statistical-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/statistical-expert/contract.md) |
 | Core Primary Agent (Phase 3) | `statistics-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/statistics-agent/contract.md) |
 | Core Primary Agent (Phase 3) | `validation-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/validation-agent/contract.md) |
-| Core Primary Agent (Phase 3) | `writing-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/writing-agent/contract.md) |
 
 ---
 
@@ -64,9 +63,9 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 - **Package Path:** `.agents/agents/academic-writer/`
 - **Runtime Prompt:** `.agents/agents/academic-writer/agent.md`
 - **Behavioral Contract:** [`.agents/agents/academic-writer/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/academic-writer/contract.md) (12 Sections Verified)
-- **Classification:** Domain Specialist Subagent
-- **Description:** Master academic chapter drafter and Persian rhetoric specialist. Formulates
-- **Active Skills Bound (7):** `persian-thesis-builder`, `persian-discussion-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `chapter-4-writing`, `persian-discussion-builder`, `persian-thesis-builder`
+- **Classification:** Core Primary Role (Phase 3) — Durable Academic Writing Authority
+- **Description:** Master academic chapter drafter and Persian rhetoric specialist. Formulates defense-ready thesis chapters (Ch 1–5), empirical journal articles, and clinical intervention protocols adhering to Saber's 5-part epistemic paragraph structure, natural cadence variability (CV >= 0.50), strict APA 7 presentation, results narrative, and deep psychological discussion.
+- **Active Skills Bound (10):** `chapter-4-writing`, `persian-literature-review-builder`, `persian-discussion-builder`, `persian-thesis-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `apa-reporting`, `psychological-intervention-protocol-builder`, `journal-submission-assistant`, `persian-defense-presentation-builder`
 - **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
 ### 3. `data-agent`
@@ -240,16 +239,7 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 - **Active Skills Bound (7):** `list_dir`, `grep_search`, `find_by_name`, `thesis-integrity-auditor`, `academic-reference-extractor`, `irandoc-plagiarism-reducer`, `persian-thesis-revision-assistant`
 - **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
 
-### 22. `writing-agent`
-- **Package Path:** `.agents/agents/writing-agent/`
-- **Runtime Prompt:** `.agents/agents/writing-agent/agent.md`
-- **Behavioral Contract:** [`.agents/agents/writing-agent/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/writing-agent/contract.md) (12 Sections Verified)
-- **Classification:** Core Primary Role (Phase 3 - Deprecated, retained for compatibility)
-- **Description:** Master academic chapter drafter and Persian rhetoric specialist. Formulates defense-ready thesis chapters (Ch 1–5), empirical journal articles, and clinical intervention protocols adhering to Saber's 5-part epistemic paragraph structure, natural cadence variability (CV >= 0.50), strict APA 7 presentation, results narrative, and deep psychological discussion.
-- **Active Skills Bound (10):** `list_dir`, `grep_search`, `find_by_name`, `persian-thesis-builder`, `persian-discussion-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `psychological-intervention-protocol-builder`, `journal-submission-assistant`, `persian-defense-presentation-builder`
-- **Tools Whitelist:** Native Antigravity tools (`invoke_subagent`, `run_command`, `write_to_file`, `view_file`)
-
-### 23. `academic-challenger`
+### 22. `academic-challenger`
 - **Package Path:** `.agents/agents/academic-challenger/`
 - **Runtime Prompt:** `.agents/agents/academic-challenger/agent.md`
 - **Behavioral Contract:** [`.agents/agents/academic-challenger/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/academic-challenger/contract.md) (12 Sections Verified)

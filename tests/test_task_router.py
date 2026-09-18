@@ -56,7 +56,7 @@ class TestAcademicTaskRouter(unittest.TestCase):
             self.assertEqual(res["capabilities_formula"], "STATISTICS + WRITING + VALIDATION")
             self.assertEqual(len(res["pipeline"]), 3)
             self.assertEqual(res["pipeline"][0]["agent"], "statistics-agent")
-            self.assertEqual(res["pipeline"][1]["agent"], "writing-agent")
+            self.assertEqual(res["pipeline"][1]["agent"], "academic-writer")
             self.assertEqual(res["pipeline"][2]["agent"], "validation-agent")
 
     def test_03_canonical_find_research_gaps(self):

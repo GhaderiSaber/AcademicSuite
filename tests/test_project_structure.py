@@ -80,7 +80,7 @@ class TestProjectStructure(unittest.TestCase):
             self.assertIn(f"`{s}`", content, f"Skill {s} is not documented in docs/SKILL_INVENTORY.md")
 
     def test_agent_inventory_documents_all_agents(self):
-        """Asserts docs/AGENT_INVENTORY.md comprehensively documents all 23 agents."""
+        """Asserts docs/AGENT_INVENTORY.md comprehensively documents all 22 agents."""
         inv_path = os.path.join(REPO_ROOT, "docs", "AGENT_INVENTORY.md")
         self.assertTrue(os.path.isfile(inv_path), "Missing docs/AGENT_INVENTORY.md")
         with open(inv_path, "r", encoding="utf-8") as f:
@@ -91,7 +91,7 @@ class TestProjectStructure(unittest.TestCase):
             d for d in os.listdir(agents_dir)
             if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_"))
         ]
-        self.assertEqual(len(active_agents), 23, f"Expected 23 agents, found {len(active_agents)}")
+        self.assertEqual(len(active_agents), 22, f"Expected 22 agents, found {len(active_agents)}")
         
         for a in active_agents:
             self.assertIn(f"`{a}`", content, f"Agent {a} is not documented in docs/AGENT_INVENTORY.md")
@@ -112,7 +112,7 @@ class TestProjectStructure(unittest.TestCase):
             self.assertIn(f"`{s}`", content, f"Skill {s} is missing from SKILL_ACTIVATION_MATRIX.md")
 
     def test_readme_documents_all_skills_and_agents(self):
-        """Asserts README.md documents all 43 active production skills and 23 agents."""
+        """Asserts README.md documents all 43 active production skills and 22 agents."""
         readme_path = os.path.join(REPO_ROOT, "README.md")
         self.assertTrue(os.path.isfile(readme_path), "Missing README.md")
         with open(readme_path, "r", encoding="utf-8") as f:
@@ -132,7 +132,7 @@ class TestProjectStructure(unittest.TestCase):
             d for d in os.listdir(agents_dir)
             if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_"))
         ]
-        self.assertEqual(len(active_agents), 23)
+        self.assertEqual(len(active_agents), 22)
         for a in active_agents:
             self.assertIn(f"`{a}`", content, f"Agent {a} is missing from README.md")
 

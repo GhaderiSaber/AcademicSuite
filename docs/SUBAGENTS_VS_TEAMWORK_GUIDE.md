@@ -54,7 +54,7 @@ Standard, day-to-day operation of the Academic Suite. Any bounded empirical or m
 - Computing sample descriptive statistics and frequency distributions (`statistics-agent`).
 - Evaluating scale reliability ($\alpha, \omega$) and testing parametric assumptions (`statistics-agent`).
 - Testing Hypothesis 1 via ANCOVA, regression, or SEM (`statistics-agent`).
-- Drafting the scholarly findings narrative for Hypothesis 1 (`writing-agent`).
+- Drafting the scholarly findings narrative for Hypothesis 1 (`academic-writer`).
 - Independent forensic audit of statistical degrees of freedom and APA tables (`validation-agent`).
 
 ### Operational Pattern

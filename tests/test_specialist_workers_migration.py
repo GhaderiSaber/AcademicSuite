@@ -334,17 +334,21 @@ class TestSpecialistWorkersMigration(unittest.TestCase):
                 f"Excessive dependency depth ({depth} > 3) starting from '{root}': {' -> '.join(path)}"
             )
 
-    def test_09_legacy_writing_agent_backward_compatibility(self):
-        """Legacy writing-agent must be preserved for backward compatibility."""
-        writing_dir = os.path.join(AGENTS_DIR, "writing-agent")
-        writing_agent_file = os.path.join(writing_dir, "agent.md")
-        writing_contract_file = os.path.join(writing_dir, "contract.md")
-        writing_symlink = os.path.join(AGENTS_DIR, "writing-agent.md")
+    def test_09_academic_writer_unified_writing_authority(self):
+        """academic-writer must be the sole authoritative writing agent; legacy writing-agent is cleanly retired."""
+        writer_dir = os.path.join(AGENTS_DIR, "academic-writer")
+        writer_agent_file = os.path.join(writer_dir, "agent.md")
+        writer_contract_file = os.path.join(writer_dir, "contract.md")
+        writer_symlink = os.path.join(AGENTS_DIR, "academic-writer.md")
 
-        self.assertTrue(os.path.isdir(writing_dir), "writing-agent directory must be preserved")
-        self.assertTrue(os.path.isfile(writing_agent_file), "writing-agent/agent.md must be preserved")
-        self.assertTrue(os.path.isfile(writing_contract_file), "writing-agent/contract.md must be preserved")
-        self.assertTrue(os.path.exists(writing_symlink), "writing-agent.md symlink must be preserved")
+        self.assertTrue(os.path.isdir(writer_dir), "academic-writer directory must exist")
+        self.assertTrue(os.path.isfile(writer_agent_file), "academic-writer/agent.md must exist")
+        self.assertTrue(os.path.isfile(writer_contract_file), "academic-writer/contract.md must exist")
+        self.assertTrue(os.path.exists(writer_symlink), "academic-writer.md symlink must exist")
+
+        # Verify duplicate writing-agent directory has been safely retired
+        writing_dir = os.path.join(AGENTS_DIR, "writing-agent")
+        self.assertFalse(os.path.exists(writing_dir), "writing-agent directory must be retired to prevent duplication")
 
 
 if __name__ == "__main__":

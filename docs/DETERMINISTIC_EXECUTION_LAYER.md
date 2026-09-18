@@ -146,7 +146,7 @@ audit_dataset.py
 
 ### Pipeline D: Micro-Stage Triad Scaffolding
 ```text
-writing-agent
+academic-writer
       │
       ▼
 Chapter 4 Writing Skill (.agents/skills/chapter-4-writing/)
@@ -158,7 +158,7 @@ scaffold_chapter4_triad.py
 06_hypothesis_1.docx + .md + .json
 ```
 
-1. **Cognitive Step (`writing-agent`):** Formulates narrative dissection and interpretations for Hypothesis 1.
+1. **Cognitive Step (`academic-writer`):** Formulates narrative dissection and interpretations for Hypothesis 1.
 2. **Procedure Step (`chapter-4-writing/SKILL.md`):** Mandates synchronized triad generation under Directive 3.
 3. **Execution Step (`scaffold_chapter4_triad.py`):**
    ```bash

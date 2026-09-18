@@ -128,7 +128,7 @@ CAPABILITY_METADATA = {
         "description": "Deterministic inferential modeling (SEM, CFA, ANCOVA, regression, mediation, reliability)"
     },
     "WRITING": {
-        "agent": "writing-agent",
+        "agent": "academic-writer",
         "primary_skill": "chapter-4-writing",
         "skill_path": ".agents/skills/chapter-4-writing/SKILL.md",
         "input_artifact": "academic-state/analysis/sem.json",
