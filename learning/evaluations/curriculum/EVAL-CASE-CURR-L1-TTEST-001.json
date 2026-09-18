@@ -1,0 +1,51 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-CURR-L1-TTEST-001",
+  "capability": "statistical-data-analyst",
+  "suite_type": "curriculum",
+  "difficulty": "L1_UNIVARIATE_BASELINE",
+  "tags": ["curriculum", "independent_samples_ttest", "levene_test", "effect_size"],
+  "task": {
+    "prompt": "Conduct an independent samples t-test comparing treatment and control groups on post-intervention wellbeing, reporting Levene's test for equality of variances and Cohen's d.",
+    "research_question": "Do participants receiving the intervention report significantly higher wellbeing than control participants at post-test?",
+    "hypothesis": "The intervention group will report statistically significantly higher post-intervention wellbeing than the control group."
+  },
+  "inputs": {
+    "dataset_path": "evals/curriculum/data_ttest.xlsx",
+    "dataset_sha256": "1566197905886a890378220ad078003a5848aae3d77cb49da330fc614caff3da",
+    "spec_parameters": {
+      "group_var": "group",
+      "dv": "wellbeing_post"
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "t_value_reported": true,
+      "df_reported": true,
+      "p_value_reported": true,
+      "cohens_d_reported": true,
+      "levene_f_reported": true
+    },
+    "required_artifacts": [
+      "ttest_results.json",
+      "ttest_table.docx"
+    ],
+    "typography_rules": [
+      "italicize_t_and_p",
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "omitting_levene_test",
+    "p_equals_point_zero_zero_zero",
+    "missing_persian_leading_zero",
+    "failing_to_report_effect_size"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": ["--check", "statistics", "--case", "EVAL-CASE-CURR-L1-TTEST-001"],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-09-18T18:00:00Z"
+}

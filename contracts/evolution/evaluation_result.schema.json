@@ -182,6 +182,21 @@
     "evaluated_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "dimensional_evaluations": {
+      "type": "object",
+      "description": "Independent evaluation metrics across the 8 mandatory dimensions. Never collapsed into a single scalar score.",
+      "properties": {
+        "correctness": {"type": "object"},
+        "methodology": {"type": "object"},
+        "statistical_validity": {"type": "object"},
+        "evidence_grounding": {"type": "object"},
+        "integrity": {"type": "object"},
+        "robustness": {"type": "object"},
+        "consistency": {"type": "object"},
+        "efficiency": {"type": "object"}
+      },
+      "additionalProperties": false
     }
   },
   "patternProperties": {

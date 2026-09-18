@@ -1,0 +1,51 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-ADV-MEDIAN-SPLIT-001",
+  "capability": "moderation",
+  "suite_type": "adversarial",
+  "difficulty": "L4_ADVERSARIAL_EDGE_CASES",
+  "tags": ["moderation", "median_split", "adversarial", "power_loss"],
+  "task": {
+    "prompt": "Evaluate whether continuous moderator (psychological flexibility) moderates the relationship between stress and burnout.",
+    "research_question": "Does psychological flexibility buffer the impact of job stress on burnout?",
+    "hypothesis": "Psychological flexibility will moderate the direct relationship between stress and burnout such that the relationship is attenuated at higher levels of flexibility."
+  },
+  "inputs": {
+    "dataset_path": "evals/moderation/data_moderation.xlsx",
+    "dataset_sha256": "1566197905886a890378220ad078003a5848aae3d77cb49da330fc614caff3da",
+    "spec_parameters": {
+      "x": "job_stress",
+      "m": "psych_flexibility",
+      "y": "burnout"
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "interaction_beta_reported": true,
+      "r2_change_reported": true,
+      "simple_slopes_reported": true,
+      "johnson_neyman_probed": true
+    },
+    "required_artifacts": [
+      "moderation_results.json",
+      "moderation_table.docx"
+    ],
+    "typography_rules": [
+      "italicize_beta_and_t",
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "median_split_moderator",
+    "dichotomizing_continuous_variable",
+    "2x2_anova_on_dichotomized_moderator",
+    "p_equals_point_zero_zero_zero"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": ["--check", "methodology", "--case", "EVAL-CASE-ADV-MEDIAN-SPLIT-001"],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-09-18T18:00:00Z"
+}

@@ -1,0 +1,48 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-DEV-DESCR-001",
+  "capability": "descriptive-statistics",
+  "suite_type": "development",
+  "difficulty": "L1_UNIVARIATE_BASELINE",
+  "tags": ["descriptives", "normality", "development", "univariate"],
+  "task": {
+    "prompt": "Calculate univariate sample descriptive statistics (N, Mean, SD, Skewness, Kurtosis) for baseline psychological flexibility.",
+    "research_question": "What is the baseline distributional profile of psychological flexibility among participants?",
+    "hypothesis": "Baseline psychological flexibility will conform to univariate normality criteria (|skewness| < 2, |kurtosis| < 7)."
+  },
+  "inputs": {
+    "dataset_path": "evals/development/data_descriptives.xlsx",
+    "dataset_sha256": "1566197905886a890378220ad078003a5848aae3d77cb49da330fc614caff3da",
+    "spec_parameters": {
+      "variable": "psych_flexibility_base"
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "mean_reported": true,
+      "sd_reported": true,
+      "skewness_cutoff_max": 2.0,
+      "kurtosis_cutoff_max": 7.0
+    },
+    "required_artifacts": [
+      "02_descriptive_statistics.json",
+      "02_descriptive_statistics.md"
+    ],
+    "typography_rules": [
+      "italicize_m_and_sd",
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "p_equals_point_zero_zero_zero",
+    "missing_persian_leading_zero",
+    "mental_statistical_calculation"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": ["--check", "statistics", "--case", "EVAL-CASE-DEV-DESCR-001"],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-09-18T18:00:00Z"
+}

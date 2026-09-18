@@ -1,0 +1,50 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-REG-SLOPE-001",
+  "capability": "chapter4",
+  "suite_type": "regression",
+  "difficulty": "L2_INTERDEPENDENT_MODELS",
+  "tags": ["ancova", "regression", "homogeneity_of_slopes", "statistical_assumptions"],
+  "task": {
+    "prompt": "Evaluate whether pre-test baseline covariate violates regression slope homogeneity across treatment conditions before reporting ANCOVA.",
+    "research_question": "Does ACT intervention reduce post-test burnout after controlling for baseline burnout?",
+    "hypothesis": "Participants in the ACT condition will exhibit significantly lower post-test burnout than control participants after controlling for baseline scores."
+  },
+  "inputs": {
+    "dataset_path": "evals/regression/data_ancova.xlsx",
+    "dataset_sha256": "1566197905886a890378220ad078003a5848aae3d77cb49da330fc614caff3da",
+    "spec_parameters": {
+      "dv": "burnout_post",
+      "group": "condition",
+      "covariate": "burnout_pre"
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "slope_interaction_f_min": 0.0,
+      "p_value_threshold": 0.05,
+      "effect_size_type": "partial_eta_squared"
+    },
+    "required_artifacts": [
+      "03_parametric_assumptions.json",
+      "03_parametric_assumptions.md"
+    ],
+    "typography_rules": [
+      "italicize_f_and_p",
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "omitting_homogeneity_of_slopes_test",
+    "p_equals_point_zero_zero_zero",
+    "missing_persian_leading_zero",
+    "mental_statistical_calculation"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": ["--check", "statistics", "--case", "EVAL-CASE-REG-SLOPE-001"],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-09-18T18:00:00Z"
+}

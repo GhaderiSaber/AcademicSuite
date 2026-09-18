@@ -107,6 +107,20 @@
     "created_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "difficulty": {
+      "type": "string",
+      "description": "Graduated difficulty level (e.g. L1_UNIVARIATE_BASELINE, L2_INTERDEPENDENT_MODELS, L3_LATENT_STRUCTURAL_SYSTEMS, L4_ADVERSARIAL_EDGE_CASES, easy, medium, hard)."
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Topical and methodological tags for fast test suite indexing."
+    },
+    "suite_type": {
+      "type": "string",
+      "enum": ["development", "regression", "adversarial", "heldout", "curriculum"],
+      "description": "Evaluation suite partition."
     }
   },
   "additionalProperties": false

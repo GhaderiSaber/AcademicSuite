@@ -34,6 +34,9 @@ learning/knowledge/exemplars/EXM-*
 learning/knowledge/exemplars/index.jsonl
 learning/skill-memory/**/*.json
 learning/skill-memory/**/index.jsonl
+learning/evaluations/results/EVR-*
+learning/evaluations/results/index.jsonl
+learning/evaluations/results/*.json
 !learning/experience/.gitkeep
 !learning/experience/feedback/.gitkeep
 !learning/experience/feedback/candidates/.gitkeep
@@ -44,6 +47,10 @@ learning/skill-memory/**/index.jsonl
 !learning/knowledge/exemplars/.gitkeep
 !learning/skill-memory/.gitkeep
 !learning/skill-memory/**/.gitkeep
+!learning/evaluations/.gitkeep
+!learning/evaluations/*/*.json
+!learning/evaluations/heldout/manifest.sha256
+learning/evaluations/results/*.json
 !legacy/
 !config/
 !config/**
