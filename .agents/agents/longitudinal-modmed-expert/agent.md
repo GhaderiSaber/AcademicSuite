@@ -6,7 +6,6 @@ role: 3-Wave Longitudinal Moderated Mediation Specialist
 model: flash
 mainAgent: false
 subagent: true
-commandExecutionPolicy: request-review
 tools:
   - view_file
   - list_dir

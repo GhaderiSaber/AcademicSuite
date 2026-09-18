@@ -137,7 +137,6 @@ class AgentSpec:
     mainAgent: bool = False
     subagent: bool = True
     model: str = "inherit"
-    commandExecutionPolicy: Optional[str] = None
     skills: List[str] = field(default_factory=list)
     agents: List[str] = field(default_factory=list)
     mcpServers: List[str] = field(default_factory=list)
@@ -161,8 +160,6 @@ class AgentSpec:
             "mainAgent": self.mainAgent,
             "subagent": self.subagent,
         }
-        if self.commandExecutionPolicy is not None:
-            fm["commandExecutionPolicy"] = self.commandExecutionPolicy
         if self.tools:
             fm["tools"] = list(self.tools)
         if self.skills:
@@ -180,9 +177,11 @@ class AgentSpec:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "AgentSpec":
-        if "command_execution_policy" in data:
+        if "command_execution_policy" in data or "commandExecutionPolicy" in data:
             raise AgentValidationError(
-                "Deprecated field 'command_execution_policy' detected. Use canonical camelCase 'commandExecutionPolicy'."
+                "Unsupported field 'commandExecutionPolicy' / 'command_execution_policy' detected. "
+                "Antigravity agent markdown frontmatter does not support command execution policies "
+                "(which causes IDE discovery to drop the agent). Policy is enforced at workspace/hook level."
             )
         valid_fields = cls.__dataclass_fields__.keys()
         filtered = {k: v for k, v in data.items() if k in valid_fields}
@@ -274,7 +273,7 @@ def validate_agent_spec(
     2. Valid role
     3. mainAgent/subagent consistency
     4. Valid model
-    5. Valid commandExecutionPolicy (rejects deprecated command_execution_policy)
+    5. Frontmatter Policy Guard (rejects unsupported commandExecutionPolicy to protect IDE discovery)
     6. Valid tools & least-privilege tool isolation
     7. Valid skills
     8. Valid agent dependencies
@@ -319,13 +318,14 @@ def validate_agent_spec(
             f"Invalid model '{spec.model}' for agent '{spec.name}'. Allowed models: {sorted(VALID_MODELS)}"
         )
 
-    # 5. Valid commandExecutionPolicy
-    if spec.commandExecutionPolicy is not None:
-        if spec.commandExecutionPolicy not in VALID_COMMAND_EXECUTION_POLICIES:
-            raise AgentValidationError(
-                f"Invalid commandExecutionPolicy '{spec.commandExecutionPolicy}' for agent '{spec.name}'. "
-                f"Allowed policies: {sorted(VALID_COMMAND_EXECUTION_POLICIES)}"
-            )
+    # 5. Frontmatter Policy Guard (rejects commandExecutionPolicy / command_execution_policy)
+    # Antigravity's Go parser loadMDAgent drops any agent markdown containing these fields.
+    if getattr(spec, "commandExecutionPolicy", None) is not None:
+        raise AgentValidationError(
+            f"Unsupported field 'commandExecutionPolicy' detected in agent '{spec.name}'. "
+            "Antigravity agent markdown frontmatter does not support command execution policies "
+            "(which causes IDE discovery to drop the agent). Policy is enforced at workspace/hook level."
+        )
 
     # 6. Valid Tools & Principle of Least Privilege
     for tool in spec.tools:
@@ -432,7 +432,6 @@ def render_frontmatter(metadata: Dict[str, Any]) -> str:
         "model",
         "mainAgent",
         "subagent",
-        "commandExecutionPolicy",
         "tools",
         "skills",
         "agents",
@@ -507,7 +506,6 @@ def generate_agent_markdown(
             "model": "inherit",
             "mainAgent": False,
             "subagent": True,
-            "commandExecutionPolicy": "request-review",
             "skills": skills,
         }
 
@@ -711,9 +709,11 @@ def create_agent(
     2. Co-located runtime prompt: target_dir/<name>/agent.md
     3. Co-located 12-section contract: target_dir/<name>/contract.md
     """
-    if "command_execution_policy" in kwargs:
+    if "command_execution_policy" in kwargs or "commandExecutionPolicy" in kwargs or commandExecutionPolicy is not None:
         raise AgentValidationError(
-            "Deprecated field 'command_execution_policy' detected. Use canonical camelCase 'commandExecutionPolicy'."
+            "Unsupported field 'commandExecutionPolicy' / 'command_execution_policy' detected. "
+            "Antigravity agent markdown frontmatter does not support command execution policies "
+            "(which causes IDE discovery to drop the agent). Policy is enforced at workspace/hook level."
         )
 
     if spec is None:
@@ -737,7 +737,6 @@ def create_agent(
         is_main = mainAgent if mainAgent is not None else False
         is_sub = subagent if subagent is not None else True
         selected_model = model or "inherit"
-        policy = commandExecutionPolicy or "request-review"
 
         default_tools = (
             [
@@ -772,7 +771,6 @@ def create_agent(
             mainAgent=is_main,
             subagent=is_sub,
             model=selected_model,
-            commandExecutionPolicy=policy,
             skills=agent_skills,
             agents=agents or [],
             mcpServers=mcpServers or [],
@@ -861,7 +859,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=True,
             subagent=False,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=[
                 "invoke_subagent", "manage_subagents", "send_message",
                 "view_file", "list_dir", "grep_search", "find_by_name",
@@ -878,7 +875,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=True,
             subagent=False,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=[
                 "invoke_subagent", "manage_subagents", "send_message",
                 "view_file", "list_dir", "grep_search", "find_by_name",
@@ -895,7 +891,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=True,
             subagent=False,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=[
                 "invoke_subagent", "manage_subagents", "send_message",
                 "view_file", "list_dir", "grep_search", "find_by_name",
@@ -912,7 +907,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=True,
             subagent=False,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=[
                 "invoke_subagent", "manage_subagents", "send_message",
                 "view_file", "list_dir", "grep_search", "find_by_name",
@@ -929,7 +923,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=True,
             subagent=False,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=[
                 "invoke_subagent", "manage_subagents", "send_message",
                 "view_file", "list_dir", "grep_search", "find_by_name",
@@ -946,7 +939,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=True,
             subagent=False,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=[
                 "invoke_subagent", "manage_subagents", "send_message",
                 "view_file", "list_dir", "grep_search", "find_by_name",
@@ -963,7 +955,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=True,
             subagent=False,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=[
                 "invoke_subagent", "manage_subagents", "send_message",
                 "view_file", "list_dir", "grep_search", "find_by_name",
@@ -982,7 +973,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["literature-review", "literature-harvester", "gpower-sample-size-calculator"],
             agents=[],
@@ -995,7 +985,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["literature-harvester", "literature-review", "bibliometric-network-analyst"],
             agents=[],
@@ -1008,7 +997,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["journal-submission-assistant", "academic-article-writer"],
             agents=[],
@@ -1021,7 +1009,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["systematic-review-meta-analyst", "gpower-sample-size-calculator"],
             agents=[],
@@ -1034,7 +1021,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["data-cleaning", "data-audit", "psychometric-scale-resolver", "psychometric-data-simulator"],
             agents=[],
@@ -1047,7 +1033,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["data-audit", "data-cleaning", "descriptive-statistics"],
             agents=[],
@@ -1060,7 +1045,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["statistical-data-analyst", "regression", "mediation", "moderation", "descriptive-statistics", "reliability-analysis"],
             agents=[],
@@ -1073,7 +1057,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["psychometric-scale-validator", "cfa", "psychometric-scale-resolver", "reliability-analysis"],
             agents=[],
@@ -1086,7 +1069,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["longitudinal-moderated-mediation", "mediation", "apa-reporting"],
             agents=[],
@@ -1099,7 +1081,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file"],
             skills=["psychological-intervention-protocol-builder", "persian-proposal-builder"],
             agents=[],
@@ -1112,7 +1093,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["qualitative-data-analyst"],
             agents=[],
@@ -1125,7 +1105,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["thesis-integrity-auditor", "apa-reporting"],
             agents=[],
@@ -1138,7 +1117,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file"],
             skills=["apa-reporting", "thesis-integrity-auditor"],
             agents=[],
@@ -1151,7 +1129,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="flash",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file", "run_command"],
             skills=["thesis-integrity-auditor", "data-audit"],
             agents=[],
@@ -1164,7 +1141,6 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             mainAgent=False,
             subagent=True,
             model="pro",
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file"],
             skills=["thesis-integrity-auditor", "methodology-review"],
             agents=[],

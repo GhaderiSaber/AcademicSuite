@@ -6,7 +6,6 @@ role: APA 7 Formatting, Mathematical Precision & Typography Auditor
 model: flash
 mainAgent: false
 subagent: true
-commandExecutionPolicy: request-review
 tools:
   - view_file
   - list_dir

@@ -6,7 +6,6 @@ role: Master Academic Orchestrator & Research Project Lead
 model: pro
 mainAgent: true
 subagent: false
-commandExecutionPolicy: request-review
 tools:
   - invoke_subagent
   - manage_subagents

@@ -98,16 +98,16 @@ Zero compatibility layers that are still active were removed.
 
 ---
 
-### 2.3 Deprecated Agent Frontmatter: `command_execution_policy` Elimination
+### 2.3 Frontmatter Policy Elimination: `commandExecutionPolicy` & `command_execution_policy`
 
-* **Candidate**: Snake_case `command_execution_policy` in agent metadata
-* **Finding**: Early agent prototypes used snake_case `command_execution_policy`. Antigravity standardizes on camelCase `commandExecutionPolicy`.
-* **Action**: Enforced strict validation in `factory/agent_factory.py`. Any occurrence of `command_execution_policy` raises an explicit `ValueError`.
-* **Current Status**: Exactly 0 occurrences of `command_execution_policy` exist across all 22 agent files in `.agents/agents/`.
+* **Candidate**: Frontmatter policy fields (`commandExecutionPolicy`, `command_execution_policy`) in agent markdown files.
+* **Finding**: Antigravity's Go Language Server parser (`cortex/customizations/loadMDAgent`) uses a strict schema for YAML frontmatter (`name`, `description`, `role`, `model`, `mainAgent`, `subagent`, `tools`, `skills`, `agents`, `inheritCustomizations`). Adding `commandExecutionPolicy` causes the parser to silently reject and drop the agent from `GetAgentScripts`, hiding it from the IDE dropdown. Command execution security in Antigravity is enforced at the workspace/tool level (`hooks.json`, CLI permissions, and IDE security settings) rather than frontmatter.
+* **Action**: Enforced strict validation in `factory/agent_factory.py` to reject both `commandExecutionPolicy` and `command_execution_policy`. Stripped all occurrences from `.agents/agents/*/agent.md`.
+* **Current Status**: Exactly 0 occurrences of either field exist across all 22 agent files in `.agents/agents/`.
 * **Tests Proving Safety**:
-  - `tests/test_agent_factory_modernized.py`: Explicitly tests that deprecated `command_execution_policy` is rejected.
-  - `tests/test_durable_agents_migration.py`: Asserts zero `command_execution_policy` in durable agents.
-  - `tests/test_specialist_workers_migration.py`: Asserts zero `command_execution_policy` across all specialist workers.
+  - `tests/test_agent_factory_modernized.py`: Explicitly tests that unsupported frontmatter policies are rejected.
+  - `tests/test_durable_agents_migration.py`: Asserts zero policy fields in durable agents.
+  - `tests/test_specialist_workers_migration.py`: Asserts zero policy fields across all specialist workers.
 
 ---
 

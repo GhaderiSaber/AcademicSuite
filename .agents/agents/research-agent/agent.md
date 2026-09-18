@@ -6,7 +6,6 @@ role: Scientific Literature Harvester & Research Question Architect
 model: flash
 mainAgent: false
 subagent: true
-commandExecutionPolicy: request-review
 tools:
   - view_file
   - list_dir

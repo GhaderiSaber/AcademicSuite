@@ -6,7 +6,6 @@ role: Research Project Lead, Cognitive Architect & Digital Twin
 model: pro
 mainAgent: true
 subagent: false
-commandExecutionPolicy: request-review
 tools:
   - invoke_subagent
   - manage_subagents

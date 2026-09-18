@@ -69,8 +69,8 @@ All 51 test suites and 360 automated test cases were executed against the codeba
   3. Attempting to pass `command_execution_policy` as a kwarg to `create_agent()`.
 - **Results**:
   - Retired agent generation blocked: `AgentValidationError: Agent 'writing-agent' is retired and cannot be created or regenerated.`
-  - Snake_case dictionary blocked: `AgentValidationError: Deprecated field 'command_execution_policy' detected. Use canonical camelCase 'commandExecutionPolicy'.`
-  - Kwarg snake_case blocked: `AgentValidationError: Deprecated field 'command_execution_policy' detected. Use canonical camelCase 'commandExecutionPolicy'.`
+  - Snake_case dictionary blocked: `AgentValidationError: Unsupported field 'commandExecutionPolicy' / 'command_execution_policy' detected.`
+  - Kwarg snake_case blocked: `AgentValidationError: Unsupported field 'commandExecutionPolicy' / 'command_execution_policy' detected.`
 - **Verdict**: **`PASS`**
 
 ### 3.3 Mandatory Verification 3: No Production Sample-Data Fallback Path

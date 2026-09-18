@@ -12,7 +12,7 @@ Comprehensive verification of:
    - valid role
    - mainAgent/subagent consistency
    - valid model
-   - valid commandExecutionPolicy (and rejection of deprecated command_execution_policy)
+   - rejection of unsupported frontmatter policies (commandExecutionPolicy / command_execution_policy)
    - valid tools and least-privilege tool isolation
    - valid skills
    - valid agent dependencies
@@ -74,7 +74,6 @@ class TestModernizedAgentFactory(unittest.TestCase):
             model="pro",
             mainAgent=False,
             subagent=True,
-            commandExecutionPolicy="request-review",
             tools=["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file"],
             skills=["mediation", "apa-reporting"],
             agents=[],
@@ -119,7 +118,8 @@ class TestModernizedAgentFactory(unittest.TestCase):
         self.assertEqual(fm["model"], "pro")
         self.assertFalse(fm["mainAgent"])
         self.assertTrue(fm["subagent"])
-        self.assertEqual(fm["commandExecutionPolicy"], "request-review")
+        self.assertNotIn("commandExecutionPolicy", fm)
+        self.assertNotIn("command_execution_policy", fm)
         self.assertIn("mediation", fm["skills"])
         self.assertIn("view_file", fm["tools"])
         self.assertIn("academic-catalog", fm["mcpServers"])
@@ -211,19 +211,17 @@ class TestModernizedAgentFactory(unittest.TestCase):
             validate_agent_spec(AgentSpec(name="test-agent", role="Valid Role", description="Desc", model="gpt-4"))
         self.assertIn("Invalid model 'gpt-4'", str(ctx.exception))
 
-    def test_07_valid_command_execution_policy_and_deprecation_rejection(self):
-        """Factory must enforce valid commandExecutionPolicy and reject deprecated snake_case."""
-        valid_policies = ["always-proceed", "request-review", "strict", "proceed-in-sandbox", "deny"]
-        for p in valid_policies:
-            spec = AgentSpec(name="test-agent", role="Valid Role", description="Desc", commandExecutionPolicy=p)
-            validate_agent_spec(spec)
-
-        # Invalid policy string
+    def test_07_rejection_of_unsupported_frontmatter_policies(self):
+        """Factory must reject commandExecutionPolicy and command_execution_policy in frontmatter to protect IDE agent discovery."""
+        # Rejection of unsupported commandExecutionPolicy in from_dict
         with self.assertRaises(AgentValidationError) as ctx:
-            validate_agent_spec(
-                AgentSpec(name="test-agent", role="Valid Role", description="Desc", commandExecutionPolicy="unrestricted")
-            )
-        self.assertIn("Invalid commandExecutionPolicy", str(ctx.exception))
+            AgentSpec.from_dict({
+                "name": "test-agent",
+                "role": "Role",
+                "description": "Desc",
+                "commandExecutionPolicy": "request-review",
+            })
+        self.assertIn("Unsupported field", str(ctx.exception))
 
         # Rejection of deprecated command_execution_policy in from_dict
         with self.assertRaises(AgentValidationError) as ctx:
@@ -233,9 +231,20 @@ class TestModernizedAgentFactory(unittest.TestCase):
                 "description": "Desc",
                 "command_execution_policy": "request-review",
             })
-        self.assertIn("Deprecated field 'command_execution_policy' detected", str(ctx.exception))
+        self.assertIn("Unsupported field", str(ctx.exception))
 
-        # Rejection of deprecated keyword in create_agent
+        # Rejection of unsupported commandExecutionPolicy in create_agent
+        with self.assertRaises(AgentValidationError) as ctx:
+            create_agent(
+                name="test-agent",
+                role="Role",
+                description="Desc",
+                commandExecutionPolicy="request-review",
+                target_dir=self.temp_dir,
+            )
+        self.assertIn("Unsupported field", str(ctx.exception))
+
+        # Rejection of deprecated command_execution_policy keyword in create_agent
         with self.assertRaises(AgentValidationError) as ctx:
             create_agent(
                 name="test-agent",
@@ -244,7 +253,7 @@ class TestModernizedAgentFactory(unittest.TestCase):
                 command_execution_policy="request-review",
                 target_dir=self.temp_dir,
             )
-        self.assertIn("Deprecated field 'command_execution_policy' detected", str(ctx.exception))
+        self.assertIn("Unsupported field", str(ctx.exception))
 
     def test_08_valid_tools_and_worker_privilege_isolation(self):
         """Factory must validate tools and prevent worker subagents from orchestrating."""

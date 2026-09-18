@@ -6,7 +6,6 @@ role: Adversarial Methodology, Bias & Statistical Challenger
 model: pro
 mainAgent: false
 subagent: true
-commandExecutionPolicy: request-review
 tools:
   - view_file
   - list_dir

@@ -3,7 +3,7 @@
   "project_id": "test_study_e2e",
   "state_machine_version": "1.0.0",
   "system_status": "OPERATIONAL",
-  "updated_at": "2026-09-18T14:20:32.497395+00:00",
+  "updated_at": "2026-09-18T15:24:19.249091+00:00",
   "milestones": {
     "M4_CHAPTER4": {
       "milestone_id": "M4_CHAPTER4",
@@ -15,76 +15,76 @@
       "required_input_artifacts": [],
       "required_output_artifacts": [],
       "requires_validation": true,
-      "created_at": "2026-09-18T14:20:32.333789+00:00",
-      "updated_at": "2026-09-18T14:20:32.495889+00:00",
+      "created_at": "2026-09-18T15:24:19.076079+00:00",
+      "updated_at": "2026-09-18T15:24:19.246826+00:00",
       "history": [
         {
-          "transition_id": "TRN-9FC23C",
+          "transition_id": "TRN-F8897D",
           "from_state": null,
           "to_state": "CREATED",
-          "timestamp": "2026-09-18T14:20:32.333789+00:00",
+          "timestamp": "2026-09-18T15:24:19.076079+00:00",
           "actor": "academic-orchestrator",
           "rationale": "Milestone registered in state machine"
         },
         {
-          "transition_id": "TRN-E60E68",
+          "transition_id": "TRN-9E344C",
           "from_state": "CREATED",
           "to_state": "SCOPED",
-          "timestamp": "2026-09-18T14:20:32.336622+00:00",
+          "timestamp": "2026-09-18T15:24:19.078710+00:00",
           "actor": "academic-orchestrator",
           "rationale": "",
           "execution_info": {}
         },
         {
-          "transition_id": "TRN-FC6EAF",
+          "transition_id": "TRN-A225B0",
           "from_state": "SCOPED",
           "to_state": "PLANNED",
-          "timestamp": "2026-09-18T14:20:32.338681+00:00",
+          "timestamp": "2026-09-18T15:24:19.081006+00:00",
           "actor": "academic-orchestrator",
           "rationale": "",
           "execution_info": {}
         },
         {
-          "transition_id": "TRN-95A172",
+          "transition_id": "TRN-9A872B",
           "from_state": "PLANNED",
           "to_state": "READY",
-          "timestamp": "2026-09-18T14:20:32.343723+00:00",
+          "timestamp": "2026-09-18T15:24:19.085852+00:00",
           "actor": "academic-orchestrator",
           "rationale": "",
           "execution_info": {}
         },
         {
-          "transition_id": "TRN-F92971",
+          "transition_id": "TRN-0E5786",
           "from_state": "READY",
           "to_state": "RUNNING",
-          "timestamp": "2026-09-18T14:20:32.346254+00:00",
+          "timestamp": "2026-09-18T15:24:19.088016+00:00",
           "actor": "academic-orchestrator",
           "rationale": "",
           "execution_info": {}
         },
         {
-          "transition_id": "TRN-DA25E7",
+          "transition_id": "TRN-055588",
           "from_state": "RUNNING",
           "to_state": "VALIDATING",
-          "timestamp": "2026-09-18T14:20:32.419926+00:00",
+          "timestamp": "2026-09-18T15:24:19.166098+00:00",
           "actor": "academic-orchestrator",
           "rationale": "",
           "execution_info": {}
         },
         {
-          "transition_id": "TRN-D95D07",
+          "transition_id": "TRN-446061",
           "from_state": "VALIDATING",
           "to_state": "AWAITING_APPROVAL",
-          "timestamp": "2026-09-18T14:20:32.487110+00:00",
+          "timestamp": "2026-09-18T15:24:19.238151+00:00",
           "actor": "academic-orchestrator",
           "rationale": "",
           "execution_info": {}
         },
         {
-          "transition_id": "TRN-56D056",
+          "transition_id": "TRN-F5080B",
           "from_state": "AWAITING_APPROVAL",
           "to_state": "APPROVED",
-          "timestamp": "2026-09-18T14:20:32.495889+00:00",
+          "timestamp": "2026-09-18T15:24:19.246826+00:00",
           "actor": "academic-orchestrator",
           "rationale": "",
           "execution_info": {}

@@ -8,8 +8,7 @@ Validates:
    .agents/agents/<name>/agent.md and contract.md.
 2. Backward-compatible symlinks (.agents/agents/<name>.md) exist and resolve.
 3. Canonical Antigravity YAML frontmatter without deprecated fields:
-   - camelCase commandExecutionPolicy
-   - Zero command_execution_policy occurrences
+   - Zero commandExecutionPolicy / command_execution_policy in frontmatter (protects IDE discovery)
    - Explicit mainAgent / subagent booleans
    - Model tier 'pro'
    - Whitelisted tools obeying least privilege
@@ -99,7 +98,6 @@ class TestDurableAgentsMigration(unittest.TestCase):
             self.assertIn("description", fm)
             self.assertIn("role", fm)
             self.assertEqual(fm["model"], "pro")
-            self.assertEqual(fm["commandExecutionPolicy"], "request-review")
             self.assertIsInstance(fm["mainAgent"], bool)
             self.assertIsInstance(fm["subagent"], bool)
             self.assertIsInstance(fm["tools"], list)
@@ -107,7 +105,9 @@ class TestDurableAgentsMigration(unittest.TestCase):
             self.assertIsInstance(fm["agents"], list)
             self.assertTrue(fm["inheritCustomizations"])
 
-            # Zero deprecated field occurrences
+            # Zero unsupported policy field occurrences (protects IDE discovery)
+            self.assertNotIn("commandExecutionPolicy", fm)
+            self.assertNotIn("commandExecutionPolicy", content)
             self.assertNotIn("command_execution_policy", fm)
             self.assertNotIn("command_execution_policy", content)
 

@@ -6,7 +6,6 @@ role: Persian Rhetoric, Inverted-Triangle Architecture & OpenXML Drafter
 model: pro
 mainAgent: true
 subagent: false
-commandExecutionPolicy: request-review
 tools:
   - view_file
   - list_dir

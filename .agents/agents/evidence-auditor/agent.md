@@ -6,7 +6,6 @@ role: Epistemic Evidence, Bibliographic Reconciliation & Anti-Plagiarism Authori
 model: pro
 mainAgent: true
 subagent: false
-commandExecutionPolicy: request-review
 tools:
   - view_file
   - list_dir

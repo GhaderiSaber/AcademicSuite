@@ -8,7 +8,7 @@ Validates:
    .agents/agents/<name>/agent.md and contract.md.
 2. Backward-compatible relative symlinks (.agents/agents/<name>.md) exist and resolve.
 3. Canonical Antigravity YAML frontmatter without deprecated fields:
-   - camelCase commandExecutionPolicy
+   - Zero commandExecutionPolicy / command_execution_policy in frontmatter (protects IDE discovery)
    - Zero command_execution_policy occurrences
    - Explicit mainAgent: false
    - Explicit subagent: true
@@ -142,9 +142,13 @@ class TestSpecialistWorkersMigration(unittest.TestCase):
             self.assertIn("role", fm)
             self.assertFalse(fm["mainAgent"], f"{name} must have mainAgent: false")
             self.assertTrue(fm["subagent"], f"{name} must have subagent: true")
-            self.assertEqual(
-                fm["commandExecutionPolicy"], "request-review",
-                f"{name} must have commandExecutionPolicy: request-review"
+            self.assertNotIn(
+                "commandExecutionPolicy", fm,
+                f"Unsupported commandExecutionPolicy found in {name}"
+            )
+            self.assertNotIn(
+                "commandExecutionPolicy", content,
+                f"Unsupported commandExecutionPolicy text found in {name}/agent.md"
             )
             self.assertNotIn(
                 "command_execution_policy", fm,

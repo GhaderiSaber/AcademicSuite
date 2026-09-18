@@ -6,7 +6,6 @@ role: Parametric Assumptions, Degrees of Freedom & MSAI Anomaly Auditor
 model: flash
 mainAgent: false
 subagent: true
-commandExecutionPolicy: request-review
 tools:
   - view_file
   - list_dir

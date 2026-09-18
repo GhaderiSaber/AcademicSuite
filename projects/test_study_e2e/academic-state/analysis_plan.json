@@ -1,8 +1,8 @@
 {
   "contract_version": "1.0.0",
-  "plan_id": "PLAN-2026-SYNTH-1789741232",
+  "plan_id": "PLAN-2026-SYNTH-1789745059",
   "project_id": "test_study_e2e",
-  "created_at": "2026-09-18T14:20:32.273089+00:00",
+  "created_at": "2026-09-18T15:24:19.039429+00:00",
   "decided_by": "statistical-expert",
   "status": "APPROVED",
   "significance_alpha": 0.05,
