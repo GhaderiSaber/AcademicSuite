@@ -46,6 +46,20 @@ def validate_data(report_path):
     if len(outliers) > 0:
         warnings.append(f"{len(outliers)} multivariate outliers flagged. Ensure exclusion is logged.")
 
+    # Cryptographic provenance checks (when data_provenance.json is present)
+    if "raw_dataset" in data and "curated_dataset" in data:
+        raw_info = data.get("raw_dataset", {})
+        curated_info = data.get("curated_dataset", {})
+        raw_hash = raw_info.get("sha256", "")
+        curated_hash = curated_info.get("sha256", "")
+
+        if not raw_hash or len(raw_hash) != 64:
+            errors.append("Invalid or missing raw dataset SHA-256 in provenance metadata.")
+        if not curated_hash or len(curated_hash) != 64:
+            errors.append("Invalid or missing curated dataset SHA-256 in provenance metadata.")
+        if not raw_info.get("is_read_only", False):
+            warnings.append("Raw dataset is not flagged as read-only (0444) in provenance records.")
+
     verdict = "FAIL" if errors else ("NEEDS_REVIEW" if warnings else "PASS")
     return {
         "validator": "data_integrity",
