@@ -1,0 +1,714 @@
+# AcademicSuite Capability Registry
+# Authoritative definitions of academic research capabilities, skill bindings,
+# subagent roles, deterministic artifact requirements, and validation rules.
+
+version: "1.0.0"
+description: "Authoritative AcademicSuite Capability Registry"
+
+capabilities:
+  # ---------------------------------------------------------------------------
+  # DATA PREPARATION & AUDITING
+  # ---------------------------------------------------------------------------
+  data_cleaning:
+    id: "data_cleaning"
+    domain: "data"
+    description: "Raw dataset ingestion, questionnaire reverse-coding, subscale aggregation, and clean dataset curation."
+    intent_patterns:
+      - "\\bclean(?:ing)?\\s+(?:the\\s+|this\\s+)?(?:data|dataset)\\b"
+      - "\\breverse[- ]code\\b"
+      - "\\bdata\\s+curation\\b"
+      - "\\bprepare\\s+(?:data|dataset)\\b"
+      - "\\bscore\\s+(?:questionnaires?|scales?|items?)\\b"
+    required_skills:
+      - "data-cleaning"
+      - "data-audit"
+    primary_agent: "data-agent"
+    execution_worker: "data-curator"
+    reviewer: "results-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/01_raw_inputs/*"
+    output_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+      - "projects/*/02_clean_and_scored/data_provenance.json"
+    validation_requirements:
+      - "sha256_provenance_recorded"
+      - "raw_dataset_read_only_0444"
+      - "reverse_coding_verified"
+    dependencies: []
+
+  data_audit:
+    id: "data_audit"
+    domain: "data"
+    description: "Data quality audit, missingness diagnosis (Little's MCAR), straight-lining screening, and multivariate outlier detection."
+    intent_patterns:
+      - "\\baudit(?:ing)?\\s+(?:the\\s+|this\\s+)?(?:data|dataset)\\b"
+      - "\\blittle'?s\\s+mcar\\b"
+      - "\\bmahalanobis\\s+d2?\\b"
+      - "\\bmissingness\\s+pattern\\b"
+      - "\\bstraight[- ]lining\\b"
+    required_skills:
+      - "data-audit"
+    primary_agent: "data-agent"
+    execution_worker: "data-curator"
+    reviewer: "results-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/01_raw_inputs/*"
+    output_artifacts:
+      - "projects/*/02_clean_and_scored/data_quality_report.json"
+    validation_requirements:
+      - "little_mcar_evaluated"
+      - "outlier_threshold_p_lt_001"
+      - "unengaged_screening_completed"
+    dependencies: []
+
+  # ---------------------------------------------------------------------------
+  # DESCRIPTIVE & ASSUMPTION TESTING
+  # ---------------------------------------------------------------------------
+  descriptive_statistics:
+    id: "descriptive_statistics"
+    domain: "statistics"
+    description: "Univariate sample descriptive parameters (M, SD, SE, Min, Max, Skewness, Kurtosis) and demographic frequency distributions."
+    intent_patterns:
+      - "\\bdescriptive\\s+statistics?\\b"
+      - "\\bdemographics?\\s+(?:table|distribution|frequencies)\\b"
+      - "\\bmean\\s+and\\s+standard\\s+deviation\\b"
+      - "\\bunivariate\\s+(?:parameters|statistics)\\b"
+    required_skills:
+      - "descriptive-statistics"
+      - "apa-reporting"
+    primary_agent: "statistics-agent"
+    execution_worker: "statistical-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_01_demographics/01_demographics.docx"
+      - "projects/*/03_deliverables/stage_01_demographics/01_demographics.md"
+      - "projects/*/03_deliverables/stage_01_demographics/01_demographics.json"
+    validation_requirements:
+      - "apa7_two_decimal_places"
+      - "persian_leading_zero_enforced"
+      - "sample_size_reconciliation"
+    dependencies:
+      - "data_cleaning"
+
+  assumption_testing:
+    id: "assumption_testing"
+    domain: "statistics"
+    description: "Parametric assumption testing including Shapiro-Wilk normality, Levene's variance equality, slope homogeneity, and collinearity VIF."
+    intent_patterns:
+      - "\\bassumption\\s+testing\\b"
+      - "\\bparametric\\s+assumptions?\\b"
+      - "\\blevene'?s\\s+test\\b"
+      - "\\bshapiro[- ]wilk\\b"
+      - "\\bhomogeneity\\s+of\\s+(?:variance|regression\\s+slopes)\\b"
+      - "\\bcollinearity\\s+vif\\b"
+    required_skills:
+      - "assumption-testing"
+    primary_agent: "statistics-agent"
+    execution_worker: "statistical-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_03_assumptions/03_assumptions.docx"
+      - "projects/*/03_deliverables/stage_03_assumptions/03_assumptions.md"
+      - "projects/*/03_deliverables/stage_03_assumptions/03_assumptions.json"
+    validation_requirements:
+      - "shapiro_wilk_p_gt_05_or_kline_skew_kurt"
+      - "levene_equality_verified"
+      - "vif_lt_5_tolerance_gt_020"
+    dependencies:
+      - "data_cleaning"
+
+  # ---------------------------------------------------------------------------
+  # INFERENTIAL & ADVANCED MODELING
+  # ---------------------------------------------------------------------------
+  ancova:
+    id: "ancova"
+    domain: "statistics"
+    description: "Analysis of Covariance (ANCOVA) with pretest/baseline adjustment, slope homogeneity checks, and partial eta-squared."
+    intent_patterns:
+      - "\\bancova\\b"
+      - "\\banalysis\\s+of\\s+covariance\\b"
+      - "\\bcovariate\\s+adjustment\\b"
+      - "\\bpretest[- ]posttest\\s+(?:control|experiment)\\b"
+    required_skills:
+      - "statistical-data-analyst"
+      - "assumption-testing"
+      - "apa-reporting"
+    primary_agent: "statistics-agent"
+    execution_worker: "statistical-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+      - "academic-state/analysis_plan.json"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_06_hypothesis_1/06_hypothesis_1.docx"
+      - "projects/*/03_deliverables/stage_06_hypothesis_1/06_hypothesis_1.md"
+      - "projects/*/03_deliverables/stage_06_hypothesis_1/06_hypothesis_1.json"
+      - "execution_manifest.json"
+    validation_requirements:
+      - "group_by_pretest_interaction_p_gt_05"
+      - "degrees_of_freedom_df_between_plus_within_plus_covar_equals_n_minus_1"
+      - "eta_p2_reported"
+      - "triad_artifact_invariant"
+    dependencies:
+      - "data_cleaning"
+      - "assumption_testing"
+
+  repeated_measures:
+    id: "repeated_measures"
+    domain: "statistics"
+    description: "Repeated Measures ANOVA / Mixed ANOVA across multi-wave longitudinal experimental designs with sphericity checks."
+    intent_patterns:
+      - "\\brepeated\\s+measures?\\s+(?:anova)?\\b"
+      - "\\bmixed\\s+anova\\b"
+      - "\\bwithin[- ]between\\s+subjects?\\b"
+      - "\\bmauchly'?s\\s+sphericity\\b"
+    required_skills:
+      - "statistical-data-analyst"
+      - "assumption-testing"
+    primary_agent: "statistics-agent"
+    execution_worker: "statistical-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+      - "academic-state/analysis_plan.json"
+    output_artifacts:
+      - "stats_results.json"
+      - "execution_manifest.json"
+    validation_requirements:
+      - "mauchly_sphericity_tested"
+      - "greenhouse_geisser_applied_if_violated"
+      - "triad_artifact_invariant"
+    dependencies:
+      - "data_cleaning"
+      - "assumption_testing"
+
+  linear_mixed_model:
+    id: "linear_mixed_model"
+    domain: "statistics"
+    description: "Linear Mixed Models (LMM / HLM) for unbalanced longitudinal repeated measurements and clustered nested observations."
+    intent_patterns:
+      - "\\blinear\\s+mixed\\s+models?\\b"
+      - "\\blmm\\b"
+      - "\\bhlm\\b"
+      - "\\bhierarchical\\s+linear\\s+modeling\\b"
+      - "\\brandom\\s+intercepts?\\s+and\\s+slopes?\\b"
+    required_skills:
+      - "longitudinal-moderated-mediation"
+      - "statistical-data-analyst"
+    primary_agent: "statistics-agent"
+    execution_worker: "longitudinal-modmed-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+      - "academic-state/analysis_plan.json"
+    output_artifacts:
+      - "stats_results.json"
+      - "execution_manifest.json"
+    validation_requirements:
+      - "model_convergence_verified"
+      - "random_effects_variance_tested"
+      - "aic_bic_model_comparison"
+      - "triad_artifact_invariant"
+    dependencies:
+      - "data_cleaning"
+      - "assumption_testing"
+
+  mediation:
+    id: "mediation"
+    domain: "statistics"
+    description: "Preacher & Hayes bootstrap mediation (PROCESS Model 4) with 5,000 resamples and 95% BCa confidence intervals for indirect effects."
+    intent_patterns:
+      - "\\bmediation\\s+analysis?\\b"
+      - "\\bindirect\\s+effects?\\b"
+      - "\\bbootstrap\\s+mediation\\b"
+      - "\\bprocess\\s+model\\s*4\\b"
+      - "\\bsobel\\s+alternative\\b"
+    required_skills:
+      - "mediation"
+      - "apa-reporting"
+    primary_agent: "statistics-agent"
+    execution_worker: "statistical-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+      - "academic-state/analysis_plan.json"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_07_mediation/07_mediation.docx"
+      - "projects/*/03_deliverables/stage_07_mediation/07_mediation.md"
+      - "projects/*/03_deliverables/stage_07_mediation/07_mediation.json"
+      - "execution_manifest.json"
+    validation_requirements:
+      - "bootstrap_iterations_gte_5000"
+      - "bca_95_ci_reported"
+      - "zero_sobel_or_baron_kenny"
+      - "triad_artifact_invariant"
+    dependencies:
+      - "data_cleaning"
+      - "assumption_testing"
+
+  moderation:
+    id: "moderation"
+    domain: "statistics"
+    description: "Moderation interaction analysis (PROCESS Model 1), mean-centering, simple slopes (-1 SD, Mean, +1 SD), and Johnson-Neyman regions."
+    intent_patterns:
+      - "\\bmoderation\\s+analysis?\\b"
+      - "\\binteraction\\s+effect\\b"
+      - "\\bprocess\\s+model\\s*1\\b"
+      - "\\bsimple\\s+slopes?\\b"
+      - "\\bjohnson[- ]neyman\\b"
+    required_skills:
+      - "moderation"
+      - "apa-reporting"
+    primary_agent: "statistics-agent"
+    execution_worker: "statistical-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+      - "academic-state/analysis_plan.json"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_08_moderation/08_moderation.docx"
+      - "projects/*/03_deliverables/stage_08_moderation/08_moderation.md"
+      - "projects/*/03_deliverables/stage_08_moderation/08_moderation.json"
+      - "execution_manifest.json"
+    validation_requirements:
+      - "predictors_mean_centered"
+      - "simple_slopes_tested_at_plus_minus_1sd"
+      - "jn_floodlight_plotted"
+      - "triad_artifact_invariant"
+    dependencies:
+      - "data_cleaning"
+      - "assumption_testing"
+
+  regression:
+    id: "regression"
+    domain: "statistics"
+    description: "Standard, hierarchical blockwise, and multiple regression modeling evaluating R2 change, F-test, and standardized beta coefficients."
+    intent_patterns:
+      - "\\bmultiple\\s+regression\\b"
+      - "\\bhierarchical\\s+regression\\b"
+      - "\\br[- ]?squared\\s+change\\b"
+      - "\\bpredictor\\s+weights?\\b"
+      - "\\bstepwise\\s+regression\\b"
+    required_skills:
+      - "regression"
+      - "apa-reporting"
+    primary_agent: "statistics-agent"
+    execution_worker: "statistical-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+      - "academic-state/analysis_plan.json"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_06_hypothesis_1/06_hypothesis_1.docx"
+      - "projects/*/03_deliverables/stage_06_hypothesis_1/06_hypothesis_1.md"
+      - "projects/*/03_deliverables/stage_06_hypothesis_1/06_hypothesis_1.json"
+      - "execution_manifest.json"
+    validation_requirements:
+      - "f_change_and_r2_change_reported"
+      - "durbin_watson_in_1_5_to_2_5"
+      - "vif_lt_5"
+      - "triad_artifact_invariant"
+    dependencies:
+      - "data_cleaning"
+      - "assumption_testing"
+
+  sem:
+    id: "sem"
+    domain: "statistics"
+    description: "Structural Equation Modeling (SEM) evaluating latent structural paths and 11 Goodness-of-Fit indices against Hu & Bentler (1999) cutoffs."
+    intent_patterns:
+      - "\\bsem\\b"
+      - "\\bstructural\\s+equation\\s+modeling\\b"
+      - "\\blatent\\s+variable\\s+path\\s+model\\b"
+      - "\\bhu\\s+and\\s+bentler\\b"
+      - "\\bpath\\s+coefficients?\\b"
+    required_skills:
+      - "sem"
+      - "apa-reporting"
+    primary_agent: "statistics-agent"
+    execution_worker: "statistical-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+      - "academic-state/analysis_plan.json"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_05_macro_model/05_macro_model.docx"
+      - "projects/*/03_deliverables/stage_05_macro_model/05_macro_model.md"
+      - "projects/*/03_deliverables/stage_05_macro_model/05_macro_model.json"
+      - "execution_manifest.json"
+    validation_requirements:
+      - "11_hu_bentler_fit_indices_reported"
+      - "cfi_gte_090_tli_gte_090"
+      - "rmsea_lte_008_srmr_lte_008"
+      - "triad_artifact_invariant"
+    dependencies:
+      - "data_cleaning"
+      - "cfa"
+
+  # ---------------------------------------------------------------------------
+  # PSYCHOMETRICS & SCALE VALIDATION
+  # ---------------------------------------------------------------------------
+  cfa:
+    id: "cfa"
+    domain: "psychometrics"
+    description: "Confirmatory Factor Analysis (CFA), factor loadings (lambda >= 0.50), construct reliability (CR >= 0.70), and convergent validity (AVE >= 0.50)."
+    intent_patterns:
+      - "\\bcfa\\b"
+      - "\\bconfirmatory\\s+factor\\s+analysis\\b"
+      - "\\bconvergent\\s+validity\\b"
+      - "\\baverage\\s+variance\\s+extracted\\b"
+      - "\\bconstruct\\s+reliability\\b"
+      - "\\bmeasurement\\s+model\\b"
+    required_skills:
+      - "cfa"
+      - "reliability-analysis"
+    primary_agent: "statistics-agent"
+    execution_worker: "psychometric-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+      - "academic-state/analysis_plan.json"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_v4_cfa/v4_cfa.docx"
+      - "projects/*/03_deliverables/stage_v4_cfa/v4_cfa.md"
+      - "projects/*/03_deliverables/stage_v4_cfa/v4_cfa.json"
+    validation_requirements:
+      - "factor_loadings_gte_050"
+      - "ave_gte_050_cr_gte_070"
+      - "htmt_lt_085"
+      - "triad_artifact_invariant"
+    dependencies:
+      - "data_cleaning"
+
+  psychometrics:
+    id: "psychometrics"
+    domain: "psychometrics"
+    description: "Comprehensive psychometric scale validation including CVR/CVI, item discrimination, EFA, CFA, Omega/Alpha, IRT GRM, and ROC curves."
+    intent_patterns:
+      - "\\bpsychometrics?\\b"
+      - "\\bscale\\s+validation\\b"
+      - "\\bcontent\\s+validity\\s+ratio\\b"
+      - "\\bcvr\\b|\\bcvi\\b"
+      - "\\bitem\\s+response\\s+theory\\b"
+      - "\\bgraded\\s+response\\s+model\\b"
+    required_skills:
+      - "psychometric-scale-validator"
+      - "reliability-analysis"
+      - "cfa"
+    primary_agent: "statistics-agent"
+    execution_worker: "psychometric-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_v8_master_package/master_validation.docx"
+      - "projects/*/03_deliverables/stage_v8_master_package/master_validation.md"
+      - "projects/*/03_deliverables/stage_v8_master_package/master_validation.json"
+    validation_requirements:
+      - "lawshe_cvr_minimums"
+      - "cronbach_alpha_gte_070"
+      - "mcdonald_omega_gte_070"
+      - "triad_artifact_invariant"
+    dependencies:
+      - "data_cleaning"
+
+  # ---------------------------------------------------------------------------
+  # QUALITATIVE & METHODOLOGY
+  # ---------------------------------------------------------------------------
+  qualitative_analysis:
+    id: "qualitative_analysis"
+    domain: "qualitative"
+    description: "Braun & Clarke Reflexive Thematic Analysis, Strauss & Corbin Grounded Theory, and inter-coder reliability (Cohen's kappa)."
+    intent_patterns:
+      - "\\bqualitative\\s+analysis?\\b"
+      - "\\bthematic\\s+analysis\\b"
+      - "\\bgrounded\\s+theory\\b"
+      - "\\bbraun\\s+and\\s+clarke\\b"
+      - "\\binter[- ]coder\\s+reliability\\b"
+      - "\\btheme\\s+extraction\\b"
+    required_skills:
+      - "qualitative-data-analyst"
+    primary_agent: "research-agent"
+    execution_worker: "qualitative-analyst"
+    reviewer: "evidence-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/01_raw_inputs/transcripts.txt"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_04_themes/theme_hierarchy.json"
+      - "projects/*/03_deliverables/stage_04_themes/themes_report.docx"
+    validation_requirements:
+      - "cohen_kappa_gte_080"
+      - "codebook_provenance_verified"
+      - "triad_artifact_invariant"
+    dependencies: []
+
+  research_methodology:
+    id: "research_methodology"
+    domain: "methodology"
+    description: "Research design formulation, internal/external validity safeguards, G*Power sampling determination, and Chapter 3 methodology scaffolding."
+    intent_patterns:
+      - "\\bresearch\\s+methodology\\b"
+      - "\\bg\\*?power\\b"
+      - "\\bsample\\s+size\\s+calculation\\b"
+      - "\\bstatistical\\s+power\\b"
+      - "\\bvalidity\\s+safeguards?\\b"
+      - "\\bchapter\\s*3\\s+methodology\\b"
+    required_skills:
+      - "methodology-review"
+      - "gpower-sample-size-calculator"
+    primary_agent: "research-agent"
+    execution_worker: "methodology-expert"
+    reviewer: "evidence-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "academic-state/requirements.json"
+    output_artifacts:
+      - "academic-state/analysis_plan.json"
+    validation_requirements:
+      - "power_gte_080"
+      - "sampling_design_justified"
+      - "validity_threats_addressed"
+    dependencies: []
+
+  thesis_proposal:
+    id: "thesis_proposal"
+    domain: "methodology"
+    description: "Defense-ready research proposal (طرح تحقیق / پروپوزال) with inverted-triangle problem statement, directional hypotheses, and G*Power sampling."
+    intent_patterns:
+      - "\\bthesis\\s+proposal\\b"
+      - "\\bresearch\\s+proposal\\b"
+      - "\\bپروپوزال\\b"
+      - "\\bطرح\\s+تحقیق\\b"
+      - "\\bdraft\\s+proposal\\b"
+    required_skills:
+      - "persian-proposal-builder"
+      - "gpower-sample-size-calculator"
+    primary_agent: "research-agent"
+    execution_worker: "methodology-expert"
+    reviewer: "evidence-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "academic-state/requirements.json"
+    output_artifacts:
+      - "projects/*/proposal_deliverable.docx"
+      - "projects/*/proposal_deliverable.md"
+    validation_requirements:
+      - "inverted_triangle_problem_statement"
+      - "directional_hypotheses_defined"
+      - "gpower_a_priori_sample_size"
+    dependencies:
+      - "literature_review"
+
+  # ---------------------------------------------------------------------------
+  # LITERATURE & SYNTHESIS
+  # ---------------------------------------------------------------------------
+  literature_review:
+    id: "literature_review"
+    domain: "literature"
+    description: "Scientific literature harvesting (PubMed, CrossRef, SID, Magiran), theoretical foundations, and inverted-triangle Chapter 2 review structuring."
+    intent_patterns:
+      - "\\bliterature\\s+review\\b"
+      - "\\bchapter\\s*2\\b"
+      - "\\btheoretical\\s+foundations?\\b"
+      - "\\bfind\\s+research\\s+gaps?\\b"
+      - "\\bliterature\\s+harvesting\\b"
+    required_skills:
+      - "persian-literature-review-builder"
+      - "literature-harvester"
+      - "academic-reference-extractor"
+    primary_agent: "research-agent"
+    execution_worker: "literature-expert"
+    reviewer: "evidence-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "academic-state/requirements.json"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_02_literature/Chapter_2_Literature.docx"
+      - "projects/*/03_deliverables/stage_02_literature/Chapter_2_Literature.md"
+    validation_requirements:
+      - "zero_ghost_citations"
+      - "doi_verified_against_crossref"
+      - "temporal_window_2021_2026"
+    dependencies: []
+
+  meta_analysis:
+    id: "meta_analysis"
+    domain: "literature"
+    description: "PRISMA 2020 systematic review and meta-analysis including Cochrane RoB 2, Hedges' g pooling, heterogeneity, and Forest/Funnel plots."
+    intent_patterns:
+      - "\\bmeta[- ]analysis?\\b"
+      - "\\bsystematic\\s+review\\b"
+      - "\\bprisma\\s+2020\\b"
+      - "\\bhedges'?\\s+g\\b"
+      - "\\bforest\\s+plot\\b"
+      - "\\bfunnel\\s+plot\\b"
+      - "\\begger'?s\\s+test\\b"
+    required_skills:
+      - "systematic-review-meta-analyst"
+    primary_agent: "research-agent"
+    execution_worker: "meta-analyst"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/01_raw_inputs/extracted_effects.xlsx"
+    output_artifacts:
+      - "projects/*/03_deliverables/meta_analysis_report.docx"
+      - "projects/*/03_deliverables/meta_analysis_report.md"
+    validation_requirements:
+      - "hedges_g_pooled_with_random_effects"
+      - "i2_heterogeneity_evaluated"
+      - "cochrane_rob2_completed"
+      - "publication_bias_tested"
+    dependencies:
+      - "literature_review"
+
+  network_analysis:
+    id: "network_analysis"
+    domain: "literature"
+    description: "Bibliometric network mapping, keyword co-occurrence, citation networks, Callon centrality-density coordinates, and VOSviewer exports."
+    intent_patterns:
+      - "\\bnetwork\\s+analysis?\\b"
+      - "\\bco[- ]occurrence\\s+network\\b"
+      - "\\bbibliometric\\s+network\\b"
+      - "\\bcallon\\s+(?:centrality|diagram)\\b"
+      - "\\bvosviewer\\b"
+      - "\\bcitation\\s+network\\b"
+    required_skills:
+      - "bibliometric-network-analyst"
+      - "citation-network-visualizer"
+    primary_agent: "statistics-agent"
+    execution_worker: "statistical-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/01_raw_inputs/bibliographic_data.csv"
+    output_artifacts:
+      - "projects/*/03_deliverables/stage_04_network/network_results.json"
+      - "projects/*/03_deliverables/stage_04_network/network_diagram.png"
+    validation_requirements:
+      - "centrality_metrics_computed"
+      - "vosviewer_json_valid"
+      - "300_dpi_publication_graphics"
+    dependencies:
+      - "data_cleaning"
+
+  # ---------------------------------------------------------------------------
+  # THESIS WRITING & DELIVERABLES
+  # ---------------------------------------------------------------------------
+  thesis_chapter4:
+    id: "thesis_chapter4"
+    domain: "writing"
+    description: "End-to-end Chapter 4 findings drafting adhering strictly to One-Hypothesis-One-Stage micro-stages and Triad Artifact Invariants."
+    intent_patterns:
+      - "\\b(?:write|draft|generate)\\s+chapter\\s*4\\b"
+      - "\\bchapter\\s*4\\s+findings\\b"
+      - "\\bresults\\s+chapter\\b"
+      - "\\bfsl[- ]e\\s*4\\b"
+      - "\\bفصل\\s+(?:چهارم|۴)\\b"
+    required_skills:
+      - "chapter-4-writing"
+      - "apa-reporting"
+      - "thesis-integrity-auditor"
+    primary_agent: "writing-agent"
+    execution_worker: "academic-writer"
+    reviewer: "results-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/02_clean_and_scored/data_curated.xlsx"
+      - "academic-state/analysis_plan.json"
+      - "stats_results.json"
+    output_artifacts:
+      - "projects/*/03_deliverables/Chapter_4_Results.docx"
+      - "projects/*/03_deliverables/Chapter_4_Results.md"
+      - "projects/*/03_deliverables/Chapter_4_Results.json"
+    validation_requirements:
+      - "triad_artifact_invariant_all_stages"
+      - "one_hypothesis_one_stage_enforced"
+      - "apa7_three_line_tables"
+      - "persian_leading_zero_standard"
+      - "decoupled_ltr_numeric_formatting"
+    dependencies:
+      - "data_cleaning"
+      - "descriptive_statistics"
+      - "assumption_testing"
+
+  thesis_chapter5:
+    id: "thesis_chapter5"
+    domain: "writing"
+    description: "Chapter 5 (Discussion and Conclusion) synthesis connecting statistical findings with theoretical mechanisms, concordances, and limitations."
+    intent_patterns:
+      - "\\b(?:write|draft|generate)\\s+chapter\\s*5\\b"
+      - "\\bchapter\\s*5\\s+discussion\\b"
+      - "\\bdiscussion\\s+(?:and\\s+conclusion|chapter)\\b"
+      - "\\bfsl[- ]e\\s*5\\b"
+      - "\\bفصل\\s+(?:پنجم|۵)\\b"
+    required_skills:
+      - "persian-discussion-builder"
+      - "ai-academic-tone-polisher"
+    primary_agent: "writing-agent"
+    execution_worker: "academic-writer"
+    reviewer: "results-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/03_deliverables/Chapter_4_Results.docx"
+      - "academic-state/analysis_plan.json"
+    output_artifacts:
+      - "projects/*/03_deliverables/Chapter_5_Discussion.docx"
+      - "projects/*/03_deliverables/Chapter_5_Discussion.md"
+    validation_requirements:
+      - "five_part_epistemic_paragraph_structure"
+      - "candid_reporting_of_non_significant_findings"
+      - "concordance_with_empirical_literature"
+      - "triad_artifact_invariant"
+    dependencies:
+      - "thesis_chapter4"
+
+  defense_presentation:
+    id: "defense_presentation"
+    domain: "presentation"
+    description: "16:9 thesis and dissertation defense presentations (HTML, PPTX) with native SmartArt RTL, decoupled LTR stats, and dedicated hypothesis slides."
+    intent_patterns:
+      - "\\bdefense\\s+presentation\\b"
+      - "\\bdefense\\s+slides?\\b"
+      - "\\bthesis\\s+defense\\s+deck\\b"
+      - "\\bجلسه\\s+دفاع\\b"
+      - "\\bاسلایدهای?\\s+دفاع\\b"
+    required_skills:
+      - "persian-defense-presentation-builder"
+    primary_agent: "writing-agent"
+    execution_worker: "academic-writer"
+    reviewer: "results-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/03_deliverables/Chapter_4_Results.docx"
+      - "projects/*/03_deliverables/Chapter_5_Discussion.docx"
+    output_artifacts:
+      - "projects/*/03_deliverables/defense_deck.pptx"
+      - "projects/*/03_deliverables/defense_deck.html"
+    validation_requirements:
+      - "mandatory_8_stage_sequence"
+      - "zero_emojis_in_slides"
+      - "zero_english_words_in_persian_slides"
+      - "smartart_rtl_reverse_1"
+      - "decoupled_ltr_numbers"
+    dependencies:
+      - "thesis_chapter4"
+      - "thesis_chapter5"

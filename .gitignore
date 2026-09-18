@@ -17,6 +17,8 @@
 !artifacts/
 !contracts/
 !legacy/
+!config/
+!config/**
 !ANTIGRAVITY_ARCHITECTURE_GUIDE.md
 webapp/node_modules/
 webapp/dist/
