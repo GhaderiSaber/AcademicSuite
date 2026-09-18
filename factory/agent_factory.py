@@ -387,10 +387,10 @@ def validate_agent_spec(
     graph[spec.name] = list(spec.agents)
 
     # Ensure all mentioned children are nodes in graph
-    for children in graph.values():
-        for c in children:
-            if c not in graph:
-                graph[c] = []
+    all_children = {c for children in list(graph.values()) for c in children}
+    for c in all_children:
+        if c not in graph:
+            graph[c] = []
 
     cycle = check_circular_dependencies(graph)
     if cycle:
