@@ -19,6 +19,7 @@ tools:
   - ask_question
 skills:
   - digital-twin-academic-consultant
+  - academic-adaptive-context
   - academic-suite-orchestrator
   - thesis-integrity-auditor
 agents:

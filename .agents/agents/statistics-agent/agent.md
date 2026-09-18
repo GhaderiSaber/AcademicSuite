@@ -15,6 +15,7 @@ tools:
   - run_command
 skills:
   - statistical-data-analyst
+  - academic-adaptive-context
   - regression
   - mediation
   - moderation

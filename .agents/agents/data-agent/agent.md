@@ -15,6 +15,7 @@ tools:
   - run_command
 skills:
   - data-cleaning
+  - academic-adaptive-context
   - data-audit
   - psychometric-scale-resolver
   - psychometric-data-simulator

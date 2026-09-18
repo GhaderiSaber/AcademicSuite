@@ -15,6 +15,7 @@ tools:
   - run_command
 skills:
   - thesis-integrity-auditor
+  - academic-adaptive-context
   - data-audit
 agents: []
 mcpServers: []

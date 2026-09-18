@@ -15,6 +15,7 @@ tools:
   - run_command
 skills:
   - psychometric-scale-validator
+  - academic-adaptive-context
   - cfa
   - psychometric-scale-resolver
   - reliability-analysis

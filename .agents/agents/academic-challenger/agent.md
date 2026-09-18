@@ -14,6 +14,7 @@ tools:
   - write_to_file
 skills:
   - thesis-integrity-auditor
+  - academic-adaptive-context
   - methodology-review
 agents: []
 mcpServers: []

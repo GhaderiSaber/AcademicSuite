@@ -18,6 +18,7 @@ tools:
   - run_command
 skills:
   - methodology-review
+  - academic-adaptive-context
   - gpower-sample-size-calculator
   - persian-proposal-builder
 agents:

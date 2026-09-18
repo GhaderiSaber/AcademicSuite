@@ -16,6 +16,7 @@ tools:
   - run_command
 skills:
   - chapter-4-writing
+  - academic-adaptive-context
   - persian-literature-review-builder
   - persian-discussion-builder
   - persian-thesis-builder
