@@ -38,6 +38,14 @@ class StageDependencyError(Exception):
     """Raised when an orchestrator pipeline step lacks required upstream checkpoint artifacts (Directive 3)."""
     pass
 
+class MissingProductionDataError(StageDependencyError):
+    """Raised when real production data/payload is missing in production mode."""
+    pass
+
+class ProductionSampleFallbackBlockedError(StageDependencyError):
+    """Raised when an attempt is made to fall back to sample/demo data in production mode."""
+    pass
+
 
 # ==============================================================================
 # Skill Registry & Script Directory Map
@@ -258,7 +266,10 @@ class MasterAcademicOrchestrator:
     def __init__(self, config_path: str, out_dir: str, pipeline_name: Optional[str] = None,
                  custom_steps: Optional[List[str]] = None, dry_run: bool = False,
                  resume_from: Optional[str] = None, single_step: Optional[str] = None,
-                 lang: str = "fa"):
+                 lang: str = "fa", mode: str = "production"):
+        if mode not in ("production", "demo", "test"):
+            raise ValueError(f"Invalid mode '{mode}'. Must be one of: 'production', 'demo', 'test'")
+        self.mode = mode
         self.config_path = os.path.abspath(config_path) if config_path else None
         self.out_dir = os.path.abspath(out_dir)
         self.pipeline_name = pipeline_name or "thesis_empirical"
@@ -273,12 +284,61 @@ class MasterAcademicOrchestrator:
             "orchestrator_version": "1.0.0",
             "start_time": datetime.now().isoformat(),
             "pipeline": self.pipeline_name,
+            "mode": self.mode,
             "status": "INITIALIZING",
             "out_dir": self.out_dir,
             "steps_executed": [],
             "artifacts": {}
         }
         self.context: Dict[str, Any] = {}
+
+    def _resolve_payload(self, step: str, step_conf: Dict[str, Any],
+                         context_keys: Optional[List[str]] = None,
+                         default_sample: Optional[str] = None) -> str:
+        """
+        Resolves input payload/data for a pipeline step according to execution mode.
+        In 'production' mode: silent fallback to sample/demo data is strictly BLOCKED.
+        In 'demo' or 'test' mode: fallback to verified default_sample is permitted with notice.
+        """
+        payload = step_conf.get("payload_path")
+        if not payload and context_keys:
+            for k in context_keys:
+                if self.context.get(k):
+                    payload = self.context[k]
+                    break
+
+        if not payload:
+            if self.mode == "production":
+                raise ProductionSampleFallbackBlockedError(
+                    f"CRITICAL SAFETY VIOLATION: Production execution cannot fall back to sample/demo data for step '{step}'. "
+                    f"Missing required input artifact or payload_path in project configuration."
+                )
+            elif default_sample:
+                payload = default_sample
+                print(f"    [{self.mode.upper()}-MODE] Using sample payload for step '{step}': {default_sample}")
+            else:
+                raise MissingProductionDataError(
+                    f"Missing required input payload for step '{step}' in {self.mode} mode."
+                )
+
+        if not os.path.isabs(payload):
+            payload = os.path.join(REPO_ROOT, payload)
+
+        # In production mode, explicitly reject pointers to sample/examples
+        if self.mode == "production":
+            norm_payload = os.path.abspath(payload).replace("\\", "/")
+            if "/examples/" in norm_payload or "sample_" in os.path.basename(norm_payload):
+                raise ProductionSampleFallbackBlockedError(
+                    f"CRITICAL SAFETY VIOLATION: Production execution attempted with sample/demo payload '{payload}'. "
+                    f"Production mode strictly requires real empirical artifacts on disk."
+                )
+
+        if not os.path.exists(payload):
+            raise MissingProductionDataError(
+                f"Resolved payload for step '{step}' does not exist on disk: {payload}"
+            )
+
+        return payload
 
     def load_configuration(self):
         """Loads and validates the project configuration JSON."""
@@ -428,9 +488,7 @@ class MasterAcademicOrchestrator:
 
         if step == "proposal":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("proposal", step_conf, default_sample=info["default_sample"])
             out_docx = os.path.join(step_dir, "Research_Proposal.docx")
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx]
             self.context["proposal_docx"] = out_docx
@@ -439,9 +497,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "literature_review":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("literature_review", step_conf, default_sample=info["default_sample"])
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
             out_docx = os.path.join(step_dir, "Chapter_2_Literature_Review.docx")
             self.context["ch2_docx"] = out_docx
@@ -450,9 +506,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "simulation":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("simulation", step_conf, default_sample=info["default_sample"])
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir]
             sim_xlsx = os.path.join(step_dir, "simulated_regression_dataset.xlsx")
             self.context["simulated_data"] = sim_xlsx
@@ -462,7 +516,7 @@ class MasterAcademicOrchestrator:
         elif step == "statistics":
             # Uses generate_apa_docx with standard verified sample or results
             script = info["script_doc"]
-            json_payload = info["default_sample"]
+            json_payload = self._resolve_payload("statistics", step_conf, context_keys=["stats_json"], default_sample=info["default_sample"])
             out_docx = os.path.join(step_dir, "Chapter_4_Results.docx")
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx, "--mode", "chapter4"]
             self.context["ch4_docx"] = out_docx
@@ -473,9 +527,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "scale_validator":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("scale_validator", step_conf, default_sample=info["default_sample"])
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
             out_docx = os.path.join(step_dir, "Chapter_4_Psychometric_Validation.docx")
             out_xlsx = os.path.join(step_dir, "psychometric_validation_matrix.xlsx")
@@ -487,9 +539,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "qualitative":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("qualitative", step_conf, default_sample=info["default_sample"])
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
             out_docx = os.path.join(step_dir, "Chapter_4_Qualitative_Findings.docx")
             self.context["ch4_docx"] = out_docx
@@ -498,9 +548,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "discussion":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("discussion", step_conf, default_sample=info["default_sample"])
             out_docx = os.path.join(step_dir, "Chapter_5_Discussion_and_Conclusion.docx")
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx]
             self.context["ch5_docx"] = out_docx
@@ -525,9 +573,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "defense":
             main_script = os.path.join(SKILLS_DIR, "persian-defense-presentation-builder", "main.py")
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("defense", step_conf, default_sample=info["default_sample"])
             target_path = step_conf.get("presentation_path") or step_conf.get("path") or "pptx"
             target_path = target_path.lower().replace("-", "_")
 
@@ -572,7 +618,12 @@ class MasterAcademicOrchestrator:
 
         elif step == "plagiarism":
             script = info["script"]
-            input_file = self.context.get("full_thesis_docx") or os.path.join(REPO_ROOT, "AGENTS.md")
+            input_file = self.context.get("full_thesis_docx")
+            if not input_file:
+                if self.mode == "production":
+                    raise MissingProductionDataError("CRITICAL SAFETY VIOLATION: Plagiarism audit in production mode requires full_thesis_docx in context.")
+                else:
+                    input_file = os.path.join(REPO_ROOT, "AGENTS.md")
             out_docx = os.path.join(step_dir, "Rewritten_Plagiarism_Reduced_Text.docx")
             out_rep = os.path.join(step_dir, "Plagiarism_Reduction_Report.docx")
             cmd = [PYTHON_BIN, script, "--input", input_file, "--output-docx", out_docx, "--output-report", out_rep]
@@ -585,9 +636,7 @@ class MasterAcademicOrchestrator:
                 os.path.join(SKILLS_DIR, "academic-article-writer", "examples", "sample_article_en.json")
                 if self.lang == "en" else info["default_sample"]
             )
-            json_payload = step_conf.get("payload_path") or default_art
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("article", step_conf, default_sample=default_art)
             out_docx = os.path.join(step_dir, "Academic_Article_Manuscript.docx")
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out", out_docx, "--lang", self.lang]
             self.context["article_docx"] = out_docx
@@ -600,18 +649,14 @@ class MasterAcademicOrchestrator:
                 os.path.join(SKILLS_DIR, "journal-submission-assistant", "examples", "sample_submission_payload_en.json")
                 if self.lang == "en" else info["default_sample"]
             )
-            json_payload = step_conf.get("payload_path") or default_sub
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("submission", step_conf, default_sample=default_sub)
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
             self.manifest["artifacts"]["submission_dir"] = step_dir
             return cmd, {"dir": step_dir}
 
         elif step == "meta_analysis":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("meta_analysis", step_conf, default_sample=info["default_sample"])
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
             out_docx = os.path.join(step_dir, "Systematic_Review_and_Meta_Analysis_Report.docx")
             self.manifest["artifacts"]["meta_docx"] = out_docx
@@ -619,9 +664,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "audit":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("audit", step_conf, default_sample=info["default_sample"])
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
             out_docx = os.path.join(step_dir, "Thesis_Integrity_Audit_Report.docx")
             self.manifest["artifacts"]["audit_docx"] = out_docx
@@ -631,9 +674,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "sample_size":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("sample_size", step_conf, default_sample=info["default_sample"])
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--out-dir", step_dir, "--lang", self.lang]
             out_docx = os.path.join(step_dir, "GPower_Sample_Size_Report.docx")
             plot_path = os.path.join(step_dir, "power_curve_plot.png")
@@ -645,9 +686,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "tone_polish":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("tone_polish", step_conf, default_sample=info["default_sample"])
             sample_name = "persian_draft" if self.lang == "fa" else "english_draft"
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--sample", sample_name, "--out-dir", step_dir, "--lang", self.lang]
             out_docx = os.path.join(step_dir, "Polished_Academic_Manuscript.docx")
@@ -660,9 +699,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "harvest":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("harvest", step_conf, default_sample=info["default_sample"])
             sample_name = "act_psychological_flexibility_fa" if self.lang == "fa" else "cognitive_reappraisal_mindfulness_en"
             cmd = [PYTHON_BIN, script, "--json", json_payload, "--sample", sample_name, "--out-dir", step_dir, "--lang", self.lang]
             out_docx = os.path.join(step_dir, "Harvested_Literature_Review.docx")
@@ -678,9 +715,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "bibliometrics":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or self.context.get("harvest_json") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("bibliometrics", step_conf, context_keys=["harvest_json"], default_sample=info["default_sample"])
             cmd = [PYTHON_BIN, script, "--input", json_payload, "--output-dir", step_dir, "--language", self.lang]
             out_docx = os.path.join(step_dir, "Bibliometric_Science_Mapping_Report.docx")
             net_plot = os.path.join(step_dir, "bibliometric_network_map.png")
@@ -701,9 +736,7 @@ class MasterAcademicOrchestrator:
 
         elif step == "historiography":
             script = info["script"]
-            json_payload = step_conf.get("payload_path") or self.context.get("citation_json") or info["default_sample"]
-            if not os.path.isabs(json_payload):
-                json_payload = os.path.join(REPO_ROOT, json_payload)
+            json_payload = self._resolve_payload("historiography", step_conf, context_keys=["citation_json"], default_sample=info["default_sample"])
             cmd = [PYTHON_BIN, script, "--input", json_payload, "--output-dir", step_dir, "--language", self.lang]
             out_docx = os.path.join(step_dir, "Historiographic_Citation_Network_Report.docx")
             chrono_plot = os.path.join(step_dir, "citation_chronomap.png")
@@ -898,6 +931,8 @@ def main():
     parser.add_argument("--sections-dir", help="Directory containing micro-stage section DOCX files to assemble")
     parser.add_argument("--dry-run", action="store_true", help="Simulate pipeline DAG and validate inputs without running heavy tasks")
     parser.add_argument("--lang", default="fa", choices=["fa", "en"], help="Target language (default: fa)")
+    parser.add_argument("--mode", default="production", choices=["production", "demo", "test"],
+                        help="Execution mode: production (strict real empirical data, no fallbacks), demo (allows sample fallbacks), test (allows fixtures)")
 
     args = parser.parse_args()
 
@@ -917,7 +952,8 @@ def main():
         dry_run=args.dry_run,
         resume_from=args.resume_from,
         single_step=args.step,
-        lang=args.lang
+        lang=args.lang,
+        mode=args.mode
     )
     orchestrator.execute()
 
