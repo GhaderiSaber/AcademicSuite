@@ -150,7 +150,8 @@ class AcademicEvaluationLab:
         self,
         suite_type: Optional[str] = None,
         capability: Optional[str] = None,
-        tags: Optional[List[str]] = None
+        tags: Optional[List[str]] = None,
+        include_retired: bool = False
     ) -> List[Dict[str, Any]]:
         """Load and filter evaluation test cases across specified suites."""
         target_suites = [suite_type] if suite_type else self.SUITE_TYPES
@@ -179,6 +180,10 @@ class AcademicEvaluationLab:
                         c_tags = set(t.lower() for t in case_data.get("tags", []))
                         if not tags_set.intersection(c_tags):
                             continue
+
+                    # Filter retired cases unless explicitly requested
+                    if not include_retired and case_data.get("status") == "retired":
+                        continue
 
                     cases.append(case_data)
 
@@ -431,6 +436,95 @@ class AcademicEvaluationLab:
 
         return diagnostics
 
+    def check_reasoning(
+        self,
+        case: Dict[str, Any],
+        candidate_artifacts: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Verify methodological reasoning properties deterministically:
+        - Required reasoning properties evaluated (e.g. repeated_measures_structure, missingness,
+          imbalance, covariance_structure, estimand, candidate_model_comparison).
+        - Forbidden behavior violations detected (e.g. selecting a model without comparison).
+        - Does NOT hard-code a single answer unless evidence requires one.
+        """
+        diagnostics = []
+        expected = case.get("expected_properties", {})
+        req_props = expected.get("required_reasoning_properties", [])
+        forbidden = case.get("forbidden_behaviors", [])
+
+        # Aggregate all text and structured fields from candidate artifacts
+        reasoning_data = candidate_artifacts.get("reasoning", {})
+        model_comp = candidate_artifacts.get("model_comparison", {})
+        stat_out = candidate_artifacts.get("statistics", {})
+        narrative = candidate_artifacts.get("narrative", "")
+
+        combined_text = (
+            str(narrative) + " " +
+            json.dumps(reasoning_data) + " " +
+            json.dumps(model_comp) + " " +
+            json.dumps(stat_out)
+        ).lower()
+
+        property_synonyms = {
+            "repeated_measures_structure": [
+                "repeated_measures_structure", "repeated measures", "within-subject", "time points", "timepoints", "longitudinal structure", "تکرارسنجش"
+            ],
+            "missingness": [
+                "missingness", "missing data", "dropout", "attrition", "mcar", "mar", "little's mcar", "گمشده", "گمشدگی"
+            ],
+            "imbalance": [
+                "imbalance", "unbalanced", "unequal cell", "group imbalance", "missing waves", "ناهمگون", "نامتعادل"
+            ],
+            "covariance_structure": [
+                "covariance_structure", "covariance structure", "compound symmetry", "sphericity", "ar(1)", "autoregressive", "unstructured", "ماتریس کوواریانس", "کرویت"
+            ],
+            "estimand": [
+                "estimand", "target estimand", "treatment effect", "rate of change", "fixed effect", "indirect effect", "برآوردگر"
+            ],
+            "candidate_model_comparison": [
+                "candidate_model_comparison", "model comparison", "compare models", "comparing lmm", "rm-anova vs", "lmm vs", "aic", "bic", "likelihood ratio", "مقایسه مدل"
+            ]
+        }
+
+        for prop in req_props:
+            prop_clean = prop.strip().lower()
+            synonyms = property_synonyms.get(prop_clean, [prop_clean, prop_clean.replace("_", " ")])
+            found = any(syn in combined_text for syn in synonyms)
+            if not found:
+                diagnostics.append({
+                    "target_behavior": False,
+                    "failure_type": "missing_reasoning_property",
+                    "evidence": f"Candidate analysis failed to consider required reasoning property '{prop}'.",
+                    "missed_requirement": f"Explicit evaluation and discussion of '{prop}'.",
+                    "dimension": "methodology",
+                    "regression": True
+                })
+
+        for fb in forbidden:
+            if fb == "unjustified_model_selection_without_comparison":
+                if not any(syn in combined_text for syn in property_synonyms["candidate_model_comparison"]):
+                    diagnostics.append({
+                        "target_behavior": False,
+                        "failure_type": "unjustified_model_selection_without_comparison",
+                        "evidence": "Selected an analytical model without explicit comparative evaluation of candidate models.",
+                        "missed_requirement": "Candidate model comparison against data characteristics.",
+                        "dimension": "methodology",
+                        "regression": True
+                    })
+            elif fb == "ignoring_missingness_in_longitudinal_data":
+                if not any(syn in combined_text for syn in property_synonyms["missingness"]):
+                    diagnostics.append({
+                        "target_behavior": False,
+                        "failure_type": "ignoring_missingness_in_longitudinal_data",
+                        "evidence": "Longitudinal modeling proceeded without evaluating missingness patterns or attrition.",
+                        "missed_requirement": "Missingness evaluation (Little's MCAR or MAR justification).",
+                        "dimension": "methodology",
+                        "regression": True
+                    })
+
+        return diagnostics
+
     # -------------------------------------------------------------------------
     # Evaluation Execution & Multi-Dimensional Scoring
     # -------------------------------------------------------------------------
@@ -470,7 +564,12 @@ class AcademicEvaluationLab:
         ds_sha = case.get("inputs", {}).get("dataset_sha256")
         diagnostics.extend(self.check_integrity(case, exec_log, ds_path, ds_sha))
 
-        # 5. Check Regressions Against Baseline
+        # 5. Run Reasoning Checks
+        req_props = case.get("expected_properties", {}).get("required_reasoning_properties", [])
+        if req_props or case.get("forbidden_behaviors"):
+            diagnostics.extend(self.check_reasoning(case, candidate_artifacts))
+
+        # 6. Check Regressions Against Baseline
         if baseline_artifacts:
             base_stat = baseline_artifacts.get("statistics", {})
             base_diags = self.check_statistics(case, base_stat) if base_stat else []
@@ -574,6 +673,9 @@ class AcademicEvaluationLab:
         overall_verdict = "PASS" if len(failures) == 0 and len(regression_details) == 0 else "FAIL"
 
         eval_id = f"EVR-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+        failed_cases = set(f["test_id"] for f in failures)
+        successful_runs = max(0, len(cases) - len(failed_cases))
+
         report_data = {
             "contract_version": "1.0.0",
             "evaluation_id": eval_id,
@@ -591,7 +693,7 @@ class AcademicEvaluationLab:
                     "prohibited_cliche_count": 0
                 },
                 "execution_reliability": {
-                    "successful_runs": len(cases) - len(failures),
+                    "successful_runs": successful_runs,
                     "total_runs": len(cases),
                     "crash_count": 0,
                     "average_latency_seconds": 1.2

@@ -34,8 +34,8 @@ learning/knowledge/exemplars/EXM-*
 learning/knowledge/exemplars/index.jsonl
 learning/skill-memory/**/*.json
 learning/skill-memory/**/index.jsonl
+learning/evaluations/**/index.jsonl
 learning/evaluations/results/EVR-*
-learning/evaluations/results/index.jsonl
 learning/evaluations/results/*.json
 !learning/experience/.gitkeep
 !learning/experience/feedback/.gitkeep

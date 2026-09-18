@@ -66,6 +66,11 @@
         "typography_rules": {
           "type": "array",
           "items": {"type": "string"}
+        },
+        "required_reasoning_properties": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Methodological and theoretical properties the candidate must explicitly evaluate (e.g. repeated-measures structure, missingness, imbalance, covariance structure, estimand, candidate model comparison)."
         }
       },
       "additionalProperties": false
@@ -121,6 +126,52 @@
       "type": "string",
       "enum": ["development", "regression", "adversarial", "heldout", "curriculum"],
       "description": "Evaluation suite partition."
+    },
+    "originating_lesson_id": {
+      "type": "string",
+      "pattern": "^LSN-.*$",
+      "description": "Identifier of originating lesson distilled from failure or feedback."
+    },
+    "originating_experience_id": {
+      "type": "string",
+      "pattern": "^EXP-.*$",
+      "description": "Identifier of originating raw experience record."
+    },
+    "originating_feedback_id": {
+      "type": "string",
+      "pattern": "^FDB-.*$",
+      "description": "Identifier of originating user feedback contract."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["candidate", "validated", "active", "retired"],
+      "description": "Lifecycle status of the evaluation test case."
+    },
+    "expected_behavior": {
+      "type": "string",
+      "description": "Scholarly description of expected reasoning and empirical behavior."
+    },
+    "forbidden_behavior": {
+      "type": "string",
+      "description": "Description of anti-pattern or forbidden behavior triggering failure."
+    },
+    "validation_evidence": {
+      "type": "object",
+      "description": "Structured audit records confirming the case was validated before becoming a permanent regression asset."
+    },
+    "retirement_reason": {
+      "type": "string",
+      "description": "Formal justification required if a regression case is explicitly retired."
+    },
+    "repeat_count": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Cumulative count of times this failure or mistake has recurred."
+    },
+    "last_seen_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this failure pattern was most recently observed."
     }
   },
   "additionalProperties": false

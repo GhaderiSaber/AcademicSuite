@@ -299,6 +299,19 @@ class AcademicLessonDistiller:
             if not vres.get("valid"):
                 raise LessonDistillationError(f"Lesson contract validation failed: {vres.get('error')}")
 
+        # Automatic Regression Candidate Generation for High-Confidence Reusable Failures
+        if fdb_scope in ["REUSABLE_PROCEDURAL", "POTENTIAL_GLOBAL_INVARIANT"]:
+            try:
+                from scripts.academic_regression_synthesizer import AcademicRegressionSynthesizer
+                synthesizer = AcademicRegressionSynthesizer(base_dir=self.project_root)
+                synthesizer.synthesize_from_correction_and_lesson(
+                    feedback_data=fdb_data,
+                    lesson_data=lesson_record,
+                    experience_data={"experience_id": source_exp} if source_exp else None
+                )
+            except Exception:
+                pass
+
         return lesson_record
 
     def _distill_validator_failure(
@@ -378,6 +391,28 @@ class AcademicLessonDistiller:
             vres = validate_lesson(lesson_record)
             if not vres.get("valid"):
                 raise LessonDistillationError(f"Validator failure lesson validation failed: {vres.get('error')}")
+
+        # Automatic Regression Candidate Generation for Reusable Validator Failures
+        try:
+            from scripts.academic_regression_synthesizer import AcademicRegressionSynthesizer
+            synthesizer = AcademicRegressionSynthesizer(base_dir=self.project_root)
+            synth_feedback = {
+                "feedback_id": f"FDB-{lesson_id}",
+                "type": "STATISTICAL_CORRECTION",
+                "scope": "REUSABLE_PROCEDURAL",
+                "severity": "HIGH",
+                "correction": f"Validator {validator_name} failed on checks: {failed_str}",
+                "desired_behavior": desired_behavior,
+                "target_agent": "statistics-agent",
+                "target_skill": skill
+            }
+            synthesizer.synthesize_from_correction_and_lesson(
+                feedback_data=synth_feedback,
+                lesson_data=lesson_record,
+                experience_data={"experience_id": exp_data.get("experience_id")}
+            )
+        except Exception:
+            pass
 
         return lesson_record
 
