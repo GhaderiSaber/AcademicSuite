@@ -64,6 +64,12 @@ learning/promotions/PRM-*
 learning/promotions/index.jsonl
 !learning/promotions/.gitkeep
 learning/telemetry/improvement_history.jsonl
+learning/telemetry/*.log
+learning/telemetry/*.jsonl
+learning/reports/drift/
+learning/profiles/
+learning/promotions/snapshots/
+learning/evaluations/regression/EVAL-CASE-REG-*.json
 !learning/telemetry/.gitkeep
 learning/evolution.lock
 !legacy/

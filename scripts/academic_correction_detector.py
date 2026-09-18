@@ -232,6 +232,40 @@ CORRECTION_TRIGGER_PATTERNS = [
     r"فراموش کردی|باید|نباید|اشتباه است|نادرست است|اصلاح کن|دقت کن"
 ]
 
+# Epistemic Methodological Blacklist (ATK-02 & ATK-14 Hardening: Experience is Evidence, Not Truth)
+EPISTEMIC_METHODOLOGICAL_BLACKLIST = [
+    (
+        "SOBEL_MEDIATION_OVER_BOOTSTRAP",
+        r"\b(?:sobel (?:test|z|formula)|never use bootstrap|only use sobel|use sobel instead)\b",
+        "Sobel's test assumes normal distribution of the indirect effect (ab), which is severely flawed and underpowered. Modern methodological consensus (Preacher & Hayes 2004, 2008; Hayes 2018) mandates 5,000 bootstrap BCa resamples."
+    ),
+    (
+        "POST_HOC_POWER_CALCULATION",
+        r"\b(?:post[- ]hoc power|observed power|retrospective power|calculate power after non-significant)\b",
+        "Post-hoc (observed) power is mathematically fallacious because it is a 1-to-1 transformation of the p-value and provides zero additional inferential information (Hoenig & Heisey, 2001; Levine & Ensom, 2001)."
+    ),
+    (
+        "MEDIAN_SPLIT_DICHOTOMIZATION",
+        r"\b(?:median split|dichotomiz(?:e|ation)|split continuous into (?:high|low))\b",
+        "Dichotomizing continuous variables via median split discards statistical variance, loses up to 50% of statistical power, and inflates spurious interaction significance (MacCallum et al., 2002; Iacobucci et al., 2015)."
+    ),
+    (
+        "STEPWISE_REGRESSION_FOR_EXPLANATION",
+        r"\b(?:stepwise regression|automated variable selection|forward selection|backward elimination)\b",
+        "Stepwise regression produces severe p-value inflation, biased parameter estimates, and fails under collinearity; prohibited for explanatory theory testing (Whittingham et al., 2006)."
+    ),
+    (
+        "STRIP_LEADING_ZERO_IN_PERSIAN",
+        r"\b(?:remove leading zero in persian|delete zero before decimal in persian|حذف صفر قبل از ممیز)\b",
+        "Persian typography strictly mandates retaining the leading zero before decimals (۰.۰۰۱ > p, ۰.۰۵) under Directive 4."
+    ),
+    (
+        "BLIND_LISTWISE_DELETION_ATTRITION",
+        r"\b(?:always delete missing rows|just drop missing cases in longitudinal|complete case analysis for all)\b",
+        "Complete-case listwise deletion under longitudinal attrition violates MAR assumptions and introduces severe selection bias."
+    )
+]
+
 PROJECT_SPECIFIC_PATTERNS = [
     r"\bin this thesis\b",
     r"\bin my thesis\b",
@@ -242,7 +276,11 @@ PROJECT_SPECIFIC_PATTERNS = [
     r"\bin table \d+-\d+ of (?:this|my)\b",
     r"\buse this exact wording in this\b",
     r"\bthis specific participant\b",
-    r"در این پایان[‌ ]?نامه|در این رساله|برای این پژوهش|در این مطالعه"
+    r"\b(?:department|committee|faculty|institution|university|advisor|supervisor|hospital|clinic)\b",
+    r"\b(?:wants|requires|mandates|rules? for|guidelines? for)\b",
+    r"\b(?:purple|blue|green|red) (?:headers?|borders?|colors?)\b",
+    r"\b(?:4|four|5|five) decimal places?\b",
+    r"در این پایان[‌ ]?نامه|در این رساله|برای این پژوهش|در این مطالعه|دانشکده|کمیته|استاد راهنما|دستورالعمل دانشگاه"
 ]
 
 GLOBAL_INVARIANT_PATTERNS = [
@@ -270,8 +308,8 @@ class AcademicCorrectionDetector:
     Persists structured feedback and unpromoted generalization candidates.
     """
 
-    def __init__(self, store_dir: Optional[str] = None, project_root: Optional[str] = None):
-        self.project_root = project_root or ROOT_DIR
+    def __init__(self, store_dir: Optional[str] = None, project_root: Optional[str] = None, base_dir: Optional[str] = None):
+        self.project_root = project_root or base_dir or ROOT_DIR
         if store_dir:
             self.store_dir = os.path.abspath(store_dir)
         else:
@@ -286,7 +324,8 @@ class AcademicCorrectionDetector:
         self,
         user_text: str,
         assistant_context: str = "",
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
+        current_agent: Optional[str] = None
     ) -> Optional[Dict[str, Any]]:
         """
         Analyzes user text to determine if it constitutes an instructional correction.
@@ -297,8 +336,37 @@ class AcademicCorrectionDetector:
         if len(cleaned) < 8:
             return None
 
-        # 1. Check trigger markers
         text_lower = cleaned.lower()
+        meta = metadata or {}
+        if current_agent:
+            meta.setdefault("current_agent", current_agent)
+
+        # 0. Check Epistemic Methodological Blacklist (ATK-02 & ATK-14 Hardening)
+        for bl_code, bl_pattern, bl_reason in EPISTEMIC_METHODOLOGICAL_BLACKLIST:
+            if re.search(bl_pattern, text_lower):
+                return {
+                    "contract_version": "1.0.0",
+                    "feedback_id": f"FDB-DISCREDITED-{uuid.uuid4().hex[:6].upper()}",
+                    "is_correction": True,
+                    "is_discredited_methodology": True,
+                    "blacklist_code": bl_code,
+                    "blacklist_reason": bl_reason,
+                    "discredited_citation": bl_reason,
+                    "source": {"origin": "HUMAN_SUPERVISOR", "identifier": meta.get("user_identifier", "User")},
+                    "type": "DISCREDITED_METHODOLOGY_ATTEMPT",
+                    "target_agent": "academic-challenger",
+                    "target_skill": "methodology-review",
+                    "scope": "DISCREDITED_REJECTED",
+                    "correction_statement": cleaned
+                }
+
+        # 0.1 Check conversational / rhetorical questions (ATK-12 Hardening)
+        if cleaned.endswith("?") and not any(re.search(pat, text_lower) for pat in [r"\byou must\b", r"\byou should have\b", r"\bnever\b", r"\balways\b"]):
+            return None
+        if re.search(r"\b(?:don'?t you think|what do you think|is it possible|could it be)\b", text_lower):
+            return None
+
+        # 1. Check trigger markers
         has_trigger = any(re.search(pat, text_lower) for pat in CORRECTION_TRIGGER_PATTERNS)
         if not has_trigger:
             return None
@@ -373,6 +441,8 @@ class AcademicCorrectionDetector:
         feedback_payload = {
             "contract_version": "1.0.0",
             "feedback_id": feedback_id,
+            "is_correction": True,
+            "is_project_specific": is_project_specific,
             "source": {
                 "origin": "HUMAN_SUPERVISOR",
                 "identifier": meta.get("user_identifier", "GhaderiSaber")

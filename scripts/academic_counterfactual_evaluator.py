@@ -122,6 +122,18 @@ class AcademicCounterfactualEvaluator:
 
         return suites
 
+    @staticmethod
+    def check_overfitting(training_pass_rate: float, heldout_pass_rate: float, heldout_total: int) -> Tuple[bool, Optional[str]]:
+        """
+        Evaluates whether a candidate exhibits overfitting against held-out generalization test cases (ATK-04).
+        If training pass rate >= 0.70 and heldout_total > 0 and (heldout_pass_rate / training_pass_rate) < 0.70:
+        returns (True, reason)
+        otherwise returns (False, None)
+        """
+        if training_pass_rate >= 0.70 and heldout_total > 0 and (heldout_pass_rate / max(0.01, training_pass_rate)) < 0.70:
+            return True, "[OVERFITTING_DETECTED] Candidate overfitted training scenarios; held-out generalization ratio < 0.70."
+        return False, None
+
     def compare_single_candidate(
         self,
         candidate_id: str,
@@ -236,6 +248,7 @@ class AcademicCounterfactualEvaluator:
             dimensional_summary[dim] = {
                 "baseline_failures": base_dim_fails,
                 "candidate_failures": cand_dim_fails,
+                "delta": base_dim_fails - cand_dim_fails,
                 "improved": cand_dim_fails < base_dim_fails,
                 "regressed": cand_dim_fails > base_dim_fails
             }
@@ -248,7 +261,23 @@ class AcademicCounterfactualEvaluator:
             if cid in [c.get("case_id") for c in suites.get("adversarial", [])]
         ) if suites.get("adversarial") else True
 
-        promotion_eligible = target_improved and zero_regressions and adversarial_clear
+        # Overfitting Guard (ATK-04 Hardening)
+        heldout_cases = suites.get("heldout", [])
+        heldout_total = len(heldout_cases)
+        heldout_passes = sum(1 for c in heldout_cases if candidate_case_results.get(c.get("case_id"), {}).get("verdict") == "PASS")
+        heldout_pass_rate = (heldout_passes / heldout_total) if heldout_total > 0 else 1.0
+
+        training_cases = suites.get("original_failure", []) + suites.get("related", [])
+        training_total = len(training_cases)
+        training_passes = sum(1 for c in training_cases if candidate_case_results.get(c.get("case_id"), {}).get("verdict") == "PASS")
+        training_pass_rate = (training_passes / training_total) if training_total > 0 else 1.0
+
+        # If training pass rate is high but heldout fails significantly, flag overfitting
+        is_overfitted, overfit_msg = self.check_overfitting(training_pass_rate, heldout_pass_rate, heldout_total)
+        if is_overfitted:
+            what_regressed.append(overfit_msg)
+
+        promotion_eligible = target_improved and zero_regressions and adversarial_clear and not is_overfitted
 
         report = {
             "contract_version": "1.0.0",

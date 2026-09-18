@@ -195,6 +195,33 @@ class AcademicIntegratedLearningHub:
                 metadata=meta
             )
 
+            if not feedback_record:
+                return {
+                    "action": "NO_CORRECTION_DETECTED",
+                    "is_correction": False
+                }
+
+            if feedback_record.get("is_discredited_methodology"):
+                bl_code = feedback_record.get("blacklist_code")
+                bl_reason = feedback_record.get("blacklist_reason")
+                self.log_activity("DISCREDITED_METHODOLOGY_BLOCKED", {
+                    "code": bl_code,
+                    "reason": bl_reason,
+                    "user_text": clean_msg[:120]
+                })
+                disc_log = os.path.join(self.base_dir, "learning", "telemetry", "discredited_attempts.log")
+                os.makedirs(os.path.dirname(disc_log), exist_ok=True)
+                with open(disc_log, "a", encoding="utf-8") as f:
+                    f.write(f"[{datetime.now(timezone.utc).isoformat()}] BLOCKED {bl_code}: {bl_reason} | Prompt: {clean_msg}\n")
+
+                return {
+                    "action": "DISCREDITED_METHODOLOGY_REJECTED",
+                    "is_correction": False,
+                    "blacklist_code": bl_code,
+                    "blacklist_reason": bl_reason,
+                    "scientific_rationale": bl_reason
+                }
+
             category = feedback_record.get("type") or feedback_record.get("category") if feedback_record else None
             if not feedback_record or not category:
                 return {
@@ -248,11 +275,12 @@ class AcademicIntegratedLearningHub:
         to_state: str,
         sm: Optional[Any] = None,
         actor: str = "user",
-        rationale: str = ""
+        rationale: str = "",
+        deliverable_payload: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Intercepts milestone transitions at meaningful boundaries:
-        - APPROVED: records successful experience & potential exemplar.
+        - APPROVED: records successful experience & potential exemplar (only if verified).
         - REJECTED / FAILED: extracts defect, creates lesson, triggers targeted fast loop.
         - REVISION_REQUESTED: tracks repeated revisions (>= 2 triggers defect capture).
         Guarantees failure isolation: learning failures never corrupt state transitions.
@@ -264,6 +292,47 @@ class AcademicIntegratedLearningHub:
             # Boundary 1: Milestone Approval (Success)
             if to_clean == "APPROVED":
                 self.milestone_revision_counts.pop(milestone_id, None)
+
+                # ATK-13 Hardening: Experience is Evidence, Not Truth
+                # Verify that deliverable passed deterministic mathematical and assumption audit
+                # before allowing exemplar creation.
+                integrity_verified = True
+                verification_reason = "Milestone passed independent checks."
+
+                if sm and hasattr(sm, "get_milestone_validation_status"):
+                    integrity_verified = sm.get_milestone_validation_status(milestone_id)
+                elif "unverified" in rationale.lower() or "violation" in rationale.lower() or "bypass" in rationale.lower():
+                    integrity_verified = False
+                    verification_reason = f"Approval rationale indicates unverified defects: {rationale}"
+                elif deliverable_payload:
+                    dp_str = json.dumps(deliverable_payload).lower()
+                    if any(k in dp_str for k in ["defect", "violation", "unverified", "flawed"]):
+                        integrity_verified = False
+                        verification_reason = f"Deliverable payload contains unverified defects or violations."
+
+                if not integrity_verified:
+                    self.log_activity("UNVERIFIED_APPROVAL_QUARANTINED", {
+                        "milestone_id": milestone_id,
+                        "reason": verification_reason
+                    })
+                    quarantine_file = os.path.join(self.base_dir, "learning", "quarantine", f"UNVERIFIED_{milestone_id}.json")
+                    os.makedirs(os.path.dirname(quarantine_file), exist_ok=True)
+                    with open(quarantine_file, "w", encoding="utf-8") as f:
+                        json.dump({
+                            "milestone_id": milestone_id,
+                            "actor": actor,
+                            "rationale": rationale,
+                            "quarantine_reason": verification_reason,
+                            "quarantined_at": datetime.now(timezone.utc).isoformat()
+                        }, f, indent=2, ensure_ascii=False)
+
+                    return {
+                        "action": "APPROVAL_QUARANTINED_UNVERIFIED",
+                        "milestone_id": milestone_id,
+                        "exemplar_promoted": False,
+                        "reason": verification_reason
+                    }
+
                 if sm and hasattr(sm, "experience_recorder") and sm.experience_recorder:
                     sm.experience_recorder.record_from_milestone(
                         sm=sm,
@@ -274,7 +343,8 @@ class AcademicIntegratedLearningHub:
                 self.log_activity("MILESTONE_APPROVED_RECORDED", {"milestone_id": milestone_id})
                 return {
                     "action": "MILESTONE_SUCCESS_RECORDED",
-                    "milestone_id": milestone_id
+                    "milestone_id": milestone_id,
+                    "exemplar_promoted": True
                 }
 
             # Boundary 2: Repeated Revision Pattern (>= 2 Revisions)

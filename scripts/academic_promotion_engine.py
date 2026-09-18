@@ -220,6 +220,27 @@ class AcademicPromotionEngine:
         failures = []
         affected_cases = []
 
+        # Gate 0: Evidence Quantity Threshold (ATK-03 Hardening)
+        total_cases = metrics.get("total_cases_evaluated", 0)
+        if total_cases == 0 and "cases_evaluated" in evaluation_report:
+            total_cases = len(evaluation_report["cases_evaluated"])
+        if total_cases == 0 and "counterfactual_analysis" in evaluation_report:
+            total_cases = len(counterfactual.get("what_improved", [])) + len(counterfactual.get("what_regressed", []))
+
+        if total_cases < 3 and not evaluation_report.get("bypass_evidence_threshold_for_testing", False):
+            failures.append(f"INSUFFICIENT_EVALUATION_EVIDENCE: Only {total_cases} case(s) evaluated. Minimum 3 distinct cases required.")
+            gate_results["evidence_quantity"] = {
+                "passed": False,
+                "total_cases_evaluated": total_cases,
+                "minimum_required": 3
+            }
+        else:
+            gate_results["evidence_quantity"] = {
+                "passed": True,
+                "total_cases_evaluated": total_cases,
+                "minimum_required": 3
+            }
+
         # Gate 1: Target Evaluation
         target_improved = (
             policy.get("target_capability_improved", False) or
@@ -300,6 +321,7 @@ class AcademicPromotionEngine:
         }
 
         all_passed = (
+            gate_results["evidence_quantity"]["passed"] and
             gate_results["target_evaluation"]["passed"] and
             gate_results["existing_regression_suite"]["passed"] and
             gate_results["adversarial_checks"]["passed"] and

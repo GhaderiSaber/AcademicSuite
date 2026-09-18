@@ -146,15 +146,65 @@ class AcademicBehaviorConsolidator:
 
         self.knowledge_manager = AcademicKnowledgeManager(base_dir=self.base_dir)
 
+        self.quarantine_dir = os.path.join(self.learning_dir, "quarantine")
+        self.telemetry_dir = os.path.join(self.learning_dir, "telemetry")
+        self.error_log_path = os.path.join(self.telemetry_dir, "learning_errors.log")
+
         # Ensure directory structures exist
         os.makedirs(self.lessons_dir, exist_ok=True)
         os.makedirs(self.contradictions_dir, exist_ok=True)
         os.makedirs(self.snapshots_dir, exist_ok=True)
+        os.makedirs(self.quarantine_dir, exist_ok=True)
+        os.makedirs(self.telemetry_dir, exist_ok=True)
 
         # Directive 18 Thresholds
         self.MAX_SKILL_LINES = 500
         self.MAX_SKILL_BYTES = 40000
         self.WARNING_SKILL_LINES = 450
+
+    def safe_load_json(self, file_path: str) -> Optional[Dict[str, Any]]:
+        """
+        Safely loads a JSON file with fault isolation (ATK-17).
+        If malformed or corrupt:
+        - Isolates and moves corrupt artifact to learning/quarantine/
+        - Appends structured diagnostic to learning/telemetry/learning_errors.log
+        - Returns None to allow batch operations to proceed without failure.
+        """
+        if not os.path.isfile(file_path):
+            return None
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, ValueError) as ex:
+            # Fault isolation: quarantine malformed artifact
+            os.makedirs(self.quarantine_dir, exist_ok=True)
+            fname = os.path.basename(file_path)
+            quarantine_path = os.path.join(self.quarantine_dir, f"CORRUPT_{uuid.uuid4().hex[:6]}_{fname}")
+            try:
+                import shutil
+                shutil.move(file_path, quarantine_path)
+            except Exception:
+                pass
+
+            # Structured error log
+            try:
+                os.makedirs(os.path.dirname(self.error_log_path), exist_ok=True)
+                with open(self.error_log_path, "a", encoding="utf-8") as elf:
+                    log_entry = {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "error_type": "JSONDecodeError",
+                        "original_path": file_path,
+                        "quarantined_to": quarantine_path,
+                        "exception": str(ex),
+                        "component": "AcademicBehaviorConsolidator"
+                    }
+                    elf.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
+            except Exception:
+                pass
+
+            return None
+        except Exception:
+            return None
 
     # -------------------------------------------------------------------------
     # Stage 1: Active Lessons Ingestion
@@ -168,6 +218,7 @@ class AcademicBehaviorConsolidator:
         """
         Discovers all active lessons on disk.
         Strictly excludes RETIRED_OBSOLETE, SUPERSEDED, and REJECTED lessons.
+        Safely isolates corrupt artifacts without halting batch processing (ATK-17).
         """
         active_lessons = []
         if not os.path.isdir(self.lessons_dir):
@@ -179,10 +230,8 @@ class AcademicBehaviorConsolidator:
             if not fn.endswith(".json") or fn == "index.jsonl":
                 continue
             fp = os.path.join(self.lessons_dir, fn)
-            try:
-                with open(fp, "r", encoding="utf-8") as f:
-                    lesson = json.load(f)
-            except Exception:
+            lesson = self.safe_load_json(fp)
+            if not lesson:
                 continue
 
             status = lesson.get("status", "VALIDATED")
@@ -838,6 +887,7 @@ def main():
     result = consolidator.run_periodic_consolidation(target_skill=args.skill, dry_run=args.dry_run)
 
     print(json.dumps(result, indent=2, ensure_ascii=False))
+AcademicConsolidationEngine = AcademicBehaviorConsolidator
 
 
 if __name__ == "__main__":

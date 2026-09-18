@@ -364,16 +364,75 @@ class AcademicCurriculumBuilder:
                 pass
         return max_level
 
+    MINIMUM_COMPLEXITY_FLOOR = 3
+
+    @staticmethod
+    def validate_synthetic_parameters(params: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+        """
+        Validates that synthetic dataset parameters satisfy psychometric and mathematical sanity:
+        - Sample size N >= 15 (avoids degenerate degrees of freedom)
+        - Variance > 0 (strictly positive)
+        - Attrition rate <= 0.40 (40% maximum realistic attrition, < 50%)
+        - Correlation matrix eigenvalues > 0 (positive-definite covariance structure)
+        """
+        if not params or not isinstance(params, dict):
+            return True, None
+
+        # Sample size check
+        n = params.get("sample_size")
+        if n is None:
+            n = params.get("n") or params.get("N") or params.get("n_per_group")
+        if n is not None:
+            if isinstance(n, (int, float)) and n < 15:
+                return False, f"Degenerate sample size: N={n} is below minimum floor of 15."
+            if isinstance(n, list) and any((isinstance(x, (int, float)) and x < 15) for x in n):
+                return False, f"Degenerate group sample size in {n}: cell size below minimum floor of 15."
+
+        # Variance check
+        var = params.get("variance")
+        if var is None:
+            var = params.get("var")
+        if var is not None and isinstance(var, (int, float)) and var <= 0:
+            return False, f"Non-positive variance: {var} <= 0."
+
+        # Attrition check
+        attrition = params.get("attrition_rate")
+        if attrition is None:
+            attrition = params.get("attrition")
+        if attrition is not None and isinstance(attrition, (int, float)):
+            if attrition < 0 or attrition > 0.40:
+                return False, f"Invalid attrition rate: {attrition}. Must be between 0.0 and 0.40 (<= 40%)."
+
+        # Eigenvalues check
+        eigenvalues = params.get("eigenvalues")
+        if eigenvalues is None:
+            eigenvalues = params.get("correlation_eigenvalues")
+        if eigenvalues is not None and isinstance(eigenvalues, list):
+            if any((isinstance(ev, (int, float)) and ev <= 0) for ev in eigenvalues):
+                return False, f"Non-positive definite covariance matrix: eigenvalues contain values <= 0."
+
+        return True, None
+
     def generate_practice_case(
         self,
         capability: str,
         target_weakness: Optional[str] = None,
-        target_level: Optional[int] = None
+        target_level: Optional[int] = None,
+        enforce_complexity_floor: bool = False,
+        synthetic_params: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Generates an increasingly challenging practice task targeting the diagnosed weakness.
         Selects from the 10-level Statistics Ladder or 5-level Writing Ladder.
         """
+        # Validate synthetic dataset parameters if provided (ATK-11)
+        if synthetic_params is not None:
+            valid_params, param_err = self.validate_synthetic_parameters(synthetic_params)
+            if not valid_params:
+                raise CurriculumBuilderError(
+                    f"Synthetic dataset parameters failed mathematical sanity check: {param_err} (ATK-11)"
+                )
+
         # Determine appropriate ladder
         is_writing = any(w in capability.lower() for w in ["writing", "writer", "academic-writer", "chapter-5"])
         ladder = self.WRITING_LADDER if is_writing else self.STATISTICS_LADDER
@@ -381,7 +440,15 @@ class AcademicCurriculumBuilder:
 
         # Determine level: next level above current mastery, capped at max level
         current_level = self.get_current_capability_level(capability)
-        level = target_level or min(len(ladder), current_level + 1)
+        if enforce_complexity_floor:
+            if target_level is not None and target_level < self.MINIMUM_COMPLEXITY_FLOOR:
+                raise CurriculumBuilderError(
+                    f"Target level {target_level} violates minimum complexity floor (Level >= {self.MINIMUM_COMPLEXITY_FLOOR}) for production certification (ATK-10)."
+                )
+            level = target_level or max(self.MINIMUM_COMPLEXITY_FLOOR, min(len(ladder), current_level + 1))
+        else:
+            level = target_level or min(len(ladder), current_level + 1)
+
         level_def = ladder.get(level, ladder[1])
 
         today_str = datetime.now(timezone.utc).strftime("%Y%m%d")
@@ -415,7 +482,8 @@ class AcademicCurriculumBuilder:
                 "dataset_sha256": hashlib.sha256(f"dataset_l{level}".encode("utf-8")).hexdigest(),
                 "spec_parameters": {
                     "level": level,
-                    "target_weakness": effective_weakness
+                    "target_weakness": effective_weakness,
+                    **({"synthetic_parameters": synthetic_params} if synthetic_params else {})
                 }
             },
             "expected_properties": {

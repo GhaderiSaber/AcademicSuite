@@ -192,7 +192,7 @@ class TestAcademicEvaluationLab(unittest.TestCase):
 
     def test_07_eight_independent_dimensions_without_scalar_collapse(self):
         """Evaluations must report across 8 independent dimensions and forbid scalar overall intelligence scores."""
-        case = self.lab.load_cases(suite_type="regression")[0]
+        case = next(c for c in self.lab.load_cases(suite_type="regression") if c["case_id"] == "EVAL-CASE-REG-SLOPE-001")
         payload = {
             "statistics": {
                 "estimand": "Direct effect",

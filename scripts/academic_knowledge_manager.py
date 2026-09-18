@@ -363,6 +363,37 @@ class AcademicKnowledgeManager:
         )
         return item["exemplar_id"]
 
+    def add_lesson(self, lesson_dict: Dict[str, Any]) -> str:
+        """
+        Validate and store a learned lesson contract in learning/knowledge/lessons/.
+        """
+        item = dict(lesson_dict)
+        item.setdefault("contract_version", "1.0.0")
+        item.setdefault("status", "VALIDATED")
+        item.setdefault("is_active_behavior", True)
+        item.setdefault("created_at", datetime.now(timezone.utc).isoformat())
+
+        lid = item.get("lesson_id") or item.get("item_id")
+        if not lid:
+            lid = f"LSN-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+        item["lesson_id"] = lid
+        item["item_id"] = lid
+
+        file_path = os.path.join(self.lessons_dir, f"{lid}.json")
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(item, f, indent=2, ensure_ascii=False)
+
+        self._append_index(
+            self.lessons_dir,
+            {
+                "lesson_id": item["lesson_id"],
+                "target_skill": item.get("target_skill") or (item.get("related_skills", ["unknown"])[0] if item.get("related_skills") else "unknown"),
+                "status": item["status"],
+                "created_at": item["created_at"]
+            }
+        )
+        return item["lesson_id"]
+
     # -------------------------------------------------------------------------
     # General Item Retrieval & Updates
     # -------------------------------------------------------------------------
@@ -713,7 +744,8 @@ class AcademicKnowledgeManager:
         self,
         item: Dict[str, Any],
         query_project_id: Optional[str] = None,
-        query_domain: Optional[str] = None
+        query_domain: Optional[str] = None,
+        target_capability: Optional[str] = None
     ) -> bool:
         """
         Evaluate scope containment:
@@ -722,13 +754,46 @@ class AcademicKnowledgeManager:
         - domain: matches if domain matches or broadly compatible.
         - cross-project: universally matches across projects.
         """
+        if target_capability and not query_domain:
+            t_cap = target_capability.lower()
+            if "qualitative" in t_cap:
+                query_domain = "qualitative"
+            elif any(k in t_cap for k in ["stat", "regression", "mediation", "sem", "cfa"]):
+                query_domain = "quantitative"
+            else:
+                query_domain = target_capability
+
         raw_scope = str(item.get("scope", "cross-project")).strip().lower()
-        item_proj = item.get("project_id") or item.get("context", {}).get("project_id")
+        item_proj = item.get("project_id") or item.get("context", {}).get("project_id") or item.get("metadata", {}).get("project_id")
 
         if raw_scope in ["project", "global-in-project", "project_specific"]:
             if not query_project_id:
                 return False
             return bool(item_proj and item_proj == query_project_id)
+
+        # Hard domain boundary check (ATK-07 Hardening)
+        if query_domain:
+            q_dom = query_domain.lower()
+            item_dom = str(item.get("domain", "")).strip().lower()
+            item_tags = [str(t).lower() for t in item.get("tags", [])]
+            item_text = (str(item.get("statement", "")) + " " + str(item.get("desired_behavior", "")) + " " + str(item.get("defective_pattern", ""))).lower()
+            if q_dom == "qualitative":
+                if item_dom in ["quantitative", "statistics", "regression", "mediation", "moderation", "sem", "cfa", "descriptive", "statistical-data-analyst"]:
+                    return False
+                if any(t in item_tags for t in ["quantitative", "sphericity", "mauchly"]):
+                    return False
+                if any(k in item_text for k in ["sphericity", "homoscedasticity", "levene", "shapiro-wilk", "mauchly", "f_value"]):
+                    return False
+            elif q_dom == "quantitative":
+                if item_dom in ["qualitative", "thematic", "grounded_theory", "interviews", "qualitative-data-analyst"]:
+                    return False
+                if any(t in item_tags for t in ["qualitative", "thematic"]):
+                    return False
+                if any(k in item_text for k in ["sphericity", "homoscedasticity", "levene", "shapiro-wilk", "mauchly", "f_value"]):
+                    return False
+            elif q_dom == "quantitative":
+                if item_dom in ["qualitative", "thematic", "grounded_theory", "interviews"]:
+                    return False
 
         if raw_scope in ["domain", "domain_wide"]:
             if query_domain:
@@ -1027,7 +1092,7 @@ class AcademicKnowledgeManager:
 
     def retrieve_pre_task_context(
         self,
-        task: str,
+        task: Optional[str] = None,
         agent: Optional[str] = None,
         skill: Optional[str] = None,
         capability: Optional[str] = None,
@@ -1035,27 +1100,45 @@ class AcademicKnowledgeManager:
         failure_types: Optional[List[str]] = None,
         tags: Optional[List[str]] = None,
         project_id: Optional[str] = None,
-        limit_per_category: int = 5
+        limit_per_category: int = 5,
+        task_description: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Produce an actionable pre-flight briefing for an agent prior to beginning execution.
         Returns relevant lessons (what to do / what not to do), anti-patterns to avoid,
         gold-standard exemplars to emulate, and applicable principles.
         """
+        effective_task = task or task_description or ""
         canon_cap = self.normalize_capability(capability)
+        effective_domain = domain
+        if not effective_domain and canon_cap:
+            if "qualitative" in canon_cap.lower():
+                effective_domain = "qualitative"
+            elif any(k in canon_cap.lower() for k in ["statistical", "regression", "sem", "cfa", "mediation", "moderation", "reliability", "descriptive", "assumption"]):
+                effective_domain = "quantitative"
 
         # Query lessons
         lessons = self.query(
             agent=agent,
-            domain=domain,
+            domain=effective_domain,
             skill=skill,
-            task=task,
+            task=effective_task,
             capability=canon_cap,
             tags=tags,
             project_id=project_id,
             item_types=["lesson"],
             limit=limit_per_category
         )
+
+        # Contradiction Filtering (ATK-06 Hardening)
+        active_contradictions = self.get_active_contradictions(target_skill=skill, capability=canon_cap)
+        disputed_lesson_ids = set()
+        for c in active_contradictions:
+            disputed_lesson_ids.add(c.get("lesson_a_id"))
+            disputed_lesson_ids.add(c.get("lesson_b_id"))
+
+        if disputed_lesson_ids:
+            lessons = [l for l in lessons if (l.get("lesson_id") or l.get("item_id")) not in disputed_lesson_ids]
 
         # Query anti-patterns
         f_type = failure_types[0] if failure_types else None
