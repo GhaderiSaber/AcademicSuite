@@ -5,7 +5,7 @@ description: >-
 role: Research Methodology, Experimental Design & Power Authority
 model: pro
 mainAgent: true
-subagent: true
+subagent: false
 commandExecutionPolicy: request-review
 tools:
   - invoke_subagent

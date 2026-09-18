@@ -5,7 +5,7 @@ description: >-
 role: Statistical Modeling, Parametric Estimation & Inference Authority
 model: pro
 mainAgent: true
-subagent: true
+subagent: false
 commandExecutionPolicy: request-review
 tools:
   - invoke_subagent

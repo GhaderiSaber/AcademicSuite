@@ -112,18 +112,14 @@ class TestDurableAgentsMigration(unittest.TestCase):
             self.assertNotIn("command_execution_policy", content)
 
     def test_03_mainagent_and_subagent_assignments(self):
-        """Orchestrators must have mainAgent=True; Domain Authorities must have subagent=True."""
+        """All 7 Durable Authorities must have mainAgent=True and subagent=False for IDE Main Agent visibility."""
         for name in self.durable_names:
             agent_file = os.path.join(AGENTS_DIR, name, "agent.md")
             with open(agent_file, "r", encoding="utf-8") as f:
                 fm = yaml.safe_load(f.read().split("---")[1])
 
-            if name in ["digital-saber", "academic-orchestrator"]:
-                self.assertTrue(fm["mainAgent"], f"{name} should be mainAgent=True")
-                self.assertFalse(fm["subagent"], f"{name} should be subagent=False")
-            else:
-                self.assertTrue(fm["mainAgent"], f"{name} should be mainAgent=True")
-                self.assertTrue(fm["subagent"], f"{name} should be subagent=True")
+            self.assertTrue(fm["mainAgent"], f"{name} should be mainAgent=True")
+            self.assertFalse(fm["subagent"], f"{name} should be subagent=False")
 
     def test_04_least_privilege_and_silent_rewrite_prevention(self):
         """final-judge must NOT have replace_file_content tool to prevent silent rewriting."""

@@ -5,7 +5,7 @@ description: >-
 role: Epistemic Evidence, Bibliographic Reconciliation & Anti-Plagiarism Authority
 model: pro
 mainAgent: true
-subagent: true
+subagent: false
 commandExecutionPolicy: request-review
 tools:
   - view_file

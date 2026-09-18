@@ -893,7 +893,7 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             role="Research Methodology, Experimental Design & Power Authority",
             description="Specialist subagent for research methodology, experimental design, sampling power determination (G*Power), and internal/external validity safeguards in psychology and behavioral sciences.",
             mainAgent=True,
-            subagent=True,
+            subagent=False,
             model="pro",
             commandExecutionPolicy="request-review",
             tools=[
@@ -910,7 +910,7 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             role="Statistical Modeling, Parametric Estimation & Inference Authority",
             description="Specialist subagent for statistical analysis planning, hypothesis testing determination, parametric assumption verification sequences, and execution script generation in psychology and behavioral sciences.",
             mainAgent=True,
-            subagent=True,
+            subagent=False,
             model="pro",
             commandExecutionPolicy="request-review",
             tools=[
@@ -927,7 +927,7 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             role="Persian Rhetoric, Inverted-Triangle Architecture & OpenXML Drafter",
             description="Master academic chapter drafter and Persian rhetoric specialist. Formulates defense-ready thesis chapters using Saber's 5-part epistemic paragraph structure, natural cadence variability (CV >= 0.50), and pristine OpenXML typography.",
             mainAgent=True,
-            subagent=True,
+            subagent=False,
             model="pro",
             commandExecutionPolicy="request-review",
             tools=[
@@ -944,7 +944,7 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             role="Epistemic Evidence, Bibliographic Reconciliation & Anti-Plagiarism Authority",
             description="Epistemic integrity and citation verification subagent auditing bidirectional in-text to bibliography concordance, Irandoc similarity compliance (< 20%), and robotic AI cliche elimination.",
             mainAgent=True,
-            subagent=True,
+            subagent=False,
             model="pro",
             commandExecutionPolicy="request-review",
             tools=[
@@ -961,7 +961,7 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             role="Viva Voce Defense Simulator, Institutional Gatekeeper & Release Authority",
             description="Final dissertation defense committee simulator, viva voce cross-examiner, and administrative human-in-the-loop release gatekeeper.",
             mainAgent=True,
-            subagent=True,
+            subagent=False,
             model="pro",
             commandExecutionPolicy="request-review",
             tools=[
