@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/anti_pattern.schema.json",
+  "title": "AcademicAntiPatternContract",
+  "description": "Contract schema for cataloging methodological, statistical, rhetorical, and typographical anti-patterns to prevent recurrence.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "anti_pattern_id",
+    "category",
+    "defective_pattern",
+    "why_defective",
+    "observed_symptoms",
+    "corrective_remedy",
+    "detection_heuristic",
+    "reusable",
+    "updated_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "anti_pattern_id": {
+      "type": "string",
+      "description": "Unique identifier for this anti-pattern (e.g. AP-STAT-MEDIAN-SPLIT-001)."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "methodological",
+        "statistical",
+        "execution",
+        "evidence",
+        "validation",
+        "typography"
+      ]
+    },
+    "defective_pattern": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Description of the defective or discredited approach (e.g. Dichotomizing continuous moderators via median split)."
+    },
+    "why_defective": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Mathematical or methodological justification for why this pattern is prohibited."
+    },
+    "observed_symptoms": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"},
+      "description": "Concrete indicators or metrics revealing the anti-pattern (e.g. 50% power loss, inflated Type I error)."
+    },
+    "corrective_remedy": {
+      "type": "string",
+      "minLength": 5,
+      "description": "The approved, compliant replacement technique (e.g. Hayes PROCESS Model 1 continuous moderation)."
+    },
+    "detection_heuristic": {
+      "type": "object",
+      "required": ["trigger_rule"],
+      "properties": {
+        "trigger_rule": {"type": "string"},
+        "regex_patterns": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "diagnostic_check_id": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "source_pitfall_id": {
+      "type": "string",
+      "description": "Optional reference to pitfall record in state/pitfalls.jsonl."
+    },
+    "reusable": {
+      "type": "boolean",
+      "description": "Whether this anti-pattern should be actively screened across all research projects."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

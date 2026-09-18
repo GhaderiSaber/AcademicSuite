@@ -46,7 +46,22 @@ SCHEMA_FILES = {
     "handoff": "handoff.schema.json",
     "pitfall": "pitfall.schema.json",
     "execution_manifest": "execution_manifest.schema.json",
-    "teamwork_boundary": "teamwork_boundary.schema.json"
+    "teamwork_boundary": "teamwork_boundary.schema.json",
+    # Evolution & Continuous Self-Improvement Contracts
+    "experience": "evolution/experience.schema.json",
+    "trajectory": "evolution/trajectory.schema.json",
+    "feedback": "evolution/feedback.schema.json",
+    "lesson": "evolution/lesson.schema.json",
+    "knowledge_item": "evolution/knowledge_item.schema.json",
+    "exemplar": "evolution/exemplar.schema.json",
+    "anti_pattern": "evolution/anti_pattern.schema.json",
+    "skill_memory_record": "evolution/skill_memory_record.schema.json",
+    "improvement_candidate": "evolution/improvement_candidate.schema.json",
+    "evaluation_case": "evolution/evaluation_case.schema.json",
+    "evaluation_result": "evolution/evaluation_result.schema.json",
+    "promotion_decision": "evolution/promotion_decision.schema.json",
+    "capability_profile": "evolution/capability_profile.schema.json",
+    "curriculum_task": "evolution/curriculum_task.schema.json"
 }
 
 
@@ -137,3 +152,60 @@ def validate_execution_manifest(instance: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_analysis_candidate(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "analysis_candidate")
+
+
+def validate_experience(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "experience")
+
+
+def validate_trajectory(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "trajectory")
+
+
+def validate_feedback(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "feedback")
+
+
+def validate_lesson(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "lesson")
+
+
+def validate_knowledge_item(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "knowledge_item")
+
+
+def validate_exemplar(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "exemplar")
+
+
+def validate_anti_pattern(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "anti_pattern")
+
+
+def validate_skill_memory_record(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "skill_memory_record")
+
+
+def validate_improvement_candidate(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "improvement_candidate")
+
+
+def validate_evaluation_case(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "evaluation_case")
+
+
+def validate_evaluation_result(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "evaluation_result")
+
+
+def validate_promotion_decision(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "promotion_decision")
+
+
+def validate_capability_profile(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "capability_profile")
+
+
+def validate_curriculum_task(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "curriculum_task")
+

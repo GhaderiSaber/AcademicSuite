@@ -1,0 +1,197 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/promotion_decision.schema.json",
+  "title": "AcademicPromotionDecisionContract",
+  "description": "Contract schema for candidate promotion decisions. Structurally forbids candidate promotion without affirmative evaluation evidence, zero regressions, adversarial clearance, and human sign-off.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "promotion_id",
+    "candidate",
+    "baseline",
+    "evaluation_evidence",
+    "regression_result",
+    "held_out_result",
+    "adversarial_result",
+    "decision",
+    "rationale",
+    "timestamp"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "promotion_id": {
+      "type": "string",
+      "description": "Unique identifier for this promotion decision record (e.g. PRM-2026-001)."
+    },
+    "candidate": {
+      "type": "object",
+      "required": ["candidate_id", "target_component", "target_type"],
+      "properties": {
+        "candidate_id": {"type": "string"},
+        "target_component": {"type": "string"},
+        "target_type": {"type": "string"},
+        "checksum_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "baseline": {
+      "type": "object",
+      "required": ["version_identifier", "active_component_hash"],
+      "properties": {
+        "version_identifier": {"type": "string"},
+        "active_component_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "evaluation_evidence": {
+      "type": "object",
+      "required": ["evaluation_id", "report_path", "verdict"],
+      "properties": {
+        "evaluation_id": {"type": "string"},
+        "report_path": {"type": "string"},
+        "report_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "INCONCLUSIVE"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "regression_result": {
+      "type": "object",
+      "required": ["total_cases_evaluated", "regressions_count", "zero_regressions_verified"],
+      "properties": {
+        "total_cases_evaluated": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "regressions_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "zero_regressions_verified": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "held_out_result": {
+      "type": "object",
+      "required": ["dataset_identifier", "verdict"],
+      "properties": {
+        "dataset_identifier": {"type": "string"},
+        "verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "NOT_TESTED"]
+        },
+        "metrics_summary": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "adversarial_result": {
+      "type": "object",
+      "required": ["auditor_agent", "verdict", "vulnerability_score"],
+      "properties": {
+        "auditor_agent": {
+          "type": "string",
+          "enum": ["academic-challenger", "statistical-auditor", "final-judge"]
+        },
+        "verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "FLAGGED"]
+        },
+        "vulnerability_score": {
+          "type": "string",
+          "enum": ["NONE", "LOW", "MODERATE", "CRITICAL"]
+        },
+        "critique_summary": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["PROMOTED", "REJECTED", "STAGED_FOR_FURTHER_TESTING"]
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Defensible explanation of the promotion or rejection decision."
+    },
+    "approver": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Human approver identity (e.g. Saber Admin Desk 124911145)."
+        },
+        "approval_contract_id": {
+          "type": "string"
+        },
+        "approved_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rollback_snapshot": {
+      "type": "object",
+      "properties": {
+        "snapshot_path": {"type": "string"},
+        "snapshot_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision": {"const": "PROMOTED"}
+        }
+      },
+      "then": {
+        "required": ["approver", "rollback_snapshot"],
+        "properties": {
+          "evaluation_evidence": {
+            "properties": {
+              "verdict": {"const": "PASS"}
+            }
+          },
+          "regression_result": {
+            "properties": {
+              "regressions_count": {"const": 0},
+              "zero_regressions_verified": {"const": true}
+            }
+          },
+          "adversarial_result": {
+            "properties": {
+              "verdict": {"const": "PASS"}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/evaluation_case.schema.json",
+  "title": "AcademicEvaluationCaseContract",
+  "description": "Contract schema for permanent evaluation test cases and benchmark scenarios used to test improvement candidates.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "case_id",
+    "capability",
+    "task",
+    "inputs",
+    "expected_properties",
+    "forbidden_behaviors",
+    "evaluation_method",
+    "created_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "case_id": {
+      "type": "string",
+      "description": "Unique identifier for this evaluation test case (e.g. EVAL-CASE-REG-001)."
+    },
+    "capability": {
+      "type": "string",
+      "description": "Target capability tested by this case (e.g. sem, regression, apa_reporting, data_cleaning)."
+    },
+    "task": {
+      "type": "object",
+      "required": ["prompt", "research_question"],
+      "properties": {
+        "prompt": {"type": "string"},
+        "research_question": {"type": "string"},
+        "hypothesis": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "inputs": {
+      "type": "object",
+      "required": ["dataset_path"],
+      "properties": {
+        "dataset_path": {"type": "string"},
+        "dataset_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "spec_parameters": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "expected_properties": {
+      "type": "object",
+      "required": ["required_metrics"],
+      "properties": {
+        "required_metrics": {
+          "type": "object",
+          "description": "Deterministic cutoffs or expected parameters (e.g. df, R2 bounds, fit index thresholds)."
+        },
+        "required_artifacts": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "typography_rules": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "forbidden_behaviors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "description": "Behaviors that automatically trigger failure (e.g. p = .000, missing leading zeros, Baron & Kenny mediation, mental math)."
+    },
+    "evaluation_method": {
+      "type": "object",
+      "required": ["runner_type", "runner_script"],
+      "properties": {
+        "runner_type": {
+          "type": "string",
+          "enum": [
+            "DETERMINISTIC_SCRIPT",
+            "VALIDATOR_SUITE",
+            "CHALLENGER_RED_TEAM",
+            "CROSS_ARTIFACT_DIFF"
+          ]
+        },
+        "runner_script": {"type": "string"},
+        "cli_arguments": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 600
+        }
+      },
+      "additionalProperties": false
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

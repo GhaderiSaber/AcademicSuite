@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/knowledge_item.schema.json",
+  "title": "AcademicKnowledgeItemContract",
+  "description": "Contract schema for persistent learned domain knowledge items, capturing generalized rules, applicability constraints, exclusions, and provenance.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "knowledge_id",
+    "statement",
+    "scope",
+    "applicability",
+    "exclusions",
+    "source_lessons",
+    "supporting_evaluations",
+    "contradictions",
+    "status",
+    "version",
+    "updated_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "knowledge_id": {
+      "type": "string",
+      "description": "Unique identifier for this knowledge item (e.g. KNW-STAT-ANCOVA-SLOPE-001)."
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Canonical scholarly or methodological knowledge statement."
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "UNIVERSAL",
+        "PSYCHOMETRICS",
+        "EXPERIMENTAL_DESIGN",
+        "MULTIVARIATE_STATISTICS",
+        "PERSIAN_ACADEMIC_TYPOGRAPHY",
+        "EVIDENTIARY_SYNTHESIS",
+        "QUALITATIVE_INQUIRY"
+      ]
+    },
+    "applicability": {
+      "type": "object",
+      "required": ["criteria"],
+      "properties": {
+        "criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"},
+          "description": "Conditions under which this knowledge item applies."
+        },
+        "target_skills": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "target_designs": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Explicit counter-indications or conditions where this rule MUST NOT be applied."
+    },
+    "source_lessons": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"},
+      "description": "IDs of source lessons from which this knowledge was synthesized."
+    },
+    "supporting_evaluations": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Evaluation IDs or benchmark cases empirically verifying this knowledge."
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["competing_approach", "rejection_rationale"],
+        "properties": {
+          "competing_approach": {"type": "string"},
+          "rejection_rationale": {"type": "string"}
+        },
+        "additionalProperties": false
+      },
+      "description": "Explicit documentation of rejected counter-paradigms (e.g. Baron & Kenny vs Bootstrap)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PROPOSED",
+        "ACCEPTED_ACTIVE",
+        "DEPRECATED",
+        "SUPERSEDED"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "curated_by": {
+      "type": "string",
+      "description": "Authoritative role or gatekeeper who validated the knowledge (e.g. digital-saber, final-judge)."
+    }
+  },
+  "additionalProperties": false
+}

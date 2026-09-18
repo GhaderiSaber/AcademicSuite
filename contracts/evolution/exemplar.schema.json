@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/exemplar.schema.json",
+  "title": "AcademicExemplarContract",
+  "description": "Contract schema for verified gold-standard research artifacts and execution exemplars.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "exemplar_id",
+    "domain",
+    "task_type",
+    "input_specification",
+    "gold_standard_artifacts",
+    "why_exemplary",
+    "created_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "exemplar_id": {
+      "type": "string",
+      "description": "Unique identifier for this exemplar (e.g. EXM-SEM-LAVAAN-001)."
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "descriptive",
+        "reliability",
+        "regression",
+        "mediation",
+        "moderation",
+        "cfa",
+        "sem",
+        "network",
+        "writing",
+        "presentation",
+        "scale_validation"
+      ]
+    },
+    "task_type": {
+      "type": "string",
+      "description": "Category of academic task (e.g. chapter_4_hypothesis_testing, bootstrap_mediation)."
+    },
+    "input_specification": {
+      "type": "object",
+      "required": ["dataset_description", "variables"],
+      "properties": {
+        "dataset_description": {"type": "string"},
+        "sample_size": {"type": "integer", "minimum": 1},
+        "variables": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "design_type": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "gold_standard_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256", "format"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$"
+          },
+          "format": {
+            "type": "string",
+            "enum": ["docx", "md", "json", "xlsx", "pdf", "png"]
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Physical files representing the gold standard deliverables."
+    },
+    "provenance_manifest_id": {
+      "type": "string",
+      "description": "Pointer to execution_manifest ID that generated this exemplar."
+    },
+    "verification_report_id": {
+      "type": "string",
+      "description": "Pointer to passing validation_report ID certifying this exemplar."
+    },
+    "why_exemplary": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Explicit pedagogical and methodological explanation of why this artifact represents ideal performance."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

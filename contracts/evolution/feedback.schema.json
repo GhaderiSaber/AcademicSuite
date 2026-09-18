@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/feedback.schema.json",
+  "title": "AcademicFeedbackContract",
+  "description": "Contract schema for human supervisor and automated critique feedback, capturing corrections, desired behaviors, and severity.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "feedback_id",
+    "source",
+    "type",
+    "target_agent",
+    "target_skill",
+    "correction",
+    "desired_behavior",
+    "scope",
+    "severity",
+    "timestamp"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "feedback_id": {
+      "type": "string",
+      "description": "Unique identifier for this feedback entry (e.g. FDB-2026-CH4-001)."
+    },
+    "source": {
+      "type": "object",
+      "required": ["origin", "identifier"],
+      "properties": {
+        "origin": {
+          "type": "string",
+          "enum": [
+            "HUMAN_SUPERVISOR",
+            "ADMIN_DESK_124911145",
+            "ACADEMIC_CHALLENGER",
+            "VALIDATION_SUITE",
+            "PEER_AGENT",
+            "EXTERNAL_EXAMINER"
+          ]
+        },
+        "identifier": {
+          "type": "string",
+          "description": "Name or ID of the human or agent providing feedback (e.g. GhaderiSaber, academic-challenger)."
+        }
+      },
+      "additionalProperties": false
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "METHODOLOGICAL_CORRECTION",
+        "STATISTICAL_CORRECTION",
+        "TYPOGRAPHY_CORRECTION",
+        "CITATION_CORRECTION",
+        "CRITIQUE",
+        "STIPULATION",
+        "PREFERENCE"
+      ]
+    },
+    "target_agent": {
+      "type": "string",
+      "description": "Cognitive agent responsible for the behavior (e.g. statistics-agent, academic-writer)."
+    },
+    "target_skill": {
+      "type": "string",
+      "description": "Skill implicated in the feedback (e.g. assumption-testing, apa-reporting)."
+    },
+    "correction": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Factual description of what was incorrect, flawed, or rejected."
+    },
+    "desired_behavior": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Explicit description of the expected standard or compliant behavior."
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "PROJECT_SPECIFIC",
+        "DOMAIN_WIDE",
+        "UNIVERSAL"
+      ],
+      "description": "Scope of applicability: whether the feedback applies only to this project or generalizes."
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "project_id": {"type": "string"},
+        "milestone_id": {"type": "string"},
+        "stage_id": {"type": "string"},
+        "related_artifact_paths": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

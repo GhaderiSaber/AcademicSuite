@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/curriculum_task.schema.json",
+  "title": "AcademicCurriculumTaskContract",
+  "description": "Contract schema for progressive self-improvement training and benchmark curriculum tasks across graduated complexity levels.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "task_id",
+    "curriculum_phase",
+    "difficulty_level",
+    "task_prompt",
+    "required_datasets",
+    "success_criteria",
+    "prerequisites",
+    "created_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Unique identifier for this curriculum task (e.g. CUR-L2-ANCOVA-001)."
+    },
+    "curriculum_phase": {
+      "type": "string",
+      "enum": [
+        "FOUNDATIONAL_REPRODUCIBILITY",
+        "PARAMETRIC_ASSUMPTIONS",
+        "MULTIVARIATE_MODELING",
+        "ADVERSARIAL_CHALLENGE_RESISTANCE",
+        "INSTITUTIONAL_DEFENSE_MASTERY"
+      ]
+    },
+    "difficulty_level": {
+      "type": "string",
+      "enum": [
+        "L0_SIMPLE_INQUIRY",
+        "L1_BOUNDED_ANALYSIS",
+        "L2_INTERDEPENDENT_MODELS",
+        "L3_FULL_MILESTONE_PIPELINE",
+        "L4_COMPLEX_LONGITUDINAL_SEM"
+      ]
+    },
+    "task_prompt": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Realistic academic research prompt presenting the task."
+    },
+    "required_datasets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["dataset_path", "sha256"],
+        "properties": {
+          "dataset_path": {"type": "string"},
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$"
+          },
+          "format": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "success_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["criterion_id", "description", "evaluator_check"],
+        "properties": {
+          "criterion_id": {"type": "string"},
+          "description": {"type": "string"},
+          "evaluator_check": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "IDs of curriculum tasks that must be mastered before attempting this task."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/skill_memory_record.schema.json",
+  "title": "AcademicSkillMemoryRecordContract",
+  "description": "Contract schema for tracking operational performance, execution telemetry, and calibrated parameter defaults per skill.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "record_id",
+    "skill_name",
+    "total_invocations",
+    "success_count",
+    "failure_count",
+    "average_duration_seconds",
+    "common_failure_modes",
+    "calibrated_parameter_defaults",
+    "last_evaluated_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "record_id": {
+      "type": "string",
+      "description": "Unique identifier for this skill memory record (e.g. SMR-SKILL-SEM-001)."
+    },
+    "skill_name": {
+      "type": "string",
+      "description": "Name of the skill in .agents/skills/ (e.g. sem, apa-reporting, assumption-testing)."
+    },
+    "total_invocations": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "success_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "failure_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "average_duration_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "common_failure_modes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["failure_type", "frequency", "typical_remedy"],
+        "properties": {
+          "failure_type": {"type": "string"},
+          "frequency": {"type": "integer", "minimum": 1},
+          "typical_remedy": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "calibrated_parameter_defaults": {
+      "type": "object",
+      "description": "Learned default flags, cutoffs, or CLI parameters that maximize validation pass rates.",
+      "additionalProperties": true
+    },
+    "last_evaluated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

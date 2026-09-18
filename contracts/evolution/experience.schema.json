@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/experience.schema.json",
+  "title": "AcademicExperienceContract",
+  "description": "Contract schema for raw episodic research execution experiences, recording agent, skill, timing, artifacts, and validation status.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "experience_id",
+    "project_id",
+    "task_id",
+    "agent",
+    "skill",
+    "start_time",
+    "end_time",
+    "outcome",
+    "artifact_references",
+    "validation_status"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "experience_id": {
+      "type": "string",
+      "description": "Unique identifier for this research experience record (e.g. EXP-2026-CH4-001)."
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Project workspace identifier."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Task identifier or micro-stage identifier (e.g. stage_06_hypothesis_1)."
+    },
+    "milestone_id": {
+      "type": "string",
+      "description": "Optional associated milestone identifier (e.g. M7_HYPOTHESIS_TESTING)."
+    },
+    "agent": {
+      "type": "string",
+      "description": "Cognitive agent executing the experience (e.g. statistics-agent, academic-writer)."
+    },
+    "skill": {
+      "type": "string",
+      "description": "Primary skill activated during the experience (e.g. sem, apa-reporting)."
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 start timestamp."
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 end timestamp."
+    },
+    "duration_seconds": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Total elapsed execution duration in seconds."
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["SUCCESS", "FAILURE", "PARTIAL", "ABORTED"],
+      "description": "Overall operational outcome of the research experience."
+    },
+    "artifact_references": {
+      "type": "array",
+      "description": "Physical artifacts produced or referenced during the experience.",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256", "type"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative or absolute file path."
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$",
+            "description": "Cryptographic SHA-256 hash of the artifact."
+          },
+          "type": {
+            "type": "string",
+            "description": "Artifact type (e.g. docx, md, json, xlsx)."
+          }
+        }
+      }
+    },
+    "validation_status": {
+      "type": "object",
+      "required": ["verdict"],
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "BLOCKED", "INCOMPLETE", "NOT_EVALUATED"]
+        },
+        "report_id": {
+          "type": "string",
+          "description": "Pointer to validation_report.json ID if evaluated."
+        },
+        "checks_passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "checks_failed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional contextual key-value metadata."
+    }
+  },
+  "additionalProperties": false
+}

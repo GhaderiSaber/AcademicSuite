@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/lesson.schema.json",
+  "title": "AcademicLessonContract",
+  "description": "Contract schema for diagnosed episodic lessons. A lesson can exist persistently without becoming active production behavior. Distinguishes project-specific lessons from cross-project generalizations.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "lesson_id",
+    "source_experience_id",
+    "observed_failure",
+    "desired_behavior",
+    "generalization",
+    "scope",
+    "confidence",
+    "evidence",
+    "related_skills",
+    "is_active_behavior",
+    "status",
+    "created_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "lesson_id": {
+      "type": "string",
+      "description": "Unique identifier for this lesson record (e.g. LSN-2026-CH4-001)."
+    },
+    "source_experience_id": {
+      "type": "string",
+      "description": "Pointer to the originating experience ID (e.g. EXP-2026-CH4-001)."
+    },
+    "observed_failure": {
+      "type": "object",
+      "required": ["defect_type", "description"],
+      "properties": {
+        "defect_type": {
+          "type": "string",
+          "enum": [
+            "METHODOLOGICAL_DEFECT",
+            "STATISTICAL_ASSUMPTION_VIOLATION",
+            "DEGREES_OF_FREEDOM_MISMATCH",
+            "REPORTING_OR_TYPOGRAPHY_DEFECT",
+            "CITATION_OR_EVIDENCE_DISCORDANCE",
+            "EXECUTION_OR_SCRIPT_FAILURE"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5
+        },
+        "failing_artifact_path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "desired_behavior": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Specific correct behavior that should have occurred."
+    },
+    "generalization": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Abstract principle or reusable rule derived from the lesson."
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "PROJECT_SPECIFIC",
+        "DOMAIN_WIDE",
+        "CROSS_PROJECT_UNIVERSAL"
+      ],
+      "description": "Distinguishes strictly project-specific lessons from generalized cross-project knowledge."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Statistical or epistemic confidence in this lesson (0.0 to 1.0)."
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["metric_or_check", "observed_value", "threshold_value"],
+      "properties": {
+        "metric_or_check": {
+          "type": "string"
+        },
+        "observed_value": {},
+        "threshold_value": {},
+        "supporting_report_ids": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "related_skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "description": "List of skills implicated or guided by this lesson."
+    },
+    "is_active_behavior": {
+      "type": "boolean",
+      "description": "Flag explicitly indicating whether this lesson has been promoted to active production behavior. Defaults to false."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "VALIDATED",
+        "REJECTED",
+        "SUPERSEDED",
+        "PROMOTED_TO_KNOWLEDGE"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "derived_by": {
+      "type": "string",
+      "description": "Diagnostician agent deriving the lesson (e.g. academic-challenger, statistical-auditor)."
+    }
+  },
+  "additionalProperties": false
+}
