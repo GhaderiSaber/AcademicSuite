@@ -47,6 +47,7 @@ for venv_name in [".venv", "venv"]:
                 sys.path.insert(0, sp)
 
 from scripts.academic_knowledge_manager import AcademicKnowledgeManager
+from scripts.academic_generalization_engine import AcademicGeneralizationEngine, PrematureGeneralizationError
 from contracts.contract_validator import (
     validate_lesson,
     validate_contradiction_record,
@@ -145,6 +146,7 @@ class AcademicBehaviorConsolidator:
         self.skills_dir = os.path.join(self.base_dir, ".agents", "skills")
 
         self.knowledge_manager = AcademicKnowledgeManager(base_dir=self.base_dir)
+        self.generalization_engine = AcademicGeneralizationEngine(base_dir=self.base_dir)
 
         self.quarantine_dir = os.path.join(self.learning_dir, "quarantine")
         self.telemetry_dir = os.path.join(self.learning_dir, "telemetry")
@@ -431,12 +433,15 @@ class AcademicBehaviorConsolidator:
 
     def generalize_lessons(
         self,
-        lesson_cluster: List[Dict[str, Any]]
+        lesson_cluster: List[Dict[str, Any]],
+        context_evaluations: Optional[List[Dict[str, Any]]] = None,
+        domain_evaluations: Optional[List[Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
         """
-        Elevates episodic, scenario-specific lessons into higher-order general principles.
-        Upgrades scope from PROJECT_SPECIFIC to DOMAIN_WIDE or CROSS_PROJECT_UNIVERSAL
-        when supported by multi-experience evidence.
+        Elevates episodic, scenario-specific lessons through the 7-stage Generalization Progression Ladder.
+        Multi-experience clusters without heterogeneous validation form a GENERALIZATION_CANDIDATE
+        (scope: DOMAIN_WIDE or PROJECT_SPECIFIC).
+        Elevation to CROSS_PROJECT_UNIVERSAL is strictly gated on heterogeneous cross-context and cross-domain validation.
         """
         experiences = set()
         for lsn in lesson_cluster:
@@ -444,12 +449,7 @@ class AcademicBehaviorConsolidator:
             if exp_id:
                 experiences.add(exp_id)
 
-        # If supported by multiple distinct experiences or lessons, elevate scope
-        elevated_scope = "DOMAIN_WIDE"
-        if len(experiences) >= 2 or len(lesson_cluster) >= 3:
-            elevated_scope = "CROSS_PROJECT_UNIVERSAL"
-
-        rep_lesson = lesson_cluster[0]
+        rep_lesson = lesson_cluster[0] if lesson_cluster else {}
         desired = rep_lesson.get("desired_behavior", "")
 
         # Formulate synthesized general rule statement
@@ -470,12 +470,39 @@ class AcademicBehaviorConsolidator:
         clean_applicability = list(dict.fromkeys(combined_applicability)) or ["All empirical quantitative and qualitative pipelines"]
         clean_exclusions = list(dict.fromkeys(combined_exclusions)) or ["Exploratory informal scratchpad analysis"]
 
+        # Phase 25 Ladder Logic:
+        # Default for multi-experience clusters without cross-validation is GENERALIZATION_CANDIDATE
+        elevated_scope = "DOMAIN_WIDE"
+        generalization_stage = "GENERALIZATION_CANDIDATE"
+
+        if len(experiences) < 2 and len(lesson_cluster) < 2:
+            elevated_scope = "PROJECT_SPECIFIC"
+            generalization_stage = "LOCAL_LESSON"
+        elif len(experiences) >= 2 and not (context_evaluations and domain_evaluations):
+            # 2 experiences in the local context -> REPEATED_PATTERN / GENERALIZATION_CANDIDATE
+            # NEVER CROSS_PROJECT_UNIVERSAL
+            elevated_scope = "DOMAIN_WIDE"
+            generalization_stage = "GENERALIZATION_CANDIDATE"
+        elif context_evaluations and domain_evaluations:
+            # Heterogeneous cross-context and cross-domain validation verified
+            passing_ctx = [c for c in context_evaluations if c.get("verdict") == "PASS"]
+            passing_dom = [d for d in domain_evaluations if d.get("verdict") == "PASS"]
+            distinct_designs = set(c.get("design") for c in passing_ctx if c.get("design"))
+            distinct_doms = set(d.get("domain") for d in passing_dom if d.get("domain"))
+            if len(passing_ctx) >= 2 and len(distinct_designs) >= 2 and len(passing_dom) >= 2 and len(distinct_doms) >= 2:
+                elevated_scope = "CROSS_PROJECT_UNIVERSAL"
+                generalization_stage = "PROMOTED_PRINCIPLE"
+            elif len(passing_ctx) >= 2 and len(distinct_designs) >= 2:
+                elevated_scope = "DOMAIN_WIDE"
+                generalization_stage = "CROSS_CONTEXT_VALIDATION"
+
         return {
             "statement": general_statement,
             "scope": elevated_scope,
+            "generalization_stage": generalization_stage,
             "applicability": clean_applicability,
             "exclusions": clean_exclusions,
-            "confidence": min(0.99, max(l.get("confidence", 0.90) for l in lesson_cluster) + 0.05)
+            "confidence": min(0.99, max((l.get("confidence", 0.90) for l in lesson_cluster), default=0.90) + 0.05)
         }
 
     # -------------------------------------------------------------------------
@@ -536,6 +563,7 @@ class AcademicBehaviorConsolidator:
             "desired_behavior": generalization["statement"],
             "generalization": generalization["statement"],
             "scope": generalization["scope"],
+            "generalization_stage": generalization.get("generalization_stage", "GENERALIZATION_CANDIDATE"),
             "confidence": generalization["confidence"],
             "evidence": {
                 "metric_or_check": "CONSOLIDATION_SYNTHESIS",

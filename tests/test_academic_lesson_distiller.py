@@ -210,7 +210,8 @@ class TestAcademicLessonDistiller(unittest.TestCase):
         self.assertEqual(lesson["trigger_source"], "VALIDATOR_FAILURE")
         self.assertIn("observed_failure", lesson)
         self.assertEqual(lesson["observed_failure"]["defect_type"], "REPORTING_OR_TYPOGRAPHY_DEFECT")
-        self.assertEqual(lesson["scope"], "CROSS_PROJECT_UNIVERSAL")
+        self.assertEqual(lesson["scope"], "DOMAIN_WIDE")
+        self.assertEqual(lesson.get("generalization_stage"), "LOCAL_LESSON")
         self.assertEqual(lesson["is_active_behavior"], False)
 
         val_res = validate_lesson(lesson)

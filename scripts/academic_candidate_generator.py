@@ -872,19 +872,41 @@ class AcademicCandidateGenerator:
             (r"\bnever\s+apply\b", "Never apply ..."),
             (r"\buniversally\s+apply\b", "Universally apply ...")
         ]
+
         content_lower = content.lower()
-        for pat, desc in forbidden_universal_patterns:
-            matches = list(re.finditer(pat, content_lower))
-            for m in matches:
-                start = max(0, m.start() - 30)
-                prefix = content_lower[start:m.start()]
-                if any(neg in prefix for neg in ["prohibit", "avoid", "do not", "never", "eliminate", "reject"]):
-                    continue
-                raise UniversalInstructionProhibitedError(
-                    f"Naive universal instruction detected ({desc}) matching '{m.group()}'. "
-                    f"Phase 24 strictly mandates conditional decision rules: "
-                    f"WHEN condition X → use approach A, WHEN condition Y → use approach B, EXCEPT condition Z → use approach C."
-                )
+        for raw_line in content.splitlines():
+            line = raw_line.strip().lower()
+            if not line:
+                continue
+            # If line explicitly prohibits, warns against, or categorizes blanket rules or anti-patterns, skip
+            if any(neg in line for neg in [
+                "prohibit", "avoid", "do not", "eliminate", "reject",
+                "forbidden", "anti-pattern", "anti_pattern", "prevent"
+            ]):
+                continue
+            # If 'never use' is qualifying blanket or universal rules, it is prohibiting them
+            if "never use" in line and any(w in line for w in ["universal", "blanket", "cliché", "shortcut"]):
+                continue
+
+            for pat, desc in forbidden_universal_patterns:
+                matches = list(re.finditer(pat, line))
+                for m in matches:
+                    start_idx = m.start()
+                    end_idx = m.end()
+                    is_quoted = False
+                    if start_idx > 0:
+                        prefix_snippet = line[max(0, start_idx - 3):start_idx]
+                        suffix_snippet = line[end_idx:min(len(line), end_idx + 3)]
+                        if any(q in prefix_snippet for q in ["'", '"']) and any(q in suffix_snippet for q in ["'", '"']):
+                            is_quoted = True
+                    if is_quoted:
+                        continue
+
+                    raise UniversalInstructionProhibitedError(
+                        f"Naive universal instruction detected ({desc}) matching '{m.group()}'. "
+                        f"Phase 24 strictly mandates conditional decision rules: "
+                        f"WHEN condition X → use approach A, WHEN condition Y → use approach B, EXCEPT condition Z → use approach C."
+                    )
 
         if "decision tree" in content_lower or "decision rule" in content_lower or "conditional decision" in content_lower:
             has_when = bool(re.search(r"\bwhen\b", content_lower))

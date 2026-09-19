@@ -210,6 +210,7 @@ class AcademicLessonDistiller:
         # Strict Scope Mapping: Never overgeneralize PROJECT_SPECIFIC
         if fdb_scope == "PROJECT_SPECIFIC":
             lesson_scope = "PROJECT_SPECIFIC"
+            generalization_stage = "LOCAL_LESSON"
             generalization_text = (
                 f"For project context '{fdb_data.get('context', {}).get('project_id', 'active_project')}': "
                 f"strictly maintain exact phrasing and stipulations specified by supervisor."
@@ -223,10 +224,12 @@ class AcademicLessonDistiller:
                 "Standard generic templates without client-specific stipulations"
             ]
         elif fdb_scope == "POTENTIAL_GLOBAL_INVARIANT":
-            lesson_scope = "CROSS_PROJECT_UNIVERSAL"
+            # Phase 25: A potential global invariant is a GENERALIZATION_CANDIDATE, not immediately universal
+            lesson_scope = "DOMAIN_WIDE"
+            generalization_stage = "GENERALIZATION_CANDIDATE"
             generalization_text = (
-                f"Universal Epistemic Invariant: {desired.rstrip('.')}. "
-                f"No thesis chapter or empirical finding may proceed without strict compliance."
+                f"Candidate Epistemic Rule: {desired.rstrip('.')}. "
+                f"Requires cross-context and cross-domain validation before promotion to universal principle."
             )
             applicability = [
                 "All quantitative and qualitative empirical research pipelines",
@@ -235,6 +238,7 @@ class AcademicLessonDistiller:
             exclusions = ["Purely exploratory brain-storming prior to data collection"]
         else:
             lesson_scope = "DOMAIN_WIDE"
+            generalization_stage = "LOCAL_LESSON"
             generalization_text = (
                 f"Procedural Guideline for {target_skill}: {desired.rstrip('.')}. "
                 f"Verify prerequisite checks prior to finalizing outputs."
@@ -285,6 +289,7 @@ class AcademicLessonDistiller:
             "desired_behavior": desired,
             "generalization": generalization_text,
             "scope": lesson_scope,
+            "generalization_stage": generalization_stage,
             "confidence": 0.95,
             "evidence": evidence,
             "related_skills": [target_skill],
@@ -371,7 +376,8 @@ class AcademicLessonDistiller:
             },
             "desired_behavior": desired_behavior,
             "generalization": generalization,
-            "scope": "CROSS_PROJECT_UNIVERSAL",
+            "scope": "DOMAIN_WIDE",
+            "generalization_stage": "LOCAL_LESSON",
             "confidence": 0.99,
             "evidence": {
                 "metric_or_check": f"VALIDATION-{validator_name}",
@@ -466,7 +472,8 @@ class AcademicLessonDistiller:
             ],
             "desired_behavior": desired_behavior,
             "generalization": generalization,
-            "scope": "CROSS_PROJECT_UNIVERSAL",
+            "scope": "DOMAIN_WIDE",
+            "generalization_stage": "LOCAL_LESSON",
             "confidence": 0.95,
             "evidence": {
                 "metric_or_check": "OVERALL_VERDICT_PASS",

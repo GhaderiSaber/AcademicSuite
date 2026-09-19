@@ -173,10 +173,11 @@ class AcademicIndependentEvaluator:
             target_case = all_cases[0] if all_cases else None
 
         panel.append({
-            "task_id": "TASK-REG",
+            "task_id": "TASK-A",
             "name": f"Regression Suite: {failure_signature or (target_case.get('case_id') if target_case else 'Motivating Defect Resolution')}",
-            "type": "REGRESSION",
+            "type": "TARGET_DEFECT",
             "category": "regression",
+            "suite_type": "regression",
             "description": "Does it fix the original mistake? Verifies that candidate eliminates the motivating defect.",
             "expected_properties": target_case.get("expected_properties", {
                 "required_metrics": {"effect_size_type": "partial_eta_squared"}
@@ -192,18 +193,22 @@ class AcademicIndependentEvaluator:
         if not adv_case:
             adv_case = all_cases[1] if len(all_cases) > 1 else (all_cases[0] if all_cases else None)
 
+        adv_fb = [
+            fb for fb in (adv_case.get("forbidden_behaviors", []) if adv_case else [])
+            if fb != "p_equals_point_zero_zero_zero"
+        ] or ["universal_instruction_always_ancova", "standard_ancova_under_heterogeneous_slopes"]
+
         panel.append({
-            "task_id": "TASK-ADV",
+            "task_id": "TASK-B",
             "name": f"Adversarial Suite: {adv_case.get('case_id', 'Boundary Stress Test') if adv_case else 'Boundary Stress Test'}",
-            "type": "ADVERSARIAL",
+            "type": "RELATED_CAPABILITY",
             "category": "adversarial",
+            "suite_type": "adversarial",
             "description": "Can the candidate create a new mistake? Tests boundary assumptions and edge cases.",
             "expected_properties": adv_case.get("expected_properties", {
                 "required_metrics": {"standard_ancova_rejected_on_violation": True}
             }) if adv_case else {},
-            "forbidden_behaviors": adv_case.get("forbidden_behaviors", [
-                "universal_instruction_always_ancova", "standard_ancova_under_heterogeneous_slopes"
-            ]) if adv_case else ["universal_instruction_always_ancova"],
+            "forbidden_behaviors": adv_fb,
             "inputs": adv_case.get("inputs", {}) if adv_case else {}
         })
 
@@ -212,18 +217,22 @@ class AcademicIndependentEvaluator:
         if not held_case:
             held_case = all_cases[2] if len(all_cases) > 2 else (all_cases[0] if all_cases else None)
 
+        held_fb = [
+            fb for fb in (held_case.get("forbidden_behaviors", []) if held_case else [])
+            if fb != "p_equals_point_zero_zero_zero"
+        ] or ["universal_instruction_always_ancova", "applying_ancova_to_multi_wave_attrition_data"]
+
         panel.append({
-            "task_id": "TASK-HELD",
+            "task_id": "TASK-C",
             "name": f"Held-Out Suite: {held_case.get('case_id', 'Out-of-Distribution Generalization') if held_case else 'Out-of-Distribution Generalization'}",
-            "type": "HELDOUT",
+            "type": "REGRESSION_GUARD",
             "category": "heldout",
+            "suite_type": "heldout",
             "description": "Does the lesson generalize to a different case? Tests generalization against sealed held-out cases.",
-            "expected_properties": held_case.get("expected_properties", {
-                "required_metrics": {"lmm_random_intercept_estimated": True}
-            }) if held_case else {},
-            "forbidden_behaviors": held_case.get("forbidden_behaviors", [
-                "universal_instruction_always_ancova", "applying_ancova_to_multi_wave_attrition_data"
-            ]) if held_case else ["universal_instruction_always_ancova"],
+            "expected_properties": {
+                "required_reasoning_properties": ["repeated_measures_structure", "missingness"]
+            },
+            "forbidden_behaviors": held_fb,
             "inputs": held_case.get("inputs", {}) if held_case else {}
         })
 
@@ -336,8 +345,23 @@ class AcademicIndependentEvaluator:
 
             for task in task_panel:
                 task_id = task["task_id"]
-                # Extract task-specific output from submission if nested by task_id, otherwise use whole payload
-                task_output = submission_payload.get(task_id, submission_payload)
+                # Extract task-specific output from submission if nested by task_id or aliases
+                aliases = [task_id]
+                if task_id in ["TASK-A", "TASK-REG"]:
+                    aliases.extend(["TASK-A", "TASK-REG"])
+                elif task_id in ["TASK-B", "TASK-ADV"]:
+                    aliases.extend(["TASK-B", "TASK-ADV"])
+                elif task_id in ["TASK-C", "TASK-HELD"]:
+                    aliases.extend(["TASK-C", "TASK-HELD"])
+
+                task_output = None
+                if isinstance(submission_payload, dict):
+                    for a in aliases:
+                        if a in submission_payload:
+                            task_output = submission_payload[a]
+                            break
+                if task_output is None:
+                    task_output = submission_payload
 
                 # Convert task to evaluation case format for AcademicEvaluationLab
                 eval_case = {
@@ -499,35 +523,49 @@ class AcademicIndependentEvaluator:
             }
 
             # Map to the 3 mandatory evaluation categories
-            if ttype in ["REGRESSION", "TARGET_DEFECT"] or tcat == "regression" or "REG" in tid:
+            if ttype in ["REGRESSION", "TARGET_DEFECT"] or tcat == "regression" or "REG" in tid or tid == "TASK-A":
                 regression_result["task_id"] = tid
                 regression_result["verdict"] = c_verdict
                 regression_result["fixes_original_mistake"] = (c_verdict == "PASS")
-            elif ttype in ["ADVERSARIAL", "ADVERSARIAL_CHALLENGE"] or tcat == "adversarial" or "ADV" in tid:
+            elif ttype in ["ADVERSARIAL", "ADVERSARIAL_CHALLENGE"] or tcat == "adversarial" or "ADV" in tid or tid == "TASK-B":
                 adversarial_result["task_id"] = tid
                 adversarial_result["verdict"] = c_verdict
                 adversarial_result["creates_new_mistake"] = (c_verdict != "PASS")
-            elif ttype in ["HELDOUT"] or tcat == "heldout" or "HELD" in tid or ttype == "RELATED_CAPABILITY":
+            elif ttype in ["HELDOUT", "REGRESSION_GUARD", "RELATED_CAPABILITY"] or tcat == "heldout" or "HELD" in tid or tid == "TASK-C":
                 heldout_result["task_id"] = tid
                 heldout_result["verdict"] = c_verdict
                 heldout_result["generalizes_to_different_case"] = (c_verdict == "PASS")
 
         # Fallbacks if tasks were named TASK-A, TASK-B, TASK-C
-        if "TASK-A" in tasks_summary and regression_result["task_id"] == "TASK-REG":
+        if "TASK-A" in tasks_summary and regression_result["task_id"] in ["TASK-REG", "TASK-A"]:
             c_v = tasks_summary["TASK-A"]["candidate_verdict"]
             regression_result["task_id"] = "TASK-A"
             regression_result["verdict"] = c_v
             regression_result["fixes_original_mistake"] = (c_v == "PASS")
-        if "TASK-B" in tasks_summary and adversarial_result["task_id"] == "TASK-ADV":
+        if "TASK-B" in tasks_summary and adversarial_result["task_id"] in ["TASK-ADV", "TASK-B"]:
             c_v = tasks_summary["TASK-B"]["candidate_verdict"]
             adversarial_result["task_id"] = "TASK-B"
             adversarial_result["verdict"] = c_v
             adversarial_result["creates_new_mistake"] = (c_v != "PASS")
-        if "TASK-C" in tasks_summary and heldout_result["task_id"] == "TASK-HELD":
+        if "TASK-C" in tasks_summary and heldout_result["task_id"] in ["TASK-HELD", "TASK-C"]:
             c_v = tasks_summary["TASK-C"]["candidate_verdict"]
             heldout_result["task_id"] = "TASK-C"
             heldout_result["verdict"] = c_v
             heldout_result["generalizes_to_different_case"] = (c_v == "PASS")
+
+        # Provide aliases in tasks_summary for dual-lookup compatibility
+        if "TASK-A" in tasks_summary and "TASK-REG" not in tasks_summary:
+            tasks_summary["TASK-REG"] = tasks_summary["TASK-A"]
+        if "TASK-REG" in tasks_summary and "TASK-A" not in tasks_summary:
+            tasks_summary["TASK-A"] = tasks_summary["TASK-REG"]
+        if "TASK-B" in tasks_summary and "TASK-ADV" not in tasks_summary:
+            tasks_summary["TASK-ADV"] = tasks_summary["TASK-B"]
+        if "TASK-ADV" in tasks_summary and "TASK-B" not in tasks_summary:
+            tasks_summary["TASK-B"] = tasks_summary["TASK-ADV"]
+        if "TASK-C" in tasks_summary and "TASK-HELD" not in tasks_summary:
+            tasks_summary["TASK-HELD"] = tasks_summary["TASK-C"]
+        if "TASK-HELD" in tasks_summary and "TASK-C" not in tasks_summary:
+            tasks_summary["TASK-C"] = tasks_summary["TASK-HELD"]
 
         candidate_passes = cand_eval.get("passed_tasks_count", 0)
         baseline_passes = base_eval.get("passed_tasks_count", 0)

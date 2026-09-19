@@ -56,6 +56,19 @@
       "type": "string",
       "enum": ["principle", "pattern", "rule", "standard", "knowledge_item"]
     },
+    "generalization_stage": {
+      "type": "string",
+      "enum": [
+        "OBSERVED",
+        "LOCAL_LESSON",
+        "REPEATED_PATTERN",
+        "GENERALIZATION_CANDIDATE",
+        "CROSS_CONTEXT_VALIDATION",
+        "CROSS_DOMAIN_VALIDATION",
+        "PROMOTED_PRINCIPLE"
+      ],
+      "description": "Current position on the 7-stage generalization ladder."
+    },
     "project_id": {
       "type": "string",
       "description": "Optional project ID when scope is project or global-in-project."

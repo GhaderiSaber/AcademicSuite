@@ -23,6 +23,8 @@ learning/experience/EXP-*
 learning/experience/index.jsonl
 learning/experience/feedback/FDB-*
 learning/experience/feedback/index.jsonl
+learning/experience/feedback/processed_event_ids.json
+learning/analysis/
 learning/knowledge/lessons/LSN-*
 learning/knowledge/lessons/index.jsonl
 learning/knowledge/patterns/PTR-*

@@ -1593,5 +1593,89 @@ To demonstrate the necessity and power of the 3-category evaluation architecture
    - **Gate 3**: Enforces `conditional_rule_verified: True` for all decision-tree and heuristic mutations.
    - Any failure in any single category immediately aborts promotion and archives the candidate.
 
+---
+
+## 30. The Seven-Stage Generalization Progression Ladder & Heterogeneous Context Governance (Phase 25)
+
+### 30.1 The Flaw of Premature Universal Generalization
+In previous iterations, the behavioral consolidator employed a naive elevation threshold:
+```text
+2 experiences ───> CROSS_PROJECT_UNIVERSAL
+```
+This heuristic suffered from severe epistemic and engineering flaws:
+1. **Locality Conflation**: Two observations occurring within the same dataset, statistical pipeline, or local study context were treated as proof of global validity.
+2. **Negative Boundary Blindness**: An observation that ANCOVA works well on a balanced 2-group RCT could be elevated to a universal rule, failing to recognize that ANCOVA breaks under heterogeneous slopes or longitudinal attrition.
+3. **No Heterogeneous Validation**: The system promoted rules without requiring empirical proof across distinct, heterogeneous experimental setups or different scientific domains.
+
+Phase 25 eliminates this heuristic, introducing an immutable, fail-closed **Seven-Stage Generalization Progression Ladder**.
+
+### 30.2 The Seven-Stage Progression Ladder
+Every behavioral insight, lesson, and candidate principle must advance through seven sequential stages:
+
+```mermaid
+flowchart TD
+    S1["1. OBSERVED\nRaw execution observation in trajectory / feedback"]
+    S2["2. LOCAL_LESSON\nDistilled actionable lesson bound strictly to project"]
+    S3["3. REPEATED_PATTERN\nRecurring pattern across >= 2 local episodes"]
+    S4["4. GENERALIZATION_CANDIDATE\nSynthesized candidate with structured WHEN / EXCEPT rules"]
+    S5["5. CROSS_CONTEXT_VALIDATION\nVerified across >= 2 heterogeneous contexts within domain"]
+    S6["6. CROSS_DOMAIN_VALIDATION\nVerified across >= 2 distinct scientific domains"]
+    S7["7. PROMOTED_PRINCIPLE\nActivated global principle in learning/knowledge/principles/"]
+
+    S1 --> S2
+    S2 --> S3
+    S3 --> S4
+    S4 --> S5
+    S5 --> S6
+    S6 --> S7
+
+    subgraph Enforcement["Fail-Closed Enforcement"]
+        SkipBlock["PrematureGeneralizationError\n(Bypassing stages or missing heterogeneous evidence blocks transition)"]
+    end
+
+    S1 -.->|Attempted skip| SkipBlock
+    S2 -.->|Attempted skip| SkipBlock
+    S3 -.->|Attempted skip| SkipBlock
+    S4 -.->|Attempted skip| SkipBlock
+    S5 -.->|Attempted skip| SkipBlock
+```
+
+| Stage | Name | Target Scope | Prerequisites & Evidence Requirements | Next Permitted Stage |
+| :--- | :--- | :--- | :--- | :--- |
+| **1** | `OBSERVED` | `UNSCOPED` | Raw observation in execution logs, feedback, or diagnostics. | `LOCAL_LESSON` |
+| **2** | `LOCAL_LESSON` | `PROJECT_LOCAL` | Distilled actionable lesson bound to current project context. | `REPEATED_PATTERN` |
+| **3** | `REPEATED_PATTERN` | `PROJECT_LOCAL` | Recurrence confirmed across $\ge 2$ independent episodes in project. | `GENERALIZATION_CANDIDATE` |
+| **4** | `GENERALIZATION_CANDIDATE` | `CANDIDATE_STAGED` | Structured conditional rule (`WHEN condition X → A, EXCEPT Z → C`). | `CROSS_CONTEXT_VALIDATION` |
+| **5** | `CROSS_CONTEXT_VALIDATION` | `CROSS_CONTEXT` | Verified across $\ge 2$ distinct, heterogeneous contexts within domain. | `CROSS_DOMAIN_VALIDATION` |
+| **6** | `CROSS_DOMAIN_VALIDATION` | `CROSS_DOMAIN` | Verified across $\ge 2$ distinct scientific research domains. | `PROMOTED_PRINCIPLE` |
+| **7** | `PROMOTED_PRINCIPLE` | `CROSS_PROJECT_UNIVERSAL`| Verified passing all stages; stored in `learning/knowledge/principles/`. | *Terminal State* |
+
+### 30.3 Heterogeneous Evidence Mandate
+To prevent narrow heuristics from polluting global behavior:
+1. **Cross-Context Evidence Requirement ($\ge 2$ Contexts)**:
+   - Advancement to Stage 5 (`CROSS_CONTEXT_VALIDATION`) strictly requires empirical evidence from at least two distinct, non-identical research contexts within a domain (e.g., a two-group randomized controlled trial and a multi-wave cohort study).
+   - If `len(distinct_contexts) < 2`, transition is rejected with `PrematureGeneralizationError`.
+2. **Cross-Domain Evidence Requirement ($\ge 2$ Domains)**:
+   - Advancement to Stage 6 (`CROSS_DOMAIN_VALIDATION`) strictly requires empirical evidence from at least two distinct research disciplines (e.g., experimental clinical psychology and educational measurement/psychometrics).
+   - If `len(distinct_domains) < 2`, transition is rejected with `PrematureGeneralizationError`.
+3. **Structured Conditional Rule Requirement**:
+   - Every candidate advancing beyond Stage 3 must embody structured conditional branches (`WHEN ... → ... EXCEPT ... → ...`). Naive universal statements (`Always use...`, `Never use...`) are strictly prohibited.
+
+### 30.4 Deterministic Implementation ("The Hands")
+1. **Contract Schema (`contracts/evolution/generalization_lifecycle.schema.json`)**:
+   - Formally specifies the 7-stage state transitions, required heterogeneous evidence metrics, and structured conditional rule contracts.
+2. **Generalization Engine (`scripts/academic_generalization_engine.py`)**:
+   - `record_observation`: Records initial observation.
+   - `advance_to_local_lesson`: Transitions to `LOCAL_LESSON`.
+   - `advance_to_repeated_pattern`: Verifies episode recurrence and transitions to `REPEATED_PATTERN`.
+   - `advance_to_generalization_candidate`: Synthesizes candidate with structured conditional rules.
+   - `advance_to_cross_context_validation`: Validates $\ge 2$ heterogeneous contexts.
+   - `advance_to_cross_domain_validation`: Validates $\ge 2$ heterogeneous research domains.
+   - `promote_to_principle`: Materializes verified principle in `learning/knowledge/principles/`.
+3. **Consolidator Integration (`scripts/academic_behavior_consolidator.py`)**:
+   - Replaced `len(experiences) >= 2 -> CROSS_PROJECT_UNIVERSAL` with candidate-staged graduation. Repeated experiences yield `GENERALIZATION_CANDIDATE` requiring heterogeneous validation before global elevation.
+4. **Knowledge Manager Integration (`scripts/academic_knowledge_manager.py`)**:
+   - Promoted principles in `learning/knowledge/principles/` require `generalization_stage: "PROMOTED_PRINCIPLE"` and cryptographic content hashes.
+
 
 

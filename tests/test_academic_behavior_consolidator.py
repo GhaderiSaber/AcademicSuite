@@ -185,14 +185,29 @@ class TestAcademicBehaviorConsolidator(unittest.TestCase):
     # Test 4: Generalization Scope Elevation
     # -------------------------------------------------------------------------
     def test_04_generalization_elevates_scope_with_evidence(self):
-        """Verifies multi-experience clusters elevate scope to CROSS_PROJECT_UNIVERSAL."""
+        """Verifies multi-experience clusters form GENERALIZATION_CANDIDATE, and require heterogeneous validation for universal."""
         l1 = self._create_sample_lesson("LSN-GEN-01", "Report confidence intervals for effect sizes.", source_exp="EXP-A")
         l2 = self._create_sample_lesson("LSN-GEN-02", "Report confidence intervals for effect sizes.", source_exp="EXP-B")
 
+        # 2 experiences in local context form GENERALIZATION_CANDIDATE (never premature universal)
         gen_result = self.consolidator.generalize_lessons([l1, l2])
-        self.assertEqual(gen_result["scope"], "CROSS_PROJECT_UNIVERSAL")
+        self.assertEqual(gen_result["scope"], "DOMAIN_WIDE")
+        self.assertEqual(gen_result["generalization_stage"], "GENERALIZATION_CANDIDATE")
         self.assertIn("Consolidated Methodological Principle", gen_result["statement"])
         self.assertGreater(gen_result["confidence"], 0.90)
+
+        # With heterogeneous cross-context and cross-domain validation, elevates to CROSS_PROJECT_UNIVERSAL
+        ctx_evals = [
+            {"context_id": "C1", "design": "2_group_rct", "verdict": "PASS"},
+            {"context_id": "C2", "design": "3_group_factorial", "verdict": "PASS"}
+        ]
+        dom_evals = [
+            {"domain": "clinical_trials", "verdict": "PASS"},
+            {"domain": "psychometrics", "verdict": "PASS"}
+        ]
+        gen_promoted = self.consolidator.generalize_lessons([l1, l2], context_evaluations=ctx_evals, domain_evaluations=dom_evals)
+        self.assertEqual(gen_promoted["scope"], "CROSS_PROJECT_UNIVERSAL")
+        self.assertEqual(gen_promoted["generalization_stage"], "PROMOTED_PRINCIPLE")
 
     # -------------------------------------------------------------------------
     # Test 5: Merging with Strict Provenance Lineage

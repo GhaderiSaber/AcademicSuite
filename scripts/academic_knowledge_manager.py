@@ -184,6 +184,7 @@ class AcademicKnowledgeManager:
         item = dict(principle_dict)
         item.setdefault("contract_version", "1.0.0")
         item.setdefault("item_type", "principle")
+        item.setdefault("generalization_stage", "PROMOTED_PRINCIPLE")
         item.setdefault("status", "ACCEPTED_ACTIVE")
         item.setdefault("version", "1.0.0")
         item.setdefault("updated_at", datetime.now(timezone.utc).isoformat())

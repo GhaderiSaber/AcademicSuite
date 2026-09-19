@@ -1,0 +1,193 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/generalization_lifecycle.schema.json",
+  "title": "AcademicGeneralizationLifecycleContract",
+  "description": "Contract schema governing the 7-stage generalization progression ladder from single empirical observation to promoted cross-project principle.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "generalization_id",
+    "target_rule",
+    "stage",
+    "scope",
+    "evidence_summary",
+    "conditional_rule",
+    "status",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "generalization_id": {
+      "type": "string",
+      "description": "Unique identifier for this generalization record (e.g. GEN-2026-STAT-001)."
+    },
+    "target_rule": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Core rule or methodological practice being tracked through the generalization ladder."
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "OBSERVED",
+        "LOCAL_LESSON",
+        "REPEATED_PATTERN",
+        "GENERALIZATION_CANDIDATE",
+        "CROSS_CONTEXT_VALIDATION",
+        "CROSS_DOMAIN_VALIDATION",
+        "PROMOTED_PRINCIPLE"
+      ],
+      "description": "Current position in the 7-stage generalization ladder."
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "PROJECT_SPECIFIC",
+        "LOCAL_PATTERN",
+        "GENERALIZATION_CANDIDATE",
+        "CROSS_CONTEXT_VALIDATED",
+        "CROSS_DOMAIN_VALIDATED",
+        "CROSS_PROJECT_UNIVERSAL"
+      ],
+      "description": "Authorized operational scope corresponding to the current generalization stage."
+    },
+    "evidence_summary": {
+      "type": "object",
+      "required": ["observations", "contexts_validated", "domains_validated", "heterogeneous_evidence_verified"],
+      "properties": {
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["observation_id", "project_id"],
+            "properties": {
+              "observation_id": {"type": "string"},
+              "source_experience_id": {"type": "string"},
+              "project_id": {"type": "string"},
+              "task_id": {"type": "string"},
+              "context": {
+                "type": "object",
+                "properties": {
+                  "domain": {"type": "string"},
+                  "design": {"type": "string"},
+                  "sample_size": {"type": "integer"},
+                  "data_type": {"type": "string"}
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "contexts_validated": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["context_id", "design", "verdict"],
+            "properties": {
+              "context_id": {"type": "string"},
+              "design": {"type": "string"},
+              "sample_size_tier": {"type": "string"},
+              "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+              "evidence_ref": {"type": "string"}
+            },
+            "additionalProperties": true
+          },
+          "description": "Heterogeneous contexts within the domain where the rule was tested."
+        },
+        "domains_validated": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["domain", "verdict"],
+            "properties": {
+              "domain": {"type": "string"},
+              "subdiscipline": {"type": "string"},
+              "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+              "evidence_ref": {"type": "string"}
+            },
+            "additionalProperties": true
+          },
+          "description": "Heterogeneous research domains where the rule was tested."
+        },
+        "heterogeneous_evidence_verified": {
+          "type": "boolean",
+          "description": "True only if at least 2 distinct contexts and 2 distinct domains have passed validation."
+        }
+      },
+      "additionalProperties": false
+    },
+    "conditional_rule": {
+      "type": "object",
+      "required": ["when_conditions", "then_approach", "except_conditions", "statement"],
+      "properties": {
+        "when_conditions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "description": "Explicit conditions under which approach A applies."
+        },
+        "then_approach": {
+          "type": "string",
+          "minLength": 5,
+          "description": "The mandated analytical or procedural approach."
+        },
+        "except_conditions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "description": "Boundary conditions or assumption violations requiring alternative approach."
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Formatted WHEN condition X -> use A EXCEPT condition Z -> use C statement."
+        }
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "IN_PROGRESS",
+        "VALIDATED",
+        "PROMOTED",
+        "REJECTED",
+        "ARCHIVED"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "promoted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "promoted_principle_id": {
+      "type": "string"
+    },
+    "lineage": {
+      "type": "object",
+      "properties": {
+        "source_lessons": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "source_patterns": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

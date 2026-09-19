@@ -71,7 +71,8 @@ SCHEMA_FILES = {
     "behavior_analysis": "evolution/behavior_analysis.schema.json",
     "three_way_evaluation": "evolution/three_way_evaluation.schema.json",
     "component_version": "evolution/component_version.schema.json",
-    "independent_evaluation": "evolution/independent_evaluation.schema.json"
+    "independent_evaluation": "evolution/independent_evaluation.schema.json",
+    "generalization_lifecycle": "evolution/generalization_lifecycle.schema.json"
 }
 
 
@@ -258,4 +259,8 @@ def validate_component_version(instance: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_independent_evaluation(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "independent_evaluation")
+
+
+def validate_generalization_lifecycle(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "generalization_lifecycle")
 

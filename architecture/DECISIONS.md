@@ -1193,6 +1193,64 @@ Universal blanket instructions without conditional branching violate scientific 
 - **Positive**: Eliminates brittle universal rules; prevents catastrophic overfitting; guarantees adversarial resilience and out-of-distribution generalization; ensures strict compliance with Directives 0, 9, 12.1, 18, and 19.
 - **Negative**: Requires authoring and maintaining comprehensive adversarial and cryptographically sealed held-out evaluation test suites.
 
+---
+
+## ADR-030: Seven-Stage Generalization Progression Ladder and Heterogeneous Evidence Mandate
+
+### Status
+Accepted
+
+### Context
+In earlier iterations of behavioral self-improvement, generalization from local observations was excessively aggressive and fragile:
+- As few as 2 local experiences within the same task or dataset could prematurely elevate a pattern directly to `CROSS_PROJECT_UNIVERSAL`.
+- A single trajectory failure or user feedback correction could trigger universal instruction updates.
+- This heuristic failed to distinguish between local project quirks, context-specific anomalies, and true domain-invariant principles. An instruction valid for a 2-group balanced pre-post RCT (e.g., controlling for baseline via ANCOVA) could be inappropriately elevated to a universal rule applied indiscriminately across multi-wave longitudinal trials, repeated-measures designs, or psychometric validation pipelines.
+
+Scientific and engineering rigor strictly requires that global principles earn promotion only through progressive empirical validation across heterogeneous contexts and distinct research domains.
+
+### Decision
+Replace the premature `2 experiences → CROSS_PROJECT_UNIVERSAL` shortcut with an immutable, fail-closed **Seven-Stage Generalization Progression Ladder**:
+
+```text
+OBSERVED
+    ↓
+LOCAL_LESSON
+    ↓
+REPEATED_PATTERN
+    ↓
+GENERALIZATION_CANDIDATE
+    ↓
+CROSS_CONTEXT_VALIDATION
+    ↓
+CROSS_DOMAIN_VALIDATION
+    ↓
+PROMOTED_PRINCIPLE
+```
+
+1. **The Seven Discrete Generalization Stages**:
+   - **Stage 1 (`OBSERVED`)**: Raw execution observation recorded in an execution trajectory, validator diagnostic, or user feedback event.
+   - **Stage 2 (`LOCAL_LESSON`)**: Distilled actionable lesson bound strictly to the local project, dataset, and task context (`PROJECT_LOCAL`).
+   - **Stage 3 (`REPEATED_PATTERN`)**: Recurrence confirmed across $\ge 2$ independent episodes within the local project context.
+   - **Stage 4 (`GENERALIZATION_CANDIDATE`)**: Candidate generalized rule synthesized with mandatory conditional branching (`WHEN condition X → approach A, WHEN condition Y → approach B, EXCEPT condition Z → approach C`). Strictly prohibited from being applied globally.
+   - **Stage 5 (`CROSS_CONTEXT_VALIDATION`)**: Evaluated and verified across $\ge 2$ distinct, heterogeneous experimental contexts within a single domain (e.g., 2-group balanced pre-post RCT vs. multi-group quasi-experimental trial).
+   - **Stage 6 (`CROSS_DOMAIN_VALIDATION`)**: Evaluated and verified across $\ge 2$ distinct research domains (e.g., experimental clinical psychology vs. psychometric scale validation).
+   - **Stage 7 (`PROMOTED_PRINCIPLE`)**: Officially promoted to an immutable, cross-project principle stored in `learning/knowledge/principles/` with cryptographic hash tracking.
+
+2. **Heterogeneous Evidence Mandate**:
+   - `CROSS_CONTEXT_VALIDATION` strictly requires affirmative evidence from at least two distinct, non-identical contexts (`contexts_count >= 2`).
+   - `CROSS_DOMAIN_VALIDATION` strictly requires affirmative evidence from at least two distinct research domains (`domains_count >= 2`).
+   - Any attempt to skip stages or promote without meeting heterogeneous thresholds raises `PrematureGeneralizationError` and halts transition closed.
+
+3. **Engine & Schema Governance**:
+   - **Contract**: `contracts/evolution/generalization_lifecycle.schema.json` formalizes the 7-stage state transitions, conditional rule syntax, and heterogeneous evidence contracts.
+   - **Engine**: `scripts/academic_generalization_engine.py` implements deterministic transition methods: `record_observation`, `advance_to_local_lesson`, `advance_to_repeated_pattern`, `advance_to_generalization_candidate`, `advance_to_cross_context_validation`, `advance_to_cross_domain_validation`, and `promote_to_principle`.
+   - **Consolidator**: `scripts/academic_behavior_consolidator.py` and `scripts/academic_lesson_distiller.py` are bound to the progression ladder, replacing premature universal assignment with candidate-staged graduation.
+   - **Knowledge Manager**: `scripts/academic_knowledge_manager.py` enforces `generalization_stage: "PROMOTED_PRINCIPLE"` for all canonical principles.
+
+### Consequences
+- **Positive**: Eliminates premature universal over-generalization; guarantees empirical evidence across heterogeneous contexts and domains before global adoption; aligns fully with Directives 0, 8, 12.1, 18, and 19.
+- **Negative**: High-level principles require systematic multi-context and multi-domain evaluation before achieving universal promotion.
+
 
 
 

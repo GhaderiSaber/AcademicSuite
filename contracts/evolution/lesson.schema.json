@@ -114,6 +114,20 @@
       ],
       "description": "Distinguishes strictly project-specific lessons from generalized cross-project knowledge."
     },
+    "generalization_stage": {
+      "type": "string",
+      "enum": [
+        "OBSERVED",
+        "LOCAL_LESSON",
+        "REPEATED_PATTERN",
+        "GENERALIZATION_CANDIDATE",
+        "CROSS_CONTEXT_VALIDATION",
+        "CROSS_DOMAIN_VALIDATION",
+        "PROMOTED_PRINCIPLE"
+      ],
+      "default": "LOCAL_LESSON",
+      "description": "Current position on the 7-stage generalization ladder."
+    },
     "confidence": {
       "type": "number",
       "minimum": 0.0,
