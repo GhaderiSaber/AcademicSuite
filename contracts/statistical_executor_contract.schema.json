@@ -1,0 +1,275 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/statistical_executor_contract.schema.json",
+  "title": "StatisticalExecutorContract",
+  "description": "Authoritative contract schema for the Statistical Executor layer ('The Hands'). Defines the 7 mandatory input blocks received by deterministic computational engines: DATA, VARIABLE MAP, DESIGN, METHOD SPECIFICATION, ASSUMPTIONS, PARAMETERS, OUTPUT CONTRACT.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "contract_id",
+    "status",
+    "data",
+    "variable_map",
+    "design",
+    "method_specification",
+    "assumptions",
+    "parameters",
+    "output_contract"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of the contract schema."
+    },
+    "contract_id": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Unique identifier for this execution contract (e.g. SEC-2026-ACT-001)."
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Associated project directory or identifier."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "PENDING_APPROVAL", "APPROVED", "REJECTED"],
+      "description": "Approval lifecycle status. Only APPROVED contracts may be executed."
+    },
+    "data": {
+      "type": "object",
+      "description": "Block 1: Physical dataset location, provenance, and data mode.",
+      "required": ["dataset_path", "dataset_format", "data_mode"],
+      "properties": {
+        "dataset_path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Physical path to empirical or benchmark dataset on disk."
+        },
+        "dataset_format": {
+          "type": "string",
+          "enum": ["xlsx", "xls", "csv", "sav"]
+        },
+        "dataset_sha256": {
+          "type": "string",
+          "description": "Optional SHA-256 hash of dataset if pre-computed."
+        },
+        "data_mode": {
+          "type": "string",
+          "enum": ["production", "simulation", "test", "dry_run"],
+          "description": "In production, missing data or sample data triggers fatal failure."
+        },
+        "is_synthetic": {
+          "type": "boolean",
+          "default": false,
+          "description": "Must be false in production. If true, data_mode must be simulation or test."
+        },
+        "simulation_parameters": {
+          "type": "object",
+          "description": "Optional documentation of simulation parameters when is_synthetic is true."
+        }
+      }
+    },
+    "variable_map": {
+      "type": "object",
+      "description": "Block 2: Mapping of empirical variables to their structural roles.",
+      "required": ["dependent_variables", "independent_variables"],
+      "properties": {
+        "dependent_variables": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        },
+        "independent_variables": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        },
+        "covariates": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": []
+        },
+        "mediators": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": []
+        },
+        "moderators": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": []
+        },
+        "grouping_variable": {
+          "type": "string"
+        },
+        "subject_id_variable": {
+          "type": "string"
+        },
+        "time_variable": {
+          "type": "string"
+        }
+      }
+    },
+    "design": {
+      "type": "object",
+      "description": "Block 3: Research design specification.",
+      "required": ["study_type", "group_structure", "temporal_dynamics", "waves", "factors"],
+      "properties": {
+        "study_type": {
+          "type": "string",
+          "enum": ["RCT", "quasi_experimental", "correlational_structural", "scale_validation", "qualitative", "meta_analysis", "observational_survey"]
+        },
+        "group_structure": {
+          "type": "string",
+          "enum": ["single-group", "multi-group", "factorial"]
+        },
+        "temporal_dynamics": {
+          "type": "string",
+          "enum": ["single-point", "cross-sectional", "repeated measures", "longitudinal_panel"]
+        },
+        "waves": {
+          "type": "string",
+          "enum": ["cross-sectional", "pre-post", "follow-up", "multi-wave"]
+        },
+        "factors": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "unit_of_analysis": {
+          "type": "string",
+          "default": "individual"
+        }
+      }
+    },
+    "method_specification": {
+      "type": "object",
+      "description": "Block 4: Statistical model specification and estimation method.",
+      "required": ["model_name", "model_family", "estimation_method"],
+      "properties": {
+        "model_name": {
+          "type": "string",
+          "description": "Formal model name (e.g. 'One-Way ANCOVA with Baseline Adjustment')."
+        },
+        "model_family": {
+          "type": "string",
+          "description": "General model family (e.g. 'General Linear Model', 'Linear Regression', 'Path Analysis')."
+        },
+        "formula": {
+          "type": "string",
+          "description": "Model formula (e.g. 'anxiety_post ~ C(group) + anxiety_pre')."
+        },
+        "estimation_method": {
+          "type": "string",
+          "description": "Estimation procedure (e.g. 'OLS', 'ML', 'REML', 'BCa_Bootstrap')."
+        },
+        "link_function": {
+          "type": "string",
+          "default": "identity"
+        },
+        "contrast_coding": {
+          "type": "string",
+          "default": "treatment"
+        }
+      }
+    },
+    "assumptions": {
+      "type": "object",
+      "description": "Block 5: Parametric and diagnostic assumption checks and fallback actions.",
+      "required": ["required_checks"],
+      "properties": {
+        "required_checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "metric_or_test"],
+            "properties": {
+              "name": {"type": "string"},
+              "metric_or_test": {"type": "string"},
+              "threshold": {},
+              "action_if_violated": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Block 6: Statistical parameters and execution thresholds.",
+      "required": ["alpha", "confidence_level", "missing_data_strategy"],
+      "properties": {
+        "alpha": {
+          "type": "number",
+          "minimum": 0.001,
+          "maximum": 0.10,
+          "default": 0.05
+        },
+        "confidence_level": {
+          "type": "number",
+          "minimum": 0.80,
+          "maximum": 0.999,
+          "default": 0.95
+        },
+        "bootstrap_resamples": {
+          "type": "integer",
+          "minimum": 100,
+          "default": 5000
+        },
+        "random_seed": {
+          "type": "integer"
+        },
+        "missing_data_strategy": {
+          "type": "string",
+          "enum": ["listwise", "pairwise", "fiml", "multiple_imputation", "mean_imputation", "none"],
+          "default": "listwise"
+        },
+        "multiple_testing_correction": {
+          "type": "string",
+          "default": "none"
+        }
+      }
+    },
+    "output_contract": {
+      "type": "object",
+      "description": "Block 7: Target artifact paths, schema compliance, and format specifications.",
+      "required": ["out_dir", "stats_results_filename", "stats_table_filename"],
+      "properties": {
+        "out_dir": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stats_results_filename": {
+          "type": "string",
+          "default": "stats_results.json"
+        },
+        "stats_table_filename": {
+          "type": "string",
+          "default": "stats_table.md"
+        },
+        "stats_summary_filename": {
+          "type": "string",
+          "default": "stats_summary.md"
+        },
+        "expected_triad_artifacts": {
+          "type": "object",
+          "properties": {
+            "docx_path": {"type": "string"},
+            "md_path": {"type": "string"},
+            "json_path": {"type": "string"}
+          }
+        },
+        "required_table_format": {
+          "type": "string",
+          "enum": ["apa_7_markdown", "apa_7_openxml", "both"],
+          "default": "both"
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

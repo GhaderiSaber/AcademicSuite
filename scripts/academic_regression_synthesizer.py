@@ -439,7 +439,9 @@ class AcademicRegressionSynthesizer:
                 "estimand": "Fixed treatment effect across waves",
                 "effect_size": 0.25,
                 "confidence_interval": [0.10, 0.40],
-                "artifact_path": "03_model_comparison.json"
+                "artifact_path": "03_model_comparison.json",
+                "is_synthetic": True,
+                "data_mode": "simulation"
             }
         }
         compliant_result = lab.evaluate_candidate_on_case("CAND-COMPLIANT-VERIFIED", case_data, compliant_artifacts)

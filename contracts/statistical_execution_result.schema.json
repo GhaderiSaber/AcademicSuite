@@ -1,0 +1,242 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/statistical_execution_result.schema.json",
+  "title": "StatisticalExecutionResult",
+  "description": "Authoritative contract schema for the deterministic result package emitted by the Statistical Executor ('The Hands'). Encapsulates the 7 mandatory output blocks: RESULT JSON, TABLES, DIAGNOSTICS, EFFECT SIZES, CONFIDENCE INTERVALS, MODEL INFORMATION, PROVENANCE.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "execution_id",
+    "contract_id",
+    "status",
+    "data_mode",
+    "is_synthetic",
+    "result_json",
+    "tables",
+    "diagnostics",
+    "effect_sizes",
+    "confidence_intervals",
+    "model_information",
+    "provenance"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of the contract schema."
+    },
+    "execution_id": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Unique identifier for this computational execution run (e.g. EXEC-2026-ACT-001)."
+    },
+    "contract_id": {
+      "type": "string",
+      "minLength": 3,
+      "description": "ID of the governing StatisticalExecutorContract or AnalysisPlan."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["SUCCESS", "FAILED", "DRY_RUN_VALIDATED"],
+      "description": "Execution status of the run."
+    },
+    "data_mode": {
+      "type": "string",
+      "enum": ["production", "simulation", "test", "dry_run"]
+    },
+    "is_synthetic": {
+      "type": "boolean",
+      "description": "Must be false in production. True only when explicitly using simulation/test data."
+    },
+    "execution_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "result_json": {
+      "type": "object",
+      "description": "Block 1: Machine-readable exact test statistics, parameter estimates, p-values, and summary metrics.",
+      "required": ["model_name", "test_statistics"],
+      "properties": {
+        "model_name": {"type": "string"},
+        "test_statistics": {
+          "type": "object",
+          "description": "Exact test statistics (e.g. F, t, z, chi2, p_value, p_formatted)."
+        },
+        "coefficients": {
+          "type": "object",
+          "description": "Parameter estimates, standard errors, and individual test statistics."
+        },
+        "group_descriptives": {
+          "type": "object",
+          "description": "Means, SDs, SEs, and Ns per group or wave."
+        },
+        "raw_data_summary": {
+          "type": "object"
+        }
+      }
+    },
+    "tables": {
+      "type": "object",
+      "description": "Block 2: Formatted APA 7th edition 3-line tables (Markdown and structured OpenXML format).",
+      "required": ["apa_table_markdown", "table_title"],
+      "properties": {
+        "table_title": {"type": "string"},
+        "apa_table_markdown": {"type": "string"},
+        "headers": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "rows": {
+          "type": "array",
+          "items": {"type": "array"}
+        },
+        "notes": {"type": "string"}
+      }
+    },
+    "diagnostics": {
+      "type": "object",
+      "description": "Block 3: Statistical assumption checks, residual analysis, and collinearity diagnostics.",
+      "required": ["assumption_checks"],
+      "properties": {
+        "assumption_checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["check_name", "verdict"],
+            "properties": {
+              "check_name": {"type": "string"},
+              "test_statistic": {},
+              "p_value": {},
+              "verdict": {
+                "type": "string",
+                "enum": ["VERIFIED", "VIOLATED", "WARNING", "N/A"]
+              },
+              "contingency_applied": {"type": "string"}
+            }
+          }
+        },
+        "residuals_summary": {
+          "type": "object",
+          "properties": {
+            "skewness": {"type": "number"},
+            "kurtosis": {"type": "number"},
+            "normality_verdict": {"type": "string"}
+          }
+        },
+        "collinearity": {
+          "type": "object"
+        }
+      }
+    },
+    "effect_sizes": {
+      "type": "object",
+      "description": "Block 4: Standardized effect size point estimates, metric definitions, and clinical magnitude.",
+      "required": ["primary_effect"],
+      "properties": {
+        "primary_effect": {
+          "type": "object",
+          "required": ["metric", "value"],
+          "properties": {
+            "metric": {
+              "type": "string",
+              "description": "Name of effect size metric (e.g. 'eta_sq_partial', 'cohens_d', 'r_squared', 'omega_squared')."
+            },
+            "value": {
+              "type": "number"
+            },
+            "interpretation": {
+              "type": "string",
+              "description": "Epistemic/benchmarked magnitude (e.g. 'small', 'medium', 'large')."
+            }
+          }
+        },
+        "additional_effects": {
+          "type": "array",
+          "items": {"type": "object"}
+        }
+      }
+    },
+    "confidence_intervals": {
+      "type": "object",
+      "description": "Block 5: Exact confidence interval bounds, coverage level, and estimation methodology.",
+      "required": ["level", "intervals"],
+      "properties": {
+        "level": {
+          "type": "number",
+          "default": 0.95
+        },
+        "intervals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["parameter", "lower", "upper", "method"],
+            "properties": {
+              "parameter": {"type": "string"},
+              "lower": {"type": "number"},
+              "upper": {"type": "number"},
+              "method": {
+                "type": "string",
+                "description": "Procedure (e.g. 'analytical_normal', 'bca_bootstrap', 'percentile_bootstrap')."
+              }
+            }
+          }
+        }
+      }
+    },
+    "model_information": {
+      "type": "object",
+      "description": "Block 6: Comprehensive model architecture, degrees of freedom, sample size, and fit indices.",
+      "required": ["model_family", "sample_size", "degrees_of_freedom", "estimator"],
+      "properties": {
+        "model_family": {"type": "string"},
+        "sample_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "degrees_of_freedom": {
+          "type": "object",
+          "required": ["df_between", "df_within", "df_total"],
+          "properties": {
+            "df_between": {"type": "number"},
+            "df_within": {"type": "number"},
+            "df_covar": {"type": "number"},
+            "df_total": {"type": "number"}
+          }
+        },
+        "estimator": {"type": "string"},
+        "r_squared": {"type": "number"},
+        "adj_r_squared": {"type": "number"},
+        "f_statistic": {"type": "number"},
+        "log_likelihood": {"type": "number"},
+        "aic": {"type": "number"},
+        "bic": {"type": "number"},
+        "convergence": {"type": "boolean"}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Block 7: Complete cryptographic provenance, hashes, runtime environment, and CLI command.",
+      "required": ["dataset_sha256", "contract_sha256", "script_identity", "command", "exit_code", "execution_environment"],
+      "properties": {
+        "dataset_sha256": {"type": "string"},
+        "contract_sha256": {"type": "string"},
+        "script_identity": {"type": "string"},
+        "command": {"type": "string"},
+        "exit_code": {"type": "integer"},
+        "execution_environment": {
+          "type": "object",
+          "required": ["python_interpreter", "platform", "python_version"],
+          "properties": {
+            "working_directory": {"type": "string"},
+            "python_interpreter": {"type": "string"},
+            "platform": {"type": "string"},
+            "python_version": {"type": "string"}
+          }
+        },
+        "execution_duration_seconds": {"type": "number"}
+      }
+    }
+  },
+  "additionalProperties": true
+}

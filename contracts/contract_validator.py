@@ -47,6 +47,8 @@ SCHEMA_FILES = {
     "pitfall": "pitfall.schema.json",
     "execution_manifest": "execution_manifest.schema.json",
     "methodology_decision_record": "methodology_decision_record.schema.json",
+    "statistical_executor_contract": "statistical_executor_contract.schema.json",
+    "statistical_execution_result": "statistical_execution_result.schema.json",
     "teamwork_boundary": "teamwork_boundary.schema.json",
     # Evolution & Continuous Self-Improvement Contracts
     "experience": "evolution/experience.schema.json",
@@ -228,4 +230,12 @@ def validate_drift_report(instance: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_methodology_decision_record(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "methodology_decision_record")
+
+
+def validate_statistical_executor_contract(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "statistical_executor_contract")
+
+
+def validate_statistical_execution_result(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "statistical_execution_result")
 

@@ -34,8 +34,8 @@
     },
     "execution_mode": {
       "type": "string",
-      "enum": ["production", "demo", "test", "dry_run", "PRODUCTION", "DEMO", "TEST", "DRY_RUN"],
-      "description": "Execution context mode strictly separating live empirical production from demo/test/dry_run."
+      "enum": ["production", "demo", "test", "dry_run", "simulation", "PRODUCTION", "DEMO", "TEST", "DRY_RUN", "SIMULATION"],
+      "description": "Execution context mode strictly separating live empirical production from demo/test/dry_run/simulation."
     },
     "timestamp": {
       "type": "string",

@@ -293,4 +293,70 @@ An MDR contains:
 1. **The Executor Never Invents Methodology**: `statistics-agent` receives the `execution_contract` and executes deterministically. It has zero authority to select, alter, or invent statistical models.
 2. **Method Lock Enforcement**: `StatisticalPipelineEngine` validates the plan against `methodology_decision_record.schema.json` and raises `MethodMismatchError` or `MethodologyViolationError` if any deviation from the contract is attempted.
 
+---
+
+## 10. The Deterministic Statistical Execution Subsystem (Phase 5)
+
+### 10.1 The 4-Tier Cognitive & Computational Boundary
+AcademicSuite enforces an unbending separation between cognitive reasoning, deterministic computation, academic rhetoric, and adversarial validation:
+
+```text
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ Tier 1: LLM Reasoning ("What should be done?")                                 │
+│ - Agents: statistical-expert, methodology-expert                              │
+│ - Generates: Methodology Decision Record (MDR) & StatisticalExecutorContract  │
+└──────────────────────────────────────┬────────────────────────────────────────┘
+                                       │ Binding 7-Part Input Contract
+                                       ▼
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ Tier 2: Deterministic Computation ("What are the actual numbers?")            │
+│ - Agents / Engines: statistics-agent, StatisticalPipelineEngine, Python/R     │
+│ - Computes: Exact test statistics, df, p-values, effect sizes, CIs, diagnostics│
+│ - Invariant: Zero LLM mental arithmetic; zero synthetic statistics in prod     │
+└──────────────────────────────────────┬────────────────────────────────────────┘
+                                       │ Verified 7-Part Output Package
+                                       ▼
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ Tier 3: Scholarly Drafting ("What do verified numbers mean?")                 │
+│ - Agents: academic-writer                                                     │
+│ - Generates: APA 7 narrative, table interpretations, Chapter 4/5 drafts       │
+│ - Invariant: Numbers strictly extracted from Tier 2 JSON; zero hallucinations │
+└──────────────────────────────────────┬────────────────────────────────────────┘
+                                       │ Draft Artifacts (.docx, .md, .json)
+                                       ▼
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ Tier 4: Adversarial Audit ("Are those claims actually supported?")            │
+│ - Agents: statistical-auditor, validation-agent                               │
+│ - Audits: Reported claims vs. JSON, df vs. N, assumption compliance, MSAI     │
+└───────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 10.2 The 7-Part Input & Output Contract Architecture
+Every statistical execution is governed by two formal JSON schemas:
+1. **Input Contract (`contracts/statistical_executor_contract.schema.json`)**:
+   - `DATA`: File path, format, SHA-256 data hash, data mode (`production`, `demo`, `test`, `simulation`), and `is_synthetic` flag.
+   - `VARIABLE MAP`: Explicit assignment of dependent, independent, covariates, moderators, mediators, cluster, and ID variables.
+   - `DESIGN`: Study typology, between/within factors, and measurement timepoints.
+   - `METHOD SPECIFICATION`: Model family, exact method name, computational engine, and model formula.
+   - `ASSUMPTIONS`: Formal list of parametric assumptions to verify before inferential testing.
+   - `PARAMETERS`: Confidence level (0.95), alpha (0.05), bootstrap resamples (5,000), random seed, and missing data strategy.
+   - `OUTPUT CONTRACT`: Target deliverables, table formats, effect size metrics, CI types, and decimal precision rules.
+2. **Output Result Package (`contracts/statistical_execution_result.schema.json`)**:
+   - `RESULT JSON`: Model name, sample size $N$, primary test statistic ($F, t, \chi^2$), degrees of freedom ($df_1, df_2$), exact $p$-value, and execution status.
+   - `TABLES`: APA 7th Edition formatted markdown tables.
+   - `DIAGNOSTICS`: Parametric assumption test statistics, $p$-values, and pass/fail indicators.
+   - `EFFECT SIZES`: Standardized effect sizes ($\eta_p^2, d, R^2, \beta$).
+   - `CONFIDENCE INTERVALS`: Parameter bounds and bootstrap BCa intervals.
+   - `MODEL INFORMATION`: Convergence status, iteration count, and log-likelihood/AIC/BIC.
+   - `PROVENANCE`: Input contract hash, data file hash, script path, execution timestamp, and runtime environment details.
+
+### 10.3 Anti-Synthetic & Zero-Default-Sample Invariants
+1. **Production Fail-Closed Guard**: In `production` mode, `StatisticalPipelineEngine` mechanically blocks missing datasets (`MissingProductionDataError`) and any attempt to substitute demo/sample fixtures (`ProductionSampleFallbackBlockedError`).
+2. **Zero Synthetic Statistics**: Under no circumstance may arbitrary or hardcoded values (`effect_size = 0.25`, `CI = [0.10, 0.40]`) be emitted in production mode.
+3. **Explicit Simulation Flags**: Datasets or models intended for psychometric simulation or benchmark testing must explicitly declare `is_synthetic: true` and `data_mode: "simulation"` or `"test"`.
+
+### 10.4 Cryptographic Provenance & Computational Reproducibility
+Every statistical result is cryptographically linked to the exact input data, execution contract, script identity, and python runtime environment via SHA-256 hashes, ensuring 100% auditable academic provenance.
+
+
 

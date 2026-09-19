@@ -214,4 +214,45 @@ Statistical Executor ("The Hands")
 - **Positive**: Complete academic defensibility, zero arbitrary or unapproved model selection by executors, transparent refutation matrices, full compliance with Directive 12.1 and Directive 19.
 - **Negative**: Adds an upfront requirement to formulate and validate the MDR before numerical execution proceeds.
 
+---
+
+## ADR-010: Hardened Deterministic Statistical Execution Layer & Contract
+
+### Context
+In academic consulting and statistical analysis, LLM cognitive systems are susceptible to arithmetic hallucinations, mental calculations of $t, F, p$, and effect sizes, and silent fallback to synthetic or mock datasets (`effect_size = 0.25`, `CI = [0.10, 0.40]`) when real empirical data is missing or difficult to parse. To maintain uncompromising scientific integrity, the statistical execution layer must become a strictly deterministic computational subsystem where LLMs are never permitted to compute or hallucinate numbers.
+
+### Decision
+Implement a hardened, deterministic statistical execution subsystem governed by:
+1. **The 4-Tier Cognitive & Computational Boundary**:
+   - **LLM (`statistical-expert` / `methodology-expert`)**: *What should be done?* (Methodological reasoning, estimand mapping, assumption planning, and authoring the binding Statistical Executor Contract).
+   - **Python/R (`statistics-agent` / `StatisticalPipelineEngine`)**: *What are the actual numbers?* (Deterministic calculation on real curated data without LLM mental arithmetic).
+   - **LLM (`academic-writer`)**: *What do verified numbers mean?* (Translating verified numerical results into substantive academic narrative and APA tables without modifying numbers).
+   - **Validator (`statistical-auditor` / `validation-agent`)**: *Are those claims actually supported?* (Adversarially auditing narrative claims against output JSON, verifying degrees of freedom against sample size $N$, and calculating MSAI scores).
+2. **The 7-Part Input Contract (`contracts/statistical_executor_contract.schema.json`)**:
+   - `DATA`: File path, format, SHA-256 hash, data mode (`production`, `demo`, `test`, `simulation`), and `is_synthetic` boolean.
+   - `VARIABLE MAP`: Explicit mappings for dependent, independent, covariates, moderators, mediators, cluster, and ID variables.
+   - `DESIGN`: Design typology, between/within factors, and measurement timepoints.
+   - `METHOD SPECIFICATION`: Statistical family, method name, computational engine, and model formula.
+   - `ASSUMPTIONS`: Formal list of parametric assumptions to verify.
+   - `PARAMETERS`: Confidence level (0.95), alpha (0.05), bootstrap resamples (5,000), random seed, and missing data strategy.
+   - `OUTPUT CONTRACT`: Required output formats, table format, effect sizes, confidence intervals, and decimal precision.
+3. **The 7-Part Output Contract (`contracts/statistical_execution_result.schema.json`)**:
+   - `RESULT JSON`: Model name, sample size, primary test statistic, degrees of freedom, exact p-value, and execution status.
+   - `TABLES`: Formatted APA 7th Edition markdown tables.
+   - `DIAGNOSTICS`: Parametric assumption test statistics, p-values, and pass/fail indicators.
+   - `EFFECT SIZES`: Standardized effect sizes ($\eta_p^2, d, R^2, \beta$).
+   - `CONFIDENCE INTERVALS`: Parameter bounds and bootstrap BCa intervals.
+   - `MODEL INFORMATION`: Convergence status, iteration count, and log-likelihood/AIC/BIC.
+   - `PROVENANCE`: Input contract hash, data file hash, script path, execution timestamp, and environment details.
+4. **Anti-Synthetic & Zero Default Sample Invariants**:
+   - Zero synthetic statistics in production mode.
+   - Zero default samples or mock fixtures in production mode.
+   - Missing data or sample data in production immediately triggers fatal fail-closed errors (`MissingProductionDataError`, `ProductionSampleFallbackBlockedError`).
+   - Synthetic benchmarks and simulations must explicitly declare `is_synthetic: true` and `data_mode: "simulation"` or `"test"`.
+
+### Consequences
+- **Positive**: 100% arithmetic reproducibility, zero hallucinated statistical numbers, complete cryptographic audit trails, fail-closed enforcement preventing uncurated or mock data from leaking into production deliverables.
+- **Negative**: Requires strict data curation and schema validation before any statistical computation can be executed.
+
+
 

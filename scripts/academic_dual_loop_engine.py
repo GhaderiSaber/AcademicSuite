@@ -416,7 +416,9 @@ class AcademicDualLoopEngine:
                         "confidence_interval": [0.10, 0.40],
                         "artifact_path": "03_fast_results.json",
                         "assumptions_checked": ["homogeneity of slopes"],
-                        "effect_size_type": "cohens_d"
+                        "effect_size_type": "cohens_d",
+                        "is_synthetic": True,
+                        "data_mode": "simulation"
                     }
                 }
             )
@@ -548,7 +550,9 @@ class AcademicDualLoopEngine:
                             "confidence_interval": [0.12, 0.52],
                             "artifact_path": "03_slow_loop_results.json",
                             "assumptions_checked": ["homogeneity of slopes", "normality"],
-                            "effect_size_type": "cohens_d"
+                            "effect_size_type": "cohens_d",
+                            "is_synthetic": True,
+                            "data_mode": "simulation"
                         },
                         "reasoning": {
                             "candidate_model_comparison": "LMM vs RM-ANOVA compared",

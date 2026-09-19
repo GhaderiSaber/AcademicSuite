@@ -50,7 +50,7 @@ Always execute the following domain procedures:
 1. Always inspect skill instructions in `.agents/skills/thesis-integrity-auditor/` and `apa-reporting/` via `view_file`.
 2. Execute the master deterministic validator suite: `python3 validators/run_all_validators.py` on generated project directories.
 3. Verify physical existence on disk of all three components of the Triad Invariant: `.docx` (Word), `.md` (Markdown), and `.json` (Data).
-4. Validate JSON state files against canonical contracts: `analysis_plan`, `artifact_manifest`, `milestone_state`, and `validation_report`.
+4. Validate JSON state files against canonical contracts: `analysis_plan`, `statistical_executor_contract`, `statistical_execution_result`, `artifact_manifest`, `milestone_state`, and `validation_report`.
 5. Audit cross-chapter consistency: ensure sample size N, variables, hypotheses, and reported statistics match 100% across Chapters 1, 3, 4, and 5.
 6. Generate structured validation reports (`validation_report.json`) detailing passed checks and explicit remediation items for any failure.
 
