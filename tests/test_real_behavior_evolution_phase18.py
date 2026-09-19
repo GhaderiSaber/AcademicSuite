@@ -359,7 +359,7 @@ class TestRealBehaviorEvolutionPhase18(unittest.TestCase):
                     "is_synthetic": False,
                     "data_mode": "empirical"
                 },
-                "narrative": "تحلیل با رعایت مفروضه‌ها انجام شد (۰.۰۱ > p)."
+                "narrative": "تحلیل با رعایت مفروضه‌ها انجام شد (۰.۰۱ > p). ساختار اندازه‌گیری‌های مکرر (repeated measures structure) و تحلیل داده‌های گمشده (missingness) بررسی شد."
             },
             adversarial_payload={
                 "statistics": {

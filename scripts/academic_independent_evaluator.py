@@ -700,6 +700,13 @@ class AcademicIndependentEvaluator:
 
         return report
 
+    def to_canonical_evaluation_result(self, independent_report: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Converts an independent evaluation report into a schema-valid EvaluationResult (Phase 30).
+        """
+        from scripts.academic_canonical_evaluation import canonicalize_evaluation_result
+        return canonicalize_evaluation_result(independent_report)
+
 
 def main():
     parser = argparse.ArgumentParser(description="AcademicSuite Independent Blinded A/B Evaluator CLI")

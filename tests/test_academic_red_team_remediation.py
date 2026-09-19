@@ -203,7 +203,8 @@ class TestAcademicRedTeamRemediation(unittest.TestCase):
                 "condition_for_a": "Balanced cell sizes and complete follow-up.",
                 "condition_for_b": "Subject attrition and missing longitudinal waves."
             },
-            "status": "PENDING_HUMAN_REVIEW"
+            "stage": "CONFLICT_DETECTED",
+            "status": "UNRESOLVED"
         })
 
         briefing = self.km.retrieve_pre_task_context(

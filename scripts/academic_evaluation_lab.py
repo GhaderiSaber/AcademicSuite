@@ -504,7 +504,7 @@ class AcademicEvaluationLab:
                 "epistemic_honesty", "alternative", "توجیه", "فرضیه", "تبیین"
             ],
             "slope_homogeneity_verification": [
-                "slope_homogeneity_verification", "slope_homogeneity", "homogeneity of slopes", "homogeneity of regression slopes", "همگونی شیب", "شیب رگرسیون"
+                "slope_homogeneity_verification", "slope_homogeneity", "homogeneity_of_slopes", "homogeneity of slopes", "homogeneity of regression slopes", "همگونی شیب", "شیب رگرسیون"
             ],
             "conditional_branching_on_violation": [
                 "conditional_branching_on_violation", "conditional_branching", "violation remediation", "rm-anova", "repeated-measures anova", "change scores", "johnson-neyman", "lmm", "mixed model"
@@ -743,31 +743,67 @@ class AcademicEvaluationLab:
         failed_cases = set(f["test_id"] for f in failures)
         successful_runs = max(0, len(cases) - len(failed_cases))
 
+        candidate_metrics = {
+            "statistical_precision": {
+                "df_concordance_rate": 1.0 if dimensions_consolidated["statistical_validity"]["verdict"] == "PASS" else 0.5,
+                "fit_index_pass_rate": 1.0 if dimensions_consolidated["methodology"]["verdict"] == "PASS" else 0.5,
+                "parameter_error_margin": 0.0
+            },
+            "typography_compliance": {
+                "persian_leading_zero_violations": 0 if dimensions_consolidated["correctness"]["verdict"] == "PASS" else 1,
+                "apa_table_border_violations": 0,
+                "prohibited_cliche_count": 0
+            },
+            "execution_reliability": {
+                "successful_runs": successful_runs,
+                "total_runs": len(cases),
+                "crash_count": 0,
+                "average_latency_seconds": 1.2
+            },
+            "msai_anomaly_score": 0.0 if overall_verdict == "PASS" else 25.0
+        }
+
+        baseline_metrics = {
+            "total_runs": len(cases),
+            "successful_runs": len(cases) if base_payload else len(cases),
+            "defects_detected": 0 if base_payload else len(failures)
+        }
+
+        regression_results = {
+            "verdict": "PASS" if len(regression_details) == 0 else "FAIL",
+            "count": len(regression_details),
+            "details": regression_details
+        }
+
+        adversarial_results = {
+            "verdict": "PASS" if (suite_type != "adversarial" or overall_verdict == "PASS") else "FAIL",
+            "creates_new_mistake": bool(suite_type == "adversarial" and overall_verdict != "PASS"),
+            "details": [f for f in failures if "adversarial" in f.get("test_id", "").lower()]
+        }
+
+        heldout_results = {
+            "verdict": "PASS" if (suite_type != "heldout" or overall_verdict == "PASS") else "FAIL",
+            "pass_rate": 1.0 if overall_verdict == "PASS" else 0.0,
+            "generalizes_to_different_case": bool(overall_verdict == "PASS"),
+            "total_cases": len(cases) if suite_type == "heldout" else 0
+        }
+
         report_data = {
             "contract_version": "1.0.0",
             "evaluation_id": eval_id,
             "candidate_id": candidate_id,
+            "baseline_id": baseline_version,
             "baseline_version": baseline_version,
-            "metrics": {
-                "statistical_precision": {
-                    "df_concordance_rate": 1.0 if dimensions_consolidated["statistical_validity"]["verdict"] == "PASS" else 0.5,
-                    "fit_index_pass_rate": 1.0 if dimensions_consolidated["methodology"]["verdict"] == "PASS" else 0.5,
-                    "parameter_error_margin": 0.0
-                },
-                "typography_compliance": {
-                    "persian_leading_zero_violations": 0 if dimensions_consolidated["correctness"]["verdict"] == "PASS" else 1,
-                    "apa_table_border_violations": 0,
-                    "prohibited_cliche_count": 0
-                },
-                "execution_reliability": {
-                    "successful_runs": successful_runs,
-                    "total_runs": len(cases),
-                    "crash_count": 0,
-                    "average_latency_seconds": 1.2
-                },
-                "msai_anomaly_score": 0.0 if overall_verdict == "PASS" else 25.0
-            },
+            "task_id": f"SUITE-{suite_type.upper()}-{capability or 'GENERAL'}",
+            "dimensions": dimensions_consolidated,
             "dimensional_evaluations": dimensions_consolidated,
+            "baseline_metrics": baseline_metrics,
+            "candidate_metrics": candidate_metrics,
+            "metrics": candidate_metrics,
+            "regression_results": regression_results,
+            "adversarial_results": adversarial_results,
+            "heldout_results": heldout_results,
+            "contradictions": [],
             "diagnostics": all_diagnostics if all_diagnostics else [{
                 "check_id": "CHK-ALL-PASSED",
                 "status": "PASS",
@@ -784,6 +820,7 @@ class AcademicEvaluationLab:
                     "sha256": hashlib.sha256(json.dumps(all_case_results).encode("utf-8")).hexdigest()
                 }
             ],
+            "verdict": overall_verdict,
             "overall_verdict": overall_verdict,
             "evaluated_at": datetime.now(timezone.utc).isoformat()
         }

@@ -1518,6 +1518,56 @@ Query (prompt, capability, domain, skill, task, failure_type, scope)
 - **Positive**: 100% elimination of semantic leakage of academically inappropriate lessons; preservation of proven deterministic metadata scoring; multi-factor ranking prioritizing high-confidence, empirically backed, temporally fresh, and contradiction-free knowledge; auditable contract compliance.
 - **Negative**: Adds a structured two-stage evaluation pipeline to knowledge query execution.
 
+---
+
+## ADR-035: Canonical EvaluationResult Schema and Universal Promotion Gate Enforcement
+
+### Status
+Accepted
+
+### Context
+Prior to Phase 30, evaluation outputs across AcademicSuite had diverged across different modules:
+- `scripts/academic_evaluation_lab.py` emitted reports conforming to `evaluation_result.schema.json` with legacy keys (`baseline_version`, `metrics`, `overall_verdict`, `regressions`, `failures`).
+- `scripts/academic_independent_evaluator.py` emitted reports conforming to `independent_evaluation.schema.json` with blinded structure (`blinding`, `blinded_evaluations`, `unblinded_comparison`).
+- `scripts/academic_real_behavior_evolution.py` emitted reports conforming to `three_way_evaluation.schema.json` (`arms`, `comparison_summary`, `qc_verdict`).
+- Ad-hoc tests and benchmark harnesses generated varied dictionary formats.
+
+This divergence created ambiguity at the promotion boundary and prevented universal verification of candidate evaluations.
+
+### Decision
+1. **The Canonical `EvaluationResult` Contract (`contracts/evolution/evaluation_result.schema.json`)**:
+   - Establish `EvaluationResult` as the single authoritative evaluation contract.
+   - Require all 13 canonical fields without exception:
+     1. `evaluation_id`: Unique report identifier (`EVR-...`, `INDEP-EVL-...`).
+     2. `candidate_id`: Candidate identifier under evaluation.
+     3. `baseline_id`: Baseline identifier/version used for comparison.
+     4. `task_id`: Benchmark task or evaluation panel executed.
+     5. `dimensions`: Multidimensional evaluation across the 8 quality dimensions.
+     6. `baseline_metrics`: Metrics achieved by the baseline arm.
+     7. `candidate_metrics`: Metrics achieved by the candidate arm.
+     8. `regression_results`: Results on the regression suite (`verdict`, `count`, `details`, `fixes_original_mistake`).
+     9. `adversarial_results`: Results on the adversarial red-team suite (`verdict`, `creates_new_mistake`, `details`).
+     10. `heldout_results`: Results on cryptographically sealed held-out suite (`verdict`, `pass_rate`, `generalizes_to_different_case`).
+     11. `contradictions`: Conflict checks or contradiction records evaluated during testing.
+     12. `evidence`: Cryptographic evidence records, artifact paths, and SHA256 hashes.
+     13. `verdict`: Authoritative overall verdict (`PASS`, `FAIL`, `INCONCLUSIVE`, `CONDITIONAL`).
+   - Strictly prohibit scalar intelligence scores (`overall_intelligence`, `agent_iq`, `general_intelligence_score`, `smartness_rating`).
+
+2. **The Canonicalization Engine (`scripts/academic_canonical_evaluation.py`)**:
+   - Provides `CanonicalEvaluationResultBuilder` for fluent assembly of canonical reports.
+   - Provides `canonicalize_evaluation_result()` to deterministically map and normalize reports from any evaluator (independent blinded evaluator, evaluation lab, 3-way harness, or raw fixtures).
+   - Strictly conforms to Directive 18 ($\le 500$ lines, $\le 40,000$ bytes).
+
+3. **Fail-Closed Promotion Invariant (`scripts/academic_promotion_engine.py`)**:
+   - Codifies the invariant: *"No promotion is allowed without a schema-valid EvaluationResult."*
+   - In `AcademicPromotionEngine.verify_evaluation_gates()`, Gate 0.0 validates the report against `validate_evaluation_result()`. Reports failing schema validation cause immediate fail-closed rejection (`INVALID_EVALUATION_SCHEMA`), blocking candidate promotion.
+   - In `AcademicPromotionEngine.evaluate_and_promote()`, legacy evaluation reports are deterministically normalized via `canonicalize_evaluation_result()`.
+
+### Consequences
+- **Positive**: 100% unified contract for all evaluators; structural enforcement of the 3-suite model (regression, adversarial, heldout) and 8 quality dimensions; absolute prohibition of candidate promotion without verifiable schema-valid evidence; zero regression across existing test suites.
+- **Negative**: Requires normalization of legacy evaluation outputs into the 13 canonical fields.
+
+
 
 
 

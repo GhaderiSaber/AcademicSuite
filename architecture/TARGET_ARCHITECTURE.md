@@ -2022,6 +2022,90 @@ $$\text{Final Score} = 0.25 \cdot S_{\text{rel}} + 0.25 \cdot S_{\text{sim}} + 0
   - `AcademicKnowledgeManager`: Directly powers `query()` and `retrieve_two_stage()`.
   - `AcademicAdaptiveContextBoundary`: Leverages two-stage retrieval to construct execution-boundary briefings before agent reasoning begins.
 
+---
+
+## 35. Canonical Evaluation Architecture & Promotion Gate Invariant (Phase 30)
+
+### 35.1 The Fragmentation of Evaluation Outputs
+Prior to Phase 30, evaluation outputs in AcademicSuite had diverged:
+- `AcademicEvaluationLab` emitted an ad-hoc report conforming to the initial `evaluation_result.schema.json`.
+- `AcademicIndependentEvaluator` emitted a blinded comparison conforming to `independent_evaluation.schema.json`.
+- `AcademicRealBehaviorEvolution` emitted 3-arm reports conforming to `three_way_evaluation.schema.json`.
+- Various test harnesses produced heterogeneous dictionaries.
+
+This structural heterogeneity created two critical risks:
+1. **Gate Inconsistency**: Promotion engines had to implement complex, branching fallback checks to parse different evaluation structures.
+2. **Evaluation Evasion**: Candidates could attempt to bypass mandatory verification dimensions (e.g. regression checks, held-out generalization, or contradiction records) by returning a divergent schema.
+
+Phase 30 unifies all evaluation outputs across the entire architecture into **one canonical contract: `EvaluationResult`**, and enforces the universal promotion invariant:
+> **"No promotion is allowed without a schema-valid EvaluationResult."**
+
+### 35.2 The 13 Canonical Fields of `EvaluationResult`
+Every evaluation report submitted for candidate promotion across AcademicSuite must strictly contain all 13 mandatory properties:
+
+```mermaid
+flowchart TD
+    subgraph CanonicalStructure["EvaluationResult (13 Mandatory Fields)"]
+        F1["1. evaluation_id\nUnique report ID (EVR-... / INDEP-EVL-...)"]
+        F2["2. candidate_id\nCandidate agent or mutation ID"]
+        F3["3. baseline_id\nBaseline identifier / commit hash"]
+        F4["4. task_id\nBenchmark task or evaluation panel ID"]
+        F5["5. dimensions\nMultidimensional quality evaluations (8 dims)"]
+        F6["6. baseline_metrics\nPerformance metrics of baseline arm"]
+        F7["7. candidate_metrics\nPerformance metrics of candidate arm"]
+        F8["8. regression_results\nRegression suite verdict, count, and details"]
+        F9["9. adversarial_results\nAdversarial red-team suite verdict and details"]
+        F10["10. heldout_results\nHeld-out suite verdict, pass rate, and generalization"]
+        F11["11. contradictions\nConflict checks and contradiction records evaluated"]
+        F12["12. evidence\nCryptographic artifact paths and SHA256 hashes"]
+        F13["13. verdict\nAuthoritative overall verdict (PASS, FAIL, INCONCLUSIVE)"]
+    end
+
+    subgraph PromotionGate["Fail-Closed Promotion Engine Gate 0.0"]
+        ValidateSchema{"validate_evaluation_result(report)\nIs Schema Valid?"}
+        Allow["Proceed to Gates 1-5\n(Target, Regression, Adversarial, Held-out, Integrity)"]
+        Block["REJECT_AND_ARCHIVE\n(INVALID_EVALUATION_SCHEMA)"]
+    end
+
+    CanonicalStructure --> ValidateSchema
+    ValidateSchema -->|Valid| Allow
+    ValidateSchema -->|Invalid| Block
+```
+
+| # | Field | Type | Description & Semantic Role |
+| :--- | :--- | :--- | :--- |
+| **1** | `evaluation_id` | `string` | Unique identifier for the evaluation report (`EVR-...`, `INDEP-EVL-...`). |
+| **2** | `candidate_id` | `string` | Identifier of the candidate agent, mutation, or improvement under evaluation. |
+| **3** | `baseline_id` | `string` | Commit hash, version string, or identifier of the baseline comparison arm. |
+| **4** | `task_id` | `string` | Identifier of the benchmark task, evaluation case, or test panel executed. |
+| **5** | `dimensions` | `object` | Multidimensional quality evaluations across the 8 dimensions without scalar collapse. |
+| **6** | `baseline_metrics` | `object` | Detailed metrics achieved by the baseline arm across all executed runs. |
+| **7** | `candidate_metrics`| `object` | Detailed metrics achieved by the candidate arm across all executed runs. |
+| **8** | `regression_results`| `object` | Regression suite findings verifying zero regressions on protected capabilities (`verdict`, `count`, `details`, `fixes_original_mistake`). |
+| **9** | `adversarial_results`| `object` | Adversarial red-team findings verifying resilience under edge conditions (`verdict`, `creates_new_mistake`, `details`). |
+| **10**| `heldout_results` | `object` | Cryptographically sealed held-out suite findings verifying out-of-distribution generalization (`verdict`, `pass_rate`, `generalizes_to_different_case`). |
+| **11**| `contradictions` | `array` | List of contradiction records or conflict checks evaluated during testing. |
+| **12**| `evidence` | `array` | Cryptographic evidence records, physical artifact paths, and SHA256 hashes ($\ge 1$). |
+| **13**| `verdict` | `string` | Authoritative overall verdict (`PASS`, `FAIL`, `INCONCLUSIVE`, `CONDITIONAL`). |
+
+### 35.3 Canonicalization Engine & Promotion Gate Implementation
+1. **Canonical Schema Contract (`contracts/evolution/evaluation_result.schema.json`)**:
+   - Registered in `contracts/contract_validator.py` via `validate_evaluation_result()`.
+   - Strictly enforces the 13 required fields and preserves the constitutional prohibition against scalar intelligence scores (`overall_intelligence`, `agent_iq`, etc.).
+2. **Canonicalization Engine (`scripts/academic_canonical_evaluation.py`)**:
+   - `CanonicalEvaluationResultBuilder`: Fluent programmatic builder assembling schema-valid reports.
+   - `canonicalize_evaluation_result()`: Adaptively maps and normalizes reports from any legacy evaluator (independent blinded evaluator, evaluation lab, 3-way harness, or raw fixtures).
+   - Conforms strictly to Directive 18 ($\le 500$ lines, $\le 40,000$ bytes).
+3. **Promotion Gate Enforcement (`scripts/academic_promotion_engine.py`)**:
+   - `AcademicPromotionEngine.verify_evaluation_gates()` enforces Gate 0.0 (`canonical_schema`):
+     ```python
+     schema_res = validate_evaluation_result(evaluation_report)
+     if not schema_res.get("valid", False):
+         failures.append("INVALID_EVALUATION_SCHEMA: ...")
+     ```
+   - In `all_passed`, `canonical_schema` must be True. Candidates with non-schema-valid evaluation reports are immediately rejected fail-closed and archived under `learning/archive/`.
+
+
 
 
 

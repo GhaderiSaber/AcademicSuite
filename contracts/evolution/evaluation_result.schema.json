@@ -2,201 +2,210 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://academic-suite.net/contracts/evolution/evaluation_result.schema.json",
   "title": "AcademicEvaluationResultContract",
-  "description": "Contract schema for comparative evaluation results between candidate and baseline. Strictly preserves multidimensional metrics and forbids single-number scalar intelligence scores.",
+  "description": "Authoritative canonical contract schema for all evaluation results (EvaluationResult) across AcademicSuite. Unifies evaluation lab, independent blinded evaluation, and multi-arm suites into one universal structure with 13 mandatory fields. Strictly forbids single-number scalar intelligence scores.",
   "type": "object",
   "required": [
-    "contract_version",
     "evaluation_id",
     "candidate_id",
-    "baseline_version",
-    "metrics",
-    "diagnostics",
-    "regressions",
-    "failures",
+    "baseline_id",
+    "task_id",
+    "dimensions",
+    "baseline_metrics",
+    "candidate_metrics",
+    "regression_results",
+    "adversarial_results",
+    "heldout_results",
+    "contradictions",
     "evidence",
-    "overall_verdict",
-    "evaluated_at"
+    "verdict"
   ],
   "properties": {
-    "contract_version": {
-      "type": "string",
-      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-    },
     "evaluation_id": {
       "type": "string",
-      "description": "Unique identifier for this evaluation report (e.g. EVR-2026-001)."
+      "description": "Unique identifier for this evaluation result report (e.g. EVR-20260919-001 or INDEP-EVL-...).",
+      "minLength": 3
     },
     "candidate_id": {
       "type": "string",
-      "description": "Pointer to the candidate improvement ID tested."
+      "description": "Identifier of the candidate agent, mutation, or improvement under evaluation.",
+      "minLength": 2
     },
-    "baseline_version": {
+    "baseline_id": {
       "type": "string",
-      "description": "Version hash or git commit of the baseline active behavior."
+      "description": "Identifier, commit hash, or version string of the baseline agent used for comparative evaluation.",
+      "minLength": 2
     },
-    "metrics": {
+    "task_id": {
+      "type": "string",
+      "description": "Identifier of the benchmark task, evaluation panel, or test case executed.",
+      "minLength": 2
+    },
+    "dimensions": {
       "type": "object",
-      "description": "Multidimensional performance metrics. Monolithic intelligence scores are strictly forbidden.",
-      "required": [
-        "statistical_precision",
-        "typography_compliance",
-        "execution_reliability",
-        "msai_anomaly_score"
-      ],
-      "properties": {
-        "statistical_precision": {
-          "type": "object",
-          "required": ["df_concordance_rate", "fit_index_pass_rate"],
-          "properties": {
-            "df_concordance_rate": {
-              "type": "number",
-              "minimum": 0.0,
-              "maximum": 1.0
-            },
-            "fit_index_pass_rate": {
-              "type": "number",
-              "minimum": 0.0,
-              "maximum": 1.0
-            },
-            "parameter_error_margin": {
-              "type": "number",
-              "minimum": 0.0
-            }
-          },
-          "additionalProperties": false
-        },
-        "typography_compliance": {
-          "type": "object",
-          "required": ["persian_leading_zero_violations", "apa_table_border_violations"],
-          "properties": {
-            "persian_leading_zero_violations": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "apa_table_border_violations": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "prohibited_cliche_count": {
-              "type": "integer",
-              "minimum": 0
-            }
-          },
-          "additionalProperties": false
-        },
-        "execution_reliability": {
-          "type": "object",
-          "required": ["successful_runs", "total_runs", "crash_count"],
-          "properties": {
-            "successful_runs": {"type": "integer", "minimum": 0},
-            "total_runs": {"type": "integer", "minimum": 1},
-            "crash_count": {"type": "integer", "minimum": 0},
-            "average_latency_seconds": {"type": "number", "minimum": 0}
-          },
-          "additionalProperties": false
-        },
-        "msai_anomaly_score": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 100.0,
-          "description": "Multi-Signal Anomaly Index (0-100)."
-        }
-      },
-      "additionalProperties": false
+      "description": "Multidimensional performance evaluations across quality dimensions (correctness, methodology, statistical_validity, evidence_grounding, integrity, robustness, consistency, efficiency).",
+      "additionalProperties": true
     },
-    "diagnostics": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["check_id", "status", "finding"],
-        "properties": {
-          "check_id": {"type": "string"},
-          "status": {
-            "type": "string",
-            "enum": ["PASS", "FAIL", "NEEDS_REVIEW"]
-          },
-          "finding": {"type": "string"}
-        },
-        "additionalProperties": false
-      }
-    },
-    "regressions": {
+    "baseline_metrics": {
       "type": "object",
-      "required": ["count", "details"],
+      "description": "Detailed performance metrics achieved by the baseline arm.",
+      "additionalProperties": true
+    },
+    "candidate_metrics": {
+      "type": "object",
+      "description": "Detailed performance metrics achieved by the candidate arm.",
+      "additionalProperties": true
+    },
+    "regression_results": {
+      "type": "object",
+      "description": "Evaluation results on the regression suite ensuring no protected capabilities or previous capabilities regressed.",
+      "required": ["verdict"],
       "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL"]
+        },
         "count": {
           "type": "integer",
-          "minimum": 0,
-          "description": "Number of previously passing tests that failed under the candidate."
+          "minimum": 0
         },
         "details": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["case_id", "baseline_verdict", "candidate_verdict", "regression_error"],
-            "properties": {
-              "case_id": {"type": "string"},
-              "baseline_verdict": {"type": "string"},
-              "candidate_verdict": {"type": "string"},
-              "regression_error": {"type": "string"}
-            },
-            "additionalProperties": false
-          }
+          "type": "array"
+        },
+        "fixes_original_mistake": {
+          "type": "boolean"
+        },
+        "task_id": {
+          "type": "string"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": true
     },
-    "failures": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["test_id", "error_message"],
-        "properties": {
-          "test_id": {"type": "string"},
-          "error_message": {"type": "string"}
+    "adversarial_results": {
+      "type": "object",
+      "description": "Evaluation results on the adversarial red-team suite ensuring candidate resilience against edge cases and attacks.",
+      "required": ["verdict"],
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL"]
         },
-        "additionalProperties": false
-      }
+        "creates_new_mistake": {
+          "type": "boolean"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": true
+    },
+    "heldout_results": {
+      "type": "object",
+      "description": "Evaluation results on cryptographically sealed held-out evaluation scenarios ensuring out-of-distribution generalization.",
+      "required": ["verdict"],
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL"]
+        },
+        "pass_rate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "generalizes_to_different_case": {
+          "type": "boolean"
+        },
+        "overfitting_detected": {
+          "type": "boolean"
+        },
+        "overfitting_reason": {
+          "type": ["string", "null"]
+        },
+        "total_cases": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "task_id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "contradictions": {
+      "type": ["array", "object"],
+      "description": "Contradiction records, conflict analysis items, or consistency checks evaluated during testing."
     },
     "evidence": {
       "type": "array",
       "minItems": 1,
+      "description": "Cryptographic evidence records, artifact paths, and SHA256 hashes verifying evaluation outputs.",
       "items": {
         "type": "object",
         "required": ["artifact_path", "sha256"],
         "properties": {
-          "artifact_path": {"type": "string"},
+          "artifact_path": {
+            "type": "string"
+          },
           "sha256": {
             "type": "string",
             "pattern": "^[a-fA-F0-9]{64}$"
           },
-          "evidence_type": {"type": "string"}
+          "evidence_type": {
+            "type": "string"
+          }
         },
-        "additionalProperties": false
+        "additionalProperties": true
       }
     },
-    "overall_verdict": {
+    "verdict": {
       "type": "string",
-      "enum": ["PASS", "FAIL", "INCONCLUSIVE"]
+      "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL"],
+      "description": "Authoritative overall verdict of the evaluation."
+    },
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
     },
     "evaluated_at": {
       "type": "string",
       "format": "date-time"
     },
+    "recommendation": {
+      "type": "string",
+      "enum": ["PROMOTE", "STAGE_FOR_REVIEW", "REJECT"]
+    },
+    "baseline_version": {
+      "type": "string"
+    },
+    "overall_verdict": {
+      "type": "string"
+    },
+    "metrics": {
+      "type": "object"
+    },
+    "summary_metrics": {
+      "type": "object"
+    },
     "dimensional_evaluations": {
-      "type": "object",
-      "description": "Independent evaluation metrics across the 8 mandatory dimensions. Never collapsed into a single scalar score.",
-      "properties": {
-        "correctness": {"type": "object"},
-        "methodology": {"type": "object"},
-        "statistical_validity": {"type": "object"},
-        "evidence_grounding": {"type": "object"},
-        "integrity": {"type": "object"},
-        "robustness": {"type": "object"},
-        "consistency": {"type": "object"},
-        "efficiency": {"type": "object"}
-      },
-      "additionalProperties": false
+      "type": "object"
+    },
+    "diagnostics": {
+      "type": "array"
+    },
+    "regressions": {
+      "type": "object"
+    },
+    "failures": {
+      "type": "array"
+    },
+    "unblinded_comparison": {
+      "type": "object"
+    },
+    "metadata": {
+      "type": "object"
     }
   },
   "patternProperties": {
@@ -210,5 +219,5 @@
       {"required": ["smartness_rating"]}
     ]
   },
-  "additionalProperties": false
+  "additionalProperties": true
 }

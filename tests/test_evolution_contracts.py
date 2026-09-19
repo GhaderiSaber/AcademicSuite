@@ -443,8 +443,24 @@ class TestEvolutionContractSystem(unittest.TestCase):
             "contract_version": "1.0.0",
             "evaluation_id": "EVR-2026-001",
             "candidate_id": "CAND-2026-CH4-TYPO-001",
+            "baseline_id": "git-commit-c5bdb92",
             "baseline_version": "git-commit-c5bdb92",
-            "metrics": {
+            "task_id": "PANEL-HYPOTHESIS-TESTING",
+            "dimensions": {
+                "correctness": {"verdict": "PASS"},
+                "methodology": {"verdict": "PASS"},
+                "statistical_validity": {"verdict": "PASS"},
+                "evidence_grounding": {"verdict": "PASS"},
+                "integrity": {"verdict": "PASS"},
+                "robustness": {"verdict": "PASS"},
+                "consistency": {"verdict": "PASS"},
+                "efficiency": {"verdict": "PASS"}
+            },
+            "baseline_metrics": {
+                "total_runs": 20,
+                "successful_runs": 18
+            },
+            "candidate_metrics": {
                 "statistical_precision": {
                     "df_concordance_rate": 1.0,
                     "fit_index_pass_rate": 1.0,
@@ -463,20 +479,29 @@ class TestEvolutionContractSystem(unittest.TestCase):
                 },
                 "msai_anomaly_score": 12.5
             },
-            "diagnostics": [
-                {"check_id": "CHK-LEADING-ZERO", "status": "PASS", "finding": "All Persian numbers have leading zero."}
-            ],
-            "regressions": {
+            "regression_results": {
+                "verdict": "PASS",
                 "count": 0,
                 "details": []
             },
-            "failures": [],
+            "adversarial_results": {
+                "verdict": "PASS",
+                "creates_new_mistake": False,
+                "details": []
+            },
+            "heldout_results": {
+                "verdict": "PASS",
+                "pass_rate": 1.0,
+                "generalizes_to_different_case": True
+            },
+            "contradictions": [],
             "evidence": [
                 {
                     "artifact_path": "evals/results/report_001.json",
                     "sha256": "1566197905886a890378220ad078003a5848aae3d77cb49da330fc614caff3da"
                 }
             ],
+            "verdict": "PASS",
             "overall_verdict": "PASS",
             "evaluated_at": "2026-09-18T13:00:00Z"
         }
