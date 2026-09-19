@@ -18,10 +18,27 @@ CLICHES = [
 
 def validate_reporting(file_path):
     if not os.path.exists(file_path):
-        return {"verdict": "FAIL", "errors": [f"File not found: {file_path}"]}
+        return {
+            "validator": "reporting_consistency",
+            "verdict": "BLOCKED",
+            "status": "BLOCKED",
+            "errors": [f"File not found: {file_path}"],
+            "warnings": [],
+            "file_audited": os.path.basename(file_path)
+        }
 
     with open(file_path, 'r', encoding='utf-8') as f:
         text = f.read()
+
+    if not text.strip():
+        return {
+            "validator": "reporting_consistency",
+            "verdict": "UNKNOWN",
+            "status": "UNKNOWN",
+            "errors": ["Deliverable file is empty (zero characters)."],
+            "warnings": [],
+            "file_audited": os.path.basename(file_path)
+        }
 
     errors = []
     warnings = []
@@ -31,7 +48,8 @@ def validate_reporting(file_path):
         errors.append("Prohibited p = .000 found. Must report strictly as p < .001 or ۰.۰۰۱ > p.")
 
     # 2. Check Persian leading zero violation: e.g. " .۰۵" or " .۰۰۱" without leading zero
-    if re.search(r'[^\d۰-۹]\.[۰-۹]+', text) or re.search(r'\s\.[0-9]+', text):
+    has_persian = any('\u0600' <= c <= '\u06FF' for c in text)
+    if re.search(r'[^\d۰-۹]\.[۰-۹]+', text) or (has_persian and re.search(r'(?:^|[\s(])\.[0-9]+', text)):
         errors.append("Persian leading zero violation: numbers bounded between 0 and 1 must retain leading zero (۰.۰۵, ۰.۰۰۱).")
 
     # 3. Check robotic clichés
@@ -75,6 +93,7 @@ def validate_reporting(file_path):
     return {
         "validator": "reporting_consistency",
         "verdict": verdict,
+        "status": verdict,
         "errors": errors,
         "warnings": warnings,
         "file_audited": os.path.basename(file_path)

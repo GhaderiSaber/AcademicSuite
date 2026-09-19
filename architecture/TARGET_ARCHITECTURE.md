@@ -478,10 +478,52 @@ Any numeric contradiction triggers a fail-closed `ManifestCrossAgreementError`.
 In `StrictStateMachine.request_transition()`:
 - Transitions to `STAGE_VALIDATING`, `STAGE_AWAITING_APPROVAL`, or `STAGE_APPROVED` strictly require an authoritative `manifest.json`.
 - `verify_stage_manifest()` validates input hashes, deliverable existence, non-zero file sizes, hash matches, schema conformity, and cross-artifact concordance.
-- Missing manifest in production mode strictly raises `MissingStageManifestError`.
-- Upon commitment to `STAGE_APPROVED`, the state machine atomically updates `manifest.json` on disk to status `"APPROVED"` with an `approved_at` timestamp.
+---
 
+## 14. Fail-Closed Validation Subsystem & Sequential Gate Cascade (Phase 9)
 
+### 14.1 Philosophy Shift: "UNVERIFIED Unless Every Required Condition Passes"
+Legacy validation suites frequently suffer from permissive bias: treating missing prerequisites, missing manifests, or zero inspected parameters as a default "PASS unless an error was raised". Under Phase 9, AcademicSuite enforces a radical constitutional inversion:
+> **An artifact or stage is strictly `UNVERIFIED` until affirmative, concrete empirical evidence demonstrates that every prerequisite, schema, artifact, number, narrative, and dependency gate has passed.**
 
+### 14.2 4-Tier Verdict Taxonomy
+Binary `PASS` / `FAIL` is replaced by an unambiguous 4-tier status taxonomy codified in `contracts/validation_report.schema.json`:
+1. **`UNKNOWN` / `UNVERIFIED`**: Initial state or check that was skipped, incomplete, or lacks positive empirical evidence. Zero audited numbers evaluates strictly to `UNKNOWN`, never silent `PASS`.
+2. **`BLOCKED`**: Execution cannot proceed because an upstream prerequisite, required input dataset, authoritative manifest, or physical deliverable is missing from disk.
+3. **`FAIL`**: Explicit violation of schema contracts, corrupted JSON, cryptographic SHA-256 hash mismatch, out-of-bounds statistic ($p > 1.0, \text{df} \le 0$), prohibited $p = .000$, Persian leading zero omission (`.۰۵`), forbidden robotic clichés, or numerical contradictions across formats.
+4. **`PASS`**: Affirmative success awarded **only** when every sequential gate has executed and verified with concrete empirical evidence ($\text{total\_evidence} \ge 1$, $\text{checks\_failed} = 0$, $\text{checks\_blocked} = 0$).
 
+### 14.3 The 6-Gate Sequential Cascade
+Validation executes through a deterministic 6-gate cascade:
+
+```mermaid
+flowchart TD
+    G0["Gate 0: Manifest Existence Check"] -->|Missing| U0["UNVERIFIED"]
+    G0 -->|Exists| G1["Gate 1: Manifest Schema Validation"]
+    G1 -->|Invalid| F1["FAIL"]
+    G1 -->|Valid| G2["Gate 2: Artifact Existence, Hashes & Triad"]
+    G2 -->|Missing File| B2["BLOCKED"]
+    G2 -->|Hash Mismatch / 0-Byte| F2["FAIL"]
+    G2 -->|Intact| G3["Gate 3: Numerical Consistency Execution"]
+    G3 -->|Zero Numbers| UK3["UNKNOWN"]
+    G3 -->|Invalid Statistic| F3["FAIL"]
+    G3 -->|Audited Numbers Valid| G4["Gate 4: Narrative & Cross-Artifact Concordance"]
+    G4 -->|Cliché / Contradiction| F4["FAIL"]
+    G4 -->|Concordant| G5["Gate 5: Upstream Dependency Verification"]
+    G5 -->|Missing Dep| B5["BLOCKED"]
+    G5 -->|Hash Tampered| F5["FAIL"]
+    G5 -->|Intact| G6["Gate 6: Composite Verdict Resolution"]
+    G6 -->|All Gates Pass & Evidence >= 1| P["PASS"]
+```
+
+### 14.4 Affirmative Empirical Evidence Invariant
+Under Directive 0 and Directive 2, an agent or validator may never issue a `PASS` verdict without affirmative empirical proof:
+- In `validators/numerical_consistency/validator.py`: A JSON file with zero statistical parameters audited returns `UNKNOWN` with `evidence_items_audited = 0`.
+- In `validators/reporting_consistency/validator.py`: Empty deliverables return `UNKNOWN`.
+- In `validators/run_all_validators.py`: Composite `overall_verdict` can evaluate to `PASS` if and only if $\text{total\_evidence\_items\_evaluated} \ge 1$ and all individual checks evaluate to `PASS`.
+
+### 14.5 High-Stakes Application to Chapter 4 & Chapter 5
+This fail-closed architecture is crucial for graduate dissertation chapters:
+- **Chapter 4 Findings**: Every hypothesis micro-stage must pass Gate 0 through Gate 6 independently before advancing to the next hypothesis.
+- **Chapter 5 Discussion**: Theoretical mechanisms and literature concordance cannot be synthesized unless Chapter 4 findings manifests are cryptographically verified and immutable.
 

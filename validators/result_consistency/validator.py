@@ -336,8 +336,8 @@ def validate_cross_artifacts(
     if not json_path or not os.path.exists(json_path):
         return {
             "validator": "result_consistency",
-            "verdict": "FAIL",
-            "status": "FAIL",
+            "verdict": "BLOCKED",
+            "status": "BLOCKED",
             "errors": [f"Required JSON artifact missing: {json_path}"],
             "warnings": [],
             "evidence": evidence
@@ -361,10 +361,12 @@ def validate_cross_artifacts(
     params = extract_json_parameters(stats_data)
     evidence["parameters_evaluated"] = params
 
+    blocked_errors = []
+
     # 2. Markdown cross-validation
     if md_path:
         if not os.path.exists(md_path):
-            errors.append(f"Required Markdown artifact missing: {md_path}")
+            blocked_errors.append(f"Required Markdown artifact missing: {md_path}")
         else:
             try:
                 with open(md_path, "r", encoding="utf-8") as mf:
@@ -381,7 +383,7 @@ def validate_cross_artifacts(
     # 3. DOCX cross-validation
     if docx_path:
         if not os.path.exists(docx_path):
-            errors.append(f"Required OpenXML Word artifact missing: {docx_path}")
+            blocked_errors.append(f"Required OpenXML Word artifact missing: {docx_path}")
         else:
             docx_text = extract_docx_text(docx_path)
             if not docx_text:
@@ -394,9 +396,14 @@ def validate_cross_artifacts(
                 warnings.extend(docx_warnings)
                 evidence["docx_evidence"] = docx_evidence
 
-    # Determine verdict: FAIL on contradictions/errors, PASS when consistent
-    if errors:
+    # Determine verdict: BLOCKED on missing files, FAIL on contradictions, UNKNOWN on zero parameters, PASS when consistent
+    if blocked_errors:
+        verdict = "BLOCKED"
+        errors.extend(blocked_errors)
+    elif errors:
         verdict = "FAIL"
+    elif not params:
+        verdict = "UNKNOWN"
     else:
         verdict = "PASS"
 
@@ -406,6 +413,7 @@ def validate_cross_artifacts(
         "status": verdict,
         "errors": errors,
         "warnings": warnings,
+        "parameters_count": len(params),
         "artifacts_checked": [
             f for f in [json_path, md_path, docx_path] if f and os.path.exists(f)
         ],

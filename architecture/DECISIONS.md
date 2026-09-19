@@ -377,9 +377,53 @@ Implement the **Authoritative Stage Manifest Subsystem** governed by `contracts/
    Upon transition to `STAGE_APPROVED`, `StrictStateMachine` updates `manifest.json` status to `APPROVED` and records `timestamps.approved_at`.
 
 ### Consequences
-- **Positive**: 100% cryptographic auditability, mechanical enforcement of the Triad Invariant, complete elimination of format contradictions between Word, Markdown, and JSON, and strict compliance with Directive 3, Directive 11, and Directive 19.
-- **Negative**: Stages must generate and verify an authoritative manifest before stage advancement can occur.
+---
 
+## ADR-014: Fail-Closed Validation Architecture and Sequential Gate Cascade
 
+### Context
+In earlier iterations of validation systems, sub-validators and test suites operated under a permissive "PASS unless something fails" default philosophy. Under that paradigm:
+1. Passing an empty dictionary (`{}`) or a file with zero statistical parameters resulted in a silent `PASS`.
+2. A missing stage manifest was treated as a benign omission or skipped entirely.
+3. Verdicts were binary (`PASS` or `FAIL`), obscuring whether a check was unverified, blocked by missing prerequisites, or explicitly failed.
+4. Upstream dependency manifests were not sequentially chained into the validation gate.
 
+For high-stakes graduate thesis defense deliverables (Chapters 4 and 5), unverified or empty artifacts must never silently pass.
 
+### Decision
+Rebuild the AcademicSuite validation engine (`validators/run_all_validators.py`, `validators/numerical_consistency/`, `validators/reporting_consistency/`, `validators/result_consistency/`, and `contracts/validation_report.schema.json`) around a strict fail-closed architecture:
+
+1. **Constitutional Validator Philosophy**:
+   Shift from *"PASS unless something fails"* to **"UNVERIFIED unless every required condition passes"**.
+2. **4-Tier Verdict Taxonomy**:
+   - `UNKNOWN` / `UNVERIFIED`: Initial state or check that was skipped, incomplete, or lacks affirmative empirical evidence ($\text{evidence} = 0$).
+   - `BLOCKED`: Missing prerequisite, missing input dataset, missing manifest, or missing required physical deliverable on disk.
+   - `FAIL`: Explicit schema violation, cryptographic hash mismatch, corrupted payload, out-of-bound statistic, cliché detection, prohibited $p = .000$, Persian leading zero omission, or numerical contradiction across formats.
+   - `PASS`: Affirmative success awarded **only** when every sequential gate has executed and verified with concrete empirical evidence ($\text{total\_evidence} \ge 1$ and $\text{checks\_failed} = 0, \text{checks\_blocked} = 0$).
+3. **The 6-Gate Sequential Cascade**:
+   - **Gate 0: Manifest Existence Check**: Check `manifest.json` on disk. If missing under `--require-manifest`: immediately return `UNVERIFIED`.
+   - **Gate 1: Manifest Schema Validation**: Validate `manifest.json` against `contracts/stage_manifest.schema.json`. Schema error returns `FAIL`.
+   - **Gate 2: Artifact Existence, Non-Empty, Hashes & Triad Invariant**:
+     - Verify declared required deliverables exist on disk (missing $\rightarrow$ `BLOCKED`).
+     - Verify files are non-empty ($0\text{ bytes} \rightarrow \text{FAIL}$).
+     - Verify SHA-256 cryptographic hashes against manifest (mismatch $\rightarrow$ `FAIL`).
+     - Verify Triad Invariant for findings/hypothesis stages (`.docx`, `.md`, `.json` present).
+   - **Gate 3: Numerical Consistency Execution**:
+     - Audit statistical parameters ($N, \text{df}, F, t, p, \beta, R^2, \text{fit indices}$).
+     - Zero numbers audited $\rightarrow$ `UNKNOWN` (never silent PASS).
+     - Out-of-bounds or prohibited values $\rightarrow$ `FAIL`.
+   - **Gate 4: Narrative & Cross-Artifact Concordance Execution**:
+     - Audit Markdown reporting consistency (no clichés, no $p=.000$, Persian leading zero preserved).
+     - Audit numerical agreement across `.json`, `.md`, and `.docx` (discrepancy $\rightarrow$ `FAIL`).
+   - **Gate 5: Upstream Dependency Verification**:
+     - Verify upstream dependency manifests exist on disk (missing $\rightarrow$ `BLOCKED`).
+     - Verify upstream manifest SHA-256 hashes match declared hash (tampering $\rightarrow$ `FAIL`).
+   - **Gate 6: Composite Fail-Closed Verdict Resolution**:
+     - If $\text{blocked} > 0 \rightarrow \text{BLOCKED}$.
+     - Else if $\text{failed} > 0 \rightarrow \text{FAIL}$.
+     - Else if $\text{unverified} > 0 \text{ or } \text{unknown} > 0 \text{ or } \text{evidence} = 0 \text{ or } \text{passed} = 0 \rightarrow \text{UNVERIFIED}$.
+     - Else if $\text{passed} = \text{total} \text{ and } \text{evidence} \ge 1 \rightarrow \text{PASS}$.
+
+### Consequences
+- **Positive**: Complete structural impossibility of empty or unverified payloads achieving `PASS`, 100% fail-closed gate sequence, strict compliance with Directive 0, Directive 3, and Directive 19.
+- **Negative**: All pipeline deliverables must carry affirmative empirical evidence and satisfy all 6 sequential gates.
