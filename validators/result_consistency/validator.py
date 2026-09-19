@@ -293,6 +293,19 @@ def extract_json_parameters(data: Dict[str, Any]) -> Dict[str, Any]:
     tbl_data = data.get("table_data") or data.get("tables")
     if tbl_data:
         params["table_data"] = tbl_data
+    else:
+        unadj = data.get("unadjusted_descriptives", {})
+        if unadj and isinstance(unadj, dict):
+            tbl = []
+            for gk, gstats in unadj.items():
+                if isinstance(gstats, dict):
+                    tbl.append({
+                        "n": gstats.get("n"),
+                        "mean": gstats.get("mean"),
+                        "sd": gstats.get("sd")
+                    })
+            if tbl:
+                params["table_data"] = tbl
 
     return params
 
@@ -540,89 +553,123 @@ def audit_table_concordance(
             continue
         headers = [normalize_digits(h).lower() for h in rows[0]]
 
-        # Map column indices
+        # Map column indices using precise regex matching
         col_map = {}
-        for c_idx, h in enumerate(headers):
-            if any(k in h for k in ["تعداد", "sample", "n", "حجم نمونه"]):
+        for c_idx, raw_h in enumerate(headers):
+            h = raw_h.strip()
+            # If header is a group description containing n=... (e.g. 'گروه گواه ($n=30$)' or 'کل نمونه (n=60)'), skip it from metric mapping!
+            if re.search(r'[nN]\s*=\s*[0-9]+', h):
+                continue
+
+            # n / sample size
+            if any(k in h for k in ["تعداد", "حجم نمونه"]):
                 col_map["n"] = c_idx
-            elif any(k in h for k in ["میانگین", "mean", "m"]):
+            elif re.search(r'(?<![a-zA-Z])n(?![a-zA-Z=])', h):
+                col_map["n"] = c_idx
+            # Mean Squares (MS) vs Descriptives Mean (M)
+            if any(k in h for k in ["میانگین مجذورات", "mean square"]) or re.search(r'\bms\b', h):
+                col_map["ms"] = c_idx
+            elif any(k in h for k in ["مجموع مجذورات", "sum of squares"]) or re.search(r'\bss\b', h):
+                col_map["ss"] = c_idx
+            elif any(k in h for k in ["میانگین", "mean"]):
                 col_map["mean"] = c_idx
-            elif any(k in h for k in ["انحراف استاندارد", "انحراف معیار", "sd", "std"]):
+            elif re.search(r'(?<![a-zA-Z])m(?![a-zA-Z=])', h):
+                col_map["mean"] = c_idx
+            # sd
+            elif any(k in h for k in ["انحراف استاندارد", "انحراف معیار"]):
                 col_map["sd"] = c_idx
-            elif any(k in h for k in ["سطح معناداری", "sig", "p-value", "p"]):
+            elif re.search(r'(?<![a-zA-Z])sd(?![a-zA-Z=])', h) or re.search(r'\bstd\b', h):
+                col_map["sd"] = c_idx
+            # p-value
+            elif any(k in h for k in ["سطح معناداری", "sig", "p-value"]):
                 col_map["p"] = c_idx
-            elif any(k in h for k in ["اندازه اثر", "effect", "η_p", "eta", "d"]):
+            elif re.search(r'(?<![a-zA-Z])p(?![a-zA-Z=])', h):
+                col_map["p"] = c_idx
+            # effect size
+            elif any(k in h for k in ["اندازه اثر", "مجذور اتا"]):
                 col_map["effect_size"] = c_idx
-            elif any(k in h for k in ["فاصله اطمینان", "ci", "95% ci"]):
+            elif re.search(r'(?:eta|η)_?p?\^?2', h) or re.search(r'(?<![a-zA-Z])d(?![a-zA-Z=])', h):
+                col_map["effect_size"] = c_idx
+            # CI
+            elif any(k in h for k in ["فاصله اطمینان", "ci"]):
                 col_map["ci"] = c_idx
-            elif any(k in h for k in ["آماره f", "f"]):
+            # F
+            elif "آماره f" in h or re.search(r'(?<![a-zA-Z])f(?![a-zA-Z=])', h):
                 col_map["f"] = c_idx
-            elif any(k in h for k in ["آماره t", "t"]):
+            # t
+            elif "آماره t" in h or re.search(r'(?<![a-zA-Z])t(?![a-zA-Z=])', h):
                 col_map["t"] = c_idx
-            elif any(k in h for k in ["آماره z", "z"]):
+            # z
+            elif "آماره z" in h or re.search(r'(?<![a-zA-Z])z(?![a-zA-Z=])', h):
                 col_map["z"] = c_idx
-            elif any(k in h for k in ["ضریب بتا", "بتا", "β", "beta"]):
+            # beta
+            elif any(k in h for k in ["ضریب بتا", "بتا", "β"]) or re.search(r'\bbeta\b', h):
                 col_map["beta"] = c_idx
 
-        # If declared_table structure is provided in JSON, match row by row
-        if declared_table and isinstance(declared_table, list):
-            for r_idx, expected_row in enumerate(declared_table):
-                if r_idx + 1 >= len(rows):
-                    break
-                actual_row = rows[r_idx + 1]
-                row_label = actual_row[0] if actual_row else f"Row {r_idx+1}"
+        # If declared_table structure is provided in JSON, match row by row ONLY if table contains the declared metrics
+        matched_declared = False
+        if declared_table and isinstance(declared_table, list) and declared_table:
+            first_entry = declared_table[0] if isinstance(declared_table[0], dict) else {}
+            has_matching_metric = any(m in col_map for m in first_entry if m in ["mean", "sd", "f", "t", "beta", "ci", "p", "effect_size"])
+            if has_matching_metric:
+                matched_declared = True
+                for r_idx, expected_row in enumerate(declared_table):
+                    if r_idx + 1 >= len(rows):
+                        break
+                    actual_row = rows[r_idx + 1]
+                    row_label = actual_row[0] if actual_row else f"Row {r_idx+1}"
 
-                # Check each metric declared in expected_row
-                for metric in ["n", "mean", "sd", "f", "t", "z", "beta", "p", "effect_size", "ci"]:
-                    if metric in expected_row and metric in col_map:
-                        c_idx = col_map[metric]
-                        if c_idx < len(actual_row):
-                            cell_raw = normalize_digits(actual_row[c_idx])
-                            exp_val = expected_row[metric]
-                            evidence["cells_audited"] += 1
+                    # Check each metric declared in expected_row
+                    for metric in ["n", "mean", "sd", "f", "t", "z", "beta", "p", "effect_size", "ci"]:
+                        if metric in expected_row and metric in col_map:
+                            c_idx = col_map[metric]
+                            if c_idx < len(actual_row):
+                                cell_raw = normalize_digits(actual_row[c_idx])
+                                exp_val = expected_row[metric]
+                                evidence["cells_audited"] += 1
 
-                            if metric == "ci" and isinstance(exp_val, (list, tuple)):
-                                # parse cell CI [LL, UL]
-                                c_match = re.search(r'\[\s*([+-]?[0-9]+\.?[0-9]*)\s*,\s*([+-]?[0-9]+\.?[0-9]*)\s*\]', cell_raw)
-                                if c_match:
-                                    ll, ul = float(c_match.group(1)), float(c_match.group(2))
-                                    if abs(ll - exp_val[0]) > 0.02 or abs(ul - exp_val[1]) > 0.02:
+                                if metric == "ci" and isinstance(exp_val, (list, tuple)):
+                                    # parse cell CI [LL, UL]
+                                    c_match = re.search(r'\[\s*([+-]?[0-9]+\.?[0-9]*)\s*,\s*([+-]?[0-9]+\.?[0-9]*)\s*\]', cell_raw)
+                                    if c_match:
+                                        ll, ul = float(c_match.group(1)), float(c_match.group(2))
+                                        if abs(ll - exp_val[0]) > 0.02 or abs(ul - exp_val[1]) > 0.02:
+                                            errors.append(
+                                                f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}'): "
+                                                f"Confidence interval reported as [{ll}, {ul}], but JSON specifies {exp_val}."
+                                            )
+                                    else:
                                         errors.append(
                                             f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}'): "
-                                            f"Confidence interval reported as [{ll}, {ul}], but JSON specifies {exp_val}."
+                                            f"Could not parse confidence interval from cell '{cell_raw}' (expected {exp_val})."
                                         )
-                                else:
-                                    errors.append(
-                                        f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}'): "
-                                        f"Could not parse confidence interval from cell '{cell_raw}' (expected {exp_val})."
-                                    )
-                            elif metric == "p":
-                                # Check p-value
-                                p_num_match = re.search(r'([0-9]+\.?[0-9]*)', cell_raw)
-                                if p_num_match:
-                                    p_cell = float(p_num_match.group(1))
-                                    exp_p = float(exp_val) if isinstance(exp_val, (int, float)) else 0.001
-                                    if abs(p_cell - exp_p) > 0.01 and not (exp_p < 0.001 and p_cell <= 0.001):
-                                        errors.append(
-                                            f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}'): "
-                                            f"p-value reported as {p_cell}, but JSON specifies {exp_val}."
-                                        )
-                            elif isinstance(exp_val, (int, float)):
-                                # Extract float from cell
-                                num_match = re.search(r'([+-]?[0-9]+\.?[0-9]*)', cell_raw)
-                                if num_match:
-                                    cell_val = float(num_match.group(1))
-                                    if abs(cell_val - float(exp_val)) > 0.015:
-                                        errors.append(
-                                            f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}', metric '{metric}'): "
-                                            f"Table reports {cell_val}, but JSON specifies {exp_val}."
-                                        )
-        else:
+                                elif metric == "p":
+                                    # Check p-value
+                                    p_num_match = re.search(r'([0-9]+\.?[0-9]*)', cell_raw)
+                                    if p_num_match:
+                                        p_cell = float(p_num_match.group(1))
+                                        exp_p = float(exp_val) if isinstance(exp_val, (int, float)) else 0.001
+                                        if abs(p_cell - exp_p) > 0.01 and not (exp_p < 0.001 and p_cell <= 0.001):
+                                            errors.append(
+                                                f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}'): "
+                                                f"p-value reported as {p_cell}, but JSON specifies {exp_val}."
+                                            )
+                                elif isinstance(exp_val, (int, float)):
+                                    # Extract float from cell
+                                    num_match = re.search(r'([+-]?[0-9]+\.?[0-9]*)', cell_raw)
+                                    if num_match:
+                                        cell_val = float(num_match.group(1))
+                                        if abs(cell_val - float(exp_val)) > 0.015:
+                                            errors.append(
+                                                f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}', metric '{metric}'): "
+                                                f"Table reports {cell_val}, but JSON specifies {exp_val}."
+                                            )
+        if not matched_declared:
             # Fallback check against top-level params for individual hypothesis tables
             for r_idx, row in enumerate(rows[1:], start=1):
                 row_label = row[0] if row else f"Row {r_idx}"
-                for metric in ["n", "mean", "sd", "f", "t", "z", "beta", "effect_size"]:
-                    param_key = "sample_size" if metric == "n" else (f"{metric}_stat" if metric in ["f", "t", "z"] else metric)
+                for metric in ["n", "mean", "sd", "f", "t", "z", "beta", "effect_size", "p"]:
+                    param_key = "sample_size" if metric == "n" else ("p_value" if metric == "p" else (f"{metric}_stat" if metric in ["f", "t", "z"] else metric))
                     if param_key in params and metric in col_map:
                         c_idx = col_map[metric]
                         if c_idx < len(row):
@@ -632,11 +679,45 @@ def audit_table_concordance(
                                 cell_val = float(num_match.group(1))
                                 exp_val = params[param_key]
                                 evidence["cells_audited"] += 1
-                                if isinstance(exp_val, (int, float)) and abs(cell_val - float(exp_val)) > 0.015:
-                                    errors.append(
-                                        f"Table contradiction in {artifact_name} (row '{row_label}', column '{headers[c_idx]}'): "
-                                        f"Table reports {cell_val}, but JSON source specifies {exp_val}."
-                                    )
+                                if metric == "p":
+                                    exp_p = float(exp_val) if isinstance(exp_val, (int, float)) else 0.001
+                                    if abs(cell_val - exp_p) > 0.01 and not (exp_p < 0.001 and cell_val <= 0.001):
+                                        errors.append(
+                                            f"Table contradiction in {artifact_name} (row '{row_label}', column '{headers[c_idx]}'): "
+                                            f"Table reports p-value {cell_val}, but JSON specifies {exp_val}."
+                                        )
+                                elif isinstance(exp_val, (int, float)):
+                                    if metric == "n":
+                                        # If table has multiple rows (subgroups), a subgroup n <= total N is valid.
+                                        # Only total rows ("کل", "مجموع", "total") or single-row tables must strictly equal total N.
+                                        is_total_row = any(k in row_label.lower() for k in ["کل", "مجموع", "total", "overall"])
+                                        is_single_row = (len(rows) <= 2)
+                                        if is_total_row or is_single_row:
+                                            if abs(cell_val - float(exp_val)) > 0.015:
+                                                errors.append(
+                                                    f"Table contradiction in {artifact_name} (row '{row_label}', column '{headers[c_idx]}'): "
+                                                    f"Table reports total sample size {cell_val}, but JSON source specifies {exp_val}."
+                                                )
+                                        elif cell_val > float(exp_val):
+                                            errors.append(
+                                                f"Table contradiction in {artifact_name} (row '{row_label}', column '{headers[c_idx]}'): "
+                                                f"Subgroup sample size {cell_val} exceeds total sample size {exp_val}."
+                                            )
+                                    elif metric in ["f", "t", "z", "effect_size"]:
+                                        # In multi-row ANOVA/regression tables, skip covariate/error rows from matching main effect test statistic
+                                        is_ancova_non_target = any(k in row_label for k in ["هم‌پراش", "خطا", "پسماند", "error", "residual", "مجموع"])
+                                        if not is_ancova_non_target:
+                                            if abs(cell_val - float(exp_val)) > 0.015:
+                                                errors.append(
+                                                    f"Table contradiction in {artifact_name} (row '{row_label}', column '{headers[c_idx]}'): "
+                                                    f"Table reports {cell_val}, but JSON source specifies {exp_val}."
+                                                )
+                                    else:
+                                        if abs(cell_val - float(exp_val)) > 0.015:
+                                            errors.append(
+                                                f"Table contradiction in {artifact_name} (row '{row_label}', column '{headers[c_idx]}'): "
+                                                f"Table reports {cell_val}, but JSON source specifies {exp_val}."
+                                            )
 
     return errors, warnings, evidence
 
