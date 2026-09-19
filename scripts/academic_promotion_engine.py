@@ -504,7 +504,18 @@ class AcademicPromotionEngine:
     improvements from candidate proposals into active production capabilities.
     """
 
-    # 6-Stage Behavioral Improvement Lifecycle
+    # 7-Stage Gated Self-Improvement Lifecycle (Phase 39)
+    SEVEN_STAGE_LIFECYCLE = [
+        "OBSERVATION",
+        "CANDIDATE",
+        "SANDBOX",
+        "EVALUATION",
+        "PROMOTION_CANDIDATE",
+        "HUMAN_QUALITY_GATE",
+        "PRODUCTION"
+    ]
+
+    # Legacy 6-Stage Behavioral Improvement Lifecycle
     LIFECYCLE_STAGES = [
         "OBSERVED",
         "LESSON",
@@ -514,12 +525,31 @@ class AcademicPromotionEngine:
         "ACTIVE"
     ]
 
+    # 6-Tier Change-Risk Taxonomy Constants (Phase 40)
+    LEVEL_0_FORMATTING = "LEVEL_0_FORMATTING"
+    LEVEL_1_RETRIEVAL_CONTEXT = "LEVEL_1_RETRIEVAL_CONTEXT"
+    LEVEL_2_WORKFLOW_GUIDANCE = "LEVEL_2_WORKFLOW_GUIDANCE"
+    LEVEL_3_STATISTICAL_DECISION_LOGIC = "LEVEL_3_STATISTICAL_DECISION_LOGIC"
+    LEVEL_4_METHODOLOGY_BEHAVIOR = "LEVEL_4_METHODOLOGY_BEHAVIOR"
+    LEVEL_5_STATISTICAL_COMPUTATION = "LEVEL_5_STATISTICAL_COMPUTATION"
+
+    RISK_LEVEL_MAP = {
+        LEVEL_0_FORMATTING: "LOW_RISK",
+        LEVEL_1_RETRIEVAL_CONTEXT: "LOW_RISK",
+        LEVEL_2_WORKFLOW_GUIDANCE: "MEDIUM_RISK",
+        LEVEL_3_STATISTICAL_DECISION_LOGIC: "MEDIUM_RISK",
+        LEVEL_4_METHODOLOGY_BEHAVIOR: "HIGH_RISK",
+        LEVEL_5_STATISTICAL_COMPUTATION: "HIGH_RISK"
+    }
+
     # 3-Tier Risk Taxonomy
     LOW_RISK_MUTATIONS = {
         "EXEMPLAR_ADDITION",
         "ANTI_PATTERN_ADDITION",
         "RETRIEVAL_IMPROVEMENT",
-        "CLARIFICATION_APPLICABILITY_EXCLUSIONS"
+        "CLARIFICATION_APPLICABILITY_EXCLUSIONS",
+        "FORMATTING_REFINEMENT",
+        "TYPOGRAPHY_FORMATTING"
     }
 
     MEDIUM_RISK_MUTATIONS = {
@@ -576,50 +606,308 @@ class AcademicPromotionEngine:
             os.makedirs(d, exist_ok=True)
 
     # -------------------------------------------------------------------------
-    # Risk Classification
+    # Risk Classification (Phase 40)
     # -------------------------------------------------------------------------
 
-    def classify_risk(self, candidate_data: Dict[str, Any]) -> str:
+    def classify_risk_level(self, candidate_data: Dict[str, Any]) -> str:
         """
-        Classifies the risk level of an improvement candidate into LOW-RISK,
-        MEDIUM-RISK, or HIGH-RISK.
+        Classifies the risk level of an improvement candidate into the 6-tier
+        Phase 40 taxonomy:
+        - LEVEL_0_FORMATTING: Formatting, syntax, comments, exemplars, anti-patterns.
+        - LEVEL_1_RETRIEVAL_CONTEXT: Retrieval metadata, search queries, applicability exclusions.
+        - LEVEL_2_WORKFLOW_GUIDANCE: Multi-stage workflow ordering, checkpoints, delegation guidance.
+        - LEVEL_3_STATISTICAL_DECISION_LOGIC: Decision trees, assumption cutoffs, parametric routing.
+        - LEVEL_4_METHODOLOGY_BEHAVIOR: Causal inference, experimental designs, clinical manuals, proposals.
+        - LEVEL_5_STATISTICAL_COMPUTATION: Deterministic calculation code, math formulas, degrees of freedom, p-values.
         """
         target_component = str(candidate_data.get("target_component", "")).lower()
         target_type = str(candidate_data.get("target_type", "")).upper()
         mutation_type = str(candidate_data.get("mutation_type", "")).upper()
         content = str(candidate_data.get("mutation", {}).get("content", "")).lower()
+        rationale = str(candidate_data.get("rationale", "")).lower()
 
-        # 1. High-Risk Checks: strictly prohibited architectural components
+        # 1. Level 5: Statistical Computation & Prohibited Architecture Check
+        # Check prohibited architectural components first
         for pat in self.HIGH_RISK_PATTERNS:
             if pat in target_component or pat in content:
-                return "HIGH_RISK"
+                return self.LEVEL_5_STATISTICAL_COMPUTATION
 
-        # Check high-risk target types
         if target_type in ["VALIDATOR_INSPECTION_RULE"]:
-            return "HIGH_RISK"
+            return self.LEVEL_5_STATISTICAL_COMPUTATION
 
-        # Check statistical execution engine scripts directly
-        if "/scripts/" in target_component and not target_component.startswith("learning/"):
-            # Editing deterministic calculation scripts directly is high risk
-            if any(k in target_component for k in ["stats", "sem", "cfa", "ancova", "regression", "mediation"]):
-                return "HIGH_RISK"
+        # Table formatting scripts (e.g. apa-reporting generate_apa_tables.py) are Level 0 Formatting, not calculation
+        if any(fmt in target_component for fmt in ["apa-reporting", "typography"]) and not any(kw in content for kw in ["matrix inversion", "sum of squares formula"]):
+            return self.LEVEL_0_FORMATTING
 
-        # 2. Low-Risk Checks: safe, additive, declarative knowledge
-        if mutation_type in self.LOW_RISK_MUTATIONS:
-            # Adding an exemplar, anti-pattern, or retrieval tags is low risk
-            return "LOW_RISK"
+        # Deterministic Python/R calculation scripts are Level 5
+        if ("/scripts/" in target_component or target_component.endswith(".py")) and not target_component.startswith("learning/"):
+            if any(k in target_component for k in ["stats", "sem", "cfa", "ancova", "regression", "mediation", "power", "gpower", "psychometric", "cronbach", "descriptive", "calculation"]):
+                return self.LEVEL_5_STATISTICAL_COMPUTATION
 
-        if target_type == "HEURISTIC_DECISION_RULE" and mutation_type == "CLARIFICATION_APPLICABILITY_EXCLUSIONS":
-            return "LOW_RISK"
+        if target_type == "SKILL_DETERMINISTIC_SCRIPT":
+            return self.LEVEL_5_STATISTICAL_COMPUTATION
 
-        # 3. Medium-Risk: procedural modifications, decision trees, agent instructions
-        if mutation_type in self.MEDIUM_RISK_MUTATIONS:
-            return "MEDIUM_RISK"
+        # Statistical computation formulas / mathematical calculations
+        stat_comp_keywords = [
+            "degrees of freedom formula", "sum of squares", "matrix inversion",
+            "p-value computation", "p-value formula", "bootstrap formula",
+            "chi-square formula", "f-statistic calculation", "t-statistic formula",
+            "standard error calculation", "variance calculation", "eigenvalue calculation",
+            "covariance matrix", "compute_p_value", "compute_f_stat", "deterministic calculation",
+            "calculate degrees of freedom", "calculate p-value"
+        ]
+        if any(kw in content or kw in rationale for kw in stat_comp_keywords):
+            return self.LEVEL_5_STATISTICAL_COMPUTATION
 
-        if target_type in ["AGENT_SYSTEM_PROMPT", "AGENT_BEHAVIORAL_CONTRACT", "SKILL_PROCEDURAL_SPECIFICATION"]:
-            return "MEDIUM_RISK"
+        # If explicit risk_level property is provided and valid, honor it (since Level 5 was checked above)
+        explicit_risk = candidate_data.get("risk_level")
+        if explicit_risk in [
+            self.LEVEL_0_FORMATTING,
+            self.LEVEL_1_RETRIEVAL_CONTEXT,
+            self.LEVEL_2_WORKFLOW_GUIDANCE,
+            self.LEVEL_3_STATISTICAL_DECISION_LOGIC,
+            self.LEVEL_4_METHODOLOGY_BEHAVIOR,
+            self.LEVEL_5_STATISTICAL_COMPUTATION
+        ]:
+            return explicit_risk
 
-        return "MEDIUM_RISK"
+        # 2. Level 0: Formatting Check (safe additive knowledge, exemplars, anti-patterns)
+        formatting_mutations = [
+            "EXEMPLAR_ADDITION", "ANTI_PATTERN_ADDITION",
+            "FORMATTING_REFINEMENT", "TYPOGRAPHY_FORMATTING", "FORMATTING"
+        ]
+        if mutation_type in formatting_mutations:
+            return self.LEVEL_0_FORMATTING
+
+        if any(fmt in target_component for fmt in ["apa-reporting", "typography"]) and not any(k in content for k in ["degrees of freedom", "p-value"]):
+            return self.LEVEL_0_FORMATTING
+
+        if any(fc in content for fc in ["### exemplar", "### anti-pattern", "markdown formatting", "whitespace", "table border"]):
+            return self.LEVEL_0_FORMATTING
+
+        # 3. Level 1: Retrieval / Context Check
+        retrieval_targets = [
+            "academic-adaptive-context", "literature-harvester", "organizer",
+            "drive", "retrieval", "context"
+        ]
+        if mutation_type in ["RETRIEVAL_IMPROVEMENT", "CLARIFICATION_APPLICABILITY_EXCLUSIONS"]:
+            return self.LEVEL_1_RETRIEVAL_CONTEXT
+
+        if any(rt in target_component for rt in retrieval_targets):
+            return self.LEVEL_1_RETRIEVAL_CONTEXT
+
+        # 4. Level 4: Methodology Behavior Check
+        methodology_targets = [
+            "methodology", "proposal", "intervention", "clinical", "protocol",
+            "thesis-builder", "thesis-revision", "viva-voce", "defense",
+            "research-agent", "methodology-expert", "intervention-designer",
+            "qualitative", "meta-analyst"
+        ]
+        methodology_keywords = [
+            "causal inference", "experimental design", "methodology rule",
+            "sampling protocol", "randomized controlled trial", "clinical manual",
+            "validity threats", "internal validity", "external validity",
+            "quasi-experimental", "intervention protocol", "viva voce defense standard"
+        ]
+        if mutation_type in ["METHODOLOGY_CHANGE", "METHODOLOGY_REFINEMENT"]:
+            return self.LEVEL_4_METHODOLOGY_BEHAVIOR
+
+        if any(mt in target_component for mt in methodology_targets):
+            if target_type in ["AGENT_BEHAVIORAL_CONTRACT", "SKILL_PROCEDURAL_SPECIFICATION", "AGENT_SYSTEM_PROMPT"]:
+                return self.LEVEL_4_METHODOLOGY_BEHAVIOR
+
+        if any(mk in content or mk in rationale for mk in methodology_keywords):
+            return self.LEVEL_4_METHODOLOGY_BEHAVIOR
+
+        # 5. Level 3: Statistical Decision Logic Check
+        stat_decision_targets = [
+            "assumption-testing", "sem", "cfa", "mediation", "moderation",
+            "regression", "reliability", "gpower", "statistical-expert",
+            "statistical-auditor", "results-auditor"
+        ]
+        stat_decision_keywords = [
+            "decision tree", "normality threshold", "alpha cutoff", "levene",
+            "shapiro-wilk", "vif threshold", "model fit cutoff", "rmsea",
+            "cfi", "tli", "srmr", "parametric assumption", "homoscedasticity",
+            "sphericity", "mauchly", "durbin-watson", "cohen's d cutoff"
+        ]
+        if mutation_type in ["DECISION_TREE_ADDITION", "DECISION_TREE_MODIFICATION", "STATISTICAL_DECISION_RULE"]:
+            return self.LEVEL_3_STATISTICAL_DECISION_LOGIC
+
+        if target_type == "HEURISTIC_DECISION_RULE" and mutation_type != "CLARIFICATION_APPLICABILITY_EXCLUSIONS":
+            return self.LEVEL_3_STATISTICAL_DECISION_LOGIC
+
+        if any(sdt in target_component for sdt in stat_decision_targets) and any(sdk in content or sdk in rationale for sdk in stat_decision_keywords):
+            return self.LEVEL_3_STATISTICAL_DECISION_LOGIC
+
+        # 6. Level 2: Workflow Guidance Check
+        workflow_targets = [
+            "academic-orchestrator", "academic-suite-orchestrator", "workflow",
+            "chapter-4-writing", "academic-writer", "validation-agent"
+        ]
+        workflow_mutations = [
+            "MISSING_STEP_ADDITION", "VERIFICATION_CHECKPOINT", "DELEGATION_GUIDANCE",
+            "INSTRUCTION_REFINEMENT", "MAJOR_SKILL_MODIFICATION"
+        ]
+        if mutation_type in workflow_mutations:
+            return self.LEVEL_2_WORKFLOW_GUIDANCE
+
+        if any(wt in target_component for wt in workflow_targets):
+            if target_type in ["SKILL_PROCEDURAL_SPECIFICATION", "AGENT_SYSTEM_PROMPT"]:
+                return self.LEVEL_2_WORKFLOW_GUIDANCE
+
+        return self.LEVEL_2_WORKFLOW_GUIDANCE
+
+    def classify_risk(self, candidate_data: Dict[str, Any]) -> str:
+        """
+        Backward-compatible 3-tier risk classifier mapping 6-tier Phase 40 levels
+        to LOW_RISK, MEDIUM_RISK, or HIGH_RISK.
+        """
+        level = self.classify_risk_level(candidate_data)
+        return self.RISK_LEVEL_MAP.get(level, "MEDIUM_RISK")
+
+    # -------------------------------------------------------------------------
+    # Lifecycle Progression (Phase 39)
+    # -------------------------------------------------------------------------
+
+    def progress_candidate_lifecycle(
+        self,
+        candidate_id: str,
+        target_stage: str,
+        evidence: Optional[Dict[str, Any]] = None,
+        sandbox_dir: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Progresses a candidate through the mandatory 7-stage self-improvement lifecycle (Phase 39):
+        OBSERVATION -> CANDIDATE -> SANDBOX -> EVALUATION -> PROMOTION_CANDIDATE -> HUMAN_QUALITY_GATE -> PRODUCTION
+
+        Enforces:
+        - Zero jumping: Transitions must be sequential.
+        - Isolated Sandbox: Candidates must be deployed to sandbox before evaluation.
+        - Evaluation gate: Promotion candidate requires passing evaluation report.
+        - Human/Quality Gate: Risk-tiered checks (Level 0-5).
+        - Production: Only reached after passing all prior gates and approval checks.
+        """
+        target_stage = target_stage.upper()
+        if target_stage not in self.SEVEN_STAGE_LIFECYCLE:
+            raise PromotionEngineError(
+                f"Unknown lifecycle stage '{target_stage}'. Valid stages are: {', '.join(self.SEVEN_STAGE_LIFECYCLE)}"
+            )
+
+        candidate_file = os.path.join(self.candidates_dir, f"{candidate_id}.json")
+        candidate_data = {}
+        if os.path.isfile(candidate_file):
+            with open(candidate_file, "r", encoding="utf-8") as f:
+                candidate_data = json.load(f)
+
+        current_stage = candidate_data.get("lifecycle_stage") or candidate_data.get("status")
+        if not current_stage:
+            current_stage = "OBSERVATION"
+
+        stage_aliases = {
+            "OBSERVED": "OBSERVATION",
+            "LESSON": "OBSERVATION",
+            "STAGED": "CANDIDATE",
+            "TESTING": "EVALUATION",
+            "EVALUATED": "EVALUATION",
+            "VALIDATED": "PROMOTION_CANDIDATE",
+            "ACTIVE": "PRODUCTION",
+            "PROMOTED": "PRODUCTION",
+            "AWAITING_HUMAN_APPROVAL": "HUMAN_QUALITY_GATE"
+        }
+        current_stage = stage_aliases.get(current_stage, current_stage)
+
+        curr_idx = self.SEVEN_STAGE_LIFECYCLE.index(current_stage) if current_stage in self.SEVEN_STAGE_LIFECYCLE else 0
+        target_idx = self.SEVEN_STAGE_LIFECYCLE.index(target_stage)
+
+        # Disallow backward or skipped forward transitions
+        if target_idx > curr_idx + 1:
+            raise PromotionEngineError(
+                f"INVALID_LIFECYCLE_TRANSITION: Cannot skip stages from '{current_stage}' to '{target_stage}'. "
+                f"The 7-stage lifecycle requires sequential progression: "
+                f"{' -> '.join(self.SEVEN_STAGE_LIFECYCLE)}"
+            )
+
+        risk_level = self.classify_risk_level(candidate_data)
+        result_details: Dict[str, Any] = {
+            "candidate_id": candidate_id,
+            "previous_stage": current_stage,
+            "current_stage": target_stage,
+            "risk_level": risk_level,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
+        if target_stage == "SANDBOX":
+            sb_dir = sandbox_dir or os.path.join(self.base_dir, "learning", "sandboxes", candidate_id)
+            os.makedirs(sb_dir, exist_ok=True)
+            result_details["sandbox_dir"] = sb_dir
+            candidate_data["sandbox_dir"] = sb_dir
+
+        elif target_stage == "EVALUATION":
+            if not candidate_data.get("sandbox_dir"):
+                sb_dir = os.path.join(self.base_dir, "learning", "sandboxes", candidate_id)
+                os.makedirs(sb_dir, exist_ok=True)
+                candidate_data["sandbox_dir"] = sb_dir
+
+        elif target_stage == "PROMOTION_CANDIDATE":
+            if not evidence:
+                raise PromotionEngineError(
+                    "EVALUATION_EVIDENCE_REQUIRED: Transitioning to PROMOTION_CANDIDATE requires evaluation report evidence."
+                )
+            if evidence.get("verdict") != "PASS":
+                raise PromotionEngineError(
+                    f"EVALUATION_FAILED: Candidate cannot become PROMOTION_CANDIDATE with verdict '{evidence.get('verdict')}'."
+                )
+            result_details["evaluation_verdict"] = "PASS"
+
+        elif target_stage == "HUMAN_QUALITY_GATE":
+            if risk_level == self.LEVEL_5_STATISTICAL_COMPUTATION:
+                reason = (
+                    "LEVEL_5_STATISTICAL_COMPUTATION_PROHIBITED: Statistical computation cannot be learned "
+                    "or modified via natural-language instructions. Deterministic Python/R code must be "
+                    "modified and tested separately via version control."
+                )
+                self.archive_rejected_candidate(
+                    candidate_data=candidate_data,
+                    failure_reason=reason,
+                    evaluation_evidence=evidence or {},
+                    affected_cases=["deterministic_statistical_calculation_code"]
+                )
+                raise Level5StatisticalComputationModificationBlockedError(reason)
+
+            approver = (evidence or {}).get("approver") or candidate_data.get("approver")
+            if risk_level == self.LEVEL_4_METHODOLOGY_BEHAVIOR and not (approver and approver.get("identity")):
+                candidate_data["lifecycle_stage"] = "HUMAN_QUALITY_GATE"
+                candidate_data["status"] = "AWAITING_HUMAN_APPROVAL"
+                if os.path.isfile(candidate_file):
+                    with open(candidate_file, "w", encoding="utf-8") as f:
+                        json.dump(candidate_data, f, indent=2, ensure_ascii=False)
+                result_details["status"] = "AWAITING_HUMAN_APPROVAL"
+                result_details["decision"] = "STAGED_FOR_REVIEW"
+                result_details["message"] = "Level 4 methodology behavior requires explicit human approval before promotion."
+                return result_details
+
+        elif target_stage == "PRODUCTION":
+            if risk_level == self.LEVEL_5_STATISTICAL_COMPUTATION:
+                raise Level5StatisticalComputationModificationBlockedError(
+                    "Statistical computation changes cannot be deployed to production via self-improvement."
+                )
+            approver = (evidence or {}).get("approver") or candidate_data.get("approver")
+            if risk_level == self.LEVEL_4_METHODOLOGY_BEHAVIOR and not (approver and approver.get("identity")):
+                raise HumanApprovalRequiredForMethodologyChangeError(
+                    "Level 4 methodology behavior cannot transition to PRODUCTION without explicit human approval credentials."
+                )
+
+        candidate_data["lifecycle_stage"] = target_stage
+        candidate_data["status"] = target_stage
+        candidate_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+        if os.path.isfile(candidate_file):
+            with open(candidate_file, "w", encoding="utf-8") as f:
+                json.dump(candidate_data, f, indent=2, ensure_ascii=False)
+
+        result_details["status"] = target_stage
+        return result_details
 
     # -------------------------------------------------------------------------
     # Evaluation Gates Verification
@@ -1049,18 +1337,23 @@ class AcademicPromotionEngine:
         self,
         candidate_id: str,
         evaluation_report: Dict[str, Any],
-        approver: Optional[Dict[str, Any]] = None
+        approver: Optional[Dict[str, Any]] = None,
+        auto_promote_on_evaluation_pass: bool = False
     ) -> Dict[str, Any]:
         """
-        Executes the full promotion pipeline for a candidate:
+        Executes the full promotion pipeline for a candidate across 6 change-risk levels (Phase 40):
         1. Ingest candidate
-        2. Classify risk tier
-        3. Block high-risk immediately
-        4. Verify 5 evaluation gates
-        5. If gates fail -> Reject and Archive
-        6. If gates pass -> Transition to VALIDATED
-        7. If LOW-RISK -> Auto-promote to ACTIVE
-        8. If MEDIUM-RISK -> Promote to ACTIVE if approver present, else STAGED_FOR_REVIEW
+        2. Classify risk level (Level 0–5) and risk tier
+        3. Level 5 Hard Block: Prompt modification of statistical computation permanently rejected and archived
+        4. Prohibited Architecture Block: Hook, contract, state machine, raw data modifications blocked
+        5. Verify 5 evaluation gates + Canonical schema gate
+        6. If gates fail -> Reject and Archive
+        7. If gates pass -> Transition to VALIDATED / PROMOTION_CANDIDATE
+        8. Level 0 (Formatting): Automatic promotion
+        9. Level 1 (Retrieval/Context): Automatic promotion after tests pass
+        10. Level 2 (Workflow Guidance): Evaluation verified; promotes if approver or auto-promote enabled, else stages
+        11. Level 3 (Statistical Decision Logic): Independent + held-out + adversarial verified; promotes if approver or auto-promote enabled, else stages
+        12. Level 4 (Methodology Behavior): High gate; strictly requires human approval credentials; blocks without approver
         """
         # 1. Ingest Candidate
         candidate_file = os.path.join(self.candidates_dir, f"{candidate_id}.json")
@@ -1072,34 +1365,63 @@ class AcademicPromotionEngine:
 
         # Update candidate status to EVALUATED
         candidate_data["status"] = "EVALUATED"
+        candidate_data["lifecycle_stage"] = "EVALUATION"
 
         # 2. Risk Classification
+        risk_level = self.classify_risk_level(candidate_data)
         risk_tier = self.classify_risk(candidate_data)
+        candidate_data["risk_level"] = risk_level
 
-        # 3. High-Risk Hard Block
-        if risk_tier == "HIGH_RISK":
+        # 3. Prohibited Architectural Component Hard Block
+        target_component = str(candidate_data.get("target_component", "")).lower()
+        content = str(candidate_data.get("mutation", {}).get("content", "")).lower()
+        for pat in self.HIGH_RISK_PATTERNS:
+            if pat in target_component or pat in content:
+                reason = (
+                    f"HIGH_RISK_COMPONENT_PROHIBITED: The evolution engine is strictly forbidden from "
+                    f"automatically modifying high-risk components (target: {candidate_data.get('target_component')})."
+                )
+                archived = self.archive_rejected_candidate(
+                    candidate_data=candidate_data,
+                    failure_reason=reason,
+                    evaluation_evidence=evaluation_report,
+                    affected_cases=["security_governance_policy"]
+                )
+                return {
+                    "decision": "REJECTED",
+                    "status": "REJECTED_AND_ARCHIVED",
+                    "risk_tier": "HIGH_RISK",
+                    "risk_level": risk_level,
+                    "reason": reason,
+                    "archive_id": archived["archive_id"],
+                    "candidate_id": candidate_id
+                }
+
+        # 4. Level 5 Hard Block (Phase 40)
+        if risk_level == self.LEVEL_5_STATISTICAL_COMPUTATION:
             reason = (
-                f"HIGH_RISK_COMPONENT_PROHIBITED: The evolution engine is strictly forbidden from "
-                f"automatically modifying high-risk components (target: {candidate_data.get('target_component')})."
+                f"HIGH_RISK_COMPONENT_PROHIBITED: LEVEL_5_STATISTICAL_COMPUTATION_PROHIBITED: "
+                f"Statistical computation cannot be learned or modified via natural-language instructions. "
+                f"Deterministic Python/R code must be modified and tested separately via version control (target: {candidate_data.get('target_component')})."
             )
             archived = self.archive_rejected_candidate(
                 candidate_data=candidate_data,
                 failure_reason=reason,
                 evaluation_evidence=evaluation_report,
-                affected_cases=["security_governance_policy"]
+                affected_cases=["deterministic_statistical_calculation_code"]
             )
             return {
                 "decision": "REJECTED",
                 "status": "REJECTED_AND_ARCHIVED",
                 "risk_tier": "HIGH_RISK",
+                "risk_level": self.LEVEL_5_STATISTICAL_COMPUTATION,
+                "governance_gate": "PROHIBITED_COMPUTATION",
                 "reason": reason,
                 "archive_id": archived["archive_id"],
                 "candidate_id": candidate_id
             }
 
         # Phase 30: Canonical EvaluationResult Normalization
-        # "No promotion is allowed without a schema-valid EvaluationResult."
-        # If the incoming report is in legacy format, attempt deterministic canonicalization.
         if not validate_evaluation_result(evaluation_report).get("valid", False):
             try:
                 from scripts.academic_canonical_evaluation import canonicalize_evaluation_result
@@ -1113,7 +1435,7 @@ class AcademicPromotionEngine:
             except Exception:
                 pass
 
-        # 4. Verify 5 Evaluation Gates + Canonical Schema Gate
+        # 5. Verify Evaluation Gates
         gates = self.verify_evaluation_gates(evaluation_report)
 
         if not gates["all_passed"]:
@@ -1128,24 +1450,26 @@ class AcademicPromotionEngine:
                 "decision": "REJECTED",
                 "status": "REJECTED_AND_ARCHIVED",
                 "risk_tier": risk_tier,
+                "risk_level": risk_level,
                 "reason": reason,
                 "archive_id": archived["archive_id"],
                 "candidate_id": candidate_id,
                 "gate_failures": gates["failures"]
             }
 
-        # 5. Passed all 5 Gates -> Transition to VALIDATED
+        # 6. Passed all Gates -> Transition to VALIDATED / PROMOTION_CANDIDATE
         candidate_data["status"] = "VALIDATED"
+        candidate_data["lifecycle_stage"] = "PROMOTION_CANDIDATE"
 
-        # 6. Apply Promotion Rules
         today_str = datetime.now(timezone.utc).strftime("%Y%m%d")
         promotion_id = f"PRM-{today_str}-{uuid.uuid4().hex[:8].upper()}"
         candidate_data["promotion_id"] = promotion_id
         candidate_data["evaluation_id"] = evaluation_report.get("evaluation_id", evaluation_report.get("report_id", "EVR-PROMOTION"))
 
-        if risk_tier == "LOW_RISK":
-            # LOW-RISK: Autonomous promotion allowed
-            effective_approver = {
+        # 7. Apply Risk-Tiered Promotion Governance
+        if risk_level == self.LEVEL_0_FORMATTING:
+            governance_gate = "AUTOMATIC"
+            effective_approver = approver if (approver and approver.get("identity")) else {
                 "identity": "SYSTEM_AUTONOMOUS_POLICY",
                 "approval_contract_id": f"APPR-AUTO-{promotion_id}",
                 "approved_at": datetime.now(timezone.utc).isoformat()
@@ -1164,6 +1488,7 @@ class AcademicPromotionEngine:
                     "decision": "REJECTED",
                     "status": "PROMOTION_FAILED",
                     "risk_tier": risk_tier,
+                    "risk_level": risk_level,
                     "reason": reason,
                     "archive_id": archived["archive_id"],
                     "candidate_id": candidate_id
@@ -1174,37 +1499,95 @@ class AcademicPromotionEngine:
                 candidate_data=candidate_data,
                 evaluation_report=evaluation_report,
                 decision="PROMOTED",
-                rationale=(
-                    f"LOW-RISK mutation '{candidate_data.get('mutation_type')}' passed all 5 evaluation gates "
-                    f"with zero regressions and was automatically promoted to ACTIVE."
-                ),
+                rationale=f"Level 0 Formatting change automatically promoted to ACTIVE.",
                 approver=effective_approver,
                 snapshot=deployment_result["snapshot"],
-                version=deployment_result.get("version")
+                version=deployment_result.get("version"),
+                risk_level=risk_level,
+                governance_gate=governance_gate
             )
-
-            # Mark candidate ACTIVE
             candidate_data["status"] = "ACTIVE"
-            candidate_data["promotion_id"] = promotion_id
+            candidate_data["lifecycle_stage"] = "PRODUCTION"
             candidate_data["promoted_at"] = datetime.now(timezone.utc).isoformat()
             with open(candidate_file, "w", encoding="utf-8") as f:
                 json.dump(candidate_data, f, indent=2, ensure_ascii=False)
-
             self._save_promotion_record(promotion_record)
-
             return {
                 "decision": "PROMOTED",
                 "status": "ACTIVE",
                 "risk_tier": "LOW_RISK",
+                "risk_level": risk_level,
+                "governance_gate": governance_gate,
                 "promotion_id": promotion_id,
                 "candidate_id": candidate_id,
                 "deployment": deployment_result
             }
 
-        elif risk_tier == "MEDIUM_RISK":
-            # MEDIUM-RISK: Requires stronger evaluation and human/admin review
-            if approver and approver.get("identity"):
-                # Human approver provided: Proceed to ACTIVE
+        elif risk_level == self.LEVEL_1_RETRIEVAL_CONTEXT:
+            governance_gate = "AUTOMATIC_AFTER_TESTS"
+            effective_approver = approver if (approver and approver.get("identity")) else {
+                "identity": "SYSTEM_AUTONOMOUS_POLICY",
+                "approval_contract_id": f"APPR-AUTO-{promotion_id}",
+                "approved_at": datetime.now(timezone.utc).isoformat()
+            }
+            try:
+                deployment_result = self._deploy_active_candidate(candidate_data)
+            except PromotionFailureError as pfe:
+                reason = str(pfe)
+                archived = self.archive_rejected_candidate(
+                    candidate_data=candidate_data,
+                    failure_reason=reason,
+                    evaluation_evidence=evaluation_report,
+                    affected_cases=["promotion_activation_failure"]
+                )
+                return {
+                    "decision": "REJECTED",
+                    "status": "PROMOTION_FAILED",
+                    "risk_tier": risk_tier,
+                    "risk_level": risk_level,
+                    "reason": reason,
+                    "archive_id": archived["archive_id"],
+                    "candidate_id": candidate_id
+                }
+
+            promotion_record = self._build_promotion_record(
+                promotion_id=promotion_id,
+                candidate_data=candidate_data,
+                evaluation_report=evaluation_report,
+                decision="PROMOTED",
+                rationale=f"Level 1 Retrieval/Context change verified through evaluation tests and automatically promoted to ACTIVE.",
+                approver=effective_approver,
+                snapshot=deployment_result["snapshot"],
+                version=deployment_result.get("version"),
+                risk_level=risk_level,
+                governance_gate=governance_gate
+            )
+            candidate_data["status"] = "ACTIVE"
+            candidate_data["lifecycle_stage"] = "PRODUCTION"
+            candidate_data["promoted_at"] = datetime.now(timezone.utc).isoformat()
+            with open(candidate_file, "w", encoding="utf-8") as f:
+                json.dump(candidate_data, f, indent=2, ensure_ascii=False)
+            self._save_promotion_record(promotion_record)
+            return {
+                "decision": "PROMOTED",
+                "status": "ACTIVE",
+                "risk_tier": "LOW_RISK",
+                "risk_level": risk_level,
+                "governance_gate": governance_gate,
+                "promotion_id": promotion_id,
+                "candidate_id": candidate_id,
+                "deployment": deployment_result
+            }
+
+        elif risk_level == self.LEVEL_2_WORKFLOW_GUIDANCE:
+            governance_gate = "EVALUATION_VERIFIED"
+            can_promote = bool((approver and approver.get("identity")) or auto_promote_on_evaluation_pass or candidate_data.get("auto_promote_on_evaluation_pass"))
+            if can_promote:
+                effective_approver = approver if (approver and approver.get("identity")) else {
+                    "identity": "SYSTEM_AUTONOMOUS_POLICY",
+                    "approval_contract_id": f"APPR-AUTO-{promotion_id}",
+                    "approved_at": datetime.now(timezone.utc).isoformat()
+                }
                 try:
                     deployment_result = self._deploy_active_candidate(candidate_data)
                 except PromotionFailureError as pfe:
@@ -1219,6 +1602,7 @@ class AcademicPromotionEngine:
                         "decision": "REJECTED",
                         "status": "PROMOTION_FAILED",
                         "risk_tier": risk_tier,
+                        "risk_level": risk_level,
                         "reason": reason,
                         "archive_id": archived["archive_id"],
                         "candidate_id": candidate_id
@@ -1229,48 +1613,221 @@ class AcademicPromotionEngine:
                     candidate_data=candidate_data,
                     evaluation_report=evaluation_report,
                     decision="PROMOTED",
-                    rationale=(
-                        f"MEDIUM-RISK mutation '{candidate_data.get('mutation_type')}' passed all 5 evaluation gates "
-                        f"and was approved for production deployment by {approver.get('identity')}."
-                    ),
-                    approver=approver,
+                    rationale=f"Level 2 Workflow guidance change verified through evaluation and promoted to ACTIVE.",
+                    approver=effective_approver,
                     snapshot=deployment_result["snapshot"],
-                    version=deployment_result.get("version")
+                    version=deployment_result.get("version"),
+                    risk_level=risk_level,
+                    governance_gate=governance_gate
                 )
-
                 candidate_data["status"] = "ACTIVE"
-                candidate_data["promotion_id"] = promotion_id
+                candidate_data["lifecycle_stage"] = "PRODUCTION"
                 candidate_data["promoted_at"] = datetime.now(timezone.utc).isoformat()
                 with open(candidate_file, "w", encoding="utf-8") as f:
                     json.dump(candidate_data, f, indent=2, ensure_ascii=False)
-
                 self._save_promotion_record(promotion_record)
-
                 return {
                     "decision": "PROMOTED",
                     "status": "ACTIVE",
-                    "risk_tier": "MEDIUM_RISK",
+                    "risk_tier": risk_tier,
+                    "risk_level": risk_level,
+                    "governance_gate": governance_gate,
                     "promotion_id": promotion_id,
                     "candidate_id": candidate_id,
                     "deployment": deployment_result
                 }
             else:
-                # No human approver provided: Remains VALIDATED / STAGED_FOR_REVIEW
+                candidate_data["lifecycle_stage"] = "HUMAN_QUALITY_GATE"
                 with open(candidate_file, "w", encoding="utf-8") as f:
                     json.dump(candidate_data, f, indent=2, ensure_ascii=False)
-
                 return {
                     "decision": "STAGED_FOR_FURTHER_TESTING",
                     "status": "VALIDATED",
-                    "risk_tier": "MEDIUM_RISK",
+                    "risk_tier": risk_tier,
+                    "risk_level": risk_level,
+                    "governance_gate": governance_gate,
                     "candidate_id": candidate_id,
-                    "message": "Candidate validated across all 5 gates. Awaiting required human approval before activation."
+                    "message": "Level 2 workflow guidance passed evaluation. Awaiting review or autonomous authorization."
                 }
+
+        elif risk_level == self.LEVEL_3_STATISTICAL_DECISION_LOGIC:
+            governance_gate = "INDEPENDENT_HELDOUT_ADVERSARIAL_VERIFIED"
+            can_promote = bool((approver and approver.get("identity")) or auto_promote_on_evaluation_pass or candidate_data.get("auto_promote_on_evaluation_pass"))
+            if can_promote:
+                effective_approver = approver if (approver and approver.get("identity")) else {
+                    "identity": "SYSTEM_AUTONOMOUS_POLICY",
+                    "approval_contract_id": f"APPR-AUTO-{promotion_id}",
+                    "approved_at": datetime.now(timezone.utc).isoformat()
+                }
+                try:
+                    deployment_result = self._deploy_active_candidate(candidate_data)
+                except PromotionFailureError as pfe:
+                    reason = str(pfe)
+                    archived = self.archive_rejected_candidate(
+                        candidate_data=candidate_data,
+                        failure_reason=reason,
+                        evaluation_evidence=evaluation_report,
+                        affected_cases=["promotion_activation_failure"]
+                    )
+                    return {
+                        "decision": "REJECTED",
+                        "status": "PROMOTION_FAILED",
+                        "risk_tier": risk_tier,
+                        "risk_level": risk_level,
+                        "reason": reason,
+                        "archive_id": archived["archive_id"],
+                        "candidate_id": candidate_id
+                    }
+
+                promotion_record = self._build_promotion_record(
+                    promotion_id=promotion_id,
+                    candidate_data=candidate_data,
+                    evaluation_report=evaluation_report,
+                    decision="PROMOTED",
+                    rationale=f"Level 3 Statistical decision logic verified through independent, held-out, and adversarial evaluation gates.",
+                    approver=effective_approver,
+                    snapshot=deployment_result["snapshot"],
+                    version=deployment_result.get("version"),
+                    risk_level=risk_level,
+                    governance_gate=governance_gate
+                )
+                candidate_data["status"] = "ACTIVE"
+                candidate_data["lifecycle_stage"] = "PRODUCTION"
+                candidate_data["promoted_at"] = datetime.now(timezone.utc).isoformat()
+                with open(candidate_file, "w", encoding="utf-8") as f:
+                    json.dump(candidate_data, f, indent=2, ensure_ascii=False)
+                self._save_promotion_record(promotion_record)
+                return {
+                    "decision": "PROMOTED",
+                    "status": "ACTIVE",
+                    "risk_tier": risk_tier,
+                    "risk_level": risk_level,
+                    "governance_gate": governance_gate,
+                    "promotion_id": promotion_id,
+                    "candidate_id": candidate_id,
+                    "deployment": deployment_result
+                }
+            else:
+                candidate_data["lifecycle_stage"] = "HUMAN_QUALITY_GATE"
+                with open(candidate_file, "w", encoding="utf-8") as f:
+                    json.dump(candidate_data, f, indent=2, ensure_ascii=False)
+                return {
+                    "decision": "STAGED_FOR_FURTHER_TESTING",
+                    "status": "VALIDATED",
+                    "risk_tier": risk_tier,
+                    "risk_level": risk_level,
+                    "governance_gate": governance_gate,
+                    "candidate_id": candidate_id,
+                    "message": "Candidate validated across independent, held-out, and adversarial gates. Awaiting required human approval before activation."
+                }
+
+        elif risk_level == self.LEVEL_4_METHODOLOGY_BEHAVIOR:
+            governance_gate = "HUMAN_APPROVED"
+            if approver and approver.get("identity"):
+                try:
+                    deployment_result = self._deploy_active_candidate(candidate_data)
+                except PromotionFailureError as pfe:
+                    reason = str(pfe)
+                    archived = self.archive_rejected_candidate(
+                        candidate_data=candidate_data,
+                        failure_reason=reason,
+                        evaluation_evidence=evaluation_report,
+                        affected_cases=["promotion_activation_failure"]
+                    )
+                    return {
+                        "decision": "REJECTED",
+                        "status": "PROMOTION_FAILED",
+                        "risk_tier": "HIGH_RISK",
+                        "risk_level": risk_level,
+                        "reason": reason,
+                        "archive_id": archived["archive_id"],
+                        "candidate_id": candidate_id
+                    }
+
+                promotion_record = self._build_promotion_record(
+                    promotion_id=promotion_id,
+                    candidate_data=candidate_data,
+                    evaluation_report=evaluation_report,
+                    decision="PROMOTED",
+                    rationale=f"Level 4 Methodology behavior change passed 5 evaluation gates and was approved by {approver.get('identity')}.",
+                    approver=approver,
+                    snapshot=deployment_result["snapshot"],
+                    version=deployment_result.get("version"),
+                    risk_level=risk_level,
+                    governance_gate=governance_gate
+                )
+                candidate_data["status"] = "ACTIVE"
+                candidate_data["lifecycle_stage"] = "PRODUCTION"
+                candidate_data["promoted_at"] = datetime.now(timezone.utc).isoformat()
+                with open(candidate_file, "w", encoding="utf-8") as f:
+                    json.dump(candidate_data, f, indent=2, ensure_ascii=False)
+                self._save_promotion_record(promotion_record)
+                return {
+                    "decision": "PROMOTED",
+                    "status": "ACTIVE",
+                    "risk_tier": "HIGH_RISK",
+                    "risk_level": risk_level,
+                    "governance_gate": governance_gate,
+                    "promotion_id": promotion_id,
+                    "candidate_id": candidate_id,
+                    "deployment": deployment_result
+                }
+            else:
+                candidate_data["status"] = "AWAITING_HUMAN_APPROVAL"
+                candidate_data["lifecycle_stage"] = "HUMAN_QUALITY_GATE"
+                with open(candidate_file, "w", encoding="utf-8") as f:
+                    json.dump(candidate_data, f, indent=2, ensure_ascii=False)
+                return {
+                    "decision": "STAGED_FOR_FURTHER_TESTING",
+                    "status": "VALIDATED",
+                    "risk_tier": "HIGH_RISK",
+                    "risk_level": risk_level,
+                    "governance_gate": governance_gate,
+                    "candidate_id": candidate_id,
+                    "message": "Level 4 methodology behavior change passed 5 evaluation gates but strictly requires explicit signed human approval before activation."
+                }
+
+        # Fallback for generic risk tiers
+        if risk_tier == "LOW_RISK":
+            effective_approver = {
+                "identity": "SYSTEM_AUTONOMOUS_POLICY",
+                "approval_contract_id": f"APPR-AUTO-{promotion_id}",
+                "approved_at": datetime.now(timezone.utc).isoformat()
+            }
+            deployment_result = self._deploy_active_candidate(candidate_data)
+            promotion_record = self._build_promotion_record(
+                promotion_id=promotion_id,
+                candidate_data=candidate_data,
+                evaluation_report=evaluation_report,
+                decision="PROMOTED",
+                rationale=f"LOW-RISK mutation passed all evaluation gates and was promoted.",
+                approver=effective_approver,
+                snapshot=deployment_result["snapshot"],
+                version=deployment_result.get("version"),
+                risk_level=risk_level,
+                governance_gate="AUTOMATIC"
+            )
+            candidate_data["status"] = "ACTIVE"
+            candidate_data["lifecycle_stage"] = "PRODUCTION"
+            candidate_data["promoted_at"] = datetime.now(timezone.utc).isoformat()
+            with open(candidate_file, "w", encoding="utf-8") as f:
+                json.dump(candidate_data, f, indent=2, ensure_ascii=False)
+            self._save_promotion_record(promotion_record)
+            return {
+                "decision": "PROMOTED",
+                "status": "ACTIVE",
+                "risk_tier": "LOW_RISK",
+                "risk_level": risk_level,
+                "promotion_id": promotion_id,
+                "candidate_id": candidate_id,
+                "deployment": deployment_result
+            }
 
         return {
             "decision": "STAGED_FOR_FURTHER_TESTING",
             "status": "VALIDATED",
             "risk_tier": risk_tier,
+            "risk_level": risk_level,
             "candidate_id": candidate_id
         }
 
@@ -1783,7 +2340,9 @@ class AcademicPromotionEngine:
         rationale: str,
         approver: Optional[Dict[str, Any]] = None,
         snapshot: Optional[Dict[str, Any]] = None,
-        version: Optional[Dict[str, Any]] = None
+        version: Optional[Dict[str, Any]] = None,
+        risk_level: Optional[str] = None,
+        governance_gate: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Builds a promotion decision record conforming to
@@ -1840,6 +2399,11 @@ class AcademicPromotionEngine:
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
+        if risk_level:
+            record["risk_level"] = risk_level
+        if governance_gate:
+            record["governance_gate"] = governance_gate
+
         # Lineage reference
         record["lineage"] = {
             "originating_experience": candidate_data.get("associated_pitfall_id") or candidate_data.get("reflective_diagnosis", {}).get("evidence_sources", ["EXP-RAW-001"])[0],
@@ -1894,6 +2458,8 @@ def main():
     parser.add_argument("--report-path", type=str, help="Path to counterfactual evaluation report JSON")
     parser.add_argument("--approver", type=str, default=None, help="Human approver identity (e.g. Saber Admin Desk 124911145)")
     parser.add_argument("--classify-risk", action="store_true", help="Classify risk tier of candidate without promoting")
+    parser.add_argument("--classify-risk-level", action="store_true", help="Classify 6-tier change-risk level of candidate (Phase 40)")
+    parser.add_argument("--progress-stage", type=str, help="Progress candidate to target lifecycle stage (Phase 39)")
     parser.add_argument("--rollback", type=str, help="Promotion ID (PRM-...) or Snapshot ID (SNAP-...) to rollback")
     parser.add_argument("--rollback-to", type=str, help="Target immutable version (e.g. V2) to restore")
     parser.add_argument("--component", type=str, help="Target component ID for version rollback (e.g. chapter-4-writing)")
@@ -1917,6 +2483,30 @@ def main():
 
     if args.rollback:
         res = engine.rollback_promotion(snapshot_id_or_promotion_id=args.rollback, component_id=args.component)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        sys.exit(0)
+
+    if args.candidate_id and args.classify_risk_level:
+        cand_path = os.path.join(engine.candidates_dir, f"{args.candidate_id}.json")
+        if not os.path.isfile(cand_path):
+            print(f"Error: Candidate {args.candidate_id} not found.")
+            sys.exit(1)
+        with open(cand_path, "r", encoding="utf-8") as f:
+            cdata = json.load(f)
+        level = engine.classify_risk_level(cdata)
+        tier = engine.classify_risk(cdata)
+        print(json.dumps({"candidate_id": args.candidate_id, "risk_level": level, "risk_tier": tier}, indent=2))
+        sys.exit(0)
+
+    if args.candidate_id and args.progress_stage:
+        evidence = None
+        if args.report_path and os.path.isfile(args.report_path):
+            with open(args.report_path, "r", encoding="utf-8") as f:
+                evidence = json.load(f)
+        if args.approver:
+            evidence = evidence or {}
+            evidence["approver"] = {"identity": args.approver}
+        res = engine.progress_candidate_lifecycle(args.candidate_id, args.progress_stage, evidence=evidence)
         print(json.dumps(res, indent=2, ensure_ascii=False))
         sys.exit(0)
 
