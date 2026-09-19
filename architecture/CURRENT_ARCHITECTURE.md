@@ -6,9 +6,19 @@
 
 ---
 
-## 🏛️ Foundational Architectural Rule
+## 🏛️ Foundational Architectural Rules
+
+### Rule 1: Freeze on Horizontal Growth
 > **From this point forward: No new agent, Skill, framework, or orchestration abstraction is added unless it fills a documented architectural gap.**  
 > **This prevents AcademicSuite from continuing to grow horizontally.**
+
+### Rule 2: The Six-Part Functional Separation Invariant
+> - **Agent → decides** (reasoning role, delegation, decision-making, context, responsibility, communication)  
+> - **Skill → instructs** (specialized procedure, domain knowledge, decision tree, execution instructions, reusable methodology, reporting format)  
+> - **Script → computes** (deterministic computation, validation, transformation, file generation, hashing, state mutation)  
+> - **Hook → enforces** (enforcement, interception, safety, automatic verification)  
+> - **State machine → authorizes transition** (milestone progression, event recording, state gating)  
+> - **Artifact manifest → defines completion** (schema contract conformance, required files, affirmative evidence)  
 
 ---
 

@@ -154,6 +154,15 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 - **Progressive Disclosure Architecture**: Extended specifications, deep rubrics, visual contracts, and layout templates must never be inlined into `SKILL.md`. They must be modularized into the skill's `references/` subdirectory and linked from `SKILL.md`.
 - **Machine Enforcement**: `.agents/verification/skill_size_guard.py` is invoked during the Antigravity `Stop` lifecycle hook.
 
+### Directive 19: The Six-Part Functional Separation Invariant
+To eliminate cognitive drift, hallucinations, and horizontal architecture sprawl, all capabilities across AcademicSuite strictly obey the six-part division of responsibility:
+1. **Agent → decides**: Owns reasoning role, delegation, decision-making, context isolation, responsibility, and inter-agent communication.
+2. **Skill → instructs**: Owns specialized procedures, domain knowledge, decision trees, execution instructions, reusable methodologies, and reporting formats.
+3. **Script → computes**: Owns deterministic calculation, validation, transformation, file generation, cryptographic hashing, and state mutation.
+4. **Hook → enforces**: Owns synchronous event interception, safety checks, tamper prevention, honesty verification, and tool execution gates (`hooks.json`).
+5. **State machine → authorizes transition**: Owns milestone progression gating, event timeline logging, and persistent state authorization (`state/events.jsonl`, `state/milestones.jsonl`).
+6. **Artifact manifest → defines completion**: Owns JSON schema contracts, required physical deliverables, and affirmative fail-closed validation (`contracts/`).
+
 ---
 
 ## 📚 ARCHITECTURE & REFERENCE DIRECTORY

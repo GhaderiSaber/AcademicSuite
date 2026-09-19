@@ -16,6 +16,7 @@
 | [ADR-004](#adr-004-the-triad-artifact-invariant-and-one-hypothesis-one-stage) | The Triad Artifact Invariant and One-Hypothesis-One-Stage Granularity | Accepted | 2026-09-15 |
 | [ADR-005](#adr-005-multi-layered-defense-in-depth-security-architecture) | Multi-Layered Defense-in-Depth Security Architecture | Accepted | 2026-09-18 |
 | [ADR-006](#adr-006-hard-boundary-against-horizontal-growth-and-sprawl) | Hard Boundary Against Horizontal Growth & Architectural Sprawl | Accepted | 2026-09-19 |
+| [ADR-007](#adr-007-the-six-part-functional-separation-invariant) | The Six-Part Functional Separation Invariant | Accepted | 2026-09-19 |
 
 ---
 
@@ -122,3 +123,25 @@ A permanent freeze on horizontal growth is instituted:
 ### Consequences
 - **Positive**: Focused refinement, deep stability, predictable behavior, zero feature bloat.
 - **Negative**: Developers cannot create ad-hoc experimental agents without formal justification.
+
+---
+
+## ADR-007: The Six-Part Functional Separation Invariant
+
+### Context
+Without strict structural boundaries, capabilities tend to leak across layers: agents attempt to calculate numbers or format XML tables in their heads, skills attempt to manage subagent orchestration or execute background processes, and scripts attempt to make autonomous research decisions. This causes hallucinations, non-deterministic bugs, and untraceable failures.
+
+### Decision
+A mandatory, constitutional Six-Part Functional Separation Invariant is enacted:
+```text
+Agent          ───> DECIDES: Reasoning role, delegation, context, decision-making, responsibility, communication
+Skill          ───> INSTRUCTS: Domain knowledge, decision trees, execution instructions, reusable procedures
+Script         ───> COMPUTES: Deterministic calculation, validation, transformation, file generation, hashing
+Hook           ───> ENFORCES: Interception, safety, tamper-prevention, mechanical validation, honesty checks
+State machine  ───> AUTHORIZES TRANSITION: Milestone progression, event timeline recording, state gating
+Artifact manifest ─> DEFINES COMPLETION: Schema contracts, required deliverables, fail-closed affirmative evidence
+```
+
+### Consequences
+- **Positive**: Clean context boundaries, complete auditability, fail-closed mechanical enforcement, zero mental arithmetic by LLMs.
+- **Negative**: New workflows must explicitly map their operations across all six layers rather than embedding logic in a monolithic prompt.

@@ -65,11 +65,41 @@ The primary technical objective of the **Target Architecture** is to establish a
 
 ---
 
-## 2. The Native-Agent Contract
+## 2. The Six-Part Functional Separation Invariant
+
+To guarantee architectural stability, eliminate hallucinations, and prevent horizontal sprawl, AcademicSuite strictly enforces the six-part separation of concerns across every research engagement:
+
+```text
++──────────────────────+─────────────────────────────────────────────────────────────+
+| Layer                | Operational Scope & Invariant Ownership                     |
++──────────────────────+─────────────────────────────────────────────────────────────+
+| 1. Agent             | DECIDES: Reasoning role, delegation, context,               |
+|                      | decision-making, responsibility, communication              |
++──────────────────────+─────────────────────────────────────────────────────────────+
+| 2. Skill             | INSTRUCTS: Domain knowledge, decision trees,                |
+|                      | execution instructions, reusable procedures, APA formats    |
++──────────────────────+─────────────────────────────────────────────────────────────+
+| 3. Script            | COMPUTES: Deterministic calculation, data transformation,   |
+|                      | file generation, OpenXML compilation, hashing               |
++──────────────────────+─────────────────────────────────────────────────────────────+
+| 4. Hook              | ENFORCES: Synchronous interception, safety gates,           |
+|                      | tamper prevention, honesty audits, tool execution control   |
++──────────────────────+─────────────────────────────────────────────────────────────+
+| 5. State Machine     | AUTHORIZES TRANSITION: Milestone progression gating,        |
+|                      | immutable event timeline logging, state persistence         |
++──────────────────────+─────────────────────────────────────────────────────────────+
+| 6. Artifact Manifest | DEFINES COMPLETION: Schema contract validation,             |
+|                      | required triad files (.docx+.md+.json), affirmative evidence |
++──────────────────────+─────────────────────────────────────────────────────────────+
+```
+
+---
+
+## 3. The Native-Agent Contract
 
 AcademicSuite defines agents purely as Antigravity-compatible Markdown files. There is **zero proprietary Python agent runtime** or wrapper class.
 
-### 2.1 The Minimal Agent Contract
+### 3.1 The Minimal Agent Contract
 An agent is valid in Antigravity when it contains only:
 ```markdown
 ---
@@ -82,7 +112,7 @@ description: Clear, actionable description of role and delegation triggers.
 Detailed behavioral instructions, domain principles, and workflows.
 ```
 
-### 2.2 The Progressive Capability Contract
+### 3.2 The Progressive Capability Contract
 As needs expand, the following official Antigravity fields may be added:
 ```markdown
 ---
@@ -114,14 +144,14 @@ inheritCustomizations: true
 ---
 ```
 
-### 2.3 Strict Frontmatter Policy Elimination
+### 3.3 Strict Frontmatter Policy Elimination
 - **`commandExecutionPolicy` is strictly forbidden in frontmatter**.
 - Antigravity's agent loader rejects frontmatter with unknown fields, hiding the agent from the IDE dropdown and subagent registry.
-- Security is instead enforced through the multi-layered security architecture described in Section 4.
+- Security is instead enforced through the multi-layered security architecture described in Section 5.
 
 ---
 
-## 3. Subagent & MainAgent Semantics
+## 4. Subagent & MainAgent Semantics
 
 In Antigravity:
 - **`mainAgent: true`**: Agent appears in the primary workspace agent selector / chat interface.
@@ -131,7 +161,7 @@ In Antigravity:
 
 ---
 
-## 4. Multi-Layered Defense-in-Depth Security
+## 5. Multi-Layered Defense-in-Depth Security
 
 In place of unsupported frontmatter policy flags, execution restrictions are enforced mechanically across four independent layers:
 
@@ -152,7 +182,7 @@ Layer 4: Deterministic Scripts & Agent Instructions
 
 ---
 
-## 5. The Triad Artifact Invariant & Stage-Gate Granularity
+## 6. The Triad Artifact Invariant & Stage-Gate Granularity
 
 Under Constitutional Directive 3:
 1. **Zero Monolithic Generations**: Generating an entire chapter or dissertation in a single un-audited prompt is strictly forbidden.
@@ -164,7 +194,7 @@ Under Constitutional Directive 3:
 
 ---
 
-## 6. Continuous Learning & Self-Improvement Boundaries
+## 7. Continuous Learning & Self-Improvement Boundaries
 
 The self-improvement subsystem (`learning/` and `contracts/evolution/`) operates under strict containment:
 1. **Zero Runtime Self-Modification**: Learning subagents cannot directly mutate active skill files (`SKILL.md`) or agent specifications (`agent.md`).

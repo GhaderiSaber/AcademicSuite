@@ -11,6 +11,13 @@ These domain rules are automatically loaded and applied across all conversations
 - **Directive 4.1 (Presentation Visual Standards)**: Zero emojis in academic slides/notes. Zero English words in Persian slides. DrawingML dual-slot font binding (`B Titr` / `B Nazanin` / `Times New Roman`). LTR numeric decoupling ($-0.32$).
 - **Directive 11 (Interactive Stage-Gate Protocol)**: At each stage completion, report what was done and what will be done next, then halt and wait for user confirmation before advancing.
 - **Directive 12.1 (Sole Orchestrator Mandate)**: Antigravity is the sole agent conductor. Python scripts are strictly deterministic tools ("The Hands").
+- **Directive 19 (The Six-Part Functional Separation Invariant)**: Strict separation of concerns across AcademicSuite:
+  - *Agent → decides* (reasoning role, delegation, context, decision-making, responsibility, communication)
+  - *Skill → instructs* (domain knowledge, decision trees, execution instructions, procedures, APA formats)
+  - *Script → computes* (deterministic calculation, validation, transformation, file generation, hashing)
+  - *Hook → enforces* (synchronous interception, safety gates, tamper prevention, honesty verification)
+  - *State machine → authorizes transition* (milestone progression gating, event timeline logging)
+  - *Artifact manifest → defines completion* (schema contracts, required triad deliverables, affirmative evidence)
 
 ---
 
