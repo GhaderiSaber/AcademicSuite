@@ -281,5 +281,60 @@ Enact a complete, repository-wide elimination of all silent synthetic data escap
 - **Positive**: 100% elimination of silent fallbacks, zero accidental leakage of synthetic data into academic deliverables, complete enforcement of Directive 0, Directive 2, and Directive 13.
 - **Negative**: CLI commands and orchestrator scripts require explicit input payloads or explicit `--mode demo` / `--mode simulation` flags.
 
+---
+
+## ADR-012: Formal State Machine Engine and Elimination of Direct Stage Mutations
+
+### Context
+In earlier iterations of AcademicSuite, stage advancement was primarily tracked via ad-hoc functions like `set_stage(project_path, stage)` that directly mutated the `current_stage` string in `project.json`. This allowed callers to bypass prerequisite checks, skip intermediate stages, advance without physical artifacts on disk, and omit human approval gates. To guarantee research integrity, state progression must be governed by a mathematically rigorous state machine with legal states, legal directed transitions, and mandatory prerequisite, artifact, and authorization validation gates.
+
+### Decision
+Replace ad-hoc stage mutation with a formal, deterministic state machine implemented in `scripts/academic_state_manager.py` (`StrictStateMachine` and `request_transition()`):
+
+1. **Legal States Codification**:
+   - **Project States**:
+     - `PROJECT_CREATED`: Project initialized with study parameters and research questions.
+     - `PROJECT_APPROVED`: All mandatory stages approved with granted release approval.
+     - `PROJECT_REJECTED`: Project formally terminated or rejected by defense committee.
+   - **Stage States**:
+     - `STAGE_LOCKED`: Stage is locked awaiting completion of upstream prerequisite stages.
+     - `STAGE_READY`: All prerequisites approved and required input artifacts exist on disk.
+     - `STAGE_RUNNING`: Stage execution actively underway by designated subagent/script.
+     - `STAGE_VALIDATING`: Deterministic computation finished; adversarial quality checks running.
+     - `STAGE_AWAITING_APPROVAL`: Passing validation report on disk; awaiting human/gate approval.
+     - `STAGE_APPROVED`: Formal human approval granted and passing validation report verified.
+     - `STAGE_REJECTED`: Reviewer rejected stage output; requires revision and retry.
+     - `STAGE_FAILED`: Execution crashed, exception encountered, or validation failed.
+     - `STAGE_BLOCKED`: Fatal external dependency or prerequisite defect blocking execution.
+
+2. **Legal Directed Transitions (Fail-Closed Graph)**:
+   - `STAGE_LOCKED` $\rightarrow$ `{STAGE_READY, STAGE_BLOCKED}`
+   - `STAGE_READY` $\rightarrow$ `{STAGE_RUNNING, STAGE_BLOCKED}`
+   - `STAGE_RUNNING` $\rightarrow$ `{STAGE_VALIDATING, STAGE_FAILED, STAGE_BLOCKED}`
+   - `STAGE_VALIDATING` $\rightarrow$ `{STAGE_AWAITING_APPROVAL, STAGE_FAILED, STAGE_BLOCKED}`
+   - `STAGE_AWAITING_APPROVAL` $\rightarrow$ `{STAGE_APPROVED, STAGE_REJECTED}`
+   - `STAGE_APPROVED` $\rightarrow$ `{STAGE_RUNNING}` (explicit re-execution / iteration)
+   - `STAGE_REJECTED` $\rightarrow$ `{STAGE_READY, STAGE_LOCKED}`
+   - `STAGE_FAILED` $\rightarrow$ `{STAGE_READY, STAGE_BLOCKED}`
+   - `STAGE_BLOCKED` $\rightarrow$ `{STAGE_READY, STAGE_LOCKED}`
+   - `PROJECT_CREATED` $\rightarrow$ `{PROJECT_APPROVED, PROJECT_REJECTED}`
+   - *Everything else*: strictly raises `InvalidStateTransitionError`.
+
+3. **The 6-Step `request_transition()` Pipeline**:
+   - Step 1: **Validate Transition**: Check source $\rightarrow$ target against legal directed graph.
+   - Step 2: **Validate Prerequisites**: Check that all upstream stages are `STAGE_APPROVED`.
+   - Step 3: **Validate Artifacts**: Check that required input artifacts (for `READY`/`RUNNING`) and required output artifacts (for `VALIDATING`/`AWAITING_APPROVAL`/`APPROVED`) physically exist on disk with positive byte size.
+   - Step 4: **Validate Authorization**: For `STAGE_APPROVED` or `PROJECT_APPROVED`, verify an explicit granted approval record exists with `is_approved == True` and verify a passing validation report (`overall_verdict: PASS`).
+   - Step 5: **Commit Transition**: Atomically persist stage status and history in `current_state.json` and sync `project.json`. If a stage becomes `STAGE_APPROVED`, automatically unlock downstream stages whose prerequisites are fully satisfied (`STAGE_LOCKED` $\rightarrow$ `STAGE_READY`).
+   - Step 6: **Emit Event**: Emit durable, schema-validated event to `events.jsonl` via `AcademicEventEngine`.
+
+4. **Complete Elimination of Direct `set_stage` Mutations in Production**:
+   - Direct calling of `set_stage()` in `production` mode strictly raises `DirectStageMutationBlockedError`.
+   - All state progression must occur through `request_transition()` or the CLI subcommand `request-transition`.
+
+### Consequences
+- **Positive**: Complete elimination of skipped stages, zero unverified state mutations, rigorous artifact and prerequisite gating, full compliance with Directive 3, Directive 11, and Directive 19.
+- **Negative**: Requires formal transition requests and prerequisite satisfaction before advancing between stages.
+
 
 

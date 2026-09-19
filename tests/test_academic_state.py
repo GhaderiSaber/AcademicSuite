@@ -74,9 +74,15 @@ class TestAcademicState(unittest.TestCase):
         self.assertEqual(val["overall_verdict"], "PASS")
 
     def test_04_set_stage(self):
-        """Updating stage gate mutates project.json properly."""
+        """Updating stage gate enforces fail-closed DirectStageMutationBlockedError in production and works in test mode."""
         sm.init_state(self.temp_dir, title="Stage Test", methodology="sem", n=150)
-        res = sm.set_stage(self.temp_dir, stage="04_bivariate_correlations", status="in_progress")
+        
+        # In production mode (default), direct mutation is strictly blocked
+        with self.assertRaises(sm.DirectStageMutationBlockedError):
+            sm.set_stage(self.temp_dir, stage="04_bivariate_correlations", status="in_progress", mode="production")
+
+        # In explicit test mode, direct mutation is allowed for testing
+        res = sm.set_stage(self.temp_dir, stage="04_bivariate_correlations", status="in_progress", mode="test")
         self.assertEqual(res["status"], "UPDATED")
         self.assertEqual(res["current_stage"], "04_bivariate_correlations")
 

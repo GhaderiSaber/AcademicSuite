@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/state_transition_request.schema.json",
+  "title": "AcademicStateTransitionRequestContract",
+  "description": "Schema contract for requesting, validating, and committing stage and project state transitions in AcademicSuite.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "project_id",
+    "target_type",
+    "target_id",
+    "target_state",
+    "actor",
+    "rationale",
+    "mode"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Unique identifier of the project."
+    },
+    "target_type": {
+      "type": "string",
+      "enum": ["STAGE", "PROJECT"],
+      "description": "Target entity type undergoing transition."
+    },
+    "target_id": {
+      "type": "string",
+      "description": "Identifier of the target stage (e.g. 06_hypothesis_1) or project ID."
+    },
+    "target_state": {
+      "type": "string",
+      "enum": [
+        "PROJECT_CREATED",
+        "STAGE_LOCKED",
+        "STAGE_READY",
+        "STAGE_RUNNING",
+        "STAGE_VALIDATING",
+        "STAGE_AWAITING_APPROVAL",
+        "STAGE_APPROVED",
+        "STAGE_REJECTED",
+        "STAGE_FAILED",
+        "STAGE_BLOCKED",
+        "PROJECT_APPROVED",
+        "PROJECT_REJECTED"
+      ],
+      "description": "Requested legal destination state."
+    },
+    "actor": {
+      "type": "string",
+      "description": "Agent or human authority initiating the transition request."
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Formal epistemic justification or evidence for the transition."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["production", "demo", "test", "simulation"],
+      "default": "production"
+    },
+    "authorization": {
+      "type": "object",
+      "properties": {
+        "approval_id": {"type": "string"},
+        "approver_identity": {"type": "string"},
+        "digital_signature": {"type": "string"},
+        "validation_report_path": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "execution_info": {
+      "type": "object",
+      "description": "Optional deterministic script exit codes, runtime hashes, and telemetry.",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

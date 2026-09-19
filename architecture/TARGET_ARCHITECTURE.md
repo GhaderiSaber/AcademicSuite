@@ -377,6 +377,64 @@ In production mode, any attempt to run without empirical data or fall back to bu
 - **Script Execution Guard (`script_execution_guard.py`)**: Added `is_synthetic: bool = False` check and internal JSON inspection. Production mode blocks any payload containing sample markers or `"is_synthetic": True`.
 - **Batch Orchestrator (`orchestrator_cli.py`)**: Purges `default_sample` fallbacks and inspects incoming payloads for internal synthetic flags in production mode.
 
+---
+
+## 12. Formal State Machine Engine & Transition Validation Pipeline (Phase 7)
+
+### 12.1 The Two-Tier State Hierarchy
+AcademicSuite replaces ad-hoc stage mutation with a formal, deterministic state machine implemented in `scripts/academic_state_manager.py` (`StrictStateMachine` and `request_transition()`):
+
+```text
+Project States:
+  PROJECT_CREATED  ───────────────────────────────────►  PROJECT_APPROVED
+        │                                                     ▲
+        ▼                                                     │
+  PROJECT_REJECTED                                 (All stages APPROVED)
+
+Stage States (Per Micro-Stage):
+  STAGE_LOCKED  ──►  STAGE_READY  ──►  STAGE_RUNNING  ──►  STAGE_VALIDATING  ──►  STAGE_AWAITING_APPROVAL  ──►  STAGE_APPROVED
+       ▲                  ▲                 │                      │                        │
+       │                  │                 ▼                      ▼                        ▼
+       │                  └───────  STAGE_FAILED  ◄────────  STAGE_FAILED             STAGE_REJECTED
+       │                                    ▲
+       │                                    │
+       └───────────────────────────  STAGE_BLOCKED
+```
+
+### 12.2 Legal Directed Transition Graphs (Fail-Closed Table)
+Any transition not present in the transition graph is mechanically rejected with `InvalidStateTransitionError`:
+- **`STAGE_LOCKED`** $\rightarrow$ `{STAGE_READY, STAGE_BLOCKED}`
+- **`STAGE_READY`** $\rightarrow$ `{STAGE_RUNNING, STAGE_BLOCKED}`
+- **`STAGE_RUNNING`** $\rightarrow$ `{STAGE_VALIDATING, STAGE_FAILED, STAGE_BLOCKED}`
+- **`STAGE_VALIDATING`** $\rightarrow$ `{STAGE_AWAITING_APPROVAL, STAGE_FAILED, STAGE_BLOCKED}`
+- **`STAGE_AWAITING_APPROVAL`** $\rightarrow$ `{STAGE_APPROVED, STAGE_REJECTED}`
+- **`STAGE_APPROVED`** $\rightarrow$ `{STAGE_RUNNING}` (explicit re-execution / iteration)
+- **`STAGE_REJECTED`** $\rightarrow$ `{STAGE_READY, STAGE_LOCKED}`
+- **`STAGE_FAILED`** $\rightarrow$ `{STAGE_READY, STAGE_BLOCKED}`
+- **`STAGE_BLOCKED`** $\rightarrow$ `{STAGE_READY, STAGE_LOCKED}`
+- **`PROJECT_CREATED`** $\rightarrow$ `{PROJECT_APPROVED, PROJECT_REJECTED}`
+
+### 12.3 The 6-Step `request_transition()` Validation Pipeline
+Every stage progression or state change must execute through `request_transition()`:
+```text
+request_transition(project_path, target_id, target_state, actor, rationale, authorization)
+        ↓
+1. Validate Transition (current_state -> target_state is legal in directed graph)
+        ↓
+2. Validate Prerequisites (all upstream dependency stages are STAGE_APPROVED)
+        ↓
+3. Validate Artifacts (required input/output and triad artifacts verified on disk)
+        ↓
+4. Validate Authorization (granted approval in approvals.json + passing validation report)
+        ↓
+5. Commit Transition (atomically update stage status, history, and auto-unlock downstream)
+        ↓
+6. Emit Event (append durable schema-valid event to events.jsonl with hash and details)
+```
+
+### 12.4 Complete Elimination of Direct `set_stage` Mutations in Production
+In production mode (`mode="production"`), direct mutation of stage gates via `set_stage()` is strictly prohibited and raises `DirectStageMutationBlockedError`. All progression must occur via `request_transition()` or the CLI subcommand `request-transition`.
+
 
 
 

@@ -126,12 +126,20 @@ class UnknownMilestoneError(StateManagementError):
     """Raised when an unrecognized milestone is referenced."""
     pass
 
+class UnknownStageError(StateManagementError):
+    """Raised when an unrecognized stage is referenced."""
+    pass
+
 class UnknownDependencyError(StateManagementError):
-    """Raised when a dependency milestone does not exist in the state machine."""
+    """Raised when a dependency milestone or stage does not exist in the state machine."""
     pass
 
 class UnmetDependencyError(StateManagementError):
     """Raised when a prerequisite milestone is not in APPROVED or SUPERSEDED status."""
+    pass
+
+class UnmetPrerequisiteError(StateManagementError):
+    """Raised when an upstream prerequisite stage is not in STAGE_APPROVED status."""
     pass
 
 class InvalidStateTransitionError(StateManagementError):
@@ -151,17 +159,165 @@ class DuplicateApprovalError(StateManagementError):
     pass
 
 class StaleApprovalError(StateManagementError):
-    """Raised when an approval is applied to a modified or stale milestone state."""
+    """Raised when an approval is applied to a modified or stale milestone/stage state."""
     pass
 
 class MilestoneValidationRequiredError(StateManagementError):
     """Raised when an APPROVED transition is attempted without a valid passing validation report."""
     pass
 
+class DirectStageMutationBlockedError(StateManagementError):
+    """Raised when attempting direct stage mutation via set_stage() in production mode."""
+    pass
+
 
 
 # ==============================================================================
-# Milestone Lifecycle & Legal Transitions
+# Formal State Machine Enums & Legal Transition Tables (Phase 7)
+# ==============================================================================
+
+class ProjectState(str, Enum):
+    PROJECT_CREATED = "PROJECT_CREATED"
+    PROJECT_APPROVED = "PROJECT_APPROVED"
+    PROJECT_REJECTED = "PROJECT_REJECTED"
+
+
+class StageState(str, Enum):
+    STAGE_LOCKED = "STAGE_LOCKED"
+    STAGE_READY = "STAGE_READY"
+    STAGE_RUNNING = "STAGE_RUNNING"
+    STAGE_VALIDATING = "STAGE_VALIDATING"
+    STAGE_AWAITING_APPROVAL = "STAGE_AWAITING_APPROVAL"
+    STAGE_APPROVED = "STAGE_APPROVED"
+    STAGE_REJECTED = "STAGE_REJECTED"
+    STAGE_FAILED = "STAGE_FAILED"
+    STAGE_BLOCKED = "STAGE_BLOCKED"
+
+
+# Legal Directed Transition Graphs (Fail-Closed)
+STAGE_LEGAL_TRANSITIONS: Dict[StageState, Set[StageState]] = {
+    StageState.STAGE_LOCKED: {StageState.STAGE_READY, StageState.STAGE_BLOCKED},
+    StageState.STAGE_READY: {StageState.STAGE_RUNNING, StageState.STAGE_BLOCKED},
+    StageState.STAGE_RUNNING: {StageState.STAGE_VALIDATING, StageState.STAGE_FAILED, StageState.STAGE_BLOCKED},
+    StageState.STAGE_VALIDATING: {StageState.STAGE_AWAITING_APPROVAL, StageState.STAGE_FAILED, StageState.STAGE_BLOCKED},
+    StageState.STAGE_AWAITING_APPROVAL: {StageState.STAGE_APPROVED, StageState.STAGE_REJECTED},
+    StageState.STAGE_APPROVED: {StageState.STAGE_RUNNING},  # Explicit iteration / re-run
+    StageState.STAGE_REJECTED: {StageState.STAGE_READY, StageState.STAGE_LOCKED},
+    StageState.STAGE_FAILED: {StageState.STAGE_READY, StageState.STAGE_BLOCKED},
+    StageState.STAGE_BLOCKED: {StageState.STAGE_READY, StageState.STAGE_LOCKED},
+}
+
+PROJECT_LEGAL_TRANSITIONS: Dict[ProjectState, Set[ProjectState]] = {
+    ProjectState.PROJECT_CREATED: {ProjectState.PROJECT_APPROVED, ProjectState.PROJECT_REJECTED},
+    ProjectState.PROJECT_APPROVED: set(),
+    ProjectState.PROJECT_REJECTED: set(),
+}
+
+DEFAULT_STAGE_GRAPH = [
+    {
+        "stage_id": "00_data_curation",
+        "title": "Raw Data Ingestion & Scoring",
+        "initial_status": StageState.STAGE_READY.value,
+        "dependencies": [],
+        "required_input_artifacts": ["project.json", "requirements.json"],
+        "required_output_artifacts": ["data/data_quality.json"],
+        "active_agent": "data-curator"
+    },
+    {
+        "stage_id": "01_demographics",
+        "title": "Demographic Profiling & Frequencies",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["00_data_curation"],
+        "required_input_artifacts": ["data/data_quality.json"],
+        "required_output_artifacts": ["analysis/descriptive.json"],
+        "active_agent": "data-agent"
+    },
+    {
+        "stage_id": "02_reliability",
+        "title": "Scale Internal Consistency Reliability",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["00_data_curation"],
+        "required_input_artifacts": ["data/data_quality.json"],
+        "required_output_artifacts": ["analysis/reliability.json"],
+        "active_agent": "statistics-agent"
+    },
+    {
+        "stage_id": "03_parametric_assumptions",
+        "title": "Parametric Assumptions Verification",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["00_data_curation"],
+        "required_input_artifacts": ["data/data_quality.json"],
+        "required_output_artifacts": ["analysis/descriptive.json"],
+        "active_agent": "statistics-agent"
+    },
+    {
+        "stage_id": "04_bivariate_correlations",
+        "title": "Bivariate Correlation Matrix",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["01_demographics"],
+        "required_input_artifacts": ["analysis/descriptive.json"],
+        "required_output_artifacts": ["analysis/descriptive.json"],
+        "active_agent": "statistics-agent"
+    },
+    {
+        "stage_id": "05_macro_model",
+        "title": "Macro SEM / Primary Statistical Model",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["03_parametric_assumptions"],
+        "required_input_artifacts": ["analysis/descriptive.json"],
+        "required_output_artifacts": ["analysis/sem.json"],
+        "active_agent": "statistics-agent"
+    },
+    {
+        "stage_id": "06_hypothesis_testing",
+        "title": "Individual Hypotheses Testing & Triad Generation",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["05_macro_model"],
+        "required_input_artifacts": ["analysis/sem.json"],
+        "required_output_artifacts": [],
+        "active_agent": "statistics-agent"
+    },
+    {
+        "stage_id": "07_mediation_analysis",
+        "title": "Indirect Mediation Paths (Bootstrap 5,000 BCa)",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["05_macro_model"],
+        "required_input_artifacts": ["analysis/sem.json"],
+        "required_output_artifacts": [],
+        "active_agent": "statistics-agent"
+    },
+    {
+        "stage_id": "08_chapter_summary",
+        "title": "Master Hypotheses Decision Matrix & Summary",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["06_hypothesis_testing"],
+        "required_input_artifacts": [],
+        "required_output_artifacts": [],
+        "active_agent": "academic-writer"
+    },
+    {
+        "stage_id": "09_validation_audit",
+        "title": "Deterministic Quality & Integrity Audit",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["08_chapter_summary"],
+        "required_input_artifacts": [],
+        "required_output_artifacts": ["validation_report.json"],
+        "active_agent": "validation-agent"
+    },
+    {
+        "stage_id": "10_chapter_assembly",
+        "title": "Chapter OpenXML Compilation",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["09_validation_audit"],
+        "required_input_artifacts": ["validation_report.json"],
+        "required_output_artifacts": [],
+        "active_agent": "academic-orchestrator"
+    }
+]
+
+
+# ==============================================================================
+# Legacy Milestone Lifecycle & Legal Transitions (Maintained for Backward Compatibility)
 # ==============================================================================
 
 class MilestoneState(str, Enum):
@@ -319,6 +475,8 @@ class StrictStateMachine:
         os.makedirs(self.state_dir, exist_ok=True)
         self.project_id = project_id or os.path.basename(os.path.dirname(self.state_dir)) or "academic_project"
         self.milestones: Dict[str, Dict[str, Any]] = {}
+        self.stages: Dict[str, Dict[str, Any]] = {}
+        self.project_state: str = ProjectState.PROJECT_CREATED.value
         self.approvals: List[Dict[str, Any]] = []
         self.artifacts: List[Dict[str, Any]] = []
 
@@ -348,6 +506,8 @@ class StrictStateMachine:
                     cs = json.load(f)
                 self.project_id = cs.get("project_id", self.project_id)
                 self.milestones = cs.get("milestones", {})
+                self.stages = cs.get("stages", {})
+                self.project_state = cs.get("project_state", ProjectState.PROJECT_CREATED.value)
             except Exception:
                 pass
 
@@ -380,8 +540,10 @@ class StrictStateMachine:
             "project_id": self.project_id,
             "state_machine_version": "1.0.0",
             "system_status": "OPERATIONAL",
+            "project_state": self.project_state,
             "updated_at": now_iso,
-            "milestones": self.milestones
+            "milestones": self.milestones,
+            "stages": self.stages
         }
         with open(self.current_state_path, "w", encoding="utf-8") as f:
             json.dump(cs_data, f, indent=2, ensure_ascii=False)
@@ -694,19 +856,440 @@ class StrictStateMachine:
             "transition": transition_record
         }
 
+    def _sync_project_current_stage(self, stage_id: str, status: Optional[str] = None) -> None:
+        """Synchronizes current stage pointer to project.json."""
+        if os.path.exists(self.project_path):
+            try:
+                with open(self.project_path, "r", encoding="utf-8") as f:
+                    pdata = json.load(f)
+                pdata["current_stage"] = stage_id
+                if status:
+                    pdata["stage_status"] = status
+                pdata["updated_at"] = datetime.now(timezone.utc).isoformat()
+                with open(self.project_path, "w", encoding="utf-8") as f:
+                    json.dump(pdata, f, indent=2, ensure_ascii=False)
+            except Exception:
+                pass
+
+    def _sync_project_status(self, project_status: str) -> None:
+        """Synchronizes project status to project.json."""
+        if os.path.exists(self.project_path):
+            try:
+                with open(self.project_path, "r", encoding="utf-8") as f:
+                    pdata = json.load(f)
+                pdata["status"] = project_status
+                pdata["updated_at"] = datetime.now(timezone.utc).isoformat()
+                with open(self.project_path, "w", encoding="utf-8") as f:
+                    json.dump(pdata, f, indent=2, ensure_ascii=False)
+            except Exception:
+                pass
+
+    def register_stage(
+        self,
+        stage_id: str,
+        title: str,
+        initial_status: Union[str, StageState] = StageState.STAGE_LOCKED,
+        dependencies: Optional[List[str]] = None,
+        required_input_artifacts: Optional[List[str]] = None,
+        required_output_artifacts: Optional[List[str]] = None,
+        active_agent: str = "academic-orchestrator",
+        requires_validation: bool = True
+    ) -> Dict[str, Any]:
+        """Registers a stage in the state machine with explicit dependency validation."""
+        st_val = initial_status.value if isinstance(initial_status, StageState) else str(initial_status).upper()
+        now_iso = datetime.now(timezone.utc).isoformat()
+        entry = {
+            "stage_id": stage_id,
+            "title": title,
+            "status": st_val,
+            "active_agent": active_agent,
+            "dependencies": dependencies or [],
+            "required_input_artifacts": required_input_artifacts or [],
+            "required_output_artifacts": required_output_artifacts or [],
+            "requires_validation": requires_validation,
+            "created_at": now_iso,
+            "updated_at": now_iso,
+            "history": [
+                {
+                    "transition_id": f"TRN-{uuid.uuid4().hex[:6].upper()}",
+                    "target_type": "STAGE",
+                    "target_id": stage_id,
+                    "from_state": None,
+                    "to_state": st_val,
+                    "timestamp": now_iso,
+                    "actor": active_agent,
+                    "rationale": f"Stage '{stage_id}' registered in state machine"
+                }
+            ]
+        }
+        self.stages[stage_id] = entry
+        self.save_all()
+        return entry
+
+    def request_transition(
+        self,
+        target_id: str,
+        target_state: Union[str, StageState, ProjectState],
+        target_type: str = "STAGE",
+        actor: str = "academic-orchestrator",
+        rationale: str = "",
+        authorization: Optional[Dict[str, Any]] = None,
+        execution_info: Optional[Dict[str, Any]] = None,
+        check_artifacts: bool = True,
+        mode: str = "production"
+    ) -> Dict[str, Any]:
+        """
+        Executes the formal 6-step state machine transition pipeline:
+        1. Validate transition
+        2. Validate prerequisites
+        3. Validate artifacts
+        4. Validate authorization
+        5. Commit transition
+        6. Emit event
+        """
+        now_iso = datetime.now(timezone.utc).isoformat()
+        target_type_upper = target_type.upper()
+
+        if target_type_upper == "STAGE":
+            # 1. Validate Target State & Discovery
+            if isinstance(target_state, str):
+                try:
+                    target_enum = StageState(target_state.upper())
+                except ValueError:
+                    raise UnknownStateError(f"Unknown stage state: '{target_state}'. Valid stage states: {[s.value for s in StageState]}.")
+            elif isinstance(target_state, StageState):
+                target_enum = target_state
+            else:
+                raise UnknownStateError(f"Target state must be a string or StageState, got {type(target_state)}.")
+
+            if target_id not in self.stages:
+                matched = next((s for s in DEFAULT_STAGE_GRAPH if s["stage_id"] == target_id), None)
+                if matched:
+                    self.register_stage(
+                        stage_id=matched["stage_id"],
+                        title=matched["title"],
+                        initial_status=matched["initial_status"],
+                        dependencies=matched["dependencies"],
+                        required_input_artifacts=matched["required_input_artifacts"],
+                        required_output_artifacts=matched["required_output_artifacts"],
+                        active_agent=matched["active_agent"]
+                    )
+                else:
+                    raise UnknownStageError(f"Stage '{target_id}' is not registered in the state machine.")
+
+            stage_data = self.stages[target_id]
+            current_enum = StageState(stage_data["status"])
+
+            # Check legal transitions
+            allowed_targets = STAGE_LEGAL_TRANSITIONS.get(current_enum, set())
+            if target_enum not in allowed_targets:
+                raise InvalidStateTransitionError(
+                    f"Illegal transition for stage '{target_id}': cannot transition from {current_enum.value} to {target_enum.value}. "
+                    f"Allowed transitions from {current_enum.value} are: {[t.value for t in allowed_targets]}."
+                )
+
+            # 2. Validate Prerequisites
+            if target_enum in [StageState.STAGE_READY, StageState.STAGE_RUNNING]:
+                for dep_id in stage_data.get("dependencies", []):
+                    if dep_id not in self.stages:
+                        matched_dep = next((s for s in DEFAULT_STAGE_GRAPH if s["stage_id"] == dep_id), None)
+                        if matched_dep:
+                            self.register_stage(
+                                stage_id=matched_dep["stage_id"],
+                                title=matched_dep["title"],
+                                initial_status=matched_dep["initial_status"],
+                                dependencies=matched_dep["dependencies"],
+                                required_input_artifacts=matched_dep["required_input_artifacts"],
+                                required_output_artifacts=matched_dep["required_output_artifacts"],
+                                active_agent=matched_dep["active_agent"]
+                            )
+                        else:
+                            raise UnknownDependencyError(f"Stage '{target_id}' references unknown prerequisite stage '{dep_id}'.")
+                    dep_status = self.stages[dep_id]["status"]
+                    if dep_status != StageState.STAGE_APPROVED.value:
+                        raise UnmetPrerequisiteError(
+                            f"Stage '{target_id}' cannot transition to {target_enum.value} because prerequisite stage '{dep_id}' is in state '{dep_status}' "
+                            f"(must be STAGE_APPROVED)."
+                        )
+
+            # 3. Validate Artifacts
+            if check_artifacts:
+                if target_enum in [StageState.STAGE_READY, StageState.STAGE_RUNNING]:
+                    for art_rel in stage_data.get("required_input_artifacts", []):
+                        art_full = art_rel if os.path.isabs(art_rel) else os.path.join(self.state_dir, art_rel)
+                        if not os.path.exists(art_full):
+                            alt_full = os.path.join(self.project_root, art_rel)
+                            if os.path.exists(alt_full):
+                                art_full = alt_full
+                        if not os.path.exists(art_full) or os.path.getsize(art_full) == 0:
+                            raise MissingRequiredArtifactError(
+                                f"Stage '{target_id}' cannot transition to {target_enum.value} because required input artifact '{art_rel}' is missing or empty on disk."
+                            )
+
+                if target_enum in [StageState.STAGE_VALIDATING, StageState.STAGE_AWAITING_APPROVAL, StageState.STAGE_APPROVED]:
+                    for art_rel in stage_data.get("required_output_artifacts", []):
+                        art_full = art_rel if os.path.isabs(art_rel) else os.path.join(self.state_dir, art_rel)
+                        if not os.path.exists(art_full):
+                            alt_full = os.path.join(self.project_root, art_rel)
+                            if os.path.exists(alt_full):
+                                art_full = alt_full
+                        if not os.path.exists(art_full) or os.path.getsize(art_full) == 0:
+                            raise MissingRequiredArtifactError(
+                                f"Stage '{target_id}' cannot transition to {target_enum.value} because required output artifact '{art_rel}' is missing or empty on disk."
+                            )
+
+            # 4. Validate Authorization & Passing Validation Report
+            if target_enum == StageState.STAGE_APPROVED:
+                # Approval grant check
+                matching_approvals = [
+                    a for a in self.approvals
+                    if (a.get("stage_id") == target_id or a.get("milestone_id") == target_id or STAGE_TO_MILESTONE_MAP.get(target_id) == a.get("milestone_id"))
+                    and a.get("status") == "GRANTED" and a.get("is_approved") is True
+                ]
+                if not matching_approvals and authorization:
+                    if authorization.get("status") == "GRANTED" and authorization.get("is_approved") is True:
+                        matching_approvals = [authorization]
+
+                if not matching_approvals:
+                    raise MissingApprovalError(
+                        f"Stage '{target_id}' cannot become STAGE_APPROVED without explicit, granted human approval. "
+                        f"No granted approval record found in approvals.json."
+                    )
+
+                # Passing validation report check
+                requires_val = stage_data.get("requires_validation", True)
+                candidate_reports = []
+                for cand in [
+                    os.path.join(self.state_dir, f"{target_id}_validation.json"),
+                    os.path.join(self.state_dir, "validation_report.json"),
+                    os.path.join(self.state_dir, "validation", f"{target_id}.json"),
+                    os.path.join(self.state_dir, "validation", "validation_report.json"),
+                    os.path.join(self.project_root, f"{target_id}_validation.json"),
+                    os.path.join(self.project_root, "validation_report.json")
+                ]:
+                    if os.path.isfile(cand):
+                        candidate_reports.append(cand)
+
+                for art in self.artifacts:
+                    if isinstance(art, dict) and (art.get("stage_id") == target_id or art.get("milestone") == target_id) and art.get("artifact_type") in ["validation_report", "validation"]:
+                        art_p = art.get("path", "")
+                        art_f = art_p if os.path.isabs(art_p) else os.path.join(self.state_dir, art_p)
+                        if os.path.isfile(art_f):
+                            candidate_reports.append(art_f)
+
+                if not candidate_reports and requires_val:
+                    raise MilestoneValidationRequiredError(
+                        f"Stage '{target_id}' cannot become STAGE_APPROVED without a passing validation report. "
+                        f"No validation report found on disk."
+                    )
+
+                for cr in set(candidate_reports):
+                    try:
+                        with open(cr, "r", encoding="utf-8") as f:
+                            cdata = json.load(f)
+                        verdict = str(cdata.get("overall_verdict", cdata.get("verdict", ""))).strip().upper()
+                        if verdict != "PASS":
+                            raise MilestoneValidationRequiredError(
+                                f"Stage '{target_id}' cannot become STAGE_APPROVED: validation report '{os.path.basename(cr)}' "
+                                f"has non-passing verdict '{verdict}' (expected 'PASS')."
+                            )
+                    except json.JSONDecodeError:
+                        raise MilestoneValidationRequiredError(
+                            f"Stage '{target_id}' cannot become STAGE_APPROVED: validation report '{os.path.basename(cr)}' is unreadable."
+                        )
+
+            # 5. Commit Transition
+            transition_id = f"TRN-{uuid.uuid4().hex[:6].upper()}"
+            stage_data["status"] = target_enum.value
+            stage_data["updated_at"] = now_iso
+            transition_record = {
+                "transition_id": transition_id,
+                "target_type": "STAGE",
+                "target_id": target_id,
+                "from_state": current_enum.value,
+                "to_state": target_enum.value,
+                "timestamp": now_iso,
+                "actor": actor,
+                "rationale": rationale,
+                "execution_info": execution_info or {}
+            }
+            stage_data.setdefault("history", []).append(transition_record)
+
+            if target_enum == StageState.STAGE_RUNNING:
+                self._sync_project_current_stage(target_id, status=target_enum.value)
+            elif target_enum == StageState.STAGE_APPROVED:
+                # Auto-unlock downstream stages if all their dependencies are approved
+                for s_id, s_data in self.stages.items():
+                    if s_data.get("status") == StageState.STAGE_LOCKED.value:
+                        deps = s_data.get("dependencies", [])
+                        if deps and all(self.stages.get(d, {}).get("status") == StageState.STAGE_APPROVED.value for d in deps):
+                            s_data["status"] = StageState.STAGE_READY.value
+                            s_data["updated_at"] = now_iso
+                            s_data.setdefault("history", []).append({
+                                "transition_id": f"TRN-{uuid.uuid4().hex[:6].upper()}",
+                                "target_type": "STAGE",
+                                "target_id": s_id,
+                                "from_state": StageState.STAGE_LOCKED.value,
+                                "to_state": StageState.STAGE_READY.value,
+                                "timestamp": now_iso,
+                                "actor": "state-machine-auto-unlock",
+                                "rationale": f"All prerequisites approved by completion of '{target_id}'"
+                            })
+
+            self.save_all()
+
+            # 6. Emit Event
+            STAGE_EVENT_MAP = {
+                StageState.STAGE_READY: "MILESTONE_STARTED",
+                StageState.STAGE_RUNNING: "EXECUTION_STARTED",
+                StageState.STAGE_VALIDATING: "VALIDATION_STARTED",
+                StageState.STAGE_AWAITING_APPROVAL: "MILESTONE_APPROVAL_REQUESTED",
+                StageState.STAGE_APPROVED: "MILESTONE_APPROVED",
+                StageState.STAGE_REJECTED: "MILESTONE_REJECTED",
+                StageState.STAGE_FAILED: "MILESTONE_FAILED",
+                StageState.STAGE_BLOCKED: "MILESTONE_FAILED",
+            }
+
+            if current_enum == StageState.STAGE_RUNNING and target_enum == StageState.STAGE_VALIDATING:
+                self.record_event(
+                    "EXECUTION_COMPLETED",
+                    stage_id=target_id,
+                    emitter_agent=actor,
+                    summary=f"Stage '{target_id}' execution completed before validation.",
+                    payload={"details": transition_record}
+                )
+
+            evt_type = STAGE_EVENT_MAP.get(target_enum, "MILESTONE_STARTED")
+            self.record_event(
+                evt_type,
+                stage_id=target_id,
+                emitter_agent=actor,
+                summary=f"Stage '{target_id}' transitioned from {current_enum.value} to {target_enum.value}: {rationale or 'Transition recorded'}",
+                payload={"details": transition_record}
+            )
+
+            return {
+                "status": "TRANSITIONED",
+                "target_type": "STAGE",
+                "target_id": target_id,
+                "from_state": current_enum.value,
+                "to_state": target_enum.value,
+                "transition": transition_record
+            }
+
+        elif target_type_upper == "PROJECT":
+            # 1. Validate Target State
+            if isinstance(target_state, str):
+                try:
+                    target_enum = ProjectState(target_state.upper())
+                except ValueError:
+                    raise UnknownStateError(f"Unknown project state: '{target_state}'. Valid project states: {[s.value for s in ProjectState]}.")
+            elif isinstance(target_state, ProjectState):
+                target_enum = target_state
+            else:
+                raise UnknownStateError(f"Target state must be a string or ProjectState, got {type(target_state)}.")
+
+            current_proj = ProjectState(self.project_state)
+            allowed_targets = PROJECT_LEGAL_TRANSITIONS.get(current_proj, set())
+            if target_enum not in allowed_targets:
+                raise InvalidStateTransitionError(
+                    f"Illegal transition for project '{self.project_id}': cannot transition from {current_proj.value} to {target_enum.value}. "
+                    f"Allowed transitions are: {[t.value for t in allowed_targets]}."
+                )
+
+            # 2. Validate Prerequisites & Authorization for PROJECT_APPROVED
+            if target_enum == ProjectState.PROJECT_APPROVED:
+                for sid, sdata in self.stages.items():
+                    if sdata["status"] != StageState.STAGE_APPROVED.value:
+                        raise UnmetPrerequisiteError(
+                            f"Project cannot become PROJECT_APPROVED because stage '{sid}' is in state '{sdata['status']}' "
+                            f"(all registered stages must be STAGE_APPROVED)."
+                        )
+
+                matching_approvals = [
+                    a for a in self.approvals
+                    if a.get("category") in ["final_release", "project_approval", "defense_committee"]
+                    and a.get("status") == "GRANTED" and a.get("is_approved") is True
+                ]
+                if not matching_approvals and authorization:
+                    if authorization.get("status") == "GRANTED" and authorization.get("is_approved") is True:
+                        matching_approvals = [authorization]
+
+                if not matching_approvals:
+                    raise MissingApprovalError(
+                        f"Project '{self.project_id}' cannot become PROJECT_APPROVED without explicit, granted release approval from the defense committee / admin desk."
+                    )
+
+            # 5. Commit Transition
+            transition_id = f"TRN-{uuid.uuid4().hex[:6].upper()}"
+            from_val = self.project_state
+            self.project_state = target_enum.value
+            transition_record = {
+                "transition_id": transition_id,
+                "target_type": "PROJECT",
+                "target_id": self.project_id,
+                "from_state": from_val,
+                "to_state": target_enum.value,
+                "timestamp": now_iso,
+                "actor": actor,
+                "rationale": rationale,
+                "execution_info": execution_info or {}
+            }
+            self._sync_project_status(target_enum.value)
+            self.save_all()
+
+            # 6. Emit Event
+            PROJECT_EVENT_MAP = {
+                ProjectState.PROJECT_CREATED: "PROJECT_CREATED",
+                ProjectState.PROJECT_APPROVED: "MILESTONE_APPROVED",
+                ProjectState.PROJECT_REJECTED: "MILESTONE_REJECTED",
+            }
+            evt_type = PROJECT_EVENT_MAP.get(target_enum, "MILESTONE_STARTED")
+            self.record_event(
+                evt_type,
+                emitter_agent=actor,
+                summary=f"Project '{self.project_id}' transitioned from {from_val} to {target_enum.value}: {rationale or 'Transition recorded'}",
+                payload={"details": transition_record}
+            )
+
+            return {
+                "status": "TRANSITIONED",
+                "target_type": "PROJECT",
+                "target_id": self.project_id,
+                "from_state": from_val,
+                "to_state": target_enum.value,
+                "transition": transition_record
+            }
+
+        else:
+            raise StateManagementError(f"Target type must be 'STAGE' or 'PROJECT', got '{target_type}'.")
+
     def request_approval(self, milestone_id: str, category: str, requester_agent: str,
                          rationale: str, target_artifacts: Optional[List[str]] = None) -> Dict[str, Any]:
-        """Creates an approval request. Approval NEVER defaults to True (status=PENDING, is_approved=False)."""
-        if milestone_id not in self.milestones:
-            raise UnknownMilestoneError(f"Cannot request approval for unknown milestone '{milestone_id}'.")
+        """Creates an approval request for a milestone, stage, or project. Approval NEVER defaults to True."""
+        if milestone_id not in self.milestones and milestone_id not in self.stages and milestone_id not in [self.project_id, "PROJECT_LEVEL", "project"]:
+            raise UnknownMilestoneError(f"Cannot request approval for unknown milestone/stage '{milestone_id}'.")
 
         now_iso = datetime.now(timezone.utc).isoformat()
         approval_id = f"APPR-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+
+        snapshot_status = ""
+        stage_id = None
+        if milestone_id in self.milestones:
+            snapshot_status = self.milestones[milestone_id]["status"]
+            stage_id = self.milestones[milestone_id].get("current_stage")
+        elif milestone_id in self.stages:
+            snapshot_status = self.stages[milestone_id]["status"]
+            stage_id = milestone_id
+        else:
+            snapshot_status = self.project_state
+            stage_id = "PROJECT_LEVEL"
 
         approval_record = {
             "contract_version": "1.0.0",
             "approval_id": approval_id,
             "milestone_id": milestone_id,
+            "stage_id": stage_id,
             "category": category,
             "requested_by": {
                 "agent": requester_agent,
@@ -716,15 +1299,15 @@ class StrictStateMachine:
             "requested_at": now_iso,
             "status": "PENDING",
             "is_approved": False,  # CRITICAL INVARIANT: NEVER TRUE BY DEFAULT
-            "milestone_state_snapshot": self.milestones[milestone_id]["status"]
+            "milestone_state_snapshot": snapshot_status
         }
         self.approvals.append(approval_record)
         self.record_event(
             "MILESTONE_APPROVAL_REQUESTED",
-            milestone_id=milestone_id,
-            stage_id=self.milestones[milestone_id].get("current_stage"),
+            milestone_id=milestone_id if milestone_id in self.milestones else None,
+            stage_id=stage_id,
             emitter_agent=requester_agent,
-            summary=f"Approval requested for milestone '{milestone_id}' by {requester_agent}: {rationale}",
+            summary=f"Approval requested for target '{milestone_id}' by {requester_agent}: {rationale}",
             payload={"details": {"approval_id": approval_id, "category": category, "target_artifacts": target_artifacts or []}}
         )
         self.save_all()
@@ -746,6 +1329,12 @@ class StrictStateMachine:
             if current_status in [MilestoneState.FAILED.value, MilestoneState.REJECTED.value, MilestoneState.SUPERSEDED.value]:
                 raise StaleApprovalError(
                     f"Approval '{approval_id}' is stale because milestone '{mid}' is in state '{current_status}'."
+                )
+        elif mid in self.stages:
+            current_status = self.stages[mid]["status"]
+            if current_status in [StageState.STAGE_FAILED.value, StageState.STAGE_REJECTED.value, StageState.STAGE_BLOCKED.value]:
+                raise StaleApprovalError(
+                    f"Approval '{approval_id}' is stale because stage '{mid}' is in state '{current_status}'."
                 )
 
         if not approver_identity or len(approver_identity.strip()) < 3:
@@ -1247,6 +1836,20 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
                 current_stage=m["stage_id"]
             )
 
+    if not sm.stages:
+        for s in DEFAULT_STAGE_GRAPH:
+            sm.register_stage(
+                stage_id=s["stage_id"],
+                title=s["title"],
+                initial_status=s["initial_status"],
+                dependencies=s["dependencies"],
+                required_input_artifacts=s["required_input_artifacts"],
+                required_output_artifacts=s["required_output_artifacts"],
+                active_agent=s["active_agent"]
+            )
+        sm.project_state = ProjectState.PROJECT_CREATED.value
+        sm.save_all()
+
     return {"status": "SUCCESS", "state_dir": state_dir, "initialized_files": list(SCHEMA_MAP.keys())}
 
 
@@ -1400,13 +2003,54 @@ def record_decision(project_path: str, category: str, decision: str, rationale: 
     return {"status": "RECORDED", "decision_id": dec_id, "entry": entry}
 
 
-def set_stage(project_path: str, stage: str, status: Optional[str] = None) -> Dict[str, Any]:
+def request_transition(
+    project_path: str,
+    target_id: str,
+    target_state: Union[str, StageState, ProjectState],
+    target_type: str = "STAGE",
+    actor: str = "academic-orchestrator",
+    rationale: str = "",
+    authorization: Optional[Dict[str, Any]] = None,
+    execution_info: Optional[Dict[str, Any]] = None,
+    check_artifacts: bool = True,
+    mode: str = "production"
+) -> Dict[str, Any]:
     """
-    Updates the current stage and optional status in project.json,
-    enforcing state machine validation. Fails closed on unknown stage or invalid status.
+    Top-level entry point to request a validated stage or project transition via StrictStateMachine.
+    Enforces the formal 6-step validation pipeline:
+    Validate Transition -> Validate Prerequisites -> Validate Artifacts -> Validate Authorization -> Commit Transition -> Emit Event.
     """
+    state_dir = get_state_dir(project_path)
+    sm = StrictStateMachine(state_dir=state_dir)
+    return sm.request_transition(
+        target_id=target_id,
+        target_state=target_state,
+        target_type=target_type,
+        actor=actor,
+        rationale=rationale,
+        authorization=authorization,
+        execution_info=execution_info,
+        check_artifacts=check_artifacts,
+        mode=mode
+    )
+
+
+def set_stage(project_path: str, stage: str, status: Optional[str] = None, mode: str = "production") -> Dict[str, Any]:
+    """
+    Updates the current stage and optional status in project.json.
+    FAIL-CLOSED POLICY (Directive 19 & Phase 7):
+    In production mode, direct mutation of stage via set_stage() is strictly BLOCKED.
+    All stage progression must occur through request_transition().
+    """
+    if mode == "production":
+        raise DirectStageMutationBlockedError(
+            f"Direct stage mutation via set_stage('{stage}') is blocked in production mode. "
+            f"All stage progression must occur via request_transition() with formal prerequisite, "
+            f"artifact, and authorization validation."
+        )
+
     if not stage or not isinstance(stage, str):
-        raise UnknownMilestoneError("Stage name must be a non-empty string.")
+        raise UnknownStageError("Stage name must be a non-empty string.")
 
     state_dir = get_state_dir(project_path)
     proj_file = os.path.join(state_dir, "project.json")
@@ -1419,11 +2063,11 @@ def set_stage(project_path: str, stage: str, status: Optional[str] = None) -> Di
     # Validate status if provided
     if status:
         status_upper = status.upper()
-        valid_statuses = [s.value for s in MilestoneState] + [
+        valid_statuses = [s.value for s in StageState] + [s.value for s in MilestoneState] + [
             "IN_PROGRESS", "AWAITING_VALIDATION", "STAGE_COMPLETED", "FINAL_APPROVED", "BLOCKED"
         ]
         if status_upper not in valid_statuses and status not in ["in_progress", "awaiting_validation", "stage_completed", "final_approved", "blocked"]:
-            raise UnknownStateError(f"Unknown status '{status}'. Valid states: {[s.value for s in MilestoneState]}.")
+            raise UnknownStateError(f"Unknown status '{status}'. Valid states: {[s.value for s in StageState]}.")
 
     data["current_stage"] = stage
     if status:
@@ -1438,6 +2082,9 @@ def set_stage(project_path: str, stage: str, status: Optional[str] = None) -> Di
     if os.path.exists(cs_path):
         try:
             sm = StrictStateMachine(state_dir=state_dir, project_id=data.get("project_id"))
+            if stage in sm.stages:
+                sm.stages[stage]["status"] = status or sm.stages[stage]["status"]
+                sm.save_all()
             mid = STAGE_TO_MILESTONE_MAP.get(stage)
             if mid and mid in sm.milestones:
                 sm.milestones[mid]["current_stage"] = stage
@@ -1445,7 +2092,7 @@ def set_stage(project_path: str, stage: str, status: Optional[str] = None) -> Di
         except Exception:
             pass
 
-    return {"status": "UPDATED", "current_stage": stage, "status_value": data.get("status")}
+    return {"status": "UPDATED", "current_stage": stage, "status_value": data.get("status"), "mode": mode}
 
 
 def log_incident(project_path: str, stage: str, error: str) -> Dict[str, Any]:
@@ -1541,10 +2188,22 @@ def main():
     p_dec.add_argument("--agent", required=True, help="Agent role making the decision")
 
     # set-stage
-    p_stage = subparsers.add_parser("set-stage", help="Advance the project stage gate")
+    p_stage = subparsers.add_parser("set-stage", help="Advance the project stage gate (Blocked in production)")
     p_stage.add_argument("project_path", help="Path to project directory")
     p_stage.add_argument("--stage", required=True, help="New stage ID (e.g. 04_bivariate_correlations)")
     p_stage.add_argument("--status", choices=["in_progress", "awaiting_validation", "stage_completed", "final_approved", "blocked"])
+    p_stage.add_argument("--mode", default="production", choices=["production", "demo", "test", "simulation"], help="Execution mode (production blocks direct mutation)")
+
+    # request-transition (Phase 7 Official State Machine Interface)
+    p_req_trans = subparsers.add_parser("request-transition", help="Request formal state transition via strict state machine")
+    p_req_trans.add_argument("project_path", help="Path to project directory")
+    p_req_trans.add_argument("--target-id", required=True, help="Target Stage ID (e.g. 01_demographics) or Project ID")
+    p_req_trans.add_argument("--to-state", required=True, help="Target StageState or ProjectState")
+    p_req_trans.add_argument("--target-type", default="STAGE", choices=["STAGE", "PROJECT"], help="Target entity type")
+    p_req_trans.add_argument("--actor", default="academic-orchestrator", help="Acting agent")
+    p_req_trans.add_argument("--rationale", default="", help="Transition rationale")
+    p_req_trans.add_argument("--approval-id", default=None, help="Approval ID if applicable")
+    p_req_trans.add_argument("--mode", default="production", choices=["production", "demo", "test", "simulation"], help="Execution mode")
 
     # transition
     p_trans = subparsers.add_parser("transition", help="Transition milestone state in state machine")
@@ -1598,7 +2257,25 @@ def main():
     elif args.command == "record-decision":
         res = record_decision(args.project_path, args.category, args.decision, args.rationale, args.agent)
     elif args.command == "set-stage":
-        res = set_stage(args.project_path, args.stage, args.status)
+        try:
+            res = set_stage(args.project_path, args.stage, args.status, mode=args.mode)
+        except DirectStageMutationBlockedError as err:
+            res = {"status": "BLOCKED", "error": str(err), "mode": args.mode}
+    elif args.command == "request-transition":
+        state_dir = get_state_dir(args.project_path)
+        sm = StrictStateMachine(state_dir=state_dir)
+        auth = None
+        if args.approval_id:
+            auth = next((a for a in sm.approvals if a.get("approval_id") == args.approval_id), None)
+        res = sm.request_transition(
+            target_id=args.target_id,
+            target_state=args.to_state,
+            target_type=args.target_type,
+            actor=args.actor,
+            rationale=args.rationale,
+            authorization=auth,
+            mode=args.mode
+        )
     elif args.command == "transition":
         state_dir = get_state_dir(args.project_path)
         sm = StrictStateMachine(state_dir=state_dir)
