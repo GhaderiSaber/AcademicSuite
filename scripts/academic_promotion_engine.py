@@ -639,12 +639,14 @@ class AcademicPromotionEngine:
             failures.append(f"INVALID_EVALUATION_SCHEMA: Evaluation report does not conform to canonical EvaluationResult schema: {schema_res.get('errors')}")
             gate_results["canonical_schema"] = {
                 "passed": False,
+                "status": "FAIL",
                 "errors": schema_res.get("errors", [])
             }
             affected_cases.append("canonical_evaluation_result_schema")
         else:
             gate_results["canonical_schema"] = {
                 "passed": True,
+                "status": "PASS",
                 "evaluation_id": evaluation_report.get("evaluation_id"),
                 "task_id": evaluation_report.get("task_id"),
                 "verdict": evaluation_report.get("verdict")
@@ -671,12 +673,14 @@ class AcademicPromotionEngine:
             failures.append(f"INSUFFICIENT_EVALUATION_EVIDENCE: Only {total_cases} case(s) evaluated. Minimum 3 distinct cases required.")
             gate_results["evidence_quantity"] = {
                 "passed": False,
+                "status": "FAIL",
                 "total_cases_evaluated": total_cases,
                 "minimum_required": 3
             }
         else:
             gate_results["evidence_quantity"] = {
                 "passed": True,
+                "status": "PASS",
                 "total_cases_evaluated": total_cases,
                 "minimum_required": 3
             }
@@ -686,6 +690,7 @@ class AcademicPromotionEngine:
             failures.append("SELF_EVALUATION_PROHIBITED: Candidate self-asserted improvement without independent evaluation.")
             gate_results["independent_evaluation"] = {
                 "passed": False,
+                "status": "FAIL",
                 "details": "Candidate attempted to evaluate itself (Directive 0 / Phase 23 violation)."
             }
             affected_cases.append("anti_self_evaluation")
@@ -723,6 +728,7 @@ class AcademicPromotionEngine:
             )
             gate_results["independent_evaluation"] = {
                 "passed": bool(indep_passed),
+                "status": "PASS" if indep_passed else "FAIL",
                 "details": f"Independent blinded A/B verdict: {unblinded.get('independent_verdict')}, three_suites_passed: {three_categories_passed}"
             }
             if not indep_passed and f"Independent evaluation failed: {unblinded.get('independent_verdict')}" not in failures:
@@ -731,6 +737,7 @@ class AcademicPromotionEngine:
         else:
             gate_results["independent_evaluation"] = {
                 "passed": True,
+                "status": "PASS",
                 "details": "Standard or legacy evaluation format."
             }
 
@@ -744,84 +751,186 @@ class AcademicPromotionEngine:
         )
         gate_results["target_evaluation"] = {
             "passed": bool(target_improved),
+            "status": "PASS" if target_improved else "FAIL",
             "details": f"Target improved: {target_improved}"
         }
         if not target_improved:
             failures.append("Target capability failed to improve or resolve defect.")
 
         # Gate 2: Existing Regression Suite
-        zero_reg = (
-            policy.get("zero_regressions_verified", False) or
-            metrics.get("zero_regressions_verified", False) or
-            (evaluation_report.get("regression_results", {}).get("verdict") == "PASS" and evaluation_report.get("regression_results", {}).get("count", 0) == 0)
-        )
+        # Under Phase 31: zero_regressions_verified must be calculated from actual regression results.
+        # Missing evidence must mean UNKNOWN, not PASS.
+        has_reg_evidence = False
+        computed_zero_reg = False
+        reg_details_list = []
         prot_reg_count = metrics.get("protected_regressions", 0)
         what_regressed = counterfactual.get("what_regressed", [])
+
         if "regression_results" in evaluation_report:
             reg_dict = evaluation_report["regression_results"]
-            if reg_dict.get("verdict") != "PASS" or reg_dict.get("count", 0) > 0:
-                zero_reg = False
-                prot_reg_count = max(prot_reg_count, reg_dict.get("count", 1))
+            reg_verdict = reg_dict.get("verdict")
+            evidence_status = reg_dict.get("evidence_status")
+            if reg_verdict not in ["UNKNOWN", None] and evidence_status != "MISSING":
+                has_reg_evidence = True
+                reg_count = reg_dict.get("count", 0)
+                reg_details_list = reg_dict.get("details", [])
+                prot_reg_count = max(prot_reg_count, reg_count)
+                computed_zero_reg = (reg_verdict == "PASS" and reg_count == 0 and len(reg_details_list) == 0)
 
-        reg_passed = bool(zero_reg and prot_reg_count == 0 and len(what_regressed) == 0)
-        gate_results["existing_regression_suite"] = {
-            "passed": reg_passed,
-            "protected_regressions": prot_reg_count,
-            "what_regressed": what_regressed
-        }
-        if not reg_passed:
-            msg = f"Candidate caused {len(what_regressed) or prot_reg_count} regression(s) on protected capabilities."
-            failures.append(msg)
-            for item in what_regressed:
-                # Extract case id if formatted like [EVAL-CASE-...]
-                if item.startswith("[") and "]" in item:
-                    cid = item.split("]")[0].strip("[")
-                    affected_cases.append(cid)
+        if not has_reg_evidence and "independent_evaluation" in evaluation_report:
+            unblinded = evaluation_report["independent_evaluation"].get("unblinded_comparison", {})
+            reg_res = unblinded.get("regression_result", {})
+            if reg_res and reg_res.get("verdict") not in ["UNKNOWN", None]:
+                has_reg_evidence = True
+                reg_v = reg_res.get("verdict")
+                new_regs = unblinded.get("new_regressions", [])
+                computed_zero_reg = (reg_v == "PASS" and len(new_regs) == 0)
+                prot_reg_count = max(prot_reg_count, len(new_regs))
+
+        if not has_reg_evidence:
+            # Check legacy regressions dict, suite_pass_rates, or counterfactual_analysis
+            suite_rates = metrics.get("suite_pass_rates", {})
+            if "regressions" in evaluation_report or "regression" in suite_rates or "counterfactual_analysis" in evaluation_report:
+                has_reg_evidence = True
+                reg_count = evaluation_report.get("regressions", {}).get("count", prot_reg_count)
+                reg_rate = suite_rates.get("regression", 1.0 if reg_count == 0 else 0.0)
+                computed_zero_reg = (reg_rate >= 1.0 and reg_count == 0 and len(what_regressed) == 0)
+                prot_reg_count = max(prot_reg_count, reg_count)
+
+        if not has_reg_evidence:
+            reg_passed = False
+            failures.append("MISSING_EVALUATION_EVIDENCE: Regression suite was not evaluated; status is UNKNOWN (zero_regressions_verified must be calculated from actual regression results).")
+            affected_cases.append("regression_suite")
+            gate_results["existing_regression_suite"] = {
+                "passed": False,
+                "status": "UNKNOWN",
+                "zero_regressions_verified": "UNKNOWN",
+                "protected_regressions": prot_reg_count,
+                "what_regressed": what_regressed,
+                "details": "Missing regression suite evidence; status is UNKNOWN."
+            }
+        else:
+            reg_passed = bool(computed_zero_reg and prot_reg_count == 0 and len(what_regressed) == 0)
+            reg_status = "PASS" if reg_passed else "FAIL"
+            gate_results["existing_regression_suite"] = {
+                "passed": reg_passed,
+                "status": reg_status,
+                "zero_regressions_verified": computed_zero_reg,
+                "protected_regressions": prot_reg_count,
+                "what_regressed": what_regressed,
+                "details": f"Zero regressions verified: {computed_zero_reg}, protected regressions: {prot_reg_count}"
+            }
+            if not reg_passed:
+                msg = f"Candidate caused {len(what_regressed) or prot_reg_count or 1} regression(s) on protected capabilities."
+                failures.append(msg)
+                for item in what_regressed:
+                    if item.startswith("[") and "]" in item:
+                        cid = item.split("]")[0].strip("[")
+                        affected_cases.append(cid)
+                affected_cases.append("regression_suite")
 
         # Gate 3: Relevant Adversarial Checks
-        adv_clear = (
-            policy.get("adversarial_clearance", True) and
-            metrics.get("adversarial_clearance", True)
-        )
-        if "independent_evaluation" in evaluation_report:
-            adv_res = evaluation_report["independent_evaluation"].get("unblinded_comparison", {}).get("adversarial_result", {})
-            if adv_res and adv_res.get("verdict") != "PASS":
-                adv_clear = False
+        # Under Phase 31: Remove dangerous default adversarial_clearance = True.
+        # Missing evidence must mean UNKNOWN, not PASS.
+        has_adv_evidence = False
+        adv_clear = False
+
         if "adversarial_results" in evaluation_report:
             adv_dict = evaluation_report["adversarial_results"]
-            if adv_dict.get("verdict") != "PASS" or adv_dict.get("creates_new_mistake", False):
-                adv_clear = False
+            adv_verdict = adv_dict.get("verdict")
+            adv_status = adv_dict.get("evidence_status")
+            if adv_verdict not in ["UNKNOWN", None] and adv_status != "MISSING":
+                has_adv_evidence = True
+                creates_mistake = adv_dict.get("creates_new_mistake", False)
+                adv_clear = (adv_verdict == "PASS" and not creates_mistake)
 
-        gate_results["adversarial_checks"] = {
-            "passed": bool(adv_clear),
-            "details": f"Adversarial clearance: {adv_clear}"
-        }
-        if not adv_clear and "Failed adversarial red-team verification checks." not in failures:
-            failures.append("Failed adversarial red-team verification checks.")
-            affected_cases.append("adversarial_suite")
+        if not has_adv_evidence and "independent_evaluation" in evaluation_report:
+            adv_res = evaluation_report["independent_evaluation"].get("unblinded_comparison", {}).get("adversarial_result", {})
+            if adv_res and adv_res.get("verdict") not in ["UNKNOWN", None]:
+                has_adv_evidence = True
+                adv_clear = (adv_res.get("verdict") == "PASS" and not adv_res.get("creates_new_mistake", False))
+
+        if not has_adv_evidence:
+            suite_rates = metrics.get("suite_pass_rates", {})
+            if "adversarial" in suite_rates:
+                has_adv_evidence = True
+                adv_clear = (suite_rates["adversarial"] >= 1.0 and metrics.get("adversarial_clearance", True) and policy.get("adversarial_clearance", True))
+            elif "adversarial_clearance" in metrics and "adversarial_clearance" in policy:
+                has_adv_evidence = True
+                adv_clear = bool(metrics["adversarial_clearance"] and policy["adversarial_clearance"])
+
+        if not has_adv_evidence:
+            gate_results["adversarial_checks"] = {
+                "passed": False,
+                "status": "UNKNOWN",
+                "adversarial_clearance": "UNKNOWN",
+                "details": "Adversarial red-team checks were not evaluated; status is UNKNOWN."
+            }
+            if "MISSING_EVALUATION_EVIDENCE: Adversarial red-team checks were not evaluated; status is UNKNOWN." not in failures:
+                failures.append("MISSING_EVALUATION_EVIDENCE: Adversarial red-team checks were not evaluated; status is UNKNOWN.")
+                affected_cases.append("adversarial_suite")
+        else:
+            gate_results["adversarial_checks"] = {
+                "passed": bool(adv_clear),
+                "status": "PASS" if adv_clear else "FAIL",
+                "adversarial_clearance": bool(adv_clear),
+                "details": f"Adversarial clearance: {adv_clear}"
+            }
+            if not adv_clear and "Failed adversarial red-team verification checks." not in failures:
+                failures.append("Failed adversarial red-team verification checks.")
+                affected_cases.append("adversarial_suite")
 
         # Gate 4: Held-Out Evaluation
-        heldout_passed = evaluation_report.get("heldout_integrity_verified", True)
-        suite_pass_rates = metrics.get("suite_pass_rates", {})
-        if "heldout" in suite_pass_rates and suite_pass_rates["heldout"] < 1.0:
-            heldout_passed = False
-        if "independent_evaluation" in evaluation_report:
-            held_res = evaluation_report["independent_evaluation"].get("unblinded_comparison", {}).get("heldout_result", {})
-            if held_res and held_res.get("verdict") != "PASS":
-                heldout_passed = False
+        # Under Phase 31: Remove dangerous default heldout_integrity_verified = True.
+        # Missing evidence must mean UNKNOWN, not PASS.
+        has_held_evidence = False
+        heldout_passed = False
+
         if "heldout_results" in evaluation_report:
             held_dict = evaluation_report["heldout_results"]
-            if held_dict.get("verdict") != "PASS" or held_dict.get("pass_rate", 1.0) < 1.0 or held_dict.get("overfitting_detected", False):
-                heldout_passed = False
+            held_verdict = held_dict.get("verdict")
+            held_status = held_dict.get("evidence_status")
+            if held_verdict not in ["UNKNOWN", None] and held_status != "MISSING":
+                has_held_evidence = True
+                pass_rate = held_dict.get("pass_rate", 1.0)
+                overfitting = held_dict.get("overfitting_detected", False)
+                heldout_passed = (held_verdict == "PASS" and pass_rate >= 1.0 and not overfitting)
 
-        gate_results["held_out_evaluation"] = {
-            "passed": bool(heldout_passed),
-            "details": f"Heldout pass rate: {suite_pass_rates.get('heldout', 1.0)}"
-        }
-        if not heldout_passed and "Failed generalization on held-out evaluation scenarios." not in failures:
-            failures.append("Failed generalization on held-out evaluation scenarios.")
-            affected_cases.append("heldout_suite")
+        if not has_held_evidence and "independent_evaluation" in evaluation_report:
+            held_res = evaluation_report["independent_evaluation"].get("unblinded_comparison", {}).get("heldout_result", {})
+            if held_res and held_res.get("verdict") not in ["UNKNOWN", None]:
+                has_held_evidence = True
+                heldout_passed = (held_res.get("verdict") == "PASS")
 
+        if not has_held_evidence:
+            suite_rates = metrics.get("suite_pass_rates", {})
+            if "heldout" in suite_rates:
+                has_held_evidence = True
+                heldout_passed = (suite_rates["heldout"] >= 1.0 and evaluation_report.get("heldout_integrity_verified", False) is True)
+            elif "heldout_integrity_verified" in evaluation_report:
+                has_held_evidence = True
+                heldout_passed = bool(evaluation_report["heldout_integrity_verified"])
+
+        if not has_held_evidence:
+            gate_results["held_out_evaluation"] = {
+                "passed": False,
+                "status": "UNKNOWN",
+                "heldout_integrity_verified": "UNKNOWN",
+                "details": "Held-out evaluation was not performed; status is UNKNOWN."
+            }
+            if "MISSING_EVALUATION_EVIDENCE: Held-out evaluation was not performed; status is UNKNOWN." not in failures:
+                failures.append("MISSING_EVALUATION_EVIDENCE: Held-out evaluation was not performed; status is UNKNOWN.")
+                affected_cases.append("heldout_suite")
+        else:
+            gate_results["held_out_evaluation"] = {
+                "passed": bool(heldout_passed),
+                "status": "PASS" if heldout_passed else "FAIL",
+                "heldout_integrity_verified": bool(heldout_passed),
+                "details": f"Heldout pass rate: {metrics.get('suite_pass_rates', {}).get('heldout', 1.0)}"
+            }
+            if not heldout_passed and "Failed generalization on held-out evaluation scenarios." not in failures:
+                failures.append("Failed generalization on held-out evaluation scenarios.")
+                affected_cases.append("heldout_suite")
 
         # Gate 5: Integrity Checks
         integrity_passed = True
@@ -834,6 +943,7 @@ class AcademicPromotionEngine:
 
         gate_results["integrity_checks"] = {
             "passed": bool(integrity_passed),
+            "status": "PASS" if integrity_passed else "FAIL",
             "details": "Raw data immutability and provenance verified."
         }
 
@@ -845,7 +955,8 @@ class AcademicPromotionEngine:
             gate_results["existing_regression_suite"]["passed"] and
             gate_results["adversarial_checks"]["passed"] and
             gate_results["held_out_evaluation"]["passed"] and
-            gate_results["integrity_checks"]["passed"]
+            gate_results["integrity_checks"]["passed"] and
+            not any(g.get("status") in ["UNKNOWN", "FAIL"] for g in gate_results.values())
         )
 
         return {
@@ -1701,7 +1812,7 @@ class AcademicPromotionEngine:
             },
             "regression_result": {
                 "total_cases_evaluated": total_cases,
-                "regressions_count": 0,
+                "regressions_count": evaluation_report.get("regression_results", {}).get("count", evaluation_report.get("summary_metrics", {}).get("protected_regressions", 0)),
                 "zero_regressions_verified": True
             },
             "held_out_result": {

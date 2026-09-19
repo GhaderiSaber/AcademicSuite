@@ -62,7 +62,11 @@
       "properties": {
         "verdict": {
           "type": "string",
-          "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL"]
+          "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL", "UNKNOWN"]
+        },
+        "evidence_status": {
+          "type": "string",
+          "enum": ["VERIFIED", "MISSING", "INCOMPLETE"]
         },
         "count": {
           "type": "integer",
@@ -87,7 +91,11 @@
       "properties": {
         "verdict": {
           "type": "string",
-          "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL"]
+          "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL", "UNKNOWN"]
+        },
+        "evidence_status": {
+          "type": "string",
+          "enum": ["VERIFIED", "MISSING", "INCOMPLETE"]
         },
         "creates_new_mistake": {
           "type": "boolean"
@@ -108,7 +116,11 @@
       "properties": {
         "verdict": {
           "type": "string",
-          "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL"]
+          "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL", "UNKNOWN"]
+        },
+        "evidence_status": {
+          "type": "string",
+          "enum": ["VERIFIED", "MISSING", "INCOMPLETE"]
         },
         "pass_rate": {
           "type": "number",
@@ -162,7 +174,7 @@
     },
     "verdict": {
       "type": "string",
-      "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL"],
+      "enum": ["PASS", "FAIL", "INCONCLUSIVE", "CONDITIONAL", "UNKNOWN"],
       "description": "Authoritative overall verdict of the evaluation."
     },
     "contract_version": {

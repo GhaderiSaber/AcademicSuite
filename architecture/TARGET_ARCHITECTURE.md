@@ -2105,7 +2105,81 @@ flowchart TD
      ```
    - In `all_passed`, `canonical_schema` must be True. Candidates with non-schema-valid evaluation reports are immediately rejected fail-closed and archived under `learning/archive/`.
 
+---
 
+## 36. Evidence-Derived Promotion Architecture (Phase 31)
 
+### 36.1 Architectural Principle: Zero Dangerous Defaults
+To uphold Directive 0 (Binary Honesty Protocol, Anti-Deception) and Directive 19 (Artifact Manifest Invariants), AcademicSuite prohibits optimistic fallback defaults during candidate promotion. Missing evidence never defaults to `PASS` or `True`.
 
+```mermaid
+flowchart TD
+    subgraph EvaluationPayload["Incoming Evaluation Report"]
+        Rep["Evaluation Payload / EvaluationResult"]
+    end
 
+    subgraph EvidenceVerification["Evidence Verification Layer"]
+        RegTest{"Actual regression\nresults present?"}
+        AdvTest{"Actual adversarial\nresults present?"}
+        HeldTest{"Actual held-out\nresults present?"}
+    end
+
+    subgraph Determinations["Evidence Determinations"]
+        RegCalc["zero_regressions_verified =\n(actual_count == 0 AND verdict == 'PASS')"]
+        RegUnknown["Status: UNKNOWN\n(Missing regression evidence)"]
+        AdvPass["adversarial_clearance = True\n(Status: PASS)"]
+        AdvUnknown["Status: UNKNOWN\n(Missing adversarial evidence)"]
+        HeldPass["heldout_passed = True\n(Status: PASS)"]
+        HeldUnknown["Status: UNKNOWN\n(Missing held-out evidence)"]
+    end
+
+    subgraph PromotionGates["Promotion Engine Gates (Fail-Closed)"]
+        Gate2["Gate 2: Existing Regression Suite"]
+        Gate3["Gate 3: Relevant Adversarial Checks"]
+        Gate4["Gate 4: Held-Out Evaluation"]
+        GateAll{"Are all gates\naffirmatively PASS?\n(Zero UNKNOWN or FAIL)"}
+        Promote["AUTHORIZE VALIDATION / PROMOTION"]
+        Reject["REJECT & ARCHIVE FAIL-CLOSED\n(MISSING_EVALUATION_EVIDENCE)"]
+    end
+
+    Rep --> RegTest
+    Rep --> AdvTest
+    Rep --> HeldTest
+
+    RegTest -->|Yes| RegCalc --> Gate2
+    RegTest -->|No| RegUnknown --> Gate2
+
+    AdvTest -->|Yes| AdvPass --> Gate3
+    AdvTest -->|No| AdvUnknown --> Gate3
+
+    HeldTest -->|Yes| HeldPass --> Gate4
+    HeldTest -->|No| HeldUnknown --> Gate4
+
+    Gate2 --> GateAll
+    Gate3 --> GateAll
+    Gate4 --> GateAll
+
+    GateAll -->|All Gates PASS| Promote
+    GateAll -->|Any UNKNOWN or FAIL| Reject
+```
+
+### 36.2 Elimination of Dangerous Defaults
+1. **Adversarial Clearance**:
+   - Previously: `adv_clear = policy.get("adversarial_clearance", True) and metrics.get("adversarial_clearance", True)`
+   - Phase 31: If adversarial red-team tests were not executed or `evidence_status == "MISSING"`, `status` is set to `UNKNOWN`, `passed: False`, and promotion is rejected.
+2. **Held-Out Integrity**:
+   - Previously: `heldout_passed = evaluation_report.get("heldout_integrity_verified", True)`
+   - Phase 31: If held-out generalization testing was not executed or `evidence_status == "MISSING"`, `status` is set to `UNKNOWN`, `passed: False`, and promotion is rejected.
+3. **Zero Regressions Verification**:
+   - Previously: `zero_reg = policy.get("zero_regressions_verified", False) or ...`
+   - Phase 31: `zero_regressions_verified` is computed deterministically from actual test runs, failure counts, and defect details. Asserting a static boolean without supporting data yields `status: UNKNOWN` and fails Gate 2.
+
+### 36.3 Fail-Closed Promotion Invariant
+- `AcademicPromotionEngine.verify_evaluation_gates()` evaluates all 8 gates (`canonical_schema`, `evidence_quantity`, `independent_evaluation`, `target_evaluation`, `existing_regression_suite`, `adversarial_checks`, `held_out_evaluation`, `integrity_checks`).
+- In `all_passed`, every single gate must be affirmatively `passed: True` with zero `UNKNOWN` or `FAIL` statuses:
+  ```python
+  all_passed = (
+      all(g["passed"] for g in gate_results.values()) and
+      not any(g.get("status") in ["UNKNOWN", "FAIL"] for g in gate_results.values())
+  )
+  ```

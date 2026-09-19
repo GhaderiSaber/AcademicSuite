@@ -111,12 +111,12 @@ class CanonicalEvaluationResultBuilder:
         self._dimensions: Dict[str, Any] = {d: {"verdict": "PASS"} for d in CANONICAL_DIMENSIONS}
         self._baseline_metrics: Dict[str, Any] = {}
         self._candidate_metrics: Dict[str, Any] = {}
-        self._regression_results: Dict[str, Any] = {"verdict": "PASS", "count": 0, "details": []}
-        self._adversarial_results: Dict[str, Any] = {"verdict": "PASS", "creates_new_mistake": False, "details": []}
-        self._heldout_results: Dict[str, Any] = {"verdict": "PASS", "pass_rate": 1.0, "generalizes_to_different_case": True}
+        self._regression_results: Dict[str, Any] = {"verdict": "UNKNOWN", "count": 0, "details": [], "evidence_status": "MISSING"}
+        self._adversarial_results: Dict[str, Any] = {"verdict": "UNKNOWN", "creates_new_mistake": False, "details": [], "evidence_status": "MISSING"}
+        self._heldout_results: Dict[str, Any] = {"verdict": "UNKNOWN", "pass_rate": 0.0, "generalizes_to_different_case": False, "evidence_status": "MISSING"}
         self._contradictions: List[Any] = []
         self._evidence: List[Dict[str, Any]] = []
-        self._verdict: str = "PASS"
+        self._verdict: str = "UNKNOWN"
         self._extra: Dict[str, Any] = {
             "contract_version": "1.0.0",
             "evaluated_at": datetime.now(timezone.utc).isoformat()
@@ -329,51 +329,52 @@ def canonicalize_evaluation_result(
             "details": report_data.get("arms", {}).get("candidate", {}).get("metrics", {})
         }
 
-    # 4. Three Suite Results
+    # 4. Three Suite Results (Phase 31: Evidence-Derived, Missing = UNKNOWN)
+    suite_rates = summary.get("suite_pass_rates", {})
     # Regression suite
     reg_results = report_data.get("regression_results", {})
     if not reg_results and "regression_result" in unblinded:
         reg_results = dict(unblinded["regression_result"])
     if not reg_results:
-        reg_count = report_data.get("regressions", {}).get("count", summary.get("protected_regressions", 0))
-        reg_verdict = "PASS" if reg_count == 0 else "FAIL"
-        reg_results = {
-            "verdict": reg_verdict,
-            "count": reg_count,
-            "details": report_data.get("regressions", {}).get("details", [])
-        }
-    if "verdict" not in reg_results:
-        reg_results["verdict"] = "PASS"
+        counterfactual = report_data.get("counterfactual_analysis", {})
+        if "regressions" in report_data or "regression" in suite_rates or "counterfactual_analysis" in report_data:
+            what_regressed = counterfactual.get("what_regressed", [])
+            reg_count = report_data.get("regressions", {}).get("count", summary.get("protected_regressions", len(what_regressed)))
+            reg_rate = suite_rates.get("regression", 1.0 if (reg_count == 0 and len(what_regressed) == 0) else 0.0)
+            reg_v = "PASS" if (reg_count == 0 and reg_rate >= 1.0 and len(what_regressed) == 0) else "FAIL"
+            reg_results = {"verdict": reg_v, "count": reg_count, "details": what_regressed or report_data.get("regressions", {}).get("details", []), "evidence_status": "VERIFIED"}
+        else:
+            reg_results = {"verdict": "UNKNOWN", "count": 0, "details": [], "evidence_status": "MISSING"}
 
     # Adversarial suite
     adv_results = report_data.get("adversarial_results", {})
     if not adv_results and "adversarial_result" in unblinded:
         adv_results = dict(unblinded["adversarial_result"])
     if not adv_results:
-        adv_clear = summary.get("adversarial_clearance", report_data.get("minimum_improvement_policy", {}).get("adversarial_clearance", True))
-        adv_results = {
-            "verdict": "PASS" if adv_clear else "FAIL",
-            "creates_new_mistake": not adv_clear,
-            "details": []
-        }
-    if "verdict" not in adv_results:
-        adv_results["verdict"] = "PASS"
+        if "adversarial" in suite_rates or "adversarial_clearance" in summary or "adversarial_clearance" in report_data.get("minimum_improvement_policy", {}):
+            adv_c = summary.get("adversarial_clearance", report_data.get("minimum_improvement_policy", {}).get("adversarial_clearance"))
+            if adv_c is None:
+                adv_results = {"verdict": "UNKNOWN", "creates_new_mistake": False, "details": [], "evidence_status": "MISSING"}
+            else:
+                adv_results = {"verdict": "PASS" if adv_c else "FAIL", "creates_new_mistake": not adv_c, "details": [], "evidence_status": "VERIFIED"}
+        else:
+            adv_results = {"verdict": "UNKNOWN", "creates_new_mistake": False, "details": [], "evidence_status": "MISSING"}
 
     # Held-out suite
     held_results = report_data.get("heldout_results", {})
     if not held_results and "heldout_result" in unblinded:
         held_results = dict(unblinded["heldout_result"])
     if not held_results:
-        suite_rates = summary.get("suite_pass_rates", {})
-        held_rate = suite_rates.get("heldout", 1.0)
-        held_passed = report_data.get("heldout_integrity_verified", True) and (held_rate >= 1.0)
-        held_results = {
-            "verdict": "PASS" if held_passed else "FAIL",
-            "pass_rate": held_rate,
-            "generalizes_to_different_case": bool(held_passed)
-        }
-    if "verdict" not in held_results:
-        held_results["verdict"] = "PASS"
+        if "heldout" in suite_rates or "heldout_integrity_verified" in report_data:
+            held_r = suite_rates.get("heldout", 1.0)
+            held_v = report_data.get("heldout_integrity_verified")
+            if held_v is None and "heldout" not in suite_rates:
+                held_results = {"verdict": "UNKNOWN", "pass_rate": 0.0, "generalizes_to_different_case": False, "evidence_status": "MISSING"}
+            else:
+                held_p = bool(held_v if held_v is not None else True) and (held_r >= 1.0)
+                held_results = {"verdict": "PASS" if held_p else "FAIL", "pass_rate": held_r, "generalizes_to_different_case": bool(held_p), "evidence_status": "VERIFIED"}
+        else:
+            held_results = {"verdict": "UNKNOWN", "pass_rate": 0.0, "generalizes_to_different_case": False, "evidence_status": "MISSING"}
 
     # 5. Contradictions
     contradictions = (
@@ -402,9 +403,15 @@ def canonicalize_evaluation_result(
         report_data.get("verdict") or
         report_data.get("overall_verdict") or
         unblinded.get("independent_verdict") or
-        report_data.get("qc_verdict") or
-        ("PASS" if (reg_results.get("verdict") == "PASS" and adv_results.get("verdict") == "PASS" and held_results.get("verdict") == "PASS") else "FAIL")
+        report_data.get("qc_verdict")
     )
+    if not verdict:
+        if any(r.get("verdict") == "UNKNOWN" for r in [reg_results, adv_results, held_results]):
+            verdict = "UNKNOWN"
+        elif all(r.get("verdict") == "PASS" for r in [reg_results, adv_results, held_results]):
+            verdict = "PASS"
+        else:
+            verdict = "FAIL"
 
     # 8. Extra Fields Preservation
     extra = {}

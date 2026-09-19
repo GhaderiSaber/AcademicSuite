@@ -1567,8 +1567,40 @@ This divergence created ambiguity at the promotion boundary and prevented univer
 - **Positive**: 100% unified contract for all evaluators; structural enforcement of the 3-suite model (regression, adversarial, heldout) and 8 quality dimensions; absolute prohibition of candidate promotion without verifiable schema-valid evidence; zero regression across existing test suites.
 - **Negative**: Requires normalization of legacy evaluation outputs into the 13 canonical fields.
 
+---
 
+## ADR-036: Evidence-Derived Promotion and Elimination of Dangerous Defaults (Phase 31)
 
+### Status
+Accepted (September 2026 / 1405 SH)
 
+### Context
+In earlier phases of AcademicSuite's self-improvement architecture, promotion gates contained dangerous fallback defaults:
+1. `adversarial_clearance` defaulted to `True` when omitted from evaluation reports.
+2. `heldout_integrity_verified` defaulted to `True` when omitted from evaluation reports.
+3. `zero_regressions_verified` could be asserted as a static boolean flag in policy or summary metrics without verifying actual physical regression runs, counts, or failure details.
 
+These optimistic defaults allowed candidates to pass promotion gates even when critical adversarial testing or held-out generalization evaluations were completely unperformed. This directly violated Directive 0 (Binary Honesty Protocol, Strict Truth in Verification) and Directive 19 (Artifact Manifest & Fail-Closed Gate Invariants).
 
+### Decision
+1. **Zero Dangerous Defaults**:
+   - Eliminate all optimistic `True` fallbacks across promotion gates and canonicalization logic.
+   - Missing or unperformed test suites MUST yield status `UNKNOWN`, never `PASS`.
+
+2. **Strict Missing Evidence Handling (`status: UNKNOWN`)**:
+   - `contracts/evolution/evaluation_result.schema.json` is updated to include `"UNKNOWN"` in the allowed enum for top-level `verdict` and for `regression_results.verdict`, `adversarial_results.verdict`, and `heldout_results.verdict`.
+   - Added `evidence_status` (`["VERIFIED", "MISSING", "INCOMPLETE"]`) to suite schemas.
+   - Any evaluation suite lacking affirmative execution data is marked `verdict: "UNKNOWN"` and `evidence_status: "MISSING"`.
+
+3. **Deterministic Calculation of `zero_regressions_verified`**:
+   - In `AcademicPromotionEngine.verify_evaluation_gates()`, `zero_regressions_verified` is computed strictly from physical regression results (`regression_results`, `unblinded_comparison.regression_result`, `suite_pass_rates["regression"]`, or `counterfactual_analysis.what_regressed`).
+   - If no regression execution evidence exists, `status: "UNKNOWN"`, `passed: False`, and the candidate is rejected fail-closed (`MISSING_EVALUATION_EVIDENCE`).
+   - Asserting `"zero_regressions_verified": True` as a static boolean flag without supporting regression data is rejected.
+
+4. **Fail-Closed Promotion Invariant**:
+   - Promotion requires all 8 evaluation gates to be affirmatively `passed: True` with zero `UNKNOWN` or `FAIL` statuses.
+   - A candidate cannot be validated or promoted if any suite status is `UNKNOWN`.
+
+### Consequences
+- **Positive**: Complete elimination of optimistic verification holes; candidates must prove safety and generalization with physical evidence; zero regressions can only be claimed when actually verified; full compliance with Directive 0 and Directive 18.
+- **Negative**: Evaluators and test suites must explicitly provide complete evaluation results across all mandatory suites (regression, adversarial, heldout) to achieve candidate promotion.

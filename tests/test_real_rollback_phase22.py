@@ -78,12 +78,18 @@ class TestRealRollbackPhase22(unittest.TestCase):
             "contract_version": "1.0.0",
             "report_id": f"EVR-{cand_id}",
             "candidate_id": cand_id,
+            "heldout_integrity_verified": True,
             "summary_metrics": {
                 "total_cases_evaluated": 5,
                 "target_capability_improved": True,
                 "zero_regressions_verified": True,
                 "adversarial_clearance": True,
-                "protected_regressions": 0
+                "protected_regressions": 0,
+                "suite_pass_rates": {
+                    "regression": 1.0,
+                    "adversarial": 1.0,
+                    "heldout": 1.0
+                }
             },
             "minimum_improvement_policy": {
                 "target_capability_improved": True,
