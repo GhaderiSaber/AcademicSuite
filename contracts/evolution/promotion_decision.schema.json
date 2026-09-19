@@ -124,6 +124,28 @@
       "type": "string",
       "enum": ["PROMOTED", "REJECTED", "STAGED_FOR_FURTHER_TESTING"]
     },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "LEVEL_0_FORMATTING",
+        "LEVEL_1_RETRIEVAL_CONTEXT",
+        "LEVEL_2_WORKFLOW_GUIDANCE",
+        "LEVEL_3_STATISTICAL_DECISION_LOGIC",
+        "LEVEL_4_METHODOLOGY_BEHAVIOR",
+        "LEVEL_5_STATISTICAL_COMPUTATION"
+      ]
+    },
+    "governance_gate": {
+      "type": "string",
+      "enum": [
+        "AUTOMATIC",
+        "AUTOMATIC_AFTER_TESTS",
+        "EVALUATION_VERIFIED",
+        "INDEPENDENT_HELDOUT_ADVERSARIAL_VERIFIED",
+        "HUMAN_APPROVED",
+        "PROHIBITED_COMPUTATION"
+      ]
+    },
     "rationale": {
       "type": "string",
       "minLength": 10,

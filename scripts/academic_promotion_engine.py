@@ -83,6 +83,16 @@ class HighRiskModificationProhibitedError(PromotionEngineError):
     pass
 
 
+class Level5StatisticalComputationModificationBlockedError(HighRiskModificationProhibitedError):
+    """Raised when an improvement candidate attempts to alter deterministic statistical calculation scripts or logic via natural language instructions (Phase 40)."""
+    pass
+
+
+class HumanApprovalRequiredForMethodologyChangeError(PromotionEngineError):
+    """Raised when a Level 4 methodology behavior candidate lacks explicit human approval credentials."""
+    pass
+
+
 class EvaluationGateFailureError(PromotionEngineError):
     """Raised when an improvement candidate fails one or more mandatory evaluation gates."""
     pass

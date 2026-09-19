@@ -100,6 +100,11 @@
         "OBSERVED",
         "LESSON",
         "CANDIDATE",
+        "SANDBOX",
+        "EVALUATION",
+        "PROMOTION_CANDIDATE",
+        "HUMAN_QUALITY_GATE",
+        "PRODUCTION",
         "EVALUATED",
         "VALIDATED",
         "ACTIVE",
@@ -107,9 +112,22 @@
         "TESTING",
         "EVALUATION_PASSED",
         "EVALUATION_FAILED",
+        "AWAITING_HUMAN_APPROVAL",
         "PROMOTED",
         "REJECTED"
       ]
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "LEVEL_0_FORMATTING",
+        "LEVEL_1_RETRIEVAL_CONTEXT",
+        "LEVEL_2_WORKFLOW_GUIDANCE",
+        "LEVEL_3_STATISTICAL_DECISION_LOGIC",
+        "LEVEL_4_METHODOLOGY_BEHAVIOR",
+        "LEVEL_5_STATISTICAL_COMPUTATION"
+      ],
+      "description": "Six-tier change-risk classification per Phase 40."
     },
     "staged_at": {
       "type": "string",
