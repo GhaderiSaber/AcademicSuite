@@ -52,6 +52,17 @@
           "action_type": {
             "type": "string",
             "enum": [
+              "TOOL_CALLED",
+              "TOOL_RETURNED",
+              "FILE_READ",
+              "FILE_WRITTEN",
+              "COMMAND_STARTED",
+              "COMMAND_FINISHED",
+              "AGENT_INVOKED",
+              "AGENT_RETURNED",
+              "VALIDATION_STARTED",
+              "VALIDATION_FAILED",
+              "USER_CORRECTION",
               "TOOL_CALL",
               "SKILL_INVOCATION",
               "SUBAGENT_DELEGATION",

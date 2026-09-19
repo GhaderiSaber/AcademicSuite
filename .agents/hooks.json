@@ -4,7 +4,7 @@
     "description": "Unified Tripartite Lifecycle Hook Gatekeeper routing across Safety, Integrity, and Learning hooks.",
     "PreToolUse": [
       {
-        "matcher": "run_command|write_to_file|replace_file_content|apply_diff|edit_file|multi_file_edit|batch_replace|patch|invoke_subagent",
+        "matcher": "run_command|write_to_file|replace_file_content|apply_diff|edit_file|multi_file_edit|batch_replace|patch|invoke_subagent|view_file|read_resource|read_url_content",
         "hooks": [
           {
             "type": "command",
@@ -16,7 +16,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "run_command|write_to_file|replace_file_content|apply_diff|edit_file|multi_file_edit|batch_replace|patch|invoke_subagent",
+        "matcher": "run_command|write_to_file|replace_file_content|apply_diff|edit_file|multi_file_edit|batch_replace|patch|invoke_subagent|view_file|read_resource|read_url_content",
         "hooks": [
           {
             "type": "command",

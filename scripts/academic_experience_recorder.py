@@ -429,24 +429,34 @@ class AcademicExperienceRecorder:
                     "alternatives_considered": []
                 })
 
-        # Subagent delegations from events
-        subagent_delegations = []
-        # Tool usages & skill activations
-        skill_activations = [{
-            "skill_name": skill,
-            "script_path": f".agents/skills/{skill}/scripts/{skill}.py",
-            "cli_command": f"python3 .agents/skills/{skill}/scripts/{skill}.py",
-            "exit_code": 0 if outcome == "SUCCESS" else 1,
-            "duration_seconds": duration_sec
-        }]
+        # Subagent delegations, tool usages & skill activations from factual events
+        from scripts.trajectory_engine import TrajectoryEngine
+        t_engine = TrajectoryEngine(state_dir=sm.state_dir, project_root=self.project_root)
+        real_events = t_engine.load_events(since_iso=start_time)
 
-        tool_usages = [{
-            "tool_name": "run_command",
-            "invocation_index": 1,
-            "arguments_summary": {"skill": skill, "stage": stage_id},
-            "status": "SUCCESS" if outcome == "SUCCESS" else "ERROR",
-            "execution_time_ms": int(duration_sec * 1000)
-        }]
+        if real_events:
+            trj_constructed = t_engine.build_trajectory_from_events(
+                events=real_events,
+                project_id=sm.project_id,
+                task_id=stage_id,
+                experience_id=exp_id,
+                trajectory_id=trj_id,
+                artifacts=[{"path": a["path"], "sha256": a["sha256"], "type": a["type"]} for a in artifacts],
+                outcome=trj_outcome
+            )
+            if ordered_actions:
+                for oa in trj_constructed["ordered_actions"]:
+                    oa["step_number"] = len(ordered_actions) + 1
+                    ordered_actions.append(oa)
+            else:
+                ordered_actions = trj_constructed["ordered_actions"]
+            tool_usages = trj_constructed["tool_usages"]
+            skill_activations = trj_constructed["skill_activations"]
+            subagent_delegations = trj_constructed["subagent_delegations"]
+        else:
+            tool_usages = []
+            skill_activations = []
+            subagent_delegations = []
 
         # Feedback extraction
         feedback_contract = None
@@ -689,51 +699,54 @@ class AcademicExperienceRecorder:
             }
         }
 
+        # Reconstruct trajectory from factual events if available
+        from scripts.trajectory_engine import TrajectoryEngine
+        cand_state = os.path.join(os.path.dirname(abs_stage_dir), "state")
+        if not os.path.exists(cand_state):
+            cand_state = os.path.join(self.project_root, "state")
+        t_engine = TrajectoryEngine(state_dir=cand_state, project_root=self.project_root)
+        real_events = t_engine.load_events()
+
+        if real_events:
+            trj_constructed = t_engine.build_trajectory_from_events(
+                events=real_events,
+                project_id=project_id,
+                task_id=resolved_task_id,
+                experience_id=exp_id,
+                trajectory_id=trj_id,
+                artifacts=[{"path": a["path"], "sha256": a["sha256"], "type": a["type"]} for a in artifacts],
+                outcome=trj_outcome
+            )
+            ordered_actions = trj_constructed["ordered_actions"]
+            tool_usages = trj_constructed["tool_usages"]
+            skill_activations = trj_constructed["skill_activations"]
+            subagent_delegations = trj_constructed["subagent_delegations"]
+        else:
+            ordered_actions = [
+                {
+                    "step_number": 1,
+                    "action_type": "ARTIFACT_GENERATION",
+                    "actor": agent,
+                    "timestamp": now_iso,
+                    "description": f"Generated {len(artifacts)} physical artifacts in {stage_dir}",
+                    "observable_input": {"stage_dir": stage_dir},
+                    "observable_output": {"count": len(artifacts), "status": resolved_outcome}
+                }
+            ]
+            tool_usages = []
+            skill_activations = []
+            subagent_delegations = []
+
         trajectory_record = {
             "contract_version": "1.0.0",
             "trajectory_id": trj_id,
             "experience_id": exp_id,
             "project_id": project_id,
             "task_id": resolved_task_id,
-            "ordered_actions": [
-                {
-                    "step_number": 1,
-                    "action_type": "SKILL_INVOCATION",
-                    "actor": agent,
-                    "timestamp": now_iso,
-                    "description": f"Executed skill {resolved_skill} for stage {resolved_task_id}",
-                    "observable_input": {"stage_dir": stage_dir},
-                    "observable_output": {"status": resolved_outcome}
-                },
-                {
-                    "step_number": 2,
-                    "action_type": "ARTIFACT_GENERATION",
-                    "actor": agent,
-                    "timestamp": now_iso,
-                    "description": f"Generated {len(artifacts)} physical artifacts in {stage_dir}",
-                    "observable_input": {"stage_dir": stage_dir},
-                    "observable_output": {"count": len(artifacts)}
-                }
-            ],
-            "tool_usages": [
-                {
-                    "tool_name": "run_command",
-                    "invocation_index": 1,
-                    "arguments_summary": {"skill": resolved_skill, "stage": resolved_task_id},
-                    "status": "SUCCESS" if resolved_outcome == "SUCCESS" else "ERROR",
-                    "execution_time_ms": 1000
-                }
-            ],
-            "skill_activations": [
-                {
-                    "skill_name": resolved_skill,
-                    "script_path": f".agents/skills/{resolved_skill}/scripts/{resolved_skill}.py",
-                    "cli_command": f"python3 .agents/skills/{resolved_skill}/scripts/{resolved_skill}.py",
-                    "exit_code": 0 if resolved_outcome == "SUCCESS" else 1,
-                    "duration_seconds": 1.0
-                }
-            ],
-            "subagent_delegations": [],
+            "ordered_actions": ordered_actions,
+            "tool_usages": tool_usages,
+            "skill_activations": skill_activations,
+            "subagent_delegations": subagent_delegations,
             "important_decisions": [],
             "outputs": [{"path": a["path"], "sha256": a["sha256"], "type": a["type"]} for a in artifacts],
             "validation_events": validation_events,

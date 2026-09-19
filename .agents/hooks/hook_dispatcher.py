@@ -47,6 +47,11 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     if event_upper == "PreToolUse":
         # Class A: Safety Hooks
         safety_res = SafetyHooks.handle_pre_tool_use(payload)
+        if safety_res.get("decision") == "deny":
+            return safety_res
+
+        # Class C: Learning Hooks (Factual trajectory capture)
+        LearningHooks.handle_pre_tool_use(payload)
         return safety_res
 
     elif event_upper == "PostToolUse":

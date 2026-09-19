@@ -47,10 +47,120 @@ class LearningHooks:
     """
 
     @staticmethod
+    def _get_engine(payload: Dict[str, Any]):
+        """Helper to obtain a TrajectoryEngine instance for the active workspace."""
+        try:
+            from scripts.trajectory_engine import TrajectoryEngine
+            workspaces = payload.get("workspacePaths", [])
+            state_dir = None
+            if workspaces:
+                for ws in workspaces:
+                    cand = os.path.join(ws, "state")
+                    if os.path.isdir(cand):
+                        state_dir = cand
+                        break
+                    cand_alt = os.path.join(ws, "academic-state")
+                    if os.path.isdir(cand_alt):
+                        state_dir = cand_alt
+                        break
+                if not state_dir and workspaces:
+                    state_dir = os.path.join(workspaces[0], "state")
+            return TrajectoryEngine(state_dir=state_dir, project_root=ROOT_DIR)
+        except Exception as e:
+            sys.stderr.write(f"[learning_hooks] Error initializing TrajectoryEngine: {e}\n")
+            return None
+
+    @staticmethod
+    def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        PreToolUse hook: intercepts tool invocations before execution.
+        Emits TOOL_CALLED, and specific events: FILE_READ, FILE_WRITTEN,
+        COMMAND_STARTED, VALIDATION_STARTED, AGENT_INVOKED.
+        """
+        try:
+            from scripts.trajectory_engine import (
+                TrajectoryEventType,
+                READ_TOOLS,
+                WRITE_TOOLS,
+                is_validation_command,
+                sanitize_tool_args
+            )
+            engine = LearningHooks._get_engine(payload)
+            if not engine:
+                return {}
+
+            tool_call = payload.get("toolCall", {})
+            tool_name = tool_call.get("name", "") if isinstance(tool_call, dict) else ""
+            tool_args = tool_call.get("args", {}) if isinstance(tool_call, dict) else {}
+            sanitized_args = sanitize_tool_args(tool_args)
+
+            # 1. TOOL_CALLED
+            engine.record_event(
+                TrajectoryEventType.TOOL_CALLED,
+                payload=payload,
+                details={"arguments_summary": sanitized_args},
+                actor="academic-orchestrator"
+            )
+
+            # 2. Specific event classifications
+            if tool_name in READ_TOOLS:
+                file_path = tool_args.get("AbsolutePath") or tool_args.get("TargetFile") or tool_args.get("Url") or ""
+                engine.record_event(
+                    TrajectoryEventType.FILE_READ,
+                    payload=payload,
+                    details={"file_path": file_path, "arguments": sanitized_args},
+                    actor="academic-orchestrator"
+                )
+
+            elif tool_name in WRITE_TOOLS:
+                file_path = tool_args.get("TargetFile") or tool_args.get("AbsolutePath") or ""
+                engine.record_event(
+                    TrajectoryEventType.FILE_WRITTEN,
+                    payload=payload,
+                    details={"file_path": file_path, "overwrite": tool_args.get("Overwrite", False)},
+                    actor="academic-orchestrator"
+                )
+
+            elif tool_name == "run_command":
+                cmd_line = tool_args.get("CommandLine", "")
+                engine.record_event(
+                    TrajectoryEventType.COMMAND_STARTED,
+                    payload=payload,
+                    details={"command_line": cmd_line, "cwd": tool_args.get("Cwd", "")},
+                    actor="academic-orchestrator"
+                )
+                if is_validation_command(cmd_line):
+                    engine.record_event(
+                        TrajectoryEventType.VALIDATION_STARTED,
+                        payload=payload,
+                        details={"command_line": cmd_line, "validator_type": "script"},
+                        actor="academic-orchestrator"
+                    )
+
+            elif tool_name == "invoke_subagent":
+                subagents = tool_args.get("Subagents", [])
+                for sa in subagents:
+                    engine.record_event(
+                        TrajectoryEventType.AGENT_INVOKED,
+                        payload=payload,
+                        details={
+                            "subagent_type": sa.get("TypeName", ""),
+                            "subagent_role": sa.get("Role", ""),
+                            "prompt_summary": sa.get("Prompt", "")[:200]
+                        },
+                        actor="academic-orchestrator"
+                    )
+
+        except Exception as e:
+            sys.stderr.write(f"[learning_hooks] PreToolUse error: {e}\n")
+
+        return {}
+
+    @staticmethod
     def capture_user_correction(payload: Dict[str, Any]) -> None:
         """
         Scans user turn and transcript for corrections, critiques, or explicit instructions.
-        Delegates to AcademicCorrectionDetector and AcademicIntegratedLearningHub.
+        Delegates to AcademicCorrectionDetector and AcademicIntegratedLearningHub, and records USER_CORRECTION event.
         """
         transcript_path = payload.get("transcriptPath")
         cid = payload.get("conversationId")
@@ -76,6 +186,22 @@ class LearningHooks:
 
             clean_user = re.sub(r"<[^>]+>", "", last_user_msg).strip()
             if clean_user:
+                # Check for critique patterns
+                critique_patterns = [
+                    r"\b(fix|wrong|incorrect|error|bug|fail|redo|re-run|reject|change|modify|correction)\b",
+                    r"اشتباه|غلط|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا"
+                ]
+                if any(re.search(pat, clean_user, re.IGNORECASE) for pat in critique_patterns):
+                    engine = LearningHooks._get_engine(payload)
+                    if engine:
+                        from scripts.trajectory_engine import TrajectoryEventType
+                        engine.record_event(
+                            TrajectoryEventType.USER_CORRECTION,
+                            payload=payload,
+                            details={"correction_text": clean_user[:500]},
+                            actor="user"
+                        )
+
                 try:
                     from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
                     hub = AcademicIntegratedLearningHub(base_dir=ROOT_DIR)
@@ -86,11 +212,32 @@ class LearningHooks:
     @staticmethod
     def capture_validation_failure(stage_dir: str, validator_results: List[Dict[str, Any]]) -> None:
         """
-        Records validation failure incidents in pitfalls registry and experience recorder.
+        Records validation failure incidents in pitfalls registry, experience recorder,
+        and trajectory_events.jsonl.
         """
         failed_results = [r for r in validator_results if str(r.get("verdict")).upper() == "FAIL"]
         if not failed_results:
             return
+
+        try:
+            from scripts.trajectory_engine import TrajectoryEngine, TrajectoryEventType
+            cand_state = os.path.join(os.path.dirname(stage_dir), "state")
+            if not os.path.exists(cand_state):
+                cand_state = os.path.join(ROOT_DIR, "state")
+            engine = TrajectoryEngine(state_dir=cand_state, project_root=ROOT_DIR)
+            for fr in failed_results:
+                engine.record_event(
+                    TrajectoryEventType.VALIDATION_FAILED,
+                    payload={"workspacePaths": [ROOT_DIR]},
+                    details={
+                        "validator_name": fr.get("validator_name", "Validator"),
+                        "failed_checks": fr.get("failed_checks", []),
+                        "stage_dir": stage_dir
+                    },
+                    actor="validation-agent"
+                )
+        except Exception as e_ev:
+            sys.stderr.write(f"[learning_hooks] Trajectory validation failure note: {e_ev}\n")
 
         try:
             from scripts.academic_experience_recorder import AcademicExperienceRecorder
@@ -113,40 +260,24 @@ class LearningHooks:
     @staticmethod
     def capture_agent_trajectory(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
-        PostToolUse hook: logs tool call execution events and sanitized arguments to audit_log.jsonl.
+        PostToolUse hook: logs tool completion events, sanitized arguments,
+        and exit status to trajectory_events.jsonl and audit_log.jsonl.
+        Emits TOOL_RETURNED, and if applicable: COMMAND_FINISHED, AGENT_RETURNED.
         """
         try:
-            workspaces = payload.get("workspacePaths", [])
-            audit_dirs = []
-            if workspaces:
-                for ws in workspaces:
-                    cand_state = os.path.join(ws, "state")
-                    cand_mem = os.path.join(ws, ".agents", "memory")
-                    if os.path.exists(cand_state):
-                        audit_dirs.append(cand_state)
-                    if os.path.exists(cand_mem):
-                        audit_dirs.append(cand_mem)
-                    if not audit_dirs:
-                        audit_dirs.append(cand_state)
-                        os.makedirs(cand_state, exist_ok=True)
-            else:
-                default_state = os.path.join(ROOT_DIR, "state")
-                default_mem = os.path.join(ROOT_DIR, ".agents", "memory")
-                if os.path.exists(default_state):
-                    audit_dirs.append(default_state)
-                if os.path.exists(default_mem):
-                    audit_dirs.append(default_mem)
-                if not audit_dirs:
-                    audit_dirs.append(default_state)
-                    os.makedirs(default_state, exist_ok=True)
+            from scripts.trajectory_engine import (
+                TrajectoryEventType,
+                is_validation_command,
+                sanitize_tool_args
+            )
+            engine = LearningHooks._get_engine(payload)
 
             cid = payload.get("conversationId", "")
-            step_idx = payload.get("stepIdx")
             error = payload.get("error")
             tool_call = payload.get("toolCall", {})
 
-            tool_name = tool_call.get("name", "")
-            tool_args = tool_call.get("args", {})
+            tool_name = tool_call.get("name", "") if isinstance(tool_call, dict) else ""
+            tool_args = tool_call.get("args", {}) if isinstance(tool_call, dict) else {}
 
             transcript_path = payload.get("transcriptPath")
             if not tool_name:
@@ -164,26 +295,59 @@ class LearningHooks:
                             tool_args = last_tc.get("args", {})
                         break
 
-            sanitized_args = {k: v for k, v in tool_args.items() if k not in ("CodeContent", "ReplacementContent")}
+            sanitized_args = sanitize_tool_args(tool_args)
 
-            event_record = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "conversation_id": cid,
-                "step_index": step_idx,
-                "tool_name": tool_name or "unknown",
-                "tool_args": sanitized_args,
-                "error": error,
-                "status": "ERROR" if error else "SUCCESS"
-            }
+            if engine:
+                # 1. TOOL_RETURNED
+                engine.record_event(
+                    TrajectoryEventType.TOOL_RETURNED,
+                    payload=payload,
+                    details={
+                        "arguments_summary": sanitized_args,
+                        "error": error,
+                        "status": "ERROR" if error else "SUCCESS"
+                    },
+                    actor="academic-orchestrator"
+                )
 
-            record_line = json.dumps(event_record, ensure_ascii=False) + "\n"
-            for ad in set(audit_dirs):
-                audit_file = os.path.join(ad, "audit_log.jsonl")
-                with open(audit_file, "a", encoding="utf-8") as f:
-                    f.write(record_line)
+                # 2. Specific completions
+                if tool_name == "run_command":
+                    cmd_line = tool_args.get("CommandLine", "")
+                    engine.record_event(
+                        TrajectoryEventType.COMMAND_FINISHED,
+                        payload=payload,
+                        details={
+                            "command_line": cmd_line,
+                            "error": error,
+                            "status": "ERROR" if error else "SUCCESS"
+                        },
+                        actor="academic-orchestrator"
+                    )
+                    if is_validation_command(cmd_line) and error:
+                        engine.record_event(
+                            TrajectoryEventType.VALIDATION_FAILED,
+                            payload=payload,
+                            details={
+                                "command_line": cmd_line,
+                                "error": error,
+                                "validator_type": "script"
+                            },
+                            actor="validation-agent"
+                        )
+
+                elif tool_name == "invoke_subagent":
+                    engine.record_event(
+                        TrajectoryEventType.AGENT_RETURNED,
+                        payload=payload,
+                        details={
+                            "error": error,
+                            "status": "ERROR" if error else "SUCCESS"
+                        },
+                        actor="academic-orchestrator"
+                    )
 
         except Exception as e:
-            sys.stderr.write(f"[learning_hooks] Error writing audit log: {e}\n")
+            sys.stderr.write(f"[learning_hooks] Error writing trajectory events: {e}\n")
 
         return {}
 

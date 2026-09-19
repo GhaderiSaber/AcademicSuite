@@ -624,3 +624,58 @@ Divide all Antigravity lifecycle hooks into three distinct, specialized classes 
 - **Positive**: Clean separation of concerns conforming to Directive 19; eliminate monolithic sprawl; prevent hook overreach into workflow orchestration; maintain robust safety, cryptographic integrity, and automated learning capture.
 - **Negative**: Hook modifications require editing class-specific modules (`safety_hooks.py`, `integrity_hooks.py`, `learning_hooks.py`) rather than a single script.
 
+---
+
+## ADR-020: Factual Event-Driven Trajectory Recording and Prohibition of Speculative Inference
+
+### Status
+Accepted
+
+### Context
+In earlier iterations of `AcademicExperienceRecorder`, trajectory records were partially synthesized through speculative inference:
+- If a milestone transitioned or existed in state `RUNNING` or `APPROVED`, the engine inferred that a CLI tool `run_command` was called and invented a mock execution with dummy parameters (`duration_ms = 1000`, mock script paths).
+- If a stage directory contained artifacts, `ordered_actions` was populated with hypothetical `SKILL_INVOCATION` and `ARTIFACT_GENERATION` steps even if no tool call was physically observed.
+
+This speculative inference violated Directive 0 (Radical Honesty & Anti-Deception) and degraded the epistemic value of trajectory data for continuous learning. Furthermore, Antigravity lifecycle hook payloads already provide rich, observable execution metadata (`conversationId`, `workspacePaths`, `transcriptPath`, `toolCall`, `stepIdx`, `artifactDirectoryPath`, `modelName`), which serves as an authoritative source of truth.
+
+### Decision
+1. **Canonical 11 Observable Events**:
+   Trajectory capture is strictly governed by 11 discrete, observable physical events:
+   - `TOOL_CALLED`: Tool invocation proposed or intercepted (`PreToolUse`).
+   - `TOOL_RETURNED`: Tool execution completed (`PostToolUse`).
+   - `FILE_READ`: File inspection tool executed (`view_file`, `read_resource`, `read_url_content`).
+   - `FILE_WRITTEN`: File creation or modification tool executed (`write_to_file`, `replace_file_content`, `apply_diff`).
+   - `COMMAND_STARTED`: CLI process initiated (`run_command`).
+   - `COMMAND_FINISHED`: CLI process terminated with exit code (`run_command`).
+   - `AGENT_INVOKED`: Subagent delegation initiated (`invoke_subagent`).
+   - `AGENT_RETURNED`: Subagent completed turn.
+   - `VALIDATION_STARTED`: Validator or check suite initiated.
+   - `VALIDATION_FAILED`: Validator check failed with explicit error or non-zero exit code.
+   - `USER_CORRECTION`: Human critique, correction, or revision directive detected.
+
+2. **Antigravity Hook Metadata as Source of Truth**:
+   Every event record must extract and preserve the factual execution metadata from Antigravity hooks:
+   - `conversationId`
+   - `workspacePaths`
+   - `transcriptPath`
+   - `toolCall` (name and sanitized arguments)
+   - `stepIdx`
+   - `artifactDirectoryPath`
+   - `modelName`
+
+3. **Strict Prohibition of Speculative Fabrication**:
+   - `AcademicExperienceRecorder` and `TrajectoryEngine` must **never fabricate** tool usages, skill activations, or subagent delegations based on milestone state.
+   - If no physical tools were executed in a stage or milestone, `tool_usages`, `skill_activations`, and `subagent_delegations` remain strictly empty (`[]`).
+   - If `state/trajectory_events.jsonl` or `transcript.jsonl` exists, the trajectory must be assembled directly from observable event streams.
+
+4. **Dedicated Trajectory Engine (`scripts/trajectory_engine.py`)**:
+   - Manages real-time atomic appending to `state/trajectory_events.jsonl` and `state/audit_log.jsonl`.
+   - Provides deterministic parsing of `transcript.jsonl` into the 11 canonical events.
+   - Compiles compliant `trajectory.json` artifacts conforming to `contracts/evolution/trajectory.schema.json`.
+   - Strictly enforces zero private chain-of-thought (`chain_of_thought`, `thinking`, `internal_monologue`).
+
+### Consequences
+- **Positive**: Trajectories reflect 100% ground-truth observable reality; eliminates hallucinated tool calls; provides verifiable provenance for every action; enriches learning and continuous improvement engines with real telemetry.
+- **Negative**: Stages recorded without active hook execution or transcript logs will possess empty tool lists rather than mock tool summaries.
+
+

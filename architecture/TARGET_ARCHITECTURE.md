@@ -835,3 +835,98 @@ Orchestration is the sole responsibility of the Antigravity Lead Agent (`academi
 - `.agents/hooks/hook_dispatcher.py` routes incoming Antigravity events (`PreToolUse`, `PostToolUse`, `PreInvocation`, `PostInvocation`, `Stop`) strictly to Class A, B, and C modules.
 - `.agents/verification/transcript_and_rule_guard.py` is maintained as a thin facade delegating to the tripartite classes, preserving 100% backward compatibility with existing tests and scripts.
 
+---
+
+## 20. Factual Event-Driven Trajectory Recording Architecture (Phase 15)
+
+### 20.1 The Prohibition of Speculative Inference
+Prior trajectory capture systems inferred tool executions and skill activations from milestone states (e.g., *"milestone X existed, therefore tool Y probably happened"*). This introduced hallucinated execution records into persistent memory, violating Directive 0 (Radical Honesty & Anti-Deception).
+
+Under Phase 15, speculative trajectory inference is **strictly prohibited across AcademicSuite**:
+- Trajectories must record **only observable, physical execution events** verified on disk or intercepted by lifecycle hooks.
+- If a milestone or stage was verified without active tool executions, `tool_usages`, `skill_activations`, and `subagent_delegations` remain strictly empty (`[]`). Zero mock `run_command` or dummy script executions are permitted.
+
+```mermaid
+flowchart TD
+    subgraph ObservableSources["Authoritative Observable Sources"]
+        Hooks["Antigravity Hook Payloads<br/>(PreToolUse, PostToolUse, PreInvocation, Stop)"]
+        Transcript["Conversation Transcript<br/>(transcript.jsonl)"]
+        State["State Files & Reports<br/>(validation_report.json, artifacts)"]
+    end
+
+    subgraph TrajectoryEngine["Trajectory Engine (scripts/trajectory_engine.py)"]
+        Parser["Factual Event Classifier"]
+        Sanitizer["Zero-CoT Sanitizer"]
+        Assembler["Contract Assembler"]
+    end
+
+    subgraph CanonicalEvents["11 Canonical Observable Events"]
+        E1["TOOL_CALLED"]
+        E2["TOOL_RETURNED"]
+        E3["FILE_READ"]
+        E4["FILE_WRITTEN"]
+        E5["COMMAND_STARTED"]
+        E6["COMMAND_FINISHED"]
+        E7["AGENT_INVOKED"]
+        E8["AGENT_RETURNED"]
+        E9["VALIDATION_STARTED"]
+        E10["VALIDATION_FAILED"]
+        E11["USER_CORRECTION"]
+    end
+
+    subgraph Outputs["Persistent Factual Records"]
+        EventsLog["state/trajectory_events.jsonl"]
+        AuditLog["state/audit_log.jsonl"]
+        TrjContract["learning/experience/<id>/trajectory.json"]
+    end
+
+    Hooks --> Parser
+    Transcript --> Parser
+    State --> Parser
+    Parser --> CanonicalEvents
+    CanonicalEvents --> EventsLog
+    CanonicalEvents --> AuditLog
+    CanonicalEvents --> Sanitizer
+    Sanitizer --> Assembler
+    Assembler --> TrjContract
+```
+
+### 20.2 The 11 Canonical Observable Events
+Execution telemetry is structured into 11 discrete, observable physical events:
+
+| Event Type | Lifecycle Trigger | Description | Observable Metadata Captured |
+|---|---|---|---|
+| `TOOL_CALLED` | `PreToolUse` / transcript | Tool execution requested by model | Tool name, sanitized arguments, step index |
+| `TOOL_RETURNED` | `PostToolUse` / transcript | Tool execution completed | Status (SUCCESS/ERROR), execution time, error |
+| `FILE_READ` | `PreToolUse` (`view_file`, `read_resource`, etc.) | File inspection or reading tool invoked | Target file path, line range / offset |
+| `FILE_WRITTEN` | `PreToolUse` / `PostToolUse` (`write_to_file`, `replace_file_content`) | File created or modified | File path, overwrite flag, content size |
+| `COMMAND_STARTED` | `PreToolUse` (`run_command`) | Shell command process initiated | Command line, working directory (cwd) |
+| `COMMAND_FINISHED` | `PostToolUse` (`run_command`) | Shell command process finished | Exit code, duration, status, error |
+| `AGENT_INVOKED` | `PreToolUse` (`invoke_subagent`) | Subagent delegation initiated | Subagent type, role, prompt summary |
+| `AGENT_RETURNED` | `PostToolUse` (`invoke_subagent`) | Subagent finished execution | Return status, error if any |
+| `VALIDATION_STARTED` | `PreToolUse` (validator command) | Verification or audit script initiated | Validator name, command line, target stage |
+| `VALIDATION_FAILED` | `PostToolUse` / `IntegrityHooks` | Verification check failed | Validator name, failed checks, evidence |
+| `USER_CORRECTION` | `PreInvocation` / `Stop` / user turn | Human critique, correction, or revision directive | Clean user text, detected critique patterns |
+
+### 20.3 Antigravity Hook Metadata as Source of Truth
+Every event record captures execution metadata directly provided by the Antigravity runtime:
+- **`conversationId`**: Unique session identifier.
+- **`workspacePaths`**: List of active workspace roots.
+- **`transcriptPath`**: Path to session `transcript.jsonl`.
+- **`toolCall`**: Structured tool call payload (`name`, `args`).
+- **`stepIdx`**: Trajectory step index.
+- **`artifactDirectoryPath`**: Absolute path to session artifacts directory.
+- **`modelName`**: Underlying AI model identifier.
+
+### 20.4 Trajectory Engine (`scripts/trajectory_engine.py`)
+The dedicated deterministic engine ("The Hands") for trajectory capture:
+- **`record_event()`**: Atomically appends structured event records to `state/trajectory_events.jsonl` and mirrors to `state/audit_log.jsonl` and `.agents/memory/audit_log.jsonl`.
+- **`extract_events_from_transcript()`**: Parses `transcript.jsonl` lines into the 11 factual events without inventing unobserved actions.
+- **`build_trajectory_from_events()`**: Compiles valid `trajectory.json` artifacts conforming to `contracts/evolution/trajectory.schema.json`.
+- **`sanitize_no_cot()`**: Enforces zero leakage of private chain-of-thought tokens (`chain_of_thought`, `thinking`, `internal_monologue`, `scratchpad`, `reasoning_tokens`).
+
+### 20.5 Contract Schema & Integration
+- `contracts/evolution/trajectory.schema.json` defines `action_type` with the 11 canonical events.
+- `AcademicExperienceRecorder` (`record_from_milestone` and `record_from_stage`) delegates directly to `TrajectoryEngine`, ensuring that episodic memories in `learning/experience/<id>/trajectory.json` reflect 100% factual execution traces.
+
+
