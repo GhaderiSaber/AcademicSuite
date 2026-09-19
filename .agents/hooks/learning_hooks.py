@@ -362,9 +362,11 @@ class LearningHooks:
     @staticmethod
     def handle_pre_invocation(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
-        PreInvocation hook:
+        PreInvocation hook (Phase 28 Execution Boundary):
         1. Scans for user corrections.
         2. Injects constitutional reminder.
+        3. Deterministically retrieves adaptive context (lessons, pitfalls, methodology rules)
+           for detected academic tasks and injects it into ephemeral context before execution.
         """
         LearningHooks.capture_user_correction(payload)
 
@@ -380,10 +382,25 @@ class LearningHooks:
             "5. Sole Orchestrator Mandate (Directive 12.1): Antigravity is the sole agent runtime. Python scripts are strictly "
             "deterministic execution tools ('The Hands'). Never run agent emulators."
         )
+
+        ephemeral_blocks = [reminder]
+
+        # Phase 28: Deterministic Context Retrieval at the Execution Boundary
+        try:
+            from scripts.academic_adaptive_context_boundary import AcademicAdaptiveContextBoundary
+            boundary = AcademicAdaptiveContextBoundary(base_dir=ROOT_DIR)
+            briefing = boundary.retrieve_for_turn(payload)
+            if briefing:
+                ephemeral_blocks.append(briefing)
+        except Exception as e_bnd:
+            sys.stderr.write(f"[learning_hooks] Boundary adaptive context note: {e_bnd}\n")
+
+        full_message = "\n\n---\n".join(ephemeral_blocks)
+
         return {
             "injectSteps": [
                 {
-                    "ephemeralMessage": reminder
+                    "ephemeralMessage": full_message
                 }
             ]
         }

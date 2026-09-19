@@ -432,10 +432,30 @@ def assemble_antigravity_team(design: Dict[str, Any], capabilities: List[str]) -
         if a not in deduped_subagents:
             deduped_subagents.append(a)
 
+    # Phase 28: Deterministic Context Retrieval at the Execution Boundary
+    assembled_subagent_manifests = []
+    try:
+        from scripts.academic_adaptive_context_boundary import AcademicAdaptiveContextBoundary
+        boundary = AcademicAdaptiveContextBoundary()
+        for sa in deduped_subagents:
+            sa_data = boundary.retrieve_boundary_context(
+                capability=capabilities[0] if capabilities else "general_academic",
+                agent=sa
+            )
+            assembled_subagent_manifests.append({
+                "subagent": sa,
+                "relevant_lessons_count": len(sa_data.get("relevant_lessons", [])),
+                "known_pitfalls_count": len(sa_data.get("known_pitfalls", [])),
+                "applicable_methodology_rules_count": len(sa_data.get("applicable_methodology_rules", []))
+            })
+    except Exception:
+        assembled_subagent_manifests = [{"subagent": sa} for sa in deduped_subagents]
+
     return {
         "lead_orchestrator": orchestrator,
         "assigned_roles": assigned_roles,
         "assembled_subagents": deduped_subagents,
+        "assembled_subagent_manifests": assembled_subagent_manifests,
         "pruned_agents": pruned,
         "orchestration_mode": "DYNAMIC_NATIVE_SUBAGENTS"
     }

@@ -46,31 +46,44 @@ Do **NOT** activate this skill for:
 
 ---
 
-## 3. The 5-Step Adaptive Context Protocol
+## 3. The Deterministic Execution Boundary Pipeline (Phase 28)
 
-Whenever an agent is tasked with executing a capability, it MUST execute the following deterministic protocol:
+Under Phase 28, context retrieval is **mechanically guaranteed at the execution boundary** via the `PreInvocation` lifecycle hook (`.agents/hooks/learning_hooks.py`) and subagent dispatch boundary (`scripts/academic_adaptive_context_boundary.py`).
 
-### Step 1: Identify Target Capability & Task
-Determine the core research capability from the 8 canonical capabilities:
-- `longitudinal-analysis`
-- `mediation`
-- `moderation`
-- `SEM`
-- `psychometrics`
-- `chapter4`
-- `chapter5`
-- `evidence`
+**Zero Voluntary Retrieval Rule**:
+Agents no longer need to "remember" to execute manual CLI retrieval. Whenever an academic turn or subagent delegation begins, the system deterministically executes:
 
-### Step 2: Execute Deterministic Context Retrieval
-Run the bundled retrieval CLI via terminal (`run_command`):
-```bash
-python3 .agents/skills/academic-adaptive-context/scripts/retrieve_adaptive_context.py \
-  --capability <capability> \
-  --task <task_type> \
-  --agent <agent_name> \
-  --project-id <project_id> \
-  --format markdown
 ```
+Academic task begins
+       ↓
+context retrieval
+       ↓
+relevant lessons
+       ↓
+known pitfalls
+       ↓
+applicable methodology rules
+       ↓
+agent execution
+```
+
+### Execution Boundary Retrieval Flow:
+1. **Turn Execution Boundary (`PreInvocation` Hook)**:
+   - Intercepts turn initiation before LLM reasoning or tool calls.
+   - Automatically maps incoming user intent/prompt to target capability, domain, and primary agent.
+   - Queries `AcademicKnowledgeManager.retrieve_pre_task_context()` and injects the 4-part briefing (lessons, pitfalls, methodology rules, defaults) directly into the agent's ephemeral context.
+2. **Delegation Boundary (`PreToolUse` & Task Router)**:
+   - Enriches dispatched subagents with their role-specific lessons, anti-patterns, and boundary conditions.
+3. **Manual / CLI Diagnostic Inspection ("The Hands")**:
+   - For debugging, testing, or offline verification, the standalone CLI tool remains available:
+   ```bash
+   python3 .agents/skills/academic-adaptive-context/scripts/retrieve_adaptive_context.py \
+     --capability <capability> \
+     --task <task_type> \
+     --agent <agent_name> \
+     --project-id <project_id> \
+     --format markdown
+   ```
 
 ### Step 3: Parse & Respect Applicability and Exclusion Conditions
 Examine the returned briefing:

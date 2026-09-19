@@ -1828,5 +1828,108 @@ Phase 27 codifies five archetypal methodological tensions in psychology and beha
 4. **Epistemic Confidence Deduction (`scripts/academic_confidence_engine.py`)**:
    - Only active/unresolved contradictions penalize composite confidence ($C_p = 0.15 \times \text{count}$). Once resolved via passing independent tests, the penalty is eliminated ($C_p = 0$).
 
+---
+
+## 33. Deterministic Execution Boundary Adaptive Context (Phase 28)
+
+### 33.1 The Deterministic Execution Boundary Principle
+In self-improving cognitive systems, learned lessons, anti-patterns, and methodology rules are useless if their retrieval depends on whether an agent "remembers" to perform voluntary context queries.
+
+Under Phase 28, context retrieval is bound directly to execution boundaries:
+```
+Academic task begins
+       ↓
+context retrieval
+       ↓
+relevant lessons
+       ↓
+known pitfalls
+       ↓
+applicable methodology rules
+       ↓
+agent execution
+```
+
+```mermaid
+flowchart TD
+    subgraph Trigger["Execution Boundary Initiation"]
+        Turn["Academic Turn Initiated (User Prompt / Task Dispatch)"]
+        Subagent["Subagent Invocation Boundary (invoke_subagent)"]
+    end
+
+    subgraph Interception["Deterministic Interception Layer"]
+        PreInvoc["PreInvocation Lifecycle Hook (.agents/hooks/learning_hooks.py)"]
+        PreTool["PreToolUse Hook & Task Router (academic_task_router.py)"]
+    end
+
+    subgraph BoundaryEngine["Deterministic Boundary Engine"]
+        Detect["academic_adaptive_context_boundary.py\nSignature Pattern Matching & Intent Detection"]
+        Bypass{"Is Operational / Trivial Turn?"}
+        Query["AcademicKnowledgeManager.retrieve_pre_task_context()\nFiltered query with active contradiction quarantine"]
+        Pack["Standardized 4-Part Contract Assembly:\n1. Relevant Lessons\n2. Known Pitfalls\n3. Applicable Methodology Rules\n4. Calibrated Operational Defaults"]
+    end
+
+    subgraph SeatedContext["Agent Execution Window"]
+        Ephemeral["Ephemeral Context Message (injectSteps)"]
+        SubPrompt["Enriched Subagent Prompt Payload"]
+        Exec["Agent Executes with Seated Behavioral Constraints"]
+    end
+
+    Turn --> PreInvoc
+    Subagent --> PreTool
+    PreInvoc --> Detect
+    PreTool --> Detect
+    Detect --> Bypass
+    Bypass -->|Yes (git, hello)| PassThrough["Bypass Retrieval (Anti-Dump Invariant)"]
+    Bypass -->|No (Academic Task)| Query
+    Query --> Pack
+    Pack --> Ephemeral
+    Pack --> SubPrompt
+    Ephemeral --> Exec
+    SubPrompt --> Exec
+```
+
+### 33.2 Multi-Layer Boundary Architecture
+
+1. **Turn Execution Boundary (`PreInvocation` Hook)**:
+   - Synchronously fires before any LLM generation in `.agents/hooks/learning_hooks.py`.
+   - Analyzes incoming user prompt and turn context.
+   - Evaluates academic capability signatures across 13 core academic families (`mediation`, `moderation`, `longitudinal-analysis`, `SEM`, `psychometrics`, `ancova`, `regression`, `data_cleaning`, `chapter4`, `chapter5`, `methodology`, `literature_review`, `proposal`).
+   - Retrieves and formats the adaptive context briefing and injects it into `injectSteps` (`ephemeralMessage`).
+
+2. **Delegation Boundary (`PreToolUse: invoke_subagent` & Capability Dispatcher)**:
+   - When the Lead Orchestrator delegates tasks via `invoke_subagent`, the delegation boundary automatically parses the subagent's `TypeName`, `Role`, and `Prompt`.
+   - Enriches the subagent's prompt with its specific lessons, anti-patterns, and calibrated defaults (`enrich_subagent_dispatch()`).
+   - Subagents arrive with behavioral constraints already in place.
+
+3. **Anti-Dump Invariant (Zero Prompt Flooding)**:
+   - Pure operational commands (`git status`, `clean working tree`, `git commit`) and trivial conversational messages (`hello`, `ok`, `proceed`) are matched via `BYPASS_PATTERNS` and bypass retrieval.
+   - Preserves token economy and prevents prompt clutter.
+
+### 33.3 Standardized 4-Part Boundary Payload Contract
+
+Every boundary retrieval produces a standardized 4-part contract:
+- **Part 1: Relevant Lessons (`relevant_lessons`)**:
+  Active lessons matching target capability and task domain. Disputed lessons in active contradiction are strictly filtered out until resolved (Phase 27 integration).
+- **Part 2: Known Pitfalls (`known_pitfalls`)**:
+  Cataloged anti-patterns (`anti_pattern_id`, `defective_pattern`, `corrective_remedy`) that the agent must strictly avoid.
+- **Part 3: Applicable Methodology Rules (`applicable_methodology_rules`)**:
+  Reconciled contradiction records detailing contextual boundary conditions (`condition_for_a`, `condition_for_b`).
+- **Part 4: Calibrated Operational Defaults (`calibrated_defaults`)**:
+  Learned CLI flags, estimator options, and sample size constraints derived from empirical telemetry.
+
+### 33.4 Directive 1 (Pre-Flight Gate) Integration
+Directive 1 in `AGENTS.md` mandates that before running analysis or drafting, the agent emits the Pre-Flight Pipeline Declaration acknowledging the bound adaptive context:
+```markdown
+### 🛫 Pre-Flight Pipeline Declaration
+- **Target Skill**: `.agents/skills/<skill-name>/SKILL.md` (MUST view_file first)
+- **Deterministic Adaptive Context**: Bound at execution boundary (Lessons: N, Pitfalls: M, Methodology Rules: K)
+- **Current Pipeline Stage**: Stage X of Y — `<Stage Name>`
+- **Official Script & CLI Command**: `python3 .agents/skills/<skill>/scripts/<script.py> [args]`
+- **Official Input Artifact**: `<path/to/input>`
+- **Expected Checkpoint Output**: `<path/to/output.json>`
+- **Justification for Deviations**: None (Strict Pipeline Adherence)
+```
+
 
 

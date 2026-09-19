@@ -28,6 +28,7 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 ```markdown
 ### 🛫 Pre-Flight Pipeline Declaration
 - **Target Skill**: `.agents/skills/<skill-name>/SKILL.md` (MUST view_file first)
+- **Deterministic Adaptive Context**: Bound at execution boundary (Lessons: N, Pitfalls: M, Methodology Rules: K)
 - **Current Pipeline Stage**: Stage X of Y — `<Stage Name>`
 - **Official Script & CLI Command**: `python3 .agents/skills/<skill>/scripts/<script.py> [args]`
 - **Official Input Artifact**: `<path/to/input>`

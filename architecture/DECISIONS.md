@@ -1369,6 +1369,67 @@ Treating methodological conflicts as automatically resolved without empirical va
 - **Positive**: 100% elimination of premature contradiction resolution; robust empirical validation for methodological tensions; fail-closed safety guaranteeing that disputed directives cannot mislead agents.
 - **Negative**: Resolving a genuine contradiction requires complete assumption analysis, evidence gathering, and empirical test execution.
 
+---
+
+## ADR-033: Deterministic Execution Boundary Context Retrieval Architecture
+
+### Status
+Accepted
+
+### Context
+In earlier iterations (Phases 16 & 25), the `academic-adaptive-context` capability was structured as an on-demand, voluntary skill. Agents were expected to "remember" to read `SKILL.md` and execute `python3 retrieve_adaptive_context.py` before starting an analysis, curation, or drafting task.
+
+In practice, autonomous LLM agents often failed to remember voluntary context retrieval, resulting in:
+1. Repetition of known defects (e.g., reporting $p = .000$, omitting Persian leading zeros, artificial dichotomization via median splits).
+2. Failure to adopt calibrated CLI defaults and operational parameters.
+3. Violations of newly resolved methodology boundary conditions.
+
+The system cannot rely on agent memory or good intentions to retrieve context. Context retrieval must occur deterministically at the execution boundary.
+
+### Decision
+1. **The Execution Boundary Pipeline Invariant**:
+   Whenever an academic task begins, the system guarantees the execution sequence:
+   ```
+   Academic task begins
+          ↓
+   context retrieval
+          ↓
+   relevant lessons
+          ↓
+   known pitfalls
+          ↓
+   applicable methodology rules
+          ↓
+   agent execution
+   ```
+   The agent literally cannot begin execution without this context being seated in its active context window.
+
+2. **The Execution Boundary Layers**:
+   - **Turn Execution Boundary (`PreInvocation` Lifecycle Hook)**:
+     - Intercepts incoming turns before LLM reasoning or tool execution (`.agents/hooks/learning_hooks.py`).
+     - Detects academic intent via signature pattern matching (`ACADEMIC_CAPABILITY_SIGNATURES`).
+     - Deterministically queries `AcademicKnowledgeManager.retrieve_pre_task_context()`.
+     - Injects the 4-part boundary payload directly into `injectSteps` (`ephemeralMessage`).
+   - **Delegation Boundary (`PreToolUse: invoke_subagent` & Capability Dispatcher)**:
+     - Intercepts subagent dispatch.
+     - Automatically enriches each dispatched subagent prompt with role-specific lessons, anti-patterns, and boundary conditions (`enrich_subagent_dispatch()`).
+   - **Anti-Dump Invariant (Zero Prompt Flooding)**:
+     - Pure operational turns (git commands, workspace status, trivial conversational messages) are detected via `BYPASS_PATTERNS` and bypass retrieval, preserving context window efficiency.
+
+3. **Standardized 4-Part Boundary Payload**:
+   - `relevant_lessons`: Active lessons matching capability, task, or domain (with disputed lessons quarantined per Phase 27).
+   - `known_pitfalls`: Critical anti-patterns to avoid, defect traps, and approved remedies.
+   - `applicable_methodology_rules`: Reconciled contradiction conditions, boundary rules, and decision trees.
+   - `calibrated_defaults`: Learned CLI flags, estimator options, and sample size constraints.
+
+4. **Deterministic Engine Implementation (`AcademicAdaptiveContextBoundary`)**:
+   - Codified in `scripts/academic_adaptive_context_boundary.py` strictly conforming to Directive 18 ($\le 500$ lines, $\le 40,000$ bytes).
+   - Integrates with `AcademicTaskRouter` and `LearningHooks`.
+
+### Consequences
+- **Positive**: 100% elimination of reliance on agent memory for context retrieval; guaranteed delivery of lessons, pitfalls, and methodology rules before execution begins; zero prompt flooding for non-academic turns.
+- **Negative**: Academic turns incur a slight deterministic disk read overhead to retrieve and format the pre-task briefing.
+
 
 
 
