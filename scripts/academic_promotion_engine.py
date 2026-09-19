@@ -647,7 +647,7 @@ class AcademicPromotionEngine:
                 "minimum_required": 3
             }
 
-        # Gate 0.5: Independent Evaluation & Anti-Self-Evaluation Gate (Phase 23)
+        # Gate 0.5: Independent Evaluation & Anti-Self-Evaluation Gate (Phase 23 & Phase 24)
         if evaluation_report.get("is_self_evaluated", False) or evaluation_report.get("self_asserted", False):
             failures.append("SELF_EVALUATION_PROHIBITED: Candidate self-asserted improvement without independent evaluation.")
             gate_results["independent_evaluation"] = {
@@ -658,16 +658,40 @@ class AcademicPromotionEngine:
         elif "independent_evaluation" in evaluation_report:
             indep = evaluation_report["independent_evaluation"]
             unblinded = indep.get("unblinded_comparison", {})
+            reg_res = unblinded.get("regression_result", {})
+            adv_res = unblinded.get("adversarial_result", {})
+            held_res = unblinded.get("heldout_result", {})
+            cond_rule = unblinded.get("conditional_rule_verified", True)
+
+            three_categories_passed = True
+            if reg_res and reg_res.get("verdict") != "PASS":
+                three_categories_passed = False
+                failures.append(f"Regression suite failed: motivating defect was not resolved in {reg_res.get('task_id')}.")
+                affected_cases.append(reg_res.get("task_id", "regression_suite"))
+            if adv_res and adv_res.get("verdict") != "PASS":
+                three_categories_passed = False
+                failures.append(f"Adversarial suite failed: candidate created a new mistake under edge conditions in {adv_res.get('task_id')}.")
+                affected_cases.append(adv_res.get("task_id", "adversarial_suite"))
+            if held_res and held_res.get("verdict") != "PASS":
+                three_categories_passed = False
+                failures.append(f"Held-out suite failed: candidate failed to generalize to different case in {held_res.get('task_id')}.")
+                affected_cases.append(held_res.get("task_id", "heldout_suite"))
+            if not cond_rule:
+                three_categories_passed = False
+                failures.append("UNIVERSAL_INSTRUCTION_PROHIBITED: Candidate proposed naive universal instruction instead of conditional decision rule.")
+                affected_cases.append("conditional_rule_verification")
+
             indep_passed = (
                 unblinded.get("independent_verdict") == "PASS" and
                 unblinded.get("defect_resolved") is True and
-                unblinded.get("zero_regressions_verified") is True
+                unblinded.get("zero_regressions_verified") is True and
+                three_categories_passed
             )
             gate_results["independent_evaluation"] = {
                 "passed": bool(indep_passed),
-                "details": f"Independent blinded A/B verdict: {unblinded.get('independent_verdict')}"
+                "details": f"Independent blinded A/B verdict: {unblinded.get('independent_verdict')}, three_suites_passed: {three_categories_passed}"
             }
-            if not indep_passed:
+            if not indep_passed and f"Independent evaluation failed: {unblinded.get('independent_verdict')}" not in failures:
                 failures.append(f"Independent evaluation failed: {unblinded.get('independent_verdict')}")
                 affected_cases.append("independent_evaluation")
         else:
@@ -718,28 +742,37 @@ class AcademicPromotionEngine:
             policy.get("adversarial_clearance", True) and
             metrics.get("adversarial_clearance", True)
         )
+        if "independent_evaluation" in evaluation_report:
+            adv_res = evaluation_report["independent_evaluation"].get("unblinded_comparison", {}).get("adversarial_result", {})
+            if adv_res and adv_res.get("verdict") != "PASS":
+                adv_clear = False
+
         gate_results["adversarial_checks"] = {
             "passed": bool(adv_clear),
             "details": f"Adversarial clearance: {adv_clear}"
         }
-        if not adv_clear:
+        if not adv_clear and "Failed adversarial red-team verification checks." not in failures:
             failures.append("Failed adversarial red-team verification checks.")
             affected_cases.append("adversarial_suite")
 
         # Gate 4: Held-Out Evaluation
         heldout_passed = evaluation_report.get("heldout_integrity_verified", True)
-        # Check if held-out cases were evaluated and passed
         suite_pass_rates = metrics.get("suite_pass_rates", {})
         if "heldout" in suite_pass_rates and suite_pass_rates["heldout"] < 1.0:
             heldout_passed = False
+        if "independent_evaluation" in evaluation_report:
+            held_res = evaluation_report["independent_evaluation"].get("unblinded_comparison", {}).get("heldout_result", {})
+            if held_res and held_res.get("verdict") != "PASS":
+                heldout_passed = False
 
         gate_results["held_out_evaluation"] = {
             "passed": bool(heldout_passed),
             "details": f"Heldout pass rate: {suite_pass_rates.get('heldout', 1.0)}"
         }
-        if not heldout_passed:
+        if not heldout_passed and "Failed generalization on held-out evaluation scenarios." not in failures:
             failures.append("Failed generalization on held-out evaluation scenarios.")
             affected_cases.append("heldout_suite")
+
 
         # Gate 5: Integrity Checks
         integrity_passed = True

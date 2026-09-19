@@ -444,12 +444,19 @@ class AcademicBehaviorAnalyzer:
             f"the execution should have followed '{prescribed}'."
         )
 
+        # Formulate conditional resolution: WHEN X -> A, WHEN Y -> B, EXCEPT Z -> C (Phase 24)
+        conditional_resolution = (
+            f"WHEN standard baseline assumptions hold → use primary approach ({prescribed}); "
+            f"WHEN complex data structures (multi-wave/missingness) present → use robust alternative; "
+            f"EXCEPT when {failure_sig} or boundary violation occurs → use alternative remediation."
+        )
+
         return {
             "target_category": resolved_category,
             "diagnosed_gap": f"Missing or ambiguous {resolved_category} in '{affected_section}': {diagnosis}",
             "affected_section": affected_section,
             "prescribed_behavior": prescribed,
-            "proposed_resolution": prescribed,
+            "proposed_resolution": conditional_resolution,
             "counterfactual": counterfactual,
             "evidence_sources": [
                 f"Observable Failure: {failure_sig}",

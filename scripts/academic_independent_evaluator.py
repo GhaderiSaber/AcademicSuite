@@ -25,6 +25,7 @@ Key Invariants:
 
 import os
 import sys
+import re
 import json
 import uuid
 import copy
@@ -95,20 +96,34 @@ class AcademicIndependentEvaluator:
         custom_cases: Optional[List[Dict[str, Any]]] = None
     ) -> List[Dict[str, Any]]:
         """
-        Assembles a standardized multi-task benchmark panel:
-        - Task A: TARGET_DEFECT (the motivating failure scenario)
-        - Task B: RELATED_CAPABILITY (generalization test on the same capability)
-        - Task C: REGRESSION_GUARD (permanent regression scenario protecting baseline capabilities)
+        Assembles a standardized 3-category multi-task benchmark panel (Phase 24):
+        - Task 1: REGRESSION Suite — "Does it fix the original mistake?"
+        - Task 2: ADVERSARIAL Suite — "Can the candidate create a new mistake?"
+        - Task 3: HELDOUT Suite — "Does the lesson generalize to a different case?"
         """
         if custom_cases and len(custom_cases) >= 2:
             panel = []
+            category_mapping = ["REGRESSION", "ADVERSARIAL", "HELDOUT"]
+            cat_names = [
+                "Regression Suite: Motivating Defect Resolution",
+                "Adversarial Suite: Boundary & Edge Stress Test",
+                "Held-Out Suite: Out-of-Distribution Generalization"
+            ]
+            cat_descriptions = [
+                "Verifies whether candidate eliminates original defect without error.",
+                "Tests edge cases and boundary conditions to ensure no new mistakes are created.",
+                "Tests out-of-distribution generalization to distinct designs and scenarios."
+            ]
             for i, c in enumerate(custom_cases):
-                task_type = "TARGET_DEFECT" if i == 0 else ("RELATED_CAPABILITY" if i == 1 else "REGRESSION_GUARD")
+                ttype = category_mapping[i] if i < len(category_mapping) else "REGRESSION_GUARD"
+                tname = cat_names[i] if i < len(cat_names) else c.get("name", f"Benchmark Task {chr(65 + i)}")
+                tdesc = cat_descriptions[i] if i < len(cat_descriptions) else c.get("description", "")
                 panel.append({
-                    "task_id": c.get("case_id", f"TASK-{chr(65 + i)}"),
-                    "name": c.get("name", f"Benchmark Task {chr(65 + i)}"),
-                    "type": c.get("task_type", task_type),
-                    "description": c.get("description", f"Evaluation benchmark task {chr(65 + i)} for {capability}"),
+                    "task_id": c.get("case_id", f"TASK-{ttype[:3]}"),
+                    "name": c.get("name", tname),
+                    "type": c.get("task_type", ttype),
+                    "category": ttype.lower(),
+                    "description": c.get("description", tdesc),
                     "expected_properties": c.get("expected_properties", {}),
                     "forbidden_behaviors": c.get("forbidden_behaviors", ["p_equals_point_zero_zero_zero"]),
                     "inputs": c.get("inputs", {})
@@ -117,27 +132,52 @@ class AcademicIndependentEvaluator:
 
         # Discover existing cases from evaluation lab
         all_cases = self.lab.load_cases(include_retired=False)
-        rel_cases = [c for c in all_cases if c.get("capability", "").lower() == capability.lower()]
         reg_cases = [c for c in all_cases if c.get("suite_type") == "regression"]
+        adv_cases = [c for c in all_cases if c.get("suite_type") == "adversarial"]
+        held_cases = [c for c in all_cases if c.get("suite_type") == "heldout"]
+
+        def _select_best_case(case_pool, pref_cap, pref_sig):
+            if not case_pool:
+                return None
+            # 1. Match both capability and signature
+            if pref_sig and pref_cap:
+                for c in case_pool:
+                    cap = c.get("capability", "").lower()
+                    tags = " ".join(c.get("tags", [])).lower()
+                    fb = " ".join(c.get("forbidden_behaviors", [])).lower()
+                    cid = c.get("case_id", "").lower()
+                    if (pref_cap.lower() in cap or pref_cap.lower() in cid) and (pref_sig.lower() in tags or pref_sig.lower() in fb or any(k in tags for k in ["slope", "ancova", "assumption"])):
+                        return c
+            # 2. Match signature or related domain keywords
+            if pref_sig:
+                for c in case_pool:
+                    tags = " ".join(c.get("tags", [])).lower()
+                    fb = " ".join(c.get("forbidden_behaviors", [])).lower()
+                    cid = c.get("case_id", "").lower()
+                    if pref_sig.lower() in tags or pref_sig.lower() in fb or pref_sig.lower() in cid or any(k in tags for k in ["slope", "ancova", "assumption"]):
+                        return c
+            # 3. Match capability
+            if pref_cap:
+                for c in case_pool:
+                    cap = c.get("capability", "").lower()
+                    cid = c.get("case_id", "").lower()
+                    if pref_cap.lower() in cap or pref_cap.lower() in cid:
+                        return c
+            return case_pool[0]
 
         panel = []
 
-        # Task A: Motivating defect
-        target_case = None
-        if failure_signature:
-            for c in rel_cases + all_cases:
-                if failure_signature.lower() in str(c.get("forbidden_behaviors", [])).lower() or \
-                   failure_signature.lower() in str(c.get("tags", [])).lower():
-                    target_case = c
-                    break
+        # 1. Regression Task: Motivating defect ("Does it fix the original mistake?")
+        target_case = _select_best_case(reg_cases, capability, failure_signature)
         if not target_case:
-            target_case = rel_cases[0] if rel_cases else (all_cases[0] if all_cases else None)
+            target_case = all_cases[0] if all_cases else None
 
         panel.append({
-            "task_id": "TASK-A",
-            "name": f"Target Defect Resolution: {failure_signature or 'Primary Task'}",
-            "type": "TARGET_DEFECT",
-            "description": f"Verifies whether candidate eliminates defect '{failure_signature or 'target_defect'}' without error.",
+            "task_id": "TASK-REG",
+            "name": f"Regression Suite: {failure_signature or (target_case.get('case_id') if target_case else 'Motivating Defect Resolution')}",
+            "type": "REGRESSION",
+            "category": "regression",
+            "description": "Does it fix the original mistake? Verifies that candidate eliminates the motivating defect.",
             "expected_properties": target_case.get("expected_properties", {
                 "required_metrics": {"effect_size_type": "partial_eta_squared"}
             }) if target_case else {},
@@ -147,46 +187,48 @@ class AcademicIndependentEvaluator:
             "inputs": target_case.get("inputs", {}) if target_case else {}
         })
 
-        # Task B: Related capability generalization
-        related_case = None
-        for c in rel_cases:
-            if target_case and c.get("case_id") != target_case.get("case_id"):
-                related_case = c
-                break
-        if not related_case and all_cases:
-            related_case = all_cases[1] if len(all_cases) > 1 else all_cases[0]
+        # 2. Adversarial Task: Boundary edge test ("Can the candidate create a new mistake?")
+        adv_case = _select_best_case(adv_cases, capability, failure_signature)
+        if not adv_case:
+            adv_case = all_cases[1] if len(all_cases) > 1 else (all_cases[0] if all_cases else None)
 
         panel.append({
-            "task_id": "TASK-B",
-            "name": f"Related Capability Generalization: {capability}",
-            "type": "RELATED_CAPABILITY",
-            "description": f"Evaluates whether candidate generalizes correctly to secondary tasks within '{capability}'.",
-            "expected_properties": related_case.get("expected_properties", {
-                "required_metrics": {"bca_confidence_interval_reported": True}
-            }) if related_case else {},
-            "forbidden_behaviors": related_case.get("forbidden_behaviors", [
-                "failing_to_report_ci"
-            ]) if related_case else ["failing_to_report_ci"],
-            "inputs": related_case.get("inputs", {}) if related_case else {}
+            "task_id": "TASK-ADV",
+            "name": f"Adversarial Suite: {adv_case.get('case_id', 'Boundary Stress Test') if adv_case else 'Boundary Stress Test'}",
+            "type": "ADVERSARIAL",
+            "category": "adversarial",
+            "description": "Can the candidate create a new mistake? Tests boundary assumptions and edge cases.",
+            "expected_properties": adv_case.get("expected_properties", {
+                "required_metrics": {"standard_ancova_rejected_on_violation": True}
+            }) if adv_case else {},
+            "forbidden_behaviors": adv_case.get("forbidden_behaviors", [
+                "universal_instruction_always_ancova", "standard_ancova_under_heterogeneous_slopes"
+            ]) if adv_case else ["universal_instruction_always_ancova"],
+            "inputs": adv_case.get("inputs", {}) if adv_case else {}
         })
 
-        # Task C: Permanent regression guard
-        reg_case = reg_cases[0] if reg_cases else (all_cases[0] if all_cases else None)
+        # 3. Held-Out Task: Generalization ("Does the lesson generalize to a different case?")
+        held_case = _select_best_case(held_cases, capability, failure_signature)
+        if not held_case:
+            held_case = all_cases[2] if len(all_cases) > 2 else (all_cases[0] if all_cases else None)
+
         panel.append({
-            "task_id": "TASK-C",
-            "name": "Regression Guard: Core Baseline Capabilities",
-            "type": "REGRESSION_GUARD",
-            "description": "Verifies that core baseline capabilities, assumption checks, and typography remain unregressed.",
-            "expected_properties": reg_case.get("expected_properties", {
-                "required_reasoning_properties": ["repeated_measures_structure", "missingness"]
-            }) if reg_case else {},
-            "forbidden_behaviors": reg_case.get("forbidden_behaviors", [
-                "unjustified_model_selection_without_comparison"
-            ]) if reg_case else ["unjustified_model_selection_without_comparison"],
-            "inputs": reg_case.get("inputs", {}) if reg_case else {}
+            "task_id": "TASK-HELD",
+            "name": f"Held-Out Suite: {held_case.get('case_id', 'Out-of-Distribution Generalization') if held_case else 'Out-of-Distribution Generalization'}",
+            "type": "HELDOUT",
+            "category": "heldout",
+            "description": "Does the lesson generalize to a different case? Tests generalization against sealed held-out cases.",
+            "expected_properties": held_case.get("expected_properties", {
+                "required_metrics": {"lmm_random_intercept_estimated": True}
+            }) if held_case else {},
+            "forbidden_behaviors": held_case.get("forbidden_behaviors", [
+                "universal_instruction_always_ancova", "applying_ancova_to_multi_wave_attrition_data"
+            ]) if held_case else ["universal_instruction_always_ancova"],
+            "inputs": held_case.get("inputs", {}) if held_case else {}
         })
 
         return panel
+
 
     # -------------------------------------------------------------------------
     # 2. Blinded Token Assignment & Payload Sanitization
@@ -387,9 +429,47 @@ class AcademicIndependentEvaluator:
         new_regressions = []
         resolved_defects = []
 
+        # Track 3-category evaluation metrics (Phase 24)
+        regression_result = {
+            "fixes_original_mistake": False,
+            "verdict": "FAIL",
+            "task_id": "TASK-REG"
+        }
+        adversarial_result = {
+            "creates_new_mistake": True,
+            "verdict": "FAIL",
+            "task_id": "TASK-ADV"
+        }
+        heldout_result = {
+            "generalizes_to_different_case": False,
+            "verdict": "FAIL",
+            "task_id": "TASK-HELD"
+        }
+
+        # Check diagnostics for universal instructions or blanket assertions
+        cand_all_diags = []
+        for t_info in cand_tasks.values():
+            cand_all_diags.extend(t_info.get("diagnostics", []))
+
+        has_blanket_instruction = any(
+            d.get("failure_type") in [
+                "universal_instruction_always_ancova",
+                "standard_ancova_under_heterogeneous_slopes",
+                "applying_ancova_to_multi_wave_attrition_data"
+            ]
+            for d in cand_all_diags
+        )
+        # Check raw text in candidate evaluations for naive universal rules
+        cand_eval_str = json.dumps(cand_eval).lower()
+        if re.search(r"\balways\s+use\s+ancova\b|\balways\s+ancova\b", cand_eval_str):
+            has_blanket_instruction = True
+
+        conditional_rule_verified = not has_blanket_instruction
+
         for task in task_panel:
             tid = task["task_id"]
-            ttype = task.get("type")
+            ttype = str(task.get("type", "")).upper()
+            tcat = str(task.get("category", "")).lower()
 
             b_res = base_tasks.get(tid, {})
             c_res = cand_tasks.get(tid, {})
@@ -402,7 +482,7 @@ class AcademicIndependentEvaluator:
 
             if cand_improved:
                 resolved_defects.append(tid)
-                if ttype == "TARGET_DEFECT" or tid == "TASK-A":
+                if ttype in ["REGRESSION", "TARGET_DEFECT"] or tcat == "regression" or "REG" in tid or tid == "TASK-A":
                     defect_resolved = True
 
             if cand_regressed:
@@ -411,11 +491,43 @@ class AcademicIndependentEvaluator:
             tasks_summary[tid] = {
                 "name": task.get("name"),
                 "type": ttype,
+                "category": tcat or ttype.lower(),
                 "baseline_verdict": b_verdict,
                 "candidate_verdict": c_verdict,
                 "candidate_improved": cand_improved,
                 "candidate_regressed": cand_regressed
             }
+
+            # Map to the 3 mandatory evaluation categories
+            if ttype in ["REGRESSION", "TARGET_DEFECT"] or tcat == "regression" or "REG" in tid:
+                regression_result["task_id"] = tid
+                regression_result["verdict"] = c_verdict
+                regression_result["fixes_original_mistake"] = (c_verdict == "PASS")
+            elif ttype in ["ADVERSARIAL", "ADVERSARIAL_CHALLENGE"] or tcat == "adversarial" or "ADV" in tid:
+                adversarial_result["task_id"] = tid
+                adversarial_result["verdict"] = c_verdict
+                adversarial_result["creates_new_mistake"] = (c_verdict != "PASS")
+            elif ttype in ["HELDOUT"] or tcat == "heldout" or "HELD" in tid or ttype == "RELATED_CAPABILITY":
+                heldout_result["task_id"] = tid
+                heldout_result["verdict"] = c_verdict
+                heldout_result["generalizes_to_different_case"] = (c_verdict == "PASS")
+
+        # Fallbacks if tasks were named TASK-A, TASK-B, TASK-C
+        if "TASK-A" in tasks_summary and regression_result["task_id"] == "TASK-REG":
+            c_v = tasks_summary["TASK-A"]["candidate_verdict"]
+            regression_result["task_id"] = "TASK-A"
+            regression_result["verdict"] = c_v
+            regression_result["fixes_original_mistake"] = (c_v == "PASS")
+        if "TASK-B" in tasks_summary and adversarial_result["task_id"] == "TASK-ADV":
+            c_v = tasks_summary["TASK-B"]["candidate_verdict"]
+            adversarial_result["task_id"] = "TASK-B"
+            adversarial_result["verdict"] = c_v
+            adversarial_result["creates_new_mistake"] = (c_v != "PASS")
+        if "TASK-C" in tasks_summary and heldout_result["task_id"] == "TASK-HELD":
+            c_v = tasks_summary["TASK-C"]["candidate_verdict"]
+            heldout_result["task_id"] = "TASK-C"
+            heldout_result["verdict"] = c_v
+            heldout_result["generalizes_to_different_case"] = (c_v == "PASS")
 
         candidate_passes = cand_eval.get("passed_tasks_count", 0)
         baseline_passes = base_eval.get("passed_tasks_count", 0)
@@ -427,8 +539,21 @@ class AcademicIndependentEvaluator:
         )
         zero_regressions = (len(new_regressions) == 0)
 
-        # Final independent verdict: PASS requires defect_resolved, zero regressions, and candidate >= baseline
-        independent_verdict = "PASS" if (defect_resolved and zero_regressions and candidate_passes >= baseline_passes) else "FAIL"
+        # Phase 24 Multi-Category Verdict:
+        # All three suites (Regression, Adversarial, Held-out) must pass,
+        # zero new regressions, and conditional rules verified (no universal blanket instructions)
+        three_suites_passed = (
+            regression_result["verdict"] == "PASS" and
+            adversarial_result["verdict"] == "PASS" and
+            heldout_result["verdict"] == "PASS"
+        )
+
+        independent_verdict = "PASS" if (
+            three_suites_passed and
+            conditional_rule_verified and
+            zero_regressions and
+            candidate_passes >= baseline_passes
+        ) else "FAIL"
         recommendation = "PROMOTE" if independent_verdict == "PASS" else "REJECT"
 
         eval_id = f"INDEP-EVL-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
@@ -455,6 +580,11 @@ class AcademicIndependentEvaluator:
                 "defect_resolved": defect_resolved,
                 "candidate_outperformed_baseline": candidate_outperformed,
                 "zero_regressions_verified": zero_regressions,
+                "categories_evaluated": ["regression", "adversarial", "heldout"],
+                "regression_result": regression_result,
+                "adversarial_result": adversarial_result,
+                "heldout_result": heldout_result,
+                "conditional_rule_verified": conditional_rule_verified,
                 "independent_verdict": independent_verdict,
                 "recommendation": recommendation,
                 "resolved_defects": resolved_defects,

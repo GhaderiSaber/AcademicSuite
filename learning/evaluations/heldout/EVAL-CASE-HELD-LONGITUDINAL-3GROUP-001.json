@@ -1,0 +1,57 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-HELD-LONGITUDINAL-3GROUP-001",
+  "capability": "statistical-data-analyst",
+  "suite_type": "heldout",
+  "difficulty": "L3_LATENT_STRUCTURAL_SYSTEMS",
+  "tags": ["longitudinal", "lmm", "three_group", "heldout", "attrition", "mixed_models"],
+  "task": {
+    "prompt": "Evaluate a 3-group longitudinal trial (Active Intervention vs Active Control vs Waitlist) measured across 4 waves (T1 Baseline, T2 Mid, T3 Post, T4 6-Month Follow-Up) with 18% subject attrition.",
+    "research_question": "Does the active psychological intervention show sustained efficacy over time across the 3 groups while accounting for missing waves and within-subject dependency?",
+    "hypothesis": "Given 3 groups, 4 measurement waves, and subject dropout, the analytical model must use Linear Mixed Models (LMM) with random subject intercepts rather than 2-timepoint ANCOVA or complete-case RM-ANOVA."
+  },
+  "inputs": {
+    "dataset_path": "evals/heldout/data_longitudinal_3group.xlsx",
+    "dataset_sha256": "1566197905886a890378220ad078003a5848aae3d77cb49da330fc614caff3da",
+    "spec_parameters": {
+      "groups": ["ACT", "CBT", "Waitlist"],
+      "waves": ["T1", "T2", "T3", "T4"],
+      "attrition_rate": 0.18,
+      "time_points_count": 4
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "lmm_random_intercept_estimated": true,
+      "group_by_time_interaction_reported": true,
+      "missingness_mechanism_evaluated": true
+    },
+    "required_reasoning_properties": [
+      "repeated_measures_structure",
+      "missingness",
+      "candidate_model_comparison"
+    ],
+    "required_artifacts": [
+      "lmm_longitudinal_results.json",
+      "longitudinal_table.docx"
+    ],
+    "typography_rules": [
+      "italicize_f_and_p",
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "universal_instruction_always_ancova",
+    "applying_ancova_to_multi_wave_attrition_data",
+    "ignoring_missingness_in_longitudinal_data",
+    "listwise_deletion_of_dropout_cases",
+    "p_equals_point_zero_zero_zero"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": ["--check", "reasoning", "--case", "EVAL-CASE-HELD-LONGITUDINAL-3GROUP-001"],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-09-19T10:00:00Z"
+}

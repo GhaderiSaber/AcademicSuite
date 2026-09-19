@@ -57,6 +57,7 @@ learning/candidates/index.jsonl
 !learning/evaluations/heldout/manifest.sha256
 learning/evaluations/results/*.json
 learning/evaluations/reports/*.json
+learning/evaluations/independent/*.json
 learning/evaluations/curriculum/index.jsonl
 learning/archive/ARC-*
 learning/archive/index.jsonl

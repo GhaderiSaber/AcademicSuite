@@ -230,7 +230,7 @@ class AcademicEvaluationLab:
             slope_checked = any(
                 "slope" in str(a).lower() or "homogeneity" in str(a).lower()
                 for a in assumptions
-            ) or candidate_output.get("homogeneity_of_slopes_checked", False)
+            ) or candidate_output.get("homogeneity_of_slopes_checked", False) or candidate_output.get("slope_homogeneity_tested", False)
             if not slope_checked:
                 diagnostics.append({
                     "target_behavior": False,
@@ -502,6 +502,12 @@ class AcademicEvaluationLab:
             ],
             "epistemic_honesty": [
                 "epistemic_honesty", "alternative", "توجیه", "فرضیه", "تبیین"
+            ],
+            "slope_homogeneity_verification": [
+                "slope_homogeneity_verification", "slope_homogeneity", "homogeneity of slopes", "homogeneity of regression slopes", "همگونی شیب", "شیب رگرسیون"
+            ],
+            "conditional_branching_on_violation": [
+                "conditional_branching_on_violation", "conditional_branching", "violation remediation", "rm-anova", "repeated-measures anova", "change scores", "johnson-neyman", "lmm", "mixed model"
             ]
         }
 
@@ -537,6 +543,49 @@ class AcademicEvaluationLab:
                         "failure_type": "ignoring_missingness_in_longitudinal_data",
                         "evidence": "Longitudinal modeling proceeded without evaluating missingness patterns or attrition.",
                         "missed_requirement": "Missingness evaluation (Little's MCAR or MAR justification).",
+                        "dimension": "methodology",
+                        "regression": True
+                    })
+            elif fb == "universal_instruction_always_ancova":
+                if re.search(r"\balways\s+use\s+ancova\b", combined_text) or re.search(r"\balways\s+ancova\b", combined_text):
+                    diagnostics.append({
+                        "target_behavior": False,
+                        "failure_type": "universal_instruction_always_ancova",
+                        "evidence": "Found naive universal instruction 'Always use ANCOVA' in candidate reasoning. Phase 24 strictly prohibits universal blanket instructions.",
+                        "missed_requirement": "Conditional decision rule (WHEN X -> A, WHEN Y -> B, EXCEPT Z -> C).",
+                        "dimension": "methodology",
+                        "regression": True
+                    })
+            elif fb == "omitting_homogeneity_of_slopes_test":
+                slope_checked = any(syn in combined_text for syn in property_synonyms["slope_homogeneity_verification"])
+                if not slope_checked:
+                    diagnostics.append({
+                        "target_behavior": False,
+                        "failure_type": "omitting_homogeneity_of_slopes_test",
+                        "evidence": "Candidate omitted verifying the mandatory prerequisite of Homogeneity of Regression Slopes.",
+                        "missed_requirement": "Homogeneity of regression slopes test (Group x Covariate p > .05).",
+                        "dimension": "statistical_validity",
+                        "regression": True
+                    })
+            elif fb in ["ignoring_violated_slope_homogeneity", "standard_ancova_under_heterogeneous_slopes"]:
+                applied_ancova = bool(re.search(r"\bancova\b", combined_text)) and not bool(re.search(r"\brm-anova\b|\bchange score|\bjohnson-neyman|\bmixed model|\blmm\b", combined_text))
+                if applied_ancova or "always use ancova" in combined_text:
+                    diagnostics.append({
+                        "target_behavior": False,
+                        "failure_type": fb,
+                        "evidence": f"Candidate committed forbidden behavior '{fb}': used standard ANCOVA when homogeneity of slopes is violated.",
+                        "missed_requirement": "Switch to alternative approach (RM-ANOVA on change scores, Johnson-Neyman, LMM) when slope homogeneity is violated.",
+                        "dimension": "statistical_validity",
+                        "regression": True
+                    })
+            elif fb in ["applying_ancova_to_multi_wave_attrition_data", "listwise_deletion_of_dropout_cases"]:
+                applied_ancova_on_multiwave = bool(re.search(r"\bancova\b", combined_text)) and not bool(re.search(r"\blmm\b|\bmixed model\b|\bmultilevel\b", combined_text))
+                if applied_ancova_on_multiwave or "always use ancova" in combined_text:
+                    diagnostics.append({
+                        "target_behavior": False,
+                        "failure_type": fb,
+                        "evidence": f"Candidate committed forbidden behavior '{fb}': applied standard ANCOVA to 3-group 4-wave longitudinal data with attrition.",
+                        "missed_requirement": "Use Linear Mixed Models (LMM) with subject random intercepts for multi-wave longitudinal data with attrition.",
                         "dimension": "methodology",
                         "regression": True
                     })

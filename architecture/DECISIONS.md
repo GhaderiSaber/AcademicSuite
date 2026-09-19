@@ -1139,5 +1139,60 @@ Independent Evaluator (Blinded A/B)
 - **Positive**: Complete elimination of candidate self-evaluation; authentic blinded A/B grading; rigorous regression protection across multi-task panels; 100% adherence to Directives 0, 12.1, 18, and 19.
 - **Negative**: Requires executing both baseline and candidate agents across multiple benchmark tasks per evaluation cycle.
 
+---
+
+## ADR-029: Three-Category Evaluation Suites (Regression, Adversarial, Held-Out) and Conditional Decision Rule Mandate
+
+### Status
+Accepted
+
+### Context
+In earlier iterations of behavioral self-improvement, candidate modifications were evaluated on single-task benchmarks or unstructured collections of test cases. Candidates could learn brittle, naive, or overfitted rules—most dangerously, universal blanket instructions such as *"Always use ANCOVA"* or *"Never use RM-ANOVA"*. 
+
+When a candidate learned a universal instruction:
+1. It could pass a simple two-group pre-post RCT regression test case.
+2. When presented with an assumption violation (e.g., ANCOVA slope heterogeneity where $F_{\text{interaction}} = 8.42, p = .004$), the candidate blindly applied ANCOVA, creating severe methodological defects.
+3. When presented with an out-of-distribution design (e.g., a 3-group 4-wave longitudinal trial with attrition), the candidate inappropriately forced ANCOVA onto multi-wave attrition data rather than applying Linear Mixed Models (LMM).
+
+Universal blanket instructions without conditional branching violate scientific integrity and create brittle agents.
+
+### Decision
+1. **The Three Mandatory Evaluation Categories**:
+   Every improvement candidate must face three distinct evaluation suites:
+   - **Regression Suite**: *"Does it fix the original mistake?"*
+     Tests the original motivating defect scenario and ensures permanent regression guards protect baseline capabilities.
+   - **Adversarial Suite**: *"Can the candidate create a new mistake?"*
+     Tests edge cases, boundary conditions, and assumption violations (e.g., ANCOVA slope heterogeneity where ANCOVA is invalid and must be rejected in favor of Johnson-Neyman or Repeated Measures).
+   - **Held-Out Suite**: *"Does the lesson generalize to a different case?"*
+     Tests out-of-distribution generalization against cryptographically sealed test cases (e.g., 3-group 4-wave longitudinal trial with attrition requiring Linear Mixed Models).
+
+2. **Prohibition of Universal Blanket Instructions**:
+   - Universal blanket instructions (`Always use ...`, `Never use ...`, `In all cases use ...`) are strictly prohibited.
+   - Any candidate attempting to synthesize a universal instruction raises `UniversalInstructionProhibitedError` during candidate generation and fails evaluation closed.
+
+3. **Mandatory Conditional Decision Rules**:
+   Learned rules must strictly embody structured conditional branching:
+   ```text
+   WHEN condition X
+   → use approach A
+
+   WHEN condition Y
+   → use approach B
+
+   EXCEPT condition Z
+   → use approach C
+   ```
+   Enforced across `AcademicCandidateGenerator`, `AcademicBehaviorAnalyzer`, `AcademicIndependentEvaluator`, and `AcademicPromotionEngine`.
+
+4. **Three-Category Blinded Evaluation & Gating**:
+   - `AcademicIndependentEvaluator` constructs evaluation panels across all three categories (`TASK-REG`, `TASK-ADV`, `TASK-HELD`).
+   - Requires `regression_result.passed == True`, `adversarial_result.passed == True`, `heldout_result.passed == True`, and `conditional_rule_verified == True`.
+   - `AcademicPromotionEngine` gates activation on all three categories passing; any failure in adversarial or held-out tests blocks promotion.
+
+### Consequences
+- **Positive**: Eliminates brittle universal rules; prevents catastrophic overfitting; guarantees adversarial resilience and out-of-distribution generalization; ensures strict compliance with Directives 0, 9, 12.1, 18, and 19.
+- **Negative**: Requires authoring and maintaining comprehensive adversarial and cryptographically sealed held-out evaluation test suites.
+
+
 
 

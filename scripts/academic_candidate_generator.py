@@ -28,6 +28,7 @@ Crucial Invariants:
 
 import os
 import sys
+import re
 import json
 import uuid
 import difflib
@@ -56,6 +57,11 @@ from contracts.contract_validator import (
 
 class CandidateGenerationError(Exception):
     """Raised when candidate improvement generation fails."""
+    pass
+
+
+class UniversalInstructionProhibitedError(CandidateGenerationError):
+    """Raised when a candidate improvement proposes a naive universal or blanket instruction (Phase 24)."""
     pass
 
 
@@ -389,6 +395,7 @@ class AcademicCandidateGenerator:
 
         # Verify Directive 18 ceilings on modified text
         self._verify_directive_18_ceilings(mutation_patch)
+        self._verify_conditional_rule_structure(mutation_patch)
 
         diff_text = self._create_unified_diff(
             file_path=target_component_rel,
@@ -490,6 +497,7 @@ class AcademicCandidateGenerator:
 
             # Check Directive 18 ceilings
             self._verify_directive_18_ceilings(mutation_patch)
+            self._verify_conditional_rule_structure(mutation_patch)
 
             diff_text = self._create_unified_diff(
                 file_path=target_component_rel,
@@ -665,11 +673,15 @@ class AcademicCandidateGenerator:
                 f"1. **Evaluate Baseline Conditions & Assumptions**:\n"
                 f"   - Verify empirical prerequisites and data properties.\n"
                 f"   - If default model conditions are violated: follow prescribed remediation: {prescribed}\n"
-                f"2. **Model Selection & Refutation**:\n"
-                f"   - Compare candidate models against data structure and research questions.\n"
-                f"   - Document rejected alternatives with literature-grounded refutations.\n"
+                f"2. **Conditional Decision Rules (WHEN / EXCEPT Mandate)**:\n"
+                f"   - **WHEN condition X (Standard 2-wave balanced design with verified parametric assumptions)**:\n"
+                f"     → use approach A (Standard model with baseline control).\n"
+                f"   - **WHEN condition Y (Multi-wave longitudinal design or missing waves/attrition)**:\n"
+                f"     → use approach B (Linear Mixed Models with subject random intercepts).\n"
+                f"   - **EXCEPT condition Z (Assumption violation, e.g. slope heterogeneity or '{failure_sig}')**:\n"
+                f"     → use approach C ({prescribed}).\n"
                 f"3. **Defect Prevention Invariant**:\n"
-                f"   - Never proceed with default model when '{failure_sig}' risks are present.\n"
+                f"   - Prohibit universal blanket instructions ('Always use ...'). Explicitly compare candidate models against data structure.\n"
             )
             modified_text = current_skill_content + addition
             rationale = f"Addresses diagnosed gap '{diagnosed_gap}' by introducing an explicit decision tree that prevents '{failure_sig}'."
@@ -684,7 +696,13 @@ class AcademicCandidateGenerator:
             addition = (
                 f"\n\n## 📋 Mandatory Operational Step: {target_skill} Execution\n"
                 f"Prior to concluding this stage:\n"
-                f"1. **Required Operational Action**: {prescribed}\n"
+                f"1. **Conditional Execution Rules**:\n"
+                f"   - **WHEN condition X (Standard prerequisites satisfied)**:\n"
+                f"     → use approach A (Execute standard analysis).\n"
+                f"   - **WHEN condition Y (Alternative design characteristics present)**:\n"
+                f"     → use approach B (Adjust model parameters accordingly).\n"
+                f"   - **EXCEPT condition Z (Risk of '{failure_sig}' detected)**:\n"
+                f"     → use approach C ({prescribed}).\n"
                 f"2. **Audit Requirement**: Verify that all parameters meet academic and institutional standards.\n"
                 f"3. **Artifact Traceability**: Emit structured checkpoint artifact documenting execution parameters and verifying zero '{failure_sig}'.\n"
             )
@@ -717,8 +735,14 @@ class AcademicCandidateGenerator:
             addition = (
                 f"\n\n## 🔒 Pre-Flight & Post-Execution Verification Gate: {target_skill}\n"
                 f"Before finalizing findings or reporting outputs:\n"
-                f"1. **Prescribed Rule**: {prescribed}\n"
-                f"2. **Defect Prevention**: Verify zero occurrence of '{failure_sig}' ({root}).\n"
+                f"1. **Conditional Verification Rules**:\n"
+                f"   - **WHEN condition X (Standard design conditions hold)**:\n"
+                f"     → use approach A (Verify standard parametric checklist).\n"
+                f"   - **WHEN condition Y (Complex or longitudinal structure)**:\n"
+                f"     → use approach B (Verify mixed modeling and missingness diagnostics).\n"
+                f"   - **EXCEPT condition Z (Defect '{failure_sig}' or assumption violation detected)**:\n"
+                f"     → use approach C ({prescribed}).\n"
+                f"2. **Defect Prevention**: Verify zero occurrence of '{failure_sig}' ({root}). Prohibit universal blanket rules.\n"
                 f"3. **Fail-Closed Gate**: If any verification check fails, halt execution immediately and emit diagnostic error.\n"
             )
             modified_text = current_skill_content + addition
@@ -733,8 +757,14 @@ class AcademicCandidateGenerator:
         elif mut_type == "INSTRUCTION_REFINEMENT":
             addition = (
                 f"\n\n## 🎯 Refined Behavioral Mandate: {target_skill}\n"
-                f"- **Core Directive**: {prescribed}\n"
-                f"- **Defect Prevention**: Strictly eliminate '{failure_sig}' ({root}).\n"
+                f"- **Conditional Execution Rules**:\n"
+                f"  - **WHEN condition X (Baseline assumptions verified)**:\n"
+                f"    → use approach A (Apply standard analytical procedures).\n"
+                f"  - **WHEN condition Y (Out-of-distribution or longitudinal data)**:\n"
+                f"    → use approach B (Apply robust multi-wave models).\n"
+                f"  - **EXCEPT condition Z (Boundary violation or '{failure_sig}')**:\n"
+                f"    → use approach C ({prescribed}).\n"
+                f"- **Defect Prevention**: Strictly eliminate '{failure_sig}' ({root}). Never use universal blanket instructions.\n"
                 f"- **Scholarly Register**: Maintain authentic academic tone and institutional formatting throughout.\n"
             )
             modified_text = current_skill_content + addition
@@ -783,9 +813,13 @@ class AcademicCandidateGenerator:
         elif mut_type == "CLARIFICATION_APPLICABILITY_EXCLUSIONS":
             addition = (
                 f"\n\n## ⚠️ Applicability Boundaries & Exception Handling: {target_skill}\n"
-                f"- **Standard Applicability**: Applies to standard analytical conditions where baseline assumptions hold.\n"
-                f"- **Exception Conditions ({failure_sig})**: {root}\n"
-                f"- **Prescribed Remediation**: {prescribed}\n"
+                f"- **Conditional Decision Rules**:\n"
+                f"  - **WHEN condition X (Standard analytical conditions where baseline assumptions hold)**:\n"
+                f"    → use approach A (Standard procedures).\n"
+                f"  - **WHEN condition Y (Multi-wave or longitudinal designs)**:\n"
+                f"    → use approach B (Linear mixed modeling).\n"
+                f"  - **EXCEPT condition Z ({failure_sig}: {root})**:\n"
+                f"    → use approach C ({prescribed}).\n"
             )
             modified_text = current_skill_content + addition
             rationale = f"Addresses '{diagnosed_gap}' by defining explicit boundary conditions and exception handling."
@@ -822,6 +856,45 @@ class AcademicCandidateGenerator:
 
         return modified_text, rationale, benefit, downside, hypothesis
 
+    def _verify_conditional_rule_structure(self, content: str) -> None:
+        """
+        Enforces Phase 24 Conditional Decision Rule Mandate:
+        1. Prohibits naive universal/blanket instructions ('Always use ...', 'Never use ...').
+        2. Ensures presence of conditional branches (WHEN / EXCEPT) in decision rules and procedures.
+        """
+        forbidden_universal_patterns = [
+            (r"\balways\s+use\b", "Always use ..."),
+            (r"\balways\s+apply\b", "Always apply ..."),
+            (r"\balways\s+choose\b", "Always choose ..."),
+            (r"\balways\s+select\b", "Always select ..."),
+            (r"\balways\s+default\s+to\b", "Always default to ..."),
+            (r"\bnever\s+use\b", "Never use ..."),
+            (r"\bnever\s+apply\b", "Never apply ..."),
+            (r"\buniversally\s+apply\b", "Universally apply ...")
+        ]
+        content_lower = content.lower()
+        for pat, desc in forbidden_universal_patterns:
+            matches = list(re.finditer(pat, content_lower))
+            for m in matches:
+                start = max(0, m.start() - 30)
+                prefix = content_lower[start:m.start()]
+                if any(neg in prefix for neg in ["prohibit", "avoid", "do not", "never", "eliminate", "reject"]):
+                    continue
+                raise UniversalInstructionProhibitedError(
+                    f"Naive universal instruction detected ({desc}) matching '{m.group()}'. "
+                    f"Phase 24 strictly mandates conditional decision rules: "
+                    f"WHEN condition X → use approach A, WHEN condition Y → use approach B, EXCEPT condition Z → use approach C."
+                )
+
+        if "decision tree" in content_lower or "decision rule" in content_lower or "conditional decision" in content_lower:
+            has_when = bool(re.search(r"\bwhen\b", content_lower))
+            has_except = bool(re.search(r"\bexcept\b", content_lower)) or bool(re.search(r"\bif\s+.*\bviolated\b", content_lower))
+            if not (has_when and has_except):
+                raise CandidateGenerationError(
+                    "Decision rules must follow the conditional structure: "
+                    "WHEN condition X → approach A, WHEN condition Y → approach B, EXCEPT condition Z → approach C."
+                )
+
     def _verify_directive_18_ceilings(self, content: str) -> None:
         """Enforces Directive 18 single-view ceilings (<= 500 lines, <= 40,000 bytes)."""
         lines = content.splitlines()
@@ -836,6 +909,7 @@ class AcademicCandidateGenerator:
             raise CandidateGenerationError(
                 f"Candidate modification violates Directive 18 byte ceiling: {byte_count} > 40,000 bytes."
             )
+
 
     def _create_unified_diff(self, file_path: str, original_text: str, modified_text: str) -> str:
         """Generates a standard unified diff between original and proposed content."""

@@ -55,7 +55,7 @@
           },
           "type": {
             "type": "string",
-            "enum": ["TARGET_DEFECT", "RELATED_CAPABILITY", "REGRESSION_GUARD", "ADVERSARIAL_CHALLENGE"],
+            "enum": ["TARGET_DEFECT", "RELATED_CAPABILITY", "REGRESSION_GUARD", "ADVERSARIAL_CHALLENGE", "REGRESSION", "ADVERSARIAL", "HELDOUT"],
             "description": "Role of this task within the benchmark panel."
           },
           "description": {
@@ -200,6 +200,42 @@
           "type": "string",
           "enum": ["PASS", "FAIL"],
           "description": "Final independent verdict: PASS if defect resolved, outperforming/equal, and zero regressions."
+        },
+        "categories_evaluated": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "The evaluation categories tested (e.g. ['regression', 'adversarial', 'heldout'])."
+        },
+        "regression_result": {
+          "type": "object",
+          "properties": {
+            "fixes_original_mistake": {"type": "boolean"},
+            "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+            "task_id": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "adversarial_result": {
+          "type": "object",
+          "properties": {
+            "creates_new_mistake": {"type": "boolean"},
+            "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+            "task_id": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "heldout_result": {
+          "type": "object",
+          "properties": {
+            "generalizes_to_different_case": {"type": "boolean"},
+            "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+            "task_id": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "conditional_rule_verified": {
+          "type": "boolean",
+          "description": "True if the candidate adheres to the conditional rule structure (WHEN X -> A, WHEN Y -> B, EXCEPT Z -> C) and avoids universal instructions."
         },
         "recommendation": {
           "type": "string",

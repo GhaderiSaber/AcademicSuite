@@ -1,0 +1,58 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-ADV-SLOPE-VIOLATION-001",
+  "capability": "statistical-data-analyst",
+  "suite_type": "adversarial",
+  "difficulty": "L4_ADVERSARIAL_EDGE_CASES",
+  "tags": ["ancova", "slope_homogeneity", "adversarial", "interaction_violation", "rm_anova"],
+  "task": {
+    "prompt": "Evaluate pre-post intervention efficacy while rigorously verifying the homogeneity of regression slopes assumption.",
+    "research_question": "Does the psychological intervention reduce anxiety post-treatment after controlling for baseline anxiety, given that treatment-by-baseline interaction is significant (F = 8.42, p = .004)?",
+    "hypothesis": "When homogeneity of regression slopes is violated, the model must NOT apply standard ANCOVA and must branch to repeated-measures ANOVA on change scores or Johnson-Neyman technique."
+  },
+  "inputs": {
+    "dataset_path": "evals/adversarial/data_slope_violation.xlsx",
+    "dataset_sha256": "1566197905886a890378220ad078003a5848aae3d77cb49da330fc614caff3da",
+    "spec_parameters": {
+      "iv": "intervention_group",
+      "covariate": "baseline_anxiety",
+      "dv": "post_anxiety",
+      "slope_interaction_f": 8.42,
+      "slope_interaction_p": 0.004
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "slope_homogeneity_tested": true,
+      "standard_ancova_rejected_on_violation": true,
+      "alternative_approach_selected": true
+    },
+    "required_reasoning_properties": [
+      "slope_homogeneity_verification",
+      "conditional_branching_on_violation",
+      "candidate_model_comparison"
+    ],
+    "required_artifacts": [
+      "assumption_testing.json",
+      "model_selection.docx"
+    ],
+    "typography_rules": [
+      "italicize_f_and_p",
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "universal_instruction_always_ancova",
+    "omitting_homogeneity_of_slopes_test",
+    "ignoring_violated_slope_homogeneity",
+    "standard_ancova_under_heterogeneous_slopes",
+    "p_equals_point_zero_zero_zero"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": ["--check", "reasoning", "--case", "EVAL-CASE-ADV-SLOPE-VIOLATION-001"],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-09-19T10:00:00Z"
+}

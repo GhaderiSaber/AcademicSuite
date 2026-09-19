@@ -1499,4 +1499,99 @@ After the independent evaluator records its blinded findings:
     - If `independent_evaluation` is present, requires `independent_verdict: "PASS"`, `defect_resolved: True`, and `zero_regressions_verified: True`.
     - Promotion cannot proceed on self-asserted evidence.
 
+---
+
+## 29. The Three-Category Evaluation Architecture & Conditional Rule Governance (Phase 24)
+
+### 29.1 The Three Mandatory Evaluation Categories
+Phase 24 establishes that every improvement candidate must face three distinct evaluation suites before it can be considered for activation:
+
+```mermaid
+flowchart TD
+    Candidate["Candidate Agent Mutation"]
+
+    subgraph ThreeCategories["Three Mandatory Evaluation Categories"]
+        REG["1. Regression Suite\n'Does it fix the original mistake?'\n(Motivating defect + permanent regression guards)"]
+        ADV["2. Adversarial Suite\n'Can the candidate create a new mistake?'\n(Edge cases, boundary conditions, assumption violations)"]
+        HELD["3. Held-Out Suite\n'Does the lesson generalize to a different case?'\n(Out-of-distribution generalization, cryptographically sealed)"]
+    end
+
+    subgraph Verification["Conditional Rule & Multi-Suite Gating"]
+        RuleCheck{"Conditional Decision Rule?\nWHEN condition X -> approach A\nWHEN condition Y -> approach B\nEXCEPT condition Z -> approach C"}
+        UniversalFail["FAIL: Universal Blanket Instruction\n(Always use X / Never use Y)"]
+        GatePass["All 3 Suites PASS + Conditional Rule Verified\n-> Authorized for Promotion"]
+        GateFail["Any Suite FAILS\n-> Rejected / Archived"]
+    end
+
+    Candidate --> REG
+    Candidate --> ADV
+    Candidate --> HELD
+
+    REG --> RuleCheck
+    ADV --> RuleCheck
+    HELD --> RuleCheck
+
+    RuleCheck -- Universal / Blanket Rule --> UniversalFail
+    RuleCheck -- Conditional Rule Verified --> GatePass
+    REG -.->|Failure| GateFail
+    ADV -.->|Failure| GateFail
+    HELD -.->|Failure| GateFail
+```
+
+1. **Regression Suite (`TASK-REG`)**:
+   - *Core Question*: *"Does it fix the original mistake?"*
+   - Evaluates whether the candidate successfully resolves the motivating defect that triggered the evolution loop, while ensuring permanent regression guards protect core baseline capabilities.
+2. **Adversarial Suite (`TASK-ADV`)**:
+   - *Core Question*: *"Can the candidate create a new mistake?"*
+   - Stress-tests edge cases, boundary conditions, and assumption violations. Specifically tests whether the candidate blindly applies its learned rule when underlying mathematical or statistical assumptions are explicitly violated.
+3. **Held-Out Suite (`TASK-HELD`)**:
+   - *Core Question*: *"Does the lesson generalize to a different case?"*
+   - Evaluates out-of-distribution generalization against cryptographically sealed test cases that the candidate has never seen during training or diagnosis.
+
+### 29.2 Prohibition of Universal Blanket Instructions
+- **Universal Blanket Failure Mode**: In empirical research, blanket instructions such as *"Always use ANCOVA"* or *"Never use RM-ANOVA"* are scientifically invalid and dangerous.
+- **Fail-Closed Enforcement**:
+  - `AcademicCandidateGenerator._verify_conditional_rule_structure()` scans proposed mutation content for blanket statements (`Always use ...`, `Never use ...`, `In all cases ...`).
+  - Attempting to synthesize a universal instruction immediately raises `UniversalInstructionProhibitedError`.
+  - In `AcademicEvaluationLab`, domain checks for `universal_instruction_always_ancova` flag and fail any candidate attempting blanket claims.
+
+### 29.3 Mandatory Conditional Decision Rule Structure
+All learned behavioral rules, decision trees, and methodology guidance must strictly embody structured conditional logic:
+```text
+WHEN condition X
+→ use approach A
+
+WHEN condition Y
+→ use approach B
+
+EXCEPT condition Z
+→ use approach C
+```
+
+In `AcademicBehaviorAnalyzer._diagnose_candidate_gap()`, proposed resolutions are formulated strictly within this conditional framework, ensuring that agents learn when *not* to apply a technique as clearly as when to apply it.
+
+### 29.4 The Concrete ANCOVA vs. LMM Benchmark Paradigm
+To demonstrate the necessity and power of the 3-category evaluation architecture:
+
+| Scenario | Case ID | Design & Data Properties | Valid Statistical Method | Universal Candidate Behavior ("Always use ANCOVA") | Conditional Candidate Behavior |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Regression** | `EVAL-CASE-001` | 2-group RCT pre-post with baseline equivalence. | ANCOVA with baseline covariate control. | **PASS**: Uses ANCOVA. | **PASS**: Uses ANCOVA. |
+| **Adversarial** | `EVAL-CASE-ADV-SLOPE-VIOLATION-001` | 2-group RCT with slope heterogeneity ($F = 8.42, p = .004$). | Reject standard ANCOVA; use Johnson-Neyman or Repeated Measures. | **FAIL**: Blindly applies ANCOVA despite violated slopes. | **PASS**: Detects violation, rejects ANCOVA, applies Johnson-Neyman. |
+| **Held-Out** | `EVAL-CASE-HELD-LONGITUDINAL-3GROUP-001` | 3-group 4-wave longitudinal trial with attrition/missing data. | Linear Mixed Models (LMM) with random intercepts/slopes. | **FAIL**: Forces ANCOVA onto multi-wave attrition data. | **PASS**: Identifies multi-wave attrition, uses LMM. |
+
+### 29.5 Schema Contracts & Promotion Gating
+1. **Schema Contract (`contracts/evolution/independent_evaluation.schema.json`)**:
+   - `task_type`: Enum extended to `["REGRESSION", "ADVERSARIAL", "HELDOUT"]`.
+   - `unblinded_comparison`: Requires:
+     - `categories_evaluated`: Array containing all three category keys.
+     - `regression_result`: Category pass/fail metrics.
+     - `adversarial_result`: Category pass/fail metrics.
+     - `heldout_result`: Category pass/fail metrics.
+     - `conditional_rule_verified`: Boolean affirming structured conditional decision rule.
+2. **Promotion Engine Gates (`AcademicPromotionEngine`)**:
+   - **Gate 0.5**: Requires `all_categories_passed: True` across Regression, Adversarial, and Held-Out suites.
+   - **Gate 3**: Enforces `conditional_rule_verified: True` for all decision-tree and heuristic mutations.
+   - Any failure in any single category immediately aborts promotion and archives the candidate.
+
+
 
