@@ -25,6 +25,7 @@
 | [ADR-013](#adr-013-authoritative-stage-manifests-and-cross-artifact-agreement-gating) | Authoritative Stage Manifests & Cross-Artifact Agreement Gating | Accepted | 2026-09-19 |
 | [ADR-014](#adr-014-fail-closed-validation-architecture-and-sequential-gate-cascade) | Fail-Closed Validation Architecture and Sequential Gate Cascade | Accepted | 2026-09-19 |
 | [ADR-015](#adr-015-cross-artifact-triad-consistency-validation-and-structured-docx-compilation) | Cross-Artifact Triad Consistency Validation & Structured DOCX Compilation | Accepted | 2026-09-19 |
+| [ADR-016](#adr-016-separation-of-interpretation-from-evidence-and-5-link-claim-provenance) | Separation of Interpretation from Evidence & 5-Link Claim Provenance | Accepted | 2026-09-19 |
 
 ---
 
@@ -467,4 +468,47 @@ Implement strict 3-way cross-artifact consistency validation and deterministic s
 ### Consequences
 - **Positive**: Complete elimination of cross-format numerical drift, 100% table-level mathematical accuracy, deterministic and reproducible DOCX generation.
 - **Negative**: Markdown and DOCX text cannot use approximate numbers differing from the exact JSON calculations.
+
+---
+
+## ADR-016: Separation of Interpretation from Evidence and 5-Link Claim Provenance
+
+### Context
+In empirical research (graduate theses, journal manuscripts, discussion chapters, abstracts, conclusions), authors make substantive scientific claims:
+- *"Acceptance and Commitment Therapy produces a clinically meaningful reduction in occupational burnout among ICU nurses."*
+- *"Psychological flexibility fully mediates the relationship between perfectionism and test anxiety."*
+
+Historically:
+1. No formal boundary existed between raw statistical execution outputs, verified results, scholarly interpretations, and substantive scientific claims.
+2. Scientific assertions could quietly drift into broader generalizations than the empirical data supported.
+3. Claims could cite phantom or modified statistics without detection if no explicit provenance chain tied the claim back to the raw dataset and analysis script.
+
+### Decision
+Implement an explicit 4-tier evidence layer and enforce an unbroken 5-link provenance relationship for every substantive claim:
+
+1. **The 4-Tier Evidence Hierarchy**:
+   $$\text{Tier 1: Raw Statistical Output} \longrightarrow \text{Tier 2: Verified Result} \longrightarrow \text{Tier 3: Interpretation} \longrightarrow \text{Tier 4: Claim}$$
+   - **Tier 1 (Raw Statistical Output)**: Unfiltered computational matrices, ANOVA tables, bootstrap distributions, log files (`raw_output.json`).
+   - **Tier 2 (Verified Result)**: Audited parameters in `result.json` with verified degrees of freedom, admissible bounds, and APA 7 precision.
+   - **Tier 3 (Interpretation)**: Contextualized scholarly statements linking verified numbers to directional hypotheses (`result.md`).
+   - **Tier 4 (Claim)**: Substantive scientific assertions situated in thesis results, discussion, abstracts, conclusions, or journal manuscripts.
+
+2. **The 5-Link Provenance Relationship**:
+   $$\text{claim} \longrightarrow \text{artifact} \longrightarrow \text{statistic} \longrightarrow \text{analysis} \longrightarrow \text{data}$$
+   Every substantive claim must declare:
+   - **Link 1 (Claim)**: `claim_id`, `statement`, `claim_type`, `target_scope`, `interpretation`.
+   - **Link 2 (Artifact)**: Deliverable path, cryptographic SHA-256 hash, format, and section location.
+   - **Link 3 (Statistic)**: Parameter key, metric values ($F, t, \beta, p, \eta_p^2, CI$), and `result.json` hash.
+   - **Link 4 (Analysis)**: Analysis ID, method name, model formula, script path, script hash, execution timestamp, and raw output hash.
+   - **Link 5 (Data)**: Dataset path, dataset SHA-256 hash, sample size ($N$), and filtering query.
+
+3. **Fail-Closed Provenance Enforcement**:
+   - `scripts/evidence_provenance_engine.py` provides deterministic `build`, `verify`, and `trace` operations.
+   - `validators/provenance_validator.py` enforces fail-closed validation on all 5 links.
+   - **Orphan Claim Detection**: Any substantive scientific claim appearing in narrative deliverables (`.md`, `.docx`) that lacks registered provenance in `claim_provenance.json` immediately triggers `FAIL` and rejects the stage.
+
+### Consequences
+- **Positive**: 100% auditable provenance trace from high-level scientific claims down to raw empirical data bytes; complete elimination of phantom claims and ungrounded generalizations; seamless Viva Voce cross-examination defence.
+- **Negative**: Substantive claims in thesis chapters and papers must be formally declared and linked in `claim_provenance.json`.
+
 

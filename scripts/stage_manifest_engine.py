@@ -54,6 +54,14 @@ except ImportError:
     except ImportError:
         validate_cross_artifacts = None
 
+try:
+    from validators.provenance_validator import validate_provenance
+except ImportError:
+    try:
+        from provenance_validator import validate_provenance
+    except ImportError:
+        validate_provenance = None
+
 
 try:
     from scripts.academic_state_manager import StateManagementError
@@ -66,6 +74,10 @@ except ImportError:
 
 class StageManifestError(StateManagementError):
     """Base exception for stage manifest failures."""
+    pass
+
+class ManifestProvenanceError(StageManifestError):
+    """Raised when claim provenance verification fails or an orphan claim is detected."""
     pass
 
 class MissingStageManifestError(StageManifestError):
@@ -153,13 +165,15 @@ def build_stage_manifest(
     dependencies: Optional[List[Dict[str, Any]]] = None,
     validator_script: Optional[str] = None,
     cross_agreement_required: bool = True,
-    write_manifest: bool = True
+    write_manifest: bool = True,
+    required_artifacts: Optional[List[Dict[str, Any]]] = None
 ) -> Dict[str, Any]:
     """
     Builds an authoritative Stage Manifest dictionary and optionally writes it to manifest.json.
     Computes cryptographic SHA-256 hashes of all inputs and artifacts.
     Enforces the Triad Invariant and performs cross-artifact agreement audit.
     """
+    artifacts = artifacts or required_artifacts
     stage_dir_abs = os.path.abspath(stage_dir)
     os.makedirs(stage_dir_abs, exist_ok=True)
     now_iso = datetime.now(timezone.utc).isoformat()
@@ -273,6 +287,16 @@ def build_stage_manifest(
             "errors": val_res.get("errors", []),
             "warnings": val_res.get("warnings", [])
         }
+
+    # 4.5 Claim Provenance Verification (Phase 11)
+    prov_file = os.path.join(stage_dir_abs, "claim_provenance.json")
+    has_prov_req = any(art.get("type") == "claim_provenance_json" for art in (required_artifacts or []))
+    if (os.path.exists(prov_file) or has_prov_req) and validate_provenance:
+        prov_res = validate_provenance(stage_dir_abs, require_provenance=has_prov_req)
+        if prov_res.get("verdict") != "PASS":
+            raise ManifestProvenanceError(
+                f"Claim provenance verification failed for stage '{stage_id}': {prov_res.get('errors')}"
+            )
 
     # 5. Process dependencies
     processed_deps = []
@@ -554,6 +578,17 @@ def verify_stage_manifest(
             if fail_closed:
                 raise ManifestCrossAgreementError(err_msg)
             errors.extend(val_res.get("errors", [err_msg]))
+
+    # 6.5 Claim Provenance Verification (Phase 11)
+    prov_file = os.path.join(target_dir, "claim_provenance.json")
+    has_prov_req = any(art.get("type") == "claim_provenance_json" for art in manifest_data.get("required_artifacts", []))
+    if (os.path.exists(prov_file) or has_prov_req) and validate_provenance:
+        prov_res = validate_provenance(target_dir, require_provenance=has_prov_req)
+        if prov_res.get("verdict") != "PASS":
+            err_msg = f"Claim provenance verification failed in stage '{stage_id}': {prov_res.get('errors')}"
+            if fail_closed:
+                raise ManifestProvenanceError(err_msg)
+            errors.extend(prov_res.get("errors", [err_msg]))
 
     verdict = "FAIL" if errors else ("NEEDS_REVIEW" if warnings else "PASS")
     return {

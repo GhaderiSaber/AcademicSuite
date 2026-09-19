@@ -96,7 +96,8 @@
               "validation_report",
               "decision_log",
               "diagram_png",
-              "manifest_json"
+              "manifest_json",
+              "claim_provenance_json"
             ]
           },
           "schema": {

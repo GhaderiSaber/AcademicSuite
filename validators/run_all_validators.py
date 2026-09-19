@@ -58,6 +58,7 @@ from validators.numerical_consistency.validator import validate_numbers
 from validators.data_integrity.validator import validate_data
 from validators.statistical_assumptions.validator import validate_assumptions
 from validators.result_consistency.validator import validate_cross_artifacts, validate_results
+from validators.provenance_validator import validate_provenance
 
 
 def compute_sha256(filepath: str) -> str:
@@ -698,6 +699,25 @@ def run_suite(
                     report["errors"].extend(res["errors"])
                 if res.get("warnings"):
                     report["warnings"].extend(res["warnings"])
+
+    # 3. Claim Provenance & Evidence Layer Verification (Phase 11)
+    prov_cand = os.path.join(stage_dir, "claim_provenance.json")
+    has_prov_req = any(spec.get("type") == "claim_provenance_json" for spec in all_required_specs)
+    if os.path.exists(prov_cand) or has_prov_req:
+        res_prov = validate_provenance(stage_dir, require_provenance=has_prov_req)
+        c_verdict = res_prov.get("verdict", "FAIL")
+        report["results"].append({
+            "check_id": "CHK-CLAIM-PROVENANCE",
+            "rule": "Authoritative 5-link claim provenance (claim -> artifact -> statistic -> analysis -> data)",
+            "verdict": c_verdict,
+            "errors": res_prov.get("errors", []),
+            "warnings": res_prov.get("warnings", []),
+            "evidence": res_prov.get("evidence", {})
+        })
+        if res_prov.get("errors"):
+            report["errors"].extend(res_prov["errors"])
+        if res_prov.get("warnings"):
+            report["warnings"].extend(res_prov["warnings"])
 
     # ==========================================================================
     # Gate 5: Upstream Dependency Verification

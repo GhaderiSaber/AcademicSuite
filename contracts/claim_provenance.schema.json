@@ -1,0 +1,272 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/claim_provenance.schema.json",
+  "title": "AcademicClaimProvenanceContract",
+  "description": "Authoritative contract schema governing the 4-tier evidence layer and the 5-link provenance relationship (claim -> artifact -> statistic -> analysis -> data) for substantive scientific claims across thesis findings, papers, discussions, abstracts, and conclusions.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "stage_id",
+    "project_id",
+    "target_scope",
+    "evidence_tiers",
+    "claims",
+    "status",
+    "timestamps"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "stage_id": {
+      "type": "string",
+      "description": "Unique identifier of the micro-stage or deliverable scope (e.g. 06_hypothesis_1, 05_discussion)."
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Unique identifier of the research project."
+    },
+    "target_scope": {
+      "type": "string",
+      "enum": [
+        "CHAPTER_4_FINDINGS",
+        "CHAPTER_5_DISCUSSION",
+        "ABSTRACT",
+        "CONCLUSION",
+        "PAPER",
+        "GENERAL"
+      ]
+    },
+    "evidence_tiers": {
+      "type": "object",
+      "description": "Explicit 4-tier evidence hierarchy mapping raw computation to high-level scientific claims.",
+      "required": [
+        "tier_1_raw_output",
+        "tier_2_verified_result",
+        "tier_3_interpretation",
+        "tier_4_claims"
+      ],
+      "properties": {
+        "tier_1_raw_output": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": { "type": "string" },
+            "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+            "description": { "type": "string" },
+            "timestamp": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "tier_2_verified_result": {
+          "type": "object",
+          "required": ["path", "sha256", "parameter_keys"],
+          "properties": {
+            "path": { "type": "string" },
+            "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+            "parameter_keys": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1
+            },
+            "verification_status": {
+              "type": "string",
+              "enum": ["VERIFIED", "UNVERIFIED", "FAIL"]
+            }
+          },
+          "additionalProperties": true
+        },
+        "tier_3_interpretation": {
+          "type": "object",
+          "required": ["narrative_artifact_path", "narrative_sha256", "contextual_statements"],
+          "properties": {
+            "narrative_artifact_path": { "type": "string" },
+            "narrative_sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+            "contextual_statements": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "tier_4_claims": {
+          "type": "array",
+          "description": "List of claim IDs derived from Tier 3 interpretations.",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "claims": {
+      "type": "array",
+      "description": "Authoritative registry of substantive claims with unbroken 5-link provenance.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "statement",
+          "claim_type",
+          "target_scope",
+          "status",
+          "provenance"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "pattern": "^CLM-[A-Za-z0-9_-]+$"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 5
+          },
+          "claim_type": {
+            "type": "string",
+            "enum": [
+              "DIRECT_FINDING",
+              "MEDIATION_EFFECT",
+              "MODERATION_EFFECT",
+              "GROUP_DIFFERENCE",
+              "GENERALIZATION",
+              "THEORETICAL_MECHANISM",
+              "LIMITATION",
+              "PRACTICAL_IMPLICATION"
+            ]
+          },
+          "target_scope": {
+            "type": "string",
+            "enum": [
+              "CHAPTER_4_FINDINGS",
+              "CHAPTER_5_DISCUSSION",
+              "ABSTRACT",
+              "CONCLUSION",
+              "PAPER",
+              "GENERAL"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["VERIFIED", "UNVERIFIED", "REFUTED", "CONTRADICTED"]
+          },
+          "interpretation": {
+            "type": "object",
+            "properties": {
+              "statement": { "type": "string" },
+              "directional_support": { "type": "boolean" },
+              "hypothesis_ref": { "type": "string" }
+            },
+            "additionalProperties": true
+          },
+          "provenance": {
+            "type": "object",
+            "description": "Unbroken 5-link chain connecting claim to raw data.",
+            "required": [
+              "artifact",
+              "statistic",
+              "analysis",
+              "data"
+            ],
+            "properties": {
+              "artifact": {
+                "type": "object",
+                "description": "Link 2: The physical deliverable containing the claim statement.",
+                "required": ["path", "sha256"],
+                "properties": {
+                  "path": { "type": "string" },
+                  "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+                  "location": { "type": "string" },
+                  "format": {
+                    "type": "string",
+                    "enum": ["markdown", "docx", "pdf", "html", "json"]
+                  }
+                },
+                "additionalProperties": true
+              },
+              "statistic": {
+                "type": "object",
+                "description": "Link 3: The exact statistical parameter verified in result.json.",
+                "required": ["parameter_key", "metrics", "verified_result_ref"],
+                "properties": {
+                  "parameter_key": { "type": "string" },
+                  "metrics": {
+                    "type": "object",
+                    "description": "Key numerical parameters cited in support of the claim.",
+                    "additionalProperties": true
+                  },
+                  "verified_result_ref": {
+                    "type": "object",
+                    "required": ["path", "sha256"],
+                    "properties": {
+                      "path": { "type": "string" },
+                      "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }
+                    },
+                    "additionalProperties": true
+                  }
+                },
+                "additionalProperties": true
+              },
+              "analysis": {
+                "type": "object",
+                "description": "Link 4: The deterministic statistical analysis that produced the verified result.",
+                "required": ["analysis_id", "method", "script_path", "script_sha256", "raw_output_ref"],
+                "properties": {
+                  "analysis_id": { "type": "string" },
+                  "method": { "type": "string" },
+                  "model_formula": { "type": "string" },
+                  "script_path": { "type": "string" },
+                  "script_sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+                  "execution_timestamp": { "type": "string" },
+                  "raw_output_ref": {
+                    "type": "object",
+                    "required": ["path", "sha256"],
+                    "properties": {
+                      "path": { "type": "string" },
+                      "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }
+                    },
+                    "additionalProperties": true
+                  }
+                },
+                "additionalProperties": true
+              },
+              "data": {
+                "type": "object",
+                "description": "Link 5: The raw empirical dataset and sampling parameters.",
+                "required": ["dataset_path", "dataset_sha256", "sample_size"],
+                "properties": {
+                  "dataset_path": { "type": "string" },
+                  "dataset_sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+                  "sample_size": { "type": "integer", "minimum": 1 },
+                  "filter_query": { "type": "string" },
+                  "transformations": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["VERIFIED", "UNVERIFIED", "REFUTED", "CONTRADICTED"]
+    },
+    "timestamps": {
+      "type": "object",
+      "required": ["created_at"],
+      "properties": {
+        "created_at": { "type": "string" },
+        "verified_at": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

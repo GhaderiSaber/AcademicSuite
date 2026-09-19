@@ -66,6 +66,8 @@ KNOWN_ARTIFACT_TYPES: Set[str] = {
     "validation_report",
     "decision_log",
     "diagram_png",
+    "manifest_json",
+    "claim_provenance_json",
 }
 
 # Mapping of standard stage prefixes/slugs to milestones

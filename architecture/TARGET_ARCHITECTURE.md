@@ -584,4 +584,68 @@ To prevent drift at the source, Word deliverables must never be manually typed o
 ### 15.5 Authoritative Manifest Gating
 During stage completion, `scripts/stage_manifest_engine.py` invokes `validate_cross_artifacts()`. If any numerical contradiction or table cell discrepancy is detected, the manifest engine raises `ManifestCrossAgreementError`, preventing stage closure and barring downstream progression in the State Machine.
 
+---
+
+## 16. Evidence Layer & 5-Link Claim Provenance Subsystem (Phase 11)
+
+### 16.1 The 4-Tier Evidence Hierarchy
+In graduate theses, journal manuscripts, discussion chapters, abstracts, and conclusions, authors make substantive scientific claims. Without a formal evidence layer, claims can quietly drift into broader generalizations than the empirical data supports, or cite modified/phantom statistics.
+
+Phase 11 establishes an explicit 4-tier evidence layer:
+
+```mermaid
+flowchart TD
+    T1["Tier 1: Raw Statistical Output\n(raw_output.json / logs, ANOVA matrices, bootstrap distributions)"]
+    T2["Tier 2: Verified Result\n(result.json: audited F, t, β, p, η²p, CI, verified df and bounds)"]
+    T3["Tier 3: Interpretation\n(result.md: scholarly contextualization linking stats to hypotheses)"]
+    T4["Tier 4: Substantive Claim\n(Scientific assertions in results, discussion, abstracts, conclusions, papers)"]
+
+    T1 -->|Filtered, bounded, APA 7 checked| T2
+    T2 -->|Directional hypothesis support| T3
+    T3 -->|Theoretical / practical generalization| T4
+```
+
+1. **Tier 1 (Raw Statistical Output)**: Unfiltered computational outputs from statistical packages or scripts (`raw_output.json`, log files).
+2. **Tier 2 (Verified Result)**: Audited parameters in `result.json` satisfying degrees of freedom, admissible parameter bounds ($p \in [0, 1], R^2 \ge 0$), and APA 7 precision.
+3. **Tier 3 (Interpretation)**: Contextualized scholarly statements linking verified numbers to directional hypotheses (`result.md`).
+4. **Tier 4 (Claim)**: Substantive scientific assertions situated in thesis results, discussion, abstracts, conclusions, or journal manuscripts.
+
+### 16.2 The Unbroken 5-Link Provenance Relationship
+Every substantive scientific claim must declare an auditable, unbroken 5-link chain connecting the high-level assertion back to raw data bytes:
+
+$$\text{claim} \longrightarrow \text{artifact} \longrightarrow \text{statistic} \longrightarrow \text{analysis} \longrightarrow \text{data}$$
+
+```mermaid
+flowchart LR
+    C["Link 1: CLAIM\n[CLM-H1-01]\nStatement & Scope"] --> A["Link 2: ARTIFACT\n[result.md / docx]\nSHA-256 & Section"]
+    A --> S["Link 3: STATISTIC\n[treatment_effect_F]\nF, p, η²p, result.json"]
+    S --> AN["Link 4: ANALYSIS\n[One-Way ANCOVA]\nFormula, Script, Raw Output"]
+    AN --> D["Link 5: DATA\n[study_dataset.csv]\nSHA-256, N=60, Filters"]
+```
+
+- **Link 1: Claim**: Claim ID (`CLM-...`), exact statement, claim type, target scope, and Tier 3 interpretation bridge.
+- **Link 2: Artifact**: Physical deliverable path where the claim appears (`06_hypothesis_1.md`, `06_hypothesis_1.docx`), cryptographic SHA-256 hash, format, and section location.
+- **Link 3: Statistic**: Parameter key, exact numerical metrics ($F, t, \beta, p, \eta_p^2, CI$), and `result.json` path and SHA-256 hash.
+- **Link 4: Analysis**: Analysis ID, method name, model formula, script path, script SHA-256 hash, execution timestamp, and Tier 1 raw output path and hash.
+- **Link 5: Data**: Raw dataset path, dataset SHA-256 hash, sample size ($N$), and filtering query.
+
+### 16.3 Deterministic Engine ("The Hands") (`scripts/evidence_provenance_engine.py`)
+- `build_claim_provenance(...)`: Constructs authoritative `claim_provenance.json` conforming to `contracts/claim_provenance.schema.json`.
+- `trace_claim_provenance(claim_id, ...)`: Recursively resolves the 5-link chain from claim down to raw data, verifying file existence, cryptographic hashes, and numerical concordance.
+- `verify_claim_provenance(...)`: Audits all 4 tiers and all declared claims, returning fail-closed `PASS` or `FAIL`.
+
+### 16.4 Fail-Closed Provenance Validator (`validators/provenance_validator.py`)
+Integrated into Gate 4 of `validators/run_all_validators.py` and `scripts/stage_manifest_engine.py`:
+- Fails closed on any broken link (missing file, SHA-256 hash mismatch, statistical discrepancy).
+- **Orphan Claim Detection**: Scans narrative deliverables (`.md`, `.docx`) for substantive empirical claims (e.g., hypothesis confirmation/rejection, statistical test reporting) that lack registered provenance in `claim_provenance.json`. Any orphan claim triggers immediate stage rejection (`FAIL`).
+
+### 16.5 High-Stakes Application Scopes
+The 5-link provenance subsystem is mandatory across 5 key academic scopes:
+1. **Chapter 4 Findings**: Every hypothesis result must trace directly to deterministic test statistics and raw data.
+2. **Chapter 5 Discussion**: Theoretical mechanisms and literature concordance assertions must trace to verified Chapter 4 findings.
+3. **Thesis Abstracts**: High-level empirical summaries must trace directly to verified results without inflation.
+4. **Conclusions & Implications**: Practical and clinical recommendations must cite only empirically supported findings.
+5. **Journal Manuscripts**: Peer-review submissions carry complete provenance manifests for absolute reproducibility.
+
+
 
