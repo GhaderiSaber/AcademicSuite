@@ -527,3 +527,61 @@ This fail-closed architecture is crucial for graduate dissertation chapters:
 - **Chapter 4 Findings**: Every hypothesis micro-stage must pass Gate 0 through Gate 6 independently before advancing to the next hypothesis.
 - **Chapter 5 Discussion**: Theoretical mechanisms and literature concordance cannot be synthesized unless Chapter 4 findings manifests are cryptographically verified and immutable.
 
+---
+
+## 15. Cross-Artifact Triad Consistency Validation & Structured DOCX Compilation (Phase 10)
+
+### 15.1 The 3-Way Discrepancy Prevention Invariant
+In academic research, reporting must be mathematically unified across computational, preview, and publication formats. Under Directive 3 and Directive 5, every stage produces a Triad:
+1. `result.json`: Machine-readable computational ground truth.
+2. `result.md`: Human-readable Markdown narrative with APA 7 preview tables.
+3. `result.docx`: Institutional Word document with strict Persian OpenXML typography.
+
+If any format diverges (e.g., $\beta = .42$ in JSON, $\beta = .37$ in MD, and $\beta = .39$ in DOCX), the stage is instantly and automatically rejected with a `FAIL` verdict.
+
+```mermaid
+flowchart TD
+    JSON["result.json (Ground Truth)\nβ = .42, M = 24.50, p = .001"]
+    MD["result.md (Narrative & Tables)\nβ = .42, M = 24.50, p < .001"]
+    DOCX["result.docx (OpenXML Document)\nβ = .42, M = 24.50, ۰.۰۰۱ > p"]
+
+    VAL["validate_cross_artifacts()\n(3-Way Reconciler)"]
+
+    JSON <-->|Exact Match |Δ| <= 0.01| VAL
+    MD <-->|Table & Text Audit| VAL
+    DOCX <-->|OpenXML Table & Text Audit| VAL
+
+    VAL -->|All Match| PASS["PASS: Stage Authorized"]
+    VAL -->|Any Mismatch (e.g. β = .39)| REJ["FAIL: Stage Automatically Rejected\n(ManifestCrossAgreementError)"]
+```
+
+### 15.2 Tightened Numerical Precision & Strict Identity
+Legacy validation allowed loose tolerance ($|\Delta| \le 0.05$), creating a loophole where rounded or conflicting parameters could pass unnoticed. Under Phase 10:
+- Standardized and unstandardized coefficients ($\beta, B$): strict $|\Delta| \le 0.01$ (with $|\Delta| \le 0.015$ ceiling for rounding).
+- Test statistics ($t, F, z$): strict $|\Delta| \le 0.02$.
+- Sample size ($N$): absolute integer identity.
+- Confidence intervals ($[LL, UL]$): both lower and upper bounds must match within $|\Delta| \le 0.02$.
+- Pairwise bidirectional cross-checking: Every parameter in Markdown must exist in Word DOCX, and every parameter in Word DOCX must exist in Markdown.
+
+### 15.3 Deep Table-Level Concordance (`audit_table_concordance`)
+Beyond unstructured narrative text, tabular reporting (such as Table 4.3 for ANOVA or regression) must agree cell-by-cell with machine-readable data:
+- Sample size ($n$ or $N$)
+- Mean ($M$)
+- Standard deviation ($SD$)
+- Significance level ($p$-value, respecting the Persian leading zero standard `۰.۰۰۱ > p`)
+- Effect size ($d, \eta_p^2, \text{partial } \eta^2, R^2$)
+- Confidence intervals ($[LL, UL]$)
+Any contradiction between a table cell and the source JSON results in immediate `FAIL`.
+
+### 15.4 Deterministic Structured DOCX Compiler (`scripts/structured_docx_generator.py`)
+To prevent drift at the source, Word deliverables must never be manually typed or authored in isolation. The `structured_docx_generator.py` script serves as "The Hands":
+- Compiles OpenXML Word documents directly from `result.json` and `result.md`.
+- Enforces APA 7 3-line table layout (`<w:tblBorders>` top/bottom 0.75pt, header bottom 0.5pt, borderless inside).
+- Injects `<w:tblPr><w:bidiVisual/></w:tblPr>` for native RTL table layout.
+- Decouples statistical figures and negative signs to LTR (`Times New Roman`, `<w:rtl w:val="0"/>`).
+- Binds genuine Persian typography (`B Titr` 14pt bold for headings, `B Nazanin` 13pt regular for justified body).
+
+### 15.5 Authoritative Manifest Gating
+During stage completion, `scripts/stage_manifest_engine.py` invokes `validate_cross_artifacts()`. If any numerical contradiction or table cell discrepancy is detected, the manifest engine raises `ManifestCrossAgreementError`, preventing stage closure and barring downstream progression in the State Machine.
+
+

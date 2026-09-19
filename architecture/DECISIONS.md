@@ -23,6 +23,8 @@
 | [ADR-011](#adr-011-complete-elimination-of-synthetic-data-escape-routes-and-universal-fail-closed-policy) | Complete Elimination of Synthetic Data Escape Routes | Accepted | 2026-09-19 |
 | [ADR-012](#adr-012-formal-state-machine-engine-and-elimination-of-direct-stage-mutations) | Formal State Machine Engine & Elimination of Direct Stage Mutations | Accepted | 2026-09-19 |
 | [ADR-013](#adr-013-authoritative-stage-manifests-and-cross-artifact-agreement-gating) | Authoritative Stage Manifests & Cross-Artifact Agreement Gating | Accepted | 2026-09-19 |
+| [ADR-014](#adr-014-fail-closed-validation-architecture-and-sequential-gate-cascade) | Fail-Closed Validation Architecture and Sequential Gate Cascade | Accepted | 2026-09-19 |
+| [ADR-015](#adr-015-cross-artifact-triad-consistency-validation-and-structured-docx-compilation) | Cross-Artifact Triad Consistency Validation & Structured DOCX Compilation | Accepted | 2026-09-19 |
 
 ---
 
@@ -427,3 +429,42 @@ Rebuild the AcademicSuite validation engine (`validators/run_all_validators.py`,
 ### Consequences
 - **Positive**: Complete structural impossibility of empty or unverified payloads achieving `PASS`, 100% fail-closed gate sequence, strict compliance with Directive 0, Directive 3, and Directive 19.
 - **Negative**: All pipeline deliverables must carry affirmative empirical evidence and satisfy all 6 sequential gates.
+
+---
+
+## ADR-015: Cross-Artifact Triad Consistency Validation & Structured DOCX Compilation
+
+### Context
+In academic deliverables (Chapters 4 and 5), the system produces a synchronized Triad of artifacts: machine-readable JSON (`result.json`), Markdown narrative (`result.md`), and Word document (`result.docx`).
+In previous systems:
+1. Numerical tolerances were excessively loose ($\Delta \le 0.05$), allowing contradictory parameters (such as $\beta = .39$ vs $\beta = .42$) to pass unnoticed.
+2. Tables were checked only superficially without verifying cell-by-cell concordance against machine-readable sources ($n$, $\text{mean}$, $SD$, $p$, effect size, confidence interval $[LL, UL]$).
+3. The Word `.docx` file was vulnerable to independent manual drafting drift, where numbers in Word diverged from the JSON computational ground truth.
+
+### Decision
+Implement strict 3-way cross-artifact consistency validation and deterministic structured DOCX compilation:
+
+1. **Strict 3-Way Parameter Concordance**:
+   - Every statistical parameter ($\beta, t, F, z, N, R^2, \text{effect\_size}, CI$) extracted from `result.json` is reconciled across `result.md` and `result.docx`.
+   - Tolerance tightened to strict numerical identity ($|\Delta| \le 0.01$, with $|\Delta| \le 0.015$ ceiling for decimal rounding).
+   - If `result.json` specifies $\beta = .42$, but `result.md` reports $\beta = .37$ and `result.docx` reports $\beta = .39$, the system automatically fails closed and rejects the stage (`FAIL`).
+2. **Deep Table-Level Concordance (`audit_table_concordance`)**:
+   - Table cells in Markdown and DOCX tables (e.g. Table 4.3) are parsed and cross-checked against JSON `table_data` and parameters:
+     - Sample size ($n$ or $N$)
+     - Mean ($M$)
+     - Standard deviation ($SD$)
+     - Significance level ($p$)
+     - Effect size ($d, \eta_p^2, \text{partial } \eta^2$)
+     - Confidence interval ($[LL, UL]$)
+   - Contradictions in any cell trigger an explicit `FAIL` verdict.
+3. **Deterministic DOCX Compilation (`scripts/structured_docx_generator.py`)**:
+   - DOCX files must never be independently authored with manually typed numbers.
+   - `structured_docx_generator.py` compiles Word documents directly from verified structured JSON data and narrative Markdown.
+   - Embeds native APA 7 3-line tables (`<w:bidiVisual/>`), Persian typography (`B Titr` 14pt, `B Nazanin` 13pt), and decoupled LTR numbers (`Times New Roman`).
+4. **Authoritative Manifest Chaining**:
+   - `scripts/stage_manifest_engine.py` calls `validate_cross_artifacts()` during manifest generation and raises `ManifestCrossAgreementError` on any cross-artifact discrepancy.
+
+### Consequences
+- **Positive**: Complete elimination of cross-format numerical drift, 100% table-level mathematical accuracy, deterministic and reproducible DOCX generation.
+- **Negative**: Markdown and DOCX text cannot use approximate numbers differing from the exact JSON calculations.
+

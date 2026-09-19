@@ -19,12 +19,18 @@ for venv_name in [".venv", "venv"]:
                 sys.path.insert(0, sp)
 
 import json
-import docx
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml import parse_xml
-from docx.oxml.ns import nsdecls
+
+try:
+    import docx
+    from docx.shared import Inches, Pt, RGBColor
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.enum.table import WD_TABLE_ALIGNMENT
+    from docx.oxml import parse_xml
+    from docx.oxml.ns import nsdecls
+    HAS_DOCX = True
+except ImportError:
+    HAS_DOCX = False
+    from scripts.structured_docx_generator import build_structured_docx
 
 def create_hypothesis_triad(out_dir: str):
     out_dir = os.path.abspath(out_dir)
@@ -60,6 +66,14 @@ def create_hypothesis_triad(out_dir: str):
         f.write(combined_md)
 
     # 3. Triad DOCX with OpenXML RTL & Persian typography
+    docx_path = os.path.join(out_dir, "06_hypothesis_1.docx")
+    if not HAS_DOCX:
+        build_structured_docx(json_path=json_path, md_path=md_path, out_docx_path=docx_path)
+        print("SUCCESS: Triad DOCX generated at", docx_path)
+        print("SUCCESS: Triad MD generated at", md_path)
+        print("SUCCESS: Triad JSON generated at", json_path)
+        return {"docx": docx_path, "md": md_path, "json": json_path}
+
     doc = docx.Document()
     section = doc.sections[0]
     section.page_width = Inches(8.27)  # A4

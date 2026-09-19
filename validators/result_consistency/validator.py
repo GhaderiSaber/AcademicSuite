@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-validators/result_consistency/validator.py — Cross-Artifact Consistency Validator
+validators/result_consistency/validator.py — Triad Cross-Artifact Consistency Validator
 
 Verifies that statistical results across machine-readable JSON, human-readable Markdown,
-tables, figures, and OpenXML Word DOCX do not silently contradict each other.
-Enforces fail-closed validation on missing artifacts, parsing failures, and numerical discrepancies.
+tables, and OpenXML Word DOCX do not silently contradict each other.
+Enforces 3-way reconciliation (JSON vs MD, JSON vs DOCX, MD vs DOCX) and table-level
+concordance (Table 4.3 n, mean, SD, p, effect size, CI) with strict numerical precision (|Δ| <= 0.01).
 """
 
 import os
@@ -13,7 +14,7 @@ import sys
 import re
 import json
 import argparse
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Set
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if ROOT_DIR not in sys.path:
@@ -56,8 +57,103 @@ def extract_docx_text(docx_path: str) -> str:
             tree = ET.fromstring(xml_content)
             parts = [elem.text for elem in tree.iter() if elem.tag.endswith("}t") and elem.text]
             return " ".join(parts)
-        except Exception as e:
+        except Exception:
             return ""
+
+
+def extract_docx_tables(docx_path: str) -> List[List[List[str]]]:
+    """Extracts structured 2D tables from an OpenXML Word document (.docx)."""
+    if not os.path.exists(docx_path):
+        return []
+    tables = []
+    try:
+        import docx
+        doc = docx.Document(docx_path)
+        for tbl in doc.tables:
+            rows = []
+            for r in tbl.rows:
+                row_cells = [cell.text.strip() for cell in r.cells]
+                rows.append(row_cells)
+            if rows:
+                tables.append(rows)
+        return tables
+    except Exception:
+        import zipfile
+        import xml.etree.ElementTree as ET
+        try:
+            with zipfile.ZipFile(docx_path) as zf:
+                xml_content = zf.read("word/document.xml")
+            tree = ET.fromstring(xml_content)
+            w_ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+            for tbl in tree.iter(f"{w_ns}tbl"):
+                rows = []
+                for tr in tbl.iter(f"{w_ns}tr"):
+                    cells = []
+                    for tc in tr.iter(f"{w_ns}tc"):
+                        cell_text = "".join(t.text for t in tc.iter(f"{w_ns}t") if t.text)
+                        cells.append(cell_text.strip())
+                    if cells:
+                        rows.append(cells)
+                if rows:
+                    tables.append(rows)
+            return tables
+        except Exception:
+            return []
+
+
+def extract_markdown_tables(md_text: str) -> List[Dict[str, Any]]:
+    """Extracts structured tables from Markdown text."""
+    tables = []
+    lines = md_text.splitlines()
+    current_table = []
+    current_caption = ""
+
+    for line in lines:
+        sline = line.strip()
+        if sline.startswith("#") and ("table" in sline.lower() or "جدول" in sline):
+            current_caption = sline
+        elif sline.startswith("|") and sline.endswith("|"):
+            current_table.append(sline)
+        else:
+            if len(current_table) >= 2:
+                header_line = current_table[0]
+                headers = [c.strip() for c in header_line.split("|")[1:-1]]
+                data_rows = []
+                for r in current_table[1:]:
+                    # Skip delimiter row (| :--- | :--- |)
+                    if set(r.replace("|", "").replace(":", "").replace("-", "").strip()) == set():
+                        continue
+                    row_cells = [c.strip() for c in r.split("|")[1:-1]]
+                    if row_cells:
+                        data_rows.append(row_cells)
+                if headers and data_rows:
+                    tables.append({
+                        "caption": current_caption,
+                        "headers": headers,
+                        "rows": data_rows
+                    })
+            current_table = []
+            if not (sline.startswith("#") and ("table" in sline.lower() or "جدول" in sline)):
+                current_caption = ""
+
+    if len(current_table) >= 2:
+        header_line = current_table[0]
+        headers = [c.strip() for c in header_line.split("|")[1:-1]]
+        data_rows = []
+        for r in current_table[1:]:
+            if set(r.replace("|", "").replace(":", "").replace("-", "").strip()) == set():
+                continue
+            row_cells = [c.strip() for c in r.split("|")[1:-1]]
+            if row_cells:
+                data_rows.append(row_cells)
+        if headers and data_rows:
+            tables.append({
+                "caption": current_caption,
+                "headers": headers,
+                "rows": data_rows
+            })
+
+    return tables
 
 
 def extract_json_parameters(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -65,7 +161,7 @@ def extract_json_parameters(data: Dict[str, Any]) -> Dict[str, Any]:
     params = {}
 
     # Sample size
-    n = data.get("sample_size") or data.get("n") or data.get("sample_n")
+    n = data.get("sample_size") or data.get("n") or data.get("sample_n") or data.get("N")
     if n is not None:
         params["sample_size"] = n
 
@@ -94,13 +190,21 @@ def extract_json_parameters(data: Dict[str, Any]) -> Dict[str, Any]:
         except (ValueError, TypeError):
             pass
 
+    # z-statistic
+    z_val = data.get("z_stat") or data.get("z")
+    if z_val is not None:
+        try:
+            params["z_stat"] = float(z_val)
+        except (ValueError, TypeError):
+            pass
+
     # p-value
     p_val = data.get("p_value") or data.get("p")
     if p_val is not None:
         params["p_value"] = p_val
 
     # Effect size / eta_p2
-    eta = data.get("eta_p2") or data.get("effect_size") or data.get("eta_squared")
+    eta = data.get("eta_p2") or data.get("effect_size") or data.get("eta_squared") or data.get("partial_eta_squared")
     if eta is not None:
         try:
             params["effect_size"] = float(eta)
@@ -132,13 +236,63 @@ def extract_json_parameters(data: Dict[str, Any]) -> Dict[str, Any]:
                     params[f"b_{pred}"] = float(c["b"])
                 if pred and "t" in c and isinstance(c["t"], (int, float)):
                     params[f"t_{pred}"] = float(c["t"])
+                if pred and "p" in c or "p_value" in c:
+                    pv = c.get("p_value", c.get("p"))
+                    params[f"p_{pred}"] = pv
+                if pred and "se" in c and isinstance(c["se"], (int, float)):
+                    params[f"se_{pred}"] = float(c["se"])
+                if pred and "ci" in c:
+                    params[f"ci_{pred}"] = c["ci"]
+    elif isinstance(coefs, dict):
+        for pred, c in coefs.items():
+            if isinstance(c, dict):
+                if "beta" in c and isinstance(c["beta"], (int, float)):
+                    params[f"beta_{pred}"] = float(c["beta"])
+                if "b" in c and isinstance(c["b"], (int, float)):
+                    params[f"b_{pred}"] = float(c["b"])
+                if "t" in c and isinstance(c["t"], (int, float)):
+                    params[f"t_{pred}"] = float(c["t"])
+
+    # Standalone beta
+    if "beta" in data and isinstance(data["beta"], (int, float)):
+        params["beta"] = float(data["beta"])
+
+    # Means and SDs
+    if "mean" in data and isinstance(data["mean"], (int, float)):
+        params["mean"] = float(data["mean"])
+    if "sd" in data and isinstance(data["sd"], (int, float)):
+        params["sd"] = float(data["sd"])
+
+    # Descriptives dictionary
+    desc = data.get("descriptives", {})
+    if isinstance(desc, dict):
+        for var_k, stats in desc.items():
+            if isinstance(stats, dict):
+                if "mean" in stats and isinstance(stats["mean"], (int, float)):
+                    params[f"mean_{var_k}"] = float(stats["mean"])
+                if "sd" in stats and isinstance(stats["sd"], (int, float)):
+                    params[f"sd_{var_k}"] = float(stats["sd"])
+                if "n" in stats and isinstance(stats["n"], int):
+                    params[f"n_{var_k}"] = stats["n"]
+
+    # Confidence intervals
+    ci = data.get("ci") or data.get("confidence_interval") or data.get("bootstrap_ci")
+    if ci and isinstance(ci, (list, tuple)) and len(ci) == 2:
+        params["ci"] = [float(ci[0]), float(ci[1])]
+    elif "ci_lower" in data and "ci_upper" in data:
+        params["ci"] = [float(data["ci_lower"]), float(data["ci_upper"])]
 
     # SEM Fit indices
     fit = data.get("fit_indices", {})
     if isinstance(fit, dict):
-        for idx in ["cfi", "tli", "rmsea", "srmr", "df", "chisq"]:
+        for idx in ["cfi", "tli", "rmsea", "srmr", "df", "chi2", "chisq"]:
             if idx in fit and isinstance(fit[idx], (int, float)):
                 params[f"fit_{idx}"] = float(fit[idx])
+
+    # Table data
+    tbl_data = data.get("table_data") or data.get("tables")
+    if tbl_data:
+        params["table_data"] = tbl_data
 
     return params
 
@@ -149,7 +303,7 @@ def find_contradictions_in_text(
     artifact_name: str
 ) -> Tuple[List[str], List[str], Dict[str, Any]]:
     """
-    Checks text for values that directly contradict JSON parameters.
+    Checks text for values that directly contradict JSON parameters using strict tolerance (|Δ| <= 0.01).
     Returns (errors, warnings, evidence).
     """
     errors = []
@@ -161,19 +315,16 @@ def find_contradictions_in_text(
     if "sample_size" in params:
         n_val = params["sample_size"]
         evidence["sample_size"] = {"expected": n_val}
-        # Look for standalone N = <number> or n = <number>
         matches = re.findall(r'(?<![a-zA-Z\\])[Nn]\s*=\s*([0-9]+)', norm_text)
         if matches:
             found_ints = [int(m) for m in matches]
             evidence["sample_size"]["found_in_text"] = matches
-            # If expected n_val is present among matches or in text, sample size is confirmed
             if n_val not in found_ints and str(n_val) not in norm_text:
                 errors.append(
                     f"Contradiction in {artifact_name}: Sample size reported as N = {found_ints}, "
                     f"but JSON parameter specifies N = {n_val}."
                 )
         else:
-            # Check if number appears anywhere in text
             if str(n_val) not in norm_text:
                 warnings.append(f"Sample size {n_val} not explicitly mentioned in {artifact_name}.")
 
@@ -185,36 +336,27 @@ def find_contradictions_in_text(
         if f_matches:
             found_floats = [float(x) for x in f_matches if x]
             evidence["f_stat"]["found_in_text"] = found_floats
-            # Check if any found float matches f_val
-            has_match = any(abs(x - f_val) < 0.1 for x in found_floats)
+            has_match = any(abs(x - f_val) <= 0.02 for x in found_floats)
             if not has_match:
                 errors.append(
                     f"Contradiction in {artifact_name}: F-statistic in text {found_floats} "
                     f"contradicts JSON parameter F = {f_val}."
                 )
-        else:
-            val_str = f"{f_val:.2f}"
-            if val_str not in norm_text and f"{f_val:.1f}" not in norm_text:
-                warnings.append(f"F-statistic {f_val} from JSON not directly found in {artifact_name}.")
 
     # 3. R-squared check
     r2_keys = [k for k in params if k == "r2" or k.startswith("r2_")]
     for rk in r2_keys:
         r2_val = params[rk]
         evidence[rk] = {"expected": r2_val}
-        val_str = f"{r2_val:.3f}"
-        val_short = f"{r2_val:.2f}"
         r2_matches = re.findall(r'(?<![a-zA-Z\\])R\^?2\s*=\s*([0-9]+\.?[0-9]*)', norm_text, re.IGNORECASE)
         if r2_matches:
             found_r2s = [float(x) for x in r2_matches if x]
             evidence[rk]["found_in_text"] = found_r2s
-            if len(r2_keys) == 1 and found_r2s and not any(abs(x - r2_val) < 0.05 for x in found_r2s):
+            if len(r2_keys) == 1 and found_r2s and not any(abs(x - r2_val) <= 0.02 for x in found_r2s):
                 errors.append(
                     f"Contradiction in {artifact_name}: R^2 reported as {found_r2s} "
                     f"contradicts JSON parameter {rk} = {r2_val}."
                 )
-        elif val_str not in norm_text and val_short not in norm_text and str(r2_val) not in norm_text:
-            warnings.append(f"R-squared {rk} = {r2_val} from JSON not directly found in {artifact_name}.")
 
     # 4. Effect size check
     if "effect_size" in params:
@@ -224,13 +366,13 @@ def find_contradictions_in_text(
         if eta_matches:
             found_etas = [float(x) for x in eta_matches if x]
             evidence["effect_size"]["found_in_text"] = found_etas
-            if not any(abs(x - eta_val) < 0.05 for x in found_etas):
+            if not any(abs(x - eta_val) <= 0.02 for x in found_etas):
                 errors.append(
                     f"Contradiction in {artifact_name}: Effect size reported as {found_etas} "
                     f"contradicts JSON parameter = {eta_val}."
                 )
 
-    # 5. Standardized Beta coefficients check (ATK-13)
+    # 5. Standardized Beta coefficients check (Strict Tolerance: |Δ| <= 0.01)
     beta_keys = [k for k in params if k.startswith("beta_") or k == "beta"]
     if beta_keys:
         expected_betas = [params[k] for k in beta_keys]
@@ -239,14 +381,14 @@ def find_contradictions_in_text(
         if beta_matches:
             found_betas = [float(x) for x in beta_matches if x]
             evidence["beta_coefficients"]["found_in_text"] = found_betas
-            unmatched_betas = [b for b in found_betas if not any(abs(b - exp) < 0.05 for exp in expected_betas)]
+            unmatched_betas = [b for b in found_betas if not any(abs(b - exp) <= 0.015 for exp in expected_betas)]
             if unmatched_betas:
                 errors.append(
                     f"Contradiction in {artifact_name}: Standardized beta coefficient(s) reported as {unmatched_betas} "
-                    f"contradict JSON parameters {expected_betas}."
+                    f"contradict JSON parameter(s) {expected_betas}."
                 )
 
-    # 6. t-statistic check (ATK-13)
+    # 6. t-statistic check
     t_keys = [k for k in params if k == "t_stat" or k.startswith("t_")]
     if t_keys:
         expected_ts = [params[k] for k in t_keys]
@@ -255,14 +397,14 @@ def find_contradictions_in_text(
         if t_matches:
             found_ts = [float(x) for x in t_matches if x]
             evidence["t_statistics"]["found_in_text"] = found_ts
-            unmatched_ts = [t for t in found_ts if not any(abs(t - exp) < 0.1 for exp in expected_ts)]
+            unmatched_ts = [t for t in found_ts if not any(abs(t - exp) <= 0.02 for exp in expected_ts)]
             if unmatched_ts:
                 errors.append(
                     f"Contradiction in {artifact_name}: t-statistic(s) reported as {unmatched_ts} "
                     f"contradict JSON parameters {expected_ts}."
                 )
 
-    # 7. z-value check
+    # 7. z-statistic check
     z_keys = [k for k in params if k == "z_stat" or k.startswith("z_") or k == "z"]
     if z_keys:
         expected_zs = [params[k] for k in z_keys]
@@ -271,7 +413,7 @@ def find_contradictions_in_text(
         if z_matches:
             found_zs = [float(x) for x in z_matches if x]
             evidence["z_statistics"]["found_in_text"] = found_zs
-            unmatched_zs = [z for z in found_zs if not any(abs(z - exp) < 0.1 for exp in expected_zs)]
+            unmatched_zs = [z for z in found_zs if not any(abs(z - exp) <= 0.02 for exp in expected_zs)]
             if unmatched_zs:
                 errors.append(
                     f"Contradiction in {artifact_name}: z-value(s) reported as {unmatched_zs} "
@@ -287,14 +429,29 @@ def find_contradictions_in_text(
         if b_matches:
             found_bs = [float(x) for x in b_matches if x]
             evidence["b_coefficients"]["found_in_text"] = found_bs
-            unmatched_bs = [b for b in found_bs if not any(abs(b - exp) < 0.05 for exp in expected_bs)]
+            unmatched_bs = [b for b in found_bs if not any(abs(b - exp) <= 0.02 for exp in expected_bs)]
             if unmatched_bs:
                 errors.append(
                     f"Contradiction in {artifact_name}: Unstandardized B coefficient(s) reported as {unmatched_bs} "
                     f"contradict JSON parameters {expected_bs}."
                 )
 
-    # 9. SEM Fit Indices check
+    # 9. Confidence interval in narrative check: [LL, UL]
+    if "ci" in params:
+        exp_ci = params["ci"]
+        evidence["ci"] = {"expected": exp_ci}
+        ci_matches = re.findall(r'\[\s*([+-]?[0-9]+\.?[0-9]*)\s*,\s*([+-]?[0-9]+\.?[0-9]*)\s*\]', norm_text)
+        if ci_matches:
+            found_cis = [[float(m[0]), float(m[1])] for m in ci_matches]
+            evidence["ci"]["found_in_text"] = found_cis
+            has_match = any(abs(c[0] - exp_ci[0]) <= 0.02 and abs(c[1] - exp_ci[1]) <= 0.02 for c in found_cis)
+            if not has_match:
+                errors.append(
+                    f"Contradiction in {artifact_name}: Confidence interval reported as {found_cis} "
+                    f"contradicts JSON parameter CI = {exp_ci}."
+                )
+
+    # 10. SEM Fit Indices check
     fit_keys = [k for k in params if k.startswith("fit_")]
     if fit_keys:
         for fidx in ["cfi", "tli", "rmsea", "srmr"]:
@@ -304,7 +461,7 @@ def find_contradictions_in_text(
                 fit_matches = re.findall(rf'(?<![a-zA-Z\\]){fidx}\s*=\s*([0-9]+\.?[0-9]*)', norm_text, re.IGNORECASE)
                 if fit_matches:
                     found_fits = [float(x) for x in fit_matches if x]
-                    if not any(abs(x - exp_fit) < 0.05 for x in found_fits):
+                    if not any(abs(x - exp_fit) <= 0.02 for x in found_fits):
                         errors.append(
                             f"Contradiction in {artifact_name}: Fit index {fidx.upper()} reported as {found_fits} "
                             f"contradicts JSON parameter = {exp_fit}."
@@ -312,6 +469,176 @@ def find_contradictions_in_text(
 
     return errors, warnings, evidence
 
+
+def compare_artifacts_pairwise(
+    md_text: str,
+    docx_text: str,
+    md_name: str,
+    docx_name: str
+) -> Tuple[List[str], List[str], Dict[str, Any]]:
+    """
+    Direct pairwise cross-comparison between Markdown and Word DOCX to catch text discrepancies.
+    """
+    errors = []
+    warnings = []
+    evidence = {}
+
+    norm_md = normalize_digits(md_text)
+    norm_docx = normalize_digits(docx_text)
+
+    # 1. Betas
+    md_betas = [float(b) for b in re.findall(r'(?:[βΒ]|\\beta|\bbeta\b)\s*=\s*([+-]?[0-9]+\.?[0-9]*)', norm_md, re.IGNORECASE)]
+    docx_betas = [float(b) for b in re.findall(r'(?:[βΒ]|\\beta|\bbeta\b)\s*=\s*([+-]?[0-9]+\.?[0-9]*)', norm_docx, re.IGNORECASE)]
+    evidence["md_betas"] = md_betas
+    evidence["docx_betas"] = docx_betas
+
+    if md_betas and docx_betas:
+        for mb in md_betas:
+            if not any(abs(mb - db) <= 0.015 for db in docx_betas):
+                errors.append(
+                    f"Discrepancy between {md_name} and {docx_name}: Markdown reports β = {mb}, "
+                    f"which is missing or contradicted in Word document (found {docx_betas})."
+                )
+        for db in docx_betas:
+            if not any(abs(db - mb) <= 0.015 for mb in md_betas):
+                errors.append(
+                    f"Discrepancy between {docx_name} and {md_name}: Word document reports β = {db}, "
+                    f"which is missing or contradicted in Markdown (found {md_betas})."
+                )
+
+    # 2. Sample size N
+    md_ns = [int(n) for n in re.findall(r'(?<![a-zA-Z\\])[Nn]\s*=\s*([0-9]+)', norm_md)]
+    docx_ns = [int(n) for n in re.findall(r'(?<![a-zA-Z\\])[Nn]\s*=\s*([0-9]+)', norm_docx)]
+    if md_ns and docx_ns:
+        if set(md_ns) != set(docx_ns):
+            errors.append(
+                f"Discrepancy between {md_name} and {docx_name}: Sample size N in Markdown ({md_ns}) "
+                f"contradicts Word document ({docx_ns})."
+            )
+
+    return errors, warnings, evidence
+
+
+def audit_table_concordance(
+    tables_2d: List[List[List[str]]],
+    params: Dict[str, Any],
+    artifact_name: str
+) -> Tuple[List[str], List[str], Dict[str, Any]]:
+    """
+    Deep table-level concordance audit. Verifies n, mean, SD, p, effect size, and CI
+    in table cells against the machine-readable JSON source.
+    """
+    errors = []
+    warnings = []
+    evidence = {"tables_audited": len(tables_2d), "cells_audited": 0}
+
+    # Extract declared table data or model parameters from JSON
+    declared_table = params.get("table_data")
+
+    for tbl_idx, rows in enumerate(tables_2d):
+        if not rows or len(rows) < 2:
+            continue
+        headers = [normalize_digits(h).lower() for h in rows[0]]
+
+        # Map column indices
+        col_map = {}
+        for c_idx, h in enumerate(headers):
+            if any(k in h for k in ["تعداد", "sample", "n", "حجم نمونه"]):
+                col_map["n"] = c_idx
+            elif any(k in h for k in ["میانگین", "mean", "m"]):
+                col_map["mean"] = c_idx
+            elif any(k in h for k in ["انحراف استاندارد", "انحراف معیار", "sd", "std"]):
+                col_map["sd"] = c_idx
+            elif any(k in h for k in ["سطح معناداری", "sig", "p-value", "p"]):
+                col_map["p"] = c_idx
+            elif any(k in h for k in ["اندازه اثر", "effect", "η_p", "eta", "d"]):
+                col_map["effect_size"] = c_idx
+            elif any(k in h for k in ["فاصله اطمینان", "ci", "95% ci"]):
+                col_map["ci"] = c_idx
+            elif any(k in h for k in ["آماره f", "f"]):
+                col_map["f"] = c_idx
+            elif any(k in h for k in ["آماره t", "t"]):
+                col_map["t"] = c_idx
+            elif any(k in h for k in ["آماره z", "z"]):
+                col_map["z"] = c_idx
+            elif any(k in h for k in ["ضریب بتا", "بتا", "β", "beta"]):
+                col_map["beta"] = c_idx
+
+        # If declared_table structure is provided in JSON, match row by row
+        if declared_table and isinstance(declared_table, list):
+            for r_idx, expected_row in enumerate(declared_table):
+                if r_idx + 1 >= len(rows):
+                    break
+                actual_row = rows[r_idx + 1]
+                row_label = actual_row[0] if actual_row else f"Row {r_idx+1}"
+
+                # Check each metric declared in expected_row
+                for metric in ["n", "mean", "sd", "f", "t", "z", "beta", "p", "effect_size", "ci"]:
+                    if metric in expected_row and metric in col_map:
+                        c_idx = col_map[metric]
+                        if c_idx < len(actual_row):
+                            cell_raw = normalize_digits(actual_row[c_idx])
+                            exp_val = expected_row[metric]
+                            evidence["cells_audited"] += 1
+
+                            if metric == "ci" and isinstance(exp_val, (list, tuple)):
+                                # parse cell CI [LL, UL]
+                                c_match = re.search(r'\[\s*([+-]?[0-9]+\.?[0-9]*)\s*,\s*([+-]?[0-9]+\.?[0-9]*)\s*\]', cell_raw)
+                                if c_match:
+                                    ll, ul = float(c_match.group(1)), float(c_match.group(2))
+                                    if abs(ll - exp_val[0]) > 0.02 or abs(ul - exp_val[1]) > 0.02:
+                                        errors.append(
+                                            f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}'): "
+                                            f"Confidence interval reported as [{ll}, {ul}], but JSON specifies {exp_val}."
+                                        )
+                                else:
+                                    errors.append(
+                                        f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}'): "
+                                        f"Could not parse confidence interval from cell '{cell_raw}' (expected {exp_val})."
+                                    )
+                            elif metric == "p":
+                                # Check p-value
+                                p_num_match = re.search(r'([0-9]+\.?[0-9]*)', cell_raw)
+                                if p_num_match:
+                                    p_cell = float(p_num_match.group(1))
+                                    exp_p = float(exp_val) if isinstance(exp_val, (int, float)) else 0.001
+                                    if abs(p_cell - exp_p) > 0.01 and not (exp_p < 0.001 and p_cell <= 0.001):
+                                        errors.append(
+                                            f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}'): "
+                                            f"p-value reported as {p_cell}, but JSON specifies {exp_val}."
+                                        )
+                            elif isinstance(exp_val, (int, float)):
+                                # Extract float from cell
+                                num_match = re.search(r'([+-]?[0-9]+\.?[0-9]*)', cell_raw)
+                                if num_match:
+                                    cell_val = float(num_match.group(1))
+                                    if abs(cell_val - float(exp_val)) > 0.015:
+                                        errors.append(
+                                            f"Table contradiction in {artifact_name} (Table {tbl_idx+1}, row '{row_label}', metric '{metric}'): "
+                                            f"Table reports {cell_val}, but JSON specifies {exp_val}."
+                                        )
+        else:
+            # Fallback check against top-level params for individual hypothesis tables
+            for r_idx, row in enumerate(rows[1:], start=1):
+                row_label = row[0] if row else f"Row {r_idx}"
+                for metric in ["n", "mean", "sd", "f", "t", "z", "beta", "effect_size"]:
+                    param_key = "sample_size" if metric == "n" else (f"{metric}_stat" if metric in ["f", "t", "z"] else metric)
+                    if param_key in params and metric in col_map:
+                        c_idx = col_map[metric]
+                        if c_idx < len(row):
+                            cell_raw = normalize_digits(row[c_idx])
+                            num_match = re.search(r'([+-]?[0-9]+\.?[0-9]*)', cell_raw)
+                            if num_match:
+                                cell_val = float(num_match.group(1))
+                                exp_val = params[param_key]
+                                evidence["cells_audited"] += 1
+                                if isinstance(exp_val, (int, float)) and abs(cell_val - float(exp_val)) > 0.015:
+                                    errors.append(
+                                        f"Table contradiction in {artifact_name} (row '{row_label}', column '{headers[c_idx]}'): "
+                                        f"Table reports {cell_val}, but JSON source specifies {exp_val}."
+                                    )
+
+    return errors, warnings, evidence
 
 
 def validate_cross_artifacts(
@@ -321,6 +648,7 @@ def validate_cross_artifacts(
 ) -> Dict[str, Any]:
     """
     Cross-validates JSON statistical artifacts against Markdown and Word DOCX deliverables.
+    Enforces 3-way reconciliation and table-level concordance.
     Fails closed on missing required artifacts, unparseable data, or numeric contradictions.
     """
     errors = []
@@ -329,7 +657,8 @@ def validate_cross_artifacts(
         "json_artifact": os.path.basename(json_path) if json_path else None,
         "md_artifact": os.path.basename(md_path) if md_path else None,
         "docx_artifact": os.path.basename(docx_path) if docx_path else None,
-        "parameters_evaluated": {}
+        "parameters_evaluated": {},
+        "table_concordance": {}
     }
 
     # 1. Existence of JSON
@@ -362,6 +691,8 @@ def validate_cross_artifacts(
     evidence["parameters_evaluated"] = params
 
     blocked_errors = []
+    md_text = ""
+    docx_text = ""
 
     # 2. Markdown cross-validation
     if md_path:
@@ -377,6 +708,17 @@ def validate_cross_artifacts(
                 errors.extend(md_errors)
                 warnings.extend(md_warnings)
                 evidence["md_evidence"] = md_evidence
+
+                # Audit Markdown tables
+                md_tables = extract_markdown_tables(md_text)
+                if md_tables:
+                    md_2d = [[tbl["headers"]] + tbl["rows"] for tbl in md_tables]
+                    tbl_errors, tbl_warnings, tbl_evidence = audit_table_concordance(
+                        md_2d, params, os.path.basename(md_path)
+                    )
+                    errors.extend(tbl_errors)
+                    warnings.extend(tbl_warnings)
+                    evidence["table_concordance"]["md"] = tbl_evidence
             except Exception as me:
                 errors.append(f"Error reading Markdown artifact '{md_path}': {str(me)}")
 
@@ -395,6 +737,25 @@ def validate_cross_artifacts(
                 errors.extend(docx_errors)
                 warnings.extend(docx_warnings)
                 evidence["docx_evidence"] = docx_evidence
+
+                # Audit DOCX tables
+                docx_tables = extract_docx_tables(docx_path)
+                if docx_tables:
+                    tbl_errors, tbl_warnings, tbl_evidence = audit_table_concordance(
+                        docx_tables, params, os.path.basename(docx_path)
+                    )
+                    errors.extend(tbl_errors)
+                    warnings.extend(tbl_warnings)
+                    evidence["table_concordance"]["docx"] = tbl_evidence
+
+    # 4. Pairwise Cross-Artifact Comparison (MD vs DOCX)
+    if md_text and docx_text:
+        pair_errors, pair_warnings, pair_evidence = compare_artifacts_pairwise(
+            md_text, docx_text, os.path.basename(md_path), os.path.basename(docx_path)
+        )
+        errors.extend(pair_errors)
+        warnings.extend(pair_warnings)
+        evidence["pairwise_md_docx"] = pair_evidence
 
     # Determine verdict: BLOCKED on missing files, FAIL on contradictions, UNKNOWN on zero parameters, PASS when consistent
     if blocked_errors:

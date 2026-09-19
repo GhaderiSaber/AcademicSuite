@@ -121,8 +121,14 @@ class TestEndToEndIntegration(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.project_dir = os.path.join(ROOT_DIR, "projects", "test_study_e2e")
-        cls.raw_data_path = os.path.join(cls.project_dir, "01_raw_inputs", "test_academic_study_data.xlsx")
         cls.academic_state_dir = os.path.join(cls.project_dir, "academic-state")
+        csv_data = os.path.join(cls.project_dir, "01_raw_inputs", "test_academic_study_data.csv")
+        xlsx_data = os.path.join(cls.project_dir, "01_raw_inputs", "test_academic_study_data.xlsx")
+        try:
+            import pandas
+            cls.raw_data_path = xlsx_data
+        except ImportError:
+            cls.raw_data_path = csv_data
         cls.deliverables_dir = os.path.join(cls.project_dir, "03_deliverables", "stage_06_hypothesis_1")
 
         # Clean state and deliverables before running tests to ensure clean slate
@@ -576,7 +582,7 @@ class TestEndToEndIntegration(unittest.TestCase):
         val_app = validate_approval(app_grant)
         self.assertTrue(val_app["valid"], f"Approval failed schema: {val_app.get('errors')}")
 
-        # Milestone successfully transitions to APPROVED (validation report gate passed)
+        # Milestone successfully transitions from AWAITING_APPROVAL to APPROVED
         sm.transition_milestone("M4_CHAPTER4", MilestoneState.APPROVED)
         self.assertEqual(sm.milestones["M4_CHAPTER4"]["status"], MilestoneState.APPROVED.value)
 
