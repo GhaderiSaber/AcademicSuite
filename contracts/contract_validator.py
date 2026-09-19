@@ -46,6 +46,7 @@ SCHEMA_FILES = {
     "handoff": "handoff.schema.json",
     "pitfall": "pitfall.schema.json",
     "execution_manifest": "execution_manifest.schema.json",
+    "methodology_decision_record": "methodology_decision_record.schema.json",
     "teamwork_boundary": "teamwork_boundary.schema.json",
     # Evolution & Continuous Self-Improvement Contracts
     "experience": "evolution/experience.schema.json",
@@ -223,4 +224,8 @@ def validate_behavioral_profile(instance: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_drift_report(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "drift_report")
+
+
+def validate_methodology_decision_record(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "methodology_decision_record")
 

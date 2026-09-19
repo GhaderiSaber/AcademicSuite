@@ -50,12 +50,24 @@ for venv_name in [".venv", "venv"]:
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-import numpy as np
-import pandas as pd
-from scipy import stats
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+
+try:
+    from scipy import stats
+except ImportError:
+    stats = None
 
 from contracts.contract_validator import (
     validate_analysis_plan,
+    validate_methodology_decision_record,
     validate_execution_manifest,
     validate_validation_report,
     validate_pitfall
@@ -84,6 +96,10 @@ class InvalidAnalysisPlanError(StatisticalPipelineError):
 
 class MethodMismatchError(StatisticalPipelineError):
     """Raised when statistics-agent attempts to execute a method differing from the approved plan."""
+    pass
+
+class MethodologyViolationError(StatisticalPipelineError):
+    """Raised when an executor attempts to invent, alter, or violate an approved Methodology Decision Record or execution contract."""
     pass
 
 class ExecutionIntegrityError(StatisticalPipelineError):
@@ -145,7 +161,7 @@ class StatisticalPipelineEngine:
 
     def validate_analysis_plan(self, plan_or_path: Union[Dict[str, Any], str]) -> Dict[str, Any]:
         """
-        Validates an AnalysisPlan against contracts/analysis_plan.schema.json.
+        Validates an AnalysisPlan or MethodologyDecisionRecord against contract schemas.
         Returns the structured validation report.
         """
         if isinstance(plan_or_path, str):
@@ -154,9 +170,13 @@ class StatisticalPipelineEngine:
         else:
             plan_data = plan_or_path
 
+        # If this is a Methodology Decision Record (MDR), validate against MDR contract
+        if "selected_method" in plan_data and "research_question" in plan_data and "estimand" in plan_data:
+            return validate_methodology_decision_record(plan_data)
+
         return validate_analysis_plan(plan_data)
 
-    def _get_dataset_provenance(self, dataset_path: str, df: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
+    def _get_dataset_provenance(self, dataset_path: str, df: Optional[Any] = None) -> Dict[str, Any]:
         """Computes cryptographic dataset provenance for execution manifest."""
         if not os.path.exists(dataset_path):
             return {}
@@ -183,6 +203,23 @@ class StatisticalPipelineEngine:
             "recorded_at": datetime.now(timezone.utc).isoformat(),
             "is_read_only": is_ro
         }
+
+    def execute_plan(
+        self,
+        analysis_plan: Union[Dict[str, Any], str],
+        dataset_path: str,
+        out_dir: str,
+        mode: str = "production",
+        chosen_method: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Convenience alias for execute_statistical_pipeline."""
+        return self.execute_statistical_pipeline(
+            analysis_plan=analysis_plan,
+            dataset_path=dataset_path,
+            out_dir=out_dir,
+            mode=mode,
+            chosen_method=chosen_method
+        )
 
     def execute_statistical_pipeline(
         self,
@@ -255,31 +292,52 @@ class StatisticalPipelineEngine:
                 f"{json.dumps(validation_result.get('errors', []), indent=2)}"
             )
 
-        # Enforce that statistics-agent executes ONLY approved AnalysisPlans
+        # Enforce that statistics-agent executes ONLY approved AnalysisPlans or MDRs
         plan_status = str(plan.get("status", "")).upper()
         if plan_status != "APPROVED":
+            plan_id = plan.get("plan_id") or plan.get("record_id")
             raise InvalidAnalysisPlanError(
-                f"CRITICAL PLAN REJECTION: statistics-agent may execute ONLY an approved AnalysisPlan. "
-                f"Current plan '{plan.get('plan_id')}' has status '{plan.get('status')}'. Must be 'APPROVED'."
+                f"CRITICAL PLAN REJECTION: statistics-agent may execute ONLY an approved AnalysisPlan or Methodology Decision Record. "
+                f"Current plan '{plan_id}' has status '{plan.get('status')}'. Must be 'APPROVED'."
             )
 
         # 3. Method Lock Enforcement
-        models = plan.get("statistical_models", [])
-        if not models:
-            raise InvalidAnalysisPlanError("AnalysisPlan contains no statistical_models specification.")
-        
-        primary_model = models[0]
-        mandated_family = primary_model.get("family", "")
+        is_mdr = "selected_method" in plan
+        if is_mdr:
+            selected_method_info = plan.get("selected_method", {})
+            mandated_name = selected_method_info.get("name", "")
+            mandated_family = selected_method_info.get("family", "")
+            if not mandated_name and not mandated_family:
+                raise MethodologyViolationError("Methodology Decision Record contains no selected_method specification.")
+            
+            if chosen_method is not None:
+                norm_chosen = chosen_method.lower().strip().replace(" ", "_").replace("-", "_")
+                norm_name = mandated_name.lower().strip().replace(" ", "_").replace("-", "_")
+                norm_family = mandated_family.lower().strip().replace(" ", "_").replace("-", "_")
+                if (norm_chosen not in norm_name and norm_chosen not in norm_family and
+                    norm_name not in norm_chosen and norm_family not in norm_chosen):
+                    raise MethodMismatchError(
+                        f"CRITICAL METHOD MISMATCH: statistics-agent attempted to execute method '{chosen_method}', "
+                        f"which violates the approved Methodology Decision Record requiring '{mandated_name}' ({mandated_family}). "
+                        f"The statistics executor receives the execution contract and must not invent or alter methodology."
+                    )
+        else:
+            models = plan.get("statistical_models", [])
+            if not models:
+                raise InvalidAnalysisPlanError("AnalysisPlan contains no statistical_models specification.")
+            
+            primary_model = models[0]
+            mandated_family = primary_model.get("family", "")
 
-        if chosen_method is not None:
-            norm_chosen = chosen_method.lower().strip().replace(" ", "_").replace("-", "_")
-            norm_mandated = mandated_family.lower().strip().replace(" ", "_").replace("-", "_")
-            if norm_chosen != norm_mandated and not (norm_chosen in norm_mandated or norm_mandated in norm_chosen):
-                raise MethodMismatchError(
-                    f"CRITICAL METHOD MISMATCH: statistics-agent attempted to execute method '{chosen_method}', "
-                    f"which violates the approved AnalysisPlan requiring '{mandated_family}'. "
-                    f"statistics-agent must execute ONLY approved models."
-                )
+            if chosen_method is not None:
+                norm_chosen = chosen_method.lower().strip().replace(" ", "_").replace("-", "_")
+                norm_mandated = mandated_family.lower().strip().replace(" ", "_").replace("-", "_")
+                if norm_chosen != norm_mandated and not (norm_chosen in norm_mandated or norm_mandated in norm_chosen):
+                    raise MethodMismatchError(
+                        f"CRITICAL METHOD MISMATCH: statistics-agent attempted to execute method '{chosen_method}', "
+                        f"which violates the approved AnalysisPlan requiring '{mandated_family}'. "
+                        f"statistics-agent must execute ONLY approved models."
+                    )
 
         # 4. Deterministic Execution Setup
         os.makedirs(out_dir, exist_ok=True)
@@ -742,8 +800,10 @@ class StatisticalPipelineEngine:
     # --------------------------------------------------------------------------
     # Deterministic Mathematical Helpers
     # --------------------------------------------------------------------------
-    def _load_dataframe(self, dataset_path: str) -> pd.DataFrame:
+    def _load_dataframe(self, dataset_path: str) -> Any:
         """Loads data from Excel, CSV, or SPSS into pandas DataFrame."""
+        if pd is None:
+            raise ImportError("pandas is required for empirical calculations. Install pandas in python environment.")
         ext = os.path.splitext(dataset_path)[1].lower()
         if ext in (".xlsx", ".xls"):
             return pd.read_excel(dataset_path)
@@ -756,8 +816,10 @@ class StatisticalPipelineEngine:
         else:
             raise ValueError(f"Unsupported dataset format '{ext}'. Must be .xlsx, .csv, or .sav.")
 
-    def _calculate_model_results(self, df: pd.DataFrame, plan: Dict[str, Any], model_family: str) -> Dict[str, Any]:
+    def _calculate_model_results(self, df: Any, plan: Dict[str, Any], model_family: str) -> Dict[str, Any]:
         """Calculates deterministic statistics according to the plan specification."""
+        if pd is None or np is None:
+            raise ImportError("numpy and pandas are required for empirical calculations. Install numpy and pandas.")
         variables = plan.get("variables", {})
         dv_list = variables.get("outcome_variables", [])
         pred_list = variables.get("predictors", [])

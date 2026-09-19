@@ -179,3 +179,39 @@ Minimal Dynamically Assembled Native Antigravity Subagents (strictly pruning unn
 - **Positive**: Minimal agent context overhead, zero superfluous subagent invocations, clear scientific design derivation, 100% adherence to Directive 12.1 and Directive 19.
 - **Negative**: Dynamic team resolution must be computed per task prompt prior to subagent invocation.
 
+---
+
+## ADR-009: Methodology as an Autonomous Decision Layer (MDR Contract)
+
+### Context
+In naive AI statistical workflows, agents often jump directly from user prompts to arbitrary statistical calculations, omitting critical design choices, estimand definitions, and assumption evaluations. When statistical executors select or alter models on the fly, analysis becomes non-defensible, prone to p-hacking, and vulnerable to classical statistical traps (such as gain-score t-tests falling into Lord's paradox, or median-split ANOVAs discarding 35-50% power).
+
+### Decision
+Establish an explicit, binding **Methodology Decision Layer** governed by an authoritative 8-step decision ladder:
+```text
+Research Question
+       ↓
+Design
+       ↓
+Estimand
+       ↓
+Candidate Methods
+       ↓
+Assumptions
+       ↓
+Method Selection & Refutation Matrix
+       ↓
+Execution Specification (Execution Contract)
+       ↓
+Statistical Executor ("The Hands")
+```
+
+1. **Autonomous Methodology Layer**: `methodology-expert` formulates and signs a binding **Methodology Decision Record (MDR)** conforming to `contracts/methodology_decision_record.schema.json`.
+2. **Defensible Refutation Matrix**: Every MDR must evaluate candidate methods and provide formal, literature-grounded refutations for all non-selected methods (e.g., refuting gain-score t-tests via Lord's paradox; refuting Baron & Kenny and Sobel tests in favor of Hayes bootstrap 5,000).
+3. **Execution Contract Decoupling**: The statistical executor (`statistics-agent` and `StatisticalPipelineEngine`) receives the `execution_contract` as a strictly downstream consumer. The executor is mechanically forbidden from inventing, selecting, or altering methodology (`MethodMismatchError` / `MethodologyViolationError`).
+
+### Consequences
+- **Positive**: Complete academic defensibility, zero arbitrary or unapproved model selection by executors, transparent refutation matrices, full compliance with Directive 12.1 and Directive 19.
+- **Negative**: Adds an upfront requirement to formulate and validate the MDR before numerical execution proceeds.
+
+

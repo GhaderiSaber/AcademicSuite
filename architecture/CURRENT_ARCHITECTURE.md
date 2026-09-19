@@ -215,11 +215,11 @@ AcademicSuite tracks project progression via an append-only event-sourcing model
 
 ---
 
-## 7. Current Artifact Contracts (29 Schemas)
+## 7. Current Artifact Contracts (30 Schemas)
 
 All inter-stage communications and learning records are governed by strict JSON schemas in `contracts/`:
 
-### 7.1 Core Pipeline Contracts (`contracts/` — 12 Schemas)
+### 7.1 Core Pipeline Contracts (`contracts/` — 13 Schemas)
 1. `analysis_candidate.schema.json`
 2. `analysis_plan.schema.json`
 3. `approval.schema.json`
@@ -227,11 +227,12 @@ All inter-stage communications and learning records are governed by strict JSON 
 5. `event.schema.json`
 6. `execution_manifest.schema.json`
 7. `handoff.schema.json`
-8. `milestone_state.schema.json`
-9. `pitfall.schema.json`
-10. `teamwork_boundary.schema.json`
-11. `validation_report.schema.json`
-12. `contract_validator.py`
+8. `methodology_decision_record.schema.json`
+9. `milestone_state.schema.json`
+10. `pitfall.schema.json`
+11. `teamwork_boundary.schema.json`
+12. `validation_report.schema.json`
+13. `contract_validator.py`
 
 ### 7.2 Self-Improvement & Evolution Contracts (`contracts/evolution/` — 17 Schemas)
 13. `anti_pattern.schema.json`

@@ -1,0 +1,235 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/methodology_decision_record.schema.json",
+  "title": "MethodologyDecisionRecordContract",
+  "description": "Authoritative contract schema for the Methodology Decision Layer. Decouples methodological reasoning (Research Question -> Design -> Estimand -> Candidate Methods -> Assumptions -> Method Selection -> Refutations) from deterministic statistical execution.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "record_id",
+    "decided_by",
+    "status",
+    "research_question",
+    "design",
+    "estimand",
+    "candidate_methods",
+    "assumptions",
+    "selected_method",
+    "rejected_methods",
+    "required_inputs",
+    "decision_rationale",
+    "execution_contract"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of the contract schema."
+    },
+    "record_id": {
+      "type": "string",
+      "description": "Unique identifier for this decision record (e.g. MDR-2026-ACT-001)."
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Associated project directory or identifier."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "decided_by": {
+      "type": "string",
+      "description": "Cognitive agent role responsible for the methodological decision (e.g. methodology-expert)."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "PENDING_REVIEW", "APPROVED", "REJECTED"],
+      "description": "Approval lifecycle state of the decision record."
+    },
+    "research_question": {
+      "type": "string",
+      "minLength": 5,
+      "description": "The precise empirical or theoretical research question being investigated."
+    },
+    "design": {
+      "type": "object",
+      "required": ["study_type", "group_structure", "temporal_dynamics", "waves", "factors"],
+      "properties": {
+        "study_type": {
+          "type": "string",
+          "enum": ["RCT", "quasi_experimental", "correlational_structural", "scale_validation", "qualitative", "meta_analysis", "observational_survey"]
+        },
+        "group_structure": {
+          "type": "string",
+          "enum": ["single-group", "multi-group", "factorial"]
+        },
+        "temporal_dynamics": {
+          "type": "string",
+          "enum": ["single-point", "cross-sectional", "repeated measures", "longitudinal_panel"]
+        },
+        "waves": {
+          "type": "string",
+          "enum": ["cross-sectional", "pre-post", "follow-up", "multi-wave"]
+        },
+        "factors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        },
+        "unit_of_analysis": {
+          "type": "string"
+        }
+      }
+    },
+    "estimand": {
+      "type": "object",
+      "required": ["type", "targeted_parameter", "population"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ATE", "ATT", "CATE", "indirect_effect", "interaction_effect", "factor_loading", "correlation", "pooled_effect_size", "thematic_pattern"]
+        },
+        "targeted_parameter": {
+          "type": "string",
+          "description": "Exact definition of the statistical or causal parameter being estimated."
+        },
+        "population": {
+          "type": "string",
+          "description": "Target population under study."
+        },
+        "timepoints": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "causal_contrast": {
+          "type": "string"
+        }
+      }
+    },
+    "candidate_methods": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["method", "family", "suitability"],
+        "properties": {
+          "method": {"type": "string"},
+          "family": {"type": "string"},
+          "pros": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "cons": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "suitability": {
+            "type": "string",
+            "enum": ["highly_suitable", "conditionally_suitable", "unsuitable"]
+          }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["assumption", "test_method", "threshold", "action_on_violation"],
+        "properties": {
+          "assumption": {"type": "string"},
+          "test_method": {"type": "string"},
+          "threshold": {"type": "string"},
+          "action_on_violation": {"type": "string"}
+        }
+      }
+    },
+    "selected_method": {
+      "type": "object",
+      "required": ["name", "family", "selection_justification"],
+      "properties": {
+        "name": {"type": "string"},
+        "family": {"type": "string"},
+        "package_or_script": {"type": "string"},
+        "selection_justification": {"type": "string"}
+      }
+    },
+    "rejected_methods": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["method", "reason", "literature_citation"],
+        "properties": {
+          "method": {"type": "string"},
+          "reason": {"type": "string"},
+          "literature_citation": {"type": "string"}
+        }
+      }
+    },
+    "required_inputs": {
+      "type": "object",
+      "required": ["independent_variable", "dependent_variables"],
+      "properties": {
+        "dataset_path": {"type": "string"},
+        "independent_variable": {"type": "string"},
+        "dependent_variables": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        },
+        "covariates": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "grouping_variable": {"type": "string"},
+        "time_variable": {"type": "string"},
+        "subject_id_variable": {"type": "string"}
+      }
+    },
+    "decision_rationale": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Formal scientific and epistemic defense justifying the selected method and refuting alternatives."
+    },
+    "execution_contract": {
+      "type": "object",
+      "description": "Concrete execution contract passed downstream to the statistical executor ('The Hands').",
+      "required": ["assigned_executor", "engine", "script", "parameters", "expected_triad_artifacts"],
+      "properties": {
+        "assigned_executor": {
+          "type": "string",
+          "enum": ["statistics-agent", "data-curator", "psychometric-expert", "longitudinal-modmed-expert", "meta-analyst", "qualitative-analyst"]
+        },
+        "engine": {
+          "type": "string",
+          "enum": ["python", "r", "python_r"]
+        },
+        "script": {
+          "type": "string"
+        },
+        "cli_command": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "expected_triad_artifacts": {
+          "type": "object",
+          "required": ["docx_path", "md_path", "json_path"],
+          "properties": {
+            "docx_path": {"type": "string"},
+            "md_path": {"type": "string"},
+            "json_path": {"type": "string"}
+          }
+        },
+        "validation_gates": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

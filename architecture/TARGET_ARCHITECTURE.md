@@ -245,3 +245,52 @@ Native Antigravity Execution via `invoke_subagent`
 2. **Antigravity as Sole Conductor**: `academic-orchestrator` is the sole orchestrator, dynamically invoking only the resolved subagent roles via native `invoke_subagent`.
 3. **Fail-Closed Safety**: Out-of-domain, non-academic, or unsupported requests are blocked with `status: BLOCKED` and `escalation_required: true`. Ambiguous requests return candidate capabilities and clarification prompts rather than guessing.
 
+---
+
+## 9. The Methodology Decision Layer & The 8-Step Decision Ladder (Phase 4)
+
+### 9.1 The 8-Step Ladder
+AcademicSuite elevates methodology into an autonomous decision layer that precedes and constrains all inferential computation:
+
+```text
+1. Research Question
+       ↓
+2. Empirical Design
+       ↓
+3. Estimand Definition
+       ↓
+4. Candidate Methods Evaluation
+       ↓
+5. Assumption Diagnostics Checklist
+       ↓
+6. Method Selection & Refutation Matrix
+       ↓
+7. Execution Specification (Execution Contract)
+       ↓
+8. Statistical Executor ("The Hands")
+```
+
+### 9.2 The Methodology Decision Record (MDR) Contract
+All methodological reasoning is codified into a binding contract:
+`contracts/methodology_decision_record.schema.json`.
+
+An MDR contains:
+- **`research_question`**: The exact empirical inquiry.
+- **`design`**: Formal empirical architecture (`study_type`, `group_structure`, `temporal_dynamics`, `waves`, `factors`).
+- **`estimand`**: The target causal/statistical parameter (ATE, CATE, indirect effect, factor loading).
+- **`candidate_methods`**: Comparative assessment of candidate analytical strategies with pros, cons, and suitability.
+- **`assumptions`**: Diagnostic checklist with test methods, thresholds, and pre-specified violation remediation fallbacks.
+- **`selected_method`**: Formally chosen model family and execution script.
+- **`rejected_methods`**: Literature-grounded refutation matrix citing peer-reviewed methodological precedents:
+  - Rejecting gain-score t-tests due to Lord's paradox (Lord, 1967; Vickers & Altman, 2001).
+  - Rejecting post-test only ANOVA due to baseline variance neglect and power loss (Cohen, 1988).
+  - Rejecting Baron & Kenny regression due to deflated statistical power (Hayes, 2018).
+  - Rejecting Sobel tests due to skewed product distributions (Preacher & Hayes, 2004).
+  - Rejecting median splits due to 35-50% power loss (MacCallum et al., 2002).
+- **`execution_contract`**: The binding execution contract passed downstream to `statistics-agent` and `StatisticalPipelineEngine`.
+
+### 9.3 Inviolable Execution Decoupling
+1. **The Executor Never Invents Methodology**: `statistics-agent` receives the `execution_contract` and executes deterministically. It has zero authority to select, alter, or invent statistical models.
+2. **Method Lock Enforcement**: `StatisticalPipelineEngine` validates the plan against `methodology_decision_record.schema.json` and raises `MethodMismatchError` or `MethodologyViolationError` if any deviation from the contract is attempted.
+
+
