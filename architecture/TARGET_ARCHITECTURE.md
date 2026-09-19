@@ -1405,3 +1405,98 @@ When `AcademicBehaviorDriftMonitor` detects behavioral degradation or regression
 3. Validates that the active disk file has been physically restored to the parent immutable version.
 4. Falls back to snapshot restoration only if the component predates Phase 22 version storage.
 
+---
+
+## 28. Independent Blinded A/B Multi-Task Evaluation Architecture (Phase 23)
+
+### 28.1 The Prohibition of Candidate Self-Evaluation
+Prior to Phase 23, candidate improvements could generate or assert their own evidence during behavioral evolution:
+```text
+candidate ───> candidate says "improved" ───> promotion
+```
+This flawed pattern allowed candidates to grade their own output, assert self-evaluated pass rates, or hide regressions.
+
+Under Phase 23, this pattern is completely eliminated. Evaluation is strictly decoupled into an independent, blinded multi-task comparison:
+
+```mermaid
+flowchart TD
+    subgraph BenchmarkPanel["Standardized Multi-Task Benchmark Panel"]
+        TA["Task A (Target Defect)"]
+        TB["Task B (Related Capability)"]
+        TC["Task C (Regression Guard)"]
+    end
+
+    subgraph Execution["Parallel Execution Arms"]
+        BA["Baseline Agent (Production)"]
+        CA["Candidate Agent (Isolated Sandbox)"]
+    end
+
+    subgraph BlindingHarness["Blinding & Sanitization Harness"]
+        Sanitize["Deep Payload Sanitization\n(Strip candidate IDs, version strings, sandbox paths)"]
+        Blind["Cryptographic Blinding\n(Salted random assignment: Submission A vs Submission B)"]
+    end
+
+    subgraph IndependentEval["Independent Evaluator (evaluation-agent)"]
+        GradeA["Grade Submission A\n(8 Independent Dimensions)"]
+        GradeB["Grade Submission B\n(8 Independent Dimensions)"]
+    end
+
+    subgraph UnblindingCoord["Unblinding Coordinator & Comparison"]
+        Decode["Decode Token Mapping\n(candidate = Sub A/B, baseline = Sub B/A)"]
+        Comp["Compute Comparative Metrics\n- defect_resolved\n- candidate_outperformed_baseline\n- zero_regressions_verified"]
+        Gate["Gate 0.5 Anti-Self-Evaluation Check\n(Reject self-asserted claims fail-closed)"]
+    end
+
+    TA --> BA
+    TB --> BA
+    TC --> BA
+
+    TA --> CA
+    TB --> CA
+    TC --> CA
+
+    BA --> Sanitize
+    CA --> Sanitize
+    Sanitize --> Blind
+
+    Blind --> GradeA
+    Blind --> GradeB
+
+    GradeA --> Decode
+    GradeB --> Decode
+    Decode --> Comp
+    Comp --> Gate
+```
+
+### 28.2 The Multi-Task Benchmark Panel
+Both the Baseline Agent and the Candidate Agent must execute the exact same panel of standardized benchmark tasks:
+1. **Task A (`TARGET_DEFECT`)**: The motivating defect scenario that triggered the evolution loop (e.g. $p = .000$ violation, missing assumption check).
+2. **Task B (`RELATED_CAPABILITY`)**: Generalization test evaluating secondary tasks within the same capability.
+3. **Task C (`REGRESSION_GUARD`)**: Permanent regression test protecting baseline behavior and reasoning properties.
+
+### 28.3 Cryptographic Blinding and Payload Sanitization (`AcademicIndependentEvaluator`)
+- **Deep Payload Sanitization**: The harness deeply sanitizes candidate outputs, purging any self-identifying markers:
+  - `candidate_id`, `sandbox_id`, `version`, `patch_id`, `git_hash`.
+  - Self-asserted verdicts (`improved: True`, `verdict: "PASS"`, `recommendation: "PROMOTE"`).
+  - Absolute directory paths referencing candidate or sandbox directories.
+- **Salted Random Assignment**: The harness pseudo-randomly assigns `Submission_A` and `Submission_B` to baseline and candidate using a cryptographic salt.
+- **Evaluator Blindness**: The Independent Evaluator (`evaluation-agent` / `AcademicEvaluationLab`) evaluates both submissions across all 8 independent dimensions without knowing which submission is the candidate.
+
+### 28.4 Unblinding & Comparative Verification
+After the independent evaluator records its blinded findings:
+1. The unblinding coordinator decodes `candidate_token` and `baseline_token`.
+2. Computes objective comparative metrics:
+   - `defect_resolved`: Candidate passed Task A where baseline failed.
+   - `candidate_outperformed_baseline`: Candidate passed strictly more tasks than baseline, or equal tasks with fewer defects and target defect resolved.
+   - `zero_regressions_verified`: Zero tasks where baseline passed and candidate failed.
+3. `independent_verdict`: Evaluates to `PASS` if and only if:
+   $$\text{defect\_resolved} \land \text{candidate\_outperformed\_baseline} \land \text{zero\_regressions\_verified}$$
+
+### 28.5 Anti-Self-Evaluation Gate (`AcademicPromotionEngine`)
+- In `AcademicPromotionEngine.verify_evaluation_gates`:
+  - **Gate 0.5 (`independent_evaluation`)**:
+    - If `is_self_evaluated: True` or `self_asserted: True` is detected, the candidate is immediately rejected with `SELF_EVALUATION_PROHIBITED`.
+    - If `independent_evaluation` is present, requires `independent_verdict: "PASS"`, `defect_resolved: True`, and `zero_regressions_verified: True`.
+    - Promotion cannot proceed on self-asserted evidence.
+
+

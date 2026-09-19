@@ -1074,4 +1074,70 @@ Previously, promotion snapshots were metadata-heavy JSON files (`SNAP-xxx.json`)
 - **Positive**: Eliminates metadata-only rollback illusions; establishes deterministic version control on disk for learned behaviors; enables seamless automated rollback in drift monitoring; strictly adheres to Directives 0, 8, 12.1, 18, and 19.
 - **Negative**: Adds storage footprint under `learning/versions/` proportional to the number of promoted versions.
 
+---
+
+## ADR-028: Independent Blinded A/B Multi-Task Evaluation Architecture
+
+### Status
+Accepted
+
+### Context
+In prior implementations, candidate improvements could generate or assert their own evidence during behavioral evolution:
+```text
+candidate ───> candidate says "improved" ───> promotion
+```
+This pattern violated fundamental principles of research integrity and Directive 0 (Radical Honesty & Anti-Deception):
+1. **Self-Evaluation Bias**: An agent or candidate evaluating its own output inherently produces biased or hallucinated pass declarations.
+2. **Lack of Controlled Baseline Comparison**: Evaluating a candidate in isolation without running the baseline agent on the exact same task panel prevents detecting whether the candidate actually outperformed the baseline.
+3. **Hidden Regressions**: Single-task or self-selected testing masks regressions on secondary or core baseline capabilities.
+
+### Decision
+Rebuild the evaluation architecture around independent, blinded A/B multi-task benchmark evaluation:
+
+```text
+Baseline Agent
+       │
+       ├── Task A (Target Defect)
+       ├── Task B (Related Capability)
+       └── Task C (Regression Guard)
+       
+Candidate Agent
+       │
+       ├── Task A (Target Defect)
+       ├── Task B (Related Capability)
+       └── Task C (Regression Guard)
+       
+Independent Evaluator (Blinded A/B)
+       ↓
+    Compare
+```
+
+1. **Multi-Task Benchmark Panel**:
+   - Both the Baseline Agent and the Candidate Agent are executed on the exact same panel of standardized benchmark tasks:
+     - **Task A (`TARGET_DEFECT`)**: The motivating failure scenario that triggered the evolution loop.
+     - **Task B (`RELATED_CAPABILITY`)**: Generalization test on secondary scenarios within the same capability.
+     - **Task C (`REGRESSION_GUARD`)**: Permanent regression scenario protecting core baseline capabilities.
+
+2. **Blinded A/B Grading (`AcademicIndependentEvaluator`)**:
+   - An evaluation harness assigns random blinded tokens (`Submission_A` and `Submission_B`) using a cryptographically salted assignment.
+   - **Payload Sanitization**: Strips candidate identifiers (`candidate_id`, `sandbox_id`, `version`, `patch_id`, sandbox directory paths) and any self-asserted verdicts (`improved: True`, `verdict: PASS`).
+   - The Independent Evaluator grades `Submission_A` and `Submission_B` across all 8 independent dimensions on identical objective criteria without knowing which submission was produced by the candidate.
+
+3. **Post-Evaluation Unblinding & Comparative Analysis**:
+   - Only after blinded grading is completed does the harness decode the token mapping.
+   - Computes:
+     - `defect_resolved`: Did the candidate pass the target defect task where baseline failed?
+     - `candidate_outperformed_baseline`: Did the candidate achieve superior task pass rates or fewer defects than baseline?
+     - `zero_regressions_verified`: Are there zero tasks where baseline passed and candidate failed?
+     - `independent_verdict`: `"PASS"` if and only if `defect_resolved`, `candidate_outperformed_baseline`, and `zero_regressions_verified` are all true.
+
+4. **Anti-Self-Evaluation Gate (`AcademicPromotionEngine`)**:
+   - `verify_evaluation_gates` adds Gate 0.5 (`independent_evaluation`):
+     - Candidates attempting self-evaluation or providing self-asserted evidence without independent blinded verification are rejected fail-closed.
+
+### Consequences
+- **Positive**: Complete elimination of candidate self-evaluation; authentic blinded A/B grading; rigorous regression protection across multi-task panels; 100% adherence to Directives 0, 12.1, 18, and 19.
+- **Negative**: Requires executing both baseline and candidate agents across multiple benchmark tasks per evaluation cycle.
+
+
 

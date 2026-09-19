@@ -647,6 +647,35 @@ class AcademicPromotionEngine:
                 "minimum_required": 3
             }
 
+        # Gate 0.5: Independent Evaluation & Anti-Self-Evaluation Gate (Phase 23)
+        if evaluation_report.get("is_self_evaluated", False) or evaluation_report.get("self_asserted", False):
+            failures.append("SELF_EVALUATION_PROHIBITED: Candidate self-asserted improvement without independent evaluation.")
+            gate_results["independent_evaluation"] = {
+                "passed": False,
+                "details": "Candidate attempted to evaluate itself (Directive 0 / Phase 23 violation)."
+            }
+            affected_cases.append("anti_self_evaluation")
+        elif "independent_evaluation" in evaluation_report:
+            indep = evaluation_report["independent_evaluation"]
+            unblinded = indep.get("unblinded_comparison", {})
+            indep_passed = (
+                unblinded.get("independent_verdict") == "PASS" and
+                unblinded.get("defect_resolved") is True and
+                unblinded.get("zero_regressions_verified") is True
+            )
+            gate_results["independent_evaluation"] = {
+                "passed": bool(indep_passed),
+                "details": f"Independent blinded A/B verdict: {unblinded.get('independent_verdict')}"
+            }
+            if not indep_passed:
+                failures.append(f"Independent evaluation failed: {unblinded.get('independent_verdict')}")
+                affected_cases.append("independent_evaluation")
+        else:
+            gate_results["independent_evaluation"] = {
+                "passed": True,
+                "details": "Standard or legacy evaluation format."
+            }
+
         # Gate 1: Target Evaluation
         target_improved = (
             policy.get("target_capability_improved", False) or
@@ -728,6 +757,7 @@ class AcademicPromotionEngine:
 
         all_passed = (
             gate_results["evidence_quantity"]["passed"] and
+            gate_results["independent_evaluation"]["passed"] and
             gate_results["target_evaluation"]["passed"] and
             gate_results["existing_regression_suite"]["passed"] and
             gate_results["adversarial_checks"]["passed"] and

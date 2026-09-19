@@ -70,7 +70,8 @@ SCHEMA_FILES = {
     "drift_report": "evolution/drift_report.schema.json",
     "behavior_analysis": "evolution/behavior_analysis.schema.json",
     "three_way_evaluation": "evolution/three_way_evaluation.schema.json",
-    "component_version": "evolution/component_version.schema.json"
+    "component_version": "evolution/component_version.schema.json",
+    "independent_evaluation": "evolution/independent_evaluation.schema.json"
 }
 
 
@@ -253,4 +254,8 @@ def validate_three_way_evaluation(instance: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_component_version(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "component_version")
+
+
+def validate_independent_evaluation(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "independent_evaluation")
 

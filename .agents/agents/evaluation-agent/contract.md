@@ -21,15 +21,18 @@ Independently test candidate modifications (`improvement_candidate`) against det
 ### CAN:
 - Execute deterministic evaluation test harnesses via terminal (`run_command`).
 - Benchmark candidates against test suites, held-out empirical datasets, and adversarial stress tests.
+- Execute blinded A/B multi-task benchmark panels (Task A, Task B, Task C) comparing Baseline vs Candidate.
 - Record multidimensional evaluation metrics (statistical precision, typography compliance, execution reliability, MSAI anomaly score).
 - Screen for regressions across existing test cases.
-- Produce objective `evaluation_result` contracts.
+- Produce objective `evaluation_result` and `independent_evaluation` contracts.
 
 ---
 
 ## NON-RESPONSIBILITIES
 
 ### CANNOT:
+- Allow a candidate to evaluate itself or accept self-asserted candidate evidence.
+- Know the identity of candidate vs baseline during blinded grading.
 - Declare a candidate successful without actual physical test execution and disk evidence.
 - Report scalar composite "intelligence scores" or single accuracy percentages.
 - Approve or execute promotions to production (no `promotion_decision` authority).
@@ -42,11 +45,13 @@ Independently test candidate modifications (`improvement_candidate`) against det
 - Staged candidate from `skill-evolver` (`improvement_candidate.json`).
 - Evaluation case specifications (`evaluation_case.json`).
 - Ground truth benchmarks and held-out empirical data panels.
+- Blinded submission payloads (`Submission_A`, `Submission_B`).
 
 ---
 
 ## OUTPUTS
 - Validated `evaluation_result` reports in `evals/results/`.
+- Validated `independent_evaluation` reports in `learning/evaluations/independent/`.
 - Regression logs and diagnostic findings.
 
 ---
@@ -68,6 +73,7 @@ Independently test candidate modifications (`improvement_candidate`) against det
 ---
 
 ## FORBIDDEN ACTIONS
+- Zero candidate self-evaluation or acceptance of unverified candidate claims.
 - Zero declaration of candidate success without executed test evidence exiting code 0.
 - Zero scalar intelligence scores.
 - Zero self-promotion.
@@ -96,7 +102,7 @@ Evaluation report payload to Human Gate (Saber Admin Desk `124911145`):
 ---
 
 ## VALIDATION REQUIREMENTS
-- Must validate against `contracts/evolution/evaluation_result.schema.json`.
+- Must validate against `contracts/evolution/evaluation_result.schema.json` or `contracts/evolution/independent_evaluation.schema.json`.
 - Must contain verifiable test runner logs and exit codes.
 - Zero scalar overall intelligence fields.
 

@@ -1,0 +1,222 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/independent_evaluation.schema.json",
+  "title": "AcademicIndependentEvaluationContract",
+  "description": "Contract schema for independent blinded A/B evaluations comparing baseline and candidate agents across a common multi-task benchmark panel without candidate self-evaluation.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "evaluation_id",
+    "candidate_id",
+    "baseline_version",
+    "capability",
+    "tasks",
+    "blinding",
+    "blinded_evaluations",
+    "unblinded_comparison",
+    "evaluated_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "evaluation_id": {
+      "type": "string",
+      "pattern": "^INDEP-EVL-[A-Za-z0-9_-]+$",
+      "description": "Unique identifier for this independent evaluation report."
+    },
+    "candidate_id": {
+      "type": "string",
+      "description": "Identifier of the candidate agent/skill under evaluation."
+    },
+    "baseline_version": {
+      "type": "string",
+      "description": "Identifier of the baseline agent/version evaluated in parallel."
+    },
+    "capability": {
+      "type": "string",
+      "description": "Target capability evaluated across the benchmark tasks."
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["task_id", "name", "type"],
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "Task identifier (e.g. TASK-A, TASK-B, TASK-C)."
+          },
+          "name": {
+            "type": "string",
+            "description": "Descriptive name of the benchmark task."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["TARGET_DEFECT", "RELATED_CAPABILITY", "REGRESSION_GUARD", "ADVERSARIAL_CHALLENGE"],
+            "description": "Role of this task within the benchmark panel."
+          },
+          "description": {
+            "type": "string",
+            "description": "Details of the task specification."
+          },
+          "expected_properties": {
+            "type": "object",
+            "description": "Expected properties for this task."
+          },
+          "forbidden_behaviors": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Behaviors triggering automatic task failure."
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "blinding": {
+      "type": "object",
+      "required": ["is_blinded", "blinded_tokens", "salt_hash"],
+      "properties": {
+        "is_blinded": {
+          "type": "boolean",
+          "description": "Affirmative flag indicating whether the evaluator was blinded during grading."
+        },
+        "blinded_tokens": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "The anonymized token labels assigned to the arms (e.g. ['Submission_A', 'Submission_B'])."
+        },
+        "salt_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "SHA-256 hash of the secret salt used for randomized assignment."
+        }
+      },
+      "additionalProperties": false
+    },
+    "blinded_evaluations": {
+      "type": "object",
+      "description": "Blinded evaluation results produced by the independent evaluator without knowing agent identities.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["tasks", "overall_verdict", "dimensional_evaluations"],
+        "properties": {
+          "tasks": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "required": ["verdict", "passed_checks", "failed_checks"],
+              "properties": {
+                "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+                "passed_checks": {"type": "array", "items": {"type": "string"}},
+                "failed_checks": {"type": "array", "items": {"type": "string"}},
+                "diagnostics": {"type": "array", "items": {"type": "object"}}
+              },
+              "additionalProperties": true
+            }
+          },
+          "overall_verdict": {
+            "type": "string",
+            "enum": ["PASS", "FAIL"]
+          },
+          "passed_tasks_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total_tasks_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "dimensional_evaluations": {
+            "type": "object",
+            "description": "Evaluations across the 8 independent dimensions for this submission."
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "unblinded_comparison": {
+      "type": "object",
+      "required": [
+        "candidate_token",
+        "baseline_token",
+        "candidate_passes",
+        "baseline_passes",
+        "defect_resolved",
+        "candidate_outperformed_baseline",
+        "zero_regressions_verified",
+        "independent_verdict"
+      ],
+      "properties": {
+        "candidate_token": {
+          "type": "string",
+          "description": "Which blinded token was assigned to the candidate agent."
+        },
+        "baseline_token": {
+          "type": "string",
+          "description": "Which blinded token was assigned to the baseline agent."
+        },
+        "candidate_passes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of tasks passed by the candidate."
+        },
+        "baseline_passes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of tasks passed by the baseline."
+        },
+        "tasks_summary": {
+          "type": "object",
+          "description": "Task-by-task comparison between baseline and candidate.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "baseline_verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+              "candidate_verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+              "candidate_improved": {"type": "boolean"},
+              "candidate_regressed": {"type": "boolean"}
+            },
+            "additionalProperties": true
+          }
+        },
+        "defect_resolved": {
+          "type": "boolean",
+          "description": "True if the candidate passed the target defect task where baseline failed."
+        },
+        "candidate_outperformed_baseline": {
+          "type": "boolean",
+          "description": "True if candidate passed strictly more tasks than baseline or achieved fewer defects."
+        },
+        "zero_regressions_verified": {
+          "type": "boolean",
+          "description": "True if there are zero tasks where baseline passed and candidate failed."
+        },
+        "independent_verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL"],
+          "description": "Final independent verdict: PASS if defect resolved, outperforming/equal, and zero regressions."
+        },
+        "recommendation": {
+          "type": "string",
+          "enum": ["PROMOTE", "STAGE_FOR_REVIEW", "REJECT"],
+          "description": "Evaluation recommendation to the promotion engine."
+        }
+      },
+      "additionalProperties": true
+    },
+    "evaluated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

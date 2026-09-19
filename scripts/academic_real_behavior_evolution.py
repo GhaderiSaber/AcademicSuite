@@ -83,6 +83,7 @@ from scripts.academic_evaluation_lab import AcademicEvaluationLab, HeldoutTamper
 from scripts.academic_counterfactual_evaluator import AcademicCounterfactualEvaluator
 from scripts.academic_promotion_engine import AcademicPromotionEngine
 from scripts.academic_behavior_drift_monitor import AcademicBehaviorDriftMonitor
+from scripts.academic_independent_evaluator import AcademicIndependentEvaluator
 from contracts.contract_validator import validate_three_way_evaluation, validate_behavior_analysis
 
 
@@ -115,6 +116,7 @@ class AcademicRealBehaviorEvolution:
         self.counterfactual_evaluator = AcademicCounterfactualEvaluator(base_dir=self.base_dir)
         self.promotion_engine = AcademicPromotionEngine(base_dir=self.base_dir)
         self.drift_monitor = AcademicBehaviorDriftMonitor(base_dir=self.base_dir)
+        self.independent_evaluator = AcademicIndependentEvaluator(base_dir=self.base_dir)
 
     def execute_closed_loop(
         self,
@@ -322,7 +324,8 @@ class AcademicRealBehaviorEvolution:
                     "adversarial_clearance": three_way_eval["comparison_summary"]["adversarial_resilience_verified"],
                     "promotion_eligible": three_way_eval["recommendation"] == "PROMOTE"
                 },
-                "dimensional_comparison": three_way_eval["dimensional_evaluations"]
+                "dimensional_comparison": three_way_eval["dimensional_evaluations"],
+                "independent_evaluation": three_way_eval.get("metadata", {}).get("independent_evaluation")
             }
 
             promotion_result = self.promotion_engine.evaluate_and_promote(
@@ -516,13 +519,25 @@ class AcademicRealBehaviorEvolution:
             heldout_total=heldout_total
         )
 
-        # QC Verdict
-        qc_verdict = "PASS" if (defect_resolved and zero_regressions and adversarial_clear and not is_overfit) else "FAIL"
+        # Independent Blinded A/B Multi-Task Evaluation (Phase 23)
+        indep_report = self.independent_evaluator.execute_independent_evaluation(
+            candidate_id=cid,
+            baseline_version="CURRENT_ACTIVE",
+            capability=capability,
+            baseline_outputs=base_art,
+            candidate_outputs=cand_art,
+            failure_signature=analysis_report.get("failure_signature")
+        )
+        indep_unblinded = indep_report.get("unblinded_comparison", {})
+        indep_verdict = indep_unblinded.get("independent_verdict", "FAIL")
+
+        # QC Verdict: requires independent evaluation PASS
+        qc_verdict = "PASS" if (defect_resolved and zero_regressions and adversarial_clear and not is_overfit and indep_verdict == "PASS") else "FAIL"
 
         # Recommendation
         if qc_verdict == "PASS":
             recommendation = "PROMOTE"
-        elif defect_resolved and not is_overfit and zero_regressions:
+        elif defect_resolved and not is_overfit and zero_regressions and indep_verdict == "PASS":
             recommendation = "STAGE_FOR_REVIEW"
         else:
             recommendation = "REJECT"
@@ -583,7 +598,8 @@ class AcademicRealBehaviorEvolution:
             "evaluated_at": datetime.now(timezone.utc).isoformat(),
             "metadata": {
                 "test_case_id": test_case.get("case_id") if test_case else None,
-                "adversarial_case_id": adv_case.get("case_id") if adv_case else None
+                "adversarial_case_id": adv_case.get("case_id") if adv_case else None,
+                "independent_evaluation": indep_report
             }
         }
 
