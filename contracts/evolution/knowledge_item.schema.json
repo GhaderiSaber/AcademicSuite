@@ -161,6 +161,16 @@
       "items": {"type": "string"},
       "description": "Topical and methodological keywords for fast indexing and query retrieval."
     },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Statistical or epistemic confidence in this knowledge item (0.0 to 1.0)."
+    },
+    "confidence_evidence": {
+      "type": "object",
+      "description": "Evidence factors supporting the computed confidence score."
+    },
     "status": {
       "type": "string",
       "enum": [

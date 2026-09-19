@@ -134,6 +134,10 @@
       "maximum": 1.0,
       "description": "Statistical or epistemic confidence in this lesson (0.0 to 1.0)."
     },
+    "confidence_evidence": {
+      "type": "object",
+      "description": "Evidence factors supporting the computed confidence score."
+    },
     "evidence": {
       "type": "object",
       "required": ["metric_or_check", "observed_value", "threshold_value"],

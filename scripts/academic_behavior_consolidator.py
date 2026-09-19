@@ -48,6 +48,7 @@ for venv_name in [".venv", "venv"]:
 
 from scripts.academic_knowledge_manager import AcademicKnowledgeManager
 from scripts.academic_generalization_engine import AcademicGeneralizationEngine, PrematureGeneralizationError
+from scripts.academic_confidence_engine import AcademicConfidenceEngine
 from contracts.contract_validator import (
     validate_lesson,
     validate_contradiction_record,
@@ -147,6 +148,7 @@ class AcademicBehaviorConsolidator:
 
         self.knowledge_manager = AcademicKnowledgeManager(base_dir=self.base_dir)
         self.generalization_engine = AcademicGeneralizationEngine(base_dir=self.base_dir)
+        self.confidence_engine = AcademicConfidenceEngine()
 
         self.quarantine_dir = os.path.join(self.learning_dir, "quarantine")
         self.telemetry_dir = os.path.join(self.learning_dir, "telemetry")
@@ -496,13 +498,28 @@ class AcademicBehaviorConsolidator:
                 elevated_scope = "DOMAIN_WIDE"
                 generalization_stage = "CROSS_CONTEXT_VALIDATION"
 
+        # Phase 26: Evidence-Derived Confidence Assessment
+        all_evals = []
+        if context_evaluations:
+            all_evals.extend(context_evaluations)
+        if domain_evaluations:
+            all_evals.extend(domain_evaluations)
+
+        confidence_report = self.confidence_engine.assess_cluster_confidence(
+            lesson_cluster=lesson_cluster,
+            evaluations=all_evals,
+            stage=generalization_stage
+        )
+        confidence_score = confidence_report["computed_confidence"]
+
         return {
             "statement": general_statement,
             "scope": elevated_scope,
             "generalization_stage": generalization_stage,
             "applicability": clean_applicability,
             "exclusions": clean_exclusions,
-            "confidence": min(0.99, max((l.get("confidence", 0.90) for l in lesson_cluster), default=0.90) + 0.05)
+            "confidence": confidence_score,
+            "confidence_evidence": confidence_report
         }
 
     # -------------------------------------------------------------------------
@@ -565,6 +582,7 @@ class AcademicBehaviorConsolidator:
             "scope": generalization["scope"],
             "generalization_stage": generalization.get("generalization_stage", "GENERALIZATION_CANDIDATE"),
             "confidence": generalization["confidence"],
+            "confidence_evidence": generalization.get("confidence_evidence"),
             "evidence": {
                 "metric_or_check": "CONSOLIDATION_SYNTHESIS",
                 "observed_value": f"Merged {len(lesson_cluster)} lessons",

@@ -1251,6 +1251,59 @@ PROMOTED_PRINCIPLE
 - **Positive**: Eliminates premature universal over-generalization; guarantees empirical evidence across heterogeneous contexts and domains before global adoption; aligns fully with Directives 0, 8, 12.1, 18, and 19.
 - **Negative**: High-level principles require systematic multi-context and multi-domain evaluation before achieving universal promotion.
 
+---
+
+## ADR-031: Evidence-Derived Confidence Architecture and Elimination of Heuristic Increments
+
+### Status
+Accepted
+
+### Context
+In earlier iterations of the continuous learning and knowledge consolidation architecture, epistemic confidence scores were assigned or incremented through arbitrary heuristics:
+- In `AcademicLessonDistiller`, newly distilled lessons received hardcoded confidence constants (`confidence: 0.95` or `confidence: 0.99`) regardless of whether the originating observation was an informal user suggestion, a single run artifact, or a benchmark evaluation.
+- In `AcademicBehaviorConsolidator`, merging duplicate lessons blindly executed scalar arithmetic increments:
+  ```python
+  confidence = min(0.99, max(confidences) + 0.05)
+  ```
+- Merging two identical lessons observed in the exact same session arbitrarily increased confidence simply because the same mistake was repeated (`confidence += 0.05`), without any new empirical evidence or independent validation.
+
+This heuristic inflation violated Directive 0 (Radical Honesty & Epistemic Integrity). Confidence in an empirical system must be derived from verifiable evidence factors rather than arbitrary arithmetic increments.
+
+### Decision
+Replace all heuristic increments and hardcoded constants with a formal, multi-factor **Evidence-Derived Confidence Engine**:
+
+$$\text{confidence} = (\text{evidence\_strength} \times \text{independence} \times \text{generalization} \times \text{validation}) - \text{contradiction\_penalty}$$
+
+1. **The Five Dimensional Evidence Factors**:
+   - **Evidence Strength ($E_s \in [0.10, 1.00]$)**:
+     Calibrated by task fidelity (`HIGH_FIDELITY_BENCHMARK`: 0.95 vs. `EMPIRICAL_EXECUTION`: 0.75 vs. `DIAGNOSTIC_OBSERVATION`: 0.50), failure severity (`CRITICAL`: 0.95 vs. `HIGH`: 0.85 vs. `MEDIUM`: 0.70 vs. `LOW`: 0.50), and observation volume ($0.40 + 0.20 \ln(N + 1)$).
+   - **Independence ($I \in [0.20, 1.00]$)**:
+     Measures session and environment diversity. Repeats within the same session receive low independence ($I = 0.25 + 0.75 \times \frac{\text{unique\_sessions}}{\text{total\_observations}}$), penalizing redundant local observations and eliminating artificial confidence inflation.
+   - **Generalization ($G \in [0.10, 1.00]$)**:
+     Bound to position on the 7-stage Generalization Ladder (ADR-030: `OBSERVED`: 0.30 $\to$ `LOCAL_LESSON`: 0.40 $\to$ `REPEATED_PATTERN`: 0.55 $\to$ `GENERALIZATION_CANDIDATE`: 0.70 $\to$ `CROSS_CONTEXT_VALIDATION`: 0.85 $\to$ `CROSS_DOMAIN_VALIDATION`: 0.95 $\to$ `PROMOTED_PRINCIPLE`: 1.00), augmented by context and domain diversity bonuses (+0.05 each).
+   - **Validation ($V \in [0.10, 1.00]$)**:
+     Governed by empirical pass rates across the 3 mandatory evaluation suites (ADR-029: Regression, Adversarial, Held-Out). Unvalidated candidates receive a conservative prior ($V = 0.40$). When evaluated, $V = 0.35 R + 0.35 A + 0.30 H$.
+   - **Contradiction Penalty ($C_p \ge 0.0$)**:
+     Deducts explicit penalties for unresolved contradictions ($0.15 \times \text{count}$), baseline regressions ($0.25 \times \text{count}$), and boundary violations ($0.20$).
+   - **Output Bounds**: Formally clamped to $[0.01, 0.99]$.
+
+2. **Elimination of `confidence += 0.05`**:
+   - `AcademicBehaviorConsolidator.generalize_lessons` and `merge_lessons` delegate confidence calculation strictly to `AcademicConfidenceEngine.assess_cluster_confidence()`.
+   - Merging identical lessons without new independent sessions or evaluations results in low, honest confidence (~0.05–0.20) rather than inflated scores.
+
+3. **Contract and Schema Governance**:
+   - Formalized via `contracts/evolution/confidence_evidence.schema.json` validating `computed_confidence`, `evidence_strength`, `independence`, `generalization`, `validation`, `contradiction_penalty`, and `factors_breakdown`.
+   - Integrated into `lesson.schema.json`, `knowledge_item.schema.json`, and `generalization_lifecycle.schema.json`.
+
+4. **Integration Across the Knowledge Hierarchy**:
+   - `AcademicLessonDistiller`: Uses `assess_lesson_confidence()` during initial distillation.
+   - `AcademicGeneralizationEngine`: Uses `assess_generalization_confidence()` at each ladder transition.
+   - `AcademicKnowledgeManager`: Persists `confidence` and `confidence_evidence` across patterns and principles.
+
+### Consequences
+- **Positive**: 100% elimination of heuristic confidence inflation; mathematically grounded and auditable confidence derivations; rigorous defense of epistemic integrity conforming to Directives 0, 8, 12.1, 18, and 19.
+- **Negative**: Newly distilled, unvalidated lessons carry conservative initial confidence scores until subjected to empirical evaluation suites.
+
 
 
 

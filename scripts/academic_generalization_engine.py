@@ -49,6 +49,7 @@ for venv_name in [".venv", "venv"]:
                 sys.path.insert(0, sp)
 
 from contracts.contract_validator import validate_generalization_lifecycle
+from scripts.academic_confidence_engine import AcademicConfidenceEngine
 
 
 class GeneralizationError(Exception):
@@ -96,6 +97,7 @@ class AcademicGeneralizationEngine:
         self.principles_dir = os.path.join(self.knowledge_dir, "principles")
         os.makedirs(self.generalizations_dir, exist_ok=True)
         os.makedirs(self.principles_dir, exist_ok=True)
+        self.confidence_engine = AcademicConfidenceEngine()
 
     def _get_path(self, generalization_id: str) -> str:
         return os.path.join(self.generalizations_dir, f"{generalization_id}.json")
@@ -172,6 +174,10 @@ class AcademicGeneralizationEngine:
             "updated_at": now_iso
         }
 
+        conf = self.confidence_engine.assess_generalization_confidence(record)
+        record["confidence"] = conf["computed_confidence"]
+        record["confidence_evidence"] = conf
+
         self._save_record(record)
         return record
 
@@ -213,6 +219,10 @@ class AcademicGeneralizationEngine:
         record.setdefault("lineage", {})["source_lessons"] = [lesson_id]
         record["updated_at"] = datetime.now(timezone.utc).isoformat()
 
+        conf = self.confidence_engine.assess_generalization_confidence(record)
+        record["confidence"] = conf["computed_confidence"]
+        record["confidence_evidence"] = conf
+
         self._save_record(record)
         return record
 
@@ -246,6 +256,10 @@ class AcademicGeneralizationEngine:
         record["stage"] = "REPEATED_PATTERN"
         record["scope"] = self.STAGE_SCOPES["REPEATED_PATTERN"]
         record["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+        conf = self.confidence_engine.assess_generalization_confidence(record)
+        record["confidence"] = conf["computed_confidence"]
+        record["confidence_evidence"] = conf
 
         self._save_record(record)
         return record
@@ -282,6 +296,10 @@ class AcademicGeneralizationEngine:
         record["conditional_rule"] = conditional_rule
         record["target_rule"] = conditional_rule["then_approach"]
         record["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+        conf = self.confidence_engine.assess_generalization_confidence(record)
+        record["confidence"] = conf["computed_confidence"]
+        record["confidence_evidence"] = conf
 
         self._save_record(record)
         return record
@@ -322,6 +340,10 @@ class AcademicGeneralizationEngine:
         record["evidence_summary"]["contexts_validated"] = context_evaluations
         record["updated_at"] = datetime.now(timezone.utc).isoformat()
 
+        conf = self.confidence_engine.assess_generalization_confidence(record, evaluations=context_evaluations)
+        record["confidence"] = conf["computed_confidence"]
+        record["confidence_evidence"] = conf
+
         self._save_record(record)
         return record
 
@@ -359,6 +381,11 @@ class AcademicGeneralizationEngine:
         record["evidence_summary"]["heterogeneous_evidence_verified"] = True
         record["updated_at"] = datetime.now(timezone.utc).isoformat()
 
+        all_evals = record["evidence_summary"].get("contexts_validated", []) + domain_evaluations
+        conf = self.confidence_engine.assess_generalization_confidence(record, evaluations=all_evals)
+        record["confidence"] = conf["computed_confidence"]
+        record["confidence_evidence"] = conf
+
         self._save_record(record)
         return record
 
@@ -391,9 +418,14 @@ class AcademicGeneralizationEngine:
         now_iso = datetime.now(timezone.utc).isoformat()
         prn_id = f"PRN-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
 
+        all_evals = ev_sum.get("contexts_validated", []) + ev_sum.get("domains_validated", [])
+        conf = self.confidence_engine.assess_generalization_confidence(record, evaluations=all_evals)
+
         record["stage"] = "PROMOTED_PRINCIPLE"
         record["scope"] = self.STAGE_SCOPES["PROMOTED_PRINCIPLE"]
         record["status"] = "PROMOTED"
+        record["confidence"] = conf["computed_confidence"]
+        record["confidence_evidence"] = conf
         record["promoted_at"] = now_iso
         record["promoted_principle_id"] = prn_id
         record["updated_at"] = now_iso
@@ -419,6 +451,8 @@ class AcademicGeneralizationEngine:
                 d.get("evidence_ref", "EVL-DOM") for d in ev_sum["domains_validated"]
             ],
             "contradictions": [],
+            "confidence": conf["computed_confidence"],
+            "confidence_evidence": conf,
             "status": "ACCEPTED_ACTIVE",
             "version": "1.0.0",
             "updated_at": now_iso,

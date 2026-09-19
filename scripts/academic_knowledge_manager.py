@@ -226,6 +226,7 @@ class AcademicKnowledgeManager:
                 "project_id": item.get("project_id"),
                 "version": item["version"],
                 "status": item["status"],
+                "confidence": item.get("confidence"),
                 "tags": item.get("tags", []),
                 "updated_at": item["updated_at"],
                 "file_path": file_path
@@ -281,6 +282,7 @@ class AcademicKnowledgeManager:
                 "project_id": item.get("project_id"),
                 "version": item["version"],
                 "status": item["status"],
+                "confidence": item.get("confidence"),
                 "tags": item.get("tags", []),
                 "updated_at": item["updated_at"],
                 "file_path": file_path
@@ -390,6 +392,7 @@ class AcademicKnowledgeManager:
                 "lesson_id": item["lesson_id"],
                 "target_skill": item.get("target_skill") or (item.get("related_skills", ["unknown"])[0] if item.get("related_skills") else "unknown"),
                 "status": item["status"],
+                "confidence": item.get("confidence"),
                 "created_at": item["created_at"]
             }
         )

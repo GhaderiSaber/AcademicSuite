@@ -53,6 +53,8 @@ for venv_name in [".venv", "venv"]:
             if os.path.isdir(sp) and sp not in sys.path:
                 sys.path.insert(0, sp)
 
+from scripts.academic_confidence_engine import AcademicConfidenceEngine
+
 # Contract validation integration
 try:
     from contracts.contract_validator import (
@@ -127,6 +129,7 @@ class AcademicLessonDistiller:
 
         os.makedirs(self.lessons_dir, exist_ok=True)
         self.index_file = os.path.join(self.lessons_dir, "index.jsonl")
+        self.confidence_engine = AcademicConfidenceEngine()
 
     def distill_from_experience(
         self,
@@ -290,7 +293,7 @@ class AcademicLessonDistiller:
             "generalization": generalization_text,
             "scope": lesson_scope,
             "generalization_stage": generalization_stage,
-            "confidence": 0.95,
+            "confidence": 0.5,
             "evidence": evidence,
             "related_skills": [target_skill],
             "is_active_behavior": False,  # Strict invariant: never automatically activated
@@ -298,6 +301,14 @@ class AcademicLessonDistiller:
             "created_at": now_iso,
             "derived_by": "AcademicLessonDistiller"
         }
+
+        # Evidence-derived confidence calculation (Phase 26)
+        conf_eval = self.confidence_engine.assess_lesson_confidence(
+            lesson_record,
+            context={"severity": fdb_data.get("severity", "MEDIUM")}
+        )
+        lesson_record["confidence"] = conf_eval["computed_confidence"]
+        lesson_record["confidence_evidence"] = conf_eval
 
         if validate_lesson is not None:
             vres = validate_lesson(lesson_record)
@@ -378,7 +389,7 @@ class AcademicLessonDistiller:
             "generalization": generalization,
             "scope": "DOMAIN_WIDE",
             "generalization_stage": "LOCAL_LESSON",
-            "confidence": 0.99,
+            "confidence": 0.5,
             "evidence": {
                 "metric_or_check": f"VALIDATION-{validator_name}",
                 "observed_value": failed_checks,
@@ -392,6 +403,14 @@ class AcademicLessonDistiller:
             "created_at": now_iso,
             "derived_by": "AcademicLessonDistiller"
         }
+
+        # Evidence-derived confidence calculation (Phase 26)
+        conf_eval = self.confidence_engine.assess_lesson_confidence(
+            lesson_record,
+            context={"severity": "HIGH"}
+        )
+        lesson_record["confidence"] = conf_eval["computed_confidence"]
+        lesson_record["confidence_evidence"] = conf_eval
 
         if validate_lesson is not None:
             vres = validate_lesson(lesson_record)
@@ -474,7 +493,7 @@ class AcademicLessonDistiller:
             "generalization": generalization,
             "scope": "DOMAIN_WIDE",
             "generalization_stage": "LOCAL_LESSON",
-            "confidence": 0.95,
+            "confidence": 0.5,
             "evidence": {
                 "metric_or_check": "OVERALL_VERDICT_PASS",
                 "observed_value": f"PASS (Duration: {duration}s)",
@@ -488,6 +507,14 @@ class AcademicLessonDistiller:
             "created_at": now_iso,
             "derived_by": "AcademicLessonDistiller"
         }
+
+        # Evidence-derived confidence calculation (Phase 26)
+        conf_eval = self.confidence_engine.assess_lesson_confidence(
+            lesson_record,
+            context={"severity": "LOW"}
+        )
+        lesson_record["confidence"] = conf_eval["computed_confidence"]
+        lesson_record["confidence_evidence"] = conf_eval
 
         if validate_lesson is not None:
             vres = validate_lesson(lesson_record)

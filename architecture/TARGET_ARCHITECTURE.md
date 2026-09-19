@@ -1677,5 +1677,78 @@ To prevent narrow heuristics from polluting global behavior:
 4. **Knowledge Manager Integration (`scripts/academic_knowledge_manager.py`)**:
    - Promoted principles in `learning/knowledge/principles/` require `generalization_stage: "PROMOTED_PRINCIPLE"` and cryptographic content hashes.
 
+---
+
+## 31. The Evidence-Derived Confidence Architecture & Factor Decomposition (Phase 26)
+
+### 31.1 The Epistemic Flaw of Heuristic Confidence Increments
+In legacy self-improvement pipelines, epistemic confidence was treated as an arbitrary scalar quantity subject to artificial heuristic increments:
+```text
+confidence += 0.05  # Upon merging duplicate lessons
+confidence = 0.95   # Hardcoded upon lesson creation
+```
+This naive practice introduced serious vulnerabilities:
+1. **False Inflation via Duplicate Observations**: An agent repeating the same mistake or recording multiple feedback notes within the exact same session artificially inflated confidence, even though no new evidence had been gathered.
+2. **Disconnection from Empirical Validation**: Confidence increased without regard to whether the lesson passed independent regression testing, adversarial stress testing, or held-out generalization suites (ADR-029).
+3. **Absence of Contradiction Accounting**: Known methodological contradictions and baseline regressions were ignored, rather than inflicting explicit mathematical penalties.
+
+Phase 26 permanently replaces arbitrary scalar increments with a mathematically grounded, multi-factor **Evidence-Derived Confidence Engine**.
+
+### 31.2 Conceptual Formulation & Factor Decomposition
+Epistemic confidence is governed by the structural product of four positive evidence dimensions, minus an explicit contradiction penalty:
+
+$$\text{confidence} = (\text{evidence\_strength} \times \text{independence} \times \text{generalization} \times \text{validation}) - \text{contradiction\_penalty}$$
+
+```mermaid
+flowchart TD
+    subgraph EvidenceFactors["Evidence Factor Decomposition"]
+        ES["1. Evidence Strength (E_s in [0.10, 1.00])\nTask fidelity, failure severity, observation volume"]
+        IND["2. Independence (I in [0.20, 1.00])\nRatio of unique sessions to total experiences"]
+        GEN["3. Generalization (G in [0.10, 1.00])\nPosition on 7-stage ladder + design/domain bonuses"]
+        VAL["4. Validation (V in [0.10, 1.00])\nRegression, Adversarial, Held-out pass rates"]
+    end
+
+    subgraph Deduction["Penalty Factor"]
+        CP["5. Contradiction Penalty (C_p >= 0.0)\nActive contradictions, regressions, boundary violations"]
+    end
+
+    subgraph Computation["Engine & Output"]
+        Calc["AcademicConfidenceEngine\nProduct - Penalty -> Clamped to [0.01, 0.99]"]
+        CE["contracts/evolution/confidence_evidence.schema.json\nAudit breakdown & mathematical provenance"]
+    end
+
+    ES --> Calc
+    IND --> Calc
+    GEN --> Calc
+    VAL --> Calc
+    CP --> Calc
+    Calc --> CE
+```
+
+### 31.3 Detailed Factor Formulas & Weights
+
+| Factor | Notation | Range | Determining Factors & Mathematical Calibration |
+| :--- | :--- | :--- | :--- |
+| **Evidence Strength** | $E_s$ | $[0.10, 1.00]$ | $$E_s = \min(1.0, \max(0.10, 0.50 \cdot w_{\text{fidelity}} + 0.30 \cdot w_{\text{severity}} + 0.20 \cdot w_{\text{volume}}))$$<br/>• **Task Fidelity ($w_{\text{fidelity}}$)**: `HIGH_FIDELITY_BENCHMARK` (0.95), `EMPIRICAL_EXECUTION` (0.75), `DIAGNOSTIC_OBSERVATION` (0.50).<br/>• **Failure Severity ($w_{\text{severity}}$)**: `CRITICAL` (0.95), `HIGH` (0.85), `MEDIUM` (0.70), `LOW` (0.50).<br/>• **Volume Weight ($w_{\text{volume}}$)**: $\min(1.0, 0.40 + 0.20 \ln(N + 1))$. |
+| **Independence** | $I$ | $[0.20, 1.00]$ | Measures environmental and session diversity across observations:<br/>• If $N \le 1$: $I = 0.70$ for benchmark tasks, $0.50$ for single execution.<br/>• If $N > 1$: $$I = \min(1.0, \max(0.20, 0.25 + 0.75 \times \frac{\text{unique\_sessions}}{N}))$$<br/>*Penalizes same-session repeats; rewards independent multi-session replication.* |
+| **Generalization** | $G$ | $[0.10, 1.00]$ | Bound to position on the 7-Stage Ladder (ADR-030):<br/>• Base weights: `OBSERVED` (0.30), `LOCAL_LESSON` (0.40), `REPEATED_PATTERN` (0.55), `GENERALIZATION_CANDIDATE` (0.70), `CROSS_CONTEXT_VALIDATION` (0.85), `CROSS_DOMAIN_VALIDATION` (0.95), `PROMOTED_PRINCIPLE` (1.00).<br/>• Bonuses: $+0.05$ if distinct experimental designs $\ge 2$; $+0.05$ if distinct domains $\ge 2$. |
+| **Validation** | $V$ | $[0.10, 1.00]$ | Governed by empirical testing across the 3 mandatory suites (ADR-029):<br/>• Unvalidated prior: $V = 0.40$ (conservative prior for untested candidates).<br/>• When evaluated: $$V = \min(1.0, \max(0.10, 0.35 R + 0.35 A + 0.30 H))$$<br/>where $R$ = Regression score, $A$ = Adversarial score, $H$ = Held-out score. |
+| **Contradiction Penalty** | $C_p$ | $[0.00, 0.80]$ | Explicit deduction for known defects:<br/>$$C_p = \min(0.80, 0.15 \times N_{\text{contradictions}} + 0.25 \times N_{\text{regressions}} + 0.20 \times \text{is\_boundary\_violated})$$ |
+
+### 31.4 Elimination of `confidence += 0.05` & System Integration
+1. **Consolidator Integration (`scripts/academic_behavior_consolidator.py`)**:
+   - In `generalize_lessons` and `merge_lessons`, the legacy heuristic `confidence = min(0.99, max(confidences) + 0.05)` is eliminated.
+   - Confidence is computed via `self.confidence_engine.assess_cluster_confidence(lesson_cluster, evaluations, stage)`.
+   - Merging identical lessons without new independent sessions or evaluations produces an honest, uninflated confidence score (~0.05–0.20).
+2. **Distiller Integration (`scripts/academic_lesson_distiller.py`)**:
+   - Replaces hardcoded `0.95` and `0.99` in `distill_from_feedback_payload`, `_distill_validator_failure`, and `_distill_success_exemplar` with `self.confidence_engine.assess_lesson_confidence()`.
+3. **Generalization Ladder Integration (`scripts/academic_generalization_engine.py`)**:
+   - Evaluates evidence-derived confidence at every transition from `record_observation` up to `promote_to_principle`.
+   - Embeds `confidence` and `confidence_evidence` into `generalization_lifecycle` records and canonical principles in `learning/knowledge/principles/`.
+4. **Knowledge Management (`scripts/academic_knowledge_manager.py`)**:
+   - Persists `confidence` and `confidence_evidence` across patterns and principles, recording confidence values in fast indexing structures.
+5. **Contract Governance (`contracts/evolution/confidence_evidence.schema.json`)**:
+   - Validates all generated confidence payloads, ensuring complete auditability and mathematical transparency.
+
 
 

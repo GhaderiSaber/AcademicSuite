@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/confidence_evidence.schema.json",
+  "title": "AcademicConfidenceEvidenceContract",
+  "description": "Contract schema for evidence-derived confidence factors (evidence strength, independence, generalization, validation, and contradiction penalties).",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "computed_confidence",
+    "evidence_strength",
+    "independence",
+    "generalization",
+    "validation",
+    "contradiction_penalty",
+    "factors_breakdown",
+    "evaluated_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "computed_confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "The final evidence-derived confidence score bounded between 0.0 and 1.0."
+    },
+    "evidence_strength": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Strength factor based on sample/task quality, failure severity, and experience volume."
+    },
+    "independence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Independence factor based on distinct sessions and independent observation ratio."
+    },
+    "generalization": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Generalization factor based on context diversity and 7-stage ladder position."
+    },
+    "validation": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Validation factor based on performance across Regression, Adversarial, and Held-out suites."
+    },
+    "contradiction_penalty": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Penalty subtracted for active contradictions, regressions, or boundary violations."
+    },
+    "formula": {
+      "type": "string",
+      "description": "Description of mathematical formula applied."
+    },
+    "factors_breakdown": {
+      "type": "object",
+      "required": [
+        "independent_experiences_count",
+        "unique_sessions_count",
+        "distinct_designs_count",
+        "contradictions_count"
+      ],
+      "properties": {
+        "independent_experiences_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of verified underlying experiences."
+        },
+        "unique_sessions_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of distinct sessions, conversations, or projects."
+        },
+        "distinct_designs_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of distinct experimental designs represented."
+        },
+        "distinct_domains_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of distinct scientific disciplines represented."
+        },
+        "generalization_stage": {
+          "type": "string",
+          "description": "Current position in the 7-stage generalization ladder."
+        },
+        "regression_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Pass rate or performance score on Regression suite."
+        },
+        "adversarial_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Pass rate or performance score on Adversarial suite."
+        },
+        "heldout_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Pass rate or performance score on Held-Out suite."
+        },
+        "contradictions_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of active unresolved contradictions or competing paradigms."
+        },
+        "regressions_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of documented regressions on baseline capabilities."
+        },
+        "failure_severity": {
+          "type": "string",
+          "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "NEGLIGIBLE", "UNSPECIFIED"]
+        },
+        "task_quality": {
+          "type": "string",
+          "enum": [
+            "HIGH_FIDELITY_BENCHMARK",
+            "EMPIRICAL_EXECUTION",
+            "DIAGNOSTIC_OBSERVATION",
+            "UNVERIFIED_HEURISTIC",
+            "UNSPECIFIED"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "evaluated_at": {
+      "type": "string",
+      "description": "ISO 8601 UTC timestamp when confidence was calculated."
+    }
+  },
+  "additionalProperties": false
+}

@@ -194,7 +194,9 @@ class TestAcademicBehaviorConsolidator(unittest.TestCase):
         self.assertEqual(gen_result["scope"], "DOMAIN_WIDE")
         self.assertEqual(gen_result["generalization_stage"], "GENERALIZATION_CANDIDATE")
         self.assertIn("Consolidated Methodological Principle", gen_result["statement"])
-        self.assertGreater(gen_result["confidence"], 0.90)
+        # Phase 26: Candidate has evidence-derived confidence based on unvalidated prior
+        self.assertIn("confidence_evidence", gen_result)
+        self.assertGreater(gen_result["confidence"], 0.05)
 
         # With heterogeneous cross-context and cross-domain validation, elevates to CROSS_PROJECT_UNIVERSAL
         ctx_evals = [
@@ -208,6 +210,9 @@ class TestAcademicBehaviorConsolidator(unittest.TestCase):
         gen_promoted = self.consolidator.generalize_lessons([l1, l2], context_evaluations=ctx_evals, domain_evaluations=dom_evals)
         self.assertEqual(gen_promoted["scope"], "CROSS_PROJECT_UNIVERSAL")
         self.assertEqual(gen_promoted["generalization_stage"], "PROMOTED_PRINCIPLE")
+        # Evidence-derived confidence reaches high levels with empirical validation
+        self.assertGreater(gen_promoted["confidence"], 0.80)
+        self.assertGreater(gen_promoted["confidence"], gen_result["confidence"])
 
     # -------------------------------------------------------------------------
     # Test 5: Merging with Strict Provenance Lineage
