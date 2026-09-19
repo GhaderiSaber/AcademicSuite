@@ -1,13 +1,14 @@
 {
   "constitutional-guard": {
     "enabled": true,
+    "description": "Unified Tripartite Lifecycle Hook Gatekeeper routing across Safety, Integrity, and Learning hooks.",
     "PreToolUse": [
       {
         "matcher": "run_command|write_to_file|replace_file_content|apply_diff|edit_file|multi_file_edit|batch_replace|patch|invoke_subagent",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os, sys; s = 'verification/transcript_and_rule_guard.py' if os.path.exists('verification/transcript_and_rule_guard.py') else '.agents/verification/transcript_and_rule_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreToolUse",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/hook_dispatcher.py' if os.path.exists('.agents/hooks/hook_dispatcher.py') else 'hooks/hook_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreToolUse",
             "timeout": 15
           }
         ]
@@ -19,7 +20,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os, sys; s = 'verification/transcript_and_rule_guard.py' if os.path.exists('verification/transcript_and_rule_guard.py') else '.agents/verification/transcript_and_rule_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PostToolUse",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/hook_dispatcher.py' if os.path.exists('.agents/hooks/hook_dispatcher.py') else 'hooks/hook_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PostToolUse",
             "timeout": 15
           }
         ]
@@ -27,24 +28,51 @@
     ],
     "PreInvocation": [
       {
-        "type": "command",
-        "command": "python3 -c \"import os, sys; s = 'verification/transcript_and_rule_guard.py' if os.path.exists('verification/transcript_and_rule_guard.py') else '.agents/verification/transcript_and_rule_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreInvocation",
-        "timeout": 15
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/hook_dispatcher.py' if os.path.exists('.agents/hooks/hook_dispatcher.py') else 'hooks/hook_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreInvocation",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "PostInvocation": [
       {
-        "type": "command",
-        "command": "python3 -c \"import os, sys; s = 'verification/transcript_and_rule_guard.py' if os.path.exists('verification/transcript_and_rule_guard.py') else '.agents/verification/transcript_and_rule_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PostInvocation",
-        "timeout": 15
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/hook_dispatcher.py' if os.path.exists('.agents/hooks/hook_dispatcher.py') else 'hooks/hook_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PostInvocation",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "Stop": [
       {
-        "type": "command",
-        "command": "python3 -c \"import os, sys; s = 'verification/transcript_and_rule_guard.py' if os.path.exists('verification/transcript_and_rule_guard.py') else '.agents/verification/transcript_and_rule_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event Stop",
-        "timeout": 15
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/hook_dispatcher.py' if os.path.exists('.agents/hooks/hook_dispatcher.py') else 'hooks/hook_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event Stop",
+            "timeout": 20
+          }
+        ]
       }
     ]
+  },
+  "safety-hooks": {
+    "enabled": true,
+    "description": "Class A: Safety Hooks (raw-data protection, dangerous command protection, outside-workspace protection)",
+    "module": ".agents/hooks/safety_hooks.py"
+  },
+  "integrity-hooks": {
+    "enabled": true,
+    "description": "Class B: Integrity Hooks (artifact verification, state consistency, manifest verification, post-analysis validation)",
+    "module": ".agents/hooks/integrity_hooks.py"
+  },
+  "learning-hooks": {
+    "enabled": true,
+    "description": "Class C: Learning Hooks (capture user correction, capture validation failure, capture agent trajectory)",
+    "module": ".agents/hooks/learning_hooks.py"
   }
 }

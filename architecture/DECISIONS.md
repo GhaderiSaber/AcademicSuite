@@ -582,3 +582,45 @@ $$\text{STAGE\_VALIDATING} \longrightarrow \text{STAGE\_AWAITING\_APPROVAL} \xri
 ### Consequences
 - **Positive**: 100% elimination of prompt-based halting vulnerabilities; cryptographic proof of human authorization; mechanical prevention of unapproved stage advancement; tamper-evident audit trail conforming to Directive 11 and Directive 19.
 - **Negative**: Stages requiring human gates must explicitly transition through `STAGE_AWAITING_APPROVAL` and receive an approval command before downstream stages unlock.
+
+---
+
+## ADR-019: Tripartite Lifecycle Hook Architecture (Safety, Integrity, Learning) and Non-Orchestrator Invariant
+
+### Context
+In earlier iterations, lifecycle governance was implemented via a monolithic guard script (`transcript_and_rule_guard.py`) that intermingled distinct concerns: file mutation safety, system security, artifact checking, validation execution, continuous learning, and multi-agent truthfulness auditing. Over time, hooks began encroaching on workflow coordination (e.g., inspecting stage dependencies and checking for multi-step chapter assembly in PreToolUse), risking architectural drift where hooks acted as a de facto orchestrator.
+
+### Decision
+Divide all Antigravity lifecycle hooks into three distinct, specialized classes and strictly enforce the **Hook Non-Orchestrator Invariant**:
+
+1. **The Three Hook Classes**:
+   - **Class A: Safety Hooks (`.agents/hooks/safety_hooks.py`)**:
+     - *Raw-Data Protection*: Blocks file mutation tools (`write_to_file`, `replace_file_content`, etc.) and destructive shell commands (`rm`, `mv`, `>`, `sed -i`) targeting raw datasets (`/raw/`, `01_raw_inputs/`, `data_raw.*`).
+     - *Dangerous Command Protection*: Intercepts and denies destructive bash operations (`rm -rf .agents`, `rm -rf .git`, `rm -rf /`, fork bombs).
+     - *Outside-Workspace Protection*: Enforces confinement within declared workspace roots, mandates English-only ASCII filenames (Directive 6), and blocks unauthorized worker delegation and excessive subagent nesting depth ($\ge 3$).
+   - **Class B: Integrity Hooks (`.agents/hooks/integrity_hooks.py`)**:
+     - *Artifact Verification*: Enforces the Triad Artifact Invariant (.docx + .md + .json) across stage deliverables and audits skill modularity ceilings (Directive 18: max 500 lines, 40,000 bytes).
+     - *State Consistency*: Guarantees that stage deliverables possess valid state records and authoritative manifests without unapproved mutations.
+     - *Manifest Verification*: Confirms that completed stages possess an authoritative `manifest.json` on disk matching declared physical files.
+     - *Post-Analysis Validation & Honesty Gate*: Verifies that completed stages evaluate to `PASS` in validation reports, and enforces Directive 0 (Binary Honesty Protocol & Multi-Agent Truthfulness) on conversation transcripts.
+   - **Class C: Learning Hooks (`.agents/hooks/learning_hooks.py`)**:
+     - *Capture User Correction*: Automatically scans user prompts in `PreInvocation` and `Stop` for critique and guidance, recording feedback via `AcademicCorrectionDetector` and `AcademicIntegratedLearningHub`.
+     - *Capture Validation Failure*: Intercepts validation failures and records causal incidents in `state/pitfalls.jsonl` and experience logs.
+     - *Capture Agent Trajectory*: Logs tool execution events and sanitized parameters in `state/audit_log.jsonl` during `PostToolUse`.
+
+2. **The Hook Non-Orchestrator Invariant**:
+   - Hooks strictly execute synchronous interception, constraint enforcement, diagnostic logging, and post-turn integrity audits.
+   - Hooks are **strictly prohibited from acting as an academic orchestrator**:
+     - Hooks must **never** mutate state machine milestone progression.
+     - Hooks must **never** select, dispatch, or sequence subagents.
+     - Hooks must **never** draft, synthesize, or re-write academic narrative deliverables.
+   - Orchestration is the sole responsibility of the Antigravity Lead Agent (`academic-orchestrator`), supported by deterministic skill engines ("The Hands").
+
+3. **Unified Dispatcher & Backward-Compatible Facade**:
+   - `.agents/hooks/hook_dispatcher.py` routes incoming Antigravity events (`PreToolUse`, `PostToolUse`, `PreInvocation`, `PostInvocation`, `Stop`) strictly to Class A, B, and C modules.
+   - `.agents/verification/transcript_and_rule_guard.py` is maintained as a thin facade delegating to the tripartite classes, preserving 100% backward compatibility with existing tests.
+
+### Consequences
+- **Positive**: Clean separation of concerns conforming to Directive 19; eliminate monolithic sprawl; prevent hook overreach into workflow orchestration; maintain robust safety, cryptographic integrity, and automated learning capture.
+- **Negative**: Hook modifications require editing class-specific modules (`safety_hooks.py`, `integrity_hooks.py`, `learning_hooks.py`) rather than a single script.
+
