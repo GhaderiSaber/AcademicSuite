@@ -1834,3 +1834,61 @@ Enforced Directive 18 ceilings (484 lines, 27.5 KB) on the test suite.
 ### Consequences
 - **Positive**: Total automated test suite expanded to 799 tests passing in ~55s; mathematical, typographical, and architectural invariants deterministically verified.
 - **Negative**: Test execution runtime slightly increased (+3s for integration tests).
+
+---
+
+## ADR-043: Full Academic Vertical Slices and Isolated Stage Execution (Phase 38)
+
+### Status
+Accepted (September 2026 / 1405 SH)
+
+### Context
+Testing the entire AcademicSuite architecture monolithically is computationally expensive, obscures localized regressions, and creates tight coupling across distinct statistical methodology families. Proving that the architecture works end-to-end requires constructing complete, independent vertical slices that represent genuine empirical research pipelines from raw data ingestion to institutional chapter deliverables.
+
+### Decision
+1. **Four Canonical Academic Vertical Slices Codified**:
+   - **Vertical Slice A (Regression / GLM)**:
+     $$\text{Dataset} \to \text{Descriptives} \to \text{Assumptions} \to \text{Analysis} \to \text{Validation} \to \text{Chapter 4 Paragraph}$$
+     - Dataset: Raw survey dataset ($N=100$) with predictors ($X_1$: stress, $X_2$: flexibility) and criterion ($Y$: burnout).
+     - Descriptives: Means, standard deviations, and bivariate Pearson correlation matrix ($r = .55, r = -.46$).
+     - Assumptions: Collinearity diagnostics ($\text{Tolerance} = 0.929 \ge .10, \text{VIF} = 1.076 < 5.0$), error independence ($DW = 2.115 \in [1.5, 2.5]$).
+     - Analysis: Multiple linear regression ($R^2 = .415, F(2, 97) = 34.39, p < .001$, $\beta = .464, \beta = -.340$).
+     - Validation: Multi-gate validation cascade returning affirmative `PASS`.
+     - Chapter 4: Complete defense-ready Persian academic narrative obeying the 3-Table Standard, Saber 5-part structure, and Triad Artifact Invariant (`06_hypothesis_1_regression.docx/.md/.json`).
+
+   - **Vertical Slice B (Experimental RCT)**:
+     $$\text{RCT} \to \text{Repeated Measures} \to \text{Effect Sizes} \to \text{Follow-up} \to \text{Validation} \to \text{Results Package}$$
+     - RCT Dataset: 2 Groups (Experimental $n=30$ vs Control $n=30$) across 3 measurement occasions ($T_1$: Pre, $T_2$: Post, $T_3$: Follow-up), $N=60$.
+     - Repeated Measures: $2 \times 3$ mixed ANOVA evaluating Group $\times$ Time interaction ($F(2, 116) = 70.82, p < .001$, Greenhouse-Geisser $\epsilon = 0.752, \text{df}_{\text{adj}} = 1.504$).
+     - Effect Sizes: Partial eta-squared ($\eta_p^2 = 0.571$ for interaction, $\eta_p^2 = 0.780$ for post-test ANCOVA), large magnitude ($d = 1.42$).
+     - Follow-up: ANCOVA at 2-month follow-up controlling for pre-test baseline ($F(1, 57) = 132.88, p < .001, \eta_p^2 = 0.698$); pairwise Bonferroni post vs follow-up non-significant confirming sustained maintenance.
+     - Validation: Box's M test ($p > .001$), Levene's variance homogeneity ($p > .05$), master validator cascade `PASS`.
+     - Results Package: Master deliverable package with institutional Word DOCX, Markdown, 6-sheet Excel matrix, and 300-DPI trajectory plot.
+
+   - **Vertical Slice C (Process Mediation)**:
+     $$\text{Mediation} \to \text{Model Selection} \to \text{Bootstrap} \to \text{Indirect Effect} \to \text{Interpretation} \to \text{Writing Triad}$$
+     - Mediation Dataset: Sample size $N=300$ across leadership, psychological safety, engagement, and innovation.
+     - Model Selection: PROCESS Model 6 (serial two-mediator chain $X \to M_1 \to M_2 \to Y$).
+     - Bootstrap: 5,000 non-parametric resamples generating 95% BCa confidence intervals.
+     - Indirect Effect: Decomposition into 3 specific indirect paths ($a_1 b_1, a_2 b_2, a_1 d_{21} b_2$), total indirect effect ($0.258$), and algebraic proof of $c = c' + ab$.
+     - Interpretation: Point estimates and BCa CIs excluding zero, confirming statistically significant serial mediation.
+     - Writing: One-Hypothesis-One-Stage triad generation for each indirect hypothesis (`06_hypothesis_1_ind1`, `07_hypothesis_2_ind2`, `08_hypothesis_3_serial`).
+
+   - **Vertical Slice D (Structural Equation Modeling)**:
+     $$\text{SEM} \to \text{Measurement Model} \to \text{Structural Model} \to \text{Fit} \to \text{Effects Decomposition} \to \text{Reporting Triad}$$
+     - SEM Dataset: Survey dataset ($N=250$) measuring 3 latent constructs with 15 indicators.
+     - Measurement Model: CFA verifying factor loadings ($\lambda \ge .60$), composite reliability ($\text{CR} \ge .70$), and AVE ($\ge .45$).
+     - Structural Model: Latent regressions, standardized path coefficients ($\beta = .591, .357, .447$), standard errors, and critical ratios.
+     - Fit: 11 Goodness-of-Fit indices evaluated against Hu & Bentler cutoffs ($\chi^2/\text{df} = 0.68 \le 3.0, \text{CFI} = 1.0, \text{TLI} = 1.0, \text{RMSEA} = 0.000, \text{SRMR} = 0.036$).
+     - Effects Decomposition: Direct, indirect, and total latent effects decomposition with 5,000 bootstrap resamples.
+     - Reporting: Macro model fit triad (`05_macro_model`) and hypothesis triads (`06_hypothesis_1_direct_path`, `07_hypothesis_2_mediation`).
+
+2. **Deterministic Vertical Slice Runner (`scripts/academic_vertical_slice_runner.py`)**:
+   Provides a standard-library CLI to execute, inspect, and validate any slice individually (`--slice A`, `--slice B`, `--slice C`, `--slice D`) or all slices (`--slice all`) in isolated sandbox directories without cross-contamination.
+
+3. **Dedicated Phase 38 Test Suite (`tests/test_academic_vertical_slices_phase38.py`)**:
+   Enforces end-to-end execution, stage assertions, mathematical precision, and Directive 18 single-view context budgets.
+
+### Consequences
+- **Positive**: Proves the architecture functions end-to-end across all major quantitative research designs; provides isolated debugging and validation; eliminates monolithic testing bottlenecks.
+- **Negative**: Adds 4 reference projects in `projects/` that must be maintained with valid schemas and mock/empirical data.

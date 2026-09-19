@@ -2521,3 +2521,54 @@ candidate V2 ──> original case improves ──> held-out case regresses ─�
 ```
 - Implemented in `tests/test_architecture_integration_phase37.py::TestArchitectureIntegrationPhase37::test_10_failed_learning_heldout_regression_rejects`.
 - All 10 tests execute completely offline in ~3.1s, ensuring the entire 799-test suite completes in under 60 seconds with zero warnings.
+
+---
+
+## 43. Phase 38 — Full Academic Vertical Slices Architecture
+
+### 43.1 Principle: Isolated End-to-End Vertical Slices
+Rather than testing the entire AcademicSuite simultaneously—which creates tight coupling and obscures localized defects—the architecture establishes complete, isolated vertical slices across the core empirical research designs. Each slice represents an un-mocked pipeline from raw empirical data to defense-ready academic text.
+
+```mermaid
+flowchart TD
+    subgraph SliceA["Vertical Slice A: Regression / GLM"]
+        A1["Dataset (N=100)"] --> A2["Descriptives (M, SD, r)"] --> A3["Assumptions (VIF, DW)"] --> A4["Analysis (R², F, β, p)"] --> A5["Validation (Cascade)"] --> A6["Chapter 4 Paragraph (3 Tables)"]
+    end
+
+    subgraph SliceB["Vertical Slice B: Experimental RCT"]
+        B1["RCT Dataset (N=60, 2x3)"] --> B2["Repeated Measures (Mixed ANOVA)"] --> B3["Effect Sizes (η_p², Cohen d)"] --> B4["Follow-up (ANCOVA T3|T1)"] --> B5["Validation (Box's M, Levene)"] --> B6["Results Package (DOCX, MD, Trajectory Plot)"]
+    end
+
+    subgraph SliceC["Vertical Slice C: Process Mediation"]
+        C1["Mediation Dataset (N=300)"] --> C2["Model Selection (PROCESS Model 6)"] --> C3["Bootstrap (5,000 resamples)"] --> C4["Indirect Effect (a1b1, a2b2, a1d21b2)"] --> C5["Interpretation (95% BCa CIs)"] --> C6["Writing Triad (06, 07, 08 Triads)"]
+    end
+
+    subgraph SliceD["Vertical Slice D: Structural Equation Modeling"]
+        D1["SEM Dataset (N=250)"] --> D2["Measurement Model (CFA λ, CR, AVE)"] --> D3["Structural Model (Path regressions)"] --> D4["Fit Indices (Hu & Bentler cutoffs)"] --> D5["Effects Decomposition (Direct/Indirect)"] --> D6["Reporting Triad (05, 06, 07 Triads)"]
+    end
+```
+
+### 43.2 The Four Canonical Slice Specifications
+
+| Vertical Slice | Research Design | Dataset & Sample | Key Statistical Models | Deliverable Output |
+|:---|:---|:---|:---|:---|
+| **Slice A** | Correlational / GLM | `study_vertical_slice_regression` ($N=100$) | Descriptives, Bivariate Pearson $r$, Collinearity (VIF $< 5.0$), Durbin-Watson, Multiple Regression ($R^2=.415, F=34.39$) | Defense-ready Persian Chapter 4 paragraph with 3-Table Standard (`06_hypothesis_1_regression.{docx,md,json}`) |
+| **Slice B** | Experimental RCT | `study_vertical_slice_experimental` ($N=60, 2\times 3$) | $2\times 3$ Mixed Repeated Measures ANOVA, Greenhouse-Geisser correction, 2-month follow-up ANCOVA, Box's M, Levene | Master Experimental Deliverable package, trajectory plots, triad artifacts |
+| **Slice C** | Process Mediation | `study_vertical_slice_mediation` ($N=300$) | PROCESS Model 6 Serial Two-Mediator Regression, 5,000 bootstrap resamples, 95% BCa CIs, $c = c' + ab$ | Dedicated hypothesis writing triads (`06_hypothesis_1_ind1`, `07_hypothesis_2_ind2`, `08_hypothesis_3_serial`) |
+| **Slice D** | Structural Equations | `study_vertical_slice_sem` ($N=250$) | Anderson-Gerbing 2-step: CFA measurement model ($\text{CR} \ge .70$), Structural path modeling, 11 fit indices against Hu & Bentler | Master macro model fit triad (`05_macro_model`) and hypothesis structural triads |
+
+### 43.3 Architectural Components
+1. **Deterministic Runner (`scripts/academic_vertical_slice_runner.py`)**:
+   - Executes and audits any slice in isolation:
+     ```bash
+     python3 scripts/academic_vertical_slice_runner.py --slice A
+     python3 scripts/academic_vertical_slice_runner.py --slice B
+     python3 scripts/academic_vertical_slice_runner.py --slice C
+     python3 scripts/academic_vertical_slice_runner.py --slice D
+     python3 scripts/academic_vertical_slice_runner.py --slice all --json
+     ```
+   - Compliant with Directive 18 (472 lines, 21.0 KB $\le 500$ lines, $\le 40$ KB).
+2. **Dedicated Integration Test Suite (`tests/test_academic_vertical_slices_phase38.py`)**:
+   - Contains 6 comprehensive tests asserting the complete pipeline sequence of every vertical slice and isolated runner execution.
+   - Compliant with Directive 18 (243 lines, 12.3 KB $\le 500$ lines, $\le 40$ KB).
+
