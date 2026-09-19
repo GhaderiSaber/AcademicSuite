@@ -162,9 +162,32 @@ class TestAcademicBehaviorConsolidator(unittest.TestCase):
 
         ctd = contradictions[0]
         self.assertEqual(ctd["conflict_type"], "MODEL_SPECIFICATION_CONFLICT")
-        self.assertEqual(ctd["reconciliation_strategy"], "CONTEXTUAL_DISAMBIGUATION")
-        self.assertIn("condition_for_a", ctd["applicability_conditions"])
-        self.assertIn("condition_for_b", ctd["applicability_conditions"])
+        # Phase 27: Initial stage is strictly CONFLICT_DETECTED (never auto-resolved)
+        self.assertEqual(ctd["stage"], "CONFLICT_DETECTED")
+        self.assertEqual(ctd["status"], "CONFLICT_DETECTED")
+
+        # Now advance through the 6-stage lifecycle via reconcile_contradiction_pipeline
+        resolved_ctd = self.consolidator.reconcile_contradiction_pipeline(
+            contradiction_id=ctd["contradiction_id"],
+            assumptions_a=["Assumes sphericity", "Requires balanced complete designs without missing waves"],
+            assumptions_b=["Robust to sphericity violations", "Accommodates missing at random data and unequal intervals"],
+            root_cause="Different statistical trade-offs: RM-ANOVA is exact for balanced data; LMM handles unbalanced longitudinal data",
+            evidence_for_a=["Kirk (2013) Experimental Design", "Tabachnick & Fidell (2019)"],
+            evidence_for_b=["Gelman & Hill (2006)", "Singer & Willett (2003)"],
+            condition_for_a="Complete cases, strict sphericity (Mauchly p > .05), balanced repeated intervals",
+            condition_for_b="Missing waves, severe sphericity violation (epsilon < .75), unbalanced observations",
+            test_result={
+                "test_suite_id": "TEST-METHODOLOGY-RM-LMM-01",
+                "independent_verdict": "PASS",
+                "evaluator": "AcademicIndependentEvaluator"
+            }
+        )
+
+        self.assertEqual(resolved_ctd["stage"], "RESOLVED")
+        self.assertEqual(resolved_ctd["status"], "RESOLVED")
+        self.assertEqual(resolved_ctd["reconciliation_strategy"], "CONTEXTUAL_DISAMBIGUATION")
+        self.assertIn("condition_for_a", resolved_ctd["applicability_conditions"])
+        self.assertIn("condition_for_b", resolved_ctd["applicability_conditions"])
 
         # Verify neither file was overwritten
         with open(os.path.join(self.consolidator.lessons_dir, "LSN-RM-01.json"), "r", encoding="utf-8") as f:
@@ -178,7 +201,7 @@ class TestAcademicBehaviorConsolidator(unittest.TestCase):
         # Verify contradiction record saved to disk and valid
         ctd_file = os.path.join(self.consolidator.contradictions_dir, f"{ctd['contradiction_id']}.json")
         self.assertTrue(os.path.isfile(ctd_file))
-        val_res = validate_contradiction_record(ctd)
+        val_res = validate_contradiction_record(resolved_ctd)
         self.assertTrue(val_res["valid"])
 
     # -------------------------------------------------------------------------

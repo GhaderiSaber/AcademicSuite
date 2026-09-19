@@ -1750,5 +1750,83 @@ flowchart TD
 5. **Contract Governance (`contracts/evolution/confidence_evidence.schema.json`)**:
    - Validates all generated confidence payloads, ensuring complete auditability and mathematical transparency.
 
+---
+
+## 32. The Six-Stage Contradiction Resolution Architecture (Phase 27)
+
+### 32.1 The Anti-Premature-Resolution Mandate
+In knowledge management and scientific methodology, conflicting rules or competing recommendations must never be silently or automatically papered over:
+```
+CONFLICT_DETECTED → RESOLVED_WITH_CONDITIONS (STRICTLY FORBIDDEN)
+```
+Whenever two directives conflict (e.g. RM-ANOVA vs Linear Mixed Models; Baron & Kenny vs Bootstrap Mediation; Listwise Deletion vs FIML), the system must never assume applicability conditions are automatically correct without empirical substantiation.
+
+### 32.2 The Six-Stage Contradiction Lifecycle
+Under Phase 27, contradiction management strictly executes the 6-stage lifecycle:
+
+```mermaid
+flowchart TD
+    S1["1. CONFLICT_DETECTED\nConflict identified; initial status strictly un-resolved;\nreconciliation_strategy = PENDING_HUMAN_RESOLUTION"]
+    S2["2. CONFLICT_ANALYSIS\nCausal & theoretical analysis of competing assumptions;\nidentification of root causes & methodological risks"]
+    S3["3. EVIDENCE_COMPARISON\nEmpirical literature & data comparison for both directives;\ndivergence analysis under boundary conditions"]
+    S4["4. CONDITION_IDENTIFICATION\nFormulation of precise contextual applicability rules;\ndefinition of boundary exceptions & conditional triggers"]
+    S5["5. INDEPENDENT_TEST\nSubmission to independent empirical evaluation suite;\nmulti-arm testing of condition A and condition B"]
+    S6A["6a. RESOLVED\nTerminal state reached ONLY IF independent test passes;\nstatus = RESOLVED; conditions sealed"]
+    S6B["6b. UNRESOLVED\nTerminal state reached IF independent test fails;\nstatus = UNRESOLVED; rationale documented"]
+
+    S1 --> S2
+    S2 --> S3
+    S3 --> S4
+    S4 --> S5
+    S5 -->|Independent Verdict: PASS| S6A
+    S5 -->|Independent Verdict: FAIL| S6B
+```
+
+### 32.3 Stage Breakdown & Artifact Contracts
+
+| Stage | Name | Description | Key Deliverables & Schema Contracts |
+| :--- | :--- | :--- | :--- |
+| **Stage 1** | `CONFLICT_DETECTED` | Initial detection via signature matching or opposing directives | `contradiction_id`, `lesson_a_id`, `lesson_b_id`, `conflict_type`, `stage="CONFLICT_DETECTED"`, `status="CONFLICT_DETECTED"` |
+| **Stage 2** | `CONFLICT_ANALYSIS` | Theoretical assumption decomposition and root-cause analysis | `conflict_analysis`: `assumptions_a`, `assumptions_b`, `root_cause`, `methodological_risk` |
+| **Stage 3** | `EVIDENCE_COMPARISON` | Systematic literature citation and empirical divergence analysis | `evidence_comparison`: `evidence_for_a`, `evidence_for_b`, `divergence_analysis` |
+| **Stage 4** | `CONDITION_IDENTIFICATION` | Precise formulation of boundary conditions and exceptions | `identified_conditions`: `condition_for_a`, `condition_for_b`, `boundary_exceptions`, `conditional_rule` |
+| **Stage 5** | `INDEPENDENT_TEST` | Independent test execution evaluating boundary arms | `independent_test`: `test_suite_id`, `test_arms`, `independent_verdict="PENDING"` |
+| **Stage 6a** | `RESOLVED` | Empirically verified resolution | `stage="RESOLVED"`, `status="RESOLVED"`, `independent_verdict="PASS"`, `resolution_summary` |
+| **Stage 6b** | `UNRESOLVED` | Empirically failed or irreconcilable tension | `stage="UNRESOLVED"`, `status="UNRESOLVED"`, `independent_verdict="FAIL"`, `resolution_summary` |
+
+### 32.4 Core Methodological Conflict Exemplars
+Phase 27 codifies five archetypal methodological tensions in psychology and behavioral sciences:
+1. **RM-ANOVA vs Linear Mixed Models (LMM)**:
+   - *Tension*: Exact F-tests under sphericity vs flexible mixed-effects under attrition.
+   - *Condition A (RM-ANOVA)*: Complete balanced observations, Mauchly's sphericity confirmed ($p > .05$).
+   - *Condition B (LMM)*: Subject attrition, missing waves (MAR), severe sphericity violation ($\epsilon < .75$).
+2. **Baron & Kenny vs Preacher & Hayes Bootstrap Mediation**:
+   - *Tension*: 4-step causal steps requiring significant step 1 total effect vs 5,000 bootstrap resamples with 95% BCa CIs.
+   - *Condition A (Baron & Kenny)*: Historical replication where institutional protocol strictly mandates the 4-step heuristic.
+   - *Condition B (Bootstrap)*: Modern empirical inferential mediation; asymmetric indirect effect sampling distributions.
+3. **Median Split (Artificial Dichotomization) vs Continuous Interaction**:
+   - *Tension*: Artificial high/low grouping vs continuous moderation with Johnson-Neyman regions.
+   - *Condition A*: Strictly prohibited in inferential modeling due to severe power loss and spurious significance.
+   - *Condition B*: Continuous moderation with mean-centering and simple slopes at $-1\text{ SD}$, Mean, $+1\text{ SD}$.
+4. **Listwise Deletion vs Full Information Maximum Likelihood (FIML)**:
+   - *Tension*: Complete-case deletion vs modern missing data estimation (FIML / Multiple Imputation).
+   - *Condition A*: Permissible only when missingness $< 5\%$ and Little's MCAR test is non-significant ($p > .05$).
+   - *Condition B*: Missingness $\ge 5\%$, attrition across waves, or data is Missing at Random (MAR).
+5. **Parametric Tests vs Non-Parametric / Bootstrap Alternatives**:
+   - *Tension*: Student's $t$ / ANOVA vs Mann-Whitney / Wilcoxon / Bootstrap.
+   - *Condition A*: Normality (Shapiro-Wilk $p > .05$) and homogeneity of variance (Levene $p > .05$) met.
+   - *Condition B*: Severe distributional skewness in small/moderate samples, or ordinal Likert scales failing interval assumptions.
+
+### 32.5 Fail-Closed Safety & Subsystem Integration
+1. **Deterministic Engine (`scripts/academic_contradiction_engine.py`)**:
+   - Governs all transitions; raises `PrematureContradictionResolutionError` if resolution is attempted without completing the 6 stages.
+2. **Consolidator Integration (`scripts/academic_behavior_consolidator.py`)**:
+   - `detect_contradictions()` produces strictly `CONFLICT_DETECTED` records.
+   - `reconcile_contradiction_pipeline()` orchestrates end-to-end advancement across all 6 stages.
+3. **Knowledge Store Quarantining (`scripts/academic_knowledge_manager.py`)**:
+   - `get_active_contradictions()` isolates disputed directives. Pre-task context retrieval (`retrieve_pre_task_context()`) filters out all disputed lessons until a contradiction is formally `RESOLVED`.
+4. **Epistemic Confidence Deduction (`scripts/academic_confidence_engine.py`)**:
+   - Only active/unresolved contradictions penalize composite confidence ($C_p = 0.15 \times \text{count}$). Once resolved via passing independent tests, the penalty is eliminated ($C_p = 0$).
+
 
 

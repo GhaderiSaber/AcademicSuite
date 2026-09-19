@@ -63,8 +63,8 @@ class AcademicConfidenceEngine:
         "PROMOTED_PRINCIPLE": 1.00
     }
 
-    def __init__(self):
-        pass
+    def __init__(self, base_dir: Optional[str] = None):
+        self.base_dir = base_dir
 
     def compute_confidence(self, factors: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -121,7 +121,17 @@ class AcademicConfidenceEngine:
             validation = min(1.0, max(0.10, 0.35 * r + 0.35 * a + 0.30 * h))
 
         # 5. Contradiction Penalty (C_p >= 0.0)
-        contra_count = max(0, breakdown.get("contradictions_count", 0))
+        raw_contras = breakdown.get("contradictions")
+        if isinstance(raw_contras, list):
+            contra_count = 0
+            for c in raw_contras:
+                if isinstance(c, dict):
+                    if c.get("status") not in ["RESOLVED", "RESOLVED_WITH_CONDITIONS"]:
+                        contra_count += 1
+                elif isinstance(c, str):
+                    contra_count += 1
+        else:
+            contra_count = max(0, breakdown.get("contradictions_count", 0))
         regress_count = max(0, breakdown.get("regressions_count", 0))
         boundary_violation = bool(breakdown.get("boundary_violation", False))
 
@@ -333,10 +343,15 @@ class AcademicConfidenceEngine:
             adv_score = gen_pass_rate
             held_score = gen_pass_rate
 
-        # Check contradictions
+        # Check contradictions (only active/unresolved contradictions penalize confidence)
         contra_count = 0
         for l in lesson_cluster:
-            contra_count += len(l.get("contradictions", []))
+            for c in l.get("contradictions", []):
+                if isinstance(c, dict):
+                    if c.get("status") not in ["RESOLVED", "RESOLVED_WITH_CONDITIONS"]:
+                        contra_count += 1
+                elif isinstance(c, str):
+                    contra_count += 1
 
         factors = {
             "factors_breakdown": {
@@ -415,6 +430,16 @@ class AcademicConfidenceEngine:
             adv_score = gen_pass_rate
             held_score = gen_pass_rate
 
+        # Check contradictions in gen_record if present
+        raw_contras = gen_record.get("contradictions", [])
+        contra_count = 0
+        for c in raw_contras:
+            if isinstance(c, dict):
+                if c.get("status") not in ["RESOLVED", "RESOLVED_WITH_CONDITIONS"]:
+                    contra_count += 1
+            elif isinstance(c, str):
+                contra_count += 1
+
         factors = {
             "factors_breakdown": {
                 "independent_experiences_count": total_exp_count,
@@ -425,7 +450,7 @@ class AcademicConfidenceEngine:
                 "regression_score": reg_score,
                 "adversarial_score": adv_score,
                 "heldout_score": held_score,
-                "contradictions_count": 0,
+                "contradictions_count": contra_count,
                 "regressions_count": 0,
                 "failure_severity": "HIGH",
                 "task_quality": "HIGH_FIDELITY_BENCHMARK" if stage in ["CROSS_CONTEXT_VALIDATION", "CROSS_DOMAIN_VALIDATION", "PROMOTED_PRINCIPLE"] else "EMPIRICAL_EXECUTION"

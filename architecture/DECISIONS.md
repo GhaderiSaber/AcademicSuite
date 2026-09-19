@@ -1304,6 +1304,71 @@ $$\text{confidence} = (\text{evidence\_strength} \times \text{independence} \tim
 - **Positive**: 100% elimination of heuristic confidence inflation; mathematically grounded and auditable confidence derivations; rigorous defense of epistemic integrity conforming to Directives 0, 8, 12.1, 18, and 19.
 - **Negative**: Newly distilled, unvalidated lessons carry conservative initial confidence scores until subjected to empirical evaluation suites.
 
+---
+
+## ADR-032: Six-Stage Empirical Contradiction Resolution Architecture
+
+### Status
+Accepted
+
+### Context
+In earlier iterations of knowledge consolidation and conflict management, detected contradictions between competing directives or methodological guidelines were susceptible to premature or automatic conversion:
+```
+CONFLICT_DETECTED → RESOLVED_WITH_CONDITIONS
+```
+When `AcademicBehaviorConsolidator.detect_contradictions()` identified a tension (e.g. RM-ANOVA vs Linear Mixed Models, or opposing "always" vs "never" rules), it immediately emitted a contradiction record with `status: "RESOLVED_WITH_CONDITIONS"` and pre-canned applicability conditions, without:
+1. Analyzing the underlying statistical assumptions of the competing directives.
+2. Comparing empirical literature and methodological evidence supporting both approaches.
+3. Formulating contextual boundary conditions and explicit exceptions.
+4. Subjecting the proposed resolution to an independent empirical test suite.
+
+In psychology and behavioral statistics, premature reconciliation is dangerous:
+- Prescribing RM-ANOVA under subject attrition biases inferential conclusions when sphericity breaks down.
+- Prescribing Baron & Kenny causal steps over Preacher & Hayes bootstrap mediation reduces statistical power and misestimates asymmetric indirect effect sampling distributions.
+- Mandating artificial dichotomization (median splits) severely deflates statistical power and distorts effect sizes.
+
+Treating methodological conflicts as automatically resolved without empirical validation violates Directive 0 (Epistemic Honesty) and Directive 19.
+
+### Decision
+1. **The Mandatory Six-Stage Contradiction Lifecycle**:
+   Every detected contradiction must advance through a strict, sequential 6-stage lifecycle:
+   ```
+   CONFLICT_DETECTED
+          ↓
+   CONFLICT_ANALYSIS
+          ↓
+   EVIDENCE_COMPARISON
+          ↓
+   CONDITION_IDENTIFICATION
+          ↓
+   INDEPENDENT_TEST
+          ↓
+   RESOLVED (or UNRESOLVED)
+   ```
+
+2. **Stage Descriptions and Invariants**:
+   - **Stage 1: CONFLICT_DETECTED**: Initial state upon signature match or opposing directive detection. Status is strictly `CONFLICT_DETECTED` with `reconciliation_strategy: "PENDING_HUMAN_RESOLUTION"`. Automatic conversion to any resolved state is strictly prohibited.
+   - **Stage 2: CONFLICT_ANALYSIS**: Deep examination of competing assumptions (`assumptions_a`, `assumptions_b`), underlying mathematical/epistemic root cause (`root_cause`), and methodological risk.
+   - **Stage 3: EVIDENCE_COMPARISON**: Systematic citation and empirical synthesis of literature and data supporting each directive (`evidence_for_a`, `evidence_for_b`), accompanied by divergence analysis.
+   - **Stage 4: CONDITION_IDENTIFICATION**: Formulation of explicit, actionable contextual boundary conditions (`condition_for_a`, `condition_for_b`), boundary exceptions, and synthesized conditional rules.
+   - **Stage 5: INDEPENDENT_TEST**: Submission of boundary conditions to an independent empirical evaluation suite (`AcademicIndependentEvaluator`), setting test arms and initial verdict to `PENDING`.
+   - **Stage 6: Terminal Resolution**:
+     - **RESOLVED**: Transition authorized IF AND ONLY IF `independent_verdict == "PASS"`.
+     - **UNRESOLVED**: Mandatory transition if the independent test fails (`independent_verdict == "FAIL"`) or assumptions prove irreconcilable.
+
+3. **Deterministic Hands Implementation (`AcademicContradictionEngine`)**:
+   - Located in `scripts/academic_contradiction_engine.py` (Directive 18 compliant).
+   - Enforces fail-closed resolution invariant via `PrematureContradictionResolutionError` and `check_resolution_allowed()`.
+   - `AcademicBehaviorConsolidator` integrates `AcademicContradictionEngine` via `reconcile_contradiction_pipeline()`.
+
+4. **Confidence and Context Integration**:
+   - `AcademicConfidenceEngine`: Active/unresolved contradictions impose a quantitative deduction ($C_p = 0.15 \times \text{count}$) on composite confidence; verified `RESOLVED` contradictions do not penalize confidence.
+   - `AcademicKnowledgeManager.get_active_contradictions()`: Filters active conflicts so disputed lessons are quarantined from pre-task retrieval until resolved.
+
+### Consequences
+- **Positive**: 100% elimination of premature contradiction resolution; robust empirical validation for methodological tensions; fail-closed safety guaranteeing that disputed directives cannot mislead agents.
+- **Negative**: Resolving a genuine contradiction requires complete assumption analysis, evidence gathering, and empirical test execution.
+
 
 
 

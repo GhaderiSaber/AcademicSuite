@@ -606,11 +606,12 @@ class AcademicKnowledgeManager:
     def add_contradiction_record(self, contradiction_dict: Dict[str, Any]) -> str:
         """
         Validate and store a detected contradiction record between learned directives.
-        Disambiguates competing rules with explicit contextual applicability conditions.
+        Enforces Phase 27: Initial status and stage default strictly to CONFLICT_DETECTED.
         """
         item = dict(contradiction_dict)
         item.setdefault("contract_version", "1.0.0")
-        item.setdefault("status", "RESOLVED_WITH_CONDITIONS")
+        item.setdefault("status", "CONFLICT_DETECTED")
+        item.setdefault("stage", item.get("status", "CONFLICT_DETECTED"))
         item.setdefault("detected_at", datetime.now(timezone.utc).isoformat())
 
         if "contradiction_id" not in item:
@@ -632,28 +633,36 @@ class AcademicKnowledgeManager:
                 "lesson_a_id": item["lesson_a_id"],
                 "lesson_b_id": item["lesson_b_id"],
                 "conflict_type": item["conflict_type"],
+                "stage": item.get("stage", item["status"]),
                 "status": item["status"],
                 "detected_at": item["detected_at"],
                 "file_path": file_path
             }
         )
 
-        # Link in relationship graph
-        self.link_items(
-            source_id=item["lesson_a_id"],
-            target_id=item["lesson_b_id"],
-            relation_type="contradicts",
-            description=f"Contradiction reconciled: {item['conflict_type']}"
-        )
+        # Link in relationship graph if items exist in store
+        try:
+            self.link_items(
+                source_id=item["lesson_a_id"],
+                target_id=item["lesson_b_id"],
+                relation_type="contradicts",
+                description=f"Contradiction recorded ({item.get('stage', item['status'])}): {item['conflict_type']}"
+            )
+        except Exception:
+            pass
 
         return item["contradiction_id"]
 
     def get_active_contradictions(
         self,
         target_skill: Optional[str] = None,
-        capability: Optional[str] = None
+        capability: Optional[str] = None,
+        include_resolved: bool = False
     ) -> List[Dict[str, Any]]:
-        """Retrieve active contradiction records to inform applicability conditions."""
+        """
+        Retrieve active contradiction records to inform applicability conditions.
+        By default, returns unresolved or in-progress contradictions (status != 'RESOLVED').
+        """
         canon_cap = self.normalize_capability(capability)
         results = []
         if not os.path.isdir(self.contradictions_dir):
@@ -666,6 +675,8 @@ class AcademicKnowledgeManager:
             try:
                 with open(fp, "r", encoding="utf-8") as f:
                     rec = json.load(f)
+                if not include_resolved and rec.get("status") in ["RESOLVED", "RESOLVED_WITH_CONDITIONS"]:
+                    continue
                 if target_skill and rec.get("target_skill") != target_skill:
                     continue
                 if canon_cap and canon_cap.lower() not in json.dumps(rec).lower():

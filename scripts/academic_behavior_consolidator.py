@@ -49,6 +49,7 @@ for venv_name in [".venv", "venv"]:
 from scripts.academic_knowledge_manager import AcademicKnowledgeManager
 from scripts.academic_generalization_engine import AcademicGeneralizationEngine, PrematureGeneralizationError
 from scripts.academic_confidence_engine import AcademicConfidenceEngine
+from scripts.academic_contradiction_engine import AcademicContradictionEngine, PrematureContradictionResolutionError
 from contracts.contract_validator import (
     validate_lesson,
     validate_contradiction_record,
@@ -149,6 +150,7 @@ class AcademicBehaviorConsolidator:
         self.knowledge_manager = AcademicKnowledgeManager(base_dir=self.base_dir)
         self.generalization_engine = AcademicGeneralizationEngine(base_dir=self.base_dir)
         self.confidence_engine = AcademicConfidenceEngine()
+        self.contradiction_engine = AcademicContradictionEngine(base_dir=self.base_dir)
 
         self.quarantine_dir = os.path.join(self.learning_dir, "quarantine")
         self.telemetry_dir = os.path.join(self.learning_dir, "telemetry")
@@ -344,7 +346,7 @@ class AcademicBehaviorConsolidator:
 
         for i, lsn_a in enumerate(lessons):
             id_a = lsn_a.get("lesson_id")
-            text_a = f"{lsn_a.get('desired_behavior', '')} {lsn_a.get('generalization', '')} {json.dumps(lsn_a.get('diagnosis', {}))}".lower()
+            text_a = f"{lsn_a.get('desired_behavior', '')} {lsn_a.get('statement', '')} {lsn_a.get('generalization', '')} {json.dumps(lsn_a.get('diagnosis', {}))}".lower()
 
             for j in range(i + 1, len(lessons)):
                 lsn_b = lessons[j]
@@ -354,7 +356,7 @@ class AcademicBehaviorConsolidator:
                     continue
                 checked_pairs.add(pair_key)
 
-                text_b = f"{lsn_b.get('desired_behavior', '')} {lsn_b.get('generalization', '')} {json.dumps(lsn_b.get('diagnosis', {}))}".lower()
+                text_b = f"{lsn_b.get('desired_behavior', '')} {lsn_b.get('statement', '')} {lsn_b.get('generalization', '')} {json.dumps(lsn_b.get('diagnosis', {}))}".lower()
 
                 # 1. Evaluate against Known Methodological Conflict Signatures
                 for conflict_def in KNOWN_METHODOLOGICAL_CONFLICTS:
@@ -370,6 +372,7 @@ class AcademicBehaviorConsolidator:
                         today_str = datetime.now(timezone.utc).strftime("%Y%m%d")
                         ctd_id = f"CTD-{today_str}-{uuid.uuid4().hex[:6].upper()}"
 
+                        # Phase 27: Initial stage is strictly CONFLICT_DETECTED (never auto-resolved)
                         ctd_record = {
                             "contract_version": "1.0.0",
                             "contradiction_id": ctd_id,
@@ -378,15 +381,10 @@ class AcademicBehaviorConsolidator:
                             "lesson_b_id": id_b,
                             "conflict_type": conflict_def["conflict_type"],
                             "description": conflict_def["description"],
-                            "reconciliation_strategy": "CONTEXTUAL_DISAMBIGUATION",
-                            "applicability_conditions": {
-                                "condition_for_a": conflict_def["condition_a"],
-                                "condition_for_b": conflict_def["condition_b"]
-                            },
-                            "status": "RESOLVED_WITH_CONDITIONS",
-                            "detected_at": datetime.now(timezone.utc).isoformat(),
-                            "resolved_at": datetime.now(timezone.utc).isoformat(),
-                            "reconciled_by": "AcademicBehaviorConsolidator"
+                            "stage": "CONFLICT_DETECTED",
+                            "status": "CONFLICT_DETECTED",
+                            "reconciliation_strategy": "PENDING_HUMAN_RESOLUTION",
+                            "detected_at": datetime.now(timezone.utc).isoformat()
                         }
 
                         # Validate schema
@@ -412,15 +410,10 @@ class AcademicBehaviorConsolidator:
                             "lesson_b_id": id_b,
                             "conflict_type": "CONTRADICTORY_CONSTRAINTS",
                             "description": f"Direct tension between mandatory directive ({id_a}) and prohibitive directive ({id_b}).",
-                            "reconciliation_strategy": "CONTEXTUAL_DISAMBIGUATION",
-                            "applicability_conditions": {
-                                "condition_for_a": lsn_a.get("applicability_conditions", ["Standard pipeline context"])[0],
-                                "condition_for_b": lsn_b.get("exclusions", ["Specialized exception context"])[0]
-                            },
-                            "status": "RESOLVED_WITH_CONDITIONS",
-                            "detected_at": datetime.now(timezone.utc).isoformat(),
-                            "resolved_at": datetime.now(timezone.utc).isoformat(),
-                            "reconciled_by": "AcademicBehaviorConsolidator"
+                            "stage": "CONFLICT_DETECTED",
+                            "status": "CONFLICT_DETECTED",
+                            "reconciliation_strategy": "PENDING_HUMAN_RESOLUTION",
+                            "detected_at": datetime.now(timezone.utc).isoformat()
                         }
                         if validate_contradiction_record(opposing_record)["valid"]:
                             if record_to_disk:
@@ -428,6 +421,69 @@ class AcademicBehaviorConsolidator:
                             contradiction_records.append(opposing_record)
 
         return contradiction_records
+
+    def reconcile_contradiction_pipeline(
+        self,
+        contradiction_id: str,
+        assumptions_a: List[str],
+        assumptions_b: List[str],
+        root_cause: str,
+        evidence_for_a: List[str],
+        evidence_for_b: List[str],
+        condition_for_a: str,
+        condition_for_b: str,
+        test_result: Dict[str, Any],
+        boundary_exceptions: Optional[List[str]] = None,
+        conditional_rule: Optional[str] = None,
+        divergence_analysis: Optional[str] = None,
+        methodological_risk: Optional[str] = None,
+        reconciled_by: str = "digital-saber"
+    ) -> Dict[str, Any]:
+        """
+        Phase 27: Executes the mandatory 6-stage contradiction resolution lifecycle:
+        CONFLICT_DETECTED -> CONFLICT_ANALYSIS -> EVIDENCE_COMPARISON ->
+        CONDITION_IDENTIFICATION -> INDEPENDENT_TEST -> RESOLVED (or UNRESOLVED).
+        """
+        # 1. Advance to CONFLICT_ANALYSIS
+        self.contradiction_engine.advance_to_conflict_analysis(
+            contradiction_id=contradiction_id,
+            assumptions_a=assumptions_a,
+            assumptions_b=assumptions_b,
+            root_cause=root_cause,
+            methodological_risk=methodological_risk
+        )
+
+        # 2. Advance to EVIDENCE_COMPARISON
+        self.contradiction_engine.advance_to_evidence_comparison(
+            contradiction_id=contradiction_id,
+            evidence_for_a=evidence_for_a,
+            evidence_for_b=evidence_for_b,
+            divergence_analysis=divergence_analysis
+        )
+
+        # 3. Advance to CONDITION_IDENTIFICATION
+        self.contradiction_engine.advance_to_condition_identification(
+            contradiction_id=contradiction_id,
+            condition_for_a=condition_for_a,
+            condition_for_b=condition_for_b,
+            boundary_exceptions=boundary_exceptions,
+            conditional_rule=conditional_rule
+        )
+
+        # 4. Advance to INDEPENDENT_TEST
+        test_suite_id = test_result.get("test_suite_id", "TEST-INDEPENDENT-001")
+        self.contradiction_engine.advance_to_independent_test(
+            contradiction_id=contradiction_id,
+            test_suite_id=test_suite_id,
+            test_arms=test_result.get("test_arms")
+        )
+
+        # 5. Resolve with test evidence (or mark unresolved if test failed)
+        return self.contradiction_engine.resolve_with_test_evidence(
+            contradiction_id=contradiction_id,
+            test_result=test_result,
+            reconciled_by=reconciled_by
+        )
 
     # -------------------------------------------------------------------------
     # Stage 4: Generalization

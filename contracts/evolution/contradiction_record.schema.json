@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://academic-suite.net/contracts/evolution/contradiction_record.schema.json",
   "title": "AcademicContradictionRecordContract",
-  "description": "Contract schema for contradiction records detected between learned lessons or behavioral instructions, documenting competing directives, conflict types, and mutually exclusive contextual applicability conditions.",
+  "description": "Contract schema for contradiction records detected between learned lessons or behavioral instructions, governing the 6-stage resolution lifecycle from conflict detection to independent empirical verification.",
   "type": "object",
   "required": [
     "contract_version",
@@ -12,8 +12,6 @@
     "lesson_b_id",
     "conflict_type",
     "description",
-    "reconciliation_strategy",
-    "applicability_conditions",
     "status",
     "detected_at"
   ],
@@ -53,12 +51,28 @@
       "minLength": 10,
       "description": "Clear explanation of the conflict between the two directives."
     },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "CONFLICT_DETECTED",
+        "CONFLICT_ANALYSIS",
+        "EVIDENCE_COMPARISON",
+        "CONDITION_IDENTIFICATION",
+        "INDEPENDENT_TEST",
+        "RESOLVED",
+        "UNRESOLVED"
+      ],
+      "default": "CONFLICT_DETECTED",
+      "description": "Current position in the 6-stage contradiction resolution lifecycle."
+    },
     "reconciliation_strategy": {
       "type": "string",
       "enum": [
         "CONTEXTUAL_DISAMBIGUATION",
         "PARAMETRIC_HIERARCHY",
         "DESIGN_CONDITIONAL_BRANCHING",
+        "EMPIRICAL_DISAMBIGUATION",
+        "INDEPENDENT_EVALUATION",
         "PENDING_HUMAN_RESOLUTION"
       ]
     },
@@ -79,9 +93,92 @@
       },
       "additionalProperties": false
     },
+    "conflict_analysis": {
+      "type": "object",
+      "required": ["assumptions_a", "assumptions_b", "root_cause"],
+      "properties": {
+        "assumptions_a": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "assumptions_b": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "root_cause": {
+          "type": "string",
+          "minLength": 5
+        },
+        "methodological_risk": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "description": "In-depth causal and theoretical analysis of competing assumptions."
+    },
+    "evidence_comparison": {
+      "type": "object",
+      "required": ["evidence_for_a", "evidence_for_b"],
+      "properties": {
+        "evidence_for_a": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "evidence_for_b": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "divergence_analysis": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "description": "Comparative audit of empirical evidence supporting both directives."
+    },
+    "identified_conditions": {
+      "type": "object",
+      "required": ["condition_for_a", "condition_for_b"],
+      "properties": {
+        "condition_for_a": {"type": "string", "minLength": 5},
+        "condition_for_b": {"type": "string", "minLength": 5},
+        "boundary_exceptions": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "conditional_rule": {"type": "string"}
+      },
+      "additionalProperties": true,
+      "description": "Formulated contextual boundary conditions delineating valid applications."
+    },
+    "independent_test": {
+      "type": "object",
+      "required": ["test_suite_id", "independent_verdict"],
+      "properties": {
+        "test_suite_id": {"type": "string"},
+        "test_results": {"type": "object"},
+        "independent_verdict": {
+          "type": "string",
+          "enum": ["PENDING", "PASS", "FAIL"]
+        },
+        "evaluator": {"type": "string"}
+      },
+      "additionalProperties": true,
+      "description": "Independent empirical test results evaluating the identified conditions."
+    },
+    "resolution_summary": {
+      "type": "string",
+      "description": "Summary rationale of why resolved or why unresolved."
+    },
     "status": {
       "type": "string",
       "enum": [
+        "CONFLICT_DETECTED",
+        "CONFLICT_ANALYSIS",
+        "EVIDENCE_COMPARISON",
+        "CONDITION_IDENTIFICATION",
+        "INDEPENDENT_TEST",
+        "RESOLVED",
+        "UNRESOLVED",
         "RESOLVED_WITH_CONDITIONS",
         "PENDING_HUMAN_REVIEW",
         "SUPERSEDED"
