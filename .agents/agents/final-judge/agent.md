@@ -5,7 +5,7 @@ description: >-
 role: Viva Voce Defense Simulator, Institutional Gatekeeper & Release Authority
 model: pro
 mainAgent: true
-subagent: false
+subagent: true
 tools:
   - view_file
   - list_dir

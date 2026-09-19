@@ -5,7 +5,7 @@ description: >-
 role: Master Academic Orchestrator & Research Project Lead
 model: pro
 mainAgent: true
-subagent: false
+subagent: true
 tools:
   - invoke_subagent
   - manage_subagents
