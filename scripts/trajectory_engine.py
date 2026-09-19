@@ -129,11 +129,11 @@ def is_validation_command(command_line: str) -> bool:
 
 
 def sanitize_tool_args(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Sanitizes tool arguments for logging by truncating huge bodies."""
+    """Sanitizes tool arguments for logging by omitting sensitive bodies and truncating long strings."""
     sanitized = {}
     for k, v in args.items():
-        if k in ("CodeContent", "ReplacementContent") and isinstance(v, str):
-            sanitized[k] = f"<content: {len(v)} chars>"
+        if k in ("CodeContent", "ReplacementContent"):
+            continue
         elif isinstance(v, str) and len(v) > 500:
             sanitized[k] = v[:500] + f"... [truncated {len(v)-500} chars]"
         else:
@@ -208,6 +208,7 @@ class TrajectoryEngine:
             "event_type": etype,
             "tool_name": event_record["tool_name"] or "unknown",
             "actor": actor,
+            "tool_args": clean_details.get("arguments_summary", {}),
             "details": clean_details,
             "status": "ERROR" if etype == "VALIDATION_FAILED" or clean_details.get("error") else "SUCCESS"
         }

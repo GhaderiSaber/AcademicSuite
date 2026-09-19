@@ -1781,6 +1781,56 @@ Following the completion of 34 architecture and evolution phases, AcademicSuite 
 - **Positive**: Clean working tree; zero dead code cluttering scripts; unambiguous canonical execution paths; complete preservation of backward compatibility; strict adherence to Directives 0, 6, 12.1, 18, and 19.
 - **Negative**: Removed files are gone from disk (preserved in git history); deprecated entrypoints will eventually be retired at their sunset date.
 
+---
 
+## ADR-041: Offline Test Fixtures, Mocked Network Isolation, and Test Suite Stabilization (Phase 36)
 
+### Status
+Accepted (September 2026 / 1405 SH)
 
+### Context
+In earlier test suite runs, `tests/test_attach_suite.py` attempted live remote git operations (`git clone https://github.com/GhaderiSaber/AcademicSuite.git`), causing deterministic tests to fail in air-gapped, offline, or restricted CI environments. Additionally, `from serve_webapp import test_server` in `tests/test_single_orchestrator_flow.py` caused pytest to collect `test_server` as a test case, emitting `PytestReturnNotNoneWarning` because it returned an integer exit code.
+
+### Decision
+1. **Offline Awareness & Mocked Network Isolation**:
+   - Enhanced `scripts/attach-suite.py` with offline fallback and local suite directory awareness.
+   - Updated `tests/test_attach_suite.py` using `unittest.mock.patch("subprocess.run")` to guarantee 100% offline execution without Internet dependencies.
+2. **Pytest Warning Elimination**:
+   - Aliased `test_server` as `run_web_test_server` in `tests/test_single_orchestrator_flow.py` to prevent erroneous pytest collection.
+3. **Comprehensive Non-Unit Verification**:
+   - Resolved schema enum alignment (`"demo"` in `contracts/statistical_execution_result.schema.json` and `contracts/statistical_executor_contract.schema.json`).
+   - Harmonized error strings for unapproved analysis plans in `scripts/statistical_pipeline_engine.py`.
+   - Prevented false sample-size matches on item/component count headers in `validators/result_consistency/validator.py`.
+
+### Consequences
+- **Positive**: Zero live network requirements during automated testing; clean test runs with 0 warnings; all 789+ baseline tests passing.
+- **Negative**: Integration tests requiring live remote repositories must be explicitly separated and gated with environment variables.
+
+---
+
+## ADR-042: Architecture-Level Integration Test Suite and Invariant Verification (Phase 37)
+
+### Status
+Accepted (September 2026 / 1405 SH)
+
+### Context
+While unit tests validated individual components, comprehensive architectural confidence required end-to-end integration tests verifying cross-component invariants: agent discovery, subagent task delegation, fail-closed stage transitions, missing artifact defense, synthetic data prevention in production, narrative-to-JSON cross-artifact consistency, two-phase human approval gating, and continuous learning promotion vs rejection under held-out regression.
+
+### Decision
+Codified `tests/test_architecture_integration_phase37.py` covering 10 architecture-level integration tests:
+1. **Test 1 — Agent Discovery**: AcademicSuite opens and discovers all 28 persistent subagents with 0 errors via `AgentIntegrityValidator`.
+2. **Test 2 — Subagent Invocation**: Orchestrator delegates an approved `AnalysisPlan` to `statistics-agent` with empirical dataset, producing valid results and execution manifest.
+3. **Test 3 — Invalid Stage**: Requesting transition to an unknown stage raises `UnknownStageError` and validator reports `BLOCKED`.
+4. **Test 4 — Missing Artifact**: Missing required statistical artifact or manifest returns fail-closed `UNVERIFIED`.
+5. **Test 5 — Fake Statistics**: Synthetic data markers in production mode raise `ProductionSampleFallbackBlockedError`.
+6. **Test 6 — Narrative Mismatch**: Contradiction between JSON ($\beta=.42$) and Markdown narrative ($\beta=.37$) returns `FAIL`.
+7. **Test 7 — Approval Gating**: In `STAGE_AWAITING_APPROVAL`, advancing without approval raises `MissingApprovalError` and dependent stage remains `STAGE_LOCKED`.
+8. **Test 8 — Approval Event**: Explicit human approval transitions stage to `STAGE_APPROVED` and automatically unlocks next stage to `STAGE_READY`.
+9. **Test 9 — Real Learning**: Candidate V2 fixing V1 defect passes all 5 evaluation gates with zero regressions and is promoted to active.
+10. **Test 10 — Failed Learning**: Candidate V2 fixing original mistake but regressing on held-out benchmark panel is unconditionally rejected (`REJECTED_AND_ARCHIVED`).
+
+Enforced Directive 18 ceilings (484 lines, 27.5 KB) on the test suite.
+
+### Consequences
+- **Positive**: Total automated test suite expanded to 799 tests passing in ~55s; mathematical, typographical, and architectural invariants deterministically verified.
+- **Negative**: Test execution runtime slightly increased (+3s for integration tests).

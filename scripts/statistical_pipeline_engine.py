@@ -274,7 +274,7 @@ class StatisticalPipelineEngine:
         validation_result = self.validate_analysis_plan(plan)
         if not validation_result.get("valid", False):
             raise InvalidAnalysisPlanError(
-                f"CRITICAL PLAN REJECTION: Contract failed schema validation: "
+                f"CRITICAL PLAN REJECTION: failed contract schema validation: "
                 f"{json.dumps(validation_result.get('errors', []), indent=2)}"
             )
 
@@ -283,7 +283,7 @@ class StatisticalPipelineEngine:
         if plan_status != "APPROVED":
             plan_id = plan.get("contract_id") or plan.get("plan_id") or plan.get("record_id")
             raise InvalidAnalysisPlanError(
-                f"CRITICAL PLAN REJECTION: statistics-agent may execute ONLY an approved contract or plan. "
+                f"CRITICAL PLAN REJECTION: statistics-agent may execute ONLY an approved AnalysisPlan or contract. "
                 f"Current contract '{plan_id}' has status '{plan.get('status')}'. Must be 'APPROVED'."
             )
 

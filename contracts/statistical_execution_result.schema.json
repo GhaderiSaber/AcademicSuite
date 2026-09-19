@@ -42,7 +42,7 @@
     },
     "data_mode": {
       "type": "string",
-      "enum": ["production", "simulation", "test", "dry_run"]
+      "enum": ["production", "simulation", "test", "dry_run", "demo"]
     },
     "is_synthetic": {
       "type": "boolean",

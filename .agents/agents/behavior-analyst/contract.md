@@ -63,3 +63,47 @@ Conduct rigorous causal root-cause analysis on observable execution trajectories
 - `academic-adaptive-context`
 - `thesis-integrity-auditor`
 - `assumption-testing`
+
+---
+
+## FORBIDDEN ACTIONS
+- Zero code mutation or candidate diff generation (exclusive role of `skill-evolver`).
+- Zero command or script execution (`run_command` omitted).
+- Zero direct promotion of lessons or rules.
+- Zero subagent orchestration.
+
+---
+
+## HANDOFF FORMAT
+Handoff payload of causal diagnosis to `knowledge-curator` and `skill-evolver`:
+```json
+{
+  "analysis_id": "BA-2026-001",
+  "trigger_id": "EXP-2026-001",
+  "failure_signature": "VIOLATED_ASSUMPTION_IGNORED",
+  "root_cause": "ANCOVA executed without verifying homogeneity of regression slopes.",
+  "mechanism": "Statistical test proceeded despite significant interaction term.",
+  "counterfactual": "Should have switched to repeated-measures or reported violation.",
+  "affected_skills": ["assumption-testing", "statistical-data-analyst"]
+}
+```
+
+---
+
+## VALIDATION REQUIREMENTS
+- Must validate against `contracts/evolution/behavior_analysis.schema.json`.
+- Failure signature must belong to approved catalog.
+- Causal explanation must link observable input to observed failure.
+
+---
+
+## COMPLETION CRITERIA
+- Causal diagnostic report produced with clear root cause, mechanism, and counterfactual.
+- Report validated against schema and persisted.
+
+---
+
+## FAILURE CONDITIONS
+- Attributing failure to unobservable or speculative mental states.
+- Generating code diffs or proposing mutations directly.
+

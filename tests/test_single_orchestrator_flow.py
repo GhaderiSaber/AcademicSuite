@@ -36,7 +36,7 @@ from multi_signal_anomaly_detector import MultiSignalAnomalyDetector
 from defense_committee_simulator import DefenseCommitteeSimulator
 from statistical_reasoner import StatisticalReasoner
 from copilot_bridge import TelegramCopilotBridge
-from serve_webapp import test_server
+from serve_webapp import test_server as run_web_test_server
 
 
 def validate_json_contract(payload: dict, schema: dict) -> tuple[bool, list]:
@@ -317,7 +317,7 @@ class TestSingleOrchestratorDeliberationFlow(unittest.TestCase):
             self.assertGreater(os.path.getsize(fpath), 500, f"Asset {fpath} is unexpectedly small")
 
         # Run serve_webapp test suite
-        res = test_server()
+        res = run_web_test_server()
         self.assertEqual(res, 0)
 
 

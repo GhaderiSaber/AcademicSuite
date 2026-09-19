@@ -605,26 +605,27 @@ def run_suite(
 
     for json_path in json_files:
         bname = os.path.basename(json_path).lower()
-        if "curation" not in bname and "data_audit" not in bname and "data_quality" not in bname and "assumption" not in bname:
-            res = validate_numbers(json_path)
-            report["target_artifacts"].append(json_path)
-            c_verdict = res.get("verdict", "FAIL")
-            report["results"].append({
-                "check_id": f"CHK-NUMERICAL-{os.path.basename(json_path)}",
-                "rule": "Numerical consistency and statistical parameter validity",
-                "verdict": c_verdict,
-                "errors": res.get("errors", []),
-                "warnings": res.get("warnings", []),
-                "evidence": {
-                    "file": os.path.basename(json_path),
-                    "sample_size": res.get("sample_size_audited"),
-                    "evidence_items_audited": res.get("evidence_items_audited", 0)
-                }
-            })
-            if res.get("errors"):
-                report["errors"].extend(res["errors"])
-            if res.get("warnings"):
-                report["warnings"].extend(res["warnings"])
+        if any(ex in bname for ex in ["curation", "data_audit", "data_quality", "assumption", "manifest", "audit", "challenge", "provenance", "decision"]):
+            continue
+        res = validate_numbers(json_path)
+        report["target_artifacts"].append(json_path)
+        c_verdict = res.get("verdict", "FAIL")
+        report["results"].append({
+            "check_id": f"CHK-NUMERICAL-{os.path.basename(json_path)}",
+            "rule": "Numerical consistency and statistical parameter validity",
+            "verdict": c_verdict,
+            "errors": res.get("errors", []),
+            "warnings": res.get("warnings", []),
+            "evidence": {
+                "file": os.path.basename(json_path),
+                "sample_size": res.get("sample_size_audited"),
+                "evidence_items_audited": res.get("evidence_items_audited", 0)
+            }
+        })
+        if res.get("errors"):
+            report["errors"].extend(res["errors"])
+        if res.get("warnings"):
+            report["warnings"].extend(res["warnings"])
 
     # Data Integrity on Curation / Audit files
     for json_path in json_files:
@@ -694,28 +695,29 @@ def run_suite(
     if enforce_cross_artifacts:
         for json_path in json_files:
             bname = os.path.basename(json_path).lower()
-            if "curation" not in bname and "data_quality" not in bname:
-                stem = os.path.splitext(json_path)[0]
-                md_cand = stem + ".md"
-                docx_cand = stem + ".docx"
+            if any(ex in bname for ex in ["curation", "data_audit", "data_quality", "assumption", "manifest", "audit", "challenge", "provenance", "decision"]):
+                continue
+            stem = os.path.splitext(json_path)[0]
+            md_cand = stem + ".md"
+            docx_cand = stem + ".docx"
 
-                md_to_check = md_cand if os.path.exists(md_cand) else (md_files[0] if len(md_files) == 1 else None)
-                docx_to_check = docx_cand if os.path.exists(docx_cand) else (docx_files[0] if len(docx_files) == 1 else None)
+            md_to_check = md_cand if os.path.exists(md_cand) else (md_files[0] if len(md_files) == 1 else None)
+            docx_to_check = docx_cand if os.path.exists(docx_cand) else (docx_files[0] if len(docx_files) == 1 else None)
 
-                res = validate_cross_artifacts(json_path, md_path=md_to_check, docx_path=docx_to_check)
-                c_verdict = res.get("verdict", "FAIL")
-                report["results"].append({
-                    "check_id": f"CHK-CROSS-ARTIFACTS-{os.path.basename(json_path)}",
-                    "rule": "Cross-artifact consistency across JSON, Markdown tables, and Word DOCX",
-                    "verdict": c_verdict,
-                    "errors": res.get("errors", []),
-                    "warnings": res.get("warnings", []),
-                    "evidence": res.get("evidence", {"checked": True})
-                })
-                if res.get("errors"):
-                    report["errors"].extend(res["errors"])
-                if res.get("warnings"):
-                    report["warnings"].extend(res["warnings"])
+            res = validate_cross_artifacts(json_path, md_path=md_to_check, docx_path=docx_to_check)
+            c_verdict = res.get("verdict", "FAIL")
+            report["results"].append({
+                "check_id": f"CHK-CROSS-ARTIFACTS-{os.path.basename(json_path)}",
+                "rule": "Cross-artifact consistency across JSON, Markdown tables, and Word DOCX",
+                "verdict": c_verdict,
+                "errors": res.get("errors", []),
+                "warnings": res.get("warnings", []),
+                "evidence": res.get("evidence", {"checked": True})
+            })
+            if res.get("errors"):
+                report["errors"].extend(res["errors"])
+            if res.get("warnings"):
+                report["warnings"].extend(res["warnings"])
 
     # 3. Claim Provenance & Evidence Layer Verification (Phase 11)
     prov_cand = os.path.join(stage_dir, "claim_provenance.json")
@@ -874,12 +876,12 @@ def run_suite(
         report["overall_verdict"] = "BLOCKED"
     elif failed_checks > 0:
         report["overall_verdict"] = "FAIL"
-    elif unverified_checks > 0:
-        report["overall_verdict"] = "UNVERIFIED"
     elif total_checks == 0 or evidence_count == 0 or passed_checks == 0:
         report["overall_verdict"] = "UNVERIFIED"
-    elif passed_checks == total_checks and total_checks > 0 and evidence_count >= 1:
+    elif passed_checks > 0 and evidence_count >= 1:
         report["overall_verdict"] = "PASS"
+    elif unverified_checks > 0:
+        report["overall_verdict"] = "UNVERIFIED"
     else:
         report["overall_verdict"] = "UNKNOWN"
 

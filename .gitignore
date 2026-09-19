@@ -120,3 +120,4 @@ tools/**/*.session
 tools/**/*.session-journal
 tools/**/*.png
 projects/**/raw_burnout_data.xlsx
+projects/**/learning/

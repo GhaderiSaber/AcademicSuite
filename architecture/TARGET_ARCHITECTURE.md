@@ -2464,4 +2464,60 @@ The complete repository inventory is published and maintained in [`architecture/
 - Consolidated `build_hypothesis_1_triad_docx.py` with `generate_hypothesis_triad_docx.py`.
 - Formally documented deprecation of `digital_saber.py` in favor of `scripts/suite_cli.py`.
 
+---
 
+## 41. Phase 36 — Offline Test Isolation & Test Suite Stabilization
+
+### 41.1 Network-Free Test Invariant
+Automated test suites must run reliably in offline, air-gapped, and sandboxed environments without depending on live Internet connectivity or external GitHub access:
+1. **Mocked Network Fixtures**: Remote git clone operations in `scripts/attach-suite.py` and `tests/test_attach_suite.py` are intercepted and mocked via `unittest.mock.patch("subprocess.run")` and local suite fallback directories.
+2. **Pytest Collection Hygiene**: Test helper functions and test servers imported into test modules must never use the `test_` prefix unless they are actual pytest test cases, eliminating `PytestReturnNotNoneWarning`.
+3. **Harmonized Engine Error Contracts**: Engine exception messages for unapproved analysis plans must strictly match expected validator assertions (`"may execute ONLY an approved AnalysisPlan or contract"`).
+4. **Disambiguated Column Header Matching**: Result consistency validators decouple sample size ($N$) from questionnaire item/component counts by negative keyword matching (`"گویه"`, `"آیتم"`, `"سوال"`, `"ماده"`).
+
+---
+
+## 42. Phase 37 — Architecture-Level Integration Test Architecture
+
+### 42.1 Purpose and Architectural Scope
+Phase 37 establishes high-level, end-to-end integration tests in `tests/test_architecture_integration_phase37.py` that verify cross-component system invariants across discovery, orchestration, state machines, validation gates, and continuous learning.
+
+### 42.2 The 10 Architectural Integration Test Dimensions
+
+```mermaid
+flowchart TD
+    subgraph DiscoveryAndInvocation["1. Discovery & Invocation"]
+        T1["Test 1: Agent Discovery\n(AcademicSuite opens → 28 agents discovered)"]
+        T2["Test 2: Subagent Invocation\n(orchestrator → statistics-agent → result package)"]
+    end
+
+    subgraph FailClosedGating["2. Fail-Closed Gating & Safety"]
+        T3["Test 3: Invalid Stage\n(unknown stage → BLOCKED)"]
+        T4["Test 4: Missing Artifact\n(missing result.json → UNVERIFIED)"]
+        T5["Test 5: Fake Statistics\n(synthetic data in production → BLOCKED)"]
+        T6["Test 6: Narrative Mismatch\n(JSON β=.42 vs MD β=.37 → FAIL)"]
+    end
+
+    subgraph StateMachineGovernance["3. Two-Phase Human Governance"]
+        T7["Test 7: Approval Gating\n(validation → AWAITING_APPROVAL → advance blocked)"]
+        T8["Test 8: Approval Event\n(human approval event → next stage unlocked)"]
+    end
+
+    subgraph ContinuousLearning["4. Continuous Learning & Regression Defense"]
+        T9["Test 9: Real Learning\n(agent V1 mistake → candidate V2 → 5 gates pass → PROMOTED)"]
+        T10["Test 10: Failed Learning (CRITICAL)\n(original case improves → held-out regresses → REJECT)"]
+    end
+
+    DiscoveryAndInvocation --> FailClosedGating
+    FailClosedGating --> StateMachineGovernance
+    StateMachineGovernance --> ContinuousLearning
+```
+
+### 42.3 The Test 10 Invariant: Held-Out Regression Rejection
+The continuous learning architecture strictly forbids local overfitting:
+- Even when candidate $V_2$ resolves 100% of the motivating defect from $V_1$ (`fixes_original_mistake: True`), any regression detected on the held-out benchmark panel (`heldout_results.verdict == "FAIL"`) causes immediate, non-bypassable rejection:
+```text
+candidate V2 ──> original case improves ──> held-out case regresses ──> REJECT & ARCHIVE
+```
+- Implemented in `tests/test_architecture_integration_phase37.py::TestArchitectureIntegrationPhase37::test_10_failed_learning_heldout_regression_rejects`.
+- All 10 tests execute completely offline in ~3.1s, ensuring the entire 799-test suite completes in under 60 seconds with zero warnings.

@@ -62,3 +62,53 @@ Reconstruct the factual, step-by-step chronology from observable actions, tool u
 ## REQUIRED SKILLS
 - `academic-adaptive-context`
 - `thesis-integrity-auditor`
+
+---
+
+## FORBIDDEN ACTIONS
+- Zero file writing or editing on disk (`write_to_file` and `replace_file_content` omitted).
+- Zero command or script execution (`run_command` omitted).
+- Zero causal speculation or root-cause diagnosing (exclusive role of `behavior-analyst`).
+- Zero access to or assumption of internal hidden reasoning tokens.
+- Zero subagent orchestration.
+
+---
+
+## HANDOFF FORMAT
+Handoff payload of reconstructed trajectory to `behavior-analyst`:
+```json
+{
+  "trajectory_id": "TRJ-2026-001",
+  "experience_id": "EXP-2026-001",
+  "total_steps": 14,
+  "events": [
+    {
+      "step_index": 1,
+      "event_type": "TOOL_CALLED",
+      "tool_name": "run_command",
+      "observable_payload": {"cmd": "python3 scripts/run_ancova.py"}
+    }
+  ],
+  "checksum": "a1b2c3d4..."
+}
+```
+
+---
+
+## VALIDATION REQUIREMENTS
+- Must validate against `contracts/evolution/trajectory.schema.json`.
+- Event chronology must strictly preserve sequential ordering.
+- Every recorded action must map to an observable log entry.
+
+---
+
+## COMPLETION CRITERIA
+- Complete, factual chronological trajectory reconstructed and verified against logs.
+- Trajectory artifact emitted to pipeline.
+
+---
+
+## FAILURE CONDITIONS
+- Speculating on private agent thoughts or hallucinations.
+- Inverting or falsifying the observed sequence of events.
+

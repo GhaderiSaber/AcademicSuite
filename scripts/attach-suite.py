@@ -940,8 +940,11 @@ def cmd_attach(args):
     suite_key, suite_info = resolve_suite(suite_arg, suites)
 
     repo_url = "https://github.com/GhaderiSaber/AcademicSuite.git"
+    offline_mode = getattr(args, "offline", False) or os.environ.get("ACADEMIC_SUITE_OFFLINE") == "1"
     if Path(str(suite_arg)).exists() and (Path(str(suite_arg)) / ".git").exists():
         repo_url = str(Path(str(suite_arg)).resolve())
+    elif offline_mode and suite_info and suite_info.get("path") and (Path(suite_info["path"]) / ".git").exists():
+        repo_url = str(Path(suite_info["path"]).resolve())
     elif suite_info and suite_info.get("repo_url"):
         repo_url = suite_info["repo_url"]
     elif suite_arg.startswith("http://") or suite_arg.startswith("https://") or suite_arg.startswith("git@"):

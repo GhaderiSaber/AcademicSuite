@@ -60,7 +60,7 @@
         },
         "data_mode": {
           "type": "string",
-          "enum": ["production", "simulation", "test", "dry_run"],
+          "enum": ["production", "simulation", "test", "dry_run", "demo"],
           "description": "In production, missing data or sample data triggers fatal failure."
         },
         "is_synthetic": {

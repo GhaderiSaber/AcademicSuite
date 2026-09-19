@@ -14,6 +14,7 @@ import json
 import shutil
 import tempfile
 import unittest
+from unittest.mock import patch, MagicMock
 import importlib.util
 from pathlib import Path
 
@@ -151,6 +152,57 @@ class TestAttachSuite(unittest.TestCase):
                 self.assertFalse(status["agents_is_link"])
                 self.assertEqual(len(status["separate_folders"]), 0)
 
+            finally:
+                attach_suite.get_cwd = orig_get_cwd
+
+    @patch("subprocess.run")
+    def test_attach_repo_with_remote_url_mocked_network(self, mock_subprocess):
+        """
+        Verifies that attaching with a remote GitHub URL operates completely offline via mocked network.
+        Ensures:
+        1. Zero external network calls are made (mocked subprocess).
+        2. Git clone is invoked with the remote GitHub URL and cwd correctly set.
+        3. Works cleanly without Internet availability.
+        """
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project_dir = Path(tmp_dir) / "my_mocked_thesis"
+            project_dir.mkdir()
+
+            # Configure mock subprocess to simulate successful git clone
+            def fake_subprocess_run(cmd, *args, **kwargs):
+                cwd = kwargs.get("cwd", str(project_dir))
+                # If command is checking remote or git clone, simulate directory setup
+                if "clone" in cmd:
+                    # Copy local structure into cwd as offline fixture
+                    (Path(cwd) / ".agents").mkdir(exist_ok=True)
+                    (Path(cwd) / "AGENTS.md").write_text("# Mocked AGENTS.md")
+                    (Path(cwd) / ".git").mkdir(exist_ok=True)
+                mock_res = MagicMock()
+                mock_res.returncode = 0
+                mock_res.stdout = "origin\n"
+                mock_res.stderr = ""
+                return mock_res
+
+            mock_subprocess.side_effect = fake_subprocess_run
+
+            orig_get_cwd = attach_suite.get_cwd
+            attach_suite.get_cwd = lambda target_path=".": project_dir
+
+            try:
+                class Args:
+                    suite = "https://github.com/GhaderiSaber/AcademicSuite.git"
+                    keep_git = False
+
+                attach_suite.cmd_attach(Args())
+
+                # Verify subprocess.run was called with git clone command targeting the remote URL
+                clone_calls = [c for c in mock_subprocess.call_args_list if "clone" in c[0][0]]
+                self.assertGreater(len(clone_calls), 0, "Expected git clone invocation in mocked network")
+                self.assertEqual(clone_calls[0][0][0][2], "https://github.com/GhaderiSaber/AcademicSuite.git")
+
+                # Verify project root contains attached items
+                self.assertTrue((project_dir / ".agents").exists())
+                self.assertTrue((project_dir / "AGENTS.md").exists())
             finally:
                 attach_suite.get_cwd = orig_get_cwd
 

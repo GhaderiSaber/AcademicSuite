@@ -562,7 +562,7 @@ def audit_table_concordance(
                 continue
 
             # n / sample size
-            if any(k in h for k in ["تعداد", "حجم نمونه"]):
+            if any(k in h for k in ["تعداد", "حجم نمونه"]) and not any(neg in h for neg in ["گویه", "آیتم", "سوال", "ماده", "جلسه", "مرحله", "مؤلفه", "مولفه", "عامل", "شاخص", "متغیر"]):
                 col_map["n"] = c_idx
             elif re.search(r'(?<![a-zA-Z])n(?![a-zA-Z=])', h):
                 col_map["n"] = c_idx

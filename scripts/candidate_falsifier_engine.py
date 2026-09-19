@@ -4,9 +4,7 @@
 scripts/candidate_falsifier_engine.py — [EXPERIMENTAL / DELIBERATION HARNESS]
 
 Candidate -> Falsifier -> Synthesis multi-perspective deliberation engine (Phase 20 testbed).
-"""
 
-Implements the multi-perspective deliberation pattern for ambiguous academic and statistical decisions:
   Candidate A, Candidate B, Candidate C
   ↓
   Academic Challenger (Actively falsifies each candidate; returns SUPPORTED, WEAK, CONDITIONAL, REJECTED)
