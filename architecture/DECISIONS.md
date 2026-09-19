@@ -17,6 +17,12 @@
 | [ADR-005](#adr-005-multi-layered-defense-in-depth-security-architecture) | Multi-Layered Defense-in-Depth Security Architecture | Accepted | 2026-09-18 |
 | [ADR-006](#adr-006-hard-boundary-against-horizontal-growth-and-sprawl) | Hard Boundary Against Horizontal Growth & Architectural Sprawl | Accepted | 2026-09-19 |
 | [ADR-007](#adr-007-the-six-part-functional-separation-invariant) | The Six-Part Functional Separation Invariant | Accepted | 2026-09-19 |
+| [ADR-008](#adr-008-dynamic-orchestration-via-native-antigravity-subagent-capability-resolution) | Dynamic Orchestration via Native Subagent Capability Resolution | Accepted | 2026-09-19 |
+| [ADR-009](#adr-009-methodology-decision-layer-and-formal-execution-contracts) | Methodology Decision Layer and Formal Execution Contracts (MDR) | Accepted | 2026-09-19 |
+| [ADR-010](#adr-010-deterministic-statistical-execution-layer-and-elimination-of-mental-arithmetic) | Deterministic Statistical Execution Layer & Elimination of Mental Math | Accepted | 2026-09-19 |
+| [ADR-011](#adr-011-complete-elimination-of-synthetic-data-escape-routes-and-universal-fail-closed-policy) | Complete Elimination of Synthetic Data Escape Routes | Accepted | 2026-09-19 |
+| [ADR-012](#adr-012-formal-state-machine-engine-and-elimination-of-direct-stage-mutations) | Formal State Machine Engine & Elimination of Direct Stage Mutations | Accepted | 2026-09-19 |
+| [ADR-013](#adr-013-authoritative-stage-manifests-and-cross-artifact-agreement-gating) | Authoritative Stage Manifests & Cross-Artifact Agreement Gating | Accepted | 2026-09-19 |
 
 ---
 
@@ -335,6 +341,45 @@ Replace ad-hoc stage mutation with a formal, deterministic state machine impleme
 ### Consequences
 - **Positive**: Complete elimination of skipped stages, zero unverified state mutations, rigorous artifact and prerequisite gating, full compliance with Directive 3, Directive 11, and Directive 19.
 - **Negative**: Requires formal transition requests and prerequisite satisfaction before advancing between stages.
+
+---
+
+## ADR-013: Authoritative Stage Manifests and Cross-Artifact Agreement Gating
+
+### Context
+In earlier iterations of AcademicSuite, pipeline stages often decided completion simply because a single expected output file was detected on disk (e.g. "found a JSON file"). This loose heuristic failed to verify:
+1. Whether all declared deliverables—specifically the Triad Invariant (`.docx`, `.md`, `.json`)—were completely generated and non-empty.
+2. Whether deliverables had been tampered with or modified after generation.
+3. Whether numbers reported in human-readable Markdown or institutional Word documents contradicted the underlying statistical JSON data.
+4. Whether the outputs were genuinely produced from the declared empirical dataset rather than cached or mock inputs.
+5. Whether upstream dependency milestones had been cryptographically validated before downstream execution commenced.
+
+### Decision
+Implement the **Authoritative Stage Manifest Subsystem** governed by `contracts/stage_manifest.schema.json` and executed by `scripts/stage_manifest_engine.py`:
+1. **Authoritative Manifest Requirement (`manifest.json`)**:
+   Every meaningful academic stage must produce and maintain a schema-validated `manifest.json` on disk. The system strictly forbids deciding that a stage is complete merely because an individual output file was located.
+2. **Mandatory Manifest Contract Contents**:
+   - `stage_id` & `project_id`: Unique micro-stage and study identifiers.
+   - `producer`: Designated cognitive agent, computational script, and exact command invoked.
+   - `inputs`: Declared input files with SHA-256 cryptographic hashes at consumption time.
+   - `required_artifacts`: Declared deliverables, strictly enforcing the Triad Invariant (`stats_json`, `narrative_markdown`, `openxml_word`) for findings and hypothesis stages.
+   - `dependencies`: Upstream prerequisite stages with manifest paths and SHA-256 hashes.
+   - `hashes`: Table of SHA-256 cryptographic hashes for every produced artifact on disk.
+   - `validation_requirements`: Required validator script, expected verdict (`PASS`), and cross-agreement flag.
+   - `status`: Lifecycle status (`IN_PROGRESS`, `GENERATED`, `VALIDATED`, `APPROVED`, `REJECTED`, `FAILED`).
+   - `timestamps`: `created_at`, `completed_at`, `validated_at`, `approved_at`.
+   - `cross_agreement`: Embedded audit verification proving concordance across formats.
+3. **Fail-Closed Cross-Artifact Agreement Invariant**:
+   For any stage producing statistical findings, `scripts/stage_manifest_engine.py` calls `validators/result_consistency/validator.py` to audit numerical parameters ($N, F, t, p, \beta, B, z, R^2, \eta_p^2$, fit indices) across `.json`, `.md`, and `.docx`. Any contradiction immediately fails closed with `ManifestCrossAgreementError`.
+4. **State Machine Transition Gating**:
+   In `StrictStateMachine.request_transition()`, transitioning a stage to `STAGE_VALIDATING`, `STAGE_AWAITING_APPROVAL`, or `STAGE_APPROVED` strictly discovers and validates `manifest.json`. Any missing manifest, missing file, hash mismatch, or numerical discrepancy raises a fail-closed exception (`MissingStageManifestError`, `ManifestArtifactMissingError`, `ManifestHashMismatchError`, `ManifestInputMismatchError`, `ManifestTriadMissingError`, `ManifestDependencyMismatchError`, `ManifestCrossAgreementError`).
+5. **Atomic Lifecycle Update**:
+   Upon transition to `STAGE_APPROVED`, `StrictStateMachine` updates `manifest.json` status to `APPROVED` and records `timestamps.approved_at`.
+
+### Consequences
+- **Positive**: 100% cryptographic auditability, mechanical enforcement of the Triad Invariant, complete elimination of format contradictions between Word, Markdown, and JSON, and strict compliance with Directive 3, Directive 11, and Directive 19.
+- **Negative**: Stages must generate and verify an authoritative manifest before stage advancement can occur.
+
 
 
 

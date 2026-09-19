@@ -1,0 +1,225 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/stage_manifest.schema.json",
+  "title": "AcademicStageManifestContract",
+  "description": "Authoritative contract schema governing stage completion manifests: declaring inputs, deliverables (including the Triad Invariant: .docx, .md, .json), schemas, hashes, dependencies, validation requirements, cross-artifact agreement, and lifecycle status.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "stage_id",
+    "project_id",
+    "producer",
+    "inputs",
+    "required_artifacts",
+    "dependencies",
+    "validation_requirements",
+    "hashes",
+    "status",
+    "timestamps"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "stage_id": {
+      "type": "string",
+      "description": "Unique identifier of the micro-stage (e.g. 06_hypothesis_1, 00_data_curation)."
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Unique identifier of the research project."
+    },
+    "producer": {
+      "type": "object",
+      "required": ["agent", "script_or_generator"],
+      "properties": {
+        "agent": {
+          "type": "string",
+          "description": "Assigned cognitive agent role (e.g. statistics-agent, data-curator, academic-writer)."
+        },
+        "script_or_generator": {
+          "type": "string",
+          "description": "Path or identifier of the deterministic computational script ('The Hands')."
+        },
+        "command": {
+          "type": "string",
+          "description": "Full command invoked to produce the stage outputs."
+        }
+      },
+      "additionalProperties": true
+    },
+    "inputs": {
+      "type": "array",
+      "description": "Upstream empirical data, plans, or configuration files consumed by this stage.",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative or absolute path to the input artifact."
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$",
+            "description": "SHA-256 cryptographic hash of the input artifact at consumption time."
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "required_artifacts": {
+      "type": "array",
+      "description": "Authoritative list of artifacts declared by this stage (enforcing Triad Invariant: .docx, .md, .json).",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "type", "required"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path to the physical deliverable."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "stats_json",
+              "narrative_markdown",
+              "openxml_word",
+              "data_cleaned",
+              "data_quality_report",
+              "presentation_deck",
+              "validation_report",
+              "decision_log",
+              "diagram_png",
+              "manifest_json"
+            ]
+          },
+          "schema": {
+            "type": "string",
+            "description": "Relative path or name of JSON schema governing this artifact."
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "Upstream stages whose approved completion was a prerequisite for this stage.",
+      "items": {
+        "type": "object",
+        "required": ["stage_id", "manifest_path", "manifest_hash"],
+        "properties": {
+          "stage_id": {
+            "type": "string"
+          },
+          "manifest_path": {
+            "type": "string"
+          },
+          "manifest_hash": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$",
+            "description": "SHA-256 cryptographic hash of the upstream stage's manifest.json."
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "validation_requirements": {
+      "type": "object",
+      "required": ["validator_suite_required", "expected_verdict"],
+      "properties": {
+        "validator_suite_required": {
+          "type": "boolean"
+        },
+        "validator_script": {
+          "type": "string"
+        },
+        "expected_verdict": {
+          "type": "string",
+          "enum": ["PASS"]
+        },
+        "cross_agreement_required": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "hashes": {
+      "type": "object",
+      "description": "Cryptographic SHA-256 hash map of all produced artifacts keyed by relative file path.",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-fA-F0-9]{64}$"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["IN_PROGRESS", "GENERATED", "VALIDATED", "APPROVED", "REJECTED", "FAILED"]
+    },
+    "timestamps": {
+      "type": "object",
+      "required": ["created_at"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": ["string", "null"]
+        },
+        "validated_at": {
+          "type": ["string", "null"]
+        },
+        "approved_at": {
+          "type": ["string", "null"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "cross_agreement": {
+      "type": "object",
+      "description": "Audited concordance verification proving agreement between .json, .md, and .docx.",
+      "properties": {
+        "verified": {
+          "type": "boolean"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "NEEDS_REVIEW"]
+        },
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence": {
+          "type": "object"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

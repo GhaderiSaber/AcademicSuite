@@ -171,8 +171,53 @@ class DirectStageMutationBlockedError(StateManagementError):
     pass
 
 
+# Phase 8 Stage Manifest Exception Hierarchy
+class StageManifestError(StateManagementError):
+    """Base exception for stage manifest failures."""
+    pass
 
-# ==============================================================================
+class MissingStageManifestError(StageManifestError):
+    """Raised when an authoritative manifest.json is missing from disk."""
+    pass
+
+class MalformedStageManifestError(StageManifestError):
+    """Raised when a stage manifest fails schema validation or is malformed JSON."""
+    pass
+
+class ManifestInputMismatchError(StageManifestError):
+    """Raised when declared inputs are missing or their cryptographic hash has mutated."""
+    pass
+
+class ManifestArtifactMissingError(StageManifestError):
+    """Raised when declared deliverables are missing from disk or empty (0 bytes)."""
+    pass
+
+class ManifestTriadMissingError(StageManifestError):
+    """Raised when a hypothesis or findings stage fails the Triad Invariant (.json, .md, .docx)."""
+    pass
+
+class ManifestHashMismatchError(StageManifestError):
+    """Raised when an artifact on disk does not match its declared cryptographic SHA-256 hash."""
+    pass
+
+class ManifestDependencyMismatchError(StageManifestError):
+    """Raised when an upstream dependency manifest is missing or its hash does not match."""
+    pass
+
+class ManifestCrossAgreementError(StageManifestError):
+    """Raised when numbers across .json, .md, and .docx contradict each other."""
+    pass
+
+
+try:
+    from scripts.stage_manifest_engine import verify_stage_manifest, build_stage_manifest
+except ImportError:
+    try:
+        from stage_manifest_engine import verify_stage_manifest, build_stage_manifest
+    except ImportError:
+        verify_stage_manifest = None
+        build_stage_manifest = None
+
 # Formal State Machine Enums & Legal Transition Tables (Phase 7)
 # ==============================================================================
 
@@ -893,11 +938,17 @@ class StrictStateMachine:
         required_input_artifacts: Optional[List[str]] = None,
         required_output_artifacts: Optional[List[str]] = None,
         active_agent: str = "academic-orchestrator",
-        requires_validation: bool = True
+        requires_validation: bool = True,
+        requires_manifest: Optional[bool] = None
     ) -> Dict[str, Any]:
         """Registers a stage in the state machine with explicit dependency validation."""
         st_val = initial_status.value if isinstance(initial_status, StageState) else str(initial_status).upper()
         now_iso = datetime.now(timezone.utc).isoformat()
+        if requires_manifest is None:
+            if not requires_validation:
+                requires_manifest = False
+            else:
+                requires_manifest = any(s.get("stage_id") == stage_id for s in DEFAULT_STAGE_GRAPH) or bool(required_output_artifacts)
         entry = {
             "stage_id": stage_id,
             "title": title,
@@ -907,6 +958,7 @@ class StrictStateMachine:
             "required_input_artifacts": required_input_artifacts or [],
             "required_output_artifacts": required_output_artifacts or [],
             "requires_validation": requires_validation,
+            "requires_manifest": requires_manifest,
             "created_at": now_iso,
             "updated_at": now_iso,
             "history": [
@@ -951,6 +1003,7 @@ class StrictStateMachine:
         target_type_upper = target_type.upper()
 
         if target_type_upper == "STAGE":
+            manifest_path: Optional[str] = None
             # 1. Validate Target State & Discovery
             if isinstance(target_state, str):
                 try:
@@ -1038,6 +1091,47 @@ class StrictStateMachine:
                                 f"Stage '{target_id}' cannot transition to {target_enum.value} because required output artifact '{art_rel}' is missing or empty on disk."
                             )
 
+                    # Authoritative Manifest Gating (Phase 8 Directive 19 & Invariant)
+                    requires_manifest = stage_data.get("requires_manifest", True)
+                    manifest_path = None
+                    if execution_info and execution_info.get("manifest_path"):
+                        manifest_path = execution_info["manifest_path"]
+                    elif authorization and authorization.get("manifest_path"):
+                        manifest_path = authorization["manifest_path"]
+
+                    if not manifest_path or not os.path.exists(manifest_path):
+                        candidates = [
+                            os.path.join(self.state_dir, "stages", target_id, "manifest.json"),
+                            os.path.join(self.state_dir, target_id, "manifest.json"),
+                            os.path.join(self.state_dir, f"{target_id}_manifest.json"),
+                            os.path.join(self.project_root, "03_deliverables", f"stage_{target_id}", "manifest.json"),
+                            os.path.join(self.project_root, "03_deliverables", target_id, "manifest.json"),
+                            os.path.join(self.project_root, target_id, "manifest.json"),
+                        ]
+                        for art_rel in stage_data.get("required_output_artifacts", []):
+                            art_full = art_rel if os.path.isabs(art_rel) else os.path.join(self.state_dir, art_rel)
+                            art_dir = os.path.dirname(art_full)
+                            if art_dir:
+                                candidates.append(os.path.join(art_dir, "manifest.json"))
+                        for cand in candidates:
+                            if os.path.isfile(cand):
+                                manifest_path = cand
+                                break
+
+                    if manifest_path and os.path.isfile(manifest_path):
+                        if verify_stage_manifest is not None:
+                            verify_stage_manifest(
+                                manifest_path_or_dict=manifest_path,
+                                base_dir=os.path.dirname(manifest_path),
+                                fail_closed=True
+                            )
+                    elif requires_manifest and mode == "production":
+                        raise MissingStageManifestError(
+                            f"Stage '{target_id}' cannot transition to {target_enum.value} because authoritative "
+                            f"'manifest.json' is missing on disk. Under Phase 8, stages cannot complete merely "
+                            f"by finding standalone files."
+                        )
+
             # 4. Validate Authorization & Passing Validation Report
             if target_enum == StageState.STAGE_APPROVED:
                 # Approval grant check
@@ -1118,6 +1212,18 @@ class StrictStateMachine:
             if target_enum == StageState.STAGE_RUNNING:
                 self._sync_project_current_stage(target_id, status=target_enum.value)
             elif target_enum == StageState.STAGE_APPROVED:
+                # Update authoritative manifest status to APPROVED on disk if present
+                if manifest_path and os.path.isfile(manifest_path):
+                    try:
+                        with open(manifest_path, "r", encoding="utf-8") as mf:
+                            m_obj = json.load(mf)
+                        m_obj["status"] = "APPROVED"
+                        m_obj.setdefault("timestamps", {})["approved_at"] = now_iso
+                        with open(manifest_path, "w", encoding="utf-8") as mf:
+                            json.dump(m_obj, mf, indent=2, ensure_ascii=False)
+                    except Exception as me:
+                        sys.stderr.write(f"[Manifest Commit Warning] Could not update manifest {manifest_path}: {me}\n")
+
                 # Auto-unlock downstream stages if all their dependencies are approved
                 for s_id, s_data in self.stages.items():
                     if s_data.get("status") == StageState.STAGE_LOCKED.value:

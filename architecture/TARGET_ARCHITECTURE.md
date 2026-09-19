@@ -435,6 +435,53 @@ request_transition(project_path, target_id, target_state, actor, rationale, auth
 ### 12.4 Complete Elimination of Direct `set_stage` Mutations in Production
 In production mode (`mode="production"`), direct mutation of stage gates via `set_stage()` is strictly prohibited and raises `DirectStageMutationBlockedError`. All progression must occur via `request_transition()` or the CLI subcommand `request-transition`.
 
+---
+
+## 13. Authoritative Stage Manifests & Cross-Artifact Agreement Subsystem (Phase 8)
+
+### 13.1 The Manifest-First Principle
+In AcademicSuite, a stage is never deemed complete because a single file or intermediate output was detected. Instead, every academic stage must produce an authoritative, cryptographically binding `manifest.json` governed by `contracts/stage_manifest.schema.json`.
+
+```text
+stage_directory/
+    ├── manifest.json       <-- Authoritative manifest (governing schema, hashes, provenance)
+    ├── result.json         <-- Machine-readable statistical parameters
+    ├── result.md           <-- Scholarly narrative & APA 7 markdown tables
+    ├── result.docx         <-- Institutional OpenXML Word document
+    └── validation.json     <-- Adversarial validation report
+```
+
+### 13.2 Manifest Schema Specification (`contracts/stage_manifest.schema.json`)
+The manifest explicitly codifies:
+1. **`stage_id` & `project_id`**: Identifies the micro-stage within the study hierarchy.
+2. **`producer`**: Records the responsible cognitive agent, computational script, and CLI invocation.
+3. **`inputs`**: Array of input artifacts with their exact SHA-256 cryptographic hashes at consumption time.
+4. **`required_artifacts`**: Declared deliverables, mechanically enforcing the Triad Invariant (`stats_json`, `narrative_markdown`, `openxml_word`) for hypothesis and findings micro-stages.
+5. **`dependencies`**: Upstream stages with prerequisite manifest paths and SHA-256 hashes.
+6. **`hashes`**: Key-value table mapping every artifact on disk to its SHA-256 hash.
+7. **`validation_requirements`**: Declared validator suite, expected verdict (`PASS`), and cross-agreement flag.
+8. **`status`**: Lifecycle enum (`IN_PROGRESS`, `GENERATED`, `VALIDATED`, `APPROVED`, `REJECTED`, `FAILED`).
+9. **`timestamps`**: `created_at`, `completed_at`, `validated_at`, `approved_at`.
+10. **`cross_agreement`**: Embedded audit evidence proving numerical concordance across `.json`, `.md`, and `.docx`.
+
+### 13.3 Cross-Artifact Agreement Gating
+Under Directive 19 and Directive 3, human-readable prose must never contradict verified machine statistics. `scripts/stage_manifest_engine.py` integrates directly with `validators/result_consistency/validator.py` to extract parameters from JSON and audit their occurrence in Markdown and DOCX:
+- Sample size $N$
+- Test statistics ($F, t, z$)
+- $p$-values and prohibited $p = .000$ checks
+- Standardized ($\beta$) and unstandardized ($B$) coefficients
+- Effect sizes ($d, \eta_p^2$) and variance explained ($R^2$)
+- SEM / CFA Goodness-of-Fit indices (CFI, TLI, RMSEA, SRMR)
+Any numeric contradiction triggers a fail-closed `ManifestCrossAgreementError`.
+
+### 13.4 State Machine Enforcement
+In `StrictStateMachine.request_transition()`:
+- Transitions to `STAGE_VALIDATING`, `STAGE_AWAITING_APPROVAL`, or `STAGE_APPROVED` strictly require an authoritative `manifest.json`.
+- `verify_stage_manifest()` validates input hashes, deliverable existence, non-zero file sizes, hash matches, schema conformity, and cross-artifact concordance.
+- Missing manifest in production mode strictly raises `MissingStageManifestError`.
+- Upon commitment to `STAGE_APPROVED`, the state machine atomically updates `manifest.json` on disk to status `"APPROVED"` with an `approved_at` timestamp.
+
+
 
 
 
