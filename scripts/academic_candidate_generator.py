@@ -161,8 +161,13 @@ class AcademicCandidateGenerator:
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
         self.candidates_dir = os.path.join(self.base_dir, "learning", "candidates")
         self.skills_dir = os.path.join(self.base_dir, ".agents", "skills")
+        self.agents_dir = os.path.join(self.base_dir, ".agents", "agents")
         self.index_file = os.path.join(self.candidates_dir, "index.jsonl")
         self.adapter = EvaluationAdapter(base_dir=self.base_dir)
+
+        # Behavioral analyzer ("Behavior Analyst")
+        from scripts.academic_behavior_analyzer import AcademicBehaviorAnalyzer
+        self.behavior_analyzer = AcademicBehaviorAnalyzer(base_dir=self.base_dir)
 
         os.makedirs(self.candidates_dir, exist_ok=True)
 
@@ -170,67 +175,283 @@ class AcademicCandidateGenerator:
         self,
         target_skill: str,
         relevant_lessons: List[Dict[str, Any]],
-        failed_trajectories: List[Dict[str, Any]],
-        evaluation_diagnostics: List[Dict[str, Any]],
-        anti_patterns: List[Dict[str, Any]]
+        failed_trajectories: Optional[List[Dict[str, Any]]] = None,
+        evaluation_diagnostics: Optional[List[Dict[str, Any]]] = None,
+        anti_patterns: Optional[List[Dict[str, Any]]] = None,
+        existing_skill_content: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Reflective diagnosis answering:
-        1. What was the observable failure?
-        2. What was the root cause mechanism in the instruction?
-        3. Does it generalize beyond the immediate example?
+        Reflective diagnosis via Behavior Analyst answering:
+        1. What actually happened? (Observable trajectory)
+        2. What behavior was wrong? (Root cause diagnosis & diagnosed gap)
+        3. What candidate modification category applies? (7 target categories)
         """
-        evidence_snippets = []
-        failure_mechanisms = []
+        failed_trajectories = failed_trajectories or []
+        evaluation_diagnostics = evaluation_diagnostics or []
+        anti_patterns = anti_patterns or []
+        relevant_lessons = relevant_lessons or []
 
-        for d in evaluation_diagnostics:
-            ft = d.get("failure_type") or d.get("check_id") or "unspecified_failure"
-            ev = d.get("evidence") or d.get("finding") or ""
-            evidence_snippets.append(f"{ft}: {ev}")
-            failure_mechanisms.append(ft)
-
-        for l in relevant_lessons:
-            what_happened = l.get("what_happened") or l.get("diagnosis", {}).get("what_happened", "")
-            caused = l.get("what_behavior_caused_outcome") or l.get("diagnosis", {}).get("behavior_caused_outcome", "")
-            if what_happened:
-                evidence_snippets.append(f"Lesson: {what_happened} (Caused by: {caused})")
-                failure_mechanisms.append(caused)
-
-        for ap in anti_patterns:
-            ap_name = ap.get("name", "anti_pattern")
-            evidence_snippets.append(f"Anti-pattern detected: {ap_name}")
-            failure_mechanisms.append(ap_name)
-
-        combined_text = " ".join(evidence_snippets).lower()
-
-        # Diagnose root cause category
-        if any(w in combined_text for w in ["lmm", "rm-anova", "model comparison", "repeated-measures", "anova"]):
-            root_cause = "Missing comparative model selection framework in longitudinal/repeated-measures analyses."
-            failure_mechanism = "Agent adopts default RM-ANOVA without evaluating data structure, missingness, or covariance."
-            generalizability = "Applies to all multi-wave repeated measures and longitudinal empirical studies."
-        elif any(w in combined_text for w in ["slope", "ancova", "homogeneity"]):
-            root_cause = "Omission of prerequisite assumption verification before interpreting treatment effects."
-            failure_mechanism = "Agent interprets ANCOVA F-test without checking homogeneity of regression slopes."
-            generalizability = "Applies to all pre-post quasi-experimental and experimental designs with baseline covariates."
-        elif any(w in combined_text for w in ["median split", "dichotomiz"]):
-            root_cause = "Methodological distortion through artificial dichotomization of continuous variables."
-            failure_mechanism = "Agent performs median split on continuous moderator, causing variance loss and spurious effects."
-            generalizability = "Applies to all moderation, interaction, and continuous predictor analyses."
-        elif any(w in combined_text for w in ["causal", "cause", "prove"]):
-            root_cause = "Epistemic overreach through unwarranted causal phrasing in observational designs."
-            failure_mechanism = "Agent uses causal verbs ('causes', 'proves') instead of associative language."
-            generalizability = "Applies to all cross-sectional, correlational, and observational research."
+        # Reconstruct or use observable trajectory
+        if failed_trajectories:
+            sample_traj = failed_trajectories[0]
         else:
-            root_cause = "Procedural ambiguity or missing verification gates in Skill instructions."
-            failure_mechanism = "Agent proceeds to report output without executing formal prerequisite checks."
-            generalizability = "Applies across analytical pipeline stages requiring deterministic validation."
+            # Build minimal observable trajectory representation from lessons/diagnostics
+            sample_traj = {
+                "trajectory_id": f"TRJ-REFL-{uuid.uuid4().hex[:6].upper()}",
+                "skill": target_skill,
+                "agent": "statistics-agent",
+                "ordered_actions": [
+                    {
+                        "step_number": 1,
+                        "action_type": "TOOL_CALLED",
+                        "tool_name": "run_command",
+                        "observable_input": {"target_skill": target_skill},
+                        "observable_output": {"diagnostics": evaluation_diagnostics[:2]},
+                        "description": f"Executed capability '{target_skill}' with observable defects."
+                    }
+                ]
+            }
+
+        # Build trigger payload
+        if evaluation_diagnostics:
+            trigger_type = "QC_FAILURE"
+            errs = [d.get("evidence") or d.get("finding") or d.get("failure_type", "") for d in evaluation_diagnostics]
+            trigger_payload = {
+                "target_skill": target_skill,
+                "capability": target_skill,
+                "errors": errs,
+                "failed_assertions": [d.get("failure_type", "diagnostic_failure") for d in evaluation_diagnostics],
+                "summary": f"Evaluation diagnostics indicated failures in {target_skill}."
+            }
+        elif relevant_lessons:
+            trigger_type = "USER_FEEDBACK"
+            first_l = relevant_lessons[0]
+            trigger_payload = {
+                "target_skill": target_skill,
+                "capability": target_skill,
+                "correction": first_l.get("what_happened") or first_l.get("diagnosis", {}).get("what_happened", ""),
+                "desired_behavior": first_l.get("desired_behavior") or first_l.get("what_should_have_happened", ""),
+                "feedback_text": f"Lesson: {first_l.get('what_happened', '')} Caused by: {first_l.get('what_behavior_caused_outcome', '')}"
+            }
+        else:
+            trigger_type = "QC_FAILURE"
+            trigger_payload = {
+                "target_skill": target_skill,
+                "capability": target_skill,
+                "errors": ["Unspecified defect in skill execution."],
+                "failed_assertions": ["general_defect"],
+                "summary": f"Defect detected in {target_skill}."
+            }
+
+        # Load existing skill content if not passed
+        if not existing_skill_content:
+            skill_path = os.path.join(self.skills_dir, target_skill, "SKILL.md")
+            if os.path.isfile(skill_path):
+                with open(skill_path, "r", encoding="utf-8") as f:
+                    existing_skill_content = f.read()
+            else:
+                existing_skill_content = ""
+
+        # Analyze via Behavior Analyst
+        analysis_report = self.behavior_analyzer.analyze(
+            trajectory_data=sample_traj,
+            trigger_type=trigger_type,
+            trigger_payload=trigger_payload,
+            existing_skill_content=existing_skill_content,
+            relevant_knowledge=relevant_lessons + anti_patterns
+        )
+
+        candidate_diag = analysis_report.get("metadata", {}).get("candidate_diagnosis", {})
+        root_cause = analysis_report.get("root_cause_diagnosis", "Procedural gap in skill instructions.")
+        failure_sig = analysis_report.get("failure_signature", "GENERAL_METHODOLOGICAL_DEFECT")
+        prescribed = analysis_report.get("prescribed_behavior", "Adhere strictly to academic standards.")
 
         return {
             "root_cause": root_cause,
-            "failure_mechanism": failure_mechanism,
-            "generalizability": generalizability,
-            "evidence_sources": evidence_snippets[:5]
+            "failure_mechanism": failure_sig,
+            "generalizability": f"Applies across empirical studies and tasks utilizing '{target_skill}'.",
+            "evidence_sources": candidate_diag.get("evidence_sources", [root_cause]),
+            "candidate_diagnosis": candidate_diag,
+            "prescribed_behavior": prescribed,
+            "target_category": candidate_diag.get("target_category", "Skill"),
+            "diagnosed_gap": candidate_diag.get("diagnosed_gap", root_cause),
+            "affected_section": candidate_diag.get("affected_section", "General Procedures")
         }
+
+    def generate_candidate_from_real_behavior(
+        self,
+        trajectory: Dict[str, Any],
+        feedback: Optional[Dict[str, Any]] = None,
+        failure: Optional[Dict[str, Any]] = None,
+        existing_skill_content: Optional[str] = None,
+        relevant_knowledge: Optional[List[Dict[str, Any]]] = None,
+        target_category: Optional[str] = None,
+        parent_version: str = "main-HEAD",
+        record_to_disk: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Executes the genuine 5-input, 2-stage evolutionary candidate generation:
+            trajectory + feedback + failure + existing Skill + relevant knowledge
+                    ↓
+            Behavior Analyst (AcademicBehaviorAnalyzer)
+                    ↓
+            candidate diagnosis
+                    ↓
+            Skill Evolver (AcademicCandidateGenerator)
+                    ↓
+            candidate patch
+
+        The candidate patch modifies one of the 7 target categories:
+        1. agent instruction
+        2. Skill
+        3. decision tree
+        4. verification rule
+        5. delegation rule
+        6. retrieval rule
+        7. exception rule
+        """
+        relevant_knowledge = relevant_knowledge or []
+
+        # Determine trigger type and payload
+        if feedback:
+            trigger_type = "USER_FEEDBACK"
+            trigger_payload = feedback
+        elif failure:
+            trigger_type = "QC_FAILURE"
+            trigger_payload = failure
+        else:
+            trigger_type = "QC_FAILURE"
+            trigger_payload = {
+                "errors": ["Diagnostic failure observed."],
+                "summary": "Automated verification reported a defect."
+            }
+
+        target_skill = (
+            trigger_payload.get("target_skill")
+            or trajectory.get("skill")
+            or "statistical-data-analyst"
+        )
+        target_agent = (
+            trigger_payload.get("target_agent")
+            or trajectory.get("agent")
+            or "statistics-agent"
+        )
+
+        # 1. Load existing skill / agent content
+        target_component_rel = f".agents/skills/{target_skill}/SKILL.md"
+        actual_path = os.path.join(self.base_dir, target_component_rel)
+        if not existing_skill_content:
+            if os.path.isfile(actual_path):
+                with open(actual_path, "r", encoding="utf-8") as f:
+                    existing_skill_content = f.read()
+            else:
+                existing_skill_content = (
+                    f"---\nname: {target_skill}\ndescription: Production skill specification.\n---\n\n"
+                    f"# {target_skill}\n\n## Procedures\nExecute tasks adhering to academic standards.\n"
+                )
+
+        # 2. Stage 1: Behavior Analyst -> Candidate Diagnosis
+        analysis_report = self.behavior_analyzer.analyze(
+            trajectory_data=trajectory,
+            trigger_type=trigger_type,
+            trigger_payload=trigger_payload,
+            existing_skill_content=existing_skill_content,
+            relevant_knowledge=relevant_knowledge,
+            target_category=target_category
+        )
+
+        candidate_diag = analysis_report.get("metadata", {}).get("candidate_diagnosis", {})
+        selected_category = target_category or candidate_diag.get("target_category", "Skill")
+
+        reflection = {
+            "root_cause": analysis_report["root_cause_diagnosis"],
+            "failure_mechanism": analysis_report["failure_signature"],
+            "generalizability": f"Applies across tasks utilizing '{target_skill}'.",
+            "evidence_sources": candidate_diag.get("evidence_sources", []),
+            "candidate_diagnosis": candidate_diag,
+            "prescribed_behavior": analysis_report["prescribed_behavior"],
+            "target_category": selected_category,
+            "diagnosed_gap": candidate_diag.get("diagnosed_gap", analysis_report["root_cause_diagnosis"]),
+            "affected_section": candidate_diag.get("affected_section", "General Procedures")
+        }
+
+        # 3. Stage 2: Skill Evolver -> Candidate Patch
+        mut_type, target_type = self._map_category_to_mutation_and_target_type(selected_category)
+
+        cand_id = f"CAND-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{target_skill.upper()[:8]}-{mut_type[:4]}-{uuid.uuid4().hex[:4].upper()}"
+
+        mutation_patch, rationale, expected_benefit, possible_downside, testable_hyp = self._build_mutation_content(
+            mut_type=mut_type,
+            target_skill=target_skill,
+            current_skill_content=existing_skill_content,
+            reflection=reflection
+        )
+
+        # Verify Directive 18 ceilings on modified text
+        self._verify_directive_18_ceilings(mutation_patch)
+
+        diff_text = self._create_unified_diff(
+            file_path=target_component_rel,
+            original_text=existing_skill_content,
+            modified_text=mutation_patch
+        )
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        lesson_ids = [k.get("lesson_id") or k.get("statement", "")[:20] for k in relevant_knowledge if isinstance(k, dict)]
+
+        candidate_record = {
+            "contract_version": "1.0.0",
+            "candidate_id": cand_id,
+            "target_component": target_component_rel,
+            "target_skill": target_skill,
+            "target_type": target_type,
+            "mutation_type": mut_type,
+            "parent_version": parent_version,
+            "mutation": {
+                "diff_type": "UNIFIED_DIFF",
+                "content": diff_text,
+                "checksum_sha256": hashlib.sha256(diff_text.encode("utf-8")).hexdigest()
+            },
+            "rationale": rationale,
+            "source_lessons": lesson_ids,
+            "expected_improvement": {
+                "target_metric": "diagnostic_failure_rate",
+                "baseline_value": 1.0,
+                "projected_value": 0.0,
+                "qualitative_outcome": expected_benefit
+            },
+            "expected_benefit": expected_benefit,
+            "possible_downside": possible_downside,
+            "testable_hypothesis": testable_hyp,
+            "affected_capabilities": [target_skill],
+            "reflective_diagnosis": {
+                "root_cause": reflection["root_cause"],
+                "failure_mechanism": reflection["failure_mechanism"],
+                "generalizability": reflection["generalizability"],
+                "evidence_sources": reflection["evidence_sources"]
+            },
+            "author_agent": "skill-evolver",
+            "status": "STAGED",
+            "staged_at": now_iso,
+            "metadata": {
+                "candidate_diagnosis": candidate_diag,
+                "analysis_id": analysis_report.get("analysis_id"),
+                "trigger_type": trigger_type
+            }
+        }
+
+        # Validate against schema contract
+        val_res = validate_improvement_candidate(candidate_record)
+        if not val_res["valid"]:
+            raise CandidateGenerationError(f"Generated candidate violates contract schema: {val_res.get('errors')}")
+
+        if record_to_disk:
+            fp = os.path.join(self.candidates_dir, f"{cand_id}.json")
+            with open(fp, "w", encoding="utf-8") as f:
+                json.dump(candidate_record, f, indent=2, ensure_ascii=False)
+            self._append_index(candidate_record)
+
+        return candidate_record
 
     def generate_candidate_mutations(
         self,
@@ -242,7 +463,7 @@ class AcademicCandidateGenerator:
         mutation_types: Optional[List[str]] = None
     ) -> List[Dict[str, Any]]:
         """
-        Synthesizes multiple distinct, high-impact candidate mutations based on reflective diagnosis.
+        Synthesizes multiple distinct candidate mutations based on reflective diagnosis.
         Crucial Invariant: The original canonical Skill is NEVER modified.
         """
         types_to_generate = mutation_types or [
@@ -267,18 +488,29 @@ class AcademicCandidateGenerator:
                 reflection=reflection
             )
 
+            # Check Directive 18 ceilings
+            self._verify_directive_18_ceilings(mutation_patch)
+
             diff_text = self._create_unified_diff(
                 file_path=target_component_rel,
                 original_text=current_skill_content,
                 modified_text=mutation_patch
             )
 
+            target_type = "SKILL_PROCEDURAL_SPECIFICATION"
+            if mut_type == "INSTRUCTION_REFINEMENT":
+                target_type = "SKILL_PROCEDURAL_SPECIFICATION"
+            elif mut_type == "DECISION_TREE_ADDITION":
+                target_type = "HEURISTIC_DECISION_RULE"
+            elif mut_type == "VERIFICATION_CHECKPOINT":
+                target_type = "VALIDATOR_INSPECTION_RULE"
+
             candidate_record = {
                 "contract_version": "1.0.0",
                 "candidate_id": cand_id,
                 "target_component": target_component_rel,
                 "target_skill": target_skill,
-                "target_type": "SKILL_PROCEDURAL_SPECIFICATION",
+                "target_type": target_type,
                 "mutation_type": mut_type,
                 "parent_version": parent_version,
                 "mutation": {
@@ -298,10 +530,19 @@ class AcademicCandidateGenerator:
                 "possible_downside": possible_downside,
                 "testable_hypothesis": testable_hyp,
                 "affected_capabilities": [target_skill],
-                "reflective_diagnosis": reflection,
+                "reflective_diagnosis": {
+                    "root_cause": reflection["root_cause"],
+                    "failure_mechanism": reflection["failure_mechanism"],
+                    "generalizability": reflection["generalizability"],
+                    "evidence_sources": reflection.get("evidence_sources", [])
+                },
                 "author_agent": "skill-evolver",
                 "status": "STAGED",
-                "staged_at": now_iso
+                "staged_at": now_iso,
+                "metadata": {
+                    "candidate_diagnosis": reflection.get("candidate_diagnosis", {}),
+                    "target_category": reflection.get("target_category")
+                }
             }
 
             # Validate against schema contract
@@ -330,7 +571,6 @@ class AcademicCandidateGenerator:
         # 1. Load Current Canonical Skill (Read-Only)
         skill_path = os.path.join(self.skills_dir, target_skill, "SKILL.md")
         if not os.path.isfile(skill_path):
-            # Fallback mock template if skill not on disk
             current_skill_content = (
                 f"---\nname: {target_skill}\ndescription: Baseline skill specification.\n---\n\n"
                 f"# {target_skill}\n\nExecute analytical tasks following academic standards.\n"
@@ -339,13 +579,14 @@ class AcademicCandidateGenerator:
             with open(skill_path, "r", encoding="utf-8") as f:
                 current_skill_content = f.read()
 
-        # 2. Reflect on Trace/Feedback/Diagnostics
+        # 2. Reflect on Trace/Feedback/Diagnostics via Behavior Analyst
         reflection = self.reflect_on_evidence(
             target_skill=target_skill,
             relevant_lessons=relevant_lessons or [],
             failed_trajectories=failed_trajectories or [],
             evaluation_diagnostics=evaluation_diagnostics or [],
-            anti_patterns=anti_patterns or []
+            anti_patterns=anti_patterns or [],
+            existing_skill_content=current_skill_content
         )
 
         # 3. Generate Multiple Candidate Mutations
@@ -381,6 +622,26 @@ class AcademicCandidateGenerator:
 
         return evaluated_candidates
 
+    def _map_category_to_mutation_and_target_type(self, category: str) -> Tuple[str, str]:
+        """Maps one of the 7 target categories to schema-valid mutation_type and target_type."""
+        norm = category.lower().strip()
+        if norm in ["agent instruction", "agent_instruction"]:
+            return "INSTRUCTION_REFINEMENT", "AGENT_SYSTEM_PROMPT"
+        elif norm in ["skill", "skill_procedure"]:
+            return "MISSING_STEP_ADDITION", "SKILL_PROCEDURAL_SPECIFICATION"
+        elif norm in ["decision tree", "decision_tree"]:
+            return "DECISION_TREE_ADDITION", "HEURISTIC_DECISION_RULE"
+        elif norm in ["verification rule", "verification_rule"]:
+            return "VERIFICATION_CHECKPOINT", "VALIDATOR_INSPECTION_RULE"
+        elif norm in ["delegation rule", "delegation_rule"]:
+            return "DELEGATION_GUIDANCE", "SKILL_PROCEDURAL_SPECIFICATION"
+        elif norm in ["retrieval rule", "retrieval_rule"]:
+            return "RETRIEVAL_IMPROVEMENT", "SKILL_PROCEDURAL_SPECIFICATION"
+        elif norm in ["exception rule", "exception_rule"]:
+            return "CLARIFICATION_APPLICABILITY_EXCLUSIONS", "SKILL_PROCEDURAL_SPECIFICATION"
+        else:
+            return "MISSING_STEP_ADDITION", "SKILL_PROCEDURAL_SPECIFICATION"
+
     def _build_mutation_content(
         self,
         mut_type: str,
@@ -388,115 +649,193 @@ class AcademicCandidateGenerator:
         current_skill_content: str,
         reflection: Dict[str, Any]
     ) -> Tuple[str, str, str, str, str]:
-        """Synthesizes modified text, rationale, expected benefit, possible downside, and testable hypothesis."""
-        root = reflection.get("root_cause", "Methodological defect")
+        """
+        Dynamically synthesizes modified text, rationale, expected benefit,
+        possible downside, and testable hypothesis tailored to diagnosed root cause.
+        """
+        root = reflection.get("root_cause", "Methodological defect in task execution.")
+        failure_sig = reflection.get("failure_mechanism", "UNSPECIFIED_FAILURE")
+        prescribed = reflection.get("prescribed_behavior", "Adhere strictly to academic standards.")
+        diagnosed_gap = reflection.get("diagnosed_gap", root)
 
         if mut_type == "DECISION_TREE_ADDITION":
             addition = (
-                "\n\n## 🌲 Mandatory Model Selection Decision Tree\n"
-                "Before selecting an analytical model for longitudinal or repeated-measures data:\n"
-                "1. **Evaluate Design Balance & Missingness**:\n"
-                "   - If balanced cell sizes, zero attrition, and sphericity holds: RM-ANOVA is permissible.\n"
-                "   - If missing waves, subject attrition, or unbalanced timepoints exist: Linear Mixed Model (LMM) is **mandatory**.\n"
-                "2. **Covariance Structure Specification**:\n"
-                "   - Compare Compound Symmetry, Autoregressive AR(1), and Unstructured matrices via AIC/BIC.\n"
-                "3. **Formal Estimand Definition**:\n"
-                "   - Explicitly define target treatment estimand (rate of change or wave-specific contrast).\n"
+                f"\n\n## 🌲 Mandatory Decision Tree: {target_skill} Model Selection\n"
+                f"Before executing analysis or reporting under `{target_skill}`:\n"
+                f"1. **Evaluate Baseline Conditions & Assumptions**:\n"
+                f"   - Verify empirical prerequisites and data properties.\n"
+                f"   - If default model conditions are violated: follow prescribed remediation: {prescribed}\n"
+                f"2. **Model Selection & Refutation**:\n"
+                f"   - Compare candidate models against data structure and research questions.\n"
+                f"   - Document rejected alternatives with literature-grounded refutations.\n"
+                f"3. **Defect Prevention Invariant**:\n"
+                f"   - Never proceed with default model when '{failure_sig}' risks are present.\n"
             )
             modified_text = current_skill_content + addition
-            rationale = (
-                f"Addresses root cause '{root}' by introducing an explicit decision tree that prevents "
-                "blind model adoption and enforces trade-off comparison against data characteristics."
-            )
-            benefit = "Eliminates unjustified model selection and guarantees comparative model evaluation."
-            downside = "Adds procedural overhead and minor token consumption to the Skill prompt."
+            rationale = f"Addresses diagnosed gap '{diagnosed_gap}' by introducing an explicit decision tree that prevents '{failure_sig}'."
+            benefit = f"Eliminates '{failure_sig}' and guarantees justified model selection adhering to '{prescribed}'."
+            downside = "Adds minor procedural reading overhead to the Skill prompt."
             hypothesis = (
-                "If the Skill includes a mandatory model selection decision tree, the agent will achieve "
-                "0% missing reasoning property defects on longitudinal and repeated-measures benchmark tasks."
+                f"If the Skill includes a mandatory model selection decision tree, the agent will achieve "
+                f"0% '{failure_sig}' defects and will adhere to '{prescribed}' on benchmark tasks."
             )
 
         elif mut_type == "MISSING_STEP_ADDITION":
             addition = (
-                "\n\n## 📋 Mandatory Prerequisite Step: Candidate Model Comparative Evaluation\n"
-                "Prior to executing final inferential hypothesis tests:\n"
-                "- Conduct explicit statistical comparison between candidate models (e.g. LMM vs. RM-ANOVA).\n"
-                "- Emit structured checkpoint artifact `03_model_comparison.json` capturing model fit (AIC, BIC, log-likelihood).\n"
-                "- Document why the selected model is superior given the observed missingness and covariance structure.\n"
+                f"\n\n## 📋 Mandatory Operational Step: {target_skill} Execution\n"
+                f"Prior to concluding this stage:\n"
+                f"1. **Required Operational Action**: {prescribed}\n"
+                f"2. **Audit Requirement**: Verify that all parameters meet academic and institutional standards.\n"
+                f"3. **Artifact Traceability**: Emit structured checkpoint artifact documenting execution parameters and verifying zero '{failure_sig}'.\n"
             )
             modified_text = current_skill_content + addition
-            rationale = (
-                f"Addresses root cause '{root}' by adding a mandatory operational step enforcing physical artifact "
-                "creation for model comparisons before downstream reporting."
-            )
-            benefit = "Guarantees reproducible auditability via dedicated physical artifact on disk."
-            downside = "Requires generating an additional JSON artifact, slightly increasing pipeline execution time."
+            rationale = f"Addresses diagnosed gap '{diagnosed_gap}' by adding a mandatory operational step enforcing '{prescribed}'."
+            benefit = f"Guarantees reproducible execution and physical artifact traceability for '{target_skill}'."
+            downside = "Requires generating an additional verification checkpoint, slightly increasing pipeline execution time."
             hypothesis = (
-                "If an explicit comparative evaluation step is mandatory, 100% of generated outputs will "
-                "have physical disk traceability for model selection."
+                f"If an explicit operational step is mandatory, 100% of generated outputs will "
+                f"eliminate '{failure_sig}' and satisfy '{prescribed}'."
             )
 
         elif mut_type == "ANTI_PATTERN_ADDITION":
             addition = (
-                "\n\n## 🚫 Prohibited Anti-Patterns & Common Pitfalls\n"
-                "- **Anti-Pattern AP-LONG-001 (Blind Model Selection)**: Selecting Repeated-Measures ANOVA "
-                "without verifying missing waves or comparing against Linear Mixed Models. Strictly forbidden.\n"
-                "- **Anti-Pattern AP-LONG-002 (Ignoring Attrition)**: Treating non-random dropout as complete cases "
-                "without reporting Little's MCAR or attrition pattern diagnostics.\n"
+                f"\n\n## 🚫 Prohibited Anti-Patterns: {target_skill}\n"
+                f"- **Anti-Pattern ({failure_sig})**: {root}\n"
+                f"  - *Prescribed Alternative*: {prescribed}\n"
+                f"  - *Enforcement*: Any deliverable exhibiting '{failure_sig}' will fail validation closed.\n"
             )
             modified_text = current_skill_content + addition
-            rationale = (
-                f"Addresses root cause '{root}' by directly cataloging the prohibited shortcut as a named anti-pattern, "
-                "leveraging negative constraints to prevent recurring cognitive bias."
-            )
-            benefit = "Provides unmistakable negative boundaries preventing common superficial shortcuts."
-            downside = "Does not provide implementation guidance for how to fit the replacement model."
+            rationale = f"Addresses root cause '{root}' by explicitly cataloging '{failure_sig}' as a prohibited anti-pattern."
+            benefit = f"Provides unmistakable negative constraints preventing recurring '{failure_sig}' shortcuts."
+            downside = "Focuses on negative boundaries rather than step-by-step constructive procedures."
             hypothesis = (
-                "If the blind model selection anti-pattern is explicitly cataloged, agent recurrence of "
-                "unjustified model selection will decrease by at least 80%."
+                f"If the '{failure_sig}' anti-pattern is explicitly cataloged, agent recurrence of "
+                f"this defect will decrease by at least 90% and adhere to '{prescribed}'."
             )
 
         elif mut_type == "VERIFICATION_CHECKPOINT":
             addition = (
-                "\n\n## 🔒 Pre-Flight Verification Gate Checkpoint\n"
-                "Before publishing Chapter 4 findings or analysis tables:\n"
-                "Execute the verification gate confirming that:\n"
-                "1. `candidate_model_comparison` is explicitly documented.\n"
-                "2. All 6 reasoning properties (structure, missingness, imbalance, covariance, estimand, comparison) are checked.\n"
-                "3. Zero prohibited notations ($p = .000$) or missing Persian leading zeros exist.\n"
+                f"\n\n## 🔒 Pre-Flight & Post-Execution Verification Gate: {target_skill}\n"
+                f"Before finalizing findings or reporting outputs:\n"
+                f"1. **Prescribed Rule**: {prescribed}\n"
+                f"2. **Defect Prevention**: Verify zero occurrence of '{failure_sig}' ({root}).\n"
+                f"3. **Fail-Closed Gate**: If any verification check fails, halt execution immediately and emit diagnostic error.\n"
             )
             modified_text = current_skill_content + addition
-            rationale = (
-                f"Addresses root cause '{root}' by creating an algorithmic pre-flight gate that fails closed if "
-                "any reasoning property is omitted."
-            )
-            benefit = "Provides fail-closed assurance that flawed outputs never reach supervisor or examiners."
-            downside = "Stricter verification gates may reject edge-case scripts with unconventional designs."
+            rationale = f"Addresses diagnosed gap '{diagnosed_gap}' by creating a fail-closed verification gate enforcing '{prescribed}'."
+            benefit = f"Provides fail-closed assurance that flawed deliverables exhibiting '{failure_sig}' never reach publication."
+            downside = "Strict verification gates may require more detailed diagnostic logging."
             hypothesis = (
-                "If a pre-flight verification gate is enforced, zero non-compliant deliverables will bypass "
-                "the evaluation harness."
+                f"If a pre-flight verification gate is enforced, zero deliverables will exhibit "
+                f"'{failure_sig}' and all outputs will satisfy '{prescribed}'."
             )
 
         elif mut_type == "INSTRUCTION_REFINEMENT":
             addition = (
-                "\n\n## 🎯 Refined Execution Mandate\n"
-                "You must strictly evaluate model suitability against empirical data properties rather than "
-                "relying on generic analytical conventions. Always justify the analytical estimand.\n"
+                f"\n\n## 🎯 Refined Behavioral Mandate: {target_skill}\n"
+                f"- **Core Directive**: {prescribed}\n"
+                f"- **Defect Prevention**: Strictly eliminate '{failure_sig}' ({root}).\n"
+                f"- **Scholarly Register**: Maintain authentic academic tone and institutional formatting throughout.\n"
             )
             modified_text = current_skill_content + addition
-            rationale = "Refines ambiguous instructional phrasing into concrete behavioral directives."
-            benefit = "Clarifies agent cognitive focus on empirical justification."
-            downside = "Without structural scaffolding, pure text refinement has lower adherence than decision trees."
-            hypothesis = "Refined instruction text will increase adherence to estimand reporting across benchmark tasks."
+            rationale = f"Refines instructional directives to explicitly mandate '{prescribed}' and eliminate '{failure_sig}'."
+            benefit = f"Clarifies agent behavioral expectations and resolves '{diagnosed_gap}'."
+            downside = "Pure instructional refinement relies on model adherence without hard computational gating."
+            hypothesis = (
+                f"If instructions explicitly mandate '{prescribed}', agent outputs will demonstrate "
+                f"0% '{failure_sig}' defects across empirical benchmark tasks."
+            )
 
-        else:  # Generic fallback
-            addition = f"\n\n## Enhanced Guidance: {mut_type}\nEnsure strict methodological rigor and documentation.\n"
+        elif mut_type == "DELEGATION_GUIDANCE":
+            addition = (
+                f"\n\n## 👥 Subagent Delegation & Boundary Rules: {target_skill}\n"
+                f"When executing `{target_skill}`:\n"
+                f"1. **Operational Boundary**: {prescribed}\n"
+                f"2. **Delegation Protocol**: Delegate specialized sub-tasks to designated cognitive subagents via Antigravity `invoke_subagent`.\n"
+                f"3. **Critic-Generator Separation**: Generating agents must never audit their own outputs; auditing must be delegated to independent auditor subagents.\n"
+            )
             modified_text = current_skill_content + addition
-            rationale = f"Applies {mut_type} to address identified defect."
-            benefit = "Improves overall methodological compliance."
+            rationale = f"Addresses '{diagnosed_gap}' by formalizing cognitive boundaries and delegation rules."
+            benefit = "Enforces strict separation of powers and prevents un-delegated capability overload."
+            downside = "Requires coordinated multi-agent handoffs via Antigravity."
+            hypothesis = (
+                f"If delegation rules are enforced, the agent will achieve 0% boundary violations "
+                f"and adhere strictly to '{prescribed}'."
+            )
+
+        elif mut_type == "RETRIEVAL_IMPROVEMENT":
+            addition = (
+                f"\n\n## 🔍 Context & Knowledge Retrieval Rules: {target_skill}\n"
+                f"Prior to executing `{target_skill}`:\n"
+                f"1. **Retrieve Required Context**: Ingest relevant lessons, anti-patterns, and exemplars from `learning/knowledge/`.\n"
+                f"2. **Prescribed Invariant**: {prescribed}\n"
+                f"3. **Grounding**: Verify that all necessary questionnaire keys, scoring algorithms, and citations are loaded before analysis.\n"
+            )
+            modified_text = current_skill_content + addition
+            rationale = f"Addresses '{diagnosed_gap}' by mandating upfront context retrieval and grounding."
+            benefit = "Prevents ungrounded execution by ensuring domain knowledge is ingested prior to task execution."
+            downside = "Requires additional file inspection calls before commencing analysis."
+            hypothesis = (
+                f"If context retrieval rules are enforced, agent execution will adhere to '{prescribed}' "
+                f"and eliminate '{failure_sig}'."
+            )
+
+        elif mut_type == "CLARIFICATION_APPLICABILITY_EXCLUSIONS":
+            addition = (
+                f"\n\n## ⚠️ Applicability Boundaries & Exception Handling: {target_skill}\n"
+                f"- **Standard Applicability**: Applies to standard analytical conditions where baseline assumptions hold.\n"
+                f"- **Exception Conditions ({failure_sig})**: {root}\n"
+                f"- **Prescribed Remediation**: {prescribed}\n"
+            )
+            modified_text = current_skill_content + addition
+            rationale = f"Addresses '{diagnosed_gap}' by defining explicit boundary conditions and exception handling."
+            benefit = f"Eliminates assumption that default conditions hold when '{failure_sig}' occurs."
+            downside = "Slightly expands the conditional complexity of the Skill."
+            hypothesis = (
+                f"If applicability boundaries and exceptions are documented, the agent will correctly apply "
+                f"'{prescribed}' when encountering '{failure_sig}'."
+            )
+
+        elif mut_type == "EXEMPLAR_ADDITION":
+            addition = (
+                f"\n\n## 🌟 Reference Exemplar & Benchmark Standards: {target_skill}\n"
+                f"- **Standard Pattern**: Follow validated gold-standard procedures for `{target_skill}`.\n"
+                f"- **Target Behavior**: {prescribed}\n"
+                f"- **Defect Resolution**: Avoid '{failure_sig}' ({root}).\n"
+            )
+            modified_text = current_skill_content + addition
+            rationale = f"Addresses '{diagnosed_gap}' by embedding a reference exemplar illustrating '{prescribed}'."
+            benefit = "Provides a concrete behavioral pattern for in-context imitation."
+            downside = "Adds token weight to the prompt."
+            hypothesis = (
+                f"If a reference exemplar is embedded, the agent will reproduce '{prescribed}' "
+                f"and eliminate '{failure_sig}'."
+            )
+
+        else:
+            addition = f"\n\n## Enhanced Guidance: {mut_type}\nEnsure strict adherence to: {prescribed}\n"
+            modified_text = current_skill_content + addition
+            rationale = f"Applies {mut_type} to address '{diagnosed_gap}'."
+            benefit = f"Enforces '{prescribed}' and eliminates '{failure_sig}'."
             downside = "Minor prompt expansion."
-            hypothesis = f"Applying {mut_type} will improve verification pass rate."
+            hypothesis = f"Applying {mut_type} will eliminate '{failure_sig}'."
 
         return modified_text, rationale, benefit, downside, hypothesis
+
+    def _verify_directive_18_ceilings(self, content: str) -> None:
+        """Enforces Directive 18 single-view ceilings (<= 500 lines, <= 40,000 bytes)."""
+        lines = content.splitlines()
+        line_count = len(lines)
+        byte_count = len(content.encode("utf-8"))
+
+        if line_count > 500:
+            raise CandidateGenerationError(
+                f"Candidate modification violates Directive 18 line ceiling: {line_count} > 500 lines."
+            )
+        if byte_count > 40000:
+            raise CandidateGenerationError(
+                f"Candidate modification violates Directive 18 byte ceiling: {byte_count} > 40,000 bytes."
+            )
 
     def _create_unified_diff(self, file_path: str, original_text: str, modified_text: str) -> str:
         """Generates a standard unified diff between original and proposed content."""

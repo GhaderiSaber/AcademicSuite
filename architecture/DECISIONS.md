@@ -924,5 +924,63 @@ Furthermore, an agent or script formulating a code modification must never evalu
 - **Positive**: Clean cognitive separation of concerns; zero Python agent emulation; independent, un-gameable evaluation; strict least-privilege tool security; 100% compliance with Directives 0, 9, 12.1, 18, and 19.
 - **Negative**: Deliberation requires coordinated sequential invocations across native subagents.
 
+---
 
+## ADR-025: Real Candidate Generation Pipeline (5-Input, 2-Stage, 7-Category Architecture)
 
+### Status
+Accepted
+
+### Context
+In earlier iterations of the self-improvement system, candidate patch generation relied on a rigid heuristic shortcut:
+$$\text{evidence} \longrightarrow \text{keyword match} \longrightarrow \text{hard-coded mutation}$$
+This resulted in severe defects:
+1. **Ungrounded Hallucinations**: Patches contained canned, repetitive text (e.g., repeating longitudinal mixed models advice even when testing `apa-reporting` or `data-cleaning`).
+2. **Disconnected from Target Code**: Mutations were not synthesized against the actual text of the target `SKILL.md` or `agent.md`, risking unapplyable diffs.
+3. **Narrow Modification Scope**: Candidates were limited to generic procedural text rather than targeting specific cognitive, procedural, and heuristic control surfaces.
+
+### Decision
+Rebuild candidate generation into an authentic, context-driven 5-input, 2-stage evolutionary pipeline:
+
+$$\begin{aligned}
+\text{trajectory} + \text{feedback} + \text{failure} &+ \text{existing Skill} + \text{relevant knowledge} \\
+&\downarrow \\
+\text{Behavior Analyst } &(\text{AcademicBehaviorAnalyzer}) \\
+&\downarrow \\
+\text{candidate diagnosis } &(\text{gap, category, section, resolution}) \\
+&\downarrow \\
+\text{Skill Evolver } &(\text{AcademicCandidateGenerator}) \\
+&\downarrow \\
+\text{candidate patch } &(\text{unified diff, testable hypothesis})
+\end{aligned}$$
+
+1. **The Five Inputs**:
+   - `trajectory`: Observable ordered actions, tool usages, and outputs (zero private chain-of-thought).
+   - `feedback`: Concrete user correction with target agent, target skill, and desired behavior.
+   - `failure`: Automated validator or QC failure report.
+   - `existing Skill`: Physical raw text of target `SKILL.md` or `agent.md` read directly from disk.
+   - `relevant knowledge`: Curated lessons, anti-patterns, and exemplars from `learning/knowledge/`.
+
+2. **Stage 1: Behavior Analyst Diagnosis**:
+   - `AcademicBehaviorAnalyzer._diagnose_candidate_gap()` analyzes the failure against the existing skill text and relevant knowledge.
+   - Categorizes the defect into one of the **Seven Target Modification Categories**:
+     1. `agent instruction`: Modifying system prompts or agent cognitive directives.
+     2. `Skill`: Adding or refining step-by-step operational workflows in `SKILL.md`.
+     3. `decision tree`: Introducing explicit conditional branching and model comparison criteria.
+     4. `verification rule`: Adding pre-flight gates or post-execution verification checks.
+     5. `delegation rule`: Specifying subagent delegation triggers and role boundaries.
+     6. `retrieval rule`: Improving contextual lookup, questionnaire keys, or exemplar retrieval.
+     7. `exception rule`: Handling edge cases, assumption violations, missing data, and boundary conditions.
+   - Pinpoints `affected_section` and formulates `diagnosed_gap` and `proposed_resolution`.
+
+3. **Stage 2: Skill Evolver Candidate Patch**:
+   - `AcademicCandidateGenerator.generate_candidate_from_real_behavior()` consumes the candidate diagnosis and existing skill content.
+   - Dynamically constructs a targeted modification tailored to the diagnosed category and affected section.
+   - Generates a valid unified diff (`--- a/... +++ b/...`) against the existing skill text.
+   - Formulates an empirical `testable_hypothesis` ("If ... then ... will ...").
+   - Enforces Directive 18 single-view ceilings ($\le 500$ lines, $\le 40,000$ bytes).
+   - Validates the candidate against `contracts/evolution/improvement_candidate.schema.json`.
+
+### Consequences
+- **Positive**: Complete elimination of canned hardcoded mutations; authentic contextual patches across all 7 architectural surfaces; verifiable unified diffs; guaranteed compliance with Directive 18 ceilings and Directive 19 functional separation.
+- **Negative**: Requires disk I/O to load existing skill/agent files and knowledge bases during candidate generation.

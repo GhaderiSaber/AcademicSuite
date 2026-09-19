@@ -158,7 +158,10 @@ class AcademicBehaviorAnalyzer:
         trajectory_data: Dict[str, Any],
         trigger_type: str,
         trigger_payload: Dict[str, Any],
-        trigger_event_id: Optional[str] = None
+        trigger_event_id: Optional[str] = None,
+        existing_skill_content: Optional[str] = None,
+        relevant_knowledge: Optional[List[Dict[str, Any]]] = None,
+        target_category: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Executes root-cause diagnosis on observable trajectory and trigger.
@@ -168,6 +171,8 @@ class AcademicBehaviorAnalyzer:
             trigger_type: Either "USER_FEEDBACK" or "QC_FAILURE".
             trigger_payload: FeedbackRecord dict or validation failure dict.
             trigger_event_id: Optional event ID pointer.
+            existing_skill_content: Optional raw content of target SKILL.md or agent.md.
+            relevant_knowledge: Optional list of retrieved lessons, anti-patterns, or exemplars.
 
         Returns:
             Validated BehaviorAnalysisReport dict.
@@ -213,6 +218,20 @@ class AcademicBehaviorAnalyzer:
             trigger_payload=trigger_payload
         )
 
+        # 4. Perform candidate gap diagnosis across the 7 categories
+        candidate_diagnosis = self._diagnose_candidate_gap(
+            trajectory_data=trajectory_data,
+            trigger_type=norm_trigger_type,
+            trigger_payload=trigger_payload,
+            failure_step=failure_step,
+            failure_sig=failure_sig,
+            diagnosis=diagnosis,
+            prescribed=prescribed,
+            existing_skill_content=existing_skill_content,
+            relevant_knowledge=relevant_knowledge or [],
+            target_category=target_category
+        )
+
         analysis_id = f"BAN-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
         now_iso = datetime.now(timezone.utc).isoformat()
 
@@ -233,16 +252,17 @@ class AcademicBehaviorAnalyzer:
             "created_at": now_iso,
             "metadata": {
                 "analyzed_by": "AcademicBehaviorAnalyzer",
-                "trajectory_step_count": len(trajectory_data.get("ordered_actions", []))
+                "trajectory_step_count": len(trajectory_data.get("ordered_actions", [])),
+                "candidate_diagnosis": candidate_diagnosis
             }
         }
 
-        # 4. Schema validation
+        # 5. Schema validation
         val = validate_behavior_analysis(report)
         if not val.get("valid"):
             raise BehaviorAnalysisError(f"BehaviorAnalysisReport failed schema validation: {val.get('errors')}")
 
-        # 5. Persist to disk
+        # 6. Persist to disk
         out_path = os.path.join(self.analysis_dir, f"{analysis_id}.json")
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
@@ -326,6 +346,117 @@ class AcademicBehaviorAnalyzer:
             }
 
         return failure_step, detected_rule["signature"], detected_rule["diagnosis"], detected_rule["prescribed"]
+
+    def _diagnose_candidate_gap(
+        self,
+        trajectory_data: Dict[str, Any],
+        trigger_type: str,
+        trigger_payload: Dict[str, Any],
+        failure_step: Dict[str, Any],
+        failure_sig: str,
+        diagnosis: str,
+        prescribed: str,
+        existing_skill_content: Optional[str] = None,
+        relevant_knowledge: Optional[List[Dict[str, Any]]] = None,
+        target_category: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Synthesizes a candidate gap diagnosis mapping the observable failure to one of the 7 target categories:
+        1. agent instruction
+        2. Skill
+        3. decision tree
+        4. verification rule
+        5. delegation rule
+        6. retrieval rule
+        7. exception rule
+        """
+        # Aggregate text signals
+        trigger_text = ""
+        if trigger_type == "USER_FEEDBACK":
+            trigger_text = f"{trigger_payload.get('correction', '')} {trigger_payload.get('desired_behavior', '')} {trigger_payload.get('feedback_text', '')}"
+        else:
+            errors = trigger_payload.get("errors", [])
+            failed_assertions = trigger_payload.get("failed_assertions", [])
+            summary = trigger_payload.get("summary", "")
+            trigger_text = f"{summary} {' '.join(errors)} {' '.join(failed_assertions)}"
+
+        lower_text = trigger_text.lower()
+        lower_sig = failure_sig.lower()
+
+        # Categorize into the 7 target modification categories (if not explicitly overridden)
+        resolved_category = target_category
+        if not resolved_category:
+            if any(w in lower_text or w in lower_sig for w in ["unjustified_model", "model_selection", "decision tree", "lmm vs rm-anova", "baron & kenny", "model comparison", "which model"]):
+                resolved_category = "decision tree"
+            elif any(w in lower_text or w in lower_sig for w in ["p_zero", "reporting_p", "leading_zero", "omml", "verification", "pre-flight", "check", "violated_assumption", "slope", "normality", "levene", "mauchly"]):
+                resolved_category = "verification rule"
+            elif any(w in lower_text or w in lower_sig for w in ["delegate", "delegation", "subagent", "role", "orchestrator", "handoff"]):
+                resolved_category = "delegation rule"
+            elif any(w in lower_text or w in lower_sig for w in ["retrieval", "retrieve", "context", "questionnaire", "scale key", "scoring key", "exemplar", "citation"]):
+                resolved_category = "retrieval rule"
+            elif any(w in lower_text or w in lower_sig for w in ["unengaged", "straight-lining", "synthetic_integer", "missingness", "mcar", "outlier", "exception", "dropout", "attrition", "boundary"]):
+                resolved_category = "exception rule"
+            elif any(w in lower_text or w in lower_sig for w in ["cliche", "tone", "persona", "academic register", "half-space", "prompt"]):
+                resolved_category = "agent instruction"
+            else:
+                resolved_category = "Skill"
+
+        # Inspect existing skill content to identify affected section
+        affected_section = "General Procedures"
+        if existing_skill_content:
+            headings = re.findall(r"^#{1,3}\s+(.+)$", existing_skill_content, re.MULTILINE)
+            for h in headings:
+                h_lower = h.lower()
+                if resolved_category == "decision tree" and any(k in h_lower for k in ["decision", "selection", "model"]):
+                    affected_section = h
+                    break
+                elif resolved_category == "verification rule" and any(k in h_lower for k in ["verification", "check", "reporting", "standards"]):
+                    affected_section = h
+                    break
+                elif resolved_category == "delegation rule" and any(k in h_lower for k in ["delegation", "roles", "subagent"]):
+                    affected_section = h
+                    break
+                elif resolved_category == "retrieval rule" and any(k in h_lower for k in ["retrieval", "context", "inputs", "references"]):
+                    affected_section = h
+                    break
+                elif resolved_category == "exception rule" and any(k in h_lower for k in ["exception", "assumptions", "missing", "data", "quality"]):
+                    affected_section = h
+                    break
+                elif resolved_category == "agent instruction" and any(k in h_lower for k in ["identity", "tone", "constitution", "directives"]):
+                    affected_section = h
+                    break
+            if affected_section == "General Procedures" and headings:
+                for h in headings:
+                    if any(k in h.lower() for k in ["procedure", "workflow", "execution", "directive", "instruction"]):
+                        affected_section = h
+                        break
+
+        # Incorporate relevant knowledge items
+        knowledge_lessons = []
+        if relevant_knowledge:
+            for item in relevant_knowledge:
+                item_desc = item.get("what_happened") or item.get("statement") or item.get("name") or ""
+                if item_desc:
+                    knowledge_lessons.append(item_desc)
+
+        counterfactual = (
+            f"Instead of {failure_step.get('action_type', 'action')} causing '{failure_sig}', "
+            f"the execution should have followed '{prescribed}'."
+        )
+
+        return {
+            "target_category": resolved_category,
+            "diagnosed_gap": f"Missing or ambiguous {resolved_category} in '{affected_section}': {diagnosis}",
+            "affected_section": affected_section,
+            "prescribed_behavior": prescribed,
+            "proposed_resolution": prescribed,
+            "counterfactual": counterfactual,
+            "evidence_sources": [
+                f"Observable Failure: {failure_sig}",
+                f"Observed Step: Step {failure_step.get('step_number', 1)} ({failure_step.get('tool_name', 'tool')})",
+                f"Trigger Diagnostic: {trigger_text[:120].strip()}"
+            ] + knowledge_lessons[:3]
+        }
 
 
 if __name__ == "__main__":

@@ -1191,7 +1191,69 @@ flowchart LR
    - *Artifact manifest defines completion*: JSON schemas validate all handoff contracts.
 3. **Formal Specification**: Detailed delegation protocols, sequential handoffs, and workspace isolation modes are codified in `learning/LEARNING_MULTI_AGENT_SPEC.md`.
 
+---
 
+## 25. Real Candidate Generation & The Seven Modification Categories (Phase 20)
 
+### 25.1 The 5-Input, 2-Stage Pipeline Architecture
+Phase 20 eliminates the legacy pattern of `evidence -> keyword match -> hard-coded mutation`. Instead, it establishes an authentic 5-input, 2-stage evolutionary pipeline that grounds every proposed modification in real observable execution data, concrete user/QC feedback, and the physical source code of the targeted component.
 
+```mermaid
+flowchart TD
+    subgraph Inputs["1. The Five Authoritative Inputs"]
+        TRJ["trajectory\n(Observable ordered actions, commands, outputs)"]
+        FDB["feedback\n(User correction, target agent/skill, desired behavior)"]
+        FLR["failure\n(Automated validator or QC failure report)"]
+        ESK["existing Skill\n(Physical text of SKILL.md or agent.md from disk)"]
+        RKN["relevant knowledge\n(Curated lessons, anti-patterns, exemplars)"]
+    end
 
+    subgraph Stage1["2. Stage 1: Behavior Analysis & Candidate Diagnosis"]
+        BA["Behavior Analyst (AcademicBehaviorAnalyzer)"]
+        CD["candidate diagnosis\n- target_category (one of 7 categories)\n- diagnosed_gap\n- affected_section\n- proposed_resolution\n- counterfactual & evidence_sources"]
+    end
+
+    subgraph Stage2["3. Stage 2: Skill Evolution & Real Patch Formulation"]
+        SE["Skill Evolver (AcademicCandidateGenerator)"]
+        CP["candidate patch\n- unified diff against existing skill\n- empirical testable hypothesis\n- Directive 18 ceiling verification (<= 500 lines, <= 40,000 bytes)\n- improvement_candidate.schema.json validation"]
+    end
+
+    TRJ --> BA
+    FDB --> BA
+    FLR --> BA
+    ESK --> BA
+    RKN --> BA
+    BA --> CD
+    CD --> SE
+    ESK --> SE
+    SE --> CP
+```
+
+### 25.2 The Seven Target Modification Categories
+Every proposed candidate patch must represent an actual, contextual modification targeting one of the seven control surfaces of the AcademicSuite cognitive architecture:
+
+| Category | Description | Primary Target Component | Mutation Type | Target Schema Enum |
+| :--- | :--- | :--- | :--- | :--- |
+| **`agent instruction`** | Modifying agent system prompts, cognitive directives, academic tone, or persona rules. | `.agents/agents/<agent>/agent.md` | `INSTRUCTION_REFINEMENT` | `AGENT_SYSTEM_PROMPT` |
+| **`Skill`** | Adding or refining step-by-step operational workflows, procedures, or CLI tool sequences. | `.agents/skills/<skill>/SKILL.md` | `MISSING_STEP_ADDITION` | `SKILL_PROCEDURAL_SPECIFICATION` |
+| **`decision tree`** | Introducing or refining conditional decision logic, model comparisons (e.g. LMM vs RM-ANOVA), or statistical branch criteria. | `.agents/skills/<skill>/SKILL.md` | `DECISION_TREE_ADDITION` | `HEURISTIC_DECISION_RULE` |
+| **`verification rule`** | Adding pre-flight gates, OpenXML typography audits, or post-execution verification checks. | `.agents/skills/<skill>/SKILL.md` | `VERIFICATION_CHECKPOINT` | `VALIDATOR_INSPECTION_RULE` |
+| **`delegation rule`** | Codifying subagent delegation boundaries, orchestrator handoffs, and multi-agent coordination contracts. | `.agents/skills/<skill>/SKILL.md` | `DELEGATION_GUIDANCE` | `SKILL_PROCEDURAL_SPECIFICATION` |
+| **`retrieval rule`** | Refining adaptive context lookup, questionnaire scoring key resolution, or exemplar matching. | `.agents/skills/<skill>/SKILL.md` | `RETRIEVAL_IMPROVEMENT` | `SKILL_PROCEDURAL_SPECIFICATION` |
+| **`exception rule`** | Handling unengaged responses, boundary conditions, assumption violations, and missing data mechanisms. | `.agents/skills/<skill>/SKILL.md` | `CLARIFICATION_APPLICABILITY_EXCLUSIONS` | `SKILL_PROCEDURAL_SPECIFICATION` |
+
+### 25.3 Dynamic Patch Synthesis & Elimination of Hardcoded Canned Text
+- **Zero Hardcoded Canned Strings**: All hardcoded mutation templates (such as repeatedly recommending longitudinal mixed models regardless of the target domain) are permanently eliminated.
+- **Context-Aware Section Resolution**: `AcademicBehaviorAnalyzer` inspects the real headings (`#`, `##`, `###`) of `existing_skill_content` to identify the exact section affected by the diagnosed gap.
+- **Dynamic Text Construction**: `AcademicCandidateGenerator._build_mutation_content()` dynamically interpolates the target skill, affected section, diagnosed gap, root cause, and prescribed behavior into cohesive, scholarly Markdown instructions.
+- **Valid Unified Diffs**: Diffs are synthesized using Python's `difflib.unified_diff`, ensuring they apply cleanly to the original file text without syntax corruption.
+
+### 25.4 Directive 18 Ceilings Enforcement
+- **Single-View Invariant**: Every modified skill or agent instruction is mechanically checked via `_verify_directive_18_ceilings(mutation_patch)`:
+  - **Line Limit**: $\le 500$ lines (within Antigravity's 800-line tool window).
+  - **Byte Limit**: $\le 40,000$ bytes (within Antigravity's 46,080-byte tool buffer).
+- If a candidate mutation causes the file to exceed either threshold, `CandidateGenerationError` is raised immediately, preventing bloated skills from entering the evaluation pipeline.
+
+### 25.5 Contract and Schema Compliance
+- Every candidate record is validated against `contracts/evolution/improvement_candidate.schema.json` before staging.
+- Diagnostic metadata (`candidate_diagnosis`, `analysis_id`, `trigger_type`) is retained in `metadata` for full auditability and trace linkage.

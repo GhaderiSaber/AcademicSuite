@@ -176,6 +176,11 @@
     "evaluation_verdicts": {
       "type": "object",
       "description": "Deterministic evaluation results and pass rates from test suites."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary diagnostic metadata including candidate_diagnosis.",
+      "additionalProperties": true
     }
   },
   "additionalProperties": false

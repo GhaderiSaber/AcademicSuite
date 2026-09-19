@@ -151,10 +151,55 @@ class AcademicRealBehaviorEvolution:
         # ---------------------------------------------------------------------
         # Stage 5: BEHAVIOR ANALYSIS (Root cause from observable trajectory)
         # ---------------------------------------------------------------------
+        # Resolve target skill and agent
+        target_agent = (
+            trigger_payload.get("target_agent")
+            or trajectory_data.get("agent")
+            or trajectory_data.get("metadata", {}).get("target_agent")
+            or "statistics-agent"
+        )
+        target_skill = (
+            trigger_payload.get("target_skill")
+            or trajectory_data.get("skill")
+            or trajectory_data.get("metadata", {}).get("target_skill")
+            or "statistical-data-analyst"
+        )
+
+        # Ingest existing skill or agent instruction if present on disk
+        existing_skill_content = None
+        skill_path = os.path.join(self.base_dir, ".agents", "skills", target_skill, "SKILL.md")
+        if os.path.isfile(skill_path):
+            with open(skill_path, "r", encoding="utf-8") as f:
+                existing_skill_content = f.read()
+        else:
+            agent_path = os.path.join(self.base_dir, ".agents", "agents", target_agent, "agent.md")
+            if os.path.isfile(agent_path):
+                with open(agent_path, "r", encoding="utf-8") as f:
+                    existing_skill_content = f.read()
+
+        # Ingest relevant knowledge (lessons, anti-patterns, exemplars)
+        relevant_knowledge = []
+        knowledge_dir = os.path.join(self.base_dir, "learning", "knowledge")
+        lessons_dir = os.path.join(self.base_dir, "learning", "lessons")
+        for kdir in [knowledge_dir, lessons_dir]:
+            if os.path.isdir(kdir):
+                for fname in os.listdir(kdir):
+                    if fname.endswith(".json"):
+                        fpath = os.path.join(kdir, fname)
+                        try:
+                            with open(fpath, "r", encoding="utf-8") as f:
+                                kdata = json.load(f)
+                                if isinstance(kdata, dict):
+                                    relevant_knowledge.append(kdata)
+                        except Exception:
+                            pass
+
         analysis_report = self.behavior_analyzer.analyze(
             trajectory_data=trajectory_data,
             trigger_type=norm_trigger_type,
-            trigger_payload=trigger_payload
+            trigger_payload=trigger_payload,
+            existing_skill_content=existing_skill_content,
+            relevant_knowledge=relevant_knowledge
         )
 
         target_agent = analysis_report["target_agent"]
@@ -193,11 +238,23 @@ class AcademicRealBehaviorEvolution:
         # ---------------------------------------------------------------------
         # Stage 7: CANDIDATE PATCH (Reflective mutation without modifying production)
         # ---------------------------------------------------------------------
-        candidates = self.candidate_generator.run_reflective_evolution(
-            target_skill=target_skill,
-            relevant_lessons=[lesson_data],
+        candidate_record = self.candidate_generator.generate_candidate_from_real_behavior(
+            trajectory=trajectory_data,
+            feedback=trigger_payload if norm_trigger_type == "USER_FEEDBACK" else None,
+            failure=trigger_payload if norm_trigger_type == "QC_FAILURE" else None,
+            existing_skill_content=existing_skill_content,
+            relevant_knowledge=relevant_knowledge,
             record_to_disk=True
         )
+
+        candidates = [candidate_record] if candidate_record else []
+
+        if not candidates:
+            candidates = self.candidate_generator.run_reflective_evolution(
+                target_skill=target_skill,
+                relevant_lessons=[lesson_data],
+                record_to_disk=True
+            )
 
         if not candidates:
             raise RealBehaviorEvolutionError(f"Zero candidate patches generated for skill '{target_skill}'.")
