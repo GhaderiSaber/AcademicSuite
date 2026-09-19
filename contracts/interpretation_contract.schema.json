@@ -1,0 +1,222 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/interpretation_contract.schema.json",
+  "title": "AcademicInterpretationContract",
+  "description": "Authoritative contract schema governing the boundary between statistical engines and the writing agent. Defines exact statistical facts, APA 7 table structures, hypothesis verdicts, mandated verbatim phrases, and forbidden claims, ensuring the writer never becomes a second statistician.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "stage_id",
+    "project_id",
+    "chapter",
+    "verified_results_ref",
+    "status",
+    "timestamps"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "stage_id": {
+      "type": "string",
+      "description": "Unique identifier of the micro-stage (e.g. 06_hypothesis_1, 05_discussion)."
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Unique identifier of the research project."
+    },
+    "chapter": {
+      "type": "integer",
+      "enum": [4, 5],
+      "description": "Target thesis chapter: 4 (Empirical Findings) or 5 (Discussion & Conclusions)."
+    },
+    "verified_results_ref": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }
+      },
+      "additionalProperties": true
+    },
+    "chapter_4_spec": {
+      "type": "object",
+      "description": "Chapter 4 micro-flow specifications: statistical result -> table -> interpretation -> paragraph.",
+      "required": [
+        "statistical_result",
+        "table_spec",
+        "interpretation"
+      ],
+      "properties": {
+        "statistical_result": {
+          "type": "object",
+          "description": "Immutable numerical parameters extracted from result.json that the writer must not modify.",
+          "additionalProperties": true
+        },
+        "table_spec": {
+          "type": "object",
+          "required": ["table_number", "title", "headers", "rows"],
+          "properties": {
+            "table_number": { "type": "string" },
+            "title": { "type": "string" },
+            "headers": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 2
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": { "type": ["string", "number", "null"] }
+              },
+              "minItems": 1
+            },
+            "note": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "interpretation": {
+          "type": "object",
+          "required": [
+            "hypothesis_verdict",
+            "direction",
+            "effect_magnitude",
+            "mandated_phrases",
+            "forbidden_claims"
+          ],
+          "properties": {
+            "hypothesis_verdict": {
+              "type": "string",
+              "enum": ["SUPPORTED", "REJECTED", "PARTIALLY_SUPPORTED"]
+            },
+            "direction": {
+              "type": "string",
+              "enum": ["POSITIVE", "NEGATIVE", "NULL"]
+            },
+            "effect_magnitude": {
+              "type": "string",
+              "enum": ["SMALL", "MEDIUM", "LARGE", "NEGLIGIBLE"]
+            },
+            "mandated_phrases": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1
+            },
+            "forbidden_claims": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": true
+        },
+        "paragraph_structure": {
+          "type": "object",
+          "properties": {
+            "context": { "type": "string" },
+            "data_highlights": { "type": "string" },
+            "table_ref": { "type": "string" },
+            "verdict": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "chapter_5_spec": {
+      "type": "object",
+      "description": "Chapter 5 micro-flow specifications: verified finding -> theoretical interpretation -> literature comparison -> limitations -> implications.",
+      "required": [
+        "verified_finding",
+        "theoretical_interpretation",
+        "comparison_with_literature",
+        "limitations",
+        "implications",
+        "forbidden_claims"
+      ],
+      "properties": {
+        "verified_finding": {
+          "type": "object",
+          "required": ["hypothesis_ref", "claim_id"],
+          "properties": {
+            "hypothesis_ref": { "type": "string" },
+            "claim_id": { "type": "string" },
+            "verified_statistics": { "type": "object" }
+          },
+          "additionalProperties": true
+        },
+        "theoretical_interpretation": {
+          "type": "object",
+          "required": ["theory_name", "mechanism_explanation"],
+          "properties": {
+            "theory_name": { "type": "string" },
+            "mechanism_explanation": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "comparison_with_literature": {
+          "type": "object",
+          "required": ["concordant_studies"],
+          "properties": {
+            "concordant_studies": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["citation", "finding"],
+                "properties": {
+                  "citation": { "type": "string" },
+                  "finding": { "type": "string" }
+                },
+                "additionalProperties": true
+              },
+              "minItems": 1
+            },
+            "discordant_studies": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["citation", "divergence_explanation"],
+                "properties": {
+                  "citation": { "type": "string" },
+                  "divergence_explanation": { "type": "string" }
+                },
+                "additionalProperties": true
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "limitations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "implications": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "forbidden_claims": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "status": {
+      "type": "string",
+      "enum": ["CONTRACTED", "DRAFTED", "VERIFIED", "REJECTED"]
+    },
+    "timestamps": {
+      "type": "object",
+      "required": ["created_at"],
+      "properties": {
+        "created_at": { "type": "string" },
+        "contracted_at": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

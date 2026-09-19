@@ -26,6 +26,7 @@
 | [ADR-014](#adr-014-fail-closed-validation-architecture-and-sequential-gate-cascade) | Fail-Closed Validation Architecture and Sequential Gate Cascade | Accepted | 2026-09-19 |
 | [ADR-015](#adr-015-cross-artifact-triad-consistency-validation-and-structured-docx-compilation) | Cross-Artifact Triad Consistency Validation & Structured DOCX Compilation | Accepted | 2026-09-19 |
 | [ADR-016](#adr-016-separation-of-interpretation-from-evidence-and-5-link-claim-provenance) | Separation of Interpretation from Evidence & 5-Link Claim Provenance | Accepted | 2026-09-19 |
+| [ADR-017](#adr-017-separated-writing-architecture-and-interpretation-contracts) | Separated Writing Architecture & Interpretation Contracts | Accepted | 2026-09-19 |
 
 ---
 
@@ -510,5 +511,34 @@ Implement an explicit 4-tier evidence layer and enforce an unbroken 5-link prove
 ### Consequences
 - **Positive**: 100% auditable provenance trace from high-level scientific claims down to raw empirical data bytes; complete elimination of phantom claims and ungrounded generalizations; seamless Viva Voce cross-examination defence.
 - **Negative**: Substantive claims in thesis chapters and papers must be formally declared and linked in `claim_provenance.json`.
+
+---
+
+## ADR-017: Separated Writing Architecture and Interpretation Contracts
+
+### Context
+In academic theses and empirical journal writing, LLMs acting as writers often attempt to re-compute, round, or alter statistical parameters in their heads—effectively acting as an ad-hoc "second statistician." This behavior causes numerical drift ($\beta = .42$ becoming $.37$ or $.39$), over-generalization, and unauthorized modification of statistical truth.
+
+### Decision
+Rework the writing architecture around strict separation of statistical truth and academic rhetoric:
+$$\text{Verified Result Artifacts} \longrightarrow \text{Interpretation Contract} \longrightarrow \text{Writing Agent} \longrightarrow \text{Draft} \longrightarrow \text{Writing QC} \longrightarrow \text{Statistical Claim QC} \longrightarrow \text{Final Document}$$
+
+1. **The Invariant: The Writer Never Becomes a Second Statistician**:
+   - The writing agent (`academic-writer`) is strictly prohibited from calculating, approximating, or altering numbers.
+   - The writer must ingest `interpretation_contract.json` prior to drafting and embed contracted statistical parameters verbatim.
+2. **Authoritative Interpretation Contract (`contracts/interpretation_contract.schema.json`)**:
+   - Defines exact statistical facts, APA 7 table structures, hypothesis verdicts (`SUPPORTED` / `REJECTED`), mandated phrases, and forbidden claims.
+   - For Chapter 4: $\text{statistical result} \to \text{table} \to \text{interpretation} \to \text{paragraph}$ (with strict prohibition against external literature or theory deep-dives).
+   - For Chapter 5: $\text{verified finding} \to \text{theoretical interpretation} \to \text{literature comparison} \to \text{limitations} \to \text{implications}$.
+3. **Two-Stage QC Pipeline**:
+   - **Stage 1 (Writing QC)**: Audits academic tone, eliminates AI clichés («شایان ذکر است که»), enforces the Persian leading zero standard (`۰.۰۵`), and checks cadence variability ($CV \ge 0.40$).
+   - **Stage 2 (Statistical Claim QC)**: Audits exact numerical identity ($|\Delta| \le 0.01$), table concordance, and 5-link claim provenance.
+4. **Deterministic Document Assembly**:
+   - Generates the immutable Triad deliverable: `.docx` (via `structured_docx_generator.py`), `.md`, and `.json`.
+
+### Consequences
+- **Positive**: Complete prevention of numerical drift in narrative text; strict compliance with Directive 0, Directive 2, and Directive 4; reproducible, defense-ready chapter drafts.
+- **Negative**: Narrative drafting requires prior generation of `interpretation_contract.json`.
+
 
 

@@ -647,5 +647,55 @@ The 5-link provenance subsystem is mandatory across 5 key academic scopes:
 4. **Conclusions & Implications**: Practical and clinical recommendations must cite only empirically supported findings.
 5. **Journal Manuscripts**: Peer-review submissions carry complete provenance manifests for absolute reproducibility.
 
+---
+
+## 17. Separated Writing Architecture & Two-Stage QC Pipeline (Phase 12)
+
+### 17.1 The Non-Statistician Invariant
+The academic writer (`academic-writer`) must never become a second statistician. LLMs and writing agents are strictly barred from re-calculating values, altering parameters, rounding numbers outside contractual tolerances, or modifying statistical conclusions in their heads.
+
+The writing architecture enforces an explicit 7-step pipeline:
+
+```mermaid
+flowchart TD
+    VR["1. Verified Result Artifacts\n(result.json, raw outputs, tables)"]
+    IC["2. Interpretation Contract\n(interpretation_contract.json)"]
+    WA["3. Writing Agent\n(academic-writer: rhetoric & prose only)"]
+    DR["4. Draft Deliverable\n(draft.md)"]
+    WQC["5. Writing QC\n(AI clichés, Persian leading zero, cadence CV >= 0.40)"]
+    SQC["6. Statistical Claim QC\n(Exact numbers |Δ| <= 0.01, table concordance, 5-link provenance)"]
+    FD["7. Final Document Assembly\n(Triad: .docx, .md, .json)"]
+
+    VR --> IC
+    IC --> WA
+    WA --> DR
+    DR --> WQC
+    WQC -->|PASS| SQC
+    SQC -->|PASS| FD
+```
+
+### 17.2 Chapter 4 Micro-Flow
+$$\text{statistical result} \longrightarrow \text{table} \longrightarrow \text{interpretation} \longrightarrow \text{paragraph}$$
+1. **Statistical Result**: Exact deterministic parameters ($F, t, \beta, p, \eta_p^2, CI$) extracted from `result.json`.
+2. **Table**: Formatted APA 7 3-line table with decoupled LTR numbers and Persian headings.
+3. **Interpretation**: Explicit verdict (`SUPPORTED` / `REJECTED`), magnitude benchmark, and mandated phrases.
+4. **Paragraph**: Saber's 4-element anatomy:
+   $$\text{Context} \longrightarrow \text{Data Highlights} \longrightarrow \text{Table Reference } (\text{جدول ۴-}X) \longrightarrow \text{Statistical Verdict}$$
+   *(Strict prohibition: Zero external literature citations and zero psychological theory deep-dives in Chapter 4).*
+
+### 17.3 Chapter 5 Micro-Flow
+$$\text{verified finding} \longrightarrow \text{theoretical interpretation} \longrightarrow \text{comparison with literature} \longrightarrow \text{limitations} \longrightarrow \text{implications}$$
+1. **Verified Finding**: Reference to Chapter 4 hypothesis, claim ID, and verified statistics.
+2. **Theoretical Interpretation**: Grounding the finding in core psychological/behavioral theory (e.g. ACT Hexaflex, Schema modes).
+3. **Comparison with Literature**: Concordance and discordance with empirical literature (2021–2026 window).
+4. **Limitations**: Methodological, sampling, and measurement constraints.
+5. **Implications**: Theoretical, practical, and clinical recommendations grounded strictly in verified findings.
+
+### 17.4 Two-Stage QC Pipeline & Deterministic Assembly
+- **Stage 1 (Writing QC)**: Scans for and eliminates robotic AI clichés («شایان ذکر است که», «پرواضح است که»), enforces Persian leading zero (`۰.۰۵`, `۰.۰۰۱ > p`, never `.۰۵` or `.۰۰۱`), and checks cadence variability ($CV \ge 0.40$).
+- **Stage 2 (Statistical Claim QC)**: Verifies exact numerical identity ($|\Delta| \le 0.01$) against `result.json`, cell-by-cell table concordance, and 5-link claim provenance.
+- **Assembly**: `scripts/writing_pipeline_engine.py` compiles the final audited Triad (`.docx`, `.md`, `.json`), ensuring 100% mathematical fidelity.
+
+
 
 

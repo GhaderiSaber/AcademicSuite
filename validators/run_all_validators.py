@@ -59,6 +59,23 @@ from validators.data_integrity.validator import validate_data
 from validators.statistical_assumptions.validator import validate_assumptions
 from validators.result_consistency.validator import validate_cross_artifacts, validate_results
 from validators.provenance_validator import validate_provenance
+try:
+    from scripts.writing_pipeline_engine import (
+        verify_draft_against_contract,
+        run_writing_qc,
+        run_statistical_claim_qc
+    )
+except ImportError:
+    try:
+        from writing_pipeline_engine import (
+            verify_draft_against_contract,
+            run_writing_qc,
+            run_statistical_claim_qc
+        )
+    except ImportError:
+        verify_draft_against_contract = None
+        run_writing_qc = None
+        run_statistical_claim_qc = None
 
 
 def compute_sha256(filepath: str) -> str:
@@ -718,6 +735,62 @@ def run_suite(
             report["errors"].extend(res_prov["errors"])
         if res_prov.get("warnings"):
             report["warnings"].extend(res_prov["warnings"])
+
+    # 4. Interpretation Contract & Two-Stage Writing QC (Phase 12)
+    contract_cand = os.path.join(stage_dir, "interpretation_contract.json")
+    has_contract_req = any(spec.get("type") == "interpretation_contract_json" for spec in all_required_specs)
+    if (os.path.exists(contract_cand) or has_contract_req) and verify_draft_against_contract:
+        if not os.path.exists(contract_cand):
+            err_msg = f"Authoritative interpretation_contract.json required but missing from '{stage_dir}'"
+            report["errors"].append(err_msg)
+            report["results"].append({
+                "check_id": "CHK-INTERPRETATION-CONTRACT",
+                "rule": "Interpretation contract required for stage drafting",
+                "verdict": "FAIL",
+                "errors": [err_msg],
+                "warnings": [],
+                "evidence": {"contract_found": False}
+            })
+        else:
+            for md_path in md_files:
+                try:
+                    with open(md_path, "r", encoding="utf-8") as mdf:
+                        dtext = mdf.read()
+                    
+                    # Contract adherence
+                    c_res = verify_draft_against_contract(dtext, contract_cand)
+                    c_verdict = c_res.get("verdict", "FAIL")
+                    report["results"].append({
+                        "check_id": f"CHK-CONTRACT-{os.path.basename(md_path)}",
+                        "rule": "Draft must strictly adhere to interpretation_contract.json without altering statistical truth",
+                        "verdict": c_verdict,
+                        "errors": c_res.get("errors", []),
+                        "warnings": c_res.get("warnings", []),
+                        "evidence": {"file": os.path.basename(md_path), "chapter": c_res.get("chapter")}
+                    })
+                    if c_res.get("errors"):
+                        report["errors"].extend(c_res["errors"])
+                    if c_res.get("warnings"):
+                        report["warnings"].extend(c_res["warnings"])
+
+                    # Statistical claim QC
+                    if run_statistical_claim_qc:
+                        s_res = run_statistical_claim_qc(dtext, contract_cand, stage_dir=stage_dir)
+                        s_verdict = s_res.get("verdict", "FAIL")
+                        report["results"].append({
+                            "check_id": f"CHK-STAT-CLAIM-QC-{os.path.basename(md_path)}",
+                            "rule": "Statistical claim QC: numbers cited in text must match contract within |Δ| <= 0.01",
+                            "verdict": s_verdict,
+                            "errors": s_res.get("errors", []),
+                            "warnings": s_res.get("warnings", []),
+                            "evidence": s_res.get("evidence", {})
+                        })
+                        if s_res.get("errors"):
+                            report["errors"].extend(s_res["errors"])
+                        if s_res.get("warnings"):
+                            report["warnings"].extend(s_res["warnings"])
+                except Exception as ex:
+                    report["warnings"].append(f"Error auditing interpretation contract for '{md_path}': {str(ex)}")
 
     # ==========================================================================
     # Gate 5: Upstream Dependency Verification
