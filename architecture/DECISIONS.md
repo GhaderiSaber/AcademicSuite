@@ -145,3 +145,37 @@ Artifact manifest ─> DEFINES COMPLETION: Schema contracts, required deliverabl
 ### Consequences
 - **Positive**: Clean context boundaries, complete auditability, fail-closed mechanical enforcement, zero mental arithmetic by LLMs.
 - **Negative**: New workflows must explicitly map their operations across all six layers rather than embedding logic in a monolithic prompt.
+
+---
+
+## ADR-008: Dynamic Capability-Driven Orchestration vs. Static Linear Staging
+
+### Context
+Legacy orchestration in AcademicSuite relied on hardcoded sequential stage progression (`stage 1 → stage 2 → ... → statistics-agent`) and bloated static teams (often invoking or assuming all 22+ agents). Furthermore, Python script abstractions had occasionally attempted to manage agent lifecycles, violating the Sole Orchestrator Mandate (Directive 12.1).
+
+### Decision
+Rebuild orchestration strictly around deterministic **Capability Resolution** ("The Hands"):
+```text
+Task
+ │
+ ▼
+Research Objective
+ │
+ ▼
+Empirical Research Design (study_type, group_structure, temporal_dynamics, waves, factors)
+ │
+ ▼
+Required Capabilities Matrix (design-methodology, longitudinal-analysis, assumption-checking, effect-size, post-hoc/comparison, statistical-execution, results-writing, audit)
+ │
+ ▼
+Minimal Dynamically Assembled Native Antigravity Subagents (strictly pruning unneeded agents with documented rationale)
+```
+
+1. **Python Role**: Python routing (`academic_task_router.py`, `capability_resolver.py`) is strictly a deterministic capability resolver that identifies empirical design parameters, capability matrices, and required subagents. It never executes or emulates subagents.
+2. **Antigravity Role**: The Antigravity Lead Agent (`academic-orchestrator`) is the sole conductor, natively invoking only the dynamically resolved subagents via `invoke_subagent`.
+3. **Deterministic Pruning**: All 28 workspace agents are accounted for. Any unneeded agent is explicitly pruned with a documented rationale (e.g., pruning `psychometric-expert` for RCTs using validated scales; pruning `qualitative-analyst` for quantitative trials).
+
+### Consequences
+- **Positive**: Minimal agent context overhead, zero superfluous subagent invocations, clear scientific design derivation, 100% adherence to Directive 12.1 and Directive 19.
+- **Negative**: Dynamic team resolution must be computed per task prompt prior to subagent invocation.
+

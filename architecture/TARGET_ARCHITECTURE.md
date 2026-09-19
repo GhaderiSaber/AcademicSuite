@@ -199,4 +199,49 @@ Under Constitutional Directive 3:
 The self-improvement subsystem (`learning/` and `contracts/evolution/`) operates under strict containment:
 1. **Zero Runtime Self-Modification**: Learning subagents cannot directly mutate active skill files (`SKILL.md`) or agent specifications (`agent.md`).
 2. **Candidate Mutation Protocol**: Improvements are drafted as structured candidates (`improvement_candidate.schema.json`) and benchmarked against frozen evaluation suites (`evaluation_case.schema.json`).
-3. **Human-in-the-Loop Promotion**: Promotion requires explicit verification by `evaluation-agent` and final human approval.
+3. **Human-in-the-Loop Promotion**: Promotion requires explicit verification by `evaluation-agent` and final human approval. 
+
+---
+
+## 8. Capability-Driven Orchestration Architecture (Phase 3)
+
+### 8.1 Resolution Architecture
+AcademicSuite replaces static linear progression chains (`stage 1 → stage 2 → ... → statistics-agent`) with dynamic, capability-based resolution:
+
+```text
+Task Prompt
+     │
+     ▼
+Research Objective & Empirical Design Derivation
+     │  - study_type: RCT, correlational_structural, scale_validation, qualitative, meta_analysis
+     │  - group_structure: multi-group, single-group, factorial
+     │  - temporal_dynamics: repeated measures, cross-sectional, single-point
+     │  - waves: follow-up, pre-post, cross-sectional
+     │  - factors: ["RCT", "multi-group", "repeated measures", "follow-up"]
+     ▼
+Required Capabilities Matrix
+     │  - design-methodology
+     │  - longitudinal-analysis
+     │  - assumption-checking
+     │  - effect-size
+     │  - post-hoc/comparison
+     │  - statistical-execution
+     │  - results-writing
+     │  - audit
+     ▼
+Dynamic Antigravity Subagent Team Assembly
+     │  - Lead Orchestrator: academic-orchestrator
+     │  - Minimal Assembled Subagents: [methodology-expert, data-curator, statistical-expert,
+     │                                  statistics-agent, academic-writer, statistical-auditor,
+     │                                  academic-challenger, validation-agent]
+     │  - Pruned Agents: Explicitly accounts for and excludes unneeded workspace agents
+     │                   with documented scientific rationale
+     ▼
+Native Antigravity Execution via `invoke_subagent`
+```
+
+### 8.2 Architectural Invariants
+1. **Deterministic Resolver as "The Hands"**: `scripts/academic_task_router.py` and `scripts/capability_resolver.py` compute design parameters, capability requirements, and team compositions deterministically. They never execute agents or simulate orchestration.
+2. **Antigravity as Sole Conductor**: `academic-orchestrator` is the sole orchestrator, dynamically invoking only the resolved subagent roles via native `invoke_subagent`.
+3. **Fail-Closed Safety**: Out-of-domain, non-academic, or unsupported requests are blocked with `status: BLOCKED` and `escalation_required: true`. Ambiguous requests return candidate capabilities and clarification prompts rather than guessing.
+

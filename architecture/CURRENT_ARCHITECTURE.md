@@ -184,7 +184,7 @@ Skills reside in `.agents/skills/<skill-name>/SKILL.md` and are loaded on-demand
 
 AcademicSuite coordinates complex pipelines through deterministic orchestrator scripts:
 1. **`scripts/suite_cli.py`**: Unified command-line interface for the Academic Suite.
-2. **`scripts/academic_task_router.py`**: Maps research goals to skills, subagents, and pipeline stages.
+2. **`scripts/academic_task_router.py` & `scripts/capability_resolver.py`**: Modern deterministic capability resolver and CLI engine deriving empirical research design parameters, capability requirements, and dynamically assembled minimal native Antigravity subagent teams with fail-closed gates.
 3. **`scripts/teamwork_boundary_adapter.py`**: Enforces strict boundary conditions, context isolation, and clean handoffs between agents.
 4. **`scripts/orchestrator_dependency_resolver.py`**: Resolves prerequisite dependencies, validating required prior stage outputs.
 5. **`scripts/statistical_pipeline_engine.py`**: Batch statistical executor running parametric sequences.

@@ -157,7 +157,293 @@ EXECUTION_ORDER = [
 
 
 # =============================================================================
-# 3. Modern Capability Resolver
+# 3. Empirical Design Derivation & Dynamic Antigravity Team Assembly
+# =============================================================================
+
+def derive_research_design(prompt: str) -> Dict[str, Any]:
+    """
+    Extracts the empirical research design topology from a user task or research question.
+    Derives:
+      - study_type: RCT, quasi_experimental, cross_sectional, longitudinal, scale_validation, qualitative, meta_analysis
+      - group_structure: multi-group, single-group, factorial
+      - temporal_dynamics: repeated measures, cross-sectional, single-point
+      - waves: follow-up, pre-post, cross-sectional
+      - factors: list of canonical design descriptors e.g. ["RCT", "multi-group", "repeated measures", "follow-up"]
+      - interventions: list of detected interventions e.g. ["ACT", "CBT"]
+      - outcomes: list of detected outcome variables
+    """
+    p = prompt.lower()
+
+    # 1. Detect Interventions
+    interventions = []
+    if re.search(r'\bact\b|acceptance and commitment', p):
+        interventions.append("ACT")
+    if re.search(r'\bcbt\b|cognitive behavioral', p):
+        interventions.append("CBT")
+    if re.search(r'\bschema\b', p):
+        interventions.append("Schema Therapy")
+    if re.search(r'\bmbsr\b|mindfulness', p):
+        interventions.append("Mindfulness/MBSR")
+    if re.search(r'\bcft\b|compassion focused', p):
+        interventions.append("CFT")
+    if re.search(r'\bintervention\b|\btreatment\b|\btraining\b|\btherapy\b', p) and not interventions:
+        interventions.append("Experimental Intervention")
+
+    # 2. Detect Outcomes / DVs
+    outcomes = []
+    for term in [
+        "anxiety", "depression", "psychological distress", "stress", "resilience",
+        "well-being", "quality of life", "cognitive flexibility", "burnout"
+    ]:
+        if term in p:
+            outcomes.append(term)
+
+    # 3. Detect Temporal Waves & Follow-up
+    has_followup = bool(re.search(r'\bfollow[- ]up\b|\b\d+[- ]month\b|\blongitudinal\b', p))
+    has_posttest = bool(re.search(r'\bpost[- ]test\b|\bpre[- ]test\b|\bbefore and after\b', p))
+
+    # 4. Determine Design Factors
+    factors = []
+
+    # Study Type
+    if interventions and (has_posttest or has_followup or "rct" in p or "trial" in p or "experimental" in p):
+        study_type = "RCT"
+        factors.append("RCT")
+    elif "meta-analysis" in p or "systematic review" in p or "prisma" in p:
+        study_type = "meta_analysis"
+        factors.append("meta-analysis")
+    elif "thematic" in p or "grounded theory" in p or "qualitative" in p or "interview" in p:
+        study_type = "qualitative"
+        factors.append("qualitative")
+    elif "scale validation" in p or "psychometric" in p or "cvr" in p or "cvi" in p or ("efa" in p and "cfa" in p):
+        study_type = "scale_validation"
+        factors.append("scale validation")
+    elif "sem" in p or "mediation" in p or "moderation" in p or "path analysis" in p or "path model" in p:
+        study_type = "correlational_structural"
+        factors.append("correlational structural")
+    elif has_followup or "longitudinal" in p:
+        study_type = "longitudinal"
+        factors.append("longitudinal")
+    else:
+        study_type = "observational_survey"
+        factors.append("observational")
+
+    # Group Structure
+    if interventions or "group" in p or "control" in p or "waitlist" in p or "compare" in p or study_type == "RCT":
+        group_structure = "multi-group"
+        factors.append("multi-group")
+    elif "factorial" in p or "2x2" in p:
+        group_structure = "factorial"
+        factors.append("factorial")
+    else:
+        group_structure = "single-group"
+
+    # Temporal Dynamics
+    if has_posttest or has_followup or "repeated measures" in p:
+        temporal_dynamics = "repeated measures"
+        factors.append("repeated measures")
+    elif "cross-sectional" in p:
+        temporal_dynamics = "cross-sectional"
+    else:
+        temporal_dynamics = "single-point"
+
+    # Waves
+    if has_followup:
+        waves = "follow-up"
+        factors.append("follow-up")
+    elif has_posttest:
+        waves = "pre-post"
+    else:
+        waves = "cross-sectional"
+
+    return {
+        "study_type": study_type,
+        "group_structure": group_structure,
+        "temporal_dynamics": temporal_dynamics,
+        "waves": waves,
+        "factors": factors,
+        "interventions": interventions,
+        "outcomes": outcomes,
+    }
+
+
+def resolve_capability_matrix(prompt: str, design: Optional[Dict[str, Any]] = None) -> List[str]:
+    """
+    Derives canonical capability requirements based on research task and empirical design.
+    Deconstructs requirements across the 6 research phases.
+    """
+    if design is None:
+        design = derive_research_design(prompt)
+
+    caps = []
+
+    # 1. Design & Methodology
+    caps.append("design-methodology")
+
+    # 2. Longitudinal / Structural / Qualitative Analysis
+    if design["temporal_dynamics"] == "repeated measures" or design["waves"] == "follow-up":
+        caps.append("longitudinal-analysis")
+    elif design["study_type"] == "correlational_structural":
+        caps.append("structural-equation-modeling")
+    elif design["study_type"] == "scale_validation":
+        caps.append("psychometric-validation")
+    elif design["study_type"] == "qualitative":
+        caps.append("qualitative-thematic-analysis")
+    elif design["study_type"] == "meta_analysis":
+        caps.append("meta-analytic-pooling")
+
+    # 3. Assumption Checking (for parametric quantitative designs)
+    if design["study_type"] in ("RCT", "correlational_structural", "longitudinal"):
+        caps.append("assumption-checking")
+
+    # 4. Effect Size Calculation
+    if design["study_type"] in ("RCT", "correlational_structural", "longitudinal", "meta_analysis"):
+        caps.append("effect-size")
+
+    # 5. Post-Hoc / Comparison / Path Tracing
+    if design["group_structure"] == "multi-group" or design["temporal_dynamics"] == "repeated measures":
+        caps.append("post-hoc/comparison")
+    elif "mediation" in prompt.lower():
+        caps.append("bootstrap-indirect-effects")
+
+    # 6. Statistical Execution / Computation
+    if design["study_type"] != "qualitative":
+        caps.append("statistical-execution")
+
+    # 7. Results Writing
+    caps.append("results-writing")
+
+    # 8. Audit & Independent Verification
+    caps.append("audit")
+
+    return caps
+
+
+def assemble_antigravity_team(design: Dict[str, Any], capabilities: List[str]) -> Dict[str, Any]:
+    """
+    Dynamically assembles the minimal set of native Antigravity subagents required
+    for the task, strictly pruning unneeded agents from the 28 workspace agents.
+    """
+    orchestrator = "academic-orchestrator"
+    assigned_roles: Dict[str, Any] = {
+        "lead_orchestrator": orchestrator,
+        "methodologist": None,
+        "data_specialist": None,
+        "statisticians": [],
+        "writer": None,
+        "auditors": [],
+    }
+
+    subagents: List[str] = []
+    pruned: Dict[str, str] = {}
+
+    # 1. Methodology Assignment
+    if "design-methodology" in capabilities:
+        assigned_roles["methodologist"] = "methodology-expert"
+        subagents.append("methodology-expert")
+    else:
+        pruned["methodology-expert"] = "Task does not involve experimental or sampling design specification."
+
+    # 2. Data Specialist Assignment
+    if any(c in capabilities for c in ["data-preparation", "assumption-checking", "statistical-execution"]):
+        assigned_roles["data_specialist"] = "data-curator"
+        subagents.append("data-curator")
+    else:
+        pruned["data-curator"] = "No quantitative tabular dataset curation or screening required."
+
+    # 3. Statistician Assignment
+    if "statistical-execution" in capabilities or "longitudinal-analysis" in capabilities or "assumption-checking" in capabilities:
+        assigned_roles["statisticians"] = ["statistical-expert", "statistics-agent"]
+        subagents.extend(["statistical-expert", "statistics-agent"])
+    else:
+        pruned["statistical-expert"] = "Non-statistical task; quantitative test selection not required."
+        pruned["statistics-agent"] = "Non-statistical task; numerical computation script execution not required."
+
+    # 4. Psychometrician Assignment
+    if "psychometric-validation" in capabilities:
+        subagents.append("psychometric-expert")
+    else:
+        pruned["psychometric-expert"] = "Standard validated psychometric scales utilized; no scale construction or IRT needed."
+
+    # 5. Qualitative Assignment
+    if "qualitative-thematic-analysis" in capabilities:
+        subagents.append("qualitative-analyst")
+    else:
+        pruned["qualitative-analyst"] = "Quantitative empirical design; no qualitative transcript coding needed."
+
+    # 6. Meta-Analyst Assignment
+    if "meta-analytic-pooling" in capabilities:
+        subagents.append("meta-analyst")
+    else:
+        pruned["meta-analyst"] = "Primary empirical research trial; not a systematic literature review."
+
+    # 7. Longitudinal ModMed Assignment
+    if "longitudinal-analysis" in capabilities and design.get("study_type") == "RCT":
+        pruned["longitudinal-modmed-expert"] = "Design requires mixed repeated-measures ANOVA / follow-up comparison rather than continuous longitudinal moderated mediation."
+    elif "longitudinal-moderated-mediation" in capabilities:
+        subagents.append("longitudinal-modmed-expert")
+    else:
+        pruned["longitudinal-modmed-expert"] = "Task does not involve 3-wave autoregressive moderated mediation modeling."
+
+    # 8. Writer Assignment
+    if "results-writing" in capabilities:
+        assigned_roles["writer"] = "academic-writer"
+        subagents.append("academic-writer")
+    else:
+        pruned["academic-writer"] = "Execution only; formal academic manuscript drafting not requested."
+
+    # 9. Auditors Assignment
+    if "audit" in capabilities:
+        auditors = []
+        if "statistical-execution" in capabilities or "assumption-checking" in capabilities:
+            auditors.append("statistical-auditor")
+            auditors.append("academic-challenger")
+        auditors.append("validation-agent")
+        assigned_roles["auditors"] = auditors
+        subagents.extend(auditors)
+    else:
+        pruned["validation-agent"] = "Pre-flight exploratory query; formal release audit not triggered."
+        pruned["statistical-auditor"] = "Pre-flight exploratory query; formal statistical audit not triggered."
+        pruned["academic-challenger"] = "Pre-flight exploratory query; adversarial defense cross-examination not triggered."
+
+    # 10. Explicitly Prune Remaining Workspace Agents with Rationale
+    pruned["digital-saber"] = "Lead supervisory persona reserved for administrative human consultation; runtime task conducted by academic-orchestrator."
+    pruned["research-agent"] = "Design and statistical execution delegated directly to specialist subagents."
+    pruned["literature-expert"] = "Empirical data trial analysis; literature database harvesting not requested."
+    pruned["data-agent"] = "Execution worker data-curator assigned directly for dataset curation and screening."
+    pruned["journal-strategist"] = "Pipeline focus is statistical execution and findings drafting, not submission packaging."
+    pruned["results-auditor"] = "Statistical auditor and validation agent conduct primary numerical and procedural audit."
+    pruned["evidence-auditor"] = "Bibliographic citation concordance audit not required for primary empirical dataset analysis."
+    pruned["final-judge"] = "Reserved for institutional defense committee simulation and final release gating."
+
+    # 11. Intervention Designer
+    if design.get("study_type") == "RCT" and ("post-test" in design.get("waves", "") or "follow-up" in design.get("waves", "")):
+        pruned["intervention-designer"] = "Intervention protocol already administered; data collected across post-test and follow-up."
+    elif "intervention-protocol" not in capabilities:
+        pruned["intervention-designer"] = "Task does not require designing a clinical or psychoeducational intervention manual."
+
+    # 12. Learning Subagents (Autonomous loop)
+    for l_agent in ["behavior-analyst", "curriculum-builder", "evaluation-agent", "knowledge-curator", "skill-evolver", "trajectory-analyzer"]:
+        pruned[l_agent] = "Active empirical research task; autonomous self-improvement loop runs in background evaluation sandbox."
+
+    # Ensure uniqueness while preserving order
+    deduped_subagents = []
+    for a in subagents:
+        if a not in deduped_subagents:
+            deduped_subagents.append(a)
+
+    return {
+        "lead_orchestrator": orchestrator,
+        "assigned_roles": assigned_roles,
+        "assembled_subagents": deduped_subagents,
+        "pruned_agents": pruned,
+        "orchestration_mode": "DYNAMIC_NATIVE_SUBAGENTS"
+    }
+
+
+
+# =============================================================================
+# 4. Modern Capability Resolver
 # =============================================================================
 
 class CapabilityResolver:
@@ -282,6 +568,20 @@ class CapabilityResolver:
             if any(w in p_lower for w in ["chapter 5", "discussion"]):
                 detected_caps.add("thesis_chapter5")
 
+        # Check derived design for experimental or specialized research designs
+        derived_design = derive_research_design(p)
+        if derived_design["study_type"] == "RCT" or derived_design["temporal_dynamics"] == "repeated measures":
+            if derived_design.get("interventions") or derived_design.get("waves") in ("follow-up", "pre-post") or "rct" in p_lower or "repeated measures" in p_lower:
+                detected_caps.add("repeated_measures")
+        elif derived_design["study_type"] == "correlational_structural":
+            detected_caps.add("sem")
+        elif derived_design["study_type"] == "scale_validation":
+            detected_caps.add("cfa")
+        elif derived_design["study_type"] == "qualitative":
+            detected_caps.add("qualitative_analysis")
+        elif derived_design["study_type"] == "meta_analysis":
+            detected_caps.add("meta_analysis")
+
         # If still empty after checking keywords, it is unknown
         if not detected_caps:
             return {
@@ -384,10 +684,18 @@ class CapabilityResolver:
             complexity_level = "L1"
             teamwork_boundary = {}
 
+        # Derive research design, capability matrix, and dynamic team
+        design = derive_research_design(prompt)
+        cap_matrix = resolve_capability_matrix(prompt, design)
+        assembled_team = assemble_antigravity_team(design, cap_matrix)
+
         return {
             "status": "RESOLVED",
             "task_prompt": prompt,
             "complexity_level": complexity_level,
+            "design": design,
+            "capability_matrix": cap_matrix,
+            "assembled_team": assembled_team,
             "required_capabilities": list(detected_caps),
             "topological_capability_order": resolved_order,
             "durable_agent": durable_primary_agent,
@@ -395,7 +703,9 @@ class CapabilityResolver:
                 "primary_agents": list(primary_agents),
                 "execution_workers": execution_workers,
                 "reviewers": reviewers,
-                "challengers": challengers
+                "challengers": challengers,
+                "assembled_subagents": assembled_team["assembled_subagents"],
+                "pruned_agents": assembled_team["pruned_agents"]
             },
             "required_skills": required_skills,
             "required_artifacts": required_artifacts,
