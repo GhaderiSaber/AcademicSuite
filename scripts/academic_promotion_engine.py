@@ -60,10 +60,11 @@ for venv_name in [".venv", "venv"]:
                 sys.path.insert(0, sp)
 
 try:
-    from contracts.contract_validator import validate_promotion_decision, validate_contract
+    from contracts.contract_validator import validate_promotion_decision, validate_contract, validate_component_version
 except ImportError:
     validate_promotion_decision = lambda x: {"valid": True}
     validate_contract = lambda x, y: {"valid": True}
+    validate_component_version = lambda x: {"valid": True}
 
 
 class PromotionEngineError(Exception):
@@ -89,6 +90,396 @@ class PromotionFailureError(PromotionEngineError):
 class PromotionHashMismatchError(PromotionFailureError):
     """Raised when the target Skill file hash did not change after candidate activation."""
     pass
+
+
+class AcademicVersionStore:
+    """
+    Deterministic Version Store managing first-class, immutable component versions
+    (Skill V1, Skill V2, Skill V3) on disk.
+
+    Layout:
+    learning/versions/<component_id>/
+    ├── versions.json                 # Index, lineage, and active version pointer
+    ├── V1/
+    │   ├── <filename>                # Exact immutable content of Version 1
+    │   └── version.json              # Version contract (7 required fields)
+    ├── V2/
+    │   ├── <filename>                # Exact immutable content of Version 2
+    │   └── version.json              # Version contract (7 required fields)
+    └── V3/
+        ├── <filename>                # Exact immutable content of Version 3
+        └── version.json              # Version contract (7 required fields)
+    """
+
+    def __init__(self, base_dir: Optional[str] = None):
+        self.base_dir = base_dir or ROOT_DIR
+        self.versions_root = os.path.join(self.base_dir, "learning", "versions")
+        os.makedirs(self.versions_root, exist_ok=True)
+
+    def resolve_component_id(
+        self,
+        target_path: Optional[str] = None,
+        target_skill: Optional[str] = None,
+        target_component: Optional[str] = None
+    ) -> Tuple[str, str]:
+        """Resolves canonical component_id and absolute target file path."""
+        if target_skill:
+            comp_id = target_skill
+            abs_path = os.path.join(self.base_dir, ".agents", "skills", target_skill, "SKILL.md")
+            return comp_id, abs_path
+
+        if target_component:
+            norm = target_component.replace("\\", "/")
+            if "/skills/" in norm or norm.startswith(".agents/skills/"):
+                parts = norm.split("skills/")[-1].split("/")
+                comp_id = parts[0]
+            elif "/agents/" in norm or norm.startswith(".agents/agents/"):
+                parts = norm.split("agents/")[-1].split("/")
+                comp_id = parts[0]
+            else:
+                base = os.path.basename(target_component)
+                comp_id = os.path.splitext(base)[0]
+
+            abs_path = target_component if os.path.isabs(target_component) else os.path.join(self.base_dir, target_component)
+            return comp_id, abs_path
+
+        if target_path:
+            abs_path = target_path if os.path.isabs(target_path) else os.path.join(self.base_dir, target_path)
+            norm = abs_path.replace("\\", "/")
+            if "/skills/" in norm:
+                comp_id = norm.split("skills/")[-1].split("/")[0]
+            elif "/agents/" in norm:
+                comp_id = norm.split("agents/")[-1].split("/")[0]
+            else:
+                comp_id = os.path.splitext(os.path.basename(abs_path))[0]
+            return comp_id, abs_path
+
+        return "unknown_component", os.path.join(self.base_dir, "unknown_component.md")
+
+    def get_component_dir(self, component_id: str) -> str:
+        return os.path.join(self.versions_root, component_id)
+
+    def get_versions_index(self, component_id: str) -> Dict[str, Any]:
+        cdir = self.get_component_dir(component_id)
+        index_path = os.path.join(cdir, "versions.json")
+        if os.path.isfile(index_path):
+            try:
+                with open(index_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        return {
+            "contract_version": "1.0.0",
+            "component_id": component_id,
+            "target_path": "",
+            "active_version": None,
+            "versions": [],
+            "history": []
+        }
+
+    def save_versions_index(self, component_id: str, index_data: Dict[str, Any]) -> None:
+        cdir = self.get_component_dir(component_id)
+        os.makedirs(cdir, exist_ok=True)
+        index_path = os.path.join(cdir, "versions.json")
+        with open(index_path, "w", encoding="utf-8") as f:
+            json.dump(index_data, f, indent=2, ensure_ascii=False)
+
+    def get_active_version(self, component_id: str) -> Optional[str]:
+        idx = self.get_versions_index(component_id)
+        return idx.get("active_version")
+
+    def initialize_baseline_version(
+        self,
+        component_id: str,
+        target_path: str,
+        initial_content: str,
+        timestamp: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Initializes immutable V1 baseline version if not already present."""
+        cdir = self.get_component_dir(component_id)
+        v1_dir = os.path.join(cdir, "V1")
+        v1_json = os.path.join(v1_dir, "version.json")
+        if os.path.isfile(v1_json):
+            try:
+                with open(v1_json, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+
+        os.makedirs(v1_dir, exist_ok=True)
+        filename = os.path.basename(target_path) or "SKILL.md"
+        artifact_path = os.path.join(v1_dir, filename)
+        with open(artifact_path, "w", encoding="utf-8") as f:
+            f.write(initial_content)
+
+        c_hash = hashlib.sha256(initial_content.encode("utf-8")).hexdigest()
+        with open(artifact_path, "rb") as f:
+            a_hash = hashlib.sha256(f.read()).hexdigest()
+        ts = timestamp or datetime.now(timezone.utc).isoformat()
+        rel_target = os.path.relpath(target_path, self.base_dir) if os.path.isabs(target_path) else target_path
+
+        v1_record = {
+            "contract_version": "1.0.0",
+            "version_id": "V1",
+            "parent_version": None,
+            "component_id": component_id,
+            "target_path": rel_target,
+            "content_hash": c_hash,
+            "artifact_hash": a_hash,
+            "evaluation_id": "BASELINE",
+            "promotion_id": "BASELINE",
+            "timestamp": ts,
+            "metadata": {
+                "is_baseline": True,
+                "artifact_file": filename
+            }
+        }
+
+        with open(v1_json, "w", encoding="utf-8") as f:
+            json.dump(v1_record, f, indent=2, ensure_ascii=False)
+
+        idx = self.get_versions_index(component_id)
+        idx["component_id"] = component_id
+        idx["target_path"] = rel_target
+        if not idx.get("active_version"):
+            idx["active_version"] = "V1"
+        if not any(v.get("version_id") == "V1" for v in idx.get("versions", [])):
+            idx["versions"].append({
+                "version_id": "V1",
+                "parent_version": None,
+                "content_hash": c_hash,
+                "artifact_hash": a_hash,
+                "evaluation_id": "BASELINE",
+                "promotion_id": "BASELINE",
+                "timestamp": ts
+            })
+            idx["history"].append({
+                "event": "INITIALIZE_BASELINE",
+                "version_id": "V1",
+                "timestamp": ts
+            })
+        self.save_versions_index(component_id, idx)
+        return v1_record
+
+    def has_version(self, component_id: str, version_id: str) -> bool:
+        """Checks if an immutable version exists in the version store."""
+        v_dir = os.path.join(self.get_component_dir(component_id), version_id)
+        return os.path.isfile(os.path.join(v_dir, "version.json"))
+
+    def create_version(
+        self,
+        component_id: str,
+        target_path: str,
+        new_content: str,
+        parent_version: Optional[str] = None,
+        evaluation_id: str = "EVR-PROMOTION",
+        promotion_id: str = "PRM-PROMOTION",
+        timestamp: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Materializes a new immutable version (V2, V3, ...) on disk with the 7 required fields:
+        version_id, parent_version, content_hash, artifact_hash, evaluation_id, promotion_id, timestamp.
+        """
+        idx = self.get_versions_index(component_id)
+        rel_target = os.path.relpath(target_path, self.base_dir) if os.path.isabs(target_path) else target_path
+
+        # Ensure baseline V1 exists
+        if not idx.get("versions"):
+            existing_content = ""
+            if os.path.isfile(target_path):
+                with open(target_path, "r", encoding="utf-8") as f:
+                    existing_content = f.read()
+            self.initialize_baseline_version(component_id, target_path, existing_content or new_content)
+            idx = self.get_versions_index(component_id)
+
+        # Determine next sequential version number
+        existing_v_nums = []
+        for v in idx.get("versions", []):
+            vid = v.get("version_id", "")
+            if vid.startswith("V") and vid[1:].isdigit():
+                existing_v_nums.append(int(vid[1:]))
+        next_num = (max(existing_v_nums) + 1) if existing_v_nums else 2
+        next_vid = f"V{next_num}"
+        if parent_version and re.match(r"^V\d+$", str(parent_version)):
+            effective_parent = parent_version
+        else:
+            effective_parent = idx.get("active_version") or f"V{next_num - 1}"
+
+
+        cdir = self.get_component_dir(component_id)
+        v_dir = os.path.join(cdir, next_vid)
+        os.makedirs(v_dir, exist_ok=True)
+        filename = os.path.basename(target_path) or "SKILL.md"
+        artifact_path = os.path.join(v_dir, filename)
+
+        with open(artifact_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+
+        c_hash = hashlib.sha256(new_content.encode("utf-8")).hexdigest()
+        with open(artifact_path, "rb") as f:
+            a_hash = hashlib.sha256(f.read()).hexdigest()
+        ts = timestamp or datetime.now(timezone.utc).isoformat()
+
+        v_record = {
+            "contract_version": "1.0.0",
+            "version_id": next_vid,
+            "parent_version": effective_parent,
+            "component_id": component_id,
+            "target_path": rel_target,
+            "content_hash": c_hash,
+            "artifact_hash": a_hash,
+            "evaluation_id": evaluation_id,
+            "promotion_id": promotion_id,
+            "timestamp": ts,
+            "metadata": {
+                "artifact_file": filename,
+                **(metadata or {})
+            }
+        }
+
+        # Validate schema
+        val = validate_component_version(v_record)
+        if not val.get("valid", True):
+            print(f"Warning: Component version schema validation warning: {val.get('errors')}")
+
+        v_json_path = os.path.join(v_dir, "version.json")
+        with open(v_json_path, "w", encoding="utf-8") as f:
+            json.dump(v_record, f, indent=2, ensure_ascii=False)
+
+        # Update index
+        idx["target_path"] = rel_target
+        idx["active_version"] = next_vid
+        idx["versions"].append({
+            "version_id": next_vid,
+            "parent_version": effective_parent,
+            "content_hash": c_hash,
+            "artifact_hash": a_hash,
+            "evaluation_id": evaluation_id,
+            "promotion_id": promotion_id,
+            "timestamp": ts
+        })
+        idx["history"].append({
+            "event": "PROMOTION",
+            "version_id": next_vid,
+            "parent_version": effective_parent,
+            "promotion_id": promotion_id,
+            "timestamp": ts
+        })
+        self.save_versions_index(component_id, idx)
+        return v_record
+
+    def get_version(self, component_id: str, version_id: str) -> Dict[str, Any]:
+        """Loads version record and immutable content from disk."""
+        cdir = self.get_component_dir(component_id)
+        v_dir = os.path.join(cdir, version_id)
+        v_json = os.path.join(v_dir, "version.json")
+        if not os.path.isfile(v_json):
+            raise PromotionFailureError(
+                f"Immutable version '{version_id}' not found for component '{component_id}' at '{v_json}'."
+            )
+
+        with open(v_json, "r", encoding="utf-8") as f:
+            record = json.load(f)
+
+        filename = record.get("metadata", {}).get("artifact_file")
+        if not filename:
+            for fn in os.listdir(v_dir):
+                if fn != "version.json":
+                    filename = fn
+                    break
+
+        if filename and os.path.isfile(os.path.join(v_dir, filename)):
+            with open(os.path.join(v_dir, filename), "r", encoding="utf-8") as f:
+                content = f.read()
+            record["content"] = content
+            record["artifact_path"] = os.path.join(v_dir, filename)
+
+        return record
+
+    def rollback(
+        self,
+        component_id: str,
+        target_version: str,
+        from_version: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Executes authentic rollback from from_version (or active) to target_version:
+        1. Loads immutable target_version content.
+        2. Asserts cryptographic hash matches content_hash.
+        3. Restores content to target_path on disk.
+        4. Asserts disk file hash matches content_hash.
+        5. Updates active version pointer to target_version.
+        """
+        idx = self.get_versions_index(component_id)
+        current_active = from_version or idx.get("active_version")
+        if not current_active:
+            raise PromotionFailureError(f"No active version recorded for component '{component_id}'.")
+
+        if target_version == current_active:
+            return {
+                "status": "ALREADY_ACTIVE",
+                "component_id": component_id,
+                "active_version": target_version
+            }
+
+        # Check version exists
+        v_target = self.get_version(component_id, target_version)
+        target_content = v_target.get("content")
+        if target_content is None:
+            raise PromotionFailureError(f"Immutable content for version '{target_version}' is missing on disk.")
+
+        # Hash check: verify immutable version was not tampered
+        computed_hash = hashlib.sha256(target_content.encode("utf-8")).hexdigest()
+        if computed_hash != v_target["content_hash"]:
+            raise PromotionFailureError(
+                f"CRITICAL: Immutable version '{target_version}' content is corrupted or tampered! "
+                f"Expected {v_target['content_hash']}, got {computed_hash}."
+            )
+
+        # Target file on disk
+        tpath = v_target.get("target_path") or idx.get("target_path")
+        if not tpath:
+            raise PromotionFailureError(f"No target_path known for component '{component_id}'.")
+        abs_tpath = tpath if os.path.isabs(tpath) else os.path.join(self.base_dir, tpath)
+
+        # Write to disk
+        os.makedirs(os.path.dirname(abs_tpath), exist_ok=True)
+        with open(abs_tpath, "w", encoding="utf-8") as f:
+            f.write(target_content)
+
+        # Read back and verify
+        with open(abs_tpath, "r", encoding="utf-8") as f:
+            read_back = f.read()
+        read_hash = hashlib.sha256(read_back.encode("utf-8")).hexdigest()
+
+        if read_hash != v_target["content_hash"]:
+            raise PromotionFailureError(
+                f"Rollback verification failed on disk for '{abs_tpath}'. "
+                f"Expected {v_target['content_hash']}, got {read_hash}."
+            )
+
+        # Update index
+        now_iso = datetime.now(timezone.utc).isoformat()
+        idx["active_version"] = target_version
+        idx["history"].append({
+            "event": "ROLLBACK",
+            "from_version": current_active,
+            "to_version": target_version,
+            "restored_hash": read_hash,
+            "timestamp": now_iso
+        })
+        self.save_versions_index(component_id, idx)
+
+        return {
+            "status": "ROLLED_BACK",
+            "component_id": component_id,
+            "from_version": current_active,
+            "to_version": target_version,
+            "target_path": abs_tpath,
+            "restored_hash": read_hash,
+            "timestamp": now_iso
+        }
 
 
 class AcademicPromotionEngine:
@@ -155,6 +546,9 @@ class AcademicPromotionEngine:
         self.production_skills_dir = os.path.join(self.base_dir, ".agents", "skills")
         self.production_agents_dir = os.path.join(self.base_dir, ".agents", "agents")
 
+        self.version_store = AcademicVersionStore(base_dir=self.base_dir)
+        self.versions_dir = self.version_store.versions_root
+
         self.archive_index = os.path.join(self.archive_dir, "index.jsonl")
         self.promotions_index = os.path.join(self.promotions_dir, "index.jsonl")
 
@@ -162,7 +556,7 @@ class AcademicPromotionEngine:
 
     def _ensure_directories(self):
         """Creates required directory hierarchy."""
-        for d in [self.candidates_dir, self.archive_dir, self.promotions_dir, self.snapshots_dir]:
+        for d in [self.candidates_dir, self.archive_dir, self.promotions_dir, self.snapshots_dir, self.versions_dir]:
             os.makedirs(d, exist_ok=True)
 
     # -------------------------------------------------------------------------
@@ -496,6 +890,8 @@ class AcademicPromotionEngine:
         # 6. Apply Promotion Rules
         today_str = datetime.now(timezone.utc).strftime("%Y%m%d")
         promotion_id = f"PRM-{today_str}-{uuid.uuid4().hex[:8].upper()}"
+        candidate_data["promotion_id"] = promotion_id
+        candidate_data["evaluation_id"] = evaluation_report.get("report_id", "EVR-PROMOTION")
 
         if risk_tier == "LOW_RISK":
             # LOW-RISK: Autonomous promotion allowed
@@ -533,7 +929,8 @@ class AcademicPromotionEngine:
                     f"with zero regressions and was automatically promoted to ACTIVE."
                 ),
                 approver=effective_approver,
-                snapshot=deployment_result["snapshot"]
+                snapshot=deployment_result["snapshot"],
+                version=deployment_result.get("version")
             )
 
             # Mark candidate ACTIVE
@@ -587,7 +984,8 @@ class AcademicPromotionEngine:
                         f"and was approved for production deployment by {approver.get('identity')}."
                     ),
                     approver=approver,
-                    snapshot=deployment_result["snapshot"]
+                    snapshot=deployment_result["snapshot"],
+                    version=deployment_result.get("version")
                 )
 
                 candidate_data["status"] = "ACTIVE"
@@ -665,15 +1063,14 @@ class AcademicPromotionEngine:
         target_skill = candidate_data.get("target_skill")
         target_type = candidate_data.get("target_type", "")
 
-        # 1. Resolve Target Component File Path
+        # 1. Resolve Target Component File Path & Component ID
         target_path = None
-        if target_comp:
-            if os.path.isabs(target_comp):
-                target_path = target_comp
-            else:
-                target_path = os.path.join(self.base_dir, target_comp)
-        elif target_skill:
-            target_path = os.path.join(self.production_skills_dir, target_skill, "SKILL.md")
+        component_id = "unknown_component"
+        if target_comp or target_skill:
+            component_id, target_path = self.version_store.resolve_component_id(
+                target_skill=target_skill,
+                target_component=target_comp
+            )
 
         # Determine if file modification is expected
         file_mutation_expected = bool(
@@ -704,10 +1101,11 @@ class AcademicPromotionEngine:
         original_content = ""
         baseline_hash = ""
         active_hash = ""
+        v_record = None
         snap_id = f"SNAP-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
         snap_file = os.path.join(self.snapshots_dir, f"{snap_id}.json")
 
-        # 2. If file mutation expected, prepare snapshot and physically activate mutation
+        # 2. If file mutation expected, prepare snapshot, initialize baseline V1, and physically activate mutation
         if file_mutation_expected and target_path:
             os.makedirs(os.path.dirname(target_path), exist_ok=True)
             if os.path.isfile(target_path):
@@ -716,18 +1114,26 @@ class AcademicPromotionEngine:
             else:
                 # Initialize base template if file doesn't exist yet
                 original_content = (
-                    f"---\nname: {target_skill or 'skill'}\ndescription: Production specification.\n---\n\n"
-                    f"# {target_skill or 'skill'}\n\n## Baseline Procedures\nExecute tasks adhering to academic standards.\n"
+                    f"---\nname: {target_skill or component_id}\ndescription: Production specification.\n---\n\n"
+                    f"# {target_skill or component_id}\n\n## Baseline Procedures\nExecute tasks adhering to academic standards.\n"
                 )
                 with open(target_path, "w", encoding="utf-8") as f:
                     f.write(original_content)
 
             baseline_hash = hashlib.sha256(original_content.encode("utf-8")).hexdigest()
 
+            # Ensure baseline V1 exists in version store
+            self.version_store.initialize_baseline_version(
+                component_id=component_id,
+                target_path=target_path,
+                initial_content=original_content
+            )
+
             # Create Rollback Snapshot before any mutation
             snapshot_data = {
                 "snapshot_id": snap_id,
                 "candidate_id": cid,
+                "component_id": component_id,
                 "target_component": target_comp or os.path.relpath(target_path, self.base_dir),
                 "target_path": target_path,
                 "original_content": original_content,
@@ -747,6 +1153,22 @@ class AcademicPromotionEngine:
 
             # Directive 18 ceiling enforcement
             self._verify_directive_18_ceilings(new_content, target_path)
+
+            # Materialize new immutable version (V2, V3, ...) in version store
+            eval_id = candidate_data.get("evaluation_id") or "EVR-PROMOTION"
+            prm_id = candidate_data.get("promotion_id") or snap_id.replace("SNAP-", "PRM-")
+            v_record = self.version_store.create_version(
+                component_id=component_id,
+                target_path=target_path,
+                new_content=new_content,
+                parent_version=candidate_data.get("parent_version"),
+                evaluation_id=eval_id,
+                promotion_id=prm_id,
+                metadata={
+                    "candidate_id": cid,
+                    "mutation_type": mut_type
+                }
+            )
 
             # Physically write mutated version to disk
             with open(target_path, "w", encoding="utf-8") as f:
@@ -768,11 +1190,17 @@ class AcademicPromotionEngine:
                     f"where a change was expected. Baseline hash: {baseline_hash}, Active hash: {active_hash}"
                 )
 
+            # Update snapshot data with version_id
+            snapshot_data["version_id"] = v_record["version_id"]
+            with open(snap_file, "w", encoding="utf-8") as f:
+                json.dump(snapshot_data, f, indent=2, ensure_ascii=False)
+
         else:
             # Declarative knowledge without file target
             snapshot_data = {
                 "snapshot_id": snap_id,
                 "candidate_id": cid,
+                "component_id": component_id,
                 "target_component": target_comp or "learning/knowledge",
                 "parent_version": candidate_data.get("parent_version", "baseline"),
                 "created_at": datetime.now(timezone.utc).isoformat()
@@ -824,7 +1252,7 @@ class AcademicPromotionEngine:
             if not deployed_location:
                 deployed_location = ap_path
 
-        return {
+        res = {
             "deployed_location": deployed_location or "active_knowledge_context",
             "baseline_component_hash": baseline_hash,
             "active_component_hash": active_hash,
@@ -833,6 +1261,10 @@ class AcademicPromotionEngine:
                 "snapshot_sha256": snap_sha256
             }
         }
+        if v_record:
+            res["version"] = v_record
+            res["snapshot"]["version_id"] = v_record["version_id"]
+        return res
 
     def _apply_mutation_to_content(
         self,
@@ -939,18 +1371,105 @@ class AcademicPromotionEngine:
                 f"Byte size {byte_count} exceeds maximum allowed 40,000 bytes."
             )
 
-    def rollback_promotion(self, snapshot_id_or_promotion_id: str) -> Dict[str, Any]:
+    def rollback_to_version(
+        self,
+        component_id: str,
+        target_version: str,
+        from_version: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
-        Rolls back a promoted candidate mutation, restoring the original target
-        component from the rollback snapshot and verifying hash restoration.
+        Rolls back target component to an immutable version (e.g. V3 -> V2).
+        Physically restores the exact immutable content from learning/versions/<component_id>/<target_version>/,
+        asserts cryptographic hash matches, and verifies disk restoration.
         """
+        res = self.version_store.rollback(
+            component_id=component_id,
+            target_version=target_version,
+            from_version=from_version
+        )
+
+        # Deactivate any active candidate targeting this component
+        for cand_fn in os.listdir(self.candidates_dir):
+            if not cand_fn.endswith(".json"):
+                continue
+            cf = os.path.join(self.candidates_dir, cand_fn)
+            try:
+                with open(cf, "r", encoding="utf-8") as f:
+                    cdata = json.load(f)
+                c_comp, _ = self.version_store.resolve_component_id(
+                    target_path=cdata.get("target_path"),
+                    target_skill=cdata.get("target_skill"),
+                    target_component=cdata.get("target_component")
+                )
+                if c_comp == component_id and cdata.get("status") == "ACTIVE":
+                    cdata["status"] = "ROLLED_BACK"
+                    cdata["rolled_back_at"] = datetime.now(timezone.utc).isoformat()
+                    with open(cf, "w", encoding="utf-8") as f:
+                        json.dump(cdata, f, indent=2, ensure_ascii=False)
+            except Exception:
+                pass
+
+        return res
+
+    def rollback_promotion(
+        self,
+        snapshot_id_or_promotion_id: str,
+        target_version: Optional[str] = None,
+        component_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Rolls back a promoted candidate mutation:
+        1. If a promotion ID (PRM-...) is supplied with version metadata, rolls back
+           from version_id to parent_version (e.g. V3 -> V2) using the immutable version store.
+        2. If a version ID (e.g. V2) is supplied, rolls back directly to that version.
+        3. Falls back to snapshot restoration and verifies hash identity.
+        """
+        ident = snapshot_id_or_promotion_id
+
+        # 1. Direct version ID rollback: e.g. "V2"
+        if ident.startswith("V") and ident[1:].isdigit():
+            if not component_id:
+                raise PromotionEngineError(
+                    f"Rolling back directly to version '{ident}' requires specifying component_id."
+                )
+            return self.rollback_to_version(component_id, ident)
+
+        # 2. Promotion ID rollback: e.g. "PRM-20260919-..."
+        if ident.startswith("PRM-"):
+            prm_file = os.path.join(self.promotions_dir, f"{ident}.json")
+            if os.path.isfile(prm_file):
+                with open(prm_file, "r", encoding="utf-8") as f:
+                    prm_data = json.load(f)
+
+                v_info = prm_data.get("version")
+                if v_info:
+                    to_v = target_version or v_info.get("parent_version")
+                    from_v = v_info.get("version_id")
+                    comp = component_id or v_info.get("component_id") or prm_data.get("candidate", {}).get("target_component")
+                    comp_id, _ = self.version_store.resolve_component_id(target_component=comp)
+                    if to_v and self.version_store.has_version(comp_id, to_v):
+                        res = self.rollback_to_version(comp_id, to_v, from_version=from_v)
+                        cid = prm_data.get("candidate", {}).get("candidate_id")
+                        if cid:
+                            cand_file = os.path.join(self.candidates_dir, f"{cid}.json")
+                            if os.path.isfile(cand_file):
+                                with open(cand_file, "r", encoding="utf-8") as f:
+                                    cdata = json.load(f)
+                                cdata["status"] = "ROLLED_BACK"
+                                cdata["rolled_back_at"] = datetime.now(timezone.utc).isoformat()
+                                with open(cand_file, "w", encoding="utf-8") as f:
+                                    json.dump(cdata, f, indent=2, ensure_ascii=False)
+                        res["promotion_id"] = ident
+                        return res
+
+        # 3. Snapshot fallback
         snap_file = None
-        if snapshot_id_or_promotion_id.startswith("SNAP-"):
-            candidate_snap = os.path.join(self.snapshots_dir, f"{snapshot_id_or_promotion_id}.json")
+        if ident.startswith("SNAP-"):
+            candidate_snap = os.path.join(self.snapshots_dir, f"{ident}.json")
             if os.path.isfile(candidate_snap):
                 snap_file = candidate_snap
-        elif snapshot_id_or_promotion_id.startswith("PRM-"):
-            prm_file = os.path.join(self.promotions_dir, f"{snapshot_id_or_promotion_id}.json")
+        elif ident.startswith("PRM-"):
+            prm_file = os.path.join(self.promotions_dir, f"{ident}.json")
             if os.path.isfile(prm_file):
                 with open(prm_file, "r", encoding="utf-8") as f:
                     prm_data = json.load(f)
@@ -959,7 +1478,7 @@ class AcademicPromotionEngine:
                     snap_file = snap_path
 
         if not snap_file or not os.path.isfile(snap_file):
-            raise PromotionEngineError(f"Rollback snapshot not found for identifier '{snapshot_id_or_promotion_id}'.")
+            raise PromotionEngineError(f"Rollback snapshot not found for identifier '{ident}'.")
 
         with open(snap_file, "r", encoding="utf-8") as f:
             snap_data = json.load(f)
@@ -1013,7 +1532,8 @@ class AcademicPromotionEngine:
         decision: str,
         rationale: str,
         approver: Optional[Dict[str, Any]] = None,
-        snapshot: Optional[Dict[str, Any]] = None
+        snapshot: Optional[Dict[str, Any]] = None,
+        version: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Builds a promotion decision record conforming to
@@ -1041,7 +1561,7 @@ class AcademicPromotionEngine:
                 "checksum_sha256": content_hash
             },
             "baseline": {
-                "version_identifier": candidate_data.get("parent_version", "git-commit-active"),
+                "version_identifier": candidate_data.get("parent_version") or "git-commit-active",
                 "active_component_hash": baseline_hash
             },
             "evaluation_evidence": {
@@ -1081,7 +1601,12 @@ class AcademicPromotionEngine:
         if approver:
             record["approver"] = approver
         if snapshot:
-            record["rollback_snapshot"] = snapshot
+            record["rollback_snapshot"] = {
+                "snapshot_path": snapshot.get("snapshot_path"),
+                "snapshot_sha256": snapshot.get("snapshot_sha256")
+            }
+        if version:
+            record["version"] = version
 
         return record
 
@@ -1119,9 +1644,31 @@ def main():
     parser.add_argument("--report-path", type=str, help="Path to counterfactual evaluation report JSON")
     parser.add_argument("--approver", type=str, default=None, help="Human approver identity (e.g. Saber Admin Desk 124911145)")
     parser.add_argument("--classify-risk", action="store_true", help="Classify risk tier of candidate without promoting")
+    parser.add_argument("--rollback", type=str, help="Promotion ID (PRM-...) or Snapshot ID (SNAP-...) to rollback")
+    parser.add_argument("--rollback-to", type=str, help="Target immutable version (e.g. V2) to restore")
+    parser.add_argument("--component", type=str, help="Target component ID for version rollback (e.g. chapter-4-writing)")
+    parser.add_argument("--list-versions", type=str, help="Component ID to list immutable versions for")
     args = parser.parse_args()
 
     engine = AcademicPromotionEngine()
+
+    if args.list_versions:
+        idx = engine.version_store.get_versions_index(args.list_versions)
+        print(json.dumps(idx, indent=2, ensure_ascii=False))
+        sys.exit(0)
+
+    if args.rollback_to:
+        if not args.component:
+            print("Error: --component is required when using --rollback-to.")
+            sys.exit(1)
+        res = engine.rollback_to_version(component_id=args.component, target_version=args.rollback_to)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        sys.exit(0)
+
+    if args.rollback:
+        res = engine.rollback_promotion(snapshot_id_or_promotion_id=args.rollback, component_id=args.component)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        sys.exit(0)
 
     if args.candidate_id and args.classify_risk:
         cand_path = os.path.join(engine.candidates_dir, f"{args.candidate_id}.json")

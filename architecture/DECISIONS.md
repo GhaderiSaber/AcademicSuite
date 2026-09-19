@@ -1028,3 +1028,50 @@ $$\begin{aligned}
 - **Positive**: Complete elimination of phantom promotions; 100% guarantee that every `PROMOTED` candidate physically changes production behavior; tamper-evident rollback capability; strict adherence to Directives 0, 8, 12.1, 18, and 19.
 - **Negative**: Requires disk write access to `.agents/skills/` or `.agents/agents/` during authorized promotion.
 
+---
+
+## ADR-027: First-Class Immutable Component Versions and Authentic $V_3 \rightarrow V_2$ Rollback in Behavioral Evolution
+
+### Context
+Previously, promotion snapshots were metadata-heavy JSON files (`SNAP-xxx.json`) recording `original_content` strings alongside historical flags. When a candidate reached `ACTIVE`, no discrete, immutable version artifacts existed on disk (e.g. `Skill V1`, `Skill V2`, `Skill V3`). Instead, the target file was mutated in place, with only metadata asserting what it "used to be". Rollback was limited to writing back a string from snapshot metadata rather than restoring a real, immutable version artifact.
+
+### Decision
+1. **First-Class Immutable Version Store (`AcademicVersionStore`)**:
+   - Every versioned component maintains an immutable version tree on disk under `learning/versions/<component_id>/`:
+     ```text
+     learning/versions/<component_id>/
+     ├── versions.json                 # Index, lineage, and active version pointer
+     ├── V1/
+     │   ├── <filename>                # Exact immutable content of Version 1
+     │   └── version.json              # Version contract (7 required fields)
+     ├── V2/
+     │   ├── <filename>                # Exact immutable content of Version 2
+     │   └── version.json              # Version contract (7 required fields)
+     └── V3/
+         ├── <filename>                # Exact immutable content of Version 3
+         └── version.json              # Version contract (7 required fields)
+     ```
+2. **7-Field Version Production Contract (`contracts/evolution/component_version.schema.json`)**:
+   - Every promotion deterministically yields a version record with the exact required fields:
+     - `version_id`: Sequential version identifier (`V1`, `V2`, `V3`, ...).
+     - `parent_version`: Direct parent version identifier (`null` for `V1`, `V1` for `V2`, etc.).
+     - `content_hash`: Cryptographic SHA-256 hash of the immutable file content.
+     - `artifact_hash`: Cryptographic SHA-256 hash of the version artifact file on disk.
+     - `evaluation_id`: Evaluation report ID authorizing this version (`EVR-...` or `BASELINE`).
+     - `promotion_id`: Promotion decision ID authorizing this version (`PRM-...` or `BASELINE`).
+     - `timestamp`: ISO 8601 UTC timestamp of version creation.
+3. **Authentic Rollback Lifecycle ($V_3 \rightarrow V_2$)**:
+   - `AcademicPromotionEngine.rollback_to_version(component_id, target_version)`:
+     a) Discovers and loads the immutable version artifact from `learning/versions/<component_id>/<target_version>/`.
+     b) Cryptographically verifies that `sha256(content) == target_version.content_hash` (fails closed if tampered).
+     c) Restores the immutable content directly to the active component file on disk.
+     d) Reads back the active file from disk and asserts `sha256(active_file) == target_version.content_hash`.
+     e) Updates `versions.json` active version pointer to `target_version` and appends a `ROLLBACK` audit event.
+4. **Behavior Drift Monitor Automated Rollback Integration**:
+   - `AcademicBehaviorDriftMonitor.execute_rollback()` directly checks `AcademicVersionStore` for the target skill, identifies the parent version of the regressed active version (e.g. $V_3 \rightarrow V_2$), and executes authentic rollback to the prior immutable version.
+
+### Consequences
+- **Positive**: Eliminates metadata-only rollback illusions; establishes deterministic version control on disk for learned behaviors; enables seamless automated rollback in drift monitoring; strictly adheres to Directives 0, 8, 12.1, 18, and 19.
+- **Negative**: Adds storage footprint under `learning/versions/` proportional to the number of promoted versions.
+
+

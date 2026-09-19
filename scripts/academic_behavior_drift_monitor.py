@@ -553,26 +553,42 @@ class AcademicBehaviorDriftMonitor:
             except Exception:
                 pass
 
-        # 2. Locate and Restore Snapshot for Target Skill
+        # 2. Locate and Restore Snapshot / Immutable Version for Target Skill
         if target_skill:
             skill_dir = os.path.join(self.skills_dir, target_skill)
             skill_md = os.path.join(skill_dir, "SKILL.md")
 
-            # Search in learning/snapshots/skills/
-            snapshots = []
-            if os.path.isdir(self.snapshots_dir):
-                for fn in sorted(os.listdir(self.snapshots_dir), reverse=True):
-                    if fn.startswith(f"{target_skill}_v") and fn.endswith(".md"):
-                        snapshots.append(os.path.join(self.snapshots_dir, fn))
+            # Check immutable version store first!
+            try:
+                from scripts.academic_promotion_engine import AcademicVersionStore
+                v_store = AcademicVersionStore(base_dir=self.base_dir)
+                active_v = v_store.get_active_version(target_skill)
+                if active_v:
+                    v_info = v_store.get_version(target_skill, active_v)
+                    parent_v = v_info.get("parent_version")
+                    if parent_v:
+                        v_res = v_store.rollback(target_skill, target_version=parent_v, from_version=active_v)
+                        restored_file = v_res.get("target_path")
+                        restored_snapshot_id = f"VERSION_{parent_v}"
+            except Exception:
+                pass
 
-            if snapshots and os.path.isfile(skill_md):
-                latest_snapshot = snapshots[0]
-                try:
-                    shutil.copy2(latest_snapshot, skill_md)
-                    restored_file = skill_md
-                    restored_snapshot_id = os.path.basename(latest_snapshot)
-                except Exception:
-                    pass
+            # Fallback to search in learning/snapshots/skills/ if version store did not restore
+            if not restored_file:
+                snapshots = []
+                if os.path.isdir(self.snapshots_dir):
+                    for fn in sorted(os.listdir(self.snapshots_dir), reverse=True):
+                        if fn.startswith(f"{target_skill}_v") and fn.endswith(".md"):
+                            snapshots.append(os.path.join(self.snapshots_dir, fn))
+
+                if snapshots and os.path.isfile(skill_md):
+                    latest_snapshot = snapshots[0]
+                    try:
+                        shutil.copy2(latest_snapshot, skill_md)
+                        restored_file = skill_md
+                        restored_snapshot_id = os.path.basename(latest_snapshot)
+                    except Exception:
+                        pass
 
         # 3. Deactivate Deployed Declarative Items
         deactivated_items = []

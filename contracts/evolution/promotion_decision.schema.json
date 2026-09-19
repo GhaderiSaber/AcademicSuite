@@ -171,6 +171,37 @@
       },
       "additionalProperties": false
     },
+    "version": {
+      "type": "object",
+      "required": [
+        "version_id",
+        "parent_version",
+        "content_hash",
+        "artifact_hash",
+        "evaluation_id",
+        "promotion_id",
+        "timestamp"
+      ],
+      "properties": {
+        "version_id": {"type": "string"},
+        "parent_version": {"type": ["string", "null"]},
+        "content_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "artifact_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "evaluation_id": {"type": "string"},
+        "promotion_id": {"type": "string"},
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": true
+    },
     "timestamp": {
       "type": "string",
       "format": "date-time"

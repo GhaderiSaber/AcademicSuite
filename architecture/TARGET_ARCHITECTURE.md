@@ -1321,3 +1321,87 @@ Whenever a candidate targets a `SKILL.md`, `agent.md`, or script file:
 ### 26.5 Closed-Loop Evolution Integration
 - In `AcademicRealBehaviorEvolution` (Stage 13), the engine verifies that `deployment["active_component_hash"] != deployment["baseline_component_hash"]`.
 - If promotion fails, the 13-stage pipeline transitions to `PROMOTION_FAILED`, guaranteeing that unverified promotions cannot be silently completed.
+
+---
+
+## 27. Immutable Component Versions & Deterministic Rollback Architecture (Phase 22)
+
+### 27.1 The Immutable Version Store Architecture (`learning/versions/<component_id>/`)
+Prior rollback mechanisms relied on metadata-heavy JSON snapshot files (`SNAP-xxx.json`) containing `original_content` strings without discrete, immutable version artifacts. Under Phase 22, every component undergoing evolution maintains a discrete, first-class, immutable version tree on disk:
+
+```mermaid
+flowchart TD
+    subgraph VersionStore["learning/versions/<component_id>/"]
+        VJ["versions.json\n{active_version: 'V3', total_versions: 3, versions: [...]}"]
+        
+        subgraph V1Dir["V1/ (Baseline)"]
+            V1J["version.json\n(7 Required Fields)"]
+            V1F["SKILL.md (Immutable V1)"]
+        end
+        
+        subgraph V2Dir["V2/"]
+            V2J["version.json\n(7 Required Fields)"]
+            V2F["SKILL.md (Immutable V2)"]
+        end
+        
+        subgraph V3Dir["V3/ (Active)"]
+            V3J["version.json\n(7 Required Fields)"]
+            V3F["SKILL.md (Immutable V3)"]
+        end
+    end
+
+    subgraph Operations["Version Operations"]
+        Init["1. Baseline Initialization (V1)\nCreated from disk before 1st mutation"]
+        Prom["2. Promotion Materialization (V2, V3)\nStores immutable file copy & version.json"]
+        Roll["3. Authentic Rollback (V3 -> V2)\nRestores exact V2 immutable file to disk"]
+    end
+
+    Init --> V1Dir
+    Prom --> V2Dir
+    Prom --> V3Dir
+    V3Dir -.->|Rollback| Roll
+    Roll -.->|Restores| V2Dir
+```
+
+Each version $V_1, V_2, V_3$ is stored in its own directory containing:
+1. `version.json`: Machine-verifiable version metadata satisfying `contracts/evolution/component_version.schema.json`.
+2. Target File Copy: The exact, byte-for-byte immutable file copy (e.g. `SKILL.md`, `agent.md`) at that version.
+
+### 27.2 The 7-Field Version Contract Schema (`contracts/evolution/component_version.schema.json`)
+Every component version record must contain exactly the seven required architectural fields:
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `version_id` | `string` (`^V\d+$`) | Sequential immutable version identifier (e.g. `V1`, `V2`, `V3`). |
+| `parent_version` | `string` or `null` | Identifier of parent version (`null` for baseline `V1`, `V1` for `V2`, `V2` for `V3`). |
+| `content_hash` | `string` (`^[a-f0-9]{64}$`) | SHA-256 cryptographic hash of the raw text content. |
+| `artifact_hash` | `string` (`^[a-f0-9]{64}$`) | SHA-256 cryptographic hash of the physical immutable file on disk. |
+| `evaluation_id` | `string` | Identifier of the evaluation that verified this version. |
+| `promotion_id` | `string` | Identifier of the promotion record that activated this version. |
+| `timestamp` | `string` (ISO 8601) | Exact UTC timestamp of version creation and materialization. |
+
+### 27.3 Promotion Version Materialization (`AcademicVersionStore`)
+- **Baseline Initialization (`initialize_baseline_version`)**: Before applying the very first candidate mutation, `AcademicVersionStore` reads the existing disk file and creates `V1/` as the immutable baseline version with `parent_version: null`.
+- **Sequential Version Creation (`create_version`)**: Upon successful promotion of candidate $N$:
+  1. Determines the next sequential version tag ($V_{N+1}$).
+  2. Normalizes the parent version to the previous active version ($V_N$).
+  3. Writes `V<N+1>/<filename>` and `V<N+1>/version.json`.
+  4. Updates `versions.json` with the new active version pointer and history.
+  5. Computes and validates `artifact_hash == content_hash`.
+- **Target Hash Invariant**: Promotion writes the new version to the canonical active file (`target_path`) and verifies `sha256(active_file) == content_hash`.
+
+### 27.4 Authentic $V_3 \rightarrow V_2$ Rollback
+Rollback is no longer an ad-hoc string replacement from metadata snapshots. It is a deterministic, fail-closed physical restoration:
+1. **Target Version Retrieval**: Loads immutable file `learning/versions/<component_id>/V2/<filename>` and its `version.json`.
+2. **Cryptographic Tamper Detection**: Computes `sha256(immutable_file)` and asserts equality with `v_record["content_hash"]`. If tampered or corrupt, raises `PromotionFailureError` and blocks deployment.
+3. **Physical Disk Restoration**: Overwrites active `target_path` with the verified immutable content of $V_2$.
+4. **Post-Restoration Hash Verification**: Reads back `target_path` from disk and verifies `sha256(restored_content) == v_record["content_hash"]`.
+5. **State Update & Audit**: Updates `active_version: "V2"` in `versions.json` and appends an audit record to `rollback_history`.
+
+### 27.5 Integration with Behavioral Drift Monitoring (`AcademicBehaviorDriftMonitor`)
+When `AcademicBehaviorDriftMonitor` detects behavioral degradation or regression exceeding drift thresholds:
+1. Queries `AcademicVersionStore` for the active version and its `parent_version`.
+2. Executes `version_store.rollback(comp_id, target_version=parent_version)`.
+3. Validates that the active disk file has been physically restored to the parent immutable version.
+4. Falls back to snapshot restoration only if the component predates Phase 22 version storage.
+

@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/component_version.schema.json",
+  "title": "AcademicComponentVersionContract",
+  "description": "Contract schema for immutable component versions (Skill V1, Skill V2, Skill V3). Structurally guarantees immutable version lineage, cryptographic content verification, and authentic rollback capabilities.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "version_id",
+    "parent_version",
+    "component_id",
+    "target_path",
+    "content_hash",
+    "artifact_hash",
+    "evaluation_id",
+    "promotion_id",
+    "timestamp"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "version_id": {
+      "type": "string",
+      "description": "Sequential immutable version identifier (e.g. V1, V2, V3).",
+      "pattern": "^V[0-9]+$"
+    },
+    "parent_version": {
+      "type": ["string", "null"],
+      "description": "Direct parent version identifier, or null for initial baseline (V1)."
+    },
+    "component_id": {
+      "type": "string",
+      "description": "Identifier of the versioned component (e.g. chapter-4-writing, academic-framework)."
+    },
+    "target_path": {
+      "type": "string",
+      "description": "Path to the active production file on disk that this version materializes."
+    },
+    "content_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the immutable component content.",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "artifact_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the version artifact or bundle on disk.",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "evaluation_id": {
+      "type": "string",
+      "description": "Evaluation report ID validating this version, or 'BASELINE' for initial version."
+    },
+    "promotion_id": {
+      "type": "string",
+      "description": "Promotion decision ID authorizing this version, or 'BASELINE' for initial version."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of version creation."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional diagnostic or lineage metadata.",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}
