@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-LONGITUDINAL-001",
+  "family": "LONGITUDINAL",
+  "title": "Three-Wave Longitudinal Autoregressive and Cross-Lagged Panel Modeling",
+  "description": "Authoritative academic behavioral benchmark case for LONGITUDINAL.",
+  "research_question": "Do cross-lagged reciprocal effects exist between psychological symptoms across three waves after controlling for autoregressive stabilities?",
+  "design": {
+    "design_type": "LONGITUDINAL_CROSS_LAGGED_PANEL",
+    "waves": 3,
+    "constructs": [
+      "predictor",
+      "mediator",
+      "outcome"
+    ]
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_longitudinal_panel.csv",
+    "sha256": "da598ae65831d439d2ad694d8290cdfad8fd3e1bc3a451b760a7036843331539",
+    "format": "csv",
+    "sample_size": 140
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-LONG-01",
+      "description": "Model autoregressive stability paths (T1->T2, T2->T3) for all constructs.",
+      "category": "METHODOLOGICAL_REQUIREMENT",
+      "verification_rule": "check_autoregressive_controls"
+    },
+    {
+      "action_id": "MUST-LONG-02",
+      "description": "Estimate cross-lagged structural paths controlling for prior levels.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_cross_lagged_paths"
+    },
+    {
+      "action_id": "MUST-LONG-03",
+      "description": "Test longitudinal measurement invariance across measurement waves.",
+      "category": "ASSUMPTION_CHECK",
+      "verification_rule": "check_longitudinal_invariance"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-LONG-01",
+      "description": "Omit autoregressive baseline paths leading to inflated cross-lagged estimates.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_omitted_autoregressive_paths"
+    },
+    {
+      "pitfall_id": "NOT-LONG-02",
+      "description": "Conflate cross-sectional mediation with true longitudinal mediation.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_cross_sectional_conflation"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-LONG-01",
+      "description": "Cross-lagged structural path parameters table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-LONG-02",
+      "description": "Longitudinal measurement invariance comparison table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    }
+  ],
+  "target_capability": "longitudinal-moderated-mediation",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "LONGITUDINAL",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.701442+00:00"
+}

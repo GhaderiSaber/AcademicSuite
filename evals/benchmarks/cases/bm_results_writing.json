@@ -1,0 +1,83 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-RESULTS-WRITING-001",
+  "family": "RESULTS_WRITING",
+  "title": "APA 7th Edition Empirical Results Drafting with Persian Typography Standards",
+  "description": "Authoritative academic behavioral benchmark case for RESULTS_WRITING.",
+  "research_question": "Are ANCOVA empirical findings drafted following Saber's 5-part epistemic structure, Persian leading zeros, and zero ghost citations?",
+  "design": {
+    "design_type": "CHAPTER_4_EMPIRICAL_REPORTING",
+    "test": "ANCOVA",
+    "f": 14.82,
+    "p": 0.0002,
+    "eta_p2": 0.161
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_results_writing_input.csv",
+    "sha256": "8c10709de3313b5af8887301e48c79f8c08406387305044573c7410477bd1f0d",
+    "format": "csv",
+    "sample_size": 20
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-RES-01",
+      "description": "Adhere to Saber's 5-part epistemic paragraph structure (Hypothesis -> Test -> Stats -> Interpretation -> Table).",
+      "category": "REPORTING_STANDARD",
+      "verification_rule": "check_5_part_epistemic_structure"
+    },
+    {
+      "action_id": "MUST-RES-02",
+      "description": "Preserve Persian leading zeros (۰.۰۰۱, ۰.۰۵, ۰.۱۶) and report p < ۰.۰۰۱ instead of p = .000.",
+      "category": "REPORTING_STANDARD",
+      "verification_rule": "check_persian_leading_zero"
+    },
+    {
+      "action_id": "MUST-RES-03",
+      "description": "Generate synchronized triad of artifacts on disk (.docx, .md, .json) per Directive 3.",
+      "category": "PROCEDURAL_COMPLIANCE",
+      "verification_rule": "check_triad_artifacts_produced"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-RES-01",
+      "description": "Report p = .000 or omit leading zeros in Persian (.۰۰۱).",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_p_equals_zero_or_missing_persian_zero"
+    },
+    {
+      "pitfall_id": "NOT-RES-02",
+      "description": "Include external literature citations in Chapter 4 empirical results narrative.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_citations_in_results"
+    },
+    {
+      "pitfall_id": "NOT-RES-03",
+      "description": "Use robotic AI cliches like 'شایان ذکر است که'.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_ai_cliches"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-RES-01",
+      "description": "Synchronized triad artifacts on disk (.docx, .md, .json).",
+      "evidence_type": "TRIAD_DELIVERABLE",
+      "verification_method": "TRIAD_SYNCHRONIZED"
+    },
+    {
+      "evidence_id": "EVID-RES-02",
+      "description": "APA 7 3-line table with decoupled LTR numbers.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    }
+  ],
+  "target_capability": "chapter-4-writing",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "RESULTS_WRITING",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.709939+00:00"
+}

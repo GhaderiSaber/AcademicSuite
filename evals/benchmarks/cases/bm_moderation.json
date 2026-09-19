@@ -1,0 +1,76 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-MODERATION-001",
+  "family": "MODERATION",
+  "title": "Moderated Regression Analysis with Mean-Centering and Simple Slopes",
+  "description": "Authoritative academic behavioral benchmark case for MODERATION.",
+  "research_question": "Does social support buffer the detrimental impact of work stress on employee turnover intention?",
+  "design": {
+    "design_type": "MODERATION_INTERACTION_PROCESS_MODEL_1",
+    "predictor": "work_stress",
+    "moderator": "social_support",
+    "outcome": "job_turnover"
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_moderation_interaction.csv",
+    "sha256": "35bfea4418b52f890672c1c8557d5d4d8d08246f547528b2e2c8a282d2f741ef",
+    "format": "csv",
+    "sample_size": 160
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-MOD-01",
+      "description": "Mean-center predictor and moderator variables prior to forming product term.",
+      "category": "METHODOLOGICAL_REQUIREMENT",
+      "verification_rule": "check_mean_centering_applied"
+    },
+    {
+      "action_id": "MUST-MOD-02",
+      "description": "Evaluate delta R2 and interaction F-change significance.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_delta_r2_f_change"
+    },
+    {
+      "action_id": "MUST-MOD-03",
+      "description": "Probe interaction with simple slopes at -1 SD, Mean, +1 SD and Johnson-Neyman technique.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_simple_slopes_and_jn"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-MOD-01",
+      "description": "Dichotomize continuous moderators into artificial median splits.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_median_split_dichotomization"
+    },
+    {
+      "pitfall_id": "NOT-MOD-02",
+      "description": "Interpret main effects without conditioning in the presence of significant interaction.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_unconditioned_main_effects"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-MOD-01",
+      "description": "Hierarchical moderation model comparison table with delta R2.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-MOD-02",
+      "description": "Simple slopes conditional effects table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    }
+  ],
+  "target_capability": "moderation",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "MODERATION",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.696979+00:00"
+}

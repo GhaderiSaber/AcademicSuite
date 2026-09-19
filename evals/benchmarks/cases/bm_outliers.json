@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-OUTLIERS-001",
+  "family": "OUTLIERS",
+  "title": "Multivariate Outlier Screening via Mahalanobis D2 and Cook's Influence Sensitivity",
+  "description": "Authoritative academic behavioral benchmark case for OUTLIERS.",
+  "research_question": "Are multivariate outliers present in cognitive performance indices, and do they exert disproportionate influence on parameter estimates?",
+  "design": {
+    "design_type": "MULTIVARIATE_CROSS_SECTIONAL",
+    "dimensions": 4
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_outlier_multivariate.csv",
+    "sha256": "11b8c4f3a4fc44b7fde196c3510afb02754358e66d3c9c325813dd988b468066",
+    "format": "csv",
+    "sample_size": 100
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-OUT-01",
+      "description": "Compute Mahalanobis distance D2 for all cases against chi2 distribution at p < .001.",
+      "category": "ASSUMPTION_CHECK",
+      "verification_rule": "check_mahalanobis_computed"
+    },
+    {
+      "action_id": "MUST-OUT-02",
+      "description": "Evaluate Cook's distance to determine parameter leverage.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_cooks_distance_evaluated"
+    },
+    {
+      "action_id": "MUST-OUT-03",
+      "description": "Conduct sensitivity analysis comparing models with and without influential cases.",
+      "category": "METHODOLOGICAL_REQUIREMENT",
+      "verification_rule": "check_sensitivity_analysis"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-OUT-01",
+      "description": "Silently delete extreme cases without reporting D2, df, and p-values.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_undocumented_deletion"
+    },
+    {
+      "pitfall_id": "NOT-OUT-02",
+      "description": "Rely solely on univariate inspection for multivariate models.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_solely_univariate_screening"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-OUT-01",
+      "description": "Mahalanobis D2 diagnostic table with critical cutoff.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-OUT-02",
+      "description": "Sensitivity comparison table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    }
+  ],
+  "target_capability": "data-audit",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "OUTLIERS",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.673801+00:00"
+}

@@ -1,0 +1,76 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-MEDIATION-001",
+  "family": "MEDIATION",
+  "title": "Preacher & Hayes Bootstrap Mediation Analysis with 5,000 Resamples",
+  "description": "Authoritative academic behavioral benchmark case for MEDIATION.",
+  "research_question": "Does rumination mediate the relationship between dispositional mindfulness and generalized anxiety?",
+  "design": {
+    "design_type": "BOOTSTRAP_MEDIATION_PROCESS_MODEL_4",
+    "iv": "mindfulness",
+    "mediator": "rumination",
+    "dv": "anxiety"
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_mediation_process.csv",
+    "sha256": "30334fe711833231c80f4e20b6bc2a4238e26cf4f1d8ae69e9a5ee2d22dac1c2",
+    "format": "csv",
+    "sample_size": 180
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-MED-01",
+      "description": "Execute non-parametric bootstrap estimation with at least 5,000 resamples.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_bootstrap_resamples_gte_5000"
+    },
+    {
+      "action_id": "MUST-MED-02",
+      "description": "Report 95% bias-corrected and accelerated (BCa) confidence intervals for indirect effect.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_bca_confidence_interval"
+    },
+    {
+      "action_id": "MUST-MED-03",
+      "description": "Report constituent paths: a (IV->Med), b (Med->DV), c (total), and c' (direct).",
+      "category": "REPORTING_STANDARD",
+      "verification_rule": "check_constituent_paths_reported"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-MED-01",
+      "description": "Rely on obsolete Baron & Kenny causal steps or Sobel test assumption of normality.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_baron_kenny_steps"
+    },
+    {
+      "pitfall_id": "NOT-MED-02",
+      "description": "Claim mediation when the 95% bootstrap confidence interval contains zero.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_mediation_with_zero_ci"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-MED-01",
+      "description": "Bootstrap indirect effect table with 95% BCa CI.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-MED-02",
+      "description": "Dedicated hypothesis triad deliverables (.docx, .md, .json).",
+      "evidence_type": "TRIAD_DELIVERABLE",
+      "verification_method": "TRIAD_SYNCHRONIZED"
+    }
+  ],
+  "target_capability": "mediation",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "MEDIATION",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.694651+00:00"
+}

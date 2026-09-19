@@ -1,0 +1,75 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-RELIABILITY-001",
+  "family": "RELIABILITY",
+  "title": "Psychometric Internal Consistency and McDonald's Omega Evaluation",
+  "description": "Authoritative academic behavioral benchmark case for RELIABILITY.",
+  "research_question": "Does the depression inventory exhibit adequate internal consistency, and which items degrade scale coherence?",
+  "design": {
+    "design_type": "SCALE_RELIABILITY_ANALYSIS",
+    "scale_name": "Depression Inventory",
+    "items_count": 8
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_reliability_scale.csv",
+    "sha256": "25bd674e5386eacdfde58e87e39e0f897b51ac591fcbcb8b762d662f565d2b69",
+    "format": "csv",
+    "sample_size": 150
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-REL-01",
+      "description": "Calculate Cronbach's alpha with 95% confidence interval.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_alpha_ci_reported"
+    },
+    {
+      "action_id": "MUST-REL-02",
+      "description": "Compute McDonald's omega as superior metric under tau-equivalence violations.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_omega_calculated"
+    },
+    {
+      "action_id": "MUST-REL-03",
+      "description": "Inspect corrected item-total correlations and alpha-if-item-deleted.",
+      "category": "METHODOLOGICAL_REQUIREMENT",
+      "verification_rule": "check_item_total_correlations"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-REL-01",
+      "description": "Compute single omnibus alpha across multi-dimensional scale without subscale breakdown.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_omnibus_multidim_alpha"
+    },
+    {
+      "pitfall_id": "NOT-REL-02",
+      "description": "Retain item with negative or near-zero item-total correlation without diagnostic discussion.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_unflagged_bad_item"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-REL-01",
+      "description": "Scale reliability summary table reporting alpha and omega.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-REL-02",
+      "description": "Item-total statistics table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    }
+  ],
+  "target_capability": "reliability-analysis",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "RELIABILITY",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.677277+00:00"
+}

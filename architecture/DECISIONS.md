@@ -1661,3 +1661,35 @@ Furthermore, curriculum tasks lacked physical backing datasets on disk, data pro
 - **Positive**: 100% elimination of synthetic mock payloads from the slow loop; true empirical verification on physical datasets; evaluation based on resilient behavioral invariants rather than fragile scalar matches; complete adherence to Directives 0, 6, 9, 18, and 19.
 - **Negative**: Practice case generation writes physical CSV files to disk, requiring disk storage management in the evaluations directory.
 
+---
+
+## ADR-038: Authoritative Academic Behavioral Benchmarks across 18 Methodology Families
+
+### Status
+Accepted
+
+### Context
+Evaluating autonomous research agents in academic and statistical methodology cannot rely solely on simple unit tests or single scalar targets. Prior evaluation suites in AcademicSuite lacked comprehensive coverage across advanced psychometric and research methodology domains (e.g. scale reverse coding, Little's MCAR missingness tests, multivariate Mahalanobis outliers, McDonald's omega, 3-wave longitudinal panel controls, CONSORT RCT flow, homogeneity of regression slopes, Mauchly's sphericity epsilon corrections, and hierarchical mixed models). Furthermore, evaluating agents without explicit behavioral contracts led to undetectable shortcuts: an agent might compute a correct test statistic while completely omitting mandatory assumption checks, or commit subtle p-hacking, reporting $p = .000$, or making unwarranted causal claims from cross-sectional data.
+
+### Decision
+1. **The 18 Canonical Benchmark Families**:
+   Codified authoritative benchmark families covering the entire empirical thesis lifecycle:
+   `DATA_CLEANING`, `MISSING_DATA`, `OUTLIERS`, `NORMALITY`, `RELIABILITY`, `CFA`, `SEM`, `MEDIATION`, `MODERATION`, `LONGITUDINAL`, `RCT`, `ANCOVA`, `RM_ANOVA`, `MIXED_MODELS`, `NETWORK_ANALYSIS`, `POWER_ANALYSIS`, `RESULTS_WRITING`, `DISCUSSION_WRITING`.
+
+2. **The Three-Pillar Behavioral Contract (`contracts/evolution/academic_benchmark_case.schema.json`)**:
+   Every benchmark case across all 18 families strictly specifies:
+   - **What a correct agent MUST DO** (`must_do`): Mandatory methodological steps, assumption checks, parameter estimation protocols, and reporting standards.
+   - **What it MUST NOT DO** (`must_not_do`): Forbidden anti-patterns, p-hacking traps, causal overreach, AI clichés, and typographic violations (e.g. $p = .000$, missing Persian leading zero, Baron & Kenny mediation, mean imputation, difference in significance fallacy).
+   - **What evidence it MUST PRODUCE** (`required_evidence`): Physical triad artifacts (.docx, .md, .json), cryptographic SHA256 hashes, exact parameter bounds, and diagnostic tables.
+
+3. **Physical Datasets on Disk with Provenance (`evals/benchmarks/datasets/`)**:
+   All 18 benchmark cases are backed by physical CSV datasets on disk generated with bounded empirical decimal noise ($\mu_{\text{empirical}} = \mu_{\text{target}} + \delta, \delta \sim \text{Uniform}(\pm 0.08, \pm 0.25)$) per Directive 9, verified sample sizes ($N \ge 15$), and recorded cryptographic SHA256 hashes.
+
+4. **Authoritative Benchmark Evaluation Engine (`scripts/academic_benchmark_suite.py`)**:
+   Deterministic CLI and programmatic grading engine that validates benchmark cases, verifies candidate executions across all three pillars, and emits canonical `EvaluationResult` objects for both AcademicSuite operational auditing and continuous self-improvement verification.
+
+### Consequences
+- **Positive**: Complete benchmark coverage across 18 core research domains; eliminates stealth shortcuts and unverified assumption claims; guarantees reproducible empirical grading; serves as the permanent golden benchmark for continuous self-improvement and agent promotion.
+- **Negative**: Adds 18 physical benchmark datasets and case files under `evals/benchmarks/`, requiring periodic maintenance and hash synchronization.
+
+

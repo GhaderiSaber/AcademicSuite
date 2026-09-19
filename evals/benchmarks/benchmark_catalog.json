@@ -1,0 +1,151 @@
+{
+  "catalog_version": "1.0.0",
+  "updated_at": "2026-09-19T13:17:32.668263+00:00",
+  "total_families": 18,
+  "families": {
+    "DATA_CLEANING": {
+      "case_id": "BM-DATA-CLEANING-001",
+      "case_file": "evals/benchmarks/cases/bm_data_cleaning.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_data_cleaning_survey.csv",
+      "dataset_sha256": "9a8170025b868eb237548f2778e73595b4f3e1400d597d9e3c40b22758774195",
+      "sample_size": 80,
+      "target_capability": "data-cleaning"
+    },
+    "MISSING_DATA": {
+      "case_id": "BM-MISSING-DATA-001",
+      "case_file": "evals/benchmarks/cases/bm_missing_data.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_missing_data_panel.csv",
+      "dataset_sha256": "c840c2d34fc204883de95058331e2687512fac1d5d9e92f49bf2ec5067b32a89",
+      "sample_size": 120,
+      "target_capability": "data-audit"
+    },
+    "OUTLIERS": {
+      "case_id": "BM-OUTLIERS-001",
+      "case_file": "evals/benchmarks/cases/bm_outliers.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_outlier_multivariate.csv",
+      "dataset_sha256": "11b8c4f3a4fc44b7fde196c3510afb02754358e66d3c9c325813dd988b468066",
+      "sample_size": 100,
+      "target_capability": "data-audit"
+    },
+    "NORMALITY": {
+      "case_id": "BM-NORMALITY-001",
+      "case_file": "evals/benchmarks/cases/bm_normality.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_normality_distribution.csv",
+      "dataset_sha256": "e97a500313d5cccf49bc6fe3b7d286cee76248f44f22fae6f838569f32d73fa4",
+      "sample_size": 90,
+      "target_capability": "assumption-testing"
+    },
+    "RELIABILITY": {
+      "case_id": "BM-RELIABILITY-001",
+      "case_file": "evals/benchmarks/cases/bm_reliability.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_reliability_scale.csv",
+      "dataset_sha256": "25bd674e5386eacdfde58e87e39e0f897b51ac591fcbcb8b762d662f565d2b69",
+      "sample_size": 150,
+      "target_capability": "reliability-analysis"
+    },
+    "CFA": {
+      "case_id": "BM-CFA-001",
+      "case_file": "evals/benchmarks/cases/bm_cfa.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_cfa_measurement.csv",
+      "dataset_sha256": "e601cb2170164dcc9a070821c54b74e50ac1e46503e376b3d18a7f365666e6fa",
+      "sample_size": 220,
+      "target_capability": "cfa"
+    },
+    "SEM": {
+      "case_id": "BM-SEM-001",
+      "case_file": "evals/benchmarks/cases/bm_sem.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_sem_structural.csv",
+      "dataset_sha256": "65efae5c65410f27fbc375d3756807d73ed6230b22cb90d155e7744f97eef06f",
+      "sample_size": 250,
+      "target_capability": "sem"
+    },
+    "MEDIATION": {
+      "case_id": "BM-MEDIATION-001",
+      "case_file": "evals/benchmarks/cases/bm_mediation.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_mediation_process.csv",
+      "dataset_sha256": "30334fe711833231c80f4e20b6bc2a4238e26cf4f1d8ae69e9a5ee2d22dac1c2",
+      "sample_size": 180,
+      "target_capability": "mediation"
+    },
+    "MODERATION": {
+      "case_id": "BM-MODERATION-001",
+      "case_file": "evals/benchmarks/cases/bm_moderation.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_moderation_interaction.csv",
+      "dataset_sha256": "35bfea4418b52f890672c1c8557d5d4d8d08246f547528b2e2c8a282d2f741ef",
+      "sample_size": 160,
+      "target_capability": "moderation"
+    },
+    "LONGITUDINAL": {
+      "case_id": "BM-LONGITUDINAL-001",
+      "case_file": "evals/benchmarks/cases/bm_longitudinal.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_longitudinal_panel.csv",
+      "dataset_sha256": "da598ae65831d439d2ad694d8290cdfad8fd3e1bc3a451b760a7036843331539",
+      "sample_size": 140,
+      "target_capability": "longitudinal-moderated-mediation"
+    },
+    "RCT": {
+      "case_id": "BM-RCT-001",
+      "case_file": "evals/benchmarks/cases/bm_rct.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_rct_efficacy.csv",
+      "dataset_sha256": "5bddbaf568e2cb3a5979d4b6c396d20a36d8f48031cc604c6706eb912a03fade",
+      "sample_size": 100,
+      "target_capability": "statistical-data-analyst"
+    },
+    "ANCOVA": {
+      "case_id": "BM-ANCOVA-001",
+      "case_file": "evals/benchmarks/cases/bm_ancova.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_ancova_prepost.csv",
+      "dataset_sha256": "05e2ebd046ca1ed5414c1a01e6b4adfebbe95fd85c7d4d8c14311a4535e9cb5a",
+      "sample_size": 80,
+      "target_capability": "statistical-data-analyst"
+    },
+    "RM_ANOVA": {
+      "case_id": "BM-RM-ANOVA-001",
+      "case_file": "evals/benchmarks/cases/bm_rm_anova.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_rm_anova_multitime.csv",
+      "dataset_sha256": "87ee1b3afa16c32c7bf9be4c5ee8900dca0fc84c193b4c6533d0fb98d8ae038c",
+      "sample_size": 60,
+      "target_capability": "statistical-data-analyst"
+    },
+    "MIXED_MODELS": {
+      "case_id": "BM-MIXED-MODELS-001",
+      "case_file": "evals/benchmarks/cases/bm_mixed_models.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_mixed_models_nested.csv",
+      "dataset_sha256": "434981efde813a74dde905f8910a0f8823371141f90fd86edf4166f8f9d60838",
+      "sample_size": 200,
+      "target_capability": "statistical-data-analyst"
+    },
+    "NETWORK_ANALYSIS": {
+      "case_id": "BM-NETWORK-ANALYSIS-001",
+      "case_file": "evals/benchmarks/cases/bm_network_analysis.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_network_symptoms.csv",
+      "dataset_sha256": "d308cd2d060bd23fe6dd050e9fe5d9560ed10df89959913201733620216cc478",
+      "sample_size": 200,
+      "target_capability": "bibliometric-network-analyst"
+    },
+    "POWER_ANALYSIS": {
+      "case_id": "BM-POWER-ANALYSIS-001",
+      "case_file": "evals/benchmarks/cases/bm_power_analysis.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_power_analysis_specs.csv",
+      "dataset_sha256": "2774e39f6edceae3aa453ec6c69f34c35f8aa76cc82fedbf27e04d764267ad6d",
+      "sample_size": 20,
+      "target_capability": "gpower-sample-size-calculator"
+    },
+    "RESULTS_WRITING": {
+      "case_id": "BM-RESULTS-WRITING-001",
+      "case_file": "evals/benchmarks/cases/bm_results_writing.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_results_writing_input.csv",
+      "dataset_sha256": "8c10709de3313b5af8887301e48c79f8c08406387305044573c7410477bd1f0d",
+      "sample_size": 20,
+      "target_capability": "chapter-4-writing"
+    },
+    "DISCUSSION_WRITING": {
+      "case_id": "BM-DISCUSSION-WRITING-001",
+      "case_file": "evals/benchmarks/cases/bm_discussion_writing.json",
+      "dataset_path": "evals/benchmarks/datasets/bm_discussion_writing_input.csv",
+      "dataset_sha256": "d6dec3a03992a234b461c7f5504e00430c6cf34b6a3a52301024b2b8b1988b0c",
+      "sample_size": 20,
+      "target_capability": "persian-discussion-builder"
+    }
+  }
+}

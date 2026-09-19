@@ -2263,3 +2263,80 @@ In psychological and behavioral research methodology, requiring a single rigid s
    - Replaces `simulated_slow_payload` with `_execute_practice_agent` and `evaluate_practice_execution`.
    - Candidate practice failure blocks promotion fail-closed, emitting feedback (`FDB-*`) and synthesizing permanent regression cases.
 
+---
+
+## 38. Phase 33 — Academic Behavioral Benchmarks (18 Methodology Families)
+
+### 38.1 Purpose and Architectural Rationale
+Phase 33 addresses a foundational gap in automated academic research AI: the need for an authoritative, comprehensive behavioral benchmark suite covering all 18 core methodological, statistical, psychometric, and academic writing domains.
+
+Unlike standard code unit tests, research methodology requires evaluating agent **epistemic integrity**, **assumption rigor**, and **reproducible physical evidence**. An agent that calculates a correct $F$-ratio but skipped the assumption of homogeneity of regression slopes has committed a severe methodological failure.
+
+### 38.2 The 18 Canonical Benchmark Families
+```mermaid
+flowchart TD
+    subgraph DataPrep["1. Data Curation & Screening"]
+        F1["DATA_CLEANING\n(Reverse coding, range screening, aggregation)"]
+        F2["MISSING_DATA\n(Little MCAR, FIML/MICE vs mean imputation)"]
+        F3["OUTLIERS\n(Mahalanobis D2, Cook D, sensitivity)"]
+        F4["NORMALITY\n(Shapiro-Wilk, Mardia multivariate, MLR)"]
+    end
+
+    subgraph Psychometrics["2. Psychometrics & Latent Systems"]
+        F5["RELIABILITY\n(Cronbach alpha, McDonald omega, item-total)"]
+        F6["CFA\n(Loadings lambda, AVE, CR, HTMT, Hu-Bentler)"]
+        F7["SEM\n(2-step Anderson-Gerbing, structural paths, fit)"]
+        F8["MEDIATION\n(5,000 bootstrap BCa CI, constituent paths)"]
+        F9["MODERATION\n(Mean-centering, delta R2, simple slopes, JN)"]
+        F10["LONGITUDINAL\n(Autoregressive controls, cross-lagged paths)"]
+        F15["NETWORK_ANALYSIS\n(EBICglasso, centrality, CS-stability)"]
+    end
+
+    subgraph Inference["3. Experimental & Modeling Inference"]
+        F11["RCT\n(CONSORT flow, baseline equivalence, ITT vs PP)"]
+        F12["ANCOVA\n(Homogeneity of slopes, adjusted marginal means)"]
+        F13["RM_ANOVA\n(Mauchly sphericity, Greenhouse-Geisser epsilon)"]
+        F14["MIXED_MODELS\n(Null model ICC, random slope LRT, AIC/BIC)"]
+        F16["POWER_ANALYSIS\n(G*Power a priori sizing, attrition adjustment)"]
+    end
+
+    subgraph Writing["4. Scholarly Synthesis & Typography"]
+        F17["RESULTS_WRITING\n(Saber 5-part structure, Persian zero, APA tables)"]
+        F18["DISCUSSION_WRITING\n(Mechanisms, 2021-2026 lit, candid limitations)"]
+    end
+```
+
+### 38.3 The Three Foundational Pillars per Case
+Every benchmark case in `evals/benchmarks/cases/` codifies three immutable behavioral pillars:
+1. **What a correct agent MUST DO (`must_do`)**:
+   - Prerequisite assumption verification before running inferential models.
+   - Appropriate baseline controls and covariate adjustments.
+   - Non-parametric bootstrap resampling ($\ge 5,000$) for indirect effects.
+   - Authentic Persian academic typography with leading zero standard (`۰.۰۰۱`).
+   - Generation of synchronized triad deliverables (`.docx`, `.md`, `.json`).
+2. **What it MUST NOT DO (`must_not_do`)**:
+   - Forbidden $p = .000$ or missing leading zero in Persian (`.۰۰۱`).
+   - Obsolete Baron & Kenny causal steps or Sobel test assumption of normality.
+   - Naive mean imputation or untested listwise deletion.
+   - Artificial median split dichotomization of continuous moderators.
+   - Difference in significance fallacy (claiming efficacy from separate within-group tests).
+   - Definitive causal claims from cross-sectional observational data.
+   - External literature citations in Chapter 4 empirical results narrative.
+   - Ghost citations in Chapter 5 discussion.
+3. **What evidence it MUST PRODUCE (`required_evidence`)**:
+   - Cryptographic SHA256 verification of inputs and outputs.
+   - Physical triad artifacts verified on disk.
+   - Exact numerical parameters and effect sizes with 95% confidence intervals.
+   - Full diagnostic tables (sphericity, normality, model comparison, centrality stability).
+
+### 38.4 Architecture & Files
+1. **Canonical Schema Contract**:
+   - `contracts/evolution/academic_benchmark_case.schema.json`
+   - Registered in `contracts/contract_validator.py` via `validate_academic_benchmark_case()`.
+2. **Physical Benchmark Datasets & Cases**:
+   - `evals/benchmarks/datasets/`: 18 real CSV datasets with Directive 9 decimal noise and verified SHA256 hashes.
+   - `evals/benchmarks/cases/`: 18 schema-valid benchmark cases.
+   - `evals/benchmarks/benchmark_catalog.json`: Master index catalog.
+3. **Benchmark Evaluation Suite ("The Hands")**:
+   - `scripts/academic_benchmark_suite.py`: CLI and programmatic evaluation engine.
+   - Supports `--list-families`, `--validate-all`, `--case`, `--export-report`.

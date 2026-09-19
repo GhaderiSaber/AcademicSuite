@@ -75,7 +75,8 @@ SCHEMA_FILES = {
     "generalization_lifecycle": "evolution/generalization_lifecycle.schema.json",
     "confidence_evidence": "evolution/confidence_evidence.schema.json",
     "knowledge_retrieval": "evolution/knowledge_retrieval.schema.json",
-    "curriculum_case": "evolution/curriculum_case.schema.json"
+    "curriculum_case": "evolution/curriculum_case.schema.json",
+    "academic_benchmark_case": "evolution/academic_benchmark_case.schema.json"
 }
 
 
@@ -278,4 +279,8 @@ def validate_knowledge_retrieval(instance: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_curriculum_case(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "curriculum_case")
+
+
+def validate_academic_benchmark_case(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "academic_benchmark_case")
 

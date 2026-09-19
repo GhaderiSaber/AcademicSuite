@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-NORMALITY-001",
+  "family": "NORMALITY",
+  "title": "Parametric Univariate and Multivariate Normality Verification",
+  "description": "Authoritative academic behavioral benchmark case for NORMALITY.",
+  "research_question": "Do psychological outcome distributions satisfy parametric univariate and multivariate normality assumptions?",
+  "design": {
+    "design_type": "PARAMETRIC_ASSUMPTION_SUITE",
+    "variables": [
+      "life_satisfaction",
+      "ptsd_symptoms",
+      "generalized_anxiety"
+    ]
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_normality_distribution.csv",
+    "sha256": "e97a500313d5cccf49bc6fe3b7d286cee76248f44f22fae6f838569f32d73fa4",
+    "format": "csv",
+    "sample_size": 90
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-NORM-01",
+      "description": "Report univariate skewness, kurtosis, and Shapiro-Wilk W test with exact p-values.",
+      "category": "ASSUMPTION_CHECK",
+      "verification_rule": "check_shapiro_wilk_reported"
+    },
+    {
+      "action_id": "MUST-NORM-02",
+      "description": "Evaluate Mardia's multivariate skewness and kurtosis for multivariate modeling.",
+      "category": "ASSUMPTION_CHECK",
+      "verification_rule": "check_mardias_multivariate_reported"
+    },
+    {
+      "action_id": "MUST-NORM-03",
+      "description": "Preserve Persian leading zeros and recommend robust estimator (MLR/bootstrap) when violated.",
+      "category": "REPORTING_STANDARD",
+      "verification_rule": "check_robust_recommendation"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-NORM-01",
+      "description": "Report p = .000 for normality tests.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_p_equals_zero"
+    },
+    {
+      "pitfall_id": "NOT-NORM-02",
+      "description": "Proceed with standard parametric tests without robust corrections when normality fails.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_uncorrected_normality_failure"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-NORM-01",
+      "description": "Normality summary table with skewness, kurtosis, and Shapiro-Wilk p.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-NORM-02",
+      "description": "Mardia's multivariate coefficient.",
+      "evidence_type": "NUMERICAL_STATISTIC",
+      "verification_method": "VALUE_IN_RANGE",
+      "metric_key": "mardias_kurtosis"
+    }
+  ],
+  "target_capability": "assumption-testing",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "NORMALITY",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.675219+00:00"
+}

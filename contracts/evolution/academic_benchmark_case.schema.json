@@ -1,0 +1,283 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/academic_benchmark_case.schema.json",
+  "title": "AcademicBenchmarkCaseContract",
+  "description": "Contract schema for authoritative academic behavioral benchmark cases across statistical, psychometric, and writing methodology families.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "case_id",
+    "family",
+    "title",
+    "research_question",
+    "design",
+    "dataset",
+    "must_do",
+    "must_not_do",
+    "required_evidence",
+    "created_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "case_id": {
+      "type": "string",
+      "pattern": "^BM-[A-Z0-9_-]+$",
+      "description": "Unique identifier for this benchmark case (e.g. BM-ANCOVA-001, BM-DATA-CLEAN-001)."
+    },
+    "family": {
+      "type": "string",
+      "enum": [
+        "DATA_CLEANING",
+        "MISSING_DATA",
+        "OUTLIERS",
+        "NORMALITY",
+        "RELIABILITY",
+        "CFA",
+        "SEM",
+        "MEDIATION",
+        "MODERATION",
+        "LONGITUDINAL",
+        "RCT",
+        "ANCOVA",
+        "RM_ANOVA",
+        "MIXED_MODELS",
+        "NETWORK_ANALYSIS",
+        "POWER_ANALYSIS",
+        "RESULTS_WRITING",
+        "DISCUSSION_WRITING"
+      ],
+      "description": "One of the 18 authoritative academic behavioral benchmark families."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Scholarly title describing the benchmark task."
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed background and context of the benchmark evaluation."
+    },
+    "research_question": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Scholarly research question under investigation."
+    },
+    "design": {
+      "type": "object",
+      "required": ["design_type"],
+      "properties": {
+        "design_type": {
+          "type": "string",
+          "description": "Research design specification (e.g. PRE_POST_RCT, ANCOVA_COVARIATE, BOOTSTRAP_MEDIATION, LATENT_SEM)."
+        },
+        "independent_variables": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "dependent_variables": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "covariates": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "mediators": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "moderators": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "factors": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "sample_allocation": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "dataset": {
+      "type": "object",
+      "required": ["path", "sha256", "format", "sample_size"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Path to the dataset file on disk."
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "Cryptographic SHA256 checksum of the dataset."
+        },
+        "format": {
+          "type": "string",
+          "enum": ["csv", "xlsx", "sav", "json"]
+        },
+        "sample_size": {
+          "type": "integer",
+          "minimum": 15,
+          "description": "Total sample size N."
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "role", "type"],
+            "properties": {
+              "name": {"type": "string"},
+              "role": {"type": "string"},
+              "type": {"type": "string"}
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "must_do": {
+      "type": "array",
+      "minItems": 1,
+      "description": "What a correct agent must do: mandatory methodological requirements, prerequisite assumption tests, and reporting standards.",
+      "items": {
+        "type": "object",
+        "required": ["action_id", "description", "verification_rule"],
+        "properties": {
+          "action_id": {
+            "type": "string",
+            "pattern": "^MUST-[A-Z0-9_-]+$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "METHODOLOGICAL_REQUIREMENT",
+              "ASSUMPTION_CHECK",
+              "STATISTICAL_RIGOR",
+              "REPORTING_STANDARD",
+              "PROCEDURAL_COMPLIANCE"
+            ]
+          },
+          "verification_rule": {
+            "type": "string",
+            "minLength": 5
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "must_not_do": {
+      "type": "array",
+      "minItems": 1,
+      "description": "What a correct agent must not do: forbidden anti-patterns, p-hacking traps, methodological pitfalls, and typographic violations.",
+      "items": {
+        "type": "object",
+        "required": ["pitfall_id", "description", "detection_rule"],
+        "properties": {
+          "pitfall_id": {
+            "type": "string",
+            "pattern": "^NOT-[A-Z0-9_-]+$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["CRITICAL", "MAJOR", "UNACCEPTABLE"]
+          },
+          "detection_rule": {
+            "type": "string",
+            "minLength": 5
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "description": "What evidence the agent must produce: cryptographic hashes, physical triad artifacts, test statistics, and parameter ranges.",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id", "description", "evidence_type", "verification_method"],
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "pattern": "^EVID-[A-Z0-9_-]+$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5
+          },
+          "evidence_type": {
+            "type": "string",
+            "enum": [
+              "ARTIFACT_FILE",
+              "NUMERICAL_STATISTIC",
+              "DIAGNOSTIC_METRIC",
+              "TRIAD_DELIVERABLE",
+              "MODEL_FIT_INDEX",
+              "EFFECT_SIZE",
+              "REPORTING_TABLE"
+            ]
+          },
+          "verification_method": {
+            "type": "string",
+            "enum": [
+              "FILE_EXISTS",
+              "VALUE_IN_RANGE",
+              "EXACT_MATCH",
+              "HASH_VERIFIED",
+              "REGEX_PATTERN",
+              "TRIAD_SYNCHRONIZED"
+            ]
+          },
+          "metric_key": {
+            "type": "string"
+          },
+          "expected_range": {
+            "type": "object",
+            "properties": {
+              "min": {"type": "number"},
+              "max": {"type": "number"}
+            },
+            "additionalProperties": false
+          },
+          "expected_value": {},
+          "file_pattern": {
+            "type": "string"
+          },
+          "file_path": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "target_capability": {
+      "type": "string"
+    },
+    "difficulty": {
+      "type": ["string", "integer"]
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}

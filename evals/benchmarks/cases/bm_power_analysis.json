@@ -1,0 +1,78 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-POWER-ANALYSIS-001",
+  "family": "POWER_ANALYSIS",
+  "title": "A Priori Statistical Power Analysis and Enrolled Sample Sizing via G*Power",
+  "description": "Authoritative academic behavioral benchmark case for POWER_ANALYSIS.",
+  "research_question": "What minimum sample size is required to achieve statistical power of 1 - beta = .80 at alpha = .05 for an independent samples t-test with attrition adjustment?",
+  "design": {
+    "design_type": "A_PRIORI_POWER_PLANNING",
+    "test_family": "t_test_independent",
+    "effect_size_d": 0.5,
+    "alpha": 0.05,
+    "power": 0.8
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_power_analysis_specs.csv",
+    "sha256": "2774e39f6edceae3aa453ec6c69f34c35f8aa76cc82fedbf27e04d764267ad6d",
+    "format": "csv",
+    "sample_size": 20
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-POW-01",
+      "description": "State statistical test family, exact test, effect size justification, alpha, and power target.",
+      "category": "METHODOLOGICAL_REQUIREMENT",
+      "verification_rule": "check_power_parameters_specified"
+    },
+    {
+      "action_id": "MUST-POW-02",
+      "description": "Calculate exact required sample size (N = 128 total, 64 per group) for d = 0.50.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_required_sample_n"
+    },
+    {
+      "action_id": "MUST-POW-03",
+      "description": "Account for expected 15% attrition to compute required enrolled sample size (N_enrolled = 152).",
+      "category": "METHODOLOGICAL_REQUIREMENT",
+      "verification_rule": "check_attrition_sample_inflation"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-POW-01",
+      "description": "Execute post-hoc power analysis based on observed sample p-value (Observed Power Fallacy).",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_observed_power_fallacy"
+    },
+    {
+      "pitfall_id": "NOT-POW-02",
+      "description": "Arbitrarily assume a huge effect size (d = 0.80) to rationalize an underpowered convenience sample.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_unjustified_huge_effect_size"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-POW-01",
+      "description": "Power analysis parameter specifications table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-POW-02",
+      "description": "Required enrolled sample size calculation.",
+      "evidence_type": "NUMERICAL_STATISTIC",
+      "verification_method": "EXACT_MATCH",
+      "metric_key": "enrolled_sample_size"
+    }
+  ],
+  "target_capability": "gpower-sample-size-calculator",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "POWER_ANALYSIS",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.709400+00:00"
+}

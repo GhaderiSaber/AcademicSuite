@@ -1,0 +1,89 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-DISCUSSION-WRITING-001",
+  "family": "DISCUSSION_WRITING",
+  "title": "Scholarly Chapter 5 Discussion Synthesis with Theoretical Mechanisms and Authentic Limitations",
+  "description": "Authoritative academic behavioral benchmark case for DISCUSSION_WRITING.",
+  "research_question": "Does the discussion synthesize confirmed and non-significant findings with psychological mechanisms, literature concordance, and authentic limitations?",
+  "design": {
+    "design_type": "CHAPTER_5_DISCUSSION_SYNTHESIS",
+    "findings": [
+      "H1_Confirmed_Mediation",
+      "H2_Not_Confirmed_Direct"
+    ]
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_discussion_writing_input.csv",
+    "sha256": "d6dec3a03992a234b461c7f5504e00430c6cf34b6a3a52301024b2b8b1988b0c",
+    "format": "csv",
+    "sample_size": 20
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-DISC-01",
+      "description": "Recap findings conceptually without redundant repetition of raw F, t, and p numbers.",
+      "category": "REPORTING_STANDARD",
+      "verification_rule": "check_conceptual_recap_without_raw_stats"
+    },
+    {
+      "action_id": "MUST-DISC-02",
+      "description": "Articulate theoretical mechanisms (Attentional Control Theory) explaining why findings emerged.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_theoretical_mechanisms_articulated"
+    },
+    {
+      "action_id": "MUST-DISC-03",
+      "description": "Situate in recent literature (2021-2026 window) citing both concordant and discordant studies.",
+      "category": "METHODOLOGICAL_REQUIREMENT",
+      "verification_rule": "check_literature_concordance_discordance"
+    },
+    {
+      "action_id": "MUST-DISC-04",
+      "description": "Candidly discuss non-significant findings without defensive rationalization, and articulate authentic limitations.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_candid_non_significant_discussion"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-DISC-01",
+      "description": "Repeat raw statistical test statistics (F = 14.82, p = .0002) in Chapter 5 prose.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_raw_stats_in_discussion"
+    },
+    {
+      "pitfall_id": "NOT-DISC-02",
+      "description": "Invent ghost citations or cite sources outside the reference library.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_ghost_citations"
+    },
+    {
+      "pitfall_id": "NOT-DISC-03",
+      "description": "Sugarcoat non-significant findings by claiming a 'trend towards significance'.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_sugarcoated_non_significant"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-DISC-01",
+      "description": "Discussion chapter triad (.docx, .md, .json).",
+      "evidence_type": "TRIAD_DELIVERABLE",
+      "verification_method": "TRIAD_SYNCHRONIZED"
+    },
+    {
+      "evidence_id": "EVID-DISC-02",
+      "description": "Literature concordance/divergence comparison matrix.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    }
+  ],
+  "target_capability": "persian-discussion-builder",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "DISCUSSION_WRITING",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.710461+00:00"
+}

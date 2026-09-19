@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-ANCOVA-001",
+  "family": "ANCOVA",
+  "title": "One-Way ANCOVA with Homogeneity of Slopes Assumption and Adjusted Marginal Means",
+  "description": "Authoritative academic behavioral benchmark case for ANCOVA.",
+  "research_question": "Does the treatment effect on post-intervention wellbeing remain statistically significant after adjusting for pre-test baseline scores?",
+  "design": {
+    "design_type": "ANCOVA_COVARIATE_PRE_POST",
+    "factors": [
+      "condition"
+    ],
+    "covariates": [
+      "pre_test"
+    ],
+    "dv": "post_test"
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_ancova_prepost.csv",
+    "sha256": "05e2ebd046ca1ed5414c1a01e6b4adfebbe95fd85c7d4d8c14311a4535e9cb5a",
+    "format": "csv",
+    "sample_size": 80
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-ANC-01",
+      "description": "Test mandatory assumption of homogeneity of regression slopes (condition x pre_test, p > .05).",
+      "category": "ASSUMPTION_CHECK",
+      "verification_rule": "check_slopes_homogeneity_tested"
+    },
+    {
+      "action_id": "MUST-ANC-02",
+      "description": "Report covariate-adjusted marginal means (Madj) and SE alongside raw unadjusted means.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_adjusted_means_reported"
+    },
+    {
+      "action_id": "MUST-ANC-03",
+      "description": "Report exact F, df, p-value, and partial eta-squared effect size.",
+      "category": "REPORTING_STANDARD",
+      "verification_rule": "check_ancova_f_df_p_eta"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-ANC-01",
+      "description": "Run standard ANCOVA when homogeneity of slopes is violated without using moderation/Johnson-Neyman.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_ignored_slope_violation"
+    },
+    {
+      "pitfall_id": "NOT-ANC-02",
+      "description": "Report only raw unadjusted group means instead of covariate-adjusted marginal means.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_missing_adjusted_means"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-ANC-01",
+      "description": "Homogeneity of regression slopes test table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-ANC-02",
+      "description": "ANCOVA summary table with adjusted means and partial eta2.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    }
+  ],
+  "target_capability": "statistical-data-analyst",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "ANCOVA",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.703837+00:00"
+}

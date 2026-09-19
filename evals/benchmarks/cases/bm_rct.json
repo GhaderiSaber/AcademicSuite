@@ -1,0 +1,82 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-RCT-001",
+  "family": "RCT",
+  "title": "Randomized Controlled Trial Efficacy Evaluation with CONSORT Accounting and Intent-to-Treat",
+  "description": "Authoritative academic behavioral benchmark case for RCT.",
+  "research_question": "Does the active psychological intervention demonstrate superior efficacy over control on depression symptoms in an RCT design?",
+  "design": {
+    "design_type": "PRE_POST_RCT",
+    "arms": [
+      "Intervention",
+      "Control"
+    ],
+    "measurement": [
+      "pre_depression",
+      "post_depression"
+    ]
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_rct_efficacy.csv",
+    "sha256": "5bddbaf568e2cb3a5979d4b6c396d20a36d8f48031cc604c6706eb912a03fade",
+    "format": "csv",
+    "sample_size": 100
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-RCT-01",
+      "description": "Verify baseline equivalence across experimental arms at pre-test.",
+      "category": "ASSUMPTION_CHECK",
+      "verification_rule": "check_baseline_equivalence"
+    },
+    {
+      "action_id": "MUST-RCT-02",
+      "description": "Evaluate Group x Time interaction effect with partial eta2.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_group_by_time_interaction"
+    },
+    {
+      "action_id": "MUST-RCT-03",
+      "description": "Report standardized between-group Cohen's d with 95% CI and CONSORT flow.",
+      "category": "REPORTING_STANDARD",
+      "verification_rule": "check_cohens_d_ci_and_consort"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-RCT-01",
+      "description": "Compare independent within-group pre-post tests and claim efficacy (Difference in Significance Fallacy).",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_difference_in_significance_fallacy"
+    },
+    {
+      "pitfall_id": "NOT-RCT-02",
+      "description": "Conceal participant attrition without Intent-to-Treat (ITT) or sensitivity reporting.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_undisclosed_attrition"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-RCT-01",
+      "description": "Baseline equivalence and interaction ANOVA table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-RCT-02",
+      "description": "CONSORT sample flow metrics.",
+      "evidence_type": "DIAGNOSTIC_METRIC",
+      "verification_method": "EXACT_MATCH",
+      "metric_key": "consort_analyzed_n"
+    }
+  ],
+  "target_capability": "statistical-data-analyst",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "RCT",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.702701+00:00"
+}

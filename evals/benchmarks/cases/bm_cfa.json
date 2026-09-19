@@ -1,0 +1,84 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-CFA-001",
+  "family": "CFA",
+  "title": "Confirmatory Factor Analysis, Construct Reliability, and HTMT Discriminant Validity",
+  "description": "Authoritative academic behavioral benchmark case for CFA.",
+  "research_question": "Does the 2-factor measurement model show construct validity, convergent validity, and adequate fit to empirical data?",
+  "design": {
+    "design_type": "CONFIRMATORY_FACTOR_ANALYSIS",
+    "factors": [
+      "CognitiveFlexibility",
+      "EmotionalRegulation"
+    ],
+    "indicators": 8
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_cfa_measurement.csv",
+    "sha256": "e601cb2170164dcc9a070821c54b74e50ac1e46503e376b3d18a7f365666e6fa",
+    "format": "csv",
+    "sample_size": 220
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-CFA-01",
+      "description": "Report standardized factor loadings (lambda >= .50, p < .001).",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_factor_loadings"
+    },
+    {
+      "action_id": "MUST-CFA-02",
+      "description": "Calculate Average Variance Extracted (AVE >= .50) and Composite Reliability (CR >= .70).",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_ave_cr_calculated"
+    },
+    {
+      "action_id": "MUST-CFA-03",
+      "description": "Evaluate 11 Hu & Bentler (1999) fit indices (chi2/df, CFI >= .90, RMSEA <= .08, SRMR <= .08).",
+      "category": "METHODOLOGICAL_REQUIREMENT",
+      "verification_rule": "check_hu_bentler_fit"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-CFA-01",
+      "description": "Add post-hoc error covariances between different factors solely to improve fit indices.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_cross_factor_error_covariances"
+    },
+    {
+      "pitfall_id": "NOT-CFA-02",
+      "description": "Claim convergent validity when AVE < .50 or CR < .70.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_unwarranted_convergent_claim"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-CFA-01",
+      "description": "Standardized factor loadings table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-CFA-02",
+      "description": "Construct validity matrix (AVE, CR, Cronbach alpha).",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-CFA-03",
+      "description": "Hu & Bentler fit index table.",
+      "evidence_type": "MODEL_FIT_INDEX",
+      "verification_method": "FILE_EXISTS"
+    }
+  ],
+  "target_capability": "cfa",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "CFA",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.684290+00:00"
+}

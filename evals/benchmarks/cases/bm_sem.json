@@ -1,0 +1,78 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-SEM-001",
+  "family": "SEM",
+  "title": "Structural Equation Modeling with Anderson-Gerbing Two-Step Protocol",
+  "description": "Authoritative academic behavioral benchmark case for SEM.",
+  "research_question": "Does perceived stress predict academic burnout directly and indirectly through sleep quality in university students?",
+  "design": {
+    "design_type": "STRUCTURAL_EQUATION_MODELING",
+    "exogenous": "PerceivedStress",
+    "endogenous": [
+      "SleepQuality",
+      "AcademicBurnout"
+    ]
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_sem_structural.csv",
+    "sha256": "65efae5c65410f27fbc375d3756807d73ed6230b22cb90d155e7744f97eef06f",
+    "format": "csv",
+    "sample_size": 250
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-SEM-01",
+      "description": "Validate measurement model prior to testing structural paths (Anderson & Gerbing 2-step).",
+      "category": "METHODOLOGICAL_REQUIREMENT",
+      "verification_rule": "check_two_step_approach"
+    },
+    {
+      "action_id": "MUST-SEM-02",
+      "description": "Report unstandardized B, standardized beta, SE, z, p, and R2 for endogenous constructs.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_path_coefficients_reported"
+    },
+    {
+      "action_id": "MUST-SEM-03",
+      "description": "Report complete fit indices (chi2, df, p, CFI, TLI, RMSEA, SRMR).",
+      "category": "REPORTING_STANDARD",
+      "verification_rule": "check_sem_fit_indices"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-SEM-01",
+      "description": "Report only standardized path coefficients without unstandardized B and SE.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_missing_unstandardized_paths"
+    },
+    {
+      "pitfall_id": "NOT-SEM-02",
+      "description": "Make definitive causal claims from cross-sectional observational SEM data.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_causal_overreach"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-SEM-01",
+      "description": "Structural paths regression table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-SEM-02",
+      "description": "Hypothesis decision matrix detailing confirmation status.",
+      "evidence_type": "ARTIFACT_FILE",
+      "verification_method": "FILE_EXISTS"
+    }
+  ],
+  "target_capability": "sem",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "SEM",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.692189+00:00"
+}

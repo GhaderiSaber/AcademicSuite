@@ -1,0 +1,75 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "BM-MIXED-MODELS-001",
+  "family": "MIXED_MODELS",
+  "title": "Linear Mixed-Effects Modeling for Hierarchically Nested Longitudinal Data",
+  "description": "Authoritative academic behavioral benchmark case for MIXED_MODELS.",
+  "research_question": "How do patient trajectories evolve over time while accounting for subject-level clustering and random slopes?",
+  "design": {
+    "design_type": "LINEAR_MIXED_EFFECTS",
+    "nesting": "time_point nested within patient_id",
+    "clusters": 50
+  },
+  "dataset": {
+    "path": "evals/benchmarks/datasets/bm_mixed_models_nested.csv",
+    "sha256": "434981efde813a74dde905f8910a0f8823371141f90fd86edf4166f8f9d60838",
+    "format": "csv",
+    "sample_size": 200
+  },
+  "must_do": [
+    {
+      "action_id": "MUST-MIX-01",
+      "description": "Calculate Intraclass Correlation Coefficient (ICC) from null unconditional model.",
+      "category": "ASSUMPTION_CHECK",
+      "verification_rule": "check_null_model_icc"
+    },
+    {
+      "action_id": "MUST-MIX-02",
+      "description": "Compare Null vs Random Intercept vs Random Slope models via Likelihood Ratio Test (-2LL diff) and AIC/BIC.",
+      "category": "STATISTICAL_RIGOR",
+      "verification_rule": "check_model_progression_lrt"
+    },
+    {
+      "action_id": "MUST-MIX-03",
+      "description": "Report fixed effects estimates with SE, t, df (Satterthwaite/Kenward-Roger), and random variance components.",
+      "category": "REPORTING_STANDARD",
+      "verification_rule": "check_fixed_and_random_parameters"
+    }
+  ],
+  "must_not_do": [
+    {
+      "pitfall_id": "NOT-MIX-01",
+      "description": "Default to standard OLS regression ignoring clustering and violating error independence.",
+      "severity": "CRITICAL",
+      "detection_rule": "detect_ignored_nesting_ols"
+    },
+    {
+      "pitfall_id": "NOT-MIX-02",
+      "description": "Compare models with different fixed effects using REML instead of ML.",
+      "severity": "MAJOR",
+      "detection_rule": "detect_reml_fixed_comparison"
+    }
+  ],
+  "required_evidence": [
+    {
+      "evidence_id": "EVID-MIX-01",
+      "description": "Model comparison table (Null vs Random Intercept vs Random Slope) with AIC/BIC.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    },
+    {
+      "evidence_id": "EVID-MIX-02",
+      "description": "Fixed and random effects parameter estimates table.",
+      "evidence_type": "REPORTING_TABLE",
+      "verification_method": "FILE_EXISTS"
+    }
+  ],
+  "target_capability": "statistical-data-analyst",
+  "difficulty": "L3_EXPERT_BENCHMARK",
+  "metadata": {
+    "family_id": "MIXED_MODELS",
+    "generated_by": "scripts/generate_academic_benchmark_corpus.py",
+    "directive_9_noise_injected": true
+  },
+  "created_at": "2026-09-19T13:17:32.706590+00:00"
+}
