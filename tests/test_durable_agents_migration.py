@@ -112,29 +112,41 @@ class TestDurableAgentsMigration(unittest.TestCase):
             self.assertNotIn("command_execution_policy", content)
 
     def test_03_mainagent_and_subagent_assignments(self):
-        """All 7 Durable Authorities must have mainAgent=True and subagent=False for IDE Main Agent visibility."""
+        """Two-Agent Architecture: Only academic-orchestrator has mainAgent=True; remaining 6 durable authorities have mainAgent=False and subagent=True."""
         for name in self.durable_names:
             agent_file = os.path.join(AGENTS_DIR, name, "agent.md")
             with open(agent_file, "r", encoding="utf-8") as f:
                 fm = yaml.safe_load(f.read().split("---")[1])
 
-            self.assertTrue(fm["mainAgent"], f"{name} should be mainAgent=True")
-            if name == "digital-saber":
-                self.assertFalse(fm["subagent"], f"{name} should be subagent=False (user-facing consultant only)")
+            if name == "academic-orchestrator":
+                self.assertTrue(fm["mainAgent"], "academic-orchestrator must have mainAgent=True for IDE dropdown selection")
+                self.assertTrue(fm["subagent"], "academic-orchestrator must have subagent=True")
             else:
-                self.assertTrue(fm["subagent"], f"{name} should be subagent=True for delegation via invoke_subagent")
+                self.assertFalse(fm["mainAgent"], f"{name} must have mainAgent=False to prevent IDE dropdown clutter and Main Agent collision")
+                self.assertTrue(fm["subagent"], f"{name} must have subagent=True for delegation via invoke_subagent")
 
     def test_04_least_privilege_and_silent_rewrite_prevention(self):
-        """final-judge must NOT have replace_file_content tool to prevent silent rewriting."""
+        """final-judge must NOT have replace_file_content tool; academic-orchestrator must NOT have code writing/execution tools."""
         judge_file = os.path.join(AGENTS_DIR, "final-judge", "agent.md")
         with open(judge_file, "r", encoding="utf-8") as f:
-            fm = yaml.safe_load(f.read().split("---")[1])
+            fm_judge = yaml.safe_load(f.read().split("---")[1])
 
         self.assertNotIn(
             "replace_file_content",
-            fm["tools"],
+            fm_judge["tools"],
             "final-judge must NOT have replace_file_content tool (silent rewriting forbidden).",
         )
+
+        orch_file = os.path.join(AGENTS_DIR, "academic-orchestrator", "agent.md")
+        with open(orch_file, "r", encoding="utf-8") as f:
+            fm_orch = yaml.safe_load(f.read().split("---")[1])
+
+        for forbidden_tool in ("write_to_file", "run_command", "replace_file_content"):
+            self.assertNotIn(
+                forbidden_tool,
+                fm_orch["tools"],
+                f"academic-orchestrator must NOT have {forbidden_tool} (strictly managerial; code execution belongs to specialists).",
+            )
 
     def test_05_responsibility_boundaries_in_narrative_and_contract(self):
         """All 7 agents must explicitly document their CAN/CANNOT boundaries in contract and prompt."""

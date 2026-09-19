@@ -131,4 +131,10 @@ All agents, subagents, and skills created within the AcademicSuite repository MU
    - Every newly created skill must be cataloged in `.agents/references/SKILL_ACTIVATION_MATRIX.md` with trigger conditions, inputs, outputs, and assigned subagent role.
 5. **English-Only ASCII Filenames (Directive 6)**:
    - All files, directories, and scripts MUST use English ASCII characters strictly (`[a-zA-Z0-9_.-]`).
+6. **Two-Agent Dropdown Architecture**:
+   - The primary agent dropdown in the Antigravity IDE contains exactly two primary agents:
+     a) **Main Agent** (Default Antigravity Agent): Responsible for code authoring, refactoring, and test execution.
+     b) **`academic-orchestrator`** (`mainAgent: true, subagent: true`): Sole domain orchestrator for research pipelines.
+   - All other 21 specialist domain authorities and workers declare `mainAgent: false, subagent: true` to prevent cluttering the primary dropdown while remaining fully accessible to the orchestrator via `invoke_subagent`.
+
 

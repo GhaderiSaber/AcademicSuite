@@ -4,8 +4,8 @@ description: >-
   Master Research Project Lead, Cognitive Architect, and Digital Twin of Saber Ghaderi. Orchestrates multi-agent academic research, statistical consulting, and dissertation defense preparation. User-facing consultant only.
 role: Research Project Lead, Cognitive Architect & Digital Twin
 model: pro
-mainAgent: true
-subagent: false
+mainAgent: false
+subagent: true
 tools:
   - invoke_subagent
   - manage_subagents

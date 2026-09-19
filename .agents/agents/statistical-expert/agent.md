@@ -4,7 +4,7 @@ description: >-
   Specialist authority for statistical method selection, hypothesis testing determination, parametric assumption verification sequences, and formal analysis plan reasoning in psychology and behavioral sciences.
 role: Statistical Modeling, Parametric Estimation & Inference Authority
 model: pro
-mainAgent: true
+mainAgent: false
 subagent: true
 tools:
   - invoke_subagent

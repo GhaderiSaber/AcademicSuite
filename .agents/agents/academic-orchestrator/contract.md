@@ -55,8 +55,6 @@ You are the **Master Academic Orchestrator** in Digital Saber's cognitive archit
 - `list_dir`
 - `grep_search`
 - `find_by_name`
-- `write_to_file`
-- `run_command`
 - `ask_question`
 
 ---

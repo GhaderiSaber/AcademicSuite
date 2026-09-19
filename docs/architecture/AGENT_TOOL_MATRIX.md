@@ -25,7 +25,7 @@ This document freezes and records the exact tool access, skill bindings, executi
 | # | Agent Name | Tier | Main | Sub | Code Exec (`run_command`) | Write Files | Delegate (`invoke_subagent`) | Primary Bound Skills |
 |---|---|---|:---:|:---:|:---:|:---:|:---:|---|
 | 1 | `academic-challenger` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
-| 2 | `academic-orchestrator` | Tier 1 (Lead) | Yes | Yes | **Yes** | **Yes** | **Yes** | `academic-suite-orchestrator`, `academic-adaptive-context`, `digital-twin-academic-consultant`, `thesis-integrity-auditor` |
+| 2 | `academic-orchestrator` | Tier 1 (Lead) | Yes | Yes | **No** | **No** | **Yes** | `academic-suite-orchestrator`, `academic-adaptive-context`, `digital-twin-academic-consultant`, `thesis-integrity-auditor` |
 | 3 | `academic-writer` | Tier 2 (Domain) | No | Yes | Yes | Yes | No | `chapter-4-writing`, `persian-literature-review-builder`, `persian-discussion-builder`, `persian-thesis-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `apa-reporting`, `psychological-intervention-protocol-builder`, `journal-submission-assistant`, `persian-defense-presentation-builder` |
 | 4 | `behavior-analyst` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 5 | `curriculum-builder` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
@@ -90,8 +90,6 @@ agent:
     - list_dir
     - grep_search
     - find_by_name
-    - write_to_file
-    - run_command
     - ask_question
   skills:
     - academic-suite-orchestrator
@@ -99,8 +97,8 @@ agent:
     - digital-twin-academic-consultant
     - thesis-integrity-auditor
   mcpServers: []
-  can_execute_code: true
-  can_write: true
+  can_execute_code: false
+  can_write: false
   can_delegate: true
   intended_role: "Master Academic Orchestrator & Research Project Lead"
 

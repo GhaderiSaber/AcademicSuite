@@ -14,8 +14,6 @@ tools:
   - list_dir
   - grep_search
   - find_by_name
-  - write_to_file
-  - run_command
   - ask_question
 skills:
   - academic-suite-orchestrator

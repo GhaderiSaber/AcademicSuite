@@ -38,14 +38,93 @@ except ImportError:
     from .learning_hooks import LearningHooks
 
 
+def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
+    """
+    Detects if the current lifecycle event belongs to the Main Developer Agent
+    (Track 1: Software Engineering, Code Modification, Maintenance) as opposed to
+    the Academic Orchestrator or academic specialist subagents (Track 2).
+    """
+    caller = (
+        payload.get("agentName") or
+        payload.get("agentRole") or
+        payload.get("agent") or
+        payload.get("caller") or
+        ""
+    ).lower().strip()
+
+    academic_names = {
+        "academic-orchestrator", "orchestrator",
+        "digital-saber", "methodology-expert", "statistical-expert",
+        "academic-writer", "evidence-auditor", "final-judge",
+        "statistics-agent", "data-agent", "data-curator", "results-auditor",
+        "statistical-auditor", "psychometric-expert", "qualitative-analyst",
+        "meta-analyst", "literature-expert", "research-agent", "validation-agent"
+    }
+
+    for ac in academic_names:
+        if ac in caller:
+            return False
+
+    main_indicators = (
+        "main", "main-agent", "mainagent", "default",
+        "antigravity", "developer", "coding", "software-engineer", "code-agent"
+    )
+    for ind in main_indicators:
+        if ind == caller or ind in caller:
+            return True
+
+    if payload.get("agent_type") == "main" or payload.get("track") == 1:
+        return True
+
+    # Check transcript context for coding vs academic intent
+    transcript_path = payload.get("transcriptPath")
+    cid = payload.get("conversationId")
+    if not transcript_path and cid:
+        cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
+        if os.path.exists(cand):
+            transcript_path = cand
+
+    if transcript_path and os.path.isfile(transcript_path):
+        try:
+            with open(transcript_path, "r", encoding="utf-8") as f:
+                records = [json.loads(line) for line in f if line.strip()]
+
+            for r in reversed(records):
+                # Inspect recent tool calls: code modification tools imply Main Developer Agent
+                for tc in r.get("tool_calls", []):
+                    tname = tc.get("name", "") if isinstance(tc, dict) else ""
+                    targs = tc.get("args", {}) if isinstance(tc, dict) else {}
+                    if tname in ("replace_file_content", "apply_diff"):
+                        return True
+                    if tname == "write_to_file":
+                        target = targs.get("TargetFile", "")
+                        if target.endswith((".py", ".sh", ".c", ".cpp", ".js", ".ts", ".json", ".yml", ".yaml")):
+                            return True
+
+                # Inspect user prompt
+                if r.get("type") == "USER_INPUT" and r.get("content"):
+                    prompt = r.get("content", "").lower()
+                    coding_kws = ("pytest", "git", "test", "bug", "fix", "refactor", "code", "python", "factory", "hook", "lint")
+                    if any(k in prompt for k in coding_kws):
+                        return True
+                    break
+        except Exception:
+            pass
+
+    return False
+
+
 def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Dispatches lifecycle events strictly to Safety, Integrity, and Learning hooks.
+    Main Developer Agent is exempt from academic stop-gates and stage validation.
     """
     event_upper = event.strip()
+    is_main = is_main_agent_developer(payload)
 
     if event_upper == "PreToolUse":
         # Class A: Safety Hooks
+        # Note: safety_hooks.py permits code mutation tools for Main Agent and only blocks them for academic-orchestrator.
         safety_res = SafetyHooks.handle_pre_tool_use(payload)
         if safety_res.get("decision") == "deny":
             return safety_res
@@ -60,16 +139,22 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         return learning_res
 
     elif event_upper == "PreInvocation":
+        if is_main:
+            return {}
         # Class C: Learning Hooks (User correction capture & constitutional reminder)
         pre_res = LearningHooks.handle_pre_invocation(payload)
         return pre_res
 
     elif event_upper == "PostInvocation":
+        if is_main:
+            return {"injectSteps": [], "terminationBehavior": ""}
         # Class B: Integrity Hooks (Validation advisory)
         post_res = IntegrityHooks.handle_post_invocation(payload)
         return post_res
 
     elif event_upper == "Stop":
+        if is_main:
+            return {"decision": "allow"}
         # Class B: Integrity Hooks (Artifact triad, manifest, post-analysis, honesty)
         stop_res = IntegrityHooks.handle_stop(payload)
         if stop_res.get("decision") == "continue":

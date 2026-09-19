@@ -362,6 +362,52 @@ class TestHookSimplificationPhase14(unittest.TestCase):
         facade_res = legacy_guard.handle_pre_tool_use({"toolCall": {"name": "run_command", "args": {"CommandLine": "ls"}}})
         self.assertEqual(facade_res.get("decision"), "allow")
 
+    def test_13_main_agent_developer_bypass_and_orchestrator_guard(self):
+        """Main Agent can write code and is exempt from academic Stop gates; Orchestrator is guarded."""
+        code_file = os.path.join(self.workspace, "scripts", "new_feature.py")
+
+        # 1. Academic-Orchestrator attempting to write code -> BLOCKED
+        res_orch_write = dispatch_event("PreToolUse", {
+            "agentName": "academic-orchestrator",
+            "toolCall": {"name": "write_to_file", "args": {"TargetFile": code_file, "CodeContent": "print('hello')"}},
+            "workspacePaths": [self.workspace]
+        })
+        self.assertEqual(res_orch_write.get("decision"), "deny")
+        self.assertIn("Orchestrator Code Guard", res_orch_write.get("reason", ""))
+
+        # 2. Main Developer Agent attempting to write code -> ALLOWED
+        res_main_write = dispatch_event("PreToolUse", {
+            "agentName": "main",
+            "toolCall": {"name": "write_to_file", "args": {"TargetFile": code_file, "CodeContent": "print('hello')"}},
+            "workspacePaths": [self.workspace]
+        })
+        self.assertEqual(res_main_write.get("decision"), "allow")
+
+        # 3. PreInvocation bypass for Main Developer Agent
+        res_main_preinv = dispatch_event("PreInvocation", {"agentName": "main"})
+        self.assertEqual(res_main_preinv, {})
+
+        # 4. Stop hook bypass for Main Developer Agent even with missing academic triads
+        stage_dir = os.path.join(self.workspace, "projects", "study_act", "09_hypothesis_test")
+        os.makedirs(stage_dir, exist_ok=True)
+        with open(os.path.join(stage_dir, "09_hypothesis_test.docx"), "w") as f:
+            f.write("mock docx")
+
+        # Orchestrator is BLOCKED by missing triad
+        res_orch_stop = dispatch_event("Stop", {
+            "agentName": "academic-orchestrator",
+            "workspacePaths": [self.workspace]
+        })
+        self.assertEqual(res_orch_stop.get("decision"), "continue")
+        self.assertIn("Triad Artifact Invariant", res_orch_stop.get("reason", ""))
+
+        # Main Developer Agent is EXEMPT and allowed to stop freely
+        res_main_stop = dispatch_event("Stop", {
+            "agentName": "main",
+            "workspacePaths": [self.workspace]
+        })
+        self.assertEqual(res_main_stop.get("decision"), "allow")
+
 
 if __name__ == "__main__":
     unittest.main()

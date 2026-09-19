@@ -71,6 +71,16 @@ class LearningHooks:
             return None
 
     @staticmethod
+    def _extract_actor(payload: Dict[str, Any]) -> str:
+        return (
+            payload.get("agentName") or
+            payload.get("agentRole") or
+            payload.get("agent") or
+            payload.get("caller") or
+            "academic-orchestrator"
+        )
+
+    @staticmethod
     def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         PreToolUse hook: intercepts tool invocations before execution.
@@ -93,13 +103,14 @@ class LearningHooks:
             tool_name = tool_call.get("name", "") if isinstance(tool_call, dict) else ""
             tool_args = tool_call.get("args", {}) if isinstance(tool_call, dict) else {}
             sanitized_args = sanitize_tool_args(tool_args)
+            actor = LearningHooks._extract_actor(payload)
 
             # 1. TOOL_CALLED
             engine.record_event(
                 TrajectoryEventType.TOOL_CALLED,
                 payload=payload,
                 details={"arguments_summary": sanitized_args},
-                actor="academic-orchestrator"
+                actor=actor
             )
 
             # 2. Specific event classifications
@@ -109,7 +120,7 @@ class LearningHooks:
                     TrajectoryEventType.FILE_READ,
                     payload=payload,
                     details={"file_path": file_path, "arguments": sanitized_args},
-                    actor="academic-orchestrator"
+                    actor=actor
                 )
 
             elif tool_name in WRITE_TOOLS:
@@ -118,7 +129,7 @@ class LearningHooks:
                     TrajectoryEventType.FILE_WRITTEN,
                     payload=payload,
                     details={"file_path": file_path, "overwrite": tool_args.get("Overwrite", False)},
-                    actor="academic-orchestrator"
+                    actor=actor
                 )
 
             elif tool_name == "run_command":
@@ -127,14 +138,14 @@ class LearningHooks:
                     TrajectoryEventType.COMMAND_STARTED,
                     payload=payload,
                     details={"command_line": cmd_line, "cwd": tool_args.get("Cwd", "")},
-                    actor="academic-orchestrator"
+                    actor=actor
                 )
                 if is_validation_command(cmd_line):
                     engine.record_event(
                         TrajectoryEventType.VALIDATION_STARTED,
                         payload=payload,
                         details={"command_line": cmd_line, "validator_type": "script"},
-                        actor="academic-orchestrator"
+                        actor=actor
                     )
 
             elif tool_name == "invoke_subagent":
@@ -148,7 +159,7 @@ class LearningHooks:
                             "subagent_role": sa.get("Role", ""),
                             "prompt_summary": sa.get("Prompt", "")[:200]
                         },
-                        actor="academic-orchestrator"
+                        actor=actor
                     )
 
         except Exception as e:
@@ -304,6 +315,7 @@ class LearningHooks:
                         break
 
             sanitized_args = sanitize_tool_args(tool_args)
+            actor = LearningHooks._extract_actor(payload)
 
             if engine:
                 # 1. TOOL_RETURNED
@@ -315,7 +327,7 @@ class LearningHooks:
                         "error": error,
                         "status": "ERROR" if error else "SUCCESS"
                     },
-                    actor="academic-orchestrator"
+                    actor=actor
                 )
 
                 # 2. Specific completions
@@ -329,7 +341,7 @@ class LearningHooks:
                             "error": error,
                             "status": "ERROR" if error else "SUCCESS"
                         },
-                        actor="academic-orchestrator"
+                        actor=actor
                     )
                     if is_validation_command(cmd_line) and error:
                         engine.record_event(
@@ -351,7 +363,7 @@ class LearningHooks:
                             "error": error,
                             "status": "ERROR" if error else "SUCCESS"
                         },
-                        actor="academic-orchestrator"
+                        actor=actor
                     )
 
         except Exception as e:
@@ -368,6 +380,17 @@ class LearningHooks:
         3. Deterministically retrieves adaptive context (lessons, pitfalls, methodology rules)
            for detected academic tasks and injects it into ephemeral context before execution.
         """
+        caller = (
+            payload.get("agentName") or
+            payload.get("agentRole") or
+            payload.get("agent") or
+            payload.get("caller") or ""
+        ).lower()
+
+        # If caller is explicitly the Main Developer Agent, bypass academic reminders
+        if caller in ("main", "main-agent", "mainagent", "default", "antigravity", "developer", "coding", "software-engineer", "code-agent") or payload.get("agent_type") == "main":
+            return {}
+
         LearningHooks.capture_user_correction(payload)
 
         reminder = (

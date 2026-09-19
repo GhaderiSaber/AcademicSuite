@@ -218,9 +218,28 @@ class SafetyHooks:
                     )
                 }
 
-        # 2. Raw-Data & Outside-Workspace Protection on Mutation Tools
+        # 2. Raw-Data, Outside-Workspace & Orchestrator Code Guard on Mutation Tools
         if name in MUTATION_TOOLS:
+            caller = (
+                payload.get("agentName") or
+                payload.get("agentRole") or
+                payload.get("agent") or
+                payload.get("caller") or ""
+            ).lower()
             targets = extract_target_paths(name, args)
+
+            # Orchestrator Code Guard: academic-orchestrator is strictly managerial and cannot author code
+            if "academic-orchestrator" in caller:
+                for target in targets:
+                    if target.endswith((".py", ".sh", ".c", ".cpp", ".js", ".ts")) and not target.endswith("conftest.py"):
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 - Orchestrator Code Guard): "
+                                f"Academic-Orchestrator is strictly managerial and forbidden from writing or modifying code directly ('{target}'). "
+                                f"Delegate computation to specialist subagents (e.g. statistics-agent) or hand off to the Main Agent."
+                            )
+                        }
             for target in targets:
                 # Raw data immutability
                 if is_raw_data_path(target):
@@ -262,9 +281,28 @@ class SafetyHooks:
                                 )
                             }
 
-        # 3. Dangerous Shell Command Protection
+        # 3. Dangerous Shell Command & Orchestrator Direct Execution Protection
         if name == "run_command":
+            caller = (
+                payload.get("agentName") or
+                payload.get("agentRole") or
+                payload.get("agent") or
+                payload.get("caller") or ""
+            ).lower()
             cmd = args.get("CommandLine", "")
+
+            # Orchestrator Direct Execution Guard: academic-orchestrator cannot run direct statistical calculations
+            if "academic-orchestrator" in caller:
+                if re.search(r'python3?\s+-c\s+["\'].*(?:pandas|pingouin|scipy|statsmodels|sklearn).*["\']', cmd):
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12.1 - Orchestrator Execution Guard): "
+                            "Academic-Orchestrator must not execute inline statistical calculations directly. "
+                            "Delegate execution to statistics-agent or data-agent via invoke_subagent."
+                        )
+                    }
+
             is_danger, reason = is_dangerous_command(cmd)
             if is_danger:
                 return {
