@@ -31,6 +31,7 @@
 | [ADR-019](#adr-019-tripartite-lifecycle-hook-architecture-safety-integrity-learning-and-non-orchestrator-invariant) | Tripartite Lifecycle Hook Architecture & Non-Orchestrator Invariant | Accepted | 2026-09-19 |
 | [ADR-020](#adr-020-factual-event-driven-trajectory-recording-and-prohibition-of-speculative-inference) | Factual Event-Driven Trajectory Recording & Prohibition of Speculation | Accepted | 2026-09-19 |
 | [ADR-021](#adr-021-deterministic-feedback-routing-and-prohibition-of-generic-target-defaults) | Deterministic Feedback Routing & Prohibition of Generic Target Defaults | Accepted | 2026-09-19 |
+| [ADR-022](#adr-022-idempotent-feedback-processing-and-event-deduplication-hygiene) | Idempotent Feedback Processing & Event Deduplication Hygiene | Accepted | 2026-09-19 |
 
 ---
 
@@ -727,5 +728,58 @@ Consequently, feedback regarding theoretical literature citations, research meth
 ### Consequences
 - **Positive**: Guarantees 100% targeting accuracy in continuous learning; eliminates cross-capability feedback pollution; ensures that improvement candidates and lessons are applied strictly to the responsible agent and skill; full adherence to Directives 0, 12.1, and 19.
 - **Negative**: Ambiguous feedback lacking both active state machine context and transcript logs will fail-closed rather than silently logging under a fallback agent.
+
+---
+
+## ADR-022: Idempotent Feedback Processing & Event Deduplication Hygiene
+
+### Status
+Accepted
+
+### Context
+In earlier iterations of the feedback and learning pipeline, user corrections were processed via an ad-hoc, multi-path flow:
+`scan_transcript()` followed by `process_user_turn()`.
+Both methods attempted to detect and process corrections without unified event tracking or deduplication:
+- `scan_transcript()` parsed the entire `transcript.jsonl` from line 0 on every invocation, detecting corrections and writing feedback artifacts to disk.
+- Immediately afterward, `process_user_turn()` was invoked on the exact same user turn, detecting the correction again and triggering redundant fast evolution loops.
+- Subsequent lifecycle hook executions (e.g. `Stop` or `PreInvocation`) re-scanned past turns, reprocessing historical corrections repeatedly.
+
+This duplicate processing polluted the learning store, created redundant feedback artifacts, and wasted computational resources.
+
+### Decision
+1. **The `USER_FEEDBACK_DETECTED` Event & Deterministic `event_id`**:
+   Every detected feedback instance is modeled as a canonical `USER_FEEDBACK_DETECTED` event with a unique, deterministic `event_id`:
+   ```python
+   seed = f"{conversation_id}:{turn_index}:{clean_user_text}"
+   event_id = f"EVT-FDB-{sha256(seed)[:16].upper()}"
+   ```
+   - Same turn + same critique text $\to$ identical `event_id`.
+   - Distinct turn ($turn\_index_2 \ne turn\_index_1$) $\to$ distinct `event_id` (enabling legitimate repetition counting).
+   - Explicit caller-provided `event_id` is honored directly.
+
+2. **Persistent Event Store (`FeedbackEventTracker`)**:
+   - Maintains an in-memory set and atomically persists to `learning/experience/feedback/processed_event_ids.json`.
+   - Thread-safe and process-safe via atomic temporary file replacement (`os.replace`).
+   - Automatically refreshes from disk on lookup if an event is not yet cached in memory.
+
+3. **Strict Deduplication Rule (Idempotency Invariant)**:
+   - When an event arrives at `AcademicIntegratedLearningHub.process_user_turn()`, `AcademicCorrectionDetector.scan_transcript()`, or `FeedbackRouter.emit_feedback_detected()`:
+     ```python
+     if tracker.is_event_processed(event_id):
+         return {
+             "action": "IGNORED_DUPLICATE",
+             "event": "USER_FEEDBACK_DETECTED",
+             "event_id": event_id,
+             "status": "ALREADY_PROCESSED",
+             "is_correction": False
+         }
+     ```
+   - If `scan_transcript()` processes a turn first, subsequent `process_user_turn()` on that turn is ignored.
+   - If `process_user_turn()` processes a turn first, subsequent `scan_transcript()` on that turn is ignored.
+   - Repeated scans of the same transcript produce exactly zero duplicate feedback records.
+
+### Consequences
+- **Positive**: 100% elimination of duplicate feedback processing; zero redundant fast evolution loops; clean, idempotent event-processing hygiene conforming to Directives 0 and 19.
+- **Negative**: Critique text without turn metadata within the same session will be deduplicated on subsequent identical submissions unless an explicit distinct `event_id` or `turn_index` is provided.
 
 

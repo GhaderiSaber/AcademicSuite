@@ -56,6 +56,7 @@ from scripts.academic_lesson_distiller import AcademicLessonDistiller
 from scripts.academic_dual_loop_engine import AcademicDualLoopEngine
 from scripts.academic_knowledge_manager import AcademicKnowledgeManager
 from scripts.academic_behavior_drift_monitor import AcademicBehaviorDriftMonitor
+from scripts.academic_feedback_router import FeedbackRouter, FeedbackEventTracker
 
 
 class ResearchIntegrityViolationError(Exception):
@@ -110,12 +111,16 @@ class AcademicIntegratedLearningHub:
         self.telemetry_dir = os.path.join(self.base_dir, "learning", "telemetry")
         self.error_log_file = os.path.join(self.telemetry_dir, "learning_errors.log")
         self.activity_log_file = os.path.join(self.telemetry_dir, "integrated_learning.jsonl")
+        self.feedback_dir = os.path.join(self.base_dir, "learning", "experience", "feedback")
 
         os.makedirs(self.telemetry_dir, exist_ok=True)
+        os.makedirs(self.feedback_dir, exist_ok=True)
+
+        self.event_tracker = FeedbackEventTracker(store_dir=self.feedback_dir, project_root=self.base_dir)
 
         # Initialize constituent engines
         self.experience_recorder = AcademicExperienceRecorder(project_root=self.base_dir)
-        self.correction_detector = AcademicCorrectionDetector(project_root=self.base_dir)
+        self.correction_detector = AcademicCorrectionDetector(store_dir=self.feedback_dir, project_root=self.base_dir)
         self.lesson_distiller = AcademicLessonDistiller(project_root=self.base_dir)
         self.dual_loop_engine = AcademicDualLoopEngine(base_dir=self.base_dir)
         self.knowledge_manager = AcademicKnowledgeManager(base_dir=self.base_dir)
@@ -150,7 +155,7 @@ class AcademicIntegratedLearningHub:
             pass
 
     # -------------------------------------------------------------------------
-    # 1. User Turn Processing (Zero Manual Commands Required)
+    # 1. Automatic User Correction & Feedback Integration
     # -------------------------------------------------------------------------
 
     def process_user_turn(
@@ -171,6 +176,9 @@ class AcademicIntegratedLearningHub:
         # 1. Trivial Message Filtering (Suppress Overhead)
         for pat in self.TRIVIAL_MESSAGE_PATTERNS:
             if re.search(pat, clean_msg, re.IGNORECASE):
+                # Don't skip if it is an explicit evidence, methodology, or quality critique
+                if any(w in clean_msg.lower() for w in ["citation", "reference", "source", "wrong", "incorrect", "fix", "missing", "error", "support"]):
+                    break
                 return {
                     "action": "SKIPPED_TRIVIAL",
                     "is_correction": False,
@@ -186,6 +194,31 @@ class AcademicIntegratedLearningHub:
                 raise ResearchIntegrityViolationError(
                     f"User flagged a research-integrity violation: {clean_msg}"
                 )
+
+            # 2.1 Event Deduplication Hygiene (Phase 17)
+            turn_idx = meta.get("turn_index")
+            cid = meta.get("conversation_id")
+            event_id = meta.get("event_id") or self.event_tracker.generate_event_id(
+                clean_msg,
+                turn_index=turn_idx,
+                conversation_id=cid,
+                explicit_id=meta.get("event_id")
+            )
+            meta["event_id"] = event_id
+
+            if self.event_tracker.is_event_processed(event_id):
+                self.log_activity("USER_FEEDBACK_DUPLICATE_IGNORED", {
+                    "event_id": event_id,
+                    "user_text": clean_msg[:120]
+                })
+                return {
+                    "action": "IGNORED_DUPLICATE",
+                    "event": "USER_FEEDBACK_DETECTED",
+                    "event_id": event_id,
+                    "is_correction": False,
+                    "status": "ALREADY_PROCESSED",
+                    "reason": f"Feedback event {event_id} already in processed_event_ids"
+                }
 
             # 3. Detect Meaningful Correction via CorrectionDetector
             feedback_record = self.correction_detector.detect_correction(
@@ -236,14 +269,15 @@ class AcademicIntegratedLearningHub:
             stage = feedback_record.get("stage")
 
             # 5. Emit USER_FEEDBACK_DETECTED
-            from scripts.academic_feedback_router import FeedbackRouter
             router = FeedbackRouter(
                 state_dir=os.path.join(self.base_dir, "state"),
-                project_root=self.base_dir
+                project_root=self.base_dir,
+                store_dir=self.feedback_dir
             )
             router.emit_feedback_detected(feedback_record, payload=meta)
 
             self.log_activity("USER_FEEDBACK_DETECTED", {
+                "event_id": event_id,
                 "feedback_id": feedback_record.get("feedback_id"),
                 "target_agent": target_agent,
                 "target_skill": target_skill,
@@ -263,6 +297,7 @@ class AcademicIntegratedLearningHub:
             )
 
             self.log_activity("FAST_LOOP_DISPATCHED", {
+                "event_id": event_id,
                 "feedback_id": feedback_record.get("feedback_id"),
                 "category": category,
                 "target_skill": target_skill,
@@ -273,6 +308,7 @@ class AcademicIntegratedLearningHub:
             return {
                 "action": "FAST_LOOP_TRIGGERED",
                 "is_correction": True,
+                "event_id": event_id,
                 "feedback_id": feedback_record.get("feedback_id"),
                 "category": category,
                 "target_agent": target_agent,

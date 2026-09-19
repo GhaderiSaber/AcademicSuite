@@ -179,9 +179,11 @@ class LearningHooks:
 
             records = load_transcript(transcript_path)
             last_user_msg = ""
+            last_step_idx = None
             for r in reversed(records):
                 if r.get("type") == "USER_INPUT" and r.get("content"):
                     last_user_msg = r.get("content", "").strip()
+                    last_step_idx = r.get("step_index")
                     break
 
             clean_user = re.sub(r"<[^>]+>", "", last_user_msg).strip()
@@ -208,6 +210,7 @@ class LearningHooks:
                     meta = {
                         "conversation_id": cid,
                         "source_transcript_path": transcript_path,
+                        "turn_index": last_step_idx,
                         "workspace_paths": payload.get("workspacePaths", [ROOT_DIR])
                     }
                     hub.process_user_turn(user_text=clean_user, metadata=meta)

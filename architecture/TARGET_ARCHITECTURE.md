@@ -993,5 +993,60 @@ Every feedback record must strictly define:
 4. **Tier 4: Semantic Domain Mapping**: Classifies user critique against domain patterns (`WRITING_CORRECTION`, `EVIDENCE_CORRECTION`, `METHODOLOGY_CORRECTION`, `DATA_ANALYSIS_CORRECTION`, `QUALITY_STYLE_CORRECTION`, `RESEARCH_INTEGRITY_CORRECTION`, `PROCESS_CORRECTION`, `STATISTICAL_CORRECTION`).
 5. **Fail-Closed Guarantee**: If all 4 tiers fail to resolve a verified target capability, the router raises `UnresolvableFeedbackTargetError`. Falling back to a generic default (`statistics-agent`) is strictly prohibited.
 
+---
+
+## 22. Idempotent Feedback Event Processing & `processed_event_ids`
+
+### 22.1 Event Deduplication Architecture
+Under Phase 17, feedback processing enforces standard event-processing hygiene. The ad-hoc `scan_transcript() -> process_user_turn()` pattern is replaced by an idempotent event pipeline where every feedback instance is identified by a unique `event_id` and verified against a persistent registry of `processed_event_ids`.
+
+```mermaid
+flowchart TD
+    Critique["User Critique / Correction Detected"]
+    
+    subgraph EventGen["Event Identification"]
+        DeriveID["Derive Deterministic event_id<br/>(conversation_id + turn_index + clean_text)"]
+    end
+    
+    subgraph Tracker["Feedback Event Tracker (FeedbackEventTracker)"]
+        Check["is_event_processed(event_id)?"]
+        Store["learning/experience/feedback/processed_event_ids.json"]
+    end
+    
+    subgraph Outcomes["Dispatch vs Deduplication"]
+        Ignore["IGNORED_DUPLICATE<br/>(Skip duplicate fast loop & record creation)"]
+        Emit["Emit USER_FEEDBACK_DETECTED<br/>(Mark event_id in tracker)"]
+        Dispatch["Dispatch Fast Evolution Loop<br/>(DualLoopEngine.run_fast_loop)"]
+    end
+    
+    Critique --> DeriveID
+    DeriveID --> Check
+    Check -- Yes (Already Processed) --> Ignore
+    Check -- No (New Event) --> Emit
+    Emit --> Store
+    Emit --> Dispatch
+```
+
+### 22.2 Deterministic `event_id` Derivation
+Every feedback event is given a deterministic identifier:
+```python
+seed = f"{conversation_id}:{turn_index}:{clean_user_text}"
+event_id = f"EVT-FDB-{sha256(seed)[:16].upper()}"
+```
+- **Same turn + same text**: Evaluates to the exact same `event_id`.
+- **Different turn ($turn\_index_2 \ne turn\_index_1$)**: Evaluates to distinct `event_id`, allowing valid repetition tracking.
+- **Explicit caller ID**: Direct pass-through of caller-supplied `event_id`.
+
+### 22.3 The Persistent Event Store (`FeedbackEventTracker`)
+- **Location**: `learning/experience/feedback/processed_event_ids.json`.
+- **Atomicity**: Writes via process-safe temporary files (`.tmp.<pid>`) with atomic `os.replace`.
+- **Cache Refresh**: If an `event_id` is not present in in-memory cache, `is_event_processed()` immediately reloads from disk to observe other processes/invocations.
+
+### 22.4 Idempotency Across Multiple Invocations
+- If `AcademicCorrectionDetector.scan_transcript()` runs before `AcademicIntegratedLearningHub.process_user_turn()`, the turn's `event_id` is registered and `process_user_turn()` returns `IGNORED_DUPLICATE`.
+- If `process_user_turn()` runs first, subsequent `scan_transcript()` skips that turn.
+- Rescanning an existing `transcript.jsonl` yields exactly 0 duplicate feedback records.
+
+
 
 

@@ -325,6 +325,9 @@ class AcademicCorrectionDetector:
         os.makedirs(self.candidates_dir, exist_ok=True)
         self.index_file = os.path.join(self.store_dir, "index.jsonl")
 
+        from scripts.academic_feedback_router import FeedbackEventTracker
+        self.event_tracker = FeedbackEventTracker(store_dir=self.store_dir, project_root=self.project_root)
+
     def detect_correction(
         self,
         user_text: str,
@@ -459,10 +462,17 @@ class AcademicCorrectionDetector:
         feedback_id = f"FDB-{date_str}-{rand_suffix}"
         candidate_id = f"CAND-{date_str}-{sig_hash[:6].upper()}-{rand_suffix}"
         turn_index = meta.get("turn_index")
+        event_id = meta.get("event_id") or self.event_tracker.generate_event_id(
+            cleaned,
+            turn_index=turn_index,
+            conversation_id=meta.get("conversation_id"),
+            explicit_id=meta.get("event_id")
+        )
 
         feedback_payload = {
             "contract_version": "1.0.0",
             "feedback_id": feedback_id,
+            "event_id": event_id,
             "is_correction": True,
             "is_project_specific": is_project_specific,
             "source": {
@@ -481,6 +491,7 @@ class AcademicCorrectionDetector:
             "severity": "CRITICAL" if resolved_scope == "POTENTIAL_GLOBAL_INVARIANT" else ("HIGH" if resolved_scope == "REUSABLE_PROCEDURAL" else "MEDIUM"),
             "timestamp": now_iso,
             "context": {
+                "event_id": event_id,
                 "project_id": project_id,
                 "milestone_id": task,
                 "stage_id": stage,
@@ -644,13 +655,33 @@ class AcademicCorrectionDetector:
                 content = record.get("content", "")
 
                 if stype == "USER_INPUT" or source == "USER_EXPLICIT":
+                    turn_idx = record.get("step_index", idx)
+                    cid = record.get("conversation_id")
+                    event_id = self.event_tracker.generate_event_id(
+                        content,
+                        turn_index=turn_idx,
+                        conversation_id=cid
+                    )
+                    # Deduplication hygiene: same event twice -> ignored
+                    if self.event_tracker.is_event_processed(event_id):
+                        continue
+
                     metadata = {
                         "source_transcript_path": transcript_path,
-                        "turn_index": record.get("step_index", idx),
-                        "user_identifier": "HumanUser"
+                        "turn_index": turn_idx,
+                        "conversation_id": cid,
+                        "user_identifier": "HumanUser",
+                        "event_id": event_id
                     }
                     detected = self.detect_correction(content, metadata=metadata)
                     if detected:
+                        from scripts.academic_feedback_router import FeedbackRouter
+                        router = FeedbackRouter(
+                            state_dir=os.path.join(self.project_root, "state"),
+                            project_root=self.project_root,
+                            store_dir=self.store_dir
+                        )
+                        router.emit_feedback_detected(detected, payload=metadata)
                         if mark_recorded:
                             rec_res = self.record_feedback(detected)
                             recorded.append(detected)

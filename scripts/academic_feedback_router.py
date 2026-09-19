@@ -25,8 +25,9 @@ import sys
 import json
 import re
 import uuid
+import hashlib
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Optional, List, Tuple, Set
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT_DIR not in sys.path:
@@ -115,15 +116,130 @@ DOMAIN_CAPABILITY_MAP = {
 }
 
 
+class FeedbackEventTracker:
+    """
+    Maintains persistent record of processed feedback event IDs to prevent duplicate processing.
+    Standard event-processing hygiene: same event twice -> ignored.
+    """
+
+    def __init__(self, store_dir: Optional[str] = None, project_root: Optional[str] = None):
+        self.project_root = project_root or ROOT_DIR
+        if store_dir:
+            self.store_dir = os.path.abspath(store_dir)
+        else:
+            self.store_dir = os.path.join(self.project_root, "learning", "experience", "feedback")
+        os.makedirs(self.store_dir, exist_ok=True)
+        self.events_file = os.path.join(self.store_dir, "processed_event_ids.json")
+        self._processed_ids: Set[str] = set()
+        self._events: Dict[str, Any] = {}
+        self._load()
+
+    def _load(self) -> None:
+        if os.path.isfile(self.events_file):
+            try:
+                with open(self.events_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                if isinstance(data, dict):
+                    self._processed_ids = set(data.get("processed_event_ids", []))
+                    self._events = data.get("events", {})
+                elif isinstance(data, list):
+                    self._processed_ids = set(data)
+                    self._events = {}
+            except Exception:
+                self._processed_ids = set()
+                self._events = {}
+
+    def _save(self) -> None:
+        try:
+            data = {
+                "processed_event_ids": sorted(list(self._processed_ids)),
+                "events": self._events
+            }
+            tmp_file = f"{self.events_file}.tmp.{os.getpid()}"
+            with open(tmp_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            os.replace(tmp_file, self.events_file)
+        except Exception as e:
+            sys.stderr.write(f"[FeedbackEventTracker] Warning: Failed to persist processed_event_ids: {e}\n")
+
+    def generate_event_id(
+        self,
+        user_text: str,
+        turn_index: Optional[int] = None,
+        conversation_id: Optional[str] = None,
+        explicit_id: Optional[str] = None
+    ) -> str:
+        """
+        Deterministically derives a unique event ID for a user critique.
+        Same turn + same normalized text -> identical event ID.
+        Different turn -> distinct event ID.
+        """
+        if explicit_id:
+            if not explicit_id.startswith("EVT-FDB-"):
+                return f"EVT-FDB-{explicit_id}"
+            return explicit_id
+
+        clean = re.sub(r"\s+", " ", (user_text or "").strip().lower())
+        seed = f"{conversation_id or 'conv'}:{turn_index if turn_index is not None else 'no_turn'}:{clean}"
+        h = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:16].upper()
+        return f"EVT-FDB-{h}"
+
+    def is_event_processed(self, event_id: str) -> bool:
+        """Checks if event_id has already been processed."""
+        if not event_id:
+            return False
+        if event_id in self._processed_ids:
+            return True
+        # Check disk if another process or instance wrote to it
+        self._load()
+        return event_id in self._processed_ids
+
+    def mark_event_processed(self, event_id: str, metadata: Optional[Dict[str, Any]] = None) -> None:
+        """Marks event_id as processed and persists to disk."""
+        if not event_id:
+            return
+        self._processed_ids.add(event_id)
+        if metadata:
+            self._events[event_id] = {
+                "processed_at": datetime.now(timezone.utc).isoformat(),
+                **metadata
+            }
+        else:
+            self._events[event_id] = {
+                "processed_at": datetime.now(timezone.utc).isoformat()
+            }
+        self._save()
+
+    def get_processed_event_ids(self) -> Set[str]:
+        """Returns set of all processed event IDs."""
+        return set(self._processed_ids)
+
+    def reset(self) -> None:
+        """Clears in-memory and on-disk event tracking (for test isolation)."""
+        self._processed_ids.clear()
+        self._events.clear()
+        if os.path.isfile(self.events_file):
+            try:
+                os.remove(self.events_file)
+            except Exception:
+                pass
+
+
 class FeedbackRouter:
     """
     Deterministic Feedback Router ensuring zero generic defaults.
     """
 
-    def __init__(self, state_dir: Optional[str] = None, project_root: Optional[str] = None):
+    def __init__(
+        self,
+        state_dir: Optional[str] = None,
+        project_root: Optional[str] = None,
+        store_dir: Optional[str] = None
+    ):
         self.project_root = project_root or ROOT_DIR
         self.state_dir = state_dir or os.path.join(self.project_root, "state")
         self.trajectory_engine = TrajectoryEngine(state_dir=self.state_dir, project_root=self.project_root)
+        self.event_tracker = FeedbackEventTracker(store_dir=store_dir, project_root=self.project_root)
 
     def resolve_context(
         self,
@@ -373,9 +489,30 @@ class FeedbackRouter:
     ) -> Dict[str, Any]:
         """
         Emits USER_FEEDBACK_DETECTED event to TrajectoryEngine and state audit logs.
+        Enforces standard event-processing hygiene: if event_id was already processed, returns IGNORED_DUPLICATE.
         """
         hook_payload = payload or {}
+        event_id = feedback_record.get("event_id")
+        if not event_id:
+            user_text = feedback_record.get("correction") or feedback_record.get("correction_statement", "")
+            turn_idx = feedback_record.get("context", {}).get("turn_index") or hook_payload.get("turn_index")
+            cid = hook_payload.get("conversation_id")
+            event_id = self.event_tracker.generate_event_id(user_text, turn_index=turn_idx, conversation_id=cid)
+            feedback_record["event_id"] = event_id
+
+        # Check deduplication hygiene
+        if self.event_tracker.is_event_processed(event_id):
+            return {
+                "action": "IGNORED_DUPLICATE",
+                "event": "USER_FEEDBACK_DETECTED",
+                "event_id": event_id,
+                "status": "ALREADY_PROCESSED",
+                "is_correction": False,
+                "reason": f"Feedback event {event_id} already in processed_event_ids"
+            }
+
         event_details = {
+            "event_id": event_id,
             "feedback_id": feedback_record.get("feedback_id"),
             "target_agent": feedback_record.get("target_agent"),
             "target_skill": feedback_record.get("target_skill"),
@@ -403,6 +540,7 @@ class FeedbackRouter:
         act_entry = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "event": "USER_FEEDBACK_DETECTED",
+            "event_id": event_id,
             "feedback_id": feedback_record.get("feedback_id"),
             "target_agent": feedback_record.get("target_agent"),
             "target_skill": feedback_record.get("target_skill"),
@@ -412,6 +550,16 @@ class FeedbackRouter:
         }
         with open(act_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(act_entry, ensure_ascii=False) + "\n")
+
+        # 3. Mark processed in event tracker
+        self.event_tracker.mark_event_processed(event_id, metadata={
+            "feedback_id": feedback_record.get("feedback_id"),
+            "target_agent": feedback_record.get("target_agent"),
+            "target_skill": feedback_record.get("target_skill"),
+            "capability": feedback_record.get("capability"),
+            "task": feedback_record.get("task"),
+            "stage": feedback_record.get("stage")
+        })
 
         return act_entry
 

@@ -133,9 +133,15 @@
       "type": "boolean",
       "description": "Whether this feedback is scoped strictly to the current project."
     },
+    "event_id": {
+      "type": "string",
+      "description": "Unique lifecycle event identifier for duplicate detection and event-processing hygiene (e.g. EVT-FDB-20260919-...).",
+      "pattern": "^EVT-FDB-[A-Za-z0-9_-]+$"
+    },
     "context": {
       "type": "object",
       "properties": {
+        "event_id": {"type": "string"},
         "project_id": {"type": "string"},
         "milestone_id": {"type": "string"},
         "stage_id": {"type": "string"},

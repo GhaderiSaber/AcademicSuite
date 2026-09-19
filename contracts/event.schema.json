@@ -38,7 +38,8 @@
         "MILESTONE_APPROVAL_REQUESTED",
         "MILESTONE_APPROVED",
         "MILESTONE_REJECTED",
-        "MILESTONE_FAILED"
+        "MILESTONE_FAILED",
+        "USER_FEEDBACK_DETECTED"
       ]
     },
     "timestamp": {
