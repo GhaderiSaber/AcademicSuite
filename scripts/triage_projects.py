@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-triage_projects.py — Academic Google Drive Project Lifecycle Triage CLI
-------------------------------------------------------------------------
-Scans client project directories in Google Drive / 'My Work', identifies
-inactive projects (> 30 days without messages), and moves them to
-'Pending Works/' (or 'Finished Works/' if marked done).
-Also supports restoring archived projects back to active 'My Work/'.
+scripts/triage_projects.py — [DEPRECATED / UTILITY INTERFACE]
+
+DEPRECATION NOTICE (Phase 35):
+This standalone CLI has been superseded by the canonical skill:
+- .agents/skills/academic-drive-project-organizer/
+Retained for direct shell execution on local Google Drive mounts.
 """
 
 import os

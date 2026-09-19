@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-orchestrator_dependency_resolver.py — Deterministic Orchestrator Prerequisite & Capability Engine
+scripts/orchestrator_dependency_resolver.py — [DEPRECATED INTERFACE]
 
-Manages:
-1. Artifact dependency graph resolution across research micro-stages
-2. Capability-to-Skill-to-Agent deterministic mapping
-3. Prerequisite validation before subagent invocation
-4. Automated generation of isolated Context Delegation Envelopes
+DEPRECATION NOTICE (Phase 35):
+This module has been superseded by:
+- scripts/academic_task_router.py (Dynamic task routing and capability sequencing)
+- scripts/capability_resolver.py (Capability-to-Skill resolution)
+- scripts/stage_manifest_engine.py (Stage manifest dependency gating)
+
+Maintained as a backward-compatibility layer for legacy orchestrator tests.
 """
 
 import os

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-scripts/academic_isolated_agent_sandbox.py — AcademicSuite Isolated Agent Sandbox
+scripts/academic_isolated_agent_sandbox.py — [EXPERIMENTAL / SANDBOX UTILITY]
+
+Experimental sandbox provider for candidate mutation evaluation without touching production files.
 
 Instantiates isolated agent and skill versions in an isolated sandbox directory:
     learning/candidates/<candidate_id>/isolated_agent/

@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-build_hypothesis_1_triad_docx.py — Compiles OpenXML Word deliverable for Hypothesis 1.
+scripts/build_hypothesis_1_triad_docx.py — [CONSOLIDATED COMPATIBILITY WRAPPER]
+
+Consolidated in Phase 35: Superseded by scripts/generate_hypothesis_triad_docx.py.
+Retained as a backward-compatibility module for existing test harnesses.
 Strictly enforces the 3-Table Standard for Relationship / Regression Hypotheses:
   - Table 1: Bivariate Correlation Matrix & Descriptives
   - Table 2: Combined Model Summary & ANOVA Table

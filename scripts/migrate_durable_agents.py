@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-scripts/migrate_durable_agents.py — Deterministic Migration Script for 7 Durable Agents
+scripts/migrate_durable_agents.py — [HISTORICAL MIGRATION TOOL / LEGACY]
 
-Migrates the 7 AcademicSuite durable agents:
+One-off migration utility from Phase 2/3 migrating durable agents to canonical specifications.
+Retained as a verified historical migration reference tested by test_durable_agents_migration.py.
+"""
 1. digital-saber
 2. academic-orchestrator
 3. methodology-expert

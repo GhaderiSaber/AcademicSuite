@@ -2409,3 +2409,59 @@ flowchart TD
    - Automatically maps L2, L3, and L4 research tasks to their matching `academic_teamwork_pattern`.
    - Formats schema-valid boundary packages conforming to `contracts/teamwork_boundary.schema.json`.
 
+---
+
+## 40. Phase 35 — Legacy Code Governance & Codebase Categorization Architecture
+
+### 40.1 Purpose and Governance Principles
+Following the completion of the 34 architecture and evolution phases, Phase 35 performs a comprehensive, auditable cleanup of historical legacy code. The architecture enforces two foundational principles:
+1. **Exhaustive Mutually Exclusive Status**: Every audited file across the repository must possess **exactly one status** among the six canonical classifications:
+   - `LEGACY` $\to$ **Isolated**: Archived in `legacy/` or labeled with historical isolation markers.
+   - `DUPLICATE` $\to$ **Consolidated**: Consolidated into a single canonical source of truth with backward-compatibility wrappers.
+   - `DEPRECATED` $\to$ **Documented**: Operational components documented with deprecation notices and migration paths.
+   - `UNUSED` $\to$ **Removed**: Pruned from disk only after proving zero external dependencies.
+   - `COMPATIBILITY` $\to$ **Preserved & Annotated**: Maintained specifically for platform and backwards compatibility.
+   - `EXPERIMENTAL` $\to$ **Tagged & Isolated**: Marked with `[EXPERIMENTAL]` headers and isolated from production pipelines.
+2. **The Non-Deletion Invariant**:
+   No file is deleted before proving that zero active modules, tests, or skills depend on it.
+
+### 40.2 The Six Categorization Quadrants
+```mermaid
+flowchart TD
+    subgraph CodebaseAudit["Codebase File Audit & Dependency Tracing"]
+        Scan["7,102 Repository Files Scanned\n(Imports, Subprocess calls, Tests, Schemas)"]
+    end
+
+    subgraph Statuses["Six Mutually Exclusive Classifications"]
+        LEG["1. LEGACY\n(Historical workflows & migration scripts)"]
+        DUP["2. DUPLICATE\n(Redundant triad generators)"]
+        DEP["3. DEPRECATED\n(Monolithic digital_saber.py & legacy resolvers)"]
+        UNU["4. UNUSED\n(Proven zero-dependency dead files)"]
+        COM["5. COMPATIBILITY\n(Discovery symlinks, platform launcher shims)"]
+        EXP["6. EXPERIMENTAL\n(Demo CLIs & sandbox testbeds)"]
+    end
+
+    subgraph Actions["Governance Actions"]
+        A_LEG["Archived in legacy/ or marked historical"]
+        A_DUP["Consolidated into canonical implementation"]
+        A_DEP["Documented with sunset timeline"]
+        A_UNU["Safely removed from disk"]
+        A_COM["Preserved & explicitly annotated"]
+        A_EXP["Tagged with [EXPERIMENTAL] header"]
+    end
+
+    Scan --> LEG --> A_LEG
+    Scan --> DUP --> A_DUP
+    Scan --> DEP --> A_DEP
+    Scan --> UNU --> A_UNU
+    Scan --> COM --> A_COM
+    Scan --> EXP --> A_EXP
+```
+
+### 40.3 Authoritative Audit Document
+The complete repository inventory is published and maintained in [`architecture/CODEBASE_INVENTORY_AUDIT.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/architecture/CODEBASE_INVENTORY_AUDIT.md).
+- 5 unused files safely removed (`tools/python/openxml_helpers.py`, `scripts/generate_scale_validation_package.py`, `scripts/assemble_master_scale_validation_docx.py`, `scripts/generate_experimental_master_package.py`, `scripts/multi_account_scanner.py`).
+- Consolidated `build_hypothesis_1_triad_docx.py` with `generate_hypothesis_triad_docx.py`.
+- Formally documented deprecation of `digital_saber.py` in favor of `scripts/suite_cli.py`.
+
+

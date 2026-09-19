@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-scripts/academic_self_improvement_demo.py — Deterministic End-to-End Self-Improvement Demonstration CLI
+scripts/academic_self_improvement_demo.py — [EXPERIMENTAL / DEMONSTRATION HARNESS]
+
+Phase 18 Interactive Self-Improvement Demonstration CLI (Experimental / Sandbox).
+Not on the critical operational pipeline path.
+"""
 
 Executes the four core behavioral transfer scenarios:
 1. Scenario 1: Statistical Reasoning Transfer (Longitudinal Model Selection)

@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-scripts/candidate_falsifier_engine.py — Candidate → Falsifier → Synthesis Deliberation Engine
+scripts/candidate_falsifier_engine.py — [EXPERIMENTAL / DELIBERATION HARNESS]
+
+Candidate -> Falsifier -> Synthesis multi-perspective deliberation engine (Phase 20 testbed).
+"""
 
 Implements the multi-perspective deliberation pattern for ambiguous academic and statistical decisions:
   Candidate A, Candidate B, Candidate C

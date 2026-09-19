@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Digital Saber — Professional AI Research Twin & Cognitive Command Interface
-(دیجیتال صابر: دوقلوی هوشمند پژوهشی و سیستم جامع مشاوره و تصمیم‌گیری صابر قادری)
+digital_saber.py — [DEPRECATED INTERFACE]
 
-Unified master entry point integrating the 5 cognitive layers:
-  1. Identity & Research Constitution
-  2. Case-Based Memory & Decision Journal
-  3. Epistemic & Statistical Reasoning Engines
-  4. Specialized Skill Execution (27 Skills)
-  5. Multi-Signal Quality Control & Defense Committee Simulation
+DEPRECATION NOTICE (Phase 35):
+This monolithic entrypoint is deprecated and scheduled for sunset (December 2026).
+- For CLI execution of 'The Hands', use: python3 scripts/suite_cli.py
+- For multi-agent research orchestration, use Google Antigravity native subagents:
+  academic-orchestrator, digital-saber, methodology-expert, statistics-agent.
+- For teamwork execution patterns, see: scripts/academic_teamwork_patterns.py
+
+Retained for transitional backward compatibility with legacy command scripts.
 """
 
 import os

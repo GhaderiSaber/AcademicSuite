@@ -35,6 +35,7 @@
 | [ADR-037](#adr-037-replacement-of-synthetic-slow-loop-curriculum-with-actual-practice-cases-phase-32) | Replacement of Synthetic Slow-Loop Curriculum with Actual Practice Cases | Accepted | 2026-09-19 |
 | [ADR-038](#adr-038-authoritative-academic-behavioral-benchmarks-across-18-methodology-families) | Authoritative Academic Behavioral Benchmarks across 18 Methodology Families | Accepted | 2026-09-19 |
 | [ADR-039](#adr-039-integration-of-academic-domain-teamwork-patterns-across-conceptual-roles-phase-34) | Integration of Academic Domain Teamwork Patterns Across Conceptual Roles | Accepted | 2026-09-19 |
+| [ADR-040](#adr-040-systematic-legacy-code-governance-and-codebase-categorization-phase-35) | Systematic Legacy Code Governance & Codebase Categorization | Accepted | 2026-09-19 |
 
 ---
 
@@ -1741,6 +1742,45 @@ Academic research requires structured collaboration patterns utilizing specializ
 ### Consequences
 - **Positive**: AcademicSuite supplies rich domain intelligence, role sequences, and handoff contracts while Antigravity owns the native execution runtime; zero Python agent dispatch emulation; complete alignment with Directives 0, 3, 6, 12.1, 18, and 19.
 - **Negative**: Workflows must adhere to the 6 conceptual roles and explicit handoff contracts defined in the pattern registry.
+
+---
+
+## ADR-040: Systematic Legacy Code Governance and Codebase Categorization (Phase 35)
+
+### Status
+Accepted (September 2026 / 1405 SH)
+
+### Context
+Following the completion of 34 architecture and evolution phases, AcademicSuite accumulated legacy workflow artifacts, one-off migration scripts, transitional test fixtures, and redundant entrypoints. Without a strict categorization taxonomy and affirmative dependency verification, unmanaged dead code creates maintenance drag, cognitive overhead, and confusion over canonical execution boundaries. Furthermore, arbitrary deletions without dependency proofs risk breaking fragile test suites or legacy caller contracts.
+
+### Decision
+1. **The Six-Status Categorization Standard**:
+   Every audited file in the repository must be assigned **exactly one mutually exclusive status**:
+   - `LEGACY` $\to$ **Isolated**: Historical components superseded by newer architectural layers, archived in `legacy/` with explicit boundary markers.
+   - `DUPLICATE` $\to$ **Consolidated**: Redundant scripts consolidated into a canonical source of truth with thin backward-compatibility wrappers.
+   - `DEPRECATED` $\to$ **Documented**: Operational interfaces scheduled for sunset, documented with migration notices, modern alternatives, and sunset dates.
+   - `UNUSED` $\to$ **Removed**: Dead code with proven zero external references or test dependencies across all 7,102 repository files.
+   - `COMPATIBILITY` $\to$ **Preserved & Annotated**: Shims, wrappers, and discovery mirrors maintained strictly for backward compatibility.
+   - `EXPERIMENTAL` $\to$ **Tagged & Isolated**: Prototypes, demos, and benchmark testbeds marked with `[EXPERIMENTAL]` headers.
+
+2. **The Non-Deletion Invariant ("Prove Before Delete")**:
+   No file may be deleted without exhaustive cryptographic and textual proof that zero active production files, skills, agents, or test suites depend on it. In Phase 35, all 7,102 workspace files were scanned, proving zero dependencies for 5 files (`tools/python/openxml_helpers.py`, `scripts/generate_scale_validation_package.py`, `scripts/assemble_master_scale_validation_docx.py`, `scripts/generate_experimental_master_package.py`, `scripts/multi_account_scanner.py`), which were safely removed.
+
+3. **Consolidation of Duplicates**:
+   - `scripts/build_hypothesis_1_triad_docx.py` was consolidated with canonical `scripts/generate_hypothesis_triad_docx.py`.
+   - Launchers (`attach-suite`, `attach-suite.bat`) explicitly document delegation to `scripts/attach-suite.py`.
+
+4. **Deprecation Documentation**:
+   - Monolithic `digital_saber.py` is formally deprecated in favor of `scripts/suite_cli.py` and Antigravity subagents, with sunset scheduled for December 2026.
+   - `scripts/orchestrator_dependency_resolver.py` and `scripts/triage_projects.py` documented with modern skill replacements.
+
+5. **Authoritative Codebase Inventory Audit (`architecture/CODEBASE_INVENTORY_AUDIT.md`)**:
+   Maintains the complete mapping of all audited files, statuses, actions taken, and dependency proofs.
+
+### Consequences
+- **Positive**: Clean working tree; zero dead code cluttering scripts; unambiguous canonical execution paths; complete preservation of backward compatibility; strict adherence to Directives 0, 6, 12.1, 18, and 19.
+- **Negative**: Removed files are gone from disk (preserved in git history); deprecated entrypoints will eventually be retired at their sunset date.
+
 
 
 

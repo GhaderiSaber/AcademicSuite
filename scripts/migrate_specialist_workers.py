@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-scripts/migrate_specialist_workers.py — Deterministic Migration Script for 15 Specialist Subagents
+scripts/migrate_specialist_workers.py — [HISTORICAL MIGRATION TOOL / LEGACY]
 
-Migrates the 15 AcademicSuite bounded specialist subagents:
+One-off migration utility from Phase 2/3 migrating specialist subagents to canonical specifications.
+Retained as a verified historical migration reference tested by test_specialist_workers_migration.py.
+"""
 1. research-agent
 2. literature-expert
 3. journal-strategist
