@@ -880,4 +880,49 @@ While previous evolution phases implemented components for experience recording,
 - **Positive**: Fully closes the evolutionary loop around real observable behavior; prevents premature canonical file mutations via sandboxes; provides rigorous 3-way counterfactual evidence before promotion; eliminates overfitting via cryptographically sealed held-out suites; adheres strictly to Directives 0, 6, 12.1, and 19.
 - **Negative**: Requires additional disk storage for candidate sandboxes and 3-way evaluation reports in `learning/candidates/` and `learning/evaluations/three_way/`.
 
+---
+
+## ADR-024: Separation of Learning Roles Across Six Native Antigravity Subagents
+
+### Status
+Accepted
+
+### Context
+In prior designs, the self-improvement architecture relied partly on monolithic Python classes or blurred boundaries between diagnosing defects, distilling lessons, formulating patches, and evaluating candidates. This risked violating:
+1. **Directive 12.1 (Sole Orchestrator Mandate & Prohibition of Python Agent Emulation)**: Python scripts must never impersonate cognitive agents or manage subagent dispatch.
+2. **Directive 19 (Six-Part Functional Separation Invariant)**: Agents reason and decide; Skills instruct; Scripts compute; Hooks enforce; State machines authorize; Manifests define completion.
+
+Furthermore, an agent or script formulating a code modification must never evaluate or grade its own output, and observable trajectory reconstruction must never inspect private chain-of-thought tokens.
+
+### Decision
+1. **The Six Core Questions Mapping**:
+   The continuous self-improvement framework is strictly partitioned across six specialized cognitive roles in `.agents/agents/`, each answering a single, unambiguous core question:
+   - **`trajectory-analyzer`**: *"What actually happened?"*
+     Reconstructs observable tool calls, CLI commands, exit codes, and output artifacts from `transcript.jsonl` and hook telemetry. Strictly zero private chain-of-thought access.
+   - **`behavior-analyst`**: *"What behavior was wrong?"*
+     Conducts causal root-cause analysis on observable trajectories and triggers (`USER_FEEDBACK_DETECTED` / `VALIDATION_FAILED`), classifying failure signatures without modifying files or executing commands.
+   - **`knowledge-curator`**: *"What generalizable lesson does this imply?"*
+     Distills persistent, versioned lessons (`learning/knowledge/lessons/`), anti-patterns, and exemplars, enforcing strict scope containment (`project` vs `cross-project`) without directly promoting candidates.
+   - **`skill-evolver`**: *"What candidate modification would change the behavior?"*
+     Synthesizes targeted candidate modifications (`improvement_candidate`) with unified diffs in an isolated branch workspace, adhering to Directive 18 single-view ceilings (<= 500 lines, <= 40,000 bytes).
+   - **`evaluation-agent`**: *"Did the modification actually improve behavior?"*
+     Independently tests candidate modifications in an isolated branch workspace against deterministic test harnesses and 3-way evaluation arms across 8 dimensions. Forbids unverified declarations of success and scalar intelligence scores.
+   - **`curriculum-builder`**: *"What future task would test whether the lesson generalizes?"*
+     Architects graduated complexity challenge tasks (L1 to L4) and benchmark datasets with bounded empirical decimal noise ($\delta \sim \text{Uniform}(\pm 0.08, \pm 0.25)$) per Directive 9.
+
+2. **Least-Privilege Tool Boundaries**:
+   - `trajectory-analyzer` & `behavior-analyst`: Strictly read-only (`view_file`, `list_dir`, `grep_search`, `find_by_name`). Zero write, zero run tools.
+   - `knowledge-curator`, `skill-evolver`, `curriculum-builder`: Staging write-only (`view_file`, `list_dir`, `grep_search`, `find_by_name`, `write_to_file`). Zero `run_command`.
+   - `evaluation-agent`: Execution-enabled (`view_file`, `list_dir`, `grep_search`, `find_by_name`, `write_to_file`, `run_command`).
+
+3. **Native Antigravity Multi-Agent Orchestration**:
+   - The Lead Orchestrator coordinates all learning roles via native `invoke_subagent`.
+   - Python scripts in `.agents/skills/` and `scripts/` serve strictly as deterministic computational utilities ("The Hands").
+   - Formal multi-agent protocol documented in `learning/LEARNING_MULTI_AGENT_SPEC.md`.
+
+### Consequences
+- **Positive**: Clean cognitive separation of concerns; zero Python agent emulation; independent, un-gameable evaluation; strict least-privilege tool security; 100% compliance with Directives 0, 9, 12.1, 18, and 19.
+- **Negative**: Deliberation requires coordinated sequential invocations across native subagents.
+
+
 

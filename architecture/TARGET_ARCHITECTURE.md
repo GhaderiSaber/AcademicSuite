@@ -1143,6 +1143,55 @@ Evaluates candidate improvements across 3 explicit test arms:
   - *HIGH-RISK* (permissions, hooks, contracts, validators): Hard-blocked from automated evolution.
 - **Promotion Lifecycle**: Takes pre-promotion snapshots in `learning/promotions/snapshots/`, applies mutation to canonical production files, emits `PRM-*.json` promotion records, logs telemetry in `learning/telemetry/improvement_history.jsonl`, and executes post-promotion drift audits via `AcademicBehaviorDriftMonitor`.
 
+---
+
+## 24. Specialized Learning Roles & The Six Core Questions (Phase 19)
+
+### 24.1 Cognitive Specialization & Antigravity Native Roles
+Phase 19 establishes complete separation of cognitive responsibilities across AcademicSuite's six learning subagents in `.agents/agents/`. Rather than relying on Python classes or monolithic scripts, each role is a native Antigravity subagent governed by a dedicated system prompt (`agent.md`) and behavioral contract (`contract.md`).
+
+Each subagent is designed to answer a single, unambiguous core question:
+
+```mermaid
+flowchart LR
+    TA["trajectory-analyzer\n'What actually happened?'"]
+    BA["behavior-analyst\n'What behavior was wrong?'"]
+    KC["knowledge-curator\n'What generalizable lesson does this imply?'"]
+    SE["skill-evolver\n'What candidate modification would change the behavior?'"]
+    EA["evaluation-agent\n'Did the modification actually improve behavior?'"]
+    CB["curriculum-builder\n'What future task would test whether the lesson generalizes?'"]
+
+    TA --> BA
+    BA --> KC
+    KC --> SE
+    SE --> EA
+    KC -.-> CB
+    CB -.-> EA
+```
+
+### 24.2 Operational Matrix & Least-Privilege Boundaries
+
+| Subagent Role | Core Question Answered | Primary Cognitive Mission | Tools Available | Permissions & Boundaries |
+| :--- | :--- | :--- | :--- | :--- |
+| **`trajectory-analyzer`** | *"What actually happened?"* | Reconstructs observable tool calls, commands, and outputs from `transcript.jsonl` and hook telemetry. | `view_file`, `list_dir`, `grep_search`, `find_by_name` | **Read-Only**: Zero write, zero run tools. Strict Zero CoT policy. |
+| **`behavior-analyst`** | *"What behavior was wrong?"* | Conducts causal root-cause analysis on triggers (`USER_FEEDBACK_DETECTED` / `VALIDATION_FAILED`), classifying failure signatures. | `view_file`, `list_dir`, `grep_search`, `find_by_name` | **Read-Only**: Zero write, zero run tools. Does not propose patches. |
+| **`knowledge-curator`** | *"What generalizable lesson does this imply?"* | Distills persistent lessons, anti-patterns, and exemplars in `learning/knowledge/`. | `view_file`, `list_dir`, `grep_search`, `find_by_name`, `write_to_file` | **Staging Write-Only**: Cannot edit `.agents/skills/`. Zero command execution. Direct promotion forbidden. |
+| **`skill-evolver`** | *"What candidate modification would change the behavior?"* | Proposes minimal, high-impact unified diffs (`improvement_candidate`) for target skills and scripts in branch workspaces. | `view_file`, `list_dir`, `grep_search`, `find_by_name`, `write_to_file` | **Staging Write-Only**: Branch workspace. Cannot overwrite canonical skills directly. Directive 18 ceilings enforced. |
+| **`evaluation-agent`** | *"Did the modification actually improve behavior?"* | Independently benchmarks candidate mutations using 3-way evaluation arms and 8 dimensions. | `view_file`, `list_dir`, `grep_search`, `find_by_name`, `write_to_file`, `run_command` | **Execution-Enabled**: Branch workspace. Forbids unverified pass declarations and scalar scores. |
+| **`curriculum-builder`** | *"What future task would test whether the lesson generalizes?"* | Architect graduated complexity benchmark tasks (L1–L4) and synthetic challenge datasets. | `view_file`, `list_dir`, `grep_search`, `find_by_name`, `write_to_file` | **Staging Write-Only**: Cannot execute tests or grade tasks. Directive 9 empirical decimal noise enforced. |
+
+### 24.3 Sole Orchestrator Mandate & Functional Separation
+1. **Directive 12.1 Compliance**: Antigravity is the sole agent orchestrator. Subagents are invoked via `invoke_subagent`. Python scripts in `.agents/skills/` and `scripts/` serve strictly as deterministic computational utilities ("The Hands").
+2. **Directive 19 Compliance**: Clear separation across all six dimensions:
+   - *Agent decides*: Subagents perform cognitive diagnosis, synthesis, and evaluation.
+   - *Skill instructs*: Domain skills provide procedures and templates.
+   - *Script computes*: Deterministic scripts compute statistical metrics and file diffs.
+   - *Hook enforces*: Lifecycle hooks intercept events and enforce security boundaries.
+   - *State machine authorizes*: State machines gate milestone and stage progression.
+   - *Artifact manifest defines completion*: JSON schemas validate all handoff contracts.
+3. **Formal Specification**: Detailed delegation protocols, sequential handoffs, and workspace isolation modes are codified in `learning/LEARNING_MULTI_AGENT_SPEC.md`.
+
+
 
 
 
