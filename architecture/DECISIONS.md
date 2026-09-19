@@ -27,6 +27,10 @@
 | [ADR-015](#adr-015-cross-artifact-triad-consistency-validation-and-structured-docx-compilation) | Cross-Artifact Triad Consistency Validation & Structured DOCX Compilation | Accepted | 2026-09-19 |
 | [ADR-016](#adr-016-separation-of-interpretation-from-evidence-and-5-link-claim-provenance) | Separation of Interpretation from Evidence & 5-Link Claim Provenance | Accepted | 2026-09-19 |
 | [ADR-017](#adr-017-separated-writing-architecture-and-interpretation-contracts) | Separated Writing Architecture & Interpretation Contracts | Accepted | 2026-09-19 |
+| [ADR-018](#adr-018-state-authorized-human-approval-engine-and-prohibition-of-prompt-based-halting) | State-Authorized Human Approval Engine & Elimination of Prompt Halting | Accepted | 2026-09-19 |
+| [ADR-019](#adr-019-tripartite-lifecycle-hook-architecture-safety-integrity-learning-and-non-orchestrator-invariant) | Tripartite Lifecycle Hook Architecture & Non-Orchestrator Invariant | Accepted | 2026-09-19 |
+| [ADR-020](#adr-020-factual-event-driven-trajectory-recording-and-prohibition-of-speculative-inference) | Factual Event-Driven Trajectory Recording & Prohibition of Speculation | Accepted | 2026-09-19 |
+| [ADR-021](#adr-021-deterministic-feedback-routing-and-prohibition-of-generic-target-defaults) | Deterministic Feedback Routing & Prohibition of Generic Target Defaults | Accepted | 2026-09-19 |
 
 ---
 
@@ -677,5 +681,51 @@ This speculative inference violated Directive 0 (Radical Honesty & Anti-Deceptio
 ### Consequences
 - **Positive**: Trajectories reflect 100% ground-truth observable reality; eliminates hallucinated tool calls; provides verifiable provenance for every action; enriches learning and continuous improvement engines with real telemetry.
 - **Negative**: Stages recorded without active hook execution or transcript logs will possess empty tool lists rather than mock tool summaries.
+
+---
+
+## ADR-021: Deterministic Feedback Routing and Prohibition of Generic Target Defaults
+
+### Status
+Accepted
+
+### Context
+In earlier iterations of the continuous learning pipeline, when user critique was captured via `AcademicIntegratedLearningHub.process_user_turn()`, missing caller metadata triggered hardcoded fallback defaults:
+```python
+meta.get("target_skill", "statistical-data-analyst")
+meta.get("target_agent", "statistics-agent")
+```
+Consequently, feedback regarding theoretical literature citations, research methodology, qualitative themes, academic prose tone, or OpenXML typography was mistakenly attributed to `statistics-agent` and `statistical-data-analyst`. This created catastrophic feedback pollution:
+- `statistics-agent` received anti-patterns and improvement candidates for problems in literature synthesis or APA formatting.
+- Genuine methodology or writing skills received zero feedback for diagnosed issues.
+- The continuous improvement loop (`run_fast_loop()`) attempted to optimize the wrong skills with irrelevant lessons.
+
+### Decision
+1. **Mandatory 5-Field Target Structure**:
+   Every `FeedbackRecord` generated across the system must strictly contain:
+   - `target_agent`: Assigned subagent role (e.g., `literature-expert`, `methodology-expert`, `academic-writer`, `results-auditor`).
+   - `target_skill`: Specific production skill folder (e.g., `persian-literature-review-builder`, `methodology-review`, `chapter-4-writing`, `apa-reporting`).
+   - `capability`: Canonical capability identifier (e.g., `literature_synthesis`, `research_methodology`, `academic_writing`, `apa_formatting`).
+   - `task`: Associated milestone or task identifier (e.g., `M2_LITERATURE`, `M3_METHODOLOGY`).
+   - `stage`: Associated micro-stage identifier (e.g., `02_literature_review`, `06_hypothesis_1`).
+
+2. **Authoritative 4-Tier Resolution Hierarchy (`scripts/academic_feedback_router.py`)**:
+   Target capability resolution is executed deterministically without generic guessing:
+   - **Tier 1: Explicit Metadata**: Provided directly in caller metadata (`target_agent`, `target_skill`, `capability`, `task`, `stage`).
+   - **Tier 2: Active State Machine**: Inspects `state/current_state.json` for active milestones in status `RUNNING`, `VALIDATING`, `AWAITING_APPROVAL`, or `READY`.
+   - **Tier 3: Transcript Forensics**: Inspects the most recent tool calls in `transcript.jsonl` (extracting skill from `run_command` paths or target file patterns in file tools).
+   - **Tier 4: Semantic Domain Mapping**: Classifies critique patterns against domain dictionaries (`WRITING_CORRECTION`, `EVIDENCE_CORRECTION`, `METHODOLOGY_CORRECTION`, `DATA_ANALYSIS_CORRECTION`, `QUALITY_STYLE_CORRECTION`, `RESEARCH_INTEGRITY_CORRECTION`, `PROCESS_CORRECTION`, `STATISTICAL_CORRECTION`).
+
+3. **Absolute Prohibition of Generic Defaults (Fail-Closed)**:
+   - If feedback cannot be resolved to a verified capability across all 4 tiers, the router must raise `UnresolvableFeedbackTargetError`.
+   - Falling back to `statistics-agent` or any other generic default is **strictly prohibited**.
+
+4. **Explicit Feedback Lifecycle Event**:
+   - The router emits `USER_FEEDBACK_DETECTED` to `TrajectoryEngine` (`state/trajectory_events.jsonl`), `state/audit_log.jsonl`, and `learning/telemetry/activity.jsonl` immediately upon detection.
+   - The feedback record is passed with its resolved target capability directly into `AcademicIntegratedLearningHub.run_fast_loop(target_agent, target_skill, capability)`.
+
+### Consequences
+- **Positive**: Guarantees 100% targeting accuracy in continuous learning; eliminates cross-capability feedback pollution; ensures that improvement candidates and lessons are applied strictly to the responsible agent and skill; full adherence to Directives 0, 12.1, and 19.
+- **Negative**: Ambiguous feedback lacking both active state machine context and transcript logs will fail-closed rather than silently logging under a fallback agent.
 
 

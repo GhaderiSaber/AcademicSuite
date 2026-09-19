@@ -63,7 +63,7 @@ except ImportError:
 CATEGORY_PATTERNS: List[Tuple[str, str, List[str]]] = [
     (
         "RESEARCH_INTEGRITY_CORRECTION",
-        "research-integrity",
+        "validation-agent",
         [
             r"doesn'?t match (?:the )?output",
             r"table doesn'?t match",
@@ -82,7 +82,7 @@ CATEGORY_PATTERNS: List[Tuple[str, str, List[str]]] = [
     ),
     (
         "DATA_ANALYSIS_CORRECTION",
-        "data-agent",
+        "data-curator",
         [
             r"forgot to check missingness",
             r"check missingness",
@@ -102,7 +102,7 @@ CATEGORY_PATTERNS: List[Tuple[str, str, List[str]]] = [
     ),
     (
         "METHODOLOGY_CORRECTION",
-        "research-agent",
+        "methodology-expert",
         [
             r"method is not appropriate",
             r"not appropriate here",
@@ -111,9 +111,13 @@ CATEGORY_PATTERNS: List[Tuple[str, str, List[str]]] = [
             r"threats? to internal validity",
             r"unmeasured confounding",
             r"quasi[- ]experimental",
+            r"experimental design",
             r"control group",
             r"sampling bias",
             r"random assignment",
+            r"g\*power",
+            r"sample size",
+            r"sampling",
             r"این روش مناسب نیست",
             r"نمی‌توانی ادعای علّی کنی",
             r"طرح تحقیق",
@@ -229,6 +233,7 @@ CORRECTION_TRIGGER_PATTERNS = [
     r"\bincorrect\b|\bwrong\b|\bflawed\b|\bmismatch\b",
     r"\brevise (?:this|the)\b|\bcorrect (?:this|the)\b",
     r"\b(?:use|write|replace with) this exact\b",
+    r"\b(?:where is the citation|reference doesn'?t support|citation (?:needed|missing)|ghost citation)\b",
     r"فراموش کردی|باید|نباید|اشتباه است|نادرست است|اصلاح کن|دقت کن"
 ]
 
@@ -344,6 +349,7 @@ class AcademicCorrectionDetector:
         # 0. Check Epistemic Methodological Blacklist (ATK-02 & ATK-14 Hardening)
         for bl_code, bl_pattern, bl_reason in EPISTEMIC_METHODOLOGICAL_BLACKLIST:
             if re.search(bl_pattern, text_lower):
+                now_iso = datetime.now(timezone.utc).isoformat()
                 return {
                     "contract_version": "1.0.0",
                     "feedback_id": f"FDB-DISCREDITED-{uuid.uuid4().hex[:6].upper()}",
@@ -356,7 +362,14 @@ class AcademicCorrectionDetector:
                     "type": "DISCREDITED_METHODOLOGY_ATTEMPT",
                     "target_agent": "academic-challenger",
                     "target_skill": "methodology-review",
+                    "capability": "research_methodology",
+                    "task": meta.get("task") or meta.get("milestone_id") or "ACTIVE_MILESTONE",
+                    "stage": meta.get("stage") or meta.get("stage_id") or "active_stage",
+                    "correction": cleaned,
+                    "desired_behavior": f"Do not use discredited methodology: {bl_reason}",
                     "scope": "DISCREDITED_REJECTED",
+                    "severity": "CRITICAL",
+                    "timestamp": now_iso,
                     "correction_statement": cleaned
                 }
 
@@ -383,17 +396,19 @@ class AcademicCorrectionDetector:
                 matched = True
                 break
 
+        # 4. Deterministic Context Resolution via FeedbackRouter (Zero Generic Defaults)
+        from scripts.academic_feedback_router import FeedbackRouter
+        router = FeedbackRouter(
+            state_dir=os.path.join(self.project_root, "state"),
+            project_root=self.project_root
+        )
+
         if not matched:
-            # Fallback heuristic: check if contains "writing" or "style"
-            if "writing" in text_lower or "word" in text_lower:
-                detected_category = "WRITING_CORRECTION"
-                target_agent = "academic-writer"
-            elif "statistic" in text_lower or "model" in text_lower or "test" in text_lower:
-                detected_category = "STATISTICAL_CORRECTION"
-                target_agent = "statistics-agent"
+            inferred_cat = router._classify_text_category(cleaned)
+            if inferred_cat:
+                detected_category = inferred_cat
             else:
-                detected_category = "PROCESS_CORRECTION"
-                target_agent = "academic-orchestrator"
+                detected_category = None
 
         # 3. Scope Resolution
         # Check Project-Specific vs Potential Global Invariant vs Reusable Procedural
@@ -407,8 +422,21 @@ class AcademicCorrectionDetector:
         else:
             resolved_scope = "REUSABLE_PROCEDURAL"
 
-        # 4. Target Skill Inference
-        target_skill = self._infer_skill(detected_category)
+        meta = metadata or {}
+        source_transcript = meta.get("source_transcript_path", "")
+        resolved_ctx = router.resolve_context(
+            metadata=meta,
+            user_text=cleaned,
+            transcript_path=source_transcript,
+            category=detected_category
+        )
+
+        target_agent = resolved_ctx["target_agent"]
+        target_skill = resolved_ctx["target_skill"]
+        capability = resolved_ctx["capability"]
+        task = resolved_ctx["task"]
+        stage = resolved_ctx["stage"]
+        project_id = resolved_ctx.get("project_id", meta.get("project_id", "academic_workspace"))
 
         # 5. Extract Desired Behavior & Correction statement
         correction_statement = cleaned
@@ -430,12 +458,6 @@ class AcademicCorrectionDetector:
 
         feedback_id = f"FDB-{date_str}-{rand_suffix}"
         candidate_id = f"CAND-{date_str}-{sig_hash[:6].upper()}-{rand_suffix}"
-
-        meta = metadata or {}
-        project_id = meta.get("project_id", "academic_workspace")
-        milestone_id = meta.get("milestone_id", "ACTIVE_MILESTONE")
-        stage_id = meta.get("stage_id", "active_stage")
-        source_transcript = meta.get("source_transcript_path", "")
         turn_index = meta.get("turn_index")
 
         feedback_payload = {
@@ -450,6 +472,9 @@ class AcademicCorrectionDetector:
             "type": detected_category,
             "target_agent": target_agent,
             "target_skill": target_skill,
+            "capability": capability,
+            "task": task,
+            "stage": stage,
             "correction": correction_statement,
             "desired_behavior": desired_behavior,
             "scope": resolved_scope,
@@ -457,8 +482,11 @@ class AcademicCorrectionDetector:
             "timestamp": now_iso,
             "context": {
                 "project_id": project_id,
-                "milestone_id": milestone_id,
-                "stage_id": stage_id,
+                "milestone_id": task,
+                "stage_id": stage,
+                "capability": capability,
+                "task": task,
+                "stage": stage,
                 "source_transcript_path": source_transcript,
                 "turn_index": turn_index if isinstance(turn_index, int) else None,
                 "related_artifact_paths": meta.get("related_artifact_paths", [])

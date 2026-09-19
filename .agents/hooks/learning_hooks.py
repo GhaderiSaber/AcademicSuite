@@ -205,7 +205,12 @@ class LearningHooks:
                 try:
                     from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
                     hub = AcademicIntegratedLearningHub(base_dir=ROOT_DIR)
-                    hub.process_user_turn(user_text=clean_user)
+                    meta = {
+                        "conversation_id": cid,
+                        "source_transcript_path": transcript_path,
+                        "workspace_paths": payload.get("workspacePaths", [ROOT_DIR])
+                    }
+                    hub.process_user_turn(user_text=clean_user, metadata=meta)
                 except Exception as e_hub:
                     sys.stderr.write(f"[learning_hooks] Hub user turn note: {e_hub}\n")
 

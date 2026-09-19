@@ -929,4 +929,69 @@ The dedicated deterministic engine ("The Hands") for trajectory capture:
 - `contracts/evolution/trajectory.schema.json` defines `action_type` with the 11 canonical events.
 - `AcademicExperienceRecorder` (`record_from_milestone` and `record_from_stage`) delegates directly to `TrajectoryEngine`, ensuring that episodic memories in `learning/experience/<id>/trajectory.json` reflect 100% factual execution traces.
 
+---
+
+## 21. Deterministic Feedback Routing & Capability Targeting
+
+### 21.1 The Feedback Routing Architecture
+Under Phase 16, user corrections and teaching signals are deterministically routed to the responsible agent and capability without generic defaults. Defaulting unannotated feedback to `statistics-agent` is strictly prohibited.
+
+```mermaid
+flowchart TD
+    UserCritique["User Critique / Correction Detected"]
+    
+    subgraph Router["Deterministic Feedback Router (scripts/academic_feedback_router.py)"]
+        T1["Tier 1: Explicit Metadata<br/>(target_agent, target_skill, capability, task, stage)"]
+        T2["Tier 2: Active State Machine<br/>(RUNNING, VALIDATING, AWAITING_APPROVAL)"]
+        T3["Tier 3: Transcript Forensics<br/>(recent tool calls, skill paths, target files)"]
+        T4["Tier 4: Semantic Domain Mapping<br/>(critique patterns -> domain map)"]
+        FailClosed["Fail-Closed: UnresolvableFeedbackTargetError<br/>(Zero Generic Defaults)"]
+    end
+    
+    subgraph Emission["Lifecycle Telemetry Emission"]
+        Evt["USER_FEEDBACK_DETECTED Event"]
+        TrjLog["state/trajectory_events.jsonl"]
+        ActLog["learning/telemetry/activity.jsonl"]
+    end
+    
+    subgraph TargetDispatch["Targeted Continuous Learning"]
+        FdbRec["Complete FeedbackRecord<br/>{target_agent, target_skill, capability, task, stage}"]
+        FastLoop["AcademicIntegratedLearningHub.run_fast_loop()<br/>(Targeted Agent & Skill Optimization)"]
+    end
+    
+    UserCritique --> T1
+    T1 -- Found --> FdbRec
+    T1 -- Missing --> T2
+    T2 -- Found --> FdbRec
+    T2 -- Missing --> T3
+    T3 -- Found --> FdbRec
+    T3 -- Missing --> T4
+    T4 -- Found --> FdbRec
+    T4 -- Missing --> FailClosed
+    
+    FdbRec --> Evt
+    Evt --> TrjLog
+    Evt --> ActLog
+    Evt --> FastLoop
+```
+
+### 21.2 The 5-Field Target Contract
+Every feedback record must strictly define:
+1. `target_agent`: Assigned subagent role (`academic-writer`, `literature-expert`, `methodology-expert`, `results-auditor`, `data-curator`, `statistics-agent`, `validation-agent`, `academic-orchestrator`).
+2. `target_skill`: Specific production skill (`chapter-4-writing`, `persian-literature-review-builder`, `methodology-review`, `apa-reporting`, `data-audit`, `statistical-data-analyst`, `thesis-integrity-auditor`, `academic-suite-orchestrator`).
+3. `capability`: Canonical capability identifier (`academic_writing`, `literature_synthesis`, `research_methodology`, `apa_formatting`, `data_curation`, `statistical_modeling`, `research_integrity`, `workflow_orchestration`).
+4. `task`: Associated milestone / task (`M1_DATA_CURATION`, `M2_LITERATURE`, `M3_METHODOLOGY`, `M4_CHAPTER4`, etc.).
+5. `stage`: Associated micro-stage (`00_data_curation`, `02_literature_review`, `03_methodology`, `06_hypothesis_1`, etc.).
+
+### 21.3 The 4-Tier Resolution Hierarchy
+1. **Tier 1: Explicit Caller Metadata**: Checks incoming `metadata` dictionary for complete 5-field target specification.
+2. **Tier 2: Active State Machine**: Inspects `state/current_state.json` for any milestone currently in `RUNNING`, `VALIDATING`, `AWAITING_APPROVAL`, or `READY`.
+3. **Tier 3: Transcript Forensics**: Inspects `transcript.jsonl` in reverse order for recent tool invocations:
+   - `run_command` targeting `.agents/skills/<skill>/`
+   - `invoke_subagent` targeting specialist agents
+   - `write_to_file` / `replace_file_content` targeting chapter/stage deliverables.
+4. **Tier 4: Semantic Domain Mapping**: Classifies user critique against domain patterns (`WRITING_CORRECTION`, `EVIDENCE_CORRECTION`, `METHODOLOGY_CORRECTION`, `DATA_ANALYSIS_CORRECTION`, `QUALITY_STYLE_CORRECTION`, `RESEARCH_INTEGRITY_CORRECTION`, `PROCESS_CORRECTION`, `STATISTICAL_CORRECTION`).
+5. **Fail-Closed Guarantee**: If all 4 tiers fail to resolve a verified target capability, the router raises `UnresolvableFeedbackTargetError`. Falling back to a generic default (`statistics-agent`) is strictly prohibited.
+
+
 

@@ -11,6 +11,9 @@
     "type",
     "target_agent",
     "target_skill",
+    "capability",
+    "task",
+    "stage",
     "correction",
     "desired_behavior",
     "scope",
@@ -76,6 +79,18 @@
       "type": "string",
       "description": "Skill implicated in the feedback (e.g. assumption-testing, apa-reporting)."
     },
+    "capability": {
+      "type": "string",
+      "description": "Specific capability implicated in the feedback (e.g. mediation_analysis, academic_writing, apa_formatting)."
+    },
+    "task": {
+      "type": "string",
+      "description": "Task or milestone identifier implicated in the feedback (e.g. M4_CHAPTER4, hypothesis_1)."
+    },
+    "stage": {
+      "type": "string",
+      "description": "Specific workflow stage implicated in the feedback (e.g. 06_hypothesis_1, 01_demographics)."
+    },
     "correction": {
       "type": "string",
       "minLength": 5,
@@ -124,6 +139,9 @@
         "project_id": {"type": "string"},
         "milestone_id": {"type": "string"},
         "stage_id": {"type": "string"},
+        "capability": {"type": "string"},
+        "task": {"type": "string"},
+        "stage": {"type": "string"},
         "source_transcript_path": {"type": "string"},
         "turn_index": {"type": "integer"},
         "related_artifact_paths": {

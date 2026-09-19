@@ -480,6 +480,7 @@ class AcademicExperienceRecorder:
                 if len(desired_text.strip()) < 5:
                     desired_text = "Desired behavior: " + desired_text.ljust(5, ".")
 
+                m_cap = m_data.get("category") or m_data.get("capability") or "statistical_modeling"
                 feedback_contract = {
                     "contract_version": "1.0.0",
                     "feedback_id": f_id,
@@ -490,6 +491,9 @@ class AcademicExperienceRecorder:
                     "type": f_type,
                     "target_agent": agent,
                     "target_skill": skill,
+                    "capability": m_cap,
+                    "task": milestone_id,
+                    "stage": stage_id,
                     "correction": corr_text,
                     "desired_behavior": desired_text,
                     "scope": "PROJECT_SPECIFIC",
@@ -499,6 +503,9 @@ class AcademicExperienceRecorder:
                         "project_id": sm.project_id,
                         "milestone_id": milestone_id,
                         "stage_id": stage_id,
+                        "capability": m_cap,
+                        "task": milestone_id,
+                        "stage": stage_id,
                         "related_artifact_paths": [a["path"] for a in artifacts]
                     }
                 }

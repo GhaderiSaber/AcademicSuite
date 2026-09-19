@@ -178,8 +178,6 @@ class AcademicIntegratedLearningHub:
                 }
 
         meta = metadata or {}
-        target_skill = meta.get("target_skill", "statistical-data-analyst")
-        target_agent = meta.get("target_agent", "statistics-agent")
 
         try:
             # 2. Check for Research Integrity Violations
@@ -192,7 +190,7 @@ class AcademicIntegratedLearningHub:
             # 3. Detect Meaningful Correction via CorrectionDetector
             feedback_record = self.correction_detector.detect_correction(
                 user_text=clean_msg,
-                assistant_context=assistant_context or f"Active skill: {target_skill}",
+                assistant_context=assistant_context,
                 metadata=meta
             )
 
@@ -223,19 +221,44 @@ class AcademicIntegratedLearningHub:
                     "scientific_rationale": bl_reason
                 }
 
-            category = feedback_record.get("type") or feedback_record.get("category") if feedback_record else None
-            if not feedback_record or not category:
+            category = feedback_record.get("type") or feedback_record.get("category")
+            if not category:
                 return {
                     "action": "NO_CORRECTION_DETECTED",
                     "is_correction": False
                 }
 
-            # 4. Trigger Bounded Fast Evolution Loop
+            # 4. Extract verified target capability without generic defaults
+            target_agent = feedback_record.get("target_agent")
+            target_skill = feedback_record.get("target_skill")
+            capability = feedback_record.get("capability")
+            task = feedback_record.get("task")
+            stage = feedback_record.get("stage")
+
+            # 5. Emit USER_FEEDBACK_DETECTED
+            from scripts.academic_feedback_router import FeedbackRouter
+            router = FeedbackRouter(
+                state_dir=os.path.join(self.base_dir, "state"),
+                project_root=self.base_dir
+            )
+            router.emit_feedback_detected(feedback_record, payload=meta)
+
+            self.log_activity("USER_FEEDBACK_DETECTED", {
+                "feedback_id": feedback_record.get("feedback_id"),
+                "target_agent": target_agent,
+                "target_skill": target_skill,
+                "capability": capability,
+                "task": task,
+                "stage": stage
+            })
+
+            # 6. Trigger Bounded Fast Evolution Loop targeting the verified capability
             fast_loop_result = self.dual_loop_engine.run_fast_loop(
                 task_prompt=clean_msg,
                 user_correction=clean_msg,
-                target_skill=target_skill,
                 target_agent=target_agent,
+                target_skill=target_skill,
+                capability=capability,
                 mode=self.mode
             )
 
@@ -243,6 +266,7 @@ class AcademicIntegratedLearningHub:
                 "feedback_id": feedback_record.get("feedback_id"),
                 "category": category,
                 "target_skill": target_skill,
+                "capability": capability,
                 "status": fast_loop_result.get("status")
             })
 
@@ -251,6 +275,11 @@ class AcademicIntegratedLearningHub:
                 "is_correction": True,
                 "feedback_id": feedback_record.get("feedback_id"),
                 "category": category,
+                "target_agent": target_agent,
+                "target_skill": target_skill,
+                "capability": capability,
+                "task": task,
+                "stage": stage,
                 "fast_loop_result": fast_loop_result
             }
 
