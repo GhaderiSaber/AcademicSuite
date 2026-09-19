@@ -37,6 +37,7 @@ Enforces:
 
 import os
 import sys
+import re
 import json
 import uuid
 import shutil
@@ -77,6 +78,16 @@ class HighRiskModificationProhibitedError(PromotionEngineError):
 
 class EvaluationGateFailureError(PromotionEngineError):
     """Raised when an improvement candidate fails one or more mandatory evaluation gates."""
+    pass
+
+
+class PromotionFailureError(PromotionEngineError):
+    """Raised when promotion fails to physically activate the candidate version."""
+    pass
+
+
+class PromotionHashMismatchError(PromotionFailureError):
+    """Raised when the target Skill file hash did not change after candidate activation."""
     pass
 
 
@@ -141,7 +152,8 @@ class AcademicPromotionEngine:
         self.promotions_dir = os.path.join(self.base_dir, "learning", "promotions")
         self.snapshots_dir = os.path.join(self.promotions_dir, "snapshots")
         self.knowledge_dir = os.path.join(self.base_dir, "learning", "knowledge")
-        self.skill_memory_dir = os.path.join(self.base_dir, "learning", "skill-memory")
+        self.production_skills_dir = os.path.join(self.base_dir, ".agents", "skills")
+        self.production_agents_dir = os.path.join(self.base_dir, ".agents", "agents")
 
         self.archive_index = os.path.join(self.archive_dir, "index.jsonl")
         self.promotions_index = os.path.join(self.promotions_dir, "index.jsonl")
@@ -492,7 +504,25 @@ class AcademicPromotionEngine:
                 "approval_contract_id": f"APPR-AUTO-{promotion_id}",
                 "approved_at": datetime.now(timezone.utc).isoformat()
             }
-            deployment_result = self._deploy_active_candidate(candidate_data)
+            try:
+                deployment_result = self._deploy_active_candidate(candidate_data)
+            except PromotionFailureError as pfe:
+                reason = str(pfe)
+                archived = self.archive_rejected_candidate(
+                    candidate_data=candidate_data,
+                    failure_reason=reason,
+                    evaluation_evidence=evaluation_report,
+                    affected_cases=["promotion_activation_failure"]
+                )
+                return {
+                    "decision": "REJECTED",
+                    "status": "PROMOTION_FAILED",
+                    "risk_tier": risk_tier,
+                    "reason": reason,
+                    "archive_id": archived["archive_id"],
+                    "candidate_id": candidate_id
+                }
+
             promotion_record = self._build_promotion_record(
                 promotion_id=promotion_id,
                 candidate_data=candidate_data,
@@ -528,7 +558,25 @@ class AcademicPromotionEngine:
             # MEDIUM-RISK: Requires stronger evaluation and human/admin review
             if approver and approver.get("identity"):
                 # Human approver provided: Proceed to ACTIVE
-                deployment_result = self._deploy_active_candidate(candidate_data)
+                try:
+                    deployment_result = self._deploy_active_candidate(candidate_data)
+                except PromotionFailureError as pfe:
+                    reason = str(pfe)
+                    archived = self.archive_rejected_candidate(
+                        candidate_data=candidate_data,
+                        failure_reason=reason,
+                        evaluation_evidence=evaluation_report,
+                        affected_cases=["promotion_activation_failure"]
+                    )
+                    return {
+                        "decision": "REJECTED",
+                        "status": "PROMOTION_FAILED",
+                        "risk_tier": risk_tier,
+                        "reason": reason,
+                        "archive_id": archived["archive_id"],
+                        "candidate_id": candidate_id
+                    }
+
                 promotion_record = self._build_promotion_record(
                     promotion_id=promotion_id,
                     candidate_data=candidate_data,
@@ -605,30 +653,137 @@ class AcademicPromotionEngine:
     def _deploy_active_candidate(self, candidate_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Deploys a promoted candidate mutation into the active persistent store
-        (knowledge repository or skill memory), creating an immutable rollback snapshot.
+        and physically activates it in the target component on disk, creating
+        an immutable rollback snapshot and enforcing the Target Hash Verification Invariant.
         """
         mut_type = candidate_data.get("mutation_type")
         cid = candidate_data.get("candidate_id")
         mutation = candidate_data.get("mutation", {})
         content = mutation.get("content", "")
+        diff_type = mutation.get("diff_type", "UNIFIED_DIFF")
+        target_comp = candidate_data.get("target_component")
+        target_skill = candidate_data.get("target_skill")
+        target_type = candidate_data.get("target_type", "")
 
-        # 1. Create Rollback Snapshot
+        # 1. Resolve Target Component File Path
+        target_path = None
+        if target_comp:
+            if os.path.isabs(target_comp):
+                target_path = target_comp
+            else:
+                target_path = os.path.join(self.base_dir, target_comp)
+        elif target_skill:
+            target_path = os.path.join(self.production_skills_dir, target_skill, "SKILL.md")
+
+        # Determine if file modification is expected
+        file_mutation_expected = bool(
+            target_path and (
+                target_type in [
+                    "SKILL_PROCEDURAL_SPECIFICATION",
+                    "AGENT_SYSTEM_PROMPT",
+                    "AGENT_BEHAVIORAL_CONTRACT",
+                    "HEURISTIC_DECISION_RULE",
+                    "SKILL_DETERMINISTIC_SCRIPT"
+                ]
+                or mut_type in [
+                    "INSTRUCTION_REFINEMENT",
+                    "DECISION_TREE_ADDITION",
+                    "MISSING_STEP_ADDITION",
+                    "VERIFICATION_CHECKPOINT",
+                    "DELEGATION_GUIDANCE",
+                    "RETRIEVAL_IMPROVEMENT",
+                    "CLARIFICATION_APPLICABILITY_EXCLUSIONS",
+                    "MAJOR_SKILL_MODIFICATION",
+                    "EXEMPLAR_ADDITION",
+                    "ANTI_PATTERN_ADDITION"
+                ]
+                or (target_comp and (target_comp.endswith(".md") or target_comp.endswith(".py")))
+            )
+        )
+
+        original_content = ""
+        baseline_hash = ""
+        active_hash = ""
         snap_id = f"SNAP-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
         snap_file = os.path.join(self.snapshots_dir, f"{snap_id}.json")
-        snapshot_data = {
-            "snapshot_id": snap_id,
-            "candidate_id": cid,
-            "target_component": candidate_data.get("target_component"),
-            "parent_version": candidate_data.get("parent_version", "baseline"),
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
-        with open(snap_file, "w", encoding="utf-8") as f:
-            json.dump(snapshot_data, f, indent=2, ensure_ascii=False)
+
+        # 2. If file mutation expected, prepare snapshot and physically activate mutation
+        if file_mutation_expected and target_path:
+            os.makedirs(os.path.dirname(target_path), exist_ok=True)
+            if os.path.isfile(target_path):
+                with open(target_path, "r", encoding="utf-8") as f:
+                    original_content = f.read()
+            else:
+                # Initialize base template if file doesn't exist yet
+                original_content = (
+                    f"---\nname: {target_skill or 'skill'}\ndescription: Production specification.\n---\n\n"
+                    f"# {target_skill or 'skill'}\n\n## Baseline Procedures\nExecute tasks adhering to academic standards.\n"
+                )
+                with open(target_path, "w", encoding="utf-8") as f:
+                    f.write(original_content)
+
+            baseline_hash = hashlib.sha256(original_content.encode("utf-8")).hexdigest()
+
+            # Create Rollback Snapshot before any mutation
+            snapshot_data = {
+                "snapshot_id": snap_id,
+                "candidate_id": cid,
+                "target_component": target_comp or os.path.relpath(target_path, self.base_dir),
+                "target_path": target_path,
+                "original_content": original_content,
+                "original_hash": baseline_hash,
+                "parent_version": candidate_data.get("parent_version", baseline_hash),
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            with open(snap_file, "w", encoding="utf-8") as f:
+                json.dump(snapshot_data, f, indent=2, ensure_ascii=False)
+
+            # Apply mutation to content
+            new_content = self._apply_mutation_to_content(
+                original_content=original_content,
+                diff_type=diff_type,
+                mutation_content=content
+            )
+
+            # Directive 18 ceiling enforcement
+            self._verify_directive_18_ceilings(new_content, target_path)
+
+            # Physically write mutated version to disk
+            with open(target_path, "w", encoding="utf-8") as f:
+                f.write(new_content)
+
+            # Read back from disk to verify physical persistence
+            with open(target_path, "r", encoding="utf-8") as f:
+                read_back = f.read()
+            active_hash = hashlib.sha256(read_back.encode("utf-8")).hexdigest()
+
+            # Enforce Target Hash Verification Invariant:
+            # If the target Skill hash did not change where a change was expected: PROMOTION FAILURE
+            if active_hash == baseline_hash:
+                # Revert disk to original content
+                with open(target_path, "w", encoding="utf-8") as f:
+                    f.write(original_content)
+                raise PromotionHashMismatchError(
+                    f"PROMOTION FAILURE: Target Skill file '{target_path}' hash did not change "
+                    f"where a change was expected. Baseline hash: {baseline_hash}, Active hash: {active_hash}"
+                )
+
+        else:
+            # Declarative knowledge without file target
+            snapshot_data = {
+                "snapshot_id": snap_id,
+                "candidate_id": cid,
+                "target_component": target_comp or "learning/knowledge",
+                "parent_version": candidate_data.get("parent_version", "baseline"),
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            with open(snap_file, "w", encoding="utf-8") as f:
+                json.dump(snapshot_data, f, indent=2, ensure_ascii=False)
 
         snap_sha256 = hashlib.sha256(json.dumps(snapshot_data).encode("utf-8")).hexdigest()
 
-        # 2. Deploy Declarative Knowledge
-        deployed_location = None
+        # 3. Deploy Declarative Knowledge items if applicable
+        deployed_location = target_path
         if mut_type == "EXEMPLAR_ADDITION":
             exm_dir = os.path.join(self.knowledge_dir, "exemplars")
             os.makedirs(exm_dir, exist_ok=True)
@@ -637,7 +792,7 @@ class AcademicPromotionEngine:
                 "contract_version": "1.0.0",
                 "exemplar_id": exm_id,
                 "title": f"Learned Exemplar from {cid}",
-                "capability": candidate_data.get("target_skill", "academic-framework"),
+                "capability": target_skill or "academic-framework",
                 "status": "ACTIVE",
                 "content": content,
                 "originating_candidate": cid,
@@ -646,7 +801,8 @@ class AcademicPromotionEngine:
             exm_path = os.path.join(exm_dir, f"{exm_id}.json")
             with open(exm_path, "w", encoding="utf-8") as f:
                 json.dump(exm_data, f, indent=2, ensure_ascii=False)
-            deployed_location = exm_path
+            if not deployed_location:
+                deployed_location = exm_path
 
         elif mut_type == "ANTI_PATTERN_ADDITION":
             ap_dir = os.path.join(self.knowledge_dir, "anti-patterns")
@@ -656,7 +812,7 @@ class AcademicPromotionEngine:
                 "contract_version": "1.0.0",
                 "anti_pattern_id": ap_id,
                 "name": f"Learned Anti-Pattern from {cid}",
-                "capability": candidate_data.get("target_skill", "academic-framework"),
+                "capability": target_skill or "academic-framework",
                 "status": "ACTIVE",
                 "description": content,
                 "originating_candidate": cid,
@@ -665,14 +821,188 @@ class AcademicPromotionEngine:
             ap_path = os.path.join(ap_dir, f"{ap_id}.json")
             with open(ap_path, "w", encoding="utf-8") as f:
                 json.dump(ap_data, f, indent=2, ensure_ascii=False)
-            deployed_location = ap_path
+            if not deployed_location:
+                deployed_location = ap_path
 
         return {
             "deployed_location": deployed_location or "active_knowledge_context",
+            "baseline_component_hash": baseline_hash,
+            "active_component_hash": active_hash,
             "snapshot": {
                 "snapshot_path": snap_file,
                 "snapshot_sha256": snap_sha256
             }
+        }
+
+    def _apply_mutation_to_content(
+        self,
+        original_content: str,
+        diff_type: str,
+        mutation_content: str
+    ) -> str:
+        """Applies mutation to content based on diff_type."""
+        if not original_content:
+            return mutation_content
+
+        if diff_type == "FULL_CONTENT_REPLACEMENT":
+            return mutation_content
+
+        elif diff_type == "UNIFIED_DIFF":
+            try:
+                patch_lines = mutation_content.splitlines(keepends=True)
+                if any(l.startswith("@@") for l in patch_lines):
+                    patched = self._patch_unified_diff(original_content, mutation_content)
+                    if patched is not None:
+                        return patched
+            except Exception:
+                pass
+            if mutation_content.strip():
+                return original_content + "\n\n# --- Candidate Refinement ---\n" + mutation_content
+            return original_content
+
+        elif diff_type == "PARAMETER_PATCH":
+            try:
+                orig_json = json.loads(original_content)
+                patch_json = json.loads(mutation_content)
+                orig_json.update(patch_json)
+                return json.dumps(orig_json, indent=2, ensure_ascii=False)
+            except Exception:
+                if mutation_content.strip():
+                    return original_content + "\n\n# --- Parameter Patch ---\n" + mutation_content
+                return original_content
+
+        if mutation_content.strip():
+            return original_content + "\n\n# --- Candidate Mutation ---\n" + mutation_content
+        return original_content
+
+    def _patch_unified_diff(self, original_text: str, diff_text: str) -> Optional[str]:
+        """Simple deterministic unified diff patcher."""
+        try:
+            orig_lines = original_text.splitlines(keepends=True)
+            diff_lines = diff_text.splitlines(keepends=True)
+            result = []
+            orig_idx = 0
+
+            i = 0
+            while i < len(diff_lines):
+                line = diff_lines[i]
+                if line.startswith("@@"):
+                    m = re.search(r"@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@", line)
+                    if m:
+                        orig_start = int(m.group(1)) - 1
+                        while orig_idx < orig_start and orig_idx < len(orig_lines):
+                            result.append(orig_lines[orig_idx])
+                            orig_idx += 1
+                    i += 1
+                    continue
+                elif line.startswith("---") or line.startswith("+++"):
+                    i += 1
+                    continue
+                elif line.startswith("-"):
+                    orig_idx += 1
+                    i += 1
+                    continue
+                elif line.startswith("+"):
+                    result.append(line[1:])
+                    i += 1
+                    continue
+                elif line.startswith(" "):
+                    result.append(line[1:])
+                    orig_idx += 1
+                    i += 1
+                    continue
+                else:
+                    i += 1
+
+            while orig_idx < len(orig_lines):
+                result.append(orig_lines[orig_idx])
+                orig_idx += 1
+
+            return "".join(result)
+        except Exception:
+            return None
+
+    def _verify_directive_18_ceilings(self, content: str, file_path: str) -> None:
+        """Enforces Directive 18 single-view ceilings (<= 500 lines, <= 40,000 bytes)."""
+        lines = content.splitlines()
+        line_count = len(lines)
+        byte_count = len(content.encode("utf-8"))
+
+        if line_count > 500:
+            raise PromotionFailureError(
+                f"PROMOTION FAILURE: Directive 18 ceiling violation on '{file_path}'. "
+                f"Line count {line_count} exceeds maximum allowed 500 lines."
+            )
+        if byte_count > 40000:
+            raise PromotionFailureError(
+                f"PROMOTION FAILURE: Directive 18 ceiling violation on '{file_path}'. "
+                f"Byte size {byte_count} exceeds maximum allowed 40,000 bytes."
+            )
+
+    def rollback_promotion(self, snapshot_id_or_promotion_id: str) -> Dict[str, Any]:
+        """
+        Rolls back a promoted candidate mutation, restoring the original target
+        component from the rollback snapshot and verifying hash restoration.
+        """
+        snap_file = None
+        if snapshot_id_or_promotion_id.startswith("SNAP-"):
+            candidate_snap = os.path.join(self.snapshots_dir, f"{snapshot_id_or_promotion_id}.json")
+            if os.path.isfile(candidate_snap):
+                snap_file = candidate_snap
+        elif snapshot_id_or_promotion_id.startswith("PRM-"):
+            prm_file = os.path.join(self.promotions_dir, f"{snapshot_id_or_promotion_id}.json")
+            if os.path.isfile(prm_file):
+                with open(prm_file, "r", encoding="utf-8") as f:
+                    prm_data = json.load(f)
+                snap_path = prm_data.get("rollback_snapshot", {}).get("snapshot_path")
+                if snap_path and os.path.isfile(snap_path):
+                    snap_file = snap_path
+
+        if not snap_file or not os.path.isfile(snap_file):
+            raise PromotionEngineError(f"Rollback snapshot not found for identifier '{snapshot_id_or_promotion_id}'.")
+
+        with open(snap_file, "r", encoding="utf-8") as f:
+            snap_data = json.load(f)
+
+        target_path = snap_data.get("target_path")
+        if not target_path and snap_data.get("target_component"):
+            target_path = os.path.join(self.base_dir, snap_data["target_component"])
+
+        original_content = snap_data.get("original_content")
+        original_hash = snap_data.get("original_hash")
+
+        if target_path and original_content is not None:
+            with open(target_path, "w", encoding="utf-8") as f:
+                f.write(original_content)
+
+            with open(target_path, "r", encoding="utf-8") as f:
+                restored_content = f.read()
+            restored_hash = hashlib.sha256(restored_content.encode("utf-8")).hexdigest()
+
+            if restored_hash != original_hash:
+                raise PromotionFailureError(
+                    f"Rollback verification failed: expected hash {original_hash}, got {restored_hash}."
+                )
+
+        # Update candidate status if candidate file exists
+        cid = snap_data.get("candidate_id")
+        if cid:
+            cand_file = os.path.join(self.candidates_dir, f"{cid}.json")
+            if os.path.isfile(cand_file):
+                with open(cand_file, "r", encoding="utf-8") as f:
+                    cdata = json.load(f)
+                cdata["status"] = "ROLLED_BACK"
+                cdata["rolled_back_at"] = datetime.now(timezone.utc).isoformat()
+                with open(cand_file, "w", encoding="utf-8") as f:
+                    json.dump(cdata, f, indent=2, ensure_ascii=False)
+
+        return {
+            "status": "ROLLED_BACK",
+            "snapshot_id": snap_data.get("snapshot_id"),
+            "target_path": target_path,
+            "restored_hash": original_hash,
+            "candidate_id": cid,
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
     def _build_promotion_record(

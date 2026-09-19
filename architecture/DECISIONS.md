@@ -984,3 +984,47 @@ $$\begin{aligned}
 ### Consequences
 - **Positive**: Complete elimination of canned hardcoded mutations; authentic contextual patches across all 7 architectural surfaces; verifiable unified diffs; guaranteed compliance with Directive 18 ceilings and Directive 19 functional separation.
 - **Negative**: Requires disk I/O to load existing skill/agent files and knowledge bases during candidate generation.
+
+---
+
+## ADR-026: Physical Activation and Hash-Change Verification Invariant in Behavioral Promotion
+
+### Status
+Accepted
+
+### Context
+In prior implementations, a behavioral improvement candidate could transition through the lifecycle stages up to `PROMOTED` and `ACTIVE` while the canonical `SKILL.md` or `agent.md` on disk remained completely unchanged. The promotion engine only recorded declarative knowledge or logged database entries, allowing phantom promotions where the system claimed continuous evolution without any physical change in production agent capabilities.
+
+### Decision
+Rebuild the promotion layer around physical file activation and the **Target Hash Verification Invariant**:
+
+$$\begin{aligned}
+\text{candidate generated} &\longrightarrow \text{candidate materialized} \longrightarrow \text{candidate executed} \\
+&\longrightarrow \text{candidate evaluated} \longrightarrow \text{candidate passes gates} \\
+&\longrightarrow \text{candidate version activated on disk}
+\end{aligned}$$
+
+1. **Physical File Activation (`_deploy_active_candidate`)**:
+   - Every candidate targeting a `SKILL.md`, `agent.md`, or script file must physically apply its mutation to the canonical target component on disk.
+   - Computes baseline content hash: $H_{\text{baseline}} = \text{sha256}(C_{\text{baseline}})$.
+   - Creates an immutable rollback snapshot in `learning/promotions/snapshots/<snap_id>.json` storing the exact $C_{\text{baseline}}$ and $H_{\text{baseline}}$.
+   - Applies the mutation (`UNIFIED_DIFF`, `FULL_CONTENT_REPLACEMENT`, or `PARAMETER_PATCH`).
+   - Enforces Directive 18 single-view ceilings ($\le 500$ lines, $\le 40,000$ bytes) fail-closed.
+   - Physically writes the mutated content to disk.
+   - Reads back the file from disk and computes active content hash: $H_{\text{active}} = \text{sha256}(C_{\text{active}})$.
+
+2. **The Target Hash Verification Invariant**:
+   - If $H_{\text{active}} == H_{\text{baseline}}$ where a change was expected:
+     $$\text{PROMOTION FAILURE}$$
+   - The engine raises `PromotionHashMismatchError`, rolls back any partial disk changes, archives the candidate under `learning/archive/` with `failure_reason: "PROMOTION FAILURE: Target Skill hash did not change where a change was expected"`, and refuses to mark the candidate `ACTIVE`.
+
+3. **Deterministic Rollback (`rollback_promotion`)**:
+   - `AcademicPromotionEngine.rollback_promotion(promotion_id_or_snapshot_id)` reads the rollback snapshot, restores $C_{\text{baseline}}$ to the target file on disk, verifies that the restored hash matches $H_{\text{baseline}}$, and marks the candidate `ROLLED_BACK`.
+
+4. **Closed-Loop Integration**:
+   - `AcademicRealBehaviorEvolution` (Stage 13) verifies that `active_component_hash != baseline_component_hash` upon promotion before concluding the evolutionary loop.
+
+### Consequences
+- **Positive**: Complete elimination of phantom promotions; 100% guarantee that every `PROMOTED` candidate physically changes production behavior; tamper-evident rollback capability; strict adherence to Directives 0, 8, 12.1, 18, and 19.
+- **Negative**: Requires disk write access to `.agents/skills/` or `.agents/agents/` during authorized promotion.
+

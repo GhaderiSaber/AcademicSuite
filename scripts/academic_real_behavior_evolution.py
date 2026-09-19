@@ -332,6 +332,15 @@ class AcademicRealBehaviorEvolution:
             )
 
             if promotion_result.get("decision") == "PROMOTED":
+                deployment = promotion_result.get("deployment", {})
+                active_hash = deployment.get("active_component_hash")
+                baseline_hash = deployment.get("baseline_component_hash")
+                if active_hash and baseline_hash:
+                    if active_hash == baseline_hash:
+                        raise RealBehaviorEvolutionError(
+                            f"PROMOTION FAILURE: Target skill '{target_skill}' hash did not change after promotion!"
+                        )
+
                 drift_report = self.drift_monitor.audit_drift(
                     target_id=target_skill,
                     target_type="skill",
@@ -339,6 +348,8 @@ class AcademicRealBehaviorEvolution:
                     promotion_id=promotion_result.get("promotion_id"),
                     trigger="POST_PROMOTION"
                 )
+            elif promotion_result.get("status") == "PROMOTION_FAILED":
+                three_way_eval["recommendation"] = "PROMOTION_FAILED"
 
         # Record telemetry
         self._record_telemetry(

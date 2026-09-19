@@ -632,7 +632,7 @@ class AcademicCandidateGenerator:
         elif norm in ["decision tree", "decision_tree"]:
             return "DECISION_TREE_ADDITION", "HEURISTIC_DECISION_RULE"
         elif norm in ["verification rule", "verification_rule"]:
-            return "VERIFICATION_CHECKPOINT", "VALIDATOR_INSPECTION_RULE"
+            return "VERIFICATION_CHECKPOINT", "SKILL_PROCEDURAL_SPECIFICATION"
         elif norm in ["delegation rule", "delegation_rule"]:
             return "DELEGATION_GUIDANCE", "SKILL_PROCEDURAL_SPECIFICATION"
         elif norm in ["retrieval rule", "retrieval_rule"]:

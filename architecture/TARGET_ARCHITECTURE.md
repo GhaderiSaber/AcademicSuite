@@ -1257,3 +1257,67 @@ Every proposed candidate patch must represent an actual, contextual modification
 ### 25.5 Contract and Schema Compliance
 - Every candidate record is validated against `contracts/evolution/improvement_candidate.schema.json` before staging.
 - Diagnostic metadata (`candidate_diagnosis`, `analysis_id`, `trigger_type`) is retained in `metadata` for full auditability and trace linkage.
+
+---
+
+## 26. Physical Candidate Activation & Promotion Hash Verification (Phase 21)
+
+### 26.1 The Physical Activation Mandate & The Target Hash Invariant
+Phase 21 guarantees that a behavioral improvement candidate can never reach `PROMOTED` while the actual `SKILL.md` or `agent.md` on disk remains unchanged. Promotion physically writes the approved candidate version to disk and verifies the resulting cryptographic hash:
+
+```mermaid
+flowchart TD
+    CG["1. candidate generated\n(Unified diff / mutation content)"]
+    CM["2. candidate materialized\n(Isolated agent sandbox)"]
+    CE["3. candidate executed\n(Three-way arms: baseline, candidate, adversarial)"]
+    EV["4. candidate evaluated\n(Independent QC across 8 dimensions)"]
+    PG["5. candidate passes gates\n(5 mandatory evaluation gates & human approver)"]
+    
+    subgraph Act["6. Candidate Version Activated"]
+        PRE["Read Baseline Content & Compute H_baseline"]
+        SNP["Save Pre-Promotion Snapshot (original_content + H_baseline)"]
+        WRI["Apply Mutation & Write to SKILL.md on Disk"]
+        VER["Read Back Mutated File & Compute H_active"]
+        CHK{"H_active == H_baseline?"}
+        FAIL["PROMOTION FAILURE\n(Revert partial write, archive failure, reject)"]
+        PASS["PROMOTION SUCCESS\n(Mark ACTIVE, save PRM record, log telemetry)"]
+    end
+
+    CG --> CM
+    CM --> CE
+    CE --> EV
+    EV --> PG
+    PG --> PRE
+    PRE --> SNP
+    SNP --> WRI
+    WRI --> VER
+    VER --> CHK
+    CHK -- Yes (No Change) --> FAIL
+    CHK -- No (Hash Changed) --> PASS
+```
+
+### 26.2 The Target Hash Verification Invariant
+Whenever a candidate targets a `SKILL.md`, `agent.md`, or script file:
+1. **Baseline Hash**: $H_{\text{baseline}} = \text{sha256}(C_{\text{baseline}})$.
+2. **Physical Write**: The engine applies the candidate mutation and writes the result to the canonical target component on disk (`target_path`).
+3. **Active Hash**: $H_{\text{active}} = \text{sha256}(C_{\text{active}})$.
+4. **Invariant Check**:
+   $$\text{If } H_{\text{active}} == H_{\text{baseline}} \implies \text{PROMOTION FAILURE}$$
+   - The engine raises `PromotionHashMismatchError`.
+   - The candidate is archived under `learning/archive/` with `failure_reason: "PROMOTION FAILURE: Target Skill hash did not change where a change was expected"`.
+   - The candidate status is set to `PROMOTION_FAILED` and `decision: "REJECTED"`.
+   - The candidate is **NEVER** marked `ACTIVE`.
+
+### 26.3 Rollback Snapshots & Deterministic Rollback (`rollback_promotion`)
+- **Pre-Promotion Snapshot**: Before any disk write, `AcademicPromotionEngine` creates `learning/promotions/snapshots/<snap_id>.json` containing the exact `original_content` and `original_hash`.
+- **Deterministic Rollback**: Calling `rollback_promotion(promotion_id_or_snapshot_id)` reads the snapshot, writes `original_content` back to the target file, verifies that `sha256(restored) == original_hash`, and marks the candidate `ROLLED_BACK`.
+
+### 26.4 Directive 18 Ceilings Enforcement During Activation
+- Before writing mutated content to disk, `_verify_directive_18_ceilings()` checks:
+  - **Line Limit**: $\le 500$ lines.
+  - **Byte Limit**: $\le 40,000$ bytes.
+- If a candidate causes a file to exceed either threshold, promotion aborts immediately with `PromotionFailureError`, preventing bloated instructions from entering active production.
+
+### 26.5 Closed-Loop Evolution Integration
+- In `AcademicRealBehaviorEvolution` (Stage 13), the engine verifies that `deployment["active_component_hash"] != deployment["baseline_component_hash"]`.
+- If promotion fails, the 13-stage pipeline transitions to `PROMOTION_FAILED`, guaranteeing that unverified promotions cannot be silently completed.
