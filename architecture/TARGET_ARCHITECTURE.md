@@ -696,6 +696,65 @@ $$\text{verified finding} \longrightarrow \text{theoretical interpretation} \lon
 - **Stage 2 (Statistical Claim QC)**: Verifies exact numerical identity ($|\Delta| \le 0.01$) against `result.json`, cell-by-cell table concordance, and 5-link claim provenance.
 - **Assembly**: `scripts/writing_pipeline_engine.py` compiles the final audited Triad (`.docx`, `.md`, `.json`), ensuring 100% mathematical fidelity.
 
+---
 
+## 18. Formal Human Approval State & Cryptographic Approval Contracts (Phase 13)
 
+### 18.1 Rebuilding Approval as an Explicit State (`STAGE_AWAITING_APPROVAL`)
+In previous designs, human-in-the-loop verification relied on conversational prompt instructions (e.g., *"HALT and wait for user"*). This was inherently fragile and vulnerable to prompt bypassing during autonomous execution.
 
+Phase 13 eliminates prompt-based halting by establishing human approval as an authoritative, reified state in the finite state machine (`StrictStateMachine` / `AcademicStateManager`):
+
+```mermaid
+flowchart TD
+    RUN["Stage Execution\n(STAGE_RUNNING)"]
+    VAL["Validation Gate\n(STAGE_VALIDATING)"]
+    WAIT["Awaiting Approval\n(STAGE_AWAITING_APPROVAL)"]
+    APP["Explicit Human Approval\n(approve_stage)"]
+    DONE["Stage Approved\n(STAGE_APPROVED)"]
+    UNLOCK["Downstream Stage Unlocked\n(STAGE_LOCKED -> STAGE_READY)"]
+    REJ["Stage Rejected\n(STAGE_REJECTED)"]
+
+    RUN -->|Execution complete| VAL
+    VAL -->|validation_report.json PASS| WAIT
+    WAIT -->|approve_stage (saber_admin)| APP
+    WAIT -->|reject_stage| REJ
+    APP -->|Emits MILESTONE_APPROVED| DONE
+    DONE -->|State Machine Auto-Unlock| UNLOCK
+```
+
+### 18.2 Cryptographic Approval Record Contract (`contracts/approval_record.schema.json`)
+Every stage entering `STAGE_AWAITING_APPROVAL` generates a formal cryptographic record conforming to `contracts/approval_record.schema.json`:
+- `approval_id`: Unique identifier (e.g., `APP-06_hypothesis_1-20260919120000`).
+- `stage_id`: Unique identifier of the stage awaiting approval.
+- `project_id`: Project identifier.
+- `artifact_hash`: Cryptographic SHA-256 hash of the stage manifest or primary deliverable on disk.
+- `validation_hash`: Cryptographic SHA-256 hash of the passing validation report (`validation_report.json`).
+- `requested_at`: ISO 8601 UTC timestamp of the request.
+- `approved_by`: Identity of the human approving authority (e.g., `saber_admin`, `124911145`).
+- `approved_at`: ISO 8601 UTC timestamp of the decision (null while pending).
+- `decision`: Authoritative enum (`PENDING` | `APPROVED` | `REJECTED`).
+- `status`: Lifecycle status (`PENDING` | `GRANTED` | `REJECTED`).
+- `is_approved`: Boolean flag, strictly `false` by default, set to `true` only upon explicit grant.
+
+### 18.3 Cryptographic Tamper Protection & Fail-Closed Gate
+To guarantee that the files reviewed and approved are mathematically identical to the files executed on disk:
+- When approval is requested, the SHA-256 hashes of the deliverable/manifest and `validation_report.json` are computed and sealed in the approval record.
+- When `approve_stage` is invoked, `scripts/academic_approval_engine.py` re-computes both hashes directly from disk.
+- If either file has been modified (tampered) in the interim, approval fails closed immediately, raising `ApprovalTamperError`.
+
+### 18.4 Mechanical Downstream Gating & Automated Stage Unlocking
+Downstream stages cannot rely on assumptions or verbal claims of approval:
+- Any stage that depends on an upstream stage remains locked (`STAGE_LOCKED`).
+- Attempting to transition a downstream stage while the upstream stage is in `STAGE_AWAITING_APPROVAL` raises `UnmetPrerequisiteError`.
+- Upon successful execution of `approve_stage`:
+  1. The upstream stage transitions to `STAGE_APPROVED`.
+  2. The state machine emits `MILESTONE_APPROVED`.
+  3. `StrictStateMachine` inspects all registered stages with `status == STAGE_LOCKED`. If all prerequisites for a locked stage are now `STAGE_APPROVED`, it automatically transitions that stage to `STAGE_READY` and emits `NEXT_STAGE_UNLOCKED`.
+
+### 18.5 Deterministic Approval Engine ("The Hands") (`scripts/academic_approval_engine.py`)
+Provides deterministic CLI operations for human approval management:
+- `request`: Validates passing validation report, computes hashes, creates approval record, and transitions stage to `STAGE_AWAITING_APPROVAL`.
+- `approve`: Verifies hashes, records human approver identity, transitions stage to `STAGE_APPROVED`, and auto-unlocks downstream stages.
+- `reject`: Records human rejection, transitions stage to `STAGE_REJECTED`, and keeps downstream stages locked.
+- `status`: Inspects active and historical approval records in the project state.

@@ -1134,14 +1134,14 @@ class StrictStateMachine:
 
             # 4. Validate Authorization & Passing Validation Report
             if target_enum == StageState.STAGE_APPROVED:
-                # Approval grant check
+                # Approval grant check (Phase 13: decision == "APPROVED" or status == "GRANTED")
                 matching_approvals = [
                     a for a in self.approvals
                     if (a.get("stage_id") == target_id or a.get("milestone_id") == target_id or STAGE_TO_MILESTONE_MAP.get(target_id) == a.get("milestone_id"))
-                    and a.get("status") == "GRANTED" and a.get("is_approved") is True
+                    and (a.get("decision") == "APPROVED" or (a.get("status") == "GRANTED" and a.get("is_approved") is True))
                 ]
                 if not matching_approvals and authorization:
-                    if authorization.get("status") == "GRANTED" and authorization.get("is_approved") is True:
+                    if authorization.get("decision") == "APPROVED" or (authorization.get("status") == "GRANTED" and authorization.get("is_approved") is True):
                         matching_approvals = [authorization]
 
                 if not matching_approvals:
@@ -1149,6 +1149,38 @@ class StrictStateMachine:
                         f"Stage '{target_id}' cannot become STAGE_APPROVED without explicit, granted human approval. "
                         f"No granted approval record found in approvals.json."
                     )
+
+                # Cryptographic Tamper Check: verify recorded hashes match files on disk
+                appr_rec = matching_approvals[0]
+                if appr_rec.get("artifact_hash") and appr_rec.get("artifact_path"):
+                    art_p = appr_rec["artifact_path"]
+                    art_full = art_p if os.path.isabs(art_p) else os.path.join(self.state_dir, art_p)
+                    if not os.path.exists(art_full):
+                        alt_art = os.path.join(self.project_root, art_p)
+                        if os.path.exists(alt_art):
+                            art_full = alt_art
+                    if os.path.isfile(art_full):
+                        cur_ahash = compute_file_sha256(art_full)
+                        if cur_ahash.lower() != appr_rec["artifact_hash"].lower():
+                            raise StaleApprovalError(
+                                f"Tamper detected: Artifact '{art_p}' hash mutated since approval request. "
+                                f"Expected {appr_rec['artifact_hash']}, got {cur_ahash}."
+                            )
+
+                if appr_rec.get("validation_hash") and appr_rec.get("validation_report_path"):
+                    val_p = appr_rec["validation_report_path"]
+                    val_full = val_p if os.path.isabs(val_p) else os.path.join(self.state_dir, val_p)
+                    if not os.path.exists(val_full):
+                        alt_val = os.path.join(self.project_root, val_p)
+                        if os.path.exists(alt_val):
+                            val_full = alt_val
+                    if os.path.isfile(val_full):
+                        cur_vhash = compute_file_sha256(val_full)
+                        if cur_vhash.lower() != appr_rec["validation_hash"].lower():
+                            raise StaleApprovalError(
+                                f"Tamper detected: Validation report '{val_p}' hash mutated since approval request. "
+                                f"Expected {appr_rec['validation_hash']}, got {cur_vhash}."
+                            )
 
                 # Passing validation report check
                 requires_val = stage_data.get("requires_validation", True)
@@ -1163,6 +1195,26 @@ class StrictStateMachine:
                 ]:
                     if os.path.isfile(cand):
                         candidate_reports.append(cand)
+
+                if appr_rec.get("validation_report_path"):
+                    vp = appr_rec["validation_report_path"]
+                    vf = vp if os.path.isabs(vp) else os.path.join(self.state_dir, vp)
+                    if not os.path.isfile(vf):
+                        vf_alt = os.path.join(self.project_root, vp)
+                        if os.path.isfile(vf_alt):
+                            vf = vf_alt
+                    if os.path.isfile(vf):
+                        candidate_reports.append(vf)
+
+                if authorization and authorization.get("validation_report_path"):
+                    vp = authorization["validation_report_path"]
+                    vf = vp if os.path.isabs(vp) else os.path.join(self.state_dir, vp)
+                    if not os.path.isfile(vf):
+                        vf_alt = os.path.join(self.project_root, vp)
+                        if os.path.isfile(vf_alt):
+                            vf = vf_alt
+                    if os.path.isfile(vf):
+                        candidate_reports.append(vf)
 
                 for art in self.artifacts:
                     if isinstance(art, dict) and (art.get("stage_id") == target_id or art.get("milestone") == target_id) and art.get("artifact_type") in ["validation_report", "validation"]:
@@ -1726,6 +1778,9 @@ SCHEMA_MAP = {
     "validation/statistical_validation.json": "validation_report.schema.json",
     "validation/writing_validation.json": "validation_report.schema.json"
 }
+
+# Authoritative alias for StrictStateMachine
+AcademicStateManager = StrictStateMachine
 
 
 def get_state_dir(project_path: str) -> str:

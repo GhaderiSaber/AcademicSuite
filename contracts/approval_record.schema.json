@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/approval_record.schema.json",
+  "title": "AcademicApprovalRecordContract",
+  "description": "Authoritative contract schema governing formal human approval records. Eliminates fragile prompt-based halting by establishing approval as an explicit state (STAGE_AWAITING_APPROVAL) backed by cryptographic artifact and validation hashes.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "approval_id",
+    "stage_id",
+    "project_id",
+    "artifact_hash",
+    "validation_hash",
+    "requested_at",
+    "decision"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "approval_id": {
+      "type": "string",
+      "pattern": "^APP-[A-Za-z0-9_.-]+$"
+    },
+    "stage_id": {
+      "type": "string",
+      "description": "Unique identifier of the stage awaiting approval (e.g. 06_hypothesis_1)."
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Unique identifier of the research project."
+    },
+    "artifact_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Cryptographic SHA-256 hash of the stage manifest or primary deliverable on disk."
+    },
+    "validation_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Cryptographic SHA-256 hash of the passing validation report (validation_report.json)."
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approved_by": {
+      "type": ["string", "null"],
+      "description": "Identity of the human approving authority (e.g. saber_admin, 124911145)."
+    },
+    "approved_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["PENDING", "APPROVED", "REJECTED"],
+      "description": "Authoritative decision status. Must be APPROVED to unlock downstream stages."
+    },
+    "comments": {
+      "type": "string",
+      "description": "Reviewer comments, supervisor feedback, or approval stipulations."
+    },
+    "target_artifacts": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

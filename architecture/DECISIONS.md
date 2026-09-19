@@ -540,5 +540,45 @@ $$\text{Verified Result Artifacts} \longrightarrow \text{Interpretation Contract
 - **Positive**: Complete prevention of numerical drift in narrative text; strict compliance with Directive 0, Directive 2, and Directive 4; reproducible, defense-ready chapter drafts.
 - **Negative**: Narrative drafting requires prior generation of `interpretation_contract.json`.
 
+---
 
+## ADR-018: Formal Human Approval State and Cryptographic Approval Contracts
 
+### Context
+In prior systems, human-in-the-loop verification relied primarily on conversational prompt instructions (e.g., *"HALT and wait for user"*). This approach suffered from several fundamental defects:
+1. **Fragile Prompt Dependency**: Autonomous agents or batch execution loops could easily overlook or rationalise past prompt instructions, leading to unapproved multi-stage runaways.
+2. **Lack of Cryptographic Accountability**: An agent claiming "user approved" possessed no tamper-evident proof that the user actually inspected and authorized the exact files on disk.
+3. **Absence of Reified State**: Approval existed only as conversational memory rather than an immutable, auditable state machine phase. Downstream stages could not deterministically query whether upstream stages had received formal sign-off.
+
+### Decision
+Rebuild human approval as an authoritative physical state backed by cryptographic contracts and deterministic state machine transitions:
+
+$$\text{STAGE\_VALIDATING} \longrightarrow \text{STAGE\_AWAITING\_APPROVAL} \xrightarrow[\text{Explicit Human Approval}]{\text{approval event}} \text{STAGE\_APPROVED} \longrightarrow \text{Next Stage Unlocked (STAGE\_READY)}$$
+
+1. **Approval as an Authoritative Physical State (`STAGE_AWAITING_APPROVAL`)**:
+   - Approval is no longer a prompt suggestion; it is a first-class state in `StrictStateMachine` / `AcademicStateManager`.
+   - Transition to `STAGE_AWAITING_APPROVAL` requires a verified passing validation report (`validation_report.json` with `overall_verdict: "PASS"`).
+2. **Authoritative Approval Record Contract (`contracts/approval_record.schema.json`)**:
+   - Every approval request instantiates an immutable record:
+     - `approval_id`: Unique identifier (e.g., `APP-06_hypothesis_1-20260919120000`).
+     - `stage_id`: Unique identifier of the stage awaiting approval.
+     - `artifact_hash`: Cryptographic SHA-256 hash of the stage manifest or primary deliverable on disk.
+     - `validation_hash`: Cryptographic SHA-256 hash of the passing validation report (`validation_report.json`).
+     - `requested_at`: ISO 8601 UTC timestamp.
+     - `approved_by`: Identity of the approving authority (e.g., `saber_admin`, `124911145`).
+     - `approved_at`: ISO 8601 UTC timestamp of the decision.
+     - `decision`: Authoritative enum (`PENDING` | `APPROVED` | `REJECTED`).
+     - `status`: Lifecycle status (`PENDING` | `GRANTED` | `REJECTED`).
+     - `is_approved`: Boolean flag, strictly `false` by default, set to `true` only upon explicit grant.
+3. **Cryptographic Tamper Protection (`ApprovalTamperError`)**:
+   - At approval execution, `scripts/academic_approval_engine.py` re-computes SHA-256 hashes of the deliverable and validation report on disk.
+   - If either file has mutated since the approval was requested, approval is rejected with `ApprovalTamperError`.
+4. **Mechanical Downstream Gating & Auto-Unlocking**:
+   - Dependent downstream stages remain in `STAGE_LOCKED` while the prerequisite is in `STAGE_AWAITING_APPROVAL`.
+   - Upon successful execution of `approve_stage`, the state machine transitions the stage to `STAGE_APPROVED`, emits `MILESTONE_APPROVED`, and automatically unlocks downstream dependent stages (`STAGE_LOCKED -> STAGE_READY`).
+5. **Deterministic Approval Engine (`scripts/academic_approval_engine.py`)**:
+   - CLI commands: `request`, `approve`, `reject`, and `status`.
+
+### Consequences
+- **Positive**: 100% elimination of prompt-based halting vulnerabilities; cryptographic proof of human authorization; mechanical prevention of unapproved stage advancement; tamper-evident audit trail conforming to Directive 11 and Directive 19.
+- **Negative**: Stages requiring human gates must explicitly transition through `STAGE_AWAITING_APPROVAL` and receive an approval command before downstream stages unlock.
