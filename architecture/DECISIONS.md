@@ -1430,6 +1430,95 @@ The system cannot rely on agent memory or good intentions to retrieve context. C
 - **Positive**: 100% elimination of reliance on agent memory for context retrieval; guaranteed delivery of lessons, pitfalls, and methodology rules before execution begins; zero prompt flooding for non-academic turns.
 - **Negative**: Academic turns incur a slight deterministic disk read overhead to retrieve and format the pre-task briefing.
 
+---
+
+## ADR-034: Two-Stage Knowledge Retrieval Architecture (Hard Filtering + Semantic Ranking)
+
+### Status
+Accepted
+
+### Context
+In earlier iterations of knowledge retrieval, knowledge items (lessons, anti-patterns, principles, exemplars) were queried through either heuristic metadata filters or flat scoring. As semantic retrieval and text similarity techniques were considered, a critical epistemological defect became apparent:
+
+**The Semantic Leakage Hazard in Academic Research**:
+If a retrieval system relies purely or prematurely on semantic search (e.g., embeddings or bag-of-words text similarity), it frequently retrieves academically inappropriate or invalid lessons merely because superficial vocabulary looks similar. For example:
+- A qualitative thematic coding lesson mentioning "coding consensus, themes, and inter-rater reliability" could be retrieved for a quantitative Structural Equation Modeling (SEM) task because both discuss "reliability, consensus, and models".
+- A median split lesson for moderation could leak into a qualitative thematic analysis.
+- An RCT pre-post control group lesson could be forced onto a single-group psychometric validation.
+- Project-specific quirks from Project A could leak into Project B because the project abstracts share clinical psychology terminology.
+
+Current deterministic metadata scoring (exact tags, capability matching, status weighting) is mathematically reliable and prevents such cross-contamination. However, within a valid domain, purely deterministic metadata scoring cannot adequately distinguish between nuances in user prompts, empirical evidence backing, temporal freshness, and active contradiction states.
+
+### Decision
+Rebuild knowledge retrieval as an immutable **Two-Stage Retrieval Architecture**:
+
+```text
+Query (prompt, capability, domain, skill, task, failure_type, scope)
+                               │
+                               ▼
+        ┌─────────────────────────────────────────────┐
+        │        STAGE 1: HARD FILTERING              │
+        │   (Fail-Closed Structural Boundary Gate)    │
+        │                                             │
+        │   • capability  (strict match / cross-cap)  │
+        │   • domain      (quant vs qual exclusion)   │
+        │   • skill       (target / related skills)   │
+        │   • task        (task category alignment)   │
+        │   • failure_type (defect classification)    │
+        │   • scope       (ADR-014 project boundary)  │
+        │   • status      (active status gate)        │
+        └──────────────────────┬──────────────────────┘
+                               │
+                               │ Passed Candidates Only
+                               ▼
+        ┌─────────────────────────────────────────────┐
+        │        STAGE 2: SEMANTIC RANKING            │
+        │   (Multi-Factor Scholarly Scoring)          │
+        │                                             │
+        │   • relevance (0.25) [Deterministic meta]   │
+        │   • context_similarity (0.25) [Text overlap]│
+        │   • evidence_strength (0.15) [Phase 26]     │
+        │   • recency (0.10) [Decay from 2026 anchor] │
+        │   • confidence (0.25) [Phase 26 score]      │
+        │   • contradiction penalty (Deduction P27)   │
+        └──────────────────────┬──────────────────────┘
+                               │
+                               ▼
+            Top-K Briefing Candidates (Contract-Verified)
+```
+
+1. **Stage 1: Hard Filtering (Fail-Closed Structural Boundary Gate)**:
+   - Candidates are evaluated against 7 hard structural criteria:
+     - `scope`: Enforces ADR-014 scope containment. Project-specific items require exact matching `project_id`. Mismatched or un-scoped queries fail-closed.
+     - `capability`: Evaluates canonical capability matching and aliases. Cross-capability foundational principles pass; explicitly conflicting capabilities are pruned.
+     - `domain`: Evaluates research domain compatibility. Quantitative vs qualitative domains are mutually exclusive.
+     - `skill`: Matches `target_skill`, `related_skills`, or `applicability.target_skills`. Disparate skills are pruned.
+     - `task`: Evaluates task category compatibility. Mutually exclusive tasks are pruned.
+     - `failure_type`: Screens anti-patterns and defect signatures.
+     - `status`: Excludes retired, superseded, or deprecated items unless explicitly requested.
+   - Any candidate failing a structural boundary is dropped immediately with an auditable rejection rationale (`pruned_details`). It **never** enters Stage 2 semantic ranking, regardless of text similarity.
+
+2. **Stage 2: Semantic Ranking (Multi-Factor Scholarly Scoring)**:
+   - Preserves deterministic metadata scoring as the `relevance` baseline ($w_{\text{rel}} = 0.25$).
+   - Decomposes the composite rank score across 6 dimensions:
+     $$\text{Final Score} = 0.25 \cdot S_{\text{rel}} + 0.25 \cdot S_{\text{sim}} + 0.15 \cdot S_{\text{ev}} + 0.10 \cdot S_{\text{rec}} + 0.25 \cdot S_{\text{conf}} - P_{\text{ctd}}$$
+   - **`relevance` ($S_{\text{rel}} \in [0.0, 1.0]$)**: Exact tag matches, skill bonuses, and status weighting (`ACCEPTED_ACTIVE`, `VALIDATED`).
+   - **`context_similarity` ($S_{\text{sim}} \in [0.0, 1.0]$)**: Lexical and semantic token overlap with statistical keyword boosts.
+   - **`evidence_strength` ($S_{\text{ev}} \in [0.0, 1.0]$)**: Empirical backing from Phase 26 evidence decomposition.
+   - **`recency` ($S_{\text{rec}} \in [0.0, 1.0]$)**: Exponential temporal decay relative to the operative calendar anchor (2026-09-19): $S_{\text{rec}} = \exp(-0.005 \cdot \text{days})$.
+   - **`confidence` ($S_{\text{conf}} \in [0.0, 1.0]$)**: Direct evidence-derived confidence score from Phase 26 ($0.01 \le \text{confidence} \le 0.99$).
+   - **`contradiction` ($P_{\text{ctd}} \ge 0.0$)**: Deductions for active/unresolved conflicts under Phase 27 ($0.35$ for disputed lessons; $0.25$ for unresolved conflicts; $0.0$ for resolved/clean items).
+
+3. **Deterministic Hands Implementation (`AcademicTwoStageRetriever`)**:
+   - Codified in `scripts/academic_two_stage_retriever.py` strictly conforming to Directive 18 ($\le 500$ lines, $\le 40,000$ bytes).
+   - Validated against `contracts/evolution/knowledge_retrieval.schema.json`.
+   - Integrated directly into `AcademicKnowledgeManager` (`query()` and `retrieve_two_stage()`) and `AcademicAdaptiveContextBoundary`.
+
+### Consequences
+- **Positive**: 100% elimination of semantic leakage of academically inappropriate lessons; preservation of proven deterministic metadata scoring; multi-factor ranking prioritizing high-confidence, empirically backed, temporally fresh, and contradiction-free knowledge; auditable contract compliance.
+- **Negative**: Adds a structured two-stage evaluation pipeline to knowledge query execution.
+
+
 
 
 

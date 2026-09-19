@@ -140,6 +140,8 @@ class AcademicKnowledgeManager:
         self.skill_snapshots_dir = os.path.join(self.snapshots_dir, "skills")
 
         self._ensure_directories()
+        from scripts.academic_two_stage_retriever import AcademicTwoStageRetriever
+        self.retriever = AcademicTwoStageRetriever(base_dir=self.base_dir)
 
     def _ensure_directories(self):
         """Ensure all mandated knowledge and capability directories exist on disk."""
@@ -973,8 +975,81 @@ class AcademicKnowledgeManager:
         return None
 
     # -------------------------------------------------------------------------
-    # Multi-Criteria Retrieval Engine
+    # Phase 29: Two-Stage Knowledge Retrieval Engine
     # -------------------------------------------------------------------------
+
+    def retrieve_two_stage(
+        self,
+        task: Optional[str] = None,
+        agent: Optional[str] = None,
+        skill: Optional[str] = None,
+        capability: Optional[str] = None,
+        domain: Optional[str] = None,
+        failure_type: Optional[str] = None,
+        scope: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        project_id: Optional[str] = None,
+        prompt_text: Optional[str] = None,
+        item_types: Optional[List[str]] = None,
+        include_superseded: bool = False,
+        limit: int = 20
+    ) -> Dict[str, Any]:
+        """
+        Execute full Phase 29 Two-Stage Knowledge Retrieval.
+        Stage 1: Hard Filtering (capability, domain, skill, task, failure_type, scope, status).
+        Stage 2: Semantic Ranking (relevance, context_similarity, evidence_strength, recency, confidence, contradiction).
+        Returns the auditable AcademicKnowledgeRetrievalRecord validated against knowledge_retrieval.schema.json.
+        """
+        canon_cap = self.normalize_capability(capability)
+        scan_dirs = []
+        if not item_types or "lesson" in item_types:
+            scan_dirs.append((self.lessons_dir, "lesson"))
+        if not item_types or "principle" in item_types:
+            scan_dirs.append((self.principles_dir, "principle"))
+        if not item_types or "pattern" in item_types:
+            scan_dirs.append((self.patterns_dir, "pattern"))
+        if not item_types or "anti_pattern" in item_types:
+            scan_dirs.append((self.anti_patterns_dir, "anti_pattern"))
+        if not item_types or "exemplar" in item_types:
+            scan_dirs.append((self.exemplars_dir, "exemplar"))
+
+        raw_items: List[Dict[str, Any]] = []
+        for d, itype in scan_dirs:
+            if not os.path.isdir(d):
+                continue
+            for fn in os.listdir(d):
+                if not fn.endswith(".json") or fn == "index.jsonl":
+                    continue
+                fp = os.path.join(d, fn)
+                try:
+                    with open(fp, "r", encoding="utf-8") as f:
+                        item = json.load(f)
+                        raw_items.append(item)
+                except Exception:
+                    continue
+
+        query_payload = {
+            "task": task,
+            "agent": agent,
+            "skill": skill,
+            "capability": canon_cap,
+            "domain": domain,
+            "failure_type": failure_type,
+            "scope": scope,
+            "tags": tags or [],
+            "project_id": project_id,
+            "prompt_text": prompt_text,
+            "item_types": item_types,
+            "include_superseded": include_superseded,
+            "limit": limit
+        }
+
+        active_ctds = self.get_active_contradictions(target_skill=skill, capability=canon_cap)
+        return self.retriever.retrieve(
+            items=raw_items,
+            query=query_payload,
+            active_contradictions=active_ctds
+        )
 
     def query(
         self,
@@ -988,118 +1063,29 @@ class AcademicKnowledgeManager:
         project_id: Optional[str] = None,
         item_types: Optional[List[str]] = None,
         include_superseded: bool = False,
-        limit: int = 20
+        limit: int = 20,
+        prompt_text: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Execute multi-criteria query across lessons, patterns, anti-patterns, principles, and exemplars.
-        Ranks results by relevance while enforcing scope containment.
+        Utilizes Phase 29 Two-Stage Retrieval (Stage 1 Hard Filtering -> Stage 2 Semantic Ranking).
+        Returns list of top-ranked items for backwards compatibility.
         """
-        canon_cap = self.normalize_capability(capability)
-        tags_set = set(t.lower() for t in tags) if tags else set()
-
-        candidates: List[Tuple[Dict[str, Any], float]] = []
-
-        # Directories to inspect based on item_types
-        scan_dirs = []
-        if not item_types or "lesson" in item_types:
-            scan_dirs.append((self.lessons_dir, "lesson"))
-        if not item_types or "principle" in item_types:
-            scan_dirs.append((self.principles_dir, "principle"))
-        if not item_types or "pattern" in item_types:
-            scan_dirs.append((self.patterns_dir, "pattern"))
-        if not item_types or "anti_pattern" in item_types:
-            scan_dirs.append((self.anti_patterns_dir, "anti_pattern"))
-        if not item_types or "exemplar" in item_types:
-            scan_dirs.append((self.exemplars_dir, "exemplar"))
-
-        for d, itype in scan_dirs:
-            if not os.path.isdir(d):
-                continue
-            for fn in os.listdir(d):
-                if not fn.endswith(".json") or fn == "index.jsonl":
-                    continue
-                fp = os.path.join(d, fn)
-                try:
-                    with open(fp, "r", encoding="utf-8") as f:
-                        item = json.load(f)
-                except Exception:
-                    continue
-
-                # 0. Active Status Gate: exclude obsolete, superseded, or rejected items by default
-                status = item.get("status")
-                if not include_superseded and status in ["RETIRED_OBSOLETE", "SUPERSEDED", "REJECTED", "DEPRECATED"]:
-                    continue
-
-                # 1. Scope Containment Gate
-                if not self.is_in_scope(item, query_project_id=project_id, query_domain=domain):
-                    continue
-
-                # 2. Relevance Scoring
-                score = 0.0
-
-                # Capability match
-                if canon_cap:
-                    item_cap = item.get("capability") or self.normalize_capability(item.get("domain"))
-                    if item_cap == canon_cap:
-                        score += 15.0
-                    elif canon_cap.lower() in json.dumps(item).lower():
-                        score += 5.0
-
-                # Skill match
-                if skill:
-                    rel_skills = [s.lower() for s in item.get("related_skills", [])]
-                    app_skills = [s.lower() for s in item.get("applicability", {}).get("target_skills", [])]
-                    if skill.lower() in rel_skills or skill.lower() in app_skills or item.get("target_skill") == skill:
-                        score += 12.0
-
-                # Task match
-                if task:
-                    item_task = str(item.get("task_type") or item.get("task") or "").lower()
-                    if task.lower() in item_task or item_task in task.lower():
-                        score += 10.0
-
-                # Agent match
-                if agent:
-                    item_agent = str(item.get("primary_agent") or item.get("target_agent") or item.get("derived_by") or "").lower()
-                    if agent.lower() in item_agent:
-                        score += 6.0
-
-                # Domain match
-                if domain:
-                    item_dom = str(item.get("domain") or item.get("scope") or "").lower()
-                    if domain.lower() in item_dom:
-                        score += 6.0
-
-                # Failure type match
-                if failure_type:
-                    obs_fail = item.get("observed_failure", {})
-                    f_type = obs_fail.get("defect_type") or item.get("category")
-                    if f_type and failure_type.lower() in str(f_type).lower():
-                        score += 8.0
-
-                # Tag match
-                item_tags = set(t.lower() for t in item.get("tags", []))
-                common_tags = tags_set.intersection(item_tags)
-                score += len(common_tags) * 4.0
-
-                # Status weighting
-                status = item.get("status")
-                if status in ["ACCEPTED_ACTIVE", "VALIDATED"]:
-                    score += 5.0
-                elif status in ["SUPERSEDED", "DEPRECATED"]:
-                    score -= 15.0
-
-                # Confidence weighting
-                conf = item.get("confidence")
-                if conf is not None and isinstance(conf, (int, float)):
-                    score *= float(conf)
-
-                if score > 0.0 or (not agent and not skill and not task and not capability and not failure_type and not tags):
-                    candidates.append((item, score))
-
-        # Sort descending by score
-        candidates.sort(key=lambda x: x[1], reverse=True)
-        return [c[0] for c in candidates[:limit]]
+        record = self.retrieve_two_stage(
+            task=task,
+            agent=agent,
+            skill=skill,
+            capability=capability,
+            domain=domain,
+            failure_type=failure_type,
+            tags=tags,
+            project_id=project_id,
+            prompt_text=prompt_text,
+            item_types=item_types,
+            include_superseded=include_superseded,
+            limit=limit
+        )
+        return record.get("results", [])
 
     # -------------------------------------------------------------------------
     # Pre-Task Retrieval Briefing

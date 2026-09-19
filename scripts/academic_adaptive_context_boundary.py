@@ -219,6 +219,8 @@ class AcademicAdaptiveContextBoundary:
         agent: Optional[str] = None,
         domain: Optional[str] = None,
         project_id: Optional[str] = None,
+        prompt_text: Optional[str] = None,
+        failure_type: Optional[str] = None,
         limit_per_category: int = 3
     ) -> Dict[str, Any]:
         """
@@ -227,14 +229,17 @@ class AcademicAdaptiveContextBoundary:
         2. known_pitfalls
         3. applicable_methodology_rules
         4. calibrated_defaults
+        Utilizes Phase 29 Two-Stage Retrieval (Stage 1 Hard Filtering -> Stage 2 Semantic Ranking).
         """
         raw_context = self.km.retrieve_pre_task_context(
             capability=capability,
             task=task or "general_task",
             agent=agent,
             domain=domain,
+            failure_types=[failure_type] if failure_type else None,
             project_id=project_id,
-            limit_per_category=limit_per_category
+            limit_per_category=limit_per_category,
+            task_description=prompt_text
         )
 
         lessons = raw_context.get("lessons", [])
@@ -388,7 +393,8 @@ class AcademicAdaptiveContextBoundary:
             task=intent.get("task"),
             agent=intent.get("primary_agent"),
             domain=intent.get("domain"),
-            project_id=intent.get("project_id")
+            project_id=intent.get("project_id"),
+            prompt_text=clean_user
         )
 
         return self.format_boundary_briefing(boundary_data)
@@ -413,7 +419,9 @@ class AcademicAdaptiveContextBoundary:
             b_data = self.retrieve_boundary_context(
                 capability=cap,
                 task=task,
-                agent=type_name or role
+                agent=type_name or role,
+                domain=intent.get("domain") if intent else None,
+                prompt_text=prompt
             )
             briefing = self.format_boundary_briefing(b_data)
 

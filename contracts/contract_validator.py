@@ -73,7 +73,8 @@ SCHEMA_FILES = {
     "component_version": "evolution/component_version.schema.json",
     "independent_evaluation": "evolution/independent_evaluation.schema.json",
     "generalization_lifecycle": "evolution/generalization_lifecycle.schema.json",
-    "confidence_evidence": "evolution/confidence_evidence.schema.json"
+    "confidence_evidence": "evolution/confidence_evidence.schema.json",
+    "knowledge_retrieval": "evolution/knowledge_retrieval.schema.json"
 }
 
 
@@ -268,4 +269,8 @@ def validate_generalization_lifecycle(instance: Dict[str, Any]) -> Dict[str, Any
 
 def validate_confidence_evidence(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "confidence_evidence")
+
+
+def validate_knowledge_retrieval(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "knowledge_retrieval")
 

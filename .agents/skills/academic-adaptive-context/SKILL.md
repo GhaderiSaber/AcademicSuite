@@ -56,7 +56,11 @@ Agents no longer need to "remember" to execute manual CLI retrieval. Whenever an
 ```
 Academic task begins
        ↓
-context retrieval
+context retrieval (Two-Stage Engine)
+       ↓
+Stage 1: Hard Filtering (capability, domain, skill, task, failure type, scope)
+       ↓
+Stage 2: Semantic Ranking (relevance, context similarity, evidence, recency, confidence, contradiction)
        ↓
 relevant lessons
        ↓
@@ -66,6 +70,29 @@ applicable methodology rules
        ↓
 agent execution
 ```
+
+### The Two-Stage Knowledge Retrieval Engine (Phase 29)
+To prevent semantic search from retrieving an academically inappropriate lesson merely because vocabulary looks similar (e.g., qualitative thematic coding retrieved for quantitative SEM), retrieval executes in two strict stages:
+
+1. **Stage 1: Hard Filtering (Fail-Closed Structural Boundary Gate)**:
+   - **`capability`**: Canonical capability matching; incompatible capabilities are pruned.
+   - **`domain`**: Enforces quantitative vs qualitative vs writing vs methodology domain isolation.
+   - **`skill`**: Matches `target_skill`, `related_skills`, or `applicability.target_skills`.
+   - **`task`**: Enforces task category compatibility.
+   - **`failure_type`**: Filters anti-patterns and defect signatures.
+   - **`scope`**: Enforces ADR-014 scope containment (project rules never leak to other projects).
+   - Any candidate failing a structural boundary is dropped immediately with documented rejection rationale.
+
+2. **Stage 2: Semantic Ranking (Multi-Factor Scholarly Scoring)**:
+   - Evaluates only survivors of Stage 1 across 6 weighted factors:
+     $$\text{Final Score} = 0.25 \cdot \text{relevance} + 0.25 \cdot \text{similarity} + 0.15 \cdot \text{evidence} + 0.10 \cdot \text{recency} + 0.25 \cdot \text{confidence} - P_{\text{ctd}}$$
+   - **`relevance`**: Deterministic metadata, tag matches, and validated status weighting.
+   - **`context_similarity`**: Lexical and semantic token overlap with statistical keyword boosts.
+   - **`evidence_strength`**: Empirical backing and benchmark fidelity from Phase 26.
+   - **`recency`**: Temporal decay relative to calendar anchor (2026-09-19).
+   - **`confidence`**: Evidence-derived confidence score ($0.01 \le \text{confidence} \le 0.99$).
+   - **`contradiction`**: Penalty deductions for active/unresolved conflicts under Phase 27.
+
 
 ### Execution Boundary Retrieval Flow:
 1. **Turn Execution Boundary (`PreInvocation` Hook)**:

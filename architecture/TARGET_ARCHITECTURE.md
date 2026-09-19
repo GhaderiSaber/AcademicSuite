@@ -1931,5 +1931,97 @@ Directive 1 in `AGENTS.md` mandates that before running analysis or drafting, th
 - **Justification for Deviations**: None (Strict Pipeline Adherence)
 ```
 
+---
+
+## 34. Two-Stage Knowledge Retrieval Architecture (Phase 29)
+
+### 34.1 The Semantic Leakage Problem in Academic Retrieval
+In academic and statistical research systems, naive semantic search or unguarded embedding similarity introduces serious hazards:
+- Superficial word similarity across disparate domains causes cross-contamination (e.g., retrieving qualitative coding consensus rules for quantitative SEM latent variable estimation because both discuss "reliability" and "consensus").
+- Anti-patterns from unrelated paradigms leak into task contexts (e.g., an anti-pattern against median splits in regression appearing in qualitative thematic analysis).
+- Project-specific quirks from Project A leak into Project B because medical or clinical terms match superficially.
+
+Phase 29 preserves deterministic metadata scoring as the foundation while establishing a formal **Two-Stage Knowledge Retrieval Architecture**.
+
+### 34.2 The Two-Stage Architectural Model
+
+```mermaid
+flowchart TD
+    Query["Incoming Pre-Task / Retrieval Query\n(prompt, capability, domain, skill, task, failure_type, scope)"]
+
+    subgraph Stage1["Stage 1: Hard Filtering (Fail-Closed Structural Boundary Gate)"]
+        F_Scope["Scope Containment Gate\nProject ID / Domain isolation (ADR-014)"]
+        F_Cap["Capability Gate\nCanonical matching & cross-capability rules"]
+        F_Dom["Domain Gate\nQuantitative vs Qualitative mutual exclusion"]
+        F_Skill["Skill Gate\nTarget skill / related skills verification"]
+        F_Task["Task Gate\nTask category compatibility"]
+        F_Fail["Failure Type Gate\nDefect classification matching"]
+        F_Status["Status Gate\nExclude retired/superseded items"]
+
+        F_Scope --> F_Cap --> F_Dom --> F_Skill --> F_Task --> F_Fail --> F_Status
+    end
+
+    Pruned["Pruned Candidates\n(Dropped with documented rejection rationale;\nZero semantic leakage into ranking)"]
+
+    subgraph Stage2["Stage 2: Semantic Ranking (Multi-Factor Scholarly Scoring)"]
+        R_Rel["1. Relevance (w=0.25)\nDeterministic metadata & tag scoring"]
+        R_Sim["2. Context Similarity (w=0.25)\nSemantic & lexical keyword overlap"]
+        R_Ev["3. Evidence Strength (w=0.15)\nEmpirical backing & benchmark fidelity"]
+        R_Rec["4. Recency (w=0.10)\nTemporal decay relative to calendar anchor"]
+        R_Conf["5. Confidence (w=0.25)\nEvidence-derived score (Phase 26)"]
+        R_Ctd["6. Contradiction Penalty (deduction)\nActive vs resolved conflict status (Phase 27)"]
+
+        RankScore["Composite Scholarly Score\nFinal Score = sum(w_i * S_i) - P_ctd"]
+    end
+
+    Deliverable["Top-K Briefing Candidates\n(Ranked, auditable, academically appropriate)"]
+
+    Query --> Stage1
+    Stage1 -->|Failed any filter| Pruned
+    Stage1 -->|Passed all filters| Stage2
+    R_Rel --> RankScore
+    R_Sim --> RankScore
+    R_Ev --> RankScore
+    R_Rec --> RankScore
+    R_Conf --> RankScore
+    R_Ctd --> RankScore
+    RankScore --> Deliverable
+```
+
+### 34.3 Stage Breakdown & Scoring Specifications
+
+#### Stage 1: Hard Filtering (Fail-Closed Structural Boundary Gate)
+All items in the knowledge repository are filtered against 7 deterministic structural gates:
+1. **Scope (`scope`)**: Enforces ADR-014 scope containment. Project-specific items (`scope in ["project", "local_project", "global-in-project", "project_specific"]`) require exact matching `project_id`. Mismatches or un-scoped queries fail closed.
+2. **Capability (`capability`)**: Matches canonical capability and aliases. Items explicitly tagged for another conflicting capability are dropped. Cross-capability foundational principles pass.
+3. **Domain (`domain`)**: Enforces scientific domain boundaries. Qualitative and quantitative domains are mutually exclusive.
+4. **Skill (`skill`)**: Matches `target_skill`, `related_skills`, or `applicability.target_skills`.
+5. **Task (`task`)**: Matches task category or type. Mutually exclusive tasks are pruned.
+6. **Failure Type (`failure_type`)**: Filters defect classifications for anti-patterns and failure lessons.
+7. **Status (`status`)**: Discards retired, superseded, or rejected items by default.
+
+Candidates failing any single structural dimension are recorded in `pruned_details` with an explicit reason and dropped. They **never** enter Stage 2.
+
+#### Stage 2: Semantic Ranking (Multi-Factor Scholarly Scoring)
+Survivors of Stage 1 are evaluated across 6 scholarly dimensions:
+$$\text{Final Score} = 0.25 \cdot S_{\text{rel}} + 0.25 \cdot S_{\text{sim}} + 0.15 \cdot S_{\text{ev}} + 0.10 \cdot S_{\text{rec}} + 0.25 \cdot S_{\text{conf}} - P_{\text{ctd}}$$
+
+| Dimension | Notation | Weight | Definition & Mathematical Calibration |
+| :--- | :--- | :--- | :--- |
+| **Relevance** | $S_{\text{rel}}$ | $0.25$ | Deterministic metadata: tag intersection ($+0.10$ each), skill bonus ($+0.10$), validated status bonus ($+0.10$). Bounded in $[0.0, 1.0]$. |
+| **Context Similarity** | $S_{\text{sim}}$ | $0.25$ | Lexical and semantic token overlap with statistical keyword weighting (bootstrap, slopes, levene, sphericity, vif). Bounded in $[0.10, 1.0]$. |
+| **Evidence Strength** | $S_{\text{ev}}$ | $0.15$ | Empirical backing from Phase 26 (`evidence_strength` in `confidence_evidence` or observation count). Bounded in $[0.10, 1.0]$. |
+| **Recency** | $S_{\text{rec}}$ | $0.10$ | Exponential temporal decay relative to operative anchor (2026-09-19): $S_{\text{rec}} = \exp(-0.005 \cdot \text{days})$. Bounded in $[0.10, 1.0]$. |
+| **Confidence** | $S_{\text{conf}}$ | $0.25$ | Direct evidence-derived confidence score from Phase 26 ($0.01 \le \text{confidence} \le 0.99$). |
+| **Contradiction Penalty**| $P_{\text{ctd}}$ | Deduction | Explicit penalty for active/disputed conflicts under Phase 27 ($0.35$ for disputed lessons, $0.25$ for unresolved conflicts, $0.0$ for resolved). |
+
+### 34.4 Contract Schema & Governance
+- **Schema Contract**: `contracts/evolution/knowledge_retrieval.schema.json` formalizes the retrieval request, Stage 1 pruned details and dimensions, Stage 2 factor scores, and top-$K$ results.
+- **Engine**: `scripts/academic_two_stage_retriever.py` (`AcademicTwoStageRetriever`, Directive 18 compliant).
+- **Subsystem Integration**:
+  - `AcademicKnowledgeManager`: Directly powers `query()` and `retrieve_two_stage()`.
+  - `AcademicAdaptiveContextBoundary`: Leverages two-stage retrieval to construct execution-boundary briefings before agent reasoning begins.
+
+
 
 

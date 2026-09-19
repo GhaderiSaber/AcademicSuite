@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcademicKnowledgeRetrievalRecord",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "retrieval_id",
+    "query",
+    "stage_1_filtering",
+    "stage_2_ranking",
+    "results",
+    "retrieved_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "enum": ["1.0.0"]
+    },
+    "retrieval_id": {
+      "type": "string",
+      "pattern": "^RET-[0-9]{8}-[A-F0-9]{6,}$"
+    },
+    "query": {
+      "type": "object",
+      "properties": {
+        "task": { "type": ["string", "null"] },
+        "capability": { "type": ["string", "null"] },
+        "domain": { "type": ["string", "null"] },
+        "skill": { "type": ["string", "null"] },
+        "failure_type": { "type": ["string", "null"] },
+        "scope": { "type": ["string", "null"] },
+        "project_id": { "type": ["string", "null"] },
+        "prompt_text": { "type": ["string", "null"] },
+        "item_types": {
+          "type": ["array", "null"],
+          "items": { "type": "string" }
+        },
+        "limit": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": true
+    },
+    "stage_1_filtering": {
+      "type": "object",
+      "required": [
+        "candidates_evaluated",
+        "passed_count",
+        "pruned_count",
+        "pruned_by_dimension"
+      ],
+      "properties": {
+        "candidates_evaluated": { "type": "integer", "minimum": 0 },
+        "passed_count": { "type": "integer", "minimum": 0 },
+        "pruned_count": { "type": "integer", "minimum": 0 },
+        "pruned_by_dimension": {
+          "type": "object",
+          "properties": {
+            "scope": { "type": "integer", "minimum": 0 },
+            "capability": { "type": "integer", "minimum": 0 },
+            "domain": { "type": "integer", "minimum": 0 },
+            "skill": { "type": "integer", "minimum": 0 },
+            "task": { "type": "integer", "minimum": 0 },
+            "failure_type": { "type": "integer", "minimum": 0 },
+            "status": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": true
+        },
+        "pruned_details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["item_id", "failed_dimension", "reason"],
+            "properties": {
+              "item_id": { "type": "string" },
+              "failed_dimension": {
+                "type": "string",
+                "enum": ["scope", "capability", "domain", "skill", "task", "failure_type", "status"]
+              },
+              "reason": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "stage_2_ranking": {
+      "type": "object",
+      "required": [
+        "ranked_candidates_count",
+        "candidates_scores"
+      ],
+      "properties": {
+        "ranked_candidates_count": { "type": "integer", "minimum": 0 },
+        "candidates_scores": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "item_id",
+              "final_score",
+              "relevance_score",
+              "similarity_score",
+              "evidence_strength_score",
+              "recency_score",
+              "confidence_score",
+              "contradiction_penalty"
+            ],
+            "properties": {
+              "item_id": { "type": "string" },
+              "item_type": { "type": "string" },
+              "final_score": { "type": "number" },
+              "relevance_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+              "similarity_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+              "evidence_strength_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+              "recency_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+              "confidence_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+              "contradiction_penalty": { "type": "number", "minimum": 0.0 }
+            }
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}
