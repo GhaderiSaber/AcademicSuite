@@ -1047,6 +1047,102 @@ event_id = f"EVT-FDB-{sha256(seed)[:16].upper()}"
 - If `process_user_turn()` runs first, subsequent `scan_transcript()` skips that turn.
 - Rescanning an existing `transcript.jsonl` yields exactly 0 duplicate feedback records.
 
+---
+
+## 23. Closed Behavioral Evolution Architecture (Phase 18)
+
+### 23.1 The 13-Stage Closed Behavioral Evolution Pipeline
+Phase 18 establishes a complete, closed-loop behavioral evolution system driven by real observable behavior, eliminating mock benchmarks and unverified claims:
+
+```mermaid
+flowchart TD
+    PA["1. PRODUCTION AGENT\n(.agents/agents/, .agents/skills/)"]
+    RT["2. REAL TASK\n(Stage, Milestone, Hypothesis)"]
+    RJ["3. REAL TRAJECTORY\n(Observable tool calls, commands, outputs)"]
+    
+    subgraph Triggers["Dual First-Class Triggers"]
+        UF["4a. USER FEEDBACK\n(USER_FEEDBACK_DETECTED / FeedbackRecord)"]
+        QF["4b. QC FAILURE\n(VALIDATION_FAILED / Stage Gate Rejection)"]
+    end
+    
+    BA["5. BEHAVIOR ANALYSIS\n(Observable root cause, zero CoT tokens)"]
+    LH["6. LESSON HYPOTHESIS\n(Testable hypothesis & expected improvement)"]
+    CP["7. CANDIDATE PATCH\n(Staged mutation in learning/candidates/)"]
+    IA["8. ISOLATED AGENT VERSION\n(learning/candidates/<cid>/isolated_agent/)"]
+    RE["9. REAL TEST\n(Empirical test scenario)"]
+    
+    subgraph ThreeWay["10. Three-Way Test Arms"]
+        ARM_B["baseline arm\n(Unmodified production)"]
+        ARM_C["candidate arm\n(Isolated candidate)"]
+        ARM_A["adversarial arm\n(Challenge stress case)"]
+    end
+    
+    IQC["11. INDEPENDENT QC\n(8 Dimensions: correctness, methodology, stats...)"]
+    HOT["12. HELD-OUT TESTS\n(Cryptographically frozen suite & overfitting check)"]
+    PRM["13. PROMOTE\n(AcademicPromotionEngine, snapshot, telemetry)"]
+
+    PA --> RT
+    RT --> RJ
+    RJ --> UF
+    RJ --> QF
+    UF --> BA
+    QF --> BA
+    BA --> LH
+    LH --> CP
+    CP --> IA
+    IA --> RE
+    RE --> ARM_B
+    RE --> ARM_C
+    RE --> ARM_A
+    ARM_B --> IQC
+    ARM_C --> IQC
+    ARM_A --> IQC
+    IQC --> HOT
+    HOT --> PRM
+```
+
+### 23.2 Dual First-Class Triggers
+Both user critiques and automated quality control rejections trigger behavioral evolution symmetrically:
+1. **User Feedback Trigger**: Ingests `USER_FEEDBACK_DETECTED` with deduplicated `event_id`, verified `target_agent`, `target_skill`, `capability`, `task`, and `stage`.
+2. **QC Failure Trigger**: Ingests `VALIDATION_FAILED` containing validator diagnostics, failed assertions, and affected deliverable paths.
+
+### 23.3 Observable-Only Behavior Analysis (`AcademicBehaviorAnalyzer`)
+- **Zero Chain-of-Thought Invariant**: Strictly audits trajectory actions (`ordered_actions`) without guessing internal model thoughts or accessing private reasoning tokens.
+- **Defect Pinpointing**: Maps trigger feedback to the specific step, command, or file write where the defect occurred.
+- **Failure Signatures**: Deterministically classifies failure modes (`REPORTING_P_ZERO`, `MISSING_PERSIAN_LEADING_ZERO`, `DICHOTOMIZING_CONTINUOUS_VARIABLE`, `VIOLATED_ASSUMPTION_IGNORED`, etc.).
+- **Contract Compliance**: Produces `BehaviorAnalysisReport` conforming to `contracts/evolution/behavior_analysis.schema.json`.
+
+### 23.4 Isolated Agent Sandboxes (`AcademicIsolatedAgentSandbox`)
+- **Staging Directory**: `learning/candidates/<candidate_id>/isolated_agent/`.
+- **Production Non-Mutation Guarantee**: Clones the target agent/skill into the sandbox and applies candidate mutation patches (unified diff, full replacement, or parameter patch) strictly within the sandbox. Canonical production files in `.agents/agents/` and `.agents/skills/` remain 100% untouched.
+- **Cryptographic Manifest**: Emits `isolated_manifest.json` tracking original and patched SHA-256 hashes.
+
+### 23.5 Three-Way Test Arms (`baseline`, `candidate`, `adversarial`)
+Evaluates candidate improvements across 3 explicit test arms:
+1. **Baseline Arm**: Production agent/skill output on the test case.
+2. **Candidate Arm**: Isolated candidate version output on the test case.
+3. **Adversarial Arm**: Isolated candidate version output on an adversarial challenge case (e.g. median split temptation, missing waves, small sample).
+- Compares:
+  - `defect_resolved`: Did candidate resolve the baseline defect?
+  - `candidate_outperformed_baseline`: Did candidate pass where baseline failed?
+  - `adversarial_resilience_verified`: Did candidate survive the adversarial stress test?
+  - `zero_regressions_verified`: Zero regressions on protected capabilities.
+- Emits `ThreeWayEvaluationReport` conforming to `contracts/evolution/three_way_evaluation.schema.json`.
+
+### 23.6 Independent QC & Cryptographic Held-Out Tests
+- **Independent QC**: Audits the candidate across 8 independent quality dimensions: `correctness`, `methodology`, `statistical_validity`, `evidence_grounding`, `integrity`, `robustness`, `consistency`, `efficiency`.
+- **Held-Out Generalization**: Evaluates candidate against cryptographically sealed test scenarios (`learning/evaluations/heldout/manifest.sha256`).
+- **Overfitting Guard**: Computes the generalization ratio:
+  $$\text{Ratio} = \frac{\text{Held-out Pass Rate}}{\max(0.01, \text{Training Pass Rate})}$$
+  If $\text{Training Pass Rate} \ge 0.70$ and $\text{Ratio} < 0.70$, the candidate is flagged for overfitting and blocked from promotion.
+
+### 23.7 Pareto-Governed Promotion (`AcademicPromotionEngine`)
+- **Risk Taxonomy**:
+  - *LOW-RISK* (exemplars, anti-patterns, minor clarifications): Auto-promoted when all evaluation gates pass.
+  - *MEDIUM-RISK* (major skill/prompt modifications): Staged for human review (`STAGED_FOR_REVIEW`) until approved.
+  - *HIGH-RISK* (permissions, hooks, contracts, validators): Hard-blocked from automated evolution.
+- **Promotion Lifecycle**: Takes pre-promotion snapshots in `learning/promotions/snapshots/`, applies mutation to canonical production files, emits `PRM-*.json` promotion records, logs telemetry in `learning/telemetry/improvement_history.jsonl`, and executes post-promotion drift audits via `AcademicBehaviorDriftMonitor`.
+
 
 
 

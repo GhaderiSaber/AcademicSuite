@@ -782,4 +782,102 @@ This duplicate processing polluted the learning store, created redundant feedbac
 - **Positive**: 100% elimination of duplicate feedback processing; zero redundant fast evolution loops; clean, idempotent event-processing hygiene conforming to Directives 0 and 19.
 - **Negative**: Critique text without turn metadata within the same session will be deduplicated on subsequent identical submissions unless an explicit distinct `event_id` or `turn_index` is provided.
 
+---
+
+## ADR-023: Closed Behavioral Evolution Engine with 3-Way Arms and Isolated Sandboxes
+
+### Status
+Accepted
+
+### Context
+While previous evolution phases implemented components for experience recording, feedback detection, candidate generation, and promotion gating, they did not form a fully closed behavioral evolution loop. Crucial architectural gaps remained:
+1. Candidate patches lacked an isolated instantiation sandbox, creating risk of premature modification to production skills or agents.
+2. Candidate testing relied on monolithic or scalar benchmarks rather than explicit counterfactual multi-arm comparisons.
+3. Behavior analysis lacked a dedicated observable-only root cause engine grounded strictly in trajectory events without chain-of-thought hallucination.
+4. QC failures (e.g. stage validator gate rejections) were not treated as first-class triggers symmetric with user feedback.
+
+### Decision
+1. **The 13-Stage Closed Behavioral Evolution Sequence**:
+   The self-improvement architecture strictly follows the closed-loop pipeline:
+   ```text
+                PRODUCTION AGENT
+                       │
+                       ▼
+                  REAL TASK
+                       │
+                       ▼
+                REAL TRAJECTORY
+                       │
+             ┌─────────┴──────────┐
+             ▼                    ▼
+        USER FEEDBACK        QC FAILURE
+             │                    │
+             └─────────┬──────────┘
+                       ▼
+               BEHAVIOR ANALYSIS
+                       │
+                       ▼
+                 LESSON HYPOTHESIS
+                       │
+                       ▼
+                CANDIDATE PATCH
+                       │
+                       ▼
+             ISOLATED AGENT VERSION
+                       │
+                       ▼
+                  REAL TEST
+                       │
+             ┌─────────┼─────────┐
+             ▼         ▼         ▼
+          baseline  candidate  adversarial
+             │         │         │
+             └─────────┼─────────┘
+                       ▼
+                INDEPENDENT QC
+                       │
+                       ▼
+                HELD-OUT TESTS
+                       │
+                       ▼
+                   PROMOTE
+   ```
+
+2. **Dual First-Class Triggers**:
+   - `USER_FEEDBACK`: Originates from `USER_FEEDBACK_DETECTED` with deduplication hygiene.
+   - `QC_FAILURE`: Originates from `VALIDATION_FAILED` (stage validator gates, challenger red-team critiques, integrity violations).
+
+3. **Observable-Only Behavior Analysis (`AcademicBehaviorAnalyzer`)**:
+   - Ingests trajectory events (`ordered_actions`) and trigger details.
+   - Pinpoints observable step where defect manifested without inspecting or hallucinating private chain-of-thought tokens (`sanitize_observable_only`).
+   - Categorizes failure signature against domain taxonomy (`REPORTING_P_ZERO`, `MISSING_PERSIAN_LEADING_ZERO`, `DICHOTOMIZING_CONTINUOUS_VARIABLE`, `VIOLATED_ASSUMPTION_IGNORED`, etc.).
+   - Emits schema-validated `BehaviorAnalysisReport` conforming to `contracts/evolution/behavior_analysis.schema.json`.
+
+4. **Isolated Agent Sandbox (`AcademicIsolatedAgentSandbox`)**:
+   - Materializes candidate mutation in `learning/candidates/<cid>/isolated_agent/`.
+   - Clones target components and applies patch cleanly.
+   - Emits `isolated_manifest.json` tracking original and patched file hashes.
+   - Canonical production files in `.agents/agents/` and `.agents/skills/` remain 100% untouched.
+
+5. **Three-Way Test Arms (`baseline`, `candidate`, `adversarial`)**:
+   - Compares 3 explicit arms:
+     - `baseline`: Unmodified production agent/skill on the test case.
+     - `candidate`: Isolated candidate agent version on the test case.
+     - `adversarial`: Isolated candidate on an adversarial challenge case.
+   - Verifies: `defect_resolved`, `candidate_outperformed_baseline`, `adversarial_resilience_verified`, and `zero_regressions_verified`.
+   - Emits `ThreeWayEvaluationReport` conforming to `contracts/evolution/three_way_evaluation.schema.json`.
+
+6. **Independent QC & Held-Out Generalization**:
+   - Evaluates candidate across 8 independent quality dimensions (`AcademicEvaluationLab`).
+   - Verifies cryptographic integrity of held-out cases (`verify_heldout_integrity`).
+   - Enforces overfitting guard (`check_overfitting`).
+
+7. **Pareto-Governed Promotion (`AcademicPromotionEngine`)**:
+   - LOW-RISK auto-promotes; MEDIUM-RISK stages with human approval; HIGH-RISK blocks.
+   - Creates pre-promotion snapshot, updates canonical files, emits `PRM-*.json`, logs telemetry in `improvement_history.jsonl`, and audits post-promotion drift (`AcademicBehaviorDriftMonitor`).
+
+### Consequences
+- **Positive**: Fully closes the evolutionary loop around real observable behavior; prevents premature canonical file mutations via sandboxes; provides rigorous 3-way counterfactual evidence before promotion; eliminates overfitting via cryptographically sealed held-out suites; adheres strictly to Directives 0, 6, 12.1, and 19.
+- **Negative**: Requires additional disk storage for candidate sandboxes and 3-way evaluation reports in `learning/candidates/` and `learning/evaluations/three_way/`.
+
 

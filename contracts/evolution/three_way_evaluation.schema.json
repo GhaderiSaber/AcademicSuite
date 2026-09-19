@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/three_way_evaluation.schema.json",
+  "title": "AcademicThreeWayEvaluationContract",
+  "description": "Contract schema for 3-way evaluation comparisons (baseline vs candidate vs adversarial) combined with independent QC and held-out test verification.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "evaluation_id",
+    "candidate_id",
+    "target_capability",
+    "target_skill",
+    "arms",
+    "comparison_summary",
+    "qc_verdict",
+    "dimensional_evaluations",
+    "heldout_results",
+    "recommendation",
+    "evaluated_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "evaluation_id": {
+      "type": "string",
+      "description": "Unique identifier for this 3-way evaluation report (e.g. EVL-3WAY-20260919-001)."
+    },
+    "candidate_id": {
+      "type": "string",
+      "description": "Pointer to the candidate improvement tested."
+    },
+    "target_capability": {
+      "type": "string",
+      "description": "Capability tested across the 3 arms."
+    },
+    "target_skill": {
+      "type": "string",
+      "description": "Skill targeted by the candidate."
+    },
+    "arms": {
+      "type": "object",
+      "required": ["baseline", "candidate", "adversarial"],
+      "properties": {
+        "baseline": {
+          "type": "object",
+          "required": ["verdict", "passed_assertions", "failed_assertions"],
+          "properties": {
+            "agent_type": {"type": "string"},
+            "version": {"type": "string"},
+            "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+            "metrics": {"type": "object"},
+            "passed_assertions": {"type": "array", "items": {"type": "string"}},
+            "failed_assertions": {"type": "array", "items": {"type": "string"}},
+            "output_summary": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "candidate": {
+          "type": "object",
+          "required": ["verdict", "passed_assertions", "failed_assertions"],
+          "properties": {
+            "agent_type": {"type": "string"},
+            "sandbox_id": {"type": "string"},
+            "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+            "metrics": {"type": "object"},
+            "passed_assertions": {"type": "array", "items": {"type": "string"}},
+            "failed_assertions": {"type": "array", "items": {"type": "string"}},
+            "output_summary": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "adversarial": {
+          "type": "object",
+          "required": ["verdict", "passed_assertions", "failed_assertions"],
+          "properties": {
+            "case_id": {"type": "string"},
+            "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+            "metrics": {"type": "object"},
+            "passed_assertions": {"type": "array", "items": {"type": "string"}},
+            "failed_assertions": {"type": "array", "items": {"type": "string"}},
+            "output_summary": {"type": "string"}
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "comparison_summary": {
+      "type": "object",
+      "required": [
+        "defect_resolved",
+        "candidate_outperformed_baseline",
+        "adversarial_resilience_verified",
+        "zero_regressions_verified"
+      ],
+      "properties": {
+        "defect_resolved": {"type": "boolean"},
+        "candidate_outperformed_baseline": {"type": "boolean"},
+        "adversarial_resilience_verified": {"type": "boolean"},
+        "zero_regressions_verified": {"type": "boolean"},
+        "resolved_defects": {"type": "array", "items": {"type": "string"}},
+        "new_regressions": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "qc_verdict": {
+      "type": "string",
+      "enum": ["PASS", "FAIL", "CONDITIONAL"]
+    },
+    "dimensional_evaluations": {
+      "type": "object",
+      "description": "Evaluations across 8 independent quality dimensions.",
+      "properties": {
+        "correctness": {"type": "object"},
+        "methodology": {"type": "object"},
+        "statistical_validity": {"type": "object"},
+        "evidence_grounding": {"type": "object"},
+        "integrity": {"type": "object"},
+        "robustness": {"type": "object"},
+        "consistency": {"type": "object"},
+        "efficiency": {"type": "object"}
+      },
+      "additionalProperties": true
+    },
+    "heldout_results": {
+      "type": "object",
+      "required": ["total_cases", "pass_rate", "overfitting_detected"],
+      "properties": {
+        "total_cases": {"type": "integer", "minimum": 0},
+        "pass_rate": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "overfitting_detected": {"type": "boolean"},
+        "overfitting_reason": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": ["PROMOTE", "STAGE_FOR_REVIEW", "REJECT"]
+    },
+    "evaluated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

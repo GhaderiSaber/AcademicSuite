@@ -61,6 +61,8 @@ from scripts.academic_promotion_engine import AcademicPromotionEngine
 from scripts.academic_curriculum_builder import AcademicCurriculumBuilder
 from scripts.academic_behavior_consolidator import AcademicBehaviorConsolidator
 from scripts.academic_behavior_drift_monitor import AcademicBehaviorDriftMonitor
+from scripts.academic_real_behavior_evolution import AcademicRealBehaviorEvolution
+from scripts.academic_isolated_agent_sandbox import AcademicIsolatedAgentSandbox
 
 
 class DualLoopError(Exception):
@@ -162,6 +164,8 @@ class AcademicDualLoopEngine:
         self.curriculum_builder = AcademicCurriculumBuilder(base_dir=self.base_dir)
         self.consolidator = AcademicBehaviorConsolidator(base_dir=self.base_dir)
         self.drift_monitor = AcademicBehaviorDriftMonitor(base_dir=self.base_dir)
+        self.real_behavior_evolution = AcademicRealBehaviorEvolution(base_dir=self.base_dir)
+        self.sandbox_manager = AcademicIsolatedAgentSandbox(base_dir=self.base_dir)
 
     # -------------------------------------------------------------------------
     # Telemetry & Cooldown Tracking
@@ -650,6 +654,43 @@ class AcademicDualLoopEngine:
                 "details": slow_loop_results,
                 "consolidation": consolidation_report
             }
+
+    # -------------------------------------------------------------------------
+    # CLOSED BEHAVIORAL EVOLUTION LOOP (13-Stage Real Behavior Evolution)
+    # -------------------------------------------------------------------------
+
+    def run_closed_behavior_loop(
+        self,
+        trigger_type: str,
+        trigger_payload: Dict[str, Any],
+        trajectory_data: Dict[str, Any],
+        test_case_id: Optional[str] = None,
+        adversarial_case_id: Optional[str] = None,
+        candidate_payload: Optional[Dict[str, Any]] = None,
+        baseline_payload: Optional[Dict[str, Any]] = None,
+        adversarial_payload: Optional[Dict[str, Any]] = None,
+        approver: Optional[Dict[str, Any]] = None,
+        mode: str = "production"
+    ) -> Dict[str, Any]:
+        """
+        Executes the closed behavioral evolution pipeline across all 13 stages:
+        Production Agent → Real Task → Real Trajectory → Trigger (Feedback/QC) →
+        Behavior Analysis → Lesson Hypothesis → Candidate Patch → Isolated Agent Version →
+        Real Test → 3-Way Arms → Independent QC → Held-Out Tests → Promote.
+        """
+        with EvolutionLock(self.lock_file):
+            return self.real_behavior_evolution.execute_closed_loop(
+                trigger_type=trigger_type,
+                trigger_payload=trigger_payload,
+                trajectory_data=trajectory_data,
+                test_case_id=test_case_id,
+                adversarial_case_id=adversarial_case_id,
+                candidate_payload=candidate_payload,
+                baseline_payload=baseline_payload,
+                adversarial_payload=adversarial_payload,
+                approver=approver,
+                mode=mode
+            )
 
     # -------------------------------------------------------------------------
     # Exposure-Normalized Weakness Analysis

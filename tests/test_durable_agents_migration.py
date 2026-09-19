@@ -119,7 +119,10 @@ class TestDurableAgentsMigration(unittest.TestCase):
                 fm = yaml.safe_load(f.read().split("---")[1])
 
             self.assertTrue(fm["mainAgent"], f"{name} should be mainAgent=True")
-            self.assertFalse(fm["subagent"], f"{name} should be subagent=False")
+            if name == "digital-saber":
+                self.assertFalse(fm["subagent"], f"{name} should be subagent=False (user-facing consultant only)")
+            else:
+                self.assertTrue(fm["subagent"], f"{name} should be subagent=True for delegation via invoke_subagent")
 
     def test_04_least_privilege_and_silent_rewrite_prevention(self):
         """final-judge must NOT have replace_file_content tool to prevent silent rewriting."""

@@ -57,6 +57,7 @@ from scripts.academic_dual_loop_engine import AcademicDualLoopEngine
 from scripts.academic_knowledge_manager import AcademicKnowledgeManager
 from scripts.academic_behavior_drift_monitor import AcademicBehaviorDriftMonitor
 from scripts.academic_feedback_router import FeedbackRouter, FeedbackEventTracker
+from scripts.academic_real_behavior_evolution import AcademicRealBehaviorEvolution
 
 
 class ResearchIntegrityViolationError(Exception):
@@ -125,6 +126,7 @@ class AcademicIntegratedLearningHub:
         self.dual_loop_engine = AcademicDualLoopEngine(base_dir=self.base_dir)
         self.knowledge_manager = AcademicKnowledgeManager(base_dir=self.base_dir)
         self.drift_monitor = AcademicBehaviorDriftMonitor(base_dir=self.base_dir)
+        self.real_behavior_evolution = AcademicRealBehaviorEvolution(base_dir=self.base_dir)
 
         # Revision counters for repeated revision pattern detection
         self.milestone_revision_counts: Dict[str, int] = {}
@@ -516,24 +518,51 @@ class AcademicIntegratedLearningHub:
             trigger_prefix = "Academic Challenger Critique" if is_challenger else "Stage Validator Gate"
             correction_msg = f"{trigger_prefix} in '{stage_name}' failed: {fail_desc}"
 
-            fast_res = self.dual_loop_engine.run_fast_loop(
-                task_prompt=f"Validation resolution for {stage_name}",
-                user_correction=correction_msg,
-                target_skill="chapter-4-writing",
+            # Phase 18: Execute closed behavioral evolution loop with QC_FAILURE trigger
+            qc_payload = {
+                "event_id": f"EVT-QC-FAIL-{uuid.uuid4().hex[:6].upper()}",
+                "target_agent": "statistics-agent",
+                "target_skill": "chapter-4-writing",
+                "capability": "chapter-4-writing",
+                "task": stage_name,
+                "stage": stage_name,
+                "errors": [fail_desc],
+                "failed_assertions": [f"assertion_failed: {fail_desc}"],
+                "summary": correction_msg
+            }
+            traj_data = {
+                "trajectory_id": f"TRJ-QC-{uuid.uuid4().hex[:6].upper()}",
+                "agent": "statistics-agent",
+                "skill": "chapter-4-writing",
+                "ordered_actions": [
+                    {
+                        "step_number": 1,
+                        "action_type": "VALIDATION_FAILED",
+                        "actor": "validation-agent",
+                        "description": correction_msg,
+                        "output_or_error": fail_desc
+                    }
+                ]
+            }
+            evolution_res = self.real_behavior_evolution.execute_closed_loop(
+                trigger_type="QC_FAILURE",
+                trigger_payload=qc_payload,
+                trajectory_data=traj_data,
                 mode=self.mode
             )
 
             self.log_activity("VALIDATION_FAILURE_EVOLUTION", {
                 "stage_dir": stage_name,
                 "is_challenger": is_challenger,
-                "failed_checks_count": len(failed_checks)
+                "failed_checks_count": len(failed_checks),
+                "evolution_status": evolution_res.get("status")
             })
 
             return {
                 "action": "VALIDATION_FAILURE_EVOLUTION_TRIGGERED",
                 "stage": stage_name,
                 "failed_checks_count": len(failed_checks),
-                "fast_loop_result": fast_res
+                "evolution_result": evolution_res
             }
 
         except ResearchIntegrityViolationError:

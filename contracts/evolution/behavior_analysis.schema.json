@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/behavior_analysis.schema.json",
+  "title": "AcademicBehaviorAnalysisContract",
+  "description": "Contract schema for root-cause diagnosis of agent behavior derived strictly from observable trajectories without private chain-of-thought tokens.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "analysis_id",
+    "trigger_type",
+    "trigger_event_id",
+    "target_agent",
+    "target_skill",
+    "capability",
+    "trajectory_id",
+    "observable_failure_step",
+    "failure_signature",
+    "root_cause_diagnosis",
+    "prescribed_behavior",
+    "created_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "analysis_id": {
+      "type": "string",
+      "description": "Unique identifier for this behavior analysis report (e.g. BAN-20260919-001)."
+    },
+    "trigger_type": {
+      "type": "string",
+      "enum": ["USER_FEEDBACK", "QC_FAILURE"]
+    },
+    "trigger_event_id": {
+      "type": "string",
+      "description": "Pointer to the triggering event ID (e.g. EVT-20260919-0001 or FDB-20260919-0001)."
+    },
+    "target_agent": {
+      "type": "string",
+      "description": "Cognitive agent responsible for the observed defect."
+    },
+    "target_skill": {
+      "type": "string",
+      "description": "Skill implicated in the failure."
+    },
+    "capability": {
+      "type": "string",
+      "description": "Specific capability being analyzed."
+    },
+    "task_context": {
+      "type": "object",
+      "description": "Context of the task being executed when failure occurred.",
+      "properties": {
+        "task_id": {"type": "string"},
+        "stage_id": {"type": "string"},
+        "milestone_id": {"type": "string"},
+        "prompt": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "trajectory_id": {
+      "type": "string",
+      "description": "Pointer to the observable trajectory record on disk."
+    },
+    "observable_failure_step": {
+      "type": "object",
+      "required": ["step_number", "action_type", "description"],
+      "properties": {
+        "step_number": {"type": "integer", "minimum": 0},
+        "action_type": {"type": "string"},
+        "tool_name": {"type": "string"},
+        "command_or_input": {},
+        "output_or_error": {},
+        "description": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "failure_signature": {
+      "type": "string",
+      "description": "Categorized defect signature (e.g. REPORTING_P_ZERO, MISSING_OMML_MATH, UNJUSTIFIED_MODEL_SELECTION, SYNTHETIC_INTEGERS_IN_PRODUCTION)."
+    },
+    "root_cause_diagnosis": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Objective explanation of why the failure occurred based strictly on observable actions."
+    },
+    "prescribed_behavior": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Specific corrective behavior that should be performed instead."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

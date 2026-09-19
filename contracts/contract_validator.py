@@ -67,7 +67,9 @@ SCHEMA_FILES = {
     "curriculum_task": "evolution/curriculum_task.schema.json",
     "contradiction_record": "evolution/contradiction_record.schema.json",
     "behavioral_profile": "evolution/behavioral_profile.schema.json",
-    "drift_report": "evolution/drift_report.schema.json"
+    "drift_report": "evolution/drift_report.schema.json",
+    "behavior_analysis": "evolution/behavior_analysis.schema.json",
+    "three_way_evaluation": "evolution/three_way_evaluation.schema.json"
 }
 
 
@@ -238,4 +240,12 @@ def validate_statistical_executor_contract(instance: Dict[str, Any]) -> Dict[str
 
 def validate_statistical_execution_result(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "statistical_execution_result")
+
+
+def validate_behavior_analysis(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "behavior_analysis")
+
+
+def validate_three_way_evaluation(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "three_way_evaluation")
 
