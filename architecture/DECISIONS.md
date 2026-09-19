@@ -36,6 +36,11 @@
 | [ADR-038](#adr-038-authoritative-academic-behavioral-benchmarks-across-18-methodology-families) | Authoritative Academic Behavioral Benchmarks across 18 Methodology Families | Accepted | 2026-09-19 |
 | [ADR-039](#adr-039-integration-of-academic-domain-teamwork-patterns-across-conceptual-roles-phase-34) | Integration of Academic Domain Teamwork Patterns Across Conceptual Roles | Accepted | 2026-09-19 |
 | [ADR-040](#adr-040-systematic-legacy-code-governance-and-codebase-categorization-phase-35) | Systematic Legacy Code Governance & Codebase Categorization | Accepted | 2026-09-19 |
+| [ADR-041](#adr-041-offline-test-fixtures-mocked-network-isolation-and-test-suite-stabilization-phase-36) | Offline Test Fixtures & Test Suite Stabilization | Accepted | 2026-09-19 |
+| [ADR-042](#adr-042-architecture-level-integration-test-suite-and-invariant-verification-phase-37) | Architecture-Level Integration Test Suite | Accepted | 2026-09-19 |
+| [ADR-043](#adr-043-full-academic-vertical-slices-and-isolated-stage-execution-phase-38) | Full Academic Vertical Slices & Isolated Stage Execution | Accepted | 2026-09-19 |
+| [ADR-044](#adr-044-gated-self-improvement-lifecycle-phase-39) | Gated Self-Improvement Lifecycle Architecture | Accepted | 2026-09-19 |
+| [ADR-045](#adr-045-six-tier-change-risk-levels-and-tiered-promotion-governance-phase-40) | Six-Tier Change-Risk Levels & Tiered Promotion Governance | Accepted | 2026-09-19 |
 
 ---
 
@@ -1892,3 +1897,59 @@ Testing the entire AcademicSuite architecture monolithically is computationally 
 ### Consequences
 - **Positive**: Proves the architecture functions end-to-end across all major quantitative research designs; provides isolated debugging and validation; eliminates monolithic testing bottlenecks.
 - **Negative**: Adds 4 reference projects in `projects/` that must be maintained with valid schemas and mock/empirical data.
+
+---
+
+## ADR-044: Gated Self-Improvement Lifecycle (Phase 39)
+
+### Context
+Uncontrolled, immediate modification of production agent instructions, skills, or operational behaviors by self-improvement mechanisms introduces catastrophic behavioral drift, regression on previously established capabilities, and hallucinated protocol changes. Autonomous learning must never directly modify production configurations without structured observation, isolated sandbox testing, quantitative benchmark evaluation, promotion verification, and human/quality gating.
+
+### Decision
+1. **Seven-Stage Gated Self-Improvement Lifecycle**:
+   A strict, linear 7-stage state machine is codified and enforced for every improvement candidate:
+   $$\text{OBSERVATION} \to \text{CANDIDATE} \to \text{SANDBOX} \to \text{EVALUATION} \to \text{PROMOTION\_CANDIDATE} \to \text{HUMAN\_QUALITY\_GATE} \to \text{PRODUCTION}$$
+   - **OBSERVATION**: Trajectory analysis, execution error, or user feedback ingested and logged.
+   - **CANDIDATE**: Synthesized candidate improvement proposal created with clear rationale and diff.
+   - **SANDBOX**: Candidate staged in an isolated testing environment without touching production files.
+   - **EVALUATION**: Quantitative benchmark evaluation executed (target task, held-out suite, regression suite).
+   - **PROMOTION_CANDIDATE**: Evaluation criteria verified; candidate packaged for promotion review.
+   - **HUMAN_QUALITY_GATE**: Verification of compliance with risk level governance gates and explicit human approval where required.
+   - **PRODUCTION**: Approved candidate safely applied to target skill or instruction file with immutable rollback receipt.
+
+2. **Sequential Progression Invariant**:
+   Candidates cannot skip intermediate stages (e.g., jumping from `CANDIDATE` directly to `PRODUCTION`). Each transition requires recorded affirmative evidence in the promotion log.
+
+### Consequences
+- **Positive**: Complete auditability, fail-closed safety, zero unverified production modifications, and deterministic rollback readiness.
+- **Negative**: Adds formal overhead to self-improvement pipelines; rapid runtime adjustments require progressing through all 7 stages.
+
+---
+
+## ADR-045: Six-Tier Change-Risk Levels and Tiered Promotion Governance (Phase 40)
+
+### Context
+Treating all candidate self-improvements with the same governance threshold leads to two catastrophic failure modes: administrative paralysis from requiring human sign-off on trivial formatting polish, or dangerous methodology drift from automatically promoting altered statistical assumptions. Furthermore, statistical computation must never be subject to prompt mutation, as natural-language instructions cannot guarantee deterministic mathematical correctness.
+
+### Decision
+1. **Six-Tier Change-Risk Taxonomy**:
+   Every improvement candidate is deterministically classified into one of six mutually exclusive risk tiers:
+   - **Level 0 — Formatting**: Text styling, typography, half-spaces, table layout templates.
+     - *Governance*: Auto-promoted (`AUTOMATIC`).
+   - **Level 1 — Retrieval / Context**: Context selection, dynamic exemplar indexing, retrieval prompts.
+     - *Governance*: Auto-promoted once regression unit tests pass (`AUTOMATIC_AFTER_TESTS`).
+   - **Level 2 — Workflow Guidance**: Workflow orchestration hints, task sequencing advice, interactive guidance.
+     - *Governance*: Formal evaluation required (`EVALUATION_VERIFIED`); requires target improvement and zero regression.
+   - **Level 3 — Statistical Decision Logic**: Statistical test selection trees, assumption verification thresholds, interpretation rules.
+     - *Governance*: Stringent evaluation required (`INDEPENDENT_HELDOUT_ADVERSARIAL_VERIFIED`); must pass target improvement, held-out test suite, and adversarial stress testing.
+   - **Level 4 — Methodology Behavior**: Research design recommendations, sampling power, experimental validity safeguards, thesis structural rules.
+     - *Governance*: Highest validation gate requiring explicit human sign-off (`HUMAN_APPROVED`). Cannot be promoted autonomously.
+   - **Level 5 — Statistical Computation**: Deterministic mathematical code, statistical estimators, degrees of freedom calculation, hypothesis test formulas.
+     - *Governance*: **FATALLY PROHIBITED** from prompt/instruction self-improvement (`PROHIBITED_COMPUTATION`). Deterministic Python/R code must be modified and reviewed exclusively through standard version control and dedicated engineering review. Any candidate attempting to mutate statistical computation via prompt modification is permanently rejected and archived.
+
+2. **Classification Engine Enforcement**:
+   The promotion engine (`academic_promotion_engine.py`) deterministically inspects target files, component types, and instruction diffs to enforce risk levels and gate contracts before authorizing any state transition or file mutation.
+
+### Consequences
+- **Positive**: Proportionate, defense-in-depth governance; automated velocity for low-risk improvements; absolute protection of statistical and methodological integrity.
+- **Negative**: Strict rejection of any self-improvement attempting to touch calculation scripts directly requires manual developer intervention for code fixes.

@@ -2572,3 +2572,68 @@ flowchart TD
    - Contains 6 comprehensive tests asserting the complete pipeline sequence of every vertical slice and isolated runner execution.
    - Compliant with Directive 18 (243 lines, 12.3 KB $\le 500$ lines, $\le 40$ KB).
 
+---
+
+## 44. Phase 39 — Gated Self-Improvement Lifecycle Architecture
+
+### 44.1 The Core Vulnerability: Ungated Production Drift
+Direct mutation of production agent instructions, skills, or operational code by autonomous learning loops introduces immediate risks of behavioral regression, overfitting to single anecdotes, and hallucinated protocol drift. To guarantee architectural safety, self-improvement can never modify production behavior immediately.
+
+### 44.2 The Seven-Stage Gated Self-Improvement State Machine
+All self-improvement candidates must progress through a mandatory, fail-closed 7-stage lifecycle:
+
+```mermaid
+flowchart TD
+    S1["1. OBSERVATION\n(Trajectory analysis, runtime defect, feedback logged)"] --> S2["2. CANDIDATE\n(Synthesized proposal, rationale, concrete diff)"]
+    S2 --> S3["3. SANDBOX\n(Staged in isolated environment, zero production writes)"]
+    S3 --> S4["4. EVALUATION\n(3-suite benchmark: target, held-out, regression)"]
+    S4 --> S5["5. PROMOTION_CANDIDATE\n(Evaluation gates verified, risk level calculated)"]
+    S5 --> S6["6. HUMAN_QUALITY_GATE\n(Governance gate checked, human approval for Level 4)"]
+    S6 --> S7["7. PRODUCTION\n(Atomic update with immutable rollback snapshot)"]
+```
+
+#### Lifecycle Stage Contracts:
+1. **OBSERVATION**: Ingests execution trajectories, tool errors, or user feedback events (`contracts/evolution/improvement_candidate.schema.json`).
+2. **CANDIDATE**: Formulates formal modification proposal (`candidate_id`, `target_component`, `diff`, `rationale`).
+3. **SANDBOX**: Copies candidate into a temporary isolated testing directory; all evaluation occurs against this sandbox.
+4. **EVALUATION**: Runs the tripartite evaluation suite (Target Improvement + Held-out Panel + Regression Suite).
+5. **PROMOTION_CANDIDATE**: Synthesizes evaluation metrics into a formal promotion request.
+6. **HUMAN_QUALITY_GATE**: Checks candidate against its assigned Risk Level (Levels 0–5). Halts for explicit human credentials on Level 4.
+7. **PRODUCTION**: Applies approved diff atomically to production file, recording SHA-256 hash and rollback state in `evolution/promotion_decisions.jsonl`.
+
+### 44.3 Strict Progression Invariant
+- **No Direct Mutation**: Writing directly to production without transitioning through `SANDBOX` and `EVALUATION` is blocked.
+- **Sequential Invariant**: Stages cannot be skipped. Any transition call violating the linear sequence (`OBSERVATION -> CANDIDATE -> SANDBOX -> EVALUATION -> PROMOTION_CANDIDATE -> HUMAN_QUALITY_GATE -> PRODUCTION`) raises a `ValueError`.
+
+---
+
+## 45. Phase 40 — Six-Tier Change-Risk Levels & Governance Policy Matrix
+
+### 45.1 Philosophy: Proportionate Risk Management
+Treating all changes identically creates two severe failure modes: administrative paralysis from requiring human approval for minor typography corrections, or silent methodology corruption from auto-promoting modified statistical assumptions. Phase 40 institutes a deterministic 6-tier change-risk taxonomy.
+
+### 45.2 The 6-Tier Risk Taxonomy & Governance Gates
+
+```mermaid
+flowchart LR
+    L0["Level 0: Formatting\n(Typography, Half-spaces, Tables)"] -->|AUTOMATIC| P0["Auto-Promoted"]
+    L1["Level 1: Retrieval/Context\n(Dynamic Context, Exemplars)"] -->|AUTOMATIC_AFTER_TESTS| P1["Auto-Promoted After Tests"]
+    L2["Level 2: Workflow Guidance\n(Sequencing, Orchestration)"] -->|EVALUATION_VERIFIED| P2["Requires 3-Suite Evaluation"]
+    L3["Level 3: Statistical Logic\n(Decision Trees, Assumptions)"] -->|INDEPENDENT_HELDOUT_ADVERSARIAL| P3["Requires Held-Out + Adversarial"]
+    L4["Level 4: Methodology\n(Research Designs, Validity)"] -->|HUMAN_APPROVED| P4["Mandatory Human Approval"]
+    L5["Level 5: Statistical Computation\n(Math, Formulas, Estimators)"] -->|PROHIBITED_COMPUTATION| P5["FATALLY REJECTED\n(Code changes via Git only)"]
+```
+
+| Risk Level | Target Scope & Description | Examples | Verification Requirement | Governance Gate |
+|:---|:---|:---|:---|:---|
+| **Level 0 — Formatting** | Visual presentation, typography, Persian half-spaces, table layout templates. | `apa-reporting`, `ai-academic-tone-polisher`, font bindings | Basic schema linting | `AUTOMATIC` |
+| **Level 1 — Retrieval / Context** | Retrieval prompts, exemplar indexing, dynamic context filtering. | `academic-adaptive-context`, exemplar selectors | Regression unit tests pass | `AUTOMATIC_AFTER_TESTS` |
+| **Level 2 — Workflow Guidance** | Step sequencing, stage handoff hints, interactive guidance prompts. | `academic-orchestrator`, workflow guidance notes | Target improvement + zero regression | `EVALUATION_VERIFIED` |
+| **Level 3 — Statistical Decision Logic** | Statistical test selection trees, parametric assumption cutoffs, inference logic. | `statistical-expert`, `assumption-testing`, cutoff tables | Independent evaluation + held-out panel + adversarial stress testing | `INDEPENDENT_HELDOUT_ADVERSARIAL_VERIFIED` |
+| **Level 4 — Methodology Behavior** | Experimental designs, sampling power policies, threats to internal validity. | `methodology-expert`, `gpower-sample-size-calculator` | 5 evaluation gates + explicit human administrator sign-off | `HUMAN_APPROVED` |
+| **Level 5 — Statistical Computation** | Deterministic Python/R calculation scripts, degrees of freedom, variance estimators. | `run_regression.py`, `run_sem.py`, `mediation.py`, math scripts | **Prompt mutation FATALLY PROHIBITED**. Deterministic code must be committed via version control. | `PROHIBITED_COMPUTATION` (Permanent Rejection) |
+
+### 45.3 The Level 5 Statistical Computation Invariant
+- **Strict Prohibition**: Under NO circumstance may an autonomous agent or self-improvement mechanism attempt to mutate deterministic calculation scripts, mathematical formulas, or statistical estimators via natural-language instructions or prompt mutations.
+- **Fail-Closed Enforcement**: If an improvement candidate targets a statistical computation script or touches calculation keywords (`df`, `sum of squares`, `eigenvalue`, `bootstrap resample`, `standard error`), `academic_promotion_engine.py` fatally classifies it as `LEVEL_5_STATISTICAL_COMPUTATION`, rejects the promotion request, sets `governance_gate = "PROHIBITED_COMPUTATION"`, and archives the candidate. Deterministic code modifications must be implemented and reviewed by human software engineers via standard Git pull requests and unit test suites.
+
