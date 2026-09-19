@@ -2340,3 +2340,72 @@ Every benchmark case in `evals/benchmarks/cases/` codifies three immutable behav
 3. **Benchmark Evaluation Suite ("The Hands")**:
    - `scripts/academic_benchmark_suite.py`: CLI and programmatic evaluation engine.
    - Supports `--list-families`, `--validate-all`, `--case`, `--export-report`.
+
+---
+
+## 39. Phase 34 — Academic Domain Teamwork Patterns & Conceptual Roles Architecture
+
+### 39.1 Purpose and Architectural Rationale
+Antigravity 2.0 provides native multi-agent orchestration, dynamic worker pools, and isolated workspace management through `/teamwork-preview` and `invoke_subagent`. Replicating Antigravity's entire platform control plane, process dispatchers, or background threads in Python is strictly prohibited under Directive 12.1 (Sole Orchestrator Mandate).
+
+However, generic multi-agent coordination without academic discipline creates serious methodology hazards: unstructured brainstorming, skipped assumption testing, lost provenance, and unverified statistical claims. Phase 34 integrates Antigravity's **conceptual roles** with AcademicSuite's domain governance to supply authoritative academic collaboration patterns:
+
+```mermaid
+flowchart TD
+    subgraph ConceptualRoles["AcademicSuite Conceptual Role Sequence"]
+        EXP["1. Methodology Explorer\n(Explorer: Solution space discovery, candidate methods)"]
+        CRI["2. Methodology Critic\n(Critic: Methodological vetting, identification assumptions)"]
+        WRK["3. Statistical Worker\n(Worker: Deterministic computation & OpenXML synthesis)"]
+        CHL["4. Statistical Challenger\n(Challenger: Adversarial red-team stress-testing)"]
+        AUD["5. Statistical Auditor\n(Auditor: DF verification, MSAI score, typography)"]
+        SAUD["6. Success Auditor\n(Success Auditor: Viva Voce defense & institutional gate)"]
+    end
+
+    EXP -->|candidate_methods.json| CRI
+    CRI -->|vetted_analysis_plan.json| WRK
+    WRK -->|statistical_results.json| CHL
+    CHL -->|challenge_report.json| AUD
+    AUD -->|audit_report.json| SAUD
+    SAUD -->|acceptance_verdict.json| Release["Authorized Thesis / Milestone Deliverable"]
+```
+
+### 39.2 The Six Conceptual Roles in Academic Research
+1. **Explorer**:
+   - Explores the solution space, surveys recent empirical literature (2021–2026), catalogs candidate psychometric and statistical methods, and formulates a priori power requirements (G*Power).
+   - *Assigned Agents*: `methodology-expert`, `data-agent`, `literature-expert`.
+2. **Critic**:
+   - Vets methodology proposals against internal and external validity threats, scrutinizes identification assumptions, audits covariate adjustment logic, and approves mandatory assumption testing sequences.
+   - *Assigned Agents*: `methodology-expert`, `validation-agent`, `literature-expert`.
+3. **Worker ("The Hands")**:
+   - Executes deterministic statistical engines (`.agents/skills/`) on physical datasets, enforces the Triad Artifact Invariant (`.docx`, `.md`, `.json`), and formats APA 7 3-line tables with decoupled LTR numbers.
+   - *Assigned Agents*: `statistics-agent`, `academic-writer`, `data-curator`.
+4. **Challenger**:
+   - Adversarially stress-tests results against outliers, tests model fragility and alternative specifications, detects unmeasured confounding, and ensures zero unaddressed criticisms remain.
+   - *Assigned Agents*: `academic-challenger`.
+5. **Auditor**:
+   - Forensically verifies degrees of freedom concordance with sample size $N$, calculates Multi-Signal Anomaly Index (MSAI), checks the Persian leading zero standard (`۰.۰۰۱`), and verifies OpenXML typography.
+   - *Assigned Agents*: `statistical-auditor`, `results-auditor`.
+6. **Success Auditor**:
+   - Simulates the doctoral Viva Voce defense committee, conducts rigorous cross-examination, verifies physical artifact existence on disk, and gates release to Saber Admin Desk (`124911145`).
+   - *Assigned Agents*: `final-judge`, `validation-agent`.
+
+### 39.3 The Five Canonical Academic Teamwork Patterns
+| Pattern ID | Pipeline Name | Target Scope | Core Stages & Role Handoffs |
+|---|---|---|---|
+| `ATP-METHODOLOGY-INFERENCE-001` | Methodology & Statistical Inference | Empirical Hypotheses | Explorer $\to$ Critic $\to$ Worker $\to$ Challenger $\to$ Auditor $\to$ Success Auditor |
+| `ATP-CHAPTER-4-001` | Empirical Chapter 4 Findings | Thesis Chapter 4 | Data Explorer $\to$ Design Critic $\to$ Micro-Stage Worker $\to$ Results Challenger $\to$ Forensic Auditor $\to$ Defense Committee |
+| `ATP-CHAPTER-5-001` | Theoretical Chapter 5 Discussion | Thesis Chapter 5 | Literature Explorer $\to$ Epistemic Critic $\to$ Narrative Worker $\to$ Theoretical Challenger $\to$ Integrity Auditor $\to$ Final Committee |
+| `ATP-SCALE-VALIDATION-001` | Psychometric Scale Validation | Instrument Validation | Scale Explorer $\to$ Content Validity Critic $\to$ Psychometric Worker $\to$ Factor Challenger $\to$ Psychometric Auditor $\to$ Committee Gatekeeper |
+| `ATP-PROPOSAL-001` | Research Proposal Formulation | Dissertation Proposal | Literature Explorer $\to$ Proposal Critic $\to$ Methodology Worker $\to$ Feasibility Challenger $\to$ Institutional Auditor $\to$ Defense Simulator |
+
+### 39.4 Governance and Boundary Integration
+1. **Schema Contract (`contracts/teamwork_pattern.schema.json`)**:
+   - Validates pattern metadata, pipeline mapping, stage sequences, input/output handoffs, and exit criteria.
+2. **Modular Pattern Storage (`evals/teamwork/academic_teamwork_patterns.json`)**:
+   - Keeps data modularly isolated, ensuring `scripts/academic_teamwork_patterns.py` remains under 200 lines (well within Directive 18's 500-line limit).
+3. **Antigravity Dispatch Format**:
+   - `AcademicTeamworkPatterns.format_antigravity_dispatch_plan(pattern_id)` generates structured parameter dictionaries directly consumable by Antigravity's native `invoke_subagent`.
+4. **Boundary Adapter Integration (`scripts/teamwork_boundary_adapter.py`)**:
+   - Automatically maps L2, L3, and L4 research tasks to their matching `academic_teamwork_pattern`.
+   - Formats schema-valid boundary packages conforming to `contracts/teamwork_boundary.schema.json`.
+

@@ -186,7 +186,8 @@ def classify_complexity(
     l3_keywords = [
         "chapter 4", "chapter 5", "chapter 2", "chapter 3",
         "scale validation", "validate scale", "meta-analysis", "systematic review",
-        "research proposal", "defense presentation", "thesis milestone",
+        "research proposal", "dissertation proposal", "proposal", "طرح تحقیق",
+        "defense presentation", "thesis milestone",
         "full chapter", "complete study", "grounded theory study"
     ]
     is_l3 = (
@@ -253,7 +254,7 @@ def classify_complexity(
         "assumption test and", "assumption testing and", "along with bootstrap"
     ]
     # Check if multiple analysis families are combined
-    analysis_families = ["descriptive", "reliability", "assumption", "regression", "ancova", "mediation", "moderation", "sem", "cfa"]
+    analysis_families = ["descriptive", "reliability", "assumption", "regression", "ancova", "anova", "mediation", "moderation", "sem", "cfa"]
     matched_families = sum(1 for f in analysis_families if f in desc_lower)
 
     is_l2 = (
@@ -455,6 +456,36 @@ def map_teamwork_roles(
     return roster
 
 
+def resolve_teamwork_pattern_id(
+    complexity_level: str,
+    task_description: str,
+    resolved_capabilities: Optional[List[Dict[str, Any]]] = None
+) -> Optional[str]:
+    """
+    Resolves the canonical academic domain teamwork pattern ID based on complexity and task domain.
+    Returns None for L0 and L1 (single analysis or informational query).
+    """
+    if complexity_level in ("L0", "L1"):
+        return None
+
+    desc_lower = task_description.lower()
+    cap_ids = [c.get("capability_id", "") for c in (resolved_capabilities or []) if isinstance(c, dict)]
+    cap_str = " ".join(cap_ids).lower()
+
+    if any(k in desc_lower or k in cap_str for k in ["scale", "validation", "psychometric", "cvr", "cvi", "factor", "cfa"]):
+        return "ATP-SCALE-VALIDATION-001"
+    elif any(k in desc_lower or k in cap_str for k in ["chapter 5", "chapter_5", "discussion", "بحث"]):
+        return "ATP-CHAPTER-5-001"
+    elif any(k in desc_lower or k in cap_str for k in ["proposal", "طرح تحقیق", "propose", "aims"]):
+        return "ATP-PROPOSAL-001"
+    elif any(k in desc_lower or k in cap_str for k in ["chapter 4", "chapter_4", "findings", "یافته"]):
+        return "ATP-CHAPTER-4-001"
+    elif complexity_level in ("L2", "L3", "L4"):
+        return "ATP-METHODOLOGY-INFERENCE-001"
+
+    return None
+
+
 def build_teamwork_boundary_package(
     task_description: str,
     task_id: Optional[str] = None,
@@ -488,6 +519,12 @@ def build_teamwork_boundary_package(
     role_roster = map_teamwork_roles(
         complexity_level=c_level,
         capabilities=resolved_capabilities
+    )
+
+    pattern_id = resolve_teamwork_pattern_id(
+        complexity_level=c_level,
+        task_description=clean_desc,
+        resolved_capabilities=resolved_capabilities
     )
 
     out_dir = output_directory or f"projects/{task_id}/03_deliverables"
@@ -532,6 +569,7 @@ def build_teamwork_boundary_package(
             "team_formation_mode": complexity_meta["team_formation_mode"],
             "isolated_workspaces": complexity_meta["isolated_workspaces"],
             "recommended_slash_command": complexity_meta["recommended_slash_command"],
+            "academic_teamwork_pattern": pattern_id,
             "role_roster": role_roster,
             "max_concurrent_workers": None  # Dynamic concurrency managed by Antigravity runtime
         },
@@ -549,6 +587,28 @@ def build_teamwork_boundary_package(
             raise ValueError(f"Teamwork boundary package failed schema validation: {errors}")
 
     return package
+
+
+def generate_boundary_manifest(
+    task_description: str,
+    task_id: Optional[str] = None,
+    file_count: int = 1,
+    chapter_count: int = 1,
+    resolved_capabilities: Optional[List[Dict[str, Any]]] = None,
+    output_directory: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Alias for build_teamwork_boundary_package.
+    Generates an authoritative boundary manifest conforming to contracts/teamwork_boundary.schema.json.
+    """
+    return build_teamwork_boundary_package(
+        task_description=task_description,
+        task_id=task_id,
+        file_count=file_count,
+        chapter_count=chapter_count,
+        resolved_capabilities=resolved_capabilities,
+        output_directory=output_directory
+    )
 
 
 def main():

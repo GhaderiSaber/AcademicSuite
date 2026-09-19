@@ -1,0 +1,554 @@
+{
+  "ATP-METHODOLOGY-INFERENCE-001": {
+    "pattern_id": "ATP-METHODOLOGY-INFERENCE-001",
+    "pattern_name": "Methodology & Statistical Inference Sequential Teamwork Pattern",
+    "description": "Six-role academic domain sequence: Methodology Explorer -> Candidate methods -> Methodology Critic -> Statistical Worker -> Statistical Challenger -> Statistical Auditor -> Success Auditor.",
+    "target_pipeline": "METHODOLOGY_INFERENCE",
+    "conceptual_roles": ["Explorer", "Critic", "Worker", "Challenger", "Auditor", "Success Auditor"],
+    "antigravity_execution_mode": "sequential_subagents",
+    "workflow_stages": [
+      {
+        "stage_id": "STG-01-EXP",
+        "stage_name": "Methodology Exploration",
+        "conceptual_role": "Explorer",
+        "domain_specialization": "Methodology Explorer",
+        "assigned_agent": "methodology-expert",
+        "required_skills": ["methodology-review", "gpower-sample-size-calculator"],
+        "input_artifacts": ["research_question.json", "dataset_metadata.json"],
+        "output_artifacts": ["candidate_methods.json"],
+        "handoff_contract": {"type": "candidate_methods_manifest", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "At least two candidate statistical/psychometric methods evaluated.",
+          "Required identification assumptions and data prerequisites documented.",
+          "A priori statistical power calculated (G*Power 3.1 standard)."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-02-CRI",
+        "stage_name": "Methodological & Design Critique",
+        "conceptual_role": "Critic",
+        "domain_specialization": "Methodology Critic",
+        "assigned_agent": "methodology-expert",
+        "required_skills": ["methodology-review", "assumption-testing"],
+        "input_artifacts": ["candidate_methods.json"],
+        "output_artifacts": ["vetted_analysis_plan.json"],
+        "handoff_contract": {"type": "approved_analysis_plan", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Single vetted methodology selected with formal academic justification.",
+          "Threats to internal/external validity scrutinized and mitigated.",
+          "Mandatory prerequisite assumption verification sequence approved."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-03-WRK",
+        "stage_name": "Deterministic Statistical Execution",
+        "conceptual_role": "Worker",
+        "domain_specialization": "Statistical Worker",
+        "assigned_agent": "statistics-agent",
+        "required_skills": ["statistical-data-analyst", "assumption-testing", "apa-reporting"],
+        "input_artifacts": ["vetted_analysis_plan.json", "raw_dataset.csv"],
+        "output_artifacts": ["statistical_results.json", "apa_table.md", "execution_manifest.json"],
+        "handoff_contract": {"type": "statistical_execution_result", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "All prerequisite parametric assumptions tested on physical data.",
+          "Deterministic Python/R execution completed with verified zero mental math.",
+          "APA 7 3-line table generated with decoupled LTR numbers."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-04-CHL",
+        "stage_name": "Adversarial Statistical Challenge",
+        "conceptual_role": "Challenger",
+        "domain_specialization": "Statistical Challenger",
+        "assigned_agent": "academic-challenger",
+        "required_skills": ["assumption-testing", "thesis-integrity-auditor"],
+        "input_artifacts": ["statistical_results.json", "raw_dataset.csv"],
+        "output_artifacts": ["statistical_challenge_report.json"],
+        "handoff_contract": {"type": "red_team_challenge_report", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Sensitivity analysis evaluated against extreme cases and outliers.",
+          "Model fragility and alternative model specifications tested.",
+          "Zero unaddressed critical methodology challenges remaining."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-05-AUD",
+        "stage_name": "Forensic Quality & Mathematical Audit",
+        "conceptual_role": "Auditor",
+        "domain_specialization": "Statistical Auditor",
+        "assigned_agent": "statistical-auditor",
+        "required_skills": ["thesis-integrity-auditor", "apa-reporting"],
+        "input_artifacts": ["statistical_results.json", "execution_manifest.json", "statistical_challenge_report.json"],
+        "output_artifacts": ["statistical_audit_report.json"],
+        "handoff_contract": {"type": "forensic_audit_verdict", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Degrees of freedom verified against sample size N.",
+          "Multi-Signal Anomaly Index (MSAI) clean with no variance deflation flags.",
+          "Persian leading zero standard preserved (۰.۰۰۱) and p = .000 eliminated."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-06-SAUD",
+        "stage_name": "Viva Voce Defense & Success Audit",
+        "conceptual_role": "Success Auditor",
+        "domain_specialization": "Success Auditor",
+        "assigned_agent": "final-judge",
+        "required_skills": ["persian-defense-presentation-builder", "thesis-integrity-auditor"],
+        "input_artifacts": ["statistical_audit_report.json", "statistical_results.json", "apa_table.md"],
+        "output_artifacts": ["defense_acceptance_verdict.json"],
+        "handoff_contract": {"type": "final_release_clearance", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Viva Voce defense committee simulation cross-examination passed.",
+          "Physical deliverable triad (.docx, .md, .json) verified on disk.",
+          "Admin Desk (124911145) human approval authorized."
+        ],
+        "workspace_mode": "inherit"
+      }
+    ],
+    "governance": {
+      "directive_0_binary_honesty": true,
+      "directive_3_triad_invariant": true,
+      "directive_6_english_filenames": true,
+      "directive_12_sole_orchestrator": true
+    },
+    "version": "1.0.0"
+  },
+  "ATP-CHAPTER-4-001": {
+    "pattern_id": "ATP-CHAPTER-4-001",
+    "pattern_name": "Empirical Chapter 4 Findings Teamwork Pattern",
+    "description": "Six-role team sequence for Chapter 4 findings: Data Explorer -> Specification Critic -> Analysis Worker -> Statistical Challenger -> Typography Auditor -> Master Findings Gatekeeper.",
+    "target_pipeline": "CHAPTER_4_FINDINGS",
+    "conceptual_roles": ["Explorer", "Critic", "Worker", "Challenger", "Auditor", "Success Auditor"],
+    "antigravity_execution_mode": "sequential_subagents",
+    "workflow_stages": [
+      {
+        "stage_id": "STG-01-EXP",
+        "stage_name": "Data Curation & Variable Exploration",
+        "conceptual_role": "Explorer",
+        "domain_specialization": "Data Explorer",
+        "assigned_agent": "data-curator",
+        "required_skills": ["data-audit", "data-cleaning"],
+        "input_artifacts": ["raw_survey_dataset.csv"],
+        "output_artifacts": ["curation_report.json", "analysis_ready_data.csv"],
+        "handoff_contract": {"type": "curated_dataset_package", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Reverse-coded items identified and computed with audit log.",
+          "Little's MCAR missingness mechanism evaluated.",
+          "Multivariate Mahalanobis D2 outliers screened."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-02-CRI",
+        "stage_name": "Hypothesis Specification & Model Critique",
+        "conceptual_role": "Critic",
+        "domain_specialization": "Specification Critic",
+        "assigned_agent": "methodology-expert",
+        "required_skills": ["methodology-review"],
+        "input_artifacts": ["curation_report.json", "hypotheses_registry.json"],
+        "output_artifacts": ["chapter4_analysis_plan.json"],
+        "handoff_contract": {"type": "approved_analysis_plan", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "One-Hypothesis-One-Stage allocation verified per Directive 3.",
+          "Statistical tests mapped to directional hypotheses without misalignment."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-03-WRK",
+        "stage_name": "Micro-Stage Triad Analysis & Drafting",
+        "conceptual_role": "Worker",
+        "domain_specialization": "Findings Drafting Worker",
+        "assigned_agent": "academic-writer",
+        "required_skills": ["chapter-4-writing", "statistical-data-analyst", "apa-reporting"],
+        "input_artifacts": ["chapter4_analysis_plan.json", "analysis_ready_data.csv"],
+        "output_artifacts": ["hypothesis_triads/*.docx", "hypothesis_triads/*.md", "hypothesis_triads/*.json"],
+        "handoff_contract": {"type": "micro_stage_triads", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Each hypothesis produces dedicated triad (.docx, .md, .json).",
+          "Saber 5-part epistemic paragraph structure strictly followed.",
+          "Zero external literature citations inserted into empirical narrative."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-04-CHL",
+        "stage_name": "Statistical Fragility & P-Hacking Red-Team",
+        "conceptual_role": "Challenger",
+        "domain_specialization": "Fragility Challenger",
+        "assigned_agent": "academic-challenger",
+        "required_skills": ["thesis-integrity-auditor"],
+        "input_artifacts": ["hypothesis_triads/*.json"],
+        "output_artifacts": ["fragility_audit_report.json"],
+        "handoff_contract": {"type": "red_team_challenge_report", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Multi-Signal Anomaly Index computed across all hypotheses.",
+          "Effect sizes checked for variance deflation or synthetic clustering."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-05-AUD",
+        "stage_name": "APA 7 Typography & OpenXML Audit",
+        "conceptual_role": "Auditor",
+        "domain_specialization": "Typography Auditor",
+        "assigned_agent": "results-auditor",
+        "required_skills": ["apa-reporting", "thesis-integrity-auditor"],
+        "input_artifacts": ["hypothesis_triads/*.docx", "hypothesis_triads/*.md"],
+        "output_artifacts": ["typography_qc_report.json"],
+        "handoff_contract": {"type": "forensic_audit_verdict", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "APA 7 3-line tables validated (zero vertical lines).",
+          "Decoupled LTR numbers and genuine Persian font bindings verified.",
+          "Persian leading zeros preserved (۰.۰۰۱)."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-06-SAUD",
+        "stage_name": "Master Decision Matrix & Viva Voce Clearance",
+        "conceptual_role": "Success Auditor",
+        "domain_specialization": "Master Findings Gatekeeper",
+        "assigned_agent": "final-judge",
+        "required_skills": ["thesis-integrity-auditor"],
+        "input_artifacts": ["typography_qc_report.json", "fragility_audit_report.json"],
+        "output_artifacts": ["chapter4_acceptance_verdict.json"],
+        "handoff_contract": {"type": "final_release_clearance", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Master Decision Matrix verified with all hypothesis confirmation statuses.",
+          "Viva Voce simulation confirms defensibility before committee."
+        ],
+        "workspace_mode": "inherit"
+      }
+    ],
+    "governance": {
+      "directive_0_binary_honesty": true,
+      "directive_3_triad_invariant": true,
+      "directive_6_english_filenames": true,
+      "directive_12_sole_orchestrator": true
+    },
+    "version": "1.0.0"
+  },
+  "ATP-CHAPTER-5-001": {
+    "pattern_id": "ATP-CHAPTER-5-001",
+    "pattern_name": "Theoretical Chapter 5 Discussion Teamwork Pattern",
+    "description": "Six-role team sequence for Chapter 5: Literature Explorer -> Mechanism Critic -> Discussion Worker -> Epistemic Challenger -> Citation Auditor -> Committee Gatekeeper.",
+    "target_pipeline": "CHAPTER_5_DISCUSSION",
+    "conceptual_roles": ["Explorer", "Critic", "Worker", "Challenger", "Auditor", "Success Auditor"],
+    "antigravity_execution_mode": "sequential_subagents",
+    "workflow_stages": [
+      {
+        "stage_id": "STG-01-EXP",
+        "stage_name": "Empirical Literature & Theoretical Mapping",
+        "conceptual_role": "Explorer",
+        "domain_specialization": "Literature Explorer",
+        "assigned_agent": "literature-expert",
+        "required_skills": ["literature-harvester", "persian-literature-review-builder"],
+        "input_artifacts": ["chapter4_summary.json"],
+        "output_artifacts": ["literature_evidence_matrix.json"],
+        "handoff_contract": {"type": "literature_matrix", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Recent literature harvested within 2021-2026 operative window.",
+          "Both concordant and discordant empirical findings identified."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-02-CRI",
+        "stage_name": "Theoretical Mechanisms & Framework Critique",
+        "conceptual_role": "Critic",
+        "domain_specialization": "Mechanism Critic",
+        "assigned_agent": "methodology-expert",
+        "required_skills": ["methodology-review"],
+        "input_artifacts": ["literature_evidence_matrix.json"],
+        "output_artifacts": ["vetted_mechanisms_plan.json"],
+        "handoff_contract": {"type": "mechanism_framework", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Psychological/neurobiological explanatory mechanisms validated.",
+          "Structure for candid discussion of non-significant findings established."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-03-WRK",
+        "stage_name": "Discussion Synthesis & Drafting",
+        "conceptual_role": "Worker",
+        "domain_specialization": "Discussion Synthesis Worker",
+        "assigned_agent": "academic-writer",
+        "required_skills": ["persian-discussion-builder", "ai-academic-tone-polisher"],
+        "input_artifacts": ["vetted_mechanisms_plan.json", "chapter4_summary.json"],
+        "output_artifacts": ["chapter5_discussion.docx", "chapter5_discussion.md", "chapter5_discussion.json"],
+        "handoff_contract": {"type": "discussion_triad", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Conceptual recap conducted without redundant repetition of raw F/t/p numbers.",
+          "Granular practical/clinical implications articulated.",
+          "Authentic methodological limitations documented."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-04-CHL",
+        "stage_name": "Epistemic Challenger & Causal Overreach Probe",
+        "conceptual_role": "Challenger",
+        "domain_specialization": "Epistemic Challenger",
+        "assigned_agent": "academic-challenger",
+        "required_skills": ["thesis-integrity-auditor"],
+        "input_artifacts": ["chapter5_discussion.md"],
+        "output_artifacts": ["epistemic_challenge_report.json"],
+        "handoff_contract": {"type": "red_team_challenge_report", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Zero unwarranted causal claims in non-experimental designs.",
+          "Zero sugarcoated non-significant findings (no 'trend towards significance')."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-05-AUD",
+        "stage_name": "Citation Reconciliation & Irandoc Similarity Audit",
+        "conceptual_role": "Auditor",
+        "domain_specialization": "Citation & Integrity Auditor",
+        "assigned_agent": "evidence-auditor",
+        "required_skills": ["academic-reference-extractor", "irandoc-plagiarism-reducer"],
+        "input_artifacts": ["chapter5_discussion.md", "reference_library.json"],
+        "output_artifacts": ["citation_integrity_report.json"],
+        "handoff_contract": {"type": "forensic_audit_verdict", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "100% bidirectional citation-to-bibliography concordance (zero ghost citations).",
+          "Irandoc / SamimNoor estimated similarity < 20%."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-06-SAUD",
+        "stage_name": "Doctoral Committee & Final Release Clearance",
+        "conceptual_role": "Success Auditor",
+        "domain_specialization": "Dissertation Committee Gatekeeper",
+        "assigned_agent": "final-judge",
+        "required_skills": ["thesis-integrity-auditor"],
+        "input_artifacts": ["citation_integrity_report.json", "epistemic_challenge_report.json"],
+        "output_artifacts": ["chapter5_acceptance_verdict.json"],
+        "handoff_contract": {"type": "final_release_clearance", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Full 5-chapter thesis integrity and cross-chapter alignment verified.",
+          "Viva Voce simulation defense approved."
+        ],
+        "workspace_mode": "inherit"
+      }
+    ],
+    "governance": {
+      "directive_0_binary_honesty": true,
+      "directive_3_triad_invariant": true,
+      "directive_6_english_filenames": true,
+      "directive_12_sole_orchestrator": true
+    },
+    "version": "1.0.0"
+  },
+  "ATP-SCALE-VALIDATION-001": {
+    "pattern_id": "ATP-SCALE-VALIDATION-001",
+    "pattern_name": "Psychometric Scale Validation Teamwork Pattern",
+    "description": "Six-role team sequence for psychometrics: Dimensionality Explorer -> Retention Critic -> Psychometric Worker -> Factor Structure Challenger -> Invariance Auditor -> Scale Clearance Gatekeeper.",
+    "target_pipeline": "SCALE_VALIDATION",
+    "conceptual_roles": ["Explorer", "Critic", "Worker", "Challenger", "Auditor", "Success Auditor"],
+    "antigravity_execution_mode": "sequential_subagents",
+    "workflow_stages": [
+      {
+        "stage_id": "STG-01-EXP",
+        "stage_name": "Dimensionality & Item Distribution Exploration",
+        "conceptual_role": "Explorer",
+        "domain_specialization": "Dimensionality Explorer",
+        "assigned_agent": "psychometric-expert",
+        "required_skills": ["psychometric-scale-resolver", "data-audit"],
+        "input_artifacts": ["raw_scale_data.csv"],
+        "output_artifacts": ["item_distribution_report.json"],
+        "handoff_contract": {"type": "item_distribution_manifest", "schema_version": "1.0.0"},
+        "exit_criteria": ["Item skewness and kurtosis evaluated.", "Initial parallel analysis / scree plot checked."],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-02-CRI",
+        "stage_name": "Content Validity & Item Retention Critique",
+        "conceptual_role": "Critic",
+        "domain_specialization": "Retention Critic",
+        "assigned_agent": "methodology-expert",
+        "required_skills": ["psychometric-scale-validator"],
+        "input_artifacts": ["item_distribution_report.json"],
+        "output_artifacts": ["vetted_item_roster.json"],
+        "handoff_contract": {"type": "approved_item_roster", "schema_version": "1.0.0"},
+        "exit_criteria": ["CVR / CVI panel evaluations validated against Lawshe criteria.", "Item retention rules established."],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-03-WRK",
+        "stage_name": "CFA, Construct Validity & Reliability Estimation",
+        "conceptual_role": "Worker",
+        "domain_specialization": "Psychometric Worker",
+        "assigned_agent": "psychometric-expert",
+        "required_skills": ["cfa", "reliability-analysis"],
+        "input_artifacts": ["vetted_item_roster.json", "raw_scale_data.csv"],
+        "output_artifacts": ["cfa_fit_results.json", "reliability_matrix.json"],
+        "handoff_contract": {"type": "cfa_execution_results", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Factor loadings lambda >= .50 reported with SE and p.",
+          "AVE >= .50, Composite Reliability CR >= .70, Cronbach alpha and McDonald omega calculated.",
+          "Hu & Bentler fit cutoffs evaluated (CFI >= .90, RMSEA <= .08, SRMR <= .08)."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-04-CHL",
+        "stage_name": "Cross-Loading & Discriminant Validity Challenge",
+        "conceptual_role": "Challenger",
+        "domain_specialization": "Factor Structure Challenger",
+        "assigned_agent": "academic-challenger",
+        "required_skills": ["thesis-integrity-auditor"],
+        "input_artifacts": ["cfa_fit_results.json"],
+        "output_artifacts": ["discriminant_challenge_report.json"],
+        "handoff_contract": {"type": "red_team_challenge_report", "schema_version": "1.0.0"},
+        "exit_criteria": ["HTMT ratio < .85/.90 evaluated.", "Zero Heywood cases (negative error variances)."],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-05-AUD",
+        "stage_name": "Measurement Invariance & Norming Audit",
+        "conceptual_role": "Auditor",
+        "domain_specialization": "Invariance Auditor",
+        "assigned_agent": "statistical-auditor",
+        "required_skills": ["cfa", "thesis-integrity-auditor"],
+        "input_artifacts": ["cfa_fit_results.json", "raw_scale_data.csv"],
+        "output_artifacts": ["invariance_audit_report.json"],
+        "handoff_contract": {"type": "forensic_audit_verdict", "schema_version": "1.0.0"},
+        "exit_criteria": ["Multigroup configural, metric, and scalar invariance verified (delta CFI <= .010)."],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-06-SAUD",
+        "stage_name": "Psychometric Instrument Release Clearance",
+        "conceptual_role": "Success Auditor",
+        "domain_specialization": "Scale Clearance Gatekeeper",
+        "assigned_agent": "final-judge",
+        "required_skills": ["thesis-integrity-auditor"],
+        "input_artifacts": ["invariance_audit_report.json", "cfa_fit_results.json"],
+        "output_artifacts": ["scale_validation_verdict.json"],
+        "handoff_contract": {"type": "final_release_clearance", "schema_version": "1.0.0"},
+        "exit_criteria": ["Scale technical manual and scoring guidelines approved."],
+        "workspace_mode": "inherit"
+      }
+    ],
+    "governance": {
+      "directive_0_binary_honesty": true,
+      "directive_3_triad_invariant": true,
+      "directive_6_english_filenames": true,
+      "directive_12_sole_orchestrator": true
+    },
+    "version": "1.0.0"
+  },
+  "ATP-PROPOSAL-001": {
+    "pattern_id": "ATP-PROPOSAL-001",
+    "pattern_name": "Research Proposal Formulation Teamwork Pattern",
+    "description": "Six-role team sequence for research proposals: Problem Explorer -> Feasibility Critic -> Proposal Worker -> Reviewer Challenger -> Compliance Auditor -> Defense Gatekeeper.",
+    "target_pipeline": "RESEARCH_PROPOSAL",
+    "conceptual_roles": ["Explorer", "Critic", "Worker", "Challenger", "Auditor", "Success Auditor"],
+    "antigravity_execution_mode": "sequential_subagents",
+    "workflow_stages": [
+      {
+        "stage_id": "STG-01-EXP",
+        "stage_name": "Research Problem Space & Gap Exploration",
+        "conceptual_role": "Explorer",
+        "domain_specialization": "Problem Space Explorer",
+        "assigned_agent": "research-agent",
+        "required_skills": ["literature-harvester", "methodology-review"],
+        "input_artifacts": ["preliminary_topic_prompt.json"],
+        "output_artifacts": ["problem_space_formulation.json"],
+        "handoff_contract": {"type": "problem_space_manifest", "schema_version": "1.0.0"},
+        "exit_criteria": ["Inverted-triangle research problem statement formulated.", "Empirical gap identified."],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-02-CRI",
+        "stage_name": "Methodological Feasibility & Design Critique",
+        "conceptual_role": "Critic",
+        "domain_specialization": "Feasibility Critic",
+        "assigned_agent": "methodology-expert",
+        "required_skills": ["methodology-review", "gpower-sample-size-calculator"],
+        "input_artifacts": ["problem_space_formulation.json"],
+        "output_artifacts": ["vetted_proposal_design.json"],
+        "handoff_contract": {"type": "vetted_proposal_design", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "A priori sample size calculated via G*Power 3.1 with attrition buffer.",
+          "Internal and external validity safeguards established."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-03-WRK",
+        "stage_name": "Formal Proposal Drafting",
+        "conceptual_role": "Worker",
+        "domain_specialization": "Proposal Writing Worker",
+        "assigned_agent": "academic-writer",
+        "required_skills": ["persian-proposal-builder", "ai-academic-tone-polisher"],
+        "input_artifacts": ["vetted_proposal_design.json", "problem_space_formulation.json"],
+        "output_artifacts": ["research_proposal.docx", "research_proposal.md", "research_proposal.json"],
+        "handoff_contract": {"type": "proposal_triad", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Directional hypotheses formulated with statistical test alignments.",
+          "Instrument psychometric reliability documented."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-04-CHL",
+        "stage_name": "Adversarial Reviewer Simulation",
+        "conceptual_role": "Challenger",
+        "domain_specialization": "Reviewer Red-Team Challenger",
+        "assigned_agent": "academic-challenger",
+        "required_skills": ["thesis-integrity-auditor"],
+        "input_artifacts": ["research_proposal.md"],
+        "output_artifacts": ["proposal_critique_report.json"],
+        "handoff_contract": {"type": "red_team_challenge_report", "schema_version": "1.0.0"},
+        "exit_criteria": [
+          "Potential confounding variables, mortality, and maturation threats probed.",
+          "Defensive revisions incorporated."
+        ],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-05-AUD",
+        "stage_name": "Institutional Guidelines & Ethics Audit",
+        "conceptual_role": "Auditor",
+        "domain_specialization": "Compliance Auditor",
+        "assigned_agent": "validation-agent",
+        "required_skills": ["thesis-integrity-auditor"],
+        "input_artifacts": ["research_proposal.docx", "proposal_critique_report.json"],
+        "output_artifacts": ["proposal_compliance_report.json"],
+        "handoff_contract": {"type": "forensic_audit_verdict", "schema_version": "1.0.0"},
+        "exit_criteria": ["Institutional ethics requirements verified.", "APA 7 typography validated."],
+        "workspace_mode": "inherit"
+      },
+      {
+        "stage_id": "STG-06-SAUD",
+        "stage_name": "Proposal Defense Committee Clearance",
+        "conceptual_role": "Success Auditor",
+        "domain_specialization": "Proposal Defense Gatekeeper",
+        "assigned_agent": "final-judge",
+        "required_skills": ["thesis-integrity-auditor"],
+        "input_artifacts": ["proposal_compliance_report.json"],
+        "output_artifacts": ["proposal_approval_verdict.json"],
+        "handoff_contract": {"type": "final_release_clearance", "schema_version": "1.0.0"},
+        "exit_criteria": ["Proposal defense cross-examination simulation passed.", "Release authorized."],
+        "workspace_mode": "inherit"
+      }
+    ],
+    "governance": {
+      "directive_0_binary_honesty": true,
+      "directive_3_triad_invariant": true,
+      "directive_6_english_filenames": true,
+      "directive_12_sole_orchestrator": true
+    },
+    "version": "1.0.0"
+  }
+}

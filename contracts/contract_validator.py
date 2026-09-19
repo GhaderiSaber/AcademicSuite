@@ -50,6 +50,7 @@ SCHEMA_FILES = {
     "statistical_executor_contract": "statistical_executor_contract.schema.json",
     "statistical_execution_result": "statistical_execution_result.schema.json",
     "teamwork_boundary": "teamwork_boundary.schema.json",
+    "teamwork_pattern": "teamwork_pattern.schema.json",
     # Evolution & Continuous Self-Improvement Contracts
     "experience": "evolution/experience.schema.json",
     "trajectory": "evolution/trajectory.schema.json",
@@ -283,4 +284,8 @@ def validate_curriculum_case(instance: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_academic_benchmark_case(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "academic_benchmark_case")
+
+
+def validate_teamwork_pattern(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "teamwork_pattern")
 

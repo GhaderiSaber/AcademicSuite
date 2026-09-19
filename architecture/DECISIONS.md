@@ -32,6 +32,9 @@
 | [ADR-020](#adr-020-factual-event-driven-trajectory-recording-and-prohibition-of-speculative-inference) | Factual Event-Driven Trajectory Recording & Prohibition of Speculation | Accepted | 2026-09-19 |
 | [ADR-021](#adr-021-deterministic-feedback-routing-and-prohibition-of-generic-target-defaults) | Deterministic Feedback Routing & Prohibition of Generic Target Defaults | Accepted | 2026-09-19 |
 | [ADR-022](#adr-022-idempotent-feedback-processing-and-event-deduplication-hygiene) | Idempotent Feedback Processing & Event Deduplication Hygiene | Accepted | 2026-09-19 |
+| [ADR-037](#adr-037-replacement-of-synthetic-slow-loop-curriculum-with-actual-practice-cases-phase-32) | Replacement of Synthetic Slow-Loop Curriculum with Actual Practice Cases | Accepted | 2026-09-19 |
+| [ADR-038](#adr-038-authoritative-academic-behavioral-benchmarks-across-18-methodology-families) | Authoritative Academic Behavioral Benchmarks across 18 Methodology Families | Accepted | 2026-09-19 |
+| [ADR-039](#adr-039-integration-of-academic-domain-teamwork-patterns-across-conceptual-roles-phase-34) | Integration of Academic Domain Teamwork Patterns Across Conceptual Roles | Accepted | 2026-09-19 |
 
 ---
 
@@ -1691,5 +1694,53 @@ Evaluating autonomous research agents in academic and statistical methodology ca
 ### Consequences
 - **Positive**: Complete benchmark coverage across 18 core research domains; eliminates stealth shortcuts and unverified assumption claims; guarantees reproducible empirical grading; serves as the permanent golden benchmark for continuous self-improvement and agent promotion.
 - **Negative**: Adds 18 physical benchmark datasets and case files under `evals/benchmarks/`, requiring periodic maintenance and hash synchronization.
+
+---
+
+## ADR-039: Integration of Academic Domain Teamwork Patterns Across Conceptual Roles (Phase 34)
+
+### Status
+Accepted (September 2026 / 1405 SH)
+
+### Context
+Antigravity 2.0 provides native multi-agent orchestration, dynamic worker pools, and isolated workspace management through `/teamwork-preview` and native `invoke_subagent` calls. Replicating Antigravity's entire platform control plane, thread dispatchers, or background process loops in Python is strictly prohibited under Directive 12.1. However, native Antigravity teamwork constructs require domain-specific guidance: generic multi-agent coordination without academic discipline can lead to unstructured brainstorming, lost provenance, skipped assumption testing, and unverified statistical claims.
+
+Academic research requires structured collaboration patterns utilizing specialized conceptual roles:
+- **Explorer**: Solution space discovery, candidate methodologies, literature exploration.
+- **Critic**: Methodological vetting, identification assumptions, internal/external validity critique.
+- **Worker**: Deterministic computation and draft narrative synthesis ('The Hands').
+- **Challenger**: Adversarial red-team stress-testing against assumptions, outliers, and model fragility.
+- **Auditor**: Statistical concordance, degrees of freedom, Multi-Signal Anomaly Index (MSAI), typography.
+- **Success Auditor**: Final release gatekeeper and Viva Voce defense committee simulation.
+
+### Decision
+1. **AcademicSuite Teamwork Pattern Contract (`contracts/teamwork_pattern.schema.json`)**:
+   Codified `AcademicSuite Teamwork Pattern Contract` defining schema-validated academic collaboration patterns:
+   - `pattern_id`: Unique identifier pattern `^ATP-[A-Z0-9_-]+$`.
+   - `target_pipeline`: Canonical pipeline mapping (`METHODOLOGY_INFERENCE`, `CHAPTER_4_FINDINGS`, `CHAPTER_5_DISCUSSION`, `SCALE_VALIDATION`, `RESEARCH_PROPOSAL`).
+   - `conceptual_roles`: Ordered set of abstract roles (`Explorer`, `Worker`, `Critic`, `Challenger`, `Auditor`, `Success Auditor`).
+   - `workflow_stages`: Micro-stage sequence with strict input/output artifact contracts, assigned durable subagents, required deterministic skills, and explicit exit criteria.
+   - `governance_rules`: Non-bypassable quality rules, triad invariant enforcement, and Directive 12.1 sole orchestrator mandates.
+
+2. **The Five Canonical Domain Patterns (`evals/teamwork/academic_teamwork_patterns.json`)**:
+   - `ATP-METHODOLOGY-INFERENCE-001`: Six-role sequence for core empirical hypothesis testing.
+   - `ATP-CHAPTER-4-001`: Empirical Chapter 4 findings pipeline with one-hypothesis-one-stage micro-stages.
+   - `ATP-CHAPTER-5-001`: Theoretical Chapter 5 discussion pipeline synthesizing psychological mechanisms.
+   - `ATP-SCALE-VALIDATION-001`: Psychometric scale validation pipeline from CVR/CVI to CFA/IRT.
+   - `ATP-PROPOSAL-001`: Defense-ready research proposal formulation pipeline.
+
+3. **Deterministic Pattern Engine (`scripts/academic_teamwork_patterns.py`)**:
+   - Loads modular pattern definitions from JSON under Directive 18 single-view context budgets.
+   - Formats deterministic subagent dispatch specifications for Antigravity's native `invoke_subagent` without invoking Python background threads or emulating agent communication.
+   - Validates all patterns against contract schemas.
+
+4. **Integration with Teamwork Boundary Adapter (`scripts/teamwork_boundary_adapter.py`)**:
+   - Automatically maps tasks at complexity levels L2, L3, and L4 to their matching academic teamwork pattern ID.
+   - Emits schema-valid boundary packages conforming to `contracts/teamwork_boundary.schema.json`.
+
+### Consequences
+- **Positive**: AcademicSuite supplies rich domain intelligence, role sequences, and handoff contracts while Antigravity owns the native execution runtime; zero Python agent dispatch emulation; complete alignment with Directives 0, 3, 6, 12.1, 18, and 19.
+- **Negative**: Workflows must adhere to the 6 conceptual roles and explicit handoff contracts defined in the pattern registry.
+
 
 
