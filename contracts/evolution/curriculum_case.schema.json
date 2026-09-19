@@ -1,0 +1,269 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/evolution/curriculum_case.schema.json",
+  "title": "AcademicCurriculumCaseContract",
+  "description": "Contract schema for actual practice curriculum cases backed by physical datasets on disk, data provenance, formal research designs, and behavioral invariants.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "case_id",
+    "dataset",
+    "data_provenance",
+    "research_question",
+    "design",
+    "difficulty",
+    "expected_invariants",
+    "expected_pitfalls",
+    "gold_behavioral_properties",
+    "created_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "case_id": {
+      "type": "string",
+      "pattern": "^CURR-CASE-[A-Z0-9_-]+$",
+      "description": "Unique identifier for this curriculum practice case (e.g. CURR-CASE-STAT-L02-PRE-POST-001)."
+    },
+    "dataset": {
+      "type": "object",
+      "description": "Physical dataset backing this practice case on disk.",
+      "required": ["path", "sha256", "format", "sample_size", "variables"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Relative or absolute path to the physical dataset file on disk."
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "Cryptographic SHA256 hash of the physical dataset file."
+        },
+        "format": {
+          "type": "string",
+          "enum": ["csv", "xlsx", "sav"],
+          "description": "File format of the dataset."
+        },
+        "sample_size": {
+          "type": "integer",
+          "minimum": 15,
+          "description": "Total sample size N (strictly >= 15 per Directive 9 and mathematical sanity floor)."
+        },
+        "variables": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Variables in the dataset with their types and roles.",
+          "items": {
+            "type": "object",
+            "required": ["name", "role", "type"],
+            "properties": {
+              "name": {"type": "string"},
+              "role": {
+                "type": "string",
+                "enum": [
+                  "independent_variable",
+                  "dependent_variable",
+                  "covariate",
+                  "factor",
+                  "identifier",
+                  "time_wave",
+                  "moderator",
+                  "mediator"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": ["numeric", "categorical", "integer"]
+              },
+              "description": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "data_provenance": {
+      "type": "object",
+      "description": "Audit record of dataset generation and provenance.",
+      "required": [
+        "source_type",
+        "generator_script",
+        "noise_injected",
+        "dataset_sha256",
+        "generation_timestamp"
+      ],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "CALIBRATED_PSYCHOMETRIC_SIMULATION",
+            "EMPIRICAL_BENCHMARK",
+            "SYNTHESIZED_CURRICULUM"
+          ]
+        },
+        "generator_script": {
+          "type": "string",
+          "description": "Deterministic generator script or procedure."
+        },
+        "noise_injected": {
+          "type": "boolean",
+          "description": "True when bounded empirical decimal noise is injected per Directive 9."
+        },
+        "dataset_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "generation_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Generative model parameters, noise bounds, attrition rates, etc."
+        }
+      },
+      "additionalProperties": false
+    },
+    "research_question": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Formal scholarly research question investigated in this practice case."
+    },
+    "design": {
+      "type": "object",
+      "description": "Methodological and experimental design specification.",
+      "required": [
+        "design_type",
+        "independent_variables",
+        "dependent_variables"
+      ],
+      "properties": {
+        "design_type": {
+          "type": "string",
+          "description": "Research design typology (e.g. PRE_POST_RCT, ANCOVA_COVARIATE, FACTORIAL_ANOVA, REPEATED_MEASURES, LONGITUDINAL_PANEL, OBSERVATIONAL_CROSS_SECTIONAL, MULTIVARIATE_MANOVA)."
+        },
+        "independent_variables": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        },
+        "dependent_variables": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        },
+        "covariates": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "factors": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "sample_allocation": {
+          "type": "string",
+          "enum": ["EQUAL", "UNEQUAL"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "difficulty": {
+      "type": ["string", "integer"],
+      "description": "Graduated difficulty level (e.g. L1_UNIVARIATE_BASELINE, L2_INTERDEPENDENT_MODELS, L3_LATENT_STRUCTURAL_SYSTEMS, L4_COMPLEX_LONGITUDINAL_SEM, or 1-10)."
+    },
+    "expected_invariants": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Methodological invariants that MUST hold in the candidate's analysis and reporting.",
+      "items": {
+        "type": "object",
+        "required": ["invariant_id", "description", "verification_dimension"],
+        "properties": {
+          "invariant_id": {
+            "type": "string",
+            "pattern": "^INV-[A-Z0-9_-]+$"
+          },
+          "description": {"type": "string"},
+          "verification_dimension": {
+            "type": "string",
+            "enum": [
+              "STATISTICAL_RIGOR",
+              "METHODOLOGICAL_INTEGRITY",
+              "REASONING_COHERENCE",
+              "APA_TYPOGRAPHY",
+              "EVIDENCE_ACCURACY"
+            ]
+          },
+          "evaluation_rule": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "expected_pitfalls": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Forbidden anti-patterns and methodological traps that MUST NOT be committed.",
+      "items": {
+        "type": "object",
+        "required": ["pitfall_id", "description"],
+        "properties": {
+          "pitfall_id": {
+            "type": "string",
+            "pattern": "^PIT-[A-Z0-9_-]+$"
+          },
+          "description": {"type": "string"},
+          "trigger_condition": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "gold_behavioral_properties": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Hallmarks of exemplary expert execution indicating substantive methodological competence.",
+      "items": {
+        "type": "object",
+        "required": ["property_id", "description"],
+        "properties": {
+          "property_id": {
+            "type": "string",
+            "pattern": "^PROP-[A-Z0-9_-]+$"
+          },
+          "description": {"type": "string"},
+          "scoring_weight": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "capability": {
+      "type": "string",
+      "description": "Target capability tested by this curriculum case."
+    },
+    "curriculum_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "level_name": {
+      "type": "string"
+    },
+    "targeted_weakness": {
+      "type": "string"
+    },
+    "task_prompt": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}

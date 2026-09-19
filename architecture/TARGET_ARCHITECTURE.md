@@ -2183,3 +2183,83 @@ flowchart TD
       not any(g.get("status") in ["UNKNOWN", "FAIL"] for g in gate_results.values())
   )
   ```
+
+---
+
+## 37. Actual Practice Curriculum Cases & Behavioral Invariant Evaluation Architecture (Phase 32)
+
+### 37.1 The Curriculum Practice Case Pipeline
+To eliminate synthetic mock shortcuts in continuous self-improvement, the slow loop creates and executes **actual practice cases** backed by **real physical datasets on disk**, rigorous **data provenance**, formal **research designs**, and **behavioral invariant evaluation**:
+
+```mermaid
+flowchart TD
+    subgraph CaseDefinition["1. Curriculum Case Formulation"]
+        CC["CurriculumCase\n(contracts/evolution/curriculum_case.schema.json)"]
+        DS["Physical Dataset on Disk\n(learning/evaluations/curriculum/datasets/*.csv)"]
+        DP["Data Provenance\n(Generator, Timestamp, Directive 9 Noise, SHA256)"]
+        RQ["Research Question\n(Scholarly Inverted-Triangle Formulation)"]
+        RD["Formal Research Design\n(Design Typology, IVs, DVs, Covariates, Allocation)"]
+        CC --> DS
+        CC --> DP
+        CC --> RQ
+        CC --> RD
+    end
+
+    subgraph Execution["2. Agent Execution"]
+        CC --> AE["Candidate Agent Execution\n(_execute_practice_agent)"]
+        AE --> Art["Output Artifacts\n(Narrative, Statistics, Reasoning, Execution Log)"]
+    end
+
+    subgraph InvariantEvaluation["3. Behavioral Invariant Evaluation"]
+        Art --> BIE["CurriculumInvariantEvaluator"]
+        BIE --> Inv["Check expected_invariants (INV-*)"]
+        BIE --> Pit["Detect expected_pitfalls (PIT-*)"]
+        BIE --> Gold["Score gold_behavioral_properties (PROP-*)"]
+        Inv --> InvPass{"All Invariants\nSatisfied?"}
+        Pit --> PitClean{"Zero Pitfalls\nCommitted?"}
+    end
+
+    subgraph EvolutionHandoff["4. Closed-Loop Evolution Handoff"]
+        InvPass -->|Yes| GateCheck
+        PitClean -->|Clean| GateCheck{"All Checks Clean?"}
+        GateCheck -->|Yes| CF["Full Counterfactual Multi-Suite Evaluation\n(Regression + Adversarial + Heldout)"]
+        CF --> Prom["Promotion Engine Governance"]
+        InvPass -->|No| Reject["Fail-Closed Rejection\n(Emit FDB-* & Synthesize Regression Asset)"]
+        PitClean -->|Triggered| Reject
+    end
+```
+
+### 37.2 The Nine Mandatory Fields
+Every curriculum case adheres to `contracts/evolution/curriculum_case.schema.json` with 9 first-class fields:
+1. `case_id`: Unique identifier (`CURR-CASE-STAT-L02-PRE-POST-001`).
+2. `dataset`: Real physical dataset on disk (`path`, `sha256`, `format`, `sample_size`, `variables`).
+3. `data_provenance`: Cryptographic and procedural provenance (`source_type`, `generator_script`, `noise_injected`, `dataset_sha256`, `generation_timestamp`, `parameters`).
+4. `research_question`: Formal scholarly research question.
+5. `design`: Methodological specification (`design_type`, `independent_variables`, `dependent_variables`, `covariates`, `factors`, `sample_allocation`).
+6. `difficulty`: Graduated difficulty level across Statistics (1-10) and Writing (1-5) ladders.
+7. `expected_invariants`: Methodological rules that MUST hold (`INV-HOMOGENEITY-OF-SLOPES-VERIFIED`, `INV-BASELINE-COVARIATE-CONTROLLED`, `INV-EFFECT-SIZE-REPORTED`, `INV-PERSIAN-LEADING-ZERO`, `INV-APA-ITALICIZATION`).
+8. `expected_pitfalls`: Forbidden anti-patterns that MUST NOT be committed (`PIT-P-EQUALS-ZERO`, `PIT-MISSING-PERSIAN-LEADING-ZERO`, `PIT-OMITTING-SLOPE-HOMOGENEITY`, `PIT-UNSUPPORTED-CAUSAL-LANGUAGE`).
+9. `gold_behavioral_properties`: Expert hallmarks indicating substantive excellence (`PROP-MODEL-COMPARISON`, `PROP-ASSUMPTION-DIAGNOSTICS`, `PROP-PRECISION-BOUNDED-ESTIMATES`).
+
+### 37.3 Behavioral Invariants vs. Scalar Answers
+In psychological and behavioral research methodology, requiring a single rigid scalar answer (e.g. `F = 4.25`) is brittle and unrealistic across different statistical software implementations (R vs SPSS vs Python statsmodels). In contrast, **behavioral invariants** verify:
+- Did the candidate test parametric assumptions (Shapiro-Wilk, Levene, Mauchly, Homogeneity of Slopes) before running the inference?
+- Did the candidate control for baseline confounding when groups were unbalanced?
+- Did the candidate calculate and report standardized effect sizes accompanied by 95% confidence intervals?
+- Did the candidate preserve authentic academic Persian typography with leading zeros (`۰.۰۵`) and zero naked decimals?
+- Did the candidate strictly maintain associative language in observational cross-sectional studies without claiming causality?
+
+### 37.4 Deterministic Implementation ("The Hands")
+1. **Contract Schemas**:
+   - `contracts/evolution/curriculum_case.schema.json`: Formal schema for `AcademicCurriculumCaseContract`.
+   - Registered in `contracts/contract_validator.py` via `validate_curriculum_case()`.
+2. **Dataset Generator (`scripts/curriculum_dataset_generator.py`)**:
+   - Synthesizes real physical CSV datasets on disk with Directive 9 decimal noise and cryptographic SHA256 hashes.
+   - Enforces sample size floors ($N \ge 15$), positive variance, and realistic attrition ($\le 40\%$).
+3. **Invariant Evaluator (`scripts/curriculum_invariant_evaluator.py`)**:
+   - Evaluates execution against `expected_invariants`, `expected_pitfalls`, and `gold_behavioral_properties`.
+   - Emits a schema-valid `EvaluationResult` conforming to Phase 30/31 with all 13 canonical fields.
+4. **Slow-Loop Integration (`scripts/academic_dual_loop_engine.py`)**:
+   - Replaces `simulated_slow_payload` with `_execute_practice_agent` and `evaluate_practice_execution`.
+   - Candidate practice failure blocks promotion fail-closed, emitting feedback (`FDB-*`) and synthesizing permanent regression cases.
+

@@ -186,6 +186,38 @@
     "targeted_weakness": {
       "type": "string",
       "description": "Specific diagnosed capability defect targeted by this curriculum case."
+    },
+    "dataset": {
+      "type": "object",
+      "description": "Physical dataset backing this practice case on disk."
+    },
+    "data_provenance": {
+      "type": "object",
+      "description": "Audit record of dataset generation and provenance."
+    },
+    "research_question": {
+      "type": "string",
+      "description": "Formal research question."
+    },
+    "design": {
+      "type": "object",
+      "description": "Methodological and experimental design specification."
+    },
+    "expected_invariants": {
+      "type": "array",
+      "description": "Methodological invariants that MUST hold in candidate analysis."
+    },
+    "expected_pitfalls": {
+      "type": "array",
+      "description": "Forbidden anti-patterns and methodological traps."
+    },
+    "gold_behavioral_properties": {
+      "type": "array",
+      "description": "Hallmarks of exemplary expert execution."
+    },
+    "task_prompt": {
+      "type": "string",
+      "description": "Realistic academic research prompt presenting the task."
     }
   },
   "additionalProperties": false

@@ -47,10 +47,14 @@ for venv_name in [".venv", "venv"]:
                 sys.path.insert(0, sp)
 
 try:
-    from contracts.contract_validator import validate_evaluation_case, validate_contract
+    from contracts.contract_validator import validate_evaluation_case, validate_curriculum_case, validate_contract
 except ImportError:
     validate_evaluation_case = lambda x: {"valid": True}
+    validate_curriculum_case = lambda x: {"valid": True}
     validate_contract = lambda x, y: {"valid": True}
+
+from scripts.curriculum_dataset_generator import CurriculumDatasetGenerator
+from scripts.curriculum_invariant_evaluator import CurriculumInvariantEvaluator
 
 
 class CurriculumBuilderError(Exception):
@@ -452,7 +456,7 @@ class AcademicCurriculumBuilder:
         level_def = ladder.get(level, ladder[1])
 
         today_str = datetime.now(timezone.utc).strftime("%Y%m%d")
-        task_id = f"EVAL-CASE-CURR-{domain_tag}-L{level:02d}-{uuid.uuid4().hex[:6].upper()}"
+        task_id = f"CURR-CASE-{domain_tag}-L{level:02d}-{uuid.uuid4().hex[:6].upper()}"
 
         # Bind targeted weakness
         effective_weakness = target_weakness or level_def["name"]
@@ -462,15 +466,34 @@ class AcademicCurriculumBuilder:
 
         req_props = list(level_def["required_properties"])
 
+        # Synthesize real physical dataset on disk with verified SHA256 & Directive 9 noise
+        physical_pack = CurriculumDatasetGenerator.generate(
+            case_id=task_id,
+            ladder_code=level_def["code"],
+            level=level,
+            is_writing=is_writing,
+            base_dir=self.base_dir,
+            synthetic_params=synthetic_params
+        )
+
         curriculum_case = {
             "contract_version": "1.0.0",
             "case_id": task_id,
             "capability": capability,
-            "suite_type": "curriculum",
-            "difficulty": level_def["difficulty"],
             "curriculum_level": level,
             "level_name": level_def["name"],
+            "difficulty": level_def["difficulty"],
             "targeted_weakness": effective_weakness,
+            "dataset": physical_pack["dataset"],
+            "data_provenance": physical_pack["data_provenance"],
+            "research_question": level_def["research_question"],
+            "design": physical_pack["design"],
+            "expected_invariants": physical_pack["expected_invariants"],
+            "expected_pitfalls": physical_pack["expected_pitfalls"],
+            "gold_behavioral_properties": physical_pack["gold_behavioral_properties"],
+            "task_prompt": f"[Level {level} Challenge: {level_def['name']}] {level_def['prompt']}",
+            # Backward-compatible fields for evaluation_case schema:
+            "suite_type": "curriculum",
             "tags": ["curriculum", domain_tag.lower(), level_def["code"].lower(), effective_weakness.lower()[:30]],
             "task": {
                 "prompt": f"[Level {level} Challenge: {level_def['name']}] {level_def['prompt']}",
@@ -478,8 +501,8 @@ class AcademicCurriculumBuilder:
                 "hypothesis": "The candidate will successfully execute the analysis observing all methodological prerequisites."
             },
             "inputs": {
-                "dataset_path": f"evals/curriculum/{domain_tag.lower()}_level_{level:02d}.xlsx",
-                "dataset_sha256": hashlib.sha256(f"dataset_l{level}".encode("utf-8")).hexdigest(),
+                "dataset_path": physical_pack["dataset"]["path"],
+                "dataset_sha256": physical_pack["dataset"]["sha256"],
                 "spec_parameters": {
                     "level": level,
                     "target_weakness": effective_weakness,
@@ -502,10 +525,14 @@ class AcademicCurriculumBuilder:
             "created_at": datetime.now(timezone.utc).isoformat()
         }
 
-        # Contract validation check
-        val = validate_evaluation_case(curriculum_case)
-        if not val.get("valid", True):
-            print(f"Warning: Curriculum case schema issues: {val.get('errors')}")
+        # Contract validation checks under both schemas
+        val_curr = validate_curriculum_case(curriculum_case)
+        if not val_curr.get("valid", True):
+            print(f"Warning: Curriculum case contract issues: {val_curr.get('errors')}")
+
+        val_eval = validate_evaluation_case(curriculum_case)
+        if not val_eval.get("valid", True):
+            print(f"Warning: Evaluation case schema issues: {val_eval.get('errors')}")
 
         # Save to disk
         out_file = os.path.join(self.curriculum_dir, f"{task_id}.json")
@@ -531,10 +558,36 @@ class AcademicCurriculumBuilder:
     # Practice Feedback Loop into Learning Pipeline
     # -------------------------------------------------------------------------
 
+    def evaluate_behavioral_invariants(
+        self,
+        case_data: Dict[str, Any],
+        candidate_artifacts: Dict[str, Any],
+        candidate_id: str = "CURRICULUM_PRACTICE_CANDIDATE"
+    ) -> Dict[str, Any]:
+        """Evaluates candidate execution against behavioral invariants rather than scalar answers."""
+        return CurriculumInvariantEvaluator.evaluate(
+            case=case_data,
+            execution=candidate_artifacts,
+            candidate_id=candidate_id
+        )
+
+    def evaluate_practice_execution(
+        self,
+        case_data: Dict[str, Any],
+        candidate_artifacts: Dict[str, Any],
+        candidate_id: str = "CURRICULUM_PRACTICE_CANDIDATE"
+    ) -> Dict[str, Any]:
+        """
+        Executes end-to-end evaluation of practice output against curriculum case:
+        evaluates behavioral invariants, updates mastery, and feeds failures to evolution.
+        """
+        return self.feed_practice_result_to_evolution(case_data, candidate_artifacts, candidate_id=candidate_id)
+
     def feed_practice_result_to_evolution(
         self,
         case_data: Dict[str, Any],
-        candidate_artifacts: Dict[str, Any]
+        candidate_artifacts: Dict[str, Any],
+        candidate_id: str = "CURRICULUM_PRACTICE_CANDIDATE"
     ) -> Dict[str, Any]:
         """
         Feeds practice results back into the self-improvement loop:
@@ -542,16 +595,27 @@ class AcademicCurriculumBuilder:
         - If FAIL: Automatically emits a structured feedback event (FDB-*) and synthesizes
           a permanent regression case without waiting for human corrections.
         """
-        try:
-            from scripts.academic_evaluation_lab import AcademicEvaluationLab
-            lab = AcademicEvaluationLab(base_dir=self.base_dir)
-            eval_result = lab.evaluate_candidate_on_case(
-                candidate_id="CURRICULUM_PRACTICE_CANDIDATE",
-                case=case_data,
-                candidate_artifacts=candidate_artifacts
+        # Run Behavioral Invariant Evaluation if expected_invariants are present
+        if "expected_invariants" in case_data:
+            eval_result = self.evaluate_behavioral_invariants(
+                case_data,
+                candidate_artifacts,
+                candidate_id=candidate_id
             )
-        except Exception:
-            eval_result = {"verdict": "FAIL", "diagnostics": [{"failure_type": "evaluation_lab_error"}]}
+            passed = (eval_result.get("verdict") == "PASS")
+        else:
+            try:
+                from scripts.academic_evaluation_lab import AcademicEvaluationLab
+                lab = AcademicEvaluationLab(base_dir=self.base_dir)
+                eval_result = lab.evaluate_candidate_on_case(
+                    candidate_id=candidate_id,
+                    case=case_data,
+                    candidate_artifacts=candidate_artifacts
+                )
+            except Exception:
+                eval_result = {"verdict": "FAIL", "diagnostics": [{"failure_type": "evaluation_lab_error"}]}
+            passed = (eval_result.get("verdict") == "PASS")
+
 
         cid = case_data.get("case_id", "UNKNOWN")
         cap = case_data.get("capability", "statistical-data-analyst")
@@ -574,6 +638,10 @@ class AcademicCurriculumBuilder:
             today_str = datetime.now(timezone.utc).strftime("%Y%m%d")
             fdb_id = f"FDB-{today_str}-{uuid.uuid4().hex[:6].upper()}"
             failure_types = [d.get("failure_type") for d in eval_result.get("diagnostics", [])]
+            if not failure_types and eval_result.get("pitfalls_detected"):
+                failure_types = list(eval_result.get("pitfalls_detected"))
+            if not failure_types and eval_result.get("invariants_checked"):
+                failure_types = [inv_id for inv_id, d in eval_result.get("invariants_checked", {}).items() if not d.get("satisfied")]
             primary_fail = failure_types[0] if failure_types else case_data.get("targeted_weakness", "unspecified_failure")
 
             feedback_record = {
@@ -617,7 +685,8 @@ class AcademicCurriculumBuilder:
             "passed": passed,
             "feedback_id": feedback_record.get("feedback_id") if feedback_record else None,
             "regression_case_id": regression_case_id,
-            "diagnostics": eval_result.get("diagnostics", [])
+            "diagnostics": eval_result.get("diagnostics", []),
+            "evaluation_result": eval_result
         }
 
     def _update_case_status(self, case_id: str, new_status: str):

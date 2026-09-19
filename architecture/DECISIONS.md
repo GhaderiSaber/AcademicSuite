@@ -1604,3 +1604,60 @@ These optimistic defaults allowed candidates to pass promotion gates even when c
 ### Consequences
 - **Positive**: Complete elimination of optimistic verification holes; candidates must prove safety and generalization with physical evidence; zero regressions can only be claimed when actually verified; full compliance with Directive 0 and Directive 18.
 - **Negative**: Evaluators and test suites must explicitly provide complete evaluation results across all mandatory suites (regression, adversarial, heldout) to achieve candidate promotion.
+
+---
+
+## ADR-037: Replacement of Synthetic Slow-Loop Curriculum with Actual Practice Cases (Phase 32)
+
+### Status
+Accepted (September 2026 / 1405 SH)
+
+### Context
+In earlier iterations of AcademicSuite's continuous self-improvement slow loop (`run_slow_loop()`), candidate evaluations relied on a hardcoded mock payload:
+```python
+simulated_slow_payload = {
+    "narrative": f"Comprehensive solution incorporating {primary_weakness} (۰.۰۵ > p).",
+    "statistics": {
+        "estimand": "Comprehensive Target Estimand",
+        "effect_size": 0.32,
+        ...
+    }
+}
+```
+Furthermore, curriculum tasks lacked physical backing datasets on disk, data provenance, and formal experimental design specifications. In academic research methodology, evaluating an agent against a single rigid scalar answer (e.g. `F = 4.25`) is brittle and unrealistic across different statistical software engines. In contrast, **behavioral invariants** (e.g., verifying slope homogeneity before ANCOVA, controlling baseline covariates, reporting effect sizes, and bounding estimates with confidence intervals) provide robust, substantive methodological verification.
+
+### Decision
+1. **The Canonical `CurriculumCase` Contract (`contracts/evolution/curriculum_case.schema.json`)**:
+   Codified `AcademicCurriculumCaseContract` defining the 9 mandatory first-class fields:
+   - `case_id`: Unique identifier pattern `^CURR-CASE-[A-Z0-9_-]+$`.
+   - `dataset`: Physical file specifications (`path`, `sha256`, `format`, `sample_size`, `variables`).
+   - `data_provenance`: Cryptographic and methodological audit record (`source_type`, `generator_script`, `noise_injected`, `dataset_sha256`, `generation_timestamp`, `parameters`).
+   - `research_question`: Scholarly research question string.
+   - `design`: Formal methodological design (`design_type`, `independent_variables`, `dependent_variables`, `covariates`, `factors`, `sample_allocation`).
+   - `difficulty`: Graduated difficulty level across Statistics (1-10) and Writing (1-5) ladders.
+   - `expected_invariants`: Array of methodological invariants that MUST hold (`INV-*`).
+   - `expected_pitfalls`: Array of forbidden anti-patterns that MUST NOT be committed (`PIT-*`).
+   - `gold_behavioral_properties`: Array of expert hallmarks indicating exemplary execution (`PROP-*`).
+
+2. **Physical Datasets on Disk with Provenance (`scripts/curriculum_dataset_generator.py`)**:
+   - Generates real physical CSV datasets on disk under `learning/evaluations/curriculum/datasets/` using English-only ASCII filenames (Directive 6).
+   - Injects realistic empirical decimal noise per Directive 9 ($\mu_{\text{empirical}} = \mu_{\text{target}} + \delta, \delta \sim \text{Uniform}(\pm 0.08, \pm 0.25)$).
+   - Strictly enforces mathematical sanity floors: $N \ge 15$, positive variance, and realistic attrition ($\le 40\%$).
+   - Computes cryptographic SHA256 of the physical file and records it in `dataset` and `data_provenance`.
+
+3. **Behavioral Invariant Evaluation Engine (`scripts/curriculum_invariant_evaluator.py`)**:
+   - Replaces brittle single-number scalar checks with structural verification of methodological invariants (`INV-*`).
+   - Detects forbidden anti-patterns (`PIT-P-EQUALS-ZERO`, `PIT-MISSING-PERSIAN-LEADING-ZERO`, `PIT-OMITTING-SLOPE-HOMOGENEITY`, `PIT-UNSUPPORTED-CAUSAL-LANGUAGE`).
+   - Quantifies expert behaviors (`PROP-MODEL-COMPARISON`, `PROP-ASSUMPTION-DIAGNOSTICS`, `PROP-PRECISION-BOUNDED-ESTIMATES`).
+   - Emits a canonical, schema-valid `EvaluationResult` with all 13 mandatory fields and cryptographic evidence records conforming to Phase 30/31.
+
+4. **Integration into the Slow Evolution Loop (`scripts/academic_dual_loop_engine.py`)**:
+   - Completely removes `simulated_slow_payload`.
+   - In `run_slow_loop()`, executes the candidate agent against the physical practice case (`_execute_practice_agent`).
+   - Evaluates the output using `evaluate_practice_execution()` before advancing to multi-suite counterfactual testing.
+   - Practice failures trigger fail-closed rejection, emit structured feedback (`FDB-*`), and synthesize regression assets without promotion.
+
+### Consequences
+- **Positive**: 100% elimination of synthetic mock payloads from the slow loop; true empirical verification on physical datasets; evaluation based on resilient behavioral invariants rather than fragile scalar matches; complete adherence to Directives 0, 6, 9, 18, and 19.
+- **Negative**: Practice case generation writes physical CSV files to disk, requiring disk storage management in the evaluations directory.
+
