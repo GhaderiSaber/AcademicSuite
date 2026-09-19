@@ -26,16 +26,39 @@ import json
 import argparse
 from typing import Dict, List, Any, Optional
 
-from docx import Document
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml import parse_xml, OxmlElement
-from docx.oxml.ns import nsdecls, qn
+try:
+    from docx import Document
+    from docx.shared import Inches, Pt, RGBColor
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.enum.table import WD_TABLE_ALIGNMENT
+    from docx.oxml import parse_xml, OxmlElement
+    from docx.oxml.ns import nsdecls, qn
+except ImportError:
+    Document = None
+    class _DummyAlignParagraph:
+        LEFT = 0
+        CENTER = 1
+        RIGHT = 2
+        JUSTIFY = 3
+    class _DummyAlignTable:
+        CENTER = 1
+    WD_ALIGN_PARAGRAPH = _DummyAlignParagraph()
+    WD_TABLE_ALIGNMENT = _DummyAlignTable()
+    Pt = lambda x: x
+    Inches = lambda x: x
+    RGBColor = lambda *a: None
 
 FONT_TITR = "B Titr"
 FONT_NAZANIN = "B Nazanin"
 FONT_ENG = "Times New Roman"
+
+class MissingProductionDataError(RuntimeError):
+    """Raised when real production intervention payload is missing in production mode."""
+    pass
+
+class ProductionSampleFallbackBlockedError(RuntimeError):
+    """Raised when an attempt is made to fall back to sample/demo intervention presets in production mode."""
+    pass
 
 # ---------------------------------------------------------------------------
 # OpenXML Word Formatting Helpers (Native RTL, Borders & Fonts)
@@ -524,17 +547,37 @@ def main():
     parser = argparse.ArgumentParser(description="Master Psychological & Educational Intervention Protocol Compiler")
     parser.add_argument("--json", type=str, help="Path to custom protocol payload JSON")
     parser.add_argument("--preset", type=str, default="act", choices=["act", "cbt", "schema", "cft", "mbsr", "positive", "mindful_parenting"], help="Built-in clinical preset archetype")
+    parser.add_argument("--mode", type=str, default="production", choices=["production", "demo", "test", "simulation"], help="Operational execution mode (default: production). In production mode, silent fallback to presets/samples is BLOCKED.")
     parser.add_argument("--target-population", type=str, help="Target population description in Persian")
     parser.add_argument("--title", type=str, help="Custom protocol title")
     parser.add_argument("--output-docx", type=str, default="Intervention_Protocol.docx", help="Output Word document path")
     parser.add_argument("--output-json", type=str, default="protocol_summary.json", help="Output JSON summary path")
     args = parser.parse_args()
 
-    if args.json and os.path.exists(args.json):
+    mode = (args.mode or "production").lower().strip()
+    if mode == "production":
+        if not args.json:
+            raise MissingProductionDataError(
+                "CRITICAL SAFETY VIOLATION: Execution mode 'production' requires an explicit empirical protocol payload (--json). "
+                "Silent fallback to built-in presets or sample data is strictly BLOCKED. Use --mode demo or --mode test to run with presets."
+            )
+        if not os.path.exists(args.json):
+            raise FileNotFoundError(f"Specified protocol payload file not found: {args.json}")
+        abs_json = os.path.abspath(args.json).replace("\\", "/")
+        base_json = os.path.basename(abs_json).lower()
+        if "/examples/" in abs_json or "sample" in base_json or "mock" in base_json:
+            raise ProductionSampleFallbackBlockedError(
+                f"CRITICAL SAFETY VIOLATION: Execution mode 'production' cannot consume sample fixture '{args.json}'. "
+                f"Production mode strictly requires real empirical artifacts on disk. Use --mode demo or --mode test."
+            )
         with open(args.json, "r", encoding="utf-8") as f:
             payload = json.load(f)
     else:
-        payload = load_preset(args.preset, args.target_population)
+        if args.json and os.path.exists(args.json):
+            with open(args.json, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+        else:
+            payload = load_preset(args.preset, args.target_population)
 
     if args.title:
         payload.setdefault("meta", {})["title"] = args.title

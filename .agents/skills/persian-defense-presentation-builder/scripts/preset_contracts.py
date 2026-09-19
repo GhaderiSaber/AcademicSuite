@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import os
 import sys
 # Dynamic discovery of local virtualenv site-packages (.venv / venv)
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
@@ -16,7 +17,10 @@ for venv_name in [".venv", "venv"]:
 from pathlib import Path
 from typing import Any, Literal
 
-from bs4 import BeautifulSoup
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 
 def _discover_root() -> Path:

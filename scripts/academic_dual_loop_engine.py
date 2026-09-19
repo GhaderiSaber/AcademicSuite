@@ -78,6 +78,11 @@ class SkillCooldownActiveError(DualLoopError):
     pass
 
 
+class MissingProductionDataError(DualLoopError):
+    """Raised when real empirical experience or artifacts are missing in production mode."""
+    pass
+
+
 class EvolutionLock:
     """File-based mutual exclusion lock ensuring Fast Loop and Slow Loop do not run concurrently."""
 
@@ -257,12 +262,26 @@ class AcademicDualLoopEngine:
         target_skill: str = "statistical-data-analyst",
         capability: str = "statistical-data-analyst",
         artifacts: Optional[Dict[str, Any]] = None,
-        existing_experience_id: Optional[str] = None
+        existing_experience_id: Optional[str] = None,
+        mode: str = "production"
     ) -> Dict[str, Any]:
         """
         Executes the FAST EVOLUTION LOOP:
         TASK → EXPERIENCE → FEEDBACK → LESSON → CANDIDATE → SMALL EVALUATION → PROMOTE/REJECT
         """
+        norm_mode = (mode or "production").lower().strip()
+        if norm_mode == "production":
+            if not existing_experience_id:
+                raise MissingProductionDataError(
+                    "CRITICAL SAFETY VIOLATION: Fast evolution loop in 'production' mode requires an existing empirical experience_id on disk. "
+                    "Synthetic experience synthesis ('fast_loop_project', duration=1.0s) is strictly BLOCKED. Use mode='simulation' or mode='demo' for synthetic loop execution."
+                )
+            if not artifacts:
+                raise MissingProductionDataError(
+                    "CRITICAL SAFETY VIOLATION: Candidate evaluation in 'production' mode requires real physical artifact outputs. "
+                    "Fallback to predefined statistics (effect_size=0.25) is strictly BLOCKED. Pass verified artifacts or use mode='simulation' or mode='demo' for simulated evaluation."
+                )
+
         with EvolutionLock(self.lock_file):
             # 1. Anti-Churn Guard: verify skill is not in cooldown
             in_cooldown, reason = self.is_skill_in_cooldown(target_skill)
@@ -310,6 +329,8 @@ class AcademicDualLoopEngine:
                     "duration_seconds": 1.0,
                     "outcome": "FAILURE" if user_correction else "SUCCESS",
                     "artifact_references": [],
+                    "is_synthetic": True,
+                    "data_mode": "simulation",
                     "validation_status": {
                         "verdict": "FAIL" if user_correction else "PASS"
                     },
@@ -324,6 +345,8 @@ class AcademicDualLoopEngine:
                     "experience_id": exp_id,
                     "project_id": "fast_loop_project",
                     "task_id": "fast_loop_task",
+                    "is_synthetic": True,
+                    "data_mode": "simulation",
                     "ordered_actions": [
                         {
                             "step_number": 1,
@@ -474,12 +497,21 @@ class AcademicDualLoopEngine:
         self,
         top_weaknesses: int = 3,
         practice_difficulty_level: Optional[int] = None,
-        approver: Optional[Dict[str, Any]] = None
+        approver: Optional[Dict[str, Any]] = None,
+        mode: str = "production",
+        candidate_payload: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Executes the SLOW EVOLUTION LOOP:
         HISTORY → FIND RECURRING WEAKNESSES → GENERATE CURRICULUM → GENERATE CANDIDATE IMPROVEMENTS → LARGE EVALUATION → ADVERSARIAL TEST → HELD-OUT TEST → PROMOTION
         """
+        norm_mode = (mode or "production").lower().strip()
+        if norm_mode == "production" and not candidate_payload:
+            raise MissingProductionDataError(
+                "CRITICAL SAFETY VIOLATION: Slow loop candidate evaluation in 'production' mode requires real physical artifact outputs. "
+                "Fallback to predefined statistics (effect_size=0.32) is strictly BLOCKED. Pass verified candidate_payload or use mode='simulation' or mode='demo'."
+            )
+
         with EvolutionLock(self.lock_file):
             # 1. Analyze History & Calculate Exposure-Normalized Weaknesses
             weakness_profiles = self._analyze_exposure_normalized_weaknesses(top_n=top_weaknesses)
@@ -532,6 +564,25 @@ class AcademicDualLoopEngine:
                 candidate = candidates[0]
                 cid = candidate.get("candidate_id")
 
+                simulated_slow_payload = {
+                    "narrative": f"Comprehensive solution incorporating {primary_weakness} (۰.۰۵ > p).",
+                    "statistics": {
+                        "estimand": "Comprehensive Target Estimand",
+                        "effect_size": 0.32,
+                        "confidence_interval": [0.12, 0.52],
+                        "artifact_path": "03_slow_loop_results.json",
+                        "assumptions_checked": ["homogeneity of slopes", "normality"],
+                        "effect_size_type": "cohens_d",
+                        "is_synthetic": True,
+                        "data_mode": "simulation"
+                    },
+                    "reasoning": {
+                        "candidate_model_comparison": "LMM vs RM-ANOVA compared",
+                        "missingness": "Little MCAR evaluated",
+                        "covariance_structure": "AR(1) compared"
+                    }
+                }
+
                 # 4. Large Evaluation: full regression suite + adversarial suite + held-out suite
                 large_report = self.counterfactual_evaluator.compare_single_candidate(
                     candidate_id=cid,
@@ -542,24 +593,7 @@ class AcademicDualLoopEngine:
                             "artifact_path": "legacy_output.json"
                         }
                     },
-                    candidate_payload={
-                        "narrative": f"Comprehensive solution incorporating {primary_weakness} (۰.۰۵ > p).",
-                        "statistics": {
-                            "estimand": "Comprehensive Target Estimand",
-                            "effect_size": 0.32,
-                            "confidence_interval": [0.12, 0.52],
-                            "artifact_path": "03_slow_loop_results.json",
-                            "assumptions_checked": ["homogeneity of slopes", "normality"],
-                            "effect_size_type": "cohens_d",
-                            "is_synthetic": True,
-                            "data_mode": "simulation"
-                        },
-                        "reasoning": {
-                            "candidate_model_comparison": "LMM vs RM-ANOVA compared",
-                            "missingness": "Little MCAR evaluated",
-                            "covariance_structure": "AR(1) compared"
-                        }
-                    }
+                    candidate_payload=candidate_payload or simulated_slow_payload
                 )
 
                 # 5. Promotion Governance
@@ -706,6 +740,7 @@ def main():
     parser.add_argument("--correction", type=str, default=None, help="User correction message")
     parser.add_argument("--skill", type=str, default="statistical-data-analyst", help="Target skill")
     parser.add_argument("--history", action="store_true", help="Display improvement history telemetry")
+    parser.add_argument("--mode", type=str, default="production", choices=["production", "simulation", "demo", "test"], help="Execution mode (default: production). In production, synthetic fallbacks are BLOCKED.")
     args = parser.parse_args()
 
     engine = AcademicDualLoopEngine()
@@ -714,13 +749,14 @@ def main():
         res = engine.run_fast_loop(
             task_prompt=args.prompt,
             user_correction=args.correction,
-            target_skill=args.skill
+            target_skill=args.skill,
+            mode=args.mode
         )
         print(json.dumps(res, indent=2, ensure_ascii=False))
         sys.exit(0)
 
     if args.slow_loop:
-        res = engine.run_slow_loop(top_weaknesses=2)
+        res = engine.run_slow_loop(top_weaknesses=2, mode=args.mode)
         print(json.dumps(res, indent=2, ensure_ascii=False))
         sys.exit(0)
 

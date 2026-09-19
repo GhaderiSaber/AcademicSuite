@@ -279,8 +279,8 @@ class MasterAcademicOrchestrator:
                  resume_from: Optional[str] = None, single_step: Optional[str] = None,
                  lang: str = "fa", mode: str = "production"):
         norm_mode = mode.lower().strip()
-        if norm_mode not in ("production", "demo", "test", "dry_run"):
-            raise ValueError(f"Invalid mode '{mode}'. Must be one of: 'production', 'demo', 'test', 'dry_run'")
+        if norm_mode not in ("production", "demo", "test", "dry_run", "simulation"):
+            raise ValueError(f"Invalid mode '{mode}'. Must be one of: 'production', 'demo', 'test', 'dry_run', 'simulation'")
         self.mode = norm_mode
         self.dry_run = dry_run or (self.mode == "dry_run")
         if self.dry_run:
@@ -301,6 +301,8 @@ class MasterAcademicOrchestrator:
             "pipeline": self.pipeline_name,
             "mode": self.mode,
             "dry_run": self.dry_run,
+            "is_synthetic": (self.mode == "simulation"),
+            "data_mode": self.mode,
             "status": "INITIALIZING",
             "out_dir": self.out_dir,
             "steps_executed": [],
@@ -314,7 +316,7 @@ class MasterAcademicOrchestrator:
         """
         Resolves input payload/data for a pipeline step according to execution mode.
         In 'production' mode: silent fallback to sample/demo data is strictly BLOCKED.
-        In 'demo' or 'test' mode: fallback to verified default_sample is permitted with notice.
+        In 'demo', 'test', or 'simulation' mode: fallback to verified default_sample is permitted with notice.
         """
         if self.mode == "production":
             # Hard invariant: default_sample is strictly purged in production
@@ -360,6 +362,20 @@ class MasterAcademicOrchestrator:
                     f"CRITICAL SAFETY VIOLATION: Production execution attempted with sample/demo payload '{payload}'. "
                     f"Production mode strictly requires real empirical artifacts on disk."
                 )
+
+            if norm_payload.endswith(".json") and os.path.exists(norm_payload):
+                try:
+                    with open(norm_payload, "r", encoding="utf-8") as pf:
+                        pj = json.load(pf)
+                        if isinstance(pj, dict) and (pj.get("is_synthetic") is True or pj.get("data_mode") == "simulation"):
+                            raise ProductionSampleFallbackBlockedError(
+                                f"CRITICAL SAFETY VIOLATION: Production execution attempted with internally tagged synthetic payload '{payload}'. "
+                                f"Production mode strictly requires real empirical artifacts on disk."
+                            )
+                except ProductionSampleFallbackBlockedError:
+                    raise
+                except Exception:
+                    pass
 
         if not os.path.exists(payload):
             raise MissingProductionDataError(
@@ -1004,8 +1020,8 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Simulate pipeline DAG and validate inputs without running heavy tasks")
     parser.add_argument("--lang", default="fa", choices=["fa", "en"], help="Target language (default: fa)")
     parser.add_argument("--mode", default="production",
-                        choices=["production", "demo", "test", "dry_run", "PRODUCTION", "DEMO", "TEST", "DRY_RUN"],
-                        help="Execution mode: production (strict real empirical data, no fallbacks), demo (allows sample fallbacks), test (allows fixtures), dry_run (validation only)")
+                        choices=["production", "demo", "test", "dry_run", "simulation", "PRODUCTION", "DEMO", "TEST", "DRY_RUN", "SIMULATION"],
+                        help="Execution mode: production (strict real empirical data, no fallbacks), demo (allows sample fallbacks), test (allows fixtures), dry_run (validation only), simulation (explicit Monte Carlo/synthetic)")
 
     args = parser.parse_args()
 

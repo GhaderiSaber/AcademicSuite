@@ -5,7 +5,10 @@ import re
 from pathlib import Path
 from typing import Any
 
-from bs4 import BeautifulSoup
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 from low_context import _preset_usage_rules, compile_style_contract, load_brief
 from preset_contracts import requirement_for_preset

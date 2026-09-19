@@ -31,7 +31,8 @@ from scripts.academic_dual_loop_engine import (
     AcademicDualLoopEngine,
     EvolutionLock,
     EvolutionLockError,
-    SkillCooldownActiveError
+    SkillCooldownActiveError,
+    MissingProductionDataError
 )
 
 
@@ -92,6 +93,7 @@ class TestAcademicDualLoopEngine(unittest.TestCase):
             target_agent="statistics-agent",
             target_skill="statistical-data-analyst",
             capability="statistical-data-analyst",
+            mode="simulation",
             artifacts={
                 "narrative": "مقایسه مدل‌ها انجام شد (۰.۰۵ > p).",
                 "statistics": {
@@ -133,7 +135,8 @@ class TestAcademicDualLoopEngine(unittest.TestCase):
         result = self.engine.run_fast_loop(
             task_prompt="Second quick task on same skill.",
             user_correction="Another quick correction.",
-            target_skill=skill_name
+            target_skill=skill_name,
+            mode="simulation"
         )
 
         self.assertEqual(result["status"], "COOLDOWN_SUPPRESSED")
@@ -158,7 +161,8 @@ class TestAcademicDualLoopEngine(unittest.TestCase):
         """Slow loop analyzes accumulated history, generates curriculum challenge, and executes large evaluation."""
         result = self.engine.run_slow_loop(
             top_weaknesses=1,
-            practice_difficulty_level=2
+            practice_difficulty_level=2,
+            mode="simulation"
         )
 
         self.assertEqual(result["loop"], "SLOW")
@@ -219,6 +223,36 @@ class TestAcademicDualLoopEngine(unittest.TestCase):
         slow_hist = self.engine.query_improvement_history(loop_type="SLOW")
         self.assertEqual(len(slow_hist), 1)
         self.assertEqual(slow_hist[0]["skill"], "sem")
+
+    def test_08_fast_loop_blocks_missing_production_data(self):
+        """Fast loop in production mode strictly fails closed when missing real empirical data or artifacts."""
+        # 1. Missing experience_id in production mode
+        with self.assertRaises(MissingProductionDataError) as ctx:
+            self.engine.run_fast_loop(
+                task_prompt="Production task without experience ID",
+                mode="production"
+            )
+        self.assertIn("requires an existing empirical experience_id", str(ctx.exception))
+
+        # 2. Missing artifacts in production mode
+        with self.assertRaises(MissingProductionDataError) as ctx2:
+            self.engine.run_fast_loop(
+                task_prompt="Production task with experience ID but without artifacts",
+                existing_experience_id="EXP-REAL-001",
+                artifacts=None,
+                mode="production"
+            )
+        self.assertIn("requires real physical artifact outputs", str(ctx2.exception))
+
+    def test_09_slow_loop_blocks_missing_production_data(self):
+        """Slow loop in production mode strictly fails closed when missing empirical candidate payload."""
+        with self.assertRaises(MissingProductionDataError) as ctx:
+            self.engine.run_slow_loop(
+                top_weaknesses=1,
+                mode="production",
+                candidate_payload=None
+            )
+        self.assertIn("requires real physical artifact outputs", str(ctx.exception))
 
 
 if __name__ == "__main__":

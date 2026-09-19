@@ -100,7 +100,14 @@ class EvaluationAdapter:
                 "effect_size": 0.28,
                 "confidence_interval": [0.12, 0.44],
                 "artifact_path": "03_simulated_improvement.json",
-                "assumptions_checked": ["homogeneity of slopes", "normality", "levene"]
+                "assumptions_checked": ["homogeneity of slopes", "normality", "levene"],
+                "is_synthetic": True,
+                "data_mode": "simulation",
+                "simulation_metadata": {
+                    "generator": "AcademicCandidateGenerator.pre_evaluate_candidate",
+                    "candidate_id": candidate_id,
+                    "mutation_type": mut_type
+                }
             },
             "reasoning": {
                 "repeated_measures_structure": "Within-subject temporal structure evaluated",

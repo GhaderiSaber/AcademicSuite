@@ -254,5 +254,32 @@ Implement a hardened, deterministic statistical execution subsystem governed by:
 - **Positive**: 100% arithmetic reproducibility, zero hallucinated statistical numbers, complete cryptographic audit trails, fail-closed enforcement preventing uncurated or mock data from leaking into production deliverables.
 - **Negative**: Requires strict data curation and schema validation before any statistical computation can be executed.
 
+---
+
+## ADR-011: Complete Elimination of Synthetic Data Escape Routes and Universal Fail-Closed Policy
+
+### Context
+In prior implementations of AcademicSuite, certain pipeline tools, presentation generators, intervention compilers, and dual-loop self-improvement engines retained legacy fallback paths. When empirical payloads or physical artifacts on disk were omitted, these tools silently fell back to bundled sample fixtures (e.g. `examples/sample_defense_payload.json`, built-in ACT intervention presets, or synthetic experiences with `duration_seconds: 1.0` and fallback stats `effect_size: 0.25`). This created severe latent risks of synthetic data or unverified figures leaking into production academic chapters, slides, or intervention manuals.
+
+### Decision
+Enact a complete, repository-wide elimination of all silent synthetic data escape routes and enforce an uncompromising universal fail-closed policy:
+1. **Four-Tier Architectural Classification**:
+   - `TEST FIXTURE`: Unit/integration test data isolated exclusively within `tests/` and test runners.
+   - `DEMO`: Educational demonstrations requiring explicit `--mode demo` flag.
+   - `SIMULATION`: Explicit Monte Carlo psychometric simulations requiring explicit `--mode simulation` or `is_synthetic = True`.
+   - `PRODUCTION`: Live academic consulting requiring real, physically verified empirical data on disk.
+2. **Universal Fail-Closed Invariant in Production Mode (`missing empirical input → BLOCKED`)**:
+   - **Persian Defense Presentation Builder (`main.py`)**: Added `--mode {production, demo, test, simulation}`. In production mode, missing input JSON or any pointer to sample fixtures (`sample_*.json`, `/examples/`) immediately prints `CRITICAL SAFETY VIOLATION` and exits with code 1 (`BLOCKED`).
+   - **Intervention Protocol Compiler (`compile_intervention_protocol.py`)**: Added `--mode` parameter. In production mode, omitting `--json` or pointing to sample/preset files strictly raises `MissingProductionDataError` or `ProductionSampleFallbackBlockedError`.
+   - **Academic Dual Loop Engine (`academic_dual_loop_engine.py`)**: In production mode (`mode="production"`), fast loop requires an existing empirical `existing_experience_id` and verified physical `artifacts`; slow loop requires an empirical `candidate_payload`. Synthetic mock experience synthesis (`fast_loop_project`, `duration_seconds: 1.0`, `effect_size: 0.25`) is strictly BLOCKED.
+   - **Universal Script Execution Guard (`script_execution_guard.py`)**: Added `"simulation"` mode. Added `is_synthetic: bool = False`. Production mode strictly blocks any explicit `is_synthetic=True`, sample/demo paths, or JSON payloads internally tagged with `"is_synthetic": True`.
+   - **Master Academic Orchestrator (`orchestrator_cli.py`)**: Added `"simulation"` mode. In production mode, purges all `default_sample` pointers and inspects input payloads for internal synthetic flags, raising `ProductionSampleFallbackBlockedError`.
+3. **Explicit Simulation Invariant**:
+   - If simulation or demo data is desired, `mode = "simulation"` or `mode = "demo"` must be explicit in CLI arguments or method parameters, and generated payloads must be tagged with `"is_synthetic": True` and `"data_mode": "simulation"`.
+
+### Consequences
+- **Positive**: 100% elimination of silent fallbacks, zero accidental leakage of synthetic data into academic deliverables, complete enforcement of Directive 0, Directive 2, and Directive 13.
+- **Negative**: CLI commands and orchestrator scripts require explicit input payloads or explicit `--mode demo` / `--mode simulation` flags.
+
 
 

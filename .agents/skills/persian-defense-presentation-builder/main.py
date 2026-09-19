@@ -30,32 +30,7 @@ ROOT = Path(__file__).resolve().parent
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-# Slide-creator HTML engine
-from low_context import (  # noqa: E402
-    BriefExtractionError,
-    BriefValidationError,
-    RenderError,
-    load_brief,
-    render_from_brief,
-    render_from_context_path,
-    stamp_validation_status,
-    validate_brief_path,
-)
-from generation_eval import (  # noqa: E402
-    build_generation_eval_report,
-    default_eval_output_path,
-    write_generation_eval_report,
-)
 
-# Native PPTX & Analysis engines
-from compile_defense_presentation import compile_presentation  # noqa: E402
-from presentation_schema import ProjectMeta, ResearchTruthModel  # noqa: E402
-from content_planner import synthesize_storyboard_from_truth_model  # noqa: E402
-from extract_template import extract_template  # noqa: E402
-from check_overlaps import audit_presentation  # noqa: E402
-from render_diagrams import render_diagram  # noqa: E402
-from academic_brief_adapter import adapt_academic_payload_to_brief  # noqa: E402
-from generate_gemini_slides_brief import generate_brief  # noqa: E402
 
 PLAN_HELP = """\
 PLAN STEP REQUIRES SKILL INVOCATION
@@ -139,6 +114,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     # General / Shared parameters
+    parser.add_argument(
+        "--mode",
+        default="production",
+        choices=["production", "demo", "test", "simulation"],
+        help="Operational execution mode (default: production). In production mode, silent fallback to sample data is strictly BLOCKED.",
+    )
     parser.add_argument("--brief", help="Path to BRIEF.json (defaults to ./BRIEF.json)")
     parser.add_argument("--context-file", help="Path to a context artifact containing exactly one valid BRIEF")
     parser.add_argument("--output", help="Output path (HTML, PPTX, PNG diagram, or adapted BRIEF.json)")
@@ -196,6 +177,7 @@ def run_plan(prompt_parts: list[str] | None) -> int:
 
 
 def run_validate_brief(brief_path: Path) -> int:
+    from low_context import validate_brief_path
     is_valid, errors, _brief = validate_brief_path(brief_path)
     if is_valid:
         print(f"VALID: {brief_path.name}")
@@ -218,6 +200,20 @@ def run_generate(
     extract_brief_out: str | None = None,
     theme: str | None = None,
 ) -> int:
+    from low_context import (
+        BriefExtractionError,
+        BriefValidationError,
+        RenderError,
+        load_brief,
+        render_from_brief,
+        render_from_context_path,
+        stamp_validation_status,
+    )
+    from generation_eval import (
+        build_generation_eval_report,
+        default_eval_output_path,
+        write_generation_eval_report,
+    )
     def _has_canonical_provenance(html_text: str) -> bool:
         required_markers = (
             'data-generator="kai-slide-creator"',
@@ -318,21 +314,33 @@ def run_path_html(args) -> int:
         )
 
     # If payload JSON is provided, auto-adapt it to BRIEF.json first
+    mode = getattr(args, "mode", "production")
     input_file = args.json or args.stats_json
     if not input_file:
-        for candidate in ["payload.json", "stats_results.json", str(ROOT / "examples" / "sample_defense_payload.json")]:
+        candidates = ["payload.json", "stats_results.json"]
+        if mode in ("demo", "test", "simulation"):
+            candidates.append(str(ROOT / "examples" / "sample_defense_payload.json"))
+        for candidate in candidates:
             if os.path.exists(candidate):
                 input_file = candidate
                 break
 
     if not input_file or not os.path.exists(input_file):
-        print("[!] Error: For --path html, please specify --brief, --context-file, --json <payload.json>, or --stats-json <stats.json>", file=sys.stderr)
+        if mode == "production":
+            print("[!] CRITICAL SAFETY VIOLATION: Execution mode 'production' requires an explicit research payload or stats JSON. Silent fallback to sample data is strictly BLOCKED. Use --mode demo or --mode simulation to run with sample data.", file=sys.stderr)
+        else:
+            print("[!] Error: For --path html, please specify --brief, --context-file, --json <payload.json>, or --stats-json <stats.json>", file=sys.stderr)
+        return 1
+
+    if mode == "production" and ("sample" in Path(input_file).name.lower() or "/examples/" in os.path.abspath(input_file)):
+        print(f"[!] CRITICAL SAFETY VIOLATION: Execution mode 'production' cannot consume sample fixture '{input_file}'. Execution BLOCKED. Use --mode demo or --mode simulation.", file=sys.stderr)
         return 1
 
     try:
         with open(input_file, "r", encoding="utf-8") as f:
             payload = json.load(f)
 
+        from academic_brief_adapter import adapt_academic_payload_to_brief
         brief = adapt_academic_payload_to_brief(payload, preset="academic_defense", theme=args.theme)
         brief_path = Path(args.extract_brief_out or "BRIEF.json")
         with open(brief_path, "w", encoding="utf-8") as f:
@@ -358,13 +366,32 @@ def run_compile_pptx(args) -> int:
     """Executes the native PowerPoint (.pptx) presentation generation path."""
     output_path = args.output or "Defense_Presentation.pptx"
     payload = None
+    mode = getattr(args, "mode", "production")
 
     input_file = args.json or args.stats_json
     if not input_file:
-        for candidate in ["payload.json", "stats_results.json", str(ROOT / "examples" / "sample_defense_payload.json")]:
+        candidates = ["payload.json", "stats_results.json"]
+        if mode in ("demo", "test", "simulation"):
+            candidates.append(str(ROOT / "examples" / "sample_defense_payload.json"))
+        for candidate in candidates:
             if os.path.exists(candidate):
                 input_file = candidate
                 break
+
+    if not input_file or not os.path.exists(input_file):
+        if mode == "production":
+            print("[!] CRITICAL SAFETY VIOLATION: Execution mode 'production' requires an explicit research payload or stats JSON. Silent fallback to sample data is strictly BLOCKED. Use --mode demo or --mode simulation to run with sample data.", file=sys.stderr)
+        else:
+            print("[!] Error: Either --json <payload.json> or --stats-json <stats.json> is required for pptx.", file=sys.stderr)
+        return 1
+
+    if mode == "production" and ("sample" in Path(input_file).name.lower() or "/examples/" in os.path.abspath(input_file)):
+        print(f"[!] CRITICAL SAFETY VIOLATION: Execution mode 'production' cannot consume sample fixture '{input_file}'. Execution BLOCKED. Use --mode demo or --mode simulation.", file=sys.stderr)
+        return 1
+
+    from compile_defense_presentation import compile_presentation
+    from presentation_schema import ProjectMeta, ResearchTruthModel
+    from content_planner import synthesize_storyboard_from_truth_model
 
     if input_file and os.path.exists(input_file):
         with open(input_file, "r", encoding="utf-8") as f:
@@ -382,9 +409,6 @@ def run_compile_pptx(args) -> int:
             )
             truth = ResearchTruthModel(meta=meta_obj)
             payload = synthesize_storyboard_from_truth_model(truth)
-    else:
-        print("[!] Error: Either --json <payload.json> or --stats-json <stats.json> is required for pptx.", file=sys.stderr)
-        return 1
 
     theme_to_use = args.theme_file if getattr(args, "theme_file", None) else args.theme
     success = compile_presentation(
@@ -399,16 +423,29 @@ def run_compile_pptx(args) -> int:
 
 def run_path_google_slides(args) -> int:
     """Executes the Google Slides presentation path (Drive @Document Bridge + Gemini prompt)."""
+    mode = getattr(args, "mode", "production")
     input_file = args.json or args.stats_json
     if not input_file:
-        for candidate in ["stats_results.json", "payload.json", str(ROOT / "examples" / "sample_defense_payload.json")]:
+        candidates = ["stats_results.json", "payload.json"]
+        if mode in ("demo", "test", "simulation"):
+            candidates.append(str(ROOT / "examples" / "sample_defense_payload.json"))
+        for candidate in candidates:
             if os.path.exists(candidate):
                 input_file = candidate
                 break
 
     if not input_file or not os.path.exists(input_file):
-        print("[!] Error: For --path google_slides, please provide --json <payload.json> or --stats-json <stats.json>", file=sys.stderr)
+        if mode == "production":
+            print("[!] CRITICAL SAFETY VIOLATION: Execution mode 'production' requires an explicit research payload or stats JSON. Silent fallback to sample data is strictly BLOCKED. Use --mode demo or --mode simulation to run with sample data.", file=sys.stderr)
+        else:
+            print("[!] Error: For --path google_slides, please provide --json <payload.json> or --stats-json <stats.json>", file=sys.stderr)
         return 1
+
+    if mode == "production" and ("sample" in Path(input_file).name.lower() or "/examples/" in os.path.abspath(input_file)):
+        print(f"[!] CRITICAL SAFETY VIOLATION: Execution mode 'production' cannot consume sample fixture '{input_file}'. Execution BLOCKED. Use --mode demo or --mode simulation.", file=sys.stderr)
+        return 1
+
+    from generate_gemini_slides_brief import generate_brief
 
     if args.output:
         out_dir = args.output if (os.path.isdir(args.output) or not args.output.endswith(('.docx', '.md', '.txt'))) else str(Path(args.output).parent)
@@ -437,6 +474,7 @@ def run_path_google_slides(args) -> int:
 
 def run_extract_template(template_pptx: str, out_dir: str) -> int:
     try:
+        from extract_template import extract_template
         res = extract_template(template_pptx, out_dir)
         slides_count = len(res.get("slides", []))
         layouts_count = len(res.get("slide_layouts", []))
@@ -454,6 +492,7 @@ def run_extract_template(template_pptx: str, out_dir: str) -> int:
 
 def run_audit_pptx(pptx_path: str, json_out: str | None, min_overlap: float, min_gap: float) -> int:
     try:
+        from check_overlaps import audit_presentation
         passed, issues, summary = audit_presentation(
             pptx_path, min_overlap=min_overlap, min_gap=min_gap
         )
@@ -499,6 +538,7 @@ def run_render_diagram(spec_path: str, output_path: str | None, theme_name: str)
         with open(spec_path, "r", encoding="utf-8") as f:
             spec = json.load(f)
 
+        from render_diagrams import render_diagram
         out_img = output_path or "academic_diagram.png"
         render_diagram(spec, out_img, theme_name=theme_name)
         print(f"[SUCCESS] 300-DPI diagram rendered to: {out_img}")
@@ -517,6 +557,7 @@ def run_adapt_brief(args) -> int:
         with open(args.json, "r", encoding="utf-8") as f:
             payload = json.load(f)
 
+        from academic_brief_adapter import adapt_academic_payload_to_brief
         brief = adapt_academic_payload_to_brief(payload, preset="academic_defense", theme=args.theme)
         out_path = args.output or "BRIEF.json"
         with open(out_path, "w", encoding="utf-8") as f:

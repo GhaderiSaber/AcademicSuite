@@ -72,15 +72,18 @@ def enforce_script_safety(
     dataset_path: str,
     mode: str = "production",
     plan_path: Optional[str] = None,
-    require_approved_plan: Optional[bool] = None
+    require_approved_plan: Optional[bool] = None,
+    is_synthetic: bool = False
 ) -> Dict[str, Any]:
     """
     Validates dataset provenance and execution parameters before statistical computation.
     
     Args:
         dataset_path: Path to empirical dataset (.xlsx, .csv, .sav, .json).
-        mode: Execution mode ('production', 'demo', 'test', 'dry_run').
+        mode: Execution mode ('production', 'demo', 'test', 'dry_run', 'simulation').
         plan_path: Optional path to analysis_plan.json.
+        require_approved_plan: Whether to require an approved AnalysisPlan.
+        is_synthetic: Explicit flag indicating whether data is synthetic/simulated.
 
     Returns:
         Provenance dictionary with SHA-256, file size, and validated mode.
@@ -88,10 +91,10 @@ def enforce_script_safety(
     Raises:
         InvalidExecutionModeError: If mode is not recognized.
         FileNotFoundError: If dataset does not exist.
-        ProductionSampleFallbackBlockedError: If sample data is used in production.
+        ProductionSampleFallbackBlockedError: If sample or synthetic data is used in production.
         UnauthorizedAnalysisPlanError: If AnalysisPlan is not APPROVED.
     """
-    valid_modes = {"production", "demo", "test", "dry_run"}
+    valid_modes = {"production", "demo", "test", "dry_run", "simulation"}
     norm_mode = (mode or "").strip().lower()
     if norm_mode not in valid_modes:
         raise InvalidExecutionModeError(
@@ -103,10 +106,34 @@ def enforce_script_safety(
 
     abs_dataset = os.path.abspath(dataset_path)
 
-    # P0: Production Sample Data Blocking
+    # P0: Explicit Synthetic Flag in Production Blocking
+    if norm_mode == "production" and is_synthetic:
+        raise ProductionSampleFallbackBlockedError(
+            f"CRITICAL SAFETY VIOLATION: Production execution attempted with explicit synthetic data flag on '{abs_dataset}'. "
+            f"Production mode strictly requires verified real empirical data on disk. Silent fallback is prohibited."
+        )
+
+    # P0: Production Sample Data Blocking by Filename/Path
     if norm_mode == "production" and is_sample_or_demo_data(abs_dataset):
         raise ProductionSampleFallbackBlockedError(
             f"CRITICAL SAFETY VIOLATION: Production execution attempted with sample/demo dataset '{abs_dataset}'. "
+            f"Production mode strictly requires verified real empirical data on disk. Silent fallback is prohibited."
+        )
+
+    # P0: Inspect JSON Payload for Internal Synthetic Markers
+    is_synthetic_payload = False
+    if abs_dataset.endswith(".json"):
+        try:
+            with open(abs_dataset, "r", encoding="utf-8") as f:
+                jdata = json.load(f)
+                if isinstance(jdata, dict) and (jdata.get("is_synthetic") is True or jdata.get("data_mode") == "simulation"):
+                    is_synthetic_payload = True
+        except Exception:
+            pass
+
+    if norm_mode == "production" and is_synthetic_payload:
+        raise ProductionSampleFallbackBlockedError(
+            f"CRITICAL SAFETY VIOLATION: Production execution attempted with internally tagged synthetic dataset '{abs_dataset}'. "
             f"Production mode strictly requires verified real empirical data on disk. Silent fallback is prohibited."
         )
 
@@ -138,5 +165,6 @@ def enforce_script_safety(
         "file_size_bytes": os.path.getsize(abs_dataset),
         "execution_mode": norm_mode,
         "is_sample": is_sample_or_demo_data(abs_dataset),
+        "is_synthetic": is_synthetic or is_synthetic_payload,
         "plan_path": os.path.abspath(plan_path) if plan_path else None
     }

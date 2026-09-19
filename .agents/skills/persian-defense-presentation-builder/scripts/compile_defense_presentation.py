@@ -40,8 +40,12 @@ if sys.stdout.encoding != "utf-8":
     except Exception:
         pass
 
-from pptx import Presentation
-from pptx.util import Inches
+try:
+    from pptx import Presentation
+    from pptx.util import Inches
+except ImportError:
+    Presentation = None
+    Inches = lambda x: x
 
 from presentation_schema import (
     PALETTES,

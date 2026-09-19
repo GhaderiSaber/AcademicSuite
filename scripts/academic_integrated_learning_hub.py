@@ -104,8 +104,9 @@ class AcademicIntegratedLearningHub:
         r"^(?:سلام|درود|ممنون|تشکر|باشه|بله|خیر|ادامه بده|تایید|مشاهده کن)$"
     ]
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: Optional[str] = None, mode: str = "simulation"):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
+        self.mode = mode
         self.telemetry_dir = os.path.join(self.base_dir, "learning", "telemetry")
         self.error_log_file = os.path.join(self.telemetry_dir, "learning_errors.log")
         self.activity_log_file = os.path.join(self.telemetry_dir, "integrated_learning.jsonl")
@@ -234,7 +235,8 @@ class AcademicIntegratedLearningHub:
                 task_prompt=clean_msg,
                 user_correction=clean_msg,
                 target_skill=target_skill,
-                target_agent=target_agent
+                target_agent=target_agent,
+                mode=self.mode
             )
 
             self.log_activity("FAST_LOOP_DISPATCHED", {
@@ -353,7 +355,8 @@ class AcademicIntegratedLearningHub:
                         task_prompt=f"Repeated revision on milestone {milestone_id}",
                         user_correction=correction_msg,
                         target_skill="academic-suite-orchestrator",
-                        existing_experience_id=experience_id
+                        existing_experience_id=experience_id,
+                        mode=self.mode
                     )
                     self.log_activity("REPEATED_REVISION_EVOLUTION", {
                         "milestone_id": milestone_id,
@@ -384,7 +387,8 @@ class AcademicIntegratedLearningHub:
                     task_prompt=f"Milestone {milestone_id} failure recovery",
                     user_correction=defect_msg,
                     target_skill="academic-suite-orchestrator",
-                    existing_experience_id=experience_id
+                    existing_experience_id=experience_id,
+                    mode=self.mode
                 )
                 self.log_activity("MILESTONE_FAILURE_EVOLUTION", {
                     "milestone_id": milestone_id,
@@ -450,7 +454,8 @@ class AcademicIntegratedLearningHub:
             fast_res = self.dual_loop_engine.run_fast_loop(
                 task_prompt=f"Validation resolution for {stage_name}",
                 user_correction=correction_msg,
-                target_skill="chapter-4-writing"
+                target_skill="chapter-4-writing",
+                mode=self.mode
             )
 
             self.log_activity("VALIDATION_FAILURE_EVOLUTION", {
