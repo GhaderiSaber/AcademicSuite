@@ -1,0 +1,623 @@
+# contracts/agents/agent_capabilities.yaml — Canonical Machine-Checkable Capability Policy
+# Single Source of Truth (SSOT) for all 28 AcademicSuite Agents
+# Version: 1.0.0
+# Effective: September 2026 (1405 SH)
+
+schema_version: "1.0.0"
+description: "Authoritative machine-checkable capability and tool permission policy for AcademicSuite agents."
+
+agents:
+  academic-orchestrator:
+    role: "orchestrator"
+    tier: "Tier 1 — Master Conductor"
+    mainAgent: true
+    subagent: true
+    can_delegate: true
+    can_execute_code: false
+    can_write_files: false
+    required:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - ask_question
+    forbidden:
+      - run_command
+      - write_to_file
+      - replace_file_content
+      - define_subagent
+
+  digital-saber:
+    role: "consultant"
+    tier: "Tier 1 — Digital Twin Consultant"
+    mainAgent: false
+    subagent: true
+    can_delegate: true
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+      - ask_question
+    forbidden:
+      - replace_file_content
+      - define_subagent
+
+  methodology-expert:
+    role: "planner"
+    tier: "Tier 2 — Domain Authority"
+    mainAgent: false
+    subagent: true
+    can_delegate: true
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - define_subagent
+
+  statistical-expert:
+    role: "planner"
+    tier: "Tier 2 — Domain Authority"
+    mainAgent: false
+    subagent: true
+    can_delegate: true
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - define_subagent
+
+  academic-writer:
+    role: "writing_worker"
+    tier: "Tier 2 — Domain Authority"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    execution_scope: "docgen_only"
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - replace_file_content
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  evidence-auditor:
+    role: "auditor"
+    tier: "Tier 2 — Domain Authority"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - read_url_content
+      - search_web
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  final-judge:
+    role: "auditor"
+    tier: "Tier 2 — Domain Authority"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  data-agent:
+    role: "execution_worker"
+    tier: "Tier 3 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  data-curator:
+    role: "execution_worker"
+    tier: "Tier 3 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  statistics-agent:
+    role: "execution_worker"
+    tier: "Tier 3 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  psychometric-expert:
+    role: "execution_worker"
+    tier: "Tier 3 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  longitudinal-modmed-expert:
+    role: "execution_worker"
+    tier: "Tier 4 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  qualitative-analyst:
+    role: "execution_worker"
+    tier: "Tier 3 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  meta-analyst:
+    role: "execution_worker"
+    tier: "Tier 4 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  evaluation-agent:
+    role: "execution_worker"
+    tier: "Tier 5 — Learning Agent"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  validation-agent:
+    role: "execution_worker"
+    tier: "Tier 4 — Critic Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  statistical-auditor:
+    role: "execution_worker"
+    tier: "Tier 4 — Critic Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  research-agent:
+    role: "execution_worker"
+    tier: "Tier 3 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - read_url_content
+      - search_web
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  literature-expert:
+    role: "execution_worker"
+    tier: "Tier 3 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - read_url_content
+      - search_web
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  results-auditor:
+    role: "auditor"
+    tier: "Tier 4 — Critic"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  academic-challenger:
+    role: "auditor"
+    tier: "Tier 4 — Critic"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  journal-strategist:
+    role: "critic"
+    tier: "Tier 4 — Critic"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - read_url_content
+      - search_web
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  intervention-designer:
+    role: "specialist"
+    tier: "Tier 3 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  curriculum-builder:
+    role: "learning_agent"
+    tier: "Tier 5 — Learning Subagent"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  knowledge-curator:
+    role: "learning_agent"
+    tier: "Tier 5 — Learning Subagent"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  skill-evolver:
+    role: "learning_agent"
+    tier: "Tier 5 — Learning Subagent"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+    forbidden:
+      - run_command
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  behavior-analyst:
+    role: "learning_agent"
+    tier: "Tier 5 — Learning Subagent"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: false
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+    forbidden:
+      - run_command
+      - write_to_file
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
+  trajectory-analyzer:
+    role: "learning_agent"
+    tier: "Tier 5 — Learning Subagent"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: false
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+    forbidden:
+      - run_command
+      - write_to_file
+      - replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent

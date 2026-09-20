@@ -27,6 +27,17 @@ import argparse
 from typing import Dict, Any, List, Set, Optional, Tuple
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from contracts.agents.capability_policy import (
+    load_capability_policy,
+    get_all_policy_agents,
+    validate_agent_against_policy,
+    validate_policy_schema,
+    DEFAULT_POLICY_PATH,
+)
+
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents", "agents")
 SKILLS_DIR = os.path.join(ROOT_DIR, ".agents", "skills")
 
@@ -178,9 +189,22 @@ def detect_cycles_in_delegation(graph: Dict[str, List[str]]) -> Optional[List[st
 class AgentIntegrityValidator:
     """Master validation engine for AcademicSuite Antigravity Agent Specifications."""
 
-    def __init__(self, agents_dir: str = AGENTS_DIR, skills_dir: str = SKILLS_DIR):
+    def __init__(
+        self,
+        agents_dir: str = AGENTS_DIR,
+        skills_dir: str = SKILLS_DIR,
+        policy_path: Optional[str] = None,
+        enforce_capability_policy: Optional[bool] = None,
+    ):
         self.agents_dir = agents_dir
         self.skills_dir = skills_dir
+        self.policy_path = policy_path
+        if enforce_capability_policy is not None:
+            self.enforce_capability_policy = enforce_capability_policy
+        else:
+            self.enforce_capability_policy = (
+                policy_path is not None or os.path.abspath(agents_dir) == os.path.abspath(AGENTS_DIR)
+            )
         self.available_skills = get_available_skills(skills_dir)
         self.canonical_agents: Dict[str, Dict[str, Any]] = {}
         self.delegation_graph: Dict[str, List[str]] = {}
@@ -219,7 +243,11 @@ class AgentIntegrityValidator:
         # Step 3: Graph-level validation (cycles & delegation semantics)
         self._validate_delegation_graph()
 
-        # Step 4: Overall verdict calculation
+        # Step 4: Machine-checkable capability policy validation (Phase 12 SSOT)
+        if self.enforce_capability_policy:
+            self._validate_capability_policy()
+
+        # Step 5: Overall verdict calculation
         fatal_count = sum(1 for i in self.issues if i.get("severity") in ("ERROR", "FATAL"))
         warning_count = sum(1 for i in self.issues if i.get("severity") == "WARNING")
 
@@ -400,17 +428,68 @@ class AgentIntegrityValidator:
                         f"only 'academic-orchestrator' may hold 'mainAgent: true'. All specialists must have 'mainAgent: false'."
                     )
 
+    def _validate_capability_policy(self):
+        """Validates canonical agents against contracts/agents/agent_capabilities.yaml SSOT."""
+        try:
+            policy = load_capability_policy(self.policy_path)
+        except Exception as e:
+            self._add_issue(
+                "workspace",
+                "capability_policy",
+                f"Failed to load agent capability policy: {e}",
+                severity="FATAL"
+            )
+            return
+
+        # 1. Validate policy internal schema
+        schema_issues = validate_policy_schema(policy)
+        for issue in schema_issues:
+            self._add_issue("capability_policy", "policy_schema", issue, severity="FATAL")
+
+        # 2. Check coverage: all policy agents exist on disk & all disk agents in policy
+        policy_agents = set(get_all_policy_agents(policy))
+        canonical_names = set(self.canonical_agents.keys())
+
+        for missing in sorted(policy_agents - canonical_names):
+            self._add_issue(
+                missing,
+                "capability_policy_coverage",
+                f"Agent '{missing}' is declared in capability policy SSOT but missing from canonical agents on disk"
+            )
+
+        for unreg in sorted(canonical_names - policy_agents):
+            self._add_issue(
+                unreg,
+                "capability_policy_coverage",
+                f"Agent '{unreg}' exists on disk but is not registered in capability policy SSOT"
+            )
+
+        # 3. Validate each canonical agent against its policy specification
+        for name, fm in sorted(self.canonical_agents.items()):
+            if name in policy_agents:
+                agent_issues = validate_agent_against_policy(name, fm, policy)
+                for issue in agent_issues:
+                    self._add_issue(name, "capability_policy", issue)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Antigravity Agent Integrity & Discovery Validator")
     parser.add_argument("--agents-dir", default=AGENTS_DIR, help="Path to .agents/agents directory")
     parser.add_argument("--skills-dir", default=SKILLS_DIR, help="Path to .agents/skills directory")
+    parser.add_argument("--policy-path", default=None, help="Path to agent capability policy YAML")
+    parser.add_argument("--no-policy", action="store_true", help="Disable capability policy enforcement")
     parser.add_argument("--verbose", "-v", action="store_true", help="Print detailed report")
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
 
     args = parser.parse_args()
 
-    validator = AgentIntegrityValidator(agents_dir=args.agents_dir, skills_dir=args.skills_dir)
+    enforce_policy = False if args.no_policy else None
+    validator = AgentIntegrityValidator(
+        agents_dir=args.agents_dir,
+        skills_dir=args.skills_dir,
+        policy_path=args.policy_path,
+        enforce_capability_policy=enforce_policy,
+    )
     result = validator.run_validation()
 
     if args.json:
