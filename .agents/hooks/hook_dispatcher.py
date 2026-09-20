@@ -42,9 +42,13 @@ except ImportError:
 
 def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
     """
-    Detects if the current lifecycle event belongs to the Main Developer Agent
+    Detects if the current lifecycle event belongs to the Built-In Main Developer Agent
     (Track 1: Software Engineering, Code Modification, Maintenance) as opposed to
-    the Academic Orchestrator or academic specialist subagents (Track 2).
+    the Custom Academic Orchestrator or custom specialist subagents (Track 2).
+
+    ARCHITECTURAL INVARIANT:
+    - Built-in Main Agent: UNRESTRICTED. Full developer freedom, no academic Stop gates.
+    - Custom Agents & Subagents: STRICTLY CONTROLLED. Bound to role tools, triad gates, contracts.
     """
     caller = (
         payload.get("agentName") or
@@ -54,19 +58,37 @@ def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
         ""
     ).lower().strip()
 
-    academic_names = {
-        "academic-orchestrator", "orchestrator",
-        "digital-saber", "methodology-expert", "statistical-expert",
-        "academic-writer", "evidence-auditor", "final-judge",
-        "statistics-agent", "data-agent", "data-curator", "results-auditor",
-        "statistical-auditor", "psychometric-expert", "qualitative-analyst",
-        "meta-analyst", "literature-expert", "research-agent", "validation-agent"
+    # All 22 persistent custom roles + domain aliases
+    academic_custom_names = {
+        # Core Custom Orchestrators & Lead Roles
+        "academic-orchestrator", "orchestrator", "digital-saber", "test-orchestrator",
+        # Specialist Domain Workers
+        "statistics-agent", "data-agent", "academic-writer", "research-agent",
+        "validation-agent", "data-curator", "longitudinal-modmed-expert",
+        "qualitative-analyst", "meta-analyst", "intervention-designer",
+        "psychometric-expert", "journal-strategist",
+        # Advisory & Adversarial Audit Authorities
+        "methodology-expert", "statistical-expert", "statistical-auditor",
+        "results-auditor", "evidence-auditor", "academic-challenger", "final-judge",
+        "literature-expert",
+        # Self-Improvement & Meta-Learning Subagents
+        "behavior-analyst", "curriculum-builder", "evaluation-agent",
+        "knowledge-curator", "skill-evolver", "trajectory-analyzer",
+        "test-worker"
     }
 
-    for ac in academic_names:
-        if ac in caller:
+    # 1. If explicitly identified as any custom agent or academic orchestrator -> False (Strictly Controlled)
+    for ac in academic_custom_names:
+        if ac == caller or ac in caller:
             return False
 
+    # 2. Check Antigravity 2.0 subagent flags
+    is_subagent = bool(payload.get("isSubagent") or payload.get("subagent") or payload.get("parentConversationId"))
+    if is_subagent:
+        # If Antigravity marks this execution as a delegated subagent, it is NOT the root main agent
+        return False
+
+    # 3. Explicit main developer indicators
     main_indicators = (
         "main", "main-agent", "mainagent", "default",
         "antigravity", "developer", "coding", "software-engineer", "code-agent"
@@ -78,42 +100,10 @@ def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
     if payload.get("agent_type") == "main" or payload.get("track") == 1:
         return True
 
-    # Check transcript context for coding vs academic intent
-    transcript_path = payload.get("transcriptPath")
-    cid = payload.get("conversationId")
-    if not transcript_path and cid:
-        cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
-        if os.path.exists(cand):
-            transcript_path = cand
-
-    if transcript_path and os.path.isfile(transcript_path):
-        try:
-            with open(transcript_path, "r", encoding="utf-8") as f:
-                records = [json.loads(line) for line in f if line.strip()]
-
-            for r in reversed(records):
-                # Inspect recent tool calls: code modification tools imply Main Developer Agent
-                for tc in r.get("tool_calls", []):
-                    tname = tc.get("name", "") if isinstance(tc, dict) else ""
-                    targs = tc.get("args", {}) if isinstance(tc, dict) else {}
-                    if tname in ("replace_file_content", "apply_diff"):
-                        return True
-                    if tname == "write_to_file":
-                        target = targs.get("TargetFile", "")
-                        if target.endswith((".py", ".sh", ".c", ".cpp", ".js", ".ts", ".json", ".yml", ".yaml")):
-                            return True
-
-                # Inspect user prompt
-                if r.get("type") == "USER_INPUT" and r.get("content"):
-                    prompt = r.get("content", "").lower()
-                    coding_kws = ("pytest", "git", "test", "bug", "fix", "refactor", "code", "python", "factory", "hook", "lint")
-                    if any(k in prompt for k in coding_kws):
-                        return True
-                    break
-        except Exception:
-            pass
-
-    return False
+    # 4. Inverted Default: If not identified as a custom subagent/orchestrator,
+    # it is the Built-in Main Agent operating in Track 1.
+    # This guarantees the Built-in Main Agent is NEVER accidentally blocked by academic Stop gates.
+    return True
 
 
 def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:

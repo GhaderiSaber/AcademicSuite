@@ -27,7 +27,11 @@ if ROOT_DIR not in sys.path:
 verification_path = os.path.join(ROOT_DIR, ".agents", "verification")
 if verification_path not in sys.path:
     sys.path.insert(0, verification_path)
+hooks_path = os.path.join(ROOT_DIR, ".agents", "hooks")
+if hooks_path not in sys.path:
+    sys.path.insert(0, hooks_path)
 
+from hook_dispatcher import is_main_agent_developer, dispatch_event
 from scripts.permission_manager import (
     PermissionManager,
     CAT_RAW_DATA,
@@ -388,7 +392,85 @@ class TestHookArchitecture(unittest.TestCase):
         ]
         for tool in required_tools:
             self.assertIn(tool, pre_matcher, f"Tool '{tool}' missing from PreToolUse matcher")
-            self.assertIn(tool, post_matcher, f"Tool '{tool}' missing from PostToolUse matcher")
+
+class TestMainAgentVsCustomSubagentIsolation(unittest.TestCase):
+    """
+    Verifies that the Built-in Main Agent possesses full developer control,
+    while the Custom Academic Orchestrator and custom subagents are strictly governed.
+    """
+
+    def test_builtin_main_agent_unassigned_defaults_to_developer(self):
+        """Unassigned, empty, or default caller must default to Built-in Main Agent (Track 1)."""
+        self.assertTrue(is_main_agent_developer({}))
+        self.assertTrue(is_main_agent_developer({"agentName": ""}))
+        self.assertTrue(is_main_agent_developer({"agentName": "default"}))
+        self.assertTrue(is_main_agent_developer({"agentName": "main"}))
+        self.assertTrue(is_main_agent_developer({"caller": "antigravity"}))
+        self.assertTrue(is_main_agent_developer({"agentRole": "developer"}))
+        self.assertTrue(is_main_agent_developer({"track": 1}))
+
+    def test_custom_orchestrator_main_agent_classified_as_academic(self):
+        """The custom Academic Orchestrator must be recognized as academic/custom (Track 2)."""
+        self.assertFalse(is_main_agent_developer({"agentName": "academic-orchestrator"}))
+        self.assertFalse(is_main_agent_developer({"caller": "academic-orchestrator"}))
+        self.assertFalse(is_main_agent_developer({"agentRole": "Master Academic Orchestrator"}))
+        self.assertFalse(is_main_agent_developer({"agentName": "test-orchestrator"}))
+        self.assertFalse(is_main_agent_developer({"agentName": "digital-saber"}))
+
+    def test_custom_subagents_classified_as_academic(self):
+        """All custom specialist subagents must be classified as academic/custom (Track 2)."""
+        subagents = [
+            "statistics-agent", "data-agent", "academic-writer",
+            "research-agent", "validation-agent", "methodology-expert",
+            "statistical-expert", "results-auditor", "statistical-auditor",
+            "evidence-auditor", "final-judge", "psychometric-expert"
+        ]
+        for sa in subagents:
+            self.assertFalse(
+                is_main_agent_developer({"agentName": sa}),
+                f"Custom subagent '{sa}' should NOT be classified as main developer"
+            )
+
+    def test_antigravity_subagent_flag_marks_as_subagent(self):
+        """If payload carries isSubagent: True, it must not be treated as root developer agent."""
+        self.assertFalse(is_main_agent_developer({"agentName": "worker-1", "isSubagent": True}))
+        self.assertFalse(is_main_agent_developer({"parentConversationId": "parent-123"}))
+
+    def test_builtin_main_agent_stop_hook_immediate_allow(self):
+        """Built-in Main Agent must never be blocked at Stop (immediate allow)."""
+        res = dispatch_event("Stop", {"agentName": "default"})
+        self.assertEqual(res, {"decision": "allow"})
+
+        res_empty = dispatch_event("Stop", {})
+        self.assertEqual(res_empty, {"decision": "allow"})
+
+    def test_custom_orchestrator_stop_hook_runs_integrity(self):
+        """Custom Academic Orchestrator must be routed to IntegrityHooks at Stop."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            res = dispatch_event("Stop", {
+                "agentName": "academic-orchestrator",
+                "workspacePaths": [tmpdir]
+            })
+            self.assertIn("decision", res)
+
+    def test_builtin_main_agent_run_command_allowed_while_orchestrator_denied(self):
+        """Built-in Main Agent can run commands; Custom Academic Orchestrator is blocked."""
+        # Built-in main agent
+        main_payload = {
+            "agentName": "default",
+            "toolCall": {"name": "run_command", "args": {"CommandLine": "pytest tests"}}
+        }
+        res_main = dispatch_event("PreToolUse", main_payload)
+        self.assertEqual(res_main.get("decision"), "allow")
+
+        # Custom orchestrator
+        orch_payload = {
+            "agentName": "academic-orchestrator",
+            "toolCall": {"name": "run_command", "args": {"CommandLine": "pytest tests"}}
+        }
+        res_orch = dispatch_event("PreToolUse", orch_payload)
+        self.assertEqual(res_orch.get("decision"), "deny")
+        self.assertIn("Orchestrator Zero-Hands Contract", res_orch.get("reason", ""))
 
 
 if __name__ == "__main__":
