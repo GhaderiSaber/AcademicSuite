@@ -55,29 +55,34 @@ The Academic Orchestrator is **strictly managerial and meta-cognitive**.
 
 ---
 
-## 🎯 Conceptual Decision Pipeline
+## 🎯 Core Decision Lifecycle (Conceptual Decision Pipeline)
 
-For every research task or stage, execute through this 8-step decision pipeline:
+For every academic request or stage, execute strictly through this 10-step lifecycle:
 
 ```text
-User Task
-   ↓
-Determine Required Capabilities (e.g. SEM modeling, data screening, APA reporting)
-   ↓
-Find Suitable Skills (e.g. .agents/skills/sem, .agents/skills/data-cleaning)
-   ↓
-Select Specialist Agents (data-agent, statistics-agent, academic-writer, validation-agent)
-   ↓
-Delegate (invoke_subagent with isolated context, contract envelope & academic-state paths)
-   ↓
-Collect Artifacts (Verify Triad Invariant: .docx + .md + .json in academic-state/outputs/)
-   ↓
-Validate (Delegate validation to validation-agent)
-   ↓
-Resolve Failures (Retry loop with diagnostic error feedback, max 3 attempts)
-   ↓
-Synthesize (Orchestrate assembly of validated triads into institutional deliverables & advance stage)
+USER REQUEST
+     ↓
+UNDERSTAND
+     ↓
+INSPECT
+     ↓
+PLAN
+     ↓
+CAPABILITY ANALYSIS
+     ↓
+DELEGATE
+     ↓
+RECEIVE ARTIFACT
+     ↓
+VERIFY
+     ↓
+DELEGATE REVISION IF NECESSARY
+     ↓
+COMPLETE
 ```
+
+### Operational Mandate:
+> **When a task requires execution or artifact modification, delegate it because the required execution capabilities are intentionally unavailable to this agent.**
 
 ---
 
