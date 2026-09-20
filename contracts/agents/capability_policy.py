@@ -15,6 +15,41 @@ from typing import Dict, Any, List, Optional, Set
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DEFAULT_POLICY_PATH = os.path.join(os.path.dirname(__file__), "agent_capabilities.yaml")
 
+# Direct execution tools: Run code or shell commands directly on the host
+DIRECT_EXECUTION_TOOLS: Set[str] = {
+    "run_command",
+}
+
+# Indirect execution tools: Can trigger proxy execution, process manipulation, or dynamic privilege elevation
+INDIRECT_EXECUTION_TOOLS: Set[str] = {
+    "call_mcp_tool",
+    "define_subagent",
+    "manage_task",
+    "schedule",
+}
+
+# MCP servers capable of executing code, arbitrary SQL, remote functions, or pipeline actions
+EXECUTION_CAPABLE_MCP_SERVERS: Set[str] = {
+    "posthog",
+    "supabase",
+    "github",
+}
+
+# High-risk execution tools inside MCP servers
+EXECUTION_CAPABLE_MCP_TOOLS: Set[str] = {
+    "exec",
+    "execute_sql",
+    "deploy_edge_function",
+    "apply_migration",
+    "actions_run_trigger",
+}
+
+# Skills that encapsulate deterministic batch CLI runners ("The Hands")
+EXECUTION_RUNNER_SKILLS: Set[str] = {
+    "academic-suite-orchestrator",
+}
+
+
 
 class CapabilityPolicyError(Exception):
     """Raised when the capability policy is missing, malformed, or violated."""
@@ -51,6 +86,82 @@ def get_agent_policy(agent_name: str, policy: Optional[Dict[str, Any]] = None) -
     return agents[agent_name]
 
 
+def classify_execution_capabilities(
+    agent_name: str,
+    frontmatter: Dict[str, Any],
+    policy: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Analyzes and classifies an agent's direct and indirect execution capabilities.
+
+    Distinguishes:
+    - DIRECT EXECUTION: Tools that execute shell or binary code directly on the host ('run_command').
+    - INDIRECT EXECUTION: Tools, skills, or vectors that can trigger proxy execution, background process
+      manipulation, or dynamic privilege elevation ('call_mcp_tool', 'define_subagent', 'manage_task',
+      'schedule', execution runner skills).
+
+    Returns:
+        Structured classification dictionary containing found tools, permissions, and violations.
+    """
+    pol = policy or load_capability_policy()
+    agents = pol.get("agents", {})
+    spec = agents.get(agent_name, {})
+    can_execute = bool(spec.get("can_execute_code", True))
+
+    tools = set(frontmatter.get("tools", []))
+    skills = set(frontmatter.get("skills", []))
+
+    direct_found = tools & DIRECT_EXECUTION_TOOLS
+    indirect_tools_found = tools & INDIRECT_EXECUTION_TOOLS
+    indirect_skills_found = skills & EXECUTION_RUNNER_SKILLS
+
+    violations: List[str] = []
+
+    if not can_execute:
+        # Non-executing agents must have ZERO direct execution tools
+        if direct_found:
+            violations.append(
+                f"DIRECT EXECUTION VIOLATION: Agent '{agent_name}' has can_execute_code=False "
+                f"but declares direct execution tools: {sorted(direct_found)}"
+            )
+        # Non-executing agents must have ZERO indirect execution tools
+        if indirect_tools_found:
+            violations.append(
+                f"INDIRECT EXECUTION VIOLATION: Agent '{agent_name}' has can_execute_code=False "
+                f"but declares indirect execution tools: {sorted(indirect_tools_found)}"
+            )
+        # Non-executing agents must NOT declare batch CLI runner skills
+        if indirect_skills_found:
+            violations.append(
+                f"INDIRECT SKILL VIOLATION: Agent '{agent_name}' has can_execute_code=False "
+                f"but declares batch execution runner skills: {sorted(indirect_skills_found)}"
+            )
+    else:
+        # Executing agents should declare run_command unless justified
+        if not direct_found and not spec.get("execution_justification"):
+            violations.append(
+                f"DIRECT EXECUTION DEFICIENCY: Agent '{agent_name}' has can_execute_code=True "
+                f"but does not declare any direct execution tools ({sorted(DIRECT_EXECUTION_TOOLS)})"
+            )
+
+    indirect_all = sorted(list(indirect_tools_found) + [f"skill:{s}" for s in indirect_skills_found])
+
+    return {
+        "agent": agent_name,
+        "can_execute_code": can_execute,
+        "execution_scope": spec.get("execution_scope", "general" if can_execute else "none"),
+        "direct_execution": sorted(direct_found),
+        "indirect_execution": indirect_all,
+        "indirect_tools": sorted(indirect_tools_found),
+        "indirect_skills": sorted(indirect_skills_found),
+        "has_direct_execution": bool(direct_found),
+        "has_indirect_execution": bool(indirect_all),
+        "has_any_execution": bool(direct_found or indirect_all),
+        "is_compliant": len(violations) == 0,
+        "violations": violations,
+    }
+
+
 def validate_agent_against_policy(
     agent_name: str,
     frontmatter: Dict[str, Any],
@@ -65,6 +176,7 @@ def validate_agent_against_policy(
     3. Zero 'forbidden' tools are present in frontmatter 'tools'.
     4. 'mainAgent' boolean matches policy.
     5. 'subagent' boolean matches policy.
+    6. Direct vs. Indirect execution classification compliance.
 
     Returns:
         List of issue strings (empty if 100% compliant).
@@ -119,6 +231,11 @@ def validate_agent_against_policy(
         issues.append(
             f"Agent '{agent_name}' has can_delegate=False in capability policy but declares delegated subagents: {declared_delegations}"
         )
+
+    # 6. Direct vs. Indirect Execution Classification
+    exec_class = classify_execution_capabilities(agent_name, frontmatter, pol)
+    for violation in exec_class["violations"]:
+        issues.append(violation)
 
     return issues
 
@@ -178,6 +295,10 @@ def validate_policy_schema(policy: Optional[Dict[str, Any]] = None) -> List[str]
         if not spec.get("can_execute_code", True):
             if "run_command" not in forb:
                 issues.append(f"Agent '{name}' has can_execute_code=False but 'run_command' is not in forbidden")
+            # Indirect execution tools must also be forbidden for non-executing agents
+            for indirect_tool in ["define_subagent", "call_mcp_tool", "manage_task", "schedule"]:
+                if indirect_tool not in forb:
+                    issues.append(f"Agent '{name}' has can_execute_code=False but indirect execution tool '{indirect_tool}' is not in forbidden")
 
         if not spec.get("can_delegate", True):
             if "invoke_subagent" not in forb:
@@ -194,4 +315,5 @@ def validate_policy_schema(policy: Optional[Dict[str, Any]] = None) -> List[str]
         issues.append(f"Expected exactly 1 agent with mainAgent: true, found {main_agent_count}")
 
     return issues
+
 

@@ -234,18 +234,17 @@ class SafetyHooks:
             ).lower()
             targets = extract_target_paths(name, args)
 
-            # Orchestrator Code Guard: academic-orchestrator is strictly managerial and cannot author code
+            # Orchestrator Mutation Guard (Phase 13, 17, 18 Zero-Hands Contract):
+            # academic-orchestrator has no write/mutation privileges and cannot write or modify ANY files directly.
             if "academic-orchestrator" in caller:
-                for target in targets:
-                    if target.endswith((".py", ".sh", ".c", ".cpp", ".js", ".ts")) and not target.endswith("conftest.py"):
-                        return {
-                            "decision": "deny",
-                            "reason": (
-                                f"CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 - Orchestrator Code Guard): "
-                                f"Academic-Orchestrator is strictly managerial and forbidden from writing or modifying code directly ('{target}'). "
-                                f"Delegate computation to specialist subagents (e.g. statistics-agent) or hand off to the Main Agent."
-                            )
-                        }
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 / Phase 18 Zero-Hands Contract / Orchestrator Code Guard): "
+                        "Academic-Orchestrator is strictly managerial and forbidden from writing or modifying files directly. "
+                        "File generation, document drafting, and mutations must be delegated to specialist workers."
+                    )
+                }
             for target in targets:
                 # Raw data immutability
                 if is_raw_data_path(target):
@@ -441,6 +440,113 @@ class SafetyHooks:
                             f"Command attempts to create non-ASCII file/directory '{basename}'."
                         )
                     }
+
+        # 4. Indirect Execution Prevention: MCP Tool Gate (Phase 18)
+        if name == "call_mcp_tool":
+            caller = (
+                payload.get("agentName") or
+                payload.get("agentRole") or
+                payload.get("agent") or
+                payload.get("caller") or ""
+            ).lower()
+            server_name = (args.get("ServerName") or "").lower()
+            tool_name = (args.get("ToolName") or "").lower()
+
+            non_executing_callers = {
+                "academic-orchestrator",
+                "methodology-expert",
+                "statistical-expert",
+                "results-auditor",
+                "academic-challenger",
+                "final-judge",
+                "evidence-auditor",
+                "journal-strategist",
+            }
+            if any(nec in caller for nec in non_executing_callers):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                        f"Agent '{caller}' lacks execution privileges and is strictly forbidden from executing MCP tools ('{server_name}/{tool_name}')."
+                    )
+                }
+
+            high_risk_mcp_tools = {
+                "exec", "execute_sql", "deploy_edge_function",
+                "apply_migration", "actions_run_trigger"
+            }
+            if tool_name in high_risk_mcp_tools:
+                authorized_executors = {"statistics-agent", "data-agent", "research-agent"}
+                if not any(ae in caller for ae in authorized_executors):
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                            f"Indirect code/shell/database execution via MCP tool '{server_name}/{tool_name}' is forbidden for '{caller}'."
+                        )
+                    }
+
+        # 5. Indirect Execution Prevention: Subagent Proxy Creation Gate (define_subagent)
+        if name == "define_subagent":
+            caller = (
+                payload.get("agentName") or
+                payload.get("agentRole") or
+                payload.get("agent") or
+                payload.get("caller") or ""
+            ).lower()
+            if "academic-orchestrator" in caller or any(role in caller for role in ["auditor", "expert", "challenger", "judge"]):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                        f"Agent '{caller}' is forbidden from dynamically defining proxy subagents via define_subagent. "
+                        f"Multi-agent delegation must use canonical, pre-configured subagents."
+                    )
+                }
+            if args.get("enable_write_tools") or args.get("enable_subagent_tools"):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                        "Dynamic elevation of write or subagent privileges via define_subagent is strictly prohibited."
+                    )
+                }
+
+        # 6. Indirect Execution Prevention: Background Process Injection Gate (manage_task)
+        if name == "manage_task":
+            caller = (
+                payload.get("agentName") or
+                payload.get("agentRole") or
+                payload.get("agent") or
+                payload.get("caller") or ""
+            ).lower()
+            action = (args.get("Action") or "").lower()
+            if action == "send_input":
+                if "academic-orchestrator" in caller or any(role in caller for role in ["auditor", "expert", "challenger", "judge"]):
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                            f"Agent '{caller}' is forbidden from injecting shell input into background tasks via manage_task."
+                        )
+                    }
+
+        # 7. Indirect Execution Prevention: Scheduled Execution Gate (schedule)
+        if name == "schedule":
+            caller = (
+                payload.get("agentName") or
+                payload.get("agentRole") or
+                payload.get("agent") or
+                payload.get("caller") or ""
+            ).lower()
+            if "academic-orchestrator" in caller:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                        "Academic-Orchestrator is forbidden from scheduling background execution tasks."
+                    )
+                }
 
         return {"decision": "allow"}
 

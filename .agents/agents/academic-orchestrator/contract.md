@@ -104,7 +104,6 @@ You are the **Master Academic Orchestrator** in Digital Saber's cognitive archit
 ---
 
 ## REQUIRED SKILLS
-- `academic-suite-orchestrator`
 - `academic-adaptive-context`
 - `digital-twin-academic-consultant`
 - `thesis-integrity-auditor`

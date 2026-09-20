@@ -35,6 +35,7 @@ from contracts.agents.capability_policy import (
     get_all_policy_agents,
     validate_agent_against_policy,
     validate_policy_schema,
+    classify_execution_capabilities,
     DEFAULT_POLICY_PATH,
 )
 
@@ -624,9 +625,10 @@ class AgentIntegrityValidator:
 
 class AgentCapabilityValidator(AgentIntegrityValidator):
     """
-    Phase 13: Specialized Agent Capability Validator.
+    Phase 13/18: Specialized Agent Capability Validator.
     Inherits all Antigravity integrity and discovery checks from AgentIntegrityValidator
-    and enforces the full suite of least-privilege capability boundaries.
+    and enforces the full suite of least-privilege capability boundaries, explicitly
+    distinguishing DIRECT EXECUTION from INDIRECT EXECUTION.
     """
     def __init__(
         self,
@@ -641,6 +643,43 @@ class AgentCapabilityValidator(AgentIntegrityValidator):
             policy_path=policy_path,
             enforce_capability_policy=enforce_capability_policy,
         )
+
+    def run_validation(self) -> Dict[str, Any]:
+        result = super().run_validation()
+        policy = self._get_policy()
+
+        taxonomy = {
+            "direct_executors": [],
+            "non_executors": [],
+            "indirect_vectors_status": {
+                "call_mcp_tool": "BLOCKED for non-executors (mechanically guarded in hooks)",
+                "define_subagent": "BLOCKED for orchestrator and non-executors (mechanically guarded in hooks)",
+                "manage_task": "BLOCKED send_input for non-executors (mechanically guarded in hooks)",
+                "schedule": "BLOCKED for orchestrator and non-executors (mechanically guarded in hooks)",
+                "batch_runner_skills": "BLOCKED for non-executors",
+            },
+        }
+
+        for name, fm in sorted(self.canonical_agents.items()):
+            classification = classify_execution_capabilities(name, fm, policy)
+            if classification["can_execute_code"]:
+                taxonomy["direct_executors"].append({
+                    "name": name,
+                    "scope": classification["execution_scope"],
+                    "direct_tools": classification["direct_execution"],
+                })
+            else:
+                agent_spec = policy.get("agents", {}).get(name, {}) if policy else {}
+                taxonomy["non_executors"].append({
+                    "name": name,
+                    "role": agent_spec.get("role", "unknown"),
+                    "direct_tools": classification["direct_execution"],
+                    "indirect_tools": classification["indirect_tools"],
+                    "indirect_skills": classification["indirect_skills"],
+                })
+
+        result["execution_taxonomy"] = taxonomy
+        return result
 
 
 def main():

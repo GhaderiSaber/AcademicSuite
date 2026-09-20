@@ -29,6 +29,9 @@ agents:
       - write_to_file
       - replace_file_content
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   digital-saber:
     role: "consultant"
@@ -74,6 +77,9 @@ agents:
       - run_command
       - replace_file_content
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   statistical-expert:
     role: "planner"
@@ -96,6 +102,9 @@ agents:
       - run_command
       - replace_file_content
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   academic-writer:
     role: "writing_worker"
@@ -143,6 +152,9 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   final-judge:
     role: "auditor"
@@ -165,6 +177,9 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   data-agent:
     role: "execution_worker"
@@ -445,6 +460,9 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   academic-challenger:
     role: "auditor"
@@ -467,6 +485,9 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   journal-strategist:
     role: "critic"
@@ -491,6 +512,9 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   intervention-designer:
     role: "specialist"
@@ -513,6 +537,9 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   curriculum-builder:
     role: "learning_agent"
@@ -535,6 +562,9 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   knowledge-curator:
     role: "learning_agent"
@@ -557,6 +587,9 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   skill-evolver:
     role: "learning_agent"
@@ -579,6 +612,9 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   behavior-analyst:
     role: "learning_agent"
@@ -601,6 +637,9 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   trajectory-analyzer:
     role: "learning_agent"
@@ -623,3 +662,6 @@ agents:
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule

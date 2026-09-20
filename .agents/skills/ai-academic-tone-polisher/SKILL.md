@@ -99,44 +99,23 @@ diag = diagnose_paragraph_cadence(paragraph_text)
 
 ---
 
-## 4. Multi-Agent Orchestration Protocol (Rule 12 & Rule 13)
+## 4. Polishing & Humanization Procedure
 
-When humanizing or writing an academic article, the existing agents execute in sequence:
+Execute the 4-step diagnostic and rewriting sequence:
 
-```text
-                               [User Request]
-                                      │
-                                      ▼
-                               [digital-saber]
-                                      │
-               ┌──────────────────────┴──────────────────────┐
-               ▼                                             ▼
-       [results-auditor]                             [academic-writer]
-      Runs lint_ai_risk.py                        Applies De-templating
-  (Pre-flight Risk Assessment)                   & Cadence Inversion Rules
-               │                                             │
-               │  High Risk Detected?                        │
-               └──────────────────► [Rewrites] ◄─────────────┘
-                                           │
-                                           ▼
-                                   [results-auditor]
-                               (Blind Verification Pass)
-                                           │
-                                           ▼
-                                [final-judge & Delivery]
-                              0% QuillBot / Turnitin Risk
-```
-
-1. **Step 1: Pre-flight Audit**: `results-auditor` executes `lint_ai_risk.py`. If Composite Risk Score $\le 20\%$, the text passes immediately without editing.
-2. **Step 2: Entity Masking**: Run `mask_invariants.py` to lock all citations and math.
-3. **Step 3: Surgical In-Place Rewriting**: `academic-writer` consults [section_de_templating_guide.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher/references/section_de_templating_guide.md) to restructure flagged sentences, eliminate rhetorical questions, and drive $CV \ge 0.70$.
-4. **Step 4: Unmasking & Verification**: Restore masked entities. `results-auditor` re-runs `lint_ai_risk.py` to confirm the text achieves Grade A+ with zero corruptions.
+1. **Step 1: Pre-Flight Audit**: Run `lint_ai_risk.py` on the draft text. If Composite Risk Score $\le 20\%$, the text passes immediately without editing.
+2. **Step 2: Entity Masking**: Run `mask_invariants.py` to lock all citations and math formulas with immutable placeholders (`__CIT_001__`, `__STAT_001__`).
+3. **Step 3: Surgical In-Place Rewriting**: Restructure flagged sentences using de-templating rules:
+   - Alternate staccato declarative claims with periodic clauses ($CV \ge 0.70$).
+   - Eliminate rhetorical questions and conversational AI cliches.
+   - Restructure repetitive parallel sentence structures.
+4. **Step 4: Unmasking & Verification**: Restore masked entities (`unmask_invariants`) and re-run `lint_ai_risk.py` to confirm Grade A+ ($CV \ge 0.70$, AI risk $\le 20\%$) with zero corrupted citations or math.
 
 ---
 
 ## 5. Reference Knowledge Base
 
-- [detection_heuristics.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher/references/detection_heuristics.md) — Mathematical mechanics of QuillBot, Turnitin, and GPTZero.
-- [ai_slop_and_cliche_catalog.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher/references/ai_slop_and_cliche_catalog.md) — 38 synthetic academic markers and human scholarly alternatives.
-- [section_de_templating_guide.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher/references/section_de_templating_guide.md) — Step-by-step methods for de-templating Methods, Results, and Discussion.
-- [academic_tone_and_humanization_standards.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/ai-academic-tone-polisher/references/academic_tone_and_humanization_standards.md) — Stanford SciWrite 5-pass editorial framework and Persian orthography (نیم‌فاصله).
+- [detection_heuristics.md](file://references/detection_heuristics.md) — Mathematical mechanics of QuillBot, Turnitin, and GPTZero.
+- [ai_slop_and_cliche_catalog.md](file://references/ai_slop_and_cliche_catalog.md) — 38 synthetic academic markers and human scholarly alternatives.
+- [section_de_templating_guide.md](file://references/section_de_templating_guide.md) — Step-by-step methods for de-templating Methods, Results, and Discussion.
+- [academic_tone_and_humanization_standards.md](file://references/academic_tone_and_humanization_standards.md) — Stanford SciWrite 5-pass editorial framework and Persian orthography (نیم‌فاصله).

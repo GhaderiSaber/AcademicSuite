@@ -52,7 +52,7 @@ def main():
         sys.exit(0 if result["overall_verdict"] == "PASS" else 1)
 
     print("=" * 70)
-    print("🛡️ AcademicSuite Agent Capability Validator (Phase 13)")
+    print("🛡️ AcademicSuite Agent Capability Validator (Phase 13 & Phase 18)")
     print("=" * 70)
     print(f"Directory:        {args.agents_dir}")
     print(f"Agents Scanned:   {result['agents_validated']}")
@@ -60,6 +60,31 @@ def main():
     print(f"Warnings:         {result['warnings']}")
     print(f"Overall Verdict:  {result['overall_verdict']}")
     print("=" * 70)
+
+    taxonomy = result.get("execution_taxonomy", {})
+    if taxonomy:
+        print("\n⚡ EXECUTION TAXONOMY AUDIT (Direct vs. Indirect Capability Boundaries)")
+        print("-" * 70)
+        direct_execs = taxonomy.get("direct_executors", [])
+        print(f"DIRECT EXECUTION WORKERS ({len(direct_execs)}):")
+        for de in direct_execs:
+            tools_str = ", ".join(de["direct_tools"])
+            print(f"  ✓ {de['name']:<28} [{de['scope']}]: {tools_str}")
+
+        non_execs = taxonomy.get("non_executors", [])
+        print(f"\nNON-EXECUTING AUTHORITIES & AUDITORS ({len(non_execs)}):")
+        for ne in non_execs:
+            d_count = len(ne["direct_tools"])
+            i_count = len(ne["indirect_tools"])
+            s_count = len(ne["indirect_skills"])
+            status = "PURE CONDUCTOR" if ne["name"] == "academic-orchestrator" else "ZERO HANDS"
+            print(f"  ✓ {ne['name']:<28} [{ne['role']}]: Direct={d_count}, Indirect={i_count}, RunnerSkills={s_count} ({status})")
+
+        print("\nINDIRECT EXECUTION BYPASS AUDIT:")
+        status_map = taxonomy.get("indirect_vectors_status", {})
+        for vector, status_desc in status_map.items():
+            print(f"  ✓ {vector:<22}: {status_desc}")
+        print("-" * 70)
 
     if result["issues"]:
         print("\nIdentified Capability Violations:")
@@ -69,10 +94,10 @@ def main():
         print()
 
     if result["overall_verdict"] == "PASS":
-        print("✅ ALL AGENTS VALIDATED: 100% capability boundaries and least-privilege contracts satisfied.")
+        print("\n✅ ALL AGENTS VALIDATED: 100% direct & indirect execution boundaries satisfied.")
         sys.exit(0)
     else:
-        print("❌ CAPABILITY VALIDATION FAILED: See violations above.")
+        print("\n❌ CAPABILITY VALIDATION FAILED: See violations above.")
         sys.exit(1)
 
 

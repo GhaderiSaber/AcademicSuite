@@ -12,20 +12,8 @@ Provides agents with a compact, high-signal behavioral briefing containing activ
 
 ---
 
-## 🛑 Strict Architectural Non-Goals & Boundaries
-
-1. **NOT an Orchestration Skill**:
-   - This skill **never** dispatches subagents, transitions state machine milestones, or creates project plans. That is the exclusive domain of `academic-orchestrator`.
-2. **NOT a Statistical Execution Engine**:
-   - This skill **never** calculates numbers, $p$-values, effect sizes, or runs regressions in its head or in Python. Statistical execution belongs to specialized skills (`mediation`, `sem`, `regression`, `apa-reporting`).
-3. **NOT Self-Mutating**:
-   - This skill **never** modifies its own instructions, prompts, or code. Knowledge evolution occurs through formal promotion gates (`promotion_decision`).
-4. **Anti-Dump Invariant (Zero Prompt Flooding)**:
-   - **Never** dump the entire learning repository into the prompt. Agents must query strictly for the active capability, task, and project.
-5. **Strict Scope Containment**:
-   - Project-specific rules from Project A **must never** be applied as universal rules in Project B. Only cross-project invariants and domain-wide principles generalize.
-
 ---
+
 
 ## 1. When to Use (Activation Criteria)
 

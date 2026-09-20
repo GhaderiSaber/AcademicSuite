@@ -5,31 +5,28 @@ description: Deterministic batch pipeline CLI runner executing multi-stage scrip
 
 # AcademicSuite Batch Pipeline CLI Runner (موتور اجرای متوالی اسکریپت‌ها بر روی دیسک)
 
-> **Architectural Boundary (Directive 12.1 — Sole Orchestrator Mandate)**:  
-> **Google Antigravity and the `academic-orchestrator` agent are the sole multi-agent orchestrators**. This skill does **NOT** select agents, control high-level project lifecycles, or coordinate milestone state machines.  
-> This skill is strictly **"The Hands"**: a deterministic CLI runner (`orchestrator_cli.py`) that executes ordered batches of Python/R scripts on disk and generates execution manifests.
+> **Decoupling Note (Directive 12.1 — Sole Orchestrator Mandate)**:  
+> High-level multi-agent orchestration belongs exclusively to `academic-orchestrator`. This skill is strictly **"The Hands"**: a deterministic CLI runner (`orchestrator_cli.py`) executing ordered batches of Python/R scripts on disk and compiling execution manifests.
 
 ---
 
-## 1. When to Use (Activation Criteria)
+## 1. WHEN TO USE (Activation Criteria)
 Activate this skill when:
-1. An agent needs to **execute an explicit sequence of deterministic CLI scripts on disk** (e.g. running data cleaning followed by statistical calculation and OpenXML assembly).
-2. The agent needs **dry-run validation** of file dependencies before launching long computations (`--dry-run`).
-3. The agent needs **step-level checkpointing and resumption** for interrupted script runs (`--resume-from <step>` or `--step <step>`).
-4. Compiling the final disk execution audit trail (`orchestrator_manifest.json`) and summary status table (`PROJECT_DASHBOARD.md`).
+1. **Executing an Explicit Sequence of Deterministic Scripts**: A multi-step workflow on disk needs sequential batch execution (e.g., data cleaning followed by statistical calculation and OpenXML assembly).
+2. **Dependency Validation**: Dry-run verification of file dependencies is required before launching computations (`--dry-run`).
+3. **Resumption & Checkpointing**: Resuming or rerunning specific interrupted pipeline steps (`--resume-from <step>` or `--step <step>`).
+4. **Execution Audit Compilation**: Generating the physical execution manifest (`orchestrator_manifest.json`) and status table (`PROJECT_DASHBOARD.md`).
 
 ---
 
-## 2. When Not to Use (Exclusion Criteria)
-Do **NOT** use this skill when:
-1. **Making High-Level Research or Deliberation Decisions**: Selecting research questions, choosing statistical methods, or evaluating competing models must be performed by specialist agents (`methodology-expert`, `statistical-expert`, `academic-challenger`).
-2. **Multi-Agent Coordination & Delegation**: Delegating tasks to subagents must occur natively via Antigravity's `invoke_subagent` tool, never through a Python script.
-3. **Project State & Milestone Management**: Setting milestone states, verifying approvals, and checking gatekeeper requirements belongs to `StrictStateMachine` (`scripts/academic_state_manager.py`).
-4. **Single-Stage Isolated Execution**: When only one specific analysis is needed (e.g., only CFA or only Mediation), invoke that specific skill (`cfa`, `mediation`) directly rather than chaining through the batch runner.
+## 2. WHEN NOT TO USE (Exclusion Criteria)
+Do NOT use this skill when:
+1. **Single-Stage Isolated Execution**: When only one specific analysis is needed (e.g., only CFA or only Mediation), invoke that domain skill (`cfa`, `mediation`) directly.
+2. **Interactive Stage-Gates**: When intermediate qualitative review, supervisor feedback, or interactive confirmation is needed between steps.
 
 ---
 
-## 3. Required Inputs & Execution Contract
+## 3. REQUIRED INPUTS & CONTRACT
 The runner accepts an explicit configuration payload or command-line flags:
 - `--steps`: Comma-separated list of execution steps (e.g., `simulation,statistics,discussion`).
 - `--config`: Path to validated project JSON configuration.
