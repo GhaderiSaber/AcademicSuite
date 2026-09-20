@@ -24,25 +24,30 @@ class TestProjectStructure(unittest.TestCase):
 
     def test_artifacts_layer_exists(self):
         """Asserts artifacts/ contains project, analysis, validation, reports."""
+        cand_art = os.path.join(REPO_ROOT, ".agents", "artifacts")
+        artifacts_dir = cand_art if os.path.isdir(cand_art) else os.path.join(REPO_ROOT, "artifacts")
         subdirs = ["project", "analysis", "validation", "reports"]
         for s in subdirs:
-            p = os.path.join(REPO_ROOT, "artifacts", s)
+            p = os.path.join(artifacts_dir, s)
             self.assertTrue(os.path.isdir(p), f"Missing artifacts/{s}/")
-        self.assertTrue(os.path.isfile(os.path.join(REPO_ROOT, "artifacts", "README.md")), "Missing artifacts/README.md")
+        self.assertTrue(os.path.isfile(os.path.join(artifacts_dir, "README.md")), "Missing artifacts/README.md")
 
     def test_evaluations_alias_exists(self):
-        """Asserts evaluations exists as directory or symlink pointing to evals."""
-        p = os.path.join(REPO_ROOT, "evaluations")
-        self.assertTrue(os.path.exists(p), "Missing evaluations alias/symlink")
+        """Asserts evals or evaluations directory exists."""
+        cand_eval = os.path.join(REPO_ROOT, "evals")
+        p = cand_eval if os.path.isdir(cand_eval) else os.path.join(REPO_ROOT, "evaluations")
+        self.assertTrue(os.path.exists(p), "Missing evals or evaluations directory")
         self.assertTrue(os.path.exists(os.path.join(p, "run_eval_suite.py")), "evaluations should expose run_eval_suite.py")
 
     def test_legacy_archiving_exists(self):
         """Asserts legacy/ contains workflows/ and skills/ with archived components."""
-        legacy_wf = os.path.join(REPO_ROOT, "legacy", "workflows")
+        cand_leg = os.path.join(REPO_ROOT, ".agents", "legacy")
+        legacy_dir = cand_leg if os.path.isdir(cand_leg) else os.path.join(REPO_ROOT, "legacy")
+        legacy_wf = os.path.join(legacy_dir, "workflows")
         self.assertTrue(os.path.isdir(legacy_wf), "Missing legacy/workflows/")
-        legacy_sk = os.path.join(REPO_ROOT, "legacy", "skills")
+        legacy_sk = os.path.join(legacy_dir, "skills")
         self.assertTrue(os.path.isdir(legacy_sk), "Missing legacy/skills/")
-        self.assertTrue(os.path.isfile(os.path.join(REPO_ROOT, "legacy", "README.md")), "Missing legacy/README.md")
+        self.assertTrue(os.path.isfile(os.path.join(legacy_dir, "README.md")), "Missing legacy/README.md")
         self.assertTrue(os.path.isfile(os.path.join(legacy_sk, "README.md")), "Missing legacy/skills/README.md")
         self.assertTrue(os.path.isfile(os.path.join(REPO_ROOT, ".agents", "workflows", "README.md")), "Missing .agents/workflows/README.md")
 

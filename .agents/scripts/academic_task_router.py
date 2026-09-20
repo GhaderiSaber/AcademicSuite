@@ -46,7 +46,8 @@ except ImportError:
 # 1. Authoritative Capability Registry Loader
 # =============================================================================
 
-DEFAULT_CAPABILITIES_PATH = os.path.join(ROOT_DIR, "config", "capabilities.yaml")
+cand_caps = os.path.join(ROOT_DIR, ".agents", "config", "capabilities.yaml")
+DEFAULT_CAPABILITIES_PATH = cand_caps if os.path.isfile(cand_caps) else os.path.join(ROOT_DIR, "config", "capabilities.yaml")
 
 
 class CapabilityRegistry:

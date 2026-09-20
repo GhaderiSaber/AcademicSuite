@@ -31,7 +31,8 @@ class TestSkillPackages(unittest.TestCase):
 
     def test_retired_skills_in_legacy(self):
         """Asserts the 10 retired legacy workflow skill shells reside in legacy/skills/."""
-        legacy_skills_dir = os.path.join(REPO_ROOT, "legacy", "skills")
+        cand_leg = os.path.join(REPO_ROOT, ".agents", "legacy", "skills")
+        legacy_skills_dir = cand_leg if os.path.isdir(cand_leg) else os.path.join(REPO_ROOT, "legacy", "skills")
         self.assertTrue(os.path.isdir(legacy_skills_dir), "Missing legacy/skills/ directory")
         expected_retired = [
             "chapter2_literature", "chapter4", "chapter5", "defense_presentation",
