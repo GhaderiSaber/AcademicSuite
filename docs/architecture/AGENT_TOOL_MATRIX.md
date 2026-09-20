@@ -13,7 +13,7 @@ This document freezes and records the exact tool access, skill bindings, executi
 
 ### Key Privilege Metrics (N = 28 Agents)
 - **Can Delegate (`invoke_subagent`):** 4 agents (14.3%) — `academic-orchestrator`, `digital-saber`, `methodology-expert`, `statistical-expert`
-- **Can Execute Code (`run_command`):** 20 agents (71.4%)
+- **Can Execute Code (`run_command`):** 19 agents (67.9%)
 - **Can Write Files (`write_to_file` / `replace_file_content`):** 27 agents (96.4%) — Only `trajectory-analyzer` is strictly read-only
 - **Can Act as Main Agent (`mainAgent: true`):** 5 agents (17.9%) — `academic-orchestrator`, `digital-saber`, `methodology-expert`, `statistical-expert`, `evidence-auditor`
 - **Can Act as Subagent (`subagent: true`):** 28 agents (100.0%)
@@ -41,7 +41,7 @@ This document freezes and records the exact tool access, skill bindings, executi
 | 15 | `literature-expert` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `literature-harvester`, `literature-review`, `bibliometric-network-analyst` |
 | 16 | `longitudinal-modmed-expert` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `longitudinal-moderated-mediation`, `mediation`, `apa-reporting` |
 | 17 | `meta-analyst` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `systematic-review-meta-analyst`, `gpower-sample-size-calculator` |
-| 18 | `methodology-expert` | Tier 2 (Domain) | Yes | Yes | Yes | Yes | Yes | `methodology-review`, `academic-adaptive-context`, `gpower-sample-size-calculator`, `persian-proposal-builder` |
+| 18 | `methodology-expert` | Tier 2 (Domain) | Yes | Yes | **No** | Yes | Yes | `methodology-review`, `academic-adaptive-context`, `gpower-sample-size-calculator`, `persian-proposal-builder` |
 | 19 | `psychometric-expert` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `psychometric-scale-validator`, `academic-adaptive-context`, `cfa`, `psychometric-scale-resolver`, `reliability-analysis` |
 | 20 | `qualitative-analyst` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `qualitative-data-analyst` |
 | 21 | `research-agent` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `literature-review`, `literature-harvester`, `gpower-sample-size-calculator` |
@@ -432,14 +432,13 @@ agent:
     - grep_search
     - find_by_name
     - write_to_file
-    - run_command
   skills:
     - methodology-review
     - academic-adaptive-context
     - gpower-sample-size-calculator
     - persian-proposal-builder
   mcpServers: []
-  can_execute_code: true
+  can_execute_code: false
   can_write: true
   can_delegate: true
   intended_role: "Research Methodology, Experimental Design & Power Authority"
