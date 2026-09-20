@@ -14,7 +14,26 @@ import unittest
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Dynamically discover site-packages from any local virtualenv (.venv or venv)
+AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
+RESOLVE_DIRS = [
+    ROOT_DIR,
+    AGENTS_DIR,
+    os.path.join(AGENTS_DIR, "scripts"),
+    os.path.join(AGENTS_DIR, "contracts"),
+    os.path.join(AGENTS_DIR, "validators"),
+    os.path.join(AGENTS_DIR, "factory"),
+    os.path.join(AGENTS_DIR, "recovery"),
+    os.path.join(AGENTS_DIR, "tools"),
+    os.path.join(AGENTS_DIR, "tools", "python"),
+    os.path.join(AGENTS_DIR, "learning"),
+    os.path.join(AGENTS_DIR, "state"),
+    os.path.join(AGENTS_DIR, "data"),
+    os.path.join(ROOT_DIR, "webapp"),
+]
+for p in reversed(RESOLVE_DIRS):
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
+
 for venv_name in [".venv", "venv"]:
     venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
     if os.path.isdir(venv_lib):

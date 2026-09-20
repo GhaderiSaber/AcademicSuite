@@ -15,8 +15,10 @@ import json
 import argparse
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
+AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
+for p in [ROOT_DIR, AGENTS_DIR, os.path.join(AGENTS_DIR, "scripts")]:
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
 for venv_name in [".venv", "venv"]:
     venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
     if os.path.isdir(venv_lib):
@@ -175,7 +177,10 @@ if __name__ == '__main__':
     parser.add_argument('--plan', default=None, help="Path to approved AnalysisPlan JSON")
     args = parser.parse_args()
 
-    from scripts.script_execution_guard import enforce_script_safety
+    try:
+        from scripts.script_execution_guard import enforce_script_safety
+    except ImportError:
+        from script_execution_guard import enforce_script_safety
     prov = enforce_script_safety(dataset_path=args.data, mode=args.mode, plan_path=args.plan)
     if args.mode == "dry_run":
         print(f"Dry-run validated successfully for SEM on {args.data}. No computation performed.")

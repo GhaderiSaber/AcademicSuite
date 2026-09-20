@@ -18,6 +18,7 @@ import tempfile
 import unittest
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(ROOT_DIR, ".agents", "scripts"))
 sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
 import orchestrator_dependency_resolver as odr
 

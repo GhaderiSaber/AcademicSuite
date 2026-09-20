@@ -43,6 +43,7 @@ import pandas as pd
 import numpy as np
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(ROOT_DIR, ".agents", "scripts"))
 sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
 sys.path.insert(0, os.path.join(ROOT_DIR, ".agents", "verification"))
 sys.path.insert(0, os.path.join(ROOT_DIR, ".agents", "skills", "academic-suite-orchestrator", "scripts"))

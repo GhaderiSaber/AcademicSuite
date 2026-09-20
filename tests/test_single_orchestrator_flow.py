@@ -24,9 +24,11 @@ MEMORY_DIR = os.path.join(REPO_ROOT, ".agents", "memory")
 REASONING_DIR = os.path.join(REPO_ROOT, ".agents", "reasoning")
 VERIF_DIR = os.path.join(REPO_ROOT, ".agents", "verification")
 SCRIPTS_DIR = os.path.join(REPO_ROOT, "scripts")
+AGENTS_SCRIPTS_DIR = os.path.join(REPO_ROOT, ".agents", "scripts")
 COPILOT_DIR = os.path.join(REPO_ROOT, ".agents", "skills", "digital-twin-academic-consultant", "scripts")
+WEBAPP_DIR = os.path.join(REPO_ROOT, "webapp")
 
-for p in [SHARED_DIR, MEMORY_DIR, REASONING_DIR, VERIF_DIR, SCRIPTS_DIR, COPILOT_DIR]:
+for p in [SHARED_DIR, MEMORY_DIR, REASONING_DIR, VERIF_DIR, SCRIPTS_DIR, AGENTS_SCRIPTS_DIR, COPILOT_DIR, WEBAPP_DIR]:
     if p not in sys.path and os.path.isdir(p):
         sys.path.insert(0, p)
 

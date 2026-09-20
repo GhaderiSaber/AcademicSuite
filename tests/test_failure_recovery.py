@@ -34,9 +34,14 @@ for venv_name in [".venv", "venv"]:
 
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
-scripts_dir = os.path.join(ROOT_DIR, "scripts")
+agents_dir = os.path.join(ROOT_DIR, ".agents")
+if agents_dir not in sys.path:
+    sys.path.insert(0, agents_dir)
+scripts_dir = os.path.join(agents_dir, "scripts")
 if scripts_dir not in sys.path:
     sys.path.insert(0, scripts_dir)
+if os.path.join(ROOT_DIR, "scripts") not in sys.path:
+    sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
 
 from recovery.taxonomy import FailureType, FailureSeverity, RecoveryStrategy, IncidentStatus
 from recovery.diagnostics import diagnose_failure

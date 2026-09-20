@@ -37,6 +37,7 @@ for venv_name in [".venv", "venv"]:
         except OSError:
             pass
 
+sys.path.insert(0, os.path.join(ROOT_DIR, ".agents"))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 

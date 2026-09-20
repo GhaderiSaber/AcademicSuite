@@ -22,7 +22,9 @@ for venv_name in [".venv", "venv"]:
             if os.path.isdir(sp) and sp not in sys.path:
                 sys.path.insert(0, sp)
 
+sys.path.insert(0, os.path.join(ROOT_DIR, ".agents"))
 sys.path.insert(0, ROOT_DIR)
+sys.path.insert(0, os.path.join(ROOT_DIR, ".agents", "scripts"))
 sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
 sys.path.insert(0, os.path.join(ROOT_DIR, "validators"))
 
