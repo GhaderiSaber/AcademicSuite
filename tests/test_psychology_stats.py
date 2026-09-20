@@ -71,5 +71,25 @@ class TestPsychologyStats(unittest.TestCase):
         self.assertIn("intervention", res["adjusted_means"])
 
 
+    def test_repeated_measures_anova(self):
+        """Asserts RM-ANOVA computes Mauchly sphericity, Greenhouse-Geisser epsilon, and pairwise tests."""
+        import pandas as pd
+        csv_path = os.path.join(REPO_ROOT, 'evals', 'benchmarks', 'datasets', 'bm_rm_anova_multitime.csv')
+        df = pd.read_csv(csv_path)
+        res = psychology_stats.analyze_repeated_measures_anova(
+            df,
+            subject_col='subject_id',
+            time_cols=['Time_1', 'Time_2', 'Time_3', 'Time_4']
+        )
+        self.assertEqual(res['sample_size'], 60)
+        self.assertTrue(res['mauchly_sphericity']['violated'])
+        self.assertLess(res['epsilon']['greenhouse_geisser'], 0.75)
+        self.assertEqual(res['correction_type'], 'Greenhouse-Geisser')
+        self.assertGreater(res['primary_test']['f_statistic'], 50.0)
+        self.assertLess(res['primary_test']['p_reported'], 0.001)
+        self.assertEqual(len(res['pairwise_contrasts']), 6)
+        self.assertTrue(all(p['significant_05'] for p in res['pairwise_contrasts']))
+
+
 if __name__ == "__main__":
     unittest.main()

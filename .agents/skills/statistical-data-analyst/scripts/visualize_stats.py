@@ -1,3 +1,4 @@
+import json
 #!/usr/bin/env python3
 """
 Publication-Grade Scientific Visualization Engine (visualize_stats.py)
@@ -267,15 +268,127 @@ def plot_regression_residual_diagnostics(zresiduals: Union[List[float], np.ndarr
     print(f"[✓] Residual diagnostics exported: {hist_path} and {pp_path}")
     return hist_path, pp_path
 
+
+def plot_repeated_measures_trajectory(
+    time_labels: List[str],
+    means: List[float],
+    sds: List[float],
+    ses: List[float],
+    p_val: float,
+    title: str,
+    ylabel: str,
+    output_path: str,
+    effect_size_str: Optional[str] = None,
+    dpi: int = 300
+) -> str:
+    """
+    Generate publication-ready longitudinal trajectory plot with SE error bars
+    and statistical significance information for RM-ANOVA (300 DPI, Nature / APA style).
+    """
+    fig, ax = plt.subplots(figsize=(7.0, 5.0), dpi=dpi)
+    x = np.arange(len(time_labels))
+    
+    # Trajectory line with point markers
+    ax.plot(x, means, marker='o', markersize=8, linewidth=2.2, color=COLOR_PALETTE[0],
+            label="میانگین نمرات (Mean)", zorder=3)
+    
+    # SE Error bars
+    ax.errorbar(x, means, yerr=ses, fmt='none', ecolor=COLOR_PALETTE[0], elinewidth=1.6,
+                capsize=5, capthick=1.4, zorder=4)
+
+    # Shaded band for +/- 1 SE
+    means_arr = np.array(means)
+    ses_arr = np.array(ses)
+    ax.fill_between(x, means_arr - ses_arr, means_arr + ses_arr, color=COLOR_PALETTE[0],
+                    alpha=0.15, label="±1 خطای معیار (SE)")
+
+    # Data value labels on points
+    for i, (m_val, se_val) in enumerate(zip(means, ses)):
+        ax.annotate(f"{m_val:.2f}",
+                    xy=(i, m_val + se_val),
+                    xytext=(0, 7), textcoords="offset points",
+                    ha='center', va='bottom', fontsize=9.5, fontweight='bold',
+                    color='#0F172A')
+
+    # Styling
+    ax.set_xticks(x)
+    ax.set_xticklabels(time_labels, fontsize=10.5, fontweight='bold')
+    ax.set_ylabel(ylabel, fontsize=11, fontweight='bold', labelpad=10)
+    ax.set_title(title, fontsize=12, fontweight='bold', pad=14)
+    
+    # Annotation box for F & p-value
+    p_str = "< .001" if p_val < 0.001 else f"= {p_val:.3f}"
+    stat_box_text = f"RM-ANOVA: p {p_str}"
+    if effect_size_str:
+        stat_box_text += "\n" + str(effect_size_str)
+    ax.text(0.04, 0.94, stat_box_text, transform=ax.transAxes,
+            verticalalignment='top', horizontalalignment='left',
+            bbox=dict(boxstyle='round,pad=0.5', facecolor='#F8FAFC', edgecolor='#CBD5E1', lw=1.2),
+            fontsize=9.5, fontweight='semibold', color='#1E293B')
+
+    ax.legend(loc='lower right', frameon=True, facecolor='#FFFFFF', edgecolor='#E2E8F0', fontsize=9)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.grid(axis='y', linestyle='--', alpha=0.6)
+
+    y_min = min(means_arr - ses_arr) - (max(sds) * 0.4)
+    y_max = max(means_arr + ses_arr) + (max(sds) * 0.7)
+    ax.set_ylim(y_min, y_max)
+
+    plt.tight_layout()
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    plt.savefig(output_path, dpi=dpi, bbox_inches='tight')
+    plt.close()
+    print(f"[✓] Repeated-measures trajectory plot saved: {output_path}")
+    return output_path
+
 def main():
     parser = argparse.ArgumentParser(description="Publication-Grade Statistical Visualization Engine")
+    parser.add_argument("--json", help="Path to statistical results JSON file")
+    parser.add_argument("--out-dir", default="./publication_plots", help="Directory to save generated figures.")
+    parser.add_argument("--dpi", type=int, default=300, help="Resolution in DPI for generated plots.")
     parser.add_argument("--demo", action="store_true", help="Generate sample publication demonstration plots.")
     parser.add_argument("--residuals-demo", action="store_true", help="Generate sample regression residual diagnostic plots.")
-    parser.add_argument("--out-dir", default="./publication_plots", help="Directory to save generated figures.")
     args = parser.parse_args()
 
+    os.makedirs(args.out_dir, exist_ok=True)
+
+    if args.json:
+        with open(args.json, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        rm_data = data.get("repeated_measures") or data.get("rm_anova")
+        if rm_data is None and data.get("test_type") == "RM_ANOVA":
+            rm_data = data
+
+        if rm_data:
+            if isinstance(rm_data, list):
+                rm_data = rm_data[0]
+            descriptives = rm_data.get("descriptives", [])
+            time_labels = [d.get("time_label") or d.get("name") for d in descriptives]
+            means = [d.get("mean") for d in descriptives]
+            sds = [d.get("sd") for d in descriptives]
+            ses = [d.get("se") for d in descriptives]
+            p_val = rm_data.get("primary_test", {}).get("p_reported") or rm_data.get("p_value", 0.0001)
+            eta_sq = rm_data.get("primary_test", {}).get("partial_eta_squared") or rm_data.get("partial_eta_squared", 0.0)
+            f_stat = rm_data.get("primary_test", {}).get("f_statistic") or rm_data.get("f_statistic", 0.0)
+            eff_str = f"F = {f_stat:.2f} | η²p = {eta_sq:.3f}"
+
+            fig_path = os.path.join(args.out_dir, "rm_anova_trajectory.png")
+            plot_repeated_measures_trajectory(
+                time_labels=time_labels,
+                means=means,
+                sds=sds,
+                ses=ses,
+                p_val=p_val,
+                title="روند طولی تغییرات متغیر وابسته در مراحل سنجش مکرر",
+                ylabel=rm_data.get("dv_label", "میانگین نمره"),
+                output_path=fig_path,
+                effect_size_str=eff_str,
+                dpi=args.dpi
+            )
+
     if args.demo:
-        os.makedirs(args.out_dir, exist_ok=True)
         # Demo 1: Group comparison with bracket
         plot_group_comparison(
             groups=["گروه کنترل", "گروه مداخله (ACT)"],
@@ -285,7 +398,8 @@ def main():
             title="مقایسه انعطاف‌پذیری روان‌شناختی در پس‌آزمون بین دو گروه",
             ylabel="میانگین نمره انعطاف‌پذیری",
             effect_size_str="Cohen's d = 1.05 | η²p = .216",
-            output_path=os.path.join(args.out_dir, "group_comparison_bracket_demo.png")
+            output_path=os.path.join(args.out_dir, "group_comparison_bracket_demo.png"),
+            dpi=args.dpi
         )
         # Demo 2: Pre-Post Interaction
         plot_pre_post_interaction(
@@ -297,18 +411,19 @@ def main():
             p_interaction=0.0002,
             title="تعامل زمان × گروه در بهبود بهزیستی روان‌شناختی",
             ylabel="نمره بهزیستی روان‌شناختی",
-            output_path=os.path.join(args.out_dir, "pre_post_interaction_demo.png")
+            output_path=os.path.join(args.out_dir, "pre_post_interaction_demo.png"),
+            dpi=args.dpi
         )
         print("[✓] Demo scientific visualization figures successfully generated!")
 
     if args.residuals_demo:
-        os.makedirs(args.out_dir, exist_ok=True)
         rng = np.random.default_rng(42)
         mock_zres = rng.normal(loc=0.0, scale=1.0, size=260)
         h, p = plot_regression_residual_diagnostics(
             mock_zres,
             output_prefix=os.path.join(args.out_dir, "hypothesis_1_residuals"),
-            title_fa="سبک‌های فرزندپروری بر اضطراب فراگیر"
+            title_fa="سبک‌های فرزندپروری بر اضطراب فراگیر",
+            dpi=args.dpi
         )
         print(f"[✓] Residuals demo plots created: {h}, {p}")
 

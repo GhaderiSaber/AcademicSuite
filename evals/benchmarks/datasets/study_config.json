@@ -1,0 +1,17 @@
+{
+  "study_name": "Repeated Measures Cognitive Performance Study",
+  "task": "rm_anova",
+  "repeated_measures": {
+    "subject_id": "subject_id",
+    "time_points": [
+      "Time_1",
+      "Time_2",
+      "Time_3",
+      "Time_4"
+    ],
+    "between_factor": null,
+    "dv_label": "عملکرد شناختی",
+    "alpha": 0.05,
+    "posthoc_padjust": "bonferroni"
+  }
+}

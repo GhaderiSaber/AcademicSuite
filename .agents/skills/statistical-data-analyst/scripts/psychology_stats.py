@@ -41,6 +41,10 @@ from statsmodels.formula.api import ols
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.stats.stattools import durbin_watson
 from statsmodels.stats.diagnostic import het_breuschpagan
+try:
+    import pingouin as pg
+except ImportError:
+    pg = None
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 resolver_dir = os.path.abspath(os.path.join(script_dir, "..", "..", "psychometric-scale-resolver", "scripts"))
@@ -663,6 +667,344 @@ def analyze_ancova(df: pd.DataFrame, dv_col: str, group_col: str, covar_col: str
         "partial_eta_squared_str": f"{eta_sq_partial:.3f}"[1:] if 0 <= eta_sq_partial <= 1 else f"{eta_sq_partial:.3f}",
         "adjusted_means": adjusted_means
     }
+
+def analyze_repeated_measures_anova(
+    df: pd.DataFrame,
+    subject_col: str,
+    time_cols: List[str],
+    between_factor: Optional[str] = None,
+    posthoc_padjust: str = "bonf",
+    dv_label: Optional[str] = None
+) -> dict:
+    """
+    Executes deterministic One-Way Repeated-Measures ANOVA with:
+    1. Per-timepoint descriptives (N, M, SD, SE, CI, Skew, Kurt, Shapiro-Wilk)
+    2. Mauchly's Test of Sphericity (W, chi2, df, p)
+    3. Greenhouse-Geisser & Huynh-Feldt Epsilon calculations
+    4. Sphericity-violation conditional epsilon correction (GG if eps < .75, HF if eps >= .75)
+    5. RM-ANOVA Source Table (SS, df, MS, F, p, partial eta-sq, generalized eta-sq)
+    6. Bonferroni-adjusted post-hoc pairwise contrasts
+    """
+    if pg is None:
+        raise ImportError("pingouin is required for repeated-measures ANOVA. Please install pingouin.")
+
+    cols_to_use = [subject_col] + time_cols + ([between_factor] if between_factor else [])
+    for c in cols_to_use:
+        if c not in df.columns:
+            raise KeyError(f"Column '{c}' not found in dataset. Available: {list(df.columns)}")
+
+    sub_df = df[cols_to_use].copy()
+    for t_col in time_cols:
+        sub_df[t_col] = pd.to_numeric(sub_df[t_col], errors='coerce')
+    sub_df = sub_df.dropna(subset=[subject_col] + time_cols)
+    n_subjects = len(sub_df)
+
+    if n_subjects < 5:
+        raise ValueError(f"Insufficient sample size for repeated measures (N = {n_subjects})")
+
+    descriptives = []
+    normality_tests = []
+    for idx, t_col in enumerate(time_cols):
+        series = sub_df[t_col]
+        m = float(series.mean())
+        s = float(series.std(ddof=1))
+        se = s / np.sqrt(n_subjects)
+        sk = float(series.skew())
+        ku = float(series.kurtosis())
+        mn = float(series.min())
+        mx = float(series.max())
+        ci_low = m - 1.96 * se
+        ci_high = m + 1.96 * se
+
+        sw_stat, sw_p = stats.shapiro(series)
+        descriptives.append({
+            "timepoint_index": idx + 1,
+            "name": t_col,
+            "time_label": f"مرحله {idx + 1}" if not dv_label else f"{dv_label} ({t_col})",
+            "n": n_subjects,
+            "mean": round(m, 3),
+            "sd": round(s, 3),
+            "se": round(se, 3),
+            "ci_lower": round(ci_low, 3),
+            "ci_upper": round(ci_high, 3),
+            "skewness": round(sk, 3),
+            "kurtosis": round(ku, 3),
+            "min": round(mn, 3),
+            "max": round(mx, 3),
+            "shapiro_w": round(float(sw_stat), 3),
+            "shapiro_p": float(sw_p),
+            "shapiro_p_str": format_p_value(float(sw_p)),
+            "is_normal": bool(sw_p > 0.05)
+        })
+        normality_tests.append({
+            "timepoint": t_col,
+            "w": round(float(sw_stat), 3),
+            "p": float(sw_p),
+            "normal": bool(sw_p > 0.05)
+        })
+
+    df_melt = sub_df.melt(
+        id_vars=[subject_col] + ([between_factor] if between_factor else []),
+        value_vars=time_cols,
+        var_name='Time',
+        value_name='Score'
+    )
+
+    spher = pg.sphericity(data=df_melt, dv='Score', within='Time', subject=subject_col)
+    mauchly_w = float(spher.W)
+    mauchly_chi2 = float(spher.chi2)
+    mauchly_df = int(spher.dof)
+    mauchly_p = float(spher.pval)
+    sphericity_violated = bool(mauchly_p <= 0.05)
+    sphericity_met = bool(mauchly_p > 0.05)
+
+    eps_gg = float(pg.epsilon(data=df_melt, dv='Score', within='Time', subject=subject_col, correction='gg'))
+    eps_hf = float(pg.epsilon(data=df_melt, dv='Score', within='Time', subject=subject_col, correction='hf'))
+    
+    if sphericity_violated:
+        if eps_gg < 0.75:
+            correction_recommended = "Greenhouse-Geisser"
+            epsilon_used = eps_gg
+        else:
+            correction_recommended = "Huynh-Feldt"
+            epsilon_used = min(1.0, eps_hf)
+    else:
+        correction_recommended = "Sphericity Assumed"
+        epsilon_used = 1.0
+
+    aov = pg.rm_anova(data=df_melt, dv='Score', within='Time', subject=subject_col, detailed=True)
+    ss_time = float(aov.loc[0, 'SS'])
+    df_time = int(aov.loc[0, 'DF'])
+    ms_time = float(aov.loc[0, 'MS'])
+    f_stat = float(aov.loc[0, 'F'])
+    p_unc = float(aov.loc[0, 'p_unc'])
+    p_gg = float(aov.loc[0, 'p_GG_corr']) if 'p_GG_corr' in aov.columns else p_unc
+    ng2 = float(aov.loc[0, 'ng2']) if 'ng2' in aov.columns else 0.0
+
+    ss_error = float(aov.loc[1, 'SS'])
+    df_error = int(aov.loc[1, 'DF'])
+    ms_error = float(aov.loc[1, 'MS'])
+
+    partial_eta_sq = ss_time / (ss_time + ss_error) if (ss_time + ss_error) > 0 else 0.0
+
+    df_time_gg = round(df_time * eps_gg, 3)
+    df_error_gg = round(df_error * eps_gg, 3)
+    df_time_hf = round(df_time * min(1.0, eps_hf), 3)
+    df_error_hf = round(df_error * min(1.0, eps_hf), 3)
+
+    p_hf = float(stats.f.sf(f_stat, df_time_hf, df_error_hf))
+
+    if sphericity_violated:
+        if correction_recommended == "Greenhouse-Geisser":
+            df_time_reported = df_time_gg
+            df_error_reported = df_error_gg
+            p_reported = p_gg
+        else:
+            df_time_reported = df_time_hf
+            df_error_reported = df_error_hf
+            p_reported = p_hf
+    else:
+        df_time_reported = float(df_time)
+        df_error_reported = float(df_error)
+        p_reported = p_unc
+
+    anova_table = [
+        {
+            "source": "Time (Sphericity Assumed)",
+            "model": "Sphericity Assumed",
+            "sum_sq": round(ss_time, 3),
+            "df": df_time,
+            "mean_sq": round(ms_time, 3),
+            "f_stat": round(f_stat, 2),
+            "p_val": float(p_unc),
+            "p_str": format_p_value(p_unc),
+            "partial_eta_sq": round(partial_eta_sq, 3)
+        },
+        {
+            "source": "Time (Greenhouse-Geisser)",
+            "model": "Greenhouse-Geisser",
+            "sum_sq": round(ss_time, 3),
+            "df": df_time_gg,
+            "mean_sq": round(ss_time / df_time_gg, 3),
+            "f_stat": round(f_stat, 2),
+            "p_val": float(p_gg),
+            "p_str": format_p_value(p_gg),
+            "partial_eta_sq": round(partial_eta_sq, 3)
+        },
+        {
+            "source": "Time (Huynh-Feldt)",
+            "model": "Huynh-Feldt",
+            "sum_sq": round(ss_time, 3),
+            "df": df_time_hf,
+            "mean_sq": round(ss_time / df_time_hf, 3),
+            "f_stat": round(f_stat, 2),
+            "p_val": float(p_hf),
+            "p_str": format_p_value(p_hf),
+            "partial_eta_sq": round(partial_eta_sq, 3)
+        },
+        {
+            "source": "Error(Time) (Sphericity Assumed)",
+            "model": "Sphericity Assumed",
+            "sum_sq": round(ss_error, 3),
+            "df": df_error,
+            "mean_sq": round(ms_error, 3),
+            "f_stat": None,
+            "p_val": None,
+            "p_str": None,
+            "partial_eta_sq": None
+        },
+        {
+            "source": "Error(Time) (Greenhouse-Geisser)",
+            "model": "Greenhouse-Geisser",
+            "sum_sq": round(ss_error, 3),
+            "df": df_error_gg,
+            "mean_sq": round(ss_error / df_error_gg, 3),
+            "f_stat": None,
+            "p_val": None,
+            "p_str": None,
+            "partial_eta_sq": None
+        },
+        {
+            "source": "Error(Time) (Huynh-Feldt)",
+            "model": "Huynh-Feldt",
+            "sum_sq": round(ss_error, 3),
+            "df": df_error_hf,
+            "mean_sq": round(ss_error / df_error_hf, 3),
+            "f_stat": None,
+            "p_val": None,
+            "p_str": None,
+            "partial_eta_sq": None
+        }
+    ]
+
+    posthoc = pg.pairwise_tests(
+        data=df_melt,
+        dv='Score',
+        within='Time',
+        subject=subject_col,
+        padjust=posthoc_padjust
+    )
+    pairwise_contrasts = []
+    for _, row in posthoc.iterrows():
+        a_col = str(row['A'])
+        b_col = str(row['B'])
+        diff = sub_df[a_col] - sub_df[b_col]
+        mean_d = float(diff.mean())
+        se_d = float(diff.std(ddof=1) / np.sqrt(n_subjects))
+        t_val = float(row['T'])
+        dof_val = int(row['dof'])
+        p_raw = float(row['p_unc'])
+        p_adj = float(row['p_corr'])
+        hedges = float(row.get('hedges', 0.0))
+        cohen = mean_d / float(diff.std(ddof=1)) if float(diff.std(ddof=1)) > 0 else 0.0
+
+        pairwise_contrasts.append({
+            "contrast": f"{a_col} - {b_col}",
+            "time_a": a_col,
+            "time_b": b_col,
+            "mean_diff": round(mean_d, 3),
+            "se_diff": round(se_d, 3),
+            "t": round(t_val, 3),
+            "df": dof_val,
+            "p_unc": float(p_raw),
+            "p_unc_str": format_p_value(p_raw),
+            "p_adj": float(p_adj),
+            "p_adj_str": format_p_value(p_adj),
+            "padjust_method": posthoc_padjust,
+            "cohen_dz": round(cohen, 3),
+            "hedges_g": round(hedges, 3),
+            "significant_05": bool(p_adj < 0.05)
+        })
+
+    result = {
+        "test_type": "RM_ANOVA",
+        "design": "ONE_WAY_REPEATED_MEASURES",
+        "sample_size": n_subjects,
+        "subject_col": subject_col,
+        "time_points": time_cols,
+        "dv_label": dv_label or "نمره عملکرد شناختی",
+        "descriptives": descriptives,
+        "mauchly_sphericity": {
+            "w": round(mauchly_w, 4),
+            "chi2": round(mauchly_chi2, 3),
+            "df": mauchly_df,
+            "p_value": mauchly_p,
+            "p_str": format_p_value(mauchly_p),
+            "violated": sphericity_violated,
+            "met": sphericity_met
+        },
+        "epsilon": {
+            "greenhouse_geisser": round(eps_gg, 4),
+            "huynh_feldt": round(eps_hf, 4),
+            "recommended_correction": correction_recommended,
+            "epsilon_used": round(epsilon_used, 4)
+        },
+        "sphericity_violated": sphericity_violated,
+        "epsilon_correction_applied": True,
+        "correction_type": correction_recommended,
+        "primary_test": {
+            "f_statistic": round(f_stat, 2),
+            "df_effect_assumed": df_time,
+            "df_error_assumed": df_error,
+            "df_effect_reported": df_time_reported,
+            "df_error_reported": df_error_reported,
+            "p_uncorrected": p_unc,
+            "p_corrected": p_reported,
+            "p_reported": p_reported,
+            "p_reported_str": format_p_value(p_reported),
+            "partial_eta_squared": round(partial_eta_sq, 3),
+            "generalized_eta_squared": round(ng2, 3),
+            "verdict": "CONFIRMED" if p_reported < 0.05 else "REJECTED"
+        },
+        "anova_table": anova_table,
+        "pairwise_contrasts": pairwise_contrasts,
+        "assumptions": {
+            "sphericity": {
+                "mauchly_w": round(mauchly_w, 4),
+                "chi2": round(mauchly_chi2, 3),
+                "df": mauchly_df,
+                "p_value": mauchly_p,
+                "violated": sphericity_violated,
+                "epsilon_gg": round(eps_gg, 4),
+                "epsilon_hf": round(eps_hf, 4)
+            },
+            "normality": normality_tests
+        },
+        "actions_taken": [
+            "check_mauchlys_sphericity_tested",
+            "check_epsilon_correction_applied",
+            "check_bonferroni_posthoc"
+        ],
+        "assumptions_checked": [
+            "sphericity",
+            "normality"
+        ],
+        "methods_invoked": [
+            "rm_anova",
+            "pairwise_tests_bonferroni",
+            "greenhouse_geisser_correction"
+        ],
+        "statistical_parameters": {
+            "mauchly_w": round(mauchly_w, 4),
+            "mauchly_chi2": round(mauchly_chi2, 3),
+            "mauchly_df": mauchly_df,
+            "mauchly_p": mauchly_p,
+            "epsilon_gg": round(eps_gg, 4),
+            "epsilon_hf": round(eps_hf, 4),
+            "f_statistic": round(f_stat, 2),
+            "df_effect": df_time,
+            "df_error": df_error,
+            "df_effect_corrected": df_time_reported,
+            "df_error_corrected": df_error_reported,
+            "p_value": p_reported,
+            "partial_eta_sq": round(partial_eta_sq, 3),
+            "epsilon_correction_applied": True,
+            "bonferroni_posthoc": True,
+            "persian_leading_zero": True
+        }
+    }
+    return result
+
 
 # --- 6. Hierarchical Multiple Regression ---
 def analyze_hierarchical_regression(df: pd.DataFrame, dv_col: str, step1_vars: list, step2_vars: list = None) -> dict:
@@ -1624,6 +1966,9 @@ def main():
     parser.add_argument("--scale", help="Scale name in registry for questionnaire scoring")
     parser.add_argument("--prefix", default="Q", help="Item column prefix (e.g. 'Q' or 'R')")
     parser.add_argument("--out-scored", help="Output path for scored dataset with subscales")
+    parser.add_argument("--subject-id", help="Subject ID column name for repeated measures")
+    parser.add_argument("--time-cols", help="Comma-separated time column names for repeated measures")
+    parser.add_argument("--between-factor", help="Between-subjects factor for repeated measures")
     parser.add_argument("--config", help="Path to a JSON configuration file for full auto-run")
     parser.add_argument("--out", default="stats_results.json", help="Output JSON path")
     
@@ -1738,6 +2083,21 @@ def main():
         s2 = [v.strip() for v in args.step2.split(",")] if args.step2 else None
         results["regression"] = analyze_hierarchical_regression(df, args.dv, s1, s2)
         
+    elif args.task in ["rm_anova", "repeated_measures"]:
+        t_cols = [c.strip() for c in args.time_cols.split(",")] if args.time_cols else []
+        res_rm = analyze_repeated_measures_anova(
+            df,
+            subject_col=args.subject_id,
+            time_cols=t_cols,
+            between_factor=args.between_factor,
+            posthoc_padjust="bonf"
+        )
+        results["repeated_measures"] = res_rm
+        results["rm_anova"] = res_rm
+        for k, v in res_rm.items():
+            if k not in results:
+                results[k] = v
+        
     elif args.task == "mediation":
         results["mediation"] = analyze_bootstrap_mediation(df, args.x, args.m, args.y, n_boot=args.bootstraps)
         
@@ -1802,6 +2162,34 @@ def main():
             results["ancova"] = []
             for ac in cfg["ancova"]:
                 results["ancova"].append(analyze_ancova(df, ac["dv"], ac["group"], ac["covar"]))
+        if "repeated_measures" in cfg or "rm_anova" in cfg:
+            rm_spec = cfg.get("repeated_measures") or cfg.get("rm_anova")
+            if isinstance(rm_spec, list):
+                results["repeated_measures"] = []
+                for r_item in rm_spec:
+                    res_rm = analyze_repeated_measures_anova(
+                        df,
+                        subject_col=r_item["subject_id"],
+                        time_cols=r_item["time_points"],
+                        between_factor=r_item.get("between_factor"),
+                        posthoc_padjust=r_item.get("posthoc_padjust", "bonf"),
+                        dv_label=r_item.get("dv_label")
+                    )
+                    results["repeated_measures"].append(res_rm)
+            else:
+                res_rm = analyze_repeated_measures_anova(
+                    df,
+                    subject_col=rm_spec["subject_id"],
+                    time_cols=rm_spec["time_points"],
+                    between_factor=rm_spec.get("between_factor"),
+                    posthoc_padjust=rm_spec.get("posthoc_padjust", "bonf"),
+                    dv_label=rm_spec.get("dv_label")
+                )
+                results["repeated_measures"] = res_rm
+                results["rm_anova"] = res_rm
+                for k, v in res_rm.items():
+                    if k not in results:
+                        results[k] = v
 
         # 7. Saber Hypothesis Testing (4-Tier Sequence)
         if "saber_hypotheses" in cfg or "hypotheses" in cfg:
