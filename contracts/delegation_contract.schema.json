@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/delegation_contract.schema.json",
+  "title": "DelegationContract",
+  "description": "Authoritative contract schema for formal inter-agent task delegation in AcademicSuite (Phase 22). Enforces 10 mandatory task definition fields and 6 structured worker return fields. Prevents informal, un-audited agent delegation.",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "task_id",
+    "parent_agent",
+    "worker_agent",
+    "objective",
+    "inputs",
+    "required_artifacts",
+    "acceptance_criteria",
+    "constraints",
+    "verification_method",
+    "deadline"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\.[0-9]+\.[0-9]+$",
+      "default": "1.0.0",
+      "description": "Contract semantic version."
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Unique identifier for the delegated task (e.g. TSK-2026-CH4-001)."
+    },
+    "parent_agent": {
+      "type": "string",
+      "description": "Delegating authority (e.g. academic-orchestrator)."
+    },
+    "worker_agent": {
+      "type": "string",
+      "description": "Target specialist worker agent (e.g. statistics-agent, data-agent, academic-writer)."
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Clear, unambiguous description of what the worker agent must achieve."
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {"type": "string", "minLength": 1},
+          {
+            "type": "object",
+            "required": ["path"],
+            "properties": {
+              "path": {"type": "string", "minLength": 1},
+              "sha256": {"type": "string"},
+              "description": {"type": "string"}
+            }
+          }
+        ]
+      },
+      "description": "Input datasets, previous stage artifacts, or parameter specifications required for execution."
+    },
+    "required_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {"type": "string", "minLength": 1},
+          {
+            "type": "object",
+            "required": ["path"],
+            "properties": {
+              "path": {"type": "string", "minLength": 1},
+              "format": {"type": "string"},
+              "artifact_type": {"type": "string"}
+            }
+          }
+        ]
+      },
+      "description": "Expected deliverables that must physically exist on disk upon completion."
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 3},
+      "description": "Specific mathematical, statistical, or formatting conditions that must be fulfilled for task acceptance."
+    },
+    "constraints": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 3},
+      "description": "Operational, ethical, and architectural boundaries (e.g. zero mental calculation, English-only filenames)."
+    },
+    "verification_method": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Auditing mechanism or agent responsible for verifying task deliverables (e.g. statistical-auditor, validation-agent)."
+    },
+    "deadline": {
+      "type": "string",
+      "minLength": 3,
+      "description": "ISO 8601 timestamp, timeout threshold, or execution phase deadline."
+    },
+    "worker_return": {
+      "type": "object",
+      "description": "Formal return payload submitted by the worker agent upon task completion.",
+      "required": [
+        "status",
+        "artifacts",
+        "evidence",
+        "validation",
+        "warnings",
+        "limitations"
+      ],
+      "properties": {
+        "task_id": {"type": "string"},
+        "status": {
+          "type": "string",
+          "enum": ["SUCCESS", "FAILED", "BLOCKED"]
+        },
+        "artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {"type": "string", "minLength": 1},
+              {"type": "object"}
+            ]
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "minProperties": 1,
+          "description": "Factual computational parameters, test statistics, effect sizes, and degrees of freedom."
+        },
+        "validation": {
+          "type": "object",
+          "description": "Independent validation report summary or verdict."
+        },
+        "warnings": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Operational warnings, data quality flags, or execution anomalies encountered."
+        },
+        "limitations": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Statistical or methodological limitations (e.g. sample size constraints, cross-sectional design)."
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

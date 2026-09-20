@@ -75,26 +75,27 @@ def validate_worker_return_payload(
         if st_norm not in ["SUCCESS", "FAILED", "FAILURE", "BLOCKED"]:
             errors.append(f"Invalid status '{status}'. Allowed values: SUCCESS, FAILED, BLOCKED.")
 
-    # 3. Check for required field: artifact
+    # 3. Check for required field: artifact or artifacts (Phase 21 & Phase 22)
     artifact = payload.get('artifact')
     if artifact is None:
-        # Fallback check for produced_artifacts for backward compatibility
+        artifact = payload.get('artifacts')
+    if artifact is None:
         artifact = payload.get('produced_artifacts')
-        if artifact is None:
-            errors.append("Missing required field 'artifact'. Must be a non-empty list or object of produced files on disk.")
+    if artifact is None:
+        errors.append("Missing required field 'artifacts' (or 'artifact'). Must be a non-empty list or object of produced files on disk.")
 
     if artifact is not None:
         if isinstance(artifact, (list, tuple)):
             if len(artifact) == 0:
-                errors.append("Field 'artifact' cannot be an empty list. Must contain at least one produced deliverable path.")
+                errors.append("Field 'artifacts' (or 'artifact') cannot be an empty list. Must contain at least one produced deliverable path.")
         elif isinstance(artifact, dict):
             if len(artifact) == 0:
-                errors.append("Field 'artifact' cannot be an empty object. Must specify produced deliverable files.")
+                errors.append("Field 'artifacts' (or 'artifact') cannot be an empty object. Must specify produced deliverable files.")
         elif isinstance(artifact, str):
             if not artifact.strip():
-                errors.append("Field 'artifact' cannot be an empty string.")
+                errors.append("Field 'artifacts' (or 'artifact') cannot be an empty string.")
         else:
-            errors.append(f"Field 'artifact' must be a list, dict, or string path, got {type(artifact).__name__}.")
+            errors.append(f"Field 'artifacts' (or 'artifact') must be a list, dict, or string path, got {type(artifact).__name__}.")
 
     # 4. Check for required field: evidence
     evidence = payload.get('evidence')
@@ -127,6 +128,12 @@ def validate_worker_return_payload(
                 errors.append(f"Invalid validation string '{validation}'. Expected PASS, FAIL, NEEDS_REVIEW, BLOCKED.")
         else:
             errors.append(f"Field 'validation' must be a dictionary or verdict string, got {type(validation).__name__}.")
+
+    # 5.5 Check optional/Phase 22 fields: warnings and limitations
+    if 'warnings' in payload and not isinstance(payload['warnings'], (list, tuple)):
+        errors.append(f"Field 'warnings' must be a list of strings, got {type(payload['warnings']).__name__}.")
+    if 'limitations' in payload and not isinstance(payload['limitations'], (list, tuple)):
+        errors.append(f"Field 'limitations' must be a list of strings, got {type(payload['limitations']).__name__}.")
 
     # 6. JSON Schema validation
     if jsonschema and os.path.isfile(SCHEMA_PATH) and not errors:

@@ -224,6 +224,35 @@ class SafetyHooks:
                     )
                 }
 
+            # Phase 22: Formal Delegation Contract Check (Zero Informal Shortcuts)
+            # Academic-Orchestrator cannot invoke subagents with informal prompts like 'Analyze this.'
+            subagents = args.get("Subagents", [])
+            prompts_to_check = []
+            if isinstance(subagents, list):
+                for sub in subagents:
+                    if isinstance(sub, dict) and "Prompt" in sub:
+                        prompts_to_check.append(sub["Prompt"])
+            if "Prompt" in args:
+                prompts_to_check.append(args["Prompt"])
+
+            for p_text in prompts_to_check:
+                if isinstance(p_text, str):
+                    try:
+                        from scripts.delegation_contract_engine import detect_informal_delegation
+                    except ImportError:
+                        try:
+                            from delegation_contract_engine import detect_informal_delegation
+                        except ImportError:
+                            detect_informal_delegation = None
+
+                    if detect_informal_delegation is not None:
+                        is_informal, informal_reason = detect_informal_delegation(p_text)
+                        if is_informal:
+                            return {
+                                "decision": "deny",
+                                "reason": f"CONSTITUTIONAL VIOLATION (Phase 22 - Delegation Contract Invariant): {informal_reason}"
+                            }
+
         # 2. Raw-Data, Outside-Workspace & Orchestrator Code Guard on Mutation Tools
         if name in MUTATION_TOOLS:
             caller = (
@@ -632,21 +661,55 @@ class SafetyHooks:
                     )
                 }
 
-        # 8. Worker Return Payload Guard (send_message / Phase 21 Invariant)
+        # 8. Worker Return Payload & Formal Closure Guard (send_message / Phase 21 & Phase 22)
         if name == "send_message":
+            caller = (
+                payload.get("agentName") or
+                payload.get("agentRole") or
+                payload.get("agent") or
+                payload.get("caller") or ""
+            ).lower()
             msg = args.get("Message", "")
             if isinstance(msg, str):
-                cleaned = msg.strip().lower()
-                trivial_patterns = {"done", "done.", "completed", "completed.", "finished", "finished.", "all done", "all done."}
-                if cleaned in trivial_patterns:
-                    return {
-                        "decision": "deny",
-                        "reason": (
-                            f"CONSTITUTIONAL VIOLATION (Phase 21 - Worker Return Invariant): "
-                            f"Worker subagents cannot return simply '{msg}'. Return payloads must be structured "
-                            f"and contain: 'artifact', 'evidence', 'status', 'validation'."
-                        )
-                    }
+                try:
+                    from scripts.delegation_contract_engine import detect_informal_worker_return, detect_informal_closure
+                except ImportError:
+                    try:
+                        from delegation_contract_engine import detect_informal_worker_return, detect_informal_closure
+                    except ImportError:
+                        detect_informal_worker_return = None
+                        detect_informal_closure = None
+
+                # 8a. Orchestrator Closure Guard (Anti-Pattern: Orchestrator -> 'Great.')
+                if "academic-orchestrator" in caller and detect_informal_closure is not None:
+                    is_closure, closure_reason = detect_informal_closure(msg)
+                    if is_closure:
+                        return {
+                            "decision": "deny",
+                            "reason": f"CONSTITUTIONAL VIOLATION (Phase 22 - Formal Delegation Contract Invariant): {closure_reason}"
+                        }
+
+                # 8b. Worker Return Invariant Guard (rejects 'done', 'completed', 'finished', etc.)
+                if detect_informal_worker_return is not None:
+                    is_inf_ret, ret_reason = detect_informal_worker_return(msg)
+                    if is_inf_ret:
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Phase 21-22 - Worker Return Invariant): "
+                                f"Worker subagents cannot return simply '{msg}'. Return payloads must be structured "
+                                f"and contain: 'artifact', 'evidence', 'status', 'validation'. Details: {ret_reason}"
+                            )
+                        }
+
+                # General informal closure fallback
+                if detect_informal_closure is not None:
+                    is_closure, closure_reason = detect_informal_closure(msg)
+                    if is_closure:
+                        return {
+                            "decision": "deny",
+                            "reason": f"CONSTITUTIONAL VIOLATION (Phase 22 - Formal Delegation Contract Invariant): {closure_reason}"
+                        }
 
         return {"decision": "allow"}
 

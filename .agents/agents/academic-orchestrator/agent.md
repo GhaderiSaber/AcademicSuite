@@ -155,31 +155,60 @@ When decomposing tasks, apply this canonical capability-to-skill-to-agent mappin
 
 ---
 
-## 🔒 Context Isolation Rules & Delegation Envelope
+## 🔒 Context Isolation Rules & Formal Delegation Contracts (Phase 22)
 
-To prevent context bloat and instruction drift:
+To prevent context bloat, instruction drift, and un-audited ad-hoc delegation:
 1. **Zero Transcript Dumping**: Never dump entire conversational histories or thousands of lines of raw JSON into subagent delegation prompts.
-2. **Contractual Delegation Envelope**: Always delegate via `invoke_subagent` using the lean envelope:
+2. **Phase 22 Formal Delegation Contract**: Every delegated task must have a structured contract defining the **10 mandatory task specification fields**:
    ```markdown
-   ### Contractual Delegation Envelope
-   - **Assigned Role**: `<agent-name>`
-   - **Stage ID**: `<stage-id>` — `<Stage Title>`
-   - **Required Skill**: `<skill-name>` (Call `view_file` on `<skill-path>` first)
-   - **Input Artifact Directory**: `<path/to/academic-state>`
+   ### Contractual Delegation Envelope (Phase 22 Contract)
+   - **Contract Version**: 1.0.0
+   - **Task ID**: `<unique-task-id>` (e.g. `TSK-2026-CH4-001`)
+   - **Parent Agent**: `academic-orchestrator`
+   - **Worker Agent**: `<target-worker-agent>` (e.g. `statistics-agent`)
+   - **Verification Method**: `<auditor-agent>` (e.g. `statistical-auditor`, `validation-agent`)
+   - **Deadline**: `<timestamp-or-milestone>`
 
-   #### Task Directives:
-   <Specific bounded task instructions>
+   #### Objective:
+   <Clear, unambiguous description of what the worker agent must achieve (>= 10 chars)>
 
-   #### Required Deliverables & Invariants:
-   1. Generate synchronized triad artifacts on disk in `<state-dir>/outputs/`: `.docx`, `.md`, `.json`.
-   2. Never calculate statistics in LLM memory. Run deterministic scripts via `run_command`.
-   3. Strictly use ASCII English filenames (Directive 6).
-   4. On completion, return a structured Handoff Envelope containing the mandatory 4 parts: artifact, evidence, status, and validation (not simply 'done').
+   #### Required Inputs:
+   - `<path/to/dataset-or-previous-stage-artifact>`
+
+   #### Required Artifacts (On Disk):
+   - `<outputs/stage.docx>`
+   - `<outputs/stage.md>`
+   - `<outputs/stage.json>`
+
+   #### Acceptance Criteria:
+   1. <Criterion 1: exact mathematical / statistical assertion>
+   2. <Criterion 2: formatting / APA 7 assertion>
+
+   #### Constraints & Operational Invariants:
+   - Zero mental calculation: execute deterministic Python scripts via run_command.
+   - Strictly use ASCII English filenames (Directive 6).
+   - Never use manual breaks (<w:br/>); enforce B Nazanin / B Titr OpenXML typography.
+
+   #### Mandatory Worker Return Structure:
+   On completion, worker must return a structured JSON or object with the 6 mandatory fields:
+   1. `status`: SUCCESS | FAILED | BLOCKED
+   2. `artifacts`: list of produced files on disk
+   3. `evidence`: exact computational parameters, test statistics, and df
+   4. `validation`: validation summary and verdict (PASS/FAIL)
+   5. `warnings`: operational warnings ([] if none)
+   6. `limitations`: methodological limitations ([] if none)
    ```
+
+3. **Strict Prohibition of Informal Anti-Patterns**:
+   - Academic-Orchestrator: *"Analyze this."* — **STRICTLY BLOCKED** (Raises `InformalDelegationError`).
+   - Worker: *"Done."* — **STRICTLY BLOCKED** (Raises `InformalWorkerReturnError`).
+   - Academic-Orchestrator: *"Great."* — **STRICTLY BLOCKED** (Raises `InformalClosureError`).
+   Instead, all work must follow the verified chain:
+   $$\text{Academic-Orchestrator} \xrightarrow{\text{formal task}} \text{worker} \xrightarrow{\text{formal evidence}} \text{validator} \longrightarrow \text{Academic-Orchestrator}$$
 
 ---
 
-## 🚦 Strict State Progression & Worker Return Invariants (Phase 21)
+## 🚦 Strict State Progression & Worker Return Invariants (Phases 21 & 22)
 
 ### 1. Sequential State Machine Flow
 The Orchestrator CANNOT bypass workflow states simply because it has tools (`invoke_subagent`, `send_message`, etc.). Progression MUST strictly step through:
@@ -187,15 +216,17 @@ $$\text{LOCKED} \rightarrow \text{READY} \rightarrow \text{RUNNING} \rightarrow 
 - Skipping any intermediate stage (e.g. `LOCKED -> RUNNING`, `RUNNING -> APPROVED`, `VALIDATING -> APPROVED`, `AWAITING_APPROVAL -> NEXT_STAGE`) is physically blocked by the state machine and fail-closed hooks (`InvalidStateTransitionError`).
 - Advancing to `NEXT_STAGE` requires the current stage to be in `STAGE_APPROVED` status.
 
-### 2. Mandatory 4-Part Worker Return Structure
+### 2. Mandatory 6-Part Worker Return Structure (Phase 22)
 When specialist subagents complete a delegated task, they **MUST** return a structured payload containing:
-1. `artifact`: Non-empty list of generated deliverable files on disk (`.docx`, `.md`, `.json`).
-2. `evidence`: Exact computational test statistics, sample size, degrees of freedom, effect sizes ($t, F, p, \eta^2, M, SD$).
-3. `status`: Machine-readable execution status (`SUCCESS` | `FAILED` | `BLOCKED`).
+1. `status`: Machine-readable execution status (`SUCCESS` | `FAILED` | `BLOCKED`).
+2. `artifacts`: Non-empty list of generated deliverable files on disk (`.docx`, `.md`, `.json`).
+3. `evidence`: Exact computational test statistics, sample size, degrees of freedom, effect sizes ($t, F, p, \eta^2, M, SD$).
 4. `validation`: Independent validation verdict (`PASS` | `FAIL`) and check report details.
+5. `warnings`: Operational anomalies, data quality flags, or warnings encountered (`[]` if none).
+6. `limitations`: Methodological or statistical limitations encountered (`[]` if none).
 
 **Strict Prohibition of Trivial Returns**:
-Workers must **NEVER** return simply `"done"`, `"completed"`, or unstructured text. Any return payload returning `"done"` or lacking any of the 4 mandatory blocks is strictly rejected by both the state machine and secondary enforcement hooks (`InvalidWorkerReturnError`).
+Workers must **NEVER** return simply `"done"`, `"completed"`, or unstructured text. Any return payload returning `"done"` or lacking any of the 6 mandatory blocks is strictly rejected by both the state machine and secondary enforcement hooks (`InvalidWorkerReturnContractError`).
 
 ---
 

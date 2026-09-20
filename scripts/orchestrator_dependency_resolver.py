@@ -315,25 +315,43 @@ def format_delegation_envelope(stage_id: str, state_dir: str, task_instructions:
     skill_name = prereq["required_skill"]
     skill_path = prereq["skill_path"]
 
-    prompt = (
-        f"### Contractual Delegation Envelope\n"
-        f"- **Assigned Role**: `{agent_name}`\n"
-        f"- **Stage ID**: `{stage_id}` — {prereq['title']}\n"
-        f"- **Required Skill**: `{skill_name}` (Call `view_file` on `{skill_path}` first)\n"
-        f"- **Input Artifact Directory**: `{state_dir}`\n\n"
-        f"#### Task Directives:\n"
-        f"{task_instructions}\n\n"
-        f"#### Required Deliverables & Invariants:\n"
-        f"1. Generate synchronized triad artifacts on disk in `{state_dir}/outputs/` (or `{state_dir}/analysis/`): `.docx`, `.md`, `.json`.\n"
-        f"2. Never calculate statistics in LLM memory. Run deterministic scripts via `run_command`.\n"
-        f"3. Strictly use ASCII English filenames (Directive 6).\n"
-        f"4. On completion, return a concise Handoff Envelope pointing to the generated disk artifacts."
+    try:
+        from scripts.delegation_contract_engine import create_delegation_contract, format_delegation_prompt
+    except ImportError:
+        from delegation_contract_engine import create_delegation_contract, format_delegation_prompt
+
+    contract = create_delegation_contract(
+        task_id=f"TSK-{stage_id}",
+        parent_agent="academic-orchestrator",
+        worker_agent=agent_name,
+        objective=f"Execute stage '{stage_id}' ({prereq['title']}) using skill '{skill_name}': {task_instructions}",
+        inputs=[os.path.join(state_dir, "project.json")] if os.path.exists(os.path.join(state_dir, "project.json")) else [state_dir],
+        required_artifacts=[
+            f"{state_dir}/outputs/{stage_id}.docx",
+            f"{state_dir}/outputs/{stage_id}.md",
+            f"{state_dir}/outputs/{stage_id}.json"
+        ],
+        acceptance_criteria=[
+            "Generate synchronized triad artifacts on disk in outputs/: .docx, .md, .json",
+            "Extract exact empirical statistics without mental calculation",
+            "Verify complete consistency across all reporting formats"
+        ],
+        constraints=[
+            "Never calculate statistics in LLM memory. Run deterministic scripts via run_command.",
+            "Strictly use ASCII English filenames (Directive 6).",
+            f"Required Skill: `{skill_name}` (Call `view_file` on `{skill_path}` first)."
+        ],
+        verification_method="statistical-auditor" if "stat" in agent_name else "validation-agent",
+        deadline="STAGE_EXECUTION_MILESTONE"
     )
+
+    prompt = format_delegation_prompt(contract)
 
     return {
         "status": "READY",
         "stage_id": stage_id,
         "agent": agent_name,
+        "contract": contract,
         "subagent_invocation": {
             "TypeName": agent_name,
             "Role": f"{agent_name.replace('-', ' ').title()} Specialist",

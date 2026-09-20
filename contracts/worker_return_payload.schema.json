@@ -4,11 +4,23 @@
   "title": "WorkerReturnPayloadContract",
   "description": "Authoritative contract schema for structured worker subagent return payloads in AcademicSuite. Enforces the 4-part return invariant: artifact, evidence, status, validation. Strictly forbids trivial string returns like 'done'.",
   "type": "object",
-  "required": [
-    "artifact",
-    "evidence",
-    "status",
-    "validation"
+  "anyOf": [
+    {
+      "required": [
+        "artifact",
+        "evidence",
+        "status",
+        "validation"
+      ]
+    },
+    {
+      "required": [
+        "artifacts",
+        "evidence",
+        "status",
+        "validation"
+      ]
+    }
   ],
   "properties": {
     "contract_version": {
@@ -56,6 +68,43 @@
           "minProperties": 1
         }
       ]
+    },
+    "artifacts": {
+      "description": "Non-empty list of generated deliverable artifact file paths or structured artifact records on disk (Phase 22).",
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {"type": "string", "minLength": 1},
+              {
+                "type": "object",
+                "required": ["path"],
+                "properties": {
+                  "path": {"type": "string", "minLength": 1},
+                  "sha256": {"type": "string"},
+                  "artifact_type": {"type": "string"}
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "object",
+          "minProperties": 1
+        }
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Operational warnings, data quality flags, or execution anomalies encountered (Phase 22)."
+    },
+    "limitations": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Statistical or methodological limitations encountered (Phase 22)."
     },
     "evidence": {
       "type": "object",
