@@ -66,8 +66,8 @@ def build_durable_specs():
         name="digital-saber",
         role="Research Project Lead, Cognitive Architect & Digital Twin",
         description="Master Research Project Lead, Cognitive Architect, and Digital Twin of Saber Ghaderi. Orchestrates multi-agent academic research, statistical consulting, and dissertation defense preparation. User-facing consultant only.",
-        mainAgent=True,
-        subagent=False,
+        mainAgent=False,
+        subagent=True,
         model="pro",
         commandExecutionPolicy="request-review",
         tools=[
@@ -146,7 +146,7 @@ def build_durable_specs():
         role="Master Academic Orchestrator & Research Project Lead",
         description="Primary academic master conductor and research project lead. Understands holistic research requirements, decomposes multi-chapter pipelines into bounded micro-stages, maps capabilities to skills and specialist subagents, delegates with strict context isolation, tracks artifact dependencies, coordinates adversarial validation, manages retry loops, and synthesizes final deliverables.",
         mainAgent=True,
-        subagent=False,
+        subagent=True,
         model="pro",
         commandExecutionPolicy="request-review",
         tools=[

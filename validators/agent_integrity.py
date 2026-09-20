@@ -373,6 +373,33 @@ class AgentIntegrityValidator:
                         f"Agent '{child_name}' is referenced in '{parent_name}' delegation list but has 'subagent: false'. Antigravity will block invoke_subagent."
                     )
 
+        # 3. Canonical MainAgent entry point check (Phase 11)
+        # When academic-orchestrator is present, it must be the sole mainAgent (mainAgent=True, subagent=True).
+        # All other agents must have mainAgent=False and subagent=True.
+        if "academic-orchestrator" in self.canonical_agents:
+            orch_fm = self.canonical_agents["academic-orchestrator"]
+            if not orch_fm.get("mainAgent"):
+                self._add_issue(
+                    "academic-orchestrator",
+                    "canonical_mainAgent_entry_point",
+                    "academic-orchestrator must have 'mainAgent: true' as the canonical production entry point."
+                )
+            if not orch_fm.get("subagent"):
+                self._add_issue(
+                    "academic-orchestrator",
+                    "canonical_mainAgent_entry_point",
+                    "academic-orchestrator must have 'subagent: true'."
+                )
+
+            for name, fm in self.canonical_agents.items():
+                if name != "academic-orchestrator" and fm.get("mainAgent") is True:
+                    self._add_issue(
+                        name,
+                        "canonical_mainAgent_entry_point",
+                        f"Specialist agent '{name}' has 'mainAgent: true'. In production AcademicSuite, "
+                        f"only 'academic-orchestrator' may hold 'mainAgent: true'. All specialists must have 'mainAgent: false'."
+                    )
+
 
 def main():
     parser = argparse.ArgumentParser(description="Antigravity Agent Integrity & Discovery Validator")

@@ -15,7 +15,7 @@ This document freezes and records the exact tool access, skill bindings, executi
 - **Can Delegate (`invoke_subagent`):** 4 agents (14.3%) — `academic-orchestrator`, `digital-saber`, `methodology-expert`, `statistical-expert`
 - **Can Execute Code (`run_command`):** 16 agents (57.1%)
 - **Can Write Files (`write_to_file` / `replace_file_content`):** 27 agents (96.4%) — Only `trajectory-analyzer` is strictly read-only
-- **Can Act as Main Agent (`mainAgent: true`):** 4 agents (14.3%) — `academic-orchestrator`, `digital-saber`, `methodology-expert`, `statistical-expert`
+- **Can Act as Main Agent (`mainAgent: true`):** 1 agent (3.6%) — `academic-orchestrator` (Sole Canonical Production Entry Point; all specialists are `mainAgent: false, subagent: true`)
 - **Can Act as Subagent (`subagent: true`):** 28 agents (100.0%)
 
 ---
@@ -31,7 +31,7 @@ This document freezes and records the exact tool access, skill bindings, executi
 | 5 | `curriculum-builder` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 6 | `data-agent` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `data-cleaning`, `data-audit`, `psychometric-scale-resolver`, `psychometric-data-simulator` |
 | 7 | `data-curator` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `data-audit`, `data-cleaning`, `psychometric-scale-resolver` |
-| 8 | `digital-saber` | Tier 1 (Lead) | Yes | Yes | Yes | Yes | Yes | `academic-suite-orchestrator`, `digital-twin-academic-consultant`, `thesis-integrity-auditor`, `chapter-4-writing`, `persian-thesis-revision-assistant` |
+| 8 | `digital-saber` | Tier 1 (Lead) | No | Yes | Yes | Yes | Yes | `academic-suite-orchestrator`, `digital-twin-academic-consultant`, `thesis-integrity-auditor`, `chapter-4-writing`, `persian-thesis-revision-assistant` |
 | 9 | `evaluation-agent` | Tier 5 (Learning) | No | Yes | Yes | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 10 | `evidence-auditor` | Tier 2 (Domain) | No | Yes | **No** | Yes | No | `thesis-integrity-auditor`, `irandoc-plagiarism-reducer`, `academic-reference-extractor` |
 | 11 | `final-judge` | Tier 2 (Domain) | No | Yes | **No** | Yes | No | `thesis-integrity-auditor`, `persian-defense-presentation-builder` |
@@ -41,14 +41,14 @@ This document freezes and records the exact tool access, skill bindings, executi
 | 15 | `literature-expert` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `literature-harvester`, `literature-review`, `bibliometric-network-analyst` |
 | 16 | `longitudinal-modmed-expert` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `longitudinal-moderated-mediation`, `mediation`, `apa-reporting` |
 | 17 | `meta-analyst` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `systematic-review-meta-analyst`, `gpower-sample-size-calculator` |
-| 18 | `methodology-expert` | Tier 2 (Domain) | Yes | Yes | **No** | Yes | Yes | `methodology-review`, `academic-adaptive-context`, `gpower-sample-size-calculator`, `persian-proposal-builder` |
+| 18 | `methodology-expert` | Tier 2 (Domain) | No | Yes | **No** | Yes | Yes | `methodology-review`, `academic-adaptive-context`, `gpower-sample-size-calculator`, `persian-proposal-builder` |
 | 19 | `psychometric-expert` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `psychometric-scale-validator`, `academic-adaptive-context`, `cfa`, `psychometric-scale-resolver`, `reliability-analysis` |
 | 20 | `qualitative-analyst` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `qualitative-data-analyst` |
 | 21 | `research-agent` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `literature-review`, `literature-harvester`, `gpower-sample-size-calculator` |
 | 22 | `results-auditor` | Tier 4 (Critic) | No | Yes | No | Yes | No | `apa-reporting`, `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 23 | `skill-evolver` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 24 | `statistical-auditor` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `thesis-integrity-auditor`, `academic-adaptive-context`, `data-audit` |
-| 25 | `statistical-expert` | Tier 2 (Domain) | Yes | Yes | **No** | **Yes** | **Yes** | `sem`, `cfa`, `mediation`, `moderation`, `regression`, `statistical-data-analyst` |
+| 25 | `statistical-expert` | Tier 2 (Domain) | No | Yes | **No** | **Yes** | **Yes** | `sem`, `cfa`, `mediation`, `moderation`, `regression`, `statistical-data-analyst` |
 | 26 | `statistics-agent` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `statistical-data-analyst`, `academic-adaptive-context`, `regression`, `mediation`, `moderation`, `descriptive-statistics`, `reliability-analysis` |
 | 27 | `trajectory-analyzer` | Tier 5 (Learning) | No | Yes | No | No | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 28 | `validation-agent` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `thesis-integrity-auditor`, `academic-adaptive-context`, `apa-reporting` |
@@ -215,7 +215,7 @@ agent:
 
 agent:
   name: digital-saber
-  mainAgent: true
+  mainAgent: false
   subagent: true
   tools:
     - invoke_subagent
@@ -426,7 +426,7 @@ agent:
 
 agent:
   name: methodology-expert
-  mainAgent: true
+  mainAgent: false
   subagent: true
   tools:
     - invoke_subagent
@@ -575,7 +575,7 @@ agent:
 
 agent:
   name: statistical-expert
-  mainAgent: true
+  mainAgent: false
   subagent: true
   tools:
     - invoke_subagent

@@ -151,13 +151,18 @@ inheritCustomizations: true
 
 ---
 
-## 4. Subagent & MainAgent Semantics
+## 4. Subagent & MainAgent Semantics (Phase 11 Canonical Entry Point)
 
 In Antigravity:
 - **`mainAgent: true`**: Agent appears in the primary workspace agent selector / chat interface.
 - **`subagent: true`**: Agent appears in the available subagents registry for the `invoke_subagent` tool.
-- **`mainAgent: true, subagent: true`** (Dual-Role Authority): Specialist authorities (such as `methodology-expert`, `statistical-expert`, `academic-writer`) can be selected by the user for direct interactive chat OR spawned dynamically by `academic-orchestrator` as subagents.
-- **`mainAgent: false, subagent: true`** (Pure Specialist Subagent): Pure workers and critics (such as `statistics-agent`, `data-curator`, `results-auditor`) are invoked solely by orchestrators and authorities.
+
+### Phase 11 Canonical Production Configuration:
+To prevent multiple agents from competing as production Academic-Orchestrators and cluttering the IDE interface, AcademicSuite enforces a **single canonical entry point**:
+- **Sole Main Orchestrator (`mainAgent: true, subagent: true`)**:
+  - `academic-orchestrator`: The single canonical academic entry point in the Antigravity selector. Coordinates the end-to-end lifecycle and dispatches specialist subagents via `invoke_subagent`.
+- **Specialists, Workers, Critics & Learning Agents (`mainAgent: false, subagent: true`)**:
+  - All 27 other agents (`methodology-expert`, `statistical-expert`, `academic-writer`, `statistics-agent`, `data-agent`, `results-auditor`, etc.) are configured strictly as subagents. They cannot be selected as top-level main agents, eliminating multi-orchestrator ambiguity and ensuring all academic workflows follow the unified delegation hierarchy.
 
 ---
 

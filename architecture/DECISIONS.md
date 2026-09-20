@@ -87,13 +87,13 @@ Previously, Tier 1 and Tier 2 domain authorities (`methodology-expert`, `statist
 
 ### Decision
 All specialist domain authorities that can be delegated to by the lead orchestrator must have `subagent: true`.
-- Orchestrators and domain authorities can have `mainAgent: true, subagent: true` (dual-role: interactive chat or callable worker).
-- Pure execution workers and critics have `mainAgent: false, subagent: true`.
-- The `agent_integrity` validator strictly checks that any agent listed in another agent's `agents:` array has `subagent: true`.
+- **Phase 11 Canonical Production Entry Point**: Only `academic-orchestrator` has `mainAgent: true, subagent: true`. It serves as the sole production entry point in the Antigravity selector.
+- All specialist domain authorities (`methodology-expert`, `statistical-expert`, `academic-writer`, etc.), execution workers, critics, and learning subagents have `mainAgent: false, subagent: true`.
+- The `agent_integrity` validator strictly enforces that exactly one production agent has `mainAgent: true`, and that any agent referenced in delegation has `subagent: true`.
 
 ### Consequences
-- **Positive**: `academic-orchestrator` can seamlessly invoke all 22 domain agents and 6 learning subagents natively.
-- **Negative**: Specialist authorities will appear in both the main agent picker and the subagents list.
+- **Positive**: `academic-orchestrator` provides a clean, single canonical entry point into Antigravity. Zero competing orchestrators in the user interface. Seamless delegation across all 27 subagents via `invoke_subagent`.
+- **Negative Resolved**: Specialist authorities no longer clutter the primary agent dropdown.
 
 ---
 
