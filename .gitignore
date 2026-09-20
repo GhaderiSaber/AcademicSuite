@@ -60,6 +60,7 @@ learning/candidates/index.jsonl
 learning/evaluations/results/*.json
 learning/evaluations/reports/*.json
 learning/evaluations/independent/*.json
+learning/evaluations/three_way/
 learning/evaluations/curriculum/index.jsonl
 learning/archive/ARC-*
 learning/archive/index.jsonl

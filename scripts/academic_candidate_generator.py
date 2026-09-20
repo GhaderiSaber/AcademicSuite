@@ -60,6 +60,11 @@ from scripts.immutable_capability_boundary_guard import (
     is_allowed_learning_modification,
     audit_candidate_learning_target
 )
+from scripts.capability_policy_gate import (
+    CapabilityPolicyGate,
+    CapabilityPolicyViolationError,
+    enforce_capability_policy
+)
 
 
 class CandidateGenerationError(Exception):
@@ -457,7 +462,8 @@ class AcademicCandidateGenerator:
             }
         }
 
-        # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
+        # IMMUTABLE BOUNDARY & CAPABILITY POLICY VERIFICATION (Phase 24 & 25)
+        enforce_capability_policy(candidate_record)
         verify_candidate_boundary(candidate_record)
 
         # Validate against schema contract
@@ -566,7 +572,8 @@ class AcademicCandidateGenerator:
                 }
             }
 
-            # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
+            # IMMUTABLE BOUNDARY & CAPABILITY POLICY VERIFICATION (Phase 24 & 25)
+            enforce_capability_policy(candidate_record)
             verify_candidate_boundary(candidate_record)
 
             # Validate against schema contract
@@ -1157,7 +1164,8 @@ class AcademicCandidateGenerator:
             }
         }
 
-        # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
+        # IMMUTABLE BOUNDARY & CAPABILITY POLICY VERIFICATION (Phase 24 & 25)
+        enforce_capability_policy(candidate_record)
         verify_candidate_boundary(candidate_record)
 
         val_res = validate_improvement_candidate(candidate_record)

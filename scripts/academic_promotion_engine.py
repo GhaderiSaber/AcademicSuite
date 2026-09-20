@@ -77,6 +77,11 @@ from scripts.immutable_capability_boundary_guard import (
     verify_candidate_boundary,
     ImmutableCapabilityBoundaryViolationError
 )
+from scripts.capability_policy_gate import (
+    CapabilityPolicyGate,
+    CapabilityPolicyViolationError,
+    enforce_capability_policy
+)
 
 
 class PromotionEngineError(Exception):
@@ -836,15 +841,16 @@ class AcademicPromotionEngine:
 
         risk_level = self.classify_risk_level(candidate_data)
 
-        # Phase 24: Verify Immutable Capability Boundary
+        # Phase 24 & 25: Verify Immutable Capability Boundary & Authoritative Policy Gate
         try:
+            enforce_capability_policy(candidate_data)
             verify_candidate_boundary(candidate_data)
-        except ImmutableCapabilityBoundaryViolationError as e:
+        except (CapabilityPolicyViolationError, ImmutableCapabilityBoundaryViolationError) as e:
             self.archive_rejected_candidate(
                 candidate_data=candidate_data,
                 failure_reason=str(e),
                 evaluation_evidence=evidence or {},
-                affected_cases=["immutable_capability_boundary"]
+                affected_cases=["capability_boundary_policy"]
             )
             raise
 
@@ -1391,7 +1397,29 @@ class AcademicPromotionEngine:
         risk_tier = self.classify_risk(candidate_data)
         candidate_data["risk_level"] = risk_level
 
-        # 3. Prohibited Architectural Component Hard Block
+        # 3. Phase 25: Authoritative Capability Policy Gate
+        policy_verdict = CapabilityPolicyGate.evaluate_candidate_patch(candidate_data)
+        if policy_verdict.decision == "REJECT":
+            reason = policy_verdict.message
+            archived = self.archive_rejected_candidate(
+                candidate_data=candidate_data,
+                failure_reason=reason,
+                evaluation_evidence=evaluation_report,
+                affected_cases=["capability_boundary_policy"]
+            )
+            return {
+                "decision": "REJECTED",
+                "status": "REJECTED_AND_ARCHIVED",
+                "risk_tier": "HIGH_RISK",
+                "risk_level": risk_level,
+                "governance_gate": "CAPABILITY_POLICY_VIOLATION",
+                "reason": reason,
+                "archive_id": archived["archive_id"],
+                "candidate_id": candidate_id,
+                "policy_verdict": policy_verdict.to_dict()
+            }
+
+        # 4. Prohibited Architectural Component Hard Block
         target_component = str(candidate_data.get("target_component", "")).lower()
         content = str(candidate_data.get("mutation", {}).get("content", "")).lower()
         for pat in self.HIGH_RISK_PATTERNS:
@@ -1416,7 +1444,7 @@ class AcademicPromotionEngine:
                     "candidate_id": candidate_id
                 }
 
-        # 4. Level 5 Hard Block (Phase 40)
+        # 5. Level 5 Hard Block (Phase 40)
         if risk_level == self.LEVEL_5_STATISTICAL_COMPUTATION:
             reason = (
                 f"HIGH_RISK_COMPONENT_PROHIBITED: LEVEL_5_STATISTICAL_COMPUTATION_PROHIBITED: "
@@ -1440,7 +1468,7 @@ class AcademicPromotionEngine:
                 "candidate_id": candidate_id
             }
 
-        # 4b. Phase 24: Immutable Architecture Capability Boundary Hard Block
+        # 4c. Phase 24: Immutable Architecture Capability Boundary Hard Block
         try:
             verify_candidate_boundary(candidate_data)
         except ImmutableCapabilityBoundaryViolationError as e:
@@ -1902,6 +1930,9 @@ class AcademicPromotionEngine:
         and physically activates it in the target component on disk, creating
         an immutable rollback snapshot and enforcing the Target Hash Verification Invariant.
         """
+        # Phase 25: Pre-Deployment Fail-Closed Capability Policy Verification
+        enforce_capability_policy(candidate_data)
+
         mut_type = candidate_data.get("mutation_type")
         cid = candidate_data.get("candidate_id")
         mutation = candidate_data.get("mutation", {})
