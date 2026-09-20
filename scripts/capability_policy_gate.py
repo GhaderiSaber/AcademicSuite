@@ -136,10 +136,25 @@ class CapabilityPolicyGate:
         Returns:
             CapabilityPolicyVerdict with decision="ALLOW" or decision="REJECT".
         """
-        candidate_id = str(candidate_data.get("candidate_id", "CAND-UNKNOWN"))
-        target_comp = str(candidate_data.get("target_component", "")).lower()
-        mutation = candidate_data.get("mutation", {})
-        content = str(mutation.get("content", ""))
+        candidate_id = str(candidate_data.get("candidate_id") or candidate_data.get("id") or "CAND-UNKNOWN")
+        target_comp = str(
+            candidate_data.get("target_component")
+            or candidate_data.get("target")
+            or candidate_data.get("target_file")
+            or ""
+        ).lower()
+        mutation = candidate_data.get("mutation")
+        if isinstance(mutation, dict):
+            content = str(mutation.get("content") or "")
+        else:
+            content = str(mutation or "")
+        if not content:
+            content = str(
+                candidate_data.get("diff")
+                or candidate_data.get("patch")
+                or candidate_data.get("content")
+                or ""
+            )
         rationale = str(candidate_data.get("rationale", ""))
         now_iso = datetime.now(timezone.utc).isoformat()
 

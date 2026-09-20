@@ -201,6 +201,7 @@ class SafetyHooks:
                 "meta-analyst",
                 "literature-expert",
                 "research-agent",
+                "test-worker",
             }
             for w in unauthorized_workers:
                 if w in caller:
@@ -264,13 +265,22 @@ class SafetyHooks:
             targets = extract_target_paths(name, args)
 
             # Orchestrator Mutation Guard (Phase 13, 17, 18 Zero-Hands Contract):
-            # academic-orchestrator has no write/mutation privileges and cannot write or modify ANY files directly.
+            # academic-orchestrator and test-orchestrator have no write/mutation privileges and cannot write or modify ANY files directly.
             if "academic-orchestrator" in caller:
                 return {
                     "decision": "deny",
                     "reason": (
                         "CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 / Phase 18 Zero-Hands Contract / Orchestrator Code Guard): "
                         "Academic-Orchestrator is strictly managerial and forbidden from writing or modifying files directly. "
+                        "File generation, document drafting, and mutations must be delegated to specialist workers."
+                    )
+                }
+            if "test-orchestrator" in caller:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 / Phase 18 Zero-Hands Contract / Orchestrator Code Guard): "
+                        "test-orchestrator is strictly managerial and forbidden from writing or modifying files directly. "
                         "File generation, document drafting, and mutations must be delegated to specialist workers."
                     )
                 }
@@ -358,6 +368,7 @@ class SafetyHooks:
             # Direct Execution Guard (Layer 4 Secondary Enforcement for Non-Executors):
             non_executing_callers = {
                 "academic-orchestrator",
+                "test-orchestrator",
                 "methodology-expert",
                 "statistical-expert",
                 "results-auditor",
@@ -381,6 +392,15 @@ class SafetyHooks:
                                 "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12.1 / Phase 3-4 Orchestrator Zero-Hands Contract): "
                                 "Academic-Orchestrator is strictly forbidden from executing shell commands or code directly. "
                                 "All execution and statistical analysis must be delegated to specialist workers (e.g. statistics-agent) via invoke_subagent."
+                            )
+                        }
+                    elif nec == "test-orchestrator":
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                "CONSTITUTIONAL VIOLATION (Orchestrator Non-Execution Invariant): "
+                                "test-orchestrator is strictly forbidden from executing shell commands or code directly. "
+                                "All computation must be delegated to specialist workers via invoke_subagent."
                             )
                         }
                     else:

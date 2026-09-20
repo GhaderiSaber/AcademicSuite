@@ -665,3 +665,45 @@ agents:
       - call_mcp_tool
       - manage_task
       - schedule
+
+  test-orchestrator:
+    role: "orchestrator"
+    tier: "Test — Proof-of-Concept"
+    mainAgent: false
+    subagent: true
+    can_delegate: true
+    can_execute_code: false
+    can_write_files: false
+    required:
+      - invoke_subagent
+      - view_file
+    forbidden:
+      - run_command
+      - write_to_file
+      - replace_file_content
+      - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
+
+  test-worker:
+    role: "execution_worker"
+    tier: "Test — Proof-of-Concept"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    execution_scope: "test_only"
+    can_write_files: true
+    required:
+      - view_file
+      - run_command
+      - write_to_file
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - replace_file_content
+      - define_subagent
+      - call_mcp_tool
+

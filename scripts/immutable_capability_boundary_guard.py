@@ -55,6 +55,7 @@ NON_EXECUTING_AGENTS: Set[str] = {
     "results-auditor",
     "skill-evolver",
     "statistical-expert",
+    "test-orchestrator",
     "trajectory-analyzer"
 }
 
