@@ -29,9 +29,16 @@ import argparse
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple, Set
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
+_CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.dirname(_CURR_DIR)) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, ".."))
+
+AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
+for p in [ROOT_DIR, AGENTS_DIR, os.path.join(AGENTS_DIR, "contracts"), os.path.join(AGENTS_DIR, "scripts"), os.path.join(AGENTS_DIR, "learning")]:
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
 
 for venv_name in [".venv", "venv"]:
     venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
@@ -75,7 +82,16 @@ class AcademicEvaluationLab:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
-        self.eval_root = os.path.join(self.base_dir, "learning", "evaluations")
+        agents_eval = os.path.join(self.base_dir, ".agents", "learning", "evaluations")
+        direct_eval = os.path.join(self.base_dir, "learning", "evaluations")
+        if os.path.isdir(agents_eval):
+            self.eval_root = agents_eval
+        elif os.path.isdir(direct_eval):
+            self.eval_root = direct_eval
+        elif os.path.isdir(os.path.join(self.base_dir, ".agents", "learning")):
+            self.eval_root = agents_eval
+        else:
+            self.eval_root = direct_eval
         self.results_dir = os.path.join(self.eval_root, "results")
 
         self.suite_dirs = {

@@ -140,7 +140,9 @@ class AcademicVersionStore:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = base_dir or ROOT_DIR
-        self.versions_root = os.path.join(self.base_dir, "learning", "versions")
+        cand_learning = os.path.join(self.base_dir, ".agents", "learning")
+        learning_base = cand_learning if os.path.isdir(cand_learning) else os.path.join(self.base_dir, "learning")
+        self.versions_root = os.path.join(learning_base, "versions")
         os.makedirs(self.versions_root, exist_ok=True)
 
     def resolve_component_id(
@@ -595,11 +597,13 @@ class AcademicPromotionEngine:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = base_dir or ROOT_DIR
-        self.candidates_dir = os.path.join(self.base_dir, "learning", "candidates")
-        self.archive_dir = os.path.join(self.base_dir, "learning", "archive")
-        self.promotions_dir = os.path.join(self.base_dir, "learning", "promotions")
+        cand_learning = os.path.join(self.base_dir, ".agents", "learning")
+        self.learning_base = cand_learning if os.path.isdir(cand_learning) else os.path.join(self.base_dir, "learning")
+        self.candidates_dir = os.path.join(self.learning_base, "candidates")
+        self.archive_dir = os.path.join(self.learning_base, "archive")
+        self.promotions_dir = os.path.join(self.learning_base, "promotions")
         self.snapshots_dir = os.path.join(self.promotions_dir, "snapshots")
-        self.knowledge_dir = os.path.join(self.base_dir, "learning", "knowledge")
+        self.knowledge_dir = os.path.join(self.learning_base, "knowledge")
         self.production_skills_dir = os.path.join(self.base_dir, ".agents", "skills")
         self.production_agents_dir = os.path.join(self.base_dir, ".agents", "agents")
 
@@ -863,14 +867,14 @@ class AcademicPromotionEngine:
         }
 
         if target_stage == "SANDBOX":
-            sb_dir = sandbox_dir or os.path.join(self.base_dir, "learning", "sandboxes", candidate_id)
+            sb_dir = sandbox_dir or os.path.join(self.learning_base, "sandboxes", candidate_id)
             os.makedirs(sb_dir, exist_ok=True)
             result_details["sandbox_dir"] = sb_dir
             candidate_data["sandbox_dir"] = sb_dir
 
         elif target_stage == "EVALUATION":
             if not candidate_data.get("sandbox_dir"):
-                sb_dir = os.path.join(self.base_dir, "learning", "sandboxes", candidate_id)
+                sb_dir = os.path.join(self.learning_base, "sandboxes", candidate_id)
                 os.makedirs(sb_dir, exist_ok=True)
                 candidate_data["sandbox_dir"] = sb_dir
 

@@ -161,8 +161,8 @@ class TestCapabilityOrchestration(unittest.TestCase):
         self.assertIn("reason", res)
 
     def test_09_cli_wrapper_execution(self):
-        """Verify CLI capability_resolver.py runs with returncode 0 and valid output."""
-        script_path = os.path.join(ROOT_DIR, "scripts", "capability_resolver.py")
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "capability_resolver.py")
+        script_path = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "capability_resolver.py")
 
         # Text mode
         proc = subprocess.run(

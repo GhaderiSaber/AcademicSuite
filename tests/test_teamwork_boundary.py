@@ -249,10 +249,12 @@ class TestTeamworkBoundaryIntegration(unittest.TestCase):
 
     def test_08_cli_classify_and_package(self):
         """Verifies CLI commands for teamwork_boundary_adapter.py execute without errors."""
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "teamwork_boundary_adapter.py")
+        adapter_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "teamwork_boundary_adapter.py")
         # Classify CLI
         cmd_classify = [
             sys.executable,
-            os.path.join(ROOT_DIR, "scripts", "teamwork_boundary_adapter.py"),
+            adapter_script,
             "classify",
             "--description", "Restructure 20-chapter monograph with thousands of source files"
         ]
@@ -263,7 +265,7 @@ class TestTeamworkBoundaryIntegration(unittest.TestCase):
         # Package CLI
         cmd_pkg = [
             sys.executable,
-            os.path.join(ROOT_DIR, "scripts", "teamwork_boundary_adapter.py"),
+            adapter_script,
             "package",
             "--description", "Run CFA and SEM on latent burnout model"
         ]

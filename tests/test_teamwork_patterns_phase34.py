@@ -185,7 +185,8 @@ class TestTeamworkPatternsPhase34(unittest.TestCase):
 
     def test_06_directive_12_1_no_python_agent_dispatch_emulation(self):
         """Verify strict compliance with Directive 12.1 (no Python agent dispatch emulators)."""
-        script_path = os.path.join(ROOT_DIR, "scripts", "academic_teamwork_patterns.py")
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_teamwork_patterns.py")
+        script_path = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_teamwork_patterns.py")
         with open(script_path, "r", encoding="utf-8") as f:
             content = f.read()
 
@@ -218,8 +219,8 @@ class TestTeamworkPatternsPhase34(unittest.TestCase):
                         f"Non-ASCII filename violates Directive 6: {fname}"
                     )
 
-        # Directive 18: scripts/academic_teamwork_patterns.py must be <= 500 lines
-        script_path = os.path.join(ROOT_DIR, "scripts", "academic_teamwork_patterns.py")
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_teamwork_patterns.py")
+        script_path = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_teamwork_patterns.py")
         with open(script_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
         self.assertLessEqual(

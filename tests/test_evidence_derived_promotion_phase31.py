@@ -295,8 +295,10 @@ class TestEvidenceDerivedPromotionPhase31(unittest.TestCase):
 
     def test_07_directive_18_ceilings(self):
         """7. Directive 18 ceilings (<= 500 lines, <= 40,000 bytes) are strictly respected."""
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_canonical_evaluation.py")
+        canonical_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_canonical_evaluation.py")
         files_to_check = [
-            os.path.join(ROOT_DIR, "scripts", "academic_canonical_evaluation.py"),
+            canonical_script,
             __file__
         ]
         for fpath in files_to_check:

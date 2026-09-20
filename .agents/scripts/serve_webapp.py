@@ -28,7 +28,11 @@ from typing import Dict, Any, List, Optional
 import argparse
 
 # Path resolution
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+_CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.dirname(_CURR_DIR)) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, ".."))
 WEBAPP_DIR = os.path.join(ROOT_DIR, "webapp")
 DIST_DIR = os.path.join(WEBAPP_DIR, "dist")
 STATIC_DIR = DIST_DIR if os.path.isdir(DIST_DIR) else WEBAPP_DIR

@@ -180,7 +180,9 @@ class AcademicCandidateGenerator:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
-        self.candidates_dir = os.path.join(self.base_dir, "learning", "candidates")
+        cand_learning = os.path.join(self.base_dir, ".agents", "learning")
+        learning_base = cand_learning if os.path.isdir(cand_learning) else os.path.join(self.base_dir, "learning")
+        self.candidates_dir = os.path.join(learning_base, "candidates")
         self.skills_dir = os.path.join(self.base_dir, ".agents", "skills")
         self.agents_dir = os.path.join(self.base_dir, ".agents", "agents")
         self.index_file = os.path.join(self.candidates_dir, "index.jsonl")

@@ -331,7 +331,8 @@ class TestCanonicalEvaluationPhase30(unittest.TestCase):
     # -------------------------------------------------------------------------
     def test_10_directive_18_ceilings(self):
         """10. scripts/academic_canonical_evaluation.py strictly respects <= 500 lines and <= 40,000 bytes."""
-        canonical_script = os.path.join(ROOT_DIR, "scripts", "academic_canonical_evaluation.py")
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_canonical_evaluation.py")
+        canonical_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_canonical_evaluation.py")
         self.assertTrue(os.path.isfile(canonical_script))
 
         with open(canonical_script, "r", encoding="utf-8") as f:

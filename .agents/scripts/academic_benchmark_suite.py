@@ -29,9 +29,16 @@ import argparse
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
+_CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.dirname(_CURR_DIR)) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, ".."))
+
+AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
+for p in [ROOT_DIR, AGENTS_DIR, os.path.join(AGENTS_DIR, "contracts"), os.path.join(AGENTS_DIR, "scripts")]:
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
 
 from contracts.contract_validator import validate_academic_benchmark_case, validate_contract
 

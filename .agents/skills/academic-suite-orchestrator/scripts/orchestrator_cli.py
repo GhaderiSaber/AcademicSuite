@@ -189,7 +189,7 @@ SKILL_REGISTRY = {
     },
     "deliberation": {
         "skill": "academic-suite-orchestrator",
-        "script": os.path.join(REPO_ROOT, "scripts", "candidate_falsifier_engine.py"),
+        "script": os.path.join(REPO_ROOT, ".agents", "scripts", "candidate_falsifier_engine.py") if os.path.isfile(os.path.join(REPO_ROOT, ".agents", "scripts", "candidate_falsifier_engine.py")) else os.path.join(REPO_ROOT, "scripts", "candidate_falsifier_engine.py"),
         "default_sample": os.path.join(SKILLS_DIR, "academic-suite-orchestrator", "examples", "sample_deliberation_payload.json"),
         "desc": "Candidate -> Falsifier -> Synthesis deliberation, pitfall check & AnalysisPlan generation (.json & .md)"
     }
@@ -581,7 +581,8 @@ class MasterAcademicOrchestrator:
             plan_file = self.context.get("analysis_plan") or step_conf.get("plan_path")
             dataset_file = self.context.get("simulated_data") or step_conf.get("dataset_path")
             if plan_file and dataset_file and (step_conf.get("use_pipeline_engine") or os.path.exists(plan_file)):
-                pipeline_script = os.path.join(REPO_ROOT, "scripts", "statistical_pipeline_engine.py")
+                cand_pipe = os.path.join(REPO_ROOT, ".agents", "scripts", "statistical_pipeline_engine.py")
+                pipeline_script = cand_pipe if os.path.isfile(cand_pipe) else os.path.join(REPO_ROOT, "scripts", "statistical_pipeline_engine.py")
                 cmd = [
                     PYTHON_BIN, pipeline_script,
                     "--plan", plan_file,

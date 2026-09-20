@@ -227,8 +227,8 @@ class TestAcademicVerticalSlicesPhase38(unittest.TestCase):
             self.assertEqual(s_data["verdict"], "PASS", f"Slice {s_id} failed in full report")
 
     def test_06_directive_18_single_view_budget(self):
-        """Verify runner and test suite files obey Directive 18 (<= 500 lines, <= 40,000 bytes)."""
-        runner_path = os.path.join(ROOT_DIR, "scripts", "academic_vertical_slice_runner.py")
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_vertical_slice_runner.py")
+        runner_path = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_vertical_slice_runner.py")
         test_path = os.path.abspath(__file__)
 
         for path in [runner_path, test_path]:

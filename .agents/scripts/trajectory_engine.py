@@ -155,7 +155,11 @@ class TrajectoryEngine:
 
     def __init__(self, state_dir: Optional[str] = None, project_root: Optional[str] = None):
         self.project_root = project_root or ROOT_DIR
-        self.state_dir = state_dir or os.path.join(self.project_root, "state")
+        if state_dir:
+            self.state_dir = state_dir
+        else:
+            cand_state = os.path.join(self.project_root, ".agents", "state")
+            self.state_dir = cand_state if os.path.isdir(cand_state) else os.path.join(self.project_root, "state")
         os.makedirs(self.state_dir, exist_ok=True)
         self.events_file = os.path.join(self.state_dir, "trajectory_events.jsonl")
         self.audit_file = os.path.join(self.state_dir, "audit_log.jsonl")

@@ -62,7 +62,8 @@ class TestNativeAntigravityBehavior(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.policy = load_capability_policy()
-        cls.test_script_path = os.path.join(ROOT_DIR, "scripts", "run_test_task.py")
+        candidate = os.path.join(ROOT_DIR, ".agents", "scripts", "run_test_task.py")
+        cls.test_script_path = candidate if os.path.isfile(candidate) else os.path.join(ROOT_DIR, "scripts", "run_test_task.py")
         assert os.path.isfile(cls.test_script_path), f"Test runner missing: {cls.test_script_path}"
 
     def setUp(self):

@@ -376,10 +376,13 @@ class TestDelegationContracts(unittest.TestCase):
         with open(validator_file, "w", encoding="utf-8") as f:
             json.dump(val_report, f)
 
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "delegation_contract_engine.py")
+        engine_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "delegation_contract_engine.py")
+
         # 1. validate-contract CLI
         proc1 = subprocess.run([
             sys.executable,
-            os.path.join(ROOT_DIR, "scripts", "delegation_contract_engine.py"),
+            engine_script,
             "validate-contract",
             contract_file
         ], capture_output=True, text=True)
@@ -389,7 +392,7 @@ class TestDelegationContracts(unittest.TestCase):
         # 2. validate-return CLI
         proc2 = subprocess.run([
             sys.executable,
-            os.path.join(ROOT_DIR, "scripts", "delegation_contract_engine.py"),
+            engine_script,
             "validate-return",
             return_file
         ], capture_output=True, text=True)
@@ -399,7 +402,7 @@ class TestDelegationContracts(unittest.TestCase):
         # 3. format-prompt CLI
         proc3 = subprocess.run([
             sys.executable,
-            os.path.join(ROOT_DIR, "scripts", "delegation_contract_engine.py"),
+            engine_script,
             "format-prompt",
             contract_file
         ], capture_output=True, text=True)
@@ -409,7 +412,7 @@ class TestDelegationContracts(unittest.TestCase):
         # 4. verify CLI
         proc4 = subprocess.run([
             sys.executable,
-            os.path.join(ROOT_DIR, "scripts", "delegation_contract_engine.py"),
+            engine_script,
             "verify",
             "--contract", contract_file,
             "--return", return_file,

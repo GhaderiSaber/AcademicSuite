@@ -146,7 +146,9 @@ class TestAcademicTaskRouter(unittest.TestCase):
 
     def test_08_cli_route(self):
         """CLI 'route' command should return valid JSON with correct formula."""
-        cmd = [sys.executable, os.path.join(ROOT_DIR, "scripts", "academic_task_router.py"), "route", "Analyze this dataset"]
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_task_router.py")
+        router_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_task_router.py")
+        cmd = [sys.executable, router_script, "route", "Analyze this dataset"]
         out = subprocess.check_output(cmd, encoding="utf-8")
         data = json.loads(out)
         self.assertEqual(data["capabilities_formula"], "DATA + STATISTICS")
@@ -154,7 +156,9 @@ class TestAcademicTaskRouter(unittest.TestCase):
 
     def test_09_cli_explain(self):
         """CLI 'explain' command should print human-readable summary."""
-        cmd = [sys.executable, os.path.join(ROOT_DIR, "scripts", "academic_task_router.py"), "explain", "Write Chapter 4"]
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_task_router.py")
+        router_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_task_router.py")
+        cmd = [sys.executable, router_script, "explain", "Write Chapter 4"]
         out = subprocess.check_output(cmd, encoding="utf-8")
         self.assertIn("Formula: STATISTICS + WRITING + VALIDATION", out)
         self.assertIn("Step 1: [STATISTICS]", out)
@@ -163,7 +167,9 @@ class TestAcademicTaskRouter(unittest.TestCase):
 
     def test_10_cli_list_patterns(self):
         """CLI 'list-patterns' command should list all 5 canonical patterns."""
-        cmd = [sys.executable, os.path.join(ROOT_DIR, "scripts", "academic_task_router.py"), "list-patterns"]
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_task_router.py")
+        router_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_task_router.py")
+        cmd = [sys.executable, router_script, "list-patterns"]
         out = subprocess.check_output(cmd, encoding="utf-8")
         self.assertIn("Analyze this dataset", out)
         self.assertIn("Write Chapter 4", out)

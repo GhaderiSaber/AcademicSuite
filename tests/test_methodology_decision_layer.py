@@ -224,7 +224,8 @@ class TestMethodologyDecisionLayer(unittest.TestCase):
 
     def test_07_cli_execution(self):
         """Verify CLI scripts/methodology_decision_engine.py runs and formats output."""
-        script_path = os.path.join(ROOT_DIR, "scripts", "methodology_decision_engine.py")
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "methodology_decision_engine.py")
+        script_path = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "methodology_decision_engine.py")
 
         # Text mode
         proc = subprocess.run(

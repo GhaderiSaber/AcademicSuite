@@ -345,7 +345,8 @@ class TestHumanApprovalPhase13(unittest.TestCase):
         with open(val_path, "w", encoding="utf-8") as f:
             json.dump({"overall_verdict": "PASS"}, f)
 
-        cli_script = os.path.join(ROOT_DIR, "scripts", "academic_approval_engine.py")
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_approval_engine.py")
+        cli_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_approval_engine.py")
 
         # CLI request
         cmd_req = [

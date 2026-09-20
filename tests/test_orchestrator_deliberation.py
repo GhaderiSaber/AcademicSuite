@@ -41,7 +41,8 @@ import scripts.orchestrator_dependency_resolver as odr
 from contracts.contract_validator import validate_analysis_plan, validate_pitfall
 
 ORCHESTRATOR_CLI = os.path.join(ROOT_DIR, ".agents", "skills", "academic-suite-orchestrator", "scripts", "orchestrator_cli.py")
-CANDIDATE_ENGINE = os.path.join(ROOT_DIR, "scripts", "candidate_falsifier_engine.py")
+cand_cand = os.path.join(ROOT_DIR, ".agents", "scripts", "candidate_falsifier_engine.py")
+CANDIDATE_ENGINE = cand_cand if os.path.isfile(cand_cand) else os.path.join(ROOT_DIR, "scripts", "candidate_falsifier_engine.py")
 SAMPLE_DELIB_PAYLOAD = os.path.join(ROOT_DIR, ".agents", "skills", "academic-suite-orchestrator", "examples", "sample_deliberation_payload.json")
 PYTHON_BIN = sys.executable or "python3"
 

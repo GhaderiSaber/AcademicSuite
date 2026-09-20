@@ -365,7 +365,8 @@ class TestTwoStageRetrievalPhase29(unittest.TestCase):
 
     def test_10_directive_18_ceilings(self):
         """Retriever engine and SKILL.md must strictly observe Directive 18 line and byte limits."""
-        script_path = os.path.join(ROOT_DIR, "scripts", "academic_two_stage_retriever.py")
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_two_stage_retriever.py")
+        script_path = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_two_stage_retriever.py")
         skill_path = os.path.join(ROOT_DIR, ".agents", "skills", "academic-adaptive-context", "SKILL.md")
 
         for p in [script_path, skill_path]:

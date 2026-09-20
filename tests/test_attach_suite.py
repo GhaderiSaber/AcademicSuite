@@ -20,7 +20,9 @@ from pathlib import Path
 
 # Load attach-suite module dynamically from scripts/attach-suite.py
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SCRIPT_PATH = REPO_ROOT / "scripts" / "attach-suite.py"
+SCRIPT_PATH = REPO_ROOT / ".agents" / "scripts" / "attach-suite.py"
+if not SCRIPT_PATH.exists():
+    SCRIPT_PATH = REPO_ROOT / "scripts" / "attach-suite.py"
 
 spec = importlib.util.spec_from_file_location("attach_suite", str(SCRIPT_PATH))
 attach_suite = importlib.util.module_from_spec(spec)
@@ -120,22 +122,20 @@ class TestAttachSuite(unittest.TestCase):
                 self.assertTrue((project_dir / ".agents").exists())
                 self.assertTrue((project_dir / "AGENTS.md").exists())
                 self.assertTrue((project_dir / "ANTIGRAVITY_ARCHITECTURE_GUIDE.md").exists())
-                self.assertTrue((project_dir / "Questionnaires.xlsx").exists())
                 self.assertTrue((project_dir / "digital_saber.py").exists())
-                self.assertTrue((project_dir / "scripts").exists())
-                self.assertTrue((project_dir / "data").exists())
-                self.assertTrue((project_dir / "validators").exists())
+                self.assertTrue((project_dir / ".agents" / "scripts").exists())
+                self.assertTrue((project_dir / ".agents" / "data").exists())
+                self.assertTrue((project_dir / ".agents" / "validators").exists())
 
                 # Verify that ALL suite directories and root files are real physical files/directories, ZERO symlinks to external suite!
                 self.assertFalse(os.path.islink(project_dir / ".agents"))
                 self.assertTrue((project_dir / ".agents").is_dir())
                 self.assertFalse(os.path.islink(project_dir / "AGENTS.md"))
                 self.assertTrue((project_dir / "AGENTS.md").is_file())
-                self.assertFalse(os.path.islink(project_dir / "scripts"))
-                self.assertTrue((project_dir / "scripts").is_dir())
-                self.assertFalse(os.path.islink(project_dir / "validators"))
-                self.assertTrue((project_dir / "validators").is_dir())
-                self.assertTrue((project_dir / "Questionnaires.xlsx").exists())
+                self.assertFalse(os.path.islink(project_dir / ".agents" / "scripts"))
+                self.assertTrue((project_dir / ".agents" / "scripts").is_dir())
+                self.assertFalse(os.path.islink(project_dir / ".agents" / "validators"))
+                self.assertTrue((project_dir / ".agents" / "validators").is_dir())
 
                 # Verify user file was preserved
                 self.assertTrue(user_file.exists())

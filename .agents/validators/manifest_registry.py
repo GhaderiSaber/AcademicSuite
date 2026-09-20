@@ -14,7 +14,15 @@ import json
 import hashlib
 from typing import Dict, Any, List, Optional, Set, Tuple
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+_CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.dirname(_CURR_DIR)) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, ".."))
+
+AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
+CONTRACTS_DIR = os.path.join(AGENTS_DIR, "contracts") if os.path.isdir(os.path.join(AGENTS_DIR, "contracts")) else os.path.join(ROOT_DIR, "contracts")
+
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
@@ -431,9 +439,9 @@ def verify_manifest_entry(
                 instance = json.load(jf)
 
             schema_file = schema_spec if schema_spec.endswith(".json") else f"{schema_spec}.schema.json"
-            schema_path = os.path.join(ROOT_DIR, "contracts", schema_file)
+            schema_path = os.path.join(CONTRACTS_DIR, schema_file)
             if not os.path.exists(schema_path):
-                schema_path = os.path.join(ROOT_DIR, "contracts", schema_spec)
+                schema_path = os.path.join(CONTRACTS_DIR, schema_spec)
 
             if os.path.exists(schema_path) and jsonschema:
                 with open(schema_path, "r", encoding="utf-8") as sf:

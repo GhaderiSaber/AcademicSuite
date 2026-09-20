@@ -3,7 +3,7 @@
   "approvals": [
     {
       "contract_version": "1.0.0",
-      "approval_id": "APPR-20260920-C2B122",
+      "approval_id": "APPR-20260920-76BCB3",
       "milestone_id": "M4_CHAPTER4",
       "stage_id": "",
       "category": "methodology_specification",
@@ -12,13 +12,13 @@
         "rationale": "Final defense-ready validation audit for Chapter 4 Hypothesis 1",
         "target_artifacts": []
       },
-      "requested_at": "2026-09-20T13:07:10.681888+00:00",
+      "requested_at": "2026-09-20T14:56:59.562102+00:00",
       "status": "GRANTED",
       "is_approved": true,
       "milestone_state_snapshot": "AWAITING_APPROVAL",
       "decision": {
         "approver_identity": "Saber Ghaderi (Admin Desk 124911145)",
-        "decided_at": "2026-09-20T13:07:10.684962+00:00",
+        "decided_at": "2026-09-20T14:56:59.565710+00:00",
         "comments": "All empirical parameters, APA 7 tables, OpenXML typography, and MSAI validated.",
         "conditions_or_stipulations": [],
         "digital_signature_or_ack": "SIG-124911145"

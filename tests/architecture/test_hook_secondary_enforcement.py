@@ -103,7 +103,8 @@ class TestHookSecondaryEnforcement(unittest.TestCase):
         self.assertEqual(res.get("decision"), "deny", "Layer 4: Hook must intercept unauthorized attempt as secondary defense")
 
         # Layer 5: Evaluation (Capability validator executable and verifiable)
-        validator_path = os.path.join(ROOT_DIR, "validators", "agent_capability_validator.py")
+        cand_val = os.path.join(ROOT_DIR, ".agents", "validators", "agent_capability_validator.py")
+        validator_path = cand_val if os.path.isfile(cand_val) else os.path.join(ROOT_DIR, "validators", "agent_capability_validator.py")
         self.assertTrue(os.path.isfile(validator_path), "Layer 5: Capability validator must exist on disk")
 
     # =========================================================================

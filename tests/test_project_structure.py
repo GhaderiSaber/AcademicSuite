@@ -16,10 +16,11 @@ class TestProjectStructure(unittest.TestCase):
 
     def test_tools_layer_exists(self):
         """Asserts tools/ contains python/ and r/ computational engines."""
-        self.assertTrue(os.path.isdir(os.path.join(REPO_ROOT, "tools", "python")), "Missing tools/python/")
-        self.assertTrue(os.path.isdir(os.path.join(REPO_ROOT, "tools", "r")), "Missing tools/r/")
-        self.assertTrue(os.path.isfile(os.path.join(REPO_ROOT, "tools", "README.md")), "Missing tools/README.md")
-        self.assertTrue(os.path.isfile(os.path.join(REPO_ROOT, "tools", "python", "statistical_runner.py")), "Missing statistical_runner.py")
+        tools_dir = os.path.join(REPO_ROOT, ".agents", "tools") if os.path.isdir(os.path.join(REPO_ROOT, ".agents", "tools")) else os.path.join(REPO_ROOT, "tools")
+        self.assertTrue(os.path.isdir(os.path.join(tools_dir, "python")), "Missing tools/python/")
+        self.assertTrue(os.path.isdir(os.path.join(tools_dir, "r")), "Missing tools/r/")
+        self.assertTrue(os.path.isfile(os.path.join(tools_dir, "README.md")), "Missing tools/README.md")
+        self.assertTrue(os.path.isfile(os.path.join(tools_dir, "python", "statistical_runner.py")), "Missing statistical_runner.py")
 
     def test_artifacts_layer_exists(self):
         """Asserts artifacts/ contains project, analysis, validation, reports."""

@@ -127,7 +127,8 @@ class AcademicExperienceRecorder:
         if store_dir:
             self.store_dir = os.path.abspath(store_dir)
         else:
-            self.store_dir = os.path.join(self.project_root, "learning", "experience")
+            cand_agents = os.path.join(self.project_root, ".agents", "learning", "experience")
+            self.store_dir = cand_agents if os.path.isdir(os.path.join(self.project_root, ".agents", "learning")) else os.path.join(self.project_root, "learning", "experience")
 
         os.makedirs(self.store_dir, exist_ok=True)
         self.index_file = os.path.join(self.store_dir, "index.jsonl")

@@ -121,14 +121,16 @@ class AcademicLessonDistiller:
         project_root: Optional[str] = None
     ):
         self.project_root = project_root or ROOT_DIR
+        cand_agents = os.path.join(self.project_root, ".agents", "learning")
+        l_base = cand_agents if os.path.isdir(cand_agents) else os.path.join(self.project_root, "learning")
         self.lessons_dir = os.path.abspath(
-            lessons_dir or os.path.join(self.project_root, "learning", "knowledge", "lessons")
+            lessons_dir or os.path.join(l_base, "knowledge", "lessons")
         )
         self.experience_dir = os.path.abspath(
-            experience_dir or os.path.join(self.project_root, "learning", "experience")
+            experience_dir or os.path.join(l_base, "experience")
         )
         self.feedback_dir = os.path.abspath(
-            feedback_dir or os.path.join(self.project_root, "learning", "experience", "feedback")
+            feedback_dir or os.path.join(l_base, "experience", "feedback")
         )
 
         os.makedirs(self.lessons_dir, exist_ok=True)

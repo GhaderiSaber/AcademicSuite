@@ -258,9 +258,11 @@ class TestStatisticalExecutionLayer(unittest.TestCase):
 
         output_dir = os.path.join(self.temp_dir, "cli_output")
 
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "statistical_pipeline_engine.py")
+        engine_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "statistical_pipeline_engine.py")
         cmd = [
             sys.executable,
-            os.path.join(ROOT_DIR, "scripts", "statistical_pipeline_engine.py"),
+            engine_script,
             "--contract", contract_file,
             "--out-dir", output_dir
         ]

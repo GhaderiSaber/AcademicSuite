@@ -47,7 +47,8 @@ class TestAcademicEvaluationLab(unittest.TestCase):
 
     def test_01_laboratory_directory_layout_and_partitions(self):
         """All 5 evaluation partitions plus results directory must exist on disk."""
-        eval_root = os.path.join(ROOT_DIR, "learning", "evaluations")
+        cand = os.path.join(ROOT_DIR, ".agents", "learning", "evaluations")
+        eval_root = cand if os.path.isdir(cand) else os.path.join(ROOT_DIR, "learning", "evaluations")
         self.assertTrue(os.path.isdir(eval_root), "learning/evaluations root must exist.")
 
         expected_partitions = ["development", "regression", "adversarial", "heldout", "curriculum", "results"]

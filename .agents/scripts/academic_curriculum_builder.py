@@ -226,15 +226,17 @@ class AcademicCurriculumBuilder:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = base_dir or ROOT_DIR
-        self.curriculum_dir = os.path.join(self.base_dir, "learning", "evaluations", "curriculum")
+        cand_learning = os.path.join(self.base_dir, ".agents", "learning")
+        learning_base = cand_learning if os.path.isdir(cand_learning) else os.path.join(self.base_dir, "learning")
+        self.curriculum_dir = os.path.join(learning_base, "evaluations", "curriculum")
         self.curriculum_index = os.path.join(self.curriculum_dir, "index.jsonl")
-        self.feedback_dir = os.path.join(self.base_dir, "learning", "experience", "feedback")
+        self.feedback_dir = os.path.join(learning_base, "experience", "feedback")
         self.feedback_index = os.path.join(self.feedback_dir, "index.jsonl")
-        self.regression_index = os.path.join(self.base_dir, "learning", "evaluations", "regression", "index.jsonl")
-        self.adversarial_dir = os.path.join(self.base_dir, "learning", "evaluations", "adversarial")
-        self.reports_dir = os.path.join(self.base_dir, "learning", "evaluations", "reports")
-        self.archive_dir = os.path.join(self.base_dir, "learning", "archive")
-        self.skill_memory_dir = os.path.join(self.base_dir, "learning", "skill-memory")
+        self.regression_index = os.path.join(learning_base, "evaluations", "regression", "index.jsonl")
+        self.adversarial_dir = os.path.join(learning_base, "evaluations", "adversarial")
+        self.reports_dir = os.path.join(learning_base, "evaluations", "reports")
+        self.archive_dir = os.path.join(learning_base, "archive")
+        self.skill_memory_dir = os.path.join(learning_base, "skill-memory")
 
         os.makedirs(self.curriculum_dir, exist_ok=True)
 

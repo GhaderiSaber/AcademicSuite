@@ -137,13 +137,15 @@ class AcademicDualLoopEngine:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = base_dir or ROOT_DIR
-        self.lock_file = os.path.join(self.base_dir, "learning", "evolution.lock")
-        self.telemetry_dir = os.path.join(self.base_dir, "learning", "telemetry")
+        cand_learning = os.path.join(self.base_dir, ".agents", "learning")
+        learning_base = cand_learning if os.path.isdir(cand_learning) else os.path.join(self.base_dir, "learning")
+        self.lock_file = os.path.join(learning_base, "evolution.lock")
+        self.telemetry_dir = os.path.join(learning_base, "telemetry")
         self.telemetry_file = os.path.join(self.telemetry_dir, "improvement_history.jsonl")
 
-        self.candidates_dir = os.path.join(self.base_dir, "learning", "candidates")
-        self.feedback_dir = os.path.join(self.base_dir, "learning", "experience", "feedback")
-        self.lessons_dir = os.path.join(self.base_dir, "learning", "knowledge", "lessons")
+        self.candidates_dir = os.path.join(learning_base, "candidates")
+        self.feedback_dir = os.path.join(learning_base, "experience", "feedback")
+        self.lessons_dir = os.path.join(learning_base, "knowledge", "lessons")
 
         os.makedirs(self.telemetry_dir, exist_ok=True)
         os.makedirs(self.candidates_dir, exist_ok=True)

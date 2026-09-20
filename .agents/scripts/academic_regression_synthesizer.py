@@ -58,11 +58,13 @@ class AcademicRegressionSynthesizer:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
-        self.regression_dir = os.path.join(self.base_dir, "learning", "evaluations", "regression")
+        cand_learning = os.path.join(self.base_dir, ".agents", "learning")
+        learning_base = cand_learning if os.path.isdir(cand_learning) else os.path.join(self.base_dir, "learning")
+        self.regression_dir = os.path.join(learning_base, "evaluations", "regression")
         self.index_file = os.path.join(self.regression_dir, "index.jsonl")
-        self.experience_dir = os.path.join(self.base_dir, "learning", "experience")
-        self.feedback_dir = os.path.join(self.base_dir, "learning", "experience", "feedback")
-        self.lessons_dir = os.path.join(self.base_dir, "learning", "knowledge", "lessons")
+        self.experience_dir = os.path.join(learning_base, "experience")
+        self.feedback_dir = os.path.join(learning_base, "experience", "feedback")
+        self.lessons_dir = os.path.join(learning_base, "knowledge", "lessons")
 
         os.makedirs(self.regression_dir, exist_ok=True)
 

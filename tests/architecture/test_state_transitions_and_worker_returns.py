@@ -305,9 +305,11 @@ class TestStateTransitionsAndWorkerReturns(unittest.TestCase):
         self.sm.register_stage('stage_01', 'Stage 1', initial_status=StageState.STAGE_APPROVED, dependencies=[], requires_validation=False)
         self.sm.register_stage('stage_02', 'Stage 2', initial_status=StageState.STAGE_LOCKED, dependencies=['stage_01'], requires_validation=False)
 
+        cand = os.path.join(ROOT_DIR, '.agents', 'scripts', 'academic_state_manager.py')
+        state_mgr_path = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, 'scripts', 'academic_state_manager.py')
         cmd = [
             sys.executable,
-            os.path.join(ROOT_DIR, 'scripts', 'academic_state_manager.py'),
+            state_mgr_path,
             'advance-stage',
             self.temp_dir,
             '--stage', 'stage_01',
@@ -322,9 +324,11 @@ class TestStateTransitionsAndWorkerReturns(unittest.TestCase):
         """CLI request-transition rejects --worker-return 'done'."""
         import subprocess
         self.sm.register_stage('stage_01', 'Stage 1', initial_status=StageState.STAGE_RUNNING, requires_validation=False)
+        cand = os.path.join(ROOT_DIR, '.agents', 'scripts', 'academic_state_manager.py')
+        state_mgr_path = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, 'scripts', 'academic_state_manager.py')
         cmd = [
             sys.executable,
-            os.path.join(ROOT_DIR, 'scripts', 'academic_state_manager.py'),
+            state_mgr_path,
             'request-transition',
             self.temp_dir,
             '--target-id', 'stage_01',

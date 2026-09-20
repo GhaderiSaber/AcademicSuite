@@ -218,7 +218,7 @@ class TestAdversarialOrchestratorExecution(unittest.TestCase):
         proc = subprocess.run(
             [
                 sys.executable,
-                os.path.join(ROOT_DIR, "scripts", "run_mixed_model.py"),
+                os.path.join(ROOT_DIR, ".agents", "scripts", "run_mixed_model.py") if os.path.isfile(os.path.join(ROOT_DIR, ".agents", "scripts", "run_mixed_model.py")) else os.path.join(ROOT_DIR, "scripts", "run_mixed_model.py"),
                 "--data", self.data_csv,
                 "--formula", "score ~ group * time_point",
                 "--groups", "subject_id",
@@ -316,7 +316,7 @@ class TestAdversarialOrchestratorExecution(unittest.TestCase):
         proc_docx = subprocess.run(
             [
                 sys.executable,
-                os.path.join(ROOT_DIR, "scripts", "generate_mixed_model_docx.py"),
+                os.path.join(ROOT_DIR, ".agents", "scripts", "generate_mixed_model_docx.py") if os.path.isfile(os.path.join(ROOT_DIR, ".agents", "scripts", "generate_mixed_model_docx.py")) else os.path.join(ROOT_DIR, "scripts", "generate_mixed_model_docx.py"),
                 "--input", self.results_json,
                 "--output", self.chapter4_docx
             ],

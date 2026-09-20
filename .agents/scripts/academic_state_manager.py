@@ -21,7 +21,11 @@ from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Set, Union, Tuple
 
 # Virtualenv auto-discovery shim
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+_CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.dirname(_CURR_DIR)) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, ".."))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
@@ -2183,7 +2187,8 @@ def validate_state(project_path: str) -> Dict[str, Any]:
 
     # Validate incidents directory if present
     inc_dir = os.path.join(state_dir, "incidents")
-    inc_schema_path = os.path.join(ROOT_DIR, "recovery", "incident_schema.json")
+    inc_cand = os.path.join(ROOT_DIR, ".agents", "recovery", "incident_schema.json")
+    inc_schema_path = inc_cand if os.path.isfile(inc_cand) else os.path.join(ROOT_DIR, "recovery", "incident_schema.json")
     if os.path.isdir(inc_dir) and os.path.exists(inc_schema_path):
         try:
             with open(inc_schema_path, "r", encoding="utf-8") as isf:

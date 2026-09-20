@@ -45,7 +45,8 @@ class TestLegacyCleanupPhase35(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.audit_path = os.path.join(ROOT_DIR, "architecture", "CODEBASE_INVENTORY_AUDIT.md")
+        doc_audit = os.path.join(ROOT_DIR, "docs", "architecture", "CODEBASE_INVENTORY_AUDIT.md")
+        cls.audit_path = doc_audit if os.path.isfile(doc_audit) else os.path.join(ROOT_DIR, "architecture", "CODEBASE_INVENTORY_AUDIT.md")
         with open(cls.audit_path, "r", encoding="utf-8") as f:
             cls.audit_content = f.read()
 
@@ -117,6 +118,15 @@ class TestLegacyCleanupPhase35(unittest.TestCase):
                 except Exception:
                     pass
 
+    def _resolve_path(self, rel_path: str) -> str:
+        p1 = os.path.join(ROOT_DIR, rel_path)
+        if os.path.exists(p1):
+            return p1
+        p2 = os.path.join(ROOT_DIR, ".agents", rel_path)
+        if os.path.exists(p2):
+            return p2
+        return p1
+
     def test_04_deprecated_files_have_deprecation_headers(self):
         """Verify DEPRECATED files contain formal deprecation notices."""
         deprecated_files = [
@@ -125,7 +135,7 @@ class TestLegacyCleanupPhase35(unittest.TestCase):
             "scripts/triage_projects.py"
         ]
         for rel_path in deprecated_files:
-            full_path = os.path.join(ROOT_DIR, rel_path)
+            full_path = self._resolve_path(rel_path)
             self.assertTrue(os.path.exists(full_path), f"Deprecated file {rel_path} missing")
             with open(full_path, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -137,7 +147,7 @@ class TestLegacyCleanupPhase35(unittest.TestCase):
 
     def test_05_consolidated_duplicate_delegation(self):
         """Verify DUPLICATE consolidated files contain consolidation headers."""
-        full_path = os.path.join(ROOT_DIR, "scripts/build_hypothesis_1_triad_docx.py")
+        full_path = self._resolve_path("scripts/build_hypothesis_1_triad_docx.py")
         self.assertTrue(os.path.exists(full_path))
         with open(full_path, "r", encoding="utf-8") as f:
             content = f.read()
@@ -152,7 +162,7 @@ class TestLegacyCleanupPhase35(unittest.TestCase):
             "scripts/candidate_falsifier_engine.py"
         ]
         for rel_path in experimental_files:
-            full_path = os.path.join(ROOT_DIR, rel_path)
+            full_path = self._resolve_path(rel_path)
             self.assertTrue(os.path.exists(full_path), f"Experimental file {rel_path} missing")
             with open(full_path, "r", encoding="utf-8") as f:
                 content = f.read()

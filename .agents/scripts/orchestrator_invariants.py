@@ -27,9 +27,17 @@ import yaml
 import argparse
 from typing import Dict, Any, List, Set, Iterable, Optional, Tuple
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+_CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.dirname(_CURR_DIR)) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, ".."))
+
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
+agents_dir = os.path.join(ROOT_DIR, ".agents")
+if agents_dir not in sys.path:
+    sys.path.insert(0, agents_dir)
 
 # =============================================================================
 # 1. Architectural Invariant Constants

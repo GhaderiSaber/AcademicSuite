@@ -139,7 +139,8 @@ class TestLearningRolesSeparationPhase19(unittest.TestCase):
 
     def test_learning_multi_agent_spec_exists_and_covers_all_roles(self):
         """Verify learning/LEARNING_MULTI_AGENT_SPEC.md exists and covers all 6 roles and core questions."""
-        spec_path = os.path.join(REPO_ROOT, "learning", "LEARNING_MULTI_AGENT_SPEC.md")
+        candidate = os.path.join(REPO_ROOT, ".agents", "learning", "LEARNING_MULTI_AGENT_SPEC.md")
+        spec_path = candidate if os.path.exists(candidate) else os.path.join(REPO_ROOT, "learning", "LEARNING_MULTI_AGENT_SPEC.md")
         self.assertTrue(os.path.exists(spec_path), f"Missing {spec_path}")
 
         with open(spec_path, "r", encoding="utf-8") as f:

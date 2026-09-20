@@ -15,7 +15,11 @@ import re
 from dataclasses import dataclass, field, asdict
 from typing import Dict, Any, List, Optional, Set, Tuple
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+_this_dir = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.abspath(os.path.join(_this_dir, ".."))) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_this_dir, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_this_dir, ".."))
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents", "agents")
 SKILLS_DIR = os.path.join(ROOT_DIR, ".agents", "skills")
 

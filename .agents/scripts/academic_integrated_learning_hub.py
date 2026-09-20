@@ -109,10 +109,13 @@ class AcademicIntegratedLearningHub:
     def __init__(self, base_dir: Optional[str] = None, mode: str = "simulation"):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
         self.mode = mode
-        self.telemetry_dir = os.path.join(self.base_dir, "learning", "telemetry")
+        cand_agents = os.path.join(self.base_dir, ".agents", "learning")
+        learning_dir = cand_agents if os.path.isdir(cand_agents) else os.path.join(self.base_dir, "learning")
+        self.learning_dir = learning_dir
+        self.telemetry_dir = os.path.join(learning_dir, "telemetry")
         self.error_log_file = os.path.join(self.telemetry_dir, "learning_errors.log")
         self.activity_log_file = os.path.join(self.telemetry_dir, "integrated_learning.jsonl")
-        self.feedback_dir = os.path.join(self.base_dir, "learning", "experience", "feedback")
+        self.feedback_dir = os.path.join(learning_dir, "experience", "feedback")
 
         os.makedirs(self.telemetry_dir, exist_ok=True)
         os.makedirs(self.feedback_dir, exist_ok=True)
@@ -243,7 +246,7 @@ class AcademicIntegratedLearningHub:
                     "reason": bl_reason,
                     "user_text": clean_msg[:120]
                 })
-                disc_log = os.path.join(self.base_dir, "learning", "telemetry", "discredited_attempts.log")
+                disc_log = os.path.join(self.learning_dir, "telemetry", "discredited_attempts.log")
                 os.makedirs(os.path.dirname(disc_log), exist_ok=True)
                 with open(disc_log, "a", encoding="utf-8") as f:
                     f.write(f"[{datetime.now(timezone.utc).isoformat()}] BLOCKED {bl_code}: {bl_reason} | Prompt: {clean_msg}\n")
@@ -385,7 +388,7 @@ class AcademicIntegratedLearningHub:
                         "milestone_id": milestone_id,
                         "reason": verification_reason
                     })
-                    quarantine_file = os.path.join(self.base_dir, "learning", "quarantine", f"UNVERIFIED_{milestone_id}.json")
+                    quarantine_file = os.path.join(self.learning_dir, "quarantine", f"UNVERIFIED_{milestone_id}.json")
                     os.makedirs(os.path.dirname(quarantine_file), exist_ok=True)
                     with open(quarantine_file, "w", encoding="utf-8") as f:
                         json.dump({

@@ -127,7 +127,8 @@ class FeedbackEventTracker:
         if store_dir:
             self.store_dir = os.path.abspath(store_dir)
         else:
-            self.store_dir = os.path.join(self.project_root, "learning", "experience", "feedback")
+            cand_agents = os.path.join(self.project_root, ".agents", "learning", "experience", "feedback")
+            self.store_dir = cand_agents if os.path.isdir(os.path.join(self.project_root, ".agents", "learning")) else os.path.join(self.project_root, "learning", "experience", "feedback")
         os.makedirs(self.store_dir, exist_ok=True)
         self.events_file = os.path.join(self.store_dir, "processed_event_ids.json")
         self._processed_ids: Set[str] = set()
@@ -534,7 +535,8 @@ class FeedbackRouter:
         )
 
         # 2. Activity Telemetry log
-        act_dir = os.path.join(self.project_root, "learning", "telemetry")
+        cand_telem = os.path.join(self.project_root, ".agents", "learning", "telemetry")
+        act_dir = cand_telem if os.path.isdir(os.path.join(self.project_root, ".agents", "learning")) else os.path.join(self.project_root, "learning", "telemetry")
         os.makedirs(act_dir, exist_ok=True)
         act_file = os.path.join(act_dir, "activity.jsonl")
         act_entry = {

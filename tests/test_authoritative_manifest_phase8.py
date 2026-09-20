@@ -348,9 +348,11 @@ class TestAuthoritativeManifestPhase8(unittest.TestCase):
 
     def test_10_cli_build_and_verify(self):
         """Tests the CLI build and verify subcommands via subprocess."""
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "stage_manifest_engine.py")
+        engine_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "stage_manifest_engine.py")
         cmd_build = [
             sys.executable,
-            os.path.join(ROOT_DIR, "scripts", "stage_manifest_engine.py"),
+            engine_script,
             "build",
             "--stage-dir", self.stage_dir,
             "--stage-id", "06_hypothesis_1",
@@ -366,7 +368,7 @@ class TestAuthoritativeManifestPhase8(unittest.TestCase):
 
         cmd_verify = [
             sys.executable,
-            os.path.join(ROOT_DIR, "scripts", "stage_manifest_engine.py"),
+            engine_script,
             "verify",
             "--manifest", manifest_path
         ]

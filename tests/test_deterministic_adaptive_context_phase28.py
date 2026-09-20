@@ -282,8 +282,10 @@ class TestDeterministicAdaptiveContextPhase28(unittest.TestCase):
     # -------------------------------------------------------------------------
     def test_08_directive_18_compliance(self):
         """Verifies boundary engine and SKILL.md observe Directive 18 ceilings (<= 500 lines, <= 40,000 bytes)."""
+        cand = os.path.join(ROOT_DIR, ".agents", "scripts", "academic_adaptive_context_boundary.py")
+        boundary_script = cand if os.path.isfile(cand) else os.path.join(ROOT_DIR, "scripts", "academic_adaptive_context_boundary.py")
         files_to_check = [
-            os.path.join(ROOT_DIR, "scripts", "academic_adaptive_context_boundary.py"),
+            boundary_script,
             os.path.join(ROOT_DIR, ".agents", "skills", "academic-adaptive-context", "SKILL.md")
         ]
 

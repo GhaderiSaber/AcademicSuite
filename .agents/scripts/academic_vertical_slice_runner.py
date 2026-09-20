@@ -18,7 +18,17 @@ import json
 import argparse
 from typing import Dict, Any, List, Optional
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+_CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.dirname(_CURR_DIR)) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, ".."))
+
+AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
+for p in [ROOT_DIR, AGENTS_DIR, os.path.join(AGENTS_DIR, "scripts"), os.path.join(AGENTS_DIR, "validators"), os.path.join(AGENTS_DIR, "contracts")]:
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
+
 for venv_name in [".venv", "venv"]:
     venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
     if os.path.isdir(venv_lib):
@@ -29,13 +39,6 @@ for venv_name in [".venv", "venv"]:
                     sys.path.insert(0, sp)
         except OSError:
             pass
-
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
-if os.path.join(ROOT_DIR, "scripts") not in sys.path:
-    sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
-if os.path.join(ROOT_DIR, "validators") not in sys.path:
-    sys.path.insert(0, os.path.join(ROOT_DIR, "validators"))
 
 from validators.run_all_validators import run_suite
 from validators.data_integrity.validator import validate_data

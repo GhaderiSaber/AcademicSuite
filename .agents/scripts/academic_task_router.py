@@ -22,8 +22,11 @@ import re
 import argparse
 from typing import Dict, Any, List, Optional, Set, Tuple
 
-# Virtualenv auto-discovery shim
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+_CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.dirname(_CURR_DIR)) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, ".."))
 for venv_name in [".venv", "venv"]:
     venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
     if os.path.isdir(venv_lib):

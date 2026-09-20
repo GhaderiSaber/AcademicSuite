@@ -125,7 +125,8 @@ class AcademicKnowledgeManager:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
-        self.learning_dir = os.path.join(self.base_dir, "learning")
+        cand_agents = os.path.join(self.base_dir, ".agents", "learning")
+        self.learning_dir = cand_agents if os.path.isdir(cand_agents) else os.path.join(self.base_dir, "learning")
         self.knowledge_dir = os.path.join(self.learning_dir, "knowledge")
         self.skill_memory_dir = os.path.join(self.learning_dir, "skill-memory")
 

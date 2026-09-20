@@ -78,7 +78,8 @@ class AcademicContradictionEngine:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
-        self.learning_dir = os.path.join(self.base_dir, "learning")
+        cand_learning = os.path.join(self.base_dir, ".agents", "learning")
+        self.learning_dir = cand_learning if os.path.isdir(cand_learning) else os.path.join(self.base_dir, "learning")
         self.knowledge_dir = os.path.join(self.learning_dir, "knowledge")
         self.contradictions_dir = os.path.join(self.knowledge_dir, "contradictions")
         os.makedirs(self.contradictions_dir, exist_ok=True)

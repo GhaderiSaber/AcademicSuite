@@ -322,7 +322,8 @@ class AcademicCorrectionDetector:
         if store_dir:
             self.store_dir = os.path.abspath(store_dir)
         else:
-            self.store_dir = os.path.join(self.project_root, "learning", "experience", "feedback")
+            cand_agents = os.path.join(self.project_root, ".agents", "learning", "experience", "feedback")
+            self.store_dir = cand_agents if os.path.isdir(os.path.join(self.project_root, ".agents", "learning")) else os.path.join(self.project_root, "learning", "experience", "feedback")
 
         os.makedirs(self.store_dir, exist_ok=True)
         self.candidates_dir = os.path.join(self.store_dir, "candidates")

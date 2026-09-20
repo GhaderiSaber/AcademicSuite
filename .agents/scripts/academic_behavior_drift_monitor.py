@@ -114,15 +114,17 @@ class AcademicBehaviorDriftMonitor:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
-        self.reports_dir = os.path.join(self.base_dir, "learning", "reports", "drift")
-        self.profiles_dir = os.path.join(self.base_dir, "learning", "profiles")
+        cand_learning = os.path.join(self.base_dir, ".agents", "learning")
+        learning_base = cand_learning if os.path.isdir(cand_learning) else os.path.join(self.base_dir, "learning")
+        self.reports_dir = os.path.join(learning_base, "reports", "drift")
+        self.profiles_dir = os.path.join(learning_base, "profiles")
         self.agent_profiles_dir = os.path.join(self.profiles_dir, "agents")
         self.skill_profiles_dir = os.path.join(self.profiles_dir, "skills")
-        self.snapshots_dir = os.path.join(self.base_dir, "learning", "snapshots", "skills")
-        self.promotion_snapshots_dir = os.path.join(self.base_dir, "learning", "promotions", "snapshots")
-        self.candidates_dir = os.path.join(self.base_dir, "learning", "candidates")
+        self.snapshots_dir = os.path.join(learning_base, "snapshots", "skills")
+        self.promotion_snapshots_dir = os.path.join(learning_base, "promotions", "snapshots")
+        self.candidates_dir = os.path.join(learning_base, "candidates")
         self.skills_dir = os.path.join(self.base_dir, ".agents", "skills")
-        self.knowledge_dir = os.path.join(self.base_dir, "learning", "knowledge")
+        self.knowledge_dir = os.path.join(learning_base, "knowledge")
 
         self.eval_lab = AcademicEvaluationLab(base_dir=self.base_dir)
 

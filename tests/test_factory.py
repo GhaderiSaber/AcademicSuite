@@ -146,9 +146,11 @@ class TestFactoryMetaLayer(unittest.TestCase):
         """The Longitudinal Moderated Mediation specialist must exist, be certified, and pass checks."""
         agent_path = os.path.join(ROOT_DIR, ".agents", "agents", "longitudinal-modmed-expert.md")
         skill_path = os.path.join(ROOT_DIR, ".agents", "skills", "longitudinal-moderated-mediation", "SKILL.md")
-        val_path = os.path.join(ROOT_DIR, "validators", "longitudinal_modmed", "validator.py")
+        candidate_val = os.path.join(ROOT_DIR, ".agents", "validators", "longitudinal_modmed", "validator.py")
+        val_path = candidate_val if os.path.exists(candidate_val) else os.path.join(ROOT_DIR, "validators", "longitudinal_modmed", "validator.py")
         eval_path = os.path.join(ROOT_DIR, "evals", "mediation", "case_longitudinal_modmed_01.json")
-        manifest_path = os.path.join(ROOT_DIR, "factory", "specialist_manifest.json")
+        candidate_manifest = os.path.join(ROOT_DIR, ".agents", "factory", "specialist_manifest.json")
+        manifest_path = candidate_manifest if os.path.exists(candidate_manifest) else os.path.join(ROOT_DIR, "factory", "specialist_manifest.json")
 
         self.assertTrue(os.path.exists(agent_path), f"Missing agent: {agent_path}")
         self.assertTrue(os.path.exists(skill_path), f"Missing skill: {skill_path}")

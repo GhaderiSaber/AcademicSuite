@@ -26,9 +26,16 @@ import json
 import argparse
 from typing import Dict, Any, List, Set, Optional, Tuple
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+_this_dir = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.abspath(os.path.join(_this_dir, ".."))) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_this_dir, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_this_dir, ".."))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
+AGENTS_BASE = os.path.join(ROOT_DIR, ".agents")
+if AGENTS_BASE not in sys.path:
+    sys.path.insert(0, AGENTS_BASE)
 
 from contracts.agents.capability_policy import (
     load_capability_policy,
