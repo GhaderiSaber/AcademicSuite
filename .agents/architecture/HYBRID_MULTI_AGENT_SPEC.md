@@ -97,6 +97,17 @@ AcademicSuite is a **100% Antigravity Native Multi-Agent Architecture**:
 ## 5. Machine Enforcement & Truthfulness Guarantee
 - **Sole Orchestrator Mandate (Directive 12.1)**: Google Antigravity is the sole agent runtime and multi-agent orchestrator. Subagents are orchestrated strictly via `invoke_subagent`. External Python classes or standalone scripts are prohibited from emulating agent dispatch.
 - **Pure Antigravity Deliberation Protocol**: Full protocol specifications, Critic-Generator barriers, and `invoke_subagent` payload schemas are documented in [PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL.md](file:///.agents/architecture/PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL.md).
-- **Antigravity Stop Hook (`.agents/hooks.json`)**: Automatically scans the conversation transcript. If an assistant claims multi-agent execution while `invoke_subagent` was never physically invoked, the hook mechanically blocks completion.
 - **Binary Honesty Protocol**: Whenever the user asks whether a workflow, rule, or subagent was executed, the response MUST begin with an unambiguous **"Yes"** or **"No"**.
 
+---
+
+## 6. The Five-Layer Enforcement Hierarchy (Hooks as Secondary Enforcement)
+
+AcademicSuite strictly segregates architectural governance into a 5-layer order:
+1. **Tool Boundary**: Physical tool presence/absence in agent configuration (`agent.md`). The orchestrator literally lacks execution and file-mutation tools.
+2. **Agent Contract**: Static capability policies in `contracts/agents/agent_capabilities.yaml` and `contracts/agents/capability_policy.py`.
+3. **State Machine**: Authoritative lifecycle and milestone progression conductor (`StrictStateMachine` in `scripts/academic_state_manager.py`).
+4. **Hook Enforcement (Secondary)**: Passive interception of 5 anomalies (`unauthorized tool attempt`, `invalid state transition`, `missing artifact`, `invalid provenance`, `feedback event`). Hooks NEVER orchestrate workflows, simulate delegation, replace `invoke_subagent`, or execute whole workflows.
+5. **Evaluation**: Continuous automated validation (`validators/`) and test suites (`tests/architecture/`).
+
+*(Authoritative specification codified in [contracts/architecture/ENFORCEMENT_HIERARCHY.md](file:///contracts/architecture/ENFORCEMENT_HIERARCHY.md))*.

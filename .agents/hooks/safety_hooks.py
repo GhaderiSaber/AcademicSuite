@@ -245,7 +245,37 @@ class SafetyHooks:
                         "File generation, document drafting, and mutations must be delegated to specialist workers."
                     )
                 }
+
+            read_only_callers = {
+                "behavior-analyst",
+                "curriculum-builder",
+                "knowledge-curator",
+                "skill-evolver",
+                "trajectory-analyzer",
+            }
+            if any(roc in caller for roc in read_only_callers):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Read-Only Agent Guard): "
+                        f"Agent '{caller}' is read-only and forbidden from mutating files directly."
+                    )
+                }
+
             for target in targets:
+                # State Ledger Immutability Guard (Invalid State Transition Guard)
+                target_norm = os.path.normpath(target).replace("\\", "/")
+                if any(target_norm.endswith(f"/{d}/{f}") or target_norm.endswith(f"{d}/{f}") for d in ("state", "academic-state") for f in ("current_state.json", "events.jsonl", "approvals.json")):
+                    if "state_manager" not in caller and "developer" not in caller and "main" not in caller:
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Invalid State Transition Guard): "
+                                f"Direct file modification of state ledger '{os.path.basename(target)}' is forbidden. "
+                                f"State transitions must be authorized and executed through StrictStateMachine."
+                            )
+                        }
+
                 # Raw data immutability
                 if is_raw_data_path(target):
                     if os.path.exists(target):
@@ -296,17 +326,55 @@ class SafetyHooks:
             ).lower()
             cmd = args.get("CommandLine", "")
 
-            # Orchestrator Direct Execution Guard (Phases 3-4, 12-15):
-            # academic-orchestrator has no execution privileges and cannot run any shell or computational commands directly.
-            if "academic-orchestrator" in caller:
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12.1 / Phase 3-4 Orchestrator Zero-Hands Contract): "
-                        "Academic-Orchestrator is strictly forbidden from executing shell commands or code directly. "
-                        "All execution and statistical analysis must be delegated to specialist workers (e.g. statistics-agent) via invoke_subagent."
-                    )
-                }
+            # Direct Execution Guard (Layer 4 Secondary Enforcement for Non-Executors):
+            non_executing_callers = {
+                "academic-orchestrator",
+                "methodology-expert",
+                "statistical-expert",
+                "results-auditor",
+                "final-judge",
+                "evidence-auditor",
+                "academic-challenger",
+                "journal-strategist",
+                "intervention-designer",
+                "behavior-analyst",
+                "curriculum-builder",
+                "knowledge-curator",
+                "skill-evolver",
+                "trajectory-analyzer",
+            }
+            for nec in non_executing_callers:
+                if nec in caller:
+                    if nec == "academic-orchestrator":
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12.1 / Phase 3-4 Orchestrator Zero-Hands Contract): "
+                                "Academic-Orchestrator is strictly forbidden from executing shell commands or code directly. "
+                                "All execution and statistical analysis must be delegated to specialist workers (e.g. statistics-agent) via invoke_subagent."
+                            )
+                        }
+                    else:
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Non-Executing Authority Guard): "
+                                f"Agent '{caller}' lacks execution privileges and is forbidden from executing shell commands directly. "
+                                f"Computation must be delegated to authorized execution workers."
+                            )
+                        }
+
+            # State Transition via CLI Guard: block invalid set_stage in production mode
+            if "academic_state_manager.py" in cmd:
+                if "set_stage" in cmd and "--mode production" in cmd:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            "CONSTITUTIONAL VIOLATION (Invalid State Transition Guard): "
+                            "Direct stage mutation via set_stage is blocked in production mode. "
+                            "Stage transitions must use formal request_transition."
+                        )
+                    }
 
             # Academic Writer Execution Boundary Guard (Directive 12 / Phase 10 Invariant):
             # academic-writer may execute ONLY declared document-generation / formatting workflows,
@@ -539,16 +607,46 @@ class SafetyHooks:
                 payload.get("agent") or
                 payload.get("caller") or ""
             ).lower()
-            if "academic-orchestrator" in caller:
+            non_executing_callers = {
+                "academic-orchestrator",
+                "methodology-expert",
+                "statistical-expert",
+                "results-auditor",
+                "academic-challenger",
+                "final-judge",
+                "evidence-auditor",
+                "journal-strategist",
+                "intervention-designer",
+                "behavior-analyst",
+                "curriculum-builder",
+                "knowledge-curator",
+                "skill-evolver",
+                "trajectory-analyzer",
+            }
+            if any(nec in caller for nec in non_executing_callers):
                 return {
                     "decision": "deny",
                     "reason": (
-                        "CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
-                        "Academic-Orchestrator is forbidden from scheduling background execution tasks."
+                        f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                        f"Agent '{caller}' lacks execution privileges and is forbidden from scheduling background execution tasks."
                     )
                 }
 
         return {"decision": "allow"}
+
+    @staticmethod
+    def check_unauthorized_tool_attempt(payload: Dict[str, Any]) -> Tuple[bool, str]:
+        """
+        Secondary Enforcement (Unauthorized Tool Attempt Guard):
+        Checks whether a tool call violates agent capability boundaries, direct/indirect
+        execution policies, or workspace safety invariants.
+        Returns (is_unauthorized, reason).
+        """
+        res = SafetyHooks.handle_pre_tool_use(payload)
+        if res.get("decision") == "deny":
+            return True, res.get("reason", "Unauthorized tool call")
+        return False, ""
+
 
 
 def main():

@@ -146,7 +146,11 @@ class TestThreeSuitesEvaluationPhase24(unittest.TestCase):
                 # Fixes regression task: reports proper p-value and applies ANCOVA on 2-wave balanced data
                 "reasoning": {
                     "candidate_model_comparison": "ANCOVA selected for 2-wave pre-post",
-                    "slope_homogeneity_verification": "Homogeneity of slopes verified"
+                    "slope_homogeneity_verification": "Homogeneity of slopes verified",
+                    "homogeneity_of_slopes": "Homogeneity of regression slopes verified",
+                    "covariate_measurement_error": "Covariate measurement error verified and reliable",
+                    "linear_relationship": "Linear relationship verified between baseline and post-test",
+                    "estimand": "Average treatment effect on post-burnout controlling for baseline"
                 },
                 "statistics": {
                     "estimand": "Average treatment effect on post-burnout controlling for baseline",
@@ -247,7 +251,11 @@ class TestThreeSuitesEvaluationPhase24(unittest.TestCase):
             "TASK-REG": {
                 "reasoning": {
                     "candidate_model_comparison": "WHEN 2-wave pre-post balanced design -> use ANCOVA controlling for baseline",
-                    "slope_homogeneity_verification": "Homogeneity of regression slopes verified"
+                    "slope_homogeneity_verification": "Homogeneity of regression slopes verified",
+                    "homogeneity_of_slopes": "Homogeneity of regression slopes verified",
+                    "covariate_measurement_error": "Covariate measurement error verified and reliable",
+                    "linear_relationship": "Linear relationship verified between baseline and post-test",
+                    "estimand": "Average treatment effect on post-burnout controlling for baseline"
                 },
                 "statistics": {
                     "estimand": "Average treatment effect on post-burnout controlling for baseline",

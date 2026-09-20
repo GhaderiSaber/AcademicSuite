@@ -19,6 +19,7 @@ import sys
 import re
 import glob
 import json
+import hashlib
 from typing import Dict, Any, List, Optional, Tuple
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -114,6 +115,187 @@ class IntegrityHooks:
                                     )
                     except Exception as e:
                         return False, f"HARD HOOK ENFORCEMENT (Manifest Verification): Failed to parse {m_path}: {e}"
+        return True, ""
+
+    @staticmethod
+    def verify_missing_artifacts(workspaces: List[str]) -> Tuple[bool, str]:
+        """
+        Secondary Enforcement (Missing Artifact Guard):
+        Detects missing artifacts across active stage directories and authoritative manifests.
+        1. Checks Triad Artifact Invariant (.docx, .md, .json).
+        2. Checks declared manifest deliverables exist and have non-zero size.
+        """
+        ok_triad, reason_triad = IntegrityHooks.verify_artifacts(workspaces)
+        if not ok_triad:
+            return False, reason_triad
+
+        ok_manifest, reason_manifest = IntegrityHooks.verify_manifests(workspaces)
+        if not ok_manifest:
+            return False, reason_manifest
+
+        return True, ""
+
+    @staticmethod
+    def verify_state_transitions(workspaces: List[str]) -> Tuple[bool, str]:
+        """
+        Secondary Enforcement (Invalid State Transition Guard):
+        Detects invalid state transitions in workspace state directories.
+        Validates that stage state records in current_state.json or events.jsonl obey
+        STAGE_LEGAL_TRANSITIONS and explicit human approval gates.
+        """
+        legal_transitions = {
+            "STAGE_LOCKED": {"STAGE_READY", "STAGE_BLOCKED"},
+            "STAGE_READY": {"STAGE_RUNNING", "STAGE_BLOCKED"},
+            "STAGE_RUNNING": {"STAGE_VALIDATING", "STAGE_FAILED", "STAGE_BLOCKED"},
+            "STAGE_VALIDATING": {"STAGE_AWAITING_APPROVAL", "STAGE_FAILED", "STAGE_BLOCKED"},
+            "STAGE_AWAITING_APPROVAL": {"STAGE_APPROVED", "STAGE_REJECTED"},
+            "STAGE_APPROVED": {"STAGE_RUNNING"},  # Explicit iteration / re-run
+            "STAGE_REJECTED": {"STAGE_READY", "STAGE_LOCKED"},
+            "STAGE_FAILED": {"STAGE_READY", "STAGE_BLOCKED"},
+            "STAGE_BLOCKED": {"STAGE_READY", "STAGE_LOCKED"},
+        }
+
+        for ws in workspaces:
+            for root, dirs, files in os.walk(ws):
+                if "current_state.json" in files:
+                    cs_path = os.path.join(root, "current_state.json")
+                    try:
+                        with open(cs_path, "r", encoding="utf-8") as f:
+                            cs = json.load(f)
+                        stages = cs.get("stages", {})
+                        approvals = []
+                        appr_path = os.path.join(root, "approvals.json")
+                        if os.path.exists(appr_path):
+                            try:
+                                with open(appr_path, "r", encoding="utf-8") as af:
+                                    approvals = json.load(af).get("approvals", [])
+                            except Exception:
+                                approvals = []
+
+                        for stage_id, sdata in stages.items():
+                            if not isinstance(sdata, dict):
+                                continue
+                            history = sdata.get("history", [])
+                            for trn in history:
+                                if not isinstance(trn, dict):
+                                    continue
+                                from_st = trn.get("from_state")
+                                to_st = trn.get("to_state")
+                                if from_st and to_st:
+                                    from_st_str = str(from_st).upper()
+                                    to_st_str = str(to_st).upper()
+                                    allowed = legal_transitions.get(from_st_str, set())
+                                    if to_st_str not in allowed:
+                                        return False, (
+                                            f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                                            f"Stage '{stage_id}' in '{root}' recorded an illegal transition "
+                                            f"from '{from_st_str}' to '{to_st_str}'. "
+                                            f"Allowed transitions from {from_st_str}: {sorted(list(allowed))}."
+                                        )
+
+                            # Check unapproved STAGE_APPROVED
+                            curr_status = str(sdata.get("status", "")).upper()
+                            if curr_status == "STAGE_APPROVED" and os.path.exists(appr_path):
+                                has_appr = any(
+                                    (a.get("stage_id") == stage_id or a.get("target_id") == stage_id)
+                                    for a in approvals if isinstance(a, dict)
+                                )
+                                if not has_appr:
+                                    return False, (
+                                        f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                                        f"Stage '{stage_id}' in '{root}' is marked 'STAGE_APPROVED' but lacks an "
+                                        f"authoritative approval record in approvals.json. Explicit human approval is required."
+                                    )
+                    except Exception:
+                        pass
+        return True, ""
+
+    @staticmethod
+    def verify_provenance(workspaces: List[str]) -> Tuple[bool, str]:
+        """
+        Secondary Enforcement (Invalid Provenance Guard):
+        Detects invalid provenance across manifests, deliverables, and dependencies.
+        Verifies input SHA-256 integrity, deliverable SHA-256 hash match, and dependency manifest hashes.
+        """
+        def compute_file_sha256(filepath: str) -> str:
+            h = hashlib.sha256()
+            with open(filepath, "rb") as f:
+                for chunk in iter(lambda: f.read(65536), b""):
+                    h.update(chunk)
+            return h.hexdigest()
+
+        for ws in workspaces:
+            for root, dirs, files in os.walk(ws):
+                if "manifest.json" in files:
+                    m_path = os.path.join(root, "manifest.json")
+                    try:
+                        with open(m_path, "r", encoding="utf-8") as mf:
+                            m_data = json.load(mf)
+                        base_dir = root
+                        stage_id = m_data.get("stage_id", os.path.basename(root))
+
+                        # 1. Inputs provenance verification
+                        for inp in m_data.get("inputs", []):
+                            if isinstance(inp, dict):
+                                inp_rel = inp.get("path", "")
+                                expected_hash = inp.get("sha256", "")
+                                if inp_rel and expected_hash:
+                                    inp_full = inp_rel if os.path.isabs(inp_rel) else os.path.join(base_dir, inp_rel)
+                                    if not os.path.exists(inp_full):
+                                        alt = os.path.join(ROOT_DIR, inp_rel)
+                                        if os.path.exists(alt):
+                                            inp_full = alt
+                                    if os.path.exists(inp_full) and os.path.isfile(inp_full):
+                                        actual_hash = compute_file_sha256(inp_full)
+                                        if actual_hash.lower() != expected_hash.lower():
+                                            return False, (
+                                                f"HARD HOOK ENFORCEMENT (Invalid Provenance Guard): "
+                                                f"Input artifact '{inp_rel}' declared in manifest for stage '{stage_id}' "
+                                                f"hash mismatch. Expected {expected_hash}, got {actual_hash}. "
+                                                f"Input data was mutated after stage declaration."
+                                            )
+
+                        # 2. Deliverable hashes verification
+                        hashes = m_data.get("hashes", {})
+                        if isinstance(hashes, dict):
+                            for art_rel, expected_hash in hashes.items():
+                                art_full = art_rel if os.path.isabs(art_rel) else os.path.join(base_dir, art_rel)
+                                if not os.path.exists(art_full):
+                                    alt = os.path.join(ROOT_DIR, art_rel)
+                                    if os.path.exists(alt):
+                                        art_full = alt
+                                if os.path.exists(art_full) and os.path.isfile(art_full):
+                                    actual_hash = compute_file_sha256(art_full)
+                                    if actual_hash.lower() != expected_hash.lower():
+                                        return False, (
+                                            f"HARD HOOK ENFORCEMENT (Invalid Provenance Guard): "
+                                            f"Deliverable artifact '{art_rel}' in stage '{stage_id}' "
+                                            f"hash mismatch. Expected {expected_hash}, got {actual_hash}. "
+                                            f"Artifact was mutated outside the declared generator."
+                                        )
+
+                        # 3. Dependencies manifest hash verification
+                        for dep in m_data.get("dependencies", []):
+                            if isinstance(dep, dict):
+                                dep_stage = dep.get("stage_id", "")
+                                dep_manifest_path = dep.get("manifest_path", "")
+                                expected_dep_hash = dep.get("manifest_hash", "")
+                                if dep_manifest_path and expected_dep_hash:
+                                    dep_full = dep_manifest_path if os.path.isabs(dep_manifest_path) else os.path.join(base_dir, dep_manifest_path)
+                                    if not os.path.exists(dep_full):
+                                        alt = os.path.join(ROOT_DIR, dep_manifest_path)
+                                        if os.path.exists(alt):
+                                            dep_full = alt
+                                    if os.path.exists(dep_full) and os.path.isfile(dep_full):
+                                        actual_dep_hash = compute_file_sha256(dep_full)
+                                        if actual_dep_hash.lower() != expected_dep_hash.lower():
+                                            return False, (
+                                                f"HARD HOOK ENFORCEMENT (Invalid Provenance Guard): "
+                                                f"Dependency manifest for stage '{dep_stage}' hash mismatch. "
+                                                f"Expected {expected_dep_hash}, got {actual_dep_hash}."
+                                            )
+                    except Exception:
+                        pass
         return True, ""
 
     @staticmethod
@@ -301,22 +483,27 @@ class IntegrityHooks:
         if not ok:
             return {"decision": "continue", "reason": reason}
 
-        # 3. Triad Artifact Invariant (Directive 3)
-        ok, reason = IntegrityHooks.verify_artifacts(workspaces)
+        # 3. State Machine Consistency (Invalid State Transition Detection)
+        ok, reason = IntegrityHooks.verify_state_transitions(workspaces)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
-        # 4. Manifest Verification
-        ok, reason = IntegrityHooks.verify_manifests(workspaces)
+        # 4. Missing Artifacts Detection (Triad Invariant & Manifest Deliverables)
+        ok, reason = IntegrityHooks.verify_missing_artifacts(workspaces)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
-        # 5. Post-Analysis Validation Reports
+        # 5. Provenance Integrity Detection (Input/Output Hashes & Dependencies)
+        ok, reason = IntegrityHooks.verify_provenance(workspaces)
+        if not ok:
+            return {"decision": "continue", "reason": reason}
+
+        # 6. Post-Analysis Validation Reports
         ok, reason = IntegrityHooks.verify_post_analysis(workspaces)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
-        # 6. Transcript Checks (Binary Honesty & Multi-Agent Claims)
+        # 7. Transcript Checks (Binary Honesty & Multi-Agent Claims)
         transcript_path = payload.get("transcriptPath")
         cid = payload.get("conversationId")
         if not transcript_path and cid:

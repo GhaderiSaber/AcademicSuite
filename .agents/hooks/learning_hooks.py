@@ -277,6 +277,26 @@ class LearningHooks:
             sys.stderr.write(f"[learning_hooks] Hub validation failure note: {e_hub}\n")
 
     @staticmethod
+    def capture_feedback_event(event_type: str, payload: Dict[str, Any], details: Optional[Dict[str, Any]] = None) -> None:
+        """
+        Secondary Enforcement (Feedback Event Detection):
+        Records external feedback events (user corrections, validation failures, critic reviews)
+        to trajectory event logs and learning registries.
+        """
+        try:
+            engine = LearningHooks._get_engine(payload)
+            if engine:
+                actor = LearningHooks._extract_actor(payload)
+                engine.record_event(
+                    event_type=event_type,
+                    payload=payload,
+                    details=details or {},
+                    actor=actor
+                )
+        except Exception as e:
+            sys.stderr.write(f"[learning_hooks] Error capturing feedback event: {e}\n")
+
+    @staticmethod
     def capture_agent_trajectory(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         PostToolUse hook: logs tool completion events, sanitized arguments,
