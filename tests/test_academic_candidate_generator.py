@@ -234,7 +234,7 @@ class TestAcademicCandidateGenerator(unittest.TestCase):
             mutation_types=AcademicCandidateGenerator.MUTATION_TYPES
         )
 
-        self.assertEqual(len(candidates), 9)
+        self.assertEqual(len(candidates), len(AcademicCandidateGenerator.MUTATION_TYPES))
         generated_types = [c["mutation_type"] for c in candidates]
         for mt in AcademicCandidateGenerator.MUTATION_TYPES:
             self.assertIn(mt, generated_types)

@@ -42,7 +42,8 @@
         "AUDITOR_FAILURE",
         "SUCCESSFUL_TRAJECTORY",
         "REPEATED_REVISION",
-        "RECURRING_MISTAKE"
+        "RECURRING_MISTAKE",
+        "DELEGATION_AUDIT"
       ]
     },
     "source_experience_id": {

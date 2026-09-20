@@ -53,6 +53,13 @@ from contracts.contract_validator import (
     validate_improvement_candidate,
     validate_evaluation_case
 )
+from scripts.immutable_capability_boundary_guard import (
+    verify_candidate_boundary,
+    ImmutableCapabilityBoundaryViolationError,
+    ALLOWED_LEARNING_CATEGORIES,
+    is_allowed_learning_modification,
+    audit_candidate_learning_target
+)
 
 
 class CandidateGenerationError(Exception):
@@ -160,7 +167,10 @@ class AcademicCandidateGenerator:
         "VERIFICATION_CHECKPOINT",
         "RETRIEVAL_IMPROVEMENT",
         "CLARIFICATION_APPLICABILITY_EXCLUSIONS",
-        "DELEGATION_GUIDANCE"
+        "DELEGATION_GUIDANCE",
+        "ROUTING_REFINEMENT",
+        "ACCEPTANCE_CRITERIA_ADDITION",
+        "AGENT_SELECTION_GUIDANCE"
     ]
 
     def __init__(self, base_dir: Optional[str] = None):
@@ -447,6 +457,9 @@ class AcademicCandidateGenerator:
             }
         }
 
+        # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
+        verify_candidate_boundary(candidate_record)
+
         # Validate against schema contract
         val_res = validate_improvement_candidate(candidate_record)
         if not val_res["valid"]:
@@ -553,6 +566,9 @@ class AcademicCandidateGenerator:
                 }
             }
 
+            # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
+            verify_candidate_boundary(candidate_record)
+
             # Validate against schema contract
             val_res = validate_improvement_candidate(candidate_record)
             if not val_res["valid"]:
@@ -641,8 +657,14 @@ class AcademicCandidateGenerator:
             return "DECISION_TREE_ADDITION", "HEURISTIC_DECISION_RULE"
         elif norm in ["verification rule", "verification_rule"]:
             return "VERIFICATION_CHECKPOINT", "SKILL_PROCEDURAL_SPECIFICATION"
-        elif norm in ["delegation rule", "delegation_rule"]:
+        elif norm in ["delegation rule", "delegation_rule", "delegation_guidance"]:
             return "DELEGATION_GUIDANCE", "SKILL_PROCEDURAL_SPECIFICATION"
+        elif norm in ["routing", "routing_refinement", "workflow_routing"]:
+            return "ROUTING_REFINEMENT", "SKILL_PROCEDURAL_SPECIFICATION"
+        elif norm in ["acceptance_criteria", "acceptance_criteria_addition"]:
+            return "ACCEPTANCE_CRITERIA_ADDITION", "SKILL_PROCEDURAL_SPECIFICATION"
+        elif norm in ["agent_selection", "agent_selection_guidance"]:
+            return "AGENT_SELECTION_GUIDANCE", "SKILL_PROCEDURAL_SPECIFICATION"
         elif norm in ["retrieval rule", "retrieval_rule"]:
             return "RETRIEVAL_IMPROVEMENT", "SKILL_PROCEDURAL_SPECIFICATION"
         elif norm in ["exception rule", "exception_rule"]:
@@ -846,6 +868,78 @@ class AcademicCandidateGenerator:
                 f"and eliminate '{failure_sig}'."
             )
 
+        elif mut_type == "ROUTING_REFINEMENT":
+            addition = (
+                f"\n\n## 🔀 Workflow Routing & Prerequisite Stage Sequence: {target_skill}\n"
+                f"When sequencing stages involving `{target_skill}`:\n"
+                f"1. **Conditional Routing Rules**:\n"
+                f"   - **WHEN condition X (All prerequisite validations pass)**:\n"
+                f"     → use approach A (Route to downstream drafting stages).\n"
+                f"   - **WHEN condition Y (Prerequisites pending or under revision)**:\n"
+                f"     → use approach B (Hold transition in VALIDATING state).\n"
+                f"   - **EXCEPT condition Z (Prerequisite failure or '{failure_sig}')**:\n"
+                f"     → use approach C ({prescribed}).\n"
+                f"2. **Orchestrator Role Invariant**:\n"
+                f"   - Pure conductor: Orchestrator routes tasks to specialist subagents but does NOT execute analyses directly.\n"
+                f"   - Prerequisite Gate: Enforce {prescribed} prior to downstream drafting handoffs.\n"
+            )
+            modified_text = current_skill_content + addition
+            rationale = f"Addresses '{diagnosed_gap}' by establishing formal workflow routing rules and prerequisite gates."
+            benefit = f"Guarantees that '{failure_sig}' is prevented by enforcing '{prescribed}' before downstream progression."
+            downside = "Requires explicit stage-gate verification before routing transitions."
+            hypothesis = (
+                f"If routing rules enforce '{prescribed}', zero downstream drafting handoffs will "
+                f"proceed with unverified '{failure_sig}' defects."
+            )
+
+        elif mut_type == "ACCEPTANCE_CRITERIA_ADDITION":
+            addition = (
+                f"\n\n## ✅ Mandatory Delegation Acceptance Criteria: {target_skill}\n"
+                f"When delegating `{target_skill}` tasks to specialist workers:\n"
+                f"1. **Conditional Acceptance Rules**:\n"
+                f"   - **WHEN condition X (Standard analytical conditions satisfied)**:\n"
+                f"     → use approach A (Verify required parameters and effect sizes).\n"
+                f"   - **WHEN condition Y (Complex modeling with assumptions)**:\n"
+                f"     → use approach B (Verify empirical distributions and fit indices).\n"
+                f"   - **EXCEPT condition Z (Defect '{failure_sig}' or missing validation detected)**:\n"
+                f"     → use approach C ({prescribed}).\n"
+                f"2. **Fail-Closed Contract Verification**:\n"
+                f"   - Acceptance criteria must require {prescribed}.\n"
+                f"   - If worker return fails acceptance criteria, orchestrator must reject artifacts and require re-execution.\n"
+            )
+            modified_text = current_skill_content + addition
+            rationale = f"Addresses '{diagnosed_gap}' by embedding formal acceptance criteria in task contracts."
+            benefit = f"Ensures worker deliverables satisfy '{prescribed}' before acceptance."
+            downside = "Requires formal verification of acceptance criteria upon worker return."
+            hypothesis = (
+                f"If delegation acceptance criteria mandate '{prescribed}', the rate of "
+                f"'{failure_sig}' defects will decrease to 0%."
+            )
+
+        elif mut_type == "AGENT_SELECTION_GUIDANCE":
+            addition = (
+                f"\n\n## 🎯 Specialist Agent Selection & Delegation Guidance: {target_skill}\n"
+                f"When delegating tasks for `{target_skill}`:\n"
+                f"1. **Conditional Agent Assignment Rules**:\n"
+                f"   - **WHEN condition X (Statistical calculation or modeling required)**:\n"
+                f"     → use approach A (Delegate to `statistics-agent`).\n"
+                f"   - **WHEN condition Y (Psychometric evaluation or scale screening required)**:\n"
+                f"     → use approach B (Delegate to `psychometric-expert` or `data-agent`).\n"
+                f"   - **EXCEPT condition Z (Direct execution requested on non-executor)**:\n"
+                f"     → use approach C ({prescribed}).\n"
+                f"2. **Immutable Capability Boundary**:\n"
+                f"   - Non-executing orchestrators and auditors must delegate execution to specialist workers.\n"
+                f"   - Never grant execution tools to pure conductor roles.\n"
+            )
+            modified_text = current_skill_content + addition
+            rationale = f"Addresses '{diagnosed_gap}' by codifying specialist agent selection rules."
+            benefit = "Enforces cognitive role boundaries and routes tasks to the appropriate specialist."
+            downside = "Requires multi-agent orchestration rather than monolithic execution."
+            hypothesis = (
+                f"If agent selection guidance is enforced, all execution tasks will be routed "
+                f"to specialist workers with 0% capability boundary violations."
+            )
+
         else:
             addition = f"\n\n## Enhanced Guidance: {mut_type}\nEnsure strict adherence to: {prescribed}\n"
             modified_text = current_skill_content + addition
@@ -945,6 +1039,138 @@ class AcademicCandidateGenerator:
             lineterm="\n"
         )
         return "".join(diff)
+
+    def generate_candidate_from_delegation_lesson(
+        self,
+        lesson: Dict[str, Any],
+        target_component: Optional[str] = None,
+        mutation_type: Optional[str] = None,
+        parent_version: str = "main-HEAD",
+        record_to_disk: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Synthesizes an improvement candidate from a delegation lesson (Phase 24).
+        Modifies routing, delegation guidance, acceptance criteria, agent selection, or Skills,
+        while strictly enforcing the immutable capability boundary.
+        """
+        lesson_id = lesson.get("lesson_id", "LSN-UNKNOWN")
+        desired = lesson.get("desired_behavior", "")
+        diagnosis = lesson.get("diagnosis", {})
+        skills = lesson.get("related_skills", ["cfa"])
+        target_skill = skills[0] if skills else "cfa"
+
+        # Determine mutation type
+        mut_type = mutation_type
+        if not mut_type:
+            des_low = desired.lower()
+            if "route" in des_low or "before" in des_low:
+                mut_type = "ROUTING_REFINEMENT"
+            elif "criteria" in des_low or "require" in des_low or "validation" in des_low:
+                mut_type = "ACCEPTANCE_CRITERIA_ADDITION"
+            elif "select" in des_low or "agent" in des_low:
+                mut_type = "AGENT_SELECTION_GUIDANCE"
+            else:
+                mut_type = "DELEGATION_GUIDANCE"
+
+        target_comp = target_component or f".agents/skills/{target_skill}/SKILL.md"
+        target_type = "SKILL_PROCEDURAL_SPECIFICATION"
+        if ".agents/agents/" in target_comp:
+            target_type = "AGENT_SYSTEM_PROMPT"
+
+        # Load current content
+        actual_path = os.path.join(self.base_dir, target_comp.lstrip("/"))
+        if os.path.isfile(actual_path):
+            with open(actual_path, "r", encoding="utf-8") as f:
+                current_content = f.read()
+        else:
+            current_content = (
+                f"---\nname: {target_skill}\ndescription: Production skill specification.\n---\n\n"
+                f"# {target_skill}\n\n## Procedures\nExecute tasks adhering to academic standards.\n"
+            )
+
+        reflection = {
+            "root_cause": diagnosis.get("behavior_caused_outcome", "Missing prerequisite validation in delegation."),
+            "failure_mechanism": "UNVERIFIED_DELEGATION_PREREQUISITE",
+            "generalizability": lesson.get("generalization", f"Applies across tasks utilizing '{target_skill}'."),
+            "evidence_sources": [lesson_id],
+            "prescribed_behavior": desired,
+            "diagnosed_gap": diagnosis.get("what_happened", "Prerequisite validation omitted before downstream handoff.")
+        }
+
+        mutation_patch, rationale, expected_benefit, possible_downside, testable_hyp = self._build_mutation_content(
+            mut_type=mut_type,
+            target_skill=target_skill,
+            current_skill_content=current_content,
+            reflection=reflection
+        )
+
+        self._verify_directive_18_ceilings(mutation_patch)
+        self._verify_conditional_rule_structure(mutation_patch)
+
+        diff_text = self._create_unified_diff(
+            file_path=target_comp,
+            original_text=current_content,
+            modified_text=mutation_patch
+        )
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        cand_id = f"CAND-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{target_skill.upper()[:8]}-{mut_type[:4]}-{uuid.uuid4().hex[:4].upper()}"
+
+        candidate_record = {
+            "contract_version": "1.0.0",
+            "candidate_id": cand_id,
+            "target_component": target_comp,
+            "target_skill": target_skill,
+            "target_type": target_type,
+            "mutation_type": mut_type,
+            "parent_version": parent_version,
+            "mutation": {
+                "diff_type": "UNIFIED_DIFF",
+                "content": diff_text,
+                "checksum_sha256": hashlib.sha256(diff_text.encode("utf-8")).hexdigest()
+            },
+            "rationale": rationale,
+            "source_lessons": [lesson_id],
+            "expected_improvement": {
+                "target_metric": "diagnostic_failure_rate",
+                "baseline_value": 1.0,
+                "projected_value": 0.0,
+                "qualitative_outcome": expected_benefit
+            },
+            "expected_benefit": expected_benefit,
+            "possible_downside": possible_downside,
+            "testable_hypothesis": testable_hyp,
+            "affected_capabilities": [target_skill],
+            "reflective_diagnosis": {
+                "root_cause": reflection["root_cause"],
+                "failure_mechanism": reflection["failure_mechanism"],
+                "generalizability": reflection["generalizability"],
+                "evidence_sources": reflection["evidence_sources"]
+            },
+            "author_agent": "skill-evolver",
+            "status": "STAGED",
+            "staged_at": now_iso,
+            "metadata": {
+                "source_lesson_id": lesson_id,
+                "trigger_type": "DELEGATION_AUDIT",
+                "derived_from": "delegation_trajectory"
+            }
+        }
+
+        # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
+        verify_candidate_boundary(candidate_record)
+
+        val_res = validate_improvement_candidate(candidate_record)
+        if not val_res["valid"]:
+            raise CandidateGenerationError(f"Generated candidate violates contract schema: {val_res.get('errors')}")
+
+        if record_to_disk:
+            fp = os.path.join(self.candidates_dir, f"{cand_id}.json")
+            with open(fp, "w", encoding="utf-8") as f:
+                json.dump(candidate_record, f, indent=2, ensure_ascii=False)
+            self._append_index(candidate_record)
+
+        return candidate_record
 
     def _append_index(self, candidate_record: Dict[str, Any]):
         """Appends candidate summary entry to index.jsonl."""

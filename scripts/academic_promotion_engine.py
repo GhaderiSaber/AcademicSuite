@@ -73,6 +73,12 @@ except ImportError:
     validate_evaluation_result = lambda x: {"valid": True}
 
 
+from scripts.immutable_capability_boundary_guard import (
+    verify_candidate_boundary,
+    ImmutableCapabilityBoundaryViolationError
+)
+
+
 class PromotionEngineError(Exception):
     """Base exception for promotion engine operations."""
     pass
@@ -829,6 +835,19 @@ class AcademicPromotionEngine:
             )
 
         risk_level = self.classify_risk_level(candidate_data)
+
+        # Phase 24: Verify Immutable Capability Boundary
+        try:
+            verify_candidate_boundary(candidate_data)
+        except ImmutableCapabilityBoundaryViolationError as e:
+            self.archive_rejected_candidate(
+                candidate_data=candidate_data,
+                failure_reason=str(e),
+                evaluation_evidence=evidence or {},
+                affected_cases=["immutable_capability_boundary"]
+            )
+            raise
+
         result_details: Dict[str, Any] = {
             "candidate_id": candidate_id,
             "previous_stage": current_stage,
@@ -1416,6 +1435,28 @@ class AcademicPromotionEngine:
                 "risk_tier": "HIGH_RISK",
                 "risk_level": self.LEVEL_5_STATISTICAL_COMPUTATION,
                 "governance_gate": "PROHIBITED_COMPUTATION",
+                "reason": reason,
+                "archive_id": archived["archive_id"],
+                "candidate_id": candidate_id
+            }
+
+        # 4b. Phase 24: Immutable Architecture Capability Boundary Hard Block
+        try:
+            verify_candidate_boundary(candidate_data)
+        except ImmutableCapabilityBoundaryViolationError as e:
+            reason = str(e)
+            archived = self.archive_rejected_candidate(
+                candidate_data=candidate_data,
+                failure_reason=reason,
+                evaluation_evidence=evaluation_report,
+                affected_cases=["immutable_capability_boundary"]
+            )
+            return {
+                "decision": "REJECTED",
+                "status": "REJECTED_AND_ARCHIVED",
+                "risk_tier": "HIGH_RISK",
+                "risk_level": risk_level,
+                "governance_gate": "IMMUTABLE_CAPABILITY_BOUNDARY_VIOLATION",
                 "reason": reason,
                 "archive_id": archived["archive_id"],
                 "candidate_id": candidate_id

@@ -54,6 +54,10 @@ for venv_name in [".venv", "venv"]:
                 sys.path.insert(0, sp)
 
 from scripts.academic_confidence_engine import AcademicConfidenceEngine
+from scripts.immutable_capability_boundary_guard import (
+    verify_lesson_boundary,
+    ImmutableCapabilityBoundaryViolationError
+)
 
 # Contract validation integration
 try:
@@ -187,6 +191,195 @@ class AcademicLessonDistiller:
                 self.record_lesson(l)
 
         return lessons
+
+    def distill_from_delegation_trajectory(
+        self,
+        trajectory_data: Dict[str, Any],
+        feedback_data: Optional[Dict[str, Any]] = None,
+        audit_data: Optional[Dict[str, Any]] = None,
+        record_to_disk: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Distills a structured lesson from actual observable delegation behavior (Phase 24).
+
+        Analyzes:
+        - Orchestrator task delegation to specialist worker (e.g. statistics-agent)
+        - Tool/code execution by worker (e.g. R execution for CFA)
+        - Quality/audit finding (e.g. missing assumption check by auditor)
+        - Feedback/correction (e.g. user corrected interpretation)
+
+        Extracts lesson on:
+        - Routing & prerequisite gates (e.g. "For CFA tasks, orchestrator should require psychometric validation before writer")
+        - Delegation acceptance criteria
+
+        Enforces:
+        - Immutable Capability Boundary: Cannot grant execution tools or direct execution
+          roles to academic-orchestrator. Rejects illicit directives (e.g. "Academic-Orchestrator can run CFA itself").
+        """
+        feedback_data = feedback_data or {}
+        audit_data = audit_data or {}
+
+        # 1. Reconstruct delegation context
+        delegations = trajectory_data.get("subagent_delegations", [])
+        events = trajectory_data.get("events", [])
+        trajectory_id = trajectory_data.get("trajectory_id", f"TRJ-DEL-{uuid.uuid4().hex[:6].upper()}")
+
+        parent_agent = "academic-orchestrator"
+        worker_agent = "statistics-agent"
+        task_objective = "CFA"
+
+        if delegations:
+            first_del = delegations[0]
+            parent_agent = first_del.get("parent_agent", parent_agent)
+            worker_agent = first_del.get("worker_agent", worker_agent)
+            task_objective = first_del.get("objective", task_objective)
+        else:
+            for ev in events:
+                if ev.get("event_type") in ["SUBAGENT_REQUESTED", "SUBAGENT_STARTED"]:
+                    parent_agent = ev.get("parent_agent", parent_agent)
+                    worker_agent = ev.get("child_agent", worker_agent)
+                    task_objective = ev.get("objective", task_objective)
+                    break
+
+        if not task_objective or task_objective == "CFA":
+            task_objective = trajectory_data.get("task_id") or trajectory_data.get("objective") or "CFA"
+
+        # 2. Extract audit findings
+        findings = []
+        if audit_data:
+            finding_text = audit_data.get("finding") or audit_data.get("issue") or audit_data.get("defect")
+            if finding_text:
+                findings.append(str(finding_text))
+        for af in trajectory_data.get("auditor_findings", []):
+            if isinstance(af, dict) and af.get("finding"):
+                findings.append(af["finding"])
+            elif isinstance(af, str):
+                findings.append(af)
+        for ve in trajectory_data.get("validation_events", []):
+            if ve.get("verdict") == "FAIL":
+                findings.extend(ve.get("failed_checks", []))
+
+        finding_str = "; ".join(findings) if findings else "missing assumption check"
+
+        # 3. Extract user correction
+        correction = (
+            feedback_data.get("correction")
+            or trajectory_data.get("user_correction")
+            or "User corrected interpretation regarding missing prerequisites."
+        )
+
+        # 4. Determine domain and prerequisite
+        obj_lower = task_objective.lower()
+        domain_label = "CFA" if ("cfa" in obj_lower or "factor" in obj_lower) else task_objective
+        prerequisite = "psychometric validation"
+        if "assumption" in finding_str.lower() or "assumption" in correction.lower():
+            prerequisite = "psychometric validation" if domain_label == "CFA" else "assumption verification"
+
+        # Desired behavior
+        if feedback_data.get("desired_behavior"):
+            desired = feedback_data["desired_behavior"]
+        else:
+            desired = f"For {domain_label} tasks, orchestrator should require {prerequisite} before writer."
+
+        # Anti-Vague Check
+        if is_vague_lesson(desired) or is_vague_lesson(correction):
+            desired = f"Ensure complete methodological compliance: {desired.rstrip('.')}. Require prerequisite verification in delegation contract."
+
+        # Determine related skill
+        related_skill = "cfa" if domain_label == "CFA" else "statistical-data-analyst"
+        if trajectory_data.get("skill"):
+            related_skill = trajectory_data["skill"]
+
+        # 8-Question Diagnosis
+        diagnosis = {
+            "what_happened": (
+                f"Academic-Orchestrator delegated {domain_label} task to {worker_agent}. "
+                f"Auditor identified: '{finding_str}' and user corrected: '{correction}'."
+            ),
+            "behavior_caused_outcome": (
+                f"Orchestrator advanced the workflow without specifying {prerequisite} in "
+                f"the delegation acceptance criteria before handoff to downstream writer."
+            ),
+            "what_should_have_happened": desired,
+            "rationale_why": (
+                f"The Orchestrator governs workflow routing and acceptance criteria, while execution resides "
+                f"with specialist workers. Requiring {prerequisite} prior to drafting ensures valid inferential "
+                f"conclusions without violating the immutable non-executing orchestrator boundary."
+            )
+        }
+
+        # Generalization & Scope
+        generalization_text = (
+            f"For {domain_label} and advanced modeling tasks, the orchestrator must enforce {prerequisite} "
+            f"in acceptance criteria prior to delegating to downstream drafting agents."
+        )
+        applicability = [
+            f"Tasks requiring {domain_label} analysis and model validation",
+            "Pipelines involving multi-agent handoffs between statistical analysis and chapter drafting",
+            "Delegation contract specification under academic-orchestrator"
+        ]
+        exclusions = [
+            "Exploratory scratchpad calculations outside state management",
+            "Direct non-delegated single-prompt demonstrations"
+        ]
+
+        now_dt = datetime.now(timezone.utc)
+        now_iso = now_dt.isoformat()
+        date_str = now_dt.strftime("%Y%m%d")
+        rand_suffix = uuid.uuid4().hex[:6].upper()
+        lesson_id = f"LSN-{date_str}-DELAUDIT-{rand_suffix}"
+
+        evidence = {
+            "metric_or_check": "DELEGATION_AUDIT_PREREQUISITE",
+            "observed_value": f"Auditor finding: {finding_str} | User correction: {correction}",
+            "threshold_value": desired,
+            "supporting_report_ids": [trajectory_id],
+            "supporting_artifact_paths": trajectory_data.get("artifact_references", [])
+        }
+
+        lesson_record = {
+            "contract_version": "1.0.0",
+            "lesson_id": lesson_id,
+            "lesson_type": "WHAT_NOT_TO_DO",
+            "trigger_source": "DELEGATION_AUDIT",
+            "source_experience_id": trajectory_id,
+            "diagnosis": diagnosis,
+            "applicability_conditions": applicability,
+            "exclusions": exclusions,
+            "desired_behavior": desired,
+            "generalization": generalization_text,
+            "scope": "DOMAIN_WIDE",
+            "generalization_stage": "LOCAL_LESSON",
+            "confidence": 0.5,
+            "evidence": evidence,
+            "related_skills": [related_skill],
+            "is_active_behavior": False,
+            "status": "VALIDATED",
+            "created_at": now_iso,
+            "derived_by": "AcademicLessonDistiller"
+        }
+
+        # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
+        verify_lesson_boundary(lesson_record)
+
+        # Evidence-derived confidence calculation
+        conf_eval = self.confidence_engine.assess_lesson_confidence(
+            lesson_record,
+            context={"severity": "HIGH"}
+        )
+        lesson_record["confidence"] = conf_eval["computed_confidence"]
+        lesson_record["confidence_evidence"] = conf_eval
+
+        # Schema contract validation
+        if validate_lesson is not None:
+            vres = validate_lesson(lesson_record)
+            if not vres.get("valid"):
+                raise LessonDistillationError(f"Delegation lesson validation failed: {vres.get('error')}")
+
+        if record_to_disk:
+            self.record_lesson(lesson_record)
+
+        return lesson_record
 
     def distill_from_feedback_payload(
         self,
@@ -327,6 +520,9 @@ class AcademicLessonDistiller:
                 )
             except Exception:
                 pass
+
+        # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
+        verify_lesson_boundary(lesson_record)
 
         return lesson_record
 
@@ -525,6 +721,9 @@ class AcademicLessonDistiller:
 
     def record_lesson(self, lesson_record: Dict[str, Any]) -> Dict[str, Any]:
         """Persists lesson record to disk and updates fast index."""
+        # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
+        verify_lesson_boundary(lesson_record)
+
         lesson_id = lesson_record["lesson_id"]
         out_path = os.path.join(self.lessons_dir, f"{lesson_id}.json")
 

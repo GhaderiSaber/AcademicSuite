@@ -152,7 +152,10 @@
         "VERIFICATION_CHECKPOINT",
         "RETRIEVAL_IMPROVEMENT",
         "CLARIFICATION_APPLICABILITY_EXCLUSIONS",
-        "DELEGATION_GUIDANCE"
+        "DELEGATION_GUIDANCE",
+        "ROUTING_REFINEMENT",
+        "ACCEPTANCE_CRITERIA_ADDITION",
+        "AGENT_SELECTION_GUIDANCE"
       ],
       "description": "Taxonomy of behavioral mutation applied in this candidate."
     },
