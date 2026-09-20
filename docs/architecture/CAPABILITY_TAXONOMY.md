@@ -211,6 +211,33 @@ academic-orchestrator:
 
 ---
 
+## 4.1 Worker Classes: Class A — Execution Workers
+
+Under the AcademicSuite capability model, agents possessing **Hands** are formalized into discrete worker classes. **Class A: Execution Workers** are the computational and verification engines that directly execute deterministic code, run statistical models, transform datasets, or audit evidence.
+
+### Granted Capabilities:
+- **READ (Eyes)**: `view_file`, `list_dir`, `grep_search`, `find_by_name`
+- **WRITE (Hands)**: `write_to_file`
+- **RUN_COMMAND (Hands)**: `run_command`
+
+### Canonical Execution Workers:
+1. `data-agent` (Raw data ingestion, screening, reverse-coding, psychometric simulation)
+2. `data-curator` (Missingness diagnostics, outlier screening, demographic curation)
+3. `statistics-agent` (Inferential statistics, pingouin, SEM, bootstrap mediation)
+4. `psychometric-expert` (CTT, IRT, CFA, Lawshe CVR, scale validation)
+5. `longitudinal-modmed-expert` (3-wave autoregressive panel modeling, PROCESS 7/14 over time)
+6. `qualitative-analyst` (Reflexive Thematic Analysis, Grounded Theory, inter-coder reliability)
+7. `meta-analyst` (PRISMA 2020, Cochrane RoB 2, quantitative effect size pooling)
+8. `evaluation-agent` (Independent counterfactual benchmarks, regression testing)
+9. `validation-agent` (Pre-flight master validator suite, Triad Invariant verification)
+10. `statistical-auditor` (MSAI anomaly detector, degrees-of-freedom concordance)
+
+### Mandatory Contractual Mandate:
+Every Class A Execution Worker must state in its contract:
+> **"You are an execution worker. Perform the requested deterministic work and return artifacts/evidence."**
+
+---
+
 ## 5. Global Agent Allocation Matrix ($N = 28$ Agents)
 
 | # | Agent Name | Tier | Category 1: BRAIN | Category 2: EYES | Category 3: HANDS | Category 4: DELEGATION | Primary Role |
@@ -232,7 +259,7 @@ academic-orchestrator:
 | 15 | `qualitative-analyst` | Tier 3 (Worker) | ✅ **Yes** | ✅ **Yes** | ✅ **Yes** | ❌ **NO** | Thematic Analysis & Grounded Theory |
 | 16 | `longitudinal-modmed-expert` | Tier 4 (Critic) | ✅ **Yes** | ✅ **Yes** | ✅ **Yes** | ❌ **NO** | 3-Wave Autoregressive Modeling |
 | 17 | `meta-analyst` | Tier 4 (Critic) | ✅ **Yes** | ✅ **Yes** | ✅ **Yes** | ❌ **NO** | PRISMA 2020 & Quantitative Pooling |
-| 18 | `statistical-auditor` | Tier 4 (Critic) | ✅ **Yes** | ✅ **Yes** | ❌ **NO** | ❌ **NO** | Assumptions, df Concordance & MSAI |
+| 18 | `statistical-auditor` | Tier 4 (Critic) | ✅ **Yes** | ✅ **Yes** | ✅ **Yes** | ❌ **NO** | Assumptions, df Concordance & MSAI |
 | 19 | `results-auditor` | Tier 4 (Critic) | ✅ **Yes** | ✅ **Yes** | ❌ **NO** | ❌ **NO** | APA 7 Precision & Typography Auditor |
 | 20 | `academic-challenger` | Tier 4 (Critic) | ✅ **Yes** | ✅ **Yes** | ❌ **NO** | ❌ **NO** | Adversarial Method & Bias Challenger |
 | 21 | `journal-strategist` | Tier 4 (Critic) | ✅ **Yes** | ✅ **Yes** | ❌ **NO** | ❌ **NO** | Journal Scope Matching & Rebuttal |
