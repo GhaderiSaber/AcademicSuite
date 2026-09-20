@@ -89,9 +89,9 @@ class TestProjectStructure(unittest.TestCase):
         agents_dir = os.path.join(REPO_ROOT, ".agents", "agents")
         active_agents = [
             d for d in os.listdir(agents_dir)
-            if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_"))
+            if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_", "test-"))
         ]
-        self.assertEqual(len(active_agents), 28, f"Expected 28 agents, found {len(active_agents)}")
+        self.assertEqual(len(active_agents), 28, f"Expected 28 production agents, found {len(active_agents)}")
         
         for a in active_agents:
             self.assertIn(f"`{a}`", content, f"Agent {a} is not documented in docs/AGENT_INVENTORY.md")
@@ -130,7 +130,7 @@ class TestProjectStructure(unittest.TestCase):
         agents_dir = os.path.join(REPO_ROOT, ".agents", "agents")
         active_agents = [
             d for d in os.listdir(agents_dir)
-            if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_"))
+            if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_", "test-"))
         ]
         self.assertEqual(len(active_agents), 28)
         for a in active_agents:

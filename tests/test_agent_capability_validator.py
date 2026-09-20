@@ -33,12 +33,12 @@ class TestAgentCapabilityValidator(unittest.TestCase):
     """Phase 13 Capability Boundaries & Least-Privilege Enforcement Suite."""
 
     def test_01_all_workspace_agents_satisfy_capability_boundaries(self):
-        """All 28 workspace agents must satisfy 100% of capability boundary rules."""
+        """All 30 workspace agents must satisfy 100% of capability boundary rules."""
         validator = AgentCapabilityValidator(agents_dir=AGENTS_DIR, skills_dir=SKILLS_DIR)
         result = validator.run_validation()
         self.assertEqual(result["overall_verdict"], "PASS")
         self.assertEqual(result["errors"], 0)
-        self.assertEqual(result["agents_validated"], 28)
+        self.assertEqual(result["agents_validated"], 30)
 
     def test_02_orchestrator_forbids_run_command(self):
         """Academic-Orchestrator must fail if run_command is present."""
@@ -67,7 +67,7 @@ class TestAgentCapabilityValidator(unittest.TestCase):
             validator = AgentCapabilityValidator(agents_dir=tmp_agents, skills_dir=tmp_skills, enforce_capability_policy=False)
             res = validator.run_validation()
             self.assertEqual(res["overall_verdict"], "FAIL")
-            self.assertTrue(any(i["check"] == "orchestrator_capabilities" and "run_command" in i["message"] for i in res["issues"]))
+            self.assertTrue(any(i["check"] in ("orchestrator_capabilities", "orchestrator_non_execution_invariant") and "run_command" in i["message"] for i in res["issues"]))
 
     def test_03_orchestrator_forbids_file_modification(self):
         """Academic-Orchestrator must fail if write_to_file, replace_file_content, or edit_file is present."""
@@ -98,7 +98,7 @@ class TestAgentCapabilityValidator(unittest.TestCase):
                 res = validator.run_validation()
                 self.assertEqual(res["overall_verdict"], "FAIL")
                 self.assertTrue(
-                    any(i["check"] == "orchestrator_capabilities" and forbidden_tool in i["message"] for i in res["issues"]),
+                    any(i["check"] in ("orchestrator_capabilities", "orchestrator_non_execution_invariant") and forbidden_tool in i["message"] for i in res["issues"]),
                     f"Expected orchestrator_capabilities violation for {forbidden_tool}"
                 )
 
@@ -128,7 +128,7 @@ class TestAgentCapabilityValidator(unittest.TestCase):
             validator = AgentCapabilityValidator(agents_dir=tmp_agents, skills_dir=tmp_skills, enforce_capability_policy=False)
             res = validator.run_validation()
             self.assertEqual(res["overall_verdict"], "FAIL")
-            self.assertTrue(any(i["check"] == "orchestrator_capabilities" and "invoke_subagent" in i["message"] for i in res["issues"]))
+            self.assertTrue(any(i["check"] in ("orchestrator_capabilities", "delegation_availability_invariant") and "invoke_subagent" in i["message"] for i in res["issues"]))
 
     def test_05_execution_worker_must_have_run_command(self):
         """Execution worker missing run_command must fail validation."""

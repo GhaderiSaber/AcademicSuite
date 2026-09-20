@@ -42,7 +42,9 @@ class TestMainAgentConfiguration(unittest.TestCase):
     def test_01_sole_production_main_agent_is_academic_orchestrator(self):
         """academic-orchestrator must be the SOLE agent with mainAgent: true."""
         agent_files = sorted(glob.glob(os.path.join(AGENTS_DIR, "*", "agent.md")))
-        self.assertEqual(len(agent_files), 28, f"Expected 28 production agents, found {len(agent_files)}")
+        prod_agents = [f for f in agent_files if not os.path.basename(os.path.dirname(f)).startswith("test-")]
+        self.assertEqual(len(prod_agents), 28, f"Expected 28 production agents, found {len(prod_agents)}")
+        self.assertEqual(len(agent_files), 30, f"Expected 30 total agents on disk (28 production + 2 test), found {len(agent_files)}")
 
         main_agents = []
         for a_path in agent_files:

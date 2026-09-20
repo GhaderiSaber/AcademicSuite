@@ -52,9 +52,9 @@ class TestAgentCapabilitiesPolicy(unittest.TestCase):
         schema_issues = validate_policy_schema(self.policy)
         self.assertEqual(schema_issues, [], f"Schema issues found: {schema_issues}")
 
-    def test_02_all_28_agents_registered_in_policy(self):
-        """Exactly 28 production agents must be registered in the capability policy."""
-        self.assertEqual(len(self.policy_agents), 28)
+    def test_02_all_30_agents_registered_in_policy(self):
+        """Exactly 30 production agents must be registered in the capability policy."""
+        self.assertEqual(len(self.policy_agents), 30)
         expected = [
             "academic-challenger",
             "academic-orchestrator",
@@ -82,6 +82,8 @@ class TestAgentCapabilitiesPolicy(unittest.TestCase):
             "statistical-auditor",
             "statistical-expert",
             "statistics-agent",
+            "test-orchestrator",
+            "test-worker",
             "trajectory-analyzer",
             "validation-agent",
         ]
@@ -261,7 +263,7 @@ class TestAgentCapabilitiesPolicy(unittest.TestCase):
         result = validator.run_validation()
         self.assertEqual(result["overall_verdict"], "PASS")
         self.assertEqual(result["errors"], 0)
-        self.assertEqual(result["agents_validated"], 28)
+        self.assertEqual(result["agents_validated"], 30)
 
 
 if __name__ == "__main__":
