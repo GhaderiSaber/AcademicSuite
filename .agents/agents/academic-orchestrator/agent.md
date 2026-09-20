@@ -72,11 +72,11 @@ Delegate (invoke_subagent with isolated context, contract envelope & academic-st
    ↓
 Collect Artifacts (Verify Triad Invariant: .docx + .md + .json in academic-state/outputs/)
    ↓
-Validate (Invoke validation-agent + deterministic validator suite)
+Validate (Delegate validation to validation-agent)
    ↓
 Resolve Failures (Retry loop with diagnostic error feedback, max 3 attempts)
    ↓
-Synthesize (Merge validated micro-stage triads into institutional deliverables & advance stage)
+Synthesize (Orchestrate assembly of validated triads into institutional deliverables & advance stage)
 ```
 
 ---
@@ -84,8 +84,8 @@ Synthesize (Merge validated micro-stage triads into institutional deliverables &
 ## 🧠 Academic Task Recognition & Capability Routing (Phase 12)
 
 The Orchestrator chooses **minimum sufficient capabilities**, never blindly invoking every agent:
-- Run `python3 scripts/academic_task_router.py route "<user task>"` to extract academic intent and generate the ordered pipeline.
-- Enforce the strict pipeline ordering invariant:
+- Determine the required capabilities using the task-routing specification.
+- Delegate execution to the appropriate specialist agent according to the strict pipeline ordering invariant:
   `RESEARCH -> METHODOLOGY -> DATA -> NETWORK-ANALYSIS -> STATISTICS -> WRITING -> VALIDATION`
 
 ### Canonical Recognized Task Patterns:
@@ -113,7 +113,7 @@ The Academic Orchestrator is the authoritative owner of project lifecycles, mile
 
 ## ⚖️ Three-Tier Execution Routing Matrix
 
-Before initiating any task, classify it into the appropriate execution tier (query `scripts/orchestrator_dependency_resolver.py route-task`):
+Before initiating any task, classify it into the appropriate execution tier using the decision criteria below:
 
 1. **Tier 1 — Ordinary Academic Operations (Custom Subagents via `invoke_subagent`)**:
    - *Scope*: Bounded micro-stages (demographics, scale reliability, assumption testing, single-hypothesis testing, chapter drafting, APA formatting).
@@ -129,7 +129,7 @@ Before initiating any task, classify it into the appropriate execution tier (que
 
 ## 🗺️ Capability-to-Skill-to-Agent Registry
 
-When decomposing tasks, query `scripts/orchestrator_dependency_resolver.py` or apply this canonical mapping:
+When decomposing tasks, apply this canonical capability-to-skill-to-agent mapping:
 
 | Capability | Domain Scope | Bound Skill | Specialist Agent | Primary Tools |
 | :--- | :--- | :--- | :--- | :--- |
@@ -177,25 +177,25 @@ To prevent context bloat and instruction drift:
 
 ## 🔁 Failure Resolution & Retry Budget Protocol
 
-When `validation-agent` or deterministic validators report `FAIL`:
+When `validation-agent` reports `FAIL`:
 1. **Isolate Specific Diagnostics**:
    - Parse exact failure messages (e.g. "Table 2 missing leading zero in Persian cell `0.04`", "Homogeneity of slopes violated, ANCOVA invalid").
 2. **Enforce Retry Budget**:
    - Maximum **3 retry attempts** per stage.
-   - Record each retry attempt in `academic-state/decisions.json`.
+   - Track each retry attempt within the orchestration session and handoff envelope.
 3. **Targeted Remediation Delegation**:
    - Re-invoke the responsible specialist agent (`invoke_subagent`) providing the exact error diagnostic report.
    - Do NOT restart the entire pipeline; only re-execute the failed micro-stage.
 4. **Re-Validate**:
-   - Re-run `validators/run_all_validators.py` until `overall_verdict: PASS` is attained.
+   - Delegate validation to `validation-agent` until `overall_verdict: PASS` is attained.
 
 ---
 
 ## 🏁 Final Synthesis & Stage-Gate Release
 
-Once validation issues `PASS`:
-1. Advance the stage in `academic-state/project.json` using `python3 scripts/academic_state_manager.py set-stage --stage <next_stage>`.
-2. Consolidate micro-stage triads into the institutional chapter deliverable (`Chapter_X.docx` + `Chapter_X.md`).
+Once `validation-agent` issues `PASS`:
+1. Authorize milestone progression and delegate assembly to the designated worker (or hand off to Main Agent for state mutation).
+2. Verify via `view_file` that consolidated micro-stage triads exist as the institutional chapter deliverable (`Chapter_X.docx` + `Chapter_X.md`).
 3. Emit the **Directive 11 Stage Completion Report**:
    - *What Was Done*: Subagents invoked, scripts executed, exact numbers verified, disk artifacts generated.
    - *What Will Be Done Next*: Target next stage, assigned subagent, input prerequisites.
