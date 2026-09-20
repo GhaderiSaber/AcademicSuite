@@ -51,6 +51,12 @@ def main():
     print("🏛️  Digital Saber Academic Suite — Master Test Runner")
     print("=" * 70)
     
+    try:
+        from scripts.generate_test_fixtures import ensure_fixtures_present
+        ensure_fixtures_present()
+    except Exception as e:
+        print(f"[run_tests] Fixtures readiness check note: {e}")
+
     start_time = time.time()
     loader = unittest.TestLoader()
     suite = loader.discover(start_dir="tests", pattern="test_*.py")

@@ -1,8 +1,0 @@
-# Measurement model
-Workplace_Mindfulness =~ mind_1 + mind_2 + mind_3 + mind_4 + mind_5
-Psychological_Flexibility =~ flex_1 + flex_2 + flex_3 + flex_4 + flex_5
-Occupational_Wellbeing =~ well_1 + well_2 + well_3 + well_4 + well_5
-
-# Structural paths
-Psychological_Flexibility ~ Workplace_Mindfulness
-Occupational_Wellbeing ~ Psychological_Flexibility + Workplace_Mindfulness

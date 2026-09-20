@@ -126,6 +126,11 @@ state/*.json
 !digital_saber.py
 !run_tests.py
 !tests/
+tests/fixtures/
+tests/fixtures/**
+tests/**/03_deliverables/
+tests/**/academic-state/events.jsonl
+tests/**/academic-state/current_state.json
 !data
 !data/**
 !data/questionnaires/
