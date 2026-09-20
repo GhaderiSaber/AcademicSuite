@@ -43,7 +43,7 @@ Synthesize diagnosed experiences and operational successes into structured, vers
 ## INPUTS
 - Causal diagnostic reports from `behavior-analyst`.
 - Observable trajectories from `trajectory-analyzer`.
-- Verified passing deliverables and artifact manifests from `projects/`.
+- Verified passing deliverables and artifact manifests from project workspaces (e.g. `03_deliverables/`).
 
 ---
 

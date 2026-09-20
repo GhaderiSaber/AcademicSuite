@@ -40,7 +40,7 @@ Reconstruct the factual, step-by-step chronology from observable actions, tool u
 
 ## INPUTS
 - Experience ID and task logs in `learning/experience/`.
-- Disk artifacts and manifests in `projects/`.
+- Disk artifacts and manifests in project workspaces (e.g. `03_deliverables/`).
 - Observable event stream in `state/trajectory_events.jsonl` or `transcript.jsonl`.
 
 ---

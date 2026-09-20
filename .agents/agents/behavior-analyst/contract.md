@@ -41,7 +41,7 @@ Conduct rigorous causal root-cause analysis on observable execution trajectories
 ## INPUTS
 - Reconstructed trajectory from `trajectory-analyzer`.
 - Trigger event: `USER_FEEDBACK_DETECTED` (FeedbackRecord) or `VALIDATION_FAILED` (validation report).
-- Source datasets and deliverable artifacts in `projects/`.
+- Source datasets and deliverable artifacts in project workspace directories (e.g. `01_raw_inputs/`, `03_deliverables/`).
 
 ---
 

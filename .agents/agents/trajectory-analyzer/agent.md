@@ -70,7 +70,7 @@ Your exclusive purpose is to reconstruct the factual, step-by-step chronology of
 ### Expected Inputs:
 - Experience identifier (`experience_id`).
 - Task logs, artifact manifests, or transcript lines (`state/trajectory_events.jsonl`, `transcript.jsonl`).
-- Paths to relevant directories (`learning/experience/`, `projects/`).
+- Paths to relevant directories (`learning/experience/`, project workspaces).
 
 ### Deliverable Output:
 A structured, observable trajectory reconstruction compliant with `contracts/evolution/trajectory.schema.json`:

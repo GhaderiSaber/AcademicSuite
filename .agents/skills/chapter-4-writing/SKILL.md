@@ -12,6 +12,6 @@ Orchestrates the Chapter 4 micro-stage findings pipeline:
 
 ## CLI Execution
 ```bash
-python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py --stage "آزمون فرضیه اول" --base "06_hypothesis_1" --outdir projects/active/ch4
+python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py --stage "آزمون فرضیه اول" --base "06_hypothesis_1" --outdir 03_deliverables/stage_06_hypothesis_1
 ```
 
