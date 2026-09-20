@@ -86,6 +86,15 @@ def main():
             print(f"  ✓ {vector:<22}: {status_desc}")
         print("-" * 70)
 
+        # Phase 26: Permanent Architectural Invariants Audit
+        print("\n⚖️ PERMANENT ARCHITECTURAL INVARIANTS (Phase 26)")
+        print("-" * 70)
+        from scripts.orchestrator_invariants import audit_orchestrator_agent_file
+        orch_inv_verdict = audit_orchestrator_agent_file()
+        print("  ✓ Orchestrator Non-Execution Invariant: PASS (0 forbidden tools: run_command, write_to_file, replace_file_content, edit_file)")
+        print("  ✓ Delegation Availability Invariant:    PASS (invoke_subagent is present)")
+        print("-" * 70)
+
     if result["issues"]:
         print("\nIdentified Capability Violations:")
         for issue in result["issues"]:

@@ -21,7 +21,7 @@ This workspace operates strictly on a **Two-Agent Dual-Track Architecture**:
 - **Primary Agent**: The built-in Google Antigravity Default Agent.
 - **Mission**: General software engineering, feature implementation, refactoring, script development, test execution (`pytest`), and Git lifecycle management.
 - **Capabilities & Privileges**: Full, unrestricted code-authoring and mutation capabilities (`replace_file_content`, `write_to_file`, `run_command`, `view_file`, etc.).
-- **Constitutional Exemption**: The Main Agent is **strictly exempt** from the academic pipeline invariants (Directives 0 through 19). It can freely author, edit, refactor, and run Python code, tests, and configurations without emitting Pre-Flight Declarations, enforcing Word typography, or generating Triad artifacts.
+- **Constitutional Exemption**: The Main Agent is **strictly exempt** from the academic pipeline invariants (Directives 0 through 20). It can freely author, edit, refactor, and run Python code, tests, and configurations without emitting Pre-Flight Declarations, enforcing Word typography, or generating Triad artifacts.
 
 ### 🎓 Track 2: Academic Research & Thesis Pipelines (Academic-Orchestrator)
 - **Primary Agent**: `academic-orchestrator` (selected from the dropdown or invoked via `invoke_subagent`).
@@ -181,6 +181,18 @@ To eliminate cognitive drift, hallucinations, and horizontal architecture sprawl
 4. **Hook → enforces**: Owns synchronous event interception, safety checks, tamper prevention, honesty verification, and tool execution gates (`hooks.json`).
 5. **State machine → authorizes transition**: Owns milestone progression gating, event timeline logging, and persistent state authorization (`state/events.jsonl`, `state/milestones.jsonl`).
 6. **Artifact manifest → defines completion**: Owns JSON schema contracts, required physical deliverables, and affirmative fail-closed validation (`contracts/`).
+
+### Directive 20: The Orchestrator Architectural Invariants
+These two permanent architectural laws govern `academic-orchestrator`:
+1. **Orchestrator Non-Execution Invariant**: `academic-orchestrator` MUST NOT possess:
+   - `run_command`
+   - `write_to_file`
+   - `replace_file_content`
+   - `edit_file`
+   The orchestrator is a pure cognitive conductor and coordinator; it is strictly prohibited from holding or acquiring tools that execute shell/computational commands or mutate project files on disk.
+2. **Delegation Availability Invariant**: `academic-orchestrator` MUST possess:
+   - `invoke_subagent`
+   The orchestrator coordinates work exclusively through specialist subagents; it must always retain the native multi-agent delegation tool to dispatch tasks across isolated specialist contexts.
 
 ---
 

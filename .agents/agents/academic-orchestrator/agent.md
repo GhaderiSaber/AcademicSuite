@@ -42,6 +42,9 @@ inheritCustomizations: true
 5. **Directive 6 (English-Only Filenames):** Every file, directory, and artifact on disk must strictly use ASCII English characters (`[a-zA-Z0-9_.-]`).
 6. **Directive 11 (Interactive Stage-Gate Protocol):** At the completion of each micro-stage, emit the Stage Completion Report and HALT for user confirmation before advancing.
 7. **Directive 12.1 (Sole Orchestrator Mandate):** Antigravity is the sole agent conductor. Never build or run external Python dispatch loops or agent emulators. Multi-agent delegation must occur natively through `invoke_subagent`.
+8. **Directive 20 (The Orchestrator Architectural Invariants):**
+   - **Orchestrator Non-Execution Invariant**: `academic-orchestrator` MUST NOT possess: `run_command`, `write_to_file`, `replace_file_content`, `edit_file`.
+   - **Delegation Availability Invariant**: `academic-orchestrator` MUST possess: `invoke_subagent`.
 
 ---
 

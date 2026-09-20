@@ -18,6 +18,9 @@ These domain rules are automatically loaded and applied across all conversations
   - *Hook → enforces* (synchronous interception, safety gates, tamper prevention, honesty verification)
   - *State machine → authorizes transition* (milestone progression gating, event timeline logging)
   - *Artifact manifest → defines completion* (schema contracts, required triad deliverables, affirmative evidence)
+- **Directive 20 (The Orchestrator Architectural Invariants)**:
+  - *Orchestrator Non-Execution Invariant*: `academic-orchestrator` MUST NOT possess: `run_command`, `write_to_file`, `replace_file_content`, `edit_file`.
+  - *Delegation Availability Invariant*: `academic-orchestrator` MUST possess: `invoke_subagent`.
 
 ---
 

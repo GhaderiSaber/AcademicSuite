@@ -48,13 +48,21 @@ from scripts.immutable_capability_boundary_guard import (
     FORBIDDEN_ORCHESTRATOR_EXECUTION_PATTERNS,
     ImmutableCapabilityBoundaryViolationError
 )
+from scripts.orchestrator_invariants import (
+    FORBIDDEN_ORCHESTRATOR_TOOLS,
+    REQUIRED_ORCHESTRATOR_TOOLS,
+    OrchestratorInvariantViolationError,
+    OrchestratorNonExecutionInvariantViolationError,
+    DelegationAvailabilityInvariantViolationError,
+)
 
 
-class CapabilityPolicyViolationError(ImmutableCapabilityBoundaryViolationError):
+class CapabilityPolicyViolationError(ImmutableCapabilityBoundaryViolationError, OrchestratorInvariantViolationError):
     """
     Raised when an improvement candidate patch violates the capability policy
     by attempting to evolve the academic-orchestrator (or any non-executing agent)
-    back into a hand.
+    back into a hand, or by violating the Orchestrator Non-Execution / Delegation
+    Availability Invariants.
     """
     pass
 
@@ -65,6 +73,8 @@ VIOLATION_WRITE_TOOLS = "CANNOT_ADD_WRITE_TO_FILE_TO_ORCHESTRATOR"
 VIOLATION_MCP_EXECUTION = "CANNOT_ADD_MCP_EXECUTION_TO_ORCHESTRATOR"
 VIOLATION_DIRECT_EXECUTION_DIRECTIVE = "CANNOT_INSTRUCT_ORCHESTRATOR_TO_EXECUTE"
 VIOLATION_NON_EXECUTOR_TOOL_MUTATION = "CANNOT_ADD_EXECUTION_TOOLS_TO_NON_EXECUTING_AGENT"
+VIOLATION_ORCHESTRATOR_NON_EXECUTION_INVARIANT = "ORCHESTRATOR_NON_EXECUTION_INVARIANT_VIOLATION"
+VIOLATION_DELEGATION_AVAILABILITY_INVARIANT = "DELEGATION_AVAILABILITY_INVARIANT_VIOLATION"
 
 # Direct file mutation tools forbidden for orchestrator
 FILE_MUTATION_TOOLS: Set[str] = {
@@ -163,11 +173,14 @@ class CapabilityPolicyGate:
                     violations.append(
                         VIOLATION_RUN_COMMAND if target_agent == "academic-orchestrator" else VIOLATION_NON_EXECUTOR_TOOL_MUTATION
                     )
+                    if target_agent == "academic-orchestrator":
+                        violations.append(VIOLATION_ORCHESTRATOR_NON_EXECUTION_INVARIANT)
                     affected_tools.append("run_command")
                     break
 
         # ---------------------------------------------------------------------
         # CHECK 2: Adding write_to_file or file modification tools to orchestrator
+        # (Orchestrator Non-Execution Invariant: write_to_file, replace_file_content, edit_file)
         # ---------------------------------------------------------------------
         if target_agent:
             for w_tool in FILE_MUTATION_TOOLS:
@@ -183,12 +196,16 @@ class CapabilityPolicyGate:
                         violations.append(
                             VIOLATION_WRITE_TOOLS if target_agent == "academic-orchestrator" else VIOLATION_NON_EXECUTOR_TOOL_MUTATION
                         )
+                        if target_agent == "academic-orchestrator" and w_tool in FORBIDDEN_ORCHESTRATOR_TOOLS:
+                            violations.append(VIOLATION_ORCHESTRATOR_NON_EXECUTION_INVARIANT)
                         affected_tools.append(w_tool)
                         break
 
             # Also check generic write tool grants
             if re.search(r"\benable_write_tools\s*:\s*true\b", content_lower):
                 violations.append(VIOLATION_WRITE_TOOLS)
+                if target_agent == "academic-orchestrator":
+                    violations.append(VIOLATION_ORCHESTRATOR_NON_EXECUTION_INVARIANT)
                 affected_tools.append("enable_write_tools")
 
         # ---------------------------------------------------------------------
@@ -210,6 +227,25 @@ class CapabilityPolicyGate:
                 affected_tools.append("direct_execution_directive")
                 break
 
+        # ---------------------------------------------------------------------
+        # CHECK 5: Delegation Availability Invariant (Phase 26)
+        # academic-orchestrator MUST possess invoke_subagent
+        # ---------------------------------------------------------------------
+        if target_agent == "academic-orchestrator":
+            remove_patterns = [
+                r"^\s*-\s*-\s*invoke_subagent\b",
+                r"\bremove\s+invoke_subagent\b",
+                r"\bdelete\s+invoke_subagent\b",
+                r"\bstrip\s+invoke_subagent\b",
+                r"\bwithout\s+invoke_subagent\b",
+                r"\bdisable_subagents\b",
+            ]
+            for r_pat in remove_patterns:
+                if re.search(r_pat, content, re.MULTILINE | re.IGNORECASE) or re.search(r_pat, rationale_lower):
+                    violations.append(VIOLATION_DELEGATION_AVAILABILITY_INVARIANT)
+                    affected_tools.append("invoke_subagent")
+                    break
+
         # Dedup violations and affected tools
         violations = list(dict.fromkeys(violations))
         affected_tools = list(dict.fromkeys(affected_tools))
@@ -219,8 +255,9 @@ class CapabilityPolicyGate:
                 f"CAPABILITY_POLICY_VIOLATION: IMMUTABLE_CAPABILITY_BOUNDARY_VIOLATION: Candidate '{candidate_id}' violates capability boundary policy for "
                 f"agent '{target_agent or 'academic-orchestrator'}'. Violations: {', '.join(violations)}. "
                 f"Affected tools/directives: {', '.join(affected_tools)}. "
-                f"The capability boundary is immutable: academic-orchestrator is a pure conductor and cannot be granted "
-                f"run_command, write_to_file, arbitrary MCP execution, or direct execution roles."
+                f"The capability boundary is immutable under permanent architectural laws (Directive 20): "
+                f"Orchestrator Non-Execution Invariant (cannot possess {', '.join(sorted(FORBIDDEN_ORCHESTRATOR_TOOLS))}) and "
+                f"Delegation Availability Invariant (MUST possess {', '.join(sorted(REQUIRED_ORCHESTRATOR_TOOLS))})."
             )
             return CapabilityPolicyVerdict(
                 decision="REJECT",

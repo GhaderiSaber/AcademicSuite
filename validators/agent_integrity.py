@@ -38,6 +38,10 @@ from contracts.agents.capability_policy import (
     classify_execution_capabilities,
     DEFAULT_POLICY_PATH,
 )
+from scripts.orchestrator_invariants import (
+    FORBIDDEN_ORCHESTRATOR_TOOLS,
+    REQUIRED_ORCHESTRATOR_TOOLS,
+)
 
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents", "agents")
 SKILLS_DIR = os.path.join(ROOT_DIR, ".agents", "skills")
@@ -467,45 +471,28 @@ class AgentIntegrityValidator:
             "final-judge", "journal-strategist", "statistical-auditor",
         }
 
-        # 1. Academic-Orchestrator Checks
+        # 1. Academic-Orchestrator Checks: Permanent Architectural Invariants (Phase 26)
         if "academic-orchestrator" in self.canonical_agents:
             orch_fm = self.canonical_agents["academic-orchestrator"]
             orch_tools = set(orch_fm.get("tools", []))
 
-            if "run_command" in orch_tools:
-                self._add_issue(
-                    "academic-orchestrator",
-                    "orchestrator_capabilities",
-                    "academic-orchestrator must NOT declare 'run_command'. Orchestrator cannot execute shell or computational scripts."
-                )
+            # Law 1: Orchestrator Non-Execution Invariant
+            for forbidden_tool in sorted(FORBIDDEN_ORCHESTRATOR_TOOLS):
+                if forbidden_tool in orch_tools:
+                    self._add_issue(
+                        "academic-orchestrator",
+                        "orchestrator_non_execution_invariant",
+                        f"[Orchestrator Non-Execution Invariant] academic-orchestrator MUST NOT possess '{forbidden_tool}'."
+                    )
 
-            if "write_to_file" in orch_tools:
-                self._add_issue(
-                    "academic-orchestrator",
-                    "orchestrator_capabilities",
-                    "academic-orchestrator must NOT declare 'write_to_file'. Orchestrator cannot directly write project files."
-                )
-
-            if "edit_file" in orch_tools:
-                self._add_issue(
-                    "academic-orchestrator",
-                    "orchestrator_capabilities",
-                    "academic-orchestrator must NOT declare 'edit_file'. Orchestrator cannot directly edit project files."
-                )
-
-            if "replace_file_content" in orch_tools:
-                self._add_issue(
-                    "academic-orchestrator",
-                    "orchestrator_capabilities",
-                    "academic-orchestrator must NOT declare 'replace_file_content'. Orchestrator cannot modify project files."
-                )
-
-            if "invoke_subagent" not in orch_tools:
-                self._add_issue(
-                    "academic-orchestrator",
-                    "orchestrator_capabilities",
-                    "academic-orchestrator MUST declare 'invoke_subagent' to delegate execution to specialist subagents."
-                )
+            # Law 2: Delegation Availability Invariant
+            for required_tool in sorted(REQUIRED_ORCHESTRATOR_TOOLS):
+                if required_tool not in orch_tools:
+                    self._add_issue(
+                        "academic-orchestrator",
+                        "delegation_availability_invariant",
+                        f"[Delegation Availability Invariant] academic-orchestrator MUST possess '{required_tool}' to delegate execution to specialist subagents."
+                    )
 
         # 2. Execution Workers: run_command allowed and required
         for agent_name, fm in self.canonical_agents.items():
