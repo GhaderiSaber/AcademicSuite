@@ -26,7 +26,7 @@ This document freezes and records the exact tool access, skill bindings, executi
 |---|---|---|:---:|:---:|:---:|:---:|:---:|---|
 | 1 | `academic-challenger` | Tier 4 (Critic) | No | Yes | **No** | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 2 | `academic-orchestrator` | Tier 1 (Lead) | Yes | Yes | **No** | **No** | **Yes** | `academic-suite-orchestrator`, `academic-adaptive-context`, `digital-twin-academic-consultant`, `thesis-integrity-auditor` |
-| 3 | `academic-writer` | Tier 2 (Domain) | No | Yes | Yes | Yes | No | `chapter-4-writing`, `persian-literature-review-builder`, `persian-discussion-builder`, `persian-thesis-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `apa-reporting`, `psychological-intervention-protocol-builder`, `journal-submission-assistant`, `persian-defense-presentation-builder` |
+| 3 | `academic-writer` | Tier 2 (Domain) | No | Yes | Yes (DocGen only) | Yes | No | `chapter-4-writing`, `persian-literature-review-builder`, `persian-discussion-builder`, `persian-thesis-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `apa-reporting`, `psychological-intervention-protocol-builder`, `journal-submission-assistant`, `persian-defense-presentation-builder` |
 | 4 | `behavior-analyst` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 5 | `curriculum-builder` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 6 | `data-agent` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `data-cleaning`, `data-audit`, `psychometric-scale-resolver`, `psychometric-data-simulator` |
@@ -112,6 +112,7 @@ agent:
     - grep_search
     - find_by_name
     - write_to_file
+    - replace_file_content
     - run_command
   skills:
     - chapter-4-writing
@@ -126,6 +127,7 @@ agent:
     - persian-defense-presentation-builder
   mcpServers: []
   can_execute_code: true
+  code_execution_scope: "Restricted strictly to declared document-generation and formatting tools; independent statistical analysis is forbidden (Phase 10)"
   can_write: true
   can_delegate: false
   intended_role: "Master Academic Chapter Drafter & Persian Rhetoric Specialist"

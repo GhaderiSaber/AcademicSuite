@@ -309,6 +309,118 @@ class SafetyHooks:
                         )
                     }
 
+            # Academic Writer Execution Boundary Guard (Directive 12 / Phase 10 Invariant):
+            # academic-writer may execute ONLY declared document-generation / formatting workflows,
+            # NOT independent statistical analysis, data cleaning, or psychometrics.
+            if "academic-writer" in caller:
+                # 1. Block R execution
+                if re.search(r'\b(?:Rscript|R)\s+', cmd):
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            "CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                            "Academic-Writer is strictly forbidden from executing R scripts or commands. "
+                            "Statistical computing must be delegated to statistics-agent."
+                        )
+                    }
+
+                # 2. Block inline statistical calculations via python -c
+                if re.search(r'python3?\s+-c\s+["\'].*(?:pandas|pingouin|scipy|statsmodels|sklearn|semopy|factor_analyzer).*["\']', cmd, re.IGNORECASE):
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            "CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                            "Academic-Writer is strictly forbidden from executing inline statistical calculations directly. "
+                            "Statistical computation must be delegated to statistics-agent or data-agent."
+                        )
+                    }
+
+                # 3. Check any python script execution
+                py_matches = list(re.finditer(r'python3?(?:\s+-[a-zA-Z0-9]+)*\s+([^\s;&|]+\.py)', cmd))
+                if py_matches:
+                    allowed_writing_skills = {
+                        "chapter-4-writing",
+                        "persian-literature-review-builder",
+                        "persian-discussion-builder",
+                        "persian-thesis-builder",
+                        "persian-thesis-revision-assistant",
+                        "persian-proposal-builder",
+                        "academic-article-writer",
+                        "ai-academic-tone-polisher",
+                        "apa-reporting",
+                        "psychological-intervention-protocol-builder",
+                        "journal-submission-assistant",
+                        "persian-defense-presentation-builder",
+                        "academic-reference-extractor",
+                        "academic-adaptive-context",
+                    }
+                    statistical_indicators = (
+                        "regression", "mediation", "moderation", "sem", "cfa", "efa",
+                        "assumption", "statistical", "stats", "data_cleaning", "data-cleaning",
+                        "clean_and_score", "data_audit", "data-audit", "audit_dataset",
+                        "descriptive", "longitudinal", "modmed", "meta_analyst", "meta-analyst",
+                        "gpower", "sample_size", "psychometric", "scale_validator",
+                        "data_simulator", "scale_resolver", "reliability", "qualitative",
+                        "ancova", "anova", "ttest", "correlation", "factor_analysis"
+                    )
+
+                    for py_match in py_matches:
+                        script_path = py_match.group(1).replace("\\", "/")
+                        norm_path = os.path.normpath(script_path).replace("\\", "/")
+
+                        if "/skills/" in norm_path or norm_path.startswith("skills/"):
+                            skill_part = (
+                                norm_path.split("/skills/")[1].split("/")[0]
+                                if "/skills/" in norm_path
+                                else norm_path.split("skills/")[1].split("/")[0]
+                            )
+                            if skill_part not in allowed_writing_skills:
+                                return {
+                                    "decision": "deny",
+                                    "reason": (
+                                        f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                                        f"Academic-Writer run_command privilege is strictly confined to declared document-generation "
+                                        f"and formatting workflows. Target script '{script_path}' belongs to skill '{skill_part}', "
+                                        f"which is outside declared writing skills. Delegate statistical work to statistics-agent."
+                                    )
+                                }
+                        else:
+                            basename = os.path.basename(norm_path).lower()
+                            if any(stat_kw in norm_path.lower() for stat_kw in statistical_indicators):
+                                return {
+                                    "decision": "deny",
+                                    "reason": (
+                                        f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                                        f"Academic-Writer cannot execute statistical script '{script_path}'. "
+                                        f"Delegate computation to statistics-agent or data-agent."
+                                    )
+                                }
+                            allowed_doc_patterns = (
+                                "test",
+                                "structured_docx_generator.py",
+                                "openxml_docx_engine.py",
+                                "persian_docx_engine.py",
+                                "scaffold_",
+                                "build_",
+                                "render_",
+                                "export_",
+                                "format_",
+                                "doc",
+                                "docx",
+                                "pptx",
+                                "slide",
+                                "brief"
+                            )
+                            if not any(pat in basename for pat in allowed_doc_patterns):
+                                return {
+                                    "decision": "deny",
+                                    "reason": (
+                                        f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                                        f"Academic-Writer script execution is confined to declared document-generation tools. "
+                                        f"Script '{script_path}' is not an authorized document-generation utility."
+                                    )
+                                }
+
             is_danger, reason = is_dangerous_command(cmd)
             if is_danger:
                 return {
