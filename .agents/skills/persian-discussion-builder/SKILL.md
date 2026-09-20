@@ -64,8 +64,8 @@ For each research hypothesis or question, the agent must synthesize the text usi
 ```
 
 ### Reference Guides to Consult:
-- Read [discussion_framework_guide.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-discussion-builder/references/discussion_framework_guide.md) for structural rules and standard Persian academic phrasing.
-- Read [psychology_theoretical_mechanisms.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-discussion-builder/references/psychology_theoretical_mechanisms.md) for ready-to-use psychological explanations across CBT, Emotion Regulation, Attachment, Mindfulness, and Self-Efficacy.
+- Read [discussion_framework_guide.md](references/discussion_framework_guide.md) for structural rules and standard Persian academic phrasing.
+- Read [psychology_theoretical_mechanisms.md](references/psychology_theoretical_mechanisms.md) for ready-to-use psychological explanations across CBT, Emotion Regulation, Attachment, Mindfulness, and Self-Efficacy.
 
 ---
 

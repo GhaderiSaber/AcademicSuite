@@ -2464,7 +2464,7 @@ flowchart TD
 ```
 
 ### 40.3 Authoritative Audit Document
-The complete repository inventory is published and maintained in [`architecture/CODEBASE_INVENTORY_AUDIT.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/architecture/CODEBASE_INVENTORY_AUDIT.md).
+The complete repository inventory is published and maintained in [`CODEBASE_INVENTORY_AUDIT.md`](CODEBASE_INVENTORY_AUDIT.md).
 - 5 unused files safely removed (`tools/python/openxml_helpers.py`, `scripts/generate_scale_validation_package.py`, `scripts/assemble_master_scale_validation_docx.py`, `scripts/generate_experimental_master_package.py`, `scripts/multi_account_scanner.py`).
 - Consolidated `build_hypothesis_1_triad_docx.py` with `generate_hypothesis_triad_docx.py`.
 - Formally documented deprecation of `digital_saber.py` in favor of `scripts/suite_cli.py`.

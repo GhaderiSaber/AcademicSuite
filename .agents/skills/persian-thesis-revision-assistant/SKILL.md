@@ -80,7 +80,7 @@ Review each extracted comment and tag it:
 - Note the exact **page number, section, and paragraph** where the change was introduced.
 
 ### Step 4: Draft Polite Academic Responses
-In `resolved_comments.json`, fill out `action_taken` and `location` for every comment using the courteous academic templates in [academic_rebuttal_etiquette_fa.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-revision-assistant/references/academic_rebuttal_etiquette_fa.md):
+In `resolved_comments.json`, fill out `action_taken` and `location` for every comment using the courteous academic templates in [academic_rebuttal_etiquette_fa.md](references/academic_rebuttal_etiquette_fa.md):
 - Always express gratitude for the professor's insight.
 - Clearly describe what was altered, added, or recalculated.
 - State the exact page number.
@@ -97,7 +97,7 @@ python3 .agents/skills/persian-thesis-revision-assistant/scripts/generate_revisi
 
 ## 4. Final Submission Checklist
 
-Before delivering the revised documents to the student or professor, review [comment_resolution_checklist.md](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-thesis-revision-assistant/references/comment_resolution_checklist.md):
+Before delivering the revised documents to the student or professor, review [comment_resolution_checklist.md](references/comment_resolution_checklist.md):
 - [ ] Every single comment has a row in the response table.
 - [ ] Page numbers in the table match the final compiled thesis document.
 - [ ] Any newly cited study in text is present in the references section.

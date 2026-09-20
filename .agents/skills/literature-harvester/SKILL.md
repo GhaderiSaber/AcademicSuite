@@ -18,7 +18,7 @@ Activate this skill whenever:
 - The user wants to **extract sample sizes ($N$), methodologies, and psychometric instruments** from abstracts without manual reading.
 - The user requests generating an **EndNote or Zotero citation file (`.ris`)** for a specific literature search query.
 - The user wants to automatically synthesize empirical findings using the **standard 5-part Iranian reporting formula** (*«نویسنده (سال) در پژوهشی با عنوان... بر روی N نفر...»*).
-- Downstream piping into [persian-literature-review-builder](file:///Users/saber/Desktop/academic_suite/.agents/skills/persian-literature-review-builder/SKILL.md) or [systematic-review-meta-analyst](file:///Users/saber/Desktop/academic_suite/.agents/skills/systematic-review-meta-analyst/SKILL.md).
+- Downstream piping into [persian-literature-review-builder](../persian-literature-review-builder/SKILL.md) or [systematic-review-meta-analyst](../systematic-review-meta-analyst/SKILL.md).
 
 ---
 

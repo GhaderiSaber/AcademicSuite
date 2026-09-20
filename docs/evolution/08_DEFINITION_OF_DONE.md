@@ -30,10 +30,10 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 1. Can a user correction automatically become a reusable lesson?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. During conversational interaction or review turns, natural language feedback (e.g., *"You should have compared candidate longitudinal approaches against missingness, imbalance, covariance structure, and estimand"*) is evaluated by [`AcademicCorrectionDetector.detect_correction()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_correction_detector.py).
+  1. During conversational interaction or review turns, natural language feedback (e.g., *"You should have compared candidate longitudinal approaches against missingness, imbalance, covariance structure, and estimand"*) is evaluated by [`AcademicCorrectionDetector.detect_correction()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_correction_detector.py).
   2. The feedback is structured into a durable record `FDB-*` by `AcademicExperienceRecorder`.
-  3. [`AcademicLessonDistiller.distill_lesson_from_feedback()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_lesson_distiller.py) extracts a formal lesson `LSN-*` answering the 8 diagnostic questions: what happened, behavior causing outcome, what should have happened, theoretical rationale, desired behavior, applicability conditions, exclusions, and scope.
-  4. [`AcademicKnowledgeManager.add_lesson()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_knowledge_manager.py) indexes the lesson in `learning/knowledge/lessons/` for subsequent task retrieval.
+  3. [`AcademicLessonDistiller.distill_lesson_from_feedback()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_lesson_distiller.py) extracts a formal lesson `LSN-*` answering the 8 diagnostic questions: what happened, behavior causing outcome, what should have happened, theoretical rationale, desired behavior, applicability conditions, exclusions, and scope.
+  4. [`AcademicKnowledgeManager.add_lesson()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_knowledge_manager.py) indexes the lesson in `learning/knowledge/lessons/` for subsequent task retrieval.
 - **Epistemic Safeguards**:
   - `EPISTEMIC_METHODOLOGICAL_BLACKLIST` intercepts and blocks discredited methodologies (Sobel test, post-hoc power, median split, stepwise regression, Persian leading zero removal, blind listwise deletion).
   - `PROJECT_SPECIFIC_PATTERNS` contains thesis- or supervisor-specific guidelines strictly to the active project scope.
@@ -47,7 +47,7 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 2. Can a successful trajectory teach the system something?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. High-performing milestone transitions (`APPROVED`, `COMPLETED`) trigger [`AcademicIntegratedLearningHub.process_milestone_transition()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py).
+  1. High-performing milestone transitions (`APPROVED`, `COMPLETED`) trigger [`AcademicIntegratedLearningHub.process_milestone_transition()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_integrated_learning_hub.py).
   2. The trajectory's analytical plan, OpenXML tables, and scholarly narrative are inspected against structural and statistical rubrics.
   3. Exemplary execution paths are distilled into formal Exemplars (`EXM-*`) in `learning/knowledge/exemplars/` and tagged by capability.
 - **Epistemic Safeguards**:
@@ -62,7 +62,7 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 3. Can a failure generate a regression test?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. When an agent trajectory fails evaluation or produces a severe error, [`AcademicRegressionSynthesizer.synthesize_regression_case_from_failure()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_regression_synthesizer.py) parses the execution record.
+  1. When an agent trajectory fails evaluation or produces a severe error, [`AcademicRegressionSynthesizer.synthesize_regression_case_from_failure()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_regression_synthesizer.py) parses the execution record.
   2. It extracts input parameters, initial conditions, the defective decision, and the invariant required behavior.
   3. It generates a permanent, standalone evaluation case (`EVAL-CASE-REG-*.json`) in `learning/evaluations/regression/`.
 - **Epistemic Safeguards**:
@@ -75,7 +75,7 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 4. Can the system generate candidate Skill improvements?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. [`AcademicCandidateGenerator.generate_candidate_from_lesson()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_candidate_generator.py) ingests lessons, anti-patterns, or feedback records.
+  1. [`AcademicCandidateGenerator.generate_candidate_from_lesson()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py) ingests lessons, anti-patterns, or feedback records.
   2. It synthesizes candidate mutations (`CAND-*`) in `learning/candidates/` containing exact instruction diffs, decision-tree modifications, anti-patterns, or exemplar additions.
   3. Each candidate is classified into a strict Risk Tier: `LOW`, `MEDIUM`, or `HIGH`.
 - **Epistemic Safeguards**:
@@ -88,7 +88,7 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 5. Can it test candidates against the baseline?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. [`AcademicCounterfactualEvaluator.evaluate_candidate()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_counterfactual_evaluator.py) runs baseline and candidate configurations side-by-side across identical evaluation test suites.
+  1. [`AcademicCounterfactualEvaluator.evaluate_candidate()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_counterfactual_evaluator.py) runs baseline and candidate configurations side-by-side across identical evaluation test suites.
   2. Scores are computed across 8 orthogonal dimensions: correctness, methodology, statistical validity, evidence grounding, integrity, robustness, consistency, efficiency.
   3. A differential vector $\Delta = \text{Score}_{\text{candidate}} - \text{Score}_{\text{baseline}}$ is calculated.
 - **Epistemic Safeguards**:
@@ -101,8 +101,8 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 6. Can it test on unseen cases?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. [`AcademicEvaluationLab.run_held_out_suite()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_evaluation_lab.py) executes candidates on a dedicated held-out benchmark suite located in `learning/evaluations/heldout/`.
-  2. [`AcademicCounterfactualEvaluator.check_overfitting()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_counterfactual_evaluator.py) computes the generalization ratio:
+  1. [`AcademicEvaluationLab.run_held_out_suite()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_evaluation_lab.py) executes candidates on a dedicated held-out benchmark suite located in `learning/evaluations/heldout/`.
+  2. [`AcademicCounterfactualEvaluator.check_overfitting()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_counterfactual_evaluator.py) computes the generalization ratio:
      $$R_{\text{generalization}} = \frac{\text{PassRate}_{\text{held\_out}}}{\text{PassRate}_{\text{training}}}$$
 - **Epistemic Safeguards**:
   - The held-out suite is guarded by `manifest.sha256` hashing to detect tampering or data leakage.
@@ -117,7 +117,7 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
   1. During candidate evaluation, the suite executes all existing regression test cases in `learning/evaluations/regression/`.
-  2. If any previously passing capability regresses ($\Delta_{\text{protected}} < 0$ or any regression case fails), [`AcademicPromotionEngine.evaluate_and_promote()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_promotion_engine.py) immediately sets the decision to `REJECTED`.
+  2. If any previously passing capability regresses ($\Delta_{\text{protected}} < 0$ or any regression case fails), [`AcademicPromotionEngine.evaluate_and_promote()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_promotion_engine.py) immediately sets the decision to `REJECTED`.
   3. The candidate is archived to `learning/candidates/archived/` with full failure diagnostics.
 - **Epistemic Safeguards**:
   - Zero-tolerance regression invariant: no single benchmark gain can justify degrading an existing protected capability.
@@ -129,7 +129,7 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 8. Can it automatically activate a safe improvement?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. When a candidate belongs to the `LOW-RISK` tier (exemplar, anti-pattern, retrieval metadata, minor clarification), [`AcademicPromotionEngine.evaluate_and_promote()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_promotion_engine.py) checks all 5 mandatory evaluation gates:
+  1. When a candidate belongs to the `LOW-RISK` tier (exemplar, anti-pattern, retrieval metadata, minor clarification), [`AcademicPromotionEngine.evaluate_and_promote()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_promotion_engine.py) checks all 5 mandatory evaluation gates:
      - Target evaluation pass
      - Zero regression suite failures
      - Zero adversarial check failures
@@ -149,7 +149,7 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 9. Can it carry that improvement into another task?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. When an agent initiates a subsequent task, [`AcademicKnowledgeManager.retrieve_pre_task_context()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_knowledge_manager.py) (via the `academic-adaptive-context` skill) matches task domain tags against active lessons, anti-patterns, and exemplars.
+  1. When an agent initiates a subsequent task, [`AcademicKnowledgeManager.retrieve_pre_task_context()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_knowledge_manager.py) (via the `academic-adaptive-context` skill) matches task domain tags against active lessons, anti-patterns, and exemplars.
   2. It injects a bounded, relevant pre-flight briefing directly into the agent's pre-flight pipeline declaration.
   3. The agent applies the learned decision rule to the new research design without receiving the supervisory prompt again.
 - **Epistemic Safeguards**:
@@ -164,7 +164,7 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 10. Can it discover weaknesses without user intervention?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. The Slow Evolution Loop ([`AcademicDualLoopEngine.run_slow_loop()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_dual_loop_engine.py)) analyzes evaluation history, drift profiles, and failure patterns via [`AcademicCurriculumBuilder.identify_capability_weaknesses()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_curriculum_builder.py).
+  1. The Slow Evolution Loop ([`AcademicDualLoopEngine.run_slow_loop()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_dual_loop_engine.py)) analyzes evaluation history, drift profiles, and failure patterns via [`AcademicCurriculumBuilder.identify_capability_weaknesses()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_curriculum_builder.py).
   2. It automatically synthesizes graduated challenge tasks across 10 levels of statistical complexity (Level 1: two-group to Level 10: ambiguous longitudinal/imbalance) and 5 levels of academic writing discipline.
 - **Epistemic Safeguards**:
   - `MINIMUM_COMPLEXITY_FLOOR = 3` rejects trivial Level 1/2 challenge tasks (`ATK-10`).
@@ -178,7 +178,7 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 11. Can it improve Skills without accumulating an uncontrolled prompt?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. [`AcademicBehaviorConsolidator.consolidate_skill()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_behavior_consolidator.py) executes periodic knowledge consolidation:
+  1. [`AcademicBehaviorConsolidator.consolidate_skill()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_behavior_consolidator.py) executes periodic knowledge consolidation:
      - Identifies repeated lessons and merges compatible rules.
      - Detects and isolates contradictions.
      - Retires obsolete instructions while preserving full provenance trees.
@@ -197,10 +197,10 @@ It explicitly answers the 12 constitutional self-improvement questions with tech
 ### 12. Can it detect when its own learning has made it worse?
 - **Answer**: **YES**.
 - **Architecture & Mechanism**:
-  1. [`AcademicBehaviorDriftMonitor.run_drift_audit()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_behavior_drift_monitor.py) constructs multidimensional behavioral profiles for skills and agents across 8 dimensions.
+  1. [`AcademicBehaviorDriftMonitor.run_drift_audit()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_behavior_drift_monitor.py) constructs multidimensional behavioral profiles for skills and agents across 8 dimensions.
   2. After promotions, it executes regression audits and compares current behavioral profiles against historical baselines.
   3. If performance drops below baseline thresholds on protected capabilities, it logs a drift report to `learning/reports/drift/`.
-  4. It invokes [`AcademicPromotionEngine.deactivate_candidate()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_promotion_engine.py), which deactivates the degraded candidate and automatically restores the pre-promotion snapshot from `learning/promotions/snapshots/`.
+  4. It invokes [`AcademicPromotionEngine.deactivate_candidate()`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_promotion_engine.py), which deactivates the degraded candidate and automatically restores the pre-promotion snapshot from `learning/promotions/snapshots/`.
 - **Epistemic Safeguards**:
   - Automatic rollback ensures regressions are self-healing and do not persist in active production skills.
 - **Empirical Test Proof**:

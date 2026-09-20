@@ -96,7 +96,7 @@ AcademicSuite is a **100% Antigravity Native Multi-Agent Architecture**:
 
 ## 5. Machine Enforcement & Truthfulness Guarantee
 - **Sole Orchestrator Mandate (Directive 12.1)**: Google Antigravity is the sole agent runtime and multi-agent orchestrator. Subagents are orchestrated strictly via `invoke_subagent`. External Python classes or standalone scripts are prohibited from emulating agent dispatch.
-- **Pure Antigravity Deliberation Protocol**: Full protocol specifications, Critic-Generator barriers, and `invoke_subagent` payload schemas are documented in [PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL.md](file:///.agents/architecture/PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL.md).
+- **Pure Antigravity Deliberation Protocol**: Full protocol specifications, Critic-Generator barriers, and `invoke_subagent` payload schemas are documented in [PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL.md](PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL.md).
 - **Binary Honesty Protocol**: Whenever the user asks whether a workflow, rule, or subagent was executed, the response MUST begin with an unambiguous **"Yes"** or **"No"**.
 
 ---
@@ -110,4 +110,4 @@ AcademicSuite strictly segregates architectural governance into a 5-layer order:
 4. **Hook Enforcement (Secondary)**: Passive interception of 5 anomalies (`unauthorized tool attempt`, `invalid state transition`, `missing artifact`, `invalid provenance`, `feedback event`). Hooks NEVER orchestrate workflows, simulate delegation, replace `invoke_subagent`, or execute whole workflows.
 5. **Evaluation**: Continuous automated validation (`validators/`) and test suites (`tests/architecture/`).
 
-*(Authoritative specification codified in [contracts/architecture/ENFORCEMENT_HIERARCHY.md](file:///contracts/architecture/ENFORCEMENT_HIERARCHY.md))*.
+*(Authoritative specification codified in [contracts/architecture/ENFORCEMENT_HIERARCHY.md](../contracts/architecture/ENFORCEMENT_HIERARCHY.md))*.

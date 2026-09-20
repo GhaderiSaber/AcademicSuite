@@ -630,30 +630,28 @@ All vulnerabilities identified during the red-team audit were systematically rem
 ### 1. Priority 0 Remediations (P0)
 
 1. **Remediate ATK-01 & ATK-02 (Standalone Script Safety & Plan Gating)**:
-   - **Fix**: Created [`scripts/script_execution_guard.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/script_execution_guard.py) featuring `enforce_script_safety`. In production mode, any dataset identified as sample/demo/synthetic/mock raises `ProductionSampleFallbackBlockedError`. Direct script execution requires an approved AnalysisPlan (`--plan`) with `status: APPROVED`; missing or unapproved plans raise `UnauthorizedAnalysisPlanError`.
+   - **Fix**: Created [`.agents/scripts/script_execution_guard.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/script_execution_guard.py) featuring `enforce_script_safety`. In production mode, any dataset identified as sample/demo/synthetic/mock raises `ProductionSampleFallbackBlockedError`. Direct script execution requires an approved AnalysisPlan (`--plan`) with `status: APPROVED`; missing or unapproved plans raise `UnauthorizedAnalysisPlanError`.
    - **Applied To**: [`.agents/skills/sem/scripts/run_sem.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/skills/sem/scripts/run_sem.py), [`.agents/skills/regression/scripts/run_regression.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/skills/regression/scripts/run_regression.py).
    - **Regression Test**: [`tests/test_standalone_script_safety.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/tests/test_standalone_script_safety.py) (10 tests, all passing).
 
-2. **Remediate ATK-04 (Raw Data Mutation & Filesystem Immutability)**:
-   - **Fix**: Enhanced [`scripts/permission_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/permission_manager.py) with `lock_raw_data_directory` setting `0444` read-only permissions on all raw dataset files. Added automatic read-only enforcement in [`.agents/verification/transcript_and_rule_guard.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/verification/transcript_and_rule_guard.py).
+3. **V-DATA-02: Silent Modification of Real Survey Raw Datasets**:
+   - **Fix**: Enhanced [`.agents/scripts/permission_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/permission_manager.py) with `lock_raw_data_directory` setting `0444` read-only permissions on all raw dataset files. Added automatic read-only enforcement in [`.agents/verification/transcript_and_rule_guard.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/verification/transcript_and_rule_guard.py).
    - **Regression Test**: [`tests/test_raw_data_mutation_guard.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/tests/test_raw_data_mutation_guard.py) (2 tests, all passing).
 
-3. **Remediate ATK-12 (Persian Reference Auto-Verification / Ghost Citations)**:
+4. **V-AUDIT-01: Auto-Verification Regex Bypass in Reference Verification**:
    - **Fix**: Removed the regex auto-verification shortcut in [`.agents/skills/academic-reference-extractor/scripts/verify_references.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/skills/academic-reference-extractor/scripts/verify_references.py). Fabricated Persian citations without verified local bibliography records or resolving DOIs strictly return `is_verified: False` with status `UNVERIFIED (LOCAL PERSIAN RECORD REQUIRES PROOF)`.
    - **Regression Test**: [`tests/test_verify_references_persian.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/tests/test_verify_references_persian.py) (2 tests, all passing).
 
-4. **Remediate ATK-11 (State Machine Milestone Approval Gate)**:
-   - **Fix**: Added `MilestoneValidationRequiredError` to [`scripts/academic_state_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_state_manager.py). In `StrictStateMachine.transition_milestone`, transitioning to `APPROVED` now strictly requires a physical, schema-valid `validation_report.json` with `overall_verdict: PASS`. Missing or failing validation reports mechanically block approval.
+5. **V-GATE-01: Approval Granted Without Prior Passing Validation Artifact**:
+   - **Fix**: Added `MilestoneValidationRequiredError` to [`.agents/scripts/academic_state_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_state_manager.py). In `StrictStateMachine.transition_milestone`, transitioning to `APPROVED` now strictly requires a physical, schema-valid `validation_report.json` with `overall_verdict: PASS`. Missing or failing validation reports mechanically block approval.
    - **Regression Test**: [`tests/test_state_machine_validation_gate.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/tests/test_state_machine_validation_gate.py) (3 tests, all passing).
 
-### 2. Priority 1 Remediations (P1)
-
-5. **Remediate ATK-13 (Regression & Path Coefficient Cross-Artifact Validation)**:
-   - **Fix**: Updated `find_contradictions_in_text` in [`validators/result_consistency/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/validators/result_consistency/validator.py) to parse and cross-verify standardized beta coefficients ($\beta$), unstandardized $B$, $t$-statistics, $z$-scores, and SEM fit indices against structured JSON parameters. Contradictions between narrative text and stats JSON trigger validation `FAIL`.
+6. **V-STAT-01: Unverified Regression Beta & Statistical Parameters in Narrative**:
+   - **Fix**: Updated `find_contradictions_in_text` in [`.agents/validators/result_consistency/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/validators/result_consistency/validator.py) to parse and cross-verify standardized beta coefficients ($\beta$), unstandardized $B$, $t$-statistics, $z$-scores, and SEM fit indices against structured JSON parameters. Contradictions between narrative text and stats JSON trigger validation `FAIL`.
    - **Regression Test**: [`tests/test_result_consistency_coefficients.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/tests/test_result_consistency_coefficients.py) (2 tests, all passing).
 
-6. **Remediate ATK-14 (Factory Regeneration of Deprecated Architecture)**:
-   - **Fix**: Added `RETIRED_AGENTS = {"writing-agent", "legacy-orchestrator", "orchestrator-agent"}` to [`factory/agent_factory.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/factory/agent_factory.py). Attempting to generate or regenerate any retired agent raises `AgentValidationError`.
+7. **V-ARCH-01: Unauthorized Agent Re-Introduction & Retired Legacy Role Leakage**:
+   - **Fix**: Added `RETIRED_AGENTS = {"writing-agent", "legacy-orchestrator", "orchestrator-agent"}` to [`.agents/factory/agent_factory.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/factory/agent_factory.py). Attempting to generate or regenerate any retired agent raises `AgentValidationError`.
    - **Regression Test**: [`tests/test_retired_agent_factory.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/tests/test_retired_agent_factory.py) (3 tests, all passing).
 
 7. **Remediate ATK-03 & ATK-17 (Worker Delegation Gate & Dynamic Nesting Ceilings)**:

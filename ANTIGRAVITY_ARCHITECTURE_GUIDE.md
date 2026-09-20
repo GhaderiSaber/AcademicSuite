@@ -239,7 +239,7 @@ This skill guides the agent through validating raw datasets and executing the de
    Inspect the generated `output/summary.json` and report record counts and anomalous rows.
 
 ## References
-For full database schema specifications, consult [references/schema_guide.md](references/schema_guide.md).
+For full database schema specifications, consult `references/schema_guide.md`.
 ```
 
 #### Critical Rules for `SKILL.md`:

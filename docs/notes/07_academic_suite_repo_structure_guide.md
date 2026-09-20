@@ -153,7 +153,7 @@ python3 .agents/skills/<skill-name>/scripts/<script_name>.py \
    - Word Document: `.agents/output/<output_name>.docx`
 
 ## References
-- For full statistical formulas and cutoffs, see [references/statistical_formulas.md](references/statistical_formulas.md).
+- For full statistical formulas and cutoffs, see `references/statistical_formulas.md`.
 ```
 
 ### 2.3 Registering the Skill in `SKILL_ACTIVATION_MATRIX.md`

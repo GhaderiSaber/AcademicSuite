@@ -77,7 +77,7 @@ flowchart TD
 ### Attack ATK-01: Project-Specific Preference Leaking to Global Behavior
 
 - **Attack ID**: `ATK-01`
-- **Entry Point**: [`scripts/academic_correction_detector.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_correction_detector.py) $\rightarrow$ `detect_correction()` $\rightarrow$ Scope Resolution logic.
+- **Entry Point**: [`scripts/academic_correction_detector.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_correction_detector.py) $\rightarrow$ `detect_correction()` $\rightarrow$ Scope Resolution logic.
 - **Reproduction**:
   1. User is working on a specific thesis at Tehran Medical University and states:
      `"Our department committee mandates reporting 4 decimal places for all p-values and using purple headers in tables."`
@@ -109,7 +109,7 @@ flowchart TD
 ### Attack ATK-02: Bad Supervisory Correction Poisoning a Skill
 
 - **Attack ID**: `ATK-02`
-- **Entry Point**: [`scripts/academic_integrated_learning_hub.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py) $\rightarrow$ `process_user_turn()` $\rightarrow$ Fast Loop Dispatch.
+- **Entry Point**: [`scripts/academic_integrated_learning_hub.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_integrated_learning_hub.py) $\rightarrow$ `process_user_turn()` $\rightarrow$ Fast Loop Dispatch.
 - **Reproduction**:
   1. A user, guided by outdated textbook traditions, issues the following instruction:
      `"You should never use bootstrap confidence intervals for mediation. Always use the Sobel z-test and report significance at p < .05."`
@@ -141,7 +141,7 @@ flowchart TD
 ### Attack ATK-03: Candidate Promoted Without Adequate Evidence
 
 - **Attack ID**: `ATK-03`
-- **Entry Point**: [`scripts/academic_promotion_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_promotion_engine.py) $\rightarrow$ `classify_risk()` and `verify_evaluation_gates()`.
+- **Entry Point**: [`scripts/academic_promotion_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_promotion_engine.py) $\rightarrow$ `classify_risk()` and `verify_evaluation_gates()`.
 - **Reproduction**:
   1. A candidate mutation adding an anti-pattern or exemplar is submitted.
   2. `classify_risk()` identifies the mutation type as `ANTI_PATTERN_ADDITION` and tags it as `LOW_RISK`.
@@ -169,7 +169,7 @@ flowchart TD
 ### Attack ATK-04: Candidate Overfitting the Original Failure Case
 
 - **Attack ID**: `ATK-04`
-- **Entry Point**: [`scripts/academic_candidate_generator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_candidate_generator.py) $\rightarrow$ `_synthesize_instruction_diff()`.
+- **Entry Point**: [`scripts/academic_candidate_generator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py) $\rightarrow$ `_synthesize_instruction_diff()`.
 - **Reproduction**:
   1. Agent fails on a dataset with variables `["anxiety_t1", "anxiety_t2", "group"]`.
   2. User corrects: *"Check missingness before running ANOVA."*
@@ -211,7 +211,7 @@ flowchart TD
 ### Attack ATK-06: Contradictory Lessons Simultaneously Active
 
 - **Attack ID**: `ATK-06`
-- **Entry Point**: [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_knowledge_manager.py) $\rightarrow$ `lessons_dir`.
+- **Entry Point**: [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_knowledge_manager.py) $\rightarrow$ `lessons_dir`.
 - **Reproduction**:
   1. Project 1 records `LSN-001`: *"Always use Linear Mixed Models for longitudinal data."*
   2. Project 2 records `LSN-002`: *"Always use Repeated-Measures ANOVA with Greenhouse-Geisser correction."*
@@ -232,7 +232,7 @@ flowchart TD
 ### Attack ATK-07: Irrelevant Lessons Injected into Unrelated Tasks
 
 - **Attack ID**: `ATK-07`
-- **Entry Point**: [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_knowledge_manager.py) $\rightarrow$ `query()`.
+- **Entry Point**: [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_knowledge_manager.py) $\rightarrow$ `query()`.
 - **Reproduction**:
   1. A user requests qualitative thematic analysis using Braun & Clarke.
   2. The pre-task retrieval engine runs with `task="Thematic analysis of interview transcripts"`.
@@ -253,7 +253,7 @@ flowchart TD
 ### Attack ATK-08: Rejected Candidate Resurrected into Active Execution
 
 - **Attack ID**: `ATK-08`
-- **Entry Point**: [`scripts/academic_promotion_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_promotion_engine.py) $\rightarrow$ Candidate Directory Scanning.
+- **Entry Point**: [`scripts/academic_promotion_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_promotion_engine.py) $\rightarrow$ Candidate Directory Scanning.
 - **Reproduction**:
   1. Candidate `CAND-BAD-001` fails adversarial tests and is marked `status: REJECTED`.
   2. The candidate file remains in `learning/candidates/` with updated status.
@@ -292,7 +292,7 @@ flowchart TD
 ### Attack ATK-10: Curriculum Generator Creating Trivial Practice Tasks
 
 - **Attack ID**: `ATK-10`
-- **Entry Point**: [`scripts/academic_curriculum_builder.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_curriculum_builder.py) $\rightarrow$ Task Generation.
+- **Entry Point**: [`scripts/academic_curriculum_builder.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_curriculum_builder.py) $\rightarrow$ Task Generation.
 - **Reproduction**:
   1. The curriculum builder is executed with an empty failure log (`learning/telemetry/`).
   2. Without failure frequency weights, it generates Level 1 tasks:
@@ -312,7 +312,7 @@ flowchart TD
 ### Attack ATK-11: Curriculum Generator Creating Mathematically Invalid Scenarios
 
 - **Attack ID**: `ATK-11`
-- **Entry Point**: [`scripts/academic_curriculum_builder.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_curriculum_builder.py) $\rightarrow$ Synthetic Dataset Parameterization.
+- **Entry Point**: [`scripts/academic_curriculum_builder.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_curriculum_builder.py) $\rightarrow$ Synthetic Dataset Parameterization.
 - **Reproduction**:
   1. The curriculum generator randomly combines challenge parameters:
      - 3-wave longitudinal trial,
@@ -333,7 +333,7 @@ flowchart TD
 ### Attack ATK-12: User Conversational Feedback Misclassified as Correction
 
 - **Attack ID**: `ATK-12`
-- **Entry Point**: [`scripts/academic_correction_detector.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_correction_detector.py) $\rightarrow$ `CORRECTION_TRIGGER_PATTERNS`.
+- **Entry Point**: [`scripts/academic_correction_detector.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_correction_detector.py) $\rightarrow$ `CORRECTION_TRIGGER_PATTERNS`.
 - **Reproduction**:
   1. User praises the agent with a colloquial or rhetorical remark:
      `"This is great, but don't you think the reviewer will complain that the sample was small?"`
@@ -353,7 +353,7 @@ flowchart TD
 ### Attack ATK-13: Flawed Trajectory Learned as Exemplar Due to False Approval
 
 - **Attack ID**: `ATK-13`
-- **Entry Point**: [`scripts/academic_state_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_state_manager.py) $\rightarrow$ `transition_milestone(..., to_state="APPROVED")`.
+- **Entry Point**: [`scripts/academic_state_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_state_manager.py) $\rightarrow$ `transition_milestone(..., to_state="APPROVED")`.
 - **Reproduction**:
   1. Agent drafts Chapter 4 with an uncorrected assumption violation (e.g., regression slope heterogeneity ignored in ANCOVA).
   2. A tired or non-expert student clicks `APPROVED`.
@@ -435,7 +435,7 @@ flowchart TD
 ### Attack ATK-17: Malformed Experience JSON Halting Consolidation Engine
 
 - **Attack ID**: `ATK-17`
-- **Entry Point**: [`scripts/academic_consolidation_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_consolidation_engine.py) $\rightarrow$ Directory Ingestion.
+- **Entry Point**: [`.agents/scripts/academic_behavior_consolidator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_behavior_consolidator.py) $\rightarrow$ Directory Ingestion.
 - **Reproduction**:
   1. A corrupt or truncated experience JSON (`EXP-CORRUPT.json`) is created in `learning/experiences/` due to a disk-full or process-kill event.
   2. The consolidation engine runs its batch job.
@@ -454,7 +454,7 @@ flowchart TD
 ### Attack ATK-18: Synchronous Evolution Latency Interfering with Research Flow
 
 - **Attack ID**: `ATK-18`
-- **Entry Point**: [`scripts/academic_integrated_learning_hub.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py) $\rightarrow$ `Stop` Lifecycle Hook.
+- **Entry Point**: [`scripts/academic_integrated_learning_hub.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_integrated_learning_hub.py) $\rightarrow$ `Stop` Lifecycle Hook.
 - **Reproduction**:
   1. User submits a normal prompt.
   2. The `Stop` hook triggers `process_user_turn()`.

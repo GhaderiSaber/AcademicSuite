@@ -2,7 +2,7 @@
 
 This reference manual documents the complete, authoritative micro-stage breakdown, assigned subagents, deterministic execution scripts, and required physical triad artifacts (`.docx` + `.md` + `.json`) for each academic pipeline in the Academic Suite.
 
-Per **Directive 3 (Artifact-Gated Stage Execution, Micro-Stage Granularity & Triad Artifact Invariant)** in [`AGENTS.md`](file:///AGENTS.md), jumping stages without physical checkpoint files existing on disk is strictly prohibited. Every individual micro-stage must produce its synchronized triad of deliverables prior to stage-gate advancement.
+Per **Directive 3 (Artifact-Gated Stage Execution, Micro-Stage Granularity & Triad Artifact Invariant)** in [`AGENTS.md`](../../AGENTS.md), jumping stages without physical checkpoint files existing on disk is strictly prohibited. Every individual micro-stage must produce its synchronized triad of deliverables prior to stage-gate advancement.
 
 ---
 

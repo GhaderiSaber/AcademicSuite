@@ -117,6 +117,6 @@ Automatically:
 
 ## 5. Bundled Resources
 
-- [Questionnaire Scoring & Factor Guide](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychometric-scale-resolver/references/questionnaire_scoring_and_factor_guide.md) — Complete psychometric reference guide and reporting sentences.
-- [questionnaire_resolver.py](file:///Users/saber/Desktop/academic_suite/.agents/skills/psychometric-scale-resolver/scripts/questionnaire_resolver.py) — Core resolution and scoring engine.
-- [Questionnaires.xlsx](file:///Users/saber/Desktop/academic_suite/Questionnaires.xlsx) — Master registry of 4,880 psychometric scales and subscales.
+- [Questionnaire Scoring & Factor Guide](references/questionnaire_scoring_and_factor_guide.md) — Complete psychometric reference guide and reporting sentences.
+- [questionnaire_resolver.py](scripts/questionnaire_resolver.py) — Core resolution and scoring engine.
+- [Questionnaires.xlsx](../../data/questionnaires/Questionnaires.xlsx) — Master registry of 4,880 psychometric scales and subscales.

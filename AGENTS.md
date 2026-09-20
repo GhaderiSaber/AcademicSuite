@@ -72,7 +72,7 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 3. **The One-Hypothesis-One-Stage Invariant (اصل یک فرضیه = یک مرحله مجزا)**:
    - In Chapter 4 (Findings) and Chapter 5 (Discussion), every individual hypothesis (Hypothesis 1, 2, ..., $k$, and each indirect mediation path) **MUST HAVE ITS OWN DEDICATED, INDEPENDENT STAGE** producing its dedicated triad (`06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json`). Never lump multiple hypotheses into a single calculation or drafting step.
 4. **Mandatory Micro-Stage Sequences & Triad Matrices**:
-   - Full, authoritative per-stage breakdowns, assigned subagents, and exact triad deliverables are codified in [MICRO_STAGE_SEQUENCES.md](file:///.agents/references/MICRO_STAGE_SEQUENCES.md). All pipelines must strictly execute each sequence in sequential order:
+   - Full, authoritative per-stage breakdowns, assigned subagents, and exact triad deliverables are codified in [MICRO_STAGE_SEQUENCES.md](.agents/references/MICRO_STAGE_SEQUENCES.md). All pipelines must strictly execute each sequence in sequential order:
      - **Chapter 4 Findings**: Stages 4.0 through 4.12 (Data Curation $\rightarrow$ Demographics $\rightarrow$ Descriptives/Reliability $\rightarrow$ Assumptions $\rightarrow$ Correlations $\rightarrow$ Macro Model Fit $\rightarrow$ Hypotheses 1..k $\rightarrow$ Mediation $\rightarrow$ Decision Matrix $\rightarrow$ Statistical QC $\rightarrow$ Typography QC $\rightarrow$ OpenXML Assembly $\rightarrow$ Viva Voce Simulation).
      - **Chapter 5 Discussion**: Stages 5.1 through 5.7 (Findings Recap $\rightarrow$ Hypotheses 1..k Deep Discussion $\rightarrow$ Non-Significant Findings $\rightarrow$ Implications $\rightarrow$ Limitations $\rightarrow$ Recommendations $\rightarrow$ Consolidation).
      - **Chapter 2 Literature Review**: Stages 2.1 through 2.8 (Foundations $\rightarrow$ Bibliometrics $\rightarrow$ International $\rightarrow$ Iranian $\rightarrow$ Synthesis $\rightarrow$ Matrix Table $\rightarrow$ Grounding $\rightarrow$ Assembly).
@@ -98,7 +98,7 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 1. **Monolithic Slide Generation Prohibited**: Generating an entire defense deck in a single un-audited prompt is strictly forbidden. Every defense presentation MUST follow the 8-stage sequence (Stages D.0 to D.7) with verified physical artifacts on disk, dual deliverable compilation (DrawingML PPTX + 16:9 HTML), candidate speaker scripts, and zero-collision geometry audit.
 2. **Zero Emojis**: Emojis (📊, 🎯, 🧠, etc.) are strictly prohibited in academic deliverables, chapters, proposals, and slides.
 3. **Zero English Words in Persian Slides**: Persian slides must use Persian terminology («مسیرهای مستقیم»، «یافته آماری»، «سازوکارهای تبیین نظری»). Latin characters reserved strictly for statistical notation (*M, SD, t, F, p, β, z*) and fit indices in `Times New Roman` italic.
-4. **Presentation Manual Compliance**: Widescreen typography scale, native RTL SmartArt (`Reverse = 1`), decoupled LTR numbers, and 3D plaques must strictly adhere to [.agents/references/PRESENTATION_STANDARDS_MANUAL.md](file:///.agents/references/PRESENTATION_STANDARDS_MANUAL.md).
+4. **Presentation Manual Compliance**: Widescreen typography scale, native RTL SmartArt (`Reverse = 1`), decoupled LTR numbers, and 3D plaques must strictly adhere to [.agents/references/PRESENTATION_STANDARDS_MANUAL.md](.agents/references/PRESENTATION_STANDARDS_MANUAL.md).
 
 ### Directive 5: Persian Academic Typography & OpenXML Standards
 - **Text Direction (BiDi)**: Enforce RTL via `<w:bidi w:val="1"/>` in `<w:pPr>`, `<w:rtl w:val="1"/>` in `<w:rPr>`, and `<w:bidiVisual/>` in `<w:tblPr>`.
@@ -106,7 +106,7 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 - **Genuine Persian Font Binding**: Bind `w:ascii`, `w:hAnsi`, `w:cs`, and `w:eastAsia` to `B Nazanin` (Body, 13–14 pt Regular) or `B Titr` (Headings, 12–18 pt Bold) with `w:hint="cs"`. Latin terms/stats in `Times New Roman`.
 - **Zero Manual Line Breaks Policy**: **NEVER use `<w:br/>` / `\n` in run text**. Use independent paragraph marks (`<w:p>`).
 - **Preservation of Word OMML Math (`<m:oMath>`)**: Never assign `paragraph.text = "..."` naively. Extract text via `elem.tag.endswith("}t")` across `<w:t>` and `<m:t>`.
-*(Full technical XML specification in [.agents/references/OPENXML_STANDARDS_MANUAL.md](file:///.agents/references/OPENXML_STANDARDS_MANUAL.md))*.
+*(Full technical XML specification in [.agents/references/OPENXML_STANDARDS_MANUAL.md](.agents/references/OPENXML_STANDARDS_MANUAL.md))*.
 
 ### Directive 6: English Primary Interaction & Mandatory English-Only File Naming
 - **Default Interaction Language**: Agents communicate, reason, plan, and report to the user in **English**. Persian is reserved strictly for academic deliverables and client messages.
@@ -199,9 +199,9 @@ These two permanent architectural laws govern `academic-orchestrator`:
 ## 📚 ARCHITECTURE & REFERENCE DIRECTORY
 
 Detailed reference guides and operational specifications are modularized in `.agents/references/`:
-1. **Skill Activation Matrix & Data Architecture**: [SKILL_ACTIVATION_MATRIX.md](file:///.agents/references/SKILL_ACTIVATION_MATRIX.md) — Complete 43-skill directory, activation triggers, inputs, and deliverables.
-2. **Deterministic CLI Command Reference**: [CLI_COMMAND_REFERENCE.md](file:///.agents/references/CLI_COMMAND_REFERENCE.md) — Exact bash commands for statistical analysis, meta-analysis, psychometrics, and OpenXML generation.
-3. **OpenXML Standards Deep Dive**: [OPENXML_STANDARDS_MANUAL.md](file:///.agents/references/OPENXML_STANDARDS_MANUAL.md) — Child element sequencing, BiDi table properties, and OMML equation preservation.
-4. **Academic Defense Presentation Standards**: [PRESENTATION_STANDARDS_MANUAL.md](file:///.agents/references/PRESENTATION_STANDARDS_MANUAL.md) — SmartArt RTL reversal, DrawingML dual-slot font binding, widescreen legibility, and automatic motion.
-5. **Google Antigravity Architecture Guide**: [ANTIGRAVITY_ARCHITECTURE_GUIDE.md](file:///ANTIGRAVITY_ARCHITECTURE_GUIDE.md) — Complete technical specification for Agents, Subagents, Skills, and Workflows.
-6. **Thesis Pipeline Micro-Stage Reference Manual**: [MICRO_STAGE_SEQUENCES.md](file:///.agents/references/MICRO_STAGE_SEQUENCES.md) — Authoritative micro-stage breakdown, assigned subagents, deterministic scripts, and physical triad artifacts across all 6 core pipelines.
+1. **Skill Activation Matrix & Data Architecture**: [SKILL_ACTIVATION_MATRIX.md](.agents/references/SKILL_ACTIVATION_MATRIX.md) — Complete 43-skill directory, activation triggers, inputs, and deliverables.
+2. **Deterministic CLI Command Reference**: [CLI_COMMAND_REFERENCE.md](.agents/references/CLI_COMMAND_REFERENCE.md) — Exact bash commands for statistical analysis, meta-analysis, psychometrics, and OpenXML generation.
+3. **OpenXML Standards Deep Dive**: [OPENXML_STANDARDS_MANUAL.md](.agents/references/OPENXML_STANDARDS_MANUAL.md) — Child element sequencing, BiDi table properties, and OMML equation preservation.
+4. **Academic Defense Presentation Standards**: [PRESENTATION_STANDARDS_MANUAL.md](.agents/references/PRESENTATION_STANDARDS_MANUAL.md) — SmartArt RTL reversal, DrawingML dual-slot font binding, widescreen legibility, and automatic motion.
+5. **Google Antigravity Architecture Guide**: [ANTIGRAVITY_ARCHITECTURE_GUIDE.md](ANTIGRAVITY_ARCHITECTURE_GUIDE.md) — Complete technical specification for Agents, Subagents, Skills, and Workflows.
+6. **Thesis Pipeline Micro-Stage Reference Manual**: [MICRO_STAGE_SEQUENCES.md](.agents/references/MICRO_STAGE_SEQUENCES.md) — Authoritative micro-stage breakdown, assigned subagents, deterministic scripts, and physical triad artifacts across all 6 core pipelines.

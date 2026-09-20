@@ -75,42 +75,42 @@ Each of the 23 architectural components specified for evaluation has been inspec
 ## 🔍 3. In-Depth Component Analysis
 
 ### 1. Trajectory Capture (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_experience_recorder.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_experience_recorder.py)
+- **Location**: [`scripts/academic_experience_recorder.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_experience_recorder.py)
 - **Mechanism**: Captures tool calls, parameters, bash exit codes, agent states, and output artifacts into structured JSON records under `learning/experience/EXP-*`. Includes cryptographic hashing and timestamps.
 - **Evidence**: Verified in `tests/test_academic_knowledge_system.py`.
 
 ### 2. Correction Detection (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_correction_detector.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_correction_detector.py)
+- **Location**: [`scripts/academic_correction_detector.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_correction_detector.py)
 - **Mechanism**: Regex pattern engine detects natural language corrections, supervisory instructions, and negative evaluations. Integrates the `EPISTEMIC_METHODOLOGICAL_BLACKLIST` to block discredited methodologies (Sobel test, post-hoc power, median split, stepwise regression, Persian leading zero removal, blind listwise deletion) and filters conversational questions (`ATK-12`).
 - **Evidence**: Verified in `tests/test_academic_red_team_remediation.py`.
 
 ### 3. Lesson Extraction (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_lesson_distiller.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_lesson_distiller.py)
+- **Location**: [`scripts/academic_lesson_distiller.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_lesson_distiller.py)
 - **Mechanism**: Extracts structured lessons answering the 8 diagnostic questions (what happened, behavior causing outcome, what should have happened, theoretical rationale, desired behavior, applicability conditions, exclusions, scope).
 - **Evidence**: Verified in `tests/test_academic_lesson_distiller.py`.
 
 ### 4. Persistent Knowledge (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_knowledge_manager.py)
+- **Location**: [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_knowledge_manager.py)
 - **Mechanism**: Physical directory structures in `learning/knowledge/` partitioned into `lessons/`, `anti-patterns/`, `exemplars/`, and `principles/`. Each item is stored as an independent JSON artifact indexed in `index.jsonl`.
 - **Evidence**: Verified in `tests/test_academic_knowledge_system.py`.
 
 ### 5. Skill-Level Memory (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_knowledge_manager.py)
+- **Location**: [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_knowledge_manager.py)
 - **Mechanism**: Per-skill subdirectories under `learning/skill-memory/<skill-name>/` tracking lessons, anti-patterns, exemplars, and behavioral indexes specific to that skill.
 - **Evidence**: Verified in `tests/test_academic_adaptive_context.py`.
 
 ### 6. Adaptive Behavior Context (`IMPLEMENTED`)
-- **Location**: [`.agents/skills/academic-adaptive-context/SKILL.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/skills/academic-adaptive-context/SKILL.md) & [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_knowledge_manager.py)
+- **Location**: [`.agents/skills/academic-adaptive-context/SKILL.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/skills/academic-adaptive-context/SKILL.md) & [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_knowledge_manager.py)
 - **Mechanism**: `retrieve_pre_task_context()` queries active lessons, anti-patterns, and exemplars matching task domain tags and injects bounded briefings into agent pre-flight declarations. Enforces domain isolation (`ATK-07`) and active contradiction suppression (`ATK-06`).
 - **Evidence**: Verified in `tests/test_academic_adaptive_context.py` and `tests/test_academic_red_team_remediation.py`.
 
 ### 7. Exemplars (`IMPLEMENTED`)
-- **Location**: `learning/knowledge/exemplars/` & [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_knowledge_manager.py)
+- **Location**: `learning/knowledge/exemplars/` & [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_knowledge_manager.py)
 - **Mechanism**: Curated gold-standard examples of successful plans, tables, and reporting text, indexed and retrieved by domain tags.
 - **Evidence**: Verified in `tests/test_academic_knowledge_system.py`.
 
 ### 8. Anti-Patterns (`IMPLEMENTED`)
-- **Location**: `learning/knowledge/anti-patterns/` & [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_knowledge_manager.py)
+- **Location**: `learning/knowledge/anti-patterns/` & [`scripts/academic_knowledge_manager.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_knowledge_manager.py)
 - **Mechanism**: Formally codified behavioral anti-patterns detailing exact triggers, flawed actions, diagnostic indicators, and corrective actions.
 - **Evidence**: Verified in `tests/test_academic_knowledge_system.py`.
 
@@ -126,67 +126,67 @@ Each of the 23 architectural components specified for evaluation has been inspec
 - **Evidence**: Physical agent configurations verified in `.agents/agents/` and registered in Antigravity configuration.
 
 ### 10. Evaluation Laboratory (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_evaluation_lab.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_evaluation_lab.py)
+- **Location**: [`scripts/academic_evaluation_lab.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_evaluation_lab.py)
 - **Mechanism**: Test execution harness running evaluation suites (`target`, `regression`, `adversarial`, `heldout`), computing property-level pass/fail diagnostics.
 - **Evidence**: Verified in `tests/test_academic_evaluation_lab.py`.
 
 ### 11. Regression Generation (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_regression_synthesizer.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_regression_synthesizer.py)
+- **Location**: [`scripts/academic_regression_synthesizer.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_regression_synthesizer.py)
 - **Mechanism**: Automatically transforms failed trajectories into permanent regression test cases (`EVAL-CASE-REG-*.json`) in `learning/evaluations/regression/`.
 - **Evidence**: Verified in `tests/test_academic_regression_synthesizer.py`.
 
 ### 12. Counterfactual Evaluation (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_counterfactual_evaluator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_counterfactual_evaluator.py)
+- **Location**: [`scripts/academic_counterfactual_evaluator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_counterfactual_evaluator.py)
 - **Mechanism**: Side-by-side evaluation of baseline vs candidate across 8 dimensions: correctness, methodology, statistical validity, evidence grounding, integrity, robustness, consistency, efficiency. Computes differential score $\Delta$ and checks for overfitting (`check_overfitting`).
 - **Evidence**: Verified in `tests/test_academic_counterfactual_evaluator.py` and `tests/test_academic_red_team_remediation.py`.
 
 ### 13. Candidate Evolution (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_candidate_generator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_candidate_generator.py)
+- **Location**: [`scripts/academic_candidate_generator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py)
 - **Mechanism**: Generates candidate improvements (`CAND-*`) categorized by risk tier (LOW, MEDIUM, HIGH) with exact instruction diffs, exemplars, or anti-patterns.
 - **Evidence**: Verified in `tests/test_academic_candidate_generator.py`.
 
 ### 14. Promotion Engine (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_promotion_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_promotion_engine.py)
+- **Location**: [`scripts/academic_promotion_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_promotion_engine.py)
 - **Mechanism**: Enforces the 6-stage candidate lifecycle: `OBSERVED → LESSON → CANDIDATE → EVALUATED → VALIDATED → ACTIVE`. Enforces risk policies (LOW auto-promotes if all 5 gates pass; MEDIUM requires review; HIGH strictly prohibited from auto-mutation). Enforces minimum evidence count ($\ge 3$ distinct evaluation cases) and preserves pre-promotion snapshots.
 - **Evidence**: Verified in `tests/test_academic_promotion_engine.py` and `tests/test_academic_red_team_remediation.py`.
 
 ### 15. Held-Out Evaluation (`IMPLEMENTED`)
-- **Location**: `learning/evaluations/heldout/` & [`scripts/academic_evaluation_lab.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_evaluation_lab.py)
+- **Location**: `learning/evaluations/heldout/` & [`scripts/academic_evaluation_lab.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_evaluation_lab.py)
 - **Mechanism**: Evaluates candidate generalizations on unseen benchmark cases protected by `manifest.sha256` cryptographic tamper-detection.
 - **Evidence**: Verified in `tests/test_academic_evaluation_lab.py`.
 
 ### 16. Adversarial Evaluation (`IMPLEMENTED`)
-- **Location**: `learning/evaluations/adversarial/` & [`scripts/academic_evaluation_lab.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_evaluation_lab.py)
+- **Location**: `learning/evaluations/adversarial/` & [`scripts/academic_evaluation_lab.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_evaluation_lab.py)
 - **Mechanism**: Tests edge cases, boundary perturbations, corrupted data, and p-hacking lures to ensure candidate robustness.
 - **Evidence**: Verified in `tests/test_academic_evaluation_lab.py`.
 
 ### 17. Curriculum System (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_curriculum_builder.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_curriculum_builder.py)
+- **Location**: [`scripts/academic_curriculum_builder.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_curriculum_builder.py)
 - **Mechanism**: Discovers weaknesses from evaluation history and generates 10-level statistics and 5-level writing progression tasks. Enforces `MINIMUM_COMPLEXITY_FLOOR = 3` (`ATK-10`) and psychometric parameter sanity checks (`ATK-11`).
 - **Evidence**: Verified in `tests/test_academic_curriculum_builder.py` and `tests/test_academic_red_team_remediation.py`.
 
 ### 18. Fast Loop (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_dual_loop_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_dual_loop_engine.py) & [`scripts/academic_integrated_learning_hub.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py)
+- **Location**: [`scripts/academic_dual_loop_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_dual_loop_engine.py) & [`scripts/academic_integrated_learning_hub.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_integrated_learning_hub.py)
 - **Mechanism**: Immediate post-task loop: `TASK → EXPERIENCE → FEEDBACK → LESSON → CANDIDATE → SMALL EVALUATION → PROMOTE/REJECT`. Rate-limited to prevent continual rewrites of the same skill.
 - **Evidence**: Verified in `tests/test_academic_dual_loop_engine.py` and `tests/test_academic_integrated_learning_hub.py`.
 
 ### 19. Slow Loop (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_dual_loop_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_dual_loop_engine.py)
+- **Location**: [`scripts/academic_dual_loop_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_dual_loop_engine.py)
 - **Mechanism**: Periodic deep loop: `HISTORY → FIND RECURRING WEAKNESSES → GENERATE CURRICULUM → GENERATE CANDIDATE IMPROVEMENTS → LARGE EVALUATION → ADVERSARIAL TEST → HELD-OUT TEST → PROMOTION`.
 - **Evidence**: Verified in `tests/test_academic_dual_loop_engine.py`.
 
 ### 20. Consolidation Engine (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_behavior_consolidator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_behavior_consolidator.py)
+- **Location**: [`scripts/academic_behavior_consolidator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_behavior_consolidator.py)
 - **Mechanism**: Periodic knowledge pruning: detects duplicates and contradictions, merges compatible lessons, retires obsolete rules, preserves provenances, and enforces Directive 18 single-view ceilings ($\le 500$ lines, $\le 40,000$ bytes) with offloading to `references/` (`ATK-09`).
 - **Evidence**: Verified in `tests/test_academic_behavior_consolidator.py` and `tests/test_academic_red_team_remediation.py`.
 
 ### 21. Drift Detection (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_behavior_drift_monitor.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_behavior_drift_monitor.py)
+- **Location**: [`scripts/academic_behavior_drift_monitor.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_behavior_drift_monitor.py)
 - **Mechanism**: Builds behavioral profiles across 8 dimensions. Post-promotion regression runs detect cross-capability performance drops and unexplained methodological divergences, writing audit reports to `learning/reports/drift/`.
 - **Evidence**: Verified in `tests/test_academic_behavior_drift_monitor.py`.
 
 ### 22. Rollback Mechanism (`IMPLEMENTED`)
-- **Location**: [`scripts/academic_promotion_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_promotion_engine.py) & [`scripts/academic_behavior_drift_monitor.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_behavior_drift_monitor.py)
+- **Location**: [`scripts/academic_promotion_engine.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_promotion_engine.py) & [`scripts/academic_behavior_drift_monitor.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_behavior_drift_monitor.py)
 - **Mechanism**: `deactivate_candidate()` moves candidates from `ACTIVE` to `DEACTIVATED`, automatically restoring the pre-promotion snapshot from `learning/promotions/snapshots/`.
 - **Evidence**: Verified in `tests/test_academic_behavior_drift_monitor.py`.
 

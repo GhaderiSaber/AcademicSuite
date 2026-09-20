@@ -23,34 +23,34 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 
 | Category | Agent Name | Primary Mandate | Behavioral Contract |
 | :--- | :--- | :--- | :--- |
-| Domain Specialist Subagent | `academic-challenger` | Adversarial methodology, bias & statistical challenger | [contract.md](../../.agents/agents/academic-challenger/contract.md) |
-| Core Primary Agent (Phase 3) | `academic-orchestrator` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/academic-orchestrator/contract.md) |
-| Core Primary Agent (Phase 3) | `academic-writer` | Master academic chapter drafter, Persian rhetoric specialist & durable writing authority | [contract.md](../../.agents/agents/academic-writer/contract.md) |
-| Core Primary Agent (Phase 3) | `data-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/data-agent/contract.md) |
-| Domain Specialist Subagent | `data-curator` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/data-curator/contract.md) |
-| Domain Specialist Subagent | `digital-saber` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/digital-saber/contract.md) |
-| Domain Specialist Subagent | `evidence-auditor` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/evidence-auditor/contract.md) |
-| Domain Specialist Subagent | `final-judge` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/final-judge/contract.md) |
-| Domain Specialist Subagent | `intervention-designer` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/intervention-designer/contract.md) |
-| Domain Specialist Subagent | `journal-strategist` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/journal-strategist/contract.md) |
-| Domain Specialist Subagent | `literature-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/literature-expert/contract.md) |
-| Domain Specialist Subagent | `longitudinal-modmed-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/longitudinal-modmed-expert/contract.md) |
-| Domain Specialist Subagent | `meta-analyst` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/meta-analyst/contract.md) |
-| Domain Specialist Subagent | `methodology-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/methodology-expert/contract.md) |
-| Domain Specialist Subagent | `psychometric-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/psychometric-expert/contract.md) |
-| Domain Specialist Subagent | `qualitative-analyst` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/qualitative-analyst/contract.md) |
-| Core Primary Agent (Phase 3) | `research-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/research-agent/contract.md) |
-| Domain Specialist Subagent | `results-auditor` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/results-auditor/contract.md) |
-| Domain Specialist Subagent | `statistical-auditor` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/statistical-auditor/contract.md) |
-| Domain Specialist Subagent | `statistical-expert` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/statistical-expert/contract.md) |
-| Core Primary Agent (Phase 3) | `statistics-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/statistics-agent/contract.md) |
-| Core Primary Agent (Phase 3) | `validation-agent` | Specialized academic/statistical mandate | [contract.md](../../.agents/agents/validation-agent/contract.md) |
-| Continuous Learning Subagent | `behavior-analyst` | Causal root-cause analysis and diagnosis of agent behavior | [contract.md](../../.agents/agents/behavior-analyst/contract.md) |
-| Continuous Learning Subagent | `curriculum-builder` | Graduated complexity benchmark scenarios and practice tasks | [contract.md](../../.agents/agents/curriculum-builder/contract.md) |
-| Continuous Learning Subagent | `evaluation-agent` | Deterministic evaluation lab harness and counterfactual tests | [contract.md](../../.agents/agents/evaluation-agent/contract.md) |
-| Continuous Learning Subagent | `knowledge-curator` | Synthesis of episodic experiences into reusable knowledge | [contract.md](../../.agents/agents/knowledge-curator/contract.md) |
-| Continuous Learning Subagent | `skill-evolver` | Candidate Skill mutations and behavioral instructions diffs | [contract.md](../../.agents/agents/skill-evolver/contract.md) |
-| Continuous Learning Subagent | `trajectory-analyzer` | Reconstructs observable tool calls, exit codes, and artifacts | [contract.md](../../.agents/agents/trajectory-analyzer/contract.md) |
+| Domain Specialist Subagent | `academic-challenger` | Adversarial methodology, bias & statistical challenger | [contract.md](../.agents/agents/academic-challenger/contract.md) |
+| Core Primary Agent (Phase 3) | `academic-orchestrator` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/academic-orchestrator/contract.md) |
+| Core Primary Agent (Phase 3) | `academic-writer` | Master academic chapter drafter, Persian rhetoric specialist & durable writing authority | [contract.md](../.agents/agents/academic-writer/contract.md) |
+| Core Primary Agent (Phase 3) | `data-agent` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/data-agent/contract.md) |
+| Domain Specialist Subagent | `data-curator` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/data-curator/contract.md) |
+| Domain Specialist Subagent | `digital-saber` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/digital-saber/contract.md) |
+| Domain Specialist Subagent | `evidence-auditor` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/evidence-auditor/contract.md) |
+| Domain Specialist Subagent | `final-judge` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/final-judge/contract.md) |
+| Domain Specialist Subagent | `intervention-designer` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/intervention-designer/contract.md) |
+| Domain Specialist Subagent | `journal-strategist` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/journal-strategist/contract.md) |
+| Domain Specialist Subagent | `literature-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/literature-expert/contract.md) |
+| Domain Specialist Subagent | `longitudinal-modmed-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/longitudinal-modmed-expert/contract.md) |
+| Domain Specialist Subagent | `meta-analyst` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/meta-analyst/contract.md) |
+| Domain Specialist Subagent | `methodology-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/methodology-expert/contract.md) |
+| Domain Specialist Subagent | `psychometric-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/psychometric-expert/contract.md) |
+| Domain Specialist Subagent | `qualitative-analyst` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/qualitative-analyst/contract.md) |
+| Core Primary Agent (Phase 3) | `research-agent` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/research-agent/contract.md) |
+| Domain Specialist Subagent | `results-auditor` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/results-auditor/contract.md) |
+| Domain Specialist Subagent | `statistical-auditor` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/statistical-auditor/contract.md) |
+| Domain Specialist Subagent | `statistical-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/statistical-expert/contract.md) |
+| Core Primary Agent (Phase 3) | `statistics-agent` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/statistics-agent/contract.md) |
+| Core Primary Agent (Phase 3) | `validation-agent` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/validation-agent/contract.md) |
+| Continuous Learning Subagent | `behavior-analyst` | Causal root-cause analysis and diagnosis of agent behavior | [contract.md](../.agents/agents/behavior-analyst/contract.md) |
+| Continuous Learning Subagent | `curriculum-builder` | Graduated complexity benchmark scenarios and practice tasks | [contract.md](../.agents/agents/curriculum-builder/contract.md) |
+| Continuous Learning Subagent | `evaluation-agent` | Deterministic evaluation lab harness and counterfactual tests | [contract.md](../.agents/agents/evaluation-agent/contract.md) |
+| Continuous Learning Subagent | `knowledge-curator` | Synthesis of episodic experiences into reusable knowledge | [contract.md](../.agents/agents/knowledge-curator/contract.md) |
+| Continuous Learning Subagent | `skill-evolver` | Candidate Skill mutations and behavioral instructions diffs | [contract.md](../.agents/agents/skill-evolver/contract.md) |
+| Continuous Learning Subagent | `trajectory-analyzer` | Reconstructs observable tool calls, exit codes, and artifacts | [contract.md](../.agents/agents/trajectory-analyzer/contract.md) |
 
 ---
 

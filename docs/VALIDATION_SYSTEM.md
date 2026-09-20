@@ -61,7 +61,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
 ## 2. Directory of Deterministic Validators (`validators/`)
 
 ### 1. `validators/data_integrity/`
-- **Script:** [`validators/data_integrity/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/validators/data_integrity/validator.py)
+- **Script:** [`validators/data_integrity/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/validators/data_integrity/validator.py)
 - **Target Deliverables:** `data_cleaned.xlsx`, `00_data_curation_report.json`
 - **Evaluated Signals:**
   - Missingness threshold check ($< 5\%$ allowed for EM imputation; $> 15\%$ requires case exclusion).
@@ -70,7 +70,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
   - Little's MCAR test: Flags `FAIL` if missingness is MAR/MNAR ($p \le .05$) without appropriate handling.
 
 ### 2. `validators/numerical_consistency/`
-- **Script:** [`validators/numerical_consistency/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/validators/numerical_consistency/validator.py)
+- **Script:** [`validators/numerical_consistency/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/validators/numerical_consistency/validator.py)
 - **Target Deliverables:** `stats_results.json`, `<stage>.json`
 - **Evaluated Signals:**
   - Degrees of freedom concordance:
@@ -81,7 +81,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
   - Multi-Signal Anomaly Index (MSAI) computation ($0-100$).
 
 ### 3. `validators/statistical_assumptions/`
-- **Script:** [`validators/statistical_assumptions/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/validators/statistical_assumptions/validator.py)
+- **Script:** [`validators/statistical_assumptions/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/validators/statistical_assumptions/validator.py)
 - **Target Deliverables:** `03_parametric_assumptions.json`, `assumptions.json`
 - **Evaluated Signals:**
   - Univariate Normality: Shapiro-Wilk test ($p > .05$) and Skewness/Kurtosis within $[-0.85, +0.85]$.
@@ -90,7 +90,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
   - Multicollinearity: Collinearity diagnostics (VIF $< 5.0$, Tolerance $> .20$).
 
 ### 4. `validators/result_consistency/`
-- **Script:** [`validators/result_consistency/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/validators/result_consistency/validator.py)
+- **Script:** [`validators/result_consistency/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/validators/result_consistency/validator.py)
 - **Target Deliverables:** Synchronized Triad (`<stage>.json` vs. `<stage>.md` vs. `<stage>.docx`)
 - **Evaluated Signals:**
   - Cross-artifact numerical fidelity: Extracts exact test statistics (*t, F, p, \beta, d*) from `.json` and scans `.md` and `.docx` text.
@@ -98,7 +98,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
   - Verifies sample size $N$ is invariant across all 3 files.
 
 ### 5. `validators/reporting_consistency/`
-- **Script:** [`validators/reporting_consistency/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/validators/reporting_consistency/validator.py)
+- **Script:** [`validators/reporting_consistency/validator.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/validators/reporting_consistency/validator.py)
 - **Target Deliverables:** `<stage>.md`, `<stage>.docx`
 - **Evaluated Signals:**
   - Persian Leading Zero Standard: Scans text for `.۰۰۱` or `.۰۵` without leading zero. Flags `FAIL` under Directive 4.
@@ -111,7 +111,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
 
 ## 3. Master Unified Validator CLI Runner
 
-The suite is orchestrated via [`validators/run_all_validators.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/validators/run_all_validators.py):
+The suite is orchestrated via [`validators/run_all_validators.py`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/validators/run_all_validators.py):
 
 ```bash
 python3 validators/run_all_validators.py --stage-dir projects/active/ch4/stage_4_6_1
