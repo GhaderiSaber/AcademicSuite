@@ -100,11 +100,22 @@
     },
     "return_payload": {
       "type": "object",
-      "description": "Filled upon subagent completion.",
+      "description": "Filled upon subagent completion. Under Phase 21, must contain artifact, evidence, status, and validation.",
       "properties": {
         "status": {
           "type": "string",
-          "enum": ["SUCCESS", "FAILURE", "BLOCKED"]
+          "enum": ["SUCCESS", "FAILURE", "FAILED", "BLOCKED"]
+        },
+        "artifact": {
+          "description": "Deliverable files produced on disk (array or object)."
+        },
+        "evidence": {
+          "type": "object",
+          "description": "Exact statistical parameters, test statistics, and findings."
+        },
+        "validation": {
+          "type": "object",
+          "description": "Validation verdict and report details."
         },
         "produced_artifacts": {
           "type": "array",

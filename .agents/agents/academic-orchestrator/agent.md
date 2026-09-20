@@ -174,8 +174,28 @@ To prevent context bloat and instruction drift:
    1. Generate synchronized triad artifacts on disk in `<state-dir>/outputs/`: `.docx`, `.md`, `.json`.
    2. Never calculate statistics in LLM memory. Run deterministic scripts via `run_command`.
    3. Strictly use ASCII English filenames (Directive 6).
-   4. On completion, return a concise Handoff Envelope pointing to the generated disk artifacts.
+   4. On completion, return a structured Handoff Envelope containing the mandatory 4 parts: artifact, evidence, status, and validation (not simply 'done').
    ```
+
+---
+
+## 🚦 Strict State Progression & Worker Return Invariants (Phase 21)
+
+### 1. Sequential State Machine Flow
+The Orchestrator CANNOT bypass workflow states simply because it has tools (`invoke_subagent`, `send_message`, etc.). Progression MUST strictly step through:
+$$\text{LOCKED} \rightarrow \text{READY} \rightarrow \text{RUNNING} \rightarrow \text{VALIDATING} \rightarrow \text{AWAITING\_APPROVAL} \rightarrow \text{APPROVED} \rightarrow \text{NEXT\_STAGE}$$
+- Skipping any intermediate stage (e.g. `LOCKED -> RUNNING`, `RUNNING -> APPROVED`, `VALIDATING -> APPROVED`, `AWAITING_APPROVAL -> NEXT_STAGE`) is physically blocked by the state machine and fail-closed hooks (`InvalidStateTransitionError`).
+- Advancing to `NEXT_STAGE` requires the current stage to be in `STAGE_APPROVED` status.
+
+### 2. Mandatory 4-Part Worker Return Structure
+When specialist subagents complete a delegated task, they **MUST** return a structured payload containing:
+1. `artifact`: Non-empty list of generated deliverable files on disk (`.docx`, `.md`, `.json`).
+2. `evidence`: Exact computational test statistics, sample size, degrees of freedom, effect sizes ($t, F, p, \eta^2, M, SD$).
+3. `status`: Machine-readable execution status (`SUCCESS` | `FAILED` | `BLOCKED`).
+4. `validation`: Independent validation verdict (`PASS` | `FAIL`) and check report details.
+
+**Strict Prohibition of Trivial Returns**:
+Workers must **NEVER** return simply `"done"`, `"completed"`, or unstructured text. Any return payload returning `"done"` or lacking any of the 4 mandatory blocks is strictly rejected by both the state machine and secondary enforcement hooks (`InvalidWorkerReturnError`).
 
 ---
 

@@ -149,10 +149,11 @@ class IntegrityHooks:
             "STAGE_RUNNING": {"STAGE_VALIDATING", "STAGE_FAILED", "STAGE_BLOCKED"},
             "STAGE_VALIDATING": {"STAGE_AWAITING_APPROVAL", "STAGE_FAILED", "STAGE_BLOCKED"},
             "STAGE_AWAITING_APPROVAL": {"STAGE_APPROVED", "STAGE_REJECTED"},
-            "STAGE_APPROVED": {"STAGE_RUNNING"},  # Explicit iteration / re-run
+            "STAGE_APPROVED": {"STAGE_RUNNING", "NEXT_STAGE"},  # Explicit iteration or advance to NEXT_STAGE
             "STAGE_REJECTED": {"STAGE_READY", "STAGE_LOCKED"},
             "STAGE_FAILED": {"STAGE_READY", "STAGE_BLOCKED"},
             "STAGE_BLOCKED": {"STAGE_READY", "STAGE_LOCKED"},
+            "NEXT_STAGE": set(),
         }
 
         for ws in workspaces:
@@ -206,6 +207,58 @@ class IntegrityHooks:
                                         f"Stage '{stage_id}' in '{root}' is marked 'STAGE_APPROVED' but lacks an "
                                         f"authoritative approval record in approvals.json. Explicit human approval is required."
                                     )
+                    except Exception:
+                        pass
+        return True, ""
+
+    @staticmethod
+    def verify_worker_returns(workspaces: List[str]) -> Tuple[bool, str]:
+        """
+        Secondary Enforcement (Worker Return Invariant Guard - Phase 21):
+        Verifies that worker subagent returns recorded in state or handoffs contain:
+        artifact, evidence, status, validation (not simply 'done').
+        """
+        try:
+            from validators.worker_return_validator import validate_worker_return_payload
+        except ImportError:
+            try:
+                from worker_return_validator import validate_worker_return_payload
+            except ImportError:
+                validate_worker_return_payload = None
+
+        if validate_worker_return_payload is None:
+            return True, ""
+
+        for ws in workspaces:
+            for root, dirs, files in os.walk(ws):
+                if "current_state.json" in files:
+                    cs_path = os.path.join(root, "current_state.json")
+                    try:
+                        with open(cs_path, "r", encoding="utf-8") as f:
+                            cs = json.load(f)
+                        stages = cs.get("stages", {})
+                        for stage_id, sdata in stages.items():
+                            if not isinstance(sdata, dict):
+                                continue
+                            w_ret = sdata.get("worker_return")
+                            if w_ret is not None:
+                                val_res = validate_worker_return_payload(w_ret)
+                                if not val_res.get("valid"):
+                                    err_msg = "; ".join(val_res.get("errors", ["Invalid worker return"]))
+                                    return False, (
+                                        f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
+                                        f"Stage '{stage_id}' in '{root}' recorded an invalid worker return: {err_msg}"
+                                    )
+                            for trn in sdata.get("history", []):
+                                if isinstance(trn, dict) and "worker_return" in trn:
+                                    hw_ret = trn["worker_return"]
+                                    val_res = validate_worker_return_payload(hw_ret)
+                                    if not val_res.get("valid"):
+                                        err_msg = "; ".join(val_res.get("errors", ["Invalid worker return"]))
+                                        return False, (
+                                            f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
+                                            f"Stage '{stage_id}' in '{root}' history recorded an invalid worker return: {err_msg}"
+                                        )
                     except Exception:
                         pass
         return True, ""
@@ -485,6 +538,11 @@ class IntegrityHooks:
 
         # 3. State Machine Consistency (Invalid State Transition Detection)
         ok, reason = IntegrityHooks.verify_state_transitions(workspaces)
+        if not ok:
+            return {"decision": "continue", "reason": reason}
+
+        # 3.5 Worker Return Structure (Phase 21 Invariant)
+        ok, reason = IntegrityHooks.verify_worker_returns(workspaces)
         if not ok:
             return {"decision": "continue", "reason": reason}
 

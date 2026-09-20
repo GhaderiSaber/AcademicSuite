@@ -632,6 +632,22 @@ class SafetyHooks:
                     )
                 }
 
+        # 8. Worker Return Payload Guard (send_message / Phase 21 Invariant)
+        if name == "send_message":
+            msg = args.get("Message", "")
+            if isinstance(msg, str):
+                cleaned = msg.strip().lower()
+                trivial_patterns = {"done", "done.", "completed", "completed.", "finished", "finished.", "all done", "all done."}
+                if cleaned in trivial_patterns:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Phase 21 - Worker Return Invariant): "
+                            f"Worker subagents cannot return simply '{msg}'. Return payloads must be structured "
+                            f"and contain: 'artifact', 'evidence', 'status', 'validation'."
+                        )
+                    }
+
         return {"decision": "allow"}
 
     @staticmethod

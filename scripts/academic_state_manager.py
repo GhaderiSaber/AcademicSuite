@@ -170,6 +170,10 @@ class DirectStageMutationBlockedError(StateManagementError):
     """Raised when attempting direct stage mutation via set_stage() in production mode."""
     pass
 
+class InvalidWorkerReturnError(StateManagementError):
+    """Raised when a worker subagent return payload violates the structured return contract (e.g. returning simply 'done')."""
+    pass
+
 
 # Phase 8 Stage Manifest Exception Hierarchy
 class StageManifestError(StateManagementError):
@@ -237,19 +241,22 @@ class StageState(str, Enum):
     STAGE_REJECTED = "STAGE_REJECTED"
     STAGE_FAILED = "STAGE_FAILED"
     STAGE_BLOCKED = "STAGE_BLOCKED"
+    NEXT_STAGE = "NEXT_STAGE"
 
 
 # Legal Directed Transition Graphs (Fail-Closed)
+# Pipeline Progression: LOCKED -> READY -> RUNNING -> VALIDATING -> AWAITING_APPROVAL -> APPROVED -> NEXT_STAGE
 STAGE_LEGAL_TRANSITIONS: Dict[StageState, Set[StageState]] = {
     StageState.STAGE_LOCKED: {StageState.STAGE_READY, StageState.STAGE_BLOCKED},
     StageState.STAGE_READY: {StageState.STAGE_RUNNING, StageState.STAGE_BLOCKED},
     StageState.STAGE_RUNNING: {StageState.STAGE_VALIDATING, StageState.STAGE_FAILED, StageState.STAGE_BLOCKED},
     StageState.STAGE_VALIDATING: {StageState.STAGE_AWAITING_APPROVAL, StageState.STAGE_FAILED, StageState.STAGE_BLOCKED},
     StageState.STAGE_AWAITING_APPROVAL: {StageState.STAGE_APPROVED, StageState.STAGE_REJECTED},
-    StageState.STAGE_APPROVED: {StageState.STAGE_RUNNING},  # Explicit iteration / re-run
+    StageState.STAGE_APPROVED: {StageState.STAGE_RUNNING, StageState.NEXT_STAGE},  # Explicit re-run or advance to NEXT_STAGE
     StageState.STAGE_REJECTED: {StageState.STAGE_READY, StageState.STAGE_LOCKED},
     StageState.STAGE_FAILED: {StageState.STAGE_READY, StageState.STAGE_BLOCKED},
     StageState.STAGE_BLOCKED: {StageState.STAGE_READY, StageState.STAGE_LOCKED},
+    StageState.NEXT_STAGE: set(),
 }
 
 PROJECT_LEGAL_TRANSITIONS: Dict[ProjectState, Set[ProjectState]] = {
@@ -987,6 +994,7 @@ class StrictStateMachine:
         rationale: str = "",
         authorization: Optional[Dict[str, Any]] = None,
         execution_info: Optional[Dict[str, Any]] = None,
+        worker_return: Optional[Union[Dict[str, Any], str]] = None,
         check_artifacts: bool = True,
         mode: str = "production"
     ) -> Dict[str, Any]:
@@ -1064,6 +1072,31 @@ class StrictStateMachine:
                             f"Stage '{target_id}' cannot transition to {target_enum.value} because prerequisite stage '{dep_id}' is in state '{dep_status}' "
                             f"(must be STAGE_APPROVED)."
                         )
+
+            # 2.5 Validate Worker Return Payload (Phase 21 Invariant)
+            # A worker subagent must return: artifact, evidence, status, validation (not simply 'done')
+            w_return = worker_return
+            if w_return is None and execution_info and "worker_return" in execution_info:
+                w_return = execution_info["worker_return"]
+
+            if current_enum == StageState.STAGE_RUNNING and target_enum == StageState.STAGE_VALIDATING:
+                if w_return is not None:
+                    try:
+                        from validators.worker_return_validator import validate_worker_return_payload
+                    except ImportError:
+                        try:
+                            from worker_return_validator import validate_worker_return_payload
+                        except ImportError:
+                            validate_worker_return_payload = None
+
+                    if validate_worker_return_payload is not None:
+                        val_res = validate_worker_return_payload(w_return)
+                        if not val_res.get("valid"):
+                            err_details = "; ".join(val_res.get("errors", ["Invalid worker return"]))
+                            raise InvalidWorkerReturnError(
+                                f"Stage '{target_id}' cannot transition to STAGE_VALIDATING: worker return payload failed validation: {err_details}"
+                            )
+                        stage_data["worker_return"] = val_res.get("payload")
 
             # 3. Validate Artifacts
             if check_artifacts:
@@ -1246,7 +1279,10 @@ class StrictStateMachine:
 
             # 5. Commit Transition
             transition_id = f"TRN-{uuid.uuid4().hex[:6].upper()}"
-            stage_data["status"] = target_enum.value
+            if target_enum != StageState.NEXT_STAGE:
+                stage_data["status"] = target_enum.value
+            else:
+                stage_data["status"] = StageState.STAGE_APPROVED.value
             stage_data["updated_at"] = now_iso
             transition_record = {
                 "transition_id": transition_id,
@@ -1259,6 +1295,8 @@ class StrictStateMachine:
                 "rationale": rationale,
                 "execution_info": execution_info or {}
             }
+            if w_return and isinstance(w_return, dict):
+                transition_record["worker_return"] = w_return
             stage_data.setdefault("history", []).append(transition_record)
 
             if target_enum == StageState.STAGE_RUNNING:
@@ -1294,6 +1332,63 @@ class StrictStateMachine:
                                 "rationale": f"All prerequisites approved by completion of '{target_id}'"
                             })
 
+            elif target_enum == StageState.NEXT_STAGE:
+                # Find the next stage to activate in the pipeline sequence
+                next_stage_id = None
+                for s_id, s_data in self.stages.items():
+                    if target_id in s_data.get("dependencies", []):
+                        next_stage_id = s_id
+                        break
+
+                if not next_stage_id:
+                    stage_keys = list(self.stages.keys())
+                    if target_id in stage_keys:
+                        idx = stage_keys.index(target_id)
+                        if idx + 1 < len(stage_keys):
+                            next_stage_id = stage_keys[idx + 1]
+
+                if not next_stage_id:
+                    default_ids = [s["stage_id"] for s in DEFAULT_STAGE_GRAPH]
+                    if target_id in default_ids:
+                        d_idx = default_ids.index(target_id)
+                        if d_idx + 1 < len(default_ids):
+                            next_stage_id = default_ids[d_idx + 1]
+
+                if next_stage_id:
+                    if next_stage_id not in self.stages:
+                        matched_next = next((s for s in DEFAULT_STAGE_GRAPH if s["stage_id"] == next_stage_id), None)
+                        if matched_next:
+                            self.register_stage(
+                                stage_id=matched_next["stage_id"],
+                                title=matched_next["title"],
+                                initial_status=matched_next["initial_status"],
+                                dependencies=matched_next["dependencies"],
+                                required_input_artifacts=matched_next["required_input_artifacts"],
+                                required_output_artifacts=matched_next["required_output_artifacts"],
+                                active_agent=matched_next["active_agent"]
+                            )
+
+                    next_stage_data = self.stages[next_stage_id]
+                    if next_stage_data.get("status") == StageState.STAGE_LOCKED.value:
+                        next_stage_data["status"] = StageState.STAGE_READY.value
+                        next_stage_data["updated_at"] = now_iso
+                        next_stage_data.setdefault("history", []).append({
+                            "transition_id": f"TRN-{uuid.uuid4().hex[:6].upper()}",
+                            "target_type": "STAGE",
+                            "target_id": next_stage_id,
+                            "from_state": StageState.STAGE_LOCKED.value,
+                            "to_state": StageState.STAGE_READY.value,
+                            "timestamp": now_iso,
+                            "actor": actor,
+                            "rationale": f"Unlocked by advancing from approved stage '{target_id}'"
+                        })
+                    self._sync_project_current_stage(next_stage_id, status=next_stage_data["status"])
+                    transition_record["next_stage_id"] = next_stage_id
+                    transition_record["next_stage_status"] = next_stage_data["status"]
+                else:
+                    self._sync_project_current_stage(target_id, status=StageState.STAGE_APPROVED.value)
+                    transition_record["next_stage_id"] = None
+
             self.save_all()
 
             # 6. Emit Event
@@ -1306,6 +1401,7 @@ class StrictStateMachine:
                 StageState.STAGE_REJECTED: "MILESTONE_REJECTED",
                 StageState.STAGE_FAILED: "MILESTONE_FAILED",
                 StageState.STAGE_BLOCKED: "MILESTONE_FAILED",
+                StageState.NEXT_STAGE: "MILESTONE_STARTED",
             }
 
             if current_enum == StageState.STAGE_RUNNING and target_enum == StageState.STAGE_VALIDATING:
@@ -1326,14 +1422,18 @@ class StrictStateMachine:
                 payload={"details": transition_record}
             )
 
-            return {
-                "status": "TRANSITIONED",
+            res_obj = {
+                "status": "TRANSITIONED" if (target_enum != StageState.NEXT_STAGE or transition_record.get("next_stage_id")) else "PIPELINE_COMPLETED",
                 "target_type": "STAGE",
                 "target_id": target_id,
                 "from_state": current_enum.value,
                 "to_state": target_enum.value,
                 "transition": transition_record
             }
+            if target_enum == StageState.NEXT_STAGE:
+                res_obj["next_stage_id"] = transition_record.get("next_stage_id")
+                res_obj["next_stage_status"] = transition_record.get("next_stage_status")
+            return res_obj
 
         elif target_type_upper == "PROJECT":
             # 1. Validate Target State
@@ -1421,6 +1521,25 @@ class StrictStateMachine:
 
         else:
             raise StateManagementError(f"Target type must be 'STAGE' or 'PROJECT', got '{target_type}'.")
+
+    def advance_to_next_stage(
+        self,
+        current_stage_id: str,
+        actor: str = "academic-orchestrator",
+        rationale: str = ""
+    ) -> Dict[str, Any]:
+        """
+        Advances the workflow to NEXT_STAGE following stage approval.
+        Enforces the sequential transition chain:
+        LOCKED -> READY -> RUNNING -> VALIDATING -> AWAITING_APPROVAL -> APPROVED -> NEXT_STAGE.
+        Raises InvalidStateTransitionError if current_stage_id is not in STAGE_APPROVED status.
+        """
+        return self.request_transition(
+            target_id=current_stage_id,
+            target_state=StageState.NEXT_STAGE,
+            actor=actor,
+            rationale=rationale or f"Advance from approved stage '{current_stage_id}' to next pipeline stage."
+        )
 
     def request_approval(self, milestone_id: str, category: str, requester_agent: str,
                          rationale: str, target_artifacts: Optional[List[str]] = None) -> Dict[str, Any]:
@@ -2173,6 +2292,7 @@ def request_transition(
     rationale: str = "",
     authorization: Optional[Dict[str, Any]] = None,
     execution_info: Optional[Dict[str, Any]] = None,
+    worker_return: Optional[Union[Dict[str, Any], str]] = None,
     check_artifacts: bool = True,
     mode: str = "production"
 ) -> Dict[str, Any]:
@@ -2191,9 +2311,25 @@ def request_transition(
         rationale=rationale,
         authorization=authorization,
         execution_info=execution_info,
+        worker_return=worker_return,
         check_artifacts=check_artifacts,
         mode=mode
     )
+
+
+def advance_to_next_stage(
+    project_path: str,
+    stage_id: str,
+    actor: str = "academic-orchestrator",
+    rationale: str = ""
+) -> Dict[str, Any]:
+    """
+    Top-level entry point to advance an approved stage to NEXT_STAGE.
+    Raises InvalidStateTransitionError if the current stage is not STAGE_APPROVED.
+    """
+    state_dir = get_state_dir(project_path)
+    sm = StrictStateMachine(state_dir=state_dir, project_id=os.path.basename(os.path.abspath(project_path)))
+    return sm.advance_to_next_stage(current_stage_id=stage_id, actor=actor, rationale=rationale)
 
 
 def set_stage(project_path: str, stage: str, status: Optional[str] = None, mode: str = "production") -> Dict[str, Any]:
@@ -2364,7 +2500,15 @@ def main():
     p_req_trans.add_argument("--actor", default="academic-orchestrator", help="Acting agent")
     p_req_trans.add_argument("--rationale", default="", help="Transition rationale")
     p_req_trans.add_argument("--approval-id", default=None, help="Approval ID if applicable")
+    p_req_trans.add_argument("--worker-return", default=None, help="Worker return JSON string or filepath")
     p_req_trans.add_argument("--mode", default="production", choices=["production", "demo", "test", "simulation"], help="Execution mode")
+
+    # advance-stage (Phase 21: advance approved stage to NEXT_STAGE)
+    p_adv = subparsers.add_parser("advance-stage", help="Advance approved stage to NEXT_STAGE")
+    p_adv.add_argument("project_path", help="Path to project directory")
+    p_adv.add_argument("--stage", required=True, help="Current stage ID (must be STAGE_APPROVED)")
+    p_adv.add_argument("--actor", default="academic-orchestrator", help="Acting agent")
+    p_adv.add_argument("--rationale", default="", help="Epistemic rationale")
 
     # transition
     p_trans = subparsers.add_parser("transition", help="Transition milestone state in state machine")
@@ -2428,6 +2572,16 @@ def main():
         auth = None
         if args.approval_id:
             auth = next((a for a in sm.approvals if a.get("approval_id") == args.approval_id), None)
+        w_ret = None
+        if getattr(args, "worker_return", None):
+            if os.path.isfile(args.worker_return):
+                with open(args.worker_return, "r", encoding="utf-8") as wf:
+                    w_ret = json.load(wf)
+            else:
+                try:
+                    w_ret = json.loads(args.worker_return)
+                except Exception:
+                    w_ret = args.worker_return
         res = sm.request_transition(
             target_id=args.target_id,
             target_state=args.to_state,
@@ -2435,8 +2589,11 @@ def main():
             actor=args.actor,
             rationale=args.rationale,
             authorization=auth,
+            worker_return=w_ret,
             mode=args.mode
         )
+    elif args.command == "advance-stage":
+        res = advance_to_next_stage(args.project_path, args.stage, actor=args.actor, rationale=args.rationale)
     elif args.command == "transition":
         state_dir = get_state_dir(args.project_path)
         sm = StrictStateMachine(state_dir=state_dir)

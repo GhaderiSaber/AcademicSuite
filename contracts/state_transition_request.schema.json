@@ -45,6 +45,7 @@
         "STAGE_REJECTED",
         "STAGE_FAILED",
         "STAGE_BLOCKED",
+        "NEXT_STAGE",
         "PROJECT_APPROVED",
         "PROJECT_REJECTED"
       ],
