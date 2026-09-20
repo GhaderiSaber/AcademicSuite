@@ -19,6 +19,11 @@ import re
 import stat
 from typing import Dict, Any, List, Optional, Tuple
 
+try:
+    from hook_seen import emit_hook_seen
+except ImportError:
+    from .hook_seen import emit_hook_seen
+
 MUTATION_TOOLS = (
     "write_to_file",
     "replace_file_content",
@@ -168,6 +173,7 @@ class SafetyHooks:
         3. Outside-workspace protection & ASCII filename standard (Directive 6)
         4. Dangerous shell command interception
         """
+        emit_hook_seen(payload, event="PreToolUse")
         tool_call = payload.get("toolCall", {})
         name = tool_call.get("name", "")
         args = tool_call.get("args", {})

@@ -32,10 +32,12 @@ try:
     from safety_hooks import SafetyHooks
     from integrity_hooks import IntegrityHooks
     from learning_hooks import LearningHooks
+    from hook_seen import emit_hook_seen
 except ImportError:
     from .safety_hooks import SafetyHooks
     from .integrity_hooks import IntegrityHooks
     from .learning_hooks import LearningHooks
+    from .hook_seen import emit_hook_seen
 
 
 def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
@@ -123,6 +125,7 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     is_main = is_main_agent_developer(payload)
 
     if event_upper == "PreToolUse":
+        emit_hook_seen(payload, event="PreToolUse")
         # Class A: Safety Hooks
         # Note: safety_hooks.py permits code mutation tools for Main Agent and only blocks them for academic-orchestrator.
         safety_res = SafetyHooks.handle_pre_tool_use(payload)
@@ -134,6 +137,7 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         return safety_res
 
     elif event_upper == "PostToolUse":
+        emit_hook_seen(payload, event="PostToolUse")
         # Class C: Learning Hooks (Trajectory capture)
         learning_res = LearningHooks.capture_agent_trajectory(payload)
         return learning_res
