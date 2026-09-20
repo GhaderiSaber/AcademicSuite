@@ -55,6 +55,10 @@ class LearningHooks:
             state_dir = None
             if workspaces:
                 for ws in workspaces:
+                    cand_agents = os.path.join(ws, ".agents", "state")
+                    if os.path.isdir(cand_agents):
+                        state_dir = cand_agents
+                        break
                     cand = os.path.join(ws, "state")
                     if os.path.isdir(cand):
                         state_dir = cand
@@ -64,7 +68,8 @@ class LearningHooks:
                         state_dir = cand_alt
                         break
                 if not state_dir and workspaces:
-                    state_dir = os.path.join(workspaces[0], "state")
+                    cand_agents = os.path.join(workspaces[0], ".agents", "state")
+                    state_dir = cand_agents if os.path.isdir(cand_agents) else os.path.join(workspaces[0], "state")
             return TrajectoryEngine(state_dir=state_dir, project_root=ROOT_DIR)
         except Exception as e:
             sys.stderr.write(f"[learning_hooks] Error initializing TrajectoryEngine: {e}\n")
