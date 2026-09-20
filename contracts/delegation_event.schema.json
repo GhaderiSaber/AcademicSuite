@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/delegation_event.schema.json",
+  "title": "DelegationEventContract",
+  "description": "Authoritative contract schema for observable subagent delegation events in AcademicSuite (Phase 23). Enforces the 8 mandatory fields: parent_agent, child_agent, task_id, timestamp, objective, input_artifacts, output_artifacts, status.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "parent_agent",
+    "child_agent",
+    "task_id",
+    "timestamp",
+    "objective",
+    "input_artifacts",
+    "output_artifacts",
+    "status"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "default": "1.0.0"
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Unique identifier for this delegation event (e.g. EVT-DEL-20260920-001)."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "SUBAGENT_REQUESTED",
+        "SUBAGENT_STARTED",
+        "SUBAGENT_COMPLETED",
+        "SUBAGENT_FAILED",
+        "ARTIFACT_RETURNED"
+      ],
+      "description": "Canonical lifecycle stage of the delegated subagent."
+    },
+    "parent_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The delegating authority agent (e.g. academic-orchestrator)."
+    },
+    "child_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The specialist worker subagent (e.g. statistics-agent, data-agent, academic-writer)."
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique identifier for the delegated task contract (e.g. TSK-2026-CH4-001)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of the observable delegation event."
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unambiguous scholarly or operational objective assigned to the child agent."
+    },
+    "input_artifacts": {
+      "type": "array",
+      "description": "List of input datasets, artifacts, or parameters provided to the child agent.",
+      "items": {
+        "oneOf": [
+          {"type": "string", "minLength": 1},
+          {
+            "type": "object",
+            "required": ["path"],
+            "properties": {
+              "path": {"type": "string", "minLength": 1},
+              "sha256": {"type": "string"}
+            }
+          }
+        ]
+      }
+    },
+    "output_artifacts": {
+      "type": "array",
+      "description": "List of expected or produced deliverable files on disk.",
+      "items": {
+        "oneOf": [
+          {"type": "string", "minLength": 1},
+          {
+            "type": "object",
+            "required": ["path"],
+            "properties": {
+              "path": {"type": "string", "minLength": 1},
+              "sha256": {"type": "string"}
+            }
+          }
+        ]
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "REQUESTED",
+        "STARTED",
+        "RUNNING",
+        "SUCCESS",
+        "COMPLETED",
+        "FAILED",
+        "RETURNED",
+        "BLOCKED"
+      ],
+      "description": "Observable status of the child subagent at this event milestone."
+    },
+    "details": {
+      "type": "object",
+      "description": "Additional execution telemetry, exit code, error messages, or statistics."
+    }
+  },
+  "additionalProperties": true
+}

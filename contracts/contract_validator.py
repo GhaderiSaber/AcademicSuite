@@ -77,7 +77,9 @@ SCHEMA_FILES = {
     "confidence_evidence": "evolution/confidence_evidence.schema.json",
     "knowledge_retrieval": "evolution/knowledge_retrieval.schema.json",
     "curriculum_case": "evolution/curriculum_case.schema.json",
-    "academic_benchmark_case": "evolution/academic_benchmark_case.schema.json"
+    "academic_benchmark_case": "evolution/academic_benchmark_case.schema.json",
+    "delegation_contract": "delegation_contract.schema.json",
+    "delegation_event": "delegation_event.schema.json"
 }
 
 
@@ -288,4 +290,12 @@ def validate_academic_benchmark_case(instance: Dict[str, Any]) -> Dict[str, Any]
 
 def validate_teamwork_pattern(instance: Dict[str, Any]) -> Dict[str, Any]:
     return validate_contract(instance, "teamwork_pattern")
+
+
+def validate_delegation_contract(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "delegation_contract")
+
+
+def validate_delegation_event(instance: Dict[str, Any]) -> Dict[str, Any]:
+    return validate_contract(instance, "delegation_event")
 

@@ -86,7 +86,7 @@ VALIDATION_INDICATORS = [
 
 
 class TrajectoryEventType(str, Enum):
-    """Canonical 11 observable trajectory events."""
+    """Observable trajectory events (tool lifecycle and subagent delegation)."""
     TOOL_CALLED = "TOOL_CALLED"
     TOOL_RETURNED = "TOOL_RETURNED"
     FILE_READ = "FILE_READ"
@@ -98,6 +98,12 @@ class TrajectoryEventType(str, Enum):
     VALIDATION_STARTED = "VALIDATION_STARTED"
     VALIDATION_FAILED = "VALIDATION_FAILED"
     USER_CORRECTION = "USER_CORRECTION"
+    # Phase 23 Delegation Events
+    SUBAGENT_REQUESTED = "SUBAGENT_REQUESTED"
+    SUBAGENT_STARTED = "SUBAGENT_STARTED"
+    SUBAGENT_COMPLETED = "SUBAGENT_COMPLETED"
+    SUBAGENT_FAILED = "SUBAGENT_FAILED"
+    ARTIFACT_RETURNED = "ARTIFACT_RETURNED"
 
 
 class PrivateChainOfThoughtLeakError(Exception):
@@ -500,7 +506,9 @@ class TrajectoryEngine:
                     "COMMAND_STARTED", "COMMAND_FINISHED", "AGENT_INVOKED", "AGENT_RETURNED",
                     "VALIDATION_STARTED", "VALIDATION_FAILED", "USER_CORRECTION",
                     "TOOL_CALL", "SKILL_INVOCATION", "SUBAGENT_DELEGATION",
-                    "DECISION_FORMULATION", "ARTIFACT_GENERATION", "VALIDATION_CHECK", "HANDOFF_RETURN"
+                    "DECISION_FORMULATION", "ARTIFACT_GENERATION", "VALIDATION_CHECK", "HANDOFF_RETURN",
+                    "SUBAGENT_REQUESTED", "SUBAGENT_STARTED", "SUBAGENT_COMPLETED", "SUBAGENT_FAILED",
+                    "ARTIFACT_RETURNED"
                 ] else "TOOL_CALL",
                 "actor": actor,
                 "timestamp": ts,
@@ -537,15 +545,77 @@ class TrajectoryEngine:
                         "duration_seconds": details.get("duration_seconds", 1.0)
                     })
 
-            # Subagent delegation collection
-            elif etype == TrajectoryEventType.AGENT_INVOKED.value:
-                subagent_delegations.append({
-                    "delegator": actor,
-                    "delegatee": details.get("subagent_role") or details.get("subagent_type") or "specialist",
-                    "stage_id": task_id,
-                    "envelope_summary": details.get("prompt_summary", "Delegated subagent task"),
-                    "status": "COMPLETED" if outcome == "SUCCESS" else "FAILED"
-                })
+            # Subagent delegation collection (Observable Delegation Invariant - Phase 23)
+            elif etype in [
+                TrajectoryEventType.AGENT_INVOKED.value,
+                TrajectoryEventType.SUBAGENT_REQUESTED.value,
+                TrajectoryEventType.SUBAGENT_STARTED.value,
+                TrajectoryEventType.SUBAGENT_COMPLETED.value,
+                TrajectoryEventType.SUBAGENT_FAILED.value,
+                TrajectoryEventType.ARTIFACT_RETURNED.value
+            ]:
+                parent_agent = ev.get("parent_agent") or actor or "academic-orchestrator"
+                child_agent = (
+                    ev.get("child_agent") or
+                    details.get("child_agent") or
+                    details.get("subagent_role") or
+                    details.get("subagent_type") or
+                    "specialist"
+                )
+                t_id = ev.get("task_id") or details.get("task_id") or task_id
+                obj = ev.get("objective") or details.get("objective") or details.get("prompt_summary", "Delegated subagent task")
+                in_arts = ev.get("input_artifacts") or details.get("input_artifacts", [])
+                out_arts = ev.get("output_artifacts") or details.get("output_artifacts", [])
+
+                if etype in [TrajectoryEventType.SUBAGENT_COMPLETED.value, TrajectoryEventType.ARTIFACT_RETURNED.value]:
+                    del_status = "COMPLETED"
+                elif etype == TrajectoryEventType.SUBAGENT_FAILED.value:
+                    del_status = "FAILED"
+                elif etype == TrajectoryEventType.SUBAGENT_STARTED.value:
+                    del_status = "STARTED"
+                elif etype == TrajectoryEventType.SUBAGENT_REQUESTED.value:
+                    del_status = "REQUESTED"
+                else:
+                    del_status = "COMPLETED" if outcome == "SUCCESS" else "FAILED"
+
+                # Check if this subagent delegation is already in subagent_delegations
+                existing = None
+                for d in subagent_delegations:
+                    if (d.get("stage_id") == t_id or d.get("task_id") == t_id) and (
+                        d.get("delegatee") == child_agent or d.get("child_agent") == child_agent
+                    ):
+                        existing = d
+                        break
+
+                handoff_path = ""
+                if out_arts:
+                    first_art = out_arts[0]
+                    handoff_path = first_art.get("path") if isinstance(first_art, dict) else str(first_art)
+
+                if existing:
+                    existing["status"] = del_status
+                    if obj:
+                        existing["envelope_summary"] = obj
+                        existing["objective"] = obj
+                    if out_arts:
+                        existing["output_artifacts"] = out_arts
+                    if handoff_path:
+                        existing["handoff_artifact_path"] = handoff_path
+                else:
+                    subagent_delegations.append({
+                        "delegator": parent_agent,
+                        "delegatee": child_agent,
+                        "parent_agent": parent_agent,
+                        "child_agent": child_agent,
+                        "stage_id": t_id,
+                        "task_id": t_id,
+                        "envelope_summary": obj,
+                        "objective": obj,
+                        "status": del_status,
+                        "input_artifacts": in_arts,
+                        "output_artifacts": out_arts,
+                        "handoff_artifact_path": handoff_path or details.get("handoff_artifact_path", "")
+                    })
 
             # Validation event collection
             elif etype == TrajectoryEventType.VALIDATION_FAILED.value:

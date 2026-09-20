@@ -83,7 +83,7 @@ class TestTrajectoryRecordingPhase15(unittest.TestCase):
             self.assertEqual(evt["model_name"], "gemini-2.5-pro")
 
         loaded = self.engine.load_events()
-        self.assertEqual(len(loaded), 11)
+        self.assertEqual(len(loaded), len(TrajectoryEventType))
         loaded_types = {e["event_type"] for e in loaded}
         for etype in TrajectoryEventType:
             self.assertIn(etype.value, loaded_types)

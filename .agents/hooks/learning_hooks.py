@@ -81,6 +81,88 @@ class LearningHooks:
         )
 
     @staticmethod
+    def _get_delegation_engine(payload: Dict[str, Any]):
+        """Helper to obtain a DelegationEventEngine instance for the active workspace."""
+        try:
+            from scripts.delegation_event_engine import DelegationEventEngine
+            workspaces = payload.get("workspacePaths", [])
+            state_dir = None
+            if workspaces:
+                for ws in workspaces:
+                    cand = os.path.join(ws, "state")
+                    if os.path.isdir(cand):
+                        state_dir = cand
+                        break
+                    cand_alt = os.path.join(ws, "academic-state")
+                    if os.path.isdir(cand_alt):
+                        state_dir = cand_alt
+                        break
+                if not state_dir and workspaces:
+                    state_dir = os.path.join(workspaces[0], "state")
+            return DelegationEventEngine(state_dir=state_dir, project_root=ROOT_DIR)
+        except Exception as e:
+            sys.stderr.write(f"[learning_hooks] Error initializing DelegationEventEngine: {e}\n")
+            return None
+
+    @staticmethod
+    def _extract_delegation_fields(sa: Dict[str, Any], payload: Dict[str, Any], parent_agent: str) -> Dict[str, Any]:
+        """Extracts the 8 mandatory delegation fields from subagent call."""
+        prompt = sa.get("Prompt", "") if isinstance(sa, dict) else ""
+        child_agent = sa.get("TypeName") or sa.get("Role") or payload.get("child_agent") or "specialist"
+
+        task_id = None
+        objective = None
+        input_artifacts = []
+        output_artifacts = []
+
+        if prompt.strip().startswith("{") and prompt.strip().endswith("}"):
+            try:
+                data = json.loads(prompt)
+                task_id = data.get("task_id")
+                objective = data.get("objective")
+                input_artifacts = data.get("inputs") or data.get("input_artifacts") or []
+                output_artifacts = data.get("required_artifacts") or data.get("output_artifacts") or []
+            except Exception:
+                pass
+
+        if not task_id:
+            m_id = re.search(r"(?:task_id|Task ID|task):\s*([A-Za-z0-9_\-]+)", prompt, re.IGNORECASE)
+            if m_id:
+                task_id = m_id.group(1).strip()
+            else:
+                task_id = payload.get("taskId") or f"TSK-DEL-{str(child_agent).upper().replace('-', '_')}"
+
+        if not objective:
+            m_obj = re.search(r"(?:objective|Objective):\s*([^\n\r]+)", prompt, re.IGNORECASE)
+            if m_obj:
+                objective = m_obj.group(1).strip()
+            else:
+                first_line = prompt.split("\n")[0].strip() if prompt else ""
+                objective = first_line[:150] if first_line else f"Execute {child_agent} workflow"
+
+        if not input_artifacts:
+            paths = re.findall(r"(?:[\w\-./]+(?:\.xlsx|\.csv|\.sav|\.json|\.parquet|\.txt|\.docx|\.md))", prompt)
+            input_artifacts = list(dict.fromkeys(paths[:5]))
+
+        if not output_artifacts:
+            out_matches = re.findall(r"(?:expected|required|output|deliverable)[^\n:]*:\s*([^\n]+)", prompt, re.IGNORECASE)
+            if out_matches:
+                for om in out_matches:
+                    p = re.findall(r"(?:[\w\-./]+(?:\.xlsx|\.csv|\.sav|\.json|\.parquet|\.txt|\.docx|\.md))", om)
+                    output_artifacts.extend(p)
+            output_artifacts = list(dict.fromkeys(output_artifacts[:5]))
+
+        return {
+            "parent_agent": parent_agent,
+            "child_agent": child_agent,
+            "task_id": task_id,
+            "objective": objective,
+            "input_artifacts": input_artifacts,
+            "output_artifacts": output_artifacts
+        }
+
+
+    @staticmethod
     def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         PreToolUse hook: intercepts tool invocations before execution.
@@ -150,6 +232,7 @@ class LearningHooks:
 
             elif tool_name == "invoke_subagent":
                 subagents = tool_args.get("Subagents", [])
+                del_engine = LearningHooks._get_delegation_engine(payload)
                 for sa in subagents:
                     engine.record_event(
                         TrajectoryEventType.AGENT_INVOKED,
@@ -161,6 +244,30 @@ class LearningHooks:
                         },
                         actor=actor
                     )
+                    # Phase 23: Record SUBAGENT_REQUESTED and SUBAGENT_STARTED
+                    d_fields = LearningHooks._extract_delegation_fields(sa, payload, actor)
+                    if del_engine:
+                        try:
+                            del_engine.record_subagent_requested(
+                                parent_agent=d_fields["parent_agent"],
+                                child_agent=d_fields["child_agent"],
+                                task_id=d_fields["task_id"],
+                                objective=d_fields["objective"],
+                                input_artifacts=d_fields["input_artifacts"],
+                                output_artifacts=d_fields["output_artifacts"],
+                                details={"prompt_summary": sa.get("Prompt", "")[:200], "model": sa.get("Model", "")}
+                            )
+                            del_engine.record_subagent_started(
+                                parent_agent=d_fields["parent_agent"],
+                                child_agent=d_fields["child_agent"],
+                                task_id=d_fields["task_id"],
+                                objective=d_fields["objective"],
+                                input_artifacts=d_fields["input_artifacts"],
+                                output_artifacts=d_fields["output_artifacts"],
+                                details={"prompt_summary": sa.get("Prompt", "")[:200], "model": sa.get("Model", "")}
+                            )
+                        except Exception as e_rec:
+                            sys.stderr.write(f"[learning_hooks] Delegation record start error: {e_rec}\n")
 
         except Exception as e:
             sys.stderr.write(f"[learning_hooks] PreToolUse error: {e}\n")
@@ -385,6 +492,47 @@ class LearningHooks:
                         },
                         actor=actor
                     )
+                    # Phase 23: Record SUBAGENT_COMPLETED / SUBAGENT_FAILED and ARTIFACT_RETURNED
+                    subagents = tool_args.get("Subagents", [])
+                    del_engine = LearningHooks._get_delegation_engine(payload)
+                    if del_engine:
+                        targets = subagents if subagents else [{"TypeName": payload.get("child_agent", "specialist"), "Prompt": ""}]
+                        for sa in targets:
+                            d_fields = LearningHooks._extract_delegation_fields(sa, payload, actor)
+                            try:
+                                if error:
+                                    del_engine.record_subagent_failed(
+                                        parent_agent=d_fields["parent_agent"],
+                                        child_agent=d_fields["child_agent"],
+                                        task_id=d_fields["task_id"],
+                                        objective=d_fields["objective"],
+                                        error_message=str(error),
+                                        input_artifacts=d_fields["input_artifacts"],
+                                        output_artifacts=d_fields["output_artifacts"],
+                                        details={"error": error}
+                                    )
+                                else:
+                                    del_engine.record_subagent_completed(
+                                        parent_agent=d_fields["parent_agent"],
+                                        child_agent=d_fields["child_agent"],
+                                        task_id=d_fields["task_id"],
+                                        objective=d_fields["objective"],
+                                        output_artifacts=d_fields["output_artifacts"],
+                                        input_artifacts=d_fields["input_artifacts"],
+                                        details={"status": "SUCCESS"}
+                                    )
+                                    if d_fields["output_artifacts"]:
+                                        del_engine.record_artifact_returned(
+                                            parent_agent=d_fields["parent_agent"],
+                                            child_agent=d_fields["child_agent"],
+                                            task_id=d_fields["task_id"],
+                                            objective=d_fields["objective"],
+                                            output_artifacts=d_fields["output_artifacts"],
+                                            input_artifacts=d_fields["input_artifacts"],
+                                            details={"status": "RETURNED"}
+                                        )
+                            except Exception as e_ret:
+                                sys.stderr.write(f"[learning_hooks] Delegation record return error: {e_ret}\n")
 
         except Exception as e:
             sys.stderr.write(f"[learning_hooks] Error writing trajectory events: {e}\n")

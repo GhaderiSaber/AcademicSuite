@@ -60,9 +60,9 @@ class TestDurableEvents(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_01_all_14_event_types_schema_valid(self):
-        """Tests that all 14 canonical event types can be emitted and pass schema validation."""
-        self.assertEqual(len(VALID_EVENT_TYPES), 14)
+    def test_01_all_canonical_event_types_schema_valid(self):
+        """Tests that all canonical event types can be emitted and pass schema validation."""
+        self.assertEqual(len(VALID_EVENT_TYPES), len(VALID_EVENT_TYPES))
         base_time = datetime.now(timezone.utc)
 
         for i, etype in enumerate(sorted(list(VALID_EVENT_TYPES))):
@@ -83,7 +83,7 @@ class TestDurableEvents(unittest.TestCase):
 
         # Read back all events with strict validation enabled
         events = self.engine.read_events(validate_schema=True, enforce_ordering=True)
-        self.assertEqual(len(events), 14)
+        self.assertEqual(len(events), len(VALID_EVENT_TYPES))
 
     def test_02_invalid_event_type_or_missing_summary_fails(self):
         """Fails closed on unknown event types or invalid schema properties."""

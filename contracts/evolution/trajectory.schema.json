@@ -69,7 +69,12 @@
               "DECISION_FORMULATION",
               "ARTIFACT_GENERATION",
               "VALIDATION_CHECK",
-              "HANDOFF_RETURN"
+              "HANDOFF_RETURN",
+              "SUBAGENT_REQUESTED",
+              "SUBAGENT_STARTED",
+              "SUBAGENT_COMPLETED",
+              "SUBAGENT_FAILED",
+              "ARTIFACT_RETURNED"
             ]
           },
           "actor": {
@@ -177,10 +182,28 @@
           },
           "status": {
             "type": "string",
-            "enum": ["COMPLETED", "FAILED", "RETRY_REQUESTED"]
+            "enum": ["COMPLETED", "FAILED", "RETRY_REQUESTED", "REQUESTED", "STARTED", "RUNNING", "SUCCESS", "RETURNED", "BLOCKED"]
           },
           "handoff_artifact_path": {
             "type": "string"
+          },
+          "parent_agent": {
+            "type": "string"
+          },
+          "child_agent": {
+            "type": "string"
+          },
+          "task_id": {
+            "type": "string"
+          },
+          "objective": {
+            "type": "string"
+          },
+          "input_artifacts": {
+            "type": "array"
+          },
+          "output_artifacts": {
+            "type": "array"
           }
         },
         "additionalProperties": false
