@@ -344,13 +344,13 @@ def validate_agent_spec(
                     "Specialist subagents cannot invoke or manage other subagents."
                 )
 
-    # Tool permissions: Pure critics must not have mutating or command execution tools
-    if spec.name in {"academic-challenger", "results-auditor"}:
+    # Tool permissions: Pure critics & auditors must not have mutating or command execution tools
+    if spec.name in {"academic-challenger", "results-auditor", "evidence-auditor", "final-judge"}:
         disallowed_critic_tools = {"run_command", "replace_file_content"}
         for tool in spec.tools:
             if tool in disallowed_critic_tools:
                 raise AgentValidationError(
-                    f"Unauthorized tool '{tool}' for critic role '{spec.name}'. Critic roles must remain read-only."
+                    f"Unauthorized tool '{tool}' for critic role '{spec.name}'. Auditor and critic roles must remain evaluative and reporting only."
                 )
 
     # 7. Valid Skills
@@ -959,7 +959,7 @@ def get_all_target_agent_specs() -> Dict[str, AgentSpec]:
             tools=[
                 "invoke_subagent", "manage_subagents", "send_message",
                 "view_file", "list_dir", "grep_search", "find_by_name",
-                "write_to_file", "run_command",
+                "write_to_file",
             ],
             skills=["thesis-integrity-auditor", "persian-defense-presentation-builder"],
             agents=["validation-agent", "statistical-auditor", "academic-challenger"],

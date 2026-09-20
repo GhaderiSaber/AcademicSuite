@@ -13,7 +13,7 @@ This document freezes and records the exact tool access, skill bindings, executi
 
 ### Key Privilege Metrics (N = 28 Agents)
 - **Can Delegate (`invoke_subagent`):** 4 agents (14.3%) — `academic-orchestrator`, `digital-saber`, `methodology-expert`, `statistical-expert`
-- **Can Execute Code (`run_command`):** 17 agents (60.7%)
+- **Can Execute Code (`run_command`):** 16 agents (57.1%)
 - **Can Write Files (`write_to_file` / `replace_file_content`):** 27 agents (96.4%) — Only `trajectory-analyzer` is strictly read-only
 - **Can Act as Main Agent (`mainAgent: true`):** 4 agents (14.3%) — `academic-orchestrator`, `digital-saber`, `methodology-expert`, `statistical-expert`
 - **Can Act as Subagent (`subagent: true`):** 28 agents (100.0%)
@@ -24,7 +24,7 @@ This document freezes and records the exact tool access, skill bindings, executi
 
 | # | Agent Name | Tier | Main | Sub | Code Exec (`run_command`) | Write Files | Delegate (`invoke_subagent`) | Primary Bound Skills |
 |---|---|---|:---:|:---:|:---:|:---:|:---:|---|
-| 1 | `academic-challenger` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
+| 1 | `academic-challenger` | Tier 4 (Critic) | No | Yes | **No** | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 2 | `academic-orchestrator` | Tier 1 (Lead) | Yes | Yes | **No** | **No** | **Yes** | `academic-suite-orchestrator`, `academic-adaptive-context`, `digital-twin-academic-consultant`, `thesis-integrity-auditor` |
 | 3 | `academic-writer` | Tier 2 (Domain) | No | Yes | Yes | Yes | No | `chapter-4-writing`, `persian-literature-review-builder`, `persian-discussion-builder`, `persian-thesis-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `apa-reporting`, `psychological-intervention-protocol-builder`, `journal-submission-assistant`, `persian-defense-presentation-builder` |
 | 4 | `behavior-analyst` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
@@ -34,7 +34,7 @@ This document freezes and records the exact tool access, skill bindings, executi
 | 8 | `digital-saber` | Tier 1 (Lead) | Yes | Yes | Yes | Yes | Yes | `academic-suite-orchestrator`, `digital-twin-academic-consultant`, `thesis-integrity-auditor`, `chapter-4-writing`, `persian-thesis-revision-assistant` |
 | 9 | `evaluation-agent` | Tier 5 (Learning) | No | Yes | Yes | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
 | 10 | `evidence-auditor` | Tier 2 (Domain) | No | Yes | **No** | Yes | No | `thesis-integrity-auditor`, `irandoc-plagiarism-reducer`, `academic-reference-extractor` |
-| 11 | `final-judge` | Tier 2 (Domain) | Yes | Yes | Yes | Yes | No | `thesis-integrity-auditor`, `persian-defense-presentation-builder` |
+| 11 | `final-judge` | Tier 2 (Domain) | No | Yes | **No** | Yes | No | `thesis-integrity-auditor`, `persian-defense-presentation-builder` |
 | 12 | `intervention-designer` | Tier 3 (Worker) | No | Yes | No | Yes | No | `psychological-intervention-protocol-builder`, `persian-proposal-builder` |
 | 13 | `journal-strategist` | Tier 4 (Critic) | No | Yes | **No** | Yes | No | `journal-submission-assistant`, `academic-article-writer` |
 | 14 | `knowledge-curator` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
@@ -282,7 +282,7 @@ agent:
 
 agent:
   name: final-judge
-  mainAgent: true
+  mainAgent: false
   subagent: true
   tools:
     - view_file
@@ -290,12 +290,11 @@ agent:
     - grep_search
     - find_by_name
     - write_to_file
-    - run_command
   skills:
     - thesis-integrity-auditor
     - persian-defense-presentation-builder
   mcpServers: []
-  can_execute_code: true
+  can_execute_code: false
   can_write: true
   can_delegate: false
   intended_role: "Viva Voce Defense Simulator, Institutional Gatekeeper & Release Authority"

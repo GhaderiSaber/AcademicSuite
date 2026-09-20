@@ -171,8 +171,8 @@ class TestEndToEndIntegration(unittest.TestCase):
             with open(agent_md, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            if role == "statistical-expert":
-                self.assertNotIn("- run_command", content, "statistical-expert must not declare run_command")
+            if role in ("statistical-expert", "final-judge", "evidence-auditor"):
+                self.assertNotIn("- run_command", content, f"{role} must not declare run_command")
             elif role in ("academic-writer", "evidence-auditor", "final-judge"):
                 self.assertNotIn("- invoke_subagent", content, f"{role} must not declare invoke_subagent")
 

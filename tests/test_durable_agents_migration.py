@@ -148,8 +148,8 @@ class TestDurableAgentsMigration(unittest.TestCase):
                 f"academic-orchestrator must NOT have {forbidden_tool} (strictly managerial; code execution belongs to specialists).",
             )
 
-        # statistical-expert, methodology-expert, and evidence-auditor must NOT have run_command
-        for no_run_name in ("statistical-expert", "methodology-expert", "evidence-auditor"):
+        # statistical-expert, methodology-expert, evidence-auditor, and final-judge must NOT have run_command
+        for no_run_name in ("statistical-expert", "methodology-expert", "evidence-auditor", "final-judge"):
             no_run_file = os.path.join(AGENTS_DIR, no_run_name, "agent.md")
             with open(no_run_file, "r", encoding="utf-8") as f:
                 fm_no_run = yaml.safe_load(f.read().split("---")[1])
