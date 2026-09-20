@@ -341,6 +341,7 @@ agents:
     subagent: true
     can_delegate: false
     can_execute_code: true
+    execution_justification: "Deterministic validation test harness, contract verification, and artifact completeness execution worker."
     can_write_files: true
     required:
       - view_file
@@ -362,6 +363,7 @@ agents:
     subagent: true
     can_delegate: false
     can_execute_code: true
+    execution_justification: "Deterministic statistical verification, degrees-of-freedom concordance, and MSAI anomaly calculation."
     can_write_files: true
     required:
       - view_file

@@ -209,6 +209,16 @@ class AgentIntegrityValidator:
         self.canonical_agents: Dict[str, Dict[str, Any]] = {}
         self.delegation_graph: Dict[str, List[str]] = {}
         self.issues: List[Dict[str, Any]] = []
+        self.policy: Optional[Dict[str, Any]] = None
+
+    def _get_policy(self) -> Optional[Dict[str, Any]]:
+        """Safely loads or returns cached capability policy."""
+        if self.policy is None and load_capability_policy is not None:
+            try:
+                self.policy = load_capability_policy(self.policy_path)
+            except Exception:
+                self.policy = None
+        return self.policy
 
     def run_validation(self) -> Dict[str, Any]:
         """
@@ -243,11 +253,14 @@ class AgentIntegrityValidator:
         # Step 3: Graph-level validation (cycles & delegation semantics)
         self._validate_delegation_graph()
 
-        # Step 4: Machine-checkable capability policy validation (Phase 12 SSOT)
+        # Step 4: Capability boundaries validation (Phase 13)
+        self._validate_capability_boundaries()
+
+        # Step 5: Machine-checkable capability policy validation (Phase 12 SSOT)
         if self.enforce_capability_policy:
             self._validate_capability_policy()
 
-        # Step 5: Overall verdict calculation
+        # Step 6: Overall verdict calculation
         fatal_count = sum(1 for i in self.issues if i.get("severity") in ("ERROR", "FATAL"))
         warning_count = sum(1 for i in self.issues if i.get("severity") == "WARNING")
 
@@ -428,6 +441,143 @@ class AgentIntegrityValidator:
                         f"only 'academic-orchestrator' may hold 'mainAgent: true'. All specialists must have 'mainAgent: false'."
                     )
 
+    def _validate_capability_boundaries(self):
+        """
+        Phase 13: Capability Boundaries Validator.
+        Enforces least-privilege operational constraints:
+        1. Academic-Orchestrator: NO run_command, NO write_to_file, NO edit_file, NO replace_file_content, YES invoke_subagent.
+        2. Execution Workers: run_command allowed and required.
+        3. Read-Only Agents: no write tools (write_to_file, replace_file_content, edit_file), no execution (run_command).
+        4. Auditors: no execution (run_command) unless explicitly justified in capability policy.
+        """
+        policy = self._get_policy()
+
+        known_execution_workers = {
+            "data-agent", "data-curator", "statistics-agent", "psychometric-expert",
+            "longitudinal-modmed-expert", "qualitative-analyst", "meta-analyst",
+            "evaluation-agent", "validation-agent", "statistical-auditor",
+            "research-agent", "literature-expert", "academic-writer",
+        }
+        known_read_only_agents = {
+            "academic-orchestrator", "behavior-analyst", "trajectory-analyzer",
+        }
+        known_auditors = {
+            "results-auditor", "evidence-auditor", "academic-challenger",
+            "final-judge", "journal-strategist", "statistical-auditor",
+        }
+
+        # 1. Academic-Orchestrator Checks
+        if "academic-orchestrator" in self.canonical_agents:
+            orch_fm = self.canonical_agents["academic-orchestrator"]
+            orch_tools = set(orch_fm.get("tools", []))
+
+            if "run_command" in orch_tools:
+                self._add_issue(
+                    "academic-orchestrator",
+                    "orchestrator_capabilities",
+                    "academic-orchestrator must NOT declare 'run_command'. Orchestrator cannot execute shell or computational scripts."
+                )
+
+            if "write_to_file" in orch_tools:
+                self._add_issue(
+                    "academic-orchestrator",
+                    "orchestrator_capabilities",
+                    "academic-orchestrator must NOT declare 'write_to_file'. Orchestrator cannot directly write project files."
+                )
+
+            if "edit_file" in orch_tools:
+                self._add_issue(
+                    "academic-orchestrator",
+                    "orchestrator_capabilities",
+                    "academic-orchestrator must NOT declare 'edit_file'. Orchestrator cannot directly edit project files."
+                )
+
+            if "replace_file_content" in orch_tools:
+                self._add_issue(
+                    "academic-orchestrator",
+                    "orchestrator_capabilities",
+                    "academic-orchestrator must NOT declare 'replace_file_content'. Orchestrator cannot modify project files."
+                )
+
+            if "invoke_subagent" not in orch_tools:
+                self._add_issue(
+                    "academic-orchestrator",
+                    "orchestrator_capabilities",
+                    "academic-orchestrator MUST declare 'invoke_subagent' to delegate execution to specialist subagents."
+                )
+
+        # 2. Execution Workers: run_command allowed and required
+        for agent_name, fm in self.canonical_agents.items():
+            is_worker = False
+            if policy and agent_name in policy.get("agents", {}):
+                spec = policy["agents"][agent_name]
+                if spec.get("role") in ("execution_worker", "writing_worker") or spec.get("can_execute_code"):
+                    is_worker = True
+            elif agent_name in known_execution_workers:
+                is_worker = True
+
+            if is_worker:
+                tools = set(fm.get("tools", []))
+                if "run_command" not in tools:
+                    self._add_issue(
+                        agent_name,
+                        "execution_workers_capabilities",
+                        f"Execution worker '{agent_name}' must declare 'run_command' to perform deterministic computation."
+                    )
+
+        # 3. Read-Only Agents: no write, no execution
+        for agent_name, fm in self.canonical_agents.items():
+            is_read_only = False
+            if policy and agent_name in policy.get("agents", {}):
+                spec = policy["agents"][agent_name]
+                if not spec.get("can_write_files", True) and not spec.get("can_execute_code", True):
+                    is_read_only = True
+            elif agent_name in known_read_only_agents:
+                is_read_only = True
+
+            if is_read_only:
+                tools = set(fm.get("tools", []))
+                write_tools = {"write_to_file", "replace_file_content", "edit_file"}
+                illegal_write = write_tools & tools
+                if illegal_write:
+                    self._add_issue(
+                        agent_name,
+                        "read_only_agents_capabilities",
+                        f"Read-only agent '{agent_name}' must NOT declare file writing tools: {sorted(illegal_write)}"
+                    )
+                if "run_command" in tools:
+                    self._add_issue(
+                        agent_name,
+                        "read_only_agents_capabilities",
+                        f"Read-only agent '{agent_name}' must NOT declare 'run_command'. Execution is forbidden."
+                    )
+
+        # 4. Auditors: no execution unless explicitly justified
+        for agent_name, fm in self.canonical_agents.items():
+            is_auditor = False
+            if policy and agent_name in policy.get("agents", {}):
+                spec = policy["agents"][agent_name]
+                if spec.get("role") in ("auditor", "critic") or "Critic" in spec.get("tier", "") or agent_name.endswith(("-auditor", "-challenger")) or agent_name == "final-judge":
+                    is_auditor = True
+            elif agent_name in known_auditors or agent_name.endswith(("-auditor", "-challenger")) or agent_name == "final-judge":
+                is_auditor = True
+
+            if is_auditor:
+                tools = set(fm.get("tools", []))
+                if "run_command" in tools:
+                    has_justification = False
+                    if policy and agent_name in policy.get("agents", {}):
+                        spec = policy["agents"][agent_name]
+                        if spec.get("execution_justification"):
+                            has_justification = True
+
+                    if not has_justification:
+                        self._add_issue(
+                            agent_name,
+                            "auditors_capabilities",
+                            f"Auditor '{agent_name}' must NOT declare 'run_command' unless explicitly justified in capability policy."
+                        )
+
     def _validate_capability_policy(self):
         """Validates canonical agents against contracts/agents/agent_capabilities.yaml SSOT."""
         try:
@@ -470,6 +620,27 @@ class AgentIntegrityValidator:
                 agent_issues = validate_agent_against_policy(name, fm, policy)
                 for issue in agent_issues:
                     self._add_issue(name, "capability_policy", issue)
+
+
+class AgentCapabilityValidator(AgentIntegrityValidator):
+    """
+    Phase 13: Specialized Agent Capability Validator.
+    Inherits all Antigravity integrity and discovery checks from AgentIntegrityValidator
+    and enforces the full suite of least-privilege capability boundaries.
+    """
+    def __init__(
+        self,
+        agents_dir: str = AGENTS_DIR,
+        skills_dir: str = SKILLS_DIR,
+        policy_path: Optional[str] = None,
+        enforce_capability_policy: bool = True,
+    ):
+        super().__init__(
+            agents_dir=agents_dir,
+            skills_dir=skills_dir,
+            policy_path=policy_path,
+            enforce_capability_policy=enforce_capability_policy,
+        )
 
 
 def main():
