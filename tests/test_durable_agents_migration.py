@@ -148,6 +148,17 @@ class TestDurableAgentsMigration(unittest.TestCase):
                 f"academic-orchestrator must NOT have {forbidden_tool} (strictly managerial; code execution belongs to specialists).",
             )
 
+        # statistical-expert and methodology-expert must NOT have run_command (planners do not execute code)
+        for planner_name in ("statistical-expert", "methodology-expert"):
+            planner_file = os.path.join(AGENTS_DIR, planner_name, "agent.md")
+            with open(planner_file, "r", encoding="utf-8") as f:
+                fm_planner = yaml.safe_load(f.read().split("---")[1])
+            self.assertNotIn(
+                "run_command",
+                fm_planner["tools"],
+                f"{planner_name} must NOT have run_command (planner role; execution belongs to statistics-agent).",
+            )
+
     def test_05_responsibility_boundaries_in_narrative_and_contract(self):
         """All 7 agents must explicitly document their CAN/CANNOT boundaries in contract and prompt."""
         expected_boundaries = {
