@@ -71,7 +71,8 @@ class TestChapter4EndToEnd(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.policy = load_capability_policy()
-        cls.project_dir = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_experimental")
+        cand_p = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_experimental")
+        cls.project_dir = cand_p if os.path.isdir(cand_p) else os.path.join(ROOT_DIR, "projects", "study_vertical_slice_experimental")
         cls.state_dir = os.path.join(cls.project_dir, "academic-state")
         cls.outputs_dir = os.path.join(cls.state_dir, "outputs")
         cls.raw_data_csv = os.path.join(cls.project_dir, "01_raw_inputs", "data_raw.csv")

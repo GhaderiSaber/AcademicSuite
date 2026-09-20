@@ -428,7 +428,8 @@ class TestDelegationContracts(unittest.TestCase):
     def test_10_orchestrator_dependency_resolver_generates_formal_contract(self):
         """format_delegation_envelope produces a formal 10-field contract and prompt."""
         from scripts.orchestrator_dependency_resolver import format_delegation_envelope
-        study_state = os.path.join(ROOT_DIR, "projects", "study_act_burnout", "academic-state")
+        cand_state = os.path.join(ROOT_DIR, "tests", "fixtures", "study_act_burnout", "academic-state")
+        study_state = cand_state if os.path.isdir(cand_state) else os.path.join(ROOT_DIR, "projects", "study_act_burnout", "academic-state")
         env = format_delegation_envelope(
             "01_demographics",
             study_state,

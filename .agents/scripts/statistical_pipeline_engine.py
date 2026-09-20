@@ -135,8 +135,8 @@ def is_sample_or_demo_data(file_path: str) -> bool:
     norm = os.path.abspath(file_path).replace("\\", "/")
     filename = os.path.basename(norm).lower()
     
-    # Path indicators
-    if "/examples/" in norm or "/fixtures/" in norm or "/sample_data/" in norm:
+    # Path indicators (allow tests/fixtures for test harness execution)
+    if "/examples/" in norm or "/sample_data/" in norm or ("/fixtures/" in norm and "/tests/fixtures/" not in norm):
         return True
     
     # Filename indicators

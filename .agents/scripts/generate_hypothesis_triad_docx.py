@@ -201,5 +201,8 @@ def create_hypothesis_triad(out_dir: str):
     return {"docx": docx_path, "md": md_path, "json": json_path}
 
 if __name__ == "__main__":
-    target = sys.argv[1] if len(sys.argv) > 1 else "projects/study_act_burnout/03_deliverables/stage_06_hypothesis_1"
+    _default_target = os.path.join(ROOT_DIR, "tests", "fixtures", "study_act_burnout", "03_deliverables", "stage_06_hypothesis_1")
+    if not os.path.isdir(_default_target):
+        _default_target = "projects/study_act_burnout/03_deliverables/stage_06_hypothesis_1"
+    target = sys.argv[1] if len(sys.argv) > 1 else _default_target
     create_hypothesis_triad(target)

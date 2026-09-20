@@ -481,8 +481,14 @@ def main():
         "content_validity", "item_analysis", "efa", "cfa", "construct_validity",
         "reliability_invariance", "irt_roc", "all"
     ])
-    parser.add_argument("--data", default="projects/study_vertical_slice_scale_validation/01_raw_inputs/data_raw.xlsx")
-    parser.add_argument("--out-dir", default="projects/study_vertical_slice_scale_validation/academic-state/analysis")
+    default_data = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_scale_validation", "01_raw_inputs", "data_raw.xlsx")
+    if not os.path.isfile(default_data):
+        default_data = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_scale_validation", "01_raw_inputs", "data_raw.xlsx")
+    default_out = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_scale_validation", "academic-state", "analysis")
+    if not os.path.isdir(os.path.dirname(default_out)):
+        default_out = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_scale_validation", "academic-state", "analysis")
+    parser.add_argument("--data", default=default_data)
+    parser.add_argument("--out-dir", default=default_out)
     args = parser.parse_args()
 
     payload = load_payload()

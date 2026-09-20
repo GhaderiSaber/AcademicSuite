@@ -62,13 +62,8 @@ class TestRealDelegationFlow(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.policy = load_capability_policy()
-        cls.raw_data_path = os.path.join(
-            ROOT_DIR,
-            "projects",
-            "study_vertical_slice_regression",
-            "01_raw_inputs",
-            "data_raw.csv",
-        )
+        cand_data = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_regression", "01_raw_inputs", "data_raw.csv")
+        cls.raw_data_path = cand_data if os.path.isfile(cand_data) else os.path.join(ROOT_DIR, "projects", "study_vertical_slice_regression", "01_raw_inputs", "data_raw.csv")
         assert os.path.isfile(cls.raw_data_path), f"Raw dataset missing: {cls.raw_data_path}"
 
     def setUp(self):

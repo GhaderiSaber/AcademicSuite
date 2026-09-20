@@ -73,5 +73,5 @@ def generate_sem_data(output_dir, n=250, seed=42):
     print(f"Generated {n} records. Saved to:\n  - {xlsx_path}\n  - {csv_path}")
 
 if __name__ == "__main__":
-    out = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_sem", "01_raw_inputs")
+    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_sem", "01_raw_inputs")
     generate_sem_data(out)

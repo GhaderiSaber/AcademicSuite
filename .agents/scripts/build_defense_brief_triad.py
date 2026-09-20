@@ -31,7 +31,8 @@ from build_scale_validation_triad_docx import (
     set_p_rtl, add_p, add_heading, add_table_header, add_table_note, populate_apa_table
 )
 
-OUT_DIR = os.path.join(ROOT_DIR, "projects/study_vertical_slice_scale_validation/academic-state/outputs")
+_cand_out = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_scale_validation", "academic-state", "outputs")
+OUT_DIR = _cand_out if os.path.isdir(os.path.dirname(_cand_out)) else os.path.join(ROOT_DIR, "projects", "study_vertical_slice_scale_validation", "academic-state", "outputs")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # -------------------------------------------------------------

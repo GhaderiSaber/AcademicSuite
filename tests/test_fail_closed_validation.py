@@ -292,9 +292,10 @@ class TestFailClosedValidation(unittest.TestCase):
     # 13. Existing Valid Projects Continue to Pass -> PASS
     # ==========================================================================
     def test_13_existing_valid_projects_pass(self):
-        """Real existing vertical slice deliverables must strictly evaluate to PASS."""
-        sem_dir = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_sem", "academic-state", "outputs")
-        reg_dir = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_regression", "academic-state", "outputs")
+        cand_sem = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_sem", "academic-state", "outputs")
+        sem_dir = cand_sem if os.path.isdir(cand_sem) else os.path.join(ROOT_DIR, "projects", "study_vertical_slice_sem", "academic-state", "outputs")
+        cand_reg = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_regression", "academic-state", "outputs")
+        reg_dir = cand_reg if os.path.isdir(cand_reg) else os.path.join(ROOT_DIR, "projects", "study_vertical_slice_regression", "academic-state", "outputs")
 
         rep_sem = run_suite(sem_dir)
         self.assertEqual(rep_sem["overall_verdict"], "PASS", f"SEM validation failed: {rep_sem.get('errors')}")

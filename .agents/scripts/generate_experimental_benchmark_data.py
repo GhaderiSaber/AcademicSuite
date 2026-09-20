@@ -179,6 +179,7 @@ def generate_experimental_dataset(output_xlsx, output_csv=None, n_per_group=30, 
 
 
 if __name__ == "__main__":
-    out_xlsx = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_experimental", "01_raw_inputs", "data_raw.xlsx")
-    out_csv = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_experimental", "01_raw_inputs", "data_raw.csv")
+    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_experimental", "01_raw_inputs")
+    out_xlsx = os.path.join(out_dir, "data_raw.xlsx")
+    out_csv = os.path.join(out_dir, "data_raw.csv")
     generate_experimental_dataset(out_xlsx, out_csv, n_per_group=30)

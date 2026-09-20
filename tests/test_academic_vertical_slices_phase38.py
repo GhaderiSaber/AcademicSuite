@@ -88,8 +88,8 @@ class TestAcademicVerticalSlicesPhase38(unittest.TestCase):
         self.assertTrue(steps["6_chapter_4_paragraph"]["triad_present"])
         self.assertTrue(steps["6_chapter_4_paragraph"]["three_tables_standard"])
 
-        # Deep artifact verification
-        proj_dir = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_regression")
+        cand_p = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_regression")
+        proj_dir = cand_p if os.path.isdir(cand_p) else os.path.join(ROOT_DIR, "projects", "study_vertical_slice_regression")
         out_dir = os.path.join(proj_dir, "academic-state", "outputs")
         md_file = os.path.join(out_dir, "06_hypothesis_1_regression.md")
         with open(md_file, "r", encoding="utf-8") as f:

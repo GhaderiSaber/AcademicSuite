@@ -60,7 +60,8 @@ class TestAcademicOrchestrator(unittest.TestCase):
 
     def test_03_prerequisites_check_ready(self):
         """Verify that study_act_burnout passes prerequisite check for demographics."""
-        study_state = os.path.join(ROOT_DIR, "projects", "study_act_burnout", "academic-state")
+        cand_state = os.path.join(ROOT_DIR, "tests", "fixtures", "study_act_burnout", "academic-state")
+        study_state = cand_state if os.path.isdir(cand_state) else os.path.join(ROOT_DIR, "projects", "study_act_burnout", "academic-state")
         res = odr.check_prerequisites("01_demographics", study_state)
         self.assertEqual(res["status"], "READY")
         self.assertEqual(res["assigned_agent"], "statistics-agent")
@@ -68,7 +69,8 @@ class TestAcademicOrchestrator(unittest.TestCase):
 
     def test_04_format_delegation_envelope(self):
         """Verify formatting of isolated context delegation envelopes."""
-        study_state = os.path.join(ROOT_DIR, "projects", "study_act_burnout", "academic-state")
+        cand_state = os.path.join(ROOT_DIR, "tests", "fixtures", "study_act_burnout", "academic-state")
+        study_state = cand_state if os.path.isdir(cand_state) else os.path.join(ROOT_DIR, "projects", "study_act_burnout", "academic-state")
         env = odr.format_delegation_envelope(
             "01_demographics",
             study_state,

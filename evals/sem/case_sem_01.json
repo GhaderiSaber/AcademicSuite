@@ -7,7 +7,7 @@
     "data_path": "evals/sem/data/sem_data.xlsx",
     "format": "xlsx",
     "sample_n": 250,
-    "model_spec": "projects/study_vertical_slice_sem/02_specs/sem_model_spec.txt"
+    "model_spec": "tests/fixtures/study_vertical_slice_sem/02_specs/sem_model_spec.txt"
   },
   "EXPECTED_ANALYSIS": {
     "model_type": "Full Latent Structural Equation Modeling",

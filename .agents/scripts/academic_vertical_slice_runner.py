@@ -47,28 +47,35 @@ from validators.reporting_consistency.validator import validate_reporting
 from validators.result_consistency.validator import validate_results
 
 
+def _resolve_study_dir(root_dir: str, study_name: str) -> str:
+    cand_fixtures = os.path.join(root_dir, "tests", "fixtures", study_name)
+    if os.path.isdir(cand_fixtures):
+        return cand_fixtures
+    return os.path.join(root_dir, "projects", study_name)
+
+
 class AcademicVerticalSliceRunner:
     """Deterministic executor and validator for complete academic vertical slices."""
 
     SLICES = {
         "A": {
             "name": "Vertical Slice A (Regression / GLM)",
-            "project_dir": os.path.join(ROOT_DIR, "projects", "study_vertical_slice_regression"),
+            "project_dir": _resolve_study_dir(ROOT_DIR, "study_vertical_slice_regression"),
             "stages": ["dataset", "descriptives", "assumptions", "analysis", "validation", "chapter_4_paragraph"]
         },
         "B": {
             "name": "Vertical Slice B (Experimental RCT)",
-            "project_dir": os.path.join(ROOT_DIR, "projects", "study_vertical_slice_experimental"),
+            "project_dir": _resolve_study_dir(ROOT_DIR, "study_vertical_slice_experimental"),
             "stages": ["rct_dataset", "repeated_measures", "effect_sizes", "follow_up", "validation", "results_package"]
         },
         "C": {
             "name": "Vertical Slice C (Process Mediation)",
-            "project_dir": os.path.join(ROOT_DIR, "projects", "study_vertical_slice_mediation"),
+            "project_dir": _resolve_study_dir(ROOT_DIR, "study_vertical_slice_mediation"),
             "stages": ["mediation_dataset", "model_selection", "bootstrap", "indirect_effect", "interpretation", "writing_triad"]
         },
         "D": {
             "name": "Vertical Slice D (Structural Equation Modeling)",
-            "project_dir": os.path.join(ROOT_DIR, "projects", "study_vertical_slice_sem"),
+            "project_dir": _resolve_study_dir(ROOT_DIR, "study_vertical_slice_sem"),
             "stages": ["sem_dataset", "measurement_model", "structural_model", "fit_indices", "effects_decomposition", "reporting_triad"]
         }
     }
@@ -78,7 +85,7 @@ class AcademicVerticalSliceRunner:
 
     def run_slice_a(self, verify_only: bool = True) -> Dict[str, Any]:
         """Runs Vertical Slice A: Dataset → Descriptives → Assumptions → Analysis → Validation → Ch 4."""
-        proj_dir = os.path.join(self.root_dir, "projects", "study_vertical_slice_regression")
+        proj_dir = _resolve_study_dir(self.root_dir, "study_vertical_slice_regression")
         state_dir = os.path.join(proj_dir, "academic-state")
         outputs_dir = os.path.join(state_dir, "outputs")
         steps = {}
@@ -161,7 +168,7 @@ class AcademicVerticalSliceRunner:
 
     def run_slice_b(self, verify_only: bool = True) -> Dict[str, Any]:
         """Runs Vertical Slice B: RCT → Repeated Measures → Effect Sizes → Follow-up → Validation → Results."""
-        proj_dir = os.path.join(self.root_dir, "projects", "study_vertical_slice_experimental")
+        proj_dir = _resolve_study_dir(self.root_dir, "study_vertical_slice_experimental")
         state_dir = os.path.join(proj_dir, "academic-state")
         outputs_dir = os.path.join(state_dir, "outputs")
         steps = {}
@@ -242,7 +249,7 @@ class AcademicVerticalSliceRunner:
 
     def run_slice_c(self, verify_only: bool = True) -> Dict[str, Any]:
         """Runs Vertical Slice C: Mediation → Model Selection → Bootstrap → Indirect Effect → Interpretation → Writing."""
-        proj_dir = os.path.join(self.root_dir, "projects", "study_vertical_slice_mediation")
+        proj_dir = _resolve_study_dir(self.root_dir, "study_vertical_slice_mediation")
         state_dir = os.path.join(proj_dir, "academic-state")
         outputs_dir = os.path.join(state_dir, "outputs")
         steps = {}
@@ -325,7 +332,7 @@ class AcademicVerticalSliceRunner:
 
     def run_slice_d(self, verify_only: bool = True) -> Dict[str, Any]:
         """Runs Vertical Slice D: SEM → Measurement Model → Structural Model → Fit → Effects → Reporting."""
-        proj_dir = os.path.join(self.root_dir, "projects", "study_vertical_slice_sem")
+        proj_dir = _resolve_study_dir(self.root_dir, "study_vertical_slice_sem")
         state_dir = os.path.join(proj_dir, "academic-state")
         outputs_dir = os.path.join(state_dir, "outputs")
         steps = {}

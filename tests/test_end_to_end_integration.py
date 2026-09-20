@@ -120,7 +120,8 @@ class TestEndToEndIntegration(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.project_dir = os.path.join(ROOT_DIR, "projects", "test_study_e2e")
+        cand_p = os.path.join(ROOT_DIR, "tests", "fixtures", "test_study_e2e")
+        cls.project_dir = cand_p if os.path.isdir(cand_p) else os.path.join(ROOT_DIR, "projects", "test_study_e2e")
         cls.academic_state_dir = os.path.join(cls.project_dir, "academic-state")
         csv_data = os.path.join(cls.project_dir, "01_raw_inputs", "test_academic_study_data.csv")
         xlsx_data = os.path.join(cls.project_dir, "01_raw_inputs", "test_academic_study_data.xlsx")

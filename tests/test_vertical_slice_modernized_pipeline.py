@@ -63,7 +63,8 @@ class TestVerticalSliceModernizedPipeline(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.study_dir = os.path.join(ROOT_DIR, "projects", "study_act_burnout")
+        cand_study = os.path.join(ROOT_DIR, "tests", "fixtures", "study_act_burnout")
+        cls.study_dir = cand_study if os.path.isdir(cand_study) else os.path.join(ROOT_DIR, "projects", "study_act_burnout")
         cls.raw_data_path = os.path.join(cls.study_dir, "01_raw_inputs", "data_scored.xlsx")
         cls.candidates_file = os.path.join(cls.study_dir, "academic-state", "deliberation_candidates.json")
         cls.deliverables_dir = os.path.join(cls.study_dir, "03_deliverables", "stage_06_hypothesis_1")

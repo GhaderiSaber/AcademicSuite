@@ -109,5 +109,5 @@ def generate_benchmark_data(out_dir: str, n: int = 450, seed: int = 42):
 
 
 if __name__ == "__main__":
-    out_directory = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_scale_validation", "01_raw_inputs")
+    out_directory = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_scale_validation", "01_raw_inputs")
     generate_benchmark_data(out_directory, n=450)

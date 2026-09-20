@@ -35,7 +35,8 @@ import academic_state_manager as asm
 
 
 class TestVerticalSliceModeration(unittest.TestCase):
-    PROJECT_DIR = os.path.join(ROOT_DIR, "projects", "study_vertical_slice_moderation")
+    cand_proj = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_moderation")
+    PROJECT_DIR = cand_proj if os.path.isdir(cand_proj) else os.path.join(ROOT_DIR, "projects", "study_vertical_slice_moderation")
     STATE_DIR = os.path.join(PROJECT_DIR, "academic-state")
     OUTPUTS_DIR = os.path.join(STATE_DIR, "outputs")
 
