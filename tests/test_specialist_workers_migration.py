@@ -92,6 +92,7 @@ class TestSpecialistWorkersMigration(unittest.TestCase):
             "academic-challenger",
             "results-auditor",
             "intervention-designer",
+            "journal-strategist",
         }
         self.critics_no_replace = {
             "academic-challenger",

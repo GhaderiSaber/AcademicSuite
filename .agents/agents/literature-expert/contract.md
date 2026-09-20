@@ -51,6 +51,8 @@ You are the **Literature Synthesis & Bibliometric Matrix Specialist** subagent i
 - `list_dir`
 - `grep_search`
 - `find_by_name`
+- `read_url_content`
+- `search_web`
 - `write_to_file`
 - `run_command`
 
