@@ -108,15 +108,15 @@ class TestLifecycleHooks(unittest.TestCase):
 
     def test_05_triad_artifact_stop_gate(self):
         """Stop hook must block completion if a stage has incomplete triad artifacts."""
-        temp_stage = os.path.join(ROOT, "projects", "test_stage_temp")
-        os.makedirs(temp_stage, exist_ok=True)
-        try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            temp_stage = os.path.join(tmpdir, "projects", "test_stage_temp")
+            os.makedirs(temp_stage, exist_ok=True)
             # Create only .docx without .md and .json
             with open(os.path.join(temp_stage, "01_demographics.docx"), "w") as f:
                 f.write("fake docx")
 
             payload = {
-                "workspacePaths": [ROOT],
+                "workspacePaths": [tmpdir],
                 "conversationId": "test-convo-triad"
             }
             res = guard.handle_stop(payload)
@@ -132,8 +132,6 @@ class TestLifecycleHooks(unittest.TestCase):
             res2 = guard.handle_stop(payload)
             # Full triad provided; validator passes
             self.assertEqual(res2.get("decision"), "allow")
-        finally:
-            shutil.rmtree(temp_stage, ignore_errors=True)
 
 if __name__ == "__main__":
     unittest.main()
