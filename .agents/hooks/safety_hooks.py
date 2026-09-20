@@ -297,17 +297,17 @@ class SafetyHooks:
             ).lower()
             cmd = args.get("CommandLine", "")
 
-            # Orchestrator Direct Execution Guard: academic-orchestrator cannot run direct statistical calculations
+            # Orchestrator Direct Execution Guard (Phases 3-4, 12-15):
+            # academic-orchestrator has no execution privileges and cannot run any shell or computational commands directly.
             if "academic-orchestrator" in caller:
-                if re.search(r'python3?\s+-c\s+["\'].*(?:pandas|pingouin|scipy|statsmodels|sklearn).*["\']', cmd):
-                    return {
-                        "decision": "deny",
-                        "reason": (
-                            "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12.1 - Orchestrator Execution Guard): "
-                            "Academic-Orchestrator must not execute inline statistical calculations directly. "
-                            "Delegate execution to statistics-agent or data-agent via invoke_subagent."
-                        )
-                    }
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12.1 / Phase 3-4 Orchestrator Zero-Hands Contract): "
+                        "Academic-Orchestrator is strictly forbidden from executing shell commands or code directly. "
+                        "All execution and statistical analysis must be delegated to specialist workers (e.g. statistics-agent) via invoke_subagent."
+                    )
+                }
 
             # Academic Writer Execution Boundary Guard (Directive 12 / Phase 10 Invariant):
             # academic-writer may execute ONLY declared document-generation / formatting workflows,
