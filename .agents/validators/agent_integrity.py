@@ -53,34 +53,17 @@ from scripts.orchestrator_invariants import (
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents", "agents")
 SKILLS_DIR = os.path.join(ROOT_DIR, ".agents", "skills")
 
-# Canonical Antigravity Tool Whitelist
-CANONICAL_ANTIGRAVITY_TOOLS: Set[str] = {
-    # Filesystem
-    "view_file",
-    "write_to_file",
-    "replace_file_content",
-    "list_dir",
-    "grep_search",
-    "find_by_name",
-    # Execution & Process
-    "run_command",
-    "manage_task",
-    "schedule",
-    # Subagent & Orchestration
-    "invoke_subagent",
-    "manage_subagents",
-    "send_message",
-    "define_subagent",
-    # Interaction & Web
-    "ask_question",
-    "read_url_content",
-    "search_web",
-    "generate_image",
-    # MCP Tools
-    "call_mcp_tool",
-    "list_resources",
-    "read_resource",
-}
+# Canonical Antigravity Tool Whitelist (SSOT: contracts/canonical_tools.py)
+try:
+    from contracts.canonical_tools import CANONICAL_ANTIGRAVITY_TOOLS
+except ImportError:
+    CANONICAL_ANTIGRAVITY_TOOLS: Set[str] = {
+        "view_file", "write_to_file", "replace_file_content", "multi_replace_file_content",
+        "list_dir", "grep_search", "find_by_name", "run_command", "manage_task",
+        "schedule", "invoke_subagent", "manage_subagents", "send_message",
+        "define_subagent", "ask_question", "read_url_content", "search_web",
+        "generate_image", "call_mcp_tool", "list_resources", "read_resource"
+    }
 
 # Built-in Antigravity Skills mounted by default
 BUILTIN_ANTIGRAVITY_SKILLS: Set[str] = {

@@ -15,18 +15,25 @@ from typing import Dict, Any, List, Optional, Set
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DEFAULT_POLICY_PATH = os.path.join(os.path.dirname(__file__), "agent_capabilities.yaml")
 
-# Direct execution tools: Run code or shell commands directly on the host
-DIRECT_EXECUTION_TOOLS: Set[str] = {
-    "run_command",
-}
-
-# Indirect execution tools: Can trigger proxy execution, process manipulation, or dynamic privilege elevation
-INDIRECT_EXECUTION_TOOLS: Set[str] = {
-    "call_mcp_tool",
-    "define_subagent",
-    "manage_task",
-    "schedule",
-}
+# Canonical Antigravity Tools & Classifications (SSOT: contracts/canonical_tools.py)
+try:
+    from contracts.canonical_tools import (
+        CANONICAL_ANTIGRAVITY_TOOLS,
+        CANONICAL_FILE_MUTATION_TOOLS,
+        CANONICAL_DIRECT_EXECUTION_TOOLS as DIRECT_EXECUTION_TOOLS,
+        CANONICAL_INDIRECT_EXECUTION_TOOLS as INDIRECT_EXECUTION_TOOLS,
+    )
+except ImportError:
+    DIRECT_EXECUTION_TOOLS: Set[str] = {"run_command"}
+    INDIRECT_EXECUTION_TOOLS: Set[str] = {"call_mcp_tool", "define_subagent", "manage_task", "schedule"}
+    CANONICAL_FILE_MUTATION_TOOLS: Set[str] = {"write_to_file", "replace_file_content", "multi_replace_file_content"}
+    CANONICAL_ANTIGRAVITY_TOOLS: Set[str] = {
+        "view_file", "write_to_file", "replace_file_content", "multi_replace_file_content",
+        "list_dir", "grep_search", "find_by_name", "run_command", "manage_task",
+        "schedule", "invoke_subagent", "manage_subagents", "send_message",
+        "define_subagent", "ask_question", "read_url_content", "search_web",
+        "generate_image", "call_mcp_tool", "list_resources", "read_resource"
+    }
 
 # MCP servers capable of executing code, arbitrary SQL, remote functions, or pipeline actions
 EXECUTION_CAPABLE_MCP_SERVERS: Set[str] = {
@@ -254,14 +261,8 @@ def validate_policy_schema(policy: Optional[Dict[str, Any]] = None) -> List[str]
     if not isinstance(agents, dict) or not agents:
         return ["Capability policy missing non-empty 'agents' mapping"]
 
-    # Canonical Antigravity tools for validation
-    valid_tools = {
-        "view_file", "write_to_file", "replace_file_content", "list_dir",
-        "grep_search", "find_by_name", "run_command", "manage_task",
-        "schedule", "invoke_subagent", "manage_subagents", "send_message",
-        "define_subagent", "ask_question", "read_url_content", "search_web",
-        "generate_image", "call_mcp_tool", "list_resources", "read_resource"
-    }
+    # Canonical Antigravity tools for validation (SSOT)
+    valid_tools = CANONICAL_ANTIGRAVITY_TOOLS
 
     main_agent_count = 0
 
@@ -305,8 +306,9 @@ def validate_policy_schema(policy: Optional[Dict[str, Any]] = None) -> List[str]
                 issues.append(f"Agent '{name}' has can_delegate=False but 'invoke_subagent' is not in forbidden")
 
         if not spec.get("can_write_files", True):
-            if "write_to_file" not in forb:
-                issues.append(f"Agent '{name}' has can_write_files=False but 'write_to_file' is not in forbidden")
+            for mutation_tool in sorted(CANONICAL_FILE_MUTATION_TOOLS):
+                if mutation_tool not in forb:
+                    issues.append(f"Agent '{name}' has can_write_files=False but '{mutation_tool}' is not in forbidden")
 
         if spec.get("mainAgent") is True:
             main_agent_count += 1

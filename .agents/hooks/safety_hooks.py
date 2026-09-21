@@ -33,16 +33,20 @@ try:
     from hook_seen import emit_hook_seen
 except ImportError:
     from .hook_seen import emit_hook_seen
-
-MUTATION_TOOLS = (
-    "write_to_file",
-    "replace_file_content",
-    "apply_diff",
-    "edit_file",
-    "multi_file_edit",
-    "batch_replace",
-    "patch"
-)
+try:
+    from contracts.canonical_tools import ALL_MUTATION_TOOLS as _ALL_MUTATION_TOOLS
+    MUTATION_TOOLS = tuple(sorted(_ALL_MUTATION_TOOLS))
+except ImportError:
+    MUTATION_TOOLS = (
+        "write_to_file",
+        "replace_file_content",
+        "multi_replace_file_content",
+        "apply_diff",
+        "edit_file",
+        "multi_file_edit",
+        "batch_replace",
+        "patch",
+    )
 
 
 def extract_target_paths(tool_name: str, args: Dict[str, Any]) -> List[str]:

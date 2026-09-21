@@ -45,14 +45,24 @@ if agents_dir not in sys.path:
 
 ORCHESTRATOR_TARGET_AGENT = "academic-orchestrator"
 
-# Law 1: Orchestrator Non-Execution Invariant
-# academic-orchestrator MUST NOT possess these tools:
-FORBIDDEN_ORCHESTRATOR_TOOLS: frozenset = frozenset({
-    "run_command",
-    "write_to_file",
-    "replace_file_content",
-    "edit_file",
-})
+# Law 1: Orchestrator Non-Execution Invariant (SSOT: contracts/canonical_tools.py)
+# academic-orchestrator MUST NOT possess execution or file mutation tools:
+try:
+    from contracts.canonical_tools import (
+        CANONICAL_DIRECT_EXECUTION_TOOLS,
+        CANONICAL_FILE_MUTATION_TOOLS,
+    )
+    FORBIDDEN_ORCHESTRATOR_TOOLS: frozenset = frozenset(
+        CANONICAL_DIRECT_EXECUTION_TOOLS | CANONICAL_FILE_MUTATION_TOOLS | {"edit_file"}
+    )
+except ImportError:
+    FORBIDDEN_ORCHESTRATOR_TOOLS = frozenset({
+        "run_command",
+        "write_to_file",
+        "replace_file_content",
+        "multi_replace_file_content",
+        "edit_file",
+    })
 
 # Law 2: Delegation Availability Invariant
 # academic-orchestrator MUST possess this tool:

@@ -28,6 +28,7 @@ agents:
       - run_command
       - write_to_file
       - replace_file_content
+      - multi_replace_file_content
       - define_subagent
       - call_mcp_tool
       - manage_task
@@ -634,6 +635,7 @@ agents:
       - run_command
       - write_to_file
       - replace_file_content
+      - multi_replace_file_content
       - invoke_subagent
       - manage_subagents
       - send_message
@@ -659,6 +661,7 @@ agents:
       - run_command
       - write_to_file
       - replace_file_content
+      - multi_replace_file_content
       - invoke_subagent
       - manage_subagents
       - send_message
@@ -682,6 +685,7 @@ agents:
       - run_command
       - write_to_file
       - replace_file_content
+      - multi_replace_file_content
       - define_subagent
       - call_mcp_tool
       - manage_task
