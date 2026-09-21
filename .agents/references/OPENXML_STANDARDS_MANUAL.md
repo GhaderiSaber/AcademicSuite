@@ -56,6 +56,14 @@ When assembling or editing Persian Word documents (`.docx`):
   - **Why this is catastrophic in Justified text**: In Microsoft Word, when a paragraph is justified (`<w:jc w:val="both"/>`), Word treats a manual line break (`<w:br/>` / Shift+Enter) as an internal line continuation and forces the line to justify across the full margin width, creating absurdly wide gaps between characters and words. Only a true paragraph mark (`<w:p>`) signals the legitimate end of a paragraph block, allowing Word's justification engine to format the line naturally without distortion.
   - **Paragraph Spacing**: Control spacing between elements exclusively through paragraph formatting properties (`p.paragraph_format.space_before` and `space_after` in `Pt(...)`), never by inserting empty paragraphs containing manual line breaks.
 - **Mandatory Table Standards (Font, Direction, Alignment & Paragraph Marks)**:
+  - **Mandatory Table Placement Sequence (Narrative Precedes Table)**:
+    - The canonical reporting sequence MUST strictly be:
+      1. Heading
+      2. Explanatory narrative introducing the statistical findings (in continuous prose)
+      3. Table caption (non-bold)
+      4. Table
+      5. Table note
+    - NEVER place explanatory text under the table instead of preceding the caption. The reader must be introduced to the findings before the data is presented.
   - **Table Fonts**:
     - **Font size for Table content and Table captions is strictly 12 pt**.
     - **Table Captions MUST be non-bold** (`B Nazanin` 12 pt Regular). Never apply `<w:b/>` to table captions.
