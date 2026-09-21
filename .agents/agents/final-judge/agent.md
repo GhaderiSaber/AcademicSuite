@@ -11,7 +11,7 @@ tools:
   - list_dir
   - grep_search
   - find_by_name
-  - write_to_file
+  - ask_question
 skills:
   - thesis-integrity-auditor
   - persian-defense-presentation-builder

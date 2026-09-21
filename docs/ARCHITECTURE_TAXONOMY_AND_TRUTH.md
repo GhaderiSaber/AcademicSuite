@@ -69,6 +69,48 @@ The filesystem contains exactly 30 packaged agent directories, categorized into:
 - **Total Production Agents**: **28** (`test-orchestrator` and `test-worker` are reserved for test harness verification).
 - **Total Registered Agents on Disk**: **30**.
 
+#### 1.1 The Planar Architecture Model (6 Operational Planes + 1 Administrative Plane)
+To eliminate mesh authority sprawl where secondary planners spawned sub-agents and critics mutated files they audited, the 30 agents are strictly partitioned into **6 Operational Planes** and **1 Administrative Plane**:
+
+1. **CONTROL PLANE** (Coordination & Strategy):
+   - `academic-orchestrator` (Conductor): Holds `invoke_subagent`. Strictly prohibited from file mutation and code execution (Directive 20).
+   - `methodology-expert` (Advisor): Domain consultative authority. Strictly prohibited from delegation and file mutation.
+   - `statistical-expert` (Advisor): Domain consultative authority. Strictly prohibited from delegation and file mutation.
+   *(Note: `digital-saber` serves as the user-facing executive persona and twin)*
+2. **RESEARCH PLANE** (Epistemic Evidence & Literature):
+   - `research-agent`: Literature synthesis and research design worker.
+   - `literature-expert`: Bibliometric mapping and automated harvesting worker.
+   - `evidence-auditor`: Citation, plagiarism, and evidence integrity critic. Strictly prohibited from file mutation.
+3. **DATA PLANE** (Ingestion & Quality):
+   - `data-agent`: Data ingestion, cleaning, imputation, and psychometric scaling.
+   - `data-curator`: Missing value diagnostics, unengaged filtering, and outlier screening.
+4. **STATISTICS PLANE** (Computational Inference & Modeling):
+   - `statistics-agent`: General inferential modeling, SEM, ANCOVA, and hypothesis testing.
+   - Specialist statistical workers: `psychometric-expert`, `longitudinal-modmed-expert`, `qualitative-analyst`, `meta-analyst`.
+5. **WRITING PLANE** (Synthesis & Scholarly Documentation):
+   - `academic-writer`: Chapter drafting, synthesis, and OpenXML packaging.
+   - `intervention-designer`: Clinical intervention manuals and protocol drafting.
+   - `journal-strategist`: Manuscript packaging and submission strategy.
+6. **VALIDATION PLANE** (Independent Verification & Adversarial Audit):
+   - `validation-agent`: Comprehensive quality assurance and pre-flight gatekeeper.
+   - `statistical-auditor`: Parametric assumptions and MSAI auditor (read/verify only, no file mutation).
+   - `results-auditor`: APA 7 numerical and table format auditor (strictly prohibited from file mutation).
+   - `academic-challenger`: Adversarial methodology challenger (strictly prohibited from file mutation).
+   - `final-judge`: Viva voce simulator and institutional release gatekeeper (strictly prohibited from file mutation).
+7. **ADMINISTRATIVE PLANE** (Continuous Learning & Evolution):
+   - Meta-cognitive layer for continuous self-improvement and behavioral refinement:
+     - `trajectory-analyzer`: Reconstructs observable tool execution trajectories (read-only).
+     - `behavior-analyst`: Root-cause causal diagnosis of agent defects (read-only).
+     - `knowledge-curator`: Synthesizes reusable lessons, exemplars, and anti-patterns.
+     - `skill-evolver`: Formulates candidate modifications to skills and instructions.
+     - `evaluation-agent`: Runs counterfactual benchmarks and regression suites.
+     - `curriculum-builder`: Designs graduated challenge benchmarks and test datasets.
+
+**Structural Invariants of the Planar Model**:
+- **Sole Orchestration**: `academic-orchestrator` is the sole conductor in the operational pipeline; advisors (`methodology-expert`, `statistical-expert`) advise but never delegate (`can_delegate: false`).
+- **Critic Immutability**: No critic or auditor possesses file mutation tools (`write_to_file`, `replace_file_content`). Critics evaluate and verify; they never silently rewrite deliverables.
+- **Least-Privilege Authority Surface**: Slashed delegation from 5 agents to 3 (`academic-orchestrator`, `digital-saber`, and test fixture `test-orchestrator`). Slashed file writing from 26 agents to 19 (11 agents are strictly read/audit/conduct).
+
 ### 2. Skills Directory: Exactly 44 Active Production Skills ([`.agents/skills/`](../.agents/skills/))
 - Exactly 44 domain capabilities reside in `.agents/skills/`.
 - Every skill conforms to Directive 18 (single-view context budget: $\le 500$ lines, $\le 40,000$ bytes per `SKILL.md`).

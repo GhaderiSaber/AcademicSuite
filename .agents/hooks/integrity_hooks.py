@@ -372,7 +372,7 @@ class IntegrityHooks:
                     res = mod.audit_skill_sizes(s_dir)
                     if not res.get("passed", True):
                         violation_details = "; ".join(
-                            [f"{v['skill']} ({v['line_count']} lines, {v['byte_size']} bytes)" for v in res["violations"]]
+                            [f"{v.get('name', v.get('skill', 'unknown'))} ({v.get('line_count', '?')} lines, {v.get('byte_size', '?')} bytes)" for v in res["violations"]]
                         )
                         return False, (
                             f"CONSTITUTIONAL VIOLATION (Directive 18 - Skill Modularity Standard): "

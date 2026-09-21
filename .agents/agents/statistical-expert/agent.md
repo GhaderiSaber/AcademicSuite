@@ -7,14 +7,11 @@ model: pro
 mainAgent: false
 subagent: true
 tools:
-  - invoke_subagent
-  - manage_subagents
-  - send_message
   - view_file
   - list_dir
   - grep_search
   - find_by_name
-  - write_to_file
+  - ask_question
 skills:
   - sem
   - cfa
@@ -22,11 +19,7 @@ skills:
   - moderation
   - regression
   - statistical-data-analyst
-agents:
-  - statistics-agent
-  - psychometric-expert
-  - longitudinal-modmed-expert
-  - data-agent
+agents: []
 inheritCustomizations: true
 ---
 

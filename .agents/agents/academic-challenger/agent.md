@@ -11,7 +11,6 @@ tools:
   - list_dir
   - grep_search
   - find_by_name
-  - write_to_file
 skills:
   - thesis-integrity-auditor
   - academic-adaptive-context

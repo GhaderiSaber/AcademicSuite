@@ -201,9 +201,9 @@ These two permanent architectural laws govern `academic-orchestrator`:
 ## 📚 ARCHITECTURE & REFERENCE DIRECTORY
 
 Detailed reference guides and operational specifications are modularized in `.agents/references/`:
-1. **Skill Activation Matrix & Data Architecture**: [SKILL_ACTIVATION_MATRIX.md](.agents/references/SKILL_ACTIVATION_MATRIX.md) — Complete 43-skill directory, activation triggers, inputs, and deliverables.
-2. **Deterministic CLI Command Reference**: [CLI_COMMAND_REFERENCE.md](.agents/references/CLI_COMMAND_REFERENCE.md) — Exact bash commands for statistical analysis, meta-analysis, psychometrics, and OpenXML generation.
-3. **OpenXML Standards Deep Dive**: [OPENXML_STANDARDS_MANUAL.md](.agents/references/OPENXML_STANDARDS_MANUAL.md) — Child element sequencing, BiDi table properties, and OMML equation preservation.
-4. **Academic Defense Presentation Standards**: [PRESENTATION_STANDARDS_MANUAL.md](.agents/references/PRESENTATION_STANDARDS_MANUAL.md) — SmartArt RTL reversal, DrawingML dual-slot font binding, widescreen legibility, and automatic motion.
-5. **Google Antigravity Architecture Guide**: [ANTIGRAVITY_ARCHITECTURE_GUIDE.md](ANTIGRAVITY_ARCHITECTURE_GUIDE.md) — Complete technical specification for Agents, Subagents, Skills, and Workflows.
-6. **Thesis Pipeline Micro-Stage Reference Manual**: [MICRO_STAGE_SEQUENCES.md](.agents/references/MICRO_STAGE_SEQUENCES.md) — Authoritative micro-stage breakdown, assigned subagents, deterministic scripts, and physical triad artifacts across all 6 core pipelines.
+1. **Skill Activation Matrix**: [SKILL_ACTIVATION_MATRIX.md](.agents/references/SKILL_ACTIVATION_MATRIX.md) — 43-skill directory, activation triggers, inputs, and deliverables.
+2. **Deterministic CLI Command Reference**: [CLI_COMMAND_REFERENCE.md](.agents/references/CLI_COMMAND_REFERENCE.md) — Exact bash commands for statistical analysis, psychometrics, and docgen.
+3. **OpenXML Standards**: [OPENXML_STANDARDS_MANUAL.md](.agents/references/OPENXML_STANDARDS_MANUAL.md) — Child element sequencing, BiDi tables, and OMML math equations.
+4. **Academic Defense Presentation Standards**: [PRESENTATION_STANDARDS_MANUAL.md](.agents/references/PRESENTATION_STANDARDS_MANUAL.md) — SmartArt RTL reversal, DrawingML font binding, and legibility.
+5. **Google Antigravity Architecture Guide**: [ANTIGRAVITY_ARCHITECTURE_GUIDE.md](ANTIGRAVITY_ARCHITECTURE_GUIDE.md) — Native Antigravity Agents, Subagents, and Skills specification.
+6. **Thesis Pipeline Micro-Stage Reference**: [MICRO_STAGE_SEQUENCES.md](.agents/references/MICRO_STAGE_SEQUENCES.md) — Micro-stage breakdowns, assigned subagents, and physical triad deliverables.

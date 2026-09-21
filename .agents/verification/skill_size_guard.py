@@ -46,6 +46,7 @@ def audit_skill_sizes(skills_dir: str = None) -> Dict[str, Any]:
             violations.append({
                 "type": "skill",
                 "name": skill_name,
+                "skill": skill_name,
                 "file": sf,
                 "line_count": line_count,
                 "byte_size": byte_size,

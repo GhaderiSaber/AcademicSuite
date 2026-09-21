@@ -1,58 +1,62 @@
 # AGENT_TOOL_MATRIX.md — Complete Agent Tool & Capability Matrix
 
-**Document Version:** 1.0.0 (Phase 0 Architecture Freeze)  
-**Status:** Canonical V0 Baseline  
-**Scope:** All 28 Discovered Workspace Agents  
+**Document Version:** 2.0.0 (Planar Least-Privilege Baseline)  
+**Status:** Authoritative Production Baseline  
+**Scope:** All 30 Discovered Workspace Agents  
 **Operative Date:** September 2026 (1405 SH)  
 
 ---
 
 ## 1. Executive Summary
 
-This document freezes and records the exact tool access, skill bindings, execution privileges, and delegation permissions across all 28 agents in AcademicSuite. 
+This document records the exact tool access, skill bindings, execution privileges, and delegation permissions across all 30 agents in AcademicSuite under the **Planar Architecture Model** (6 Operational Planes + 1 Administrative Plane). 
 
-### Key Privilege Metrics (N = 28 Agents)
-- **Can Delegate (`invoke_subagent`):** 4 agents (14.3%) — `academic-orchestrator`, `digital-saber`, `methodology-expert`, `statistical-expert`
-- **Can Execute Code (`run_command`):** 16 agents (57.1%)
-- **Can Write Files (`write_to_file` / `replace_file_content`):** 27 agents (96.4%) — Only `trajectory-analyzer` is strictly read-only
-- **Can Act as Main Agent (`mainAgent: true`):** 1 agent (3.6%) — `academic-orchestrator` (Sole Canonical Production Entry Point; all specialists are `mainAgent: false, subagent: true`)
-- **Can Act as Subagent (`subagent: true`):** 28 agents (100.0%)
+### Key Privilege Metrics (N = 30 Agents)
+- **Can Delegate (`invoke_subagent`):** 3 agents (10.0%) — `academic-orchestrator` (Sole Operational Conductor), `digital-saber` (Executive Persona), `test-orchestrator` (Test Fixture)
+- **Can Execute Code (`run_command`):** 15 agents (50.0%)
+- **Can Write Files (`write_to_file` / `replace_file_content`):** 19 agents (63.3%)
+- **Cannot Write Files (Read/Audit/Conduct Only):** 11 agents (36.7%) — Zero critics mutate files; zero control plane advisors mutate files; orchestrator obeys Directive 20.
+- **Can Act as Main Agent (`mainAgent: true`):** 1 agent (3.3%) — `academic-orchestrator` (Sole Canonical Production Entry Point; all specialists are `mainAgent: false, subagent: true`)
+- **Can Act as Subagent (`subagent: true`):** 30 agents (100.0%)
 
 ---
 
-## 2. High-Level Agent Tool Summary Table
+## 2. High-Level Agent Tool Summary Table (Organized by Plane)
 
-| # | Agent Name | Tier | Main | Sub | Code Exec (`run_command`) | Write Files | Delegate (`invoke_subagent`) | Primary Bound Skills |
-|---|---|---|:---:|:---:|:---:|:---:|:---:|---|
-| 1 | `academic-challenger` | Tier 4 (Critic) | No | Yes | **No** | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
-| 2 | `academic-orchestrator` | Tier 1 (Lead) | Yes | Yes | **No** | **No** | **Yes** | `academic-suite-orchestrator`, `academic-adaptive-context`, `digital-twin-academic-consultant`, `thesis-integrity-auditor` |
-| 3 | `academic-writer` | Tier 2 (Domain) | No | Yes | Yes (DocGen only) | Yes | No | `chapter-4-writing`, `persian-literature-review-builder`, `persian-discussion-builder`, `persian-thesis-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `apa-reporting`, `psychological-intervention-protocol-builder`, `journal-submission-assistant`, `persian-defense-presentation-builder` |
-| 4 | `behavior-analyst` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
-| 5 | `curriculum-builder` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
-| 6 | `data-agent` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `data-cleaning`, `data-audit`, `psychometric-scale-resolver`, `psychometric-data-simulator` |
-| 7 | `data-curator` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `data-audit`, `data-cleaning`, `psychometric-scale-resolver` |
-| 8 | `digital-saber` | Tier 1 (Lead) | No | Yes | Yes | Yes | Yes | `academic-suite-orchestrator`, `digital-twin-academic-consultant`, `thesis-integrity-auditor`, `chapter-4-writing`, `persian-thesis-revision-assistant` |
-| 9 | `evaluation-agent` | Tier 5 (Learning) | No | Yes | Yes | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
-| 10 | `evidence-auditor` | Tier 2 (Domain) | No | Yes | **No** | Yes | No | `thesis-integrity-auditor`, `irandoc-plagiarism-reducer`, `academic-reference-extractor` |
-| 11 | `final-judge` | Tier 2 (Domain) | No | Yes | **No** | Yes | No | `thesis-integrity-auditor`, `persian-defense-presentation-builder` |
-| 12 | `intervention-designer` | Tier 3 (Worker) | No | Yes | No | Yes | No | `psychological-intervention-protocol-builder`, `persian-proposal-builder` |
-| 13 | `journal-strategist` | Tier 4 (Critic) | No | Yes | **No** | Yes | No | `journal-submission-assistant`, `academic-article-writer` |
-| 14 | `knowledge-curator` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
-| 15 | `literature-expert` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `literature-harvester`, `literature-review`, `bibliometric-network-analyst` |
-| 16 | `longitudinal-modmed-expert` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `longitudinal-moderated-mediation`, `mediation`, `apa-reporting` |
-| 17 | `meta-analyst` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `systematic-review-meta-analyst`, `gpower-sample-size-calculator` |
-| 18 | `methodology-expert` | Tier 2 (Domain) | No | Yes | **No** | Yes | Yes | `methodology-review`, `academic-adaptive-context`, `gpower-sample-size-calculator`, `persian-proposal-builder` |
-| 19 | `psychometric-expert` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `psychometric-scale-validator`, `academic-adaptive-context`, `cfa`, `psychometric-scale-resolver`, `reliability-analysis` |
-| 20 | `qualitative-analyst` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `qualitative-data-analyst` |
-| 21 | `research-agent` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `literature-review`, `literature-harvester`, `gpower-sample-size-calculator` |
-| 22 | `results-auditor` | Tier 4 (Critic) | No | Yes | No | Yes | No | `apa-reporting`, `academic-adaptive-context`, `thesis-integrity-auditor` |
-| 23 | `skill-evolver` | Tier 5 (Learning) | No | Yes | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
-| 24 | `statistical-auditor` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `thesis-integrity-auditor`, `academic-adaptive-context`, `data-audit` |
-| 25 | `statistical-expert` | Tier 2 (Domain) | No | Yes | **No** | **Yes** | **Yes** | `sem`, `cfa`, `mediation`, `moderation`, `regression`, `statistical-data-analyst` |
-| 26 | `statistics-agent` | Tier 3 (Worker) | No | Yes | Yes | Yes | No | `statistical-data-analyst`, `academic-adaptive-context`, `regression`, `mediation`, `moderation`, `descriptive-statistics`, `reliability-analysis` |
-| 27 | `trajectory-analyzer` | Tier 5 (Learning) | No | Yes | No | No | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
-| 28 | `validation-agent` | Tier 4 (Critic) | No | Yes | Yes | Yes | No | `thesis-integrity-auditor`, `academic-adaptive-context`, `apa-reporting` |
+| # | Agent Name | Plane | Role | Code Exec (`run_command`) | Write Files | Delegate (`invoke_subagent`) | Primary Bound Skills |
+|---|---|---|---|:---:|:---:|:---:|---|
+| 1 | `academic-orchestrator` | Control | Conductor | **No** | **No** | **Yes** | `academic-suite-orchestrator`, `academic-adaptive-context`, `digital-twin-academic-consultant`, `thesis-integrity-auditor` |
+| 2 | `methodology-expert` | Control | Advisor | **No** | **No** | **No** | `methodology-review`, `academic-adaptive-context`, `gpower-sample-size-calculator`, `persian-proposal-builder` |
+| 3 | `statistical-expert` | Control | Advisor | **No** | **No** | **No** | `sem`, `cfa`, `mediation`, `moderation`, `regression`, `statistical-data-analyst` |
+| 4 | `digital-saber` | Control | Lead Persona | Yes | Yes | Yes | `academic-suite-orchestrator`, `digital-twin-academic-consultant`, `thesis-integrity-auditor`, `chapter-4-writing`, `persian-thesis-revision-assistant` |
+| 5 | `research-agent` | Research | Worker | Yes | Yes | No | `literature-review`, `literature-harvester`, `gpower-sample-size-calculator` |
+| 6 | `literature-expert` | Research | Worker | Yes | Yes | No | `literature-harvester`, `literature-review`, `bibliometric-network-analyst` |
+| 7 | `evidence-auditor` | Research | Critic / Auditor | **No** | **No** | **No** | `thesis-integrity-auditor`, `irandoc-plagiarism-reducer`, `academic-reference-extractor` |
+| 8 | `data-agent` | Data | Worker | Yes | Yes | No | `data-cleaning`, `data-audit`, `psychometric-scale-resolver`, `psychometric-data-simulator` |
+| 9 | `data-curator` | Data | Worker | Yes | Yes | No | `data-audit`, `data-cleaning`, `psychometric-scale-resolver` |
+| 10 | `statistics-agent` | Statistics | Worker | Yes | Yes | No | `statistical-data-analyst`, `academic-adaptive-context`, `regression`, `mediation`, `moderation`, `descriptive-statistics`, `reliability-analysis` |
+| 11 | `psychometric-expert` | Statistics | Specialist Worker | Yes | Yes | No | `psychometric-scale-validator`, `academic-adaptive-context`, `cfa`, `psychometric-scale-resolver`, `reliability-analysis` |
+| 12 | `longitudinal-modmed-expert` | Statistics | Specialist Worker | Yes | Yes | No | `longitudinal-moderated-mediation`, `mediation`, `apa-reporting` |
+| 13 | `qualitative-analyst` | Statistics | Specialist Worker | Yes | Yes | No | `qualitative-data-analyst` |
+| 14 | `meta-analyst` | Statistics | Specialist Worker | Yes | Yes | No | `systematic-review-meta-analyst`, `gpower-sample-size-calculator` |
+| 15 | `academic-writer` | Writing | Specialist Worker | Yes (DocGen only) | Yes | No | `chapter-4-writing`, `persian-literature-review-builder`, `persian-discussion-builder`, `persian-thesis-builder`, `academic-article-writer`, `ai-academic-tone-polisher`, `apa-reporting`, `psychological-intervention-protocol-builder`, `journal-submission-assistant`, `persian-defense-presentation-builder` |
+| 16 | `intervention-designer` | Writing | Specialist Worker | No | Yes | No | `psychological-intervention-protocol-builder`, `persian-proposal-builder` |
+| 17 | `journal-strategist` | Writing | Specialist Worker | **No** | Yes | No | `journal-submission-assistant`, `academic-article-writer` |
+| 18 | `validation-agent` | Validation | Quality Auditor | Yes | Yes | No | `thesis-integrity-auditor`, `academic-adaptive-context`, `apa-reporting` |
+| 19 | `statistical-auditor` | Validation | Critic / Auditor | Yes | **No** | **No** | `thesis-integrity-auditor`, `academic-adaptive-context`, `data-audit` |
+| 20 | `results-auditor` | Validation | Critic / Auditor | **No** | **No** | **No** | `apa-reporting`, `academic-adaptive-context`, `thesis-integrity-auditor` |
+| 21 | `academic-challenger` | Validation | Critic / Auditor | **No** | **No** | **No** | `academic-adaptive-context`, `thesis-integrity-auditor` |
+| 22 | `final-judge` | Validation | Critic / Auditor | **No** | **No** | **No** | `thesis-integrity-auditor`, `persian-defense-presentation-builder` |
+| 23 | `trajectory-analyzer` | Administrative | Learning (Trajectory) | No | **No** | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
+| 24 | `behavior-analyst` | Administrative | Learning (Diagnosis) | No | **No** | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
+| 25 | `knowledge-curator` | Administrative | Learning (Knowledge) | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
+| 26 | `skill-evolver` | Administrative | Learning (Evolution) | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
+| 27 | `evaluation-agent` | Administrative | Learning (Benchmark) | Yes | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
+| 28 | `curriculum-builder` | Administrative | Learning (Curriculum) | No | Yes | No | `academic-adaptive-context`, `thesis-integrity-auditor` |
+| 29 | `test-orchestrator` | Verification | Test Orchestrator | **No** | **No** | **Yes** | None |
+| 30 | `test-worker` | Verification | Test Worker | Yes | Yes | No | None |
 
+---
 ---
 
 ## 3. Authoritative YAML Tool Matrix (All 28 Agents)

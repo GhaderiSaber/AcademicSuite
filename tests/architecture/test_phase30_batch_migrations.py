@@ -70,25 +70,25 @@ class TestPhase30BatchMigrations(unittest.TestCase):
         self.assertIn("academic-writer", fm.get("agents", []))
 
     def test_02_batch1_methodology_expert(self):
-        """Batch 1: methodology-expert is a planner with no run_command, delegates to statistics-agent."""
+        """Batch 1: methodology-expert is an advisor with no run_command, no invoke_subagent, no write_to_file."""
         tools = self.get_agent_tools("methodology-expert")
-        self.assertIn("invoke_subagent", tools)
+        self.assertNotIn("invoke_subagent", tools)
         self.assertNotIn("run_command", tools)
-        self.assertIn("write_to_file", tools)
+        self.assertNotIn("write_to_file", tools)
 
         fm = self.get_agent_frontmatter("methodology-expert")
-        self.assertIn("statistics-agent", fm.get("agents", []))
+        self.assertEqual(fm.get("agents", []), [])
         self.assertIn("methodology-expert", NON_EXECUTING_AGENTS)
 
     def test_03_batch1_statistical_expert(self):
-        """Batch 1: statistical-expert is a planner with no run_command, delegates to statistics-agent."""
+        """Batch 1: statistical-expert is an advisor with no run_command, no invoke_subagent, no write_to_file."""
         tools = self.get_agent_tools("statistical-expert")
-        self.assertIn("invoke_subagent", tools)
+        self.assertNotIn("invoke_subagent", tools)
         self.assertNotIn("run_command", tools)
-        self.assertIn("write_to_file", tools)
+        self.assertNotIn("write_to_file", tools)
 
         fm = self.get_agent_frontmatter("statistical-expert")
-        self.assertIn("statistics-agent", fm.get("agents", []))
+        self.assertEqual(fm.get("agents", []), [])
         self.assertIn("statistical-expert", NON_EXECUTING_AGENTS)
 
     # =========================================================================
@@ -164,35 +164,35 @@ class TestPhase30BatchMigrations(unittest.TestCase):
     # Batch 4: Auditors, Challenger, Final Judge, Strategist
     # =========================================================================
     def test_10_batch4_results_auditor(self):
-        """Batch 4: results-auditor is a non-executing critic (no run_command, no invoke_subagent)."""
+        """Batch 4: results-auditor is a non-executing, non-mutating critic (no run_command, no invoke_subagent, no write_to_file)."""
         tools = self.get_agent_tools("results-auditor")
         self.assertNotIn("run_command", tools)
         self.assertNotIn("invoke_subagent", tools)
-        self.assertIn("write_to_file", tools)
+        self.assertNotIn("write_to_file", tools)
         self.assertIn("results-auditor", NON_EXECUTING_AGENTS)
 
     def test_11_batch4_academic_challenger(self):
-        """Batch 4: academic-challenger is a non-executing critic (no run_command, no invoke_subagent)."""
+        """Batch 4: academic-challenger is a non-executing, non-mutating critic (no run_command, no invoke_subagent, no write_to_file)."""
         tools = self.get_agent_tools("academic-challenger")
         self.assertNotIn("run_command", tools)
         self.assertNotIn("invoke_subagent", tools)
-        self.assertIn("write_to_file", tools)
+        self.assertNotIn("write_to_file", tools)
         self.assertIn("academic-challenger", NON_EXECUTING_AGENTS)
 
     def test_12_batch4_final_judge(self):
-        """Batch 4: final-judge is a non-executing release gatekeeper (no run_command, no invoke_subagent)."""
+        """Batch 4: final-judge is a non-executing, non-mutating release gatekeeper (no run_command, no invoke_subagent, no write_to_file)."""
         tools = self.get_agent_tools("final-judge")
         self.assertNotIn("run_command", tools)
         self.assertNotIn("invoke_subagent", tools)
-        self.assertIn("write_to_file", tools)
+        self.assertNotIn("write_to_file", tools)
         self.assertIn("final-judge", NON_EXECUTING_AGENTS)
 
     def test_13_batch4_evidence_auditor(self):
-        """Batch 4: evidence-auditor is a non-executing auditor (no run_command, no invoke_subagent)."""
+        """Batch 4: evidence-auditor is a non-executing, non-mutating auditor (no run_command, no invoke_subagent, no write_to_file)."""
         tools = self.get_agent_tools("evidence-auditor")
         self.assertNotIn("run_command", tools)
         self.assertNotIn("invoke_subagent", tools)
-        self.assertIn("write_to_file", tools)
+        self.assertNotIn("write_to_file", tools)
         self.assertIn("evidence-auditor", NON_EXECUTING_AGENTS)
 
     def test_14_batch4_journal_strategist(self):
@@ -204,10 +204,10 @@ class TestPhase30BatchMigrations(unittest.TestCase):
         self.assertIn("journal-strategist", NON_EXECUTING_AGENTS)
 
     def test_15_batch4_statistical_auditor(self):
-        """Batch 4: statistical-auditor has justified run_command for MSAI anomaly calculations."""
+        """Batch 4: statistical-auditor has justified run_command for MSAI anomaly calculations, but cannot mutate files."""
         tools = self.get_agent_tools("statistical-auditor")
         self.assertIn("run_command", tools)
-        self.assertIn("write_to_file", tools)
+        self.assertNotIn("write_to_file", tools)
         self.assertNotIn("invoke_subagent", tools)
 
     # =========================================================================

@@ -7,25 +7,17 @@ model: pro
 mainAgent: false
 subagent: true
 tools:
-  - invoke_subagent
-  - manage_subagents
-  - send_message
   - view_file
   - list_dir
   - grep_search
   - find_by_name
-  - write_to_file
+  - ask_question
 skills:
   - methodology-review
   - academic-adaptive-context
   - gpower-sample-size-calculator
   - persian-proposal-builder
-agents:
-  - statistics-agent
-  - research-agent
-  - literature-expert
-  - intervention-designer
-  - qualitative-analyst
+agents: []
 inheritCustomizations: true
 ---
 

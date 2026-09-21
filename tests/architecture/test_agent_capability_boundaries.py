@@ -129,7 +129,7 @@ class TestAgentCapabilityBoundaries(unittest.TestCase):
         policy = get_agent_policy("methodology-expert", self.policy)
         self.assertFalse(policy.get("can_execute_code"))
         self.assertIn("run_command", policy.get("forbidden", []))
-        self.assertEqual(policy.get("role"), "planner")
+        self.assertIn(policy.get("role"), ["planner", "advisor"])
 
     def test_statistical_expert_cannot_execute(self):
         """Negative Capability Test: statistical-expert decides estimands but CANNOT execute shell/code."""
@@ -141,7 +141,7 @@ class TestAgentCapabilityBoundaries(unittest.TestCase):
         policy = get_agent_policy("statistical-expert", self.policy)
         self.assertFalse(policy.get("can_execute_code"))
         self.assertIn("run_command", policy.get("forbidden", []))
-        self.assertEqual(policy.get("role"), "planner")
+        self.assertIn(policy.get("role"), ["planner", "advisor"])
 
     # =========================================================================
     # 3. Execution Workers Tests
@@ -254,6 +254,42 @@ class TestAgentCapabilityBoundaries(unittest.TestCase):
             self.assertNotIn("manage_subagents", tools, f"{worker} MUST NOT declare manage_subagents")
             policy = get_agent_policy(worker, self.policy)
             self.assertFalse(policy.get("can_delegate"), f"{worker} policy can_delegate must be False")
+
+    def test_advisors_cannot_delegate(self):
+        """Negative Capability Test: Control Plane advisors CANNOT invoke subagents."""
+        advisors = ["methodology-expert", "statistical-expert"]
+        for advisor in advisors:
+            tools = self.get_agent_tools(advisor)
+            self.assertNotIn("invoke_subagent", tools, f"{advisor} MUST NOT declare invoke_subagent")
+            self.assertNotIn("manage_subagents", tools, f"{advisor} MUST NOT declare manage_subagents")
+            policy = get_agent_policy(advisor, self.policy)
+            self.assertFalse(policy.get("can_delegate"), f"{advisor} policy can_delegate must be False")
+
+    def test_advisors_cannot_write_files(self):
+        """Negative Capability Test: Control Plane advisors are consultative and CANNOT mutate files."""
+        advisors = ["methodology-expert", "statistical-expert"]
+        for advisor in advisors:
+            tools = self.get_agent_tools(advisor)
+            self.assertNotIn("write_to_file", tools, f"{advisor} MUST NOT declare write_to_file")
+            self.assertNotIn("replace_file_content", tools, f"{advisor} MUST NOT declare replace_file_content")
+            policy = get_agent_policy(advisor, self.policy)
+            self.assertFalse(policy.get("can_write_files"), f"{advisor} policy can_write_files must be False")
+
+    def test_critics_cannot_write_files(self):
+        """Negative Capability Test: Validation Plane critics/auditors CANNOT mutate files."""
+        critics = [
+            "results-auditor",
+            "academic-challenger",
+            "final-judge",
+            "evidence-auditor",
+            "statistical-auditor",
+        ]
+        for critic in critics:
+            tools = self.get_agent_tools(critic)
+            self.assertNotIn("write_to_file", tools, f"{critic} MUST NOT declare write_to_file")
+            self.assertNotIn("replace_file_content", tools, f"{critic} MUST NOT declare replace_file_content")
+            policy = get_agent_policy(critic, self.policy)
+            self.assertFalse(policy.get("can_write_files"), f"{critic} policy can_write_files must be False")
 
 
 if __name__ == "__main__":

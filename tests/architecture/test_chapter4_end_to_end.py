@@ -181,7 +181,8 @@ class TestChapter4EndToEnd(unittest.TestCase):
         # Step 3: Delegation 1 -> methodology-expert (Formulates Analysis Plan)
         method_tools = self.get_agent_tools("methodology-expert")
         self.assertNotIn("run_command", method_tools, "methodology-expert must be a thinker, not an execution hand")
-        self.assertIn("write_to_file", method_tools, "methodology-expert can write analysis plans")
+        self.assertNotIn("write_to_file", method_tools, "methodology-expert is a consultative advisor, not a file writer")
+        self.assertNotIn("invoke_subagent", method_tools, "methodology-expert cannot delegate in planar architecture")
 
         delegation_to_methodology = {
             "name": "invoke_subagent",
@@ -279,7 +280,8 @@ class TestChapter4EndToEnd(unittest.TestCase):
         # Step 6: Delegation 4 -> results-auditor (Audits APA 7 typography & tables)
         results_auditor_tools = self.get_agent_tools("results-auditor")
         self.assertNotIn("run_command", results_auditor_tools, "results-auditor must NOT execute code")
-        self.assertIn("write_to_file", results_auditor_tools, "results-auditor writes audit reports")
+        self.assertNotIn("write_to_file", results_auditor_tools, "results-auditor is a read-only critic")
+        self.assertNotIn("invoke_subagent", results_auditor_tools, "results-auditor cannot delegate")
 
         delegation_to_results_auditor = {
             "name": "invoke_subagent",

@@ -243,37 +243,28 @@ Workers must **NEVER** return simply `"done"`, `"completed"`, or unstructured te
 ---
 
 ## 🔁 Failure Resolution & Retry Budget Protocol
-
 When `validation-agent` reports `FAIL`:
-1. **Isolate Specific Diagnostics**:
-   - Parse exact failure messages (e.g. "Table 2 missing leading zero in Persian cell `0.04`", "Homogeneity of slopes violated, ANCOVA invalid").
-2. **Enforce Retry Budget**:
-   - Maximum **3 retry attempts** per stage.
-   - Track each retry attempt within the orchestration session and handoff envelope.
-3. **Targeted Remediation Delegation**:
-   - Re-invoke the responsible specialist agent (`invoke_subagent`) providing the exact error diagnostic report.
-   - Do NOT restart the entire pipeline; only re-execute the failed micro-stage.
-4. **Re-Validate**:
-   - Delegate validation to `validation-agent` until `overall_verdict: PASS` is attained.
+1. **Isolate Specific Diagnostics**: Parse exact failure messages (e.g. missing leading zero, assumption violation).
+2. **Enforce Retry Budget**: Maximum **3 retry attempts** per stage. Track each attempt.
+3. **Targeted Remediation Delegation**: Re-invoke responsible specialist agent (`invoke_subagent`) with error diagnostics. Do NOT restart pipeline; only re-execute failed micro-stage.
+4. **Re-Validate**: Delegate validation to `validation-agent` until `overall_verdict: PASS` is attained.
 
 ---
 
 ## 🧠 Continuous Learning Trigger Protocol (User Feedback & Validation Failures)
-
-Under Directive 19 and `LEARNING_MULTI_AGENT_SPEC.md`, continuous learning is an active operational duty, not a passive log.
+Under Directive 19 and `LEARNING_MULTI_AGENT_SPEC.md`, continuous learning is an active operational duty.
 
 ### 1. Trigger 1: User Critique / Correction Detected (`USER_FEEDBACK_DETECTED`)
-Whenever the user reports that an artifact, calculation, formatting, table, or methodology has an error, bug, or flaw (or rejects a stage deliverable):
+Whenever user reports an artifact/calculation error, bug, or flaw (or rejects a deliverable):
 1. **DO NOT simply apologize and attempt a quick ad-hoc fix in the dark.**
-2. **Execute the Diagnostic Subagent Cascade**:
-   - **Step 1 (`trajectory-analyzer`)**: Call `invoke_subagent(TypeName="trajectory-analyzer", Prompt="Reconstruct observable actions, tool calls, and error trajectory for user critique: <critique_summary>")` to extract the factual sequence of commands, tools, arguments, and file outputs from `transcript.jsonl`.
-   - **Step 2 (`behavior-analyst`)**: Call `invoke_subagent(TypeName="behavior-analyst", Prompt="Perform causal root-cause analysis on the reconstructed trajectory to identify defect signature and failure mechanism")`.
-   - **Step 3 (`knowledge-curator`)**: Call `invoke_subagent(TypeName="knowledge-curator", Prompt="Catalog the diagnosed anti-pattern into state/pitfalls.jsonl and stage reusable lesson")`.
-3. **Execute Targeted Remediation**:
-   - Once the pitfall is cataloged, delegate the corrected task to the appropriate specialist worker (`invoke_subagent`) with the explicit pitfall constraint.
+2. **Execute Diagnostic Subagent Cascade**:
+   - **Step 1 (`trajectory-analyzer`)**: Call `invoke_subagent(TypeName="trajectory-analyzer", Prompt="Reconstruct observable actions, tool calls, and error trajectory for user critique: <critique_summary>")`.
+   - **Step 2 (`behavior-analyst`)**: Call `invoke_subagent(TypeName="behavior-analyst", Prompt="Perform causal root-cause analysis on reconstructed trajectory to identify defect signature")`.
+   - **Step 3 (`knowledge-curator`)**: Call `invoke_subagent(TypeName="knowledge-curator", Prompt="Catalog diagnosed anti-pattern into state/pitfalls.jsonl and stage reusable lesson")`.
+3. **Execute Targeted Remediation**: Once cataloged, delegate corrected task to specialist worker (`invoke_subagent`) with pitfall constraint.
 
 ### 2. Trigger 2: Systematic or Repeated Validation Failure (`VALIDATION_FAILED`)
-When `validation-agent` reports `FAIL` and the issue cannot be resolved by a simple 1-step re-run, or if the failure recurs:
+When `validation-agent` reports `FAIL` repeatedly:
 1. Dispatch `trajectory-analyzer` and `behavior-analyst` to analyze why the worker violated the invariant.
 2. Record the anti-pattern before authorizing further attempts.
 

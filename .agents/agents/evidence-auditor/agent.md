@@ -13,7 +13,6 @@ tools:
   - find_by_name
   - read_url_content
   - search_web
-  - write_to_file
 skills:
   - thesis-integrity-auditor
   - irandoc-plagiarism-reducer

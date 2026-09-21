@@ -58,54 +58,59 @@ agents:
       - define_subagent
 
   methodology-expert:
-    role: "planner"
-    tier: "Tier 2 — Domain Authority"
+    role: "advisor"
+    tier: "Tier 1 — Control Plane Advisor"
     mainAgent: false
     subagent: true
-    can_delegate: true
+    can_delegate: false
     can_execute_code: false
-    can_write_files: true
+    can_write_files: false
     required:
-      - invoke_subagent
-      - manage_subagents
-      - send_message
       - view_file
       - list_dir
       - grep_search
       - find_by_name
-      - write_to_file
+      - ask_question
     forbidden:
       - run_command
+      - write_to_file
       - replace_file_content
+      - multi_replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
       - define_subagent
       - call_mcp_tool
       - manage_task
       - schedule
 
   statistical-expert:
-    role: "planner"
-    tier: "Tier 2 — Domain Authority"
+    role: "advisor"
+    tier: "Tier 1 — Control Plane Advisor"
     mainAgent: false
     subagent: true
-    can_delegate: true
+    can_delegate: false
     can_execute_code: false
-    can_write_files: true
+    can_write_files: false
     required:
-      - invoke_subagent
-      - manage_subagents
-      - send_message
       - view_file
       - list_dir
       - grep_search
       - find_by_name
-      - write_to_file
+      - ask_question
     forbidden:
       - run_command
+      - write_to_file
       - replace_file_content
+      - multi_replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
       - define_subagent
       - call_mcp_tool
       - manage_task
       - schedule
+
 
   academic-writer:
     role: "writing_worker"
@@ -133,12 +138,12 @@ agents:
 
   evidence-auditor:
     role: "auditor"
-    tier: "Tier 2 — Domain Authority"
+    tier: "Tier 2 — Research Plane Auditor"
     mainAgent: false
     subagent: true
     can_delegate: false
     can_execute_code: false
-    can_write_files: true
+    can_write_files: false
     required:
       - view_file
       - list_dir
@@ -146,10 +151,11 @@ agents:
       - find_by_name
       - read_url_content
       - search_web
-      - write_to_file
     forbidden:
       - run_command
+      - write_to_file
       - replace_file_content
+      - multi_replace_file_content
       - invoke_subagent
       - manage_subagents
       - send_message
@@ -160,21 +166,23 @@ agents:
 
   final-judge:
     role: "auditor"
-    tier: "Tier 2 — Domain Authority"
+    tier: "Tier 4 — Validation Critic"
     mainAgent: false
     subagent: true
     can_delegate: false
     can_execute_code: false
-    can_write_files: true
+    can_write_files: false
     required:
       - view_file
       - list_dir
       - grep_search
       - find_by_name
-      - write_to_file
+      - ask_question
     forbidden:
       - run_command
+      - write_to_file
       - replace_file_content
+      - multi_replace_file_content
       - invoke_subagent
       - manage_subagents
       - send_message
@@ -381,19 +389,24 @@ agents:
     can_delegate: false
     can_execute_code: true
     execution_justification: "Deterministic statistical verification, degrees-of-freedom concordance, and MSAI anomaly calculation."
-    can_write_files: true
+    can_write_files: false
     required:
       - view_file
       - list_dir
       - grep_search
       - find_by_name
-      - write_to_file
       - run_command
     forbidden:
+      - write_to_file
+      - replace_file_content
+      - multi_replace_file_content
       - invoke_subagent
       - manage_subagents
       - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   research-agent:
     role: "execution_worker"
@@ -448,16 +461,17 @@ agents:
     subagent: true
     can_delegate: false
     can_execute_code: false
-    can_write_files: true
+    can_write_files: false
     required:
       - view_file
       - list_dir
       - grep_search
       - find_by_name
-      - write_to_file
     forbidden:
       - run_command
+      - write_to_file
       - replace_file_content
+      - multi_replace_file_content
       - invoke_subagent
       - manage_subagents
       - send_message
@@ -473,16 +487,17 @@ agents:
     subagent: true
     can_delegate: false
     can_execute_code: false
-    can_write_files: true
+    can_write_files: false
     required:
       - view_file
       - list_dir
       - grep_search
       - find_by_name
-      - write_to_file
     forbidden:
       - run_command
+      - write_to_file
       - replace_file_content
+      - multi_replace_file_content
       - invoke_subagent
       - manage_subagents
       - send_message

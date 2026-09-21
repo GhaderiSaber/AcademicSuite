@@ -152,12 +152,20 @@ AcademicSuite/
 
 ## 4. Antigravity System Integration & Runtime Model
 
-### Lead Agent vs. Subagent Mechanics
-1. **The Lead Conductor**: Antigravity is the sole orchestration engine. The main conversation runs as the lead agent (`digital-saber`), communicating in English with the researcher, directing tasks, and managing stage gates.
-2. **Subagent Spawning**: Specialized cognitive roles are invoked natively via `invoke_subagent` (e.g. `invoke_subagent(TypeName="statistical-expert", ...)`).
-3. **Deterministic Hands**: Subagents and the lead agent execute Python/R CLI scripts via `run_command`. Under **Directive 2**, agents never compute statistics mentally.
-4. **Interactive Stage-Gate Protocol**: Under **Directive 11**, the system halts at every micro-stage, reports what was done and what is next, and waits for human confirmation.
-5. **Artifact Triad**: Under **Directive 3**, every stage outputs `.docx` (OpenXML Word), `.md` (Markdown tables & narrative), and `.json` (structured numerical data).
+### Lead Agent vs. Subagent Mechanics & The Planar Model
+1. **The Lead Conductor**: Antigravity is the sole orchestration engine. In academic pipelines, `academic-orchestrator` acts as the master conductor. Under **Directive 20**, `academic-orchestrator` possesses `invoke_subagent` and is strictly prohibited from holding code execution tools (`run_command`) or file mutation tools (`write_to_file`, `replace_file_content`).
+2. **The Planar Architecture Model (6 Operational Planes + 1 Administrative Plane)**:
+   - **Control Plane**: `academic-orchestrator` (Conductor), `methodology-expert` (Advisor), `statistical-expert` (Advisor). Advisors advise but do not delegate (`can_delegate: false`) or mutate files (`can_write_files: false`).
+   - **Research Plane**: `research-agent`, `literature-expert`, `evidence-auditor` (Critic, read-only).
+   - **Data Plane**: `data-agent`, `data-curator`.
+   - **Statistics Plane**: `statistics-agent`, `psychometric-expert`, `longitudinal-modmed-expert`, `qualitative-analyst`, `meta-analyst`.
+   - **Writing Plane**: `academic-writer`, `intervention-designer`, `journal-strategist`.
+   - **Validation Plane**: `validation-agent`, `statistical-auditor`, `results-auditor`, `academic-challenger`, `final-judge`. All evaluative critics are strictly prohibited from mutating files.
+   - **Administrative Plane**: 6 continuous learning & evolution agents (`trajectory-analyzer`, `behavior-analyst`, `knowledge-curator`, `skill-evolver`, `evaluation-agent`, `curriculum-builder`) operating in an isolated administrative plane.
+3. **Subagent Spawning**: Specialized cognitive roles are invoked natively via `invoke_subagent` exclusively by conductors; secondary advisors and workers do not delegate.
+4. **Deterministic Hands**: Specialist workers execute Python/R CLI scripts via `run_command`. Under **Directive 2**, agents never compute statistics mentally.
+5. **Interactive Stage-Gate Protocol**: Under **Directive 11**, the system halts at every micro-stage, reports what was done and what is next, and waits for human confirmation.
+6. **Artifact Triad**: Under **Directive 3**, every stage outputs `.docx` (OpenXML Word), `.md` (Markdown tables & narrative), and `.json` (structured numerical data).
 
 ---
 
