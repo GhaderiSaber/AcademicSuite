@@ -1,8 +1,9 @@
 # AcademicSuite — Target Architecture & Antigravity Compatibility Specification
 
-**Document Version:** 1.0.0 (Target Architecture)  
+**Document Version:** 1.0.0 (Target Roadmap)  
 **Operative Date:** September 2026 (1405 SH)  
-**System Status:** Authoritative Target Architecture  
+**System Status:** **TARGET ROADMAP & DESIGN SPECIFICATION (NOT CURRENT OPERATIONAL BASELINE)**  
+**Classification Guide:** See [docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md](../ARCHITECTURE_TAXONOMY_AND_TRUTH.md) for the active Current Ground Truth architecture.
 
 ---
 

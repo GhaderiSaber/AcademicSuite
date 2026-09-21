@@ -1,8 +1,9 @@
 # Academic Suite — Current System Architecture Audit
 
-**Document Version:** 1.0.0 (Phase 1 Audit)  
+**Document Version:** 3.0.0 (Consolidated Production Baseline)  
 **Operative Date:** September 2026 (1405 SH)  
-**System Status:** Operational — Antigravity-Native Multi-Agent Orchestration with Deterministic Hands  
+**System Status:** **AUTHORITATIVE CURRENT ARCHITECTURE (GROUND TRUTH)**  
+**Classification Guide:** See [docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md](ARCHITECTURE_TAXONOMY_AND_TRUTH.md) for reconciliation with historical phase records.
 
 ---
 
@@ -98,9 +99,9 @@ Modular Python classes encapsulating domain reasoning rules:
 - `writing_reasoner.py`: Evaluates paragraph cadence, vocabulary diversity, and Iranian academic register.
 
 ### Layer 4: Specialized Skills & Hands (`.agents/skills/`)
-The practical execution modules (43 active production skills):
-- **43 Focused Production Skills**: Complete capabilities containing deterministic Python/R scripts, reference guidelines, canonical example payloads, and input/output JSON schemas.
-- **10 Retired Legacy Workflow Shells**: Archived to `legacy/skills/` with documentation (detailed in `docs/LEGACY_INVENTORY.md` and `docs/SKILL_INVENTORY.md`).
+The practical execution modules (44 active production skills):
+- **44 Focused Production Skills**: Complete capabilities containing deterministic Python/R scripts, reference guidelines, canonical example payloads, and input/output JSON schemas.
+- **10 Retired Legacy Workflow Shells**: Archived to `.agents/legacy/skills/` with documentation (detailed in `docs/LEGACY_INVENTORY.md` and `docs/SKILL_INVENTORY.md`).
 
 ### Layer 5: Quality Control & Defense Committee (`.agents/verification/`)
 Adversarial quality gates protecting deliverable integrity:
@@ -116,39 +117,35 @@ Adversarial quality gates protecting deliverable integrity:
 
 ```text
 AcademicSuite/
-├── .agents/                               # Digital Saber Cognitive Subsystem
-│   ├── agents/                            # 22 Option-1 Packaged Agents (agent.md + contract.md + symlinks)
-│   ├── architecture/                      # Multi-agent protocols and deliberation specifications
-│   │   ├── ADVERSARIAL_CRITIC_PROTOCOL.md
-│   │   ├── HYBRID_MULTI_AGENT_SPEC.md
-│   │   └── PURE_ANTIGRAVITY_DELIBERATION_PROTOCOL.md
-│   ├── evaluation/                        # Benchmarking & style fidelity evaluators
-│   ├── hooks.json                         # Antigravity lifecycle hooks (PreToolUse, PostToolUse, PreInvocation, Stop)
-│   ├── identity/                          # 5 core identity and constitution documents
-│   ├── memory/                            # Case-Based Reasoning, cases (16), decisions journal
-│   ├── plugins/                           # academic-suite plugin (plugin.json, rules/AGENTS.md)
-│   ├── reasoning/                         # 4 Python domain reasoning engines
-│   ├── references/                        # Master reference documents & standards manuals (5 docs)
-│   ├── rules/                             # 6 modular domain rule markdown files
-│   ├── shared/                            # Core engines: digital_saber_shell.py, openxml_artifact_engine.py
-│   ├── skills/                            # 43 active production skills (scripts, resources, examples, schemas)
-│   ├── skills.json                        # Skill registry configuration
-│   ├── templates/                         # PROJECT_BRIEF_TEMPLATE.md
-│   ├── verification/                      # 8 verification engines & guards
-│   └── workflows/                         # Deprecated directory (archived to legacy/workflows/)
-├── AGENTS.md                              # Repository Root Constitutional Directives (Directives 0-18)
-├── ANTIGRAVITY_ARCHITECTURE_GUIDE.md      # Comprehensive technical Antigravity integration guide
-├── Questionnaires.xlsx                    # Psychometric scale database (4,880 validated instruments)
-├── README.md                              # Project overview and installation documentation
-├── SETUP_GUIDE.md                         # Workspace setup and environment bootstrap guide
-├── data/                                  # Datasets and empirical data files
-├── digital_saber.py                       # Master CLI entrypoint (Legacy Python orchestrator)
-├── projects/                              # Student / thesis client engagement workspaces
+├── .agents/                               # Consolidated Digital Saber Cognitive Subsystem
+│   ├── agents/                            # 30 Packaged Agents (28 Production Roles + 2 Verification Roles)
+│   ├── skills/                            # 44 Active Production Skills (scripts, resources, examples, schemas)
+│   ├── contracts/                         # 51 Authoritative Schemas & Behavioral Policy Contracts
+│   ├── scripts/                           # Deterministic Orchestration, State & Routing Engines
+│   ├── validators/                        # Deterministic Gatekeepers (Data, Reporting, Numerical, Assumptions)
+│   ├── tools/                             # Computational Engines ("The Hands": Python & R)
+│   ├── factory/                           # Agent & Skill Generative Meta-Factory
+│   ├── recovery/                          # Failure Recovery & State Diagnostics Engine
+│   ├── learning/                          # Autonomous Agent Evolution, Lessons & Behavioral Memory
+│   ├── state/                             # Persistent State Ledger & Milestone Progression
+│   ├── legacy/                            # Retired Components Archive (10 workflows & legacy skills)
+│   ├── rules/                             # Constitutional Directives & Guardrails
+│   ├── hooks/                             # Antigravity Lifecycle Hook Runner Scripts
+│   ├── hooks.json                         # Hooks Configuration Manifest
+│   ├── identity/                          # Digital Saber Persona & Core Constitution
+│   ├── memory/                            # Case-Based Reasoning (16 cases) & Decision Journal
+│   └── verification/                      # MSAI Anomaly Detector & Committee Viva Voce Simulator
+├── docs/                                  # Centralized Documentation, Contracts & Architecture Blueprints
+├── evals/                                 # Permanent Evaluation Benchmark Suite
+├── tests/                                 # 1,060+ Automated Pytest Tests (100% Green Signal)
+├── webapp/                                # Academic Suite Interactive Web Console
+├── projects/                              # Active Thesis Projects & Study Workspaces
+├── Questionnaires.xlsx                    # Psychometric database (4,880 validated instruments)
+├── AGENTS.md                              # Repository Root Constitutional Directives (Directives 0-20)
+├── ANTIGRAVITY_ARCHITECTURE_GUIDE.md      # Google Antigravity Platform Guide
 ├── requirements.txt                       # Python dependencies (scipy, pingouin, python-docx, etc.)
-├── run_tests.py                           # System test runner
-├── scripts/                               # Administrative, Telegram client, webapp & bootstrap scripts
-├── tests/                                 # Integration and unit test suite
-└── webapp/                                # Local dashboard interface (FastAPI / HTML)
+├── run_tests.py                           # Master test runner with pre-flight compilation check
+└── README.md                              # Project overview and installation documentation
 ```
 
 ---
@@ -206,6 +203,8 @@ Antigravity Lifecycle Event
 ---
 
 ## 7. Current Architecture Health & Overlap Summary
-1. **Agent Governance (Phase 4 Complete)**: Exactly 22 agents packaged into Option-1 directories (`agent.md` + 12-section `contract.md` + flat symlinks). Zero stale legacy skill references remain.
-2. **Skills Consolidation (Phase 16 Complete)**: Exactly 43 active production skills in `.agents/skills/`. The 10 legacy workflow-converted shells have been safely retired to `legacy/skills/`.
-3. **Sole Orchestrator Mandate (Directive 12.1 Enforced)**: Antigravity is the sole agent orchestrator. Python scripts operate strictly as deterministic computational tools ("The Hands"). All legacy emulators are deprecated.
+1. **Agent Governance**: Exactly 30 agents packaged into Option-1 directories in `.agents/agents/` (28 production cognitive roles [22 domain + 6 learning] + 2 minimal verification roles), each governed by a 12-section `contract.md`.
+2. **Skills Consolidation**: Exactly 44 active production skills in `.agents/skills/`. The 10 legacy workflow-converted shells are safely retired to `.agents/legacy/skills/`.
+3. **Contracts & Schemas**: Exactly 51 schema and policy contracts in `.agents/contracts/`.
+4. **Sole Orchestrator Mandate (Directive 12.1 Enforced)**: Antigravity is the sole agent orchestrator. Python scripts operate strictly as deterministic computational tools ("The Hands"). Standalone emulators are permanently deprecated.
+5. **Architectural Ground Truth**: Reconciled and classified in [docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md](ARCHITECTURE_TAXONOMY_AND_TRUTH.md).
