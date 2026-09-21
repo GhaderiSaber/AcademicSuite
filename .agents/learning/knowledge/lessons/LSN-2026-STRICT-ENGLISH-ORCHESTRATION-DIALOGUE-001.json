@@ -1,0 +1,31 @@
+{
+  "lesson_id": "LSN-2026-STRICT-ENGLISH-ORCHESTRATION-DIALOGUE-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-LANGUAGE-BLEED",
+  "diagnosis": {
+    "what_happened": "The orchestrator agent's responses bled into Persian due to context saturation from generated academic artifacts.",
+    "behavior_caused_outcome": "Context window contamination blurred the boundary between artifact language and conversational language.",
+    "what_should_have_happened": "Agent must maintain English-only operational/meta communication regardless of what language is being generated into artifacts.",
+    "rationale_why": "English is required for standardizing meta-orchestration dialogue with the user."
+  },
+  "desired_behavior": "Every orchestrator turn, status report, and user interaction must be conducted strictly in English, regardless of the target artifact's native language.",
+  "generalization": "Strict contextual language decoupling between generation (target language) and orchestration (English).",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "LANGUAGE_DECOUPLING",
+    "observed_value": "Conversational output matched artifact output language.",
+    "threshold_value": "Conversational output must be English.",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T17:58:22Z",
+  "derived_by": "knowledge-curator"
+}

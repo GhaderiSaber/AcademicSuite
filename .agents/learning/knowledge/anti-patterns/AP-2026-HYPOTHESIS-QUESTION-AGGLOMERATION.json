@@ -1,0 +1,11 @@
+{
+  "anti_pattern_id": "AP-2026-HYPOTHESIS-QUESTION-AGGLOMERATION",
+  "category": "structure",
+  "defective_pattern": "Lumping multiple research questions (e.g. Questions 2 and 3) into a single chapter section and using bullet-like bold strings instead of formal academic prose.",
+  "why_defective": "Violates the fundamental One-Question-One-Section invariant, obscures independent findings, and compromises scholarly tone.",
+  "observed_symptoms": [],
+  "corrective_remedy": "Enforce strictly separate, dedicated H2 sections for each research question and hypothesis, formatted in flowing, cohesive academic prose.",
+  "detection_heuristic": {},
+  "reusable": true,
+  "updated_at": "2026-09-21T17:50:00Z"
+}

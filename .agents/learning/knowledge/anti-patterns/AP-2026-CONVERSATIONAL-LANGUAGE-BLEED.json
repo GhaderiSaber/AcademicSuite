@@ -1,0 +1,11 @@
+{
+  "anti_pattern_id": "AP-2026-CONVERSATIONAL-LANGUAGE-BLEED",
+  "category": "orchestration",
+  "defective_pattern": "Emitting orchestrator-to-user dialogue, stage completion reports, or meta-conversational messages in the artifact's target language (Persian) due to context token contamination, violating the English-only conversation rule.",
+  "why_defective": "Violates the user's communication standard and blurs the boundary between artifact generation and process orchestration.",
+  "observed_symptoms": [],
+  "corrective_remedy": "Enforce strict contextual language decoupling: 100% of conversational dialogue, progress summaries, reports, and questions with the user must strictly be in English. Persian is restricted exclusively to academic text written inside deliverable artifacts on disk.",
+  "detection_heuristic": {},
+  "reusable": true,
+  "updated_at": "2026-09-21T17:58:22Z"
+}

@@ -1,0 +1,32 @@
+{
+  "lesson_id": "LSN-2026-ACADEMIC-TABLE-SPARSITY-AND-TERMINOLOGY-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-FEEDBACK-002",
+  "diagnosis": {
+    "what_happened": "Translation inaccuracies, cell corruption through star stripping, agglomeration of questions, and data clutter with hyphens in empty matrices.",
+    "behavior_caused_outcome": "Indiscriminate regex replaced statistical stars; lack of structural gating merged hypotheses; generative models hallucinated terminology.",
+    "what_should_have_happened": "Enforce exact terminological mapping, preserve statistical notation, maintain isolated sections per hypothesis, and output blank cells for empty matrix positions.",
+    "rationale_why": "Scholarly precision in psychology requires explicit terminology, rigorous separation of claims, and standard numeric notation."
+  },
+  "desired_behavior": "Use exact Persian psychological terminology ('متغیر' and 'مؤلفه'), two-column variable-component structures, standard abbreviations (CI 95%, ثابت), pure numeric cells with significance stars preserved, and pure blank sparseness for unestimated cells.",
+  "generalization": "Execution pipelines must map domain terminology precisely, preserve standard statistical symbols against formatter stripping, and separate findings strictly by hypothesis.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "MANUAL_REVIEW",
+    "observed_value": "Formatting errors and term errors",
+    "threshold_value": "Strict domain compliance",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-academic-translation",
+    "apa-reporting"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T17:50:00Z",
+  "derived_by": "knowledge-curator"
+}
