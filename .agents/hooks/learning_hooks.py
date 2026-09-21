@@ -347,14 +347,23 @@ class LearningHooks:
 
             try:
                 from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
-                hub = AcademicIntegratedLearningHub(base_dir=ROOT_DIR)
-                meta = {
-                    "conversation_id": cid,
-                    "source_transcript_path": transcript_path,
-                    "turn_index": last_step_idx,
-                    "workspace_paths": payload.get("workspacePaths", [ROOT_DIR])
-                }
-                hub.process_user_turn(user_text=clean_user, metadata=meta)
+                ws_paths = payload.get("workspacePaths", [])
+                if ws_paths and os.path.isdir(ws_paths[0]):
+                    base_ws = ws_paths[0]
+                elif "PYTEST_CURRENT_TEST" in os.environ or "pytest" in sys.modules:
+                    base_ws = None
+                else:
+                    base_ws = ROOT_DIR
+
+                if base_ws:
+                    hub = AcademicIntegratedLearningHub(base_dir=base_ws)
+                    meta = {
+                        "conversation_id": cid,
+                        "source_transcript_path": transcript_path,
+                        "turn_index": last_step_idx,
+                        "workspace_paths": [base_ws]
+                    }
+                    hub.process_user_turn(user_text=clean_user, metadata=meta)
             except Exception as e_hub:
                 sys.stderr.write(f"[learning_hooks] Hub user turn note: {e_hub}\n")
 
@@ -398,16 +407,35 @@ class LearningHooks:
         if not failed_results:
             return
 
+        cand_base = None
+        if stage_dir:
+            cand = os.path.dirname(os.path.abspath(stage_dir))
+            while cand and cand != "/" and cand != ROOT_DIR:
+                if "test_" in os.path.basename(cand) or "academic_" in os.path.basename(cand) or "tmp" in os.path.basename(cand) or os.path.isdir(os.path.join(cand, ".agents")):
+                    cand_base = cand
+                    break
+                cand = os.path.dirname(cand)
+        if not cand_base:
+            if "PYTEST_CURRENT_TEST" in os.environ or "pytest" in sys.modules:
+                cand_base = None
+            else:
+                cand_base = ROOT_DIR
+
+        if not cand_base:
+            return
+
         try:
             from scripts.trajectory_engine import TrajectoryEngine, TrajectoryEventType
             cand_state = os.path.join(os.path.dirname(stage_dir), "state")
             if not os.path.exists(cand_state):
+                cand_state = os.path.join(cand_base, "state")
+            if not os.path.exists(cand_state):
                 cand_state = os.path.join(ROOT_DIR, "state")
-            engine = TrajectoryEngine(state_dir=cand_state, project_root=ROOT_DIR)
+            engine = TrajectoryEngine(state_dir=cand_state, project_root=cand_base)
             for fr in failed_results:
                 engine.record_event(
                     TrajectoryEventType.VALIDATION_FAILED,
-                    payload={"workspacePaths": [ROOT_DIR]},
+                    payload={"workspacePaths": [cand_base]},
                     details={
                         "validator_name": fr.get("validator_name", "Validator"),
                         "failed_checks": fr.get("failed_checks", []),
@@ -420,14 +448,14 @@ class LearningHooks:
 
         try:
             from scripts.academic_experience_recorder import AcademicExperienceRecorder
-            rec = AcademicExperienceRecorder(project_root=ROOT_DIR)
+            rec = AcademicExperienceRecorder(project_root=cand_base)
             rec.record_from_stage(stage_dir, outcome="FAILURE")
         except Exception as e_rec:
             sys.stderr.write(f"[learning_hooks] Experience recording note: {e_rec}\n")
 
         try:
             from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
-            hub = AcademicIntegratedLearningHub(base_dir=ROOT_DIR)
+            hub = AcademicIntegratedLearningHub(base_dir=cand_base)
             hub.process_validation_failure(
                 stage_dir=stage_dir,
                 validator_results=validator_results,
