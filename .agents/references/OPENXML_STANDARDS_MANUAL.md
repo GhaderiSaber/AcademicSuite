@@ -10,11 +10,11 @@ When assembling or editing Persian Word documents (`.docx`):
 | **Persian Font Binding & Complex-Script Attributes** | Genuine Persian Fonts | Binds `w:ascii`, `w:hAnsi`, `w:cs`, and `w:eastAsia` to genuine Persian fonts (`B Nazanin` or `B Titr`) with `w:hint="cs"`, `<w:szCs>`, and `<w:bCs>` to avoid fallback Arabic Naskh rendering in Microsoft Word for Windows. |
 
 - **Mandatory True Persian Font Binding**:
-  - When writing Persian text in Word (`.docx`), agents **MUST** use genuine Persian fonts for all Persian characters:
-    - Chapter Titles & Main Headers: `B Titr` (16–18 pt Bold, Centered).
-    - Headings 2 & 3: `B Titr` (13–14 pt Bold) or `B Nazanin Bold` (13–14 pt Bold, Right-aligned).
-    - Body Paragraphs, Descriptions & Callouts: `B Nazanin` (13–14 pt Regular, Line Spacing 1.15–1.3, Justified).
-    - Pure Latin Numbers, English Terms & Statistical Symbols ($M, SD, t, F, p, \beta, \text{RMSEA}$): `Times New Roman` (10–11 pt).
+  - When writing Persian text in Word (`.docx`), agents **MUST** strictly adhere to the following font hierarchy:
+    - **Chapter Names ONLY** (e.g., Chapter 1, Chapter 2): `B Titr` (Centered, RTL).
+    - **All Other Headings** (Headings 2 & 3, Sub-labels): `B Nazanin Bold`.
+    - **Body Paragraphs, Descriptions & Callouts**: `B Nazanin` strictly at **14 pt** (Regular, Line Spacing 1.15–1.3, Justified).
+    - **Pure Latin Numbers, English Terms & Statistical Symbols** ($M, SD, t, F, p, \beta, \text{RMSEA}$): `Times New Roman` (10–11 pt).
   - **OpenXML Persian Font Binding Protocol**:
     - For all Persian text runs, agents **MUST** set `w:ascii`, `w:hAnsi`, `w:cs`, and `w:eastAsia` to the designated Persian font (`B Nazanin` or `B Titr`), AND set `w:hint="cs"`.
     - **NEVER** bind `w:ascii="Times New Roman"` to Persian text runs; doing so causes Microsoft Word on Windows to render Persian characters using Times New Roman's Arabic Naskh fallback glyphs instead of genuine Persian typography.
@@ -47,6 +47,9 @@ When assembling or editing Persian Word documents (`.docx`):
       7. Document default style (`Normal`): Must enforce `paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` and `<w:bidi w:val="1"/>` with `<w:jc w:val="both"/>`.
   - Always enforce `<w:bidiVisual/>` on tables (`<w:tblPr>`).
   - Maintain Persian half-spaces (نیم‌فاصله: `\u200c`) in compound words (e.g., `می‌شود`, `پیش‌آزمون`, `یافته‌ها`, `روان‌شناختی`).
+- **Mandatory Scholarly Prose (No Bulleted Narrative)**:
+  - **Narrative Continuity**: All thesis findings and scholarly narratives must flow as continuous, cohesive academic paragraphs.
+  - **Prohibition of Lists**: The use of bullet points (`•`), numbered breakdowns (`1.`), or hyphenated lists (`-`) is strictly prohibited in the narrative body. Presentation-style fragmentation fundamentally violates the formal register of a dissertation.
 - **Zero Manual Line Breaks Policy (قاعده منع شکست دستی خط / Shift+Enter)**:
   - **NEVER use manual line breaks (`<w:br/>` / `\n` in run text)**.
   - **USE PARAGRAPH MARKS (`<w:p>`) EVERYWHERE**: Every distinct line, prompt, metadata entry, quote, bullet, or speaking script MUST be instantiated as an independent paragraph object (`doc.add_paragraph()` or `cell.add_paragraph()`).
@@ -54,8 +57,10 @@ When assembling or editing Persian Word documents (`.docx`):
   - **Paragraph Spacing**: Control spacing between elements exclusively through paragraph formatting properties (`p.paragraph_format.space_before` and `space_after` in `Pt(...)`), never by inserting empty paragraphs containing manual line breaks.
 - **Mandatory Table Standards (Font, Direction, Alignment & Paragraph Marks)**:
   - **Table Fonts**:
-    - Table Headers (Columns & Rows) and Category Labels: `B Titr` (10–11 pt Bold, Centered or Right-aligned).
-    - Table Data & Narrative Content: `B Nazanin` (10–10.5 pt Regular, Line Spacing 1.15–1.2).
+    - **Font size for Table content and Table captions is strictly 12 pt**.
+    - **Table Captions MUST be non-bold** (`B Nazanin` 12 pt Regular). Never apply `<w:b/>` to table captions.
+    - **NO `B Titr` font anywhere in tables or captions**.
+    - Table Headers, Category Labels, Table Data, and Narrative Content MUST all use `B Nazanin`.
     - Latin Terms, Symbols & English Metrics: `Times New Roman` (10–10.5 pt, Italic for statistical symbols $M, SD, t, F, p, \beta$).
   - **Table Directionality**:
     - Every table MUST have `<w:bidiVisual/>` injected into `<w:tblPr>` so column order renders strictly Right-to-Left.
@@ -70,10 +75,8 @@ When assembling or editing Persian Word documents (`.docx`):
     - Cell paragraph spacing MUST be regulated via `paragraph_format.space_before` and `space_after` in `Pt(...)`, never by inserting blank lines.
 - **Mandatory Header & Heading Standards (Font, Direction, Alignment & Paragraph Marks)**:
   - **Header Fonts**:
-    - Main Document Title / Cover Header: `B Titr` (16–18 pt Bold, Centered, RTL).
-    - Level 1 Section / Chapter Headings: `B Titr` (14–16 pt Bold, Right-aligned, RTL).
-    - Level 2 & 3 Headings (Slide Titles, Question Headings, Rule Titles): `B Titr` (12–13.5 pt Bold, Right-aligned, RTL).
-    - Section Sub-labels, Question Prompts & Callout Titles: `B Titr` (10.5–11.5 pt Bold, Right-aligned, RTL).
+    - **Chapter Names ONLY**: `B Titr` (Centered, RTL).
+    - **All Other Headings** (Level 1, Level 2, Sub-labels, Callout Titles): `B Nazanin Bold` (Right-aligned, RTL).
   - **Header Directionality**:
     - All headers MUST enforce RTL text direction (`<w:bidi w:val="1"/>` in `pPr` and `<w:rtl w:val="1"/>` in `rPr`).
   - **Header Paragraph Marks**:
