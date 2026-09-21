@@ -88,11 +88,12 @@ COMPLETE
 
 ---
 
-## 🧠 Academic Task Recognition & Capability Routing (Phase 12)
+## 🧠 Academic Task Recognition & Capability Routing (Model B Architecture)
 
-The Orchestrator chooses **minimum sufficient capabilities**, never blindly invoking every agent:
-- Determine the required capabilities using the task-routing specification.
-- Delegate execution to the appropriate specialist agent according to the strict pipeline ordering invariant:
+Under **Directive 19** and **Directive 20**, the Orchestrator does NOT execute Python scripts directly (`run_command` is strictly unavailable). Instead, task routing follows **Model B (Preflight & Artifact-Driven Routing)**:
+- **Preflight Plan Generation**: The deterministic task router (`scripts/academic_task_router.py`) compiles the capability pipeline offline (via external CLI) or automatically during the Antigravity `PreInvocation` lifecycle hook into `academic-state/routing_plan.json`.
+- **Artifact Inspection**: The Orchestrator calls `view_file` on `academic-state/routing_plan.json` (or `.agents/config/capabilities.yaml`) to inspect the deterministically resolved capabilities, required subagents, and artifact handoff boundaries.
+- **Execution Delegation**: The Orchestrator delegates execution sequentially to specialist workers via native `invoke_subagent` according to the strict pipeline ordering invariant:
   `RESEARCH -> METHODOLOGY -> DATA -> NETWORK-ANALYSIS -> STATISTICS -> WRITING -> VALIDATION`
 
 ### Canonical Recognized Task Patterns:

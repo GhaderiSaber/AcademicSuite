@@ -1863,8 +1863,8 @@ flowchart TD
     end
 
     subgraph Interception["Deterministic Interception Layer"]
-        PreInvoc["PreInvocation Lifecycle Hook (.agents/hooks/learning_hooks.py)"]
-        PreTool["PreToolUse Hook & Task Router (academic_task_router.py)"]
+        PreInvoc["PreInvocation Hook: Task Router (academic_task_router.py) & Context Injection"]
+        PreTool["PreToolUse Hook: Safety & Permission Guards"]
     end
 
     subgraph BoundaryEngine["Deterministic Boundary Engine"]

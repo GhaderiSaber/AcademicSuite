@@ -895,6 +895,38 @@ def build_pipeline(prompt: str) -> Dict[str, Any]:
     }
 
 
+def route_and_persist_plan(
+    prompt: str,
+    output_path: Optional[str] = None,
+    base_dir: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Model B Task Router Core:
+    Deterministically compiles capability routing plan for user task prompt
+    and persists it to academic-state/routing_plan.json on disk.
+
+    Returns the resolved plan dictionary.
+    """
+    plan = build_pipeline(prompt)
+    resolved_output = output_path
+    if not resolved_output:
+        root = base_dir or ROOT_DIR
+        state_dir = os.path.join(root, "academic-state")
+        if not os.path.exists(state_dir):
+            os.makedirs(state_dir, exist_ok=True)
+        resolved_output = os.path.join(state_dir, "routing_plan.json")
+    else:
+        out_dir = os.path.dirname(os.path.abspath(resolved_output))
+        if out_dir and not os.path.exists(out_dir):
+            os.makedirs(out_dir, exist_ok=True)
+
+    with open(resolved_output, "w", encoding="utf-8") as f:
+        json.dump(plan, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+
+    return plan
+
+
 # =============================================================================
 # 5. CLI Interface
 # =============================================================================
@@ -906,10 +938,12 @@ def main():
     # 1. route (compatibility)
     p_route = subparsers.add_parser("route", help="Determine minimum sufficient capability pipeline for a user task")
     p_route.add_argument("prompt", help="User task instruction prompt")
+    p_route.add_argument("-o", "--output", help="Optional output file path to persist JSON routing plan")
 
     # 2. resolve (modern capability resolver)
     p_resolve = subparsers.add_parser("resolve", help="Resolve task prompt to capabilities, workers, reviewers, and artifacts")
     p_resolve.add_argument("prompt", help="User task instruction prompt")
+    p_resolve.add_argument("-o", "--output", help="Optional output file path to persist JSON resolution plan")
     p_resolve.add_argument("--teamwork-boundary", action="store_true", help="Output only the pure Antigravity Teamwork boundary manifest")
 
     # 3. explain (human-readable summary)
@@ -925,15 +959,23 @@ def main():
     args = parser.parse_args()
 
     if args.command == "route":
-        res = build_pipeline(args.prompt)
+        if getattr(args, "output", None):
+            res = route_and_persist_plan(args.prompt, output_path=args.output)
+        else:
+            res = build_pipeline(args.prompt)
         print(json.dumps(res, indent=2, ensure_ascii=False))
 
     elif args.command == "resolve":
         res = _RESOLVER.resolve(args.prompt)
-        if getattr(args, "teamwork_boundary", False) and "teamwork_boundary" in res:
-            print(json.dumps(res["teamwork_boundary"], indent=2, ensure_ascii=False))
-        else:
-            print(json.dumps(res, indent=2, ensure_ascii=False))
+        output_payload = res["teamwork_boundary"] if getattr(args, "teamwork_boundary", False) and "teamwork_boundary" in res else res
+        if getattr(args, "output", None):
+            out_dir = os.path.dirname(os.path.abspath(args.output))
+            if out_dir and not os.path.exists(out_dir):
+                os.makedirs(out_dir, exist_ok=True)
+            with open(args.output, "w", encoding="utf-8") as f:
+                json.dump(output_payload, f, indent=2, ensure_ascii=False)
+                f.write("\n")
+        print(json.dumps(output_payload, indent=2, ensure_ascii=False))
 
     elif args.command == "explain":
         res = build_pipeline(args.prompt)

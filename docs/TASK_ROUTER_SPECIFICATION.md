@@ -11,12 +11,16 @@ In naive multi-agent systems, an orchestrator often spawns every available agent
 In the Academic Suite:
 > **"The router chooses capabilities, not blindly invokes every agent."**
 
-When presented with a prompt:
-1. The **Academic Orchestrator** analyzes the prompt using `scripts/academic_task_router.py`.
-2. The router identifies the exact required capabilities (e.g. `DATA`, `STATISTICS`, `WRITING`).
-3. The router generates an ordered, dependency-verified execution pipeline.
-4. Only the necessary specialist subagents (`data-agent`, `statistics-agent`, `academic-writer`, `research-agent`, `validation-agent`) are invoked via Antigravity's native `invoke_subagent`.
-5. Unneeded capabilities and agents are completely pruned.
+When presented with an academic research prompt:
+1. **Preflight Intent & Capability Resolution (Model B Architecture)**:
+   - External CLI runners or the Antigravity `PreInvocation` lifecycle hook execute `scripts/academic_task_router.py` ("The Hands") deterministically.
+   - The router compiles the minimum sufficient capability pipeline into `academic-state/routing_plan.json`.
+2. **Artifact Consumption (The Brains)**:
+   - The **Academic Orchestrator** (pure cognitive conductor without `run_command`, Directive 20) calls `view_file` on `academic-state/routing_plan.json` (or inspects the pre-invocation context) to ingest the required capability order and artifact contracts.
+3. **Native Context-Isolated Delegation**:
+   - Only the necessary specialist subagents (`data-agent`, `statistics-agent`, `academic-writer`, `research-agent`, `validation-agent`) are invoked via Antigravity's native `invoke_subagent`.
+4. **Pruning**:
+   - Unneeded capabilities and agents are completely pruned.
 
 ---
 
@@ -166,14 +170,20 @@ python3 scripts/academic_task_router.py list-patterns
 
 ---
 
-## 7. Context Isolation & Orchestrator Integration
+## 7. Context Isolation & Orchestrator Integration (Model B Dataflow)
 
-When the **Academic Orchestrator** processes user tasks:
-1. It queries `scripts/academic_task_router.py route "<user prompt>"`.
-2. It parses the resulting JSON pipeline.
-3. For each step in the pipeline:
-   - It issues a lean **Contractual Delegation Envelope** via `invoke_subagent` exclusively to the assigned agent.
-   - The subagent calls `view_file` on its bound `SKILL.md` (Directive 1).
-   - The subagent executes deterministic scripts and deposits triad artifacts (`.docx`, `.md`, `.json`) into `academic-state/outputs/` (Directive 3).
-   - The subagent returns a concise handoff envelope with artifact pointers.
-4. At the conclusion of the stage, the Orchestrator emits the **Stage Completion Report** and pauses for user confirmation (Directive 11).
+Under **Directive 19 (Six-Part Separation)** and **Directive 20 (Orchestrator Non-Execution Invariant)**, the Academic Orchestrator possesses zero execution tools (`run_command` absent). Routing is strictly decoupled from runtime agent execution:
+
+1. **Preflight Plan Compilation**:
+   - For CLI/batch runs: `python3 scripts/academic_task_router.py route "<user prompt>" -o academic-state/routing_plan.json`
+   - For interactive chat: Antigravity's `PreInvocation` lifecycle hook intercepts the user message, invokes `academic_task_router.py`, persists `academic-state/routing_plan.json`, and injects the deterministic capability plan into the orchestrator context.
+2. **Deterministic Plan Consumption**:
+   - The Orchestrator inspects `academic-state/routing_plan.json` via its canonical `view_file` tool.
+3. **Sequential Context-Isolated Delegation**:
+   - For each step in the pipeline:
+     - It issues a lean **Contractual Delegation Envelope** via `invoke_subagent` exclusively to the assigned specialist agent.
+     - The subagent calls `view_file` on its bound `SKILL.md` (Directive 1).
+     - The subagent executes deterministic scripts and deposits triad artifacts (`.docx`, `.md`, `.json`) into `academic-state/outputs/` (Directive 3).
+     - The subagent returns a concise handoff envelope with artifact pointers.
+4. **Stage-Gate Gating**:
+   - At the conclusion of the stage, the Orchestrator emits the **Stage Completion Report** and pauses for user confirmation (Directive 11).

@@ -6,6 +6,11 @@
 **Execution Runtime:** Google Antigravity Multi-Agent Environment (`invoke_subagent`)  
 **Operative Date:** September 2026 (1405 SH)  
 
+> [!NOTE]
+> **Architectural Retrospective & Evolution to Model B**:
+> This baseline records the legacy V0 configuration where `academic-orchestrator` still possessed `run_command`. As demonstrated below, having execution privileges caused the orchestrator to repeatedly bypass workers and execute scripts ad-hoc.
+> Consequently, **Directive 20 (Orchestrator Non-Execution Invariant)** permanently stripped `run_command` from `academic-orchestrator`, and task routing was migrated to **Model B (Preflight & Artifact-Driven Routing)**, where `scripts/academic_task_router.py` is invoked strictly by external CLI runners or the Antigravity `PreInvocation` lifecycle hook.
+
 ---
 
 ## 1. Objective & Protocol
