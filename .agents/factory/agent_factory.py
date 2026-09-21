@@ -112,7 +112,17 @@ TARGET_SUBAGENTS: List[str] = [
     "academic-challenger",
 ]
 
-ALL_TARGET_ROLES: Set[str] = set(TARGET_DURABLE_AGENTS) | set(TARGET_SUBAGENTS)
+# Target Continuous Learning & Evolution Subagents
+TARGET_LEARNING_AGENTS: List[str] = [
+    "trajectory-analyzer",
+    "behavior-analyst",
+    "knowledge-curator",
+    "skill-evolver",
+    "curriculum-builder",
+    "evaluation-agent",
+]
+
+ALL_TARGET_ROLES: Set[str] = set(TARGET_DURABLE_AGENTS) | set(TARGET_SUBAGENTS) | set(TARGET_LEARNING_AGENTS)
 
 CONSTITUTIONAL_DIRECTIVES = """## 🛑 Mandatory Constitutional Directives (AGENTS.md Compliance)
 All subagents in this workspace operate under strict adherence to `AGENTS.md`:

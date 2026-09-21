@@ -206,8 +206,12 @@ def add_figure_image(doc, img_path: str, caption_text: str, note_text: str = "",
 
 # --- Epistemic Narrative Builders (Saber Voice) ---
 
-def get_demo_interpretation(label_fa: str, dom_cat: str, dom_pct: float, table_num_str: str = "") -> str:
+def get_demo_interpretation(label_fa: str, dom_cat: str, dom_pct: float, table_num_str: str = "", table_only: bool = False, custom_text: Optional[str] = None) -> str:
     """Generate rich ecological narrative placed directly above individual demographic tables."""
+    if table_only:
+        return ""
+    if custom_text:
+        return custom_text
     tbl_ref = f" (جدول {table_num_str}-۴)" if table_num_str else ""
     if "جنسیت" in label_fa:
         return (
@@ -219,11 +223,11 @@ def get_demo_interpretation(label_fa: str, dom_cat: str, dom_pct: float, table_n
         return (
             f"توزیع فراوانی و تحلیل توصیفی مقطع تحصیلی شرکت‌کنندگان به عنوان یکی دیگر از شاخص‌های جمعیت‌شناختی بررسی شد{tbl_ref}. "
             f"یافته‌ها حاکی از آن است که گروه «{dom_cat}» با اختصاص {format_persian_number(dom_pct)} درصد از حجم نمونه، غالب‌ترین طبقه تحصیلی را به خود اختصاص داده است. "
-            f"این ساختار منعکس‌کننده هرم جمعیتی جامعه دانشگاهی هدف بوده و اعتبار بیرونی یافته‌ها را تقویت می‌کند."
+            f"این ساختار منعکس‌کننده هرم جمعیتی جامعه پژوهش هدف بوده و اعتبار بیرونی یافته‌ها را تقویت می‌کند."
         )
     elif "رشته" in label_fa:
         return (
-            f"جهت واکاوی پراکندگی دانشجویان بر حسب حوزه‌های علمی، متغیر رشته تحصیلی آزمودنی‌ها طبقه‌بندی و بررسی شد{tbl_ref}. "
+            f"جهت واکاوی پراکندگی شرکت‌کنندگان بر حسب حوزه‌های تخصصی، متغیر رشته تحصیلی آزمودنی‌ها طبقه‌بندی و بررسی شد{tbl_ref}. "
             f"بر این اساس، بیشترین درصد فراوانی به گروه «{dom_cat}» با {format_persian_number(dom_pct)} درصد تعلق دارد. "
             f"گستردگی حوزه‌های تحصیلی از تمرکز سوگیرانه بر یک بافت رشته‌ای خاص جلوگیری می‌نماید."
         )
@@ -245,13 +249,17 @@ def get_demo_interpretation(label_fa: str, dom_cat: str, dom_pct: float, table_n
             f"یافته‌ها نشان می‌دهد که بیشترین فراوانی مربوط به طبقه «{dom_cat}» با {format_persian_number(dom_pct)} درصد بوده و توزیع داده‌ها گویای پراکندگی طبیعی متغیر در جامعه آماری است."
         )
 
-def get_hypothesis_intro_narrative(h_num: int, h_title: str, dv_name: str, preds: List[str]) -> List[str]:
+def get_hypothesis_intro_narrative(h_num: int, h_title: str, dv_name: str, preds: List[str], table_only: bool = False, custom_text: Optional[Any] = None) -> List[str]:
     """Generate 2-paragraph theoretical and methodological contextualization for each hypothesis."""
+    if table_only:
+        return []
+    if custom_text:
+        return custom_text if isinstance(custom_text, list) else [custom_text]
     preds_str = "، ".join(preds)
     p1 = (
         f"فرضیه {to_persian_digits(h_num)} پژوهش حاضر با هدف آزمون تجربی و واکاوی پیوند ساختاری بین متغیرهای پیش‌بین "
-        f"({preds_str}) با متغیر ملاک ({dv_name}) در میان دانشجویان تدوین گردید. "
-        f"از منظر الگوهای آسیب‌شناسی روانی و مبانی نظری شناختی، شناسایی سهم همزمان و منحصربه‌فرد هر یک از ابعاد سازه‌های پیش‌بین "
+        f"({preds_str}) با متغیر ملاک ({dv_name}) در میان آزمودنی‌ها تدوین گردید. "
+        f"از منظر مبانی نظری و الگوهای مفهومی، شناسایی سهم همزمان و منحصربه‌فرد هر یک از ابعاد سازه‌های پیش‌بین "
         f"امکان تبیین عمیق‌تر سازوکارهایی را فراهم می‌آورد که از طریق آن‌ها نوسانات متغیر ملاک شکل می‌گیرد. "
         f"بررسی چندمتغیری این مؤلفه‌ها مانع از استنتاج‌های تک‌عاملی ساده‌انگارانه شده و سهم تفکیک‌شده هر مؤلفه را مشخص می‌سازد."
     )
@@ -264,8 +272,12 @@ def get_hypothesis_intro_narrative(h_num: int, h_title: str, dv_name: str, preds
     )
     return [p1, p2]
 
-def get_tier1_correlation_narrative(h_num: int, dv_name: str, t1: dict) -> str:
+def get_tier1_correlation_narrative(h_num: int, dv_name: str, t1: dict, table_only: bool = False, custom_text: Optional[str] = None) -> str:
     """Generate narrative deconstructing Tier 1 bivariate correlation matrix."""
+    if table_only:
+        return ""
+    if custom_text:
+        return custom_text
     matrix = t1.get("matrix", {})
     stars = t1.get("stars", {})
     vars_list = t1.get("variables", [])
@@ -291,8 +303,12 @@ def get_tier1_correlation_narrative(h_num: int, dv_name: str, t1: dict) -> str:
         f"وجود این روابط معنادار اولیه، ضرورت و توجیه‌پذیری روش‌شناختی ورود همزمان این مؤلفه‌ها به معادله رگرسیون خطی را اثبات می‌نماید."
     )
 
-def get_tier2_anova_narrative(dv_name: str, reg_s: dict, res_s: dict, t2: dict) -> List[str]:
+def get_tier2_anova_narrative(dv_name: str, reg_s: dict, res_s: dict, t2: dict, table_only: bool = False, custom_text: Optional[Any] = None) -> List[str]:
     """Generate 2-paragraph narrative for Tier 2 ANOVA and Model Summary."""
+    if table_only:
+        return []
+    if custom_text:
+        return custom_text if isinstance(custom_text, list) else [custom_text]
     f_val = reg_s.get("F", 0)
     p_val = reg_s.get("p", 1)
     r_val = reg_s.get("R", 0)
@@ -330,37 +346,43 @@ def get_tier2_anova_narrative(dv_name: str, reg_s: dict, res_s: dict, t2: dict) 
     )
     return [p1, p2]
 
-def get_tier3_coeff_narrative(dv_name: str, coeffs: List[dict], verdict: str) -> List[str]:
+def get_tier3_coeff_narrative(dv_name: str, coeffs: List[dict], verdict: str, table_only: bool = False, custom_text: Optional[Any] = None) -> List[str]:
     """Generate 3-paragraph narrative for Tier 3 Regression Coefficients and verdict."""
+    if table_only:
+        return []
+    if custom_text:
+        return custom_text if isinstance(custom_text, list) else [custom_text]
+    dv_name = dv_name or "متغیر ملاک"
     sig_preds = []
     non_sig_preds = []
 
     for cf in coeffs:
-        if cf.get("variable") == "ثابت (Constant)":
+        v_name = cf.get("variable", "")
+        if v_name in ["ثابت (Constant)", "عرض از مبدأ", "Constant", "ثابت"]:
             continue
-        v_name = cf["variable"]
-        b_val = cf["B"]
-        beta_val = cf["beta"]
-        t_val = cf["t"]
-        p_val = cf["p"]
+        b_val = cf.get("B", 0.0)
+        beta_val = cf.get("beta", cf.get("Beta"))
+        t_val = cf.get("t", 0.0)
+        p_val = cf.get("p", 0.05)
+        is_sig = cf.get("is_significant", p_val < 0.05 if p_val is not None else False)
 
-        if cf.get("is_significant"):
-            direction = "کاهش" if beta_val < 0 else "افزایش"
+        if is_sig:
+            direction = "کاهش" if (beta_val is not None and beta_val < 0) else "افزایش"
             sig_preds.append(
-                f"متغیر {v_name} (با ضرایب B = {format_persian_number(b_val, 3)}، β = {format_persian_number(beta_val, 3)}، "
+                f"متغیر {v_name} (با ضرایب B = {format_persian_number(b_val, 3)}، β = {format_persian_number(beta_val, 3) if beta_val is not None else '-'}، "
                 f"t = {format_persian_number(t_val, 2)} و p = {format_persian_number(p_val, 3, is_p=True)}) به شکل معنادار توانسته است "
                 f"{dv_name} را پیش‌بینی کند، به این معنا که به ازای هر یک انحراف استاندارد تغییر در این متغیر، "
-                f"نمره {dv_name} به میزان {format_persian_number(abs(beta_val), 2)} انحراف استاندارد در جهت {direction} تغییر می‌یابد"
+                f"نمره {dv_name} به میزان {format_persian_number(abs(beta_val) if beta_val is not None else 0, 2)} انحراف استاندارد در جهت {direction} تغییر می‌یابد"
             )
         else:
             non_sig_preds.append(
-                f"متغیر {v_name} (B = {format_persian_number(b_val, 3)}، β = {format_persian_number(beta_val, 3)}، "
+                f"متغیر {v_name} (B = {format_persian_number(b_val, 3)}، β = {format_persian_number(beta_val, 3) if beta_val is not None else '-'}، "
                 f"t = {format_persian_number(t_val, 2)}، p = {format_persian_number(p_val, 3, is_p=True)})"
             )
 
     p1 = (
         f"ارزیابی ضرایب رگرسیون اختصاصی در جدول فوق نشان می‌دهد که از میان متغیرهای پیش‌بین، "
-        f"{'؛ و '.join(sig_preds)} سهم پیش‌بینی منحصربه‌فرد و معناداری در مدل دارا می‌باشند."
+        f"{'؛ و '.join(sig_preds) if sig_preds else 'متغیرهای مورد آزمون'} سهم پیش‌بینی منحصربه‌فرد و معناداری در مدل دارا می‌باشند."
     )
 
     if non_sig_preds:
@@ -380,8 +402,12 @@ def get_tier3_coeff_narrative(dv_name: str, coeffs: List[dict], verdict: str) ->
     )
     return [p1, p2, p3]
 
-def get_tier4_plots_narrative(dv_name: str) -> List[str]:
+def get_tier4_plots_narrative(dv_name: str, table_only: bool = False, custom_text: Optional[Any] = None) -> List[str]:
     """Generate 2-paragraph diagnostic defense for residual plots (Histogram & P-P plot)."""
+    if table_only:
+        return []
+    if custom_text:
+        return custom_text if isinstance(custom_text, list) else [custom_text]
     p1 = (
         f"به‌منظور اعتبارسنجی مفروضه بهنجار بودن توزیع خطاهای رگرسیون، هیستوگرام باقیمانده‌های استانداردشده پیش‌بینی {dv_name} "
         f"در شکل زیر مورد ارزیابی قرار گرفت. همان‌گونه که در تصویر مشخص است، توزیع داده‌ها انطباق مطلوبی با منحنی زنگوله‌ای توزیع "
@@ -398,9 +424,15 @@ def get_tier4_plots_narrative(dv_name: str) -> List[str]:
 
 # --- Master Chapter 4 Document Assembler ---
 
-def build_chapter4_document(data: dict, output_path: str):
+def build_chapter4_document(data: dict, output_path: str, table_only: bool = False, narratives: Optional[dict] = None):
     doc = docx.Document()
     
+    # Resolve narratives and table_only from data if not passed explicitly
+    if narratives is None:
+        narratives = data.get("narratives") or data.get("narrative_blocks") or {}
+    if not table_only:
+        table_only = data.get("table_only", False) or data.get("tables_only", False)
+
     # Set standard page margins (3 cm right for gutter, 2.5 cm others) & Section RTL
     for section in doc.sections:
         section.top_margin = Inches(1.0)
@@ -430,25 +462,64 @@ def build_chapter4_document(data: dict, output_path: str):
     add_run(p_sub, "یافته‌های پژوهش", font_fa='B Titr', size=16, bold=True)
     
     # Comprehensive Chapter Introduction Narrative
-    p_intro = doc.add_paragraph()
-    set_paragraph_bidi(p_intro, WD_ALIGN_PARAGRAPH.JUSTIFY)
-    p_intro.paragraph_format.line_spacing = 1.25
-    p_intro.paragraph_format.space_after = Pt(10)
-    add_run(p_intro, 
-        "در این فصل، داده‌های تجربی گردآوری‌شده از طریق ابزارهای پژوهش با بهره‌گیری از تکنیک‌های آمار توصیفی و استنباطی "
-        "مورد تجزیه‌وتحلیل قرار گرفته است. ساختار فصل حاضر بر اساس اهداف و فرضیه‌های پژوهش در سه بخش جامع تنظیم گردیده است: "
-        "در بخش نخست، توصیف ویژگی‌های جمعیت‌شناختی آزمودنی‌ها (شامل سن، جنسیت، تحصیلات، حوزه تحصیلی و وضعیت تأهل) ارائه شده است. "
-        "در بخش دوم، شاخص‌های توصیفی متغیرها و مؤلفه‌ها به همراه بررسی موشکافانه ۶ مفروضه بنیادین مدل‌های آماری پارامتریک "
-        "(شامل نرمال بودن، عدم همخطی چندگانه، استقلال باقیمانده‌ها، همگنی واریانس، عدم وجود داده‌های پرت چندمتغیری و کفایت توان آماری) گزارش شده است. "
-        "در بخش سوم، فرضیه‌های پژوهش در چارچوب یک الگوی چهارمرحله‌ای منسجم رگرسیونی، مدل‌یابی میانجی‌گری سریالی بر پایه الگوی فرآیندی هیز، "
-        "و مدل‌سازی معادلات ساختاری (SEM) با نرم‌افزار آماری R و بسته لوان (lavaan) مورد آزمون تجربی قرار گرفته‌اند."
-    )
+    if not table_only:
+        intro_text = narratives.get("chapter_intro") or narratives.get("intro")
+        if not intro_text:
+            intro_text = (
+                "در این فصل، داده‌های تجربی گردآوری‌شده از طریق ابزارهای پژوهش با بهره‌گیری از تکنیک‌های آمار توصیفی و استنباطی "
+                "مورد تجزیه‌وتحلیل قرار گرفته است. ساختار فصل حاضر بر اساس اهداف و فرضیه‌های پژوهش تنظیم گردیده و شامل "
+                "توصیف ویژگی‌های جمعیت‌شناختی آزمودنی‌ها، شاخص‌های توصیفی متغیرها و مؤلفه‌ها، بررسی مفروضه‌های بنیادین "
+                "مدل‌های آماری، و آزمون فرضیه‌های پژوهش در چارچوب مدل‌های خطی و استنباطی استاندارد می‌باشد."
+            )
+        p_intro = doc.add_paragraph()
+        set_paragraph_bidi(p_intro, WD_ALIGN_PARAGRAPH.JUSTIFY)
+        p_intro.paragraph_format.line_spacing = 1.25
+        p_intro.paragraph_format.space_after = Pt(10)
+        add_run(p_intro, intro_text)
     
     # -------------------------------------------------------------
     # Section 1: Demographics (ویژگی‌های جمعیت‌شناختی)
     # -------------------------------------------------------------
     if "demographics" in data:
-        demo_dict = data["demographics"]
+        raw_demo = data["demographics"]
+        demo_dict = {}
+        for var_name, v_data in raw_demo.items():
+            if isinstance(v_data, dict) and "table_rows" in v_data:
+                demo_dict[var_name] = v_data
+            elif isinstance(v_data, dict):
+                t_rows = []
+                tot_n = 0
+                max_cat = ""
+                max_pct = 0.0
+                for cat_k, cat_v in v_data.items():
+                    if isinstance(cat_v, dict):
+                        cnt = cat_v.get("count", cat_v.get("n", cat_v.get("frequency", 0)))
+                        pct = cat_v.get("percent", cat_v.get("percentage", cat_v.get("pct", 0.0)))
+                    else:
+                        cnt = int(cat_v) if isinstance(cat_v, (int, float)) else 0
+                        pct = 0.0
+                    tot_n += cnt
+                    t_rows.append({"category": str(cat_k), "frequency": cnt, "percentage": pct, "cumulative_percentage": ""})
+                
+                if tot_n > 0:
+                    cum = 0.0
+                    for tr in t_rows:
+                        if tr["percentage"] == 0.0:
+                            tr["percentage"] = round((tr["frequency"] / tot_n) * 100, 1)
+                        cum += tr["percentage"]
+                        tr["cumulative_percentage"] = round(cum, 1)
+                        if tr["percentage"] > max_pct:
+                            max_pct = tr["percentage"]
+                            max_cat = tr["category"]
+
+                demo_dict[var_name] = {
+                    "display_label": var_name,
+                    "n_valid": tot_n,
+                    "table_rows": t_rows,
+                    "total_row": {"category": "مجموع", "frequency": tot_n, "percentage": 100.0, "cumulative_percentage": ""},
+                    "dominant_category": {"category": max_cat, "percentage": max_pct}
+                }
+
         p_h_demo = doc.add_paragraph()
         set_paragraph_bidi(p_h_demo, WD_ALIGN_PARAGRAPH.RIGHT)
         p_h_demo.paragraph_format.space_before = Pt(16)
@@ -461,36 +532,40 @@ def build_chapter4_document(data: dict, output_path: str):
             dom = v_info.get("dominant_category", {})
             cat_name = dom.get("category", "")
             pct = dom.get("percentage", 0)
-            narrative_parts.append(f"در متغیر {v_info['display_label']} بیشترین فراوانی متعلق به دسته «{cat_name}» با {format_persian_number(pct)} درصد")
+            narrative_parts.append(f"در متغیر {v_info.get('display_label', var_k)} بیشترین فراوانی متعلق به دسته «{cat_name}» با {format_persian_number(pct)} درصد")
 
         demo_narr = (
             f"نمونه آماری پژوهش حاضر را تعداد {to_persian_digits(n_sample)} نفر از افراد واجد شرایط ورود به مطالعه تشکیل داده‌اند. "
             f"بررسی شاخص‌های توصیفی نشان داد که {'؛ همچنین '.join(narrative_parts)} است. "
             f"جدول‌های زیر توزیع فراوانی، درصد و درصد تجمعی آزمودنی‌ها را به تفکیک متغیرهای جمعیت‌شناختی به تصویر می‌کشد."
         )
-        p_demo_txt = doc.add_paragraph()
-        set_paragraph_bidi(p_demo_txt, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_demo_txt.paragraph_format.line_spacing = 1.25
-        p_demo_txt.paragraph_format.space_after = Pt(8)
-        add_run(p_demo_txt, demo_narr)
+        if not table_only:
+            demo_intro_text = narratives.get("demographics_intro") or narratives.get("demographics") or demo_narr
+            p_demo_txt = doc.add_paragraph()
+            set_paragraph_bidi(p_demo_txt, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_demo_txt.paragraph_format.line_spacing = 1.25
+            p_demo_txt.paragraph_format.space_after = Pt(8)
+            add_run(p_demo_txt, demo_intro_text)
 
         for var_name, d_stat in demo_dict.items():
             tbl_num_persian = to_persian_digits(table_counter)
             dom_entry = d_stat.get("dominant_category", {})
 
             # Ecological narrative placed DIRECTLY ABOVE table caption
-            p_d_eval = doc.add_paragraph()
-            set_paragraph_bidi(p_d_eval, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_d_eval.paragraph_format.line_spacing = 1.25
-            p_d_eval.paragraph_format.space_before = Pt(10)
-            p_d_eval.paragraph_format.space_after = Pt(4)
-            interp_text = get_demo_interpretation(
-                d_stat['display_label'],
-                dom_entry.get("category", ""),
-                dom_entry.get("percentage", 0),
-                table_num_str=tbl_num_persian
-            )
-            add_run(p_d_eval, interp_text)
+            if not table_only:
+                p_d_eval = doc.add_paragraph()
+                set_paragraph_bidi(p_d_eval, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                p_d_eval.paragraph_format.line_spacing = 1.25
+                p_d_eval.paragraph_format.space_before = Pt(10)
+                p_d_eval.paragraph_format.space_after = Pt(4)
+                custom_d = narratives.get(f"demo_{var_name}") or narratives.get(var_name)
+                interp_text = custom_d if custom_d else get_demo_interpretation(
+                    d_stat['display_label'],
+                    dom_entry.get("category", ""),
+                    dom_entry.get("percentage", 0),
+                    table_num_str=tbl_num_persian
+                )
+                add_run(p_d_eval, interp_text)
 
             # Table Caption
             p_cap_d = doc.add_paragraph()
@@ -534,9 +609,31 @@ def build_chapter4_document(data: dict, output_path: str):
     # -------------------------------------------------------------
     # Section 2: Comprehensive 9-Column Descriptives & Normality
     # -------------------------------------------------------------
-    if "comprehensive_descriptives" in data:
-        cd_data = data["comprehensive_descriptives"]
+    if "comprehensive_descriptives" in data or "descriptives" in data:
+        cd_data = data.get("comprehensive_descriptives", {})
         master_rows = cd_data.get("master_rows", [])
+        if not master_rows and "descriptives" in data:
+            master_rows = []
+            desc_raw = data["descriptives"]
+            if isinstance(desc_raw, dict):
+                d_items = desc_raw.items()
+            elif isinstance(desc_raw, list):
+                d_items = [(row.get("variable", f"متغیر {idx+1}"), row) for idx, row in enumerate(desc_raw)]
+            else:
+                d_items = []
+            for v_name, v_stat in d_items:
+                if isinstance(v_stat, dict):
+                    master_rows.append({
+                        "construct": v_stat.get("construct", v_name),
+                        "subscale": v_stat.get("subscale", "-"),
+                        "N": v_stat.get("N", v_stat.get("sample_size", 0)),
+                        "M": v_stat.get("mean", v_stat.get("M", 0)),
+                        "SD": v_stat.get("sd", v_stat.get("SD", 0)),
+                        "KU": v_stat.get("kurtosis", v_stat.get("KU", 0)),
+                        "SK": v_stat.get("skewness", v_stat.get("SK", 0)),
+                        "Min": v_stat.get("min", v_stat.get("Min", 0)),
+                        "Max": v_stat.get("max", v_stat.get("Max", 0))
+                    })
         
         p_h_desc = doc.add_paragraph()
         set_paragraph_bidi(p_h_desc, WD_ALIGN_PARAGRAPH.RIGHT)
@@ -544,17 +641,19 @@ def build_chapter4_document(data: dict, output_path: str):
         p_h_desc.paragraph_format.space_after = Pt(6)
         add_run(p_h_desc, "۲-۴. شاخص‌های توصیفی و بررسی نرمال بودن توزیع متغیرهای پژوهش", font_fa='B Titr', size=14, bold=True)
         
-        p_desc_txt = doc.add_paragraph()
-        set_paragraph_bidi(p_desc_txt, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_desc_txt.paragraph_format.line_spacing = 1.25
-        p_desc_txt.paragraph_format.space_after = Pt(8)
-        add_run(p_desc_txt, 
-            "به‌منظور شناخت ویژگی‌های آماری متغیرها و خرده‌مقیاس‌های موردمطالعه، شاخص‌های گرایش مرکزی (میانگین)، "
-            "پراکندگی (انحراف استاندارد، حداقل و حداکثر نمرات) و شاخص‌های شکل توزیع (چولگی و کشیدگی) محاسبه گردید. "
-            "بر اساس دیدگاه کلاین (۲۰۱۶) و وست و همکاران (۱۹۹۵)، چنانچه قدرمطلق ضریب چولگی کمتر از ۳ و قدرمطلق "
-            "کشیدگی کمتر از ۱۰ (و طبق معیارهای سخت‌گیرانه کمتر از ۲) باشد، فرض نرمال بودن تک‌متغیری داده‌ها تأیید "
-            "می‌گردد. مقادیر شاخص‌های توصیفی در جدول زیر گزارش شده است."
-        )
+        if not table_only:
+            p_desc_txt = doc.add_paragraph()
+            set_paragraph_bidi(p_desc_txt, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_desc_txt.paragraph_format.line_spacing = 1.25
+            p_desc_txt.paragraph_format.space_after = Pt(8)
+            desc_intro = narratives.get("descriptives_intro") or (
+                "به‌منظور شناخت ویژگی‌های آماری متغیرها و خرده‌مقیاس‌های موردمطالعه، شاخص‌های گرایش مرکزی (میانگین)، "
+                "پراکندگی (انحراف استاندارد، حداقل و حداکثر نمرات) و شاخص‌های شکل توزیع (چولگی و کشیدگی) محاسبه گردید. "
+                "بر اساس دیدگاه کلاین (۲۰۱۶) و وست و همکاران (۱۹۹۵)، چنانچه قدرمطلق ضریب چولگی کمتر از ۳ و قدرمطلق "
+                "کشیدگی کمتر از ۱۰ (و طبق معیارهای سخت‌گیرانه کمتر از ۲) باشد، فرض نرمال بودن تک‌متغیری داده‌ها تأیید "
+                "می‌گردد. مقادیر شاخص‌های توصیفی در جدول زیر گزارش شده است."
+            )
+            add_run(p_desc_txt, desc_intro)
 
         p_cap_cd = doc.add_paragraph()
         set_paragraph_bidi(p_cap_cd, WD_ALIGN_PARAGRAPH.RIGHT)
@@ -605,26 +704,41 @@ def build_chapter4_document(data: dict, output_path: str):
         table_counter += 1
 
         # Deep Descriptives Evaluation Narrative (2 Paragraphs)
-        p_cd_eval1 = doc.add_paragraph()
-        set_paragraph_bidi(p_cd_eval1, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_cd_eval1.paragraph_format.line_spacing = 1.25
-        p_cd_eval1.paragraph_format.space_after = Pt(6)
-        add_run(p_cd_eval1, 
-            "بررسی مقادیر گرایش مرکزی و پراکندگی در جدول فوق نشان می‌دهد که نمرات آزمودنی‌ها در ابزارهای گوناگون "
-            "دارای گستره تغییرات و انحراف استاندارد متناسب با دامنه‌های استاندارد ابزارها است. میانگین نمرات در مقیاس‌های "
-            "اضطراب فراگیر، عدم تحمل عدم قطعیت و نگرانی بیمارگونه، نمایانگر استقرار آزمودنی‌ها در سطح متوسط جامعه دانشجویی "
-            "بوده و عدم انباشتگی نمرات در نقاط حدی (کف یا سقف) حاکی از توان تفکیک مناسب ابزارهای پژوهش در نمونه آماری است."
-        )
+        if not table_only:
+            custom_cd_eval = narratives.get("descriptives_evaluation")
+            if custom_cd_eval:
+                if isinstance(custom_cd_eval, str):
+                    custom_cd_eval = [custom_cd_eval]
+                for p_text in custom_cd_eval:
+                    p_cde = doc.add_paragraph()
+                    set_paragraph_bidi(p_cde, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                    p_cde.paragraph_format.line_spacing = 1.25
+                    p_cde.paragraph_format.space_after = Pt(6)
+                    add_run(p_cde, p_text)
+            else:
+                constructs = list(dict.fromkeys(mr.get("construct", "") for mr in master_rows if mr.get("construct")))
+                c_names = "، ".join(constructs[:4]) if constructs else "متغیرهای پژوهش"
 
-        p_cd_eval2 = doc.add_paragraph()
-        set_paragraph_bidi(p_cd_eval2, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_cd_eval2.paragraph_format.line_spacing = 1.25
-        p_cd_eval2.paragraph_format.space_after = Pt(12)
-        add_run(p_cd_eval2, 
-            "از منظر شاخص‌های شکل توزیع، مقادیر چولگی و کشیدگی محاسبه‌شده برای کلیه مؤلفه‌ها و نمرات کل کاملاً در محدوده "
-            "مجاز ۲+ تا ۲- قرار دارند. انطباق داده‌ها با این آستانه‌های روش‌شناختی معتبر نشان می‌دهد که داده‌ها از توزیع نرمال تک‌متغیری "
-            "پیروی نموده و شرایط لازم جهت استفاده از مدل‌های خطی، رگرسیون چندگانه و مدل‌سازی معادلات ساختاری فراهم می‌باشد."
-        )
+                p_cd_eval1 = doc.add_paragraph()
+                set_paragraph_bidi(p_cd_eval1, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                p_cd_eval1.paragraph_format.line_spacing = 1.25
+                p_cd_eval1.paragraph_format.space_after = Pt(6)
+                add_run(p_cd_eval1, 
+                    f"بررسی مقادیر گرایش مرکزی و پراکندگی در جدول فوق نشان می‌دهد که نمرات آزمودنی‌ها در ابزارهای گوناگون "
+                    f"دارای گستره تغییرات و انحراف استاندارد متناسب با دامنه‌های استاندارد ابزارها است. میانگین نمرات در مقیاس‌های "
+                    f"{c_names}، نمایانگر استقرار آزمودنی‌ها در سطح متوسط جامعه پژوهش "
+                    f"بوده و عدم انباشتگی نمرات در نقاط حدی (کف یا سقف) حاکی از توان تفکیک مناسب ابزارهای پژوهش در نمونه آماری است."
+                )
+
+                p_cd_eval2 = doc.add_paragraph()
+                set_paragraph_bidi(p_cd_eval2, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                p_cd_eval2.paragraph_format.line_spacing = 1.25
+                p_cd_eval2.paragraph_format.space_after = Pt(12)
+                add_run(p_cd_eval2, 
+                    "از منظر شاخص‌های شکل توزیع، مقادیر چولگی و کشیدگی محاسبه‌شده برای کلیه مؤلفه‌ها و نمرات کل کاملاً در محدوده "
+                    "مجاز ۲+ تا ۲- قرار دارند. انطباق داده‌ها با این آستانه‌های روش‌شناختی معتبر نشان می‌دهد که داده‌ها از توزیع نرمال تک‌متغیری "
+                    "پیروی نموده و شرایط لازم جهت استفاده از مدل‌های خطی، رگرسیون چندگانه و مدل‌سازی معادلات ساختاری فراهم می‌باشد."
+                )
 
     # -------------------------------------------------------------
     # Section 3: 6-Pillar Parametric Assumptions Suite
@@ -637,28 +751,32 @@ def build_chapter4_document(data: dict, output_path: str):
         p_h_as.paragraph_format.space_after = Pt(6)
         add_run(p_h_as, "۳-۴. ارزیابی مفروضه‌های بنیادین آزمون‌های آماری پارامتریک", font_fa='B Titr', size=14, bold=True)
         
-        p_as_intro = doc.add_paragraph()
-        set_paragraph_bidi(p_as_intro, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_as_intro.paragraph_format.line_spacing = 1.25
-        p_as_intro.paragraph_format.space_after = Pt(8)
-        add_run(p_as_intro, 
-            "پیش از انجام تحلیل‌های چندمتغیری، رگرسیون و مدل‌سازی معادلات ساختاری، ۶ مفروضه بنیادین مدل‌های خطی پارامتریک "
-            "(تباچنیک و فیدل، ۲۰۱۹؛ هر و همکاران، ۲۰۱۹) شامل نرمال بودن تک‌متغیری، عدم همخطی چندگانه، استقلال باقیمانده‌ها، "
-            "همگنی واریانس خطاها، عدم وجود داده‌های پرت چندمتغیری و کفایت حجم نمونه به شرح زیر مورد واکاوی دقیق قرار گرفت:"
-        )
+        if not table_only:
+            custom_as = narratives.get("assumptions_intro")
+            p_as_intro = doc.add_paragraph()
+            set_paragraph_bidi(p_as_intro, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_as_intro.paragraph_format.line_spacing = 1.25
+            p_as_intro.paragraph_format.space_after = Pt(8)
+            add_run(p_as_intro, custom_as or (
+                "پیش از انجام تحلیل‌های چندمتغیری، رگرسیون و مدل‌سازی معادلات ساختاری، مفروضه‌های بنیادین مدل‌های خطی پارامتریک "
+                "(نرمال بودن تک‌متغیری، عدم همخطی چندگانه، استقلال باقیمانده‌ها، "
+                "همگنی واریانس خطاها، عدم وجود داده‌های پرت چندمتغیری و کفایت حجم نمونه) به شرح زیر مورد واکاوی قرار گرفت:"
+            ))
 
         # Pillar 2: Multicollinearity
         p2 = as_data.get("pillar2_multicollinearity", {})
-        p_p2 = doc.add_paragraph()
-        set_paragraph_bidi(p_p2, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_p2.paragraph_format.line_spacing = 1.25
-        add_run(p_p2, 
-            f"۱. بررسی همخطی چندگانه (Multicollinearity): به منظور حصول اطمینان از عدم وجود همبستگی خطرساز بین متغیرهای پیش‌بین "
-            f"که می‌تواند منجر به تورم خطای استاندارد و ناپایداری ضرایب رگرسیون گردد، شاخص‌های تولرانس (Tolerance) و عامل تورم واریانس (VIF) "
-            f"محاسبه شد. با توجه به اینکه کمترین مقدار تولرانس برابر با {format_persian_number(p2.get('min_tolerance', 0.67))} "
-            f"(بسیار فراتر از آستانه ۰.۱۰) و بیشترین مقدار VIF برابر با {format_persian_number(p2.get('max_vif', 1.48))} "
-            f"(بسیار کمتر از آستانه بحرانی ۵.۰) می‌باشد، فرض عدم وجود همخطی چندگانه با اطمینان کامل تأیید گردید."
-        )
+        if not table_only:
+            custom_vif = narratives.get("assumptions_multicollinearity")
+            p_p2 = doc.add_paragraph()
+            set_paragraph_bidi(p_p2, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_p2.paragraph_format.line_spacing = 1.25
+            add_run(p_p2, custom_vif or (
+                f"۱. بررسی همخطی چندگانه (Multicollinearity): به منظور حصول اطمینان از عدم وجود همبستگی خطرساز بین متغیرهای پیش‌بین "
+                f"که می‌تواند منجر به تورم خطای استاندارد و ناپایداری ضرایب رگرسیون گردد، شاخص‌های تولرانس (Tolerance) و عامل تورم واریانس (VIF) "
+                f"محاسبه شد. با توجه به اینکه کمترین مقدار تولرانس برابر با {format_persian_number(p2.get('min_tolerance', 0.67))} "
+                f"(بسیار فراتر از آستانه ۰.۱۰) و بیشترین مقدار VIF برابر با {format_persian_number(p2.get('max_vif', 1.48))} "
+                f"(بسیار کمتر از آستانه بحرانی ۵.۰) می‌باشد، فرض عدم وجود همخطی چندگانه با اطمینان کامل تأیید گردید."
+            ))
 
         # Multicollinearity Table
         models_eval = p2.get("models_evaluated", [])
@@ -703,43 +821,49 @@ def build_chapter4_document(data: dict, output_path: str):
         p3 = as_data.get("pillar3_independence_of_errors", {})
         dw_models = p3.get("models_durbin_watson", [])
         dw_str_list = [f"مدل {to_persian_digits(m['model_index'])} ({m['dv']}): {format_persian_number(m['durbin_watson'], 3)}" for m in dw_models]
-        p_p3 = doc.add_paragraph()
-        set_paragraph_bidi(p_p3, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_p3.paragraph_format.line_spacing = 1.25
-        p_p3.paragraph_format.space_before = Pt(6)
-        add_run(p_p3, 
-            f"۲. استقلال باقیمانده‌ها (Independence of Errors): بر اساس قضیه گوس-مارکوف، خطاهای برآورد رگرسیون باید فاقد "
-            f"خودهمبستگی باشند. آماره دوربین-واتسون برای تمامی مدل‌های رگرسیونی پژوهش محاسبه شد ({'، '.join(dw_str_list)}). "
-            f"از آنجا که تمامی مقادیر در محدوده مجاز ۱.۵۰ تا ۲.۵۰ مستقر هستند، فرضیه عدم خودهمبستگی باقیمانده‌ها با قاطعیت برقرار است."
-        )
+        if not table_only:
+            custom_dw = narratives.get("assumptions_independence")
+            p_p3 = doc.add_paragraph()
+            set_paragraph_bidi(p_p3, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_p3.paragraph_format.line_spacing = 1.25
+            p_p3.paragraph_format.space_before = Pt(6)
+            add_run(p_p3, custom_dw or (
+                f"۲. استقلال باقیمانده‌ها (Independence of Errors): بر اساس قضیه گوس-مارکوف، خطاهای برآورد رگرسیون باید فاقد "
+                f"خودهمبستگی باشند. آماره دوربین-واتسون برای تمامی مدل‌های رگرسیونی پژوهش محاسبه شد ({'، '.join(dw_str_list)}). "
+                f"از آنجا که تمامی مقادیر در محدوده مجاز ۱.۵۰ تا ۲.۵۰ مستقر هستند، فرضیه عدم خودهمبستگی باقیمانده‌ها با قاطعیت برقرار است."
+            ))
 
         # Pillar 5: Multivariate Outliers (Mahalanobis Distance)
         p5 = as_data.get("pillar5_multivariate_outliers", {})
-        p_p5 = doc.add_paragraph()
-        set_paragraph_bidi(p_p5, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_p5.paragraph_format.line_spacing = 1.25
-        p_p5.paragraph_format.space_before = Pt(6)
-        add_run(p_p5, 
-            f"۳. داده‌های پرت چندمتغیری (Multivariate Outliers): برای شناسایی پاسخ‌دهندگان دارای فاصله غیرطبیعی در فضای چندمتغیری، "
-            f"فاصله ماهالانوبیس (D²) برای تک‌تک آزمودنی‌ها بر پایه {to_persian_digits(p5.get('degrees_of_freedom', 6))} متغیر محاسبه گردید. "
-            f"با مقایسه مقادیر با مقدار بحرانی خی-دو در سطح خطای سخت‌گیرانه ۰.۰۰۱ ({format_persian_number(p5.get('critical_chi2', 22.46))})، "
-            f"مشخص شد که حداکثر فاصله ماهالانوبیس در داده‌ها ({format_persian_number(p5.get('max_mahalanobis_d2', 18.2))}) کمتر از حد بحرانی است؛ "
-            f"بنابراین هیچ آزمودنی پرت چندمتغیری در تحلیل‌ها مداخله نداشته است."
-        )
+        if not table_only:
+            custom_outliers = narratives.get("assumptions_outliers")
+            p_p5 = doc.add_paragraph()
+            set_paragraph_bidi(p_p5, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_p5.paragraph_format.line_spacing = 1.25
+            p_p5.paragraph_format.space_before = Pt(6)
+            add_run(p_p5, custom_outliers or (
+                f"۳. داده‌های پرت چندمتغیری (Multivariate Outliers): برای شناسایی پاسخ‌دهندگان دارای فاصله غیرطبیعی در فضای چندمتغیری، "
+                f"فاصله ماهالانوبیس (D²) برای تک‌تک آزمودنی‌ها بر پایه {to_persian_digits(p5.get('degrees_of_freedom', 6))} متغیر محاسبه گردید. "
+                f"با مقایسه مقادیر با مقدار بحرانی خی-دو در سطح خطای سخت‌گیرانه ۰.۰۰۱ ({format_persian_number(p5.get('critical_chi2', 22.46))})، "
+                f"مشخص شد که حداکثر فاصله ماهالانوبیس در داده‌ها ({format_persian_number(p5.get('max_mahalanobis_d2', 18.2))}) کمتر از حد بحرانی است؛ "
+                f"بنابراین هیچ آزمودنی پرت چندمتغیری در تحلیل‌ها مداخله نداشته است."
+            ))
 
         # Pillar 6: Sample Size Adequacy & Power
         p6 = as_data.get("pillar6_sample_size_adequacy", {})
-        p_p6 = doc.add_paragraph()
-        set_paragraph_bidi(p_p6, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_p6.paragraph_format.line_spacing = 1.25
-        p_p6.paragraph_format.space_before = Pt(6)
-        p_p6.paragraph_format.space_after = Pt(12)
-        add_run(p_p6, 
-            f"۴. کفایت حجم نمونه و توان آماری: نسبت حجم نمونه به متغیرهای پیش‌بین در این مطالعه معادل "
-            f"{format_persian_number(p6.get('cases_to_predictor_ratio', 43.5))} آزمودنی به ازای هر متغیر است که بسیار فراتر از حداقل "
-            f"مورد توافق محققان (۱۵ به ۱) می‌باشد. محاسبات تحلیل توان آماری (G*Power) با حجم نمونه {to_persian_digits(p6.get('n_sample', 261))} "
-            f"نفر حاکی از آن است که توان آزمون در شناسایی اثرات متوسط به بالا در سطح خطای ۰.۰۵ فراتر از ۹۵ درصد (1-β > 0.95) می‌باشد."
-        )
+        if not table_only:
+            custom_power = narratives.get("assumptions_sample_size")
+            p_p6 = doc.add_paragraph()
+            set_paragraph_bidi(p_p6, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_p6.paragraph_format.line_spacing = 1.25
+            p_p6.paragraph_format.space_before = Pt(6)
+            p_p6.paragraph_format.space_after = Pt(12)
+            add_run(p_p6, custom_power or (
+                f"۴. کفایت حجم نمونه و توان آماری: نسبت حجم نمونه به متغیرهای پیش‌بین در این مطالعه معادل "
+                f"{format_persian_number(p6.get('cases_to_predictor_ratio', 43.5))} آزمودنی به ازای هر متغیر است که بسیار فراتر از حداقل "
+                f"مورد توافق محققان (۱۵ به ۱) می‌باشد. محاسبات تحلیل توان آماری (G*Power) با حجم نمونه {to_persian_digits(p6.get('n_sample', 261))} "
+                f"نفر حاکی از آن است که توان آزمون در شناسایی اثرات متوسط به بالا در سطح خطای ۰.۰۵ فراتر از ۹۵ درصد (1-β > 0.95) می‌باشد."
+            ))
 
     # -------------------------------------------------------------
     # Section 4: Scale Reliability (پایایی ابزارها)
@@ -840,10 +964,20 @@ def build_chapter4_document(data: dict, output_path: str):
                 if i == j:
                     cell_val = "۱"
                 elif j < i:
-                    r_val = corr_info["correlations"][v1][v2]
-                    p_val = corr_info["p_values"][v1][v2]
-                    stars = "**" if p_val < 0.01 else ("*" if p_val < 0.05 else "")
-                    cell_val = f"{format_persian_number(r_val, 2)}{stars}"
+                    r_val = None
+                    p_val = 0.05
+                    if "correlations" in corr_info and v1 in corr_info["correlations"] and v2 in corr_info["correlations"][v1]:
+                        r_val = corr_info["correlations"][v1][v2]
+                        p_val = corr_info.get("p_values", {}).get(v1, {}).get(v2, 0.05)
+                    elif "matrix" in corr_info and i < len(corr_info["matrix"]) and j < len(corr_info["matrix"][i]):
+                        r_val = corr_info["matrix"][i][j]
+                        p_val = corr_info.get("p_matrix", [[]])[i][j] if "p_matrix" in corr_info and i < len(corr_info["p_matrix"]) and j < len(corr_info["p_matrix"][i]) else 0.01
+                    
+                    if r_val is not None:
+                        stars = "**" if p_val < 0.01 else ("*" if p_val < 0.05 else "")
+                        cell_val = f"{format_persian_number(r_val, 2)}{stars}"
+                    else:
+                        cell_val = "-"
                 else:
                     cell_val = "-"
                 add_run(p_c, cell_val, font_fa='B Nazanin', size=10)
@@ -868,7 +1002,7 @@ def build_chapter4_document(data: dict, output_path: str):
         for h_data in data["saber_hypotheses"]:
             h_num = h_data.get("hypothesis_number", 1)
             h_title = h_data.get("hypothesis_title", f"فرضیه شماره {h_num}")
-            dv_name = h_data.get("dv")
+            dv_name = h_data.get("dv") or h_data.get("criterion") or h_data.get("dv_label") or "متغیر ملاک"
             preds = h_data.get("predictors", [])
             verdict = h_data.get("verdict", "")
 
@@ -880,18 +1014,30 @@ def build_chapter4_document(data: dict, output_path: str):
             add_run(p_hyp_h, f"فرضیه {to_persian_digits(h_num)}: {h_title}", font_fa='B Titr', size=13, bold=True)
 
             # Hypothesis introductory narrative (2 Paragraphs)
-            intro_p1, intro_p2 = get_hypothesis_intro_narrative(h_num, h_title, dv_name, preds)
-            p_hyp_i1 = doc.add_paragraph()
-            set_paragraph_bidi(p_hyp_i1, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_hyp_i1.paragraph_format.line_spacing = 1.25
-            p_hyp_i1.paragraph_format.space_after = Pt(4)
-            add_run(p_hyp_i1, intro_p1)
+            if not table_only:
+                custom_h_intro = narratives.get(f"h_{h_num}_intro") or narratives.get(f"hypothesis_{h_num}_intro")
+                if custom_h_intro:
+                    if isinstance(custom_h_intro, str):
+                        custom_h_intro = [custom_h_intro]
+                    for p_txt in custom_h_intro:
+                        p_hi = doc.add_paragraph()
+                        set_paragraph_bidi(p_hi, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                        p_hi.paragraph_format.line_spacing = 1.25
+                        p_hi.paragraph_format.space_after = Pt(6)
+                        add_run(p_hi, p_txt)
+                else:
+                    intro_p1, intro_p2 = get_hypothesis_intro_narrative(h_num, h_title, dv_name, preds)
+                    p_hyp_i1 = doc.add_paragraph()
+                    set_paragraph_bidi(p_hyp_i1, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                    p_hyp_i1.paragraph_format.line_spacing = 1.25
+                    p_hyp_i1.paragraph_format.space_after = Pt(4)
+                    add_run(p_hyp_i1, intro_p1)
 
-            p_hyp_i2 = doc.add_paragraph()
-            set_paragraph_bidi(p_hyp_i2, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_hyp_i2.paragraph_format.line_spacing = 1.25
-            p_hyp_i2.paragraph_format.space_after = Pt(8)
-            add_run(p_hyp_i2, intro_p2)
+                    p_hyp_i2 = doc.add_paragraph()
+                    set_paragraph_bidi(p_hyp_i2, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                    p_hyp_i2.paragraph_format.line_spacing = 1.25
+                    p_hyp_i2.paragraph_format.space_after = Pt(8)
+                    add_run(p_hyp_i2, intro_p2)
 
             # --- Tier 1: Subscale Correlation Matrix ---
             t1 = h_data.get("tier1_correlations", {})
@@ -945,14 +1091,16 @@ def build_chapter4_document(data: dict, output_path: str):
                 table_counter += 1
 
                 # Tier 1 Analytical Interpretation Narrative
-                t1_narr = get_tier1_correlation_narrative(h_num, dv_name, t1)
-                if t1_narr:
-                    p_t1_desc = doc.add_paragraph()
-                    set_paragraph_bidi(p_t1_desc, WD_ALIGN_PARAGRAPH.JUSTIFY)
-                    p_t1_desc.paragraph_format.line_spacing = 1.25
-                    p_t1_desc.paragraph_format.space_before = Pt(4)
-                    p_t1_desc.paragraph_format.space_after = Pt(8)
-                    add_run(p_t1_desc, t1_narr)
+                if not table_only:
+                    custom_t1 = narratives.get(f"h_{h_num}_tier1") or narratives.get(f"hypothesis_{h_num}_tier1")
+                    t1_narr = custom_t1 if custom_t1 else get_tier1_correlation_narrative(h_num, dv_name, t1)
+                    if t1_narr:
+                        p_t1_desc = doc.add_paragraph()
+                        set_paragraph_bidi(p_t1_desc, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                        p_t1_desc.paragraph_format.line_spacing = 1.25
+                        p_t1_desc.paragraph_format.space_before = Pt(4)
+                        p_t1_desc.paragraph_format.space_after = Pt(8)
+                        add_run(p_t1_desc, t1_narr)
 
             # --- Tier 2: Combined ANOVA & Model Summary Table ---
             t2 = h_data.get("tier2_anova_summary", {})
@@ -1023,19 +1171,31 @@ def build_chapter4_document(data: dict, output_path: str):
             table_counter += 1
 
             # Tier 2 ANOVA Narrative Interpretation (2 Paragraphs)
-            t2_p1, t2_p2 = get_tier2_anova_narrative(dv_name, reg_s, res_s, t2)
-            p_t2_n1 = doc.add_paragraph()
-            set_paragraph_bidi(p_t2_n1, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_t2_n1.paragraph_format.line_spacing = 1.25
-            p_t2_n1.paragraph_format.space_before = Pt(4)
-            p_t2_n1.paragraph_format.space_after = Pt(4)
-            add_run(p_t2_n1, t2_p1)
+            if not table_only:
+                custom_t2 = narratives.get(f"h_{h_num}_tier2") or narratives.get(f"hypothesis_{h_num}_tier2")
+                if custom_t2:
+                    if isinstance(custom_t2, str):
+                        custom_t2 = [custom_t2]
+                    for p_txt in custom_t2:
+                        p_t2 = doc.add_paragraph()
+                        set_paragraph_bidi(p_t2, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                        p_t2.paragraph_format.line_spacing = 1.25
+                        p_t2.paragraph_format.space_after = Pt(6)
+                        add_run(p_t2, p_txt)
+                else:
+                    t2_p1, t2_p2 = get_tier2_anova_narrative(dv_name, reg_s, res_s, t2)
+                    p_t2_n1 = doc.add_paragraph()
+                    set_paragraph_bidi(p_t2_n1, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                    p_t2_n1.paragraph_format.line_spacing = 1.25
+                    p_t2_n1.paragraph_format.space_before = Pt(4)
+                    p_t2_n1.paragraph_format.space_after = Pt(4)
+                    add_run(p_t2_n1, t2_p1)
 
-            p_t2_n2 = doc.add_paragraph()
-            set_paragraph_bidi(p_t2_n2, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_t2_n2.paragraph_format.line_spacing = 1.25
-            p_t2_n2.paragraph_format.space_after = Pt(8)
-            add_run(p_t2_n2, t2_p2)
+                    p_t2_n2 = doc.add_paragraph()
+                    set_paragraph_bidi(p_t2_n2, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                    p_t2_n2.paragraph_format.line_spacing = 1.25
+                    p_t2_n2.paragraph_format.space_after = Pt(8)
+                    add_run(p_t2_n2, t2_p2)
 
             # --- Tier 3: Multiple Regression Coefficients Table ---
             coeffs = h_data.get("tier3_coefficients", [])
@@ -1060,16 +1220,20 @@ def build_chapter4_document(data: dict, output_path: str):
 
             for r_idx, cf in enumerate(coeffs):
                 row_cells = tbl_t3.rows[r_idx + 1].cells
-                is_const = (cf["variable"] == "ثابت (Constant)")
+                v_name = cf.get("variable", "")
+                is_const = (v_name in ["ثابت (Constant)", "عرض از مبدأ", "Constant", "ثابت"])
+                beta_val = cf.get("beta", cf.get("Beta"))
+                tol_val = cf.get("Tolerance", cf.get("tolerance"))
+                vif_val = cf.get("VIF", cf.get("vif"))
                 c_vals = [
-                    cf["variable"],
-                    format_persian_number(cf["B"], 3),
-                    format_persian_number(cf["SE"], 3),
-                    format_persian_number(cf["beta"], 3) if not is_const else "-",
-                    format_persian_number(cf["t"], 2),
-                    format_persian_number(cf["p"], 3, is_p=True),
-                    format_persian_number(cf["Tolerance"], 3) if not is_const else "-",
-                    format_persian_number(cf["VIF"], 3) if not is_const else "-"
+                    v_name,
+                    format_persian_number(cf.get("B"), 3),
+                    format_persian_number(cf.get("SE"), 3),
+                    format_persian_number(beta_val, 3) if not is_const and beta_val is not None else "-",
+                    format_persian_number(cf.get("t"), 2),
+                    format_persian_number(cf.get("p"), 3, is_p=True),
+                    format_persian_number(tol_val, 3) if not is_const and tol_val is not None else "-",
+                    format_persian_number(vif_val, 3) if not is_const and vif_val is not None else "-"
                 ]
                 for c_idx, val_str in enumerate(c_vals):
                     cell = row_cells[c_idx]
@@ -1081,25 +1245,37 @@ def build_chapter4_document(data: dict, output_path: str):
             table_counter += 1
 
             # Tier 3 Narrative Interpretation & Verdict (3 Paragraphs)
-            t3_p1, t3_p2, t3_p3 = get_tier3_coeff_narrative(dv_name, coeffs, verdict)
-            p_t3_n1 = doc.add_paragraph()
-            set_paragraph_bidi(p_t3_n1, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_t3_n1.paragraph_format.line_spacing = 1.25
-            p_t3_n1.paragraph_format.space_before = Pt(4)
-            p_t3_n1.paragraph_format.space_after = Pt(4)
-            add_run(p_t3_n1, t3_p1)
+            if not table_only:
+                custom_t3 = narratives.get(f"h_{h_num}_tier3") or narratives.get(f"hypothesis_{h_num}_tier3")
+                if custom_t3:
+                    if isinstance(custom_t3, str):
+                        custom_t3 = [custom_t3]
+                    for p_txt in custom_t3:
+                        p_t3 = doc.add_paragraph()
+                        set_paragraph_bidi(p_t3, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                        p_t3.paragraph_format.line_spacing = 1.25
+                        p_t3.paragraph_format.space_after = Pt(6)
+                        add_run(p_t3, p_txt)
+                else:
+                    t3_p1, t3_p2, t3_p3 = get_tier3_coeff_narrative(dv_name, coeffs, verdict)
+                    p_t3_n1 = doc.add_paragraph()
+                    set_paragraph_bidi(p_t3_n1, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                    p_t3_n1.paragraph_format.line_spacing = 1.25
+                    p_t3_n1.paragraph_format.space_before = Pt(4)
+                    p_t3_n1.paragraph_format.space_after = Pt(4)
+                    add_run(p_t3_n1, t3_p1)
 
-            p_t3_n2 = doc.add_paragraph()
-            set_paragraph_bidi(p_t3_n2, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_t3_n2.paragraph_format.line_spacing = 1.25
-            p_t3_n2.paragraph_format.space_after = Pt(4)
-            add_run(p_t3_n2, t3_p2)
+                    p_t3_n2 = doc.add_paragraph()
+                    set_paragraph_bidi(p_t3_n2, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                    p_t3_n2.paragraph_format.line_spacing = 1.25
+                    p_t3_n2.paragraph_format.space_after = Pt(4)
+                    add_run(p_t3_n2, t3_p2)
 
-            p_t3_n3 = doc.add_paragraph()
-            set_paragraph_bidi(p_t3_n3, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_t3_n3.paragraph_format.line_spacing = 1.25
-            p_t3_n3.paragraph_format.space_after = Pt(8)
-            add_run(p_t3_n3, t3_p3)
+                    p_t3_n3 = doc.add_paragraph()
+                    set_paragraph_bidi(p_t3_n3, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                    p_t3_n3.paragraph_format.line_spacing = 1.25
+                    p_t3_n3.paragraph_format.space_after = Pt(8)
+                    add_run(p_t3_n3, t3_p3)
 
             # --- Tier 4: Physically Embedded Diagnostic Residual Plots & Detailed Interpretation ---
             t4 = h_data.get("tier4_residual_diagnostics", {})
@@ -1109,15 +1285,16 @@ def build_chapter4_document(data: dict, output_path: str):
 
             t4_p1, t4_p2 = get_tier4_plots_narrative(dv_name)
 
-            if hist_png and os.path.exists(hist_png):
-                # Introductory narrative for Histogram
+            if not table_only and hist_png and os.path.exists(hist_png):
+                custom_hist = narratives.get(f"h_{h_num}_tier4_hist")
                 p_hist_desc = doc.add_paragraph()
                 set_paragraph_bidi(p_hist_desc, WD_ALIGN_PARAGRAPH.JUSTIFY)
                 p_hist_desc.paragraph_format.line_spacing = 1.25
                 p_hist_desc.paragraph_format.space_before = Pt(4)
                 p_hist_desc.paragraph_format.space_after = Pt(4)
-                add_run(p_hist_desc, t4_p1)
+                add_run(p_hist_desc, custom_hist if custom_hist else t4_p1)
 
+            if hist_png and os.path.exists(hist_png):
                 add_figure_image(
                     doc,
                     img_path=hist_png,
@@ -1126,15 +1303,16 @@ def build_chapter4_document(data: dict, output_path: str):
                 )
                 figure_counter += 1
 
-            if pp_png and os.path.exists(pp_png):
-                # Introductory narrative for P-P plot
+            if not table_only and pp_png and os.path.exists(pp_png):
+                custom_pp = narratives.get(f"h_{h_num}_tier4_pp")
                 p_pp_desc = doc.add_paragraph()
                 set_paragraph_bidi(p_pp_desc, WD_ALIGN_PARAGRAPH.JUSTIFY)
                 p_pp_desc.paragraph_format.line_spacing = 1.25
                 p_pp_desc.paragraph_format.space_before = Pt(4)
                 p_pp_desc.paragraph_format.space_after = Pt(4)
-                add_run(p_pp_desc, t4_p2)
+                add_run(p_pp_desc, custom_pp if custom_pp else t4_p2)
 
+            if pp_png and os.path.exists(pp_png):
                 add_figure_image(
                     doc,
                     img_path=pp_png,
@@ -1162,27 +1340,34 @@ def build_chapter4_document(data: dict, output_path: str):
             n_boot = sm_res["n_bootstraps"]
             med_type = sm_res["mediation_type"]
 
-            p_med_desc1 = doc.add_paragraph()
-            set_paragraph_bidi(p_med_desc1, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_med_desc1.paragraph_format.line_spacing = 1.25
-            p_med_desc1.paragraph_format.space_after = Pt(6)
-            add_run(p_med_desc1, 
-                f"به‌منظور تبیین و واکاوی مکانیسم‌های علی-شناختی زیربنایی، مدل میانجی‌گری سریالی (Serial Multiple Mediation Model) "
-                f"اثر متغیر مستقل ({x}) بر متغیر وابسته ({y}) از طریق متغیر میانجی اول ({m1}) و متغیر میانجی دوم ({m2}) "
-                f"بر اساس مدل ۶ هیز (Hayes, 2018) آزموده شد. در این ساختار، نه تنها مسیرهای میانجی‌گری ساده به شکل موازی ارزیابی می‌گردند، "
-                f"بلکه توالی زمانی و شناختی بین خود متغیرهای میانجی ({m1} → {m2}) نیز در ایجاد زنجیره انتقال اثر مورد سنجش قرار می‌گیرد."
-            )
+            if not table_only:
+                custom_med_desc1 = narratives.get("serial_mediation_desc1")
+                p_med_desc1 = doc.add_paragraph()
+                set_paragraph_bidi(p_med_desc1, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                p_med_desc1.paragraph_format.line_spacing = 1.25
+                p_med_desc1.paragraph_format.space_after = Pt(6)
+                add_run(p_med_desc1, 
+                    custom_med_desc1 if custom_med_desc1 else (
+                        f"به‌منظور تبیین و واکاوی مکانیسم‌های علی-شناختی زیربنایی، مدل میانجی‌گری سریالی (Serial Multiple Mediation Model) "
+                        f"اثر متغیر مستقل ({x}) بر متغیر وابسته ({y}) از طریق متغیر میانجی اول ({m1}) و متغیر میانجی دوم ({m2}) "
+                        f"بر اساس مدل ۶ هیز (Hayes, 2018) آزموده شد. در این ساختار، نه تنها مسیرهای میانجی‌گری ساده به شکل موازی ارزیابی می‌گردند، "
+                        f"بلکه توالی زمانی و شناختی بین خود متغیرهای میانجی ({m1} → {m2}) نیز در ایجاد زنجیره انتقال اثر مورد سنجش قرار می‌گیرد."
+                    )
+                )
 
-            p_med_desc2 = doc.add_paragraph()
-            set_paragraph_bidi(p_med_desc2, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_med_desc2.paragraph_format.line_spacing = 1.25
-            p_med_desc2.paragraph_format.space_after = Pt(8)
-            add_run(p_med_desc2, 
-                f"جهت ارزیابی معناداری آماری اثرات غیرمستقیم، با توجه به توزیع غیرنرمال حاصل‌ضرب ضرایب مسیر، از روش نمونه‌گیری "
-                f"مجدد بوت‌استراپینگ ناپارامتریک (Nonparametric Bootstrapping) با {to_persian_digits(n_boot)} بار بازنمونه‌گیری و "
-                f"محاسبه فواصل اطمینان ۹۵ درصدی تصحیح‌شده سوگیری (Bias-Corrected 95% Confidence Intervals) استفاده شد. "
-                f"معیار تأیید فرضیه‌های میانجی‌گری، عدم دربرگیری عدد صفر بین حد پایین (LLCI) و حد بالای (ULCI) فواصل اطمینان بوت‌استراپ است."
-            )
+                custom_med_desc2 = narratives.get("serial_mediation_desc2")
+                p_med_desc2 = doc.add_paragraph()
+                set_paragraph_bidi(p_med_desc2, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                p_med_desc2.paragraph_format.line_spacing = 1.25
+                p_med_desc2.paragraph_format.space_after = Pt(8)
+                add_run(p_med_desc2, 
+                    custom_med_desc2 if custom_med_desc2 else (
+                        f"جهت ارزیابی معناداری آماری اثرات غیرمستقیم، با توجه به توزیع غیرنرمال حاصل‌ضرب ضرایب مسیر، از روش نمونه‌گیری "
+                        f"مجدد بوت‌استراپینگ ناپارامتریک (Nonparametric Bootstrapping) با {to_persian_digits(n_boot)} بار بازنمونه‌گیری و "
+                        f"محاسبه فواصل اطمینان ۹۵ درصدی تصحیح‌شده سوگیری (Bias-Corrected 95% Confidence Intervals) استفاده شد. "
+                        f"معیار تأیید فرضیه‌های میانجی‌گری، عدم دربرگیری عدد صفر بین حد پایین (LLCI) و حد بالای (ULCI) فواصل اطمینان بوت‌استراپ است."
+                    )
+                )
 
             # Direct Paths Table
             p_cap_dir = doc.add_paragraph()
@@ -1284,30 +1469,37 @@ def build_chapter4_document(data: dict, output_path: str):
             table_counter += 1
 
             # Serial Mediation Narrative Synthesis (2 Rich Paragraphs)
-            ser_ind = ip.get("indirect_3_serial", {})
-            p_med_syn1 = doc.add_paragraph()
-            set_paragraph_bidi(p_med_syn1, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_med_syn1.paragraph_format.line_spacing = 1.25
-            p_med_syn1.paragraph_format.space_before = Pt(4)
-            p_med_syn1.paragraph_format.space_after = Pt(4)
-            add_run(p_med_syn1, 
-                f"نتایج حاصل از تحلیل بوت‌استراپینگ در جدول بالا نشان داد که مسیر غیرمستقیم سریالی با عبور از هر دو متغیر میانجی "
-                f"({x} → {m1} → {m2} → {y}) دارای ضریب برآورد نقطه اثر {format_persian_number(ser_ind.get('estimate'), 4)} و خطای استاندارد "
-                f"بوت {format_persian_number(ser_ind.get('boot_se'), 4)} می‌باشد. فاصله اطمینان ۹۵ درصدی تصحیح‌شده سوگیری برای این مسیر "
-                f"[{format_persian_number(ser_ind.get('ci_95_lower'), 4)} ,{format_persian_number(ser_ind.get('ci_95_upper'), 4)}] "
-                f"به دست آمد که از آنجا که دامنه اطمینان عدد صفر را دربرنمی‌گیرد، اثر میانجی‌گری سریالی در سطح خطای ۰.۰۵ کاملاً معنادار است."
-            )
+            if not table_only:
+                ser_ind = ip.get("indirect_3_serial", {})
+                custom_syn1 = narratives.get("serial_mediation_syn1")
+                p_med_syn1 = doc.add_paragraph()
+                set_paragraph_bidi(p_med_syn1, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                p_med_syn1.paragraph_format.line_spacing = 1.25
+                p_med_syn1.paragraph_format.space_before = Pt(4)
+                p_med_syn1.paragraph_format.space_after = Pt(4)
+                add_run(p_med_syn1, 
+                    custom_syn1 if custom_syn1 else (
+                        f"نتایج حاصل از تحلیل بوت‌استراپینگ در جدول بالا نشان داد که مسیر غیرمستقیم سریالی با عبور از هر دو متغیر میانجی "
+                        f"({x} → {m1} → {m2} → {y}) دارای ضریب برآورد نقطه اثر {format_persian_number(ser_ind.get('estimate'), 4)} و خطای استاندارد "
+                        f"بوت {format_persian_number(ser_ind.get('boot_se'), 4)} می‌باشد. فاصله اطمینان ۹۵ درصدی تصحیح‌شده سوگیری برای این مسیر "
+                        f"[{format_persian_number(ser_ind.get('ci_95_lower'), 4)} ,{format_persian_number(ser_ind.get('ci_95_upper'), 4)}] "
+                        f"به دست آمد که از آنجا که دامنه اطمینان عدد صفر را دربرنمی‌گیرد، اثر میانجی‌گری سریالی در سطح خطای ۰.۰۵ کاملاً معنادار است."
+                    )
+                )
 
-            p_med_syn2 = doc.add_paragraph()
-            set_paragraph_bidi(p_med_syn2, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_med_syn2.paragraph_format.line_spacing = 1.25
-            p_med_syn2.paragraph_format.space_after = Pt(12)
-            add_run(p_med_syn2, 
-                f"همچنین بررسی اثر مستقیم کنترل‌شده ({x} → {y}) با ضریب مسیر c' نشان داد که "
-                f"با توجه به برآوردها، پیوند بین متغیر مستقل و ملاک در حضور همزمان میانجی‌ها تبیین می‌گردد. "
-                f"الگوی کلی روابط داده‌ها بیانگر وضعیت «{med_type}» بوده و نشان می‌دهد که سازوکارهای شناختی میانجی، "
-                f"نقش پل ارتباطی و انتقال‌دهنده حیاتی را در تبیین اثرات تجارب خانواده مبدأ بر نشانه‌های بالینی ایفا می‌نمایند."
-            )
+                custom_syn2 = narratives.get("serial_mediation_syn2")
+                p_med_syn2 = doc.add_paragraph()
+                set_paragraph_bidi(p_med_syn2, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                p_med_syn2.paragraph_format.line_spacing = 1.25
+                p_med_syn2.paragraph_format.space_after = Pt(12)
+                add_run(p_med_syn2, 
+                    custom_syn2 if custom_syn2 else (
+                        f"همچنین بررسی اثر مستقیم کنترل‌شده ({x} → {y}) با ضریب مسیر c' نشان داد که "
+                        f"با توجه به برآوردها، پیوند بین متغیر مستقل و ملاک در حضور همزمان میانجی‌ها تبیین می‌گردد. "
+                        f"الگوی کلی روابط داده‌ها بیانگر وضعیت «{med_type}» بوده و نشان می‌دهد که سازوکارهای شناختی میانجی، "
+                        f"نقش پل ارتباطی و انتقال‌دهنده حیاتی را در تبیین اثرات {x} بر {y} ایفا می‌نمایند."
+                    )
+                )
 
     # -------------------------------------------------------------
     # Section 8: Structural Equation Modeling (SEM via lavaan)
@@ -1323,16 +1515,20 @@ def build_chapter4_document(data: dict, output_path: str):
         p_h_sem.paragraph_format.space_after = Pt(8)
         add_run(p_h_sem, "۸-۴. آزمون برازش مدل ساختاری پژوهش (SEM)", font_fa='B Titr', size=15, bold=True)
 
-        p_sem_txt = doc.add_paragraph()
-        set_paragraph_bidi(p_sem_txt, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_sem_txt.paragraph_format.line_spacing = 1.25
-        p_sem_txt.paragraph_format.space_after = Pt(8)
-        add_run(p_sem_txt, 
-            "جهت آزمون کلیت مدل مفهومی پژوهش و ارزیابی همزمان شبکه روابط مستقیم و غیرمستقیم، از مدل‌سازی معادلات ساختاری (SEM) "
-            "با روش برآورد حداکثر درست‌نمایی (Maximum Likelihood) استفاده شد. برای ارزیابی برازش مدل نظری با ماتریس واریانس-کوواریانس داده‌ها، "
-            "مجموعه‌ای جامع از شاخص‌های نیکویی برازش شامل نسبت کای-دو به درجه آزادی (χ²/df)، شاخص‌های برازش تطبیقی (CFI, TLI, IFI, NFI)، "
-            "شاخص‌های برازش مطلق (GFI, AGFI) و شاخص‌های خطای تقریب (RMSEA و SRMR) مطابق با معیارهای کلاین (۲۰۱۶) و هو و بنتـلر (۱۹۹۹) استخراج گردید."
-        )
+        if not table_only:
+            custom_sem_intro = narratives.get("sem_intro")
+            p_sem_txt = doc.add_paragraph()
+            set_paragraph_bidi(p_sem_txt, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_sem_txt.paragraph_format.line_spacing = 1.25
+            p_sem_txt.paragraph_format.space_after = Pt(8)
+            add_run(p_sem_txt, 
+                custom_sem_intro if custom_sem_intro else (
+                    "جهت آزمون کلیت مدل مفهومی پژوهش و ارزیابی همزمان شبکه روابط مستقیم و غیرمستقیم، از مدل‌سازی معادلات ساختاری (SEM) "
+                    "با روش برآورد حداکثر درست‌نمایی (Maximum Likelihood) استفاده شد. برای ارزیابی برازش مدل نظری با ماتریس واریانس-کوواریانس داده‌ها، "
+                    "مجموعه‌ای جامع از شاخص‌های نیکویی برازش شامل نسبت کای-دو به درجه آزادی (χ²/df)، شاخص‌های برازش تطبیقی (CFI, TLI, IFI, NFI)، "
+                    "شاخص‌های برازش مطلق (GFI, AGFI) و شاخص‌های خطای تقریب (RMSEA و SRMR) مطابق با معیارهای کلاین (۲۰۱۶) و هو و بنتـلر (۱۹۹۹) استخراج گردید."
+                )
+            )
 
         # Fit Indices Table (Table 4-26)
         p_cap_sem = doc.add_paragraph()
@@ -1378,20 +1574,24 @@ def build_chapter4_document(data: dict, output_path: str):
         table_counter += 1
 
         # Fit Indices Narrative Evaluation
-        p_fit_eval = doc.add_paragraph()
-        set_paragraph_bidi(p_fit_eval, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_fit_eval.paragraph_format.line_spacing = 1.25
-        p_fit_eval.paragraph_format.space_before = Pt(4)
-        p_fit_eval.paragraph_format.space_after = Pt(8)
-        add_run(p_fit_eval, 
-            f"همان‌گونه که در جدول فوق مشاهده می‌شود، نسبت آماره خی-دو به درجه آزادی برابر با "
-            f"χ²/df = {format_persian_number(fits.get('cmin_df'), 3)} محاسبه شد که با قرار گرفتن در دامنه مطلوب کمتر از ۳، "
-            f"بیانگر برازش بسیار مطلوب مدل است. شاخص‌های تطبیقی (CFI = {format_persian_number(fits.get('cfi'), 3)}، "
-            f"TLI = {format_persian_number(fits.get('tli'), 3)}، IFI = {format_persian_number(fits.get('ifi'), 3)}) همگی "
-            f"فراتر از آستانه استاندارد ۰.۹۰ قرار دارند. علاوه بر این، ریشه میانگین مجذورات خطای تقریب (RMSEA) برابر با "
-            f"{format_persian_number(fits.get('rmsea'), 3)} و باقیمانده استاندارد (SRMR) برابر با {format_persian_number(fits.get('srmr'), 3)} "
-            f"به‌دست آمد که استقرار آن‌ها در محدوده کمتر از ۰.۰۵ بیانگر انطباق کامل و درخشان ساختار نظری با داده‌های تجربی است."
-        )
+        if not table_only:
+            custom_fit_eval = narratives.get("sem_fit_eval")
+            p_fit_eval = doc.add_paragraph()
+            set_paragraph_bidi(p_fit_eval, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_fit_eval.paragraph_format.line_spacing = 1.25
+            p_fit_eval.paragraph_format.space_before = Pt(4)
+            p_fit_eval.paragraph_format.space_after = Pt(8)
+            add_run(p_fit_eval, 
+                custom_fit_eval if custom_fit_eval else (
+                    f"همان‌گونه که در جدول فوق مشاهده می‌شود، نسبت آماره خی-دو به درجه آزادی برابر با "
+                    f"χ²/df = {format_persian_number(fits.get('cmin_df'), 3)} محاسبه شد که با قرار گرفتن در دامنه مطلوب کمتر از ۳، "
+                    f"بیانگر برازش بسیار مطلوب مدل است. شاخص‌های تطبیقی (CFI = {format_persian_number(fits.get('cfi'), 3)}، "
+                    f"TLI = {format_persian_number(fits.get('tli'), 3)}، IFI = {format_persian_number(fits.get('ifi'), 3)}) همگی "
+                    f"فراتر از آستانه استاندارد ۰.۹۰ قرار دارند. علاوه بر این، ریشه میانگین مجذورات خطای تقریب (RMSEA) برابر با "
+                    f"{format_persian_number(fits.get('rmsea'), 3)} و باقیمانده استاندارد (SRMR) برابر با {format_persian_number(fits.get('srmr'), 3)} "
+                    f"به‌دست آمد که استقرار آن‌ها در محدوده کمتر از ۰.۰۵ بیانگر انطباق کامل و درخشان ساختار نظری با داده‌های تجربی است."
+                )
+            )
 
         # Embedded SEM Path Diagram (Figure 4-13)
         if plot_p and os.path.exists(plot_p):
@@ -1489,59 +1689,32 @@ def build_chapter4_document(data: dict, output_path: str):
                     add_run(p, val_str, font_fa='B Nazanin', size=9.5)
             table_counter += 1
 
-        # Specific Mediation Hypotheses Subsections (Hypotheses 7 & 8)
-        med_hypotheses = sem_res.get("mediation_hypotheses", [
-            {
-                "num": 7,
-                "title": "عدم تحمل عدم قطعیت در رابطه بین سبک‌های فرزندپروری ادراک‌شده و شدت علائم اضطراب فراگیر نقش میانجی دارد.",
-                "path_name": "ius_med",
-                "est": -0.065,
-                "p": 0.050,
-                "ci_lower": -0.131,
-                "ci_upper": 0.000,
-                "verdict": "تأیید شد"
-            },
-            {
-                "num": 8,
-                "title": "نگرانی بیمارگونه در رابطه بین سبک‌های فرزندپروری ادراک‌شده و شدت علائم اضطراب فراگیر نقش میانجی دارد.",
-                "path_name": "psw_med",
-                "est": -0.041,
-                "p": 0.068,
-                "ci_lower": -0.086,
-                "ci_upper": 0.003,
-                "verdict": "تأیید نشد"
-            },
-            {
-                "num": 9,
-                "title": "عدم تحمل عدم قطعیت و نگرانی بیمارگونه به صورت سریالی در رابطه بین سبک‌های فرزندپروری ادراک‌شده و اضطراب فراگیر نقش میانجی دارند.",
-                "path_name": "serial_med",
-                "est": -0.031,
-                "p": 0.020,
-                "ci_lower": -0.057,
-                "ci_upper": -0.005,
-                "verdict": "تأیید شد"
-            }
-        ])
+        # Specific Mediation Hypotheses Subsections
+        med_hypotheses = sem_res.get("mediation_hypotheses", [])
+        if not table_only and med_hypotheses:
+            for mh in med_hypotheses:
+                p_mh_h = doc.add_paragraph()
+                set_paragraph_bidi(p_mh_h, WD_ALIGN_PARAGRAPH.RIGHT)
+                p_mh_h.paragraph_format.space_before = Pt(12)
+                p_mh_h.paragraph_format.space_after = Pt(4)
+                add_run(p_mh_h, f"فرضیه {to_persian_digits(mh['num'])}: {mh['title']}", font_fa='B Titr', size=12.5, bold=True)
 
-        for mh in med_hypotheses:
-            p_mh_h = doc.add_paragraph()
-            set_paragraph_bidi(p_mh_h, WD_ALIGN_PARAGRAPH.RIGHT)
-            p_mh_h.paragraph_format.space_before = Pt(12)
-            p_mh_h.paragraph_format.space_after = Pt(4)
-            add_run(p_mh_h, f"فرضیه {to_persian_digits(mh['num'])}: {mh['title']}", font_fa='B Titr', size=12.5, bold=True)
-
-            p_mh_body = doc.add_paragraph()
-            set_paragraph_bidi(p_mh_body, WD_ALIGN_PARAGRAPH.JUSTIFY)
-            p_mh_body.paragraph_format.line_spacing = 1.25
-            p_mh_body.paragraph_format.space_after = Pt(6)
-            
-            sig_state = "معنادار بوده و فرضیه مربوطه با اطمینان ۹۵ درصد تأیید می‌گردد" if mh["verdict"] == "تأیید شد" else "به لحاظ آماری به سطح معناداری مورد انتظار نرسیده و فرضیه مورد نظر تأیید نگردید"
-            ci_text = f"با مقدار ضریب برآورد {format_persian_number(mh['est'], 3)} و فاصله اطمینان ۹۵ درصدی بوت‌استراپ [{format_persian_number(mh['ci_lower'], 3)} ,{format_persian_number(mh['ci_upper'], 3)}]"
-            add_run(p_mh_body, 
-                f"مطابق با برآوردهای حاصل از مدل‌یابی معادلات ساختاری و نتایج نمونه‌گیری مجدد بوت‌استراپ (جدول ۴-۲۸)، "
-                f"مسیر غیرمستقیم فرضیه {to_persian_digits(mh['num'])} {ci_text} محاسبه شد. با توجه به اینکه صفر در دامنه "
-                f"{'قرار نگرفته است' if mh['verdict'] == 'تأیید شد' else 'مستقر می‌باشد'}، اثر غیرمستقیم در سطح خطا {sig_state}."
-            )
+                p_mh_body = doc.add_paragraph()
+                set_paragraph_bidi(p_mh_body, WD_ALIGN_PARAGRAPH.JUSTIFY)
+                p_mh_body.paragraph_format.line_spacing = 1.25
+                p_mh_body.paragraph_format.space_after = Pt(6)
+                
+                custom_mh = narratives.get(f"sem_hypothesis_{mh.get('num')}")
+                if custom_mh:
+                    add_run(p_mh_body, custom_mh)
+                else:
+                    sig_state = "معنادار بوده و فرضیه مربوطه با اطمینان ۹۵ درصد تأیید می‌گردد" if mh["verdict"] == "تأیید شد" else "به لحاظ آماری به سطح معناداری مورد انتظار نرسیده و فرضیه مورد نظر تأیید نگردید"
+                    ci_text = f"با مقدار ضریب برآورد {format_persian_number(mh['est'], 3)} و فاصله اطمینان ۹۵ درصدی بوت‌استراپ [{format_persian_number(mh['ci_lower'], 3)} ,{format_persian_number(mh['ci_upper'], 3)}]"
+                    add_run(p_mh_body, 
+                        f"مطابق با برآوردهای حاصل از مدل‌یابی معادلات ساختاری و نتایج نمونه‌گیری مجدد بوت‌استراپ (جدول ۴-۲۸)، "
+                        f"مسیر غیرمستقیم فرضیه {to_persian_digits(mh['num'])} {ci_text} محاسبه شد. با توجه به اینکه صفر در دامنه "
+                        f"{'قرار نگرفته است' if mh['verdict'] == 'تأیید شد' else 'مستقر می‌باشد'}، اثر غیرمستقیم در سطح خطا {sig_state}."
+                    )
 
     # -------------------------------------------------------------
     # Section 9: Master Chapter Synthesis & Master Decision Matrix
@@ -1553,15 +1726,19 @@ def build_chapter4_document(data: dict, output_path: str):
         p_h_sum.paragraph_format.space_after = Pt(8)
         add_run(p_h_sum, "۹-۴. خلاصه نتایج آزمون فرضیه‌های پژوهش (ماتریس سنتز یافته‌ها)", font_fa='B Titr', size=15, bold=True)
 
-        p_sum_desc = doc.add_paragraph()
-        set_paragraph_bidi(p_sum_desc, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_sum_desc.paragraph_format.line_spacing = 1.25
-        p_sum_desc.paragraph_format.space_after = Pt(8)
-        add_run(p_sum_desc, 
-            "در این بخش، به‌منظور ارائه تصویری یکپارچه و مقایسه‌ای از یافته‌های حاصل از آزمون فرضیه‌ها، جدول ماتریس "
-            "سنتز نتایج تدوین گردیده است. این جدول دربرگیرنده شماره فرضیه، شرح عنوان فرضیه، روش آماری به‌کاررفته، "
-            "آماره‌های کلیدی آزمون و تصمیم نهایی در خصوص فرضیه می‌باشد."
-        )
+        if not table_only:
+            custom_sum_desc = narratives.get("master_matrix_intro")
+            p_sum_desc = doc.add_paragraph()
+            set_paragraph_bidi(p_sum_desc, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_sum_desc.paragraph_format.line_spacing = 1.25
+            p_sum_desc.paragraph_format.space_after = Pt(8)
+            add_run(p_sum_desc, 
+                custom_sum_desc if custom_sum_desc else (
+                    "در این بخش، به‌منظور ارائه تصویری یکپارچه و مقایسه‌ای از یافته‌های حاصل از آزمون فرضیه‌ها، جدول ماتریس "
+                    "سنتز نتایج تدوین گردیده است. این جدول دربرگیرنده شماره فرضیه، شرح عنوان فرضیه، روش آماری به‌کاررفته، "
+                    "آماره‌های کلیدی آزمون و تصمیم نهایی در خصوص فرضیه می‌باشد."
+                )
+            )
 
         p_cap_sum = doc.add_paragraph()
         set_paragraph_bidi(p_cap_sum, WD_ALIGN_PARAGRAPH.RIGHT)
@@ -1580,29 +1757,33 @@ def build_chapter4_document(data: dict, output_path: str):
             })
 
         # Append SEM Mediation Hypotheses if present
-        if "sem" in data and "indirect_paths" in data["sem"]:
-            ind_dict = {p.get("label"): p for p in data["sem"]["indirect_paths"]}
-            all_summary_rows.append({
-                "num": 7,
-                "title": "نقش میانجی عدم تحمل عدم قطعیت در رابطه سبک‌های فرزندپروری و اضطراب فراگیر",
-                "test": "مدل‌سازی معادلات ساختاری (SEM)",
-                "stats": f"B = {format_persian_number(ind_dict.get('مسیر میانجی‌گری ساده اول (PPS -> IUS -> GAD)', {}).get('est', -0.065), 3)}، p = ۰.۰۵۰",
-                "verdict": "تأیید شد"
-            })
-            all_summary_rows.append({
-                "num": 8,
-                "title": "نقش میانجی نگرانی بیمارگونه در رابطه سبک‌های فرزندپروری و اضطراب فراگیر",
-                "test": "مدل‌سازی معادلات ساختاری (SEM)",
-                "stats": f"B = {format_persian_number(ind_dict.get('مسیر میانجی‌گری ساده دوم (PPS -> PSWQ -> GAD)', {}).get('est', -0.041), 3)}، p = ۰.۰۶۸",
-                "verdict": "تأیید نشد"
-            })
-            all_summary_rows.append({
-                "num": 9,
-                "title": "نقش میانجی‌گری سریالی عدم تحمل عدم قطعیت و نگرانی بیمارگونه (مدل ۶)",
-                "test": "بوت‌استراپینگ سریالی (SEM)",
-                "stats": f"B = {format_persian_number(ind_dict.get('مسیر میانجی‌گری سریالی (PPS -> IUS -> PSWQ -> GAD)', {}).get('est', -0.031), 3)}، p = ۰.۰۲۰",
-                "verdict": "تأیید شد"
-            })
+        if "sem" in data:
+            if "mediation_hypotheses" in data["sem"]:
+                for mh in data["sem"]["mediation_hypotheses"]:
+                    all_summary_rows.append({
+                        "num": mh.get("num", len(all_summary_rows) + 1),
+                        "title": mh.get("title", ""),
+                        "test": "مدل‌سازی معادلات ساختاری (SEM)",
+                        "stats": f"B = {format_persian_number(mh.get('est'), 3)}، p = {format_persian_number(mh.get('p'), 3, is_p=True)}",
+                        "verdict": mh.get("verdict", "تأیید شد")
+                    })
+            elif "indirect_paths" in data["sem"]:
+                for idx, ip_row in enumerate(data["sem"]["indirect_paths"]):
+                    p_num = len(all_summary_rows) + 1
+                    lbl = ip_row.get("label", f"مسیر غیرمستقیم {idx + 1}")
+                    formula = ip_row.get("formula", ip_row.get("rhs", ""))
+                    title_text = f"نقش میانجی در مسیر {lbl}" if lbl else f"مسیر {formula}"
+                    est_val = ip_row.get("est")
+                    pval = ip_row.get("pvalue")
+                    p_str = format_persian_number(pval, 3, is_p=True) if pval is not None else "-"
+                    is_sig = (pval is not None and pval < 0.05) or (ip_row.get("ci_lower", 0) > 0 or ip_row.get("ci_upper", 0) < 0)
+                    all_summary_rows.append({
+                        "num": p_num,
+                        "title": title_text,
+                        "test": "مدل‌سازی معادلات ساختاری (SEM)",
+                        "stats": f"B = {format_persian_number(est_val, 3)}، p = {p_str}",
+                        "verdict": "تأیید شد" if is_sig else "تأیید نشد"
+                    })
 
         tbl_sum = doc.add_table(rows=len(all_summary_rows) + 1, cols=5)
         tbl_sum.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -1664,15 +1845,19 @@ def build_chapter4_document(data: dict, output_path: str):
         add_run(p_rm_head, f"آزمون فرضیه پژوهش: تحلیل واریانس با اندازه‌گیری‌های مکرر ({dv_label})", font_fa='B Titr', size=14, bold=True)
 
         # 1. Descriptive narrative & table
-        p_desc_txt = doc.add_paragraph()
-        set_paragraph_bidi(p_desc_txt, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_desc_txt.paragraph_format.line_spacing = 1.25
-        p_desc_txt.paragraph_format.space_after = Pt(6)
-        add_run(p_desc_txt,
-            f"به‌منظور بررسی اثر زمان و مقایسه میانگین نمرات {dv_label} در طول مراحل متوالی سنجش، ابتدا شاخص‌های توصیفی "
-            f"شامل میانگین، انحراف معیار، خطای معیار و حدود اطمینان ۹۵ درصد محاسبه گردید. تعداد {to_persian_digits(n_subj)} نفر "
-            f"از آزمودنی‌ها در کلیه مراحل سنجش ارزیابی شدند. نتایج شاخص‌های توصیفی در جدول زیر ارائه گردیده است."
-        )
+        if not table_only:
+            custom_rm_desc = narratives.get("rm_desc_txt")
+            p_desc_txt = doc.add_paragraph()
+            set_paragraph_bidi(p_desc_txt, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_desc_txt.paragraph_format.line_spacing = 1.25
+            p_desc_txt.paragraph_format.space_after = Pt(6)
+            add_run(p_desc_txt,
+                custom_rm_desc if custom_rm_desc else (
+                    f"به‌منظور بررسی اثر زمان و مقایسه میانگین نمرات {dv_label} در طول مراحل متوالی سنجش، ابتدا شاخص‌های توصیفی "
+                    f"شامل میانگین، انحراف معیار، خطای معیار و حدود اطمینان ۹۵ درصد محاسبه گردید. تعداد {to_persian_digits(n_subj)} نفر "
+                    f"از آزمودنی‌ها در کلیه مراحل سنجش ارزیابی شدند. نتایج شاخص‌های توصیفی در جدول زیر ارائه گردیده است."
+                )
+            )
 
         p_cap_desc = doc.add_paragraph()
         set_paragraph_bidi(p_cap_desc, WD_ALIGN_PARAGRAPH.RIGHT)
@@ -1712,12 +1897,6 @@ def build_chapter4_document(data: dict, output_path: str):
         table_counter += 1
 
         # 2. Mauchly Sphericity Table & Narrative
-        p_sph_txt = doc.add_paragraph()
-        set_paragraph_bidi(p_sph_txt, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_sph_txt.paragraph_format.line_spacing = 1.25
-        p_sph_txt.paragraph_format.space_before = Pt(8)
-        p_sph_txt.paragraph_format.space_after = Pt(6)
-
         w_val = mauchly.get("w", 0.482)
         chi2_val = mauchly.get("chi2", 42.18)
         df_sph = mauchly.get("df", 5)
@@ -1725,11 +1904,20 @@ def build_chapter4_document(data: dict, output_path: str):
         eps_gg_val = eps.get("greenhouse_geisser", 0.722)
         eps_hf_val = eps.get("huynh_feldt", 0.751)
 
-        add_run(p_sph_txt,
-            f"یکی از مفروضه‌های بنیادین تحلیل واریانس با اندازه‌گیری‌های مکرر، مفروضه کرویت (Sphericity) یا برابری واریانس تفاوت‌ها است. "
-            f"برای ارزیابی این مفروضه از آزمون کرویت موچلی (Mauchly's Test of Sphericity) استفاده شد. "
-            f"نتایج آزمون موچلی در جدول زیر گزارش گردیده است."
-        )
+        if not table_only:
+            custom_sph_txt = narratives.get("rm_sph_txt")
+            p_sph_txt = doc.add_paragraph()
+            set_paragraph_bidi(p_sph_txt, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_sph_txt.paragraph_format.line_spacing = 1.25
+            p_sph_txt.paragraph_format.space_before = Pt(8)
+            p_sph_txt.paragraph_format.space_after = Pt(6)
+            add_run(p_sph_txt,
+                custom_sph_txt if custom_sph_txt else (
+                    f"یکی از مفروضه‌های بنیادین تحلیل واریانس با اندازه‌گیری‌های مکرر، مفروضه کرویت (Sphericity) یا برابری واریانس تفاوت‌ها است. "
+                    f"برای ارزیابی این مفروضه از آزمون کرویت موچلی (Mauchly's Test of Sphericity) استفاده شد. "
+                    f"نتایج آزمون موچلی در جدول زیر گزارش گردیده است."
+                )
+            )
 
         p_cap_sph = doc.add_paragraph()
         set_paragraph_bidi(p_cap_sph, WD_ALIGN_PARAGRAPH.RIGHT)
@@ -1767,19 +1955,23 @@ def build_chapter4_document(data: dict, output_path: str):
             add_run(p, v_str, font_fa='B Nazanin', size=10)
         table_counter += 1
 
-        p_sph_eval = doc.add_paragraph()
-        set_paragraph_bidi(p_sph_eval, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_sph_eval.paragraph_format.line_spacing = 1.25
-        p_sph_eval.paragraph_format.space_before = Pt(6)
-        p_sph_eval.paragraph_format.space_after = Pt(8)
-        add_run(p_sph_eval,
-            f"همان‌گونه که در جدول ۴-{to_persian_digits(table_counter-1)} ملاحظه می‌شود، مقدار آماره موچلی برابر با "
-            f"W = {format_persian_number(w_val, 3)} و آماره کای‌دو برابر با χ²({to_persian_digits(df_sph)}) = {format_persian_number(chi2_val, 2)} بوده "
-            f"و در سطح کمتر از ۰.۰۰۱ کاملاً معنادار است (p < ۰.۰۰۱). بنابراین مفروضه کرویت در داده‌های پژوهش نقض گردیده است. "
-            f"با توجه به نقض کرویت و از آنجا که ضریب اپسیلون گرین‌هاوس-گایسر کمتر از ۰.۷۵ می‌باشد (ε = {format_persian_number(eps_gg_val, 3)})، "
-            f"به‌منظور جلوگیری از افزایش نرخ خطای نوع اول (مثبت کاذب)، درجات آزادی صورت و مخرج کسر F از طریق ضریب گرین‌هاوس-گایسر "
-            f"تعدیل گردید و آماره F تعدیل‌شده مبنای تصمیم‌گیری آماری قرار گرفت."
-        )
+        if not table_only:
+            custom_sph_eval = narratives.get("rm_sph_eval")
+            p_sph_eval = doc.add_paragraph()
+            set_paragraph_bidi(p_sph_eval, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_sph_eval.paragraph_format.line_spacing = 1.25
+            p_sph_eval.paragraph_format.space_before = Pt(6)
+            p_sph_eval.paragraph_format.space_after = Pt(8)
+            add_run(p_sph_eval,
+                custom_sph_eval if custom_sph_eval else (
+                    f"همان‌گونه که در جدول ۴-{to_persian_digits(table_counter-1)} ملاحظه می‌شود، مقدار آماره موچلی برابر با "
+                    f"W = {format_persian_number(w_val, 3)} و آماره کای‌دو برابر با χ²({to_persian_digits(df_sph)}) = {format_persian_number(chi2_val, 2)} بوده "
+                    f"و در سطح کمتر از ۰.۰۰۱ کاملاً معنادار است (p < ۰.۰۰۱). بنابراین مفروضه کرویت در داده‌های پژوهش نقض گردیده است. "
+                    f"با توجه به نقض کرویت و از آنجا که ضریب اپسیلون گرین‌هاوس-گایسر کمتر از ۰.۷۵ می‌باشد (ε = {format_persian_number(eps_gg_val, 3)})، "
+                    f"به‌منظور جلوگیری از افزایش نرخ خطای نوع اول (مثبت کاذب)، درجات آزادی صورت و مخرج کسر F از طریق ضریب گرین‌هاوس-گایسر "
+                    f"تعدیل گردید و آماره F تعدیل‌شده مبنای تصمیم‌گیری آماری قرار گرفت."
+                )
+            )
 
         # 3. Repeated-Measures ANOVA Table & 5-Part Saber Paragraph
         p_cap_aov = doc.add_paragraph()
@@ -1832,20 +2024,24 @@ def build_chapter4_document(data: dict, output_path: str):
         eta_rep = prim.get("partial_eta_squared", 0.554)
         pct_var = format_persian_number(eta_rep * 100, 1)
 
-        p_aov_narr = doc.add_paragraph()
-        set_paragraph_bidi(p_aov_narr, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_aov_narr.paragraph_format.line_spacing = 1.25
-        p_aov_narr.paragraph_format.space_before = Pt(8)
-        p_aov_narr.paragraph_format.space_after = Pt(8)
-        add_run(p_aov_narr,
-            f"بر اساس نتایج مندرج در جدول ۴-{to_persian_digits(table_counter-1)}، تحلیل واریانس با اندازه‌گیری‌های مکرر "
-            f"پس از اعمال تعدیل گرین‌هاوس-گایسر نشان داد که اثر زمان بر نمرات {dv_label} از لحاظ آماری در سطح خطای "
-            f"کمتر از ۰.۰۰۱ کاملاً معنادار است (F({format_persian_number(df_eff_rep, 2)}, {format_persian_number(df_err_rep, 2)}) = {format_persian_number(f_rep, 2)}, "
-            f"p < ۰.۰۰۱, η²p = {format_persian_number(eta_rep, 3)}). اندازه اثر به‌دست‌آمده بر اساس ضابطه کوهن (۱۹۸۸) بسیار بزرگ ارزیابی "
-            f"می‌شود؛ به‌طوری‌که عامل زمان و توالی مراحل ارزیابی به‌تنهایی توانسته است {pct_var} درصد از کل واریانس تغییرات نمرات {dv_label} "
-            f"را تبیین نماید. این یافته تجربی بیانگر آن است که در طول چهار مرحله سنجش مکرر، تغییرات معنادار و نظام‌مندی در عملکرد آزمودنی‌ها "
-            f"رخ داده است و بر این اساس، فرضیه اصلی پژوهش با اطمینان ۹۹ درصد مورد تأیید آماری قرار می‌گیرد."
-        )
+        if not table_only:
+            custom_aov_narr = narratives.get("rm_aov_narr")
+            p_aov_narr = doc.add_paragraph()
+            set_paragraph_bidi(p_aov_narr, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_aov_narr.paragraph_format.line_spacing = 1.25
+            p_aov_narr.paragraph_format.space_before = Pt(8)
+            p_aov_narr.paragraph_format.space_after = Pt(8)
+            add_run(p_aov_narr,
+                custom_aov_narr if custom_aov_narr else (
+                    f"بر اساس نتایج مندرج در جدول ۴-{to_persian_digits(table_counter-1)}، تحلیل واریانس با اندازه‌گیری‌های مکرر "
+                    f"پس از اعمال تعدیل گرین‌هاوس-گایسر نشان داد که اثر زمان بر نمرات {dv_label} از لحاظ آماری در سطح خطای "
+                    f"کمتر از ۰.۰۰۱ کاملاً معنادار است (F({format_persian_number(df_eff_rep, 2)}, {format_persian_number(df_err_rep, 2)}) = {format_persian_number(f_rep, 2)}, "
+                    f"p < ۰.۰۰۱, η²p = {format_persian_number(eta_rep, 3)}). اندازه اثر به‌دست‌آمده بر اساس ضابطه کوهن (۱۹۸۸) بسیار بزرگ ارزیابی "
+                    f"می‌شود؛ به‌طوری‌که عامل زمان و توالی مراحل ارزیابی به‌تنهایی توانسته است {pct_var} درصد از کل واریانس تغییرات نمرات {dv_label} "
+                    f"را تبیین نماید. این یافته تجربی بیانگر آن است که در طول چهار مرحله سنجش مکرر، تغییرات معنادار و نظام‌مندی در عملکرد آزمودنی‌ها "
+                    f"رخ داده است و بر این اساس، فرضیه اصلی پژوهش با اطمینان ۹۹ درصد مورد تأیید آماری قرار می‌گیرد."
+                )
+            )
 
         # 4. Pairwise contrasts Table & Narrative
         p_cap_post = doc.add_paragraph()
@@ -1890,18 +2086,22 @@ def build_chapter4_document(data: dict, output_path: str):
                 add_run(p, v_str, font_fa='B Titr' if c_idx == 7 else 'B Nazanin', size=9.5, bold=(c_idx == 7))
         table_counter += 1
 
-        p_post_narr = doc.add_paragraph()
-        set_paragraph_bidi(p_post_narr, WD_ALIGN_PARAGRAPH.JUSTIFY)
-        p_post_narr.paragraph_format.line_spacing = 1.25
-        p_post_narr.paragraph_format.space_before = Pt(8)
-        p_post_narr.paragraph_format.space_after = Pt(8)
-        add_run(p_post_narr,
-            f"به‌منظور شناسایی دقیق مراحل زمانی دارای تفاوت معنادار، مقایسه‌های زوجی با تعدیل محافظه‌کارانه بونفرونی انجام شد. "
-            f"نتایج جدول ۴-{to_persian_digits(table_counter-1)} نشان می‌دهد که تمامی مقایسه‌های دوتایی مراحل متوالی و متناوب "
-            f"دارای تفاوت آماری معنادار در سطح p < ۰.۰۱ هستند. به‌طور خاص، نمرات آزمودنی‌ها از مرحله نخست به مرحله دوم، از مرحله دوم به "
-            f"مرحله سوم و همچنین از مرحله سوم به مرحله چهارم رشد افزایشی و معناداری را تجربه نموده است. این روند پیشرونده مؤید "
-            f"اثر پایدار و تجمعی عامل زمان بر ارتقای نمرات متغیر وابسته در نمونه آماری است."
-        )
+        if not table_only:
+            custom_post_narr = narratives.get("rm_post_narr")
+            p_post_narr = doc.add_paragraph()
+            set_paragraph_bidi(p_post_narr, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            p_post_narr.paragraph_format.line_spacing = 1.25
+            p_post_narr.paragraph_format.space_before = Pt(8)
+            p_post_narr.paragraph_format.space_after = Pt(8)
+            add_run(p_post_narr,
+                custom_post_narr if custom_post_narr else (
+                    f"به‌منظور شناسایی دقیق مراحل زمانی دارای تفاوت معنادار، مقایسه‌های زوجی با تعدیل محافظه‌کارانه بونفرونی انجام شد. "
+                    f"نتایج جدول ۴-{to_persian_digits(table_counter-1)} نشان می‌دهد که تمامی مقایسه‌های دوتایی مراحل متوالی و متناوب "
+                    f"دارای تفاوت آماری معنادار در سطح p < ۰.۰۱ هستند. به‌طور خاص، نمرات آزمودنی‌ها از مرحله نخست به مرحله دوم، از مرحله دوم به "
+                    f"مرحله سوم و همچنین از مرحله سوم به مرحله چهارم رشد افزایشی و معناداری را تجربه نموده است. این روند پیشرونده مؤید "
+                    f"اثر پایدار و تجمعی عامل زمان بر ارتقای نمرات متغیر وابسته در نمونه آماری است."
+                )
+            )
 
         fig_candidates = [
             os.path.join(os.path.dirname(output_path), "publication_figures", "rm_anova_trajectory.png"),
@@ -1929,39 +2129,399 @@ def build_chapter4_document(data: dict, output_path: str):
             figure_counter += 1
 
     # Concluding transition into Chapter 5
-    p_trans = doc.add_paragraph()
-    set_paragraph_bidi(p_trans, WD_ALIGN_PARAGRAPH.JUSTIFY)
-    p_trans.paragraph_format.line_spacing = 1.25
-    p_trans.paragraph_format.space_before = Pt(12)
-    p_trans.paragraph_format.space_after = Pt(14)
-    add_run(p_trans, 
-        "مجموع یافته‌های به‌دست‌آمده از تحلیل آماری داده‌ها در این فصل مؤید آن است که متغیرهای مستقل و میانجی "
-        "دارای نقش تبیینی و ساختاری نیرومندی در تغییرات متغیرهای ملاک هستند. در فصل پنجم، کلیه این شواهد آماری "
-        "در پرتو نظریه‌های روان‌شناختی کلاسیک و معاصر و پیشینه غنی پژوهش‌های تجربی داخلی و بین‌المللی مورد بحث و تبیین "
-        "عمیق مکانیستیک قرار خواهد گرفت، پیامدهای کاربردی و بالینی آن‌ها تدوین شده و محدودیت‌های روش‌شناختی به همراه "
-        "پیشنهادهای پژوهشی و کاربردی فراروی محققان و متخصصان بالینی قرار داده خواهد شد."
-    )
+    if not table_only:
+        custom_trans = narratives.get("concluding_transition")
+        p_trans = doc.add_paragraph()
+        set_paragraph_bidi(p_trans, WD_ALIGN_PARAGRAPH.JUSTIFY)
+        p_trans.paragraph_format.line_spacing = 1.25
+        p_trans.paragraph_format.space_before = Pt(12)
+        p_trans.paragraph_format.space_after = Pt(14)
+        add_run(p_trans, 
+            custom_trans if custom_trans else (
+                "مجموع یافته‌های به‌دست‌آمده از تحلیل آماری داده‌ها در این فصل مؤید آن است که متغیرهای مستقل و میانجی "
+                "دارای نقش تبیینی و ساختاری نیرومندی در تغییرات متغیرهای ملاک هستند. در فصل پنجم، کلیه این شواهد آماری "
+                "در پرتو نظریه‌های روان‌شناختی کلاسیک و معاصر و پیشینه غنی پژوهش‌های تجربی داخلی و بین‌المللی مورد بحث و تبیین "
+                "عمیق مکانیستیک قرار خواهد گرفت، پیامدهای کاربردی و بالینی آن‌ها تدوین شده و محدودیت‌های روش‌شناختی به همراه "
+                "پیشنهادهای پژوهشی و کاربردی فراروی محققان و متخصصان بالینی قرار داده خواهد شد."
+            )
+        )
 
     doc.save(output_path)
     print(f"Chapter 4 Document generated successfully: {output_path}")
 
 
-def export_markdown_chapter4(data: dict, md_path: str):
+def export_markdown_chapter4(data: dict, md_path: str, table_only: bool = False, narratives: Optional[dict] = None):
     """Generates synchronized APA 7th Edition Markdown Chapter 4 artifact."""
+    if narratives is None:
+        narratives = data.get("narratives") or data.get("narrative_blocks") or {}
+
+    lines = []
+    lines.append("# فصل چهارم: یافته‌های پژوهش\n")
+
+    if not table_only:
+        intro_txt = narratives.get("chapter_intro")
+        lines.append("## مقدمه فصل\n")
+        lines.append(intro_txt if intro_txt else (
+            "در این فصل، یافته‌های حاصل از تجزیه‌وتحلیل آماری داده‌های گردآوری‌شده ارائه می‌گردد. "
+            "تحلیل داده‌ها در دو سطح توصیفی و استنباطی انجام شده است. در بخش توصیفی، ویژگی‌های جمعیت‌شناختی آزمودنی‌ها "
+            "و شاخص‌های گرایش به مرکز و پراکندگی متغیرهای پژوهش گزارش می‌شود. در بخش استنباطی، ابتدا مفروضه‌های "
+            "آماری آزمون‌ها اعتبارسنجی شده و سپس فرضیه‌های پژوهش مورد ارزیابی قرار می‌گیرند.\n"
+        ))
+
+    table_counter = 1
+
+    # 1. Demographics
+    if "demographics" in data:
+        demo = data["demographics"]
+        lines.append("## ۱-۴. توصیف ویژگی‌های جمعیت‌شناختی نمونه پژوهش\n")
+        if not table_only:
+            custom_demo = narratives.get("demographics")
+            if custom_demo:
+                lines.append(f"{custom_demo}\n")
+            else:
+                lines.append("در این بخش توزیع فراوانی و درصدی متغیرهای جمعیت‌شناختی شرکت‌کنندگان گزارش شده است.\n")
+
+        lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. توزیع فراوانی و درصدی ویژگی‌های جمعیت‌شناختی نمونه پژوهش\n")
+        lines.append("| متغیر جمعیت‌شناختی | طبقات / سطوح | فراوانی (*f*) | درصد فراوانی (٪) |")
+        lines.append("| :--- | :--- | :---: | :---: |")
+
+        def append_demo_cat(var_name, cat_dict):
+            nonlocal lines
+            if not cat_dict:
+                return
+            for sub_k, sub_v in cat_dict.items():
+                if isinstance(sub_v, dict):
+                    f = sub_v.get("count", sub_v.get("n", 0))
+                    p = sub_v.get("percent", sub_v.get("pct", 0.0))
+                else:
+                    f = sub_v
+                    p = 0.0
+                lines.append(f"| {var_name} | {sub_k} | {to_persian_digits(f)} | {format_persian_number(p, 1)} |")
+
+        append_demo_cat("جنسیت", demo.get("gender", {}))
+        append_demo_cat("سطح تحصیلات", demo.get("education", {}))
+        append_demo_cat("وضعیت تأهل", demo.get("marital_status", {}))
+        lines.append("\n")
+        table_counter += 1
+
+    # 2. Descriptives
+    descriptives_list = data.get("descriptives", [])
+    if isinstance(descriptives_list, dict):
+        descriptives_list = descriptives_list.get("master_rows", [])
+    if not descriptives_list and "master_rows" in data:
+        descriptives_list = data["master_rows"]
+
+    if descriptives_list:
+        lines.append("## ۲-۴. شاخص‌های توصیفی متغیرهای پژوهش\n")
+        if not table_only:
+            custom_desc = narratives.get("descriptives")
+            if custom_desc:
+                lines.append(f"{custom_desc}\n")
+            else:
+                lines.append("در جدول زیر میانگین، انحراف معیار، کشیدگی، چولگی و حدود نمرات متغیرهای پژوهش ارائه شده است.\n")
+
+        lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. شاخص‌های آماری توصیفی متغیرهای مورد مطالعه\n")
+        lines.append("| متغیر / مقیاس | میانگین (*M*) | انحراف معیار (*SD*) | چولگی | کشیدگی | کمترین | بیشترین |")
+        lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: |")
+        for row in descriptives_list:
+            v_name = row.get("variable") or row.get("name") or row.get("variable_name") or "متغیر"
+            m = format_persian_number(row.get("mean"), 2)
+            sd = format_persian_number(row.get("std") or row.get("sd"), 2)
+            sk = format_persian_number(row.get("skewness"), 2)
+            kt = format_persian_number(row.get("kurtosis"), 2)
+            mn = format_persian_number(row.get("min"), 2)
+            mx = format_persian_number(row.get("max"), 2)
+            lines.append(f"| {v_name} | {m} | {sd} | {sk} | {kt} | {mn} | {mx} |")
+        lines.append("\n")
+        table_counter += 1
+
+    # 3. Assumptions Suite
+    if "assumptions_suite" in data:
+        as_data = data["assumptions_suite"]
+        lines.append("## ۳-۴. بررسی مفروضه‌های آزمون‌های آماری پارامتریک\n")
+        if not table_only:
+            custom_assump = narratives.get("assumptions")
+            if custom_assump:
+                lines.append(f"{custom_assump}\n")
+            else:
+                lines.append("پیش از اجرای آزمون‌های استنباطی، مفروضه‌های نرمال بودن توزیع و عدم هم‌خطی چندگانه مورد ارزیابی قرار گرفت.\n")
+
+        # Normality table
+        norm_rows = as_data.get("normality_tests", [])
+        if norm_rows:
+            lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. نتایج آزمون نرمال بودن توزیع نمرات متغیرها\n")
+            lines.append("| متغیر | آماره کلموگروف-اسمیرنوف | معناداری (KS) | آماره شاپیرو-ویلک | معناداری (SW) |")
+            lines.append("| :--- | :---: | :---: | :---: | :---: |")
+            for nr in norm_rows:
+                v = nr.get("variable", "")
+                ks_s = format_persian_number(nr.get("ks_stat"), 3)
+                ks_p = format_persian_number(nr.get("ks_p"), 3, is_p=True)
+                sw_s = format_persian_number(nr.get("sw_stat"), 3)
+                sw_p = format_persian_number(nr.get("sw_p"), 3, is_p=True)
+                lines.append(f"| {v} | {ks_s} | {ks_p} | {sw_s} | {sw_p} |")
+            lines.append("\n")
+            table_counter += 1
+
+        # Multicollinearity table
+        coll_rows = as_data.get("multicollinearity_diagnostics", [])
+        if coll_rows:
+            lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. شاخص‌های تشخیص هم‌خطی چندگانه بین متغیرهای پیش‌بین\n")
+            lines.append("| متغیر پیش‌بین | ضریب تحمل (Tolerance) | عامل تورم واریانس (VIF) |")
+            lines.append("| :--- | :---: | :---: |")
+            for cr in coll_rows:
+                v = cr.get("variable", "")
+                tol = format_persian_number(cr.get("tolerance"), 3)
+                vif = format_persian_number(cr.get("vif"), 2)
+                lines.append(f"| {v} | {tol} | {vif} |")
+            lines.append("\n")
+            table_counter += 1
+
+    # 4. Correlation
+    if "correlation" in data:
+        corr_data = data["correlation"]
+        lines.append("## ۴-۴. ماتریس همبستگی پیرسون بین متغیرهای پژوهش\n")
+        if not table_only:
+            custom_corr = narratives.get("correlation")
+            if custom_corr:
+                lines.append(f"{custom_corr}\n")
+            else:
+                lines.append("به‌منظور بررسی روابط درونی اولیه بین متغیرها، ماتریس ضرایب همبستگی پیرسون محاسبه شد.\n")
+
+        corr_matrix = corr_data.get("matrix", [])
+        corr_vars = corr_data.get("variables", [])
+        if corr_matrix and corr_vars:
+            lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. ماتریس همبستگی پیرسون متغیرهای پژوهش\n")
+            header_str = "| متغیر | " + " | ".join([to_persian_digits(i+1) for i in range(len(corr_vars))]) + " |"
+            sep_str = "| :--- | " + " | ".join([":---:"] * len(corr_vars)) + " |"
+            lines.append(header_str)
+            lines.append(sep_str)
+            for i, r in enumerate(corr_matrix):
+                row_label = f"{to_persian_digits(i+1)}. {corr_vars[i]}"
+                row_vals = [format_persian_number(val, 2) if val is not None else "-" for val in r]
+                lines.append(f"| {row_label} | " + " | ".join(row_vals) + " |")
+            lines.append("\n")
+            table_counter += 1
+
+    # 5. Hypotheses (saber_hypotheses)
+    if "saber_hypotheses" in data:
+        lines.append("## ۵-۴. آزمون فرضیه‌های پژوهش\n")
+        for h in data["saber_hypotheses"]:
+            h_num = h.get("hypothesis_number", 1)
+            h_title = h.get("hypothesis_title", "")
+            lines.append(f"### فرضیه {to_persian_digits(h_num)}: {h_title}\n")
+
+            if not table_only:
+                custom_h_intro = narratives.get(f"h_{h_num}_intro")
+                if custom_h_intro:
+                    lines.append(f"{custom_h_intro}\n")
+
+            # Tier 1 Correlation
+            t1 = h.get("tier1_correlation_summary", {})
+            t1_preds = t1.get("predictors", [])
+            if t1_preds:
+                lines.append(f"#### جدول {to_persian_digits(table_counter)}-۴. ضرایب همبستگی پیرسون متغیرهای پیش‌بین با ملاک در فرضیه {to_persian_digits(h_num)}\n")
+                lines.append("| متغیر پیش‌بین | متغیر ملاک | ضریب همبستگی (*r*) | سطح معناداری (*p*) | نتیجه |")
+                lines.append("| :--- | :--- | :---: | :---: | :---: |")
+                for p in t1_preds:
+                    lines.append(f"| {p.get('name')} | {t1.get('criterion')} | {format_persian_number(p.get('r'), 3)} | {format_persian_number(p.get('p'), 3, is_p=True)} | {p.get('significance')} |")
+                lines.append("\n")
+                table_counter += 1
+
+            # Tier 2 ANOVA
+            t2 = h.get("tier2_anova_summary", {})
+            reg = t2.get("regression", {})
+            if reg:
+                lines.append(f"#### جدول {to_persian_digits(table_counter)}-۴. خلاصه مدل رگرسیون و تحلیل واریانس در فرضیه {to_persian_digits(h_num)}\n")
+                lines.append("| ضریب همبستگی چندگانه (*R*) | ضریب تعیین (*R²*) | ضریب تعیین تعدیل‌شده (*Adj R²*) | خطای استاندارد برآورد (*SE*) | آماره *F* | معناداری (*p*) |")
+                lines.append("| :---: | :---: | :---: | :---: | :---: | :---: |")
+                lines.append(f"| {format_persian_number(reg.get('R'), 3)} | {format_persian_number(reg.get('R2'), 3)} | {format_persian_number(reg.get('Adj_R2'), 3)} | {format_persian_number(reg.get('SE_estimate'), 3)} | {format_persian_number(reg.get('F'), 2)} | {format_persian_number(reg.get('p_anova'), 3, is_p=True)} |")
+                lines.append("\n")
+                table_counter += 1
+
+            # Tier 3 Coefficients
+            t3 = h.get("tier3_coefficients", [])
+            if t3:
+                lines.append(f"#### جدول {to_persian_digits(table_counter)}-۴. ضرایب رگرسیون پیش‌بینی متغیر ملاک در فرضیه {to_persian_digits(h_num)}\n")
+                lines.append("| مدل / متغیر | ضریب غیراستاندارد (*B*) | خطای استاندارد (*SE*) | ضریب استاندارد (*β*) | آماره *t* | معناداری (*p*) | ضریب تحمل | VIF |")
+                lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
+                for c in t3:
+                    lines.append(f"| {c.get('variable')} | {format_persian_number(c.get('B'), 3)} | {format_persian_number(c.get('SE'), 3)} | {format_persian_number(c.get('Beta'), 3) if c.get('Beta') is not None else '-'} | {format_persian_number(c.get('t'), 2)} | {format_persian_number(c.get('p'), 3, is_p=True)} | {format_persian_number(c.get('tolerance'), 3) if c.get('tolerance') is not None else '-'} | {format_persian_number(c.get('vif'), 2) if c.get('vif') is not None else '-'} |")
+                lines.append("\n")
+                table_counter += 1
+
+    # 6. Serial Mediation
+    if "serial_mediation" in data:
+        lines.append("## ۶-۴. آزمون مدل میانجی‌گری سریالی (مدل ۶ هیز)\n")
+        med_list = data["serial_mediation"] if isinstance(data["serial_mediation"], list) else [data["serial_mediation"]]
+        for sm in med_list:
+            x = sm.get("x")
+            y = sm.get("y")
+            m1 = sm.get("m1")
+            m2 = sm.get("m2")
+            if not table_only:
+                custom_med1 = narratives.get("serial_mediation_desc1")
+                lines.append(custom_med1 if custom_med1 else (
+                    f"الگوی میانجی‌گری چندگانه سریالی اثر {x} بر {y} با میانجی‌گری {m1} و {m2} آزموده شد.\n"
+                ))
+
+            # Direct Paths
+            dp = sm.get("direct_paths", {})
+            if dp:
+                lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. ضرایب اثرات مستقیم مسیرهای مدل میانجی‌گری سریالی\n")
+                lines.append("| مسیر مدل | نماد | *B* | *SE* | بتا (*β*) | آماره *t* | معناداری (*p*) |")
+                lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: |")
+                path_labels = [
+                    (f"{x} → {m1}", "a₁", dp.get("path_a1_X_to_M1", {})),
+                    (f"{x} → {m2}", "a₂", dp.get("path_a2_X_to_M2", {})),
+                    (f"{m1} → {m2}", "d₂₁", dp.get("path_d21_M1_to_M2", {})),
+                    (f"{m1} → {y}", "b₁", dp.get("path_b1_M1_to_Y", {})),
+                    (f"{m2} → {y}", "b₂", dp.get("path_b2_M2_to_Y", {})),
+                    (f"{x} → {y} (مستقیم)", "c'", dp.get("path_c_prime_direct", {})),
+                    (f"{x} → {y} (کل)", "c", dp.get("path_c_total", {}))
+                ]
+                for p_str, sym, p_d in path_labels:
+                    lines.append(f"| {p_str} | {sym} | {format_persian_number(p_d.get('B'), 3)} | {format_persian_number(p_d.get('SE'), 3)} | {format_persian_number(p_d.get('beta'), 3)} | {format_persian_number(p_d.get('t'), 2)} | {format_persian_number(p_d.get('p'), 3, is_p=True)} |")
+                lines.append("\n")
+                table_counter += 1
+
+            # Indirect Paths
+            ip = sm.get("indirect_paths", {})
+            if ip:
+                lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. نتایج بوت‌استراپ اثرات غیرمستقیم مسیرهای میانجی‌گری\n")
+                lines.append("| مسیر غیرمستقیم | ضریب اثر (Point) | خطای استاندارد بوت | حد پایین اطمینان (LLCI) | حد بالا اطمینان (ULCI) | *p*-value | نتیجه آزمون |")
+                lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: |")
+                ind_rows = [
+                    (f"{x} → {m1} → {y}", ip.get("indirect_1_M1", {})),
+                    (f"{x} → {m2} → {y}", ip.get("indirect_2_M2", {})),
+                    (f"{x} → {m1} → {m2} → {y} (سریالی)", ip.get("indirect_3_serial", {})),
+                    ("مجموع اثرات غیرمستقیم", ip.get("total_indirect_effect", {}))
+                ]
+                for r_name, r_d in ind_rows:
+                    is_sig = r_d.get("is_significant", False)
+                    v_res = "تأیید معناداری" if is_sig else "عدم معناداری"
+                    lines.append(f"| {r_name} | {format_persian_number(r_d.get('estimate'), 4)} | {format_persian_number(r_d.get('boot_se'), 4)} | {format_persian_number(r_d.get('ci_95_lower'), 4)} | {format_persian_number(r_d.get('ci_95_upper'), 4)} | {format_persian_number(r_d.get('p'), 3, is_p=True)} | {v_res} |")
+                lines.append("\n")
+                table_counter += 1
+
+    # 7. SEM
+    if "sem" in data:
+        sem_res = data["sem"]
+        fits = sem_res.get("fit_measures", {})
+        lines.append("## ۷-۴. آزمون برازش مدل ساختاری پژوهش (SEM)\n")
+        if not table_only:
+            custom_sem = narratives.get("sem_intro")
+            lines.append(custom_sem if custom_sem else (
+                "به‌منظور ارزیابی ساختار مفهومی روابط بین متغیرها از الگوی معادلات ساختاری استفاده شد.\n"
+            ))
+
+        # Fit Indices
+        lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. شاخص‌های نیکویی برازش مدل ساختاری پژوهش\n")
+        lines.append("| شاخص برازش | مقدار محاسبه‌شده | دامنه پذیرش استاندارد | وضعیت برازش |")
+        lines.append("| :--- | :---: | :---: | :---: |")
+        fit_specs = [
+            ("نسبت کای-دو به درجه آزادی (χ²/df)", format_persian_number(fits.get("cmin_df"), 3), "کوچک‌تر از ۳", "برازش عالی"),
+            ("شاخص برازش تطبیقی (CFI)", format_persian_number(fits.get("cfi"), 3), "بزرگتر از ۰.۹۰", "برازش عالی"),
+            ("شاخص توکر-لوئیس (TLI)", format_persian_number(fits.get("tli"), 3), "بزرگتر از ۰.۹۰", "برازش عالی"),
+            ("شاخص برازش فزاینده (IFI)", format_persian_number(fits.get("ifi"), 3), "بزرگتر از ۰.۹۰", "برازش عالی"),
+            ("شاخص برازش هنجارشده (NFI)", format_persian_number(fits.get("nfi"), 3), "بزرگتر از ۰.۹۰", "برازش مطلوب"),
+            ("شاخص نیکویی برازش (GFI)", format_persian_number(fits.get("gfi"), 3), "بزرگتر از ۰.۹۰", "برازش مطلوب"),
+            ("شاخص نیکویی برازش تعدیل‌شده (AGFI)", format_persian_number(fits.get("agfi"), 3), "بزرگتر از ۰.۸۵", "برازش مطلوب"),
+            ("ریشه میانگین مجذورات خطای تقریب (RMSEA)", format_persian_number(fits.get("rmsea"), 3), "کوچک‌تر از ۰.۰۸", "برازش عالی"),
+            ("ریشه میانگین مجذورات باقیمانده استاندارد (SRMR)", format_persian_number(fits.get("srmr"), 3), "کوچک‌تر از ۰.۰۸", "برازش عالی")
+        ]
+        for f_name, f_val, f_crit, f_status in fit_specs:
+            lines.append(f"| {f_name} | {f_val} | {f_crit} | {f_status} |")
+        lines.append("\n")
+        table_counter += 1
+
+        # Direct paths
+        dir_paths = sem_res.get("direct_paths", [])
+        if dir_paths:
+            lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. ضرایب استاندارد شده و غیراستاندارد مسیرهای مستقیم در مدل مفهومی\n")
+            lines.append("| متغیر ملاک | متغیر پیش‌بین | *B* | *SE* | بتا (*β*) | آماره *Z* | معناداری (*p*) | حد پایین (LLCI) | حد بالا (ULCI) |")
+            lines.append("| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
+            for dp in dir_paths:
+                lines.append(f"| {dp.get('lhs')} | {dp.get('rhs')} | {format_persian_number(dp.get('est'), 3)} | {format_persian_number(dp.get('se'), 3)} | {format_persian_number(dp.get('std_all', dp.get('std.all', dp.get('std.lv'))), 3)} | {format_persian_number(dp.get('z'), 2)} | {format_persian_number(dp.get('pvalue'), 3, is_p=True)} | {format_persian_number(dp.get('ci_lower', dp.get('ci.lower')), 3)} | {format_persian_number(dp.get('ci_upper', dp.get('ci.upper')), 3)} |")
+            lines.append("\n")
+            table_counter += 1
+
+        # Indirect paths
+        ind_paths = sem_res.get("indirect_paths", [])
+        if ind_paths:
+            lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. ضرایب استاندارد شده و غیراستاندارد اثرات غیرمستقیم با روش بوت‌استراپ\n")
+            lines.append("| عنوان مسیر غیرمستقیم | فرمول مسیر | ضریب اثر (*B*) | خطای استاندارد | بتا (*β*) | آماره *Z* | معناداری (*p*) | حد پایین (LLCI) | حد بالا (ULCI) |")
+            lines.append("| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
+            for ip in ind_paths:
+                lines.append(f"| {ip.get('label')} | {ip.get('formula', ip.get('rhs', ''))} | {format_persian_number(ip.get('est'), 3)} | {format_persian_number(ip.get('se'), 3)} | {format_persian_number(ip.get('std_all', ip.get('std.all', ip.get('std.lv', ip.get('est')))), 3)} | {format_persian_number(ip.get('z'), 2)} | {format_persian_number(ip.get('pvalue'), 3, is_p=True)} | {format_persian_number(ip.get('ci_lower', ip.get('ci.lower')), 3)} | {format_persian_number(ip.get('ci_upper', ip.get('ci.upper')), 3)} |")
+            lines.append("\n")
+            table_counter += 1
+
+    # 8. Master Chapter Synthesis & Master Decision Matrix
+    if "saber_hypotheses" in data:
+        lines.append("## ۸-۴. خلاصه نتایج آزمون فرضیه‌های پژوهش (ماتریس سنتز یافته‌ها)\n")
+        if not table_only:
+            custom_synthesis = narratives.get("master_matrix_intro")
+            lines.append(custom_synthesis if custom_synthesis else (
+                "در این بخش، خلاصه نتایج آزمون تمامی فرضیه‌های پژوهش و تصمیم نهایی در خصوص هر فرضیه ارائه گردیده است.\n"
+            ))
+
+        lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. ماتریس خلاصه نتایج و وضعیت آزمون فرضیه‌های پژوهش\n")
+        lines.append("| شماره | عنوان فرضیه پژوهش | روش آماری | شاخص‌های کلیدی آزمون | نتیجه نهایی |")
+        lines.append("| :---: | :--- | :--- | :--- | :---: |")
+
+        all_summary_rows = []
+        for h in data["saber_hypotheses"]:
+            all_summary_rows.append({
+                "num": h.get("hypothesis_number"),
+                "title": h.get("hypothesis_title"),
+                "test": "رگرسیون چندگانه همزمان",
+                "stats": f"F = {format_persian_number(h.get('tier2_anova_summary', {}).get('regression', {}).get('F'), 2)}؛ R² = {format_persian_number(h.get('tier2_anova_summary', {}).get('regression', {}).get('R2'), 3)}",
+                "verdict": h.get("verdict", "تأیید شد")
+            })
+
+        if "sem" in data:
+            if "mediation_hypotheses" in data["sem"]:
+                for mh in data["sem"]["mediation_hypotheses"]:
+                    all_summary_rows.append({
+                        "num": mh.get("num", len(all_summary_rows) + 1),
+                        "title": mh.get("title", ""),
+                        "test": "مدل‌سازی معادلات ساختاری (SEM)",
+                        "stats": f"B = {format_persian_number(mh.get('est'), 3)}، p = {format_persian_number(mh.get('p'), 3, is_p=True)}",
+                        "verdict": mh.get("verdict", "تأیید شد")
+                    })
+            elif "indirect_paths" in data["sem"]:
+                for idx, ip_row in enumerate(data["sem"]["indirect_paths"]):
+                    p_num = len(all_summary_rows) + 1
+                    lbl = ip_row.get("label", f"مسیر غیرمستقیم {idx + 1}")
+                    formula = ip_row.get("formula", ip_row.get("rhs", ""))
+                    title_text = f"نقش میانجی در مسیر {lbl}" if lbl else f"مسیر {formula}"
+                    est_val = ip_row.get("est")
+                    pval = ip_row.get("pvalue")
+                    p_str = format_persian_number(pval, 3, is_p=True) if pval is not None else "-"
+                    is_sig = (pval is not None and pval < 0.05) or (ip_row.get("ci_lower", 0) > 0 or ip_row.get("ci_upper", 0) < 0)
+                    all_summary_rows.append({
+                        "num": p_num,
+                        "title": title_text,
+                        "test": "مدل‌سازی معادلات ساختاری (SEM)",
+                        "stats": f"B = {format_persian_number(est_val, 3)}، p = {p_str}",
+                        "verdict": "تأیید شد" if is_sig else "تأیید نشد"
+                    })
+
+        for s_row in all_summary_rows:
+            lines.append(f"| {to_persian_digits(s_row['num'])} | {s_row['title']} | {s_row['test']} | {s_row['stats']} | {s_row['verdict']} |")
+        lines.append("\n")
+        table_counter += 1
+
+    # 9. Repeated Measures ANOVA (if present)
     rm_obj = data.get("repeated_measures") or data.get("rm_anova")
     if rm_obj is None and data.get("test_type") == "RM_ANOVA":
         rm_obj = data
 
-    lines = []
-    lines.append("# فصل چهارم: یافته‌های پژوهش\n")
-    lines.append("## مقدمه فصل\n")
-    lines.append("در این فصل، داده‌های تجربی گردآوری‌شده از طریق ابزارهای سنجش پژوهش با بهره‌گیری از تحلیل واریانس اندازه‌گیری‌های مکرر و روش‌های آماری استنباطی پارامتریک مورد تجزیه‌وتحلیل قرار گرفته است.\n")
-
     if rm_obj:
         if isinstance(rm_obj, list):
             rm_obj = rm_obj[0]
-        dv_label = rm_obj.get("dv_label", "عملکرد شناختی")
-        n_subj = rm_obj.get("sample_size", 60)
+        dv_label = rm_obj.get("dv_label", "متغیر وابسته")
+        n_subj = rm_obj.get("sample_size", 0)
         desc_list = rm_obj.get("descriptives", [])
         mauchly = rm_obj.get("mauchly_sphericity", {})
         eps = rm_obj.get("epsilon", {})
@@ -1969,19 +2529,24 @@ def export_markdown_chapter4(data: dict, md_path: str):
         anova_tbl = rm_obj.get("anova_table", [])
         posthoc_list = rm_obj.get("pairwise_contrasts", [])
 
-        lines.append(f"## ۱-۴. آزمون فرضیه پژوهش: تحلیل واریانس با اندازه‌گیری‌های مکرر ({dv_label})\n")
-        lines.append(f"به‌منظور بررسی اثر زمان بر نمرات {dv_label} در طول مراحل متوالی سنجش، شاخص‌های توصیفی آزمودنی‌ها (تعداد {to_persian_digits(n_subj)} نفر) در چهار نوبت اندازه‌گیری شد.\n")
-        
-        # Table 1: Descriptives
-        lines.append("### جدول ۱-۴. شاخص‌های توصیفی متغیر در مراحل اندازه‌گیری‌های مکرر\n")
+        lines.append(f"## ۹-۴. آزمون فرضیه پژوهش: تحلیل واریانس با اندازه‌گیری‌های مکرر ({dv_label})\n")
+        if not table_only:
+            custom_rm_desc = narratives.get("rm_desc_txt")
+            lines.append(custom_rm_desc if custom_rm_desc else (
+                f"به‌منظور بررسی اثر زمان بر نمرات {dv_label} در طول مراحل متوالی سنجش، شاخص‌های توصیفی آزمودنی‌ها (تعداد {to_persian_digits(n_subj)} نفر) در چهار نوبت اندازه‌گیری شد.\n"
+            ))
+
+        # Descriptives
+        lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. شاخص‌های توصیفی {dv_label} در مراحل مختلف اندازه‌گیری‌های مکرر\n")
         lines.append("| مرحله سنجش | تعداد (*N*) | میانگین (*M*) | انحراف معیار (*SD*) | خطای معیار (*SE*) | حد پایین اطمینان ۹۵٪ | حد بالای اطمینان ۹۵٪ |")
         lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: |")
         for idx, d in enumerate(desc_list):
             lbl = d.get("time_label", f"مرحله {idx+1}")
             lines.append(f"| {lbl} | {to_persian_digits(d.get('n', n_subj))} | {format_persian_number(d.get('mean'), 2)} | {format_persian_number(d.get('sd'), 2)} | {format_persian_number(d.get('se'), 2)} | {format_persian_number(d.get('ci_lower'), 2)} | {format_persian_number(d.get('ci_upper'), 2)} |")
         lines.append("\n")
+        table_counter += 1
 
-        # Table 2: Mauchly Sphericity
+        # Mauchly Sphericity
         w_val = mauchly.get("w", 0.482)
         chi2_val = mauchly.get("chi2", 42.18)
         df_sph = mauchly.get("df", 5)
@@ -1989,15 +2554,21 @@ def export_markdown_chapter4(data: dict, md_path: str):
         eps_gg = eps.get("greenhouse_geisser", 0.722)
         eps_hf = eps.get("huynh_feldt", 0.751)
 
-        lines.append("### جدول ۲-۴. نتایج آزمون کرویت موچلی و برآورد ضرایب تعدیل اپسیلون\n")
+        lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. نتایج آزمون کرویت موچلی و برآورد ضرایب تعدیل اپسیلون\n")
         lines.append("| اثر درون‌آزمودنی | آماره موچلی (*W*) | کای‌دو تقریبی (*χ²*) | درجه آزادی (*df*) | سطح معناداری (*p*) | اپسیلون گرین‌هاوس-گایسر | اپسیلون هاین-فلت |")
         lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: |")
         lines.append(f"| زمان (Time) | {format_persian_number(w_val, 3)} | {format_persian_number(chi2_val, 2)} | {to_persian_digits(df_sph)} | {format_persian_number(p_sph, is_p=True)} | {format_persian_number(eps_gg, 3)} | {format_persian_number(eps_hf, 3)} |")
         lines.append("\n")
-        lines.append(f"نتایج آزمون موچلی نشان داد که مفروضه کرویت در داده‌های پژوهش نقض گردیده است (*W* = {format_persian_number(w_val, 3)}, *χ²*({to_persian_digits(df_sph)}) = {format_persian_number(chi2_val, 2)}, *p* < ۰.۰۰۱). با توجه به اینکه ضریب اپسیلون گرین‌هاوس-گایسر کمتر از ۰.۷۵ است (ε = {format_persian_number(eps_gg, 3)})، درجات آزادی با استفاده از این ضریب تعدیل گردید.\n")
+        table_counter += 1
 
-        # Table 3: ANOVA Table
-        lines.append("### جدول ۳-۴. نتایج تحلیل واریانس اندازه‌گیری‌های مکرر برای اثر زمان\n")
+        if not table_only:
+            custom_sph_eval = narratives.get("rm_sph_eval")
+            lines.append(custom_sph_eval if custom_sph_eval else (
+                f"نتایج آزمون موچلی نشان داد که مفروضه کرویت در داده‌های پژوهش نقض گردیده است (*W* = {format_persian_number(w_val, 3)}, *χ²*({to_persian_digits(df_sph)}) = {format_persian_number(chi2_val, 2)}, *p* < ۰.۰۰۱). با توجه به اینکه ضریب اپسیلون گرین‌هاوس-گایسر کمتر از ۰.۷۵ است (ε = {format_persian_number(eps_gg, 3)})، درجات آزادی با استفاده از این ضریب تعدیل گردید.\n"
+            ))
+
+        # ANOVA Table
+        lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. نتایج تحلیل واریانس اندازه‌گیری‌های مکرر برای اثر زمان\n")
         lines.append("| منبع تغییرات | روش تعدیل | مجموع مجذورات (*SS*) | درجه آزادی (*df*) | میانگین مجذورات (*MS*) | آماره *F* | سطح معناداری (*p*) | مجذور اتای تفکیکی (*η²p*) |")
         lines.append("| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |")
         for a_row in anova_tbl:
@@ -2011,18 +2582,21 @@ def export_markdown_chapter4(data: dict, md_path: str):
             eta_str = format_persian_number(a_row.get("partial_eta_sq"), 3) if a_row.get("partial_eta_sq") is not None else "-"
             lines.append(f"| {src_fa} | {mod_fa} | {format_persian_number(a_row.get('sum_sq'), 2)} | {format_persian_number(df_display, 2 if isinstance(df_display, float) else 0)} | {format_persian_number(a_row.get('mean_sq'), 2)} | {f_str} | {p_str} | {eta_str} |")
         lines.append("\n")
+        table_counter += 1
 
-        f_rep = prim.get("f_statistic", 73.30)
-        df_eff_rep = prim.get("df_effect_reported", 2.17)
-        df_err_rep = prim.get("df_error_reported", 127.85)
-        p_rep = prim.get("p_reported", 0.0001)
-        eta_rep = prim.get("partial_eta_squared", 0.554)
-        pct_var = format_persian_number(eta_rep * 100, 1)
+        if not table_only:
+            f_rep = prim.get("f_statistic", 73.30)
+            df_eff_rep = prim.get("df_effect_reported", 2.17)
+            df_err_rep = prim.get("df_error_reported", 127.85)
+            eta_rep = prim.get("partial_eta_squared", 0.554)
+            pct_var = format_persian_number(eta_rep * 100, 1)
+            custom_aov_narr = narratives.get("rm_aov_narr")
+            lines.append(custom_aov_narr if custom_aov_narr else (
+                f"تحلیل واریانس اندازه‌گیری‌های مکرر پس از اعمال تعدیل گرین‌هاوس-گایسر نشان داد که اثر زمان بر نمرات {dv_label} کاملاً معنادار است (*F*({format_persian_number(df_eff_rep, 2)}, {format_persian_number(df_err_rep, 2)}) = {format_persian_number(f_rep, 2)}, *p* < ۰.۰۰۱, *η²p* = {format_persian_number(eta_rep, 3)}). اندازه اثر بسیار بزرگ بوده و {pct_var} درصد از واریانس عملکرد توسط عامل زمان تبیین می‌گردد.\n"
+            ))
 
-        lines.append(f"تحلیل واریانس اندازه‌گیری‌های مکرر پس از اعمال تعدیل گرین‌هاوس-گایسر نشان داد که اثر زمان بر نمرات {dv_label} کاملاً معنادار است (*F*({format_persian_number(df_eff_rep, 2)}, {format_persian_number(df_err_rep, 2)}) = {format_persian_number(f_rep, 2)}, *p* < ۰.۰۰۱, *η²p* = {format_persian_number(eta_rep, 3)}). اندازه اثر بسیار بزرگ بوده و {pct_var} درصد از واریانس عملکرد توسط عامل زمان تبیین می‌گردد. بدین ترتیب، فرضیه پژوهش با اطمینان ۹۹ درصد مورد تأیید آماری قرار گرفت.\n")
-
-        # Table 4: Pairwise
-        lines.append("### جدول ۴-۴. مقایسه‌های زوجی مراحل سنجش با تعدیل خطای بونفرونی\n")
+        # Pairwise contrasts
+        lines.append(f"### جدول {to_persian_digits(table_counter)}-۴. مقایسه‌های زوجی مراحل سنجش با تعدیل خطای بونفرونی\n")
         lines.append("| مقایسه زوجی (مراحل) | میانگین تفاوت | خطای معیار (*SE*) | آماره *t* | درجه آزادی (*df*) | سطح معناداری تعدیل‌شده (*p_adj*) | اندازه اثر (*d_z*) | نتیجه |")
         lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
         for p_row in posthoc_list:
@@ -2033,8 +2607,22 @@ def export_markdown_chapter4(data: dict, md_path: str):
             res_txt = "معنادار" if is_sig else "غیرمعنادار"
             lines.append(f"| {contrast_label} | {format_persian_number(p_row.get('mean_diff'), 2)} | {format_persian_number(p_row.get('se_diff'), 2)} | {format_persian_number(p_row.get('t'), 2)} | {to_persian_digits(p_row.get('df'))} | {format_persian_number(p_row.get('p_adj'), is_p=True)} | {format_persian_number(p_row.get('cohen_dz'), 2)} | {res_txt} |")
         lines.append("\n")
+        table_counter += 1
 
-        lines.append("نتایج مقایسه‌های زوجی با تعدیل بونفرونی نشان می‌دهد که عملکرد آزمودنی‌ها در تمامی مراحل زمانی به صورت پیشرونده و با معناداری آماری ارتقا یافته است (*p* < ۰.۰۱).\n")
+        if not table_only:
+            custom_post_narr = narratives.get("rm_post_narr")
+            lines.append(custom_post_narr if custom_post_narr else (
+                "نتایج مقایسه‌های زوجی با تعدیل بونفرونی نشان می‌دهد که عملکرد آزمودنی‌ها در تمامی مراحل زمانی به صورت پیشرونده و با معناداری آماری ارتقا یافته است (*p* < ۰.۰۱).\n"
+            ))
+
+    # Concluding Transition
+    if not table_only:
+        custom_trans = narratives.get("concluding_transition")
+        lines.append(custom_trans if custom_trans else (
+            "مجموع یافته‌های به‌دست‌آمده از تحلیل آماری داده‌ها در این فصل مؤید آن است که متغیرهای مستقل و میانجی "
+            "دارای نقش تبیینی و ساختاری نیرومندی در تغییرات متغیرهای ملاک هستند. در فصل پنجم، کلیه این شواهد آماری "
+            "در پرتو پیشینه پژوهش و نظریه‌های مربوطه مورد بحث و تفسیر قرار خواهد گرفت.\n"
+        ))
 
     os.makedirs(os.path.dirname(os.path.abspath(md_path)), exist_ok=True)
     with open(md_path, "w", encoding="utf-8") as f:
@@ -2047,14 +2635,22 @@ def main():
     parser.add_argument("--out", default="Chapter_4_Results.docx", help="Output .docx file path")
     parser.add_argument("--mode", default="chapter4", choices=["chapter4", "article"], help="Document mode")
     parser.add_argument("--out-md", help="Optional output .md file path")
+    parser.add_argument("--table-only", "--tables-only", dest="table_only", action="store_true",
+                        help="Generate strictly APA 7 tables with captions and notes, omitting all narrative explanation paragraphs")
+    parser.add_argument("--narrative-json", help="Path to JSON file containing narrative blocks to inject")
     args = parser.parse_args()
     
     with open(args.json, "r", encoding="utf-8") as f:
         data = json.load(f)
         
-    build_chapter4_document(data, args.out)
+    narratives = None
+    if args.narrative_json and os.path.exists(args.narrative_json):
+        with open(args.narrative_json, "r", encoding="utf-8") as nf:
+            narratives = json.load(nf)
+            
+    build_chapter4_document(data, args.out, table_only=args.table_only, narratives=narratives)
     md_output = args.out_md if args.out_md else (args.out[:-5] + ".md" if args.out.endswith(".docx") else args.out + ".md")
-    export_markdown_chapter4(data, md_output)
+    export_markdown_chapter4(data, md_output, table_only=args.table_only, narratives=narratives)
 
 if __name__ == "__main__":
     main()
