@@ -60,7 +60,8 @@
             "skill": { "type": "integer", "minimum": 0 },
             "task": { "type": "integer", "minimum": 0 },
             "failure_type": { "type": "integer", "minimum": 0 },
-            "status": { "type": "integer", "minimum": 0 }
+            "status": { "type": "integer", "minimum": 0 },
+            "agent": { "type": "integer", "minimum": 0 }
           },
           "additionalProperties": true
         },
@@ -73,7 +74,7 @@
               "item_id": { "type": "string" },
               "failed_dimension": {
                 "type": "string",
-                "enum": ["scope", "capability", "domain", "skill", "task", "failure_type", "status"]
+                "enum": ["scope", "capability", "domain", "skill", "task", "failure_type", "status", "agent"]
               },
               "reason": { "type": "string" }
             }

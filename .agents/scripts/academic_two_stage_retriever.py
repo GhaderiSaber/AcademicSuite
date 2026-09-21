@@ -38,42 +38,43 @@ class AcademicTwoStageRetriever:
     """Production Two-Stage Knowledge Retrieval Engine."""
 
     CANONICAL_CAPABILITIES = {
-        "longitudinal-analysis",
-        "mediation",
-        "moderation",
-        "SEM",
-        "psychometrics",
-        "chapter4",
-        "chapter5",
-        "evidence",
-        "ancova",
-        "regression",
-        "data_cleaning",
-        "methodology"
+        "longitudinal-analysis", "mediation", "moderation", "SEM", "psychometrics",
+        "chapter4", "chapter5", "evidence", "ancova", "regression", "data_cleaning", "methodology"
     }
 
     CAPABILITY_ALIASES = {
-        "longitudinal": "longitudinal-analysis",
-        "longitudinal_analysis": "longitudinal-analysis",
-        "longitudinal-modmed": "longitudinal-analysis",
-        "mediation-analysis": "mediation",
-        "process-mediation": "mediation",
-        "moderation-analysis": "moderation",
-        "sem": "SEM",
-        "structural-equation-modeling": "SEM",
-        "cfa": "SEM",
-        "psychometric": "psychometrics",
-        "scale-validation": "psychometrics",
-        "chapter-4": "chapter4",
-        "chapter_4": "chapter4",
-        "chapter-5": "chapter5",
-        "chapter_5": "chapter5",
-        "literature": "evidence",
-        "literature_review": "evidence",
-        "systematic-review": "evidence",
-        "meta-analysis": "evidence",
-        "data-cleaning": "data_cleaning",
-        "data-curation": "data_cleaning"
+        "longitudinal": "longitudinal-analysis", "longitudinal_analysis": "longitudinal-analysis",
+        "longitudinal-modmed": "longitudinal-analysis", "mediation-analysis": "mediation",
+        "process-mediation": "mediation", "moderation-analysis": "moderation",
+        "sem": "SEM", "structural-equation-modeling": "SEM", "cfa": "SEM",
+        "psychometric": "psychometrics", "scale-validation": "psychometrics",
+        "chapter-4": "chapter4", "chapter_4": "chapter4", "chapter-5": "chapter5",
+        "chapter_5": "chapter5", "literature": "evidence", "literature_review": "evidence",
+        "systematic-review": "evidence", "meta-analysis": "evidence",
+        "data-cleaning": "data_cleaning", "data-curation": "data_cleaning"
+    }
+
+    SKILL_TO_PRIMARY_AGENT = {
+        "apa-reporting": "academic-writer", "chapter-4-writing": "academic-writer",
+        "persian-discussion-builder": "academic-writer", "ai-academic-tone-polisher": "academic-writer",
+        "persian-literature-review-builder": "academic-writer", "persian-proposal-builder": "academic-writer",
+        "persian-thesis-builder": "academic-writer", "academic-article-writer": "academic-writer",
+        "persian-academic-translation": "academic-writer", "mediation": "statistics-agent",
+        "moderation": "statistics-agent", "sem": "statistics-agent", "cfa": "statistics-agent",
+        "regression": "statistics-agent", "assumption-testing": "statistics-agent",
+        "descriptive-statistics": "statistics-agent", "reliability-analysis": "statistics-agent",
+        "statistical-data-analyst": "statistics-agent", "longitudinal-moderated-mediation": "statistics-agent",
+        "data-cleaning": "data-agent", "data-audit": "data-agent",
+        "psychometric-scale-resolver": "data-agent", "psychometric-data-simulator": "data-agent",
+        "thesis-integrity-auditor": "validation-agent"
+    }
+
+    AGENT_EQUIVALENCES = {
+        "data-agent": {"data-agent", "data-curator"},
+        "data-curator": {"data-agent", "data-curator"},
+        "validation-agent": {"validation-agent", "statistical-auditor", "results-auditor"},
+        "results-auditor": {"validation-agent", "results-auditor"},
+        "statistical-auditor": {"validation-agent", "statistical-auditor"}
     }
 
     # Cross-capability generic principles/rules
@@ -110,7 +111,8 @@ class AcademicTwoStageRetriever:
         pruned_details: List[Dict[str, Any]] = []
         pruned_counts: Dict[str, int] = {
             "scope": 0, "capability": 0, "domain": 0,
-            "skill": 0, "task": 0, "failure_type": 0, "status": 0
+            "skill": 0, "task": 0, "failure_type": 0, "status": 0,
+            "agent": 0
         }
 
         target_cap = self.normalize_capability(query.get("capability"))
@@ -118,6 +120,7 @@ class AcademicTwoStageRetriever:
         target_skill = (query.get("skill") or "").strip().lower()
         target_task = (query.get("task") or "").strip().lower()
         target_fail = (query.get("failure_type") or "").strip().lower()
+        target_agent = (query.get("agent") or "").strip().lower()
         project_id = query.get("project_id")
         include_superseded = bool(query.get("include_superseded", False))
 
@@ -203,6 +206,37 @@ class AcademicTwoStageRetriever:
                     pruned_counts["failure_type"] += 1
                     pruned_details.append({"item_id": item_id, "failed_dimension": "failure_type", "reason": f"Failure types {f_types} do not match target '{target_fail}'."})
                     continue
+
+            # 8. Agent Role Boundary Gate
+            if target_agent and target_agent not in ["academic-orchestrator", "orchestrator", "test-orchestrator", "main", "general", "all"]:
+                item_agents = set()
+                if item.get("target_agent"):
+                    item_agents.add(str(item["target_agent"]).strip().lower())
+                if item.get("target_agents"):
+                    for a in item["target_agents"]:
+                        item_agents.add(str(a).strip().lower())
+                if item.get("agent"):
+                    item_agents.add(str(item["agent"]).strip().lower())
+                app_agents = item.get("applicability", {}).get("target_agents", [])
+                for a in app_agents:
+                    item_agents.add(str(a).strip().lower())
+
+                # If no explicit agent is defined, check if bound to an exclusive primary skill
+                if not item_agents:
+                    i_skill = str(item.get("target_skill") or item.get("skill") or "").strip().lower()
+                    if i_skill in self.SKILL_TO_PRIMARY_AGENT:
+                        item_agents.add(self.SKILL_TO_PRIMARY_AGENT[i_skill])
+
+                if item_agents and not ({"all", "universal", "cross-agent"} & item_agents):
+                    equivs = self.AGENT_EQUIVALENCES.get(target_agent, {target_agent})
+                    if not item_agents.intersection(equivs):
+                        pruned_counts["agent"] += 1
+                        pruned_details.append({
+                            "item_id": item_id,
+                            "failed_dimension": "agent",
+                            "reason": f"Item target agent(s) {sorted(list(item_agents))} do not match query agent '{target_agent}'."
+                        })
+                        continue
 
             passed.append(item)
 
@@ -316,6 +350,13 @@ class AcademicTwoStageRetriever:
         # Status bonus
         st = str(item.get("status") or "").upper()
         if st in ["ACCEPTED_ACTIVE", "VALIDATED"]:
+            score += 0.10
+
+        # Agent match bonus
+        q_agent = (query.get("agent") or "").lower()
+        item_agent = str(item.get("target_agent") or item.get("agent") or "").lower()
+        item_agents = [str(a).lower() for a in item.get("target_agents", [])]
+        if q_agent and (q_agent == item_agent or q_agent in item_agents):
             score += 0.10
 
         return min(1.0, max(0.0, round(score, 3)))

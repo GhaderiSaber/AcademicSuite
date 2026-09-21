@@ -78,8 +78,17 @@
       "description": "Optional research or methodological domain (e.g. mediation, sem, psychometrics)."
     },
     "capability": {
-      "type": "string",
+      "type": ["string", "null"],
       "description": "Optional capability identifier associated with this knowledge item."
+    },
+    "target_agent": {
+      "type": "string",
+      "description": "Optional subagent role to which this knowledge item is strictly targeted."
+    },
+    "target_agents": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of subagent roles to which this knowledge item applies."
     },
     "applicability": {
       "type": "object",
@@ -96,6 +105,10 @@
           "items": {"type": "string"}
         },
         "target_designs": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "target_agents": {
           "type": "array",
           "items": {"type": "string"}
         }
