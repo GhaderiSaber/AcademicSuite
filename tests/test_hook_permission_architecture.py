@@ -399,15 +399,20 @@ class TestMainAgentVsCustomSubagentIsolation(unittest.TestCase):
     while the Custom Academic Orchestrator and custom subagents are strictly governed.
     """
 
-    def test_builtin_main_agent_unassigned_defaults_to_developer(self):
-        """Unassigned, empty, or default caller must default to Built-in Main Agent (Track 1)."""
-        self.assertTrue(is_main_agent_developer({}))
-        self.assertTrue(is_main_agent_developer({"agentName": ""}))
+    def test_hook_authorization_is_fail_closed(self):
+        """Unassigned, empty, or unknown caller must default to fail-closed (False), not unrestricted developer."""
+        self.assertFalse(is_main_agent_developer({}))
+        self.assertFalse(is_main_agent_developer({"agentName": ""}))
+        self.assertFalse(is_main_agent_developer({"agentName": "unknown-agent"}))
+        self.assertFalse(is_main_agent_developer({"caller": "unknown-caller"}))
+
+        # Explicit developer indicators are recognized (True)
         self.assertTrue(is_main_agent_developer({"agentName": "default"}))
         self.assertTrue(is_main_agent_developer({"agentName": "main"}))
         self.assertTrue(is_main_agent_developer({"caller": "antigravity"}))
         self.assertTrue(is_main_agent_developer({"agentRole": "developer"}))
         self.assertTrue(is_main_agent_developer({"track": 1}))
+        self.assertTrue(is_main_agent_developer({"mode": "developer"}))
 
     def test_custom_orchestrator_main_agent_classified_as_academic(self):
         """The custom Academic Orchestrator must be recognized as academic/custom (Track 2)."""
@@ -418,14 +423,9 @@ class TestMainAgentVsCustomSubagentIsolation(unittest.TestCase):
         self.assertFalse(is_main_agent_developer({"agentName": "digital-saber"}))
 
     def test_custom_subagents_classified_as_academic(self):
-        """All custom specialist subagents must be classified as academic/custom (Track 2)."""
-        subagents = [
-            "statistics-agent", "data-agent", "academic-writer",
-            "research-agent", "validation-agent", "methodology-expert",
-            "statistical-expert", "results-auditor", "statistical-auditor",
-            "evidence-auditor", "final-judge", "psychometric-expert"
-        ]
-        for sa in subagents:
+        """All custom specialist subagents in canonical SSOT must be classified as academic/custom (Track 2)."""
+        from contracts.agents.capability_policy import get_all_policy_agents
+        for sa in get_all_policy_agents():
             self.assertFalse(
                 is_main_agent_developer({"agentName": sa}),
                 f"Custom subagent '{sa}' should NOT be classified as main developer"
@@ -443,6 +443,24 @@ class TestMainAgentVsCustomSubagentIsolation(unittest.TestCase):
 
         res_empty = dispatch_event("Stop", {})
         self.assertEqual(res_empty, {"decision": "allow"})
+
+    def test_unassigned_caller_stop_hook_is_fail_closed_on_violations(self):
+        """Unassigned caller is governed at Stop: if a violation exists, it returns continue (fail-closed)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a broken triad (only docx, missing md and json)
+            stage_dir = os.path.join(tmpdir, "projects", "study", "03_deliverables", "stage_06")
+            os.makedirs(stage_dir, exist_ok=True)
+            with open(os.path.join(stage_dir, "06_hypothesis_1.docx"), "w") as f:
+                f.write("dummy docx")
+
+            # Unassigned / empty payload must be caught by Stop hook (fail-closed)
+            res_unassigned = dispatch_event("Stop", {"workspacePaths": [tmpdir]})
+            self.assertEqual(res_unassigned.get("decision"), "continue")
+            self.assertIn("Triad Artifact Invariant", res_unassigned.get("reason", ""))
+
+            # Explicit developer mode (track 1) is exempt
+            res_dev = dispatch_event("Stop", {"track": 1, "workspacePaths": [tmpdir]})
+            self.assertEqual(res_dev.get("decision"), "allow")
 
     def test_custom_orchestrator_stop_hook_runs_integrity(self):
         """Custom Academic Orchestrator must be routed to IntegrityHooks at Stop."""

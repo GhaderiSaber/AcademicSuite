@@ -19,7 +19,7 @@ import os
 import sys
 import json
 import argparse
-from typing import Dict, Any
+from typing import Dict, Any, Set
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", ".."))
@@ -43,16 +43,42 @@ except ImportError:
     from .hook_seen import emit_hook_seen
 
 
+def get_canonical_academic_agents() -> Set[str]:
+    """Dynamically loads all canonical agent names from the capability policy SSOT."""
+    try:
+        from contracts.agents.capability_policy import get_all_policy_agents
+        return set(get_all_policy_agents())
+    except Exception:
+        try:
+            from .contracts.agents.capability_policy import get_all_policy_agents
+            return set(get_all_policy_agents())
+        except Exception:
+            return set()
+
+
 def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
     """
     Detects if the current lifecycle event belongs to the Built-In Main Developer Agent
     (Track 1: Software Engineering, Code Modification, Maintenance) as opposed to
     the Custom Academic Orchestrator or custom specialist subagents (Track 2).
 
-    ARCHITECTURAL INVARIANT:
-    - Built-in Main Agent: UNRESTRICTED. Full developer freedom, no academic Stop gates.
+    SECURITY INVARIANT (Fail-Closed Authorization):
+    - Explicit Developer Track / Main Agent: UNRESTRICTED developer execution.
     - Custom Agents & Subagents: STRICTLY CONTROLLED. Bound to role tools, triad gates, contracts.
+    - Unknown or Missing Caller: STRICTLY CONTROLLED (Fail-Closed). Never unrestricted by default.
     """
+    if not isinstance(payload, dict):
+        return False
+
+    # 1. Explicit track or developer mode flags take precedence
+    if payload.get("track") == 1 or payload.get("mode") == "developer" or payload.get("agent_type") == "main":
+        return True
+
+    # 2. Check Antigravity subagent flags - subagents are never the root main agent
+    is_subagent = bool(payload.get("isSubagent") or payload.get("subagent") or payload.get("parentConversationId"))
+    if is_subagent:
+        return False
+
     caller = (
         payload.get("agentName") or
         payload.get("agentRole") or
@@ -61,37 +87,22 @@ def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
         ""
     ).lower().strip()
 
-    # All 22 persistent custom roles + domain aliases
-    academic_custom_names = {
-        # Core Custom Orchestrators & Lead Roles
-        "academic-orchestrator", "orchestrator", "digital-saber", "test-orchestrator",
-        # Specialist Domain Workers
-        "statistics-agent", "data-agent", "academic-writer", "research-agent",
-        "validation-agent", "data-curator", "longitudinal-modmed-expert",
-        "qualitative-analyst", "meta-analyst", "intervention-designer",
-        "psychometric-expert", "journal-strategist",
-        # Advisory & Adversarial Audit Authorities
-        "methodology-expert", "statistical-expert", "statistical-auditor",
-        "results-auditor", "evidence-auditor", "academic-challenger", "final-judge",
-        "literature-expert",
-        # Self-Improvement & Meta-Learning Subagents
-        "behavior-analyst", "curriculum-builder", "evaluation-agent",
-        "knowledge-curator", "skill-evolver", "trajectory-analyzer",
-        "test-worker"
-    }
+    if not caller:
+        # FAIL-CLOSED: Missing or empty caller is strictly governed / not unrestricted.
+        return False
 
-    # 1. If explicitly identified as any custom agent or academic orchestrator -> False (Strictly Controlled)
-    for ac in academic_custom_names:
+    # 3. Check against canonical policy agents from SSOT (all 30 registered custom agents)
+    canonical_agents = get_canonical_academic_agents()
+    for ac in canonical_agents:
         if ac == caller or ac in caller:
             return False
 
-    # 2. Check Antigravity 2.0 subagent flags
-    is_subagent = bool(payload.get("isSubagent") or payload.get("subagent") or payload.get("parentConversationId"))
-    if is_subagent:
-        # If Antigravity marks this execution as a delegated subagent, it is NOT the root main agent
+    # Domain role keywords fallback
+    academic_role_keywords = ("orchestrator", "auditor", "expert", "challenger", "judge")
+    if any(k in caller for k in academic_role_keywords):
         return False
 
-    # 3. Explicit main developer indicators
+    # 4. Explicit main developer indicators
     main_indicators = (
         "main", "main-agent", "mainagent", "default",
         "antigravity", "developer", "coding", "software-engineer", "code-agent"
@@ -100,13 +111,8 @@ def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
         if ind == caller or ind in caller:
             return True
 
-    if payload.get("agent_type") == "main" or payload.get("track") == 1:
-        return True
-
-    # 4. Inverted Default: If not identified as a custom subagent/orchestrator,
-    # it is the Built-in Main Agent operating in Track 1.
-    # This guarantees the Built-in Main Agent is NEVER accidentally blocked by academic Stop gates.
-    return True
+    # 5. Fail-Closed Default: Any unknown caller is strictly controlled (not unrestricted).
+    return False
 
 
 def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:

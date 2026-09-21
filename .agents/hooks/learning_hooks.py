@@ -82,7 +82,7 @@ class LearningHooks:
             payload.get("agentRole") or
             payload.get("agent") or
             payload.get("caller") or
-            "academic-orchestrator"
+            "unspecified"
         )
 
     @staticmethod
@@ -553,15 +553,18 @@ class LearningHooks:
         3. Deterministically retrieves adaptive context (lessons, pitfalls, methodology rules)
            for detected academic tasks and injects it into ephemeral context before execution.
         """
+        if payload.get("track") == 1 or payload.get("mode") == "developer":
+            return {}
+
         caller = (
             payload.get("agentName") or
             payload.get("agentRole") or
             payload.get("agent") or
             payload.get("caller") or ""
-        ).lower()
+        ).lower().strip()
 
         # If caller is explicitly the Main Developer Agent, bypass academic reminders
-        if caller in ("main", "main-agent", "mainagent", "default", "antigravity", "developer", "coding", "software-engineer", "code-agent") or payload.get("agent_type") == "main":
+        if caller and (caller in ("main", "main-agent", "mainagent", "default", "antigravity", "developer", "coding", "software-engineer", "code-agent") or payload.get("agent_type") == "main"):
             return {}
 
         LearningHooks.capture_user_correction(payload)

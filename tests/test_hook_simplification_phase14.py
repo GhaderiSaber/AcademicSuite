@@ -346,23 +346,27 @@ class TestHookSimplificationPhase14(unittest.TestCase):
         res_post = dispatch_event("PostToolUse", {"toolCall": {"name": "run_command", "args": {}}})
         self.assertEqual(res_post, {})
 
-        # PreInvocation (Main Developer -> Exempt, returns empty dict)
-        res_inv_main = dispatch_event("PreInvocation", {})
+        # PreInvocation (Main Developer -> Explicitly Exempt with track=1, returns empty dict)
+        res_inv_main = dispatch_event("PreInvocation", {"track": 1})
         self.assertEqual(res_inv_main, {})
+
+        # PreInvocation (Unassigned / Unknown -> Fail-Closed, returns injectSteps)
+        res_inv_unassigned = dispatch_event("PreInvocation", {})
+        self.assertIn("injectSteps", res_inv_unassigned)
 
         # PreInvocation (Academic Agent -> Controlled, returns injectSteps)
         res_inv_acad = dispatch_event("PreInvocation", {"agentName": "academic-orchestrator"})
         self.assertIn("injectSteps", res_inv_acad)
 
-        # PostInvocation (Main Developer -> Exempt)
-        res_postinv_main = dispatch_event("PostInvocation", {"workspacePaths": [self.workspace]})
+        # PostInvocation (Main Developer -> Explicitly Exempt with track=1)
+        res_postinv_main = dispatch_event("PostInvocation", {"track": 1, "workspacePaths": [self.workspace]})
         self.assertEqual(res_postinv_main.get("injectSteps"), [])
 
         # PostInvocation (Academic Agent -> Controlled, returns injectSteps)
         res_postinv_acad = dispatch_event("PostInvocation", {"agentName": "academic-orchestrator", "workspacePaths": [self.workspace]})
         self.assertIn("injectSteps", res_postinv_acad)
 
-        # Stop (Main Developer -> Exempt)
+        # Stop (Clean workspace -> Integrity verification passes allow)
         res_stop = dispatch_event("Stop", {"workspacePaths": [self.workspace]})
         self.assertEqual(res_stop.get("decision"), "allow")
 

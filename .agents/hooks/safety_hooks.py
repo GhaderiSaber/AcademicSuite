@@ -19,6 +19,16 @@ import re
 import stat
 from typing import Dict, Any, List, Optional, Tuple
 
+HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", ".."))
+AGENTS_DIR = os.path.abspath(os.path.join(HOOKS_DIR, ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+if AGENTS_DIR not in sys.path:
+    sys.path.insert(0, AGENTS_DIR)
+if HOOKS_DIR not in sys.path:
+    sys.path.insert(0, HOOKS_DIR)
+
 try:
     from hook_seen import emit_hook_seen
 except ImportError:
@@ -158,10 +168,163 @@ def is_ascii_filename(path: str) -> bool:
     return not any(ord(c) > 127 for c in basename)
 
 
+def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """
+    Validates explicit caller against canonical capability policy SSOT
+    (contracts/agents/agent_capabilities.yaml) if caller is explicitly provided.
+    Returns denial dict if tool is forbidden for this agent, else None.
+    """
+    if not caller:
+        return None
+    try:
+        from contracts.agents.capability_policy import load_capability_policy
+        policy = load_capability_policy()
+        agents = policy.get("agents", {})
+        target = None
+        for a in agents:
+            if a == caller or a in caller:
+                target = a
+                break
+        if not target:
+            return None
+
+        spec = agents[target]
+
+        # 1. Delegation Check (Worker Delegation Guard)
+        if tool_name == "invoke_subagent" and not spec.get("can_delegate", True):
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 12 - Worker Delegation Guard): "
+                    f"Specialist worker subagent '{caller}' is forbidden from invoking secondary subagents. "
+                    f"Multi-agent invocation is strictly reserved for Tier 1 orchestrator."
+                )
+            }
+
+        # 2. Mutation Tools Check (Orchestrator Code Guard / Read-Only Guard)
+        if tool_name in MUTATION_TOOLS and not spec.get("can_write_files", True):
+            if "academic-orchestrator" in target:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 / Phase 18 Zero-Hands Contract / Orchestrator Code Guard): "
+                        "Academic-Orchestrator is strictly managerial and forbidden from writing or modifying files directly. "
+                        "File generation, document drafting, and mutations must be delegated to specialist workers."
+                    )
+                }
+            elif "test-orchestrator" in target:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 / Phase 18 Zero-Hands Contract / Orchestrator Code Guard): "
+                        "test-orchestrator is strictly managerial and forbidden from writing or modifying files directly. "
+                        "File generation, document drafting, and mutations must be delegated to specialist workers."
+                    )
+                }
+            else:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Read-Only Agent Guard): "
+                        f"Agent '{caller}' is read-only and forbidden from mutating files directly."
+                    )
+                }
+
+        # 3. Direct Execution Check (run_command)
+        if tool_name == "run_command" and not spec.get("can_execute_code", True):
+            if target == "academic-orchestrator":
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12.1 / Phase 3-4 Orchestrator Zero-Hands Contract): "
+                        "Academic-Orchestrator is strictly forbidden from executing shell commands or code directly. "
+                        "All execution and statistical analysis must be delegated to specialist workers (e.g. statistics-agent) via invoke_subagent."
+                    )
+                }
+            elif target == "test-orchestrator":
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Orchestrator Non-Execution Invariant): "
+                        "test-orchestrator is strictly forbidden from executing shell commands or code directly. "
+                        "All computation must be delegated to specialist workers via invoke_subagent."
+                    )
+                }
+            else:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Non-Executing Authority Guard): "
+                        f"Agent '{caller}' lacks execution privileges and is forbidden from executing shell commands directly. "
+                        f"Computation must be delegated to authorized execution workers."
+                    )
+                }
+
+        # 4. Indirect Execution Checks
+        if tool_name == "define_subagent" and not spec.get("can_execute_code", True):
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                    f"Agent '{caller}' is forbidden from dynamically defining proxy subagents via define_subagent. "
+                    f"Multi-agent delegation must use canonical, pre-configured subagents."
+                )
+            }
+
+        if tool_name == "manage_task" and (args.get("Action") or "").lower() == "send_input" and not spec.get("can_execute_code", True):
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                    f"Agent '{caller}' is forbidden from injecting shell input into background tasks via manage_task."
+                )
+            }
+
+        if tool_name == "schedule" and not spec.get("can_execute_code", True):
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                    f"Agent '{caller}' lacks execution privileges and is forbidden from scheduling background execution tasks."
+                )
+            }
+
+        if tool_name == "call_mcp_tool":
+            server_name = (args.get("ServerName") or "").lower()
+            tool_mcp_name = (args.get("ToolName") or "").lower()
+            if not spec.get("can_execute_code", True):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                        f"Agent '{caller}' lacks execution privileges and is strictly forbidden from executing MCP tools ('{server_name}/{tool_mcp_name}')."
+                    )
+                }
+            high_risk_mcp_tools = {
+                "exec", "execute_sql", "deploy_edge_function",
+                "apply_migration", "actions_run_trigger"
+            }
+            if tool_mcp_name in high_risk_mcp_tools:
+                authorized_executors = {"statistics-agent", "data-agent", "research-agent"}
+                if target not in authorized_executors:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                            f"Indirect code/shell/database execution via MCP tool '{server_name}/{tool_mcp_name}' is forbidden for '{caller}'."
+                        )
+                    }
+
+    except Exception as e:
+        sys.stderr.write(f"[safety_hooks] Policy check notice: {e}\n")
+    return None
+
+
 class SafetyHooks:
     """
     Class A: Safety Hooks
-    Responsible for intercepting tool calls before execution to enforce safety invariants.
+    Responsible for intercepting tool calls before execution to enforce safety invariants:
+    tool -> target resource -> safety policy.
     """
 
     @staticmethod
@@ -179,41 +342,21 @@ class SafetyHooks:
         args = tool_call.get("args", {})
         workspaces = payload.get("workspacePaths", [])
 
-        # 1. Subagent Delegation Gate (Worker Delegation Guard & Depth Guard)
-        if name == "invoke_subagent":
-            caller = (
-                payload.get("agentName") or
-                payload.get("agentRole") or
-                payload.get("agent") or
-                payload.get("caller") or ""
-            ).lower()
-            unauthorized_workers = {
-                "academic-writer",
-                "evidence-auditor",
-                "final-judge",
-                "statistics-agent",
-                "data-agent",
-                "data-curator",
-                "results-auditor",
-                "statistical-auditor",
-                "psychometric-expert",
-                "qualitative-analyst",
-                "meta-analyst",
-                "literature-expert",
-                "research-agent",
-                "test-worker",
-            }
-            for w in unauthorized_workers:
-                if w in caller:
-                    return {
-                        "decision": "deny",
-                        "reason": (
-                            f"CONSTITUTIONAL VIOLATION (Directive 12 - Worker Delegation Guard): "
-                            f"Specialist worker subagent '{caller}' is forbidden from invoking secondary subagents. "
-                            f"Multi-agent invocation is strictly reserved for Tier 1 orchestrator."
-                        )
-                    }
+        caller = (
+            payload.get("agentName") or
+            payload.get("agentRole") or
+            payload.get("agent") or
+            payload.get("caller") or ""
+        ).lower().strip()
 
+        # Secondary Enforcement: Check canonical capability policy if explicit caller provided
+        if caller:
+            policy_denial = check_caller_policy(caller, name, args)
+            if policy_denial:
+                return policy_denial
+
+        # 1. Subagent Delegation Gate (Depth Guard & Formal Contract Check)
+        if name == "invoke_subagent":
             depth = payload.get("depth") or payload.get("subagentDepth") or len(payload.get("parentConversationIds", []))
             if isinstance(depth, int) and depth >= 3:
                 return {
@@ -254,52 +397,9 @@ class SafetyHooks:
                                 "reason": f"CONSTITUTIONAL VIOLATION (Phase 22 - Delegation Contract Invariant): {informal_reason}"
                             }
 
-        # 2. Raw-Data, Outside-Workspace & Orchestrator Code Guard on Mutation Tools
+        # 2. Raw-Data, Outside-Workspace & State Ledger Guard on Mutation Tools (tool -> target resource -> safety policy)
         if name in MUTATION_TOOLS:
-            caller = (
-                payload.get("agentName") or
-                payload.get("agentRole") or
-                payload.get("agent") or
-                payload.get("caller") or ""
-            ).lower()
             targets = extract_target_paths(name, args)
-
-            # Orchestrator Mutation Guard (Phase 13, 17, 18 Zero-Hands Contract):
-            # academic-orchestrator and test-orchestrator have no write/mutation privileges and cannot write or modify ANY files directly.
-            if "academic-orchestrator" in caller:
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        "CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 / Phase 18 Zero-Hands Contract / Orchestrator Code Guard): "
-                        "Academic-Orchestrator is strictly managerial and forbidden from writing or modifying files directly. "
-                        "File generation, document drafting, and mutations must be delegated to specialist workers."
-                    )
-                }
-            if "test-orchestrator" in caller:
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        "CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 / Phase 18 Zero-Hands Contract / Orchestrator Code Guard): "
-                        "test-orchestrator is strictly managerial and forbidden from writing or modifying files directly. "
-                        "File generation, document drafting, and mutations must be delegated to specialist workers."
-                    )
-                }
-
-            read_only_callers = {
-                "behavior-analyst",
-                "curriculum-builder",
-                "knowledge-curator",
-                "skill-evolver",
-                "trajectory-analyzer",
-            }
-            if any(roc in caller for roc in read_only_callers):
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        f"CONSTITUTIONAL VIOLATION (Read-Only Agent Guard): "
-                        f"Agent '{caller}' is read-only and forbidden from mutating files directly."
-                    )
-                }
 
             for target in targets:
                 # State Ledger Immutability Guard (Invalid State Transition Guard)
@@ -357,61 +457,7 @@ class SafetyHooks:
 
         # 3. Dangerous Shell Command & Orchestrator Direct Execution Protection
         if name == "run_command":
-            caller = (
-                payload.get("agentName") or
-                payload.get("agentRole") or
-                payload.get("agent") or
-                payload.get("caller") or ""
-            ).lower()
             cmd = args.get("CommandLine", "")
-
-            # Direct Execution Guard (Layer 4 Secondary Enforcement for Non-Executors):
-            non_executing_callers = {
-                "academic-orchestrator",
-                "test-orchestrator",
-                "methodology-expert",
-                "statistical-expert",
-                "results-auditor",
-                "final-judge",
-                "evidence-auditor",
-                "academic-challenger",
-                "journal-strategist",
-                "intervention-designer",
-                "behavior-analyst",
-                "curriculum-builder",
-                "knowledge-curator",
-                "skill-evolver",
-                "trajectory-analyzer",
-            }
-            for nec in non_executing_callers:
-                if nec in caller:
-                    if nec == "academic-orchestrator":
-                        return {
-                            "decision": "deny",
-                            "reason": (
-                                "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12.1 / Phase 3-4 Orchestrator Zero-Hands Contract): "
-                                "Academic-Orchestrator is strictly forbidden from executing shell commands or code directly. "
-                                "All execution and statistical analysis must be delegated to specialist workers (e.g. statistics-agent) via invoke_subagent."
-                            )
-                        }
-                    elif nec == "test-orchestrator":
-                        return {
-                            "decision": "deny",
-                            "reason": (
-                                "CONSTITUTIONAL VIOLATION (Orchestrator Non-Execution Invariant): "
-                                "test-orchestrator is strictly forbidden from executing shell commands or code directly. "
-                                "All computation must be delegated to specialist workers via invoke_subagent."
-                            )
-                        }
-                    else:
-                        return {
-                            "decision": "deny",
-                            "reason": (
-                                f"CONSTITUTIONAL VIOLATION (Non-Executing Authority Guard): "
-                                f"Agent '{caller}' lacks execution privileges and is forbidden from executing shell commands directly. "
-                                f"Computation must be delegated to authorized execution workers."
-                            )
-                        }
 
             # State Transition via CLI Guard: block invalid set_stage in production mode
             if "academic_state_manager.py" in cmd:
@@ -558,68 +604,8 @@ class SafetyHooks:
                         )
                     }
 
-        # 4. Indirect Execution Prevention: MCP Tool Gate (Phase 18)
-        if name == "call_mcp_tool":
-            caller = (
-                payload.get("agentName") or
-                payload.get("agentRole") or
-                payload.get("agent") or
-                payload.get("caller") or ""
-            ).lower()
-            server_name = (args.get("ServerName") or "").lower()
-            tool_name = (args.get("ToolName") or "").lower()
-
-            non_executing_callers = {
-                "academic-orchestrator",
-                "methodology-expert",
-                "statistical-expert",
-                "results-auditor",
-                "academic-challenger",
-                "final-judge",
-                "evidence-auditor",
-                "journal-strategist",
-            }
-            if any(nec in caller for nec in non_executing_callers):
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
-                        f"Agent '{caller}' lacks execution privileges and is strictly forbidden from executing MCP tools ('{server_name}/{tool_name}')."
-                    )
-                }
-
-            high_risk_mcp_tools = {
-                "exec", "execute_sql", "deploy_edge_function",
-                "apply_migration", "actions_run_trigger"
-            }
-            if tool_name in high_risk_mcp_tools:
-                authorized_executors = {"statistics-agent", "data-agent", "research-agent"}
-                if not any(ae in caller for ae in authorized_executors):
-                    return {
-                        "decision": "deny",
-                        "reason": (
-                            f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
-                            f"Indirect code/shell/database execution via MCP tool '{server_name}/{tool_name}' is forbidden for '{caller}'."
-                        )
-                    }
-
-        # 5. Indirect Execution Prevention: Subagent Proxy Creation Gate (define_subagent)
+        # 4. Indirect Execution Prevention: Dynamic Subagent Elevation Guard (define_subagent)
         if name == "define_subagent":
-            caller = (
-                payload.get("agentName") or
-                payload.get("agentRole") or
-                payload.get("agent") or
-                payload.get("caller") or ""
-            ).lower()
-            if "academic-orchestrator" in caller or any(role in caller for role in ["auditor", "expert", "challenger", "judge"]):
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
-                        f"Agent '{caller}' is forbidden from dynamically defining proxy subagents via define_subagent. "
-                        f"Multi-agent delegation must use canonical, pre-configured subagents."
-                    )
-                }
             if args.get("enable_write_tools") or args.get("enable_subagent_tools"):
                 return {
                     "decision": "deny",
@@ -629,66 +615,8 @@ class SafetyHooks:
                     )
                 }
 
-        # 6. Indirect Execution Prevention: Background Process Injection Gate (manage_task)
-        if name == "manage_task":
-            caller = (
-                payload.get("agentName") or
-                payload.get("agentRole") or
-                payload.get("agent") or
-                payload.get("caller") or ""
-            ).lower()
-            action = (args.get("Action") or "").lower()
-            if action == "send_input":
-                if "academic-orchestrator" in caller or any(role in caller for role in ["auditor", "expert", "challenger", "judge"]):
-                    return {
-                        "decision": "deny",
-                        "reason": (
-                            f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
-                            f"Agent '{caller}' is forbidden from injecting shell input into background tasks via manage_task."
-                        )
-                    }
-
-        # 7. Indirect Execution Prevention: Scheduled Execution Gate (schedule)
-        if name == "schedule":
-            caller = (
-                payload.get("agentName") or
-                payload.get("agentRole") or
-                payload.get("agent") or
-                payload.get("caller") or ""
-            ).lower()
-            non_executing_callers = {
-                "academic-orchestrator",
-                "methodology-expert",
-                "statistical-expert",
-                "results-auditor",
-                "academic-challenger",
-                "final-judge",
-                "evidence-auditor",
-                "journal-strategist",
-                "intervention-designer",
-                "behavior-analyst",
-                "curriculum-builder",
-                "knowledge-curator",
-                "skill-evolver",
-                "trajectory-analyzer",
-            }
-            if any(nec in caller for nec in non_executing_callers):
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        f"CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
-                        f"Agent '{caller}' lacks execution privileges and is forbidden from scheduling background execution tasks."
-                    )
-                }
-
-        # 8. Worker Return Payload & Formal Closure Guard (send_message / Phase 21 & Phase 22)
+        # 5. Worker Return Payload & Formal Closure Guard (send_message / Phase 21 & Phase 22)
         if name == "send_message":
-            caller = (
-                payload.get("agentName") or
-                payload.get("agentRole") or
-                payload.get("agent") or
-                payload.get("caller") or ""
-            ).lower()
             msg = args.get("Message", "")
             if isinstance(msg, str):
                 try:
@@ -700,7 +628,7 @@ class SafetyHooks:
                         detect_informal_worker_return = None
                         detect_informal_closure = None
 
-                # 8a. Orchestrator Closure Guard (Anti-Pattern: Orchestrator -> 'Great.')
+                # 5a. Orchestrator Closure Guard (Anti-Pattern: Orchestrator -> 'Great.')
                 if "academic-orchestrator" in caller and detect_informal_closure is not None:
                     is_closure, closure_reason = detect_informal_closure(msg)
                     if is_closure:
@@ -709,7 +637,7 @@ class SafetyHooks:
                             "reason": f"CONSTITUTIONAL VIOLATION (Phase 22 - Formal Delegation Contract Invariant): {closure_reason}"
                         }
 
-                # 8b. Worker Return Invariant Guard (rejects 'done', 'completed', 'finished', etc.)
+                # 5b. Worker Return Invariant Guard (rejects 'done', 'completed', 'finished', etc.)
                 if detect_informal_worker_return is not None:
                     is_inf_ret, ret_reason = detect_informal_worker_return(msg)
                     if is_inf_ret:
