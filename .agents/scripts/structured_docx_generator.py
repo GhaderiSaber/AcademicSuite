@@ -93,6 +93,7 @@ def build_openxml_document(
             '    <w:p>\n'
             '      <w:pPr>\n'
             '        <w:bidi w:val="1"/>\n'
+            '        <w:jc w:val="right"/>\n'
             '        <w:spacing w:before="180" w:after="180"/>\n'
             '      </w:pPr>\n'
             '      <w:r>\n'
@@ -119,6 +120,7 @@ def build_openxml_document(
                 '    <w:p>\n'
                 '      <w:pPr>\n'
                 '        <w:bidi w:val="1"/>\n'
+                '        <w:jc w:val="right"/>\n'
                 '        <w:spacing w:before="240" w:after="120"/>\n'
                 '      </w:pPr>\n'
                 '      <w:r>\n'
@@ -137,6 +139,7 @@ def build_openxml_document(
                 '    <w:p>\n'
                 '      <w:pPr>\n'
                 '        <w:bidi w:val="1"/>\n'
+                '        <w:jc w:val="right"/>\n'
                 '        <w:spacing w:before="180" w:after="90"/>\n'
                 '      </w:pPr>\n'
                 '      <w:r>\n'
@@ -155,6 +158,7 @@ def build_openxml_document(
                 '    <w:p>\n'
                 '      <w:pPr>\n'
                 '        <w:bidi w:val="1"/>\n'
+                '        <w:jc w:val="both"/>\n'
                 '        <w:spacing w:before="60" w:after="180"/>\n'
                 '      </w:pPr>\n'
                 '      <w:r>\n'
@@ -200,6 +204,7 @@ def build_openxml_document(
                 '    <w:p>\n'
                 '      <w:pPr>\n'
                 '        <w:bidi w:val="1"/>\n'
+                '        <w:jc w:val="right"/>\n'
                 '        <w:spacing w:before="180" w:after="60"/>\n'
                 '      </w:pPr>\n'
                 '      <w:r>\n'
@@ -233,7 +238,8 @@ def build_openxml_document(
 
             # Header row
             tbl_xml.append('      <w:tr>')
-            for h in headers:
+            for h_idx, h in enumerate(headers):
+                h_align = "right" if h_idx == 0 else "center"
                 tbl_xml.append(
                     '        <w:tc>\n'
                     '          <w:tcPr>\n'
@@ -244,7 +250,7 @@ def build_openxml_document(
                     '          <w:p>\n'
                     '            <w:pPr>\n'
                     '              <w:bidi w:val="1"/>\n'
-                    '              <w:jc w:val="center"/>\n'
+                    f'              <w:jc w:val="{h_align}"/>\n'
                     '            </w:pPr>\n'
                     '            <w:r>\n'
                     '              <w:rPr>\n'
@@ -263,19 +269,20 @@ def build_openxml_document(
             # Data rows
             for row in rows:
                 tbl_xml.append('      <w:tr>')
-                for cell_val in row:
+                for c_idx, cell_val in enumerate(row):
                     str_val = str(cell_val).strip()
                     # Determine if cell is predominantly numeric/statistical notation
                     is_numeric = bool(re.match(r'^[+-]?[0-9۰-۹\.,\s\(\)\[\]\<\>\=\-\%]+$', str_val))
                     font_name = "Times New Roman" if is_numeric else "B Nazanin"
-                    rtl_val = "0" if is_numeric else "1"
+                    rtl_val = "1" if c_idx == 0 else ("0" if is_numeric else "1")
+                    c_align = "right" if c_idx == 0 else "center"
 
                     tbl_xml.append(
                         '        <w:tc>\n'
                         '          <w:p>\n'
                         '            <w:pPr>\n'
                         f'              <w:bidi w:val="{rtl_val}"/>\n'
-                        '              <w:jc w:val="center"/>\n'
+                        f'              <w:jc w:val="{c_align}"/>\n'
                         '            </w:pPr>\n'
                         '            <w:r>\n'
                         '              <w:rPr>\n'

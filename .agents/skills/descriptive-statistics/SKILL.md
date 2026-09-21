@@ -11,7 +11,7 @@ Computes univariate descriptive statistics, central tendency, dispersion metrics
 
 ## 1. When to Use (Activation Criteria)
 Activate this skill when:
-1. **Stage 4.1 Demographic Profiling**: Calculating absolute frequencies ($n$) and percentages ($\%$) for categorical sample attributes (gender, education, age brackets, clinical subtype).
+1. **Stage 4.1 Demographic Profiling (Disaggregated Demographics Architecture - Option 2)**: Calculating absolute frequencies ($n$) and percentages ($\%$) for categorical sample attributes (gender, education, age brackets, clinical subtype). Every demographic variable MUST receive its own separate table, separate frequency analysis, and separate narrative.
 2. **Stage 4.2 Study Variables Descriptives**: Calculating sample size ($N$), Mean ($M$), Standard Deviation ($SD$), Standard Error ($SE$), Minimum ($\text{Min}$), Maximum ($\text{Max}$), Skewness, and Kurtosis for all primary study scales and subscales.
 3. **Pre-Flight Distributional Screening**: Evaluating preliminary univariate normality via Kline (2023) skewness/kurtosis bounds before parametric modeling.
 
@@ -77,8 +77,8 @@ The script produces:
    - `study_variables`: List of objects containing `{"variable": ..., "n": ..., "mean": ..., "sd": ..., "se": ..., "min": ..., "max": ..., "skewness": ..., "kurtosis": ...}`.
    - `demographics`: Dictionary of categorical factors with levels, frequencies, and percentages.
 2. **APA 7 OpenXML Word Tables**:
-   - Table 1: Demographic Characteristics of Participants (جدول ۱: ویژگی‌های جمعیت‌شناختی آزمودنی‌ها).
-   - Table 2: Descriptive Statistics of Study Variables (جدول ۲: شاخص‌های توصیفی متغیرهای پژوهش).
+   - **Disaggregated Demographics Architecture (Option 2)**: Multiple demographic tables (e.g., Table 1a, Table 1b, etc., or numbered sequentially), one for each demographic variable (Gender, Grade, School Type, Family SES, Father Education, Mother Education, Age). Each MUST receive its own separate table, separate frequency analysis, and separate narrative.
+   - Table X: Descriptive Statistics of Study Variables (جدول X: شاخص‌های توصیفی متغیرهای پژوهش).
 
 ---
 

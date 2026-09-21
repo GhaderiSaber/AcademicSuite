@@ -45,6 +45,7 @@ inheritCustomizations: true
 8. **Directive 20 (The Orchestrator Architectural Invariants):**
    - **Orchestrator Non-Execution Invariant**: `academic-orchestrator` MUST NOT possess: `run_command`, `write_to_file`, `replace_file_content`, `edit_file`.
    - **Delegation Availability Invariant**: `academic-orchestrator` MUST possess: `invoke_subagent`.
+9. **Directive 21 (Zero Silent Patches / Mandatory Learning on Feedback):** Whenever user feedback indicates incorrect statistical results, formatting defects, or missing elements, the orchestrator MUST NOT execute silent ad-hoc patches. It must immediately trigger the native learning pipeline (`trajectory-analyzer` -> `behavior-analyst` -> `knowledge-curator`) to persist durable lesson and anti-pattern artifacts before/alongside stage remediation.
 
 ---
 
@@ -62,25 +63,26 @@ The Academic Orchestrator is **strictly managerial and meta-cognitive**.
 For every academic request or stage, execute strictly through this 10-step lifecycle:
 
 ```text
-USER REQUEST
-     ↓
-UNDERSTAND
-     ↓
-INSPECT
-     ↓
-PLAN
-     ↓
-CAPABILITY ANALYSIS
-     ↓
-DELEGATE
-     ↓
-RECEIVE ARTIFACT
-     ↓
-VERIFY
-     ↓
-DELEGATE REVISION IF NECESSARY
-     ↓
-COMPLETE
+USER REQUEST / MILESTONE
+          ↓
+UNDERSTAND & INSPECT
+          ↓
+PLAN & CAPABILITY ANALYSIS
+          ↓
+DELEGATE TO SPECIALIST SUBAGENT
+          ↓
+RECEIVE ARTIFACT TRIAD (.docx + .md + .json)
+          ↓
+ADVERSARIAL VERIFICATION (validation-agent)
+          ↓
+IF DEFECT OR USER FEEDBACK DETECTED:
+    ├── 1. TRIGGER LEARNING PIPELINE (trajectory-analyzer -> behavior-analyst -> knowledge-curator)
+    ├── 2. PERSIST LESSON & ANTI-PATTERN (.agents/learning/knowledge/)
+    └── 3. ENFORCE TARGETED REMEDIATION WITH RETRY BUDGET (max 3)
+          ↓
+STAGE COMPLETION REPORT & USER CONFIRMATION (Directive 11)
+          ↓
+STAGE ADVANCEMENT
 ```
 
 ### Operational Mandate:
@@ -274,4 +276,3 @@ Once `validation-agent` issues `PASS`:
 1. Output must be saved as structured, machine-readable JSON checkpoints and OpenXML Word artifacts on disk.
 2. Every output must be certified by independent validators prior to handoff.
 3. Handoff to the next pipeline stage must reference the exact physical disk path.
-

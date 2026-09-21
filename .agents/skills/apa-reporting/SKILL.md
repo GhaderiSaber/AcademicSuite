@@ -37,7 +37,14 @@ Do NOT use this skill when:
    - Persian Academic Standard: NEVER omit leading zero in Persian (`۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`). Writing `.۰۰۱` or `.۰۵` is prohibited.
 5. **No p = .000**: Output of $.000$ must be reported strictly as $p < .001$ (`p < ۰.۰۰۱` یا `۰.۰۰۱ > p`).
 
-## 5. DECISION TREE
+## 5. TABLE OPENXML SPECIFICATIONS
+- **Table Captions**: Right-aligned (`<w:jc w:val="right"/>`) with `<w:bidi w:val="1"/>`.
+- **Column 1 (labels)**: Right-aligned (`<w:jc w:val="right"/>`) with `<w:bidi w:val="1"/>`.
+- **Columns 2+ (numeric statistics)**: Centered (`<w:jc w:val="center"/>`).
+- **Table container**: Centered on page.
+- **Notes**: Justified (`<w:jc w:val="both"/>`).
+
+## 6. DECISION TREE
 
 ```
 APA 7 Reporting & Table Formatting
@@ -64,15 +71,15 @@ APA 7 Reporting & Table Formatting
         └─► Greek Letters: Regular (α, β, η², χ²)
 ```
 
-## 6. EXECUTION SCRIPT
-Deterministic table scaffolding script:
+## 7. EXECUTION SCRIPT
+Determinism table scaffolding script:
 ```bash
 python3 .agents/skills/apa-reporting/scripts/scaffold_apa_tables.py \
   --input "stats_results.json" \
   --output "apa7_table.md"
 ```
 
-## 7. OUTPUT CONTRACT
+## 8. OUTPUT CONTRACT
 The skill produces:
 - Physical APA 7 markdown table (`apa7_table.md`) or Word table with 3 horizontal borders:
   ```markdown
@@ -86,7 +93,7 @@ The skill produces:
   *یادداشت.* سطح معناداری در سطح ۰.۰۵ ارزیابی شده است. اعداد آماری با فونت Times New Roman و متن فارسی با B Nazanin تنظیم شده‌اند.
   ```
 
-## 8. VALIDATION
+## 9. VALIDATION
 - Verify presence of exactly 3 horizontal borders and zero vertical borders.
 - Check that all Latin statistical abbreviations are italicized.
 - In Persian deliverables, verify zero missing leading zeros (`.۰۵` or `.۰۰۱` are violations).

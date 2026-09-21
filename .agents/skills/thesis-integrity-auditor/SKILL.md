@@ -66,6 +66,11 @@ Activate this skill whenever:
 - **Equator Score**:
   $$\text{EQUATOR Score} = \frac{\text{count}(\text{PRESENT}) \times 1.0 + \text{count}(\text{PARTIAL}) \times 0.5}{\text{total items}} \times 100$$
 
+### 7. Forensic Audit Requirements (Document Truncation & OpenXML Standards)
+- **Table Count & Anti-Truncation Audit (`CRITICAL`)**: Auditors must assert exact **table count** and **row count per table** against the source markdown specification. Reject any document with missing or truncated tables.
+- **Compiler Inputs**: Compilers must always receive both `--md` and `--json`.
+- **OpenXML Cell Alignment Verification (`MAJOR`)**: Verify explicit `<w:jc>` on all cells (Col 1 = right, Col 2+ = center).
+
 ---
 
 ## 3. Thesis Integrity Score (TIS) & Submission Readiness Score (SRS)

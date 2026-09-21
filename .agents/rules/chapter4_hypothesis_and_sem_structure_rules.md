@@ -45,7 +45,8 @@ When a study investigates mediation, serial mediation, or structural paths deriv
 Table explanations must adhere to the highest academic standards of scholarship. **Superficial, 1-2 sentence, tiny, or juvenile explanations are strictly forbidden.**
 
 ### 4.1. Demographic Tables
-- Concise, clear reporting of frequencies and percentage distributions across categories is sufficient.
+- **Option 2 (Disaggregated Demographics Architecture)**: Every demographic variable (Gender, Grade, School Type, Family SES, Father Education, Mother Education, Age) MUST receive its own separate table, separate frequency analysis, and separate narrative.
+- **Granular Isolation Invariant**: Every research question and hypothesis MUST have its own separate analysis, separate table(s), and separate 5-part explanation block.
 
 ### 4.2. Substantive & Inferential Tables (Mandatory Deep Scholarly Analysis)
 All inferential, descriptive, correlational, and structural tables must have extensive, multi-paragraph scholarly analyses:

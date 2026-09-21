@@ -28,6 +28,12 @@ Whenever an AI agent generates, modifies, or inspects Microsoft Word documents (
 | **Text Alignment (تراز متن / Justification)** | Justified (both) | Substantive narrative text (paragraphs, literature reviews, descriptions, candidate answers, callouts) must enforce `paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`. Centered for banners (`<w:jc w:val="center"/>`) and Right-aligned for headings (`<w:jc w:val="right"/>`). |
 | **Persian Font Binding & Complex-Script Attributes** | Genuine Persian Fonts | Binds `w:ascii`, `w:hAnsi`, `w:cs`, and `w:eastAsia` to genuine Persian fonts (`B Nazanin` or `B Titr`) with `w:hint="cs"`, `<w:szCs>`, and `<w:bCs>` to avoid fallback Arabic Naskh rendering in Microsoft Word for Windows. |
 
+### 1.2 The Three Controlling Tools Invariant (Direction vs. Alignment vs. Justify)
+- **Tool 1 (Direction)**: Paragraph `<w:bidi w:val="1"/>`, Run `<w:rtl w:val="1"/>`, Table `<w:bidiVisual/>`.
+- **Tool 2 (Alignment)**: Explicit `<w:jc w:val="right"/>` on Title, Headings (`##`, `###`), Table Captions, and Table Column 1. Explicit `<w:jc w:val="center"/>` on numeric columns. Table placement centered on page (`<w:tblPr><w:jc w:val="center"/></w:tblPr>`).
+- **Tool 3 (Justify)**: Explicit `<w:jc w:val="both"/>` on all Body Narratives and Table Notes.
+- **Prohibition of Implicit Alignment**: Never rely on default alignment under BiDi, because Word defaults to Align Left in the UI ribbon.
+
 ---
 
 ## ⚙️ 2. OpenXML Technical Protocol in Word (`.docx`)
