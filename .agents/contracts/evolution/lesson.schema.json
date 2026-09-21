@@ -190,6 +190,15 @@
       "type": "string",
       "description": "Diagnostician agent deriving the lesson (e.g. academic-challenger, statistical-auditor)."
     },
+    "target_agent": {
+      "type": "string",
+      "description": "Optional subagent role to which this lesson is strictly targeted (e.g. academic-writer, statistics-agent, data-curator)."
+    },
+    "target_agents": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of subagent roles to which this lesson applies."
+    },
     "provenance": {
       "type": "object",
       "properties": {

@@ -1342,7 +1342,8 @@ def main():
             rationale=args.rationale,
             capability=args.capability,
             tags=args.tags,
-            scope=args.scope
+            scope=args.scope,
+            agent=args.agent
         )
         print(res["badge"])
 

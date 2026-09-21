@@ -74,6 +74,15 @@
       "type": "string",
       "description": "Optional reference to pitfall record in state/pitfalls.jsonl."
     },
+    "target_agent": {
+      "type": "string",
+      "description": "Optional subagent role to which this anti-pattern is strictly targeted."
+    },
+    "target_agents": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of subagent roles to which this anti-pattern applies."
+    },
     "reusable": {
       "type": "boolean",
       "description": "Whether this anti-pattern should be actively screened across all research projects."

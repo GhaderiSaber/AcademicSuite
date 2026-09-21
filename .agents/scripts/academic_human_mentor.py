@@ -58,6 +58,7 @@ class AcademicHumanMentor:
         skills: Optional[List[str]] = None,
         tags: Optional[List[str]] = None,
         scope: str = "cross-project",
+        agent: Optional[str] = None,
         defective_pattern: Optional[str] = None,
         corrective_remedy: Optional[str] = None,
         observed_symptoms: Optional[List[str]] = None,
@@ -66,22 +67,26 @@ class AcademicHumanMentor:
         """Validate and store human-taught knowledge as a persistent artifact."""
         clean_cat = category.strip().lower().replace("-", "_")
         clean_cap = self.km.normalize_capability(capability)
+        clean_agent = agent.strip().lower() if agent else None
         eff_tags = list(tags or [])
         if clean_cap and clean_cap.lower() not in [t.lower() for t in eff_tags]:
             eff_tags.append(clean_cap.lower())
         eff_skills = list(skills or ([clean_cap] if clean_cap else ["general_research"]))
 
         if clean_cat in ["principle", "rule", "standard"]:
-            item_dict = {
+            app_dict: Dict[str, Any] = {
+                "criteria": [rationale.strip()] if rationale else ["Foundational rule established by research mentor"],
+                "target_skills": eff_skills
+            }
+            if clean_agent:
+                app_dict["target_agents"] = [clean_agent]
+            item_dict: Dict[str, Any] = {
                 "statement": statement.strip(),
                 "scope": scope,
                 "domain": clean_cap or "general",
                 "capability": clean_cap,
                 "tags": eff_tags,
-                "applicability": {
-                    "criteria": [rationale.strip()] if rationale else ["Foundational rule established by research mentor"],
-                    "target_skills": eff_skills
-                },
+                "applicability": app_dict,
                 "exclusions": exclusions or [],
                 "source_lessons": ["LSN-HUMAN-MENTOR-DIRECT"],
                 "supporting_evaluations": [],
@@ -89,20 +94,26 @@ class AcademicHumanMentor:
                 "status": "ACCEPTED_ACTIVE",
                 "version": "1.0.0"
             }
+            if clean_agent:
+                item_dict["target_agent"] = clean_agent
+                item_dict["target_agents"] = [clean_agent]
             item_id = self.km.add_principle(item_dict)
             item_kind = "Principle"
 
         elif clean_cat in ["pattern", "workflow", "procedure"]:
+            app_dict = {
+                "criteria": [rationale.strip()] if rationale else ["Approved methodological workflow procedure"],
+                "target_skills": eff_skills
+            }
+            if clean_agent:
+                app_dict["target_agents"] = [clean_agent]
             item_dict = {
                 "statement": statement.strip(),
                 "scope": scope,
                 "domain": clean_cap or "general",
                 "capability": clean_cap,
                 "tags": eff_tags,
-                "applicability": {
-                    "criteria": [rationale.strip()] if rationale else ["Approved methodological workflow procedure"],
-                    "target_skills": eff_skills
-                },
+                "applicability": app_dict,
                 "exclusions": exclusions or [],
                 "source_lessons": ["LSN-HUMAN-MENTOR-DIRECT"],
                 "supporting_evaluations": [],
@@ -110,6 +121,9 @@ class AcademicHumanMentor:
                 "status": "ACCEPTED_ACTIVE",
                 "version": "1.0.0"
             }
+            if clean_agent:
+                item_dict["target_agent"] = clean_agent
+                item_dict["target_agents"] = [clean_agent]
             item_id = self.km.add_pattern(item_dict)
             item_kind = "Pattern"
 
@@ -126,6 +140,9 @@ class AcademicHumanMentor:
                 },
                 "reusable": True
             }
+            if clean_agent:
+                item_dict["target_agent"] = clean_agent
+                item_dict["target_agents"] = [clean_agent]
             item_id = self.km.add_anti_pattern(item_dict)
             item_kind = "Anti-Pattern"
 
@@ -149,17 +166,21 @@ class AcademicHumanMentor:
                 "trigger_source": "USER_FEEDBACK",
                 "lesson_type": "WHAT_NOT_TO_DO" if is_negative else "WHAT_WORKED_WELL"
             }
+            if clean_agent:
+                item_dict["target_agent"] = clean_agent
+                item_dict["target_agents"] = [clean_agent]
             item_id = self.km.add_lesson(item_dict)
             item_kind = "Lesson"
         else:
             raise ValueError(f"Unsupported knowledge category: '{category}'. Use principle, pattern, anti_pattern, or lesson.")
 
-        badge = self.format_confirmation_badge(item_id, item_kind, statement, clean_cap, scope)
+        badge = self.format_confirmation_badge(item_id, item_kind, statement, clean_cap, scope, agent=clean_agent)
         return {
             "item_id": item_id,
             "item_kind": item_kind,
             "statement": statement,
             "capability": clean_cap,
+            "agent": clean_agent,
             "scope": scope,
             "badge": badge
         }
@@ -168,9 +189,10 @@ class AcademicHumanMentor:
         self,
         text: str,
         default_capability: Optional[str] = None,
-        scope: str = "cross-project"
+        scope: str = "cross-project",
+        agent: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Extract category, capability, and statement from natural language (EN or FA)."""
+        """Extract category, capability, target agent, and statement from natural language (EN or FA)."""
         raw = text.strip()
         cleaned = re.sub(r"^(remember that|learn this|from now on|note that|یادت باشه|به یاد داشته باش)[:,\s]+", "", raw, flags=re.I)
 
@@ -183,7 +205,33 @@ class AcademicHumanMentor:
                     detected_cap = cap
                     break
 
-        # 2. Infer Category
+        # 2. Infer Target Subagent Role
+        detected_agent = agent.strip().lower() if agent else None
+        if not detected_agent:
+            m_agent = re.search(r"(?:for|target agent:?|agent:?)\s+([a-z0-9_-]+)", raw, re.I)
+            if m_agent:
+                cand = m_agent.group(1).lower()
+                if cand in self.km.retriever.AGENT_EQUIVALENCES or cand in [
+                    "academic-writer", "statistics-agent", "data-agent", "validation-agent",
+                    "methodology-expert", "academic-orchestrator", "research-agent"
+                ]:
+                    detected_agent = cand
+            if not detected_agent:
+                if re.search(r"(?:برای|مخصوص)\s+(?:نویسنده|academic-writer)", raw):
+                    detected_agent = "academic-writer"
+                elif re.search(r"(?:برای|مخصوص)\s+(?:آمار|تحلیلگر آمار|statistics-agent)", raw):
+                    detected_agent = "statistics-agent"
+                elif re.search(r"(?:برای|مخصوص)\s+(?:داده|پاکسازی|data-agent)", raw):
+                    detected_agent = "data-agent"
+                elif re.search(r"(?:برای|مخصوص)\s+(?:داور|ارزیاب|اعتبارسنجی|validation-agent)", raw):
+                    detected_agent = "validation-agent"
+            if not detected_agent:
+                for known_agent in ["academic-writer", "statistics-agent", "data-agent", "validation-agent", "academic-orchestrator"]:
+                    if known_agent in text_lower:
+                        detected_agent = known_agent
+                        break
+
+        # 3. Infer Category
         is_anti_pattern = bool(re.search(r"\b(never|avoid|don't|do not|prohibit|prohibited|نباید|پرهیز|اجتناب|غلط است|اشتباه است)\b", raw, re.I))
         is_pattern = bool(re.search(r"\b(workflow|process|steps|pipeline|sequence|مراحل|فرآیند|گام|چرخه)\b", raw, re.I))
         is_principle = bool(re.search(r"\b(always|must|mandatory|invariant|rule|principle|همیشه|باید|الزامی|اصل|قانون)\b", raw, re.I))
@@ -192,19 +240,13 @@ class AcademicHumanMentor:
             cat = "anti_pattern"
             rem_m = re.split(r"\b(instead|use|approved remedy|در عوض|به جای آن|استفاده کنید)\b", cleaned, maxsplit=1, flags=re.I)
             if len(rem_m) >= 3:
-                defective = rem_m[0].strip()
-                remedy = rem_m[2].strip()
+                defective, remedy = rem_m[0].strip(), rem_m[2].strip()
             else:
-                defective = cleaned
-                remedy = f"Avoid {cleaned}"
+                defective, remedy = cleaned, f"Avoid {cleaned}"
             return self.teach(
-                category=cat,
-                statement=cleaned,
-                rationale="Direct mentorship guidance from research supervisor.",
-                capability=detected_cap,
-                scope=scope,
-                defective_pattern=defective,
-                corrective_remedy=remedy
+                category=cat, statement=cleaned, rationale="Direct mentorship guidance from research supervisor.",
+                capability=detected_cap, scope=scope, agent=detected_agent,
+                defective_pattern=defective, corrective_remedy=remedy
             )
         elif is_pattern:
             cat = "pattern"
@@ -214,11 +256,8 @@ class AcademicHumanMentor:
             cat = "lesson"
 
         return self.teach(
-            category=cat,
-            statement=cleaned,
-            rationale="Direct mentorship guidance from research supervisor.",
-            capability=detected_cap,
-            scope=scope
+            category=cat, statement=cleaned, rationale="Direct mentorship guidance from research supervisor.",
+            capability=detected_cap, scope=scope, agent=detected_agent
         )
 
     def list_knowledge(
@@ -295,15 +334,18 @@ class AcademicHumanMentor:
         item_kind: str,
         statement: str,
         capability: Optional[str],
-        scope: str
+        scope: str,
+        agent: Optional[str] = None
     ) -> str:
         """Format clean scholarly confirmation badge for chat and CLI."""
         cap_str = f"`{capability}`" if capability else "General Academic"
+        agent_line = f"- **Target Agent**: `{agent}`\n" if agent else ""
         return (
             f"✅ **Knowledge Codified & Persisted**:\n"
             f"- **ID**: `{item_id}` ({item_kind})\n"
             f"- **Scope**: `{scope}` (Shared Learning Active)\n"
             f"- **Target Capability**: {cap_str}\n"
+            f"{agent_line}"
             f"- **Instruction**: \"{statement}\""
         )
 
@@ -318,6 +360,7 @@ def main():
     p_teach.add_argument("--statement", required=True, help="Instruction or rule statement")
     p_teach.add_argument("--rationale", help="Reasoning or empirical justification")
     p_teach.add_argument("--capability", help="Target capability (e.g. mediation, sem, chapter4)")
+    p_teach.add_argument("--agent", help="Target subagent role (e.g. academic-writer, statistics-agent, data-agent)")
     p_teach.add_argument("--scope", default="cross-project", help="Scope containment (default: cross-project)")
     p_teach.add_argument("--skills", nargs="*", help="Target skills")
     p_teach.add_argument("--tags", nargs="*", help="Tags")
@@ -326,6 +369,7 @@ def main():
     p_ingest = subparsers.add_parser("ingest-text", help="Parse and learn from natural language text")
     p_ingest.add_argument("text", help="Natural language instruction (EN or FA)")
     p_ingest.add_argument("--capability", help="Default capability if not in text")
+    p_ingest.add_argument("--agent", help="Explicit target agent override")
     p_ingest.add_argument("--scope", default="cross-project", help="Scope containment")
 
     # list
@@ -357,7 +401,8 @@ def main():
             capability=args.capability,
             skills=args.skills,
             tags=args.tags,
-            scope=args.scope
+            scope=args.scope,
+            agent=args.agent
         )
         print(res["badge"])
 
@@ -365,7 +410,8 @@ def main():
         res = mentor.teach_from_natural_language(
             text=args.text,
             default_capability=args.capability,
-            scope=args.scope
+            scope=args.scope,
+            agent=args.agent
         )
         print(res["badge"])
 
