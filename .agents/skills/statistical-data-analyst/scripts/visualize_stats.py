@@ -344,88 +344,47 @@ def plot_repeated_measures_trajectory(
 
 def main():
     parser = argparse.ArgumentParser(description="Publication-Grade Statistical Visualization Engine")
-    parser.add_argument("--json", help="Path to statistical results JSON file")
+    parser.add_argument("--json", required=True, help="Path to statistical results JSON file")
     parser.add_argument("--out-dir", default="./publication_plots", help="Directory to save generated figures.")
     parser.add_argument("--dpi", type=int, default=300, help="Resolution in DPI for generated plots.")
-    parser.add_argument("--demo", action="store_true", help="Generate sample publication demonstration plots.")
-    parser.add_argument("--residuals-demo", action="store_true", help="Generate sample regression residual diagnostic plots.")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
 
-    if args.json:
-        with open(args.json, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+    with open(args.json, 'r', encoding='utf-8') as f:
+        data = json.load(f)
 
-        rm_data = data.get("repeated_measures") or data.get("rm_anova")
-        if rm_data is None and data.get("test_type") == "RM_ANOVA":
-            rm_data = data
+    # 1. Repeated Measures Trajectory Plot
+    rm_data = data.get("repeated_measures") or data.get("rm_anova")
+    if rm_data is None and data.get("test_type") == "RM_ANOVA":
+        rm_data = data
 
-        if rm_data:
-            if isinstance(rm_data, list):
-                rm_data = rm_data[0]
-            descriptives = rm_data.get("descriptives", [])
-            time_labels = [d.get("time_label") or d.get("name") for d in descriptives]
-            means = [d.get("mean") for d in descriptives]
-            sds = [d.get("sd") for d in descriptives]
-            ses = [d.get("se") for d in descriptives]
-            p_val = rm_data.get("primary_test", {}).get("p_reported") or rm_data.get("p_value", 0.0001)
-            eta_sq = rm_data.get("primary_test", {}).get("partial_eta_squared") or rm_data.get("partial_eta_squared", 0.0)
-            f_stat = rm_data.get("primary_test", {}).get("f_statistic") or rm_data.get("f_statistic", 0.0)
-            eff_str = f"F = {f_stat:.2f} | η²p = {eta_sq:.3f}"
+    if rm_data:
+        if isinstance(rm_data, list):
+            rm_data = rm_data[0]
+        descriptives = rm_data.get("descriptives", [])
+        time_labels = [d.get("time_label") or d.get("name") for d in descriptives]
+        means = [d.get("mean") for d in descriptives]
+        sds = [d.get("sd") for d in descriptives]
+        ses = [d.get("se") for d in descriptives]
+        p_val = rm_data.get("primary_test", {}).get("p_reported") or rm_data.get("p_value", 0.0001)
+        eta_sq = rm_data.get("primary_test", {}).get("partial_eta_squared") or rm_data.get("partial_eta_squared", 0.0)
+        f_stat = rm_data.get("primary_test", {}).get("f_statistic") or rm_data.get("f_statistic", 0.0)
+        eff_str = f"F = {f_stat:.2f} | η²p = {eta_sq:.3f}"
 
-            fig_path = os.path.join(args.out_dir, "rm_anova_trajectory.png")
-            plot_repeated_measures_trajectory(
-                time_labels=time_labels,
-                means=means,
-                sds=sds,
-                ses=ses,
-                p_val=p_val,
-                title="روند طولی تغییرات متغیر وابسته در مراحل سنجش مکرر",
-                ylabel=rm_data.get("dv_label", "میانگین نمره"),
-                output_path=fig_path,
-                effect_size_str=eff_str,
-                dpi=args.dpi
-            )
-
-    if args.demo:
-        # Demo 1: Group comparison with bracket
-        plot_group_comparison(
-            groups=["گروه کنترل", "گروه مداخله (ACT)"],
-            means=[14.20, 22.85],
-            sds=[2.10, 2.45],
-            p_val=0.0004,
-            title="مقایسه انعطاف‌پذیری روان‌شناختی در پس‌آزمون بین دو گروه",
-            ylabel="میانگین نمره انعطاف‌پذیری",
-            effect_size_str="Cohen's d = 1.05 | η²p = .216",
-            output_path=os.path.join(args.out_dir, "group_comparison_bracket_demo.png"),
+        fig_path = os.path.join(args.out_dir, "rm_anova_trajectory.png")
+        plot_repeated_measures_trajectory(
+            time_labels=time_labels,
+            means=means,
+            sds=sds,
+            ses=ses,
+            p_val=p_val,
+            title="روند طولی تغییرات متغیر وابسته در مراحل سنجش مکرر",
+            ylabel=rm_data.get("dv_label", "میانگین نمره"),
+            output_path=fig_path,
+            effect_size_str=eff_str,
             dpi=args.dpi
         )
-        # Demo 2: Pre-Post Interaction
-        plot_pre_post_interaction(
-            groups=["گروه آزمایش (ACT)", "گروه گواه (Control)"],
-            pre_means=[14.10, 14.30],
-            post_means=[23.40, 14.80],
-            pre_sds=[2.20, 2.15],
-            post_sds=[2.35, 2.10],
-            p_interaction=0.0002,
-            title="تعامل زمان × گروه در بهبود بهزیستی روان‌شناختی",
-            ylabel="نمره بهزیستی روان‌شناختی",
-            output_path=os.path.join(args.out_dir, "pre_post_interaction_demo.png"),
-            dpi=args.dpi
-        )
-        print("[✓] Demo scientific visualization figures successfully generated!")
-
-    if args.residuals_demo:
-        rng = np.random.default_rng(42)
-        mock_zres = rng.normal(loc=0.0, scale=1.0, size=260)
-        h, p = plot_regression_residual_diagnostics(
-            mock_zres,
-            output_prefix=os.path.join(args.out_dir, "hypothesis_1_residuals"),
-            title_fa="سبک‌های فرزندپروری بر اضطراب فراگیر",
-            dpi=args.dpi
-        )
-        print(f"[✓] Residuals demo plots created: {h}, {p}")
 
 if __name__ == "__main__":
     main()
