@@ -280,10 +280,11 @@ class LearningHooks:
         return {}
 
     @staticmethod
-    def capture_user_correction(payload: Dict[str, Any]) -> None:
+    def capture_user_correction(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Scans user turn and transcript for corrections, critiques, or explicit instructions.
         Delegates to AcademicCorrectionDetector and AcademicIntegratedLearningHub, and records USER_CORRECTION event.
+        Returns a dictionary with critique detection metadata.
         """
         transcript_path = payload.get("transcriptPath")
         cid = payload.get("conversationId")
@@ -291,6 +292,14 @@ class LearningHooks:
             cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
             if os.path.exists(cand):
                 transcript_path = cand
+
+        user_text = (
+            payload.get("userMessage")
+            or payload.get("prompt")
+            or payload.get("message")
+            or ""
+        )
+        last_step_idx = None
 
         if transcript_path and os.path.isfile(transcript_path):
             try:
@@ -301,44 +310,83 @@ class LearningHooks:
                 sys.stderr.write(f"[learning_hooks] User correction scan note: {e_det}\n")
 
             records = load_transcript(transcript_path)
-            last_user_msg = ""
-            last_step_idx = None
             for r in reversed(records):
                 if r.get("type") == "USER_INPUT" and r.get("content"):
-                    last_user_msg = r.get("content", "").strip()
+                    if not user_text:
+                        user_text = r.get("content", "").strip()
                     last_step_idx = r.get("step_index")
                     break
 
-            clean_user = re.sub(r"<[^>]+>", "", last_user_msg).strip()
-            if clean_user:
-                # Check for critique patterns
-                critique_patterns = [
-                    r"\b(fix|wrong|incorrect|error|bug|fail|redo|re-run|reject|change|modify|correction)\b",
-                    r"اشتباه|غلط|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا"
-                ]
-                if any(re.search(pat, clean_user, re.IGNORECASE) for pat in critique_patterns):
-                    engine = LearningHooks._get_engine(payload)
-                    if engine:
-                        from scripts.trajectory_engine import TrajectoryEventType
-                        engine.record_event(
-                            TrajectoryEventType.USER_CORRECTION,
-                            payload=payload,
-                            details={"correction_text": clean_user[:500]},
-                            actor="user"
-                        )
+        clean_user = re.sub(r"<[^>]+>", "", str(user_text)).strip()
+        is_critique = False
+        matched_term = None
 
-                try:
-                    from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
-                    hub = AcademicIntegratedLearningHub(base_dir=ROOT_DIR)
-                    meta = {
-                        "conversation_id": cid,
-                        "source_transcript_path": transcript_path,
-                        "turn_index": last_step_idx,
-                        "workspace_paths": payload.get("workspacePaths", [ROOT_DIR])
+        if clean_user:
+            # Check for critique patterns
+            critique_patterns = [
+                r"\b(fix|wrong|incorrect|error|bug|fail|failed|failure|redo|re-run|reject|rejected|change|modify|correction|didn't trigger|did not trigger|problem)\b",
+                r"اشتباه|غلط|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا|مشکل"
+            ]
+            for pat in critique_patterns:
+                m = re.search(pat, clean_user, re.IGNORECASE)
+                if m:
+                    is_critique = True
+                    matched_term = m.group(0)
+                    break
+
+            if is_critique:
+                engine = LearningHooks._get_engine(payload)
+                if engine:
+                    from scripts.trajectory_engine import TrajectoryEventType
+                    engine.record_event(
+                        TrajectoryEventType.USER_CORRECTION,
+                        payload=payload,
+                        details={"correction_text": clean_user[:500], "matched_term": matched_term},
+                        actor="user"
+                    )
+
+            try:
+                from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
+                hub = AcademicIntegratedLearningHub(base_dir=ROOT_DIR)
+                meta = {
+                    "conversation_id": cid,
+                    "source_transcript_path": transcript_path,
+                    "turn_index": last_step_idx,
+                    "workspace_paths": payload.get("workspacePaths", [ROOT_DIR])
+                }
+                hub.process_user_turn(user_text=clean_user, metadata=meta)
+            except Exception as e_hub:
+                sys.stderr.write(f"[learning_hooks] Hub user turn note: {e_hub}\n")
+
+        return {
+            "is_critique": is_critique,
+            "text": clean_user,
+            "matched_term": matched_term,
+            "conversation_id": cid,
+            "step_index": last_step_idx
+        }
+
+    @staticmethod
+    def detect_recent_validation_failure(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Inspects trajectory events and recent reports for validation failures in the current session.
+        """
+        try:
+            engine = LearningHooks._get_engine(payload)
+            if engine:
+                from scripts.trajectory_engine import TrajectoryEventType
+                events = engine.load_events(event_types=[TrajectoryEventType.VALIDATION_FAILED.value])
+                if events:
+                    last_ev = events[-1]
+                    details = last_ev.get("details", {})
+                    return {
+                        "validator_name": details.get("validator_name", "Validation Check"),
+                        "summary": str(details.get("failed_checks") or details.get("error") or "Validation checks failed"),
+                        "stage_dir": details.get("stage_dir", "")
                     }
-                    hub.process_user_turn(user_text=clean_user, metadata=meta)
-                except Exception as e_hub:
-                    sys.stderr.write(f"[learning_hooks] Hub user turn note: {e_hub}\n")
+        except Exception as e:
+            sys.stderr.write(f"[learning_hooks] Detect validation failure note: {e}\n")
+        return None
 
     @staticmethod
     def capture_validation_failure(stage_dir: str, validator_results: List[Dict[str, Any]]) -> None:
@@ -567,7 +615,7 @@ class LearningHooks:
         if caller and (caller in ("main", "main-agent", "mainagent", "default", "antigravity", "developer", "coding", "software-engineer", "code-agent") or payload.get("agent_type") == "main"):
             return {}
 
-        LearningHooks.capture_user_correction(payload)
+        critique_info = LearningHooks.capture_user_correction(payload)
 
         reminder = (
             "🚨 CONSTITUTIONAL ENFORCEMENT ACTIVE (Directive 0, 3 & 11):\n"
@@ -583,6 +631,31 @@ class LearningHooks:
         )
 
         ephemeral_blocks = [reminder]
+
+        if critique_info and critique_info.get("is_critique"):
+            clean_text = critique_info.get("text", "")[:300]
+            critique_block = (
+                "🧠 CONTINUOUS LEARNING TRIGGER ACTIVE (USER_FEEDBACK_DETECTED):\n"
+                f"- User reported defect/critique: \"{clean_text}\"\n"
+                "- Operational Mandate (Directive 19 & LEARNING_MULTI_AGENT_SPEC.md):\n"
+                "  The user has reported a defect, error, or correction. You MUST trigger the diagnostic learning pipeline via native invoke_subagent:\n"
+                f"  1. invoke_subagent(TypeName=\"trajectory-analyzer\", Prompt=\"Reconstruct observable actions, tool calls, and error trajectory for user critique: {clean_text}\")\n"
+                "  2. invoke_subagent(TypeName=\"behavior-analyst\", Prompt=\"Perform causal root-cause analysis on the reconstructed trajectory to determine failure mechanism\")\n"
+                "  3. invoke_subagent(TypeName=\"knowledge-curator\", Prompt=\"Catalog the diagnosed anti-pattern into state/pitfalls.jsonl\")\n"
+                "- Prohibited Anti-Pattern: Do NOT perform silent, ad-hoc edits without executing the learning subagents."
+            )
+            ephemeral_blocks.append(critique_block)
+
+        val_failure = LearningHooks.detect_recent_validation_failure(payload)
+        if val_failure:
+            val_summary = val_failure.get("summary", "Validation failed")[:300]
+            val_block = (
+                "⚠️ CONTINUOUS LEARNING TRIGGER ACTIVE (VALIDATION_FAILED):\n"
+                f"- Recent Validation Failure: {val_summary}\n"
+                "- Operational Mandate: If this failure indicates a systematic defect or exhausts the retry budget, "
+                "you MUST invoke 'trajectory-analyzer' and 'behavior-analyst' to diagnose root cause and catalog the pitfall."
+            )
+            ephemeral_blocks.append(val_block)
 
         # Resolve transcript path for context analysis
         transcript_path = payload.get("transcriptPath")
