@@ -1,0 +1,11 @@
+{
+  "anti_pattern_id": "AP-2026-PARTIAL-TABLE-TRANSFORMATION",
+  "category": "execution",
+  "defective_pattern": "Writing refinement scripts with brittle regex patterns tailored only to a subset of tables (e.g. inferential regression tables) and assuming preceding scaffolding (like table note blocks) already exists on disk.",
+  "why_defective": "Leaves early demographic and descriptive tables in inconsistent formats and silently skips tables lacking pre-existing note markers.",
+  "observed_symptoms": [],
+  "corrective_remedy": "Build defensive, exhaustive table-by-table processors that iterate over all 45 tables, instantiate missing note blocks automatically, and map all demographic, descriptive, and inferential headers to standard APA Latin symbols.",
+  "detection_heuristic": {},
+  "reusable": true,
+  "updated_at": "2026-09-21T16:57:00Z"
+}

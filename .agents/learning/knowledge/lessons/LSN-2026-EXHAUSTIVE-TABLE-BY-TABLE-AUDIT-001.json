@@ -1,0 +1,29 @@
+{
+  "lesson_id": "LSN-2026-EXHAUSTIVE-TABLE-BY-TABLE-AUDIT-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-VALIDATOR-001",
+  "diagnosis": {
+    "what_happened": "Aggregate checks masked missing table notes and non-compliant headers. English words were allowed as warnings.",
+    "behavior_caused_outcome": "Use of any() and len() > 0 instead of looping over every table.",
+    "what_should_have_happened": "Iterate every table individually and enforce strict constraints. Escalate English words to FAIL.",
+    "rationale_why": "Aggregate boolean logic evaluates document-level, not localized constraints."
+  },
+  "desired_behavior": "Every validation gatekeeper must inspect 100% of tables individually, asserting that every column header conforms to standard APA symbols, every table has a Persian definition note, and zero English words exist in narrative text or table cells.",
+  "generalization": "Validation logic must use exhaustive per-item iteration and strict gating, avoiding aggregate masking.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "PER_TABLE_VALIDATION",
+    "observed_value": "Aggregate masking",
+    "threshold_value": "Strict iteration",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": ["academic-suite-orchestrator", "apa-reporting"],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T16:57:00Z",
+  "derived_by": "knowledge-curator"
+}

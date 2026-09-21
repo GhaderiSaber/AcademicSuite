@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-TABLE-APA-SYMBOLS-AND-PERSIAN-NOTES-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-SURGICAL-REFINEMENTS-001",
+  "diagnosis": {
+    "what_happened": "Agents omitted a comprehensive Chapter 4 introduction/summary, left raw English words in Persian text, and used verbose Persian translations instead of APA statistical symbols in table headers.",
+    "behavior_caused_outcome": "Writing fragmented or incomplete chapter structures and cluttering table headers with verbose Persian translations compromised the formal academic register and APA standards.",
+    "what_should_have_happened": "Chapter 4 must strictly include a comprehensive introduction and summary. Table explanations must be rewritten in smooth, scholarly, continuous academic tone. Zero raw English words in Persian text/tables. Table headers must use standard APA statistical symbols (e.g., M, SD, F, p) with Persian definitions in table notes.",
+    "rationale_why": "APA 7 and institutional thesis formatting require concise table headers using universal statistical symbols and pure Persian narrative flow devoid of raw Latin text."
+  },
+  "desired_behavior": "Use standard APA statistical symbols (M, SD, SE, F, t, p, R, R², B, β, OR, χ², df, SS, MS, DW, VIF, Tol) in table header cells; provide Persian definitions in table notes; enforce zero raw English words in Persian body text; include comprehensive introduction at chapter start and comprehensive summary at chapter end.",
+  "generalization": "All Persian thesis chapters must start/end with comprehensive introductions/summaries, maintain 100% pure Persian prose (no English words), and strictly use APA Latin symbols for table headers with accompanying note definitions.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "User Manual QA",
+    "observed_value": "Verbose Persian table headers, missing intro/summary, raw English words in text.",
+    "threshold_value": "APA symbols in headers, explicit intro/summary, pure Persian text."
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing",
+    "persian-thesis-builder"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T19:45:00+03:30"
+}

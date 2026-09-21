@@ -1,0 +1,11 @@
+{
+  "anti_pattern_id": "AP-2026-PERMISSIVE-VALIDATOR-BLINDSPOT",
+  "category": "validation",
+  "defective_pattern": "Employing aggregate document-level boolean assertions (e.g. any(), len() > 0) in validation scripts and downgrading critical domain violations (e.g. English words in Persian academic text) to non-blocking warnings.",
+  "why_defective": "Document-level aggregate metrics mask localized failures, allowing unformatted tables or untranslated prose to pass into production deliverables without detection.",
+  "observed_symptoms": [],
+  "corrective_remedy": "Enforce strict per-item fail-closed iteration: every individual table must satisfy exact header whitelists and have full symbol definitions in its note; any English word outside allowed statistical symbols must trigger a hard FAIL verdict.",
+  "detection_heuristic": {},
+  "reusable": true,
+  "updated_at": "2026-09-21T16:57:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-VERBOSE-PERSIAN-TABLE-HEADERS",
+  "category": "typography",
+  "defective_pattern": "Writing clumsy verbose Persian terms in table metric headers (e.g. مجموع مجذورات (SS)) instead of standard APA Latin symbols, or leaving raw English words scattered in Persian narrative.",
+  "why_defective": "Clutters table presentation, violates concise APA table formatting standards, and ruins the formal purity of Persian scholarly text.",
+  "observed_symptoms": [
+    "Table headers containing full Persian metric names",
+    "Raw English words appearing directly in Persian paragraphs",
+    "Absence of a table note defining statistical symbols"
+  ],
+  "corrective_remedy": "Use concise APA Latin symbols in table headers, define them in Persian in the note, and ensure pure Persian prose without raw English words.",
+  "detection_heuristic": {
+    "trigger_rule": "Presence of verbose metric names in table header cells (e.g. 'میانگین', 'انحراف معیار') or presence of non-symbol English strings in body paragraphs."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T19:45:00+03:30"
+}
