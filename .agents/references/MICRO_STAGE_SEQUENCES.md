@@ -11,20 +11,26 @@ Per **Directive 3 (Artifact-Gated Stage Execution, Micro-Stage Granularity & Tri
 | Stage | Name | Assigned Subagent | Official Script / Capability | Required Physical Triad Deliverables |
 | :--- | :--- | :--- | :--- | :--- |
 | **Stage 4.0** | Data Curation & Preprocessing | `data-curator` | `data_curation_pipeline.py` | `00_data_curation_report.json`, `00_data_curation_report.md`, `data_cleaned.xlsx` |
-| **Stage 4.1** | Demographics Profiling | `statistics-agent` | `demographic_profiler.py` | `01_demographics.docx`, `01_demographics.md`, `01_demographics.json` |
-| **Stage 4.2** | Descriptives & Reliability ($\alpha, \omega$) | `statistics-agent` | `scale_reliability_runner.py` | `02_descriptives_and_reliability.docx`, `02_descriptives_and_reliability.md`, `02_descriptives_and_reliability.json` |
-| **Stage 4.3** | Parametric Assumptions Verification | `statistical-expert` | `assumption_tester.py` | `03_parametric_assumptions.docx`, `03_parametric_assumptions.md`, `03_parametric_assumptions.json` |
-| **Stage 4.4** | Bivariate Correlation Matrix Analysis | `statistics-agent` | `correlation_matrix_builder.py` | `04_bivariate_correlations.docx`, `04_bivariate_correlations.md`, `04_bivariate_correlations.json` |
-| **Stage 4.5** | Macro Model Fit / Primary Structural Model | `statistics-agent` | `sem_modeler.py` / `sem_lavaan_runner.R` | `05_macro_model.docx`, `05_macro_model.md`, `05_macro_model.json` |
-| **Stage 4.6.1** | Hypothesis 1 Testing & Narrative Dissection | `statistics-agent` + `academic-writer` | Deterministic hypothesis runner | `06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json` |
-| **Stage 4.6.2** | Hypothesis 2 Testing & Narrative Dissection | `statistics-agent` + `academic-writer` | Deterministic hypothesis runner | `07_hypothesis_2.docx`, `07_hypothesis_2.md`, `07_hypothesis_2.json` |
-| **Stage 4.6.k** | Hypothesis $k$ Testing & Narrative Dissection | `statistics-agent` + `academic-writer` | Deterministic hypothesis runner | `XX_hypothesis_k.docx`, `XX_hypothesis_k.md`, `XX_hypothesis_k.json` |
-| **Stage 4.7.1** | Indirect / Mediation Path 1 (Bootstrap 5,000) | `statistics-agent` | `bootstrap_mediation_runner.py` | `XX_mediation_1.docx`, `XX_mediation_1.md`, `XX_mediation_1.json` |
+| **Stage 4.1** | Demographics Profiling | `statistics-agent` + `academic-writer` | `demographic_profiler.py` + `academic_docgen.py` | `01_demographics.docx`, `01_demographics.md`, `01_demographics.json` |
+| **Stage 4.2** | Descriptives & Reliability ($\alpha, \omega$) | `statistics-agent` + `academic-writer` | `scale_reliability_runner.py` + `academic_docgen.py` | `02_descriptives_and_reliability.docx`, `02_descriptives_and_reliability.md`, `02_descriptives_and_reliability.json` |
+| **Stage 4.3** | Parametric Assumptions Verification | `statistical-expert` + `academic-writer` | `assumption_tester.py` + `academic_docgen.py` | `03_parametric_assumptions.docx`, `03_parametric_assumptions.md`, `03_parametric_assumptions.json` |
+| **Stage 4.4** | Bivariate Correlation Matrix Analysis | `statistics-agent` + `academic-writer` | `correlation_matrix_builder.py` + `academic_docgen.py` | `04_bivariate_correlations.docx`, `04_bivariate_correlations.md`, `04_bivariate_correlations.json` |
+| **Stage 4.5** | Macro Model Fit / Primary Structural Model | `statistics-agent` + `academic-writer` | `sem_modeler.py` / `sem_lavaan_runner.R` + `academic_docgen.py` | `05_macro_model.docx`, `05_macro_model.md`, `05_macro_model.json` |
+| **Stage 4.6.1** | Hypothesis 1 Testing & Narrative Dissection | `statistics-agent` + `academic-writer` | Deterministic hypothesis runner + `academic_docgen.py` | `06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json` |
+| **Stage 4.6.2** | Hypothesis 2 Testing & Narrative Dissection | `statistics-agent` + `academic-writer` | Deterministic hypothesis runner + `academic_docgen.py` | `07_hypothesis_2.docx`, `07_hypothesis_2.md`, `07_hypothesis_2.json` |
+| **Stage 4.6.k** | Hypothesis $k$ Testing & Narrative Dissection | `statistics-agent` + `academic-writer` | Deterministic hypothesis runner + `academic_docgen.py` | `XX_hypothesis_k.docx`, `XX_hypothesis_k.md`, `XX_hypothesis_k.json` |
+| **Stage 4.7.1** | Indirect / Mediation Path 1 (Bootstrap 5,000) | `statistics-agent` + `academic-writer` | `bootstrap_mediation_runner.py` + `academic_docgen.py` | `XX_mediation_1.docx`, `XX_mediation_1.md`, `XX_mediation_1.json` |
+| **Stage 4.7.k** | Indirect / Mediation Path $k$ (Bootstrap 5,000) | `statistics-agent` + `academic-writer` | `bootstrap_mediation_runner.py` + `academic_docgen.py` | `XX_mediation_k.docx`, `XX_mediation_k.md`, `XX_mediation_k.json` |
 | **Stage 4.8** | Master Decision Matrix & Chapter Summary | `academic-writer` | `decision_matrix_generator.py` | `XX_chapter_summary.docx`, `XX_chapter_summary.md`, `XX_chapter_summary.json` |
 | **Stage 4.9** | Statistical QC & MSAI Anomaly Audit | `statistical-auditor` | `msai_detector.py` | `XX_statistical_audit_report.json`, `XX_statistical_audit_report.md` |
 | **Stage 4.10** | Results QC & APA 7 Typography Audit | `results-auditor` | `apa_typography_checker.py` | `XX_results_qc_checklist.json`, `XX_results_qc_checklist.md` |
 | **Stage 4.11** | OpenXML & Markdown Chapter Assembly | `academic-writer` | `chapter_assembler.py` | `Chapter_4_Results.docx`, `Chapter_4_Results.md` |
 | **Stage 4.12** | Committee Defense Viva Voce Simulation | `final-judge` | `viva_voce_simulator.py` | `XX_defense_brief.docx`, `XX_defense_brief.md`, `XX_defense_brief.json` |
+
+### 💡 The Two-Pass Compute-to-Draft Handshake Invariant (Stages 4.1 – 4.7)
+Every empirical micro-stage producing a synchronized triad (`.docx` + `.md` + `.json`) strictly executes in a two-step handshake to preserve the 4-tier cognitive boundary (ADR-016 & ADR-017):
+1. **Pass 1: Computation (`statistics-agent` — The Hands)**: Executes the deterministic calculation script on curated data, generating numerical checkpoints (`stats_results.json`, `table_payload.json`, `execution_manifest.json`). `statistics-agent` outputs strictly structured numerical data with ZERO narrative text.
+2. **Pass 2: Rhetoric & Assembly (`academic-writer` — The Voice)**: Ingests `stats_results.json` and `table_payload.json`, formulates Saber's 4-element table explanation directly above the table (Context $\to$ Data Highlights $\to$ In-Text Reference $\to$ Preliminary Verdict), and compiles the physical triad (`.docx`, `.md`, `.json`) using `academic_docgen.py`.
 
 ---
 
