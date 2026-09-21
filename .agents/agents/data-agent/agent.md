@@ -79,6 +79,7 @@ Always execute the following domain procedures:
 ## 🚫 Prohibited Anti-Patterns
 
 - ❌ Never modify or overwrite raw input datasets in-place (raw data is strictly immutable).
+- ❌ Never write narrative prose, table explanations, or OpenXML (.docx) files (strictly delegated to academic-writer).
 - ❌ Never fall back to sample or mock data when operating in `PRODUCTION` mode.
 - ❌ Never compute missing percentages or reverse-coded items mentally (Directive 2).
 - ❌ Never generate whole-integer synthetic group means in simulations (Directive 9).
@@ -89,7 +90,7 @@ Always execute the following domain procedures:
 
 ## 📦 Deliverables & Artifact Hand-off
 
-1. Output must be saved as structured, machine-readable JSON checkpoints and OpenXML Word artifacts on disk.
+1. Output must be saved as structured datasets (`data_cleaned.xlsx`) and machine-readable JSON checkpoints on disk.
 2. Every output must include verified dataset provenance (`data_provenance.json` or manifest metadata).
 3. Every output must be certified by independent validators prior to handoff.
 4. Handoff to the next pipeline stage must reference the exact physical disk path.

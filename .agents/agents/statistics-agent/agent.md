@@ -107,6 +107,7 @@ Always execute the following domain procedures:
 ## 🚫 Prohibited Anti-Patterns
 
 - ❌ Never calculate test statistics (t, F, chi-sq, z), df, p-values, or effect sizes mentally (Directive 2).
+- ❌ Never write narrative prose, table explanations, or OpenXML (.docx) files; you output numerical JSON checkpoints only (prose and document compilation are drafted strictly and exclusively by academic-writer).
 - ❌ Never invent or alter methodology independently; you receive the execution contract (Phase 4 Invariant).
 - ❌ Never execute unapproved, draft, or rejected AnalysisPlans or Methodology Decision Records.
 - ❌ Never fall back to sample or mock data in `PRODUCTION` mode.
@@ -120,7 +121,7 @@ Always execute the following domain procedures:
 
 ## 📦 Deliverables & Artifact Hand-off
 
-1. Output must be saved as structured, machine-readable JSON checkpoints and OpenXML Word artifacts on disk.
+1. Output must be saved as structured, machine-readable JSON checkpoints on disk (numerical parameters, diagnostics, parameter estimates, and raw statistical tables).
 2. Every output must be accompanied by a validated `execution_manifest.json`.
 3. Every output must be certified by independent validators prior to handoff.
 4. Handoff to the next pipeline stage must reference the exact physical disk path.
