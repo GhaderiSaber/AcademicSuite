@@ -26,6 +26,7 @@ if AGENTS_DIR not in sys.path:
 
 from scripts.permission_manager import PermissionManager, CAT_RAW_DATA
 from verification.transcript_and_rule_guard import handle_pre_tool_use, is_raw_data_path
+from tests.test_helpers import assert_write_fails_with_permission_error
 
 
 class TestRawDataMutationGuard(unittest.TestCase):
@@ -57,9 +58,7 @@ class TestRawDataMutationGuard(unittest.TestCase):
         else:
             self.assertFalse(bool(mode & stat.S_IWRITE))
 
-        with self.assertRaises(PermissionError):
-            with open(self.raw_file, "ab") as f:
-                f.write(b"CORRUPTION")
+        assert_write_fails_with_permission_error(self, self.raw_file, mode="ab", data=b"CORRUPTION")
 
     def test_hook_denies_and_locks_raw_file(self):
         os.chmod(self.raw_file, 0o664)

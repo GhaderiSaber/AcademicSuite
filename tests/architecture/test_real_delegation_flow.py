@@ -190,6 +190,7 @@ class TestRealDelegationFlow(unittest.TestCase):
         self.assertEqual(stats_artifact["ivs"], ["workplace_stress", "psychological_flexibility"])
         self.assertEqual(stats_artifact["n"], 100)
         self.assertAlmostEqual(stats_artifact["r2"], 0.415, places=2)
+        self.assertAlmostEqual(stats_artifact["adj_r2"], 0.403, places=2)
         self.assertGreater(stats_artifact["f_stat"], 30.0)
         self.assertIn("coefficients", stats_artifact)
         self.assertEqual(len(stats_artifact["coefficients"]), 2)

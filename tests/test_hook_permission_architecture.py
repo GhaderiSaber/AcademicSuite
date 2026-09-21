@@ -42,6 +42,7 @@ from scripts.permission_manager import (
     CAT_SCRIPTS,
     CAT_CONFIGURATION
 )
+from tests.test_helpers import assert_write_fails_with_permission_error
 from transcript_and_rule_guard import (
     handle_pre_tool_use,
     handle_post_tool_use,
@@ -116,9 +117,7 @@ class TestPermissionArchitecture(unittest.TestCase):
         self.assertEqual(audit_raw["status"], "PASS")
 
         # Write attempt to raw data file must raise PermissionError
-        with self.assertRaises(PermissionError):
-            with open(raw_file, "a") as f:
-                f.write("2,20\n")
+        assert_write_fails_with_permission_error(self, raw_file, mode="a", data="2,20\n")
 
         # 2. Derived Data -> 0644 (Read-Write for Owner)
         derived_file = os.path.join(self.temp_dir.name, "data_curated.xlsx")
@@ -538,9 +537,7 @@ class TestMainAgentVsCustomSubagentIsolation(unittest.TestCase):
             if sys.platform != "win32":
                 mode = stat.S_IMODE(os.lstat(state_file).st_mode)
                 self.assertEqual(oct(mode), "0o444")
-                with self.assertRaises(PermissionError):
-                    with open(state_file, "w") as f:
-                        f.write("{}")
+                assert_write_fails_with_permission_error(self, state_file, mode="w", data="{}")
 
             # Authorized mutation inside state_ledger_transaction must succeed
             with state_ledger_transaction(state_dir):
@@ -551,9 +548,7 @@ class TestMainAgentVsCustomSubagentIsolation(unittest.TestCase):
             if sys.platform != "win32":
                 mode_after = stat.S_IMODE(os.lstat(state_file).st_mode)
                 self.assertEqual(oct(mode_after), "0o444")
-                with self.assertRaises(PermissionError):
-                    with open(state_file, "w") as f:
-                        f.write("{}")
+                assert_write_fails_with_permission_error(self, state_file, mode="w", data="{}")
 
 
 if __name__ == "__main__":

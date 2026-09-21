@@ -100,23 +100,22 @@ class TestLegacyCleanupPhase35(unittest.TestCase):
                         if f.endswith((".py", ".json", ".sh")):
                             all_active_files.append(os.path.join(r, f))
 
-        for rel_path in REMOVED_FILES:
-            base_name = os.path.basename(rel_path)
-            base_no_ext = os.path.splitext(base_name)[0]
-            for fpath in all_active_files:
-                if "test_legacy_cleanup_phase35.py" in fpath:
-                    continue
-                try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as fp:
-                        content = fp.read()
-                    # Check for import or script invocation
-                    import_pattern = rf"\b(?:import|from)\s+.*\b{re.escape(base_no_ext)}\b"
-                    self.assertIsNone(
-                        re.search(import_pattern, content),
-                        f"Active file {fpath} still imports removed module {base_no_ext}!"
-                    )
-                except Exception:
-                    pass
+        removed_bases = [os.path.splitext(os.path.basename(p))[0] for p in REMOVED_FILES]
+        pattern = re.compile(rf"\b(?:import|from)\s+.*\b({'|'.join(re.escape(b) for b in removed_bases)})\b")
+
+        for fpath in all_active_files:
+            if "test_legacy_cleanup_phase35.py" in fpath:
+                continue
+            try:
+                with open(fpath, "r", encoding="utf-8", errors="ignore") as fp:
+                    content = fp.read()
+                m = pattern.search(content)
+                self.assertIsNone(
+                    m,
+                    f"Active file {fpath} still imports removed module: {m.group(0) if m else ''}!"
+                )
+            except Exception:
+                pass
 
     def _resolve_path(self, rel_path: str) -> str:
         p1 = os.path.join(ROOT_DIR, rel_path)
