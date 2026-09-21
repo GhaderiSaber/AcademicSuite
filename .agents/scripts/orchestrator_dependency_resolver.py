@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-scripts/orchestrator_dependency_resolver.py — [DEPRECATED INTERFACE]
+scripts/orchestrator_dependency_resolver.py — Authoritative Orchestrator Dependency & State Bridge Engine ("The Hands")
 
-DEPRECATION NOTICE (Phase 35):
-This module has been superseded by:
-- scripts/academic_task_router.py (Dynamic task routing and capability sequencing)
-- scripts/capability_resolver.py (Capability-to-Skill resolution)
-- scripts/stage_manifest_engine.py (Stage manifest dependency gating)
-
-Maintained as a backward-compatibility layer for legacy orchestrator tests.
+[DEPRECATED DIRECT INVOCATION NOTICE]:
+Direct orchestrator script execution is deprecated in favor of native Antigravity lifecycle hooks
+and Model B deterministic pre-flight routing (scripts/academic_task_router.py).
+This module serves as the authoritative orchestrator dependency resolver, state machine transition
+gatekeeper (academic_state_manager.py StrictStateMachine), and delegation envelope generator
+for backward compatibility across orchestrator tests and legacy execution bridges.
 """
 
 import os
@@ -18,8 +17,15 @@ import json
 import argparse
 from typing import Dict, Any, List, Optional
 
-# Virtualenv auto-discovery shim
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# Virtualenv and Root discovery shim
+_CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(os.path.dirname(_CURR_DIR)) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, "..", ".."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(_CURR_DIR, ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 for venv_name in [".venv", "venv"]:
     venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
     if os.path.isdir(venv_lib):
@@ -128,6 +134,24 @@ CAPABILITY_REGISTRY = {
     }
 }
 
+# Synchronize with authoritative capabilities.yaml via academic_task_router if available
+try:
+    from academic_task_router import _GLOBAL_REGISTRY
+    _auth_caps = _GLOBAL_REGISTRY.all_capabilities()
+    for _cid, _cdata in _auth_caps.items():
+        if _cid not in CAPABILITY_REGISTRY:
+            _skills = _cdata.get("required_skills", ["academic-suite-orchestrator"])
+            _agent = _cdata.get("primary_agent", "statistics-agent")
+            _tools = ["view_file", "write_to_file"] if _agent == "academic-writer" else ["run_command", "view_file", "write_to_file"]
+            CAPABILITY_REGISTRY[_cid] = {
+                "description": _cdata.get("description", f"Authoritative capability {_cid}"),
+                "skill": _skills[0] if _skills else "academic-suite-orchestrator",
+                "agent": _agent,
+                "tools": _tools
+            }
+except Exception:
+    pass
+
 # Micro-Stage Prerequisite Graph
 STAGE_DEPENDENCIES = {
     "00_data_curation": {
@@ -204,6 +228,22 @@ STAGE_DEPENDENCIES = {
     }
 }
 
+# Canonical Micro-Stage Sequence Order for progression comparison
+STAGE_ORDER: Dict[str, int] = {
+    "00_data_curation": 0,
+    "01_demographics": 1,
+    "02_reliability": 2,
+    "03_parametric_assumptions": 3,
+    "04_statistical_deliberation": 4,
+    "04_bivariate_correlations": 4,
+    "05_macro_model": 5,
+    "06_hypothesis_testing": 6,
+    "07_mediation_analysis": 7,
+    "08_chapter_summary": 8,
+    "09_validation_audit": 9,
+    "10_chapter_assembly": 10
+}
+
 
 def resolve_capability(query: str) -> Dict[str, Any]:
     """Finds the best matching capability, skill, and specialist agent for a task description."""
@@ -252,46 +292,131 @@ def resolve_capability(query: str) -> Dict[str, Any]:
 
 
 def check_prerequisites(stage_id: str, state_dir: str) -> Dict[str, Any]:
-    """Checks whether all disk and stage dependencies are satisfied before delegation."""
+    """
+    Checks whether all disk artifacts and state machine transitions are satisfied before delegation.
+    Enforces Directive 19: State machine authorizes transition & Artifact manifest defines completion.
+    """
     state_dir = os.path.abspath(state_dir)
     if not os.path.exists(state_dir):
-        return {"status": "BLOCKED", "stage_id": stage_id, "errors": [f"State directory not found: {state_dir}"]}
+        err = f"State directory not found: {state_dir}"
+        return {
+            "status": "BLOCKED",
+            "stage_id": stage_id,
+            "errors": [err],
+            "missing_prerequisites": [err],
+            "missing_files": [err],
+            "unmet_stages": []
+        }
 
     if stage_id not in STAGE_DEPENDENCIES:
-        return {"status": "READY", "stage_id": stage_id, "notes": "Unregistered micro-stage; proceeding without strict DAG constraints."}
+        return {
+            "status": "READY",
+            "stage_id": stage_id,
+            "notes": "Unregistered micro-stage; proceeding without strict DAG constraints."
+        }
 
     meta = STAGE_DEPENDENCIES[stage_id]
-    missing_files = []
+    missing_files: List[str] = []
+    unmet_stages: List[str] = []
+
+    # 1. Physical artifact prerequisites verification
     for rel_file in meta["required_files"]:
         f_path = os.path.join(state_dir, rel_file)
         if not os.path.exists(f_path):
-            missing_files.append(rel_file)
+            proj_root = os.path.dirname(state_dir)
+            alt_path = os.path.join(proj_root, rel_file)
+            if not os.path.exists(alt_path):
+                missing_files.append(rel_file)
 
-    # Check prior stage if required
-    req_stage = meta["required_stage"]
-    stage_satisfied = True
-    stage_error = None
+    # 2. Authoritative State Machine Transition Verification (Directive 19)
+    req_stage = meta.get("required_stage")
     if req_stage:
+        curr_state_path = os.path.join(state_dir, "current_state.json")
+        events_path = os.path.join(state_dir, "events.jsonl")
         proj_file = os.path.join(state_dir, "project.json")
-        if os.path.exists(proj_file):
+        state_machine_checked = False
+
+        # Source A: Check StrictStateMachine ledger (current_state.json)
+        if os.path.exists(curr_state_path):
             try:
-                with open(proj_file, "r", encoding="utf-8") as f:
-                    proj = json.load(f)
-                curr = proj.get("current_stage", "")
-                # If current stage is earlier than required stage, flag error
-                # In academic pipeline, check if output files of required stage exist
+                with open(curr_state_path, "r", encoding="utf-8") as f:
+                    cs = json.load(f)
+                stages = cs.get("stages", {})
+                if req_stage in stages:
+                    state_machine_checked = True
+                    dep_st = stages[req_stage].get("status", "").upper()
+                    if dep_st not in ("STAGE_APPROVED", "NEXT_STAGE", "COMPLETED", "APPROVED"):
+                        unmet_stages.append(
+                            f"Prerequisite stage '{req_stage}' state machine status is '{dep_st}' (must be STAGE_APPROVED)"
+                        )
             except Exception:
                 pass
 
-    if missing_files:
+        # Source B: Check project.json (completed_stages list or progressive current_stage)
+        if not state_machine_checked and os.path.exists(proj_file):
+            try:
+                with open(proj_file, "r", encoding="utf-8") as f:
+                    proj = json.load(f)
+                completed_stages = proj.get("completed_stages", [])
+                if completed_stages:
+                    if req_stage not in completed_stages:
+                        unmet_stages.append(
+                            f"Prerequisite stage '{req_stage}' not found in project completed_stages: {completed_stages}"
+                        )
+                else:
+                    curr_stage = proj.get("current_stage", "")
+                    proj_status = proj.get("status", "")
+                    if curr_stage:
+                        req_order = STAGE_ORDER.get(req_stage)
+                        curr_stage_clean = curr_stage.lower()
+                        curr_order = None
+                        for s_name, s_idx in STAGE_ORDER.items():
+                            if s_name in curr_stage_clean or s_name.split("_")[0] in curr_stage_clean:
+                                curr_order = s_idx
+                                break
+
+                        if curr_order is not None and req_order is not None:
+                            if curr_order < req_order:
+                                unmet_stages.append(
+                                    f"Project current stage '{curr_stage}' (order {curr_order}) is earlier than prerequisite stage '{req_stage}' (order {req_order})"
+                                )
+                            elif curr_order == req_order and proj_status not in ("stage_completed", "completed", "approved", "STAGE_APPROVED"):
+                                unmet_stages.append(
+                                    f"Project is at prerequisite stage '{curr_stage}' but status is '{proj_status}' (must be stage_completed)"
+                                )
+            except Exception:
+                pass
+
+        # Source C: Check events.jsonl for rejection or blockage
+        if os.path.exists(events_path) and not unmet_stages:
+            try:
+                with open(events_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        if not line.strip():
+                            continue
+                        ev = json.loads(line)
+                        if ev.get("stage_id") == req_stage:
+                            ev_type = ev.get("event_type", "").upper()
+                            if ev_type in ("STAGE_FAILED", "STAGE_REJECTED", "STAGE_BLOCKED"):
+                                unmet_stages.append(
+                                    f"Event ledger recorded '{ev_type}' for prerequisite stage '{req_stage}'"
+                                )
+                                break
+            except Exception:
+                pass
+
+    all_missing = missing_files + unmet_stages
+    if all_missing:
         return {
             "status": "BLOCKED",
             "stage_id": stage_id,
             "title": meta["title"],
             "assigned_agent": CAPABILITY_REGISTRY[meta["capability"]]["agent"],
             "required_skill": CAPABILITY_REGISTRY[meta["capability"]]["skill"],
-            "missing_prerequisites": missing_files,
-            "remedy": f"Generate missing prerequisite artifacts: {missing_files} before delegating {stage_id}."
+            "missing_prerequisites": all_missing,
+            "missing_files": missing_files,
+            "unmet_stages": unmet_stages,
+            "remedy": f"Satisfy prerequisite requirements before delegating {stage_id}: {all_missing}"
         }
 
     return {
@@ -301,7 +426,8 @@ def check_prerequisites(stage_id: str, state_dir: str) -> Dict[str, Any]:
         "assigned_agent": CAPABILITY_REGISTRY[meta["capability"]]["agent"],
         "required_skill": CAPABILITY_REGISTRY[meta["capability"]]["skill"],
         "skill_path": f".agents/skills/{CAPABILITY_REGISTRY[meta['capability']]['skill']}/SKILL.md",
-        "missing_prerequisites": []
+        "missing_prerequisites": [],
+        "satisfied_stage": req_stage
     }
 
 

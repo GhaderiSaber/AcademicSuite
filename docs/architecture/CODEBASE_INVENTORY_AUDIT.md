@@ -57,7 +57,7 @@ In accordance with the constitutional mandate (*"Do not delete first. First prov
 | Target File / Path | Status | Action Taken | Architectural Rationale & Dependency Proof |
 |---|---|---|---|
 | `digital_saber.py` | `DEPRECATED` | Documented | Monolithic CLI entrypoint. Documented deprecation in favor of `scripts/suite_cli.py` and Antigravity subagents. |
-| `scripts/orchestrator_dependency_resolver.py` | `DEPRECATED` | Documented | Superseded by `scripts/academic_task_router.py` and `scripts/capability_resolver.py`. |
+| `scripts/orchestrator_dependency_resolver.py` | `DEPRECATED` | Documented | Direct CLI invocation deprecated in favor of `academic_task_router.py`; maintained as authoritative backward-compatible dependency, state machine transition gating (Directive 19), and delegation envelope bridge. |
 | `scripts/triage_projects.py` | `DEPRECATED` | Documented | Standalone Drive maintenance script superseded by `academic-drive-project-organizer` skill. |
 | `scripts/build_hypothesis_1_triad_docx.py` | `DUPLICATE` | Consolidated | Consolidated with `scripts/generate_hypothesis_triad_docx.py` via thin compatibility wrapper. |
 | `scripts/attach-suite` | `COMPATIBILITY` | Preserved | Bash launcher wrapper delegating to `scripts/attach-suite.py`. |
