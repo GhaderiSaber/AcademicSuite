@@ -87,6 +87,8 @@ class TestSpecialistWorkersMigration(unittest.TestCase):
             "intervention-designer",
             "qualitative-analyst",
             "journal-strategist",
+            "validation-agent",
+            "results-auditor",
         }
         self.critics_no_run_command = {
             "academic-challenger",

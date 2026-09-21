@@ -69,6 +69,13 @@ from validators.statistical_assumptions.validator import validate_assumptions
 from validators.result_consistency.validator import validate_cross_artifacts, validate_results
 from validators.provenance_validator import validate_provenance
 try:
+    from validators.academic_chapter_auditor import audit_chapter_artifacts
+except ImportError:
+    try:
+        from academic_chapter_auditor import audit_chapter_artifacts
+    except ImportError:
+        audit_chapter_artifacts = None
+try:
     from scripts.writing_pipeline_engine import (
         verify_draft_against_contract,
         run_writing_qc,
@@ -802,6 +809,29 @@ def run_suite(
                             report["warnings"].extend(s_res["warnings"])
                 except Exception as ex:
                     report["warnings"].append(f"Error auditing interpretation contract for '{md_path}': {str(ex)}")
+
+    # 5. OpenXML Chapter Forensic Audit (Phase 44)
+    if docx_files and audit_chapter_artifacts:
+        for docx_path in docx_files:
+            stem = os.path.splitext(docx_path)[0]
+            md_cand = stem + ".md" if os.path.exists(stem + ".md") else (md_files[0] if md_files else None)
+            json_cand = stem + ".json" if os.path.exists(stem + ".json") else (json_files[0] if json_files else None)
+
+            aud_report = audit_chapter_artifacts(docx_path=docx_path, md_path=md_cand, json_path=json_cand)
+            report["target_artifacts"].append(docx_path)
+            for res_item in aud_report.get("results", []):
+                report["results"].append({
+                    "check_id": f"{res_item['check_id']}-{os.path.basename(docx_path)}",
+                    "rule": res_item["rule"],
+                    "verdict": res_item["verdict"],
+                    "errors": res_item.get("errors", []),
+                    "warnings": res_item.get("warnings", []),
+                    "evidence": res_item.get("evidence", {})
+                })
+            if aud_report.get("errors"):
+                report["errors"].extend(aud_report["errors"])
+            if aud_report.get("warnings"):
+                report["warnings"].extend(aud_report["warnings"])
 
     # ==========================================================================
     # Gate 5: Upstream Dependency Verification
