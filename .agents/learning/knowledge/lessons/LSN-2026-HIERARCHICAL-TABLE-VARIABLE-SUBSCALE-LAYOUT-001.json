@@ -1,0 +1,32 @@
+{
+  "lesson_id": "LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001",
+  "lesson_type": "WHAT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-HIERARCHICAL-TABLES-001",
+  "diagnosis": {
+    "what_happened": "Tables with variable and subscale columns either repeated variable names flatly across all rows or aggregated all totals together at the top, orphaning subscales below.",
+    "behavior_caused_outcome": "Treating hierarchical psychometric constructs as flat 2D arrays destroyed parent-child semantic relationships and cluttered the table.",
+    "what_should_have_happened": "Tables must write one row dedicated to the parent variable, followed by rows in column two for its constituent subscales. Once the subscales are finished, the next parent variable is written.",
+    "rationale_why": "Hierarchical grouping maps psychometric topology directly onto table architecture, maximizing the data-ink ratio and visual chunking under APA 7 standards."
+  },
+  "desired_behavior": "In two-column variable-and-subscale tables, always output: Row(Parent Variable) -> subsequent Rows(blank Col 0, Subscale in Col 1) -> Row(Next Parent Variable).",
+  "generalization": "Hierarchical Table Layout Invariant for all academic empirical tables with multi-tier constructs.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "HIERARCHICAL_LAYOUT",
+    "observed_value": "Flat or ungrouped variables",
+    "threshold_value": "Strict parent-child hierarchical grouping",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T18:40:00Z",
+  "derived_by": "knowledge-curator"
+}

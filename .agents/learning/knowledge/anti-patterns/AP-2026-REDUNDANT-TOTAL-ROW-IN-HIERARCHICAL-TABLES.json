@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-REDUNDANT-TOTAL-ROW-IN-HIERARCHICAL-TABLES",
+  "category": "typography",
+  "defective_pattern": "Creating an empty parent variable row with blank numeric cells, followed immediately by a dedicated 'کل مقیاس' or 'نمره کل' row in Column 1.",
+  "why_defective": "Reduces data-ink ratio, clutters tables with redundant labels, and forces unidimensional constructs into redundant 2-row blocks.",
+  "observed_symptoms": [
+    "'کل مقیاس' appearing in Table 10-4 under an empty 'خودآسیبی' row",
+    "Unidimensional scales like 'رفتارهای خودکشی' spanning 2 rows"
+  ],
+  "corrective_remedy": "Place composite metrics directly on the parent variable row (Col 0 = Variable name, Col 1 = blank, Cols 2+ = composite metrics); list only genuine subscales in Col 1 below it.",
+  "detection_heuristic": {
+    "trigger_rule": "Flag tables where Col 1 contains 'کل مقیاس' or 'نمره کل' immediately beneath an empty parent variable row.",
+    "diagnostic_check_id": "CHECK_COMPOSITE_ON_VARIABLE_ROW"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T18:46:00Z"
+}

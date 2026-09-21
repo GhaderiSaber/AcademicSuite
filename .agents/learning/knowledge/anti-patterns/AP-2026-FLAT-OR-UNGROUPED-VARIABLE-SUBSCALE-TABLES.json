@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-FLAT-OR-UNGROUPED-VARIABLE-SUBSCALE-TABLES",
+  "category": "typography",
+  "defective_pattern": "Repeating variable names verbatim across every row in multi-subscale tables, or grouping all overall scales in one block and orphaning subscales in another block.",
+  "why_defective": "Clutters tables with redundant text, degrades data-ink ratio, and severs the visual linkage between parent constructs and their subscales.",
+  "observed_symptoms": [
+    "Repeating 'خودآسیبی' on every subscale row in Table 9-4",
+    "Listing 5 overall scales at top of Table 10-4 then dumping subscales with empty parent cells below"
+  ],
+  "corrective_remedy": "Structure tables hierarchically: write one row for the parent variable, list its subscales in column 2 on subsequent rows, then proceed to the next parent variable.",
+  "detection_heuristic": {
+    "trigger_rule": "Flag two-column tables where Col 0 repeats identical parent variable names on consecutive rows, or where subscale rows appear without immediate preceding parent variable rows.",
+    "diagnostic_check_id": "CHECK_HIERARCHICAL_TABLE_LAYOUT"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T18:40:00Z"
+}

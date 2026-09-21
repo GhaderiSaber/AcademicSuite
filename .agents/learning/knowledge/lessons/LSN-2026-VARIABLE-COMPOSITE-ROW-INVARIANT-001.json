@@ -1,0 +1,32 @@
+{
+  "lesson_id": "LSN-2026-VARIABLE-COMPOSITE-ROW-INVARIANT-001",
+  "lesson_type": "WHAT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-COMPOSITE-ROW-001",
+  "diagnosis": {
+    "what_happened": "An empty row was created solely for the parent variable name, followed by a redundant secondary row labeled 'کل مقیاس' containing the actual total metrics.",
+    "behavior_caused_outcome": "Inflated table size, violated APA 7 data-ink ratio, and created unnecessary nested rows for unidimensional variables.",
+    "what_should_have_happened": "The composite/total results for the variable must be written directly on the parent variable's row (Col 0 = Variable, Col 1 = blank, Cols 2+ = total metrics). Subscales are listed on subsequent rows in Col 1.",
+    "rationale_why": "Presents high-level construct summaries immediately on the primary construct line, eliminating redundant 'کل مقیاس' label rows."
+  },
+  "desired_behavior": "Always populate parent variable rows with overall/composite metrics; never create an empty parent row followed by a separate 'total' row.",
+  "generalization": "Variable Composite Row Invariant for all academic empirical tables.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "COMPOSITE_ON_VARIABLE_ROW",
+    "observed_value": "Empty parent row + total row",
+    "threshold_value": "Composite metrics on parent row",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T18:46:00Z",
+  "derived_by": "knowledge-curator"
+}
