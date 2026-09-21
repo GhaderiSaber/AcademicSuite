@@ -1,0 +1,67 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260921-9976DA",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260921-4CDCC3",
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: So we have a problem. The table formatting is wrong and failed validation.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding quality style correction.",
+    "what_should_have_happened": "Standard compliance: So we have a problem. The table formatting is wrong and failed validation.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Studies utilizing apa-reporting or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: So we have a problem. The table formatting is wrong and failed validation.",
+  "generalization": "Procedural Guideline for apa-reporting: Standard compliance: So we have a problem. The table formatting is wrong and failed validation. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-QUALITY_STYLE_CORRECTION",
+    "observed_value": "So we have a problem. The table formatting is wrong and failed validation.",
+    "threshold_value": "Standard compliance: So we have a problem. The table formatting is wrong and failed validation.",
+    "supporting_report_ids": [
+      "FDB-20260921-76E5DB"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T09:46:06.887329+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-21T09:46:06.887887+00:00"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0.0",
+  "experience_id": "EXP-20260918-TEST-STAGE-TEMP-3C19DE",
+  "project_id": "project_default",
+  "task_id": "test_stage_temp",
+  "agent": "statistics-agent",
+  "skill": "academic-suite-orchestrator",
+  "start_time": "2026-09-18T18:56:14.259926+00:00",
+  "end_time": "2026-09-18T18:56:14.259926+00:00",
+  "duration_seconds": 1.0,
+  "outcome": "SUCCESS",
+  "artifact_references": [
+    {
+      "path": "projects/test_stage_temp/01_demographics.docx",
+      "sha256": "aff03a3a5b3dcb227b7aeccc184fa772078ebd1aeda828be6305a032d9bce617",
+      "type": "docx"
+    },
+    {
+      "path": "projects/test_stage_temp/01_demographics.json",
+      "sha256": "6dfca518a46a262ca06b8941df601ab37bfe02dd790a7e40a91b870ea8fdaad1",
+      "type": "json"
+    },
+    {
+      "path": "projects/test_stage_temp/01_demographics.md",
+      "sha256": "707fa2a1ce5104d599bfda367396ecdb78f16658512793e5be1f1b681b83d1a3",
+      "type": "md"
+    }
+  ],
+  "validation_status": {
+    "verdict": "PASS",
+    "checks_passed": 3,
+    "checks_failed": 0
+  },
+  "metadata": {
+    "stage_dir": "/home/ghaderi-saber/Desktop/AcademicSuite/projects/test_stage_temp",
+    "triad_complete": true
+  }
+}

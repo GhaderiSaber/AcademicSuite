@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "experience_id": "EXP-20260920-STAGE-03-378FC5",
+  "project_id": "project_default",
+  "task_id": "stage_03",
+  "agent": "statistics-agent",
+  "skill": "academic-suite-orchestrator",
+  "start_time": "2026-09-20T10:00:10.607413+00:00",
+  "end_time": "2026-09-20T10:00:10.607413+00:00",
+  "duration_seconds": 1.0,
+  "outcome": "FAILURE",
+  "artifact_references": [],
+  "validation_status": {
+    "verdict": "INCOMPLETE",
+    "checks_passed": 0,
+    "checks_failed": 1
+  },
+  "metadata": {
+    "stage_dir": "/tmp/test_hook_secondary_jqsd2iuw/stage_03",
+    "triad_complete": false
+  }
+}

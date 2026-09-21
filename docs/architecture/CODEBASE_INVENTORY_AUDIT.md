@@ -59,8 +59,8 @@ In accordance with the constitutional mandate (*"Do not delete first. First prov
 |---|---|---|---|
 | `digital_saber.py` | `DEPRECATED` | Documented | Monolithic CLI entrypoint. Documented deprecation in favor of `scripts/suite_cli.py` and Antigravity subagents. |
 | `scripts/orchestrator_dependency_resolver.py` | `DEPRECATED` | Documented | Direct CLI invocation deprecated in favor of `academic_task_router.py`; maintained as authoritative backward-compatible dependency, state machine transition gating (Directive 19), and delegation envelope bridge. |
-| `scripts/triage_projects.py` | `DEPRECATED` | Documented | Standalone Drive maintenance script superseded by `academic-drive-project-organizer` skill. |
-| `scripts/build_hypothesis_1_triad_docx.py` | `DUPLICATE` | Consolidated | Consolidated with `scripts/generate_hypothesis_triad_docx.py` via thin compatibility wrapper. |
+| `scripts/triage_projects.py` | `UNUSED` | Removed | Standalone Drive maintenance script superseded by `academic-drive-project-organizer` skill. Removed. |
+| `scripts/build_hypothesis_1_triad_docx.py` | `UNUSED` | Removed | Consolidated into canonical `scripts/generate_hypothesis_triad_docx.py`. Removed. |
 | `scripts/attach-suite` | `COMPATIBILITY` | Preserved | Bash launcher wrapper delegating to `scripts/attach-suite.py`. |
 | `scripts/attach-suite.bat` | `COMPATIBILITY` | Preserved | Windows cmd launcher wrapper delegating to `scripts/attach-suite.py`. |
 | `scripts/attach-suite.py` | `COMPATIBILITY` | Preserved | Core client attachment engine for Telegram consultant twin. |
@@ -80,7 +80,7 @@ In accordance with the constitutional mandate (*"Do not delete first. First prov
 | `legacy/workflows/*.md.bak` (10 files) | `LEGACY` | Isolated | Archived legacy workflow definitions superseded by modern Skills. |
 | `scripts/migrate_durable_agents.py` | `LEGACY` | Isolated | Historical migration utility tested by `test_durable_agents_migration.py`. |
 | `scripts/migrate_specialist_workers.py` | `LEGACY` | Isolated | Historical migration utility tested by `test_specialist_workers_migration.py`. |
-| `scripts/academic_self_improvement_demo.py` | `EXPERIMENTAL` | Tagged | Phase 18 interactive self-improvement demonstration CLI. |
+| `scripts/academic_self_improvement_demo.py` | `UNUSED` | Removed | Phase 18 interactive self-improvement demonstration CLI. Removed. |
 | `scripts/academic_isolated_agent_sandbox.py` | `EXPERIMENTAL` | Tagged | Sandbox utility for candidate mutation testing in isolated workspaces. |
 | `scripts/candidate_falsifier_engine.py` | `EXPERIMENTAL` | Tagged | Deliberation engine for adversarial candidate falsification. |
 | `tools/python/openxml_helpers.py` | `UNUSED` | Removed | Proven zero references; deleted in Phase 35. |
@@ -88,6 +88,9 @@ In accordance with the constitutional mandate (*"Do not delete first. First prov
 | `scripts/assemble_master_scale_validation_docx.py` | `UNUSED` | Removed | Proven zero references; deleted in Phase 35. |
 | `scripts/generate_experimental_master_package.py` | `UNUSED` | Removed | Proven zero references; deleted in Phase 35. |
 | `scripts/multi_account_scanner.py` | `UNUSED` | Removed | Proven zero references; deleted in Phase 35. |
+| `scripts/run_experimental_analysis.py` | `UNUSED` | Removed | Superseded by `psychology_stats.py`. Proven zero dependencies; removed. |
+| `scripts/run_scale_validation_analysis.py` | `UNUSED` | Removed | Superseded by `psychometric_validator_engine.py`. Proven zero dependencies; removed. |
+| `scripts/academic_vertical_slice_runner.py` | `UNUSED` | Removed | Old runner for deleted mock fixture directories. Proven zero dependencies; removed. |
 
 ---
 

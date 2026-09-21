@@ -1,0 +1,83 @@
+{
+  "contract_version": "1.0.0",
+  "experience_id": "EXP-20260918-OUTPUTS-908476",
+  "project_id": "project_default",
+  "task_id": "outputs",
+  "agent": "statistics-agent",
+  "skill": "academic-suite-orchestrator",
+  "start_time": "2026-09-18T17:53:09.405925+00:00",
+  "end_time": "2026-09-18T17:53:09.405925+00:00",
+  "duration_seconds": 1.0,
+  "outcome": "SUCCESS",
+  "artifact_references": [
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/05_moderation_macro.docx",
+      "sha256": "2a4f4b28f3ced5ff5a860118f4874c3d89e5b851f8a817e5fd6233e3857554bd",
+      "type": "docx"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/05_moderation_macro.json",
+      "sha256": "23910a8f1ea4ea101d03597586f4b66bb8d94f886fee582200398759b8e6824e",
+      "type": "json"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/05_moderation_macro.md",
+      "sha256": "be75f611351be0ee087d3e44f3e310bb059195f4066494240f4ecf07d63c7005",
+      "type": "md"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/06_hypothesis_1_interaction.docx",
+      "sha256": "abe61d12b1cfd799fdfc8ef9789b8b0c55dd2a7ac2f406ca3e2a954b448e7263",
+      "type": "docx"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/06_hypothesis_1_interaction.json",
+      "sha256": "ad4c583957bed29ca46e8ae320e7d9aaa80089c5561dbab75dd9addebbe15444",
+      "type": "json"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/06_hypothesis_1_interaction.md",
+      "sha256": "61d6d57823e9d337b55e27e35e8d99e5e2c4b9466d54b67399cbaee054d35819",
+      "type": "md"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/07_hypothesis_2_simple_slopes.docx",
+      "sha256": "62736f0593d0ea1b080c6f74190d174c91e767df4ea8033bf9db4c749a7bad5e",
+      "type": "docx"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/07_hypothesis_2_simple_slopes.json",
+      "sha256": "1b128502f43a7ba159f1153ccb09aa493807a353cd5b149deb474f7369f0b0cd",
+      "type": "json"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/07_hypothesis_2_simple_slopes.md",
+      "sha256": "e9b2dd62b4f828a44232fca4d2198fabd6a98c832021322f472cc58234038cdc",
+      "type": "md"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/08_hypothesis_3_modmed.docx",
+      "sha256": "98fea1f43d44948b6389d09486c2cc9f023f9d01196ca49e4ae6cb9a3db25668",
+      "type": "docx"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/08_hypothesis_3_modmed.json",
+      "sha256": "4e3f03bc9850f36fc37a4e96aacad55c9a02598f2425d0447c60bec91235ae3d",
+      "type": "json"
+    },
+    {
+      "path": "projects/study_vertical_slice_moderation/academic-state/outputs/08_hypothesis_3_modmed.md",
+      "sha256": "def1e7d27225563e031842dcb19aa2ca240309c52985823830228fa39b1290ca",
+      "type": "md"
+    }
+  ],
+  "validation_status": {
+    "verdict": "PASS",
+    "checks_passed": 3,
+    "checks_failed": 0
+  },
+  "metadata": {
+    "stage_dir": "/home/ghaderi-saber/Desktop/AcademicSuite/projects/study_vertical_slice_moderation/academic-state/outputs",
+    "triad_complete": true
+  }
+}

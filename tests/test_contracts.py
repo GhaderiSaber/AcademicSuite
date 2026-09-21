@@ -194,7 +194,7 @@ class TestContractSystem(unittest.TestCase):
             "stage_id": "06_hypothesis_1",
             "producer": {
                 "agent": "statistics-agent",
-                "script_or_generator": "scripts/build_hypothesis_1_triad_docx.py",
+                "script_or_generator": "scripts/generate_hypothesis_triad_docx.py",
                 "execution_id": "EXEC-2026-0918-01"
             },
             "consumers": ["academic-writer", "results-auditor", "validation-agent"],

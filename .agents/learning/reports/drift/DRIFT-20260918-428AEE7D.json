@@ -1,0 +1,34 @@
+{
+  "contract_version": "1.0.0",
+  "report_id": "DRIFT-20260918-428AEE7D",
+  "target_type": "skill",
+  "target_id": "statistical-data-analyst",
+  "trigger": "POST_PROMOTION",
+  "dimension_scores": {
+    "correctness": 0.95,
+    "methodology": 0.92,
+    "statistical_validity": 0.95,
+    "evidence_grounding": 0.95,
+    "integrity": 1.0,
+    "robustness": 0.9,
+    "consistency": 0.94,
+    "efficiency": 0.95
+  },
+  "dimension_deltas": {
+    "correctness": 0.0,
+    "methodology": 0.0,
+    "statistical_validity": 0.0,
+    "evidence_grounding": 0.0,
+    "integrity": 0.0,
+    "robustness": 0.0,
+    "consistency": 0.0,
+    "efficiency": 0.0
+  },
+  "cross_capability_regressions": [],
+  "methodological_inconsistencies": [],
+  "rollback_executed": false,
+  "verdict": "PASS",
+  "timestamp": "2026-09-18T19:47:14.720373+00:00",
+  "promotion_id": "PRM-20260918-FE33E1C7",
+  "candidate_id": "CAND-20260918-STATISTI-ANTI-F1AE"
+}

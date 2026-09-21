@@ -244,7 +244,7 @@ case "$1" in
 
     triage)
         shift
-        "${PYTHON_BIN}" "${ROOT_DIR}/scripts/triage_projects.py" "$@"
+        "${PYTHON_BIN}" "${ROOT_DIR}/.agents/skills/academic-drive-project-organizer/scripts/organize_drive_projects.py" "$@"
         ;;
 
     uninstall)

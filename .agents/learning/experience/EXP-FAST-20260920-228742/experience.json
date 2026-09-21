@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "experience_id": "EXP-FAST-20260920-228742",
+  "project_id": "fast_loop_project",
+  "task_id": "fast_loop_task",
+  "milestone_id": "M_FAST_LOOP",
+  "agent": "results-auditor",
+  "skill": "apa-reporting",
+  "start_time": "2026-09-20T08:07:28.839202+00:00",
+  "end_time": "2026-09-20T08:07:28.839202+00:00",
+  "duration_seconds": 1.0,
+  "outcome": "FAILURE",
+  "artifact_references": [],
+  "is_synthetic": true,
+  "data_mode": "simulation",
+  "validation_status": {
+    "verdict": "FAIL"
+  },
+  "metadata": {
+    "prompt": "Please fix the ANCOVA table, the df is incorrect."
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260918-BAD12A",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260918-F56398",
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: Do not modify code.\n\nAct as an independent adversarial auditor.\n\nAttempt to demonstrate:\n\nOne project-specific preference becoming global behavior.\nOne bad correction poisoning a Skill.\nA candidate being promoted without adequate evidence.\nA candidate overfitting the original failure case.\nA candidate improving one capability while damaging another.\nContradictory lessons being simultaneously active.\nIrrelevant lessons being injected into a task.\nA rejected candidate becoming active.\nSkill memory becoming excessively large.\nCurriculum generator creating trivial tasks.\nCurriculum generator creating invalid research scenarios.\nUser feedback being misclassified.\nSuccessful but incorrect behavior being learned.\nA bad statistical methodology becoming institutionalized.\nA writing preference becoming a universal academic rule.\nLearning state being lost after restart.\nA malformed experience corrupting the learning system.\nLearning execution interfering with research execution.\nA Skill changing without an evaluation record.\nAutomatic improvement weakening research-integrity protections.\n\nFor each attack provide:\n\nattack ID\nentry point\nreproduction\nexpected behavior\nactual behavior\nseverity\nevidence\nrecommended remediation\n\nPay particular attention to the \"self-learning poisoning\" problem:\n\nEXPERIENCE IS EVIDENCE,\nNOT TRUTH.\n\nDo not modify implementation.\n\nCreate:\n\ndocs/evolution/06_SELF_IMPROVEMENT_RED_TEAM.md\n\n\n\nThe current local time is: 2026-09-18T23:15:52+03:30.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding writing correction.",
+    "what_should_have_happened": "Standard compliance: Do not modify code.\n\nAct as an independent adversarial auditor.\n\nAttempt to demonstrate:\n\nOne project-specific preference becoming global behavior.\nOne bad correction poisoning a Skill.\nA candidate being promoted without adequate evidence.\nA candidate overfitting the original failure case.\nA candidate improving one capability while damaging another.\nContradictory lessons being simultaneously active.\nIrrelevant lessons being injected into a task.\nA rejected candidate becoming active.\nSkill memory becoming excessively large.\nCurriculum generator creating trivial tasks.\nCurriculum generator creating invalid research scenarios.\nUser feedback being misclassified.\nSuccessful but incorrect behavior being learned.\nA bad statistical methodology becoming institutionalized.\nA writing preference becoming a universal academic rule.\nLearning state being lost after restart.\nA malformed experience corrupting the learning system.\nLearning execution interfering with research execution.\nA Skill changing without an evaluation record.\nAutomatic improvement weakening research-integrity protections.\n\nFor each attack provide:\n\nattack ID\nentry point\nreproduction\nexpected behavior\nactual behavior\nseverity\nevidence\nrecommended remediation\n\nPay particular attention to the \"self-learning poisoning\" problem:\n\nEXPERIENCE IS EVIDENCE,\nNOT TRUTH.\n\nDo not modify implementation.\n\nCreate:\n\ndocs/evolution/06_SELF_IMPROVEMENT_RED_TEAM.md\n\n\n\nThe current local time is: 2026-09-18T23:15:52+03:30.",
+    "rationale_why": "Academic scholarship requires formal psychological mechanisms and theoretical grounding rather than descriptive platitudes."
+  },
+  "applicability_conditions": [
+    "Studies utilizing ai-academic-tone-polisher or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: Do not modify code.\n\nAct as an independent adversarial auditor.\n\nAttempt to demonstrate:\n\nOne project-specific preference becoming global behavior.\nOne bad correction poisoning a Skill.\nA candidate being promoted without adequate evidence.\nA candidate overfitting the original failure case.\nA candidate improving one capability while damaging another.\nContradictory lessons being simultaneously active.\nIrrelevant lessons being injected into a task.\nA rejected candidate becoming active.\nSkill memory becoming excessively large.\nCurriculum generator creating trivial tasks.\nCurriculum generator creating invalid research scenarios.\nUser feedback being misclassified.\nSuccessful but incorrect behavior being learned.\nA bad statistical methodology becoming institutionalized.\nA writing preference becoming a universal academic rule.\nLearning state being lost after restart.\nA malformed experience corrupting the learning system.\nLearning execution interfering with research execution.\nA Skill changing without an evaluation record.\nAutomatic improvement weakening research-integrity protections.\n\nFor each attack provide:\n\nattack ID\nentry point\nreproduction\nexpected behavior\nactual behavior\nseverity\nevidence\nrecommended remediation\n\nPay particular attention to the \"self-learning poisoning\" problem:\n\nEXPERIENCE IS EVIDENCE,\nNOT TRUTH.\n\nDo not modify implementation.\n\nCreate:\n\ndocs/evolution/06_SELF_IMPROVEMENT_RED_TEAM.md\n\n\n\nThe current local time is: 2026-09-18T23:15:52+03:30.",
+  "generalization": "Procedural Guideline for ai-academic-tone-polisher: Standard compliance: Do not modify code.\n\nAct as an independent adversarial auditor.\n\nAttempt to demonstrate:\n\nOne project-specific preference becoming global behavior.\nOne bad correction poisoning a Skill.\nA candidate being promoted without adequate evidence.\nA candidate overfitting the original failure case.\nA candidate improving one capability while damaging another.\nContradictory lessons being simultaneously active.\nIrrelevant lessons being injected into a task.\nA rejected candidate becoming active.\nSkill memory becoming excessively large.\nCurriculum generator creating trivial tasks.\nCurriculum generator creating invalid research scenarios.\nUser feedback being misclassified.\nSuccessful but incorrect behavior being learned.\nA bad statistical methodology becoming institutionalized.\nA writing preference becoming a universal academic rule.\nLearning state being lost after restart.\nA malformed experience corrupting the learning system.\nLearning execution interfering with research execution.\nA Skill changing without an evaluation record.\nAutomatic improvement weakening research-integrity protections.\n\nFor each attack provide:\n\nattack ID\nentry point\nreproduction\nexpected behavior\nactual behavior\nseverity\nevidence\nrecommended remediation\n\nPay particular attention to the \"self-learning poisoning\" problem:\n\nEXPERIENCE IS EVIDENCE,\nNOT TRUTH.\n\nDo not modify implementation.\n\nCreate:\n\ndocs/evolution/06_SELF_IMPROVEMENT_RED_TEAM.md\n\n\n\nThe current local time is: 2026-09-18T23:15:52+03:30. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-WRITING_CORRECTION",
+    "observed_value": "Do not modify code.\n\nAct as an independent adversarial auditor.\n\nAttempt to demonstrate:\n\nOne project-specific preferenc",
+    "threshold_value": "Standard compliance: Do not modify code.\n\nAct as an independent adversarial auditor.\n\nAttempt to demonstrate:\n\nOne proje",
+    "supporting_report_ids": [
+      "FDB-20260918-2AB330"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "ai-academic-tone-polisher"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-18T19:47:14.505739+00:00",
+  "derived_by": "AcademicLessonDistiller"
+}

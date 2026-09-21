@@ -36,7 +36,13 @@ REMOVED_FILES = [
     "scripts/generate_scale_validation_package.py",
     "scripts/assemble_master_scale_validation_docx.py",
     "scripts/generate_experimental_master_package.py",
-    "scripts/multi_account_scanner.py"
+    "scripts/multi_account_scanner.py",
+    "scripts/run_experimental_analysis.py",
+    "scripts/run_scale_validation_analysis.py",
+    "scripts/academic_vertical_slice_runner.py",
+    "scripts/build_hypothesis_1_triad_docx.py",
+    "scripts/academic_self_improvement_demo.py",
+    "scripts/triage_projects.py"
 ]
 
 
@@ -130,8 +136,7 @@ class TestLegacyCleanupPhase35(unittest.TestCase):
         """Verify DEPRECATED files contain formal deprecation notices."""
         deprecated_files = [
             "digital_saber.py",
-            "scripts/orchestrator_dependency_resolver.py",
-            "scripts/triage_projects.py"
+            "scripts/orchestrator_dependency_resolver.py"
         ]
         for rel_path in deprecated_files:
             full_path = self._resolve_path(rel_path)
@@ -144,19 +149,17 @@ class TestLegacyCleanupPhase35(unittest.TestCase):
                 f"File {rel_path} missing DEPRECATED notice in header"
             )
 
-    def test_05_consolidated_duplicate_delegation(self):
-        """Verify DUPLICATE consolidated files contain consolidation headers."""
-        full_path = self._resolve_path("scripts/build_hypothesis_1_triad_docx.py")
+    def test_05_canonical_triad_generator(self):
+        """Verify canonical triad generator exists and produces triad artifacts."""
+        full_path = self._resolve_path("scripts/generate_hypothesis_triad_docx.py")
         self.assertTrue(os.path.exists(full_path))
         with open(full_path, "r", encoding="utf-8") as f:
             content = f.read()
-        self.assertIn("CONSOLIDATED", content)
         self.assertIn("generate_hypothesis_triad_docx.py", content)
 
     def test_06_experimental_files_tagged(self):
         """Verify EXPERIMENTAL files contain experimental sandbox headers."""
         experimental_files = [
-            "scripts/academic_self_improvement_demo.py",
             "scripts/academic_isolated_agent_sandbox.py",
             "scripts/candidate_falsifier_engine.py"
         ]

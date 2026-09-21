@@ -1,0 +1,32 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-FAST-20260921-11E349",
+  "experience_id": "EXP-FAST-20260921-4CDCC3",
+  "project_id": "fast_loop_project",
+  "task_id": "fast_loop_task",
+  "is_synthetic": true,
+  "data_mode": "simulation",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SKILL_INVOCATION",
+      "actor": "results-auditor",
+      "timestamp": "2026-09-21T09:46:06.519395+00:00",
+      "description": "Executed fast loop task for apa-reporting",
+      "observable_input": {
+        "prompt": "So we have a problem. The table formatting is wrong and failed validation."
+      },
+      "observable_output": {
+        "status": "FAILURE"
+      }
+    }
+  ],
+  "tool_usages": [],
+  "skill_activations": [],
+  "subagent_delegations": [],
+  "important_decisions": [],
+  "outputs": [],
+  "validation_events": [],
+  "feedback": [],
+  "outcome": "FAILURE"
+}

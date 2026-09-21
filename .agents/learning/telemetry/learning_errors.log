@@ -1,0 +1,190 @@
+[2026-09-18T20:36:40.864863+00:00] [SOURCE: process_user_turn] AttributeError: 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py", line 198, in process_user_turn
+    if feedback_record.get("is_discredited_methodology"):
+       ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+
+============================================================
+[2026-09-18T20:37:00.689286+00:00] [SOURCE: process_user_turn] AttributeError: 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py", line 198, in process_user_turn
+    if feedback_record.get("is_discredited_methodology"):
+       ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+
+============================================================
+[2026-09-19T06:30:23.218370+00:00] [SOURCE: process_validation_failure] TypeError: can only concatenate str (not "dict") to str
+Traceback (most recent call last):
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py", line 441, in process_validation_failure
+    desc = fc.get("description", "") + " " + fc.get("evidence", "")
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+============================================================
+[2026-09-19T06:30:24.713852+00:00] [SOURCE: process_validation_failure] TypeError: can only concatenate str (not "dict") to str
+Traceback (most recent call last):
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py", line 441, in process_validation_failure
+    desc = fc.get("description", "") + " " + fc.get("evidence", "")
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+============================================================
+[2026-09-19T06:34:15.768527+00:00] [SOURCE: process_validation_failure] TypeError: can only concatenate str (not "dict") to str
+Traceback (most recent call last):
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py", line 441, in process_validation_failure
+    desc = fc.get("description", "") + " " + fc.get("evidence", "")
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+============================================================
+[2026-09-19T10:26:18.807380+00:00] [SOURCE: process_user_turn] UniversalInstructionProhibitedError: Naive universal instruction detected (Always use ...) matching 'always use'. Phase 24 strictly mandates conditional decision rules: WHEN condition X → use approach A, WHEN condition Y → use approach B, EXCEPT condition Z → use approach C.
+Traceback (most recent call last):
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py", line 292, in process_user_turn
+    fast_loop_result = self.dual_loop_engine.run_fast_loop(
+        task_prompt=clean_msg,
+    ...<4 lines>...
+        mode=self.mode
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_dual_loop_engine.py", line 408, in run_fast_loop
+    candidates = self.candidate_generator.run_reflective_evolution(
+        target_skill=target_skill,
+        relevant_lessons=[lesson_record],
+        record_to_disk=True
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_candidate_generator.py", line 601, in run_reflective_evolution
+    candidates = self.generate_candidate_mutations(
+        target_skill=target_skill,
+    ...<3 lines>...
+        source_lessons=relevant_lessons or []
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_candidate_generator.py", line 500, in generate_candidate_mutations
+    self._verify_conditional_rule_structure(mutation_patch)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_candidate_generator.py", line 883, in _verify_conditional_rule_structure
+    raise UniversalInstructionProhibitedError(
+    ...<3 lines>...
+    )
+scripts.academic_candidate_generator.UniversalInstructionProhibitedError: Naive universal instruction detected (Always use ...) matching 'always use'. Phase 24 strictly mandates conditional decision rules: WHEN condition X → use approach A, WHEN condition Y → use approach B, EXCEPT condition Z → use approach C.
+
+============================================================
+[2026-09-20T08:07:28.877224+00:00] [SOURCE: process_user_turn] CandidateGenerationError: Decision rules must follow the conditional structure: WHEN condition X → approach A, WHEN condition Y → approach B, EXCEPT condition Z → approach C.
+Traceback (most recent call last):
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_integrated_learning_hub.py", line 292, in process_user_turn
+    fast_loop_result = self.dual_loop_engine.run_fast_loop(
+        task_prompt=clean_msg,
+    ...<4 lines>...
+        mode=self.mode
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_dual_loop_engine.py", line 408, in run_fast_loop
+    candidates = self.candidate_generator.run_reflective_evolution(
+        target_skill=target_skill,
+        relevant_lessons=[lesson_record],
+        record_to_disk=True
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_candidate_generator.py", line 601, in run_reflective_evolution
+    candidates = self.generate_candidate_mutations(
+        target_skill=target_skill,
+    ...<3 lines>...
+        source_lessons=relevant_lessons or []
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_candidate_generator.py", line 500, in generate_candidate_mutations
+    self._verify_conditional_rule_structure(mutation_patch)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/scripts/academic_candidate_generator.py", line 915, in _verify_conditional_rule_structure
+    raise CandidateGenerationError(
+    ...<2 lines>...
+    )
+scripts.academic_candidate_generator.CandidateGenerationError: Decision rules must follow the conditional structure: WHEN condition X → approach A, WHEN condition Y → approach B, EXCEPT condition Z → approach C.
+
+============================================================
+[2026-09-21T09:42:22.380947+00:00] [SOURCE: process_user_turn] CandidateGenerationError: Decision rules must follow the conditional structure: WHEN condition X → approach A, WHEN condition Y → approach B, EXCEPT condition Z → approach C.
+Traceback (most recent call last):
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_integrated_learning_hub.py", line 295, in process_user_turn
+    fast_loop_result = self.dual_loop_engine.run_fast_loop(
+        task_prompt=clean_msg,
+    ...<4 lines>...
+        mode=self.mode
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_dual_loop_engine.py", line 410, in run_fast_loop
+    candidates = self.candidate_generator.run_reflective_evolution(
+        target_skill=target_skill,
+        relevant_lessons=[lesson_record],
+        record_to_disk=True
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py", line 626, in run_reflective_evolution
+    candidates = self.generate_candidate_mutations(
+        target_skill=target_skill,
+    ...<3 lines>...
+        source_lessons=relevant_lessons or []
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py", line 521, in generate_candidate_mutations
+    self._verify_conditional_rule_structure(mutation_patch)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py", line 1018, in _verify_conditional_rule_structure
+    raise CandidateGenerationError(
+    ...<2 lines>...
+    )
+scripts.academic_candidate_generator.CandidateGenerationError: Decision rules must follow the conditional structure: WHEN condition X → approach A, WHEN condition Y → approach B, EXCEPT condition Z → approach C.
+
+============================================================
+[2026-09-21T09:42:22.476372+00:00] [SOURCE: process_user_turn] CandidateGenerationError: Decision rules must follow the conditional structure: WHEN condition X → approach A, WHEN condition Y → approach B, EXCEPT condition Z → approach C.
+Traceback (most recent call last):
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_integrated_learning_hub.py", line 295, in process_user_turn
+    fast_loop_result = self.dual_loop_engine.run_fast_loop(
+        task_prompt=clean_msg,
+    ...<4 lines>...
+        mode=self.mode
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_dual_loop_engine.py", line 410, in run_fast_loop
+    candidates = self.candidate_generator.run_reflective_evolution(
+        target_skill=target_skill,
+        relevant_lessons=[lesson_record],
+        record_to_disk=True
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py", line 626, in run_reflective_evolution
+    candidates = self.generate_candidate_mutations(
+        target_skill=target_skill,
+    ...<3 lines>...
+        source_lessons=relevant_lessons or []
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py", line 521, in generate_candidate_mutations
+    self._verify_conditional_rule_structure(mutation_patch)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py", line 1018, in _verify_conditional_rule_structure
+    raise CandidateGenerationError(
+    ...<2 lines>...
+    )
+scripts.academic_candidate_generator.CandidateGenerationError: Decision rules must follow the conditional structure: WHEN condition X → approach A, WHEN condition Y → approach B, EXCEPT condition Z → approach C.
+
+============================================================
+[2026-09-21T09:46:07.201904+00:00] [SOURCE: process_user_turn] CandidateGenerationError: Decision rules must follow the conditional structure: WHEN condition X → approach A, WHEN condition Y → approach B, EXCEPT condition Z → approach C.
+Traceback (most recent call last):
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_integrated_learning_hub.py", line 295, in process_user_turn
+    fast_loop_result = self.dual_loop_engine.run_fast_loop(
+        task_prompt=clean_msg,
+    ...<4 lines>...
+        mode=self.mode
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_dual_loop_engine.py", line 410, in run_fast_loop
+    candidates = self.candidate_generator.run_reflective_evolution(
+        target_skill=target_skill,
+        relevant_lessons=[lesson_record],
+        record_to_disk=True
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py", line 626, in run_reflective_evolution
+    candidates = self.generate_candidate_mutations(
+        target_skill=target_skill,
+    ...<3 lines>...
+        source_lessons=relevant_lessons or []
+    )
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py", line 521, in generate_candidate_mutations
+    self._verify_conditional_rule_structure(mutation_patch)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/scripts/academic_candidate_generator.py", line 1018, in _verify_conditional_rule_structure
+    raise CandidateGenerationError(
+    ...<2 lines>...
+    )
+scripts.academic_candidate_generator.CandidateGenerationError: Decision rules must follow the conditional structure: WHEN condition X → approach A, WHEN condition Y → approach B, EXCEPT condition Z → approach C.
+
+============================================================

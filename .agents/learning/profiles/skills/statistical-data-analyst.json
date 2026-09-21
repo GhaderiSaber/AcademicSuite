@@ -1,0 +1,49 @@
+{
+  "contract_version": "1.0.0",
+  "profile_id": "PROF-SKI-STATISTICA-20260918",
+  "target_type": "skill",
+  "target_id": "statistical-data-analyst",
+  "dimensions": {
+    "correctness": 0.95,
+    "methodology": 0.92,
+    "statistical_validity": 0.95,
+    "evidence_grounding": 0.95,
+    "integrity": 1.0,
+    "robustness": 0.9,
+    "consistency": 0.94,
+    "efficiency": 0.95
+  },
+  "dimension_baselines": {
+    "correctness": 0.95,
+    "methodology": 0.92,
+    "statistical_validity": 0.95,
+    "evidence_grounding": 0.95,
+    "integrity": 1.0,
+    "robustness": 0.9,
+    "consistency": 0.94,
+    "efficiency": 0.95
+  },
+  "decision_footprints": [],
+  "evaluation_history": [
+    {
+      "evaluation_id": "DRIFT-20260918-428AEE7D",
+      "timestamp": "2026-09-18T19:47:14.720373+00:00",
+      "verdict": "PASS",
+      "overall_score": 0.945,
+      "regressions_detected": 0,
+      "metadata": {
+        "trigger": "POST_PROMOTION",
+        "candidate_id": "CAND-20260918-STATISTI-ANTI-F1AE",
+        "rollback_executed": false
+      }
+    }
+  ],
+  "status": "ACTIVE",
+  "last_updated_at": "2026-09-18T19:47:14.720405+00:00",
+  "last_drift_check": {
+    "timestamp": "2026-09-18T19:47:14.720373+00:00",
+    "verdict": "PASS",
+    "drift_detected": false,
+    "report_path": "/home/ghaderi-saber/Desktop/AcademicSuite/learning/reports/drift/DRIFT-20260918-428AEE7D.json"
+  }
+}

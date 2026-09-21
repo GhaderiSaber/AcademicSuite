@@ -1,0 +1,33 @@
+{
+  "contract_version": "1.0.0",
+  "feedback_id": "FDB-20260918-86E361",
+  "source": {
+    "origin": "HUMAN_SUPERVISOR",
+    "identifier": "HumanUser"
+  },
+  "type": "STATISTICAL_CORRECTION",
+  "target_agent": "statistics-agent",
+  "target_skill": "statistical-data-analyst",
+  "correction": "This phase is critical.\n\nThe learning system is useless unless newly learned behavior affects future agent behavior automatically.\n\nCreate a dedicated workspace Skill:\n\n.agents/skills/academic-adaptive-context/SKILL.md\n\nThis is NOT an orchestration Skill.\n\nIts purpose is to provide the active learned behavioral context relevant to the current task.\n\nThe Skill must instruct the agent to:\n\nDetermine the current capability.\nRetrieve relevant active lessons.\nRetrieve relevant anti-patterns.\nRetrieve relevant exemplars.\nCheck for known failure modes.\nApply only knowledge relevant to the current task.\nRespect applicability/exclusion conditions.\nAvoid treating one-off project preferences as universal rules.\n\nDo not dump the entire learning repository into the prompt.\n\nUse targeted retrieval.\n\nThe Skill should read from the persistent learning store and provide only relevant context.\n\nIntegrate this Skill with the durable AcademicSuite agents and the relevant specialist agents.\n\nDo not make the Skill responsible for orchestration.\n\nDo not make it execute statistical analyses.\n\nDo not make it rewrite itself.\n\nThe objective is:\n\nNEXT TASK\n→ relevant learned behavior automatically available.\n\nAcceptance criteria:\n\nA lesson promoted during Project A can influence a later task in Project A.\n\nA relevant learned behavior is retrieved automatically without the user explicitly requesting it.\n\nIrrelevant lessons are not blindly injected.\n\nThe Skill remains small and acts as a context/retrieval mechanism rather than a giant knowledge dump.\n\n\n\nThe current local time is: 2026-09-18T21:12:37+03:30.",
+  "desired_behavior": "Standard compliance: This phase is critical.\n\nThe learning system is useless unless newly learned behavior affects future agent behavior automatically.\n\nCreate a dedicated workspace Skill:\n\n.agents/skills/academic-adaptive-context/SKILL.md\n\nThis is NOT an orchestration Skill.\n\nIts purpose is to provide the active learned behavioral context relevant to the current task.\n\nThe Skill must instruct the agent to:\n\nDetermine the current capability.\nRetrieve relevant active lessons.\nRetrieve relevant anti-patterns.\nRetrieve relevant exemplars.\nCheck for known failure modes.\nApply only knowledge relevant to the current task.\nRespect applicability/exclusion conditions.\nAvoid treating one-off project preferences as universal rules.\n\nDo not dump the entire learning repository into the prompt.\n\nUse targeted retrieval.\n\nThe Skill should read from the persistent learning store and provide only relevant context.\n\nIntegrate this Skill with the durable AcademicSuite agents and the relevant specialist agents.\n\nDo not make the Skill responsible for orchestration.\n\nDo not make it execute statistical analyses.\n\nDo not make it rewrite itself.\n\nThe objective is:\n\nNEXT TASK\n→ relevant learned behavior automatically available.\n\nAcceptance criteria:\n\nA lesson promoted during Project A can influence a later task in Project A.\n\nA relevant learned behavior is retrieved automatically without the user explicitly requesting it.\n\nIrrelevant lessons are not blindly injected.\n\nThe Skill remains small and acts as a context/retrieval mechanism rather than a giant knowledge dump.\n\n\n\nThe current local time is: 2026-09-18T21:12:37+03:30.",
+  "scope": "REUSABLE_PROCEDURAL",
+  "severity": "HIGH",
+  "timestamp": "2026-09-18T18:23:07.846582+00:00",
+  "context": {
+    "project_id": "academic_workspace",
+    "milestone_id": "ACTIVE_MILESTONE",
+    "stage_id": "active_stage",
+    "source_transcript_path": "/home/ghaderi-saber/.gemini/antigravity/brain/cd6370b8-c255-4f9d-b0e7-fd3493b7491b/.system_generated/logs/transcript_full.jsonl",
+    "turn_index": 1061,
+    "related_artifact_paths": []
+  },
+  "generalization_candidate": {
+    "candidate_id": "CAND-20260918-8DC52F-86E361",
+    "suggested_rule": "Standard compliance: This phase is critical.\n\nThe learning system is useless unless newly learned behavior affects future agent behavior automatically.\n\nCreate a dedicated workspace Skill:\n\n.agents/skills/academic-adaptive-context/SKILL.md\n\nThis is NOT an orchestration Skill.\n\nIts purpose is to provide the active learned behavioral context relevant to the current task.\n\nThe Skill must instruct the agent to:\n\nDetermine the current capability.\nRetrieve relevant active lessons.\nRetrieve relevant anti-patterns.\nRetrieve relevant exemplars.\nCheck for known failure modes.\nApply only knowledge relevant to the current task.\nRespect applicability/exclusion conditions.\nAvoid treating one-off project preferences as universal rules.\n\nDo not dump the entire learning repository into the prompt.\n\nUse targeted retrieval.\n\nThe Skill should read from the persistent learning store and provide only relevant context.\n\nIntegrate this Skill with the durable AcademicSuite agents and the relevant specialist agents.\n\nDo not make the Skill responsible for orchestration.\n\nDo not make it execute statistical analyses.\n\nDo not make it rewrite itself.\n\nThe objective is:\n\nNEXT TASK\n→ relevant learned behavior automatically available.\n\nAcceptance criteria:\n\nA lesson promoted during Project A can influence a later task in Project A.\n\nA relevant learned behavior is retrieved automatically without the user explicitly requesting it.\n\nIrrelevant lessons are not blindly injected.\n\nThe Skill remains small and acts as a context/retrieval mechanism rather than a giant knowledge dump.\n\n\n\nThe current local time is: 2026-09-18T21:12:37+03:30.",
+    "suggested_target_skill": "statistical-data-analyst",
+    "scope": "REUSABLE_PROCEDURAL",
+    "repetition_count": 317,
+    "signature_hash": "8dc52f5068978ac6",
+    "evaluation_status": "PENDING"
+  }
+}

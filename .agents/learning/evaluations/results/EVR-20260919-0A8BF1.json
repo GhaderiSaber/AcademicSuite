@@ -1,0 +1,470 @@
+{
+  "contract_version": "1.0.0",
+  "evaluation_id": "EVR-20260919-0A8BF1",
+  "candidate_id": "CAND-TEST-ALPHA",
+  "baseline_id": "baseline-sha-12345",
+  "baseline_version": "baseline-sha-12345",
+  "task_id": "SUITE-REGRESSION-GENERAL",
+  "dimensions": {
+    "correctness": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "methodology": {
+      "verdict": "FAIL",
+      "total_defects_detected": 15
+    },
+    "statistical_validity": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "evidence_grounding": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "integrity": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "robustness": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "consistency": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "efficiency": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    }
+  },
+  "dimensional_evaluations": {
+    "correctness": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "methodology": {
+      "verdict": "FAIL",
+      "total_defects_detected": 15
+    },
+    "statistical_validity": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "evidence_grounding": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "integrity": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "robustness": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "consistency": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    },
+    "efficiency": {
+      "verdict": "PASS",
+      "total_defects_detected": 0
+    }
+  },
+  "baseline_metrics": {
+    "total_runs": 4,
+    "successful_runs": 4,
+    "defects_detected": 15
+  },
+  "candidate_metrics": {
+    "statistical_precision": {
+      "df_concordance_rate": 1.0,
+      "fit_index_pass_rate": 0.5,
+      "parameter_error_margin": 0.0
+    },
+    "typography_compliance": {
+      "persian_leading_zero_violations": 0,
+      "apa_table_border_violations": 0,
+      "prohibited_cliche_count": 0
+    },
+    "execution_reliability": {
+      "successful_runs": 1,
+      "total_runs": 4,
+      "crash_count": 0,
+      "average_latency_seconds": 1.2
+    },
+    "msai_anomaly_score": 25.0
+  },
+  "metrics": {
+    "statistical_precision": {
+      "df_concordance_rate": 1.0,
+      "fit_index_pass_rate": 0.5,
+      "parameter_error_margin": 0.0
+    },
+    "typography_compliance": {
+      "persian_leading_zero_violations": 0,
+      "apa_table_border_violations": 0,
+      "prohibited_cliche_count": 0
+    },
+    "execution_reliability": {
+      "successful_runs": 1,
+      "total_runs": 4,
+      "crash_count": 0,
+      "average_latency_seconds": 1.2
+    },
+    "msai_anomaly_score": 25.0
+  },
+  "regression_results": {
+    "verdict": "FAIL",
+    "count": 15,
+    "details": [
+      {
+        "case_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'study_design_type'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'associative_language'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'causal_language_guard'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'confounding'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'writing_evaluation'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'robotic_evaluation'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'superficial._evaluation'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'revise_evaluation'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'repeated_measures_structure'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'missingness'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'imbalance'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'covariance_structure'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'candidate_model_comparison'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Selected an analytical model without explicit comparative evaluation of candidate models."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Longitudinal modeling proceeded without evaluating missingness patterns or attrition."
+      }
+    ]
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "creates_new_mistake": false,
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "PASS",
+    "pass_rate": 0.0,
+    "generalizes_to_different_case": false,
+    "total_cases": 0
+  },
+  "contradictions": [],
+  "diagnostics": [
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'study_design_type'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'associative_language'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'causal_language_guard'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'confounding'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'writing_evaluation'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'robotic_evaluation'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'superficial._evaluation'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'revise_evaluation'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'repeated_measures_structure'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'missingness'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'imbalance'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'covariance_structure'."
+    },
+    {
+      "check_id": "missing_reasoning_property",
+      "status": "FAIL",
+      "finding": "Candidate analysis failed to consider required reasoning property 'candidate_model_comparison'."
+    },
+    {
+      "check_id": "unjustified_model_selection_without_comparison",
+      "status": "FAIL",
+      "finding": "Selected an analytical model without explicit comparative evaluation of candidate models."
+    },
+    {
+      "check_id": "ignoring_missingness_in_longitudinal_data",
+      "status": "FAIL",
+      "finding": "Longitudinal modeling proceeded without evaluating missingness patterns or attrition."
+    }
+  ],
+  "regressions": {
+    "count": 15,
+    "details": [
+      {
+        "case_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'study_design_type'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'associative_language'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'causal_language_guard'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'confounding'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'writing_evaluation'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'robotic_evaluation'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'superficial._evaluation'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'revise_evaluation'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'repeated_measures_structure'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'missingness'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'imbalance'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'covariance_structure'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Candidate analysis failed to consider required reasoning property 'candidate_model_comparison'."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Selected an analytical model without explicit comparative evaluation of candidate models."
+      },
+      {
+        "case_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+        "baseline_verdict": "PASS",
+        "candidate_verdict": "FAIL",
+        "regression_error": "Longitudinal modeling proceeded without evaluating missingness patterns or attrition."
+      }
+    ]
+  },
+  "failures": [
+    {
+      "test_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'study_design_type'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'associative_language'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'causal_language_guard'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'confounding'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'writing_evaluation'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'robotic_evaluation'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'superficial._evaluation'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-CHAPTER_4_WR-DFE2A4CE",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'revise_evaluation'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'repeated_measures_structure'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'missingness'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'imbalance'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'covariance_structure'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+      "error_message": "Candidate analysis failed to consider required reasoning property 'candidate_model_comparison'."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+      "error_message": "Selected an analytical model without explicit comparative evaluation of candidate models."
+    },
+    {
+      "test_id": "EVAL-CASE-REG-STATISTICAL_-D51C93E7",
+      "error_message": "Longitudinal modeling proceeded without evaluating missingness patterns or attrition."
+    }
+  ],
+  "evidence": [
+    {
+      "artifact_path": "learning/evaluations/results/EVR-20260919-0A8BF1.json",
+      "sha256": "6a743955ac8282a92ae33008396f52806a16dd35433d0c3b9939978d972cc4cf"
+    }
+  ],
+  "verdict": "FAIL",
+  "overall_verdict": "FAIL",
+  "evaluated_at": "2026-09-19T12:45:46.795436+00:00"
+}

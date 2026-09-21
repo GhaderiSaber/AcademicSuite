@@ -1,0 +1,35 @@
+{
+  "contract_version": "1.0.0",
+  "feedback_id": "FDB-20260918-C35551",
+  "is_correction": true,
+  "is_project_specific": false,
+  "source": {
+    "origin": "HUMAN_SUPERVISOR",
+    "identifier": "HumanUser"
+  },
+  "type": "WRITING_CORRECTION",
+  "target_agent": "academic-writer",
+  "target_skill": "ai-academic-tone-polisher",
+  "correction": "Do not modify code.\n\nAct as an independent adversarial auditor.\n\nAttempt to demonstrate:\n\nOne project-specific preference becoming global behavior.\nOne bad correction poisoning a Skill.\nA candidate being promoted without adequate evidence.\nA candidate overfitting the original failure case.\nA candidate improving one capability while damaging another.\nContradictory lessons being simultaneously active.\nIrrelevant lessons being injected into a task.\nA rejected candidate becoming active.\nSkill memory becoming excessively large.\nCurriculum generator creating trivial tasks.\nCurriculum generator creating invalid research scenarios.\nUser feedback being misclassified.\nSuccessful but incorrect behavior being learned.\nA bad statistical methodology becoming institutionalized.\nA writing preference becoming a universal academic rule.\nLearning state being lost after restart.\nA malformed experience corrupting the learning system.\nLearning execution interfering with research execution.\nA Skill changing without an evaluation record.\nAutomatic improvement weakening research-integrity protections.\n\nFor each attack provide:\n\nattack ID\nentry point\nreproduction\nexpected behavior\nactual behavior\nseverity\nevidence\nrecommended remediation\n\nPay particular attention to the \"self-learning poisoning\" problem:\n\nEXPERIENCE IS EVIDENCE,\nNOT TRUTH.\n\nDo not modify implementation.\n\nCreate:\n\ndocs/evolution/06_SELF_IMPROVEMENT_RED_TEAM.md\n\n\n\nThe current local time is: 2026-09-18T23:15:52+03:30.",
+  "desired_behavior": "Standard compliance: Do not modify code.\n\nAct as an independent adversarial auditor.\n\nAttempt to demonstrate:\n\nOne project-specific preference becoming global behavior.\nOne bad correction poisoning a Skill.\nA candidate being promoted without adequate evidence.\nA candidate overfitting the original failure case.\nA candidate improving one capability while damaging another.\nContradictory lessons being simultaneously active.\nIrrelevant lessons being injected into a task.\nA rejected candidate becoming active.\nSkill memory becoming excessively large.\nCurriculum generator creating trivial tasks.\nCurriculum generator creating invalid research scenarios.\nUser feedback being misclassified.\nSuccessful but incorrect behavior being learned.\nA bad statistical methodology becoming institutionalized.\nA writing preference becoming a universal academic rule.\nLearning state being lost after restart.\nA malformed experience corrupting the learning system.\nLearning execution interfering with research execution.\nA Skill changing without an evaluation record.\nAutomatic improvement weakening research-integrity protections.\n\nFor each attack provide:\n\nattack ID\nentry point\nreproduction\nexpected behavior\nactual behavior\nseverity\nevidence\nrecommended remediation\n\nPay particular attention to the \"self-learning poisoning\" problem:\n\nEXPERIENCE IS EVIDENCE,\nNOT TRUTH.\n\nDo not modify implementation.\n\nCreate:\n\ndocs/evolution/06_SELF_IMPROVEMENT_RED_TEAM.md\n\n\n\nThe current local time is: 2026-09-18T23:15:52+03:30.",
+  "scope": "REUSABLE_PROCEDURAL",
+  "severity": "HIGH",
+  "timestamp": "2026-09-18T20:38:37.767012+00:00",
+  "context": {
+    "project_id": "academic_workspace",
+    "milestone_id": "ACTIVE_MILESTONE",
+    "stage_id": "active_stage",
+    "source_transcript_path": "/home/ghaderi-saber/.gemini/antigravity/brain/cd6370b8-c255-4f9d-b0e7-fd3493b7491b/.system_generated/logs/transcript_full.jsonl",
+    "turn_index": 3335,
+    "related_artifact_paths": []
+  },
+  "generalization_candidate": {
+    "candidate_id": "CAND-20260918-266259-C35551",
+    "suggested_rule": "Standard compliance: Do not modify code.\n\nAct as an independent adversarial auditor.\n\nAttempt to demonstrate:\n\nOne project-specific preference becoming global behavior.\nOne bad correction poisoning a Skill.\nA candidate being promoted without adequate evidence.\nA candidate overfitting the original failure case.\nA candidate improving one capability while damaging another.\nContradictory lessons being simultaneously active.\nIrrelevant lessons being injected into a task.\nA rejected candidate becoming active.\nSkill memory becoming excessively large.\nCurriculum generator creating trivial tasks.\nCurriculum generator creating invalid research scenarios.\nUser feedback being misclassified.\nSuccessful but incorrect behavior being learned.\nA bad statistical methodology becoming institutionalized.\nA writing preference becoming a universal academic rule.\nLearning state being lost after restart.\nA malformed experience corrupting the learning system.\nLearning execution interfering with research execution.\nA Skill changing without an evaluation record.\nAutomatic improvement weakening research-integrity protections.\n\nFor each attack provide:\n\nattack ID\nentry point\nreproduction\nexpected behavior\nactual behavior\nseverity\nevidence\nrecommended remediation\n\nPay particular attention to the \"self-learning poisoning\" problem:\n\nEXPERIENCE IS EVIDENCE,\nNOT TRUTH.\n\nDo not modify implementation.\n\nCreate:\n\ndocs/evolution/06_SELF_IMPROVEMENT_RED_TEAM.md\n\n\n\nThe current local time is: 2026-09-18T23:15:52+03:30.",
+    "suggested_target_skill": "ai-academic-tone-polisher",
+    "scope": "REUSABLE_PROCEDURAL",
+    "repetition_count": 195,
+    "signature_hash": "2662597ad1dd6a03",
+    "evaluation_status": "PENDING"
+  }
+}

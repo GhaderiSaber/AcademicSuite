@@ -1,0 +1,20 @@
+{
+  "lesson_id": "LSN-20260921-072976",
+  "source_experience_id": "EXP-D06A09",
+  "target_agent": "statistics-agent",
+  "target_skill": "chapter-4-writing",
+  "capability": "chapter-4-writing",
+  "what_happened": "Observable defect identified from trigger: Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure",
+  "what_behavior_caused_outcome": "GENERAL_METHODOLOGICAL_DEFECT",
+  "desired_behavior": "Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.",
+  "diagnosis": {
+    "what_happened": "Observable defect identified from trigger: Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure",
+    "behavior_caused_outcome": "GENERAL_METHODOLOGICAL_DEFECT"
+  },
+  "hypothesis": "Applying 'Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.' to chapter-4-writing will eliminate the defect signature 'GENERAL_METHODOLOGICAL_DEFECT' without regressing protected capabilities.",
+  "expected_improvement": {
+    "defect_signature_eliminated": "GENERAL_METHODOLOGICAL_DEFECT",
+    "target_metric": "zero_defects"
+  },
+  "potential_downsides": "Minor prompt/instruction expansion; must adhere to Directive 18 size ceilings."
+}

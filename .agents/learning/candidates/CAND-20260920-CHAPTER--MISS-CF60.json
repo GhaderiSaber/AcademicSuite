@@ -1,0 +1,58 @@
+{
+  "contract_version": "1.0.0",
+  "candidate_id": "CAND-20260920-CHAPTER--MISS-CF60",
+  "target_component": ".agents/skills/chapter-4-writing/SKILL.md",
+  "target_skill": "chapter-4-writing",
+  "target_type": "SKILL_PROCEDURAL_SPECIFICATION",
+  "mutation_type": "MISSING_STEP_ADDITION",
+  "parent_version": "main-HEAD",
+  "mutation": {
+    "diff_type": "UNIFIED_DIFF",
+    "content": "--- a/.agents/skills/chapter-4-writing/SKILL.md\n+++ b/.agents/skills/chapter-4-writing/SKILL.md\n@@ -15,3 +15,16 @@\n python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py --stage \"آزمون فرضیه اول\" --base \"06_hypothesis_1\" --outdir projects/active/ch4\n ```\n \n+\n+\n+## 📋 Mandatory Operational Step: chapter-4-writing Execution\n+Prior to concluding this stage:\n+1. **Conditional Execution Rules**:\n+   - **WHEN condition X (Standard prerequisites satisfied)**:\n+     → use approach A (Execute standard analysis).\n+   - **WHEN condition Y (Alternative design characteristics present)**:\n+     → use approach B (Adjust model parameters accordingly).\n+   - **EXCEPT condition Z (Risk of 'GENERAL_METHODOLOGICAL_DEFECT' detected)**:\n+     → use approach C (Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.).\n+2. **Audit Requirement**: Verify that all parameters meet academic and institutional standards.\n+3. **Artifact Traceability**: Emit structured checkpoint artifact documenting execution parameters and verifying zero 'GENERAL_METHODOLOGICAL_DEFECT'.\n",
+    "checksum_sha256": "431afc481e5f02468a7532b8504962eca4985cf42103127b83b17951409d0e32"
+  },
+  "rationale": "Addresses diagnosed gap 'Missing or ambiguous Skill in 'CLI Execution': Observable defect identified from trigger: Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure' by adding a mandatory operational step enforcing 'Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.'.",
+  "source_lessons": [],
+  "expected_improvement": {
+    "target_metric": "diagnostic_failure_rate",
+    "baseline_value": 1.0,
+    "projected_value": 0.0,
+    "qualitative_outcome": "Guarantees reproducible execution and physical artifact traceability for 'chapter-4-writing'."
+  },
+  "expected_benefit": "Guarantees reproducible execution and physical artifact traceability for 'chapter-4-writing'.",
+  "possible_downside": "Requires generating an additional verification checkpoint, slightly increasing pipeline execution time.",
+  "testable_hypothesis": "If an explicit operational step is mandatory, 100% of generated outputs will eliminate 'GENERAL_METHODOLOGICAL_DEFECT' and satisfy 'Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.'.",
+  "affected_capabilities": [
+    "chapter-4-writing"
+  ],
+  "reflective_diagnosis": {
+    "root_cause": "Observable defect identified from trigger: Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure",
+    "failure_mechanism": "GENERAL_METHODOLOGICAL_DEFECT",
+    "generalizability": "Applies across tasks utilizing 'chapter-4-writing'.",
+    "evidence_sources": [
+      "Observable Failure: GENERAL_METHODOLOGICAL_DEFECT",
+      "Observed Step: Step 1 (validation-agent)",
+      "Trigger Diagnostic: Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure"
+    ]
+  },
+  "author_agent": "skill-evolver",
+  "status": "STAGED",
+  "staged_at": "2026-09-20T11:42:05.247702+00:00",
+  "metadata": {
+    "candidate_diagnosis": {
+      "target_category": "Skill",
+      "diagnosed_gap": "Missing or ambiguous Skill in 'CLI Execution': Observable defect identified from trigger: Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure",
+      "affected_section": "CLI Execution",
+      "prescribed_behavior": "Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.",
+      "proposed_resolution": "WHEN standard baseline assumptions hold → use primary approach (Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.); WHEN complex data structures (multi-wave/missingness) present → use robust alternative; EXCEPT when GENERAL_METHODOLOGICAL_DEFECT or boundary violation occurs → use alternative remediation.",
+      "counterfactual": "Instead of VALIDATION_FAILED causing 'GENERAL_METHODOLOGICAL_DEFECT', the execution should have followed 'Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.'.",
+      "evidence_sources": [
+        "Observable Failure: GENERAL_METHODOLOGICAL_DEFECT",
+        "Observed Step: Step 1 (validation-agent)",
+        "Trigger Diagnostic: Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure"
+      ]
+    },
+    "analysis_id": "BAN-20260920-482BD6",
+    "trigger_type": "QC_FAILURE"
+  }
+}

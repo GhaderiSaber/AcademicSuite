@@ -1,0 +1,45 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260921-D7580F",
+  "trigger_type": "QC_FAILURE",
+  "trigger_event_id": "EVT-QC-FAIL-95373A",
+  "target_agent": "statistics-agent",
+  "target_skill": "chapter-4-writing",
+  "capability": "chapter-4-writing",
+  "task_context": {
+    "task_id": "stage_03",
+    "stage_id": "stage_03",
+    "milestone_id": "M_UNKNOWN",
+    "prompt": ""
+  },
+  "trajectory_id": "TRJ-QC-87F127",
+  "observable_failure_step": {
+    "step_number": 1,
+    "action_type": "VALIDATION_FAILED",
+    "tool_name": "validation-agent",
+    "command_or_input": {},
+    "output_or_error": "Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure",
+    "description": "Stage Validator Gate in 'stage_03' failed: Validation failure"
+  },
+  "failure_signature": "GENERAL_METHODOLOGICAL_DEFECT",
+  "root_cause_diagnosis": "Observable defect identified from trigger: Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure",
+  "prescribed_behavior": "Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.",
+  "created_at": "2026-09-21T07:54:16.970893+00:00",
+  "metadata": {
+    "analyzed_by": "AcademicBehaviorAnalyzer",
+    "trajectory_step_count": 1,
+    "candidate_diagnosis": {
+      "target_category": "Skill",
+      "diagnosed_gap": "Missing or ambiguous Skill in 'CLI Execution': Observable defect identified from trigger: Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure",
+      "affected_section": "CLI Execution",
+      "prescribed_behavior": "Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.",
+      "proposed_resolution": "WHEN standard baseline assumptions hold → use primary approach (Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.); WHEN complex data structures (multi-wave/missingness) present → use robust alternative; EXCEPT when GENERAL_METHODOLOGICAL_DEFECT or boundary violation occurs → use alternative remediation.",
+      "counterfactual": "Instead of VALIDATION_FAILED causing 'GENERAL_METHODOLOGICAL_DEFECT', the execution should have followed 'Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.'.",
+      "evidence_sources": [
+        "Observable Failure: GENERAL_METHODOLOGICAL_DEFECT",
+        "Observed Step: Step 1 (validation-agent)",
+        "Trigger Diagnostic: Stage Validator Gate in 'stage_03' failed: Validation failure Validation failure assertion_failed: Validation failure"
+      ]
+    }
+  }
+}

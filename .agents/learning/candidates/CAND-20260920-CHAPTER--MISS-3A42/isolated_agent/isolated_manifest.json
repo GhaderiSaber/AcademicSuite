@@ -1,0 +1,26 @@
+{
+  "contract_version": "1.0.0",
+  "sandbox_id": "SBX-CAND-20260920-CHAPTER--MISS-3A42",
+  "candidate_id": "CAND-20260920-CHAPTER--MISS-3A42",
+  "target_component": ".agents/skills/chapter-4-writing/SKILL.md",
+  "target_type": "SKILL_PROCEDURAL_SPECIFICATION",
+  "sandbox_directory": "/home/ghaderi-saber/Desktop/AcademicSuite/learning/candidates/CAND-20260920-CHAPTER--MISS-3A42/isolated_agent",
+  "base_files": {
+    ".agents/skills/chapter-4-writing/SKILL.md": {
+      "source_path": "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/skills/chapter-4-writing/SKILL.md",
+      "sha256": "5b9e40936d98d7fbad307a9b87fe78f22222c6c2591d17c5d345a45e9ad2e598"
+    }
+  },
+  "modified_files": {
+    "SKILL.md": {
+      "sandbox_path": "/home/ghaderi-saber/Desktop/AcademicSuite/learning/candidates/CAND-20260920-CHAPTER--MISS-3A42/isolated_agent/SKILL.md",
+      "sha256": "15b7fed95842d87a3547b532a540424a80d695657d1c004f7c82c52c535f31b7"
+    }
+  },
+  "mutation_applied": {
+    "diff_type": "UNIFIED_DIFF",
+    "content_preview": "--- a/.agents/skills/chapter-4-writing/SKILL.md\n+++ b/.agents/skills/chapter-4-writing/SKILL.md\n@@ -15,3 +15,16 @@\n pyth...",
+    "applied_at": "2026-09-20T10:23:07.067358+00:00"
+  },
+  "created_at": "2026-09-20T10:23:07.067368+00:00"
+}

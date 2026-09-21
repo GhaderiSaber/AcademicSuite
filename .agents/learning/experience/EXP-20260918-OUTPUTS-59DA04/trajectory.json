@@ -1,0 +1,89 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260918-OUTPUTS-59DA04",
+  "experience_id": "EXP-20260918-OUTPUTS-59DA04",
+  "project_id": "project_default",
+  "task_id": "outputs",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SKILL_INVOCATION",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-18T17:40:30.701027+00:00",
+      "description": "Executed skill academic-suite-orchestrator for stage outputs",
+      "observable_input": {
+        "stage_dir": "/home/ghaderi-saber/Desktop/AcademicSuite/projects/study_vertical_slice_regression/academic-state/outputs"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "ARTIFACT_GENERATION",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-18T17:40:30.701027+00:00",
+      "description": "Generated 3 physical artifacts in /home/ghaderi-saber/Desktop/AcademicSuite/projects/study_vertical_slice_regression/academic-state/outputs",
+      "observable_input": {
+        "stage_dir": "/home/ghaderi-saber/Desktop/AcademicSuite/projects/study_vertical_slice_regression/academic-state/outputs"
+      },
+      "observable_output": {
+        "count": 3
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "run_command",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "skill": "academic-suite-orchestrator",
+        "stage": "outputs"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1000
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "academic-suite-orchestrator",
+      "script_path": ".agents/skills/academic-suite-orchestrator/scripts/academic-suite-orchestrator.py",
+      "cli_command": "python3 .agents/skills/academic-suite-orchestrator/scripts/academic-suite-orchestrator.py",
+      "exit_code": 0,
+      "duration_seconds": 1.0
+    }
+  ],
+  "subagent_delegations": [],
+  "important_decisions": [],
+  "outputs": [
+    {
+      "path": "projects/study_vertical_slice_regression/academic-state/outputs/06_hypothesis_1_regression.docx",
+      "sha256": "fff917ede2da078cde5e791a6b6e289c94bb10bb5d638e9176729d518e6043ef",
+      "type": "docx"
+    },
+    {
+      "path": "projects/study_vertical_slice_regression/academic-state/outputs/06_hypothesis_1_regression.json",
+      "sha256": "f68fefcb83a177b37a077424b065f223226e6d1a6058c8193919f16ac948ea83",
+      "type": "json"
+    },
+    {
+      "path": "projects/study_vertical_slice_regression/academic-state/outputs/06_hypothesis_1_regression.md",
+      "sha256": "185cd0e20ced6a169f0218604c94344a2fd891c5630c86b7e548ebf8215fb6bf",
+      "type": "md"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "TriadArtifactValidator",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "docx": true,
+        "md": true,
+        "json": true
+      }
+    }
+  ],
+  "feedback": [],
+  "outcome": "SUCCESS"
+}

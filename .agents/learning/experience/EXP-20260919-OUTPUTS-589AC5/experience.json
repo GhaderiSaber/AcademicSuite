@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0.0",
+  "experience_id": "EXP-20260919-OUTPUTS-589AC5",
+  "project_id": "project_default",
+  "task_id": "outputs",
+  "agent": "statistics-agent",
+  "skill": "academic-suite-orchestrator",
+  "start_time": "2026-09-19T03:44:28.854994+00:00",
+  "end_time": "2026-09-19T03:44:28.854994+00:00",
+  "duration_seconds": 1.0,
+  "outcome": "SUCCESS",
+  "artifact_references": [
+    {
+      "path": "projects/study_vertical_slice_regression/academic-state/outputs/06_hypothesis_1_regression.docx",
+      "sha256": "fff917ede2da078cde5e791a6b6e289c94bb10bb5d638e9176729d518e6043ef",
+      "type": "docx"
+    },
+    {
+      "path": "projects/study_vertical_slice_regression/academic-state/outputs/06_hypothesis_1_regression.json",
+      "sha256": "f68fefcb83a177b37a077424b065f223226e6d1a6058c8193919f16ac948ea83",
+      "type": "json"
+    },
+    {
+      "path": "projects/study_vertical_slice_regression/academic-state/outputs/06_hypothesis_1_regression.md",
+      "sha256": "185cd0e20ced6a169f0218604c94344a2fd891c5630c86b7e548ebf8215fb6bf",
+      "type": "md"
+    }
+  ],
+  "validation_status": {
+    "verdict": "PASS",
+    "checks_passed": 3,
+    "checks_failed": 0
+  },
+  "metadata": {
+    "stage_dir": "/home/ghaderi-saber/Desktop/AcademicSuite/projects/study_vertical_slice_regression/academic-state/outputs",
+    "triad_complete": true
+  }
+}
