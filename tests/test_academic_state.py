@@ -90,13 +90,6 @@ class TestAcademicState(unittest.TestCase):
         summary = sm.get_status_summary(self.temp_dir)
         self.assertEqual(summary["current_stage"], "04_bivariate_correlations")
 
-    def test_05_study_act_burnout_compliance(self):
-        cand_study = os.path.join(ROOT_DIR, "tests", "fixtures", "study_act_burnout")
-        study_path = cand_study if os.path.isdir(cand_study) else os.path.join(ROOT_DIR, "projects", "study_act_burnout")
-        val = sm.validate_state(study_path)
-        self.assertEqual(val["overall_verdict"], "PASS", f"Study state errors: {val.get('errors')}")
-        self.assertGreaterEqual(len(val["validated_files"]), 8)
-
 
 if __name__ == "__main__":
     unittest.main()

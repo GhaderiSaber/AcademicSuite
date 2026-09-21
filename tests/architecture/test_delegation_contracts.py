@@ -428,22 +428,31 @@ class TestDelegationContracts(unittest.TestCase):
     def test_10_orchestrator_dependency_resolver_generates_formal_contract(self):
         """format_delegation_envelope produces a formal 10-field contract and prompt."""
         from scripts.orchestrator_dependency_resolver import format_delegation_envelope
-        cand_state = os.path.join(ROOT_DIR, "tests", "fixtures", "study_act_burnout", "academic-state")
-        study_state = cand_state if os.path.isdir(cand_state) else os.path.join(ROOT_DIR, "projects", "study_act_burnout", "academic-state")
-        env = format_delegation_envelope(
-            "01_demographics",
-            study_state,
-            "Compute univariate demographic parameters."
-        )
-        self.assertEqual(env["status"], "READY")
-        self.assertIn("contract", env)
-        contract = env["contract"]
-        # Verify all 10 fields are present and valid
-        for field in MANDATORY_TASK_FIELDS:
-            self.assertIn(field, contract)
-        self.assertEqual(contract["parent_agent"], "academic-orchestrator")
-        self.assertEqual(contract["worker_agent"], "statistics-agent")
-        self.assertIn("Contractual Delegation Envelope (Phase 22 Contract)", env["subagent_invocation"]["Prompt"])
+        temp_dir = tempfile.mkdtemp(prefix="deleg_contract_test_")
+        try:
+            proj_data = {"project_id": "test_deleg_proj", "completed_stages": ["00_data_curation"]}
+            with open(os.path.join(temp_dir, "project.json"), "w", encoding="utf-8") as f:
+                json.dump(proj_data, f)
+            os.makedirs(os.path.join(temp_dir, "data"), exist_ok=True)
+            with open(os.path.join(temp_dir, "data", "data_dictionary.json"), "w", encoding="utf-8") as f:
+                json.dump({"variables": ["group", "gender", "age"]}, f)
+
+            env = format_delegation_envelope(
+                "01_demographics",
+                temp_dir,
+                "Compute univariate demographic parameters."
+            )
+            self.assertEqual(env["status"], "READY")
+            self.assertIn("contract", env)
+            contract = env["contract"]
+            # Verify all 10 fields are present and valid
+            for field in MANDATORY_TASK_FIELDS:
+                self.assertIn(field, contract)
+            self.assertEqual(contract["parent_agent"], "academic-orchestrator")
+            self.assertEqual(contract["worker_agent"], "statistics-agent")
+            self.assertIn("Contractual Delegation Envelope (Phase 22 Contract)", env["subagent_invocation"]["Prompt"])
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
     # -------------------------------------------------------------------------
     # 11. Verification Fails When Required Artifact is Missing

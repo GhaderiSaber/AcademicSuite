@@ -42,11 +42,3 @@ if extra_paths:
     os.environ["PYTHONPATH"] = new_pythonpath
 
 
-def pytest_sessionstart(session):
-    """Ensure mock test fixtures are present on-the-fly before running tests."""
-    try:
-        from scripts.generate_test_fixtures import ensure_fixtures_present
-        ensure_fixtures_present()
-    except Exception as e:
-        print(f"[pytest_sessionstart] Fixtures readiness check note: {e}")
-

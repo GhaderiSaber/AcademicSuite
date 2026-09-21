@@ -120,26 +120,44 @@ class TestEndToEndIntegration(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cand_p = os.path.join(ROOT_DIR, "tests", "fixtures", "test_study_e2e")
-        cls.project_dir = cand_p if os.path.isdir(cand_p) else os.path.join(ROOT_DIR, "projects", "test_study_e2e")
+        cls.temp_dir = tempfile.mkdtemp(prefix="test_study_e2e_")
+        cls.project_dir = cls.temp_dir
         cls.academic_state_dir = os.path.join(cls.project_dir, "academic-state")
-        csv_data = os.path.join(cls.project_dir, "01_raw_inputs", "test_academic_study_data.csv")
-        xlsx_data = os.path.join(cls.project_dir, "01_raw_inputs", "test_academic_study_data.xlsx")
-        try:
-            import pandas
-            cls.raw_data_path = xlsx_data
-        except ImportError:
-            cls.raw_data_path = csv_data
         cls.deliverables_dir = os.path.join(cls.project_dir, "03_deliverables", "stage_06_hypothesis_1")
-
-        # Clean state and deliverables before running tests to ensure clean slate
-        if os.path.exists(cls.academic_state_dir):
-            shutil.rmtree(cls.academic_state_dir)
-        if os.path.exists(cls.deliverables_dir):
-            shutil.rmtree(cls.deliverables_dir)
-
+        cls.raw_inputs_dir = os.path.join(cls.project_dir, "01_raw_inputs")
         os.makedirs(cls.academic_state_dir, exist_ok=True)
         os.makedirs(cls.deliverables_dir, exist_ok=True)
+        os.makedirs(cls.raw_inputs_dir, exist_ok=True)
+
+        csv_data = os.path.join(cls.raw_inputs_dir, "test_academic_study_data.csv")
+        xlsx_data = os.path.join(cls.raw_inputs_dir, "test_academic_study_data.xlsx")
+
+        import pandas as pd
+        n = 80
+        group = ["Experimental"] * 40 + ["Control"] * 40
+        gender = ["Female", "Male"] * 40
+        age = [25 + (i % 15) for i in range(n)]
+        burnout_pre = [35.0 + (i % 10) for i in range(n)]
+        burnout_post = [20.0 + (i % 8) if i < 40 else 36.0 + (i % 8) for i in range(n)]
+        df = pd.DataFrame({
+            "participant_id": [f"SUBJ_{i+1:03d}" for i in range(n)],
+            "group": group,
+            "gender": gender,
+            "age": age,
+            "burnout_pre": burnout_pre,
+            "burnout_post": burnout_post
+        })
+        df.to_csv(csv_data, index=False)
+        try:
+            df.to_excel(xlsx_data, index=False)
+            cls.raw_data_path = xlsx_data
+        except Exception:
+            cls.raw_data_path = csv_data
+
+    @classmethod
+    def tearDownClass(cls):
+        if hasattr(cls, "temp_dir") and os.path.exists(cls.temp_dir):
+            shutil.rmtree(cls.temp_dir, ignore_errors=True)
 
     def test_01_agent_discovery_and_role_contracts(self):
         """1. Agent Discovery: Verify all 12 required agents exist with valid contracts and least-privilege tools."""

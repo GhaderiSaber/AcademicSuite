@@ -59,33 +59,47 @@ class TestAcademicOrchestrator(unittest.TestCase):
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
 
+    def _create_ready_state_dir(self):
+        temp_dir = tempfile.mkdtemp(prefix="orch_ready_state_")
+        proj_data = {"project_id": "test_ready_proj", "completed_stages": ["00_data_curation"]}
+        with open(os.path.join(temp_dir, "project.json"), "w", encoding="utf-8") as f:
+            json.dump(proj_data, f)
+        os.makedirs(os.path.join(temp_dir, "data"), exist_ok=True)
+        with open(os.path.join(temp_dir, "data", "data_dictionary.json"), "w", encoding="utf-8") as f:
+            json.dump({"variables": ["group", "gender", "age"]}, f)
+        return temp_dir
+
     def test_03_prerequisites_check_ready(self):
-        """Verify that study_act_burnout passes prerequisite check for demographics."""
-        cand_state = os.path.join(ROOT_DIR, "tests", "fixtures", "study_act_burnout", "academic-state")
-        study_state = cand_state if os.path.isdir(cand_state) else os.path.join(ROOT_DIR, "projects", "study_act_burnout", "academic-state")
-        res = odr.check_prerequisites("01_demographics", study_state)
-        self.assertEqual(res["status"], "READY")
-        self.assertEqual(res["assigned_agent"], "statistics-agent")
-        self.assertEqual(res["required_skill"], "descriptive-statistics")
+        """Verify that a valid project passes prerequisite check for demographics."""
+        study_state = self._create_ready_state_dir()
+        try:
+            res = odr.check_prerequisites("01_demographics", study_state)
+            self.assertEqual(res["status"], "READY")
+            self.assertEqual(res["assigned_agent"], "statistics-agent")
+            self.assertEqual(res["required_skill"], "descriptive-statistics")
+        finally:
+            shutil.rmtree(study_state, ignore_errors=True)
 
     def test_04_format_delegation_envelope(self):
         """Verify formatting of isolated context delegation envelopes."""
-        cand_state = os.path.join(ROOT_DIR, "tests", "fixtures", "study_act_burnout", "academic-state")
-        study_state = cand_state if os.path.isdir(cand_state) else os.path.join(ROOT_DIR, "projects", "study_act_burnout", "academic-state")
-        env = odr.format_delegation_envelope(
-            "01_demographics",
-            study_state,
-            "Compute frequency distributions for group, gender, and age."
-        )
-        self.assertEqual(env["status"], "READY")
-        self.assertEqual(env["agent"], "statistics-agent")
-        self.assertIn("subagent_invocation", env)
+        study_state = self._create_ready_state_dir()
+        try:
+            env = odr.format_delegation_envelope(
+                "01_demographics",
+                study_state,
+                "Compute frequency distributions for group, gender, and age."
+            )
+            self.assertEqual(env["status"], "READY")
+            self.assertEqual(env["agent"], "statistics-agent")
+            self.assertIn("subagent_invocation", env)
 
-        invocation = env["subagent_invocation"]
-        self.assertEqual(invocation["TypeName"], "statistics-agent")
-        self.assertIn("Contractual Delegation Envelope", invocation["Prompt"])
-        self.assertIn("descriptive-statistics", invocation["Prompt"])
-        self.assertIn("Directive 6", invocation["Prompt"])
+            invocation = env["subagent_invocation"]
+            self.assertEqual(invocation["TypeName"], "statistics-agent")
+            self.assertIn("Contractual Delegation Envelope", invocation["Prompt"])
+            self.assertIn("descriptive-statistics", invocation["Prompt"])
+            self.assertIn("Directive 6", invocation["Prompt"])
+        finally:
+            shutil.rmtree(study_state, ignore_errors=True)
 
     def test_05_orchestrator_agent_definition(self):
         """Verify academic-orchestrator agent prompt and tools configuration."""

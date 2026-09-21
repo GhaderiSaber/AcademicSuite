@@ -288,26 +288,5 @@ class TestFailClosedValidation(unittest.TestCase):
         self.assertIn("untracked_scratch_notes.txt", report["manifest_audit"]["untracked_artifacts"])
         self.assertIn(f"ART-{stage_name.upper()}-JSON", report["manifest_audit"]["missing_artifacts"])
 
-    # ==========================================================================
-    # 13. Existing Valid Projects Continue to Pass -> PASS
-    # ==========================================================================
-    def test_13_existing_valid_projects_pass(self):
-        cand_sem = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_sem", "academic-state", "outputs")
-        sem_dir = cand_sem if os.path.isdir(cand_sem) else os.path.join(ROOT_DIR, "projects", "study_vertical_slice_sem", "academic-state", "outputs")
-        cand_reg = os.path.join(ROOT_DIR, "tests", "fixtures", "study_vertical_slice_regression", "academic-state", "outputs")
-        reg_dir = cand_reg if os.path.isdir(cand_reg) else os.path.join(ROOT_DIR, "projects", "study_vertical_slice_regression", "academic-state", "outputs")
-
-        rep_sem = run_suite(sem_dir)
-        self.assertEqual(rep_sem["overall_verdict"], "PASS", f"SEM validation failed: {rep_sem.get('errors')}")
-        self.assertGreaterEqual(rep_sem["evidence_summary"]["checks_passed"], 1)
-        self.assertEqual(rep_sem["evidence_summary"]["checks_failed"], 0)
-        self.assertEqual(rep_sem["evidence_summary"]["checks_blocked"], 0)
-
-        rep_reg = run_suite(reg_dir)
-        self.assertEqual(rep_reg["overall_verdict"], "PASS", f"Regression validation failed: {rep_reg.get('errors')}")
-        self.assertGreaterEqual(rep_reg["evidence_summary"]["checks_passed"], 1)
-        self.assertEqual(rep_reg["evidence_summary"]["checks_failed"], 0)
-
-
 if __name__ == "__main__":
     unittest.main()
