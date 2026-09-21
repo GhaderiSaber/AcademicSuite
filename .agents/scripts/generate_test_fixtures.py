@@ -149,11 +149,15 @@ def generate_all_benchmark_datasets(fixtures_dir: str = FIXTURES_DIR) -> None:
     sv_xlsx = os.path.join(sv_dir, "data_raw.xlsx")
     if not os.path.exists(sv_xlsx):
         try:
-            from scripts.generate_scale_validation_benchmark_data import generate_scale_validation_data
+            try:
+                from scripts.generate_scale_validation_benchmark_data import generate_scale_validation_data as gen_sv
+            except ImportError:
+                from scripts.generate_scale_validation_benchmark_data import generate_benchmark_data as gen_sv
             os.makedirs(sv_dir, exist_ok=True)
-            generate_scale_validation_data(sv_dir, n=400)
+            gen_sv(sv_dir, n=400)
         except Exception as e:
-            print(f"[generate_test_fixtures] Warning generating scale validation: {e}")
+            print(f"[generate_test_fixtures] Error generating scale validation: {e}")
+            raise
 
     # 6. SEM
     sem_dir = os.path.join(fixtures_dir, "study_vertical_slice_sem", "01_raw_inputs")
