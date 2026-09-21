@@ -33,9 +33,16 @@ def format_markdown_briefing(briefing: Dict[str, Any]) -> str:
     task = ctx.get("task") or "Unspecified"
     proj = ctx.get("project_id") or "Cross-Project"
     agent = ctx.get("agent") or "General"
+    telem = briefing.get("budget_telemetry")
+    badge = ""
+    if telem and telem.get("max_token_budget"):
+        used = telem.get("estimated_tokens_used", 0)
+        budget = telem.get("max_token_budget", 800)
+        pct = round(telem.get("budget_utilization_ratio", 0) * 100, 1)
+        badge = f" [Budget: ~{used}/{budget} tokens ({pct}%)]"
 
     lines = []
-    lines.append(f"### 🧠 Active Learned Behavioral Context ({cap.upper()})")
+    lines.append(f"### 🧠 Active Learned Behavioral Context ({cap.upper()}){badge}")
     lines.append(f"- **Target Capability**: `{cap}` | **Task**: `{task}` | **Agent**: `{agent}` | **Project Scope**: `{proj}`")
     lines.append("")
 
@@ -113,6 +120,18 @@ def format_markdown_briefing(briefing: Dict[str, Any]) -> str:
         lines.append(f"- **Historical Telemetry**: {cap_sum.get('total_invocations', 0)} total runs | {cap_sum.get('success_count', 0)} passed | {cap_sum.get('failure_count', 0)} failed.")
         lines.append("")
 
+    # 6. Dynamic Budget Telemetry (Phase 41)
+    if telem and telem.get("max_token_budget"):
+        lines.append("#### 📊 Budget Telemetry & Quota Audit:")
+        used = telem.get("estimated_tokens_used", 0)
+        budget = telem.get("max_token_budget", 800)
+        pct = telem.get("budget_utilization_ratio", 0) * 100
+        mode = telem.get("compression_mode", "STANDARD")
+        lines.append(f"- **Max Budget**: {budget} tokens | **Estimated Tokens**: {used} ({pct:.1f}%) | **Mode**: `{mode}`")
+        if telem.get("items_pruned_by_budget", 0) > 0:
+            lines.append(f"- **Pruned for Budget**: {telem['items_pruned_by_budget']} items pruned to preserve context economy.")
+        lines.append("")
+
     return "\n".join(lines)
 
 
@@ -126,6 +145,7 @@ def main():
     parser.add_argument("--tags", nargs="*", help="Topical tags")
     parser.add_argument("--project-id", help="Active project ID for strict scope containment")
     parser.add_argument("--limit", type=int, default=3, help="Max items per section")
+    parser.add_argument("--max-tokens", type=int, default=800, help="Maximum token budget for pre-task briefing (Phase 41)")
     parser.add_argument("--format", choices=["markdown", "json"], default="markdown", help="Output format")
     parser.add_argument("--base-dir", help="Base repository directory override")
     args = parser.parse_args()
@@ -140,7 +160,8 @@ def main():
         domain=args.domain,
         tags=args.tags,
         project_id=args.project_id,
-        limit_per_category=args.limit
+        limit_per_category=args.limit,
+        max_token_budget=args.max_tokens
     )
 
     if args.format == "json":
