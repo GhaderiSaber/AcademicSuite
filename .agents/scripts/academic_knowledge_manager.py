@@ -1103,7 +1103,8 @@ class AcademicKnowledgeManager:
         tags: Optional[List[str]] = None,
         project_id: Optional[str] = None,
         limit_per_category: int = 5,
-        task_description: Optional[str] = None
+        task_description: Optional[str] = None,
+        max_token_budget: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Produce an actionable pre-flight briefing for an agent prior to beginning execution.
@@ -1221,6 +1222,40 @@ class AcademicKnowledgeManager:
                 "calibrated_parameter_defaults": cap_memory.get("calibrated_parameter_defaults", {}) if cap_memory else {}
             } if cap_memory else None
         }
+
+        try:
+            from scripts.academic_context_token_budgeter import AcademicContextTokenBudgeter
+        except ImportError:
+            from academic_context_token_budgeter import AcademicContextTokenBudgeter
+
+        budgeter = AcademicContextTokenBudgeter(default_budget=max_token_budget or 800)
+        budgeted = budgeter.budget_context(
+            raw_context=briefing,
+            max_token_budget=max_token_budget,
+            target_capability=canon_cap or "General",
+            task=effective_task or "general_task",
+            agent=agent or "academic-orchestrator",
+            project_id=project_id or "cross-project"
+        )
+
+        if max_token_budget is not None:
+            briefing["lessons"] = budgeted["relevant_lessons"]
+            briefing["anti_patterns"] = budgeted["known_pitfalls"]
+            briefing["exemplars"] = budgeted["exemplars"]
+            briefing["contradictions"] = budgeted["applicable_methodology_rules"]
+            briefing["budget_telemetry"] = budgeted["budget_telemetry"]
+            briefing["formatted_briefing"] = budgeted["formatted_briefing"]
+        else:
+            briefing["budget_telemetry"] = {
+                "max_token_budget": None,
+                "estimated_tokens_used": budgeted["budget_telemetry"]["estimated_tokens_used"],
+                "budget_utilization_ratio": 1.0,
+                "compression_mode": "STANDARD",
+                "items_selected": budgeted["budget_telemetry"]["items_selected"],
+                "items_pruned_by_budget": 0,
+                "pruned_details": []
+            }
+            briefing["formatted_briefing"] = budgeted["formatted_briefing"]
 
         return briefing
 

@@ -82,13 +82,29 @@ To prevent semantic search from retrieving an academically inappropriate lesson 
    - **`contradiction`**: Penalty deductions for active/unresolved conflicts under Phase 27.
 
 
+### Dynamic Context Token Budgeting (Phase 41)
+To prevent context bloat, eliminate rule interference, and respect agent context budgets, context retrieval enforces **Dynamic Context Token Budgeting**:
+- **Turn Pre-Flight Default Budget**: `800 tokens` (comprehensive guidance without context dilution).
+- **Subagent Dispatch Default Budget**: `500 tokens` (leaner context protecting subagent focus).
+- **Priority-Weighted Knapsack Allocation**:
+  $$\text{Value Density} = \frac{\text{PriorityWeight} \times \text{Score}}{\text{Estimated Tokens}}$$
+  - **Tier 1 (1.5x)**: Known Pitfalls & Anti-Patterns (safety floor: top pitfall always preserved).
+  - **Tier 2 (1.4x)**: Calibrated Defaults (high leverage, tiny token footprint).
+  - **Tier 3 (1.2x)**: Relevant Active Lessons (instructional mandates).
+  - **Tier 4 (1.0x)**: Methodology Rules & Contradictions (boundary conditions).
+  - **Tier 5 (0.8x)**: Gold-Standard Exemplars (included only if $\ge 150$ tokens remain).
+- **Dual Compression Modes**:
+  - `STANDARD` ($\ge 500$ tokens): Full mandates, generalizations, remedies, and exemplars.
+  - `COMPACT` ($< 500$ tokens): Lean single-line mandates, compact anti-patterns, zero exemplars.
+- **Budget Badge & Telemetry**: Header displays `[Budget: ~used/max tokens (%)]` with audit metrics in `budget_telemetry`.
+
 ### Execution Boundary Retrieval Flow:
 1. **Turn Execution Boundary (`PreInvocation` Hook)**:
    - Intercepts turn initiation before LLM reasoning or tool calls.
    - Automatically maps incoming user intent/prompt to target capability, domain, and primary agent.
-   - Queries `AcademicKnowledgeManager.retrieve_pre_task_context()` and injects the 4-part briefing (lessons, pitfalls, methodology rules, defaults) directly into the agent's ephemeral context.
+   - Queries `AcademicKnowledgeManager.retrieve_pre_task_context()` with 800-token budget and injects the briefing directly into the agent's ephemeral context.
 2. **Delegation Boundary (`PreToolUse` & Task Router)**:
-   - Enriches dispatched subagents with their role-specific lessons, anti-patterns, and boundary conditions.
+   - Enriches dispatched subagents with role-specific boundary context budgeted to 500 tokens.
 3. **Manual / CLI Diagnostic Inspection ("The Hands")**:
    - For debugging, testing, or offline verification, the standalone CLI tool remains available:
    ```bash
@@ -97,6 +113,7 @@ To prevent semantic search from retrieving an academically inappropriate lesson 
      --task <task_type> \
      --agent <agent_name> \
      --project-id <project_id> \
+     --max-tokens 800 \
      --format markdown
    ```
 

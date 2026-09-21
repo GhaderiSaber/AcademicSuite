@@ -38,6 +38,10 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from scripts.academic_knowledge_manager import AcademicKnowledgeManager
+try:
+    from scripts.academic_context_token_budgeter import AcademicContextTokenBudgeter
+except ImportError:
+    from academic_context_token_budgeter import AcademicContextTokenBudgeter
 
 # Canonical mapping from keyword patterns to capability, default task, and primary agent
 ACADEMIC_CAPABILITY_SIGNATURES: List[Dict[str, Any]] = [
@@ -153,6 +157,7 @@ class AcademicAdaptiveContextBoundary:
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
         self.km = AcademicKnowledgeManager(base_dir=self.base_dir)
+        self.budgeter = AcademicContextTokenBudgeter()
 
     def is_bypass_turn(self, text: str) -> bool:
         """Determines if the text matches pure operational or trivial conversational bypass."""
@@ -221,7 +226,8 @@ class AcademicAdaptiveContextBoundary:
         project_id: Optional[str] = None,
         prompt_text: Optional[str] = None,
         failure_type: Optional[str] = None,
-        limit_per_category: int = 3
+        limit_per_category: int = 3,
+        max_token_budget: Optional[int] = 800
     ) -> Dict[str, Any]:
         """
         Deterministically queries knowledge store and packages context into the 4-part contract:
@@ -229,7 +235,7 @@ class AcademicAdaptiveContextBoundary:
         2. known_pitfalls
         3. applicable_methodology_rules
         4. calibrated_defaults
-        Utilizes Phase 29 Two-Stage Retrieval (Stage 1 Hard Filtering -> Stage 2 Semantic Ranking).
+        Utilizes Phase 29 Two-Stage Retrieval and Phase 41 Dynamic Context Token Budgeting.
         """
         raw_context = self.km.retrieve_pre_task_context(
             capability=capability,
@@ -239,7 +245,8 @@ class AcademicAdaptiveContextBoundary:
             failure_types=[failure_type] if failure_type else None,
             project_id=project_id,
             limit_per_category=limit_per_category,
-            task_description=prompt_text
+            task_description=prompt_text,
+            max_token_budget=max_token_budget
         )
 
         lessons = raw_context.get("lessons", [])
@@ -248,6 +255,7 @@ class AcademicAdaptiveContextBoundary:
         exemplars = raw_context.get("exemplars", [])
         cap_sum = raw_context.get("capability_summary", {})
         calibrated_defaults = cap_sum.get("calibrated_parameter_defaults", {}) if cap_sum else {}
+        budget_telem = raw_context.get("budget_telemetry", {})
 
         # Format 4-part boundary payload
         boundary_payload = {
@@ -256,10 +264,12 @@ class AcademicAdaptiveContextBoundary:
             "task": task or "general_task",
             "agent": agent or "academic-orchestrator",
             "project_id": project_id or "cross-project",
+            "max_token_budget": max_token_budget,
+            "budget_telemetry": budget_telem,
             "relevant_lessons": [
                 {
                     "lesson_id": l.get("lesson_id", "LSN"),
-                    "mandate": l.get("desired_behavior", ""),
+                    "mandate": l.get("desired_behavior") or l.get("mandate", ""),
                     "generalization": l.get("generalization", ""),
                     "confidence": l.get("confidence", 0.50)
                 }
@@ -268,8 +278,8 @@ class AcademicAdaptiveContextBoundary:
             "known_pitfalls": [
                 {
                     "anti_pattern_id": ap.get("anti_pattern_id", "AP"),
-                    "defect": ap.get("defective_pattern", ""),
-                    "remedy": ap.get("corrective_remedy", "")
+                    "defect": ap.get("defective_pattern") or ap.get("defect", ""),
+                    "remedy": ap.get("corrective_remedy") or ap.get("remedy", "")
                 }
                 for ap in anti_patterns
             ],
@@ -290,7 +300,8 @@ class AcademicAdaptiveContextBoundary:
                     "why_exemplary": ex.get("why_exemplary", "")
                 }
                 for ex in exemplars
-            ]
+            ],
+            "formatted_briefing": raw_context.get("formatted_briefing", "")
         }
 
         return boundary_payload
@@ -300,63 +311,30 @@ class AcademicAdaptiveContextBoundary:
         Renders the 4-part boundary payload into an authoritative Markdown briefing.
         Seated directly in immediate agent context window before execution.
         """
-        cap = payload.get("target_capability", "General").upper()
+        if payload.get("formatted_briefing"):
+            return payload["formatted_briefing"]
+
+        cap = payload.get("target_capability", "General")
         task = payload.get("task", "general_task")
         agent = payload.get("agent", "academic-orchestrator")
         proj = payload.get("project_id", "cross-project")
+        budget = payload.get("max_token_budget", 800)
 
-        lines = [
-            f"🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)",
-            f"- **Target Capability**: `{cap}` | **Task**: `{task}` | **Agent**: `{agent}` | **Project**: `{proj}`",
-            ""
-        ]
-
-        # 1. Known Pitfalls (Anti-Patterns to Avoid)
-        pitfalls = payload.get("known_pitfalls", [])
-        lines.append("⚠️ Known Pitfalls (Anti-Patterns to Avoid):")
-        if pitfalls:
-            for p in pitfalls:
-                lines.append(f"- [{p.get('anti_pattern_id')}] Avoid: {p.get('defect')}")
-                if p.get("remedy"):
-                    lines.append(f"  Approved Remedy: {p.get('remedy')}")
-        else:
-            lines.append("- None cataloged for this capability. Enforce standard APA 7 & OpenXML rigor.")
-        lines.append("")
-
-        # 2. Relevant Lessons
-        lessons = payload.get("relevant_lessons", [])
-        lines.append("💡 Relevant Active Lessons:")
-        if lessons:
-            for l in lessons:
-                lines.append(f"- [{l.get('lesson_id')}] Mandate: {l.get('mandate')}")
-                if l.get("generalization"):
-                    lines.append(f"  Generalization: {l.get('generalization')}")
-        else:
-            lines.append("- No specialized lessons flagged. Standard pipeline rules apply.")
-        lines.append("")
-
-        # 3. Applicable Methodology Rules & Reconciled Contradictions
-        rules = payload.get("applicable_methodology_rules", [])
-        lines.append("⚖️ Applicable Methodology Rules & Boundary Conditions:")
-        if rules:
-            for r in rules:
-                lines.append(f"- [{r.get('contradiction_id')}] {r.get('conflict_type')}: {r.get('description')}")
-                conds = r.get("applicability_conditions", {})
-                if conds.get("condition_for_a"):
-                    lines.append(f"  Condition A: {conds.get('condition_for_a')}")
-                if conds.get("condition_for_b"):
-                    lines.append(f"  Condition B: {conds.get('condition_for_b')}")
-        else:
-            lines.append("- No conflicting paradigms active. Follow primary statistical decision tree.")
-        lines.append("")
-
-        # 4. Calibrated Operational Defaults
-        defaults = payload.get("calibrated_defaults", {})
-        if defaults:
-            lines.append(f"🎯 Calibrated Defaults: `{json.dumps(defaults)}`")
-            lines.append("")
-
-        return "\n".join(lines)
+        budgeted = self.budgeter.budget_context(
+            raw_context={
+                "lessons": payload.get("relevant_lessons", []),
+                "anti_patterns": payload.get("known_pitfalls", []),
+                "contradictions": payload.get("applicable_methodology_rules", []),
+                "exemplars": payload.get("exemplars", []),
+                "capability_summary": {"calibrated_parameter_defaults": payload.get("calibrated_defaults", {})}
+            },
+            max_token_budget=budget,
+            target_capability=cap,
+            task=task,
+            agent=agent,
+            project_id=proj
+        )
+        return budgeted["formatted_briefing"]
 
     def retrieve_for_turn(self, hook_payload: Dict[str, Any]) -> Optional[str]:
         """
@@ -394,7 +372,8 @@ class AcademicAdaptiveContextBoundary:
             agent=intent.get("primary_agent"),
             domain=intent.get("domain"),
             project_id=intent.get("project_id"),
-            prompt_text=clean_user
+            prompt_text=clean_user,
+            max_token_budget=self.budgeter.DEFAULT_TOKEN_BUDGET
         )
 
         return self.format_boundary_briefing(boundary_data)
@@ -421,7 +400,8 @@ class AcademicAdaptiveContextBoundary:
                 task=task,
                 agent=type_name or role,
                 domain=intent.get("domain") if intent else None,
-                prompt_text=prompt
+                prompt_text=prompt,
+                max_token_budget=self.budgeter.SUBAGENT_TOKEN_BUDGET
             )
             briefing = self.format_boundary_briefing(b_data)
 
