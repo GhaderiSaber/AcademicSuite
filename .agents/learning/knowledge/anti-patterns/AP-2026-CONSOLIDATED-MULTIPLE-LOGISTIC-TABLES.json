@@ -14,5 +14,11 @@
     "trigger_rule": "Detection of fewer than 7 tables in a mixed simple/multiple/logistic regression hypothesis block, or detection of combined ANOVA/Coefficients columns in a single table structure."
   },
   "reusable": true,
-  "updated_at": "2026-09-21T18:30:00+03:30"
+  "updated_at": "2026-09-21T18:30:00+03:30",
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "academic-writer",
+    "validation-agent"
+  ]
 }

@@ -14,5 +14,10 @@
     "trigger_rule": "Presence of verbose metric names in table header cells (e.g. 'میانگین', 'انحراف معیار') or presence of non-symbol English strings in body paragraphs."
   },
   "reusable": true,
-  "updated_at": "2026-09-21T19:45:00+03:30"
+  "updated_at": "2026-09-21T19:45:00+03:30",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ]
 }

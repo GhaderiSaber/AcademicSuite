@@ -15,5 +15,10 @@
     "diagnostic_check_id": "CHECK_REGRESSION_THREE_TABLE_SUITE"
   },
   "reusable": true,
-  "updated_at": "2026-09-21T18:10:00+03:30"
+  "updated_at": "2026-09-21T18:10:00+03:30",
+  "target_agent": "validation-agent",
+  "target_agents": [
+    "validation-agent",
+    "results-auditor"
+  ]
 }

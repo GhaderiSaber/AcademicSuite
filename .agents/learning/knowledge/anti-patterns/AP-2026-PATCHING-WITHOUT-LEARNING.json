@@ -15,5 +15,9 @@
     "diagnostic_check_id": "CHECK_FEEDBACK_LEARNING_PIPELINE_ACTIVATION"
   },
   "reusable": true,
-  "updated_at": "2026-09-21T12:35:00Z"
+  "updated_at": "2026-09-21T12:35:00Z",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator"
+  ]
 }

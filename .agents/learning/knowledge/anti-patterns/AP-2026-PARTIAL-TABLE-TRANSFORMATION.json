@@ -3,9 +3,20 @@
   "category": "execution",
   "defective_pattern": "Writing refinement scripts with brittle regex patterns tailored only to a subset of tables (e.g. inferential regression tables) and assuming preceding scaffolding (like table note blocks) already exists on disk.",
   "why_defective": "Leaves early demographic and descriptive tables in inconsistent formats and silently skips tables lacking pre-existing note markers.",
-  "observed_symptoms": [],
+  "observed_symptoms": [
+    "Early demographic/descriptive tables remain in inconsistent formats",
+    "Tables lacking pre-existing note markers are silently skipped"
+  ],
   "corrective_remedy": "Build defensive, exhaustive table-by-table processors that iterate over all 45 tables, instantiate missing note blocks automatically, and map all demographic, descriptive, and inferential headers to standard APA Latin symbols.",
-  "detection_heuristic": {},
+  "detection_heuristic": {
+    "trigger_rule": "Inspect table refinement scripts for regex patterns matching only inferential tables or skipping tables without note blocks."
+  },
   "reusable": true,
-  "updated_at": "2026-09-21T16:57:00Z"
+  "updated_at": "2026-09-21T16:57:00Z",
+  "contract_version": "1.0.0",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ]
 }

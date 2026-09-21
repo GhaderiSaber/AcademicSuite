@@ -13,5 +13,10 @@
     "trigger_rule": "Presence of <w:jc w:val=\"right\"/> within a paragraph that also contains <w:bidi w:val=\"1\"/>."
   },
   "reusable": true,
-  "updated_at": "2026-09-21T13:10:24+03:30"
+  "updated_at": "2026-09-21T13:10:24+03:30",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ]
 }

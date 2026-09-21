@@ -12,5 +12,10 @@
     "trigger_rule": "Presence of bold styling applied to paragraph styles or runs explicitly acting as Table Captions."
   },
   "reusable": true,
-  "updated_at": "2026-09-21T14:30:00+03:30"
+  "updated_at": "2026-09-21T14:30:00+03:30",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ]
 }

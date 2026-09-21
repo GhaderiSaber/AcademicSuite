@@ -15,5 +15,9 @@
     "diagnostic_check_id": "CHECK_LEARNING_SUBAGENT_ROUTING"
   },
   "reusable": true,
-  "updated_at": "2026-09-21T12:30:00Z"
+  "updated_at": "2026-09-21T12:30:00Z",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator"
+  ]
 }

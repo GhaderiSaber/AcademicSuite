@@ -32,5 +32,11 @@
   "is_active_behavior": false,
   "status": "VALIDATED",
   "created_at": "2026-09-21T12:40:00Z",
-  "derived_by": "knowledge-curator"
+  "derived_by": "knowledge-curator",
+  "contract_version": "1.0.0",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ]
 }

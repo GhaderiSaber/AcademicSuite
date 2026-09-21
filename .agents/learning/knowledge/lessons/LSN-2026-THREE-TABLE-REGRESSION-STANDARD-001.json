@@ -26,5 +26,11 @@
   ],
   "is_active_behavior": false,
   "status": "VALIDATED",
-  "created_at": "2026-09-21T17:30:00+03:30"
+  "created_at": "2026-09-21T17:30:00+03:30",
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "academic-writer",
+    "validation-agent"
+  ]
 }

@@ -13,5 +13,10 @@
     "trigger_rule": "High frequency of <w:numPr> or bullet characters (•, -, 1.) in standard body narrative paragraphs."
   },
   "reusable": true,
-  "updated_at": "2026-09-21T14:30:00+03:30"
+  "updated_at": "2026-09-21T14:30:00+03:30",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ]
 }

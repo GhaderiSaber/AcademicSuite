@@ -14,5 +14,11 @@
     "trigger_rule": "Absence of ANOVA sum of squares or Correlation matrix in regression reporting blocks, or detection of a single table row containing both model summary (R2/F) and coefficient estimates (Beta/t)."
   },
   "reusable": true,
-  "updated_at": "2026-09-21T17:30:00+03:30"
+  "updated_at": "2026-09-21T17:30:00+03:30",
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "academic-writer",
+    "validation-agent"
+  ]
 }

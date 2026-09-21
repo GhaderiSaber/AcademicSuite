@@ -13,5 +13,11 @@
     "diagnostic_check_id": "CHECK_PPR_JC_ORDER"
   },
   "reusable": true,
-  "updated_at": "2026-09-21T12:40:00Z"
+  "updated_at": "2026-09-21T12:40:00Z",
+  "contract_version": "1.0.0",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ]
 }
