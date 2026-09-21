@@ -1,11 +1,23 @@
 {
   "anti_pattern_id": "AP-2026-HYPOTHESIS-QUESTION-AGGLOMERATION",
-  "category": "structure",
+  "category": "methodological",
   "defective_pattern": "Lumping multiple research questions (e.g. Questions 2 and 3) into a single chapter section and using bullet-like bold strings instead of formal academic prose.",
   "why_defective": "Violates the fundamental One-Question-One-Section invariant, obscures independent findings, and compromises scholarly tone.",
-  "observed_symptoms": [],
+  "observed_symptoms": [
+    "Lumping Question 2 and Question 3 into a single H2 block",
+    "Failure to produce independent triads per hypothesis"
+  ],
   "corrective_remedy": "Enforce strictly separate, dedicated H2 sections for each research question and hypothesis, formatted in flowing, cohesive academic prose.",
-  "detection_heuristic": {},
+  "detection_heuristic": {
+    "trigger_rule": "Flag chapter sections where multiple research questions or hypotheses share a single subsection header.",
+    "diagnostic_check_id": "CHK_HYPOTHESIS_SEPARATION"
+  },
   "reusable": true,
-  "updated_at": "2026-09-21T17:50:00Z"
+  "updated_at": "2026-09-21T17:50:00Z",
+  "contract_version": "1.0.0",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "academic-orchestrator"
+  ]
 }

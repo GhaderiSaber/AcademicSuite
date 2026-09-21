@@ -1,11 +1,23 @@
 {
   "anti_pattern_id": "AP-2026-TABLE-CELL-CORRUPTION-AND-STAR-STRIPPING",
-  "category": "compilation",
+  "category": "typography",
   "defective_pattern": "Using indiscriminate cell.replace('*', '') to remove markdown formatting, which strips trailing statistical significance stars (*, **, ***), and filling sparse matrix cells (like upper diagonals) with hyphens instead of leaving them blank.",
   "why_defective": "Corrupts statistical data in tables by erasing significance levels and violates APA table design principles by introducing visual clutter.",
-  "observed_symptoms": [],
+  "observed_symptoms": [
+    "Significance asterisks stripped from table cells",
+    "Upper diagonal cells filled with hyphens instead of blank"
+  ],
   "corrective_remedy": "Distinguish markdown bolding from statistical asterisks; leave empty matrix cells strictly blank without hyphens.",
-  "detection_heuristic": {},
+  "detection_heuristic": {
+    "trigger_rule": "Flag tables where correlation matrix upper diagonals contain hyphens or asterisks are absent from p < .05 cells.",
+    "diagnostic_check_id": "CHK_TABLE_ASTERISKS"
+  },
   "reusable": true,
-  "updated_at": "2026-09-21T17:50:00Z"
+  "updated_at": "2026-09-21T17:50:00Z",
+  "contract_version": "1.0.0",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ]
 }

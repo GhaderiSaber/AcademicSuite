@@ -14,5 +14,11 @@
     "diagnostic_check_id": "CHECK_CONSTRUCT_PURITY"
   },
   "reusable": true,
-  "updated_at": "2026-09-21T18:05:00Z"
+  "updated_at": "2026-09-21T18:05:00Z",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor",
+    "statistics-agent"
+  ]
 }
