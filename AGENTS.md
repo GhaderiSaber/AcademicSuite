@@ -72,13 +72,7 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 3. **The One-Hypothesis-One-Stage Invariant (اصل یک فرضیه = یک مرحله مجزا)**:
    - In Chapter 4 (Findings) and Chapter 5 (Discussion), every individual hypothesis (Hypothesis 1, 2, ..., $k$, and each indirect mediation path) **MUST HAVE ITS OWN DEDICATED, INDEPENDENT STAGE** producing its dedicated triad (`06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json`). Never lump multiple hypotheses into a single calculation or drafting step.
 4. **Mandatory Micro-Stage Sequences & Triad Matrices**:
-   - Full, authoritative per-stage breakdowns, assigned subagents, and exact triad deliverables are codified in [MICRO_STAGE_SEQUENCES.md](.agents/references/MICRO_STAGE_SEQUENCES.md). All pipelines must strictly execute each sequence in sequential order:
-     - **Chapter 4 Findings**: Stages 4.0 through 4.12 (Data Curation $\rightarrow$ Demographics $\rightarrow$ Descriptives/Reliability $\rightarrow$ Assumptions $\rightarrow$ Correlations $\rightarrow$ Macro Model Fit $\rightarrow$ Hypotheses 1..k $\rightarrow$ Mediation $\rightarrow$ Decision Matrix $\rightarrow$ Statistical QC $\rightarrow$ Typography QC $\rightarrow$ OpenXML Assembly $\rightarrow$ Viva Voce Simulation).
-     - **Chapter 5 Discussion**: Stages 5.1 through 5.7 (Findings Recap $\rightarrow$ Hypotheses 1..k Deep Discussion $\rightarrow$ Non-Significant Findings $\rightarrow$ Implications $\rightarrow$ Limitations $\rightarrow$ Recommendations $\rightarrow$ Consolidation).
-     - **Chapter 2 Literature Review**: Stages 2.1 through 2.8 (Foundations $\rightarrow$ Bibliometrics $\rightarrow$ International $\rightarrow$ Iranian $\rightarrow$ Synthesis $\rightarrow$ Matrix Table $\rightarrow$ Grounding $\rightarrow$ Assembly).
-     - **Research Proposal**: Stages P.1 through P.8 (Problem $\rightarrow$ Significance $\rightarrow$ Hypotheses $\rightarrow$ Methodology $\rightarrow$ Sampling/Power $\rightarrow$ Instruments $\rightarrow$ Procedure/Ethics $\rightarrow$ Assembly).
-     - **Scale Validation**: Stages V.1 through V.9 (CVR/CVI $\rightarrow$ Item Analysis $\rightarrow$ EFA $\rightarrow$ CFA $\rightarrow$ Construct Validity $\rightarrow$ Invariance $\rightarrow$ Reliability $\rightarrow$ IRT/ROC $\rightarrow$ Assembly).
-     - **Defense Presentation Builder**: Stages D.0 through D.7 (Payload Ingestion $\rightarrow$ Storyboard $\rightarrow$ Hypothesis Slide Triads $\rightarrow$ Deck Compilation $\rightarrow$ Publication Diagram $\rightarrow$ Script $\rightarrow$ QA Audit $\rightarrow$ Viva Voce Simulation).
+   - Full, authoritative per-stage breakdowns, assigned subagents, and exact triad deliverables are codified in [MICRO_STAGE_SEQUENCES.md](.agents/references/MICRO_STAGE_SEQUENCES.md): Chapter 4 (Stages 4.0–4.12), Chapter 5 (5.1–5.7), Chapter 2 (2.1–2.8), Proposal (P.1–P.8), Scale Validation (V.1–V.9), Defense Presentations (D.0–D.7).
 
 ---
 
@@ -195,6 +189,12 @@ These two permanent architectural laws govern `academic-orchestrator`:
 2. **Delegation Availability Invariant**: `academic-orchestrator` MUST possess:
    - `invoke_subagent`
    The orchestrator coordinates work exclusively through specialist subagents; it must always retain the native multi-agent delegation tool to dispatch tasks across isolated specialist contexts.
+
+### Directive 21: Proactive Human Mentorship & Direct Knowledge Ingestion Protocol
+1. **Conversational Ingestion**: When the human mentor/supervisor (Saber Ghaderi) provides direct guidance, standards, or methodology instructions in conversation (e.g., *"Remember that..."*, *"Learn this: always do X because Y"*), agents MUST NOT treat it as ephemeral chat text.
+2. **Immediate Codification**: The agent executes `academic_human_mentor.py teach` or `teach_from_natural_language()` to categorize the rule (`principle`, `pattern`, `anti_pattern`, or `lesson`), validate it against contract schemas, and persist it to `.agents/learning/knowledge/`.
+3. **Shared Learning Invariant**: Direct human mentorship items default to `scope: "cross-project"`, ensuring they are tracked in Git, committed, and synced to GitHub for all current and future projects.
+4. **Deterministic Pre-Task Feeding**: Human-taught principles and patterns are deterministically prioritized by the Two-Stage Retriever and Dynamic Context Token Budgeter, surfacing in pre-flight briefings under `⚖️ Applicable Methodology Rules & Boundary Conditions:`.
 
 ---
 

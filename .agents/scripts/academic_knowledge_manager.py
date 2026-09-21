@@ -124,7 +124,7 @@ class AcademicKnowledgeManager:
     }
 
     def __init__(self, base_dir: Optional[str] = None):
-        self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
+        self.base_dir = os.path.abspath(base_dir or os.environ.get("ACADEMIC_SUITE_BASE_DIR") or ROOT_DIR)
         cand_agents = os.path.join(self.base_dir, ".agents", "learning")
         self.learning_dir = cand_agents if os.path.isdir(cand_agents) else os.path.join(self.base_dir, "learning")
         self.knowledge_dir = os.path.join(self.learning_dir, "knowledge")
@@ -715,6 +715,11 @@ class AcademicKnowledgeManager:
 
         # Prepare new item
         new_item = dict(new_item_data)
+        new_item.pop("knowledge_id", None)
+        new_item.pop("anti_pattern_id", None)
+        new_item.pop("exemplar_id", None)
+        new_item.pop("lesson_id", None)
+        new_item.pop("item_id", None)
         new_item.setdefault("status", "ACCEPTED_ACTIVE")
         new_item.setdefault("updated_at", datetime.now(timezone.utc).isoformat())
 
@@ -1272,7 +1277,11 @@ class AcademicKnowledgeManager:
 
 def main():
     parser = argparse.ArgumentParser(description="AcademicSuite Persistent Knowledge Manager CLI")
-    parser.add_argument("--action", choices=["pre_task", "query", "show_memory", "link"], default="pre_task")
+    parser.add_argument(
+        "--action",
+        choices=["pre_task", "query", "show_memory", "link", "teach", "list", "search", "supersede"],
+        default="pre_task"
+    )
     parser.add_argument("--task", help="Target task type (e.g. bootstrap_mediation)")
     parser.add_argument("--capability", help="Capability (e.g. mediation, SEM, psychometrics)")
     parser.add_argument("--agent", help="Agent role name")
@@ -1280,6 +1289,12 @@ def main():
     parser.add_argument("--domain", help="Domain filter")
     parser.add_argument("--tags", nargs="*", help="List of tags")
     parser.add_argument("--project-id", help="Project ID for scope containment")
+    parser.add_argument("--category", help="Category for teach/list/search (principle, pattern, anti_pattern, lesson)")
+    parser.add_argument("--statement", help="Instruction or rule statement for teach/supersede")
+    parser.add_argument("--rationale", help="Empirical justification or reasoning")
+    parser.add_argument("--old-id", help="ID of old knowledge item to supersede")
+    parser.add_argument("--query", help="Search query string")
+    parser.add_argument("--scope", default="cross-project", help="Scope containment (default: cross-project)")
     args = parser.parse_args()
 
     km = AcademicKnowledgeManager()
@@ -1314,6 +1329,46 @@ def main():
             project_id=args.project_id
         )
         print(json.dumps(results, indent=2, ensure_ascii=False))
+
+    elif args.action == "teach":
+        if not args.statement:
+            print("Error: --statement required for teach action", file=sys.stderr)
+            sys.exit(1)
+        from scripts.academic_human_mentor import AcademicHumanMentor
+        mentor = AcademicHumanMentor()
+        res = mentor.teach(
+            category=args.category or "principle",
+            statement=args.statement,
+            rationale=args.rationale,
+            capability=args.capability,
+            tags=args.tags,
+            scope=args.scope
+        )
+        print(res["badge"])
+
+    elif args.action == "list":
+        from scripts.academic_human_mentor import AcademicHumanMentor
+        mentor = AcademicHumanMentor()
+        items = mentor.list_knowledge(category=args.category, capability=args.capability)
+        print(json.dumps(items, indent=2, ensure_ascii=False))
+
+    elif args.action == "search":
+        if not args.query:
+            print("Error: --query required for search action", file=sys.stderr)
+            sys.exit(1)
+        from scripts.academic_human_mentor import AcademicHumanMentor
+        mentor = AcademicHumanMentor()
+        items = mentor.search_knowledge(query=args.query, category=args.category, capability=args.capability)
+        print(json.dumps(items, indent=2, ensure_ascii=False))
+
+    elif args.action == "supersede":
+        if not args.old_id or not args.statement:
+            print("Error: --old-id and --statement required for supersede action", file=sys.stderr)
+            sys.exit(1)
+        from scripts.academic_human_mentor import AcademicHumanMentor
+        mentor = AcademicHumanMentor()
+        res = mentor.supersede(old_id=args.old_id, new_statement=args.statement, rationale=args.rationale or "Updated")
+        print(res["badge"])
 
 
 if __name__ == "__main__":

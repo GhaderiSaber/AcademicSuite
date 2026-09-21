@@ -176,3 +176,21 @@ A compact markdown block (typically 15–35 lines) structured as:
    - Only lessons with `scope: cross-project` or `scope: domain` are made available across multiple research projects.
 3. **Contradiction Transparency**:
    - When competing paradigms exist (e.g. Baron & Kenny vs Preacher & Hayes bootstrap), the briefing surfaces the approved approach alongside the rejection rationale for the superseded method.
+
+---
+
+## 6. Proactive Human Mentorship & Direct Ingestion (Phase 42)
+
+In addition to reactive, post-failure learning loops, the repository supports **Proactive Human Mentorship**:
+- **Direct CLI Ingestion**:
+  ```bash
+  python3 .agents/scripts/academic_human_mentor.py teach \
+    --category principle \
+    --statement "<Methodological or statistical rule>" \
+    --capability <capability> \
+    --scope cross-project
+  ```
+- **Conversational Directive**:
+  When the researcher (Saber) says *"Remember that..."* or *"Learn this..."*, the agent executes `AcademicHumanMentor.teach_from_natural_language()`.
+- **Immediate Cross-Project Synchronization**:
+  Human-taught items default to `scope: cross-project`, committed to Git, and automatically ingested into subsequent agent pre-flight briefings under `⚖️ Applicable Methodology Rules & Boundary Conditions:`.

@@ -225,6 +225,26 @@ class AcademicContextTokenBudgeter:
                 "priority_weight": self.PRIORITY_WEIGHTS["contradiction"], "raw": ctd
             })
 
+        for prn in raw_context.get("principles", []):
+            item_id = prn.get("knowledge_id") or prn.get("item_id") or "PRN"
+            score = float(prn.get("score") or prn.get("confidence") or 0.85)
+            text_rep = self._render_rule(prn, mode)
+            candidates.append({
+                "item_id": item_id, "category": "contradiction", "score": score,
+                "text": text_rep, "tokens": estimate_tokens(text_rep),
+                "priority_weight": self.PRIORITY_WEIGHTS["methodology_rule"], "raw": prn
+            })
+
+        for ptr in raw_context.get("patterns", []):
+            item_id = ptr.get("knowledge_id") or ptr.get("item_id") or "PTR"
+            score = float(ptr.get("score") or ptr.get("confidence") or 0.80)
+            text_rep = self._render_rule(ptr, mode)
+            candidates.append({
+                "item_id": item_id, "category": "contradiction", "score": score,
+                "text": text_rep, "tokens": estimate_tokens(text_rep),
+                "priority_weight": self.PRIORITY_WEIGHTS["methodology_rule"], "raw": ptr
+            })
+
         if mode == "STANDARD":
             for ex in raw_context.get("exemplars", []):
                 item_id = ex.get("exemplar_id") or ex.get("item_id") or "EXM"
@@ -299,13 +319,18 @@ class AcademicContextTokenBudgeter:
         return f"- [{lid}] Mandate: {desired}\n  Generalization: {gen}"
 
     def _render_rule(self, ctd: Dict[str, Any], mode: str) -> str:
-        cid = ctd.get("contradiction_id") or ctd.get("item_id") or "CTD"
-        ctype = ctd.get("conflict_type") or "Rule"
-        desc = ctd.get("description") or ""
-        conds = ctd.get("applicability_conditions") or {}
+        cid = ctd.get("contradiction_id") or ctd.get("knowledge_id") or ctd.get("item_id") or "CTD"
+        raw_type = ctd.get("conflict_type") or ctd.get("item_type", "Rule")
+        ctype = str(raw_type).replace("_", " ").capitalize()
+        desc = ctd.get("description") or ctd.get("statement") or ""
+        conds = ctd.get("applicability_conditions") or ctd.get("applicability", {}).get("criteria", {})
         if mode == "COMPACT" or not conds:
             return f"- [{cid}] {ctype}: {desc}"
-        cond_lines = [f"  Condition A: {conds['condition_for_a']}"] if conds.get("condition_for_a") else []
+        cond_lines = []
+        if isinstance(conds, dict) and conds.get("condition_for_a"):
+            cond_lines = [f"  Condition A: {conds['condition_for_a']}"]
+        elif isinstance(conds, list) and conds and conds != ["Foundational rule established by research mentor"]:
+            cond_lines = [f"  Criteria: {conds[0]}"]
         return f"- [{cid}] {ctype}: {desc}\n" + "\n".join(cond_lines) if cond_lines else f"- [{cid}] {ctype}: {desc}"
 
     def _render_exemplar(self, ex: Dict[str, Any]) -> str:
