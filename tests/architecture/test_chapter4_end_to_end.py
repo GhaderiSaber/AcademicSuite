@@ -80,6 +80,20 @@ class TestChapter4EndToEnd(unittest.TestCase):
         cls.project_json = os.path.join(cls.state_dir, "project.json")
         cls.requirements_json = os.path.join(cls.state_dir, "requirements.json")
 
+        # Ensure raw CSV is synchronized with XLSX if missing
+        if not os.path.isfile(cls.raw_data_csv) and os.path.isfile(cls.raw_data_xlsx):
+            import pandas as pd
+            df = pd.read_excel(cls.raw_data_xlsx)
+            df.to_csv(cls.raw_data_csv, index=False)
+
+        # Ensure project state is initialized if missing
+        if not os.path.isfile(cls.project_json):
+            try:
+                from academic_state_manager import init_state
+                init_state(cls.project_dir, title="RCT Experimental Study", methodology="experimental", n=60)
+            except Exception:
+                pass
+
         assert os.path.isdir(cls.project_dir), f"RCT project missing: {cls.project_dir}"
         assert os.path.isfile(cls.raw_data_csv), f"Raw CSV missing: {cls.raw_data_csv}"
         assert os.path.isfile(cls.project_json), f"Project JSON missing: {cls.project_json}"

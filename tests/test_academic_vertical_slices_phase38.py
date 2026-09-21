@@ -80,6 +80,7 @@ class TestAcademicVerticalSlicesPhase38(unittest.TestCase):
         # 4. Analysis
         self.assertEqual(steps["4_analysis"]["status"], "PASS")
         self.assertAlmostEqual(steps["4_analysis"]["r2"], 0.415, places=2)
+        self.assertAlmostEqual(steps["4_analysis"]["adj_r2"], 0.403, places=2)
         self.assertGreater(steps["4_analysis"]["f_stat"], 30.0)
 
         # 5. Validation

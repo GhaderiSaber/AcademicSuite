@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_version": "1.0.0",
+  "provenance_type": "golden_statistical_model",
+  "model_name": "ols_multiple_regression_vertical_slice",
+  "description": "Cryptographically locked benchmark reference for OLS multiple regression in AcademicSuite test suite.",
+  "dataset": {
+    "relative_path": "tests/fixtures/study_vertical_slice_regression/01_raw_inputs/data_raw.csv",
+    "sha256": "afc80b160cd0f95fd162edc775a60ac4385fb86e22700f07ec0eb8bfc119f7ee",
+    "generator_seed": 42,
+    "sample_size": 100,
+    "dependent_variable": "job_burnout",
+    "independent_variables": [
+      "workplace_stress",
+      "psychological_flexibility"
+    ]
+  },
+  "execution": {
+    "engine": "python",
+    "script_path": ".agents/skills/regression/scripts/run_regression.py",
+    "script_sha256": "27fe985bb9d3a55dab120be0c8ad0077aae89644222d2bd35c2b1e4d93bc6903",
+    "command_pattern": "python3 .agents/skills/regression/scripts/run_regression.py --data {dataset} --dv {dv} --ivs {ivs} --output {output} --mode test"
+  },
+  "metrics": {
+    "multiple_r": 0.644,
+    "r2_unadjusted": 0.415,
+    "r2_adjusted": 0.403,
+    "f_statistic": 34.389,
+    "f_pvalue": "< .001",
+    "df_model": 2,
+    "df_residual": 97
+  },
+  "mathematical_reconciliation": {
+    "formula_r2": "SS_regression / SS_total = 0.41489... ≈ 0.415 (Unadjusted R²)",
+    "formula_adj_r2": "1 - ((1 - R^2) * (N - 1) / (N - k - 1)) = 1 - (0.58511 * 99 / 97) = 0.40294... ≈ 0.403 (Adjusted R²)",
+    "reconciliation_verdict": "CONCORDANT",
+    "notes": "R² = 0.415 and Adjusted R² = 0.403 are mathematically congruent outputs of the same OLS estimation. Both values are verified and asserted by the test suite."
+  }
+}

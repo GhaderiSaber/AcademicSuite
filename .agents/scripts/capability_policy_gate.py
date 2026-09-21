@@ -76,16 +76,20 @@ VIOLATION_NON_EXECUTOR_TOOL_MUTATION = "CANNOT_ADD_EXECUTION_TOOLS_TO_NON_EXECUT
 VIOLATION_ORCHESTRATOR_NON_EXECUTION_INVARIANT = "ORCHESTRATOR_NON_EXECUTION_INVARIANT_VIOLATION"
 VIOLATION_DELEGATION_AVAILABILITY_INVARIANT = "DELEGATION_AVAILABILITY_INVARIANT_VIOLATION"
 
-# Direct file mutation tools forbidden for orchestrator
-FILE_MUTATION_TOOLS: Set[str] = {
-    "write_to_file",
-    "replace_file_content",
-    "edit_file",
-    "apply_diff",
-    "multi_file_edit",
-    "batch_replace",
-    "patch"
-}
+# Direct file mutation tools forbidden for orchestrator (SSOT: contracts/canonical_tools.py)
+try:
+    from contracts.canonical_tools import ALL_MUTATION_TOOLS as FILE_MUTATION_TOOLS
+except ImportError:
+    FILE_MUTATION_TOOLS: Set[str] = {
+        "write_to_file",
+        "replace_file_content",
+        "multi_replace_file_content",
+        "edit_file",
+        "apply_diff",
+        "multi_file_edit",
+        "batch_replace",
+        "patch"
+    }
 
 # Arbitrary MCP execution tokens forbidden for orchestrator
 MCP_EXECUTION_PATTERNS = [

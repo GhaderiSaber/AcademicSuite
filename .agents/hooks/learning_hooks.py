@@ -584,6 +584,62 @@ class LearningHooks:
 
         ephemeral_blocks = [reminder]
 
+        # Resolve transcript path for context analysis
+        transcript_path = payload.get("transcriptPath")
+        cid = payload.get("conversationId")
+        if not transcript_path and cid:
+            cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
+            if os.path.exists(cand):
+                transcript_path = cand
+
+        # Model B: Deterministic Preflight Capability Routing for Academic Orchestrator
+        # Executes academic_task_router.py offline/in-hook ("The Hands") to compile academic-state/routing_plan.json
+        # and inject the deterministic capability plan into the orchestrator context.
+        is_orchestrator = (
+            caller in ("academic-orchestrator", "orchestrator")
+            or not caller
+        )
+        if is_orchestrator:
+            try:
+                user_text = (
+                    payload.get("userMessage")
+                    or payload.get("prompt")
+                    or payload.get("message")
+                    or ""
+                )
+                if not user_text and transcript_path and os.path.isfile(transcript_path):
+                    records = load_transcript(transcript_path)
+                    for r in reversed(records):
+                        if r.get("type") == "USER_INPUT" and r.get("content"):
+                            user_text = r.get("content", "").strip()
+                            break
+
+                clean_prompt = re.sub(r"<[^>]+>", "", str(user_text)).strip()
+                # Skip trivial queries or single words
+                if clean_prompt and len(clean_prompt) >= 6:
+                    from scripts.academic_task_router import route_and_persist_plan
+                    routing_plan = route_and_persist_plan(
+                        prompt=clean_prompt,
+                        base_dir=ROOT_DIR
+                    )
+                    formula = routing_plan.get("capabilities_formula", "")
+                    pipeline = routing_plan.get("pipeline", [])
+                    steps_desc = "\n".join([
+                        f"  Step {s['step']}: [{s['capability']}] -> {s['agent']} (Skill: {s['skill']}) [Output: {s['output_artifact']}]"
+                        for s in pipeline
+                    ])
+                    plan_block = (
+                        f"🧭 DETERMINISTIC CAPABILITY ROUTING PLAN (Model B / academic-state/routing_plan.json):\n"
+                        f"- User Task: \"{clean_prompt[:120]}\"\n"
+                        f"- Resolved Formula: {formula}\n"
+                        f"- Ordered Execution Pipeline:\n{steps_desc}\n"
+                        f"- Operational Invariant: academic-orchestrator is non-executing (Directive 20). Inspect 'academic-state/routing_plan.json' "
+                        f"via view_file and delegate stages sequentially to specialist workers via invoke_subagent."
+                    )
+                    ephemeral_blocks.append(plan_block)
+            except Exception as e_route:
+                sys.stderr.write(f"[learning_hooks] PreInvocation task router note: {e_route}\n")
+
         # Phase 28: Deterministic Context Retrieval at the Execution Boundary
         try:
             from scripts.academic_adaptive_context_boundary import AcademicAdaptiveContextBoundary

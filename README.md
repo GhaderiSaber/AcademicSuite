@@ -153,42 +153,42 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
 
 ## 📁 Repository Structure
 
+> 💡 **Architectural Single Source of Truth**: See [docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md](docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md) for full taxonomy reconciling Current Ground Truth, Historical Phase Records, and Target Roadmaps.
+
 ```text
 AcademicSuite/
-├── .agents/                               # Digital Saber Cognitive Subsystem
-│   ├── agents/                            # 28 Option-1 Packaged Agents (agent.md + contract.md + symlinks)
+├── .agents/                               # Consolidated Digital Saber Cognitive Subsystem
+│   ├── agents/                            # 30 Packaged Agents (28 Production Roles + 2 Verification Roles)
 │   ├── skills/                            # 44 Active Production Skills (scripts, resources, examples, schemas)
-│   ├── rules/                             # Constitutional Directives & Guardrails (academic, data, conventions)
+│   ├── contracts/                         # 51 Authoritative Schemas & Behavioral Policy Contracts
+│   ├── scripts/                           # Deterministic Orchestration, State & Routing Engines
+│   ├── validators/                        # Deterministic Gatekeepers (Data, Reporting, Numerical, Assumptions)
+│   ├── tools/                             # Computational Engines ("The Hands": Python & R)
+│   ├── factory/                           # Agent & Skill Generative Meta-Factory
+│   ├── recovery/                          # Failure Recovery & State Diagnostics Engine
+│   ├── learning/                          # Autonomous Agent Evolution, Lessons & Behavioral Memory
+│   ├── state/                             # Persistent State Ledger & Milestone Progression
+│   ├── legacy/                            # Retired Components Archive (10 workflows & legacy skills)
+│   ├── rules/                             # Constitutional Directives & Guardrails
 │   ├── hooks/                             # Antigravity Lifecycle Hook Runner Scripts
 │   ├── hooks.json                         # Hooks Configuration Manifest
-│   ├── identity/                          # Digital Saber Persona & Core Ethics
+│   ├── identity/                          # Digital Saber Persona & Core Constitution
 │   ├── memory/                            # Case-Based Reasoning (16 cases) & Decision Journal
 │   └── verification/                      # MSAI Anomaly Detector & Committee Viva Voce Simulator
-├── tools/                                 # Deterministic Computational Engines ("The Hands")
-│   ├── python/                            # Statistical runners & OpenXML formatting helpers
-│   └── r/                                 # R lavaan SEM and bootstrapping runners
-├── artifacts/                             # Global Cross-Agent Artifact Handoff Bus (Phase 7)
-│   ├── project/                           # Master project specifications (project.json, requirements.json)
-│   ├── analysis/                          # Checkpoint statistical artifacts (descriptive, SEM, modmed)
-│   ├── validation/                        # Gatekeeper audit scorecards & compliance reports
-│   └── reports/                           # Assembled deliverables (dissertations, presentations, articles)
-├── evals/ & evaluations/                  # Permanent Evaluation Benchmark Suite (Phase 14)
-├── docs/                                  # Centralized Documentation, Contracts & Protocols
-│   ├── architecture.md                    # Master Architecture Blueprint
-│   ├── agent-contracts/                   # 12-Section Behavioral Contract Registry
-│   ├── protocols/                         # Stage-Gate, Triad Invariant, Binary Honesty & Failure Recovery
+├── docs/                                  # Centralized Documentation, Contracts & Architecture Blueprints
+│   ├── ARCHITECTURE_TAXONOMY_AND_TRUTH.md # Ground Truth vs. Historical vs. Target Architecture
+│   ├── CURRENT_ARCHITECTURE.md            # Authoritative As-Built System Architecture
 │   ├── AGENT_INVENTORY.md                 # 28-Agent Cognitive Role Inventory
 │   ├── SKILL_INVENTORY.md                 # 44-Skill Execution Tools Catalog
-│   └── LEGACY_INVENTORY.md                # Technical Debt & Deprecation Audit
-├── validators/                            # Deterministic Quality Gatekeepers (Phase 8)
-├── recovery/                              # Failure Recovery & Diagnostics Engine (Phase 15)
-├── factory/                               # Agent & Skill Generative Meta-Factory (Phase 17)
-├── legacy/                                # Retired Components Archive (Phase 16)
-│   ├── workflows/                         # Archived legacy workflow definitions (.md.bak)
-│   └── skills/                            # Archived legacy workflow-derived skill shells
-├── projects/                              # Active Thesis Projects & Vertical Slices
+│   ├── LEGACY_INVENTORY.md                # Technical Debt & Deprecation Audit
+│   └── protocols/                         # Stage-Gate, Triad Invariant, Binary Honesty & Failure Recovery
+├── evals/                                 # Permanent Evaluation Benchmark Suite
+├── tests/                                 # 1,060+ Automated Pytest Tests (100% Green Signal)
+├── webapp/                                # Academic Suite Interactive Web Console
+├── projects/                              # Active Thesis Projects & Study Workspaces
 ├── Questionnaires.xlsx                    # Psychometric database (4,880 validated instruments)
-├── AGENTS.md                              # Repository Root Constitutional Directives (Directives 0-18)
+├── AGENTS.md                              # Repository Root Constitutional Directives (Directives 0-20)
+├── ANTIGRAVITY_ARCHITECTURE_GUIDE.md      # Google Antigravity Platform Guide
 ├── requirements.txt                       # Python dependencies
 └── README.md                              # Project documentation
 ```

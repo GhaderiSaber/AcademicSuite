@@ -142,6 +142,19 @@ class TestProjectStructure(unittest.TestCase):
         for a in active_agents:
             self.assertIn(f"`{a}`", content, f"Agent {a} is missing from README.md")
 
+    def test_architectural_taxonomy_and_truth_exists(self):
+        """Asserts docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md exists and documents the 3 temporal tiers."""
+        truth_path = os.path.join(REPO_ROOT, "docs", "ARCHITECTURE_TAXONOMY_AND_TRUTH.md")
+        self.assertTrue(os.path.isfile(truth_path), "Missing docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md")
+        with open(truth_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        self.assertIn("Current Architecture", content)
+        self.assertIn("Historical Architecture", content)
+        self.assertIn("Target Architecture", content)
+        self.assertIn("30 Agents", content)
+        self.assertIn("44 Production Skills", content)
+
 
 if __name__ == "__main__":
     unittest.main()

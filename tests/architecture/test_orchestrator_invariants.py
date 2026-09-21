@@ -162,12 +162,13 @@ def test_verify_orchestrator_invariants_full_verdict():
     "run_command",
     "write_to_file",
     "replace_file_content",
+    "multi_replace_file_content",
     "edit_file"
 ])
 def test_policy_gate_rejects_adding_forbidden_execution_tool_to_orchestrator(forbidden_tool):
     """
     Verifies that CapabilityPolicyGate categorically rejects candidate patches attempting
-    to grant any of the 4 forbidden execution/file mutation tools to academic-orchestrator.
+    to grant any forbidden execution/file mutation tools to academic-orchestrator.
     """
     candidate = {
         "candidate_id": f"CAND-INVARIANT-TEST-{forbidden_tool.upper()}",

@@ -96,9 +96,13 @@ To preserve context bandwidth and prevent instruction drift across complex these
 
 ---
 
-## 5. Artifact Dependency Graph & Prerequisite Checking
+## 5. Artifact Dependency Graph & State Machine Prerequisite Gating
 
-No stage may execute until its input dependencies are verified on disk. The dependency graph enforced by `scripts/orchestrator_dependency_resolver.py` is:
+No stage may execute until its input dependencies and prerequisite state machine transitions are authoritatively verified. In accordance with Directive 19, the prerequisite gatekeeper enforced by `scripts/orchestrator_dependency_resolver.py` checks both:
+1. **Physical Artifact Deliverables**: Required files must exist and be non-empty on disk.
+2. **State Machine Transition Authorization**: The prerequisite stage (`required_stage`) must have achieved `STAGE_APPROVED` (or `NEXT_STAGE` / `COMPLETED`) in `academic-state/current_state.json`, durable approval events in `events.jsonl`, or valid progression in `project.json`. Unmet stages fail closed (`status: BLOCKED`).
+
+The micro-stage dependency graph is:
 
 ```
 [Raw Data on Disk]

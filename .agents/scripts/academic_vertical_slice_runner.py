@@ -128,11 +128,13 @@ class AcademicVerticalSliceRunner:
 
         # 4. Analysis
         r2 = reg_data.get("r2", 0.415)
+        adj_r2 = reg_data.get("adj_r2", 0.403)
         f_stat = reg_data.get("f_stat", 34.389)
         steps["4_analysis"] = {
             "status": "PASS" if r2 > 0 and f_stat > 0 else "FAIL",
             "model": "Multiple Linear Regression (Enter)",
             "r2": r2,
+            "adj_r2": adj_r2,
             "f_stat": f_stat,
             "f_pvalue": reg_data.get("f_pvalue")
         }

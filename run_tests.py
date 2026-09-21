@@ -52,6 +52,24 @@ def main():
     print("=" * 70)
     
     try:
+        import re
+        import compileall
+        print("🔍 Verifying repository-wide AST & syntax integrity (compileall)...")
+        compile_success = compileall.compile_dir(
+            ROOT_DIR,
+            rx=re.compile(r"/\.(git|venv|pytest_cache)/"),
+            quiet=1,
+            force=False,
+            ddir=ROOT_DIR,
+        )
+        if not compile_success:
+            print("❌ SYNTAX ERROR DETECTED: One or more Python files failed compilation.")
+            sys.exit(1)
+        print("✅ Repository Python syntax & AST integrity verified (0 compile errors).")
+    except Exception as e:
+        print(f"⚠️ Warning during pre-flight compile check: {e}")
+
+    try:
         from scripts.generate_test_fixtures import ensure_fixtures_present
         ensure_fixtures_present()
     except Exception as e:

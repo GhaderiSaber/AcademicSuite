@@ -63,6 +63,7 @@ from statistical_pipeline_engine import (
     StatisticalPipelineEngine,
     InvalidAnalysisPlanError
 )
+from tests.test_helpers import assert_write_fails_with_permission_error
 
 
 class TestRawDataImmutability(unittest.TestCase):
@@ -95,9 +96,7 @@ class TestRawDataImmutability(unittest.TestCase):
         self.assertEqual(mode & (stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH), 0)
 
         # Attempting to write directly must raise PermissionError
-        with self.assertRaises(PermissionError):
-            with open(self.raw_file, "a") as f:
-                f.write("corrupted data")
+        assert_write_fails_with_permission_error(self, self.raw_file, mode="a", data="corrupted data")
 
     def test_hook_is_raw_data_path(self):
         # Positive raw path matches
