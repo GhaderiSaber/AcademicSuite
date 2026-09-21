@@ -22,6 +22,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Scientific Literature Harvester & Research Question Architect

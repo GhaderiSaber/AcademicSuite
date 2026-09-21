@@ -19,6 +19,8 @@ In AcademicSuite, capability boundaries are established by **three orthogonal me
    - **Hook → enforces**: Lifecycle interception, safety gates, and honesty verification (`hooks.json`).
    - **State machine → authorizes transition**: Prerequisite verification and milestone gating (`academic_state_manager.py`).
    - **Artifact manifest → defines completion**: Triad deliverables on disk (`contracts/artifact_manifest.schema.json`).
+4. **Component Exclusion & Structural Isolation (`excludeDefaultComponents: true`)**:
+   By setting `excludeDefaultComponents: true` across custom agents, agents opt out of default platform prompts (generic developer personas, shell suggestions) and uninvited built-in tools. Each agent sees strictly its declared tools while preserving post-invocation and lifecycle hooks (`hooks.json`), transitioning the architecture from reactive hook interception to structural platform-level containment.
 
 ---
 

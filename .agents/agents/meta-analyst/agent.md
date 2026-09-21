@@ -19,6 +19,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # PRISMA 2020 Systematic Review & Quantitative Meta-Analyst

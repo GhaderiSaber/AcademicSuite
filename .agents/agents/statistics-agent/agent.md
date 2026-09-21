@@ -24,6 +24,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Inferential Modeling, Parametric Hypothesis Testing & SEM Specialist

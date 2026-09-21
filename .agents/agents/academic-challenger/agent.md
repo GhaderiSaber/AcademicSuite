@@ -18,6 +18,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Adversarial Methodology, Bias & Statistical Challenger

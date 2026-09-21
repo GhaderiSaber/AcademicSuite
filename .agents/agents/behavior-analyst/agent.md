@@ -18,6 +18,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Root-Cause Causal Diagnostician & Failure Mode Analyst

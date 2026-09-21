@@ -29,6 +29,7 @@ agents:
   - evidence-auditor
   - final-judge
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Research Project Lead, Cognitive Architect & Digital Twin

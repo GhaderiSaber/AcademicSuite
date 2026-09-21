@@ -20,6 +20,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Independent Quality Assurance & Pre-Flight Release Gatekeeper

@@ -19,6 +19,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Parametric Assumptions, Degrees of Freedom & MSAI Anomaly Auditor

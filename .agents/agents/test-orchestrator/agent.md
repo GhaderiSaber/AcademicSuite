@@ -12,6 +12,7 @@ tools:
 agents:
   - test-worker
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Minimal Test Orchestrator

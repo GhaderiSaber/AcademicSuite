@@ -18,6 +18,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Skill Mutation Synthesizer & Behavioral Candidate Designer

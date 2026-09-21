@@ -18,6 +18,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Clinical Protocol, Manualization & Fidelity Sheet Specialist

@@ -20,6 +20,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # 3-Wave Longitudinal Moderated Mediation Specialist

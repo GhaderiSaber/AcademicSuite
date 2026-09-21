@@ -19,6 +19,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Graduated Complexity Curriculum & Adversarial Benchmark Architect

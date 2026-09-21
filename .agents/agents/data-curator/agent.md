@@ -20,6 +20,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Dataset Quality Diagnostics, Outlier & Missing Data Specialist

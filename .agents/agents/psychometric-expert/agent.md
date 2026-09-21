@@ -22,6 +22,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Psychometric Resolution, Classical Test Theory & IRT Specialist

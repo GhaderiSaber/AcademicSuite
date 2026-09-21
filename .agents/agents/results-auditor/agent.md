@@ -18,6 +18,7 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # APA 7 Formatting, Mathematical Precision & Typography Auditor

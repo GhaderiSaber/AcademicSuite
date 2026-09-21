@@ -11,6 +11,7 @@ tools:
   - run_command
   - write_to_file
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Minimal Test Worker

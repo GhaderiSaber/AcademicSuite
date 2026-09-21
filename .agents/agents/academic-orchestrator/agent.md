@@ -36,6 +36,7 @@ agents:
   - evaluation-agent
   - curriculum-builder
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Master Academic Orchestrator & Research Project Lead
@@ -264,9 +265,7 @@ Whenever user reports an artifact/calculation error, bug, or flaw (or rejects a 
 3. **Execute Targeted Remediation**: Once cataloged, delegate corrected task to specialist worker (`invoke_subagent`) with pitfall constraint.
 
 ### 2. Trigger 2: Systematic or Repeated Validation Failure (`VALIDATION_FAILED`)
-When `validation-agent` reports `FAIL` repeatedly:
-1. Dispatch `trajectory-analyzer` and `behavior-analyst` to analyze why the worker violated the invariant.
-2. Record the anti-pattern before authorizing further attempts.
+When `validation-agent` reports `FAIL` repeatedly, dispatch `trajectory-analyzer` and `behavior-analyst` to analyze root causes and record the anti-pattern before re-attempting.
 
 ---
 

@@ -21,6 +21,7 @@ skills:
   - statistical-data-analyst
 agents: []
 inheritCustomizations: true
+excludeDefaultComponents: true
 ---
 
 # Statistical Modeling, Parametric Estimation & Inference Authority

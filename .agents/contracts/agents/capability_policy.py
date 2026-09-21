@@ -239,7 +239,16 @@ def validate_agent_against_policy(
             f"Agent '{agent_name}' has can_delegate=False in capability policy but declares delegated subagents: {declared_delegations}"
         )
 
-    # 6. Direct vs. Indirect Execution Classification
+    # 6. excludeDefaultComponents match
+    if "excludeDefaultComponents" in spec:
+        expected_exclude = bool(spec.get("excludeDefaultComponents", True))
+        actual_exclude = bool(frontmatter.get("excludeDefaultComponents", False))
+        if actual_exclude != expected_exclude:
+            issues.append(
+                f"Agent '{agent_name}' excludeDefaultComponents={actual_exclude} does not match capability policy (expected {expected_exclude})"
+            )
+
+    # 7. Direct vs. Indirect Execution Classification
     exec_class = classify_execution_capabilities(agent_name, frontmatter, pol)
     for violation in exec_class["violations"]:
         issues.append(violation)
@@ -271,7 +280,7 @@ def validate_policy_schema(policy: Optional[Dict[str, Any]] = None) -> List[str]
             issues.append(f"Agent '{name}' policy specification must be a dictionary")
             continue
 
-        required_fields = ["role", "tier", "mainAgent", "subagent", "can_delegate", "can_execute_code", "can_write_files", "required", "forbidden"]
+        required_fields = ["role", "tier", "mainAgent", "subagent", "excludeDefaultComponents", "can_delegate", "can_execute_code", "can_write_files", "required", "forbidden"]
         for rf in required_fields:
             if rf not in spec:
                 issues.append(f"Agent '{name}' policy specification missing required field: '{rf}'")
