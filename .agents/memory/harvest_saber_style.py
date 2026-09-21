@@ -138,7 +138,7 @@ class Chapter4StyleHarvester:
         """Synthesizes extracted features into a comprehensive few-shot exemplar markdown file."""
         now_str = datetime.now().strftime("%Y-%m-%d")
         
-        md = f"""# Digital Saber Authentic Chapter 4 Style & Few-Shot Exemplar Bank
+        md = rf"""# Digital Saber Authentic Chapter 4 Style & Few-Shot Exemplar Bank
 *Document generated on {now_str} from Saber's verified dissertation corpus in Google Drive.*
 
 This reference guide establishes the **definitive gold-standard templates, macro-structure, table schemas, and Persian phrasing** for **Chapter 4 (تحلیل داده‌ها و یافته‌های پژوهش)** across graduate theses and dissertations.

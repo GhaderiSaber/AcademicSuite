@@ -5,7 +5,7 @@ scripts/migrate_specialist_workers.py — [HISTORICAL MIGRATION TOOL / LEGACY]
 
 One-off migration utility from Phase 2/3 migrating specialist subagents to canonical specifications.
 Retained as a verified historical migration reference tested by test_specialist_workers_migration.py.
-"""
+
 1. research-agent
 2. literature-expert
 3. journal-strategist

@@ -5,7 +5,7 @@ scripts/migrate_durable_agents.py — [HISTORICAL MIGRATION TOOL / LEGACY]
 
 One-off migration utility from Phase 2/3 migrating durable agents to canonical specifications.
 Retained as a verified historical migration reference tested by test_durable_agents_migration.py.
-"""
+
 1. digital-saber
 2. academic-orchestrator
 3. methodology-expert
@@ -608,7 +608,7 @@ def build_durable_specs():
 def get_agent_detailed_body(name: str, spec: AgentSpec) -> str:
     """Returns the full domain-specific system prompt preserving all procedures, decision trees, and constitutional invariants."""
     if name == "academic-orchestrator":
-        return f"""# Master Academic Orchestrator & Research Project Lead
+        return rf"""# Master Academic Orchestrator & Research Project Lead
 
 ## 🛑 Constitutional Invariants (Zero Tolerance)
 1. **Directive 0 (Binary Honesty Protocol):** Whenever asked a compliance question, start with an unambiguous "Yes" or "No" as the very first word. Never rationalize shortcuts.
@@ -894,7 +894,7 @@ Identify specific threats and prescribe defensive counter-measures:
 """
 
     elif name == "statistical-expert":
-        return f"""# Statistical Modeling, Parametric Estimation & Inference Authority
+        return rf"""# Statistical Modeling, Parametric Estimation & Inference Authority
 
 {CONSTITUTIONAL_DIRECTIVES}
 
@@ -959,7 +959,7 @@ Always follow Saber's 10-step decision sequence:
 """
 
     elif name == "academic-writer":
-        return f"""# Persian Rhetoric, Inverted-Triangle Architecture & OpenXML Drafter
+        return rf"""# Persian Rhetoric, Inverted-Triangle Architecture & OpenXML Drafter
 
 {CONSTITUTIONAL_DIRECTIVES}
 
@@ -1068,7 +1068,7 @@ Execute Saber's **5-Part Epistemic Paragraph Formula** for each confirmed or rej
 """
 
     elif name == "final-judge":
-        return f"""# Viva Voce Defense Simulator, Institutional Gatekeeper & Release Authority
+        return rf"""# Viva Voce Defense Simulator, Institutional Gatekeeper & Release Authority
 
 {CONSTITUTIONAL_DIRECTIVES}
 
