@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-B-TITR-OVERUSE",
+  "category": "typography",
+  "defective_pattern": "Using 'B Titr' font for non-chapter name headings, tables, or captions, and using manual line breaks (<w:br/>).",
+  "why_defective": "Violates explicit user typography standards restricting B Titr exclusively to Chapter Names. Manual line breaks break justification.",
+  "observed_symptoms": [
+    "B Titr applied to Table Headers or Captions",
+    "Manual line breaks (<w:br/>) present in document"
+  ],
+  "corrective_remedy": "Replace B Titr with B Nazanin for all elements except chapter names. Set body font to 14 pt, table fonts to 12 pt. Replace w:br with w:p.",
+  "detection_heuristic": {
+    "trigger_rule": "Presence of B Titr in table cells, captions, or any non-Chapter 1/2/3/4/5 title."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T13:50:00+03:30"
+}

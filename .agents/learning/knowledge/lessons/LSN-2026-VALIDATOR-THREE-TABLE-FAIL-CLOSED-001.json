@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-VALIDATOR-THREE-TABLE-FAIL-CLOSED-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-VALIDATOR-BLINDSPOT-001",
+  "diagnosis": {
+    "what_happened": "The validator agent issued a PASS on regression deliverables that reported regressions in a single consolidated table instead of 3 tables per model.",
+    "behavior_caused_outcome": "Verification scripts only tested superficial XML typography and numerical values against JSON keys, without testing architectural compliance against the institutional 3-table standard.",
+    "what_should_have_happened": "The validator must enforce structural compliance and fail-closed: if a regression hypothesis is presented in a consolidated format, it must immediately issue FAIL.",
+    "rationale_why": "Validators that only check superficial formatting without validating structural domain standards create false confidence and allow non-compliant deliverables through the gate."
+  },
+  "desired_behavior": "Enforce fail-closed structural validation for regression models: exactly 3 tables per model (Correlations, ANOVA 11-col, Coefficients 8-col), failing any deliverable that consolidates them.",
+  "generalization": "Superficial verification is insufficient; institutional structural invariants (like the 3-table regression suite) must be treated as explicit hard-coded failure conditions.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "User Manual QA",
+    "observed_value": "Consolidated 1-table regressions verified as PASS",
+    "threshold_value": "Strict verification FAIL on missing 3-table architecture"
+  },
+  "related_skills": [
+    "statistical-data-analyst",
+    "thesis-integrity-auditor"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T18:10:00+03:30"
+}

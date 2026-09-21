@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-FONT-HIERARCHY-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-FONT-CURATION-001",
+  "diagnosis": {
+    "what_happened": "Inconsistent font usage and manual line breaks detected in Chapter 4.",
+    "behavior_caused_outcome": "Agent used B Titr outside of chapter names, used incorrect font sizes for tables, and used manual line breaks.",
+    "what_should_have_happened": "Agent must strictly use B Titr ONLY for chapter names, 14pt B Nazanin for body, 12pt B Nazanin for tables, and strictly paragraph marks without w:br.",
+    "rationale_why": "User explicitly established these strict typography standards for institutional consistency."
+  },
+  "desired_behavior": "Use B Titr ONLY for chapter names. Use 14pt B Nazanin for body, justified. Use 12pt B Nazanin for all table content/captions. No B Titr in tables. Never use manual line breaks.",
+  "generalization": "Strict font family hierarchy: B Titr reserved exclusively for Chapter Names. B Nazanin used for all other text. Strict paragraph marks for breaks.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "Thesis Integrity Auditor",
+    "observed_value": "B Titr found in tables, manual line breaks found.",
+    "threshold_value": "Zero B Titr in tables, zero manual line breaks."
+  },
+  "related_skills": [
+    "persian-thesis-builder",
+    "apa-reporting"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T13:50:00+03:30"
+}

@@ -1,0 +1,36 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-LEARN-ON-USER-FEEDBACK-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-FEEDBACK-LEARN-001",
+  "diagnosis": {
+    "what_happened": "Previously, when user feedback pointed out wrong results or defective deliverables, the orchestrator performed ad-hoc local patching without triggering the formal learning pipeline to persist lessons across the project.",
+    "behavior_caused_outcome": "Treating user corrective feedback as a transient execution glitch rather than a learning trigger causes recurring mistakes, instruction drift, and failure to generalize lessons to subsequent stages.",
+    "what_should_have_happened": "Whenever the user provides feedback indicating wrong results, missing elements, or defective artifacts, the orchestrator MUST immediately activate the native learning pipeline (trajectory-analyzer -> behavior-analyst -> knowledge-curator) to catalog the lesson and anti-pattern before/alongside stage remediation.",
+    "rationale_why": "Continuous self-improvement requires that every negative feedback signal be treated as a durable learning event, ensuring permanent immunity against identical defects in future stages."
+  },
+  "desired_behavior": "Automatically activate the native learning pipeline upon any user feedback indicating wrong results, defects, or dissatisfaction, persisting structured lessons and anti-patterns.",
+  "generalization": "Constitutional Zero Silent Patches Invariant: Every user error feedback MUST trigger native learning pipeline execution; ad-hoc patching without durable knowledge curation is prohibited.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_CORRECTION_TRIGGER",
+    "observed_value": "The academic-orchestrator should learn to everytime I give a feedback about wrong results or something is wrong, invoke the learning pipeline learn from it.",
+    "threshold_value": "100% learning pipeline invocation on negative feedback",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": [
+      "/home/ghaderi-saber/.gemini/antigravity/brain/86f9eed6-0bdf-4088-93c5-c629a9276df8/learning_proposal.md"
+    ]
+  },
+  "related_skills": [
+    "academic-adaptive-context",
+    "academic-suite-orchestrator",
+    "thesis-integrity-auditor"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T12:35:00Z",
+  "derived_by": "knowledge-curator"
+}

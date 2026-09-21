@@ -1,0 +1,36 @@
+{
+  "lesson_id": "LSN-2026-OPENXML-ALIGNMENT-SCHEMA-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-ALIGNMENT-001",
+  "diagnosis": {
+    "what_happened": "Paragraph alignment in Word deliverables was visually broken or defaulted to Left in Microsoft Word despite BiDi being set.",
+    "behavior_caused_outcome": "Manually appending <w:jc> to <w:pPr> placed it after <w:rPr>, violating ECMA-376 schema sequence and causing Word to ignore the alignment. Furthermore, adding headings as Normal paragraphs caused post-fixers to misclassify them and apply Justify instead of Right.",
+    "what_should_have_happened": "Always use python-docx native p.alignment (WD_ALIGN_PARAGRAPH.RIGHT, CENTER, JUSTIFY) which places <w:jc> in valid schema position before <w:rPr>, and assign explicit heading styles.",
+    "rationale_why": "Microsoft Word strictly requires valid OpenXML child sequence in <w:pPr>; out-of-order children are silently discarded by the Word rendering engine."
+  },
+  "desired_behavior": "Use python-docx native enums (p.alignment = WD_ALIGN_PARAGRAPH.RIGHT/CENTER/JUSTIFY) and never append loose <w:jc> tags at the end of <w:pPr>.",
+  "generalization": "OpenXML Schema Alignment Invariant: All paragraph alignments in python-docx must be set via native p.alignment properties to maintain ECMA-376 child element ordering before <w:rPr>.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "OPENXML_PPR_CHILD_ORDER",
+    "observed_value": "<w:jc> placed after <w:rPr>",
+    "threshold_value": "<w:jc> must precede <w:rPr>",
+    "supporting_report_ids": [
+      "BAN-20260921-001"
+    ],
+    "supporting_artifact_paths": [
+      "/home/ghaderi-saber/My Work/Narjes/02_analysis_code/build_full_triad_docx.py"
+    ]
+  },
+  "related_skills": [
+    "apa-reporting",
+    "academic-article-writer"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T12:40:00Z",
+  "derived_by": "knowledge-curator"
+}

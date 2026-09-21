@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-BULLETED-ACADEMIC-NARRATIVE",
+  "category": "methodological",
+  "defective_pattern": "Using presentation-style bullets, hyphens, and numbered breakdowns in place of cohesive academic thesis paragraphs.",
+  "why_defective": "Breaks the formal scholarly register and narrative flow required in academic theses, making the text read like a slideshow rather than a continuous discourse.",
+  "observed_symptoms": [
+    "Frequent bullet points in findings sections",
+    "Hyphenated lists or numbered breakdowns in body paragraphs"
+  ],
+  "corrective_remedy": "Synthesize points into continuous, cohesive scholarly prose using transition words instead of lists.",
+  "detection_heuristic": {
+    "trigger_rule": "High frequency of <w:numPr> or bullet characters (•, -, 1.) in standard body narrative paragraphs."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T14:30:00+03:30"
+}

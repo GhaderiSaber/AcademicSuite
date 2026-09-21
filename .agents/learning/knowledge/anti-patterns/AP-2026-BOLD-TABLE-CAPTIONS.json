@@ -1,0 +1,16 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-BOLD-TABLE-CAPTIONS",
+  "category": "typography",
+  "defective_pattern": "Applying bold font weight to Persian table captions.",
+  "why_defective": "Violates explicit user typography standards which mandate 12pt B Nazanin Regular (non-bold) for all table captions.",
+  "observed_symptoms": [
+    "<w:b/> or <w:bCs/> tags found in table caption runs"
+  ],
+  "corrective_remedy": "Remove bold weight from table captions. Ensure font is B Nazanin, size 12 pt, Regular.",
+  "detection_heuristic": {
+    "trigger_rule": "Presence of bold styling applied to paragraph styles or runs explicitly acting as Table Captions."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T14:30:00+03:30"
+}

@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-NARRATIVE-PRECEDES-TABLE-CAPTION-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-TABLE-PLACEMENT-CURATION-001",
+  "diagnosis": {
+    "what_happened": "Agent placed the explanatory narrative text below the table instead of above it, and violated font rules.",
+    "behavior_caused_outcome": "Agent followed incorrect structuring sequence by describing findings after the table was presented.",
+    "what_should_have_happened": "Canonical sequence must be strictly followed: Heading -> Explanatory narrative introducing findings -> Table caption (non-bold) -> Table -> Table note. B Titr must be eliminated everywhere except Chapter Titles.",
+    "rationale_why": "APA 7 and Persian academic standards require readers to be introduced to the statistical findings before reviewing the data table."
+  },
+  "desired_behavior": "Strictly order document elements: Heading first, followed by the explanatory continuous prose narrative, then the non-bold table caption, then the table itself, and finally the table note.",
+  "generalization": "In academic reporting, statistical narrative must always precede the referenced table and its caption.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "Thesis Integrity Auditor",
+    "observed_value": "Narrative placed below the table.",
+    "threshold_value": "Narrative placed above the table caption."
+  },
+  "related_skills": [
+    "persian-thesis-builder",
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T15:20:00+03:30"
+}

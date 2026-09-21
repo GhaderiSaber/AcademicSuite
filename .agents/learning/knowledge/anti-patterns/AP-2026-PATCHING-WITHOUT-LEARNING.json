@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-PATCHING-WITHOUT-LEARNING",
+  "category": "execution",
+  "defective_pattern": "Locally fixing a deliverable after user error feedback without triggering the native multi-agent learning pipeline.",
+  "why_defective": "Local silent patching leaves the underlying failure mechanism undocumented in the knowledge store, guaranteeing that future subagents and subsequent micro-stages will repeat the exact same defect.",
+  "observed_symptoms": [
+    "Orchestrator immediately modifying files or re-running scripts upon user critique without diagnosing root causes",
+    "Same formatting or statistical error recurring across multiple chapters",
+    "Absence of persistent lesson JSON in learning/knowledge/lessons/ after negative feedback"
+  ],
+  "corrective_remedy": "Upon receiving any user critique or defect report, emit a USER_FEEDBACK_DETECTED event and invoke the learning pipeline (trajectory-analyzer for chronology, behavior-analyst for root cause, knowledge-curator for persistent anti-pattern/lesson).",
+  "detection_heuristic": {
+    "trigger_rule": "USER_FEEDBACK containing negative critique or defect indicators (wrong, error, missing, incorrect, not right) MUST trigger invoke_subagent(TypeName='knowledge-curator').",
+    "diagnostic_check_id": "CHECK_FEEDBACK_LEARNING_PIPELINE_ACTIVATION"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T12:35:00Z"
+}

@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-VALIDATOR-REGRESSION-TABLE-BLINDSPOT",
+  "category": "validation",
+  "defective_pattern": "Validation scripts and agents issuing a 'PASS' on regression deliverables by only verifying typography, XML tags, and numerical existence, while failing to assert the mandatory 3-Table structure per regression model.",
+  "why_defective": "Allows incomplete, consolidated single-table regression reports to slip past the QA release gate without detecting the absence of ANOVA sum-of-squares decomposition, residual degrees of freedom, and collinearity diagnostic columns.",
+  "observed_symptoms": [
+    "Validator reports PASS on consolidated 1-table regressions",
+    "Auditor script lacks CHECK_REGRESSION_THREE_TABLE_SUITE assertion",
+    "User intervenes to report missing 3-table structure"
+  ],
+  "corrective_remedy": "Implement mandatory fail-closed assertion in validator: every regression hypothesis deliverable MUST contain Table 1 (Correlations), Table 2 (Model Summary & Combined ANOVA with 11 columns), and Table 3 (Coefficients & Collinearity with 8 columns). If any table or column is missing, the validator MUST emit verdict: FAIL.",
+  "detection_heuristic": {
+    "trigger_rule": "Assert presence of (table_1_correlations, table_2_model_summary_anova, table_3_coefficients) in JSON and corresponding 3 tables in MD/DOCX for every regression model.",
+    "diagnostic_check_id": "CHECK_REGRESSION_THREE_TABLE_SUITE"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T18:10:00+03:30"
+}

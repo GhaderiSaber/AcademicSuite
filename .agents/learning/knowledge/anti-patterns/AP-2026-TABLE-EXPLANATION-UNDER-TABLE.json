@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-TABLE-EXPLANATION-UNDER-TABLE",
+  "category": "methodological",
+  "defective_pattern": "Placing explanatory narrative text under the table instead of preceding the table caption.",
+  "why_defective": "Violates formal academic reporting flow where the text must introduce and contextualize the findings before the reader encounters the tabular data.",
+  "observed_symptoms": [
+    "Table appears immediately after a heading without introductory text.",
+    "Paragraph describing table contents appears after the table object in the document stream."
+  ],
+  "corrective_remedy": "Move the explanatory narrative paragraph to strictly precede the table caption. The flow must be: Heading -> Narrative -> Table Caption -> Table -> Table Note.",
+  "detection_heuristic": {
+    "trigger_rule": "A table object immediately follows a heading object or precedes the paragraphs referencing its findings."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T15:20:00+03:30"
+}

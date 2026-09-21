@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-EXPLICIT-RIGHT-UNDER-BIDI",
+  "category": "typography",
+  "defective_pattern": "Emitting <w:jc w:val=\"right\"/> inside <w:bidi w:val=\"1\"/> paragraphs.",
+  "why_defective": "OpenXML treats 'right' as logical trailing edge under BiDi, inverting text to the physical left in LibreOffice and Word.",
+  "observed_symptoms": [
+    "Headings and captions aligned to far left of page in LibreOffice Writer",
+    "Top ruler starts at 0 on left"
+  ],
+  "corrective_remedy": "Omit <w:jc> on BiDi paragraphs for right alignment; inject <w:bidi/> into sectPr.",
+  "detection_heuristic": {
+    "trigger_rule": "Presence of <w:jc w:val=\"right\"/> within a paragraph that also contains <w:bidi w:val=\"1\"/>."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T13:10:24+03:30"
+}

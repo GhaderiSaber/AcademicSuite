@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-THREE-TABLE-REGRESSION-STANDARD-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-THREE-TABLE-REGRESSION",
+  "diagnosis": {
+    "what_happened": "The orchestrator and writer reported regression hypotheses in a single consolidated summary table across outcomes rather than adhering to the mandatory institutional 3-Table Standard.",
+    "behavior_caused_outcome": "Consolidating model summary, ANOVA, coefficients, and correlations into a single row or single table violates the AcademicSuite and Iranian thesis institutional standard which mandates three separate tables per regression model.",
+    "what_should_have_happened": "Each regression hypothesis must be reported via exactly three separate tables: Table 1 (Bivariate Pearson Correlation Matrix), Table 2 (Model Summary & Combined ANOVA with 11 columns: SS, df, MS, F, p, R, R², Adj R², SE, DW), and Table 3 (Coefficients & Collinearity: B, SE, Beta, t, p, Tolerance, VIF).",
+    "rationale_why": "Statistical rigor in graduate dissertations demands explicit decomposition of explained variance (ANOVA) and multicollinearity diagnostics distinct from the bivariate correlation baseline and coefficient estimates."
+  },
+  "desired_behavior": "Strictly enforce the 3-Table Standard for all regression model reporting across JSON schemas, markdown narratives, and DOCX tables.",
+  "generalization": "Never report regression models as a single consolidated row or table; always scaffold and generate Table 1 (Correlations), Table 2 (ANOVA & Model Summary), and Table 3 (Coefficients & Collinearity).",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "Thesis Integrity Auditor",
+    "observed_value": "Single consolidated table for regression.",
+    "threshold_value": "Three separate tables."
+  },
+  "related_skills": [
+    "regression",
+    "apa-reporting",
+    "persian-thesis-builder"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T17:30:00+03:30"
+}

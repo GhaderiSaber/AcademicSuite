@@ -1,0 +1,17 @@
+{
+  "anti_pattern_id": "AP-2026-OUT-OF-ORDER-OXML-JC",
+  "category": "typography",
+  "defective_pattern": "Bypassing python-docx p.alignment and appending <w:jc> to <w:pPr> manually.",
+  "why_defective": "Causes ECMA-376 schema validation failures in Word; <w:jc> is placed after <w:rPr>, causing Word on Windows to ignore the alignment and default to Left.",
+  "observed_symptoms": [
+    "Text in Microsoft Word is visually Left-aligned despite RTL BiDi being active",
+    "Word ribbon highlights Align Left instead of Right or Justify"
+  ],
+  "corrective_remedy": "Set p.alignment = WD_ALIGN_PARAGRAPH.RIGHT/CENTER/JUSTIFY and p.paragraph_format.bidi = True.",
+  "detection_heuristic": {
+    "trigger_rule": "grep for 'set_element(pPr, 'w:jc'' in docx generation scripts",
+    "diagnostic_check_id": "CHECK_PPR_JC_ORDER"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T12:40:00Z"
+}

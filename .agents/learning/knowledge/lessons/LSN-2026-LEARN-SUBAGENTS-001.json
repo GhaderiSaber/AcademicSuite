@@ -1,0 +1,34 @@
+{
+  "lesson_id": "LSN-2026-LEARN-SUBAGENTS-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-LEARN-003",
+  "diagnosis": {
+    "what_happened": "During a /learn episode, the orchestrator improperly delegated learning proposal authoring and rule updating to academic-writer instead of dedicated learning subagents.",
+    "behavior_caused_outcome": "Delegating continuous learning and rule evolution to generic task workers (academic-writer) rather than dedicated learning subagents (trajectory-analyzer, behavior-analyst, knowledge-curator, skill-evolver, evaluation-agent) violates role separation and causes cognitive drift.",
+    "what_should_have_happened": "The orchestrator must route all /learn, anti-pattern cataloging, and rule evolution workflows exclusively to the dedicated learning subagent roster specified in LEARNING_MULTI_AGENT_SPEC.md.",
+    "rationale_why": "Generic agents lack the epistemic boundary constraints, schema awareness, and evaluation isolation required for rigorous self-improvement."
+  },
+  "desired_behavior": "Invoke exclusively native learning subagents (knowledge-curator, trajectory-analyzer, behavior-analyst, skill-evolver, evaluation-agent, curriculum-builder) whenever /learn or continuous self-improvement is triggered.",
+  "generalization": "Never delegate learning curation, failure mode diagnosis, or skill evolution to generic task agents; enforce native learning subagent specialization across all projects.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Also you should /learn to invoke subagents that related with learning.",
+    "threshold_value": "Zero generic agent delegation for learning workflows",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": [
+      "/home/ghaderi-saber/.gemini/antigravity/brain/86f9eed6-0bdf-4088-93c5-c629a9276df8/learning_proposal.md"
+    ]
+  },
+  "related_skills": [
+    "academic-adaptive-context",
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T12:30:00Z",
+  "derived_by": "knowledge-curator"
+}

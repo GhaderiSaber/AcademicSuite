@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-SCHOLARLY-CONTINUOUS-PROSE-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-PROSE-CURATION-001",
+  "diagnosis": {
+    "what_happened": "Agent generated fragmented, bulleted findings and bolded table captions in a formal thesis.",
+    "behavior_caused_outcome": "Agent used presentation-style formatting (bullets/hyphens/numbers) and bolded table captions instead of continuous prose.",
+    "what_should_have_happened": "Narrative must flow as continuous scholarly prose without bullets. Table captions must be 12pt B Nazanin Regular (non-bold).",
+    "rationale_why": "Persian academic thesis standards demand formal cohesive paragraphs and strictly non-bold table captions."
+  },
+  "desired_behavior": "Write all narrative findings as continuous scholarly paragraphs. Never use bullets, hyphens, or numbered lists in the narrative body. Ensure table captions are 12pt B Nazanin Regular (non-bold).",
+  "generalization": "Academic thesis deliverables mandate continuous scholarly prose over presentation-style lists, and require standard (non-bold) weight for table captions.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "Thesis Integrity Auditor",
+    "observed_value": "Bullets, hyphens, and bold table captions detected.",
+    "threshold_value": "Zero bullets in narrative, non-bold table captions."
+  },
+  "related_skills": [
+    "persian-thesis-builder",
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T14:30:00+03:30"
+}

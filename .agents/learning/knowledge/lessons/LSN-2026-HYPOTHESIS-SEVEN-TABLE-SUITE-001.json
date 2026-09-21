@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-HYPOTHESIS-SEVEN-TABLE-SUITE-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-SEVEN-TABLE-001",
+  "diagnosis": {
+    "what_happened": "The orchestrator and writer generated 2 tables for simple regression but collapsed multiple regression and logistic regression into single combined tables.",
+    "behavior_caused_outcome": "Lack of a unified multi-regression schema led the agent to combine model fit and coefficient columns into ad-hoc single tables.",
+    "what_should_have_happened": "Each hypothesis comprising simple, multiple, and logistic regressions must contain exactly 7 tables: 1 correlation table, 2 tables for simple regression, 2 tables for multiple regression, and 2 tables for logistic regression.",
+    "rationale_why": "Maintaining institutional standard separation between overall model fit (ANOVA/Omnibus) and individual predictor effects (Coefficients/OR) is mandatory."
+  },
+  "desired_behavior": "Enforce the canonical 7-Table Suite per hypothesis: Table 1 (Correlations), Table 2 (Simple ANOVA/Summary), Table 3 (Simple Coeffs), Table 4 (Multiple ANOVA/Summary), Table 5 (Multiple Coeffs), Table 6 (Logistic Omnibus & Fit), Table 7 (Logistic Variables in Equation & OR).",
+  "generalization": "Mixed-method regression hypotheses must structurally map to a 7-table suite decomposing fit vs. predictors.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "Manual feedback",
+    "observed_value": "Collapsed single tables for multiple/logistic regression",
+    "threshold_value": "Exactly 7 tables for mixed-regression hypotheses"
+  },
+  "related_skills": [
+    "regression",
+    "apa-reporting"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T18:30:00+03:30"
+}

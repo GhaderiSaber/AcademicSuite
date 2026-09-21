@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CONSOLIDATED-REGRESSION-TABLE",
+  "category": "methodological",
+  "defective_pattern": "Consolidating regression analysis into a single unified table that lumps together R², F, beta, and t-values without separate ANOVA decomposition and correlation matrices.",
+  "why_defective": "Violates the institutional 3-Table Standard required by graduate thesis guidelines and prevents full diagnostic transparency of regression sums of squares, residual degrees of freedom, Durbin-Watson autocorrelation, and tolerance/VIF multicollinearity.",
+  "observed_symptoms": [
+    "A single table containing R, R2, F, and Beta values.",
+    "Missing ANOVA decomposition table.",
+    "Missing Correlation matrix table preceding regression results."
+  ],
+  "corrective_remedy": "Decompose each regression reporting block into the mandatory 3 tables: Table 1 (Correlations), Table 2 (ANOVA & Model Summary), Table 3 (Coefficients & Collinearity).",
+  "detection_heuristic": {
+    "trigger_rule": "Absence of ANOVA sum of squares or Correlation matrix in regression reporting blocks, or detection of a single table row containing both model summary (R2/F) and coefficient estimates (Beta/t)."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T17:30:00+03:30"
+}

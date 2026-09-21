@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-GENERIC-AGENTS-FOR-LEARNING",
+  "category": "execution",
+  "defective_pattern": "Delegating /learn proposal drafting, rule updates, or post-task self-improvement to general-purpose agents (e.g. academic-writer, data-agent).",
+  "why_defective": "General-purpose task workers lack epistemic containment, unpromoted candidate staging discipline, schema validation tools, and branch-isolated evaluation workflows. Invoking them for learning tasks dilutes task boundaries and risks unauthorized mutations to production assets.",
+  "observed_symptoms": [
+    "Orchestrator invoking academic-writer for learning proposal drafting",
+    "Candidate modifications written without 3-arm evaluation",
+    "Rule files directly mutated without staged candidates"
+  ],
+  "corrective_remedy": "Route all self-improvement and /learn episodes strictly to native learning subagents: trajectory-analyzer (observable actions), behavior-analyst (causal diagnosis), knowledge-curator (epistemic distillation), skill-evolver (branch candidate diffs), and evaluation-agent (independent 3-way benchmarking).",
+  "detection_heuristic": {
+    "trigger_rule": "Disallowing invoke_subagent with TypeName not in [trajectory-analyzer, behavior-analyst, knowledge-curator, skill-evolver, evaluation-agent, curriculum-builder] when task is classified as LEARNING or SELF_IMPROVEMENT.",
+    "diagnostic_check_id": "CHECK_LEARNING_SUBAGENT_ROUTING"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T12:30:00Z"
+}

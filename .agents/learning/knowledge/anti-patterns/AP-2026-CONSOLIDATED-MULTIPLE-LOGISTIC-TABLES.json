@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CONSOLIDATED-MULTIPLE-LOGISTIC-TABLES",
+  "category": "methodological",
+  "defective_pattern": "Compressing multiple regression into 1 table and binary logistic regression into 1 table in a mixed-method hypothesis.",
+  "why_defective": "Lumps together ANOVA variance decomposition and coefficients in multiple regression, and collapses goodness-of-fit / Omnibus tests with logistic odds ratios in logistic regression, violating the institutional standard.",
+  "observed_symptoms": [
+    "Multiple regression represented as a single table",
+    "Logistic regression represented as a single table",
+    "ANOVA columns mixed with coefficient columns"
+  ],
+  "corrective_remedy": "For any hypothesis containing simple, multiple, and logistic regressions, generate exactly 7 tables: 1 correlation table, and 2 tables for each of the 3 regressions (Model Summary/ANOVA or Omnibus Fit + Coefficients/Equation parameters).",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of fewer than 7 tables in a mixed simple/multiple/logistic regression hypothesis block, or detection of combined ANOVA/Coefficients columns in a single table structure."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T18:30:00+03:30"
+}
