@@ -86,7 +86,9 @@ Activate this skill when:
 ### Step 1: Prepare the Structured Chapter 2 Payload
 Create a JSON file (`ch2_payload.json`) specifying the variables, translated theoretical paragraphs, international and Iranian empirical studies, research gap, and conceptual model.
 
-### Step 2: Execute the Automated Compilation Engine
+### Step 2: Execute the Automated Compilation Engines
+
+#### Option A: Full Chapter 2 Master Assembly (Stage 2.8)
 Run `literature_review_engine.py` via CLI:
 ```bash
 python3 .agents/skills/persian-literature-review-builder/scripts/literature_review_engine.py \
@@ -95,16 +97,34 @@ python3 .agents/skills/persian-literature-review-builder/scripts/literature_revi
   --lang fa
 ```
 
+#### Option B: Stage 2.6 Thematic Synthesis Matrix Triad Runner
+To generate the dedicated Stage 2.6 triad (`.docx`, `.md`, `.json`) and 4-sheet Excel matrix:
+```bash
+python3 .agents/scripts/generate_literature_matrix_triad.py \
+  --json path/to/sample_synthesis_matrix_payload.json \
+  --out-dir projects/my_study/06_literature_matrix \
+  --lang fa
+```
+Or directly via the skill engine:
+```bash
+python3 .agents/skills/persian-literature-review-builder/scripts/literature_synthesis_matrix_engine.py \
+  --json path/to/sample_synthesis_matrix_payload.json \
+  --out-dir projects/my_study/06_literature_matrix \
+  --lang fa
+```
+
 ### Step 3: Inspect Generated Deliverables
 The engine deterministically compiles:
-1. `فصل_دوم_مبانی_نظری_و_پیشینه_پژوهش.docx`:
-   - Authentic Iranian academic typography (*B Titr 16pt Bold* for Chapter title, *B Titr 14pt* for Section headings, *B Nazanin 13pt Regular* for body text, *Times New Roman 11pt* for English citations/numbers).
+1. `06_literature_matrix_table.docx`:
+   - Authentic Iranian academic typography (*B Titr 14pt Bold* for Section headings, *B Nazanin 13pt Regular* for body text, *Times New Roman* for English citations/stats).
    - Paragraph formatting: Justified (`JUSTIFY`), line spacing 1.25, BiDi RTL `<w:bidi w:val="1"/>`.
-   - Embedded APA 7 borderless empirical summary table (`<w:bidiVisual/>`).
-2. `empirical_literature_matrix.xlsx`:
-   - 3 professional sheets: `Overview & Metrics`, `International Studies`, and `Iranian Studies` with frozen panes, navy headers, and auto-adjusted column widths.
-3. `literature_summary.json`:
-   - Machine-readable synthesis of reviewed studies, variables, and research gap status.
+   - Embedded APA 7 borderless empirical summary table (`<w:bidiVisual/>`, 3 horizontal borders, zero vertical borders, decoupled LTR numbers).
+2. `06_literature_matrix_table.md`:
+   - Complete GitHub-flavored Markdown narrative with thematic synthesis tables, concordance metrics, and research gaps.
+3. `06_literature_matrix_table.json`:
+   - Machine-readable structured database of reviewed studies, extracted parameters, and gap mapping.
+4. `Literature_Synthesis_Matrix.xlsx`:
+   - 4 professional sheets: `Overview & Metrics`, `Thematic Matrix`, `Empirical Studies Detail`, and `Research Gaps & Critique` with frozen panes, navy headers, and auto-adjusted column widths.
 
 ---
 
