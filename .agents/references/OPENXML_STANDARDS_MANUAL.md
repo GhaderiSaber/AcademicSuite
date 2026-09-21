@@ -28,7 +28,7 @@ When assembling or editing Persian Word documents (`.docx`):
       2. **Text Alignment (تراز متن / Justification)**: In Persian, agents **MUST JUSTIFY all substantive narrative text** (`paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY` / `<w:jc w:val="both"/>`), including body paragraphs, descriptions, literature reviews, candidate speeches, callouts, and multi-line answers. Never leave Persian narrative text ragged on the left side.
       3. **The BiDi Alignment Inversion Rule (Architecture Learned from Proposal Skill)**:
          - Under Word's BiDi text engine, adding `<w:bidi w:val="1"/>` makes the paragraph's natural leading-edge alignment **RIGHT**.
-         - If `<w:jc w:val="right"/>` is explicitly added to an RTL paragraph, Word treats `w:val="right"` as the trailing edge, causing Word on macOS/Windows to flip the alignment to **ALIGN LEFT (چپ‌چین)**!
+         - If `<w:jc w:val="right"/>` is explicitly added to an RTL paragraph, Word treats `w:val="right"` as the trailing edge, causing Word on macOS/Windows and LibreOffice Writer to flip the alignment to **ALIGN LEFT (چپ‌چین)**! Symptoms include headings and captions aligned to the far left of the page in LibreOffice Writer, and the top ruler starting at 0 on the left.
          - **The Golden Rule for RTL Right-Aligned Text (Headings, Headers, Labels)**:
            - Enforce `<w:bidi w:val="1"/>` for RTL Direction.
            - **OMIT** `<w:jc>` entirely for Right Alignment so Word naturally and strictly aligns text to the RIGHT.
@@ -39,7 +39,7 @@ When assembling or editing Persian Word documents (`.docx`):
          - Under ISO/IEC 29500-1 / ECMA-376, child elements in `<w:pPr>` must strictly follow this exact order:
            `w:pStyle` $\to$ `w:keepNext` $\to$ `w:bidi` $\to$ `w:spacing` $\to$ `w:ind` $\to$ `w:jc`
       5. **Section-Level BiDi & Modern Word Compatibility**:
-         - Every section in `<w:sectPr>` must contain `<w:bidi/>`.
+         - Every section in `<w:sectPr>` must contain `<w:bidi/>`. Missing this can cause physical left alignment issues.
          - In `word/settings.xml`, ensure `compatibilityMode = 15` (Word 2013+ modern BiDi layout engine).
          - In `word/styles.xml`, inject RTL directionality (`<w:bidi w:val="1"/>`, `<w:rtl/>`) and genuine Persian font definitions (`B Titr` / `B Nazanin`) into `Normal`, `Heading1`, `Heading2`, `Heading3`, `Heading4`, and `FootnoteReference`.
       6. **Language Proofing & Script Binding Tag**:
@@ -115,4 +115,3 @@ When inspecting, auditing, or modifying academic Word documents (`.docx`):
    - Whenever a manuscript, proposal, or thesis references a Figure (e.g. `Figure 1`), the agent must NEVER leave a blank placeholder or text-only caption. The agent MUST physically embed the high-resolution image (≥ 300 DPI) centered on the page, preceded by the bold Figure number and italic title, and followed by the APA 7 Note.
 5. **Mandatory Pre-Edit Backup**:
    - Before applying any programmatic edits or replacements to user documents (`.docx`), always save a timestamped backup copy to `drafts_archive/` or a pre-edit file.
-

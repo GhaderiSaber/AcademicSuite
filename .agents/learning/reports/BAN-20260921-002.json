@@ -1,0 +1,12 @@
+{
+  "analysis_id": "BAN-20260921-002",
+  "observable_failure_step": {
+    "step": "OpenXML Generation",
+    "action": "Write Document",
+    "tool": "OpenXML Generator",
+    "description": "Subagent generates <w:jc w:val=\"right\"/> for Persian paragraph alignment, producing physical left alignment."
+  },
+  "failure_signature": "VIOLATED_ASSUMPTION_IGNORED",
+  "root_cause_diagnosis": "Subagents mapped the English semantic concept of 'right alignment' to the literal XML attribute 'right' (<w:jc w:val=\"right\"/>). However, under ISO/IEC 29500-1 / ECMA-376 Part 1 §17.3.1.13, justification operates logically relative to the paragraph's BiDi direction. In a Right-To-Left (RTL) paragraph (<w:bidi/>), 'right' corresponds to the trailing edge (physical left), whereas 'left' corresponds to the leading edge (physical right). This represents a direct violation of OpenXML logical alignment rules in BiDi contexts.",
+  "prescribed_behavior": "When generating or modifying OpenXML for BiDi (Persian) text, subagents MUST NOT use <w:jc w:val=\"right\"/> to achieve physical right alignment. They must either omit the w:jc tag (relying on default RTL leading alignment), or explicitly use logical justification attributes such as <w:jc w:val=\"both\"/> for narrative body. The literal attribute w:val=\"right\" is strictly banned in BiDi contexts."
+}
