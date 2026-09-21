@@ -52,16 +52,69 @@ REQUIRED_FIXTURE_STUDIES = [
     "test_study_e2e",
 ]
 
+REQUIRED_FIXTURE_ARTIFACTS = {
+    "study_vertical_slice_regression": [
+        "01_raw_inputs/data_raw.csv",
+        "01_raw_inputs/data_raw.xlsx",
+        "academic-state/project.json",
+    ],
+    "study_vertical_slice_experimental": [
+        "01_raw_inputs/data_raw.csv",
+        "01_raw_inputs/data_raw.xlsx",
+        "academic-state/project.json",
+    ],
+    "study_vertical_slice_mediation": [
+        "01_raw_inputs/data_raw.csv",
+        "01_raw_inputs/data_raw.xlsx",
+        "academic-state/project.json",
+    ],
+    "study_vertical_slice_moderation": [
+        "01_raw_inputs/data_raw.csv",
+        "01_raw_inputs/data_raw.xlsx",
+        "academic-state/project.json",
+    ],
+    "study_vertical_slice_scale_validation": [
+        "01_raw_inputs/data_raw.csv",
+        "01_raw_inputs/data_raw.xlsx",
+        "academic-state/project.json",
+    ],
+    "study_vertical_slice_sem": [
+        "01_raw_inputs/data_raw.csv",
+        "01_raw_inputs/data_raw.xlsx",
+        "academic-state/project.json",
+    ],
+    "study_vertical_slice_presentation": [
+        "01_raw_inputs/00_defense_findings_payload.json",
+    ],
+    "study_act_burnout": [
+        "01_raw_inputs/data_raw.xlsx",
+        "academic-state/project.json",
+    ],
+    "test_study_e2e": [
+        "01_raw_inputs/test_academic_study_data.csv",
+        "academic-state/project.json",
+    ],
+}
+
 
 def check_fixtures_status(fixtures_dir: str = FIXTURES_DIR) -> Dict[str, Any]:
-    """Inspects which required fixture study directories are present."""
+    """Inspects which required fixture study directories and essential artifacts are present."""
     status = {}
     all_present = True
-    for study in REQUIRED_FIXTURE_STUDIES:
+    for study, required_files in REQUIRED_FIXTURE_ARTIFACTS.items():
         study_path = os.path.join(fixtures_dir, study)
-        exists = os.path.isdir(study_path)
-        status[study] = exists
-        if not exists:
+        if not os.path.isdir(study_path):
+            status[study] = False
+            all_present = False
+            continue
+        study_ok = True
+        for rel_file in required_files:
+            file_path = os.path.join(study_path, rel_file)
+            if not os.path.isfile(file_path) or os.path.getsize(file_path) == 0:
+                study_ok = False
+                break
+        status[study] = study_ok
+        if not study_ok:
             all_present = False
     return {
         "all_present": all_present,
@@ -105,49 +158,89 @@ def generate_regression_fixture(fixtures_dir: str = FIXTURES_DIR) -> str:
 
 
 def generate_all_benchmark_datasets(fixtures_dir: str = FIXTURES_DIR) -> None:
-    """Generates raw input benchmark datasets for all slices if absent."""
+    """Generates complete datasets and schema-valid academic-state for all slices if absent."""
     os.makedirs(fixtures_dir, exist_ok=True)
 
     # 1. Regression
     generate_regression_fixture(fixtures_dir)
+    reg_proj = os.path.join(fixtures_dir, "study_vertical_slice_regression")
+    reg_proj_json = os.path.join(reg_proj, "academic-state", "project.json")
+    if not os.path.exists(reg_proj_json):
+        try:
+            from academic_state_manager import init_state
+            init_state(reg_proj, title="OLS Multiple Regression Benchmark Study", methodology="regression", n=100)
+        except Exception as e:
+            print(f"[generate_test_fixtures] Warning generating regression state: {e}")
 
     # 2. Experimental RCT
-    exp_dir = os.path.join(fixtures_dir, "study_vertical_slice_experimental", "01_raw_inputs")
+    exp_proj = os.path.join(fixtures_dir, "study_vertical_slice_experimental")
+    exp_dir = os.path.join(exp_proj, "01_raw_inputs")
     exp_xlsx = os.path.join(exp_dir, "data_raw.xlsx")
-    if not os.path.exists(exp_xlsx):
+    exp_csv = os.path.join(exp_dir, "data_raw.csv")
+    if not os.path.exists(exp_xlsx) or not os.path.exists(exp_csv):
         try:
             from scripts.generate_experimental_benchmark_data import generate_experimental_dataset
             os.makedirs(exp_dir, exist_ok=True)
-            generate_experimental_dataset(exp_xlsx)
+            generate_experimental_dataset(exp_xlsx, exp_csv, n_per_group=30)
         except Exception as e:
             print(f"[generate_test_fixtures] Warning generating experimental: {e}")
+            raise
+    exp_proj_json = os.path.join(exp_proj, "academic-state", "project.json")
+    if not os.path.exists(exp_proj_json):
+        try:
+            from academic_state_manager import init_state
+            init_state(exp_proj, title="Effectiveness of Acceptance and Commitment Therapy on Psychological Distress and Inflexibility: A Randomized Controlled Trial with 2-Month Follow-Up", methodology="experimental", n=60)
+        except Exception as e:
+            print(f"[generate_test_fixtures] Warning generating experimental state: {e}")
 
     # 3. Mediation
-    med_dir = os.path.join(fixtures_dir, "study_vertical_slice_mediation", "01_raw_inputs")
+    med_proj = os.path.join(fixtures_dir, "study_vertical_slice_mediation")
+    med_dir = os.path.join(med_proj, "01_raw_inputs")
     med_xlsx = os.path.join(med_dir, "data_raw.xlsx")
-    if not os.path.exists(med_xlsx):
+    med_csv = os.path.join(med_dir, "data_raw.csv")
+    if not os.path.exists(med_xlsx) or not os.path.exists(med_csv):
         try:
             from scripts.generate_mediation_benchmark_data import generate_mediation_data
             os.makedirs(med_dir, exist_ok=True)
             generate_mediation_data(med_dir, n=300)
         except Exception as e:
             print(f"[generate_test_fixtures] Warning generating mediation: {e}")
+            raise
+    med_proj_json = os.path.join(med_proj, "academic-state", "project.json")
+    if not os.path.exists(med_proj_json):
+        try:
+            from academic_state_manager import init_state
+            init_state(med_proj, title="Process Mediation Benchmark Study", methodology="mediation", n=300)
+        except Exception as e:
+            print(f"[generate_test_fixtures] Warning generating mediation state: {e}")
 
     # 4. Moderation
-    mod_dir = os.path.join(fixtures_dir, "study_vertical_slice_moderation", "01_raw_inputs")
+    mod_proj = os.path.join(fixtures_dir, "study_vertical_slice_moderation")
+    mod_dir = os.path.join(mod_proj, "01_raw_inputs")
     mod_xlsx = os.path.join(mod_dir, "data_raw.xlsx")
-    if not os.path.exists(mod_xlsx):
+    mod_csv = os.path.join(mod_dir, "data_raw.csv")
+    if not os.path.exists(mod_xlsx) or not os.path.exists(mod_csv):
         try:
             from scripts.generate_moderation_benchmark_data import generate_moderation_dataset
             os.makedirs(mod_dir, exist_ok=True)
-            generate_moderation_dataset(mod_xlsx)
+            generate_moderation_dataset(mod_xlsx, mod_csv, n=320)
         except Exception as e:
             print(f"[generate_test_fixtures] Warning generating moderation: {e}")
+            raise
+    mod_proj_json = os.path.join(mod_proj, "academic-state", "project.json")
+    if not os.path.exists(mod_proj_json):
+        try:
+            from academic_state_manager import init_state
+            init_state(mod_proj, title="Process Moderation Benchmark Study", methodology="moderation", n=320)
+        except Exception as e:
+            print(f"[generate_test_fixtures] Warning generating moderation state: {e}")
 
     # 5. Scale Validation
-    sv_dir = os.path.join(fixtures_dir, "study_vertical_slice_scale_validation", "01_raw_inputs")
+    sv_proj = os.path.join(fixtures_dir, "study_vertical_slice_scale_validation")
+    sv_dir = os.path.join(sv_proj, "01_raw_inputs")
     sv_xlsx = os.path.join(sv_dir, "data_raw.xlsx")
-    if not os.path.exists(sv_xlsx):
+    sv_csv = os.path.join(sv_dir, "data_raw.csv")
+    if not os.path.exists(sv_xlsx) or not os.path.exists(sv_csv):
         try:
             try:
                 from scripts.generate_scale_validation_benchmark_data import generate_scale_validation_data as gen_sv
@@ -158,17 +251,34 @@ def generate_all_benchmark_datasets(fixtures_dir: str = FIXTURES_DIR) -> None:
         except Exception as e:
             print(f"[generate_test_fixtures] Error generating scale validation: {e}")
             raise
+    sv_proj_json = os.path.join(sv_proj, "academic-state", "project.json")
+    if not os.path.exists(sv_proj_json):
+        try:
+            from academic_state_manager import init_state
+            init_state(sv_proj, title="Scale Validation Benchmark Study", methodology="scale_validation", n=400)
+        except Exception as e:
+            print(f"[generate_test_fixtures] Warning generating scale validation state: {e}")
 
     # 6. SEM
-    sem_dir = os.path.join(fixtures_dir, "study_vertical_slice_sem", "01_raw_inputs")
+    sem_proj = os.path.join(fixtures_dir, "study_vertical_slice_sem")
+    sem_dir = os.path.join(sem_proj, "01_raw_inputs")
     sem_xlsx = os.path.join(sem_dir, "data_raw.xlsx")
-    if not os.path.exists(sem_xlsx):
+    sem_csv = os.path.join(sem_dir, "data_raw.csv")
+    if not os.path.exists(sem_xlsx) or not os.path.exists(sem_csv):
         try:
             from scripts.generate_sem_benchmark_data import generate_sem_data
             os.makedirs(sem_dir, exist_ok=True)
             generate_sem_data(sem_dir, n=250)
         except Exception as e:
             print(f"[generate_test_fixtures] Warning generating sem: {e}")
+            raise
+    sem_proj_json = os.path.join(sem_proj, "academic-state", "project.json")
+    if not os.path.exists(sem_proj_json):
+        try:
+            from academic_state_manager import init_state
+            init_state(sem_proj, title="SEM Benchmark Study", methodology="sem", n=250)
+        except Exception as e:
+            print(f"[generate_test_fixtures] Warning generating sem state: {e}")
 
     # 7. Presentation
     generate_presentation_fixture(fixtures_dir)

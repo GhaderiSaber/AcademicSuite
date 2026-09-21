@@ -64,12 +64,12 @@ class TestDynamicFixturesHealing(unittest.TestCase):
             generate_all_benchmark_datasets(tmpdir)
 
             expected_files = {
-                "study_vertical_slice_regression": ["01_raw_inputs/data_raw.csv", "01_raw_inputs/data_raw.xlsx"],
-                "study_vertical_slice_experimental": ["01_raw_inputs/data_raw.xlsx"],
-                "study_vertical_slice_mediation": ["01_raw_inputs/data_raw.xlsx", "01_raw_inputs/data_raw.csv"],
-                "study_vertical_slice_moderation": ["01_raw_inputs/data_raw.xlsx"],
-                "study_vertical_slice_scale_validation": ["01_raw_inputs/data_raw.xlsx", "01_raw_inputs/data_raw.csv"],
-                "study_vertical_slice_sem": ["01_raw_inputs/data_raw.xlsx", "01_raw_inputs/data_raw.csv"],
+                "study_vertical_slice_regression": ["01_raw_inputs/data_raw.csv", "01_raw_inputs/data_raw.xlsx", "academic-state/project.json"],
+                "study_vertical_slice_experimental": ["01_raw_inputs/data_raw.csv", "01_raw_inputs/data_raw.xlsx", "academic-state/project.json"],
+                "study_vertical_slice_mediation": ["01_raw_inputs/data_raw.csv", "01_raw_inputs/data_raw.xlsx", "academic-state/project.json"],
+                "study_vertical_slice_moderation": ["01_raw_inputs/data_raw.csv", "01_raw_inputs/data_raw.xlsx", "academic-state/project.json"],
+                "study_vertical_slice_scale_validation": ["01_raw_inputs/data_raw.csv", "01_raw_inputs/data_raw.xlsx", "academic-state/project.json"],
+                "study_vertical_slice_sem": ["01_raw_inputs/data_raw.csv", "01_raw_inputs/data_raw.xlsx", "academic-state/project.json"],
                 "study_vertical_slice_presentation": ["01_raw_inputs/00_defense_findings_payload.json"],
                 "study_act_burnout": ["01_raw_inputs/data_raw.xlsx", "academic-state/project.json"],
                 "test_study_e2e": ["01_raw_inputs/test_academic_study_data.csv", "academic-state/project.json"],
