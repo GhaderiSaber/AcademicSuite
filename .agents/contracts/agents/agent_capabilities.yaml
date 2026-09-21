@@ -114,6 +114,7 @@ agents:
     can_delegate: false
     can_execute_code: true
     execution_scope: "docgen_only"
+    execution_entrypoint: "scripts/academic_docgen.py"
     can_write_files: true
     required:
       - view_file

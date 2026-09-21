@@ -587,66 +587,152 @@ class SafetyHooks:
             # academic-writer may execute ONLY declared document-generation / formatting workflows,
             # NOT independent statistical analysis, data cleaning, or psychometrics.
             if "academic-writer" in caller:
-                # 1. Block R execution
-                if re.search(r'\b(?:Rscript|R)\s+', cmd):
+                # Step 1: Detect shell control and chaining operators
+                # (;, &&, ||, |, &, `, $(), ${}, \n, \r)
+                if any(op in cmd for op in (";", "&&", "||", "|", "`", "$(", "${", "\n", "\r")):
                     return {
                         "decision": "deny",
                         "reason": (
                             "CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
-                            "Academic-Writer is strictly forbidden from executing R scripts or commands. "
-                            "Statistical computing must be delegated to statistics-agent."
+                            "Shell chaining, piping, backgrounding, or command substitution is strictly forbidden for academic-writer. "
+                            "Commands must be single, unchained document-generation invocations."
                         )
                     }
 
-                # 2. Block inline statistical calculations via python -c
-                if re.search(r'python3?\s+-c\s+["\'].*(?:pandas|pingouin|scipy|statsmodels|sklearn|semopy|factor_analyzer).*["\']', cmd, re.IGNORECASE):
+                # Step 2: Safe tokenization with shlex
+                try:
+                    import shlex
+                    tokens = shlex.split(cmd)
+                except Exception as e:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                            f"Malformed command string could not be safely tokenized: {e}"
+                        )
+                    }
+
+                if not tokens:
+                    return {
+                        "decision": "deny",
+                        "reason": "CONSTITUTIONAL VIOLATION: Empty command."
+                    }
+
+                # Step 3: Unconditionally forbid inline code execution (-c) and module execution (-m, -i)
+                if any(t == "-c" or t.startswith("-c") for t in tokens):
                     return {
                         "decision": "deny",
                         "reason": (
                             "CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
-                            "Academic-Writer is strictly forbidden from executing inline statistical calculations directly. "
-                            "Statistical computation must be delegated to statistics-agent or data-agent."
+                            "Inline code execution (-c) is strictly forbidden for academic-writer. "
+                            "Academic-Writer cannot execute arbitrary inline Python or shell code. "
+                            "Use the dedicated document generation interface (scripts/academic_docgen.py) or authorized document scripts."
                         )
                     }
 
-                # 3. Check any python script execution
-                py_matches = list(re.finditer(r'python3?(?:\s+-[a-zA-Z0-9]+)*\s+([^\s;&|]+\.py)', cmd))
-                if py_matches:
-                    allowed_writing_skills = {
-                        "chapter-4-writing",
-                        "persian-literature-review-builder",
-                        "persian-discussion-builder",
-                        "persian-thesis-builder",
-                        "persian-thesis-revision-assistant",
-                        "persian-proposal-builder",
-                        "academic-article-writer",
-                        "ai-academic-tone-polisher",
-                        "apa-reporting",
-                        "psychological-intervention-protocol-builder",
-                        "journal-submission-assistant",
-                        "persian-defense-presentation-builder",
-                        "academic-reference-extractor",
-                        "academic-adaptive-context",
+                if any(t in ("-m", "-i") for t in tokens):
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            "CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                            "Python module execution (-m) or interactive mode (-i) is forbidden for academic-writer."
+                        )
                     }
-                    statistical_indicators = (
-                        "regression", "mediation", "moderation", "sem", "cfa", "efa",
-                        "assumption", "statistical", "stats", "data_cleaning", "data-cleaning",
-                        "clean_and_score", "data_audit", "data-audit", "audit_dataset",
-                        "descriptive", "longitudinal", "modmed", "meta_analyst", "meta-analyst",
-                        "gpower", "sample_size", "psychometric", "scale_validator",
-                        "data_simulator", "scale_resolver", "reliability", "qualitative",
-                        "ancova", "anova", "ttest", "correlation", "factor_analysis"
-                    )
 
-                    for py_match in py_matches:
-                        script_path = py_match.group(1).replace("\\", "/")
-                        norm_path = os.path.normpath(script_path).replace("\\", "/")
+                # Step 4: Tokenized executable verification
+                raw_bin = tokens[0]
+                bin_base = os.path.basename(raw_bin).lower()
 
-                        if "/skills/" in norm_path or norm_path.startswith("skills/"):
+                # Case A: Python script execution
+                if bin_base in ("python", "python3", "py"):
+                    if len(tokens) < 2:
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                "CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                                "Python must be invoked with an explicit authorized document script."
+                            )
+                        }
+
+                    target_script = tokens[1].replace("\\", "/")
+                    norm_script = os.path.normpath(target_script).replace("\\", "/")
+                    script_base = os.path.basename(norm_script).lower()
+
+                    # Dedicated docgen CLI interface (scripts/academic_docgen.py)
+                    if script_base == "academic_docgen.py":
+                        allowed_subcommands = {
+                            "render-docx",
+                            "render-markdown",
+                            "scaffold-triad",
+                            "compile-thesis",
+                            "compile-presentation",
+                            "scaffold-apa-tables",
+                            "polish-tone",
+                        }
+                        subcmd = tokens[2] if len(tokens) > 2 else ""
+                        if subcmd not in allowed_subcommands:
+                            return {
+                                "decision": "deny",
+                                "reason": (
+                                    f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                                    f"Unauthorized academic_docgen subcommand '{subcmd}'. "
+                                    f"Permitted subcommands: {sorted(allowed_subcommands)}"
+                                )
+                            }
+                        # Allowed docgen invocation!
+                    else:
+                        # Legacy standalone document scripts
+                        allowed_writing_skills = {
+                            "chapter-4-writing",
+                            "persian-literature-review-builder",
+                            "persian-discussion-builder",
+                            "persian-thesis-builder",
+                            "persian-thesis-revision-assistant",
+                            "persian-proposal-builder",
+                            "academic-article-writer",
+                            "ai-academic-tone-polisher",
+                            "apa-reporting",
+                            "psychological-intervention-protocol-builder",
+                            "journal-submission-assistant",
+                            "persian-defense-presentation-builder",
+                            "academic-reference-extractor",
+                            "academic-adaptive-context",
+                        }
+                        allowed_explicit_scripts = {
+                            "scaffold_chapter4_triad.py",
+                            "compile_full_thesis.py",
+                            "scaffold_apa_tables.py",
+                            "tone_polisher_engine.py",
+                            "compile_defense_presentation.py",
+                            "structured_docx_generator.py",
+                            "persian_docx_engine.py",
+                            "build_hypothesis_triad_docx.py",
+                        }
+                        statistical_indicators = (
+                            "regression", "mediation", "moderation", "sem", "cfa", "efa",
+                            "assumption", "statistical", "stats", "data_cleaning", "data-cleaning",
+                            "clean_and_score", "data_audit", "data-audit", "audit_dataset",
+                            "descriptive", "longitudinal", "modmed", "meta_analyst", "meta-analyst",
+                            "gpower", "sample_size", "psychometric", "scale_validator",
+                            "data_simulator", "scale_resolver", "reliability", "qualitative",
+                            "ancova", "anova", "ttest", "correlation", "factor_analysis"
+                        )
+
+                        if any(stat_kw in norm_script.lower() for stat_kw in statistical_indicators):
+                            return {
+                                "decision": "deny",
+                                "reason": (
+                                    f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                                    f"Academic-Writer cannot execute statistical script '{target_script}'. "
+                                    f"Delegate computation to statistics-agent or data-agent."
+                                )
+                            }
+
+                        if "/skills/" in norm_script or norm_script.startswith("skills/"):
                             skill_part = (
-                                norm_path.split("/skills/")[1].split("/")[0]
-                                if "/skills/" in norm_path
-                                else norm_path.split("skills/")[1].split("/")[0]
+                                norm_script.split("/skills/")[1].split("/")[0]
+                                if "/skills/" in norm_script
+                                else norm_script.split("skills/")[1].split("/")[0]
                             )
                             if skill_part not in allowed_writing_skills:
                                 return {
@@ -654,21 +740,11 @@ class SafetyHooks:
                                     "reason": (
                                         f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
                                         f"Academic-Writer run_command privilege is strictly confined to declared document-generation "
-                                        f"and formatting workflows. Target script '{script_path}' belongs to skill '{skill_part}', "
+                                        f"and formatting workflows. Target script '{target_script}' belongs to skill '{skill_part}', "
                                         f"which is outside declared writing skills. Delegate statistical work to statistics-agent."
                                     )
                                 }
                         else:
-                            basename = os.path.basename(norm_path).lower()
-                            if any(stat_kw in norm_path.lower() for stat_kw in statistical_indicators):
-                                return {
-                                    "decision": "deny",
-                                    "reason": (
-                                        f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
-                                        f"Academic-Writer cannot execute statistical script '{script_path}'. "
-                                        f"Delegate computation to statistics-agent or data-agent."
-                                    )
-                                }
                             allowed_doc_patterns = (
                                 "test",
                                 "structured_docx_generator.py",
@@ -679,21 +755,37 @@ class SafetyHooks:
                                 "render_",
                                 "export_",
                                 "format_",
+                                "academic_docgen.py",
                                 "doc",
                                 "docx",
                                 "pptx",
                                 "slide",
                                 "brief"
                             )
-                            if not any(pat in basename for pat in allowed_doc_patterns):
+                            if script_base not in allowed_explicit_scripts and not any(pat in script_base for pat in allowed_doc_patterns):
                                 return {
                                     "decision": "deny",
                                     "reason": (
                                         f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
                                         f"Academic-Writer script execution is confined to declared document-generation tools. "
-                                        f"Script '{script_path}' is not an authorized document-generation utility."
+                                        f"Script '{target_script}' is not an authorized document-generation utility."
                                     )
                                 }
+
+                # Case B: Approved non-Python document utilities
+                elif bin_base in ("pandoc", "soffice", "mkdir", "cp"):
+                    pass  # Allowed document utilities
+
+                # Case C: All other binaries are strictly forbidden
+                else:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
+                            f"Binary '{raw_bin}' is strictly forbidden for academic-writer. "
+                            f"Only Python document generation scripts and document utilities (pandoc, soffice, mkdir, cp) are permitted."
+                        )
+                    }
 
             is_danger, reason = is_dangerous_command(cmd)
             if is_danger:

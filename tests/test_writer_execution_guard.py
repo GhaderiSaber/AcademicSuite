@@ -221,6 +221,132 @@ class TestAcademicWriterExecutionGuard(unittest.TestCase):
             f"statistics-agent was unexpectedly blocked on statistical script: {res.get('reason')}"
         )
 
+    def test_08_subprocess_and_execution_wrappers_denied(self):
+        """SafetyHooks must deny academic-writer when using Python subprocess wrappers or arbitrary -c."""
+        wrapper_commands = [
+            'python3 -c "import subprocess; subprocess.run([\'python3\',\'.agents/skills/regression/scripts/run_regression.py\'])"',
+            'python3 -c "import os; os.system(\'python3 .agents/skills/regression/scripts/run_regression.py\')"',
+            'python3 -c "import urllib.request; print(\'leak\')"',
+            'python3 -c "print(\'hello world\')"',
+            'python -c "exec(\'import os; os.system(\\\'id\\\')\')"',
+            'python3 -c "open(\'test.py\', \'w\').write(\'evil\')"',
+        ]
+        for cmd in wrapper_commands:
+            payload = {
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": cmd}
+                },
+                "agentName": "academic-writer",
+                "workspacePaths": [ROOT_DIR]
+            }
+            res = SafetyHooks.handle_pre_tool_use(payload)
+            self.assertEqual(
+                res.get("decision"), "deny",
+                f"Execution wrapper was NOT denied for academic-writer: '{cmd}'"
+            )
+            self.assertIn("Academic Writer Execution Guard", res.get("reason", ""))
+
+    def test_09_shell_chaining_and_redirection_denied(self):
+        """SafetyHooks must deny academic-writer when using shell chaining operators or pipes."""
+        chaining_commands = [
+            "cp template.docx out.docx && python3 .agents/skills/regression/scripts/run_regression.py",
+            "pandoc document.md -o document.docx; rm -rf /tmp/test",
+            "mkdir -p out | sh",
+            "python3 scripts/academic_docgen.py render-docx --md in.md --docx out.docx && ls",
+            "python3 scripts/academic_docgen.py render-docx `id`",
+            "python3 scripts/academic_docgen.py render-docx $(whoami)",
+        ]
+        for cmd in chaining_commands:
+            payload = {
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": cmd}
+                },
+                "agentName": "academic-writer",
+                "workspacePaths": [ROOT_DIR]
+            }
+            res = SafetyHooks.handle_pre_tool_use(payload)
+            self.assertEqual(
+                res.get("decision"), "deny",
+                f"Chaining command was NOT denied for academic-writer: '{cmd}'"
+            )
+            self.assertIn("Academic Writer Execution Guard", res.get("reason", ""))
+
+    def test_10_dedicated_docgen_cli_allowed(self):
+        """SafetyHooks must allow academic-writer to execute dedicated academic_docgen.py subcommands."""
+        valid_docgen_commands = [
+            "python3 scripts/academic_docgen.py render-docx --md input.md --docx output.docx",
+            "python3 scripts/academic_docgen.py render-markdown --in input.md --out output.md",
+            "python3 scripts/academic_docgen.py scaffold-triad --stage 'فرضیه اول' --base '06_hyp_1' --outdir out",
+            "python3 scripts/academic_docgen.py compile-thesis --config config.json",
+            "python3 scripts/academic_docgen.py compile-presentation --input slides.json",
+            "python3 scripts/academic_docgen.py scaffold-apa-tables --input spec.json",
+            "python3 scripts/academic_docgen.py polish-tone --in draft.md --out polished.md",
+            "python3 .agents/scripts/academic_docgen.py render-docx --md input.md --docx output.docx",
+        ]
+        for cmd in valid_docgen_commands:
+            payload = {
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": cmd}
+                },
+                "agentName": "academic-writer",
+                "workspacePaths": [ROOT_DIR]
+            }
+            res = SafetyHooks.handle_pre_tool_use(payload)
+            self.assertEqual(
+                res.get("decision"), "allow",
+                f"Valid academic_docgen command was denied: '{cmd}'. Reason: {res.get('reason')}"
+            )
+
+    def test_11_dedicated_docgen_cli_unauthorized_subcommand_denied(self):
+        """SafetyHooks must deny academic-writer calling unauthorized subcommands on academic_docgen.py."""
+        invalid_docgen_commands = [
+            "python3 scripts/academic_docgen.py execute-arbitrary-code",
+            "python3 scripts/academic_docgen.py run-regression",
+            "python3 scripts/academic_docgen.py eval-payload",
+            "python3 scripts/academic_docgen.py delete-files",
+        ]
+        for cmd in invalid_docgen_commands:
+            payload = {
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": cmd}
+                },
+                "agentName": "academic-writer",
+                "workspacePaths": [ROOT_DIR]
+            }
+            res = SafetyHooks.handle_pre_tool_use(payload)
+            self.assertEqual(
+                res.get("decision"), "deny",
+                f"Unauthorized docgen subcommand was NOT denied: '{cmd}'"
+            )
+            self.assertIn("Academic Writer Execution Guard", res.get("reason", ""))
+
+    def test_12_module_execution_and_interactive_mode_denied(self):
+        """SafetyHooks must deny academic-writer using -m or -i flags with Python."""
+        flag_commands = [
+            "python3 -m unittest discover",
+            "python3 -i scripts/academic_docgen.py",
+        ]
+        for cmd in flag_commands:
+            payload = {
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": cmd}
+                },
+                "agentName": "academic-writer",
+                "workspacePaths": [ROOT_DIR]
+            }
+            res = SafetyHooks.handle_pre_tool_use(payload)
+            self.assertEqual(
+                res.get("decision"), "deny",
+                f"Flag command was NOT denied: '{cmd}'"
+            )
+            self.assertIn("Academic Writer Execution Guard", res.get("reason", ""))
+
 
 if __name__ == "__main__":
     unittest.main()
+

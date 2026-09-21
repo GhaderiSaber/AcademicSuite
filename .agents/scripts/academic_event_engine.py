@@ -139,10 +139,14 @@ VALID_EVENT_TYPES: Set[str] = {
 
 def load_event_schema() -> Optional[Dict[str, Any]]:
     """Loads contracts/event.schema.json from the repository."""
-    schema_path = os.path.join(ROOT_DIR, "contracts", "event.schema.json")
-    if os.path.exists(schema_path):
-        with open(schema_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+    candidates = [
+        os.path.join(ROOT_DIR, "contracts", "event.schema.json"),
+        os.path.join(ROOT_DIR, ".agents", "contracts", "event.schema.json"),
+    ]
+    for schema_path in candidates:
+        if os.path.exists(schema_path):
+            with open(schema_path, "r", encoding="utf-8") as f:
+                return json.load(f)
     return None
 
 
