@@ -396,8 +396,11 @@ class AcademicLessonDistiller:
         desired = fdb_data.get("desired_behavior", "")
         fdb_type = fdb_data.get("type", "METHODOLOGY_CORRECTION")
         fdb_scope = fdb_data.get("scope", "REUSABLE_PROCEDURAL")
-        target_agent = fdb_data.get("target_agent", "academic-orchestrator")
+        target_agent = fdb_data.get("target_agent")
         target_skill = fdb_data.get("target_skill", "academic-suite-orchestrator")
+        if not target_agent:
+            from scripts.academic_two_stage_retriever import AcademicTwoStageRetriever
+            target_agent = AcademicTwoStageRetriever.SKILL_TO_PRIMARY_AGENT.get(target_skill, "academic-orchestrator")
         fdb_id = fdb_data.get("feedback_id", "FDB-UNKNOWN")
 
         # Anti-Vague Check
@@ -481,6 +484,8 @@ class AcademicLessonDistiller:
             "lesson_type": "WHAT_NOT_TO_DO",
             "trigger_source": "USER_FEEDBACK",
             "source_experience_id": source_exp,
+            "target_agent": target_agent,
+            "target_agents": [target_agent],
             "diagnosis": diagnosis,
             "applicability_conditions": applicability,
             "exclusions": exclusions,
@@ -539,6 +544,8 @@ class AcademicLessonDistiller:
         failed_checks = val_event.get("failed_checks", ["unspecified_validation_check"])
         skill = exp_data.get("skill", "chapter-4-writing")
         task_id = exp_data.get("task_id", "active_task")
+        from scripts.academic_two_stage_retriever import AcademicTwoStageRetriever
+        target_agent = exp_data.get("agent") or AcademicTwoStageRetriever.SKILL_TO_PRIMARY_AGENT.get(skill, "statistics-agent")
 
         failed_str = ", ".join(failed_checks)
         desired_behavior = (
@@ -570,6 +577,8 @@ class AcademicLessonDistiller:
             "lesson_type": "WHAT_NOT_TO_DO",
             "trigger_source": "VALIDATOR_FAILURE",
             "source_experience_id": exp_data.get("experience_id", "EXP-UNKNOWN"),
+            "target_agent": target_agent,
+            "target_agents": [target_agent],
             "diagnosis": diagnosis,
             "applicability_conditions": [
                 f"Artifact generation under skill '{skill}'",
@@ -648,6 +657,8 @@ class AcademicLessonDistiller:
         skill = exp_data.get("skill", "statistical-data-analyst")
         task_id = exp_data.get("task_id", "active_task")
         duration = exp_data.get("duration_seconds", 0)
+        from scripts.academic_two_stage_retriever import AcademicTwoStageRetriever
+        target_agent = exp_data.get("agent") or AcademicTwoStageRetriever.SKILL_TO_PRIMARY_AGENT.get(skill, "statistics-agent")
 
         desired_behavior = (
             f"Replicate the verified execution pattern for {skill}: decompose into micro-stages, "
@@ -679,6 +690,8 @@ class AcademicLessonDistiller:
             "lesson_type": "WHAT_WORKED_WELL",
             "trigger_source": "SUCCESSFUL_TRAJECTORY",
             "source_experience_id": exp_data.get("experience_id", "EXP-UNKNOWN"),
+            "target_agent": target_agent,
+            "target_agents": [target_agent],
             "diagnosis": diagnosis,
             "applicability_conditions": [
                 f"Execution of research capability {skill}",

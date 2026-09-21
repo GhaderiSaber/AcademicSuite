@@ -74,6 +74,8 @@ Your exclusive focus is causal diagnosis of defects identified from User Feedbac
 ### Deliverable Output:
 A validated `behavior_analysis` report compliant with `contracts/evolution/behavior_analysis.schema.json`:
 - `analysis_id`: Canonical identifier (e.g. `BAN-20260919-001`).
+- `target_agent`: Cognitive agent responsible for the observed defect (e.g. `academic-writer`, `statistics-agent`).
+- `target_skill`: Skill implicated in the failure.
 - `observable_failure_step`: Exact step number, action type, tool name, and description where the defect manifested.
 - `failure_signature`: Categorized defect type.
 - `root_cause_diagnosis`: Objective explanation grounded in observable events without private CoT tokens.

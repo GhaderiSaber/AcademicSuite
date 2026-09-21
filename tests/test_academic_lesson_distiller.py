@@ -67,18 +67,22 @@ class TestAcademicLessonDistiller(unittest.TestCase):
         outcome: str = "SUCCESS",
         skill: str = "statistical-data-analyst",
         val_events: list = None,
-        feedback: dict = None
+        feedback: dict = None,
+        agent: str = None
     ):
         """Creates a mock experience directory with experience.json, trajectory.json, and optional feedback.json."""
         target_dir = os.path.join(self.experience_dir, exp_id)
         os.makedirs(target_dir, exist_ok=True)
+
+        from scripts.academic_two_stage_retriever import AcademicTwoStageRetriever
+        resolved_agent = agent or AcademicTwoStageRetriever.SKILL_TO_PRIMARY_AGENT.get(skill, "statistics-agent")
 
         exp_data = {
             "contract_version": "1.0.0",
             "experience_id": exp_id,
             "project_id": "study_test",
             "task_id": "06_hypothesis_1",
-            "agent": "statistics-agent",
+            "agent": resolved_agent,
             "skill": skill,
             "start_time": "2026-09-18T10:00:00Z",
             "end_time": "2026-09-18T10:05:00Z",
@@ -164,6 +168,8 @@ class TestAcademicLessonDistiller(unittest.TestCase):
         self.assertEqual(lesson["trigger_source"], "USER_FEEDBACK")
         self.assertEqual(lesson["is_active_behavior"], False)
         self.assertEqual(lesson["source_experience_id"], exp_id)
+        self.assertEqual(lesson["target_agent"], "statistics-agent")
+        self.assertEqual(lesson["target_agents"], ["statistics-agent"])
 
         # 2. 8 Diagnostic Questions
         diag = lesson.get("diagnosis", {})
@@ -208,6 +214,8 @@ class TestAcademicLessonDistiller(unittest.TestCase):
 
         self.assertEqual(lesson["lesson_type"], "WHAT_NOT_TO_DO")
         self.assertEqual(lesson["trigger_source"], "VALIDATOR_FAILURE")
+        self.assertEqual(lesson["target_agent"], "academic-writer")
+        self.assertEqual(lesson["target_agents"], ["academic-writer"])
         self.assertIn("observed_failure", lesson)
         self.assertEqual(lesson["observed_failure"]["defect_type"], "REPORTING_OR_TYPOGRAPHY_DEFECT")
         self.assertEqual(lesson["scope"], "DOMAIN_WIDE")
@@ -234,6 +242,8 @@ class TestAcademicLessonDistiller(unittest.TestCase):
 
         self.assertEqual(lesson["lesson_type"], "WHAT_WORKED_WELL")
         self.assertEqual(lesson["trigger_source"], "SUCCESSFUL_TRAJECTORY")
+        self.assertEqual(lesson["target_agent"], "statistics-agent")
+        self.assertEqual(lesson["target_agents"], ["statistics-agent"])
         self.assertEqual(lesson["is_active_behavior"], False)
         self.assertNotIn("observed_failure", lesson)
 

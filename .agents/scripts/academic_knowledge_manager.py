@@ -393,6 +393,7 @@ class AcademicKnowledgeManager:
             self.lessons_dir,
             {
                 "lesson_id": item["lesson_id"],
+                "target_agent": item.get("target_agent"),
                 "target_skill": item.get("target_skill") or (item.get("related_skills", ["unknown"])[0] if item.get("related_skills") else "unknown"),
                 "status": item["status"],
                 "confidence": item.get("confidence"),
