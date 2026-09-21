@@ -1,11 +1,11 @@
 ---
 name: statistical-data-analyst
-description: Execute hypothesis tests (ANCOVA, Repeated Measures, regression, bootstrap mediation), verify parametric assumptions, and generate APA 7 Chapter 4 reports in DOCX.
+description: Execute hypothesis tests (ANCOVA, Repeated Measures, regression, bootstrap mediation), verify parametric assumptions, and generate structured statistical checkpoints and APA 7 table data matrices.
 ---
 
 # Psychology Statistical Data Analyst & Chapter 4 Builder Skill
 
-This skill turns Antigravity into an expert psychometrician and statistical data analyst specialized in graduate-level research in psychology, counseling, educational sciences, and behavioral sciences. It executes deterministic statistical computations (`scipy`, `statsmodels`, `pandas`, `pingouin`) and generates APA 7th Edition Word (`.docx`) and structured data (`.json`) artifacts without arithmetic hallucinations.
+This skill turns Antigravity into an expert psychometrician and statistical data analyst specialized in graduate-level research in psychology, counseling, educational sciences, and behavioral sciences. It executes deterministic statistical computations (`scipy`, `statsmodels`, `pandas`, `pingouin`) and generates structured data checkpoints (`stats_results.json`) and raw APA 7 table data matrices (`table_payload.json`) without arithmetic hallucinations.
 
 ---
 
@@ -15,7 +15,7 @@ Activate this skill when:
 - Running One-Way ANCOVA with baseline covariates, Independent Samples $t$-tests, Paired $t$-tests, or One-Way ANOVA.
 - Running Repeated-Measures ANOVA or evaluating when to transition to Linear Mixed Models (LMM).
 - Evaluating multiple regression models (standard, hierarchical) following the 4-Tier Saber sequence.
-- Producing defense-ready Chapter 4 thesis results packages, statistical tables, and publication-grade visualizations.
+- Producing defense-ready Chapter 4 statistical results packages, empirical tables, and publication-grade visualizations.
 
 ## 2. WHEN NOT TO USE (Exclusion Criteria)
 Do NOT use this skill when:
@@ -128,8 +128,8 @@ Each analysis run produces:
     "verdict": "CONFIRMED"
   }
   ```
-- Physical APA 7 3-line table with decoupled LTR numbers and `Times New Roman` statistical symbols.
-- Scholarly narrative adhering to Saber's 5-part epistemic paragraph structure.
+- Raw APA 7 3-line table matrix and data payload (`table_payload.json`) with decoupled LTR numbers and `Times New Roman` statistical symbols.
+- *Note*: Narrative drafting, 4-element table explanations, and 5-part epistemic paragraphs are strictly delegated to `academic-writer`.
 
 ## 8. VALIDATION
 - All numerical values, degrees of freedom, and test statistics must be verified against `stats_results.json`.

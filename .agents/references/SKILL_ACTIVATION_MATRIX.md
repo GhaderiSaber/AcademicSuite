@@ -9,7 +9,7 @@
 | **`persian-academic-translation`** | [.agents/skills/persian-academic-translation/](../skills/persian-academic-translation/) | User requests translating English papers, book chapters, or theoretical frameworks into academic Persian. | English PDF / DOCX / TXT papers | `*_fa.docx` formatted with academic terminology and preserved citations. |
 | **`academic-reference-extractor`** | [.agents/skills/academic-reference-extractor/](../skills/academic-reference-extractor/) | User needs EndNote/Zotero citations for a translated paper or specific thesis chapter. | Translated text with citations + Master paper bibliography | `.enw` (EndNote), `.ris` (Zotero/Mendeley), and `.txt` (APA list). |
 | **`psychometric-scale-resolver`** | [.agents/skills/psychometric-scale-resolver/](../skills/psychometric-scale-resolver/) | User needs to identify questionnaires, extract subscale factor structures, scoring methods, reverse-scoring keys, or score raw survey items. | Raw items (`Q1..Q40`) or Scale query + `Questionnaires.xlsx` | `data_scored.xlsx` + factor subscales + Cronbach's $\alpha$. |
-| **`statistical-data-analyst`** | [.agents/skills/statistical-data-analyst/](../skills/statistical-data-analyst/) | User provides data (`.sav`, `.xlsx`, `.csv`) and requests analysis, hypothesis testing, or Chapter 4 writing. | Scored dataset + Hypotheses / Research Questions | `Chapter_4_Results.docx` + `stats_results.json` + APA 7 tables. |
+| **`statistical-data-analyst`** | [.agents/skills/statistical-data-analyst/](../skills/statistical-data-analyst/) | User provides data (`.sav`, `.xlsx`, `.csv`) and requests statistical computation, hypothesis testing, or parametric model fitting. | Scored dataset + Hypotheses / Research Questions | `stats_results.json` + `table_payload.json` + APA 7 table data matrices (consumed by `academic-writer` for Chapter 4). |
 | **`persian-discussion-builder`** | [.agents/skills/persian-discussion-builder/](../skills/persian-discussion-builder/) | User requests writing Chapter 5 (بحث و نتیجه‌گیری) interpreting statistical findings against literature. | Chapter 4 results (`stats_results.json`) + Chapter 2 literature | `Chapter_5_Discussion.docx` with clinical implications and limitations. |
 | **`persian-thesis-builder`** | [.agents/skills/persian-thesis-builder/](../skills/persian-thesis-builder/) | User wants to compile, merge, format, or assemble all modular thesis parts into a unified university document. | Master `.docx` template + Chapters 1-5 + References + Scales | `Thesis_Compiled.docx` (Complete dissertation meeting university formatting rules). |
 | **`irandoc-plagiarism-reducer`** | [.agents/skills/irandoc-plagiarism-reducer/](../skills/irandoc-plagiarism-reducer/) | User needs to reduce Irandoc (همانندجو) similarity score below 20% or 30%, rewrite flagged literature/discussion text, or eliminate cliches. | Flagged `.docx` or text + Irandoc report | `*_paraphrased.docx` + side-by-side comparison report (`.docx`). |
@@ -73,7 +73,10 @@ The skills are modular and designed to pass standard artifacts between each othe
 [Raw Survey Responses]      ──► (psychometric-scale-resolver)         ──► data_scored.xlsx (Factors + Alphas)
                                                                                 │
                                                                                 ▼
-[Scored Dataset + Hypo]     ──► (statistical-data-analyst)            ──► Chapter 4 Quant (.docx) + stats_results.json
+[Scored Dataset + Hypo]     ──► (statistical-data-analyst)            ──► stats_results.json + table_payload.json
+                                                                                │
+                                                                                ▼
+[Stats Payload + Model]     ──► (chapter-4-writing / academic-writer) ──► Chapter 4 Triad (.docx + .md + .json)
                                                                                 │
 [Interviews / Focus Groups] ──► (qualitative-data-analyst)            ──► Chapter 4 Qual (.docx) + Matrix (.xlsx) + Diagram (.png)
                                                                                 │

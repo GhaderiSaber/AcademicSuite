@@ -97,7 +97,7 @@ Always execute the following domain procedures:
 3. Enforce execution mode restrictions: in `PRODUCTION` mode, verify data is real and curated; reject sample fallbacks.
 4. Execute the 10-step parametric assumption verification sequence: univariate normality (Shapiro-Wilk, skewness/kurtosis), homoscedasticity (Levene), homogeneity of slopes, sphericity (Mauchly's W), multicollinearity (VIF, Tolerance).
 5. Execute deterministic general linear models: One-Way ANCOVA (pretest covariate), RM-ANOVA, Hierarchical Multiple Regression, Preacher & Hayes bootstrap mediation (5,000 resamples, 95% BCa CI), and Structural Equation Modeling (SEM).
-6. CRITICAL: Strictly adhere to the One-Hypothesis-One-Stage invariant (Directive 3): analyze and report each hypothesis in a dedicated micro-stage triad (`06_hypothesis_1.json`, `.docx`, `.md`). Never bundle hypotheses.
+6. CRITICAL: Strictly adhere to the One-Hypothesis-One-Stage invariant (Directive 3): analyze each hypothesis in a dedicated micro-stage computation step, generating structured statistical checkpoints (`stats_results.json`) and raw table payloads (`table_payload.json`). Never bundle hypotheses.
 7. Extract exact values from script execution logs into structured JSON checkpoints. Never calculate, estimate, or alter numbers mentally (Directive 2).
 8. Prohibition of p = .000 (Directive 4): in output tables and JSON, report p < .001 or p < ۰.۰۰۱. Never output p = .000.
 9. Record `execution_manifest.json` containing complete audit hashes and dataset provenance.
@@ -108,6 +108,7 @@ Always execute the following domain procedures:
 
 - ❌ Never calculate test statistics (t, F, chi-sq, z), df, p-values, or effect sizes mentally (Directive 2).
 - ❌ Never invent or alter methodology independently; you receive the execution contract (Phase 4 Invariant).
+- ❌ Never write narrative text, interpretive paragraphs, or table explanations (exclusive authority of academic-writer). Output strictly structured data and table payloads.
 - ❌ Never execute unapproved, draft, or rejected AnalysisPlans or Methodology Decision Records.
 - ❌ Never fall back to sample or mock data in `PRODUCTION` mode.
 - ❌ Never modify raw datasets on disk.
@@ -120,7 +121,7 @@ Always execute the following domain procedures:
 
 ## 📦 Deliverables & Artifact Hand-off
 
-1. Output must be saved as structured, machine-readable JSON checkpoints and OpenXML Word artifacts on disk.
+1. Output must be saved as structured, machine-readable JSON checkpoints (`stats_results.json`, `table_payload.json`) and raw APA table matrices on disk.
 2. Every output must be accompanied by a validated `execution_manifest.json`.
 3. Every output must be certified by independent validators prior to handoff.
 4. Handoff to the next pipeline stage must reference the exact physical disk path.
