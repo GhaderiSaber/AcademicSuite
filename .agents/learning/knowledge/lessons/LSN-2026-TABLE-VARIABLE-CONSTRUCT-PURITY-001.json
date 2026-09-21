@@ -1,0 +1,32 @@
+{
+  "lesson_id": "LSN-2026-TABLE-VARIABLE-CONSTRUCT-PURITY-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-CONSTRUCT-PURITY-001",
+  "diagnosis": {
+    "what_happened": "Table variable columns were populated with verbose instrument identifiers (e.g. 'سیاهه خودآسیبی سانسون', 'پرسشنامه افسردگی کواکس') instead of pure construct names.",
+    "behavior_caused_outcome": "Failing to decouple measurement tools from latent constructs led to methodology labels bleeding into empirical findings tables, cluttering table layouts and violating academic reporting minimalism.",
+    "what_should_have_happened": "Chapter 4 statistical tables must report pure conceptual variable names ('خودآسیبی', 'رفتارهای خودکشی', 'افسردگی', 'اضطراب', 'نگرانی از تصویر بدنی') without operational nouns ('پرسشنامه', 'سیاهه', 'مقیاس') or author surnames.",
+    "rationale_why": "Measurement instruments are defined in Chapter 3; reiterating them in Chapter 4 statistical tables reduces data-ink ratio and introduces redundant textual noise."
+  },
+  "desired_behavior": "Sanitize all variable names in empirical tables to ensure they represent pure conceptual constructs.",
+  "generalization": "Construct Purity Invariant for all academic empirical tables.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "CONSTRUCT_PURITY",
+    "observed_value": "Constructs mixed with tools",
+    "threshold_value": "Pure constructs only",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-21T18:05:00Z",
+  "derived_by": "knowledge-curator"
+}

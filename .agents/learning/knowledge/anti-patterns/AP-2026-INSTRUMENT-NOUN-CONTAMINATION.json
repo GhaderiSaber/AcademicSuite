@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-INSTRUMENT-NOUN-CONTAMINATION",
+  "category": "typography",
+  "defective_pattern": "Including operational instrument designators ('پرسشنامه', 'سیاهه', 'مقیاس', 'فرم') or author surnames in statistical table variable columns.",
+  "why_defective": "Reduces data-ink ratio, clutters table cells, and confuses latent constructs with physical measurement devices in Chapter 4 findings.",
+  "observed_symptoms": [
+    "'سیاهه خودآسیبی سانسون' in Table 8-4",
+    "'پرسشنامه افسردگی کواکس' in Table 10-4"
+  ],
+  "corrective_remedy": "Strip all instrument designators and author attributions from table variable columns, reporting exclusively the pure construct name ('خودآسیبی', 'افسردگی').",
+  "detection_heuristic": {
+    "trigger_rule": "Flag any table cell in Col 0 or Col 1 containing 'پرسشنامه', 'سیاهه', or author names like 'سانسون', 'کواکس', 'اسپنس'.",
+    "diagnostic_check_id": "CHECK_CONSTRUCT_PURITY"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-21T18:05:00Z"
+}
