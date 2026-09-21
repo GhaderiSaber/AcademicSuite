@@ -20,6 +20,7 @@ import stat
 import json
 import argparse
 import re
+from contextlib import contextmanager
 from typing import Dict, Any, List, Optional, Tuple
 
 # Categories
@@ -45,7 +46,7 @@ CATEGORIES = [
 POSIX_PERMS = {
     CAT_RAW_DATA: {"file": 0o444, "dir": 0o555},
     CAT_DERIVED_DATA: {"file": 0o644, "dir": 0o755},
-    CAT_STATE: {"file": 0o644, "dir": 0o755},
+    CAT_STATE: {"file": 0o444, "dir": 0o755},
     CAT_ARTIFACTS: {"file": 0o644, "dir": 0o755},
     CAT_SOURCE_CODE: {"file": 0o644, "dir": 0o755},
     CAT_SCRIPTS: {"file": 0o755, "dir": 0o755},
@@ -101,15 +102,18 @@ class PermissionManager:
         if "_raw." in basename or "-raw." in basename:
             return CAT_RAW_DATA
 
-        # 2. State
-        if "state" in parts_lower or "memory" in parts_lower:
-            return CAT_STATE
+        # 2. State Ledgers & Machine Persistence
         state_exact_files = {
             "events.jsonl", "pitfalls.jsonl", "projects.jsonl",
-            "audit_log.jsonl", "academic_state.json"
+            "audit_log.jsonl", "academic_state.json", "current_state.json",
+            "approvals.json", "approval_request.json", "decisions.json",
+            "project.json", "artifacts.json", "state.json",
         }
         if basename in state_exact_files:
             return CAT_STATE
+        if "state" in parts_lower or "memory" in parts_lower:
+            if basename.endswith(".jsonl") or basename.startswith("state") or basename.startswith("project") or basename in state_exact_files:
+                return CAT_STATE
 
         # 3. Derived / Curated Data
         derived_dir_indicators = {
@@ -175,7 +179,7 @@ class PermissionManager:
         try:
             if self.is_windows:
                 # Windows permission model via stat attributes
-                if category == CAT_RAW_DATA and not is_dir:
+                if (category in (CAT_RAW_DATA, CAT_STATE)) and not is_dir:
                     # Mark read-only
                     os.chmod(target_path, stat.S_IREAD)
                 else:
@@ -213,6 +217,76 @@ class PermissionManager:
                     count += 1
         return count
 
+    STATE_LEDGER_IMMUTABLE_FILES = {
+        "current_state.json",
+        "events.jsonl",
+        "approvals.json",
+        "approval_request.json",
+        "decisions.json",
+        "project.json",
+        "artifacts.json",
+        "pitfalls.jsonl",
+        "academic_state.json",
+        "state.json",
+    }
+
+    def lock_state_directory(self, dir_path: str) -> int:
+        """
+        Recursively locks down all state ledger files in a state directory to strictly read-only (0444 / S_IREAD).
+        Excludes telemetry/audit event streams (trajectory_events.jsonl, audit_log.jsonl).
+        Returns the number of files locked.
+        """
+        if not os.path.exists(dir_path):
+            return 0
+        count = 0
+        if os.path.isfile(dir_path):
+            if os.path.basename(dir_path) in self.STATE_LEDGER_IMMUTABLE_FILES:
+                if self.enforce_file_permission(dir_path, CAT_STATE):
+                    count += 1
+            return count
+
+        for root, dirs, files in os.walk(dir_path):
+            for f in files:
+                if f in self.STATE_LEDGER_IMMUTABLE_FILES:
+                    fp = os.path.join(root, f)
+                    if self.enforce_file_permission(fp, CAT_STATE):
+                        count += 1
+        return count
+
+    def unlock_state_directory(self, dir_path: str) -> int:
+        """
+        Temporarily unlocks a state directory's files for authorized state transactions.
+        Restores 0644 on files (or S_IWRITE on Windows).
+        """
+        if not os.path.exists(dir_path):
+            return 0
+        count = 0
+        if os.path.isfile(dir_path):
+            if os.path.basename(dir_path) in self.STATE_LEDGER_IMMUTABLE_FILES:
+                try:
+                    if self.is_windows:
+                        os.chmod(dir_path, stat.S_IREAD | stat.S_IWRITE)
+                    else:
+                        os.chmod(dir_path, 0o644)
+                    count += 1
+                except Exception:
+                    pass
+            return count
+
+        for root, dirs, files in os.walk(dir_path):
+            for f in files:
+                if f in self.STATE_LEDGER_IMMUTABLE_FILES:
+                    fp = os.path.join(root, f)
+                    try:
+                        if self.is_windows:
+                            os.chmod(fp, stat.S_IREAD | stat.S_IWRITE)
+                        else:
+                            os.chmod(fp, 0o644)
+                        count += 1
+                    except Exception:
+                        pass
+        return count
+
     def audit_path(self, target_path: str) -> Dict[str, Any]:
         """Audits an individual path and reports whether it satisfies least privilege."""
         if not os.path.exists(target_path):
@@ -228,7 +302,7 @@ class PermissionManager:
 
         if self.is_windows:
             is_readonly = not bool(mode & stat.S_IWRITE)
-            expected_readonly = (category == CAT_RAW_DATA and not is_dir)
+            expected_readonly = ((category in (CAT_RAW_DATA, CAT_STATE)) and not is_dir)
             compliant = (is_readonly == expected_readonly)
             return {
                 "path": target_path,
@@ -319,6 +393,24 @@ class PermissionManager:
             "compliant": len(violations) == 0,
             "violations": violations
         }
+
+
+@contextmanager
+def state_ledger_transaction(state_dir: str):
+    """
+    Context manager for atomic mutations to the state ledger.
+    Temporarily unlocks write access on state_dir and its files,
+    then securely restores them to strictly read-only (0555 dir, 0444 files) upon exit.
+    Guarantees fail-closed immutability even if exceptions are raised during execution.
+    """
+    state_dir = os.path.abspath(state_dir)
+    os.makedirs(state_dir, exist_ok=True)
+    pm = PermissionManager()
+    pm.unlock_state_directory(state_dir)
+    try:
+        yield
+    finally:
+        pm.lock_state_directory(state_dir)
 
 
 def main():

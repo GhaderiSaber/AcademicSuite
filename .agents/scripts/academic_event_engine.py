@@ -42,6 +42,40 @@ except ImportError:
         jsonschema = None
 
 
+try:
+    from scripts.permission_manager import state_ledger_transaction
+except ImportError:
+    try:
+        from permission_manager import state_ledger_transaction
+    except ImportError:
+        from contextlib import contextmanager
+        @contextmanager
+        def state_ledger_transaction(state_dir: str):
+            state_dir = os.path.abspath(state_dir)
+            os.makedirs(state_dir, exist_ok=True)
+            try:
+                if sys.platform != "win32":
+                    os.chmod(state_dir, 0o755)
+                    for f in os.listdir(state_dir):
+                        fp = os.path.join(state_dir, f)
+                        if os.path.isfile(fp):
+                            os.chmod(fp, 0o644)
+            except Exception:
+                pass
+            try:
+                yield
+            finally:
+                try:
+                    if sys.platform != "win32":
+                        for f in os.listdir(state_dir):
+                            fp = os.path.join(state_dir, f)
+                            if os.path.isfile(fp):
+                                os.chmod(fp, 0o444)
+                        os.chmod(state_dir, 0o555)
+                except Exception:
+                    pass
+
+
 # ==============================================================================
 # Custom Fail-Closed Event Exceptions
 # ==============================================================================
@@ -238,9 +272,11 @@ class AcademicEventEngine:
                 path_str = " -> ".join([str(p) for p in ve.path]) if ve.path else "root"
                 raise EventSchemaValidationError(f"Event schema validation failed at [{path_str}]: {ve.message}") from ve
 
-        # 7. Append to file atomically
-        with open(self.events_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(event, ensure_ascii=False) + "\n")
+        # 7. Append to file atomically within state_ledger_transaction
+        state_dir = os.path.dirname(self.events_path)
+        with state_ledger_transaction(state_dir):
+            with open(self.events_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(event, ensure_ascii=False) + "\n")
 
         self.known_event_ids.add(eid)
         self.last_timestamp = now_ts

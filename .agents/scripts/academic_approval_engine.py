@@ -76,6 +76,17 @@ except ImportError:
         AcademicStateManager = None
         StrictStateMachine = None
 
+try:
+    from scripts.permission_manager import state_ledger_transaction
+except ImportError:
+    try:
+        from permission_manager import state_ledger_transaction
+    except ImportError:
+        from contextlib import nullcontext
+
+        def state_ledger_transaction(state_dir):
+            return nullcontext()
+
 
 class ApprovalError(Exception):
     """Base exception for approval engine failures."""
@@ -244,23 +255,24 @@ def request_stage_approval(
         except Exception as se:
             raise ApprovalError(f"Approval record failed schema validation: {str(se)}")
 
-    # Write approval_request.json to stage_dir
-    req_file = os.path.join(state_dir_abs, "approval_request.json")
-    with open(req_file, "w", encoding="utf-8") as rf:
-        json.dump(approval_record, rf, indent=2, ensure_ascii=False)
+    with state_ledger_transaction(state_dir_abs):
+        # Write approval_request.json to stage_dir
+        req_file = os.path.join(state_dir_abs, "approval_request.json")
+        with open(req_file, "w", encoding="utf-8") as rf:
+            json.dump(approval_record, rf, indent=2, ensure_ascii=False)
 
-    # Register in approvals.json
-    appr_json_path = os.path.join(state_dir_abs, "approvals.json")
-    apprs_data = {"approvals": []}
-    if os.path.isfile(appr_json_path):
-        try:
-            with open(appr_json_path, "r", encoding="utf-8") as af:
-                apprs_data = json.load(af)
-        except Exception:
-            apprs_data = {"approvals": []}
-    apprs_data.setdefault("approvals", []).append(approval_record)
-    with open(appr_json_path, "w", encoding="utf-8") as af:
-        json.dump(apprs_data, af, indent=2, ensure_ascii=False)
+        # Register in approvals.json
+        appr_json_path = os.path.join(state_dir_abs, "approvals.json")
+        apprs_data = {"approvals": []}
+        if os.path.isfile(appr_json_path):
+            try:
+                with open(appr_json_path, "r", encoding="utf-8") as af:
+                    apprs_data = json.load(af)
+            except Exception:
+                apprs_data = {"approvals": []}
+        apprs_data.setdefault("approvals", []).append(approval_record)
+        with open(appr_json_path, "w", encoding="utf-8") as af:
+            json.dump(apprs_data, af, indent=2, ensure_ascii=False)
 
     return approval_record
 
@@ -347,11 +359,12 @@ def approve_stage(
     target_record["digital_signature"] = sig
 
     # Save to disk
-    with open(appr_json_path, "w", encoding="utf-8") as af:
-        json.dump(apprs_data, af, indent=2, ensure_ascii=False)
-    if os.path.isfile(req_file):
-        with open(req_file, "w", encoding="utf-8") as rf:
-            json.dump(target_record, rf, indent=2, ensure_ascii=False)
+    with state_ledger_transaction(state_dir_abs):
+        with open(appr_json_path, "w", encoding="utf-8") as af:
+            json.dump(apprs_data, af, indent=2, ensure_ascii=False)
+        if os.path.isfile(req_file):
+            with open(req_file, "w", encoding="utf-8") as rf:
+                json.dump(target_record, rf, indent=2, ensure_ascii=False)
 
     # State Machine Transition: STAGE_AWAITING_APPROVAL -> STAGE_APPROVED
     unlocked_stages = []
@@ -434,11 +447,12 @@ def reject_stage(
     target_record["approved_at"] = now_iso
     target_record["comments"] = comments
 
-    with open(appr_json_path, "w", encoding="utf-8") as af:
-        json.dump(apprs_data, af, indent=2, ensure_ascii=False)
-    if os.path.isfile(req_file):
-        with open(req_file, "w", encoding="utf-8") as rf:
-            json.dump(target_record, rf, indent=2, ensure_ascii=False)
+    with state_ledger_transaction(state_dir_abs):
+        with open(appr_json_path, "w", encoding="utf-8") as af:
+            json.dump(apprs_data, af, indent=2, ensure_ascii=False)
+        if os.path.isfile(req_file):
+            with open(req_file, "w", encoding="utf-8") as rf:
+                json.dump(target_record, rf, indent=2, ensure_ascii=False)
 
     if AcademicStateManager is not None:
         sm = AcademicStateManager(state_dir=state_dir_abs)

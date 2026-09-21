@@ -48,6 +48,11 @@ from academic_state_manager import (
     init_state
 )
 
+try:
+    from permission_manager import state_ledger_transaction
+except ImportError:
+    from scripts.permission_manager import state_ledger_transaction
+
 
 class TestDurableEvents(unittest.TestCase):
 
@@ -132,17 +137,18 @@ class TestDurableEvents(unittest.TestCase):
             )
 
         # Re-instantiate engine and ensure duplicates written to disk are caught on read
-        with open(self.events_path, "a", encoding="utf-8") as f:
-            dup_line = {
-                "contract_version": "1.0.0",
-                "event_id": fixed_id,
-                "event_type": "PLAN_CREATED",
-                "timestamp": (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat(),
-                "project_id": "test_proj_event",
-                "emitter_agent": "academic-orchestrator",
-                "payload": {"summary": "Direct file append duplicate"}
-            }
-            f.write(json.dumps(dup_line) + "\n")
+        with state_ledger_transaction(self.state_dir):
+            with open(self.events_path, "a", encoding="utf-8") as f:
+                dup_line = {
+                    "contract_version": "1.0.0",
+                    "event_id": fixed_id,
+                    "event_type": "PLAN_CREATED",
+                    "timestamp": (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat(),
+                    "project_id": "test_proj_event",
+                    "emitter_agent": "academic-orchestrator",
+                    "payload": {"summary": "Direct file append duplicate"}
+                }
+                f.write(json.dumps(dup_line) + "\n")
 
         new_engine = AcademicEventEngine(self.events_path, project_id="test_proj_event")
         with self.assertRaises(DuplicateEventError):

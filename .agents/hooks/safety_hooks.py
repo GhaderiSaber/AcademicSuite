@@ -125,6 +125,100 @@ def is_raw_data_command(cmd: str) -> bool:
     return any(re.search(pat, cmd, re.IGNORECASE) for pat in patterns)
 
 
+def is_state_ledger_command(cmd: str, caller: str = "") -> Tuple[bool, str]:
+    """
+    Detects whether a bash command attempts to bypass state ledger immutability
+    or execute unauthorized state mutations via run_command.
+    """
+    if not cmd:
+        return False, ""
+
+    state_tokens = (
+        "current_state.json",
+        "events.jsonl",
+        "approvals.json",
+        "approval_request.json",
+        "decisions.json",
+        "artifacts.json",
+        "pitfalls.jsonl",
+    )
+
+    # 1. Direct file mutation via shell redirection or manipulation tools
+    redirection_pattern = rf'(?:>|>>)\s*[\'"]?[^;&|\s]*(?:{"|".join(re.escape(t) for t in state_tokens)})'
+    if re.search(redirection_pattern, cmd, re.IGNORECASE):
+        return True, (
+            "CONSTITUTIONAL VIOLATION (Invalid State Transition Guard): "
+            "State ledger files ('current_state.json', 'events.jsonl', 'approvals.json') "
+            "cannot be modified via run_command. State transitions must be authorized "
+            "and executed through StrictStateMachine."
+        )
+
+    file_ops_pattern = (
+        rf'\b(?:rm|mv|cp|truncate|sed\s+-i|perl\s+-i|tee(?:\s+-a)?|touch)\b.*'
+        rf'(?:{"|".join(re.escape(t) for t in state_tokens)}|academic-state|academic_state)'
+    )
+    if re.search(file_ops_pattern, cmd, re.IGNORECASE):
+        return True, (
+            "CONSTITUTIONAL VIOLATION (Invalid State Transition Guard): "
+            "State ledger files ('current_state.json', 'events.jsonl', 'approvals.json') "
+            "cannot be modified via run_command. State transitions must be authorized "
+            "and executed through StrictStateMachine."
+        )
+
+    # 2. Permission tampering on state directory or state files
+    chmod_pattern = (
+        rf'\b(?:chmod|chown)\b.*'
+        rf'(?:{"|".join(re.escape(t) for t in state_tokens)}|academic-state|academic_state|\bstate\b)'
+    )
+    if re.search(chmod_pattern, cmd, re.IGNORECASE):
+        return True, (
+            "CONSTITUTIONAL VIOLATION (Invalid State Transition Guard): "
+            "Tampering with state ledger permissions via chmod/chown is strictly forbidden. "
+            "State ledgers are protected by OS least-privilege permissions."
+        )
+
+    # 3. Inline script execution (Python/Node/Perl) targeting state ledger files
+    inline_py_state = (
+        rf'python3?\s+-c\s+.*'
+        rf'(?:{"|".join(re.escape(t) for t in state_tokens)}|academic-state|academic_state)'
+    )
+    if re.search(inline_py_state, cmd, re.IGNORECASE):
+        return True, (
+            "CONSTITUTIONAL VIOLATION (Invalid State Transition Guard): "
+            "State ledger files ('current_state.json', 'events.jsonl', 'approvals.json') "
+            "cannot be modified via run_command. State transitions must be authorized "
+            "and executed through StrictStateMachine."
+        )
+
+    inline_open_write = (
+        rf'open\s*\([^)]*(?:{"|".join(re.escape(t) for t in state_tokens)})[^)]*[\'"][wWaA+]'
+    )
+    if re.search(inline_open_write, cmd, re.IGNORECASE):
+        return True, (
+            "CONSTITUTIONAL VIOLATION (Invalid State Transition Guard): "
+            "State ledger files ('current_state.json', 'events.jsonl', 'approvals.json') "
+            "cannot be modified via run_command. State transitions must be authorized "
+            "and executed through StrictStateMachine."
+        )
+
+    # 4. Worker Agent State CLI Execution Guard (Directive 19 / Separation of Concerns)
+    # Execution workers must not directly invoke state manager CLI to set stages or request transitions
+    worker_agents = {
+        "statistics-agent", "data-agent", "academic-writer",
+        "data-curator", "research-agent", "psychometric-expert"
+    }
+    if any(w in caller for w in worker_agents):
+        if "academic_state_manager.py" in cmd:
+            if any(action in cmd for action in ("set_stage", "set-stage", "request_transition", "request-transition")):
+                return True, (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Invalid State Transition Guard): "
+                    f"Worker agent '{caller}' is forbidden from invoking state manager CLI directly. "
+                    f"State transitions must be managed through authorized state machine workflows."
+                )
+
+    return False, ""
+
+
 def is_dangerous_command(cmd: str) -> Tuple[bool, str]:
     """Detects destructive system commands or security breaches."""
     if not cmd:
@@ -144,6 +238,10 @@ def is_dangerous_command(cmd: str) -> Tuple[bool, str]:
             f"HARD HOOK ENFORCEMENT (Raw-Data Immutability Guard): Command attempts to modify, "
             f"overwrite, or delete raw data files ('{cmd}'). Raw datasets are strictly immutable."
         )
+
+    is_state_violation, state_reason = is_state_ledger_command(cmd)
+    if is_state_violation:
+        return True, state_reason
 
     return False, ""
 
@@ -404,13 +502,19 @@ class SafetyHooks:
             for target in targets:
                 # State Ledger Immutability Guard (Invalid State Transition Guard)
                 target_norm = os.path.normpath(target).replace("\\", "/")
-                if any(target_norm.endswith(f"/{d}/{f}") or target_norm.endswith(f"{d}/{f}") for d in ("state", "academic-state") for f in ("current_state.json", "events.jsonl", "approvals.json")):
+                target_base = os.path.basename(target_norm)
+                state_filenames = (
+                    "current_state.json", "events.jsonl", "approvals.json",
+                    "approval_request.json", "decisions.json", "project.json",
+                    "artifacts.json", "pitfalls.jsonl"
+                )
+                if any(target_norm.endswith(f"/{d}/{f}") or target_norm.endswith(f"{d}/{f}") for d in ("state", "academic-state", ".agents/state") for f in state_filenames) or target_base in state_filenames:
                     if "state_manager" not in caller and "developer" not in caller and "main" not in caller:
                         return {
                             "decision": "deny",
                             "reason": (
                                 f"CONSTITUTIONAL VIOLATION (Invalid State Transition Guard): "
-                                f"Direct file modification of state ledger '{os.path.basename(target)}' is forbidden. "
+                                f"Direct file modification of state ledger '{target_base}' is forbidden. "
                                 f"State transitions must be authorized and executed through StrictStateMachine."
                             )
                         }
@@ -458,6 +562,14 @@ class SafetyHooks:
         # 3. Dangerous Shell Command & Orchestrator Direct Execution Protection
         if name == "run_command":
             cmd = args.get("CommandLine", "")
+
+            # State Ledger Immutability Guard (run_command bypass protection)
+            is_state_violation, state_reason = is_state_ledger_command(cmd, caller)
+            if is_state_violation:
+                return {
+                    "decision": "deny",
+                    "reason": state_reason
+                }
 
             # State Transition via CLI Guard: block invalid set_stage in production mode
             if "academic_state_manager.py" in cmd:

@@ -490,6 +490,71 @@ class TestMainAgentVsCustomSubagentIsolation(unittest.TestCase):
         self.assertEqual(res_orch.get("decision"), "deny")
         self.assertIn("Orchestrator Zero-Hands Contract", res_orch.get("reason", ""))
 
+    def test_state_ledger_bypass_via_run_command_denied(self):
+        """
+        Verifies that worker agents cannot bypass state ledger immutability
+        via run_command using Python inline execution, shell redirection, or chmod.
+        """
+        bypass_commands = [
+            'python3 -c "open(\'academic-state/current_state.json\',\'w\').write(\'{}\')"',
+            'python -c "open(\'state/events.jsonl\',\'w\').write(\'bad\')"',
+            'echo "{}" > academic-state/current_state.json',
+            'echo "corrupt" >> state/events.jsonl',
+            'cat << EOF > academic-state/approvals.json\n{}\nEOF',
+            'rm -f academic-state/current_state.json',
+            'truncate -s 0 state/events.jsonl',
+            'chmod 777 academic-state/current_state.json',
+            'chmod +w academic-state',
+        ]
+        for cmd in bypass_commands:
+            payload = {
+                "agentName": "statistics-agent",
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": cmd}
+                },
+                "stepIdx": 10
+            }
+            res = handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Command was not denied: {cmd}")
+            self.assertIn("Invalid State Transition Guard", res.get("reason", ""))
+
+    def test_state_ledger_os_filesystem_immutability(self):
+        """
+        Verifies that state ledger files are protected by OS least-privilege mode (0o444)
+        and cannot be modified except via authorized state_ledger_transaction.
+        """
+        from scripts.permission_manager import state_ledger_transaction
+        from scripts.academic_state_manager import StrictStateMachine
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            state_dir = os.path.join(tmpdir, "academic-state")
+            sm = StrictStateMachine(state_dir=state_dir, project_id="p_test")
+            sm.save_all()
+            state_file = os.path.join(state_dir, "current_state.json")
+            self.assertTrue(os.path.isfile(state_file))
+
+            # Direct OS write must fail with PermissionError on POSIX
+            if sys.platform != "win32":
+                mode = stat.S_IMODE(os.lstat(state_file).st_mode)
+                self.assertEqual(oct(mode), "0o444")
+                with self.assertRaises(PermissionError):
+                    with open(state_file, "w") as f:
+                        f.write("{}")
+
+            # Authorized mutation inside state_ledger_transaction must succeed
+            with state_ledger_transaction(state_dir):
+                with open(state_file, "w") as f:
+                    f.write('{"authorized": true}')
+
+            # File must be automatically re-locked to 0o444 upon transaction exit
+            if sys.platform != "win32":
+                mode_after = stat.S_IMODE(os.lstat(state_file).st_mode)
+                self.assertEqual(oct(mode_after), "0o444")
+                with self.assertRaises(PermissionError):
+                    with open(state_file, "w") as f:
+                        f.write("{}")
+
 
 if __name__ == "__main__":
     unittest.main()

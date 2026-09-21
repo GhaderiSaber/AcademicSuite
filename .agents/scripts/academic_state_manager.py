@@ -114,6 +114,41 @@ except ImportError:
         ExperienceValidationError = Exception
 
 
+try:
+    from scripts.permission_manager import PermissionManager, state_ledger_transaction
+except ImportError:
+    try:
+        from permission_manager import PermissionManager, state_ledger_transaction
+    except ImportError:
+        PermissionManager = None
+        from contextlib import contextmanager
+        @contextmanager
+        def state_ledger_transaction(state_dir: str):
+            state_dir = os.path.abspath(state_dir)
+            os.makedirs(state_dir, exist_ok=True)
+            try:
+                if sys.platform != "win32":
+                    os.chmod(state_dir, 0o755)
+                    for f in os.listdir(state_dir):
+                        fp = os.path.join(state_dir, f)
+                        if os.path.isfile(fp):
+                            os.chmod(fp, 0o644)
+            except Exception:
+                pass
+            try:
+                yield
+            finally:
+                try:
+                    if sys.platform != "win32":
+                        for f in os.listdir(state_dir):
+                            fp = os.path.join(state_dir, f)
+                            if os.path.isfile(fp):
+                                os.chmod(fp, 0o444)
+                        os.chmod(state_dir, 0o555)
+                except Exception:
+                    pass
+
+
 # ==============================================================================
 # Custom Exceptions (Fail-Closed Hierarchy)
 # ==============================================================================
@@ -553,6 +588,47 @@ class StrictStateMachine:
             self.experience_recorder = AcademicExperienceRecorder(project_root=self.project_root)
 
         self.load_from_disk()
+        self.lock_state_dir()
+
+    def lock_state_dir(self) -> None:
+        """Enforces OS-level read-only permissions (0444 files) on state ledger files at rest."""
+        try:
+            if PermissionManager is not None:
+                pm = PermissionManager()
+                pm.lock_state_directory(self.state_dir)
+            else:
+                state_ledger_files = {
+                    "current_state.json", "events.jsonl", "approvals.json",
+                    "approval_request.json", "decisions.json", "project.json",
+                    "artifacts.json", "pitfalls.jsonl", "academic_state.json", "state.json"
+                }
+                for f in os.listdir(self.state_dir):
+                    if f in state_ledger_files:
+                        fp = os.path.join(self.state_dir, f)
+                        if os.path.isfile(fp):
+                            os.chmod(fp, stat.S_IREAD if sys.platform == "win32" else 0o444)
+        except Exception:
+            pass
+
+    def unlock_state_dir(self) -> None:
+        """Temporarily elevates permissions (0644 files) for authorized state mutations."""
+        try:
+            if PermissionManager is not None:
+                pm = PermissionManager()
+                pm.unlock_state_directory(self.state_dir)
+            else:
+                state_ledger_files = {
+                    "current_state.json", "events.jsonl", "approvals.json",
+                    "approval_request.json", "decisions.json", "project.json",
+                    "artifacts.json", "pitfalls.jsonl", "academic_state.json", "state.json"
+                }
+                for f in os.listdir(self.state_dir):
+                    if f in state_ledger_files:
+                        fp = os.path.join(self.state_dir, f)
+                        if os.path.isfile(fp):
+                            os.chmod(fp, (stat.S_IREAD | stat.S_IWRITE) if sys.platform == "win32" else 0o644)
+        except Exception:
+            pass
 
     def load_from_disk(self) -> None:
         """Loads state snapshot, approvals, and artifacts from disk for restart-safety."""
@@ -589,26 +665,27 @@ class StrictStateMachine:
         return self.event_engine.read_events(validate_schema=False, enforce_ordering=False)
 
     def save_all(self) -> None:
-        """Atomically persists state snapshots to disk."""
-        now_iso = datetime.now(timezone.utc).isoformat()
-        cs_data = {
-            "contract_version": "1.0.0",
-            "project_id": self.project_id,
-            "state_machine_version": "1.0.0",
-            "system_status": "OPERATIONAL",
-            "project_state": self.project_state,
-            "updated_at": now_iso,
-            "milestones": self.milestones,
-            "stages": self.stages
-        }
-        with open(self.current_state_path, "w", encoding="utf-8") as f:
-            json.dump(cs_data, f, indent=2, ensure_ascii=False)
+        """Atomically persists state snapshots to disk inside a state_ledger_transaction."""
+        with state_ledger_transaction(self.state_dir):
+            now_iso = datetime.now(timezone.utc).isoformat()
+            cs_data = {
+                "contract_version": "1.0.0",
+                "project_id": self.project_id,
+                "state_machine_version": "1.0.0",
+                "system_status": "OPERATIONAL",
+                "project_state": self.project_state,
+                "updated_at": now_iso,
+                "milestones": self.milestones,
+                "stages": self.stages
+            }
+            with open(self.current_state_path, "w", encoding="utf-8") as f:
+                json.dump(cs_data, f, indent=2, ensure_ascii=False)
 
-        with open(self.approvals_path, "w", encoding="utf-8") as f:
-            json.dump({"contract_version": "1.0.0", "approvals": self.approvals}, f, indent=2, ensure_ascii=False)
+            with open(self.approvals_path, "w", encoding="utf-8") as f:
+                json.dump({"contract_version": "1.0.0", "approvals": self.approvals}, f, indent=2, ensure_ascii=False)
 
-        with open(self.artifacts_path, "w", encoding="utf-8") as f:
-            json.dump({"contract_version": "1.0.0", "artifacts": self.artifacts}, f, indent=2, ensure_ascii=False)
+            with open(self.artifacts_path, "w", encoding="utf-8") as f:
+                json.dump({"contract_version": "1.0.0", "artifacts": self.artifacts}, f, indent=2, ensure_ascii=False)
 
     def record_event(self, event_type: str, milestone_id: Optional[str] = None, stage_id: Optional[str] = None,
                      emitter_agent: str = "academic-orchestrator", payload: Optional[Dict[str, Any]] = None,
@@ -916,14 +993,15 @@ class StrictStateMachine:
         """Synchronizes current stage pointer to project.json."""
         if os.path.exists(self.project_path):
             try:
-                with open(self.project_path, "r", encoding="utf-8") as f:
-                    pdata = json.load(f)
-                pdata["current_stage"] = stage_id
-                if status:
-                    pdata["stage_status"] = status
-                pdata["updated_at"] = datetime.now(timezone.utc).isoformat()
-                with open(self.project_path, "w", encoding="utf-8") as f:
-                    json.dump(pdata, f, indent=2, ensure_ascii=False)
+                with state_ledger_transaction(self.state_dir):
+                    with open(self.project_path, "r", encoding="utf-8") as f:
+                        pdata = json.load(f)
+                    pdata["current_stage"] = stage_id
+                    if status:
+                        pdata["stage_status"] = status
+                    pdata["updated_at"] = datetime.now(timezone.utc).isoformat()
+                    with open(self.project_path, "w", encoding="utf-8") as f:
+                        json.dump(pdata, f, indent=2, ensure_ascii=False)
             except Exception:
                 pass
 
@@ -931,12 +1009,13 @@ class StrictStateMachine:
         """Synchronizes project status to project.json."""
         if os.path.exists(self.project_path):
             try:
-                with open(self.project_path, "r", encoding="utf-8") as f:
-                    pdata = json.load(f)
-                pdata["status"] = project_status
-                pdata["updated_at"] = datetime.now(timezone.utc).isoformat()
-                with open(self.project_path, "w", encoding="utf-8") as f:
-                    json.dump(pdata, f, indent=2, ensure_ascii=False)
+                with state_ledger_transaction(self.state_dir):
+                    with open(self.project_path, "r", encoding="utf-8") as f:
+                        pdata = json.load(f)
+                    pdata["status"] = project_status
+                    pdata["updated_at"] = datetime.now(timezone.utc).isoformat()
+                    with open(self.project_path, "w", encoding="utf-8") as f:
+                        json.dump(pdata, f, indent=2, ensure_ascii=False)
             except Exception:
                 pass
 
@@ -2134,6 +2213,7 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
         sm.project_state = ProjectState.PROJECT_CREATED.value
         sm.save_all()
 
+    sm.lock_state_dir()
     return {"status": "SUCCESS", "state_dir": state_dir, "initialized_files": list(SCHEMA_MAP.keys())}
 
 
@@ -2282,8 +2362,9 @@ def record_decision(project_path: str, category: str, decision: str, rationale: 
     }
 
     dec_data.setdefault("decisions", []).append(entry)
-    with open(dec_file, "w", encoding="utf-8") as f:
-        json.dump(dec_data, f, indent=2, ensure_ascii=False)
+    with state_ledger_transaction(state_dir):
+        with open(dec_file, "w", encoding="utf-8") as f:
+            json.dump(dec_data, f, indent=2, ensure_ascii=False)
 
     return {"status": "RECORDED", "decision_id": dec_id, "entry": entry}
 
@@ -2376,8 +2457,9 @@ def set_stage(project_path: str, stage: str, status: Optional[str] = None, mode:
         data["status"] = status
     data["updated_at"] = datetime.now(timezone.utc).isoformat()
 
-    with open(proj_file, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    with state_ledger_transaction(state_dir):
+        with open(proj_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
     # Sync with StrictStateMachine if current_state.json exists
     cs_path = os.path.join(state_dir, "current_state.json")
@@ -2431,8 +2513,9 @@ def log_incident(project_path: str, stage: str, error: str) -> Dict[str, Any]:
             "timestamp": now_iso
         }
         inc_file = os.path.join(inc_dir, f"{inc_id}.json")
-        with open(inc_file, "w", encoding="utf-8") as f:
-            json.dump(incident_data, f, indent=2, ensure_ascii=False)
+        with state_ledger_transaction(state_dir):
+            with open(inc_file, "w", encoding="utf-8") as f:
+                json.dump(incident_data, f, indent=2, ensure_ascii=False)
         return incident_data
 
 
@@ -2454,8 +2537,10 @@ def list_incidents(project_path: str) -> List[Dict[str, Any]]:
 
 def _write_json_if_missing(filepath: str, data: Dict[str, Any]) -> None:
     if not os.path.exists(filepath):
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
+        state_dir = os.path.dirname(filepath)
+        with state_ledger_transaction(state_dir):
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
 
 
 # ==============================================================================

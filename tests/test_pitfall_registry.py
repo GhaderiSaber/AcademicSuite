@@ -45,6 +45,11 @@ from candidate_falsifier_engine import (
 )
 from academic_state_manager import StrictStateMachine
 
+try:
+    from permission_manager import state_ledger_transaction
+except ImportError:
+    from scripts.permission_manager import state_ledger_transaction
+
 
 class TestPitfallRegistry(unittest.TestCase):
 
@@ -218,29 +223,30 @@ class TestPitfallRegistry(unittest.TestCase):
             )
 
         # Duplicate manually appended to file
-        with open(self.pitfalls_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps({
-                "contract_version": "1.0.0",
-                "pitfall_id": "PIT-DUP-01",
-                "project": "proj_other",
-                "milestone": "M_TEST",
-                "stage": "M_TEST",
-                "category": "methodological",
-                "candidate_approach": "Manual Dup",
-                "detected_by": "tester",
-                "problem": "Manual Duplicate",
-                "evidence": {"description": "manual"},
-                "resolution": {
-                    "corrective_action": "none",
-                    "adapted_approach": "none",
-                    "verification_check": "none",
-                    "resolved_at": "2026-09-18T10:00:00Z",
-                    "resolved_by": "tester"
-                },
-                "reusable": True,
-                "timestamp": "2026-09-18T10:00:00Z",
-                "related_artifacts": []
-            }) + "\n")
+        with state_ledger_transaction(self.state_dir):
+            with open(self.pitfalls_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "contract_version": "1.0.0",
+                    "pitfall_id": "PIT-DUP-01",
+                    "project": "proj_other",
+                    "milestone": "M_TEST",
+                    "stage": "M_TEST",
+                    "category": "methodological",
+                    "candidate_approach": "Manual Dup",
+                    "detected_by": "tester",
+                    "problem": "Manual Duplicate",
+                    "evidence": {"description": "manual"},
+                    "resolution": {
+                        "corrective_action": "none",
+                        "adapted_approach": "none",
+                        "verification_check": "none",
+                        "resolved_at": "2026-09-18T10:00:00Z",
+                        "resolved_by": "tester"
+                    },
+                    "reusable": True,
+                    "timestamp": "2026-09-18T10:00:00Z",
+                    "related_artifacts": []
+                }) + "\n")
 
         # New registry instance reading file with duplicate must fail closed
         fresh_registry = AcademicPitfallRegistry(self.pitfalls_path)

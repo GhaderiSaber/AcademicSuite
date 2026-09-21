@@ -32,6 +32,7 @@ try:
         extract_target_paths,
         is_raw_data_path,
         is_raw_data_command,
+        is_state_ledger_command,
         is_dangerous_command,
         is_outside_workspace,
         is_ascii_filename
@@ -46,6 +47,7 @@ except ImportError:
         extract_target_paths,
         is_raw_data_path,
         is_raw_data_command,
+        is_state_ledger_command,
         is_dangerous_command,
         is_outside_workspace,
         is_ascii_filename
