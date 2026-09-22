@@ -1,0 +1,35 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-MANDATORY-BLANK-LINE-BEFORE-HEADINGS-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-CH4-HEADING-SPACING-001",
+  "diagnosis": {
+    "what_happened": "Headers lacked a preceding blank line in the text and were spaced too tightly to the preceding body paragraphs in the generated Word document.",
+    "behavior_caused_outcome": "Failing to enforce an explicit blank line before headings degrades readability, violates Iranian university thesis formatting manuals, and creates cramped visual layout.",
+    "what_should_have_happened": "Every heading (#, ##, ###, ####) must be preceded by an explicit blank line in Markdown and an unequivocal blank line space (empty line/paragraph or 24pt space_before) in OpenXML Word output.",
+    "rationale_why": "Standard institutional thesis formatting mandates visual separation between preceding content and subsequent section headings to establish clear hierarchical demarcations."
+  },
+  "desired_behavior": "Ensure an explicit blank line precedes every heading across Markdown source and Word DOCX deliverables.",
+  "generalization": "Universally enforce a preceding blank line before all headings across all chapters and academic documents.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Headers lacking preceding blank line",
+    "threshold_value": "Exactly 1 blank line before every header",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": [
+      "03_deliverables/Chapter_4_Final.md"
+    ]
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-22T09:10:00Z",
+  "derived_by": "knowledge-curator"
+}

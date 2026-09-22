@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-MISSING-BLANK-LINE-BEFORE-HEADINGS",
+  "category": "typography",
+  "defective_pattern": "Placing headings directly underneath body text without an explicit preceding blank line or skipping blank lines in DOCX generators.",
+  "why_defective": "Violates Iranian thesis guidelines, disrupts document visual hierarchy, and fails supervisor formatting checks.",
+  "observed_symptoms": [
+    "Heading attached to previous paragraph",
+    "Absence of empty line before section/subsection titles"
+  ],
+  "corrective_remedy": "Insert exactly one blank newline before each heading in Markdown and enforce an explicit blank line separation in OpenXML DOCX.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of heading syntax (#, ##) immediately following a non-empty text string without an intervening newline character (\\n\\n)."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T09:10:00Z"
+}

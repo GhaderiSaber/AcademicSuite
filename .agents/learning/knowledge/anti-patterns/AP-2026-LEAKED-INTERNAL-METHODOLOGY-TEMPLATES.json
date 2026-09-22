@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-LEAKED-INTERNAL-METHODOLOGY-TEMPLATES",
+  "category": "execution",
+  "defective_pattern": "Mentioning internal structural blueprints, table counts, or agent execution patterns (e.g. 'الگوی هفت‌جدولی', 'استاندارد پنج‌جدولی', 'نقشه راه نه‌گانه') in empirical thesis prose.",
+  "why_defective": "Dissertation examiners evaluate substantive statistical logic and empirical findings; mentioning internal structural blueprints betrays automated prompt artifacts and breaks academic voice.",
+  "observed_symptoms": [
+    "Text stating 'سلسله تحلیل‌های نظام‌مندی در قالب الگوی هفت‌جدولی سازمان‌دهی شده است'",
+    "Text stating 'در راستای استانداردهای هفت‌جدولی'",
+    "Text stating 'در چارچوب استاندارد پنج‌جدولی'",
+    "Text stating 'ساختار این فصل در قالب یک نقشه راه نه‌گانه تدوین شده است'"
+  ],
+  "corrective_remedy": "Remove all references to internal templates or table numbers. Describe the statistical steps substantively: 'به منظور آزمون جامع این فرضیه، سلسله تحلیل‌های رگرسیونی شامل همبستگی دومتغیری، رگرسیون خطی و رگرسیون لوجیستیک دووجهی جهت برآورد مرزهای خطر بالینی انجام شد.'",
+  "detection_heuristic": {
+    "trigger_rule": "Flag any occurrence of /هفت‌جدولی|پنج‌جدولی|نقشه راه نه‌گانه|الگوی \\d+جدولی/ in thesis deliverables.",
+    "diagnostic_check_id": "CHECK_NO_INTERNAL_TEMPLATE_JARGON"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T09:25:00+03:30"
+}

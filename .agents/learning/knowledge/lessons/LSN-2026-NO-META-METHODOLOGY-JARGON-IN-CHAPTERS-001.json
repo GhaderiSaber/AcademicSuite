@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-NO-META-METHODOLOGY-JARGON-IN-CHAPTERS-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-META-JARGON-001",
+  "diagnosis": {
+    "what_happened": "Internal structural blueprints and agent orchestration patterns (such as 'الگوی هفت‌جدولی', 'استاندارد پنج‌جدولی', 'نقشه راه نه‌گانه') were inadvertently written directly into Chapter 4 empirical thesis narrative.",
+    "behavior_caused_outcome": "Treating agent internal prompt design patterns as scholarly vocabulary caused unnatural meta-commentary that compromises thesis academic rigor.",
+    "what_should_have_happened": "Empirical findings in Chapter 4 must report statistical methods, steps, and outcomes naturally and objectively without mentioning internal templates, pattern names, or table count specifications.",
+    "rationale_why": "Dissertations and journal articles report scientific findings for academic examination, not internal generation blueprints or meta-orchestration templates."
+  },
+  "desired_behavior": "Describe statistical analyses using substantive methodological terms (e.g., bivariate correlations, simple linear regression, hierarchical regression, binary logistic odds ratios) and strictly eliminate all meta-commentary references to internal structural templates or table counts.",
+  "generalization": "Never leak internal generation patterns, table counts, or structural templates into academic drafts across any thesis chapter or research paper.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "سلسله تحلیل‌های نظام‌مندی در قالب الگوی هفت‌جدولی سازمان‌دهی شده است",
+    "threshold_value": "Zero meta-pattern or blueprint terminology in academic drafts",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": [
+      "03_deliverables/Chapter_4_Final.md"
+    ]
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "ai-academic-tone-polisher",
+    "apa-reporting"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-22T09:25:00+03:30",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "statistics-agent",
+    "validation-agent"
+  ]
+}
