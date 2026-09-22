@@ -292,8 +292,17 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
 
         spec = agents[target]
 
-        # 1. Delegation Check (Worker Delegation Guard)
+        # 1. Delegation Check (Worker & Advisory Delegation Guard)
         if tool_name == "invoke_subagent" and not spec.get("can_delegate", True):
+            if target == "digital-saber":
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Directive 12 - Digital Saber Delegation Bypass Guard): "
+                        "Digital Saber is an advisory cognitive twin and is strictly forbidden from delegating to subagents. "
+                        "All academic multi-agent orchestration must pass through academic-orchestrator."
+                    )
+                }
             return {
                 "decision": "deny",
                 "reason": (
@@ -323,6 +332,14 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
                         "File generation, document drafting, and mutations must be delegated to specialist workers."
                     )
                 }
+            elif "digital-saber" in target:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Directive 12 / Directive 19 / Digital Saber Advisory Guard): "
+                        "Digital Saber is an advisory cognitive twin and is forbidden from writing or modifying files directly."
+                    )
+                }
             else:
                 return {
                     "decision": "deny",
@@ -350,6 +367,15 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
                         "CONSTITUTIONAL VIOLATION (Orchestrator Non-Execution Invariant): "
                         "test-orchestrator is strictly forbidden from executing shell commands or code directly. "
                         "All computation must be delegated to specialist workers via invoke_subagent."
+                    )
+                }
+            elif target == "digital-saber":
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12 / Digital Saber Non-Execution Invariant): "
+                        "Digital Saber is an advisory cognitive twin and is strictly forbidden from executing shell commands or code directly. "
+                        "All execution and statistical analysis must be delegated through academic-orchestrator to specialist workers."
                     )
                 }
             else:

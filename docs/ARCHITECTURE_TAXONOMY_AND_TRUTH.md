@@ -74,9 +74,9 @@ To eliminate mesh authority sprawl where secondary planners spawned sub-agents a
 
 1. **CONTROL PLANE** (Coordination & Strategy):
    - `academic-orchestrator` (Conductor): Holds `invoke_subagent`. Strictly prohibited from file mutation and code execution (Directive 20).
+   - `digital-saber` (Advisory Twin & Consultant): Principal cognitive twin and consultant. Strictly prohibited from delegation and execution (Model A Invariant).
    - `methodology-expert` (Advisor): Domain consultative authority. Strictly prohibited from delegation and file mutation.
    - `statistical-expert` (Advisor): Domain consultative authority. Strictly prohibited from delegation and file mutation.
-   *(Note: `digital-saber` serves as the user-facing executive persona and twin)*
 2. **RESEARCH PLANE** (Epistemic Evidence & Literature):
    - `research-agent`: Literature synthesis and research design worker.
    - `literature-expert`: Bibliometric mapping and automated harvesting worker.
@@ -107,9 +107,9 @@ To eliminate mesh authority sprawl where secondary planners spawned sub-agents a
      - `curriculum-builder`: Designs graduated challenge benchmarks and test datasets.
 
 **Structural Invariants of the Planar Model**:
-- **Sole Orchestration**: `academic-orchestrator` is the sole conductor in the operational pipeline; advisors (`methodology-expert`, `statistical-expert`) advise but never delegate (`can_delegate: false`).
+- **Sole Orchestration**: `academic-orchestrator` is the sole conductor in the operational pipeline; advisors (`digital-saber`, `methodology-expert`, `statistical-expert`) advise but never delegate (`can_delegate: false`).
 - **Critic Immutability**: No critic or auditor possesses file mutation tools (`write_to_file`, `replace_file_content`). Critics evaluate and verify; they never silently rewrite deliverables.
-- **Least-Privilege Authority Surface**: Slashed delegation from 5 agents to 3 (`academic-orchestrator`, `digital-saber`, and test fixture `test-orchestrator`). Slashed file writing from 26 agents to 19 (11 agents are strictly read/audit/conduct).
+- **Least-Privilege Authority Surface**: Slashed delegation from 5 agents to 2 (`academic-orchestrator` and test fixture `test-orchestrator`). Slashed file writing from 26 agents to 18 (12 agents are strictly read/audit/conduct).
 
 ### 2. Skills Directory: Exactly 44 Active Production Skills ([`.agents/skills/`](../.agents/skills/))
 - Exactly 44 domain capabilities reside in `.agents/skills/`.

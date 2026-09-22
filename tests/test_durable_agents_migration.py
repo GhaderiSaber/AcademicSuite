@@ -148,8 +148,8 @@ class TestDurableAgentsMigration(unittest.TestCase):
                 f"academic-orchestrator must NOT have {forbidden_tool} (strictly managerial; code execution belongs to specialists).",
             )
 
-        # statistical-expert, methodology-expert, evidence-auditor, and final-judge must NOT have run_command
-        for no_run_name in ("statistical-expert", "methodology-expert", "evidence-auditor", "final-judge"):
+        # statistical-expert, methodology-expert, evidence-auditor, final-judge, and digital-saber must NOT have run_command
+        for no_run_name in ("statistical-expert", "methodology-expert", "evidence-auditor", "final-judge", "digital-saber"):
             no_run_file = os.path.join(AGENTS_DIR, no_run_name, "agent.md")
             with open(no_run_file, "r", encoding="utf-8") as f:
                 fm_no_run = yaml.safe_load(f.read().split("---")[1])
@@ -204,8 +204,11 @@ class TestDurableAgentsMigration(unittest.TestCase):
         cycle = check_circular_dependencies(graph)
         self.assertIsNone(cycle, f"Circular dependency detected: {cycle}")
 
-        # Check depth from all roots
-        roots = ["digital-saber", "academic-orchestrator"]
+        # Ensure digital-saber does not delegate
+        self.assertEqual(graph.get("digital-saber", []), [], "digital-saber must not delegate to subagents")
+
+        # Check depth from single root orchestrator: academic-orchestrator
+        roots = ["academic-orchestrator"]
         for r in roots:
             depth, path = calculate_max_depth(graph, r)
             self.assertLessEqual(

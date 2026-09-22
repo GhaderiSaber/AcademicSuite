@@ -46,6 +46,7 @@ NON_EXECUTING_AGENTS: Set[str] = {
     "academic-challenger",
     "behavior-analyst",
     "curriculum-builder",
+    "digital-saber",
     "evidence-auditor",
     "final-judge",
     "intervention-designer",
