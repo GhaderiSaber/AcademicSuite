@@ -258,11 +258,19 @@ class TestEvolutionContractSystem(unittest.TestCase):
             "related_skills": ["apa-reporting", "chapter-4-writing"],
             "is_active_behavior": False,  # Exists without becoming active behavior
             "status": "VALIDATED",
+            "target_agent": "results-auditor",
+            "target_agents": ["results-auditor"],
             "created_at": "2026-09-18T11:00:00Z",
             "derived_by": "results-auditor"
         }
         res = validate_lesson(valid_lesson)
         self.assertTrue(res["valid"], f"Valid lesson failed: {res.get('errors')}")
+
+        # Invalid: missing target_agent must fail validation
+        inv_lesson = dict(valid_lesson)
+        del inv_lesson["target_agent"]
+        res_inv = validate_lesson(inv_lesson)
+        self.assertFalse(res_inv["valid"], "Lesson missing target_agent must fail schema validation")
 
         # Distinguish PROJECT_SPECIFIC scope
         proj_lesson = dict(valid_lesson)
@@ -335,11 +343,19 @@ class TestEvolutionContractSystem(unittest.TestCase):
             "detection_heuristic": {
                 "trigger_rule": "Look for median split or dichotomized moderator variables in regression analysis."
             },
+            "target_agent": "statistics-agent",
+            "target_agents": ["statistics-agent"],
             "reusable": True,
             "updated_at": "2026-09-18T11:45:00Z"
         }
         res_ap = validate_anti_pattern(valid_ap)
         self.assertTrue(res_ap["valid"], f"Valid anti-pattern failed: {res_ap.get('errors')}")
+
+        # Invalid: missing target_agent must fail validation
+        inv_ap = dict(valid_ap)
+        del inv_ap["target_agent"]
+        res_inv_ap = validate_anti_pattern(inv_ap)
+        self.assertFalse(res_inv_ap["valid"], "Anti-pattern missing target_agent must fail schema validation")
 
     def test_08_skill_memory_record_and_capability_profile(self):
         """SkillMemoryRecord and CapabilityProfile validate telemetry and operational bounds."""

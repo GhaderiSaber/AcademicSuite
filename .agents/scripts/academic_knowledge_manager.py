@@ -310,6 +310,24 @@ class AcademicKnowledgeManager:
         if "anti_pattern_id" not in item:
             item["anti_pattern_id"] = f"AP-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
 
+        if "target_agent" not in item:
+            cat = str(item.get("category", "")).lower()
+            if cat in ["typography"]:
+                item["target_agent"] = "academic-writer"
+            elif cat in ["statistical"]:
+                item["target_agent"] = "statistics-agent"
+            elif cat in ["methodological"]:
+                item["target_agent"] = "methodology-expert"
+            elif cat in ["evidence"]:
+                item["target_agent"] = "evidence-auditor"
+            elif cat in ["validation"]:
+                item["target_agent"] = "validation-agent"
+            else:
+                item["target_agent"] = "academic-orchestrator"
+
+        if "target_agents" not in item:
+            item["target_agents"] = [item["target_agent"]]
+
         val_res = validate_anti_pattern(item)
         if not val_res["valid"]:
             raise ContractValidationError(f"Invalid anti-pattern contract: {val_res.get('errors')}")
@@ -384,6 +402,13 @@ class AcademicKnowledgeManager:
             lid = f"LSN-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
         item["lesson_id"] = lid
         item["item_id"] = lid
+
+        if "target_agent" not in item:
+            skill = str(item.get("target_skill") or (item.get("related_skills", [""])[0] if item.get("related_skills") else "")).lower()
+            from scripts.academic_two_stage_retriever import AcademicTwoStageRetriever
+            item["target_agent"] = AcademicTwoStageRetriever.SKILL_TO_PRIMARY_AGENT.get(skill, "academic-orchestrator")
+        if "target_agents" not in item:
+            item["target_agents"] = [item["target_agent"]]
 
         file_path = os.path.join(self.lessons_dir, f"{lid}.json")
         with open(file_path, "w", encoding="utf-8") as f:

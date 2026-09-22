@@ -83,6 +83,8 @@ Handoff notification of staged knowledge items:
   "knowledge_id": "PRN-2026-STAT-001",
   "item_type": "principle",
   "statement": "When homogeneity of slopes is violated, standard ANCOVA is invalid.",
+  "target_agent": "statistics-agent",
+  "target_agents": ["statistics-agent", "results-auditor"],
   "scope": "domain",
   "status": "VALIDATED",
   "is_active_behavior": false,
@@ -95,9 +97,9 @@ Handoff notification of staged knowledge items:
 ---
 
 ## VALIDATION REQUIREMENTS
-- Every generated record must validate against its respective schema in `contracts/evolution/`.
+- Every generated record must validate against its respective schema in `contracts/evolution/` (including mandatory `target_agent` and `target_agents`).
 - Anti-vague validation pass on all statements.
-- Strict scope verification.
+- Strict scope verification and subagent role isolation.
 
 ---
 

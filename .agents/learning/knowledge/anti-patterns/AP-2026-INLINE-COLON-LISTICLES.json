@@ -12,6 +12,11 @@
   "detection_heuristic": {
     "trigger_rule": "High density of colons (:) following short phrase prefixes within standard academic paragraphs."
   },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ],
   "reusable": true,
   "updated_at": "2026-09-22T08:40:00+03:30"
 }

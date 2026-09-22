@@ -80,6 +80,7 @@ Handoff payload of causal diagnosis to `knowledge-curator` and `skill-evolver`:
 {
   "analysis_id": "BA-2026-001",
   "trigger_id": "EXP-2026-001",
+  "target_agent": "statistics-agent",
   "failure_signature": "VIOLATED_ASSUMPTION_IGNORED",
   "root_cause": "ANCOVA executed without verifying homogeneity of regression slopes.",
   "mechanism": "Statistical test proceeded despite significant interaction term.",

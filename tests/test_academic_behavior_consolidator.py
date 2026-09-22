@@ -84,6 +84,8 @@ class TestAcademicBehaviorConsolidator(unittest.TestCase):
             "related_skills": skills or ["statistical-data-analyst"],
             "is_active_behavior": True,
             "status": status,
+            "target_agent": "statistics-agent",
+            "target_agents": ["statistics-agent"],
             "created_at": datetime.now(timezone.utc).isoformat()
         }
         val = validate_lesson(lesson)

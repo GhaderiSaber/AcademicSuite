@@ -13,6 +13,8 @@
     "observed_symptoms",
     "corrective_remedy",
     "detection_heuristic",
+    "target_agent",
+    "target_agents",
     "reusable",
     "updated_at"
   ],

@@ -16,6 +16,8 @@
     "related_skills",
     "is_active_behavior",
     "status",
+    "target_agent",
+    "target_agents",
     "created_at"
   ],
   "properties": {

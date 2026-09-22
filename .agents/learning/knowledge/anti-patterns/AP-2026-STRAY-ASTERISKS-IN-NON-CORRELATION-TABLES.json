@@ -12,6 +12,12 @@
   "detection_heuristic": {
     "trigger_rule": "Detection of '*' characters inside table cells (header or body) that do not belong to a valid correlation matrix structure."
   },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor",
+    "statistics-agent"
+  ],
   "reusable": true,
   "updated_at": "2026-09-22T07:55:00Z"
 }

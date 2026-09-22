@@ -13,6 +13,12 @@
   "detection_heuristic": {
     "trigger_rule": "Detection of multiple question identifiers or multi-question phrasing ('دو سوال') under a single-question heading."
   },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "academic-orchestrator",
+    "results-auditor"
+  ],
   "reusable": true,
   "updated_at": "2026-09-22T08:50:00+03:30"
 }

@@ -617,6 +617,22 @@ class AcademicBehaviorConsolidator:
             target_skills.extend(l.get("related_skills", []))
         target_skills = list(dict.fromkeys(target_skills)) or ["statistical-data-analyst"]
 
+        target_agents_set = set()
+        for l in lesson_cluster:
+            if l.get("target_agent"):
+                target_agents_set.add(l["target_agent"])
+            for a in l.get("target_agents", []):
+                target_agents_set.add(a)
+
+        if not target_agents_set:
+            primary_skill = target_skills[0] if target_skills else "statistical-data-analyst"
+            from scripts.academic_two_stage_retriever import AcademicTwoStageRetriever
+            target_agent = AcademicTwoStageRetriever.SKILL_TO_PRIMARY_AGENT.get(primary_skill, "academic-orchestrator")
+            target_agents = [target_agent]
+        else:
+            target_agents = sorted(list(target_agents_set))
+            target_agent = target_agents[0]
+
         now_iso = datetime.now(timezone.utc).isoformat()
 
         # Synthesize consolidated lesson contract
@@ -648,6 +664,8 @@ class AcademicBehaviorConsolidator:
                 "supporting_artifact_paths": []
             },
             "related_skills": target_skills,
+            "target_agent": target_agent,
+            "target_agents": target_agents,
             "is_active_behavior": True,
             "status": "VALIDATED",
             "created_at": now_iso,
