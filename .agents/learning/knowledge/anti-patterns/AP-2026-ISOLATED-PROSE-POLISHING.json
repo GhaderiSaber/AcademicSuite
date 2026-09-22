@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-ISOLATED-PROSE-POLISHING",
+  "category": "execution",
+  "defective_pattern": "Fixing prose style only in isolated paragraphs flagged by the user while leaving the remaining sections in an unrefined, mechanical state.",
+  "why_defective": "Creates stylistic inconsistency, tonal dissonance, and abrupt shifts in writing maturity across consecutive sections.",
+  "observed_symptoms": [
+    "One polished section followed by sections with mechanical listicles and hanging colons",
+    "Haphazard tense switching across different chapter parts"
+  ],
+  "corrective_remedy": "When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of localized paragraph rewrites while sister paragraphs retain legacy non-compliant formatting or tone."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T08:19:00Z"
+}

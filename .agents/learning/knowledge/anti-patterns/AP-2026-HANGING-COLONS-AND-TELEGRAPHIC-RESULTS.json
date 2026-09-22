@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-HANGING-COLONS-AND-TELEGRAPHIC-RESULTS",
+  "category": "typography",
+  "defective_pattern": "Using standalone one-line introductory sentences ending in a colon (e.g. 'ارزیابی داده‌های ۵۱۰ دانش‌آموز نشان می‌دهد:') followed by fragmented number-by-number sentences.",
+  "why_defective": "Breaks grammatical cohesion, produces telegraphic listicles, and signals unedited machine output.",
+  "observed_symptoms": [
+    "One-line paragraph ending with colon",
+    "Consecutive sentences repeating 'داده‌ها نشان داد', 'به دست آمد', 'را نشان داد'",
+    "Haphazard tense switching within a single paragraph"
+  ],
+  "corrective_remedy": "Merge the introductory context into the main narrative clause; use varied syntactic transitions, consistent past tense, and formal table attribution.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of single-line paragraphs ending in a colon, or repetitive mechanical verbs in high proximity within empirical results paragraphs."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T08:14:00Z"
+}

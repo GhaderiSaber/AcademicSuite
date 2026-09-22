@@ -1,0 +1,36 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-CH4-FULL-PROSE-ELEVATION-001",
+  "diagnosis": {
+    "what_happened": "The user mandated that the elevated, fluent academic prose demonstrated in the sample rewrite be systematically applied across all sections of Chapter 4.",
+    "behavior_caused_outcome": "Partial or localized polishing leaves disparities between refined sections and legacy mechanical drafts, compromising overall dissertation quality.",
+    "what_should_have_happened": "The entire empirical narrative across all chapters must uniformly adhere to professional graduate standards: seamless transitional markers, organic table references, consistent past tense, zero hanging colons, and strict typography.",
+    "rationale_why": "A dissertation must read as an integrated, unified scholarly monograph with consistent editorial maturity from the first introductory paragraph to the final summary."
+  },
+  "desired_behavior": "Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth.",
+  "generalization": "Universally enforce publication-grade academic prose, narrative cohesion, and past-tense consistency across all empirical chapters in every research project.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Mandate to elevate all chapter text to standard academic prose",
+    "threshold_value": "100% of chapter sections elevated to high academic standard",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": [
+      "03_deliverables/Chapter_4_Final.md"
+    ]
+  },
+  "related_skills": [
+    "ai-academic-tone-polisher",
+    "chapter-4-writing",
+    "apa-reporting"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-22T08:19:00Z",
+  "derived_by": "knowledge-curator"
+}
