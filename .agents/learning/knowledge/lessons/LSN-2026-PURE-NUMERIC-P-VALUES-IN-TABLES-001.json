@@ -1,0 +1,35 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-PURE-NUMERIC-P-VALUES-IN-TABLES-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-CH4-TABLE-P-VALUES-001",
+  "diagnosis": {
+    "what_happened": "Table cells under the 'p' column redundantly contained the letter 'p' (e.g., '۰.۰۰۱ > p', 'p = ۰.۰۱۴', 'p < .۰۰۱') instead of reporting pure numbers or operators.",
+    "behavior_caused_outcome": "Repeating the variable/statistic symbol 'p' inside cells when the column header is already 'p' is redundant, clutters table layout, and violates APA 7 table design conventions.",
+    "what_should_have_happened": "Cells under 'p' column headers must contain strictly numeric values (e.g. '۰.۰۱۴', '۰.۰۳۵') or threshold operators with numbers (e.g. '< ۰.۰۰۱' or '۰.۰۰۱ >'), with zero occurrences of the letter 'p' or 'p ='.",
+    "rationale_why": "Column headers define the metric for all rows beneath them. Including the metric symbol within each cell is typographical redundancy."
+  },
+  "desired_behavior": "Report strictly pure numbers or comparison operators in p-value cells; eliminate 'p =', 'p <', '> p' from all table data cells.",
+  "generalization": "Never output the symbol 'p' or 'p =' inside table data cells when reporting statistical significance across any table in any academic project.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Cells containing '۰.۰۰۱ > p' and 'p = ۰.۰۱۴'",
+    "threshold_value": "Zero occurrences of 'p' text inside table data cells",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": [
+      "03_deliverables/Chapter_4_Final.md"
+    ]
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-22T08:35:00Z",
+  "derived_by": "knowledge-curator"
+}
