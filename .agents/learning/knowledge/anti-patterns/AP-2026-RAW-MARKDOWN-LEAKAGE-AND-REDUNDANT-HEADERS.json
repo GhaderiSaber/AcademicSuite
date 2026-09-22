@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-RAW-MARKDOWN-LEAKAGE-AND-REDUNDANT-HEADERS",
+  "category": "typography",
+  "defective_pattern": "Allowing raw markdown syntax (>, ---, markdown links, unmatched asterisks) to leak into Word DOCX deliverables, using ambiguous question/hypothesis titles, or repeating headers like 'پایه تحصیلی (*پایه تحصیلی*)'.",
+  "why_defective": "Causes visual pollution in official thesis documents and demonstrates lack of automated OpenXML typography hygiene.",
+  "observed_symptoms": [
+    "Literal > characters at paragraph starts",
+    "Literal --- lines in Word document",
+    "Repeated parenthetical headings like پایه تحصیلی (*پایه تحصیلی*)",
+    "Headings lacking سوال اول / فرضیه اول prefixes"
+  ],
+  "corrective_remedy": "Enforce strict heading naming standard ('سوال اول: ...', 'فرضیه اول: ...'), strip parenthetical duplicates, remove raw markdown tokens from markdown source, and equip the OpenXML renderer with robust parsing.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of repeated parenthetical header strings, literal markdown tokens (>, ---, **) inside DOCX text elements, or absence of mandatory section prefixes."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T08:08:00Z"
+}

@@ -1,0 +1,35 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-QUESTION-HYPOTHESIS-HEADINGS-AND-CLEAN-DOCX-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-CH4-HEADINGS-AND-MD-CLEANING-001",
+  "diagnosis": {
+    "what_happened": "Section headings for questions and hypotheses lacked the explicit prefix 'سوال اول:' and 'فرضیه اول:', subheadings contained redundant repetitions like 'پایه تحصیلی (*پایه تحصیلی*)', and unparsed raw markdown syntax (such as blockquotes '>', horizontal rules '---', and unparsed asterisks) leaked into the generated Word DOCX deliverable.",
+    "behavior_caused_outcome": "Incomplete heading standardization and naive line-by-line markdown-to-docx parsers fail to strip markdown artifacts, resulting in unscholarly presentation and supervisor rejection.",
+    "what_should_have_happened": "1) Every question section must be titled with 'سوال [عدد ترتیبی]: ...' and every hypothesis section with 'فرضیه [عدد ترتیبی]: ...'. 2) Subheadings must be clean without parenthetical variable repetition. 3) DOCX generation parsers must thoroughly strip all raw markdown syntax (>, ---, stray asterisks, hashes) and correctly render formatting.",
+    "rationale_why": "Adherence to institutional thesis templates demands clear, standardized question and hypothesis demarcations, concise subheadings, and zero raw markdown artifacts in final OpenXML Word deliverables."
+  },
+  "desired_behavior": "Enforce 'سوال اول: ...' and 'فرضیه اول: ...' section titles, clean non-redundant subheadings, and complete elimination of raw markdown artifacts in Word output.",
+  "generalization": "Universally structure all Chapter 4 empirical sections with explicit question/hypothesis prefixes and ensure all Markdown export engines strip raw markdown meta-characters.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Missing standard prefixes, repeated headers, raw markdown in DOCX",
+    "threshold_value": "Standard prefixes present, clean headers, zero raw markdown in DOCX",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": [
+      "03_deliverables/Chapter_4_Final.md"
+    ]
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "apa-reporting"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-22T08:08:00Z",
+  "derived_by": "knowledge-curator"
+}
