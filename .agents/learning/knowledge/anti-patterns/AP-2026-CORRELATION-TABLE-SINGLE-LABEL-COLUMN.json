@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CORRELATION-TABLE-SINGLE-LABEL-COLUMN",
+  "category": "typography",
+  "defective_pattern": "Combining row number, variable name, and subscale into a single leading column in correlation tables.",
+  "why_defective": "Wastes cell width, conflates construct names with subscale dimensions, and prevents structured parsing.",
+  "observed_symptoms": [
+    "Correlation table column 1 containing '۱. رفتارهای خودآسیبی کلی' or '۴. خلق منفی'",
+    "Absence of distinct 'ردیف', 'متغیر', and 'خرده‌مقیاس' columns in correlation matrices"
+  ],
+  "corrective_remedy": "Expand the table to have 3 distinct columns before numbering: Col 1: 'ردیف', Col 2: 'متغیر', Col 3: 'خرده‌مقیاس'.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect correlation table whose columns before '۱' is less than 3.",
+    "diagnostic_check_id": "CHECK_CORRELATION_THREE_LEAD_COLUMNS"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T09:58:00+03:30"
+}
