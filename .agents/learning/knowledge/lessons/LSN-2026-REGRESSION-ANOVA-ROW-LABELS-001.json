@@ -3,17 +3,16 @@
   "lesson_id": "LSN-2026-REGRESSION-ANOVA-ROW-LABELS-001",
   "lesson_type": "WHAT_NOT_TO_DO",
   "trigger_source": "USER_FEEDBACK",
-  "source_experience_id": "EXP-2026-REGRESSION-ANOVA-LABELS-001",
+  "source_experience_id": "EXP-2026-REGRESSION-LABELS-001",
   "diagnosis": {
-    "what_happened": "Regression ANOVA/summary tables redundantly prefixed the criterion variable with 'رگرسیون' and repeated the criterion name in parentheses across every single row: 'رگرسیون (رفتارهای خودآسیبی)', 'باقیمانده (رفتارهای خودآسیبی)', 'کل (رفتارهای خودآسیبی)'.",
-    "behavior_caused_outcome": "Verbose, repetitive row labelling cluttering Persian academic tables, creating redundant parentheses, and violating institutional thesis conciseness standards.",
-    "what_should_have_happened": "The regression ANOVA table must use concise canonical row labels: the criterion variable itself names the regression row (e.g. 'رفتارهای خودآسیبی'), followed cleanly by 'باقیمانده' and 'کل' without redundant parentheses or variable repeats.",
-    "rationale_why": "In standard academic reporting of stacked or single regression ANOVA models, the criterion variable header identifies the regression model partition, while residual and total rows remain uncluttered."
+    "what_happened": "In regression ANOVA / model summary tables presenting multiple criteria or models, rows are sometimes redundantly labeled with parentheticals (e.g. 'رگرسیون (رفتارهای خودآسیبی)', 'باقیمانده (رفتارهای خودآسیبی)', 'کل (رفتارهای خودآسیبی)').",
+    "behavior_caused_outcome": "Repetitive parenthetical labeling clutters regression tables, increases visual noise, and violates clean APA 7 institutional Persian table formatting.",
+    "what_should_have_happened": "In multi-model regression ANOVA tables, the regression row must simply be labeled with the dependent variable name (e.g., 'رفتارهای خودآسیبی'), while the residual and total rows must be labeled simply as 'باقیمانده' and 'کل' without repeating the variable name in parentheses. For subsequent regressions in the same table, repeat this concise pattern (e.g., 'رفتارهای خودکشی', 'باقیمانده', 'کل').",
+    "rationale_why": "Concise row headers improve readability and align with Persian institutional dissertation standards where hierarchical row structure makes parenthetical repetition redundant."
   },
-  "desired_behavior": "In all regression ANOVA summary tables, format row labels concisely as '<متغیر ملاک>', 'باقیمانده', 'کل' (e.g. 'رفتارهای خودآسیبی', 'باقیمانده', 'کل') without repeating the variable name in parentheses.",
-  "generalization": "Universally enforce concise row labelling ('<متغیر ملاک>', 'باقیمانده', 'کل') for all regression ANOVA summary tables across all research projects.",
+  "desired_behavior": "In all regression ANOVA tables (خلاصه مدل و تحلیل واریانس), format source of variance rows as: [Variable Name], 'باقیمانده', 'کل' for each criterion variable, strictly omitting parenthetical variable names on residual and total rows.",
+  "generalization": "Never repeat variable names in parentheses for residual and total rows across any regression or ANOVA table in AcademicSuite.",
   "scope": "CROSS_PROJECT_UNIVERSAL",
-  "generalization_stage": "LOCAL_LESSON",
   "confidence": 1.0,
   "evidence": {
     "metric_or_check": "USER_FEEDBACK_MANDATE",
@@ -25,18 +24,17 @@
     ]
   },
   "related_skills": [
+    "regression",
     "apa-reporting",
-    "chapter-4-writing",
-    "statistical-data-analyst"
+    "chapter-4-writing"
   ],
   "is_active_behavior": false,
   "status": "VALIDATED",
-  "created_at": "2026-09-22T09:30:00Z",
-  "derived_by": "knowledge-curator",
+  "created_at": "2026-09-22T09:35:00+03:30",
   "target_agent": "academic-writer",
   "target_agents": [
     "academic-writer",
-    "results-auditor",
-    "statistics-agent"
+    "statistics-agent",
+    "validation-agent"
   ]
 }

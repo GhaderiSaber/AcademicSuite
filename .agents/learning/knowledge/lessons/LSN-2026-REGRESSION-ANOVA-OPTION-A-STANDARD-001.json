@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-REGRESSION-ANOVA-OPTION-A-STANDARD-001",
+  "lesson_type": "WHAT_WORKED_WELL",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-REGRESSION-OPTION-A-001",
+  "diagnosis": {
+    "what_happened": "In multi-criterion regression ANOVA summary tables, consolidating the criterion variable and the source of variation into a single column created conceptual ambiguity where the dependent variable appeared as a source of variation.",
+    "behavior_caused_outcome": "Attempting to compress two distinct statistical dimensions (Criterion Variable Y vs. Source of Variation: Regression, Residual, Total) into a single column conflated the predicted outcome with the explanatory variance components.",
+    "what_should_have_happened": "Implement Option A: Dedicate Column 1 to 'متغیر ملاک' (listing 'رفتارهای خودآسیبی' and 'رفتارهای خودکشی') and Column 2 to 'منبع تغییرات' (strictly listing 'رگرسیون', 'باقیمانده', and 'کل').",
+    "rationale_why": "Explicitly decoupling the criterion variable from the sources of variation achieves 100% mathematical precision and statistical clarity in APA 7 Persian regression tables."
+  },
+  "desired_behavior": "In all regression ANOVA tables with multiple criterion variables, use a two-column structure: Column 1 ('متغیر ملاک') and Column 2 ('منبع تغییرات' with 'رگرسیون', 'باقیمانده', 'کل').",
+  "generalization": "Always decouple the dependent variable name from the ANOVA variance decomposition components across all regression summary tables in AcademicSuite.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_DECISION_CONFIRMATION",
+    "observed_value": "Option A is good. Proceed with it.",
+    "threshold_value": "Two distinct columns: 'متغیر ملاک' + 'منبع تغییرات'",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": [
+      "03_deliverables/Chapter_4_Final.md"
+    ]
+  },
+  "related_skills": [
+    "regression",
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-22T09:48:00+03:30",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "statistics-agent",
+    "validation-agent"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-VERBOSE-REGRESSION-ANOVA-PARENTHETICALS",
+  "category": "typography",
+  "defective_pattern": "Writing 'رگرسیون (نام متغیر)', 'باقیمانده (نام متغیر)', 'کل (نام متغیر)' in regression ANOVA summary tables.",
+  "why_defective": "Redundant parentheticals cause clutter, distort table width, and deviate from Persian academic dissertation guidelines.",
+  "observed_symptoms": [
+    "Table row containing 'رگرسیون (رفتارهای خودآسیبی)'",
+    "Table row containing 'باقیمانده (رفتارهای خودآسیبی)'",
+    "Table row containing 'کل (رفتارهای خودآسیبی)'",
+    "Table row containing 'رگرسیون (رفتارهای خودکشی)'",
+    "Table row containing 'باقیمانده (رفتارهای خودکشی)'",
+    "Table row containing 'کل (رفتارهای خودکشی)'"
+  ],
+  "corrective_remedy": "Simplify the row labels to: First row: '[Criterion Variable Name]' (e.g. 'رفتارهای خودآسیبی'); Second row: 'باقیمانده'; Third row: 'کل'. Repeat identically for any other criterion variables in the table.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect any regression ANOVA table containing /باقیمانده\\s*\\(|کل\\s*\\(|رگرسیون\\s*\\(/ in row headers.",
+    "diagnostic_check_id": "CHECK_NO_VERBOSE_REGRESSION_PARENTHETICALS"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T09:35:00+03:30"
+}

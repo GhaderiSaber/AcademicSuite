@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-COEFFICIENTS-TABLE-CRITERION-COLUMN-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-REGRESSION-COEFFS-COLUMN-001",
+  "diagnosis": {
+    "what_happened": "In regression coefficients tables (ضرایب رگرسیون) presenting models for multiple criterion variables, coefficient rows were stacked without a dedicated 'متغیر ملاک' column, forcing the reader to guess which set of constants and predictors belonged to which outcome.",
+    "behavior_caused_outcome": "Omitting the criterion variable column in coefficients tables caused structural ambiguity and reduced readability in consolidated multi-criterion reports.",
+    "what_should_have_happened": "All regression coefficients tables (both linear regression coefficients and logistic regression variables in the equation) that present multiple dependent variables must include a dedicated Column 1 for 'متغیر ملاک' (e.g. 'رفتارهای خودآسیبی' and 'رفتارهای خودکشی') to cleanly group and identify the corresponding predictors.",
+    "rationale_why": "Standard APA 7 Persian reporting requires unambiguous tabular hierarchy; every parameter must be explicitly attributed to its criterion variable."
+  },
+  "desired_behavior": "In all regression coefficients tables with multiple criteria, add 'متغیر ملاک' as Column 1, followed by 'متغیرهای مدل' / 'متغیرهای پیش‌بین' in Column 2, clearly demarcating the equations for each dependent outcome.",
+  "generalization": "Whenever reporting consolidated regression coefficients across multiple dependent variables, always dedicate Column 1 to 'متغیر ملاک'.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "You should have this criterion variable column on the second table of regression too.",
+    "threshold_value": "Dedicated 'متغیر ملاک' column in all regression coefficients tables",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": [
+      "03_deliverables/Chapter_4_Final.md"
+    ]
+  },
+  "related_skills": [
+    "regression",
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-22T09:50:00+03:30",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "statistics-agent",
+    "validation-agent"
+  ]
+}

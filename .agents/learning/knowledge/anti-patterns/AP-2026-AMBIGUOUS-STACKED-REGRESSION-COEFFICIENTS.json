@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-AMBIGUOUS-STACKED-REGRESSION-COEFFICIENTS",
+  "category": "typography",
+  "defective_pattern": "Stacking regression coefficients for multiple dependent variables in a single table without an explicit 'متغیر ملاک' column.",
+  "why_defective": "Causes multiple 'ثابت' (constant) rows and repeated predictor rows without labeling which dependent variable is being predicted.",
+  "observed_symptoms": [
+    "Coefficients table starting with 'ثابت', followed by predictors, then another 'ثابت' with no criterion label",
+    "Ambiguity regarding which dependent variable the B and Beta coefficients apply to"
+  ],
+  "corrective_remedy": "Add 'متغیر ملاک' as Column 1, listing 'رفتارهای خودآسیبی' on the first row of Model 1 and 'رفتارهای خودکشی' on the first row of Model 2.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect any regression coefficients table with multiple 'ثابت' rows lacking a 'متغیر ملاک' column.",
+    "diagnostic_check_id": "CHECK_COEFFICIENTS_CRITERION_COLUMN"
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T09:50:00+03:30"
+}
