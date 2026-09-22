@@ -26,6 +26,7 @@ from digital_saber_shell import DigitalSaberShell
 
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
 WORKFLOWS_DIR = os.path.join(AGENTS_DIR, "workflows")
+LEGACY_WORKFLOWS_DIR = os.path.join(AGENTS_DIR, "legacy", "workflows")
 
 
 class TestChapter2LiteratureWorkflow(unittest.TestCase):
@@ -52,11 +53,15 @@ class TestChapter2LiteratureWorkflow(unittest.TestCase):
                     pass
 
     def test_01_spec_file_exists_and_valid(self):
-        """Verifies that chapter2_literature.md exists and meets Antigravity structural criteria."""
+        """Verifies that chapter2_literature spec exists (legacy archive) and modern skill is present."""
         spec_path = os.path.join(WORKFLOWS_DIR, "chapter2_literature.md")
         if not os.path.exists(spec_path):
-            spec_path = os.path.join(WORKFLOWS_DIR, "chapter2_literature.md.bak")
+            spec_path = os.path.join(LEGACY_WORKFLOWS_DIR, "chapter2_literature.md.bak")
         self.assertTrue(os.path.exists(spec_path), f"Missing workflow specification: {spec_path}")
+
+        # Also verify modern skill exists
+        skill_path = os.path.join(AGENTS_DIR, "skills", "persian-literature-review-builder", "SKILL.md")
+        self.assertTrue(os.path.exists(skill_path), f"Missing modern skill: {skill_path}")
 
         with open(spec_path, "r", encoding="utf-8") as f:
             content = f.read()

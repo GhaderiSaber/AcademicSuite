@@ -29,6 +29,7 @@ from digital_saber_shell import DigitalSaberShell
 
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
 WORKFLOWS_DIR = os.path.join(AGENTS_DIR, "workflows")
+LEGACY_WORKFLOWS_DIR = os.path.join(AGENTS_DIR, "legacy", "workflows")
 
 
 class TestDefensePresentationWorkflow(unittest.TestCase):
@@ -55,12 +56,17 @@ class TestDefensePresentationWorkflow(unittest.TestCase):
                     pass
 
     def test_01_spec_files_exist_and_valid(self):
-        """Verifies that defense_presentation.md and thesis_assembly.md exist and meet Antigravity criteria."""
+        """Verifies that defense_presentation.md and thesis_assembly.md exist in legacy archive and modern skills exist."""
         for spec_name in ["defense_presentation.md", "thesis_assembly.md"]:
             spec_path = os.path.join(WORKFLOWS_DIR, spec_name)
             if not os.path.exists(spec_path):
-                spec_path = os.path.join(WORKFLOWS_DIR, spec_name + ".bak")
+                spec_path = os.path.join(LEGACY_WORKFLOWS_DIR, spec_name + ".bak")
             self.assertTrue(os.path.exists(spec_path), f"Missing workflow specification: {spec_path}")
+
+        # Also verify modern skills exist
+        for skill_name in ["persian-defense-presentation-builder", "persian-thesis-builder"]:
+            skill_path = os.path.join(AGENTS_DIR, "skills", skill_name, "SKILL.md")
+            self.assertTrue(os.path.exists(skill_path), f"Missing modern skill: {skill_path}")
 
             with open(spec_path, "r", encoding="utf-8") as f:
                 content = f.read()

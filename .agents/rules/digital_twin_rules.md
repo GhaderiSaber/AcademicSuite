@@ -27,15 +27,25 @@ When acting as Saber Ghaderi's Digital Twin (`@GhaderiSaber`, Telegram ID: `1249
   - All pricing quotations in Tomans must be routed to Saber's Admin Desk (`124911145`) for one-click approval (`/approve_Q101`) or price adjustment (`/adjust_Q101_<price>`).
   - Overriding client-requested tests or addressing severe assumption breaches requires logging in the Decision Journal and notifying the Admin Desk.
 
-## 4. Antigravity Multi-Agent Scaffolding Standards
-When developing new features, dissertation chapters, or research tools:
-1. **Scaffolding Invariant**:
-   - Place domain procedures, scripts, and OpenXML assets in `.agents/skills/<skill-name>/` ("How").
-   - Place cognitive persona instructions in `.agents/agents/<agent-name>.md` ("Who").
-   - Place multi-agent pipelines in `.agents/workflows/<workflow-name>.md` ("Pipeline").
-2. **Subagent Delegation Policy**:
-   - `digital-saber` is the master orchestrator and holds the Research Constitution, Case Memory, and Human Gate.
-   - Tasks requiring multiple cognitive phases (e.g. Chapter 4) must execute via the designated workflow runbook, passing bounded contexts to child subagents.
-   - Maintain exactly 8 to 9 core expert subagents across the workspace; never create 1-to-1 agents for all 30 skills.
-3. **Closed-Loop Calibration**:
-   - All methodological selections must cycle through `continuous_learning_engine.py`, reinforcing precedents on agreement and synthesizing new cases on human adjustments.
+## 4. Canonical Architecture & Delegation Standards
+
+When developing new capabilities, executing dissertation chapters, or performing research tasks, all operations strictly adhere to the **5-Part Canonical Architecture**:
+
+1. **The 5-Part Canonical Vocabulary**:
+   - **Agent = Who** (`.agents/agents/`): Cognitive reasoning role, context isolation, decision-making, and specialized expertise.
+   - **Skill = How** (`.agents/skills/`): Specialized domain procedures, step-by-step instructions, APA standards, and deterministic scripts/engines.
+   - **Native invoke_subagent = Delegation**: Subagent dispatch via Antigravity's native `invoke_subagent` tool with isolated Contractual Delegation Envelopes (zero standalone Python agent emulators).
+   - **State / Contracts = Evidence** (`.agents/contracts/`, `.agents/state/`): JSON schema contracts, formal state machine transitions, and physical triad artifact manifests (`.docx` + `.md` + `.json`).
+   - **Hook = Enforcement** (`.agents/hooks/`, `.agents/hooks.json`): Synchronous lifecycle interception, safety boundaries, honesty verification, and fail-closed quality gates.
+
+2. **Retirement of File-Based Workflows**:
+   - Legacy file-based workflows (`.agents/workflows/<name>.md`) have been retired and archived to `.agents/legacy/workflows/` (sunset Nov 1, 2026).
+   - All multi-stage procedures and domain runbooks reside natively within **Skills** (`.agents/skills/<skill-name>/SKILL.md`) and the master micro-stage sequence matrix (`.agents/references/MICRO_STAGE_SEQUENCES.md`).
+
+3. **Authority Hierarchy & Delegation Policy**:
+   - **`academic-orchestrator`** is the primary workspace conductor (`mainAgent: true`, `invoke_subagent: true`, no code execution / write tools). It decomposes research pipelines into micro-stages, tracks artifact dependencies, and dispatches specialist worker subagents.
+   - **`digital-saber`** is the senior research advisor, principal persona, and client-facing consultancy interface (`mainAgent: false`, `subagent: true`, can_delegate: false). It upholds the Research Constitution, Case Memory (`.agents/memory/cases/`), and the Human Gate Admin Desk (`124911145`). It advises but does not bypass `academic-orchestrator` or dispatch worker subagents directly.
+   - Multi-stage tasks must execute via the designated skill instructions and micro-stage sequences, passing bounded contexts to child subagents.
+
+4. **Closed-Loop Calibration**:
+   - All methodological selections cycle through `continuous_learning_engine.py`, reinforcing precedents on agreement and codifying lessons and anti-patterns into `.agents/learning/knowledge/`.

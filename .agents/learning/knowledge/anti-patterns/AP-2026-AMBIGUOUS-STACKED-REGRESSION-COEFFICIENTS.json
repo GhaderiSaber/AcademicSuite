@@ -14,5 +14,10 @@
     "diagnostic_check_id": "CHECK_COEFFICIENTS_CRITERION_COLUMN"
   },
   "reusable": true,
-  "updated_at": "2026-09-22T09:50:00+03:30"
+  "updated_at": "2026-09-22T09:50:00+03:30",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ]
 }

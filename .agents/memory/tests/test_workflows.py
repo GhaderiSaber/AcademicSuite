@@ -57,9 +57,24 @@ class TestWorkflowsSuite(unittest.TestCase):
         ]
 
     def test_workflow_spec_files_exist(self):
-        """Validates that all 10 core workflow markdown files exist and define cognitive roles."""
+        """Validates that all 10 core legacy workflow files exist in archive and modern skills exist."""
+        legacy_dir = os.path.join(AGENTS_DIR, "legacy", "workflows")
+        skill_mapping = {
+            "chapter2_literature": "persian-literature-review-builder",
+            "chapter4": "chapter-4-writing",
+            "proposal": "persian-proposal-builder",
+            "chapter5": "persian-discussion-builder",
+            "thesis_revision": "persian-thesis-revision-assistant",
+            "journal_submission": "journal-submission-assistant",
+            "defense_presentation": "persian-defense-presentation-builder",
+            "thesis_assembly": "persian-thesis-builder",
+            "intervention_protocol": "psychological-intervention-protocol-builder",
+            "scale_validation": "psychometric-scale-validator",
+        }
         for wf in self.expected_workflows:
             wf_file = os.path.join(WORKFLOWS_DIR, f"{wf}.md")
+            if not os.path.exists(wf_file):
+                wf_file = os.path.join(legacy_dir, f"{wf}.md.bak")
             self.assertTrue(os.path.exists(wf_file), f"Missing workflow specification: {wf_file}")
             with open(wf_file, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -69,6 +84,12 @@ class TestWorkflowsSuite(unittest.TestCase):
                 f"Workflow spec {wf} does not define cognitive subagent orchestration."
             )
             self.assertIn("124911145", content)  # Saber Human Gate Admin Desk ID
+
+            # Verify modern skill counterpart
+            skill_name = skill_mapping.get(wf)
+            if skill_name:
+                skill_path = os.path.join(AGENTS_DIR, "skills", skill_name, "SKILL.md")
+                self.assertTrue(os.path.exists(skill_path), f"Missing modern skill for {wf}: {skill_path}")
 
     def test_run_workflow_offline_rejection_enforces_directive_0_and_12(self):
         """Validates that standalone Python run_workflow raises NotImplementedError across all workflows."""

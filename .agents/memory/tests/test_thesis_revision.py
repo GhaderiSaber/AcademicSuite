@@ -163,9 +163,17 @@ class TestThesisRevisionSuite(unittest.TestCase):
             self.assertIn('w:insideV w:val="none"', doc_xml)
 
     def test_07_workflow_specification_contract(self):
-        """Validates that thesis_revision.md workflow spec defines all required roles and artifacts."""
+        """Validates that thesis_revision.md spec exists in legacy archive and modern skill exists."""
+        legacy_dir = os.path.join(AGENTS_DIR, "legacy", "workflows")
         spec_path = os.path.join(AGENTS_DIR, "workflows", "thesis_revision.md")
+        if not os.path.exists(spec_path):
+            spec_path = os.path.join(legacy_dir, "thesis_revision.md.bak")
         self.assertTrue(os.path.exists(spec_path), f"Missing workflow spec: {spec_path}")
+
+        # Also verify modern skill exists
+        skill_path = os.path.join(AGENTS_DIR, "skills", "persian-thesis-revision-assistant", "SKILL.md")
+        self.assertTrue(os.path.exists(skill_path), f"Missing modern skill: {skill_path}")
+
         with open(spec_path, "r", encoding="utf-8") as f:
             content = f.read()
 

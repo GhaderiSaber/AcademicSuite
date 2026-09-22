@@ -34,32 +34,37 @@ class TestInterventionAndValidationWorkflow(unittest.TestCase):
         self.saber = DigitalSaber()
         self.openxml_engine = OpenXMLArtifactEngine()
         self.test_output_dir = tempfile.mkdtemp(prefix="test_pipeline5_")
-        self.created_decisions = []
+        self.initial_decisions = set(os.listdir(DECISIONS_DIR)) if os.path.exists(DECISIONS_DIR) else set()
 
     def tearDown(self):
         if os.path.exists(self.test_output_dir):
             shutil.rmtree(self.test_output_dir)
-        # Clean up any test decision files
+        # Clean up any new test decisions
         if os.path.exists(DECISIONS_DIR):
-            for fname in os.listdir(DECISIONS_DIR):
-                if fname.endswith(".json") and any(tag in fname for tag in ["_inte.json", "_scal.json"]):
-                    fpath = os.path.join(DECISIONS_DIR, fname)
-                    try:
-                        os.remove(fpath)
-                    except Exception:
-                        pass
+            for fname in set(os.listdir(DECISIONS_DIR)) - self.initial_decisions:
+                fpath = os.path.join(DECISIONS_DIR, fname)
+                try:
+                    os.remove(fpath)
+                except Exception:
+                    pass
 
     def test_workflow_specs_exist(self):
-        """1. Verify workflow specs exist with required sections."""
+        """1. Verify workflow specs exist in legacy archive and modern skills exist."""
+        legacy_dir = os.path.join(AGENTS_DIR, "legacy", "workflows")
         inte_path = os.path.join(AGENTS_DIR, "workflows", "intervention_protocol.md")
         if not os.path.exists(inte_path):
-            inte_path = os.path.join(AGENTS_DIR, "workflows", "intervention_protocol.md.bak")
+            inte_path = os.path.join(legacy_dir, "intervention_protocol.md.bak")
         scal_path = os.path.join(AGENTS_DIR, "workflows", "scale_validation.md")
         if not os.path.exists(scal_path):
-            scal_path = os.path.join(AGENTS_DIR, "workflows", "scale_validation.md.bak")
+            scal_path = os.path.join(legacy_dir, "scale_validation.md.bak")
 
         self.assertTrue(os.path.exists(inte_path), f"Spec missing: {inte_path}")
         self.assertTrue(os.path.exists(scal_path), f"Spec missing: {scal_path}")
+
+        # Also verify modern skills exist
+        for skill_name in ["psychological-intervention-protocol-builder", "psychometric-scale-validator"]:
+            skill_path = os.path.join(AGENTS_DIR, "skills", skill_name, "SKILL.md")
+            self.assertTrue(os.path.exists(skill_path), f"Missing modern skill: {skill_path}")
 
         with open(inte_path, "r", encoding="utf-8") as f:
             content_inte = f.read()

@@ -4,7 +4,7 @@
 revision_triage_engine.py — Automated Supervisor & Examiner Feedback Triage Pipeline
 -----------------------------------------------------------------------------------
 Core engine for the Persian Thesis Revision Assistant skill (`persian-thesis-revision-assistant`).
-Implements the 4-stage revision lifecycle defined in `.agents/workflows/thesis_revision.md`:
+Implements the 4-stage revision lifecycle defined in `.agents/skills/persian-thesis-revision-assistant/SKILL.md`:
   Stage 1: Comment Ingestion & Scoping (Docx / Text / JSON / Benchmark)
   Stage 2: 3-Tier Feedback Triage (Format / Stats / Theory)
   Stage 3: Deterministic Recalculation & Remediation Linkage
