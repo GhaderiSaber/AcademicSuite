@@ -555,14 +555,154 @@ class TestHookSecondaryEnforcement(unittest.TestCase):
         vr_path = os.path.join(stage_dir, "validation_report.json")
 
         for verdict in ("FAIL", "PENDING", "UNKNOWN", "", None):
-            payload = {"overall_verdict": verdict} if verdict is not None else {}
+            payload = {"overall_verdict": verdict, "checks_failed": 0} if verdict is not None else {}
             with open(vr_path, "w", encoding="utf-8") as f:
                 json.dump(payload, f)
 
             ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
             self.assertFalse(ok, f"Must fail closed when overall_verdict is {verdict!r}")
             self.assertIn("Post-Analysis Validation Gate", reason)
-            self.assertIn("Overall verdict must be 'PASS'", reason)
+            self.assertIn("overall_verdict == 'PASS'", reason)
+
+    def test_verify_post_analysis_fails_closed_when_checks_failed_gt_zero(self):
+        """Verify that overall_verdict: PASS fails closed when checks_failed > 0."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+
+        # Top-level checks_failed: 2
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "PASS", "checks_failed": 2}, f)
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertFalse(ok, "Must reject PASS with top-level checks_failed > 0")
+        self.assertIn("have failing validation checks (checks_failed: 2)", reason)
+
+        # evidence_summary checks_failed: 1
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "PASS", "evidence_summary": {"checks_failed": 1}}, f)
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertFalse(ok, "Must reject PASS with evidence_summary.checks_failed > 0")
+        self.assertIn("have failing validation checks (checks_failed: 1)", reason)
+
+    def test_verify_post_analysis_fails_closed_when_checks_failed_is_missing(self):
+        """Verify that overall_verdict: PASS fails closed when checks_failed is completely omitted."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "PASS"}, f)
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertFalse(ok, "Must reject PASS when checks_failed metric is omitted")
+        self.assertIn("missing mandatory 'checks_failed' metric", reason)
+
+    def test_verify_post_analysis_fails_closed_when_checks_failed_is_invalid_type(self):
+        """Verify that non-numeric or boolean checks_failed fails closed."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+
+        # Boolean False (in Python False == 0, but is invalid count)
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "PASS", "checks_failed": False}, f)
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertFalse(ok, "Must reject boolean checks_failed")
+        self.assertIn("invalid non-numeric 'checks_failed'", reason)
+
+        # String non-numeric
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "PASS", "checks_failed": "none"}, f)
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertFalse(ok, "Must reject string non-numeric checks_failed")
+        self.assertIn("invalid non-numeric 'checks_failed'", reason)
+
+    def test_verify_post_analysis_fails_closed_when_checks_blocked_gt_zero(self):
+        """Verify that checks_blocked > 0 fails closed even if checks_failed == 0."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "overall_verdict": "PASS",
+                "evidence_summary": {"checks_failed": 0, "checks_blocked": 1}
+            }, f)
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertFalse(ok, "Must reject when checks_blocked > 0")
+        self.assertIn("have blocked validation checks", reason)
+
+    def test_verify_post_analysis_fails_closed_when_failed_checks_list_non_empty(self):
+        """Verify that non-empty failed_checks array fails closed."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "overall_verdict": "PASS",
+                "checks_failed": 0,
+                "failed_checks": ["CHK-APA-01"]
+            }, f)
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertFalse(ok, "Must reject when failed_checks list contains items")
+        self.assertIn("recorded failed checks", reason)
+
+    def test_verify_post_analysis_fails_closed_when_result_verdict_not_pass(self):
+        """Verify that any individual non-PASS check in results array fails closed."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "overall_verdict": "PASS",
+                "checks_failed": 0,
+                "results": [
+                    {"check_id": "CHK-APA-01", "verdict": "PASS"},
+                    {"check_id": "CHK-APA-02", "verdict": "FAIL"}
+                ]
+            }, f)
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertFalse(ok, "Must reject when individual result verdict is FAIL")
+        self.assertIn("contain non-passing check 'CHK-APA-02'", reason)
+
+    def test_verify_post_analysis_accepts_only_pass_with_zero_failed_checks(self):
+        """Verify that strictly overall_verdict: PASS and checks_failed: 0 is accepted."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+
+        # Top-level checks_failed: 0
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "PASS", "checks_failed": 0}, f)
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertTrue(ok, f"Expected accept but got: {reason}")
+        self.assertEqual(reason, "")
+
+        # Full evidence_summary conforming to contract schema
+        valid_contract_report = {
+            "contract_version": "1.0.0",
+            "report_id": "VAL-DEMO-001",
+            "validator_name": "academic_chapter_auditor",
+            "target_artifacts": ["01_demographics.docx", "01_demographics.json"],
+            "timestamp": "2026-09-22T08:00:00Z",
+            "overall_verdict": "PASS",
+            "evidence_summary": {
+                "total_evidence_items_evaluated": 10,
+                "total_checks_run": 4,
+                "checks_passed": 4,
+                "checks_failed": 0,
+                "checks_blocked": 0
+            },
+            "results": [
+                {"check_id": "CHK-01", "rule": "Leading zero", "verdict": "PASS", "evidence": {"checked": True}}
+            ]
+        }
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump(valid_contract_report, f)
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertTrue(ok, f"Expected accept for full contract report but got: {reason}")
+        self.assertEqual(reason, "")
 
     def test_handle_stop_blocks_on_corrupt_artifacts(self):
         """Verify that handle_stop returns decision: continue when artifacts are corrupt."""
@@ -580,4 +720,5 @@ class TestHookSecondaryEnforcement(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 

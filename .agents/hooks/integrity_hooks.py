@@ -510,9 +510,18 @@ class IntegrityHooks:
     @staticmethod
     def verify_post_analysis(workspaces: List[str]) -> Tuple[bool, str]:
         """
-        Verifies that any completed stage has a passing validation report (overall_verdict: PASS).
-        Fails closed if validation_report.json is malformed, unreadable, not a JSON object,
-        or its verdict is not PASS.
+        Secondary Enforcement (Post-Analysis Validation Gate):
+        Enforces Directive 22 (Fail-Closed Mechanical Validation Gate Invariant):
+        PASS + checks_failed == 0 -> accept
+        Everything else            -> reject (fail closed).
+
+        A validation report is ONLY accepted if:
+        1. It is a valid, readable JSON object.
+        2. overall_verdict is strictly "PASS" (not FAIL, UNKNOWN, BLOCKED, INCOMPLETE, UNVERIFIED, missing, or empty).
+        3. checks_failed is explicitly present (in evidence_summary or top-level) and equal to 0.
+        4. checks_blocked is 0 (if present in evidence_summary).
+        5. failed_checks list is empty (if present).
+        6. All individual check results are PASS or SKIP (if results list is present).
         """
         active_stage_dirs = []
         for ws in workspaces:
@@ -539,13 +548,83 @@ class IntegrityHooks:
                         f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Validation report '{val_rep_path}' "
                         f"must be a JSON object, got {type(val_data).__name__}. Verification failed closed."
                     )
+
+                # 1. Overall verdict MUST be strictly PASS
                 verdict = str(val_data.get("overall_verdict", val_data.get("verdict", ""))).strip().upper()
                 if verdict != "PASS":
                     return False, (
                         f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Stage artifacts in '{s_dir}' "
                         f"did not pass deterministic validation (overall_verdict: '{verdict or 'MISSING'}'). "
-                        f"Overall verdict must be 'PASS' before completing."
+                        f"Strict contract requires overall_verdict == 'PASS' and checks_failed == 0."
                     )
+
+                # 2. checks_failed MUST be explicitly present and equal to 0
+                checks_failed = None
+                if isinstance(val_data.get("evidence_summary"), dict):
+                    checks_failed = val_data["evidence_summary"].get("checks_failed")
+                if checks_failed is None and "checks_failed" in val_data:
+                    checks_failed = val_data.get("checks_failed")
+
+                if checks_failed is None:
+                    return False, (
+                        f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Validation report '{val_rep_path}' "
+                        f"is missing mandatory 'checks_failed' metric. "
+                        f"Strict contract requires overall_verdict == 'PASS' and checks_failed == 0."
+                    )
+
+                if isinstance(checks_failed, bool) or not isinstance(checks_failed, (int, float)):
+                    if isinstance(checks_failed, str) and checks_failed.isdigit():
+                        checks_failed = int(checks_failed)
+                    else:
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Validation report '{val_rep_path}' "
+                            f"has invalid non-numeric 'checks_failed' value ({checks_failed!r}). "
+                            f"Strict contract requires overall_verdict == 'PASS' and checks_failed == 0."
+                        )
+
+                if int(checks_failed) != 0:
+                    return False, (
+                        f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Stage artifacts in '{s_dir}' "
+                        f"have failing validation checks (checks_failed: {int(checks_failed)}). "
+                        f"Strict contract requires overall_verdict == 'PASS' and checks_failed == 0 before completing."
+                    )
+
+                # 3. checks_blocked must be 0 if present in evidence_summary
+                if isinstance(val_data.get("evidence_summary"), dict):
+                    checks_blocked = val_data["evidence_summary"].get("checks_blocked")
+                    if checks_blocked is not None and not isinstance(checks_blocked, bool):
+                        try:
+                            if int(checks_blocked) != 0:
+                                return False, (
+                                    f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Stage artifacts in '{s_dir}' "
+                                    f"have blocked validation checks (checks_blocked: {int(checks_blocked)}). "
+                                    f"Strict contract requires overall_verdict == 'PASS' and checks_failed == 0."
+                                )
+                        except (ValueError, TypeError):
+                            pass
+
+                # 4. failed_checks list must be empty if present
+                failed_checks = val_data.get("failed_checks")
+                if isinstance(failed_checks, list) and len(failed_checks) > 0:
+                    return False, (
+                        f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Stage artifacts in '{s_dir}' "
+                        f"recorded failed checks: {failed_checks}. "
+                        f"Strict contract requires overall_verdict == 'PASS' and checks_failed == 0."
+                    )
+
+                # 5. Individual results verdicts must not be FAIL or BLOCKED
+                results = val_data.get("results")
+                if isinstance(results, list):
+                    for r in results:
+                        if isinstance(r, dict):
+                            r_verdict = str(r.get("verdict", "")).strip().upper()
+                            if r_verdict in ("FAIL", "BLOCKED", "UNKNOWN", "UNVERIFIED", "INCOMPLETE"):
+                                return False, (
+                                    f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Stage artifacts in '{s_dir}' "
+                                    f"contain non-passing check '{r.get('check_id', r.get('check', 'unknown'))}' "
+                                    f"(verdict: '{r_verdict}'). "
+                                    f"Strict contract requires overall_verdict == 'PASS' and checks_failed == 0."
+                                )
         return True, ""
 
     @staticmethod
@@ -742,11 +821,26 @@ class IntegrityHooks:
                             })
                             break
                         verdict = str(v_data.get("overall_verdict", v_data.get("verdict", ""))).strip().upper()
-                        if verdict != "PASS":
+                        checks_failed = None
+                        if isinstance(v_data.get("evidence_summary"), dict):
+                            checks_failed = v_data["evidence_summary"].get("checks_failed")
+                        if checks_failed is None and "checks_failed" in v_data:
+                            checks_failed = v_data.get("checks_failed")
+
+                        is_zero = (
+                            checks_failed is not None
+                            and isinstance(checks_failed, (int, float))
+                            and not isinstance(checks_failed, bool)
+                            and int(checks_failed) == 0
+                        )
+
+                        if verdict != "PASS" or not is_zero:
                             inject_steps.append({
                                 "ephemeralMessage": (
                                     f"STAGE VERIFICATION ADVISORY: Validation report in '{root}' "
-                                    f"has overall_verdict: {verdict or 'MISSING'}. Please run deterministic validators and resolve errors."
+                                    f"does not satisfy passing contract (overall_verdict: '{verdict or 'MISSING'}', "
+                                    f"checks_failed: {checks_failed if checks_failed is not None else 'MISSING'}). "
+                                    f"Contract strictly requires overall_verdict == 'PASS' and checks_failed == 0."
                                 )
                             })
                             break
