@@ -277,6 +277,202 @@ def is_ascii_filename(path: str) -> bool:
     return not any(ord(c) > 127 for c in basename)
 
 
+def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """
+    Directive 19 / Directive 12 / Knowledge Store Integrity Guard:
+    Validates mutations targeting knowledge store files (.agents/learning/knowledge/).
+    Enforces:
+    1. Valid JSON syntax.
+    2. Mandatory 'target_agent' (string) and 'target_agents' (non-empty list of strings).
+    3. Strict schema conformity against contracts/evolution/*.schema.json.
+    4. Prohibition of direct promotion (is_active_behavior must remain false).
+    """
+    if not target or not isinstance(target, str):
+        return None
+
+    target_norm = os.path.normpath(target).replace("\\", "/")
+    target_base = os.path.basename(target_norm)
+
+    # Only inspect JSON files within learning/knowledge directory
+    if not (("learning/knowledge" in target_norm or ".agents/learning/knowledge" in target_norm) and target_norm.endswith(".json")):
+        return None
+
+    # Skip index files or edge graph files
+    if target_base in ("index.json", "index.jsonl", "graph_edges.jsonl", "manifest.json"):
+        return None
+
+    content_str = None
+    if tool_name == "write_to_file":
+        content_str = args.get("CodeContent") or args.get("codeContent") or args.get("content") or args.get("text")
+    elif tool_name == "replace_file_content":
+        tgt = args.get("TargetContent", "")
+        repl = args.get("ReplacementContent", "")
+        if os.path.exists(target):
+            try:
+                with open(target, "r", encoding="utf-8") as f:
+                    existing = f.read()
+                content_str = existing.replace(tgt, repl)
+            except Exception:
+                content_str = None
+    elif tool_name in ("edit_file", "apply_diff", "patch"):
+        content_str = args.get("CodeContent") or args.get("content")
+
+    if content_str is None:
+        return None
+
+    import json
+    try:
+        data = json.loads(content_str)
+    except Exception as e:
+        return {
+            "decision": "deny",
+            "reason": (
+                f"CONSTITUTIONAL VIOLATION (Directive 19 - Knowledge JSON Syntax Error): "
+                f"Target knowledge file '{target_base}' contains invalid JSON: {e}"
+            )
+        }
+
+    if not isinstance(data, dict):
+        return {
+            "decision": "deny",
+            "reason": (
+                f"CONSTITUTIONAL VIOLATION (Directive 19 - Knowledge Schema Error): "
+                f"Target knowledge file '{target_base}' must contain a JSON object."
+            )
+        }
+
+    # Invariant: No direct promotion to active production defaults
+    if data.get("is_active_behavior") is True:
+        return {
+            "decision": "deny",
+            "reason": (
+                f"CONSTITUTIONAL VIOLATION (Directive 19 - Knowledge Promotion Boundary Guard): "
+                f"File '{target_base}' sets 'is_active_behavior: true'. "
+                f"Knowledge candidates cannot be staged directly as active behavior. "
+                f"Promotion requires independent evaluation and Human Gate approval."
+            )
+        }
+
+    # Contract imports
+    try:
+        from contracts.contract_validator import (
+            validate_lesson,
+            validate_anti_pattern,
+            validate_exemplar,
+            validate_knowledge_item
+        )
+    except ImportError:
+        try:
+            from .contracts.contract_validator import (
+                validate_lesson,
+                validate_anti_pattern,
+                validate_exemplar,
+                validate_knowledge_item
+            )
+        except ImportError:
+            validate_lesson = None
+            validate_anti_pattern = None
+            validate_exemplar = None
+            validate_knowledge_item = None
+
+    is_lesson = "/lessons/" in target_norm or target_base.startswith("LSN-")
+    is_anti_pattern = "/anti-patterns/" in target_norm or target_base.startswith("AP-")
+    is_exemplar = "/exemplars/" in target_norm or target_base.startswith("EXM-")
+    is_knowledge = (
+        "/principles/" in target_norm
+        or "/patterns/" in target_norm
+        or target_base.startswith(("PRN-", "PAT-", "KNW-"))
+    )
+
+    if is_lesson:
+        if "target_agent" not in data or not data["target_agent"]:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
+                    f"Lesson '{target_base}' is missing mandatory field 'target_agent'. "
+                    f"You must specify the primary specialized subagent responsible (e.g. 'academic-writer', 'statistics-agent', 'data-curator', 'results-auditor')."
+                )
+            }
+        if "target_agents" not in data or not isinstance(data.get("target_agents"), list) or len(data["target_agents"]) == 0:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
+                    f"Lesson '{target_base}' is missing mandatory field 'target_agents'. "
+                    f"You must provide a non-empty array of target subagents (e.g. ['academic-writer', 'results-auditor'])."
+                )
+            }
+        if validate_lesson:
+            report = validate_lesson(data)
+            if not report.get("valid", False):
+                errs = "; ".join(report.get("errors", []))
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 19 - Lesson Contract Invariant): "
+                        f"Lesson '{target_base}' violates contracts/evolution/lesson.schema.json: {errs}"
+                    )
+                }
+
+    elif is_anti_pattern:
+        if "target_agent" not in data or not data["target_agent"]:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
+                    f"Anti-pattern '{target_base}' is missing mandatory field 'target_agent'. "
+                    f"You must specify the primary specialized subagent responsible (e.g. 'academic-writer', 'statistics-agent', 'data-curator', 'results-auditor')."
+                )
+            }
+        if "target_agents" not in data or not isinstance(data.get("target_agents"), list) or len(data["target_agents"]) == 0:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
+                    f"Anti-pattern '{target_base}' is missing mandatory field 'target_agents'. "
+                    f"You must provide a non-empty array of target subagents (e.g. ['academic-writer', 'results-auditor'])."
+                )
+            }
+        if validate_anti_pattern:
+            report = validate_anti_pattern(data)
+            if not report.get("valid", False):
+                errs = "; ".join(report.get("errors", []))
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 19 - Anti-Pattern Contract Invariant): "
+                        f"Anti-pattern '{target_base}' violates contracts/evolution/anti_pattern.schema.json: {errs}"
+                    )
+                }
+
+    elif is_exemplar and validate_exemplar:
+        report = validate_exemplar(data)
+        if not report.get("valid", False):
+            errs = "; ".join(report.get("errors", []))
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Exemplar Contract Invariant): "
+                    f"Exemplar '{target_base}' violates contracts/evolution/exemplar.schema.json: {errs}"
+                )
+            }
+
+    elif is_knowledge and validate_knowledge_item:
+        report = validate_knowledge_item(data)
+        if not report.get("valid", False):
+            errs = "; ".join(report.get("errors", []))
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Knowledge Item Contract Invariant): "
+                    f"Knowledge item '{target_base}' violates contracts/evolution/knowledge_item.schema.json: {errs}"
+                )
+            }
+
+    return None
+
+
 def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Validates explicit caller against canonical capability policy SSOT
@@ -599,6 +795,11 @@ class SafetyHooks:
                                     f"is outside declared workspace directories: {workspaces}."
                                 )
                             }
+
+                # Knowledge Store Schema & Role Isolation Guard (Directive 19 / Directive 12)
+                knw_denial = validate_knowledge_mutation(target, name, args)
+                if knw_denial:
+                    return knw_denial
 
         # 3. Dangerous Shell Command & Orchestrator Direct Execution Protection
         if name == "run_command":

@@ -13,6 +13,11 @@
   "detection_heuristic": {
     "trigger_rule": "Detection of 'p =' or 'p <' or '> p' strings inside any standard table cell whose header designates a p-value column."
   },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ],
   "reusable": true,
   "updated_at": "2026-09-22T08:35:00Z"
 }

@@ -97,7 +97,7 @@ Handoff notification of staged knowledge items:
 ---
 
 ## VALIDATION REQUIREMENTS
-- Every generated record must validate against its respective schema in `contracts/evolution/` (including mandatory `target_agent` and `target_agents`).
+- Every generated record must validate against its respective schema in `.agents/contracts/evolution/` (including mandatory `target_agent` and `target_agents`). Enforced mechanically via PreToolUse lifecycle hook.
 - Anti-vague validation pass on all statements.
 - Strict scope verification and subagent role isolation.
 
