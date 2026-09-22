@@ -39,6 +39,14 @@ if ROOT_DIR not in sys.path:
 
 from scripts.academic_knowledge_manager import AcademicKnowledgeManager
 try:
+    from contracts.hook_identity_contract import resolve_transcript_path
+except ImportError:
+    try:
+        from .contracts.hook_identity_contract import resolve_transcript_path
+    except ImportError:
+        def resolve_transcript_path(payload):
+            return payload.get("transcriptPath") if isinstance(payload, dict) else None
+try:
     from scripts.academic_context_token_budgeter import AcademicContextTokenBudgeter
 except ImportError:
     from academic_context_token_budgeter import AcademicContextTokenBudgeter
@@ -341,12 +349,8 @@ class AcademicAdaptiveContextBoundary:
         Executes turn-level context retrieval at the PreInvocation execution boundary.
         Inspects the incoming turn, detects academic intent, and returns formatted briefing.
         """
-        transcript_path = hook_payload.get("transcriptPath")
         cid = hook_payload.get("conversationId")
-        if not transcript_path and cid:
-            cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
-            if os.path.exists(cand):
-                transcript_path = cand
+        transcript_path = resolve_transcript_path(hook_payload)
 
         last_user_msg = ""
         if transcript_path and os.path.isfile(transcript_path):

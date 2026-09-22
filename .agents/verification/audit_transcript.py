@@ -16,6 +16,21 @@ import re
 import argparse
 from typing import Dict, Any, List, Optional
 
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+AGENTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if AGENTS_DIR not in sys.path:
+    sys.path.insert(0, AGENTS_DIR)
+
+try:
+    from contracts.hook_identity_contract import resolve_transcript_path
+except ImportError:
+    try:
+        from .contracts.hook_identity_contract import resolve_transcript_path
+    except ImportError:
+        resolve_transcript_path = None
+
 
 class TranscriptAuditor:
     def __init__(self, transcript_path: str):
@@ -236,7 +251,10 @@ def main():
     if args.file:
         target_path = args.file
     elif args.cid:
-        target_path = os.path.expanduser(f"~/.gemini/antigravity/brain/{args.cid}/.system_generated/logs/transcript.jsonl")
+        if resolve_transcript_path:
+            target_path = resolve_transcript_path({"conversationId": args.cid})
+        else:
+            target_path = os.path.expanduser(f"~/.gemini/antigravity/brain/{args.cid}/.system_generated/logs/transcript.jsonl")
     else:
         print("❌ Error: Must provide either --cid or --file")
         sys.exit(2)

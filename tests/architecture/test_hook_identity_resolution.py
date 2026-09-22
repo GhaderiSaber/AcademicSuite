@@ -38,7 +38,9 @@ from contracts.hook_identity_contract import (
     validate_hook_payload_schema,
     detect_interface,
     extract_subagent_info,
-    is_main_agent_developer
+    is_main_agent_developer,
+    resolve_transcript_path,
+    SURFACE_APP_DATA_DIRS
 )
 from hooks.hook_dispatcher import dispatch_event, is_main_agent_developer as dispatcher_is_main
 
@@ -272,3 +274,104 @@ class TestHookDispatcherDualTrackEnforcement:
         }
         res = dispatch_event("PreToolUse", payload)
         assert res.get("decision") != "deny"
+
+
+class TestSurfaceAwareTranscriptResolution:
+    """Verifies that transcriptPath is prioritized directly and fallback is surface-aware."""
+
+    def test_direct_runtime_transcript_path_is_prioritized(self):
+        """When transcriptPath is provided by runtime, use it directly without alteration."""
+        payload = {
+            "conversationId": "cid-direct-101",
+            "workspacePaths": [ROOT_DIR],
+            "transcriptPath": "/var/log/custom/special_transcript.jsonl",
+            "artifactDirectoryPath": "/var/artifacts/desk"
+        }
+        res = resolve_transcript_path(payload)
+        assert res == "/var/log/custom/special_transcript.jsonl"
+
+    def test_derive_from_artifact_directory_path(self):
+        """When transcriptPath is absent, derive from artifactDirectoryPath if present."""
+        payload = {
+            "conversationId": "cid-artifact-202",
+            "workspacePaths": [ROOT_DIR],
+            "artifactDirectoryPath": "/tmp/custom_brain/cid-artifact-202"
+        }
+        res = resolve_transcript_path(payload)
+        assert res == "/tmp/custom_brain/cid-artifact-202/.system_generated/logs/transcript.jsonl"
+
+    def test_surface_aware_cli_fallback(self):
+        """When transcriptPath is absent and surface is CLI, derive under ~/.gemini/antigravity-cli."""
+        payload = {
+            "conversationId": "cid-cli-303",
+            "workspacePaths": [ROOT_DIR]
+        }
+        env = {"ANTIGRAVITY_SURFACE": "cli"}
+        res = resolve_transcript_path(payload, env=env)
+        expected = os.path.expanduser("~/.gemini/antigravity-cli/brain/cid-cli-303/.system_generated/logs/transcript.jsonl")
+        assert res == expected
+
+    def test_surface_aware_ide_fallback(self):
+        """When transcriptPath is absent and surface is IDE, derive under ~/.gemini/antigravity-ide."""
+        payload = {
+            "conversationId": "cid-ide-404",
+            "workspacePaths": [ROOT_DIR]
+        }
+        env = {"ANTIGRAVITY_SURFACE": "ide"}
+        res = resolve_transcript_path(payload, env=env)
+        expected = os.path.expanduser("~/.gemini/antigravity-ide/brain/cid-ide-404/.system_generated/logs/transcript.jsonl")
+        assert res == expected
+
+    def test_surface_aware_desktop_fallback(self):
+        """When transcriptPath is absent and surface is Desktop, derive under ~/.gemini/antigravity."""
+        payload = {
+            "conversationId": "cid-desk-505",
+            "workspacePaths": [ROOT_DIR]
+        }
+        env = {"ANTIGRAVITY_SURFACE": "desktop"}
+        res = resolve_transcript_path(payload, env=env)
+        expected = os.path.expanduser("~/.gemini/antigravity/brain/cid-desk-505/.system_generated/logs/transcript.jsonl")
+        assert res == expected
+
+    def test_multi_surface_on_disk_discovery(self):
+        """When transcriptPath is absent, scans across surfaces and returns existing file on disk."""
+        cid = "cid-disk-discovery-606"
+        ide_log_dir = os.path.expanduser(f"~/.gemini/antigravity-ide/brain/{cid}/.system_generated/logs")
+        os.makedirs(ide_log_dir, exist_ok=True)
+        ide_transcript_file = os.path.join(ide_log_dir, "transcript.jsonl")
+        try:
+            with open(ide_transcript_file, "w", encoding="utf-8") as f:
+                f.write('{"type": "PLANNER_RESPONSE", "content": "test"}\n')
+
+            payload = {
+                "conversationId": cid,
+                "workspacePaths": [ROOT_DIR]
+            }
+            # Surface unknown: will check desktop, cli, ide in order and find the existing file in ide
+            res = resolve_transcript_path(payload, env={})
+            assert res == ide_transcript_file
+        finally:
+            if os.path.exists(ide_transcript_file):
+                os.remove(ide_transcript_file)
+            brain_dir = os.path.expanduser(f"~/.gemini/antigravity-ide/brain/{cid}")
+            if os.path.exists(brain_dir):
+                import shutil
+                shutil.rmtree(brain_dir)
+
+    def test_env_var_app_data_dir_override(self):
+        """When ANTIGRAVITY_APP_DATA_DIR is set, resolves under the specified directory."""
+        payload = {
+            "conversationId": "cid-env-707",
+            "workspacePaths": [ROOT_DIR]
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            env = {"ANTIGRAVITY_APP_DATA_DIR": tmpdir}
+            log_dir = os.path.join(tmpdir, "brain", "cid-env-707", ".system_generated", "logs")
+            os.makedirs(log_dir, exist_ok=True)
+            custom_file = os.path.join(log_dir, "transcript.jsonl")
+            with open(custom_file, "w", encoding="utf-8") as f:
+                f.write('{"type": "USER_INPUT", "content": "hi"}\n')
+
+            res = resolve_transcript_path(payload, env=env)
+            assert res == custom_file
+

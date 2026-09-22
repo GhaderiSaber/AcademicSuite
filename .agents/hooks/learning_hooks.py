@@ -23,6 +23,15 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+try:
+    from contracts.hook_identity_contract import resolve_transcript_path
+except ImportError:
+    try:
+        from .contracts.hook_identity_contract import resolve_transcript_path
+    except ImportError:
+        def resolve_transcript_path(payload):
+            return payload.get("transcriptPath") if isinstance(payload, dict) else None
+
 
 def load_transcript(transcript_path: Optional[str]) -> List[Dict[str, Any]]:
     """Loads and parses transcript.jsonl safely."""
@@ -286,12 +295,8 @@ class LearningHooks:
         Delegates to AcademicCorrectionDetector and AcademicIntegratedLearningHub, and records USER_CORRECTION event.
         Returns a dictionary with critique detection metadata.
         """
-        transcript_path = payload.get("transcriptPath")
         cid = payload.get("conversationId")
-        if not transcript_path and cid:
-            cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
-            if os.path.exists(cand):
-                transcript_path = cand
+        transcript_path = resolve_transcript_path(payload)
 
         user_text = (
             payload.get("userMessage")
@@ -506,12 +511,8 @@ class LearningHooks:
             tool_name = tool_call.get("name", "") if isinstance(tool_call, dict) else ""
             tool_args = tool_call.get("args", {}) if isinstance(tool_call, dict) else {}
 
-            transcript_path = payload.get("transcriptPath")
+            transcript_path = resolve_transcript_path(payload)
             if not tool_name:
-                if not transcript_path and cid:
-                    cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
-                    if os.path.exists(cand):
-                        transcript_path = cand
                 records = load_transcript(transcript_path) if transcript_path else []
                 for r in reversed(records):
                     tcs = r.get("tool_calls", [])
@@ -686,12 +687,7 @@ class LearningHooks:
             ephemeral_blocks.append(val_block)
 
         # Resolve transcript path for context analysis
-        transcript_path = payload.get("transcriptPath")
-        cid = payload.get("conversationId")
-        if not transcript_path and cid:
-            cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
-            if os.path.exists(cand):
-                transcript_path = cand
+        transcript_path = resolve_transcript_path(payload)
 
         # Model B: Deterministic Preflight Capability Routing for Academic Orchestrator
         # Executes academic_task_router.py offline/in-hook ("The Hands") to compile academic-state/routing_plan.json

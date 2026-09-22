@@ -26,6 +26,15 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+try:
+    from contracts.hook_identity_contract import resolve_transcript_path
+except ImportError:
+    try:
+        from .contracts.hook_identity_contract import resolve_transcript_path
+    except ImportError:
+        def resolve_transcript_path(payload):
+            return payload.get("transcriptPath") if isinstance(payload, dict) else None
+
 
 def load_transcript(transcript_path: Optional[str]) -> List[Dict[str, Any]]:
     """Loads and parses transcript.jsonl safely."""
@@ -778,13 +787,7 @@ class IntegrityHooks:
             return {"decision": "continue", "reason": reason}
 
         # 7. Transcript Checks (Binary Honesty & Multi-Agent Claims)
-        transcript_path = payload.get("transcriptPath")
-        cid = payload.get("conversationId")
-        if not transcript_path and cid:
-            cand = os.path.expanduser(f"~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl")
-            if os.path.exists(cand):
-                transcript_path = cand
-
+        transcript_path = resolve_transcript_path(payload)
         records = load_transcript(transcript_path) if transcript_path else []
         if records:
             ok, reason = IntegrityHooks.verify_binary_honesty(records)

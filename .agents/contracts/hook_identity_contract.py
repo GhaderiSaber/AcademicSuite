@@ -81,11 +81,32 @@ def get_canonical_academic_agents() -> Set[str]:
             }
 
 
-def detect_interface(payload: Dict[str, Any]) -> str:
+SURFACE_APP_DATA_DIRS = {
+    "desktop_or_web": os.path.expanduser("~/.gemini/antigravity"),
+    "cli": os.path.expanduser("~/.gemini/antigravity-cli"),
+    "ide": os.path.expanduser("~/.gemini/antigravity-ide"),
+}
+
+
+def detect_interface(payload: Dict[str, Any], env: Optional[Dict[str, str]] = None) -> str:
     """
     Detects the Antigravity product/runtime interface based on path signatures
-    documented in Antigravity architecture (antigravity-cli, antigravity-ide, antigravity).
+    and environment variables (antigravity-cli, antigravity-ide, antigravity).
     """
+    active_env = os.environ if env is None else env
+    env_surface = (
+        active_env.get("ANTIGRAVITY_SURFACE")
+        or active_env.get("ANTIGRAVITY_CLIENT")
+        or active_env.get("ANTIGRAVITY_INTERFACE")
+        or ""
+    ).lower().strip()
+    if env_surface in ("cli", "antigravity-cli"):
+        return "cli"
+    if env_surface in ("ide", "antigravity-ide"):
+        return "ide"
+    if env_surface in ("desktop", "web", "antigravity", "desktop_or_web"):
+        return "desktop_or_web"
+
     candidate_paths = []
     for key in ("transcriptPath", "artifactDirectoryPath"):
         val = payload.get(key)
@@ -104,6 +125,90 @@ def detect_interface(payload: Dict[str, Any]) -> str:
             return "desktop_or_web"
 
     return "unknown"
+
+
+def resolve_transcript_path(payload: Dict[str, Any], env: Optional[Dict[str, str]] = None) -> Optional[str]:
+    """
+    Authoritatively resolves the transcript path for an Antigravity hook event.
+
+    ROBUST ARCHITECTURAL INVARIANT:
+    1. If `transcriptPath` is provided directly by runtime payload, USE IT DIRECTLY.
+       Never alter, redirect, or override it.
+    2. If and ONLY IF `transcriptPath` is genuinely absent, empty, or None:
+       Fall back to an explicitly surface-aware resolution mechanism:
+       a. Derive from `artifactDirectoryPath` if present:
+          {artifactDirectoryPath}/.system_generated/logs/transcript.jsonl
+       b. Check explicit environment variable app data directory overrides:
+          ANTIGRAVITY_APP_DATA_DIR / ANTIGRAVITY_DATA_DIR / ANTIGRAVITY_APP_DIR
+       c. Check surface-specific app data directory corresponding to detected interface:
+          - CLI: ~/.gemini/antigravity-cli/brain/{cid}/.system_generated/logs/transcript.jsonl
+          - IDE: ~/.gemini/antigravity-ide/brain/{cid}/.system_generated/logs/transcript.jsonl
+          - Desktop/Web: ~/.gemini/antigravity/brain/{cid}/.system_generated/logs/transcript.jsonl
+       d. Search across all known surface directories for an existing transcript file.
+       e. Return surface-derived candidate path if conversationId is known.
+    """
+    if not isinstance(payload, dict):
+        return None
+
+    # Step 1: Use runtime transcriptPath directly if provided
+    raw_path = payload.get("transcriptPath")
+    if raw_path and isinstance(raw_path, str) and raw_path.strip():
+        return os.path.expanduser(raw_path.strip())
+
+    active_env = os.environ if env is None else env
+    cid = payload.get("conversationId")
+    if isinstance(cid, str):
+        cid = cid.strip()
+    else:
+        cid = None
+
+    # Step 2a: Derive from artifactDirectoryPath if present
+    artifact_cand = None
+    artifact_dir = payload.get("artifactDirectoryPath")
+    if artifact_dir and isinstance(artifact_dir, str) and artifact_dir.strip():
+        clean_artifact_dir = os.path.expanduser(artifact_dir.strip())
+        artifact_cand = os.path.join(clean_artifact_dir, ".system_generated", "logs", "transcript.jsonl")
+        if os.path.isfile(artifact_cand) or not cid:
+            return artifact_cand
+
+    # Step 2b: Check environment variable overrides
+    env_app_dir = (
+        active_env.get("ANTIGRAVITY_APP_DATA_DIR")
+        or active_env.get("ANTIGRAVITY_DATA_DIR")
+        or active_env.get("ANTIGRAVITY_APP_DIR")
+    )
+    if env_app_dir and cid:
+        clean_env_dir = os.path.expanduser(env_app_dir.strip())
+        cand = os.path.join(clean_env_dir, "brain", cid, ".system_generated", "logs", "transcript.jsonl")
+        if os.path.isfile(cand):
+            return cand
+
+    if not cid:
+        return artifact_cand
+
+    # Step 2c: Surface-aware candidate resolution
+    interface = detect_interface(payload, env=active_env)
+
+    # Priority order based on detected interface
+    surface_order = []
+    if interface in SURFACE_APP_DATA_DIRS:
+        surface_order.append(interface)
+    for s in ("desktop_or_web", "cli", "ide"):
+        if s not in surface_order:
+            surface_order.append(s)
+
+    # First pass: check if transcript file physically exists on disk in any surface
+    for surf in surface_order:
+        base_dir = SURFACE_APP_DATA_DIRS[surf]
+        cand = os.path.join(base_dir, "brain", cid, ".system_generated", "logs", "transcript.jsonl")
+        if os.path.isfile(cand):
+            return cand
+
+    # Second pass: if none exist on disk, return artifact candidate if available, else primary surface
+    if artifact_cand:
+        return artifact_cand
+    primary_surf = surface_order[0]
+    return os.path.join(SURFACE_APP_DATA_DIRS[primary_surf], "brain", cid, ".system_generated", "logs", "transcript.jsonl")
 
 
 def extract_subagent_info(payload: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
@@ -378,7 +483,7 @@ def resolve_hook_identity(payload: Dict[str, Any], env: Optional[Dict[str, str]]
     # -------------------------------------------------------------
     # Signal 3: Transcript Inspection
     # -------------------------------------------------------------
-    transcript_path = payload.get("transcriptPath")
+    transcript_path = resolve_transcript_path(payload, env=active_env)
     if transcript_path and isinstance(transcript_path, str):
         transcript_res = inspect_transcript_for_identity(transcript_path)
         if transcript_res:
