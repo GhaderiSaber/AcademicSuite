@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-INVERTED-TABLE-NUMBERING",
+  "category": "typography",
+  "defective_pattern": "Writing table captions as 'جدول [شماره جدول]-[شماره فصل]' (e.g. 'جدول ۳۱-۴') instead of 'جدول [شماره فصل]- [شماره جدول]'.",
+  "why_defective": "Violates Iranian university formatting manuals and causes BiDi visual reversals in OpenXML Word processors.",
+  "observed_symptoms": [
+    "Table number placed before chapter number",
+    "'جدول ۳۱-۴' appearing in captions and text"
+  ],
+  "corrective_remedy": "Enforce 'جدول [فصل]- [شماره]' (e.g. 'جدول ۴- ۳۱') in all captions and narrative citations.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of regex pattern 'جدول \\\\d+-\\\\d+' where the first digit block exceeds 5 (implying table number precedes chapter number)."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T08:45:00Z"
+}
