@@ -36,28 +36,32 @@ agents:
       - schedule
 
   digital-saber:
-    role: "consultant"
-    tier: "Tier 1 — Digital Twin Consultant"
+    role: "advisor"
+    tier: "Tier 1 — Control Plane Consultant"
     mainAgent: false
     subagent: true
     excludeDefaultComponents: true
-    can_delegate: true
-    can_execute_code: true
-    can_write_files: true
+    can_delegate: false
+    can_execute_code: false
+    can_write_files: false
     required:
-      - invoke_subagent
-      - manage_subagents
-      - send_message
       - view_file
       - list_dir
       - grep_search
       - find_by_name
-      - write_to_file
-      - run_command
       - ask_question
     forbidden:
+      - run_command
+      - write_to_file
       - replace_file_content
+      - multi_replace_file_content
+      - invoke_subagent
+      - manage_subagents
+      - send_message
       - define_subagent
+      - call_mcp_tool
+      - manage_task
+      - schedule
 
   methodology-expert:
     role: "advisor"

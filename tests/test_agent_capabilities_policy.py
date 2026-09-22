@@ -123,6 +123,7 @@ class TestAgentCapabilitiesPolicy(unittest.TestCase):
     def test_05_planners_and_auditors_lack_run_command(self):
         """Specialist planners and auditors must have can_execute_code=False and run_command in forbidden."""
         non_executors = [
+            "digital-saber",
             "methodology-expert",
             "statistical-expert",
             "evidence-auditor",

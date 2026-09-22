@@ -7,27 +7,16 @@ model: pro
 mainAgent: false
 subagent: true
 tools:
-  - invoke_subagent
-  - manage_subagents
-  - send_message
   - view_file
   - list_dir
   - grep_search
   - find_by_name
-  - write_to_file
-  - run_command
   - ask_question
 skills:
   - digital-twin-academic-consultant
   - academic-adaptive-context
-  - academic-suite-orchestrator
   - thesis-integrity-auditor
-agents:
-  - methodology-expert
-  - statistical-expert
-  - academic-writer
-  - evidence-auditor
-  - final-judge
+agents: []
 inheritCustomizations: true
 excludeDefaultComponents: true
 ---

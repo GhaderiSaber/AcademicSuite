@@ -20,6 +20,7 @@ skills:
   - digital-twin-academic-consultant
   - thesis-integrity-auditor
 agents:
+  - digital-saber
   - methodology-expert
   - statistical-expert
   - academic-writer
