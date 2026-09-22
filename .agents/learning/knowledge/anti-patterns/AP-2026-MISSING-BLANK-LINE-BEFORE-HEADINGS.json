@@ -12,6 +12,11 @@
   "detection_heuristic": {
     "trigger_rule": "Detection of heading syntax (#, ##) immediately following a non-empty text string without an intervening newline character (\\n\\n)."
   },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ],
   "reusable": true,
   "updated_at": "2026-09-22T09:10:00Z"
 }

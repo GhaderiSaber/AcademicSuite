@@ -263,7 +263,7 @@ Whenever user reports an artifact/calculation error, bug, or flaw (or rejects a 
 2. **Execute Diagnostic Subagent Cascade**:
    - **Step 1 (`trajectory-analyzer`)**: Call `invoke_subagent(TypeName="trajectory-analyzer", Prompt="Reconstruct observable actions, tool calls, and error trajectory for user critique: <critique_summary>")`.
    - **Step 2 (`behavior-analyst`)**: Call `invoke_subagent(TypeName="behavior-analyst", Prompt="Perform causal root-cause analysis on reconstructed trajectory to identify defect signature")`.
-   - **Step 3 (`knowledge-curator`)**: Call `invoke_subagent(TypeName="knowledge-curator", Prompt="Catalog diagnosed anti-pattern into state/pitfalls.jsonl and stage reusable lesson")`.
+   - **Step 3 (`knowledge-curator`)**: Call `invoke_subagent(TypeName="knowledge-curator", Prompt="Catalog diagnosed anti-pattern and stage reusable lesson strictly conforming to contracts/evolution/ schemas with mandatory target_agent, target_agents (non-empty array), and valid lesson_type (WHAT_NOT_TO_DO/WHAT_WORKED_WELL)")`.
 3. **Execute Targeted Remediation**: Once cataloged, delegate corrected task to specialist worker (`invoke_subagent`) with pitfall constraint.
 
 ### 2. Trigger 2: Systematic or Repeated Validation Failure (`VALIDATION_FAILED`)

@@ -12,6 +12,11 @@
   "detection_heuristic": {
     "trigger_rule": "Detection of regex pattern 'جدول \\\\d+-\\\\d+' where the first digit block exceeds 5 (implying table number precedes chapter number)."
   },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ],
   "reusable": true,
   "updated_at": "2026-09-22T08:45:00Z"
 }

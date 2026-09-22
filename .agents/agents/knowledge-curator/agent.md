@@ -88,6 +88,15 @@ When drafting lessons, knowledge items, or anti-patterns, you **MUST ALWAYS** po
 1. `target_agent`: The primary specialized subagent responsible for this knowledge (e.g. `academic-writer`, `statistics-agent`, `data-curator`, `methodology-expert`, `results-auditor`).
 2. `target_agents`: An array containing all subagents to which this rule applies (e.g. `["academic-writer", "results-auditor"]`).
 
+#### 🛑 Pre-Write Self-Validation Checklist:
+Before invoking `write_to_file` on any file in `.agents/learning/knowledge/`:
+1. **Never Blindly Copy Prompts**: If the parent orchestrator envelope omits `target_agent` or `target_agents`, you **MUST** independently deduce and insert them.
+2. **Mandatory Fields in Lessons**:
+   - `contract_version`, `lesson_id`, `source_experience_id`, `desired_behavior`, `generalization`, `scope`, `confidence`, `evidence`, `related_skills`, `is_active_behavior` (`false`), `status` (`VALIDATED`), `target_agent` (string), `target_agents` (non-empty array), `created_at` (ISO 8601).
+   - `lesson_type` must be strictly `"WHAT_NOT_TO_DO"` or `"WHAT_WORKED_WELL"`. Never use `"HOW_TO"` or any other unlisted value.
+3. **Mandatory Fields in Anti-Patterns**:
+   - `contract_version`, `anti_pattern_id`, `category`, `defective_pattern`, `why_defective`, `observed_symptoms`, `corrective_remedy`, `detection_heuristic` (with `trigger_rule`), `target_agent` (string), `target_agents` (non-empty array), `reusable` (boolean), `updated_at` (ISO 8601).
+
 ### 📋 Authoritative JSON Templates
 
 #### Compliant Lesson Template (`.agents/learning/knowledge/lessons/LSN-*.json`):

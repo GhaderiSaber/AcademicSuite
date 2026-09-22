@@ -16,7 +16,11 @@ import os
 import sys
 import json
 import glob
-import pytest
+import unittest
+try:
+    import pytest
+except ImportError:
+    pytest = None
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
@@ -29,7 +33,7 @@ from hooks.safety_hooks import SafetyHooks
 from contracts.contract_validator import validate_lesson, validate_anti_pattern
 
 
-class TestKnowledgeStoreSafetyHook:
+class TestKnowledgeStoreSafetyHook(unittest.TestCase):
     """Validates the PreToolUse mechanical enforcement on knowledge store mutations."""
 
     def test_lesson_missing_target_agent_is_denied(self):

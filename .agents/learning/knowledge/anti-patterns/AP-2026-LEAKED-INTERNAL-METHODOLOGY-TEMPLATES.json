@@ -15,6 +15,11 @@
     "trigger_rule": "Flag any occurrence of /هفت‌جدولی|پنج‌جدولی|نقشه راه نه‌گانه|الگوی \\d+جدولی/ in thesis deliverables.",
     "diagnostic_check_id": "CHECK_NO_INTERNAL_TEMPLATE_JARGON"
   },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ],
   "reusable": true,
   "updated_at": "2026-09-22T09:25:00+03:30"
 }
