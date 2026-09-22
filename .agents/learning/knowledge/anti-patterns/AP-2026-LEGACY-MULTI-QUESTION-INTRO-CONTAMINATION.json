@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-LEGACY-MULTI-QUESTION-INTRO-CONTAMINATION",
+  "category": "execution",
+  "defective_pattern": "Retaining legacy text in Section 4-4 that claims to address both Question 2 and Question 3 after Question 3 has been extracted into its own dedicated Section 4-5.",
+  "why_defective": "Creates direct internal contradiction between section title and body prose, confuses the reader, and leaves disjointed subsection numbering in downstream sections.",
+  "observed_symptoms": [
+    "Introductory text saying 'these two questions' in a single-question section",
+    "Blockquotes for Question X appearing in Section Y",
+    "Orphaned or regressive subsection numbering"
+  ],
+  "corrective_remedy": "Surgically rewrite the introductory paragraph of each question/hypothesis section to introduce only its own question, move Question 3's formal blockquote and measurement description into Section 4-5, and fix subsection numbering to follow strict parent hierarchy.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of multiple question identifiers or multi-question phrasing ('دو سوال') under a single-question heading."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T08:50:00+03:30"
+}

@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-NO-INLINE-COLON-LISTICLES-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-CH4-COLON-AUDIT-001",
+  "diagnosis": {
+    "what_happened": "Agents generated inline colon-delimited listicles (e.g. 'جنسیت: ... پایه تحصیلی: ...') inside academic paragraphs.",
+    "behavior_caused_outcome": "Writing fragmented, telegraphic label-colon pairs compromised the high-quality professional continuous prose expected in thesis deliverables.",
+    "what_should_have_happened": "Empirical parameters should have been woven into flowing, cohesive narrative paragraphs using scholarly transitions.",
+    "rationale_why": "Formal academic writing demands continuous discourse; inline colons function as pseudo-bullets which violate the formal scholarly register."
+  },
+  "desired_behavior": "Never use inline colon-delimited labels or telegraphic pseudo-bullets (**موضوع:** ... **موضوع بعدی:** ...) in formal academic prose. Always weave empirical parameters into flowing, cohesive narrative paragraphs using scholarly transitions.",
+  "generalization": "All academic narratives must be continuous scholarly discourse; structural crutches like inline label-colon pairs are prohibited.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "User Manual QA",
+    "observed_value": "Inline colons breaking paragraph flow.",
+    "threshold_value": "Continuous scholarly transitions without colons."
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "persian-discussion-builder",
+    "persian-thesis-builder"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-22T08:40:00+03:30"
+}

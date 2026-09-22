@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-BLANK-LINE-BETWEEN-TABLE-AND-NOTE",
+  "category": "typography",
+  "defective_pattern": "Inserting a blank newline in Markdown or an empty paragraph (doc.add_paragraph()) between a table and its explanatory note (*یادداشت.*).",
+  "why_defective": "Detaches the table note from the table entity, causing improper pagination splits and violating APA 7 formatting guidelines.",
+  "observed_symptoms": [
+    "Empty line between table closing pipe | and *یادداشت",
+    "Blank paragraph between Word table and note paragraph"
+  ],
+  "corrective_remedy": "Place *یادداشت immediately on the next line without an empty line in Markdown. In DOCX generation, attach the note paragraph directly with tight space_before (0-2 pt) and no intervening empty paragraph.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of a blank/empty paragraph or \\n\\n sequence immediately preceding a table note."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T08:00:00Z"
+}

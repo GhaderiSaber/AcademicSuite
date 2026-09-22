@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-INLINE-COLON-LISTICLES",
+  "category": "typography",
+  "defective_pattern": "Dumping inline feature labels followed by colons (e.g. جنسیت: ..., پایه تحصیلی: ...) inside academic paragraphs instead of continuous discourse.",
+  "why_defective": "Replaces cohesive, professional narrative synthesis with telegraphic, slideshow-like bulleting disguised as prose, violating institutional high-quality writing standards.",
+  "observed_symptoms": [
+    "Frequent use of bolded words followed by colons inside body paragraphs",
+    "Absence of narrative transitions between variables"
+  ],
+  "corrective_remedy": "Transform label-colon pairs into continuous scholarly narrative using transitional connectives (در ارزیابی تفاوت‌های جنسیتی، ... در ادامه، بررسی متغیر پایه تحصیلی نشان داد ... سرانجام، در خصوص نوع مدرسه، ...).",
+  "detection_heuristic": {
+    "trigger_rule": "High density of colons (:) following short phrase prefixes within standard academic paragraphs."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T08:40:00+03:30"
+}

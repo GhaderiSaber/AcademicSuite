@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-STRICT-QUESTION-SECTION-DECOUPLING-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-CH4-SECTION-DECOUPLING-001",
+  "diagnosis": {
+    "what_happened": "Agents generated a section explicitly dedicated to Question 2, but left introductory text, blockquotes, and measurement descriptions belonging to Question 3 inside it.",
+    "behavior_caused_outcome": "This legacy multi-question introduction created internal contradiction and ambiguity between the section title and the section body.",
+    "what_should_have_happened": "The section's introductory paragraph and blockquotes must strictly and exclusively introduce that specific question without leaking into others.",
+    "rationale_why": "When decomposing complex chapters into dedicated micro-sections per hypothesis/question, text must be surgically decoupled to maintain strict 1:1 narrative alignment."
+  },
+  "desired_behavior": "When Chapter 4 sections are decoupled so that each research question or hypothesis has its own dedicated section, the section's introductory paragraph and blockquotes must strictly and exclusively introduce that specific question. Never allow legacy multi-question introductions, leaked blockquotes of subsequent questions, or orphaned subsection numbers (e.g. ## ۵-۴-۴ appearing after ## ۴-۵) to remain.",
+  "generalization": "One-to-one strict section alignment: every dedicated thesis section must contain only the introduction, blockquotes, and narrative for its specific target question.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "User Manual QA",
+    "observed_value": "Introduction claiming 'two questions' and quoting both Q2 & Q3 under a Q2-only heading.",
+    "threshold_value": "Strict 1:1 question-to-section text alignment."
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "persian-thesis-builder"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-22T08:50:00+03:30"
+}

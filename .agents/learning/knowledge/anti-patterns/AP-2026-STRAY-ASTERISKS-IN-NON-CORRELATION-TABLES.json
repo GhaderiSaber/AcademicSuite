@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-STRAY-ASTERISKS-IN-NON-CORRELATION-TABLES",
+  "category": "typography",
+  "defective_pattern": "Placing asterisks (*) in non-correlation tables, including markdown italic wrapper remnants inside table cells or redundant significance stars alongside exact p-values.",
+  "why_defective": "Renders literal asterisks in table cells, confuses readers, and violates APA 7 parsimony guidelines where exact p-values are already reported.",
+  "observed_symptoms": [
+    "Raw * characters inside table headers like (*خودآسیبی*)",
+    "Asterisks attached to regression beta or t coefficients when exact p-values are tabulated"
+  ],
+  "corrective_remedy": "Whitelist only correlation matrix tables for asterisks; enforce pure clean Persian construct names in table headers and row labels.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of '*' characters inside table cells (header or body) that do not belong to a valid correlation matrix structure."
+  },
+  "reusable": true,
+  "updated_at": "2026-09-22T07:55:00Z"
+}
