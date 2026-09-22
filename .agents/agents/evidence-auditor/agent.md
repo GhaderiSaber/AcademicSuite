@@ -19,7 +19,6 @@ skills:
   - academic-reference-extractor
 agents: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Epistemic Evidence, Bibliographic Reconciliation & Anti-Plagiarism Authority

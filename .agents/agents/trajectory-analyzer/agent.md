@@ -17,7 +17,6 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Observable Trajectory Reconstructor & Execution Chronologist

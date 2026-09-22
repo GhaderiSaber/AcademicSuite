@@ -19,7 +19,6 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Independent Candidate Evaluator & Benchmark Test Runner

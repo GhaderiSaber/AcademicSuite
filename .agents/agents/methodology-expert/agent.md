@@ -19,7 +19,6 @@ skills:
   - persian-proposal-builder
 agents: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Research Methodology, Experimental Design & Power Authority

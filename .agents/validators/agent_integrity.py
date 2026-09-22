@@ -366,10 +366,6 @@ class AgentIntegrityValidator:
         if isinstance(delegated_agents, list):
             self.delegation_graph[name] = list(delegated_agents)
 
-        # Check excludeDefaultComponents
-        if "excludeDefaultComponents" in fm and not isinstance(fm["excludeDefaultComponents"], bool):
-            self._add_issue(name, "exclude_default_components", "Field 'excludeDefaultComponents' must be a boolean")
-
     def _validate_agent_symlink(self, symlink_name: str, symlink_path: str):
         """Verifies that symlinks point directly to the matching canonical agent.md."""
         target = os.readlink(symlink_path)

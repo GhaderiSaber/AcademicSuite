@@ -22,7 +22,6 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Raw Data Screening, Reverse-Coding & Psychometric Simulator

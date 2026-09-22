@@ -20,7 +20,6 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Academic Journal Matching & Peer-Review Rebuttal Specialist

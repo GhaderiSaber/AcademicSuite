@@ -18,7 +18,6 @@ skills:
   - thesis-integrity-auditor
 agents: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Research Project Lead, Cognitive Architect & Digital Twin

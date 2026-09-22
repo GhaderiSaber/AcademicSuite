@@ -28,7 +28,6 @@ skills:
   - persian-defense-presentation-builder
 agents: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Persian Rhetoric, Inverted-Triangle Architecture & OpenXML Drafter

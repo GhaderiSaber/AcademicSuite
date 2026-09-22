@@ -12,7 +12,6 @@ agents:
     tier: "Tier 1 — Master Conductor"
     mainAgent: true
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: true
     can_execute_code: false
     can_write_files: false
@@ -40,7 +39,6 @@ agents:
     tier: "Tier 1 — Control Plane Consultant"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: false
@@ -68,7 +66,6 @@ agents:
     tier: "Tier 1 — Control Plane Advisor"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: false
@@ -96,7 +93,6 @@ agents:
     tier: "Tier 1 — Control Plane Advisor"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: false
@@ -125,7 +121,6 @@ agents:
     tier: "Tier 2 — Domain Authority"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     execution_scope: "docgen_only"
@@ -150,7 +145,6 @@ agents:
     tier: "Tier 2 — Research Plane Auditor"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: false
@@ -179,7 +173,6 @@ agents:
     tier: "Tier 4 — Validation Critic"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: false
@@ -207,7 +200,6 @@ agents:
     tier: "Tier 3 — Specialist Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     can_write_files: true
@@ -229,7 +221,6 @@ agents:
     tier: "Tier 3 — Specialist Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     can_write_files: true
@@ -251,7 +242,6 @@ agents:
     tier: "Tier 3 — Specialist Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     can_write_files: true
@@ -273,7 +263,6 @@ agents:
     tier: "Tier 3 — Specialist Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     can_write_files: true
@@ -295,7 +284,6 @@ agents:
     tier: "Tier 4 — Specialist Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     can_write_files: true
@@ -317,7 +305,6 @@ agents:
     tier: "Tier 3 — Specialist Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     can_write_files: true
@@ -339,7 +326,6 @@ agents:
     tier: "Tier 4 — Specialist Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     can_write_files: true
@@ -361,7 +347,6 @@ agents:
     tier: "Tier 5 — Learning Agent"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     can_write_files: true
@@ -383,7 +368,6 @@ agents:
     tier: "Tier 4 — Critic Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     execution_justification: "Deterministic validation test harness, contract verification, and artifact completeness execution worker."
@@ -406,7 +390,6 @@ agents:
     tier: "Tier 4 — Critic Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     execution_justification: "Deterministic statistical verification, degrees-of-freedom concordance, and MSAI anomaly calculation."
@@ -434,7 +417,6 @@ agents:
     tier: "Tier 3 — Specialist Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     can_write_files: true
@@ -458,7 +440,6 @@ agents:
     tier: "Tier 3 — Specialist Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     can_write_files: true
@@ -482,7 +463,6 @@ agents:
     tier: "Tier 4 — Critic"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: false
@@ -509,7 +489,6 @@ agents:
     tier: "Tier 4 — Critic"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: false
@@ -536,7 +515,6 @@ agents:
     tier: "Tier 4 — Critic"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: true
@@ -564,7 +542,6 @@ agents:
     tier: "Tier 3 — Specialist Worker"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: true
@@ -590,7 +567,6 @@ agents:
     tier: "Tier 5 — Learning Subagent"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: true
@@ -616,7 +592,6 @@ agents:
     tier: "Tier 5 — Learning Subagent"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: true
@@ -642,7 +617,6 @@ agents:
     tier: "Tier 5 — Learning Subagent"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: true
@@ -668,7 +642,6 @@ agents:
     tier: "Tier 5 — Learning Subagent"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: false
@@ -695,7 +668,6 @@ agents:
     tier: "Tier 5 — Learning Subagent"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: false
     can_write_files: false
@@ -722,7 +694,6 @@ agents:
     tier: "Test — Proof-of-Concept"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: true
     can_execute_code: false
     can_write_files: false
@@ -744,7 +715,6 @@ agents:
     tier: "Test — Proof-of-Concept"
     mainAgent: false
     subagent: true
-    excludeDefaultComponents: true
     can_delegate: false
     can_execute_code: true
     execution_scope: "test_only"

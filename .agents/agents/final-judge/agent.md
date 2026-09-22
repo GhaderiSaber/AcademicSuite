@@ -17,7 +17,6 @@ skills:
   - persian-defense-presentation-builder
 agents: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Viva Voce Defense Simulator, Institutional Gatekeeper & Release Authority

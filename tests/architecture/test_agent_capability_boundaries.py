@@ -291,25 +291,6 @@ class TestAgentCapabilityBoundaries(unittest.TestCase):
             policy = get_agent_policy(critic, self.policy)
             self.assertFalse(policy.get("can_write_files"), f"{critic} policy can_write_files must be False")
 
-    def test_all_agents_declare_exclude_default_components(self):
-        """Structural Isolation Test: All 30 agents must declare excludeDefaultComponents: true in frontmatter and policy."""
-        for agent_name in self.policy.get("agents", {}):
-            policy = get_agent_policy(agent_name, self.policy)
-            self.assertTrue(
-                policy.get("excludeDefaultComponents"),
-                f"Agent '{agent_name}' policy must declare excludeDefaultComponents: true"
-            )
-            agent_file = os.path.join(AGENTS_DIR, agent_name, "agent.md")
-            self.assertTrue(os.path.isfile(agent_file), f"Missing agent.md for: {agent_name}")
-            with open(agent_file, "r", encoding="utf-8") as f:
-                content = f.read()
-            fm, _, _ = parse_yaml_frontmatter(content)
-            self.assertTrue(
-                fm.get("excludeDefaultComponents"),
-                f"Agent '{agent_name}' frontmatter must declare excludeDefaultComponents: true"
-            )
-
 
 if __name__ == "__main__":
     unittest.main()
-

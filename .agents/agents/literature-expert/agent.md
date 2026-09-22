@@ -22,7 +22,6 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Literature Synthesis & Bibliometric Matrix Specialist

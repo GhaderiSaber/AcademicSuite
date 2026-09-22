@@ -18,7 +18,6 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
-excludeDefaultComponents: true
 ---
 
 # Reflexive Thematic Analysis & Grounded Theory Specialist
