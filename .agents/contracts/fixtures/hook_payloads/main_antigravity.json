@@ -1,0 +1,22 @@
+{
+  "$comment": "Captured hook payload: Main Built-In Developer Agent (Antigravity 2.0)",
+  "conversationId": "9881f909-8719-4275-945d-4a7a93f1fa71",
+  "workspacePaths": [
+    "/home/ghaderi-saber/Desktop/AcademicSuite"
+  ],
+  "transcriptPath": "/home/ghaderi-saber/.gemini/antigravity/brain/9881f909-8719-4275-945d-4a7a93f1fa71/.system_generated/logs/transcript.jsonl",
+  "artifactDirectoryPath": "/home/ghaderi-saber/.gemini/antigravity/brain/9881f909-8719-4275-945d-4a7a93f1fa71",
+  "modelName": "gemini-3.8-flash",
+  "stepIdx": 10,
+  "toolCall": {
+    "name": "run_command",
+    "args": {
+      "CommandLine": "python3 -m pytest tests/ -q"
+    }
+  },
+  "agentName": "default",
+  "agentRole": "developer",
+  "track": 1,
+  "mode": "developer",
+  "isSubagent": false
+}

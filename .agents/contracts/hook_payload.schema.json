@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://academic-suite.net/contracts/hook_payload.schema.json",
+  "title": "AntigravityHookPayloadSchema",
+  "description": "Authoritative contract schema for Antigravity lifecycle hook payloads, documenting official core runtime fields and multi-agent identity extensions.",
+  "type": "object",
+  "required": [
+    "conversationId",
+    "workspacePaths"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "conversationId": {
+      "type": "string",
+      "description": "Unique identifier for the current conversation or subagent thread."
+    },
+    "workspacePaths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Active workspace root directory paths."
+    },
+    "transcriptPath": {
+      "type": "string",
+      "description": "Absolute filesystem path to the conversation transcript log file (transcript.jsonl)."
+    },
+    "artifactDirectoryPath": {
+      "type": "string",
+      "description": "Absolute filesystem path to the conversation artifact storage directory."
+    },
+    "modelName": {
+      "type": "string",
+      "description": "Identifier of the language model backing this agent run."
+    },
+    "stepIdx": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Zero-indexed step counter in the current conversation trajectory."
+    },
+    "executionNum": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Invocation sequence number within the current step."
+    },
+    "event": {
+      "type": "string",
+      "enum": [
+        "PreInvocation",
+        "PostInvocation",
+        "Stop",
+        "PreToolUse",
+        "PostToolUse"
+      ],
+      "description": "The lifecycle hook event triggering this dispatch."
+    },
+    "toolCall": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the tool requested (e.g. run_command, write_to_file, invoke_subagent)."
+        },
+        "args": {
+          "type": "object",
+          "description": "Dictionary of arguments passed to the tool."
+        }
+      },
+      "required": ["name"]
+    },
+    "result": {
+      "description": "Tool execution result payload passed during PostToolUse hook events."
+    },
+    "agentName": {
+      "type": "string",
+      "description": "Canonical identity name of the agent executing the tool or turn (e.g. 'academic-orchestrator', 'statistics-agent', 'default')."
+    },
+    "agentRole": {
+      "type": "string",
+      "description": "Descriptive role of the executing agent."
+    },
+    "track": {
+      "description": "Execution track: 1 (Built-In Main Developer Agent) or 2 (Academic Multi-Agent System).",
+      "oneOf": [
+        {
+          "type": "integer",
+          "enum": [1, 2]
+        },
+        {
+          "type": "string",
+          "enum": ["1", "2", "track_1", "track_2", "developer", "academic"]
+        }
+      ]
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["developer", "academic", "research", "consulting", "default"],
+      "description": "Operational mode flag."
+    },
+    "agent_type": {
+      "type": "string",
+      "enum": ["main", "subagent", "default", "specialist"],
+      "description": "Agent structural category."
+    },
+    "isSubagent": {
+      "type": "boolean",
+      "description": "True if executing within a child subagent thread invoked via invoke_subagent."
+    },
+    "subagent": {
+      "type": "boolean",
+      "description": "Alternative boolean flag indicating subagent execution."
+    },
+    "parentConversationId": {
+      "type": "string",
+      "description": "Conversation ID of the parent orchestrator when executing in a subagent thread."
+    },
+    "parentConversationIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Chain of ancestor conversation IDs in nested delegations."
+    },
+    "subagentDepth": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Nesting depth of subagent invocation (0 = root agent)."
+    },
+    "depth": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Alternative integer indicating delegation nesting depth."
+    },
+    "caller": {
+      "type": "string",
+      "description": "Legacy/informal caller identifier."
+    },
+    "custom_instructions": {
+      "type": "string",
+      "description": "System or prompt instructions supplied to the agent."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata attached to the lifecycle payload."
+    }
+  },
+  "additionalProperties": true
+}

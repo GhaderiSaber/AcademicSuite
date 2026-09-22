@@ -34,6 +34,13 @@ try:
 except ImportError:
     from .hook_seen import emit_hook_seen
 try:
+    from contracts.hook_identity_contract import resolve_hook_identity
+except ImportError:
+    try:
+        from .contracts.hook_identity_contract import resolve_hook_identity
+    except ImportError:
+        def resolve_hook_identity(p): return None
+try:
     from contracts.canonical_tools import ALL_MUTATION_TOOLS as _ALL_MUTATION_TOOLS
     MUTATION_TOOLS = tuple(sorted(_ALL_MUTATION_TOOLS))
 except ImportError:
@@ -470,12 +477,16 @@ class SafetyHooks:
         args = tool_call.get("args", {})
         workspaces = payload.get("workspacePaths", [])
 
-        caller = (
-            payload.get("agentName") or
-            payload.get("agentRole") or
-            payload.get("agent") or
-            payload.get("caller") or ""
-        ).lower().strip()
+        if resolve_hook_identity:
+            identity = resolve_hook_identity(payload)
+            caller = identity.agent_name.lower().strip() if (identity and identity.agent_name != "unknown") else ""
+        else:
+            caller = (
+                payload.get("agentName") or
+                payload.get("agentRole") or
+                payload.get("agent") or
+                payload.get("caller") or ""
+            ).lower().strip()
 
         # Secondary Enforcement: Check canonical capability policy if explicit caller provided
         if caller:

@@ -79,7 +79,8 @@ SCHEMA_FILES = {
     "curriculum_case": "evolution/curriculum_case.schema.json",
     "academic_benchmark_case": "evolution/academic_benchmark_case.schema.json",
     "delegation_contract": "delegation_contract.schema.json",
-    "delegation_event": "delegation_event.schema.json"
+    "delegation_event": "delegation_event.schema.json",
+    "hook_payload": "hook_payload.schema.json"
 }
 
 

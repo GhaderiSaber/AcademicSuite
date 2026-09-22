@@ -43,17 +43,23 @@ except ImportError:
     from .hook_seen import emit_hook_seen
 
 
-def get_canonical_academic_agents() -> Set[str]:
-    """Dynamically loads all canonical agent names from the capability policy SSOT."""
+try:
+    from contracts.hook_identity_contract import (
+        resolve_hook_identity,
+        is_main_agent_developer as contract_is_main_agent_developer,
+        get_canonical_academic_agents
+    )
+except ImportError:
     try:
-        from contracts.agents.capability_policy import get_all_policy_agents
-        return set(get_all_policy_agents())
-    except Exception:
-        try:
-            from .contracts.agents.capability_policy import get_all_policy_agents
-            return set(get_all_policy_agents())
-        except Exception:
-            return set()
+        from .contracts.hook_identity_contract import (
+            resolve_hook_identity,
+            is_main_agent_developer as contract_is_main_agent_developer,
+            get_canonical_academic_agents
+        )
+    except ImportError:
+        def contract_is_main_agent_developer(p): return False
+        def resolve_hook_identity(p): return None
+        def get_canonical_academic_agents(): return set()
 
 
 def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
@@ -63,56 +69,9 @@ def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
     the Custom Academic Orchestrator or custom specialist subagents (Track 2).
 
     SECURITY INVARIANT (Fail-Closed Authorization):
-    - Explicit Developer Track / Main Agent: UNRESTRICTED developer execution.
-    - Custom Agents & Subagents: STRICTLY CONTROLLED. Bound to role tools, triad gates, contracts.
-    - Unknown or Missing Caller: STRICTLY CONTROLLED (Fail-Closed). Never unrestricted by default.
+    Delegates authoritatively to the multi-signal resolution engine in contracts.hook_identity_contract.
     """
-    if not isinstance(payload, dict):
-        return False
-
-    # 1. Explicit track or developer mode flags take precedence
-    if payload.get("track") == 1 or payload.get("mode") == "developer" or payload.get("agent_type") == "main":
-        return True
-
-    # 2. Check Antigravity subagent flags - subagents are never the root main agent
-    is_subagent = bool(payload.get("isSubagent") or payload.get("subagent") or payload.get("parentConversationId"))
-    if is_subagent:
-        return False
-
-    caller = (
-        payload.get("agentName") or
-        payload.get("agentRole") or
-        payload.get("agent") or
-        payload.get("caller") or
-        ""
-    ).lower().strip()
-
-    if not caller:
-        # FAIL-CLOSED: Missing or empty caller is strictly governed / not unrestricted.
-        return False
-
-    # 3. Check against canonical policy agents from SSOT (all 30 registered custom agents)
-    canonical_agents = get_canonical_academic_agents()
-    for ac in canonical_agents:
-        if ac == caller or ac in caller:
-            return False
-
-    # Domain role keywords fallback
-    academic_role_keywords = ("orchestrator", "auditor", "expert", "challenger", "judge")
-    if any(k in caller for k in academic_role_keywords):
-        return False
-
-    # 4. Explicit main developer indicators
-    main_indicators = (
-        "main", "main-agent", "mainagent", "default",
-        "antigravity", "developer", "coding", "software-engineer", "code-agent"
-    )
-    for ind in main_indicators:
-        if ind == caller or ind in caller:
-            return True
-
-    # 5. Fail-Closed Default: Any unknown caller is strictly controlled (not unrestricted).
-    return False
+    return contract_is_main_agent_developer(payload)
 
 
 def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:

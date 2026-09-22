@@ -1,0 +1,28 @@
+{
+  "$comment": "Captured hook payload: Custom Academic Orchestrator Main Agent (Track 2)",
+  "conversationId": "326940d3-3f79-47c6-ac67-d358fe2ccadf",
+  "workspacePaths": [
+    "/home/ghaderi-saber/Desktop/AcademicSuite"
+  ],
+  "transcriptPath": "/home/ghaderi-saber/.gemini/antigravity/brain/326940d3-3f79-47c6-ac67-d358fe2ccadf/.system_generated/logs/transcript.jsonl",
+  "artifactDirectoryPath": "/home/ghaderi-saber/.gemini/antigravity/brain/326940d3-3f79-47c6-ac67-d358fe2ccadf",
+  "modelName": "gemini-3.8-pro",
+  "stepIdx": 4,
+  "toolCall": {
+    "name": "invoke_subagent",
+    "args": {
+      "Subagents": [
+        {
+          "TypeName": "statistics-agent",
+          "Role": "Statistician",
+          "Prompt": "Run ANCOVA analysis"
+        }
+      ]
+    }
+  },
+  "agentName": "academic-orchestrator",
+  "agentRole": "Master Academic Orchestrator",
+  "track": 2,
+  "mode": "academic",
+  "isSubagent": false
+}
