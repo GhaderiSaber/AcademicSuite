@@ -450,6 +450,134 @@ class TestHookSecondaryEnforcement(unittest.TestCase):
             events = [json.loads(line) for line in f if line.strip()]
         self.assertTrue(any(e.get("event_type") == "VALIDATION_FAILED" for e in events))
 
+    # =========================================================================
+    # 8. Fail-Closed Integrity Verification on Malformed Artifacts
+    # =========================================================================
+
+    def test_verify_state_transitions_fails_closed_on_malformed_current_state(self):
+        """Verify that malformed current_state.json fails closed with (False, reason)."""
+        state_dir = os.path.join(self.workspace, "state")
+        os.makedirs(state_dir, exist_ok=True)
+        cs_path = os.path.join(state_dir, "current_state.json")
+        with open(cs_path, "w", encoding="utf-8") as f:
+            f.write("{corrupt_json: true, unterminated string...")
+
+        ok, reason = IntegrityHooks.verify_state_transitions([self.workspace])
+        self.assertFalse(ok, "Must fail closed when current_state.json is malformed JSON")
+        self.assertIn("malformed or unreadable", reason)
+        self.assertIn("Verification failed closed", reason)
+
+    def test_verify_state_transitions_fails_closed_on_non_dict_current_state(self):
+        """Verify that non-dict current_state.json fails closed with (False, reason)."""
+        state_dir = os.path.join(self.workspace, "state")
+        os.makedirs(state_dir, exist_ok=True)
+        cs_path = os.path.join(state_dir, "current_state.json")
+        with open(cs_path, "w", encoding="utf-8") as f:
+            json.dump(["item1", "item2"], f)
+
+        ok, reason = IntegrityHooks.verify_state_transitions([self.workspace])
+        self.assertFalse(ok, "Must fail closed when current_state.json is a list instead of dict")
+        self.assertIn("must be a JSON object", reason)
+
+    def test_verify_state_transitions_fails_closed_on_malformed_approvals(self):
+        """Verify that malformed approvals.json fails closed with (False, reason)."""
+        state_dir = os.path.join(self.workspace, "state")
+        os.makedirs(state_dir, exist_ok=True)
+        cs_path = os.path.join(state_dir, "current_state.json")
+        with open(cs_path, "w", encoding="utf-8") as f:
+            json.dump({"stages": {}}, f)
+        appr_path = os.path.join(state_dir, "approvals.json")
+        with open(appr_path, "w", encoding="utf-8") as f:
+            f.write("corrupt_approvals_content {{{")
+
+        ok, reason = IntegrityHooks.verify_state_transitions([self.workspace])
+        self.assertFalse(ok, "Must fail closed when approvals.json is malformed JSON")
+        self.assertIn("Approvals ledger", reason)
+        self.assertIn("Verification failed closed", reason)
+
+    def test_verify_worker_returns_fails_closed_on_malformed_current_state(self):
+        """Verify that worker return guard fails closed when current_state.json is malformed."""
+        state_dir = os.path.join(self.workspace, "state")
+        os.makedirs(state_dir, exist_ok=True)
+        cs_path = os.path.join(state_dir, "current_state.json")
+        with open(cs_path, "w", encoding="utf-8") as f:
+            f.write("{truncated_json: [1, 2, 3")
+
+        ok, reason = IntegrityHooks.verify_worker_returns([self.workspace])
+        self.assertFalse(ok, "Must fail closed when current_state.json is malformed JSON")
+        self.assertIn("Worker Return Invariant Guard", reason)
+        self.assertIn("Verification failed closed", reason)
+
+    def test_verify_provenance_fails_closed_on_malformed_manifest(self):
+        """Verify that provenance guard fails closed when manifest.json is malformed."""
+        stage_dir = os.path.join(self.workspace, "stage_01")
+        os.makedirs(stage_dir, exist_ok=True)
+        m_path = os.path.join(stage_dir, "manifest.json")
+        with open(m_path, "w", encoding="utf-8") as f:
+            f.write("{bad_manifest: true, missing_closing_bracket")
+
+        ok, reason = IntegrityHooks.verify_provenance([self.workspace])
+        self.assertFalse(ok, "Must fail closed when manifest.json is malformed JSON")
+        self.assertIn("Invalid Provenance Guard", reason)
+        self.assertIn("Verification failed closed", reason)
+
+    def test_verify_post_analysis_fails_closed_on_malformed_validation_report(self):
+        """Verify that post-analysis guard fails closed when validation_report.json is malformed."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+        with open(vr_path, "w", encoding="utf-8") as f:
+            f.write("corrupted json content...")
+
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertFalse(ok, "Must fail closed when validation_report.json is malformed JSON")
+        self.assertIn("Post-Analysis Validation Gate", reason)
+        self.assertIn("malformed or unreadable", reason)
+        self.assertIn("Verification failed closed", reason)
+
+    def test_verify_post_analysis_fails_closed_on_non_dict_validation_report(self):
+        """Verify that post-analysis guard fails closed when validation_report.json is not an object."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump(["not", "a", "dict"], f)
+
+        ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+        self.assertFalse(ok, "Must fail closed when validation_report.json is a list")
+        self.assertIn("Post-Analysis Validation Gate", reason)
+        self.assertIn("must be a JSON object", reason)
+
+    def test_verify_post_analysis_fails_closed_on_non_pass_verdicts(self):
+        """Verify that post-analysis guard fails closed when overall_verdict is not PASS."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+
+        for verdict in ("FAIL", "PENDING", "UNKNOWN", "", None):
+            payload = {"overall_verdict": verdict} if verdict is not None else {}
+            with open(vr_path, "w", encoding="utf-8") as f:
+                json.dump(payload, f)
+
+            ok, reason = IntegrityHooks.verify_post_analysis([self.workspace])
+            self.assertFalse(ok, f"Must fail closed when overall_verdict is {verdict!r}")
+            self.assertIn("Post-Analysis Validation Gate", reason)
+            self.assertIn("Overall verdict must be 'PASS'", reason)
+
+    def test_handle_stop_blocks_on_corrupt_artifacts(self):
+        """Verify that handle_stop returns decision: continue when artifacts are corrupt."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+        with open(vr_path, "w", encoding="utf-8") as f:
+            f.write("corrupted json")
+
+        payload = {"workspacePaths": [self.workspace]}
+        res = IntegrityHooks.handle_stop(payload)
+        self.assertEqual(res.get("decision"), "continue")
+        self.assertIn("Post-Analysis Validation Gate", res.get("reason", ""))
+
 
 if __name__ == "__main__":
     unittest.main()
+

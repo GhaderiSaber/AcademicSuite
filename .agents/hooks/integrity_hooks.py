@@ -93,6 +93,7 @@ class IntegrityHooks:
     def verify_manifests(workspaces: List[str]) -> Tuple[bool, str]:
         """
         Verifies that any stage with an authoritative manifest.json is consistent with disk deliverables.
+        Fails closed on any parse error, non-dict content, or missing/empty artifacts.
         """
         for ws in workspaces:
             for root, dirs, files in os.walk(ws):
@@ -101,20 +102,36 @@ class IntegrityHooks:
                     try:
                         with open(m_path, "r", encoding="utf-8") as mf:
                             m_data = json.load(mf)
-                        # Check schema title / contract_version
-                        if m_data.get("contract_version") and "artifacts" in m_data:
-                            # Verify declared artifacts exist on disk
-                            base_dir = root
-                            for art in m_data.get("artifacts", []):
-                                a_path = art.get("path", "")
-                                a_full = a_path if os.path.isabs(a_path) else os.path.join(base_dir, a_path)
-                                if not os.path.exists(a_full) or os.path.getsize(a_full) == 0:
-                                    return False, (
-                                        f"HARD HOOK ENFORCEMENT (Manifest Verification): Stage in '{root}' declares "
-                                        f"artifact '{a_path}' in manifest.json, but it is missing or empty on disk."
-                                    )
                     except Exception as e:
-                        return False, f"HARD HOOK ENFORCEMENT (Manifest Verification): Failed to parse {m_path}: {e}"
+                        return False, f"HARD HOOK ENFORCEMENT (Manifest Verification): Failed to parse {m_path}: {e}. Verification failed closed."
+                    if not isinstance(m_data, dict):
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Manifest Verification): Manifest '{m_path}' "
+                            f"must be a JSON object, got {type(m_data).__name__}. Verification failed closed."
+                        )
+                    # Check schema title / contract_version
+                    if m_data.get("contract_version") and "artifacts" in m_data:
+                        # Verify declared artifacts exist on disk
+                        base_dir = root
+                        artifacts = m_data.get("artifacts", [])
+                        if not isinstance(artifacts, list):
+                            return False, (
+                                f"HARD HOOK ENFORCEMENT (Manifest Verification): Field 'artifacts' "
+                                f"in manifest '{m_path}' must be a list. Verification failed closed."
+                            )
+                        for art in artifacts:
+                            if not isinstance(art, dict):
+                                return False, (
+                                    f"HARD HOOK ENFORCEMENT (Manifest Verification): Artifact entry "
+                                    f"in manifest '{m_path}' must be a JSON object. Verification failed closed."
+                                )
+                            a_path = art.get("path", "")
+                            a_full = a_path if os.path.isabs(a_path) else os.path.join(base_dir, a_path)
+                            if not os.path.exists(a_full) or os.path.getsize(a_full) == 0:
+                                return False, (
+                                    f"HARD HOOK ENFORCEMENT (Manifest Verification): Stage in '{root}' declares "
+                                    f"artifact '{a_path}' in manifest.json, but it is missing or empty on disk."
+                                )
         return True, ""
 
     @staticmethod
@@ -142,6 +159,7 @@ class IntegrityHooks:
         Detects invalid state transitions in workspace state directories.
         Validates that stage state records in current_state.json or events.jsonl obey
         STAGE_LEGAL_TRANSITIONS and explicit human approval gates.
+        Fails closed on any malformed JSON, corrupted ledger, non-dict state, or illegal transition.
         """
         legal_transitions = {
             "STAGE_LOCKED": {"STAGE_READY", "STAGE_BLOCKED"},
@@ -163,52 +181,101 @@ class IntegrityHooks:
                     try:
                         with open(cs_path, "r", encoding="utf-8") as f:
                             cs = json.load(f)
-                        stages = cs.get("stages", {})
-                        approvals = []
-                        appr_path = os.path.join(root, "approvals.json")
-                        if os.path.exists(appr_path):
-                            try:
-                                with open(appr_path, "r", encoding="utf-8") as af:
-                                    approvals = json.load(af).get("approvals", [])
-                            except Exception:
-                                approvals = []
+                    except Exception as e:
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                            f"State ledger '{cs_path}' is malformed or unreadable: {e}. "
+                            f"Verification failed closed."
+                        )
+                    if not isinstance(cs, dict):
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                            f"State ledger '{cs_path}' must be a JSON object, got {type(cs).__name__}. "
+                            f"Verification failed closed."
+                        )
 
-                        for stage_id, sdata in stages.items():
-                            if not isinstance(sdata, dict):
-                                continue
-                            history = sdata.get("history", [])
-                            for trn in history:
-                                if not isinstance(trn, dict):
-                                    continue
-                                from_st = trn.get("from_state")
-                                to_st = trn.get("to_state")
-                                if from_st and to_st:
-                                    from_st_str = str(from_st).upper()
-                                    to_st_str = str(to_st).upper()
-                                    allowed = legal_transitions.get(from_st_str, set())
-                                    if to_st_str not in allowed:
-                                        return False, (
-                                            f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
-                                            f"Stage '{stage_id}' in '{root}' recorded an illegal transition "
-                                            f"from '{from_st_str}' to '{to_st_str}'. "
-                                            f"Allowed transitions from {from_st_str}: {sorted(list(allowed))}."
-                                        )
+                    stages = cs.get("stages", {})
+                    if not isinstance(stages, dict):
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                            f"Field 'stages' in '{cs_path}' must be a JSON object, got {type(stages).__name__}. "
+                            f"Verification failed closed."
+                        )
 
-                            # Check unapproved STAGE_APPROVED
-                            curr_status = str(sdata.get("status", "")).upper()
-                            if curr_status == "STAGE_APPROVED" and os.path.exists(appr_path):
-                                has_appr = any(
-                                    (a.get("stage_id") == stage_id or a.get("target_id") == stage_id)
-                                    for a in approvals if isinstance(a, dict)
+                    approvals = []
+                    appr_path = os.path.join(root, "approvals.json")
+                    if os.path.exists(appr_path):
+                        try:
+                            with open(appr_path, "r", encoding="utf-8") as af:
+                                appr_data = json.load(af)
+                        except Exception as e:
+                            return False, (
+                                f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                                f"Approvals ledger '{appr_path}' is malformed or unreadable: {e}. "
+                                f"Verification failed closed."
+                            )
+                        if not isinstance(appr_data, dict):
+                            return False, (
+                                f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                                f"Approvals ledger '{appr_path}' must be a JSON object, got {type(appr_data).__name__}. "
+                                f"Verification failed closed."
+                            )
+                        approvals = appr_data.get("approvals", [])
+                        if not isinstance(approvals, list):
+                            return False, (
+                                f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                                f"Field 'approvals' in '{appr_path}' must be a list. "
+                                f"Verification failed closed."
+                            )
+
+                    for stage_id, sdata in stages.items():
+                        if not isinstance(sdata, dict):
+                            return False, (
+                                f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                                f"Stage '{stage_id}' in '{cs_path}' must be a JSON object, got {type(sdata).__name__}. "
+                                f"Verification failed closed."
+                            )
+                        history = sdata.get("history", [])
+                        if not isinstance(history, list):
+                            return False, (
+                                f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                                f"History for stage '{stage_id}' in '{cs_path}' must be a list. "
+                                f"Verification failed closed."
+                            )
+                        for trn in history:
+                            if not isinstance(trn, dict):
+                                return False, (
+                                    f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                                    f"Transition entry in stage '{stage_id}' history in '{cs_path}' must be a JSON object. "
+                                    f"Verification failed closed."
                                 )
-                                if not has_appr:
+                            from_st = trn.get("from_state")
+                            to_st = trn.get("to_state")
+                            if from_st and to_st:
+                                from_st_str = str(from_st).upper()
+                                to_st_str = str(to_st).upper()
+                                allowed = legal_transitions.get(from_st_str, set())
+                                if to_st_str not in allowed:
                                     return False, (
                                         f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
-                                        f"Stage '{stage_id}' in '{root}' is marked 'STAGE_APPROVED' but lacks an "
-                                        f"authoritative approval record in approvals.json. Explicit human approval is required."
+                                        f"Stage '{stage_id}' in '{root}' recorded an illegal transition "
+                                        f"from '{from_st_str}' to '{to_st_str}'. "
+                                        f"Allowed transitions from {from_st_str}: {sorted(list(allowed))}."
                                     )
-                    except Exception:
-                        pass
+
+                        # Check unapproved STAGE_APPROVED
+                        curr_status = str(sdata.get("status", "")).upper()
+                        if curr_status == "STAGE_APPROVED" and os.path.exists(appr_path):
+                            has_appr = any(
+                                (a.get("stage_id") == stage_id or a.get("target_id") == stage_id)
+                                for a in approvals if isinstance(a, dict)
+                            )
+                            if not has_appr:
+                                return False, (
+                                    f"HARD HOOK ENFORCEMENT (Invalid State Transition Guard): "
+                                    f"Stage '{stage_id}' in '{root}' is marked 'STAGE_APPROVED' but lacks an "
+                                    f"authoritative approval record in approvals.json. Explicit human approval is required."
+                                )
         return True, ""
 
     @staticmethod
@@ -236,31 +303,72 @@ class IntegrityHooks:
                     try:
                         with open(cs_path, "r", encoding="utf-8") as f:
                             cs = json.load(f)
-                        stages = cs.get("stages", {})
-                        for stage_id, sdata in stages.items():
-                            if not isinstance(sdata, dict):
-                                continue
-                            w_ret = sdata.get("worker_return")
-                            if w_ret is not None:
+                    except Exception as e:
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
+                            f"State ledger '{cs_path}' is malformed or unreadable: {e}. "
+                            f"Verification failed closed."
+                        )
+                    if not isinstance(cs, dict):
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
+                            f"State ledger '{cs_path}' must be a JSON object, got {type(cs).__name__}. "
+                            f"Verification failed closed."
+                        )
+                    stages = cs.get("stages", {})
+                    if not isinstance(stages, dict):
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
+                            f"Field 'stages' in '{cs_path}' must be a JSON object, got {type(stages).__name__}. "
+                            f"Verification failed closed."
+                        )
+                    for stage_id, sdata in stages.items():
+                        if not isinstance(sdata, dict):
+                            return False, (
+                                f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
+                                f"Stage '{stage_id}' in '{cs_path}' must be a JSON object, got {type(sdata).__name__}. "
+                                f"Verification failed closed."
+                            )
+                        w_ret = sdata.get("worker_return")
+                        if w_ret is not None:
+                            try:
                                 val_res = validate_worker_return_payload(w_ret)
-                                if not val_res.get("valid"):
-                                    err_msg = "; ".join(val_res.get("errors", ["Invalid worker return"]))
+                            except Exception as e:
+                                return False, (
+                                    f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
+                                    f"Stage '{stage_id}' in '{root}' worker return validation error: {e}. "
+                                    f"Verification failed closed."
+                                )
+                            if not isinstance(val_res, dict) or not val_res.get("valid"):
+                                err_msg = "; ".join(val_res.get("errors", ["Invalid worker return"])) if isinstance(val_res, dict) else "Unknown validation failure"
+                                return False, (
+                                    f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
+                                    f"Stage '{stage_id}' in '{root}' recorded an invalid worker return: {err_msg}"
+                                )
+                        history = sdata.get("history", [])
+                        if not isinstance(history, list):
+                            return False, (
+                                f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
+                                f"History for stage '{stage_id}' in '{cs_path}' must be a list. "
+                                f"Verification failed closed."
+                            )
+                        for trn in history:
+                            if isinstance(trn, dict) and "worker_return" in trn:
+                                hw_ret = trn["worker_return"]
+                                try:
+                                    val_res = validate_worker_return_payload(hw_ret)
+                                except Exception as e:
                                     return False, (
                                         f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
-                                        f"Stage '{stage_id}' in '{root}' recorded an invalid worker return: {err_msg}"
+                                        f"Stage '{stage_id}' in '{root}' history worker return error: {e}. "
+                                        f"Verification failed closed."
                                     )
-                            for trn in sdata.get("history", []):
-                                if isinstance(trn, dict) and "worker_return" in trn:
-                                    hw_ret = trn["worker_return"]
-                                    val_res = validate_worker_return_payload(hw_ret)
-                                    if not val_res.get("valid"):
-                                        err_msg = "; ".join(val_res.get("errors", ["Invalid worker return"]))
-                                        return False, (
-                                            f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
-                                            f"Stage '{stage_id}' in '{root}' history recorded an invalid worker return: {err_msg}"
-                                        )
-                    except Exception:
-                        pass
+                                if not isinstance(val_res, dict) or not val_res.get("valid"):
+                                    err_msg = "; ".join(val_res.get("errors", ["Invalid worker return"])) if isinstance(val_res, dict) else "Unknown validation failure"
+                                    return False, (
+                                        f"HARD HOOK ENFORCEMENT (Worker Return Invariant Guard - Phase 21): "
+                                        f"Stage '{stage_id}' in '{root}' history recorded an invalid worker return: {err_msg}"
+                                    )
         return True, ""
 
     @staticmethod
@@ -284,9 +392,23 @@ class IntegrityHooks:
                     try:
                         with open(m_path, "r", encoding="utf-8") as mf:
                             m_data = json.load(mf)
-                        base_dir = root
-                        stage_id = m_data.get("stage_id", os.path.basename(root))
+                    except Exception as e:
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Invalid Provenance Guard): "
+                            f"Manifest '{m_path}' is malformed or unreadable: {e}. "
+                            f"Verification failed closed."
+                        )
+                    if not isinstance(m_data, dict):
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Invalid Provenance Guard): "
+                            f"Manifest '{m_path}' must be a JSON object, got {type(m_data).__name__}. "
+                            f"Verification failed closed."
+                        )
 
+                    base_dir = root
+                    stage_id = m_data.get("stage_id", os.path.basename(root))
+
+                    try:
                         # 1. Inputs provenance verification
                         for inp in m_data.get("inputs", []):
                             if isinstance(inp, dict):
@@ -347,8 +469,12 @@ class IntegrityHooks:
                                                 f"Dependency manifest for stage '{dep_stage}' hash mismatch. "
                                                 f"Expected {expected_dep_hash}, got {actual_dep_hash}."
                                             )
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Invalid Provenance Guard): "
+                            f"Provenance verification failed in '{m_path}': {e}. "
+                            f"Verification failed closed."
+                        )
         return True, ""
 
     @staticmethod
@@ -385,6 +511,8 @@ class IntegrityHooks:
     def verify_post_analysis(workspaces: List[str]) -> Tuple[bool, str]:
         """
         Verifies that any completed stage has a passing validation report (overall_verdict: PASS).
+        Fails closed if validation_report.json is malformed, unreadable, not a JSON object,
+        or its verdict is not PASS.
         """
         active_stage_dirs = []
         for ws in workspaces:
@@ -401,14 +529,23 @@ class IntegrityHooks:
                 try:
                     with open(val_rep_path, "r", encoding="utf-8") as f:
                         val_data = json.load(f)
-                    verdict = str(val_data.get("overall_verdict", val_data.get("verdict", ""))).strip().upper()
-                    if verdict == "FAIL":
-                        return False, (
-                            f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Stage artifacts in '{s_dir}' "
-                            f"failed deterministic validation (overall_verdict: FAIL). Fix errors before completing."
-                        )
-                except Exception:
-                    pass
+                except Exception as e:
+                    return False, (
+                        f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Validation report '{val_rep_path}' "
+                        f"is malformed or unreadable: {e}. Verification failed closed."
+                    )
+                if not isinstance(val_data, dict):
+                    return False, (
+                        f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Validation report '{val_rep_path}' "
+                        f"must be a JSON object, got {type(val_data).__name__}. Verification failed closed."
+                    )
+                verdict = str(val_data.get("overall_verdict", val_data.get("verdict", ""))).strip().upper()
+                if verdict != "PASS":
+                    return False, (
+                        f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Stage artifacts in '{s_dir}' "
+                        f"did not pass deterministic validation (overall_verdict: '{verdict or 'MISSING'}'). "
+                        f"Overall verdict must be 'PASS' before completing."
+                    )
         return True, ""
 
     @staticmethod
@@ -596,16 +733,31 @@ class IntegrityHooks:
                     try:
                         with open(v_path, "r", encoding="utf-8") as vf:
                             v_data = json.load(vf)
-                        if v_data.get("overall_verdict") == "FAIL":
+                        if not isinstance(v_data, dict):
                             inject_steps.append({
                                 "ephemeralMessage": (
                                     f"STAGE VERIFICATION ADVISORY: Validation report in '{root}' "
-                                    f"has overall_verdict: FAIL. Please run deterministic validators and resolve errors."
+                                    f"is malformed (expected JSON object, got {type(v_data).__name__}). Please fix or regenerate."
                                 )
                             })
                             break
-                    except Exception:
-                        pass
+                        verdict = str(v_data.get("overall_verdict", v_data.get("verdict", ""))).strip().upper()
+                        if verdict != "PASS":
+                            inject_steps.append({
+                                "ephemeralMessage": (
+                                    f"STAGE VERIFICATION ADVISORY: Validation report in '{root}' "
+                                    f"has overall_verdict: {verdict or 'MISSING'}. Please run deterministic validators and resolve errors."
+                                )
+                            })
+                            break
+                    except Exception as e:
+                        inject_steps.append({
+                            "ephemeralMessage": (
+                                f"STAGE VERIFICATION ADVISORY: Validation report in '{root}' "
+                                f"is corrupted or unreadable: {e}. Please fix or regenerate."
+                            )
+                        })
+                        break
         return {"injectSteps": inject_steps, "terminationBehavior": ""}
 
 
