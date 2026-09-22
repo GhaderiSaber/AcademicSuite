@@ -64,6 +64,12 @@ def format_human_report(res: Dict[str, Any]) -> str:
     lines.append("1. EMPIRICAL RESEARCH DESIGN")
     lines.append("-" * 80)
     lines.append(f"  Study Type:        {design.get('study_type', 'N/A')}")
+    if "confidence" in design:
+        lines.append(f"  Confidence:        {design.get('confidence')}")
+    if "evidence" in design:
+        ev = design["evidence"]
+        ev_str = ", ".join(f"{k}={v}" for k, v in ev.items())
+        lines.append(f"  Evidence:          {ev_str}")
     lines.append(f"  Group Structure:   {design.get('group_structure', 'N/A')}")
     lines.append(f"  Temporal Dynamics: {design.get('temporal_dynamics', 'N/A')}")
     lines.append(f"  Waves:             {design.get('waves', 'N/A')}")

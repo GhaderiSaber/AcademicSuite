@@ -122,7 +122,7 @@
       "properties": {
         "study_type": {
           "type": "string",
-          "enum": ["RCT", "quasi_experimental", "correlational_structural", "scale_validation", "qualitative", "meta_analysis", "observational_survey"]
+          "enum": ["RCT", "quasi_experimental", "experimental_unspecified", "correlational_structural", "scale_validation", "qualitative", "meta_analysis", "observational_survey", "observational", "cross_sectional", "longitudinal"]
         },
         "group_structure": {
           "type": "string",

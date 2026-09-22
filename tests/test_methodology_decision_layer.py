@@ -45,7 +45,7 @@ class TestMethodologyDecisionLayer(unittest.TestCase):
     def setUp(self):
         self.engine = MethodologyDecisionEngine(repo_root=ROOT_DIR)
         self.act_prompt = (
-            "Analyze whether ACT affects anxiety and psychological distress "
+            "Analyze whether a randomized trial of ACT affects anxiety and psychological distress "
             "across post-test and two-month follow-up."
         )
 
@@ -249,6 +249,16 @@ class TestMethodologyDecisionLayer(unittest.TestCase):
         self.assertEqual(data["contract_version"], "1.0.0")
         self.assertEqual(data["status"], "APPROVED")
         self.assertIn("execution_contract", data)
+
+    def test_08_quasi_experimental_methodology_decision_record(self):
+        """Verify complete decision ladder and schema validation for quasi-experimental intervention."""
+        prompt = "Compare ACT and CBT groups at post-test; participants were assigned by convenience."
+        record = self.engine.formulate_decision_record(prompt)
+        self.assertEqual(record["design"]["study_type"], "quasi_experimental")
+        self.assertEqual(record["design"]["group_structure"], "multi-group")
+        self.assertEqual(record["estimand"]["type"], "ATE")
+        # Validate that the record passes the JSON schema contract
+        validate_methodology_decision_record(record)
 
 
 if __name__ == "__main__":

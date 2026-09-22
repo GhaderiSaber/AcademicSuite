@@ -39,7 +39,7 @@ class TestCapabilityOrchestration(unittest.TestCase):
     def setUp(self):
         self.resolver = CapabilityResolver()
         self.act_prompt = (
-            "Analyze whether ACT affects anxiety and psychological distress "
+            "Analyze whether a randomized trial of ACT affects anxiety and psychological distress "
             "across post-test and two-month follow-up."
         )
 
@@ -48,6 +48,10 @@ class TestCapabilityOrchestration(unittest.TestCase):
         design = derive_research_design(self.act_prompt)
 
         self.assertEqual(design["study_type"], "RCT")
+        self.assertEqual(design["confidence"], "high")
+        self.assertEqual(design["evidence"]["randomization"], "present")
+        self.assertEqual(design["evidence"]["intervention"], "present")
+        self.assertEqual(design["evidence"]["pre_post"], "present")
         self.assertEqual(design["group_structure"], "multi-group")
         self.assertEqual(design["temporal_dynamics"], "repeated measures")
         self.assertEqual(design["waves"], "follow-up")
@@ -187,6 +191,68 @@ class TestCapabilityOrchestration(unittest.TestCase):
         self.assertEqual(data["status"], "RESOLVED")
         self.assertEqual(data["design"]["study_type"], "RCT")
         self.assertEqual(len(data["assembled_team"]["assembled_subagents"]), 8)
+
+    def test_10_quasi_experimental_unrandomized_act(self):
+        """Verify prompt with explicit non-randomization yields quasi_experimental with high confidence."""
+        prompt = "Evaluate ACT before and after treatment for anxiety in adults. No random assignment is mentioned."
+        design = derive_research_design(prompt)
+        self.assertEqual(design["study_type"], "quasi_experimental")
+        self.assertEqual(design["confidence"], "high")
+        self.assertEqual(design["evidence"]["randomization"], "explicitly_denied")
+        self.assertEqual(design["evidence"]["intervention"], "present")
+        self.assertEqual(design["evidence"]["pre_post"], "present")
+        self.assertEqual(design["evidence"]["control_group"], "absent")
+        self.assertEqual(design["group_structure"], "single-group")
+
+        res = self.resolver.resolve(prompt)
+        self.assertEqual(res["status"], "RESOLVED")
+        self.assertIn("assumption-checking", res["capability_matrix"])
+        self.assertIn("statistical-execution", res["capability_matrix"])
+
+    def test_11_quasi_experimental_convenience_assignment(self):
+        """Verify prompt with convenience assignment yields quasi_experimental and multi-group."""
+        prompt = "Compare ACT and CBT groups at post-test; participants were assigned by convenience."
+        design = derive_research_design(prompt)
+        self.assertEqual(design["study_type"], "quasi_experimental")
+        self.assertEqual(design["confidence"], "high")
+        self.assertEqual(design["evidence"]["randomization"], "explicitly_denied")
+        self.assertEqual(design["evidence"]["intervention"], "present")
+        self.assertEqual(design["evidence"]["pre_post"], "present")
+        self.assertEqual(design["evidence"]["control_group"], "present")
+        self.assertEqual(design["group_structure"], "multi-group")
+
+    def test_12_quasi_experimental_unmentioned_randomization(self):
+        """Verify intervention with pre/post but no mention of randomization yields quasi_experimental with moderate confidence."""
+        prompt = "Evaluate ACT before and after treatment for anxiety in adults."
+        design = derive_research_design(prompt)
+        self.assertEqual(design["study_type"], "quasi_experimental")
+        self.assertEqual(design["confidence"], "moderate")
+        self.assertEqual(design["evidence"]["randomization"], "absent")
+        self.assertEqual(design["evidence"]["intervention"], "present")
+        self.assertEqual(design["evidence"]["pre_post"], "present")
+
+    def test_13_experimental_unspecified(self):
+        """Verify intervention lacking design structure yields experimental_unspecified."""
+        prompt = "Implement ACT intervention in primary care clinic."
+        design = derive_research_design(prompt)
+        self.assertEqual(design["study_type"], "experimental_unspecified")
+        self.assertEqual(design["confidence"], "low")
+        self.assertEqual(design["evidence"]["randomization"], "absent")
+        self.assertEqual(design["evidence"]["intervention"], "present")
+        self.assertEqual(design["evidence"]["pre_post"], "absent")
+
+    def test_14_cross_sectional_and_longitudinal(self):
+        """Verify cross_sectional and longitudinal studies without interventions are distinguished."""
+        cs_prompt = "A cross-sectional survey examining burnout and cognitive flexibility in nurses."
+        cs_design = derive_research_design(cs_prompt)
+        self.assertEqual(cs_design["study_type"], "cross_sectional")
+        self.assertEqual(cs_design["evidence"]["intervention"], "absent")
+
+        long_prompt = "A longitudinal study tracking depression across 3 yearly waves."
+        long_design = derive_research_design(long_prompt)
+        self.assertEqual(long_design["study_type"], "longitudinal")
+        self.assertEqual(long_design["evidence"]["intervention"], "absent")
+        self.assertEqual(long_design["evidence"]["pre_post"], "present")
 
 
 if __name__ == "__main__":
