@@ -168,7 +168,15 @@ def derive_research_design(prompt: str) -> Dict[str, Any]:
     """
     Extracts the empirical research design topology from a user task or research question.
     Derives:
-      - study_type: RCT, quasi_experimental, cross_sectional, longitudinal, scale_validation, qualitative, meta_analysis
+      - study_type: RCT, quasi_experimental, experimental_unspecified, observational,
+                    cross_sectional, longitudinal, correlational_structural,
+                    scale_validation, qualitative, meta_analysis
+      - confidence: high, moderate, low
+      - evidence:
+          randomization: present | absent | explicitly_denied
+          intervention: present | absent
+          pre_post: present | absent
+          control_group: present | absent
       - group_structure: multi-group, single-group, factorial
       - temporal_dynamics: repeated measures, cross-sectional, single-point
       - waves: follow-up, pre-post, cross-sectional
@@ -193,6 +201,8 @@ def derive_research_design(prompt: str) -> Dict[str, Any]:
     if re.search(r'\bintervention\b|\btreatment\b|\btraining\b|\btherapy\b', p) and not interventions:
         interventions.append("Experimental Intervention")
 
+    intervention_evidence = "present" if bool(interventions) else "absent"
+
     # 2. Detect Outcomes / DVs
     outcomes = []
     for term in [
@@ -204,38 +214,119 @@ def derive_research_design(prompt: str) -> Dict[str, Any]:
 
     # 3. Detect Temporal Waves & Follow-up
     has_followup = bool(re.search(r'\bfollow[- ]up\b|\b\d+[- ]month\b|\blongitudinal\b', p))
-    has_posttest = bool(re.search(r'\bpost[- ]test\b|\bpre[- ]test\b|\bbefore and after\b', p))
+    has_posttest = bool(re.search(r'\bpost[- ]test\b|\bpre[- ]test\b|\bbefore and after\b|\bpre-?post\b', p))
+    pre_post_evidence = "present" if (has_posttest or has_followup) else "absent"
 
-    # 4. Determine Design Factors
+    # 4. Detect Control / Comparison Group Evidence
+    has_control_keywords = bool(re.search(
+        r'\bcontrol(?: group)?\b|\bwaitlist(?: control)?\b|\bplacebo\b|\btau\b|\btreatment as usual\b|'
+        r'\bcomparison group\b|\bcompared to\b|\bcompare\b|\bversus\b|\bvs\.?\b|\btwo[- ]group\b|\bmulti[- ]group\b|\bbetween[- ]groups?\b',
+        p
+    ))
+    control_group_evidence = "present" if (has_control_keywords or len(interventions) >= 2 or "groups" in p) else "absent"
+
+    # 5. Detect Randomization Evidence (Positive vs Negative)
+    has_negative_randomization = bool(re.search(
+        r'\bconvenience\b|\bnon[- ]?randomi[sz]ed\b|\bnon[- ]?random\b|'
+        r'\bno random(?: assignment| allocation|ization)?\b|'
+        r'\bwithout random(?: assignment| allocation|ization)?\b|'
+        r'\bintact (?:group|groups|class|classes|cohort|cohorts)\b|'
+        r'\bself[- ]selected\b|\bvoluntary assignment\b|\bpurposive\b|'
+        r'\bquasi[- ]?experiment(?:al)?\b|\bnonequivalent\b',
+        p
+    ))
+
+    has_positive_randomization = bool(re.search(
+        r'\brandomi[sz]ed controlled trial\b|\brct\b|\brandomi[sz]ed trial\b|\brandomi[sz]ed clinical trial\b|'
+        r'\brandomi[sz]ed study\b|\brandomi[sz]ed\b|\brandom assignment\b|\brandom allocation\b|'
+        r'\brandomly assigned\b|\brandomly allocate[d]?\b',
+        p
+    ))
+
+    if has_negative_randomization:
+        randomization_evidence = "explicitly_denied"
+    elif has_positive_randomization:
+        randomization_evidence = "present"
+    else:
+        randomization_evidence = "absent"
+
+    evidence = {
+        "randomization": randomization_evidence,
+        "intervention": intervention_evidence,
+        "pre_post": pre_post_evidence,
+        "control_group": control_group_evidence
+    }
+
+    # 6. Determine Study Type, Confidence, and Factors
     factors = []
 
-    # Study Type
-    if interventions and (has_posttest or has_followup or "rct" in p or "trial" in p or "experimental" in p):
-        study_type = "RCT"
-        factors.append("RCT")
-    elif "meta-analysis" in p or "systematic review" in p or "prisma" in p:
+    if re.search(r'\bmeta[- ]analysis\b|\bsystematic review\b|\bprisma\b', p):
         study_type = "meta_analysis"
+        confidence = "high"
         factors.append("meta-analysis")
-    elif "thematic" in p or "grounded theory" in p or "qualitative" in p or "interview" in p:
+    elif re.search(r'\bthematic\b|\bgrounded theory\b|\bqualitative\b|\binterview\b|\bfocus group\b|\bphenomenolog', p):
         study_type = "qualitative"
+        confidence = "high"
         factors.append("qualitative")
-    elif "scale validation" in p or "psychometric" in p or "cvr" in p or "cvi" in p or ("efa" in p and "cfa" in p):
+    elif re.search(r'\bscale validation\b|\bpsychometric\b|\bcvr\b|\bcvi\b|\bconstruct validity\b', p) or ("efa" in p and "cfa" in p):
         study_type = "scale_validation"
+        confidence = "high"
         factors.append("scale validation")
-    elif "sem" in p or "mediation" in p or "moderation" in p or "path analysis" in p or "path model" in p:
+    elif re.search(r'\bsem\b|\bmediation\b|\bmoderation\b|\bpath analysis\b|\bpath model\b|\bstructural equation\b', p):
         study_type = "correlational_structural"
+        confidence = "high"
         factors.append("correlational structural")
-    elif has_followup or "longitudinal" in p:
+    elif interventions:
+        # Intervention study classification
+        if randomization_evidence == "present":
+            study_type = "RCT"
+            confidence = "high"
+            factors.append("RCT")
+        elif randomization_evidence == "explicitly_denied":
+            study_type = "quasi_experimental"
+            confidence = "high"
+            factors.append("quasi-experimental")
+        else:
+            # randomization is absent
+            if pre_post_evidence == "present" or control_group_evidence == "present":
+                study_type = "quasi_experimental"
+                confidence = "moderate"
+                factors.append("quasi-experimental")
+            else:
+                study_type = "experimental_unspecified"
+                confidence = "low"
+                factors.append("experimental unspecified")
+    elif has_followup or re.search(r'\blongitudinal\b|\bpanel study\b|\bcohort\b|\bmulti[- ]wave\b', p):
         study_type = "longitudinal"
+        confidence = "high" if ("longitudinal" in p or "panel" in p or "cohort" in p) else "moderate"
         factors.append("longitudinal")
+    elif re.search(r'\bcross[- ]sectional\b', p):
+        study_type = "cross_sectional"
+        confidence = "high"
+        factors.append("cross-sectional")
+    elif re.search(r'\bobservational\b|\bsurvey\b', p):
+        study_type = "observational"
+        confidence = "high"
+        factors.append("observational")
     else:
-        study_type = "observational_survey"
+        study_type = "observational"
+        confidence = "moderate"
         factors.append("observational")
 
     # Group Structure
-    if interventions or "group" in p or "control" in p or "waitlist" in p or "compare" in p or study_type == "RCT":
+    if control_group_evidence == "present" or study_type == "RCT":
         group_structure = "multi-group"
         factors.append("multi-group")
+    elif study_type == "quasi_experimental":
+        if re.search(r'\bsingle[- ]group\b|\bone[- ]group\b', p):
+            group_structure = "single-group"
+            factors.append("single-group")
+        elif control_group_evidence == "present" or "group" in p or "compare" in p:
+            group_structure = "multi-group"
+            factors.append("multi-group")
+        else:
+            group_structure = "single-group"
+            factors.append("single-group")
     elif "factorial" in p or "2x2" in p:
         group_structure = "factorial"
         factors.append("factorial")
@@ -246,7 +337,7 @@ def derive_research_design(prompt: str) -> Dict[str, Any]:
     if has_posttest or has_followup or "repeated measures" in p:
         temporal_dynamics = "repeated measures"
         factors.append("repeated measures")
-    elif "cross-sectional" in p:
+    elif "cross-sectional" in p or study_type == "cross_sectional":
         temporal_dynamics = "cross-sectional"
     else:
         temporal_dynamics = "single-point"
@@ -262,6 +353,8 @@ def derive_research_design(prompt: str) -> Dict[str, Any]:
 
     return {
         "study_type": study_type,
+        "confidence": confidence,
+        "evidence": evidence,
         "group_structure": group_structure,
         "temporal_dynamics": temporal_dynamics,
         "waves": waves,
@@ -297,11 +390,11 @@ def resolve_capability_matrix(prompt: str, design: Optional[Dict[str, Any]] = No
         caps.append("meta-analytic-pooling")
 
     # 3. Assumption Checking (for parametric quantitative designs)
-    if design["study_type"] in ("RCT", "correlational_structural", "longitudinal"):
+    if design["study_type"] in ("RCT", "quasi_experimental", "experimental_unspecified", "correlational_structural", "longitudinal"):
         caps.append("assumption-checking")
 
     # 4. Effect Size Calculation
-    if design["study_type"] in ("RCT", "correlational_structural", "longitudinal", "meta_analysis"):
+    if design["study_type"] in ("RCT", "quasi_experimental", "experimental_unspecified", "correlational_structural", "longitudinal", "meta_analysis"):
         caps.append("effect-size")
 
     # 5. Post-Hoc / Comparison / Path Tracing
@@ -382,7 +475,7 @@ def assemble_antigravity_team(design: Dict[str, Any], capabilities: List[str]) -
         pruned["meta-analyst"] = "Primary empirical research trial; not a systematic literature review."
 
     # 7. Longitudinal ModMed Assignment
-    if "longitudinal-analysis" in capabilities and design.get("study_type") == "RCT":
+    if "longitudinal-analysis" in capabilities and design.get("study_type") in ("RCT", "quasi_experimental", "experimental_unspecified"):
         pruned["longitudinal-modmed-expert"] = "Design requires mixed repeated-measures ANOVA / follow-up comparison rather than continuous longitudinal moderated mediation."
     elif "longitudinal-moderated-mediation" in capabilities:
         subagents.append("longitudinal-modmed-expert")
@@ -421,7 +514,7 @@ def assemble_antigravity_team(design: Dict[str, Any], capabilities: List[str]) -
     pruned["final-judge"] = "Reserved for institutional defense committee simulation and final release gating."
 
     # 11. Intervention Designer
-    if design.get("study_type") == "RCT" and ("post-test" in design.get("waves", "") or "follow-up" in design.get("waves", "")):
+    if design.get("study_type") in ("RCT", "quasi_experimental", "experimental_unspecified") and ("post-test" in design.get("waves", "") or "follow-up" in design.get("waves", "")):
         pruned["intervention-designer"] = "Intervention protocol already administered; data collected across post-test and follow-up."
     elif "intervention-protocol" not in capabilities:
         pruned["intervention-designer"] = "Task does not require designing a clinical or psychoeducational intervention manual."
@@ -594,7 +687,7 @@ class CapabilityResolver:
 
         # Check derived design for experimental or specialized research designs
         derived_design = derive_research_design(p)
-        if derived_design["study_type"] == "RCT" or derived_design["temporal_dynamics"] == "repeated measures":
+        if derived_design["study_type"] in ("RCT", "quasi_experimental", "experimental_unspecified") or derived_design["temporal_dynamics"] == "repeated measures":
             if derived_design.get("interventions") or derived_design.get("waves") in ("follow-up", "pre-post") or "rct" in p_lower or "repeated measures" in p_lower:
                 detected_caps.add("repeated_measures")
         elif derived_design["study_type"] == "correlational_structural":

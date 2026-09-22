@@ -71,8 +71,8 @@ class MethodologyDecisionEngine:
         # Step 1 & 2: Derive Research Design
         raw_design = derive_research_design(q)
         study_type = raw_design.get("study_type", "RCT")
-        if study_type not in ["RCT", "quasi_experimental", "correlational_structural", "scale_validation", "qualitative", "meta_analysis", "observational_survey"]:
-            study_type = "RCT" if "rct" in q_lower or "intervention" in q_lower else "observational_survey"
+        if study_type not in ["RCT", "quasi_experimental", "experimental_unspecified", "correlational_structural", "scale_validation", "qualitative", "meta_analysis", "observational_survey", "observational", "cross_sectional", "longitudinal"]:
+            study_type = "RCT" if "rct" in q_lower else ("quasi_experimental" if "intervention" in q_lower else "observational_survey")
 
         group_structure = raw_design.get("group_structure", "multi-group")
         if group_structure not in ["single-group", "multi-group", "factorial"]:
