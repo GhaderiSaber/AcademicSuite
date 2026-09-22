@@ -1,0 +1,42 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-REGRESSION-ANOVA-ROW-LABELS-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-REGRESSION-ANOVA-LABELS-001",
+  "diagnosis": {
+    "what_happened": "Regression ANOVA/summary tables redundantly prefixed the criterion variable with 'رگرسیون' and repeated the criterion name in parentheses across every single row: 'رگرسیون (رفتارهای خودآسیبی)', 'باقیمانده (رفتارهای خودآسیبی)', 'کل (رفتارهای خودآسیبی)'.",
+    "behavior_caused_outcome": "Verbose, repetitive row labelling cluttering Persian academic tables, creating redundant parentheses, and violating institutional thesis conciseness standards.",
+    "what_should_have_happened": "The regression ANOVA table must use concise canonical row labels: the criterion variable itself names the regression row (e.g. 'رفتارهای خودآسیبی'), followed cleanly by 'باقیمانده' and 'کل' without redundant parentheses or variable repeats.",
+    "rationale_why": "In standard academic reporting of stacked or single regression ANOVA models, the criterion variable header identifies the regression model partition, while residual and total rows remain uncluttered."
+  },
+  "desired_behavior": "In all regression ANOVA summary tables, format row labels concisely as '<متغیر ملاک>', 'باقیمانده', 'کل' (e.g. 'رفتارهای خودآسیبی', 'باقیمانده', 'کل') without repeating the variable name in parentheses.",
+  "generalization": "Universally enforce concise row labelling ('<متغیر ملاک>', 'باقیمانده', 'کل') for all regression ANOVA summary tables across all research projects.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "رگرسیون (رفتارهای خودآسیبی) / باقیمانده (رفتارهای خودآسیبی) / کل (رفتارهای خودآسیبی)",
+    "threshold_value": "رفتارهای خودآسیبی / باقیمانده / کل",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": [
+      "03_deliverables/Chapter_4_Final.md"
+    ]
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing",
+    "statistical-data-analyst"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-22T09:30:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor",
+    "statistics-agent"
+  ]
+}
