@@ -150,9 +150,9 @@
 
 ### 21. 根字号跟随窗口宽度（Root Font Size Driven by Window Width）— CLI
 - **检测：** `html { font-size: ...vw }`、或 `html` / `:root` 的 `font-size` 出现在 `@media (min-width|max-width)` 块里
-- **为什么是硬伤：** 播放模式把幻灯片钉成固定 **1440×900** 盒子再整体缩放（`references/html-template.md`）。根字号跟着窗口宽度长，盒子却不变——1080p 全屏时字号比设计基准大出一截，密集页从底部被裁，而窗口浏览时一切正常，所以只在上台那一刻暴露
+- **为什么是硬伤：** 播放模式把幻灯片钉成固定 **1440×900** 盒子再整体缩放（`html-template.md`）。根字号跟着窗口宽度长，盒子却不变——1080p 全屏时字号比设计基准大出一截，密集页从底部被裁，而窗口浏览时一切正常，所以只在上台那一刻暴露
 - **修复：** 播放相关的排版一律基于固定基准；需要响应式就用 `clamp()` 配 `vh`/内容盒，不要动根字号。若历史文件必须保留，最低限度加 `html:has(body.presenting) { font-size: 16px !important }`
-- **slide-creator 已有：** `scripts/validate_html.py --strict` → `playback_scale_safety`；`references/base-css.md` → Play Mode Geometry Contract
+- **slide-creator 已有：** `scripts/validate_html.py --strict` → `playback_scale_safety`；`base-css.md` → Play Mode Geometry Contract
 
 ### 22. 对隐藏元素测尺寸（Measuring a Hidden Element for Canvas Sizing）— CLI
 - **检测：** 脚本里 `canvas.width =` / `canvas.height =` 的取值来自 `getBoundingClientRect()`，且附近没有小尺寸守卫（`rect.width < 2` 这类）

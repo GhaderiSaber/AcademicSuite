@@ -23,7 +23,7 @@ Conduct rigorous causal root-cause analysis on observable execution trajectories
 - Analyze statistical assumption violations, degree-of-freedom mismatches, and typography defects.
 - Classify failure signatures (`REPORTING_P_ZERO`, `MISSING_PERSIAN_LEADING_ZERO`, `DICHOTOMIZING_CONTINUOUS_VARIABLE`, `VIOLATED_ASSUMPTION_IGNORED`, `UNJUSTIFIED_MODEL_SELECTION`, etc.).
 - Formulate precise counterfactuals: what should have happened instead and why.
-- Produce structured `BehaviorAnalysisReport` artifacts compliant with `contracts/evolution/behavior_analysis.schema.json`.
+- Produce structured `BehaviorAnalysisReport` artifacts compliant with `.agents/contracts/evolution/behavior_analysis.schema.json`.
 
 ---
 
@@ -47,7 +47,7 @@ Conduct rigorous causal root-cause analysis on observable execution trajectories
 
 ## OUTPUTS
 - Structured causal diagnostic reports answering "What behavior was wrong?".
-- Validated `behavior_analysis.json` conforming to `contracts/evolution/behavior_analysis.schema.json`.
+- Validated `behavior_analysis.json` conforming to `.agents/contracts/evolution/behavior_analysis.schema.json`.
 
 ---
 
@@ -92,7 +92,7 @@ Handoff payload of causal diagnosis to `knowledge-curator` and `skill-evolver`:
 ---
 
 ## VALIDATION REQUIREMENTS
-- Must validate against `contracts/evolution/behavior_analysis.schema.json`.
+- Must validate against `.agents/contracts/evolution/behavior_analysis.schema.json`.
 - Failure signature must belong to approved catalog.
 - Causal explanation must link observable input to observed failure.
 

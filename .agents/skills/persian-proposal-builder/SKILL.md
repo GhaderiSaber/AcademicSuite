@@ -206,7 +206,7 @@ When `method_triad` is supplied in the proposal payload (or within individual in
 1. **Intake Research Variables**:
    Gather the research topic, variables, target population, and proposed design.
 2. **Consult Reference Guides**:
-   - Read [proposal_structure_guide.md](references/proposal_structure_guide.md) for detailed structural standards and continuous prose models.
+   - Read [proposal_structure_guide.md](.agents/skills/persian-proposal-builder/references/proposal_structure_guide.md) for detailed structural standards and continuous prose models.
 3. **Formulate Comprehensive Continuous Prose**:
    Draft every section in mature, flowing academic paragraphs adhering to Section 2 and Section 4 above.
 4. **Generate Word Document**:
@@ -214,7 +214,7 @@ When `method_triad` is supplied in the proposal payload (or within individual in
    ```bash
    python3 .agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py \
      --json "proposal_input.json" \
-     --out "پروپوزال_طرح_پژوهش.docx"
+     --out "Research_Proposal.docx"
    ```
 5. **Quality Review**:
    Verify Persian typography (*B Titr* for headings, *B Nazanin* 12–13 pt for body text, 1.35 line spacing, 0.35-inch first-line indent, RTL OpenXML flags, and zero trailing page spillovers).

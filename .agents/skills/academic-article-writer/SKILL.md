@@ -93,8 +93,8 @@ Inspect the project directory to locate:
 Confirm the target language track (`--lang en` for International ISI/Scopus, or `--lang fa` for Iranian ISC).
 
 ### Step 2: Consult Quality Benchmarks
-- Read [imrad_quality_benchmarks.md](references/imrad_quality_benchmarks.md) for international peer-review standards.
-- Read [article_abstract_and_title_guide.md](references/article_abstract_and_title_guide.md) for title formulas and structured abstract formatting.
+- Read [imrad_quality_benchmarks.md](.agents/skills/academic-article-writer/references/imrad_quality_benchmarks.md) for international peer-review standards.
+- Read [article_abstract_and_title_guide.md](.agents/skills/academic-article-writer/references/article_abstract_and_title_guide.md) for title formulas and structured abstract formatting.
 
 ### Step 3: Formulate Article Content JSON
 Prepare a structured JSON file containing the condensed, high-density scientific prose for each section:

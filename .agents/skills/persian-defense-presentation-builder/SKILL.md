@@ -97,10 +97,10 @@ python3 main.py --plan "بررسی اثربخشی درمان ACT بر انعطا
 
 ## 6. Modular References Directory
 Detailed guidelines, schemas, and engine architectures are modularized in `references/`:
-1. [PowerPoint Advanced Creative Engine](references/powerpoint_creative_engine.md): COM automation, native SmartArt RTL, 3D shapes, and automatic motion.
-2. [Slide Composition Rules](references/slide_composition_rules.md): Slide-specific composition hierarchy (Cover, Problem, Gap, Method, Mediation, Discussion).
-3. [Visual Specification Contract](references/visual_spec_contract.md): Canonical `BRIEF.json` schema and layout families.
-4. [Quality Score & Rubric](references/quality_score_rubric.md): 100-point defense presentation evaluation criteria.
-5. [Diagram Patterns](references/diagram-patterns.md): Statistical path models and CONSORT flowcharts.
-6. [Design System](references/design-system.md): Light academic color schemes, typography grids, and contrast ratios.
-7. [Review Checklist](references/review-checklist.md): Pre-delivery QA checklist.
+1. [PowerPoint Advanced Creative Engine](.agents/skills/persian-defense-presentation-builder/references/powerpoint_creative_engine.md): COM automation, native SmartArt RTL, 3D shapes, and automatic motion.
+2. [Slide Composition Rules](.agents/skills/persian-defense-presentation-builder/references/slide_composition_rules.md): Slide-specific composition hierarchy (Cover, Problem, Gap, Method, Mediation, Discussion).
+3. [Visual Specification Contract](.agents/skills/persian-defense-presentation-builder/references/visual_spec_contract.md): Canonical `BRIEF.json` schema and layout families.
+4. [Quality Score & Rubric](.agents/skills/persian-defense-presentation-builder/references/quality_score_rubric.md): 100-point defense presentation evaluation criteria.
+5. [Diagram Patterns](.agents/skills/persian-defense-presentation-builder/references/diagram-patterns.md): Statistical path models and CONSORT flowcharts.
+6. [Design System](.agents/skills/persian-defense-presentation-builder/references/design-system.md): Light academic color schemes, typography grids, and contrast ratios.
+7. [Review Checklist](.agents/skills/persian-defense-presentation-builder/references/review-checklist.md): Pre-delivery QA checklist.

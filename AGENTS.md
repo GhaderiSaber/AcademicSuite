@@ -174,9 +174,9 @@ To eliminate cognitive drift, hallucinations, and horizontal architecture sprawl
 1. **Agent → decides**: Owns reasoning role, delegation, decision-making, context isolation, responsibility, and inter-agent communication.
 2. **Skill → instructs**: Owns specialized procedures, domain knowledge, decision trees, execution instructions, reusable methodologies, and reporting formats.
 3. **Script → computes**: Owns deterministic calculation, validation, transformation, file generation, cryptographic hashing, and state mutation.
-4. **Hook → enforces**: Owns synchronous event interception, safety checks, tamper prevention, honesty verification, and tool execution gates (`hooks.json`).
-5. **State machine → authorizes transition**: Owns milestone progression gating, event timeline logging, and persistent state authorization (`state/events.jsonl`, `state/milestones.jsonl`).
-6. **Artifact manifest → defines completion**: Owns JSON schema contracts, required physical deliverables, and affirmative fail-closed validation (`contracts/`).
+4. **Hook → enforces**: Owns synchronous event interception, safety checks, tamper prevention, honesty verification, and tool execution gates (`.agents/hooks.json`).
+5. **State machine → authorizes transition**: Owns milestone progression gating, event timeline logging, and persistent state authorization (`.agents/state/events.jsonl`, `.agents/state/milestones.jsonl`).
+6. **Artifact manifest → defines completion**: Owns JSON schema contracts, required physical deliverables, and affirmative fail-closed validation (`.agents/contracts/`).
 
 ### Directive 20: The Orchestrator Architectural Invariants
 These two permanent architectural laws govern `academic-orchestrator`:

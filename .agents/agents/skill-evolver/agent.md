@@ -71,7 +71,7 @@ Your exclusive focus is proposing precise, minimal, high-impact modifications to
 - Target Skill script or documentation to be improved.
 
 ### Deliverable Output:
-A validated `improvement_candidate` contract compliant with `contracts/evolution/improvement_candidate.schema.json`:
+A validated `improvement_candidate` contract compliant with `.agents/contracts/evolution/improvement_candidate.schema.json`:
 - `candidate_id`: Canonical identifier (e.g. `CAND-2026-CH4-TYPO-001`).
 - `target_component`: Relative path to the production file.
 - `target_type`: `SKILL_INSTRUCTION`, `SKILL_DETERMINISTIC_SCRIPT`, or `AGENT_SYSTEM_PROMPT`.

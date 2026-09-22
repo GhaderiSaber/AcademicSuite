@@ -68,11 +68,11 @@ Your exclusive focus is causal diagnosis of defects identified from User Feedbac
 ## 📥 Input & Output Contract
 
 ### Expected Inputs:
-- Observable trajectory from `trajectory-analyzer` (`learning/experience/<id>/trajectory.json`).
+- Observable trajectory from `trajectory-analyzer` (`.agents/learning/experience/<id>/trajectory.json`).
 - Trigger event: `USER_FEEDBACK_DETECTED` (FeedbackRecord) or `VALIDATION_FAILED` (validation report).
 
 ### Deliverable Output:
-A validated `behavior_analysis` report compliant with `contracts/evolution/behavior_analysis.schema.json`:
+A validated `behavior_analysis` report compliant with `.agents/contracts/evolution/behavior_analysis.schema.json`:
 - `analysis_id`: Canonical identifier (e.g. `BAN-20260919-001`).
 - `target_agent`: Cognitive agent responsible for the observed defect (e.g. `academic-writer`, `statistics-agent`).
 - `target_skill`: Skill implicated in the failure.

@@ -39,7 +39,7 @@ Generate increasingly difficult, graduated challenge tasks (`curriculum_task`) t
 ---
 
 ## INPUTS
-- Common failure modes from `learning/skill-memory/<capability>/memory_record.json`.
+- Common failure modes from `.agents/learning/skill-memory/<capability>/memory_record.json`.
 - Diagnosed recurring pitfalls from `behavior-analyst`.
 - Cataloged anti-patterns from `knowledge-curator`.
 
@@ -92,7 +92,7 @@ Curriculum task payload to `evaluation-agent`:
 ---
 
 ## VALIDATION REQUIREMENTS
-- Must validate against `contracts/evolution/curriculum_task.schema.json`.
+- Must validate against `.agents/contracts/evolution/curriculum_task.schema.json`.
 - Realistic empirical noise in generated benchmark data.
 - Unambiguous evaluator check identifiers.
 

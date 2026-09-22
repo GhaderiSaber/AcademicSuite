@@ -103,7 +103,7 @@ font-family: var(--font-body), 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaH
 
 ## Generator-Ready Signature Notes
 
-- **Blue Sky** uses `references/blue-sky-starter.html`. Cover KPI cards must contain numeric signals, the top pill must not be empty, and repeated bento pages should rotate placement variants rather than reusing identical grid coordinates.
+- **Blue Sky** uses `blue-sky-starter.html`. Cover KPI cards must contain numeric signals, the top pill must not be empty, and repeated bento pages should rotate placement variants rather than reusing identical grid coordinates.
 - **Data Story** remains chart-first. If slide-local numeric facts are weak, use pure SVG fallbacks with distinct visual signatures: signal bars, flow map, phase timeline, signal map, evidence ladder, state grid, or interaction panel. Do not turn most pages into repeated text matrices.
 - **Swiss Modern** uses background page numbers only on rhythm-anchor pages. `.bg-num` stays at slide-root `z-index: 0`; `.slide-content`, `.left-panel`, and `.right-panel` stay above it.
 - **Enterprise Dark** should rotate dashboard, contrast, split, matrix/feature, timeline, architecture, table, and CTA families. Do not hard-code a single deck sequence; derive the route from slide role, content signal, and style contract.

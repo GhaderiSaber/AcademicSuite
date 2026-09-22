@@ -2,7 +2,7 @@
 
 断言式标题的示例和模板。生成前校验时引用此文件。
 
-机器可读的 title profile owner 位于 `references/title-profile-registry.json`。新增 preset 特例时，先更新 registry，再更新 prose 说明和校验逻辑。
+机器可读的 title profile owner 位于 `title-profile-registry.json`。新增 preset 特例时，先更新 registry，再更新 prose 说明和校验逻辑。
 
 ---
 

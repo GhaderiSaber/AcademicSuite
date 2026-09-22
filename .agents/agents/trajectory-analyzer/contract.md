@@ -23,7 +23,7 @@ Reconstruct the factual, step-by-step chronology from observable actions, tool u
 - Parse observable inputs, parameter flags, dataset paths, and artifact checksums (`FILE_WRITTEN`).
 - Identify script exit codes, runtime latencies, and status verdicts.
 - Document validation reports, failed checks, and revision triggers (`VALIDATION_STARTED`, `VALIDATION_FAILED`, `USER_CORRECTION`).
-- Produce structured trajectory reports conforming to `contracts/evolution/trajectory.schema.json`.
+- Produce structured trajectory reports conforming to `.agents/contracts/evolution/trajectory.schema.json`.
 
 ---
 
@@ -39,15 +39,15 @@ Reconstruct the factual, step-by-step chronology from observable actions, tool u
 ---
 
 ## INPUTS
-- Experience ID and task logs in `learning/experience/`.
+- Experience ID and task logs in `.agents/learning/experience/`.
 - Disk artifacts and manifests in project workspaces (e.g. `03_deliverables/`).
-- Observable event stream in `state/trajectory_events.jsonl` or `transcript.jsonl`.
+- Observable event stream in `.agents/state/trajectory_events.jsonl` or `transcript.jsonl`.
 
 ---
 
 ## OUTPUTS
 - Observable trajectory analysis summaries answering "What actually happened?".
-- Structured trajectory data compliant with `contracts/evolution/trajectory.schema.json`.
+- Structured trajectory data compliant with `.agents/contracts/evolution/trajectory.schema.json`.
 
 ---
 
@@ -86,7 +86,7 @@ Handoff payload of reconstructed trajectory to `behavior-analyst`:
       "step_index": 1,
       "event_type": "TOOL_CALLED",
       "tool_name": "run_command",
-      "observable_payload": {"cmd": "python3 scripts/run_ancova.py"}
+      "observable_payload": {"cmd": "python3 .agents/skills/statistical-data-analyst/scripts/run_ancova.py"}
     }
   ],
   "checksum": "a1b2c3d4..."
@@ -96,7 +96,7 @@ Handoff payload of reconstructed trajectory to `behavior-analyst`:
 ---
 
 ## VALIDATION REQUIREMENTS
-- Must validate against `contracts/evolution/trajectory.schema.json`.
+- Must validate against `.agents/contracts/evolution/trajectory.schema.json`.
 - Event chronology must strictly preserve sequential ordering.
 - Every recorded action must map to an observable log entry.
 

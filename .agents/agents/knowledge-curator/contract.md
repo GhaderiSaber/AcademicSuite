@@ -19,12 +19,12 @@ Synthesize diagnosed experiences and operational successes into structured, vers
 ## RESPONSIBILITIES
 
 ### CAN:
-- Distill diagnosed episodes into unpromoted lesson candidates (`learning/knowledge/lessons/`).
-- Catalog defective methodological, statistical, and typographical traps into `learning/knowledge/anti-patterns/`.
-- Formulate foundational research rules into `learning/knowledge/principles/`.
-- Catalog approved workflow sequences into `learning/knowledge/patterns/`.
-- Archive verified gold-standard research deliverables into `learning/knowledge/exemplars/`.
-- Maintain graph edges (`learning/knowledge/graph_edges.jsonl`) with the 7 mandatory relationship types.
+- Distill diagnosed episodes into unpromoted lesson candidates (`.agents/learning/knowledge/lessons/`).
+- Catalog defective methodological, statistical, and typographical traps into `.agents/learning/knowledge/anti-patterns/`.
+- Formulate foundational research rules into `.agents/learning/knowledge/principles/`.
+- Catalog approved workflow sequences into `.agents/learning/knowledge/patterns/`.
+- Archive verified gold-standard research deliverables into `.agents/learning/knowledge/exemplars/`.
+- Maintain graph edges (`.agents/learning/knowledge/graph_edges.jsonl`) with the 7 mandatory relationship types.
 - Enforce strict scope containment (`project`, `domain`, `cross-project`, `global-in-project`).
 
 ---
@@ -48,7 +48,7 @@ Synthesize diagnosed experiences and operational successes into structured, vers
 ---
 
 ## OUTPUTS
-- Validated knowledge items in `learning/knowledge/` (`lessons/`, `anti-patterns/`, `principles/`, `patterns/`, `exemplars/`).
+- Validated knowledge items in `.agents/learning/knowledge/` (`lessons/`, `anti-patterns/`, `principles/`, `patterns/`, `exemplars/`).
 - Updated index files (`index.jsonl`) and graph edges (`graph_edges.jsonl`).
 
 ---

@@ -26,7 +26,7 @@
 4. **Multi-Agent Truthfulness Mandate**:
    - Under NO circumstance may an agent claim that an interactive 'multi-agent workflow' or subagents were executed in the chat turn unless it physically invoked subagents via the Antigravity `invoke_subagent` tool.
    - Executing a standalone CLI driver or shell script without Antigravity subagents does NOT qualify as interactive multi-agent chat orchestration.
-   - Any attempt to claim interactive multi-agent orchestration without `invoke_subagent` calls in `transcript.jsonl` is mechanically intercepted and blocked by the Antigravity `Stop` lifecycle hook (`hooks.json`).
+    - Any attempt to claim interactive multi-agent orchestration without `invoke_subagent` calls in `transcript.jsonl` is mechanically intercepted and blocked by the Antigravity `Stop` lifecycle hook (`.agents/hooks.json`).
 
 ---
 
@@ -39,7 +39,6 @@ To permanently eliminate stealth ad-hoc shortcuts, **NO agent may execute data a
 ```markdown
 ### 🛫 Pre-Flight Pipeline Declaration
 - **Target Skill**: `.agents/skills/<skill-name>/SKILL.md`
-- **Target Workflow**: `.agents/workflows/<workflow-name>.md`
 - **Current Pipeline Stage**: Stage X of Y — `<Stage Name>`
 - **Official Script & CLI Command**: `python3 .agents/skills/<skill>/scripts/<script.py> [args]`
 - **Official Input Artifact**: `<path/to/input>`
@@ -55,7 +54,7 @@ To permanently eliminate stealth ad-hoc shortcuts, **NO agent may execute data a
 
 ## ⛓️ 3. Artifact-Gated Stage Execution (No Skipping)
 
-In multi-stage workflows (such as `.agents/workflows/chapter4.md`), every stage must generate its verified checkpoint artifact before the next stage can begin:
+In multi-stage pipelines (such as `.agents/skills/chapter-4-writing/SKILL.md`), every stage must generate its verified checkpoint artifact before the next stage can begin:
 
 | Stage | Required Checkpoint Artifact | Gating Condition |
 | :---: | :--- | :--- |

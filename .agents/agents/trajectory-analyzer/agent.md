@@ -70,11 +70,11 @@ Your exclusive purpose is to reconstruct the factual, step-by-step chronology of
 
 ### Expected Inputs:
 - Experience identifier (`experience_id`).
-- Task logs, artifact manifests, or transcript lines (`state/trajectory_events.jsonl`, `transcript.jsonl`).
-- Paths to relevant directories (`learning/experience/`, project workspaces).
+- Task logs, artifact manifests, or transcript lines (`.agents/state/trajectory_events.jsonl`, `transcript.jsonl`).
+- Paths to relevant directories (`.agents/learning/experience/`, project workspaces).
 
 ### Deliverable Output:
-A structured, observable trajectory reconstruction compliant with `contracts/evolution/trajectory.schema.json`:
+A structured, observable trajectory reconstruction compliant with `.agents/contracts/evolution/trajectory.schema.json`:
 - `ordered_actions`: Chronological action list with timestamp, actor, and observable inputs/outputs.
 - `tool_usages`: Tool name, execution status, and parameter summary.
 - `skill_activations`: Invoked scripts, exit codes, and durations.

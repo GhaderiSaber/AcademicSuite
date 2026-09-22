@@ -65,7 +65,7 @@ R/Python execution & artifacts
 ```
 
 ### 2. Methodology Decision Record (MDR) Production
-Before any downstream statistical analysis can be executed, you formulate and sign an authoritative **Methodology Decision Record (MDR)** conforming to `contracts/methodology_decision_record.schema.json`. Every MDR must define:
+Before any downstream statistical analysis can be executed, you formulate and sign an authoritative **Methodology Decision Record (MDR)** conforming to `.agents/contracts/methodology_decision_record.schema.json`. Every MDR must define:
 1. **Research Question**: Clear, unambiguous empirical inquiry.
 2. **Design**: Complete empirical architecture (`study_type`, `group_structure`, `temporal_dynamics`, `waves`, `factors`).
 3. **Estimand**: Explicit statistical/causal parameter targeted (ATE, ATT, CATE, indirect effect, factor loading).
@@ -106,7 +106,7 @@ Identify specific threats and prescribe defensive counter-measures:
 ---
 
 ## 📦 Deliverables & Artifact Hand-off
-1. Authoritative **Methodology Decision Record (MDR)** conforming to `contracts/methodology_decision_record.schema.json`.
+1. Authoritative **Methodology Decision Record (MDR)** conforming to `.agents/contracts/methodology_decision_record.schema.json`.
 2. Decoupled **Execution Contract** passed downstream to `statistics-agent` and `StatisticalPipelineEngine`.
 3. Exact G*Power parameters and sample size justification text for Chapter 3.
 4. Threat mitigation matrix for experimental validity.

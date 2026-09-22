@@ -115,7 +115,7 @@ Execute the 4-step diagnostic and rewriting sequence:
 
 ## 5. Reference Knowledge Base
 
-- [detection_heuristics.md](references/detection_heuristics.md) — Mathematical mechanics of QuillBot, Turnitin, and GPTZero.
-- [ai_slop_and_cliche_catalog.md](references/ai_slop_and_cliche_catalog.md) — 38 synthetic academic markers and human scholarly alternatives.
-- [section_de_templating_guide.md](references/section_de_templating_guide.md) — Step-by-step methods for de-templating Methods, Results, and Discussion.
-- [academic_tone_and_humanization_standards.md](references/academic_tone_and_humanization_standards.md) — Stanford SciWrite 5-pass editorial framework and Persian orthography (نیم‌فاصله).
+- [detection_heuristics.md](.agents/skills/ai-academic-tone-polisher/references/detection_heuristics.md) — Mathematical mechanics of QuillBot, Turnitin, and GPTZero.
+- [ai_slop_and_cliche_catalog.md](.agents/skills/ai-academic-tone-polisher/references/ai_slop_and_cliche_catalog.md) — 38 synthetic academic markers and human scholarly alternatives.
+- [section_de_templating_guide.md](.agents/skills/ai-academic-tone-polisher/references/section_de_templating_guide.md) — Step-by-step methods for de-templating Methods, Results, and Discussion.
+- [academic_tone_and_humanization_standards.md](.agents/skills/ai-academic-tone-polisher/references/academic_tone_and_humanization_standards.md) — Stanford SciWrite 5-pass editorial framework and Persian orthography (نیم‌فاصله).

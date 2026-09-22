@@ -79,7 +79,7 @@ Staged candidate contract to `evaluation-agent`:
 ```json
 {
   "candidate_id": "CAND-2026-CH4-TYPO-001",
-  "target_component": ".agents/skills/apa-reporting/scripts/generate_apa_tables.py",
+  "target_component": ".agents/skills/apa-reporting/scripts/scaffold_apa_tables.py",
   "target_type": "SKILL_DETERMINISTIC_SCRIPT",
   "parent_version": "git-commit-c5bdb92",
   "mutation": {
@@ -100,7 +100,7 @@ Staged candidate contract to `evaluation-agent`:
 ---
 
 ## VALIDATION REQUIREMENTS
-- Must validate against `contracts/evolution/improvement_candidate.schema.json`.
+- Must validate against `.agents/contracts/evolution/improvement_candidate.schema.json`.
 - Unified diff must be syntactically valid and apply cleanly against parent version.
 - Directive 18 ceiling compliance on any modified `SKILL.md` (<= 500 lines, <= 40,000 bytes).
 

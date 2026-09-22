@@ -18,5 +18,11 @@
     "results-auditor"
   ],
   "reusable": true,
-  "updated_at": "2026-09-22T09:10:00Z"
+  "updated_at": "2026-09-22T09:10:00Z",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor",
+    "validation-agent"
+  ]
 }

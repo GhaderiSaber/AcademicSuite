@@ -19,7 +19,7 @@ These presets have stable deterministic renderers and are safe first-line recomm
 - The five native deterministic core presets are the most stable generation surface: `Swiss Modern`, `Enterprise Dark`, `Data Story`, `Blue Sky`, and contextual `Chinese Chan`.
 - The remaining reference-backed presets use the unified profile renderer with the same `BRIEF.json`, shared runtime, strict validation, and eval/release gates. Profile-rendered presets are demo-parity gated against the historical checked-in demos before being described as restored to historical style fidelity, but they are not native deterministic core and they are not default recommendations.
 
-Machine-readable source of truth: `references/preset-support-tiers.json`
+Machine-readable source of truth: `preset-support-tiers.json`
 
 ---
 
@@ -59,15 +59,15 @@ When a custom theme is selected, read `themes/<name>/reference.md` as the style 
 Built-in canonical names still resolve to built-ins first. Use `custom:<name>` when the user explicitly wants a custom theme whose folder name collides with a built-in preset.
 
 **Per-style detail files** (read only the chosen one):
-`references/aurora-mesh.md`, `references/bold-signal.md`, `references/chinese-chan.md`,
-`references/creative-voltage.md`, `references/dark-botanical.md`, `references/data-story.md`,
-`references/electric-studio.md`, `references/enterprise-dark.md`, `references/glassmorphism.md`,
-`references/modern-newspaper.md`, `references/neo-brutalism.md`, `references/neo-retro-dev.md`,
-`references/neon-cyber.md`, `references/notebook-tabs.md`, `references/paper-ink.md`,
-`references/pastel-geometry.md`, `references/split-pastel.md`, `references/strategy-consulting.md`,
-`references/swiss-modern.md`, `references/terminal-green.md`, `references/vintage-editorial.md`
+`aurora-mesh.md`, `bold-signal.md`, `chinese-chan.md`,
+`creative-voltage.md`, `dark-botanical.md`, `data-story.md`,
+`electric-studio.md`, `enterprise-dark.md`, `glassmorphism.md`,
+`modern-newspaper.md`, `neo-brutalism.md`, `neo-retro-dev.md`,
+`neon-cyber.md`, `notebook-tabs.md`, `paper-ink.md`,
+`pastel-geometry.md`, `split-pastel.md`, `strategy-consulting.md`,
+`swiss-modern.md`, `terminal-green.md`, `vintage-editorial.md`
 
-Blue Sky uses `references/blue-sky-starter.html` as its reference file.
+Blue Sky uses `blue-sky-starter.html` as its reference file.
 
 ---
 

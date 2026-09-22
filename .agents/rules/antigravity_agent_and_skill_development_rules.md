@@ -99,7 +99,7 @@ description: <concise summary of WHAT the skill does and EXACT TRIGGERS for when
 3. Step 3: Format output according to institutional specifications.
 
 ## References
-- For detailed technical schemas, see `references/schema_guide.md`.
+- For detailed technical specifications, see `.agents/skills/<skill-name>/references/<guide>.md`.
 ```
 
 ### 3.3 The Single-View Invariant (Directive 18)

@@ -68,12 +68,12 @@ Your exclusive focus is architecting training and evaluation curriculum tasks th
 ## 📥 Input & Output Contract
 
 ### Expected Inputs:
-- Common failure modes and defect types from `learning/skill-memory/<capability>/memory_record.json`.
+- Common failure modes and defect types from `.agents/learning/skill-memory/<capability>/memory_record.json`.
 - Diagnosed recurring pitfalls from `behavior-analyst`.
 - Cataloged anti-patterns from `knowledge-curator`.
 
 ### Deliverable Output:
-A validated `curriculum_task` contract compliant with `contracts/evolution/curriculum_task.schema.json`:
+A validated `curriculum_task` contract compliant with `.agents/contracts/evolution/curriculum_task.schema.json`:
 - `task_id`: Canonical identifier (e.g. `CUR-L2-ANCOVA-001`).
 - `curriculum_phase`: Capability area.
 - `difficulty_level`: Graduated difficulty rank (`L1` to `L4`).

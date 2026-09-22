@@ -314,7 +314,7 @@ After the strict gate passes, scan the assembled output for these violations and
 19. **Search architecture contamination (non-Blue-Sky only)** → if style is NOT Blue Sky, search for `#stage`, `#track`, `calc(100vw * var(--slide-count))`, or `translateX` slide navigation → these are Blue Sky-exclusive patterns. Replace with `html-template.md`'s `scroll-snap-type: y mandatory` + `SlidePresentation` class architecture
 20. **Search `.slide` background overriding body gradient** → if the style reference file defines `radial-gradient`, `linear-gradient`, `background-image` patterns, or `animation` on `body`, search for `.slide` elements with `background` / `background-color` → these block the body gradient. Remove `background` from `.slide` rules. The template does NOT set `.slide` background (template neutrality). Style files may set `.slide` background for styles that need per-slide control
 
-> Load `references/impeccable-anti-patterns.md` for the full detection patterns and fix guidance.
+> Load `impeccable-anti-patterns.md` for the full detection patterns and fix guidance.
 
 **These checks are NOT optional.** Run them in every generation mode (Auto, Polish, --generate). Auto-fix violations. Then proceed to Phase 3.5 Review (Polish mode only).
 

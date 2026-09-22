@@ -12,15 +12,15 @@ Every generated HTML must include all of the following:
 
 1. **Present mode CSS** — `#present-btn`, `#present-counter`, `body.presenting .slide`, `body.presenting .slide.p-on`, `body.presenting.presenting-black`
 2. **Edit hotzone HTML** — `<div class="edit-hotzone">` + `<button class="edit-toggle" id="editToggle">` + `#notes-panel`
-3. **`SlidePresentation` class** — navigation, dots, keyboard, touch, wheel, BroadcastChannel; for non-Blue-Sky decks, insert the shared runtime from `references/js-engine.md` verbatim
+3. **`SlidePresentation` class** — navigation, dots, keyboard, touch, wheel, BroadcastChannel; for non-Blue-Sky decks, insert the shared runtime from `js-engine.md` verbatim
 4. **`?presenter` branch** — replaces body with notes/timer UI when `?presenter` in URL; do not replace this with a summary snippet
 5. **`PresentMode` class** — inside the `else` block, never inside `if (presenter)`; bootstrap with `new PresentMode(new SlidePresentation())`
 6. **`setupEditor()` call** — edit hotzone + notes panel wired up
 7. **`data-notes` on every `<section class="slide">`** — 1-3 sentence speaker note per slide
 8. **Preset fidelity metadata** — `data-preset="Preset Name"` on `<body>` when a preset is selected
-9. **Watermark footer** — injected by JS into last slide as `<div class="slide-credit">By kai-slide-creator v{actual-version} · {actual-preset}</div>` with CSS: `position: absolute; bottom: 8px; right: 14px; font-size: 9px; color: var(--text-secondary, #999); opacity: 0.35; pointer-events: none; z-index: 1; font-family: system-ui, sans-serif;` and `body.presenting .slide-credit { display: none !important; }`. Placeholders in `references/js-engine.md` are documentation tokens only; generated HTML must never emit `[version]` or `[preset-name]`.
+9. **Watermark footer** — injected by JS into last slide as `<div class="slide-credit">By kai-slide-creator v{actual-version} · {actual-preset}</div>` with CSS: `position: absolute; bottom: 8px; right: 14px; font-size: 9px; color: var(--text-secondary, #999); opacity: 0.35; pointer-events: none; z-index: 1; font-family: system-ui, sans-serif;` and `body.presenting .slide-credit { display: none !important; }`. Placeholders in `js-engine.md` are documentation tokens only; generated HTML must never emit `[version]` or `[preset-name]`.
 
-**Runtime note:** For every non-Blue-Sky preset, `references/js-engine.md` is a hard dependency, not optional inspiration. Insert both code blocks verbatim, including the first-slide `.visible` fix and the `?presenter` branch.
+**Runtime note:** For every non-Blue-Sky preset, `js-engine.md` is a hard dependency, not optional inspiration. Insert both code blocks verbatim, including the first-slide `.visible` fix and the `?presenter` branch.
 
 ---
 
@@ -182,9 +182,9 @@ Every generated HTML must include all of the following:
         <span class="slide-num-label">02 / 08</span>
     </section>
 
-    <!-- JS Engine: read references/js-engine.md and insert verbatim -->
+    <!-- JS Engine: read js-engine.md and insert verbatim -->
     <script>
-    /* [INSERT JS ENGINE FROM references/js-engine.md — SlidePresentation class, ?presenter branch, PresentMode class, watermark] */
+    /* [INSERT JS ENGINE FROM js-engine.md — SlidePresentation class, ?presenter branch, PresentMode class, watermark] */
 
     /* Example active-slide wiring (full version in js-engine.md):
 setActiveSlide(index) {
@@ -335,7 +335,7 @@ If you find yourself adding `style=""` for positioning, sizing, colors, margins,
 
 ## Edit Button + Notes Panel
 
-CSS 和 HTML 结构（JS 逻辑已包含在 `references/js-engine.md` 的 SlidePresentation 类中）。
+CSS 和 HTML 结构（JS 逻辑已包含在 `js-engine.md` 的 SlidePresentation 类中）。
 
 ```html
 <div class="edit-hotzone"></div>

@@ -102,7 +102,7 @@ STAGE ADVANCEMENT
 ## 🧠 Academic Task Recognition & Capability Routing (Model B Architecture)
 
 Under **Directive 19** and **Directive 20**, the Orchestrator does NOT execute Python scripts directly (`run_command` is strictly unavailable). Instead, task routing follows **Model B (Preflight & Artifact-Driven Routing)**:
-- **Preflight Plan Generation**: The deterministic task router (`scripts/academic_task_router.py`) compiles the capability pipeline offline (via external CLI) or automatically during the Antigravity `PreInvocation` lifecycle hook into `academic-state/routing_plan.json`.
+- **Preflight Plan Generation**: The deterministic task router (`.agents/scripts/academic_task_router.py`) compiles the capability pipeline offline (via external CLI) or automatically during the Antigravity `PreInvocation` lifecycle hook into `academic-state/routing_plan.json`.
 - **Artifact Inspection**: The Orchestrator calls `view_file` on `academic-state/routing_plan.json` (or `.agents/config/capabilities.yaml`) to inspect the deterministically resolved capabilities, required subagents, and artifact handoff boundaries.
 - **Execution Delegation**: The Orchestrator delegates execution sequentially to specialist workers via native `invoke_subagent` according to the strict pipeline ordering invariant:
   `RESEARCH -> METHODOLOGY -> DATA -> NETWORK-ANALYSIS -> STATISTICS -> WRITING -> VALIDATION`
@@ -263,7 +263,7 @@ Whenever user reports an artifact/calculation error, bug, or flaw (or rejects a 
 2. **Execute Diagnostic Subagent Cascade**:
    - **Step 1 (`trajectory-analyzer`)**: Call `invoke_subagent(TypeName="trajectory-analyzer", Prompt="Reconstruct observable actions, tool calls, and error trajectory for user critique: <critique_summary>")`.
    - **Step 2 (`behavior-analyst`)**: Call `invoke_subagent(TypeName="behavior-analyst", Prompt="Perform causal root-cause analysis on reconstructed trajectory to identify defect signature")`.
-   - **Step 3 (`knowledge-curator`)**: Call `invoke_subagent(TypeName="knowledge-curator", Prompt="Catalog diagnosed anti-pattern and stage reusable lesson strictly conforming to contracts/evolution/ schemas with mandatory target_agent, target_agents (non-empty array), and valid lesson_type (WHAT_NOT_TO_DO/WHAT_WORKED_WELL)")`.
+   - **Step 3 (`knowledge-curator`)**: Call `invoke_subagent(TypeName="knowledge-curator", Prompt="Catalog diagnosed anti-pattern and stage reusable lesson strictly conforming to .agents/contracts/evolution/ schemas with mandatory target_agent, target_agents (non-empty array), and valid lesson_type (WHAT_NOT_TO_DO/WHAT_WORKED_WELL)")`.
 3. **Execute Targeted Remediation**: Once cataloged, delegate corrected task to specialist worker (`invoke_subagent`) with pitfall constraint.
 
 ### 2. Trigger 2: Systematic or Repeated Validation Failure (`VALIDATION_FAILED`)

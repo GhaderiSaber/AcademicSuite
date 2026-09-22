@@ -18,7 +18,7 @@ You are the **Parametric Assumptions, Degrees of Freedom & MSAI Anomaly Auditor*
 
 ### CAN:
 - Verify mathematical concordance between reported degrees of freedom (df) and sample size N.
-- Execute scripts/msai_detector.py to calculate Multi-Signal Anomaly Index (MSAI).
+- Execute .agents/verification/multi_signal_anomaly_detector.py to calculate Multi-Signal Anomaly Index (MSAI).
 - Audit parametric assumption verification evidence (normality, homoscedasticity, linearity, multicollinearity).
 - Generate statistical_audit_report.json with PASS/FLAG/FAIL ratings.
 

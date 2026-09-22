@@ -64,15 +64,15 @@ For each research hypothesis or question, the agent must synthesize the text usi
 ```
 
 ### Reference Guides to Consult:
-- Read [discussion_framework_guide.md](references/discussion_framework_guide.md) for structural rules and standard Persian academic phrasing.
-- Read [psychology_theoretical_mechanisms.md](references/psychology_theoretical_mechanisms.md) for ready-to-use psychological explanations across CBT, Emotion Regulation, Attachment, Mindfulness, and Self-Efficacy.
+- Read [discussion_framework_guide.md](.agents/skills/persian-discussion-builder/references/discussion_framework_guide.md) for structural rules and standard Persian academic phrasing.
+- Read [psychology_theoretical_mechanisms.md](.agents/skills/persian-discussion-builder/references/psychology_theoretical_mechanisms.md) for ready-to-use psychological explanations across CBT, Emotion Regulation, Attachment, Mindfulness, and Self-Efficacy.
 
 ---
 
 ## 4. Execution Workflow
 
 1. **Review Chapter 4 Results**:
-   Inspect `stats_results.json` or `فصل چهارم: یافته‌های پژوهش.docx` to identify confirmed and rejected hypotheses, test statistics ($F, t, \beta, \eta_p^2, R^2$), and effect sizes.
+   Inspect `stats_results.json` or `Chapter_4_Findings.docx` to identify confirmed and rejected hypotheses, test statistics ($F, t, \beta, \eta_p^2, R^2$), and effect sizes.
 2. **Review Chapter 2 Literature**:
    Identify the primary domestic and foreign researchers cited in Chapter 2 for each construct.
 3. **Formulate Discussion Content JSON**:

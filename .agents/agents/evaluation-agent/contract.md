@@ -53,7 +53,7 @@ Independently test candidate modifications (`improvement_candidate`) against det
 
 ## OUTPUTS
 - Validated `evaluation_result` reports in `evals/results/`.
-- Validated `independent_evaluation` reports in `learning/evaluations/independent/`.
+- Validated `independent_evaluation` reports in `.agents/learning/evaluations/independent/`.
 - Regression logs and diagnostic findings.
 
 ---
@@ -104,7 +104,7 @@ Evaluation report payload to Human Gate (Saber Admin Desk `124911145`):
 ---
 
 ## VALIDATION REQUIREMENTS
-- Must validate against `contracts/evolution/evaluation_result.schema.json` or `contracts/evolution/independent_evaluation.schema.json`.
+- Must validate against `.agents/contracts/evolution/evaluation_result.schema.json` or `.agents/contracts/evolution/independent_evaluation.schema.json`.
 - Must contain verifiable test runner logs and exit codes.
 - Zero scalar overall intelligence fields.
 

@@ -125,7 +125,7 @@ img {
 ### Play Mode Geometry Contract（播放模式几何契约）
 
 Play mode does **not** reuse window geometry. `body.presenting .slide` is pinned to a fixed
-**1440×900** box and scaled with `transform` (see `references/html-template.md`). Two rules follow:
+**1440×900** box and scaled with `transform` (see `html-template.md`). Two rules follow:
 
 1. **Root typography must not depend on window width.** Never set `html { font-size }` in `vw`
    units and never override it inside a `@media (min-width | max-width)` block. Inside the fixed

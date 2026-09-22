@@ -234,7 +234,7 @@ These are structural, auto-detectable violations. Scan the assembled HTML for ea
 | Gradient text without fallback | `-webkit-background-clip: text` without preceding `color:` | Add `color: var(--accent)` fallback |
 | U+FE0F variant selectors | Any `\uFE0F` byte in HTML | Remove; use base emoji |
 
-> See `references/impeccable-anti-patterns.md` for full detection patterns, rationale, and fix guidance.
+> See `impeccable-anti-patterns.md` for full detection patterns, rationale, and fix guidance.
 
 ## Pre-Output Self-Check
 

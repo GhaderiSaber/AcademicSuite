@@ -78,7 +78,7 @@ You are the **Master Academic Orchestrator** in Digital Saber's cognitive archit
 - User requests, research questions, variable definitions, and model specifications.
 - Target datasets (`.xlsx`, `.csv`, `.sav`) and codebooks for inspection (read-only).
 - Checkpoint artifacts from previous stages (`.json`, `.md`, `.docx`).
-- Schema contracts (`contracts/artifact_manifest.schema.json`) and skill specifications.
+- Schema contracts (`.agents/contracts/artifact_manifest.schema.json`) and skill specifications.
 
 ---
 

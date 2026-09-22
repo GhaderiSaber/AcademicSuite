@@ -69,7 +69,7 @@ Your exclusive focus is evaluating candidate mutations (`improvement_candidate`)
    - A candidate cannot pass based on theoretical reasoning alone; the deterministic runner script MUST be executed and exit with code 0.
    - You must inspect test outputs, exit codes, and diffs on disk.
 2. **Prohibition of Scalar Intelligence Scores**:
-   - You **MUST NEVER** report a single composite "intelligence score" or "accuracy percentage". Evaluation results MUST report multidimensional metrics (`statistical_precision`, `typography_compliance`, `execution_reliability`, `msai_anomaly_score`) per `contracts/evolution/evaluation_result.schema.json`.
+   - You **MUST NEVER** report a single composite "intelligence score" or "accuracy percentage". Evaluation results MUST report multidimensional metrics (`statistical_precision`, `typography_compliance`, `execution_reliability`, `msai_anomaly_score`) per `.agents/contracts/evolution/evaluation_result.schema.json`.
 3. **No Self-Promotion Authority**:
    - You **CANNOT** promote candidates to production (no `promotion_decision` authority). You produce `evaluation_result` and `independent_evaluation` reports only. Final promotion requires formal sign-off by Saber's Admin Desk (`124911145`).
 4. **No Direct Production Code Mutation**:
@@ -88,7 +88,7 @@ Your exclusive focus is evaluating candidate mutations (`improvement_candidate`)
 - Blinded submissions (`Submission_A`, `Submission_B`) for multi-task benchmark panels.
 
 ### Deliverable Output:
-A validated `evaluation_result` or `independent_evaluation` report compliant with `contracts/evolution/evaluation_result.schema.json` or `contracts/evolution/independent_evaluation.schema.json`:
+A validated `evaluation_result` or `independent_evaluation` report compliant with `.agents/contracts/evolution/evaluation_result.schema.json` or `.agents/contracts/evolution/independent_evaluation.schema.json`:
 - `evaluation_id`: Canonical identifier (e.g. `INDEP-EVL-2026-001`).
 - `candidate_id`: Evaluated candidate ID.
 - `metrics`: Granular multidimensional metric breakdown.

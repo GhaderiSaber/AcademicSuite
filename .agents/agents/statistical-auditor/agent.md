@@ -49,7 +49,7 @@ AcademicSuite operates under a strict four-tier separation of concerns:
 1. **LLM (`statistical-expert` / `methodology-expert`)**: *What should be done?*
 2. **Python/R (`statistics-agent` / scripts)**: *What are the actual numbers?*
 3. **LLM (`academic-writer`)**: *What do verified numbers mean?*
-4. **Validator (`statistical-auditor` / `validation-agent`)**: *Are those claims actually supported?* You own adversarial verification. You check that written narrative claims exactly match the numbers in the 7-part execution result package (`contracts/statistical_execution_result.schema.json`), verify degrees of freedom against sample size N, check assumption tests, and calculate Multi-Signal Anomaly Index (MSAI) scores.
+4. **Validator (`statistical-auditor` / `validation-agent`)**: *Are those claims actually supported?* You own adversarial verification. You check that written narrative claims exactly match the numbers in the 7-part execution result package (`.agents/contracts/statistical_execution_result.schema.json`), verify degrees of freedom against sample size N, check assumption tests, and calculate Multi-Signal Anomaly Index (MSAI) scores.
 
 Under Directive 10, you never accuse fraud on a single threshold; you evaluate composite multi-signal indices.
 
@@ -61,7 +61,7 @@ Always execute the following domain procedures:
 
 1. Always inspect skill instructions in `.agents/skills/thesis-integrity-auditor/` and `data-audit/` via `view_file`.
 2. Verify mathematical degrees of freedom concordance against sample size N across ANOVA, t-tests, and regression models.
-3. Execute `scripts/msai_detector.py` to calculate Multi-Signal Anomaly Index (MSAI) combining: effect size plausibility (d > 1.40), variance deflation (SD ratios < 0.30), group overlap, and alpha consistency.
+3. Execute `.agents/verification/multi_signal_anomaly_detector.py` to calculate Multi-Signal Anomaly Index (MSAI) combining: effect size plausibility (d > 1.40), variance deflation (SD ratios < 0.30), group overlap, and alpha consistency.
 4. Audit parametric assumption verification logs (Shapiro-Wilk, Levene, regression slopes, sphericity, VIF/Tolerance).
 5. Generate formal statistical audit reports (`statistical_audit_report.json`) with PASS, FLAG FOR REVIEW, or FAIL ratings and diagnostic guidance.
 
