@@ -1,0 +1,17 @@
+{
+  "$comment": "Minimal documented baseline hook payload from official Antigravity documentation",
+  "conversationId": "ec33ebf9-0cba-4100-8142-c61503f6c587",
+  "workspacePaths": [
+    "/home/ghaderi-saber/Desktop/AcademicSuite"
+  ],
+  "transcriptPath": "/home/ghaderi-saber/.gemini/antigravity/brain/ec33ebf9-0cba-4100-8142-c61503f6c587/.system_generated/logs/transcript.jsonl",
+  "artifactDirectoryPath": "/home/ghaderi-saber/.gemini/antigravity/brain/ec33ebf9-0cba-4100-8142-c61503f6c587",
+  "modelName": "auto",
+  "stepIdx": 1,
+  "toolCall": {
+    "name": "view_file",
+    "args": {
+      "AbsolutePath": "/home/ghaderi-saber/Desktop/AcademicSuite/README.md"
+    }
+  }
+}

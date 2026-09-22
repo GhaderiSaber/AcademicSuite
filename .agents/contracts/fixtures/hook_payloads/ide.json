@@ -1,0 +1,21 @@
+{
+  "$comment": "Captured hook payload: Antigravity IDE Extension (antigravity-ide)",
+  "conversationId": "ide-4402-ae91-11cd",
+  "workspacePaths": [
+    "/home/ghaderi-saber/Desktop/AcademicSuite"
+  ],
+  "transcriptPath": "/home/ghaderi-saber/.gemini/antigravity-ide/brain/ide-4402-ae91-11cd/.system_generated/logs/transcript.jsonl",
+  "artifactDirectoryPath": "/home/ghaderi-saber/.gemini/antigravity-ide/brain/ide-4402-ae91-11cd",
+  "modelName": "auto",
+  "stepIdx": 3,
+  "toolCall": {
+    "name": "view_file",
+    "args": {
+      "AbsolutePath": "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/hooks/integrity_hooks.py"
+    }
+  },
+  "agentName": "ide-developer",
+  "track": 1,
+  "mode": "developer",
+  "isSubagent": false
+}
