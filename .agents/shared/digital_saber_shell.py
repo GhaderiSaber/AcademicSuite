@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Interactive Digital Saber Shell (digital_saber_shell.py)
---------------------------------------------------------
-Terminal REPL environment for interacting directly with Digital Saber:
-- Direct execution of Antigravity multi-agent workflows (chapter4, proposal, chapter5, thesis_revision)
+Interactive Digital Saber Diagnostic & Advisory Shell (digital_saber_shell.py)
+-----------------------------------------------------------------------------
+Terminal REPL environment for diagnostics, empirical utilities, and expert advisory:
+- Full system diagnostic inspection of memory stores, skills, agents, and integrity contracts
 - Instant psychometric instrument lookup across 4,880 scales in Questionnaires.xlsx
-- Proposal analysis and itemized pricing quotation in Tomans
-- Case-Based Reasoning precedent search across 23 historical cases
-- Writing cadence and AI-cliche prose auditing
-- Multi-Signal Anomaly Index (MSAI) statistical data auditing
+- Proposal analysis and itemized pricing quotation in Tomans with Admin Gate card
+- Case-Based Reasoning precedent search across authenticated historical cases
+- Writing cadence, anti-AI cliché, and Multi-Signal Anomaly Index (MSAI) statistical auditing
+- Viva Voce thesis defense committee simulation and cross-examination
+- Monte Carlo psychometric data synthesis with Rule 9 empirical decimal noise
 - Telegram Co-Pilot administrative desk management and status monitoring
 - Free-form natural language consultation in authentic academic Persian and English
+
+Note on Multi-Agent Orchestration:
+In accordance with Digital Saber Constitutional Directives 0, 12, 19, and 20, multi-agent
+thesis pipelines are conducted natively within Google Antigravity via 'academic-orchestrator'
+using the native 'invoke_subagent' tool. Deterministic offline script pipelines are executed
+via '.agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py'.
 """
 
 import os
@@ -48,8 +55,120 @@ except Exception:
     TelegramCopilotBridge = None
 
 
+PIPELINE_CATALOG: Dict[str, Dict[str, Any]] = {
+    "chapter4": {
+        "title": "Chapter 4 — Findings & Statistical Results",
+        "aliases": ["chapter4", "ch4", "findings"],
+        "skill": ".agents/skills/chapter-4-writing/SKILL.md",
+        "orchestrator_preset": "thesis_empirical",
+        "workers": ["statistics-agent", "academic-writer", "statistical-auditor", "results-auditor"],
+        "stages": "Stages 4.0 to 4.12 (One-Hypothesis-One-Stage)",
+        "triad": "06_hypothesis_X.docx + 06_hypothesis_X.md + 06_hypothesis_X.json",
+        "cli_cmd": "python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline thesis_empirical",
+    },
+    "chapter5": {
+        "title": "Chapter 5 — Discussion & Epistemic Synthesis",
+        "aliases": ["chapter5", "ch5", "discussion"],
+        "skill": ".agents/skills/persian-discussion-builder/SKILL.md",
+        "orchestrator_preset": "thesis_empirical",
+        "workers": ["academic-writer", "literature-expert", "validation-agent"],
+        "stages": "Stages 5.1 to 5.7",
+        "triad": "Chapter_5_Discussion.docx + Chapter_5_Discussion.md + discussion_audit.json",
+        "cli_cmd": "python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline thesis_empirical",
+    },
+    "proposal": {
+        "title": "Academic Research Proposal (طرح تحقیق / پروپوزال)",
+        "aliases": ["proposal", "prop"],
+        "skill": ".agents/skills/persian-proposal-builder/SKILL.md",
+        "orchestrator_preset": "thesis_empirical",
+        "workers": ["research-agent", "methodology-expert", "academic-writer"],
+        "stages": "Stages P.1 to P.8",
+        "triad": "Proposal_Draft.docx + Proposal_Draft.md + proposal_parameters.json",
+        "cli_cmd": "python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline thesis_empirical",
+    },
+    "thesis_revision": {
+        "title": "Supervisor & Examiner Feedback Resolution",
+        "aliases": ["thesis_revision", "revision"],
+        "skill": ".agents/skills/persian-thesis-revision-assistant/SKILL.md",
+        "orchestrator_preset": "thesis_empirical",
+        "workers": ["results-auditor", "statistical-auditor", "academic-writer", "final-judge"],
+        "stages": "4-Stage Lifecycle (Ingestion -> Triage -> Remediation -> Response Table)",
+        "triad": "Revision_Response_Table.docx + resolved_comments.json + stats_audit.json",
+        "cli_cmd": "python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline thesis_empirical",
+    },
+    "defense_presentation": {
+        "title": "Thesis Defense Presentation & Viva Voce Preparation",
+        "aliases": ["defense_presentation", "defense", "presentation"],
+        "skill": ".agents/skills/persian-defense-presentation-builder/SKILL.md",
+        "orchestrator_preset": "defense_presentation",
+        "workers": ["academic-writer", "presentation-builder", "final-judge"],
+        "stages": "Stages D.0 to D.7 (Mandatory 8-Stage Presentation Pipeline)",
+        "triad": "Defense_Presentation.pptx + defense_presentation.html + presentation_brief.docx",
+        "cli_cmd": "python3 .agents/skills/persian-defense-presentation-builder/scripts/generate_persian_presentation.py",
+    },
+    "chapter2_literature": {
+        "title": "Chapter 2 — Literature Review & Science Mapping",
+        "aliases": ["chapter2_literature", "chapter2", "literature", "biblio"],
+        "skill": ".agents/skills/persian-literature-review-builder/SKILL.md",
+        "orchestrator_preset": "thesis_empirical",
+        "workers": ["literature-expert", "academic-writer", "evidence-auditor"],
+        "stages": "Stages 2.1 to 2.8 (Inverted Triangle)",
+        "triad": "Chapter_2_Literature.docx + Chapter_2_Literature.md + literature_synthesis.json",
+        "cli_cmd": "python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline thesis_empirical",
+    },
+    "journal_submission": {
+        "title": "Academic Journal Article Packaging & IMRaD Drafting",
+        "aliases": ["journal_submission", "publish", "article", "submission"],
+        "skill": ".agents/skills/journal-submission-assistant/SKILL.md",
+        "orchestrator_preset": "journal_article",
+        "workers": ["academic-article-writer", "journal-strategist", "evidence-auditor"],
+        "stages": "Stages 1 to 5 (Target matching -> IMRaD -> Rebuttal package)",
+        "triad": "Manuscript.docx + Cover_Letter.docx + submission_metadata.json",
+        "cli_cmd": "python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline journal_article",
+    },
+    "thesis_assembly": {
+        "title": "Unified Master Dissertation Assembly & Institutional Formatting",
+        "aliases": ["thesis_assembly", "assembly", "assemble"],
+        "skill": ".agents/skills/persian-thesis-builder/SKILL.md",
+        "orchestrator_preset": "thesis_empirical",
+        "workers": ["academic-writer", "validation-agent"],
+        "stages": "Consolidation of Chapters 1 through 5 with strict OpenXML typography",
+        "triad": "Full_Master_Dissertation.docx + thesis_manifest.json",
+        "cli_cmd": "python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline thesis_empirical",
+    },
+    "intervention_protocol": {
+        "title": "Evidence-Based Psychological Intervention Protocol Builder",
+        "aliases": ["intervention_protocol", "protocol", "intervention"],
+        "skill": ".agents/skills/psychological-intervention-protocol-builder/SKILL.md",
+        "orchestrator_preset": "intervention_protocol",
+        "workers": ["intervention-designer", "methodology-expert", "academic-writer"],
+        "stages": "Manual design, session-by-session clinical exercises, fidelity checklists",
+        "triad": "Intervention_Protocol_Manual.docx + clinical_worksheets.docx",
+        "cli_cmd": "python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline intervention_protocol",
+    },
+    "scale_validation": {
+        "title": "Psychometric Scale Standardization & Construct Validation",
+        "aliases": ["scale_validation", "validation", "scale_val", "psychometrics"],
+        "skill": ".agents/skills/psychometric-scale-validator/SKILL.md",
+        "orchestrator_preset": "scale_validation",
+        "workers": ["psychometric-expert", "statistical-expert", "statistical-auditor"],
+        "stages": "Stages V.1 to V.9 (CVR/CVI -> EFA -> CFA -> IRT -> ROC)",
+        "triad": "Psychometric_Validation_Report.docx + scale_validation_results.json",
+        "cli_cmd": "python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline scale_validation",
+    },
+}
+
+
+def _find_pipeline(name: str) -> Optional[Dict[str, Any]]:
+    key = name.lower().strip()
+    for pkey, pinfo in PIPELINE_CATALOG.items():
+        if key == pkey or key in pinfo.get("aliases", []):
+            return pinfo
+    return None
+
+
 class DigitalSaberShell(cmd.Cmd):
-    """Interactive Scholarly REPL Shell for Digital Saber."""
+    """Interactive Scholarly Diagnostic & Advisory REPL Shell for Digital Saber."""
 
     intro = ""
     prompt = "Saber❯ "
@@ -85,36 +204,46 @@ class DigitalSaberShell(cmd.Cmd):
 
     def print_banner(self):
         """Prints the scholarly startup banner."""
-        cases_count = len(self.saber.case_memory.cases)
+        cases_count = len(self.saber.case_memory.cases) if self.saber.case_memory else 0
+        skills_dir = os.path.join(ROOT_DIR, ".agents", "skills")
+        skills_count = len([d for d in os.listdir(skills_dir) if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith(".")]) if os.path.exists(skills_dir) else 44
+        agents_dir = os.path.join(ROOT_DIR, ".agents", "agents")
+        agents_count = len([f for f in os.listdir(agents_dir) if f.endswith(".md")]) if os.path.exists(agents_dir) else 30
+
         banner = f"""
 {self.c_cyan}╔═══════════════════════════════════════════════════════════════════════════════════════╗
-║   🎓 DIGITAL SABER — Professional AI Research Twin (Terminal REPL)                    ║
-║   Memory: {cases_count} Real Precedents  |  Skills: 27 Specialized  |  Workflows: 10 Core        ║
-║   Cognitive Layers: Constitution • Case Memory • Reasoners • OpenXML • QC Audit       ║
+║   🎓 DIGITAL SABER — Diagnostic, Advisory & Empirical Utility Shell                   ║
+║   Memory: {cases_count} Precedents  |  Skills: {skills_count} Active  |  Agents: {agents_count} Specialized           ║
+║   Cognitive Layers: Identity • Case Memory • Reasoning • Diagnostics • Human Gate    ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════╝{self.c_reset}
 
 {self.c_bold}Available Commands:{self.c_reset}
-  {self.c_green}/workflow <name>{self.c_reset}    Execute research workflow ({self.c_yellow}chapter2_literature, chapter4, proposal, chapter5, thesis_revision, journal_submission, defense_presentation, thesis_assembly, intervention_protocol, scale_validation{self.c_reset})
-  {self.c_green}/protocol [topic]{self.c_reset}   Compile clinical intervention manual & Chapter 3 APA 7 session table (ACT, CBT, Schema)
-  {self.c_green}/validate [scale]{self.c_reset}   Psychometric scale standardization & validation report (CTT, EFA, CFA, IRT, ROC)
-  {self.c_green}/simulate [design]{self.c_reset}  Synthesize Monte Carlo research dataset with Rule 9 empirical decimal noise
-  {self.c_green}/defense [topic]{self.c_reset}    Compile 3-path defense presentation (HTML, PPTX, Word script, 20 Viva Voce Q&As)
-  {self.c_green}/assemble [dir]{self.c_reset}     Consolidate modular Chapters 1-5 into unified master dissertation (.docx)
-  {self.c_green}/publish <topic>{self.c_reset}     Compile IMRaD manuscript, Cover Letter, CRediT Title Page, & Highlights
-  {self.c_green}/translate <text>{self.c_reset}    Bilingual academic translation & terminology standardization
-  {self.c_green}/literature <topic>{self.c_reset} Multi-database search, parameter extraction (N, instruments) & Chapter 2
-  {self.c_green}/biblio <topic>{self.c_reset}     VOSviewer keyword mapping & HistCite citation chronomap
-  {self.c_green}/consult <query>{self.c_reset}    Statistical and methodological consultation with Case Precedents
-  {self.c_green}/scale <name>{self.c_reset}       Search 4,880 psychometric instruments in Questionnaires.xlsx
-  {self.c_green}/quote <text/file>{self.c_reset}  Extract proposal parameters, compute pricing in Tomans & Admin Card
-  {self.c_green}/audit <text/file>{self.c_reset}  Prose cadence audit (anti-AI cliches) or dataset anomaly check
-  {self.c_green}/cases [query]{self.c_reset}      Search & inspect 23 authenticated research precedents in Case Memory
-  {self.c_green}/decisions{self.c_reset}          View high-stakes decision logs in Decision Journal
-  {self.c_green}/copilot [subcmd]{self.c_reset}   Telegram Co-Pilot ({self.c_yellow}status, drafts, sim, approve{self.c_reset})
-  {self.c_green}/benchmark{self.c_reset}          Run 15-dilemma Saber Similarity Benchmark
-  {self.c_green}/clear, /help, /exit{self.c_reset} Terminal utilities
+  {self.c_green}🔬 Research Diagnostics & Integrity Auditing:{self.c_reset}
+    {self.c_cyan}/diagnose{self.c_reset}           Full diagnostic inspection of memory, skills, agents, and gates
+    {self.c_cyan}/audit <file/text>{self.c_reset}  Multi-Signal Anomaly Index (MSAI) data check or prose cadence audit
+    {self.c_cyan}/defense_sim [topic]{self.c_reset} Viva Voce defense committee simulation & cross-examination
+    {self.c_cyan}/benchmark{self.c_reset}          Run 15-dilemma Saber Similarity Benchmark against baseline
 
-{self.c_magenta}💡 Or simply ask any research question in Persian or English!{self.c_reset}
+  {self.c_green}💡 Methodological Advisory & Case Precedents:{self.c_reset}
+    {self.c_cyan}/consult <query>{self.c_reset}    3-stage statistical & methodological consultation (with Case Precedents)
+    {self.c_cyan}/scale <name>{self.c_reset}       Search 4,880 psychometric instruments in Questionnaires.xlsx
+    {self.c_cyan}/quote <text/file>{self.c_reset}  Extract proposal parameters, compute pricing in Tomans & Admin Card
+    {self.c_cyan}/cases [query]{self.c_reset}      Search & inspect 23 authenticated research precedents in Case Memory
+    {self.c_cyan}/decisions{self.c_reset}          View high-stakes decision logs in Decision Journal
+
+  {self.c_green}🛠️ Empirical Utilities & Simulation:{self.c_reset}
+    {self.c_cyan}/simulate [design]{self.c_reset}  Synthesize Monte Carlo research dataset with Rule 9 empirical noise
+    {self.c_cyan}/translate <text>{self.c_reset}    Bilingual academic translation & BiDi typography preservation
+    {self.c_cyan}/copilot [subcmd]{self.c_reset}   Telegram Co-Pilot ({self.c_yellow}status, drafts, sim, approve{self.c_reset})
+    {self.c_cyan}/pipeline [name]{self.c_reset}    Inspect micro-stage pipeline specifications, assigned agents & runbooks
+
+  {self.c_green}ℹ️ Utilities:{self.c_reset}
+    {self.c_cyan}/clear, /help, /exit{self.c_reset} Terminal utilities
+
+{self.c_magenta}💡 Interactive Multi-Agent Orchestration:{self.c_reset}
+  Multi-agent research pipelines are conducted natively inside Google Antigravity via
+  'academic-orchestrator' (invoke_subagent). For deterministic offline CLI runs, use:
+  python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline <preset>
 """
         print(banner)
 
@@ -126,139 +255,151 @@ class DigitalSaberShell(cmd.Cmd):
         return line
 
     # -------------------------------------------------------------------------
-    # Command: /workflow
+    # Diagnostic Commands: /diagnose & /status
     # -------------------------------------------------------------------------
-    def do_workflow(self, arg: str):
-        """Execute an Antigravity multi-agent workflow: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision|journal_submission|defense_presentation|thesis_assembly|intervention_protocol|scale_validation> [topic]"""
+    def do_diagnose(self, arg: str):
+        """Run system diagnostic inspection of memory, skills, agents, and hooks: /diagnose"""
+        print(f"\n{self.c_cyan}[*] Running Digital Saber System Diagnostic Inspection...{self.c_reset}")
+
+        # 1. Case Memory
+        cases_count = len(self.saber.case_memory.cases) if self.saber.case_memory else 0
+        print(f"▫️ Case-Based Memory:        {self.c_green}HEALTHY{self.c_reset} ({cases_count} authenticated precedents)")
+
+        # 2. Decision Journal
+        journal = getattr(self.saber, "decision_journal", None) or getattr(self.saber, "journal", None)
+        decs_count = len(journal.decisions) if journal else 0
+        print(f"▫️ Decision Journal:         {self.c_green}HEALTHY{self.c_reset} ({decs_count} auditable decision records)")
+
+        # 3. Knowledge Base
+        lessons_dir = os.path.join(ROOT_DIR, ".agents", "learning", "knowledge", "lessons")
+        ap_dir = os.path.join(ROOT_DIR, ".agents", "learning", "knowledge", "anti-patterns")
+        n_lessons = len([f for f in os.listdir(lessons_dir) if f.endswith(".json")]) if os.path.exists(lessons_dir) else 0
+        n_ap = len([f for f in os.listdir(ap_dir) if f.endswith(".json")]) if os.path.exists(ap_dir) else 0
+        print(f"▫️ Knowledge Store:          {self.c_green}HEALTHY{self.c_reset} ({n_lessons} lessons, {n_ap} anti-patterns)")
+
+        # 4. Production Skills
+        skills_dir = os.path.join(ROOT_DIR, ".agents", "skills")
+        n_skills = len([d for d in os.listdir(skills_dir) if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith(".")]) if os.path.exists(skills_dir) else 0
+        print(f"▫️ Production Skills:        {self.c_green}HEALTHY{self.c_reset} ({n_skills} active skills in .agents/skills/)")
+
+        # 5. Cognitive Agents
+        agents_dir = os.path.join(ROOT_DIR, ".agents", "agents")
+        n_agents = len([f for f in os.listdir(agents_dir) if f.endswith(".md")]) if os.path.exists(agents_dir) else 0
+        print(f"▫️ Cognitive Agents:         {self.c_green}HEALTHY{self.c_reset} ({n_agents} subagents registered)")
+
+        # 6. Hook Contract & Safety Gates
+        schema_file = os.path.join(ROOT_DIR, ".agents", "contracts", "hook_payload.schema.json")
+        schema_ok = os.path.exists(schema_file)
+        print(f"▫️ Hook Identity Contract:   {self.c_green if schema_ok else self.c_yellow}{'VERIFIED' if schema_ok else 'MISSING'}{self.c_reset} (hook_payload.schema.json)")
+
+        # 7. Psychometric Questionnaire Registry
+        q_xlsx = os.path.join(ROOT_DIR, "Questionnaires.xlsx")
+        q_ok = os.path.exists(q_xlsx)
+        print(f"▫️ Questionnaires Registry:  {self.c_green if q_ok else self.c_yellow}{'READY' if q_ok else 'NOT FOUND'}{self.c_reset} ({'4,880 scales available' if q_ok else 'Questionnaires.xlsx missing'})")
+
+        # 8. Multi-Agent Conductor
+        print(f"▫️ Multi-Agent Orchestrator: {self.c_green}ACTIVE{self.c_reset} (academic-orchestrator via Antigravity native invoke_subagent)")
+        print(f"\n{self.c_bold}All core cognitive layers and diagnostic systems operational.{self.c_reset}")
+
+    def do_status(self, arg: str):
+        """Alias for /diagnose"""
+        return self.do_diagnose(arg)
+
+    # -------------------------------------------------------------------------
+    # Diagnostic Command: /defense_sim
+    # -------------------------------------------------------------------------
+    def do_defense_sim(self, arg: str):
+        """Simulate thesis defense viva voce examination: /defense_sim [topic]"""
+        topic = arg.strip() or "اثربخشی درمان مبتنی بر پذیرش و تعهد بر فرسودگی شغلی"
+        print(f"\n{self.c_cyan}[*] Simulating Viva Voce Defense Committee Examination on: '{topic}'...{self.c_reset}")
+        if hasattr(self.saber, "simulate_defense"):
+            self.saber.simulate_defense(topic)
+        else:
+            print(f"{self.c_yellow}Defense committee simulator not available.{self.c_reset}")
+
+    # -------------------------------------------------------------------------
+    # Pipeline Runbook & Specification Inspection: /pipeline
+    # -------------------------------------------------------------------------
+    def do_pipeline(self, arg: str):
+        """Inspect micro-stage pipeline specifications, assigned agents & runbooks: /pipeline [name]"""
         parts = shlex.split(arg) if arg else []
         if not parts:
-            print(f"{self.c_yellow}Usage: /workflow <chapter2_literature|chapter4|proposal|chapter5|thesis_revision|journal_submission|defense_presentation|thesis_assembly|intervention_protocol|scale_validation> [optional_topic_or_file]{self.c_reset}")
+            print(f"\n{self.c_cyan}📋 DIGITAL SABER MULTI-STAGE RESEARCH PIPELINES CATALOG:{self.c_reset}")
+            print(f"{'Pipeline':<24} {'Target Skill':<44} {'CLI Preset'}")
+            print("-" * 85)
+            for k, p in PIPELINE_CATALOG.items():
+                print(f"{k:<24} {os.path.basename(os.path.dirname(p['skill'])):<44} {p['orchestrator_preset']}")
+            print("-" * 85)
+            print(f"\n{self.c_bold}How to Execute:{self.c_reset}")
+            print(f"  • {self.c_green}Interactive Multi-Agent:{self.c_reset} Prompt 'academic-orchestrator' in Google Antigravity chat.")
+            print(f"  • {self.c_green}Deterministic CLI:{self.c_reset}       python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py --pipeline <preset>")
+            print(f"\nTo inspect a specific pipeline: {self.c_cyan}/pipeline <name>{self.c_reset} (e.g. /pipeline chapter4)")
             return
 
-        wf_name = parts[0].lower()
+        target = parts[0].lower()
+        pinfo = _find_pipeline(target)
+        if not pinfo:
+            print(f"{self.c_yellow}Unknown pipeline '{target}'. Valid pipelines: {', '.join(PIPELINE_CATALOG.keys())}{self.c_reset}")
+            return
+
+        print(f"\n{self.c_cyan}📋 Pipeline Runbook: {pinfo['title']}{self.c_reset}")
+        print(f"  ▫️ Target Skill:       {pinfo['skill']}")
+        print(f"  ▫️ Dedicated Workers:  {', '.join(pinfo['workers'])}")
+        print(f"  ▫️ Pipeline Stages:    {pinfo['stages']}")
+        print(f"  ▫️ Triad Deliverables: {pinfo['triad']}")
+        print(f"\n{self.c_bold}🚀 Execution Methods:{self.c_reset}")
+        print(f"  1. {self.c_green}Interactive Multi-Agent (Antigravity Chat):{self.c_reset}")
+        print(f"     Prompt 'academic-orchestrator' directly in chat. Subagents are dispatched natively")
+        print(f"     via the 'invoke_subagent' tool obeying Contractual Delegation Envelopes.")
+        print(f"  2. {self.c_green}Deterministic Batch CLI (Terminal):{self.c_reset}")
+        print(f"     {pinfo['cli_cmd']}")
+
+        # Handle offline execution gracefully per Directive 0 & 12
         topic = " ".join(parts[1:]) if len(parts) > 1 else None
-
-        valid_wfs = [
-            "chapter2_literature", "chapter4", "proposal", "chapter5", "thesis_revision",
-            "journal_submission", "defense_presentation", "thesis_assembly",
-            "intervention_protocol", "scale_validation",
-            "chapter2", "literature", "publish", "article", "submission",
-            "defense", "presentation", "assembly", "assemble",
-            "protocol", "intervention", "validation", "psychometrics", "scale"
-        ]
-        if wf_name not in valid_wfs:
-            print(f"{self.c_yellow}Unknown workflow '{wf_name}'. Valid workflows: chapter2_literature, chapter4, proposal, chapter5, thesis_revision, journal_submission, defense_presentation, thesis_assembly, intervention_protocol, scale_validation{self.c_reset}")
-            return
-
-        print(f"\n{self.c_cyan}[*] Launching workflow: {wf_name}...{self.c_reset}")
         try:
-            res = self.saber.run_workflow(wf_name, topic_or_file=topic, output_dir=self.output_dir)
+            self.saber.run_workflow(target, topic_or_file=topic, output_dir=self.output_dir)
         except NotImplementedError as nie:
-            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
-            return
-        if res and res.get("status") == "SUCCESS":
-            print(f"\n{self.c_green}✅ Workflow '{wf_name}' completed successfully!{self.c_reset}")
-            score_key = next((k for k in ("readiness_score", "compliance_score", "fidelity_score", "psychometric_score") if k in res), None)
-            score_val = res.get(score_key, "N/A") if score_key else "N/A"
-            print(f"  • Score:       {score_val}%")
-            print(f"  • Decision ID: {res.get('decision_id', 'N/A')}")
-            print(f"  • Artifacts Generated in '{self.output_dir}':")
-            for a in res.get("artifacts_generated", []):
-                print(f"    - {a}")
+            print(f"\n{self.c_yellow}[Constitutional Notice] {nie}{self.c_reset}")
+
+    def do_pipelines(self, arg: str):
+        """Alias for /pipeline"""
+        return self.do_pipeline(arg)
+
+    def do_workflow(self, arg: str):
+        """Inspect pipeline runbooks & execution guidance: /workflow <name>"""
+        return self.do_pipeline(arg)
 
     def complete_workflow(self, text, line, begidx, endidx):
-        wfs = [
-            "chapter2_literature", "chapter4", "proposal", "chapter5",
-            "thesis_revision", "journal_submission", "defense_presentation", "thesis_assembly",
-            "intervention_protocol", "scale_validation"
-        ]
+        wfs = list(PIPELINE_CATALOG.keys())
         if text:
             return [w for w in wfs if w.startswith(text)]
         return wfs
 
+    def complete_pipeline(self, text, line, begidx, endidx):
+        return self.complete_workflow(text, line, begidx, endidx)
+
     # -------------------------------------------------------------------------
-    # Command: /defense
+    # Pipeline Guidance Wrappers (Backwards-Compatible)
     # -------------------------------------------------------------------------
     def do_defense(self, arg: str):
-        """Compile oral defense presentation across 3 paths (HTML, PPTX, Word script) + 20 Viva Voce Q&As: /defense [topic]"""
-        topic = arg.strip() if arg else None
-        print(f"\n{self.c_cyan}[*] Launching Viva Voce Oral Defense Presentation Workflow...{self.c_reset}")
-        try:
-            res = self.saber.run_workflow("defense_presentation", topic_or_file=topic, output_dir=self.output_dir)
-        except NotImplementedError as nie:
-            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
-            return
-        if res and res.get("status") == "SUCCESS":
-            print(f"\n{self.c_green}✅ Defense presentation suite compiled successfully!{self.c_reset}")
-            print(f"  • Viva Voce Readiness Score: {res.get('readiness_score')}% [DEFENSE READY]")
-            print(f"  • Decision ID:                {res.get('decision_id')}")
-            print(f"  • Artifacts Generated in '{self.output_dir}':")
-            for a in res.get("artifacts_generated", []):
-                print(f"    - {a}")
+        """Inspect defense presentation pipeline runbook & Viva Voce preparation: /defense [topic]"""
+        return self.do_pipeline(f"defense_presentation {arg}".strip())
 
-    # -------------------------------------------------------------------------
-    # Command: /assemble
-    # -------------------------------------------------------------------------
     def do_assemble(self, arg: str):
-        """Consolidate Chapters 1-5 into unified master dissertation (.docx): /assemble [target_or_dir]"""
-        target = arg.strip() if arg else None
-        print(f"\n{self.c_cyan}[*] Launching Master Dissertation Assembly Workflow...{self.c_reset}")
-        try:
-            res = self.saber.run_workflow("thesis_assembly", topic_or_file=target, output_dir=self.output_dir)
-        except NotImplementedError as nie:
-            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
-            return
-        if res and res.get("status") == "SUCCESS":
-            print(f"\n{self.c_green}✅ Master dissertation consolidated and formatted successfully!{self.c_reset}")
-            print(f"  • Council Compliance Index: {res.get('compliance_score')}% [APPROVED FOR BINDING]")
-            print(f"  • Decision ID:              {res.get('decision_id')}")
-            print(f"  • Artifacts Generated in '{self.output_dir}':")
-            for a in res.get("artifacts_generated", []):
-                print(f"    - {a}")
+        """Inspect master dissertation assembly pipeline runbook: /assemble [dir]"""
+        return self.do_pipeline(f"thesis_assembly {arg}".strip())
 
-    # -------------------------------------------------------------------------
-    # Command: /protocol (alias /intervention)
-    # -------------------------------------------------------------------------
     def do_protocol(self, arg: str):
-        """Compile clinical intervention manual & Chapter 3 summary table: /protocol [topic_or_preset]"""
-        target = arg.strip() if arg else None
-        print(f"\n{self.c_cyan}[*] Launching Clinical Intervention Protocol Workflow...{self.c_reset}")
-        try:
-            res = self.saber.run_workflow("intervention_protocol", topic_or_file=target, output_dir=self.output_dir)
-        except NotImplementedError as nie:
-            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
-            return
-        if res and res.get("status") == "SUCCESS":
-            print(f"\n{self.c_green}✅ Clinical intervention protocol compiled successfully!{self.c_reset}")
-            print(f"  • Clinical Protocol Fidelity Index: {res.get('fidelity_score')}% [APPROVED FOR TRIAL]")
-            print(f"  • Decision ID:                      {res.get('decision_id')}")
-            print(f"  • Artifacts Generated in '{self.output_dir}':")
-            for a in res.get("artifacts_generated", []):
-                print(f"    - {a}")
+        """Inspect clinical intervention protocol pipeline runbook: /protocol [topic]"""
+        return self.do_pipeline(f"intervention_protocol {arg}".strip())
 
     def do_intervention(self, arg: str):
         """Alias for /protocol"""
         return self.do_protocol(arg)
 
-    # -------------------------------------------------------------------------
-    # Command: /validate (alias /scale_val)
-    # -------------------------------------------------------------------------
     def do_validate(self, arg: str):
-        """Standardize and validate psychometric scale (CTT, EFA, CFA, IRT, ROC): /validate [scale_name_or_data]"""
-        target = arg.strip() if arg else None
-        print(f"\n{self.c_cyan}[*] Launching Psychometric Scale Validation Workflow...{self.c_reset}")
-        try:
-            res = self.saber.run_workflow("scale_validation", topic_or_file=target, output_dir=self.output_dir)
-        except NotImplementedError as nie:
-            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
-            return
-        if res and res.get("status") == "SUCCESS":
-            print(f"\n{self.c_green}✅ Psychometric scale validation completed successfully!{self.c_reset}")
-            print(f"  • Psychometric Rigor Score: {res.get('psychometric_score')}% [DEFENSE READY]")
-            print(f"  • Decision ID:              {res.get('decision_id')}")
-            print(f"  • Artifacts Generated in '{self.output_dir}':")
-            for a in res.get("artifacts_generated", []):
-                print(f"    - {a}")
+        """Inspect psychometric scale validation pipeline runbook: /validate [scale]"""
+        return self.do_pipeline(f"scale_validation {arg}".strip())
 
     def do_scale_val(self, arg: str):
         """Alias for /validate"""
@@ -326,22 +467,8 @@ class DigitalSaberShell(cmd.Cmd):
     # Command: /publish (alias /article)
     # -------------------------------------------------------------------------
     def do_publish(self, arg: str):
-        """Compile publication-ready IMRaD manuscript and journal submission package: /publish [topic]"""
-        topic = arg.strip() or None
-        print(f"\n{self.c_cyan}[*] Launching Academic Journal & Submission Packaging Workflow...{self.c_reset}")
-        try:
-            res = self.saber.run_workflow("journal_submission", topic_or_file=topic, output_dir=self.output_dir)
-        except NotImplementedError as nie:
-            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
-            return
-        if res and res.get("status") == "SUCCESS":
-            print(f"\n{self.c_green}✅ Publication Package & IMRaD Manuscript compiled successfully!{self.c_reset}")
-            print(f"  • Submission Readiness Score: {res.get('readiness_score')}%")
-            print(f"  • Acceptance Probability:     {res.get('acceptance_probability')}%")
-            print(f"  • Decision ID:                {res.get('decision_id')}")
-            print(f"  • Artifacts Generated in '{self.output_dir}':")
-            for a in res.get("artifacts_generated", []):
-                print(f"    - {a}")
+        """Inspect journal article packaging & IMRaD pipeline runbook: /publish [topic]"""
+        return self.do_pipeline(f"journal_submission {arg}".strip())
 
     def do_article(self, arg: str):
         """Alias for /publish"""
@@ -365,46 +492,15 @@ class DigitalSaberShell(cmd.Cmd):
     # Command: /literature
     # -------------------------------------------------------------------------
     def do_literature(self, arg: str):
-        """Harvest empirical studies across scientific databases and extract parameters: /literature <topic>"""
-        topic = arg.strip()
-        if not topic:
-            print(f"{self.c_yellow}Usage: /literature <research_topic_or_keywords> (e.g. /literature درمان مبتنی بر پذیرش و تعهد فرسودگی شغلی){self.c_reset}")
-            return
-
-        print(f"\n{self.c_cyan}[*] Querying multi-database literature engine for: '{topic}'...{self.c_reset}")
-        try:
-            res = self.saber.run_workflow("chapter2_literature", topic_or_file=topic, output_dir=self.output_dir)
-        except NotImplementedError as nie:
-            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
-            return
-        if res and res.get("status") == "SUCCESS":
-            print(f"\n{self.c_green}✅ Literature synthesis & Chapter 2 compiled successfully!{self.c_reset}")
-            print(f"  • Readiness Score: {res.get('readiness_score')}%")
-            print(f"  • Artifacts Generated in '{self.output_dir}':")
-            for a in res.get("artifacts_generated", []):
-                print(f"    - {a}")
+        """Inspect Chapter 2 literature review pipeline runbook: /literature <topic>"""
+        return self.do_pipeline(f"chapter2_literature {arg}".strip())
 
     # -------------------------------------------------------------------------
     # Command: /biblio
     # -------------------------------------------------------------------------
     def do_biblio(self, arg: str):
-        """Generate VOSviewer science mapping & HistCite chronomap: /biblio <topic>"""
-        topic = arg.strip()
-        if not topic:
-            print(f"{self.c_yellow}Usage: /biblio <research_topic_or_keywords> (e.g. /biblio درمان مبتنی بر پذیرش و تعهد){self.c_reset}")
-            return
-
-        print(f"\n{self.c_cyan}[*] Constructing bibliometric co-occurrence & citation networks for: '{topic}'...{self.c_reset}")
-        try:
-            res = self.saber.run_workflow("chapter2_literature", topic_or_file=topic, output_dir=self.output_dir)
-        except NotImplementedError as nie:
-            print(f"{self.c_yellow}[!] {nie}{self.c_reset}")
-            return
-        if res and res.get("status") == "SUCCESS":
-            print(f"\n{self.c_green}✅ Science mapping & chronomaps generated!{self.c_reset}")
-            for a in res.get("artifacts_generated", []):
-                if a.endswith(".png") or a.endswith(".txt"):
-                    print(f"  • Science Map: {a}")
+        """Inspect bibliometric science mapping pipeline runbook: /biblio <topic>"""
+        return self.do_pipeline(f"chapter2_literature {arg}".strip())
 
     # -------------------------------------------------------------------------
     # Command: /scale

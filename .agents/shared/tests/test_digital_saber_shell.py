@@ -175,6 +175,53 @@ class TestDigitalSaberShell(unittest.TestCase):
         self.assertEqual(res_sim.returncode, 0)
         self.assertIn("Co-Pilot Simulation Result: success", res_sim.stdout)
 
+    def test_11_command_diagnose_and_status(self):
+        """Tests /diagnose and /status inspecting system health and cognitive layers."""
+        f_diag = io.StringIO()
+        with redirect_stdout(f_diag):
+            self.shell.do_diagnose("")
+        out_diag = f_diag.getvalue()
+        self.assertIn("System Diagnostic", out_diag)
+        self.assertIn("Case-Based Memory", out_diag)
+        self.assertIn("Production Skills", out_diag)
+        self.assertIn("Cognitive Agents", out_diag)
+
+        f_status = io.StringIO()
+        with redirect_stdout(f_status):
+            self.shell.do_status("")
+        out_status = f_status.getvalue()
+        self.assertIn("System Diagnostic", out_status)
+
+    def test_12_command_pipeline_runbook(self):
+        """Tests /pipeline catalog and detailed pipeline runbook inspection."""
+        # Test catalog
+        f_cat = io.StringIO()
+        with redirect_stdout(f_cat):
+            self.shell.do_pipeline("")
+        out_cat = f_cat.getvalue()
+        self.assertIn("MULTI-STAGE RESEARCH PIPELINES CATALOG", out_cat)
+        self.assertIn("chapter4", out_cat)
+        self.assertIn("thesis_empirical", out_cat)
+
+        # Test specific pipeline
+        f_pipe = io.StringIO()
+        with redirect_stdout(f_pipe):
+            self.shell.do_pipeline("chapter4")
+        out_pipe = f_pipe.getvalue()
+        self.assertIn("Chapter 4 — Findings", out_pipe)
+        self.assertIn("chapter-4-writing", out_pipe)
+        self.assertIn("One-Hypothesis-One-Stage", out_pipe)
+        self.assertIn("orchestrator_cli.py", out_pipe)
+
+    def test_13_command_defense_sim(self):
+        """Tests /defense_sim command executing viva voce defense committee simulation."""
+        f_sim = io.StringIO()
+        with redirect_stdout(f_sim):
+            self.shell.do_defense_sim("اثربخشی درمان مبتنی بر پذیرش و تعهد بر اضطراب")
+        out_sim = f_sim.getvalue()
+        self.assertIn("Simulating Viva Voce Defense Committee Examination", out_sim)
+
 
 if __name__ == "__main__":
     unittest.main()
+
