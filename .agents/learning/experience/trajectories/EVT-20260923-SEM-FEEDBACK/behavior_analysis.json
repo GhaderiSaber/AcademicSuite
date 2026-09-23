@@ -1,0 +1,21 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260923-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260923-SEM-FEEDBACK",
+  "target_agent": "academic-orchestrator",
+  "target_skill": "sem",
+  "capability": "SEM Pipeline Execution",
+  "trajectory_id": "TRJ-20260923-SEM-FEEDBACK-001",
+  "observable_failure_step": {
+    "step_number": 6,
+    "action_type": "SUBAGENT_DELEGATION",
+    "tool_name": "invoke_subagent",
+    "command_or_input": "Develop and execute a deterministic Python script to perform Structural Equation Modeling (SEM)... Exogenous Predictor: PIES_Total, Parallel Mediators: MZQ_Total, ERQ_R, ERQ_S, Endogenous Criteria: SB_Total and OCP_Total",
+    "description": "Orchestrator delegated task to statistics-agent explicitly directing Python execution and substitution of manifest composite sum scores for true latent SEM models."
+  },
+  "failure_signature": "COMPOUND_METHODOLOGICAL_TOOLING_DEFECT",
+  "root_cause_diagnosis": "Four distinct defects occurred causally linked to epistemic and methodological omission: 1) Epistemic Invariant Defect: Orchestrator emitted a Pre-Flight Declaration claiming 'Deterministic Adaptive Context bound' but executed zero queries to the persistent learning store (Step 5). 2) Tool Selection Defect: Lacking context, the orchestrator defaulted to Python (semopy/statsmodels) rather than canonical R (lavaan). 3) Methodological Defect: The delegation envelope explicitly substituted manifest path analysis on composite sum scores instead of specifying true latent SEM measurement models (`=~`) using the available subscale indicators. 4) Visualization Defect: The fallback mitigation generated synthetic hand-crafted Matplotlib figures rather than standardized R `semPlot::semPaths()` diagrams (Step 16).",
+  "prescribed_behavior": "The orchestrator MUST query `academic-adaptive-context` before pipeline generation. SEM tasks MUST specify R (`lavaan`) as the sole canonical execution engine. SEM model specifications MUST incorporate true latent measurement models utilizing subscale indicators, strictly prohibiting the substitution of composite sum scores. Finally, SEM structural path diagrams MUST be rendered using academic standards (e.g., `semPlot::semPaths()` in R) rather than ad-hoc plotting libraries like Matplotlib.",
+  "created_at": "2026-09-23T12:11:02+03:30"
+}
