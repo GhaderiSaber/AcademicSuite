@@ -133,16 +133,91 @@ class TestDataGenerationPipeline(unittest.TestCase):
         self.assertEqual(len(orch.manifest["steps_executed"]), len(steps))
 
     def test_07_micro_stage_sequences_documentation(self):
-        """Verifies Section 7 Empirical Data Generation Pipeline is codified in MICRO_STAGE_SEQUENCES.md."""
+        """Verifies Section 7 Empirical Data Generation Pipeline is codified in MICRO_STAGE_SEQUENCES.md with Stage DS.0."""
         seq_path = os.path.join(REPO_ROOT, ".agents", "references", "MICRO_STAGE_SEQUENCES.md")
         with open(seq_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        self.assertIn("## 7. Empirical Data Generation & Simulation Pipeline (Stages DS.1 – DS.5)", content)
+        self.assertIn("## 7. Empirical Data Generation & Simulation Pipeline (Stages DS.0 – DS.5)", content)
+        self.assertIn("Stage DS.0", content)
         self.assertIn("Stage DS.1", content)
         self.assertIn("Stage DS.3", content)
         self.assertIn("Stage DS.5", content)
+        self.assertIn("Pre-Execution Blueprint & User Confirmation (Stage DS.0)", content)
         self.assertIn("Directive 9 (Realistic Decimal Noise)", content)
+
+    def test_08_generate_data_blueprint_structure(self):
+        """Verifies generate_data_blueprint outputs complete model specification and roadmap."""
+        bp = odr.generate_data_blueprint("SEM with 3 latents, 220 participants")
+        self.assertEqual(bp["status"], "BLUEPRINT_GENERATED")
+        self.assertEqual(bp["stage"], "DS.0")
+        self.assertEqual(bp["model_family"], "SEM")
+        self.assertEqual(bp["dataset_parameters"]["sample_size"], 220)
+        self.assertEqual(bp["dataset_parameters"]["estimator"], "WLSMV")
+        self.assertTrue(bp["dataset_parameters"]["include_latents"])
+
+        # Check structural specification
+        latents = bp["structural_specification"]["latents"]
+        self.assertEqual(len(latents), 3)
+        self.assertIn("structural_paths", bp["structural_specification"])
+
+        # Check roadmap DS.0 - DS.5
+        roadmap = bp["pipeline_roadmap"]
+        self.assertEqual(len(roadmap), 6)
+        stages = [s["stage"] for s in roadmap]
+        self.assertEqual(stages, ["DS.0", "DS.1", "DS.2", "DS.3", "DS.4", "DS.5"])
+
+        # Check confirmation prompt
+        self.assertIn("Confirmation Gate (Directive 11)", bp["confirmation_prompt"])
+
+    def test_09_format_data_blueprint_markdown(self):
+        """Verifies format_data_blueprint_markdown generates compliant Markdown representation."""
+        bp = odr.generate_data_blueprint("CFA model with 2 factors and 180 participants")
+        md_text = odr.format_data_blueprint_markdown(bp)
+
+        self.assertIn("### 📋 Pre-Execution Data Blueprint & Pipeline Roadmap (Stage DS.0)", md_text)
+        self.assertIn("**Target Model Family**: **CFA**", md_text)
+        self.assertIn("`180` participants", md_text)
+        self.assertIn("#### 📐 Measurement Model Specification:", md_text)
+        self.assertIn("#### 🔗 Structural Model Paths:", md_text)
+        self.assertIn("#### 🗺️ Execution Roadmap (Stages DS.0 – DS.5):", md_text)
+        self.assertIn("**DS.1**", md_text)
+        self.assertIn("**DS.3**", md_text)
+        self.assertIn("Monte Carlo Simulation", md_text)
+        self.assertIn("Confirmation Gate (Directive 11)", md_text)
+
+    def test_10_blueprint_cli_subcommand(self):
+        """Verifies CLI execution of 'data-blueprint' subcommand."""
+        cmd = [
+            sys.executable,
+            os.path.join(REPO_ROOT, ".agents", "scripts", "orchestrator_dependency_resolver.py"),
+            "data-blueprint",
+            "--sample-size", "320",
+            "--model", "sem",
+            "--format", "json"
+        ]
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        data = json.loads(res.stdout)
+        self.assertEqual(data["status"], "BLUEPRINT_GENERATED")
+        self.assertEqual(data["dataset_parameters"]["sample_size"], 320)
+        self.assertEqual(data["model_family"], "SEM")
+        self.assertEqual(len(data["pipeline_roadmap"]), 6)
+
+    def test_11_orchestrator_agent_and_contract_codification(self):
+        """Verifies academic-orchestrator agent.md and contract.md mandate pre-execution blueprints."""
+        agent_path = os.path.join(REPO_ROOT, ".agents", "agents", "academic-orchestrator", "agent.md")
+        contract_path = os.path.join(REPO_ROOT, ".agents", "agents", "academic-orchestrator", "contract.md")
+
+        with open(agent_path, "r", encoding="utf-8") as f:
+            agent_content = f.read()
+        self.assertIn("PRE-EXECUTION BLUEPRINT & USER CONFIRMATION (Directive 11)", agent_content)
+        self.assertIn("## 📋 Pre-Execution Data Blueprint Protocol (Stages DS.0 – DS.5)", agent_content)
+
+        with open(contract_path, "r", encoding="utf-8") as f:
+            contract_content = f.read()
+        self.assertIn("PRE-EXECUTION BLUEPRINT & CONFIRMATION (Directive 11)", contract_content)
+        self.assertIn("formulate and display Pre-Execution Data Blueprints", contract_content)
+        self.assertIn("delegate or trigger data generation without user confirmation", contract_content)
 
 
 if __name__ == "__main__":

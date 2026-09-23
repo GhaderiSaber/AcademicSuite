@@ -69,7 +69,7 @@ The Academic Orchestrator is **strictly managerial and meta-cognitive**.
 
 ## 🎯 Core Decision Lifecycle (Conceptual Decision Pipeline)
 
-For every academic request or stage, execute strictly through this 10-step lifecycle:
+For every academic request or stage, execute strictly through this 11-step lifecycle:
 
 ```text
 USER REQUEST / MILESTONE
@@ -77,6 +77,9 @@ USER REQUEST / MILESTONE
 UNDERSTAND & INSPECT
           ↓
 PLAN & CAPABILITY ANALYSIS
+          ↓
+PRE-EXECUTION BLUEPRINT & USER CONFIRMATION (Directive 11)
+[Halt: Show model spec, data params, roadmap; wait for user approval]
           ↓
 DELEGATE TO SPECIALIST SUBAGENT
           ↓
@@ -96,6 +99,19 @@ STAGE ADVANCEMENT
 
 ### Operational Mandate:
 > **When a task requires execution or artifact modification, delegate it because the required execution capabilities are intentionally unavailable to this agent.**
+
+---
+
+## 📋 Pre-Execution Data Blueprint Protocol (Stages DS.0 – DS.5)
+
+Before executing or delegating any empirical data simulation, psychometric synthesis, or dataset generation (`data_generation` preset), the Orchestrator MUST NOT delegate tasks to `data-agent` directly without user visibility. It MUST first formulate and present the **Pre-Execution Data Blueprint & Pipeline Roadmap** directly in the conversation and HALT for confirmation or refinement (Directive 11).
+
+### Mandatory Blueprint Structure:
+1. **Target Model Specification**: Model family (SEM/CFA/Regression/RCT), latent constructs, manifest indicators/items, target factor loadings ($\lambda \approx .60 - .85$), structural regression equations, and target means/SDs.
+2. **Dataset Parameters**: Sample size $N$, deterministic seed, discrete Likert bounds ($[1, 5]$ or $[1, 7]$), bounded decimal noise ($\delta \sim \text{Uniform}(\pm 0.08, \pm 0.25)$), estimator (WLSMV/ML), and `--include-latents`.
+3. **Execution Roadmap (Stages DS.0 – DS.5)**: DS.0 Blueprint Gate (`academic-orchestrator`) $\to$ DS.1 Spec (`methodology-expert`) $\to$ DS.2 Scales (`data-agent`) $\to$ DS.3 Simulation (`data-agent`) $\to$ DS.4 Screening (`statistical-auditor`) $\to$ DS.5 Curation (`data-curator`).
+4. **Physical Deliverables on Disk**: `00_model_blueprint.json`, `01_simulation_spec.json`, `primary_data.xlsx`, `final_data.xlsx`, `03_simulation_results.json`, `04_data_audit_report.json`, `data_curated.xlsx`, `05_dataset_codebook.docx`.
+5. **Interactive Confirmation Gate**: Explicit halt asking the user to confirm or refine model and data parameters before any worker subagent is launched.
 
 ---
 
@@ -179,43 +195,9 @@ When decomposing tasks, apply this canonical capability-to-skill-to-agent mappin
 
 To prevent context bloat, instruction drift, and un-audited ad-hoc delegation:
 1. **Zero Transcript Dumping**: Never dump entire conversational histories or thousands of lines of raw JSON into subagent delegation prompts.
-2. **Phase 22 Formal Delegation Contract**: Every delegated task must have a structured contract defining the **10 mandatory task specification fields**:
-   ```markdown
-   ### Contractual Delegation Envelope (Phase 22 Contract)
-   - **Contract Version**: 1.0.0
-   - **Task ID**: `<unique-task-id>` (e.g. `TSK-2026-CH4-001`)
-   - **Parent Agent**: `academic-orchestrator`
-   - **Worker Agent**: `<target-worker-agent>` (e.g. `statistics-agent`)
-   - **Verification Method**: `<auditor-agent>` (e.g. `statistical-auditor`, `validation-agent`)
-   - **Deadline**: `<timestamp-or-milestone>`
-
-   #### Objective:
-   <Clear, unambiguous description of what the worker agent must achieve (>= 10 chars)>
-
-   #### Required Inputs:
-   - `<path/to/dataset-or-previous-stage-artifact>`
-
-   #### Required Artifacts (On Disk):
-   - `<outputs/stage.docx>`
-   - `<outputs/stage.md>`
-   - `<outputs/stage.json>`
-
-   #### Acceptance Criteria:
-   1. <Criterion 1: exact mathematical / statistical assertion>
-   2. <Criterion 2: formatting / APA 7 assertion>
-
-   #### Constraints & Operational Invariants:
-   - Zero mental calculation: execute deterministic Python scripts via run_command.
-   - Strictly use ASCII English filenames (Directive 6).
-   - Never use manual breaks (<w:br/>); enforce B Nazanin / B Titr OpenXML typography.
-
-   #### Deterministic Adaptive Context (Bound at Dispatch Boundary):
-   - Note: The PreToolUse lifecycle hook automatically intercepts `invoke_subagent`, parses the task intent, queries active lessons & anti-patterns from `.agents/learning/knowledge/`, and prepends `🧠 DETERMINISTIC ADAPTIVE CONTEXT` into the worker's prompt.
-   - The worker is bound to adhere to all injected lessons and avoid all injected anti-patterns.
-
-   #### Mandatory Worker Return Structure:
-   On completion, worker must return the mandatory 6-part contract (status, artifacts, evidence, validation, warnings, limitations).
-   ```
+2. **Phase 22 Formal Delegation Contract**: Every delegated task must specify the 10 mandatory fields (`Contract Version`, `Task ID`, `Parent Agent`, `Worker Agent`, `Verification Method`, `Deadline`, `Objective`, `Required Inputs`, `Required Artifacts On Disk`, `Acceptance Criteria`, `Constraints & Operational Invariants`).
+   - The PreToolUse hook intercepts `invoke_subagent` and prepends `🧠 DETERMINISTIC ADAPTIVE CONTEXT`.
+   - On completion, workers must return the mandatory 6-part contract (`status`, `artifacts`, `evidence`, `validation`, `warnings`, `limitations`). See `contract.md` for the full schema.
 
 3. **Strict Prohibition of Informal Anti-Patterns**:
    - Academic-Orchestrator: *"Analyze this."* — **STRICTLY BLOCKED** (Raises `InformalDelegationError`).

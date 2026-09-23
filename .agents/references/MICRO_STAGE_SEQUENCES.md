@@ -111,17 +111,19 @@ Every empirical micro-stage producing a synchronized triad (`.docx` + `.md` + `.
 
 ---
 
-## 7. Empirical Data Generation & Simulation Pipeline (Stages DS.1 – DS.5)
+## 7. Empirical Data Generation & Simulation Pipeline (Stages DS.0 – DS.5)
 
 | Stage | Name | Assigned Subagent | Official Script / Capability | Required Physical Triad Deliverables |
 | :--- | :--- | :--- | :--- | :--- |
+| **Stage DS.0** | Pre-Execution Model Blueprint & Confirmation Gate | `academic-orchestrator` | `orchestrator_dependency_resolver.py data-blueprint` | `00_model_blueprint.docx`, `00_model_blueprint.md`, `00_model_blueprint.json` |
 | **Stage DS.1** | Simulation Specification & Power Analysis | `methodology-expert` | `gpower_engine.py` / `methodology-review` | `01_simulation_spec.docx`, `01_simulation_spec.md`, `01_simulation_spec.json` |
 | **Stage DS.2** | Instrument Grounding & Factor Weights | `data-agent` | `questionnaire_resolver.py` | `02_scales_codebook.docx`, `02_scales_codebook.md`, `02_scales_codebook.json` |
 | **Stage DS.3** | Monte Carlo Simulation & Model Synthesis | `data-agent` | `simdat_engine.py` / `sem_data_maker.R` | `03_simulation_report.docx`, `03_simulation_report.md`, `03_simulation_results.json`, `primary_data.xlsx`, `final_data.xlsx` |
 | **Stage DS.4** | Data Quality, Distribution & Anomaly Screening | `statistical-auditor` | `data-audit` / `assumption-testing` | `04_data_audit_report.docx`, `04_data_audit_report.md`, `04_data_audit_report.json` |
 | **Stage DS.5** | Data Curation, Codebook & Provenance Handoff | `data-curator` | `data_curation_pipeline.py` | `05_dataset_codebook.docx`, `05_dataset_codebook.md`, `05_data_provenance.json`, `data_curated.xlsx` |
 
-### 💡 The Simulation Invariants (Stages DS.1 – DS.5)
+### 💡 The Simulation Invariants (Stages DS.0 – DS.5)
+0. **Pre-Execution Blueprint & User Confirmation (Stage DS.0)**: Before initiating data synthesis, the Orchestrator MUST formulate and present the complete model specification, data parameters, and micro-stage roadmap to the user, and pause for explicit approval or refinement. No simulation subagent may be launched without user confirmation.
 1. **Directive 9 (Realistic Decimal Noise)**: Means must have realistic empirical decimal noise ($\mu_{\text{empirical}} = \mu_{\text{target}} + \delta, \delta \sim \text{Uniform}(\pm 0.08, \pm 0.25)$); whole-integer means in generated Likert composite aggregates are strictly invalid.
 2. **Discrete Likert Integers**: Individual item ratings must be integer-quantized within authentic rating boundaries (e.g. $[1, 5]$ or $[1, 7]$).
 3. **$J$-Batch Optimization**: Structural equation models must iterate through $J$ candidate batches to guarantee mathematical convergence and optimal fit ($\text{CFI} \ge .90, \text{RMSEA} \le .08$).

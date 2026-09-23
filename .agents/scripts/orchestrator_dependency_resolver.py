@@ -13,6 +13,7 @@ for backward compatibility across orchestrator tests and legacy execution bridge
 
 import os
 import sys
+import re
 import json
 import argparse
 from typing import Dict, Any, List, Optional
@@ -580,6 +581,339 @@ def route_task(description: str, file_count: int = 1, chapter_count: int = 1) ->
     }
 
 
+def generate_data_blueprint(
+    requirements_or_prompt: Any = "SEM model with 3 latents",
+    model_family: Optional[str] = None,
+    sample_size: Optional[int] = None,
+    seed: Optional[int] = None,
+    scale_bounds: Optional[List[int]] = None,
+    estimator: Optional[str] = None,
+    include_latents: Optional[bool] = None,
+    latents: Optional[List[Dict[str, Any]]] = None,
+    structural_paths: Optional[List[str]] = None,
+    **kwargs
+) -> Dict[str, Any]:
+    """
+    Generates a formal, structured Pre-Execution Data Blueprint (Stage DS.0).
+    Allows the academic-orchestrator to present the exact model specification,
+    dataset parameters, and micro-stage roadmap to the user prior to execution.
+    """
+    req_dict: Dict[str, Any] = {}
+    prompt_str = ""
+
+    if isinstance(requirements_or_prompt, dict):
+        req_dict = dict(requirements_or_prompt)
+        prompt_str = req_dict.get("description", "") or req_dict.get("prompt", "")
+    elif isinstance(requirements_or_prompt, str):
+        if os.path.isfile(requirements_or_prompt):
+            try:
+                with open(requirements_or_prompt, "r", encoding="utf-8") as f:
+                    req_dict = json.load(f)
+                    prompt_str = req_dict.get("description", "") or req_dict.get("prompt", "")
+            except Exception:
+                prompt_str = requirements_or_prompt
+        elif requirements_or_prompt.strip().startswith("{") and requirements_or_prompt.strip().endswith("}"):
+            try:
+                req_dict = json.loads(requirements_or_prompt)
+                prompt_str = req_dict.get("description", "") or req_dict.get("prompt", "")
+            except Exception:
+                prompt_str = requirements_or_prompt
+        else:
+            prompt_str = requirements_or_prompt
+
+    # Extract sample size
+    if sample_size is None:
+        if "sample_size" in req_dict:
+            sample_size = int(req_dict["sample_size"])
+        elif "N" in req_dict:
+            sample_size = int(req_dict["N"])
+        elif "n" in req_dict:
+            sample_size = int(req_dict["n"])
+        elif prompt_str:
+            m = re.search(r'\b(?:n\s*=\s*|sample\s*size\s*(?:of\s*)?|(\d{2,4})\s*(?:participants|samples|cases|subjects|respondents))\b', prompt_str, re.IGNORECASE)
+            if m:
+                val = m.group(1) or re.search(r'\b(\d{2,4})\b', m.group(0)).group(1)
+                sample_size = int(val)
+    if sample_size is None:
+        sample_size = 250
+
+    # Extract model family
+    prompt_lower = (prompt_str or "").lower()
+    if model_family is None:
+        if "model_family" in req_dict:
+            model_family = req_dict["model_family"]
+        elif "model" in req_dict:
+            model_family = req_dict["model"]
+        elif "cfa" in prompt_lower or "confirmatory factor" in prompt_lower:
+            model_family = "cfa"
+        elif any(k in prompt_lower for k in ["rct", "pre-post", "trial", "intervention", "control group"]):
+            model_family = "rct"
+        elif "regression" in prompt_lower or "hierarchical" in prompt_lower:
+            model_family = "regression"
+        else:
+            model_family = "sem"
+
+    model_family = model_family.lower()
+
+    # Seed
+    if seed is None:
+        seed = int(req_dict.get("seed", 42))
+
+    # Scale bounds
+    if scale_bounds is None:
+        scale_bounds = req_dict.get("scale_bounds", [1, 5])
+
+    # Estimator
+    if estimator is None:
+        estimator = req_dict.get("estimator", "WLSMV" if model_family in ("sem", "cfa") else "ML")
+
+    # Include latents
+    if include_latents is None:
+        include_latents = req_dict.get("include_latents", True)
+
+    # Latents & Structural Specification
+    if latents is None and "latents" in req_dict:
+        latents = req_dict["latents"]
+    if structural_paths is None and "structural_paths" in req_dict:
+        structural_paths = req_dict["structural_paths"]
+
+    if latents is None:
+        if model_family == "sem":
+            latents = [
+                {
+                    "name": "F1_Predictor",
+                    "label": "Exogenous Predictor Construct",
+                    "indicator_count": 4,
+                    "indicators": ["x1", "x2", "x3", "x4"],
+                    "target_loadings": [0.72, 0.78, 0.81, 0.75],
+                    "target_mean": 3.45,
+                    "target_sd": 0.82
+                },
+                {
+                    "name": "F2_Mediator",
+                    "label": "Intervening Mediator Construct",
+                    "indicator_count": 4,
+                    "indicators": ["m1", "m2", "m3", "m4"],
+                    "target_loadings": [0.70, 0.84, 0.79, 0.73],
+                    "target_mean": 3.60,
+                    "target_sd": 0.78
+                },
+                {
+                    "name": "F3_Criterion",
+                    "label": "Endogenous Criterion Construct",
+                    "indicator_count": 4,
+                    "indicators": ["y1", "y2", "y3", "y4"],
+                    "target_loadings": [0.76, 0.82, 0.85, 0.69],
+                    "target_mean": 3.30,
+                    "target_sd": 0.85
+                }
+            ]
+            structural_paths = structural_paths or [
+                "F2_Mediator ~ 0.42 * F1_Predictor",
+                "F3_Criterion ~ 0.48 * F2_Mediator + 0.28 * F1_Predictor"
+            ]
+        elif model_family == "cfa":
+            latents = [
+                {
+                    "name": "F1_Factor1",
+                    "label": "Latent Dimension 1",
+                    "indicator_count": 4,
+                    "indicators": ["item1", "item2", "item3", "item4"],
+                    "target_loadings": [0.70, 0.75, 0.80, 0.72],
+                    "target_mean": 3.50,
+                    "target_sd": 0.80
+                },
+                {
+                    "name": "F2_Factor2",
+                    "label": "Latent Dimension 2",
+                    "indicator_count": 4,
+                    "indicators": ["item5", "item6", "item7", "item8"],
+                    "target_loadings": [0.68, 0.82, 0.76, 0.71],
+                    "target_mean": 3.40,
+                    "target_sd": 0.85
+                }
+            ]
+            structural_paths = structural_paths or [
+                "F1_Factor1 ~~ 0.38 * F2_Factor2"
+            ]
+        elif model_family == "rct":
+            latents = [
+                {
+                    "name": "Control_Group",
+                    "label": "Control Group Pre/Post Measures",
+                    "indicator_count": 2,
+                    "indicators": ["pre_test", "post_test"],
+                    "target_loadings": [1.0, 1.0],
+                    "target_mean": 24.50,
+                    "target_sd": 4.20
+                },
+                {
+                    "name": "Intervention_Group",
+                    "label": "Intervention Group Pre/Post Measures",
+                    "indicator_count": 2,
+                    "indicators": ["pre_test", "post_test"],
+                    "target_loadings": [1.0, 1.0],
+                    "target_mean": 31.20,
+                    "target_sd": 4.10
+                }
+            ]
+            structural_paths = structural_paths or [
+                "post_test ~ 0.65 * pre_test + group_effect (d = 0.75)"
+            ]
+        else:
+            latents = [
+                {
+                    "name": "Predictors",
+                    "label": "Independent Predictor Set",
+                    "indicator_count": 3,
+                    "indicators": ["x1", "x2", "x3"],
+                    "target_loadings": [1.0, 1.0, 1.0],
+                    "target_mean": 0.0,
+                    "target_sd": 1.0
+                }
+            ]
+            structural_paths = structural_paths or [
+                "y ~ 0.35 * x1 + 0.28 * x2 - 0.20 * x3"
+            ]
+
+    # Pipeline Roadmap
+    pipeline_roadmap = [
+        {
+            "stage": "DS.0",
+            "name": "Pre-Execution Model Blueprint & Confirmation Gate",
+            "assigned_agent": "academic-orchestrator",
+            "capability": "orchestrator_dependency_resolver.py data-blueprint",
+            "deliverables": ["00_model_blueprint.docx", "00_model_blueprint.md", "00_model_blueprint.json"]
+        },
+        {
+            "stage": "DS.1",
+            "name": "Simulation Specification & Power Analysis",
+            "assigned_agent": "methodology-expert",
+            "capability": "gpower_engine.py / methodology-review",
+            "deliverables": ["01_simulation_spec.docx", "01_simulation_spec.md", "01_simulation_spec.json"]
+        },
+        {
+            "stage": "DS.2",
+            "name": "Instrument Grounding & Factor Weights",
+            "assigned_agent": "data-agent",
+            "capability": "questionnaire_resolver.py / psychometric-scale-resolver",
+            "deliverables": ["02_scales_codebook.docx", "02_scales_codebook.md", "02_scales_codebook.json"]
+        },
+        {
+            "stage": "DS.3",
+            "name": "Monte Carlo Simulation & Model Synthesis",
+            "assigned_agent": "data-agent",
+            "capability": "simdat_engine.py / sem_data_maker.R",
+            "deliverables": ["03_simulation_report.docx", "03_simulation_report.md", "03_simulation_results.json", "primary_data.xlsx", "final_data.xlsx"]
+        },
+        {
+            "stage": "DS.4",
+            "name": "Data Quality, Distribution & Anomaly Screening",
+            "assigned_agent": "statistical-auditor",
+            "capability": "data-audit / assumption-testing",
+            "deliverables": ["04_data_audit_report.docx", "04_data_audit_report.md", "04_data_audit_report.json"]
+        },
+        {
+            "stage": "DS.5",
+            "name": "Data Curation, Codebook & Provenance Handoff",
+            "assigned_agent": "data-curator",
+            "capability": "data_curation_pipeline.py / data-cleaning",
+            "deliverables": ["05_dataset_codebook.docx", "05_dataset_codebook.md", "05_data_provenance.json", "data_curated.xlsx"]
+        }
+    ]
+
+    confirmation_prompt = (
+        "⚠️ Confirmation Gate (Directive 11): Please review this data generation blueprint. "
+        "Confirm whether you approve this model specification and pipeline roadmap, or specify any modifications "
+        "(e.g. sample size N, indicator counts, target means, factor loadings, structural paths) before Stage DS.1 execution begins."
+    )
+
+    return {
+        "status": "BLUEPRINT_GENERATED",
+        "pipeline": "data_generation",
+        "stage": "DS.0",
+        "model_family": model_family.upper(),
+        "dataset_parameters": {
+            "sample_size": sample_size,
+            "seed": seed,
+            "scale_bounds": scale_bounds,
+            "noise_injection": "Uniform(±0.08, ±0.25)",
+            "estimator": estimator,
+            "include_latents": include_latents
+        },
+        "structural_specification": {
+            "latent_count": len(latents),
+            "latents": latents,
+            "structural_paths": structural_paths
+        },
+        "pipeline_roadmap": pipeline_roadmap,
+        "expected_artifacts_on_disk": [
+            "00_model_blueprint.json",
+            "01_simulation_spec.json",
+            "primary_data.xlsx",
+            "final_data.xlsx",
+            "03_simulation_results.json",
+            "04_data_audit_report.json",
+            "data_curated.xlsx",
+            "05_dataset_codebook.docx"
+        ],
+        "confirmation_prompt": confirmation_prompt
+    }
+
+
+def format_data_blueprint_markdown(blueprint: Dict[str, Any]) -> str:
+    """
+    Renders a structured Pre-Execution Data Blueprint into clean Markdown
+    for conversational display or on-disk documentation (00_model_blueprint.md).
+    """
+    p = blueprint["dataset_parameters"]
+    s = blueprint["structural_specification"]
+    lines = [
+        "### 📋 Pre-Execution Data Blueprint & Pipeline Roadmap (Stage DS.0)",
+        "",
+        f"- **Proposed Pipeline**: `{blueprint.get('pipeline', 'data_generation')}`",
+        f"- **Target Model Family**: **{blueprint.get('model_family', 'SEM')}**",
+        f"- **Sample Size ($N$)**: `{p.get('sample_size', 250)}` participants (Deterministic Seed: `{p.get('seed', 42)}`)",
+        f"- **Scale Bounds & Decimals**: Discrete Likert integers `{p.get('scale_bounds', [1, 5])}` with empirical decimal noise ({p.get('noise_injection', 'Uniform(±0.08, ±0.25)')})",
+        f"- **Estimator & True Latents**: Estimator `{p.get('estimator', 'WLSMV')}`, True Latent Columns: `{'Yes' if p.get('include_latents') else 'No'}`",
+        "",
+        "#### 📐 Measurement Model Specification:",
+        "| Latent Construct | Manifest Indicators | Target Loadings ($\\lambda$) | Target Mean $\\pm$ SD |",
+        "| :--- | :--- | :--- | :--- |"
+    ]
+
+    for lat in s.get("latents", []):
+        name = lat.get("name", "Latent")
+        ind_names = ", ".join(lat.get("indicators", []))
+        loadings = ", ".join(str(l) for l in lat.get("target_loadings", []))
+        m = lat.get("target_mean", 0.0)
+        sd = lat.get("target_sd", 1.0)
+        lines.append(f"| **{name}** | `{ind_names}` | `{loadings}` | ${m:.2f} \\pm {sd:.2f}$ |")
+
+    lines.append("")
+    lines.append("#### 🔗 Structural Model Paths:")
+    for path in s.get("structural_paths", []):
+        lines.append(f"- `{path}`")
+
+    lines.append("")
+    lines.append("#### 🗺️ Execution Roadmap (Stages DS.0 – DS.5):")
+    lines.append("| Stage | Stage Name | Assigned Specialist | Capability / Tool | Required Physical Deliverables |")
+    lines.append("| :--- | :--- | :--- | :--- | :--- |")
+
+    for st in blueprint.get("pipeline_roadmap", []):
+        st_id = st.get("stage", "")
+        st_name = st.get("name", "")
+        agent = st.get("assigned_agent", "")
+        cap = st.get("capability", "")
+        delivs = ", ".join(f"`{d}`" for d in st.get("deliverables", []))
+        lines.append(f"| **{st_id}** | {st_name} | `{agent}` | `{cap}` | {delivs} |")
+
+    lines.append("")
+    lines.append("---")
+    lines.append(f"> {blueprint.get('confirmation_prompt', '')}")
+    return "\n".join(lines)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Orchestrator Dependency & Capability Resolver Engine")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -605,20 +939,46 @@ def main():
     p_route.add_argument("--file-count", type=int, default=1, help="Estimated number of files involved")
     p_route.add_argument("--chapter-count", type=int, default=1, help="Number of thesis chapters")
 
+    # data-blueprint
+    p_blue = subparsers.add_parser("data-blueprint", help="Generate and display pre-execution data blueprint (Stage DS.0)")
+    p_blue.add_argument("query", nargs="?", default="SEM model with 3 latents", help="Description or requirements for data generation")
+    p_blue.add_argument("--sample-size", type=int, default=None, help="Sample size N")
+    p_blue.add_argument("--model", default=None, help="Model family (sem, cfa, regression, rct)")
+    p_blue.add_argument("--seed", type=int, default=42, help="Random seed")
+    p_blue.add_argument("--format", choices=["json", "markdown", "both"], default="both", help="Output format")
+
     args = parser.parse_args()
 
     if args.command == "capability-map":
         res = resolve_capability(args.query)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
     elif args.command == "check-prerequisites":
         res = check_prerequisites(args.stage_id, args.state_dir)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
     elif args.command == "format-delegation":
         res = format_delegation_envelope(args.stage_id, args.state_dir, args.instructions)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
     elif args.command == "route-task":
         res = route_task(args.description, args.file_count, args.chapter_count)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+    elif args.command == "data-blueprint":
+        bp = generate_data_blueprint(
+            args.query,
+            model_family=args.model,
+            sample_size=args.sample_size,
+            seed=args.seed
+        )
+        if args.format == "json":
+            print(json.dumps(bp, indent=2, ensure_ascii=False))
+        elif args.format == "markdown":
+            print(format_data_blueprint_markdown(bp))
+        else:
+            # both
+            print(format_data_blueprint_markdown(bp))
+            print("\n<!-- JSON PAYLOAD -->")
+            print(json.dumps(bp, indent=2, ensure_ascii=False))
     else:
-        res = {"error": f"Unknown command {args.command}"}
-
-    print(json.dumps(res, indent=2, ensure_ascii=False))
+        print(json.dumps({"error": f"Unknown command {args.command}"}, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
