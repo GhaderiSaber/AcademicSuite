@@ -1,0 +1,31 @@
+{
+  "statement": "In SEM, a latent variable can be specified with a single observed indicator by fixing factor loading to 1.0 and error variance to Var(y)*(1 - alpha).",
+  "scope": "cross-project",
+  "domain": "SEM",
+  "capability": "SEM",
+  "tags": [
+    "sem"
+  ],
+  "applicability": {
+    "criteria": [
+      "Foundational rule established by research mentor"
+    ],
+    "target_skills": [
+      "SEM"
+    ]
+  },
+  "exclusions": [],
+  "source_lessons": [
+    "LSN-HUMAN-MENTOR-DIRECT"
+  ],
+  "supporting_evaluations": [],
+  "contradictions": [],
+  "status": "ACCEPTED_ACTIVE",
+  "version": "1.0.0",
+  "contract_version": "1.0.0",
+  "item_type": "principle",
+  "generalization_stage": "PROMOTED_PRINCIPLE",
+  "updated_at": "2026-09-23T09:42:47.678459+00:00",
+  "knowledge_id": "PRN-20260923-3A3A2B",
+  "relationships": []
+}

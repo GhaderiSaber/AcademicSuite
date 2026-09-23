@@ -1,0 +1,30 @@
+{
+  "statement": "In SEM path diagrams (semPlot), stretch the canvas horizontally (e.g. width = 4500-4800, height = 2400 at 300 DPI) to give latent constructs ample breathing room between indicator columns.",
+  "scope": "cross-project",
+  "domain": "SEM",
+  "capability": "SEM",
+  "tags": [
+    "sem"
+  ],
+  "applicability": {
+    "criteria": [
+      "Approved methodological workflow procedure"
+    ],
+    "target_skills": [
+      "SEM"
+    ]
+  },
+  "exclusions": [],
+  "source_lessons": [
+    "LSN-HUMAN-MENTOR-DIRECT"
+  ],
+  "supporting_evaluations": [],
+  "contradictions": [],
+  "status": "ACCEPTED_ACTIVE",
+  "version": "1.0.0",
+  "contract_version": "1.0.0",
+  "item_type": "pattern",
+  "updated_at": "2026-09-23T09:57:24.655296+00:00",
+  "knowledge_id": "PTR-20260923-D83E86",
+  "relationships": []
+}

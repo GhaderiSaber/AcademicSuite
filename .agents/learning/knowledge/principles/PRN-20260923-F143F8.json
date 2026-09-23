@@ -1,0 +1,31 @@
+{
+  "statement": "In SEM path diagrams (semPlot), latent constructs (ellipses) must be larger than observed manifest indicators (rectangles): sizeLat must be greater than sizeMan (e.g. sizeLat = 13, sizeLat2 = 6 vs sizeMan = 8, sizeMan2 = 5).",
+  "scope": "cross-project",
+  "domain": "SEM",
+  "capability": "SEM",
+  "tags": [
+    "sem"
+  ],
+  "applicability": {
+    "criteria": [
+      "Foundational rule established by research mentor"
+    ],
+    "target_skills": [
+      "SEM"
+    ]
+  },
+  "exclusions": [],
+  "source_lessons": [
+    "LSN-HUMAN-MENTOR-DIRECT"
+  ],
+  "supporting_evaluations": [],
+  "contradictions": [],
+  "status": "ACCEPTED_ACTIVE",
+  "version": "1.0.0",
+  "contract_version": "1.0.0",
+  "item_type": "principle",
+  "generalization_stage": "PROMOTED_PRINCIPLE",
+  "updated_at": "2026-09-23T09:57:24.417228+00:00",
+  "knowledge_id": "PRN-20260923-F143F8",
+  "relationships": []
+}

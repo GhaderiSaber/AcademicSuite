@@ -1,0 +1,30 @@
+{
+  "statement": "When rendering high-resolution (300 DPI) SEM path diagrams in semPlot, scale down the edge value labels (edge.label.cex = 0.75 to 0.85) so numerical values align proportionally with nodes and paths without visual crowding.",
+  "scope": "cross-project",
+  "domain": "SEM",
+  "capability": "SEM",
+  "tags": [
+    "sem"
+  ],
+  "applicability": {
+    "criteria": [
+      "Approved methodological workflow procedure"
+    ],
+    "target_skills": [
+      "SEM"
+    ]
+  },
+  "exclusions": [],
+  "source_lessons": [
+    "LSN-HUMAN-MENTOR-DIRECT"
+  ],
+  "supporting_evaluations": [],
+  "contradictions": [],
+  "status": "ACCEPTED_ACTIVE",
+  "version": "1.0.0",
+  "contract_version": "1.0.0",
+  "item_type": "pattern",
+  "updated_at": "2026-09-23T09:52:24.815848+00:00",
+  "knowledge_id": "PTR-20260923-D0022F",
+  "relationships": []
+}

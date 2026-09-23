@@ -1,0 +1,30 @@
+{
+  "statement": "Render publication path diagrams in R semPlot::semPaths using Saber's canonical styling: whatLabels='std', nCharNodes=20, sizeLat=10, sizeLat2=5, sizeMan=15, sizeMan2=8, edge.label.cex=1.5, color=list(lat=rgb(245,253,118,maxColorValue=255), man=rgb(155,253,175,maxColorValue=255)), curvePivot=TRUE, layout='tree', fade=FALSE, style='lisrel', edge.label.position=0.55.",
+  "scope": "cross-project",
+  "domain": "SEM",
+  "capability": "SEM",
+  "tags": [
+    "sem"
+  ],
+  "applicability": {
+    "criteria": [
+      "Approved methodological workflow procedure"
+    ],
+    "target_skills": [
+      "SEM"
+    ]
+  },
+  "exclusions": [],
+  "source_lessons": [
+    "LSN-HUMAN-MENTOR-DIRECT"
+  ],
+  "supporting_evaluations": [],
+  "contradictions": [],
+  "status": "ACCEPTED_ACTIVE",
+  "version": "1.0.0",
+  "contract_version": "1.0.0",
+  "item_type": "pattern",
+  "updated_at": "2026-09-23T09:43:02.370693+00:00",
+  "knowledge_id": "PTR-20260923-686BE1",
+  "relationships": []
+}
