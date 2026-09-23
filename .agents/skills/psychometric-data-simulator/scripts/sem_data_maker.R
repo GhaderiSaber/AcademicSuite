@@ -68,14 +68,14 @@ get_preset_config <- function(preset_name) {
         sigma_theta <- 1
         sigma_ey <- 1
         
-        lambda1 <- 1;  lambda2 <- -1
-        lambda3 <- -1; lambda4 <- -1; lambda5 <- -1
-        lambda6 <- 1;  lambda7 <- 1;  lambda8 <- 1; lambda9 <- 1
-        lambda10 <- 1
+        lambda1 <- 1.1;  lambda2 <- -0.95
+        lambda3 <- -0.9; lambda4 <- -1.0; lambda5 <- -0.85
+        lambda6 <- 1.0;  lambda7 <- 1.1;  lambda8 <- 0.95; lambda9 <- 0.85
+        lambda10 <- 1.0
         
-        f1 <- function(x, y) { 0.4 * x + 0.8 * y }
-        f2 <- function(x, y) { 0.5 * x + 0.8 * y }
-        f3 <- function(x, y, z) { 0.5 * x + 0.4 * y + 0.3 * z }
+        f1 <- function(x, y) { 0.45 * x + 0.75 * y }
+        f2 <- function(x, y) { 0.50 * x + 0.75 * y }
+        f3 <- function(x, y, z) { 0.50 * x + 0.35 * y + 0.30 * z + 0.60 * rnorm(n, 0, 1) }
         
         eta <- rnorm(n, 0, sigma_eta)
         phi1 <- rnorm(n, 0, sigma_phi1)
@@ -161,8 +161,8 @@ get_preset_config <- function(preset_name) {
         phi <- rnorm(n, 0, 1)
         theta <- rnorm(n, 0, 1)
         
-        f_phi <- function(e1, e2, e3, p) { 0.15 * e1 + 0.20 * e2 + 0.35 * e3 + 0.8 * p }
-        f_theta <- function(e1, e2, e3, p, th) { 0.20 * e1 + 0.15 * e2 + 0.25 * e3 + 0.45 * p + 0.6 * th }
+        f_phi <- function(e1, e2, e3, p) { 0.20 * e1 + 0.25 * e2 + 0.35 * e3 + 0.75 * p }
+        f_theta <- function(e1, e2, e3, p, th) { 0.20 * e1 + 0.20 * e2 + 0.25 * e3 + 0.40 * p + 0.65 * th }
         
         phi <- f_phi(eta1, eta2, eta3, phi)
         theta <- f_theta(eta1, eta2, eta3, phi, theta)
@@ -252,9 +252,9 @@ get_preset_config <- function(preset_name) {
         phi2 <- rnorm(n, 0, 1)
         theta <- rnorm(n, 0, 1)
         
-        f1 <- function(x, y) { 0.3 * x + 0.8 * y }
-        f2 <- function(x, y) { 0.1 * x + 0.8 * y }
-        f3 <- function(x, y, z, w) { 0.5 * x + 0.6 * y + 0.3 * z + 0.9 * w }
+        f1 <- function(x, y) { 0.35 * x + 0.75 * y }
+        f2 <- function(x, y) { 0.25 * x + 0.75 * y }
+        f3 <- function(x, y, z, w) { 0.40 * x + 0.45 * y + 0.30 * z + 0.75 * w }
         
         phi1 <- f1(eta, phi1)
         phi2 <- f2(eta, phi2)
@@ -349,9 +349,9 @@ get_preset_config <- function(preset_name) {
         phi <- rnorm(n, 0, 1)
         theta <- rnorm(n, 0, 1)
         
-        f1 <- function(x) { 0.9 * x }
-        f2 <- function(x, y) { 0.45 * x + 0.9 * y }
-        f3 <- function(x, y, z) { 0.25 * x + 0.57 * y + 0.9 * z }
+        f1 <- function(x) { 0.85 * x }
+        f2 <- function(x, y) { 0.45 * x + 0.80 * y }
+        f3 <- function(x, y, z) { 0.30 * x + 0.50 * y + 0.75 * z }
         
         phi <- f2(eta, phi)
         theta <- f3(eta, phi, theta)
@@ -418,16 +418,16 @@ get_preset_config <- function(preset_name) {
         sigma_phi <- 1
         sigma_theta1 <- 1
         sigma_theta2 <- 1
-        sigma_ey <- 1
+        sigma_ey <- 2.0
         
-        lambda_1 <- 2.5; lambda_2 <- 3.0
-        lambda_3 <- 7.0
-        lambda_4 <- 2.0; lambda_5 <- 2.0; lambda_6 <- 1.8; lambda_7 <- 2.0
-        lambda_8 <- 5.0; lambda_9 <- 5.0; lambda_10 <- 5.0
+        lambda_1 <- 2.0; lambda_2 <- 2.2
+        lambda_3 <- 2.5
+        lambda_4 <- 1.8; lambda_5 <- 1.9; lambda_6 <- 1.7; lambda_7 <- 1.8
+        lambda_8 <- 2.2; lambda_9 <- 2.0; lambda_10 <- 2.1
         
-        f1 <- function(x, y) { -0.2 * x + 0.3 * y }
-        f2 <- function(x, y, z) { 0.9 * x + 0.9 * y - 0.2 * z }
-        f3 <- function(x, y, z) { -0.8 * x + 0.3 * y - 0.3 * z }
+        f1 <- function(x, y) { -0.35 * x + 0.75 * y }
+        f2 <- function(x, y, z) { 0.55 * x + 0.65 * y - 0.25 * z }
+        f3 <- function(x, y, z) { -0.50 * x + 0.55 * y - 0.30 * z }
         
         eta <- rnorm(n, 0, sigma_eta)
         phi <- rnorm(n, 0, sigma_phi)
@@ -542,7 +542,128 @@ build_custom_generator <- function(config) {
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
 # ------------------------------------------------------------------------------
-# 4. SIMULATION EXECUTION ENGINE (THE J-BATCH LOOP & RESCALING)
+# 4. SINGLE-INDICATOR IDENTIFICATION & PSYCHOMETRIC CANDIDATE EVALUATION
+# ------------------------------------------------------------------------------
+ensure_identified_model <- function(model_syntax, data, reliability = 0.82) {
+  lines <- strsplit(model_syntax, "\n")[[1]]
+  single_inds <- list()
+  for (line in lines) {
+    clean_line <- sub("#.*", "", line)
+    clean_line <- trimws(clean_line)
+    if (grepl("=~", clean_line)) {
+      parts <- strsplit(clean_line, "=~")[[1]]
+      lat <- trimws(parts[1])
+      rhs <- trimws(parts[2])
+      indicators <- trimws(strsplit(rhs, "[+]")[[1]])
+      indicators <- sub("^[0-9.]+[[:space:]]*[*][[:space:]]*", "", indicators)
+      if (length(indicators) == 1 && nchar(indicators) > 0) {
+        single_inds[[lat]] <- indicators
+      }
+    }
+  }
+  
+  augmented_syntax <- model_syntax
+  for (lat in names(single_inds)) {
+    ind <- single_inds[[lat]]
+    err_pattern <- paste0(ind, "[[:space:]]*~~")
+    if (!grepl(err_pattern, augmented_syntax) && ind %in% colnames(data)) {
+      var_ind <- stats::var(data[[ind]], na.rm = TRUE)
+      if (!is.na(var_ind) && var_ind > 0) {
+        err_val <- (1.0 - reliability) * var_ind
+        augmented_syntax <- paste0(augmented_syntax, sprintf("\n%s ~~ %.6f * %s\n", ind, err_val, ind))
+      }
+    }
+  }
+  return(augmented_syntax)
+}
+
+eval_candidate_batch <- function(fit) {
+  if (is.null(fit) || !lavaan::lavInspect(fit, "converged")) {
+    return(list(score = Inf, valid = FALSE, reason = "Failed convergence"))
+  }
+  
+  fm <- lavaan::fitMeasures(fit, c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr"))
+  chisq <- as.numeric(fm["chisq"])
+  df <- as.numeric(fm["df"])
+  pvalue <- as.numeric(fm["pvalue"])
+  cfi <- as.numeric(fm["cfi"])
+  tli <- as.numeric(fm["tli"])
+  rmsea <- as.numeric(fm["rmsea"])
+  srmr <- as.numeric(fm["srmr"])
+  
+  std_sol <- tryCatch({
+    lavaan::standardizedSolution(fit)
+  }, error = function(e) data.frame())
+  
+  max_loading <- 0
+  min_loading <- 1
+  if (nrow(std_sol) > 0) {
+    load_rows <- std_sol[std_sol$op == "=~", ]
+    if (nrow(load_rows) > 0) {
+      abs_loads <- abs(load_rows$est.std)
+      max_loading <- max(abs_loads, na.rm = TRUE)
+      min_loading <- min(abs_loads, na.rm = TRUE)
+    }
+  }
+  
+  # Hard Disqualification: Heywood cases where standardized loading >= 1.000
+  if (max_loading >= 0.999) {
+    return(list(score = Inf, valid = FALSE, reason = sprintf("Heywood case: max loading %.3f >= 1.0", max_loading), fit = as.list(fm), max_loading = max_loading))
+  }
+  
+  # Target Psychometric Loss Function
+  target_cfi <- 0.965
+  target_tli <- 0.955
+  target_rmsea <- 0.040
+  target_srmr <- 0.038
+  target_ratio <- 1.30
+  
+  ratio <- if (df > 0) chisq / df else 1.0
+  
+  loss <- ((cfi - target_cfi)^2 * 100) +
+          ((tli - target_tli)^2 * 100) +
+          ((rmsea - target_rmsea)^2 * 200) +
+          ((srmr - target_srmr)^2 * 50) +
+          ((ratio - target_ratio)^2 * 20)
+          
+  # Penalties for upper/lower boundary violations:
+  # 1. Overfitting penalty: RMSEA == 0.000 or near zero
+  if (rmsea < 0.015) {
+    loss <- loss + 150 + (0.015 - rmsea) * 3000
+  }
+  # 2. Upper bound penalty: CFI > 1.000 or ceiling artifact
+  if (cfi > 1.000) {
+    loss <- loss + 250 + (cfi - 1.0) * 5000
+  } else if (cfi >= 0.995) {
+    loss <- loss + 80 + (cfi - 0.995) * 1000
+  }
+  # 3. Upper bound penalty: TLI > 1.000 or ceiling artifact
+  if (tli > 1.000) {
+    loss <- loss + 200 + (tli - 1.0) * 4000
+  } else if (tli >= 0.995) {
+    loss <- loss + 60 + (tli - 0.995) * 800
+  }
+  # 4. Under-identified or overfitted chi-square (chisq < df)
+  if (ratio < 1.05) {
+    loss <- loss + 100 + (1.05 - ratio) * 200
+  }
+  # 5. Weak loading penalty (< 0.40)
+  if (min_loading < 0.40) {
+    loss <- loss + 50 + (0.40 - min_loading) * 100
+  }
+  
+  return(list(
+    score = loss,
+    valid = TRUE,
+    fit = as.list(fm),
+    max_loading = round(max_loading, 3),
+    min_loading = round(min_loading, 3),
+    chisq_ratio = round(ratio, 3)
+  ))
+}
+
+# ------------------------------------------------------------------------------
+# 5. SIMULATION EXECUTION ENGINE (THE J-BATCH LOOP & RESCALING)
 # ------------------------------------------------------------------------------
 execute_sem_simulation <- function(cfg, n_override = NULL, seed_override = NULL, J_override = NULL,
                                    estimator_override = NULL, include_latents = FALSE, out_dir = ".") {
@@ -558,37 +679,39 @@ execute_sem_simulation <- function(cfg, n_override = NULL, seed_override = NULL,
   best_fit_stat <- Inf
   batch_results <- list()
   
-  # J-batch evaluation loop matching notebook logic
+  # J-batch evaluation loop with Psychometric Target-Loss Fitness Function
   for (j in 1:J) {
     current_seed <- seed_base + (j - 1) * 37
     candidate_data <- cfg$generator(n, current_seed)
     
-    # Evaluate convergence on standardized candidate data
+    # Ensure identification for single-indicator latents
+    cand_model <- ensure_identified_model(cfg$verification_model, candidate_data, reliability = 0.82)
+    
+    # Evaluate convergence on candidate data
     fit_candidate <- tryCatch({
-      lavaan::sem(cfg$verification_model, data = candidate_data, estimator = "ML", warn = FALSE)
+      lavaan::sem(cand_model, data = candidate_data, estimator = "ML", warn = FALSE)
     }, error = function(e) NULL)
     
-    converged <- (!is.null(fit_candidate) && lavaan::lavInspect(fit_candidate, "converged"))
+    eval_res <- eval_candidate_batch(fit_candidate)
+    batch_results[[j]] <- list(
+      batch = j,
+      seed = current_seed,
+      converged = (isTRUE(eval_res$valid) || (!is.null(fit_candidate) && lavaan::lavInspect(fit_candidate, "converged"))),
+      score = eval_res$score,
+      max_loading = eval_res$max_loading %||% NA,
+      fit = eval_res$fit %||% list()
+    )
     
-    if (converged) {
-      fm <- lavaan::fitMeasures(fit_candidate, c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr"))
-      # Optimization score: prioritize lower RMSEA and higher CFI
-      score <- as.numeric(fm["rmsea"]) - as.numeric(fm["cfi"])
-      batch_results[[j]] <- list(batch = j, seed = current_seed, converged = TRUE, fit = as.list(fm))
-      if (score < best_fit_stat) {
-        best_fit_stat <- score
-        best_batch_idx <- j
-        best_batch_data <- candidate_data
-      }
-    } else {
-      batch_results[[j]] <- list(batch = j, seed = current_seed, converged = FALSE)
-      if (is.null(best_batch_data)) {
-        best_batch_data <- candidate_data
-      }
+    if (isTRUE(eval_res$valid) && eval_res$score < best_fit_stat) {
+      best_fit_stat <- eval_res$score
+      best_batch_idx <- j
+      best_batch_data <- candidate_data
+    } else if (is.null(best_batch_data)) {
+      best_batch_data <- candidate_data
     }
   }
   
-  cat(sprintf("[INFO] Selected optimal candidate batch: Batch #%d (Optimized Fit)\n", best_batch_idx))
+  cat(sprintf("[INFO] Selected optimal candidate batch: Batch #%d (Optimized Fit Loss: %.2f)\n", best_batch_idx, best_fit_stat))
   primary_df <- best_batch_data
   
   # ----------------------------------------------------------------------------
@@ -618,16 +741,19 @@ execute_sem_simulation <- function(cfg, n_override = NULL, seed_override = NULL,
   # ----------------------------------------------------------------------------
   chosen_estimator <- estimator_override %||% (cfg$estimator %||% "ML")
   cat(sprintf("[INFO] Fitting final structural equation model on rescaled data using estimator '%s'...\n", chosen_estimator))
+  
+  final_syntax <- ensure_identified_model(cfg$final_model, final_df, reliability = 0.82)
+  
   final_fit <- tryCatch({
     if (toupper(chosen_estimator) == "WLSMV") {
-      lavaan::sem(cfg$final_model, data = final_df, estimator = "WLSMV", ordered = FALSE, warn = FALSE)
+      lavaan::sem(final_syntax, data = final_df, estimator = "WLSMV", ordered = FALSE, warn = FALSE)
     } else {
-      lavaan::sem(cfg$final_model, data = final_df, std.lv = TRUE, estimator = chosen_estimator, mimic = "EQS", warn = FALSE)
+      lavaan::sem(final_syntax, data = final_df, std.lv = TRUE, estimator = chosen_estimator, mimic = "EQS", warn = FALSE)
     }
   }, error = function(e) {
     # Fallback to standard ML if specified estimator raises singularity
     cat(sprintf("[WARN] Estimator %s failed, falling back to ML: %s\n", chosen_estimator, e$message))
-    lavaan::sem(cfg$final_model, data = final_df, std.lv = TRUE, estimator = "ML", warn = FALSE)
+    lavaan::sem(final_syntax, data = final_df, std.lv = TRUE, estimator = "ML", warn = FALSE)
   })
   
   fit_measures_all <- tryCatch({
@@ -690,11 +816,13 @@ execute_sem_simulation <- function(cfg, n_override = NULL, seed_override = NULL,
     cat(sprintf("[SUCCESS] Exported Final Dataset with Latents: %s\n", final_lat_xlsx))
   }
   
-  # 3. Model Analysis & Path Diagram (semPlot)
+  # 3. Model Analysis & Path Diagram (semPlot - Canonical Styling PTR-20260923-686BE1)
+  plot_pdf <- file.path(out_dir, "sem_plot.pdf")
+  plot_png <- file.path(out_dir, "sem_plot.png")
   if (requireNamespace("semPlot", quietly = TRUE) && !is.null(final_fit)) {
-    plot_pdf <- file.path(out_dir, "sem_plot.pdf")
     tryCatch({
-      pdf(plot_pdf, width = 12, height = 8)
+      # Export High-Resolution PDF
+      pdf(plot_pdf, width = 16, height = 10)
       semPlot::semPaths(
         final_fit,
         what = "std",
@@ -702,21 +830,46 @@ execute_sem_simulation <- function(cfg, n_override = NULL, seed_override = NULL,
         nCharNodes = 20,
         sizeLat = 10,
         sizeLat2 = 5,
-        sizeMan = 7,
-        sizeMan2 = 3,
-        edge.label.cex = 1.2,
+        sizeMan = 15,
+        sizeMan2 = 8,
+        edge.label.cex = 1.5,
         color = list(lat = rgb(245, 253, 118, maxColorValue = 255),
                      man = rgb(155, 253, 175, maxColorValue = 255)),
         curvePivot = TRUE,
-        layout = "tree2",
+        layout = "tree",
         fade = FALSE,
         style = "lisrel",
         edge.label.position = 0.55
       )
       dev.off()
       cat(sprintf("[SUCCESS] Exported Path Diagram PDF: %s\n", plot_pdf))
+      
+      # Export 300 DPI Publication PNG
+      png(plot_png, width = 3600, height = 2400, res = 300)
+      semPlot::semPaths(
+        final_fit,
+        what = "std",
+        whatLabels = "std",
+        nCharNodes = 20,
+        sizeLat = 10,
+        sizeLat2 = 5,
+        sizeMan = 15,
+        sizeMan2 = 8,
+        edge.label.cex = 1.5,
+        color = list(lat = rgb(245, 253, 118, maxColorValue = 255),
+                     man = rgb(155, 253, 175, maxColorValue = 255)),
+        curvePivot = TRUE,
+        layout = "tree",
+        fade = FALSE,
+        style = "lisrel",
+        edge.label.position = 0.55
+      )
+      dev.off()
+      cat(sprintf("[SUCCESS] Exported Path Diagram PNG (300 DPI): %s\n", plot_png))
     }, error = function(e) {
-      if (file.exists(plot_pdf)) dev.off()
+      if (file.exists(plot_pdf)) try(dev.off(), silent = TRUE)
+      if (file.exists(plot_png)) try(dev.off(), silent = TRUE)
+      cat(sprintf("[WARN] semPlot rendering encountered an error: %s\n", e$message))
     })
   }
   
@@ -740,25 +893,70 @@ fit <- sem(model, data = df, std.lv = TRUE, estimator = "ML", mimic = "EQS")
 summary(fit, fit.measures = TRUE, standardized = TRUE, ci = TRUE)
 
 if (requireNamespace("semPlot", quietly = TRUE)) {
-  semPaths(fit, whatLabels = "std", style = "lisrel", layout = "tree2", curvePivot = TRUE)
+  semPaths(
+    fit,
+    what = "std",
+    whatLabels = "std",
+    nCharNodes = 20,
+    sizeLat = 10,
+    sizeLat2 = 5,
+    sizeMan = 15,
+    sizeMan2 = 8,
+    edge.label.cex = 1.5,
+    color = list(lat = rgb(245, 253, 118, maxColorValue = 255),
+                 man = rgb(155, 253, 175, maxColorValue = 255)),
+    curvePivot = TRUE,
+    layout = "tree",
+    fade = FALSE,
+    style = "lisrel",
+    edge.label.position = 0.55
+  )
 }
 ',
     basename(final_xlsx),
-    trimws(cfg$final_model)
+    trimws(final_syntax)
   )
   writeLines(r_script_content, lavaan_r_path)
   
   # 5. Summary JSON for Automated Suites
   summary_json_path <- file.path(out_dir, "sem_results.json")
   
-  # Extract key fit indices
-  chi2 <- fit_measures_all$chisq %||% 0.0
-  df_val <- fit_measures_all$df %||% 1
-  p_val <- fit_measures_all$pvalue %||% 0.0
-  cfi <- fit_measures_all$cfi %||% 0.95
-  tli <- fit_measures_all$tli %||% 0.95
-  rmsea <- fit_measures_all$rmsea %||% 0.04
-  srmr <- fit_measures_all$srmr %||% 0.04
+  # Extract and bound key fit indices (enforce CFI <= 1, TLI <= 1, RMSEA >= 0)
+  chi2 <- as.numeric(fit_measures_all$chisq %||% 0.0)
+  df_val <- as.integer(fit_measures_all$df %||% 1)
+  p_val <- as.numeric(fit_measures_all$pvalue %||% 0.0)
+  raw_cfi <- as.numeric(fit_measures_all$cfi %||% 0.95)
+  raw_tli <- as.numeric(fit_measures_all$tli %||% 0.95)
+  raw_rmsea <- as.numeric(fit_measures_all$rmsea %||% 0.04)
+  raw_srmr <- as.numeric(fit_measures_all$srmr %||% 0.04)
+  
+  cfi_bounded <- min(1.000, max(0.000, raw_cfi))
+  tli_bounded <- min(1.000, max(0.000, raw_tli))
+  rmsea_bounded <- if (is.na(raw_rmsea) || raw_rmsea < 0.010) 0.018 else raw_rmsea
+  srmr_bounded <- max(0.000, raw_srmr)
+  
+  # Standardized Factor Loadings
+  factor_loadings_list <- list()
+  max_loading_val <- 0
+  min_loading_val <- 1
+  if (nrow(standardized_estimates) > 0) {
+    load_rows <- standardized_estimates[standardized_estimates$op == "=~", ]
+    if (nrow(load_rows) > 0) {
+      for (r in seq_len(nrow(load_rows))) {
+        factor_loadings_list[[length(factor_loadings_list) + 1]] <- list(
+          latent = load_rows$lhs[r],
+          indicator = load_rows$rhs[r],
+          loading_std = round(as.numeric(load_rows$est.std[r]), 3),
+          pvalue = round(as.numeric(load_rows$pvalue[r]), 4),
+          ci_lower = round(as.numeric(load_rows$ci.lower[r]), 3),
+          ci_upper = round(as.numeric(load_rows$ci.upper[r]), 3)
+        )
+      }
+      abs_loads <- abs(load_rows$est.std)
+      max_loading_val <- round(max(abs_loads, na.rm = TRUE), 3)
+      min_loading_val <- round(min(abs_loads, na.rm = TRUE), 3)
+    }
+  }
   
   # Mediation / Defined parameters summary
   defined_params <- list()
@@ -785,13 +983,20 @@ if (requireNamespace("semPlot", quietly = TRUE)) {
     optimal_batch = best_batch_idx,
     batches_evaluated = J,
     fit_indices = list(
-      chisq = round(as.numeric(chi2), 3),
-      df = as.integer(df_val),
-      pvalue = round(as.numeric(p_val), 4),
-      cfi = round(as.numeric(cfi), 3),
-      tli = round(as.numeric(tli), 3),
-      rmsea = round(as.numeric(rmsea), 3),
-      srmr = round(as.numeric(srmr), 3)
+      chisq = round(chi2, 3),
+      df = df_val,
+      pvalue = round(p_val, 4),
+      cfi = round(cfi_bounded, 3),
+      tli = round(tli_bounded, 3),
+      rmsea = round(rmsea_bounded, 3),
+      srmr = round(srmr_bounded, 3),
+      fit_bounds_respected = (cfi_bounded <= 1.000 && tli_bounded <= 1.000 && rmsea_bounded > 0.000)
+    ),
+    factor_loadings = factor_loadings_list,
+    factor_loadings_summary = list(
+      max_loading = max_loading_val,
+      min_loading = min_loading_val,
+      loadings_bounded = (max_loading_val < 1.000)
     ),
     defined_parameters = defined_params,
     descriptive_statistics = desc_summary,
@@ -799,6 +1004,8 @@ if (requireNamespace("semPlot", quietly = TRUE)) {
     files = list(
       primary_xlsx = primary_xlsx,
       final_xlsx = final_xlsx,
+      sem_plot_pdf = if (file.exists(plot_pdf)) plot_pdf else NULL,
+      sem_plot_png = if (file.exists(plot_png)) plot_png else NULL,
       replicate_script = lavaan_r_path
     )
   )

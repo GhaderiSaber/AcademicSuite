@@ -1,0 +1,39 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-MANDATORY-SEM-FIGURE-GENERATION-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260923-FIGURE-LANG-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "Orchestrator formulated delegation scope for Milestone 1 without specifying or requiring SEM structural path diagram figure deliverables (DEC-20260923-OMIT-SEM-PATH-FIGURES-M1).",
+    "behavior_caused_outcome": "Because the orchestrator failed to explicitly require SEM structural path diagram figures during task delegation, the data-agent did not generate them, and the validation-agent lacked specific assertions to verify their presence.",
+    "what_should_have_happened": "The orchestrator must explicitly include mandatory visual deliverables in the delegation envelope, prompting generation by the data-agent and strict presence assertion by the validation-agent.",
+    "rationale_why": "Visual deliverables like high-resolution SEM path diagrams are essential scholarly outputs that must not be omitted, and quality gates must actively fail closed if they are missing."
+  },
+  "desired_behavior": "When delegating SEM or relevant simulation tasks, explicitly require the generation of high-resolution path diagrams (semPlot / matplotlib) in the delegation scope. Correspondingly, require the validation-agent to actively assert the existence of these figure artifacts in the deliverables directory before passing the audit.",
+  "generalization": "Visual deliverables must be explicitly requested in task delegation and rigidly verified by downstream validation gates.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Figure omission went undetected",
+    "threshold_value": "Zero tolerance for omission of required figures",
+    "supporting_report_ids": ["BAN-20260923-FIGURE-001"],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "sem",
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-23T16:11:09Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "data-agent",
+    "validation-agent"
+  ]
+}

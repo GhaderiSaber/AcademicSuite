@@ -1,0 +1,528 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260923-FIGURE-LANG-001",
+  "experience_id": "EVT-20260923-FIGURE-LANG-FEEDBACK",
+  "project_id": "P04_SEM_Mediation_PIES",
+  "task_id": "TSK-2026-P04-SIM-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-23T11:45:10Z",
+      "description": "User confirmed specifications for Subproject P04 (PIES, MZQ, ERQ, SB, OCP, N=297) and authorized execution of Milestone 1 (Data Simulation and Screening Verification).",
+      "observable_input": {
+        "project_id": "P04_SEM_Mediation_PIES",
+        "milestone": "milestone_1"
+      },
+      "observable_output": {
+        "status": "AUTHORIZED"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-23T11:52:12Z",
+      "description": "Orchestrator inspected client technical specifications at P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.json.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "file_path": "P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.json"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "sample_size": 297,
+        "models": [
+          "model_1",
+          "model_2"
+        ]
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-23T11:52:28Z",
+      "description": "Orchestrator inspected psychometric simulation skill definition at .agents/skills/psychometric-data-simulator/SKILL.md.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "file_path": ".agents/skills/psychometric-data-simulator/SKILL.md"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-23T11:53:15Z",
+      "description": "Orchestrator formulated delegation scope for Milestone 1 data simulation without specifying or requiring SEM structural path diagram figure deliverables (DEC-20260923-OMIT-SEM-PATH-FIGURES-M1).",
+      "observable_input": {
+        "milestone": "milestone_1",
+        "required_artifacts_planned": [
+          "simulate_p04_sem_data.py",
+          "simulated_sem_dataset.xlsx",
+          "simulated_sem_dataset.csv",
+          "dataset_verification_report.json"
+        ]
+      },
+      "observable_output": {
+        "decision_id": "DEC-20260923-OMIT-SEM-PATH-FIGURES-M1",
+        "figures_required": false
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-23T11:53:42Z",
+      "description": "Orchestrator invoked subagent tool to delegate psychometric simulation task TSK-2026-P04-SIM-001 to data-agent.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "arguments_summary": {
+          "TypeName": "data-agent",
+          "TaskID": "TSK-2026-P04-SIM-001",
+          "Model": "inherit"
+        }
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-23T11:53:42Z",
+      "description": "Orchestrator dispatched contractual delegation envelope for TSK-2026-P04-SIM-001 to data-agent with instructions for dataset simulation and tabular verification reports, omitting path diagram generation.",
+      "observable_input": {
+        "delegatee": "data-agent",
+        "task_id": "TSK-2026-P04-SIM-001",
+        "objective": "Synthesize and verify an analysis-ready psychometric dataset for subproject P04_SEM_Mediation_PIES strictly matching client Shahram Amiri's technical specifications in 01_raw_inputs/client_specifications.json and client_specifications.md. The dataset will serve as the empirical foundation for structural equation modeling (SEM) and multiple mediation analysis."
+      },
+      "observable_output": {
+        "status": "STARTED",
+        "subagent": "data-agent"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_WRITTEN",
+      "actor": "data-agent",
+      "timestamp": "2026-09-23T11:56:10Z",
+      "description": "data-agent authored deterministic Python simulation script simulate_p04_sem_data.py in P04_SEM_Mediation_PIES/02_analysis_code/.",
+      "observable_input": {
+        "target_file": "P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "bytes_written": 51281
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "COMMAND_STARTED",
+      "actor": "data-agent",
+      "timestamp": "2026-09-23T11:57:05Z",
+      "description": "data-agent executed simulate_p04_sem_data.py via Python CLI.",
+      "observable_input": {
+        "command_line": "python3 P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py"
+      },
+      "observable_output": {
+        "status": "RUNNING"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "data-agent",
+      "timestamp": "2026-09-23T12:01:20Z",
+      "description": "simulate_p04_sem_data.py completed with exit code 0, executing lavaan SEM verification in R but omitting figure rendering, producing data files (.xlsx, .csv, .sav) and text reports (.json, .md, .docx).",
+      "observable_input": {
+        "script": "P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "status": "SUCCESS",
+        "figures_generated": 0
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "FILE_WRITTEN",
+      "actor": "data-agent",
+      "timestamp": "2026-09-23T12:01:35Z",
+      "description": "data-agent persisted simulated datasets and verification reports in 03_deliverables/ (omitting path diagram images).",
+      "observable_input": {
+        "output_paths": [
+          "P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+          "P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.csv",
+          "P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
+          "P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json",
+          "P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.md",
+          "P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.docx"
+        ]
+      },
+      "observable_output": {
+        "files_created": 6,
+        "figure_files_created": 0
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "AGENT_RETURNED",
+      "actor": "data-agent",
+      "timestamp": "2026-09-23T12:01:48Z",
+      "description": "data-agent returned completion report for task TSK-2026-P04-SIM-001 certifying dataset generation without path diagram figures.",
+      "observable_input": {
+        "task_id": "TSK-2026-P04-SIM-001"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "artifacts_produced": [
+          "simulated_sem_dataset.xlsx",
+          "simulated_sem_dataset.csv",
+          "simulated_sem_dataset.sav",
+          "dataset_verification_report.json",
+          "dataset_verification_report.md",
+          "dataset_verification_report.docx"
+        ]
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-23T12:02:05Z",
+      "description": "Orchestrator delegated verification task TSK-2026-P04-VAL-001 to validation-agent to audit Milestone 1 deliverables.",
+      "observable_input": {
+        "delegatee": "validation-agent",
+        "task_id": "TSK-2026-P04-VAL-001"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-23T12:03:10Z",
+      "description": "validation-agent executed statistical-auditor evaluating 11 verification checks on simulation deliverables.",
+      "observable_input": {
+        "target_artifacts": [
+          "P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+          "P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json",
+          "P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.md",
+          "P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.docx"
+        ]
+      },
+      "observable_output": {
+        "checks_evaluated": 11
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-23T12:04:00Z",
+      "description": "validation-agent generated validation_report.json certifying all 11 checks passed (PASS), failing to assert the presence of structural equation path diagram figures in deliverables.",
+      "observable_input": {
+        "report_id": "VAL-2026-P04-001"
+      },
+      "observable_output": {
+        "overall_verdict": "PASS",
+        "checks_passed": 11,
+        "checks_failed": 0,
+        "figure_deliverables_audited": false
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "AGENT_RETURNED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-23T12:04:15Z",
+      "description": "validation-agent returned SUCCESS confirming 11/11 checks passed.",
+      "observable_input": {
+        "task_id": "TSK-2026-P04-VAL-001"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "verdict": "PASS"
+      }
+    },
+    {
+      "step_number": 16,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-23T12:05:02Z",
+      "description": "Orchestrator inspected dataset_verification_report.md containing extensive Persian psychometric descriptions, contaminating working memory context with Persian tokens.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "file_path": "P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.md"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "language_observed": "fa"
+      }
+    },
+    {
+      "step_number": 17,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-23T12:06:10Z",
+      "description": "Orchestrator emitted the Stage Completion Report entirely in Persian in conversational interface, triggering anti-pattern AP-2026-CONVERSATIONAL-LANGUAGE-BLEED due to context bleed from inspecting Persian artifacts (DEC-20260923-CONVERSATIONAL-LANGUAGE-BLEED-M1).",
+      "observable_input": {
+        "conversational_turn": "Stage Completion Report for Milestone 1",
+        "target_audience": "user"
+      },
+      "observable_output": {
+        "language_used": "fa",
+        "expected_language": "en",
+        "anti_pattern_triggered": "AP-2026-CONVERSATIONAL-LANGUAGE-BLEED"
+      }
+    },
+    {
+      "step_number": 18,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-23T12:08:45Z",
+      "description": "User issued dual-defect critique: 'Show me the figure. Violation of the English speaking rule.' identifying missing path diagram figures in deliverables and conversational language violation.",
+      "observable_input": {
+        "user_message": "Show me the figure. Violation of the English speaking rule."
+      },
+      "observable_output": {
+        "defects_flagged": [
+          "MISSING_SEM_PATH_DIAGRAM_FIGURES",
+          "AP-2026-CONVERSATIONAL-LANGUAGE-BLEED"
+        ],
+        "event_id": "EVT-20260923-FIGURE-LANG-FEEDBACK"
+      }
+    },
+    {
+      "step_number": 19,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-23T12:09:12Z",
+      "description": "Orchestrator listed files in P04_SEM_Mediation_PIES/03_deliverables/ verifying absence of image/figure files.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "directory_path": "P04_SEM_Mediation_PIES/03_deliverables"
+      },
+      "observable_output": {
+        "image_files_found": []
+      }
+    },
+    {
+      "step_number": 20,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-23T12:09:40Z",
+      "description": "Orchestrator switched conversational interface strictly to English, conceded omission of path diagrams from simulation stage deliverables, and activated learning pipeline Step 1.",
+      "observable_input": {
+        "user_critique": "Show me the figure. Violation of the English speaking rule."
+      },
+      "observable_output": {
+        "conversational_language_switched_to": "en",
+        "figure_omission_conceded": true,
+        "pipeline_phase": "STEP_1_TRAJECTORY_RECONSTRUCTION"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "view_file",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.json"
+      },
+      "execution_time_ms": 65
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": ".agents/skills/psychometric-data-simulator/SKILL.md"
+      },
+      "execution_time_ms": 110
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "Role": "Raw Data & Psychometric Simulation Worker",
+        "TaskID": "TSK-2026-P04-SIM-001",
+        "TypeName": "data-agent"
+      },
+      "execution_time_ms": 3400
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "Role": "validation-agent",
+        "TaskID": "TSK-2026-P04-VAL-001",
+        "TypeName": "validation-agent"
+      },
+      "execution_time_ms": 2800
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.md"
+      },
+      "execution_time_ms": 75
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "P04_SEM_Mediation_PIES/03_deliverables/validation_report.json"
+      },
+      "execution_time_ms": 60
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 7,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "P04_SEM_Mediation_PIES/03_deliverables"
+      },
+      "execution_time_ms": 45
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "psychometric-data-simulator",
+      "script_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py",
+      "cli_command": "python3 P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py",
+      "exit_code": 0,
+      "duration_seconds": 5.4
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "data-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "data-agent",
+      "stage_id": "TSK-2026-P04-SIM-001",
+      "task_id": "TSK-2026-P04-SIM-001",
+      "envelope_summary": "Synthesize and verify analysis-ready psychometric SEM dataset (N=297) matching client specifications, omitting path diagram figure deliverables",
+      "objective": "Synthesize and verify an analysis-ready psychometric dataset for subproject P04_SEM_Mediation_PIES strictly matching client Shahram Amiri's technical specifications in 01_raw_inputs/client_specifications.json and client_specifications.md. The dataset will serve as the empirical foundation for structural equation modeling (SEM) and multiple mediation analysis.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json",
+      "input_artifacts": [
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.json",
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.md"
+      ],
+      "output_artifacts": [
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py",
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.csv",
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json",
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.md",
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.docx"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "validation-agent",
+      "stage_id": "TSK-2026-P04-VAL-001",
+      "task_id": "TSK-2026-P04-VAL-001",
+      "envelope_summary": "Execute statistical-auditor on simulation deliverables and emit validation report",
+      "objective": "Audit simulation deliverables against 11 psychometric and formatting checks.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json",
+      "input_artifacts": [
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json"
+      ],
+      "output_artifacts": [
+        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260923-OMIT-SEM-PATH-FIGURES-M1",
+      "decision_type": "ARTIFACT_SPECIFICATION_SCOPE",
+      "selected_option": "Omission of Structural Equation Path Diagram Figures from Simulation Deliverables",
+      "rationale": "Orchestrator and data-agent restricted simulation deliverables to tabular datasets (.xlsx, .csv, .sav) and text reports (.json, .md, .docx), omitting visual path diagrams (semPlot / matplotlib path diagrams for Model 1 and Model 2) from 03_deliverables/, despite SEM methodology inherently requiring structural path visualizations.",
+      "alternatives_considered": [
+        {
+          "option": "Generate publication-grade path diagram figures during simulation stage",
+          "verdict": "OMITTED_IN_STAGE_1",
+          "reason": "Delegation envelope and simulation script focused exclusively on numerical data synthesis without generating path diagram PNG artifacts."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260923-CONVERSATIONAL-LANGUAGE-BLEED-M1",
+      "decision_type": "CONVERSATIONAL_INTERFACE_LANGUAGE_SELECTION",
+      "selected_option": "Persian for Stage Completion Report",
+      "rationale": "Orchestrator allowed working memory context contamination from inspecting Persian artifact text (dataset_verification_report.md) to bleed into the conversational turn, mistakenly emitting the Stage Completion Report in Persian instead of English.",
+      "alternatives_considered": [
+        {
+          "option": "Strict English Conversation Protocol (Directive 6 / Anti-Bleed Rule)",
+          "verdict": "VIOLATED",
+          "reason": "Conversational language boundary was breached when orchestrator failed to decouple document content language (Persian) from user interaction language (English)."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260923-VALIDATOR-BLINDSPOT-FIGURES",
+      "decision_type": "VALIDATION_GATE_SPECIFICATION",
+      "selected_option": "Data & Formatting Only Audit without Figure Deliverable Assertions",
+      "rationale": "Validator script (statistical-auditor) executed 11 checks focusing exclusively on sample size, means, bounds, covariance positive-definiteness, and APA typography, but contained zero assertions checking for the presence of SEM path diagram images in 03_deliverables/.",
+      "alternatives_considered": [
+        {
+          "option": "Mandatory Deliverable Figure Existence Check (e.g. CHK-SEM-PATH-DIAGRAM-PRESENT)",
+          "verdict": "MISSING_FROM_VALIDATOR",
+          "reason": "Validation gate lacked checks verifying structural diagram image files for SEM subprojects."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+      "sha256": "6ecd3ed36a4173d1465ebe4caa6c2d3a6eeb1e00ee10deaa79dc6587571cfe16",
+      "type": "dataset"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
+      "sha256": "ef1a996c12010cd5359a243aedc76ba89572117cfef821461c318713d1f3f08d",
+      "type": "dataset"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "statistical-auditor",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "report_id": "VAL-2026-P04-001",
+        "total_checks_run": 11,
+        "checks_passed": 11,
+        "checks_failed": 0,
+        "validator_blindspot": "statistical-auditor verified sample size, empirical decimal means, variable bounds, positive definite covariance, and APA 7 typography, but lacked any check asserting the presence of SEM structural path diagram figures (.png / .pdf) in 03_deliverables/, allowing an incomplete deliverable package to receive an unconditioned PASS verdict."
+      }
+    }
+  ],
+  "feedback": [
+    "EVT-20260923-FIGURE-LANG-FEEDBACK"
+  ],
+  "outcome": "FAILURE"
+}

@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260923-LANG-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260923-FIGURE-LANG-FEEDBACK",
+  "target_agent": "academic-orchestrator",
+  "target_skill": "academic-suite-orchestrator",
+  "capability": "User interaction and conversation",
+  "trajectory_id": "TRJ-20260923-FIGURE-LANG-001",
+  "observable_failure_step": {
+    "step_number": 17,
+    "action_type": "DECISION_FORMULATION",
+    "description": "Orchestrator emitted the Stage Completion Report entirely in Persian in conversational interface, triggering anti-pattern AP-2026-CONVERSATIONAL-LANGUAGE-BLEED due to context bleed from inspecting Persian artifacts (DEC-20260923-CONVERSATIONAL-LANGUAGE-BLEED-M1)."
+  },
+  "failure_signature": "CONVERSATIONAL_LANGUAGE_BLEED",
+  "root_cause_diagnosis": "The academic-orchestrator read a Persian markdown file (dataset_verification_report.md) in step 16, which contaminated its working memory. In step 17, it failed to decouple the document's language from the conversational interface language, emitting the Stage Completion Report in Persian instead of English.",
+  "prescribed_behavior": "The agent must strictly enforce Directive 6 (English-Only conversational interaction). After parsing non-English artifacts, the agent must deliberately switch its conversational output language back to English before emitting messages to the user.",
+  "created_at": "2026-09-23T16:10:22Z"
+}

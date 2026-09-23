@@ -88,13 +88,29 @@ class TestSemREngine(unittest.TestCase):
         self.assertAlmostEqual(df_final["FO"].mean(), 6.0, delta=1.5)
         self.assertAlmostEqual(df_final["RQ"].mean(), 28.0, delta=2.5)
 
-        # Verify fit indices in JSON summary
+        # Verify fit indices in JSON summary (strict upper/lower bounds)
         with open(summary_path, "r", encoding="utf-8") as f:
             summary = json.load(f)
 
         fit = summary.get("fit_indices", {})
         self.assertGreaterEqual(fit.get("cfi", 0.0), 0.90)
+        self.assertLessEqual(fit.get("cfi", 2.0), 1.000, "CFI must never exceed 1.000")
+        self.assertLessEqual(fit.get("tli", 2.0), 1.000, "TLI must never exceed 1.000")
+        self.assertGreater(fit.get("rmsea", 0.0), 0.000, "RMSEA must be strictly positive (not 0.000)")
         self.assertLessEqual(fit.get("rmsea", 1.0), 0.08)
+
+        # Verify factor loadings are strictly bounded below 1.000 (no Heywood cases)
+        fl_summary = summary.get("factor_loadings_summary", {})
+        self.assertTrue(fl_summary.get("loadings_bounded", False), "Factor loadings must be bounded below 1.0")
+        self.assertLess(fl_summary.get("max_loading", 2.0), 1.000, "Max factor loading must be < 1.000")
+        loadings = summary.get("factor_loadings", [])
+        self.assertGreater(len(loadings), 0, "Factor loadings list must not be empty")
+        for item in loadings:
+            self.assertLess(abs(item["loading_std"]), 1.000, f"Loading for {item['indicator']} exceeds 1.0")
+
+        # Verify publication semPlot diagrams exist on disk
+        self.assertTrue(os.path.exists(os.path.join(self.test_dir, "sem_plot.pdf")), "sem_plot.pdf must exist")
+        self.assertTrue(os.path.exists(os.path.join(self.test_dir, "sem_plot.png")), "sem_plot.png must exist")
 
         # Verify defined mediation parameters (ac := a * c, bd := b * d)
         dp = summary.get("defined_parameters", {})
@@ -164,6 +180,40 @@ class TestSemREngine(unittest.TestCase):
         with open(summary_path, "r", encoding="utf-8") as f:
             summary = json.load(f)
         self.assertEqual(summary.get("estimator"), "WLSMV")
+
+    def test_j_batch_fit_bounds_and_loadings(self):
+        """
+        Validates that changing J iterations:
+        1. Maintains valid fit measure upper/lower bounds (CFI <= 1.0, TLI <= 1.0, RMSEA > 0.0).
+        2. Strictly bounds all factor loadings below 1.000 (no Heywood cases).
+        3. Avoids selection of degenerate zero-RMSEA batches.
+        """
+        for j_val in [2, 5]:
+            sub_dir = os.path.join(self.test_dir, f"j_{j_val}")
+            cmd = [
+                "Rscript",
+                R_SCRIPT_PATH,
+                "--preset", "p13_pies",
+                "--n", "206",
+                "--J", str(j_val),
+                "--seed", "451",
+                "--out-dir", sub_dir
+            ]
+            res = subprocess.run(cmd, capture_output=True, text=True)
+            self.assertEqual(res.returncode, 0, f"Rscript failed for J={j_val}:\n{res.stderr}\n{res.stdout}")
+
+            summary_path = os.path.join(sub_dir, "sem_results.json")
+            with open(summary_path, "r", encoding="utf-8") as f:
+                summary = json.load(f)
+
+            fit = summary.get("fit_indices", {})
+            self.assertLessEqual(fit.get("cfi", 2.0), 1.000, f"CFI exceeded 1.0 for J={j_val}")
+            self.assertLessEqual(fit.get("tli", 2.0), 1.000, f"TLI exceeded 1.0 for J={j_val}")
+            self.assertGreater(fit.get("rmsea", 0.0), 0.000, f"RMSEA must be > 0.0 for J={j_val}")
+
+            fl_summary = summary.get("factor_loadings_summary", {})
+            self.assertTrue(fl_summary.get("loadings_bounded", False), f"Loadings must be bounded for J={j_val}")
+            self.assertLess(fl_summary.get("max_loading", 2.0), 1.000, f"Max loading exceeded 1.0 for J={j_val}")
 
 
 if __name__ == "__main__":

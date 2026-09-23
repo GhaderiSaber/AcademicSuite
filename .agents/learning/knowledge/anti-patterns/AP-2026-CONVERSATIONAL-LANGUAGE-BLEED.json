@@ -2,21 +2,24 @@
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-CONVERSATIONAL-LANGUAGE-BLEED",
   "category": "execution",
-  "defective_pattern": "Emitting conversational reports or dialogues in Persian due to context bleed from inspecting Persian artifacts.",
-  "why_defective": "Violates the user conversational protocol requiring English orchestration dialogue regardless of document language.",
+  "defective_pattern": "Emitting conversational reports or dialogues in Persian due to context bleed from inspecting or parsing Persian artifacts.",
+  "why_defective": "Violates Directive 6 (English-Only conversational interaction). The agent must deliberately switch its conversational output language back to English after reading non-English artifacts before emitting messages to the user.",
   "observed_symptoms": [
     "Stage completion report emitted in Persian",
-    "User feedback on English speaking rule violation"
+    "User feedback on English speaking rule violation",
+    "Contaminated working memory causing context bleed"
   ],
-  "corrective_remedy": "Decouple artifact target language from conversational orchestration language; strictly conduct all user-facing dialogue and reports in English.",
+  "corrective_remedy": "Decouple artifact target language from conversational orchestration language. After parsing non-English artifacts, the agent must deliberately switch its conversational output language back to English before emitting messages to the user.",
   "detection_heuristic": {
     "trigger_rule": "Detection of non-English characters in orchestration or conversational reports."
   },
   "target_agent": "academic-orchestrator",
   "target_agents": [
-    "academic-orchestrator"
+    "academic-orchestrator",
+    "academic-writer"
   ],
   "reusable": true,
   "is_active_behavior": true,
-  "updated_at": "2026-09-23T12:55:00+03:30"
+  "status": "VALIDATED",
+  "updated_at": "2026-09-23T16:11:09+03:30"
 }

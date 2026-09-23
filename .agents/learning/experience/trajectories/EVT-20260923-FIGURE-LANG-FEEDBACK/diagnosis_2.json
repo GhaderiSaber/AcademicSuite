@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260923-FIGURE-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260923-FIGURE-LANG-FEEDBACK",
+  "target_agent": "academic-orchestrator",
+  "target_skill": "academic-suite-orchestrator",
+  "capability": "Delegation and task specification",
+  "trajectory_id": "TRJ-20260923-FIGURE-LANG-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "DECISION_FORMULATION",
+    "description": "Orchestrator formulated delegation scope for Milestone 1 data simulation without specifying or requiring SEM structural path diagram figure deliverables (DEC-20260923-OMIT-SEM-PATH-FIGURES-M1)."
+  },
+  "failure_signature": "OMISSION_OF_MANDATORY_DELIVERABLE",
+  "root_cause_diagnosis": "The academic-orchestrator failed to explicitly require SEM structural path diagram figures during the delegation of the simulation task (step 4). Consequently, the data-agent did not generate them, and the validation-agent (step 14) lacked specific assertions to check for their presence, causing the omission to slip past the quality control gate.",
+  "prescribed_behavior": "The orchestrator must explicitly include mandatory visual deliverables (like SEM path diagrams) in the delegation envelope for relevant stages. Furthermore, the validation-agent's checks must be updated to assert the existence of expected figure artifacts in the deliverables directory before passing the audit.",
+  "created_at": "2026-09-23T16:10:22Z"
+}
