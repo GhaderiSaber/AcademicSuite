@@ -1,0 +1,24 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-UNVERIFIED-REVERSE-CODING",
+  "category": "statistical",
+  "defective_pattern": "Guessing or assuming reversed questionnaire items without validating against official psychometric scoring keys in Questionnaires.xlsx.",
+  "why_defective": "Produces corrupted composite scores, attenuated correlation coefficients, and negative factor loadings in CFA.",
+  "observed_symptoms": [
+    "Negative item-total correlations on intended positive subscales",
+    "Reversed items chosen via text guessing rather than psychometric key"
+  ],
+  "corrective_remedy": "Query psychometric-scale-resolver or Questionnaires.xlsx to extract the exact inverted item list for the target questionnaire before aggregation.",
+  "detection_heuristic": {
+    "trigger_rule": "Reverse coding script executed without referencing verified scale_spec or Questionnaires.xlsx."
+  },
+  "reusable": true,
+  "is_active_behavior": true,
+  "updated_at": "2026-09-23T13:00:00+03:30",
+  "target_agent": "data-agent",
+  "target_agents": [
+    "data-agent",
+    "data-curator",
+    "psychometric-expert"
+  ]
+}

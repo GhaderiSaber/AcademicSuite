@@ -72,6 +72,8 @@ class AcademicTwoStageRetriever:
     AGENT_EQUIVALENCES = {
         "data-agent": {"data-agent", "data-curator"},
         "data-curator": {"data-agent", "data-curator"},
+        "statistics-agent": {"statistics-agent", "statistical-expert"},
+        "statistical-expert": {"statistics-agent", "statistical-expert"},
         "validation-agent": {"validation-agent", "statistical-auditor", "results-auditor"},
         "results-auditor": {"validation-agent", "results-auditor"},
         "statistical-auditor": {"validation-agent", "statistical-auditor"}

@@ -1,0 +1,24 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-RAW-DATASET-MUTATION",
+  "category": "execution",
+  "defective_pattern": "Overwriting or mutating raw input datasets on disk during cleaning, imputation, or scoring.",
+  "why_defective": "Destroys raw data integrity, prevents forensic verification, and violates Directive 19 immutability standards.",
+  "observed_symptoms": [
+    "Modification timestamp of raw input dataset changes during pipeline execution",
+    "Raw data and cleaned data share the same file path"
+  ],
+  "corrective_remedy": "Preserve raw data permanently as read-only inputs; export transformed datasets to new timestamped output files (e.g. data_cleaned.xlsx).",
+  "detection_heuristic": {
+    "trigger_rule": "Target output path in data cleaning or transformation is identical to raw input path."
+  },
+  "reusable": true,
+  "is_active_behavior": true,
+  "updated_at": "2026-09-23T13:00:00+03:30",
+  "target_agent": "data-agent",
+  "target_agents": [
+    "data-agent",
+    "data-curator",
+    "academic-orchestrator"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-IMMUTABLE-RAW-DATA-AND-PROVENANCE-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "AUDITOR_FAILURE",
+  "source_experience_id": "EXP-2026-DATA-IMMUTABILITY-001",
+  "diagnosis": {
+    "what_happened": "Raw dataset was overwritten directly during data cleaning and missing value imputation.",
+    "behavior_caused_outcome": "Overwriting source files destroys audit trails and prevents raw data reproducibility verification.",
+    "what_should_have_happened": "Raw data must remain permanently immutable; cleaned datasets must be saved to a separate derived file.",
+    "rationale_why": "Scientific provenance requires that original source datasets remain unmodified so transformations can be reproduced."
+  },
+  "desired_behavior": "Treat raw empirical datasets as strictly read-only and immutable; always output cleaned datasets to distinct destination paths and record data transformation manifests.",
+  "generalization": "Never overwrite or modify raw input data files in any data curation, screening, or cleaning stage.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "DATA_PROVENANCE_AUDIT",
+    "observed_value": "Raw data file modified in place.",
+    "threshold_value": "Zero modifications to raw datasets.",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "data-cleaning",
+    "data-audit",
+    "academic-drive-project-organizer"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-23T13:00:00+03:30",
+  "derived_by": "knowledge-curator",
+  "target_agent": "data-agent",
+  "target_agents": [
+    "data-agent",
+    "data-curator",
+    "academic-orchestrator"
+  ]
+}

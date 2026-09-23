@@ -211,13 +211,7 @@ To prevent context bloat, instruction drift, and un-audited ad-hoc delegation:
    - The worker is bound to adhere to all injected lessons and avoid all injected anti-patterns.
 
    #### Mandatory Worker Return Structure:
-   On completion, worker must return a structured JSON or object with the 6 mandatory fields:
-   1. `status`: SUCCESS | FAILED | BLOCKED
-   2. `artifacts`: list of produced files on disk
-   3. `evidence`: exact computational parameters, test statistics, and df
-   4. `validation`: validation summary and verdict (PASS/FAIL)
-   5. `warnings`: operational warnings ([] if none)
-   6. `limitations`: methodological limitations ([] if none)
+   On completion, worker must return the mandatory 6-part contract (status, artifacts, evidence, validation, warnings, limitations).
    ```
 
 3. **Strict Prohibition of Informal Anti-Patterns**:

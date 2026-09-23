@@ -358,15 +358,24 @@ def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any
             )
         }
 
-    # Invariant: No direct promotion of DRAFT candidates to active production defaults
+    is_lesson = "/lessons/" in target_norm or target_base.startswith("LSN-")
+    is_anti_pattern = "/anti-patterns/" in target_norm or target_base.startswith("AP-")
+    is_exemplar = "/exemplars/" in target_norm or target_base.startswith("EXM-")
+    is_knowledge = (
+        "/principles/" in target_norm
+        or "/patterns/" in target_norm
+        or target_base.startswith(("PRN-", "PAT-", "KNW-"))
+    )
+
+    # Invariant: No direct promotion of DRAFT or unvalidated candidates to active production defaults
     status_str = str(data.get("status") or "").upper()
-    if data.get("is_active_behavior") is True and status_str in ["DRAFT", "PENDING"]:
+    if is_lesson and data.get("is_active_behavior") is True and status_str not in ["VALIDATED", "PROMOTED"]:
         return {
             "decision": "deny",
             "reason": (
                 f"CONSTITUTIONAL VIOLATION (Directive 19 - Knowledge Promotion Boundary Guard): "
-                f"File '{target_base}' sets 'is_active_behavior: true' with status '{status_str}'. "
-                f"Knowledge candidates in DRAFT status cannot be staged directly as active behavior. "
+                f"File '{target_base}' sets 'is_active_behavior: true' with unvalidated status '{status_str}'. "
+                f"Knowledge candidates in DRAFT or unvalidated status cannot be staged directly as active behavior. "
                 f"Promotion requires independent evaluation, status VALIDATED, and Human Gate approval."
             )
         }
@@ -393,14 +402,6 @@ def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any
             validate_exemplar = None
             validate_knowledge_item = None
 
-    is_lesson = "/lessons/" in target_norm or target_base.startswith("LSN-")
-    is_anti_pattern = "/anti-patterns/" in target_norm or target_base.startswith("AP-")
-    is_exemplar = "/exemplars/" in target_norm or target_base.startswith("EXM-")
-    is_knowledge = (
-        "/principles/" in target_norm
-        or "/patterns/" in target_norm
-        or target_base.startswith(("PRN-", "PAT-", "KNW-"))
-    )
 
     if is_lesson:
         if "target_agent" not in data or not data["target_agent"]:
