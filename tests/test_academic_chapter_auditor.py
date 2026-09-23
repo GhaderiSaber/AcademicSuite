@@ -304,5 +304,38 @@ class TestAcademicChapterAuditor(unittest.TestCase):
         self.assertIn("Prohibited p = .000", res_bad.stdout)
 
 
+
+    def test_09_detects_math_admissibility_violations(self):
+        """Verifies detection of mathematical admissibility violations."""
+        body_xml = "<w:p><w:r><w:t>test</w:t></w:r></w:p>"
+        docx_path = os.path.join(self.temp_dir, "math_adm.docx")
+        create_mock_docx(docx_path, body_xml)
+
+        json_path = os.path.join(self.temp_dir, "math_adm.json")
+        with open(json_path, "w", encoding="utf-8") as jf:
+            import json
+            json.dump({
+                "parameters": [
+                    {"lhs": "F1", "op": "=~", "rhs": "item1", "std.all": 1.05},
+                    {"lhs": "F1", "op": "~~", "rhs": "F1", "est": -0.2}
+                ]
+            }, jf, indent=2)
+            
+        r_path = os.path.join(self.temp_dir, "script.R")
+        with open(r_path, "w", encoding="utf-8") as rf:
+            rf.write("options(warn = -1)\n")
+
+        auditor = AcademicChapterAuditor(docx_path=docx_path, json_path=json_path)
+        report = auditor.audit()
+
+        self.assertEqual(report["overall_verdict"], "FAIL")
+        adm_check = next(r for r in report["results"] if r["check_id"] == "CHK-MATH-ADMISSIBILITY")
+        self.assertEqual(adm_check["verdict"], "FAIL")
+        errs = " ".join(adm_check["errors"])
+        self.assertTrue("Standardized parameter boundary exceeded" in errs)
+        self.assertTrue("negative variance" in errs)
+        self.assertTrue("Warning suppression detected" in errs)
+
 if __name__ == "__main__":
+
     unittest.main()

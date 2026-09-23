@@ -157,6 +157,7 @@ class AcademicChapterAuditor:
         self._audit_cliches(root)
         self._audit_3_table_standard(root)
         self._audit_triad_concordance(root)
+        self._audit_mathematical_admissibility(root)
 
         return self._build_report(report_id, target_artifacts)
 
@@ -563,7 +564,83 @@ class AcademicChapterAuditor:
             {"sample_size_audited": sample_size, "mismatches": mismatches}
         )
 
+
+    def _audit_mathematical_admissibility(self, root: ET.Element):
+        """Dimension 11: Mathematical and Statistical Admissibility Gate."""
+        errors = []
+
+        target_dir = os.path.dirname(os.path.abspath(self.docx_path))
+        files_to_scan = []
+        if self.json_path and os.path.isfile(self.json_path): files_to_scan.append(self.json_path)
+        if self.md_path and os.path.isfile(self.md_path): files_to_scan.append(self.md_path)
+        
+        if os.path.isdir(target_dir):
+            for f in os.listdir(target_dir):
+                if f.endswith(('.R', '.log', '.Rout', '.txt')):
+                    files_to_scan.append(os.path.join(target_dir, f))
+                
+        files_to_scan = list(set(files_to_scan))
+
+        warn_pattern = re.compile(r'options\s*\(\s*warn\s*=\s*-1\s*\)|suppressWarnings')
+        invert_pattern = re.compile(r'lav_model_vcov|Could not compute standard errors! The information matrix could not be inverted|non-positive definite', re.IGNORECASE)
+        heywood_pattern = re.compile(r'lav_object_post_check\(\): some estimated lv variances are negative|negative variance', re.IGNORECASE)
+
+        for fp in files_to_scan:
+            try:
+                with open(fp, 'r', encoding='utf-8') as f:
+                    file_content = f.read()
+                    
+                if warn_pattern.search(file_content):
+                    errors.append(f"Warning suppression detected in {os.path.basename(fp)}.")
+                if invert_pattern.search(file_content):
+                    errors.append(f"Non-invertible matrix or local identification failure detected in {os.path.basename(fp)}.")
+                if heywood_pattern.search(file_content):
+                    errors.append(f"Heywood case (negative variance) detected in {os.path.basename(fp)}.")
+            except Exception:
+                pass
+
+        if self.json_path and os.path.isfile(self.json_path):
+            try:
+                with open(self.json_path, 'r', encoding='utf-8') as jf:
+                    stats_json = json.load(jf)
+                
+                def _check_dict(d):
+                    if isinstance(d, dict):
+                        for k in ["beta", "std.all", "estimate", "est"]:
+                            if k in d and isinstance(d[k], (int, float)):
+                                if d.get("op") in ["~", "=~"] and abs(d[k]) > 1.0:
+                                    if k in ["std.all", "beta"]:
+                                        errors.append(f"Standardized parameter boundary exceeded (|beta| > 1.0): {d[k]}")
+                        
+                        if d.get("op") == "~~" and d.get("lhs") == d.get("rhs"):
+                            for k in ["est", "estimate", "std.all"]:
+                                if k in d and isinstance(d[k], (int, float)) and d[k] < 0:
+                                    errors.append(f"Heywood case: negative variance detected ({d[k]}).")
+                        
+                        for k, v in d.items():
+                            if "variance" in k.lower() and isinstance(v, (int, float)) and v < 0:
+                                errors.append(f"Heywood case: negative variance detected ({v}).")
+                            _check_dict(v)
+                    elif isinstance(d, list):
+                        for item in d:
+                            _check_dict(item)
+
+                _check_dict(stats_json)
+            except Exception:
+                pass
+
+        verdict = "FAIL" if errors else "PASS"
+        self._add_check(
+            "CHK-MATH-ADMISSIBILITY",
+            "Mathematical and Statistical Admissibility Gate",
+            verdict,
+            list(set(errors)),
+            [],
+            {"admissibility_errors": len(errors)}
+        )
+
     def _build_report(self, report_id: str, target_artifacts: List[str]) -> Dict[str, Any]:
+
         """Synthesizes the validated contract report."""
         checks_run = len(self.results)
         checks_passed = sum(1 for r in self.results if r["verdict"] == "PASS")

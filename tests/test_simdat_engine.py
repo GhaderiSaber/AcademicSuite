@@ -67,6 +67,31 @@ class TestSimdatEngine(unittest.TestCase):
         self.assertGreater(alpha, 0.65)
         self.assertLess(alpha, 0.95)
 
+    def test_rescale_function_notebook_standard(self):
+        """Asserts rescale function matches Data Making notebook transformation."""
+        scaled_vals = np.array([-1.0, 0.0, 1.0, 2.0])
+        rescaled = simdat_engine.rescale(scaled_vals, target_mean=39.0, target_sd=3.0, round_to_int=True)
+        # Expected: round([-1*3+39, 0*3+39, 1*3+39, 2*3+39]) = [36, 39, 42, 45]
+        np.testing.assert_array_equal(rescaled, np.array([36.0, 39.0, 42.0, 45.0]))
+
+    def test_sem_preset_p13_delegation(self):
+        """Asserts sem_p13_pies research preset executes and generates valid artifacts."""
+        import tempfile, shutil
+        tmp_dir = tempfile.mkdtemp(prefix="test_sem_simdat_")
+        try:
+            payload = simdat_engine.RESEARCH_PRESETS["sem_p13_pies"]
+            payload["out_dir"] = tmp_dir
+            res = simdat_engine.run_sem_simulation(payload, n=150, seed=451)
+            self.assertIn("rescaled_data", res)
+            df = res["rescaled_data"]
+            self.assertEqual(len(df), 150)
+            self.assertIn("AA", df.columns)
+            self.assertIn("RQ", df.columns)
+            fit = res.get("fit_indices", {})
+            self.assertGreaterEqual(fit.get("cfi", 0.0), 0.90)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
 
 if __name__ == "__main__":
     unittest.main()

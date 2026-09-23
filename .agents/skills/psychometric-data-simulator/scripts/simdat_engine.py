@@ -32,6 +32,7 @@ for venv_name in [".venv", "venv"]:
 import json
 import math
 import argparse
+import subprocess
 from datetime import datetime
 import numpy as np
 import scipy.stats as stats
@@ -243,12 +244,93 @@ def generate_demographics(demographics_cfg, n, rng, latent_df=None):
     return pd.DataFrame(demo_dict)
 
 # ==============================================================================
-# 3. SEM & CFA SIMULATION ENGINE
+# 3. SEM & CFA SIMULATION ENGINE (DATA MAKING NOTEBOOK ARCHITECTURE)
 # ==============================================================================
+def rescale(scaled_series, target_mean, target_sd, round_to_int=True, min_val=None, max_val=None):
+    """
+    Transforms continuous standardized indicators to target empirical subscale distribution.
+    Identical to the rescale() function in Saber's Data Making notebooks (P13 to P22):
+        rescale = function(scaled_df, mean, sd) { round(scaled_df * sd + mean) }
+    """
+    rescaled = np.array(scaled_series, dtype=float) * float(target_sd) + float(target_mean)
+    if round_to_int:
+        rescaled = np.round(rescaled)
+    else:
+        rescaled = np.round(rescaled, 2)
+    if min_val is not None:
+        rescaled = np.maximum(min_val, rescaled)
+    if max_val is not None:
+        rescaled = np.minimum(max_val, rescaled)
+    return rescaled
+
+
+def run_r_sem_simulation(r_preset=None, config_path=None, n=200, seed=451, J=5, out_dir="."):
+    """
+    Delegates SEM data generation directly to the native R engine (sem_data_maker.R)
+    implementing the exact routines from Data Making notebooks (P13 to P22).
+    """
+    r_script = os.path.join(os.path.dirname(__file__), "sem_data_maker.R")
+    cmd = ["Rscript", r_script, "--out-dir", out_dir]
+    if r_preset:
+        cmd.extend(["--preset", str(r_preset)])
+    if config_path:
+        cmd.extend(["--config", str(config_path)])
+    if n is not None:
+        cmd.extend(["--n", str(n)])
+    if seed is not None:
+        cmd.extend(["--seed", str(seed)])
+    if J is not None:
+        cmd.extend(["--J", str(J)])
+
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    if res.returncode != 0:
+        raise RuntimeError(f"sem_data_maker.R execution failed:\n{res.stderr}\n{res.stdout}")
+
+    summary_path = os.path.join(out_dir, "sem_results.json")
+    primary_path = os.path.join(out_dir, "primary_data.xlsx")
+    final_path = os.path.join(out_dir, "final_data.xlsx")
+
+    summary = {}
+    if os.path.exists(summary_path):
+        with open(summary_path, "r", encoding="utf-8") as f:
+            summary = json.load(f)
+
+    primary_df = pd.read_excel(primary_path) if os.path.exists(primary_path) else pd.DataFrame()
+    final_df = pd.read_excel(final_path) if os.path.exists(final_path) else pd.DataFrame()
+
+    return {
+        "analysis_type": "sem",
+        "sample_size": n,
+        "seed": seed,
+        "optimal_batch": summary.get("optimal_batch", 1),
+        "fit_indices": summary.get("fit_indices", {}),
+        "defined_parameters": summary.get("defined_parameters", {}),
+        "rescaled_data": final_df,
+        "primary_data": primary_df,
+        "composite_scores": final_df,
+        "latent_continuous": primary_df,
+        "descriptive_statistics": summary.get("descriptive_statistics", []),
+        "correlation_matrix": summary.get("correlation_matrix", {}),
+        "r_summary": summary
+    }
+
+
 def run_sem_simulation(payload, n=300, seed=42):
     """
     Executes full latent structural equation model simulation.
+    Supports native delegation to sem_data_maker.R if r_preset or use_r_engine is specified.
     """
+    if payload.get("r_preset") or payload.get("use_r_engine"):
+        out_dir = payload.get("out_dir", "./simulated_output")
+        os.makedirs(out_dir, exist_ok=True)
+        return run_r_sem_simulation(
+            r_preset=payload.get("r_preset"),
+            config_path=payload.get("config_path"),
+            n=n,
+            seed=seed,
+            J=payload.get("J", 5),
+            out_dir=out_dir
+        )
     rng = np.random.default_rng(seed)
     variables = payload.get("variables", [])
     struct_cfg = payload.get("structural_model", {})
@@ -1532,6 +1614,34 @@ RESEARCH_PRESETS = {
         "group_name": "Severity_Group",
         "groups": ["Mild", "Moderate", "Severe"],
         "var_name": "Clinical_Symptom_Index"
+    },
+    "sem_p13_pies": {
+        "analysis_type": "sem",
+        "r_preset": "p13_pies",
+        "sample_size": 206,
+        "seed": 451,
+        "description": "P13 PIES Mediation Model with AAAS, TAS, DSI, R and 10 indicators"
+    },
+    "sem_p18_mindfulness": {
+        "analysis_type": "sem",
+        "r_preset": "p18_mindfulness",
+        "sample_size": 250,
+        "seed": 451,
+        "description": "P18 Mindfulness & Body Image parallel mediation model with 16 indicators"
+    },
+    "sem_p20_ego_resilience": {
+        "analysis_type": "sem",
+        "r_preset": "p20_ego_resilience",
+        "sample_size": 280,
+        "seed": 451,
+        "description": "P20 Ego-Resilience model with 17 indicators and parallel mediation"
+    },
+    "sem_p22_attachment": {
+        "analysis_type": "sem",
+        "r_preset": "p22_attachment",
+        "sample_size": 200,
+        "seed": 451,
+        "description": "P22 Adult Attachment & Obsessive Beliefs model with 8 indicators"
     }
 }
 
@@ -1694,6 +1804,8 @@ def main():
     parser.add_argument("--mode", choices=["sem", "cfa", "rct", "scale", "regression", "anova", "repeated_measures", "logistic", "efa", "non_parametric"], default=None, help="Simulation mode")
     parser.add_argument("--n", type=int, default=None, help="Sample size override")
     parser.add_argument("--seed", type=int, default=None, help="Random seed override")
+    parser.add_argument("--J", "--j-iterations", type=int, default=5, dest="j_iterations", help="Candidate batch draws for SEM data making (default: 5)")
+    parser.add_argument("--r-engine", action="store_true", help="Force delegation to native R engine (sem_data_maker.R)")
     parser.add_argument("--out-dir", default="./simulated_output", help="Directory to save generated artifacts")
     
     args = parser.parse_args()
@@ -1718,6 +1830,12 @@ def main():
     print(f"[INFO] Initializing SimDat Engine in mode: '{mode.upper()}' (N = {sample_size}, Seed: {seed})")
     
     if mode in ["sem", "cfa", "scale"]:
+        payload["out_dir"] = args.out_dir
+        payload["J"] = args.j_iterations
+        if args.r_engine or payload.get("r_preset") or (args.preset and args.preset in ["sem_p13_pies", "sem_p18_mindfulness", "sem_p20_ego_resilience", "sem_p22_attachment"]):
+            payload["use_r_engine"] = True
+            if "r_preset" not in payload and args.preset and args.preset.startswith("sem_"):
+                payload["r_preset"] = args.preset.replace("sem_", "")
         sim_res = run_sem_simulation(payload, n=sample_size, seed=seed)
         main_df = sim_res["rescaled_data"]
     elif mode == "regression":

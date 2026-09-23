@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260923-003",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260923-HEYWOOD-FEEDBACK",
+  "target_agent": "academic-orchestrator",
+  "target_skill": "sem",
+  "capability": "SEM Model Specification and Validation",
+  "trajectory_id": "TRJ-20260923-HEYWOOD-FEEDBACK-001",
+  "observable_failure_step": {
+    "step_number": 8,
+    "action_type": "DECISION_FORMULATION",
+    "description": "Orchestrator formulated model specification forcing ERQ_R and ERQ_S onto single latent construct ERQ without empirical identification checks, leading to a Heywood case."
+  },
+  "failure_signature": "HEYWOOD_CASE_AND_VALIDATION_BLINDSPOT",
+  "root_cause_diagnosis": "Proximate Cause: The orchestrator explicitly complied with a user request to force two multidimensional/opposing subscales (ERQ_R and ERQ_S) into a single unidimensional latent construct (ERQ) without identification constraints or collinearity checks. \nRoot Cause 1: The R script 'run_sem_lavaan.R' explicitly suppressed warnings via 'options(warn = -1)', actively masking statistical errors. Even when 'statistics-agent' detected the non-positive definite matrix, it failed to halt the pipeline. \nRoot Cause 2: The validation-agent ('academic_chapter_auditor.py') suffered from a catastrophic statistical blindspot; it strictly validated APA Word document formatting while blindly certifying mathematically impossible parameters (standardized betas > 1.0, negative latent variances, uncomputable SEs).",
+  "prescribed_behavior": "1. Never use 'options(warn = -1)' in statistical scripts; warnings must escalate to pipeline halts. 2. Implement mandatory statistical boundary checks in 'academic_chapter_auditor.py' (e.g., standardized Beta [-1, 1], positive variance limits, positive definite covariance matrices). 3. The statistics-agent MUST halt and refuse to compile models when lavaan reports uncomputable standard errors or Heywood cases. 4. Orchestrator must challenge user instructions that violate SEM identification rules.",
+  "created_at": "2026-09-23T14:15:00+03:30"
+}

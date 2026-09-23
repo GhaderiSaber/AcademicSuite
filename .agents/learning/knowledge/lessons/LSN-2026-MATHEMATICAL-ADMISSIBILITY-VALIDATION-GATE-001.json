@@ -1,0 +1,39 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260923-HEYWOOD-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "A 2-indicator latent factor composed of opposing subscales was fit, causing Heywood cases. Warnings were suppressed and invalid results were generated.",
+    "behavior_caused_outcome": "Suppressing R warnings allowed statistically inadmissible results (negative variances, beta > 1.0) to pass into final reports.",
+    "what_should_have_happened": "The system should have strictly failed upon detecting Heywood cases, non-invertible matrices, or parameter boundaries exceeded.",
+    "rationale_why": "SEM relies on matrix invertibility and valid bounds. Results from inadmissible matrices are mathematically meaningless."
+  },
+  "desired_behavior": "Enforcing a strict fail-closed mathematical admissibility gate requiring lavaan post-check verification, information matrix invertibility, zero negative variances, and all standardized betas <= 1.0 before any SEM results or chapter deliverables can pass validation.",
+  "generalization": "Never proceed with SEM interpretation or artifact generation if Heywood cases or non-positive definite matrices occur.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Heywood case detected and suppressed.",
+    "threshold_value": "Zero tolerance for mathematically inadmissible models.",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "sem",
+    "cfa"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-23T14:11:00+03:30",
+  "derived_by": "knowledge-curator",
+  "target_agent": "validation-agent",
+  "target_agents": [
+    "statistics-agent",
+    "validation-agent",
+    "academic-orchestrator"
+  ]
+}

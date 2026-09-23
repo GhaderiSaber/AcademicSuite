@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-NO-CHAPTER-WRITING-IN-DATA-MAKING-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-2026-SHAHRAM-AMIRI-DIRECTIVE",
+  "diagnosis": {
+    "what_happened": "During data making and model analysis phases, full Chapter 4 academic text and DOCX files were generated.",
+    "behavior_caused_outcome": "Generated unnecessary narrative text and documents when the user only required empirical statistical results.",
+    "what_should_have_happened": "The system should have only output statistical results, fit indices, path parameters, notebooks, and path diagram figures.",
+    "rationale_why": "The user explicitly requested: 'In data Making process I don't want chapter 4 writing work. I just want to see the results.'"
+  },
+  "desired_behavior": "During data generation and SEM/statistical model verification phases, suppress Chapter 4 document compilation. Present only empirical findings: summary statistics, R/Python notebooks, regression/SEM tables, and visualization diagrams.",
+  "generalization": "Do not invoke academic-writer or generate Chapter 4 text/docx deliverables during data generation and simulation phases. Output only statistical results.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Explicit human mentorship instruction from client Shahram Amiri.",
+    "threshold_value": "Zero tolerance for generating narrative deliverables during data making.",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "psychometric-data-simulator"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-23T14:15:00+03:30",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer",
+    "statistics-agent",
+    "data-agent"
+  ]
+}

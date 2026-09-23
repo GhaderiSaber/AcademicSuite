@@ -55,7 +55,12 @@ Psychometric Data Simulation Architecture
   │
   ├─► Study Design Engine Selection:
   │     ├─► Latent Construct / Factor Analysis:
-  │     │     ├─► Structural Equation Modeling: [--mode sem] (Cholesky factorization + DAG propagation)
+  │     │     ├─► SEM Data Making Engine (R & Python): [sem_data_maker.R / --mode sem]
+  │     │     │     ├─► DAG propagation: exogenous (eta) & endogenous (phi, theta via f1, f2, f3)
+  │     │     │     ├─► Indicator measurement model: y_i = lambda_i * Latent + e_i
+  │     │     │     ├─► J-iteration candidate selection loop (lavaan::sem ML)
+  │     │     │     ├─► Empirical rescaling: rescale(y, mean, sd) = round(y * sd + mean)
+  │     │     │     └─► Deliverables: primary_data.xlsx, final_data.xlsx, sem_results.json, sem_plot.pdf
   │     │     ├─► Confirmatory Factor Analysis: [--mode cfa] (Target factor loadings lambda >= .50)
   │     │     └─► Discrete Survey Scales: [--mode scale] (Rescaling continuous z -> discrete Likert 1-5)
   │     │
@@ -76,17 +81,30 @@ Psychometric Data Simulation Architecture
 ## 6. EXECUTION SCRIPT
 Deterministic simulation CLI commands:
 ```bash
-# 1. Simulate dataset via research preset:
+# 1. Native R SEM Simulation (Direct execution using Rscript):
+Rscript .agents/skills/psychometric-data-simulator/scripts/sem_data_maker.R \
+  --preset p13_pies \
+  --n 206 \
+  --J 5 \
+  --seed 451 \
+  --out-dir "output_r_sem"
+
+# 2. SEM Simulation via Python Engine (Delegating to R or pure Python):
+python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
+  --preset sem_p13_pies \
+  --out-dir "sim_p13_results"
+
+# 3. Simulate dataset via research preset:
 python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
   --preset hierarchical_regression \
   --out-dir "sim_hierarchical_results"
 
-# 2. Simulate experimental clinical trial (RCT):
+# 4. Simulate experimental clinical trial (RCT):
 python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
   --preset ancova_trial \
   --out-dir "sim_ancova_results"
 
-# 3. Custom JSON specification:
+# 5. Custom JSON specification:
 python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
   --mode regression \
   --json "sim_config.json" \
@@ -97,22 +115,12 @@ python3 .agents/skills/psychometric-data-simulator/scripts/simdat_engine.py \
 
 ## 7. OUTPUT CONTRACT
 The engine generates:
+- `primary_data.xlsx` / `primary_data.csv`: Continuous standardized manifest indicator scores.
+- `final_data.xlsx` / `final_data.csv`: Rescaled observed variables with empirical target means and SDs.
 - `simulated_<mode>_dataset.xlsx`: Multi-sheet SPSS-ready workbook (`Dataset`, `Composite_Scores`, `Parameters_and_Fit`).
-- `simulated_<mode>_dataset.csv`: Standard CSV dataset for R, SPSS, jamovi.
-- `simulation_summary.json`:
-  ```json
-  {
-    "design": "ancova_trial",
-    "sample_size": 60,
-    "group_means": {"experimental": 24.38, "control": 18.15},
-    "mean_difference": 6.23,
-    "cohens_d": 0.94,
-    "partial_eta_squared": 0.182,
-    "pretest_balance_p": 0.482,
-    "noise_injection_verified": true
-  }
-  ```
-- `lavaan_syntax.R` (for SEM/CFA models): Executable R script replicating the population model.
+- `sem_results.json`: Complete fit indices (CFI, TLI, RMSEA, SRMR), mediation indirect effects (`:=`), and correlation matrix.
+- `sem_plot.pdf`: Path diagram rendered via `semPlot::semPaths`.
+- `replicate_sem_analysis.R`: Executable R script replicating the exact model with `mimic = 'EQS'`.
 
 ## 8. VALIDATION
 - Reject datasets where sample means equal integer values ($M = 5.000$).

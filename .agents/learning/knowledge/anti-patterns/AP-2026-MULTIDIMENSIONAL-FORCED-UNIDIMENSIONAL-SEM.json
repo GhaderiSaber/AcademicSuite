@@ -1,0 +1,25 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-MULTIDIMENSIONAL-FORCED-UNIDIMENSIONAL-SEM",
+  "category": "methodological",
+  "defective_pattern": "Forcing multidimensional opposing constructs (e.g., ERQ_R and ERQ_S) into a single 2-indicator latent factor without local identification, suppressing R warnings with options(warn = -1), and ignoring non-invertible information matrices, negative variances, and standardized betas > 1.0.",
+  "why_defective": "Causes Heywood cases (negative variances or out-of-bound parameters), resulting in statistically invalid inferences. Suppressing warnings hides critical failure states.",
+  "observed_symptoms": [
+    "lavaan warning: some estimated ov variances are negative",
+    "lavaan warning: covariance matrix of latent variables is not positive definite",
+    "standardized loadings or betas exceeding 1.0 or less than -1.0",
+    "use of options(warn = -1) in SEM R scripts"
+  ],
+  "corrective_remedy": "Never suppress R warnings. Verify local identification (e.g., fixing parameters or adding indicators). Model multidimensional scales correctly. Enforce a mathematical admissibility gate before reporting results.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of 'options(warn = -1)' in SEM scripts or standardized outputs with absolute values > 1.0."
+  },
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "validation-agent",
+    "academic-orchestrator"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-23T14:11:00+03:30"
+}
