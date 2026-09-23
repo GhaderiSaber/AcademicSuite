@@ -233,7 +233,7 @@ def is_state_ledger_command(cmd: str, caller: str = "") -> Tuple[bool, str]:
     # Execution workers must not directly invoke state manager CLI to set stages or request transitions
     worker_agents = {
         "statistics-agent", "data-agent", "academic-writer",
-        "data-curator", "research-agent", "psychometric-expert"
+        "data-curator", "project-organizer", "research-agent", "psychometric-expert"
     }
     if any(w in caller for w in worker_agents):
         if "academic_state_manager.py" in cmd:

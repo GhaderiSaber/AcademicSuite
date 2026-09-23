@@ -13,7 +13,7 @@ As AcademicSuite evolved across 38 development phases, documentation accumulated
 
 | Metric / Aspect | Historical Phase Docs | Transitory Docs | **Current Ground Truth (As-Built)** |
 | :--- | :--- | :--- | :--- |
-| **Agents** | 22 persistent roles | 28 production agents | **30 Agents** (28 Production + 2 Verification) |
+| **Agents** | 22 persistent roles | 28 production agents | **31 Agents** (29 Production + 2 Verification) |
 | **Skills** | 43 production skills | 44 active skills | **44 Production Skills** in `.agents/skills/` |
 | **Legacy Directory** | Root `legacy/` | Root symlink `legacy/` | **`.agents/legacy/`** (Consolidated in `.agents/`) |
 | **Scripts Directory** | Root `scripts/` | Symlink `scripts -> .agents` | **`.agents/scripts/`** (Zero root symlinks) |
@@ -56,18 +56,18 @@ Every document and architectural reference in AcademicSuite belongs to exactly o
 
 ## 📦 Tier 1: Current Architecture (Ground Truth Specification)
 
-### 1. Agents Directory: Exactly 30 Agents on Disk ([`.agents/agents/`](../.agents/agents/))
-The filesystem contains exactly 30 packaged agent directories, categorized into:
+### 1. Agents Directory: Exactly 31 Agents on Disk ([`.agents/agents/`](../.agents/agents/))
+The filesystem contains exactly 31 packaged agent directories, categorized into:
 - **6 Core Primary Cognitive Roles**:
   `academic-orchestrator`, `research-agent`, `data-agent`, `statistics-agent`, `academic-writer`, `validation-agent`.
-- **16 Specialized Domain Roles**:
-  `digital-saber`, `methodology-expert`, `statistical-expert`, `statistical-auditor`, `results-auditor`, `academic-challenger`, `literature-expert`, `evidence-auditor`, `final-judge`, `psychometric-expert`, `qualitative-analyst`, `meta-analyst`, `journal-strategist`, `intervention-designer`, `data-curator`, `longitudinal-modmed-expert`.
+- **17 Specialized Domain Roles**:
+  `digital-saber`, `methodology-expert`, `statistical-expert`, `statistical-auditor`, `results-auditor`, `academic-challenger`, `literature-expert`, `evidence-auditor`, `final-judge`, `psychometric-expert`, `qualitative-analyst`, `meta-analyst`, `journal-strategist`, `intervention-designer`, `data-curator`, `project-organizer`, `longitudinal-modmed-expert`.
 - **6 Continuous Learning & Evolution Roles**:
   `behavior-analyst`, `curriculum-builder`, `evaluation-agent`, `knowledge-curator`, `skill-evolver`, `trajectory-analyzer`.
 - **2 Minimal Verification Test Agents**:
   `test-orchestrator`, `test-worker` (used in Phase 29/30 architectural invariant tests to verify pure delegation and execution privilege boundaries without domain overhead).
-- **Total Production Agents**: **28** (`test-orchestrator` and `test-worker` are reserved for test harness verification).
-- **Total Registered Agents on Disk**: **30**.
+- **Total Production Agents**: **29** (`test-orchestrator` and `test-worker` are reserved for test harness verification).
+- **Total Registered Agents on Disk**: **31**.
 
 #### 1.1 The Planar Architecture Model (6 Operational Planes + 1 Administrative Plane)
 To eliminate mesh authority sprawl where secondary planners spawned sub-agents and critics mutated files they audited, the 30 agents are strictly partitioned into **6 Operational Planes** and **1 Administrative Plane**:

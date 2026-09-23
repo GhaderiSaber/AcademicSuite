@@ -46,6 +46,7 @@ EXPECTED_AGENTS = [
     # Tier 3: Execution Specialists
     "data-agent",
     "data-curator",
+    "project-organizer",
     "statistics-agent",
     "psychometric-expert",
     "research-agent",
@@ -265,12 +266,12 @@ class TestAgentDiscoveryAndCompatibility(unittest.TestCase):
         self.assertIsNone(detect_cycles_in_delegation(acyclic_graph))
 
     def test_09_workspace_agent_integrity_pass(self):
-        """All workspace agents (28 production + 2 test verification) must pass 100% of integrity checks."""
+        """All workspace agents (29 production + 2 test verification) must pass 100% of integrity checks."""
         validator = AgentIntegrityValidator(agents_dir=AGENTS_DIR, skills_dir=os.path.join(ROOT_DIR, ".agents", "skills"))
         result = validator.run_validation()
         self.assertEqual(result["overall_verdict"], "PASS", f"Validation failed with issues: {result['issues']}")
         self.assertEqual(result["errors"], 0)
-        self.assertEqual(result["agents_validated"], 30)
+        self.assertEqual(result["agents_validated"], 31)
         self.assertEqual(set(result["canonical_agents"]), set(EXPECTED_AGENTS))
 
 

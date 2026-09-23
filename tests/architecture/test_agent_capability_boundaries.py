@@ -244,7 +244,7 @@ class TestAgentCapabilityBoundaries(unittest.TestCase):
     def test_execution_workers_cannot_delegate(self):
         """Negative Capability Test: specialist execution workers CANNOT invoke subagents."""
         workers = [
-            "statistics-agent", "data-agent", "data-curator", "psychometric-expert",
+            "statistics-agent", "data-agent", "data-curator", "project-organizer", "psychometric-expert",
             "longitudinal-modmed-expert", "qualitative-analyst", "meta-analyst",
             "academic-writer"
         ]

@@ -1,7 +1,7 @@
 # Agent Inventory & Cognitive Role Audit
 
-**Document Version:** 2.2.0 (Continuous Learning Subagents Integrated)  
-**Total Agents Defined:** 28 (22 Domain & Research Roles + 6 Continuous Learning Subagents)  
+**Document Version:** 2.3.0 (Project Organizer Integrated)  
+**Total Agents Defined:** 29 (23 Domain & Research Roles + 6 Continuous Learning Subagents)  
 **Runtime Architecture:** Antigravity Native Multi-Agent System (`invoke_subagent`)  
 **Behavioral Contracts:** 100% of agents possess a verified 12-section `contract.md`  
 
@@ -37,6 +37,7 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 | Domain Specialist Subagent | `longitudinal-modmed-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/longitudinal-modmed-expert/contract.md) |
 | Domain Specialist Subagent | `meta-analyst` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/meta-analyst/contract.md) |
 | Domain Specialist Subagent | `methodology-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/methodology-expert/contract.md) |
+| Domain Specialist Subagent | `project-organizer` | Standard 4-tier project taxonomy scaffolding, metadata initialization & workspace migration | [contract.md](../.agents/agents/project-organizer/contract.md) |
 | Domain Specialist Subagent | `psychometric-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/psychometric-expert/contract.md) |
 | Domain Specialist Subagent | `qualitative-analyst` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/qualitative-analyst/contract.md) |
 | Core Primary Agent (Phase 3) | `research-agent` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/research-agent/contract.md) |
@@ -253,4 +254,13 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 - **Description:** Specialist adversarial reviewer identifying methodology flaws, p-hacking, publication bias, unmeasured confounding, and statistical fragility before committee submission.
 - **Active Skills Bound (2):** `thesis-integrity-auditor`, `methodology-review`
 - **Tools Whitelist:** `view_file`, `list_dir`, `grep_search`, `find_by_name`, `write_to_file`
+
+### 23. `project-organizer`
+- **Package Path:** `.agents/agents/project-organizer/`
+- **Runtime Prompt:** `.agents/agents/project-organizer/agent.md`
+- **Behavioral Contract:** [`.agents/agents/project-organizer/contract.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/agents/project-organizer/contract.md) (12 Sections Verified)
+- **Classification:** Domain Specialist Subagent
+- **Description:** Specialist execution subagent for academic project directory provisioning, 4-tier taxonomy scaffolding (01_raw_inputs, 02_analysis_code, 03_deliverables, 04_references_and_lit), project metadata initialization, client dossier generation, Google Drive / Duzen directory migrations, and reversible workspace reorganizations.
+- **Active Skills Bound (2):** `academic-drive-project-organizer`, `academic-adaptive-context`
+- **Tools Whitelist:** `view_file`, `list_dir`, `grep_search`, `find_by_name`, `write_to_file`, `run_command`
 

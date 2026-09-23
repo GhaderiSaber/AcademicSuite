@@ -14,9 +14,9 @@ In strict accordance with **Directive 12.1 (Sole Orchestrator Mandate)**, there 
 - **The Hands (44 Specialized Production Skills):** Deterministic Python/R scripts executed via `run_command` to perform exact statistical calculations, psychometrics, and OpenXML document generation without mental calculation or hallucination.
 - **Batch CLI Runner (`orchestrator_cli.py`):** Strictly a low-level CLI batch runner ("The Hands") for sequential script chaining on disk, never an autonomous agent orchestrator.
 
-### 🧠 Cognitive Specialists & Autonomous Subagents (28 Roles)
+### 🧠 Cognitive Specialists & Autonomous Subagents (29 Roles)
 
-The architecture establishes 28 persistent cognitive roles in `.agents/agents/` invoked via Antigravity's native `invoke_subagent` tool. Every role is equipped with an Option 1 directory package (`agent.md`, 12-section behavioral `contract.md`, and backward-compatible `<role>.md` symlink):
+The architecture establishes 29 persistent cognitive roles in `.agents/agents/` invoked via Antigravity's native `invoke_subagent` tool. Every role is equipped with an Option 1 directory package (`agent.md`, 12-section behavioral `contract.md`, and backward-compatible `<role>.md` symlink):
 
 #### Core Primary Roles (6)
 1. **`academic-orchestrator`**: Central multi-phase research coordinator and pipeline director.
@@ -26,7 +26,7 @@ The architecture establishes 28 persistent cognitive roles in `.agents/agents/` 
 5. **`academic-writer`**: Master academic chapter drafter and Persian rhetoric specialist using Saber's 5-part epistemic paragraph structure.
 6. **`validation-agent`**: Independent adversarial quality auditor, Viva Voce defense simulator, and institutional gatekeeper.
 
-#### Specialized Domain Roles (16)
+#### Specialized Domain Roles (17)
 7. **`digital-saber`**: Master Research Project Lead, Cognitive Architect, and Digital Twin of Saber Ghaderi.
 8. **`methodology-expert`**: Research methodology, experimental designs, and internal/external validity safeguards.
 9. **`statistical-expert`**: Statistical analysis planning and parametric assumption verification sequences.
@@ -42,15 +42,16 @@ The architecture establishes 28 persistent cognitive roles in `.agents/agents/` 
 19. **`journal-strategist`**: Academic journal article packaging, target journal selection, and peer-review rebuttal management.
 20. **`intervention-designer`**: Clinical intervention protocol designer (ACT, CBT, Schema, CFT, MBSR) and manual compiler.
 21. **`data-curator`**: Missing data diagnosis (MCAR/MAR/MNAR), unengaged response filtering, and outlier screening ($D^2$).
-22. **`longitudinal-modmed-expert`**: 3-wave longitudinal moderated mediation modeling (Cole & Maxwell, Hayes Models 7/14 over time).
+22. **`project-organizer`**: Academic project directory provisioning, 4-tier taxonomy scaffolding, and workspace migrations.
+23. **`longitudinal-modmed-expert`**: 3-wave longitudinal moderated mediation modeling (Cole & Maxwell, Hayes Models 7/14 over time).
 
 #### Continuous Learning Subagents (6)
-23. **`behavior-analyst`**: Causal root-cause analysis and diagnosis of agent behavior.
-24. **`curriculum-builder`**: Graduated complexity benchmark scenarios and practice tasks.
-25. **`evaluation-agent`**: Deterministic evaluation lab harness and counterfactual tests.
-26. **`knowledge-curator`**: Synthesis of episodic experiences into reusable knowledge.
-27. **`skill-evolver`**: Candidate Skill mutations and behavioral instructions diffs.
-28. **`trajectory-analyzer`**: Reconstructs observable tool calls, exit codes, and artifacts.
+24. **`behavior-analyst`**: Causal root-cause analysis and diagnosis of agent behavior.
+25. **`curriculum-builder`**: Graduated complexity benchmark scenarios and practice tasks.
+26. **`evaluation-agent`**: Deterministic evaluation lab harness and counterfactual tests.
+27. **`knowledge-curator`**: Synthesis of episodic experiences into reusable knowledge.
+28. **`skill-evolver`**: Candidate Skill mutations and behavioral instructions diffs.
+29. **`trajectory-analyzer`**: Reconstructs observable tool calls, exit codes, and artifacts.
 
 *(See [docs/AGENT_INVENTORY.md](docs/AGENT_INVENTORY.md) for complete 12-section behavioral contracts and tool configurations).*
 

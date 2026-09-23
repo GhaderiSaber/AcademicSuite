@@ -208,6 +208,8 @@ class AgentIntegrityValidator:
 
     def _get_policy(self) -> Optional[Dict[str, Any]]:
         """Safely loads or returns cached capability policy."""
+        if not self.enforce_capability_policy:
+            return None
         if self.policy is None and load_capability_policy is not None:
             try:
                 self.policy = load_capability_policy(self.policy_path)
@@ -448,13 +450,14 @@ class AgentIntegrityValidator:
         policy = self._get_policy()
 
         known_execution_workers = {
-            "data-agent", "data-curator", "statistics-agent", "psychometric-expert",
+            "data-agent", "data-curator", "project-organizer", "statistics-agent", "psychometric-expert",
             "longitudinal-modmed-expert", "qualitative-analyst", "meta-analyst",
             "evaluation-agent", "validation-agent", "statistical-auditor",
             "research-agent", "literature-expert", "academic-writer",
         }
         known_read_only_agents = {
-            "academic-orchestrator",
+            "academic-orchestrator", "behavior-analyst", "trajectory-analyzer",
+            "digital-saber", "methodology-expert", "statistical-expert",
         }
         known_auditors = {
             "results-auditor", "evidence-auditor", "academic-challenger",
