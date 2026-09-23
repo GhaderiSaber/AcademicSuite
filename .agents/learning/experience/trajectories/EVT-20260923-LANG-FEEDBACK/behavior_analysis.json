@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260923-002",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260923-LANG-FEEDBACK",
+  "target_agent": "academic-orchestrator",
+  "target_skill": "academic-suite-orchestrator",
+  "capability": "Conversational Interface Communication",
+  "trajectory_id": "TRJ-20260923-LANG-FEEDBACK-001",
+  "observable_failure_step": {
+    "step_number": 13,
+    "action_type": "DECISION_FORMULATION",
+    "description": "Orchestrator emitted Stage Completion Report entirely in Persian (8,700+ chars) in conversational interface, violating conversational language decoupling."
+  },
+  "failure_signature": "CONVERSATIONAL_LANGUAGE_BLEED",
+  "root_cause_diagnosis": "The orchestrator repeatedly inspected Persian-language output artifacts (e.g., Chapter4_SEM_Findings.md at Step 8), which saturated its working memory context with Persian tokens. Lacking a hard linguistic boundary enforcement for its communication channel, this context contamination caused the orchestrator to erroneously adopt Persian for the meta-conversational Stage Completion Report sent to the user (Step 13), violating the English-only conversational invariant.",
+  "prescribed_behavior": "The orchestrator MUST strictly decouple artifact generation language from conversational interface language. Regardless of the content language of the files being read or written (e.g., Persian), all conversational interactions, status reports, and meta-communications with the user MUST be strictly executed in English. The agent must enforce a rigid language boundary check before emitting any conversational turn.",
+  "created_at": "2026-09-23T12:52:00+03:30"
+}
