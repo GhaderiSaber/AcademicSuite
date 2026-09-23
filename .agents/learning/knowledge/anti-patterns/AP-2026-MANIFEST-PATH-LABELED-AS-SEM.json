@@ -1,0 +1,23 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-MANIFEST-PATH-LABELED-AS-SEM",
+  "category": "methodological",
+  "defective_pattern": "Substituting manifest composite sum scores for latent variables in SEM without measurement models.",
+  "why_defective": "Omission of measurement error, violation of SEM definition, conflating path analysis with SEM.",
+  "observed_symptoms": [
+    "No latent variable definition (=~) in lavaan syntax.",
+    "Only regressions (~) specified among composite variables.",
+    "No measurement model reporting."
+  ],
+  "corrective_remedy": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
+  "detection_heuristic": {
+    "trigger_rule": "Absence of '=~' operator in lavaan syntax when 'sem' function is called."
+  },
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "academic-orchestrator"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-23T12:15:00+03:30"
+}

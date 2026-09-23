@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-R-LAVAAN-LATENT-SEM-MANDATE",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260923-SEM-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "Manifest path analysis was executed and labeled as Structural Equation Modeling (SEM).",
+    "behavior_caused_outcome": "Failure to define latent variables with measurement models led to incorrect model specification.",
+    "what_should_have_happened": "Latent indicators should have been explicitly defined using lavaan (=~) syntax.",
+    "rationale_why": "SEM strictly requires measurement models (latent variables) to account for measurement error, distinguishing it from simple path analysis."
+  },
+  "desired_behavior": "Specification of R (lavaan) as primary SEM engine, latent indicators (=~), R semPlot::semPaths() visualization, and mandatory pre-flight adaptive context retrieval.",
+  "generalization": "Never substitute manifest composite sum scores for latent variables when executing Structural Equation Modeling.",
+  "scope": "domain",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_REJECTION",
+    "observed_value": "User rejected manifest path analysis labeled as SEM in P04.",
+    "threshold_value": "Zero tolerance for conflating path analysis with SEM.",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "sem",
+    "cfa",
+    "academic-adaptive-context"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-23T12:15:00+03:30",
+  "derived_by": "knowledge-curator",
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "academic-orchestrator",
+    "academic-writer"
+  ]
+}
