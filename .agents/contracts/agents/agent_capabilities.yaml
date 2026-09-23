@@ -644,15 +644,15 @@ agents:
     subagent: true
     can_delegate: false
     can_execute_code: false
-    can_write_files: false
+    can_write_files: true
     required:
       - view_file
       - list_dir
       - grep_search
       - find_by_name
+      - write_to_file
     forbidden:
       - run_command
-      - write_to_file
       - replace_file_content
       - multi_replace_file_content
       - invoke_subagent
@@ -670,15 +670,15 @@ agents:
     subagent: true
     can_delegate: false
     can_execute_code: false
-    can_write_files: false
+    can_write_files: true
     required:
       - view_file
       - list_dir
       - grep_search
       - find_by_name
+      - write_to_file
     forbidden:
       - run_command
-      - write_to_file
       - replace_file_content
       - multi_replace_file_content
       - invoke_subagent

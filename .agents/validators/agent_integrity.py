@@ -454,7 +454,7 @@ class AgentIntegrityValidator:
             "research-agent", "literature-expert", "academic-writer",
         }
         known_read_only_agents = {
-            "academic-orchestrator", "behavior-analyst", "trajectory-analyzer",
+            "academic-orchestrator",
         }
         known_auditors = {
             "results-auditor", "evidence-auditor", "academic-challenger",

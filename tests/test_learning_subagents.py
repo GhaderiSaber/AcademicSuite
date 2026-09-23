@@ -181,21 +181,25 @@ class TestLearningSubagents(unittest.TestCase):
             fm, _ = self._parse_frontmatter(agent_md)
             tools = set(fm.get("tools", []))
 
-            # 1. trajectory-analyzer: strictly read-only
+            # 1. trajectory-analyzer: write_to_file allowed (JSON-only), but NO run_command or replace_file_content
             if name == "trajectory-analyzer":
                 self.assertEqual(
                     tools,
-                    {"view_file", "list_dir", "grep_search", "find_by_name"},
-                    "trajectory-analyzer must be strictly read-only"
+                    {"view_file", "list_dir", "grep_search", "find_by_name", "write_to_file"},
+                    "trajectory-analyzer must declare read tools plus write_to_file"
                 )
+                self.assertNotIn("run_command", tools)
+                self.assertNotIn("replace_file_content", tools)
 
-            # 2. behavior-analyst: strictly read-only
+            # 2. behavior-analyst: write_to_file allowed (JSON-only), but NO run_command or replace_file_content
             elif name == "behavior-analyst":
                 self.assertEqual(
                     tools,
-                    {"view_file", "list_dir", "grep_search", "find_by_name"},
-                    "behavior-analyst must be strictly read-only"
+                    {"view_file", "list_dir", "grep_search", "find_by_name", "write_to_file"},
+                    "behavior-analyst must declare read tools plus write_to_file"
                 )
+                self.assertNotIn("run_command", tools)
+                self.assertNotIn("replace_file_content", tools)
 
             # 3. knowledge-curator: write_to_file allowed, but NO run_command
             elif name == "knowledge-curator":

@@ -170,7 +170,7 @@ class TestSafetyHooksMultiReplaceEnforcement:
 
     def test_blocks_multi_replace_for_non_writing_agents(self):
         """Agents with can_write_files: false must be denied multi_replace_file_content."""
-        for agent in ("academic-orchestrator", "behavior-analyst", "trajectory-analyzer", "test-orchestrator"):
+        for agent in ("academic-orchestrator", "test-orchestrator", "digital-saber", "methodology-expert"):
             payload = {
                 "agentName": agent,
                 "toolCall": {
@@ -191,6 +191,24 @@ class TestSafetyHooksMultiReplaceEnforcement:
                 "can_write_files",
                 "Orchestrator Code Guard"
             ))
+
+    def test_blocks_multi_replace_for_learning_subagents(self):
+        """Learning subagents must be denied non-JSON file writing."""
+        for agent in ("behavior-analyst", "trajectory-analyzer", "knowledge-curator", "skill-evolver"):
+            payload = {
+                "agentName": agent,
+                "toolCall": {
+                    "name": "multi_replace_file_content",
+                    "args": {
+                        "TargetFile": "/workspace/output.md",
+                        "ReplacementChunks": []
+                    }
+                }
+            }
+            res = SafetyHooks.handle_pre_tool_use(payload)
+            assert res.get("decision") == "deny"
+            assert "Learning Subagent" in res.get("reason", "")
+
 
     def test_blocks_multi_replace_with_non_ascii_filename(self):
         """multi_replace_file_content with non-ASCII filename must be denied (Directive 6)."""

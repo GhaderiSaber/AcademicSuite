@@ -229,17 +229,17 @@ class TestAgentCapabilityBoundaries(unittest.TestCase):
     # 5. Read-Only Analysts & Delegation Boundaries
     # =========================================================================
 
-    def test_read_only_analysts_cannot_write_or_execute(self):
-        """Negative Capability Test: behavior-analyst and trajectory-analyzer are strictly read-only."""
+    def test_learning_analysts_capabilities_and_boundaries(self):
+        """Capability Test: behavior-analyst and trajectory-analyzer can write JSON files but cannot execute code."""
         analysts = ["behavior-analyst", "trajectory-analyzer"]
         for analyst in analysts:
             tools = self.get_agent_tools(analyst)
             self.assertNotIn("run_command", tools, f"{analyst} MUST NOT declare run_command")
-            self.assertNotIn("write_to_file", tools, f"{analyst} MUST NOT declare write_to_file")
+            self.assertIn("write_to_file", tools, f"{analyst} MUST declare write_to_file")
             self.assertNotIn("replace_file_content", tools, f"{analyst} MUST NOT declare replace_file_content")
             policy = get_agent_policy(analyst, self.policy)
             self.assertFalse(policy.get("can_execute_code"))
-            self.assertFalse(policy.get("can_write_files"))
+            self.assertTrue(policy.get("can_write_files"))
 
     def test_execution_workers_cannot_delegate(self):
         """Negative Capability Test: specialist execution workers CANNOT invoke subagents."""

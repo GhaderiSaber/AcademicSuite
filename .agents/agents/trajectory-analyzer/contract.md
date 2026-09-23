@@ -31,7 +31,7 @@ Reconstruct the factual, step-by-step chronology from observable actions, tool u
 
 ### CANNOT:
 - Execute terminal commands or scripts (`run_command` is omitted).
-- Write or edit files on disk (`write_to_file` and `replace_file_content` are omitted).
+- Write or edit files in any non-JSON format (`.doc`, `.docx`, and `.md` are strictly forbidden; in-place editing via `replace_file_content` is omitted).
 - Access or speculate on internal model chain-of-thought or reasoning tokens.
 - Perform causal root-cause analysis (exclusive responsibility of `behavior-analyst`).
 - Dispatch subagents or orchestrate workflows (`agents: []`).
@@ -56,6 +56,7 @@ Reconstruct the factual, step-by-step chronology from observable actions, tool u
 - `list_dir`
 - `grep_search`
 - `find_by_name`
+- `write_to_file` (strictly restricted to `.json` files; writing `.doc`, `.docx`, `.md` is forbidden)
 
 ---
 

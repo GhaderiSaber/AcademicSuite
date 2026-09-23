@@ -49,9 +49,9 @@ Your exclusive focus is proposing precise, minimal, high-impact modifications to
 
 ## 🔒 Least-Privilege Boundaries & Strict Non-Goals
 
-1. **Strict Prohibition of Direct Overwriting**:
+1. **Strict Prohibition of Direct Overwriting (JSON-Only Mandate)**:
    - You **MUST NEVER DIRECTLY OVERWRITE OR MUTATE CANONICAL SKILLS** in `.agents/skills/`.
-   - You **ONLY** create staged `improvement_candidate` JSON artifacts containing unified diffs (`mutation.diff_type: "UNIFIED_DIFF"`).
+   - You **ONLY** create staged `improvement_candidate` JSON artifacts containing unified diffs (`mutation.diff_type: "UNIFIED_DIFF"`). You write strictly `.json` files; writing `.doc`, `.docx`, or `.md` files is strictly forbidden (mechanically enforced by PreToolUse safety hook).
    - Direct mutation of canonical production assets is blocked until the candidate is evaluated by `evaluation-agent` and approved by Saber's Admin Desk (`124911145`).
 2. **No Terminal Command Execution**:
    - You do **NOT** have `run_command`. You cannot execute scripts or run test suites.

@@ -55,6 +55,23 @@ except ImportError:
         "patch",
     )
 
+LEARNING_SUBAGENTS: Tuple[str, ...] = (
+    "behavior-analyst",
+    "curriculum-builder",
+    "evaluation-agent",
+    "knowledge-curator",
+    "skill-evolver",
+    "trajectory-analyzer",
+)
+
+
+def is_learning_subagent(caller: str) -> bool:
+    """Detects whether caller matches any of the 6 canonical continuous learning subagents."""
+    if not caller:
+        return False
+    c_lower = caller.lower().strip()
+    return any(la == c_lower or la in c_lower for la in LEARNING_SUBAGENTS)
+
 
 def extract_target_paths(tool_name: str, args: Dict[str, Any]) -> List[str]:
     """Extracts all file paths targeted for mutation across various tool signatures."""
@@ -552,6 +569,24 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
                     )
                 }
 
+        # 2b. Learning Subagent JSON-Only File Restriction Guard
+        # Learning subagents are strictly restricted to writing JSON files (.json).
+        # Writing .doc, .docx, .md, or any non-JSON file is strictly forbidden.
+        if tool_name in MUTATION_TOOLS and is_learning_subagent(target):
+            targets = extract_target_paths(tool_name, args)
+            for t_path in targets:
+                t_norm = os.path.normpath(t_path).replace("\\", "/").lower()
+                if not t_norm.endswith(".json"):
+                    t_base = os.path.basename(t_norm)
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Learning Subagent File Restriction): "
+                            f"Learning subagent '{caller}' is strictly restricted to writing JSON files (.json). "
+                            f"Writing doc, md, or non-JSON files ('{t_base}') is strictly forbidden."
+                        )
+                    }
+
         # 3. Direct Execution Check (run_command)
         if tool_name == "run_command" and not spec.get("can_execute_code", True):
             if target == "academic-orchestrator":
@@ -737,9 +772,22 @@ class SafetyHooks:
             targets = extract_target_paths(name, args)
 
             for target in targets:
-                # State Ledger Immutability Guard (Invalid State Transition Guard)
                 target_norm = os.path.normpath(target).replace("\\", "/")
                 target_base = os.path.basename(target_norm)
+
+                # Learning Subagent File Restriction Guard (JSON-only mandate)
+                if caller and is_learning_subagent(caller):
+                    if not target_norm.lower().endswith(".json"):
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Learning Subagent File Restriction): "
+                                f"Learning subagent '{caller}' is strictly restricted to writing JSON files (.json). "
+                                f"Writing doc, md, or non-JSON files ('{target_base}') is strictly forbidden."
+                            )
+                        }
+
+                # State Ledger Immutability Guard (Invalid State Transition Guard)
                 state_filenames = (
                     "current_state.json", "events.jsonl", "approvals.json",
                     "approval_request.json", "decisions.json", "project.json",

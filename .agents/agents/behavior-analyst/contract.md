@@ -31,7 +31,7 @@ Conduct rigorous causal root-cause analysis on observable execution trajectories
 
 ### CANNOT:
 - Execute terminal commands or scripts (`run_command` is omitted).
-- Write or edit files on disk (`write_to_file` and `replace_file_content` are omitted).
+- Write or edit files in any non-JSON format (`.doc`, `.docx`, and `.md` are strictly forbidden; in-place editing via `replace_file_content` is omitted).
 - Synthesize candidate code diffs (exclusive responsibility of `skill-evolver`).
 - Promote lessons or knowledge items to production defaults (exclusive gate of `knowledge-curator` and human approval).
 - Dispatch subagents or orchestrate workflows (`agents: []`).
@@ -56,6 +56,7 @@ Conduct rigorous causal root-cause analysis on observable execution trajectories
 - `list_dir`
 - `grep_search`
 - `find_by_name`
+- `write_to_file` (strictly restricted to `.json` files; writing `.doc`, `.docx`, `.md` is forbidden)
 
 ---
 

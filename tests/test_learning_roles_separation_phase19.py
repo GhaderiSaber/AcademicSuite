@@ -17,16 +17,16 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 EXPECTED_ROLES = {
     "trajectory-analyzer": {
         "core_question": "What actually happened?",
-        "tools": ["view_file", "list_dir", "grep_search", "find_by_name"],
+        "tools": ["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file"],
         "has_run_command": False,
-        "has_write_tools": False,
+        "has_write_tools": True,
         "workspace_mode": "inherit",
     },
     "behavior-analyst": {
         "core_question": "What behavior was wrong?",
-        "tools": ["view_file", "list_dir", "grep_search", "find_by_name"],
+        "tools": ["view_file", "list_dir", "grep_search", "find_by_name", "write_to_file"],
         "has_run_command": False,
-        "has_write_tools": False,
+        "has_write_tools": True,
         "workspace_mode": "inherit",
     },
     "knowledge-curator": {

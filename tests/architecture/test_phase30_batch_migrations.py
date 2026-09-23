@@ -214,18 +214,18 @@ class TestPhase30BatchMigrations(unittest.TestCase):
     # Batch 5: Learning System Agents
     # =========================================================================
     def test_16_batch5_behavior_analyst(self):
-        """Batch 5: behavior-analyst is strictly read-only (no run_command, no write_to_file)."""
+        """Batch 5: behavior-analyst writes JSON diagnostic reports, has no run_command."""
         tools = self.get_agent_tools("behavior-analyst")
         self.assertNotIn("run_command", tools)
-        self.assertNotIn("write_to_file", tools)
+        self.assertIn("write_to_file", tools)
         self.assertNotIn("invoke_subagent", tools)
         self.assertIn("behavior-analyst", NON_EXECUTING_AGENTS)
 
     def test_17_batch5_trajectory_analyzer(self):
-        """Batch 5: trajectory-analyzer is strictly read-only (no run_command, no write_to_file)."""
+        """Batch 5: trajectory-analyzer writes JSON trajectory logs, has no run_command."""
         tools = self.get_agent_tools("trajectory-analyzer")
         self.assertNotIn("run_command", tools)
-        self.assertNotIn("write_to_file", tools)
+        self.assertIn("write_to_file", tools)
         self.assertNotIn("invoke_subagent", tools)
         self.assertIn("trajectory-analyzer", NON_EXECUTING_AGENTS)
 
