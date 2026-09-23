@@ -71,7 +71,7 @@ flowchart TD
 ### Step 4: Knowledge Distillation & Anti-Pattern Cataloging (`knowledge-curator`)
 - **Invocation**: `invoke_subagent(TypeName="knowledge-curator", Prompt="Distill generalizable lesson and catalog anti-patterns from report ...")`
 - **Behavior**: Formulates structured lesson candidate, updates anti-pattern catalog, defines boundary conditions.
-- **Invariant**: Candidate staging only (`status: "VALIDATED"`, `is_active_behavior: false`). Direct promotion is forbidden.
+- **Invariant**: Validated staging (`status: "VALIDATED"`, `is_active_behavior: true`). Active lessons are immediately consumed by agents and subagents in pre-flight briefings.
 - **Output**: JSON files in `learning/knowledge/lessons/`, `anti-patterns/`, `exemplars/`.
 
 ### Step 5: Candidate Patch Synthesis (`skill-evolver`)

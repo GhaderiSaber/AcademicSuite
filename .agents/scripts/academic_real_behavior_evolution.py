@@ -218,6 +218,7 @@ class AcademicRealBehaviorEvolution:
             "lesson_id": f"LSN-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}",
             "source_experience_id": trajectory_data.get("experience_id", f"EXP-{uuid.uuid4().hex[:6].upper()}"),
             "target_agent": target_agent,
+            "target_agents": [target_agent] if target_agent else [],
             "target_skill": target_skill,
             "capability": capability,
             "what_happened": analysis_report["root_cause_diagnosis"],
@@ -235,7 +236,9 @@ class AcademicRealBehaviorEvolution:
                 "defect_signature_eliminated": failure_sig,
                 "target_metric": "zero_defects"
             },
-            "potential_downsides": "Minor prompt/instruction expansion; must adhere to Directive 18 size ceilings."
+            "potential_downsides": "Minor prompt/instruction expansion; must adhere to Directive 18 size ceilings.",
+            "is_active_behavior": True,
+            "status": "VALIDATED"
         }
         self.lesson_distiller.record_lesson(lesson_data)
 

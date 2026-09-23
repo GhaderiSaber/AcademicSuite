@@ -352,7 +352,7 @@ def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any
     1. Valid JSON syntax.
     2. Mandatory 'target_agent' (string) and 'target_agents' (non-empty list of strings).
     3. Strict schema conformity against contracts/evolution/*.schema.json.
-    4. Prohibition of direct promotion (is_active_behavior must remain false).
+    4. Promotion boundary guard (is_active_behavior: true requires status: VALIDATED or PROMOTED).
     """
     if not target or not isinstance(target, str):
         return None

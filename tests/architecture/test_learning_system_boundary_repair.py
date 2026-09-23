@@ -187,7 +187,7 @@ def test_distill_from_observable_delegation_cfa_scenario(temp_learning_env):
     assert "psychometric validation" in lesson["diagnosis"]["what_should_have_happened"]
     assert "academic-orchestrator" in lesson["diagnosis"]["what_happened"].lower()
     assert "statistics-agent" in lesson["diagnosis"]["what_happened"].lower()
-    assert lesson["is_active_behavior"] is False
+    assert lesson["is_active_behavior"] is True
     assert lesson["status"] == "VALIDATED"
 
     # Verify persisted to disk

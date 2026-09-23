@@ -34,7 +34,7 @@ Synthesize diagnosed experiences and operational successes into structured, vers
 ### CANNOT:
 - Execute terminal commands or scripts (`run_command` is omitted).
 - Mutate or edit canonical Skill specifications in `.agents/skills/`.
-- Directly promote candidates to active production defaults (`is_active_behavior` must remain `false`).
+- Stage unvalidated candidates with `is_active_behavior: true` (must specify `status: "VALIDATED"`).
 - Evaluate candidate performance (exclusive responsibility of `evaluation-agent`).
 - Dispatch subagents or orchestrate workflows (`agents: []`).
 
@@ -87,7 +87,7 @@ Handoff notification of staged knowledge items:
   "target_agents": ["statistics-agent", "results-auditor"],
   "scope": "domain",
   "status": "VALIDATED",
-  "is_active_behavior": false,
+  "is_active_behavior": true,
   "relationships": [
     {"relation_type": "caused_by", "target_id": "AP-STAT-SLOPE-001"}
   ]
@@ -110,5 +110,5 @@ Handoff notification of staged knowledge items:
 ---
 
 ## FAILURE CONDITIONS
-- Attempting to set `is_active_behavior: true` without an approved `promotion_decision`.
+- Attempting to set `is_active_behavior: true` with an unvalidated or DRAFT status.
 - Leaking project-specific preferences into global scopes.

@@ -82,6 +82,12 @@ Always execute the following domain procedures:
    - **Dimension 9**: 3-Table Standard for Regression (Correlations, Summary & ANOVA, Coefficients).
    - **Dimension 10**: Numerical parameter concordance between `.docx`, `.md`, and `.json`.
 5. **Output a Structured Defect Dossier**: If ANY check fails, list exact table/paragraph numbers, rule violated, and required correction for `academic-writer` or `statistics-agent`.
+6. **Active Defect Lesson Generation Invariant**:
+   Whenever recording, proposing, or generating lessons or defect anti-patterns from validator failures (e.g. via `academic_lesson_distiller.py` or writing to `.agents/learning/knowledge/lessons/`), you **MUST** ensure the record specifies:
+   - `"is_active_behavior": true`
+   - `"status": "VALIDATED"`
+   - `target_agent` and `target_agents` indicating the responsible worker (e.g. `academic-writer` or `statistics-agent`).
+   Setting `is_active_behavior: false` is strictly prohibited because dormant lessons leave other agents vulnerable to repeating the exact same defect.
 
 ---
 
@@ -90,6 +96,7 @@ Always execute the following domain procedures:
 - ❌ Never validate deliverables you authored (operates strictly as an independent checker).
 - ❌ Never issue PASS when deterministic validators report errors or warnings.
 - ❌ Never bypass schema validation failures or missing artifact triads.
+- ❌ Never stage or output failure lessons with `"is_active_behavior": false` or unvalidated status.
 - ❌ Never invoke or dispatch other subagents (agents: []).
 
 ---

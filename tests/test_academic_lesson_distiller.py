@@ -10,7 +10,7 @@ Tests:
 4. Distills WHAT WORKED WELL lesson from verified successful trajectories.
 5. Anti-vague enforcement: detects and rejects/enriches superficial recommendations.
 6. Scope preservation: PROJECT_SPECIFIC feedback never overgeneralizes to CROSS_PROJECT_UNIVERSAL.
-7. Non-activation invariant: is_active_behavior is strictly False.
+7. Active consumption invariant: is_active_behavior is strictly True with status VALIDATED.
 8. Multiple lessons per experience: experiences with multiple failure/critique signals produce multiple lessons.
 9. Contract validation: all generated lessons strictly pass validate_lesson.
 """
@@ -166,7 +166,8 @@ class TestAcademicLessonDistiller(unittest.TestCase):
         # 1. Type and Source
         self.assertEqual(lesson["lesson_type"], "WHAT_NOT_TO_DO")
         self.assertEqual(lesson["trigger_source"], "USER_FEEDBACK")
-        self.assertEqual(lesson["is_active_behavior"], False)
+        self.assertEqual(lesson["is_active_behavior"], True)
+        self.assertEqual(lesson["status"], "VALIDATED")
         self.assertEqual(lesson["source_experience_id"], exp_id)
         self.assertEqual(lesson["target_agent"], "statistics-agent")
         self.assertEqual(lesson["target_agents"], ["statistics-agent"])
@@ -220,7 +221,8 @@ class TestAcademicLessonDistiller(unittest.TestCase):
         self.assertEqual(lesson["observed_failure"]["defect_type"], "REPORTING_OR_TYPOGRAPHY_DEFECT")
         self.assertEqual(lesson["scope"], "DOMAIN_WIDE")
         self.assertEqual(lesson.get("generalization_stage"), "LOCAL_LESSON")
-        self.assertEqual(lesson["is_active_behavior"], False)
+        self.assertEqual(lesson["is_active_behavior"], True)
+        self.assertEqual(lesson["status"], "VALIDATED")
 
         val_res = validate_lesson(lesson)
         self.assertTrue(val_res["valid"], f"Lesson contract error: {val_res.get('error')}")
@@ -244,7 +246,8 @@ class TestAcademicLessonDistiller(unittest.TestCase):
         self.assertEqual(lesson["trigger_source"], "SUCCESSFUL_TRAJECTORY")
         self.assertEqual(lesson["target_agent"], "statistics-agent")
         self.assertEqual(lesson["target_agents"], ["statistics-agent"])
-        self.assertEqual(lesson["is_active_behavior"], False)
+        self.assertEqual(lesson["is_active_behavior"], True)
+        self.assertEqual(lesson["status"], "VALIDATED")
         self.assertNotIn("observed_failure", lesson)
 
         val_res = validate_lesson(lesson)

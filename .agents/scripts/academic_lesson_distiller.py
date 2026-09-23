@@ -25,8 +25,8 @@ Key Invariants:
    - WHAT WORKED WELL (positive operational patterns)
 3. Anti-Vague Enforcement:
    - Rejects ungrounded, superficial, or vague recommendations (e.g. "Analyze better").
-4. Non-Activation Invariant:
-   - Sets is_active_behavior = False. Never directly mutates active production skills.
+4. Active Consumption Invariant:
+   - Sets is_active_behavior = True (status: VALIDATED) for immediate active consumption across agents.
 5. Scope Safeguards:
    - PROJECT_SPECIFIC feedback never overgeneralizes to CROSS_PROJECT_UNIVERSAL.
 """
@@ -355,7 +355,7 @@ class AcademicLessonDistiller:
             "confidence": 0.5,
             "evidence": evidence,
             "related_skills": [related_skill],
-            "is_active_behavior": False,
+            "is_active_behavior": True,
             "status": "VALIDATED",
             "created_at": now_iso,
             "derived_by": "AcademicLessonDistiller"
@@ -496,7 +496,7 @@ class AcademicLessonDistiller:
             "confidence": 0.5,
             "evidence": evidence,
             "related_skills": [target_skill],
-            "is_active_behavior": False,  # Strict invariant: never automatically activated
+            "is_active_behavior": True,
             "status": "VALIDATED",
             "created_at": now_iso,
             "derived_by": "AcademicLessonDistiller"
@@ -605,7 +605,7 @@ class AcademicLessonDistiller:
                 "supporting_artifact_paths": art_paths
             },
             "related_skills": [skill],
-            "is_active_behavior": False,
+            "is_active_behavior": True,
             "status": "VALIDATED",
             "created_at": now_iso,
             "derived_by": "AcademicLessonDistiller"
@@ -713,7 +713,7 @@ class AcademicLessonDistiller:
                 "supporting_artifact_paths": art_paths
             },
             "related_skills": [skill],
-            "is_active_behavior": False,
+            "is_active_behavior": True,
             "status": "VALIDATED",
             "created_at": now_iso,
             "derived_by": "AcademicLessonDistiller"
@@ -736,6 +736,10 @@ class AcademicLessonDistiller:
 
     def record_lesson(self, lesson_record: Dict[str, Any]) -> Dict[str, Any]:
         """Persists lesson record to disk and updates fast index."""
+        lesson_record = dict(lesson_record)
+        lesson_record.setdefault("is_active_behavior", True)
+        lesson_record.setdefault("status", "VALIDATED")
+
         # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
         verify_lesson_boundary(lesson_record)
 
@@ -752,8 +756,8 @@ class AcademicLessonDistiller:
             "scope": lesson_record.get("scope"),
             "related_skills": lesson_record.get("related_skills", []),
             "source_experience_id": lesson_record.get("source_experience_id"),
-            "is_active_behavior": lesson_record.get("is_active_behavior", False),
-            "status": lesson_record.get("status", "DRAFT"),
+            "is_active_behavior": lesson_record.get("is_active_behavior", True),
+            "status": lesson_record.get("status", "VALIDATED"),
             "created_at": lesson_record.get("created_at"),
             "filepath": os.path.relpath(out_path, self.project_root)
         }
