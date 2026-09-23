@@ -138,6 +138,12 @@ CAPABILITY_REGISTRY = {
         "skill": "academic-suite-orchestrator",
         "agent": "statistical-expert",
         "tools": ["run_command", "view_file", "write_to_file"]
+    },
+    "chapter_5_writing": {
+        "description": "Chapter 5 discussion & conclusion, 4-element psychological model, article enrichment",
+        "skill": "chapter-5-writing",
+        "agent": "academic-writer",
+        "tools": ["view_file", "write_to_file"]
     }
 }
 
@@ -238,11 +244,73 @@ STAGE_DEPENDENCIES = {
         "capability": "chapter_4_writing",
         "required_files": ["validation/statistical_validation.json", "validation/writing_validation.json"],
         "required_stage": "09_validation_audit"
+    },
+    # Chapter 5 Discussion & Conclusion Micro-Stages
+    "01_findings_recap": {
+        "title": "Findings Overview & Purpose Recap",
+        "capability": "chapter_5_writing",
+        "required_files": ["project.json"],
+        "required_stage": None
+    },
+    "02_hypothesis_discussion": {
+        "title": "Hypothesis Deep Discussion (4-Element Psychological Model)",
+        "capability": "chapter_5_writing",
+        "required_files": ["project.json"],
+        "required_stage": "01_findings_recap"
+    },
+    "03_unexpected_findings": {
+        "title": "Unexpected & Non-Significant Findings Analysis",
+        "capability": "methodology_review",
+        "required_files": ["project.json"],
+        "required_stage": "02_hypothesis_discussion"
+    },
+    "04_implications": {
+        "title": "Theoretical, Clinical & Practical Implications",
+        "capability": "chapter_5_writing",
+        "required_files": ["project.json"],
+        "required_stage": "02_hypothesis_discussion"
+    },
+    "05_limitations": {
+        "title": "Methodological, Sampling & Instrument Limitations",
+        "capability": "methodology_review",
+        "required_files": ["project.json"],
+        "required_stage": "04_implications"
+    },
+    "06_recommendations": {
+        "title": "Future Research & Actionable Practical Recommendations",
+        "capability": "chapter_5_writing",
+        "required_files": ["project.json"],
+        "required_stage": "05_limitations"
+    },
+    "07_results_qc": {
+        "title": "Statistical Claim & Number Fidelity Audit",
+        "capability": "apa_reporting",
+        "required_files": ["project.json"],
+        "required_stage": "06_recommendations"
+    },
+    "08_evidence_qc": {
+        "title": "Evidence Concordance & Citation Integrity Audit",
+        "capability": "validation_audit",
+        "required_files": ["project.json"],
+        "required_stage": "07_results_qc"
+    },
+    "09_chapter5_assembly": {
+        "title": "Chapter 5 Discussion OpenXML & Markdown Assembly",
+        "capability": "chapter_5_writing",
+        "required_files": ["project.json"],
+        "required_stage": "08_evidence_qc"
+    },
+    "10_defense_brief": {
+        "title": "Doctoral Defense Viva Voce Discussion Brief",
+        "capability": "chapter_5_writing",
+        "required_files": ["project.json"],
+        "required_stage": "09_chapter5_assembly"
     }
 }
 
 # Canonical Micro-Stage Sequence Order for progression comparison
 STAGE_ORDER: Dict[str, int] = {
+    # Chapter 4 micro-stages
     "00_data_curation": 0,
     "01_demographics": 1,
     "02_reliability": 2,
@@ -254,7 +322,18 @@ STAGE_ORDER: Dict[str, int] = {
     "07_mediation_analysis": 7,
     "08_chapter_summary": 8,
     "09_validation_audit": 9,
-    "10_chapter_assembly": 10
+    "10_chapter_assembly": 10,
+    # Chapter 5 micro-stages
+    "01_findings_recap": 1,
+    "02_hypothesis_discussion": 2,
+    "03_unexpected_findings": 3,
+    "04_implications": 4,
+    "05_limitations": 5,
+    "06_recommendations": 6,
+    "07_results_qc": 7,
+    "08_evidence_qc": 8,
+    "09_chapter5_assembly": 9,
+    "10_defense_brief": 10
 }
 
 
@@ -278,6 +357,7 @@ def resolve_capability(query: str) -> Dict[str, Any]:
         "regression": ["regression", "hierarchical", "r2", "stepwise", "f-change"],
         "apa_reporting": ["table", "apa", "border", "italic", "typography", "b nazanin"],
         "chapter_4_writing": ["chapter 4", "findings", "hypothesis", "results", "narrative"],
+        "chapter_5_writing": ["chapter 5", "discussion", "implications", "limitations", "recommendations", "conclusion"],
         "literature_review": ["literature", "chapter 2", "pubmed", "crossref", "background", "citations"],
         "methodology_review": ["methodology", "chapter 3", "g*power", "sample size", "validity"],
         "validation_audit": ["validate", "audit", "check", "df", "consistency", "qc"],
@@ -382,12 +462,12 @@ def check_prerequisites(stage_id: str, state_dir: str) -> Dict[str, Any]:
                     proj_status = proj.get("status", "")
                     if curr_stage:
                         req_order = STAGE_ORDER.get(req_stage)
-                        curr_stage_clean = curr_stage.lower()
-                        curr_order = None
-                        for s_name, s_idx in STAGE_ORDER.items():
-                            if s_name in curr_stage_clean or s_name.split("_")[0] in curr_stage_clean:
-                                curr_order = s_idx
-                                break
+                        curr_order = STAGE_ORDER.get(curr_stage_clean)
+                        if curr_order is None:
+                            for s_name, s_idx in STAGE_ORDER.items():
+                                if s_name in curr_stage_clean:
+                                    curr_order = s_idx
+                                    break
 
                         if curr_order is not None and req_order is not None:
                             if curr_order < req_order:

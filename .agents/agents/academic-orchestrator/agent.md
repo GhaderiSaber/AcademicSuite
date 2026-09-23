@@ -131,6 +131,7 @@ Under **Directive 19** and **Directive 20**, the Orchestrator does NOT execute P
 5. **"Analyze these network data"** $\rightarrow$ `DATA (data-agent)` + `NETWORK-ANALYSIS (statistics-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
 6. **"Provision project / reorganize folders"** $\rightarrow$ `PROJECT_MANAGEMENT (project-organizer)` + `VALIDATION (validation-agent)`
 7. **"Create data / simulate dataset"** $\rightarrow$ `DATA_SIMULATION (data-agent)` + `DATA_AUDIT (statistical-auditor)` + `DATA_CURATION (data-curator)`
+8. **"Write Chapter 5"** $\rightarrow$ `RESEARCH (literature-expert)` + `WRITING (academic-writer)` + `VALIDATION (results-auditor)` + `DEFENSE (final-judge)`
 
 ## 🏛️ Declarative Research Pipeline Presets & Milestone Governance
 
@@ -140,6 +141,8 @@ The Academic Orchestrator is the authoritative owner of project lifecycles, mile
 | :--- | :--- | :--- |
 | **`data_generation`** | `specification` (`methodology-expert`) $\to$ `scale_resolution` (`psychometric-expert`) $\to$ `simulation` (`data-agent`) $\to$ `audit` (`statistical-auditor`) $\to$ `curation` (`data-curator`) | Simulation Spec (`.json`), Dataset (`.xlsx`, `.csv`), Model Syntax (`.R`), Audit Report (`.json`), and Codebook (`.docx`). |
 | **`thesis_empirical`** | `proposal` (`methodology-expert`) $\to$ `simulation` (`data-agent`) $\to$ `statistics` (`statistics-agent`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Dataset (`.xlsx`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Defense Slides (`.pptx`). |
+| **`chapter4_micro`** | `data_curation` (`data-curator`) $\to$ `demographics` (`statistics-agent`) $\to$ `assumptions` (`statistics-agent`) $\to$ `hypotheses` (`academic-writer`) $\to$ `qc` (`results-auditor`) $\to$ `assembly` (`academic-writer`) | Triad Stage Artifacts (`.docx`, `.md`, `.json`), `Chapter_4_Results.docx`, `Master_Hypothesis_Matrix.docx`. |
+| **`chapter5_micro`** | `article_enrichment` (`literature-expert`) $\to$ `recap_and_hypotheses` (`academic-writer`) $\to$ `mechanisms_implications` (`academic-writer` + `methodology-expert`) $\to$ `qc_audit` (`results-auditor` + `evidence-auditor`) $\to$ `assembly` (`academic-writer`) $\to$ `defense_brief` (`final-judge`) | Triad Stage Artifacts (`.docx`, `.md`, `.json`), Article Cards (`.json`), `Chapter_5_Discussion.docx`, `Chapter_5_Discussion.md`, `defense_discussion_brief.docx`. |
 | **`scale_validation`** | `scale_validator` (`psychometric-expert`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Validation Ch 4 (`.docx`), 6-Sheet Matrix (`.xlsx`), Scree/ROC & IRT Plots (`.png`), Article (`.docx`), Submission Package (`.docx`). |
 | **`qualitative_study`** | `proposal` (`methodology-expert`) $\to$ `qualitative` (`qualitative-analyst`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Coding Matrix (`.xlsx`), Thematic Network (`.png`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Slides (`.pptx`). |
 | **`meta_analysis`** | `meta_analysis` (`meta-analyst`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | PRISMA Report (`.docx`), Forest & Funnel Plots (`.png`), Manuscript (`.docx`), Cover Letter & Highlights (`.docx`). |
@@ -169,25 +172,25 @@ Before initiating any task, classify it into the appropriate execution tier usin
 
 When decomposing tasks, apply this canonical capability-to-skill-to-agent mapping:
 
-| Capability | Domain Scope | Bound Skill | Specialist Agent | Primary Tools |
-| :--- | :--- | :--- | :--- | :--- |
-| **Data Simulation & Generation** | Monte Carlo psychometric simulation, SEM/CFA latent data, Likert quantization, RCT pre-post trials | `psychometric-data-simulator` | `data-agent` | `run_command`, `view_file`, `write_to_file` |
-| **Data Cleaning & Scoring** | Reverse-coding, Likert aggregation, imputation | `data-cleaning` | `data-agent` | `run_command`, `view_file`, `write_to_file` |
-| **Data Quality Screening** | Unengaged responses, Little's MCAR, Mahalanobis $D^2$ | `data-audit` | `data-agent` | `run_command`, `view_file`, `write_to_file` |
-| **Demographics & Descriptives** | Sample frequencies, $M, SD, SE$, skewness, kurtosis | `descriptive-statistics` | `statistics-agent` | `run_command`, `view_file`, `write_to_file` |
-| **Scale Reliability** | Cronbach's $\alpha$, McDonald's $\omega$, item-total correlations | `reliability-analysis` | `statistics-agent` | `run_command`, `view_file`, `write_to_file` |
-| **Assumptions Verification** | Levene test, Shapiro-Wilk, VIF multicollinearity | `assumption-testing` | `statistics-agent` | `run_command`, `view_file`, `write_to_file` |
-| **Structural Equation Modeling** | SEM path models, 11 Hu & Bentler fit indices | `sem` | `statistics-agent` | `run_command`, `view_file`, `write_to_file` |
-| **Confirmatory Factor Analysis** | CFA factor loadings ($\\lambda$), AVE, construct reliability | `cfa` | `statistics-agent` | `run_command`, `view_file`, `write_to_file` |
-| **Mediation Analysis** | PROCESS Model 4, 5,000 bootstrap resamples, 95% BCa CI | `mediation` | `statistics-agent` | `run_command`, `view_file`, `write_to_file` |
-| **Moderation Analysis** | PROCESS Model 1, simple slopes (-1 SD, Mean, +1 SD) | `moderation` | `statistics-agent` | `run_command`, `view_file`, `write_to_file` |
-| **Multiple Regression** | Hierarchical / stepwise regression, $\Delta R^2, F$-change | `regression` | `statistics-agent` | `run_command`, `view_file`, `write_to_file` |
-| **APA 7 Formatting** | 3-line tables, symbol italicization, Persian leading zero | `apa-reporting` | `academic-writer` | `view_file`, `write_to_file` |
-| **Chapter 4 Findings** | Scholarly narrative, One-Hypothesis-One-Stage triads | `chapter-4-writing` | `academic-writer` | `view_file`, `write_to_file` |
-| **Literature Review** | Multi-database queries, inverted-triangle synthesis | `literature-review` | `research-agent` | `view_file`, `write_to_file` |
-| **Methodology Review** | Design validity, G*Power statistical power analysis | `methodology-review` | `methodology-expert` | `view_file`, `write_to_file` |
-| **Validation & Audit** | Independent check of df, data, stats, and typography | `thesis-integrity-auditor` | `validation-agent` | `run_command`, `view_file` |
-| **Project Provisioning & Organization** | Directory scaffolding, 4-tier taxonomy, metadata, migrations | `academic-drive-project-organizer` | `project-organizer` | `run_command`, `view_file`, `write_to_file` |
+| Capability | Domain Scope | Bound Skill | Specialist Agent |
+| :--- | :--- | :--- | :--- |
+| **Data Simulation & Generation** | Monte Carlo psychometric simulation, SEM/CFA latent data, Likert quantization, RCT pre-post trials | `psychometric-data-simulator` | `data-agent` |
+| **Data Cleaning & Scoring** | Reverse-coding, Likert aggregation, imputation | `data-cleaning` | `data-agent` |
+| **Data Quality Screening** | Unengaged responses, Little's MCAR, Mahalanobis $D^2$ | `data-audit` | `data-agent` |
+| **Demographics & Descriptives** | Sample frequencies, $M, SD, SE$, skewness, kurtosis | `descriptive-statistics` | `statistics-agent` |
+| **Scale Reliability** | Cronbach's $\alpha$, McDonald's $\omega$, item-total correlations | `reliability-analysis` | `statistics-agent` |
+| **Assumptions Verification** | Levene test, Shapiro-Wilk, VIF multicollinearity | `assumption-testing` | `statistics-agent` |
+| **Structural Equation Modeling** | SEM path models, 11 Hu & Bentler fit indices | `sem` | `statistics-agent` |
+| **Confirmatory Factor Analysis** | CFA factor loadings ($\lambda$), AVE, construct reliability | `cfa` | `statistics-agent` |
+| **Mediation Analysis** | PROCESS Model 4, 5,000 bootstrap resamples, 95% BCa CI | `mediation` | `statistics-agent` |
+| **Moderation Analysis** | PROCESS Model 1, simple slopes (-1 SD, Mean, +1 SD) | `moderation` | `statistics-agent` |
+| **Multiple Regression** | Hierarchical / stepwise regression, $\Delta R^2, F$-change | `regression` | `statistics-agent` |
+| **APA 7 Formatting** | 3-line tables, symbol italicization, Persian leading zero | `apa-reporting` | `academic-writer` |
+| **Chapter 4 Findings** | Scholarly narrative, One-Hypothesis-One-Stage triads | `chapter-4-writing` | `academic-writer` |
+| **Literature Review** | Multi-database queries, inverted-triangle synthesis | `literature-review` | `research-agent` |
+| **Methodology Review** | Design validity, G*Power statistical power analysis | `methodology-review` | `methodology-expert` |
+| **Validation & Audit** | Independent check of df, data, stats, and typography | `thesis-integrity-auditor` | `validation-agent` |
+| **Project Provisioning & Organization** | Directory scaffolding, 4-tier taxonomy, metadata, migrations | `academic-drive-project-organizer` | `project-organizer` |
 
 ---
 

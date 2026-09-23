@@ -93,7 +93,14 @@ The skills layer consists of **43 Focused Capability Packages** adhering to prog
 - **Resources (1):** `chapter4_micro_stage_master_sequence.md`
 - **Examples & Schemas:** `examples/sample_input.json`, `examples/sample_output.json`, `schemas/input_schema.json`, `schemas/output_schema.json`
 
-### 11. `citation-network-visualizer`
+### 11. `chapter-5-writing`
+- **Path:** `.agents/skills/chapter-5-writing/`
+- **Description:** End-to-end orchestration for Chapter 5 discussion, enforcing One-Hypothesis-One-Stage micro-stages, 4-element psychological model, Triad Artifact Invariant (.docx, .md, .json), and article text enrichment without verbatim copying.
+- **Scripts (3):** `scaffold_chapter5_triad.py`, `assemble_chapter5.py`, `article_enrichment_engine.py`
+- **Resources (1):** `chapter5_micro_stage_master_sequence.md`
+- **Examples & Schemas:** `examples/sample_input.json`, `examples/sample_output.json`, `schemas/input_schema.json`, `schemas/output_schema.json`
+
+### 12. `citation-network-visualizer`
 - **Path:** `.agents/skills/citation-network-visualizer/`
 - **Description:** Construct and visualize citation, co-citation, and bibliographic coupling
 - **Scripts (1):** `citation_visualizer_engine.py`

@@ -132,11 +132,11 @@ class TestModernizedAgentFactory(unittest.TestCase):
         self.assertIn("Rule 1: Always verify parameters.", content)
 
     def test_02_all_22_target_agent_specs_validate_successfully(self):
-        """All 22 target architecture specifications must be valid and conform to constraints."""
+        """All 23 target architecture specifications must be valid and conform to constraints."""
         specs = get_all_target_agent_specs()
 
-        # Check counts: 7 durable, 15 subagents, total 22
-        self.assertEqual(len(specs), 22)
+        # Check counts: 7 durable, 16 subagents, total 23
+        self.assertEqual(len(specs), 23)
         for d_name in TARGET_DURABLE_AGENTS:
             self.assertIn(d_name, specs)
         for s_name in TARGET_SUBAGENTS:

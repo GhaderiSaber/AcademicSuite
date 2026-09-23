@@ -100,6 +100,21 @@ SKILL_REGISTRY = {
         "default_sample": os.path.join(SKILLS_DIR, "persian-discussion-builder", "examples", "sample_ch5_payload.json"),
         "desc": "Chapter 5 theoretical mechanisms, limitations & recommendations (.docx)"
     },
+    "article_enrichment": {
+        "skill": "persian-discussion-builder",
+        "script": os.path.join(SKILLS_DIR, "persian-discussion-builder", "scripts", "article_enrichment_engine.py"),
+        "desc": "Extract empirical findings & mechanisms from articles into structured cards (.json)"
+    },
+    "chapter5_triad": {
+        "skill": "persian-discussion-builder",
+        "script": os.path.join(SKILLS_DIR, "persian-discussion-builder", "scripts", "scaffold_chapter5_triad.py"),
+        "desc": "Compile Chapter 5 micro-stage triad (.docx, .md, .json) from agent narrative"
+    },
+    "chapter5_assembly": {
+        "skill": "persian-discussion-builder",
+        "script": os.path.join(SKILLS_DIR, "persian-discussion-builder", "scripts", "assemble_chapter5.py"),
+        "desc": "Consolidate Chapter 5 micro-stages into unified Chapter_5_Discussion (.docx & .md)"
+    },
     "thesis": {
         "skill": "persian-thesis-builder",
         "script": os.path.join(SKILLS_DIR, "persian-thesis-builder", "scripts", "compile_full_thesis.py"),
@@ -256,8 +271,10 @@ PIPELINE_PRESETS = {
         "literature_review"
     ],
     "chapter5_micro": [
+        "article_enrichment",
         "discussion",
-        "audit"
+        "audit",
+        "chapter5_assembly"
     ]
 }
 
@@ -647,6 +664,69 @@ class MasterAcademicOrchestrator:
             self.context["ch5_docx"] = out_docx
             self.manifest["artifacts"]["ch5_docx"] = out_docx
             return cmd, {"docx": out_docx}
+
+        elif step == "article_enrichment":
+            script = info["script"]
+            papers_dir = step_conf.get("papers_dir") or os.path.join(REPO_ROOT, "04_references_and_lit", "papers")
+            if not os.path.isdir(papers_dir):
+                papers_dir = step_dir
+                os.makedirs(papers_dir, exist_ok=True)
+            out_cards = os.path.join(step_dir, "article_enrichment_cards.json")
+            cmd = [
+                PYTHON_BIN, script,
+                "--papers-dir", papers_dir,
+                "--out-file", out_cards
+            ]
+            self.context["article_cards"] = out_cards
+            self.manifest["artifacts"]["article_cards"] = out_cards
+            return cmd, {"json": out_cards}
+
+        elif step == "chapter5_triad":
+            script = info["script"]
+            stage_id = step_conf.get("stage_id", "01_findings_recap")
+            base_name = step_conf.get("base_name", stage_id)
+            title = step_conf.get("title", "خلاصه یافته‌ها")
+            cmd = [
+                PYTHON_BIN, script,
+                "--stage", stage_id,
+                "--base", base_name,
+                "--title", title,
+                "--outdir", step_dir
+            ]
+            if step_conf.get("narrative_file"):
+                cmd.extend(["--narrative-file", step_conf["narrative_file"]])
+            elif step_conf.get("narrative"):
+                cmd.extend(["--narrative", step_conf["narrative"]])
+            if self.context.get("article_cards"):
+                cmd.extend(["--articles", self.context["article_cards"]])
+            elif step_conf.get("articles"):
+                cmd.extend(["--articles", step_conf["articles"]])
+
+            out_docx = os.path.join(step_dir, f"{base_name}.docx")
+            out_md = os.path.join(step_dir, f"{base_name}.md")
+            out_json = os.path.join(step_dir, f"{base_name}.json")
+            return cmd, {"docx": out_docx, "md": out_md, "json": out_json}
+
+        elif step == "chapter5_assembly":
+            script = info["script"]
+            stages_dir = step_conf.get("stages_dir") or os.path.join(self.out_dir, "chapter5_triad")
+            if not os.path.isdir(stages_dir):
+                stages_dir = step_dir
+                os.makedirs(stages_dir, exist_ok=True)
+            cmd = [
+                PYTHON_BIN, script,
+                "--stages-dir", stages_dir,
+                "--out-dir", step_dir
+            ]
+            out_docx = os.path.join(step_dir, "Chapter_5_Discussion.docx")
+            out_md = os.path.join(step_dir, "Chapter_5_Discussion.md")
+            out_manifest = os.path.join(step_dir, "chapter5_assembly_manifest.json")
+            self.context["ch5_docx"] = out_docx
+            self.context["ch5_md"] = out_md
+            self.manifest["artifacts"]["ch5_docx"] = out_docx
+            self.manifest["artifacts"]["ch5_md"] = out_md
+            self.manifest["artifacts"]["ch5_assembly_manifest"] = out_manifest
+            return cmd, {"docx": out_docx, "md": out_md, "json": out_manifest}
 
         elif step == "thesis":
             script = info["script"]

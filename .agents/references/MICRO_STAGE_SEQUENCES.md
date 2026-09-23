@@ -34,19 +34,29 @@ Every empirical micro-stage producing a synchronized triad (`.docx` + `.md` + `.
 
 ---
 
-## 2. Chapter 5: Discussion & Conclusion Pipeline (Stages 5.1 – 5.7)
+## 2. Chapter 5: Discussion & Conclusion Pipeline (Stages 5.1 – 5.10)
 
 | Stage | Name | Assigned Subagent | Focus / Methodology | Required Physical Triad Deliverables |
 | :--- | :--- | :--- | :--- | :--- |
 | **Stage 5.1** | Findings Overview & Purpose Recap | `academic-writer` | Restatement of research aim and high-level summary of validated models | `01_findings_recap.docx`, `01_findings_recap.md`, `01_findings_recap.json` |
-| **Stage 5.2.1** | Hypothesis 1 Deep Discussion | `academic-writer` + `literature-expert` | Psychological mechanisms, epistemic interpretation, literature concordance/discordance | `02_hypothesis_1_discussion.docx`, `02_hypothesis_1_discussion.md`, `02_hypothesis_1_discussion.json` |
+| **Stage 5.2.1** | Hypothesis 1 Deep Discussion | `academic-writer` + `literature-expert` | 4-Element Psychological Model: Verdict $\to$ Article Concordance $\to$ Mechanisms $\to$ Nuances | `02_hypothesis_1_discussion.docx`, `02_hypothesis_1_discussion.md`, `02_hypothesis_1_discussion.json` |
 | **Stage 5.2.2** | Hypothesis 2 Deep Discussion | `academic-writer` + `literature-expert` | Psychological mechanisms, theoretical backing, Iranian & international alignment | `03_hypothesis_2_discussion.docx`, `03_hypothesis_2_discussion.md`, `03_hypothesis_2_discussion.json` |
-| **Stage 5.2.k** | Hypothesis $k$ Deep Discussion | `academic-writer` + `literature-expert` | In-depth mechanism dissection for hypothesis $k$ | `XX_hypothesis_k_discussion.docx`, `XX_hypothesis_k_discussion.md`, `XX_hypothesis_k_discussion.json` |
+| **Stage 5.2.k** | Hypothesis $k$ Deep Discussion | `academic-writer` + `literature-expert` | In-depth mechanism dissection for hypothesis $k$ seeded from parsed articles | `XX_hypothesis_k_discussion.docx`, `XX_hypothesis_k_discussion.md`, `XX_hypothesis_k_discussion.json` |
 | **Stage 5.3** | Unexpected / Non-Significant Findings Analysis | `academic-writer` + `methodology-expert` | Epistemic analysis of null results, statistical power caveats, suppressor effects | `XX_non_significant_findings.docx`, `XX_non_significant_findings.md`, `XX_non_significant_findings.json` |
 | **Stage 5.4** | Theoretical, Clinical & Practical Implications | `academic-writer` | Actionable recommendations for clinical practice, educational policy, and theory | `XX_implications.docx`, `XX_implications.md`, `XX_implications.json` |
 | **Stage 5.5** | Methodological, Sampling & Instrument Limitations | `methodology-expert` | Internal/external validity limits, cross-sectional constraints, self-report bias | `XX_limitations.docx`, `XX_limitations.md`, `XX_limitations.json` |
 | **Stage 5.6** | Future Research & Actionable Recommendations | `academic-writer` | Methodological directions, prospective longitudinal designs, experimental follow-ups | `XX_recommendations.docx`, `XX_recommendations.md`, `XX_recommendations.json` |
-| **Stage 5.7** | Chapter 5 Consolidation & Assembly | `academic-writer` | Institutional OpenXML consolidation with pristine Persian typography | `Chapter_5_Discussion.docx`, `Chapter_5_Discussion.md` |
+| **Stage 5.7** | Statistical Claim & Number Fidelity Audit | `results-auditor` | Cross-checks reported statistical numbers in narrative against Chapter 4 results | `XX_results_fidelity_report.json`, `XX_results_fidelity_report.md` |
+| **Stage 5.8** | Evidence Concordance & Citation Integrity Audit | `evidence-auditor` | Zero orphaned/ghost citations, Irandoc similarity < 20%, elimination of AI clichés | `XX_evidence_audit_report.json`, `XX_evidence_audit_report.md` |
+| **Stage 5.9** | Chapter 5 Consolidation & Assembly | `academic-writer` | Institutional OpenXML consolidation with pristine Persian typography | `Chapter_5_Discussion.docx`, `Chapter_5_Discussion.md` |
+| **Stage 5.10** | Doctoral Defense Viva Voce Discussion Brief | `final-judge` | Committee defense cross-examination simulator & viva voce discussion brief | `XX_defense_discussion_brief.docx`, `XX_defense_discussion_brief.md`, `XX_defense_readiness.json` |
+
+### 💡 The Two-Pass Epistemic Handshake Invariant (Stages 5.2.1 – 5.2.k)
+Every discussion micro-stage strictly executes in a two-step handshake:
+1. **Pass 1: Mechanism & Evidence Formulation (`literature-expert` + `methodology-expert`)**:
+   Ingests Chapter 4 verified findings and local research articles (`04_references_and_lit/papers/`), running `article_enrichment_engine.py` to extract `article_enrichment_cards.json`. Identifies 3–5 concordant (همسو) and discordant (ناهمسو) empirical studies and pinpoints underlying psychological/behavioral mechanisms (Beck CBT, Hayes ACT, Bandura, Gross). Outputs structured conceptual cards with ZERO verbatim copying.
+2. **Pass 2: Scholarly Rhetoric & Assembly (`academic-writer` — The Voice)**:
+   Ingests the conceptual cards, formulates scholarly Persian narrative using the 4-element model, applies cadence variability ($CV \ge 0.50$), and compiles the physical triad (`.docx`, `.md`, `.json`) using `scaffold_chapter5_triad.py`. Strict prohibition: Zero verbatim plagiarism of English strings; pure scholarly Persian synthesis.
 
 ---
 

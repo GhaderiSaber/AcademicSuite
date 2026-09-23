@@ -1,0 +1,8 @@
+{
+  "status": "STAGE_DRAFTED",
+  "artifacts": {
+    "docx": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+    "md": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+    "json": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+  }
+}

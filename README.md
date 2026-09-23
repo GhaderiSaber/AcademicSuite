@@ -11,7 +11,7 @@ In strict accordance with **Directive 12.1 (Sole Orchestrator Mandate)**, there 
 - **Google Antigravity is the Sole Agent Runtime & Conductor:** Antigravity orchestrates all cognitive operations, manages context budgets, schedules background tasks, and enforces constitutional lifecycle hooks (`.agents/hooks.json`).
 - **Digital Saber is the Cognitive Research Lead:** The persistent AI Twin of Saber Ghaderi directing research philosophy, scientific ethics, and thesis decision gates.
 - **The Brains & Critics (28 Subagents):** Persistent cognitive specialists in `.agents/agents/` (6 core primary roles, 16 specialized domain roles, and 6 continuous learning subagents) invoked exclusively through Antigravity's native `invoke_subagent` tool. Generation and auditing remain strictly independent.
-- **The Hands (44 Specialized Production Skills):** Deterministic Python/R scripts executed via `run_command` to perform exact statistical calculations, psychometrics, and OpenXML document generation without mental calculation or hallucination.
+- **The Hands (45 Specialized Production Skills):** Deterministic Python/R scripts executed via `run_command` to perform exact statistical calculations, psychometrics, and OpenXML document generation without mental calculation or hallucination.
 - **Batch CLI Runner (`orchestrator_cli.py`):** Strictly a low-level CLI batch runner ("The Hands") for sequential script chaining on disk, never an autonomous agent orchestrator.
 
 ### 🧠 Cognitive Specialists & Autonomous Subagents (29 Roles)
@@ -149,6 +149,8 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
    End-to-end orchestration engine for Chapter 4 (یافته‌های پژوهش), strictly enforcing the One-Hypothesis-One-Stage invariant, synchronized triad artifacts (`.docx` + `.md` + `.json`), 5-part epistemic narrative formula, and Master Hypotheses Decision Matrix.
 44. **Academic Adaptive Context ([academic-adaptive-context](.agents/skills/academic-adaptive-context/))**:
    Retrieves targeted active behavioral context (lessons, anti-patterns, exemplars, calibrated defaults) relevant to the current task from the persistent learning store without dumping irrelevant records.
+45. **Chapter 5 Discussion & Conclusion Orchestrator ([chapter-5-writing](.agents/skills/chapter-5-writing/))**:
+   End-to-end orchestration engine for Chapter 5 (بحث و نتیجه‌گیری), strictly enforcing article text enrichment without verbatim copying, One-Hypothesis-One-Stage triads, 4-element psychological explanatory models, and thesis defense briefs.
 
 ---
 
@@ -160,7 +162,7 @@ This repository equips Antigravity with dedicated, professional-grade capabiliti
 AcademicSuite/
 ├── .agents/                               # Consolidated Digital Saber Cognitive Subsystem
 │   ├── agents/                            # 30 Packaged Agents (28 Production Roles + 2 Verification Roles)
-│   ├── skills/                            # 44 Active Production Skills (scripts, resources, examples, schemas)
+│   ├── skills/                            # 45 Active Production Skills (scripts, resources, examples, schemas)
 │   ├── contracts/                         # 51 Authoritative Schemas & Behavioral Policy Contracts
 │   ├── scripts/                           # Deterministic Orchestration, State & Routing Engines
 │   ├── validators/                        # Deterministic Gatekeepers (Data, Reporting, Numerical, Assumptions)
@@ -180,7 +182,7 @@ AcademicSuite/
 │   ├── ARCHITECTURE_TAXONOMY_AND_TRUTH.md # Ground Truth vs. Historical vs. Target Architecture
 │   ├── CURRENT_ARCHITECTURE.md            # Authoritative As-Built System Architecture
 │   ├── AGENT_INVENTORY.md                 # 28-Agent Cognitive Role Inventory
-│   ├── SKILL_INVENTORY.md                 # 44-Skill Execution Tools Catalog
+│   ├── SKILL_INVENTORY.md                 # 45-Skill Execution Tools Catalog
 │   ├── LEGACY_INVENTORY.md                # Technical Debt & Deprecation Audit
 │   └── protocols/                         # Stage-Gate, Triad Invariant, Binary Honesty & Failure Recovery
 ├── evals/                                 # Permanent Evaluation Benchmark Suite

@@ -80,7 +80,7 @@ class TestProjectStructure(unittest.TestCase):
             d for d in os.listdir(skills_dir)
             if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith((".", "_"))
         ]
-        self.assertEqual(len(active_skills), 44, f"Expected 44 active skills, found {len(active_skills)}")
+        self.assertEqual(len(active_skills), 45, f"Expected 45 active skills, found {len(active_skills)}")
         
         for s in active_skills:
             self.assertIn(f"`{s}`", content, f"Skill {s} is not documented in docs/SKILL_INVENTORY.md")
@@ -118,7 +118,7 @@ class TestProjectStructure(unittest.TestCase):
             self.assertIn(f"`{s}`", content, f"Skill {s} is missing from SKILL_ACTIVATION_MATRIX.md")
 
     def test_readme_documents_all_skills_and_agents(self):
-        """Asserts README.md documents all 44 active production skills and 28 agents."""
+        """Asserts README.md documents all 45 active production skills and 28 agents."""
         readme_path = os.path.join(REPO_ROOT, "README.md")
         self.assertTrue(os.path.isfile(readme_path), "Missing README.md")
         with open(readme_path, "r", encoding="utf-8") as f:
@@ -129,7 +129,7 @@ class TestProjectStructure(unittest.TestCase):
             d for d in os.listdir(skills_dir)
             if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith((".", "_"))
         ]
-        self.assertEqual(len(active_skills), 44)
+        self.assertEqual(len(active_skills), 45)
         for s in active_skills:
             self.assertIn(s, content, f"Skill {s} is missing from README.md")
 

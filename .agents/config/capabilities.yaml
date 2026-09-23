@@ -692,6 +692,7 @@ capabilities:
       - "\\bفصل\\s+(?:پنجم|۵)\\b"
     required_skills:
       - "persian-discussion-builder"
+      - "chapter-5-writing"
       - "ai-academic-tone-polisher"
     primary_agent: "academic-writer"
     execution_worker: "academic-writer"

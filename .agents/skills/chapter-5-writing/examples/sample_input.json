@@ -1,0 +1,7 @@
+{
+  "stage_id": "02_hypothesis_discussion",
+  "stage_title": "بحث پیرامون فرضیه اول پژوهش",
+  "narrative_file": "03_deliverables/stage_02_hypo_1/draft.md",
+  "articles_corpus_path": "academic-state/data/article_enrichment_cards.json",
+  "output_dir": "03_deliverables/stage_02_hypo_1"
+}

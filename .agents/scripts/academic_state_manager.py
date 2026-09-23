@@ -406,6 +406,101 @@ DEFAULT_STAGE_GRAPH = [
     }
 ]
 
+CHAPTER_5_STAGE_GRAPH = [
+    {
+        "stage_id": "01_findings_recap",
+        "title": "Findings Overview & Purpose Recap",
+        "initial_status": StageState.STAGE_READY.value,
+        "dependencies": [],
+        "required_input_artifacts": ["analysis/sem.json"],
+        "required_output_artifacts": ["01_findings_recap.json"],
+        "active_agent": "academic-writer"
+    },
+    {
+        "stage_id": "02_hypothesis_discussion",
+        "title": "Hypothesis Deep Discussion (4-Element Psychological Model)",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["01_findings_recap"],
+        "required_input_artifacts": ["01_findings_recap.json"],
+        "required_output_artifacts": ["02_hypothesis_1_discussion.json"],
+        "active_agent": "academic-writer"
+    },
+    {
+        "stage_id": "03_unexpected_findings",
+        "title": "Unexpected & Non-Significant Findings Analysis",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["02_hypothesis_discussion"],
+        "required_input_artifacts": ["02_hypothesis_1_discussion.json"],
+        "required_output_artifacts": ["03_unexpected_findings.json"],
+        "active_agent": "methodology-expert"
+    },
+    {
+        "stage_id": "04_implications",
+        "title": "Theoretical, Clinical & Practical Implications",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["02_hypothesis_discussion"],
+        "required_input_artifacts": ["02_hypothesis_1_discussion.json"],
+        "required_output_artifacts": ["04_implications.json"],
+        "active_agent": "academic-writer"
+    },
+    {
+        "stage_id": "05_limitations",
+        "title": "Methodological, Sampling & Instrument Limitations",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["04_implications"],
+        "required_input_artifacts": ["04_implications.json"],
+        "required_output_artifacts": ["05_limitations.json"],
+        "active_agent": "methodology-expert"
+    },
+    {
+        "stage_id": "06_recommendations",
+        "title": "Future Research & Actionable Practical Recommendations",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["05_limitations"],
+        "required_input_artifacts": ["05_limitations.json"],
+        "required_output_artifacts": ["06_recommendations.json"],
+        "active_agent": "academic-writer"
+    },
+    {
+        "stage_id": "07_results_qc",
+        "title": "Statistical Claim & Number Fidelity Audit",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["06_recommendations"],
+        "required_input_artifacts": ["06_recommendations.json"],
+        "required_output_artifacts": ["results_fidelity_report.json"],
+        "active_agent": "results-auditor"
+    },
+    {
+        "stage_id": "08_evidence_qc",
+        "title": "Evidence Concordance & Citation Integrity Audit",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["07_results_qc"],
+        "required_input_artifacts": ["results_fidelity_report.json"],
+        "required_output_artifacts": ["evidence_audit_report.json"],
+        "active_agent": "evidence-auditor"
+    },
+    {
+        "stage_id": "09_chapter5_assembly",
+        "title": "Chapter 5 Discussion OpenXML & Markdown Assembly",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["08_evidence_qc"],
+        "required_input_artifacts": ["evidence_audit_report.json"],
+        "required_output_artifacts": ["Chapter_5_Discussion.docx", "Chapter_5_Discussion.md"],
+        "active_agent": "academic-writer"
+    },
+    {
+        "stage_id": "10_defense_brief",
+        "title": "Doctoral Defense Viva Voce Discussion Brief",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["09_chapter5_assembly"],
+        "required_input_artifacts": ["Chapter_5_Discussion.docx"],
+        "required_output_artifacts": ["defense_discussion_brief.docx"],
+        "active_agent": "final-judge"
+    }
+]
+
+ALL_KNOWN_STAGES = DEFAULT_STAGE_GRAPH + CHAPTER_5_STAGE_GRAPH
+
 
 # ==============================================================================
 # Legacy Milestone Lifecycle & Legal Transitions (Maintained for Backward Compatibility)
@@ -546,6 +641,15 @@ STAGE_TO_MILESTONE_MAP = {
     "06_hypothesis_1": "M7_HYPOTHESIS_TESTING",
     "07_hypothesis_2": "M7_HYPOTHESIS_TESTING",
     "01_findings_recap": "M8_DISCUSSION",
+    "02_hypothesis_discussion": "M8_DISCUSSION",
+    "03_unexpected_findings": "M8_DISCUSSION",
+    "04_implications": "M8_DISCUSSION",
+    "05_limitations": "M8_DISCUSSION",
+    "06_recommendations": "M8_DISCUSSION",
+    "07_results_qc": "M8_DISCUSSION",
+    "08_evidence_qc": "M8_DISCUSSION",
+    "09_chapter5_assembly": "M8_DISCUSSION",
+    "10_defense_brief": "M9_DEFENSE",
     "01_defense_storyboard": "M9_DEFENSE"
 }
 
@@ -1038,7 +1142,7 @@ class StrictStateMachine:
             if not requires_validation:
                 requires_manifest = False
             else:
-                requires_manifest = any(s.get("stage_id") == stage_id for s in DEFAULT_STAGE_GRAPH) or bool(required_output_artifacts)
+                requires_manifest = any(s.get("stage_id") == stage_id for s in ALL_KNOWN_STAGES) or bool(required_output_artifacts)
         entry = {
             "stage_id": stage_id,
             "title": title,
@@ -1107,7 +1211,7 @@ class StrictStateMachine:
                 raise UnknownStateError(f"Target state must be a string or StageState, got {type(target_state)}.")
 
             if target_id not in self.stages:
-                matched = next((s for s in DEFAULT_STAGE_GRAPH if s["stage_id"] == target_id), None)
+                matched = next((s for s in ALL_KNOWN_STAGES if s["stage_id"] == target_id), None)
                 if matched:
                     self.register_stage(
                         stage_id=matched["stage_id"],
@@ -1136,7 +1240,7 @@ class StrictStateMachine:
             if target_enum in [StageState.STAGE_READY, StageState.STAGE_RUNNING]:
                 for dep_id in stage_data.get("dependencies", []):
                     if dep_id not in self.stages:
-                        matched_dep = next((s for s in DEFAULT_STAGE_GRAPH if s["stage_id"] == dep_id), None)
+                        matched_dep = next((s for s in ALL_KNOWN_STAGES if s["stage_id"] == dep_id), None)
                         if matched_dep:
                             self.register_stage(
                                 stage_id=matched_dep["stage_id"],
@@ -1432,14 +1536,19 @@ class StrictStateMachine:
 
                 if not next_stage_id:
                     default_ids = [s["stage_id"] for s in DEFAULT_STAGE_GRAPH]
+                    ch5_ids = [s["stage_id"] for s in CHAPTER_5_STAGE_GRAPH]
                     if target_id in default_ids:
                         d_idx = default_ids.index(target_id)
                         if d_idx + 1 < len(default_ids):
                             next_stage_id = default_ids[d_idx + 1]
+                    elif target_id in ch5_ids:
+                        c_idx = ch5_ids.index(target_id)
+                        if c_idx + 1 < len(ch5_ids):
+                            next_stage_id = ch5_ids[c_idx + 1]
 
                 if next_stage_id:
                     if next_stage_id not in self.stages:
-                        matched_next = next((s for s in DEFAULT_STAGE_GRAPH if s["stage_id"] == next_stage_id), None)
+                        matched_next = next((s for s in ALL_KNOWN_STAGES if s["stage_id"] == next_stage_id), None)
                         if matched_next:
                             self.register_stage(
                                 stage_id=matched_next["stage_id"],
@@ -1996,7 +2105,7 @@ def get_state_dir(project_path: str) -> str:
     return os.path.abspath(os.path.join(project_path, "academic-state"))
 
 
-def init_state(project_path: str, title: str = "Empirical Research Project", methodology: str = "sem", n: int = 300) -> Dict[str, Any]:
+def init_state(project_path: str, title: str = "Empirical Research Project", methodology: str = "sem", n: int = 300, pipeline: str = "chapter4") -> Dict[str, Any]:
     """Initializes the full state directory hierarchy with baseline starter files and strict state machine."""
     state_dir = get_state_dir(project_path)
     os.makedirs(os.path.join(state_dir, "data"), exist_ok=True)
@@ -2007,26 +2116,41 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
     now_iso = datetime.now(timezone.utc).isoformat()
     project_id = os.path.basename(os.path.abspath(project_path))
 
+    current_stage = "01_findings_recap" if pipeline == "chapter5" else "00_data_curation"
+    active_milestone = "M8_DISCUSSION" if pipeline == "chapter5" else "M0_INGESTION"
+
     # 1. project.json
     project_data = {
         "project_id": project_id,
         "title": title,
         "methodology_type": methodology,
         "sample_size": n,
-        "current_stage": "00_data_curation",
-        "active_milestone": "M0_INGESTION",
+        "current_stage": current_stage,
+        "active_milestone": active_milestone,
         "orchestrator": "academic-orchestrator",
         "status": "in_progress",
         "created_at": now_iso,
         "updated_at": now_iso,
         "metadata": {
             "version": "1.0.0",
-            "target_degree": "Ph.D. / Master's Thesis"
+            "target_degree": "Ph.D. / Master's Thesis",
+            "pipeline": pipeline
         }
     }
     _write_json_if_missing(os.path.join(state_dir, "project.json"), project_data)
 
     # 2. requirements.json
+    deliverables = [
+        "Chapter_5_Discussion.docx",
+        "Chapter_5_Discussion.md",
+        "Master_Discussion_Matrix.docx",
+        "defense_discussion_brief.docx"
+    ] if pipeline == "chapter5" else [
+        "Chapter_4_Results.docx",
+        "Chapter_4_Results.md",
+        "Master_Hypothesis_Matrix.docx",
+        "Defense_Brief.docx"
+    ]
     req_data = {
         "research_questions": [
             {
@@ -2055,12 +2179,7 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
             },
             "citation_style": "Author-Date APA 7"
         },
-        "deliverables": [
-            "Chapter_4_Results.docx",
-            "Chapter_4_Results.md",
-            "Master_Hypothesis_Matrix.docx",
-            "Defense_Brief.docx"
-        ]
+        "deliverables": deliverables
     }
     _write_json_if_missing(os.path.join(state_dir, "requirements.json"), req_data)
 
@@ -2200,7 +2319,8 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
             )
 
     if not sm.stages:
-        for s in DEFAULT_STAGE_GRAPH:
+        stages_to_init = CHAPTER_5_STAGE_GRAPH if pipeline == "chapter5" else DEFAULT_STAGE_GRAPH
+        for s in stages_to_init:
             sm.register_stage(
                 stage_id=s["stage_id"],
                 title=s["title"],
@@ -2557,6 +2677,7 @@ def main():
     p_init.add_argument("--title", default="Empirical Research Study", help="Study title")
     p_init.add_argument("--methodology", default="sem", choices=["sem", "correlational", "experimental", "quasi_experimental", "cfa_scale_validation", "mixed_methods", "meta_analysis"])
     p_init.add_argument("--n", type=int, default=300, help="Sample size")
+    p_init.add_argument("--pipeline", default="chapter4", choices=["chapter4", "chapter5"], help="Target thesis chapter pipeline")
 
     # validate
     p_val = subparsers.add_parser("validate", help="Validate academic-state artifacts against JSON schemas")
@@ -2644,7 +2765,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == "init":
-        res = init_state(args.project_path, args.title, args.methodology, args.n)
+        res = init_state(args.project_path, args.title, args.methodology, args.n, pipeline=getattr(args, "pipeline", "chapter4"))
     elif args.command == "validate":
         res = validate_state(args.project_path)
     elif args.command == "status":

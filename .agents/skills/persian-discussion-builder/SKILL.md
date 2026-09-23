@@ -69,21 +69,47 @@ For each research hypothesis or question, the agent must synthesize the text usi
 
 ---
 
-## 4. Execution Workflow
+## 4. Execution Workflow & Micro-Stage CLI Commands
 
-1. **Review Chapter 4 Results**:
-   Inspect `stats_results.json` or `Chapter_4_Findings.docx` to identify confirmed and rejected hypotheses, test statistics ($F, t, \beta, \eta_p^2, R^2$), and effect sizes.
-2. **Review Chapter 2 Literature**:
-   Identify the primary domestic and foreign researchers cited in Chapter 2 for each construct.
-3. **Formulate Discussion Content JSON**:
-   Prepare a structured JSON file mapping each hypothesis, its empirical comparisons, theoretical explanations, implications, and limitations.
-4. **Generate Word Document**:
-   Execute the document generation script (using standard English filename per Rule 6):
-   ```bash
-   python3 .agents/skills/persian-discussion-builder/scripts/generate_chapter5_docx.py \
-     --json "chapter5_input.json" \
-     --out "Chapter_5_Discussion_and_Conclusion.docx"
-   ```
-5. **Quality Review**:
-   - Ensure Persian half-spaces (نیم‌فاصله) are preserved, font styles match university templates (*B Titr* 14–18 pt Bold, *B Nazanin* 13 pt Regular, Line spacing 1.25), and OpenXML RTL tags are set.
-   - **Persian Number & Decimal Standards**: Decimal numbers in Persian text must use the standard dot (`.`): `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۲.۵۰`. Never omit the leading zero (write `۰.۰۰۱`, never `.۰۰۱`). Never use forward slashes (`/`) for decimals. Exact 3 decimal places for $p$-values (`p < ۰.۰۰۱` یا `۰.۰۰۱ > p`).
+Follow the 10-stage sequence from [MICRO_STAGE_SEQUENCES.md](../../references/MICRO_STAGE_SEQUENCES.md):
+
+### Step 0: Ingest & Parse Reference Articles (PDF/DOCX/TXT)
+Extract empirical findings, sample traits, and theoretical mechanisms from local papers into an enrichment corpus:
+```bash
+python3 .agents/skills/persian-discussion-builder/scripts/article_enrichment_engine.py \
+  --papers-dir 04_references_and_lit/papers/ \
+  --out-file academic-state/data/article_enrichment_cards.json
+```
+
+### Step 1: Scaffold Micro-Stage Triads (`.docx` + `.md` + `.json`)
+For every micro-stage (Recap, Hypothesis $k$, Unexpected Findings, Implications, Limitations, Recommendations), scaffold the physical triad:
+```bash
+# Example: Stage 5.1 Recap
+python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py \
+  --stage "01_findings_recap" \
+  --base "01_findings_recap" \
+  --outdir "03_deliverables/stage_01_recap" \
+  --articles "academic-state/data/article_enrichment_cards.json"
+
+# Example: Stage 5.2.1 Hypothesis 1 Discussion (with 4-element psychological model)
+python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py \
+  --stage "02_hypothesis_discussion" \
+  --base "02_hypothesis_1_discussion" \
+  --outdir "03_deliverables/stage_02_hypo_1" \
+  --keyword "burnout" \
+  --articles "academic-state/data/article_enrichment_cards.json"
+```
+
+### Step 2: Assemble Verified Stages into Final Deliverables
+Once all stage triads pass validation and human gate approval, assemble them into the master chapter:
+```bash
+python3 .agents/skills/persian-discussion-builder/scripts/assemble_chapter5.py \
+  --stages-dir 03_deliverables/ \
+  --out-dir 03_deliverables/
+```
+
+### Step 3: Quality Review & Epistemic Honesty
+- **Anti-Plagiarism & Paraphrasing Invariant**: Synthesize and paraphrase concepts from parsed articles into authentic academic Persian with formal APA citations. Direct string copying of English or source text is prohibited.
+- **Persian Typography**: Heading 1 in *B Titr* 14–16 pt Bold, body in *B Nazanin* 13 pt Regular, line spacing 1.25, OpenXML RTL `<w:bidi w:val="1"/>`.
+- **Persian Number & Decimal Standards**: Standard dot (`.`) with mandatory leading zero (`۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`). Exact 3 decimal places for $p$-values (`p < ۰.۰۰۱` یا `۰.۰۰۱ > p`).
+- **Epistemic Honesty on Null Findings**: Candidly discuss non-significant findings without defensive rationalization.

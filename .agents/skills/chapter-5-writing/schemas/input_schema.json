@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "chapter-5-writing Input Schema",
+  "type": "object",
+  "properties": {
+    "stage_id": {
+      "type": "string"
+    },
+    "stage_title": {
+      "type": "string"
+    },
+    "narrative_file": {
+      "type": "string"
+    },
+    "articles_corpus_path": {
+      "type": "string"
+    },
+    "output_dir": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "stage_id",
+    "stage_title"
+  ]
+}
