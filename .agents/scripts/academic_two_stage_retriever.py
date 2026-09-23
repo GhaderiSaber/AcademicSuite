@@ -5,15 +5,7 @@ scripts/academic_two_stage_retriever.py — AcademicSuite Two-Stage Knowledge Re
 
 Implements Phase 29 Two-Stage Retrieval Architecture:
     Stage 1: Hard Filtering (Fail-Closed Structural Boundary Gate)
-        - capability, domain, skill, task, failure type, scope, status
-        - Dropped with explicit rejection rationale; zero semantic leakage.
     Stage 2: Semantic Ranking (Multi-Factor Scholarly Scoring)
-        - relevance (deterministic metadata & tags)
-        - context similarity (semantic & lexical token overlap)
-        - evidence strength (empirical backing & benchmark fidelity)
-        - recency (temporal decay relative to calendar anchor)
-        - confidence (evidence-derived score from Phase 26)
-        - contradiction penalty (deductions for active conflicts from Phase 27)
 
 Strictly complies with Directive 18 (<= 500 lines, <= 40,000 bytes) and Directive 12.1.
 """
@@ -21,7 +13,6 @@ Strictly complies with Directive 18 (<= 500 lines, <= 40,000 bytes) and Directiv
 import os
 import sys
 import re
-import json
 import math
 import uuid
 from datetime import datetime, timezone
@@ -54,6 +45,14 @@ class AcademicTwoStageRetriever:
         "data-cleaning": "data_cleaning", "data-curation": "data_cleaning"
     }
 
+    CAPABILITY_OVERLAPS = {
+        "SEM": {"mediation", "moderation", "psychometrics", "regression"},
+        "mediation": {"SEM", "regression"},
+        "moderation": {"SEM", "regression"},
+        "longitudinal-analysis": {"SEM", "mediation", "moderation"},
+        "psychometrics": {"SEM"}
+    }
+
     SKILL_TO_PRIMARY_AGENT = {
         "apa-reporting": "academic-writer", "chapter-4-writing": "academic-writer",
         "persian-discussion-builder": "academic-writer", "ai-academic-tone-polisher": "academic-writer",
@@ -79,7 +78,16 @@ class AcademicTwoStageRetriever:
         "statistical-auditor": {"validation-agent", "statistical-auditor"}
     }
 
-    # Cross-capability generic principles/rules
+    DOMAIN_ALIASES = {
+        "structural-equation-modeling": "sem", "structural_equation_modeling": "sem",
+        "sem": "sem", "cfa": "sem", "factor-analysis": "sem", "mediation": "mediation",
+        "moderation": "moderation", "longitudinal": "longitudinal-analysis",
+        "longitudinal-analysis": "longitudinal-analysis", "regression": "regression",
+        "data-cleaning": "data_cleaning", "data-curation": "data_cleaning",
+        "evidence": "evidence", "literature": "evidence", "psychometrics": "psychometrics",
+        "general": "general", "cross-domain": "general"
+    }
+
     CROSS_CAPABILITY_TAGS = {"cross-capability", "general_academic", "universal", "foundational"}
 
     def __init__(self, base_dir: Optional[str] = None):
@@ -96,6 +104,13 @@ class AcademicTwoStageRetriever:
                 return canon
         return self.CAPABILITY_ALIASES.get(c_clean, capability)
 
+    def normalize_domain(self, domain: Optional[str]) -> Optional[str]:
+        """Normalize domain name to canonical form."""
+        if not domain:
+            return None
+        d_clean = domain.strip().lower()
+        return self.DOMAIN_ALIASES.get(d_clean, d_clean)
+
     # -------------------------------------------------------------------------
     # Stage 1: Hard Filtering
     # -------------------------------------------------------------------------
@@ -105,20 +120,17 @@ class AcademicTwoStageRetriever:
         items: List[Dict[str, Any]],
         query: Dict[str, Any]
     ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-        """
-        Executes fail-closed hard filtering across all structural dimensions:
-        scope, capability, domain, skill, task, failure_type, status.
-        """
+        """Executes fail-closed hard filtering across structural dimensions."""
         passed: List[Dict[str, Any]] = []
         pruned_details: List[Dict[str, Any]] = []
         pruned_counts: Dict[str, int] = {
             "scope": 0, "capability": 0, "domain": 0,
-            "skill": 0, "task": 0, "failure_type": 0, "status": 0,
-            "agent": 0
+            "skill": 0, "task": 0, "failure_type": 0, "status": 0, "agent": 0
         }
 
         target_cap = self.normalize_capability(query.get("capability"))
-        target_domain = (query.get("domain") or "").strip().lower()
+        raw_domain = (query.get("domain") or "").strip().lower()
+        norm_target_dom = self.normalize_domain(raw_domain) or raw_domain
         target_skill = (query.get("skill") or "").strip().lower()
         target_task = (query.get("task") or "").strip().lower()
         target_fail = (query.get("failure_type") or "").strip().lower()
@@ -136,15 +148,13 @@ class AcademicTwoStageRetriever:
                 pruned_details.append({"item_id": item_id, "failed_dimension": "status", "reason": f"Status '{status}' is inactive."})
                 continue
 
-            # 2. Scope Containment Gate (ADR-014)
+            # 2. Scope Containment Gate
             scope = str(item.get("scope") or "domain").lower()
             item_proj = item.get("project_id") or item.get("context", {}).get("project_id") or item.get("metadata", {}).get("project_id")
-            is_proj_scoped = scope in ["project", "local_project", "global-in-project", "project_specific", "project-specific"] or bool(item_proj)
-            if is_proj_scoped:
-                if not project_id or (item_proj and item_proj != project_id):
-                    pruned_counts["scope"] += 1
-                    pruned_details.append({"item_id": item_id, "failed_dimension": "scope", "reason": f"Project-scoped item '{item_proj}' does not match query '{project_id}'."})
-                    continue
+            if (scope in ["project", "local_project", "global-in-project", "project_specific", "project-specific"] or bool(item_proj)) and (not project_id or (item_proj and item_proj != project_id)):
+                pruned_counts["scope"] += 1
+                pruned_details.append({"item_id": item_id, "failed_dimension": "scope", "reason": f"Project-scoped item '{item_proj}' does not match query '{project_id}'."})
+                continue
 
             # 3. Capability Boundary Gate
             if target_cap:
@@ -153,25 +163,26 @@ class AcademicTwoStageRetriever:
                 item_tags = set(t.lower() for t in item.get("tags", []))
                 is_cross = bool(item_tags.intersection(self.CROSS_CAPABILITY_TAGS)) or scope in ["cross-project", "global-in-project"] or item.get("item_type") == "principle"
                 is_general = (item_cap in ["general_academic", "universal", "foundational", None]) and (is_cross or item_cap is None)
+                overlaps = self.CAPABILITY_OVERLAPS.get(item_cap, set()) | self.CAPABILITY_OVERLAPS.get(target_cap, set())
+                is_compat = bool(item_cap == target_cap or target_cap in rel_caps or target_cap in overlaps or item_cap in overlaps or is_general)
 
-                if item_cap and item_cap != target_cap and target_cap not in rel_caps and not is_general:
+                if item_cap and not is_compat:
                     pruned_counts["capability"] += 1
                     pruned_details.append({"item_id": item_id, "failed_dimension": "capability", "reason": f"Capability '{item_cap}' conflicts with target '{target_cap}'."})
                     continue
 
             # 4. Domain Boundary Gate
-            if target_domain:
-                item_dom = str(item.get("domain") or "").strip().lower()
-                if item_dom and item_dom != "general" and item_dom != "cross-domain":
-                    # Check mutual exclusion between quantitative and qualitative
-                    if ("qualitative" in target_domain and "quantitative" in item_dom) or \
-                       ("quantitative" in target_domain and "qualitative" in item_dom):
+            if norm_target_dom:
+                raw_item_dom = str(item.get("domain") or "").strip().lower()
+                norm_item_dom = self.normalize_domain(raw_item_dom) or raw_item_dom
+                if norm_item_dom and norm_item_dom not in ["general", "cross-domain"]:
+                    if ("qualitative" in norm_target_dom and "quantitative" in norm_item_dom) or ("quantitative" in norm_target_dom and "qualitative" in norm_item_dom):
                         pruned_counts["domain"] += 1
-                        pruned_details.append({"item_id": item_id, "failed_dimension": "domain", "reason": f"Mutually exclusive domain '{item_dom}' vs target '{target_domain}'."})
+                        pruned_details.append({"item_id": item_id, "failed_dimension": "domain", "reason": f"Mutually exclusive domain '{norm_item_dom}' vs target '{norm_target_dom}'."})
                         continue
-                    if target_domain not in item_dom and item_dom not in target_domain:
+                    if (norm_target_dom != norm_item_dom and norm_target_dom not in norm_item_dom and norm_item_dom not in norm_target_dom and raw_domain not in raw_item_dom and raw_item_dom not in raw_domain):
                         pruned_counts["domain"] += 1
-                        pruned_details.append({"item_id": item_id, "failed_dimension": "domain", "reason": f"Domain '{item_dom}' does not match target '{target_domain}'."})
+                        pruned_details.append({"item_id": item_id, "failed_dimension": "domain", "reason": f"Domain '{raw_item_dom}' does not match target '{raw_domain}'."})
                         continue
 
             # 5. Skill Boundary Gate
@@ -194,15 +205,10 @@ class AcademicTwoStageRetriever:
                     pruned_details.append({"item_id": item_id, "failed_dimension": "task", "reason": f"Item task '{item_task}' incompatible with target '{target_task}'."})
                     continue
 
-            # 7. Failure Type Gate (for defect/anti-pattern screening)
+            # 7. Failure Type Gate
             if target_fail:
                 obs_fail = item.get("observed_failure", {})
-                f_types = [
-                    str(item.get("failure_type") or "").lower(),
-                    str(obs_fail.get("defect_type") or "").lower(),
-                    str(item.get("defect_type") or "").lower(),
-                    str(item.get("category") or "").lower()
-                ]
+                f_types = [str(item.get("failure_type") or "").lower(), str(obs_fail.get("defect_type") or "").lower(), str(item.get("defect_type") or "").lower(), str(item.get("category") or "").lower()]
                 f_types = [f for f in f_types if f]
                 if f_types and not any(target_fail in f or f in target_fail for f in f_types):
                     pruned_counts["failure_type"] += 1
@@ -214,39 +220,28 @@ class AcademicTwoStageRetriever:
                 item_agents = set()
                 if item.get("target_agent"):
                     item_agents.add(str(item["target_agent"]).strip().lower())
-                if item.get("target_agents"):
-                    for a in item["target_agents"]:
-                        item_agents.add(str(a).strip().lower())
+                for a in item.get("target_agents", []):
+                    item_agents.add(str(a).strip().lower())
                 if item.get("agent"):
                     item_agents.add(str(item["agent"]).strip().lower())
-                app_agents = item.get("applicability", {}).get("target_agents", [])
-                for a in app_agents:
+                for a in item.get("applicability", {}).get("target_agents", []):
                     item_agents.add(str(a).strip().lower())
-
-                # If no explicit agent is defined, check if bound to an exclusive primary skill
                 if not item_agents:
                     i_skill = str(item.get("target_skill") or item.get("skill") or "").strip().lower()
                     if i_skill in self.SKILL_TO_PRIMARY_AGENT:
                         item_agents.add(self.SKILL_TO_PRIMARY_AGENT[i_skill])
-
                 if item_agents and not ({"all", "universal", "cross-agent"} & item_agents):
                     equivs = self.AGENT_EQUIVALENCES.get(target_agent, {target_agent})
                     if not item_agents.intersection(equivs):
                         pruned_counts["agent"] += 1
-                        pruned_details.append({
-                            "item_id": item_id,
-                            "failed_dimension": "agent",
-                            "reason": f"Item target agent(s) {sorted(list(item_agents))} do not match query agent '{target_agent}'."
-                        })
+                        pruned_details.append({"item_id": item_id, "failed_dimension": "agent", "reason": f"Item target agent(s) {sorted(list(item_agents))} do not match query agent '{target_agent}'."})
                         continue
 
             passed.append(item)
 
         filter_meta = {
-            "candidates_evaluated": len(items),
-            "passed_count": len(passed),
-            "pruned_count": len(items) - len(passed),
-            "pruned_by_dimension": pruned_counts,
+            "candidates_evaluated": len(items), "passed_count": len(passed),
+            "pruned_count": len(items) - len(passed), "pruned_by_dimension": pruned_counts,
             "pruned_details": pruned_details
         }
         return passed, filter_meta
@@ -261,25 +256,15 @@ class AcademicTwoStageRetriever:
         query: Dict[str, Any],
         active_contradictions: Optional[List[Dict[str, Any]]] = None
     ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-        """
-        Computes multi-factor scholarly ranking across the 6 dimensions:
-        relevance (0.25), context_similarity (0.25), evidence_strength (0.15),
-        recency (0.10), confidence (0.25) minus contradiction_penalty.
-        """
+        """Computes multi-factor scholarly ranking across the 6 dimensions."""
         ranked_scores: List[Dict[str, Any]] = []
         active_ctds = active_contradictions or []
-
-        # Disputed lesson IDs from active contradictions
         disputed_ids = set()
         for c in active_ctds:
-            status = c.get("status")
-            if status in ["CONFLICT_DETECTED", "CONFLICT_ANALYSIS", "UNRESOLVED"]:
-                if c.get("lesson_a_id"):
-                    disputed_ids.add(c["lesson_a_id"])
-                if c.get("lesson_b_id"):
-                    disputed_ids.add(c["lesson_b_id"])
-                if c.get("contradiction_id"):
-                    disputed_ids.add(c["contradiction_id"])
+            if c.get("status") in ["CONFLICT_DETECTED", "CONFLICT_ANALYSIS", "UNRESOLVED"]:
+                for key in ["lesson_a_id", "lesson_b_id", "contradiction_id"]:
+                    if c.get(key):
+                        disputed_ids.add(c[key])
 
         for item in candidates:
             item_id = str(item.get("lesson_id") or item.get("anti_pattern_id") or item.get("knowledge_id") or item.get("exemplar_id") or item.get("item_id") or "UNKNOWN")
@@ -292,48 +277,24 @@ class AcademicTwoStageRetriever:
             s_conf = self._compute_confidence(item)
             p_ctd = self._compute_contradiction_penalty(item_id, item, disputed_ids)
 
-            # Composite scholarly score
-            final_score = round(
-                (0.25 * s_rel) +
-                (0.25 * s_sim) +
-                (0.15 * s_ev) +
-                (0.10 * s_rec) +
-                (0.25 * s_conf) -
-                p_ctd,
-                4
-            )
+            final_score = round((0.25 * s_rel) + (0.25 * s_sim) + (0.15 * s_ev) + (0.10 * s_rec) + (0.25 * s_conf) - p_ctd, 4)
+            item["score"] = final_score
 
             score_record = {
-                "item_id": item_id,
-                "item_type": itype,
-                "final_score": final_score,
-                "relevance_score": s_rel,
-                "similarity_score": s_sim,
-                "evidence_strength_score": s_ev,
-                "recency_score": s_rec,
-                "confidence_score": s_conf,
-                "contradiction_penalty": p_ctd,
+                "item_id": item_id, "item_type": itype, "final_score": final_score,
+                "relevance_score": s_rel, "similarity_score": s_sim,
+                "evidence_strength_score": s_ev, "recency_score": s_rec,
+                "confidence_score": s_conf, "contradiction_penalty": p_ctd,
                 "_item": item
             }
             ranked_scores.append(score_record)
 
-        # Sort descending by final score
         ranked_scores.sort(key=lambda x: x["final_score"], reverse=True)
-
         ranking_meta = {
             "ranked_candidates_count": len(ranked_scores),
-            "candidates_scores": [
-                {k: v for k, v in r.items() if k != "_item"}
-                for r in ranked_scores
-            ]
+            "candidates_scores": [{k: v for k, v in r.items() if k != "_item"} for r in ranked_scores]
         }
-
-        results = [r["_item"] for r in ranked_scores]
-        return results, ranking_meta
-
-    # -------------------------------------------------------------------------
-    # Dimension Computations
-    # -------------------------------------------------------------------------
+        return [r["_item"] for r in ranked_scores], ranking_meta
 
     def _compute_relevance(self, item: Dict[str, Any], query: Dict[str, Any]) -> float:
         """Deterministic metadata relevance: tags overlap, exact skills, status."""
@@ -341,20 +302,16 @@ class AcademicTwoStageRetriever:
         tags_query = set(t.lower() for t in query.get("tags", []))
         item_tags = set(t.lower() for t in item.get("tags", []))
         if tags_query and item_tags:
-            overlap = len(tags_query.intersection(item_tags))
-            score += min(0.30, overlap * 0.10)
+            score += min(0.30, len(tags_query.intersection(item_tags)) * 0.10)
 
-        # Skill match bonus
         q_skill = (query.get("skill") or "").lower()
         if q_skill and q_skill in str(item.get("related_skills", [])).lower():
             score += 0.10
 
-        # Status bonus
         st = str(item.get("status") or "").upper()
-        if st in ["ACCEPTED_ACTIVE", "VALIDATED"]:
+        if st in ["ACCEPTED_ACTIVE", "VALIDATED"] or item.get("is_active_behavior") is True:
             score += 0.10
 
-        # Agent match bonus
         q_agent = (query.get("agent") or "").lower()
         item_agent = str(item.get("target_agent") or item.get("agent") or "").lower()
         item_agents = [str(a).lower() for a in item.get("target_agents", [])]
@@ -366,63 +323,45 @@ class AcademicTwoStageRetriever:
     def _compute_context_similarity(self, item: Dict[str, Any], query: Dict[str, Any]) -> float:
         """Semantic & lexical token similarity between query text/context and item body."""
         query_text = " ".join(filter(None, [
-            query.get("prompt_text"),
-            query.get("task"),
-            query.get("task_description"),
-            query.get("capability")
+            query.get("prompt_text"), query.get("task"), query.get("task_description"), query.get("capability")
         ])).lower()
-
         if not query_text:
             return 0.50
 
-        # Extract text representations from candidate
         diag = item.get("diagnosis", {})
         item_text = " ".join(filter(None, [
-            item.get("statement"),
-            item.get("desired_behavior"),
-            item.get("generalization"),
-            item.get("defective_pattern"),
-            item.get("corrective_remedy"),
-            item.get("why_exemplary"),
-            item.get("description"),
-            diag.get("what_happened"),
-            diag.get("rationale_why")
+            item.get("anti_pattern_id"), item.get("knowledge_id"), item.get("lesson_id"),
+            item.get("statement"), item.get("desired_behavior"), item.get("generalization"),
+            item.get("defective_pattern"), item.get("why_defective"),
+            " ".join(item.get("observed_symptoms", [])) if isinstance(item.get("observed_symptoms"), list) else None,
+            " ".join(item.get("tags", [])) if isinstance(item.get("tags"), list) else None,
+            item.get("corrective_remedy"), item.get("why_exemplary"), item.get("description"),
+            diag.get("what_happened"), diag.get("rationale_why")
         ])).lower()
-
         if not item_text:
             return 0.40
 
-        # Tokenize words (alphanumeric >= 3 chars)
         q_tokens = set(re.findall(r"\b[a-z0-9_]{3,}\b", query_text))
         i_tokens = set(re.findall(r"\b[a-z0-9_]{3,}\b", item_text))
-
         if not q_tokens or not i_tokens:
             return 0.40
 
-        # Jaccard + Dice overlap
         intersection = len(q_tokens.intersection(i_tokens))
         union = len(q_tokens.union(i_tokens))
         jaccard = intersection / union if union > 0 else 0.0
 
-        # Academic keyword weighting
-        academic_salient = {"bootstrap", "mediation", "moderation", "sem", "cfa", "ancova", "regression", "levene", "shapiro", "vif", "omega", "alpha", "mcar"}
+        academic_salient = {"bootstrap", "mediation", "moderation", "sem", "cfa", "ancova", "regression", "levene", "shapiro", "vif", "omega", "alpha", "mcar", "lavaan", "latent"}
         salient_overlap = len(q_tokens.intersection(i_tokens).intersection(academic_salient))
         salient_bonus = min(0.30, salient_overlap * 0.10)
-
-        sim_score = min(1.0, max(0.10, round(jaccard * 1.5 + salient_bonus + 0.20, 3)))
-        return sim_score
+        return min(1.0, max(0.10, round(jaccard * 1.5 + salient_bonus + 0.20, 3)))
 
     def _compute_evidence_strength(self, item: Dict[str, Any]) -> float:
         """Empirical backing from Phase 26 evidence decomposition."""
         ce = item.get("confidence_evidence", {})
         if "evidence_strength" in ce and isinstance(ce["evidence_strength"], (int, float)):
             return min(1.0, max(0.10, float(ce["evidence_strength"])))
-
         ev = item.get("evidence", {})
-        reps = ev.get("supporting_report_ids", [])
-        evals = item.get("supporting_evaluations", [])
-        obs = ev.get("observation_count", len(reps) + len(evals))
-
+        obs = ev.get("observation_count", len(ev.get("supporting_report_ids", [])) + len(item.get("supporting_evaluations", [])))
         if obs >= 5:
             return 0.90
         elif obs >= 2:
@@ -437,12 +376,9 @@ class AcademicTwoStageRetriever:
         if not ts_str:
             return 0.50
         try:
-            # Handle ISO timestamps
             dt = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
             diff_days = max(0.0, (self.anchor_time - dt).total_seconds() / 86400.0)
-            # Exponential decay: lambda = 0.005 (~half-life of 140 days)
-            rec = math.exp(-0.005 * diff_days)
-            return min(1.0, max(0.10, round(rec, 3)))
+            return min(1.0, max(0.10, round(math.exp(-0.005 * diff_days), 3)))
         except Exception:
             return 0.50
 
@@ -457,15 +393,9 @@ class AcademicTwoStageRetriever:
         """Deductions for active conflicts under Phase 27."""
         if item_id in disputed_ids:
             return 0.35
-        # If item itself references active unresolved contradictions
-        active_ctds = [c for c in item.get("contradictions", []) if isinstance(c, dict) and c.get("status") in ["CONFLICT_DETECTED", "UNRESOLVED"]]
-        if active_ctds:
+        if [c for c in item.get("contradictions", []) if isinstance(c, dict) and c.get("status") in ["CONFLICT_DETECTED", "UNRESOLVED"]]:
             return 0.25
         return 0.0
-
-    # -------------------------------------------------------------------------
-    # Unified Public API
-    # -------------------------------------------------------------------------
 
     def retrieve(
         self,
@@ -473,9 +403,7 @@ class AcademicTwoStageRetriever:
         query: Dict[str, Any],
         active_contradictions: Optional[List[Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
-        """
-        Executes full Phase 29 Two-Stage Retrieval pipeline and validates output contract.
-        """
+        """Executes full Phase 29 Two-Stage Retrieval pipeline and validates output contract."""
         filtered_candidates, stage_1_meta = self.stage_1_hard_filter(items, query)
         ranked_results, stage_2_meta = self.stage_2_rank(filtered_candidates, query, active_contradictions)
 
@@ -492,7 +420,6 @@ class AcademicTwoStageRetriever:
             "retrieved_at": datetime.now(timezone.utc).isoformat()
         }
 
-        # Contract validation
         val = validate_knowledge_retrieval(retrieval_record)
         if not val["valid"]:
             raise ValueError(f"Retrieval record contract invalid: {val.get('errors')}")

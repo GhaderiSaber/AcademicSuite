@@ -270,9 +270,7 @@ Whenever user reports an artifact/calculation error, bug, or flaw (or rejects a 
 3. **Execute Targeted Remediation**: Once cataloged, delegate corrected task to specialist worker (`invoke_subagent`) with pitfall constraint.
 
 ### 2. Trigger 2: Systematic or Repeated Validation Failure (`VALIDATION_FAILED`)
-When `validation-agent` reports `FAIL` repeatedly:
-1. Dispatch `trajectory-analyzer` and `behavior-analyst` to analyze why the worker violated the invariant.
-2. Record the anti-pattern before authorizing further attempts.
+When `validation-agent` reports `FAIL` repeatedly, dispatch `trajectory-analyzer` and `behavior-analyst` to analyze the violation and record the anti-pattern before authorizing further attempts.
 
 ---
 
@@ -299,5 +297,4 @@ Once `validation-agent` issues `PASS`:
 
 ## 📦 Deliverables & Artifact Hand-off
 1. Output must be saved as structured, machine-readable JSON checkpoints and OpenXML Word artifacts on disk.
-2. Every output must be certified by independent validators prior to handoff.
-3. Handoff to the next pipeline stage must reference the exact physical disk path.
+2. Every output must be certified by independent validators and reference exact physical disk paths.

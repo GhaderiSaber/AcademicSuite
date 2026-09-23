@@ -5,26 +5,7 @@ scripts/academic_adaptive_context_boundary.py — Deterministic Execution Bounda
 
 Governs Phase 28: Guarantees that adaptive context retrieval happens deterministically
 at the execution boundary rather than relying on voluntary agent memory.
-
-Pipeline Invariant:
-Academic task begins
-       ↓
-context retrieval
-       ↓
-relevant lessons
-       ↓
-known pitfalls
-       ↓
-applicable methodology rules
-       ↓
-agent execution
-
-Key Boundaries:
-1. Turn Execution Boundary (PreInvocation Hook): Intercepts turns before LLM execution,
-   detects academic task intent, and injects context into ephemeral messages.
-2. Delegation Boundary (PreToolUse Hook): Intercepts invoke_subagent, enriching subagent
-   prompts with specialist lessons, pitfalls, and methodology rules.
-3. Anti-Dump Invariant: Non-academic turns (git operations, trivial greetings) bypass retrieval.
+Strictly complies with Directive 18 (<= 500 lines, <= 40,000 bytes) and Directive 12.1.
 """
 
 import os
@@ -46,6 +27,7 @@ except ImportError:
     except ImportError:
         def resolve_transcript_path(payload):
             return payload.get("transcriptPath") if isinstance(payload, dict) else None
+
 try:
     from scripts.academic_context_token_budgeter import AcademicContextTokenBudgeter
 except ImportError:
@@ -54,32 +36,18 @@ except ImportError:
 # Canonical mapping from keyword patterns to capability, default task, and primary agent
 ACADEMIC_CAPABILITY_SIGNATURES: List[Dict[str, Any]] = [
     {
-        "capability": "mediation",
-        "patterns": [r"\bmediation\b", r"\bindirect effect\b", r"\bsobel\b", r"\bpreacher\b", r"\bbootstrap mediation\b", r"\bbca\b"],
-        "default_task": "bootstrap_mediation",
-        "primary_agent": "statistics-agent",
-        "domain": "statistical-modeling"
-    },
-    {
-        "capability": "moderation",
-        "patterns": [r"\bmoderation\b", r"\binteraction effect\b", r"\bsimple slopes\b", r"\bjohnson[- ]neyman\b", r"\bmean[- ]center\b"],
-        "default_task": "moderation_interaction",
-        "primary_agent": "statistics-agent",
-        "domain": "statistical-modeling"
-    },
-    {
         "capability": "longitudinal-analysis",
         "patterns": [r"\brepeated[- ]measures\b", r"\brm[- ]anova\b", r"\blongitudinal\b", r"\blinear mixed model\b", r"\blmm\b", r"\bsphericity\b", r"\bmauchly\b"],
         "default_task": "repeated_measures_modeling",
         "primary_agent": "statistics-agent",
-        "domain": "longitudinal-design"
+        "domain": "longitudinal-analysis"
     },
     {
         "capability": "SEM",
         "patterns": [r"\bsem\b", r"\bstructural equation\b", r"\bpath analysis\b", r"\blatent variable\b", r"\bmodel fit\b", r"\bfit indices\b"],
         "default_task": "structural_equation_modeling",
         "primary_agent": "statistics-agent",
-        "domain": "structural-equation-modeling"
+        "domain": "sem"
     },
     {
         "capability": "psychometrics",
@@ -87,6 +55,20 @@ ACADEMIC_CAPABILITY_SIGNATURES: List[Dict[str, Any]] = [
         "default_task": "scale_construct_validation",
         "primary_agent": "psychometric-expert",
         "domain": "psychometrics"
+    },
+    {
+        "capability": "mediation",
+        "patterns": [r"\bmediation\b", r"\bindirect effect\b", r"\bsobel\b", r"\bpreacher\b", r"\bbootstrap mediation\b", r"\bbca\b"],
+        "default_task": "bootstrap_mediation",
+        "primary_agent": "statistics-agent",
+        "domain": "mediation"
+    },
+    {
+        "capability": "moderation",
+        "patterns": [r"\bmoderation\b", r"\binteraction effect\b", r"\bsimple slopes\b", r"\bjohnson[- ]neyman\b", r"\bmean[- ]center\b"],
+        "default_task": "moderation_interaction",
+        "primary_agent": "statistics-agent",
+        "domain": "moderation"
     },
     {
         "capability": "methodology",
@@ -107,14 +89,14 @@ ACADEMIC_CAPABILITY_SIGNATURES: List[Dict[str, Any]] = [
         "patterns": [r"\bmultiple regression\b", r"\bhierarchical regression\b", r"\bstepwise regression\b", r"\bcollinearity\b", r"\bvif\b"],
         "default_task": "multiple_regression",
         "primary_agent": "statistics-agent",
-        "domain": "statistical-modeling"
+        "domain": "regression"
     },
     {
         "capability": "data_cleaning",
         "patterns": [r"\bclean(?:ing)? data\b", r"\breverse[- ]code\b", r"\bmissing data\b", r"\blittle'?s? mcar\b", r"\bunengaged\b", r"\bmahalanobis\b"],
         "default_task": "data_curation_screening",
         "primary_agent": "data-curator",
-        "domain": "data-curation"
+        "domain": "data_cleaning"
     },
     {
         "capability": "chapter4",
@@ -146,7 +128,6 @@ ACADEMIC_CAPABILITY_SIGNATURES: List[Dict[str, Any]] = [
     }
 ]
 
-# Patterns that indicate purely non-academic execution turns (Bypass Anti-Dump)
 BYPASS_PATTERNS: List[str] = [
     r"^\s*git\s+(?:status|commit|push|add|diff|checkout|branch|log)\b",
     r"^\s*(?:clean\s+working\s+tree|git\s+lifecycle)\b",
@@ -154,16 +135,15 @@ BYPASS_PATTERNS: List[str] = [
     r"^\s*(?:view_file|read_file|ls|pwd|whoami)\b"
 ]
 
-# Canonical role fallback mappings ensuring specialist subagents always receive domain lessons
 ROLE_DEFAULT_CAPABILITY_MAP: Dict[str, Dict[str, str]] = {
     "academic-writer": {"capability": "chapter4", "task": "chapter_4_drafting", "domain": "academic-writing"},
-    "statistics-agent": {"capability": "SEM", "task": "structural_equation_modeling", "domain": "statistical-modeling"},
-    "statistical-expert": {"capability": "SEM", "task": "structural_equation_modeling", "domain": "statistical-modeling"},
-    "data-agent": {"capability": "data_cleaning", "task": "data_curation_screening", "domain": "data-curation"},
-    "data-curator": {"capability": "data_cleaning", "task": "data_curation_screening", "domain": "data-curation"},
+    "statistics-agent": {"capability": "SEM", "task": "structural_equation_modeling", "domain": "sem"},
+    "statistical-expert": {"capability": "SEM", "task": "structural_equation_modeling", "domain": "sem"},
+    "data-agent": {"capability": "data_cleaning", "task": "data_curation_screening", "domain": "data_cleaning"},
+    "data-curator": {"capability": "data_cleaning", "task": "data_curation_screening", "domain": "data_cleaning"},
     "validation-agent": {"capability": "general_academic", "task": "adversarial_validation", "domain": "general-methodology"},
     "results-auditor": {"capability": "chapter4", "task": "apa_reporting", "domain": "academic-writing"},
-    "statistical-auditor": {"capability": "SEM", "task": "statistical_audit", "domain": "statistical-modeling"},
+    "statistical-auditor": {"capability": "SEM", "task": "statistical_audit", "domain": "sem"},
     "psychometric-expert": {"capability": "psychometrics", "task": "scale_construct_validation", "domain": "psychometrics"},
     "methodology-expert": {"capability": "methodology", "task": "methodology_design", "domain": "research-methodology"},
     "research-agent": {"capability": "literature_review", "task": "literature_synthesis", "domain": "epistemic-literature"},
@@ -174,11 +154,7 @@ ROLE_DEFAULT_CAPABILITY_MAP: Dict[str, Dict[str, str]] = {
 
 
 class AcademicAdaptiveContextBoundary:
-    """
-    Deterministic engine executing context retrieval at the execution boundary.
-    Guarantees that relevant lessons, known pitfalls, and applicable methodology rules
-    are retrieved and bound before cognitive execution begins.
-    """
+    """Deterministic engine executing context retrieval at the execution boundary."""
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
@@ -186,29 +162,20 @@ class AcademicAdaptiveContextBoundary:
         self.budgeter = AcademicContextTokenBudgeter()
 
     def is_bypass_turn(self, text: str) -> bool:
-        """Determines if the text matches pure operational or trivial conversational bypass."""
         if not text or not text.strip():
             return True
         clean = text.strip().lower()
         if len(clean) < 4:
             return True
-        for pat in BYPASS_PATTERNS:
-            if re.search(pat, clean):
-                return True
-        return False
+        return any(re.search(pat, clean) for pat in BYPASS_PATTERNS)
 
     def detect_task_intent(self, prompt_text: str, metadata: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
-        """
-        Deterministically maps prompt text and context metadata to implicated capability,
-        task, primary agent, and domain. Returns None if non-academic turn.
-        """
         if self.is_bypass_turn(prompt_text):
             return None
 
         clean_text = prompt_text.lower()
         meta = metadata or {}
 
-        # 0. Delegation Envelope Recognition: Extract worker agent from contract if present
         if "contractual delegation envelope" in clean_text or "contract version" in clean_text:
             worker_match = re.search(r"worker agent\s*[:*]+\s*`?([a-zA-Z0-9_-]+)`?", clean_text)
             if worker_match and not meta.get("agent"):
@@ -216,41 +183,31 @@ class AcademicAdaptiveContextBoundary:
 
         explicit_cap = meta.get("capability")
 
-        # 1. Match against known academic signatures
         for sig in ACADEMIC_CAPABILITY_SIGNATURES:
             if explicit_cap and explicit_cap.lower() == sig["capability"].lower():
                 return {
-                    "capability": sig["capability"],
-                    "task": meta.get("task", sig["default_task"]),
+                    "capability": sig["capability"], "task": meta.get("task", sig["default_task"]),
                     "primary_agent": meta.get("agent", sig["primary_agent"]),
-                    "domain": sig["domain"],
-                    "project_id": meta.get("project_id")
+                    "domain": sig["domain"], "project_id": meta.get("project_id")
                 }
-
             for pat in sig["patterns"]:
                 if re.search(pat, clean_text):
                     return {
-                        "capability": sig["capability"],
-                        "task": meta.get("task", sig["default_task"]),
+                        "capability": sig["capability"], "task": meta.get("task", sig["default_task"]),
                         "primary_agent": meta.get("agent", sig["primary_agent"]),
-                        "domain": sig["domain"],
-                        "project_id": meta.get("project_id")
+                        "domain": sig["domain"], "project_id": meta.get("project_id")
                     }
 
-        # 2. Match against role default capability if agent is explicitly provided
         req_agent = str(meta.get("agent") or "").lower().strip()
         if req_agent:
             for r_key, r_val in ROLE_DEFAULT_CAPABILITY_MAP.items():
                 if r_key == req_agent or r_key in req_agent or req_agent in r_key:
                     return {
-                        "capability": r_val["capability"],
-                        "task": meta.get("task", r_val["task"]),
-                        "primary_agent": req_agent,
-                        "domain": r_val["domain"],
+                        "capability": r_val["capability"], "task": meta.get("task", r_val["task"]),
+                        "primary_agent": req_agent, "domain": r_val["domain"],
                         "project_id": meta.get("project_id")
                     }
 
-        # 3. General Academic Task Fallback if academic keywords detected
         academic_keywords = [
             "hypothesis", "variable", "scale", "dataset", "table", "apa", "p-value",
             "effect size", "thesis", "dissertation", "lesson", "knowledge", "anti-pattern",
@@ -259,13 +216,10 @@ class AcademicAdaptiveContextBoundary:
         ]
         if any(w in clean_text for w in academic_keywords):
             return {
-                "capability": "general_academic",
-                "task": meta.get("task", "general_task"),
+                "capability": "general_academic", "task": meta.get("task", "general_task"),
                 "primary_agent": meta.get("agent", "academic-orchestrator"),
-                "domain": "general-methodology",
-                "project_id": meta.get("project_id")
+                "domain": "general-methodology", "project_id": meta.get("project_id")
             }
-
         return None
 
     def retrieve_boundary_context(
@@ -280,14 +234,6 @@ class AcademicAdaptiveContextBoundary:
         limit_per_category: int = 3,
         max_token_budget: Optional[int] = 800
     ) -> Dict[str, Any]:
-        """
-        Deterministically queries knowledge store and packages context into the 4-part contract:
-        1. relevant_lessons
-        2. known_pitfalls
-        3. applicable_methodology_rules
-        4. calibrated_defaults
-        Utilizes Phase 29 Two-Stage Retrieval and Phase 41 Dynamic Context Token Budgeting.
-        """
         raw_context = self.km.retrieve_pre_task_context(
             capability=capability,
             task=task or "general_task",
@@ -303,12 +249,12 @@ class AcademicAdaptiveContextBoundary:
         lessons = raw_context.get("lessons", [])
         anti_patterns = raw_context.get("anti_patterns", [])
         contradictions = raw_context.get("contradictions", [])
+        principles = raw_context.get("principles", [])
+        patterns = raw_context.get("patterns", [])
         exemplars = raw_context.get("exemplars", [])
         cap_sum = raw_context.get("capability_summary", {})
         calibrated_defaults = cap_sum.get("calibrated_parameter_defaults", {}) if cap_sum else {}
-        budget_telem = raw_context.get("budget_telemetry", {})
 
-        # Format 4-part boundary payload
         boundary_payload = {
             "contract_version": "1.0.0",
             "target_capability": capability,
@@ -316,7 +262,7 @@ class AcademicAdaptiveContextBoundary:
             "agent": agent or "academic-orchestrator",
             "project_id": project_id or "cross-project",
             "max_token_budget": max_token_budget,
-            "budget_telemetry": budget_telem,
+            "budget_telemetry": raw_context.get("budget_telemetry", {}),
             "relevant_lessons": [
                 {
                     "lesson_id": l.get("lesson_id", "LSN"),
@@ -343,6 +289,28 @@ class AcademicAdaptiveContextBoundary:
                 }
                 for c in contradictions
             ],
+            "principles": [
+                {
+                    "knowledge_id": p.get("knowledge_id", "PRN"),
+                    "statement": p.get("statement", ""),
+                    "scope": p.get("scope", "cross-project"),
+                    "domain": p.get("domain", ""),
+                    "confidence": p.get("confidence", 0.85),
+                    "applicability": p.get("applicability", {})
+                }
+                for p in principles
+            ],
+            "patterns": [
+                {
+                    "knowledge_id": ptr.get("knowledge_id", "PAT"),
+                    "statement": ptr.get("statement", ""),
+                    "scope": ptr.get("scope", "cross-project"),
+                    "domain": ptr.get("domain", ""),
+                    "confidence": ptr.get("confidence", 0.80),
+                    "applicability": ptr.get("applicability", {})
+                }
+                for ptr in patterns
+            ],
             "calibrated_defaults": calibrated_defaults,
             "exemplars": [
                 {
@@ -354,14 +322,9 @@ class AcademicAdaptiveContextBoundary:
             ],
             "formatted_briefing": raw_context.get("formatted_briefing", "")
         }
-
         return boundary_payload
 
     def format_boundary_briefing(self, payload: Dict[str, Any]) -> str:
-        """
-        Renders the 4-part boundary payload into an authoritative Markdown briefing.
-        Seated directly in immediate agent context window before execution.
-        """
         if payload.get("formatted_briefing"):
             return payload["formatted_briefing"]
 
@@ -376,6 +339,8 @@ class AcademicAdaptiveContextBoundary:
                 "lessons": payload.get("relevant_lessons", []),
                 "anti_patterns": payload.get("known_pitfalls", []),
                 "contradictions": payload.get("applicable_methodology_rules", []),
+                "principles": payload.get("principles", []),
+                "patterns": payload.get("patterns", []),
                 "exemplars": payload.get("exemplars", []),
                 "capability_summary": {"calibrated_parameter_defaults": payload.get("calibrated_defaults", {})}
             },
@@ -388,19 +353,12 @@ class AcademicAdaptiveContextBoundary:
         return budgeted["formatted_briefing"]
 
     def retrieve_for_turn(self, hook_payload: Dict[str, Any]) -> Optional[str]:
-        """
-        Executes turn-level context retrieval at the PreInvocation execution boundary.
-        Inspects the incoming turn, detects academic intent, and returns formatted briefing.
-        """
         cid = hook_payload.get("conversationId")
         transcript_path = resolve_transcript_path(hook_payload)
 
         last_user_msg = (
-            hook_payload.get("userPrompt")
-            or hook_payload.get("userMessage")
-            or hook_payload.get("prompt")
-            or hook_payload.get("message")
-            or ""
+            hook_payload.get("userPrompt") or hook_payload.get("userMessage") or
+            hook_payload.get("prompt") or hook_payload.get("message") or ""
         )
         if not last_user_msg and transcript_path and os.path.isfile(transcript_path):
             try:
@@ -414,13 +372,7 @@ class AcademicAdaptiveContextBoundary:
             except Exception:
                 pass
 
-        agent_name = (
-            hook_payload.get("agentName")
-            or hook_payload.get("agentRole")
-            or hook_payload.get("agent")
-            or ""
-        ).strip()
-
+        agent_name = (hook_payload.get("agentName") or hook_payload.get("agentRole") or hook_payload.get("agent") or "").strip()
         clean_user = re.sub(r"<[^>]+>", "", last_user_msg).strip()
         intent = self.detect_task_intent(clean_user, metadata={"conversation_id": cid, "agent": agent_name})
         if not intent:
@@ -435,15 +387,9 @@ class AcademicAdaptiveContextBoundary:
             prompt_text=clean_user,
             max_token_budget=self.budgeter.DEFAULT_TOKEN_BUDGET
         )
-
         return self.format_boundary_briefing(boundary_data)
 
     def enrich_subagent_dispatch(self, subagents: Any) -> Any:
-        """
-        Enriches subagent dispatch payloads with role-specific boundary context.
-        Ensures dispatched subagents have lessons and pitfalls embedded before execution.
-        Supports subagents as List[Dict] or serialized JSON str.
-        """
         if not subagents:
             return subagents
 
@@ -470,12 +416,10 @@ class AcademicAdaptiveContextBoundary:
             type_name = str(sa_copy.get("TypeName", "")).strip()
             prompt = str(sa_copy.get("Prompt", "")).strip()
 
-            # Prevent double-enrichment if already bound
             if sa_copy.get("adaptive_context_bound") or "DETERMINISTIC ADAPTIVE CONTEXT" in prompt or "Active Learned Behavioral Context" in prompt:
                 enriched.append(sa_copy)
                 continue
 
-            # Detect intent from subagent role and prompt
             intent = self.detect_task_intent(f"{role} {type_name} {prompt}", metadata={"agent": type_name or role})
             if not intent:
                 clean_type = (type_name or role or "").lower().strip()
@@ -486,27 +430,20 @@ class AcademicAdaptiveContextBoundary:
                         break
                 if fallback:
                     intent = {
-                        "capability": fallback["capability"],
-                        "task": fallback["task"],
-                        "primary_agent": type_name or role,
-                        "domain": fallback["domain"],
+                        "capability": fallback["capability"], "task": fallback["task"],
+                        "primary_agent": type_name or role, "domain": fallback["domain"],
                         "project_id": None
                     }
                 else:
                     intent = {
-                        "capability": "general_academic",
-                        "task": "subagent_execution",
-                        "primary_agent": type_name or role,
-                        "domain": "general-methodology",
+                        "capability": "general_academic", "task": "subagent_execution",
+                        "primary_agent": type_name or role, "domain": "general-methodology",
                         "project_id": None
                     }
 
-            cap = intent["capability"]
-            task = intent.get("task", "subagent_execution")
-
             b_data = self.retrieve_boundary_context(
-                capability=cap,
-                task=task,
+                capability=intent["capability"],
+                task=intent.get("task", "subagent_execution"),
                 agent=type_name or role,
                 domain=intent.get("domain"),
                 prompt_text=prompt,

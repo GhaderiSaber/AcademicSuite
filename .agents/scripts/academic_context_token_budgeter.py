@@ -71,9 +71,9 @@ class AcademicContextTokenBudgeter:
     PRIORITY_WEIGHTS = {
         "anti_pattern": 1.50,
         "calibrated_defaults": 1.40,
+        "methodology_rule": 1.35,
         "lesson": 1.20,
         "contradiction": 1.00,
-        "methodology_rule": 1.00,
         "exemplar": 0.80
     }
 
@@ -238,7 +238,7 @@ class AcademicContextTokenBudgeter:
             score = float(prn.get("score") or prn.get("confidence") or 0.85)
             text_rep = self._render_rule(prn, mode)
             candidates.append({
-                "item_id": item_id, "category": "contradiction", "score": score,
+                "item_id": item_id, "category": "methodology_rule", "score": score,
                 "text": text_rep, "tokens": estimate_tokens(text_rep),
                 "priority_weight": self.PRIORITY_WEIGHTS["methodology_rule"], "raw": prn
             })
@@ -248,7 +248,7 @@ class AcademicContextTokenBudgeter:
             score = float(ptr.get("score") or ptr.get("confidence") or 0.80)
             text_rep = self._render_rule(ptr, mode)
             candidates.append({
-                "item_id": item_id, "category": "contradiction", "score": score,
+                "item_id": item_id, "category": "methodology_rule", "score": score,
                 "text": text_rep, "tokens": estimate_tokens(text_rep),
                 "priority_weight": self.PRIORITY_WEIGHTS["methodology_rule"], "raw": ptr
             })
@@ -276,6 +276,7 @@ class AcademicContextTokenBudgeter:
         caps = {
             "anti_pattern": 3 if mode == "STANDARD" else 2,
             "lesson": 3 if mode == "STANDARD" else 2,
+            "methodology_rule": 3 if mode == "STANDARD" else 2,
             "contradiction": 2 if mode == "STANDARD" else 1,
             "exemplar": 1
         }
