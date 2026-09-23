@@ -395,8 +395,14 @@ class AcademicAdaptiveContextBoundary:
         cid = hook_payload.get("conversationId")
         transcript_path = resolve_transcript_path(hook_payload)
 
-        last_user_msg = ""
-        if transcript_path and os.path.isfile(transcript_path):
+        last_user_msg = (
+            hook_payload.get("userPrompt")
+            or hook_payload.get("userMessage")
+            or hook_payload.get("prompt")
+            or hook_payload.get("message")
+            or ""
+        )
+        if not last_user_msg and transcript_path and os.path.isfile(transcript_path):
             try:
                 with open(transcript_path, "r", encoding="utf-8") as f:
                     for line in f:
@@ -408,8 +414,15 @@ class AcademicAdaptiveContextBoundary:
             except Exception:
                 pass
 
+        agent_name = (
+            hook_payload.get("agentName")
+            or hook_payload.get("agentRole")
+            or hook_payload.get("agent")
+            or ""
+        ).strip()
+
         clean_user = re.sub(r"<[^>]+>", "", last_user_msg).strip()
-        intent = self.detect_task_intent(clean_user, metadata={"conversation_id": cid})
+        intent = self.detect_task_intent(clean_user, metadata={"conversation_id": cid, "agent": agent_name})
         if not intent:
             return None
 
