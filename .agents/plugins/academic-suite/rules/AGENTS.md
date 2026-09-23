@@ -49,3 +49,5 @@ These domain rules are automatically loaded and applied across all conversations
 
 ## 4. Git Lifecycle & Clean Working Tree
 - **Directive 8 (Mandatory Git Lifecycle)**: Automatically stage changed files, create conventional semantic commit messages (`feat:`, `fix:`, `docs:`, `refactor:`), and keep the working tree clean.
+- **Directive 23 (Clean Workspace Root Standard)**: Writing or dropping executable/analysis scripts (`.py`, `.sh`, `.R`, `.sps`, `.bash`) directly into repository or workspace root folders is strictly prohibited. Route scripts strictly to: (1) `<appDataDir>/brain/<conversation-id>/scratch/` or `/tmp/` for scratch scripts, (2) `02_analysis_code/` for project code, (3) `.agents/scripts/` for suite tools, (4) `tests/` for tests.
+

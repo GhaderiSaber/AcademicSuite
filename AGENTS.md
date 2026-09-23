@@ -196,6 +196,10 @@ These two permanent architectural laws govern `academic-orchestrator`:
 3. **Shared Learning Invariant**: Direct human mentorship items default to `scope: "cross-project"`, ensuring they are tracked in Git, committed, and synced to GitHub for all current and future projects.
 4. **Deterministic Pre-Task Feeding**: Human-taught principles and patterns are deterministically prioritized by the Two-Stage Retriever and Dynamic Context Token Budgeter, surfacing in pre-flight briefings under `⚖️ Applicable Methodology Rules & Boundary Conditions:`.
 
+### Directive 23: Clean Workspace Root Standard (Zero Root Script Pollution)
+- **Zero Script Pollution**: Writing or dropping executable/analysis scripts (`.py`, `.sh`, `.R`, `.sps`, `.bash`) directly into repository or workspace root folders is strictly prohibited.
+- **Canonical Routing**: Route scripts strictly to: (1) `<appDataDir>/brain/<conversation-id>/scratch/` or `/tmp/` for scratch scripts, (2) `02_analysis_code/` for project code, (3) `.agents/scripts/` for suite tools, (4) `tests/` for tests.
+
 ---
 
 ## 📚 ARCHITECTURE & REFERENCE DIRECTORY

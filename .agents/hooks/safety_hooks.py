@@ -17,7 +17,7 @@ import os
 import sys
 import re
 import stat
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Set
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", ".."))
@@ -292,6 +292,56 @@ def is_ascii_filename(path: str) -> bool:
         return True
     basename = os.path.basename(path)
     return not any(ord(c) > 127 for c in basename)
+
+
+ROOT_SCRIPT_EXTENSIONS: Set[str] = {
+    ".py", ".sh", ".bash", ".r", ".sps", ".m", ".pl", ".rb", ".js", ".ts", ".zsh"
+}
+ROOT_SCRIPT_WHITELIST: Set[str] = {
+    "digital_saber.py",
+    "run_tests.py",
+}
+
+
+def is_root_script_target(path: str, workspaces: Optional[List[str]] = None) -> Tuple[bool, str]:
+    """
+    Directive 23 / Clean Workspace Root Standard:
+    Forbids creating or writing executable/analysis scripts directly into the repository root
+    or workspace root.
+    """
+    if not path:
+        return False, ""
+
+    norm = os.path.normpath(path).replace("\\", "/")
+    basename = os.path.basename(norm).lower()
+    _, ext = os.path.splitext(basename)
+
+    if ext not in ROOT_SCRIPT_EXTENSIONS:
+        return False, ""
+
+    if basename in ROOT_SCRIPT_WHITELIST:
+        return False, ""
+
+    abs_target = os.path.abspath(norm)
+    target_dir = os.path.dirname(abs_target)
+
+    # Check against repository root
+    if target_dir == ROOT_DIR:
+        return True, basename
+
+    # Check against declared workspaces
+    if workspaces:
+        for ws in workspaces:
+            if target_dir == os.path.abspath(ws):
+                return True, basename
+
+    # Check relative paths with no directory component (e.g. TargetFile: "temp.py" or "./temp.py")
+    if not os.path.isabs(path):
+        rel_dir = os.path.dirname(norm)
+        if rel_dir in ("", "."):
+            return True, basename
+
+    return False, ""
 
 
 def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -819,6 +869,22 @@ class SafetyHooks:
                             f"HARD HOOK ENFORCEMENT (Raw-Data Immutability Guard): Modification of raw dataset file '{target}' "
                             f"is strictly prohibited. Raw datasets are immutable. Transform data into "
                             f"separate analytical/cleaned files (e.g., 'data_cleaned.xlsx', 'data_scored.xlsx') instead."
+                        )
+                    }
+
+                # Clean Workspace Root Standard (Directive 23 / Anti-Root-Pollution Guard)
+                is_root_script, script_name = is_root_script_target(target, workspaces)
+                if is_root_script:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 23 - Clean Workspace Root Invariant / Anti-Root-Pollution Guard): "
+                            f"Writing script file '{script_name}' directly into the repository root is strictly forbidden. "
+                            f"Scripts must be placed into their canonical designated directories:\n"
+                            f"  1. Temporary / Scratch Scripts: <appDataDir>/brain/<conversation-id>/scratch/ or /tmp/\n"
+                            f"  2. Project Analysis & Data Code: <project>/02_analysis_code/\n"
+                            f"  3. Suite Tools & Automation: .agents/scripts/ or .agents/skills/<skill>/scripts/\n"
+                            f"  4. Test Scripts & Harnesses: tests/"
                         )
                     }
 
