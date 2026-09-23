@@ -19,5 +19,6 @@
     "academic-orchestrator"
   ],
   "reusable": true,
-  "updated_at": "2026-09-23T12:15:00+03:30"
+  "updated_at": "2026-09-23T12:15:00+03:30",
+  "is_active_behavior": true
 }

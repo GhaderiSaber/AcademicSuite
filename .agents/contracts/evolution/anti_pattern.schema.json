@@ -89,6 +89,10 @@
       "type": "boolean",
       "description": "Whether this anti-pattern should be actively screened across all research projects."
     },
+    "is_active_behavior": {
+      "type": "boolean",
+      "description": "True only after formal promotion. Controls whether this anti-pattern is actively bound to production agent contexts."
+    },
     "updated_at": {
       "type": "string",
       "format": "date-time"

@@ -20,5 +20,6 @@
   "target_agents": [
     "validation-agent",
     "results-auditor"
-  ]
+  ],
+  "is_active_behavior": true
 }

@@ -18,5 +18,6 @@
   "target_agents": [
     "academic-writer",
     "validation-agent"
-  ]
+  ],
+  "is_active_behavior": true
 }

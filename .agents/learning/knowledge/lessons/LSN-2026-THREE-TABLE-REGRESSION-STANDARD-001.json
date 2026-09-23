@@ -24,7 +24,7 @@
     "apa-reporting",
     "persian-thesis-builder"
   ],
-  "is_active_behavior": false,
+  "is_active_behavior": true,
   "status": "VALIDATED",
   "created_at": "2026-09-21T17:30:00+03:30",
   "target_agent": "statistics-agent",

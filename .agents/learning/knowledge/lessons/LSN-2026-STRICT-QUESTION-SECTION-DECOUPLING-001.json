@@ -23,7 +23,7 @@
     "chapter-4-writing",
     "persian-thesis-builder"
   ],
-  "is_active_behavior": false,
+  "is_active_behavior": true,
   "status": "VALIDATED",
   "created_at": "2026-09-22T08:50:00+03:30",
   "derived_by": "knowledge-curator",

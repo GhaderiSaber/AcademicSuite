@@ -358,15 +358,16 @@ def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any
             )
         }
 
-    # Invariant: No direct promotion to active production defaults
-    if data.get("is_active_behavior") is True:
+    # Invariant: No direct promotion of DRAFT candidates to active production defaults
+    status_str = str(data.get("status") or "").upper()
+    if data.get("is_active_behavior") is True and status_str in ["DRAFT", "PENDING"]:
         return {
             "decision": "deny",
             "reason": (
                 f"CONSTITUTIONAL VIOLATION (Directive 19 - Knowledge Promotion Boundary Guard): "
-                f"File '{target_base}' sets 'is_active_behavior: true'. "
-                f"Knowledge candidates cannot be staged directly as active behavior. "
-                f"Promotion requires independent evaluation and Human Gate approval."
+                f"File '{target_base}' sets 'is_active_behavior: true' with status '{status_str}'. "
+                f"Knowledge candidates in DRAFT status cannot be staged directly as active behavior. "
+                f"Promotion requires independent evaluation, status VALIDATED, and Human Gate approval."
             )
         }
 

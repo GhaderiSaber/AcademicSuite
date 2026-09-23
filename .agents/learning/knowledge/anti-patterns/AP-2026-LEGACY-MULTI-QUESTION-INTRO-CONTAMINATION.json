@@ -20,5 +20,6 @@
     "results-auditor"
   ],
   "reusable": true,
-  "updated_at": "2026-09-22T08:50:00+03:30"
+  "updated_at": "2026-09-22T08:50:00+03:30",
+  "is_active_behavior": true
 }

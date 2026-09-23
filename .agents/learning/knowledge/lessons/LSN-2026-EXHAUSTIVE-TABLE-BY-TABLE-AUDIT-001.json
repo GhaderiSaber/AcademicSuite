@@ -25,7 +25,7 @@
     "academic-suite-orchestrator",
     "apa-reporting"
   ],
-  "is_active_behavior": false,
+  "is_active_behavior": true,
   "status": "VALIDATED",
   "created_at": "2026-09-21T16:57:00Z",
   "derived_by": "knowledge-curator",

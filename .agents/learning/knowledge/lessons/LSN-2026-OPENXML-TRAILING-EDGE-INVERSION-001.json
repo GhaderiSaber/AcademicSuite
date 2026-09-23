@@ -23,7 +23,7 @@
     "persian-thesis-builder",
     "apa-reporting"
   ],
-  "is_active_behavior": false,
+  "is_active_behavior": true,
   "status": "VALIDATED",
   "created_at": "2026-09-21T13:10:24+03:30",
   "target_agent": "academic-writer",
