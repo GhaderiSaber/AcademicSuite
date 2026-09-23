@@ -92,6 +92,27 @@ class TestSimdatEngine(unittest.TestCase):
         finally:
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
+    def test_sem_preset_p25_general_delegation_with_latents(self):
+        """Asserts sem_p25_general preset runs with include_latents and WLSMV estimator."""
+        import tempfile, shutil
+        tmp_dir = tempfile.mkdtemp(prefix="test_p25_simdat_")
+        try:
+            payload = dict(simdat_engine.RESEARCH_PRESETS["sem_p25_general"])
+            payload["out_dir"] = tmp_dir
+            payload["include_latents"] = True
+            res = simdat_engine.run_sem_simulation(payload, n=120, seed=451)
+            self.assertIn("rescaled_data", res)
+            self.assertIn("final_data_with_latents", res)
+            df_final = res["rescaled_data"]
+            df_lat = res["final_data_with_latents"]
+            self.assertEqual(len(df_final), 120)
+            self.assertEqual(len(df_lat), 120)
+            self.assertIn("y1", df_final.columns)
+            self.assertIn("ETA", df_lat.columns)
+            self.assertIn("PHIA", df_lat.columns)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -128,6 +128,43 @@ class TestSemREngine(unittest.TestCase):
         self.assertAlmostEqual(df_final["ANX"].mean(), 16.0, delta=2.0)
         self.assertAlmostEqual(df_final["REC"].mean(), 36.0, delta=3.0)
 
+    def test_p25_general_wlsmv_and_latents_export(self):
+        """
+        Runs preset p25_general with --estimator WLSMV and --include-latents:
+        1. Checks that Rscript succeeds (returncode == 0).
+        2. Checks that final_data_with_latents.xlsx exists.
+        3. Verifies columns include both manifest indicators ('y1' to 'y10') and latents ('ETA', 'PHIA', 'PHIB', 'THETA').
+        4. Checks that sem_results.json records estimator == 'WLSMV'.
+        """
+        cmd = [
+            "Rscript",
+            R_SCRIPT_PATH,
+            "--preset", "p25_general",
+            "--estimator", "WLSMV",
+            "--include-latents",
+            "--n", "150",
+            "--J", "3",
+            "--seed", "451",
+            "--out-dir", self.test_dir
+        ]
+        res = subprocess.run(cmd, capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0, f"Rscript failed:\n{res.stderr}\n{res.stdout}")
+
+        final_lat_path = os.path.join(self.test_dir, "final_data_with_latents.xlsx")
+        self.assertTrue(os.path.exists(final_lat_path), "final_data_with_latents.xlsx must exist")
+
+        df_lat = pd.read_excel(final_lat_path)
+        self.assertEqual(len(df_lat), 150)
+        expected_manifests = [f"y{i}" for i in range(1, 11)]
+        expected_latents = ["ETA", "PHIA", "PHIB", "THETA"]
+        for col in expected_manifests + expected_latents:
+            self.assertIn(col, df_lat.columns)
+
+        summary_path = os.path.join(self.test_dir, "sem_results.json")
+        with open(summary_path, "r", encoding="utf-8") as f:
+            summary = json.load(f)
+        self.assertEqual(summary.get("estimator"), "WLSMV")
+
 
 if __name__ == "__main__":
     unittest.main()

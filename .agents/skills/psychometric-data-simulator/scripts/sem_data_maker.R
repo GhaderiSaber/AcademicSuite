@@ -101,6 +101,7 @@ get_preset_config <- function(preset_name) {
           AA = y1, AAG = y2, DIF = y3, DDF = y4, EOT = y5,
           ER = y6, EC = y7, IP = y8, FO = y9, RQ = y10
         )
+        attr(df_cont, "latents") <- data.frame(AAAS = eta, TAS = phi1, DSI = phi2, R = theta)
         return(df_cont)
       },
       # Preliminary simulated model for J-batch candidate verification
@@ -187,6 +188,7 @@ get_preset_config <- function(preset_name) {
           SNJ = y1, SA = y2, RMMT = y3, O = y4, D = y5, NJ = y6, AC = y7, NR = y8,
           BIT = y9, E = y10, Ex = y11, Em = y12, De = y13, Do = y14, At = y15, Aw = y16
         )
+        attr(df_cont, "latents") <- data.frame(SMM = eta1, RMM = eta2, FFMQ = eta3, BI = phi, MSFS = theta)
         return(df_cont)
       },
       verification_model = '
@@ -285,6 +287,7 @@ get_preset_config <- function(preset_name) {
           ego1 = y9, ego2 = y10, ego3 = y11, ego4 = y12, ego5 = y13, ego6 = y14, ego7 = y15, ego8 = y16,
           SBQ = y17
         )
+        attr(df_cont, "latents") <- data.frame(A = eta, B = phi1, C = phi2, D = theta)
         return(df_cont)
       },
       verification_model = '
@@ -367,6 +370,7 @@ get_preset_config <- function(preset_name) {
           ISF = y4, DEG = y5, REC = y6,
           OB = y7, CB = y8
         )
+        attr(df_cont, "latents") <- data.frame(ATT = eta, REP = phi, OBS = theta)
         return(df_cont)
       },
       verification_model = '
@@ -398,6 +402,84 @@ get_preset_config <- function(preset_name) {
         OB = list(mean = 9, sd = 1.4),
         CB = list(mean = 7, sd = 1.0)
       )
+    ),
+
+    # --- Preset 5: P25 General SEM Model (WLSMV & Direct Error Injection) ---
+    "p25_general" = list(
+      name = "P25_SEM_General_Model",
+      n = 211,
+      J = 5,
+      seed = 451,
+      estimator = "WLSMV",
+      indicators = c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8", "y9", "y10"),
+      generator = function(n, seed) {
+        set.seed(seed)
+        sigma_eta <- 1
+        sigma_phi <- 1
+        sigma_theta1 <- 1
+        sigma_theta2 <- 1
+        sigma_ey <- 1
+        
+        lambda_1 <- 2.5; lambda_2 <- 3.0
+        lambda_3 <- 7.0
+        lambda_4 <- 2.0; lambda_5 <- 2.0; lambda_6 <- 1.8; lambda_7 <- 2.0
+        lambda_8 <- 5.0; lambda_9 <- 5.0; lambda_10 <- 5.0
+        
+        f1 <- function(x, y) { -0.2 * x + 0.3 * y }
+        f2 <- function(x, y, z) { 0.9 * x + 0.9 * y - 0.2 * z }
+        f3 <- function(x, y, z) { -0.8 * x + 0.3 * y - 0.3 * z }
+        
+        eta <- rnorm(n, 0, sigma_eta)
+        phi <- rnorm(n, 0, sigma_phi)
+        theta1 <- rnorm(n, 0, sigma_theta1)
+        theta2 <- rnorm(n, 0, sigma_theta2)
+        
+        phi <- f1(eta, phi)
+        theta1 <- f2(phi, theta1, theta2)
+        theta2 <- f3(phi, theta2, theta1)
+        
+        e1 <- rnorm(n, 11, sigma_ey); y1 <- as.integer(round(lambda_1 * eta + e1))
+        e2 <- rnorm(n, 14, sigma_ey); y2 <- as.integer(round(lambda_2 * eta + e2))
+        e3 <- rnorm(n, 32, sigma_ey); y3 <- as.integer(round(lambda_3 * phi + e3))
+        e4 <- rnorm(n, 13, sigma_ey); y4 <- as.integer(round(lambda_4 * theta1 + e4))
+        e5 <- rnorm(n, 12, sigma_ey); y5 <- as.integer(round(lambda_5 * theta1 + e5))
+        e6 <- rnorm(n, 12, sigma_ey); y6 <- as.integer(round(lambda_6 * theta1 + e6))
+        e7 <- rnorm(n, 12, sigma_ey); y7 <- as.integer(round(lambda_7 * theta1 + e7))
+        e8 <- rnorm(n, 17, sigma_ey); y8 <- as.integer(round(lambda_8 * theta2 + e8))
+        e9 <- rnorm(n, 12, sigma_ey); y9 <- as.integer(round(lambda_9 * theta2 + e9))
+        e10 <- rnorm(n, 14, sigma_ey); y10 <- as.integer(round(lambda_10 * theta2 + e10))
+        
+        df_cont <- data.frame(
+          y1 = y1, y2 = y2, y3 = y3, y4 = y4, y5 = y5,
+          y6 = y6, y7 = y7, y8 = y8, y9 = y9, y10 = y10
+        )
+        attr(df_cont, "latents") <- data.frame(ETA = eta, PHIA = phi, PHIB = theta1, THETA = theta2)
+        return(df_cont)
+      },
+      verification_model = '
+        Edalat =~ y1 + y2
+        Enetaf =~ y3
+        Quality =~ y4 + y5 + y6 + y7
+        Symptom =~ y8 + y9 + y10
+
+        Enetaf ~ Edalat
+        Quality ~ Enetaf
+        Symptom ~ Enetaf
+      ',
+      final_model = '
+        Edalat =~ y1 + y2
+        Enetaf =~ y3
+        Quality =~ y4 + y5 + y6 + y7
+        Symptom =~ y8 + y9 + y10
+
+        Enetaf ~ a * Edalat
+        Quality ~ b * Enetaf
+        Symptom ~ c * Enetaf
+
+        ab := a * b
+        ac := a * c
+      ',
+      rescale_specs = NULL
     )
   )
   
@@ -462,7 +544,8 @@ build_custom_generator <- function(config) {
 # ------------------------------------------------------------------------------
 # 4. SIMULATION EXECUTION ENGINE (THE J-BATCH LOOP & RESCALING)
 # ------------------------------------------------------------------------------
-execute_sem_simulation <- function(cfg, n_override = NULL, seed_override = NULL, J_override = NULL, out_dir = ".") {
+execute_sem_simulation <- function(cfg, n_override = NULL, seed_override = NULL, J_override = NULL,
+                                   estimator_override = NULL, include_latents = FALSE, out_dir = ".") {
   n <- if (!is.null(n_override)) as.integer(n_override) else cfg$n
   seed_base <- if (!is.null(seed_override)) as.integer(seed_override) else cfg$seed
   J <- if (!is.null(J_override)) as.integer(J_override) else (cfg$J %||% 5)
@@ -531,13 +614,19 @@ execute_sem_simulation <- function(cfg, n_override = NULL, seed_override = NULL,
   }
   
   # ----------------------------------------------------------------------------
-  # FINAL MODEL ESTIMATION (lavaan with std.lv = TRUE, estimator = 'ML', mimic = 'EQS')
+  # FINAL MODEL ESTIMATION (lavaan with chosen estimator, std.lv = TRUE, mimic = 'EQS')
   # ----------------------------------------------------------------------------
-  cat("[INFO] Fitting final structural equation model on rescaled data...\n")
+  chosen_estimator <- estimator_override %||% (cfg$estimator %||% "ML")
+  cat(sprintf("[INFO] Fitting final structural equation model on rescaled data using estimator '%s'...\n", chosen_estimator))
   final_fit <- tryCatch({
-    lavaan::sem(cfg$final_model, data = final_df, std.lv = TRUE, estimator = "ML", mimic = "EQS", warn = FALSE)
+    if (toupper(chosen_estimator) == "WLSMV") {
+      lavaan::sem(cfg$final_model, data = final_df, estimator = "WLSMV", ordered = FALSE, warn = FALSE)
+    } else {
+      lavaan::sem(cfg$final_model, data = final_df, std.lv = TRUE, estimator = chosen_estimator, mimic = "EQS", warn = FALSE)
+    }
   }, error = function(e) {
-    # Fallback to standard ML if EQS mimic raises singularity
+    # Fallback to standard ML if specified estimator raises singularity
+    cat(sprintf("[WARN] Estimator %s failed, falling back to ML: %s\n", chosen_estimator, e$message))
     lavaan::sem(cfg$final_model, data = final_df, std.lv = TRUE, estimator = "ML", warn = FALSE)
   })
   
@@ -582,6 +671,24 @@ execute_sem_simulation <- function(cfg, n_override = NULL, seed_override = NULL,
   openxlsx::write.xlsx(final_df, final_xlsx)
   final_csv <- file.path(out_dir, "final_data.csv")
   write.csv(final_df, final_csv, row.names = FALSE)
+  
+  # Latent factor scores export (P25 ContArray2 standard)
+  latents_df <- attr(primary_df, "latents")
+  if (isTRUE(include_latents) && !is.null(latents_df)) {
+    primary_with_latents <- cbind(primary_df, latents_df)
+    final_with_latents <- cbind(final_df, latents_df)
+    
+    primary_lat_xlsx <- file.path(out_dir, "primary_data_with_latents.xlsx")
+    openxlsx::write.xlsx(primary_with_latents, primary_lat_xlsx)
+    primary_lat_csv <- file.path(out_dir, "primary_data_with_latents.csv")
+    write.csv(primary_with_latents, primary_lat_csv, row.names = FALSE)
+    
+    final_lat_xlsx <- file.path(out_dir, "final_data_with_latents.xlsx")
+    openxlsx::write.xlsx(final_with_latents, final_lat_xlsx)
+    final_lat_csv <- file.path(out_dir, "final_data_with_latents.csv")
+    write.csv(final_with_latents, final_lat_csv, row.names = FALSE)
+    cat(sprintf("[SUCCESS] Exported Final Dataset with Latents: %s\n", final_lat_xlsx))
+  }
   
   # 3. Model Analysis & Path Diagram (semPlot)
   if (requireNamespace("semPlot", quietly = TRUE) && !is.null(final_fit)) {
@@ -672,6 +779,8 @@ if (requireNamespace("semPlot", quietly = TRUE)) {
   
   summary_obj <- list(
     model_name = cfg$name,
+    estimator = chosen_estimator,
+    include_latents = isTRUE(include_latents),
     sample_size = n,
     optimal_batch = best_batch_idx,
     batches_evaluated = J,
@@ -712,7 +821,8 @@ if (requireNamespace("semPlot", quietly = TRUE)) {
 # ------------------------------------------------------------------------------
 parse_cli_args <- function() {
   args <- commandArgs(trailingOnly = TRUE)
-  opts <- list(preset = "p13_pies", config = NULL, n = NULL, seed = NULL, J = NULL, out_dir = "./sem_output")
+  opts <- list(preset = "p13_pies", config = NULL, n = NULL, seed = NULL, J = NULL,
+               estimator = NULL, include_latents = FALSE, out_dir = "./sem_output")
   i <- 1
   while (i <= length(args)) {
     arg <- args[i]
@@ -731,6 +841,12 @@ parse_cli_args <- function() {
     } else if (arg == "--J" || arg == "--j-iterations") {
       opts$J <- as.integer(args[i + 1])
       i <- i + 2
+    } else if (arg == "--estimator") {
+      opts$estimator <- args[i + 1]
+      i <- i + 2
+    } else if (arg == "--include-latents") {
+      opts$include_latents <- TRUE
+      i <- i + 1
     } else if (arg == "--out-dir" || arg == "-o") {
       opts$out_dir <- args[i + 1]
       i <- i + 2
@@ -759,6 +875,8 @@ if (!interactive()) {
     n_override = opts$n,
     seed_override = opts$seed,
     J_override = opts$J,
+    estimator_override = opts$estimator,
+    include_latents = opts$include_latents,
     out_dir = opts$out_dir
   )
 }

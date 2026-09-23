@@ -264,10 +264,11 @@ def rescale(scaled_series, target_mean, target_sd, round_to_int=True, min_val=No
     return rescaled
 
 
-def run_r_sem_simulation(r_preset=None, config_path=None, n=200, seed=451, J=5, out_dir="."):
+def run_r_sem_simulation(r_preset=None, config_path=None, n=200, seed=451, J=5,
+                          estimator=None, include_latents=False, out_dir="."):
     """
     Delegates SEM data generation directly to the native R engine (sem_data_maker.R)
-    implementing the exact routines from Data Making notebooks (P13 to P22).
+    implementing the exact routines from Data Making notebooks (P13 to P22, P25).
     """
     r_script = os.path.join(os.path.dirname(__file__), "sem_data_maker.R")
     cmd = ["Rscript", r_script, "--out-dir", out_dir]
@@ -281,6 +282,10 @@ def run_r_sem_simulation(r_preset=None, config_path=None, n=200, seed=451, J=5, 
         cmd.extend(["--seed", str(seed)])
     if J is not None:
         cmd.extend(["--J", str(J)])
+    if estimator:
+        cmd.extend(["--estimator", str(estimator)])
+    if include_latents:
+        cmd.append("--include-latents")
 
     res = subprocess.run(cmd, capture_output=True, text=True)
     if res.returncode != 0:
@@ -289,6 +294,7 @@ def run_r_sem_simulation(r_preset=None, config_path=None, n=200, seed=451, J=5, 
     summary_path = os.path.join(out_dir, "sem_results.json")
     primary_path = os.path.join(out_dir, "primary_data.xlsx")
     final_path = os.path.join(out_dir, "final_data.xlsx")
+    final_lat_path = os.path.join(out_dir, "final_data_with_latents.xlsx")
 
     summary = {}
     if os.path.exists(summary_path):
@@ -297,8 +303,9 @@ def run_r_sem_simulation(r_preset=None, config_path=None, n=200, seed=451, J=5, 
 
     primary_df = pd.read_excel(primary_path) if os.path.exists(primary_path) else pd.DataFrame()
     final_df = pd.read_excel(final_path) if os.path.exists(final_path) else pd.DataFrame()
+    final_with_latents_df = pd.read_excel(final_lat_path) if os.path.exists(final_lat_path) else None
 
-    return {
+    result = {
         "analysis_type": "sem",
         "sample_size": n,
         "seed": seed,
@@ -313,6 +320,9 @@ def run_r_sem_simulation(r_preset=None, config_path=None, n=200, seed=451, J=5, 
         "correlation_matrix": summary.get("correlation_matrix", {}),
         "r_summary": summary
     }
+    if final_with_latents_df is not None:
+        result["final_data_with_latents"] = final_with_latents_df
+    return result
 
 
 def run_sem_simulation(payload, n=300, seed=42):
@@ -329,6 +339,8 @@ def run_sem_simulation(payload, n=300, seed=42):
             n=n,
             seed=seed,
             J=payload.get("J", 5),
+            estimator=payload.get("estimator"),
+            include_latents=payload.get("include_latents", False),
             out_dir=out_dir
         )
     rng = np.random.default_rng(seed)
@@ -1642,6 +1654,14 @@ RESEARCH_PRESETS = {
         "sample_size": 200,
         "seed": 451,
         "description": "P22 Adult Attachment & Obsessive Beliefs model with 8 indicators"
+    },
+    "sem_p25_general": {
+        "analysis_type": "sem",
+        "r_preset": "p25_general",
+        "sample_size": 211,
+        "seed": 451,
+        "estimator": "WLSMV",
+        "description": "P25 General SEM model with WLSMV and direct error mean injection"
     }
 }
 
@@ -1719,6 +1739,8 @@ def export_multisheet_excel(sim_res, excel_path):
             sim_res["rescaled_data"].to_excel(writer, sheet_name="Rescaled_Data", index=False)
             sim_res["composite_scores"].to_excel(writer, sheet_name="Composite_Scores", index=False)
             sim_res["latent_continuous"].to_excel(writer, sheet_name="Latent_Continuous", index=False)
+            if "final_data_with_latents" in sim_res and sim_res["final_data_with_latents"] is not None:
+                sim_res["final_data_with_latents"].to_excel(writer, sheet_name="Data_With_Latents", index=False)
             
             fit = sim_res.get("fit_indices", {})
             fit_df = pd.DataFrame([
@@ -1805,6 +1827,8 @@ def main():
     parser.add_argument("--n", type=int, default=None, help="Sample size override")
     parser.add_argument("--seed", type=int, default=None, help="Random seed override")
     parser.add_argument("--J", "--j-iterations", type=int, default=5, dest="j_iterations", help="Candidate batch draws for SEM data making (default: 5)")
+    parser.add_argument("--estimator", default=None, help="SEM estimator override (e.g. ML, WLSMV, MLM, MLR)")
+    parser.add_argument("--include-latents", action="store_true", help="Include true latent factor scores in exported dataset")
     parser.add_argument("--r-engine", action="store_true", help="Force delegation to native R engine (sem_data_maker.R)")
     parser.add_argument("--out-dir", default="./simulated_output", help="Directory to save generated artifacts")
     
@@ -1832,7 +1856,11 @@ def main():
     if mode in ["sem", "cfa", "scale"]:
         payload["out_dir"] = args.out_dir
         payload["J"] = args.j_iterations
-        if args.r_engine or payload.get("r_preset") or (args.preset and args.preset in ["sem_p13_pies", "sem_p18_mindfulness", "sem_p20_ego_resilience", "sem_p22_attachment"]):
+        if args.estimator:
+            payload["estimator"] = args.estimator
+        if args.include_latents:
+            payload["include_latents"] = True
+        if args.r_engine or payload.get("r_preset") or (args.preset and args.preset.startswith("sem_p")):
             payload["use_r_engine"] = True
             if "r_preset" not in payload and args.preset and args.preset.startswith("sem_"):
                 payload["r_preset"] = args.preset.replace("sem_", "")
