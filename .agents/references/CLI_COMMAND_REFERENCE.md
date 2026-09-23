@@ -182,7 +182,11 @@ python3 .agents/skills/statistical-data-analyst/scripts/generate_apa_docx.py \
 
 ### End-to-End Academic Pipeline Orchestration:
 ```bash
-# 1. Run turnkey pipeline preset (thesis_empirical, scale_validation, qualitative_study, meta_analysis, thesis_to_publication, bibliometric_pipeline)
+# 1. Run turnkey pipeline preset (data_generation, thesis_empirical, scale_validation, qualitative_study, meta_analysis, thesis_to_publication, bibliometric_pipeline)
+python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
+  --pipeline data_generation \
+  --out-dir "./my_simulated_dataset"
+
 python3 .agents/skills/academic-suite-orchestrator/scripts/orchestrator_cli.py \
   --pipeline thesis_empirical \
   --out-dir "./my_thesis_project"

@@ -36,6 +36,12 @@ for venv_name in [".venv", "venv"]:
 
 # Capability to Skill & Agent Mapping Matrix
 CAPABILITY_REGISTRY = {
+    "data_simulation": {
+        "description": "Monte Carlo psychometric data generation, SEM/CFA latent simulation, Likert quantization",
+        "skill": "psychometric-data-simulator",
+        "agent": "data-agent",
+        "tools": ["run_command", "view_file", "write_to_file"]
+    },
     "data_cleaning": {
         "description": "Reverse-coding, scoring instruments, missing value diagnostics",
         "skill": "data-cleaning",
@@ -154,6 +160,12 @@ except Exception:
 
 # Micro-Stage Prerequisite Graph
 STAGE_DEPENDENCIES = {
+    "00_data_generation": {
+        "title": "Monte Carlo Psychometric Simulation & Data Making",
+        "capability": "data_simulation",
+        "required_files": ["project.json", "requirements.json"],
+        "required_stage": None
+    },
     "00_data_curation": {
         "title": "Raw Data Ingestion & Scoring",
         "capability": "data_cleaning",
@@ -252,6 +264,7 @@ def resolve_capability(query: str) -> Dict[str, Any]:
     best_score = 0
 
     keywords_map = {
+        "data_simulation": ["simulate", "simulation", "monte carlo", "synthetic data", "create data", "generate data", "make data", "simdat", "data making"],
         "data_cleaning": ["clean", "score", "reverse", "missing", "curation", "dataset"],
         "data_audit": ["unengaged", "straight", "mcar", "mahalanobis", "outlier"],
         "descriptive_statistics": ["descriptive", "mean", "sd", "skew", "kurtosis", "demographic", "frequency"],

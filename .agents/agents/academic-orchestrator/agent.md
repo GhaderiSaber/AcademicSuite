@@ -114,6 +114,7 @@ Under **Directive 19** and **Directive 20**, the Orchestrator does NOT execute P
 4. **"Perform CFA and SEM"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
 5. **"Analyze these network data"** $\rightarrow$ `DATA (data-agent)` + `NETWORK-ANALYSIS (statistics-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
 6. **"Provision project / reorganize folders"** $\rightarrow$ `PROJECT_MANAGEMENT (project-organizer)` + `VALIDATION (validation-agent)`
+7. **"Create data / simulate dataset"** $\rightarrow$ `DATA_SIMULATION (data-agent)` + `DATA_AUDIT (statistical-auditor)` + `DATA_CURATION (data-curator)`
 
 ## 🏛️ Declarative Research Pipeline Presets & Milestone Governance
 
@@ -121,6 +122,7 @@ The Academic Orchestrator is the authoritative owner of project lifecycles, mile
 
 | Pipeline Preset | Milestone & Agent Sequence | Primary Deliverables |
 | :--- | :--- | :--- |
+| **`data_generation`** | `specification` (`methodology-expert`) $\to$ `scale_resolution` (`psychometric-expert`) $\to$ `simulation` (`data-agent`) $\to$ `audit` (`statistical-auditor`) $\to$ `curation` (`data-curator`) | Simulation Spec (`.json`), Dataset (`.xlsx`, `.csv`), Model Syntax (`.R`), Audit Report (`.json`), and Codebook (`.docx`). |
 | **`thesis_empirical`** | `proposal` (`methodology-expert`) $\to$ `simulation` (`data-agent`) $\to$ `statistics` (`statistics-agent`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Dataset (`.xlsx`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Defense Slides (`.pptx`). |
 | **`scale_validation`** | `scale_validator` (`psychometric-expert`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Validation Ch 4 (`.docx`), 6-Sheet Matrix (`.xlsx`), Scree/ROC & IRT Plots (`.png`), Article (`.docx`), Submission Package (`.docx`). |
 | **`qualitative_study`** | `proposal` (`methodology-expert`) $\to$ `qualitative` (`qualitative-analyst`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Coding Matrix (`.xlsx`), Thematic Network (`.png`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Slides (`.pptx`). |
@@ -153,6 +155,7 @@ When decomposing tasks, apply this canonical capability-to-skill-to-agent mappin
 
 | Capability | Domain Scope | Bound Skill | Specialist Agent | Primary Tools |
 | :--- | :--- | :--- | :--- | :--- |
+| **Data Simulation & Generation** | Monte Carlo psychometric simulation, SEM/CFA latent data, Likert quantization, RCT pre-post trials | `psychometric-data-simulator` | `data-agent` | `run_command`, `view_file`, `write_to_file` |
 | **Data Cleaning & Scoring** | Reverse-coding, Likert aggregation, imputation | `data-cleaning` | `data-agent` | `run_command`, `view_file`, `write_to_file` |
 | **Data Quality Screening** | Unengaged responses, Little's MCAR, Mahalanobis $D^2$ | `data-audit` | `data-agent` | `run_command`, `view_file`, `write_to_file` |
 | **Demographics & Descriptives** | Sample frequencies, $M, SD, SE$, skewness, kurtosis | `descriptive-statistics` | `statistics-agent` | `run_command`, `view_file`, `write_to_file` |

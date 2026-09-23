@@ -63,6 +63,36 @@ capabilities:
       - "unengaged_screening_completed"
     dependencies: []
 
+  data_simulation:
+    id: "data_simulation"
+    domain: "data"
+    description: "Monte Carlo psychometric data generation, SEM/CFA latent simulation, Likert quantization, and RCT trial data synthesis."
+    intent_patterns:
+      - "\\b(?:create|generate|simulate|make)\\s+(?:the\\s+|a\\s+)?(?:data|dataset|responses?|sample|participants?)\\b"
+      - "\\bdata\\s+(?:creation|generation|making|simulation)\\b"
+      - "\\bmonte\\s+carlo\\s+simulation\\b"
+      - "\\bsimulate\\s+(?:sem|cfa|likert|rct|regression)\\b"
+      - "\\bsynthetic\\s+(?:data|dataset)\\b"
+    required_skills:
+      - "psychometric-data-simulator"
+      - "data-audit"
+    primary_agent: "data-agent"
+    execution_worker: "statistical-expert"
+    reviewer: "statistical-auditor"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "academic-state/requirements.json"
+    output_artifacts:
+      - "projects/*/01_raw_inputs/primary_data.xlsx"
+      - "projects/*/01_raw_inputs/final_data.xlsx"
+      - "projects/*/01_raw_inputs/simulation_summary.json"
+    validation_requirements:
+      - "directive9_realistic_noise_verified"
+      - "discrete_likert_integers"
+      - "cfi_gt_090_rmsea_lt_080"
+      - "msai_below_threshold"
+    dependencies: []
+
   # ---------------------------------------------------------------------------
   # DESCRIPTIVE & ASSUMPTION TESTING
   # ---------------------------------------------------------------------------

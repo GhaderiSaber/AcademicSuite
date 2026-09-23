@@ -108,3 +108,21 @@ Every empirical micro-stage producing a synchronized triad (`.docx` + `.md` + `.
 | **Stage D.5** | Candidate 20-Minute Defense Script & Q&A Guide | Verbatim oral script with timing cues, slide change triggers, and anticipated examiner questions | `04_defense_script.docx`, `.md`, `.json` |
 | **Stage D.6** | Geometry Collision & Typography Audit | Automated bounding box collision audit, font dual-slot check, zero-emoji verification | `05_presentation_qa_audit.json`, `.md` |
 | **Stage D.7** | Committee Viva Voce Oral Defense Simulation | Hostile/rigorous mock defense simulation across methodological, statistical, and clinical axes | `06_defense_committee_simulation.docx`, `.md`, `.json` |
+
+---
+
+## 7. Empirical Data Generation & Simulation Pipeline (Stages DS.1 – DS.5)
+
+| Stage | Name | Assigned Subagent | Official Script / Capability | Required Physical Triad Deliverables |
+| :--- | :--- | :--- | :--- | :--- |
+| **Stage DS.1** | Simulation Specification & Power Analysis | `methodology-expert` | `gpower_engine.py` / `methodology-review` | `01_simulation_spec.docx`, `01_simulation_spec.md`, `01_simulation_spec.json` |
+| **Stage DS.2** | Instrument Grounding & Factor Weights | `data-agent` | `questionnaire_resolver.py` | `02_scales_codebook.docx`, `02_scales_codebook.md`, `02_scales_codebook.json` |
+| **Stage DS.3** | Monte Carlo Simulation & Model Synthesis | `data-agent` | `simdat_engine.py` / `sem_data_maker.R` | `03_simulation_report.docx`, `03_simulation_report.md`, `03_simulation_results.json`, `primary_data.xlsx`, `final_data.xlsx` |
+| **Stage DS.4** | Data Quality, Distribution & Anomaly Screening | `statistical-auditor` | `data-audit` / `assumption-testing` | `04_data_audit_report.docx`, `04_data_audit_report.md`, `04_data_audit_report.json` |
+| **Stage DS.5** | Data Curation, Codebook & Provenance Handoff | `data-curator` | `data_curation_pipeline.py` | `05_dataset_codebook.docx`, `05_dataset_codebook.md`, `05_data_provenance.json`, `data_curated.xlsx` |
+
+### 💡 The Simulation Invariants (Stages DS.1 – DS.5)
+1. **Directive 9 (Realistic Decimal Noise)**: Means must have realistic empirical decimal noise ($\mu_{\text{empirical}} = \mu_{\text{target}} + \delta, \delta \sim \text{Uniform}(\pm 0.08, \pm 0.25)$); whole-integer means in generated Likert composite aggregates are strictly invalid.
+2. **Discrete Likert Integers**: Individual item ratings must be integer-quantized within authentic rating boundaries (e.g. $[1, 5]$ or $[1, 7]$).
+3. **$J$-Batch Optimization**: Structural equation models must iterate through $J$ candidate batches to guarantee mathematical convergence and optimal fit ($\text{CFI} \ge .90, \text{RMSEA} \le .08$).
+4. **MSAI Screening**: Multi-Signal Anomaly Index (Directive 10) must be evaluated prior to release to confirm absence of single-point fabrication signatures.

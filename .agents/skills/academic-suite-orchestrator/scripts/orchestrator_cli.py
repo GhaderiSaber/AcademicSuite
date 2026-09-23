@@ -201,6 +201,10 @@ SKILL_REGISTRY = {
 # ==============================================================================
 
 PIPELINE_PRESETS = {
+    "data_generation": [
+        "simulation",
+        "audit"
+    ],
     "deliberation_pipeline": [
         "deliberation",
         "statistics",

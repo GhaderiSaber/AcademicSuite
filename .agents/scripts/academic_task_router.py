@@ -661,9 +661,13 @@ class CapabilityResolver:
                 detected_caps.add("sem")
             elif re.search(r'\bnetwork\s+data\b', p_lower):
                 detected_caps.add("network_analysis")
+            elif re.search(r'\b(?:create|generate|simulate|make)\s+(?:the\s+|a\s+)?(?:data|dataset|sample)\b', p_lower):
+                detected_caps.add("data_simulation")
 
         # If still empty, check for general domain keywords
         if not detected_caps:
+            if any(w in p_lower for w in ["simulate", "simulation", "monte carlo", "data maker", "synthetic data"]):
+                detected_caps.add("data_simulation")
             if any(w in p_lower for w in ["clean", "reverse code", "scoring", "dataset"]):
                 detected_caps.add("data_cleaning")
             if any(w in p_lower for w in ["descriptive", "mean", "std", "demographics"]):
