@@ -90,11 +90,22 @@ def get_cwd(target_path: str = ".") -> Path:
 CONFIG_DIR = Path.home() / ".config" / "attach-suite"
 CONFIG_FILE = CONFIG_DIR / "suites.json"
 
+def _resolve_default_academic_path() -> str:
+    for candidate in [
+        Path.home() / "Desktop" / "Projects" / "AcademicSuite",
+        Path.home() / "Desktop" / "AcademicSuite",
+        Path.home() / "Projects" / "AcademicSuite",
+    ]:
+        if candidate.exists() and (candidate / ".agents").exists():
+            return str(candidate)
+    return str(Path.home() / "Desktop" / "AcademicSuite")
+
+
 DEFAULT_SUITES = {
     "academic": {
         "name": "Academic Thesis & Statistical Consultancy Suite",
         "aliases": ["thesis", "saber", "academic_suite", "academicsuite"],
-        "path": str(Path.home() / "Desktop" / "AcademicSuite"),
+        "path": _resolve_default_academic_path(),
         "repo_url": "https://github.com/GhaderiSaber/AcademicSuite.git",
         "description": "Digital Saber, 27 academic & statistical skills, APA 7, psychometrics"
     },
@@ -185,28 +196,39 @@ def find_existing_suite_path(configured_path: str, key: str = "", aliases: list 
 
     # 1. Check if the script itself is running from or installed from inside the target suite repo
     try:
-        current_script_repo = Path(__file__).resolve().parent.parent
-        if (current_script_repo / ".agents").exists():
-            repo_norm = current_script_repo.name.lower().replace("_", "").replace("-", "")
-            target_norm = key.lower().replace("_", "").replace("-", "")
-            if repo_norm == target_norm or (aliases and any(repo_norm == a.lower().replace("_", "").replace("-", "") for a in aliases)):
-                return current_script_repo
+        script_file = Path(__file__).resolve()
+        for candidate_root in [script_file.parent.parent.parent, script_file.parent.parent]:
+            if (candidate_root / ".agents").is_dir() and candidate_root.name != ".agents":
+                repo_norm = candidate_root.name.lower().replace("_", "").replace("-", "")
+                target_norm = key.lower().replace("_", "").replace("-", "")
+                if repo_norm == target_norm or (aliases and any(repo_norm == a.lower().replace("_", "").replace("-", "") for a in aliases)):
+                    return candidate_root
     except Exception:
         pass
 
-    # 2. Check candidate directories in parent (e.g. ~/Desktop)
+    # 2. Check candidate directories in parent (e.g. ~/Desktop, ~/Desktop/Projects, ~/Projects)
     parent_dir = p.parent
     if parent_dir.exists() and parent_dir.is_dir():
         all_names = [key] + (aliases or [])
         clean_targets = {name.lower().replace("_", "").replace("-", "") for name in all_names if name}
         clean_targets.add(p.name.lower().replace("_", "").replace("-", ""))
 
+        candidate_parents = [parent_dir]
+        for sub in ["Projects", "projects"]:
+            sub_p = parent_dir / sub
+            if sub_p.is_dir() and sub_p not in candidate_parents:
+                candidate_parents.append(sub_p)
+        home_projects = Path.home() / "Projects"
+        if home_projects.is_dir() and home_projects not in candidate_parents:
+            candidate_parents.append(home_projects)
+
         try:
-            for item in parent_dir.iterdir():
-                if item.is_dir() and (item / ".agents").exists():
-                    item_norm = item.name.lower().replace("_", "").replace("-", "")
-                    if item_norm in clean_targets:
-                        return item.resolve()
+            for c_dir in candidate_parents:
+                for item in c_dir.iterdir():
+                    if item.is_dir() and (item / ".agents").exists():
+                        item_norm = item.name.lower().replace("_", "").replace("-", "")
+                        if item_norm in clean_targets:
+                            return item.resolve()
         except Exception:
             pass
 
@@ -952,6 +974,19 @@ def cmd_attach(args):
 
     suite_title = suite_info["name"] if suite_info else "Academic Thesis & Statistical Consultancy Suite"
 
+    # Guard: Check if cwd is already the master suite repository
+    if suite_info and suite_info.get("path"):
+        try:
+            local_suite_path = Path(suite_info["path"]).resolve()
+            if cwd.resolve() == local_suite_path:
+                print(f"\n{BOLD}{GREEN}Notice: Current directory is already the master suite repository ({suite_title})!{RESET}")
+                print(f"  Location: {cwd}")
+                print(f"  Nothing to attach. Checking Git status...\n")
+                subprocess.run(["git", "-C", str(cwd), "status", "-s"], check=False)
+                return
+        except Exception:
+            pass
+
     current_os = get_os_name()
     print(f"\n{BOLD}{CYAN}Cloning Suite Repository into Project ({current_os}):{RESET} {BOLD}{suite_title}{RESET}")
     print(f"  Repo URL:       {repo_url}")
@@ -987,14 +1022,15 @@ def cmd_attach(args):
 
     # Step 3: Clone repository directly into cwd without creating a separate subfolder
     git_dir = cwd / ".git"
-    try:
+
+    def _clone_or_update(target_url: str):
         if git_dir.exists():
-            print(f"{CYAN}Existing Git repository detected in project. Updating from {repo_url}...{RESET}")
+            print(f"{CYAN}Existing Git repository detected in project. Updating from {target_url}...{RESET}")
             remotes = subprocess.run(["git", "-C", str(cwd), "remote"], capture_output=True, text=True).stdout.split()
             if "origin" in remotes:
-                subprocess.run(["git", "-C", str(cwd), "remote", "set-url", "origin", repo_url], check=True)
+                subprocess.run(["git", "-C", str(cwd), "remote", "set-url", "origin", target_url], check=True)
             else:
-                subprocess.run(["git", "-C", str(cwd), "remote", "add", "origin", repo_url], check=True)
+                subprocess.run(["git", "-C", str(cwd), "remote", "add", "origin", target_url], check=True)
             fetch_res = subprocess.run(["git", "-C", str(cwd), "fetch", "origin", "main"], capture_output=True, text=True)
             if fetch_res.returncode != 0:
                 subprocess.run(["git", "-C", str(cwd), "fetch", "--depth", "1", "origin", "main"], check=True)
@@ -1004,30 +1040,43 @@ def cmd_attach(args):
             items = [f for f in cwd.iterdir() if f.name != ".git"]
             if not items:
                 print(f"{CYAN}Cloning repository into empty project directory...{RESET}")
-                subprocess.run(["git", "clone", repo_url, "."], cwd=str(cwd), check=True)
+                subprocess.run(["git", "clone", target_url, "."], cwd=str(cwd), check=True)
             else:
                 init_res = subprocess.run(["git", "init", "-b", "main", "."], cwd=str(cwd), capture_output=True, text=True)
                 if init_res.returncode != 0:
                     subprocess.run(["git", "init", "."], cwd=str(cwd), check=True)
-                subprocess.run(["git", "remote", "add", "origin", repo_url], cwd=str(cwd), check=True)
+                subprocess.run(["git", "remote", "add", "origin", target_url], cwd=str(cwd), check=True)
                 fetch_res = subprocess.run(["git", "fetch", "origin", "main"], cwd=str(cwd), capture_output=True, text=True)
                 if fetch_res.returncode != 0:
                     subprocess.run(["git", "fetch", "--depth", "1", "origin", "main"], cwd=str(cwd), check=True)
                 subprocess.run(["git", "checkout", "-f", "-B", "main", "origin/main"], cwd=str(cwd), check=True)
                 subprocess.run(["git", "branch", "--set-upstream-to=origin/main", "main"], cwd=str(cwd), check=False)
 
-        # Count active skills
-        skills_dir = cwd / ".agents" / "skills"
-        skills = [s.name for s in skills_dir.iterdir() if s.is_dir()] if skills_dir.exists() else []
-
-        print(f"\n{BOLD}{GREEN}✓ Successfully cloned GitHub repository directly into project!{RESET}")
-        print(f"  {BOLD}Project Location:{RESET} {cwd}")
-        print(f"  {BOLD}Active Skills:{RESET}   {len(skills)} skills loaded directly from project")
-        print(f"  {BOLD}Structure:{RESET}       Real physical repository files (zero symlinks, zero subfolders)\n")
-
+    try:
+        _clone_or_update(repo_url)
     except subprocess.CalledProcessError as e:
-        print(f"\n{RED}Error cloning repository from {repo_url}: {e}{RESET}\n", file=sys.stderr)
-        sys.exit(e.returncode)
+        local_path = suite_info.get("path") if suite_info else None
+        if local_path and (Path(local_path) / ".git").exists() and repo_url != str(Path(local_path).resolve()):
+            local_repo = str(Path(local_path).resolve())
+            print(f"\n{YELLOW}Warning: Remote git operation failed from {repo_url}.{RESET}")
+            print(f"{CYAN}Attempting offline fallback to local suite repository at {local_repo}...{RESET}\n")
+            try:
+                _clone_or_update(local_repo)
+            except subprocess.CalledProcessError as err_local:
+                print(f"\n{RED}Error cloning repository from local fallback {local_repo}: {err_local}{RESET}\n", file=sys.stderr)
+                sys.exit(err_local.returncode)
+        else:
+            print(f"\n{RED}Error cloning repository from {repo_url}: {e}{RESET}\n", file=sys.stderr)
+            sys.exit(e.returncode)
+
+    # Count active skills
+    skills_dir = cwd / ".agents" / "skills"
+    skills = [s.name for s in skills_dir.iterdir() if s.is_dir()] if skills_dir.exists() else []
+
+    print(f"\n{BOLD}{GREEN}✓ Successfully cloned GitHub repository directly into project!{RESET}")
+    print(f"  {BOLD}Project Location:{RESET} {cwd}")
+    print(f"  {BOLD}Active Skills:{RESET}   {len(skills)} skills loaded directly from project")
+    print(f"  {BOLD}Structure:{RESET}       Real physical repository files (zero symlinks, zero subfolders)\n")
 
 
 def get_project_or_suite_repo(cwd: Path) -> Path:
@@ -1186,6 +1235,7 @@ def main():
     # attach command
     p_attach = subparsers.add_parser("attach", help="Attach a suite to the current directory")
     p_attach.add_argument("suite", nargs="?", default="academic", help="Suite name, alias, or Git repo URL (default: academic)")
+    p_attach.add_argument("--offline", action="store_true", help="Attach from local suite repository without network calls")
     p_attach.add_argument("--keep-git", action="store_true", help="Do not remove redundant .git folder in cwd")
 
     # fix command

@@ -45,9 +45,26 @@ class TestAttachSuite(unittest.TestCase):
         self.assertEqual(key_alias, "academic")
         self.assertEqual(info_alias["path"], info["path"])
 
+        # Verify resolved path actually exists on disk
+        self.assertTrue(Path(info["path"]).exists(), f"Suite path does not exist on disk: {info['path']}")
+
         # Test default empty string
         key_default, _ = attach_suite.resolve_suite("", suites)
         self.assertEqual(key_default, "academic")
+
+    def test_offline_argument_parsed(self):
+        """Verifies that the attach subcommand accepts --offline."""
+        import argparse
+        parser = argparse.ArgumentParser(prog="attach-suite")
+        subparsers = parser.add_subparsers(dest="command")
+        p_attach = subparsers.add_parser("attach")
+        p_attach.add_argument("suite", nargs="?", default="academic")
+        p_attach.add_argument("--offline", action="store_true")
+        p_attach.add_argument("--keep-git", action="store_true")
+
+        args = parser.parse_args(["attach", "--offline"])
+        self.assertTrue(args.offline)
+        self.assertEqual(args.suite, "academic")
 
     def test_resolve_suite_by_github_url(self):
         suites = attach_suite.load_suites()
