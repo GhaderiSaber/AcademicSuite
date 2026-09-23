@@ -206,6 +206,10 @@ To prevent context bloat, instruction drift, and un-audited ad-hoc delegation:
    - Strictly use ASCII English filenames (Directive 6).
    - Never use manual breaks (<w:br/>); enforce B Nazanin / B Titr OpenXML typography.
 
+   #### Deterministic Adaptive Context (Bound at Dispatch Boundary):
+   - Note: The PreToolUse lifecycle hook automatically intercepts `invoke_subagent`, parses the task intent, queries active lessons & anti-patterns from `.agents/learning/knowledge/`, and prepends `🧠 DETERMINISTIC ADAPTIVE CONTEXT` into the worker's prompt.
+   - The worker is bound to adhere to all injected lessons and avoid all injected anti-patterns.
+
    #### Mandatory Worker Return Structure:
    On completion, worker must return a structured JSON or object with the 6 mandatory fields:
    1. `status`: SUCCESS | FAILED | BLOCKED

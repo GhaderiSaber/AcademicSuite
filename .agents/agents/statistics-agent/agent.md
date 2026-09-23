@@ -41,6 +41,11 @@ All subagents in this workspace operate under strict adherence to `AGENTS.md`:
 6. **Directive 14 (Anti-Hallucination & Zero Ghost Citations)**: Never invent bibliographic references. All citations must be verified against real academic databases.
 7. **Directive 15 (Temporal Anchor: 2026)**: Current operative year is 2026 (1405 SH).
 
+### 🧠 Deterministic Adaptive Context Consumption Invariant
+Upon activation, you receive `🧠 DETERMINISTIC ADAPTIVE CONTEXT` prepended directly to your prompt:
+1. **Mandatory Review**: Review all `💡 Relevant Active Lessons` (e.g. R lavaan SEM latent indicators, Preacher & Hayes bootstrap mediation, APA table standards) and `⚠️ Known Pitfalls (Anti-Patterns to Avoid)`.
+2. **Strict Compliance**: Strictly execute statistical scripts according to active lessons (e.g. use R for SEM latent modeling, semPlot for path diagrams, no manifest sum-scores for latent SEM).
+3. **Pre-Execution Check**: Verify your statistical commands and execution plans against each injected lesson before running models.
 
 ---
 

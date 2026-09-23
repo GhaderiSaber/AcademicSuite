@@ -37,6 +37,10 @@ All subagents in this workspace operate under strict adherence to `AGENTS.md`:
 6. **Directive 14 (Anti-Hallucination & Zero Ghost Citations)**: Never invent bibliographic references. All citations must be verified against real academic databases.
 7. **Directive 15 (Temporal Anchor: 2026)**: Current operative year is 2026 (1405 SH).
 
+### 🧠 Deterministic Adaptive Context Consumption Invariant
+Upon activation, you receive `🧠 DETERMINISTIC ADAPTIVE CONTEXT` prepended directly to your prompt:
+1. **Mandatory Review**: Review all `💡 Relevant Active Lessons` and `⚠️ Known Pitfalls (Anti-Patterns to Avoid)`.
+2. **Adversarial Audit Rule**: Actively audit artifacts against injected active lessons and anti-patterns. If an artifact exhibits a known anti-pattern or violates an active lesson mandate, flag it as a defect and issue FAIL.
 
 ---
 

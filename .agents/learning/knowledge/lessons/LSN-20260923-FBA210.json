@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260923-FBA210",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260923-2820A9",
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: Problem:\n1. You should use R for SEM analysis.\n2. In SEM you used total scores when we have subscales (factors) for it. This is not SEM analysis this is path analysis in role of SEM analysis. \n3. You should use R semPlot for figuring sem not create a figure yourself. \n4. The agent and Subagents didn't consume any existing lessons and Antipatterns for themselves.\n\n\nThe current local time is: 2026-09-23T12:01:22+03:30.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding statistical correction.",
+    "what_should_have_happened": "Standard compliance: Problem:\n1. You should use R for SEM analysis.\n2. In SEM you used total scores when we have subscales (factors) for it. This is not SEM analysis this is path analysis in role of SEM analysis. \n3. You should use R semPlot for figuring sem not create a figure yourself. \n4. The agent and Subagents didn't consume any existing lessons and Antipatterns for themselves.\n\n\nThe current local time is: 2026-09-23T12:01:22+03:30.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Studies utilizing statistical-data-analyst or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: Problem:\n1. You should use R for SEM analysis.\n2. In SEM you used total scores when we have subscales (factors) for it. This is not SEM analysis this is path analysis in role of SEM analysis. \n3. You should use R semPlot for figuring sem not create a figure yourself. \n4. The agent and Subagents didn't consume any existing lessons and Antipatterns for themselves.\n\n\nThe current local time is: 2026-09-23T12:01:22+03:30.",
+  "generalization": "Procedural Guideline for statistical-data-analyst: Standard compliance: Problem:\n1. You should use R for SEM analysis.\n2. In SEM you used total scores when we have subscales (factors) for it. This is not SEM analysis this is path analysis in role of SEM analysis. \n3. You should use R semPlot for figuring sem not create a figure yourself. \n4. The agent and Subagents didn't consume any existing lessons and Antipatterns for themselves.\n\n\nThe current local time is: 2026-09-23T12:01:22+03:30. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-STATISTICAL_CORRECTION",
+    "observed_value": "Problem:\n1. You should use R for SEM analysis.\n2. In SEM you used total scores when we have subscales (factors) for it. ",
+    "threshold_value": "Standard compliance: Problem:\n1. You should use R for SEM analysis.\n2. In SEM you used total scores when we have subscal",
+    "supporting_report_ids": [
+      "FDB-20260923-440BD0"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "statistical-data-analyst"
+  ],
+  "is_active_behavior": false,
+  "status": "VALIDATED",
+  "created_at": "2026-09-23T08:36:10.260181+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-23T08:36:10.260229+00:00"
+  }
+}
