@@ -14,9 +14,6 @@
   },
   "target_agent": "academic-orchestrator",
   "target_agents": [
-    "academic-orchestrator",
-    "digital-saber"
-  ],
-  "reusable": true,
-  "updated_at": "2026-09-23T12:55:00+03:30"
+    "academic-orchestrator"
+  ]
 }

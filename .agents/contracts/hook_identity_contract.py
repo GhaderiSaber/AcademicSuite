@@ -75,7 +75,7 @@ def get_canonical_academic_agents() -> Set[str]:
                 "literature-expert", "evidence-auditor", "final-judge",
                 "psychometric-expert", "qualitative-analyst", "meta-analyst",
                 "journal-strategist", "intervention-designer", "data-curator",
-                "longitudinal-modmed-expert", "behavior-analyst", "curriculum-builder",
+                "project-organizer", "longitudinal-modmed-expert", "behavior-analyst", "curriculum-builder",
                 "evaluation-agent", "knowledge-curator", "skill-evolver",
                 "trajectory-analyzer", "test-orchestrator", "test-worker"
             }

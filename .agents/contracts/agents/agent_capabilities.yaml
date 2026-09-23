@@ -237,6 +237,27 @@ agents:
       - send_message
       - define_subagent
 
+  project-organizer:
+    role: "execution_worker"
+    tier: "Tier 3 — Specialist Worker"
+    mainAgent: false
+    subagent: true
+    can_delegate: false
+    can_execute_code: true
+    can_write_files: true
+    required:
+      - view_file
+      - list_dir
+      - grep_search
+      - find_by_name
+      - write_to_file
+      - run_command
+    forbidden:
+      - invoke_subagent
+      - manage_subagents
+      - send_message
+      - define_subagent
+
   statistics-agent:
     role: "execution_worker"
     tier: "Tier 3 — Specialist Worker"

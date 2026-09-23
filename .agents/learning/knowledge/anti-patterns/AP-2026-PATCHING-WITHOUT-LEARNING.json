@@ -19,5 +19,6 @@
   "target_agent": "academic-orchestrator",
   "target_agents": [
     "academic-orchestrator"
-  ]
+  ],
+  "is_active_behavior": true
 }

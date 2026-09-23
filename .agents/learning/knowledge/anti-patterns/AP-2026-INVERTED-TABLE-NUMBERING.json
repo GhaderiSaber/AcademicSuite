@@ -15,14 +15,10 @@
   "target_agent": "academic-writer",
   "target_agents": [
     "academic-writer",
-    "results-auditor"
+    "results-auditor",
+    "validation-agent"
   ],
   "reusable": true,
   "updated_at": "2026-09-22T08:45:00Z",
-  "target_agent": "academic-writer",
-  "target_agents": [
-    "academic-writer",
-    "results-auditor",
-    "validation-agent"
-  ]
+  "is_active_behavior": true
 }

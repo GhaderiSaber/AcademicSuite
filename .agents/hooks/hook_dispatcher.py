@@ -90,8 +90,14 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         if safety_res.get("decision") == "deny":
             return safety_res
 
-        # Class C: Learning Hooks (Factual trajectory capture)
-        LearningHooks.handle_pre_tool_use(payload)
+        # Class C: Learning Hooks (Factual trajectory capture & context enrichment)
+        learning_res = LearningHooks.handle_pre_tool_use(payload)
+        if learning_res and isinstance(learning_res, dict) and "overwrite" in learning_res:
+            res = dict(safety_res) if isinstance(safety_res, dict) else {"decision": "allow"}
+            res["decision"] = "allow"
+            res["overwrite"] = learning_res["overwrite"]
+            return res
+
         return safety_res
 
     elif event_upper == "PostToolUse":

@@ -23,7 +23,7 @@
     "statistical-data-analyst",
     "thesis-integrity-auditor"
   ],
-  "is_active_behavior": false,
+  "is_active_behavior": true,
   "status": "VALIDATED",
   "created_at": "2026-09-21T18:10:00+03:30",
   "target_agent": "validation-agent",

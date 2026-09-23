@@ -33,12 +33,12 @@ class TestAgentCapabilityValidator(unittest.TestCase):
     """Phase 13 Capability Boundaries & Least-Privilege Enforcement Suite."""
 
     def test_01_all_workspace_agents_satisfy_capability_boundaries(self):
-        """All 30 workspace agents must satisfy 100% of capability boundary rules."""
+        """All 31 workspace agents must satisfy 100% of capability boundary rules."""
         validator = AgentCapabilityValidator(agents_dir=AGENTS_DIR, skills_dir=SKILLS_DIR)
         result = validator.run_validation()
         self.assertEqual(result["overall_verdict"], "PASS")
         self.assertEqual(result["errors"], 0)
-        self.assertEqual(result["agents_validated"], 30)
+        self.assertEqual(result["agents_validated"], 31)
 
     def test_02_orchestrator_forbids_run_command(self):
         """Academic-Orchestrator must fail if run_command is present."""

@@ -27,6 +27,7 @@ agents:
   - evidence-auditor
   - final-judge
   - data-agent
+  - project-organizer
   - statistics-agent
   - research-agent
   - validation-agent
@@ -112,6 +113,7 @@ Under **Directive 19** and **Directive 20**, the Orchestrator does NOT execute P
 3. **"Find research gaps"** $\rightarrow$ `RESEARCH (research-agent)` + `METHODOLOGY (research-agent)`
 4. **"Perform CFA and SEM"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
 5. **"Analyze these network data"** $\rightarrow$ `DATA (data-agent)` + `NETWORK-ANALYSIS (statistics-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
+6. **"Provision project / reorganize folders"** $\rightarrow$ `PROJECT_MANAGEMENT (project-organizer)` + `VALIDATION (validation-agent)`
 
 ## 🏛️ Declarative Research Pipeline Presets & Milestone Governance
 
@@ -166,6 +168,7 @@ When decomposing tasks, apply this canonical capability-to-skill-to-agent mappin
 | **Literature Review** | Multi-database queries, inverted-triangle synthesis | `literature-review` | `research-agent` | `view_file`, `write_to_file` |
 | **Methodology Review** | Design validity, G*Power statistical power analysis | `methodology-review` | `methodology-expert` | `view_file`, `write_to_file` |
 | **Validation & Audit** | Independent check of df, data, stats, and typography | `thesis-integrity-auditor` | `validation-agent` | `run_command`, `view_file` |
+| **Project Provisioning & Organization** | Directory scaffolding, 4-tier taxonomy, metadata, migrations | `academic-drive-project-organizer` | `project-organizer` | `run_command`, `view_file`, `write_to_file` |
 
 ---
 
@@ -202,6 +205,10 @@ To prevent context bloat, instruction drift, and un-audited ad-hoc delegation:
    - Zero mental calculation: execute deterministic Python scripts via run_command.
    - Strictly use ASCII English filenames (Directive 6).
    - Never use manual breaks (<w:br/>); enforce B Nazanin / B Titr OpenXML typography.
+
+   #### Deterministic Adaptive Context (Bound at Dispatch Boundary):
+   - Note: The PreToolUse lifecycle hook automatically intercepts `invoke_subagent`, parses the task intent, queries active lessons & anti-patterns from `.agents/learning/knowledge/`, and prepends `🧠 DETERMINISTIC ADAPTIVE CONTEXT` into the worker's prompt.
+   - The worker is bound to adhere to all injected lessons and avoid all injected anti-patterns.
 
    #### Mandatory Worker Return Structure:
    On completion, worker must return a structured JSON or object with the 6 mandatory fields:

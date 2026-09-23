@@ -47,6 +47,7 @@ EXPECTED_ROLES = [
     "longitudinal-modmed-expert",
     "meta-analyst",
     "methodology-expert",
+    "project-organizer",
     "psychometric-expert",
     "qualitative-analyst",
     "research-agent",

@@ -196,8 +196,12 @@ class LearningHooks:
                 return {}
 
             tool_call = payload.get("toolCall", {})
-            tool_name = tool_call.get("name", "") if isinstance(tool_call, dict) else ""
-            tool_args = tool_call.get("args", {}) if isinstance(tool_call, dict) else {}
+            if isinstance(tool_call, dict) and tool_call:
+                tool_name = tool_call.get("name", "")
+                tool_args = tool_call.get("args", {}) or {}
+            else:
+                tool_name = payload.get("tool_name", "") or payload.get("tool", "")
+                tool_args = payload.get("args", {}) or payload.get("tool_args", {}) or {}
             sanitized_args = sanitize_tool_args(tool_args)
             actor = LearningHooks._extract_actor(payload)
 
@@ -246,42 +250,67 @@ class LearningHooks:
 
             elif tool_name == "invoke_subagent":
                 subagents = tool_args.get("Subagents", [])
-                del_engine = LearningHooks._get_delegation_engine(payload)
-                for sa in subagents:
-                    engine.record_event(
-                        TrajectoryEventType.AGENT_INVOKED,
-                        payload=payload,
-                        details={
-                            "subagent_type": sa.get("TypeName", ""),
-                            "subagent_role": sa.get("Role", ""),
-                            "prompt_summary": sa.get("Prompt", "")[:200]
-                        },
-                        actor=actor
-                    )
-                    # Phase 23: Record SUBAGENT_REQUESTED and SUBAGENT_STARTED
-                    d_fields = LearningHooks._extract_delegation_fields(sa, payload, actor)
-                    if del_engine:
-                        try:
-                            del_engine.record_subagent_requested(
-                                parent_agent=d_fields["parent_agent"],
-                                child_agent=d_fields["child_agent"],
-                                task_id=d_fields["task_id"],
-                                objective=d_fields["objective"],
-                                input_artifacts=d_fields["input_artifacts"],
-                                output_artifacts=d_fields["output_artifacts"],
-                                details={"prompt_summary": sa.get("Prompt", "")[:200], "model": sa.get("Model", "")}
-                            )
-                            del_engine.record_subagent_started(
-                                parent_agent=d_fields["parent_agent"],
-                                child_agent=d_fields["child_agent"],
-                                task_id=d_fields["task_id"],
-                                objective=d_fields["objective"],
-                                input_artifacts=d_fields["input_artifacts"],
-                                output_artifacts=d_fields["output_artifacts"],
-                                details={"prompt_summary": sa.get("Prompt", "")[:200], "model": sa.get("Model", "")}
-                            )
-                        except Exception as e_rec:
-                            sys.stderr.write(f"[learning_hooks] Delegation record start error: {e_rec}\n")
+                parsed_sa = subagents
+                if isinstance(subagents, str):
+                    try:
+                        parsed_sa = json.loads(subagents)
+                    except Exception:
+                        parsed_sa = []
+
+                if isinstance(parsed_sa, list):
+                    del_engine = LearningHooks._get_delegation_engine(payload)
+                    for sa in parsed_sa:
+                        if not isinstance(sa, dict):
+                            continue
+                        engine.record_event(
+                            TrajectoryEventType.AGENT_INVOKED,
+                            payload=payload,
+                            details={
+                                "subagent_type": sa.get("TypeName", ""),
+                                "subagent_role": sa.get("Role", ""),
+                                "prompt_summary": sa.get("Prompt", "")[:200]
+                            },
+                            actor=actor
+                        )
+                        # Phase 23: Record SUBAGENT_REQUESTED and SUBAGENT_STARTED
+                        d_fields = LearningHooks._extract_delegation_fields(sa, payload, actor)
+                        if del_engine:
+                            try:
+                                del_engine.record_subagent_requested(
+                                    parent_agent=d_fields["parent_agent"],
+                                    child_agent=d_fields["child_agent"],
+                                    task_id=d_fields["task_id"],
+                                    objective=d_fields["objective"],
+                                    input_artifacts=d_fields["input_artifacts"],
+                                    output_artifacts=d_fields["output_artifacts"],
+                                    details={"prompt_summary": sa.get("Prompt", "")[:200], "model": sa.get("Model", "")}
+                                )
+                                del_engine.record_subagent_started(
+                                    parent_agent=d_fields["parent_agent"],
+                                    child_agent=d_fields["child_agent"],
+                                    task_id=d_fields["task_id"],
+                                    objective=d_fields["objective"],
+                                    input_artifacts=d_fields["input_artifacts"],
+                                    output_artifacts=d_fields["output_artifacts"],
+                                    details={"prompt_summary": sa.get("Prompt", "")[:200], "model": sa.get("Model", "")}
+                                )
+                            except Exception as e_rec:
+                                sys.stderr.write(f"[learning_hooks] Delegation record start error: {e_rec}\n")
+
+                # Phase 28: Execution Boundary Injection for Dispatched Subagents
+                try:
+                    from scripts.academic_adaptive_context_boundary import AcademicAdaptiveContextBoundary
+                    boundary = AcademicAdaptiveContextBoundary(base_dir=ROOT_DIR)
+                    enriched_subagents = boundary.enrich_subagent_dispatch(subagents)
+                    if enriched_subagents and enriched_subagents != subagents:
+                        return {
+                            "decision": "allow",
+                            "overwrite": {
+                                "Subagents": enriched_subagents
+                            }
+                        }
+                except Exception as e_enrich:
+                    sys.stderr.write(f"[learning_hooks] invoke_subagent enrichment note: {e_enrich}\n")
 
         except Exception as e:
             sys.stderr.write(f"[learning_hooks] PreToolUse error: {e}\n")

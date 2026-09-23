@@ -154,6 +154,24 @@ BYPASS_PATTERNS: List[str] = [
     r"^\s*(?:view_file|read_file|ls|pwd|whoami)\b"
 ]
 
+# Canonical role fallback mappings ensuring specialist subagents always receive domain lessons
+ROLE_DEFAULT_CAPABILITY_MAP: Dict[str, Dict[str, str]] = {
+    "academic-writer": {"capability": "chapter4", "task": "chapter_4_drafting", "domain": "academic-writing"},
+    "statistics-agent": {"capability": "SEM", "task": "structural_equation_modeling", "domain": "statistical-modeling"},
+    "statistical-expert": {"capability": "SEM", "task": "structural_equation_modeling", "domain": "statistical-modeling"},
+    "data-agent": {"capability": "data_cleaning", "task": "data_curation_screening", "domain": "data-curation"},
+    "data-curator": {"capability": "data_cleaning", "task": "data_curation_screening", "domain": "data-curation"},
+    "validation-agent": {"capability": "general_academic", "task": "adversarial_validation", "domain": "general-methodology"},
+    "results-auditor": {"capability": "chapter4", "task": "apa_reporting", "domain": "academic-writing"},
+    "statistical-auditor": {"capability": "SEM", "task": "statistical_audit", "domain": "statistical-modeling"},
+    "psychometric-expert": {"capability": "psychometrics", "task": "scale_construct_validation", "domain": "psychometrics"},
+    "methodology-expert": {"capability": "methodology", "task": "methodology_design", "domain": "research-methodology"},
+    "research-agent": {"capability": "literature_review", "task": "literature_synthesis", "domain": "epistemic-literature"},
+    "literature-expert": {"capability": "literature_review", "task": "literature_synthesis", "domain": "epistemic-literature"},
+    "project-organizer": {"capability": "general_academic", "task": "project_organization", "domain": "general-methodology"},
+    "academic-orchestrator": {"capability": "general_academic", "task": "general_task", "domain": "general-methodology"},
+}
+
 
 class AcademicAdaptiveContextBoundary:
     """
@@ -189,6 +207,13 @@ class AcademicAdaptiveContextBoundary:
 
         clean_text = prompt_text.lower()
         meta = metadata or {}
+
+        # 0. Delegation Envelope Recognition: Extract worker agent from contract if present
+        if "contractual delegation envelope" in clean_text or "contract version" in clean_text:
+            worker_match = re.search(r"worker agent\s*[:*]+\s*`?([a-zA-Z0-9_-]+)`?", clean_text)
+            if worker_match and not meta.get("agent"):
+                meta["agent"] = worker_match.group(1).lower().strip()
+
         explicit_cap = meta.get("capability")
 
         # 1. Match against known academic signatures
@@ -212,8 +237,26 @@ class AcademicAdaptiveContextBoundary:
                         "project_id": meta.get("project_id")
                     }
 
-        # 2. General Academic Task Fallback if academic keywords detected
-        academic_keywords = ["hypothesis", "variable", "scale", "dataset", "table", "apa", "p-value", "effect size", "thesis", "dissertation"]
+        # 2. Match against role default capability if agent is explicitly provided
+        req_agent = str(meta.get("agent") or "").lower().strip()
+        if req_agent:
+            for r_key, r_val in ROLE_DEFAULT_CAPABILITY_MAP.items():
+                if r_key == req_agent or r_key in req_agent or req_agent in r_key:
+                    return {
+                        "capability": r_val["capability"],
+                        "task": meta.get("task", r_val["task"]),
+                        "primary_agent": req_agent,
+                        "domain": r_val["domain"],
+                        "project_id": meta.get("project_id")
+                    }
+
+        # 3. General Academic Task Fallback if academic keywords detected
+        academic_keywords = [
+            "hypothesis", "variable", "scale", "dataset", "table", "apa", "p-value",
+            "effect size", "thesis", "dissertation", "lesson", "knowledge", "anti-pattern",
+            "audit", "findings", "results", "simulation", "simulated", "proposal", "methodology",
+            "subagent", "agent", "shahram", "chapter", "r-lavaan", "spss", "excel", "questionnaire"
+        ]
         if any(w in clean_text for w in academic_keywords):
             return {
                 "capability": "general_academic",
@@ -382,36 +425,88 @@ class AcademicAdaptiveContextBoundary:
 
         return self.format_boundary_briefing(boundary_data)
 
-    def enrich_subagent_dispatch(self, subagents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def enrich_subagent_dispatch(self, subagents: Any) -> Any:
         """
         Enriches subagent dispatch payloads with role-specific boundary context.
         Ensures dispatched subagents have lessons and pitfalls embedded before execution.
+        Supports subagents as List[Dict] or serialized JSON str.
         """
+        if not subagents:
+            return subagents
+
+        is_stringified = False
+        parsed_subagents = subagents
+        if isinstance(subagents, str):
+            try:
+                parsed_subagents = json.loads(subagents)
+                is_stringified = True
+            except Exception:
+                return subagents
+
+        if not isinstance(parsed_subagents, list):
+            return subagents
+
         enriched = []
-        for sa in subagents:
+        for sa in parsed_subagents:
+            if not isinstance(sa, dict):
+                enriched.append(sa)
+                continue
+
             sa_copy = dict(sa)
-            role = sa_copy.get("Role", "")
-            type_name = sa_copy.get("TypeName", "")
-            prompt = sa_copy.get("Prompt", "")
+            role = str(sa_copy.get("Role", "")).strip()
+            type_name = str(sa_copy.get("TypeName", "")).strip()
+            prompt = str(sa_copy.get("Prompt", "")).strip()
+
+            # Prevent double-enrichment if already bound
+            if sa_copy.get("adaptive_context_bound") or "DETERMINISTIC ADAPTIVE CONTEXT" in prompt or "Active Learned Behavioral Context" in prompt:
+                enriched.append(sa_copy)
+                continue
 
             # Detect intent from subagent role and prompt
-            intent = self.detect_task_intent(f"{role} {type_name} {prompt}")
-            cap = intent["capability"] if intent else type_name or role or "general"
-            task = intent["task"] if intent else "subagent_execution"
+            intent = self.detect_task_intent(f"{role} {type_name} {prompt}", metadata={"agent": type_name or role})
+            if not intent:
+                clean_type = (type_name or role or "").lower().strip()
+                fallback = None
+                for k, v in ROLE_DEFAULT_CAPABILITY_MAP.items():
+                    if k == clean_type or k in clean_type or clean_type in k:
+                        fallback = v
+                        break
+                if fallback:
+                    intent = {
+                        "capability": fallback["capability"],
+                        "task": fallback["task"],
+                        "primary_agent": type_name or role,
+                        "domain": fallback["domain"],
+                        "project_id": None
+                    }
+                else:
+                    intent = {
+                        "capability": "general_academic",
+                        "task": "subagent_execution",
+                        "primary_agent": type_name or role,
+                        "domain": "general-methodology",
+                        "project_id": None
+                    }
+
+            cap = intent["capability"]
+            task = intent.get("task", "subagent_execution")
 
             b_data = self.retrieve_boundary_context(
                 capability=cap,
                 task=task,
                 agent=type_name or role,
-                domain=intent.get("domain") if intent else None,
+                domain=intent.get("domain"),
                 prompt_text=prompt,
                 max_token_budget=self.budgeter.SUBAGENT_TOKEN_BUDGET
             )
             briefing = self.format_boundary_briefing(b_data)
 
-            # Prepend briefing into subagent prompt
-            sa_copy["Prompt"] = f"{briefing}\n\n---\n### Executable Task Assignment:\n{prompt}"
-            sa_copy["adaptive_context_bound"] = True
+            if briefing and briefing.strip():
+                sa_copy["Prompt"] = f"{briefing.strip()}\n\n---\n### Executable Task Assignment:\n{prompt}"
+                sa_copy["adaptive_context_bound"] = True
+
             enriched.append(sa_copy)
 
+        if is_stringified:
+            return json.dumps(enriched, ensure_ascii=False)
         return enriched

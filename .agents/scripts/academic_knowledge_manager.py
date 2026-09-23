@@ -1142,7 +1142,11 @@ class AcademicKnowledgeManager:
         Returns relevant lessons (what to do / what not to do), anti-patterns to avoid,
         gold-standard exemplars to emulate, and applicable principles.
         """
-        effective_task = task or task_description or ""
+        # Clean canonical task identifier (do not treat full multiline prompts as task identifiers)
+        clean_task = task
+        if not clean_task and task_description and "\n" not in task_description and len(task_description.strip()) < 50:
+            clean_task = task_description.strip()
+
         canon_cap = self.normalize_capability(capability)
         effective_domain = domain
         if not effective_domain and canon_cap:
@@ -1156,12 +1160,13 @@ class AcademicKnowledgeManager:
             agent=agent,
             domain=effective_domain,
             skill=skill,
-            task=effective_task,
+            task=clean_task,
             capability=canon_cap,
             tags=tags,
             project_id=project_id,
             item_types=["lesson"],
-            limit=limit_per_category
+            limit=limit_per_category,
+            prompt_text=task_description
         )
 
         # Contradiction Filtering (ATK-06 Hardening)
@@ -1180,13 +1185,14 @@ class AcademicKnowledgeManager:
             agent=agent,
             domain=domain,
             skill=skill,
-            task=task,
+            task=clean_task,
             capability=canon_cap,
             failure_type=f_type,
             tags=tags,
             project_id=project_id,
             item_types=["anti_pattern"],
-            limit=limit_per_category
+            limit=limit_per_category,
+            prompt_text=task_description
         )
 
         # Query exemplars
@@ -1194,12 +1200,13 @@ class AcademicKnowledgeManager:
             agent=agent,
             domain=domain,
             skill=skill,
-            task=task,
+            task=clean_task,
             capability=canon_cap,
             tags=tags,
             project_id=project_id,
             item_types=["exemplar"],
-            limit=limit_per_category
+            limit=limit_per_category,
+            prompt_text=task_description
         )
 
         # Query principles and patterns
@@ -1207,24 +1214,26 @@ class AcademicKnowledgeManager:
             agent=agent,
             domain=domain,
             skill=skill,
-            task=task,
+            task=clean_task,
             capability=canon_cap,
             tags=tags,
             project_id=project_id,
             item_types=["principle"],
-            limit=limit_per_category
+            limit=limit_per_category,
+            prompt_text=task_description
         )
 
         patterns = self.query(
             agent=agent,
             domain=domain,
             skill=skill,
-            task=task,
+            task=clean_task,
             capability=canon_cap,
             tags=tags,
             project_id=project_id,
             item_types=["pattern"],
-            limit=limit_per_category
+            limit=limit_per_category,
+            prompt_text=task_description
         )
 
         # Also retrieve capability memory summary if capability is specified
@@ -1264,7 +1273,7 @@ class AcademicKnowledgeManager:
             raw_context=briefing,
             max_token_budget=max_token_budget,
             target_capability=canon_cap or "General",
-            task=effective_task or "general_task",
+            task=clean_task or "general_task",
             agent=agent or "academic-orchestrator",
             project_id=project_id or "cross-project"
         )

@@ -20,5 +20,6 @@
     "academic-writer",
     "results-auditor",
     "statistics-agent"
-  ]
+  ],
+  "is_active_behavior": true
 }

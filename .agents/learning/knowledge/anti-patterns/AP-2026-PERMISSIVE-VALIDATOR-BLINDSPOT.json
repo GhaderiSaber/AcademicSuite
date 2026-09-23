@@ -19,5 +19,6 @@
     "validation-agent",
     "results-auditor",
     "statistical-auditor"
-  ]
+  ],
+  "is_active_behavior": true
 }

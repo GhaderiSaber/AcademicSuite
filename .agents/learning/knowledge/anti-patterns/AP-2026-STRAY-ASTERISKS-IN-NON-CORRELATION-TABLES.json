@@ -19,5 +19,6 @@
     "statistics-agent"
   ],
   "reusable": true,
-  "updated_at": "2026-09-22T07:55:00Z"
+  "updated_at": "2026-09-22T07:55:00Z",
+  "is_active_behavior": true
 }

@@ -28,7 +28,7 @@
     "ai-academic-tone-polisher",
     "apa-reporting"
   ],
-  "is_active_behavior": false,
+  "is_active_behavior": true,
   "status": "VALIDATED",
   "created_at": "2026-09-22T09:25:00+03:30",
   "target_agent": "academic-writer",

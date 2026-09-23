@@ -20,5 +20,6 @@
     "statistics-agent",
     "academic-writer",
     "validation-agent"
-  ]
+  ],
+  "is_active_behavior": true
 }

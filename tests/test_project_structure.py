@@ -97,7 +97,7 @@ class TestProjectStructure(unittest.TestCase):
             d for d in os.listdir(agents_dir)
             if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_", "test-"))
         ]
-        self.assertEqual(len(active_agents), 28, f"Expected 28 production agents, found {len(active_agents)}")
+        self.assertEqual(len(active_agents), 29, f"Expected 29 production agents, found {len(active_agents)}")
         
         for a in active_agents:
             self.assertIn(f"`{a}`", content, f"Agent {a} is not documented in docs/AGENT_INVENTORY.md")
@@ -138,7 +138,7 @@ class TestProjectStructure(unittest.TestCase):
             d for d in os.listdir(agents_dir)
             if os.path.isdir(os.path.join(agents_dir, d)) and not d.startswith((".", "_", "test-"))
         ]
-        self.assertEqual(len(active_agents), 28)
+        self.assertEqual(len(active_agents), 29)
         for a in active_agents:
             self.assertIn(f"`{a}`", content, f"Agent {a} is missing from README.md")
 
@@ -152,7 +152,7 @@ class TestProjectStructure(unittest.TestCase):
         self.assertIn("Current Architecture", content)
         self.assertIn("Historical Architecture", content)
         self.assertIn("Target Architecture", content)
-        self.assertIn("30 Agents", content)
+        self.assertIn("31 Agents", content)
         self.assertIn("44 Production Skills", content)
 
 

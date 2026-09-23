@@ -80,7 +80,7 @@ class AcademicContextTokenBudgeter:
     COMPACT_BUDGET_THRESHOLD = 500
     MINIMUM_VIABLE_BUDGET = 150
     DEFAULT_TOKEN_BUDGET = 800
-    SUBAGENT_TOKEN_BUDGET = 500
+    SUBAGENT_TOKEN_BUDGET = 600
 
     def __init__(self, default_budget: int = DEFAULT_TOKEN_BUDGET):
         self.default_budget = default_budget
@@ -108,7 +108,7 @@ class AcademicContextTokenBudgeter:
         defaults_text = f"🎯 Calibrated Defaults: `{json.dumps(defaults)}`\n\n" if defaults else ""
         defaults_tokens = estimate_tokens(defaults_text) if defaults else 0
 
-        overhead_tokens = header_tokens + defaults_tokens + (15 if mode == "COMPACT" else 35)
+        overhead_tokens = header_tokens + defaults_tokens + (25 if mode == "COMPACT" else 65)
         content_budget = max(0, budget - overhead_tokens)
 
         # 2. Knapsack Selection
@@ -133,12 +133,20 @@ class AcademicContextTokenBudgeter:
             elif budgeted_rules:
                 popped = budgeted_rules.pop()
                 pruned_items.append({"item_id": popped.get("contradiction_id") or "CTD", "category": "contradiction", "reason": "Trimmed to meet budget"})
-            elif budgeted_lessons:
+            elif len(budgeted_anti_patterns) > 1 and len(budgeted_anti_patterns) >= len(budgeted_lessons):
+                popped = budgeted_anti_patterns.pop()
+                pruned_items.append({"item_id": popped.get("anti_pattern_id") or "AP", "category": "anti_pattern", "reason": "Trimmed to meet budget"})
+            elif len(budgeted_lessons) > 1:
+                popped = budgeted_lessons.pop()
+                pruned_items.append({"item_id": popped.get("lesson_id") or "LSN", "category": "lesson", "reason": "Trimmed to meet budget"})
+            elif budgeted_lessons and not (len(budgeted_anti_patterns) > 1):
                 popped = budgeted_lessons.pop()
                 pruned_items.append({"item_id": popped.get("lesson_id") or "LSN", "category": "lesson", "reason": "Trimmed to meet budget"})
             elif len(budgeted_anti_patterns) > 1:
                 popped = budgeted_anti_patterns.pop()
                 pruned_items.append({"item_id": popped.get("anti_pattern_id") or "AP", "category": "anti_pattern", "reason": "Trimmed to meet budget"})
+            else:
+                break
 
             formatted_briefing, final_estimated_tokens = self._format_briefing_with_badge(
                 header_text, budgeted_anti_patterns, budgeted_lessons,
@@ -273,7 +281,7 @@ class AcademicContextTokenBudgeter:
         }
         counts = {k: 0 for k in caps}
 
-        # Floor: top Anti-Pattern
+        # Floor 1: top Anti-Pattern
         pitfalls = [c for c in candidates if c["category"] == "anti_pattern"]
         if pitfalls:
             pitfalls.sort(key=lambda x: x["score"], reverse=True)
@@ -283,6 +291,17 @@ class AcademicContextTokenBudgeter:
                 rem_budget -= top_ap["tokens"]
                 counts["anti_pattern"] += 1
                 candidates = [c for c in candidates if c["item_id"] != top_ap["item_id"]]
+
+        # Floor 2: top Lesson (ensures lessons are never completely squeezed out by anti-patterns)
+        lessons = [c for c in candidates if c["category"] == "lesson"]
+        if lessons:
+            lessons.sort(key=lambda x: x["score"], reverse=True)
+            top_lsn = lessons[0]
+            if top_lsn["tokens"] <= rem_budget:
+                selected.append(top_lsn)
+                rem_budget -= top_lsn["tokens"]
+                counts["lesson"] += 1
+                candidates = [c for c in candidates if c["item_id"] != top_lsn["item_id"]]
 
         for c in candidates:
             c["density"] = round((c["priority_weight"] * c["score"]) / max(10, c["tokens"]), 5)
