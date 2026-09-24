@@ -93,6 +93,72 @@ except ImportError:
         run_writing_qc = None
         run_statistical_claim_qc = None
 
+try:
+    from validators.adversarial_challenge_runner import run_adversarial_audit
+except ImportError:
+    try:
+        from adversarial_challenge_runner import run_adversarial_audit
+    except ImportError:
+        run_adversarial_audit = None
+
+try:
+    from validators.defense_readiness_compiler import run_defense_certification
+except ImportError:
+    try:
+        from defense_readiness_compiler import run_defense_certification
+    except ImportError:
+        run_defense_certification = None
+
+try:
+    from validators.statcheck_grim_verifier import create_actionable_repair_prescription
+except ImportError:
+    try:
+        from statcheck_grim_verifier import create_actionable_repair_prescription
+    except ImportError:
+        create_actionable_repair_prescription = None
+
+
+def infer_responsible_agent(check_id: str, rule: str) -> str:
+    """Infers responsible worker agent for Actionable Repair Prescriptions."""
+    cid = check_id.upper()
+    r = rule.lower()
+    if any(k in cid for k in ["STAT", "NUM", "COEF", "DF", "GRIM", "SPRITE", "ASSUMPTION"]):
+        return "statistics-agent"
+    elif any(k in cid for k in ["DATA", "MCAR", "MISSING"]):
+        return "data-agent"
+    elif any(k in cid for k in ["REPORTING", "CLICHE", "P000", "TABLE", "OPENXML", "WORD", "DOCX", "CONTRACT", "DOM"]):
+        return "academic-writer"
+    elif any(k in cid for k in ["DIR", "MANIFEST", "EXISTS", "TRIAD", "DEP", "HASH", "TYPE"]):
+        return "project-organizer"
+    elif any(k in cid for k in ["ADVERSARIAL", "CHALLENGE"]):
+        return "academic-challenger"
+    elif any(k in cid for k in ["DEFENSE", "VIVA", "GRADE"]):
+        return "final-judge"
+    return "academic-orchestrator"
+
+
+def populate_arps_for_failures(rep: Dict[str, Any], default_target: str) -> None:
+    """Ensures every failed or blocked check has a corresponding Actionable Repair Prescription."""
+    if not create_actionable_repair_prescription:
+        return
+    for r in rep.get("results", []):
+        if r.get("verdict") in ("FAIL", "BLOCKED"):
+            cid = r.get("check_id", "CHK-UNKNOWN")
+            if not any(a.get("prescription_id", "").endswith(cid) or a.get("defect_type") == cid for a in rep.get("actionable_repair_prescriptions", [])):
+                target_art = r.get("evidence", {}).get("file") or default_target
+                resp_agent = infer_responsible_agent(cid, r.get("rule", ""))
+                sev = "CRITICAL" if r.get("verdict") == "BLOCKED" or "DECISION" in cid or "GRIM" in cid else "HIGH"
+                rem = r.get("errors", ["Address detected check failure."])[0] if r.get("errors") else "Resolve invariant defect."
+                rep["actionable_repair_prescriptions"].append(create_actionable_repair_prescription(
+                    prescription_id=f"ARP-{cid}",
+                    tier=1 if any(k in cid for k in ["TRIAD", "MANIFEST", "EXISTS", "DOM", "BORDER", "DIR", "STAGE"]) else 2,
+                    defect_type=cid,
+                    severity=sev,
+                    target_artifact=str(target_art),
+                    responsible_agent=resp_agent,
+                    remedy_instruction=rem
+                ))
+
 
 def compute_sha256(filepath: str) -> str:
     """Computes SHA-256 hash of a file on disk."""
@@ -123,22 +189,31 @@ def run_suite(
     milestone_id: Optional[str] = None,
     manifest: Optional[List[Dict[str, Any]]] = None,
     enforce_cross_artifacts: bool = True,
-    require_manifest: bool = False
+    require_manifest: bool = False,
+    tier: str = "all"
 ) -> Dict[str, Any]:
     """
     Executes fail-closed master validation against a stage directory or milestone.
+    Enforces the 4-Tier Validation Architecture (4-TVA) and compiles Actionable Repair Prescriptions.
     Returns a contract-compliant report conforming to contracts/validation_report.schema.json.
     """
     now_iso = datetime.now(timezone.utc).isoformat()
     report_id = f"VAL-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
 
+    tier_norm = str(tier).lower().strip()
+    tier_1_active = tier_norm in ("1", "2", "3", "4", "all")
+    tier_2_active = tier_norm in ("2", "3", "4", "all")
+    tier_3_active = tier_norm in ("3", "4", "all")
+    tier_4_active = tier_norm in ("4", "all")
+
     report: Dict[str, Any] = {
         "contract_version": "1.0.0",
         "report_id": report_id,
-        "suite": "Academic Suite Deterministic Validation Suite",
+        "suite": "Academic Suite 4-Tier Validation Architecture (4-TVA)",
         "validator_name": "run_all_validators",
         "stage_directory": stage_dir,
         "timestamp": now_iso,
+        "selected_tier": tier_norm,
         "overall_verdict": "UNKNOWN",  # Strictly fail-closed initialization
         "evidence_summary": {
             "total_evidence_items_evaluated": 0,
@@ -156,6 +231,13 @@ def run_suite(
             "present_artifacts": [],
             "missing_artifacts": [],
             "untracked_artifacts": []
+        },
+        "actionable_repair_prescriptions": [],
+        "tier_summaries": {
+            "tier_1_mechanical": {"verdict": "UNKNOWN", "checks_run": 0, "checks_passed": 0, "checks_failed": 0},
+            "tier_2_forensic_math": {"verdict": "UNKNOWN", "checks_run": 0, "checks_passed": 0, "checks_failed": 0},
+            "tier_3_adversarial": {"verdict": "UNKNOWN", "challenges_count": 0, "open_critical": 0},
+            "tier_4_viva_voce": {"verdict": "UNKNOWN", "score_out_of_20": None}
         },
         "errors": [],
         "warnings": []
@@ -178,6 +260,7 @@ def run_suite(
         })
         report["evidence_summary"]["total_checks_run"] = 1
         report["evidence_summary"]["checks_blocked"] = 1
+        populate_arps_for_failures(report, stage_dir or "UNKNOWN_DIR")
         return report
 
     all_entries = os.listdir(stage_dir)
@@ -197,6 +280,7 @@ def run_suite(
         })
         report["evidence_summary"]["total_checks_run"] = 1
         report["evidence_summary"]["checks_blocked"] = 1
+        populate_arps_for_failures(report, stage_dir)
         return report
 
     # ==========================================================================
@@ -219,6 +303,7 @@ def run_suite(
             })
             report["evidence_summary"]["total_checks_run"] = 1
             report["evidence_summary"]["checks_blocked"] = 1
+            populate_arps_for_failures(report, stage_dir)
             return report
         target_stages.add(stage_id)
 
@@ -237,6 +322,7 @@ def run_suite(
             })
             report["evidence_summary"]["total_checks_run"] = 1
             report["evidence_summary"]["checks_blocked"] = 1
+            populate_arps_for_failures(report, stage_dir)
             return report
 
     # Auto-detect stages from filenames if not explicitly specified
@@ -258,6 +344,7 @@ def run_suite(
                 })
                 report["evidence_summary"]["total_checks_run"] = 1
                 report["evidence_summary"]["checks_blocked"] = 1
+                populate_arps_for_failures(report, stage_dir)
                 return report
 
             matched_stage = mr.resolve_stage_from_filename(fname)
@@ -642,6 +729,8 @@ def run_suite(
             report["errors"].extend(res["errors"])
         if res.get("warnings"):
             report["warnings"].extend(res["warnings"])
+        if res.get("actionable_repair_prescriptions"):
+            report["actionable_repair_prescriptions"].extend(res.get("actionable_repair_prescriptions", []))
 
     # Data Integrity on Curation / Audit files
     for json_path in json_files:
@@ -886,6 +975,93 @@ def run_suite(
     report["target_artifacts"] = sorted(list(set(report["target_artifacts"])))
 
     # ==========================================================================
+    # Gate 5.5: Tier 3 Adversarial Red-Teaming Challenge Audit
+    # ==========================================================================
+    if tier_3_active and run_adversarial_audit and os.path.exists(stage_dir):
+        try:
+            adv_res = run_adversarial_audit(stage_dir)
+            adv_verdict = adv_res.get("overall_verdict", "PASS")
+            open_crit = adv_res.get("evidence_summary", {}).get("open_critical", 0)
+            open_high = adv_res.get("evidence_summary", {}).get("open_high", 0)
+            
+            t3_verdict = "FAIL" if (adv_verdict == "FAIL" or open_crit > 0) else "PASS"
+            t3_errors = [c["title"] for c in adv_res.get("challenge_cards", []) if c.get("severity") == "CRITICAL" and c.get("rebuttal_status") == "OPEN"]
+            t3_warnings = [c["title"] for c in adv_res.get("challenge_cards", []) if c.get("severity") in ("HIGH", "MEDIUM") and c.get("rebuttal_status") == "OPEN"]
+
+            report["results"].append({
+                "check_id": "CHK-TIER3-ADVERSARIAL",
+                "rule": "Tier 3 Adversarial Red-Teaming (methodology, confounding, p-hacking, CMV)",
+                "verdict": t3_verdict,
+                "errors": t3_errors,
+                "warnings": t3_warnings,
+                "evidence": adv_res.get("evidence_summary", {})
+            })
+            report["tier_summaries"]["tier_3_adversarial"] = {
+                "verdict": t3_verdict,
+                "challenges_count": len(adv_res.get("challenge_cards", [])),
+                "open_critical": open_crit,
+                "open_high": open_high,
+                "interrogations_count": len(adv_res.get("viva_voce_interrogations", []))
+            }
+        except Exception as ex_t3:
+            report["warnings"].append(f"Tier 3 adversarial audit warning: {str(ex_t3)}")
+
+    # ==========================================================================
+    # Gate 5.8: Tier 4 Viva Voce & Defense Certification Audit
+    # ==========================================================================
+    if tier_4_active and run_defense_certification and os.path.exists(stage_dir):
+        try:
+            def_res = run_defense_certification(
+                stage_dir,
+                tier3_result=report.get("tier_summaries", {}).get("tier_3_adversarial")
+            )
+            raw_v = def_res.get("defense_verdict", "REJECT")
+            t4_verdict = "PASS" if raw_v.startswith("PASS") else "FAIL"
+
+            report["results"].append({
+                "check_id": "CHK-TIER4-VIVA-VOCE",
+                "rule": "Tier 4 Defense Committee Simulation and 0-20 Iranian grading certification",
+                "verdict": t4_verdict,
+                "errors": [d["reason"] for d in def_res.get("deduction_ledger", []) if d.get("points", 0) <= -2.0],
+                "warnings": [d["reason"] for d in def_res.get("deduction_ledger", []) if d.get("points", 0) > -2.0],
+                "evidence": {
+                    "score_out_of_20": def_res.get("overall_score_out_of_20"),
+                    "defense_verdict": def_res.get("defense_verdict"),
+                    "human_gate_status": def_res.get("human_gate_card", {}).get("authorization_status")
+                }
+            })
+            report["tier_summaries"]["tier_4_viva_voce"] = {
+                "verdict": t4_verdict,
+                "score_out_of_20": def_res.get("overall_score_out_of_20"),
+                "defense_verdict": def_res.get("defense_verdict"),
+                "human_gate_status": def_res.get("human_gate_card", {}).get("authorization_status")
+            }
+        except Exception as ex_t4:
+            report["warnings"].append(f"Tier 4 defense certification warning: {str(ex_t4)}")
+
+    # ==========================================================================
+    # Actionable Repair Prescriptions (ARP) Compilation & Deduplication
+    # ==========================================================================
+    for r in report["results"]:
+        if r["verdict"] in ("FAIL", "BLOCKED"):
+            cid = r["check_id"]
+            if not any(a.get("prescription_id", "").endswith(cid) or a.get("defect_type") == cid for a in report["actionable_repair_prescriptions"]):
+                target_art = r.get("evidence", {}).get("file") or stage_dir
+                resp_agent = infer_responsible_agent(cid, r.get("rule", ""))
+                sev = "CRITICAL" if r["verdict"] == "BLOCKED" or "DECISION" in cid or "GRIM" in cid else "HIGH"
+                rem = r.get("errors", ["Address detected check failure."])[0] if r.get("errors") else "Resolve invariant defect."
+                if create_actionable_repair_prescription:
+                    report["actionable_repair_prescriptions"].append(create_actionable_repair_prescription(
+                        prescription_id=f"ARP-{cid}",
+                        tier=1 if any(k in cid for k in ["TRIAD", "MANIFEST", "EXISTS", "DOM", "BORDER", "DIR"]) else 2,
+                        defect_type=cid,
+                        severity=sev,
+                        target_artifact=str(target_art),
+                        responsible_agent=resp_agent,
+                        remedy_instruction=rem
+                    ))
+
+    # ==========================================================================
     # Gate 6: Composite Fail-Closed Verdict Calculation
     # ==========================================================================
     total_checks = len(report["results"])
@@ -910,6 +1086,28 @@ def run_suite(
     report["evidence_summary"]["checks_unverified"] = unverified_checks
     report["evidence_summary"]["total_evidence_items_evaluated"] = evidence_count
 
+    # Tier 1 & Tier 2 Summaries
+    t1_results = [r for r in report["results"] if not any(k in r["check_id"] for k in ["NUMERICAL", "DATA", "ASSUMPTION", "REPORTING", "CROSS", "PROVENANCE", "CONTRACT", "STAT-CLAIM", "TIER3", "TIER4"])]
+    t2_results = [r for r in report["results"] if any(k in r["check_id"] for k in ["NUMERICAL", "DATA", "ASSUMPTION", "REPORTING", "CROSS", "PROVENANCE", "CONTRACT", "STAT-CLAIM"])]
+
+    if t1_results:
+        t1_fails = len([r for r in t1_results if r["verdict"] in ("FAIL", "BLOCKED")])
+        report["tier_summaries"]["tier_1_mechanical"] = {
+            "verdict": "PASS" if t1_fails == 0 and len(t1_results) > 0 else ("BLOCKED" if any(r["verdict"] == "BLOCKED" for r in t1_results) else "FAIL"),
+            "checks_run": len(t1_results),
+            "checks_passed": len([r for r in t1_results if r["verdict"] == "PASS"]),
+            "checks_failed": t1_fails
+        }
+
+    if t2_results:
+        t2_fails = len([r for r in t2_results if r["verdict"] in ("FAIL", "BLOCKED")])
+        report["tier_summaries"]["tier_2_forensic_math"] = {
+            "verdict": "PASS" if t2_fails == 0 and len(t2_results) > 0 else "FAIL",
+            "checks_run": len(t2_results),
+            "checks_passed": len([r for r in t2_results if r["verdict"] == "PASS"]),
+            "checks_failed": t2_fails
+        }
+
     # Strict fail-closed verdict resolution (Phase 9 taxonomy)
     if blocked_checks > 0 or report["manifest_audit"]["missing_artifacts"]:
         report["overall_verdict"] = "BLOCKED"
@@ -933,13 +1131,22 @@ if __name__ == '__main__':
     parser.add_argument('--stage-id', default=None, help="Explicit stage identifier")
     parser.add_argument('--milestone-id', default=None, help="Explicit milestone identifier")
     parser.add_argument('--require-manifest', action='store_true', help="Require authoritative manifest.json (Phase 9 fail-closed)")
+    parser.add_argument('--tier', choices=['1', '2', '3', '4', 'all'], default='all', help="Validation tier to execute (1=Mechanical, 2=Forensic Math, 3=Adversarial, 4=Viva Voce, all=Complete cascade)")
+    parser.add_argument('--output-json', default=None, help="Path to write validation report JSON on disk")
     args = parser.parse_args()
 
     rep = run_suite(
         args.stage_dir,
         stage_id=args.stage_id,
         milestone_id=args.milestone_id,
-        require_manifest=args.require_manifest
+        require_manifest=args.require_manifest,
+        tier=args.tier
     )
+
+    if args.output_json:
+        os.makedirs(os.path.dirname(os.path.abspath(args.output_json)), exist_ok=True)
+        with open(args.output_json, "w", encoding="utf-8") as out_f:
+            json.dump(rep, out_f, indent=2, ensure_ascii=False)
+
     print(json.dumps(rep, indent=2, ensure_ascii=False))
     sys.exit(0 if rep["overall_verdict"] == "PASS" else 1)

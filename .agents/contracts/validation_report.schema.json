@@ -105,6 +105,39 @@
           }
         }
       }
+    },
+    "selected_tier": {
+      "type": "string",
+      "enum": ["1", "2", "3", "4", "all"],
+      "description": "Executed validation tier under the 4-Tier Validation Architecture (4-TVA)."
+    },
+    "actionable_repair_prescriptions": {
+      "type": "array",
+      "description": "Structured machine-actionable repair recipes for detected defects.",
+      "items": {
+        "type": "object",
+        "required": ["prescription_id", "tier", "defect_type", "severity", "target_artifact", "responsible_agent", "remedy_instruction"],
+        "properties": {
+          "prescription_id": {"type": "string"},
+          "tier": {"type": "integer", "minimum": 1, "maximum": 4},
+          "defect_type": {"type": "string"},
+          "severity": {"type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+          "target_artifact": {"type": "string"},
+          "target_key_or_line": {"type": ["string", "null"]},
+          "responsible_agent": {"type": "string"},
+          "remedy_instruction": {"type": "string"},
+          "automated_fixable": {"type": "boolean"},
+          "affected_downstream_stages": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "status": {"type": "string", "enum": ["OPEN", "RESOLVED", "WAIVED"]}
+        }
+      }
+    },
+    "tier_summaries": {
+      "type": "object",
+      "description": "Summaries of results evaluated across the 4 validation tiers."
     }
   },
   "allOf": [

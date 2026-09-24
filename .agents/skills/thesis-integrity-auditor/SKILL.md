@@ -126,3 +126,27 @@ python3 .agents/skills/thesis-integrity-auditor/scripts/audit_engine.py \
    - 6-sheet master workbook: `Overview & Summary`, `Matched Citations`, `Orphaned In-Text`, `Ghost Bibliography`, `Year Mismatches`, and `EQUATOR Checklist`.
 3. **`thesis_audit_summary.json`**:
    - Machine-readable audit ledger with subscores, finding tallies, and checklist items for CI/CD pipelines, dashboard integration, and orchestrator workflows.
+
+---
+
+## 6. 4-Tier Validation Architecture (4-TVA) & Actionable Repair Protocol
+
+AcademicSuite deliverables are certified via the 4-tier cascade:
+1. **Tier 1 (Mechanical Gate)**: Triad existence (.docx, .md, .json), schemas, hashes, OpenXML DOM typography.
+2. **Tier 2 (Forensic Math Gate)**: Pure Python Statcheck re-computation ($p$-values from $t, F, \chi^2, r$), GRIM Likert granularity test ($M \times N \in \mathbb{Z}$), SPRITE bounds, and 10-signal MSAI.
+3. **Tier 3 (Adversarial Red-Teaming Gate)**: Audits confounding, p-hacking, selection bias, and unresolved challenges.
+4. **Tier 4 (Viva Voce & Defense Certification Gate)**: 5-examiner simulation, Iranian 0–20 grading, deduction ledger, and Saber's Human Gate Card (`124911145`).
+
+### Master 4-Tier CLI Execution:
+```bash
+# Full 4-tier cascade with Actionable Repair Prescriptions
+python3 .agents/validators/run_all_validators.py --stage-dir <stage_dir> --tier all --output-json <stage_dir>/validation_report.json
+
+# Tier-specific execution
+python3 .agents/validators/run_all_validators.py --stage-dir <stage_dir> --tier 1  # Mechanical static
+python3 .agents/validators/run_all_validators.py --stage-dir <stage_dir> --tier 2  # Forensic math & Statcheck
+```
+
+### Actionable Repair Prescriptions (ARP):
+Whenever any check fails or is blocked, the engine outputs structured machine-readable repair recipes (`{prescription_id, tier, defect_type, severity, target_artifact, responsible_agent, remedy_instruction}`) so `academic-orchestrator` can dispatch targeted agent remediation.
+

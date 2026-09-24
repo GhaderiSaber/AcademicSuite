@@ -60,18 +60,55 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         # Check workspace for validation_report.json
                         ws_paths = payload.get("workspacePaths", [ROOT_DIR])
                         found_pass_report = False
+                        reject_reason = None
+
                         for ws in ws_paths:
                             candidate_reports = [
                                 os.path.join(ws, "validation_report.json"),
                                 os.path.join(ws, "03_deliverables", "validation_report.json"),
                                 os.path.join(ws, ".agents", "validation", "last_report.json")
                             ]
+                            # Also check subdirectories in 03_deliverables
+                            deliv_dir = os.path.join(ws, "03_deliverables")
+                            if os.path.isdir(deliv_dir):
+                                for sdir in os.listdir(deliv_dir):
+                                    cand = os.path.join(deliv_dir, sdir, "validation_report.json")
+                                    if os.path.exists(cand):
+                                        candidate_reports.append(cand)
+
                             for cr in candidate_reports:
                                 if os.path.exists(cr):
                                     try:
                                         with open(cr, "r", encoding="utf-8") as rf:
                                             rdata = json.load(rf)
-                                        if rdata.get("overall_verdict") == "PASS" and rdata.get("checks_failed", 0) == 0:
+                                        
+                                        ev_summary = rdata.get("evidence_summary", {})
+                                        checks_failed = ev_summary.get("checks_failed", rdata.get("checks_failed", 0))
+                                        checks_blocked = ev_summary.get("checks_blocked", rdata.get("checks_blocked", 0))
+                                        ev_count = ev_summary.get("total_evidence_items_evaluated", rdata.get("total_evidence_items_evaluated", 0))
+
+                                        arps = rdata.get("actionable_repair_prescriptions", [])
+                                        unresolved_arps = [
+                                            a for a in arps
+                                            if a.get("status") == "OPEN" and a.get("severity") in ("CRITICAL", "HIGH")
+                                        ]
+
+                                        decision_errors = 0
+                                        for res_item in rdata.get("results", []):
+                                            if res_item.get("evidence", {}).get("gross_decision_errors", 0) > 0 or any("GROSS DECISION" in err for err in res_item.get("errors", [])):
+                                                decision_errors += 1
+
+                                        if rdata.get("overall_verdict") != "PASS":
+                                            reject_reason = f"Report '{cr}' overall_verdict is '{rdata.get('overall_verdict')}', not 'PASS'."
+                                        elif checks_failed > 0 or checks_blocked > 0:
+                                            reject_reason = f"Report '{cr}' has {checks_failed} failed and {checks_blocked} blocked checks."
+                                        elif ev_count < 1:
+                                            reject_reason = f"Report '{cr}' contains zero evaluated empirical evidence items."
+                                        elif len(unresolved_arps) > 0:
+                                            reject_reason = f"Report '{cr}' contains {len(unresolved_arps)} unresolved CRITICAL/HIGH Actionable Repair Prescriptions."
+                                        elif decision_errors > 0:
+                                            reject_reason = f"Report '{cr}' contains {decision_errors} Gross Decision Errors in Statcheck recomputation."
+                                        else:
                                             found_pass_report = True
                                             break
                                     except Exception:
@@ -80,14 +117,19 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 break
 
                         if not found_pass_report:
+                            base_msg = (
+                                "CONSTITUTIONAL VIOLATION (Directive 22 — Fail-Closed Mechanical Validation Gate Invariant): "
+                                "Validation subagents cannot issue verbal or unverified 'PASS' claims. "
+                                "Release strictly requires a physical on-disk 'validation_report.json' confirming: "
+                                "(1) overall_verdict == 'PASS', (2) checks_failed == 0 and checks_blocked == 0, "
+                                "(3) total_evidence_items_evaluated >= 1, (4) zero gross decision errors in forensic math, "
+                                "and (5) zero unresolved CRITICAL or HIGH Actionable Repair Prescriptions."
+                            )
+                            if reject_reason:
+                                base_msg += f" Last inspection failed: {reject_reason}"
                             return {
                                 "decision": "continue",
-                                "reason": (
-                                    "CONSTITUTIONAL VIOLATION (Directive 22 — Fail-Closed Mechanical Validation Gate Invariant): "
-                                    "Validation subagents cannot issue verbal or unverified 'PASS' claims. "
-                                    "You must generate and save a verified physical on-disk 'validation_report.json' "
-                                    "confirming overall_verdict == 'PASS' and checks_failed == 0 before concluding."
-                                )
+                                "reason": base_msg
                             }
                     break
         except Exception:
