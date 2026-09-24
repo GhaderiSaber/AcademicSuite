@@ -66,6 +66,94 @@ EMOJI_PATTERN = re.compile(
 )
 
 
+ALLOWED_LATIN_TOKENS = {
+    "m", "sd", "se", "df", "f", "t", "p", "r", "r2", "ss", "ms", "dw", "vif",
+    "ci", "llci", "ulci", "ave", "cr", "cfi", "tli", "rmsea", "srmr", "aic",
+    "bic", "sem", "cfa", "efa", "anova", "ancova", "manova", "spss", "amos",
+    "process", "model", "apa", "docx", "pdf", "html", "pptx", "png", "jpg",
+    "jpeg", "z", "b", "n", "k"
+}
+
+
+def find_raw_latin_in_persian(text: str) -> List[str]:
+    """Detects raw inline Latin words (>=3 chars) embedded in Persian narrative sentences."""
+    if not text or not isinstance(text, str):
+        return []
+    cleaned = re.sub(r'```[\s\S]*?```', '', text)
+    cleaned = re.sub(r'`[^`]*`', '', cleaned)
+    cleaned = re.sub(r'\[([^\]]*)\]\([^\)]*\)', r'\1', cleaned)
+    cleaned = re.sub(r'\$\$[\s\S]*?\$\$', '', cleaned)
+    cleaned = re.sub(r'\$[^\$]*?\$', '', cleaned)
+
+    offending = []
+    for line in cleaned.split("\n"):
+        if len(re.findall(r'[\u0600-\u06FF]', line)) >= 5 and not line.strip().startswith("|"):
+            words = re.findall(r'\b[a-zA-Z]{3,}\b', line)
+            for w in words:
+                if w.lower() not in ALLOWED_LATIN_TOKENS:
+                    offending.append(w)
+    return offending
+
+
+def check_docx_openxml_integrity(file_path: str) -> Tuple[bool, str]:
+    """Audits a .docx deliverable for body presence, zero manual breaks in justified text, and native footnotes."""
+    if not file_path or not os.path.exists(file_path) or not file_path.lower().endswith(".docx"):
+        return True, ""
+    try:
+        with zipfile.ZipFile(file_path, "r") as zf:
+            if "word/document.xml" not in zf.namelist():
+                return False, f"Deliverable '{os.path.basename(file_path)}' is missing word/document.xml"
+            doc_bytes = zf.read("word/document.xml")
+            root = ET.fromstring(doc_bytes)
+
+            # 1. Non-empty body paragraph verification
+            paragraphs = [p for p in root.iter() if p.tag.endswith("}p") or p.tag == "p"]
+            body_text = "".join(t.text or "" for t in root.iter() if t.tag.endswith("}t") or t.tag == "t")
+            if len(paragraphs) == 0 or len(body_text.strip()) < 100:
+                return False, (
+                    f"Deliverable '{os.path.basename(file_path)}' has an empty or corrupted document body "
+                    f"(paragraphs: {len(paragraphs)}, text length: {len(body_text.strip())})."
+                )
+
+            # 2. Manual line break (<w:br/>) ban in justified runs
+            for p in paragraphs:
+                is_justified = False
+                for pPr in [c for c in p if c.tag.endswith("}pPr") or c.tag == "pPr"]:
+                    for jc in [c for c in pPr if c.tag.endswith("}jc") or c.tag == "jc"]:
+                        val = jc.attrib.get("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}val") or jc.attrib.get("val")
+                        if val in ("both", "distribute"):
+                            is_justified = True
+                if is_justified:
+                    has_br = any(e.tag.endswith("}br") or e.tag == "br" for e in p.iter())
+                    if has_br:
+                        return False, (
+                            f"Deliverable '{os.path.basename(file_path)}' contains manual line break (<w:br/>) "
+                            f"inside justified body text. Use separate <w:p> paragraph marks."
+                        )
+
+            # 3. Native OpenXML footnotes verification
+            if b"<w:footnoteReference" in doc_bytes:
+                if "word/footnotes.xml" not in zf.namelist():
+                    return False, (
+                        f"Deliverable '{os.path.basename(file_path)}' references footnotes (<w:footnoteReference>), "
+                        f"but 'word/footnotes.xml' is missing from the zip archive."
+                    )
+                fn_root = ET.fromstring(zf.read("word/footnotes.xml"))
+                fn_tags = [e for e in fn_root.iter() if e.tag.endswith("}footnote") or e.tag == "footnote"]
+                valid_fn = [
+                    e for e in fn_tags 
+                    if e.attrib.get("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}id") not in ("-1", "0")
+                ]
+                if not valid_fn:
+                    return False, (
+                        f"Deliverable '{os.path.basename(file_path)}' references footnotes, "
+                        f"but 'word/footnotes.xml' contains no valid footnote definitions."
+                    )
+    except Exception as e:
+        return False, f"DOM parsing failed on '{os.path.basename(file_path)}': {e}"
+    return True, ""
+
+
 def check_chapter_5_docx_tables(file_path: str) -> Tuple[bool, int]:
     """Checks if a Chapter 5 Word .docx file contains <w:tbl> table elements."""
     if not file_path or not os.path.exists(file_path) or not file_path.lower().endswith(".docx"):
@@ -142,6 +230,20 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     )
                 }
 
+        # Directive 5: Zero Inline Latin in Persian Deliverables
+        if isinstance(content_to_check, str) and any(ext in target_path.lower() for ext in (".docx", ".md", ".txt")):
+            raw_latins = find_raw_latin_in_persian(content_to_check)
+            if raw_latins:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 5 — Zero Inline Latin Invariant):\n"
+                        f"Detected raw inline Latin words in Persian text for '{os.path.basename(target_path)}': {raw_latins[:5]}.\n"
+                        f"Foreign author names must be phonetically transliterated to Persian (e.g. «اسمیت») and technical terms translated, "
+                        f"with original English terms placed strictly in footnotes."
+                    )
+                }
+
     # Directive 6: English ASCII Filename Guard
     for arg_val in args.values():
         if isinstance(arg_val, str) and any(ext in arg_val.lower() for ext in (".docx", ".md", ".pptx", ".txt")):
@@ -209,11 +311,45 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 "Remove all Markdown or Word tables from Chapter 5 deliverables."
                             )
                         }
+
+                    # 4. Directive 4: Prohibition of p = .000 and naked Persian decimals
+                    if re.search(r'\bp\s*=\s*\.000\b', content, re.IGNORECASE):
+                        return {
+                            "decision": "continue",
+                            "reason": (
+                                "CONSTITUTIONAL VIOLATION (Directive 4 — APA 7th Precision):\n"
+                                "Prohibition of 'p = .000'. In academic reporting, report strictly as "
+                                "'p < .001' in English and 'p < ۰.۰۰۱' (یا '۰.۰۰۱ > p') in Persian."
+                            )
+                        }
+                    if re.search(r'(?<![۰-۹0-9])\.[۰-۹]+', content):
+                        return {
+                            "decision": "continue",
+                            "reason": (
+                                "CONSTITUTIONAL VIOLATION (Directive 4 — Persian Leading Zero Standard):\n"
+                                "Detected naked decimal without leading zero in Persian text (e.g. '.۰۵'). "
+                                "Never omit the leading zero in Persian. Always report as '۰.۰۵' or '۰.۰۰۱'."
+                            )
+                        }
+
+                    # 5. Institutional 3-Table Regression Suite (LSN-2026-THREE-TABLE-REGRESSION-STANDARD-001)
+                    if any(k in content.lower() for k in ("regression", "رگرسیون")) and any(k in content.lower() for k in ("فرضیه", "hypothesis")):
+                        tbl_count = len(re.findall(r'^[ \t]*\|(?:\s*[:-]+[-:]+\s*\|)+[ \t]*$', content, re.MULTILINE))
+                        if 1 <= tbl_count < 3:
+                            return {
+                                "decision": "continue",
+                                "reason": (
+                                    f"CONSTITUTIONAL VIOLATION (Institutional 3-Table Regression Standard — LSN-2026-THREE-TABLE-REGRESSION-STANDARD-001):\n"
+                                    f"Regression hypotheses must be reported via exactly three separate tables: Table 1 (Correlations), "
+                                    f"Table 2 (Model Summary & Combined ANOVA), and Table 3 (Coefficients & Collinearity). "
+                                    f"Found only {tbl_count} table(s) in markdown deliverable."
+                                )
+                            }
                     break
         except Exception:
             pass
 
-    # 4. Directive 3.1: OpenXML DOM audit for <w:tbl> in Chapter 5 Word files on disk
+    # 6. Directive 3.1: OpenXML DOM audit for <w:tbl> in Chapter 5 Word files on disk
     try:
         for ws in workspaces:
             if not ws or not os.path.exists(ws):
@@ -238,6 +374,28 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 )
                             }
                         break
+    except Exception:
+        pass
+
+    # 7. Directive 5: OpenXML DOM Integrity, Non-Empty Body & Native Footnotes across .docx deliverables
+    try:
+        for ws in workspaces:
+            if not ws or not os.path.exists(ws):
+                continue
+            for root, _, files in os.walk(ws):
+                if any(part.startswith(".") for part in root.split(os.sep) if part not in (".", "..")):
+                    continue
+                if "scratch" in root:
+                    continue
+                for f in files:
+                    if f.lower().endswith(".docx"):
+                        fpath = os.path.join(root, f)
+                        ok, reason = check_docx_openxml_integrity(fpath)
+                        if not ok:
+                            return {
+                                "decision": "continue",
+                                "reason": f"CONSTITUTIONAL VIOLATION (Directive 5 — OpenXML Integrity Standard):\n{reason}"
+                            }
     except Exception:
         pass
 

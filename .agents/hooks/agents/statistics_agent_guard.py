@@ -138,6 +138,19 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     )
                 }
 
+    # Directive 5: Zero Regex on OpenXML
+    if tool_name == "run_command":
+        cmd = args.get("CommandLine", "")
+        if re.search(r'\b(?:re\.sub|sed\s+-i)\b', cmd) and re.search(r'\.(?:docx|xml)\b', cmd):
+            return {
+                "decision": "deny",
+                "reason": (
+                    "CONSTITUTIONAL VIOLATION (Directive 5 — Zero Regex on OpenXML):\n"
+                    "Regex string substitution (re.sub / sed) targeting .docx or minified XML is strictly forbidden.\n"
+                    "Always use structured DOM tree parsing via python-docx or xml.etree.ElementTree."
+                )
+            }
+
     return {"decision": "allow"}
 
 
@@ -193,6 +206,60 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 "You must run the appropriate Python script in .agents/skills/<skill>/scripts/ on the real dataset."
                             )
                         }
+                    # Institutional 3-Table Regression Suite (LSN-2026-THREE-TABLE-REGRESSION-STANDARD-001)
+                    if any(k in content.lower() for k in ("regression", "رگرسیون")) and any(k in content.lower() for k in ("فرضیه", "hypothesis")):
+                        tbl_count = len(re.findall(r'^[ \t]*\|(?:\s*[:-]+[-:]+\s*\|)+[ \t]*$', content, re.MULTILINE))
+                        if 1 <= tbl_count < 3:
+                            return {
+                                "decision": "continue",
+                                "reason": (
+                                    f"CONSTITUTIONAL VIOLATION (Institutional 3-Table Regression Standard — LSN-2026-THREE-TABLE-REGRESSION-STANDARD-001):\n"
+                                    f"Regression hypotheses must be reported via exactly three separate tables: Table 1 (Correlations), "
+                                    f"Table 2 (Model Summary & Combined ANOVA), and Table 3 (Coefficients & Collinearity). "
+                                    f"Found only {tbl_count} table(s)."
+                                )
+                            }
+
+                    # SEM / CFA Mathematical Admissibility Gate (LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001)
+                    workspaces = payload.get("workspacePaths", [ROOT_DIR])
+                    if any(k in content.lower() for k in ("sem", "lavaan", "cfa", "معادلات ساختاری", "عاملی تاییدی")):
+                        for ws in workspaces:
+                            if not os.path.exists(ws):
+                                continue
+                            for root, _, files in os.walk(ws):
+                                if "scratch" in root or any(part.startswith(".") for part in root.split(os.sep) if part not in (".", "..")):
+                                    continue
+                                for f in files:
+                                    if f.lower().endswith(".json") and any(k in f.lower() for k in ("sem", "cfa", "factor")):
+                                        fpath = os.path.join(root, f)
+                                        try:
+                                            with open(fpath, "r", encoding="utf-8") as jf:
+                                                stats_data = json.load(jf)
+                                            if stats_data.get("has_heywood_case") is True:
+                                                return {
+                                                    "decision": "continue",
+                                                    "reason": (
+                                                        f"CONSTITUTIONAL VIOLATION (Mathematical Admissibility Gate — LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001):\n"
+                                                        f"SEM/CFA artifact '{f}' contains Heywood cases (inadmissible solutions). "
+                                                        f"Negative variances or parameter bounds exceeded. Respecify model or trim items before reporting."
+                                                    )
+                                                }
+                                            estimates = stats_data.get("estimates", []) or stats_data.get("parameters", [])
+                                            if isinstance(estimates, list):
+                                                for est in estimates:
+                                                    if isinstance(est, dict):
+                                                        std_val = est.get("std_all") or est.get("standardized_estimate")
+                                                        if std_val is not None and isinstance(std_val, (int, float)) and abs(std_val) > 1.0:
+                                                            return {
+                                                                "decision": "continue",
+                                                                "reason": (
+                                                                    f"CONSTITUTIONAL VIOLATION (Mathematical Admissibility Gate — LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001):\n"
+                                                                    f"Standardized parameter estimate {std_val} in '{f}' exceeds 1.0. "
+                                                                    f"Inadmissible statistical solution detected. Model must be respecified."
+                                                                )
+                                                            }
+                                        except Exception:
+                                            pass
                     break
         except Exception:
             pass

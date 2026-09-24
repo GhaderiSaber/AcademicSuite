@@ -20,7 +20,9 @@ import os
 import re
 import json
 import argparse
-from typing import Dict, Any
+import zipfile
+import xml.etree.ElementTree as ET
+from typing import Dict, Any, List, Tuple
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", "..", ".."))
@@ -203,6 +205,42 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                             )
                         }
 
+                # Directive 6: Strict English Orchestration Dialogue
+                clean_text = re.sub(r'```[\s\S]*?```', '', raw_model_text)
+                clean_text = re.sub(r'`[^`]*`', '', clean_text)
+                clean_text = re.sub(r'\[([^\]]*)\]\([^\)]*\)', r'\1', clean_text)
+                persian_chars = len(re.findall(r'[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF]', clean_text))
+                total_non_ws = len(re.sub(r'\s+', '', clean_text))
+                if total_non_ws >= 40 and (persian_chars / total_non_ws) > 0.15:
+                    return {
+                        "decision": "continue",
+                        "reason": (
+                            "CONSTITUTIONAL VIOLATION (Directive 6 — Strict English Orchestration Dialogue):\n"
+                            "Meta-orchestration and user interaction must be conducted strictly in English.\n"
+                            "Persian is strictly reserved for academic deliverables (.docx, .md, .json) and client messages.\n"
+                            "Please translate your conversational response to English before concluding."
+                        )
+                    }
+
+                # Directive 15: Temporal Reality Anchor (2026 / 1405 SH)
+                anachronism_match = re.search(
+                    r'\b(?:currently\s+in\s+202[345]|this\s+year\s+\(202[345]\)|in\s+the\s+present\s+year\s+202[345]|'
+                    r'the\s+current\s+year\s+is\s+202[345]|future\s+research\s+in\s+202[45]|'
+                    r'as\s+of\s+202[345]\s*,\s*the\s+current)\b',
+                    raw_model_text,
+                    re.IGNORECASE
+                )
+                if anachronism_match:
+                    return {
+                        "decision": "continue",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 15 — Temporal Reality Anchor):\n"
+                            f"Detected temporal hallucination: '{anachronism_match.group(0)}'.\n"
+                            f"The operative calendar year is 2026 (1405 SH). Recent empirical literature window is 2021–2026.\n"
+                            f"Never refer to 2024 or 2025 as the current or future year."
+                        )
+                    }
+
                 # Directive 11: Interactive Stage-Gate Protocol
                 # If subagents were invoked in this turn, verify that orchestrator halted and requested user confirmation
                 records = [json.loads(l) for l in lines]
@@ -256,6 +294,63 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                     f"Every micro-stage must generate the complete synchronized triad on disk (.docx + .md + .json)."
                                                 )
                                             }
+
+                    # Directive 3.1: Chapter 5 Table Ban Dual Gate
+                    if any(k in model_text for k in ("chapter 5", "chapter_5", "ch5", "فصل پنجم", "فصل ۵", "discussion")):
+                        for ws in workspaces:
+                            if not os.path.exists(ws):
+                                continue
+                            for root, _, files in os.walk(ws):
+                                if "scratch" in root or any(part.startswith(".") for part in root.split(os.sep) if part not in (".", "..")):
+                                    continue
+                                for f in files:
+                                    if f.lower().endswith(".docx") and any(k in f.lower() for k in ("chapter_5", "chapter5", "ch5", "discussion")):
+                                        fpath = os.path.join(root, f)
+                                        try:
+                                            with zipfile.ZipFile(fpath, "r") as zf:
+                                                if "word/document.xml" in zf.namelist():
+                                                    root_xml = ET.fromstring(zf.read("word/document.xml"))
+                                                    tables = [elem for elem in root_xml.iter() if elem.tag.endswith("}tbl") or elem.tag == "tbl"]
+                                                    if tables:
+                                                        return {
+                                                            "decision": "continue",
+                                                            "reason": (
+                                                                f"CONSTITUTIONAL VIOLATION (Directive 3.1 — Chapter 5 Prose-Only Invariant):\n"
+                                                                f"Chapter 5 Word deliverable '{f}' contains {len(tables)} table (<w:tbl>) element(s).\n"
+                                                                f"Chapter 5 must strictly contain ZERO tables (100% continuous narrative prose). "
+                                                                f"All statistical tables belong exclusively in Chapter 4."
+                                                            )
+                                                        }
+                                        except Exception:
+                                            pass
+
+                    # Directive 5: Native OpenXML Footnotes Verification
+                    for ws in workspaces:
+                        if not os.path.exists(ws):
+                            continue
+                        for root, _, files in os.walk(ws):
+                            if "scratch" in root or any(part.startswith(".") for part in root.split(os.sep) if part not in (".", "..")):
+                                continue
+                            for f in files:
+                                if f.lower().endswith(".docx"):
+                                    fpath = os.path.join(root, f)
+                                    try:
+                                        with zipfile.ZipFile(fpath, "r") as zf:
+                                            if "word/document.xml" in zf.namelist():
+                                                doc_xml = zf.read("word/document.xml")
+                                                if b"<w:footnoteReference" in doc_xml:
+                                                    if "word/footnotes.xml" not in zf.namelist():
+                                                        return {
+                                                            "decision": "continue",
+                                                            "reason": (
+                                                                f"CONSTITUTIONAL VIOLATION (Directive 5 — Native OpenXML Footnotes):\n"
+                                                                f"Word deliverable '{f}' contains footnote references (<w:footnoteReference>), "
+                                                                f"but 'word/footnotes.xml' is missing from the OpenXML zip archive.\n"
+                                                                f"Footnotes must be compiled as true native OpenXML elements."
+                                                            )
+                                                        }
+                                    except Exception:
+                                        pass
         except Exception:
             pass
 

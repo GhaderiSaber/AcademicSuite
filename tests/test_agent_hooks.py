@@ -446,6 +446,108 @@ class TestAcademicOrchestratorGuard(unittest.TestCase):
             if os.path.exists(tpath):
                 os.unlink(tpath)
 
+    def test_stop_enforces_strict_english_dialogue(self):
+        persian_speech = "مرحله قبلی با موفقیت به پایان رسید و اکنون باید داده‌ها را تحلیل کنیم تا به نتایج دقیق دست یابیم."
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "content": f"Status: {persian_speech}"
+            }) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = academic_orchestrator_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 6", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_stop_enforces_temporal_reality_anchor(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "content": "Since we are currently in 2024, the literature review covers up to 2023."
+            }) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = academic_orchestrator_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 15", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_stop_enforces_orchestrator_chapter_5_table_ban(self):
+        import zipfile
+        with tempfile.TemporaryDirectory() as temp_ws:
+            docx_path = os.path.join(temp_ws, "Chapter_5_Discussion.docx")
+            xml_content = (
+                b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+                b'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                b'<w:body><w:p><w:r><w:t>Prose</w:t></w:r></w:p>'
+                b'<w:tbl><w:tr><w:tc><w:p><w:r><w:t>Cell</w:t></w:r></w:p></w:tc></w:tr></w:tbl>'
+                b'</w:body></w:document>'
+            )
+            with zipfile.ZipFile(docx_path, "w") as zf:
+                zf.writestr("word/document.xml", xml_content)
+
+            with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+                tf.write(json.dumps({
+                    "type": "PLANNER_RESPONSE",
+                    "tool_calls": [{"name": "invoke_subagent", "args": {}}]
+                }) + "\n")
+                tf.write(json.dumps({
+                    "type": "PLANNER_RESPONSE",
+                    "content": "Stage Chapter 5 completed. What was done: drafted discussion. What will be done next: conclusion. Please confirm."
+                }) + "\n")
+                tpath = tf.name
+
+            try:
+                payload = {"transcriptPath": tpath, "workspacePaths": [temp_ws]}
+                res = academic_orchestrator_guard.handle_stop(payload)
+                self.assertEqual(res.get("decision"), "continue")
+                self.assertIn("Directive 3.1", res.get("reason", ""))
+            finally:
+                if os.path.exists(tpath):
+                    os.unlink(tpath)
+
+    def test_stop_verifies_native_openxml_footnotes(self):
+        import zipfile
+        with tempfile.TemporaryDirectory() as temp_ws:
+            docx_path = os.path.join(temp_ws, "Chapter_2_LitReview.docx")
+            xml_content = (
+                b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+                b'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                b'<w:body><w:p><w:r><w:t>Some text</w:t><w:footnoteReference w:id="2"/></w:r></w:p>'
+                b'</w:body></w:document>'
+            )
+            with zipfile.ZipFile(docx_path, "w") as zf:
+                zf.writestr("word/document.xml", xml_content)
+
+            with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+                tf.write(json.dumps({
+                    "type": "PLANNER_RESPONSE",
+                    "tool_calls": [{"name": "invoke_subagent", "args": {}}]
+                }) + "\n")
+                tf.write(json.dumps({
+                    "type": "PLANNER_RESPONSE",
+                    "content": "Stage 2.1 completed. What was done: drafted review. What will be done next: synthesis. Please confirm."
+                }) + "\n")
+                tpath = tf.name
+
+            try:
+                payload = {"transcriptPath": tpath, "workspacePaths": [temp_ws]}
+                res = academic_orchestrator_guard.handle_stop(payload)
+                self.assertEqual(res.get("decision"), "continue")
+                self.assertIn("Directive 5", res.get("reason", ""))
+            finally:
+                if os.path.exists(tpath):
+                    os.unlink(tpath)
+
 
 class TestStatisticsAgentGuard(unittest.TestCase):
     """Tests for Statistics Specialist Subagent hook."""
@@ -574,6 +676,57 @@ class TestStatisticsAgentGuard(unittest.TestCase):
             if os.path.exists(tpath):
                 os.unlink(tpath)
 
+    def test_blocks_regex_on_openxml_commands(self):
+        payload = {
+            "toolCall": {
+                "name": "run_command",
+                "args": {"CommandLine": "python3 -c \"import re; re.sub(r'<w:r>', '', open('word/document.xml').read())\""}
+            }
+        }
+        res = statistics_agent_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 5", res.get("reason", ""))
+
+    def test_stop_blocks_sem_heywood_cases(self):
+        with tempfile.TemporaryDirectory() as temp_ws:
+            stats_json_path = os.path.join(temp_ws, "sem_fit_results.json")
+            with open(stats_json_path, "w", encoding="utf-8") as jf:
+                json.dump({"has_heywood_case": True, "converged": True}, jf)
+
+            with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+                tf.write(json.dumps({
+                    "type": "PLANNER_RESPONSE",
+                    "content": "SEM analysis was conducted using lavaan."
+                }) + "\n")
+                tpath = tf.name
+
+            try:
+                payload = {"transcriptPath": tpath, "workspacePaths": [temp_ws]}
+                res = statistics_agent_guard.handle_stop(payload)
+                self.assertEqual(res.get("decision"), "continue")
+                self.assertIn("Mathematical Admissibility Gate", res.get("reason", ""))
+            finally:
+                if os.path.exists(tpath):
+                    os.unlink(tpath)
+
+    def test_stop_enforces_three_table_regression_standard_in_stats(self):
+        content = "نتایج تحلیل رگرسیون برای فرضیه ۱:\n| متغیر | بتا | p |\n|---|---|---|\n| استرس | ۰.۴۵ | ۰.۰۱ |"
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "content": content
+            }) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = statistics_agent_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("3-Table Regression Standard", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
 
 class TestDataAgentGuard(unittest.TestCase):
     """Tests for Data Management Specialist Subagent hook."""
@@ -608,6 +761,21 @@ class TestDataAgentGuard(unittest.TestCase):
         }
         res = data_agent_guard.handle_pre_tool_use(payload)
         self.assertEqual(res.get("decision"), "allow")
+
+    def test_stop_blocks_synthetic_whole_integer_means(self):
+        import pandas as pd
+        with tempfile.TemporaryDirectory() as temp_ws:
+            sim_path = os.path.join(temp_ws, "simulated_burnout_dataset.xlsx")
+            df = pd.DataFrame({
+                "burnout": [10, 20, 30],
+                "stress": [20, 30, 40]
+            })
+            df.to_excel(sim_path, index=False)
+
+            payload = {"workspacePaths": [temp_ws]}
+            res = data_agent_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 9", res.get("reason", ""))
 
 
 class TestAcademicWriterGuard(unittest.TestCase):
@@ -699,6 +867,118 @@ class TestAcademicWriterGuard(unittest.TestCase):
             finally:
                 if os.path.exists(tpath):
                     os.unlink(tpath)
+
+    def test_blocks_inline_latin_in_persian_deliverables(self):
+        payload = {
+            "toolCall": {
+                "name": "write_to_file",
+                "args": {
+                    "TargetFile": "03_deliverables/Chapter_2_Review.md",
+                    "CodeContent": "طبق یافته‌های اخیر Smith (2022) سطح فرسودگی شغلی افزایش می‌یابد."
+                }
+            }
+        }
+        res = academic_writer_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 5", res.get("reason", ""))
+        self.assertIn("Smith", res.get("reason", ""))
+
+    def test_stop_blocks_empty_or_corrupted_docx_body(self):
+        import zipfile
+        with tempfile.TemporaryDirectory() as temp_ws:
+            docx_path = os.path.join(temp_ws, "Chapter_4_Findings.docx")
+            xml_empty = (
+                b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+                b'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                b'<w:body></w:body></w:document>'
+            )
+            with zipfile.ZipFile(docx_path, "w") as zf:
+                zf.writestr("word/document.xml", xml_empty)
+
+            with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+                tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Done drafting findings."}) + "\n")
+                tpath = tf.name
+
+            try:
+                payload = {"transcriptPath": tpath, "workspacePaths": [temp_ws]}
+                res = academic_writer_guard.handle_stop(payload)
+                self.assertEqual(res.get("decision"), "continue")
+                self.assertIn("Directive 5", res.get("reason", ""))
+                self.assertIn("corrupted", res.get("reason", "").lower())
+            finally:
+                if os.path.exists(tpath):
+                    os.unlink(tpath)
+
+    def test_stop_blocks_manual_br_in_justified_runs(self):
+        import zipfile
+        with tempfile.TemporaryDirectory() as temp_ws:
+            docx_path = os.path.join(temp_ws, "Chapter_4_Findings.docx")
+            xml_content = (
+                b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+                b'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                b'<w:body><w:p><w:pPr><w:jc w:val="both"/></w:pPr>'
+                b'<w:r><w:t>' + (b'Text ' * 30) + b'</w:t><w:br/><w:t>More text</w:t></w:r>'
+                b'</w:p></w:body></w:document>'
+            )
+            with zipfile.ZipFile(docx_path, "w") as zf:
+                zf.writestr("word/document.xml", xml_content)
+
+            with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+                tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Done drafting findings."}) + "\n")
+                tpath = tf.name
+
+            try:
+                payload = {"transcriptPath": tpath, "workspacePaths": [temp_ws]}
+                res = academic_writer_guard.handle_stop(payload)
+                self.assertEqual(res.get("decision"), "continue")
+                self.assertIn("Directive 5", res.get("reason", ""))
+                self.assertIn("manual line break", res.get("reason", "").lower())
+            finally:
+                if os.path.exists(tpath):
+                    os.unlink(tpath)
+
+    def test_stop_enforces_three_table_regression_in_writer(self):
+        content = "تحلیل فرضیه رگرسیون چندگانه:\n| متغیر | ضریب بتا |\n|---|---|\n| استرس | ۰.۳۵ |"
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": content}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = academic_writer_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("3-Table Regression Standard", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_writer_flags_p_zero_and_naked_persian_decimals(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "ضریب رگرسیون معنادار بود (p = .000)."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = academic_writer_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 4", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "سطح معناداری برابر با .۰۵ گزارش شد."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = academic_writer_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 4", res.get("reason", ""))
+            self.assertIn("Leading Zero", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
 
 
 class TestValidationAgentGuard(unittest.TestCase):

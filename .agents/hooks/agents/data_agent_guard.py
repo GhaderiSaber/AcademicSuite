@@ -19,7 +19,7 @@ import os
 import re
 import json
 import argparse
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Tuple
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", "..", ".."))
@@ -170,6 +170,47 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     return {"decision": "allow"}
 
 
+def check_simulation_decimal_noise(workspaces: List[str]) -> Tuple[bool, str]:
+    """Audits simulated datasets for realistic bounded decimal noise (Directive 9)."""
+    for ws in workspaces:
+        if not ws or not os.path.exists(ws):
+            continue
+        for root, _, files in os.walk(ws):
+            if "scratch" in root or any(part.startswith(".") for part in root.split(os.sep) if part not in (".", "..")):
+                continue
+            for f in files:
+                if f.lower().startswith("simulated_") and f.lower().endswith((".xlsx", ".csv")):
+                    fpath = os.path.join(root, f)
+                    try:
+                        import pandas as pd
+                        df = pd.read_excel(fpath) if f.lower().endswith(".xlsx") else pd.read_csv(fpath)
+                        num_cols = df.select_dtypes(include=["number"]).columns
+                        if len(num_cols) >= 2:
+                            means = df[num_cols].mean()
+                            all_integer = all(abs(m - round(m)) < 1e-4 for m in means)
+                            if all_integer:
+                                sample_means = [round(float(m), 2) for m in means[:4]]
+                                return False, (
+                                    f"Simulated dataset '{f}' contains synthetic whole-integer column means {sample_means}. "
+                                    f"Simulated data must exhibit realistic bounded empirical decimal noise "
+                                    f"(mu = mu_target + delta, delta ~ Uniform(+-0.08, +-0.25))."
+                                )
+                    except Exception:
+                        pass
+    return True, ""
+
+
+def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
+    workspaces = payload.get("workspacePaths", [ROOT_DIR])
+    ok, reason = check_simulation_decimal_noise(workspaces)
+    if not ok:
+        return {
+            "decision": "continue",
+            "reason": f"CONSTITUTIONAL VIOLATION (Directive 9 — Empirical Decimal Noise Invariant):\n{reason}"
+        }
+    return {"decision": "allow"}
+
+
 def main():
     parser = argparse.ArgumentParser(description="Data Subagent Lifecycle Guard")
     parser.add_argument("--event", type=str, default="PreToolUse", choices=["PreToolUse", "PostToolUse", "PreInvocation", "PostInvocation", "Stop"])
@@ -187,6 +228,8 @@ def main():
     event = args.event
     if event == "PreToolUse":
         res = handle_pre_tool_use(payload)
+    elif event == "Stop":
+        res = handle_stop(payload)
     else:
         res = {"decision": "allow"}
 
