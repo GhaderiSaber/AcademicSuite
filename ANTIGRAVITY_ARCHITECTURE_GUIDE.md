@@ -1,6 +1,6 @@
 # Google Antigravity Architecture & Customization Guide
 **Agents, Subagents, Skills, and Workflows**  
-*Document Version: 2026.09.16 | Operative Date: September 16, 2026*
+*Document Version: 2026.09.24 | Operative Date: September 24, 2026 (Antigravity 2.17.0)*
 
 ---
 
@@ -121,6 +121,7 @@ When delegated a task:
 *   `description` (string, required): Explains what the subagent does and when the lead agent should delegate to it.
 *   `role` (string, optional): Display title (e.g., "Codebase Researcher", "Database Debugger").
 *   `skills` (list of strings, optional): Pre-assigned skills automatically mounted into this subagent's context.
+*   `hooks` (list of strings, optional): Hook files attached directly to this agent (new in Antigravity 2.17.0). Paths may be relative to the agent, project, or absolute.
 
 #### Paradigm B: Dynamic Runtime Subagents (Antigravity Tools)
 During an ongoing session, the lead agent can define and invoke subagents on the fly using built-in agent management tools:
@@ -431,3 +432,42 @@ description: Executes project unit test suites and outputs structured test resul
 *   In the chat interface, type `/test-runner` to test slash command execution.
 *   Prompt the agent: *"Use your QA Engineer to run tests and verify that the authentication module passes."*
 *   The primary agent will detect the subagent, invoke it with `TypeName: "qa-engineer"`, and mount the `test-runner` skill into the subagent's execution context.
+
+---
+
+## 8. Antigravity 2.17.0 & 2.16.0 Platform Updates (September 2026)
+
+The release of Antigravity 2.17.0 (and 2.16.0) introduces significant architectural enhancements:
+
+### 8.1 "Plan Before You Build" (`/plan`) & Plan Review Policy
+*   **`/plan` Command**: Users can trigger the agent to draft a structured plan for review before generating any code or mutating files on disk.
+*   **Plan Review Policy**: A configurable Agent setting governing review requirements (`review every plan`, `review when agent deems worthwhile`, or `skip review`).
+
+### 8.2 Per-Project Configuration (`.gemini/config.json`)
+*   Repository customization settings have migrated to `<workspace>/.gemini/config.json`.
+*   The legacy `.agents/settings.json` is no longer loaded. Plugin enablement, discovery paths, and workspace-level overrides are declared in this centralized configuration.
+
+### 8.3 Agent-Scoped Hooks (`hooks:` in Frontmatter)
+*   Declarative Markdown agents (`.agents/agents/<name>.md`) can now list hook files directly in their frontmatter:
+    ```markdown
+    ---
+    name: security-agent
+    hooks:
+      - ./hooks/security_guard.py
+    ---
+    ```
+*   Paths can be relative to the agent, project root, or absolute, allowing fine-grained lifecycle gatekeeping per agent.
+
+### 8.4 Dedicated Rules Budget & 24 KB Per-File Rule Limit
+*   **20,000-Token Rules Budget**: Project rules share a dedicated token budget (`defaultRulesBudget`), preventing large rule sets from displacing skills or subagents.
+*   **24 KB (24,000 Bytes) Per-File Cap**: Individual rule files (`AGENTS.md`, `GEMINI.md`) must strictly remain under 24,000 bytes. Files exceeding this ceiling are truncated at line boundaries.
+
+### 8.5 Native Office Document Ingestion (2.16.0)
+*   Word (`.docx`), Excel (`.xlsx`), and PowerPoint (`.pptx`) documents can be dropped directly into chat prompts.
+*   Gemini models natively parse and extract content from these files without requiring external conversion scripts.
+
+### 8.6 Dedicated Live Subagent Cards (2.16.0)
+*   Subagent invocations display as interactive live cards in the conversation stream with active status badges (`running`, `waiting`, `completed`), a stop control, and 1-click side-pane navigation.
+
+### 8.7 LaTeX & Math Formula Rendering (2.17.0)
+*   Enhanced parser handles inline math immediately followed by digits, display math fences (`$$`), and row spacing adjustments (`\\[12pt]`) without Markdown truncation.

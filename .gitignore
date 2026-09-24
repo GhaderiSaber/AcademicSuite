@@ -3,6 +3,8 @@
 
 # Allow Antigravity agent configurations & skills
 !.agents/
+!.gemini/
+!.gemini/**
 !.github/
 !webapp/
 !projects/
