@@ -20,7 +20,12 @@ import asyncio
 import argparse
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+# Correctly resolve workspace root from .agents/scripts
+if os.path.basename(SCRIPT_DIR) == "scripts" and os.path.basename(os.path.dirname(SCRIPT_DIR)) == ".agents":
+    ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "../.."))
+else:
+    ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+
 VENV_PYTHON = os.path.join(ROOT_DIR, ".venv", "bin", "python")
 
 # Auto re-exec with virtualenv python if invoked via system python
@@ -70,35 +75,43 @@ async def main():
     print("   3. Scan the QR code below or open the generated image:")
     print("=" * 65 + "\n")
 
-    qr_login = await client.qr_login()
-    
-    # Save image for easy viewing
-    qr_img = qrcode.make(qr_login.url)
     img_path = "/home/ghaderi-saber/Desktop/telegram_qr.png"
-    qr_img.save(img_path)
-    print(f"[+] QR Code image saved to Desktop: {img_path}")
-    print(f"[+] Raw Login URL: {qr_login.url}\n")
+    qr_login = await client.qr_login()
 
-    # Print ASCII QR
-    qr = qrcode.QRCode()
-    qr.add_data(qr_login.url)
-    qr.print_ascii(invert=True)
+    user = None
+    for attempt in range(1, 7):
+        # Save image for easy viewing
+        qr_img = qrcode.make(qr_login.url)
+        qr_img.save(img_path)
+        print(f"\n[+] QR Code image updated on Desktop: {img_path}")
+        print(f"[+] Raw Login URL: {qr_login.url}\n")
 
-    print("\n[*] Waiting for QR scan from Telegram mobile app (valid for ~60s)...")
-    try:
-        user = await qr_login.wait(timeout=75)
-    except SessionPasswordNeededError:
-        print("\n[*] Two-step verification (2FA) cloud password is required.")
-        if args.password:
-            user = await client.sign_in(password=args.password)
-        else:
-            import getpass
-            pw = getpass.getpass("Enter 2FA password: ")
-            user = await client.sign_in(password=pw)
-    except asyncio.TimeoutError:
-        print("\n[-] QR code expired. Please run the script again to refresh the code.")
-        await client.disconnect()
-        sys.exit(1)
+        # Print ASCII QR
+        qr = qrcode.QRCode()
+        qr.add_data(qr_login.url)
+        qr.print_ascii(invert=True)
+
+        print(f"\n[*] Waiting for QR scan from Telegram mobile app (Attempt {attempt}/6, ~60s)...")
+        try:
+            user = await qr_login.wait(timeout=60)
+            break
+        except SessionPasswordNeededError:
+            print("\n[*] Two-step verification (2FA) cloud password is required.")
+            if args.password:
+                user = await client.sign_in(password=args.password)
+            else:
+                import getpass
+                pw = getpass.getpass("Enter 2FA password: ")
+                user = await client.sign_in(password=pw)
+            break
+        except asyncio.TimeoutError:
+            if attempt < 6:
+                print(f"\n[*] QR code expired. Refreshing QR code automatically (Attempt {attempt+1}/6)...")
+                await qr_login.recreate()
+            else:
+                print("\n[-] QR code expired after 6 attempts. Please run the script again.")
+                await client.disconnect()
+                sys.exit(1)
 
     print("\n" + "=" * 65)
     print(f"[✓] SUCCESS! Authenticated as: {user.first_name} {user.last_name or ''} (@{user.username}) [ID: {user.id}]")
@@ -125,7 +138,8 @@ async def main():
 
     # Restart background daemon
     print("[*] Restarting telethon-userbot.service...")
-    os.system(f"{ROOT_DIR}/scripts/telethon_service.sh restart")
+    manage_sh = os.path.join(SKILL_DIR, "manage_service.sh")
+    os.system(f"bash '{manage_sh}' restart")
     print("[✓] Dual-account 24/7 background listener is now ACTIVE!")
     print("=" * 65)
 
