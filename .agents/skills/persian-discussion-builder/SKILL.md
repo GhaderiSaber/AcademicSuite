@@ -119,7 +119,7 @@ python3 .agents/skills/persian-discussion-builder/scripts/assemble_chapter5.py \
 - **Epistemic Honesty on Null Findings**: Candidly discuss non-significant findings without defensive rationalization.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-ASSEMBLY-HEADING-DEDUPLICATION-AND-RIGHT-ALIGNMENT-001)**: 1) Implement pre-assembly regex stripping of stage titles. 2) Universally remove <w:jc> on all headings under BiDi contexts. 3) Enforce multi-margin verification in validator.
+- **Learned candidate (CAND-2026-HEADING-DEDUPLICATION-AND-ALIGN-001)**: - **Lesson (LSN-2026-ASSEMBLY-HEADING-DEDUPLICATION-AND-RIGHT-ALIGNMENT-001)**: 1) Apply pre-assembly regex stripping of unnumbered stage titles prior to concatenation to prevent title duplication. 2) Universally remove <w:jc> under <w:bidi w:val='1'/> for all headings. 3) Enforce multi-margin layout verification.
 - **Principle (PRN-20260924-D1DAA0)**: Chapter 5 discussion must strictly contain zero tables and maintain 100% continuous narrative prose.
 - **Lesson (LSN-2026-EXHAUSTIVE-FOOTNOTE-TOKENIZATION-AND-PARITY-QC-001)**: 1) Use exhaustive loop or tokenization for all footnote markers [^X] in every text node. 2) Implement mechanical QC asserting: a) zero literal '[^' substrings in document.xml, b) exact 1:1 parity between footnoteReference tags in document.xml and definitions in footnotes.xml.
 - **Lesson (LSN-2026-EXHAUSTIVE-HEADING-ALIGNMENT-AND-DOM-QC-001)**: 1) Apply universal right-alignment enforcement on ALL headings, titles, and captions (<w:jc w:val="right"/> + <w:bidi w:val="1"/>); 2) Perform per-paragraph DOM validation confirming that EVERY heading element has explicit <w:jc w:val="right"/>, strictly forbidding document-wide string containment checks.
