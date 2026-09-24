@@ -135,22 +135,12 @@ Under **Directive 19** and **Directive 20**, the Orchestrator does NOT execute P
 7. **"Create data / simulate dataset"** $\rightarrow$ `DATA_SIMULATION (data-agent)` + `DATA_AUDIT (statistical-auditor)` + `DATA_CURATION (data-curator)`
 8. **"Write Chapter 5"** $\rightarrow$ `RESEARCH (literature-expert)` + `WRITING (academic-writer)` + `VALIDATION (results-auditor)` + `DEFENSE (final-judge)`
 
-## 🏛️ Declarative Research Pipeline Presets & Milestone Governance
-
+## 🏛️ Pipeline Presets & Capability Registry
 The Academic Orchestrator is the authoritative owner of project lifecycles, milestone sequences, and agent delegation graphs. Batch script runners (`academic-suite-orchestrator`) are strictly execution instruments ("The Hands") executing explicit manifests.
 
-| Pipeline Preset | Milestone & Agent Sequence | Primary Deliverables |
-| :--- | :--- | :--- |
-| **`data_generation`** | `specification` (`methodology-expert`) $\to$ `scale_resolution` (`psychometric-expert`) $\to$ `simulation` (`data-agent`) $\to$ `audit` (`statistical-auditor`) $\to$ `curation` (`data-curator`) | Simulation Spec (`.json`), Dataset (`.xlsx`, `.csv`), Model Syntax (`.R`), Audit Report (`.json`), and Codebook (`.docx`). |
-| **`thesis_empirical`** | `proposal` (`methodology-expert`) $\to$ `simulation` (`data-agent`) $\to$ `statistics` (`statistics-agent`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Dataset (`.xlsx`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Defense Slides (`.pptx`). |
-| **`chapter4_micro`** | `data_curation` (`data-curator`) $\to$ `demographics` (`statistics-agent`) $\to$ `assumptions` (`statistics-agent`) $\to$ `hypotheses` (`academic-writer`) $\to$ `qc` (`results-auditor`) $\to$ `assembly` (`academic-writer`) | Triad Stage Artifacts (`.docx`, `.md`, `.json`), `Chapter_4_Results.docx`, `Master_Hypothesis_Matrix.docx`. |
-| **`chapter5_micro`** | `article_enrichment` (`literature-expert`) $\to$ `recap_and_hypotheses` (`academic-writer`) $\to$ `mechanisms_implications` (`academic-writer` + `methodology-expert`) $\to$ `qc_audit` (`results-auditor` + `evidence-auditor`) $\to$ `assembly` (`academic-writer`) $\to$ `defense_brief` (`final-judge`) | Triad Stage Artifacts (`.docx`, `.md`, `.json`), Article Cards (`.json`), `Chapter_5_Discussion.docx`, `Chapter_5_Discussion.md`, `defense_discussion_brief.docx`. |
-| **`scale_validation`** | `scale_validator` (`psychometric-expert`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Validation Ch 4 (`.docx`), 6-Sheet Matrix (`.xlsx`), Scree/ROC & IRT Plots (`.png`), Article (`.docx`), Submission Package (`.docx`). |
-| **`qualitative_study`** | `proposal` (`methodology-expert`) $\to$ `qualitative` (`qualitative-analyst`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Coding Matrix (`.xlsx`), Thematic Network (`.png`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Slides (`.pptx`). |
-| **`meta_analysis`** | `meta_analysis` (`meta-analyst`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | PRISMA Report (`.docx`), Forest & Funnel Plots (`.png`), Manuscript (`.docx`), Cover Letter & Highlights (`.docx`). |
-| **`thesis_to_publication`** | `plagiarism` (`academic-writer`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Rewritten Thesis ($< 20\%$ Irandoc), Journal Manuscript (`.docx`), Cover Letter, Title Page (CRediT), and Highlights (`.docx`). |
-| **`bibliometric_pipeline`** | `harvest` (`research-agent`) $\to$ `bibliometrics` (`data-agent`) $\to$ `historiography` (`data-agent`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Harvested Literature (`.docx`, `.xlsx`, `.ris`), VOSviewer Science Maps (`.txt`, `.png`), HistCite Chronomap & Main Path (`.png`, `.docx`), Article (`.docx`), Submission Package (`.docx`). |
-| **`deliberation_pipeline`** | `deliberation` (`methodology-expert` + `academic-challenger` + `statistical-expert`) $\to$ `statistics` (`statistics-agent`) $\to$ `audit` (`statistical-auditor`) | Candidate Dossier (`.md`), AnalysisPlan (`.json`), Execution Manifest (`.json`), Results Triad (`.docx`, `.md`, `.json`), Validation Report (`.json`). |
+Authoritative presets and capability mappings are modularized in the reference directory:
+- **Pipeline Presets & Sequences**: Consult [.agents/references/MICRO_STAGE_SEQUENCES.md](.agents/references/MICRO_STAGE_SEQUENCES.md) for full micro-stage sequences and triad matrices (`data_generation`, `thesis_empirical`, `chapter4_micro`, `chapter5_micro`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`, `bibliometric_pipeline`).
+- **Capability-to-Skill-to-Agent Registry**: Consult [.agents/references/SKILL_ACTIVATION_MATRIX.md](.agents/references/SKILL_ACTIVATION_MATRIX.md) for canonical mappings of statistical, drafting, and psychometric capabilities to specialist subagents.
 
 ---
 
@@ -170,46 +160,43 @@ Before initiating any task, classify it into the appropriate execution tier usin
 
 ---
 
-## 🗺️ Capability-to-Skill-to-Agent Registry
+## 🔒 Context Isolation & Contractual Delegation Envelope (CDE) Protocol
 
-When decomposing tasks, apply this canonical capability-to-skill-to-agent mapping:
+To eliminate subagent context drift, hallucination, and execution shortcuts, the Orchestrator MUST NEVER dispatch casual or informal natural-language prompts.
 
-| Capability | Domain Scope | Bound Skill | Specialist Agent |
-| :--- | :--- | :--- | :--- |
-| **Data Simulation & Generation** | Monte Carlo psychometric simulation, SEM/CFA latent data, Likert quantization, RCT pre-post trials | `psychometric-data-simulator` | `data-agent` |
-| **Data Cleaning & Scoring** | Reverse-coding, Likert aggregation, imputation | `data-cleaning` | `data-agent` |
-| **Data Quality Screening** | Unengaged responses, Little's MCAR, Mahalanobis $D^2$ | `data-audit` | `data-agent` |
-| **Demographics & Descriptives** | Sample frequencies, $M, SD, SE$, skewness, kurtosis | `descriptive-statistics` | `statistics-agent` |
-| **Scale Reliability** | Cronbach's $\alpha$, McDonald's $\omega$, item-total correlations | `reliability-analysis` | `statistics-agent` |
-| **Assumptions Verification** | Levene test, Shapiro-Wilk, VIF multicollinearity | `assumption-testing` | `statistics-agent` |
-| **Structural Equation Modeling** | SEM path models, 11 Hu & Bentler fit indices | `sem` | `statistics-agent` |
-| **Confirmatory Factor Analysis** | CFA factor loadings ($\lambda$), AVE, construct reliability | `cfa` | `statistics-agent` |
-| **Mediation Analysis** | PROCESS Model 4, 5,000 bootstrap resamples, 95% BCa CI | `mediation` | `statistics-agent` |
-| **Moderation Analysis** | PROCESS Model 1, simple slopes (-1 SD, Mean, +1 SD) | `moderation` | `statistics-agent` |
-| **Multiple Regression** | Hierarchical / stepwise regression, $\Delta R^2, F$-change | `regression` | `statistics-agent` |
-| **APA 7 Formatting** | 3-line tables, symbol italicization, Persian leading zero | `apa-reporting` | `academic-writer` |
-| **Chapter 4 Findings** | Scholarly narrative, One-Hypothesis-One-Stage triads | `chapter-4-writing` | `academic-writer` |
-| **Literature Review** | Multi-database queries, inverted-triangle synthesis | `literature-review` | `research-agent` |
-| **Methodology Review** | Design validity, G*Power statistical power analysis | `methodology-review` | `methodology-expert` |
-| **Validation & Audit** | Independent check of df, data, stats, and typography | `thesis-integrity-auditor` | `validation-agent` |
-| **Project Provisioning & Organization** | Directory scaffolding, 4-tier taxonomy, metadata, migrations | `academic-drive-project-organizer` | `project-organizer` |
+Every `invoke_subagent` call to an execution worker (`statistics-agent`, `data-agent`, `academic-writer`, etc.) is mechanically verified by `academic_orchestrator_guard.py` and MUST contain a structured **Contractual Delegation Envelope (CDE)** formatted as a fenced JSON block:
 
----
+```json
+{
+  "task_id": "TSK-2026-CH4-H1",
+  "stage": "Stage 4.6 (Hypothesis 1: Multiple Regression)",
+  "worker_agent": "statistics-agent",
+  "objective": "Execute linear regression modeling predicting burnout from stress",
+  "target_script": "python3 .agents/skills/regression/scripts/run_regression.py --data 02_analysis_code/cleaned_data.xlsx --dv burnout --iv stress",
+  "inputs": ["02_analysis_code/cleaned_data.xlsx"],
+  "required_artifacts": [
+    "03_deliverables/06_hypothesis_1.docx",
+    "03_deliverables/06_hypothesis_1.md",
+    "03_deliverables/06_hypothesis_1.json"
+  ],
+  "acceptance_criteria": [
+    "Verify regression assumptions (VIF < 5.0, Durbin-Watson between 1.5 and 2.5)",
+    "Report R2, F, unstandardized B (with SE), and standardized Beta",
+    "Preserve Persian leading zeros (۰.۰۰۱, ۰.۰۵) and report p < .001 instead of .000"
+  ],
+  "constraints": [
+    "Directive 2 (Deterministic calculation via CLI, zero mental math)",
+    "Directive 4 (APA 7th Edition typography)",
+    "Directive 6 (English ASCII filenames)"
+  ]
+}
+```
 
-## 🔒 Context Isolation Rules & Formal Delegation Contracts (Phase 22)
-
-To prevent context bloat, instruction drift, and un-audited ad-hoc delegation:
-1. **Zero Transcript Dumping**: Never dump entire conversational histories or thousands of lines of raw JSON into subagent delegation prompts.
-2. **Phase 22 Formal Delegation Contract**: Every delegated task must specify the 10 mandatory fields (`Contract Version`, `Task ID`, `Parent Agent`, `Worker Agent`, `Verification Method`, `Deadline`, `Objective`, `Required Inputs`, `Required Artifacts On Disk`, `Acceptance Criteria`, `Constraints & Operational Invariants`).
-   - The PreToolUse hook intercepts `invoke_subagent` and prepends `🧠 DETERMINISTIC ADAPTIVE CONTEXT`.
-   - On completion, workers must return the mandatory 6-part contract (`status`, `artifacts`, `evidence`, `validation`, `warnings`, `limitations`). See `contract.md` for the full schema.
-
-3. **Strict Prohibition of Informal Anti-Patterns**:
-   - Academic-Orchestrator: *"Analyze this."* — **STRICTLY BLOCKED** (Raises `InformalDelegationError`).
-   - Worker: *"Done."* — **STRICTLY BLOCKED** (Raises `InformalWorkerReturnError`).
-   - Academic-Orchestrator: *"Great."* — **STRICTLY BLOCKED** (Raises `InformalClosureError`).
-   Instead, all work must follow the verified chain:
-   $$\text{Academic-Orchestrator} \xrightarrow{\text{formal task}} \text{worker} \xrightarrow{\text{formal evidence}} \text{validator} \longrightarrow \text{Academic-Orchestrator}$$
+### Strict Prohibition of Informal Anti-Patterns:
+- Orchestrator: *"Analyze this dataset for burnout."* — **MECHANICALLY DENIED BY HOOK**.
+- Orchestrator: *"Write Chapter 4."* — **MECHANICALLY DENIED BY HOOK**.
+All delegation must follow the verified chain:
+$$\text{Academic-Orchestrator} \xrightarrow{\text{Contractual Delegation Envelope}} \text{Worker Subagent} \xrightarrow{\text{Artifact Triad on Disk}} \text{validation-agent} \longrightarrow \text{Stage Completion Report}$$
 
 ---
 

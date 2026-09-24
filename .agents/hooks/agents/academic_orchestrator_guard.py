@@ -23,9 +23,18 @@ from typing import Dict, Any
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", "..", ".."))
-for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents", "hooks")):
+for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents"), os.path.join(ROOT_DIR, ".agents", "hooks"), os.path.join(ROOT_DIR, ".agents", "contracts")):
     if p not in sys.path:
         sys.path.insert(0, p)
+
+try:
+    from contracts.delegation_envelope_parser import validate_delegation_prompt
+except ImportError:
+    try:
+        from delegation_envelope_parser import validate_delegation_prompt
+    except ImportError:
+        def validate_delegation_prompt(p, expected_worker=None):
+            return True, "Validator unavailable", None
 
 FORBIDDEN_ORCHESTRATOR_TOOLS = {
     "run_command",
@@ -38,11 +47,22 @@ FORBIDDEN_ORCHESTRATOR_TOOLS = {
     "apply_diff"
 }
 
+EXECUTION_SUBAGENTS = {
+    "statistics-agent",
+    "data-agent",
+    "academic-writer",
+    "validation-agent",
+    "psychometric-expert",
+    "results-auditor"
+}
+
 
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     tool_call = payload.get("toolCall", {})
     tool_name = (tool_call.get("name") or "").strip().lower()
+    args = tool_call.get("args", {})
 
+    # Directive 20 / Directive 12.1: Non-Execution Invariant
     if tool_name in FORBIDDEN_ORCHESTRATOR_TOOLS:
         return {
             "decision": "deny",
@@ -54,6 +74,26 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 f"(e.g., statistics-agent, academic-writer, data-agent) via invoke_subagent."
             )
         }
+
+    # Directive 19 / Directive 12: Contractual Delegation Envelope Invariant
+    if tool_name == "invoke_subagent":
+        subagents = args.get("Subagents", [])
+        if isinstance(subagents, list):
+            for sub in subagents:
+                target_type = sub.get("TypeName", "")
+                prompt = sub.get("Prompt", "")
+                if target_type in EXECUTION_SUBAGENTS:
+                    is_valid, reason, _ = validate_delegation_prompt(prompt, expected_worker=target_type)
+                    if not is_valid:
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 12 — Contractual Delegation Invariant): "
+                                f"Delegation to execution worker '{target_type}' was rejected: {reason}\n"
+                                f"You must embed a structured Contractual Delegation Envelope (CDE) in the prompt "
+                                f"specifying 'task_id', 'worker_agent', 'inputs', 'required_artifacts', and 'objective'/'target_script'."
+                            )
+                        }
 
     return {"decision": "allow"}
 
@@ -90,6 +130,28 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 "CONSTITUTIONAL VIOLATION (Directive 0 — Binary Honesty Protocol): "
                                 "Compliance inquiries must begin with an unambiguous 'Yes' or 'No' as the very first word. "
                                 "State the unvarnished factual answer before proposing explanations or remedies."
+                            )
+                        }
+
+                # Directive 11: Interactive Stage-Gate Protocol
+                # If subagents were invoked in this turn, verify that orchestrator halted and requested user confirmation
+                records = [json.loads(l) for l in lines]
+                had_delegation = any(
+                    any((tc.get("name") or "").lower() == "invoke_subagent" for tc in r.get("tool_calls", []))
+                    for r in records
+                )
+                if had_delegation:
+                    model_text = (last_record.get("content") or "").lower()
+                    has_confirmation = any(k in model_text for k in ("confirm", "approve", "proceed", "shall we", "تایید", "ادامه", "pause", "wait", "halt"))
+                    has_stage_report = any(k in model_text for k in ("what was done", "completed", "executed", "stage", "انجام شد", "مرحله"))
+                    has_next_step = any(k in model_text for k in ("what will be done next", "next step", "next stage", "گام بعدی", "مرحله بعد", "next:"))
+                    if not (has_confirmation or (has_stage_report and has_next_step)):
+                        return {
+                            "decision": "continue",
+                            "reason": (
+                                "CONSTITUTIONAL VIOLATION (Directive 11 — Interactive Stage-Gate Protocol): "
+                                "Following subagent execution, the Academic Orchestrator must report what was done, "
+                                "what will be done next, and halt to request user confirmation before proceeding."
                             )
                         }
         except Exception:

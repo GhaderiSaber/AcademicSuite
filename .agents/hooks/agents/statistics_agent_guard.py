@@ -96,6 +96,27 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 "Always preserve the leading zero: write '۰.۰۵', '۰.۰۰۱', never '.۰۵' or '.۰۰۱'."
                             )
                         }
+
+                    # Directive 2: Deterministic Calculation Invariant
+                    # If statistical estimates are reported, verify that deterministic CLI (run_command) was executed
+                    has_run_cmd = any(
+                        any((tc.get("name") or "").lower() == "run_command" for tc in r.get("tool_calls", []))
+                        for r in records
+                    )
+                    claims_statistical_results = bool(re.search(
+                        r'([tFβz]\s*\(?\d*\)?\s*=\s*\d+\.\d+|p\s*[<=]\s*\.?\d+|R[²2]\s*=\s*\.?\d+)',
+                        content
+                    ))
+                    if claims_statistical_results and not has_run_cmd:
+                        return {
+                            "decision": "continue",
+                            "reason": (
+                                "CONSTITUTIONAL VIOLATION (Directive 2 — Deterministic Calculation Invariant): "
+                                "Statistical results were reported without executing any deterministic CLI script via 'run_command'. "
+                                "Mental calculation and hallucination of statistical numbers is strictly forbidden. "
+                                "You must run the appropriate Python script in .agents/skills/<skill>/scripts/ on the real dataset."
+                            )
+                        }
                     break
         except Exception:
             pass

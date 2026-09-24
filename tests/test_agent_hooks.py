@@ -105,6 +105,79 @@ class TestAcademicOrchestratorGuard(unittest.TestCase):
             if os.path.exists(tpath):
                 os.unlink(tpath)
 
+    def test_blocks_unstructured_delegation_to_execution_worker(self):
+        payload = {
+            "toolCall": {
+                "name": "invoke_subagent",
+                "args": {
+                    "Subagents": [
+                        {
+                            "TypeName": "statistics-agent",
+                            "Prompt": "Please run the regression analysis on burnout data."
+                        }
+                    ]
+                }
+            }
+        }
+        res = academic_orchestrator_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Contractual Delegation", res.get("reason", ""))
+
+    def test_allows_contractual_delegation_envelope(self):
+        valid_cde_prompt = """
+        Execute Stage 4.6:
+        ```json
+        {
+          "task_id": "TSK-2026-CH4-H1",
+          "worker_agent": "statistics-agent",
+          "objective": "Run multiple regression",
+          "inputs": ["02_analysis_code/cleaned_data.xlsx"],
+          "required_artifacts": [
+            "03_deliverables/06_hypothesis_1.docx",
+            "03_deliverables/06_hypothesis_1.md",
+            "03_deliverables/06_hypothesis_1.json"
+          ]
+        }
+        ```
+        """
+        payload = {
+            "toolCall": {
+                "name": "invoke_subagent",
+                "args": {
+                    "Subagents": [
+                        {
+                            "TypeName": "statistics-agent",
+                            "Prompt": valid_cde_prompt
+                        }
+                    ]
+                }
+            }
+        }
+        res = academic_orchestrator_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "allow")
+
+    def test_stop_enforces_directive_11_stage_gate(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [{"name": "invoke_subagent", "args": {}}]
+            }) + "\n")
+            # Finished without asking for confirmation
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "content": "Stage finished. We are moving immediately into Stage 4.7 now."
+            }) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = academic_orchestrator_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 11", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
 
 class TestStatisticsAgentGuard(unittest.TestCase):
     """Tests for Statistics Specialist Subagent hook."""
@@ -150,6 +223,24 @@ class TestStatisticsAgentGuard(unittest.TestCase):
             res = statistics_agent_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Leading Zero", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_stop_blocks_mental_calculation(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            # Model claims statistics without running any run_command
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "content": "Regression analysis revealed F = 14.35, p = .002, with R2 = .24."
+            }) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = statistics_agent_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 2", res.get("reason", ""))
         finally:
             if os.path.exists(tpath):
                 os.unlink(tpath)
