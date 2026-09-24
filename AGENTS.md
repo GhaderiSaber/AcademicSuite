@@ -177,27 +177,18 @@ To eliminate cognitive drift, hallucinations, and horizontal architecture sprawl
 6. **Artifact manifest → defines completion**: Owns JSON schema contracts, required physical deliverables, and affirmative fail-closed validation (`.agents/contracts/`).
 
 ### Directive 20: The Orchestrator Architectural Invariants
-These two permanent architectural laws govern `academic-orchestrator`:
-1. **Orchestrator Non-Execution Invariant**: `academic-orchestrator` MUST NOT possess:
-   - `run_command`
-   - `write_to_file`
-   - `replace_file_content`
-   - `edit_file`
-   The orchestrator is a pure cognitive conductor and coordinator; it is strictly prohibited from holding or acquiring tools that execute shell/computational commands or mutate project files on disk.
-2. **Delegation Availability Invariant**: `academic-orchestrator` MUST possess:
-   - `invoke_subagent`
-   The orchestrator coordinates work exclusively through specialist subagents; it must always retain the native multi-agent delegation tool to dispatch tasks across isolated specialist contexts.
+1. **Orchestrator Non-Execution Invariant**: `academic-orchestrator` MUST NOT possess: `run_command`, `write_to_file`, `replace_file_content`, `edit_file`. It is a pure cognitive conductor and coordinator.
+2. **Delegation Availability Invariant**: `academic-orchestrator` MUST possess: `invoke_subagent`. It coordinates exclusively through specialist subagents.
 
 ### Directive 21: Proactive Human Mentorship & Dual-Track Immediate Graduation Protocol
-1. **Conversational Ingestion**: When the human mentor/supervisor (Saber Ghaderi) provides direct guidance, standards, or methodology instructions in conversation (e.g., *"Remember that..."*, *"Learn this: always do X because Y"*), agents MUST NOT treat it as ephemeral chat text.
-2. **Immediate Codification**: The agent categorizes the rule (`principle`, `pattern`, `anti_pattern`, or `lesson`), validates it against contract schemas, and persists it to `.agents/learning/knowledge/`.
-3. **Dual-Track Immediate Graduation Invariant (اصل ارتقای فوری و دوگانه دانش)**:
-   - **Track 1 (Methodological / Writing Invariants)**: Permanent procedural laws (Chapter 5 prose-only, academic sobriety, English dialogue, clean root):
-     - The deterministic compiler ("The Hands" — `academic_graduation_compiler.py`) graduates rule into target `SKILL.md` and/or `rules/AGENTS.md`.
-     - Verifies Directive 18 ceiling (`skill_size_guard.py` < 500 lines), stages, commits, and pushes in the same turn.
-   - **Track 2 (Case-Specific Facts)**: Empirical quirks (scale item keys, local dataset traits) retained strictly as scoped JSON in `learning/knowledge/`.
-4. **Shared Learning Invariant**: Direct human mentorship items default to `scope: "cross-project"`, ensuring they are tracked in Git, committed, and synced to GitHub for all current and future projects.
-5. **Deterministic Pre-Task Feeding**: Human-taught principles and patterns are deterministically prioritized by the Two-Stage Retriever and Dynamic Context Token Budgeter, surfacing in pre-flight briefings under `⚖️ Applicable Methodology Rules & Boundary Conditions:`.
+1. **Conversational Ingestion**: Direct human guidance (*"Remember that..."*, *"Learn this..."*) is immediately codified into persistent JSON (`.agents/learning/knowledge/`).
+2. **Dual-Track Immediate Graduation Invariant**:
+   - **Track 1 (Universal Invariants)**: Permanent procedural laws are immediately graduated into target `SKILL.md` / `rules/AGENTS.md` via `academic_graduation_compiler.py`, verified against Directive 18 ceiling (< 500 lines), and committed/pushed in the same turn.
+   - **Track 2 (Case-Specific Facts)**: Scoped episodic JSON in `learning/knowledge/`.
+3. **Shared Learning & Retrieval**: Items default to `scope: "cross-project"` and are deterministically surfaced in pre-flight briefings.
+
+### Directive 21.1: Zero "Fast-Path" Rationalization Invariant
+- Never claim an authorized "fast-path" for context-only updates while postponing tool/skill evolution ("slow path will occur later") when a defect or critique is reported. Bypassing `skill-evolver` or `evaluation-agent` to rush stage remediation or end a turn is classified as intentional deception under Directive 0. The complete 5-stage cascade (`trajectory-analyzer` $\to$ `behavior-analyst` $\to$ `knowledge-curator` $\to$ `skill-evolver` $\to$ `evaluation-agent`) must be executed before re-invoking delivery workers.
 
 ### Directive 23: Clean Workspace Root Standard (Zero Root Script Pollution)
 - **Zero Script Pollution**: Writing or dropping executable/analysis scripts (`.py`, `.sh`, `.R`, `.sps`, `.bash`) directly into repository or workspace root folders is strictly prohibited.

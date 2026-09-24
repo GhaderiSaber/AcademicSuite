@@ -703,7 +703,8 @@ class LearningHooks:
                 "  3. invoke_subagent(TypeName=\"knowledge-curator\", Prompt=\"Catalog diagnosed anti-pattern and stage reusable lesson JSON in .agents/learning/knowledge/\")\n"
                 "  4. invoke_subagent(TypeName=\"skill-evolver\", Prompt=\"Synthesize target skill/script candidate modification to permanently fix root cause in canonical tools\")\n"
                 "  5. invoke_subagent(TypeName=\"evaluation-agent\", Prompt=\"Execute graduation compiler ('python3 .agents/scripts/academic_graduation_compiler.py compile-lesson <path>') and verify test suites and size guards\")\n"
-                "- Remediation Rule: ONLY AFTER all 5 steps complete and canonical tools are evolved on disk, re-invoke worker (academic-writer, statistics-agent) to re-run the evolved canonical tool. Authoring throwaway scratch scripts in deliverable directories is strictly forbidden."
+                "- Remediation Rule: ONLY AFTER all 5 steps complete and canonical tools are evolved on disk, re-invoke worker (academic-writer, statistics-agent) to re-run the evolved canonical tool. Authoring throwaway scratch scripts in deliverable directories is strictly forbidden.\n"
+                "- ZERO FAST-PATH EXCEPTION (Directive 21.1): Claiming an authorized 'fast-path' for context-only updates while postponing code/skill evolution ('slower path will occur later') is STRICTLY FORBIDDEN and classified as intentional deception under Directive 0. You CANNOT bypass Step 4 or Step 5 to rush deliverable remediation or end the turn early."
             )
             ephemeral_blocks.append(critique_block)
 

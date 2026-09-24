@@ -180,6 +180,125 @@ class TestLifecycleHooks(unittest.TestCase):
         self.assertTrue(ok_complete)
         self.assertEqual(reason_complete, "")
 
+    def test_07_zero_fast_path_rationalization_stop_gate(self):
+        """Stop hook must block rationalizing a fast-path to postpone code evolution (Directive 21.1)."""
+        from integrity_hooks import IntegrityHooks
+
+        # Case A: Model claims fast-path and that slower path will occur later
+        records_fast_path = [
+            {"type": "USER_INPUT", "content": "The heading had no blank line and was too dramatic."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "content": (
+                    "The system prioritizes a fast-path for immediate behavioral updates via context modification "
+                    "to avoid conversational delays, followed by a slower path that modifies code. "
+                    "Full code mutation via the slow path will occur later."
+                ),
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            }
+        ]
+        ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records_fast_path)
+        self.assertFalse(ok)
+        self.assertIn("Zero 'Fast-Path' Rationalization Invariant", reason)
+
+        # Case B: Model explicitly cites the prohibition (allowed exemption) and runs evolution
+        records_exemption = [
+            {"type": "USER_INPUT", "content": "The heading had no blank line."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "content": "Zero 'fast-path' invariant is active. Bypassing tool evolution is prohibited.",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "skill-evolver", "Prompt": "Synthesize tool diff"}]}
+                    }
+                ]
+            }
+        ]
+        ok_ex, reason_ex = IntegrityHooks.verify_learning_pipeline_completion(records_exemption)
+        self.assertTrue(ok_ex)
+        self.assertEqual(reason_ex, "")
+
+    def test_08_premature_remediation_stop_gate(self):
+        """Stop hook must block invoking delivery workers before tool evolution completes (Directive 21.1)."""
+        from integrity_hooks import IntegrityHooks
+
+        # Case A: Deliverable worker invoked before skill-evolver
+        records_premature = [
+            {"type": "USER_INPUT", "content": "Problem: heading has no blank line and tone is dramatic."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "academic-writer", "Prompt": "Rewrite the recommendations stage"}]}
+                    }
+                ]
+            }
+        ]
+        ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records_premature)
+        self.assertFalse(ok)
+        self.assertIn("Premature Remediation Without Tool Evolution", reason)
+
+        # Case B: Evolution subagent runs before delivery worker
+        records_proper = [
+            {"type": "USER_INPUT", "content": "Problem: heading has no blank line and tone is dramatic."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "skill-evolver", "Prompt": "Evolve canonical tool"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "academic-writer", "Prompt": "Execute remediation with evolved tool"}]}
+                    }
+                ]
+            }
+        ]
+        ok_prop, reason_prop = IntegrityHooks.verify_learning_pipeline_completion(records_proper)
+        self.assertTrue(ok_prop)
+        self.assertEqual(reason_prop, "")
+
 
 if __name__ == "__main__":
     unittest.main()
+

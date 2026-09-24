@@ -785,18 +785,59 @@ class IntegrityHooks:
     @staticmethod
     def verify_learning_pipeline_completion(records: List[Dict[str, Any]]) -> Tuple[bool, str]:
         """
-        Enforces Directive 21 (Mandatory Learning & Evolution Subagent Pipeline):
-        If knowledge-curator was invoked during the active turn, the orchestrator
-        MUST also invoke the evolution subagents ('skill-evolver' or 'evaluation-agent')
-        before completing the turn or executing stage remediation.
+        Enforces Directive 21 & Directive 21.1 (Mandatory Learning & Evolution Pipeline & Zero Fast-Path):
+        1. Prohibits claiming an authorized 'fast-path' or postponing tool/skill evolution to 'occur later'.
+        2. If learning was triggered (knowledge-curator invoked, or critique reported), delivery workers
+           ('academic-writer', 'statistics-agent', etc.) CANNOT be invoked before 'skill-evolver' or
+           'evaluation-agent' have run.
+        3. If knowledge-curator was invoked, 'skill-evolver' or 'evaluation-agent' MUST be invoked before
+           concluding the turn.
         """
         if not records:
             return True, ""
 
-        invoked_subagents = []
-        for r in reversed(records):
+        # Find the index of the last USER_INPUT to isolate the active turn
+        last_user_idx = -1
+        user_content = ""
+        for idx, r in enumerate(records):
             if r.get("type") == "USER_INPUT":
-                break
+                last_user_idx = idx
+                user_content = str(r.get("content", ""))
+
+        active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
+
+        # 1. Check for 'fast-path' rationalization in assistant messages
+        fast_path_patterns = [
+            r"\bfast[- ]path\b",
+            r"\bslower path\b",
+            r"\bslow[- ]path\b",
+            r"\bwill occur later\b",
+            r"\bpostpone(?:d)? code mutation\b",
+            r"\bcode mutation .* will occur later\b",
+            r"\bcontext[- ]only updates to avoid conversational delays\b",
+            r"\bfast[- ]track behavioral\b"
+        ]
+        for r in active_records:
+            if r.get("type") == "PLANNER_RESPONSE":
+                txt = (str(r.get("content") or "") + " " + str(r.get("thinking") or "")).lower()
+                for pat in fast_path_patterns:
+                    if re.search(pat, txt):
+                        exemptions = [
+                            "never use fast-path", "banned", "prohibited", "violation",
+                            "zero 'fast-path'", "zero \"fast-path\"", "anti-pattern", "forbidden"
+                        ]
+                        if not any(ex in txt for ex in exemptions):
+                            return False, (
+                                "CONSTITUTIONAL VIOLATION (Directive 21.1 - Zero 'Fast-Path' Rationalization Invariant): "
+                                "Rationalizing an authorized 'fast-path' for context-only updates while postponing code/skill "
+                                "evolution ('slower path will occur later') is strictly prohibited and classified as intentional deception under Directive 0. "
+                                "You CANNOT bypass 'skill-evolver' or 'evaluation-agent' or postpone code evolution. "
+                                "You must invoke 'skill-evolver' and 'evaluation-agent' to evolve the canonical tools before completing this turn."
+                            )
+
+        # 2. Track chronological subagent invocations in active turn
+        invoked_subagents = []
+        for r in active_records:
             for call in r.get("tool_calls", []):
                 if call.get("name") == "invoke_subagent":
                     args = call.get("args", {})
@@ -813,6 +854,41 @@ class IntegrityHooks:
                                 if t_name:
                                     invoked_subagents.append(t_name)
 
+        # Check if critique/correction triggered learning
+        clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
+        critique_keywords = [
+            "fix", "wrong", "incorrect", "error", "bug", "fail", "failed", "failure",
+            "redo", "re-run", "reject", "rejected", "problem", "didn't trigger", "did not trigger",
+            "اشتباه", "غلط", "اصلاح", "تصحیح", "رد شد", "نادرست", "خطا", "مشکل"
+        ]
+        is_user_critique = any(re.search(r"\b" + re.escape(kw) + r"\b", clean_user, re.IGNORECASE) for kw in critique_keywords)
+
+        has_learning_started = any(
+            any(k in sa for k in ("knowledge-curator", "trajectory-analyzer", "behavior-analyst"))
+            for sa in invoked_subagents
+        ) or is_user_critique
+
+        delivery_workers = [
+            "academic-writer", "statistics-agent", "data-agent", "psychometric-expert",
+            "project-organizer", "qualitative-analyst", "intervention-designer"
+        ]
+
+        if has_learning_started:
+            evolution_seen = False
+            for sa in invoked_subagents:
+                if any(ev in sa for ev in ("skill-evolver", "evaluation-agent")):
+                    evolution_seen = True
+                if any(w in sa for w in delivery_workers):
+                    if not evolution_seen:
+                        return False, (
+                            "CONSTITUTIONAL VIOLATION (Directive 21.1 - Premature Remediation Without Tool Evolution): "
+                            f"Delivery worker '{sa}' was invoked before completing tool evolution via 'skill-evolver' and 'evaluation-agent'! "
+                            "Under Directive 21.1, you are strictly prohibited from attempting deliverable remediation or authoring ad-hoc scripts "
+                            "before the canonical skills and scripts have been permanently evolved and graduated on disk. "
+                            "Invoke 'skill-evolver' and 'evaluation-agent' first."
+                        )
+
+        # 3. If knowledge-curator was invoked, evolution MUST be invoked
         if any("knowledge-curator" in sa for sa in invoked_subagents):
             has_evolution = any(
                 ("skill-evolver" in sa or "evaluation-agent" in sa)
@@ -823,7 +899,7 @@ class IntegrityHooks:
                     "CONSTITUTIONAL VIOLATION (Directive 21 - Continuous Learning & Evolution Pipeline Incomplete): "
                     "'knowledge-curator' was invoked to catalog a lesson, but the evolution subagents ('skill-evolver' or 'evaluation-agent') "
                     "were NOT invoked in this turn! "
-                    "Under Directive 21, you MUST dispatch 'skill-evolver' to synthesize canonical tool/skill modifications "
+                    "Under Directives 21 and 21.1, you MUST dispatch 'skill-evolver' to synthesize canonical tool/skill modifications "
                     "and 'evaluation-agent' to execute the deterministic graduation compiler ('python3 .agents/scripts/academic_graduation_compiler.py compile-lesson <path>') "
                     "before concluding this turn or initiating stage remediation. "
                     "Please invoke 'skill-evolver' or 'evaluation-agent' now."

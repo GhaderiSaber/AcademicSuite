@@ -29,6 +29,8 @@ These domain rules are automatically loaded and applied across all conversations
   - **Track 2 (Case-Specific / Scale Facts)**: Retained strictly as scoped episodic JSON in `learning/knowledge/` without polluting global rules.
   - Defaults to `scope: "cross-project"` (Shared Learning) to sync to GitHub and inform all future projects.
   - Deterministically prioritized and injected into pre-flight briefings.
+- **Directive 21.1 (Zero "Fast-Path" Rationalization Invariant)**:
+  - Under NO circumstance may an agent or orchestrator claim an authorized "fast-path" for context-only updates while postponing skill or code evolution ("slow path will occur later") when a defect or critique is reported. Bypassing `skill-evolver` or `evaluation-agent` to rush deliverable remediation or end a turn is strictly prohibited and classified as intentional deception under Directive 0. The complete 5-stage learning cascade (`trajectory-analyzer` $\to$ `behavior-analyst` $\to$ `knowledge-curator` $\to$ `skill-evolver` $\to$ `evaluation-agent`) MUST be executed before re-invoking delivery workers (`academic-writer`, `statistics-agent`).
 
 ---
 
