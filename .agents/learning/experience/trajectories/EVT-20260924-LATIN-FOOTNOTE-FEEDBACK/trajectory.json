@@ -1,0 +1,488 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260924-LATIN-FOOTNOTE-001",
+  "experience_id": "EVT-20260924-LATIN-FOOTNOTE-FEEDBACK",
+  "project_id": "Morteza_Estaki",
+  "task_id": "TSK-20260924-FOOTNOTE-TRAJECTORY-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:10:46Z",
+      "description": "academic-orchestrator delegated task TSK-20260924-STAGE2-HYPO1-001 to academic-writer to draft Chapter 5 Section 5-2-1 (Hypothesis 1 discussion: job characteristics vs organizational innovation) using 4-element psychological model and article enrichment cards.",
+      "observable_input": {
+        "task_id": "TSK-20260924-STAGE2-HYPO1-001",
+        "worker_agent": "academic-writer",
+        "mandate": "Draft Chapter 5 Section 5-2-1 (Hypothesis 1 Discussion) synthesizing empirical results (r = -0.18, p = .010, negative correlation in Isfahan Red Crescent headquarters, N = 208), comparing with classical literature, analyzing theoretical mechanisms (cognitive load, role strain), and explaining contextual crisis-management factors."
+      },
+      "observable_output": {
+        "status": "DELEGATED",
+        "target_subagent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "AGENT_INVOKED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:10:47Z",
+      "description": "academic-writer specialist subagent activated to execute Stage 5.2 Hypothesis 1 discussion drafting.",
+      "observable_input": {
+        "task_id": "TSK-20260924-STAGE2-HYPO1-001"
+      },
+      "observable_output": {
+        "status": "INITIALIZED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:10:48Z",
+      "description": "academic-writer ensured stage deliverable directory 03_deliverables/stage_02_hypo_1 exists on disk.",
+      "observable_input": {
+        "command_line": "mkdir -p \"03_deliverables/stage_02_hypo_1\"",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:11:05Z",
+      "description": "academic-writer authored draft.md (648 words, 3,807 chars). While following the 4-element psychological structure, the writer inserted Latin author names and English theoretical terminology directly inline in parentheses across paragraphs 2, 3, 4, and 5 instead of transliterating names to Persian and placing Latin equivalents in page footnotes.",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/draft.md",
+        "word_count": 648,
+        "char_count": 3807
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "detected_inline_latin_authors": [
+          "(Hackman & Oldham, 1976, 1980)",
+          "(Demircioglu, 2020)",
+          "(Sweller, 1988)",
+          "(Goode, 1960)",
+          "(Kahn et al., 1964)"
+        ],
+        "detected_inline_english_terms": [
+          "(Cognitive Load Theory)",
+          "(Role Strain Theory)",
+          "(Role Overload)",
+          "(SOPs)"
+        ]
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:11:12Z",
+      "description": "academic-writer invoked deterministic CLI compiler scaffold_chapter5_triad.py to build the synchronized verification triad deliverables (.docx, .md, .json).",
+      "observable_input": {
+        "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "generated_artifacts": [
+          "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+          "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+          "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx"
+        ]
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "AGENT_RETURNED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:11:18Z",
+      "description": "academic-writer returned execution results and triad delivery manifest back to academic-orchestrator.",
+      "observable_input": {
+        "recipient": "5527f8dc-7772-488d-af1e-69cbca038416"
+      },
+      "observable_output": {
+        "status": "success",
+        "word_count": 648,
+        "artifacts_count": 3
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:11:22Z",
+      "description": "academic-orchestrator inspected 03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md to verify empirical alignment and section length.",
+      "observable_input": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "StartLine": 1,
+        "EndLine": 20
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "lines_returned": 14
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:11:26Z",
+      "description": "academic-orchestrator viewed 03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json to inspect triad metadata and checksums.",
+      "observable_input": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "char_count": 3807,
+        "word_count": 648
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:11:32Z",
+      "description": "academic-orchestrator performed automated review of Hypothesis 1 discussion, confirming empirical values (r = -0.18, p = .010, N = 208) and absence of tables, but exhibited a quality assurance blind spot regarding Persian thesis footnote standard, approving inline English terms and Latin citations.",
+      "observable_input": {
+        "milestone_id": "stage_5_2_h1",
+        "target_stage": "user_presentation"
+      },
+      "observable_output": {
+        "verdict": "PASS",
+        "presented_to_user": true,
+        "unscreened_defects": [
+          "INLINE_LATIN_AUTHOR_NAMES",
+          "INLINE_ENGLISH_TECHNICAL_TERMS",
+          "MISSING_ACADEMIC_FOOTNOTES"
+        ]
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T05:13:45Z",
+      "description": "User provided explicit dual critique: 'Problems: 1. You should not use English word in the text. You write persian word only and footnote the English equivallent. 2. You should not write English name of the authors in the text. You should write name in Persian and footnote the English name.'",
+      "observable_input": {
+        "critique_text": "Problems: 1. You should not use English word in the text. You write persian word only and footnote the English equivallent. 2. You should not write English name of the authors in the text. You should write name in Persian and footnote the English name."
+      },
+      "observable_output": {
+        "event_id": "EVT-20260924-LATIN-FOOTNOTE-FEEDBACK",
+        "critique_classification": [
+          "INLINE_ENGLISH_WORD_VIOLATION",
+          "INLINE_LATIN_AUTHOR_NAME_VIOLATION"
+        ]
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:14:02Z",
+      "description": "academic-orchestrator triggered Directive 21 continuous learning cascade and delegated TSK-20260924-FOOTNOTE-TRAJECTORY-001 to trajectory-analyzer to reconstruct chronological trajectory and pinpoint exact line occurrences in 03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md.",
+      "observable_input": {
+        "task_id": "TSK-20260924-FOOTNOTE-TRAJECTORY-001",
+        "worker_agent": "trajectory-analyzer"
+      },
+      "observable_output": {
+        "status": "DELIVERED"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-STAGE2-HYPO1-001",
+        "WorkerAgent": "academic-writer",
+        "PromptSummary": "Draft Chapter 5 Section 5-2-1 discussing Hypothesis 1 with 4-element psychological model"
+      },
+      "execution_time_ms": 3210
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "mkdir -p \"03_deliverables/stage_02_hypo_1\"",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 110
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/draft.md",
+        "Overwrite": true,
+        "Description": "Authored Section 5-2-1 discussion draft with 4-element psychological model."
+      },
+      "execution_time_ms": 195
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 3820
+    },
+    {
+      "tool_name": "send_message",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "Recipient": "5527f8dc-7772-488d-af1e-69cbca038416",
+        "PayloadStatus": "success",
+        "ReportedArtifacts": 3,
+        "WordCount": 648
+      },
+      "execution_time_ms": 80
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "StartLine": 1,
+        "EndLine": 20
+      },
+      "execution_time_ms": 85
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 7,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+      },
+      "execution_time_ms": 70
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 8,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-FOOTNOTE-TRAJECTORY-001",
+        "WorkerAgent": "trajectory-analyzer",
+        "PromptSummary": "Reconstruct observable actions, tool calls, and error trajectory for dual user critique regarding inline English words and Latin author names"
+      },
+      "execution_time_ms": 2950
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+      "cli_command": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+      "exit_code": 0,
+      "duration_seconds": 3.82
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "02_hypothesis_discussion",
+      "envelope_summary": "Draft Section 5-2-1 discussion for Hypothesis 1 with 4-element psychological model and article enrichment cards",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-20260924-STAGE2-HYPO1-001",
+      "objective": "Draft Chapter 5 Section 5-2-1 (Discussion of Hypothesis 1) synthesizing empirical results (r = -0.18, p = .010), comparing with classical literature, analyzing theoretical mechanisms (cognitive load, role strain), and explaining contextual crisis-management factors without tables.",
+      "input_artifacts": [
+        "academic-state/data/article_enrichment_cards.json",
+        "01_raw_inputs/marzieh_chapter4_audit_payload.json",
+        "03_deliverables/Chapter_4_Results.md"
+      ],
+      "output_artifacts": [
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "trajectory_reconstruction",
+      "envelope_summary": "Reconstruct observable actions and pinpoint exact occurrences of inline English words and Latin author names",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-LATIN-FOOTNOTE-FEEDBACK/trajectory.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-20260924-FOOTNOTE-TRAJECTORY-001",
+      "objective": "Reconstruct observable actions, tool calls, and error trajectory for the explicit user critique regarding inline English words and Latin author names, mapping exact line occurrences in 03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md.",
+      "input_artifacts": [
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+        "User critique"
+      ],
+      "output_artifacts": [
+        ".agents/learning/experience/trajectories/EVT-20260924-LATIN-FOOTNOTE-FEEDBACK/trajectory.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260924-INLINE-LATIN-CONVENTION-DEFECT",
+      "decision_type": "TEXT_FORMATTING_CONVENTION",
+      "selected_option": "Authoring parenthetical Latin English citations and English technical terms inline in running Persian narrative",
+      "rationale": "academic-writer adhered to standard Western/English academic writing patterns where author names and technical terms are enclosed in parentheses inline: '(Hackman & Oldham, 1976, 1980)', '(Demircioglu, 2020)', '(Cognitive Load Theory)', '(Sweller, 1988)', '(Role Strain Theory)', '(Goode, 1960)', '(Kahn et al., 1964)', and '(SOPs)'. This directly violated Persian graduate thesis editorial standards which strictly mandate: (1) Running text contains only Persian vocabulary and phonetically transliterated author names; (2) Original Latin author spellings and English technical equivalents must appear exclusively in page footnotes (پاورقی).",
+      "alternatives_considered": [
+        {
+          "option": "Persian transliteration in running text with Latin footnote references",
+          "verdict": "OMITTED_BY_WRITER",
+          "reason": "academic-writer prompt lacked explicit operational constraint enforcing Persian-only running text and bottom-of-page footnotes for Latin terminology and authors."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-COMPILER-FOOTNOTE-LIMITATION",
+      "decision_type": "COMPILER_FEATURE_CAPABILITY",
+      "selected_option": "Using paragraph run concatenation in scaffold_chapter5_triad.py without footnote parsing",
+      "rationale": "The CLI triad compiler script scaffold_chapter5_triad.py converts markdown lines directly into docx paragraph runs via add_text_run() without supporting footnote syntax (e.g. [^1] or XML <w:footnoteReference>), reinforcing the writer's fallback to parenthetical inline Latin glosses.",
+      "alternatives_considered": [
+        {
+          "option": "Implement markdown footnote parsing and OpenXML footnote generation in scaffold_chapter5_triad.py",
+          "verdict": "UNIMPLEMENTED_IN_HANDS",
+          "reason": "Triad compiler was originally designed for rapid text and heading styling, omitting footnote XML schema builders."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-ORCHESTRATOR-QC-BLINDSPOT",
+      "decision_type": "STAGE_GATE_EVALUATION",
+      "selected_option": "Approving Stage 2 deliverable based solely on empirical alignment and absence of tables",
+      "rationale": "academic-orchestrator evaluated Stage 2 against empirical consistency (r = -0.18, p = .010, N = 208) and verified that no tables were included in Chapter 5 (fixing the previous feedback EVT-20260924-TONE-TABLE-FEEDBACK), but lacked an automated linter check for inline ASCII/Latin tokens in Persian body text, resulting in immediate user critique.",
+      "alternatives_considered": [
+        {
+          "option": "Automated regex linting for inline Latin text tokens prior to user presentation",
+          "verdict": "OMITTED_FROM_VERIFICATION",
+          "reason": "Verification suite did not include an automated check for inline Latin characters or parenthetical English terms."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+      "sha256": "f5bd9faea23b92481e05e5570635f7cf63cfad92d810844b33d11901900a5074",
+      "type": "narrative_markdown"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+      "sha256": "f57fbbdc7bdcfce2da80af819232f27fc0fb6bb814807eeee48b0b03a880fe42",
+      "type": "openxml_word"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "sha256": "7dd1036a441291744a807bf44caa8e6ccff97e2e7eec1e9415eb685275b29835",
+      "type": "triad_metadata"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "empirical_consistency_auditor",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "stage": "02_hypothesis_discussion",
+        "h1_direction": "negative_supported",
+        "correlation_value": "r = -0.18, p = 0.010",
+        "sample_size": "N = 208",
+        "prose_only_convention": "PASS (0 tables in Chapter 5)"
+      }
+    },
+    {
+      "validator_name": "human_supervisor_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "inline_english_words_in_persian_text",
+        "inline_latin_author_names_in_citation"
+      ],
+      "evidence_summary": {
+        "critique_text": "Problems: 1. You should not use English word in the text. You write persian word only and footnote the English equivallent. 2. You should not write English name of the authors in the text. You should write name in Persian and footnote the English name.",
+        "occurrences_audit": [
+          {
+            "line_number": 7,
+            "category": "INLINE_LATIN_AUTHORS",
+            "token": "(Hackman & Oldham, 1976, 1980)",
+            "context": "مدل ویژگی‌های شغلی هکمن و اولدهام (Hackman & Oldham, 1976, 1980) هم‌سویی ندارد.",
+            "remediation_requirement": "هکمن و اولدهام (۱۹۷۶، ۱۹۸۰) در متن، با پاورقی لاتین: Hackman & Oldham"
+          },
+          {
+            "line_number": 7,
+            "category": "INLINE_LATIN_AUTHORS",
+            "token": "(Demircioglu, 2020)",
+            "context": "دمیرچی‌اوغلو (Demircioglu, 2020) نیز ارتباط مثبتی",
+            "remediation_requirement": "دمیرچی‌اوغلو (۲۰۲۰) در متن، با پاورقی لاتین: Demircioglu"
+          },
+          {
+            "line_number": 9,
+            "category": "INLINE_ENGLISH_TERM",
+            "token": "(Cognitive Load Theory)",
+            "context": "نظریه بار شناختی (Cognitive Load Theory) تبیین نمود",
+            "remediation_requirement": "نظریه بار شناختی در متن، با پاورقی معادل انگلیسی: Cognitive Load Theory"
+          },
+          {
+            "line_number": 9,
+            "category": "INLINE_LATIN_AUTHORS",
+            "token": "(Sweller, 1988)",
+            "context": "تبیین نمود (Sweller, 1988). بر اساس این نظریه",
+            "remediation_requirement": "سوئلر (۱۹۸۸) در متن، با پاورقی لاتین: Sweller"
+          },
+          {
+            "line_number": 11,
+            "category": "INLINE_ENGLISH_TERM",
+            "token": "(Role Strain Theory)",
+            "context": "نظریه فشار نقش (Role Strain Theory) توسعه‌یافته",
+            "remediation_requirement": "نظریه فشار نقش در متن، با پاورقی معادل انگلیسی: Role Strain Theory"
+          },
+          {
+            "line_number": 11,
+            "category": "INLINE_LATIN_AUTHORS",
+            "token": "(Goode, 1960)",
+            "context": "توسعه‌یافته توسط گود (Goode, 1960) و کان",
+            "remediation_requirement": "گود (۱۹۶۰) در متن، با پاورقی لاتین: Goode"
+          },
+          {
+            "line_number": 11,
+            "category": "INLINE_LATIN_AUTHORS",
+            "token": "(Kahn et al., 1964)",
+            "context": "و کان و همکاران (Kahn et al., 1964) چارچوب",
+            "remediation_requirement": "کان و همکاران (۱۹۶۴) در متن، با پاورقی لاتین: Kahn et al."
+          },
+          {
+            "line_number": 11,
+            "category": "INLINE_ENGLISH_TERM",
+            "token": "(Role Overload)",
+            "context": "به اضافه‌بار نقش (Role Overload) منجر می‌گردد.",
+            "remediation_requirement": "اضافه‌بار نقش در متن، با پاورقی معادل انگلیسی: Role Overload"
+          },
+          {
+            "line_number": 13,
+            "category": "INLINE_ENGLISH_TERM",
+            "token": "(SOPs)",
+            "context": "دستورالعمل‌های استاندارد عملیاتی (SOPs) گره خورده است.",
+            "remediation_requirement": "دستورالعمل‌های استاندارد عملیاتی در متن، با پاورقی معادل انگلیسی: Standard Operating Procedures (SOPs)"
+          }
+        ]
+      }
+    }
+  ],
+  "feedback": [
+    "EVT-20260924-LATIN-FOOTNOTE-FEEDBACK"
+  ],
+  "outcome": "FAILURE"
+}

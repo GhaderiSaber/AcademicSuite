@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-NATIVE-OPENXML-WORD-FOOTNOTES-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260924-NATIVE-FN-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "scaffold_chapter5_triad.py appended footnote definitions as literal text, and academic-orchestrator approved the deliverable without OpenXML validation.",
+    "behavior_caused_outcome": "The defect emerged from an architectural silo: scaffold_chapter5_triad.py lacked integration with existing pack_native_footnotes utilities, bypassing OpenXML creation.",
+    "what_should_have_happened": "All Word docx deliverables must compile footnotes as true native OpenXML Word footnotes with 'word/footnotes.xml' and '<w:footnoteReference>', never as plain text paragraphs.",
+    "rationale_why": "Superficial content audits fail to inspect the internal OpenXML container structure. Validating physical zip contents ensures document integrity and compatibility."
+  },
+  "desired_behavior": "Mandate automated zip verification in orchestrator gates to physically validate the presence of OpenXML native footnotes (word/footnotes.xml and <w:footnoteReference>) before approving .docx deliverables. Implement mandatory OpenXML footnote injection.",
+  "generalization": "Word DOCX documents must strictly enforce structural integrity using native OpenXML elements instead of text simulation.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Defective output observed (plain text footnotes)",
+    "threshold_value": "Zero tolerance for defect",
+    "supporting_report_ids": [
+      "BAN-20260924-NATIVE-FN-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-suite-orchestrator",
+    "chapter-5-writing",
+    "persian-discussion-builder"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-24T09:00:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ]
+}

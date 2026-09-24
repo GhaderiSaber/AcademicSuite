@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260924-LATIN-FOOTNOTE-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260924-LATIN-FOOTNOTE-FEEDBACK",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-discussion-builder",
+  "capability": "Persian narrative drafting with citations",
+  "trajectory_id": "TRJ-20260924-LATIN-FOOTNOTE-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "FILE_WRITTEN",
+    "tool_name": "write_to_file",
+    "description": "academic-writer authored draft.md, inserting Latin author names and English theoretical terminology directly inline in parentheses instead of transliterating names to Persian and placing Latin equivalents in page footnotes."
+  },
+  "failure_signature": "INLINE_LATIN_AUTHOR_NAMES_AND_ENGLISH_TECHNICAL_TERMS",
+  "root_cause_diagnosis": "academic-writer adhered to standard Western/English academic writing patterns where author names and technical terms are enclosed in parentheses inline. This violated Persian graduate thesis editorial standards which strictly mandate that running text contains only Persian vocabulary and phonetically transliterated author names, with original Latin spellings and English equivalents placed exclusively in page footnotes. Furthermore, academic-orchestrator exhibited a quality assurance blind spot at step 9, approving the deliverable based solely on empirical alignment and absence of tables without an automated check for inline Latin characters in Persian body text.",
+  "prescribed_behavior": "academic-writer must enforce zero Latin script words in Persian running text; author names must be phonetically transliterated to Persian script, and English technical terms translated to Persian. The original English equivalents must be moved exclusively to footnotes. Additionally, the orchestrator verification gate must be updated to screen for and block any inline Latin text tokens.",
+  "created_at": "2026-09-24T09:00:00Z"
+}

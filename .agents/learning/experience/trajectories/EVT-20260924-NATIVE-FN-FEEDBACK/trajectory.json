@@ -1,0 +1,390 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260924-NATIVE-FN-001",
+  "experience_id": "EVT-20260924-NATIVE-FN-FEEDBACK",
+  "project_id": "Morteza_Estaki",
+  "task_id": "TSK-20260924-NATIVE-FN-TRAJECTORY-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:22:10Z",
+      "description": "academic-orchestrator delegated remediation task TSK-20260924-REMEDIATE-FN-001 to academic-writer to resolve prior feedback EVT-20260924-LATIN-FOOTNOTE-FEEDBACK by converting inline Latin author names and English terms to Persian transliterations and footnote definitions in draft.md.",
+      "observable_input": {
+        "task_id": "TSK-20260924-REMEDIATE-FN-001",
+        "worker_agent": "academic-writer",
+        "mandate": "Transliterate inline author names (Hackman & Oldham -> هکمن و اولدهام, Demircioglu -> دمیرچی‌اوغلو, Sweller -> سوئلر, Goode -> گود, Kahn et al. -> کان و همکاران) and English terms (Cognitive Load Theory, Role Strain Theory, SOPs) to Persian and add bottom footnotes."
+      },
+      "observable_output": {
+        "status": "DELEGATED",
+        "target_subagent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:24:45Z",
+      "description": "academic-writer revised draft.md using Markdown footnote markers [^1] through [^8] in the narrative and appended footnote definitions [^1]: Hackman & Oldham through [^8]: Standard Operating Procedures (SOPs) at lines 15-22 of the markdown file.",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/draft.md",
+        "word_count": 663,
+        "char_count": 3921
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "in_text_footnote_markers": [
+          "[^1]",
+          "[^2]",
+          "[^3]",
+          "[^4]",
+          "[^5]",
+          "[^6]",
+          "[^7]",
+          "[^8]"
+        ],
+        "footnote_definition_lines": [
+          "[^1]: Hackman & Oldham",
+          "[^2]: Demircioglu",
+          "[^3]: Cognitive Load Theory",
+          "[^4]: Sweller",
+          "[^5]: Role Strain Theory",
+          "[^6]: Goode",
+          "[^7]: Kahn et al.",
+          "[^8]: Standard Operating Procedures (SOPs)"
+        ]
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:25:22Z",
+      "description": "academic-writer executed CLI triad compiler scaffold_chapter5_triad.py to build Word (.docx), Markdown (.md), and metadata (.json) deliverables from draft.md.",
+      "observable_input": {
+        "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "SKILL_INVOCATION",
+      "actor": "scaffold_chapter5_triad.py",
+      "timestamp": "2026-09-24T05:25:24Z",
+      "description": "Triad compiler executed lines 220-241 where full_md_content is split by newline without footnote syntax parsing or OpenXML pack_native_footnotes integration. Footnote definitions [^1]: Hackman & Oldham through [^8]: Standard Operating Procedures (SOPs) evaluated to the else: branch and were appended directly to doc.paragraphs as raw B Nazanin 13pt body text. In-text markers [^1] to [^8] were output as literal text runs rather than OpenXML <w:footnoteReference> elements.",
+      "observable_input": {
+        "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+        "loop_target_lines": "lines 220-241",
+        "unhandled_syntax": "Markdown footnote definition regex r'^\\[\\^(\\d+)\\]:\\s*(.+)$'"
+      },
+      "observable_output": {
+        "docx_paragraphs_added": 8,
+        "native_footnotes_xml_created": false,
+        "footnote_references_created": 0
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:25:27Z",
+      "description": "scaffold_chapter5_triad.py completed compilation and wrote three synchronized triad artifacts to disk, updating deliverable hashes in 02_hypothesis_1_discussion.json.",
+      "observable_input": {
+        "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "artifacts_generated": [
+          "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+          "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+          "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+        ]
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:25:35Z",
+      "description": "academic-orchestrator inspected 02_hypothesis_1_discussion.json to verify word count (663), character count (3921), and compiled status.",
+      "observable_input": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+      },
+      "observable_output": {
+        "status": "STAGE_DRAFTED",
+        "word_count": 663,
+        "char_count": 3921
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:25:40Z",
+      "description": "academic-orchestrator performed superficial verification checking for absence of inline English words, empirical values (r = -0.18, p = .010), and word count, but failed to inspect OpenXML internals of 02_hypothesis_1_discussion.docx for word/footnotes.xml or <w:footnoteReference>, erroneously passing the stage gate and presenting the artifact to the user.",
+      "observable_input": {
+        "milestone_id": "stage_5_2_h1",
+        "criteria": ["no_inline_english", "empirical_alignment", "prose_only"]
+      },
+      "observable_output": {
+        "gate_verdict": "PASS",
+        "uninspected_attributes": [
+          "word/footnotes.xml",
+          "w:footnoteReference",
+          "w:footnotes relation in [Content_Types].xml"
+        ]
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T05:28:10Z",
+      "description": "User inspected 02_hypothesis_1_discussion.docx and issued explicit critique: 'Use native footnote of word. not just a text.' noting that footnote entries were simply dumped as plain paragraphs at the end of the Word document instead of native Word footnotes.",
+      "observable_input": {
+        "critique_text": "Use native footnote of word. not just a text."
+      },
+      "observable_output": {
+        "event_id": "EVT-20260924-NATIVE-FN-FEEDBACK",
+        "critique_classification": "NON_NATIVE_WORD_FOOTNOTE_DEFECT"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:28:25Z",
+      "description": "academic-orchestrator triggered Directive 21 continuous learning protocol and delegated TSK-20260924-NATIVE-FN-TRAJECTORY-001 to trajectory-analyzer to reconstruct observable actions, failure sequence, and OpenXML structural omissions.",
+      "observable_input": {
+        "task_id": "TSK-20260924-NATIVE-FN-TRAJECTORY-001",
+        "worker_agent": "trajectory-analyzer"
+      },
+      "observable_output": {
+        "status": "DELIVERED"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-REMEDIATE-FN-001",
+        "WorkerAgent": "academic-writer",
+        "PromptSummary": "Remediate inline Latin author names and English terms in Section 5-2-1 draft"
+      },
+      "execution_time_ms": 2100
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/draft.md",
+        "Overwrite": true,
+        "Description": "Persian transliteration of authors and English terms with markdown footnotes [^1] through [^8]"
+      },
+      "execution_time_ms": 180
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 3750
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+      },
+      "execution_time_ms": 65
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-NATIVE-FN-TRAJECTORY-001",
+        "WorkerAgent": "trajectory-analyzer",
+        "PromptSummary": "Reconstruct observable actions, tool calls, and error trajectory for user critique 'Use native footnote of word. not just a text.'"
+      },
+      "execution_time_ms": 2840
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+      "cli_command": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+      "exit_code": 0,
+      "duration_seconds": 3.75
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "02_hypothesis_discussion",
+      "envelope_summary": "Revise Hypothesis 1 discussion using Persian transliterations and footnote markers [^1] through [^8]",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-20260924-REMEDIATE-FN-001",
+      "objective": "Address previous feedback EVT-20260924-LATIN-FOOTNOTE-FEEDBACK by moving Latin citations and English technical terms to footnotes.",
+      "input_artifacts": [
+        "03_deliverables/stage_02_hypo_1/draft.md",
+        "academic-state/data/article_enrichment_cards.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "trajectory_reconstruction",
+      "envelope_summary": "Reconstruct chronological trajectory and identify exact failure point in scaffold_chapter5_triad.py and OpenXML footnote absence",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-NATIVE-FN-FEEDBACK/trajectory.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-20260924-NATIVE-FN-TRAJECTORY-001",
+      "objective": "Reconstruct observable actions, tool calls, and error trajectory for the explicit user critique: 'Use native footnote of word. not just a text.' Reconstruct the failure sequence where scaffold_chapter5_triad.py compiled 02_hypothesis_1_discussion.docx by appending footnote definitions as plain paragraph text at the bottom of the document rather than packaging true native OpenXML Word footnotes.",
+      "input_artifacts": [
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+        ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+        "User critique"
+      ],
+      "output_artifacts": [
+        ".agents/learning/experience/trajectories/EVT-20260924-NATIVE-FN-FEEDBACK/trajectory.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260924-TRIAD-PARAGRAPH-FALLTHROUGH-DEFECT",
+      "decision_type": "COMPILER_IMPLEMENTATION_DEFECT",
+      "selected_option": "Treating all non-heading markdown lines as standard body paragraphs in scaffold_chapter5_triad.py lines 220-241",
+      "rationale": "In scaffold_chapter5_triad.py, lines 220-241 iterate over full_md_content.split('\\n') with conditional checks for '# ', '## ', '### ', and '**...**'. Footnote definition lines ('[^1]: Hackman & Oldham' to '[^8]: Standard Operating Procedures (SOPs)') have no explicit handler and fall through to the else: branch, where doc.add_paragraph() appends them as plain body text (B Nazanin 13pt). Furthermore, inline markers ('[^1]' to '[^8]') are never converted into OpenXML <w:footnoteReference> elements.",
+      "alternatives_considered": [
+        {
+          "option": "Integrate pack_native_footnotes() and footnote token regex parser from persian-proposal-builder",
+          "verdict": "OMITTED_IN_DISCUSSION_BUILDER",
+          "reason": "scaffold_chapter5_triad.py was cloned or constructed with basic heading/body formatting only, omitting OpenXML footnotes.xml packaging logic."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-ORCHESTRATOR-OPENXML-VERIFICATION-GAP",
+      "decision_type": "STAGE_GATE_VERIFICATION_OMISSION",
+      "selected_option": "Validating stage deliverable based on metadata and text content without inspecting Word OpenXML package structure",
+      "rationale": "academic-orchestrator verified word count (663), character count (3921), and confirmed that inline Latin names were removed from draft.md, but failed to execute a structural validator to confirm whether 02_hypothesis_1_discussion.docx contained word/footnotes.xml and valid <w:footnoteReference> tags.",
+      "alternatives_considered": [
+        {
+          "option": "Run OpenXML archive inspector checking for word/footnotes.xml before approving stage",
+          "verdict": "OMITTED_FROM_AUDIT",
+          "reason": "Validation suite lacked an automated OpenXML structural check verifying native Word footnote integration."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+      "sha256": "a84ee58a7d9ceb1e2944cf8a68dc6acfd3667f4bac11ee2b78c3039bf8899a6a",
+      "type": "openxml_word"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+      "sha256": "6a5bd766062d1961911f854139f7cf373e517d5d08d83c9df7381dec30aa1a3c",
+      "type": "narrative_markdown"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "sha256": "3b845ea1b2f71b2e0e85bf95d9c914466009cfc04346f67f3aca2c8b61b09f59",
+      "type": "triad_metadata"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "empirical_consistency_auditor",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "stage": "02_hypothesis_discussion",
+        "correlation_value": "r = -0.18, p = 0.010",
+        "sample_size": "N = 208",
+        "direction": "negative_supported",
+        "tables_count": 0
+      }
+    },
+    {
+      "validator_name": "openxml_structure_auditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "missing_word_footnotes_xml",
+        "missing_footnote_reference_elements",
+        "missing_footnotes_content_type_override",
+        "missing_footnotes_relationship",
+        "footnote_definitions_rendered_as_body_paragraphs"
+      ],
+      "evidence_summary": {
+        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "failure_line_range": "scaffold_chapter5_triad.py:220-241",
+        "raw_paragraph_footnote_lines": [
+          "[^1]: Hackman & Oldham",
+          "[^2]: Demircioglu",
+          "[^3]: Cognitive Load Theory",
+          "[^4]: Sweller",
+          "[^5]: Role Strain Theory",
+          "[^6]: Goode",
+          "[^7]: Kahn et al.",
+          "[^8]: Standard Operating Procedures (SOPs)"
+        ],
+        "in_text_raw_tokens": [
+          "هکمن و اولدهام (۱۹۷۶، ۱۹۸۰)[^1]",
+          "دمیرچی‌اوغلو (۲۰۲۰)[^2]",
+          "نظریه بار شناختی[^3]",
+          "سوئلر (۱۹۸۸)[^4]",
+          "نظریه فشار نقش[^5]",
+          "گود (۱۹۶۰)[^6]",
+          "کان و همکاران (۱۹۶۴)[^7]",
+          "دستورالعمل‌های استاندارد عملیاتی[^8]"
+        ],
+        "zip_entry_word_footnotes_xml_present": false,
+        "document_xml_has_w_footnoteReference": false
+      }
+    },
+    {
+      "validator_name": "human_supervisor_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "pseudo_footnotes_plain_text_paragraphs"
+      ],
+      "evidence_summary": {
+        "critique_text": "Use native footnote of word. not just a text.",
+        "defect_description": "User opened 02_hypothesis_1_discussion.docx and observed footnote definitions printed as ordinary paragraphs at the bottom of the body text rather than genuine Word page-bottom footnotes linked to superscript markers."
+      }
+    }
+  ],
+  "feedback": [
+    "EVT-20260924-NATIVE-FN-FEEDBACK"
+  ],
+  "outcome": "FAILURE"
+}

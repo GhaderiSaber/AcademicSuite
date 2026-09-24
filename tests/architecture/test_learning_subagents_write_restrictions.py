@@ -5,8 +5,8 @@ tests/architecture/test_learning_subagents_write_restrictions.py
 
 Verifies:
 1. All 6 continuous learning subagents possess write_to_file capability.
-2. Learning subagents are strictly restricted to writing JSON files (.json).
-3. Any attempt by learning subagents to write .doc, .docx, or .md files is strictly DENIED by the safety hook.
+2. Learning subagents are permitted to write JSON (.json, .jsonl) and Markdown (.md) files.
+3. Any attempt by learning subagents to write .doc, .docx, or non-documentation files is strictly DENIED by the safety hook.
 4. Non-learning worker subagents (e.g. academic-writer) remain unrestricted by this guard.
 5. All 6 learning subagents comply with the canonical capability policy in agent_capabilities.yaml.
 """
@@ -151,7 +151,7 @@ class TestLearningSubagentsWriteRestrictions(unittest.TestCase):
             self.assertEqual(res.get("decision"), "deny")
             reason = res.get("reason", "")
             self.assertIn("Learning Subagent File Restriction", reason)
-            self.assertIn("strictly restricted to writing JSON files", reason)
+            self.assertIn("restricted to writing JSON and Markdown files", reason)
 
     def test_learning_subagents_denied_writing_docx_files(self):
         """All 6 learning subagents must be denied writing .docx files."""
@@ -173,29 +173,29 @@ class TestLearningSubagentsWriteRestrictions(unittest.TestCase):
             self.assertEqual(res.get("decision"), "deny")
             reason = res.get("reason", "")
             self.assertIn("Learning Subagent File Restriction", reason)
-            self.assertIn("strictly restricted to writing JSON files", reason)
+            self.assertIn("restricted to writing JSON and Markdown files", reason)
 
-    def test_learning_subagents_denied_writing_md_files(self):
-        """All 6 learning subagents must be denied writing .md files."""
+    def test_learning_subagents_allowed_to_write_md_files(self):
+        """All 6 learning subagents must be allowed to write valid .md files (e.g. SKILL.md, reports)."""
         for agent in self.learning_agents:
             payload = {
                 "agentName": agent,
                 "toolCall": {
                     "name": "write_to_file",
                     "args": {
-                        "TargetFile": "/workspace/notes.md",
-                        "CodeContent": "# Notes",
-                        "Description": "Attempting to write markdown file",
+                        "TargetFile": f"/workspace/evals/test_{agent}.md",
+                        "CodeContent": "# Notes and Reports",
+                        "Description": "Writing markdown file",
                         "Overwrite": True
                     }
                 },
                 "workspacePaths": ["/workspace"]
             }
             res = SafetyHooks.handle_pre_tool_use(payload)
-            self.assertEqual(res.get("decision"), "deny")
-            reason = res.get("reason", "")
-            self.assertIn("Learning Subagent File Restriction", reason)
-            self.assertIn("strictly restricted to writing JSON files", reason)
+            self.assertEqual(
+                res.get("decision"), "allow",
+                f"Agent '{agent}' was unexpectedly denied writing a .md file: {res.get('reason')}"
+            )
 
     def test_learning_subagents_denied_writing_other_non_json_extensions(self):
         """All 6 learning subagents must be denied writing other non-JSON formats (.py, .txt, .sh)."""

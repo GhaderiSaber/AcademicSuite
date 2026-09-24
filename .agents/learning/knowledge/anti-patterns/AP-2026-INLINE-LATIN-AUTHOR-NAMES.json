@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-INLINE-LATIN-AUTHOR-NAMES",
+  "category": "typography",
+  "defective_pattern": "Inserting Latin script author names directly into Persian text (e.g., 'Smith و همکاران').",
+  "why_defective": "Breaks Persian academic typographic standards which require phonetic transliteration in the body and original Latin script in footnotes.",
+  "observed_symptoms": [
+    "English author names appearing mid-sentence in Persian paragraphs.",
+    "Disruption of Right-To-Left text rendering."
+  ],
+  "corrective_remedy": "Transliterate author names into Persian script (e.g., 'اسمیت'). Place the Latin name ('Smith') in a footnote referenced immediately after the Persian transliteration.",
+  "detection_heuristic": {
+    "trigger_rule": "Regex detecting Latin alphabetical characters [A-Za-z] inside Persian text paragraphs, specifically associated with citation contexts."
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T08:55:00Z"
+}

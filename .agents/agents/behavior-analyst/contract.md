@@ -56,7 +56,7 @@ Conduct rigorous causal root-cause analysis on observable execution trajectories
 - `list_dir`
 - `grep_search`
 - `find_by_name`
-- `write_to_file` (strictly restricted to `.json` files; writing `.doc`, `.docx`, `.md` is forbidden)
+- `write_to_file` (permitted for `.json` and `.md` files; writing `.doc`, `.docx` is forbidden)
 
 ---
 

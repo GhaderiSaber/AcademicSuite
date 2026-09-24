@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20260924-NATIVE-FN-001",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-discussion-builder",
+  "observable_failure_step": "Step 4 (SKILL_INVOCATION): scaffold_chapter5_triad.py executed lines 220-241, appending footnote definitions as literal text. Step 7 (DECISION_FORMULATION): academic-orchestrator approved the deliverable without OpenXML validation.",
+  "failure_signature": "PLAIN_TEXT_FOOTNOTES_IN_WORD",
+  "root_cause_diagnosis": "The defect emerged from an architectural silo: scaffold_chapter5_triad.py lacks integration with existing pack_native_footnotes utilities. In Step 4, lines 220-241 processed footnote definitions as standard paragraphs due to omitted regex parsing, bypassing OpenXML creation. Subsequently, in Step 7, academic-orchestrator performed a superficial content audit that failed to inspect the internal OpenXML container structure of the generated .docx for word/footnotes.xml and <w:footnoteReference> elements.",
+  "prescribed_behavior": "Implement mandatory OpenXML footnote injection across all Word docx compilation utilities by bridging the architectural silo and importing pack_native_footnotes. Additionally, mandate automated zip verification in orchestrator gates to physically validate the presence of OpenXML native footnotes (word/footnotes.xml and <w:footnoteReference>) before approving .docx deliverables."
+}

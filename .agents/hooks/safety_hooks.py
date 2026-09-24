@@ -621,21 +621,21 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
                     )
                 }
 
-        # 2b. Learning Subagent JSON-Only File Restriction Guard
-        # Learning subagents are strictly restricted to writing JSON files (.json).
-        # Writing .doc, .docx, .md, or any non-JSON file is strictly forbidden.
+        # 2b. Learning Subagent JSON & Markdown File Restriction Guard
+        # Learning subagents are permitted to write JSON (.json, .jsonl) and Markdown (.md) files.
+        # Writing Word documents (.doc, .docx) or non-documentation binaries is strictly forbidden.
         if tool_name in MUTATION_TOOLS and is_learning_subagent(target):
             targets = extract_target_paths(tool_name, args)
             for t_path in targets:
                 t_norm = os.path.normpath(t_path).replace("\\", "/").lower()
-                if not t_norm.endswith(".json"):
+                if not (t_norm.endswith(".json") or t_norm.endswith(".jsonl") or t_norm.endswith(".md")):
                     t_base = os.path.basename(t_norm)
                     return {
                         "decision": "deny",
                         "reason": (
                             f"CONSTITUTIONAL VIOLATION (Learning Subagent File Restriction): "
-                            f"Learning subagent '{caller}' is strictly restricted to writing JSON files (.json). "
-                            f"Writing doc, md, or non-JSON files ('{t_base}') is strictly forbidden."
+                            f"Learning subagent '{caller}' is restricted to writing JSON and Markdown files (.json, .jsonl, .md). "
+                            f"Writing doc, docx, or deliverable files ('{t_base}') is strictly forbidden."
                         )
                     }
 
@@ -827,15 +827,16 @@ class SafetyHooks:
                 target_norm = os.path.normpath(target).replace("\\", "/")
                 target_base = os.path.basename(target_norm)
 
-                # Learning Subagent File Restriction Guard (JSON-only mandate)
+                # Learning Subagent File Restriction Guard (JSON and Markdown permitted)
                 if caller and is_learning_subagent(caller):
-                    if not target_norm.lower().endswith(".json"):
+                    target_lower = target_norm.lower()
+                    if not (target_lower.endswith(".json") or target_lower.endswith(".jsonl") or target_lower.endswith(".md")):
                         return {
                             "decision": "deny",
                             "reason": (
                                 f"CONSTITUTIONAL VIOLATION (Learning Subagent File Restriction): "
-                                f"Learning subagent '{caller}' is strictly restricted to writing JSON files (.json). "
-                                f"Writing doc, md, or non-JSON files ('{target_base}') is strictly forbidden."
+                                f"Learning subagent '{caller}' is restricted to writing JSON and Markdown files (.json, .jsonl, .md). "
+                                f"Writing doc, docx, or binary deliverable files ('{target_base}') is strictly forbidden."
                             )
                         }
 

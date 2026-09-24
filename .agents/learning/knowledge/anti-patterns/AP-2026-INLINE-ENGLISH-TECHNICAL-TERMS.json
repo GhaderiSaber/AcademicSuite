@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-INLINE-ENGLISH-TECHNICAL-TERMS",
+  "category": "typography",
+  "defective_pattern": "Inserting English technical terms or acronyms inline within Persian academic text.",
+  "why_defective": "Violates formal Persian scholarly writing norms requiring unified RTL script. Inline English disrupts reading flow and formatting.",
+  "observed_symptoms": [
+    "Latin script terminology interspersed with Persian words.",
+    "Inconsistent visual presentation of key theoretical concepts."
+  ],
+  "corrective_remedy": "Use standard Persian translations for technical terms. Provide the original English term or acronym as a footnote upon its first occurrence.",
+  "detection_heuristic": {
+    "trigger_rule": "Scanning for Latin script substrings [A-Za-z] functioning as standalone technical jargon within RTL blocks."
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T08:55:00Z"
+}

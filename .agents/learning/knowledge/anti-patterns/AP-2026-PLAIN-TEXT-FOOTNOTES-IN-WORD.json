@@ -1,0 +1,23 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-PLAIN-TEXT-FOOTNOTES-IN-WORD",
+  "category": "typography",
+  "defective_pattern": "Appending footnote definitions as standard plain text paragraphs in Word docx files.",
+  "why_defective": "Bypasses OpenXML creation, resulting in documents that lack native footnote behavior (e.g., dynamic numbering, hover text, proper structural linkage).",
+  "observed_symptoms": [
+    "Footnotes appear as literal text at the end of the document.",
+    "Absence of 'word/footnotes.xml' in the DOCX archive.",
+    "Absence of '<w:footnoteReference>' elements in 'word/document.xml'."
+  ],
+  "corrective_remedy": "Implement mandatory OpenXML footnote injection using native utilities like pack_native_footnotes. Add zip verification in orchestrator gates to ensure word/footnotes.xml exists.",
+  "detection_heuristic": {
+    "trigger_rule": "Absence of word/footnotes.xml inside the generated DOCX archive when footnotes are expected, or finding plain text footnote strings at the bottom of document text."
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T09:00:00Z"
+}

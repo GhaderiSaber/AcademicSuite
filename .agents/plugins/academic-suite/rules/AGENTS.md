@@ -48,6 +48,8 @@ These domain rules are automatically loaded and applied across all conversations
   - Numeric cells must be decoupled to LTR (`rtl="0"`) with Latin font (`Times New Roman`) so negative signs precede numbers ($-0.32$).
 - **Zero Manual Breaks**: Never use `<w:br/>` / `\n` in justified text. Use `<w:p>` paragraph marks.
 - **Preserve Math**: Preserve native Word OMML math equations (`<m:oMath>`).
+- **Zero Inline Latin in Persian Text**: Running Persian narrative text must strictly contain zero Latin script words. Foreign author names must be transliterated phonetically to Persian (e.g. «اسمیت»), technical jargon translated to Persian, and the original English terminology/spelling placed strictly in footnotes.
+- **Native OpenXML Word Footnotes**: Footnotes in Word `.docx` deliverables must be compiled as true native OpenXML elements (`word/footnotes.xml` and `<w:footnoteReference>`), never simulated as plain text paragraphs at the bottom of the document.
 
 ---
 
