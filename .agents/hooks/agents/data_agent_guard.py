@@ -19,7 +19,7 @@ import os
 import re
 import json
 import argparse
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", "..", ".."))
@@ -28,7 +28,7 @@ for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents", "hooks")):
         sys.path.insert(0, p)
 
 try:
-    from safety_hooks import is_raw_data_path, is_raw_data_command
+    from safety_hooks import is_raw_data_path, is_raw_data_command, is_root_script_target, is_deliverables_script_target
 except ImportError:
     def is_raw_data_path(p: str) -> bool:
         if not p: return False
@@ -40,11 +40,37 @@ except ImportError:
         cl = c.lower()
         return any(k in cl for k in ("01_raw_inputs", "raw_data", "raw.xlsx", "raw.sav", "raw.csv")) and any(d in cl for d in ("rm ", "unlink ", "truncate ", "> ", ">> ", "shred "))
 
+    def is_root_script_target(p, w=None): return False, ""
+    def is_deliverables_script_target(p): return False, ""
+
+
+def has_viewed_skill(transcript_path: Optional[str], skill_name: str) -> bool:
+    """Verifies that view_file was called on the skill's SKILL.md in the current session."""
+    if not transcript_path or not os.path.exists(transcript_path):
+        return True
+    expected = f"{skill_name}/skill.md".lower()
+    try:
+        with open(transcript_path, "r", encoding="utf-8") as tf:
+            for line in tf:
+                line = line.strip()
+                if not line:
+                    continue
+                rec = json.loads(line)
+                for tc in rec.get("tool_calls", []):
+                    if (tc.get("name") or "").lower() == "view_file":
+                        p = (tc.get("args", {}).get("AbsolutePath") or "").replace("\\", "/").lower()
+                        if p.endswith(expected):
+                            return True
+    except Exception:
+        pass
+    return False
+
 
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     tool_call = payload.get("toolCall", {})
     tool_name = (tool_call.get("name") or "").strip().lower()
     args = tool_call.get("args", {})
+    workspaces = payload.get("workspacePaths", [ROOT_DIR])
 
     # Directive 12: Worker Delegation Guard
     if tool_name in ("invoke_subagent", "define_subagent"):
@@ -56,6 +82,30 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 "strictly forbidden from spawning secondary subagents."
             )
         }
+
+    # Directive 23: Clean Workspace Root & Deliverables Purity Standards
+    if tool_name in ("write_to_file", "replace_file_content", "edit_file", "patch"):
+        target_path = args.get("TargetFile") or args.get("target") or args.get("file_path") or ""
+        is_root, script_name = is_root_script_target(target_path, workspaces)
+        if is_root:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 23 — Clean Workspace Root Standard): "
+                    f"Writing script file '{script_name}' directly into the repository root is strictly forbidden.\n"
+                    f"Route scripts strictly to: (1) '02_analysis_code/', (2) '.agents/scripts/', (3) 'tests/', or scratch."
+                )
+            }
+        is_deliv, deliv_script = is_deliverables_script_target(target_path)
+        if is_deliv:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 23 — Deliverables Purity Standard): "
+                    f"Writing executable script '{deliv_script}' inside a deliverables directory is strictly forbidden. "
+                    f"Deliverables directories must contain exclusively publication artifacts (.docx, .md, .json, .pdf)."
+                )
+            }
 
     # Raw Data Immutability Guard on file mutations
     if tool_name in ("write_to_file", "replace_file_content", "edit_file", "patch"):
@@ -70,6 +120,26 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     f"Save cleaned/processed datasets to '02_analysis_code/' or '02_analysis_code/cleaned/'."
                 )
             }
+
+    # Directive 1: Mandatory Pre-Flight Gate on CLI Scripts
+    if tool_name == "run_command":
+        cmd = args.get("CommandLine", "")
+        m = re.search(r'\.agents/skills/([\w-]+)/scripts/([\w-]+\.py)', cmd)
+        if m:
+            skill_name = m.group(1)
+            script_name = m.group(2)
+            transcript_path = payload.get("transcriptPath")
+            if transcript_path and os.path.exists(transcript_path):
+                if not has_viewed_skill(transcript_path, skill_name):
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 1 — Mandatory Pre-Flight Gate):\n"
+                            f"Cannot execute '{script_name}'. You MUST call 'view_file' on "
+                            f"'.agents/skills/{skill_name}/SKILL.md' before executing its scripts to ingest "
+                            f"the decision trees, APA standards, and operational invariants."
+                        )
+                    }
 
     # Raw Data Immutability Guard on shell commands
     if tool_name == "run_command":

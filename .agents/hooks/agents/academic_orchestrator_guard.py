@@ -17,6 +17,7 @@ Enforces:
 
 import sys
 import os
+import re
 import json
 import argparse
 from typing import Dict, Any
@@ -37,15 +38,25 @@ except ImportError:
             return True, "Validator unavailable", None
 
 try:
-    from contracts.canonical_pipelines import verify_pipeline_stage_prerequisites, verify_capability_routing
+    from contracts.canonical_pipelines import (
+        verify_pipeline_stage_prerequisites,
+        verify_capability_routing,
+        find_files_matching
+    )
 except ImportError:
     try:
-        from canonical_pipelines import verify_pipeline_stage_prerequisites, verify_capability_routing
+        from canonical_pipelines import (
+            verify_pipeline_stage_prerequisites,
+            verify_capability_routing,
+            find_files_matching
+        )
     except ImportError:
         def verify_pipeline_stage_prerequisites(s, w):
             return True, "Pipeline validator unavailable"
         def verify_capability_routing(w, p, e=None):
             return True, "Capability validator unavailable"
+        def find_files_matching(w, p):
+            return []
 
 FORBIDDEN_ORCHESTRATOR_TOOLS = {
     "run_command",
@@ -173,6 +184,25 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                             )
                         }
 
+                # Directive 13: Anti-Sycophancy Invariant
+                raw_model_text = (last_record.get("content") or "").strip()
+                first_line = raw_model_text.split("\n")[0].strip() if raw_model_text else ""
+                flattery_patterns = [
+                    r"^(?:that(?:'s| is) a\s+)?(?:great|excellent|fantastic|wonderful|brilliant|insightful)\s+(?:question|point|observation|inquiry)",
+                    r"^you(?:'re| are)\s+(?:absolutely\s+|completely\s+|entirely\s+)?right\b",
+                    r"^(?:great|excellent|wonderful)\s+choice\b"
+                ]
+                for fp in flattery_patterns:
+                    if re.search(fp, first_line, re.IGNORECASE):
+                        return {
+                            "decision": "continue",
+                            "reason": (
+                                "CONSTITUTIONAL VIOLATION (Directive 13 — Anti-Sycophancy Invariant): "
+                                "Sycophantic conversational openings ('Great question!', 'You are absolutely right!') are strictly forbidden. "
+                                "Academic communication must remain strictly objective, neutral, and fact-based."
+                            )
+                        }
+
                 # Directive 11: Interactive Stage-Gate Protocol
                 # If subagents were invoked in this turn, verify that orchestrator halted and requested user confirmation
                 records = [json.loads(l) for l in lines]
@@ -194,6 +224,38 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 "what will be done next, and halt to request user confirmation before proceeding."
                             )
                         }
+
+                    # Directive 3: Triad Artifact Completion Audit on Stage Conclusion
+                    workspaces = payload.get("workspacePaths", [ROOT_DIR])
+                    for r in records:
+                        for tc in r.get("tool_calls", []):
+                            if (tc.get("name") or "").lower() == "invoke_subagent":
+                                sub_list = tc.get("args", {}).get("Subagents", [])
+                                for sub in sub_list:
+                                    p_text = sub.get("Prompt", "")
+                                    is_cde, _, env = validate_delegation_prompt(p_text, expected_worker=sub.get("TypeName"))
+                                    if env and env.get("required_artifacts"):
+                                        req_arts = env.get("required_artifacts", [])
+                                        missing_arts = []
+                                        empty_arts = []
+                                        for art in req_arts:
+                                            art_name = os.path.basename(art)
+                                            found = find_files_matching(workspaces, re.escape(art_name))
+                                            if not found:
+                                                missing_arts.append(art)
+                                            elif all(os.path.getsize(f) == 0 for f in found):
+                                                empty_arts.append(art)
+                                        if missing_arts or empty_arts:
+                                            return {
+                                                "decision": "continue",
+                                                "reason": (
+                                                    f"CONSTITUTIONAL VIOLATION (Directive 3 — Triad Artifact Invariant):\n"
+                                                    f"Stage declared completion, but required deliverables are missing or empty on disk.\n"
+                                                    f"Missing artifacts: {missing_arts}\n"
+                                                    f"Empty (0-byte) artifacts: {empty_arts}\n"
+                                                    f"Every micro-stage must generate the complete synchronized triad on disk (.docx + .md + .json)."
+                                                )
+                                            }
         except Exception:
             pass
 

@@ -23,13 +23,21 @@ import os
 import re
 import json
 import argparse
-from typing import Dict, Any
+import zipfile
+import xml.etree.ElementTree as ET
+from typing import Dict, Any, Optional, Tuple, List
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", "..", ".."))
 for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents", "hooks")):
     if p not in sys.path:
         sys.path.insert(0, p)
+
+try:
+    from safety_hooks import is_root_script_target, is_deliverables_script_target
+except ImportError:
+    def is_root_script_target(p, w=None): return False, ""
+    def is_deliverables_script_target(p): return False, ""
 
 FORBIDDEN_AI_CLICHES = [
     "شایان ذکر است که",
@@ -40,11 +48,50 @@ FORBIDDEN_AI_CLICHES = [
     "به طور چشمگیری می‌توان ادعا کرد"
 ]
 
+EMOJI_PATTERN = re.compile(
+    r"[\U0001F1E0-\U0001F1FF"
+    r"\U0001F300-\U0001F5FF"
+    r"\U0001F600-\U0001F64F"
+    r"\U0001F680-\U0001F6FF"
+    r"\U0001F700-\U0001F77F"
+    r"\U0001F780-\U0001F7FF"
+    r"\U0001F800-\U0001F8FF"
+    r"\U0001F900-\U0001F9FF"
+    r"\U0001FA00-\U0001FA6F"
+    r"\U0001FA70-\U0001FAFF"
+    r"\u2600-\u26FF"
+    r"\u2700-\u27BF"
+    r"]",
+    re.UNICODE
+)
+
+
+def check_chapter_5_docx_tables(file_path: str) -> Tuple[bool, int]:
+    """Checks if a Chapter 5 Word .docx file contains <w:tbl> table elements."""
+    if not file_path or not os.path.exists(file_path) or not file_path.lower().endswith(".docx"):
+        return False, 0
+    fname = os.path.basename(file_path).lower()
+    if not any(k in fname for k in ("chapter_5", "chapter5", "ch5", "discussion")):
+        return False, 0
+    try:
+        with zipfile.ZipFile(file_path, "r") as zf:
+            if "word/document.xml" not in zf.namelist():
+                return False, 0
+            xml_data = zf.read("word/document.xml")
+            root = ET.fromstring(xml_data)
+            tables = [elem for elem in root.iter() if elem.tag.endswith("}tbl") or elem.tag == "tbl"]
+            if tables:
+                return True, len(tables)
+    except Exception:
+        pass
+    return False, 0
+
 
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     tool_call = payload.get("toolCall", {})
     tool_name = (tool_call.get("name") or "").strip().lower()
     args = tool_call.get("args", {})
+    workspaces = payload.get("workspacePaths", [ROOT_DIR])
 
     # Directive 12: Worker Delegation Guard
     if tool_name in ("invoke_subagent", "define_subagent"):
@@ -56,6 +103,44 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 "forbidden from spawning secondary subagents."
             )
         }
+
+    # Directive 23: Clean Workspace Root & Deliverables Purity Standards
+    if tool_name in ("write_to_file", "replace_file_content", "edit_file", "patch"):
+        target_path = args.get("TargetFile") or args.get("target") or args.get("file_path") or ""
+        is_root, script_name = is_root_script_target(target_path, workspaces)
+        if is_root:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 23 — Clean Workspace Root Standard): "
+                    f"Writing script file '{script_name}' directly into the repository root is strictly forbidden.\n"
+                    f"Route scripts strictly to: (1) '02_analysis_code/', (2) '.agents/scripts/', (3) 'tests/', or scratch."
+                )
+            }
+        is_deliv, deliv_script = is_deliverables_script_target(target_path)
+        if is_deliv:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 23 — Deliverables Purity Standard): "
+                    f"Writing executable script '{deliv_script}' inside a deliverables directory is strictly forbidden. "
+                    f"Deliverables directories must contain exclusively publication artifacts (.docx, .md, .json, .pdf)."
+                )
+            }
+
+        # Directive 4.1: Zero Emojis in Academic Deliverables
+        content_to_check = args.get("CodeContent") or args.get("ReplacementContent") or ""
+        if isinstance(content_to_check, str) and any(ext in target_path.lower() for ext in (".docx", ".md", ".pptx", ".txt")):
+            emojis_found = EMOJI_PATTERN.findall(content_to_check)
+            if emojis_found:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 4.1 — Zero Emojis Invariant): "
+                        f"Detected forbidden emojis in academic text for '{os.path.basename(target_path)}': {list(set(emojis_found))[:5]}. "
+                        f"Academic deliverables and defense slides must maintain strictly sober academic tone with ZERO emojis."
+                    )
+                }
 
     # Directive 6: English ASCII Filename Guard
     for arg_val in args.values():
@@ -76,12 +161,14 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
     transcript_path = payload.get("transcriptPath")
+    workspaces = payload.get("workspacePaths", [ROOT_DIR])
+
     if transcript_path and os.path.exists(transcript_path):
         try:
             with open(transcript_path, "r", encoding="utf-8") as tf:
                 records = [json.loads(l) for l in tf if l.strip()]
 
-            # Inspect last planner response for clichés and Chapter 5 table violations
+            # Inspect last planner response for clichés, emojis, and Chapter 5 table violations
             for rec in reversed(records):
                 if rec.get("type") == "PLANNER_RESPONSE":
                     content = rec.get("content", "")
@@ -97,8 +184,20 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                     f"objective, neutral, and sober. Please rephrase without sensational or clichéd padding."
                                 )
                             }
+
+                    # 2. Directive 4.1: Emoji scan in deliverables summary / response
+                    emojis_found = EMOJI_PATTERN.findall(content)
+                    if emojis_found and any(k in content.lower() for k in ("فصل", "chapter", "slide", "اسلاید", "deliverable")):
+                        return {
+                            "decision": "continue",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 4.1 — Zero Emojis Invariant): "
+                                f"Detected forbidden emojis in academic presentation/summary: {list(set(emojis_found))[:5]}. "
+                                f"Academic deliverables and slides must contain strictly ZERO emojis."
+                            )
+                        }
                     
-                    # 2. Chapter 5 Prose-Only Invariant: zero tables
+                    # 3. Chapter 5 Prose-Only Invariant: zero markdown tables
                     is_ch5 = any(k in content.lower() for k in ("فصل پنجم", "فصل ۵", "chapter 5", "chapter_5", "05_discussion"))
                     if is_ch5 and re.search(r'\|[\s\-:]+\|', content):
                         return {
@@ -113,6 +212,34 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     break
         except Exception:
             pass
+
+    # 4. Directive 3.1: OpenXML DOM audit for <w:tbl> in Chapter 5 Word files on disk
+    try:
+        for ws in workspaces:
+            if not ws or not os.path.exists(ws):
+                continue
+            for root, _, files in os.walk(ws):
+                if any(part.startswith(".") for part in root.split(os.sep) if part not in (".", "..")):
+                    continue
+                if "scratch" in root:
+                    continue
+                for f in files:
+                    if f.lower().endswith(".docx") and any(k in f.lower() for k in ("chapter_5", "chapter5", "ch5", "discussion")):
+                        fpath = os.path.join(root, f)
+                        has_tbl, tbl_count = check_chapter_5_docx_tables(fpath)
+                        if has_tbl:
+                            return {
+                                "decision": "continue",
+                                "reason": (
+                                    f"CONSTITUTIONAL VIOLATION (Directive 3.1 — Chapter 5 Prose-Only Invariant): "
+                                    f"Chapter 5 Word deliverable '{f}' contains {tbl_count} table (<w:tbl>) element(s). "
+                                    f"Chapter 5 must strictly contain ZERO tables (100% continuous narrative prose, "
+                                    f"theoretical synthesis, and psychological mechanisms). All numerical and statistical tables belong exclusively in Chapter 4."
+                                )
+                            }
+                        break
+    except Exception:
+        pass
 
     return {"decision": "allow"}
 

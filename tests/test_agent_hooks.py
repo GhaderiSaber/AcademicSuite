@@ -392,6 +392,60 @@ class TestAcademicOrchestratorGuard(unittest.TestCase):
             if os.path.exists(tpath):
                 os.unlink(tpath)
 
+    def test_stop_blocks_flattery_sycophancy(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "content": "Great question! We will now proceed with the statistical verification."
+            }) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = academic_orchestrator_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 13", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_stop_blocks_missing_triad_disk_artifacts(self):
+        cde = {
+            "task_id": "STAGE_4_1",
+            "worker_agent": "statistics-agent",
+            "inputs": ["02_analysis/clean_data.xlsx"],
+            "required_artifacts": ["stage4_1_summary.docx", "stage4_1_results.md", "stage4_1_stats.json"],
+            "objective": "Run descriptive statistics"
+        }
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [{
+                    "name": "invoke_subagent",
+                    "args": {
+                        "Subagents": [{
+                            "TypeName": "statistics-agent",
+                            "Prompt": f"Please execute task:\n```json\n{json.dumps(cde)}\n```"
+                        }]
+                    }
+                }]
+            }) + "\n")
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "content": "Stage 4.1 completed. What was done: calculated descriptives. What will be done next: assumptions. Please confirm."
+            }) + "\n")
+            tpath = tf.name
+
+        try:
+            with tempfile.TemporaryDirectory() as temp_ws:
+                payload = {"transcriptPath": tpath, "workspacePaths": [temp_ws]}
+                res = academic_orchestrator_guard.handle_stop(payload)
+                self.assertEqual(res.get("decision"), "continue")
+                self.assertIn("Directive 3", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
 
 class TestStatisticsAgentGuard(unittest.TestCase):
     """Tests for Statistics Specialist Subagent hook."""
@@ -455,6 +509,67 @@ class TestStatisticsAgentGuard(unittest.TestCase):
             res = statistics_agent_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Directive 2", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_blocks_root_script_target_in_statistics_agent(self):
+        with tempfile.TemporaryDirectory() as temp_ws:
+            payload = {
+                "toolCall": {
+                    "name": "write_to_file",
+                    "args": {"TargetFile": os.path.join(temp_ws, "run_anova.py")}
+                },
+                "workspacePaths": [temp_ws]
+            }
+            res = statistics_agent_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Directive 23", res.get("reason", ""))
+
+    def test_blocks_cli_script_without_view_file(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [{"name": "some_other_tool", "args": {}}]
+            }) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": "python3 .agents/skills/descriptive-statistics/scripts/descriptive_statistics.py"}
+                },
+                "transcriptPath": tpath
+            }
+            res = statistics_agent_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Directive 1", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_allows_cli_script_after_view_file(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [{
+                    "name": "view_file",
+                    "args": {"AbsolutePath": "/workspace/.agents/skills/descriptive-statistics/SKILL.md"}
+                }]
+            }) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": "python3 .agents/skills/descriptive-statistics/scripts/descriptive_statistics.py"}
+                },
+                "transcriptPath": tpath
+            }
+            res = statistics_agent_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "allow")
         finally:
             if os.path.exists(tpath):
                 os.unlink(tpath)
@@ -532,6 +647,58 @@ class TestAcademicWriterGuard(unittest.TestCase):
         finally:
             if os.path.exists(tpath):
                 os.unlink(tpath)
+
+    def test_blocks_deliverables_script_target_in_writer(self):
+        payload = {
+            "toolCall": {
+                "name": "write_to_file",
+                "args": {"TargetFile": "03_deliverables/generate_chapter.py"}
+            }
+        }
+        res = academic_writer_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 23", res.get("reason", ""))
+
+    def test_blocks_emojis_in_writer_deliverables(self):
+        payload = {
+            "toolCall": {
+                "name": "write_to_file",
+                "args": {
+                    "TargetFile": "03_deliverables/Chapter_4.docx",
+                    "CodeContent": "فصل چهارم: یافته‌های پژوهش 📊"
+                }
+            }
+        }
+        res = academic_writer_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 4.1", res.get("reason", ""))
+
+    def test_blocks_chapter_5_docx_with_tables(self):
+        import zipfile
+        with tempfile.TemporaryDirectory() as temp_ws:
+            docx_path = os.path.join(temp_ws, "Chapter_5_Discussion.docx")
+            xml_content = (
+                b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+                b'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                b'<w:body><w:p><w:r><w:t>Prose text</w:t></w:r></w:p>'
+                b'<w:tbl><w:tr><w:tc><w:p><w:r><w:t>Cell</w:t></w:r></w:p></w:tc></w:tr></w:tbl>'
+                b'</w:body></w:document>'
+            )
+            with zipfile.ZipFile(docx_path, "w") as zf:
+                zf.writestr("word/document.xml", xml_content)
+
+            with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+                tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Completed chapter 5 drafting."}) + "\n")
+                tpath = tf.name
+
+            try:
+                payload = {"transcriptPath": tpath, "workspacePaths": [temp_ws]}
+                res = academic_writer_guard.handle_stop(payload)
+                self.assertEqual(res.get("decision"), "continue")
+                self.assertIn("Directive 3.1", res.get("reason", ""))
+            finally:
+                if os.path.exists(tpath):
+                    os.unlink(tpath)
 
 
 class TestValidationAgentGuard(unittest.TestCase):
