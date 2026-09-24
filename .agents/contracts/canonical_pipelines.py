@@ -537,6 +537,182 @@ def verify_pipeline_stage_prerequisites(stage_str: str, workspaces: List[str]) -
     return True, f"Prerequisites for {spec.get('name')} are satisfied."
 
 
+# ─── CANONICAL CAPABILITY ROUTING SPECIFICATIONS ───
+CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
+    "computational_statistics": {
+        "name": "Computational Statistics & Modeling",
+        "allowed_workers": {"statistics-agent", "statistical-expert"},
+        "forbidden_workers": {"academic-writer", "research-agent", "project-organizer", "literature-expert"},
+        "script_patterns": [
+            r"run_regression\.py",
+            r"run_sem\.py",
+            r"run_cfa\.py",
+            r"run_mediation\.py",
+            r"run_moderation\.py",
+            r"verify_assumptions\.py",
+            r"calculate_descriptives\.py",
+            r"calculate_reliability\.py",
+            r"longitudinal_modmed\.py",
+            r"run_ancova\.py",
+            r"lavaan_syntax\.R",
+        ],
+        "keyword_patterns": [
+            r"\bmultiple regression\b",
+            r"\bhierarchical regression\b",
+            r"\bstructural equation model(?:ing)?\b",
+            r"\bconfirmatory factor analysis\b",
+            r"\bprocess model\b",
+            r"\bbootstrap mediation\b",
+            r"\bmoderation interaction\b",
+            r"\bparametric assumptions?\b",
+            r"\blevene'?s test\b",
+            r"\bshapiro[- ]wilk\b",
+        ],
+        "remedy": "Computational statistical modeling must be delegated to 'statistics-agent'."
+    },
+    "data_simulation": {
+        "name": "Psychometric Data Simulation",
+        "allowed_workers": {"data-agent", "statistical-expert", "data-curator"},
+        "forbidden_workers": {"academic-writer", "statistics-agent", "research-agent", "literature-expert"},
+        "script_patterns": [
+            r"simulate_psychometric_data\.py",
+            r"simulate_rct_data\.py",
+        ],
+        "keyword_patterns": [
+            r"\bpsychometric-data-simulator\b",
+            r"\bmonte carlo (?:psychometric )?simulation\b",
+            r"\bsynthetic dataset\b",
+            r"\bsimulate (?:sem|cfa|likert|rct) data\b",
+        ],
+        "remedy": "Data simulation tasks must be delegated to 'data-agent'."
+    },
+    "data_curation_and_cleaning": {
+        "name": "Data Curation, Cleaning & Auditing",
+        "allowed_workers": {"data-agent", "data-curator", "statistical-auditor"},
+        "forbidden_workers": {"academic-writer", "statistics-agent"},
+        "script_patterns": [
+            r"clean_dataset\.py",
+            r"reverse_code\.py",
+            r"audit_dataset\.py",
+            r"detect_outliers\.py",
+        ],
+        "keyword_patterns": [
+            r"\bdata-cleaning\b",
+            r"\bdata-audit\b",
+            r"\breverse[- ]coding raw items\b",
+            r"\blittle'?s mcar\b",
+            r"\bmahalanobis d2?\b",
+            r"\bstraight[- ]lining screening\b",
+        ],
+        "remedy": "Raw data cleaning, screening, and audit must be delegated to 'data-agent'."
+    },
+    "scholarly_writing_and_assembly": {
+        "name": "Scholarly Narrative Drafting & Document Assembly",
+        "allowed_workers": {"academic-writer", "research-agent", "literature-expert"},
+        "forbidden_workers": {"statistics-agent", "data-agent"},
+        "script_patterns": [
+            r"build_thesis\.py",
+            r"build_discussion\.py",
+            r"build_proposal\.py",
+            r"polish_academic_tone\.py",
+            r"format_apa_table\.py",
+        ],
+        "keyword_patterns": [
+            r"\bpersian-thesis-builder\b",
+            r"\bpersian-discussion-builder\b",
+            r"\bchapter-5-writing\b",
+            r"\bpersian-literature-review-builder\b",
+            r"\bpersian-proposal-builder\b",
+            r"\bai-academic-tone-polisher\b",
+            r"\bassemble master thesis\b",
+            r"\bdraft chapter 5\b",
+            r"\bdraft chapter 2\b",
+        ],
+        "remedy": "Scholarly narrative drafting, tone polishing, and document assembly must be delegated to 'academic-writer'."
+    },
+    "adversarial_validation_and_audit": {
+        "name": "Adversarial Validation & Integrity Auditing",
+        "allowed_workers": {"validation-agent", "statistical-auditor", "results-auditor", "evidence-auditor", "final-judge"},
+        "forbidden_workers": {"academic-writer", "statistics-agent", "data-agent"},
+        "script_patterns": [
+            r"verify_thesis_integrity\.py",
+            r"audit_statistical_results\.py",
+            r"viva_voce_simulator\.py",
+        ],
+        "keyword_patterns": [
+            r"\bthesis-integrity-auditor\b",
+            r"\bvalidation_report\.json\b",
+            r"\badversarial verification\b",
+            r"\bmsai anomaly audit\b",
+            r"\bcross-chapter consistency audit\b",
+            r"\bviva voce defense simulator\b",
+        ],
+        "remedy": "Independent adversarial validation and integrity audits cannot be self-delegated to authoring workers. Delegate to 'validation-agent'."
+    }
+}
+
+
+def verify_capability_routing(
+    worker_agent: str,
+    prompt: str,
+    envelope: Optional[Dict[str, Any]] = None
+) -> Tuple[bool, str]:
+    """
+    Mechanically verifies that a task capability is routed to the authorized specialist subagent.
+    Enforces Directive 19 (Functional Separation) and Directive 12 (Specialist Boundaries).
+    Prevents capability misrouting (e.g. delegating statistical scripts to academic-writer,
+    data simulation to statistics-agent, or narrative drafting to data-agent).
+    """
+    if not worker_agent or not isinstance(worker_agent, str):
+        return False, "Target worker agent name must be specified."
+
+    worker = worker_agent.strip().lower()
+
+    # Aggregate text to inspect from prompt and envelope
+    text_to_check = prompt or ""
+    if envelope and isinstance(envelope, dict):
+        obj = envelope.get("objective") or ""
+        tgt = envelope.get("target_script") or ""
+        stg = envelope.get("stage") or ""
+        tsk = envelope.get("task_id") or ""
+        text_to_check += f" {obj} {tgt} {stg} {tsk}"
+
+    for cap_key, spec in CANONICAL_CAPABILITY_ROUTING.items():
+        forbidden = {w.lower() for w in spec.get("forbidden_workers", set())}
+        if worker not in forbidden:
+            continue
+
+        # Check script patterns
+        script_pats = spec.get("script_patterns", [])
+        matched_script = None
+        for sp in script_pats:
+            if re.search(sp, text_to_check, re.IGNORECASE):
+                matched_script = sp
+                break
+
+        # Check keyword patterns
+        kw_pats = spec.get("keyword_patterns", [])
+        matched_kw = None
+        if not matched_script:
+            for kw in kw_pats:
+                if re.search(kw, text_to_check, re.IGNORECASE):
+                    matched_kw = kw
+                    break
+
+        if matched_script or matched_kw:
+            cap_name = spec.get("name", cap_key)
+            remedy = spec.get("remedy", "Route task to the designated specialist subagent.")
+            trigger = matched_script or matched_kw
+            return False, (
+                f"CONSTITUTIONAL CAPABILITY MISROUTING (Directive 19 / Directive 12):\n"
+                f"Cannot authorize delegation to '{worker_agent}' for capability '{cap_name}'.\n"
+                f"Detected forbidden signature: '{trigger}'.\n"
+                f"Operational Remedy: {remedy}"
+            )
+
+    return True, f"Capability routing to '{worker_agent}' verified."
+
+
 if __name__ == "__main__":
     import tempfile
     with tempfile.TemporaryDirectory() as td:
@@ -557,3 +733,17 @@ if __name__ == "__main__":
         ok2, reason2 = verify_pipeline_stage_prerequisites("Stage P.5: G*Power Sampling", [td])
         print("Stage P.5 with prereq:", ok2)
         assert ok2
+
+        # Capability routing tests
+        ok_route1, reason_route1 = verify_capability_routing("academic-writer", "run python3 run_regression.py")
+        print("Statistical script to academic-writer:", ok_route1)
+        assert not ok_route1
+        assert "CAPABILITY MISROUTING" in reason_route1
+
+        ok_route2, reason_route2 = verify_capability_routing("statistics-agent", "simulate_psychometric_data.py")
+        print("Simulation to statistics-agent:", ok_route2)
+        assert not ok_route2
+
+        ok_route3, reason_route3 = verify_capability_routing("statistics-agent", "run python3 run_regression.py")
+        print("Statistical script to statistics-agent:", ok_route3)
+        assert ok_route3

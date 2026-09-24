@@ -264,6 +264,112 @@ class TestAcademicOrchestratorGuard(unittest.TestCase):
             res = academic_orchestrator_guard.handle_pre_tool_use(payload)
             self.assertEqual(res.get("decision"), "allow")
 
+    def test_blocks_computational_statistics_to_academic_writer(self):
+        cde_prompt = """
+        Execute Stage 4.6:
+        ```json
+        {
+          "task_id": "TSK-2026-CH4-H1",
+          "worker_agent": "academic-writer",
+          "objective": "Run multiple regression modeling",
+          "target_script": "python3 .agents/skills/regression/scripts/run_regression.py --data cleaned.xlsx",
+          "inputs": ["cleaned.xlsx"],
+          "required_artifacts": ["06_hypothesis_1.docx"]
+        }
+        ```
+        """
+        payload = {
+            "toolCall": {
+                "name": "invoke_subagent",
+                "args": {
+                    "Subagents": [{"TypeName": "academic-writer", "Prompt": cde_prompt}]
+                }
+            }
+        }
+        res = academic_orchestrator_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("CAPABILITY MISROUTING", res.get("reason", ""))
+        self.assertIn("statistics-agent", res.get("reason", ""))
+
+    def test_blocks_data_simulation_to_statistics_agent(self):
+        cde_prompt = """
+        Execute Stage DS.3:
+        ```json
+        {
+          "task_id": "TSK-2026-SIM-001",
+          "worker_agent": "statistics-agent",
+          "objective": "Run Monte Carlo psychometric simulation",
+          "target_script": "python3 .agents/skills/psychometric-data-simulator/scripts/simulate_psychometric_data.py",
+          "inputs": ["02_scales_codebook.json"],
+          "required_artifacts": ["primary_data.xlsx"]
+        }
+        ```
+        """
+        payload = {
+            "toolCall": {
+                "name": "invoke_subagent",
+                "args": {
+                    "Subagents": [{"TypeName": "statistics-agent", "Prompt": cde_prompt}]
+                }
+            }
+        }
+        res = academic_orchestrator_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("CAPABILITY MISROUTING", res.get("reason", ""))
+        self.assertIn("data-agent", res.get("reason", ""))
+
+    def test_blocks_thesis_assembly_to_statistics_agent(self):
+        cde_prompt = """
+        Execute Final Assembly:
+        ```json
+        {
+          "task_id": "TSK-2026-ASM-001",
+          "worker_agent": "statistics-agent",
+          "objective": "Assemble master thesis via persian-thesis-builder",
+          "inputs": ["Chapter_1.docx", "Chapter_2.docx"],
+          "required_artifacts": ["Thesis_Compiled.docx"]
+        }
+        ```
+        """
+        payload = {
+            "toolCall": {
+                "name": "invoke_subagent",
+                "args": {
+                    "Subagents": [{"TypeName": "statistics-agent", "Prompt": cde_prompt}]
+                }
+            }
+        }
+        res = academic_orchestrator_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("CAPABILITY MISROUTING", res.get("reason", ""))
+        self.assertIn("academic-writer", res.get("reason", ""))
+
+    def test_blocks_adversarial_validation_to_authoring_agent(self):
+        cde_prompt = """
+        Execute Stage 4.9:
+        ```json
+        {
+          "task_id": "TSK-2026-QC-001",
+          "worker_agent": "academic-writer",
+          "objective": "Run verify_thesis_integrity.py and produce validation_report.json",
+          "inputs": ["Chapter_4.docx"],
+          "required_artifacts": ["validation_report.json"]
+        }
+        ```
+        """
+        payload = {
+            "toolCall": {
+                "name": "invoke_subagent",
+                "args": {
+                    "Subagents": [{"TypeName": "academic-writer", "Prompt": cde_prompt}]
+                }
+            }
+        }
+        res = academic_orchestrator_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("CAPABILITY MISROUTING", res.get("reason", ""))
+        self.assertIn("validation-agent", res.get("reason", ""))
+
     def test_stop_enforces_directive_11_stage_gate(self):
         with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
             tf.write(json.dumps({

@@ -37,13 +37,15 @@ except ImportError:
             return True, "Validator unavailable", None
 
 try:
-    from contracts.canonical_pipelines import verify_pipeline_stage_prerequisites
+    from contracts.canonical_pipelines import verify_pipeline_stage_prerequisites, verify_capability_routing
 except ImportError:
     try:
-        from canonical_pipelines import verify_pipeline_stage_prerequisites
+        from canonical_pipelines import verify_pipeline_stage_prerequisites, verify_capability_routing
     except ImportError:
         def verify_pipeline_stage_prerequisites(s, w):
             return True, "Pipeline validator unavailable"
+        def verify_capability_routing(w, p, e=None):
+            return True, "Capability validator unavailable"
 
 FORBIDDEN_ORCHESTRATOR_TOOLS = {
     "run_command",
@@ -84,15 +86,29 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
             )
         }
 
-    # Directive 19 / Directive 12: Contractual Delegation Envelope Invariant
+    # Directive 19 / Directive 12: Contractual Delegation Envelope & Capability Routing
     if tool_name == "invoke_subagent":
         subagents = args.get("Subagents", [])
         if isinstance(subagents, list):
             for sub in subagents:
                 target_type = sub.get("TypeName", "")
                 prompt = sub.get("Prompt", "")
+
+                is_valid, reason, env = (
+                    validate_delegation_prompt(prompt, expected_worker=target_type)
+                    if target_type in EXECUTION_SUBAGENTS
+                    else (True, "", None)
+                )
+
+                # Capability Routing Verification (Directive 19 / Directive 12)
+                ok_cap, cap_reason = verify_capability_routing(target_type, prompt, env)
+                if not ok_cap:
+                    return {
+                        "decision": "deny",
+                        "reason": cap_reason
+                    }
+
                 if target_type in EXECUTION_SUBAGENTS:
-                    is_valid, reason, env = validate_delegation_prompt(prompt, expected_worker=target_type)
                     if not is_valid:
                         return {
                             "decision": "deny",

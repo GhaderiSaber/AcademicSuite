@@ -142,6 +142,14 @@ Authoritative presets and capability mappings are modularized in the reference d
 - **Pipeline Presets & Sequences**: Consult [.agents/references/MICRO_STAGE_SEQUENCES.md](.agents/references/MICRO_STAGE_SEQUENCES.md) for full micro-stage sequences and triad matrices (`data_generation`, `thesis_empirical`, `chapter4_micro`, `chapter5_micro`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`, `bibliometric_pipeline`).
 - **Capability-to-Skill-to-Agent Registry**: Consult [.agents/references/SKILL_ACTIVATION_MATRIX.md](.agents/references/SKILL_ACTIVATION_MATRIX.md) for canonical mappings of statistical, drafting, and psychometric capabilities to specialist subagents.
 
+### Canonical Capability-to-Agent Routing:
+- **`data-agent`**: Data Simulation (`psychometric-data-simulator`), Cleaning & Reverse-Coding (`data-cleaning`), Screening & Little's MCAR (`data-audit`), Scale Scoring (`psychometric-scale-resolver`).
+- **`statistics-agent`**: Demographics (`descriptive-statistics`), Reliability (`reliability-analysis`), Assumptions (`assumption-testing`), Regression (`regression`), Mediation (`mediation`), Moderation (`moderation`), CFA (`cfa`), SEM (`sem`), Longitudinal ModMed (`longitudinal-moderated-mediation`), Network Analysis (`network-analysis`).
+- **`academic-writer`**: APA 7 Tables (`apa-reporting`), Chapter 4 Findings (`chapter-4-writing`), Chapter 5 Discussion (`chapter-5-writing`), Literature Review (`persian-literature-review-builder`), Proposals (`persian-proposal-builder`), Thesis Assembly (`persian-thesis-builder`), Tone Polishing (`ai-academic-tone-polisher`).
+- **`research-agent` / `methodology-expert`**: Literature Harvesting (`literature-harvester`), Power & G*Power (`gpower-sample-size-calculator`), Methodology Review (`methodology-review`), Intervention Protocols (`psychological-intervention-protocol-builder`).
+- **`validation-agent`**: Forensic Cross-Chapter Audit & TIS (`thesis-integrity-auditor`), Statistical & MSAI Audit (`statistical-auditor`), Typography & APA 7 QC (`results-auditor`), Viva Voce Committee Defense (`final-judge`).
+*(Mechanically Enforced by Hook: Computational scripts cannot be delegated to writers; drafting cannot be delegated to statistics workers).*
+
 ### Canonical Academic Pipeline Sequences (Mandatory Stage-Gate Order)
 - **Chapter 4 Findings (Stages 4.0–4.12)**:
   `4.0 Curation` $\to$ `4.1 Demographics` $\to$ `4.2 Reliability` $\to$ `4.3 Assumptions` $\to$ `4.4 Correlations` $\to$ `4.5 Structural Model` $\to$ `4.6 Hypotheses (4.6.1, ...)` $\to$ `4.7 Indirect Paths` $\to$ `4.8 Decision Matrix` $\to$ `4.9 QC (MSAI)` $\to$ `4.10 Typography` $\to$ `4.11 Assembly` $\to$ `4.12 Viva Voce`.
@@ -162,26 +170,14 @@ Authoritative presets and capability mappings are modularized in the reference d
 ---
 
 ## ⚖️ Three-Tier Execution Routing Matrix
-
-Before initiating any task, classify it into the appropriate execution tier using the decision criteria below:
-
-1. **Tier 1 — Ordinary Academic Operations (Custom Subagents via `invoke_subagent`)**:
-   - *Scope*: Bounded micro-stages (demographics, scale reliability, assumption testing, single-hypothesis testing, chapter drafting, APA formatting).
-   - *Execution*: Academic Orchestrator coordinates specialist subagents natively via `invoke_subagent` using Contractual Delegation Envelopes and `academic-state/` artifacts.
-2. **Tier 2 — Hard Isolated Reasoning Dilemmas (`/boost`)**:
-   - *Scope*: Non-converging or empirically underidentified SEM models, non-recursive feedback loops, complex 3-way interactions, mathematical derivations, or severe multicollinearity dilemmas.
-   - *Execution*: Prompt the user to trigger Antigravity `/boost` to deploy multi-tier strategic reasoning and adversarial verification.
-3. **Tier 3 — Huge Long-Running Multi-Chapter Projects (`/teamwork-preview`)**:
-   - *Scope*: 10–20 chapter monograph overhauls, thousands of bibliographic sources, multi-wave longitudinal studies, repository-wide consistency refactors.
-   - *Execution*: Prompt the user to trigger Antigravity `/teamwork-preview` to launch autonomous multi-agent teams with persistent task graphs.
+1. **Tier 1 — Ordinary Operations (Custom Subagents via `invoke_subagent`)**: Bounded micro-stages (demographics, reliability, assumptions, regression/SEM, chapter drafting, APA formatting) coordinated natively via CDE envelopes.
+2. **Tier 2 — Hard Isolated Dilemmas (`/boost`)**: Non-converging/underidentified SEM models, non-recursive loops, complex 3-way interactions. Prompt user for `/boost`.
+3. **Tier 3 — Large Multi-Chapter Overhauls (`/teamwork-preview`)**: 10–20 chapter overhauls, thousands of sources, multi-wave studies. Prompt user for `/teamwork-preview`.
 
 ---
 
 ## 🔒 Context Isolation & Contractual Delegation Envelope (CDE) Protocol
-
-To eliminate subagent context drift, hallucination, and execution shortcuts, the Orchestrator MUST NEVER dispatch casual or informal natural-language prompts.
-
-Every `invoke_subagent` call to an execution worker (`statistics-agent`, `data-agent`, `academic-writer`, etc.) is mechanically verified by `academic_orchestrator_guard.py` and MUST contain a structured **Contractual Delegation Envelope (CDE)** formatted as a fenced JSON block:
+To eliminate context drift and shortcuts, the Orchestrator MUST NEVER dispatch informal prompts. Every `invoke_subagent` call to an execution worker is mechanically verified by `academic_orchestrator_guard.py` and MUST contain a structured **Contractual Delegation Envelope (CDE)**:
 
 ```json
 {
@@ -209,59 +205,28 @@ Every `invoke_subagent` call to an execution worker (`statistics-agent`, `data-a
 }
 ```
 
-### Strict Prohibition of Informal Anti-Patterns:
-- Orchestrator: *"Analyze this dataset for burnout."* — **MECHANICALLY DENIED BY HOOK**.
-- Orchestrator: *"Write Chapter 4."* — **MECHANICALLY DENIED BY HOOK**.
-All delegation must follow the verified chain:
 $$\text{Academic-Orchestrator} \xrightarrow{\text{Contractual Delegation Envelope}} \text{Worker Subagent} \xrightarrow{\text{Artifact Triad on Disk}} \text{validation-agent} \longrightarrow \text{Stage Completion Report}$$
 
 ---
 
 ## 🚦 Strict State Progression & Worker Return Invariants (Phases 21 & 22)
-
-### 1. Sequential State Machine Flow
-The Orchestrator CANNOT bypass workflow states simply because it has tools (`invoke_subagent`, `send_message`, etc.). Progression MUST strictly step through:
-$$\text{LOCKED} \rightarrow \text{READY} \rightarrow \text{RUNNING} \rightarrow \text{VALIDATING} \rightarrow \text{AWAITING\_APPROVAL} \rightarrow \text{APPROVED} \rightarrow \text{NEXT\_STAGE}$$
-- Skipping any intermediate stage (e.g. `LOCKED -> RUNNING`, `RUNNING -> APPROVED`, `VALIDATING -> APPROVED`, `AWAITING_APPROVAL -> NEXT_STAGE`) is physically blocked by the state machine and fail-closed hooks (`InvalidStateTransitionError`).
-- Advancing to `NEXT_STAGE` requires the current stage to be in `STAGE_APPROVED` status.
-
-### 2. Mandatory 6-Part Worker Return Structure (Phase 22)
-When specialist subagents complete a delegated task, they **MUST** return a structured payload containing:
-1. `status`: Machine-readable execution status (`SUCCESS` | `FAILED` | `BLOCKED`).
-2. `artifacts`: Non-empty list of generated deliverable files on disk (`.docx`, `.md`, `.json`).
-3. `evidence`: Exact computational test statistics, sample size, degrees of freedom, effect sizes ($t, F, p, \eta^2, M, SD$).
-4. `validation`: Independent validation verdict (`PASS` | `FAIL`) and check report details.
-5. `warnings`: Operational anomalies, data quality flags, or warnings encountered (`[]` if none).
-6. `limitations`: Methodological or statistical limitations encountered (`[]` if none).
-
-**Strict Prohibition of Trivial Returns**:
-Workers must **NEVER** return simply `"done"`, `"completed"`, or unstructured text. Any return payload returning `"done"` or lacking any of the 6 mandatory blocks is strictly rejected by both the state machine and secondary enforcement hooks (`InvalidWorkerReturnContractError`).
+- **Sequential State Machine Flow**: Progression strictly steps through $\text{LOCKED} \rightarrow \text{READY} \rightarrow \text{RUNNING} \rightarrow \text{VALIDATING} \rightarrow \text{AWAITING\_APPROVAL} \rightarrow \text{APPROVED} \rightarrow \text{NEXT\_STAGE}$. Skipping states is physically blocked (`InvalidStateTransitionError`).
+- **Mandatory 6-Part Worker Return Structure**: Subagents must return structured payloads with: (1) `status`, (2) non-empty `artifacts`, (3) computational `evidence`, (4) independent `validation`, (5) `warnings`, and (6) `limitations`. Trivial returns (`"done"`) are strictly rejected (`InvalidWorkerReturnContractError`).
 
 ---
 
 ## 🔁 Failure Resolution & Retry Budget Protocol
 When `validation-agent` reports `FAIL`:
-1. **Isolate Specific Diagnostics**: Parse exact failure messages (e.g. missing leading zero, assumption violation).
+1. **Isolate Diagnostics**: Parse exact failure messages (missing leading zero, assumption violation).
 2. **Enforce Retry Budget**: Maximum **3 retry attempts** per stage. Track each attempt.
-3. **Targeted Remediation Delegation**: Re-invoke responsible specialist agent (`invoke_subagent`) with error diagnostics. Do NOT restart pipeline; only re-execute failed micro-stage.
+3. **Targeted Remediation Delegation**: Re-invoke responsible specialist agent (`invoke_subagent`) with error diagnostics.
 4. **Re-Validate**: Delegate validation to `validation-agent` until `overall_verdict: PASS` is attained.
 
 ---
 
 ## 🧠 Continuous Learning Trigger Protocol (User Feedback & Validation Failures)
-Under Directive 19 and `LEARNING_MULTI_AGENT_SPEC.md`, continuous learning is an active operational duty.
-
-### 1. Trigger 1: User Critique / Correction Detected (`USER_FEEDBACK_DETECTED`)
-Whenever user reports an artifact/calculation error, bug, or flaw (or rejects a deliverable):
-1. **DO NOT simply apologize and attempt a quick ad-hoc fix in the dark.**
-2. **Execute Diagnostic Subagent Cascade**:
-   - **Step 1 (`trajectory-analyzer`)**: Call `invoke_subagent(TypeName="trajectory-analyzer", Prompt="Reconstruct observable actions, tool calls, and error trajectory for user critique: <critique_summary>")`.
-   - **Step 2 (`behavior-analyst`)**: Call `invoke_subagent(TypeName="behavior-analyst", Prompt="Perform causal root-cause analysis on reconstructed trajectory to identify defect signature")`.
-   - **Step 3 (`knowledge-curator`)**: Call `invoke_subagent(TypeName="knowledge-curator", Prompt="Catalog diagnosed anti-pattern and stage reusable lesson strictly conforming to .agents/contracts/evolution/ schemas with mandatory target_agent, target_agents (non-empty array), and valid lesson_type (WHAT_NOT_TO_DO/WHAT_WORKED_WELL)")`.
-3. **Execute Targeted Remediation**: Once cataloged, delegate corrected task to specialist worker (`invoke_subagent`) with pitfall constraint.
-
-### 2. Trigger 2: Systematic or Repeated Validation Failure (`VALIDATION_FAILED`)
-When `validation-agent` reports `FAIL` repeatedly, dispatch `trajectory-analyzer` and `behavior-analyst` to analyze the violation and record the anti-pattern before authorizing further attempts.
+1. **User Critique / Defect (`USER_FEEDBACK_DETECTED`)**: Never execute silent ad-hoc fixes. Dispatch diagnostic cascade (`trajectory-analyzer` $\to$ `behavior-analyst` $\to$ `knowledge-curator`), synthesize mutation (`skill-evolver`), graduate into canonical skills (`evaluation-agent`), and remediate via evolved canonical tool.
+2. **Validation Failure (`VALIDATION_FAILED`)**: On repeated validator rejection, analyze root cause before authorizing retry attempts.
 
 ---
 
