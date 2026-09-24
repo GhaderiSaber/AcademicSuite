@@ -24,12 +24,15 @@ from typing import Dict, Any, Set
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", ".."))
 AGENTS_DIR = os.path.abspath(os.path.join(HOOKS_DIR, ".."))
+AGENTS_HOOKS_DIR = os.path.join(HOOKS_DIR, "agents")
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 if AGENTS_DIR not in sys.path:
     sys.path.insert(0, AGENTS_DIR)
 if HOOKS_DIR not in sys.path:
     sys.path.insert(0, HOOKS_DIR)
+if AGENTS_HOOKS_DIR not in sys.path:
+    sys.path.insert(0, AGENTS_HOOKS_DIR)
 
 try:
     from safety_hooks import SafetyHooks
@@ -74,9 +77,49 @@ def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
     return contract_is_main_agent_developer(payload)
 
 
+AGENT_GUARD_MAP = {
+    "academic-orchestrator": "academic_orchestrator_guard",
+    "academic-writer": "academic_writer_guard",
+    "statistics-agent": "statistics_agent_guard",
+    "data-agent": "data_agent_guard",
+    "validation-agent": "validation_agent_guard",
+    "evidence-auditor": "auditor_agents_guard",
+    "results-auditor": "auditor_agents_guard",
+    "statistical-auditor": "auditor_agents_guard",
+    "academic-challenger": "auditor_agents_guard",
+    "final-judge": "auditor_agents_guard",
+    "project-organizer": "project_organizer_guard",
+    "psychometric-expert": "psychometric_expert_guard",
+    "research-agent": "research_literature_guard",
+    "literature-expert": "research_literature_guard",
+    "data-curator": "domain_specialists_guard",
+    "qualitative-analyst": "domain_specialists_guard",
+    "intervention-designer": "domain_specialists_guard",
+    "journal-strategist": "domain_specialists_guard",
+    "meta-analyst": "domain_specialists_guard",
+    "longitudinal-modmed-expert": "domain_specialists_guard",
+    "digital-saber": "advisory_agents_guard",
+    "methodology-expert": "advisory_agents_guard",
+    "statistical-expert": "advisory_agents_guard",
+}
+
+
+def resolve_agent_caller(payload: Dict[str, Any]) -> str:
+    caller = (payload.get("caller") or payload.get("agentName") or "").strip().lower()
+    if not caller:
+        try:
+            ident = resolve_hook_identity(payload)
+            if ident and ident.agent_name and ident.agent_name != "unknown":
+                caller = ident.agent_name.strip().lower()
+        except Exception:
+            pass
+    return caller
+
+
 def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Dispatches lifecycle events strictly to Safety, Integrity, and Learning hooks.
+    Dispatches lifecycle events strictly to Safety, Integrity, and Learning hooks,
+    and routes to agent-scoped lifecycle guards.
     Main Developer Agent is exempt from academic stop-gates and stage validation.
     """
     event_upper = event.strip()
@@ -89,6 +132,20 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         safety_res = SafetyHooks.handle_pre_tool_use(payload)
         if safety_res.get("decision") == "deny":
             return safety_res
+
+        # Agent-Specific Guard Check (if applicable)
+        caller = resolve_agent_caller(payload)
+        guard_mod_name = AGENT_GUARD_MAP.get(caller)
+        if guard_mod_name and not is_main:
+            try:
+                import importlib
+                guard_mod = importlib.import_module(guard_mod_name)
+                if hasattr(guard_mod, "handle_pre_tool_use"):
+                    agent_res = guard_mod.handle_pre_tool_use(payload)
+                    if isinstance(agent_res, dict) and agent_res.get("decision") == "deny":
+                        return agent_res
+            except Exception as e_agent:
+                sys.stderr.write(f"[hook_dispatcher] Agent guard error ({guard_mod_name}): {e_agent}\n")
 
         # Class C: Learning Hooks (Factual trajectory capture & context enrichment)
         learning_res = LearningHooks.handle_pre_tool_use(payload)
@@ -127,6 +184,20 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         stop_res = IntegrityHooks.handle_stop(payload)
         if stop_res.get("decision") == "continue":
             return stop_res
+
+        # Agent-Specific Stop Guard Check (if applicable)
+        caller = resolve_agent_caller(payload)
+        guard_mod_name = AGENT_GUARD_MAP.get(caller)
+        if guard_mod_name:
+            try:
+                import importlib
+                guard_mod = importlib.import_module(guard_mod_name)
+                if hasattr(guard_mod, "handle_stop"):
+                    agent_stop_res = guard_mod.handle_stop(payload)
+                    if isinstance(agent_stop_res, dict) and agent_stop_res.get("decision") == "continue":
+                        return agent_stop_res
+            except Exception as e_agent_stop:
+                sys.stderr.write(f"[hook_dispatcher] Agent stop guard error ({guard_mod_name}): {e_agent_stop}\n")
 
         # Class C: Learning Hooks (Scan for user corrections)
         LearningHooks.capture_user_correction(payload)
