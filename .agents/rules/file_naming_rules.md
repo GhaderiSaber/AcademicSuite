@@ -1,53 +1,31 @@
-# Rule: Mandatory English-Only File & Directory Naming Convention
-**Scope:** Universal across all agents, workflows, skills, scripts, deliverables, and artifacts.
-**Directive:** All created, generated, compiled, exported, or refactored files and directories MUST be named in English ASCII characters only.
+# File Naming & Directory Structure Specification (Directives 6, 23)
+
+Universal filesystem naming conventions and routing standards across AcademicSuite.
 
 ---
 
-## 1. Core Rule & Directive
+## 1. Naming Contracts
 
-Every AI agent operating in this repository **MUST** strictly name all newly created, generated, compiled, exported, or refactored files and directories using **English ASCII characters only**.
-
-- **Permitted Characters:** Standard English letters (`a-z`, `A-Z`), numbers (`0-9`), hyphens (`-`), underscores (`_`), and standard file extensions (e.g., `.docx`, `.pptx`, `.xlsx`, `.py`, `.md`, `.json`, `.pdf`).
-- **Strict Prohibition Against Non-ASCII / Persian Names:**
-  - Agents must **NEVER** create, save, or rename any file or directory with Persian, Arabic, or non-ASCII characters (e.g., never create `ارزیابی_مدل_ساختاری.pptx`, `پایان‌نامه_مرضیه.docx`, or `فصل_چهارم.xlsx`).
-  - Never use Persian spaces or half-spaces (نیم‌فاصله `\u200c`) in filenames.
+- **Directive 6 (Mandatory English ASCII Filenames)**: Every file, script, dataset, table, docx, pptx, or directory MUST be named strictly in ASCII English (`^[a-zA-Z0-9_.-]+$`). Zero non-ASCII or Persian characters on disk. [Enforcement: `safety_hooks.py` / `PreToolUse`]
+- **Content vs. Filename Separation**: Internal deliverable text is in authentic Persian; physical filenames on disk remain strictly ASCII English.
+- **Directive 23 (Clean Workspace Root Standard)**: Writing or dropping executable/analysis scripts (`.py`, `.sh`, `.R`, `.sps`) directly into the repository root is prohibited. Scripts must route strictly to:
+  1. Temporary scratch directory (`<artifactDir>/scratch/`)
+  2. `02_analysis_code/`
+  3. `.agents/scripts/` or `.agents/skills/<skill>/scripts/`
+  4. `tests/` [Enforcement: `safety_hooks.py` / `PreToolUse`]
 
 ---
 
-## 2. Standard Casing & Naming Patterns
+## 2. Standard Casing Taxonomy
 
-| File Category | Standard Casing Pattern | Examples |
+| File Category | Standard Casing | Valid Example |
 | :--- | :--- | :--- |
-| **Python / Shell Scripts** | `snake_case` | `build_client_defense_brief.py`, `calculate_sem_fit.py` |
-| **Formal Client Deliverables** | `Title_Case_With_Underscores` | `Client_Defense_Presentation_Brief.docx`, `Evaluating_Childhood_Trauma_Presentation.pptx` |
-| **Data Matrices & Results** | `snake_case` | `stats_results.json`, `mediation_bootstrap_matrix.xlsx` |
-| **Documentation & Guidelines** | `UPPER_CASE.md` or `Title_Case.md` | `AGENTS.md`, `README.md`, `Client_Defense_Presentation_Brief.md` |
-| **Directories & Folders** | `snake_case` or `Numbered_Prefix` | `01_raw_inputs/`, `03_deliverables/presentation/`, `drafts_archive/` |
+| **Python / Shell Scripts** | `snake_case` | `calculate_sem_fit.py` |
+| **Deliverables (.docx / .pptx)** | `Title_Case_With_Underscores` | `Client_Defense_Brief.docx` |
+| **Data Matrices & JSON Triads** | `snake_case` | `stats_results.json` |
+| **4-Tier Academic Taxonomy** | `Numbered_Prefix` | `01_raw_inputs/`, `02_analysis_code/`, `03_deliverables/`, `04_references_and_lit/` |
 
 ---
 
-## 3. Technical Rationale & Integrity Safeguards
-
-1. **Cross-Platform Sync & Cloud Resilience:**
-   - Non-ASCII/Persian characters frequently cause filename encoding corruption between Windows (CP1252 / CP1256 / UTF-16), macOS, Linux, and cloud synchronization agents (Google Drive, OneDrive, GitHub).
-2. **Terminal & CLI Pipeline Stability:**
-   - Shell commands (`run_command`), Python scripts, and batch processors often encounter `UnicodeEncodeError` when reading or writing paths with non-ASCII characters in standard console environments.
-3. **OpenXML, Office & Hyperlink Preservation:**
-   - Word (`.docx`) and PowerPoint (`.pptx`) relationship files (`_rels`) and embedded media packages can suffer XML validation failures or broken hyperlinks when referencing non-ASCII filenames.
-
----
-
-## 4. Content Language vs. Filename Separation
-
-- **Deliverable Content:** The internal textual content of Persian theses, proposals, slides, client briefs, and questionnaires remains in authentic, scholarly Persian with full OpenXML `<w:bidi>` directionality, Persian fonts (`B Nazanin`, `B Titr`), and APA 7th Edition formatting.
-- **Physical Filename:** The physical filename on disk must **ALWAYS** be 100% English.
-
----
-
-## 5. Remediation Protocol
-
-Whenever an agent encounters an existing file or client upload with a Persian or non-English filename:
-1. Systematically rename the file to a clean, descriptive English name.
-2. Update all script references, imports, and documentation links.
-3. Verify that zero non-ASCII filenames remain in the active workspace.
+## 3. Remediation Protocol
+Encountering non-ASCII files: (1) rename to descriptive English ASCII; (2) update references; (3) assert zero non-ASCII paths.

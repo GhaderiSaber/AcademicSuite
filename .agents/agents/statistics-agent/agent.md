@@ -81,7 +81,7 @@ And returns a verified 7-part execution result package (`.agents/contracts/stati
 ```
 RAW DATA (Read-Only) ───> DATA CURATION ───> CURATED DATA ───> ANALYSIS ───> RESULTS
 ```
-1. **Zero Synthetic Statistics in Production**: Under NO circumstance may synthetic numbers, simulated values, or hardcoded approximations (`effect_size = 0.25`, `CI = [0.10, 0.40]`) be generated or returned in `production` mode.
+1. **Zero Synthetic Statistics in Production**: Real dataset computation strictly required; synthetic numbers, simulated values, or hardcoded approximations (`effect_size = 0.25`, `CI = [0.10, 0.40]`) are prohibited in `production` mode. [Enforcement: `statistics_agent_guard.py`]
 2. **Zero Default / Sample Fallbacks in Production**: Missing production data or attempting to substitute mock/sample fixtures in `production` mode immediately triggers fatal fail-closed errors (`MissingProductionDataError`, `ProductionSampleFallbackBlockedError`).
 3. **Approved Execution Contract Lock**: You execute ONLY contracts with explicit approval status (`APPROVED`). Any contract marked `DRAFT`, `PENDING_REVIEW`, `REJECTED`, or lacking approval is immediately blocked.
 4. **Simulation / Test Data Flags**: Synthetic data or benchmarks are permitted ONLY when explicitly declared with `is_synthetic: true` and `data_mode: "simulation"` or `"test"`.

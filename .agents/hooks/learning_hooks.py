@@ -683,8 +683,7 @@ class LearningHooks:
             "Every section and individual hypothesis must generate a synchronized triad of disk artifacts: .docx (Word), .md (Markdown), and .json (Data/Stats) before assembly.\n"
             "4. Interactive Stage-Gate Protocol (Directive 11): At the end of each stage, emit the Stage Completion Report "
             "(What was done + What will be done next), then STOP and wait for user confirmation before advancing.\n"
-            "5. Multi-Agent Integrity (Directive 0): Under NO circumstance claim a multi-agent workflow unless you physically invoked "
-            "subagents via 'invoke_subagent'.\n"
+            "5. Multi-Agent Integrity (Directive 0): Interactive multi-agent workflow claims strictly require physical 'invoke_subagent' calls.\n"
             "6. Sole Orchestrator Mandate (Directive 12.1): Antigravity is the sole agent runtime. Python scripts are strictly "
             "deterministic execution tools ('The Hands'). Never run agent emulators."
         )

@@ -39,8 +39,8 @@ Activate this skill whenever:
 ### 3. Bidirectional Citation Reconciliation (صحت‌سنجی دوطرفه مراجع)
 - **Orphaned In-Text Citation (`CRITICAL`/`MAJOR`)**: Cited in body text but missing from the References section.
 - **Ghost Reference in Bibliography (`MAJOR`/`MINOR`)**: Listed in References but never cited anywhere in text.
-- **Unbacked Phantom Citation (`CRITICAL`)**: In-text citation not backed by a verified physical record/PDF in `04_references_and_lit/` (violates Rule 14 Anti-Hallucination Protocol).
-- **Outdated Empirical Literature Window (`MINOR`)**: Empirical review lacks contemporary studies from the 2021–2026 (۱۴۰۰–۱۴۰۵) window (violates Rule 15 Temporal Anchor).
+- **Unbacked Phantom Citation (`CRITICAL`)**: In-text citation not backed by a verified physical record/PDF in `04_references_and_lit/` (violates Directive 14 Anti-Hallucination Protocol).
+- **Outdated Empirical Literature Window (`MINOR`)**: Empirical review lacks contemporary studies from the 2021–2026 (۱۴۰۰–۱۴۰۵) window (violates Directive 15 Temporal Reality Anchor).
 - **Year Discrepancy (`MINOR`)**: Publication year differs between body citation and bibliography entry.
 - **Author Surname Spelling Mismatch (`MINOR`)**: Slight typographic variation in author name.
 
@@ -53,7 +53,7 @@ Activate this skill whenever:
 - **Missing Effect Sizes (`MAJOR`/`MINOR`)**: Significant finding without $d, \eta_p^2$, or $R^2$.
 
 ### 5. Adversarial Defense & Peer-Review Simulation (شبیه‌سازی دفاع متخاصم و داوری نقادانه)
-- **Rule 10 Effect Size Bound Violations (`CRITICAL`/`MAJOR`)**: Partial eta squared $\eta_p^2 > .25$ or Cohen's $d > 1.40$ in behavioral/psychological studies flagged as artificial/synthetic over-separation risks.
+- **Directive 10 Effect Size Bound Violations (`CRITICAL`/`MAJOR`)**: Partial eta squared $\eta_p^2 > .25$ or Cohen's $d > 1.40$ in behavioral/psychological studies flagged as artificial/synthetic over-separation risks (MSAI).
 - **Parametric Assumption Vulnerabilities (`MAJOR`)**: Missing or violated Levene's test of homogeneity of variance, Box's M, or severe skewness/kurtosis (> |0.85|).
 - **Hostile Examiner Probes (`AUDIT`)**: Automated generation of targeted, probing defense questions addressing sample representativeness, common method variance, intervention fidelity, and cross-sectional causal claims.
 

@@ -153,7 +153,7 @@ class TestProjectStructure(unittest.TestCase):
         self.assertIn("Historical Architecture", content)
         self.assertIn("Target Architecture", content)
         self.assertIn("31 Agents", content)
-        self.assertIn("44 Production Skills", content)
+        self.assertIn("45 Production Skills", content)
 
 
 if __name__ == "__main__":

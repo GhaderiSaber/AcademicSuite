@@ -1,6 +1,6 @@
 # Persian Academic Typography & OpenXML Technical Specification
 
-### Rule 4: Persian Academic Typography & OpenXML Standards
+### Directive 5: Persian Academic Typography & OpenXML Standards
 When assembling or editing Persian Word documents (`.docx`):
 
 | Control Feature | Persian Requirement | OpenXML Implementation |
@@ -100,7 +100,7 @@ When assembling or editing Persian Word documents (`.docx`):
     - Reporting numbers with 3 decimal places for $p$-values: always write `۰.۰۰۱` (never `.۰۰۱`).
   - **Prohibition of Inverted Slashes**: Never use forward slashes (`/`) or reversed fraction tricks (such as swapping digits `۰۰۱/۰`), as they confuse human readers, supervisors, and editing pipelines.
 
-### Rule 5: Critical OpenXML Standard: Preservation of Native Word Math & OMML Formulas (`<m:oMath>`)
+### Directive 5.1: Critical OpenXML Standard: Preservation of Native Word Math & OMML Formulas (`<m:oMath>`)
 When inspecting, auditing, or modifying academic Word documents (`.docx`):
 1. **The OMML Text Blindspot in python-docx**:
    - `paragraph.text` in `python-docx` **ONLY** reads standard `<w:t>` elements and completely ignores math text runs (`<m:t>`) embedded inside native Word equation objects (`<m:oMath>` / `<m:oMathPara>`).

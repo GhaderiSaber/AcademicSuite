@@ -86,7 +86,7 @@ In `resolved_comments.json`, fill out `action_taken` and `location` for every co
 - State the exact page number.
 
 ### Step 5: Generate the Response Table Word Document
-Compile the formal submission document (using English filename per Rule 6):
+Compile the formal submission document (using English filename per Directive 6):
 ```bash
 python3 .agents/skills/persian-thesis-revision-assistant/scripts/generate_revision_response_docx.py \
   --json "resolved_comments.json" \
