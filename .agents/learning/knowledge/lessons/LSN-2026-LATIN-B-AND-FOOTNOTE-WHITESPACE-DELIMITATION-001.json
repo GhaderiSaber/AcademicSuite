@@ -5,7 +5,7 @@
   "trigger_source": "USER_FEEDBACK",
   "source_experience_id": "EVT-20260924-BETA-FOOTNOTE-FEEDBACK",
   "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
-  "graduation_status": "PENDING_GRADUATION",
+  "graduation_status": "GRADUATED",
   "diagnosis": {
     "what_happened": "Regression coefficients were phonetically spelled as 'beta' and footnote references lacked whitespace separation.",
     "behavior_caused_outcome": "Phonetic spelling violates APA 7 standards, while missing spaces cause superscript reference numbers to incorrectly merge with subsequent words.",
@@ -38,5 +38,10 @@
   "target_agents": [
     "academic-orchestrator",
     "academic-writer"
+  ],
+  "graduated_at": "2026-09-24T09:19:07.916664+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/apa-reporting/SKILL.md",
+    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/chapter-4-writing/SKILL.md"
   ]
 }
