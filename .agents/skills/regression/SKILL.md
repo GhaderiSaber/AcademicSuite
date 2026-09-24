@@ -104,3 +104,21 @@ The script produces the **4-Tier Saber Regression Sequence**:
 - **$R^2$ Upper Bound**: $0.0 \le R^2 \le 1.0$. Adjusted $R^2 \le R^2$.
 - **Collinearity Flag**: Any predictor with $\text{VIF} > 5.0$ must be flagged for multi-signal anomaly review.
 
+---
+
+## 9. INSTITUTIONAL INVARIANTS & PREVIOUS LESSONS GRADUATED
+
+### 9.1 Canonical 3-Table Regression Standard
+Every regression hypothesis must be reported via exactly three separate tables:
+1. **Table 1: Bivariate Correlation Matrix**: Pearson correlations among predictors and criterion, with Col 1 (`ردیف`), Col 2 (`متغیر`), Col 3 (`مؤلفه`).
+2. **Table 2: Model Summary & ANOVA Table (11 Columns)**: Combined model fit and variance analysis ($SS, df, MS, F, p, R, R^2, \text{Adj } R^2, SE_{\text{est}}, DW$).
+3. **Table 3: Regression Coefficients & Collinearity (8 Columns)**: Parameter estimates and diagnostic indices (Predictor, $B, SE, \beta, t, p$, Tolerance, VIF).
+
+### 9.2 Regression ANOVA Option A Standard
+In regression ANOVA tables with multiple criterion variables:
+- **Column 1**: `متغیر ملاک` (Criterion construct name).
+- **Column 2**: `منبع تغییرات` (Strictly `رگرسیون`, `باقیمانده`, `کل`).
+- **Row Labels**: Regression rows are labeled with the dependent variable name. Residual and total rows must be labeled simply as `باقیمانده` and `کل`. Never append parenthetical variable names to residual or total rows.
+- **Multiple Criteria Coefficients**: When reporting multiple criteria in a single coefficients table, Column 1 must specify `متغیر ملاک`.
+
+

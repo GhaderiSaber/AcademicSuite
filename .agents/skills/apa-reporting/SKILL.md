@@ -99,3 +99,40 @@ The skill produces:
 - In Persian deliverables, verify zero missing leading zeros (`.۰۵` or `.۰۰۱` are violations).
 - Ensure no instance of $p = .000$ exists in the report.
 - Verify that negative statistics have the minus sign preceding the number ($-0.32$, not $0.32-$).
+
+---
+
+## 10. INSTITUTIONAL INVARIANTS & PREVIOUS LESSONS GRADUATED
+
+### 10.1 Correlation Matrix 3-Column Header Standard
+All bivariate correlation matrices must begin with three fixed label columns before matrix values:
+- **Column 1**: `ردیف` (1, 2, 3...)
+- **Column 2**: `متغیر` (Parent construct name)
+- **Column 3**: `مؤلفه` / `خرده‌مقیاس` (Subscale name, or empty for unidimensional constructs)
+Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlation coefficients.
+
+### 10.2 Significance Asterisk Strict Boundary
+- Significance asterisks (`* p < ۰.۰۵`, `** p < ۰.۰۱`, `*** p < ۰.۰۰۱`) are **strictly and exclusively restricted to correlation matrices**.
+- **Zero Asterisks Rule**: Descriptives, ANOVA, regression coefficients, collinearity, assumption tests, and demographic tables must report exact $p$-values with **zero asterisks** on cells, labels, or variable names.
+
+### 10.3 Pure Numeric $p$-Values in Table Cells
+- Never repeat the symbol `p` inside table cells (e.g. `p = ۰.۰۱` or `p < ۰.۰۰۱`).
+- Since the table header already defines the column as $p$ or `سطح معناداری (p)`, cell content must be strictly numeric (`۰.۰۰۱`, `۰.۰۴۵`, or `> ۰.۰۰۱`).
+
+### 10.4 Hierarchical Variable Layout & Composite Row Invariant
+- For instruments with parent variables and subscales, use a two-column structure: Column 1 = `متغیر`, Column 2 = `مؤلفه`.
+- **Composite Row Invariant**: The overall/composite metric of the parent variable must be placed **directly on the parent variable row** (Col 1 = Variable name, Col 2 = blank, Cols 3+ = total score $M, SD$, etc.). Subscales are listed on subsequent rows in Col 2.
+- Creating an empty parent row followed by a separate redundant "نمره کل" or "مجموع" row at the bottom is strictly prohibited.
+
+### 10.5 Persian Thesis Table Numbering Standard
+- Table numbers in Persian theses must place the chapter number first followed by hyphen and table number: `جدول [فصل]- [شماره]` (e.g. `جدول ۴- ۱`, `جدول ۴- ۳۱`). Inverted numbering (`جدول ۱- ۴`) is prohibited.
+
+### 10.6 Table Caption Typography & Placement
+- Table captions must be formatted in **12 pt B Nazanin Regular** (non-bold, never `B Titr`).
+- Narrative text introducing the table must always precede the table caption; never place narrative findings explanations under the table where the note belongs.
+
+### 10.7 Zero Blank Lines Between Table and Note
+- The table note (`*یادداشت.* ...`) must immediately follow the bottom border of the table without an intervening empty line or blank paragraph mark.
+
+### 10.8 Conceptual Construct Purity
+- Variable names in tables must represent pure conceptual constructs (e.g. `خودآسیبی`, `افسردگی`), strictly stripped of operational instrument nouns (`پرسشنامه`, `مقیاس`, `سیاهه`) and author surnames.
