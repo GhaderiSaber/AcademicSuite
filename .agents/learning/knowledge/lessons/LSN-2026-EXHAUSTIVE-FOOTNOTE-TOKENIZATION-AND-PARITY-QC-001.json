@@ -34,12 +34,17 @@
   "is_active_behavior": true,
   "status": "VALIDATED",
   "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
-  "graduation_status": "PENDING_GRADUATION",
+  "graduation_status": "GRADUATED",
   "created_at": "2026-09-24T11:57:08Z",
   "derived_by": "knowledge-curator",
   "target_agent": "academic-orchestrator",
   "target_agents": [
     "academic-orchestrator",
     "academic-writer"
+  ],
+  "graduated_at": "2026-09-24T08:48:15.828068+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/persian-discussion-builder/SKILL.md",
+    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/chapter-5-writing/SKILL.md"
   ]
 }
