@@ -136,3 +136,6 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 
 ### 10.8 Conceptual Construct Purity
 - Variable names in tables must represent pure conceptual constructs (e.g. `خودآسیبی`, `افسردگی`), strictly stripped of operational instrument nouns (`پرسشنامه`, `مقیاس`, `سیاهه`) and author surnames.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-LATIN-B-AND-FOOTNOTE-WHITESPACE-DELIMITATION-001)**: Strictly use Latin *B* (never spelled-out 'beta') for regression coefficients. Enforce mandatory leading space on text runs following footnote references (or trailing space after footnote reference) so that superscript numbers never stick to subsequent words. Implement mechanical QC assertions checking for 'beta' and asserting whitespace delimitation.

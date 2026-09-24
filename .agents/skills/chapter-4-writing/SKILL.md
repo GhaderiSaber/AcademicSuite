@@ -103,4 +103,5 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
   --outdir "03_deliverables/stage_06_hypothesis_1"
 ```
 
-
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-LATIN-B-AND-FOOTNOTE-WHITESPACE-DELIMITATION-001)**: Strictly use Latin *B* (never spelled-out 'beta') for regression coefficients. Enforce mandatory leading space on text runs following footnote references (or trailing space after footnote reference) so that superscript numbers never stick to subsequent words. Implement mechanical QC assertions checking for 'beta' and asserting whitespace delimitation.
