@@ -4,7 +4,7 @@
     "description": "Unified Tripartite Lifecycle Hook Gatekeeper routing across Safety, Integrity, and Learning hooks.",
     "PreToolUse": [
       {
-        "matcher": "apply_diff|batch_replace|call_mcp_tool|define_subagent|edit_file|invoke_subagent|manage_subagents|manage_task|multi_file_edit|multi_replace_file_content|patch|read_resource|read_url_content|replace_file_content|run_command|schedule|view_file|write_to_file",
+        "matcher": "apply_diff|batch_replace|call_mcp_tool|define_subagent|edit_file|invoke_subagent|manage_subagents|manage_task|multi_file_edit|multi_replace_file_content|patch|read_resource|read_url_content|replace_file_content|run_command|schedule|send_message|view_file|write_to_file",
         "hooks": [
           {
             "type": "command",
@@ -16,7 +16,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "apply_diff|batch_replace|call_mcp_tool|define_subagent|edit_file|invoke_subagent|manage_subagents|manage_task|multi_file_edit|multi_replace_file_content|patch|read_resource|read_url_content|replace_file_content|run_command|schedule|view_file|write_to_file",
+        "matcher": "apply_diff|batch_replace|call_mcp_tool|define_subagent|edit_file|invoke_subagent|manage_subagents|manage_task|multi_file_edit|multi_replace_file_content|patch|read_resource|read_url_content|replace_file_content|run_command|schedule|send_message|view_file|write_to_file",
         "hooks": [
           {
             "type": "command",

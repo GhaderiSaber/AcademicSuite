@@ -17,6 +17,7 @@ import os
 import sys
 import re
 import stat
+import json
 from typing import Dict, Any, List, Optional, Tuple, Set
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -34,12 +35,13 @@ try:
 except ImportError:
     from .hook_seen import emit_hook_seen
 try:
-    from contracts.hook_identity_contract import resolve_hook_identity
+    from contracts.hook_identity_contract import resolve_hook_identity, resolve_transcript_path
 except ImportError:
     try:
-        from .contracts.hook_identity_contract import resolve_hook_identity
+        from .contracts.hook_identity_contract import resolve_hook_identity, resolve_transcript_path
     except ImportError:
         def resolve_hook_identity(p): return None
+        def resolve_transcript_path(p): return p.get("transcriptPath") if isinstance(p, dict) else None
 try:
     from contracts.canonical_tools import ALL_MUTATION_TOOLS as _ALL_MUTATION_TOOLS
     MUTATION_TOOLS = tuple(sorted(_ALL_MUTATION_TOOLS))
@@ -779,15 +781,16 @@ class SafetyHooks:
         4. Dangerous shell command interception
         """
         emit_hook_seen(payload, event="PreToolUse")
-        tool_call = payload.get("toolCall", {})
-        name = tool_call.get("name", "")
-        args = tool_call.get("args", {})
+        tool_call = payload.get("toolCall", {}) if isinstance(payload.get("toolCall"), dict) else {}
+        name = tool_call.get("name") or payload.get("tool_name") or payload.get("name") or ""
+        args = tool_call.get("args") or payload.get("toolArgs") or payload.get("args") or {}
         workspaces = payload.get("workspacePaths", [])
 
+        caller = ""
         if resolve_hook_identity:
             identity = resolve_hook_identity(payload)
             caller = identity.agent_name.lower().strip() if (identity and identity.agent_name != "unknown") else ""
-        else:
+        if not caller:
             caller = (
                 payload.get("agentName") or
                 payload.get("agentRole") or
@@ -842,6 +845,72 @@ class SafetyHooks:
                                 "decision": "deny",
                                 "reason": f"CONSTITUTIONAL VIOLATION (Phase 22 - Delegation Contract Invariant): {informal_reason}"
                             }
+
+            # Directive 21.1: Premature Remediation Guard under Active Critique
+            if caller and ("academic-orchestrator" in caller or caller in ("orchestrator", "unspecified")):
+                transcript_path = resolve_transcript_path(payload) if 'resolve_transcript_path' in globals() else payload.get("transcriptPath")
+                if transcript_path and os.path.exists(transcript_path):
+                    records = []
+                    try:
+                        with open(transcript_path, "r", encoding="utf-8") as tf:
+                            for tline in tf:
+                                if tline.strip():
+                                    records.append(json.loads(tline))
+                    except Exception:
+                        records = []
+
+                    last_user_idx = -1
+                    user_content = ""
+                    for idx, r in enumerate(records):
+                        if r.get("type") == "USER_INPUT":
+                            last_user_idx = idx
+                            user_content = str(r.get("content", ""))
+                    active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
+
+                    clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
+                    critique_keywords = [
+                        "fix", "wrong", "incorrect", "error", "bug", "fail", "failed", "failure",
+                        "redo", "re-run", "reject", "rejected", "problem", "didn't trigger", "did not trigger",
+                        "اشتباه", "غلط", "اصلاح", "تصحیح", "رد شد", "نادرست", "خطا", "مشکل"
+                    ]
+                    if any(re.search(r"\b" + re.escape(kw) + r"\b", clean_user, re.IGNORECASE) for kw in critique_keywords):
+                        evolution_seen = False
+                        for r in active_records:
+                            for tc in r.get("tool_calls", []):
+                                if tc.get("name") == "invoke_subagent":
+                                    s_args = tc.get("args", {})
+                                    subs = s_args.get("Subagents", [])
+                                    if isinstance(subs, str):
+                                        try: subs = json.loads(subs)
+                                        except Exception: subs = []
+                                    if isinstance(subs, list):
+                                        for sa in subs:
+                                            if isinstance(sa, dict):
+                                                t_name = (sa.get("TypeName") or sa.get("Role") or "").lower()
+                                                if any(ev in t_name for ev in ("skill-evolver", "evaluation-agent")):
+                                                    evolution_seen = True
+
+                        if not evolution_seen:
+                            delivery_workers = [
+                                "academic-writer", "statistics-agent", "data-agent", "psychometric-expert",
+                                "project-organizer", "qualitative-analyst", "intervention-designer"
+                            ]
+                            target_workers = []
+                            for sub in (subagents if isinstance(subagents, list) else []):
+                                if isinstance(sub, dict):
+                                    t_name = (sub.get("TypeName") or sub.get("Role") or "").lower()
+                                    if any(w in t_name for w in delivery_workers):
+                                        target_workers.append(t_name)
+                            if target_workers:
+                                return {
+                                    "decision": "deny",
+                                    "reason": (
+                                        f"CONSTITUTIONAL VIOLATION (Directive 21.1 - Premature Remediation Without Tool Evolution): "
+                                        f"User critique is active ('{clean_user[:80]}...'). You cannot invoke delivery worker(s) {target_workers} "
+                                        f"before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
+                                        f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
+                                    )
+                                }
 
         # 2. Raw-Data, Outside-Workspace & State Ledger Guard on Mutation Tools (tool -> target resource -> safety policy)
         if name in MUTATION_TOOLS:
@@ -1259,6 +1328,69 @@ class SafetyHooks:
                             "decision": "deny",
                             "reason": f"CONSTITUTIONAL VIOLATION (Phase 22 - Formal Delegation Contract Invariant): {closure_reason}"
                         }
+
+                # 5c. Directive 21.1: Premature Remediation Message Guard under Active Critique
+                if caller and ("academic-orchestrator" in caller or caller in ("orchestrator", "unspecified")):
+                    transcript_path = resolve_transcript_path(payload) if 'resolve_transcript_path' in globals() else payload.get("transcriptPath")
+                    if transcript_path and os.path.exists(transcript_path):
+                        records = []
+                        try:
+                            with open(transcript_path, "r", encoding="utf-8") as tf:
+                                for tline in tf:
+                                    if tline.strip():
+                                        records.append(json.loads(tline))
+                        except Exception:
+                            records = []
+
+                        last_user_idx = -1
+                        user_content = ""
+                        for idx, r in enumerate(records):
+                            if r.get("type") == "USER_INPUT":
+                                last_user_idx = idx
+                                user_content = str(r.get("content", ""))
+                        active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
+
+                        clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
+                        critique_keywords = [
+                            "fix", "wrong", "incorrect", "error", "bug", "fail", "failed", "failure",
+                            "redo", "re-run", "reject", "rejected", "problem", "didn't trigger", "did not trigger",
+                            "اشتباه", "غلط", "اصلاح", "تصحیح", "رد شد", "نادرست", "خطا", "مشکل"
+                        ]
+                        if any(re.search(r"\b" + re.escape(kw) + r"\b", clean_user, re.IGNORECASE) for kw in critique_keywords):
+                            evolution_seen = False
+                            for r in active_records:
+                                for tc in r.get("tool_calls", []):
+                                    if tc.get("name") == "invoke_subagent":
+                                        s_args = tc.get("args", {})
+                                        subs = s_args.get("Subagents", [])
+                                        if isinstance(subs, str):
+                                            try: subs = json.loads(subs)
+                                            except Exception: subs = []
+                                        if isinstance(subs, list):
+                                            for sa in subs:
+                                                if isinstance(sa, dict):
+                                                    t_name = (sa.get("TypeName") or sa.get("Role") or "").lower()
+                                                    if any(ev in t_name for ev in ("skill-evolver", "evaluation-agent")):
+                                                        evolution_seen = True
+
+                            if not evolution_seen:
+                                delivery_workers = [
+                                    "academic-writer", "statistics-agent", "data-agent", "psychometric-expert",
+                                    "project-organizer", "qualitative-analyst", "intervention-designer"
+                                ]
+                                msg_str = msg.lower()
+                                if any(w in msg_str for w in delivery_workers) or any(
+                                    kw in msg_str for kw in ("remediation", "task_id", "stage_", ".docx", ".md", "word/document.xml", "process_rec")
+                                ):
+                                    return {
+                                        "decision": "deny",
+                                        "reason": (
+                                            f"CONSTITUTIONAL VIOLATION (Directive 21.1 - Premature Remediation Without Tool Evolution): "
+                                            f"User critique is active ('{clean_user[:80]}...'). You cannot message delivery workers with remediation tasks "
+                                            f"before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
+                                            f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
+                                        )
+                                    }
 
         return {"decision": "allow"}
 

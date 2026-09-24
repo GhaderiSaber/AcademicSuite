@@ -783,6 +783,164 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
+    def verify_learning_pipeline_completion(records: List[Dict[str, Any]]) -> Tuple[bool, str]:
+        """
+        Enforces Directive 21 & Directive 21.1 (Mandatory Learning & Evolution Pipeline & Zero Fast-Path):
+        1. Prohibits claiming an authorized 'fast-path' or postponing tool/skill evolution to 'occur later'.
+        2. Affirmative Learning Gate on Critique: If user reported a defect/critique, the orchestrator
+           MUST execute the full continuous learning cascade (trajectory-analyzer -> behavior-analyst ->
+           knowledge-curator -> skill-evolver -> evaluation-agent) in the active turn.
+        3. Premature Remediation Gate: Delivery workers ('academic-writer', 'statistics-agent', etc.)
+           CANNOT be invoked or messaged before 'skill-evolver' or 'evaluation-agent' have run.
+        """
+        if not records:
+            return True, ""
+
+        # Find the index of the last USER_INPUT to isolate the active turn
+        last_user_idx = -1
+        user_content = ""
+        for idx, r in enumerate(records):
+            if r.get("type") == "USER_INPUT":
+                last_user_idx = idx
+                user_content = str(r.get("content", ""))
+
+        active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
+
+        # 1. Check for 'fast-path' rationalization in assistant messages
+        fast_path_patterns = [
+            r"\bfast[- ]path\b",
+            r"\bslower path\b",
+            r"\bslow[- ]path\b",
+            r"\bwill occur later\b",
+            r"\bpostpone(?:d)? code mutation\b",
+            r"\bcode mutation .* will occur later\b",
+            r"\bcontext[- ]only updates to avoid conversational delays\b",
+            r"\bfast[- ]track behavioral\b"
+        ]
+        for r in active_records:
+            if r.get("type") == "PLANNER_RESPONSE":
+                txt = (str(r.get("content") or "") + " " + str(r.get("thinking") or "")).lower()
+                for pat in fast_path_patterns:
+                    if re.search(pat, txt):
+                        exemptions = [
+                            "never use fast-path", "banned", "prohibited", "violation",
+                            "zero 'fast-path'", "zero \"fast-path\"", "anti-pattern", "forbidden"
+                        ]
+                        if not any(ex in txt for ex in exemptions):
+                            return False, (
+                                "CONSTITUTIONAL VIOLATION (Directive 21.1 - Zero 'Fast-Path' Rationalization Invariant): "
+                                "Rationalizing an authorized 'fast-path' for context-only updates while postponing code/skill "
+                                "evolution ('slower path will occur later') is strictly prohibited and classified as intentional deception under Directive 0. "
+                                "You CANNOT bypass 'skill-evolver' or 'evaluation-agent' or postpone code evolution. "
+                                "You must invoke 'skill-evolver' and 'evaluation-agent' to evolve the canonical tools before completing this turn."
+                            )
+
+        delivery_workers = [
+            "academic-writer", "statistics-agent", "data-agent", "psychometric-expert",
+            "project-organizer", "qualitative-analyst", "intervention-designer"
+        ]
+
+        # 2. Track chronological subagent invocations and messages in active turn
+        invoked_subagents = []
+        for r in active_records:
+            for call in r.get("tool_calls", []):
+                call_name = call.get("name")
+                if call_name == "invoke_subagent":
+                    args = call.get("args", {})
+                    subagents = args.get("Subagents", [])
+                    if isinstance(subagents, str):
+                        try:
+                            subagents = json.loads(subagents)
+                        except Exception:
+                            subagents = []
+                    if isinstance(subagents, list):
+                        for sa in subagents:
+                            if isinstance(sa, dict):
+                                t_name = (sa.get("TypeName") or sa.get("Role") or "").lower().strip()
+                                if t_name:
+                                    invoked_subagents.append(t_name)
+                elif call_name == "send_message":
+                    args = call.get("args", {})
+                    msg = str(args.get("Message", "")).lower()
+                    for w in delivery_workers:
+                        if w in msg:
+                            invoked_subagents.append(w)
+                    if any(kw in msg for kw in ("remediation", "task_id", "stage_", ".docx", ".md", "word/document.xml", "process_rec")):
+                        if "academic-writer" not in invoked_subagents:
+                            invoked_subagents.append("academic-writer")
+
+        # Check if critique/correction triggered learning
+        clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
+        critique_keywords = [
+            "fix", "wrong", "incorrect", "error", "bug", "fail", "failed", "failure",
+            "redo", "re-run", "reject", "rejected", "problem", "didn't trigger", "did not trigger",
+            "اشتباه", "غلط", "اصلاح", "تصحیح", "رد شد", "نادرست", "خطا", "مشکل"
+        ]
+        is_user_critique = any(re.search(r"\b" + re.escape(kw) + r"\b", clean_user, re.IGNORECASE) for kw in critique_keywords)
+
+        # Check if premature remediation was attempted before evolution completed
+        has_learning_started = any(
+            any(k in sa for k in ("knowledge-curator", "trajectory-analyzer", "behavior-analyst"))
+            for sa in invoked_subagents
+        ) or is_user_critique
+
+        if has_learning_started:
+            evolution_seen = False
+            for sa in invoked_subagents:
+                if any(ev in sa for ev in ("skill-evolver", "evaluation-agent")):
+                    evolution_seen = True
+                if any(w in sa for w in delivery_workers):
+                    if not evolution_seen:
+                        return False, (
+                            "CONSTITUTIONAL VIOLATION (Directive 21.1 - Premature Remediation Without Tool Evolution): "
+                            f"Delivery worker '{sa}' was invoked or messaged before completing tool evolution via 'skill-evolver' and 'evaluation-agent'! "
+                            "Under Directive 21.1, you are strictly prohibited from attempting deliverable remediation or authoring ad-hoc scripts "
+                            "before the canonical skills and scripts have been permanently evolved and graduated on disk. "
+                            "Invoke 'skill-evolver' and 'evaluation-agent' first."
+                        )
+
+        # 2a. Affirmative Learning Gate on Critique:
+        # If user reported critique, the learning and evolution cascade MUST be invoked in this turn!
+        if is_user_critique:
+            has_diagnostic = any(
+                any(k in sa for k in ("trajectory-analyzer", "behavior-analyst", "knowledge-curator"))
+                for sa in invoked_subagents
+            )
+            has_evolution = any(
+                any(ev in sa for ev in ("skill-evolver", "evaluation-agent"))
+                for sa in invoked_subagents
+            )
+            if not has_diagnostic or not has_evolution:
+                return False, (
+                    "CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 - Uninvoked Learning Pipeline on Critique): "
+                    f"The user reported a defect or critique ('{clean_user[:80]}...'), but the continuous learning cascade "
+                    "was NOT executed in this turn! "
+                    "Under Directive 21 and Directive 21.1, you are strictly prohibited from bypassing learning, attempting "
+                    "ad-hoc direct fixes, or messaging workers without first running the full 5-stage cascade: "
+                    "1. trajectory-analyzer, 2. behavior-analyst, 3. knowledge-curator, 4. skill-evolver, 5. evaluation-agent. "
+                    "Please invoke 'trajectory-analyzer' now."
+                )
+
+        # 3. If knowledge-curator was invoked, evolution MUST be invoked
+        if any("knowledge-curator" in sa for sa in invoked_subagents):
+            has_evolution = any(
+                ("skill-evolver" in sa or "evaluation-agent" in sa)
+                for sa in invoked_subagents
+            )
+            if not has_evolution:
+                return False, (
+                    "CONSTITUTIONAL VIOLATION (Directive 21 - Continuous Learning & Evolution Pipeline Incomplete): "
+                    "'knowledge-curator' was invoked to catalog a lesson, but the evolution subagents ('skill-evolver' or 'evaluation-agent') "
+                    "were NOT invoked in this turn! "
+                    "Under Directives 21 and 21.1, you MUST dispatch 'skill-evolver' to synthesize canonical tool/skill modifications "
+                    "and 'evaluation-agent' to execute the deterministic graduation compiler ('python3 .agents/scripts/academic_graduation_compiler.py compile-lesson <path>') "
+                    "before concluding this turn or initiating stage remediation. "
+                    "Please invoke 'skill-evolver' or 'evaluation-agent' now."
+                )
+
+        return True, ""
+
+    @staticmethod
     def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Main entry point for Stop integrity checks:
@@ -793,6 +951,7 @@ class IntegrityHooks:
         5. Post-analysis validation report checks
         6. Binary Honesty Protocol (Directive 0)
         7. Multi-Agent claim truthfulness (Directive 0)
+        8. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
         """
         workspaces = payload.get("workspacePaths", [])
 
@@ -852,6 +1011,11 @@ class IntegrityHooks:
                 return {"decision": "continue", "reason": reason}
 
             ok, reason = IntegrityHooks.verify_conversational_language(records)
+            if not ok:
+                return {"decision": "continue", "reason": reason}
+
+            # 8. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
+            ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records)
             if not ok:
                 return {"decision": "continue", "reason": reason}
 

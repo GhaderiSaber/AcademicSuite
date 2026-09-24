@@ -133,5 +133,178 @@ class TestLifecycleHooks(unittest.TestCase):
             # Full triad provided; validator passes
             self.assertEqual(res2.get("decision"), "allow")
 
+    def test_06_learning_pipeline_completion_stop_gate(self):
+        """Stop hook must block completion if knowledge-curator was invoked without evolution subagents."""
+        from integrity_hooks import IntegrityHooks
+
+        # Case A: knowledge-curator invoked alone (incomplete pipeline)
+        records_incomplete = [
+            {"type": "USER_INPUT", "content": "The tone was too dramatic and headings had no blank line."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            }
+        ]
+        ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records_incomplete)
+        self.assertFalse(ok)
+        self.assertIn("Continuous Learning & Evolution Pipeline Incomplete", reason)
+
+        # Case B: knowledge-curator followed by skill-evolver (complete pipeline)
+        records_complete = [
+            {"type": "USER_INPUT", "content": "The tone was too dramatic and headings had no blank line."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "skill-evolver", "Prompt": "Synthesize candidate tool diff"}]}
+                    }
+                ]
+            }
+        ]
+        ok_complete, reason_complete = IntegrityHooks.verify_learning_pipeline_completion(records_complete)
+        self.assertTrue(ok_complete)
+        self.assertEqual(reason_complete, "")
+
+    def test_07_zero_fast_path_rationalization_stop_gate(self):
+        """Stop hook must block rationalizing a fast-path to postpone code evolution (Directive 21.1)."""
+        from integrity_hooks import IntegrityHooks
+
+        records_fast_path = [
+            {"type": "USER_INPUT", "content": "The heading had no blank line and was too dramatic."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "content": (
+                    "The system prioritizes a fast-path for immediate behavioral updates via context modification "
+                    "to avoid conversational delays, followed by a slower path that modifies code. "
+                    "Full code mutation via the slow path will occur later."
+                ),
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            }
+        ]
+        ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records_fast_path)
+        self.assertFalse(ok)
+        self.assertIn("Zero 'Fast-Path' Rationalization Invariant", reason)
+
+    def test_08_premature_remediation_stop_gate(self):
+        """Stop hook must block invoking delivery workers before tool evolution completes (Directive 21.1)."""
+        from integrity_hooks import IntegrityHooks
+
+        records_premature = [
+            {"type": "USER_INPUT", "content": "Problem: heading has no blank line and tone is dramatic."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "academic-writer", "Prompt": "Rewrite the recommendations stage"}]}
+                    }
+                ]
+            }
+        ]
+        ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records_premature)
+        self.assertFalse(ok)
+        self.assertIn("Premature Remediation Without Tool Evolution", reason)
+
+    def test_09_affirmative_critique_learning_required(self):
+        """Stop hook must block concluding the turn if a critique was reported but learning was not invoked."""
+        from integrity_hooks import IntegrityHooks
+
+        # User reports critique, orchestrator attempts to stop without invoking learning
+        records_no_learning = [
+            {"type": "USER_INPUT", "content": "Problem: You should have a blank line before each header."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "content": "I will fix that right away."
+            }
+        ]
+        ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records_no_learning)
+        self.assertFalse(ok)
+        self.assertIn("Uninvoked Learning Pipeline on Critique", reason)
+
+        # If full cascade is invoked, passes
+        records_with_cascade = [
+            {"type": "USER_INPUT", "content": "Problem: You should have a blank line before each header."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "trajectory-analyzer", "Prompt": "Diagnose trajectory"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "skill-evolver", "Prompt": "Evolve canonical tool"}]}
+                    }
+                ]
+            }
+        ]
+        ok_casc, reason_casc = IntegrityHooks.verify_learning_pipeline_completion(records_with_cascade)
+        self.assertTrue(ok_casc)
+        self.assertEqual(reason_casc, "")
+
+    def test_10_send_message_premature_remediation_gate(self):
+        """Safety hook PreToolUse must deny send_message to delivery workers when critique is active before evolution."""
+        from safety_hooks import SafetyHooks
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "USER_INPUT", "content": "Problem: You should have a blank line before each header."}) + "\n")
+            tf.flush()
+            transcript_file = tf.name
+
+        try:
+            payload = {
+                "caller": "academic-orchestrator",
+                "toolCall": {
+                    "name": "send_message",
+                    "args": {
+                        "Recipient": "test-uuid-writer",
+                        "Message": "Task: remediation of recommendations in process_rec.py and 08_recommendations.docx for academic-writer"
+                    }
+                },
+                "transcriptPath": transcript_file
+            }
+            res = SafetyHooks.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Premature Remediation Without Tool Evolution", res.get("reason", ""))
+        finally:
+            if os.path.exists(transcript_file):
+                os.unlink(transcript_file)
+
+
 if __name__ == "__main__":
     unittest.main()
