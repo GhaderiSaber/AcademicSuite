@@ -146,7 +146,8 @@ class AcademicBehaviorConsolidator:
         self.lessons_dir = os.path.join(self.knowledge_dir, "lessons")
         self.contradictions_dir = os.path.join(self.knowledge_dir, "contradictions")
         self.snapshots_dir = os.path.join(self.learning_dir, "snapshots", "skills")
-        self.skills_dir = os.path.join(self.base_dir, ".agents", "skills")
+        cand_skills = os.path.join(self.base_dir, "skills")
+        self.skills_dir = cand_skills if os.path.isdir(cand_skills) else os.path.join(self.base_dir, ".agents", "skills")
 
         self.knowledge_manager = AcademicKnowledgeManager(base_dir=self.base_dir)
         self.generalization_engine = AcademicGeneralizationEngine(base_dir=self.base_dir)
