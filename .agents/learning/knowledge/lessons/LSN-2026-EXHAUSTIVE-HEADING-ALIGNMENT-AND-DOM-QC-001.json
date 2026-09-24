@@ -36,5 +36,10 @@
   "target_agents": [
     "academic-orchestrator",
     "academic-writer"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-24T08:42:47.436048+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/persian-discussion-builder/SKILL.md"
   ]
 }

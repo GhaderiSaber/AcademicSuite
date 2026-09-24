@@ -68,6 +68,3 @@ Every execution run generates two verified tracking artifacts in `--out-dir`:
 - **Zero Silent Fallback (Directive 0 & 2)**: In `production` mode, missing payloads cause immediate script termination with exit code 1.
 - **Exit Code Verification**: Each child process must return exit code 0. Any non-zero exit code halts the sequence.
 - **Physical Disk Confirmation**: Upstream files must physically exist on disk before downstream steps begin.
-
-## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-NATIVE-OPENXML-WORD-FOOTNOTES-001)**: Mandate automated zip verification in orchestrator gates to physically validate the presence of OpenXML native footnotes (word/footnotes.xml and <w:footnoteReference>) before approving .docx deliverables. Implement mandatory OpenXML footnote injection.

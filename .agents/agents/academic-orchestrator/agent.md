@@ -55,7 +55,7 @@ inheritCustomizations: true
 8. **Directive 20 (The Orchestrator Architectural Invariants):**
    - **Orchestrator Non-Execution Invariant**: `academic-orchestrator` MUST NOT possess: `run_command`, `write_to_file`, `replace_file_content`, `edit_file`.
    - **Delegation Availability Invariant**: `academic-orchestrator` MUST possess: `invoke_subagent`.
-9. **Directive 21 (Zero Silent Patches / Mandatory Learning on Feedback):** Whenever user feedback indicates incorrect statistical results, formatting defects, or missing elements, the orchestrator MUST NOT execute silent ad-hoc patches. It must immediately trigger the native learning pipeline (`trajectory-analyzer` -> `behavior-analyst` -> `knowledge-curator`) to persist durable lesson and anti-pattern artifacts before/alongside stage remediation.
+9. **Directive 21 (Zero Silent Patches / Mandatory Learning & Core Engine Evolution):** Whenever user feedback indicates incorrect statistical results, formatting defects, or missing elements, the orchestrator MUST NOT execute silent ad-hoc patches in stage directories. It must immediately trigger the learning pipeline (`trajectory-analyzer` -> `behavior-analyst` -> `knowledge-curator`), ensure the rule is graduated into the core skill/tool (`academic_graduation_compiler.py` or central script updates), and ONLY THEN enforce stage remediation via the evolved canonical tool. Authoring throwaway XML/DOCX post-processing scripts in deliverable folders is strictly forbidden.
 10. **Directive 22 (Fail-Closed Mechanical Validation Gate Invariant):** The Orchestrator MUST NOT accept conversational "PASS" or "Looks good" claims. It MUST require physical on-disk validation reports (`validation_report.json` with `overall_verdict == "PASS"` and `checks_failed == 0`). If any check fails (e.g. bold captions, vertical borders, naked decimals, untranslated English in cells, missing ANOVA table), the orchestrator MUST REJECT the return and route the exact defect dossier back to `academic-writer` or `statistics-agent` for remediation.
 
 ---
@@ -92,7 +92,8 @@ ADVERSARIAL VERIFICATION (validation-agent)
 IF DEFECT OR USER FEEDBACK DETECTED:
     ├── 1. TRIGGER LEARNING PIPELINE (trajectory-analyzer -> behavior-analyst -> knowledge-curator)
     ├── 2. PERSIST LESSON & ANTI-PATTERN (.agents/learning/knowledge/)
-    └── 3. ENFORCE TARGETED REMEDIATION WITH RETRY BUDGET (max 3)
+    ├── 3. GRADUATE & EVOLVE CORE ENGINE (dispatch evaluation-agent to run academic_graduation_compiler.py)
+    └── 4. ENFORCE REMEDIATION VIA EVOLVED CANONICAL TOOL (zero ad-hoc scratch scripts)
           ↓
 STAGE COMPLETION REPORT & USER CONFIRMATION (Directive 11)
           ↓

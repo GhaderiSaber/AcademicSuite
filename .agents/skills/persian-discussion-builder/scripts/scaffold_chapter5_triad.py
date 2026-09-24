@@ -18,6 +18,7 @@ CONSTITUTIONAL MANDATE (Zero Template / Zero Prewritten Text):
 
 import os
 import sys
+import re
 import json
 import hashlib
 import argparse
@@ -39,6 +40,10 @@ for p in ["/usr/lib/python3/dist-packages", "/usr/local/lib/python3/dist-package
     if os.path.exists(p) and p not in sys.path:
         sys.path.append(p)
 
+apa_scripts_dir = os.path.join(ROOT_DIR, ".agents", "skills", "apa-reporting", "scripts")
+if os.path.isdir(apa_scripts_dir) and apa_scripts_dir not in sys.path:
+    sys.path.insert(0, apa_scripts_dir)
+
 try:
     import docx
     from docx.shared import Inches, Pt
@@ -48,6 +53,17 @@ try:
     HAS_DOCX = True
 except ImportError:
     HAS_DOCX = False
+    class WD_ALIGN_PARAGRAPH:
+        LEFT = 0
+        CENTER = 1
+        RIGHT = 2
+        JUSTIFY = 3
+
+try:
+    from inject_openxml_footnotes import OpenXMLFootnoteInjector
+    HAS_FN_INJECTOR = True
+except ImportError:
+    HAS_FN_INJECTOR = False
 
 
 def compute_sha256(filepath: str) -> str:
@@ -69,7 +85,7 @@ def clean_whitespace(text: str) -> str:
 
 
 def set_bidi_paragraph(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
-    """Enforce Persian BiDi RTL directionality and alignment."""
+    """Enforce Persian BiDi RTL directionality and explicit alignment."""
     pPr = p._p.get_or_add_pPr()
     if not pPr.xpath('./w:bidi'):
         bidi = parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>')
@@ -78,6 +94,12 @@ def set_bidi_paragraph(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
         jc = pPr.find(qn('w:jc'))
         if jc is not None:
             pPr.remove(jc)
+        pPr.append(parse_xml(f'<w:jc {nsdecls("w")} w:val="right"/>'))
+    elif align == WD_ALIGN_PARAGRAPH.JUSTIFY:
+        jc = pPr.find(qn('w:jc'))
+        if jc is not None:
+            pPr.remove(jc)
+        pPr.append(parse_xml(f'<w:jc {nsdecls("w")} w:val="both"/>'))
     else:
         p.alignment = align
 
@@ -222,6 +244,9 @@ def compile_chapter5_triad(
             line_str = clean_whitespace(line)
             if not line_str or line_str.startswith("<!--"):
                 continue
+            if re.match(r'^\[\^\d+\]:', line_str):
+                # Footnote definition: skip adding to docx body, it will be injected into word/footnotes.xml
+                continue
             p = doc.add_paragraph()
             if line_str.startswith("# "):
                 set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.RIGHT)
@@ -240,6 +265,15 @@ def compile_chapter5_triad(
                 add_text_run(p, line_str, font_fa="B Nazanin", size=13)
 
         doc.save(str(docx_path))
+
+        # Inject native OpenXML footnotes if present in markdown
+        if HAS_FN_INJECTOR and os.path.exists(docx_path):
+            try:
+                footnotes = OpenXMLFootnoteInjector.extract_footnotes_from_markdown(str(md_path))
+                if footnotes:
+                    OpenXMLFootnoteInjector.inject(str(docx_path), footnotes)
+            except Exception as e:
+                print(f"Warning: footnote injection failed: {e}", file=sys.stderr)
     else:
         with open(docx_path, "wb") as f:
             f.write(b"MOCK_DOCX_STAGE_TRIAD")

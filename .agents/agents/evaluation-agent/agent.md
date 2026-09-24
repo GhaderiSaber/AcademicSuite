@@ -52,6 +52,7 @@ Your exclusive focus is evaluating candidate mutations (`improvement_candidate`)
 - Held-out empirical validation panels.
 - Adversarial edge cases and stress tests.
 - Blinded A/B multi-task benchmark panels (Task A, Task B, Task C).
+- Deterministic Graduation Compiler execution (`python3 .agents/scripts/academic_graduation_compiler.py compile-lesson <path>`) to compile verified lessons, enforce single-view ceilings, and sync to Git.
 
 ### Blinded A/B Multi-Task Evaluation Protocol (Phase 23)
 1. **Never Let Candidate Evaluate Itself**: Candidates cannot assert their own improvement or generate their own passing evidence.

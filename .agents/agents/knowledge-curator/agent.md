@@ -170,10 +170,12 @@ Before invoking `write_to_file` on any file in `.agents/learning/knowledge/`:
 ---
 
 ### 🚀 Mandatory Handoff Directive for Track 1 Lessons (Directive 21):
-When outputting a lesson with `graduation_track: "TRACK_1_IMMEDIATE_GRADUATION"` to `academic-orchestrator`, your response **MUST EXPLICITLY INCLUDE**:
-> **MANDATORY ACTION REQUIRED (Directive 21 - Track 1 Immediate Graduation):**
-> Lesson `<lesson_id>` is a Universal Invariant derived from human mentorship (`trigger_source: "USER_FEEDBACK"`).
+When outputting a lesson or anti-pattern with `graduation_track: "TRACK_1_IMMEDIATE_GRADUATION"` or `graduation_status: "PENDING_GRADUATION"` to `academic-orchestrator`, your response **MUST EXPLICITLY INCLUDE**:
+> **MANDATORY ACTION REQUIRED (Directive 21 - Core Tool Evolution & Graduation):**
+> Lesson `<lesson_id>` is a verified behavioral invariant.
 > Academic-orchestrator MUST immediately:
-> 1. Dispatch `skill-evolver` to compile this invariant into target `SKILL.md` (under Section: `## INSTITUTIONAL INVARIANTS & PREVIOUS LESSONS GRADUATED`) and/or `.agents/plugins/academic-suite/rules/AGENTS.md` using `write_to_file`.
-> 2. Dispatch `evaluation-agent` to run `python3 .agents/verification/skill_size_guard.py`, stage files, and commit/push to Git (`origin main`).
+> 1. Dispatch `evaluation-agent` (or an execution worker) to run the deterministic graduation compiler ("The Hands"):
+>    `python3 .agents/scripts/academic_graduation_compiler.py compile-lesson <lesson_file_path>`
+> 2. Ensure target `SKILL.md` and core scripts (`scaffold_chapter5_triad.py`, etc.) are evolved and verified on disk before stage execution.
+> 3. Strictly forbid workers from authoring one-off scratch scripts in stage deliverable folders.
 

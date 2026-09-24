@@ -277,6 +277,46 @@ class TestChapter5Pipeline(unittest.TestCase):
         self.assertIn("discussion", preset_steps)
         self.assertIn("chapter5_assembly", preset_steps)
 
+    # --------------------------------------------------------------------------
+    # 7. Native Footnote & Explicit Heading Alignment Verification Tests
+    # --------------------------------------------------------------------------
+    def test_09_scaffold_triad_native_footnotes_and_right_alignment(self):
+        """Verifies scaffold_chapter5_triad compiles native OpenXML footnotes and explicit right-aligned headings."""
+        import zipfile
+        import xml.etree.ElementTree as ET
+
+        stage_dir = os.path.join(self.temp_dir, "stage_03_fn_test")
+        agent_narrative = (
+            "## بحث و بررسی فرضیه اول\n\n"
+            "یافته‌های پژوهش حاضر نشان داد که رهبری تحول‌آفرین رابطه مثبت و معناداری با رفتارهای نوآورانه دارد[^1]. "
+            "همچنین متغیر کنترل شغلی بر اساس مدل تقاضا-کنترل کاراسک[^2] نقش تعدیل‌کننده ایفا می‌کند.\n\n"
+            "[^1]: Bass & Avolio (1994)\n"
+            "[^2]: Karasek (1979)\n"
+        )
+        manifest = sct.compile_chapter5_triad(
+            stage_id="03_hypothesis_1_discussion",
+            base_name="03_hypothesis_1_discussion",
+            output_dir=stage_dir,
+            stage_title="بحث فرضیه اول",
+            agent_narrative=agent_narrative
+        )
+        docx_path = manifest["docx"]
+        self.assertTrue(os.path.isfile(docx_path))
+
+        # Inspect internal OpenXML structure
+        with zipfile.ZipFile(docx_path, "r") as z:
+            # 1. Assert word/footnotes.xml exists
+            self.assertIn("word/footnotes.xml", z.namelist(), "word/footnotes.xml must be generated inside DOCX")
+            fn_xml = z.read("word/footnotes.xml").decode("utf-8")
+            self.assertIn("Bass &amp; Avolio", fn_xml)
+            self.assertIn("Karasek", fn_xml)
+
+            # 2. Assert word/document.xml has footnoteReference and explicit right-aligned headings
+            doc_xml = z.read("word/document.xml").decode("utf-8")
+            self.assertIn("w:footnoteReference", doc_xml, "document.xml must contain native w:footnoteReference elements")
+            self.assertNotIn("[^1]: Bass", doc_xml, "Trailing footnote definitions must not leak as body paragraphs")
+            self.assertIn('w:val="right"', doc_xml, "Headings must have explicit w:jc w:val='right'")
+
 
 if __name__ == "__main__":
     unittest.main()
