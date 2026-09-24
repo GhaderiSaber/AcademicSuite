@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260924-STAGE8-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260924-STAGE8-FEEDBACK",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-discussion-builder",
+  "capability": "academic-tone-and-formatting",
+  "trajectory_id": "TRJ-20260924-STAGE8-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "FILE_WRITTEN",
+    "description": "academic-writer authored draft.md with exaggerated emotional prose and missing blank lines; subsequently compounded by process_rec.py and missed by verify_rec.py in step 14."
+  },
+  "failure_signature": "EMOTIONAL_HYPERBOLIC_ACADEMIC_TONE_AND_MISSING_HEADING_BLANK_LINE_SPACING",
+  "root_cause_diagnosis": "1) The academic-writer subagent lacked constraints against dramatic vocabulary, misinterpreting practical recommendations as persuasive rhetoric. 2) The formatting script scaffold_chapter5_triad.py actively stripped empty lines via 'if not line_str: continue', while process_rec.py injected minimal pPr tags without <w:spacing w:before='...'/>. 3) The validation gate verify_rec.py failed because it only audited footnote counts and single pPr constraints, remaining entirely blind to emotional tone tokens and paragraph spacing semantics.",
+  "prescribed_behavior": "1) Enforce a strict behavioral invariant for academic-writer to maintain an objective, dispassionate register devoid of emotive adverbs. 2) Update scaffold_chapter5_triad.py and process_rec.py to mechanically preserve blank lines before headings and explicitly inject w:spacing w:before attributes in OpenXML. 3) Augment verify_rec.py to act as a mechanical linter that asserts the absence of hyperbolic tokens and validates spacing constraints prior to stage approval.",
+  "created_at": "2026-09-24T13:00:00Z"
+}
