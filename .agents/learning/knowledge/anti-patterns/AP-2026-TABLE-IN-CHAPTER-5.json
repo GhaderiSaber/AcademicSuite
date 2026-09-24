@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-TABLE-IN-CHAPTER-5",
+  "category": "execution",
+  "defective_pattern": "Generating or commanding the generation of summary tables or statistical tables in Chapter 5.",
+  "why_defective": "Chapter 5 is exclusively reserved for continuous narrative prose, synthesis, and discussion. Tables belong entirely to Chapter 4.",
+  "observed_symptoms": [
+    "Presence of Markdown or Word tables in Chapter 5 draft files.",
+    "Orchestrator prompts explicitly requesting table generation for Chapter 5."
+  ],
+  "corrective_remedy": "Delete all tables from Chapter 5. Move any necessary statistical or summary data representations to Chapter 4. Ensure Chapter 5 is 100% continuous narrative prose.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of markdown tables (`|---|`) or Word table objects within files designated for Chapter 5."
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T05:29:15Z"
+}

@@ -142,7 +142,7 @@
           "skill_name": {"type": "string"},
           "script_path": {
             "type": "string",
-            "pattern": "^[a-zA-Z0-9_/.-]+$"
+            "pattern": "^[a-zA-Z0-9_/ .-]+$"
           },
           "cli_arguments": {
             "type": "array",

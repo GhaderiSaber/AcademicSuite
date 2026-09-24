@@ -34,6 +34,10 @@ Chapter 5 must be structured strictly according to Iranian graduate university g
 | **5-5** | **پیشنهادهای پژوهش** | Split strictly into: **A) پیشنهادهای پژوهشی** (for researchers) and **B) پیشنهادهای کاربردی** (for practitioners). |
 | **5-6** | **نتیجه‌گیری نهایی** | Holistic concluding synthesis highlighting the unique scientific contribution of the study. |
 
+### 2.1 Core Invariants for Chapter 5
+- **Chapter 5 Prose-Only Invariant (اصل متن پیوسته بدون جدول)**: Chapter 5 must strictly contain **zero tables** (Markdown `|---|` or Word `<w:tbl>`). It is 100% continuous narrative prose, theoretical synthesis, and psychological mechanism explanation. All statistical and empirical tables belong exclusively in Chapter 4.
+- **Strict Academic Sobriety & Anti-Hyperbole (اصل متانت علمی و پرهیز از اغراق)**: Maintain strictly objective, neutral, and sober academic prose. Zero tolerance for emotional padding, dramatic rhetoric, intense adjectives, or hyperbolic phrasing to inflate word counts or narrative volume.
+
 ---
 
 ## 3. The 4-Element Psychological Discussion Protocol

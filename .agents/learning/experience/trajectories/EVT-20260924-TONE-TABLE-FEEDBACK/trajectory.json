@@ -1,0 +1,631 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260924-TONE-TABLE-001",
+  "experience_id": "EVT-20260924-TONE-TABLE-FEEDBACK",
+  "project_id": "Morteza_Estaki",
+  "task_id": "TSK-20260924-TONE-TRAJECTORY-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:48:47Z",
+      "description": "Orchestrator delegated task TSK-20260924-STAGE1-RECAP-001 to academic-writer, explicitly commanding the construction of an APA 7 Comparative Hypothesis Summary Table in Section 5-1.",
+      "observable_input": {
+        "task_id": "TSK-20260924-STAGE1-RECAP-001",
+        "worker_agent": "academic-writer",
+        "mandate": "constructing the APA 7th Edition Comparative Hypothesis Summary Table with exact statistical parameters from University Chapter 4 (H1: r = -0.18, p = .010; H2: r = -0.17, p = .010; H3: r = +0.21, p = .002; H4: Step 2 interaction Beta = 0.36, t = 0.53, p = .59, rejected)"
+      },
+      "observable_output": {
+        "status": "DELEGATED",
+        "target_subagent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "AGENT_INVOKED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T04:48:57Z",
+      "description": "academic-writer specialist subagent activated in conversation session 0f33b609-6bbb-406b-80a2-c97d177203fa to draft Section 5-1 recap.",
+      "observable_input": {
+        "conversation_id": "0f33b609-6bbb-406b-80a2-c97d177203fa",
+        "task_id": "TSK-20260924-STAGE1-RECAP-001"
+      },
+      "observable_output": {
+        "status": "INITIALIZED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T04:48:57Z",
+      "description": "academic-writer executed shell command to ensure deliverable directory 03_deliverables/stage_01_recap exists on disk.",
+      "observable_input": {
+        "command_line": "mkdir -p \"03_deliverables/stage_01_recap\"",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T04:49:13Z",
+      "description": "academic-writer drafted initial draft.md (339 words, 1,880 chars) inserting Table 5-1 as commanded, but transposing H2 and H3 variable paths.",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
+        "word_count": 339,
+        "char_count": 1880
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "table_inserted": "جدول ۵-۱",
+        "transposed_paths": {
+          "H2": "کنترل شغلی -> نوآوری سازمانی",
+          "H3": "ویژگی‌های شغل -> کنترل شغلی"
+        }
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T04:49:20Z",
+      "description": "academic-writer executed deterministic CLI triad compiler scaffold_chapter5_triad.py.",
+      "observable_input": {
+        "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '01_findings_recap' --base 'stage_01_recap' --outdir '03_deliverables/stage_01_recap' --title 'مقدمه و مرور یافتههای پژوهش' --narrative-file '03_deliverables/stage_01_recap/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "generated_artifacts": [
+          "03_deliverables/stage_01_recap/stage_01_recap.json",
+          "03_deliverables/stage_01_recap/stage_01_recap.md",
+          "03_deliverables/stage_01_recap/stage_01_recap.docx"
+        ]
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "AGENT_RETURNED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T04:49:24Z",
+      "description": "academic-writer dispatched completion message with 6-part return payload back to academic-orchestrator.",
+      "observable_input": {
+        "recipient": "5527f8dc-7772-488d-af1e-69cbca038416"
+      },
+      "observable_output": {
+        "status": "success",
+        "reported_word_count": 339
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:49:30Z",
+      "description": "academic-orchestrator viewed 03_deliverables/stage_01_recap/stage_01_recap.md to audit generated content.",
+      "observable_input": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "lines_returned": 18
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:49:49Z",
+      "description": "academic-orchestrator viewed 03_deliverables/stage_01_recap/stage_01_recap.json to inspect triad metadata.",
+      "observable_input": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "char_count": 1880,
+        "word_count": 339
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:49:58Z",
+      "description": "academic-orchestrator audit detected transposition of H2 and H3 variable paths against baseline payload marzieh_chapter4_audit_payload.json, and flagged narrative length as insufficient.",
+      "observable_input": {
+        "audited_file": "03_deliverables/stage_01_recap/stage_01_recap.md",
+        "baseline_payload": "01_raw_inputs/marzieh_chapter4_audit_payload.json"
+      },
+      "observable_output": {
+        "verdict": "FAIL",
+        "detected_defects": [
+          "H2_H3_TRANSPOSITION",
+          "INSUFFICIENT_LENGTH_339_WORDS"
+        ]
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:50:13Z",
+      "description": "academic-orchestrator dispatched retry task TSK-20260924-STAGE1-RECAP-RETRY1 demanding H2/H3 variable swap correction and commanding aggressive narrative expansion to 600-900 words while maintaining Table 5-1.",
+      "observable_input": {
+        "task_id": "TSK-20260924-STAGE1-RECAP-RETRY1",
+        "worker_agent": "academic-writer",
+        "mandate": "Resolve critical variable transposition between H2 and H3, and expand narrative to full scholarly depth (600-900 words) with rich contextualization of the Red Crescent Society of Isfahan Province while retaining Table 5-1."
+      },
+      "observable_output": {
+        "status": "DELEGATED"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T04:50:13Z",
+      "description": "academic-writer rewrote draft.md expanding narrative to 931 words. Under volume expansion pressure without new empirical data, writer introduced hyperbolic, dramatic prose ('آوردگاهی است', 'یکی از حیاتی‌ترین', 'سرشار از تنش', 'نتایج شگفت‌انگیز') and retained Table 5-1.",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
+        "word_count": 931,
+        "char_count": 5334
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "detected_hyperbolic_phrases": [
+          "آوردگاهی است",
+          "یکی از حیاتی‌ترین",
+          "سرشار از تنش",
+          "نتایج شگفت‌انگیز"
+        ],
+        "retained_table": "جدول ۵-۱"
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T04:50:50Z",
+      "description": "academic-writer executed scaffold_chapter5_triad.py to recompile remediated triad deliverables.",
+      "observable_input": {
+        "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '01_findings_recap' --base 'stage_01_recap' --outdir '03_deliverables/stage_01_recap' --title 'مقدمه و مرور یافته‌های پژوهش' --narrative-file '03_deliverables/stage_01_recap/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "compiled_triad": [
+          "03_deliverables/stage_01_recap/stage_01_recap.json",
+          "03_deliverables/stage_01_recap/stage_01_recap.md",
+          "03_deliverables/stage_01_recap/stage_01_recap.docx"
+        ]
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "AGENT_RETURNED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T04:50:55Z",
+      "description": "academic-writer returned remediated completion report confirming expansion to 931 words and correction of variable transposition.",
+      "observable_input": {
+        "recipient": "5527f8dc-7772-488d-af1e-69cbca038416"
+      },
+      "observable_output": {
+        "status": "success",
+        "word_count": 931,
+        "char_count": 5334
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:51:04Z",
+      "description": "academic-orchestrator viewed remediated stage_01_recap.md to verify correction of H2/H3 variable swap.",
+      "observable_input": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "lines_returned": 30
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:51:18Z",
+      "description": "academic-orchestrator viewed remediated stage_01_recap.json to verify SHA-256 hashes and char count.",
+      "observable_input": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "char_count": 5334,
+        "word_count": 931,
+        "json_sha256": "64115bd8759c524eb7d576ee2c8a7950aaead63c44465c54cccb09913db8b347"
+      }
+    },
+    {
+      "step_number": 16,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:51:25Z",
+      "description": "academic-orchestrator approved Stage 1 completion and presented Stage 1 Verification Dossier with Table 5-1 to user, suffering QC blind spot regarding emotional rhetoric and Chapter 5 prose-only convention.",
+      "observable_input": {
+        "milestone_id": "stage_5_1_recap",
+        "target_stage": "stage_5_2_h1"
+      },
+      "observable_output": {
+        "verdict": "PASS",
+        "presented_to_user": true,
+        "unscreened_defects": [
+          "PROHIBITED_TABLE_IN_CH5",
+          "HYPERBOLIC_DRAMATIC_TONE"
+        ]
+      }
+    },
+    {
+      "step_number": 17,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T04:53:41Z",
+      "description": "User delivered explicit dual critique: 'Problem: You should not use exagerate, emotional phrases. The writing text should be academic and professional. Also we don't have a table in chapter 5.'",
+      "observable_input": {
+        "critique_text": "Problem: You should not use exagerate, emotional phrases. The writing text should be academic and professional. Also we don't have a table in chapter 5."
+      },
+      "observable_output": {
+        "event_id": "EVT-20260924-TONE-TABLE-FEEDBACK",
+        "critique_classification": [
+          "TONE_SOBRIETY_VIOLATION",
+          "PROSE_ONLY_CHAPTER_5_VIOLATION"
+        ]
+      }
+    },
+    {
+      "step_number": 18,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:53:51Z",
+      "description": "academic-orchestrator triggered Directive 21 continuous learning cascade and delegated TSK-20260924-TONE-TRAJECTORY-001 to trajectory-analyzer.",
+      "observable_input": {
+        "task_id": "TSK-20260924-TONE-TRAJECTORY-001",
+        "worker_agent": "trajectory-analyzer"
+      },
+      "observable_output": {
+        "status": "DELIVERED"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-STAGE1-RECAP-001",
+        "WorkerAgent": "academic-writer",
+        "PromptSummary": "Draft Stage 5.1 recap including APA 7th comparative summary table"
+      },
+      "execution_time_ms": 3120
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "mkdir -p \"03_deliverables/stage_01_recap\"",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 115
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
+        "Overwrite": true,
+        "Description": "Drafted Section 5-1 narrative and summary table for Chapter 5 recap."
+      },
+      "execution_time_ms": 145
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '01_findings_recap' --base 'stage_01_recap' --outdir '03_deliverables/stage_01_recap' --title 'مقدمه و مرور یافتههای پژوهش' --narrative-file '03_deliverables/stage_01_recap/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 3850
+    },
+    {
+      "tool_name": "send_message",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "Recipient": "5527f8dc-7772-488d-af1e-69cbca038416",
+        "PayloadStatus": "success",
+        "ReportedArtifacts": 3
+      },
+      "execution_time_ms": 85
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "execution_time_ms": 90
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 7,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
+      },
+      "execution_time_ms": 70
+    },
+    {
+      "tool_name": "send_message",
+      "invocation_index": 8,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "Recipient": "0f33b609-6bbb-406b-80a2-c97d177203fa",
+        "TaskID": "TSK-20260924-STAGE1-RECAP-RETRY1",
+        "Mandate": "Targeted remediation of Stage 5.1 variable transposition and narrative expansion to 600-900 words"
+      },
+      "execution_time_ms": 95
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 9,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
+        "Overwrite": true,
+        "Description": "Rewrote Section 5-1 to fix variable transposition (H2 & H3) and expanded narrative depth to 650 words."
+      },
+      "execution_time_ms": 185
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 10,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '01_findings_recap' --base 'stage_01_recap' --outdir '03_deliverables/stage_01_recap' --title 'مقدمه و مرور یافته‌های پژوهش' --narrative-file '03_deliverables/stage_01_recap/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 3920
+    },
+    {
+      "tool_name": "send_message",
+      "invocation_index": 11,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "Recipient": "5527f8dc-7772-488d-af1e-69cbca038416",
+        "PayloadStatus": "success",
+        "WordCount": 931
+      },
+      "execution_time_ms": 90
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 12,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "execution_time_ms": 95
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 13,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
+      },
+      "execution_time_ms": 75
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 14,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-TONE-TRAJECTORY-001",
+        "WorkerAgent": "trajectory-analyzer",
+        "PromptSummary": "Reconstruct observable actions, tool calls, and error trajectory for dual user critique regarding emotional language and table presence in Chapter 5"
+      },
+      "execution_time_ms": 2840
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+      "cli_command": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '01_findings_recap' --base 'stage_01_recap' --outdir '03_deliverables/stage_01_recap' --title 'مقدمه و مرور یافتههای پژوهش' --narrative-file '03_deliverables/stage_01_recap/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+      "exit_code": 0,
+      "duration_seconds": 3.85
+    },
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+      "cli_command": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '01_findings_recap' --base 'stage_01_recap' --outdir '03_deliverables/stage_01_recap' --title 'مقدمه و مرور یافته‌های پژوهش' --narrative-file '03_deliverables/stage_01_recap/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
+      "exit_code": 0,
+      "duration_seconds": 3.92
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "01_findings_recap",
+      "envelope_summary": "Initial drafting of Section 5-1 recap with commanded APA 7 comparative summary table",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-20260924-STAGE1-RECAP-001",
+      "objective": "Draft Stage 5.1 (Introduction & Findings Recap) of Chapter 5 for Morteza Estaki's thesis, including APA 7th Edition Comparative Hypothesis Summary Table.",
+      "input_artifacts": [
+        "academic-state/data/article_enrichment_cards.json",
+        "01_raw_inputs/marzieh_chapter4_audit_payload.json",
+        "03_deliverables/Chapter_4_Results.md"
+      ],
+      "output_artifacts": [
+        "03_deliverables/stage_01_recap/stage_01_recap.docx",
+        "03_deliverables/stage_01_recap/stage_01_recap.md",
+        "03_deliverables/stage_01_recap/stage_01_recap.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "01_findings_recap",
+      "envelope_summary": "Remediate H2/H3 variable transposition and expand narrative to 600-900 words",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-20260924-STAGE1-RECAP-RETRY1",
+      "objective": "Targeted remediation of Stage 5.1 resolving critical variable transposition between H2 and H3, expanding narrative to 600-900 words, and retaining Table 5-1.",
+      "input_artifacts": [
+        "01_raw_inputs/marzieh_chapter4_audit_payload.json",
+        "03_deliverables/stage_01_recap/stage_01_recap.md"
+      ],
+      "output_artifacts": [
+        "03_deliverables/stage_01_recap/stage_01_recap.docx",
+        "03_deliverables/stage_01_recap/stage_01_recap.md",
+        "03_deliverables/stage_01_recap/stage_01_recap.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "trajectory_reconstruction",
+      "envelope_summary": "Reconstruct observable actions, tool calls, and error trajectory for dual user critique regarding emotional language and table presence in Chapter 5",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-TONE-TABLE-FEEDBACK/trajectory.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-20260924-TONE-TRAJECTORY-001",
+      "objective": "Reconstruct observable actions, tool calls, and error trajectory for the explicit dual user critique regarding emotional phrases and table presence in Chapter 5.",
+      "input_artifacts": [
+        "03_deliverables/stage_01_recap/stage_01_recap.md",
+        "User critique"
+      ],
+      "output_artifacts": [
+        ".agents/learning/experience/trajectories/EVT-20260924-TONE-TABLE-FEEDBACK/trajectory.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260924-ORCHESTRATOR-TABLE-MANDATE",
+      "decision_type": "STRUCTURAL_FORMATTING_MANDATE",
+      "selected_option": "Explicitly instructing inclusion of APA 7 Summary Table in Chapter 5",
+      "rationale": "In the initial delegation contract (TSK-20260924-STAGE1-RECAP-001), the orchestrator explicitly instructed academic-writer to 'construct the APA 7th Edition Comparative Hypothesis Summary Table' in Section 5-1. This command was the direct proximate cause for academic-writer inserting Table 5-1 into Chapter 5, violating Iranian academic thesis conventions where Chapter 5 is strictly analytical prose and all empirical tables belong in Chapter 4.",
+      "alternatives_considered": [
+        {
+          "option": "Enforce strict Chapter 5 prose-only convention",
+          "verdict": "MISSED_BY_ORCHESTRATOR",
+          "reason": "Orchestrator mistakenly assumed an executive summary table would assist reader orientation, unaware of the strict prose-only standard in Iranian theses."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-EXPANSION-PRESSURE-HYPERBOLE",
+      "decision_type": "REMEDIATION_EXPANSION_STRATEGY",
+      "selected_option": "Commanding narrative expansion to 600-900 words on Section 5-1 introduction",
+      "rationale": "When rejecting Attempt 1 due to low word count (339 words), orchestrator commanded an aggressive expansion to 600-900 words for an introductory recap. Under artificial volume pressure without new empirical data or literature citations, academic-writer resorted to hyperbolic, dramatic rhetorical padding ('آوردگاهی است', 'یکی از حیاتی‌ترین', 'سرشار از تنش', 'نتایج شگفت‌انگیز') rather than measured, sober academic prose.",
+      "alternatives_considered": [
+        {
+          "option": "Accept sober, concise recap of 350-400 words without padding",
+          "verdict": "REJECTED_BY_ORCHESTRATOR",
+          "reason": "Orchestrator enforced an arbitrary 600-900 word length threshold in TSK-20260924-STAGE1-RECAP-RETRY1."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-ORCHESTRATOR-STAGE-APPROVAL",
+      "decision_type": "STAGE_GATE_APPROVAL",
+      "selected_option": "Approving Stage 1 and presenting Table 5-1 with inflated prose to user",
+      "rationale": "Orchestrator performed narrow verification focused solely on the H2/H3 variable swap fix, Persian leading zeros (۰.۰۱۰), and 3-line table borders, displaying a quality assurance blind spot regarding academic prose tone and the prohibition of tables in Chapter 5.",
+      "alternatives_considered": [
+        {
+          "option": "Run tone polisher and verify prose-only convention prior to user presentation",
+          "verdict": "OMITTED",
+          "reason": "Orchestrator lacked automated linting checks for hyperbolic adjectives and table existence in Chapter 5."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
+      "sha256": "37bd1cc8a200b93b5dcc9b7a1db51006a0fb5c8e4855e6647f22794a848cf80d",
+      "type": "narrative_markdown"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.docx",
+      "sha256": "a3aa3e7442c435f54ffe99155c71db6329294f77c4f7e2a47904115eb999ad4a",
+      "type": "openxml_word"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json",
+      "sha256": "64115bd8759c524eb7d576ee2c8a7950aaead63c44465c54cccb09913db8b347",
+      "type": "audit_metadata"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "variable_alignment_auditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "h2_h3_variable_transposition"
+      ],
+      "evidence_summary": {
+        "stage": "attempt_1",
+        "detected_error": "H2 was listed as Job Control -> Innovation (r = -0.17) and H3 as Job Characteristics -> Job Control (r = 0.21)",
+        "proposal_ground_truth": "H2: Job Characteristics -> Job Control (r = -0.17); H3: Job Control -> Innovation (r = 0.21)"
+      }
+    },
+    {
+      "validator_name": "human_supervisor_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "academic_tone_sobriety",
+        "prose_only_chapter_5_convention"
+      ],
+      "evidence_summary": {
+        "critique_text": "Problem: You should not use exagerate, emotional phrases. The writing text should be academic and professional. Also we don't have a table in chapter 5.",
+        "observable_hyperbolic_tokens": [
+          "آوردگاهی است",
+          "یکی از حیاتی‌ترین",
+          "سرشار از تنش",
+          "نتایج شگفت‌انگیز"
+        ],
+        "observable_table": "جدول ۵-۱ (خلاصه نتایج آزمون فرضیه‌های پژوهش)"
+      }
+    }
+  ],
+  "feedback": [
+    "EVT-20260924-TONE-TABLE-FEEDBACK"
+  ],
+  "outcome": "FAILURE"
+}

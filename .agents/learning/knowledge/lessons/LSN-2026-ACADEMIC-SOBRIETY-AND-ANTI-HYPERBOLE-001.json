@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-ACADEMIC-SOBRIETY-AND-ANTI-HYPERBOLE-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260924-TONE-TABLE-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "The writer introduced hyperbolic prose under word-count pressure when the orchestrator demanded narrative expansion.",
+    "behavior_caused_outcome": "Under volume expansion pressure without sufficient empirical grounding, the writer resorted to emotional padding and inflated dramatic rhetoric.",
+    "what_should_have_happened": "The text should maintain strict academic sobriety with zero emotional hyperbole, regardless of length requirements.",
+    "rationale_why": "Academic writing requires objective, neutral, and sober prose. Emotional hyperbole and dramatic rhetoric undermine the scientific credibility of the research."
+  },
+  "desired_behavior": "Maintain strict academic sobriety and neutral academic prose. Do not use emotional, dramatic, or hyperbolic wording to inflate word counts.",
+  "generalization": "Academic writing must remain sober and neutral; zero tolerance for inflated dramatic prose.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Defective dramatic prose observed under word-count pressure.",
+    "threshold_value": "Zero tolerance for emotional/dramatic wording.",
+    "supporting_report_ids": [
+      "BAN-20260924-TONE-TABLE-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-discussion-builder",
+    "ai-academic-tone-polisher",
+    "chapter-5-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-24T05:29:15Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ]
+}

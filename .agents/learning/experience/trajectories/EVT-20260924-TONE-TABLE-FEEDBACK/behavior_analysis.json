@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260924-TONE-TABLE-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260924-TONE-TABLE-FEEDBACK",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-discussion-builder",
+  "capability": "Chapter 5 Drafting",
+  "trajectory_id": "TRJ-20260924-TONE-TABLE-001",
+  "observable_failure_step": {
+    "step_number": 11,
+    "action_type": "FILE_WRITTEN",
+    "description": "academic-writer rewrote draft.md expanding narrative to 931 words, introducing hyperbolic prose under word-count pressure and retaining an unwanted summary table."
+  },
+  "failure_signature": "INFLATED_DRAMATIC_PROSE and UNWANTED_TABLE_IN_CHAPTER_5",
+  "root_cause_diagnosis": "The unwanted table was introduced in Chapter 5 because the orchestrator explicitly commanded its generation during task delegation. The inflated dramatic rhetoric was caused by the orchestrator demanding narrative expansion to 600-900 words. Under this volume expansion pressure without sufficient literature grounding or empirical data, the writer resorted to hyperbolic and emotional padding to artificially inflate the word count.",
+  "prescribed_behavior": "1) Maintain strict academic sobriety with zero emotional hyperbole. 2) Enforce a rigid Chapter 5 Prose-Only Invariant: zero tables are permitted in Chapter 5, and all statistical tables belong exclusively to Chapter 4.",
+  "created_at": "2026-09-24T05:28:29Z"
+}

@@ -57,7 +57,7 @@
     },
     "path": {
       "type": "string",
-      "pattern": "^[a-zA-Z0-9_/.-]+$",
+      "pattern": "^[a-zA-Z0-9_/ .-]+$",
       "description": "Relative or absolute ASCII-only path to physical artifact on disk."
     },
     "schema": {

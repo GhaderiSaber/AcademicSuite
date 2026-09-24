@@ -1,7 +1,7 @@
 {
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-OMITTED-SEM-PATH-DIAGRAMS",
-  "category": "delegation",
+  "category": "execution",
   "defective_pattern": "Omitting mandatory visual deliverables, specifically SEM structural path diagram figures (via semPlot or matplotlib), when formulating delegation scopes for simulation or data tasks.",
   "why_defective": "Failing to explicitly require SEM structural path diagrams in the delegation envelope causes downstream data-agents to skip generating them. Consequently, validation-agents lack specific assertions to check for their presence, causing the omission to slip past quality control gates.",
   "observed_symptoms": [
@@ -21,6 +21,5 @@
   ],
   "reusable": true,
   "is_active_behavior": true,
-  "status": "VALIDATED",
-  "updated_at": "2026-09-23T16:11:09+03:30"
+  "updated_at": "2026-09-23T12:41:09Z"
 }

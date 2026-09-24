@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260924-TONE-TABLE-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "An unwanted summary table was included in Chapter 5 because the orchestrator explicitly commanded its generation during task delegation.",
+    "behavior_caused_outcome": "Delegating the creation of tables for Chapter 5 violates the structural convention that statistical tables belong in Chapter 4.",
+    "what_should_have_happened": "Chapter 5 must strictly contain zero tables; it is 100% continuous narrative prose. Tables belong exclusively to Chapter 4.",
+    "rationale_why": "Scholarly thesis structuring dictates that results and tables reside in Chapter 4, while Chapter 5 is dedicated purely to narrative discussion, synthesis, and interpretation."
+  },
+  "desired_behavior": "Enforce a rigid Chapter 5 Prose-Only Invariant: generate zero tables in Chapter 5. Tables belong exclusively to Chapter 4.",
+  "generalization": "Chapter 5 must be entirely continuous narrative prose without any tables.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Defective output observed containing a table in Chapter 5.",
+    "threshold_value": "Zero tolerance for tables in Chapter 5.",
+    "supporting_report_ids": [
+      "BAN-20260924-TONE-TABLE-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-discussion-builder",
+    "chapter-5-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-24T05:29:15Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ]
+}

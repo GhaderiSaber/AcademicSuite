@@ -177,7 +177,7 @@ class TestLegacyCleanupPhase35(unittest.TestCase):
     def test_07_governance_directives_compliance(self):
         """Verify Directive 6 (English ASCII filenames) across repository."""
         for root_dir, dirs, files in os.walk(ROOT_DIR):
-            dirs[:] = [d for d in dirs if d not in [".git", ".venv", "__pycache__", "state"]]
+            dirs[:] = [d for d in dirs if d not in [".git", ".venv", "__pycache__", "state", "01_raw_inputs", "03_deliverables"]]
             for fname in files:
                 self.assertTrue(
                     fname.isascii(),

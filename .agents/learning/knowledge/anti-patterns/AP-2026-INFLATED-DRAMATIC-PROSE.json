@@ -1,0 +1,23 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-INFLATED-DRAMATIC-PROSE",
+  "category": "evidence",
+  "defective_pattern": "Using hyperbolic, dramatic, or emotional prose to artificially inflate word counts or narrative volume.",
+  "why_defective": "Emotional and exaggerated rhetoric severely damages the credibility, objectivity, and sober tone required in rigorous academic writing.",
+  "observed_symptoms": [
+    "Overuse of intense adjectives or dramatic adverbs.",
+    "Sentences padded with emotional descriptors instead of empirical facts.",
+    "Loss of neutral, objective tone during text expansion tasks."
+  ],
+  "corrective_remedy": "Strip out all dramatic, emotional, or hyperbolic wording. Rewrite sentences using strictly sober, neutral, and fact-based academic terminology, even if it results in a lower word count.",
+  "detection_heuristic": {
+    "trigger_rule": "Presence of dramatic adjectives/adverbs or emotional phrasing in academic text."
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T05:29:15Z"
+}

@@ -8,6 +8,8 @@ description: End-to-end orchestration for Chapter 5 discussion, enforcing One-Hy
 Orchestrates the Chapter 5 micro-stage discussion pipeline:
 - Ingests empirical findings (`stats_results.json`) and parsed article evidence cards (`article_enrichment_cards.json`).
 - Enforces One-Hypothesis-One-Stage deep discussion using the 4-Element Psychological Model (Verdict $\to$ Article Concordance $\to$ Mechanisms $\to$ Nuances).
+- **Chapter 5 Prose-Only Invariant**: Chapter 5 must strictly contain **zero tables** (`|---|` or Word `<w:tbl>`). It is 100% continuous narrative prose. Tables belong exclusively to Chapter 4.
+- **Academic Sobriety & Anti-Hyperbole**: Maintain strict academic sobriety and neutral prose. Zero tolerance for emotional padding, dramatic rhetoric, or hyperbolic adjectives/adverbs to inflate word counts.
 - The agent produces the scholarly Persian narrative dynamically without prewritten templates or canned text.
 - Compiles the synchronized Triad Artifact Invariant (`.docx` + `.md` + `.json`).
 - Assembles verified stages into the final `Chapter_5_Discussion.docx` and `Chapter_5_Discussion.md`.
