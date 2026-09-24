@@ -1,0 +1,39 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-DOM-PARSING-FOR-OPENXML-MODIFICATION-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260924-EMPTY-DOCX-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "A regular expression replacement intended to remove footnotes obliterated the entire body text of a docx document.",
+    "behavior_caused_outcome": "Using unanchored regex on minified OpenXML (word/document.xml) which lacked newline boundaries caused non-greedy wildcards to match from the first paragraph tag to the end of the document.",
+    "what_should_have_happened": "Structured XML DOM parsing via lxml or ElementTree should have been used. A mechanical pre-flight paragraph count verification should have been executed before release.",
+    "rationale_why": "OpenXML documents are typically minified, single-line serializations where standard text-processing heuristics like line boundaries fail catastrophically."
+  },
+  "desired_behavior": "Strictly ban regex string substitutions on minified XML. Mandate structured XML DOM parsing via lxml or ElementTree for all OpenXML modifications. Mandate mechanical body paragraph count verification (> 0) before release.",
+  "generalization": "Never use regex for structural modification of minified XML files like OpenXML.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Entire body paragraph narrative was deleted",
+    "threshold_value": "Zero tolerance for body text obliteration",
+    "supporting_report_ids": [
+      "BAN-20260924-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "openxml_injector"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-24T05:45:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ]
+}

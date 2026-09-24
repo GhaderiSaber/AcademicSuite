@@ -1,0 +1,23 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-REGEX-OPENXML-OBLITERATION",
+  "category": "execution",
+  "defective_pattern": "Using regular expressions (re.sub) to structurally mutate OpenXML files (.docx)",
+  "why_defective": "OpenXML files (word/document.xml) are typically minified into a single unbroken line without newline characters. Regular expressions, even non-greedy ones, will match across the continuous XML string, leading to catastrophic large-scale deletion of document content.",
+  "observed_symptoms": [
+    "Entire body text of docx files disappears",
+    "Document becomes empty except for specific isolated tags",
+    "Unintended large scale text deletion in minified XML"
+  ],
+  "corrective_remedy": "Always parse OpenXML files with a DOM parser like lxml or xml.etree.ElementTree to reliably traverse and modify XML trees. Perform mechanical pre-release paragraph count checks (> 0 paragraphs in word/document.xml).",
+  "detection_heuristic": {
+    "trigger_rule": "Regex substitution function calls (e.g., re.sub) on variables containing `.xml` file content within `.docx` archives"
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T05:45:00Z"
+}

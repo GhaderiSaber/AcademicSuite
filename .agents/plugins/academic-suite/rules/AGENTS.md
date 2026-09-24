@@ -52,6 +52,7 @@ These domain rules are automatically loaded and applied across all conversations
 - **Preserve Math**: Preserve native Word OMML math equations (`<m:oMath>`).
 - **Zero Inline Latin in Persian Text**: Running Persian narrative text must strictly contain zero Latin script words. Foreign author names must be transliterated phonetically to Persian (e.g. «اسمیت»), technical jargon translated to Persian, and the original English terminology/spelling placed strictly in footnotes.
 - **Native OpenXML Word Footnotes**: Footnotes in Word `.docx` deliverables must be compiled as true native OpenXML elements (`word/footnotes.xml` and `<w:footnoteReference>`), never simulated as plain text paragraphs at the bottom of the document.
+- **Zero Regex on OpenXML (DOM Parsing Invariant)**: Never use regex string substitution (`re.sub`) on minified OpenXML files (`word/document.xml`). Always use structured DOM tree parsing (`lxml` or `xml.etree.ElementTree`) and mechanically verify body paragraph counts (> 0) prior to deliverable release.
 
 ---
 
