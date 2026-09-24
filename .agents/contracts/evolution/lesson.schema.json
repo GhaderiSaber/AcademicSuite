@@ -233,6 +233,16 @@
     },
     "retired_at": {
       "type": "string"
+    },
+    "graduation_track": {
+      "type": "string",
+      "enum": ["TRACK_1_IMMEDIATE_GRADUATION", "TRACK_2_CASE_SPECIFIC_LOCAL"],
+      "description": "Directive 21 Dual-Track classification. Track 1 requires immediate graduation into SKILL.md by skill-evolver."
+    },
+    "graduation_status": {
+      "type": "string",
+      "enum": ["PENDING_GRADUATION", "GRADUATED", "NOT_APPLICABLE"],
+      "description": "Graduation status under Directive 21."
     }
   },
   "additionalProperties": false

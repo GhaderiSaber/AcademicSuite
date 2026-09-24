@@ -23,14 +23,16 @@ Generate candidate modifications (`improvement_candidate`) to Skills, scripts, a
 - Synthesize behavioral contract revisions for `SKILL.md` files.
 - Generate unified diffs (`UNIFIED_DIFF`) and SHA-256 target checksums.
 - Formulate projected metric improvements and identify affected capabilities.
-- Stage `improvement_candidate` JSON contracts for independent evaluation.
+- Stage `improvement_candidate` JSON contracts for independent evaluation (Mode A).
+- Directly compile and graduate verified human mentorship invariants into target `SKILL.md` and/or `rules/AGENTS.md` via `write_to_file` when delegated a Track 1 lesson by `academic-orchestrator` (Mode B — Directive 21).
 
 ---
 
 ## NON-RESPONSIBILITIES
 
 ### CANNOT:
-- Directly overwrite or mutate canonical Skill files in `.agents/skills/`.
+- Directly overwrite or mutate canonical Skill files in unsupervised machine runs (Mode A).
+- Write Word documents (`.doc`, `.docx`) or binary files (strictly restricted to `.md` and `.json`).
 - Execute terminal commands or scripts (`run_command` is omitted).
 - Evaluate or benchmark its own candidate modifications (exclusive responsibility of `evaluation-agent`).
 - Approve promotions to production (exclusive responsibility of Saber's Admin Desk).
@@ -67,8 +69,9 @@ Generate candidate modifications (`improvement_candidate`) to Skills, scripts, a
 ---
 
 ## FORBIDDEN ACTIONS
-- Zero direct mutation of canonical production assets (`.agents/skills/`).
+- Zero direct mutation of canonical production assets during unsupervised machine runs (Mode A).
 - Zero command execution.
+- Zero writing of `.doc`, `.docx`, or binary deliverable files.
 - Zero self-evaluation or self-promotion.
 - Zero orchestration.
 

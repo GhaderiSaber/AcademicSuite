@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260924-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260924-HEADING-ALIGN-FEEDBACK",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-discussion-builder",
+  "capability": "document_generation_and_verification",
+  "trajectory_id": "TRJ-20260924-HEADING-ALIGN-001",
+  "observable_failure_step": {
+    "step_number": 9,
+    "action_type": "FILE_WRITTEN",
+    "tool_name": "process_hypo2.py",
+    "description": "process_hypo2.py modified word/document.xml but skipped Paragraph #1 due to failing the strict regex '^۵-۲-۲' and lacking the 'Heading' pStyle, leaving it without <w:jc w:val='right'/>."
+  },
+  "failure_signature": "INCOMPLETE_HEADING_ALIGNMENT_AND_FALSE_POSITIVE_QC",
+  "root_cause_diagnosis": "1) Hardcoded narrow regex matching only section numbers instead of all headings/titles; 2) Compiler stripping <w:jc> for right-aligned paragraphs; 3) Document-wide string search in QC script instead of per-paragraph AST/DOM inspection.",
+  "prescribed_behavior": "1) Universal right-alignment enforcement for ALL headings and titles; 2) DOM-level validation verifying that EVERY heading paragraph contains <w:jc w:val='right'/>.",
+  "created_at": "2026-09-24T10:00:00Z"
+}

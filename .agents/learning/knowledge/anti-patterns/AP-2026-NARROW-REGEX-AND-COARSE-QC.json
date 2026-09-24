@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-NARROW-REGEX-AND-COARSE-QC",
+  "category": "validation",
+  "defective_pattern": "Using narrow regex to apply formatting and relying on document-wide string checks for validation.",
+  "why_defective": "Narrow regex misses semantic structures (like main titles), and string containment checks generate false positives by confirming the existence of a tag anywhere in the document, rather than where it is strictly required.",
+  "observed_symptoms": [
+    "Some headings remain left-aligned.",
+    "QC scripts report SUCCESS despite formatting errors in specific paragraphs."
+  ],
+  "corrective_remedy": "1) Target structural tags (styles) instead of raw text matches to apply formatting universally to headings. 2) Validate alignment by traversing the DOM and ensuring every target paragraph explicitly contains the required alignment tags.",
+  "detection_heuristic": {
+    "trigger_rule": "Scripts checking layout by `if '<w:jc w:val=\"right\"/>' in doc_text` or applying formatting using limited prefix regex like `^۵-۲`."
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T10:00:00Z"
+}

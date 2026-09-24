@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-EXHAUSTIVE-HEADING-ALIGNMENT-AND-DOM-QC-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260924-HEADING-ALIGN-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "Document headings were left left-aligned because the regex matching was too narrow (only matching section numbers) and QC scripts falsely reported success using a document-wide string check.",
+    "behavior_caused_outcome": "Strict regexes missed top-level titles, and the coarse QC check failed to catch the absence of alignment tags on specific paragraphs.",
+    "what_should_have_happened": "Exhaustive application of right alignment (<w:jc w:val='right'/> + <w:bidi w:val='1'/>) to all heading levels, followed by rigorous per-heading DOM-based validation.",
+    "rationale_why": "Persian academic documents strictly require right-to-left orientation and right alignment across all structural elements without exception."
+  },
+  "desired_behavior": "1) Apply universal right-alignment enforcement on ALL headings, titles, and captions (<w:jc w:val='right'/> + <w:bidi w:val='1'/>); 2) Perform per-paragraph DOM validation confirming that EVERY heading element has explicit <w:jc w:val='right'/>, strictly forbidding document-wide string containment checks.",
+  "generalization": "Enforcing layout properties in RTL documents requires comprehensive targeting (not narrow regex) and granular structural validation (DOM parsing, not raw text search).",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Defective right-alignment on top-level headings",
+    "threshold_value": "Zero tolerance for formatting inconsistencies",
+    "supporting_report_ids": [
+      "BAN-20260924-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-discussion-builder",
+    "academic-writer"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-24T10:00:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ]
+}

@@ -1,0 +1,410 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260924-HEADING-REPEAT-001",
+  "experience_id": "EVT-20260924-HEADING-REPEAT-FEEDBACK",
+  "project_id": "Morteza_Estaki",
+  "task_id": "TSK-20260924-HEADING-REPEAT-TRAJECTORY-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T06:18:10Z",
+      "description": "User inspected initial Stage 3 deliverable (03_hypothesis_2_discussion.docx) and issued first critique: 'Problem: The heading is left align.' because Title Paragraph #1 lacked alignment tags.",
+      "observable_input": {
+        "critique_text": "Problem: The heading is left align.",
+        "target_file": "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx"
+      },
+      "observable_output": {
+        "status": "CRITIQUE_RECEIVED",
+        "defect_reported": "LEFT_ALIGNED_HEADING"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T06:20:00Z",
+      "description": "academic-orchestrator diagnosed that process_hypo2.py skipped Title Paragraph #1 due to regex '^۵-۲-۲' and decided to force explicit right alignment on both headings via fix_headings.py.",
+      "observable_input": {
+        "task_id": "TSK-20260924-HEADING-FIX-001",
+        "worker_script": "03_deliverables/stage_03_hypo_2/fix_headings.py"
+      },
+      "observable_output": {
+        "status": "DELEGATED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T06:21:00Z",
+      "description": "Executed CLI runner to run fix_headings.py to modify word/document.xml inside 03_hypothesis_2_discussion.docx.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_03_hypo_2/fix_headings.py",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "fix_headings.py",
+      "timestamp": "2026-09-24T06:21:05Z",
+      "description": "fix_headings.py parsed word/document.xml, matched both Heading #1 ('بحث و بررسی فرضیه دوم پژوهش') and Heading #2 ('۵-۲-۲. بحث و بررسی فرضیه دوم پژوهش'), and explicitly appended <w:jc w:val='right'/> and <w:bidi w:val='1'/> to both paragraphs, re-zipping 03_hypothesis_2_discussion.docx.",
+      "observable_input": {
+        "target_file": "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx",
+        "pPr_injection": "<w:jc w:val='right'/><w:bidi w:val='1'/>"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "heading_1_pPr": "<w:pPr><w:bidi w:val=\"1\"/><w:jc w:val=\"right\"/></w:pPr>",
+        "heading_2_pPr": "<w:pPr><w:bidi w:val=\"1\"/><w:jc w:val=\"right\"/></w:pPr>",
+        "docx_sha256": "ef168e7bd5d85e3c55d9337f7a61343e04b725228fe99be1dc5322278c30aa7b"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "fix_headings.py",
+      "timestamp": "2026-09-24T06:21:08Z",
+      "description": "fix_headings.py completed execution with exit code 0 and updated 03_hypothesis_2_discussion.json metadata.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_03_hypo_2/fix_headings.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "json_sha256": "f86e006c461f927f4387af4b84ce2dc59108d18d646593919146c4aeddbf9cd2"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T06:21:30Z",
+      "description": "academic-orchestrator executed verify_hypo2.py to audit paragraph alignment attributes in 03_hypothesis_2_discussion.docx.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_03_hypo_2/verify_hypo2.py",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "VALIDATING"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "verify_hypo2.py",
+      "timestamp": "2026-09-24T06:21:35Z",
+      "description": "verify_hypo2.py inspected both headings and confirmed that each contains align='right' and bidi='1', producing a PASS verdict in docx_verification_report.json based on the mistaken premise that explicit <w:jc w:val='right'/> guarantees physical right alignment.",
+      "observable_input": {
+        "report_path": "03_deliverables/stage_03_hypo_2/docx_verification_report.json"
+      },
+      "observable_output": {
+        "overall_verdict": "PASS",
+        "heading_alignments": [
+          {
+            "text": "بحث و بررسی فرضیه دوم پژوهش",
+            "align": "right",
+            "bidi": "1"
+          },
+          {
+            "text": "۵-۲-۲. بحث و بررسی فرضیه دوم پژوهش",
+            "align": "right",
+            "bidi": "1"
+          }
+        ],
+        "checks_failed": 0
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "ARTIFACT_GENERATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T06:22:00Z",
+      "description": "academic-orchestrator released revised 03_hypothesis_2_discussion.docx to user based on clean docx_verification_report.json PASS verdict.",
+      "observable_input": {
+        "docx_path": "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx"
+      },
+      "observable_output": {
+        "status": "DELIVERED"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T06:24:15Z",
+      "description": "User opened 03_hypothesis_2_discussion.docx in Word/LibreOffice and issued second explicit critique: 'Problem: The headings is left align.' because explicit <w:jc w:val='right'/> triggered Word's BiDi trailing-edge flip bug, physically rendering both headings on the left margin.",
+      "observable_input": {
+        "critique_text": "Problem: The headings is left align."
+      },
+      "observable_output": {
+        "status": "REPEAT_CRITIQUE_RECEIVED",
+        "defect_observed": "BOTH_HEADINGS_RENDERED_ON_LEFT_MARGIN"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T10:15:43Z",
+      "description": "academic-orchestrator initiated forensic investigation and delegated TSK-20260924-HEADING-REPEAT-TRAJECTORY-001 to trajectory-analyzer to conduct a side-by-side OpenXML comparison between Stage 2 and Stage 3.",
+      "observable_input": {
+        "task_id": "TSK-20260924-HEADING-REPEAT-TRAJECTORY-001",
+        "worker_agent": "trajectory-analyzer",
+        "inputs": [
+          "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+          "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx"
+        ]
+      },
+      "observable_output": {
+        "status": "DELEGATED",
+        "target_agent": "trajectory-analyzer"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-09-24T10:25:00Z",
+      "description": "trajectory-analyzer completed side-by-side XML audit across document.xml, styles.xml, and settings.xml, establishing that Stage 2 renders right-aligned because <w:jc> is completely omitted under <w:bidi w:val='1'/>, whereas Stage 3 renders left-aligned because <w:jc w:val='right'/> triggers the OpenXML BiDi trailing-edge inversion quirk.",
+      "observable_input": {
+        "stage_02_docx": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "stage_03_docx": "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx"
+      },
+      "observable_output": {
+        "verdict": "ROOT_CAUSE_ISOLATED",
+        "stage_02_heading_pPr": "<w:pPr><w:bidi w:val=\"1\"/></w:pPr> (w:jc OMITTED -> Renders RIGHT)",
+        "stage_03_heading_pPr": "<w:pPr><w:bidi w:val=\"1\"/><w:jc w:val=\"right\"/></w:pPr> (w:jc PRESENT -> Flips to LEFT)"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "view_file",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "AbsolutePath": "tmp_docx/word/document.xml",
+        "Description": "Inspect extracted Stage 2 document.xml to analyze working heading paragraph properties"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 35
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "AbsolutePath": "tmp_docx/word/settings.xml",
+        "Description": "Inspect Stage 2 settings.xml compatibility mode and defaults"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 28
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "AbsolutePath": "tmp_docx/word/styles.xml",
+        "Description": "Inspect Stage 2 styles.xml Normal style and docDefaults"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 45
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/stage_03_hypo_2/fix_headings.py",
+        "Description": "Audit heading modification logic injected into Stage 3 docx"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 22
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/stage_03_hypo_2/verify_hypo2.py",
+        "Description": "Audit verification assertions used to evaluate Stage 3 heading alignments"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 20
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/stage_03_hypo_2/docx_verification_report.json",
+        "Description": "Inspect verification report produced for Stage 3 deliverable"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 15
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 7,
+      "arguments_summary": {
+        "AbsolutePath": ".agents/learning/knowledge/lessons/LSN-2026-OPENXML-TRAILING-EDGE-INVERSION-001.json",
+        "Description": "Inspect historical lesson on OpenXML trailing-edge inversion"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 18
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 8,
+      "arguments_summary": {
+        "AbsolutePath": ".agents/validators/academic_chapter_auditor.py",
+        "Description": "Inspect CHK-BIDI-ALIGNMENT-INVERSION check implementation"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 32
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 9,
+      "arguments_summary": {
+        "AbsolutePath": ".agents/shared/openxml_artifact_engine.py",
+        "Description": "Inspect canonical OpenXML BiDi architecture specification"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 25
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": "03_deliverables/stage_03_hypo_2/fix_headings.py",
+      "cli_command": "python3 03_deliverables/stage_03_hypo_2/fix_headings.py",
+      "exit_code": 0,
+      "duration_seconds": 1.2
+    },
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": "03_deliverables/stage_03_hypo_2/verify_hypo2.py",
+      "cli_command": "python3 03_deliverables/stage_03_hypo_2/verify_hypo2.py",
+      "exit_code": 0,
+      "duration_seconds": 0.5
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "03_hypothesis_discussion",
+      "envelope_summary": "Forensic comparison between Stage 2 and Stage 3 DOCX XML to isolate heading alignment defect",
+      "status": "COMPLETED",
+      "handoff_artifact_path": ".agents/learning/experience/trajectories/EVT-20260924-HEADING-REPEAT-FEEDBACK/trajectory.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-20260924-HEADING-REPEAT-TRAJECTORY-001",
+      "objective": "Forensically compare 03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx with 03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx to determine why headings render left-aligned despite presence of <w:jc w:val='right'/>.",
+      "input_artifacts": [
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx",
+        "User critique: 'Problem: The headings is left align.'"
+      ],
+      "output_artifacts": [
+        ".agents/learning/experience/trajectories/EVT-20260924-HEADING-REPEAT-FEEDBACK/trajectory.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260924-REGRESSIVE-HEADING-ALIGNMENT-PATCH",
+      "decision_type": "FLAWED_DEFECT_REMEDIATION",
+      "selected_option": "Injecting explicit <w:jc w:val='right'/> into heading paragraphs in fix_headings.py",
+      "rationale": "When user reported 'The heading is left align.' for Stage 3, the orchestrator assumed the cause was a missing <w:jc w:val='right'/> in Title Paragraph #1. It created fix_headings.py to forcefully append <w:jc w:val='right'/> to both Paragraph #1 and Paragraph #2. The orchestrator overlooked the foundational OpenXML BiDi rule documented in LSN-2026-OPENXML-TRAILING-EDGE-INVERSION-001 and academic_chapter_auditor.py line 356: in an RTL paragraph (<w:bidi w:val='1'/>), explicit <w:jc w:val='right'/> is mapped by Word and LibreOffice as the logical trailing edge (physical left margin), causing the heading to flip to the left margin.",
+      "alternatives_considered": [
+        {
+          "option": "Remove <w:jc> completely from both heading paragraphs while preserving <w:bidi w:val='1'/>",
+          "verdict": "CORRECT_SPECIFICATION_VIOLATED",
+          "reason": "Omitting <w:jc> allows Word to align text to its natural leading edge in RTL, which is the physical right margin (exactly as implemented in confirmed working Stage 2)."
+        },
+        {
+          "option": "Inject explicit <w:jc w:val='right'/> into both headings",
+          "verdict": "CHOSEN_OPTION_DEFECTIVE",
+          "reason": "Directly triggered the OpenXML BiDi trailing-edge flip bug, causing both headings to render on the left margin."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-FALSE-POSITIVE-VERIFIER-RULE",
+      "decision_type": "VERIFICATION_LOGIC_DEFECT",
+      "selected_option": "Asserting align == 'right' and bidi == '1' as pass criteria in verify_hypo2.py",
+      "rationale": "verify_hypo2.py evaluated heading quality by asserting that align == 'right'. Because fix_headings.py had injected <w:jc w:val='right'/>, the verifier returned 'PASS' (checks_failed: 0). The verification script was completely unaware of the trailing-edge inversion bug, directly contradicting CHK-BIDI-ALIGNMENT-INVERSION in academic_chapter_auditor.py which mandates that RTL paragraphs MUST OMIT <w:jc>.",
+      "alternatives_considered": [
+        {
+          "option": "Assert that <w:bidi w:val='1'/> is present and <w:jc> is strictly absent for headings",
+          "verdict": "OMITTED_FROM_VERIFIER",
+          "reason": "The author of verify_hypo2.py erroneously assumed that right-aligned text in Word requires an explicit right justification tag."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+      "sha256": "8fa0074210947ed276e7b7aa20a07bc45d3d35a0002e8491196ce6269463503a",
+      "type": "confirmed_working_docx"
+    },
+    {
+      "path": "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx",
+      "sha256": "ef168e7bd5d85e3c55d9337f7a61343e04b725228fe99be1dc5322278c30aa7b",
+      "type": "defective_docx"
+    },
+    {
+      "path": "03_deliverables/stage_03_hypo_2/docx_verification_report.json",
+      "sha256": "721dc3ef1a1c14832bd00dc5a177947b3337e517d5d08d83c9df7381dec30aa1",
+      "type": "false_positive_qc_report"
+    },
+    {
+      "path": ".agents/learning/experience/trajectories/EVT-20260924-HEADING-REPEAT-FEEDBACK/trajectory.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "type": "trajectory_record"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "verify_hypo2.py",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "script": "03_deliverables/stage_03_hypo_2/verify_hypo2.py",
+        "result": "Deceptive false positive pass asserting that headings possess align='right' and bidi='1', directly certifying the bug."
+      }
+    },
+    {
+      "validator_name": "academic_chapter_auditor.py (CHK-BIDI-ALIGNMENT-INVERSION)",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "Paragraph 1 sets <w:jc w:val='right'/> under <w:bidi/>. Must omit <w:jc> to prevent trailing-edge flip to Align Left.",
+        "Paragraph 2 sets <w:jc w:val='right'/> under <w:bidi/>. Must omit <w:jc> to prevent trailing-edge flip to Align Left."
+      ],
+      "evidence_summary": {
+        "rule": "CHK-BIDI-ALIGNMENT-INVERSION",
+        "standard": "RTL paragraphs must omit <w:jc> for Right alignment to prevent Word trailing-edge flip bug",
+        "stage_02_verdict": "PASS (w:jc is omitted under w:bidi)",
+        "stage_03_verdict": "FAIL (w:jc w:val='right' is present on both headings)"
+      }
+    },
+    {
+      "validator_name": "human_supervisor_rendering_check",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "headings_left_aligned"
+      ],
+      "evidence_summary": {
+        "user_critique": "Problem: The headings is left align.",
+        "rendered_visual_state": "Both Heading #1 and Heading #2 rendered aligned to the left margin in Microsoft Word / LibreOffice."
+      }
+    }
+  ],
+  "feedback": [
+    "EVT-20260924-HEADING-REPEAT-FEEDBACK"
+  ],
+  "outcome": "FAILURE"
+}

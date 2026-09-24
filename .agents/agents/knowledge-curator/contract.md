@@ -26,6 +26,7 @@ Synthesize diagnosed experiences and operational successes into structured, vers
 - Archive verified gold-standard research deliverables into `.agents/learning/knowledge/exemplars/`.
 - Maintain graph edges (`.agents/learning/knowledge/graph_edges.jsonl`) with the 7 mandatory relationship types.
 - Enforce strict scope containment (`project`, `domain`, `cross-project`, `global-in-project`).
+- Classify human mentorship lessons (`trigger_source: "USER_FEEDBACK"`) under Directive 21 as Track 1 Immediate Graduation (`graduation_track: "TRACK_1_IMMEDIATE_GRADUATION"`), issuing binding handoff directives to `academic-orchestrator`.
 
 ---
 

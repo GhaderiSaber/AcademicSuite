@@ -28,6 +28,7 @@ All subagents in this workspace operate under strict adherence to `AGENTS.md`:
 2. **Directive 6 (English-Only Filenames)**: Every file, directory, and schema identifier MUST use English ASCII characters only (`[a-zA-Z0-9_.-]`).
 3. **Directive 15 (Temporal Reality Anchor: 2026)**: Current operative calendar year is 2026 (1405 SH).
 4. **Directive 19 (Subagent Role Isolation & Knowledge Schema Invariant)**: Every lesson and anti-pattern MUST contain `target_agent` (string) and `target_agents` (non-empty array of strings). Any attempt to write a lesson or anti-pattern lacking these fields is **MECHANICALLY DENIED** by the PreToolUse lifecycle safety hook.
+5. **Directive 21 (Dual-Track Immediate Graduation Invariant)**: Whenever synthesizing lessons from direct user feedback or mentorship (`trigger_source: "USER_FEEDBACK"`), set `graduation_track: "TRACK_1_IMMEDIATE_GRADUATION"`, `graduation_status: "PENDING_GRADUATION"`, and explicitly issue a mandatory handoff directive instructing `academic-orchestrator` to immediately dispatch `skill-evolver` to compile the invariant into target `SKILL.md` and `rules/AGENTS.md`, and `evaluation-agent` to verify single-view ceilings and sync to Git.
 
 ---
 
@@ -165,3 +166,14 @@ Before invoking `write_to_file` on any file in `.agents/learning/knowledge/`:
   "updated_at": "2026-09-22T09:00:00Z"
 }
 ```
+
+---
+
+### 🚀 Mandatory Handoff Directive for Track 1 Lessons (Directive 21):
+When outputting a lesson with `graduation_track: "TRACK_1_IMMEDIATE_GRADUATION"` to `academic-orchestrator`, your response **MUST EXPLICITLY INCLUDE**:
+> **MANDATORY ACTION REQUIRED (Directive 21 - Track 1 Immediate Graduation):**
+> Lesson `<lesson_id>` is a Universal Invariant derived from human mentorship (`trigger_source: "USER_FEEDBACK"`).
+> Academic-orchestrator MUST immediately:
+> 1. Dispatch `skill-evolver` to compile this invariant into target `SKILL.md` (under Section: `## INSTITUTIONAL INVARIANTS & PREVIOUS LESSONS GRADUATED`) and/or `.agents/plugins/academic-suite/rules/AGENTS.md` using `write_to_file`.
+> 2. Dispatch `evaluation-agent` to run `python3 .agents/verification/skill_size_guard.py`, stage files, and commit/push to Git (`origin main`).
+

@@ -1,0 +1,529 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260924-HEADING-ALIGN-001",
+  "experience_id": "EVT-20260924-HEADING-ALIGN-FEEDBACK",
+  "project_id": "Morteza_Estaki",
+  "task_id": "TSK-20260924-HEADING-ALIGN-TRAJECTORY-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T06:10:00Z",
+      "description": "academic-orchestrator delegated Chapter 5 stage 03_hypothesis_discussion compilation task to academic-writer to draft Stage 3 Hypothesis 2 discussion (job characteristics vs job control) and compile the synchronized verification triad (.docx, .md, .json).",
+      "observable_input": {
+        "task_id": "TSK-20260924-STAGE3-TRIAD-001",
+        "worker_agent": "academic-writer",
+        "stage_id": "03_hypothesis_discussion",
+        "stage_title": "بحث و بررسی فرضیه دوم پژوهش",
+        "target_directory": "03_deliverables/stage_03_hypo_2"
+      },
+      "observable_output": {
+        "status": "DELEGATED",
+        "target_subagent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T06:11:30Z",
+      "description": "academic-writer drafted 03_deliverables/stage_03_hypo_2/draft.md containing 710 words and 4,234 characters structured according to the 4-element psychological model, starting with subheading '## ۵-۲-۲. بحث و بررسی فرضیه دوم پژوهش' and markdown footnote markers [^1] to [^8].",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/draft.md",
+        "char_count": 4234,
+        "word_count": 710
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "first_line": "## ۵-۲-۲. بحث و بررسی فرضیه دوم پژوهش",
+        "footnote_count": 8,
+        "statistical_notation": "(*N* = ۲۰۸), (*r* = -۰.۱۷, *p* = ۰.۰۱۰)"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T06:13:40Z",
+      "description": "academic-writer executed CLI triad compiler scaffold_chapter5_triad.py to build Word (.docx), Markdown (.md), and metadata (.json) deliverables from draft.md.",
+      "observable_input": {
+        "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '03_hypothesis_discussion' --base '03_hypothesis_2_discussion' --outdir '03_deliverables/stage_03_hypo_2' --title 'بحث و بررسی فرضیه دوم پژوهش' --narrative-file '03_deliverables/stage_03_hypo_2/draft.md'",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "SKILL_INVOCATION",
+      "actor": "scaffold_chapter5_triad.py",
+      "timestamp": "2026-09-24T06:13:45Z",
+      "description": "scaffold_chapter5_triad.py automatically injected top-level Title heading '# بحث و بررسی فرضیه دوم پژوهش' because draft.md began with '## '. The script executed set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.RIGHT), which via lines 77-80 explicitly stripped <w:jc> from paragraph properties (pPr.remove(jc)), creating both Heading 1 and Heading 2 paragraphs without any <w:jc w:val='right'/> element in document.xml.",
+      "observable_input": {
+        "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+        "title_injection_rule": "lines 160-161: if not narrative_text.startswith('# '): full_md_content = f'# {stage_title}\\n\\n{narrative_text}\\n'",
+        "heading_alignment_logic": "lines 77-80: if align == WD_ALIGN_PARAGRAPH.RIGHT: jc = pPr.find(qn('w:jc')); if jc is not None: pPr.remove(jc)"
+      },
+      "observable_output": {
+        "heading_1_xml": "<w:p><w:pPr><w:bidi w:val=\"1\"/></w:pPr><w:r><w:t>بحث و بررسی فرضیه دوم پژوهش</w:t></w:r></w:p>",
+        "heading_2_xml": "<w:p><w:pPr><w:bidi w:val=\"1\"/></w:pPr><w:r><w:t>۵-۲-۲. بحث و بررسی فرضیه دوم پژوهش</w:t></w:r></w:p>",
+        "has_explicit_w_jc_right": false
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T06:13:48Z",
+      "description": "scaffold_chapter5_triad.py finished execution and output initial triad files with compiled_at timestamp 2026-09-24T06:13:47.884678+00:00.",
+      "observable_input": {
+        "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "artifacts_generated": [
+          "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx",
+          "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.md",
+          "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.json"
+        ]
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T06:14:10Z",
+      "description": "academic-writer executed update_md.py to append footnote definitions [^1] through [^8] to 03_hypothesis_2_discussion.md and synchronize md_sha256 in 03_hypothesis_2_discussion.json.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_03_hypo_2/update_md.py",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T06:14:15Z",
+      "description": "update_md.py completed execution, updating markdown content and saving deliverables manifest hashes.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_03_hypo_2/update_md.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "md_sha256": "e48099ab2385c1ac5a817feb82dea5ca839f84f0345c8645712a710c34a637f7"
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T06:15:00Z",
+      "description": "academic-writer executed post-processing script process_hypo2.py to inject native Word footnotes.xml, convert markdown asterisks (*N*, *r*, *p*) into italic text runs, and patch heading alignment.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_03_hypo_2/process_hypo2.py",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_WRITTEN",
+      "actor": "process_hypo2.py",
+      "timestamp": "2026-09-24T06:15:20Z",
+      "description": "process_hypo2.py modified word/document.xml, added word/footnotes.xml, and rebuilt 03_hypothesis_2_discussion.docx. In its heading alignment routine (lines 97-120), it classified headings using: is_heading = (pStyle is not None and pStyle.get('val').startswith('Heading')) or bool(re.match(r'^۵-۲-۲', p_text.strip())). Because Paragraph #1 ('بحث و بررسی فرضیه دوم پژوهش') had no Heading pStyle and did not match regex '^۵-۲-۲', is_heading evaluated to False. Paragraph #1 was completely skipped and left without <w:jc w:val='right'/>. Only Subheading Paragraph #2 ('۵-۲-۲. بحث و بررسی فرضیه دوم پژوهش') matched the regex and received <w:jc w:val='right'/>.",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx",
+        "filter_logic": "process_hypo2.py:97-105: is_heading = False; if pPr is not None and pStyle.startswith('Heading'): is_heading = True; if not is_heading and re.match(r'^۵-۲-۲', p_text.strip()): is_heading = True"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "paragraph_1_text": "بحث و بررسی فرضیه دوم پژوهش",
+        "paragraph_1_pPr_xml": "<w:pPr><w:bidi w:val=\"1\"/></w:pPr>",
+        "paragraph_1_w_jc": null,
+        "paragraph_2_text": "۵-۲-۲. بحث و بررسی فرضیه دوم پژوهش",
+        "paragraph_2_pPr_xml": "<w:pPr><w:bidi w:val=\"1\"/><w:jc w:val=\"right\"/></w:pPr>",
+        "paragraph_2_w_jc": "right",
+        "docx_sha256": "44401639c48793420943a0a9c80c582e8132c75d9663049c87fa6fd353d4226c"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T06:15:25Z",
+      "description": "process_hypo2.py finished execution and updated docx_sha256 in 03_hypothesis_2_discussion.json.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_03_hypo_2/process_hypo2.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "docx_sha256": "44401639c48793420943a0a9c80c582e8132c75d9663049c87fa6fd353d4226c"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T06:15:40Z",
+      "description": "academic-orchestrator invoked verify_hypo2.py to perform quality control on 03_hypothesis_2_discussion.docx prior to delivery.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_03_hypo_2/verify_hypo2.py",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "VALIDATING"
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T06:15:45Z",
+      "description": "verify_hypo2.py generated docx_verification_report.json. However, verify_hypo2.py evaluated heading alignment using a global string test ('<w:jc w:val=\"right\"/>' in doc_xml or 'w:val=\"right\"' in doc_xml). Because Paragraph #2 and footnote paragraphs contained w:val='right', the assertion passed globally, producing a deceptive false-positive report asserting has_right_alignment: true while Title Paragraph #1 remained unaligned.",
+      "observable_input": {
+        "report_path": "03_deliverables/stage_03_hypo_2/docx_verification_report.json",
+        "test_logic": "verify_hypo2.py:28: has_right_jc = '<w:jc w:val=\"right\"/>' in doc_xml or 'w:val=\"right\"' in doc_xml"
+      },
+      "observable_output": {
+        "load_success": true,
+        "paragraph_count": 7,
+        "word_count": 715,
+        "word_footnotes_xml_present": true,
+        "footnote_count": 8,
+        "raw_asterisks_count": 0,
+        "has_right_alignment": true,
+        "verdict": "FALSE_POSITIVE_PASS"
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "ARTIFACT_GENERATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T06:16:00Z",
+      "description": "academic-orchestrator presented Stage 3 Hypothesis 2 triad deliverables (03_hypothesis_2_discussion.docx, 03_hypothesis_2_discussion.md, 03_hypothesis_2_discussion.json) to user based on clean verification report.",
+      "observable_input": {
+        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx",
+        "md_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.md",
+        "json_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.json"
+      },
+      "observable_output": {
+        "status": "DELIVERED"
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T06:18:10Z",
+      "description": "User inspected 03_hypothesis_2_discussion.docx in Microsoft Word and issued critique: 'Problem: The heading is left align.' because Title Paragraph #1 ('بحث و بررسی فرضیه دوم پژوهش') rendered left-aligned due to missing <w:jc w:val='right'/>.",
+      "observable_input": {
+        "user_critique_text": "Problem: The heading is left align."
+      },
+      "observable_output": {
+        "status": "CRITIQUE_RECEIVED",
+        "defect": "Title heading paragraph #1 rendered left-aligned in Microsoft Word"
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T06:19:00Z",
+      "description": "academic-orchestrator delegated task TSK-20260924-HEADING-ALIGN-TRAJECTORY-001 to trajectory-analyzer to investigate process_hypo2.py and document.xml structure and reconstruct the factual execution trajectory.",
+      "observable_input": {
+        "task_id": "TSK-20260924-HEADING-ALIGN-TRAJECTORY-001",
+        "worker_agent": "trajectory-analyzer",
+        "objective": "Reconstruct observable actions, tool calls, and error trajectory for user critique: 'Problem: The heading is left align.' for Stage 3 Hypothesis 2 deliverable (03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx). Investigate 03_deliverables/stage_03_hypo_2/process_hypo2.py and 03_hypothesis_2_discussion.docx XML structure to identify which heading paragraphs (e.g. Title # vs Subheading ##) lacked <w:jc w:val='right'/> or why Word displayed them as left-aligned."
+      },
+      "observable_output": {
+        "status": "DELEGATED",
+        "target_subagent": "trajectory-analyzer"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-STAGE3-TRIAD-001",
+        "WorkerAgent": "academic-writer",
+        "PromptSummary": "Draft Chapter 5 Stage 3 Hypothesis 2 discussion and compile synchronized verification triad"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 2410
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/draft.md",
+        "Overwrite": true,
+        "Description": "Hypothesis 2 discussion narrative adhering to 4-element psychological model"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 210
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "CommandLine": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '03_hypothesis_discussion' --base '03_hypothesis_2_discussion' --outdir '03_deliverables/stage_03_hypo_2' --title 'بحث و بررسی فرضیه دوم پژوهش' --narrative-file '03_deliverables/stage_03_hypo_2/draft.md'",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 3450
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/update_md.py",
+        "Overwrite": true,
+        "Description": "Helper script to append footnote definitions to markdown deliverable and synchronize sha256"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 95
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "CommandLine": "python3 03_deliverables/stage_03_hypo_2/update_md.py",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 520
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/process_hypo2.py",
+        "Overwrite": true,
+        "Description": "Post-processing script to inject native footnotes, format italics, and patch heading alignment"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 180
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 7,
+      "arguments_summary": {
+        "CommandLine": "python3 03_deliverables/stage_03_hypo_2/process_hypo2.py",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 2840
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 8,
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/verify_hypo2.py",
+        "Overwrite": true,
+        "Description": "Verification script to check docx loading, footnotes, and alignment"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 110
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 9,
+      "arguments_summary": {
+        "CommandLine": "python3 03_deliverables/stage_03_hypo_2/verify_hypo2.py",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 610
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 10,
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/docx_verification_report.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 35
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 11,
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-HEADING-ALIGN-TRAJECTORY-001",
+        "WorkerAgent": "trajectory-analyzer",
+        "PromptSummary": "Reconstruct observable actions, tool calls, and error trajectory for user critique regarding left-aligned heading"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 2980
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+      "cli_command": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '03_hypothesis_discussion' --base '03_hypothesis_2_discussion' --outdir '03_deliverables/stage_03_hypo_2' --title 'بحث و بررسی فرضیه دوم پژوهش' --narrative-file '03_deliverables/stage_03_hypo_2/draft.md'",
+      "exit_code": 0,
+      "duration_seconds": 3.45
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "03_hypothesis_discussion",
+      "envelope_summary": "Compile Section 5-2-2 Hypothesis 2 discussion triad artifacts (.docx, .md, .json)",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-20260924-STAGE3-TRIAD-001",
+      "objective": "Draft Chapter 5 Section 5-2-2 (Hypothesis 2 Discussion) synthesizing empirical results (r = -0.17, p = .010, negative correlation in Isfahan Red Crescent headquarters, N = 208) and compile synchronized triad (.docx, .md, .json) with native footnotes and APA statistical formatting.",
+      "input_artifacts": [
+        "03_deliverables/stage_03_hypo_2/draft.md"
+      ],
+      "output_artifacts": [
+        "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx",
+        "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.md",
+        "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "trajectory_reconstruction",
+      "envelope_summary": "Reconstruct chronological trajectory for user critique regarding left-aligned heading in Stage 3 deliverable",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-HEADING-ALIGN-FEEDBACK/trajectory.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-20260924-HEADING-ALIGN-TRAJECTORY-001",
+      "objective": "Reconstruct observable actions, tool calls, and error trajectory for user critique: 'Problem: The heading is left align.' for Stage 3 Hypothesis 2 deliverable (03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx). Investigate 03_deliverables/stage_03_hypo_2/process_hypo2.py and 03_hypothesis_2_discussion.docx XML structure to identify which heading paragraphs (e.g. Title # vs Subheading ##) lacked <w:jc w:val='right'/> or why Word displayed them as left-aligned.",
+      "input_artifacts": [
+        "03_deliverables/stage_03_hypo_2/process_hypo2.py",
+        "03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx",
+        "03_deliverables/stage_03_hypo_2/docx_verification_report.json",
+        "User critique"
+      ],
+      "output_artifacts": [
+        ".agents/learning/experience/trajectories/EVT-20260924-HEADING-ALIGN-FEEDBACK/trajectory.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260924-REGEX-HEADING-FILTER-GAP",
+      "decision_type": "POST_PROCESSOR_LOGIC_DEFECT",
+      "selected_option": "Filtering headings in process_hypo2.py using strict regex '^۵-۲-۲' and pStyle 'Heading*'",
+      "rationale": "In process_hypo2.py (lines 97-105), the script only classified a paragraph as a heading if pStyle started with 'Heading' or if its text matched re.match(r'^۵-۲-۲', p_text.strip()). Because python-docx creates standard Normal paragraphs without 'Heading' style and the top-level Title heading ('# بحث و بررسی فرضیه دوم پژوهش') began with 'بحث' rather than '۵-۲-۲', is_heading evaluated to False for Title Paragraph #1. Consequently, Paragraph #1 was never given <w:jc w:val='right'/>, leaving it without paragraph alignment in OpenXML.",
+      "alternatives_considered": [
+        {
+          "option": "Classify headings using Markdown heading indicators, font size threshold (e.g. sz=28), or matching both Title and Subheading titles",
+          "verdict": "OMITTED_IN_PROCESS_SCRIPT",
+          "reason": "The developer hardcoded a fragile regex targeting only the numbered subheading 5-2-2 and overlooked the unnumbered top-level title paragraph."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-COMPILER-ALIGNMENT-STRIPPING-INHERITANCE",
+      "decision_type": "SCAFFOLDER_ALIGNMENT_INHERITANCE_DEFECT",
+      "selected_option": "Relying on scaffold_chapter5_triad.py which explicitly removes <w:jc> for right-aligned paragraphs",
+      "rationale": "In scaffold_chapter5_triad.py lines 77-80, set_bidi_paragraph stripped <w:jc> whenever align == WD_ALIGN_PARAGRAPH.RIGHT based on a mistaken assumption that RTL BiDi inherently right-aligns text in Word. In OpenXML standard WordprocessingML, omitting <w:jc> causes Word to inherit the style alignment (Normal), which renders as left-aligned in Microsoft Word. Thus, any paragraph not explicitly patched by process_hypo2.py defaulted to left-aligned.",
+      "alternatives_considered": [
+        {
+          "option": "Set <w:jc w:val='right'/> explicitly in set_bidi_paragraph for all RTL headings",
+          "verdict": "PERSISTED_DEFECT_IN_COMPILER",
+          "reason": "scaffold_chapter5_triad.py had not been updated in the skill repository prior to Stage 3 execution."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-GLOBAL-SUBSTRING-QC-FALSE-POSITIVE",
+      "decision_type": "VERIFICATION_DESIGN_DEFECT",
+      "selected_option": "Validating document right-alignment using global XML string containment ('<w:jc w:val=\"right\"/>' in doc_xml)",
+      "rationale": "verify_hypo2.py checked has_right_alignment by searching for '<w:jc w:val=\"right\"/>' in doc_xml or 'w:val=\"right\"' in doc_xml. Because paragraph #2 (and footnote definitions) contained w:val='right', the boolean was True, issuing a false-positive pass report (docx_verification_report.json) without inspecting whether Heading Paragraph #1 possessed <w:jc w:val='right'/>.",
+      "alternatives_considered": [
+        {
+          "option": "Iterate over every heading paragraph element in the OpenXML DOM and assert pPr.find('w:jc') has attribute w:val='right'",
+          "verdict": "OMITTED_IN_VERIFICATION",
+          "reason": "Verification script implemented a coarse whole-file string search instead of DOM AST node verification."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx",
+      "sha256": "44401639c48793420943a0a9c80c582e8132c75d9663049c87fa6fd353d4226c",
+      "type": "openxml_word"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.md",
+      "sha256": "e48099ab2385c1ac5a817feb82dea5ca839f84f0345c8645712a710c34a637f7",
+      "type": "narrative_markdown"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.json",
+      "sha256": "97408b1f8261262d60f3082224b0794f7e99a270f90b8f8e1ba4934d48e2cd7d",
+      "type": "triad_metadata"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "openxml_heading_alignment_auditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "missing_w_jc_right_heading_1",
+        "title_heading_rendered_left_aligned",
+        "fragile_regex_heading_filter_in_process_hypo2"
+      ],
+      "evidence_summary": {
+        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_03_hypo_2/03_hypothesis_2_discussion.docx",
+        "code_location": "03_deliverables/stage_03_hypo_2/process_hypo2.py:97-120",
+        "heading_1_text": "بحث و بررسی فرضیه دوم پژوهش",
+        "heading_1_pPr_xml": "<w:pPr><w:bidi w:val=\"1\"/></w:pPr>",
+        "heading_1_w_jc": null,
+        "heading_2_text": "۵-۲-۲. بحث و بررسی فرضیه دوم پژوهش",
+        "heading_2_pPr_xml": "<w:pPr><w:bidi w:val=\"1\"/><w:jc w:val=\"right\"/></w:pPr>",
+        "heading_2_w_jc": "right"
+      }
+    },
+    {
+      "validator_name": "docx_verification_report_auditor",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "report_path": "03_deliverables/stage_03_hypo_2/docx_verification_report.json",
+        "load_success": true,
+        "paragraph_count": 7,
+        "word_count": 715,
+        "word_footnotes_xml_present": true,
+        "footnote_count": 8,
+        "has_right_alignment": true,
+        "flaw": "Deceptive false positive caused by global doc_xml string search ('w:val=\"right\"' in doc_xml) matching paragraph #2 and masking heading #1 omission."
+      }
+    },
+    {
+      "validator_name": "human_supervisor_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "left_aligned_heading"
+      ],
+      "evidence_summary": {
+        "critique_text": "Problem: The heading is left align.",
+        "observed_rendering": "Paragraph #1 (Title '# بحث و بررسی فرضیه دوم پژوهش') rendered left-aligned in Word due to missing <w:jc w:val='right'/>."
+      }
+    }
+  ],
+  "feedback": [
+    "EVT-20260924-HEADING-ALIGN-FEEDBACK"
+  ],
+  "outcome": "FAILURE"
+}
