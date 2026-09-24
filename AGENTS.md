@@ -192,13 +192,10 @@ These two permanent architectural laws govern `academic-orchestrator`:
 1. **Conversational Ingestion**: When the human mentor/supervisor (Saber Ghaderi) provides direct guidance, standards, or methodology instructions in conversation (e.g., *"Remember that..."*, *"Learn this: always do X because Y"*), agents MUST NOT treat it as ephemeral chat text.
 2. **Immediate Codification**: The agent categorizes the rule (`principle`, `pattern`, `anti_pattern`, or `lesson`), validates it against contract schemas, and persists it to `.agents/learning/knowledge/`.
 3. **Dual-Track Immediate Graduation Invariant (اصل ارتقای فوری و دوگانه دانش)**:
-   - **Track 1 (Methodological / Behavioral / Writing Invariant)**: When human guidance defines a permanent procedural law (e.g. Chapter 5 prose-only, academic sobriety, English dialogue, OpenXML footnotes, clean root):
-     - The agent **MUST IMMEDIATELY in the same turn** graduate and compile the rule directly into the target `SKILL.md` (under Invariants) and/or `.agents/plugins/academic-suite/rules/AGENTS.md`.
-     - Verify Directive 18 ceiling (`skill_size_guard.py` < 500 lines).
-     - Stage, commit, and push to GitHub (`origin main`) in the exact same turn.
-     - *Bypasses the 3-item dynamic retrieval budget completely; permanently active 100% of the time across all projects.*
-   - **Track 2 (Case-Specific / Scale Fact)**: Narrow empirical quirks (specific questionnaire item, single dataset parameter, supervisor idiosyncratic stylistic preference):
-     - Retained strictly as scoped episodic JSON in `.agents/learning/knowledge/` without polluting global rules.
+   - **Track 1 (Methodological / Writing Invariants)**: Permanent procedural laws (Chapter 5 prose-only, academic sobriety, English dialogue, clean root):
+     - The deterministic compiler ("The Hands" — `academic_graduation_compiler.py`) graduates rule into target `SKILL.md` and/or `rules/AGENTS.md`.
+     - Verifies Directive 18 ceiling (`skill_size_guard.py` < 500 lines), stages, commits, and pushes in the same turn.
+   - **Track 2 (Case-Specific Facts)**: Empirical quirks (scale item keys, local dataset traits) retained strictly as scoped JSON in `learning/knowledge/`.
 4. **Shared Learning Invariant**: Direct human mentorship items default to `scope: "cross-project"`, ensuring they are tracked in Git, committed, and synced to GitHub for all current and future projects.
 5. **Deterministic Pre-Task Feeding**: Human-taught principles and patterns are deterministically prioritized by the Two-Stage Retriever and Dynamic Context Token Budgeter, surfacing in pre-flight briefings under `⚖️ Applicable Methodology Rules & Boundary Conditions:`.
 

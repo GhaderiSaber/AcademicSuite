@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+tests/test_academic_graduation_compiler.py — Unit Tests for Immediate Graduation Compiler ("The Hands")
+
+Verifies:
+1. Target resolution (global rules vs capability-specific SKILL.md files).
+2. Markdown synthesis obeying Safety Rule 1 (synthesis, not stacking / semantic deduplication).
+3. Directive 18 ceiling compliance, automated offloading to references/, and atomic rollback on overflow.
+4. Full integration with AcademicHumanMentor (Track 1 immediate graduation vs Track 2 scoped episodic quarantine).
+5. Git lifecycle handling and dry-run safety.
+"""
+
+import os
+import sys
+import shutil
+import tempfile
+import unittest
+
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
+for p in [ROOT_DIR, AGENTS_DIR, os.path.join(AGENTS_DIR, "scripts")]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+from scripts.academic_graduation_compiler import AcademicGraduationCompiler
+from scripts.academic_human_mentor import AcademicHumanMentor
+
+
+class TestAcademicGraduationCompiler(unittest.TestCase):
+    """Authoritative test suite for AcademicGraduationCompiler ('The Hands')."""
+
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp(prefix="test_grad_")
+        self.agents_dir = os.path.join(self.test_dir, ".agents")
+        self.skills_dir = os.path.join(self.agents_dir, "skills")
+        self.rules_dir = os.path.join(self.agents_dir, "plugins", "academic-suite", "rules")
+        self.snapshots_dir = os.path.join(self.agents_dir, "learning", "snapshots", "skills")
+        os.makedirs(self.skills_dir, exist_ok=True)
+        os.makedirs(self.rules_dir, exist_ok=True)
+        os.makedirs(self.snapshots_dir, exist_ok=True)
+
+        # Create mock global rules/AGENTS.md
+        self.rules_file = os.path.join(self.rules_dir, "AGENTS.md")
+        with open(self.rules_file, "w", encoding="utf-8") as f:
+            f.write("# Academic Suite Consolidated Domain Rules\n\n## 1. Radical Honesty & Pipeline Enforcement\n- **Directive 0**: Honesty.\n")
+
+        # Create mock skill SKILL.md
+        self.ch5_dir = os.path.join(self.skills_dir, "persian-discussion-builder")
+        os.makedirs(self.ch5_dir, exist_ok=True)
+        self.ch5_file = os.path.join(self.ch5_dir, "SKILL.md")
+        with open(self.ch5_file, "w", encoding="utf-8") as f:
+            f.write("---\nname: persian-discussion-builder\n---\n\n# Persian Discussion Builder\n\n## 1. Scope\nDraft Chapter 5.\n")
+
+        self.compiler = AcademicGraduationCompiler(base_dir=self.test_dir)
+        self.mentor = AcademicHumanMentor(base_dir=self.test_dir)
+
+    def tearDown(self):
+        if os.path.isdir(self.test_dir):
+            shutil.rmtree(self.test_dir, ignore_errors=True)
+
+    def test_01_target_resolution(self):
+        """Verify target resolution correctly maps capabilities to SKILL.md and global invariants to rules."""
+        # Capability resolution
+        targets_ch5 = self.compiler.resolve_targets(capability="chapter5")
+        self.assertIn(self.ch5_file, targets_ch5)
+
+        # Global resolution
+        targets_global = self.compiler.resolve_targets(is_global=True)
+        self.assertIn(self.rules_file, targets_global)
+
+    def test_02_synthesize_markdown_rule_first_addition(self):
+        """Verify adding an invariant to a skill creates the section and bullet."""
+        res = self.compiler.synthesize_markdown_rule(
+            file_path=self.ch5_file,
+            item_id="PRN-2026-CH5-001",
+            statement="Chapter 5 must be 100% continuous narrative prose with zero tables.",
+            category="Principle"
+        )
+        self.assertTrue(res["success"])
+        self.assertEqual(res["status"], "GRADUATED_SUCCESS")
+
+        with open(self.ch5_file, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        self.assertIn("## 🧠 Active Learned Behavioral Invariants", content)
+        self.assertIn("PRN-2026-CH5-001", content)
+        self.assertIn("zero tables", content)
+
+    def test_03_safety_rule_1_synthesis_not_stacking(self):
+        """Verify that adding a related rule consolidates and merges instead of blindly stacking duplicate bullets."""
+        # Initial rule
+        self.compiler.synthesize_markdown_rule(
+            file_path=self.ch5_file,
+            item_id="PRN-2026-CH5-001",
+            statement="Chapter 5 must be continuous narrative prose without statistical tables.",
+            category="Principle"
+        )
+        with open(self.ch5_file, "r", encoding="utf-8") as f:
+            lines_after_first = f.read().splitlines()
+
+        # Follow-up related rule with overlapping keywords (chapter, continuous, narrative, tables)
+        res2 = self.compiler.synthesize_markdown_rule(
+            file_path=self.ch5_file,
+            item_id="PRN-2026-CH5-002",
+            statement="Chapter 5 discussion narrative must strictly contain zero tables.",
+            category="Principle"
+        )
+        self.assertTrue(res2["success"])
+
+        with open(self.ch5_file, "r", encoding="utf-8") as f:
+            lines_after_second = f.read().splitlines()
+
+        # Line count should remain essentially identical because it merged in-place
+        self.assertEqual(len(lines_after_first), len(lines_after_second))
+        with open(self.ch5_file, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("PRN-2026-CH5-002", content)
+        self.assertNotIn("PRN-2026-CH5-001", content)  # Replaced by strengthened version
+
+    def test_04_safety_rule_2_offload_when_approaching_ceiling(self):
+        """Verify that approaching 470 lines automatically offloads details to references/."""
+        # Pad mock skill file to 475 lines
+        padding = "\n".join([f"- Item {i}" for i in range(475)])
+        with open(self.ch5_file, "w", encoding="utf-8") as f:
+            f.write(f"---\nname: persian-discussion-builder\n---\n\n# Skill\n\n{padding}\n")
+
+        res = self.compiler.synthesize_markdown_rule(
+            file_path=self.ch5_file,
+            item_id="PRN-CH5-OVERFLOW-TEST",
+            statement="Always elaborate psychological mechanisms using the 4-element cognitive model.",
+            category="Principle"
+        )
+        self.assertTrue(res["success"])
+        self.assertTrue(res["offloaded"])
+
+        # Check references file was generated
+        refs_file = os.path.join(self.ch5_dir, "references", "learned_invariants.md")
+        self.assertTrue(os.path.isfile(refs_file))
+        with open(refs_file, "r", encoding="utf-8") as rf:
+            self.assertIn("PRN-CH5-OVERFLOW-TEST", rf.read())
+
+    def test_05_safety_rule_2_atomic_rollback_on_overflow(self):
+        """Verify that exceeding 500 lines triggers an atomic rollback leaving the file pristine."""
+        # Pad mock skill file to 492 lines (total 497 lines with header)
+        padding = "\n".join([f"- Item {i}" for i in range(492)])
+        initial_content = f"---\nname: persian-discussion-builder\n---\n\n# Skill\n\n{padding}\n"
+        with open(self.ch5_file, "w", encoding="utf-8") as f:
+            f.write(initial_content)
+
+        # Attempt to synthesize an addition that pushes it to 501+ lines even with compact bullet
+        huge_statement = "Excessive rule content that overflows."
+        res = self.compiler.synthesize_markdown_rule(
+            file_path=self.ch5_file,
+            item_id="PRN-HUGE-FAIL",
+            statement=huge_statement,
+            category="Principle"
+        )
+        # Should detect overflow past 500 lines and roll back to original content
+        self.assertEqual(res["status"], "OVERFLOW_ROLLED_BACK")
+        self.assertFalse(res["success"])
+
+        with open(self.ch5_file, "r", encoding="utf-8") as f:
+            restored = f.read()
+
+        self.assertEqual(restored, initial_content)
+        self.assertLessEqual(len(restored.splitlines()), 500)
+
+    def test_06_end_to_end_mentor_track1_graduation(self):
+        """Verify AcademicHumanMentor.teach() runs Track 1 graduation and returns receipt badge."""
+        res = self.mentor.teach(
+            category="principle",
+            statement="Chapter 5 must be 100% continuous narrative prose with zero tables.",
+            rationale="Methodological law established by Saber Ghaderi.",
+            capability="chapter5",
+            scope="cross-project",
+            auto_commit=False
+        )
+        self.assertEqual(res["track"], 1)
+        self.assertIsNotNone(res["grad_info"])
+        self.assertTrue(res["grad_info"]["all_passed"])
+        self.assertIn("Track 1 Full Graduation Applied (The Hands)", res["badge"])
+        self.assertIn("Directive 18 Size Guard", res["badge"])
+
+        # Check physical SKILL.md file
+        with open(self.ch5_file, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("Active Learned Behavioral Invariants", content)
+        self.assertIn("zero tables", content)
+
+    def test_07_end_to_end_mentor_track2_case_specific_quarantine(self):
+        """Verify AcademicHumanMentor.teach_from_natural_language() routes case-specific facts to Track 2 without touching SKILL.md."""
+        res = self.mentor.teach_from_natural_language(
+            text="In DASS-21, items 3, 5, 10 measure stress.",
+            default_capability="chapter5",
+            scope="cross-project",
+            auto_commit=False
+        )
+        self.assertEqual(res["track"], 2)
+        self.assertIsNone(res["grad_info"])
+        self.assertIn("Track 2: Scoped Episodic Memory Stored", res["badge"])
+        self.assertNotIn("Track 1 Full Graduation Applied", res["badge"])
+
+        # Physical SKILL.md should NOT contain DASS-21 items
+        with open(self.ch5_file, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertNotIn("DASS-21", content)
+
+
+if __name__ == "__main__":
+    unittest.main()

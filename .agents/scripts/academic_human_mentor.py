@@ -28,6 +28,7 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from scripts.academic_knowledge_manager import AcademicKnowledgeManager, ContractValidationError
+from scripts.academic_graduation_compiler import AcademicGraduationCompiler
 
 CAPABILITY_KEYWORDS = {
     "mediation": ["mediation", "indirect effect", "bootstrap", "sobel", "میانجی", "اثر غیرمستقیم"],
@@ -48,6 +49,7 @@ class AcademicHumanMentor:
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or os.environ.get("ACADEMIC_SUITE_BASE_DIR") or ROOT_DIR)
         self.km = AcademicKnowledgeManager(base_dir=self.base_dir)
+        self.compiler = AcademicGraduationCompiler(base_dir=self.base_dir)
 
     def teach(
         self,
@@ -62,7 +64,10 @@ class AcademicHumanMentor:
         defective_pattern: Optional[str] = None,
         corrective_remedy: Optional[str] = None,
         observed_symptoms: Optional[List[str]] = None,
-        exclusions: Optional[List[str]] = None
+        exclusions: Optional[List[str]] = None,
+        track: str = "auto",
+        auto_commit: bool = True,
+        dry_run: bool = False
     ) -> Dict[str, Any]:
         """Validate and store human-taught knowledge as a persistent artifact."""
         clean_cat = category.strip().lower().replace("-", "_")
@@ -73,9 +78,11 @@ class AcademicHumanMentor:
             eff_tags.append(clean_cap.lower())
         eff_skills = list(skills or ([clean_cap] if clean_cap else ["general_research"]))
 
-        if clean_cat in ["principle", "rule", "standard"]:
+        if clean_cat in ["principle", "rule", "standard", "pattern", "workflow", "procedure"]:
+            is_principle = clean_cat in ["principle", "rule", "standard"]
+            default_crit = "Foundational rule established by research mentor" if is_principle else "Approved methodological workflow procedure"
             app_dict: Dict[str, Any] = {
-                "criteria": [rationale.strip()] if rationale else ["Foundational rule established by research mentor"],
+                "criteria": [rationale.strip()] if rationale else [default_crit],
                 "target_skills": eff_skills
             }
             if clean_agent:
@@ -97,35 +104,12 @@ class AcademicHumanMentor:
             if clean_agent:
                 item_dict["target_agent"] = clean_agent
                 item_dict["target_agents"] = [clean_agent]
-            item_id = self.km.add_principle(item_dict)
-            item_kind = "Principle"
-
-        elif clean_cat in ["pattern", "workflow", "procedure"]:
-            app_dict = {
-                "criteria": [rationale.strip()] if rationale else ["Approved methodological workflow procedure"],
-                "target_skills": eff_skills
-            }
-            if clean_agent:
-                app_dict["target_agents"] = [clean_agent]
-            item_dict = {
-                "statement": statement.strip(),
-                "scope": scope,
-                "domain": clean_cap or "general",
-                "capability": clean_cap,
-                "tags": eff_tags,
-                "applicability": app_dict,
-                "exclusions": exclusions or [],
-                "source_lessons": ["LSN-HUMAN-MENTOR-DIRECT"],
-                "supporting_evaluations": [],
-                "contradictions": [],
-                "status": "ACCEPTED_ACTIVE",
-                "version": "1.0.0"
-            }
-            if clean_agent:
-                item_dict["target_agent"] = clean_agent
-                item_dict["target_agents"] = [clean_agent]
-            item_id = self.km.add_pattern(item_dict)
-            item_kind = "Pattern"
+            if is_principle:
+                item_id = self.km.add_principle(item_dict)
+                item_kind = "Principle"
+            else:
+                item_id = self.km.add_pattern(item_dict)
+                item_kind = "Pattern"
 
         elif clean_cat in ["anti_pattern", "pitfall", "prohibited"]:
             cat_domain = "statistical" if clean_cap in ["mediation", "moderation", "SEM", "ancova", "regression"] else "methodological"
@@ -174,7 +158,40 @@ class AcademicHumanMentor:
         else:
             raise ValueError(f"Unsupported knowledge category: '{category}'. Use principle, pattern, anti_pattern, or lesson.")
 
-        badge = self.format_confirmation_badge(item_id, item_kind, statement, clean_cap, scope, agent=clean_agent)
+        # Directive 21 Dual-Track Ingestion & Graduation (The Hands)
+        clean_track = str(track).strip().lower()
+        if clean_track in ("1", "track1", "track_1"):
+            eff_track = 1
+        elif clean_track in ("2", "track2", "track_2"):
+            eff_track = 2
+        else:
+            eff_track = 1 if (scope == "cross-project" and clean_cat in ["principle", "pattern", "anti_pattern"]) else 2
+
+        grad_info = None
+        if eff_track == 1:
+            json_file = None
+            for d in [self.km.principles_dir, self.km.patterns_dir, self.km.anti_patterns_dir, self.km.lessons_dir]:
+                cand = os.path.join(d, f"{item_id}.json")
+                if os.path.isfile(cand):
+                    json_file = cand
+                    break
+
+            grad_info = self.compiler.graduate_item(
+                item_id=item_id,
+                statement=statement,
+                category=item_kind,
+                capability=clean_cap,
+                skills=eff_skills,
+                json_artifact_path=json_file,
+                is_global=(clean_cap is None or clean_cap.lower() in ("general", "universal")),
+                auto_commit=auto_commit,
+                dry_run=dry_run
+            )
+
+        badge = self.format_confirmation_badge(
+            item_id, item_kind, statement, clean_cap, scope, agent=clean_agent,
+            grad_info=grad_info, track=eff_track
+        )
         return {
             "item_id": item_id,
             "item_kind": item_kind,
@@ -182,6 +199,8 @@ class AcademicHumanMentor:
             "capability": clean_cap,
             "agent": clean_agent,
             "scope": scope,
+            "track": eff_track,
+            "grad_info": grad_info,
             "badge": badge
         }
 
@@ -190,11 +209,23 @@ class AcademicHumanMentor:
         text: str,
         default_capability: Optional[str] = None,
         scope: str = "cross-project",
-        agent: Optional[str] = None
+        agent: Optional[str] = None,
+        track: str = "auto",
+        auto_commit: bool = True,
+        dry_run: bool = False
     ) -> Dict[str, Any]:
         """Extract category, capability, target agent, and statement from natural language (EN or FA)."""
         raw = text.strip()
         cleaned = re.sub(r"^(remember that|learn this|from now on|note that|یادت باشه|به یاد داشته باش)[:,\s]+", "", raw, flags=re.I)
+
+        # Check for Track 2 indicators (case-specific, supervisor-specific, dataset-specific)
+        is_case_specific = bool(re.search(
+            r"\b(items?\s+\d+|dataset\s+[a-z0-9]|variable\s+[a-z0-9]|dr\.\s+[a-z]|university\s+[a-z]|دانشگاه|آیتم‌های|گویه‌های|پرسشنامه|استاد|داده‌های این پروژه)\b",
+            raw, re.I
+        ))
+        eff_track = track
+        if track == "auto" and is_case_specific:
+            eff_track = "2"
 
         # 1. Infer Capability
         detected_cap = default_capability
@@ -217,18 +248,10 @@ class AcademicHumanMentor:
                 ]:
                     detected_agent = cand
             if not detected_agent:
-                if re.search(r"(?:برای|مخصوص)\s+(?:نویسنده|academic-writer)", raw):
-                    detected_agent = "academic-writer"
-                elif re.search(r"(?:برای|مخصوص)\s+(?:آمار|تحلیلگر آمار|statistics-agent)", raw):
-                    detected_agent = "statistics-agent"
-                elif re.search(r"(?:برای|مخصوص)\s+(?:داده|پاکسازی|data-agent)", raw):
-                    detected_agent = "data-agent"
-                elif re.search(r"(?:برای|مخصوص)\s+(?:داور|ارزیاب|اعتبارسنجی|validation-agent)", raw):
-                    detected_agent = "validation-agent"
-            if not detected_agent:
-                for known_agent in ["academic-writer", "statistics-agent", "data-agent", "validation-agent", "academic-orchestrator"]:
-                    if known_agent in text_lower:
-                        detected_agent = known_agent
+                fa_map = {"نویسنده": "academic-writer", "آمار": "statistics-agent", "داده": "data-agent", "داور": "validation-agent"}
+                for kw, ag in fa_map.items():
+                    if kw in raw or ag in text_lower:
+                        detected_agent = ag
                         break
 
         # 3. Infer Category
@@ -246,7 +269,8 @@ class AcademicHumanMentor:
             return self.teach(
                 category=cat, statement=cleaned, rationale="Direct mentorship guidance from research supervisor.",
                 capability=detected_cap, scope=scope, agent=detected_agent,
-                defective_pattern=defective, corrective_remedy=remedy
+                defective_pattern=defective, corrective_remedy=remedy,
+                track=eff_track, auto_commit=auto_commit, dry_run=dry_run
             )
         elif is_pattern:
             cat = "pattern"
@@ -257,7 +281,8 @@ class AcademicHumanMentor:
 
         return self.teach(
             category=cat, statement=cleaned, rationale="Direct mentorship guidance from research supervisor.",
-            capability=detected_cap, scope=scope, agent=detected_agent
+            capability=detected_cap, scope=scope, agent=detected_agent,
+            track=eff_track, auto_commit=auto_commit, dry_run=dry_run
         )
 
     def list_knowledge(
@@ -335,19 +360,39 @@ class AcademicHumanMentor:
         statement: str,
         capability: Optional[str],
         scope: str,
-        agent: Optional[str] = None
+        agent: Optional[str] = None,
+        grad_info: Optional[Dict[str, Any]] = None,
+        track: int = 1
     ) -> str:
         """Format clean scholarly confirmation badge for chat and CLI."""
         cap_str = f"`{capability}`" if capability else "General Academic"
         agent_line = f"- **Target Agent**: `{agent}`\n" if agent else ""
-        return (
+        track_str = "Track 1: Immediate Invariant Graduation Active" if track == 1 else "Track 2: Scoped Episodic Memory Stored"
+        badge = (
             f"✅ **Knowledge Codified & Persisted**:\n"
+            f"- **Protocol**: `{track_str}`\n"
             f"- **ID**: `{item_id}` ({item_kind})\n"
             f"- **Scope**: `{scope}` (Shared Learning Active)\n"
             f"- **Target Capability**: {cap_str}\n"
             f"{agent_line}"
             f"- **Instruction**: \"{statement}\""
         )
+        if grad_info and grad_info.get("all_passed"):
+            targets = grad_info.get("targets", [])
+            target_names = [os.path.basename(os.path.dirname(t)) or os.path.basename(t) for t in targets]
+            targets_str = ", ".join(f"`{t}`" for t in target_names) or "`rules/AGENTS.md`"
+            git_info = grad_info.get("git", {})
+            commit_str = git_info.get("commit_hash", "local")
+            pushed_str = " & Pushed to remote" if git_info.get("pushed") else ""
+            badge += (
+                f"\n\n🚀 **Track 1 Full Graduation Applied (The Hands)**:\n"
+                f"- **Compiled Targets**: {targets_str}\n"
+                f"- **Directive 18 Size Guard**: ✅ Verified (< 500 lines / 40 KB)\n"
+                f"- **Git Lifecycle**: ✅ Committed (`{commit_str}`){pushed_str}"
+            )
+        elif grad_info and not grad_info.get("all_passed"):
+            badge += "\n\n⚠️ **Track 1 Graduation Overflow**: Rolled back due to Directive 18 ceiling; retained in JSON store."
+        return badge
 
 
 def main():
@@ -364,6 +409,9 @@ def main():
     p_teach.add_argument("--scope", default="cross-project", help="Scope containment (default: cross-project)")
     p_teach.add_argument("--skills", nargs="*", help="Target skills")
     p_teach.add_argument("--tags", nargs="*", help="Tags")
+    p_teach.add_argument("--track", choices=["auto", "1", "2"], default="auto", help="Dual-track ingestion mode")
+    p_teach.add_argument("--dry-run", action="store_true", help="Simulate without writing or committing")
+    p_teach.add_argument("--no-git", action="store_true", help="Skip git commit/push")
 
     # ingest-text
     p_ingest = subparsers.add_parser("ingest-text", help="Parse and learn from natural language text")
@@ -371,6 +419,9 @@ def main():
     p_ingest.add_argument("--capability", help="Default capability if not in text")
     p_ingest.add_argument("--agent", help="Explicit target agent override")
     p_ingest.add_argument("--scope", default="cross-project", help="Scope containment")
+    p_ingest.add_argument("--track", choices=["auto", "1", "2"], default="auto", help="Dual-track ingestion mode")
+    p_ingest.add_argument("--dry-run", action="store_true", help="Simulate without writing or committing")
+    p_ingest.add_argument("--no-git", action="store_true", help="Skip git commit/push")
 
     # list
     p_list = subparsers.add_parser("list", help="List learned knowledge items")
@@ -402,7 +453,10 @@ def main():
             skills=args.skills,
             tags=args.tags,
             scope=args.scope,
-            agent=args.agent
+            agent=args.agent,
+            track=args.track,
+            auto_commit=not args.no_git,
+            dry_run=args.dry_run
         )
         print(res["badge"])
 
@@ -411,7 +465,10 @@ def main():
             text=args.text,
             default_capability=args.capability,
             scope=args.scope,
-            agent=args.agent
+            agent=args.agent,
+            track=args.track,
+            auto_commit=not args.no_git,
+            dry_run=args.dry_run
         )
         print(res["badge"])
 
