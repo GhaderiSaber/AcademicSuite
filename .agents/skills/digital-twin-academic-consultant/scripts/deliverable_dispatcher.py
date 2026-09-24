@@ -228,7 +228,7 @@ class AcademicDeliverableDispatcher:
     ) -> str:
         """
         Generate an authentic, high-context Persian delivery caption for the student.
-        Adheres to Rule 4 Persian typography (نیم‌فاصله) and scholarly tone.
+        Adheres to Directive 7 Persian typography (نیم‌فاصله) and scholarly tone.
         """
         d_name = html.escape(clean_client_display_name(client_name))
         t_code = deliverable_info.get("type_code", "general_document")

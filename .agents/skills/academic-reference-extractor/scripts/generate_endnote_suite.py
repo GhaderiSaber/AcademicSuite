@@ -2,7 +2,7 @@
 """
 EndNote 360° Publishing Suite Generator
 Part of the 'academic-reference-extractor' and 'academic-article-writer' Antigravity Skills.
-Complies with AGENTS.md Rule 16 (Mandatory EndNote Citation Compatibility).
+Complies with AGENTS.md Directive 16 (Mandatory EndNote Citation Compatibility).
 
 Generates:
 1. EndNote Import Library (.enw)

@@ -422,7 +422,7 @@ class AcademicFinancialLedger:
     def format_receipt_card(self, tx_entry: Dict[str, Any], project_dir: str) -> str:
         """
         Generate an official, elegant Persian payment receipt card for the client.
-        Complies with Rule 4 Persian typography and Rule 3 APA/OpenXML standards.
+        Complies with Directive 4 APA typography and Directive 5 OpenXML standards.
         """
         data = self.load_ledger(project_dir)
         cname = data.get("client_name") or os.path.basename(project_dir)

@@ -6,7 +6,7 @@ Unified Telegram Co-Pilot Bridge (copilot_bridge.py)
 Integrates Digital Saber's 5 cognitive layers (Constitution, Case Precedent Memory,
 Reasoning Engines, Skills, and Quality Verification) with the Telegram bot and userbot.
 
-Enforces Rule 7 and Rule 11:
+Enforces Directive 7 and Directive 11:
 - Zero autonomous client dispatches (all responses drafted into Saber's Admin Desk: 124911145)
 - Deterministic pricing calculation based on established pricing matrix in Tomans
 - Case precedent retrieval for authentic, tailored consulting

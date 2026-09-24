@@ -623,9 +623,9 @@ class ThesisIntegrityAuditor:
 
     def _audit_adversarial_defense(self):
         """
-        Dimension 5: Adversarial Defense & Peer-Review Simulation (from Sida Peng & Rule 10)
+        Dimension 5: Adversarial Defense & Peer-Review Simulation (from Sida Peng & Directive 10)
         Audits:
-          1. Effect size plausibility (Rule 10 anti-over-separation guardrail)
+          1. Effect size plausibility (Directive 10 MSAI anti-over-separation guardrail)
           2. Methodological reproducibility & psychometric transparency
           3. Assumption completeness (Box's M, Levene, Normality)
           4. Hostile referee question simulation

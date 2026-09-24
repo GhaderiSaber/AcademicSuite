@@ -129,7 +129,7 @@ def audit_physical_sources(references: list, papers_dir: str = None) -> dict:
     """
     Audits bibliographic references against physically downloaded research PDFs
     in 04_references_and_lit/papers/ (and ingested_papers_corpus.json).
-    Enforces Rule 14 Anti-Hallucination & Zero Ghost Citation Protocol.
+    Enforces Directive 14 Anti-Hallucination & Zero Ghost Citation Protocol.
     """
     import re
     from pathlib import Path
@@ -347,7 +347,7 @@ def export_claim_evidence_matrix_excel(claims_data: list, out_path: str, lang: s
         ws2 = wb.create_sheet(title="تطبیق فیزیکی مراجع" if lang == "fa" else "Physical Sources Audit")
         ws2.views.sheetView[0].rightToLeft = (lang == "fa")
 
-        ws2["A1"] = "جدول تطبیق مراجع مقاله با مقالات فیزیکی بارگیری‌شده (Rule 14 Anti-Hallucination Audit)" if lang == "fa" else "Physical Research Paper Verification Audit (Rule 14 Anti-Hallucination Protocol)"
+        ws2["A1"] = "جدول تطبیق مراجع مقاله با مقالات فیزیکی بارگیری‌شده (Directive 14 Anti-Hallucination Audit)" if lang == "fa" else "Physical Research Paper Verification Audit (Directive 14 Anti-Hallucination Protocol)"
         ws2["A1"].font = title_font
 
         headers2 = [
@@ -969,7 +969,7 @@ def compile_article(data: dict, output_path: str, lang: str = 'en', papers_dir: 
         p_ref.paragraph_format.space_after = Pt(4)
         add_run(p_ref, ref_str, lang=lang, size=10)
 
-    # Physical Source Audit (Rule 14 Anti-Hallucination Protocol)
+    # Physical Source Audit (Directive 14 Anti-Hallucination Protocol)
     refs_list = data.get("references", [])
     src_audit = audit_physical_sources(refs_list, papers_dir=papers_dir)
 

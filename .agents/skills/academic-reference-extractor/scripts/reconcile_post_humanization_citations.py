@@ -2,7 +2,7 @@
 """
 Post-Humanization Bidirectional Citation Reconciler & Concordance Auditor
 Part of the 'academic-reference-extractor' and 'ai-academic-tone-polisher' Antigravity Skills.
-Complies with AGENTS.md Rule 13 (Epistemic Honesty) and Rule 16 (EndNote Concordance).
+Complies with AGENTS.md Directive 13 (Epistemic Honesty) and Directive 16 (EndNote Concordance).
 
 Audits manuscripts following humanization, paraphrasing, or QuillBot condensation to detect:
 1. Orphaned Bibliography Entries (in bibliography but citations dropped from text)
