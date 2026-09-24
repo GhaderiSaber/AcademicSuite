@@ -84,6 +84,14 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
         return stop_res
     # Also scan for user corrections
     LearningHooks.capture_user_correction(payload)
+    # Automated Graduation Safety Net (Directive 21)
+    try:
+        from scripts.academic_graduation_compiler import AcademicGraduationCompiler
+        compiler = AcademicGraduationCompiler(base_dir=ROOT_DIR)
+        ws_paths = payload.get("workspacePaths", [])
+        compiler.compile_all_pending(workspaces=ws_paths, auto_commit=True, dry_run=False)
+    except Exception as e_grad:
+        sys.stderr.write(f"[transcript_and_rule_guard] Auto-graduation note: {e_grad}\n")
     return stop_res
 
 

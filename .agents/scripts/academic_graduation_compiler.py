@@ -235,8 +235,11 @@ class AcademicGraduationCompiler:
         commit_msg = f"feat(mentorship): graduate [{item_id}] {summary} [skip ci]"
 
         try:
-            # 1. Stage files
-            rel_files = [os.path.relpath(p, self.base_dir) for p in target_files if os.path.exists(p)]
+            # 1. Stage files (only paths within base_dir)
+            rel_files = [
+                os.path.relpath(p, self.base_dir) for p in target_files
+                if os.path.exists(p) and not os.path.relpath(p, self.base_dir).startswith("..")
+            ]
             if not rel_files:
                 return {"success": False, "reason": "No files to stage"}
 
@@ -357,13 +360,20 @@ class AcademicGraduationCompiler:
 
         is_global = (data.get("scope") == "cross-project" and not skills and not capability)
 
+        # Cross-workspace synchronization: sync to central AcademicSuite store if json_path is external
+        subdir_name = "lessons" if category == "Lesson" else ("anti-patterns" if category == "Anti-Pattern" else "principles")
+        fname = os.path.basename(json_path)
+        central_json = os.path.join(self.agents_dir, "learning", "knowledge", subdir_name, fname)
+        is_external = not os.path.abspath(json_path).startswith(self.base_dir)
+        effective_json = central_json if is_external else json_path
+
         res = self.graduate_item(
             item_id=item_id,
             statement=statement,
             category=category,
             capability=capability,
             skills=skills,
-            json_artifact_path=json_path,
+            json_artifact_path=effective_json if not is_external else None,
             is_global=is_global,
             auto_commit=auto_commit,
             dry_run=dry_run
@@ -376,31 +386,47 @@ class AcademicGraduationCompiler:
             with open(json_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
+            if is_external:
+                os.makedirs(os.path.dirname(central_json), exist_ok=True)
+                with open(central_json, "w", encoding="utf-8") as cf:
+                    json.dump(data, cf, indent=2, ensure_ascii=False)
+                if auto_commit:
+                    self.git_sync([central_json], item_id, f"sync knowledge {fname}")
+
         return res
 
     def compile_all_pending(
         self,
+        workspaces: Optional[List[str]] = None,
         auto_commit: bool = True,
         dry_run: bool = False
     ) -> List[Dict[str, Any]]:
-        """Scans all lessons and anti-patterns in .agents/learning/knowledge/ and graduates pending items."""
-        knowledge_dir = os.path.join(self.agents_dir, "learning", "knowledge")
+        """Scans all lessons and anti-patterns in central and workspace knowledge directories and graduates pending items."""
+        search_dirs = [os.path.join(self.agents_dir, "learning", "knowledge")]
+        if workspaces:
+            for ws in workspaces:
+                if not ws or not os.path.isdir(ws):
+                    continue
+                ws_abs = os.path.abspath(ws)
+                for cand in [os.path.join(ws_abs, ".agents", "learning", "knowledge"), os.path.join(ws_abs, "learning", "knowledge")]:
+                    if os.path.isdir(cand) and cand not in search_dirs:
+                        search_dirs.append(cand)
+
         results = []
-        for subdir in ["lessons", "anti-patterns", "principles"]:
-            s_path = os.path.join(knowledge_dir, subdir)
-            if not os.path.isdir(s_path):
-                continue
-            for fname in sorted(os.listdir(s_path)):
-                if fname.endswith(".json") and not fname.startswith("."):
+        for k_dir in search_dirs:
+            for subdir in ["lessons", "anti-patterns", "principles"]:
+                s_path = os.path.join(k_dir, subdir)
+                if not os.path.isdir(s_path):
+                    continue
+                for fname in sorted(os.listdir(s_path)):
+                    if not fname.endswith(".json") or fname.startswith("."):
+                        continue
                     f_full = os.path.join(s_path, fname)
                     try:
                         with open(f_full, "r", encoding="utf-8") as f:
                             d = json.load(f)
-                        status = d.get("graduation_status")
-                        track = d.get("graduation_track")
-                        if status == "PENDING_GRADUATION" or track == "TRACK_1_IMMEDIATE_GRADUATION":
-                            r = self.graduate_from_json_file(f_full, auto_commit=auto_commit, dry_run=dry_run)
-                            results.append(r)
+                        if d.get("graduation_status") == "PENDING_GRADUATION" or d.get("graduation_track") == "TRACK_1_IMMEDIATE_GRADUATION":
+                            results.append(self.graduate_from_json_file(f_full, auto_commit=auto_commit, dry_run=dry_run))
                     except Exception as e:
                         print(f"Error compiling {fname}: {e}", file=sys.stderr)
         return results
@@ -418,6 +444,7 @@ def main():
 
     # compile-all-pending
     p_all = subparsers.add_parser("compile-all-pending", help="Scan and compile all pending lessons in .agents/learning/knowledge/")
+    p_all.add_argument("--workspaces", nargs="*", default=None, help="Additional workspace roots to scan for lessons")
     p_all.add_argument("--no-git", action="store_true", help="Do not commit or push to Git")
     p_all.add_argument("--dry-run", action="store_true", help="Simulate compilation without writing files")
 
@@ -442,7 +469,7 @@ def main():
             sys.exit(1)
 
     elif args.command == "compile-all-pending":
-        res_list = compiler.compile_all_pending(auto_commit=not args.no_git, dry_run=args.dry_run)
+        res_list = compiler.compile_all_pending(workspaces=args.workspaces, auto_commit=not args.no_git, dry_run=args.dry_run)
         print(f"Graduated {len(res_list)} pending knowledge items.")
         print(json.dumps(res_list, indent=2, ensure_ascii=False))
 

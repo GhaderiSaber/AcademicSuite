@@ -28,6 +28,7 @@
 .agents/learning/telemetry/*.log
 .agents/learning/telemetry/*.jsonl
 .agents/learning/reports/drift/*
+.agents/learning/snapshots/*
 !legacy/
 !config/
 !config/**

@@ -135,7 +135,8 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         try:
             from scripts.academic_graduation_compiler import AcademicGraduationCompiler
             compiler = AcademicGraduationCompiler(base_dir=ROOT_DIR)
-            compiler.compile_all_pending(auto_commit=True, dry_run=False)
+            ws_paths = payload.get("workspacePaths", [])
+            compiler.compile_all_pending(workspaces=ws_paths, auto_commit=True, dry_run=False)
         except Exception as e_grad:
             sys.stderr.write(f"[hook_dispatcher] Auto-graduation note: {e_grad}\n")
 

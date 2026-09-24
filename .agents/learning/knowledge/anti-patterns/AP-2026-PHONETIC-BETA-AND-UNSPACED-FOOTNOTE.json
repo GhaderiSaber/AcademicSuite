@@ -17,6 +17,12 @@
     "academic-orchestrator",
     "academic-writer"
   ],
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-24T12:20:00Z",
   "reusable": true,
   "updated_at": "2026-09-24T12:00:00Z"
 }

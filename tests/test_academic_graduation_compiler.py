@@ -262,6 +262,49 @@ class TestAcademicGraduationCompiler(unittest.TestCase):
             skill_content = f.read()
         self.assertIn("LSN-2026-BATCH-TEST-001", skill_content)
 
+    def test_10_cross_workspace_compilation_and_sync(self):
+        """Verify compile_all_pending scans external client workspaces and syncs graduated lessons to central store."""
+        import json
+        client_ws = tempfile.mkdtemp(prefix="client_ws_")
+        try:
+            client_lessons_dir = os.path.join(client_ws, ".agents", "learning", "knowledge", "lessons")
+            os.makedirs(client_lessons_dir, exist_ok=True)
+
+            lesson_data = {
+                "contract_version": "1.0.0",
+                "lesson_id": "LSN-CLIENT-CROSS-001",
+                "desired_behavior": "Enforce strict cross-workspace lesson synchronization.",
+                "related_skills": ["persian-discussion-builder"],
+                "graduation_status": "PENDING_GRADUATION"
+            }
+            client_json_path = os.path.join(client_lessons_dir, "LSN-CLIENT-CROSS-001.json")
+            with open(client_json_path, "w", encoding="utf-8") as f:
+                json.dump(lesson_data, f, indent=2)
+
+            # Compile passing client_ws
+            results = self.compiler.compile_all_pending(workspaces=[client_ws], auto_commit=False)
+            self.assertEqual(len(results), 1)
+            self.assertTrue(results[0]["all_passed"])
+
+            # 1. Verify AcademicSuite skill was evolved
+            with open(self.ch5_file, "r", encoding="utf-8") as f:
+                skill_content = f.read()
+            self.assertIn("LSN-CLIENT-CROSS-001", skill_content)
+
+            # 2. Verify client workspace JSON status updated to GRADUATED
+            with open(client_json_path, "r", encoding="utf-8") as f:
+                client_d = json.load(f)
+            self.assertEqual(client_d.get("graduation_status"), "GRADUATED")
+
+            # 3. Verify central AcademicSuite store received the synchronized lesson JSON
+            central_lesson_path = os.path.join(self.agents_dir, "learning", "knowledge", "lessons", "LSN-CLIENT-CROSS-001.json")
+            self.assertTrue(os.path.isfile(central_lesson_path))
+            with open(central_lesson_path, "r", encoding="utf-8") as f:
+                central_d = json.load(f)
+            self.assertEqual(central_d.get("graduation_status"), "GRADUATED")
+        finally:
+            shutil.rmtree(client_ws, ignore_errors=True)
+
 
 if __name__ == "__main__":
     unittest.main()
