@@ -1,0 +1,48 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-ASSEMBLY-HEADING-DEDUPLICATION-AND-RIGHT-ALIGNMENT-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260924-STAGE10-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "Duplicate headers appeared after markdown concatenation, and LibreOffice inverted headings to the left margin.",
+    "behavior_caused_outcome": "Blind concatenation of markdown files without stripping unnumbered titles caused duplication. Overly restrictive regex left <w:jc w:val='right'/> intact, causing trailing-edge inversion under BiDi in LibreOffice.",
+    "what_should_have_happened": "Pre-assembly regex stripping of unnumbered stage titles. Universal removal of <w:jc> under <w:bidi w:val='1'/> across all headings.",
+    "rationale_why": "Concatenation must not blindly stack self-contained headers. Explicit justification elements under BiDi confuse rendering engines like LibreOffice."
+  },
+  "desired_behavior": "1) Implement pre-assembly regex stripping of stage titles. 2) Universally remove <w:jc> on all headings under BiDi contexts. 3) Enforce multi-margin verification in validator.",
+  "generalization": "Text concatenation and RTL/BiDi formatting must preemptively handle independent artifact headers and explicit justification properties to prevent rendering inversion and structural duplication.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Defective output observed",
+    "threshold_value": "Zero tolerance for defect",
+    "supporting_report_ids": [
+      "BAN-20260924-STAGE10-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-5-writing",
+    "persian-discussion-builder"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+  "graduation_status": "GRADUATED",
+  "created_at": "2026-09-24T10:45:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer",
+    "validation-agent"
+  ],
+  "graduated_at": "2026-09-24T10:32:03.973311+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/chapter-5-writing/SKILL.md",
+    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/persian-discussion-builder/SKILL.md"
+  ]
+}
