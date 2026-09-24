@@ -200,7 +200,7 @@ class TestSafetyHooksMultiReplaceEnforcement:
                 "toolCall": {
                     "name": "multi_replace_file_content",
                     "args": {
-                        "TargetFile": "/workspace/output.md",
+                        "TargetFile": "/workspace/output.docx",
                         "ReplacementChunks": []
                     }
                 }

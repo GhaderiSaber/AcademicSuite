@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260924-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260924-HEADER-MARKDOWN-FEEDBACK",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-discussion-builder",
+  "capability": "Chapter 5 Word Document Compilation",
+  "trajectory_id": "TRJ-20260924-HEADER-MD-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "SKILL_INVOCATION",
+    "tool_name": "scaffold_chapter5_triad.py",
+    "description": "scaffold_chapter5_triad.py executed compilation with two fatal formatting defects: (1) Lines 77-80 in set_bidi_paragraph stripped w:jc whenever align == WD_ALIGN_PARAGRAPH.RIGHT instead of setting w:val='right', causing headings to lack an explicit alignment element and default to left alignment in Word. (2) Lines 239-241 in the body text loop emitted line_str directly into add_text_run without inline markdown tokenization, baking literal markdown asterisks (*N*, *r*, *p*) directly into Word text runs.",
+    "command_or_input": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+    "output_or_error": "w_jc_right_present: false, raw_markdown_text_run present"
+  },
+  "failure_signature": "MISSING_EXPLICIT_RIGHT_ALIGNMENT and UNPARSED_INLINE_MARKDOWN",
+  "root_cause_diagnosis": "In scaffold_chapter5_triad.py, lines 77-80 mistakenly assumed implicit RTL justification and stripped '<w:jc>' when align was set to WD_ALIGN_PARAGRAPH.RIGHT, causing headings to inherit left-alignment from the Normal style. Furthermore, lines 239-241 omitted inline regex run tokenization, treating body lines as monolithic strings and passing raw Markdown asterisks ('*N*', '*r*', '*p*') directly into '<w:t>' nodes rather than tokenizing into native italic runs ('<w:i/>').",
+  "prescribed_behavior": "1) Provide explicit '<w:jc w:val=\"right\"/>' injection for all Persian headings. 2) Implement inline Markdown tokenization parsing italic ('*...*') and bold ('**...**') into distinct OpenXML runs with '<w:i/>' or '<w:b/>'.",
+  "created_at": "2026-09-24T09:34:22Z"
+}

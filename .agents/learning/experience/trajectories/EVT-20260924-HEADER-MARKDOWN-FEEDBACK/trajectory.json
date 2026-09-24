@@ -1,0 +1,453 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260924-HEADER-MD-001",
+  "experience_id": "EVT-20260924-HEADER-MARKDOWN-FEEDBACK",
+  "project_id": "Morteza_Estaki",
+  "task_id": "TSK-20260924-HEADER-MD-TRAJECTORY-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:54:10Z",
+      "description": "academic-orchestrator delegated Chapter 5 stage 02_hypothesis_discussion compilation task to academic-writer to generate the synchronized verification triad (.docx, .md, .json) for Hypothesis 1.",
+      "observable_input": {
+        "task_id": "TSK-20260924-STAGE2-TRIAD-001",
+        "worker_agent": "academic-writer",
+        "stage_id": "02_hypothesis_discussion",
+        "stage_title": "بحث و بررسی فرضیه اول پژوهش",
+        "input_markdown": "03_deliverables/stage_02_hypo_1/draft.md"
+      },
+      "observable_output": {
+        "status": "DELEGATED",
+        "target_subagent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:55:20Z",
+      "description": "academic-writer drafted 02_hypothesis_1_discussion.md incorporating empirical statistics with Markdown italic asterisks for statistical notation (*N* = ۲۰۸, *r* = -۰.۱۸, *p* = ۰.۰۱۰) and Markdown headings (# and ##).",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "char_count": 3921,
+        "word_count": 663
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "heading_level_1": "# بحث و بررسی فرضیه اول پژوهش",
+        "heading_level_2": "## ۵-۲-۱. بحث و بررسی فرضیه اول پژوهش",
+        "inline_markdown_samples": [
+          "(*N* = ۲۰۸)",
+          "(*r* = -۰.۱۸, *p* = ۰.۰۱۰)"
+        ]
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:56:05Z",
+      "description": "academic-writer executed CLI triad compiler scaffold_chapter5_triad.py to build Word (.docx), Markdown (.md), and metadata (.json) deliverables from 02_hypothesis_1_discussion.md.",
+      "observable_input": {
+        "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md'",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "SKILL_INVOCATION",
+      "actor": "scaffold_chapter5_triad.py",
+      "timestamp": "2026-09-24T05:56:07Z",
+      "description": "scaffold_chapter5_triad.py executed compilation with two fatal formatting defects: (1) Lines 77-80 in set_bidi_paragraph stripped w:jc whenever align == WD_ALIGN_PARAGRAPH.RIGHT instead of setting w:val='right', causing headings to lack an explicit alignment element and default to left alignment in Word. (2) Lines 239-241 in the body text loop emitted line_str directly into add_text_run without inline markdown tokenization, baking literal markdown asterisks (*N*, *r*, *p*) directly into Word text runs.",
+      "observable_input": {
+        "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+        "heading_alignment_logic": "lines 77-80: if align == WD_ALIGN_PARAGRAPH.RIGHT: jc = pPr.find(qn('w:jc')); if jc is not None: pPr.remove(jc)",
+        "body_run_logic": "line 240: add_text_run(p, line_str, font_fa='B Nazanin', size=13)"
+      },
+      "observable_output": {
+        "heading_1_xml": "<w:p><w:pPr><w:bidi w:val=\"1\"/></w:pPr><w:r>...<w:t>بحث و بررسی فرضیه اول پژوهش</w:t></w:r></w:p>",
+        "heading_2_xml": "<w:p><w:pPr><w:bidi w:val=\"1\"/></w:pPr><w:r>...<w:t>۵-۲-۱. بحث و بررسی فرضیه اول پژوهش</w:t></w:r></w:p>",
+        "w_jc_right_present": false,
+        "raw_markdown_text_run": "<w:t>... نمونه پژوهش (*N* = ۲۰۸) نشان داد که بین این دو متغیر یک رابطه منفی و معنادار آماری برقرار است (*r* = -۰.۱۸, *p* = ۰.۰۱۰) ...</w:t>"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:56:09Z",
+      "description": "scaffold_chapter5_triad.py completed compilation and wrote triad deliverables to disk with compiled timestamp 2026-09-24T05:56:08.632289+00:00.",
+      "observable_input": {
+        "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "artifacts_generated": [
+          "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+          "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+          "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+        ]
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:56:15Z",
+      "description": "academic-writer executed DOM footnote patch inject_footnotes_dom.py to resolve prior footnote critique EVT-20260924-NATIVE-FN-FEEDBACK.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_02_hypo_1/inject_footnotes_dom.py",
+        "target_file": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T05:56:20Z",
+      "description": "inject_footnotes_dom.py successfully injected Word footnotes.xml and replaced footnote markers [^1]-[^8] with <w:footnoteReference>, but did not address heading alignment or raw markdown asterisks (*N*, *r*, *p*).",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_02_hypo_1/inject_footnotes_dom.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "word_footnotes_xml_present": true,
+        "footnote_references_count": 8,
+        "heading_alignment_modified": false,
+        "markdown_asterisks_modified": false
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:56:30Z",
+      "description": "academic-orchestrator executed verify_docx.py to inspect 02_hypothesis_1_discussion.docx before presenting deliverable to user.",
+      "observable_input": {
+        "script": "03_deliverables/stage_02_hypo_1/verify_docx.py",
+        "target_docx": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx"
+      },
+      "observable_output": {
+        "status": "VALIDATING"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:56:35Z",
+      "description": "verify_docx.py generated docx_verification_report.json confirming load_success: true, paragraph_count: 7, word_count: 641, and word_footnotes_xml_present: true. However, validator omitted assertions for paragraph alignment (<w:jc w:val='right'>) and text-run regex checks for raw markdown tokens (*N*, *r*, *p*), leading to a false-positive quality approval.",
+      "observable_input": {
+        "report_path": "03_deliverables/stage_02_hypo_1/docx_verification_report.json"
+      },
+      "observable_output": {
+        "load_success": true,
+        "paragraph_count": 7,
+        "word_count": 641,
+        "word_footnotes_xml_present": true,
+        "uninspected_checks": [
+          "heading_paragraph_alignment_w_jc",
+          "raw_markdown_syntax_in_w_t"
+        ]
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T05:58:45Z",
+      "description": "User inspected 02_hypothesis_1_discussion.docx in Microsoft Word and issued explicit dual critique: 'Problems: 1. The headers align is left. It should be right. 2. There are raw markdown in text.'",
+      "observable_input": {
+        "user_critique": "Problems: 1. The headers align is left. It should be right. 2. There are raw markdown in text."
+      },
+      "observable_output": {
+        "event_id": "EVT-20260924-HEADER-MARKDOWN-FEEDBACK",
+        "defects_reported": [
+          "LEFT_ALIGNED_HEADINGS",
+          "RAW_MARKDOWN_IN_TEXT_RUNS"
+        ]
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T05:59:00Z",
+      "description": "academic-orchestrator initiated continuous self-improvement protocol and delegated TSK-20260924-HEADER-MD-TRAJECTORY-001 to trajectory-analyzer to reconstruct observable execution steps, isolate exact code mechanisms in scaffold_chapter5_triad.py, and document raw markdown text runs in word/document.xml.",
+      "observable_input": {
+        "task_id": "TSK-20260924-HEADER-MD-TRAJECTORY-001",
+        "worker_agent": "trajectory-analyzer"
+      },
+      "observable_output": {
+        "status": "DELIVERED"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-STAGE2-TRIAD-001",
+        "WorkerAgent": "academic-writer",
+        "PromptSummary": "Compile Chapter 5 Stage 2 Hypothesis 1 discussion triad artifacts"
+      },
+      "execution_time_ms": 2350
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "Overwrite": true,
+        "Description": "Hypothesis 1 discussion narrative with Markdown headings and statistical notation"
+      },
+      "execution_time_ms": 190
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md'",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 3820
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 03_deliverables/stage_02_hypo_1/inject_footnotes_dom.py",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 1420
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 03_deliverables/stage_02_hypo_1/verify_docx.py",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 680
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/docx_verification_report.json"
+      },
+      "execution_time_ms": 45
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 7,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-HEADER-MD-TRAJECTORY-001",
+        "WorkerAgent": "trajectory-analyzer",
+        "PromptSummary": "Reconstruct observable actions, tool calls, and error trajectory for dual user critique on header alignment and raw markdown"
+      },
+      "execution_time_ms": 3120
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+      "cli_command": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md'",
+      "exit_code": 0,
+      "duration_seconds": 3.82
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "02_hypothesis_discussion",
+      "envelope_summary": "Compile Section 5-2-1 Hypothesis 1 discussion triad artifacts (.docx, .md, .json)",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-20260924-STAGE2-TRIAD-001",
+      "objective": "Generate synchronized Chapter 5 Hypothesis 1 deliverables using scaffold_chapter5_triad.py.",
+      "input_artifacts": [
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md"
+      ],
+      "output_artifacts": [
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "trajectory_reconstruction",
+      "envelope_summary": "Reconstruct chronological trajectory for dual user critique regarding left-aligned headers and raw markdown syntax",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-HEADER-MARKDOWN-FEEDBACK/trajectory.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-20260924-HEADER-MD-TRAJECTORY-001",
+      "objective": "Reconstruct observable actions, tool calls, and error trajectory for the explicit dual user critique: 'Problems: 1. The headers align is left. It should be right. 2. There are raw markdown in text.' Inspect scaffold_chapter5_triad.py (specifically lines 77-80 where w:jc is removed instead of explicitly setting w:val='right', causing headings to align left in Word) and inspect 03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx to document where raw markdown syntax (such as literal asterisks '*N*', '*r*', '*p*') was emitted directly into Word text runs without inline markdown parsing.",
+      "input_artifacts": [
+        ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+        "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "User critique"
+      ],
+      "output_artifacts": [
+        ".agents/learning/experience/trajectories/EVT-20260924-HEADER-MARKDOWN-FEEDBACK/trajectory.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260924-HEADING-ALIGNMENT-REMOVAL-DEFECT",
+      "decision_type": "COMPILER_IMPLEMENTATION_DEFECT",
+      "selected_option": "Removing w:jc element from pPr when align == WD_ALIGN_PARAGRAPH.RIGHT in set_bidi_paragraph",
+      "rationale": "In scaffold_chapter5_triad.py, lines 77-80 conditionally check if align == WD_ALIGN_PARAGRAPH.RIGHT: jc = pPr.find(qn('w:jc')); if jc is not None: pPr.remove(jc). The developer operated under the false premise that omitting <w:jc> in an RTL BiDi paragraph would naturally align text to the right. In Microsoft Word OpenXML rendering, a paragraph without an explicit <w:jc> tag inherits the style default (Normal), which defaults to left alignment. As a result, headings (# and ##) possess <w:bidi w:val='1'/> but lack <w:jc w:val='right'/>, causing Word to align headings to the left.",
+      "alternatives_considered": [
+        {
+          "option": "Explicitly assign p.alignment = WD_ALIGN_PARAGRAPH.RIGHT or set <w:jc w:val='right'/>",
+          "verdict": "OMITTED_IN_IMPLEMENTATION",
+          "reason": "Faulty assumption that explicit w:jc='right' causes Word to flip alignment to left led to removing w:jc instead of enforcing it."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-RAW-MARKDOWN-EMISSION-DEFECT",
+      "decision_type": "TEXT_PROCESSING_DEFECT",
+      "selected_option": "Emitting unparsed Markdown narrative lines directly into Word text runs via add_text_run(p, line_str, ...)",
+      "rationale": "In scaffold_chapter5_triad.py, lines 239-241 iterate through full_md_content.split('\\n') and pass the entire line_str straight to add_text_run. The script lacks an inline Markdown parser (regex tokenization for *italic*, **bold**, etc.). Statistical parameters written in Markdown notation (*N* = ۲۰۸, *r* = -۰.۱۸, *p* = ۰.۰۱۰) were embedded verbatim with literal asterisks inside OpenXML <w:t> elements rather than being converted to italicized text runs without asterisks.",
+      "alternatives_considered": [
+        {
+          "option": "Tokenize lines with regex for *...* and **...** to construct styled text runs",
+          "verdict": "OMITTED_IN_SCAFFOLDER",
+          "reason": "Triad compiler was designed only for block-level line detection (#, ##, ###, **...**) and omitted inline run tokenization."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-SUPERFICIAL-DOCX-VERIFICATION-GAP",
+      "decision_type": "STAGE_GATE_VERIFICATION_OMISSION",
+      "selected_option": "Relying on basic file loading, word count, and footnote existence without verifying OpenXML heading alignment or text-run contents",
+      "rationale": "verify_docx.py checked only whether the docx loaded without exception, paragraph count, word count, and whether word/footnotes.xml existed. It lacked assertions inspecting paragraph properties (pPr/w:jc) for right alignment on headings and regex checks searching <w:t> nodes for raw Markdown tokens (e.g. r'\\*[a-zA-Z]+\\*').",
+      "alternatives_considered": [
+        {
+          "option": "Comprehensive OpenXML deliverable validator checking heading alignment and markdown leakage",
+          "verdict": "OMITTED_FROM_AUDIT",
+          "reason": "Verification suite did not implement OpenXML AST validation for typography and syntax leakage."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+      "sha256": "8fa0074210947ed276e7b7aa20a07bc45d3d35a0002e8491196ce6269463503a",
+      "type": "openxml_word"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+      "sha256": "6a5bd766062d1961911f854139f7cf373e517d5d08d83c9df7381dec30aa1a3c",
+      "type": "narrative_markdown"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "sha256": "785f44e3a9c2c0827842d2fcdb4d8199849aa7f2b7a0c0c8f06ea774fcbf4663",
+      "type": "triad_metadata"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "openxml_heading_alignment_auditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "missing_w_jc_right_heading_1",
+        "missing_w_jc_right_heading_2",
+        "w_jc_stripped_by_compiler",
+        "headings_render_left_aligned_in_word"
+      ],
+      "evidence_summary": {
+        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "code_location": "scaffold_chapter5_triad.py:77-80",
+        "offending_code": "if align == WD_ALIGN_PARAGRAPH.RIGHT: jc = pPr.find(qn('w:jc')); if jc is not None: pPr.remove(jc)",
+        "heading_1_pPr_xml": "<w:pPr><w:bidi w:val=\"1\"/></w:pPr>",
+        "heading_2_pPr_xml": "<w:pPr><w:bidi w:val=\"1\"/></w:pPr>",
+        "expected_pPr_element": "<w:jc w:val=\"right\"/>",
+        "actual_pPr_element": "None"
+      }
+    },
+    {
+      "validator_name": "inline_markdown_syntax_auditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "raw_markdown_asterisks_in_text_run",
+        "unparsed_statistical_notation_N",
+        "unparsed_statistical_notation_r",
+        "unparsed_statistical_notation_p",
+        "missing_inline_italic_run_formatting"
+      ],
+      "evidence_summary": {
+        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "xml_part": "word/document.xml",
+        "target_paragraph_index": 3,
+        "code_location": "scaffold_chapter5_triad.py:240",
+        "offending_code": "add_text_run(p, line_str, font_fa=\"B Nazanin\", size=13)",
+        "emitted_xml_run": "<w:t>فرضیه اول پژوهش حاضر بیان می‌داشت که بین ویژگی‌های شغلی و نوآوری سازمانی در میان کارکنان ستاد جمعیت هلال‌احمر استان اصفهان رابطه معناداری وجود دارد. تحلیل داده‌های گردآوری‌شده از نمونه پژوهش (*N* = ۲۰۸) نشان داد که بین این دو متغیر یک رابطه منفی و معنادار آماری برقرار است (*r* = -۰.۱۸, *p* = ۰.۰۱۰). با توجه به اینکه جهت‌گیری پیش‌بینی‌شده و مبتنی بر ادبیات رایج، ارتباطی مثبت میان غنای ویژگی‌های شغلی و رفتارهای نوآورانه را مفروض می‌دانست، نتایج این مطالعه جهت فرضیه مثبت را رد کرده و از وجود یک رابطه معکوس در جامعه آماری مورد بررسی حمایت می‌کند. به عبارت دیگر، افزایش سطح ابعاد ویژگی‌های شغل نظیر تنوع مهارت، هویت وظیفه و اهمیت وظیفه در این سازمان، با کاهش سطح نوآوری سازمانی کارکنان همراه بوده است.</w:t>",
+        "raw_tokens_detected": [
+          "*N*",
+          "*r*",
+          "*p*"
+        ]
+      }
+    },
+    {
+      "validator_name": "docx_verification_report_auditor",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "report_file": "03_deliverables/stage_02_hypo_1/docx_verification_report.json",
+        "load_success": true,
+        "paragraph_count": 7,
+        "word_count": 641,
+        "word_footnotes_xml_present": true,
+        "footnote_count": 8,
+        "flaw": "Superficial verification check that ignored heading alignment and raw markdown syntax."
+      }
+    },
+    {
+      "validator_name": "human_supervisor_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "left_aligned_headers",
+        "raw_markdown_in_text"
+      ],
+      "evidence_summary": {
+        "critique_text": "Problems: 1. The headers align is left. It should be right. 2. There are raw markdown in text.",
+        "defect_1": "Headers align left in Microsoft Word instead of right.",
+        "defect_2": "Raw markdown syntax asterisks (*N*, *r*, *p*) appear directly in body text."
+      }
+    }
+  ],
+  "feedback": [
+    "EVT-20260924-HEADER-MARKDOWN-FEEDBACK"
+  ],
+  "outcome": "FAILURE"
+}

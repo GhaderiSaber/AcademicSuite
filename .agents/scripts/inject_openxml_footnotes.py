@@ -1,0 +1,1 @@
+../skills/apa-reporting/scripts/inject_openxml_footnotes.py

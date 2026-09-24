@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-RAW-MARKDOWN-IN-DOCX",
+  "category": "typography",
+  "defective_pattern": "Passing raw Markdown asterisks ('*', '**') directly into '<w:t>' nodes without parsing them into native Word runs.",
+  "why_defective": "Leaves literal Markdown characters inside final Word documents, rendering them unprofessional.",
+  "observed_symptoms": [
+    "Asterisks around text in DOCX output (e.g., '*N*', '*p*').",
+    "Lack of proper italic/bold formatting in Word output."
+  ],
+  "corrective_remedy": "Implement inline Markdown tokenization parsing italic ('*...*') and bold ('**...**') into distinct OpenXML runs with '<w:i/>' or '<w:b/>'.",
+  "detection_heuristic": {
+    "trigger_rule": "Presence of literal '*' characters used for emphasis inside '<w:t>' elements of generated DOCX files."
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T10:00:00Z"
+}

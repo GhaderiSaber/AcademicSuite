@@ -129,7 +129,7 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 
 ### Directive 12: Hybrid Multi-Agent Deliberation Architecture (Hands vs. Brains)
 - **Who (`.agents/agents/`)**: 31 registered cognitive agents across `.agents/agents/` (6 primary conductor/worker roles, 17 specialized domain roles, 6 continuous learning subagents, and 2 verification roles).
-- **How (`.agents/skills/`)**: 44 active production skills in `.agents/skills/`.
+- **How (`.agents/skills/`)**: 45 active production skills in `.agents/skills/`.
 - **Taxonomy Truth**: Reconciled taxonomy is codified in [docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md](docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md).
 - **Unified Antigravity Multi-Agent Architecture**:
   - **The Brains & Critics**: Autonomous cognitive roles (`.agents/agents/`) invoked natively via Antigravity's `invoke_subagent` tool.

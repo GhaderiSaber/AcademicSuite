@@ -14,7 +14,7 @@ As AcademicSuite evolved across 38 development phases, documentation accumulated
 | Metric / Aspect | Historical Phase Docs | Transitory Docs | **Current Ground Truth (As-Built)** |
 | :--- | :--- | :--- | :--- |
 | **Agents** | 22 persistent roles | 28 production agents | **31 Agents** (29 Production + 2 Verification) |
-| **Skills** | 43 production skills | 44 active skills | **44 Production Skills** in `.agents/skills/` |
+| **Skills** | 43 production skills | 44 active skills | **45 Production Skills** in `.agents/skills/` |
 | **Legacy Directory** | Root `legacy/` | Root symlink `legacy/` | **`.agents/legacy/`** (Consolidated in `.agents/`) |
 | **Scripts Directory** | Root `scripts/` | Symlink `scripts -> .agents` | **`.agents/scripts/`** (Zero root symlinks) |
 | **Contracts** | 29 contracts | 35 contracts | **51 Contracts** in `.agents/contracts/` |
@@ -111,8 +111,8 @@ To eliminate mesh authority sprawl where secondary planners spawned sub-agents a
 - **Critic Immutability**: No critic or auditor possesses file mutation tools (`write_to_file`, `replace_file_content`). Critics evaluate and verify; they never silently rewrite deliverables.
 - **Least-Privilege Authority Surface**: Slashed delegation from 5 agents to 2 (`academic-orchestrator` and test fixture `test-orchestrator`). Slashed file writing from 26 agents to 18 (12 agents are strictly read/audit/conduct).
 
-### 2. Skills Directory: Exactly 44 Active Production Skills ([`.agents/skills/`](../.agents/skills/))
-- Exactly 44 domain capabilities reside in `.agents/skills/`.
+### 2. Skills Directory: Exactly 45 Active Production Skills ([`.agents/skills/`](../.agents/skills/))
+- Exactly 45 domain capabilities reside in `.agents/skills/`.
 - Every skill conforms to Directive 18 (single-view context budget: $\le 500$ lines, $\le 40,000$ bytes per `SKILL.md`).
 - 10 historical workflow-converted shells are retired and preserved in [`.agents/legacy/skills/`](../.agents/legacy/skills/) for backward compatibility and test verification.
 

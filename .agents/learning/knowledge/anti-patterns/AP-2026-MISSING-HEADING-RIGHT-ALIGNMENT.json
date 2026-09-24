@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-MISSING-HEADING-RIGHT-ALIGNMENT",
+  "category": "typography",
+  "defective_pattern": "Stripping '<w:jc>' tags or assuming implicit right alignment for Persian headings.",
+  "why_defective": "Causes headings to inherit left-alignment from the Normal style, leading to incorrect display in Word.",
+  "observed_symptoms": [
+    "Headings aligned to the left in Persian documents.",
+    "Missing '<w:jc w:val=\"right\"/>' in OpenXML representation."
+  ],
+  "corrective_remedy": "Provide explicit '<w:jc w:val=\"right\"/>' injection for all Persian headings, specifically when alignment is set to right.",
+  "detection_heuristic": {
+    "trigger_rule": "Absence of explicit '<w:jc w:val=\"right\"/>' element when heading alignment is meant to be right or RTL."
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T10:00:00Z"
+}
