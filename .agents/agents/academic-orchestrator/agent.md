@@ -38,6 +38,8 @@ agents:
   - evaluation-agent
   - curriculum-builder
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/academic_orchestrator_hook.json
 ---
 
 # Master Academic Orchestrator & Research Project Lead

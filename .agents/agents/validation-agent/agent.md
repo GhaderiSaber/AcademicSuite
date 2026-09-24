@@ -20,6 +20,8 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/validation_agent_hook.json
 ---
 
 # Independent Quality Assurance & Pre-Flight Release Gatekeeper

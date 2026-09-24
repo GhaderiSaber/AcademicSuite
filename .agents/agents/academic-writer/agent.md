@@ -28,6 +28,8 @@ skills:
   - persian-defense-presentation-builder
 agents: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/academic_writer_hook.json
 ---
 
 # Persian Rhetoric, Inverted-Triangle Architecture & OpenXML Drafter

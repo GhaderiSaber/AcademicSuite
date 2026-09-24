@@ -1,0 +1,27 @@
+{
+  "academic-orchestrator-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command|write_to_file|replace_file_content|edit_file|patch|multi_file_edit|batch_replace|apply_diff",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/agents/academic_orchestrator_guard.py' if os.path.exists('.agents/hooks/agents/academic_orchestrator_guard.py') else 'hooks/agents/academic_orchestrator_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreToolUse",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/agents/academic_orchestrator_guard.py' if os.path.exists('.agents/hooks/agents/academic_orchestrator_guard.py') else 'hooks/agents/academic_orchestrator_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event Stop",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

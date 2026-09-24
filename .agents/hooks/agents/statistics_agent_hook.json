@@ -1,0 +1,27 @@
+{
+  "statistics-agent-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "invoke_subagent|define_subagent|run_command|write_to_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/agents/statistics_agent_guard.py' if os.path.exists('.agents/hooks/agents/statistics_agent_guard.py') else 'hooks/agents/statistics_agent_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreToolUse",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/agents/statistics_agent_guard.py' if os.path.exists('.agents/hooks/agents/statistics_agent_guard.py') else 'hooks/agents/statistics_agent_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event Stop",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
