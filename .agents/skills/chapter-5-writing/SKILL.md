@@ -39,5 +39,5 @@ python3 .agents/skills/persian-discussion-builder/scripts/assemble_chapter5.py \
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Principle (PRN-20260924-D1DAA0)**: Chapter 5 discussion must strictly contain zero tables and maintain 100% continuous narrative prose. [Enforcement: chapter5_discussion_guard.py]
-- **Lesson (LSN-2026-EXHAUSTIVE-FOOTNOTE-TOKENIZATION-AND-PARITY-QC-001)**: Exhaustive footnote tokenization and exact 1:1 parity verification between `footnoteReference` in `document.xml` and `footnotes.xml`. [Enforcement: academic_writer_guard.py]
+- **Lesson (LSN-2026-EXHAUSTIVE-FOOTNOTE-TOKENIZATION-AND-PARITY-QC-001)**: 1) Use exhaustive loop or tokenization for all footnote markers [^X] in every text node. 2) Implement mechanical QC asserting: a) zero literal '[^' substrings in document.xml, b) exact 1:1 parity between footnoteReference tags in document.xml and definitions in footnotes.xml.
 - **Lesson (LSN-2026-ASSEMBLY-HEADING-DEDUPLICATION-AND-RIGHT-ALIGNMENT-001)**: 1) Implement pre-assembly regex stripping of stage titles. 2) Universally remove <w:jc> on all headings under BiDi contexts. 3) Enforce multi-margin verification in validator.
