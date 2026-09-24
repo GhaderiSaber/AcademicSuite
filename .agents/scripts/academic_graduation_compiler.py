@@ -25,9 +25,17 @@ from typing import Dict, Any, List, Optional, Tuple
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
-for p in [ROOT_DIR, AGENTS_DIR, os.path.join(AGENTS_DIR, "scripts")]:
+for p in [ROOT_DIR, AGENTS_DIR, os.path.join(AGENTS_DIR, "scripts"), os.path.join(AGENTS_DIR, "hooks")]:
     if p not in sys.path:
         sys.path.insert(0, p)
+
+try:
+    from dynamic_invariant_guard import DynamicInvariantGuard
+except ImportError:
+    try:
+        from hooks.dynamic_invariant_guard import DynamicInvariantGuard
+    except ImportError:
+        DynamicInvariantGuard = None
 
 MAX_SKILL_LINES = 500
 MAX_SKILL_BYTES = 40000
@@ -63,7 +71,40 @@ class AcademicGraduationCompiler:
         self.skills_dir = os.path.join(self.agents_dir, "skills")
         self.rules_file = os.path.join(self.agents_dir, "plugins", "academic-suite", "rules", "AGENTS.md")
         self.snapshots_dir = os.path.join(self.agents_dir, "learning", "snapshots", "skills")
+        self.invariants_file = os.path.join(self.agents_dir, "hooks", "rules", "enforced_invariants.json")
         os.makedirs(self.snapshots_dir, exist_ok=True)
+        os.makedirs(os.path.dirname(self.invariants_file), exist_ok=True)
+
+    def _prune_snapshots(self, base_name: str, max_keep: int = 3) -> None:
+        """Prunes historical snapshots in self.snapshots_dir to prevent disk clutter."""
+        try:
+            prefix = f"pre_grad_{base_name}_"
+            snaps = []
+            for fname in os.listdir(self.snapshots_dir):
+                if fname.startswith(prefix) and fname.endswith(".md"):
+                    full_p = os.path.join(self.snapshots_dir, fname)
+                    snaps.append((os.path.getmtime(full_p), full_p))
+            snaps.sort(key=lambda x: x[0], reverse=True)
+            for _, old_snap in snaps[max_keep:]:
+                try:
+                    os.remove(old_snap)
+                except OSError:
+                    pass
+        except Exception:
+            pass
+
+    def _deduce_enforcement(self, file_path: str, item_id: str, category: str = "Principle") -> str:
+        """Deduces appropriate mechanical enforcement anchor for Option A formatting."""
+        fname = os.path.basename(os.path.dirname(file_path)) or os.path.basename(file_path)
+        if "chapter-5" in fname or "discussion" in fname:
+            return "academic_writer_guard.py"
+        elif "chapter-4" in fname or "apa" in fname:
+            return "results_auditor_guard.py"
+        elif "statistics" in fname or "assumption" in fname or "regression" in fname:
+            return "statistics_agent_guard.py"
+        elif "data" in fname or "cleaning" in fname or "audit" in fname:
+            return "data_agent_guard.py"
+        return f"dynamic_invariant_guard.py ({item_id})"
 
     def resolve_targets(
         self,
@@ -112,9 +153,10 @@ class AcademicGraduationCompiler:
         item_id: str,
         statement: str,
         category: str = "Principle",
+        enforcement: Optional[str] = None,
         dry_run: bool = False
     ) -> Dict[str, Any]:
-        """Safely synthesize an invariant into target markdown with snapshot and budget checks."""
+        """Safely synthesize an Option A invariant into target markdown with snapshot, budget, and deduplication checks."""
         if not os.path.isfile(file_path):
             return {"file": file_path, "status": "SKIPPED_NOT_FOUND", "success": False}
 
@@ -125,7 +167,7 @@ class AcademicGraduationCompiler:
         orig_line_count = len(orig_lines)
         orig_byte_count = len(original_content.encode("utf-8"))
 
-        # 1. Create Pre-Mutation Snapshot
+        # 1. Create Pre-Mutation Snapshot & Prune Older
         now_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         base_name = os.path.basename(os.path.dirname(file_path)) or os.path.basename(file_path)
         snap_file = f"pre_grad_{base_name}_{now_str}.md"
@@ -133,11 +175,13 @@ class AcademicGraduationCompiler:
         if not dry_run:
             with open(snap_path, "w", encoding="utf-8") as sf:
                 sf.write(original_content)
+            self._prune_snapshots(base_name, max_keep=3)
 
-        # 2. Safety Rule 1: Synthesis, Not Stacking
+        # 2. Safety Rule 1: Synthesis, Not Stacking (Option A: - **<Category> (<ID>)**: <Statement>. [Enforcement: <Mechanism>])
         clean_statement = statement.strip().rstrip(".")
         clean_cat = category.strip().capitalize()
-        new_bullet = f"- **{clean_cat} ({item_id})**: {clean_statement}."
+        eff_enforcement = enforcement or self._deduce_enforcement(file_path, item_id, clean_cat)
+        new_bullet = f"- **{clean_cat} ({item_id})**: {clean_statement}. [Enforcement: {eff_enforcement}]"
 
         is_skill = file_path.endswith("SKILL.md")
         target_section_header = "## 🧠 Active Learned Behavioral Invariants" if is_skill else "## 1. Radical Honesty & Pipeline Enforcement"
@@ -146,29 +190,39 @@ class AcademicGraduationCompiler:
         kw_new = set(self._extract_keywords(clean_statement))
 
         if target_section_header in updated_content:
-            # Check for existing related bullet to merge/strengthen
             sec_pattern = rf"({re.escape(target_section_header)}[\s\S]*?)(?=\n## |\Z)"
             sec_match = re.search(sec_pattern, updated_content)
             if sec_match:
                 full_section = sec_match.group(1)
                 sec_lines = full_section.splitlines()
                 merged = False
+
+                # Step 2a: Deduplicate by exact Item ID
+                id_pat = rf"- \*\*[^(]+\({re.escape(item_id)}\)\*\*:"
                 for idx, line in enumerate(sec_lines):
-                    if line.strip().startswith("- "):
-                        kw_existing = set(self._extract_keywords(line))
-                        overlap = kw_new.intersection(kw_existing)
-                        if len(overlap) >= 2:
-                            # Merge and strengthen existing bullet
-                            sec_lines[idx] = f"- **{clean_cat} ({item_id})**: {clean_statement}."
-                            merged = True
-                            break
+                    if re.search(id_pat, line):
+                        sec_lines[idx] = new_bullet
+                        merged = True
+                        break
+
+                # Step 2b: Deduplicate / merge by keyword overlap (Safety Rule 1)
+                if not merged:
+                    for idx, line in enumerate(sec_lines):
+                        if line.strip().startswith("- "):
+                            kw_existing = set(self._extract_keywords(line))
+                            overlap = kw_new.intersection(kw_existing)
+                            if len(overlap) >= 2:
+                                sec_lines[idx] = new_bullet
+                                merged = True
+                                break
+
+                # Step 2c: Append if new
                 if not merged:
                     sec_lines.append(new_bullet)
 
                 new_section_str = "\n".join(sec_lines)
                 updated_content = updated_content[:sec_match.start(1)] + new_section_str + updated_content[sec_match.end(1):]
         else:
-            # Create section cleanly before final reference links or at end
             new_section_block = f"\n\n{target_section_header}\n{new_bullet}\n"
             updated_content = updated_content.rstrip() + new_section_block
 
@@ -184,12 +238,12 @@ class AcademicGraduationCompiler:
             os.makedirs(refs_dir, exist_ok=True)
             refs_file = os.path.join(refs_dir, "learned_invariants.md")
 
-            ref_entry = f"\n### Invariant {item_id} ({now_str})\n- **Category**: {clean_cat}\n- **Rule**: {clean_statement}.\n"
+            ref_entry = f"\n### Invariant {item_id} ({now_str})\n- **Category**: {clean_cat}\n- **Rule**: {clean_statement}.\n- **Enforcement**: {eff_enforcement}\n"
             if not dry_run:
                 with open(refs_file, "a", encoding="utf-8") as rf:
                     rf.write(ref_entry)
 
-            compact_bullet = f"- **{clean_cat} ({item_id})**: {clean_statement[:70]}... See [learned_invariants.md](references/learned_invariants.md)."
+            compact_bullet = f"- **{clean_cat} ({item_id})**: {clean_statement[:70]}... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: {eff_enforcement}]"
             updated_content = original_content.rstrip() + f"\n\n{target_section_header}\n{compact_bullet}\n"
             new_lines = updated_content.splitlines()
             new_line_count = len(new_lines)
@@ -281,10 +335,16 @@ class AcademicGraduationCompiler:
         skills: Optional[List[str]] = None,
         json_artifact_path: Optional[str] = None,
         is_global: bool = False,
+        enforcement: Optional[str] = None,
+        target_agents: Optional[List[str]] = None,
+        check_type: Optional[str] = None,
+        pattern: Optional[str] = None,
+        file_pattern: Optional[str] = None,
+        remedy: Optional[str] = None,
         auto_commit: bool = True,
         dry_run: bool = False
     ) -> Dict[str, Any]:
-        """End-to-end Track 1 execution: target resolution -> synthesis -> guard -> git lifecycle."""
+        """Dual-Channel Track 1 execution: Channel 1 (SKILL.md) + Channel 2 (Mechanical Hook)."""
         targets = self.resolve_targets(capability=capability, skills=skills, is_global=is_global)
         grad_results = []
         all_passed = True
@@ -295,17 +355,45 @@ class AcademicGraduationCompiler:
                 item_id=item_id,
                 statement=statement,
                 category=category,
+                enforcement=enforcement,
                 dry_run=dry_run
             )
             grad_results.append(res)
             if not res.get("success"):
                 all_passed = False
 
+        # Channel 2: Register Mechanical Hook Rule in enforced_invariants.json
+        hook_registered = False
+        if all_passed and not dry_run:
+            try:
+                if DynamicInvariantGuard is not None:
+                    eff_pattern = pattern or ""
+                    eff_check = check_type or ("regex_ban" if eff_pattern else "")
+                    if eff_pattern or eff_check:
+                        hook_registered = DynamicInvariantGuard.register_invariant(
+                            item_id=item_id,
+                            category=category,
+                            statement=statement,
+                            target_agents=target_agents or ["*"],
+                            target_skills=skills or [],
+                            event="PreToolUse",
+                            file_pattern=file_pattern or ".*\\.(?:md|docx|txt)",
+                            check_type=eff_check or "regex_ban",
+                            pattern=eff_pattern,
+                            violation_message=statement,
+                            remedy=remedy or "",
+                            base_dir=self.base_dir
+                        )
+            except Exception as e_hook:
+                sys.stderr.write(f"[academic_graduation_compiler] Hook registration note: {e_hook}\n")
+
         git_res = {}
         if all_passed and auto_commit and not dry_run:
             files_to_commit = list(targets)
             if json_artifact_path and os.path.isfile(json_artifact_path):
                 files_to_commit.append(json_artifact_path)
+            if hook_registered and os.path.isfile(self.invariants_file):
+                files_to_commit.append(self.invariants_file)
             git_res = self.git_sync(files_to_commit, item_id, statement)
 
         return {
@@ -316,6 +404,7 @@ class AcademicGraduationCompiler:
             "targets": targets,
             "grad_results": grad_results,
             "all_passed": all_passed,
+            "hook_registered": hook_registered,
             "git": git_res
         }
 
@@ -325,7 +414,7 @@ class AcademicGraduationCompiler:
         auto_commit: bool = True,
         dry_run: bool = False
     ) -> Dict[str, Any]:
-        """Graduates a lesson or anti-pattern JSON file directly into its matching SKILL.md or rules/AGENTS.md."""
+        """Graduates a lesson or anti-pattern JSON file into matching SKILL.md and mechanical hooks."""
         if not os.path.exists(json_path):
             raise FileNotFoundError(f"JSON artifact not found: {json_path}")
 
@@ -360,6 +449,19 @@ class AcademicGraduationCompiler:
 
         is_global = (data.get("scope") == "cross-project" and not skills and not capability)
 
+        # Extract mechanical heuristic parameters for Channel 2 hook registration
+        dh = data.get("detection_heuristic", {})
+        pattern = dh.get("regex") or dh.get("pattern") or ""
+        check_type = dh.get("check_type")
+        if not pattern and category == "Anti-Pattern":
+            trig = dh.get("trigger_rule", "")
+            if re.search(r"[\^\\\[\].*+?|]", trig):
+                pattern = trig
+
+        target_agents = data.get("target_agents") or ([data.get("target_agent")] if data.get("target_agent") else None)
+        remedy = data.get("corrective_remedy") or statement
+        enforcement = data.get("enforcement")
+
         # Cross-workspace synchronization: sync to central AcademicSuite store if json_path is external
         subdir_name = "lessons" if category == "Lesson" else ("anti-patterns" if category == "Anti-Pattern" else "principles")
         fname = os.path.basename(json_path)
@@ -375,6 +477,11 @@ class AcademicGraduationCompiler:
             skills=skills,
             json_artifact_path=effective_json if not is_external else None,
             is_global=is_global,
+            enforcement=enforcement,
+            target_agents=target_agents,
+            check_type=check_type,
+            pattern=pattern,
+            remedy=remedy,
             auto_commit=auto_commit,
             dry_run=dry_run
         )
@@ -511,7 +618,13 @@ class AcademicGraduationCompiler:
                     try:
                         with open(f_full, "r", encoding="utf-8") as f:
                             d = json.load(f)
-                        if d.get("graduation_status") == "PENDING_GRADUATION" or d.get("graduation_track") == "TRACK_1_IMMEDIATE_GRADUATION":
+                        is_pending = (
+                            d.get("graduation_status") != "GRADUATED" and (
+                                d.get("graduation_status") == "PENDING_GRADUATION" or
+                                d.get("graduation_track") == "TRACK_1_IMMEDIATE_GRADUATION"
+                            )
+                        )
+                        if is_pending:
                             results.append(self.graduate_from_json_file(f_full, auto_commit=auto_commit, dry_run=dry_run))
                     except Exception as e:
                         print(f"Error compiling {fname}: {e}", file=sys.stderr)

@@ -20,17 +20,21 @@ from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
+AGENTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+for p in (ROOT_DIR, AGENTS_DIR):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 try:
-    from contracts.hook_identity_contract import resolve_transcript_path
+    from contracts.hook_identity_contract import resolve_transcript_path, is_main_agent_developer
 except ImportError:
     try:
-        from .contracts.hook_identity_contract import resolve_transcript_path
+        from .contracts.hook_identity_contract import resolve_transcript_path, is_main_agent_developer
     except ImportError:
         def resolve_transcript_path(payload):
             return payload.get("transcriptPath") if isinstance(payload, dict) else None
+        def is_main_agent_developer(payload):
+            return payload.get("track") in (1, "1", "track_1", "developer") or payload.get("mode") == "developer"
 
 
 def load_transcript(transcript_path: Optional[str]) -> List[Dict[str, Any]]:
@@ -659,33 +663,22 @@ class LearningHooks:
         3. Deterministically retrieves adaptive context (lessons, pitfalls, methodology rules)
            for detected academic tasks and injects it into ephemeral context before execution.
         """
-        if payload.get("track") == 1 or payload.get("mode") == "developer":
+        # Track 1 software engineering is completely exempt from academic reminders/triggers
+        if is_main_agent_developer(payload):
             return {}
 
-        caller = (
-            payload.get("agentName") or
-            payload.get("agentRole") or
-            payload.get("agent") or
-            payload.get("caller") or ""
-        ).lower().strip()
-
-        # If caller is explicitly the Main Developer Agent, bypass academic reminders
-        if caller and (caller in ("main", "main-agent", "mainagent", "default", "antigravity", "developer", "coding", "software-engineer", "code-agent") or payload.get("agent_type") == "main"):
-            return {}
+        caller = LearningHooks._extract_actor(payload).lower().strip()
 
         critique_info = LearningHooks.capture_user_correction(payload)
 
         reminder = (
-            "🚨 CONSTITUTIONAL ENFORCEMENT ACTIVE (Directives 0, 3, 6, 11 & 12.1):\n"
-            "1. Binary Honesty Protocol (Directive 0): If asked a compliance question, your response MUST begin with 'Yes' or 'No'.\n"
-            "2. English Primary Interaction (Directive 6): All conversational interaction, planning, coordination, and status reports with the user MUST be conducted strictly in English. Reading non-English files or generating Persian deliverables must NEVER cause conversational language bleed.\n"
-            "3. Micro-Stages, Triad Artifacts & One-Hypothesis-One-Stage Invariant (Directive 3): Monolithic drafting in one shot is prohibited. "
-            "Every section and individual hypothesis must generate a synchronized triad of disk artifacts: .docx (Word), .md (Markdown), and .json (Data/Stats) before assembly.\n"
-            "4. Interactive Stage-Gate Protocol (Directive 11): At the end of each stage, emit the Stage Completion Report "
-            "(What was done + What will be done next), then STOP and wait for user confirmation before advancing.\n"
-            "5. Multi-Agent Integrity (Directive 0): Interactive multi-agent workflow claims strictly require physical 'invoke_subagent' calls.\n"
-            "6. Sole Orchestrator Mandate (Directive 12.1): Antigravity is the sole agent runtime. Python scripts are strictly "
-            "deterministic execution tools ('The Hands'). Never run agent emulators."
+            "🚨 CONSTITUTIONAL ENFORCEMENT ACTIVE (Directives 0, 3, 6, 11, 12.1 & 20):\n"
+            "- Directive 0 (Binary Honesty Protocol): Compliance queries MUST begin with 'Yes' or 'No'. Multi-agent claims strictly require invoke_subagent calls.\n"
+            "- Directive 3 (Triad Invariant & Micro-Stages): Monolithic drafting prohibited. Every section and individual hypothesis must generate a synchronized triad (.docx, .md, .json) before assembly.\n"
+            "- Directive 6 (English Primary Interaction): All conversational interaction, planning, coordination, and reporting strictly in English. Persian is reserved strictly for academic deliverable content.\n"
+            "- Directive 11 (Interactive Stage-Gate Protocol): Emit Stage Completion Report (what was done, what is next) and HALT for user confirmation before advancing.\n"
+            "- Directive 12.1 (Sole Orchestrator Mandate): Antigravity is the sole agent conductor via invoke_subagent. Python execution loops/emulators strictly prohibited.\n"
+            "- Directive 20 (Orchestrator Invariant): academic-orchestrator possesses invoke_subagent and strictly lacks code/mutation execution tools (pure conductor)."
         )
 
         ephemeral_blocks = [reminder]

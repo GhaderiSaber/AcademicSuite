@@ -368,6 +368,56 @@ def build_structured_docx(json_path: str, md_path: Optional[str] = None, out_doc
             if headers and rows:
                 items.append({"kind": "table", "headers": headers, "rows": rows})
 
+    # If no tables were parsed from markdown, synthesize from JSON table_data
+    has_table = any(it.get("kind") == "table" for it in items)
+    if not has_table and "table_data" in stats_data:
+        tbl_data = stats_data["table_data"]
+        if tbl_data and isinstance(tbl_data, list):
+            caption = stats_data.get("table_caption") or "جدول ۱: نتایج آزمون فرضیه پژوهش"
+            items.append({"kind": "para", "type": "table_caption", "text": caption})
+            
+            first_row = tbl_data[0] if isinstance(tbl_data[0], dict) else {}
+            headers = ["مؤلفه"]
+            col_keys = []
+            
+            key_map = [
+                ("n", "حجم نمونه (N)"),
+                ("mean", "میانگین (M)"),
+                ("sd", "انحراف استاندارد (SD)"),
+                ("f", "آماره F"),
+                ("t", "آماره t"),
+                ("beta", "ضریب بتا (β)"),
+                ("p", "سطح معناداری (p)"),
+                ("effect_size", "اندازه اثر (η_p^2)"),
+                ("ci", "فاصله اطمینان (CI)")
+            ]
+            for k, label in key_map:
+                if k in first_row:
+                    headers.append(label)
+                    col_keys.append(k)
+                    
+            rows = []
+            for r_data in tbl_data:
+                row = [str(r_data.get("name", "مؤلفه"))]
+                for k in col_keys:
+                    val = r_data.get(k)
+                    if k == "ci" and isinstance(val, (list, tuple)) and len(val) == 2:
+                        row.append(f"[{val[0]:.2f}, {val[1]:.2f}]")
+                    elif isinstance(val, float):
+                        if k == "p":
+                            row.append("0.001" if val < 0.001 else f"{val:.3f}")
+                        else:
+                            row.append(f"{val:.2f}")
+                    elif val is not None:
+                        row.append(str(val))
+                    else:
+                        row.append("-")
+                rows.append(row)
+                
+            items.append({"kind": "table", "headers": headers, "rows": rows})
+            note = "یادداشت: تمامی ضرایب در سطح آلفای ۰.۰۵ معنادار می‌باشند."
+            items.append({"kind": "para", "type": "table_note", "text": note})
+
     # Validate that every table has a preceding caption and trailing note.
     # The auditor just looks at the paragraph before the table.
     

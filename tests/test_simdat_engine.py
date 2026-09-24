@@ -7,6 +7,7 @@ Verifies Likert quantization, realistic empirical decimal noise (Directive 9), a
 import os
 import sys
 import unittest
+import shutil
 import numpy as np
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -74,9 +75,10 @@ class TestSimdatEngine(unittest.TestCase):
         # Expected: round([-1*3+39, 0*3+39, 1*3+39, 2*3+39]) = [36, 39, 42, 45]
         np.testing.assert_array_equal(rescaled, np.array([36.0, 39.0, 42.0, 45.0]))
 
+    @unittest.skipIf(shutil.which("Rscript") is None, "Rscript is not installed on this system")
     def test_sem_preset_p13_delegation(self):
         """Asserts sem_p13_pies research preset executes and generates valid artifacts."""
-        import tempfile, shutil
+        import tempfile
         tmp_dir = tempfile.mkdtemp(prefix="test_sem_simdat_")
         try:
             payload = simdat_engine.RESEARCH_PRESETS["sem_p13_pies"]
@@ -92,6 +94,7 @@ class TestSimdatEngine(unittest.TestCase):
         finally:
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
+    @unittest.skipIf(shutil.which("Rscript") is None, "Rscript is not installed on this system")
     def test_sem_preset_p25_general_delegation_with_latents(self):
         """Asserts sem_p25_general preset runs with include_latents and WLSMV estimator."""
         import tempfile, shutil

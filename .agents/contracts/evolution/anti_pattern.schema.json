@@ -93,6 +93,30 @@
       "type": "boolean",
       "description": "True only after formal promotion. Controls whether this anti-pattern is actively bound to production agent contexts."
     },
+    "related_skills": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of skill directories related to this anti-pattern."
+    },
+    "graduation_track": {
+      "type": "string",
+      "enum": ["TRACK_1_IMMEDIATE_GRADUATION", "TRACK_2_CASE_SPECIFIC_LOCAL"],
+      "description": "Directive 21 Dual-Track classification."
+    },
+    "graduation_status": {
+      "type": "string",
+      "enum": ["PENDING_GRADUATION", "GRADUATED", "NOT_APPLICABLE"],
+      "description": "Graduation status under Directive 21."
+    },
+    "graduated_at": {
+      "type": "string",
+      "description": "ISO timestamp when this anti-pattern was graduated."
+    },
+    "graduated_targets": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Files into which this anti-pattern was graduated."
+    },
     "updated_at": {
       "type": "string",
       "format": "date-time"

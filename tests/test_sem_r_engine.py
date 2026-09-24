@@ -24,6 +24,7 @@ R_SCRIPT_PATH = os.path.join(
 )
 
 
+@unittest.skipIf(shutil.which("Rscript") is None, "Rscript is not installed on this system")
 class TestSemREngine(unittest.TestCase):
 
     def setUp(self):

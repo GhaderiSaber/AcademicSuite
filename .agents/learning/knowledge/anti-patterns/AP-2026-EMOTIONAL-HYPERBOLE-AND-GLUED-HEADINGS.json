@@ -1,7 +1,7 @@
 {
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-EMOTIONAL-HYPERBOLE-AND-GLUED-HEADINGS",
-  "category": "academic-tone-and-formatting",
+  "category": "typography",
   "defective_pattern": "Using exaggerated, emotional, or hyperbolic Persian vocabulary (e.g., 'اکیداً', 'بهطور چشمگیری', 'حیاتی') and omitting blank lines or explicit w:spacing before headings in Markdown and DOCX.",
   "why_defective": "Violates the strict objective, dispassionate academic register and results in jammed, unreadable document formatting where headings touch preceding paragraphs.",
   "observed_symptoms": [

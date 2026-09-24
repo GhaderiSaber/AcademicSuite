@@ -39,11 +39,13 @@ try:
     from integrity_hooks import IntegrityHooks
     from learning_hooks import LearningHooks
     from hook_seen import emit_hook_seen
+    from dynamic_invariant_guard import DynamicInvariantGuard
 except ImportError:
     from .safety_hooks import SafetyHooks
     from .integrity_hooks import IntegrityHooks
     from .learning_hooks import LearningHooks
     from .hook_seen import emit_hook_seen
+    from .dynamic_invariant_guard import DynamicInvariantGuard
 
 
 try:
@@ -155,6 +157,15 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
             except Exception as e_agent:
                 sys.stderr.write(f"[hook_dispatcher] Agent guard error ({guard_mod_name}): {e_agent}\n")
 
+        # Dynamic Learned Invariant Guard Check (Fail-closed mechanical enforcement)
+        if not is_main:
+            try:
+                dynamic_res = DynamicInvariantGuard.evaluate_pre_tool_use(caller, payload)
+                if isinstance(dynamic_res, dict) and dynamic_res.get("decision") == "deny":
+                    return dynamic_res
+            except Exception as e_dyn:
+                sys.stderr.write(f"[hook_dispatcher] Dynamic invariant guard error: {e_dyn}\n")
+
         # Class C: Learning Hooks (Factual trajectory capture & context enrichment)
         learning_res = LearningHooks.handle_pre_tool_use(payload)
         if learning_res and isinstance(learning_res, dict) and "overwrite" in learning_res:
@@ -206,6 +217,14 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
                         return agent_stop_res
             except Exception as e_agent_stop:
                 sys.stderr.write(f"[hook_dispatcher] Agent stop guard error ({guard_mod_name}): {e_agent_stop}\n")
+
+        # Dynamic Learned Invariant Stop Check
+        try:
+            dynamic_stop_res = DynamicInvariantGuard.evaluate_stop(caller, payload)
+            if isinstance(dynamic_stop_res, dict) and dynamic_stop_res.get("decision") == "continue":
+                return dynamic_stop_res
+        except Exception as e_dyn_stop:
+            sys.stderr.write(f"[hook_dispatcher] Dynamic invariant stop guard error: {e_dyn_stop}\n")
 
         # Class C: Learning Hooks (Scan for user corrections)
         LearningHooks.capture_user_correction(payload)

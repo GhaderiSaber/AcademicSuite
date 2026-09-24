@@ -580,16 +580,12 @@ def audit_table_concordance(
                 col_map["sd"] = c_idx
             elif re.search(r'(?<![a-zA-Z])sd(?![a-zA-Z=])', h) or re.search(r'\bstd\b', h):
                 col_map["sd"] = c_idx
-            # p-value
-            elif any(k in h for k in ["سطح معناداری", "sig", "p-value"]):
-                col_map["p"] = c_idx
-            elif re.search(r'(?<![a-zA-Z])p(?![a-zA-Z=])', h):
-                col_map["p"] = c_idx
             # effect size
-            elif any(k in h for k in ["اندازه اثر", "مجذور اتا"]):
+            elif any(k in h for k in ["اندازه اثر", "مجذور اتا"]) or re.search(r'(?:eta|η)_?p?\^?2', h) or re.search(r'(?<![a-zA-Z])d(?![a-zA-Z=])', h):
                 col_map["effect_size"] = c_idx
-            elif re.search(r'(?:eta|η)_?p?\^?2', h) or re.search(r'(?<![a-zA-Z])d(?![a-zA-Z=])', h):
-                col_map["effect_size"] = c_idx
+            # p-value
+            elif (any(k in h for k in ["سطح معناداری", "sig", "p-value"]) or re.search(r'(?<![a-zA-Z_])p(?![a-zA-Z=_\^0-9])', h)) and not any(k in h for k in ["اندازه اثر", "eta", "η"]):
+                col_map["p"] = c_idx
             # CI
             elif any(k in h for k in ["فاصله اطمینان", "ci"]):
                 col_map["ci"] = c_idx

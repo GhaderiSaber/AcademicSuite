@@ -1,7 +1,7 @@
 {
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-SINGLE-MATCH-FOOTNOTE-REPLACEMENT",
-  "category": "openxml_processing",
+  "category": "execution",
   "defective_pattern": "Using single-match regex replacement (e.g., re.search without a loop or exhaustive tokenization) for footnote markers in OpenXML text nodes, and verifying only the footnotes.xml count without checking document.xml for unprocessed literals.",
   "why_defective": "If a text node contains multiple footnote markers, a single-match approach only converts the first one, leaving the rest as raw literal text in the output document. Checking only footnotes.xml yields a false PASS because the definitions exist even if the references are missing in the document body.",
   "observed_symptoms": [

@@ -461,6 +461,7 @@ def check_prerequisites(stage_id: str, state_dir: str) -> Dict[str, Any]:
                     curr_stage = proj.get("current_stage", "")
                     proj_status = proj.get("status", "")
                     if curr_stage:
+                        curr_stage_clean = str(curr_stage).strip().lower()
                         req_order = STAGE_ORDER.get(req_stage)
                         curr_order = STAGE_ORDER.get(curr_stage_clean)
                         if curr_order is None:

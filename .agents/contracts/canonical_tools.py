@@ -104,7 +104,7 @@ HOOK_INTERCEPTED_TOOLS: Set[str] = (
     ALL_MUTATION_TOOLS
     | CANONICAL_DIRECT_EXECUTION_TOOLS
     | CANONICAL_INDIRECT_EXECUTION_TOOLS
-    | {"invoke_subagent", "manage_subagents"}
+    | {"invoke_subagent", "manage_subagents", "send_message"}
     | {"view_file", "read_resource", "read_url_content"}
 )
 

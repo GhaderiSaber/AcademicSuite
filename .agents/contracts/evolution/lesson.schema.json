@@ -243,6 +243,15 @@
       "type": "string",
       "enum": ["PENDING_GRADUATION", "GRADUATED", "NOT_APPLICABLE"],
       "description": "Graduation status under Directive 21."
+    },
+    "graduated_at": {
+      "type": "string",
+      "description": "ISO timestamp when this lesson was graduated into SKILL.md."
+    },
+    "graduated_targets": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Files into which this lesson was graduated."
     }
   },
   "additionalProperties": false
