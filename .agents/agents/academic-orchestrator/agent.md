@@ -142,13 +142,22 @@ Authoritative presets and capability mappings are modularized in the reference d
 - **Pipeline Presets & Sequences**: Consult [.agents/references/MICRO_STAGE_SEQUENCES.md](.agents/references/MICRO_STAGE_SEQUENCES.md) for full micro-stage sequences and triad matrices (`data_generation`, `thesis_empirical`, `chapter4_micro`, `chapter5_micro`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`, `bibliometric_pipeline`).
 - **Capability-to-Skill-to-Agent Registry**: Consult [.agents/references/SKILL_ACTIVATION_MATRIX.md](.agents/references/SKILL_ACTIVATION_MATRIX.md) for canonical mappings of statistical, drafting, and psychometric capabilities to specialist subagents.
 
-### Canonical Pipeline Stage Sequences (Mandatory Order)
-- **Chapter 4 Pipeline (Empirical Findings)**:
-  `4.0 Curation` $\to$ `4.1 Demographics` $\to$ `4.2 Reliability` $\to$ `4.3 Assumptions` $\to$ `4.4 Correlations` $\to$ `4.5 Structural Model` $\to$ `4.6 Hypotheses (4.6.1, 4.6.2, ...)` $\to$ `4.7 Indirect Paths` $\to$ `4.8 Decision Matrix` $\to$ `4.9 QC (MSAI)` $\to$ `4.10 Typography` $\to$ `4.11 Assembly` $\to$ `4.12 Viva Voce`.
-  *(Mechanically Enforced by Hook: Cannot execute Stage 4.6 hypotheses without Stage 4.3 assumptions artifacts on disk).*
-- **Chapter 5 Pipeline (Discussion & Conclusion)**:
-  `5.1 Recap` $\to$ `5.2 Deep Discussion (5.2.1, 5.2.2, ...)` $\to$ `5.3 Null Results` $\to$ `5.4 Implications` $\to$ `5.5 Limitations` $\to$ `5.6 Recommendations` $\to$ `5.7 Fidelity Audit` $\to$ `5.8 Citation QC` $\to$ `5.9 Assembly` $\to$ `5.10 Viva Voce`.
-- **Proposal Pipeline**: `P.1 Problem` $\to$ `P.2 Significance` $\to$ `P.3 Hypotheses` $\to$ `P.4 Design` $\to$ `P.5 Power (G*Power)` $\to$ `P.6 Scales` $\to$ `P.7 Ethics` $\to$ `P.8 Assembly`.
+### Canonical Academic Pipeline Sequences (Mandatory Stage-Gate Order)
+- **Chapter 4 Findings (Stages 4.0–4.12)**:
+  `4.0 Curation` $\to$ `4.1 Demographics` $\to$ `4.2 Reliability` $\to$ `4.3 Assumptions` $\to$ `4.4 Correlations` $\to$ `4.5 Structural Model` $\to$ `4.6 Hypotheses (4.6.1, ...)` $\to$ `4.7 Indirect Paths` $\to$ `4.8 Decision Matrix` $\to$ `4.9 QC (MSAI)` $\to$ `4.10 Typography` $\to$ `4.11 Assembly` $\to$ `4.12 Viva Voce`.
+- **Chapter 5 Discussion (Stages 5.1–5.10)**:
+  `5.1 Recap` $\to$ `5.2 Deep Discussion (5.2.1, ...)` $\to$ `5.3 Null Results` $\to$ `5.4 Implications` $\to$ `5.5 Limitations` $\to$ `5.6 Recommendations` $\to$ `5.7 Fidelity Audit` $\to$ `5.8 Citation QC` $\to$ `5.9 Assembly` $\to$ `5.10 Viva Voce`.
+- **Chapter 2 Literature Review (Stages 2.1–2.8)**:
+  `2.1 Foundations` $\to$ `2.2 Bibliometrics` $\to$ `2.3 International Lit` $\to$ `2.4 Iranian Lit` $\to$ `2.5 Synthesis` $\to$ `2.6 Matrix Table` $\to$ `2.7 Model Grounding` $\to$ `2.8 Assembly`.
+- **Research Proposal (Stages P.1–P.8)**:
+  `P.1 Problem` $\to$ `P.2 Significance` $\to$ `P.3 Hypotheses` $\to$ `P.4 Design` $\to$ `P.5 Power (G*Power)` $\to$ `P.6 Instruments` $\to$ `P.7 Ethics` $\to$ `P.8 Assembly`.
+- **Scale Validation (Stages V.1–V.9)**:
+  `V.1 CVR/CVI` $\to$ `V.2 Item Analysis` $\to$ `V.3 EFA` $\to$ `V.4 CFA` $\to$ `V.5 Construct Validity` $\to$ `V.6 Invariance` $\to$ `V.7 Reliability` $\to$ `V.8 IRT/ROC` $\to$ `V.9 Monograph`.
+- **Defense Presentation (Stages D.0–D.7)**:
+  `D.0 Ingestion` $\to$ `D.1 Storyboard` $\to$ `D.2 Hypothesis Slides` $\to$ `D.3 PPTX/HTML` $\to$ `D.4 Diagram` $\to$ `D.5 Script` $\to$ `D.6 Collision QA` $\to$ `D.7 Viva Voce`.
+- **Data Simulation (Stages DS.0–DS.5)**:
+  `DS.0 Blueprint Gate` $\to$ `DS.1 Spec & Power` $\to$ `DS.2 Scales` $\to$ `DS.3 Monte Carlo` $\to$ `DS.4 Anomaly Screening` $\to$ `DS.5 Curation & Provenance`.
+*(Mechanically Enforced by Hook: A stage cannot be authorized unless its prerequisite stage deliverables physically exist on disk).*
 
 ---
 

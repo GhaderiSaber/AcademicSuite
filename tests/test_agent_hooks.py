@@ -225,6 +225,45 @@ class TestAcademicOrchestratorGuard(unittest.TestCase):
             res = academic_orchestrator_guard.handle_pre_tool_use(payload)
             self.assertEqual(res.get("decision"), "allow")
 
+    def test_blocks_simulation_pipeline_stage_skipping(self):
+        cde_prompt = """
+        Execute Stage DS.3:
+        ```json
+        {
+          "task_id": "TSK-2026-SIM-001",
+          "stage": "Stage DS.3: Monte Carlo Simulation",
+          "worker_agent": "data-agent",
+          "objective": "Run Monte Carlo psychometric simulation",
+          "inputs": ["02_scales_codebook.json"],
+          "required_artifacts": ["primary_data.xlsx", "final_data.xlsx"]
+        }
+        ```
+        """
+        with tempfile.TemporaryDirectory() as empty_ws:
+            payload = {
+                "toolCall": {
+                    "name": "invoke_subagent",
+                    "args": {"Subagents": [{"TypeName": "data-agent", "Prompt": cde_prompt}]}
+                },
+                "workspacePaths": [empty_ws]
+            }
+            res = academic_orchestrator_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Directive 3", res.get("reason", ""))
+
+        with tempfile.TemporaryDirectory() as valid_ws:
+            with open(os.path.join(valid_ws, "02_scales_codebook.json"), "w") as f:
+                f.write("{}")
+            payload = {
+                "toolCall": {
+                    "name": "invoke_subagent",
+                    "args": {"Subagents": [{"TypeName": "data-agent", "Prompt": cde_prompt}]}
+                },
+                "workspacePaths": [valid_ws]
+            }
+            res = academic_orchestrator_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "allow")
+
     def test_stop_enforces_directive_11_stage_gate(self):
         with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
             tf.write(json.dumps({
