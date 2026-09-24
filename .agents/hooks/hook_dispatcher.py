@@ -130,6 +130,15 @@ def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
 
         # Class C: Learning Hooks (Scan for user corrections)
         LearningHooks.capture_user_correction(payload)
+
+        # Class C: Automated Graduation Safety Net (Directive 21)
+        try:
+            from scripts.academic_graduation_compiler import AcademicGraduationCompiler
+            compiler = AcademicGraduationCompiler(base_dir=ROOT_DIR)
+            compiler.compile_all_pending(auto_commit=True, dry_run=False)
+        except Exception as e_grad:
+            sys.stderr.write(f"[hook_dispatcher] Auto-graduation note: {e_grad}\n")
+
         return stop_res
 
     return {"decision": "allow"}

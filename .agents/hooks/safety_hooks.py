@@ -344,6 +344,30 @@ def is_root_script_target(path: str, workspaces: Optional[List[str]] = None) -> 
     return False, ""
 
 
+def is_deliverables_script_target(path: str) -> Tuple[bool, str]:
+    """
+    Directive 23 / Deliverables Directory Purity Standard:
+    Forbids creating or writing executable/analysis scripts (.py, .sh, .R, .bash)
+    inside deliverable directories (e.g. 03_deliverables/).
+    Deliverable directories must contain exclusively publication artifacts (.docx, .md, .json, .pdf).
+    """
+    if not path:
+        return False, ""
+
+    norm = os.path.normpath(path).replace("\\", "/")
+    basename = os.path.basename(norm).lower()
+    _, ext = os.path.splitext(basename)
+
+    if ext not in ROOT_SCRIPT_EXTENSIONS:
+        return False, ""
+
+    parts = norm.split("/")
+    if any("03_deliverables" in p or p.lower() == "deliverables" for p in parts):
+        return True, basename
+
+    return False, ""
+
+
 def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Directive 19 / Directive 12 / Knowledge Store Integrity Guard:
@@ -886,6 +910,20 @@ class SafetyHooks:
                             f"  2. Project Analysis & Data Code: <project>/02_analysis_code/\n"
                             f"  3. Suite Tools & Automation: .agents/scripts/ or .agents/skills/<skill>/scripts/\n"
                             f"  4. Test Scripts & Harnesses: tests/"
+                        )
+                    }
+
+                # Deliverables Purity Standard (Directive 23 / Anti-Deliverable-Pollution Guard)
+                is_deliv_script, deliv_script_name = is_deliverables_script_target(target)
+                if is_deliv_script:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 23 - Deliverables Purity Standard): "
+                            f"Writing executable script '{deliv_script_name}' inside a deliverables directory is strictly forbidden. "
+                            f"Deliverables directories must contain exclusively publication artifacts (.docx, .md, .json, .pdf). "
+                            f"Document compilation and post-processing must execute via canonical suite tools (.agents/skills/), "
+                            f"and data analysis scripts belong in 02_analysis_code/."
                         )
                     }
 
