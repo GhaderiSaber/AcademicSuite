@@ -39,10 +39,9 @@
     "academic-writer",
     "academic-orchestrator"
   ],
-  "graduated_at": "2026-09-24T09:34:14.752459+00:00",
+  "graduated_at": "2026-09-24T10:05:19.785208+00:00",
   "graduated_targets": [
     "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/persian-discussion-builder/SKILL.md",
-    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/academic-article-writer/SKILL.md",
-    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/chapter-5-writing/SKILL.md"
+    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/academic-article-writer/SKILL.md"
   ]
 }
