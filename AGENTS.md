@@ -128,11 +128,9 @@ To eliminate stealth ad-hoc shortcuts, **NO agent may execute data analysis, mod
 - **High-Stakes Decisions**: Pricing, overriding supervisor feedback, and final deliverable release require Human Gate approval (Saber Admin Desk `124911145`) and logging in `.agents/memory/decisions/` via `decision_journal_engine.py`.
 
 ### Directive 12: Hybrid Multi-Agent Deliberation Architecture (Hands vs. Brains)
-- **Who (`.agents/agents/`)**: 31 registered cognitive agents across `.agents/agents/`:
-  - **29 Production Agents**: 6 core primary roles (`academic-orchestrator`, `research-agent`, `data-agent`, `statistics-agent`, `academic-writer`, `validation-agent`) + 17 specialized domain roles (`digital-saber`, `methodology-expert`, `statistical-expert`, `statistical-auditor`, `results-auditor`, `academic-challenger`, `literature-expert`, `evidence-auditor`, `final-judge`, `psychometric-expert`, `qualitative-analyst`, `meta-analyst`, `journal-strategist`, `intervention-designer`, `data-curator`, `project-organizer`, `longitudinal-modmed-expert`) + 6 continuous learning & evolution subagents (`behavior-analyst`, `curriculum-builder`, `evaluation-agent`, `knowledge-curator`, `skill-evolver`, `trajectory-analyzer`).
-  - **2 Minimal Verification Roles**: `test-orchestrator`, `test-worker` (used for runtime invariant verification).
-- **How (`.agents/skills/`)**: 44 active production skills in `.agents/skills/` (with 10 historical workflow-converted shells archived in `.agents/legacy/skills/`).
-- **Architectural Single Source of Truth**: Full taxonomy reconciling current vs. historical vs. target architecture is codified in [docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md](docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md).
+- **Who (`.agents/agents/`)**: 31 registered cognitive agents across `.agents/agents/` (6 primary conductor/worker roles, 17 specialized domain roles, 6 continuous learning subagents, and 2 verification roles).
+- **How (`.agents/skills/`)**: 44 active production skills in `.agents/skills/`.
+- **Taxonomy Truth**: Reconciled taxonomy is codified in [docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md](docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md).
 - **Unified Antigravity Multi-Agent Architecture**:
   - **The Brains & Critics**: Autonomous cognitive roles (`.agents/agents/`) invoked natively via Antigravity's `invoke_subagent` tool.
   - **The Hands**: Deterministic skills and Python engines (`.agents/skills/`) executed by agents for statistical calculations and OpenXML compilation.
@@ -190,11 +188,19 @@ These two permanent architectural laws govern `academic-orchestrator`:
    - `invoke_subagent`
    The orchestrator coordinates work exclusively through specialist subagents; it must always retain the native multi-agent delegation tool to dispatch tasks across isolated specialist contexts.
 
-### Directive 21: Proactive Human Mentorship & Direct Knowledge Ingestion Protocol
+### Directive 21: Proactive Human Mentorship & Dual-Track Immediate Graduation Protocol
 1. **Conversational Ingestion**: When the human mentor/supervisor (Saber Ghaderi) provides direct guidance, standards, or methodology instructions in conversation (e.g., *"Remember that..."*, *"Learn this: always do X because Y"*), agents MUST NOT treat it as ephemeral chat text.
-2. **Immediate Codification**: The agent executes `academic_human_mentor.py teach` or `teach_from_natural_language()` to categorize the rule (`principle`, `pattern`, `anti_pattern`, or `lesson`), validate it against contract schemas, and persist it to `.agents/learning/knowledge/`.
-3. **Shared Learning Invariant**: Direct human mentorship items default to `scope: "cross-project"`, ensuring they are tracked in Git, committed, and synced to GitHub for all current and future projects.
-4. **Deterministic Pre-Task Feeding**: Human-taught principles and patterns are deterministically prioritized by the Two-Stage Retriever and Dynamic Context Token Budgeter, surfacing in pre-flight briefings under `⚖️ Applicable Methodology Rules & Boundary Conditions:`.
+2. **Immediate Codification**: The agent categorizes the rule (`principle`, `pattern`, `anti_pattern`, or `lesson`), validates it against contract schemas, and persists it to `.agents/learning/knowledge/`.
+3. **Dual-Track Immediate Graduation Invariant (اصل ارتقای فوری و دوگانه دانش)**:
+   - **Track 1 (Methodological / Behavioral / Writing Invariant)**: When human guidance defines a permanent procedural law (e.g. Chapter 5 prose-only, academic sobriety, English dialogue, OpenXML footnotes, clean root):
+     - The agent **MUST IMMEDIATELY in the same turn** graduate and compile the rule directly into the target `SKILL.md` (under Invariants) and/or `.agents/plugins/academic-suite/rules/AGENTS.md`.
+     - Verify Directive 18 ceiling (`skill_size_guard.py` < 500 lines).
+     - Stage, commit, and push to GitHub (`origin main`) in the exact same turn.
+     - *Bypasses the 3-item dynamic retrieval budget completely; permanently active 100% of the time across all projects.*
+   - **Track 2 (Case-Specific / Scale Fact)**: Narrow empirical quirks (specific questionnaire item, single dataset parameter, supervisor idiosyncratic stylistic preference):
+     - Retained strictly as scoped episodic JSON in `.agents/learning/knowledge/` without polluting global rules.
+4. **Shared Learning Invariant**: Direct human mentorship items default to `scope: "cross-project"`, ensuring they are tracked in Git, committed, and synced to GitHub for all current and future projects.
+5. **Deterministic Pre-Task Feeding**: Human-taught principles and patterns are deterministically prioritized by the Two-Stage Retriever and Dynamic Context Token Budgeter, surfacing in pre-flight briefings under `⚖️ Applicable Methodology Rules & Boundary Conditions:`.
 
 ### Directive 23: Clean Workspace Root Standard (Zero Root Script Pollution)
 - **Zero Script Pollution**: Writing or dropping executable/analysis scripts (`.py`, `.sh`, `.R`, `.sps`, `.bash`) directly into repository or workspace root folders is strictly prohibited.

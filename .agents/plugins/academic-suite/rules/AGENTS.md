@@ -23,8 +23,10 @@ These domain rules are automatically loaded and applied across all conversations
 - **Directive 20 (The Orchestrator Architectural Invariants)**:
   - *Orchestrator Non-Execution Invariant*: `academic-orchestrator` MUST NOT possess: `run_command`, `write_to_file`, `replace_file_content`, `edit_file`.
   - *Delegation Availability Invariant*: `academic-orchestrator` MUST possess: `invoke_subagent`.
-- **Directive 21 (Proactive Human Mentorship & Direct Knowledge Ingestion Protocol)**:
+- **Directive 21 (Proactive Human Mentorship & Dual-Track Immediate Graduation Protocol)**:
   - Direct human guidance (e.g. *"Remember that..."*, *"Learn this..."*) is immediately codified via `academic_human_mentor.py` into persistent schema-validated JSON (`.agents/learning/knowledge/`).
+  - **Track 1 (Universal / Procedural Invariants)**: When guidance defines a permanent methodological or writing rule, the agent MUST immediately in the same turn graduate it into target `SKILL.md` (under Invariants) and/or `rules/AGENTS.md`, verify Directive 18 ceiling (< 500 lines), and commit/push to GitHub.
+  - **Track 2 (Case-Specific / Scale Facts)**: Retained strictly as scoped episodic JSON in `learning/knowledge/` without polluting global rules.
   - Defaults to `scope: "cross-project"` (Shared Learning) to sync to GitHub and inform all future projects.
   - Deterministically prioritized and injected into pre-flight briefings.
 
