@@ -20,6 +20,8 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/domain_specialists_hook.json
 ---
 
 # Academic Journal Matching & Peer-Review Rebuttal Specialist

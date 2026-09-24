@@ -19,6 +19,8 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/auditor_agents_hook.json
 ---
 
 # Parametric Assumptions, Degrees of Freedom & MSAI Anomaly Auditor

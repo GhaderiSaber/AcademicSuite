@@ -20,6 +20,8 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/domain_specialists_hook.json
 ---
 
 # Dataset Quality Diagnostics, Outlier & Missing Data Specialist

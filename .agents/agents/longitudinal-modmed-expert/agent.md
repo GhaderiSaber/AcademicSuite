@@ -20,6 +20,8 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/domain_specialists_hook.json
 ---
 
 # 3-Wave Longitudinal Moderated Mediation Specialist

@@ -21,6 +21,8 @@ skills:
   - statistical-data-analyst
 agents: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/advisory_agents_hook.json
 ---
 
 # Statistical Modeling, Parametric Estimation & Inference Authority

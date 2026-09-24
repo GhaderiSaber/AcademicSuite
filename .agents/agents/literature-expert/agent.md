@@ -22,6 +22,8 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/research_literature_hook.json
 ---
 
 # Literature Synthesis & Bibliometric Matrix Specialist

@@ -18,6 +18,8 @@ skills:
   - thesis-integrity-auditor
 agents: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/advisory_agents_hook.json
 ---
 
 # Research Project Lead, Cognitive Architect & Digital Twin

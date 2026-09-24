@@ -19,6 +19,8 @@ skills:
   - persian-proposal-builder
 agents: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/advisory_agents_hook.json
 ---
 
 # Research Methodology, Experimental Design & Power Authority

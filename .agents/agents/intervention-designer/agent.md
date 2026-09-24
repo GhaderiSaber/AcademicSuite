@@ -18,6 +18,8 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/domain_specialists_hook.json
 ---
 
 # Clinical Protocol, Manualization & Fidelity Sheet Specialist

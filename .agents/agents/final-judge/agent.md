@@ -17,6 +17,8 @@ skills:
   - persian-defense-presentation-builder
 agents: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/auditor_agents_hook.json
 ---
 
 # Viva Voce Defense Simulator, Institutional Gatekeeper & Release Authority
