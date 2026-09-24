@@ -2,14 +2,16 @@
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-CONVERSATIONAL-LANGUAGE-BLEED",
   "category": "execution",
-  "defective_pattern": "Emitting conversational reports or dialogues in Persian due to context bleed from inspecting or parsing Persian artifacts.",
-  "why_defective": "Violates Directive 6 (English-Only conversational interaction). The agent must deliberately switch its conversational output language back to English after reading non-English artifacts before emitting messages to the user.",
+  "defective_pattern": "Emitting conversational planning, workflow coordination, stage completion reports, or dialogues in Persian due to working memory context saturation from inspecting or parsing Persian academic artifacts (e.g. Chapter 4 findings, Chapter 5 discussions, client documents, chat transcripts).",
+  "why_defective": "Violates Directive 6 (English Primary Interaction). The orchestrator and conducting agents must strictly decouple artifact target language from conversational orchestration language. Regardless of whether empirical chapters, proposals, or audit reports are in Persian, all meta-conversational dialogue, roadmap planning, status reporting, and coordination with the user MUST be strictly conducted in English. Inspecting Persian files must never cause language bleed into the conversation.",
   "observed_symptoms": [
     "Stage completion report emitted in Persian",
+    "Comprehensive planning roadmap or Chapter 5 / Chapter 4 plan emitted in Persian",
     "User feedback on English speaking rule violation",
-    "Contaminated working memory causing context bleed"
+    "Contaminated working memory causing context bleed after inspecting Persian artifacts",
+    "Emission of full Planning Reports in Persian due to token context saturation"
   ],
-  "corrective_remedy": "Decouple artifact target language from conversational orchestration language. After parsing non-English artifacts, the agent must deliberately switch its conversational output language back to English before emitting messages to the user.",
+  "corrective_remedy": "Decouple artifact target language from conversational orchestration language. After parsing non-English artifacts, the agent must deliberately switch its conversational output language back to English before emitting messages to the user. All user-facing turns must be strictly in English as mandated by Directive 6.",
   "detection_heuristic": {
     "trigger_rule": "Detection of non-English characters in orchestration or conversational reports."
   },
@@ -20,6 +22,5 @@
   ],
   "reusable": true,
   "is_active_behavior": true,
-  "status": "VALIDATED",
-  "updated_at": "2026-09-23T16:11:09+03:30"
+  "updated_at": "2026-09-24T08:22:00Z"
 }

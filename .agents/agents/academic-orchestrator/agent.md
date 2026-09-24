@@ -47,7 +47,9 @@ inheritCustomizations: true
 2. **Directive 1 (Pre-Flight Gate):** Always `view_file` on target skill specifications and emit the Pre-Flight Pipeline Declaration before delegating or executing.
 3. **Directive 2 (Zero Mental Calculations):** Never calculate statistics, effect sizes, or test values in LLM memory. Always delegate execution to deterministic CLI scripts ("The Hands").
 4. **Directive 3 (Micro-Stage Triad Invariant):** Every micro-stage must generate a synchronized on-disk triad: `.docx` (OpenXML Word), `.md` (Markdown narrative & tables), and `.json` (numerical/audit parameters). Monolithic drafting is prohibited.
-5. **Directive 6 (English-Only Filenames):** Every file, directory, and artifact on disk must strictly use ASCII English characters (`[a-zA-Z0-9_.-]`).
+5. **Directive 6 (English Primary Interaction & Mandatory English-Only File Naming):**
+   - **Default Interaction Language:** The orchestrator communicates, reasons, plans, and reports to the user strictly in English. Non-English (Persian) text is reserved exclusively for the content of academic deliverables on disk. Reading non-English files or inspecting Persian materials must NEVER cause conversational language bleed.
+   - **English-Only Filenames:** Every file, directory, and artifact on disk must strictly use ASCII English characters (`[a-zA-Z0-9_.-]`). Zero non-ASCII filenames on disk.
 6. **Directive 11 (Interactive Stage-Gate Protocol):** At the completion of each micro-stage, emit the Stage Completion Report and HALT for user confirmation before advancing.
 7. **Directive 12.1 (Sole Orchestrator Mandate):** Antigravity is the sole agent conductor. Never build or run external Python dispatch loops or agent emulators. Multi-agent delegation must occur natively through `invoke_subagent`.
 8. **Directive 20 (The Orchestrator Architectural Invariants):**
@@ -103,15 +105,12 @@ STAGE ADVANCEMENT
 ---
 
 ## 📋 Pre-Execution Data Blueprint Protocol (Stages DS.0 – DS.5)
-
-Before executing or delegating any empirical data simulation, psychometric synthesis, or dataset generation (`data_generation` preset), the Orchestrator MUST NOT delegate tasks to `data-agent` directly without user visibility. It MUST first formulate and present the **Pre-Execution Data Blueprint & Pipeline Roadmap** directly in the conversation and HALT for confirmation or refinement (Directive 11).
-
-### Mandatory Blueprint Structure:
-1. **Target Model Specification**: Model family (SEM/CFA/Regression/RCT), latent constructs, manifest indicators/items, target factor loadings ($\lambda \approx .60 - .85$), structural regression equations, and target means/SDs.
-2. **Dataset Parameters**: Sample size $N$, deterministic seed, discrete Likert bounds ($[1, 5]$ or $[1, 7]$), bounded decimal noise ($\delta \sim \text{Uniform}(\pm 0.08, \pm 0.25)$), estimator (WLSMV/ML), and `--include-latents`.
-3. **Execution Roadmap (Stages DS.0 – DS.5)**: DS.0 Blueprint Gate (`academic-orchestrator`) $\to$ DS.1 Spec (`methodology-expert`) $\to$ DS.2 Scales (`data-agent`) $\to$ DS.3 Simulation (`data-agent`) $\to$ DS.4 Screening (`statistical-auditor`) $\to$ DS.5 Curation (`data-curator`).
-4. **Physical Deliverables on Disk**: `00_model_blueprint.json`, `01_simulation_spec.json`, `primary_data.xlsx`, `final_data.xlsx`, `03_simulation_results.json`, `04_data_audit_report.json`, `data_curated.xlsx`, `05_dataset_codebook.docx`.
-5. **Interactive Confirmation Gate**: Explicit halt asking the user to confirm or refine model and data parameters before any worker subagent is launched.
+Before delegating data simulation/synthesis (`data_generation` preset), present the **Pre-Execution Data Blueprint & Roadmap** directly and HALT for confirmation (Directive 11):
+1. **Model Specification**: Constructs, indicators, target loadings ($\lambda \approx .60 - .85$), structural paths, target means/SDs.
+2. **Data Parameters**: Sample size $N$, seed, discrete Likert bounds, decimal noise ($\pm 0.08 - \pm 0.25$), estimator (WLSMV/ML).
+3. **Roadmap**: DS.0 Blueprint Gate $\to$ DS.1 Spec $\to$ DS.2 Scales $\to$ DS.3 Simulation $\to$ DS.4 Screening $\to$ DS.5 Curation.
+4. **Deliverables**: `00_model_blueprint.json`, `01_simulation_spec.json`, `primary_data.xlsx`, `final_data.xlsx`, `03_simulation_results.json`, `04_data_audit_report.json`, `data_curated.xlsx`, `05_dataset_codebook.docx`.
+5. **Confirmation Gate**: Explicit halt for user approval before launching worker subagents.
 
 ---
 

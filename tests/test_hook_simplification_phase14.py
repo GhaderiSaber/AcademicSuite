@@ -277,6 +277,30 @@ class TestHookSimplificationPhase14(unittest.TestCase):
         self.assertEqual(res_ma.get("decision"), "continue")
         self.assertIn("multi-agent", res_ma.get("reason", "").lower())
 
+        # 3. Conversational Language Bleed (Directive 6)
+        with open(transcript_path, "w") as f:
+            f.write(json.dumps({"type": "USER_INPUT", "content": "Please plan chapter 5"}) + "\n")
+            f.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "content": "در پاسخ به درخواست شما برای تدوین فصل پنجم، این نقشه راه تفصیلی برای تبیین یافته‌های آماری آماده شده است و شامل مراحل متعددی می‌باشد."
+            }) + "\n")
+
+        res_lang = IntegrityHooks.handle_stop(payload)
+        self.assertEqual(res_lang.get("decision"), "continue")
+        self.assertIn("Directive 6", res_lang.get("reason", ""))
+        self.assertIn("Persian", res_lang.get("reason", ""))
+
+        # 4. English response allowed (even with quoted Persian instrument title)
+        with open(transcript_path, "w") as f:
+            f.write(json.dumps({"type": "USER_INPUT", "content": "Please plan chapter 5"}) + "\n")
+            f.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "content": "Here is the structured execution blueprint for Chapter 5, examining the scale «ویژگی‌های شغلی» in detail."
+            }) + "\n")
+
+        res_ok = IntegrityHooks.handle_stop(payload)
+        self.assertEqual(res_ok.get("decision"), "allow")
+
     # =========================================================================
     # 3. Class C: Learning Hooks
     # =========================================================================

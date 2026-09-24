@@ -676,15 +676,16 @@ class LearningHooks:
         critique_info = LearningHooks.capture_user_correction(payload)
 
         reminder = (
-            "🚨 CONSTITUTIONAL ENFORCEMENT ACTIVE (Directive 0, 3 & 11):\n"
-            "1. Binary Honesty Protocol: If asked a compliance question, your response MUST begin with 'Yes' or 'No'.\n"
-            "2. Micro-Stages, Triad Artifacts & One-Hypothesis-One-Stage Invariant (Directive 3): Monolithic drafting in one shot is prohibited. "
+            "🚨 CONSTITUTIONAL ENFORCEMENT ACTIVE (Directives 0, 3, 6, 11 & 12.1):\n"
+            "1. Binary Honesty Protocol (Directive 0): If asked a compliance question, your response MUST begin with 'Yes' or 'No'.\n"
+            "2. English Primary Interaction (Directive 6): All conversational interaction, planning, coordination, and status reports with the user MUST be conducted strictly in English. Reading non-English files or generating Persian deliverables must NEVER cause conversational language bleed.\n"
+            "3. Micro-Stages, Triad Artifacts & One-Hypothesis-One-Stage Invariant (Directive 3): Monolithic drafting in one shot is prohibited. "
             "Every section and individual hypothesis must generate a synchronized triad of disk artifacts: .docx (Word), .md (Markdown), and .json (Data/Stats) before assembly.\n"
-            "3. Interactive Stage-Gate Protocol (Directive 11): At the end of each stage, emit the Stage Completion Report "
+            "4. Interactive Stage-Gate Protocol (Directive 11): At the end of each stage, emit the Stage Completion Report "
             "(What was done + What will be done next), then STOP and wait for user confirmation before advancing.\n"
-            "4. Multi-Agent Integrity: Under NO circumstance claim a multi-agent workflow unless you physically invoked "
+            "5. Multi-Agent Integrity (Directive 0): Under NO circumstance claim a multi-agent workflow unless you physically invoked "
             "subagents via 'invoke_subagent'.\n"
-            "5. Sole Orchestrator Mandate (Directive 12.1): Antigravity is the sole agent runtime. Python scripts are strictly "
+            "6. Sole Orchestrator Mandate (Directive 12.1): Antigravity is the sole agent runtime. Python scripts are strictly "
             "deterministic execution tools ('The Hands'). Never run agent emulators."
         )
 

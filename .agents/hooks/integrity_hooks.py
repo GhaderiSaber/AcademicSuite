@@ -730,6 +730,59 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
+    def verify_conversational_language(records: List[Dict[str, Any]]) -> Tuple[bool, str]:
+        """
+        Enforces Directive 6 (English Primary Interaction):
+        All conversational interactions, planning, coordination, and status reports with the user
+        must be conducted strictly in English. Non-English (Persian) text is reserved exclusively
+        for the content of academic deliverables on disk.
+        """
+        if not records:
+            return True, ""
+
+        last_assistant_msg = ""
+        last_user_msg = ""
+        for r in reversed(records):
+            stype = r.get("type")
+            content = r.get("content", "")
+            if not last_assistant_msg and stype == "PLANNER_RESPONSE" and content:
+                last_assistant_msg = content.strip()
+            elif not last_user_msg and stype == "USER_INPUT" and content:
+                last_user_msg = content.strip()
+            if last_assistant_msg and last_user_msg:
+                break
+
+        if not last_assistant_msg:
+            return True, ""
+
+        # Exempt if user explicitly requested Persian translation or client message
+        user_lower = last_user_msg.lower()
+        persian_requested = any(kw in user_lower for kw in [
+            "translate to persian", "translation to persian", "in persian", "به فارسی", "ترجمه",
+            "telegram response", "client telegram", "client message", "متن پیام"
+        ])
+        if persian_requested:
+            return True, ""
+
+        persian_chars = len(re.findall(r"[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]", last_assistant_msg))
+        latin_chars = len(re.findall(r"[a-zA-Z]", last_assistant_msg))
+        total_alpha = persian_chars + latin_chars
+
+        if total_alpha > 0 and (persian_chars > 80 or (persian_chars > 30 and (persian_chars / total_alpha) > 0.25)):
+            ratio = persian_chars / total_alpha
+            return False, (
+                "CONSTITUTIONAL VIOLATION (Directive 6 - English Primary Interaction): "
+                f"Your response to the user was emitted predominantly in Persian ({persian_chars} Persian characters detected, "
+                f"{ratio:.1%} of alphabetic content). "
+                "Under Directive 6 and the Conversational Language Decoupling Invariant, all dialogue, "
+                "planning, roadmap presentation, and coordination with the user MUST be conducted strictly in English. "
+                "Persian is strictly reserved for the content of academic deliverables on disk. "
+                "Please rewrite and emit your complete response in English."
+            )
+
+        return True, ""
+
+    @staticmethod
     def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Main entry point for Stop integrity checks:
@@ -795,6 +848,10 @@ class IntegrityHooks:
                 return {"decision": "continue", "reason": reason}
 
             ok, reason = IntegrityHooks.verify_multiagent_truthfulness(records)
+            if not ok:
+                return {"decision": "continue", "reason": reason}
+
+            ok, reason = IntegrityHooks.verify_conversational_language(records)
             if not ok:
                 return {"decision": "continue", "reason": reason}
 

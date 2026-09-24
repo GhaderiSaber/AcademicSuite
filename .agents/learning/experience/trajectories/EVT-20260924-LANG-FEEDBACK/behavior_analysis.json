@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260924-LANG-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260924-LANG-FEEDBACK",
+  "target_agent": "academic-orchestrator",
+  "target_skill": "academic-suite-orchestrator",
+  "capability": "orchestration",
+  "trajectory_id": "TRJ-20260924-LANG-FEEDBACK-001",
+  "observable_failure_step": {
+    "step_number": 30,
+    "action_type": "DECISION_FORMULATION",
+    "description": "Orchestrator emitted full Chapter 5 Planning Report entirely in Persian (8,000+ chars) in the conversational interface, suffering context bleed from inspecting Persian artifacts and violating Directive 6 and the English conversational interaction standard."
+  },
+  "failure_signature": "CONVERSATIONAL_LANGUAGE_BLEED",
+  "root_cause_diagnosis": "Failure resulted from token context saturation after sequential inspection of 8 Persian thesis artifacts. A missing conversational language decoupling check caused the language from the inspected artifacts to bleed into the conversational response.",
+  "prescribed_behavior": "Enforce strict conversational output decoupling in English regardless of artifact target language. All conversational interactions must remain exclusively in English as per Directive 6.",
+  "created_at": "2026-09-24T08:00:16Z"
+}

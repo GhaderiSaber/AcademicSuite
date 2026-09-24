@@ -1,0 +1,1079 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260924-LANG-FEEDBACK-001",
+  "experience_id": "EVT-20260924-LANG-FEEDBACK",
+  "project_id": "Morteza_Estaki",
+  "task_id": "TSK-20260924-LANG-TRAJECTORY-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T04:21:09Z",
+      "description": "User instructed orchestrator to proceed with university Chapter 4 empirical baseline and plan for writing Chapter 5.",
+      "observable_input": {
+        "user_message": "@[conversation:\"Understanding Client Requirements\"] We should go with university chapter 4. So plan for writing chapter 5."
+      },
+      "observable_output": {
+        "target_stage": "chapter5_discussion",
+        "baseline_selected": "university_chapter4"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:09Z",
+      "description": "Orchestrator listed workspace root directory to assess project structure and files.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "subdirectories_count": 12,
+        "files_count": 12
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:14Z",
+      "description": "Orchestrator inspected project_meta.json to confirm client metadata, variables, and stage readiness.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/project_meta.json"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "client_name": "Morteza Estaki",
+        "chapter5_status": "ready_for_execution"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:18Z",
+      "description": "Orchestrator listed 03_deliverables to inspect available Chapter 4 deliverables and audit reports.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "files": [
+          "Chapter_4_Results.docx",
+          "Chapter_4_Results.json",
+          "Chapter_4_Results.md",
+          "Thesis_Chapter4_Audit_Report.md",
+          "ch4_validation_report.json"
+        ]
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:20Z",
+      "description": "Orchestrator listed 01_raw_inputs to examine incoming client documents, scales, and questionnaires.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "files": [
+          "client_profile.md",
+          "marzieh_chapter4_audit_payload.json",
+          "chat_transcript.md",
+          "Questionnaire(ME) (Responses).xlsx"
+        ]
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:26Z",
+      "description": "Orchestrator inspected Persian client profile client_profile.md (lines 1-55) detailing research hypotheses, variables, and instruments.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/client_profile.md"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "language_observed": "fa",
+        "hypotheses_count": 4,
+        "sample_organization": "Red Crescent"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:30Z",
+      "description": "Orchestrator inspected Persian quote draft telegram_response_draft.md to review project commitments and pricing.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/telegram_response_draft.md"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "language_observed": "fa"
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:34Z",
+      "description": "Orchestrator inspected Persian forensic audit report Thesis_Chapter4_Audit_Report.md lines 1-100, absorbing Persian clinical findings, reverse-scoring error, and negative correlations.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "language_observed": "fa",
+        "critical_errors_reviewed": [
+          "reverse_scoring_failure",
+          "negative_correlations",
+          "uncentered_moderation"
+        ]
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:40Z",
+      "description": "Orchestrator inspected remainder of Persian forensic audit report Thesis_Chapter4_Audit_Report.md lines 101-178, covering cross-chapter discrepancies.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
+        "StartLine": 101,
+        "EndLine": 178
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "language_observed": "fa"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:46Z",
+      "description": "Orchestrator inspected Persian results summary Chapter_4_Results.md lines 1-24, absorbing Persian narrative of sample (N=208) and correlation/moderation statistics.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Chapter_4_Results.md"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "language_observed": "fa",
+        "reported_statistics": {
+          "H1_r": -0.18,
+          "H2_r": -0.17,
+          "H3_r": 0.21,
+          "H4_moderation_p": 0.59
+        }
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:51Z",
+      "description": "Orchestrator inspected Persian chat transcript chat_transcript.md lines 1-100.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "language_observed": "fa"
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:55Z",
+      "description": "Orchestrator inspected recent Persian chat transcript lines 300-379 regarding client's decision to proceed with university Chapter 4.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
+        "StartLine": 300,
+        "EndLine": 379
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "language_observed": "fa",
+        "client_decision": "proceed_with_university_chapter4"
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:21:59Z",
+      "description": "Orchestrator inspected marzieh_chapter4_audit_payload.json containing Persian hypothesis text, sample specifications (N=208 Red Crescent), and statistical values.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/marzieh_chapter4_audit_payload.json"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "language_observed": "fa",
+        "statistical_tests_count": 4
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:04Z",
+      "description": "Orchestrator inspected skill definition for chapter-5-writing to identify pipeline micro-stages and CLI workflows.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/chapter-5-writing/SKILL.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "micro_stages_defined": true
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:12Z",
+      "description": "Orchestrator inspected persian-discussion-builder SKILL.md lines 1-100 to check 6-part Chapter 5 architecture and 4-element psychological model.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "model_framework": "4-element psychological model"
+      }
+    },
+    {
+      "step_number": 16,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:16Z",
+      "description": "Orchestrator inspected remainder of persian-discussion-builder SKILL.md regarding epistemic honesty and typography standards.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
+        "StartLine": 101,
+        "EndLine": 116
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 17,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:21Z",
+      "description": "Orchestrator listed references directory 04_references_and_lit to locate reference PDFs.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/04_references_and_lit"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "subdirectories": [
+          "Morteza Estaki.Data",
+          "literature_pdfs",
+          "translations"
+        ]
+      }
+    },
+    {
+      "step_number": 18,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:25Z",
+      "description": "Orchestrator listed literature_pdfs directory, finding 23 academic papers.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/04_references_and_lit/literature_pdfs"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "pdf_count": 23
+      }
+    },
+    {
+      "step_number": 19,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:29Z",
+      "description": "Orchestrator listed audit_results_chapter4 directory to check audit summaries.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/audit_results_chapter4"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "files": [
+          "annotated_citations.xlsx",
+          "thesis_audit_summary.json",
+          "گزارش_جامع_ممیزی_و_صحت‌سنجی_رساله.docx"
+        ]
+      }
+    },
+    {
+      "step_number": 20,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:35Z",
+      "description": "Orchestrator searched for academic-state directory in workspace.",
+      "observable_input": {
+        "tool_name": "find_by_name",
+        "SearchDirectory": "/home/ghaderi-saber/My Work/Morteza Estaki",
+        "Pattern": "*academic-state*"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "results_count": 0
+      }
+    },
+    {
+      "step_number": 21,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:39Z",
+      "description": "Orchestrator listed .agents directory.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "subdirectories_count": 27
+      }
+    },
+    {
+      "step_number": 22,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:48Z",
+      "description": "Orchestrator listed .agents/state directory.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/state"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "files": [
+          "__init__.py"
+        ]
+      }
+    },
+    {
+      "step_number": 23,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:55Z",
+      "description": "Orchestrator inspected capabilities.yaml lines 1-100 to check registered capabilities.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 24,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:22:59Z",
+      "description": "Orchestrator grepped for 'chapter_5' in capabilities.yaml to find capability specification.",
+      "observable_input": {
+        "tool_name": "grep_search",
+        "Query": "chapter_5",
+        "SearchPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "matches_found": 3
+      }
+    },
+    {
+      "step_number": 25,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:23:01Z",
+      "description": "Orchestrator inspected thesis_chapter5 capability definition in capabilities.yaml lines 680-746.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
+        "StartLine": 680,
+        "EndLine": 746
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "primary_agent": "academic-writer",
+        "required_skills": [
+          "persian-discussion-builder",
+          "chapter-5-writing",
+          "ai-academic-tone-polisher"
+        ]
+      }
+    },
+    {
+      "step_number": 26,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:23:05Z",
+      "description": "Orchestrator listed persian-discussion-builder directory.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 27,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:23:14Z",
+      "description": "Orchestrator listed references in persian-discussion-builder.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "files": [
+          "discussion_framework_guide.md",
+          "psychology_theoretical_mechanisms.md"
+        ]
+      }
+    },
+    {
+      "step_number": 28,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:23:18Z",
+      "description": "Orchestrator viewed discussion_framework_guide.md lines 1-81 to review structural blueprint for Chapter 5.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/discussion_framework_guide.md"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 29,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:23:21Z",
+      "description": "Orchestrator viewed psychology_theoretical_mechanisms.md lines 1-69 to review theoretical models.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/psychology_theoretical_mechanisms.md"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 30,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:23:29Z",
+      "description": "Orchestrator emitted full Chapter 5 Planning Report entirely in Persian (8,000+ chars) in the conversational interface, suffering context bleed from inspecting Persian artifacts (client_profile.md, Thesis_Chapter4_Audit_Report.md, marzieh_chapter4_audit_payload.json, Chapter_4_Results.md, chat_transcript.md) and violating Directive 6 and the English conversational interaction standard.",
+      "observable_input": {
+        "conversational_turn": "Chapter 5 Comprehensive Planning Report",
+        "target_audience": "user"
+      },
+      "observable_output": {
+        "language_used": "fa",
+        "expected_language": "en",
+        "defect_type": "AP-2026-CONVERSATIONAL-LANGUAGE-BLEED",
+        "violated_directives": [
+          "Directive 6",
+          "LSN-2026-STRICT-ENGLISH-ORCHESTRATION-DIALOGUE-001"
+        ]
+      }
+    },
+    {
+      "step_number": 31,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T04:24:56Z",
+      "description": "User submitted explicit critique: 'Violation of English speaking rule.'",
+      "observable_input": {
+        "user_message": "Violation of English speaking rule."
+      },
+      "observable_output": {
+        "event_id": "EVT-20260924-LANG-FEEDBACK",
+        "defect_type": "CONVERSATIONAL_LANGUAGE_BLEED"
+      }
+    },
+    {
+      "step_number": 32,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:24:56Z",
+      "description": "Orchestrator executed grep_search for 'English speaking' across .agents to identify relevant rules and previous records.",
+      "observable_input": {
+        "tool_name": "grep_search",
+        "Query": "English speaking",
+        "SearchPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "matches_count": 8
+      }
+    },
+    {
+      "step_number": 33,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:25:00Z",
+      "description": "Orchestrator inspected anti-pattern AP-2026-CONVERSATIONAL-LANGUAGE-BLEED.json.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/knowledge/anti-patterns/AP-2026-CONVERSATIONAL-LANGUAGE-BLEED.json"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "anti_pattern_id": "AP-2026-CONVERSATIONAL-LANGUAGE-BLEED"
+      }
+    },
+    {
+      "step_number": 34,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:25:07Z",
+      "description": "Orchestrator inspected previous language bleed trajectory EVT-20260923-LANG-FEEDBACK/trajectory.json lines 1-60.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260923-LANG-FEEDBACK/trajectory.json",
+        "StartLine": 1,
+        "EndLine": 60
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 35,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:25:13Z",
+      "description": "Orchestrator searched for contract schemas using find_by_name with pattern '*contract*'.",
+      "observable_input": {
+        "tool_name": "find_by_name",
+        "SearchDirectory": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents",
+        "Pattern": "*contract*"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "results_count": 40
+      }
+    },
+    {
+      "step_number": 36,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:25:18Z",
+      "description": "Orchestrator viewed delegation contract schema delegation_contract.schema.json.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/contracts/delegation_contract.schema.json"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 37,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:25:22Z",
+      "description": "Orchestrator listed existing trajectories in .agents/learning/experience/trajectories.",
+      "observable_input": {
+        "tool_name": "list_dir",
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "existing_trajectories": [
+          "EVT-20260923-FIGURE-LANG-FEEDBACK",
+          "EVT-20260923-HEYWOOD-FEEDBACK",
+          "EVT-20260923-LANG-FEEDBACK",
+          "EVT-20260923-SEM-FEEDBACK"
+        ]
+      }
+    },
+    {
+      "step_number": 38,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:25:26Z",
+      "description": "Orchestrator delegated task TSK-20260924-LANG-TRAJECTORY-001 to trajectory-analyzer subagent.",
+      "observable_input": {
+        "recipient": "fac1bbbe-65b0-4a2c-bee2-4a3f28f707d7",
+        "task_id": "TSK-20260924-LANG-TRAJECTORY-001",
+        "worker_agent": "trajectory-analyzer"
+      },
+      "observable_output": {
+        "status": "DELIVERED"
+      }
+    },
+    {
+      "step_number": 39,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T04:25:33Z",
+      "description": "Orchestrator responded to user in English acknowledging the critique and confirming initiation of the Directive 21 learning cascade.",
+      "observable_input": {
+        "critique": "Violation of English speaking rule."
+      },
+      "observable_output": {
+        "compliance_acknowledgement": "Confirmed",
+        "conversational_language_switched_to": "en",
+        "active_subagent": "trajectory-analyzer"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 75
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/project_meta.json"
+      },
+      "execution_time_ms": 60
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables"
+      },
+      "execution_time_ms": 65
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs"
+      },
+      "execution_time_ms": 70
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/client_profile.md"
+      },
+      "execution_time_ms": 65
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/telegram_response_draft.md"
+      },
+      "execution_time_ms": 60
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 7,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "execution_time_ms": 85
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 8,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
+        "StartLine": 101,
+        "EndLine": 178
+      },
+      "execution_time_ms": 75
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 9,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Chapter_4_Results.md"
+      },
+      "execution_time_ms": 55
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 10,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "execution_time_ms": 65
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 11,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
+        "StartLine": 300,
+        "EndLine": 379
+      },
+      "execution_time_ms": 70
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 12,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/marzieh_chapter4_audit_payload.json"
+      },
+      "execution_time_ms": 80
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 13,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/chapter-5-writing/SKILL.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "execution_time_ms": 60
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 14,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "execution_time_ms": 65
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 15,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
+        "StartLine": 101,
+        "EndLine": 116
+      },
+      "execution_time_ms": 50
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 16,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/04_references_and_lit"
+      },
+      "execution_time_ms": 60
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 17,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/04_references_and_lit/literature_pdfs"
+      },
+      "execution_time_ms": 70
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 18,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/audit_results_chapter4"
+      },
+      "execution_time_ms": 60
+    },
+    {
+      "tool_name": "find_by_name",
+      "invocation_index": 19,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "SearchDirectory": "/home/ghaderi-saber/My Work/Morteza Estaki",
+        "Pattern": "*academic-state*"
+      },
+      "execution_time_ms": 110
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 20,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents"
+      },
+      "execution_time_ms": 75
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 21,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/state"
+      },
+      "execution_time_ms": 55
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 22,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
+        "StartLine": 1,
+        "EndLine": 100
+      },
+      "execution_time_ms": 80
+    },
+    {
+      "tool_name": "grep_search",
+      "invocation_index": 23,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "Query": "chapter_5",
+        "SearchPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml"
+      },
+      "execution_time_ms": 130
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 24,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
+        "StartLine": 680,
+        "EndLine": 746
+      },
+      "execution_time_ms": 80
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 25,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder"
+      },
+      "execution_time_ms": 65
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 26,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references"
+      },
+      "execution_time_ms": 60
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 27,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/discussion_framework_guide.md"
+      },
+      "execution_time_ms": 70
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 28,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/psychology_theoretical_mechanisms.md"
+      },
+      "execution_time_ms": 65
+    },
+    {
+      "tool_name": "grep_search",
+      "invocation_index": 29,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "Query": "English speaking",
+        "SearchPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents"
+      },
+      "execution_time_ms": 140
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 30,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/knowledge/anti-patterns/AP-2026-CONVERSATIONAL-LANGUAGE-BLEED.json"
+      },
+      "execution_time_ms": 55
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 31,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260923-LANG-FEEDBACK/trajectory.json",
+        "StartLine": 1,
+        "EndLine": 60
+      },
+      "execution_time_ms": 85
+    },
+    {
+      "tool_name": "find_by_name",
+      "invocation_index": 32,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "SearchDirectory": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents",
+        "Pattern": "*contract*"
+      },
+      "execution_time_ms": 120
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 33,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/contracts/delegation_contract.schema.json"
+      },
+      "execution_time_ms": 65
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 34,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories"
+      },
+      "execution_time_ms": 60
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 35,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-LANG-TRAJECTORY-001",
+        "WorkerAgent": "trajectory-analyzer"
+      },
+      "execution_time_ms": 2950
+    }
+  ],
+  "skill_activations": [],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "stage_id": "TSK-20260924-LANG-TRAJECTORY-001",
+      "task_id": "TSK-20260924-LANG-TRAJECTORY-001",
+      "envelope_summary": "Reconstruct observable actions, tool calls, and error trajectory for user critique 'Violation of English speaking rule.'",
+      "objective": "Reconstruct observable actions, tool calls, and error trajectory for the explicit user critique: 'Violation of English speaking rule.' Capture the exact sequence where the orchestrator inspected Persian project artifacts (client_profile.md, Thesis_Chapter4_Audit_Report.md, marzieh_chapter4_audit_payload.json) and subsequently suffered context bleed, emitting the Chapter 5 planning report in Persian rather than English, violating Directive 6 and the English conversational interaction standard.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-LANG-FEEDBACK/trajectory.json",
+      "input_artifacts": [
+        "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/client_profile.md",
+        "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
+        "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/marzieh_chapter4_audit_payload.json"
+      ],
+      "output_artifacts": [
+        "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-LANG-FEEDBACK/trajectory.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260924-PROCEED-WITH-UNIVERSITY-CH4",
+      "decision_type": "BASELINE_EVIDENCE_SELECTION",
+      "selected_option": "University Chapter 4 Empirical Output (N=208 Red Crescent)",
+      "rationale": "User explicitly instructed '@[conversation:\"Understanding Client Requirements\"] We should go with university chapter 4. So plan for writing chapter 5.' Orchestrator adopted university findings (r = -0.18, r = -0.17, r = 0.21, moderation p = 0.59) as empirical reality to be discussed under epistemic honesty.",
+      "alternatives_considered": [
+        {
+          "option": "Data Re-scoring and Model Re-estimation",
+          "verdict": "REJECTED_BY_USER_DIRECTIVE",
+          "reason": "User explicitly commanded to use university chapter 4 as baseline for Chapter 5 planning."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-CONVERSATIONAL-LANGUAGE-BLEED",
+      "decision_type": "CONVERSATIONAL_INTERFACE_LANGUAGE_SELECTION",
+      "selected_option": "Emitting Chapter 5 Planning Report in Persian",
+      "rationale": "Orchestrator allowed working memory context contamination from inspecting multiple Persian artifacts (client_profile.md, Thesis_Chapter4_Audit_Report.md, Chapter_4_Results.md, chat_transcript.md, marzieh_chapter4_audit_payload.json) and Persian discussion guides to bleed into the meta-conversational interface, mistakenly emitting the entire planning report in Persian instead of English.",
+      "alternatives_considered": [
+        {
+          "option": "Strict English Conversational Interaction Standard (Directive 6 / LSN-2026-STRICT-ENGLISH-ORCHESTRATION-DIALOGUE-001)",
+          "verdict": "VIOLATED",
+          "reason": "Language boundary decoupling between target document domain (Persian thesis chapter) and meta-conversation interface (English) was not maintained due to working memory token saturation."
+        }
+      ]
+    }
+  ],
+  "outputs": [],
+  "validation_events": [
+    {
+      "validator_name": "conversational_language_guard",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "directive_6_english_only_dialogue",
+        "anti_pattern_ap_2026_conversational_language_bleed"
+      ],
+      "evidence_summary": {
+        "user_critique": "Violation of English speaking rule.",
+        "detected_language": "fa",
+        "expected_language": "en",
+        "failure_mode": "Conversational turn emitted in Persian after reading Persian project artifacts"
+      }
+    }
+  ],
+  "feedback": [
+    "EVT-20260924-LANG-FEEDBACK"
+  ],
+  "outcome": "FAILURE"
+}

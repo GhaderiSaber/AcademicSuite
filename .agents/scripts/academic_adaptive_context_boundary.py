@@ -231,7 +231,7 @@ class AcademicAdaptiveContextBoundary:
         project_id: Optional[str] = None,
         prompt_text: Optional[str] = None,
         failure_type: Optional[str] = None,
-        limit_per_category: int = 3,
+        limit_per_category: int = 5,
         max_token_budget: Optional[int] = 800
     ) -> Dict[str, Any]:
         raw_context = self.km.retrieve_pre_task_context(

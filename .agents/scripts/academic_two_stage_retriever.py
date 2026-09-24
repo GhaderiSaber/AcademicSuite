@@ -315,7 +315,9 @@ class AcademicTwoStageRetriever:
         q_agent = (query.get("agent") or "").lower()
         item_agent = str(item.get("target_agent") or item.get("agent") or "").lower()
         item_agents = [str(a).lower() for a in item.get("target_agents", [])]
-        if q_agent and (q_agent == item_agent or q_agent in item_agents):
+        if q_agent and q_agent == item_agent:
+            score += 0.15
+        elif q_agent and q_agent in item_agents:
             score += 0.10
 
         return min(1.0, max(0.0, round(score, 3)))
