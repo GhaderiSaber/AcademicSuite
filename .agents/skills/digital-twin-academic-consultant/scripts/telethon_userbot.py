@@ -34,11 +34,13 @@ from typing import Dict, List, Any, Optional, Tuple, Union
 
 try:
     from telethon import TelegramClient, events, Button
-    from telethon.tl.types import DocumentAttributeFilename, User
+    from telethon.tl.types import DocumentAttributeFilename, User, MessageService, MessageActionContactSignUp
 except ImportError:
     TelegramClient = None
     events = None
     Button = None
+    MessageService = None
+    MessageActionContactSignUp = None
 
 # Local suite imports
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -1053,26 +1055,53 @@ class SaberTelethonUserbot:
                 if self.project_manager.is_ignored(dlg.name, dlg.id, getattr(dlg.entity, "username", None)):
                     continue
 
+                # Ignore service messages or contact signed up notifications
+                dlg_msg = dlg.message
+                if dlg_msg is not None:
+                    if (MessageService is not None and isinstance(dlg_msg, MessageService)) or getattr(dlg_msg, "action", None) is not None:
+                        continue
+
                 # STRICT 30-DAY INACTIVITY GUARD:
                 # Never sync or pull dialogs whose latest interaction is older than 30 days.
-                # Old unread messages from months or years ago must remain dormant in archive.
                 if dlg.date:
                     dlg_dt = dlg.date.replace(tzinfo=None)
                     if (datetime.now() - dlg_dt).days > 30:
                         continue
+
+                existing_dir = self.project_manager.find_existing_project_by_client(
+                    dlg.name, client_id=dlg.id, username=getattr(dlg.entity, "username", None)
+                )
 
                 needs_sync = False
                 sync_reason = ""
 
                 # Condition 1: Unread count > 0
                 if dlg.unread_count > 0:
+                    # If this contact does not have an existing project folder and is not VIP,
+                    # require an affirmative academic signal (file or keywords) before auto-provisioning
+                    is_vip = self.project_manager.is_vip_client(
+                        dlg.name, client_id=dlg.id, username=getattr(dlg.entity, "username", None)
+                    )
+                    if not existing_dir and not is_vip:
+                        msg_text = (dlg_msg.message or "") if dlg_msg else ""
+                        fname, mtype, fsize, _ = resolve_media_details(dlg_msg) if dlg_msg else (None, None, 0, 0)
+                        ext = os.path.splitext(fname)[1].lower() if fname else ""
+                        has_academic_file = ext in [".docx", ".doc", ".pdf", ".sav", ".xlsx", ".xls", ".sps", ".spv", ".rar", ".zip", ".csv"]
+                        has_academic_text = any(w in msg_text for w in [
+                            "پروپوزال", "پایان‌نامه", "پایان نامه", "رساله", "مقاله", "تحلیل", "آماری",
+                            "پرسشنامه", "فصل ۴", "فصل 4", "فصل چهارم", "فصل 5", "فصل پنجم", "فصل ۳",
+                            "فصل 3", "فصل سوم", "استاد راهنما", "داور", "دفاع", "سمپل", "داده", "spss",
+                            "pls", "amos", "sem", "لیزرل", "شبیه‌سازی", "فرضیه", "جامعه آماری",
+                            "نمونه آماری", "تعرفه", "پیش‌فاکتور", "پیش فاکتور", "هزینه", "انجام میدید",
+                            "انجام می‌دید", "مشاوره", "/scale"
+                        ])
+                        if not has_academic_file and not has_academic_text:
+                            continue
+
                     needs_sync = True
                     sync_reason = f"{dlg.unread_count} unread"
                 else:
-                    # Condition 2: Offline delta check (Telegram has newer messages than local disk)
-                    existing_dir = self.project_manager.find_existing_project_by_client(
-                        dlg.name, client_id=dlg.id, username=getattr(dlg.entity, "username", None)
-                    )
+                    # Condition 2: Offline delta check ONLY for existing academic projects on disk
                     if existing_dir:
                         local_last_date = self.project_manager.get_project_latest_message_date(existing_dir)
                         if dlg.date and local_last_date:
@@ -1084,11 +1113,6 @@ class SaberTelethonUserbot:
                         elif dlg.date and not local_last_date:
                             needs_sync = True
                             sync_reason = "missing local chat history"
-                    elif dlg.date:
-                        dlg_dt = dlg.date.replace(tzinfo=None)
-                        if (datetime.now() - dlg_dt).days <= 30:
-                            needs_sync = True
-                            sync_reason = "active dialog without local folder"
 
                 if needs_sync:
                     unread_clients.append((acc_lbl, cl, dlg, sync_reason))
@@ -3266,6 +3290,10 @@ class SaberTelethonUserbot:
         def setup_inbound_listener(client_inst, account_label):
             @client_inst.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
             async def client_handler(event):
+                # 1. Ignore Telegram service messages (contact signed up, pinned message, etc.)
+                if (MessageService is not None and isinstance(event.message, MessageService)) or getattr(event.message, "action", None) is not None:
+                    return
+
                 sender = await event.get_sender()
                 if not isinstance(sender, User) or sender.is_self or sender.bot:
                     return
@@ -3292,7 +3320,7 @@ class SaberTelethonUserbot:
                 else:
                     preview = "[Sticker/Reaction]"
 
-                print(f"[!] [{account_label}] New DM from client {client_name} (ID: {sender.id}): {preview}")
+                print(f"[!] [{account_label}] New DM from contact {client_name} (ID: {sender.id}): {preview}")
 
                 # Check if contact is in the excluded non-academic contacts registry
                 is_excluded = self.project_manager.is_ignored(client_name, sender.id, sender.username)
@@ -3300,6 +3328,30 @@ class SaberTelethonUserbot:
                     # Silently skip all messages from excluded non-academic personal contacts
                     print(f"[-] Ignoring message from excluded personal contact {client_name} ({sender.id})")
                     return
+
+                # Check whether an academic project already exists on disk or if client is VIP
+                existing_dir = self.project_manager.find_existing_project_by_client(
+                    client_name, client_id=sender.id, username=sender.username
+                )
+                is_vip = self.project_manager.is_vip_client(
+                    client_name, client_id=sender.id, username=sender.username
+                )
+
+                # For contacts without an existing project or VIP status, require an affirmative academic signal
+                if not existing_dir and not is_vip:
+                    ext = os.path.splitext(fname)[1].lower() if fname else ""
+                    has_academic_file = ext in [".docx", ".doc", ".pdf", ".sav", ".xlsx", ".xls", ".sps", ".spv", ".rar", ".zip", ".csv"]
+                    has_academic_text = any(w in msg_text for w in [
+                        "پروپوزال", "پایان‌نامه", "پایان نامه", "رساله", "مقاله", "تحلیل", "آماری",
+                        "پرسشنامه", "فصل ۴", "فصل 4", "فصل چهارم", "فصل 5", "فصل پنجم", "فصل ۳",
+                        "فصل 3", "فصل سوم", "استاد راهنما", "داور", "دفاع", "سمپل", "داده", "spss",
+                        "pls", "amos", "sem", "لیزرل", "شبیه‌سازی", "فرضیه", "جامعه آماری",
+                        "نمونه آماری", "تعرفه", "پیش‌فاکتور", "پیش فاکتور", "هزینه", "انجام میدید",
+                        "انجام می‌دید", "مشاوره", "/scale"
+                    ])
+                    if not has_academic_file and not has_academic_text:
+                        print(f"[*] Skipping folder provisioning for non-academic / unverified contact {client_name} ({sender.id})")
+                        return
 
                 # Ensure client's Google Drive project folder is provisioned
                 paths = self.project_manager.provision_project(

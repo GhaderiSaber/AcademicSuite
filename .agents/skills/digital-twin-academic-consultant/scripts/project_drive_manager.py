@@ -316,6 +316,22 @@ class ProjectDriveManager:
         """Check if contact is a designated VIP/repeat collaborator."""
         vip_reg = self.load_vip_registry()
         for vip in vip_reg.get("vip_clients", []):
+            # Dynamically normalize umbrella_dir if it points to outdated OS path or doesn't exist
+            u_dir = vip.get("umbrella_dir", "")
+            if u_dir and (not os.path.isdir(u_dir) or u_dir.startswith("/Users/")):
+                folder_name = os.path.basename(u_dir.rstrip("/\\"))
+                candidate = os.path.join(self.work_dir, folder_name)
+                if os.path.isdir(candidate):
+                    vip["umbrella_dir"] = candidate
+                else:
+                    if os.path.isdir(self.work_dir):
+                        for f in os.listdir(self.work_dir):
+                            if os.path.isdir(os.path.join(self.work_dir, f)):
+                                m, _ = match_client_names(folder_name, f)
+                                if m:
+                                    vip["umbrella_dir"] = os.path.join(self.work_dir, f)
+                                    break
+
             if client_id and vip.get("telegram_id") == client_id:
                 return vip
             if username and vip.get("telegram_username") and vip["telegram_username"].lstrip("@").lower() == username.lstrip("@").lower():
@@ -394,8 +410,9 @@ class ProjectDriveManager:
         Check if a project folder already exists for this client by folder name,
         phonetic match across Azerbaijani/English, Telegram ID, Telegram username,
         or VIP umbrella directory across My Work, Pending Works, and Finished Works.
+        Always prioritizes master umbrella folders (e.g. Shahram Amiri) over isolated subprojects.
         """
-        # 1. VIP Umbrella Directory check
+        # 1. VIP Umbrella Directory check (Top priority)
         vip = self.is_vip_client(client_name, client_id, username)
         if vip and vip.get("umbrella_dir") and os.path.isdir(vip["umbrella_dir"]):
             return vip["umbrella_dir"]
@@ -419,6 +436,7 @@ class ProjectDriveManager:
             return exact_path
 
         # 3. Search across all valid roots (My Work, Pending Works, Finished Works)
+        candidate_matches = []
         best_match = None
         highest_score = 0.0
 
@@ -436,22 +454,37 @@ class ProjectDriveManager:
                     try:
                         with open(meta_file, "r", encoding="utf-8") as f:
                             meta = json.load(f)
-                        if client_id and meta.get("telegram_id") == client_id:
-                            return folder_path
+                        is_umbrella = bool(meta.get("is_umbrella_client_folder"))
+                        matched_id = (client_id and meta.get("telegram_id") == client_id)
+                        matched_user = False
                         if username and meta.get("telegram_username"):
                             cur_user = meta["telegram_username"].lstrip("@").lower()
-                            if cur_user == username.lstrip("@").lower():
-                                return folder_path
+                            matched_user = (cur_user == username.lstrip("@").lower())
+
+                        if matched_id or matched_user:
+                            if is_umbrella:
+                                return folder_path  # Immediate win for master umbrella folder!
+                            candidate_matches.append((folder_path, is_umbrella, 1.0))
+                            continue
+
                         if meta.get("client_name_az"):
                             m, s = match_client_names(client_name, meta["client_name_az"])
-                            if m and s > highest_score:
-                                highest_score = s
-                                best_match = folder_path
+                            if m:
+                                if is_umbrella:
+                                    return folder_path
+                                candidate_matches.append((folder_path, is_umbrella, s))
+                                if s > highest_score:
+                                    highest_score = s
+                                    best_match = folder_path
                         if meta.get("client_name"):
                             m, s = match_client_names(client_name, meta["client_name"])
-                            if m and s > highest_score:
-                                highest_score = s
-                                best_match = folder_path
+                            if m:
+                                if is_umbrella:
+                                    return folder_path
+                                candidate_matches.append((folder_path, is_umbrella, s))
+                                if s > highest_score:
+                                    highest_score = s
+                                    best_match = folder_path
                     except Exception:
                         pass
 
@@ -460,6 +493,18 @@ class ProjectDriveManager:
                 if is_match and score > highest_score:
                     highest_score = score
                     best_match = folder_path
+
+        # If candidates were matched by ID or strong name
+        if candidate_matches:
+            # Check for umbrella flag first
+            for cand, is_u, sc in candidate_matches:
+                if is_u:
+                    return cand
+            # Check for active folder in root work_dir (not in archive subfolders)
+            for cand, is_u, sc in candidate_matches:
+                if os.path.dirname(cand) == self.work_dir:
+                    return cand
+            return candidate_matches[0][0]
 
         if best_match and highest_score >= 0.85:
             return best_match
