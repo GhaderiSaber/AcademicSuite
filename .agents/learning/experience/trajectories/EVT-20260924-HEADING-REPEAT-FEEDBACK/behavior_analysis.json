@@ -1,0 +1,15 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260924-001",
+  "target_agent": "academic-orchestrator",
+  "target_skill": "persian-discussion-builder",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "FILE_WRITTEN",
+    "tool_name": "fix_headings.py",
+    "description": "fix_headings.py parsed word/document.xml, matched both Heading #1 ('بحث و بررسی فرضیه دوم پژوهش') and Heading #2 ('۵-۲-۲. بحث و بررسی فرضیه دوم پژوهش'), and explicitly appended <w:jc w:val='right'/> and <w:bidi w:val='1'/> to both paragraphs, re-zipping 03_hypothesis_2_discussion.docx."
+  },
+  "failure_signature": "BIDI_TRAILING_EDGE_INVERSION_REGRESSION",
+  "root_cause_diagnosis": "In Step 2, academic-orchestrator mistakenly interpreted the user's critique ('The heading is left align.') as a missing explicit alignment tag. Consequently, in Step 4, it used fix_headings.py to forcefully inject <w:jc w:val='right'/> alongside <w:bidi w:val='1'/> into the heading paragraph properties. This directly triggered the OpenXML BiDi trailing-edge flip bug (as documented in LSN-2026-OPENXML-TRAILING-EDGE-INVERSION-001), causing Word and LibreOffice to physically map the logical 'right' alignment to the physical left margin in a BiDi context, whereas Step 2 rendered correctly because <w:jc> was omitted. Furthermore, in Step 7, verify_hypo2.py evaluated the headings using a flawed assertion (requiring align='right'), generating a false-positive PASS verdict.",
+  "prescribed_behavior": "For all RTL headings, ensure <w:bidi w:val='1'/> is set and <w:jc> is completely OMITTED (or section-level <w:sectPr><w:bidi/></w:sectPr> is asserted). Do not inject <w:jc w:val='right'/> into RTL paragraphs to achieve right physical alignment."
+}
