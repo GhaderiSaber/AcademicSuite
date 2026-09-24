@@ -20,7 +20,7 @@ skills:
 agents: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/advisory_agents_hook.json
+  - .agents/hooks/agents/methodology_expert_hook.json
 ---
 
 # Research Methodology, Experimental Design & Power Authority

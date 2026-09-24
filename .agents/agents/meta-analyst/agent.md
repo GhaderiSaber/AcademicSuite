@@ -20,7 +20,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/domain_specialists_hook.json
+  - .agents/hooks/agents/meta_analyst_hook.json
 ---
 
 # PRISMA 2020 Systematic Review & Quantitative Meta-Analyst

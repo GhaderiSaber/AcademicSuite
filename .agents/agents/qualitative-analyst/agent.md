@@ -19,7 +19,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/domain_specialists_hook.json
+  - .agents/hooks/agents/qualitative_analyst_hook.json
 ---
 
 # Reflexive Thematic Analysis & Grounded Theory Specialist

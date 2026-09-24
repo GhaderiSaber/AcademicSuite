@@ -1,0 +1,27 @@
+{
+  "methodology-expert-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "invoke_subagent|define_subagent|write_to_file|replace_file_content|edit_file|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/agents/methodology_expert_guard.py' if os.path.exists('.agents/hooks/agents/methodology_expert_guard.py') else 'hooks/agents/methodology_expert_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreToolUse",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/agents/methodology_expert_guard.py' if os.path.exists('.agents/hooks/agents/methodology_expert_guard.py') else 'hooks/agents/methodology_expert_guard.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event Stop",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

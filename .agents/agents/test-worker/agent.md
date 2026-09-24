@@ -11,6 +11,8 @@ tools:
   - run_command
   - write_to_file
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/test_worker_hook.json
 ---
 
 # Minimal Test Worker

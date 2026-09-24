@@ -19,6 +19,8 @@ skills:
 agents: []
 mcpServers: []
 inheritCustomizations: true
+hooks:
+  - .agents/hooks/agents/curriculum_builder_hook.json
 ---
 
 # Graduated Complexity Curriculum & Adversarial Benchmark Architect
