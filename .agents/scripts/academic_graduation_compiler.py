@@ -395,6 +395,92 @@ class AcademicGraduationCompiler:
 
         return res
 
+    def graduate_candidate_from_json_file(
+        self,
+        candidate_json_path: str,
+        auto_commit: bool = True,
+        dry_run: bool = False
+    ) -> Dict[str, Any]:
+        """Compiles/promotes an improvement candidate JSON into its target component."""
+        if not os.path.isfile(candidate_json_path):
+            return {"candidate_id": "", "status": "FILE_NOT_FOUND", "success": False, "all_passed": False}
+
+        with open(candidate_json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        candidate_id = data.get("candidate_id") or os.path.basename(candidate_json_path).replace(".json", "")
+        target_component = data.get("target_component", "")
+        mutation = data.get("mutation", {})
+        rationale = data.get("rationale", "")
+
+        norm_target = target_component.replace("\\", "/").lstrip("/")
+        target_path = os.path.join(self.base_dir, norm_target)
+        if not os.path.isfile(target_path):
+            cand_alt = os.path.join(ROOT_DIR, norm_target)
+            if os.path.isfile(cand_alt):
+                target_path = cand_alt
+
+        if not os.path.isfile(target_path):
+            return {
+                "candidate_id": candidate_id,
+                "status": "TARGET_NOT_FOUND",
+                "target": target_component,
+                "success": False,
+                "all_passed": False
+            }
+
+        diff_content = mutation.get("content", "")
+        applied = False
+        if mutation.get("diff_type") == "UNIFIED_DIFF" and diff_content:
+            try:
+                added_lines = []
+                for d_line in diff_content.splitlines():
+                    if d_line.startswith("+") and not d_line.startswith("+++"):
+                        clean_added = d_line[1:].strip()
+                        if clean_added:
+                            added_lines.append(clean_added)
+                if added_lines:
+                    statement = " ".join(added_lines)
+                    res_synth = self.synthesize_markdown_rule(
+                        file_path=target_path,
+                        item_id=candidate_id,
+                        statement=statement,
+                        category="Learned Candidate",
+                        dry_run=dry_run
+                    )
+                    applied = res_synth.get("success", False)
+            except Exception:
+                applied = False
+
+        if not applied and rationale:
+            res_synth = self.synthesize_markdown_rule(
+                file_path=target_path,
+                item_id=candidate_id,
+                statement=rationale,
+                category="Learned Candidate",
+                dry_run=dry_run
+            )
+            applied = res_synth.get("success", False)
+
+        if applied and not dry_run:
+            data["status"] = "PROMOTED"
+            data["promoted_at"] = datetime.now(timezone.utc).isoformat()
+            data["promoted_targets"] = [target_path]
+            with open(candidate_json_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+
+            if auto_commit:
+                self.git_sync([target_path, candidate_json_path], candidate_id, f"promote candidate {candidate_id}")
+
+        return {
+            "candidate_id": candidate_id,
+            "status": "PROMOTED" if applied else "FAILED",
+            "target": target_path,
+            "targets": [target_path],
+            "all_passed": applied,
+            "success": applied
+        }
+
     def compile_all_pending(
         self,
         workspaces: Optional[List[str]] = None,
@@ -442,6 +528,12 @@ def main():
     p_comp.add_argument("--no-git", action="store_true", help="Do not commit or push to Git")
     p_comp.add_argument("--dry-run", action="store_true", help="Simulate compilation without writing files")
 
+    # compile-candidate
+    p_cand = subparsers.add_parser("compile-candidate", help="Compile and promote an improvement candidate JSON into target component")
+    p_cand.add_argument("file", help="Path to improvement candidate JSON file")
+    p_cand.add_argument("--no-git", action="store_true", help="Do not commit or push to Git")
+    p_cand.add_argument("--dry-run", action="store_true", help="Simulate compilation without writing files")
+
     # compile-all-pending
     p_all = subparsers.add_parser("compile-all-pending", help="Scan and compile all pending lessons in .agents/learning/knowledge/")
     p_all.add_argument("--workspaces", nargs="*", default=None, help="Additional workspace roots to scan for lessons")
@@ -464,6 +556,12 @@ def main():
 
     if args.command == "compile-lesson":
         res = compiler.graduate_from_json_file(args.file, auto_commit=not args.no_git, dry_run=args.dry_run)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        if not res.get("all_passed"):
+            sys.exit(1)
+
+    elif args.command == "compile-candidate":
+        res = compiler.graduate_candidate_from_json_file(args.file, auto_commit=not args.no_git, dry_run=args.dry_run)
         print(json.dumps(res, indent=2, ensure_ascii=False))
         if not res.get("all_passed"):
             sys.exit(1)

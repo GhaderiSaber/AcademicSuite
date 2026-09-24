@@ -154,7 +154,7 @@ class TestLifecycleHooks(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("Continuous Learning & Evolution Pipeline Incomplete", reason)
 
-        # Case B: knowledge-curator followed by skill-evolver (complete pipeline)
+        # Case B: knowledge-curator followed by skill-evolver and evaluation-agent (complete pipeline)
         records_complete = [
             {"type": "USER_INPUT", "content": "The tone was too dramatic and headings had no blank line."},
             {
@@ -172,6 +172,15 @@ class TestLifecycleHooks(unittest.TestCase):
                     {
                         "name": "invoke_subagent",
                         "args": {"Subagents": [{"TypeName": "skill-evolver", "Prompt": "Synthesize candidate tool diff"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "evaluation-agent", "Prompt": "Compile lesson with graduation compiler"}]}
                     }
                 ]
             }
@@ -250,7 +259,7 @@ class TestLifecycleHooks(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("Uninvoked Learning Pipeline on Critique", reason)
 
-        # If full cascade is invoked, passes
+        # If full cascade including evaluation-agent is invoked, passes
         records_with_cascade = [
             {"type": "USER_INPUT", "content": "Problem: You should have a blank line before each header."},
             {
@@ -268,6 +277,15 @@ class TestLifecycleHooks(unittest.TestCase):
                     {
                         "name": "invoke_subagent",
                         "args": {"Subagents": [{"TypeName": "skill-evolver", "Prompt": "Evolve canonical tool"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "evaluation-agent", "Prompt": "Compile candidate and graduate lesson"}]}
                     }
                 ]
             }
@@ -304,6 +322,78 @@ class TestLifecycleHooks(unittest.TestCase):
         finally:
             if os.path.exists(transcript_file):
                 os.unlink(transcript_file)
+
+    def test_11_skill_evolver_alone_without_evaluation_agent_blocked(self):
+        """Stop hook must block if skill-evolver staged a candidate but evaluation-agent was never dispatched."""
+        from integrity_hooks import IntegrityHooks
+
+        records_se_alone = [
+            {"type": "USER_INPUT", "content": "Problem: Header was duplicated during concatenation."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "skill-evolver", "Prompt": "Formulate candidate JSON"}]}
+                    }
+                ]
+            }
+        ]
+        ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records_se_alone)
+        self.assertFalse(ok)
+        self.assertIn("Missing Evaluation & Graduation Step", reason)
+
+    def test_12_pending_graduation_lesson_blocks_stop(self):
+        """Stop hook must block if a lesson referenced in turn is still PENDING_GRADUATION on disk."""
+        from integrity_hooks import IntegrityHooks
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".json", prefix="LSN-TEST-") as tf:
+            tf.write(json.dumps({
+                "lesson_id": "LSN-TEST-001",
+                "graduation_status": "PENDING_GRADUATION",
+                "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION"
+            }))
+            tf.flush()
+            lesson_file = tf.name
+
+        try:
+            records_pending = [
+                {"type": "USER_INPUT", "content": "Problem: heading has duplicate titles."},
+                {
+                    "type": "PLANNER_RESPONSE",
+                    "content": f"Saved lesson to {lesson_file}",
+                    "tool_calls": [
+                        {
+                            "name": "invoke_subagent",
+                            "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                        },
+                        {
+                            "name": "invoke_subagent",
+                            "args": {"Subagents": [{"TypeName": "skill-evolver", "Prompt": "Evolve skill"}]}
+                        },
+                        {
+                            "name": "invoke_subagent",
+                            "args": {"Subagents": [{"TypeName": "evaluation-agent", "Prompt": "Run tests"}]}
+                        }
+                    ]
+                }
+            ]
+            ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records_pending)
+            self.assertFalse(ok)
+            self.assertIn("Incomplete Invariant Graduation", reason)
+        finally:
+            if os.path.exists(lesson_file):
+                os.unlink(lesson_file)
 
 
 if __name__ == "__main__":

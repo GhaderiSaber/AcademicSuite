@@ -874,7 +874,8 @@ class SafetyHooks:
                         "اشتباه", "غلط", "اصلاح", "تصحیح", "رد شد", "نادرست", "خطا", "مشکل"
                     ]
                     if any(re.search(r"\b" + re.escape(kw) + r"\b", clean_user, re.IGNORECASE) for kw in critique_keywords):
-                        evolution_seen = False
+                        evolver_seen = False
+                        eval_seen = False
                         for r in active_records:
                             for tc in r.get("tool_calls", []):
                                 if tc.get("name") == "invoke_subagent":
@@ -887,10 +888,15 @@ class SafetyHooks:
                                         for sa in subs:
                                             if isinstance(sa, dict):
                                                 t_name = (sa.get("TypeName") or sa.get("Role") or "").lower()
-                                                if any(ev in t_name for ev in ("skill-evolver", "evaluation-agent")):
-                                                    evolution_seen = True
+                                                if "evaluation-agent" in t_name:
+                                                    eval_seen = True
+                                                elif "skill-evolver" in t_name:
+                                                    evolver_seen = True
 
-                        if not evolution_seen:
+                        # Both evolver and evaluation-agent must complete to evolve tools on disk
+                        evolution_completed = eval_seen or (evolver_seen and eval_seen)
+
+                        if not evolution_completed:
                             delivery_workers = [
                                 "academic-writer", "statistics-agent", "data-agent", "psychometric-expert",
                                 "project-organizer", "qualitative-analyst", "intervention-designer"
@@ -1357,7 +1363,8 @@ class SafetyHooks:
                             "اشتباه", "غلط", "اصلاح", "تصحیح", "رد شد", "نادرست", "خطا", "مشکل"
                         ]
                         if any(re.search(r"\b" + re.escape(kw) + r"\b", clean_user, re.IGNORECASE) for kw in critique_keywords):
-                            evolution_seen = False
+                            evolver_seen = False
+                            eval_seen = False
                             for r in active_records:
                                 for tc in r.get("tool_calls", []):
                                     if tc.get("name") == "invoke_subagent":
@@ -1370,10 +1377,14 @@ class SafetyHooks:
                                             for sa in subs:
                                                 if isinstance(sa, dict):
                                                     t_name = (sa.get("TypeName") or sa.get("Role") or "").lower()
-                                                    if any(ev in t_name for ev in ("skill-evolver", "evaluation-agent")):
-                                                        evolution_seen = True
+                                                    if "evaluation-agent" in t_name:
+                                                        eval_seen = True
+                                                    elif "skill-evolver" in t_name:
+                                                        evolver_seen = True
 
-                            if not evolution_seen:
+                            evolution_completed = eval_seen or (evolver_seen and eval_seen)
+
+                            if not evolution_completed:
                                 delivery_workers = [
                                     "academic-writer", "statistics-agent", "data-agent", "psychometric-expert",
                                     "project-organizer", "qualitative-analyst", "intervention-designer"

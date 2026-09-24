@@ -885,12 +885,12 @@ class IntegrityHooks:
         ) or is_user_critique
 
         if has_learning_started:
-            evolution_seen = False
+            eval_seen = False
             for sa in invoked_subagents:
-                if any(ev in sa for ev in ("skill-evolver", "evaluation-agent")):
-                    evolution_seen = True
+                if "evaluation-agent" in sa:
+                    eval_seen = True
                 if any(w in sa for w in delivery_workers):
-                    if not evolution_seen:
+                    if not eval_seen:
                         return False, (
                             "CONSTITUTIONAL VIOLATION (Directive 21.1 - Premature Remediation Without Tool Evolution): "
                             f"Delivery worker '{sa}' was invoked or messaged before completing tool evolution via 'skill-evolver' and 'evaluation-agent'! "
@@ -921,21 +921,66 @@ class IntegrityHooks:
                     "Please invoke 'trajectory-analyzer' now."
                 )
 
-        # 3. If knowledge-curator was invoked, evolution MUST be invoked
-        if any("knowledge-curator" in sa for sa in invoked_subagents):
-            has_evolution = any(
-                ("skill-evolver" in sa or "evaluation-agent" in sa)
-                for sa in invoked_subagents
-            )
-            if not has_evolution:
+        # 3. If knowledge-curator or skill-evolver was invoked, evolution & graduation MUST be completed
+        has_kc = any("knowledge-curator" in sa for sa in invoked_subagents)
+        has_se = any("skill-evolver" in sa for sa in invoked_subagents)
+        has_ea = any("evaluation-agent" in sa for sa in invoked_subagents)
+
+        if has_kc or has_se:
+            if not has_se and not has_ea:
                 return False, (
                     "CONSTITUTIONAL VIOLATION (Directive 21 - Continuous Learning & Evolution Pipeline Incomplete): "
-                    "'knowledge-curator' was invoked to catalog a lesson, but the evolution subagents ('skill-evolver' or 'evaluation-agent') "
+                    "'knowledge-curator' was invoked to catalog a lesson, but the evolution subagents ('skill-evolver' and 'evaluation-agent') "
                     "were NOT invoked in this turn! "
                     "Under Directives 21 and 21.1, you MUST dispatch 'skill-evolver' to synthesize canonical tool/skill modifications "
                     "and 'evaluation-agent' to execute the deterministic graduation compiler ('python3 .agents/scripts/academic_graduation_compiler.py compile-lesson <path>') "
                     "before concluding this turn or initiating stage remediation. "
-                    "Please invoke 'skill-evolver' or 'evaluation-agent' now."
+                    "Please invoke 'skill-evolver' now."
+                )
+
+            # Check if pending ungraduated lessons or staged candidates exist in active turn records
+            pending_items = []
+            seen_json_paths = set()
+            for r in active_records:
+                r_text = json.dumps(r, ensure_ascii=False)
+                for m in re.findall(r'([^\s\'"\\,]+\.json)', r_text):
+                    if any(k in m for k in ("lessons", "candidates", "anti-patterns", "principles", "LSN-", "CAND-", "AP-", "PRN-")):
+                        m_clean = m.strip().strip("'\"")
+                        if m_clean not in seen_json_paths and os.path.isfile(m_clean):
+                            seen_json_paths.add(m_clean)
+                            try:
+                                with open(m_clean, "r", encoding="utf-8") as jf:
+                                    jdata = json.load(jf)
+                                if jdata.get("graduation_status") == "PENDING_GRADUATION":
+                                    item_id = jdata.get("lesson_id") or os.path.basename(m_clean)
+                                    pending_items.append((m_clean, item_id, "PENDING_GRADUATION"))
+                                elif jdata.get("status") == "STAGED" and jdata.get("target_component"):
+                                    item_id = jdata.get("candidate_id") or os.path.basename(m_clean)
+                                    pending_items.append((m_clean, item_id, "STAGED"))
+                            except Exception:
+                                pass
+
+            if pending_items:
+                pending_desc = ", ".join(f"{item_id} ({status})" for _, item_id, status in pending_items)
+                return False, (
+                    "CONSTITUTIONAL VIOLATION (Directive 21 - Incomplete Invariant Graduation): "
+                    f"Learning item(s) remain uncompiled on disk: {pending_desc}. "
+                    "Staging a candidate JSON or cataloging a lesson alone does NOT mutate canonical skills. "
+                    "Under Directive 21, you MUST dispatch 'evaluation-agent' to execute "
+                    "'python3 .agents/scripts/academic_graduation_compiler.py compile-lesson <path>' (or compile-candidate) "
+                    "to compile the verified rule into target SKILL.md/AGENTS.md files before concluding this turn. "
+                    "Please invoke 'evaluation-agent' now."
+                )
+
+            if has_se and not has_ea:
+                return False, (
+                    "CONSTITUTIONAL VIOLATION (Directive 21 - Missing Evaluation & Graduation Step): "
+                    "'skill-evolver' was invoked to synthesize candidate modifications, but 'evaluation-agent' was NOT invoked "
+                    "to execute the deterministic graduation compiler! "
+                    "Under Directive 21, you MUST dispatch 'evaluation-agent' to run "
+                    "'python3 .agents/scripts/academic_graduation_compiler.py compile-candidate <path>' or 'compile-lesson <path>' "
+                    "to mutate canonical skills on disk before concluding. "
+                    "Please invoke 'evaluation-agent' now."
                 )
 
         return True, ""

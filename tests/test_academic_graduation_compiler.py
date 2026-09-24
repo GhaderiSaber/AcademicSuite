@@ -13,6 +13,7 @@ Verifies:
 
 import os
 import sys
+import json
 import shutil
 import tempfile
 import unittest
@@ -304,6 +305,37 @@ class TestAcademicGraduationCompiler(unittest.TestCase):
             self.assertEqual(central_d.get("graduation_status"), "GRADUATED")
         finally:
             shutil.rmtree(client_ws, ignore_errors=True)
+
+    def test_11_candidate_compilation(self):
+        """Compiler must promote improvement_candidate JSON and synthesize the rule into target component."""
+        cand_data = {
+            "candidate_id": "CAND-TEST-ALIGN-001",
+            "target_component": ".agents/skills/persian-discussion-builder/SKILL.md",
+            "rationale": "Universally remove <w:jc> under <w:bidi> tags for all headings.",
+            "mutation": {
+                "diff_type": "UNIFIED_DIFF",
+                "content": "--- SKILL.md\n+++ SKILL.md\n@@ -1,2 +1,3 @@\n+Universally remove <w:jc> under <w:bidi> tags for all headings."
+            },
+            "status": "STAGED"
+        }
+        cand_path = os.path.join(self.test_dir, "CAND-TEST-ALIGN-001.json")
+        with open(cand_path, "w", encoding="utf-8") as f:
+            json.dump(cand_data, f, indent=2)
+
+        res = self.compiler.graduate_candidate_from_json_file(cand_path, auto_commit=False)
+        self.assertTrue(res.get("all_passed"))
+        self.assertEqual(res.get("status"), "PROMOTED")
+
+        # Verify skill was mutated
+        with open(self.ch5_file, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("CAND-TEST-ALIGN-001", content)
+        self.assertIn("Universally remove", content)
+
+        # Verify candidate JSON was updated to PROMOTED
+        with open(cand_path, "r", encoding="utf-8") as f:
+            updated_cand = json.load(f)
+        self.assertEqual(updated_cand.get("status"), "PROMOTED")
 
 
 if __name__ == "__main__":
