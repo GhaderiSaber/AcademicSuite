@@ -1,0 +1,47 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-ACADEMIC-SOBRIETY-AND-HEADING-BLANK-LINE-INVARIANT-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260924-STAGE8-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "academic-writer authored draft.md with exaggerated emotional prose and missing blank lines; subsequently compounded by process_rec.py stripping empty lines and omitting spacing in OpenXML docx.",
+    "behavior_caused_outcome": "The subagent lacked constraints against dramatic vocabulary, and formatting scripts stripped blank lines and omitted w:spacing tags, causing the headings to jam against preceding paragraphs.",
+    "what_should_have_happened": "The text should be in academic, professional tones devoid of emotional/hyperbolic vocabulary, and headings must always be preceded by a blank line in Markdown and an explicitly defined <w:spacing w:before='240' w:after='120'/> in OpenXML.",
+    "rationale_why": "Academic register requires strict objectivity and dispassionate tone. Professional formatting requires adequate vertical spacing before headings for readability."
+  },
+  "desired_behavior": "Enforce a strict behavioral invariant for academic-writer to maintain an objective, dispassionate register devoid of emotive adverbs (e.g., 'اکیداً', 'بهطور چشمگیری'). Mechanically preserve blank lines before headings in Markdown and explicitly inject <w:spacing w:before='240' w:after='120'/> attributes in OpenXML.",
+  "generalization": "Academic texts must strictly avoid emotional or exaggerated hyperbole and always implement correct heading separation spacing.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+  "graduation_status": "GRADUATED",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Defective output observed: Exaggerated tone and missing blank lines.",
+    "threshold_value": "Zero tolerance for defect",
+    "supporting_report_ids": [
+      "BAN-20260924-STAGE8-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-discussion-builder",
+    "academic-article-writer"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-24T13:00:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "academic-orchestrator"
+  ],
+  "graduated_at": "2026-09-24T09:34:14.752459+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/persian-discussion-builder/SKILL.md",
+    "/home/ghaderi-saber/Desktop/Projects/AcademicSuite/.agents/skills/academic-article-writer/SKILL.md"
+  ]
+}
