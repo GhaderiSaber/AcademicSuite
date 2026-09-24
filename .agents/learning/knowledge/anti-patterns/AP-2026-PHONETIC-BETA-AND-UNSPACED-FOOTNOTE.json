@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-PHONETIC-BETA-AND-UNSPACED-FOOTNOTE",
+  "category": "typography",
+  "defective_pattern": "Spelling out 'beta' for regression coefficients and failing to delimit footnote references with whitespace.",
+  "why_defective": "Violates APA statistical symbol formatting and causes footnote reference numbers to concatenate with trailing text.",
+  "observed_symptoms": [
+    "Output text contains 'beta = '",
+    "Words directly appended to footnote superscripts without whitespace separation"
+  ],
+  "corrective_remedy": "Strictly replace 'beta' with Latin *B* (or Greek β if appropriate). Ensure every footnote reference is followed by a space.",
+  "detection_heuristic": {
+    "trigger_rule": "(?i)\\bbeta\\s*=|\\w+<footnote[^>]*>\\w+"
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T12:00:00Z"
+}

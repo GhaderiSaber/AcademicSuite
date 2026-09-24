@@ -1,0 +1,42 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-LATIN-B-AND-FOOTNOTE-WHITESPACE-DELIMITATION-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260924-BETA-FOOTNOTE-FEEDBACK",
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+  "graduation_status": "PENDING_GRADUATION",
+  "diagnosis": {
+    "what_happened": "Regression coefficients were phonetically spelled as 'beta' and footnote references lacked whitespace separation.",
+    "behavior_caused_outcome": "Phonetic spelling violates APA 7 standards, while missing spaces cause superscript reference numbers to incorrectly merge with subsequent words.",
+    "what_should_have_happened": "Latin *B* should be used for unstandardized regression coefficients, and a mandatory space should follow every footnote reference.",
+    "rationale_why": "APA 7 mandates appropriate glyphs (Latin B or Greek β), and text layout necessitates whitespace to detach superscript anchors."
+  },
+  "desired_behavior": "Strictly use Latin *B* (never spelled-out 'beta') for regression coefficients. Enforce mandatory leading space on text runs following footnote references (or trailing space after footnote reference) so that superscript numbers never stick to subsequent words. Implement mechanical QC assertions checking for 'beta' and asserting whitespace delimitation.",
+  "generalization": "Mathematical/statistical symbols require correct typography, and superscript footnotes must be universally whitespace-delimited from following text.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Defective output observed",
+    "threshold_value": "Zero tolerance for defect",
+    "supporting_report_ids": [
+      "EVT-20260924-BETA-FOOTNOTE-FEEDBACK"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-24T12:00:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ]
+}
