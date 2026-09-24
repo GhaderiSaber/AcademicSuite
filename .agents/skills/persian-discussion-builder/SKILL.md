@@ -117,3 +117,6 @@ python3 .agents/skills/persian-discussion-builder/scripts/assemble_chapter5.py \
 - **Persian Typography**: Heading 1 in *B Titr* 14–16 pt Bold, body in *B Nazanin* 13 pt Regular, line spacing 1.25, OpenXML RTL `<w:bidi w:val="1"/>`.
 - **Persian Number & Decimal Standards**: Standard dot (`.`) with mandatory leading zero (`۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`). Exact 3 decimal places for $p$-values (`p < ۰.۰۰۱` یا `۰.۰۰۱ > p`).
 - **Epistemic Honesty on Null Findings**: Candidly discuss non-significant findings without defensive rationalization.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Principle (PRN-20260924-D1DAA0)**: Chapter 5 discussion must strictly contain zero tables and maintain 100% continuous narrative prose.

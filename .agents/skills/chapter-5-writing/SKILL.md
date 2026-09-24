@@ -36,3 +36,6 @@ python3 .agents/skills/persian-discussion-builder/scripts/assemble_chapter5.py \
   --stages-dir 03_deliverables/ \
   --out-dir 03_deliverables/
 ```
+
+## 🧠 Active Learned Behavioral Invariants
+- **Principle (PRN-20260924-D1DAA0)**: Chapter 5 discussion must strictly contain zero tables and maintain 100% continuous narrative prose.
