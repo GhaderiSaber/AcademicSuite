@@ -39,4 +39,4 @@ python3 .agents/skills/persian-discussion-builder/scripts/assemble_chapter5.py \
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Principle (PRN-20260924-D1DAA0)**: Chapter 5 discussion must strictly contain zero tables and maintain 100% continuous narrative prose.
-- **Lesson (LSN-2026-NATIVE-OPENXML-WORD-FOOTNOTES-001)**: Mandate automated zip verification in orchestrator gates to physically validate the presence of OpenXML native footnotes (word/footnotes.xml and <w:footnoteReference>) before approving .docx deliverables. Implement mandatory OpenXML footnote injection.
+- **Lesson (LSN-2026-EXHAUSTIVE-FOOTNOTE-TOKENIZATION-AND-PARITY-QC-001)**: 1) Use exhaustive loop or tokenization for all footnote markers [^X] in every text node. 2) Implement mechanical QC asserting: a) zero literal '[^' substrings in document.xml, b) exact 1:1 parity between footnoteReference tags in document.xml and definitions in footnotes.xml.
