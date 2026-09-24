@@ -133,5 +133,53 @@ class TestLifecycleHooks(unittest.TestCase):
             # Full triad provided; validator passes
             self.assertEqual(res2.get("decision"), "allow")
 
+    def test_06_learning_pipeline_completion_stop_gate(self):
+        """Stop hook must block completion if knowledge-curator was invoked without evolution subagents."""
+        from integrity_hooks import IntegrityHooks
+
+        # Case A: knowledge-curator invoked alone (incomplete pipeline)
+        records_incomplete = [
+            {"type": "USER_INPUT", "content": "Problem: tone was too dramatic and headings had no blank line."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            }
+        ]
+        ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records_incomplete)
+        self.assertFalse(ok)
+        self.assertIn("Continuous Learning & Evolution Pipeline Incomplete", reason)
+
+        # Case B: knowledge-curator followed by skill-evolver (complete pipeline)
+        records_complete = [
+            {"type": "USER_INPUT", "content": "Problem: tone was too dramatic and headings had no blank line."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "knowledge-curator", "Prompt": "Catalog lesson"}]}
+                    }
+                ]
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {"Subagents": [{"TypeName": "skill-evolver", "Prompt": "Synthesize candidate tool diff"}]}
+                    }
+                ]
+            }
+        ]
+        ok_complete, reason_complete = IntegrityHooks.verify_learning_pipeline_completion(records_complete)
+        self.assertTrue(ok_complete)
+        self.assertEqual(reason_complete, "")
+
+
 if __name__ == "__main__":
     unittest.main()

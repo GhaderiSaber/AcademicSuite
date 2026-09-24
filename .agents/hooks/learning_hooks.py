@@ -694,14 +694,16 @@ class LearningHooks:
         if critique_info and critique_info.get("is_critique"):
             clean_text = critique_info.get("text", "")[:300]
             critique_block = (
-                "🧠 CONTINUOUS LEARNING TRIGGER ACTIVE (USER_FEEDBACK_DETECTED):\n"
+                "🧠 CONTINUOUS LEARNING & EVOLUTION TRIGGER ACTIVE (USER_FEEDBACK_DETECTED):\n"
                 f"- User reported defect/critique: \"{clean_text}\"\n"
-                "- Operational Mandate (Directive 19 & LEARNING_MULTI_AGENT_SPEC.md):\n"
-                "  The user has reported a defect, error, or correction. You MUST trigger the diagnostic learning pipeline via native invoke_subagent:\n"
+                "- Operational Mandate (Directives 19, 21 & LEARNING_MULTI_AGENT_SPEC.md):\n"
+                "  The user reported a defect, error, or correction. You MUST complete the full 5-stage learning & evolution pipeline via native invoke_subagent BEFORE stage remediation:\n"
                 f"  1. invoke_subagent(TypeName=\"trajectory-analyzer\", Prompt=\"Reconstruct observable actions, tool calls, and error trajectory for user critique: {clean_text}\")\n"
-                "  2. invoke_subagent(TypeName=\"behavior-analyst\", Prompt=\"Perform causal root-cause analysis on the reconstructed trajectory to determine failure mechanism\")\n"
-                "  3. invoke_subagent(TypeName=\"knowledge-curator\", Prompt=\"Catalog the diagnosed anti-pattern into state/pitfalls.jsonl\")\n"
-                "- Prohibited Anti-Pattern: Do NOT perform silent, ad-hoc edits without executing the learning subagents."
+                "  2. invoke_subagent(TypeName=\"behavior-analyst\", Prompt=\"Perform causal root-cause analysis on reconstructed trajectory to determine failure mechanism\")\n"
+                "  3. invoke_subagent(TypeName=\"knowledge-curator\", Prompt=\"Catalog diagnosed anti-pattern and stage reusable lesson JSON in .agents/learning/knowledge/\")\n"
+                "  4. invoke_subagent(TypeName=\"skill-evolver\", Prompt=\"Synthesize target skill/script candidate modification to permanently fix root cause in canonical tools\")\n"
+                "  5. invoke_subagent(TypeName=\"evaluation-agent\", Prompt=\"Execute graduation compiler ('python3 .agents/scripts/academic_graduation_compiler.py compile-lesson <path>') and verify test suites and size guards\")\n"
+                "- Remediation Rule: ONLY AFTER all 5 steps complete and canonical tools are evolved on disk, re-invoke worker (academic-writer, statistics-agent) to re-run the evolved canonical tool. Authoring throwaway scratch scripts in deliverable directories is strictly forbidden."
             )
             ephemeral_blocks.append(critique_block)
 

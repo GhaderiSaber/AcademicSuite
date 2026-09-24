@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-EMOTIONAL-HYPERBOLE-AND-GLUED-HEADINGS",
+  "category": "academic-tone-and-formatting",
+  "defective_pattern": "Using exaggerated, emotional, or hyperbolic Persian vocabulary (e.g., 'اکیداً', 'بهطور چشمگیری', 'حیاتی') and omitting blank lines or explicit w:spacing before headings in Markdown and DOCX.",
+  "why_defective": "Violates the strict objective, dispassionate academic register and results in jammed, unreadable document formatting where headings touch preceding paragraphs.",
+  "observed_symptoms": [
+    "Presence of dramatic/emotional hyperbole tokens like 'مداخلات بنیادین', 'مدیران موظف‌اند', 'مسئولیت‌های خطیر', 'امری حیاتی است', 'کاتالیزور مستقیم'.",
+    "Headings missing a preceding blank line in Markdown drafts.",
+    "Headings in OpenXML docx missing <w:spacing w:before='240'/> or empty paragraph nodes."
+  ],
+  "corrective_remedy": "1) Purge emotional/hyperbolic vocabulary and enforce sober academic tone. 2) Ensure a mandatory blank line precedes every heading in Markdown. 3) Explicitly insert <w:spacing w:before='240' w:after='120'/> in DOCX XML heading paragraph properties.",
+  "detection_heuristic": {
+    "trigger_rule": "Regex matching hyperbolic Persian tokens or checking for consecutive text without blank lines before markdown headers or missing w:spacing tags in Word XML."
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "academic-orchestrator"
+  ],
+  "related_skills": [
+    "persian-discussion-builder",
+    "academic-article-writer"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-24T13:00:00Z",
+  "reusable": true,
+  "updated_at": "2026-09-24T13:00:00Z"
+}

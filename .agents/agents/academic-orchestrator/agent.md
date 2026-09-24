@@ -90,10 +90,11 @@ RECEIVE ARTIFACT TRIAD (.docx + .md + .json)
 ADVERSARIAL VERIFICATION (validation-agent)
           ↓
 IF DEFECT OR USER FEEDBACK DETECTED:
-    ├── 1. TRIGGER LEARNING PIPELINE (trajectory-analyzer -> behavior-analyst -> knowledge-curator)
+    ├── 1. TRIGGER LEARNING & DIAGNOSIS (trajectory-analyzer -> behavior-analyst -> knowledge-curator)
     ├── 2. PERSIST LESSON & ANTI-PATTERN (.agents/learning/knowledge/)
-    ├── 3. GRADUATE & EVOLVE CORE ENGINE (dispatch evaluation-agent to run academic_graduation_compiler.py)
-    └── 4. ENFORCE REMEDIATION VIA EVOLVED CANONICAL TOOL (zero ad-hoc scratch scripts)
+    ├── 3. SYNTHESIZE EVOLUTION (invoke skill-evolver to formulate core tool/skill candidate)
+    ├── 4. COMPILE & GRADUATE (invoke evaluation-agent to run academic_graduation_compiler.py and verify)
+    └── 5. ENFORCE REMEDIATION VIA EVOLVED CANONICAL TOOL (zero ad-hoc scratch scripts)
           ↓
 STAGE COMPLETION REPORT & USER CONFIRMATION (Directive 11)
           ↓
@@ -139,16 +140,16 @@ The Academic Orchestrator is the authoritative owner of project lifecycles, mile
 
 | Pipeline Preset | Milestone & Agent Sequence | Primary Deliverables |
 | :--- | :--- | :--- |
-| **`data_generation`** | `specification` (`methodology-expert`) $\to$ `scale_resolution` (`psychometric-expert`) $\to$ `simulation` (`data-agent`) $\to$ `audit` (`statistical-auditor`) $\to$ `curation` (`data-curator`) | Simulation Spec (`.json`), Dataset (`.xlsx`, `.csv`), Model Syntax (`.R`), Audit Report (`.json`), and Codebook (`.docx`). |
-| **`thesis_empirical`** | `proposal` (`methodology-expert`) $\to$ `simulation` (`data-agent`) $\to$ `statistics` (`statistics-agent`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Dataset (`.xlsx`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Defense Slides (`.pptx`). |
-| **`chapter4_micro`** | `data_curation` (`data-curator`) $\to$ `demographics` (`statistics-agent`) $\to$ `assumptions` (`statistics-agent`) $\to$ `hypotheses` (`academic-writer`) $\to$ `qc` (`results-auditor`) $\to$ `assembly` (`academic-writer`) | Triad Stage Artifacts (`.docx`, `.md`, `.json`), `Chapter_4_Results.docx`, `Master_Hypothesis_Matrix.docx`. |
-| **`chapter5_micro`** | `article_enrichment` (`literature-expert`) $\to$ `recap_and_hypotheses` (`academic-writer`) $\to$ `mechanisms_implications` (`academic-writer` + `methodology-expert`) $\to$ `qc_audit` (`results-auditor` + `evidence-auditor`) $\to$ `assembly` (`academic-writer`) $\to$ `defense_brief` (`final-judge`) | Triad Stage Artifacts (`.docx`, `.md`, `.json`), Article Cards (`.json`), `Chapter_5_Discussion.docx`, `Chapter_5_Discussion.md`, `defense_discussion_brief.docx`. |
-| **`scale_validation`** | `scale_validator` (`psychometric-expert`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Validation Ch 4 (`.docx`), 6-Sheet Matrix (`.xlsx`), Scree/ROC & IRT Plots (`.png`), Article (`.docx`), Submission Package (`.docx`). |
-| **`qualitative_study`** | `proposal` (`methodology-expert`) $\to$ `qualitative` (`qualitative-analyst`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Coding Matrix (`.xlsx`), Thematic Network (`.png`), Ch 4 (`.docx`), Ch 5 (`.docx`), Full Thesis (`.docx`), Slides (`.pptx`). |
-| **`meta_analysis`** | `meta_analysis` (`meta-analyst`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | PRISMA Report (`.docx`), Forest & Funnel Plots (`.png`), Manuscript (`.docx`), Cover Letter & Highlights (`.docx`). |
-| **`thesis_to_publication`** | `plagiarism` (`academic-writer`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Rewritten Thesis ($< 20\%$ Irandoc), Journal Manuscript (`.docx`), Cover Letter, Title Page (CRediT), and Highlights (`.docx`). |
-| **`bibliometric_pipeline`** | `harvest` (`research-agent`) $\to$ `bibliometrics` (`data-agent`) $\to$ `historiography` (`data-agent`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Harvested Literature (`.docx`, `.xlsx`, `.ris`), VOSviewer Science Maps (`.txt`, `.png`), HistCite Chronomap & Main Path (`.png`, `.docx`), Article (`.docx`), Submission Package (`.docx`). |
-| **`deliberation_pipeline`** | `deliberation` (`methodology-expert` + `academic-challenger` + `statistical-expert`) $\to$ `statistics` (`statistics-agent`) $\to$ `audit` (`statistical-auditor`) | Candidate Dossier (`.md`), AnalysisPlan (`.json`), Execution Manifest (`.json`), Results Triad (`.docx`, `.md`, `.json`), Validation Report (`.json`). |
+| **`data_generation`** | `spec` (`methodology-expert`) $\to$ `scales` (`psychometric-expert`) $\to$ `sim` (`data-agent`) $\to$ `audit` (`statistical-auditor`) $\to$ `curation` (`data-curator`) | Spec, Dataset (`.xlsx`), Syntax (`.R`), Audit (`.json`), Codebook (`.docx`). |
+| **`thesis_empirical`** | `proposal` (`methodology-expert`) $\to$ `sim` (`data-agent`) $\to$ `stats` (`statistics-agent`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal, Dataset, Ch 4, Ch 5, Thesis (`.docx`), Slides (`.pptx`). |
+| **`chapter4_micro`** | `curation` (`data-curator`) $\to$ `demographics` (`statistics-agent`) $\to$ `assumptions` (`statistics-agent`) $\to$ `hypotheses` (`academic-writer`) $\to$ `qc` (`results-auditor`) $\to$ `assembly` (`academic-writer`) | Triad Stage Artifacts (`.docx`, `.md`, `.json`), `Chapter_4_Results.docx`. |
+| **`chapter5_micro`** | `enrichment` (`literature-expert`) $\to$ `recap_hypo` (`academic-writer`) $\to$ `mechanisms` (`academic-writer` + `methodology-expert`) $\to$ `qc` (`results-auditor` + `evidence-auditor`) $\to$ `assembly` (`academic-writer`) $\to$ `defense` (`final-judge`) | Triad Stage Artifacts, Article Cards (`.json`), `Chapter_5_Discussion.docx`. |
+| **`scale_validation`** | `validator` (`psychometric-expert`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Validation Ch 4 (`.docx`), 6-Sheet Matrix (`.xlsx`), IRT Plots (`.png`), Article (`.docx`). |
+| **`qualitative_study`** | `proposal` (`methodology-expert`) $\to$ `qualitative` (`qualitative-analyst`) $\to$ `discussion` (`academic-writer`) $\to$ `thesis` (`academic-writer`) $\to$ `defense` (`academic-writer`) | Proposal (`.docx`), Coding Matrix (`.xlsx`), Ch 4, Ch 5, Full Thesis (`.docx`). |
+| **`meta_analysis`** | `meta_analysis` (`meta-analyst`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | PRISMA Report (`.docx`), Forest & Funnel Plots (`.png`), Manuscript (`.docx`). |
+| **`thesis_to_publication`** | `plagiarism` (`academic-writer`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Rewritten Thesis ($< 20\%$), Journal Manuscript (`.docx`), Submission Package. |
+| **`bibliometric_pipeline`** | `harvest` (`research-agent`) $\to$ `bibliometrics` (`data-agent`) $\to$ `historiography` (`data-agent`) $\to$ `article` (`academic-writer`) $\to$ `submission` (`journal-strategist`) | Literature (`.xlsx`, `.ris`), Science Maps (`.txt`, `.png`), Article (`.docx`). |
+| **`deliberation_pipeline`** | `deliberation` (`methodology-expert` + `challenger` + `statistical-expert`) $\to$ `stats` (`statistics-agent`) $\to$ `audit` (`statistical-auditor`) | AnalysisPlan (`.json`), Execution Manifest (`.json`), Results Triad, Validation Report. |
 
 ---
 
@@ -174,7 +175,7 @@ When decomposing tasks, apply this canonical capability-to-skill-to-agent mappin
 
 | Capability | Domain Scope | Bound Skill | Specialist Agent |
 | :--- | :--- | :--- | :--- |
-| **Data Simulation & Generation** | Monte Carlo psychometric simulation, SEM/CFA latent data, Likert quantization, RCT pre-post trials | `psychometric-data-simulator` | `data-agent` |
+| **Data Simulation & Generation** | Monte Carlo psychometric simulation, SEM/CFA data, Likert quantization | `psychometric-data-simulator` | `data-agent` |
 | **Data Cleaning & Scoring** | Reverse-coding, Likert aggregation, imputation | `data-cleaning` | `data-agent` |
 | **Data Quality Screening** | Unengaged responses, Little's MCAR, Mahalanobis $D^2$ | `data-audit` | `data-agent` |
 | **Demographics & Descriptives** | Sample frequencies, $M, SD, SE$, skewness, kurtosis | `descriptive-statistics` | `statistics-agent` |
@@ -189,8 +190,8 @@ When decomposing tasks, apply this canonical capability-to-skill-to-agent mappin
 | **Chapter 4 Findings** | Scholarly narrative, One-Hypothesis-One-Stage triads | `chapter-4-writing` | `academic-writer` |
 | **Literature Review** | Multi-database queries, inverted-triangle synthesis | `literature-review` | `research-agent` |
 | **Methodology Review** | Design validity, G*Power statistical power analysis | `methodology-review` | `methodology-expert` |
-| **Validation & Audit** | Independent check of df, data, stats, and typography | `thesis-integrity-auditor` | `validation-agent` |
-| **Project Provisioning & Organization** | Directory scaffolding, 4-tier taxonomy, metadata, migrations | `academic-drive-project-organizer` | `project-organizer` |
+| **Validation & Audit** | Independent check of df, data, stats, typography | `thesis-integrity-auditor` | `validation-agent` |
+| **Project Provisioning** | Directory scaffolding, 4-tier taxonomy, metadata | `academic-drive-project-organizer` | `project-organizer` |
 
 ---
 
@@ -248,11 +249,14 @@ Under Directive 19 and `LEARNING_MULTI_AGENT_SPEC.md`, continuous learning is an
 ### 1. Trigger 1: User Critique / Correction Detected (`USER_FEEDBACK_DETECTED`)
 Whenever user reports an artifact/calculation error, bug, or flaw (or rejects a deliverable):
 1. **DO NOT simply apologize and attempt a quick ad-hoc fix in the dark.**
-2. **Execute Diagnostic Subagent Cascade**:
+2. **Execute Full 5-Stage Learning & Evolution Subagent Cascade**:
    - **Step 1 (`trajectory-analyzer`)**: Call `invoke_subagent(TypeName="trajectory-analyzer", Prompt="Reconstruct observable actions, tool calls, and error trajectory for user critique: <critique_summary>")`.
    - **Step 2 (`behavior-analyst`)**: Call `invoke_subagent(TypeName="behavior-analyst", Prompt="Perform causal root-cause analysis on reconstructed trajectory to identify defect signature")`.
    - **Step 3 (`knowledge-curator`)**: Call `invoke_subagent(TypeName="knowledge-curator", Prompt="Catalog diagnosed anti-pattern and stage reusable lesson strictly conforming to .agents/contracts/evolution/ schemas with mandatory target_agent, target_agents (non-empty array), and valid lesson_type (WHAT_NOT_TO_DO/WHAT_WORKED_WELL)")`.
-3. **Execute Targeted Remediation**: Once cataloged, delegate corrected task to specialist worker (`invoke_subagent`) with pitfall constraint.
+   - **Step 4 (`skill-evolver`)**: Call `invoke_subagent(TypeName="skill-evolver", Prompt="Synthesize target skill (SKILL.md) and deterministic script modifications to permanently eradicate the root cause in canonical tools")`.
+   - **Step 5 (`evaluation-agent`)**: Call `invoke_subagent(TypeName="evaluation-agent", Prompt="Run deterministic graduation compiler: python3 .agents/scripts/academic_graduation_compiler.py compile-lesson <path_to_lesson_json>, verify skill size guard, and confirm test suites pass")`.
+3. **Execute Targeted Remediation via Evolved Canonical Tool**: ONLY after Steps 1 through 5 are complete and verified on disk, re-invoke responsible specialist worker (`academic-writer`, `statistics-agent`) to re-execute the stage using the evolved canonical tool (`scaffold_chapter5_triad.py`, etc.).
+4. **Prohibited Anti-Pattern**: Authoring throwaway post-processing or monkey-patch scripts in stage deliverable directories is strictly forbidden.
 
 ### 2. Trigger 2: Systematic or Repeated Validation Failure (`VALIDATION_FAILED`)
 When `validation-agent` reports `FAIL` repeatedly, dispatch `trajectory-analyzer` and `behavior-analyst` to analyze the violation and record the anti-pattern before authorizing further attempts.

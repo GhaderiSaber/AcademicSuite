@@ -84,8 +84,8 @@ def clean_whitespace(text: str) -> str:
     return text.strip()
 
 
-def set_bidi_paragraph(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
-    """Enforce Persian BiDi RTL directionality and explicit alignment."""
+def set_bidi_paragraph(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_before=None, space_after=None):
+    """Enforce Persian BiDi RTL directionality, explicit alignment, and vertical spacing."""
     pPr = p._p.get_or_add_pPr()
     if not pPr.xpath('./w:bidi'):
         bidi = parse_xml(f'<w:bidi {nsdecls("w")} w:val="1"/>')
@@ -102,6 +102,14 @@ def set_bidi_paragraph(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY):
         pPr.append(parse_xml(f'<w:jc {nsdecls("w")} w:val="both"/>'))
     else:
         p.alignment = align
+
+    if space_before is not None or space_after is not None:
+        sb = space_before if space_before is not None else 0
+        sa = space_after if space_after is not None else 0
+        spacing = pPr.find(qn('w:spacing'))
+        if spacing is not None:
+            pPr.remove(spacing)
+        pPr.append(parse_xml(f'<w:spacing {nsdecls("w")} w:before="{sb}" w:after="{sa}" w:line="240" w:lineRule="auto"/>'))
 
 
 def add_text_run(p, text, font_fa='B Nazanin', font_en='Times New Roman', size=13, bold=False, italic=False):
@@ -180,9 +188,18 @@ def compile_chapter5_triad(
 
     # Ensure title heading exists at the top
     if not narrative_text.startswith("# "):
-        full_md_content = f"# {stage_title}\n\n{narrative_text}\n"
+        raw_md = f"# {stage_title}\n\n{narrative_text}\n"
     else:
-        full_md_content = narrative_text + "\n"
+        raw_md = narrative_text + "\n"
+
+    # Normalize Markdown heading spacing: ensure empty line precedes all headings (LSN-2026-ACADEMIC-SOBRIETY-AND-HEADING-BLANK-LINE-INVARIANT-001)
+    normalized_lines = []
+    for line in raw_md.split("\n"):
+        if re.match(r"^#{1,4}\s+", line.strip()):
+            if normalized_lines and normalized_lines[-1].strip() != "":
+                normalized_lines.append("")
+        normalized_lines.append(line)
+    full_md_content = "\n".join(normalized_lines)
     status = "STAGE_DRAFTED"
 
     # Ingest reference citations if an articles corpus was provided
@@ -249,16 +266,16 @@ def compile_chapter5_triad(
                 continue
             p = doc.add_paragraph()
             if line_str.startswith("# "):
-                set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.RIGHT)
+                set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.RIGHT, space_before=240, space_after=120)
                 add_text_run(p, line_str.replace("# ", ""), font_fa="B Titr", size=14, bold=True)
             elif line_str.startswith("## "):
-                set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.RIGHT)
+                set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.RIGHT, space_before=240, space_after=120)
                 add_text_run(p, line_str.replace("## ", ""), font_fa="B Titr", size=13, bold=True)
             elif line_str.startswith("### "):
-                set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.RIGHT)
+                set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.RIGHT, space_before=240, space_after=120)
                 add_text_run(p, line_str.replace("### ", ""), font_fa="B Titr", size=12, bold=True)
             elif line_str.startswith("**") and line_str.endswith("**"):
-                set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.RIGHT)
+                set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.RIGHT, space_before=160, space_after=80)
                 add_text_run(p, line_str.replace("**", ""), font_fa="B Nazanin", size=13, bold=True)
             else:
                 set_bidi_paragraph(p, WD_ALIGN_PARAGRAPH.JUSTIFY)

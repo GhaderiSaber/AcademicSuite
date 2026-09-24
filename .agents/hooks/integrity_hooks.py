@@ -783,6 +783,55 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
+    def verify_learning_pipeline_completion(records: List[Dict[str, Any]]) -> Tuple[bool, str]:
+        """
+        Enforces Directive 21 (Mandatory Learning & Evolution Subagent Pipeline):
+        If knowledge-curator was invoked during the active turn, the orchestrator
+        MUST also invoke the evolution subagents ('skill-evolver' or 'evaluation-agent')
+        before completing the turn or executing stage remediation.
+        """
+        if not records:
+            return True, ""
+
+        invoked_subagents = []
+        for r in reversed(records):
+            if r.get("type") == "USER_INPUT":
+                break
+            for call in r.get("tool_calls", []):
+                if call.get("name") == "invoke_subagent":
+                    args = call.get("args", {})
+                    subagents = args.get("Subagents", [])
+                    if isinstance(subagents, str):
+                        try:
+                            subagents = json.loads(subagents)
+                        except Exception:
+                            subagents = []
+                    if isinstance(subagents, list):
+                        for sa in subagents:
+                            if isinstance(sa, dict):
+                                t_name = (sa.get("TypeName") or sa.get("Role") or "").lower().strip()
+                                if t_name:
+                                    invoked_subagents.append(t_name)
+
+        if any("knowledge-curator" in sa for sa in invoked_subagents):
+            has_evolution = any(
+                ("skill-evolver" in sa or "evaluation-agent" in sa)
+                for sa in invoked_subagents
+            )
+            if not has_evolution:
+                return False, (
+                    "CONSTITUTIONAL VIOLATION (Directive 21 - Continuous Learning & Evolution Pipeline Incomplete): "
+                    "'knowledge-curator' was invoked to catalog a lesson, but the evolution subagents ('skill-evolver' or 'evaluation-agent') "
+                    "were NOT invoked in this turn! "
+                    "Under Directive 21, you MUST dispatch 'skill-evolver' to synthesize canonical tool/skill modifications "
+                    "and 'evaluation-agent' to execute the deterministic graduation compiler ('python3 .agents/scripts/academic_graduation_compiler.py compile-lesson <path>') "
+                    "before concluding this turn or initiating stage remediation. "
+                    "Please invoke 'skill-evolver' or 'evaluation-agent' now."
+                )
+
+        return True, ""
+
+    @staticmethod
     def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Main entry point for Stop integrity checks:
@@ -852,6 +901,10 @@ class IntegrityHooks:
                 return {"decision": "continue", "reason": reason}
 
             ok, reason = IntegrityHooks.verify_conversational_language(records)
+            if not ok:
+                return {"decision": "continue", "reason": reason}
+
+            ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records)
             if not ok:
                 return {"decision": "continue", "reason": reason}
 
