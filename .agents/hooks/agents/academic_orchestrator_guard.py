@@ -36,6 +36,15 @@ except ImportError:
         def validate_delegation_prompt(p, expected_worker=None):
             return True, "Validator unavailable", None
 
+try:
+    from contracts.canonical_pipelines import verify_pipeline_stage_prerequisites
+except ImportError:
+    try:
+        from canonical_pipelines import verify_pipeline_stage_prerequisites
+    except ImportError:
+        def verify_pipeline_stage_prerequisites(s, w):
+            return True, "Pipeline validator unavailable"
+
 FORBIDDEN_ORCHESTRATOR_TOOLS = {
     "run_command",
     "write_to_file",
@@ -83,7 +92,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 target_type = sub.get("TypeName", "")
                 prompt = sub.get("Prompt", "")
                 if target_type in EXECUTION_SUBAGENTS:
-                    is_valid, reason, _ = validate_delegation_prompt(prompt, expected_worker=target_type)
+                    is_valid, reason, env = validate_delegation_prompt(prompt, expected_worker=target_type)
                     if not is_valid:
                         return {
                             "decision": "deny",
@@ -93,6 +102,21 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 f"You must embed a structured Contractual Delegation Envelope (CDE) in the prompt "
                                 f"specifying 'task_id', 'worker_agent', 'inputs', 'required_artifacts', and 'objective'/'target_script'."
                             )
+                        }
+
+                    # Directive 3: Pipeline Stage Prerequisite Invariant (Zero Skipping)
+                    stage_label = ""
+                    if env:
+                        stage_label = env.get("stage") or env.get("task_id") or ""
+                    if not stage_label:
+                        stage_label = prompt
+
+                    workspaces = payload.get("workspacePaths", [ROOT_DIR])
+                    ok_prereq, prereq_reason = verify_pipeline_stage_prerequisites(stage_label, workspaces)
+                    if not ok_prereq:
+                        return {
+                            "decision": "deny",
+                            "reason": prereq_reason
                         }
 
     return {"decision": "allow"}

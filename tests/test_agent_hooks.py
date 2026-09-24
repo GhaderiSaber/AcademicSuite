@@ -156,6 +156,75 @@ class TestAcademicOrchestratorGuard(unittest.TestCase):
         res = academic_orchestrator_guard.handle_pre_tool_use(payload)
         self.assertEqual(res.get("decision"), "allow")
 
+    def test_blocks_stage_skipping_when_prerequisites_missing(self):
+        cde_prompt = """
+        Execute Stage 4.6:
+        ```json
+        {
+          "task_id": "TSK-2026-CH4-H1",
+          "stage": "Stage 4.6: Hypothesis 1",
+          "worker_agent": "statistics-agent",
+          "objective": "Run multiple regression",
+          "inputs": ["02_analysis_code/cleaned_data.xlsx"],
+          "required_artifacts": [
+            "03_deliverables/06_hypothesis_1.docx",
+            "03_deliverables/06_hypothesis_1.md",
+            "03_deliverables/06_hypothesis_1.json"
+          ]
+        }
+        ```
+        """
+        with tempfile.TemporaryDirectory() as empty_ws:
+            payload = {
+                "toolCall": {
+                    "name": "invoke_subagent",
+                    "args": {
+                        "Subagents": [{"TypeName": "statistics-agent", "Prompt": cde_prompt}]
+                    }
+                },
+                "workspacePaths": [empty_ws]
+            }
+            res = academic_orchestrator_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Directive 3", res.get("reason", ""))
+            self.assertIn("Zero Skipping Invariant", res.get("reason", ""))
+
+    def test_allows_stage_when_prerequisites_exist(self):
+        cde_prompt = """
+        Execute Stage 4.6:
+        ```json
+        {
+          "task_id": "TSK-2026-CH4-H1",
+          "stage": "Stage 4.6: Hypothesis 1",
+          "worker_agent": "statistics-agent",
+          "objective": "Run multiple regression",
+          "inputs": ["02_analysis_code/cleaned_data.xlsx"],
+          "required_artifacts": [
+            "03_deliverables/06_hypothesis_1.docx",
+            "03_deliverables/06_hypothesis_1.md",
+            "03_deliverables/06_hypothesis_1.json"
+          ]
+        }
+        ```
+        """
+        with tempfile.TemporaryDirectory() as valid_ws:
+            # Create prerequisite assumption file
+            assump_path = os.path.join(valid_ws, "03_parametric_assumptions.json")
+            with open(assump_path, "w") as f:
+                f.write("{}")
+
+            payload = {
+                "toolCall": {
+                    "name": "invoke_subagent",
+                    "args": {
+                        "Subagents": [{"TypeName": "statistics-agent", "Prompt": cde_prompt}]
+                    }
+                },
+                "workspacePaths": [valid_ws]
+            }
+            res = academic_orchestrator_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "allow")
+
     def test_stop_enforces_directive_11_stage_gate(self):
         with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
             tf.write(json.dumps({
