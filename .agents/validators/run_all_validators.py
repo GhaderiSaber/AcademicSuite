@@ -984,9 +984,9 @@ def run_suite(
             open_crit = adv_res.get("evidence_summary", {}).get("open_critical", 0)
             open_high = adv_res.get("evidence_summary", {}).get("open_high", 0)
             
-            t3_verdict = "FAIL" if (adv_verdict == "FAIL" or open_crit > 0) else "PASS"
-            t3_errors = [c["title"] for c in adv_res.get("challenge_cards", []) if c.get("severity") == "CRITICAL" and c.get("rebuttal_status") == "OPEN"]
-            t3_warnings = [c["title"] for c in adv_res.get("challenge_cards", []) if c.get("severity") in ("HIGH", "MEDIUM") and c.get("rebuttal_status") == "OPEN"]
+            t3_verdict = "FAIL" if (adv_verdict == "FAIL" or open_crit > 0) else ("BLOCKED" if (adv_verdict == "CHALLENGE_BLOCKED" or open_high > 0) else "PASS")
+            t3_errors = [c["title"] for c in adv_res.get("challenge_cards", []) if c.get("severity") in ("CRITICAL", "HIGH") and c.get("rebuttal_status") == "OPEN"]
+            t3_warnings = [c["title"] for c in adv_res.get("challenge_cards", []) if c.get("severity") == "MEDIUM" and c.get("rebuttal_status") == "OPEN"]
 
             report["results"].append({
                 "check_id": "CHK-TIER3-ADVERSARIAL",
@@ -1013,6 +1013,8 @@ def run_suite(
         try:
             def_res = run_defense_certification(
                 stage_dir,
+                tier1_result=report.get("tier_summaries", {}).get("tier_1_mechanical"),
+                tier2_result=report.get("tier_summaries", {}).get("tier_2_forensic_math"),
                 tier3_result=report.get("tier_summaries", {}).get("tier_3_adversarial")
             )
             raw_v = def_res.get("defense_verdict", "REJECT")
@@ -1075,6 +1077,9 @@ def run_suite(
     for r in report["results"]:
         ev = r.get("evidence", {})
         if isinstance(ev, dict):
+            # Exclude trivial manifest presence checks from empirical evidence count
+            if "manifest_file" in ev and len(ev) <= 2:
+                continue
             evidence_count += max(1, len(ev))
 
     report["evidence_summary"]["total_checks_run"] = total_checks
@@ -1115,8 +1120,17 @@ def run_suite(
         report["overall_verdict"] = "FAIL"
     elif total_checks == 0 or evidence_count == 0 or passed_checks == 0:
         report["overall_verdict"] = "UNVERIFIED"
-    elif passed_checks > 0 and evidence_count >= 1:
-        report["overall_verdict"] = "PASS"
+    elif passed_checks > 0:
+        t2_summary = report["tier_summaries"].get("tier_2_forensic_math")
+        t3_summary = report["tier_summaries"].get("tier_3_adversarial")
+        if tier_2_active and t2_summary and t2_summary.get("verdict") != "PASS":
+            report["overall_verdict"] = t2_summary.get("verdict", "FAIL")
+        elif tier_3_active and t3_summary and t3_summary.get("verdict") != "PASS":
+            report["overall_verdict"] = t3_summary.get("verdict", "BLOCKED")
+        elif total_checks < 2 or evidence_count < 2:
+            report["overall_verdict"] = "UNVERIFIED"
+        else:
+            report["overall_verdict"] = "PASS"
     elif unverified_checks > 0:
         report["overall_verdict"] = "UNVERIFIED"
     else:

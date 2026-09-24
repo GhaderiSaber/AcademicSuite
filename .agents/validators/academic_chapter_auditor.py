@@ -158,21 +158,57 @@ class AcademicChapterAuditor:
         self._audit_3_table_standard(root)
         self._audit_triad_concordance(root)
         self._audit_mathematical_admissibility(root)
+        self._audit_word_count_and_density(root)
+        self._audit_epistemic_structures(root)
 
         return self._build_report(report_id, target_artifacts)
+
+    def _is_chapter_4_stage(self, text_sample: str = "") -> bool:
+        combined = (self.docx_path or "") + " " + (self.md_path or "") + " " + (self.json_path or "") + " " + text_sample
+        combined_lower = combined.lower()
+        return any(k in combined_lower for k in ["ch4", "stage_4", "stage_04", "4_", "hypothesis", "findings"]) or ("فصل چهارم" in combined) or ("فرضیه" in combined)
+
+    def _is_chapter_5_stage(self, text_sample: str = "") -> bool:
+        combined = (self.docx_path or "") + " " + (self.md_path or "") + " " + (self.json_path or "") + " " + text_sample
+        combined_lower = combined.lower()
+        return any(k in combined_lower for k in ["ch5", "stage_5", "stage_05", "5_", "discussion"]) or ("فصل پنجم" in combined) or ("بحث و نتیجه‌گیری" in combined)
 
     def _audit_tables(self, root: ET.Element):
         """Dimension 1 & 4: APA 7 Table Borders & BiDi Directionality."""
         tables = root.findall('.//w:tbl', NS)
-        if not tables:
+        doc_text = _clean_text(root)
+
+        # Directive 3.1: Chapter 5 Prose-Only Invariant (strictly zero tables in Chapter 5)
+        if self._is_chapter_5_stage(doc_text) and tables:
             self._add_check(
-                "CHK-APA7-TABLE-BORDERS",
-                "APA 7 3-line table borders and zero vertical lines",
-                "PASS",
+                "CHK-CHAPTER5-PROSE-ONLY",
+                "Chapter 5 (Discussion & Conclusion) must strictly contain zero tables (Directive 3.1 Prose-Only Invariant)",
+                "FAIL",
+                [f"Directive 3.1 Prose-Only Invariant violation: Chapter 5 strictly forbids tables (found {len(tables)} tables). All tables must reside exclusively in Chapter 4."],
                 [],
-                [],
-                {"tables_found": 0, "status": "NO_TABLES_PRESENT"}
+                {"tables_found": len(tables)}
             )
+
+        if not tables:
+            # Check if this is a Chapter 4 findings deliverable where tables are strictly mandatory
+            if self._is_chapter_4_stage(doc_text):
+                self._add_check(
+                    "CHK-APA7-TABLE-BORDERS",
+                    "APA 7 3-line table borders and zero vertical lines",
+                    "FAIL",
+                    ["Chapter 4 findings deliverable strictly requires at least one APA 7 statistical table, but 0 tables were found on disk."],
+                    [],
+                    {"tables_found": 0, "status": "MISSING_MANDATORY_TABLE"}
+                )
+            else:
+                self._add_check(
+                    "CHK-APA7-TABLE-BORDERS",
+                    "APA 7 3-line table borders and zero vertical lines",
+                    "PASS",
+                    [],
+                    [],
+                    {"tables_found": 0, "status": "NO_TABLES_PRESENT"}
+                )
             return
 
         vertical_border_errors = []
@@ -638,6 +674,116 @@ class AcademicChapterAuditor:
             [],
             {"admissibility_errors": len(errors)}
         )
+
+    def _audit_word_count_and_density(self, root: ET.Element):
+        """Audits substantive narrative word count and density to reject hollow placeholders."""
+        body = root.find('w:body', NS)
+        if body is None:
+            return
+
+        narrative_paragraphs = []
+        for elem in body:
+            if elem.tag == f"{{{NS['w']}}}p":
+                p_text = _clean_text(elem).strip()
+                if p_text:
+                    narrative_paragraphs.append(p_text)
+
+        full_narrative = " ".join(narrative_paragraphs)
+        words = [w for w in re.split(r'\s+', full_narrative) if w]
+        word_count = len(words)
+
+        errors = []
+        is_ch4 = self._is_chapter_4_stage(full_narrative)
+        is_ch5 = self._is_chapter_5_stage(full_narrative)
+
+        min_words = 80
+        stage_desc = "general deliverable"
+        if is_ch4:
+            min_words = 200
+            stage_desc = "Chapter 4 findings deliverable"
+        elif is_ch5:
+            min_words = 250
+            stage_desc = "Chapter 5 discussion deliverable"
+
+        if word_count < min_words:
+            errors.append(
+                f"Substantive density failure: {stage_desc} contains only {word_count} narrative words "
+                f"(minimum required: {min_words} words). Deliverables must provide complete scholarly prose."
+            )
+
+        verdict = "FAIL" if errors else "PASS"
+        self._add_check(
+            "CHK-MINIMUM-SUBSTANTIVE-DENSITY",
+            "Deliverable must satisfy minimum substantive narrative word count and scholarly density",
+            verdict,
+            errors,
+            [],
+            {"word_count": word_count, "minimum_required": min_words, "stage_detected": stage_desc}
+        )
+
+    def _audit_epistemic_structures(self, root: ET.Element):
+        """Audits mandatory epistemic structures (Saber 4-element for Ch 4, 4-element psychological model for Ch 5)."""
+        body = root.find('w:body', NS)
+        if body is None:
+            return
+
+        all_text = _clean_text(body)
+        is_ch4 = self._is_chapter_4_stage(all_text)
+        is_ch5 = self._is_chapter_5_stage(all_text)
+
+        if is_ch4:
+            missing_elements = []
+            if not re.search(r'(فرضیه|فرضیه پژوهش|بررسی فرضیه|hypothesis)', all_text, re.IGNORECASE):
+                missing_elements.append("Hypothesis Introduction (تصریح فرضیه)")
+            if not re.search(r'(?:[tT]\s*[\(=]|[fF]\s*[\(=]|[βΒ]|beta\s*=|p\s*=|r\s*=|z\s*=|t\(|F\(|[bB]\s*=|t\s*=)', all_text):
+                missing_elements.append("Data Highlights / Numerical Parameters (گزارش شاخص‌های آماری در متن)")
+            if not re.search(r'(جدول|Table)', all_text, re.IGNORECASE):
+                missing_elements.append("In-text Table Reference (ارجاع درون‌متنی به جدول)")
+            if not re.search(r'(تأیید شد|رد شد|مورد تأیید قرار گرفت|رد گردید|معنادار بود|معنادار نشد|معنادار است|تأیید گردید)', all_text):
+                missing_elements.append("Definitive Hypothesis Verdict (حکم نهایی تأیید یا رد فرضیه)")
+
+            errors = []
+            if missing_elements:
+                errors.append(
+                    f"Chapter 4 Saber 4-Element narrative violation: missing required epistemic components: {missing_elements}. "
+                    f"Must provide Context -> Data Highlights -> In-text Table Reference -> Definitive Decision."
+                )
+            verdict = "FAIL" if errors else "PASS"
+            self._add_check(
+                "CHK-SABER-4ELEMENT-NARRATIVE",
+                "Chapter 4 hypothesis findings must fulfill Saber's 4-Element narrative structure",
+                verdict,
+                errors,
+                [],
+                {"missing_elements": missing_elements, "is_chapter_4": True}
+            )
+
+        if is_ch5:
+            missing_elements = []
+            if not re.search(r'(یافته|نتیجه|نتایج|تحلیل نشان داد)', all_text):
+                missing_elements.append("Empirical Finding Summary (خلاصه یافته تجربی)")
+            if not re.search(r'(همسو|ناهمسو|موافق|مغایر|راستا|مطابقت دارد|مطابقت ندارد)', all_text):
+                missing_elements.append("Literature Concordance (همسویی یا ناهمسویی با پیشینه پژوهش)")
+            if not re.search(r'(شناختی|رفتاری|طرحواره|پذیرش|ذهن‌آگاهی|انعطاف‌پذیری|هیجان|خودتنظیمی|درمان|روان‌شناختی|مکانیزم|سازوکار|مکانیسم|نظریه|مدل)', all_text):
+                missing_elements.append("Theoretical Psychological Mechanism (تبیین سازوکار و مکانیزم روان‌شناختی)")
+            if not re.search(r'(تبیین|کاربرد|محدودیت|پیشنهاد|بالینی|تبیین این یافته|کاربردهای پژوهش)', all_text):
+                missing_elements.append("Clinical / Practical Implications or Boundaries (کاربردهای بالینی یا محدودیت‌ها)")
+
+            errors = []
+            if missing_elements:
+                errors.append(
+                    f"Chapter 5 4-Element psychological mechanism violation: missing required components: {missing_elements}. "
+                    f"Must provide Finding Summary -> Literature Concordance -> Theoretical Mechanism -> Implications."
+                )
+            verdict = "FAIL" if errors else "PASS"
+            self._add_check(
+                "CHK-CHAPTER5-PSYCH-MECHANISM",
+                "Chapter 5 discussion must fulfill the 4-Element Psychological Mechanism Model",
+                verdict,
+                errors,
+                [],
+                {"missing_elements": missing_elements, "is_chapter_5": True}
+            )
 
     def _build_report(self, report_id: str, target_artifacts: List[str]) -> Dict[str, Any]:
 

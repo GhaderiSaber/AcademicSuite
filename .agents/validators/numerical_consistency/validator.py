@@ -335,10 +335,44 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
         if stat_k in data:
             evidence_items.append(stat_k)
 
+    # Substantive parameter check (anti-hollow gate): Reject artifacts with zero statistical parameters
+    has_substantive_stats = bool(
+        statcheck_results or grim_results or sprite_results or correlation_results or
+        any(k in data for k in [
+            "coefficients", "paths", "fit_indices", "correlation_matrix", "correlations_matrix",
+            "t_stat", "t", "f_stat", "f", "chi2", "chi_square", "beta", "r", "z_stat", "z",
+            "eta_p2", "r2", "r_squared", "effect_size", "model_summary", "anova_table", "descriptives"
+        ])
+    )
+    if not has_substantive_stats:
+        err_msg = f"Statistical artifact '{os.path.basename(stats_path)}' lacks substantive empirical parameters (no test statistics, coefficients, paths, or effect sizes found)."
+        errors.append(err_msg)
+        if create_actionable_repair_prescription:
+            arps.append(create_actionable_repair_prescription(
+                prescription_id=f"ARP-NUM-NO-SUBSTANTIVE-STATS-{os.path.basename(stats_path)}",
+                tier=2,
+                defect_type="MISSING_SUBSTANTIVE_STATISTICS",
+                severity="CRITICAL",
+                target_artifact=stats_path,
+                target_key_or_line="",
+                responsible_agent="statistics-agent",
+                remedy_instruction="Compute and populate substantive hypothesis test parameters (t, F, beta, p, effect size) using deterministic statistical scripts."
+            ))
+
+    # Required p-value check for primary test statistics
+    has_primary_test = any(k in data for k in ["t_stat", "t", "f_stat", "f", "chi2", "chi_square", "beta", "z_stat", "z"])
+    has_p_value = (
+        any(k in data for k in ["p_value", "p", "p_val"]) or
+        any(isinstance(c, dict) and ("p_value" in c or "p" in c) for c in (data.get("coefficients") if isinstance(data.get("coefficients"), list) else [])) or
+        any(isinstance(p, dict) and ("p_value" in p or "p" in p) for p in (data.get("paths") if isinstance(data.get("paths"), list) else []))
+    )
+    if has_primary_test and not has_p_value:
+        errors.append(f"Statistical artifact '{os.path.basename(stats_path)}' reports primary test statistics but omits exact p-value.")
+
     # Determine Verdict
     if errors:
         verdict = "FAIL"
-    elif not evidence_items:
+    elif not evidence_items or not has_substantive_stats:
         verdict = "UNKNOWN"
     else:
         verdict = "PASS"

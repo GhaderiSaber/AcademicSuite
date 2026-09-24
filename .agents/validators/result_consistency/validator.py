@@ -480,6 +480,19 @@ def find_contradictions_in_text(
                             f"contradicts JSON parameter = {exp_fit}."
                         )
 
+    # 10. Bidirectional Reporting Inquest (Anti-Silent-Omission)
+    # If the JSON source contains substantive test parameters, the deliverable MUST affirmatively report them!
+    primary_stat_keys_in_json = [k for k in params if any(k.startswith(pfx) or k == pfx for pfx in ("t_", "t_stat", "f_stat", "beta", "z_", "z_stat", "p_value", "p", "effect_size", "r2"))]
+    if primary_stat_keys_in_json:
+        has_any_stat_in_text = bool(
+            re.search(r'(?:[tT]\s*[\(=]|[fF]\s*[\(=]|[βΒ]|beta\s*=|p\s*=|r\s*=|z\s*=|t\(|F\(|[bB]\s*=|t\s*=|eta|η|d\s*=|R\^?2)', norm_text)
+        )
+        if not has_any_stat_in_text:
+            errors.append(
+                f"Omitted statistical reporting in {artifact_name}: JSON artifact contains primary test statistics ({', '.join(primary_stat_keys_in_json[:4])}), "
+                f"but deliverable text omits all statistical parameters (no t, F, beta, p, r, z, b, or effect size reported)."
+            )
+
     return errors, warnings, evidence
 
 

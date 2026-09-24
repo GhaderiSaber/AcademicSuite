@@ -201,7 +201,7 @@ class AdversarialChallengeRunner:
         if open_critical > 0:
             verdict = "FAIL"
         elif open_high > 0:
-            verdict = "CHALLENGE_PENDING"
+            verdict = "CHALLENGE_BLOCKED"
 
         return {
             "contract_version": "1.0.0",
@@ -239,4 +239,4 @@ if __name__ == '__main__':
 
     res = run_adversarial_audit(args.stage_dir, args.output)
     print(json.dumps(res, indent=2, ensure_ascii=False))
-    sys.exit(0 if res["overall_verdict"] in ("PASS", "CHALLENGE_PENDING") else 1)
+    sys.exit(0 if res["overall_verdict"] == "PASS" else 1)

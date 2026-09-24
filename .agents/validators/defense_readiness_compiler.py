@@ -44,13 +44,34 @@ class DefenseReadinessCompiler:
         now_iso = datetime.now(timezone.utc).isoformat()
         cert_id = f"DEF-CERT-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
 
-        base_score = 20.00
+        base_score = 10.00
+        earned_points: List[Dict[str, Any]] = []
         deductions: List[Dict[str, Any]] = []
 
-        # 1. Tier 1 Deductions (Mechanical & OpenXML)
+        files_on_disk = os.listdir(self.stage_dir) if os.path.isdir(self.stage_dir) else []
+        has_docx = any(f.endswith(".docx") for f in files_on_disk)
+        has_md = any(f.endswith(".md") for f in files_on_disk)
+        has_json = any(f.endswith(".json") and "manifest" not in f and "validation" not in f for f in files_on_disk)
+        has_triad = has_docx and has_md and has_json
+
+        # If stage directory is empty or lacks triad artifacts:
+        if not files_on_disk or not has_triad:
+            deductions.append({
+                "examiner": "Committee Chair",
+                "reason": "Stage directory lacks mandatory synchronized triad artifacts (.docx, .md, .json)",
+                "points": -3.00
+            })
+
+        # 1. Tier 1 Evaluation (Mechanical & OpenXML)
         if tier1_result:
-            v_t1 = tier1_result.get("overall_verdict", "UNKNOWN")
-            if v_t1 == "BLOCKED":
+            v_t1 = tier1_result.get("verdict") or tier1_result.get("overall_verdict", "UNKNOWN")
+            if v_t1 == "PASS":
+                earned_points.append({
+                    "examiner": "Committee Chair",
+                    "criterion": "Mechanical Triad & OpenXML Typography Compliance",
+                    "points": 2.50
+                })
+            elif v_t1 == "BLOCKED":
                 deductions.append({
                     "examiner": "Committee Chair",
                     "reason": "Missing required artifact triad (.docx, .md, .json) or corrupt manifest",
@@ -58,17 +79,29 @@ class DefenseReadinessCompiler:
                 })
             elif v_t1 == "FAIL":
                 t1_errors = len(tier1_result.get("errors", []))
-                pts = min(2.0, t1_errors * 0.25)
+                pts = min(2.0, max(0.5, t1_errors * 0.25))
                 deductions.append({
                     "examiner": "Committee Chair",
                     "reason": f"OpenXML typographic or structural non-compliance ({t1_errors} defects)",
                     "points": -round(pts, 2)
                 })
+        elif has_triad:
+            earned_points.append({
+                "examiner": "Committee Chair",
+                "criterion": "Physical Triad Present on Disk",
+                "points": 1.50
+            })
 
-        # 2. Tier 2 Deductions (Forensic Math, Statcheck, GRIM)
+        # 2. Tier 2 Evaluation (Forensic Math, Statcheck, GRIM)
         if tier2_result:
-            v_t2 = tier2_result.get("overall_verdict", "UNKNOWN")
-            if v_t2 == "FAIL":
+            v_t2 = tier2_result.get("verdict") or tier2_result.get("overall_verdict", "UNKNOWN")
+            if v_t2 == "PASS":
+                earned_points.append({
+                    "examiner": "Quantitative Examiner",
+                    "criterion": "Forensic Statistical Verification & Exact Concordance",
+                    "points": 4.50
+                })
+            elif v_t2 in ("FAIL", "BLOCKED"):
                 decision_errors = tier2_result.get("gross_decision_errors", 0)
                 reporting_errors = tier2_result.get("reporting_errors", 0)
                 grim_errors = tier2_result.get("grim_failures", 0)
@@ -91,29 +124,45 @@ class DefenseReadinessCompiler:
                         "reason": f"Minor reporting discrepancies (|Δp| > 0.01) ({reporting_errors} errors)",
                         "points": -round(min(1.5, reporting_errors * 0.25), 2)
                     })
+                if decision_errors == 0 and reporting_errors == 0 and grim_errors == 0:
+                    deductions.append({
+                        "examiner": "Quantitative Examiner",
+                        "reason": "Statistical validation checks failed on substantive consistency",
+                        "points": -2.00
+                    })
 
-        # 3. Tier 3 Deductions (Adversarial Challenges)
+        # 3. Tier 3 Evaluation (Adversarial Challenges)
         if tier3_result:
-            open_crit = tier3_result.get("evidence_summary", {}).get("open_critical", 0)
-            open_high = tier3_result.get("evidence_summary", {}).get("open_high", 0)
-            if open_crit > 0:
-                deductions.append({
+            v_t3 = tier3_result.get("verdict") or tier3_result.get("overall_verdict", "UNKNOWN")
+            open_crit = tier3_result.get("open_critical") or tier3_result.get("evidence_summary", {}).get("open_critical", 0)
+            open_high = tier3_result.get("open_high") or tier3_result.get("evidence_summary", {}).get("open_high", 0)
+
+            if open_crit == 0 and open_high == 0 and v_t3 == "PASS":
+                earned_points.append({
                     "examiner": "External Examiner",
-                    "reason": f"Unrebutted critical methodological vulnerabilities ({open_crit} items)",
-                    "points": -round(min(4.0, open_crit * 2.0), 2)
+                    "criterion": "Adversarial Red-Teaming Clearance & Methodological Robustness",
+                    "points": 3.00
                 })
-            if open_high > 0:
-                deductions.append({
-                    "examiner": "External Examiner",
-                    "reason": f"Unaddressed high-severity adversarial challenge cards ({open_high} items)",
-                    "points": -round(min(2.0, open_high * 0.75), 2)
-                })
+            else:
+                if open_crit > 0:
+                    deductions.append({
+                        "examiner": "External Examiner",
+                        "reason": f"Unrebutted critical methodological vulnerabilities ({open_crit} items)",
+                        "points": -round(min(4.0, open_crit * 2.0), 2)
+                    })
+                if open_high > 0:
+                    deductions.append({
+                        "examiner": "External Examiner",
+                        "reason": f"Unaddressed high-severity adversarial challenge cards ({open_high} items)",
+                        "points": -round(min(2.0, open_high * 0.75), 2)
+                    })
 
         # 4. Anti-Inflation Ceiling Invariant (Directive 28 / final-judge)
         # Even with zero defects, Iranian academic standards cap raw dissertation defense at 19.00
         # unless confirmed WoS/Scopus Q1/Q2 journal acceptance is physically proven.
+        total_earned = sum(p["points"] for p in earned_points)
         total_deductions = sum(d["points"] for d in deductions)
-        raw_score = max(0.0, base_score + total_deductions)
+        raw_score = max(0.0, min(20.0, base_score + total_earned + total_deductions))
 
         capped_reason = None
         if raw_score > 19.00 and not has_wos_publication:
@@ -141,11 +190,11 @@ class DefenseReadinessCompiler:
 
         # Examiner Scorecards
         examiner_scores = {
-            "committee_chair": max(0.0, 4.0 + sum(d["points"] for d in deductions if d["examiner"] == "Committee Chair")),
-            "quantitative_examiner": max(0.0, 5.0 + sum(d["points"] for d in deductions if d["examiner"] == "Quantitative Examiner")),
-            "psychometric_specialist": 4.0,
-            "domain_specialist": 4.0,
-            "external_examiner": max(0.0, 3.0 + sum(d["points"] for d in deductions if d["examiner"] == "External Examiner"))
+            "committee_chair": max(0.0, min(4.0, 2.0 + sum(p["points"] for p in earned_points if p.get("examiner") == "Committee Chair") + sum(d["points"] for d in deductions if d.get("examiner") == "Committee Chair"))),
+            "quantitative_examiner": max(0.0, min(6.0, 2.0 + sum(p["points"] for p in earned_points if p.get("examiner") == "Quantitative Examiner") + sum(d["points"] for d in deductions if d.get("examiner") == "Quantitative Examiner"))),
+            "psychometric_specialist": 4.0 if has_triad else 2.0,
+            "domain_specialist": 4.0 if has_triad else 2.0,
+            "external_examiner": max(0.0, min(4.0, 2.0 + sum(p["points"] for p in earned_points if p.get("examiner") == "External Examiner") + sum(d["points"] for d in deductions if d.get("examiner") == "External Examiner")))
         }
 
         # Human Gate Card for Saber Admin Desk (124911145)
