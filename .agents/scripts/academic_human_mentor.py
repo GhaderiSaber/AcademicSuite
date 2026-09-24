@@ -24,8 +24,10 @@ from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
+AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
+for p in [ROOT_DIR, AGENTS_DIR]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 from scripts.academic_knowledge_manager import AcademicKnowledgeManager, ContractValidationError
 from scripts.academic_graduation_compiler import AcademicGraduationCompiler
