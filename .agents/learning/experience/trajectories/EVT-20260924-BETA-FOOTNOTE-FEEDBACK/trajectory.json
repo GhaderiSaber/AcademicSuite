@@ -1,0 +1,674 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260924-BETA-FOOTNOTE-001",
+  "experience_id": "EVT-20260924-BETA-FOOTNOTE-FEEDBACK",
+  "project_id": "Morteza_Estaki",
+  "task_id": "TSK-20260924-BETA-FOOTNOTE-TRAJECTORY-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T08:25:00Z",
+      "description": "academic-orchestrator delegated Stage 5 task TSK-20260924-STAGE5-DRAFT-001 to academic-writer to draft Chapter 5 Section 5-2-4 (Discussion of Main Hypothesis: Moderating role of Job Control on Job Characteristics and Organizational Innovation) using the 4-element psychological model and native footnotes.",
+      "observable_input": {
+        "task_id": "TSK-20260924-STAGE5-DRAFT-001",
+        "worker_agent": "academic-writer",
+        "stage_id": "05_hypothesis_4_discussion",
+        "mandate": "Draft Chapter 5 Section 5-2-4 discussing the non-significant moderation hypothesis (hierarchical regression Step 1 direct effects and Step 2 interaction beta = 0.36, t = 0.53, p = .590), synthesizing Karasek JDC model, COR theory, operational context of Red Crescent crisis management, and mean-centering methodological artifacts without tables."
+      },
+      "observable_output": {
+        "status": "DELEGATED",
+        "target_subagent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "AGENT_INVOKED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T08:25:02Z",
+      "description": "academic-writer subagent initialized execution for Stage 5 narrative synthesis.",
+      "observable_input": {
+        "task_id": "TSK-20260924-STAGE5-DRAFT-001"
+      },
+      "observable_output": {
+        "status": "INITIALIZED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T08:25:05Z",
+      "description": "academic-writer ensured stage deliverable directory 03_deliverables/stage_05_hypo_4 exists on disk.",
+      "observable_input": {
+        "command_line": "mkdir -p \"03_deliverables/stage_05_hypo_4\"",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T08:28:40Z",
+      "description": "academic-writer authored 03_deliverables/stage_05_hypo_4/draft.md (674 words, 3,957 characters). In paragraph 1, the writer used spelled-out word 'beta' (*beta*) three times instead of Latin 'B'. Across paragraphs 2, 3, and 5, the writer inserted footnote markers [^1] through [^10] where trailing whitespace was missing or immediately adjacent to subsequent words without space delimiters.",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/draft.md",
+        "word_count": 674,
+        "char_count": 3957
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "detected_spelled_out_beta_tokens": [
+          "(*beta* = ۰.۲۲, *t* = ۳.۲۰, *p* = ۰.۰۰۲)",
+          "(*beta* = ۰.۰۳, *t* = ۰.۴۴, *p* = ۰.۶۶۰)",
+          "(*beta* = ۰.۳۶, *t* = ۰.۵۳, *p* = ۰.۵۹۰)"
+        ],
+        "in_text_footnote_markers": [
+          "[^2]",
+          "[^1]",
+          "[^3]",
+          "[^4]",
+          "[^6]",
+          "[^5]",
+          "[^10]",
+          "[^8]",
+          "[^7]",
+          "[^9]"
+        ],
+        "footnote_definitions": [
+          "[^1]: Karasek Job Demand-Control Model",
+          "[^2]: Buffering Hypothesis",
+          "[^3]: Häusser et al.",
+          "[^4]: van der Doef & Maes",
+          "[^5]: Martín-Hernández et al.",
+          "[^6]: Abdel Hadi et al.",
+          "[^7]: Hobfoll",
+          "[^8]: Conservation of Resources (COR) Theory",
+          "[^9]: Mean-Centering",
+          "[^10]: Direct Effect Dominance"
+        ]
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T08:31:00Z",
+      "description": "academic-writer executed compilation pipeline 03_deliverables/stage_05_hypo_4/process_hypo4.py to convert draft.md into Word DOCX, inject OpenXML native footnotes, and format statistics.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_05_hypo_4/process_hypo4.py",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "SKILL_INVOCATION",
+      "actor": "process_hypo4.py",
+      "timestamp": "2026-09-24T08:31:02Z",
+      "description": "process_hypo4.py invoked scaffold_chapter5_triad.py to build base deliverables. It created 05_hypothesis_4_discussion.docx by passing paragraphs to add_text_run().",
+      "observable_input": {
+        "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+        "cli_command": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage 05_hypothesis_4_discussion --base 05_hypothesis_4_discussion --outdir 03_deliverables/stage_05_hypo_4 --title 'بحث و بررسی فرضیه اصلی (نقش تعدیل‌کننده کنترل شغلی)' --narrative-file 03_deliverables/stage_05_hypo_4/draft.md --articles academic-state/data/article_enrichment_cards.json"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "scaffold_docx_created": true
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_READ",
+      "actor": "process_hypo4.py",
+      "timestamp": "2026-09-24T08:31:04Z",
+      "description": "process_hypo4.py unzipped 05_hypothesis_4_discussion.docx, extracted 10 footnote definitions, generated word/footnotes.xml, and updated word/_rels/document.xml.rels.",
+      "observable_input": {
+        "target_file": "03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx_extracted/word/document.xml"
+      },
+      "observable_output": {
+        "footnotes_extracted": 10,
+        "footnotes_xml_written": true,
+        "rels_updated": true
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "process_hypo4.py",
+      "timestamp": "2026-09-24T08:31:06Z",
+      "description": "process_hypo4.py executed text run transformation in process_run(). In lines 119-163, it split text by asterisk and styled 'beta' as italic text run (<w:t>beta</w:t>) rather than normalizing to standard Latin symbol 'B'. In lines 166-214, it converted footnote tokens to <w:footnoteReference> elements without verifying or enforcing trailing whitespace between the reference run and the subsequent 'after' text run, causing footnote numbers in RTL paragraphs to stick directly to subsequent words.",
+      "observable_input": {
+        "script_path": "03_deliverables/stage_05_hypo_4/process_hypo4.py",
+        "lines_italic_processor": "119-163",
+        "lines_footnote_processor": "166-214"
+      },
+      "observable_output": {
+        "retained_spelled_out_beta_count": 3,
+        "unspaced_trailing_footnote_runs_count": 9
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_WRITTEN",
+      "actor": "process_hypo4.py",
+      "timestamp": "2026-09-24T08:31:08Z",
+      "description": "process_hypo4.py repackaged 05_hypothesis_4_discussion.docx with 10 native footnote references and updated deliverable hashes in 05_hypothesis_4_discussion.json.",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "docx_sha256": "7ff2f774a131ff5b0093617075c68135b57d8472d6753053220c6d64c59da28f",
+        "json_sha256": "dd1e566ff53cbd3d3d16e48fb3de9a03f1358156bb0e07d41770d9c92aa235cc"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "process_hypo4.py",
+      "timestamp": "2026-09-24T08:31:09Z",
+      "description": "process_hypo4.py completed execution with exit code 0.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_05_hypo_4/process_hypo4.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "stdout": "Compiled Chapter 5 Triad [05_hypothesis_4_discussion]:\nSUCCESS: process_hypo3.py"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T08:31:15Z",
+      "description": "academic-writer executed automated verification script 03_deliverables/stage_05_hypo_4/verify_hypo4.py to validate the generated Word document.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_05_hypo_4/verify_hypo4.py",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "verify_hypo4.py",
+      "timestamp": "2026-09-24T08:31:17Z",
+      "description": "verify_hypo4.py validated single_pPr, raw_asterisks_count (0), literal_bracket_fn_count (0), and footnote counts (10 == 10). However, verify_hypo4.py lacked assertions for spelled-out 'beta' tokens and lacked checks for whitespace boundaries immediately following footnoteReference runs, issuing a false-positive PASS verdict.",
+      "observable_input": {
+        "validator_script": "03_deliverables/stage_05_hypo_4/verify_hypo4.py",
+        "inspected_docx": "03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx"
+      },
+      "observable_output": {
+        "load_success": true,
+        "single_pPr": true,
+        "footnote_defs_count": 10,
+        "footnote_refs_count": 10,
+        "literal_bracket_fn_count": 0,
+        "raw_asterisks_count": 0,
+        "overall_verdict": "PASS",
+        "checks_failed": 0
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "verify_hypo4.py",
+      "timestamp": "2026-09-24T08:31:18Z",
+      "description": "verify_hypo4.py generated docx_verification_report.json documenting the passing verdict.",
+      "observable_input": {
+        "report_path": "03_deliverables/stage_05_hypo_4/docx_verification_report.json"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "report_content": {
+          "load_success": true,
+          "single_pPr": true,
+          "footnote_defs_count": 10,
+          "footnote_refs_count": 10,
+          "literal_bracket_fn_count": 0,
+          "raw_asterisks_count": 0,
+          "overall_verdict": "PASS",
+          "checks_failed": 0
+        }
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T08:31:30Z",
+      "description": "academic-orchestrator evaluated Stage 5 against docx_verification_report.json (verdict: PASS) and empirical values (beta = 0.36, t = 0.53, p = .590), accepted the deliverables without screening for spelled-out 'beta' vs Latin 'B' or visual footnote spacing in rendered proof, and presented the deliverables to the user.",
+      "observable_input": {
+        "verification_report": "03_deliverables/stage_05_hypo_4/docx_verification_report.json",
+        "triad_metadata": "03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json"
+      },
+      "observable_output": {
+        "gate_verdict": "PASS",
+        "delivered_docx": "03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx",
+        "delivered_md": "03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.md"
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T08:34:20Z",
+      "description": "User inspected 05_hypothesis_4_discussion.md and 05_hypothesis_4_discussion.docx and delivered explicit dual critique: 'Problems: 1. You should use latin B instead of beta. 2. You should have an space after each footnote. The footnote should not be stick with the next word.'",
+      "observable_input": {
+        "critique_text": "Problems: 1. You should use latin B instead of beta. 2. You should have an space after each footnote. The footnote should not be stick with the next word."
+      },
+      "observable_output": {
+        "event_id": "EVT-20260924-BETA-FOOTNOTE-FEEDBACK",
+        "critique_categories": [
+          "SPELLED_OUT_BETA_NOTATION_VIOLATION",
+          "UNSPACED_FOOTNOTE_REFERENCE_RUN_VIOLATION"
+        ]
+      }
+    },
+    {
+      "step_number": 16,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T08:34:45Z",
+      "description": "academic-orchestrator initiated Directive 21 continuous learning protocol and delegated task TSK-20260924-BETA-FOOTNOTE-TRAJECTORY-001 to trajectory-analyzer to perform observable reconstruction of execution trajectory and locate all occurrences of spelled-out beta and unspaced footnote references.",
+      "observable_input": {
+        "task_id": "TSK-20260924-BETA-FOOTNOTE-TRAJECTORY-001",
+        "worker_agent": "trajectory-analyzer"
+      },
+      "observable_output": {
+        "status": "DELIVERED",
+        "target_subagent": "trajectory-analyzer"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-STAGE5-DRAFT-001",
+        "WorkerAgent": "academic-writer",
+        "PromptSummary": "Draft Chapter 5 Section 5-2-4 discussing moderation hypothesis with 4-element psychological model and native footnotes"
+      },
+      "execution_time_ms": 2150
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/draft.md",
+        "Overwrite": true,
+        "Description": "Drafting Section 5-2-4 discussion with spelled-out beta and in-text footnote markers"
+      },
+      "execution_time_ms": 210
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 03_deliverables/stage_05_hypo_4/process_hypo4.py",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 4350
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 03_deliverables/stage_05_hypo_4/verify_hypo4.py",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 1150
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/docx_verification_report.json"
+      },
+      "execution_time_ms": 40
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json"
+      },
+      "execution_time_ms": 45
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 7,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-BETA-FOOTNOTE-TRAJECTORY-001",
+        "WorkerAgent": "trajectory-analyzer",
+        "PromptSummary": "Reconstruct observable actions, tool calls, and error trajectory for user critique regarding spelled-out beta and unspaced footnote markers"
+      },
+      "execution_time_ms": 2350
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+      "cli_command": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage 05_hypothesis_4_discussion --base 05_hypothesis_4_discussion --outdir 03_deliverables/stage_05_hypo_4 --title 'بحث و بررسی فرضیه اصلی (نقش تعدیل‌کننده کنترل شغلی)' --narrative-file 03_deliverables/stage_05_hypo_4/draft.md --articles academic-state/data/article_enrichment_cards.json",
+      "exit_code": 0,
+      "duration_seconds": 3.9
+    },
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": "03_deliverables/stage_05_hypo_4/process_hypo4.py",
+      "cli_command": "python3 03_deliverables/stage_05_hypo_4/process_hypo4.py",
+      "exit_code": 0,
+      "duration_seconds": 4.35
+    },
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": "03_deliverables/stage_05_hypo_4/verify_hypo4.py",
+      "cli_command": "python3 03_deliverables/stage_05_hypo_4/verify_hypo4.py",
+      "exit_code": 0,
+      "duration_seconds": 1.15
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "05_hypothesis_4_discussion",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-20260924-STAGE5-DRAFT-001",
+      "objective": "Draft Chapter 5 Section 5-2-4 (Discussion of Main Moderation Hypothesis) synthesizing hierarchical regression results (Step 1 direct effects and Step 2 interaction beta = 0.36, t = 0.53, p = .590), Karasek JDC model, COR theory, crisis management context, and mean-centering without tables.",
+      "envelope_summary": "Draft Section 5-2-4 narrative with 4-element model and native footnotes",
+      "input_artifacts": [
+        "academic-state/data/article_enrichment_cards.json",
+        "03_deliverables/Chapter_4_Results.md"
+      ],
+      "output_artifacts": [
+        "03_deliverables/stage_05_hypo_4/draft.md",
+        "03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx",
+        "03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.md",
+        "03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "trajectory_reconstruction",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-BETA-FOOTNOTE-FEEDBACK/trajectory.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-20260924-BETA-FOOTNOTE-TRAJECTORY-001",
+      "objective": "Reconstruct observable actions, tool calls, and error trajectory for user critique: 'Problems: 1. You should use latin B instead of beta. 2. You should have an space after each footnote. The footnote should not be stick with the next word.' Inspect 03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.md and 05_hypothesis_4_discussion.docx to identify all occurrences where 'beta' was spelled out instead of Latin 'B', and inspect paragraph text where footnote references lack trailing whitespace and stick directly to subsequent words.",
+      "envelope_summary": "Reconstruct failure trajectory and identify exact occurrences of spelled-out beta and unspaced footnote reference runs",
+      "input_artifacts": [
+        "03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.md",
+        "03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx",
+        "03_deliverables/stage_05_hypo_4/docx_verification_report.json",
+        "03_deliverables/stage_05_hypo_4/proof.txt",
+        "User critique"
+      ],
+      "output_artifacts": [
+        ".agents/learning/experience/trajectories/EVT-20260924-BETA-FOOTNOTE-FEEDBACK/trajectory.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260924-SPELLED-BETA-CONVENTION-DEFECT",
+      "decision_type": "STATISTICAL_NOTATION_DEFECT",
+      "selected_option": "Spelling out the word 'beta' (*beta*) in running statistical reporting text across hierarchical regression steps",
+      "rationale": "academic-writer wrote '(*beta* = ۰.۲۲, *t* = ۳.۲۰, *p* = ۰.۰۰۲)', '(*beta* = ۰.۰۳, *t* = ۰.۴۴, *p* = ۰.۶۶۰)', and '(*beta* = ۰.۳۶, *t* = ۰.۵۳, *p* = ۰.۵۹۰)' in line 5 of draft.md and 05_hypothesis_4_discussion.md. In APA 7th Edition and Persian academic graduate theses, standardized regression coefficients must be denoted by the italicized Latin letter B (*B*), not the spelled-out English word 'beta'.",
+      "alternatives_considered": [
+        {
+          "option": "Use standardized Latin notation *B* (e.g. *B* = ۰.۲۲)",
+          "verdict": "OMITTED_BY_WRITER",
+          "reason": "academic-writer defaulted to writing the phonetic word 'beta' inside asterisks instead of adhering to the APA Latin symbol standard."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-UNSPACED-FOOTNOTE-RUN-DEFECT",
+      "decision_type": "OPENXML_RUN_FORMATTING_DEFECT",
+      "selected_option": "Inserting <w:footnoteReference> elements in process_hypo4.py without guaranteeing a trailing space delimiter before subsequent text runs",
+      "rationale": "In process_hypo4.py lines 166-214, when a footnote marker [^id] is matched, run 'fr' containing <w:footnoteReference> is inserted immediately preceding run 'ar' containing 'after' text. In Persian RTL paragraphs (<w:bidi w:val='1'/>), when 'after' text lacks a leading whitespace or when Word BiDi engine renders superscript numbers, the footnote numeral attaches directly to the following Persian word without visual or logical separation (e.g. '1در مدل', '2کاراسک', '3و', '،4،', '5و', '،6،', '7کنترل', '8هابفول', '10متغیرهای'). This mirrors the recurring anti-pattern seen in Stage 4 ('خلاقیت4آمابیل', 'فعال6در مدل', 'منابع10هابفول11،').",
+      "alternatives_considered": [
+        {
+          "option": "Enforce explicit trailing space run (<w:r><w:t xml:space='preserve'> </w:t></w:r>) or ensure 'after' run begins with a preserved space following every footnoteReference",
+          "verdict": "OMITTED_IN_PROCESS_SCRIPT",
+          "reason": "process_hypo4.py assumed input markdown whitespace was sufficient and did not sanitize footnote run boundaries."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-VERIFIER-BLINDSPOT-BETA-AND-WHITESPACE",
+      "decision_type": "VERIFICATION_GAP",
+      "selected_option": "Verifying only single_pPr, raw asterisks, and definition counts in verify_hypo4.py without auditing statistical symbol conventions or footnote spacing",
+      "rationale": "verify_hypo4.py checked raw_asterisks_count (0), literal_bracket_fn_count (0), and footnote_refs_count (10 == 10). It contained zero regex rules checking for spelled-out 'beta' or verifying that footnote references are followed by whitespace in rendered runs or document.xml text nodes, resulting in a false-positive PASS verdict.",
+      "alternatives_considered": [
+        {
+          "option": "Add assertions checking for absence of 'beta' in text and regex validation for trailing space after footnoteReference in verify_hypo4.py",
+          "verdict": "OMITTED_FROM_VERIFIER",
+          "reason": "Verification suite only checked regressions from earlier bugs (raw asterisks, unparsed brackets)."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-ORCHESTRATOR-GATE-FAILURE",
+      "decision_type": "STAGE_GATE_APPROVAL_FAILURE",
+      "selected_option": "Approving Stage 5 deliverable based solely on verify_hypo4.py PASS report without inspecting proof.txt or rendered document layout",
+      "rationale": "academic-orchestrator accepted the deliverable based on the automated report and empirical alignment, failing to inspect proof.txt lines 7-19, 39, and 56 where 'beta=' and stuck footnote numbers were clearly observable.",
+      "alternatives_considered": [
+        {
+          "option": "Inspect rendered proof.txt pdftotext output for symbol conventions and stuck footnote markers before approving stage",
+          "verdict": "OMITTED_IN_GATE",
+          "reason": "Orchestrator relied entirely on the passing output of verify_hypo4.py."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx",
+      "sha256": "7ff2f774a131ff5b0093617075c68135b57d8472d6753053220c6d64c59da28f",
+      "type": "openxml_word"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.md",
+      "sha256": "d75172889ad6920640203ebb731ccb85bbb93b047a0544f1b3187d372bd4a170",
+      "type": "narrative_markdown"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json",
+      "sha256": "dd1e566ff53cbd3d3d16e48fb3de9a03f1358156bb0e07d41770d9c92aa235cc",
+      "type": "triad_metadata"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "verify_hypo4_automated_validator",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "load_success": true,
+        "single_pPr": true,
+        "footnote_defs_count": 10,
+        "footnote_refs_count": 10,
+        "literal_bracket_fn_count": 0,
+        "raw_asterisks_count": 0,
+        "overall_verdict": "PASS",
+        "flaw_note": "False-positive pass: missed 3 spelled-out 'beta' occurrences and 9 unspaced footnote reference runs"
+      }
+    },
+    {
+      "validator_name": "openxml_text_and_symbol_auditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "spelled_out_beta_instead_of_latin_B",
+        "footnote_reference_lacking_trailing_whitespace"
+      ],
+      "evidence_summary": {
+        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx",
+        "md_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.md",
+        "proof_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/proof.txt",
+        "spelled_out_beta_occurrences": [
+          {
+            "occurrence_index": 1,
+            "md_line": 5,
+            "proof_line": 7,
+            "parameter": "Step 1: Direct effect of Job Control on Organizational Innovation",
+            "observed_token": "*beta* = ۰.۲۲",
+            "proof_text": "(beta= ۰.۲۲,t= ۳.۲۰,p= ۰.۰۰۲)",
+            "required_standard": "*B* = ۰.۲۲"
+          },
+          {
+            "occurrence_index": 2,
+            "md_line": 5,
+            "proof_line": 7,
+            "parameter": "Step 1: Direct effect of Job Characteristics on Organizational Innovation",
+            "observed_token": "*beta* = ۰.۰۳",
+            "proof_text": "(=beta ۰.۰۳,t= ۰.۴۴,p= ۰.۶۶۰)",
+            "required_standard": "*B* = ۰.۰۳"
+          },
+          {
+            "occurrence_index": 3,
+            "md_line": 5,
+            "proof_line": 9,
+            "parameter": "Step 2: Interaction effect (Job Characteristics × Job Control)",
+            "observed_token": "*beta* = ۰.۳۶",
+            "proof_text": "(=beta= ۰.۳۶,t= ۰.۵۳,p ۰.۵۹۰)",
+            "required_standard": "*B* = ۰.۳۶"
+          }
+        ],
+        "unspaced_footnote_reference_occurrences": [
+          {
+            "footnote_id": "2",
+            "citation": "Buffering Hypothesis",
+            "md_line": 7,
+            "proof_line": 13,
+            "stuck_context": "فرضیه ضربه‌گیری 1در مدل کالسیک",
+            "stuck_token": "1در مدل",
+            "issue": "Footnote reference 1 is immediately adjacent to subsequent word 'در' without space separation."
+          },
+          {
+            "footnote_id": "1",
+            "citation": "Karasek Job Demand-Control Model",
+            "md_line": 7,
+            "proof_line": 14,
+            "stuck_context": "تقاضا-کنترل شغلی2کاراسک در تضاد",
+            "stuck_token": "2کاراسک",
+            "issue": "Footnote reference 2 is directly stuck to subsequent author name 'کاراسک' without space separation."
+          },
+          {
+            "footnote_id": "3",
+            "citation": "Häusser et al.",
+            "md_line": 7,
+            "proof_line": 15,
+            "stuck_context": "هاسر و همکاران3و ون در دوف",
+            "stuck_token": "3و",
+            "issue": "Footnote reference 3 is directly stuck to conjunction 'و' without space separation."
+          },
+          {
+            "footnote_id": "4",
+            "citation": "van der Doef & Maes",
+            "md_line": 7,
+            "proof_line": 15,
+            "stuck_context": "ون در دوف و مئس،4، نشان می‌دهد",
+            "stuck_token": "،4،",
+            "issue": "Footnote reference 4 lacks trailing whitespace before punctuation and subsequent words."
+          },
+          {
+            "footnote_id": "6",
+            "citation": "Abdel Hadi et al.",
+            "md_line": 7,
+            "proof_line": 18,
+            "stuck_context": "عبدالهادی و همکاران5و مارتین-هرناندز",
+            "stuck_token": "5و",
+            "issue": "Footnote reference 5 is directly stuck to conjunction 'و' without space separation."
+          },
+          {
+            "footnote_id": "5",
+            "citation": "Martín-Hernández et al.",
+            "md_line": 7,
+            "proof_line": 18,
+            "stuck_context": "مارتین-هرناندز و همکاران،6، نشان‌دهنده",
+            "stuck_token": "،6،",
+            "issue": "Footnote reference 6 lacks trailing whitespace before subsequent clause."
+          },
+          {
+            "footnote_id": "10",
+            "citation": "Direct Effect Dominance",
+            "md_line": 7,
+            "proof_line": 19,
+            "stuck_context": "اثربخشی مستقیم7کنترل شغلی بر نوآوری",
+            "stuck_token": "7کنترل",
+            "issue": "Footnote reference 7 is directly stuck to subsequent word 'کنترل' without space separation."
+          },
+          {
+            "footnote_id": "8",
+            "citation": "Conservation of Resources (COR) Theory",
+            "md_line": 9,
+            "proof_line": 39,
+            "stuck_context": "نظریه حفظ منابع8هابفول 9 تبیین نمود",
+            "stuck_token": "8هابفول",
+            "issue": "Footnote reference 8 is directly stuck to author name 'هابفول' without space separation."
+          },
+          {
+            "footnote_id": "9",
+            "citation": "Mean-Centering",
+            "md_line": 13,
+            "proof_line": 56,
+            "stuck_context": "میانگین‌مرکزسازی10متغیرهای پیش‌بین",
+            "stuck_token": "10متغیرهای",
+            "issue": "Footnote reference 10 is directly stuck to subsequent word 'متغیرهای' without space separation."
+          }
+        ],
+        "cross_stage_recurrence_patterns": [
+          {
+            "stage": "stage_04_hypo_3",
+            "observed_tokens": [
+              "خلاقیت4آمابیل",
+              "فعال6در مدل",
+              "منابع10هابفول11،"
+            ],
+            "structural_cause": "process_hypo*.py process_run() footnote splitting logic appends 'after' run without enforcing trailing whitespace delimiter"
+          }
+        ]
+      }
+    },
+    {
+      "validator_name": "human_supervisor_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "spelled_out_beta_in_regression_reporting",
+        "missing_space_after_footnote_references"
+      ],
+      "evidence_summary": {
+        "critique_text": "Problems: 1. You should use latin B instead of beta. 2. You should have an space after each footnote. The footnote should not be stick with the next word.",
+        "supervisor_verdict": "REJECTED_FOR_REVISION"
+      }
+    }
+  ],
+  "feedback": [
+    "EVT-20260924-BETA-FOOTNOTE-FEEDBACK"
+  ],
+  "outcome": "FAILURE"
+}

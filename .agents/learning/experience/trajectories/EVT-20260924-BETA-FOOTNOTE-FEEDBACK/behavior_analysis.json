@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260924-BETA-FOOTNOTE-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260924-BETA-FOOTNOTE-FEEDBACK",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-discussion-builder",
+  "capability": "Statistical reporting and footnote rendering",
+  "trajectory_id": "TRJ-20260924-BETA-FOOTNOTE-001",
+  "observable_failure_step": {
+    "step_number": 8,
+    "action_type": "DECISION_FORMULATION",
+    "description": "process_hypo4.py split text by asterisk and styled 'beta' rather than normalizing to standard Latin symbol 'B', and converted footnote tokens to <w:footnoteReference> without verifying or enforcing trailing whitespace between the reference run and the subsequent 'after' text run.",
+    "tool_name": "process_hypo4.py"
+  },
+  "failure_signature": "PHONETIC_STATISTICAL_SYMBOL_AND_UNSPACED_FOOTNOTE_CONCATENATION",
+  "root_cause_diagnosis": "1) Failure to adhere to APA 7 / Persian graduate thesis standards requiring Latin 'B' for standardized regression coefficients; academic-writer wrote '*beta*'. 2) Failure of the OpenXML run-splitting logic in process_hypo4.py to guarantee a whitespace separator between footnote references and subsequent text runs, causing RTL concatenation. 3) Mechanical QC blindspot in verify_hypo4.py which did not explicitly test for the phonetic 'beta' string or validate whitespace encapsulation around footnotes.",
+  "prescribed_behavior": "1) Enforce Latin 'B' for regression coefficients across models instead of spelling out phonetic symbol names. 2) Guarantee trailing whitespace after all footnote references in run construction logic. 3) Add mechanical QC assertions explicitly checking for 'beta' strings and asserting whitespace isolation for <w:footnoteReference> elements.",
+  "created_at": "2026-09-24T12:15:00Z"
+}

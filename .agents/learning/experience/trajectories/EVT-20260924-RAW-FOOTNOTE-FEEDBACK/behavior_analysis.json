@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20260924-001",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-discussion-builder",
+  "observable_failure_step": "Step 6 (DEC-20260924-SINGLE-MATCH-REGEX-DEFECT) and Step 10 (DEC-20260924-VERIFIER-STRUCTURAL-BLINDSPOT)",
+  "failure_signature": "INCOMPLETE_MULTI_FOOTNOTE_REPLACEMENT_AND_FALSE_POSITIVE_QC",
+  "root_cause_diagnosis": "1) Non-iterative regex splitting handled only the first match per paragraph, leaving subsequent footnote markers as raw text in document.xml. 2) Superficial QC script verified only definition count in footnotes.xml without checking footnoteReference count in document.xml or asserting zero literal '[^' strings in text nodes.",
+  "prescribed_behavior": "1) While-loop or iterative re.split replacement converting ALL footnote matches across text nodes. 2) Mechanical QC asserting: a) zero literal '[^' substrings in document.xml, b) exact count match between footnoteReference tags in document.xml and definitions in footnotes.xml."
+}

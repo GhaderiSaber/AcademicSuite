@@ -1,0 +1,23 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-SINGLE-MATCH-FOOTNOTE-REPLACEMENT",
+  "category": "openxml_processing",
+  "defective_pattern": "Using single-match regex replacement (e.g., re.search without a loop or exhaustive tokenization) for footnote markers in OpenXML text nodes, and verifying only the footnotes.xml count without checking document.xml for unprocessed literals.",
+  "why_defective": "If a text node contains multiple footnote markers, a single-match approach only converts the first one, leaving the rest as raw literal text in the output document. Checking only footnotes.xml yields a false PASS because the definitions exist even if the references are missing in the document body.",
+  "observed_symptoms": [
+    "Raw footnote markers like '[^2]' or '[^3]' appear directly in the compiled DOCX body text.",
+    "Automated verification returns PASS despite broken OpenXML output.",
+    "Mismatched count between footnoteReference tags in document.xml and footnote definitions in footnotes.xml."
+  ],
+  "corrective_remedy": "1) Implement an exhaustive while-loop or re.split strategy to replace ALL footnote markers in every text node. 2) Update the QC script to mechanically assert zero literal '[^' substrings in document.xml and exact 1:1 parity between footnoteReference tags in document.xml and definitions in footnotes.xml.",
+  "detection_heuristic": {
+    "trigger_rule": "Post-processing script uses re.search for footnotes without a loop, or the verification script asserts only the count of w:footnote elements in footnotes.xml without parsing document.xml for footnoteReference parity or raw '[^' substrings."
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-24T11:57:08Z"
+}

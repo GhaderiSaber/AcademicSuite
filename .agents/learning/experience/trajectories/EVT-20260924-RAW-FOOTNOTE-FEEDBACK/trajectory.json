@@ -1,0 +1,587 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260924-RAW-FOOTNOTE-001",
+  "experience_id": "EVT-20260924-RAW-FOOTNOTE-FEEDBACK",
+  "project_id": "Morteza_Estaki",
+  "task_id": "TSK-20260924-FOOTNOTE-TRAJECTORY-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T07:45:00Z",
+      "description": "academic-orchestrator delegated Stage 4 task TSK-20260924-STAGE4-DRAFT-001 to academic-writer to draft Chapter 5 Section 5-2-3 (Hypothesis 3 Discussion: Job Control and Organizational Innovation, r = +0.21, p = .002, N = 208) using the 4-element psychological model and native footnotes.",
+      "observable_input": {
+        "task_id": "TSK-20260924-STAGE4-DRAFT-001",
+        "worker_agent": "academic-writer",
+        "stage_id": "04_hypothesis_3_discussion",
+        "mandate": "Draft Hypothesis 3 discussion synthesizing empirical findings (r = +0.21, p = .002) with Karasek (1979), Amabile (1988), Deci & Ryan (2000), and Hobfoll (1989), converting author names and English terms to Persian transliterations with numbered markdown footnotes [^1] through [^11]."
+      },
+      "observable_output": {
+        "status": "DELEGATED",
+        "target_subagent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T07:48:20Z",
+      "description": "academic-writer authored 03_deliverables/stage_04_hypo_3/draft.md containing in-text footnote markers [^1] through [^11] across paragraphs 4 and 5, and appended footnote definition lines [^1]: Demircioglu through [^11]: Conservation of Resources (COR) Theory at lines 13-23.",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/draft.md",
+        "word_count": 680,
+        "char_count": 4171
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "in_text_footnote_markers": [
+          "[^1]",
+          "[^2]",
+          "[^3]",
+          "[^5]",
+          "[^4]",
+          "[^7]",
+          "[^6]",
+          "[^9]",
+          "[^8]",
+          "[^11]",
+          "[^10]"
+        ],
+        "footnote_definition_lines": [
+          "[^1]: Demircioglu",
+          "[^2]: Martín-Hernández et al.",
+          "[^3]: Abdel Hadi et al.",
+          "[^4]: Amabile",
+          "[^5]: Componential Theory of Creativity",
+          "[^6]: Karasek",
+          "[^7]: Active Learning Hypothesis",
+          "[^8]: Deci & Ryan",
+          "[^9]: Self-Determination Theory (SDT)",
+          "[^10]: Hobfoll",
+          "[^11]: Conservation of Resources (COR) Theory"
+        ]
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T07:50:50Z",
+      "description": "academic-writer executed post-processing pipeline script 03_deliverables/stage_04_hypo_3/process_hypo3.py to compile draft.md into Word DOCX and inject OpenXML native footnotes.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_04_hypo_3/process_hypo3.py",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "SKILL_INVOCATION",
+      "actor": "process_hypo3.py",
+      "timestamp": "2026-09-24T07:51:00Z",
+      "description": "process_hypo3.py invoked scaffold_chapter5_triad.py (lines 9-19). The scaffold script read draft.md and created initial 04_hypothesis_3_discussion.docx by passing each entire paragraph string to add_text_run() as a single monolithic <w:r> text run.",
+      "observable_input": {
+        "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+        "cli_command": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage 04_hypothesis_3_discussion --base 04_hypothesis_3_discussion --outdir 03_deliverables/stage_04_hypo_3 --title بحث و بررسی فرضیه سوم پژوهش --narrative-file 03_deliverables/stage_04_hypo_3/draft.md --articles academic-state/data/article_enrichment_cards.json"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "scaffold_docx_created": true,
+        "runs_per_body_paragraph": 1
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_READ",
+      "actor": "process_hypo3.py",
+      "timestamp": "2026-09-24T07:51:03Z",
+      "description": "process_hypo3.py unzipped 04_hypothesis_3_discussion.docx to 04_hypothesis_3_discussion.docx_extracted, parsed word/document.xml, extracted 11 footnote definitions into footnotes_dict, wrote word/footnotes.xml, and updated word/_rels/document.xml.rels.",
+      "observable_input": {
+        "target_file": "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx_extracted/word/document.xml"
+      },
+      "observable_output": {
+        "footnotes_extracted_count": 11,
+        "footnotes_xml_created": true,
+        "rels_updated": true
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "process_hypo3.py",
+      "timestamp": "2026-09-24T07:51:05Z",
+      "description": "process_hypo3.py executed single-match regex replacement in process_run() (lines 166-215). At line 168, re.search(r'\\[\\^(\\d+)\\]', text) matched only the first footnote token per run. Due to design assumption at lines 213-214 ('If there are multiple footnotes in one text node, this logic handles the first one. In our case, each text node usually has at most one footnote.'), the script created a single <w:footnoteReference> and dumped all remaining text containing subsequent footnote markers directly into run 'ar' without loop iteration or re-scanning.",
+      "observable_input": {
+        "flawed_code_line": "03_deliverables/stage_04_hypo_3/process_hypo3.py:213-214",
+        "paragraph_4_input_text": "در هم‌سنجی این دستاورد با پیشینه تجربی... دمیرچی‌اوغلو (۲۰۲۰)[^1] و مارتین-هرناندز و همکاران (۲۰۲۰)[^2]... عبدالهادی و همکاران (۲۰۲۱)[^3]... تئوری مؤلفه‌ای خلاقیت[^5] آمابیل (۱۹۸۸/۱۹۹۶)[^4]...",
+        "paragraph_5_input_text": "علاوه بر مدل آمابیل، از منظر روان‌شناسی کار... فرضیه یادگیری فعال[^7] در مدل کلاسیک کاراسک (۱۹۷۹)[^6]... نظریه خودمختاری[^9] دسی و رایان[^8]... نظریه حفظ منابع[^11] هابفول[^10]..."
+      },
+      "observable_output": {
+        "paragraph_4_first_match": "[^1] (Demircioglu) -> converted to <w:footnoteReference w:id=\"1\"/>",
+        "paragraph_4_unprocessed_after_text": " و مارتین-هرناندز و همکاران (۲۰۲۰)[^2] را که بر نقش محوری... عبدالهادی و همکاران (۲۰۲۱)[^3]... اصول تئوری مؤلفه‌ای خلاقیت[^5] آمابیل (۱۹۸۸/۱۹۹۶)[^4]...",
+        "paragraph_5_first_match": "[^7] (Active Learning Hypothesis) -> converted to <w:footnoteReference w:id=\"7\"/>",
+        "paragraph_5_unprocessed_after_text": " در مدل کلاسیک کاراسک (۱۹۷۹)[^6] تبیین نمود... بر پایه مفروضات نظریه خودمختاری[^9] دسی و رایان[^8]... در چارچوب نظریه حفظ منابع[^11] هابفول[^10]..."
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_WRITTEN",
+      "actor": "process_hypo3.py",
+      "timestamp": "2026-09-24T07:51:07Z",
+      "description": "process_hypo3.py repackaged 04_hypothesis_3_discussion.docx with 9 raw literal footnote markers in word/document.xml, updated deliverable SHA256 hashes in 04_hypothesis_3_discussion.json, and cleaned up temporary extraction directories.",
+      "observable_input": {
+        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "docx_sha256": "5e07e3fe62175309bc158e72d00d1e107846f8b424cb1d47f8944133c7e86163",
+        "json_sha256": "c149901b065f50c02f74011589220c0c8a360118cfbe3a76b13527f3d909dd0b"
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "process_hypo3.py",
+      "timestamp": "2026-09-24T07:51:08Z",
+      "description": "process_hypo3.py process completed execution with exit code 0.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_04_hypo_3/process_hypo3.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "stdout": "Compiled Chapter 5 Triad [04_hypothesis_3_discussion]:\nSUCCESS: process_hypo3.py"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T07:51:15Z",
+      "description": "academic-writer executed automated verification script 03_deliverables/stage_04_hypo_3/verify_hypo3.py to validate the generated Word document.",
+      "observable_input": {
+        "command_line": "python3 03_deliverables/stage_04_hypo_3/verify_hypo3.py",
+        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "observable_output": {
+        "status": "EXECUTING"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "verify_hypo3.py",
+      "timestamp": "2026-09-24T07:51:17Z",
+      "description": "verify_hypo3.py checked single_pPr, raw_asterisks_count (0), and footnotes_count in word/footnotes.xml (11 >= 6). Because it evaluated footnotes.xml instead of document.xml, it failed to detect the 9 raw footnote markers remaining in body text.",
+      "observable_input": {
+        "validator_script": "03_deliverables/stage_04_hypo_3/verify_hypo3.py",
+        "inspected_files": [
+          "word/document.xml",
+          "word/footnotes.xml"
+        ]
+      },
+      "observable_output": {
+        "single_pPr": true,
+        "raw_asterisks_count": 0,
+        "footnotes_count": 11,
+        "overall_verdict": "PASS",
+        "checks_failed": 0
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "verify_hypo3.py",
+      "timestamp": "2026-09-24T07:51:18Z",
+      "description": "verify_hypo3.py completed and generated docx_verification_report.json confirming an ungrounded PASS verdict.",
+      "observable_input": {
+        "report_file": "03_deliverables/stage_04_hypo_3/docx_verification_report.json"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "report_content": {
+          "load_success": true,
+          "single_pPr": true,
+          "footnotes_count": 11,
+          "raw_asterisks_count": 0,
+          "overall_verdict": "PASS",
+          "checks_failed": 0
+        }
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T07:51:30Z",
+      "description": "academic-orchestrator reviewed docx_verification_report.json showing PASS and 0 checks failed, accepted the Stage 4 triad deliverable without auditing document.xml <w:t> tags for raw bracketed tokens, and delivered the artifact to the user.",
+      "observable_input": {
+        "verification_report": "03_deliverables/stage_04_hypo_3/docx_verification_report.json",
+        "triad_metadata": "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.json"
+      },
+      "observable_output": {
+        "stage_gate_verdict": "PASS",
+        "deliverable_presented": "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx"
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-24T07:54:10Z",
+      "description": "User inspected 04_hypothesis_3_discussion.docx and issued explicit critique: 'Problem: Some footnotes writin in text. You should use native word footnotes.' User observed raw bracketed strings ([^2], [^3], [^5], [^4], [^6], [^9], [^8], [^11], [^10]) embedded directly in the body text.",
+      "observable_input": {
+        "critique_text": "Problem: Some footnotes writin in text. You should use native word footnotes."
+      },
+      "observable_output": {
+        "event_id": "EVT-20260924-RAW-FOOTNOTE-FEEDBACK",
+        "critique_type": "RAW_INLINE_FOOTNOTE_SYNTAX_DEFECT"
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-24T07:54:40Z",
+      "description": "academic-orchestrator delegated task TSK-20260924-FOOTNOTE-TRAJECTORY-001 to trajectory-analyzer to perform forensic OpenXML inspection of 04_hypothesis_3_discussion.docx and document the failure trajectory.",
+      "observable_input": {
+        "task_id": "TSK-20260924-FOOTNOTE-TRAJECTORY-001",
+        "worker_agent": "trajectory-analyzer",
+        "objective": "Reconstruct observable actions, tool calls, and error trajectory for user critique 'Problem: Some footnotes writin in text. You should use native word footnotes.'"
+      },
+      "observable_output": {
+        "status": "DELIVERED",
+        "target_subagent": "trajectory-analyzer"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-STAGE4-DRAFT-001",
+        "WorkerAgent": "academic-writer",
+        "PromptSummary": "Draft Hypothesis 3 discussion with 4-element psychological model and native footnotes"
+      },
+      "execution_time_ms": 1950
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/draft.md",
+        "Overwrite": true,
+        "Description": "Stage 4 draft with in-text footnote markers [^1] through [^11] and footnote definitions"
+      },
+      "execution_time_ms": 190
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 03_deliverables/stage_04_hypo_3/process_hypo3.py",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 4200
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "CommandLine": "python3 03_deliverables/stage_04_hypo_3/verify_hypo3.py",
+        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+      },
+      "execution_time_ms": 1100
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/docx_verification_report.json"
+      },
+      "execution_time_ms": 45
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 6,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TaskID": "TSK-20260924-FOOTNOTE-TRAJECTORY-001",
+        "WorkerAgent": "trajectory-analyzer",
+        "PromptSummary": "Reconstruct observable actions and error trajectory for user critique 'Problem: Some footnotes writin in text. You should use native word footnotes.'"
+      },
+      "execution_time_ms": 2200
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+      "cli_command": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage 04_hypothesis_3_discussion --base 04_hypothesis_3_discussion --outdir 03_deliverables/stage_04_hypo_3 --title بحث و بررسی فرضیه سوم پژوهش --narrative-file 03_deliverables/stage_04_hypo_3/draft.md --articles academic-state/data/article_enrichment_cards.json",
+      "exit_code": 0,
+      "duration_seconds": 3.8
+    },
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": "03_deliverables/stage_04_hypo_3/process_hypo3.py",
+      "cli_command": "python3 03_deliverables/stage_04_hypo_3/process_hypo3.py",
+      "exit_code": 0,
+      "duration_seconds": 4.2
+    },
+    {
+      "skill_name": "persian-discussion-builder",
+      "script_path": "03_deliverables/stage_04_hypo_3/verify_hypo3.py",
+      "cli_command": "python3 03_deliverables/stage_04_hypo_3/verify_hypo3.py",
+      "exit_code": 0,
+      "duration_seconds": 1.1
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "04_hypothesis_3_discussion",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-20260924-STAGE4-DRAFT-001",
+      "objective": "Draft Hypothesis 3 discussion (Job Control and Organizational Innovation, r = +0.21, p = .002) with 4-element psychological model and native footnotes.",
+      "envelope_summary": "Draft Section 5-2-3 narrative with Persian author transliterations and footnote markers [^1] through [^11]",
+      "input_artifacts": [
+        "academic-state/data/article_enrichment_cards.json",
+        "02_methodology/data/correlations.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/stage_04_hypo_3/draft.md",
+        "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx",
+        "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.md",
+        "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "trajectory_reconstruction",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-RAW-FOOTNOTE-FEEDBACK/trajectory.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-20260924-FOOTNOTE-TRAJECTORY-001",
+      "objective": "Reconstruct observable actions, tool calls, and error trajectory for user critique 'Problem: Some footnotes writin in text. You should use native word footnotes.' Inspect 03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx word/document.xml to demonstrate which footnote markers remained as raw literal text.",
+      "envelope_summary": "Forensic reconstruction of single-match footnote replacement defect in process_hypo3.py and ungrounded verification pass",
+      "input_artifacts": [
+        "03_deliverables/stage_04_hypo_3/process_hypo3.py",
+        "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx",
+        "03_deliverables/stage_04_hypo_3/docx_verification_report.json",
+        "User critique"
+      ],
+      "output_artifacts": [
+        ".agents/learning/experience/trajectories/EVT-20260924-RAW-FOOTNOTE-FEEDBACK/trajectory.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260924-SINGLE-MATCH-REGEX-DEFECT",
+      "decision_type": "ALGORITHMIC_IMPLEMENTATION_DEFECT",
+      "selected_option": "Single-match regex execution per text run without iterating over subsequent footnote matches in the 'after' text string",
+      "rationale": "In process_hypo3.py lines 166-215, re.search(r'\\[\\^(\\d+)\\]', text) only identifies the first footnote token in each w:r run. Lines 213-214 explicitly codify the faulty assumption: 'If there are multiple footnotes in one text node, this logic handles the first one. In our case, each text node usually has at most one footnote.' However, scaffold_chapter5_triad.py creates whole-paragraph runs, meaning paragraph 4 contains 5 footnotes and paragraph 5 contains 6 footnotes. Because process_hypo3.py appends unparsed 'after' text into run 'ar' without recursion or iteration, and the outer loop uses a pre-evaluated snapshot list(p.findall('w:r')), all subsequent footnotes in paragraph 4 ([^2], [^3], [^5], [^4]) and paragraph 5 ([^6], [^9], [^8], [^11], [^10]) remained literal raw text in <w:t> tags.",
+      "alternatives_considered": [
+        {
+          "option": "Iterative regex loop (while match := re.search(...) on remaining after text) to split and insert all footnoteReference elements",
+          "verdict": "OMITTED_BY_DEVELOPER",
+          "reason": "Developer assumed text nodes contained at most one footnote and wrote single-match logic."
+        },
+        {
+          "option": "Split text by regex r'(\\[\\^\\d+\\])' and process all resulting odd-indexed tokens as footnote references",
+          "verdict": "OMITTED_BY_DEVELOPER",
+          "reason": "Developer implemented split logic for asterisks (*) earlier in the script but used single re.search() for footnotes."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-VERIFIER-STRUCTURAL-BLINDSPOT",
+      "decision_type": "VERIFICATION_GAP",
+      "selected_option": "Validating footnote presence by counting w:footnote definitions in word/footnotes.xml rather than inspecting word/document.xml for raw footnote marker strings",
+      "rationale": "verify_hypo3.py checked len([f for f in fn_tree.findall('w:footnote') if int(f.get('id', 0)) > 0]) >= 6. Because process_hypo3.py parsed all 11 definitions from the bottom of draft.md and inserted them into footnotes.xml, footnotes_count evaluated to 11 (PASS). However, verify_hypo3.py had zero checks for raw '[^' strings in document.xml <w:t> nodes, creating a false PASS verdict that allowed broken deliverables to be approved.",
+      "alternatives_considered": [
+        {
+          "option": "Add assertion p_text.count('[^') == 0 across all document.xml paragraphs in verify_hypo3.py",
+          "verdict": "OMITTED_FROM_VERIFIER",
+          "reason": "Verification suite focused only on single_pPr, raw asterisks, and footnotes.xml element count."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260924-ORCHESTRATOR-UNVERIFIED-APPROVAL",
+      "decision_type": "STAGE_GATE_EVALUATION_FAILURE",
+      "selected_option": "Passing Stage 4 gate based on docx_verification_report.json PASS verdict without independent OpenXML text inspection",
+      "rationale": "academic-orchestrator trusted verify_hypo3.py report showing 11 footnotes and 0 failed checks, failing to perform an independent sanity check of document.xml text runs or proof.txt before presenting the Word document to the user.",
+      "alternatives_considered": [
+        {
+          "option": "Audit rendered proof.txt pdftotext dump for raw footnote tokens like [^X] before releasing deliverable",
+          "verdict": "OMITTED_IN_ORCHESTRATOR_GATE",
+          "reason": "Orchestrator relied entirely on the automated docx_verification_report.json."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx",
+      "sha256": "5e07e3fe62175309bc158e72d00d1e107846f8b424cb1d47f8944133c7e86163",
+      "type": "openxml_word"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.md",
+      "sha256": "077dd8c5d7f2bad5c5af4d0731d4368df41d447fa170620b5b8c2104f2cecbad",
+      "type": "narrative_markdown"
+    },
+    {
+      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.json",
+      "sha256": "c149901b065f50c02f74011589220c0c8a360118cfbe3a76b13527f3d909dd0b",
+      "type": "triad_metadata"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "verify_hypo3_automated_validator",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "load_success": true,
+        "single_pPr": true,
+        "footnotes_count": 11,
+        "raw_asterisks_count": 0,
+        "checks_failed": 0,
+        "flaw_note": "False positive verdict: checked footnotes.xml definition count instead of document.xml footnoteReference count or raw bracketed text"
+      }
+    },
+    {
+      "validator_name": "openxml_raw_footnote_auditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "unprocessed_raw_footnote_markers_in_document_xml",
+        "missing_footnote_references_in_paragraph_4",
+        "missing_footnote_references_in_paragraph_5",
+        "mismatched_footnote_display_in_pdf_proof"
+      ],
+      "evidence_summary": {
+        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx",
+        "script_defect_location": "03_deliverables/stage_04_hypo_3/process_hypo3.py:166-215 (specifically line 213)",
+        "converted_footnote_references": [
+          {
+            "footnote_id": "1",
+            "citation_text": "Demircioglu",
+            "paragraph": 4,
+            "xml_element": "<w:footnoteReference w:id=\"1\"/>"
+          },
+          {
+            "footnote_id": "7",
+            "citation_text": "Active Learning Hypothesis",
+            "paragraph": 5,
+            "xml_element": "<w:footnoteReference w:id=\"7\"/>"
+          }
+        ],
+        "unprocessed_raw_markers": [
+          {
+            "marker": "[^2]",
+            "citation_target": "Martín-Hernández et al.",
+            "paragraph": 4,
+            "location": "inside <w:t> tag of run 'ar' in after text"
+          },
+          {
+            "marker": "[^3]",
+            "citation_target": "Abdel Hadi et al.",
+            "paragraph": 4,
+            "location": "inside <w:t> tag of run 'ar' in after text"
+          },
+          {
+            "marker": "[^5]",
+            "citation_target": "Componential Theory of Creativity",
+            "paragraph": 4,
+            "location": "inside <w:t> tag of run 'ar' in after text"
+          },
+          {
+            "marker": "[^4]",
+            "citation_target": "Amabile",
+            "paragraph": 4,
+            "location": "inside <w:t> tag of run 'ar' in after text"
+          },
+          {
+            "marker": "[^6]",
+            "citation_target": "Karasek",
+            "paragraph": 5,
+            "location": "inside <w:t> tag of run 'ar' in after text"
+          },
+          {
+            "marker": "[^9]",
+            "citation_target": "Self-Determination Theory (SDT)",
+            "paragraph": 5,
+            "location": "inside <w:t> tag of run 'ar' in after text"
+          },
+          {
+            "marker": "[^8]",
+            "citation_target": "Deci & Ryan",
+            "paragraph": 5,
+            "location": "inside <w:t> tag of run 'ar' in after text"
+          },
+          {
+            "marker": "[^11]",
+            "citation_target": "Conservation of Resources (COR) Theory",
+            "paragraph": 5,
+            "location": "inside <w:t> tag of run 'ar' in after text"
+          },
+          {
+            "marker": "[^10]",
+            "citation_target": "Hobfoll",
+            "paragraph": 5,
+            "location": "inside <w:t> tag of run 'ar' in after text"
+          }
+        ],
+        "pdf_render_proof_findings": {
+          "proof_file": "03_deliverables/stage_04_hypo_3/proof.txt",
+          "rendered_in_text_markers": [
+            "]2^[ (line 13)",
+            "]3^[ (line 15)",
+            "[^ ]5] (line 17)",
+            "]4^[ (line 18)",
+            "]6^[ (line 22)",
+            "[^ ]9] (line 25)",
+            "[^ ،]8 (line 25)",
+            "[^ ]11] (line 28)",
+            "[^ ،]10 (line 28)"
+          ],
+          "page_bottom_rendered_footnotes": [
+            "1 Demircioglu (line 31)",
+            "2 Martín-Hernández et al. (line 33, label hijacked for footnote reference 7)"
+          ]
+        }
+      }
+    },
+    {
+      "validator_name": "human_supervisor_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "footnotes_written_as_raw_text_in_document"
+      ],
+      "evidence_summary": {
+        "critique_text": "Problem: Some footnotes writin in text. You should use native word footnotes.",
+        "defect_summary": "User inspected 04_hypothesis_3_discussion.docx and observed literal '[^X]' footnote markers scattered across paragraphs instead of native superscript Word footnotes linked to bottom definitions."
+      }
+    }
+  ],
+  "feedback": [
+    "EVT-20260924-RAW-FOOTNOTE-FEEDBACK"
+  ],
+  "outcome": "FAILURE"
+}

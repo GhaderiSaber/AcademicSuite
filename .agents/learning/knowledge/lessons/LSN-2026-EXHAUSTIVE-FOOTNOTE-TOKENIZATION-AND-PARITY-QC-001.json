@@ -1,0 +1,45 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-EXHAUSTIVE-FOOTNOTE-TOKENIZATION-AND-PARITY-QC-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EVT-20260924-RAW-FOOTNOTE-FEEDBACK",
+  "diagnosis": {
+    "what_happened": "Non-iterative regex splitting handled only the first footnote match per paragraph, leaving subsequent footnote markers as raw text in document.xml. The QC script verified only definition count in footnotes.xml, missing the raw markers.",
+    "behavior_caused_outcome": "Only the first footnote per text node was converted to an OpenXML footnoteReference element. All remaining footnotes remained as literal '[^' strings in the body, while the verification script yielded a false PASS.",
+    "what_should_have_happened": "The script should have used an exhaustive loop or tokenization to process ALL footnote matches across text nodes. The mechanical QC must assert zero literal '[^' substrings in document.xml and exact parity between footnoteReference tags and footnotes.xml definitions.",
+    "rationale_why": "Assuming at most one footnote per text node is a brittle design pattern that violates the requirement that all in-text markers must be converted into native OpenXML footnote elements."
+  },
+  "desired_behavior": "1) Use exhaustive loop or tokenization for all footnote markers [^X] in every text node. 2) Implement mechanical QC asserting: a) zero literal '[^' substrings in document.xml, b) exact 1:1 parity between footnoteReference tags in document.xml and definitions in footnotes.xml.",
+  "generalization": "Always iterate exhaustively when replacing multiple markers in a single text run, and ensure validation checks the primary document body for unprocessed artifacts, not just auxiliary definition files.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Raw bracketed strings ([^2], [^3], etc.) were embedded directly in the compiled body text.",
+    "threshold_value": "Zero tolerance for raw Markdown footnote markers in the final DOCX.",
+    "supporting_report_ids": [
+      "BAN-20260924-001"
+    ],
+    "supporting_artifact_paths": [
+      "03_deliverables/stage_04_hypo_3/process_hypo3.py",
+      "03_deliverables/stage_04_hypo_3/verify_hypo3.py"
+    ]
+  },
+  "related_skills": [
+    "persian-discussion-builder",
+    "chapter-5-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+  "graduation_status": "PENDING_GRADUATION",
+  "created_at": "2026-09-24T11:57:08Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "academic-writer"
+  ]
+}
