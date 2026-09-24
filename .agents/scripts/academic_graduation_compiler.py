@@ -50,7 +50,8 @@ class AcademicGraduationCompiler:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or os.environ.get("ACADEMIC_SUITE_BASE_DIR") or ROOT_DIR)
-        self.agents_dir = os.path.join(self.base_dir, ".agents")
+        cand_agents = os.path.join(self.base_dir, ".agents")
+        self.agents_dir = cand_agents if os.path.isdir(cand_agents) else self.base_dir
         self.skills_dir = os.path.join(self.agents_dir, "skills")
         self.rules_file = os.path.join(self.agents_dir, "plugins", "academic-suite", "rules", "AGENTS.md")
         self.snapshots_dir = os.path.join(self.agents_dir, "learning", "snapshots", "skills")
