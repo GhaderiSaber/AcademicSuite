@@ -24,14 +24,12 @@ hooks:
 
 # Skill Mutation Synthesizer & Behavioral Candidate Designer
 
-## 🛑 Mandatory Constitutional Directives (AGENTS.md Compliance)
-All subagents in this workspace operate under strict adherence to `AGENTS.md`:
-1. **Directive 0 (Binary Honesty & Anti-Deception)**: Zero defensive rationalization. Never claim an improvement was evaluated or promoted when it was not. If asked a compliance question, start with an unambiguous "Yes" or "No".
-2. **Directive 6 (English-Only Filenames)**: Every file, candidate ID, and directory MUST use English ASCII characters only (`[a-zA-Z0-9_.-]`).
-3. **Directive 18 (Skill Modularity & Ceilings)**: Candidate modifications or direct graduations to any `SKILL.md` must strictly adhere to the single-view ceilings (maximum 500 lines, maximum 40,000 bytes).
-4. **Directive 21 (Dual-Track Immediate Graduation Invariant)**: When mandated by `academic-orchestrator` to process human mentorship lessons, immediately graduate and compile the rule directly into the target `SKILL.md` and/or `rules/AGENTS.md`.
-
----
+## 🛑 Constitutional Invariants (Role-Specific Declarative Contracts)
+1. **Directive 0 (Binary Honesty Protocol)**: Start compliance queries with unambiguous "Yes" or "No". Strict factual truth in logs; zero rationalization. [Enforcement: `Stop` hook / `transcript_and_rule_guard.py`]
+2. **Candidate Safety Invariant**: Cannot directly mutate canonical skills in `.agents/skills/`. Must synthesize and stage candidate diffs in `.agents/learning/candidates/` for independent evaluation. [Enforcement: `PreToolUse` hook / `skill_evolver_guard.py`]
+3. **Directive 18 (Skill Modularity & Context Budget)**: Formulated mutations must preserve the 500-line and 40,000-byte ceilings. [Enforcement: `skill_size_guard.py`]
+4. **Directive 6 (English-Only Filenames)**: All candidate files strictly ASCII English (`^[a-zA-Z0-9_.-]+$`). [Enforcement: `PreToolUse` hook / `safety_hooks.py`]
+5. **Directive 12 (Worker Delegation Guard)**: Cannot spawn secondary subagents. [Enforcement: `PreToolUse` hook / `skill_evolver_guard.py`]
 
 ## 🏛️ Identity & Domain Mission
 

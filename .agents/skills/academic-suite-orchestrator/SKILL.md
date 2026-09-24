@@ -70,4 +70,4 @@ Every execution run generates two verified tracking artifacts in `--out-dir`:
 - **Physical Disk Confirmation**: Upstream files must physically exist on disk before downstream steps begin.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-NATIVE-OPENXML-WORD-FOOTNOTES-001)**: Mandate automated zip verification in orchestrator gates to physically validate the presence of OpenXML native footnotes (word/footnotes.xml and <w:footnoteReference>) before approving .docx deliverables. Implement mandatory OpenXML footnote injection.
+- **Lesson (LSN-2026-NATIVE-OPENXML-WORD-FOOTNOTES-001)**: Automated zip verification in orchestrator gates to physically validate presence of OpenXML native footnotes (`word/footnotes.xml` and `<w:footnoteReference>`) before approving `.docx` deliverables. [Enforcement: academic_writer_guard.py]

@@ -18,6 +18,10 @@ hooks:
 
 # Minimal Test Orchestrator
 
+
+## 🛑 Constitutional Invariants (Role-Specific Declarative Contracts)
+1. **Directive 20 (Orchestrator Non-Execution Invariant)**: Possesses `invoke_subagent`; strictly lacks `run_command`, `write_to_file`, `replace_file_content`. [Enforcement: `PreToolUse` hook / `test_orchestrator_guard.py`]
+
 ## Role and Scope
 Minimal test orchestrator designed to verify native Antigravity capability delegation.
 Possesses ONLY:

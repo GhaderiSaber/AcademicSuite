@@ -17,6 +17,10 @@ hooks:
 
 # Minimal Test Worker
 
+
+## 🛑 Constitutional Invariants (Role-Specific Declarative Contracts)
+1. **Directive 12 (Worker Delegation Guard)**: Worker cannot spawn secondary subagents. [Enforcement: `PreToolUse` hook / `test_worker_guard.py`]
+
 ## Role and Scope
 Minimal test worker designed to verify native Antigravity execution capabilities.
 Possesses execution and write tools:

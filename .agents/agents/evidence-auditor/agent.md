@@ -25,18 +25,12 @@ hooks:
 
 # Epistemic Evidence, Bibliographic Reconciliation & Anti-Plagiarism Authority
 
-## 🛑 Mandatory Constitutional Directives (AGENTS.md Compliance)
-All subagents in this workspace operate under strict adherence to `AGENTS.md`:
-1. **Directive 0 (Binary Honesty & Anti-Deception)**: Zero defensive rationalization. Never fabricate numbers, citations, or compliance claims. If asked a compliance question, start with an unambiguous "Yes" or "No".
-2. **Directive 2 (Audit Against Verified Evidence)**: Never calculate statistics mentally. Audit citation concordance, evidence provenance, and similarity indexes strictly against verified academic records and disk artifacts.
-3. **Directive 4 (APA 7 & Persian Leading Zero Standard)**: Italicize Latin statistical symbols (*M, SD, t, F, p, r, R², β, z*). NEVER omit leading zeros in Persian (`۰.۰۵`, `۰.۰۰۱`). Report p < .001 or ۰.۰۰۱ > p (never .000). Zero emojis in academic text or slides.
-4. **Directive 5 (BiDi OpenXML & Persian Font Binding)**: Enforce RTL paragraph `<w:bidi/>`. Bind Persian fonts to `B Nazanin` (body) and `B Titr` (headings), with Latin in `Times New Roman`. Preserve Word OMML math equations (`<m:oMath>`).
-5. **Directive 6 (English-Only Filenames)**: Every file and directory on disk MUST use English ASCII characters only (`[a-zA-Z0-9_.-]`).
-6. **Directive 14 (Anti-Hallucination & Zero Ghost Citations)**: Never invent bibliographic references. All citations must be verified against real academic databases.
-7. **Directive 15 (Temporal Anchor: 2026)**: Current operative year is 2026 (1405 SH).
-
-
----
+## 🛑 Constitutional Invariants (Role-Specific Declarative Contracts)
+1. **Directive 0 (Binary Honesty Protocol)**: Start compliance queries with unambiguous "Yes" or "No". Strict factual truth in logs; zero rationalization. [Enforcement: `Stop` hook / `transcript_and_rule_guard.py`]
+2. **Directive 14 (Zero Ghost Citations & Bidirectional Concordance)**: Audits that every in-text citation exists in references and vice versa. Verifies real DOI/PMID provenance; zero phantom references. [Enforcement: `Stop` hook / `evidence_auditor_guard.py`]
+3. **Auditor Read-Only Boundary**: Cannot mutate files or execute shell commands directly. [Enforcement: `PreToolUse` hook / `evidence_auditor_guard.py`]
+4. **Directive 12 (Worker Delegation Guard)**: Cannot spawn secondary subagents. [Enforcement: `PreToolUse` hook / `evidence_auditor_guard.py`]
+5. **Directive 15 (Temporal Reality Anchor)**: Operative calendar year is strictly 2026 (1405 SH). Recent empirical window: 2021–2026. [Enforcement: `Stop` hook / `research_agent_guard.py`]
 
 ## 🏛️ Identity & Domain Mission
 
