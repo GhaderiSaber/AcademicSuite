@@ -120,6 +120,6 @@ python3 .agents/skills/persian-discussion-builder/scripts/assemble_chapter5.py \
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Principle (PRN-20260924-D1DAA0)**: Chapter 5 discussion must strictly contain zero tables and maintain 100% continuous narrative prose. [Enforcement: chapter5_discussion_guard.py]
-- **Lesson (LSN-2026-ASSEMBLY-HEADING-DEDUPLICATION-AND-RIGHT-ALIGNMENT-001)**: Pre-assembly regex stripping of stage titles and heading alignment under BiDi contexts. [Enforcement: assemble_chapter5.py]
+- **Lesson (LSN-2026-ASSEMBLY-HEADING-DEDUPLICATION-AND-RIGHT-ALIGNMENT-001)**: 1) Implement pre-assembly regex stripping of stage titles. 2) Universally remove <w:jc> on all headings under BiDi contexts. 3) Enforce multi-margin verification in validator.
 - **Lesson (LSN-2026-ACADEMIC-SOBRIETY-AND-HEADING-BLANK-LINE-INVARIANT-001)**: Enforce a strict behavioral invariant for academic-writer to maintain an objective, dispassionate register devoid of emotive adverbs (e.g., 'اکیداً', 'بهطور چشمگیری'). Mechanically preserve blank lines before headings in Markdown and explicitly inject <w:spacing w:before='240' w:after='120'/> attributes in OpenXML.
 - **Lesson (LSN-2026-EXHAUSTIVE-HEADING-ALIGNMENT-AND-DOM-QC-001)**: Universal right-alignment enforcement on all headings (`<w:jc w:val="right"/>` + `<w:bidi w:val="1"/>`) with per-paragraph DOM validation. [Enforcement: assemble_chapter5.py]
