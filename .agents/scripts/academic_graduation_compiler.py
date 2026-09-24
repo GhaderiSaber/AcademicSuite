@@ -16,7 +16,9 @@ and Git lifecycle synchronization across canonical skills and rules.
 import os
 import sys
 import re
+import json
 import shutil
+import argparse
 import subprocess
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple
@@ -34,6 +36,12 @@ WARNING_SKILL_LINES = 470
 CAPABILITY_TO_SKILLS = {
     "chapter5": ["persian-discussion-builder", "chapter-5-writing"],
     "chapter4": ["chapter-4-writing", "apa-reporting"],
+    "discussion": ["persian-discussion-builder", "chapter-5-writing"],
+    "writing": ["chapter-4-writing", "persian-discussion-builder", "apa-reporting"],
+    "academic-writer": ["chapter-4-writing", "persian-discussion-builder", "apa-reporting"],
+    "footnote": ["persian-discussion-builder", "apa-reporting"],
+    "openxml": ["apa-reporting", "persian-discussion-builder", "persian-thesis-builder"],
+    "typography": ["apa-reporting", "persian-discussion-builder", "ai-academic-tone-polisher"],
     "mediation": ["mediation"],
     "moderation": ["moderation"],
     "sem": ["sem"],
@@ -307,3 +315,152 @@ class AcademicGraduationCompiler:
             "all_passed": all_passed,
             "git": git_res
         }
+
+    def graduate_from_json_file(
+        self,
+        json_path: str,
+        auto_commit: bool = True,
+        dry_run: bool = False
+    ) -> Dict[str, Any]:
+        """Graduates a lesson or anti-pattern JSON file directly into its matching SKILL.md or rules/AGENTS.md."""
+        if not os.path.exists(json_path):
+            raise FileNotFoundError(f"JSON artifact not found: {json_path}")
+
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        item_id = data.get("lesson_id") or data.get("anti_pattern_id") or data.get("id") or os.path.splitext(os.path.basename(json_path))[0]
+        if "lesson_id" in data or "lesson_type" in data or "LSN-" in item_id:
+            category = "Lesson"
+        elif "anti_pattern_id" in data or "AP-" in item_id:
+            category = "Anti-Pattern"
+        else:
+            category = "Principle"
+
+        statement = data.get("desired_behavior") or data.get("corrective_remedy") or data.get("generalization") or data.get("statement") or ""
+        if not statement:
+            statement = data.get("description", "")
+        if not statement and category == "Anti-Pattern":
+            defective = data.get("defective_pattern", "")
+            remedy = data.get("corrective_remedy", "")
+            statement = f"Prohibited: {defective}. Remedy: {remedy}" if defective and remedy else (defective or remedy)
+
+        skills = data.get("related_skills") or []
+        capability = data.get("capability") or data.get("target_agent")
+
+        # Fallback keyword matching
+        if not skills and not capability:
+            for k in CAPABILITY_TO_SKILLS:
+                if k in statement.lower() or k in item_id.lower():
+                    capability = k
+                    break
+
+        is_global = (data.get("scope") == "cross-project" and not skills and not capability)
+
+        res = self.graduate_item(
+            item_id=item_id,
+            statement=statement,
+            category=category,
+            capability=capability,
+            skills=skills,
+            json_artifact_path=json_path,
+            is_global=is_global,
+            auto_commit=auto_commit,
+            dry_run=dry_run
+        )
+
+        if res.get("all_passed") and not dry_run:
+            data["graduation_status"] = "GRADUATED"
+            data["graduated_at"] = datetime.now(timezone.utc).isoformat()
+            data["graduated_targets"] = res.get("targets", [])
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+
+        return res
+
+    def compile_all_pending(
+        self,
+        auto_commit: bool = True,
+        dry_run: bool = False
+    ) -> List[Dict[str, Any]]:
+        """Scans all lessons and anti-patterns in .agents/learning/knowledge/ and graduates pending items."""
+        knowledge_dir = os.path.join(self.agents_dir, "learning", "knowledge")
+        results = []
+        for subdir in ["lessons", "anti-patterns", "principles"]:
+            s_path = os.path.join(knowledge_dir, subdir)
+            if not os.path.isdir(s_path):
+                continue
+            for fname in sorted(os.listdir(s_path)):
+                if fname.endswith(".json") and not fname.startswith("."):
+                    f_full = os.path.join(s_path, fname)
+                    try:
+                        with open(f_full, "r", encoding="utf-8") as f:
+                            d = json.load(f)
+                        status = d.get("graduation_status")
+                        track = d.get("graduation_track")
+                        if status == "PENDING_GRADUATION" or track == "TRACK_1_IMMEDIATE_GRADUATION":
+                            r = self.graduate_from_json_file(f_full, auto_commit=auto_commit, dry_run=dry_run)
+                            results.append(r)
+                    except Exception as e:
+                        print(f"Error compiling {fname}: {e}", file=sys.stderr)
+        return results
+
+
+def main():
+    parser = argparse.ArgumentParser(description="AcademicSuite Graduation Compiler ('The Hands')")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # compile-lesson
+    p_comp = subparsers.add_parser("compile-lesson", help="Compile a lesson or anti-pattern JSON file into SKILL.md/AGENTS.md")
+    p_comp.add_argument("file", help="Path to lesson or anti-pattern JSON file")
+    p_comp.add_argument("--no-git", action="store_true", help="Do not commit or push to Git")
+    p_comp.add_argument("--dry-run", action="store_true", help="Simulate compilation without writing files")
+
+    # compile-all-pending
+    p_all = subparsers.add_parser("compile-all-pending", help="Scan and compile all pending lessons in .agents/learning/knowledge/")
+    p_all.add_argument("--no-git", action="store_true", help="Do not commit or push to Git")
+    p_all.add_argument("--dry-run", action="store_true", help="Simulate compilation without writing files")
+
+    # compile-item
+    p_item = subparsers.add_parser("compile-item", help="Compile an ad-hoc invariant directly")
+    p_item.add_argument("--id", required=True, help="Item ID (e.g. LSN-2026-001)")
+    p_item.add_argument("--statement", required=True, help="Invariant statement")
+    p_item.add_argument("--category", default="Principle", choices=["Principle", "Pattern", "Anti-Pattern", "Lesson"])
+    p_item.add_argument("--capability", default=None, help="Target capability (e.g. chapter5, sem, regression)")
+    p_item.add_argument("--skills", nargs="*", default=None, help="Explicit target skill names")
+    p_item.add_argument("--global", dest="is_global", action="store_true", help="Target global rules/AGENTS.md")
+    p_item.add_argument("--no-git", action="store_true", help="Do not commit or push to Git")
+    p_item.add_argument("--dry-run", action="store_true", help="Simulate compilation without writing files")
+
+    args = parser.parse_args()
+    compiler = AcademicGraduationCompiler()
+
+    if args.command == "compile-lesson":
+        res = compiler.graduate_from_json_file(args.file, auto_commit=not args.no_git, dry_run=args.dry_run)
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        if not res.get("all_passed"):
+            sys.exit(1)
+
+    elif args.command == "compile-all-pending":
+        res_list = compiler.compile_all_pending(auto_commit=not args.no_git, dry_run=args.dry_run)
+        print(f"Graduated {len(res_list)} pending knowledge items.")
+        print(json.dumps(res_list, indent=2, ensure_ascii=False))
+
+    elif args.command == "compile-item":
+        res = compiler.graduate_item(
+            item_id=args.id,
+            statement=args.statement,
+            category=args.category,
+            capability=args.capability,
+            skills=args.skills,
+            is_global=args.is_global,
+            auto_commit=not args.no_git,
+            dry_run=args.dry_run
+        )
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        if not res.get("all_passed"):
+            sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

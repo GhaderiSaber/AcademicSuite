@@ -206,6 +206,62 @@ class TestAcademicGraduationCompiler(unittest.TestCase):
             content = f.read()
         self.assertNotIn("DASS-21", content)
 
+    def test_08_graduate_from_json_file(self):
+        """Verify graduate_from_json_file reads lesson JSON, updates SKILL.md, and marks status GRADUATED."""
+        import json
+        lesson_data = {
+            "contract_version": "1.0.0",
+            "lesson_id": "LSN-2026-CH5-FOOTNOTES-001",
+            "desired_behavior": "Mandate native OpenXML footnotes in Word docx for Chapter 5.",
+            "related_skills": ["persian-discussion-builder"],
+            "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+            "graduation_status": "PENDING_GRADUATION"
+        }
+        json_path = os.path.join(self.test_dir, "lesson_test.json")
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(lesson_data, f, indent=2)
+
+        res = self.compiler.graduate_from_json_file(json_path, auto_commit=False)
+        self.assertTrue(res["all_passed"])
+        self.assertIn(self.ch5_file, res["targets"])
+
+        # Check SKILL.md
+        with open(self.ch5_file, "r", encoding="utf-8") as f:
+            skill_content = f.read()
+        self.assertIn("LSN-2026-CH5-FOOTNOTES-001", skill_content)
+        self.assertIn("Mandate native OpenXML footnotes", skill_content)
+
+        # Check JSON was updated to GRADUATED
+        with open(json_path, "r", encoding="utf-8") as f:
+            updated_json = json.load(f)
+        self.assertEqual(updated_json["graduation_status"], "GRADUATED")
+        self.assertIn("graduated_at", updated_json)
+
+    def test_09_compile_all_pending(self):
+        """Verify compile_all_pending scans knowledge directories and graduates all pending items."""
+        import json
+        lessons_dir = os.path.join(self.agents_dir, "learning", "knowledge", "lessons")
+        os.makedirs(lessons_dir, exist_ok=True)
+
+        lesson_data = {
+            "contract_version": "1.0.0",
+            "lesson_id": "LSN-2026-BATCH-TEST-001",
+            "desired_behavior": "Enforce explicit right alignment on all Persian headings.",
+            "related_skills": ["persian-discussion-builder"],
+            "graduation_status": "PENDING_GRADUATION"
+        }
+        json_path = os.path.join(lessons_dir, "LSN-2026-BATCH-TEST-001.json")
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(lesson_data, f, indent=2)
+
+        results = self.compiler.compile_all_pending(auto_commit=False)
+        self.assertEqual(len(results), 1)
+        self.assertTrue(results[0]["all_passed"])
+
+        with open(self.ch5_file, "r", encoding="utf-8") as f:
+            skill_content = f.read()
+        self.assertIn("LSN-2026-BATCH-TEST-001", skill_content)
+
 
 if __name__ == "__main__":
     unittest.main()
