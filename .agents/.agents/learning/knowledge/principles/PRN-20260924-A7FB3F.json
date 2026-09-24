@@ -1,0 +1,31 @@
+{
+  "statement": "Chapter 5 discussion must strictly contain zero tables and maintain 100% continuous narrative prose",
+  "scope": "cross-project",
+  "domain": "chapter5",
+  "capability": "chapter5",
+  "tags": [
+    "chapter5"
+  ],
+  "applicability": {
+    "criteria": [
+      "Direct mentorship guidance from research supervisor."
+    ],
+    "target_skills": [
+      "chapter5"
+    ]
+  },
+  "exclusions": [],
+  "source_lessons": [
+    "LSN-HUMAN-MENTOR-DIRECT"
+  ],
+  "supporting_evaluations": [],
+  "contradictions": [],
+  "status": "ACCEPTED_ACTIVE",
+  "version": "1.0.0",
+  "contract_version": "1.0.0",
+  "item_type": "principle",
+  "generalization_stage": "PROMOTED_PRINCIPLE",
+  "updated_at": "2026-09-24T07:41:40.365460+00:00",
+  "knowledge_id": "PRN-20260924-A7FB3F",
+  "relationships": []
+}
