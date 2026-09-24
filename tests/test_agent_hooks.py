@@ -46,6 +46,12 @@ import statistics_agent_guard
 import data_agent_guard
 import academic_writer_guard
 import validation_agent_guard
+import auditor_agents_guard
+import project_organizer_guard
+import psychometric_expert_guard
+import research_literature_guard
+import domain_specialists_guard
+import advisory_agents_guard
 
 
 class TestAcademicOrchestratorGuard(unittest.TestCase):
@@ -1018,6 +1024,439 @@ class TestValidationAgentGuard(unittest.TestCase):
                 payload = {"transcriptPath": tpath, "workspacePaths": [temp_ws]}
                 res = validation_agent_guard.handle_stop(payload)
                 self.assertEqual(res.get("decision"), "allow")
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+
+class TestAuditorAgentsGuard(unittest.TestCase):
+    """Tests for auditor_agents_guard (auditors and challengers)."""
+
+    def test_blocks_subagent_delegation(self):
+        for auditor in ("evidence-auditor", "results-auditor", "statistical-auditor", "academic-challenger", "final-judge"):
+            payload = {
+                "caller": auditor,
+                "toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}
+            }
+            res = auditor_agents_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed for {auditor}")
+            self.assertIn("Directive 12", res.get("reason", ""))
+
+    def test_blocks_mutation_for_read_only_auditors(self):
+        for auditor in ("evidence-auditor", "results-auditor", "academic-challenger", "final-judge"):
+            payload = {
+                "caller": auditor,
+                "toolCall": {"name": "write_to_file", "args": {"TargetFile": "03_deliverables/report.docx"}}
+            }
+            res = auditor_agents_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed for {auditor}")
+            self.assertIn("Read-Only", res.get("reason", ""))
+
+    def test_blocks_shell_execution_for_read_only_auditors(self):
+        for auditor in ("evidence-auditor", "results-auditor", "academic-challenger", "final-judge"):
+            payload = {
+                "caller": auditor,
+                "toolCall": {"name": "run_command", "args": {"CommandLine": "ls -la"}}
+            }
+            res = auditor_agents_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed for {auditor}")
+            self.assertIn("Execution Revocation", res.get("reason", ""))
+
+    def test_allows_read_tools_for_auditors(self):
+        payload = {
+            "caller": "results-auditor",
+            "toolCall": {"name": "view_file", "args": {"AbsolutePath": "03_deliverables/ch4.docx"}}
+        }
+        res = auditor_agents_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "allow")
+
+    def test_statistical_auditor_blocks_deliverables_mutation(self):
+        payload = {
+            "caller": "statistical-auditor",
+            "toolCall": {"name": "write_to_file", "args": {"TargetFile": "03_deliverables/findings.docx"}}
+        }
+        res = auditor_agents_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Auditor Mutation Boundary", res.get("reason", ""))
+
+    def test_results_auditor_flags_p_zero_and_naked_persian_decimals(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "یافته‌ها حاکی از معناداری است (p = .000 و .۰۵)."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"caller": "results-auditor", "transcriptPath": tpath}
+            res = auditor_agents_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 4", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_academic_challenger_blocks_rubber_stamp_approvals(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Everything looks great! No methodology flaws detected, approved without questions."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"caller": "academic-challenger", "transcriptPath": tpath}
+            res = auditor_agents_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Anti-Sycophancy", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_final_judge_blocks_naive_20_grade(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "ارزیابی پایان‌نامه: نمره ۲۰ از ۲۰ بدون قید و شرط."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"caller": "final-judge", "transcriptPath": tpath}
+            res = auditor_agents_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Zero Grade Inflation", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_final_judge_requires_human_gate_card(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Verdict: CLEARANCE_GRANTED with grade 18.5/20."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"caller": "final-judge", "transcriptPath": tpath}
+            res = auditor_agents_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Human Gate Card Required", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_evidence_auditor_flags_ghost_citations(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Concordance verified, but found 1 ghost citation in Chapter 2."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"caller": "evidence-auditor", "transcriptPath": tpath}
+            res = auditor_agents_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 14", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_statistical_auditor_flags_heywood_case(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Audit check: error variance = -0.15 in CFA indicator."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"caller": "statistical-auditor", "transcriptPath": tpath}
+            res = auditor_agents_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Heywood case", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+
+class TestProjectOrganizerGuard(unittest.TestCase):
+    """Tests for project_organizer_guard."""
+
+    def test_blocks_subagent_delegation(self):
+        payload = {"toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}}
+        res = project_organizer_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 12", res.get("reason", ""))
+
+    def test_blocks_raw_data_modification(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False) as f:
+            f.write("raw data")
+            raw_path = f.name
+
+        try:
+            payload = {
+                "toolCall": {
+                    "name": "write_to_file",
+                    "args": {"TargetFile": os.path.join(os.path.dirname(raw_path), "01_raw_inputs", os.path.basename(raw_path)), "Overwrite": True}
+                }
+            }
+            # Simulate target in 01_raw_inputs
+            res = project_organizer_guard.handle_pre_tool_use(payload)
+            # Will be allowed if target file doesn't exist yet, but if it exists:
+            os.makedirs(os.path.join(os.path.dirname(raw_path), "01_raw_inputs"), exist_ok=True)
+            real_target = os.path.join(os.path.dirname(raw_path), "01_raw_inputs", "test.xlsx")
+            with open(real_target, "w") as rf:
+                rf.write("dummy")
+            payload["toolCall"]["args"]["TargetFile"] = real_target
+            res = project_organizer_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Raw Data Protection", res.get("reason", ""))
+        finally:
+            if os.path.exists(raw_path):
+                os.unlink(raw_path)
+
+    def test_blocks_destructive_shell_command(self):
+        payload = {"toolCall": {"name": "run_command", "args": {"CommandLine": "rm -rf 01_raw_inputs/data.xlsx"}}}
+        res = project_organizer_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Raw Data Protection", res.get("reason", ""))
+
+    def test_blocks_root_script_targets(self):
+        with tempfile.TemporaryDirectory() as ws:
+            payload = {
+                "toolCall": {"name": "write_to_file", "args": {"TargetFile": os.path.join(ws, "organize.py")}},
+                "workspacePaths": [ws]
+            }
+            res = project_organizer_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Directive 23", res.get("reason", ""))
+
+    def test_blocks_non_ascii_filenames(self):
+        payload = {"toolCall": {"name": "write_to_file", "args": {"TargetFile": "02_code/کد_پروژه.py"}}}
+        res = project_organizer_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 6", res.get("reason", ""))
+
+    def test_stop_verifies_4_tier_taxonomy_scaffolding(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Project scaffolded successfully for new client."}) + "\n")
+            tpath = tf.name
+
+        try:
+            with tempfile.TemporaryDirectory() as ws:
+                # Without tiers created, stop hook should flag violation
+                payload = {"transcriptPath": tpath, "workspacePaths": [ws]}
+                res = project_organizer_guard.handle_stop(payload)
+                self.assertEqual(res.get("decision"), "continue")
+                self.assertIn("4-Tier", res.get("reason", ""))
+
+                # Now create tiers + project_meta.json
+                for t in ("01_raw_inputs", "02_analysis_code", "03_deliverables", "04_references_and_lit"):
+                    os.makedirs(os.path.join(ws, t), exist_ok=True)
+                with open(os.path.join(ws, "project_meta.json"), "w") as mf:
+                    json.dump({"client": "test"}, mf)
+
+                res2 = project_organizer_guard.handle_stop(payload)
+                self.assertEqual(res2.get("decision"), "allow")
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+
+class TestPsychometricExpertGuard(unittest.TestCase):
+    """Tests for psychometric_expert_guard."""
+
+    def test_blocks_subagent_delegation(self):
+        payload = {"toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}}
+        res = psychometric_expert_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 12", res.get("reason", ""))
+
+    def test_blocks_cli_script_without_view_file(self):
+        payload = {"toolCall": {"name": "run_command", "args": {"CommandLine": "python3 .agents/skills/cfa/scripts/run_cfa.py"}}}
+        res = psychometric_expert_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 1", res.get("reason", ""))
+
+    def test_allows_cli_script_after_view_file(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [{"name": "view_file", "args": {"AbsolutePath": ".agents/skills/cfa/SKILL.md"}}]
+            }) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {
+                "toolCall": {"name": "run_command", "args": {"CommandLine": "python3 .agents/skills/cfa/scripts/run_cfa.py"}},
+                "transcriptPath": tpath
+            }
+            res = psychometric_expert_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "allow")
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_stop_blocks_heywood_cases_and_loading_over_one(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "CFA Results: Standardized loading: 1.15 and theta: -0.05."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = psychometric_expert_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Mathematical Admissibility", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_stop_flags_p_zero_and_naked_persian_decimals(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "شاخص برازش با p = .000 و ضریب .۷۵ گزارش شد."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = psychometric_expert_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 4", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+
+class TestResearchLiteratureGuard(unittest.TestCase):
+    """Tests for research_literature_guard."""
+
+    def test_blocks_subagent_delegation(self):
+        payload = {"toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}}
+        res = research_literature_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 12", res.get("reason", ""))
+
+    def test_blocks_cli_script_without_view_file(self):
+        payload = {"toolCall": {"name": "run_command", "args": {"CommandLine": "python3 .agents/skills/gpower-sample-size-calculator/scripts/power_calc.py"}}}
+        res = research_literature_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 1", res.get("reason", ""))
+
+    def test_stop_blocks_temporal_hallucinations(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Currently in 2024, empirical literature indicates..."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = research_literature_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 15", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_stop_flags_ghost_dois(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Paper citation: Smith et al. (2023), doi: 10.1234/ghost"}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"caller": "literature-expert", "transcriptPath": tpath}
+            res = research_literature_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 14", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+
+class TestDomainSpecialistsGuard(unittest.TestCase):
+    """Tests for domain_specialists_guard."""
+
+    def test_blocks_subagent_delegation(self):
+        payload = {"caller": "data-curator", "toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}}
+        res = domain_specialists_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 12", res.get("reason", ""))
+
+    def test_data_curator_blocks_raw_data_modification(self):
+        payload = {
+            "caller": "data-curator",
+            "toolCall": {"name": "write_to_file", "args": {"TargetFile": "01_raw_inputs/survey.csv"}}
+        }
+        res = domain_specialists_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Raw Data Protection", res.get("reason", ""))
+
+    def test_blocks_root_script_targets(self):
+        with tempfile.TemporaryDirectory() as ws:
+            payload = {
+                "caller": "meta-analyst",
+                "toolCall": {"name": "write_to_file", "args": {"TargetFile": os.path.join(ws, "run_meta.py")}},
+                "workspacePaths": [ws]
+            }
+            res = domain_specialists_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Directive 23", res.get("reason", ""))
+
+    def test_blocks_shell_for_no_exec_specialists(self):
+        for spec in ("journal-strategist", "intervention-designer"):
+            payload = {
+                "caller": spec,
+                "toolCall": {"name": "run_command", "args": {"CommandLine": "python3 script.py"}}
+            }
+            res = domain_specialists_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed for {spec}")
+            self.assertIn("Capability Boundary", res.get("reason", ""))
+
+    def test_stop_flags_p_zero_and_naked_persian_decimals(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "فراتحلیل اندازه اثر .۴۵ با p = .000 به دست آمد."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"transcriptPath": tpath}
+            res = domain_specialists_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 4", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+
+class TestAdvisoryAgentsGuard(unittest.TestCase):
+    """Tests for advisory_agents_guard (digital-saber, methodology-expert, statistical-expert)."""
+
+    def test_blocks_subagent_delegation(self):
+        for adv in ("digital-saber", "methodology-expert", "statistical-expert"):
+            payload = {"caller": adv, "toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}}
+            res = advisory_agents_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed for {adv}")
+            self.assertIn("Directive 12", res.get("reason", ""))
+
+    def test_blocks_mutation_tools(self):
+        for adv in ("digital-saber", "methodology-expert", "statistical-expert"):
+            payload = {"caller": adv, "toolCall": {"name": "write_to_file", "args": {"TargetFile": "test.txt"}}}
+            res = advisory_agents_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed for {adv}")
+            self.assertIn("Advisor Read-Only", res.get("reason", ""))
+
+    def test_blocks_shell_execution(self):
+        for adv in ("digital-saber", "methodology-expert", "statistical-expert"):
+            payload = {"caller": adv, "toolCall": {"name": "run_command", "args": {"CommandLine": "ls"}}}
+            res = advisory_agents_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed for {adv}")
+            self.assertIn("Execution Revocation", res.get("reason", ""))
+
+    def test_stop_blocks_sycophantic_flattery(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "Great question! That is a brilliant research idea."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"caller": "digital-saber", "transcriptPath": tpath}
+            res = advisory_agents_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 13", res.get("reason", ""))
+        finally:
+            if os.path.exists(tpath):
+                os.unlink(tpath)
+
+    def test_stop_requires_human_gate_for_digital_saber_pricing(self):
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tf:
+            tf.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "برآورد مالی این پروژه ۱۵ میلیون تومان خواهد بود."}) + "\n")
+            tpath = tf.name
+
+        try:
+            payload = {"caller": "digital-saber", "transcriptPath": tpath}
+            res = advisory_agents_guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Human Gate Required", res.get("reason", ""))
         finally:
             if os.path.exists(tpath):
                 os.unlink(tpath)
