@@ -123,4 +123,5 @@ The script outputs:
 ### 9.3 Multidimensional Construct Preservation
 - Scales with validated multidimensional subscales must preserve their dimensional structure in the measurement model. Forcibly collapsing multidimensional scales into an artificial single-factor latent variable without theoretical justification is prohibited.
 
-
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-MANDATORY-SEM-FIGURE-GENERATION-001)**: When delegating SEM or relevant simulation tasks, explicitly require the generation of high-resolution path diagrams (semPlot / matplotlib) in the delegation scope. Correspondingly, require the validation-agent to actively assert the existence of these figure artifacts in the deliverables directory before passing the audit. [Enforcement: dynamic_invariant_guard.py (LSN-2026-MANDATORY-SEM-FIGURE-GENERATION-001)]
