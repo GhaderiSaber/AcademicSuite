@@ -74,7 +74,7 @@ Every execution run generates two verified tracking artifacts in `--out-dir`:
 - **Lesson (LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001)**: Package each agent and subagent as an autonomous unit containing its definition (agent.md), contracts (contract.md), and dedicated lifecycle guard (guard.py / hooks.json) within its own dedicated folder. [Enforcement: dynamic_invariant_guard.py (LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001)]
 - **Lesson (LSN-20260924-STRICT-ENGLISH-CONVERSATION-001)**: English-only for all meta-conversational and status reports regardless of artifact language. [Enforcement: dynamic_invariant_guard.py (LSN-20260924-STRICT-ENGLISH-CONVERSATION-001)]
 - **Lesson (LSN-2026-LEARN-SUBAGENTS-001)**: Invoke exclusively native learning subagents (knowledge-curator, trajectory-analyzer, behavior-analyst, skill-evolver, evaluation-agent, curriculum-builder) whenever /learn or continuous self-improvement is triggered. [Enforcement: dynamic_invariant_guard.py (LSN-2026-LEARN-SUBAGENTS-001)]
-- **Lesson (LSN-20260925-E80D47)**: Standard compliance: There is a bug in the reference generation. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-E80D47)]
+- **Lesson (LSN-20260925-80C880)**: Standard compliance: There is a bug in the reference generation. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-80C880)]
 There is a text in the references section that unrelated to references. 
 
 
