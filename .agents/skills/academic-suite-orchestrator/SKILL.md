@@ -80,6 +80,11 @@ Every execution run generates two verified tracking artifacts in `--out-dir`:
 
 
 The current local time is: 2026-09-25T21:26:53+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-F979A3)]
+1. You should have a one blank line before each header. But there isn't any blank line after the headers. 
+2. In the 'پیوست' section you should have only the Questions table with header of that question. 
+
+
+The current local time is: 2026-09-25T21:26:53+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-F979A3)]
 There is a text in the references section that unrelated to references. 
 
 
