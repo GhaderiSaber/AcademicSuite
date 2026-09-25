@@ -74,7 +74,12 @@ Every execution run generates two verified tracking artifacts in `--out-dir`:
 - **Lesson (LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001)**: Package each agent and subagent as an autonomous unit containing its definition (agent.md), contracts (contract.md), and dedicated lifecycle guard (guard.py / hooks.json) within its own dedicated folder. [Enforcement: dynamic_invariant_guard.py (LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001)]
 - **Lesson (LSN-20260924-STRICT-ENGLISH-CONVERSATION-001)**: English-only for all meta-conversational and status reports regardless of artifact language. [Enforcement: dynamic_invariant_guard.py (LSN-20260924-STRICT-ENGLISH-CONVERSATION-001)]
 - **Lesson (LSN-2026-LEARN-SUBAGENTS-001)**: Invoke exclusively native learning subagents (knowledge-curator, trajectory-analyzer, behavior-analyst, skill-evolver, evaluation-agent, curriculum-builder) whenever /learn or continuous self-improvement is triggered. [Enforcement: dynamic_invariant_guard.py (LSN-2026-LEARN-SUBAGENTS-001)]
-- **Lesson (LSN-20260925-572A86)**: Standard compliance: Problem: 
+- **Lesson (LSN-20260925-F979A3)**: Standard compliance: Problem: 
+1. You should have a one blank line before each header. But there isn't any blank line after the headers. 
+2. In the 'پیوست' section you should have only the Questions table with header of that question. 
+
+
+The current local time is: 2026-09-25T21:26:53+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-F979A3)]
 There is a text in the references section that unrelated to references. 
 
 
