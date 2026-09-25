@@ -197,3 +197,4 @@ In addition to reactive, post-failure learning loops, the repository supports **
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-CLEAN-ROOT-TAXONOMY-ENFORCEMENT-001)**: Never write scripts directly into the repository root. Always route scripts to 02_analysis_code/ for project analysis, .agents/scripts/ for suite tools, tests/ for tests, or the session scratch directory. [Enforcement: dynamic_invariant_guard.py (LSN-2026-CLEAN-ROOT-TAXONOMY-ENFORCEMENT-001)]
+- **Lesson (LSN-2026-LEARN-ON-USER-FEEDBACK-001)**: Automatically activate the native learning pipeline upon any user feedback indicating wrong results, defects, or dissatisfaction, persisting structured lessons and anti-patterns. [Enforcement: dynamic_invariant_guard.py (LSN-2026-LEARN-ON-USER-FEEDBACK-001)]

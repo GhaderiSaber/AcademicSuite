@@ -150,3 +150,5 @@ python3 .agents/validators/run_all_validators.py --stage-dir <stage_dir> --tier 
 ### Actionable Repair Prescriptions (ARP):
 Whenever any check fails or is blocked, the engine outputs structured machine-readable repair recipes (`{prescription_id, tier, defect_type, severity, target_artifact, responsible_agent, remedy_instruction}`) so `academic-orchestrator` can dispatch targeted agent remediation.
 
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-LEARN-ON-USER-FEEDBACK-001)**: Automatically activate the native learning pipeline upon any user feedback indicating wrong results, defects, or dissatisfaction, persisting structured lessons and anti-patterns. [Enforcement: data_agent_guard.py]
