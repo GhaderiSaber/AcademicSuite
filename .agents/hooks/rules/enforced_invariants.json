@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:10.999357+00:00",
+  "updated_at": "2026-09-25T17:08:11.036546+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -433,6 +433,26 @@
       "remedy": "Enforce 'جدول [فصل]- [شماره]' (e.g. 'جدول ۴- ۳۱') in all captions and narrative citations.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:10.999338+00:00"
+    },
+    "AP-2026-ISOLATED-PROSE-POLISHING": {
+      "item_id": "AP-2026-ISOLATED-PROSE-POLISHING",
+      "category": "Anti-Pattern",
+      "statement": "When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.",
+      "target_agents": [
+        "academic-writer",
+        "academic-orchestrator",
+        "results-auditor"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Detection of localized paragraph rewrites while sister paragraphs retain legacy non-compliant formatting or tone.",
+      "violation_message": "When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.",
+      "remedy": "When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:11.036527+00:00"
     }
   }
 }
