@@ -203,3 +203,6 @@ Place generated files directly in the user's project directory with descriptive 
 - [enw_ris_formats.md](./references/enw_ris_formats.md): Field specifications and tag definitions for EndNote and RIS formats.
 - [citation_patterns.md](./references/citation_patterns.md): Regex patterns and common in-text citation variants.
 - [sample_workflow.md](./examples/sample_workflow.md): Complete walkthrough of section reference extraction for a dissertation chapter.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-STRUCTURAL-REFERENCE-PARSING-001)**: When extracting or parsing references, always employ structural validation (e.g., matching authors, years, DOIs, or using specialized reference extraction libraries) and explicitly forbid naive character-length filtering. [Enforcement: dynamic_invariant_guard.py (LSN-2026-STRUCTURAL-REFERENCE-PARSING-001)]

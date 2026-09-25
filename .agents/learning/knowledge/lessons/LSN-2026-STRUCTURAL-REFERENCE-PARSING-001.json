@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-STRUCTURAL-REFERENCE-PARSING-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "AUDITOR_FAILURE",
+  "source_experience_id": "BAN-20260925-001",
+  "diagnosis": {
+    "what_happened": "Naive length filtering of bibliographic references caused subheading and non-reference text leakage into the master thesis bibliography.",
+    "behavior_caused_outcome": "Character-length-only heuristics (VIOLATED_ASSUMPTION_IGNORED) misidentified long subheadings and regular text blocks as bibliography entries.",
+    "what_should_have_happened": "Reference parsing should rely on structural markers, such as standard APA 7 formatting rules, regex matching of years/DOIs, or scholarly metadata rather than simple string length.",
+    "rationale_why": "Bibliographies are highly structured artifacts; relying on raw string length introduces severe false positives."
+  },
+  "desired_behavior": "When extracting or parsing references, always employ structural validation (e.g., matching authors, years, DOIs, or using specialized reference extraction libraries) and explicitly forbid naive character-length filtering.",
+  "generalization": "Parsing structured academic elements requires semantic or structural heuristics, never raw textual dimensions.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "VIOLATED_ASSUMPTION_IGNORED",
+    "observed_value": "Non-reference text leaked into bibliography",
+    "threshold_value": "Zero non-reference leakage allowed",
+    "supporting_report_ids": ["BAN-20260925-001"],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-reference-extractor",
+    "apa-reporting"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-25T19:05:02Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-reference-extractor",
+  "target_agents": [
+    "academic-reference-extractor",
+    "academic-writer"
+  ]
+}
