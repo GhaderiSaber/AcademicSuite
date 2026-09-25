@@ -190,7 +190,28 @@ The engine deterministically compiles:
   - `persian-thesis-builder`: Direct input as `--ch2` in `.agents/skills/persian-thesis-builder/scripts/compile_full_thesis.py`.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-20260925-ADDFC7)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]
+- **Lesson (LSN-20260925-C8DB97)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~164/600 tokens (27.3%)]
+- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`
+
+
+⚠️ Known Pitfalls (Anti-Patterns to Avoid):
+- None cataloged. Enforce standard APA 7 & OpenXML rigor.
+
+💡 Relevant Active Lessons:
+- No specialized lessons flagged. Standard pipeline rules apply.
+
+⚖️ Applicable Methodology Rules & Boundary Conditions:
+- No conflicting paradigms active. Follow primary statistical decision tree.
+
+---
+### Executable Task Assignment:
+Reconstruct observable actions, tool calls, and error trajectory for user critique: Problem: 
+There is a text in the references section that unrelated to references. 
+
+Please analyze the execution trajectory of 02_analysis_code/restore_comprehensive_references.py, how paragraphs were extracted from 03_deliverables/Thesis.docx and other sources, and identify the exact non-reference text that leaked into the references deliverable.
+
+
+The current local time is: 2026-09-25T18:59:06+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-C8DB97)]
 - **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`
 
 
