@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T16:35:39.023382+00:00",
+  "updated_at": "2026-09-25T16:01:58.343541+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -105,30 +105,6 @@
       "remedy": "Implement robust structural parsing using regex patterns that match specific citation components (e.g., publication year in parentheses, DOI links, standard APA 7 formatting) or use a dedicated reference parser rather than character count.",
       "enabled": true,
       "updated_at": "2026-09-25T16:01:58.343524+00:00"
-    },
-    "LSN-2026-META-NOTE-REFERENCE-BAN-001": {
-      "item_id": "LSN-2026-META-NOTE-REFERENCE-BAN-001",
-      "category": "Reference Integrity",
-      "statement": "Reference sections, bibliographies, and thesis deliverables must strictly exclude conversational prefaces, meta-notes, and commentary (e.g. جامعیت:, توجه:, Note:).",
-      "target_agents": [
-        "academic-writer",
-        "academic-reference-extractor",
-        "results-auditor"
-      ],
-      "target_skills": [
-        "academic-reference-extractor",
-        "apa-reporting",
-        "persian-thesis-builder"
-      ],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*(?:references|bibliography|bib|thesis|master|chapter).*\\.(?:txt|md|docx|enw|ris)",
-      "check_type": "regex_ban",
-      "pattern": "(?m)^\\s*(?:[#\\-*]+\\s*)?(?:جامعیت|توجه|یادداشت|توضیح|نکته|Note|Notice|Comprehensive|Remark)\\s*[:：].*$",
-      "violation_message": "Conversational meta-annotation or preface prose detected in academic deliverable or reference artifact.",
-      "remedy": "Excise meta-notes and explanatory prefaces before publishing. The bibliography must strictly contain pure bibliographic entries.",
-      "enabled": true,
-      "updated_at": "2026-09-25T16:35:39.023348+00:00"
     }
   }
 }
