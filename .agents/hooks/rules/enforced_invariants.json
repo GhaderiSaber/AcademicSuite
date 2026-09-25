@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:29.230864+00:00",
+  "updated_at": "2026-09-25T17:27:29.265530+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -472,7 +472,7 @@
       "violation_message": "Remove all references to internal templates or table numbers. Describe the statistical steps substantively: 'به منظور آزمون جامع این فرضیه، سلسله تحلیل‌های رگرسیونی شامل همبستگی دومتغیری، رگرسیون خطی و رگرسیون لوجیستیک دووجهی جهت برآورد مرزهای خطر بالینی انجام شد.'",
       "remedy": "Remove all references to internal templates or table numbers. Describe the statistical steps substantively: 'به منظور آزمون جامع این فرضیه، سلسله تحلیل‌های رگرسیونی شامل همبستگی دومتغیری، رگرسیون خطی و رگرسیون لوجیستیک دووجهی جهت برآورد مرزهای خطر بالینی انجام شد.'",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:02.820919+00:00"
+      "updated_at": "2026-09-25T17:27:29.265517+00:00"
     },
     "AP-2026-LEGACY-MULTI-QUESTION-INTRO-CONTAMINATION": {
       "item_id": "AP-2026-LEGACY-MULTI-QUESTION-INTRO-CONTAMINATION",
