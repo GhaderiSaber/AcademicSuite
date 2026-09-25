@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:29.060276+00:00",
+  "updated_at": "2026-09-25T17:27:29.096526+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -392,7 +392,7 @@
       "violation_message": "Enforce strictly separate, dedicated H2 sections for each research question and hypothesis, formatted in flowing, cohesive academic prose.",
       "remedy": "Enforce strictly separate, dedicated H2 sections for each research question and hypothesis, formatted in flowing, cohesive academic prose.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:02.651199+00:00"
+      "updated_at": "2026-09-25T17:27:29.096515+00:00"
     },
     "AP-2026-INSTRUMENT-NOUN-CONTAMINATION": {
       "item_id": "AP-2026-INSTRUMENT-NOUN-CONTAMINATION",
