@@ -94,7 +94,8 @@ Before invoking `write_to_file` on any file in `.agents/learning/knowledge/`:
    - `contract_version`, `lesson_id`, `source_experience_id`, `desired_behavior`, `generalization`, `scope`, `confidence`, `evidence`, `related_skills`, `is_active_behavior` (`true`), `status` (`VALIDATED`), `target_agent` (string), `target_agents` (non-empty array), `created_at` (ISO 8601).
    - `lesson_type` must be strictly `"WHAT_NOT_TO_DO"` or `"WHAT_WORKED_WELL"`. Never use `"HOW_TO"` or any other unlisted value.
 3. **Mandatory Fields in Anti-Patterns**:
-   - `contract_version`, `anti_pattern_id`, `category`, `defective_pattern`, `why_defective`, `observed_symptoms`, `corrective_remedy`, `detection_heuristic` (with `trigger_rule`), `target_agent` (string), `target_agents` (non-empty array), `reusable` (boolean), `updated_at` (ISO 8601).
+   - `contract_version`, `anti_pattern_id`, `category` (must be one of: `methodological`, `statistical`, `execution`, `evidence`, `validation`, `typography`), `defective_pattern`, `why_defective`, `observed_symptoms`, `corrective_remedy`, `detection_heuristic` (with `trigger_rule`), `target_agent` (string), `target_agents` (non-empty array), `reusable` (boolean), `updated_at` (ISO 8601).
+   - **Mechanical Hook Coupling (Directives 19 & 21)**: When an Anti-Pattern involves prohibited text patterns, subheadings leaking into bibliographies, forbidden table structures, or formatting defects, you MUST specify in `detection_heuristic`: `trigger_rule`, `regex_patterns`, `pattern`, `check_type` (`regex_ban`, `substring_ban`, `openxml_dom_ban`, `markdown_table_ban`), `file_pattern`, and `event` (`PreToolUse`, `Stop`, or `Both`). This ensures Channel 2 of `academic_graduation_compiler.py` immediately registers the mechanical hook into `.agents/hooks/rules/enforced_invariants.json`.
 
 ### 📋 Authoritative JSON Templates
 
@@ -145,7 +146,7 @@ Before invoking `write_to_file` on any file in `.agents/learning/knowledge/`:
 {
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-DESCRIPTIVE-SLUG",
-  "category": "typography",
+  "category": "execution",
   "defective_pattern": "Specific discredited practice",
   "why_defective": "Clear rationale for prohibition",
   "observed_symptoms": [
@@ -154,7 +155,12 @@ Before invoking `write_to_file` on any file in `.agents/learning/knowledge/`:
   ],
   "corrective_remedy": "Exact replacement procedure",
   "detection_heuristic": {
-    "trigger_rule": "Detection criteria or regex pattern"
+    "trigger_rule": "Deterministic regex pattern matching the defect",
+    "regex_patterns": ["(?m)^prohibited_regex_pattern$"],
+    "pattern": "(?m)^prohibited_regex_pattern$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.txt",
+    "event": "Both"
   },
   "target_agent": "academic-writer",
   "target_agents": [

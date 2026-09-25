@@ -337,6 +337,111 @@ class TestAcademicGraduationCompiler(unittest.TestCase):
             updated_cand = json.load(f)
         self.assertEqual(updated_cand.get("status"), "PROMOTED")
 
+    def test_12_channel_2_hook_registration_and_enforcement(self):
+        """Channel 2 must register mechanical rules in enforced_invariants.json and block violating tool calls."""
+        from hooks.dynamic_invariant_guard import DynamicInvariantGuard
+        ap_dir = os.path.join(self.agents_dir, "learning", "knowledge", "anti-patterns")
+        os.makedirs(ap_dir, exist_ok=True)
+
+        ap_data = {
+            "contract_version": "1.0.0",
+            "anti_pattern_id": "AP-TEST-LEAKAGE-001",
+            "category": "execution",
+            "defective_pattern": "Leaking subheadings into reference files.",
+            "why_defective": "Corrupts bibliography artifacts.",
+            "observed_symptoms": ["Subheadings appearing in bibliography"],
+            "corrective_remedy": "Filter subheadings before reference export.",
+            "detection_heuristic": {
+                "trigger_rule": "Detect leaked subheadings",
+                "regex_patterns": [r"(?m)^\s*(?:English References|فصل \d+)\s*$"],
+                "file_pattern": r".*references.*\.txt",
+                "check_type": "regex_ban",
+                "event": "PreToolUse"
+            },
+            "target_agent": "academic-writer",
+            "target_agents": ["academic-writer"],
+            "related_skills": ["persian-discussion-builder"],
+            "reusable": True,
+            "graduation_status": "PENDING_GRADUATION"
+        }
+        ap_path = os.path.join(ap_dir, "AP-TEST-LEAKAGE-001.json")
+        with open(ap_path, "w", encoding="utf-8") as f:
+            json.dump(ap_data, f, indent=2)
+
+        res = self.compiler.graduate_from_json_file(ap_path, auto_commit=False)
+        self.assertTrue(res["all_passed"])
+        self.assertTrue(res["hook_registered"], "Channel 2 hook must be registered")
+
+        # Verify rule is present in mock enforced_invariants.json
+        inv_file = os.path.join(self.agents_dir, "hooks", "rules", "enforced_invariants.json")
+        self.assertTrue(os.path.isfile(inv_file))
+        with open(inv_file, "r", encoding="utf-8") as f:
+            invs = json.load(f).get("invariants", {})
+        self.assertIn("AP-TEST-LEAKAGE-001", invs)
+        self.assertEqual(invs["AP-TEST-LEAKAGE-001"]["check_type"], "regex_ban")
+
+        # Test mechanical evaluation
+        eval_res = DynamicInvariantGuard.evaluate_pre_tool_use(
+            "academic-writer",
+            {
+                "toolCall": {
+                    "name": "write_to_file",
+                    "args": {
+                        "TargetFile": "03_deliverables/references.txt",
+                        "CodeContent": "English References\nSmith, J. (2020)."
+                    }
+                }
+            }
+        )
+        self.assertEqual(eval_res.get("decision"), "deny")
+
+    def test_13_companion_antipattern_resolution(self):
+        """Graduating a lesson without explicit detection_heuristic must resolve companion anti-pattern heuristic."""
+        ap_dir = os.path.join(self.agents_dir, "learning", "knowledge", "anti-patterns")
+        lessons_dir = os.path.join(self.agents_dir, "learning", "knowledge", "lessons")
+        os.makedirs(ap_dir, exist_ok=True)
+        os.makedirs(lessons_dir, exist_ok=True)
+
+        # Companion Anti-Pattern with regex_patterns
+        ap_data = {
+            "contract_version": "1.0.0",
+            "anti_pattern_id": "AP-COMPANION-RESOLVE-TEST",
+            "category": "execution",
+            "defective_pattern": "Prohibited pattern.",
+            "why_defective": "Defective.",
+            "observed_symptoms": ["Symptom"],
+            "corrective_remedy": "Remedy.",
+            "detection_heuristic": {
+                "trigger_rule": "Detect pattern",
+                "regex_patterns": [r"prohibited_keyword"],
+                "file_pattern": r".*\.txt",
+                "check_type": "regex_ban"
+            },
+            "target_agent": "academic-writer",
+            "target_agents": ["academic-writer"],
+            "reusable": True
+        }
+        with open(os.path.join(ap_dir, "AP-COMPANION-RESOLVE-TEST.json"), "w", encoding="utf-8") as f:
+            json.dump(ap_data, f, indent=2)
+
+        # Lesson sharing slug
+        lesson_data = {
+            "contract_version": "1.0.0",
+            "lesson_id": "LSN-COMPANION-RESOLVE-TEST-001",
+            "desired_behavior": "Enforce strict companion resolution.",
+            "related_skills": ["persian-discussion-builder"],
+            "target_agents": ["academic-writer"],
+            "graduation_status": "PENDING_GRADUATION"
+        }
+        lesson_path = os.path.join(lessons_dir, "LSN-COMPANION-RESOLVE-TEST-001.json")
+        with open(lesson_path, "w", encoding="utf-8") as f:
+            json.dump(lesson_data, f, indent=2)
+
+        res = self.compiler.graduate_from_json_file(lesson_path, auto_commit=False)
+        self.assertTrue(res["all_passed"])
+        self.assertTrue(res["hook_registered"], "Channel 2 hook must be registered via companion anti-pattern")
+
 
 if __name__ == "__main__":
     unittest.main()
+

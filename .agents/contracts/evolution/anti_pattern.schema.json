@@ -68,6 +68,10 @@
           "type": "array",
           "items": {"type": "string"}
         },
+        "pattern": {"type": "string"},
+        "check_type": {"type": "string"},
+        "file_pattern": {"type": "string"},
+        "event": {"type": "string"},
         "diagnostic_check_id": {"type": "string"}
       },
       "additionalProperties": false

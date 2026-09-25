@@ -340,6 +340,7 @@ class AcademicGraduationCompiler:
         check_type: Optional[str] = None,
         pattern: Optional[str] = None,
         file_pattern: Optional[str] = None,
+        event: Optional[str] = None,
         remedy: Optional[str] = None,
         auto_commit: bool = True,
         dry_run: bool = False
@@ -376,7 +377,7 @@ class AcademicGraduationCompiler:
                             statement=statement,
                             target_agents=target_agents or ["*"],
                             target_skills=skills or [],
-                            event="PreToolUse",
+                            event=event or "PreToolUse",
                             file_pattern=file_pattern or ".*\\.(?:md|docx|txt)",
                             check_type=eff_check or "regex_ban",
                             pattern=eff_pattern,
@@ -452,7 +453,39 @@ class AcademicGraduationCompiler:
         # Extract mechanical heuristic parameters for Channel 2 hook registration
         dh = data.get("detection_heuristic", {})
         pattern = dh.get("regex") or dh.get("pattern") or ""
+        if not pattern and "regex_patterns" in dh and isinstance(dh["regex_patterns"], list) and dh["regex_patterns"]:
+            pattern = dh["regex_patterns"][0]
         check_type = dh.get("check_type")
+        file_pattern = dh.get("file_pattern") or data.get("file_pattern")
+        event = dh.get("event") or data.get("event")
+
+        # If Lesson lacks pattern, attempt companion Anti-Pattern resolution
+        if not pattern and category == "Lesson":
+            anti_dir = os.path.join(self.agents_dir, "learning", "knowledge", "anti-patterns")
+            if os.path.isdir(anti_dir):
+                slug = item_id.replace("LSN-", "").replace("AP-", "").strip()
+                tokens = [t.lower() for t in slug.split("-") if len(t) > 3 and not t.isdigit()]
+                for af in sorted(os.listdir(anti_dir)):
+                    if not af.endswith(".json") or af.startswith("."):
+                        continue
+                    af_lower = af.lower()
+                    if any(tok in af_lower for tok in tokens):
+                        try:
+                            with open(os.path.join(anti_dir, af), "r", encoding="utf-8") as f_ap:
+                                ap_data = json.load(f_ap)
+                            ap_dh = ap_data.get("detection_heuristic", {})
+                            ap_pat = ap_dh.get("pattern") or ap_dh.get("regex") or ""
+                            if not ap_pat and "regex_patterns" in ap_dh and isinstance(ap_dh["regex_patterns"], list) and ap_dh["regex_patterns"]:
+                                ap_pat = ap_dh["regex_patterns"][0]
+                            if ap_pat:
+                                pattern = ap_pat
+                                check_type = check_type or ap_dh.get("check_type")
+                                file_pattern = file_pattern or ap_dh.get("file_pattern")
+                                event = event or ap_dh.get("event")
+                                break
+                        except Exception:
+                            pass
+
         if not pattern and category == "Anti-Pattern":
             trig = dh.get("trigger_rule", "")
             if re.search(r"[\^\\\[\].*+?|]", trig):
@@ -481,6 +514,8 @@ class AcademicGraduationCompiler:
             target_agents=target_agents,
             check_type=check_type,
             pattern=pattern,
+            file_pattern=file_pattern,
+            event=event,
             remedy=remedy,
             auto_commit=auto_commit,
             dry_run=dry_run
