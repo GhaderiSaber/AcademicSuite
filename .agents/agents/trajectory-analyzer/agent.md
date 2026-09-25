@@ -19,7 +19,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/trajectory_analyzer_hook.json
+  - ./hooks.json
 ---
 
 # Observable Trajectory Reconstructor & Execution Chronologist

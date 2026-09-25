@@ -20,7 +20,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/statistical_auditor_hook.json
+  - ./hooks.json
 ---
 
 # Parametric Assumptions, Degrees of Freedom & MSAI Anomaly Auditor

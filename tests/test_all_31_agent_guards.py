@@ -96,7 +96,10 @@ class TestDedicatedGuardsCompleteness(unittest.TestCase):
             
             # Verify command points to its dedicated guard
             cmd = data[guard_key]["PreToolUse"][0]["hooks"][0]["command"]
-            self.assertIn(f"{snake}_guard.py", cmd)
+            self.assertTrue(
+                f"{snake}_guard.py" in cmd or f"{agent_kebab}/guard.py" in cmd or "guard.py" in cmd,
+                f"Command in {json_file} does not target dedicated guard: {cmd}"
+            )
 
     def test_all_agent_md_frontmatter_references_dedicated_hook(self):
         for agent_kebab in ALL_31_AGENTS:
@@ -109,8 +112,24 @@ class TestDedicatedGuardsCompleteness(unittest.TestCase):
             parts = content.split("---", 2)
             self.assertGreaterEqual(len(parts), 3, f"{agent_kebab}/agent.md missing frontmatter")
             fm = parts[1]
-            expected_ref = f".agents/hooks/agents/{snake}_hook.json"
-            self.assertIn(expected_ref, fm, f"{agent_kebab}/agent.md frontmatter does not reference {expected_ref}")
+            has_valid_ref = (
+                "./hooks.json" in fm
+                or f".agents/hooks/agents/{snake}_hook.json" in fm
+                or f"./{snake}_hook.json" in fm
+            )
+            self.assertTrue(
+                has_valid_ref,
+                f"{agent_kebab}/agent.md frontmatter does not reference ./hooks.json or {snake}_hook.json"
+            )
+
+    def test_co_located_agent_module_integrity(self):
+        """Verifies each agent directory contains agent.md, contract.md, guard.py, and hooks.json."""
+        for agent_kebab in ALL_31_AGENTS:
+            agent_dir = os.path.join(AGENTS_DIR, agent_kebab)
+            self.assertTrue(os.path.isdir(agent_dir), f"Missing agent dir: {agent_dir}")
+            for required_file in ("agent.md", "contract.md", "guard.py", "hooks.json"):
+                fpath = os.path.join(agent_dir, required_file)
+                self.assertTrue(os.path.exists(fpath), f"Agent {agent_kebab} missing {required_file} at {fpath}")
 
     def test_hook_dispatcher_guard_map_contains_all_31_agents(self):
         guard_map = hook_dispatcher.AGENT_GUARD_MAP

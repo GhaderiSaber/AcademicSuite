@@ -21,7 +21,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/journal_strategist_hook.json
+  - ./hooks.json
 ---
 
 # Academic Journal Matching & Peer-Review Rebuttal Specialist

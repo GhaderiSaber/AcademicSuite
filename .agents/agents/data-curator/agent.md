@@ -21,7 +21,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/data_curator_hook.json
+  - ./hooks.json
 ---
 
 # Dataset Quality Diagnostics, Outlier & Missing Data Specialist

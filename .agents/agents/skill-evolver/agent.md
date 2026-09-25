@@ -19,7 +19,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/skill_evolver_hook.json
+  - ./hooks.json
 ---
 
 # Skill Mutation Synthesizer & Behavioral Candidate Designer

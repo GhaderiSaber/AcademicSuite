@@ -25,7 +25,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/statistics_agent_hook.json
+  - ./hooks.json
 ---
 
 # Inferential Modeling, Parametric Hypothesis Testing & SEM Specialist

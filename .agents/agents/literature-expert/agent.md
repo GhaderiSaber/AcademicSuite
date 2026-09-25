@@ -23,7 +23,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/literature_expert_hook.json
+  - ./hooks.json
 ---
 
 # Literature Synthesis & Bibliometric Matrix Specialist

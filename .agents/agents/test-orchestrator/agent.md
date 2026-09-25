@@ -13,7 +13,7 @@ agents:
   - test-worker
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/test_orchestrator_hook.json
+  - ./hooks.json
 ---
 
 # Minimal Test Orchestrator

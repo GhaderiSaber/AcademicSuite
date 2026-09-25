@@ -23,7 +23,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/psychometric_expert_hook.json
+  - ./hooks.json
 ---
 
 # Psychometric Resolution, Classical Test Theory & IRT Specialist

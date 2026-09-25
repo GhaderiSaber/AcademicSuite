@@ -19,7 +19,7 @@ skills:
 agents: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/digital_saber_hook.json
+  - ./hooks.json
 ---
 
 # Research Project Lead, Cognitive Architect & Digital Twin

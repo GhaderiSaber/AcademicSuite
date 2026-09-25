@@ -20,7 +20,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/evaluation_agent_hook.json
+  - ./hooks.json
 ---
 
 # Independent Candidate Evaluator & Benchmark Test Runner

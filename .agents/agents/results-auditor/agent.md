@@ -19,7 +19,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/results_auditor_hook.json
+  - ./hooks.json
 ---
 
 # APA 7 Formatting, Mathematical Precision & Typography Auditor

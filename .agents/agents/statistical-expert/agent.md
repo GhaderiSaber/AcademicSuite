@@ -22,7 +22,7 @@ skills:
 agents: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/statistical_expert_hook.json
+  - ./hooks.json
 ---
 
 # Statistical Modeling, Parametric Estimation & Inference Authority

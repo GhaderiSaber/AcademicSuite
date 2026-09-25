@@ -19,7 +19,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/knowledge_curator_hook.json
+  - ./hooks.json
 ---
 
 # Epistemic Knowledge Distiller & Anti-Pattern Cataloger

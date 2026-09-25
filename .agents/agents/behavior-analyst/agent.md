@@ -20,7 +20,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - .agents/hooks/agents/behavior_analyst_hook.json
+  - ./hooks.json
 ---
 
 # Root-Cause Causal Diagnostician & Failure Mode Analyst
