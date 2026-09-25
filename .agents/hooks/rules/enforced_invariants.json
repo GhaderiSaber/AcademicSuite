@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:10.605484+00:00",
+  "updated_at": "2026-09-25T17:08:10.649397+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -222,6 +222,26 @@
       "remedy": "Synthesize points into continuous, cohesive scholarly prose using transition words instead of lists.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:10.605470+00:00"
+    },
+    "AP-2026-CONSOLIDATED-MULTIPLE-LOGISTIC-TABLES": {
+      "item_id": "AP-2026-CONSOLIDATED-MULTIPLE-LOGISTIC-TABLES",
+      "category": "Anti-Pattern",
+      "statement": "For any hypothesis containing simple, multiple, and logistic regressions, generate exactly 7 tables: 1 correlation table, and 2 tables for each of the 3 regressions (Model Summary/ANOVA or Omnibus Fit + Coefficients/Equation parameters).",
+      "target_agents": [
+        "statistics-agent",
+        "academic-writer",
+        "validation-agent"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Detection of fewer than 7 tables in a mixed simple/multiple/logistic regression hypothesis block, or detection of combined ANOVA/Coefficients columns in a single table structure.",
+      "violation_message": "For any hypothesis containing simple, multiple, and logistic regressions, generate exactly 7 tables: 1 correlation table, and 2 tables for each of the 3 regressions (Model Summary/ANOVA or Omnibus Fit + Coefficients/Equation parameters).",
+      "remedy": "For any hypothesis containing simple, multiple, and logistic regressions, generate exactly 7 tables: 1 correlation table, and 2 tables for each of the 3 regressions (Model Summary/ANOVA or Omnibus Fit + Coefficients/Equation parameters).",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:10.649383+00:00"
     }
   }
 }
