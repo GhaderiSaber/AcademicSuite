@@ -104,4 +104,4 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 ```
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-LATIN-B-AND-FOOTNOTE-WHITESPACE-DELIMITATION-001)**: Strictly use Latin *B* (never spelled-out 'beta') for regression coefficients. Enforce mandatory leading space on text runs following footnote references (or trailing space after footnote reference) so that superscript numbers never stick to subsequent words. Implement mechanical QC assertions checking for 'beta' and asserting whitespace delimitation. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-COEFFICIENTS-TABLE-CRITERION-COLUMN-001)**: In all regression coefficients tables with multiple criteria, add 'متغیر ملاک' as Column 1, followed by 'متغیرهای مدل' / 'متغیرهای پیش‌بین' in Column 2, clearly demarcating the equations for each dependent outcome. [Enforcement: results_auditor_guard.py]

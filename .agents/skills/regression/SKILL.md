@@ -121,4 +121,5 @@ In regression ANOVA tables with multiple criterion variables:
 - **Row Labels**: Regression rows are labeled with the dependent variable name. Residual and total rows must be labeled simply as `باقیمانده` and `کل`. Never append parenthetical variable names to residual or total rows.
 - **Multiple Criteria Coefficients**: When reporting multiple criteria in a single coefficients table, Column 1 must specify `متغیر ملاک`.
 
-
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-COEFFICIENTS-TABLE-CRITERION-COLUMN-001)**: In all regression coefficients tables with multiple criteria, add 'متغیر ملاک' as Column 1, followed by 'متغیرهای مدل' / 'متغیرهای پیش‌بین' in Column 2, clearly demarcating the equations for each dependent outcome. [Enforcement: statistics_agent_guard.py]
