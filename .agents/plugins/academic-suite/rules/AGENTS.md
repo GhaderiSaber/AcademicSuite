@@ -5,7 +5,7 @@ These domain rules are automatically loaded and applied across all conversations
 ---
 
 ## 1. Radical Honesty & Pipeline Enforcement
-- **Anti-pattern (AP-2026-PATCHING-WITHOUT-LEARNING)**: Upon receiving any user critique or defect report, emit a USER_FEEDBACK_DETECTED event and invoke the learning pipeline (trajectory-analyzer for chronology, behavior-analyst for root cause, knowledge-curator for persistent anti-pattern/lesson). [Enforcement: dynamic_invariant_guard.py (AP-2026-PATCHING-WITHOUT-LEARNING)]
+- **Anti-pattern (AP-2026-GENERIC-AGENTS-FOR-LEARNING)**: Route all self-improvement and /learn episodes strictly to native learning subagents: trajectory-analyzer (observable actions), behavior-analyst (causal diagnosis), knowledge-curator (epistemic distillation), skill-evolver (branch candidate diffs), and evaluation-agent (independent 3-way benchmarking). [Enforcement: dynamic_invariant_guard.py (AP-2026-GENERIC-AGENTS-FOR-LEARNING)]
 - **Anti-pattern (AP-2026-BULLETED-ACADEMIC-NARRATIVE)**: Synthesize points into continuous, cohesive scholarly prose using transition words instead of lists. [Enforcement: dynamic_invariant_guard.py (AP-2026-BULLETED-ACADEMIC-NARRATIVE)]
 - **Directive 2 (Deterministic Calculation Invariant)**: Zero mental arithmetic or hallucinated statistics in memory. Compute via bundled deterministic Python/R CLI scripts on real datasets. [Enforcement: `Stop` hook / `statistics_agent_guard.py`]
 - **Anti-pattern (AP-2026-ISOLATED-PROSE-POLISHING)**: When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly. [Enforcement: dynamic_invariant_guard.py (AP-2026-ISOLATED-PROSE-POLISHING)]
