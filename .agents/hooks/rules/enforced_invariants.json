@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:10.487809+00:00",
+  "updated_at": "2026-09-25T17:08:10.513449+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -167,6 +167,25 @@
       "remedy": "Add 'متغیر ملاک' as Column 1, listing 'رفتارهای خودآسیبی' on the first row of Model 1 and 'رفتارهای خودکشی' on the first row of Model 2.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:10.487796+00:00"
+    },
+    "AP-2026-B-TITR-OVERUSE": {
+      "item_id": "AP-2026-B-TITR-OVERUSE",
+      "category": "Anti-Pattern",
+      "statement": "Replace B Titr with B Nazanin for all elements except chapter names. Set body font to 14 pt, table fonts to 12 pt. Replace w:br with w:p.",
+      "target_agents": [
+        "academic-writer",
+        "validation-agent"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Presence of B Titr in table cells, captions, or any non-Chapter 1/2/3/4/5 title.",
+      "violation_message": "Replace B Titr with B Nazanin for all elements except chapter names. Set body font to 14 pt, table fonts to 12 pt. Replace w:br with w:p.",
+      "remedy": "Replace B Titr with B Nazanin for all elements except chapter names. Set body font to 14 pt, table fonts to 12 pt. Replace w:br with w:p.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:10.513439+00:00"
     }
   }
 }
