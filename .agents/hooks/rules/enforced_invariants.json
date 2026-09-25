@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:47:23.739001+00:00",
+  "updated_at": "2026-09-25T17:47:23.784507+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -220,7 +220,7 @@
       "violation_message": "Synthesize points into continuous, cohesive scholarly prose using transition words instead of lists.",
       "remedy": "Synthesize points into continuous, cohesive scholarly prose using transition words instead of lists.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:27:28.770175+00:00"
+      "updated_at": "2026-09-25T17:47:23.776616+00:00"
     },
     "AP-2026-CONSOLIDATED-MULTIPLE-LOGISTIC-TABLES": {
       "item_id": "AP-2026-CONSOLIDATED-MULTIPLE-LOGISTIC-TABLES",
@@ -240,7 +240,7 @@
       "violation_message": "For any hypothesis containing simple, multiple, and logistic regressions, generate exactly 7 tables: 1 correlation table, and 2 tables for each of the 3 regressions (Model Summary/ANOVA or Omnibus Fit + Coefficients/Equation parameters).",
       "remedy": "For any hypothesis containing simple, multiple, and logistic regressions, generate exactly 7 tables: 1 correlation table, and 2 tables for each of the 3 regressions (Model Summary/ANOVA or Omnibus Fit + Coefficients/Equation parameters).",
       "enabled": true,
-      "updated_at": "2026-09-25T17:27:28.806301+00:00"
+      "updated_at": "2026-09-25T17:47:23.784488+00:00"
     },
     "AP-2026-CONSOLIDATED-REGRESSION-TABLE": {
       "item_id": "AP-2026-CONSOLIDATED-REGRESSION-TABLE",
