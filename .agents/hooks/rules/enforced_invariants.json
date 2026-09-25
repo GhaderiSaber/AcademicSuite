@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:28.840944+00:00",
+  "updated_at": "2026-09-25T17:27:28.879345+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -279,7 +279,7 @@
       "violation_message": "Decouple artifact target language from conversational orchestration language. After parsing non-English artifacts, the agent must deliberately switch its conversational output language back to English before emitting messages to the user. All user-facing turns must be strictly in English as mandated by Directive 6.",
       "remedy": "Decouple artifact target language from conversational orchestration language. After parsing non-English artifacts, the agent must deliberately switch its conversational output language back to English before emitting messages to the user. All user-facing turns must be strictly in English as mandated by Directive 6.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:02.439910+00:00"
+      "updated_at": "2026-09-25T17:27:28.879332+00:00"
     },
     "AP-2026-CORRELATION-TABLE-SINGLE-LABEL-COLUMN": {
       "item_id": "AP-2026-CORRELATION-TABLE-SINGLE-LABEL-COLUMN",
