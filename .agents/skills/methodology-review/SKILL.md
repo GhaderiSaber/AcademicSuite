@@ -39,6 +39,28 @@ Stage candidate into .agents/learning/candidates/improvement_candidate.json with
 
 
 The current local time is: 2026-09-25T21:36:17+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-48AA4C)]
+- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `skill-evolver` | **Project**: `cross-project`
+
+
+⚠️ Known Pitfalls (Anti-Patterns to Avoid):
+- None cataloged. Enforce standard APA 7 & OpenXML rigor.
+
+💡 Relevant Active Lessons:
+- No specialized lessons flagged. Standard pipeline rules apply.
+
+⚖️ Applicable Methodology Rules & Boundary Conditions:
+- No conflicting paradigms active. Follow primary statistical decision tree.
+
+---
+### Executable Task Assignment:
+Synthesize candidate mutation based on LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001 and AP-2026-FORMATTING-AND-FILTERING-FAILURE to update apa-reporting and persian-thesis-builder skills:
+1. Enforce explicit 1 blank line before each header and 0 blank lines after headers in OpenXML paragraphs and templates.
+2. In the 'پیوست' (Appendices) section, filter out all non-table narrative, scoring instructions, and author/psychometric introductions, retaining strictly only the question tables and their designated question headers.
+
+Stage candidate into .agents/learning/candidates/improvement_candidate.json without directly mutating canonical skills.
+
+
+The current local time is: 2026-09-25T21:36:17+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-48AA4C)]
 - **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`
 
 
