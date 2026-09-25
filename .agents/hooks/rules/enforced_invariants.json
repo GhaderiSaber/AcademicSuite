@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:29.822654+00:00",
+  "updated_at": "2026-09-25T17:27:29.859186+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -784,7 +784,7 @@
       "violation_message": "Move the explanatory narrative paragraph to strictly precede the table caption. The flow must be: Heading -> Narrative -> Table Caption -> Table -> Table Note.",
       "remedy": "Move the explanatory narrative paragraph to strictly precede the table caption. The flow must be: Heading -> Narrative -> Table Caption -> Table -> Table Note.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:03.393389+00:00"
+      "updated_at": "2026-09-25T17:27:29.859173+00:00"
     },
     "AP-2026-UNVERIFIED-REVERSE-CODING": {
       "item_id": "AP-2026-UNVERIFIED-REVERSE-CODING",
