@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:16:00.705235+00:00",
+  "updated_at": "2026-09-25T17:16:00.778723+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -144,7 +144,7 @@
       "violation_message": "Mandatory: 1) Inject explicit '<w:jc w:val=\"right\"/>' for all Persian headings. 2) Tokenize inline Markdown into OpenXML '<w:i/>' / '<w:b/>' runs with zero raw asterisks in '<w:t>'.",
       "remedy": "Mandatory: 1) Inject explicit '<w:jc w:val=\"right\"/>' for all Persian headings. 2) Tokenize inline Markdown into OpenXML '<w:i/>' / '<w:b/>' runs with zero raw asterisks in '<w:t>'.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:06:42.274964+00:00"
+      "updated_at": "2026-09-25T17:16:00.778701+00:00"
     },
     "AP-2026-AMBIGUOUS-STACKED-REGRESSION-COEFFICIENTS": {
       "item_id": "AP-2026-AMBIGUOUS-STACKED-REGRESSION-COEFFICIENTS",
