@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:10.897133+00:00",
+  "updated_at": "2026-09-25T17:08:10.935601+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -44,23 +44,22 @@
     },
     "AP-2026-INLINE-COLON-LISTICLES": {
       "item_id": "AP-2026-INLINE-COLON-LISTICLES",
-      "category": "Narrative",
-      "statement": "Avoid telegraphic inline feature labels followed by colons inside body paragraphs.",
+      "category": "Anti-Pattern",
+      "statement": "Transform label-colon pairs into continuous scholarly narrative using transitional connectives (در ارزیابی تفاوت‌های جنسیتی، ... در ادامه، بررسی متغیر پایه تحصیلی نشان داد ... سرانجام، در خصوص نوع مدرسه، ...).",
       "target_agents": [
-        "academic-writer"
+        "academic-writer",
+        "results-auditor"
       ],
-      "target_skills": [
-        "chapter-4-writing",
-        "chapter-5-writing"
-      ],
+      "target_skills": [],
       "event": "PreToolUse",
       "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.(?:md|txt)",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
       "check_type": "regex_ban",
-      "pattern": "(?:\\b[\\u0600-\\u06FF]{3,15}\\s*:\\s*[^\\n\\r]{1,30}){3,}",
-      "violation_message": "Telegraphic inline colon listicles detected inside body paragraphs.",
-      "remedy": "Transform label-colon pairs into continuous scholarly prose with transitional connectives.",
-      "enabled": true
+      "pattern": "High density of colons (:) following short phrase prefixes within standard academic paragraphs.",
+      "violation_message": "Transform label-colon pairs into continuous scholarly narrative using transitional connectives (در ارزیابی تفاوت‌های جنسیتی، ... در ادامه، بررسی متغیر پایه تحصیلی نشان داد ... سرانجام، در خصوص نوع مدرسه، ...).",
+      "remedy": "Transform label-colon pairs into continuous scholarly narrative using transitional connectives (در ارزیابی تفاوت‌های جنسیتی، ... در ادامه، بررسی متغیر پایه تحصیلی نشان داد ... سرانجام، در خصوص نوع مدرسه، ...).",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:10.935588+00:00"
     },
     "LSN-2026-STRUCTURAL-REFERENCE-PARSING-001": {
       "item_id": "LSN-2026-STRUCTURAL-REFERENCE-PARSING-001",
