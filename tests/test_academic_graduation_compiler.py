@@ -26,6 +26,7 @@ for p in [ROOT_DIR, AGENTS_DIR, os.path.join(AGENTS_DIR, "scripts")]:
 
 from scripts.academic_graduation_compiler import AcademicGraduationCompiler
 from scripts.academic_human_mentor import AcademicHumanMentor
+from hooks.dynamic_invariant_guard import DynamicInvariantGuard
 
 
 class TestAcademicGraduationCompiler(unittest.TestCase):
@@ -441,7 +442,119 @@ class TestAcademicGraduationCompiler(unittest.TestCase):
         self.assertTrue(res["all_passed"])
         self.assertTrue(res["hook_registered"], "Channel 2 hook must be registered via companion anti-pattern")
 
+    def test_14_graduate_script_candidate_with_unified_diff(self):
+        """Verify candidate mutating a Python script applies unified diff cleanly without injecting markdown."""
+        script_path = os.path.join(self.test_dir, "test_target_script.py")
+        with open(script_path, "w", encoding="utf-8") as f:
+            f.write("def calculate_total(a, b):\n    return a + b\n")
+
+        diff = (
+            "--- test_target_script.py\n"
+            "+++ test_target_script.py\n"
+            "@@ -1,2 +1,4 @@\n"
+            " def calculate_total(a, b):\n"
+            "+    # Validate non-negative numbers\n"
+            "+    assert a >= 0 and b >= 0\n"
+            "     return a + b\n"
+        )
+        cand_data = {
+            "candidate_id": "CAND-TEST-SCRIPT-001",
+            "target_component": "test_target_script.py",
+            "target_type": "SKILL_DETERMINISTIC_SCRIPT",
+            "mutation": {
+                "diff_type": "UNIFIED_DIFF",
+                "content": diff
+            },
+            "status": "STAGED",
+            "rationale": "Add assert non-negative"
+        }
+        cand_dir = os.path.join(self.agents_dir, "learning", "candidates")
+        os.makedirs(cand_dir, exist_ok=True)
+        cand_file = os.path.join(cand_dir, "CAND-TEST-SCRIPT-001.json")
+        with open(cand_file, "w", encoding="utf-8") as f:
+            json.dump(cand_data, f, indent=2)
+
+        res = self.compiler.graduate_candidate_from_json_file(cand_file, auto_commit=False)
+        self.assertTrue(res["success"])
+        self.assertEqual(res["status"], "PROMOTED")
+
+        # Verify script content
+        with open(script_path, "r", encoding="utf-8") as f:
+            updated_script = f.read()
+        self.assertIn("assert a >= 0 and b >= 0", updated_script)
+        self.assertNotIn("## 🧠 Active Learned Behavioral Invariants", updated_script)
+
+    def test_15_graduate_candidate_with_mechanical_rule(self):
+        """Verify candidate specifying mechanical rule registers invariant in enforced_invariants.json."""
+        script_path = os.path.join(self.test_dir, "test_target_mech.py")
+        with open(script_path, "w", encoding="utf-8") as f:
+            f.write("def parse(x):\n    return x\n")
+
+        cand_data = {
+            "candidate_id": "CAND-TEST-MECH-001",
+            "target_component": "test_target_mech.py",
+            "target_type": "SKILL_DETERMINISTIC_SCRIPT",
+            "mutation": {
+                "diff_type": "STRING_REPLACE",
+                "target_content": "def parse(x):",
+                "replacement_content": "def parse(x):\n    # safe parse"
+            },
+            "mechanical_rule": {
+                "pattern": r"(?m)^prohibited_leak.*$",
+                "file_pattern": r".*\.txt",
+                "check_type": "regex_ban",
+                "event": "PreToolUse",
+                "violation_message": "Prohibited leak pattern detected."
+            },
+            "status": "STAGED"
+        }
+        cand_dir = os.path.join(self.agents_dir, "learning", "candidates")
+        os.makedirs(cand_dir, exist_ok=True)
+        cand_file = os.path.join(cand_dir, "CAND-TEST-MECH-001.json")
+        with open(cand_file, "w", encoding="utf-8") as f:
+            json.dump(cand_data, f, indent=2)
+
+        res = self.compiler.graduate_candidate_from_json_file(cand_file, auto_commit=False)
+        self.assertTrue(res["success"])
+        self.assertTrue(res["hook_registered"])
+
+        invs = DynamicInvariantGuard.load_invariants(self.test_dir)
+        self.assertIn("CAND-TEST-MECH-001", invs)
+        self.assertEqual(invs["CAND-TEST-MECH-001"]["pattern"], r"(?m)^prohibited_leak.*$")
+
+    def test_16_compile_all_pending_scans_candidates(self):
+        """Verify compile_all_pending scans candidates directory and graduates pending candidates."""
+        script_path = os.path.join(self.test_dir, "test_batch_cand.py")
+        with open(script_path, "w", encoding="utf-8") as f:
+            f.write("val = 1\n")
+
+        cand_data = {
+            "candidate_id": "CAND-BATCH-CAND-001",
+            "target_component": "test_batch_cand.py",
+            "target_type": "SKILL_DETERMINISTIC_SCRIPT",
+            "mutation": {
+                "diff_type": "STRING_REPLACE",
+                "target_content": "val = 1",
+                "replacement_content": "val = 2"
+            },
+            "status": "EVALUATION_PASSED"
+        }
+        cand_dir = os.path.join(self.agents_dir, "learning", "candidates")
+        os.makedirs(cand_dir, exist_ok=True)
+        cand_file = os.path.join(cand_dir, "CAND-BATCH-CAND-001.json")
+        with open(cand_file, "w", encoding="utf-8") as f:
+            json.dump(cand_data, f, indent=2)
+
+        results = self.compiler.compile_all_pending(auto_commit=False)
+        cand_res = [r for r in results if r.get("candidate_id") == "CAND-BATCH-CAND-001"]
+        self.assertEqual(len(cand_res), 1)
+        self.assertTrue(cand_res[0]["success"])
+
+        with open(script_path, "r", encoding="utf-8") as f:
+            self.assertIn("val = 2", f.read())
+
 
 if __name__ == "__main__":
     unittest.main()
+
 

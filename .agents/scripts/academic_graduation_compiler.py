@@ -310,8 +310,27 @@ class AcademicGraduationCompiler:
             m_hash = re.search(r'\[(?:[a-zA-Z0-9_\-]+ )?([a-f0-9]{7,})\]', c_res.stdout)
             commit_hash = m_hash.group(1) if m_hash else "committed"
 
-            # 4. Push to origin main
-            push_res = subprocess.run(["git", "push", "origin", "main"], cwd=self.base_dir, capture_output=True, text=True, timeout=10)
+            # 4. Push to origin main (skip in test runner or when push disabled)
+            is_test_env = bool(os.environ.get("UNITTEST_MODE") or os.environ.get("PYTEST_CURRENT_TEST") or "unittest" in sys.modules)
+            if is_test_env:
+                return {
+                    "success": True,
+                    "committed": True,
+                    "pushed": False,
+                    "commit_hash": commit_hash,
+                    "push_msg": "Push skipped in unit test environment"
+                }
+
+            git_env = os.environ.copy()
+            git_env["GIT_TERMINAL_PROMPT"] = "0"
+            push_res = subprocess.run(
+                ["git", "push", "origin", "main"],
+                cwd=self.base_dir,
+                capture_output=True,
+                text=True,
+                timeout=5,
+                env=git_env
+            )
             pushed = (push_res.returncode == 0)
 
             return {
@@ -537,6 +556,53 @@ class AcademicGraduationCompiler:
 
         return res
 
+    @staticmethod
+    def apply_patch_to_file(target_file: str, diff_content: str, dry_run: bool = False) -> Tuple[bool, str]:
+        """
+        Applies a unified diff to a target file (e.g. Python script) using the system patch
+        utility with forward and batch flags, with fallback detection for already-applied patches.
+        """
+        if not os.path.isfile(target_file):
+            return False, f"Target file not found: {target_file}"
+        if not diff_content or not diff_content.strip():
+            return False, "Empty diff content"
+
+        # 1. Try patch command
+        cmd = ["patch", "--batch", "--forward", "-u", target_file]
+        if dry_run:
+            cmd.insert(1, "--dry-run")
+        try:
+            proc = subprocess.run(cmd, input=diff_content, text=True, capture_output=True)
+            out = (proc.stdout + " " + proc.stderr).lower()
+            if proc.returncode == 0:
+                return True, "Patch applied successfully"
+            if "previously applied" in out or "already applied" in out:
+                rej_file = target_file + ".rej"
+                if os.path.isfile(rej_file):
+                    try:
+                        os.remove(rej_file)
+                    except OSError:
+                        pass
+                return True, "Patch was already applied"
+        except Exception as e:
+            sys.stderr.write(f"[compiler] patch CLI notice: {e}\n")
+
+        # 2. Check if the added lines from the unified diff are already present in the target file
+        added_lines = [
+            line[1:].strip() for line in diff_content.splitlines()
+            if line.startswith("+") and not line.startswith("+++") and line[1:].strip()
+        ]
+        if added_lines:
+            try:
+                with open(target_file, "r", encoding="utf-8") as f:
+                    file_text = f.read()
+                if all(al in file_text for al in added_lines):
+                    return True, "All added diff lines are already present in target file"
+            except Exception:
+                pass
+
+        return False, "Failed to apply unified diff patch"
+
     def graduate_candidate_from_json_file(
         self,
         candidate_json_path: str,
@@ -552,6 +618,7 @@ class AcademicGraduationCompiler:
 
         candidate_id = data.get("candidate_id") or os.path.basename(candidate_json_path).replace(".json", "")
         target_component = data.get("target_component", "")
+        target_type = str(data.get("target_type", "")).upper()
         mutation = data.get("mutation", {})
         rationale = data.get("rationale", "")
 
@@ -572,15 +639,53 @@ class AcademicGraduationCompiler:
             }
 
         diff_content = mutation.get("content", "")
+        diff_type = mutation.get("diff_type", "")
         applied = False
-        if mutation.get("diff_type") == "UNIFIED_DIFF" and diff_content:
-            try:
-                added_lines = []
-                for d_line in diff_content.splitlines():
-                    if d_line.startswith("+") and not d_line.startswith("+++"):
-                        clean_added = d_line[1:].strip()
-                        if clean_added:
-                            added_lines.append(clean_added)
+
+        is_script = (
+            target_path.endswith((".py", ".sh", ".bash", ".r", ".R")) or
+            "SCRIPT" in target_type
+        )
+
+        if is_script:
+            # Script mutation: Apply patch or code substitution directly (never inject markdown)
+            if diff_type == "UNIFIED_DIFF" and diff_content:
+                applied, _ = self.apply_patch_to_file(target_path, diff_content, dry_run=dry_run)
+            elif diff_type in ("STRING_REPLACE", "REPLACE"):
+                tgt_str = mutation.get("target_content") or mutation.get("target") or ""
+                repl_str = mutation.get("replacement_content") or mutation.get("replacement") or ""
+                if tgt_str:
+                    try:
+                        with open(target_path, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        if tgt_str in content:
+                            if not dry_run:
+                                with open(target_path, "w", encoding="utf-8") as f:
+                                    f.write(content.replace(tgt_str, repl_str, 1))
+                            applied = True
+                        elif repl_str in content:
+                            applied = True  # already applied
+                    except Exception as e_rep:
+                        sys.stderr.write(f"[compiler] script replace error: {e_rep}\n")
+            elif diff_type in ("FILE_REPLACE", "FULL_CONTENT"):
+                new_c = mutation.get("new_content") or mutation.get("content")
+                if new_c:
+                    if not dry_run:
+                        with open(target_path, "w", encoding="utf-8") as f:
+                            f.write(new_c)
+                    applied = True
+            elif diff_content:
+                applied, _ = self.apply_patch_to_file(target_path, diff_content, dry_run=dry_run)
+
+        else:
+            # Markdown / doc mutation
+            if diff_type == "UNIFIED_DIFF" and diff_content:
+                applied, _ = self.apply_patch_to_file(target_path, diff_content, dry_run=dry_run)
+            if not applied and diff_content:
+                added_lines = [
+                    d_line[1:].strip() for d_line in diff_content.splitlines()
+                    if d_line.startswith("+") and not d_line.startswith("+++") and d_line[1:].strip()
+                ]
                 if added_lines:
                     statement = " ".join(added_lines)
                     res_synth = self.synthesize_markdown_rule(
@@ -591,28 +696,58 @@ class AcademicGraduationCompiler:
                         dry_run=dry_run
                     )
                     applied = res_synth.get("success", False)
-            except Exception:
-                applied = False
 
-        if not applied and rationale:
-            res_synth = self.synthesize_markdown_rule(
-                file_path=target_path,
-                item_id=candidate_id,
-                statement=rationale,
-                category="Learned Candidate",
-                dry_run=dry_run
-            )
-            applied = res_synth.get("success", False)
+            if not applied and rationale:
+                res_synth = self.synthesize_markdown_rule(
+                    file_path=target_path,
+                    item_id=candidate_id,
+                    statement=rationale,
+                    category="Learned Candidate",
+                    dry_run=dry_run
+                )
+                applied = res_synth.get("success", False)
+
+        # Channel 2: Register Companion Mechanical Hook if present in candidate or detection_heuristic
+        hook_registered = False
+        dh = data.get("mechanical_rule") or data.get("detection_heuristic") or {}
+        if dh and not dry_run and DynamicInvariantGuard is not None:
+            hook_pat = dh.get("pattern") or dh.get("regex") or ""
+            if not hook_pat and "regex_patterns" in dh and isinstance(dh["regex_patterns"], list) and dh["regex_patterns"]:
+                hook_pat = dh["regex_patterns"][0]
+            if hook_pat:
+                try:
+                    hook_registered = DynamicInvariantGuard.register_invariant(
+                        item_id=candidate_id,
+                        category="Learned Mechanical Rule",
+                        statement=dh.get("violation_message") or rationale or candidate_id,
+                        target_agents=data.get("target_agents") or ["*"],
+                        target_skills=data.get("affected_capabilities") or [],
+                        event=dh.get("event") or "PreToolUse",
+                        file_pattern=dh.get("file_pattern") or ".*\\.(?:md|docx|txt)",
+                        check_type=dh.get("check_type") or "regex_ban",
+                        pattern=hook_pat,
+                        violation_message=dh.get("violation_message") or rationale or candidate_id,
+                        remedy=dh.get("remedy") or rationale or "",
+                        base_dir=self.base_dir
+                    )
+                except Exception as e_hook:
+                    sys.stderr.write(f"[compiler] Candidate hook registration error: {e_hook}\n")
 
         if applied and not dry_run:
             data["status"] = "PROMOTED"
+            data["graduation_status"] = "GRADUATED"
             data["promoted_at"] = datetime.now(timezone.utc).isoformat()
             data["promoted_targets"] = [target_path]
+            if hook_registered:
+                data["promoted_targets"].append(self.invariants_file)
             with open(candidate_json_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             if auto_commit:
-                self.git_sync([target_path, candidate_json_path], candidate_id, f"promote candidate {candidate_id}")
+                commit_files = [target_path, candidate_json_path]
+                if hook_registered and os.path.isfile(self.invariants_file):
+                    commit_files.append(self.invariants_file)
+                self.git_sync(commit_files, candidate_id, f"promote candidate {candidate_id}")
 
         return {
             "candidate_id": candidate_id,
@@ -620,7 +755,8 @@ class AcademicGraduationCompiler:
             "target": target_path,
             "targets": [target_path],
             "all_passed": applied,
-            "success": applied
+            "success": applied,
+            "hook_registered": hook_registered
         }
 
     def compile_all_pending(
@@ -629,8 +765,9 @@ class AcademicGraduationCompiler:
         auto_commit: bool = True,
         dry_run: bool = False
     ) -> List[Dict[str, Any]]:
-        """Scans all lessons and anti-patterns in central and workspace knowledge directories and graduates pending items."""
+        """Scans all lessons, anti-patterns, and candidates in central and workspace knowledge directories and graduates pending items."""
         search_dirs = [os.path.join(self.agents_dir, "learning", "knowledge")]
+        cand_search_dirs = [os.path.join(self.agents_dir, "learning", "candidates")]
         if workspaces:
             for ws in workspaces:
                 if not ws or not os.path.isdir(ws):
@@ -639,8 +776,13 @@ class AcademicGraduationCompiler:
                 for cand in [os.path.join(ws_abs, ".agents", "learning", "knowledge"), os.path.join(ws_abs, "learning", "knowledge")]:
                     if os.path.isdir(cand) and cand not in search_dirs:
                         search_dirs.append(cand)
+                for cand_c in [os.path.join(ws_abs, ".agents", "learning", "candidates"), os.path.join(ws_abs, "learning", "candidates")]:
+                    if os.path.isdir(cand_c) and cand_c not in cand_search_dirs:
+                        cand_search_dirs.append(cand_c)
 
         results = []
+
+        # 1. Graduate pending knowledge items (lessons, anti-patterns, principles)
         for k_dir in search_dirs:
             for subdir in ["lessons", "anti-patterns", "principles"]:
                 s_path = os.path.join(k_dir, subdir)
@@ -656,13 +798,38 @@ class AcademicGraduationCompiler:
                         is_pending = (
                             d.get("graduation_status") != "GRADUATED" and (
                                 d.get("graduation_status") == "PENDING_GRADUATION" or
-                                d.get("graduation_track") == "TRACK_1_IMMEDIATE_GRADUATION"
+                                d.get("graduation_track") == "TRACK_1_IMMEDIATE_GRADUATION" or
+                                d.get("is_active_behavior") is True or
+                                d.get("status") in ("VALIDATED", "PROMOTED")
                             )
                         )
                         if is_pending:
                             results.append(self.graduate_from_json_file(f_full, auto_commit=auto_commit, dry_run=dry_run))
                     except Exception as e:
                         print(f"Error compiling {fname}: {e}", file=sys.stderr)
+
+        # 2. Graduate evaluated improvement candidates
+        for c_dir in cand_search_dirs:
+            if not os.path.isdir(c_dir):
+                continue
+            for fname in sorted(os.listdir(c_dir)):
+                if not fname.endswith(".json") or fname.startswith("."):
+                    continue
+                f_full = os.path.join(c_dir, fname)
+                try:
+                    with open(f_full, "r", encoding="utf-8") as f:
+                        d = json.load(f)
+                    c_status = str(d.get("status", "")).upper()
+                    grad_status = str(d.get("graduation_status", "")).upper()
+                    is_cand_pending = (
+                        grad_status != "GRADUATED" and
+                        c_status in ("STAGED", "EVALUATED", "EVALUATION_PASSED", "PROMOTED_CANDIDATE", "PENDING")
+                    )
+                    if is_cand_pending:
+                        results.append(self.graduate_candidate_from_json_file(f_full, auto_commit=auto_commit, dry_run=dry_run))
+                except Exception as e:
+                    print(f"Error compiling candidate {fname}: {e}", file=sys.stderr)
+
         return results
 
 
@@ -683,10 +850,16 @@ def main():
     p_cand.add_argument("--dry-run", action="store_true", help="Simulate compilation without writing files")
 
     # compile-all-pending
-    p_all = subparsers.add_parser("compile-all-pending", help="Scan and compile all pending lessons in .agents/learning/knowledge/")
-    p_all.add_argument("--workspaces", nargs="*", default=None, help="Additional workspace roots to scan for lessons")
+    p_all = subparsers.add_parser("compile-all-pending", help="Scan and compile all pending lessons and candidates")
+    p_all.add_argument("--workspaces", nargs="*", default=None, help="Additional workspace roots to scan")
     p_all.add_argument("--no-git", action="store_true", help="Do not commit or push to Git")
     p_all.add_argument("--dry-run", action="store_true", help="Simulate compilation without writing files")
+
+    # compile-all (alias)
+    p_all2 = subparsers.add_parser("compile-all", help="Scan and compile all pending lessons and candidates (alias for compile-all-pending)")
+    p_all2.add_argument("--workspaces", nargs="*", default=None, help="Additional workspace roots to scan")
+    p_all2.add_argument("--no-git", action="store_true", help="Do not commit or push to Git")
+    p_all2.add_argument("--dry-run", action="store_true", help="Simulate compilation without writing files")
 
     # compile-item
     p_item = subparsers.add_parser("compile-item", help="Compile an ad-hoc invariant directly")
@@ -714,9 +887,9 @@ def main():
         if not res.get("all_passed"):
             sys.exit(1)
 
-    elif args.command == "compile-all-pending":
+    elif args.command in ("compile-all-pending", "compile-all"):
         res_list = compiler.compile_all_pending(workspaces=args.workspaces, auto_commit=not args.no_git, dry_run=args.dry_run)
-        print(f"Graduated {len(res_list)} pending knowledge items.")
+        print(f"Graduated {len(res_list)} pending knowledge items and candidates.")
         print(json.dumps(res_list, indent=2, ensure_ascii=False))
 
     elif args.command == "compile-item":
@@ -733,6 +906,7 @@ def main():
         print(json.dumps(res, indent=2, ensure_ascii=False))
         if not res.get("all_passed"):
             sys.exit(1)
+
 
 
 if __name__ == "__main__":

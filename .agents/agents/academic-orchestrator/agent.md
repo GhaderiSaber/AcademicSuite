@@ -221,8 +221,13 @@ When `validation-agent` reports `FAIL`:
 ---
 
 ## 🧠 Continuous Learning Trigger Protocol (User Feedback & Validation Failures)
-1. **User Critique / Defect (`USER_FEEDBACK_DETECTED`)**: Never execute silent ad-hoc fixes. Dispatch diagnostic cascade (`trajectory-analyzer` $\to$ `behavior-analyst` $\to$ `knowledge-curator`), synthesize mutation (`skill-evolver`), graduate into canonical skills (`evaluation-agent`), and remediate via evolved canonical tool.
+1. **User Critique / Defect (`USER_FEEDBACK_DETECTED`)**:
+   - Never execute silent ad-hoc fixes or one-off scratch scripts in deliverable directories.
+   - Dispatch diagnostic cascade: `trajectory-analyzer` $\to$ `behavior-analyst` $\to$ `knowledge-curator` $\to$ `skill-evolver` $\to$ `evaluation-agent`.
+   - **Mandatory Graduation Verification**: Before dispatching delivery workers (e.g. `academic-writer`) for remediation, verify that `evaluation-agent` executed `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate <candidate_json_path>` (and `compile-all`) to compile code diffs into target tools and register mechanical rules in `.agents/hooks/rules/enforced_invariants.json`.
+   - Remediate deliverables exclusively via the permanently evolved canonical tools on disk.
 2. **Validation Failure (`VALIDATION_FAILED`)**: On repeated validator rejection, analyze root cause before authorizing retry attempts.
+
 
 ---
 

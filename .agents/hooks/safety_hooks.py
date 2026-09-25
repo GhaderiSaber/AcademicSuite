@@ -249,6 +249,31 @@ def is_state_ledger_command(cmd: str, caller: str = "") -> Tuple[bool, str]:
     return False, ""
 
 
+def is_mechanical_registry_command(cmd: str) -> Tuple[bool, str]:
+    """
+    Directive 24: Mechanical Rule Registry Shell Guard
+    Blocks shell operations attempting to directly modify, overwrite, or delete enforced_invariants.json.
+    """
+    if not cmd:
+        return False, ""
+    reg_token = r'enforced_invariants\.json'
+    redirection_pattern = rf'(?:>|>>)\s*[\'"]?[^;&|\s]*{reg_token}'
+    if re.search(redirection_pattern, cmd, re.IGNORECASE):
+        return True, (
+            "CONSTITUTIONAL VIOLATION (Directive 24 - Mechanical Rule Registry Shell Guard): "
+            "Direct file modification of 'enforced_invariants.json' via shell redirection is strictly forbidden. "
+            "Mechanical invariant rules must be compiled exclusively through 'academic_graduation_compiler.py'."
+        )
+    file_ops_pattern = rf'\b(?:rm|mv|cp|truncate|sed\s+-i|perl\s+-i|tee(?:\s+-a)?|touch)\b.*{reg_token}'
+    if re.search(file_ops_pattern, cmd, re.IGNORECASE):
+        return True, (
+            "CONSTITUTIONAL VIOLATION (Directive 24 - Mechanical Rule Registry Shell Guard): "
+            "Shell operations modifying 'enforced_invariants.json' are strictly forbidden. "
+            "Mechanical invariant rules must be compiled exclusively through 'academic_graduation_compiler.py'."
+        )
+    return False, ""
+
+
 def is_dangerous_command(cmd: str) -> Tuple[bool, str]:
     """Detects destructive system commands or security breaches."""
     if not cmd:
@@ -272,6 +297,10 @@ def is_dangerous_command(cmd: str) -> Tuple[bool, str]:
     is_state_violation, state_reason = is_state_ledger_command(cmd)
     if is_state_violation:
         return True, state_reason
+
+    is_mech_violation, mech_reason = is_mechanical_registry_command(cmd)
+    if is_mech_violation:
+        return True, mech_reason
 
     return False, ""
 
@@ -936,6 +965,38 @@ class SafetyHooks:
             for target in targets:
                 target_norm = os.path.normpath(target).replace("\\", "/")
                 target_base = os.path.basename(target_norm)
+
+                # Directive 24: Mechanical Rule Registry Immutability Guard
+                if target_base == "enforced_invariants.json" or target_norm.endswith("hooks/rules/enforced_invariants.json"):
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            "CONSTITUTIONAL VIOLATION (Directive 24 - Mechanical Rule Registry Immutability Guard): "
+                            "Direct file modification of 'enforced_invariants.json' is strictly forbidden for all agents and mutation tools. "
+                            "Mechanical invariant rules must be generated and registered exclusively through the autonomous learning pipeline "
+                            "via 'academic_graduation_compiler.py'."
+                        )
+                    }
+
+                # Directive 24: Skill Invariant Manual Injection Guard
+                if target_base.lower() == "skill.md" or target_norm.endswith("/skill.md"):
+                    content_sample = (
+                        args.get("CodeContent") or
+                        args.get("ReplacementContent") or
+                        args.get("TargetContent") or
+                        args.get("text") or
+                        args.get("content") or ""
+                    )
+                    if "Active Learned Behavioral Invariants" in content_sample:
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                "CONSTITUTIONAL VIOLATION (Directive 24 - Skill Invariant Manual Injection Guard): "
+                                "Direct manual modification of '## 🧠 Active Learned Behavioral Invariants' in SKILL.md is strictly forbidden. "
+                                "Learned behavioral invariants must be compiled into skills exclusively by 'academic_graduation_compiler.py' "
+                                "through the autonomous learning pipeline."
+                            )
+                        }
 
                 # Learning Subagent File Restriction Guard (JSON and Markdown permitted)
                 if caller and is_learning_subagent(caller):

@@ -19,9 +19,9 @@ This workspace operates strictly on a **Two-Agent Dual-Track Architecture**:
 
 ### 💻 Track 1: Software Engineering & Code Development (Main Agent)
 - **Primary Agent**: Built-in Google Antigravity Default Agent.
-- **Mission**: Software engineering, feature implementation, refactoring, tests (`pytest`), and Git lifecycle.
+- **Mission**: Software engineering, pipeline codification, bug fixing, test harnesses (`pytest`), and Git lifecycle.
 - **Privileges**: Full code-authoring & mutation tools (`replace_file_content`, `write_to_file`, `run_command`, `view_file`).
-- **Constitutional Exemption**: Strictly exempt from academic pipeline invariants (Directives 0–20). Freely edits code, tests, and configs without Pre-Flight Declarations, Word typography, or Triad artifacts.
+- **Constitutional Boundary & Non-Interference**: Strictly exempt from academic pipeline invariants (Directives 0–20). Confined exclusively to repository infrastructure and code development. Strictly forbidden from manually evolving skills (`SKILL.md` or skill scripts under `.agents/skills/`) or manually editing/registering mechanical hook rules in `.agents/hooks/rules/enforced_invariants.json`. Skill evolution and mechanical rule creation are strictly reserved for the autonomous continuous learning pipeline.
 
 ### 🎓 Track 2: Academic Research & Thesis Pipelines (Academic-Orchestrator)
 - **Primary Agent**: `academic-orchestrator` (selected via UI dropdown or `invoke_subagent`).
@@ -67,6 +67,7 @@ All academic agents adhere to these 24 core directives. Each directive acts as a
 - **Directive 21 (Proactive Human Mentorship & Dual-Track Immediate Graduation)**: Human mentor guidance immediately codified into `.agents/learning/knowledge/`. Universal procedural invariants graduated in the same turn into `SKILL.md` / `rules/AGENTS.md` via `academic_graduation_compiler.py`. [Enforcement: `academic_graduation_compiler.py`]
 - **Directive 22 (Fail-Closed Mechanical Validation Gate Invariant)**: Reject verbal "PASS"; require verified physical `validation_report.json` on disk with `overall_verdict == "PASS"` and `checks_failed == 0`. [Enforcement: `Stop` hook / `validation_agent_guard.py`]
 - **Directive 23 (Clean Workspace Root Standard)**: Zero executable scripts in repository root. Scripts routed strictly to (1) scratch dir, (2) `02_analysis_code/`, (3) `.agents/scripts/`, or (4) `tests/`. [Enforcement: `PreToolUse` hook / `safety_hooks.py`]
+- **Directive 24 (Main Agent Repository Codification Boundary & Non-Interference Invariant)**: The Main Agent (Track 1) is strictly responsible for repository infrastructure, pipeline maintenance, compiler integrity, hooks, and test suites. The Main Agent must NEVER manually evolve skills (`SKILL.md` or skill scripts) or manually modify `.agents/hooks/rules/enforced_invariants.json`. Evolution of skills, agents, and creation of mechanical rules is strictly the exclusive domain of the autonomous continuous learning pipeline (`trajectory-analyzer` -> `behavior-analyst` -> `knowledge-curator` -> `skill-evolver` -> `evaluation-agent` -> `academic_graduation_compiler.py`). When defects or critiques arise, the Main Agent must ensure the learning pipeline executes and graduates candidates properly, rather than manually intervening. [Enforcement: `PreToolUse` hook / `safety_hooks.py`]
 
 ---
 

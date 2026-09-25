@@ -196,6 +196,34 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                             "reason": msg,
                                             "message": msg
                                         }
+
+                                    # Candidate graduation verification: ensure evaluated candidates are graduated on disk
+                                    cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
+                                    pending_cands = []
+                                    if os.path.isdir(cand_dir):
+                                        for cf in os.listdir(cand_dir):
+                                            if cf.endswith(".json") and not cf.startswith("."):
+                                                try:
+                                                    with open(os.path.join(cand_dir, cf), "r", encoding="utf-8") as f_c:
+                                                        cd = json.load(f_c)
+                                                    c_st = str(cd.get("status", "")).upper()
+                                                    g_st = str(cd.get("graduation_status", "")).upper()
+                                                    if c_st in ("STAGED", "EVALUATED", "EVALUATION_PASSED") and g_st != "GRADUATED":
+                                                        pending_cands.append(cd.get("candidate_id") or cf)
+                                                except Exception:
+                                                    pass
+                                    if pending_cands:
+                                        msg = (
+                                            f"CONSTITUTIONAL VIOLATION (Directive 21.1 — Premature Remediation Without Invariant Graduation): "
+                                            f"Improvement candidate(s) {pending_cands} are evaluated but have not been graduated into canonical tools or mechanical rules. "
+                                            f"The autonomous learning pipeline must compile candidates via 'academic_graduation_compiler.py compile-all' "
+                                            f"before invoking delivery worker '{target_type}'."
+                                        )
+                                        return {
+                                            "decision": "deny",
+                                            "reason": msg,
+                                            "message": msg
+                                        }
                             except Exception:
                                 pass
 

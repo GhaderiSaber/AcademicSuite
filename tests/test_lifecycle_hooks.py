@@ -395,6 +395,75 @@ class TestLifecycleHooks(unittest.TestCase):
             if os.path.exists(lesson_file):
                 os.unlink(lesson_file)
 
+    def test_13_directive_24_mechanical_rule_registry_immutability_guard(self):
+        """PreToolUse must block write_to_file and replace_file_content targeting enforced_invariants.json (Directive 24)."""
+        forbidden_targets = [
+            ".agents/hooks/rules/enforced_invariants.json",
+            os.path.join(ROOT, ".agents", "hooks", "rules", "enforced_invariants.json"),
+            "enforced_invariants.json"
+        ]
+        for t in forbidden_targets:
+            payload = {
+                "toolCall": {
+                    "name": "write_to_file",
+                    "args": {"TargetFile": t, "CodeContent": "{}"}
+                },
+                "workspacePaths": [ROOT]
+            }
+            res = guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed to deny write to: {t}")
+            self.assertIn("Directive 24", res.get("reason", ""))
+
+            payload_replace = {
+                "toolCall": {
+                    "name": "replace_file_content",
+                    "args": {"TargetFile": t, "TargetContent": "a", "ReplacementContent": "b"}
+                },
+                "workspacePaths": [ROOT]
+            }
+            res_replace = guard.handle_pre_tool_use(payload_replace)
+            self.assertEqual(res_replace.get("decision"), "deny", f"Failed to deny replace in: {t}")
+            self.assertIn("Directive 24", res_replace.get("reason", ""))
+
+    def test_14_directive_24_skill_invariant_manual_injection_guard(self):
+        """PreToolUse must block manual modification of Active Learned Behavioral Invariants in SKILL.md (Directive 24)."""
+        skill_path = os.path.join(ROOT, ".agents", "skills", "chapter-4-writing", "SKILL.md")
+        payload = {
+            "toolCall": {
+                "name": "replace_file_content",
+                "args": {
+                    "TargetFile": skill_path,
+                    "TargetContent": "## 1. Scope",
+                    "ReplacementContent": "## 🧠 Active Learned Behavioral Invariants\n- Manually injected"
+                }
+            },
+            "workspacePaths": [ROOT]
+        }
+        res = guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "deny")
+        self.assertIn("Directive 24", res.get("reason", ""))
+        self.assertIn("Active Learned Behavioral Invariants", res.get("reason", ""))
+
+    def test_15_directive_24_mechanical_rule_shell_guard(self):
+        """PreToolUse must block shell redirection or manipulation of enforced_invariants.json (Directive 24)."""
+        shell_cmds = [
+            "echo '{}' > .agents/hooks/rules/enforced_invariants.json",
+            "sed -i 's/a/b/' .agents/hooks/rules/enforced_invariants.json",
+            "rm -f .agents/hooks/rules/enforced_invariants.json"
+        ]
+        for cmd in shell_cmds:
+            payload = {
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": cmd}
+                },
+                "workspacePaths": [ROOT]
+            }
+            res = guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed to block shell command: {cmd}")
+            self.assertIn("Directive 24", res.get("reason", ""))
+
 
 if __name__ == "__main__":
     unittest.main()
+
