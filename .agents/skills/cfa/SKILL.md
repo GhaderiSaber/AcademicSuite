@@ -102,3 +102,5 @@ The script outputs:
 - **Heywood Cases**: Check for negative error variances ($\theta < 0$) or standardized loadings $> 1.0$. If present, flag for model respecification.
 - **Cross-Loading Hygiene**: Modification indices (MI) for error covariances permitted ONLY between items of the same latent factor with clear theoretical justification.
 
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001)**: Enforcing a strict fail-closed mathematical admissibility gate requiring lavaan post-check verification, information matrix invertibility, zero negative variances, and all standardized betas <= 1.0 before any SEM results or chapter deliverables can pass validation. [Enforcement: dynamic_invariant_guard.py (LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001)]
