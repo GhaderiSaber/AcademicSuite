@@ -119,3 +119,6 @@ Execute the 4-step diagnostic and rewriting sequence:
 - [ai_slop_and_cliche_catalog.md](.agents/skills/ai-academic-tone-polisher/references/ai_slop_and_cliche_catalog.md) — 38 synthetic academic markers and human scholarly alternatives.
 - [section_de_templating_guide.md](.agents/skills/ai-academic-tone-polisher/references/section_de_templating_guide.md) — Step-by-step methods for de-templating Methods, Results, and Discussion.
 - [academic_tone_and_humanization_standards.md](.agents/skills/ai-academic-tone-polisher/references/academic_tone_and_humanization_standards.md) — Stanford SciWrite 5-pass editorial framework and Persian orthography (نیم‌فاصله).
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-ACADEMIC-SOBRIETY-AND-ANTI-HYPERBOLE-001)**: Maintain strict academic sobriety and neutral academic prose. Do not use emotional, dramatic, or hyperbolic wording to inflate word counts. [Enforcement: dynamic_invariant_guard.py (LSN-2026-ACADEMIC-SOBRIETY-AND-ANTI-HYPERBOLE-001)]

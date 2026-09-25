@@ -38,6 +38,6 @@ python3 .agents/skills/persian-discussion-builder/scripts/assemble_chapter5.py \
 ```
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Principle (PRN-20260924-D1DAA0)**: Chapter 5 discussion must strictly contain zero tables and maintain 100% continuous narrative prose. [Enforcement: academic_writer_guard.py / enforced_invariants.json:RULE-CH5-NO-TABLES]
+- **Lesson (LSN-2026-ACADEMIC-SOBRIETY-AND-ANTI-HYPERBOLE-001)**: Maintain strict academic sobriety and neutral academic prose. Do not use emotional, dramatic, or hyperbolic wording to inflate word counts. [Enforcement: academic_writer_guard.py]
 - **Lesson (LSN-2026-EXHAUSTIVE-FOOTNOTE-TOKENIZATION-AND-PARITY-QC-001)**: Exhaustive loop tokenization for all footnote markers [^X] in text nodes; assert zero literal '[^' substrings in document.xml and 1:1 parity between footnoteReference tags and definitions. [Enforcement: academic_writer_guard.py]
 - **Lesson (LSN-2026-ASSEMBLY-HEADING-DEDUPLICATION-AND-RIGHT-ALIGNMENT-001)**: Pre-assembly regex stripping of stage titles; remove <w:jc> on all headings under BiDi contexts; enforce multi-margin verification. [Enforcement: assemble_chapter5.py / academic_writer_guard.py]
