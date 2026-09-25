@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:11.527684+00:00",
+  "updated_at": "2026-09-25T17:08:11.562140+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -687,6 +687,25 @@
       "remedy": "Strip all 'p', 'P', 'p =', and '> p' occurrences from table cells; output pure numbers (e.g. '۰.۰۱۴') or inequality with number ('< ۰.۰۰۱' / '۰.۰۰۱ >').",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:11.527674+00:00"
+    },
+    "AP-2026-REDUNDANT-TOTAL-ROW-IN-HIERARCHICAL-TABLES": {
+      "item_id": "AP-2026-REDUNDANT-TOTAL-ROW-IN-HIERARCHICAL-TABLES",
+      "category": "Anti-Pattern",
+      "statement": "Place composite metrics directly on the parent variable row (Col 0 = Variable name, Col 1 = blank, Cols 2+ = composite metrics); list only genuine subscales in Col 1 below it.",
+      "target_agents": [
+        "academic-writer",
+        "results-auditor"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Flag tables where Col 1 contains 'کل مقیاس' or 'نمره کل' immediately beneath an empty parent variable row.",
+      "violation_message": "Place composite metrics directly on the parent variable row (Col 0 = Variable name, Col 1 = blank, Cols 2+ = composite metrics); list only genuine subscales in Col 1 below it.",
+      "remedy": "Place composite metrics directly on the parent variable row (Col 0 = Variable name, Col 1 = blank, Cols 2+ = composite metrics); list only genuine subscales in Col 1 below it.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:11.562126+00:00"
     }
   }
 }
