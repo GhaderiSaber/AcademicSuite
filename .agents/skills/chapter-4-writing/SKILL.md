@@ -104,7 +104,34 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 ```
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-20260925-A4DD06)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~583/600 tokens (97.2%)]
+- **Lesson (LSN-20260925-C57A9F)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]
+- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`
+
+
+⚠️ Known Pitfalls (Anti-Patterns to Avoid):
+- None cataloged. Enforce standard APA 7 & OpenXML rigor.
+
+💡 Relevant Active Lessons:
+- No specialized lessons flagged. Standard pipeline rules apply.
+
+⚖️ Applicable Methodology Rules & Boundary Conditions:
+- No conflicting paradigms active. Follow primary statistical decision tree.
+
+---
+### Executable Task Assignment:
+Perform causal root-cause analysis on the reconstructed trajectory to determine failure mechanism for user critique: Problem: 
+You have this text in the references. This is unacceptable.
+جامعیت: این فهرست شامل تمامی ارجاعات موجود در متن فصول ۲.۱ تا ۲.۷ (نظریات بنیادین، مدلهای شناختی، پرسشنامهها و پیشینههای تجربی متأخر تا سال ۲۰۲۵) میباشد.
+
+Trajectory details:
+- Unanchored 4-digit regex matched '۲۰۲۵' inside descriptive prose.
+- Structural filter failed to identify prefix 'جامعیت:' as non-reference meta-annotation.
+- Missing bibliographic syntax validator (e.g. requiring author surname, initials/title, publication type).
+
+Please formulate causal diagnosis, failure mode signature, and behavioral remedy.
+
+
+The current local time is: 2026-09-25T19:49:25+03:30. [Enforcement: results_auditor_guard.py]
 - **Target Capability**: `CHAPTER4` | **Task**: `chapter_4_drafting` | **Agent**: `academic-writer` | **Project**: `cross-project`
 
 
@@ -423,6 +450,5 @@ The current local time is: 2026-09-25T19:13:18+03:30. [Enforcement: results_audi
 - **Lesson (LSN-2026-STARS-ONLY-IN-CORRELATION-TABLES-001)**: Restrict asterisk usage in tables exclusively to correlation matrices; purge all asterisks from non-correlation table cells, headers, and notes. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001)**: In two-column variable-and-subscale tables, always output: Row(Parent Variable) -> subsequent Rows(blank Col 0, Subscale in Col 1) -> Row(Next Parent Variable). [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-VARIABLE-COMPOSITE-ROW-INVARIANT-001)**: Always populate parent variable rows with overall/composite metrics; never create an empty parent row followed by a separate 'total' row. [Enforcement: results_auditor_guard.py]
-
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-20260925-A4DD06)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUT... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]
