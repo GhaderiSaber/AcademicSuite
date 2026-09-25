@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:28.669305+00:00",
+  "updated_at": "2026-09-25T17:27:28.700514+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -201,7 +201,7 @@
       "violation_message": "Place *یادداشت immediately on the next line without an empty line in Markdown. In DOCX generation, attach the note paragraph directly with tight space_before (0-2 pt) and no intervening empty paragraph.",
       "remedy": "Place *یادداشت immediately on the next line without an empty line in Markdown. In DOCX generation, attach the note paragraph directly with tight space_before (0-2 pt) and no intervening empty paragraph.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:02.262193+00:00"
+      "updated_at": "2026-09-25T17:27:28.700501+00:00"
     },
     "AP-2026-BULLETED-ACADEMIC-NARRATIVE": {
       "item_id": "AP-2026-BULLETED-ACADEMIC-NARRATIVE",
