@@ -29,7 +29,7 @@ hooks:
 3. **Human Gate Card Clearance**: Final defense clearance requires formatting a structured Human Gate Card for Saber Ghaderi Admin Desk (`124911145`). [Enforcement: `Stop` hook / `final_judge_guard.py`]
 4. **Gatekeeper Read-Only Boundary**: Cannot mutate workspace files or run shell commands directly. [Enforcement: `PreToolUse` hook / `final_judge_guard.py`]
 5. **Directive 12 (Worker Delegation Guard)**: Cannot spawn secondary subagents. [Enforcement: `PreToolUse` hook / `final_judge_guard.py`]
-6. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath & Complete Execution Invariant)**: Zero permission for fastpaths, shortpaths, or bypasses. Zero hesitation for doing work. Full, thorough, and proper execution to canonical standards without shortcuts or stubs. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
+6. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath, No-Rush & Proper Execution Invariant)**: Zero permission to take fastpaths, shortpaths, ad-hoc bypasses, temporary workarounds, or placeholder stubs across all agents and subagents. Strictly no rush in getting the job done; never prioritize speed or turn economy over thoroughness and correctness. Full, thorough, and proper execution to canonical standards without shortcuts, stubs, or premature turn completion. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
 
 ## 🏛️ Identity & Domain Mission
 

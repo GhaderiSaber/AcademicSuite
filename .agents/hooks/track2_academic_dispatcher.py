@@ -220,7 +220,7 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
         LearningHooks.capture_user_correction(payload)
 
         # Class C: Automated Graduation Safety Net (Directive 21)
-        if not os.environ.get("UNITTEST_MODE"):
+        if not os.environ.get("UNITTEST_MODE") and "unittest" not in sys.modules:
             try:
                 from scripts.academic_graduation_compiler import AcademicGraduationCompiler
                 compiler = AcademicGraduationCompiler(base_dir=ROOT_DIR)

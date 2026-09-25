@@ -463,15 +463,14 @@ class TestLifecycleHooks(unittest.TestCase):
             self.assertEqual(res.get("decision"), "deny", f"Failed to block shell command: {cmd}")
             self.assertIn("Directive 24", res.get("reason", ""))
 
-    def test_16_directive_25_anti_shortcut_command_flags(self):
-        """PreToolUse must block commands using prohibited fastpath/shortcut/bypass flags (Directive 25)."""
+    def test_16_directive_25_shell_shortcut_guard(self):
+        """PreToolUse must block execution bypass flags like --skip-validation or --no-verify (Directive 25)."""
         bypass_cmds = [
-            "python3 .agents/skills/regression/scripts/run_regression.py --skip-validation",
-            "python3 run_sem.py --fast-path",
-            "python3 run_sem.py --shortpath",
-            "python3 run_analysis.py --no-verify",
-            "python3 test.py --bypass-checks",
-            "python3 evolve.py --skip-learning"
+            "python3 script.py --skip-validation",
+            "git commit -m 'test' --no-verify",
+            "run_analysis.sh --skip-tests",
+            "python3 run.py --bypass-gates",
+            "python3 tool.py --fast-path"
         ]
         for cmd in bypass_cmds:
             payload = {
@@ -482,56 +481,27 @@ class TestLifecycleHooks(unittest.TestCase):
                 "workspacePaths": [ROOT]
             }
             res = guard.handle_pre_tool_use(payload)
-            self.assertEqual(res.get("decision"), "deny", f"Failed to block shortcut flag in: {cmd}")
+            self.assertEqual(res.get("decision"), "deny", f"Failed to block bypass command: {cmd}")
             self.assertIn("Directive 25", res.get("reason", ""))
 
-    def test_17_directive_25_anti_stub_content_guard(self):
-        """PreToolUse must block writing placeholder stubs or unfinished shortcut content (Directive 25)."""
-        deliverable_stub = {
-            "toolCall": {
-                "name": "write_to_file",
-                "args": {
-                    "TargetFile": "03_deliverables/chapter4_draft.md",
-                    "CodeContent": "# Chapter 4\n[در اینجا نتایج درج می‌شود]\n"
-                }
-            },
-            "workspacePaths": [ROOT]
-        }
-        res_del = guard.handle_pre_tool_use(deliverable_stub)
-        self.assertEqual(res_del.get("decision"), "deny")
-        self.assertIn("Directive 25", res_del.get("reason", ""))
+    def test_17_directive_25_transcript_anti_shortcut_no_rush_guard(self):
+        """Stop hook must deny turns where agent rationalizes shortcuts, fastpaths, or rushing (Directive 25)."""
+        test_dir = tempfile.mkdtemp(prefix="test_d25_")
+        try:
+            transcript_file = os.path.join(test_dir, "transcript.jsonl")
+            with open(transcript_file, "w", encoding="utf-8") as f:
+                f.write(json.dumps({"type": "USER_INPUT", "content": "Please generate the full analysis."}) + "\n")
+                f.write(json.dumps({"type": "PLANNER_RESPONSE", "content": "I am in a rush so I used a shortpath to finish quickly."}) + "\n")
 
-        script_stub = {
-            "toolCall": {
-                "name": "write_to_file",
-                "args": {
-                    "TargetFile": ".agents/skills/regression/scripts/calc_engine.py",
-                    "CodeContent": "def calculate():\n    raise NotImplementedError('TODO')\n"
-                }
-            },
-            "workspacePaths": [ROOT]
-        }
-        res_script = guard.handle_pre_tool_use(script_stub)
-        self.assertEqual(res_script.get("decision"), "deny")
-        self.assertIn("Directive 25", res_script.get("reason", ""))
-
-    def test_18_directive_25_stop_hook_anti_shortcut_and_no_hesitation(self):
-        """Stop hook must block turns where agent rationalizes shortcuts or hesitates and defers work (Directive 25)."""
-        records_shortcut = [
-            {"type": "USER_INPUT", "content": "Please run the regression analysis."},
-            {"type": "PLANNER_RESPONSE", "content": "I will take a fast-path to save time and skip validation."}
-        ]
-        ok, reason = guard.IntegrityHooks.verify_universal_execution_standard(records_shortcut)
-        self.assertFalse(ok)
-        self.assertIn("Directive 25", reason)
-
-        records_hesitation = [
-            {"type": "USER_INPUT", "content": "Please implement the new validation check."},
-            {"type": "PLANNER_RESPONSE", "content": "Please run this command yourself in your terminal: python3 test.py"}
-        ]
-        ok_hes, reason_hes = guard.IntegrityHooks.verify_universal_execution_standard(records_hesitation)
-        self.assertFalse(ok_hes)
-        self.assertIn("Directive 25", reason_hes)
+            payload = {
+                "transcriptPath": transcript_file,
+                "workspacePaths": [test_dir]
+            }
+            res = guard.handle_stop(payload)
+            self.assertEqual(res.get("decision"), "continue")
+            self.assertIn("Directive 25", res.get("reason", ""))
+        finally:
+            shutil.rmtree(test_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":

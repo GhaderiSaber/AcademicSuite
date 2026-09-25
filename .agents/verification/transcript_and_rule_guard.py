@@ -34,6 +34,7 @@ try:
         is_raw_data_command,
         is_state_ledger_command,
         is_dangerous_command,
+        is_shortcut_command,
         is_outside_workspace,
         is_ascii_filename
     )
@@ -51,6 +52,7 @@ except ImportError:
         is_raw_data_command,
         is_state_ledger_command,
         is_dangerous_command,
+        is_shortcut_command,
         is_outside_workspace,
         is_ascii_filename
     )
@@ -89,7 +91,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
     # Also scan for user corrections
     LearningHooks.capture_user_correction(payload)
     # Automated Graduation Safety Net (Directive 21)
-    if not os.environ.get("UNITTEST_MODE"):
+    if not os.environ.get("UNITTEST_MODE") and "unittest" not in sys.modules:
         try:
             from scripts.academic_graduation_compiler import AcademicGraduationCompiler
             compiler = AcademicGraduationCompiler(base_dir=ROOT_DIR)

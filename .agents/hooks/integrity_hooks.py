@@ -801,6 +801,52 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
+    def verify_anti_shortcut_and_no_rush(records: List[Dict[str, Any]]) -> Tuple[bool, str]:
+        """
+        Enforces Directive 25 (Universal Anti-Shortcut, Zero-Fastpath, No-Rush & Proper Execution Invariant):
+        1. Prohibits claiming or rationalizing fastpaths, shortpaths, shortcuts, or temporary bypasses.
+        2. Prohibits rushing execution or prioritizing turn speed over thoroughness and correctness.
+        3. Prohibits emitting placeholder stubs or cutting corners.
+        """
+        if not records:
+            return True, ""
+
+        last_user_idx = -1
+        for idx, r in enumerate(records):
+            if r.get("type") == "USER_INPUT":
+                last_user_idx = idx
+
+        active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
+
+        shortcut_patterns = [
+            r"\b(?:taking|take|took|use|used|using)\s+(?:a\s+)?(?:shortcut|shortpath|short-path|fastpath|fast-path)\b",
+            r"\b(?:quick|temporary)\s+(?:shortcut|bypass|stub|workaround)\b",
+            r"\b(?:in\s+a\s+rush|rushing\s+to\s+(?:finish|complete|get\s+done))\b",
+            r"\bskip(?:ping)?\s+(?:validation|tests|stages?|triads?)\s+to\s+(?:save\s+time|speed\s+up|rush)\b",
+            r"\bplaceholder\s+implementation\s+for\s+now\b",
+        ]
+
+        negative_contexts = [
+            "directive 25", "never", "prohibited", "forbidden", "banned", "anti-pattern",
+            "zero shortcut", "zero permission", "no rush", "without shortcuts", "without rush",
+            "violation", "do not rush", "cannot rush", "must not rush"
+        ]
+
+        for r in active_records:
+            if r.get("type") == "PLANNER_RESPONSE":
+                txt = (str(r.get("content") or "") + " " + str(r.get("thinking") or "")).lower()
+                for pat in shortcut_patterns:
+                    if re.search(pat, txt):
+                        if not any(nc in txt for nc in negative_contexts):
+                            return False, (
+                                "CONSTITUTIONAL VIOLATION (Directive 25 - Universal Anti-Shortcut, Zero-Fastpath & No-Rush Invariant): "
+                                "Fastpaths, shortpaths, shortcuts, stubs, and rushed execution are strictly forbidden across ALL agents. "
+                                "There should be no rush in getting the job done. "
+                                "The work must be executed properly, thoroughly, completely, and deterministically."
+                            )
+        return True, ""
+
+    @staticmethod
     def verify_learning_pipeline_completion(records: List[Dict[str, Any]]) -> Tuple[bool, str]:
         """
         Enforces Directive 21 & Directive 21.1 (Mandatory Learning & Evolution Pipeline & Zero Fast-Path):
@@ -1008,68 +1054,6 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
-    def verify_universal_execution_standard(records: List[Dict[str, Any]]) -> Tuple[bool, str]:
-        """
-        Enforces Directive 25 (Universal Anti-Shortcut, Zero-Fastpath & Complete Execution Invariant):
-        1. Prohibits all agents and subagents from rationalizing fastpaths, shortpaths, taking shortcuts,
-           skipping validation/tests, or deferring work to future turns.
-        2. Prohibits hesitating or instructing the user to manually execute commands or write code
-           that agents have the authority and tools to perform autonomously.
-        """
-        if not records:
-            return True, ""
-
-        last_user_idx = -1
-        for idx, r in enumerate(records):
-            if r.get("type") == "USER_INPUT":
-                last_user_idx = idx
-        active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
-
-        fast_path_patterns = [
-            r"\bfast[- ]path\b",
-            r"\bshort[- ]path\b",
-            r"\bslower path\b",
-            r"\bslow[- ]path\b",
-            r"\btake a shortcut\b",
-            r"\btaking a shortcut\b",
-            r"\btake shortcuts\b",
-            r"\bquick workaround to avoid\b",
-            r"\bskip validation for now\b",
-            r"\bskip tests for now\b",
-            r"\bdefer(?:red)? work to later\b",
-            r"\bpostpone(?:d)? code mutation\b",
-            r"\bcode mutation .* will occur later\b",
-            r"\bcontext[- ]only updates to avoid conversational delays\b",
-            r"\bfast[- ]track behavioral\b",
-            r"\bplease run this command yourself\b",
-            r"\byou can run this command yourself\b",
-            r"\bplease execute the command yourself\b"
-        ]
-
-        exemptions = [
-            "never use fast-path", "banned", "prohibited", "violation",
-            "zero 'fast-path'", "zero \"fast-path\"", "anti-pattern", "forbidden",
-            "directive 21", "directive 25", "zero shortcut", "zero shortpath",
-            "no permission to take fastpath", "no permission to take shortpath",
-            "there is no hesitation", "anti-shortcut"
-        ]
-
-        for r in active_records:
-            if r.get("type") == "PLANNER_RESPONSE":
-                txt = (str(r.get("content") or "") + " " + str(r.get("thinking") or "")).lower()
-                for pat in fast_path_patterns:
-                    if re.search(pat, txt):
-                        if not any(ex in txt for ex in exemptions):
-                            return False, (
-                                "CONSTITUTIONAL VIOLATION (Directive 25 - Universal Anti-Shortcut & Zero-Fastpath Invariant): "
-                                "Rationalizing a 'fast-path', 'short-path', taking shortcuts, or hesitating and deferring work "
-                                "to later or to the user is strictly prohibited under Directive 25. "
-                                "No agent or subagent has permission to cut corners. The work must be done properly and completely."
-                            )
-
-        return True, ""
-
-    @staticmethod
     def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Main entry point for Stop integrity checks:
@@ -1081,7 +1065,6 @@ class IntegrityHooks:
         6. Binary Honesty Protocol (Directive 0)
         7. Multi-Agent claim truthfulness (Directive 0)
         8. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
-        9. Universal Anti-Shortcut & Zero-Hesitation Invariant (Directive 25)
         """
         workspaces = payload.get("workspacePaths", [])
 
@@ -1146,13 +1129,13 @@ class IntegrityHooks:
             if not ok:
                 return {"decision": "continue", "reason": reason, "message": reason}
 
-            # 8. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
-            ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records)
+            # 8. Anti-Shortcut, Zero-Fastpath & No-Rush Invariant (Directive 25)
+            ok, reason = IntegrityHooks.verify_anti_shortcut_and_no_rush(records)
             if not ok:
                 return {"decision": "continue", "reason": reason, "message": reason}
 
-            # 9. Universal Anti-Shortcut & Zero-Hesitation Invariant (Directive 25)
-            ok, reason = IntegrityHooks.verify_universal_execution_standard(records)
+            # 9. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
+            ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records)
             if not ok:
                 return {"decision": "continue", "reason": reason, "message": reason}
 

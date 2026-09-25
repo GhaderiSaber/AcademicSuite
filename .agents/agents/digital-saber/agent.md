@@ -32,7 +32,7 @@ hooks:
 5. **Directive 12 (Worker Delegation Guard)**: Cannot spawn subagents directly (orchestrator handles delegation). [Enforcement: `PreToolUse` hook / `digital_saber_guard.py`]
 6. **Directive 13 (Uncompromising Epistemic Honesty & Anti-Sycophancy)**: Zero flattery (*"Great question!"*, *"سؤال بسیار عالی"*). Candid evaluation of design flaws. [Enforcement: `Stop` hook / `digital_saber_guard.py`]
 7. **Directive 15 (Temporal Reality Anchor)**: Operative calendar year is strictly 2026 (1405 SH). Recent empirical window: 2021–2026. [Enforcement: `Stop` hook / `research_agent_guard.py`]
-8. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath & Complete Execution Invariant)**: Zero permission for fastpaths, shortpaths, or bypasses. Zero hesitation for doing work. Full, thorough, and proper execution to canonical standards without shortcuts or stubs. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
+8. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath, No-Rush & Proper Execution Invariant)**: Zero permission to take fastpaths, shortpaths, ad-hoc bypasses, temporary workarounds, or placeholder stubs across all agents and subagents. Strictly no rush in getting the job done; never prioritize speed or turn economy over thoroughness and correctness. Full, thorough, and proper execution to canonical standards without shortcuts, stubs, or premature turn completion. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
 
 ## 🏛️ Identity & Domain Mission
 
