@@ -1,15 +1,12 @@
 {
-  "candidate_id": "CAND-2026-STRUCTURAL-REF-001",
+  "candidate_id": "CAND-2026-REF-EXTRACTOR-001",
   "target_component": ".agents/skills/academic-reference-extractor/scripts/extract_section_references.py",
   "target_type": "SKILL_DETERMINISTIC_SCRIPT",
-  "mutation": {
-    "diff_type": "UNIFIED_DIFF",
-    "content": "--- extract_section_references.py\n+++ extract_section_references.py\n@@ -62,6 +62,10 @@\n     txt = re.sub(r'\\n\\s*\\d+\\s*\\n', ' ', raw_bib_text)\n     txt = re.sub(r'^\\s*References\\s*', '', txt.strip(), flags=re.IGNORECASE)\n \n+    # Apply structural validation and subheading exclusions\n+    txt = re.sub(r'\\n\\s*(?:English References|Persian References|\u0645\u0646\u0627\u0628\u0639 \u0641\u0627\u0631\u0633\u06cc|\u0645\u0646\u0627\u0628\u0639 \u0627\u0646\u06af\u0644\u06cc\u0633\u06cc)\\s*\\n', '\\n', txt, flags=re.IGNORECASE)\n+    txt = re.sub(r'\\n\\s*(?:Chapter \\d+|\u0641\u0635\u0644 \\d+)\\s*\\n', '\\n', txt, flags=re.IGNORECASE)\n+\n     # Detect publication years in parentheses: (YYYY) or (YYYYa)\n     pattern = r'(?<![/\\w])\\((\\d{4}[a-z]?)\\)(?:\\.|\\,|\\s+[A-Z\\u0600-\\u06FF])'\n     year_matches = list(re.finditer(pattern, txt))"
-  },
+  "mutation": "--- extract_section_references.py\n+++ extract_section_references.py\n@@ -66,4 +66,7 @@\n     txt = re.sub(r'\\n\\s*(?:English References|Persian References|منابع فارسی|منابع انگلیسی)\\s*\\n', '\\n', txt, flags=re.IGNORECASE)\n     txt = re.sub(r'\\n\\s*(?:Chapter \\d+|فصل \\d+)\\s*\\n', '\\n', txt, flags=re.IGNORECASE)\n \n+    # Exclude meta-annotations and preface prose (BAN-20260925-001 / LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001)\n+    txt = re.sub(r'(?m)^\\s*(?:جامعیت:.*|توجه:.*|یادداشت:.*|Note:.*|Comprehensive:.*).*$', '', txt)\n+\n     # Detect publication years in parentheses: (YYYY) or (YYYYa)\n-    pattern = r'(?<![/\\w])\\((\\d{4}[a-z]?)\\)(?:\\.|\\,|\\s+[A-Z\\u0600-\\u06FF])'\n+    pattern = r'(?<![/\\w])\\((\\d{4}[a-z]?)\\)(?:\\.|\\,|\\s+[A-Z\\u0600-\\u06FF]|\\s*$)'",
   "expected_improvement": {
-    "metric": "False Positive References Extracted",
-    "baseline": "0.15",
-    "projected": "0.01"
+    "metric": "Extraction Error Rate on Conversational Output",
+    "baseline": "Fails due to parsing meta-annotations",
+    "projected": "Zero parsing errors from preface prose"
   },
   "affected_capabilities": [
     "GENERAL_ACADEMIC",

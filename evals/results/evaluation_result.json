@@ -1,0 +1,71 @@
+{
+  "evaluation_id": "INDEP-EVL-2026-001",
+  "candidate_id": "CAND-2026-REF-EXTRACTOR-001",
+  "baseline_id": "BASE-2026-REF-EXTRACTOR",
+  "task_id": "EVAL-WRIT-01",
+  "dimensions": {
+    "correctness": 1.0,
+    "methodology": 1.0,
+    "statistical_validity": 1.0,
+    "evidence_grounding": 1.0,
+    "integrity": 1.0,
+    "robustness": 1.0,
+    "consistency": 1.0,
+    "efficiency": 1.0
+  },
+  "baseline_metrics": {
+    "extraction_error_rate": 1.0
+  },
+  "candidate_metrics": {
+    "extraction_error_rate": 0.0
+  },
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": [],
+    "fixes_original_mistake": true,
+    "task_id": "EVAL-WRIT-01"
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false,
+    "task_id": "EVAL-WRIT-01",
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "pass_rate": 1.0,
+    "generalizes_to_different_case": true,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 1,
+    "task_id": "EVAL-WRIT-01"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": "evals/results/benchmark_report.md",
+      "sha256": "5fae44bbfc154490baedc06f07d7b2646fe8ed395dbc4ab543b728b04bd67c6b",
+      "evidence_type": "BENCHMARK_REPORT"
+    }
+  ],
+  "verdict": "PASS",
+  "contract_version": "1.0.0",
+  "evaluated_at": "2026-09-25T16:30:00Z",
+  "recommendation": "PROMOTE",
+  "baseline_version": "v1.0",
+  "overall_verdict": "PASS",
+  "metrics": {
+    "statistical_precision": 1.0,
+    "typography_compliance": 1.0,
+    "execution_reliability": 1.0,
+    "msai_anomaly_score": 0.0
+  },
+  "regressions": {
+    "count": 0,
+    "details": []
+  }
+}
