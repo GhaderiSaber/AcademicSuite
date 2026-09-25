@@ -127,3 +127,6 @@ The engine generates:
 - Reject datasets where effect size exceeds empirical reality ($\eta_p^2 > .25$ for psychology).
 - Individual participant values must be strictly discrete integers matching Likert bounds.
 - Datasets must include complete metadata and never be passed into production without synthetic tagging.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-NO-CHAPTER-WRITING-IN-DATA-MAKING-001)**: During data generation and SEM/statistical model verification phases, suppress Chapter 4 document compilation. Present only empirical findings: summary statistics, R/Python notebooks, regression/SEM tables, and visualization diagrams. [Enforcement: data_agent_guard.py]

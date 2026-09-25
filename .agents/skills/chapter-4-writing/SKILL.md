@@ -105,6 +105,6 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-NARRATIVE-PRECEDES-TABLE-CAPTION-001)**: Strictly order document elements: Heading first, followed by the explanatory continuous prose narrative, then the non-bold table caption, then the table itself, and finally the table note. [Enforcement: results_auditor_guard.py]
-- **Lesson (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)**: Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-NO-CHAPTER-WRITING-IN-DATA-MAKING-001)**: During data generation and SEM/statistical model verification phases, suppress Chapter 4 document compilation. Present only empirical findings: summary statistics, R/Python notebooks, regression/SEM tables, and visualization diagrams. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NO-BLANK-LINE-BETWEEN-TABLE-AND-NOTE-001)**: Attach table notes directly beneath the table with 0 blank lines in Markdown and 0 intervening paragraphs in Word DOCX. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-MANDATORY-BLANK-LINE-BEFORE-HEADINGS-001)**: Ensure an explicit blank line precedes every heading across Markdown source and Word DOCX deliverables. [Enforcement: results_auditor_guard.py]
