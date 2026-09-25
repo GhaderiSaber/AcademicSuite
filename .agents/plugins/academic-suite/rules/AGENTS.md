@@ -26,6 +26,7 @@ These domain rules are automatically loaded and applied across all conversations
 - **Anti-pattern (AP-2026-MANIFEST-PATH-LABELED-AS-SEM)**: Enforce latent variable specification (=~) using subscales or item parcels in R lavaan. [Enforcement: dynamic_invariant_guard.py (AP-2026-MANIFEST-PATH-LABELED-AS-SEM)]
 - **Anti-pattern (AP-2026-LEGACY-MULTI-QUESTION-INTRO-CONTAMINATION)**: Surgically rewrite the introductory paragraph of each question/hypothesis section to introduce only its own question, move Question 3's formal blockquote and measurement description into Section 4-5, and fix subsection numbering to follow strict parent hierarchy. [Enforcement: dynamic_invariant_guard.py (AP-2026-LEGACY-MULTI-QUESTION-INTRO-CONTAMINATION)]
 - **Anti-pattern (AP-2026-INVERTED-TABLE-NUMBERING)**: Enforce 'جدول [فصل]- [شماره]' (e.g. 'جدول ۴- ۳۱') in all captions and narrative citations. [Enforcement: dynamic_invariant_guard.py (AP-2026-INVERTED-TABLE-NUMBERING)]
+- **Anti-pattern (AP-2026-MISSING-BLANK-LINE-BEFORE-HEADINGS)**: Insert exactly one blank newline before each heading in Markdown and enforce an explicit blank line separation in OpenXML DOCX. [Enforcement: dynamic_invariant_guard.py (AP-2026-MISSING-BLANK-LINE-BEFORE-HEADINGS)]
 ## 2. Interaction & File Naming Standards (Universal Mandate)
 - **Directive 6 (English Primary Interaction & English-Only Filenames)**:
   - Agents communicate, reason, plan, and report strictly in **English**. Persian is reserved strictly for academic deliverable content.
