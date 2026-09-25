@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:29.675653+00:00",
+  "updated_at": "2026-09-25T17:27:29.712777+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -705,7 +705,7 @@
       "violation_message": "Place composite metrics directly on the parent variable row (Col 0 = Variable name, Col 1 = blank, Cols 2+ = composite metrics); list only genuine subscales in Col 1 below it.",
       "remedy": "Place composite metrics directly on the parent variable row (Col 0 = Variable name, Col 1 = blank, Cols 2+ = composite metrics); list only genuine subscales in Col 1 below it.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:03.270538+00:00"
+      "updated_at": "2026-09-25T17:27:29.712766+00:00"
     },
     "AP-2026-ROOT-DIRECTORY-SCRIPT-POLLUTION": {
       "item_id": "AP-2026-ROOT-DIRECTORY-SCRIPT-POLLUTION",
