@@ -81,12 +81,7 @@ def resolve_agent_caller(payload: Dict[str, Any]) -> str:
 def check_orchestrator_tool_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Enforces academic-orchestrator invariants via its dedicated co-located guard."""
     caller = resolve_agent_caller(payload)
-    is_sub, _ = extract_subagent_info(payload)
-    tool_name = (payload.get("toolCall", {}).get("name") or "").strip().lower()
-
-    if (caller in ("academic-orchestrator", "orchestrator") or
-            (not is_sub and caller not in ("default", "main")) or
-            tool_name in ("invoke_subagent", "manage_subagents")):
+    if caller in ("academic-orchestrator", "orchestrator"):
         guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "academic-orchestrator", "guard.py")
         if os.path.exists(guard_path):
             try:
@@ -99,12 +94,7 @@ def check_orchestrator_tool_restrictions(payload: Dict[str, Any]) -> Optional[Di
                     mod = importlib.util.module_from_spec(spec)
                     sys.modules[mod_name] = mod
                     spec.loader.exec_module(mod)
-                res = mod.handle_pre_tool_use(payload)
-                if isinstance(res, dict) and res.get("decision") == "deny":
-                    msg = res.get("reason") or res.get("message") or ""
-                    res["reason"] = msg
-                    res["message"] = msg
-                return res
+                return mod.handle_pre_tool_use(payload)
             except Exception as e:
                 sys.stderr.write(f"[track2_academic_dispatcher] Error executing orchestrator guard: {e}\n")
     return None
@@ -113,9 +103,7 @@ def check_orchestrator_tool_restrictions(payload: Dict[str, Any]) -> Optional[Di
 def check_orchestrator_stop_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Enforces academic-orchestrator stop invariants via its dedicated co-located guard."""
     caller = resolve_agent_caller(payload)
-    is_sub, _ = extract_subagent_info(payload)
-    if (caller in ("academic-orchestrator", "orchestrator") or
-            (not is_sub and caller not in ("default", "main"))):
+    if caller in ("academic-orchestrator", "orchestrator"):
         guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "academic-orchestrator", "guard.py")
         if os.path.exists(guard_path):
             try:
@@ -128,12 +116,7 @@ def check_orchestrator_stop_restrictions(payload: Dict[str, Any]) -> Optional[Di
                     mod = importlib.util.module_from_spec(spec)
                     sys.modules[mod_name] = mod
                     spec.loader.exec_module(mod)
-                res = mod.handle_stop(payload)
-                if isinstance(res, dict) and res.get("decision") == "continue":
-                    msg = res.get("reason") or res.get("message") or ""
-                    res["reason"] = msg
-                    res["message"] = msg
-                return res
+                return mod.handle_stop(payload)
             except Exception as e:
                 sys.stderr.write(f"[track2_academic_dispatcher] Error executing orchestrator stop guard: {e}\n")
     return None

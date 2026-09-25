@@ -148,8 +148,18 @@ class TestSubagentContextEnrichment(unittest.TestCase):
         enriched_subagents = res["overwrite"]["Subagents"]
         self.assertIn("🧠 DETERMINISTIC ADAPTIVE CONTEXT", enriched_subagents[0]["Prompt"])
 
-    def test_07_track2_dispatcher_propagates_overwrite(self):
-        """dispatch_event('PreToolUse') must propagate overwrite payload."""
+        cde_prompt = (
+            "Execute regression analysis according to formal contract:\n\n"
+            "```json\n"
+            "{\n"
+            '  "task_id": "TSK-TEST-REG",\n'
+            '  "worker_agent": "statistics-agent",\n'
+            '  "objective": "Execute regression analysis",\n'
+            '  "inputs": ["02_analysis_code/cleaned_data.xlsx"],\n'
+            '  "required_artifacts": ["03_deliverables/06_hypothesis_1.docx"]\n'
+            "}\n"
+            "```\n"
+        )
         payload = {
             "toolCall": {
                 "name": "invoke_subagent",
@@ -157,7 +167,7 @@ class TestSubagentContextEnrichment(unittest.TestCase):
                     "Subagents": [{
                         "TypeName": "statistics-agent",
                         "Role": "Stats",
-                        "Prompt": "Execute regression analysis"
+                        "Prompt": cde_prompt
                     }]
                 }
             },

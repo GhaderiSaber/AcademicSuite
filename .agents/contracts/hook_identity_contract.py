@@ -263,40 +263,39 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
                 step = json.loads(line_str)
                 content = step.get("content") or ""
                 if "<identity>" in content:
-                    if "You are Antigravity, a powerful agentic AI coding assistant" in content:
-                        if "academic-orchestrator" not in content and "digital-saber" not in content:
-                            return "default", "track_1_developer", "moderate"
-                    if "academic-orchestrator" in content:
-                        return "academic-orchestrator", "track_2_academic", "moderate"
-                    if "digital-saber" in content:
-                        return "digital-saber", "track_2_academic", "moderate"
+                    id_match = re.search(r"<identity>([\s\S]*?)</identity>", content)
+                    if id_match:
+                        id_text = id_match.group(1)
+                        if "You are Antigravity, a powerful agentic AI coding assistant" in id_text:
+                            return "default", "track_1_developer", "high"
+                        if "academic-orchestrator" in id_text or "Master Academic Orchestrator" in id_text:
+                            return "academic-orchestrator", "track_2_academic", "high"
+                        if "digital-saber" in id_text:
+                            return "digital-saber", "track_2_academic", "high"
             except Exception:
                 continue
 
         # Pass 2: Behavioral pattern scan across transcript
-        academic_orchestrator_patterns = (
-            "Pre-Flight Pipeline Declaration",
-            "Contractual Delegation Envelope",
-            "academic-orchestrator",
-            "Master Academic Orchestrator",
+        # If the agent has recently called developer execution tools (run_command, replace_file_content, write_to_file),
+        # it is affirmatively the Track 1 Main Developer Agent (Directive 20 forbids orchestrator from these tools).
+        has_developer_tool_call = False
+        has_orchestrator_signature = False
+
+        academic_orchestrator_signatures = (
             "### 🛫 Pre-Flight Pipeline Declaration",
-            "TSK-2026-",
+            "Contractual Delegation Envelope (CDE)",
             "academic-state/routing_plan.json"
         )
 
         for line_str in reversed(lines[-50:]):
             try:
                 step = json.loads(line_str)
-                content = str(step.get("content") or "")
-                thinking = str(step.get("thinking") or "")
-                step_text = content + " " + thinking
-
-                if any(pat in step_text for pat in academic_orchestrator_patterns):
-                    return "academic-orchestrator", "track_2_academic", "high"
-
+                # Inspect tool calls
                 for tc in step.get("tool_calls", []):
-                    tc_name = tc.get("name")
-                    if tc_name == "invoke_subagent":
+                    tc_name = (tc.get("name") or "").lower()
+                    if tc_name in ("run_command", "replace_file_content", "write_to_file", "edit_file", "apply_diff"):
+                        has_developer_tool_call = True
+                    elif tc_name == "invoke_subagent":
                         tc_args = tc.get("args", {})
                         subs = tc_args.get("Subagents", [])
                         if isinstance(subs, str):
@@ -313,8 +312,19 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
                                         "psychometric-expert", "results-auditor", "validation-agent"
                                     ):
                                         return "academic-orchestrator", "track_2_academic", "high"
+
+                # Only inspect model output content (NEVER thinking or user inputs)
+                if step.get("source") == "MODEL" and step.get("type") == "PLANNER_RESPONSE":
+                    content = str(step.get("content") or "")
+                    if any(pat in content for pat in academic_orchestrator_signatures):
+                        has_orchestrator_signature = True
             except Exception:
                 continue
+
+        if has_developer_tool_call:
+            return "default", "track_1_developer", "high"
+        if has_orchestrator_signature:
+            return "academic-orchestrator", "track_2_academic", "high"
     except Exception:
         return None
 

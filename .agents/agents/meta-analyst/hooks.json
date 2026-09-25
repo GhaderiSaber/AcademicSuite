@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .agents/agents/meta-analyst/guard.py --event PreToolUse",
+            "command": "python3 -c \"import os,sys; f='guard.py' if os.path.exists('guard.py') else '.agents/agents/meta-analyst/guard.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreToolUse",
             "timeout": 10
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .agents/agents/meta-analyst/guard.py --event Stop",
+            "command": "python3 -c \"import os,sys; f='guard.py' if os.path.exists('guard.py') else '.agents/agents/meta-analyst/guard.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event Stop",
             "timeout": 15
           }
         ]
