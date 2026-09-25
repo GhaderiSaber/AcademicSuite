@@ -183,3 +183,4 @@ Before submitting the manuscript to an academic journal, verify:
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-ACADEMIC-SOBRIETY-AND-HEADING-BLANK-LINE-INVARIANT-001)**: Enforce a strict behavioral invariant for academic-writer to maintain an objective, dispassionate register devoid of emotive adverbs (e.g., 'اکیداً', 'بهطور چشمگیری'). Mechanically preserve blank lines before headings in Markdown and explicitly inject <w:spacing w:before='240' w:after='120'/> attributes in OpenXML. [Enforcement: academic_writer_guard.py]
+- **Lesson (LSN-2026-OPENXML-ALIGNMENT-SCHEMA-001)**: Use python-docx native enums (p.alignment = WD_ALIGN_PARAGRAPH.RIGHT/CENTER/JUSTIFY) and never append loose <w:jc> tags at the end of <w:pPr>. [Enforcement: dynamic_invariant_guard.py (LSN-2026-OPENXML-ALIGNMENT-SCHEMA-001)]
