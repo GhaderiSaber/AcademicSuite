@@ -122,4 +122,4 @@ In regression ANOVA tables with multiple criterion variables:
 - **Multiple Criteria Coefficients**: When reporting multiple criteria in a single coefficients table, Column 1 must specify `متغیر ملاک`.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-REGRESSION-ANOVA-OPTION-A-STANDARD-001)**: In all regression ANOVA tables with multiple criterion variables, use a two-column structure: Column 1 ('متغیر ملاک') and Column 2 ('منبع تغییرات' with 'رگرسیون', 'باقیمانده', 'کل'). [Enforcement: statistics_agent_guard.py]
+- **Lesson (LSN-2026-REGRESSION-ANOVA-ROW-LABELS-001)**: In all regression ANOVA tables (خلاصه مدل و تحلیل واریانس), format source of variance rows as: [Variable Name], 'باقیمانده', 'کل' for each criterion variable, strictly omitting parenthetical variable names on residual and total rows. [Enforcement: statistics_agent_guard.py]
