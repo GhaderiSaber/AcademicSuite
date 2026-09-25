@@ -106,3 +106,4 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-CORRELATION-TABLE-THREE-COLUMN-HEADER-001)**: Structure all correlation matrices with: Col 1 ('ردیف'), Col 2 ('متغیر'), Col 3 ('خرده‌مقیاس'), followed by correlation columns ('۱', '۲', '۳', ...). [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)**: Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001)**: In two-column variable-and-subscale tables, always output: Row(Parent Variable) -> subsequent Rows(blank Col 0, Subscale in Col 1) -> Row(Next Parent Variable). [Enforcement: results_auditor_guard.py]
