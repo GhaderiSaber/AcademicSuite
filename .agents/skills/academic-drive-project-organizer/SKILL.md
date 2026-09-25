@@ -144,3 +144,4 @@ python3 .agents/skills/academic-drive-project-organizer/scripts/organize_drive_p
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-CLEAN-ROOT-TAXONOMY-ENFORCEMENT-001)**: Never write scripts directly into the repository root. Always route scripts to 02_analysis_code/ for project analysis, .agents/scripts/ for suite tools, tests/ for tests, or the session scratch directory. [Enforcement: dynamic_invariant_guard.py (LSN-2026-CLEAN-ROOT-TAXONOMY-ENFORCEMENT-001)]
+- **Lesson (LSN-2026-IMMUTABLE-RAW-DATA-AND-PROVENANCE-001)**: Treat raw empirical datasets as strictly read-only and immutable; always output cleaned datasets to distinct destination paths and record data transformation manifests. [Enforcement: dynamic_invariant_guard.py (LSN-2026-IMMUTABLE-RAW-DATA-AND-PROVENANCE-001)]

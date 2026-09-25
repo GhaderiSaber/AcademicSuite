@@ -101,3 +101,4 @@ The script produces:
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-DETERMINISTIC-REVERSE-CODING-001)**: Deterministically verify and extract reverse-coded item indices from Questionnaires.xlsx via psychometric-scale-resolver before computing subscale sums. [Enforcement: data_agent_guard.py]
+- **Lesson (LSN-2026-IMMUTABLE-RAW-DATA-AND-PROVENANCE-001)**: Treat raw empirical datasets as strictly read-only and immutable; always output cleaned datasets to distinct destination paths and record data transformation manifests. [Enforcement: data_agent_guard.py]

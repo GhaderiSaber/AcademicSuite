@@ -101,3 +101,5 @@ The script outputs:
 - **Zero Imputed Whole-Numbers**: Imputed Likert values must maintain appropriate distributional noise and not inject identical static integers.
 - **MSAI Linkage**: If straight-lining is detected, flag affected scales for Multi-Signal Anomaly Index review.
 
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-IMMUTABLE-RAW-DATA-AND-PROVENANCE-001)**: Treat raw empirical datasets as strictly read-only and immutable; always output cleaned datasets to distinct destination paths and record data transformation manifests. [Enforcement: data_agent_guard.py]
