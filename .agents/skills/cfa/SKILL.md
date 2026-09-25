@@ -104,3 +104,4 @@ The script outputs:
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001)**: Enforcing a strict fail-closed mathematical admissibility gate requiring lavaan post-check verification, information matrix invertibility, zero negative variances, and all standardized betas <= 1.0 before any SEM results or chapter deliverables can pass validation. [Enforcement: dynamic_invariant_guard.py (LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001)]
+- **Lesson (LSN-2026-R-LAVAAN-LATENT-SEM-MANDATE)**: Specification of R (lavaan) as primary SEM engine, latent indicators (=~), R semPlot::semPaths() visualization, and mandatory pre-flight adaptive context retrieval. [Enforcement: dynamic_invariant_guard.py (LSN-2026-R-LAVAAN-LATENT-SEM-MANDATE)]
