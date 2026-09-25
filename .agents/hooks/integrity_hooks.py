@@ -1008,6 +1008,68 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
+    def verify_universal_execution_standard(records: List[Dict[str, Any]]) -> Tuple[bool, str]:
+        """
+        Enforces Directive 25 (Universal Anti-Shortcut, Zero-Fastpath & Complete Execution Invariant):
+        1. Prohibits all agents and subagents from rationalizing fastpaths, shortpaths, taking shortcuts,
+           skipping validation/tests, or deferring work to future turns.
+        2. Prohibits hesitating or instructing the user to manually execute commands or write code
+           that agents have the authority and tools to perform autonomously.
+        """
+        if not records:
+            return True, ""
+
+        last_user_idx = -1
+        for idx, r in enumerate(records):
+            if r.get("type") == "USER_INPUT":
+                last_user_idx = idx
+        active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
+
+        fast_path_patterns = [
+            r"\bfast[- ]path\b",
+            r"\bshort[- ]path\b",
+            r"\bslower path\b",
+            r"\bslow[- ]path\b",
+            r"\btake a shortcut\b",
+            r"\btaking a shortcut\b",
+            r"\btake shortcuts\b",
+            r"\bquick workaround to avoid\b",
+            r"\bskip validation for now\b",
+            r"\bskip tests for now\b",
+            r"\bdefer(?:red)? work to later\b",
+            r"\bpostpone(?:d)? code mutation\b",
+            r"\bcode mutation .* will occur later\b",
+            r"\bcontext[- ]only updates to avoid conversational delays\b",
+            r"\bfast[- ]track behavioral\b",
+            r"\bplease run this command yourself\b",
+            r"\byou can run this command yourself\b",
+            r"\bplease execute the command yourself\b"
+        ]
+
+        exemptions = [
+            "never use fast-path", "banned", "prohibited", "violation",
+            "zero 'fast-path'", "zero \"fast-path\"", "anti-pattern", "forbidden",
+            "directive 21", "directive 25", "zero shortcut", "zero shortpath",
+            "no permission to take fastpath", "no permission to take shortpath",
+            "there is no hesitation", "anti-shortcut"
+        ]
+
+        for r in active_records:
+            if r.get("type") == "PLANNER_RESPONSE":
+                txt = (str(r.get("content") or "") + " " + str(r.get("thinking") or "")).lower()
+                for pat in fast_path_patterns:
+                    if re.search(pat, txt):
+                        if not any(ex in txt for ex in exemptions):
+                            return False, (
+                                "CONSTITUTIONAL VIOLATION (Directive 25 - Universal Anti-Shortcut & Zero-Fastpath Invariant): "
+                                "Rationalizing a 'fast-path', 'short-path', taking shortcuts, or hesitating and deferring work "
+                                "to later or to the user is strictly prohibited under Directive 25. "
+                                "No agent or subagent has permission to cut corners. The work must be done properly and completely."
+                            )
+
+        return True, ""
+
+    @staticmethod
     def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Main entry point for Stop integrity checks:
@@ -1019,6 +1081,7 @@ class IntegrityHooks:
         6. Binary Honesty Protocol (Directive 0)
         7. Multi-Agent claim truthfulness (Directive 0)
         8. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
+        9. Universal Anti-Shortcut & Zero-Hesitation Invariant (Directive 25)
         """
         workspaces = payload.get("workspacePaths", [])
 
@@ -1085,6 +1148,11 @@ class IntegrityHooks:
 
             # 8. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
             ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records)
+            if not ok:
+                return {"decision": "continue", "reason": reason, "message": reason}
+
+            # 9. Universal Anti-Shortcut & Zero-Hesitation Invariant (Directive 25)
+            ok, reason = IntegrityHooks.verify_universal_execution_standard(records)
             if not ok:
                 return {"decision": "continue", "reason": reason, "message": reason}
 

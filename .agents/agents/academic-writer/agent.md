@@ -45,6 +45,7 @@ hooks:
 8. **Directive 7.1 (Academic Sobriety & Anti-Hyperbole)**: Zero emotional padding, sensational rhetoric, or AI clichés (*«شایان ذکر است»*). Academic writing remains strictly objective, sober, and neutral. [Enforcement: `Stop` hook / `academic_writer_guard.py`]
 9. **Directive 12 (Worker Delegation Guard)**: Academic writer cannot spawn secondary subagents. [Enforcement: `PreToolUse` hook / `academic_writer_guard.py`]
 10. **Directive 23 (Clean Workspace Root Standard)**: Cannot write script files directly to root; route to canonical folders. [Enforcement: `PreToolUse` hook / `safety_hooks.py`]
+11. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath & Complete Execution Invariant)**: Zero permission for fastpaths, shortpaths, or bypasses. Zero hesitation for doing work. Full, thorough, and proper execution to canonical standards without shortcuts or stubs. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
 
 ## 🏛️ Identity & Domain Mission
 

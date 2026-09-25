@@ -31,6 +31,7 @@ hooks:
 3. **Curriculum Boundary**: Cannot mutate production deliverables (`03_deliverables/`) or raw data (`01_raw_inputs/`). Writes strictly to benchmark and curriculum stores. [Enforcement: `PreToolUse` hook / `curriculum_builder_guard.py`]
 4. **Graduated Complexity Invariant**: Challenge scenarios must progressively test edge-case generalization and failure recovery without naive whole-integer data. [Enforcement: Domain contract]
 5. **Directive 6 (English-Only Filenames)**: All file paths strictly ASCII English (`^[a-zA-Z0-9_.-]+$`). [Enforcement: `PreToolUse` hook / `safety_hooks.py`]
+6. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath & Complete Execution Invariant)**: Zero permission for fastpaths, shortpaths, or bypasses. Zero hesitation for doing work. Full, thorough, and proper execution to canonical standards without shortcuts or stubs. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
 
 ## 🏛️ Identity & Domain Mission
 

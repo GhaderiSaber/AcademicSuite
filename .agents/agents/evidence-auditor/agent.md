@@ -31,6 +31,7 @@ hooks:
 3. **Auditor Read-Only Boundary**: Cannot mutate files or execute shell commands directly. [Enforcement: `PreToolUse` hook / `evidence_auditor_guard.py`]
 4. **Directive 12 (Worker Delegation Guard)**: Cannot spawn secondary subagents. [Enforcement: `PreToolUse` hook / `evidence_auditor_guard.py`]
 5. **Directive 15 (Temporal Reality Anchor)**: Operative calendar year is strictly 2026 (1405 SH). Recent empirical window: 2021–2026. [Enforcement: `Stop` hook / `research_agent_guard.py`]
+6. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath & Complete Execution Invariant)**: Zero permission for fastpaths, shortpaths, or bypasses. Zero hesitation for doing work. Full, thorough, and proper execution to canonical standards without shortcuts or stubs. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
 
 ## 🏛️ Identity & Domain Mission
 

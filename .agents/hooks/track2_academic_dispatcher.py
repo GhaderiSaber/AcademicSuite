@@ -220,13 +220,14 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
         LearningHooks.capture_user_correction(payload)
 
         # Class C: Automated Graduation Safety Net (Directive 21)
-        try:
-            from scripts.academic_graduation_compiler import AcademicGraduationCompiler
-            compiler = AcademicGraduationCompiler(base_dir=ROOT_DIR)
-            ws_paths = payload.get("workspacePaths", [])
-            compiler.compile_all_pending(workspaces=ws_paths, auto_commit=True, dry_run=False)
-        except Exception as e_grad:
-            sys.stderr.write(f"[track2_academic_dispatcher] Auto-graduation note: {e_grad}\n")
+        if not os.environ.get("UNITTEST_MODE"):
+            try:
+                from scripts.academic_graduation_compiler import AcademicGraduationCompiler
+                compiler = AcademicGraduationCompiler(base_dir=ROOT_DIR)
+                ws_paths = payload.get("workspacePaths", [])
+                compiler.compile_all_pending(workspaces=ws_paths, auto_commit=True, dry_run=False)
+            except Exception as e_grad:
+                sys.stderr.write(f"[track2_academic_dispatcher] Auto-graduation note: {e_grad}\n")
 
         return stop_res
 

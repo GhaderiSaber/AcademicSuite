@@ -274,6 +274,95 @@ def is_mechanical_registry_command(cmd: str) -> Tuple[bool, str]:
     return False, ""
 
 
+def is_shortcut_or_bypass_command(cmd: str) -> Tuple[bool, str]:
+    """
+    Directive 25: Universal Anti-Shortcut & Zero-Fastpath Command Guard.
+    Blocks execution of commands using prohibited fastpath, bypass, or shortcut flags.
+    """
+    if not cmd:
+        return False, ""
+
+    # Do not block pure inspection/search commands
+    trimmed = cmd.strip()
+    inspection_starters = ("grep ", "egrep ", "fgrep ", "git grep ", "cat ", "head ", "tail ", "echo ", "test ")
+    if any(trimmed.startswith(s) for s in inspection_starters):
+        return False, ""
+
+    bypass_flags = [
+        r'--skip-validation\b',
+        r'--skip-checks\b',
+        r'--skip-verify\b',
+        r'--no-verify\b',
+        r'--fast-path\b',
+        r'--fastpath\b',
+        r'--short-path\b',
+        r'--shortpath\b',
+        r'--bypass-checks\b',
+        r'--bypass-guard\b',
+        r'--skip-learning\b',
+        r'--skip-eval\b',
+        r'--skip-tests\b'
+    ]
+    pattern = rf'(?:^|\s)(?:{"|".join(bypass_flags)})'
+    match_obj = re.search(pattern, cmd, re.IGNORECASE)
+    if match_obj:
+        match = match_obj.group(0).strip()
+        return True, (
+            f"CONSTITUTIONAL VIOLATION (Directive 25 - Universal Anti-Shortcut & Zero-Fastpath Invariant): "
+            f"Execution flag '{match}' is strictly prohibited. All agents and subagents are barred from taking "
+            f"fastpaths, shortpaths, or bypassing required validation and pipelines. The work must be done properly."
+        )
+    return False, ""
+
+
+def is_stub_or_shortcut_content(target_path: str, content: str) -> Tuple[bool, str]:
+    """
+    Directive 25: Universal Anti-Shortcut Stub Guard.
+    Prevents delivering placeholder stubs or unfinished shortcut content into deliverables or production scripts.
+    """
+    if not target_path or not content or not isinstance(content, str):
+        return False, ""
+
+    norm = os.path.normpath(target_path).replace("\\", "/")
+    # Only enforce on production files and deliverables, not on test files, scratch, or evals
+    if "tests/" in norm or "/scratch/" in norm or "test_" in os.path.basename(norm) or "evals/" in norm:
+        return False, ""
+
+    # Check for placeholder stubs in deliverables (03_deliverables)
+    if "03_deliverables" in norm or norm.endswith((".docx", ".md")):
+        stub_patterns = [
+            r'\[\s*(?:در اینجا نتایج|متن فرضیه|متن فصل|جداول|تحلیل)\s*(?:درج می‌شود|اضافه خواهد شد|تکمیل خواهد شد|قرار می‌گیرد)\s*\]',
+            r'\bTODO:\s*(?:implement|write|add results|fill|complete)\b',
+            r'\bFIXME:\s*(?:implement|write|add results|fill|complete)\b',
+            r'\bplaceholder\s+text\b'
+        ]
+        for pat in stub_patterns:
+            if re.search(pat, content, re.IGNORECASE):
+                return True, (
+                    f"CONSTITUTIONAL VIOLATION (Directive 25 - Universal Anti-Shortcut & Complete Execution Invariant): "
+                    f"Placeholder or stub content detected in target deliverable '{target_path}'. "
+                    f"Fastpaths, shortpaths, and unfinished stubs are strictly forbidden. The deliverable must be completed properly."
+                )
+
+    # Check for stubbing in production python scripts (.agents/skills, .agents/scripts)
+    if norm.endswith(".py") and (".agents/skills" in norm or ".agents/scripts" in norm):
+        py_stub_patterns = [
+            r'raise\s+NotImplementedError\s*\(\s*[\'"](?:TODO|unimplemented|stub|not implemented yet)[\'"]\s*\)',
+            r'#\s*TODO:\s*implement(?:\s+this|\s+later)?\b',
+            r'#\s*FIXME:\s*implement(?:\s+this|\s+later)?\b',
+            r'pass\s+#\s*(?:placeholder|stub|TODO|later)\b'
+        ]
+        for pat in py_stub_patterns:
+            if re.search(pat, content, re.IGNORECASE):
+                return True, (
+                    f"CONSTITUTIONAL VIOLATION (Directive 25 - Universal Anti-Shortcut & Complete Execution Invariant): "
+                    f"Unfinished stub or placeholder pattern detected in production script '{target_path}'. "
+                    f"Every task must be implemented properly and completely."
+                )
+
+    return False, ""
+
+
 def is_dangerous_command(cmd: str) -> Tuple[bool, str]:
     """Detects destructive system commands or security breaches."""
     if not cmd:
@@ -301,6 +390,10 @@ def is_dangerous_command(cmd: str) -> Tuple[bool, str]:
     is_mech_violation, mech_reason = is_mechanical_registry_command(cmd)
     if is_mech_violation:
         return True, mech_reason
+
+    is_bypass_violation, bypass_reason = is_shortcut_or_bypass_command(cmd)
+    if is_bypass_violation:
+        return True, bypass_reason
 
     return False, ""
 
@@ -998,6 +1091,21 @@ class SafetyHooks:
                             )
                         }
 
+                # Directive 25: Stub and Shortcut Content Guard
+                content_sample = (
+                    args.get("CodeContent") or
+                    args.get("ReplacementContent") or
+                    args.get("TargetContent") or
+                    args.get("text") or
+                    args.get("content") or ""
+                )
+                is_stub, stub_reason = is_stub_or_shortcut_content(target, content_sample)
+                if is_stub:
+                    return {
+                        "decision": "deny",
+                        "reason": stub_reason
+                    }
+
                 # Learning Subagent File Restriction Guard (JSON and Markdown permitted)
                 if caller and is_learning_subagent(caller):
                     target_lower = target_norm.lower()
@@ -1106,6 +1214,14 @@ class SafetyHooks:
         # 3. Dangerous Shell Command & Orchestrator Direct Execution Protection
         if name == "run_command":
             cmd = args.get("CommandLine", "")
+
+            # Universal Dangerous Command, Raw-Data & Anti-Shortcut Guard (Directive 25)
+            is_danger, danger_reason = is_dangerous_command(cmd)
+            if is_danger:
+                return {
+                    "decision": "deny",
+                    "reason": danger_reason
+                }
 
             # State Ledger Immutability Guard (run_command bypass protection)
             is_state_violation, state_reason = is_state_ledger_command(cmd, caller)
@@ -1330,13 +1446,6 @@ class SafetyHooks:
                             f"Only Python document generation scripts and document utilities (pandoc, soffice, mkdir, cp) are permitted."
                         )
                     }
-
-            is_danger, reason = is_dangerous_command(cmd)
-            if is_danger:
-                return {
-                    "decision": "deny",
-                    "reason": reason
-                }
 
             # English-only ASCII filename on redirects and mkdir
             redirect_match = re.search(r'(?:>|>>|\btouch\s+|\bmkdir\s+)([^\s;&|]+)', cmd)

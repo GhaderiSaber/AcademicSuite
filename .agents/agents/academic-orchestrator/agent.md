@@ -55,6 +55,7 @@ hooks:
 8. **Directive 20 (The Orchestrator Architectural Invariants)**: Pure conductor. Possesses `invoke_subagent`; strictly lacks `run_command`, `write_to_file`, `replace_file_content`, `edit_file`. [Enforcement: `PreToolUse` hook / `academic_orchestrator_guard.py`]
 9. **Directive 21 (Zero Silent Patches / Core Engine Evolution)**: User critiques trigger learning pipeline (`trajectory-analyzer` → `behavior-analyst` → `knowledge-curator` → `skill-evolver` → `evaluation-agent`) and physical graduation via `academic_graduation_compiler.py`. Ad-hoc post-processing scripts prohibited. [Enforcement: `academic_graduation_compiler.py`]
 10. **Directive 22 (Fail-Closed Mechanical Validation Gate Invariant)**: Reject conversational "PASS". Require verified physical `validation_report.json` with `overall_verdict == "PASS"` and `checks_failed == 0`. [Enforcement: `Stop` hook / `validation_agent_guard.py`]
+11. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath & Complete Execution Invariant)**: Zero permission for fastpaths, shortpaths, ad-hoc bypasses, or temporary workarounds. Zero hesitation. Full, thorough, and proper execution of all canonical stages, triads, and validation gates without cutting corners. [Enforcement: `Stop` hook / `integrity_hooks.py`]
 
 ---
 

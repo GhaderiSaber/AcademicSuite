@@ -31,6 +31,7 @@ hooks:
 3. **Analyst Read-Only Boundary**: Cannot execute shell commands (`run_command`) or mutate production code/deliverables (`03_deliverables/`, `02_analysis_code/`). [Enforcement: `PreToolUse` hook / `behavior_analyst_guard.py`]
 4. **Causal Diagnosis Fidelity**: Answers "What behavior was wrong?" with concrete causal defect identification rather than vague narrative complaints. [Enforcement: `Stop` hook / `behavior_analyst_guard.py`]
 5. **Directive 6 (English-Only Filenames)**: All file paths strictly ASCII English (`^[a-zA-Z0-9_.-]+$`). [Enforcement: `PreToolUse` hook / `safety_hooks.py`]
+6. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath & Complete Execution Invariant)**: Zero permission for fastpaths, shortpaths, or bypasses. Zero hesitation for doing work. Full, thorough, and proper execution to canonical standards without shortcuts or stubs. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
 
 ## 🏛️ Identity & Domain Mission
 
