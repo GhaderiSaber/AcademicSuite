@@ -190,7 +190,32 @@ The engine deterministically compiles:
   - `persian-thesis-builder`: Direct input as `--ch2` in `.agents/skills/persian-thesis-builder/scripts/compile_full_thesis.py`.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-20260925-7E58F8)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]
+- **Lesson (LSN-20260925-ADDFC7)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]
+- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`
+
+
+⚠️ Known Pitfalls (Anti-Patterns to Avoid):
+- None cataloged. Enforce standard APA 7 & OpenXML rigor.
+
+💡 Relevant Active Lessons:
+- No specialized lessons flagged. Standard pipeline rules apply.
+
+⚖️ Applicable Methodology Rules & Boundary Conditions:
+- No conflicting paradigms active. Follow primary statistical decision tree.
+
+---
+### Executable Task Assignment:
+Perform causal root-cause analysis on the reconstructed trajectory to determine failure mechanism for user critique: Problem: There is a text in the references section that unrelated to references.
+
+Trajectory details:
+Target Script: 02_analysis_code/restore_comprehensive_references.py
+Artifacts: 03_deliverables/Comprehensive_References.docx, 03_deliverables/Thesis_Final_Master.docx
+Failure: Subheadings like 'الف) منابع و مآخذ فارسی (کتب و مقالات)' or document headers passed len(text) > 20 without bibliographic validation and were sorted among references.
+
+Please diagnose the behavioral root cause, failure mode, and formulate generalizable behavioral explanation.
+
+
+The current local time is: 2026-09-25T19:04:23+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-ADDFC7)]
 - **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`
 
 
