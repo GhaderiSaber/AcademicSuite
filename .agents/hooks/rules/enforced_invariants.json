@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:10.711412+00:00",
+  "updated_at": "2026-09-25T17:08:10.742839+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -281,6 +281,25 @@
       "remedy": "Decouple artifact target language from conversational orchestration language. After parsing non-English artifacts, the agent must deliberately switch its conversational output language back to English before emitting messages to the user. All user-facing turns must be strictly in English as mandated by Directive 6.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:10.711402+00:00"
+    },
+    "AP-2026-CORRELATION-TABLE-SINGLE-LABEL-COLUMN": {
+      "item_id": "AP-2026-CORRELATION-TABLE-SINGLE-LABEL-COLUMN",
+      "category": "Anti-Pattern",
+      "statement": "Expand the table to have 3 distinct columns before numbering: Col 1: 'ردیف', Col 2: 'متغیر', Col 3: 'خرده‌مقیاس'.",
+      "target_agents": [
+        "academic-writer",
+        "validation-agent"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Detect correlation table whose columns before '۱' is less than 3.",
+      "violation_message": "Expand the table to have 3 distinct columns before numbering: Col 1: 'ردیف', Col 2: 'متغیر', Col 3: 'خرده‌مقیاس'.",
+      "remedy": "Expand the table to have 3 distinct columns before numbering: Col 1: 'ردیف', Col 2: 'متغیر', Col 3: 'خرده‌مقیاس'.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:10.742827+00:00"
     }
   }
 }
