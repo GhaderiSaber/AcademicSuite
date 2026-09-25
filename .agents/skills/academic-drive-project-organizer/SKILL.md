@@ -141,3 +141,6 @@ python3 .agents/skills/academic-drive-project-organizer/scripts/organize_drive_p
 2. **Never Overwrite**: If a file collision occurs during reorganization, `organize_drive_projects.py` renames the file with an `_reorg` suffix rather than overwriting existing data.
 3. **Automated Manifests**: Every applied reorganization writes a timestamped `reorganize_manifest.json` recording original paths, enabling immediate `--undo`.
 4. **Metadata Preservation**: Updates `project_meta.json` with stage history and timestamps on each transition.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-CLEAN-ROOT-TAXONOMY-ENFORCEMENT-001)**: Never write scripts directly into the repository root. Always route scripts to 02_analysis_code/ for project analysis, .agents/scripts/ for suite tools, tests/ for tests, or the session scratch directory. [Enforcement: dynamic_invariant_guard.py (LSN-2026-CLEAN-ROOT-TAXONOMY-ENFORCEMENT-001)]

@@ -194,3 +194,6 @@ In addition to reactive, post-failure learning loops, the repository supports **
   When the researcher (Saber) says *"Remember that..."* or *"Learn this..."*, the agent executes `AcademicHumanMentor.teach_from_natural_language()`.
 - **Immediate Cross-Project Synchronization**:
   Human-taught items default to `scope: cross-project`, committed to Git, and automatically ingested into subsequent agent pre-flight briefings under `⚖️ Applicable Methodology Rules & Boundary Conditions:`.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-CLEAN-ROOT-TAXONOMY-ENFORCEMENT-001)**: Never write scripts directly into the repository root. Always route scripts to 02_analysis_code/ for project analysis, .agents/scripts/ for suite tools, tests/ for tests, or the session scratch directory. [Enforcement: dynamic_invariant_guard.py (LSN-2026-CLEAN-ROOT-TAXONOMY-ENFORCEMENT-001)]
