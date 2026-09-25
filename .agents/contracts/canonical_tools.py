@@ -135,7 +135,7 @@ def validate_hooks_json(hooks_json_path: Optional[str] = None) -> Tuple[bool, Li
     except Exception as e:
         return False, [f"Failed to parse hooks.json: {e}"]
 
-    guard = data.get("constitutional-guard", {})
+    guard = data.get("track2-academic-orchestrator-guard") or data.get("constitutional-guard", {})
     expected_matcher = generate_hook_matcher()
     expected_tools = set(expected_matcher.split("|"))
     issues = []
@@ -143,7 +143,7 @@ def validate_hooks_json(hooks_json_path: Optional[str] = None) -> Tuple[bool, Li
     for event in ("PreToolUse", "PostToolUse"):
         configs = guard.get(event, [])
         if not configs:
-            issues.append(f"Missing '{event}' configuration in constitutional-guard")
+            issues.append(f"Missing '{event}' configuration in guard")
             continue
         matcher = configs[0].get("matcher", "")
         actual_tools = set(matcher.split("|")) if matcher else set()
@@ -171,12 +171,16 @@ def sync_hooks_json(hooks_json_path: Optional[str] = None) -> bool:
         data = json.load(f)
 
     matcher = generate_hook_matcher()
-    guard = data.setdefault("constitutional-guard", {})
+    target_keys = [k for k in ("track2-academic-orchestrator-guard", "constitutional-guard") if k in data]
+    if not target_keys:
+        target_keys = ["track2-academic-orchestrator-guard"]
 
-    for event in ("PreToolUse", "PostToolUse"):
-        configs = guard.setdefault(event, [{}])
-        if configs and isinstance(configs, list):
-            configs[0]["matcher"] = matcher
+    for key in target_keys:
+        guard = data.setdefault(key, {})
+        for event in ("PreToolUse", "PostToolUse"):
+            configs = guard.setdefault(event, [{}])
+            if configs and isinstance(configs, list):
+                configs[0]["matcher"] = matcher
 
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)

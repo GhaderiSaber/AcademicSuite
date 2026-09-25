@@ -1,14 +1,30 @@
 {
-  "constitutional-guard": {
+  "track1-developer-safety-gate": {
     "enabled": true,
-    "description": "Unified Tripartite Lifecycle Hook Gatekeeper routing across Safety, Integrity, and Learning hooks.",
+    "description": "Track 1 Developer Safety Gate: Enforces raw-data protection, dangerous command prevention, and workspace safety for Main Developer Agent.",
+    "PreToolUse": [
+      {
+        "matcher": "apply_diff|batch_replace|edit_file|multi_file_edit|multi_replace_file_content|patch|replace_file_content|run_command|write_to_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/track1_developer_dispatcher.py' if os.path.exists('.agents/hooks/track1_developer_dispatcher.py') else 'hooks/track1_developer_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreToolUse",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "track2-academic-orchestrator-guard": {
+    "enabled": true,
+    "description": "Track 2 Academic Governance Guard: Enforces Directive 20 tool stripping, CDE contracts, Triad artifacts, and stage validation for Academic Orchestrator and specialist subagents.",
     "PreToolUse": [
       {
         "matcher": "apply_diff|batch_replace|call_mcp_tool|define_subagent|edit_file|invoke_subagent|manage_subagents|manage_task|multi_file_edit|multi_replace_file_content|patch|read_resource|read_url_content|replace_file_content|run_command|schedule|send_message|view_file|write_to_file",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os, sys; s = '.agents/hooks/hook_dispatcher.py' if os.path.exists('.agents/hooks/hook_dispatcher.py') else 'hooks/hook_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreToolUse",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreToolUse",
             "timeout": 15
           }
         ]
@@ -20,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os, sys; s = '.agents/hooks/hook_dispatcher.py' if os.path.exists('.agents/hooks/hook_dispatcher.py') else 'hooks/hook_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PostToolUse",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PostToolUse",
             "timeout": 15
           }
         ]
@@ -31,7 +47,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os, sys; s = '.agents/hooks/hook_dispatcher.py' if os.path.exists('.agents/hooks/hook_dispatcher.py') else 'hooks/hook_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreInvocation",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PreInvocation",
             "timeout": 15
           }
         ]
@@ -42,7 +58,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os, sys; s = '.agents/hooks/hook_dispatcher.py' if os.path.exists('.agents/hooks/hook_dispatcher.py') else 'hooks/hook_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PostInvocation",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event PostInvocation",
             "timeout": 15
           }
         ]
@@ -53,7 +69,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os, sys; s = '.agents/hooks/hook_dispatcher.py' if os.path.exists('.agents/hooks/hook_dispatcher.py') else 'hooks/hook_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event Stop",
+            "command": "python3 -c \"import os, sys; s = '.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, s] + sys.argv[1:])\" --event Stop",
             "timeout": 20
           }
         ]

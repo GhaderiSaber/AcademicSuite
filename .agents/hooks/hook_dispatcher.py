@@ -126,121 +126,24 @@ def resolve_agent_caller(payload: Dict[str, Any]) -> str:
     return caller
 
 
+try:
+    from track1_developer_dispatcher import dispatch_track1_event
+    from track2_academic_dispatcher import dispatch_track2_event
+except ImportError:
+    from .track1_developer_dispatcher import dispatch_track1_event
+    from .track2_academic_dispatcher import dispatch_track2_event
+
+
 def dispatch_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Dispatches lifecycle events strictly to Safety, Integrity, and Learning hooks,
-    and routes to agent-scoped lifecycle guards.
-    Main Developer Agent is exempt from academic stop-gates and stage validation.
+    Unified entrypoint acting as a backward-compatible facade.
+    Routes to Track 1 Developer Safety Dispatcher if Main Agent Developer,
+    otherwise routes to Track 2 Academic Governance Dispatcher.
     """
-    event_upper = event.strip()
     is_main = is_main_agent_developer(payload)
-
-    if event_upper == "PreToolUse":
-        emit_hook_seen(payload, event="PreToolUse")
-        # Class A: Safety Hooks
-        # Note: safety_hooks.py permits code mutation tools for Main Agent and only blocks them for academic-orchestrator.
-        safety_res = SafetyHooks.handle_pre_tool_use(payload)
-        if safety_res.get("decision") == "deny":
-            return safety_res
-
-        # Agent-Specific Guard Check (if applicable)
-        caller = resolve_agent_caller(payload)
-        guard_mod_name = AGENT_GUARD_MAP.get(caller)
-        if guard_mod_name and not is_main:
-            try:
-                import importlib
-                guard_mod = importlib.import_module(guard_mod_name)
-                if hasattr(guard_mod, "handle_pre_tool_use"):
-                    agent_res = guard_mod.handle_pre_tool_use(payload)
-                    if isinstance(agent_res, dict) and agent_res.get("decision") == "deny":
-                        return agent_res
-            except Exception as e_agent:
-                sys.stderr.write(f"[hook_dispatcher] Agent guard error ({guard_mod_name}): {e_agent}\n")
-
-        # Dynamic Learned Invariant Guard Check (Fail-closed mechanical enforcement)
-        if not is_main:
-            try:
-                dynamic_res = DynamicInvariantGuard.evaluate_pre_tool_use(caller, payload)
-                if isinstance(dynamic_res, dict) and dynamic_res.get("decision") == "deny":
-                    return dynamic_res
-            except Exception as e_dyn:
-                sys.stderr.write(f"[hook_dispatcher] Dynamic invariant guard error: {e_dyn}\n")
-
-        # Class C: Learning Hooks (Factual trajectory capture & context enrichment)
-        learning_res = LearningHooks.handle_pre_tool_use(payload)
-        if learning_res and isinstance(learning_res, dict) and "overwrite" in learning_res:
-            res = dict(safety_res) if isinstance(safety_res, dict) else {"decision": "allow"}
-            res["decision"] = "allow"
-            res["overwrite"] = learning_res["overwrite"]
-            return res
-
-        return safety_res
-
-    elif event_upper == "PostToolUse":
-        emit_hook_seen(payload, event="PostToolUse")
-        # Class C: Learning Hooks (Trajectory capture)
-        learning_res = LearningHooks.capture_agent_trajectory(payload)
-        return learning_res
-
-    elif event_upper == "PreInvocation":
-        if is_main:
-            return {}
-        # Class C: Learning Hooks (User correction capture & constitutional reminder)
-        pre_res = LearningHooks.handle_pre_invocation(payload)
-        return pre_res
-
-    elif event_upper == "PostInvocation":
-        if is_main:
-            return {"injectSteps": [], "terminationBehavior": ""}
-        # Class B: Integrity Hooks (Validation advisory)
-        post_res = IntegrityHooks.handle_post_invocation(payload)
-        return post_res
-
-    elif event_upper == "Stop":
-        if is_main:
-            return {"decision": "allow"}
-        # Class B: Integrity Hooks (Artifact triad, manifest, post-analysis, honesty)
-        stop_res = IntegrityHooks.handle_stop(payload)
-        if stop_res.get("decision") == "continue":
-            return stop_res
-
-        # Agent-Specific Stop Guard Check (if applicable)
-        caller = resolve_agent_caller(payload)
-        guard_mod_name = AGENT_GUARD_MAP.get(caller)
-        if guard_mod_name:
-            try:
-                import importlib
-                guard_mod = importlib.import_module(guard_mod_name)
-                if hasattr(guard_mod, "handle_stop"):
-                    agent_stop_res = guard_mod.handle_stop(payload)
-                    if isinstance(agent_stop_res, dict) and agent_stop_res.get("decision") == "continue":
-                        return agent_stop_res
-            except Exception as e_agent_stop:
-                sys.stderr.write(f"[hook_dispatcher] Agent stop guard error ({guard_mod_name}): {e_agent_stop}\n")
-
-        # Dynamic Learned Invariant Stop Check
-        try:
-            dynamic_stop_res = DynamicInvariantGuard.evaluate_stop(caller, payload)
-            if isinstance(dynamic_stop_res, dict) and dynamic_stop_res.get("decision") == "continue":
-                return dynamic_stop_res
-        except Exception as e_dyn_stop:
-            sys.stderr.write(f"[hook_dispatcher] Dynamic invariant stop guard error: {e_dyn_stop}\n")
-
-        # Class C: Learning Hooks (Scan for user corrections)
-        LearningHooks.capture_user_correction(payload)
-
-        # Class C: Automated Graduation Safety Net (Directive 21)
-        try:
-            from scripts.academic_graduation_compiler import AcademicGraduationCompiler
-            compiler = AcademicGraduationCompiler(base_dir=ROOT_DIR)
-            ws_paths = payload.get("workspacePaths", [])
-            compiler.compile_all_pending(workspaces=ws_paths, auto_commit=True, dry_run=False)
-        except Exception as e_grad:
-            sys.stderr.write(f"[hook_dispatcher] Auto-graduation note: {e_grad}\n")
-
-        return stop_res
-
-    return {"decision": "allow"}
+    if is_main:
+        return dispatch_track1_event(event=event, payload=payload)
+    return dispatch_track2_event(event=event, payload=payload)
 
 
 def main():

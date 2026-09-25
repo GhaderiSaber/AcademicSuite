@@ -375,7 +375,7 @@ class TestHookArchitecture(unittest.TestCase):
         with open(hooks_path, "r") as f:
             data = json.load(f)
 
-        guard = data.get("constitutional-guard", {})
+        guard = data.get("track2-academic-orchestrator-guard") or data.get("constitutional-guard", {})
         self.assertTrue(guard.get("enabled", False))
 
         # Check all 5 official events exist

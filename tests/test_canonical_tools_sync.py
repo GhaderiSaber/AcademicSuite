@@ -104,7 +104,7 @@ class TestHooksJsonSynchronization:
         with open(hooks_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        guard = data["constitutional-guard"]
+        guard = data.get("track2-academic-orchestrator-guard") or data.get("constitutional-guard")
         pre_matcher = guard["PreToolUse"][0]["matcher"]
         post_matcher = guard["PostToolUse"][0]["matcher"]
 

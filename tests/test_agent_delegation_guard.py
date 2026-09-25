@@ -53,7 +53,7 @@ class TestAgentDelegationGuard(unittest.TestCase):
         with open(hooks_path, "r", encoding="utf-8") as f:
             hooks = json.load(f)
 
-        guard = hooks.get("constitutional-guard", {})
+        guard = hooks.get("track2-academic-orchestrator-guard") or hooks.get("constitutional-guard", {})
         pre_tool = guard.get("PreToolUse", [{}])[0].get("matcher", "")
         post_tool = guard.get("PostToolUse", [{}])[0].get("matcher", "")
 
