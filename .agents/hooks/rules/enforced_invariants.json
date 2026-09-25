@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:07:29.959317+00:00",
+  "updated_at": "2026-09-25T18:07:38.597616+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -885,6 +885,27 @@
       "remedy": "Enforce explicit blank line logic for headings. Implement a strict filter for Appendices to strip narrative/scoring text, retaining only the table and its title.",
       "enabled": true,
       "updated_at": "2026-09-25T18:07:29.959303+00:00"
+    },
+    "LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001": {
+      "item_id": "LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001",
+      "category": "Lesson",
+      "statement": "Enforce strict bibliographic component verification using anchored regex and explicit exclusion of meta-annotation prose prior to parsing.",
+      "target_agents": [
+        "academic-reference-extractor",
+        "thesis-integrity-auditor"
+      ],
+      "target_skills": [
+        "academic-reference-extractor"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "(?m)^.*re\\.search\\(r['\"]\\\\d\\{4\\}['\"].*$",
+      "violation_message": "Enforce strict bibliographic component verification using anchored regex and explicit exclusion of meta-annotation prose prior to parsing.",
+      "remedy": "Enforce strict bibliographic component verification using anchored regex and explicit exclusion of meta-annotation prose prior to parsing.",
+      "enabled": true,
+      "updated_at": "2026-09-25T18:07:38.597592+00:00"
     }
   }
 }

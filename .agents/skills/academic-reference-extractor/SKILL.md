@@ -206,3 +206,4 @@ Place generated files directly in the user's project directory with descriptive 
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-STRUCTURAL-REFERENCE-PARSING-001)**: When extracting or parsing references, always employ structural validation (e.g., matching authors, years, DOIs, or using specialized reference extraction libraries) and explicitly forbid naive character-length filtering. [Enforcement: dynamic_invariant_guard.py (LSN-2026-STRUCTURAL-REFERENCE-PARSING-001)]
+- **Lesson (LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001)**: Enforce strict bibliographic component verification using anchored regex and explicit exclusion of meta-annotation prose prior to parsing. [Enforcement: dynamic_invariant_guard.py (LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001)]
