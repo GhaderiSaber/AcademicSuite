@@ -47,19 +47,23 @@ except ImportError:
 try:
     from contracts.hook_identity_contract import (
         resolve_hook_identity,
-        is_main_agent_developer
+        is_main_agent_developer,
+        extract_subagent_info
     )
 except ImportError:
     try:
         from .contracts.hook_identity_contract import (
             resolve_hook_identity,
-            is_main_agent_developer
+            is_main_agent_developer,
+            extract_subagent_info
         )
     except ImportError:
         def is_main_agent_developer(p: Dict[str, Any]) -> bool:
             return False
         def resolve_hook_identity(p: Dict[str, Any]):
             return None
+        def extract_subagent_info(p: Dict[str, Any]):
+            return False, None
 
 
 def resolve_agent_caller(payload: Dict[str, Any]) -> str:
@@ -77,7 +81,12 @@ def resolve_agent_caller(payload: Dict[str, Any]) -> str:
 def check_orchestrator_tool_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Enforces academic-orchestrator invariants via its dedicated co-located guard."""
     caller = resolve_agent_caller(payload)
-    if caller in ("academic-orchestrator", "orchestrator"):
+    is_sub, _ = extract_subagent_info(payload)
+    tool_name = (payload.get("toolCall", {}).get("name") or "").strip().lower()
+
+    if (caller in ("academic-orchestrator", "orchestrator") or
+            (not is_sub and caller not in ("default", "main")) or
+            tool_name in ("invoke_subagent", "manage_subagents")):
         guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "academic-orchestrator", "guard.py")
         if os.path.exists(guard_path):
             try:
@@ -90,7 +99,12 @@ def check_orchestrator_tool_restrictions(payload: Dict[str, Any]) -> Optional[Di
                     mod = importlib.util.module_from_spec(spec)
                     sys.modules[mod_name] = mod
                     spec.loader.exec_module(mod)
-                return mod.handle_pre_tool_use(payload)
+                res = mod.handle_pre_tool_use(payload)
+                if isinstance(res, dict) and res.get("decision") == "deny":
+                    msg = res.get("reason") or res.get("message") or ""
+                    res["reason"] = msg
+                    res["message"] = msg
+                return res
             except Exception as e:
                 sys.stderr.write(f"[track2_academic_dispatcher] Error executing orchestrator guard: {e}\n")
     return None
@@ -99,7 +113,9 @@ def check_orchestrator_tool_restrictions(payload: Dict[str, Any]) -> Optional[Di
 def check_orchestrator_stop_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Enforces academic-orchestrator stop invariants via its dedicated co-located guard."""
     caller = resolve_agent_caller(payload)
-    if caller in ("academic-orchestrator", "orchestrator"):
+    is_sub, _ = extract_subagent_info(payload)
+    if (caller in ("academic-orchestrator", "orchestrator") or
+            (not is_sub and caller not in ("default", "main"))):
         guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "academic-orchestrator", "guard.py")
         if os.path.exists(guard_path):
             try:
@@ -112,7 +128,12 @@ def check_orchestrator_stop_restrictions(payload: Dict[str, Any]) -> Optional[Di
                     mod = importlib.util.module_from_spec(spec)
                     sys.modules[mod_name] = mod
                     spec.loader.exec_module(mod)
-                return mod.handle_stop(payload)
+                res = mod.handle_stop(payload)
+                if isinstance(res, dict) and res.get("decision") == "continue":
+                    msg = res.get("reason") or res.get("message") or ""
+                    res["reason"] = msg
+                    res["message"] = msg
+                return res
             except Exception as e:
                 sys.stderr.write(f"[track2_academic_dispatcher] Error executing orchestrator stop guard: {e}\n")
     return None
@@ -187,11 +208,17 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
         # Class B: Integrity Hooks (Triad artifact check, manifest check, validation gate, honesty protocol)
         stop_res = IntegrityHooks.handle_stop(payload)
         if stop_res.get("decision") == "continue":
+            msg = stop_res.get("reason") or stop_res.get("message") or ""
+            stop_res["reason"] = msg
+            stop_res["message"] = msg
             return stop_res
 
         # Orchestrator-specific Stop Guard Check
         orch_stop_res = check_orchestrator_stop_restrictions(payload)
         if orch_stop_res and orch_stop_res.get("decision") == "continue":
+            msg = orch_stop_res.get("reason") or orch_stop_res.get("message") or ""
+            orch_stop_res["reason"] = msg
+            orch_stop_res["message"] = msg
             return orch_stop_res
 
         # Dynamic Learned Invariant Stop Check
@@ -199,6 +226,9 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
         try:
             dynamic_stop_res = DynamicInvariantGuard.evaluate_stop(caller, payload)
             if isinstance(dynamic_stop_res, dict) and dynamic_stop_res.get("decision") == "continue":
+                msg = dynamic_stop_res.get("reason") or dynamic_stop_res.get("message") or ""
+                dynamic_stop_res["reason"] = msg
+                dynamic_stop_res["message"] = msg
                 return dynamic_stop_res
         except Exception as e_dyn_stop:
             sys.stderr.write(f"[track2_academic_dispatcher] Dynamic invariant stop guard error: {e_dyn_stop}\n")

@@ -1,20 +1,4 @@
 {
-  "track1-developer-safety-gate": {
-    "enabled": true,
-    "description": "Track 1 Developer Safety Gate: Enforces raw-data protection, dangerous command prevention, and workspace safety for Main Developer Agent.",
-    "PreToolUse": [
-      {
-        "matcher": "apply_diff|batch_replace|edit_file|multi_file_edit|multi_replace_file_content|patch|replace_file_content|run_command|write_to_file",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .agents/hooks/track1_developer_dispatcher.py --event PreToolUse",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
-  },
   "track2-academic-orchestrator-guard": {
     "enabled": true,
     "description": "Track 2 Academic Governance Guard: Enforces Directive 20 tool stripping, CDE contracts, Triad artifacts, and stage validation for Academic Orchestrator and specialist subagents.",
@@ -63,20 +47,5 @@
         "timeout": 20
       }
     ]
-  },
-  "safety-hooks": {
-    "enabled": true,
-    "description": "Class A: Safety Hooks (raw-data protection, dangerous command protection, outside-workspace protection)",
-    "module": ".agents/hooks/safety_hooks.py"
-  },
-  "integrity-hooks": {
-    "enabled": true,
-    "description": "Class B: Integrity Hooks (artifact verification, state consistency, manifest verification, post-analysis validation)",
-    "module": ".agents/hooks/integrity_hooks.py"
-  },
-  "learning-hooks": {
-    "enabled": true,
-    "description": "Class C: Learning Hooks (capture user correction, capture validation failure, capture agent trajectory)",
-    "module": ".agents/hooks/learning_hooks.py"
   }
 }

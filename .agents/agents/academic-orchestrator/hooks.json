@@ -2,25 +2,21 @@
   "academic-orchestrator-guard": {
     "PreToolUse": [
       {
-        "matcher": "run_command|write_to_file|replace_file_content|edit_file|patch|multi_file_edit|batch_replace|apply_diff",
+        "matcher": "apply_diff|batch_replace|edit_file|invoke_subagent|manage_subagents|multi_file_edit|patch|replace_file_content|run_command|send_message|write_to_file",
         "hooks": [
           {
             "type": "command",
             "command": "python3 .agents/agents/academic-orchestrator/guard.py --event PreToolUse",
-            "timeout": 10
+            "timeout": 15
           }
         ]
       }
     ],
     "Stop": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .agents/agents/academic-orchestrator/guard.py --event Stop",
-            "timeout": 15
-          }
-        ]
+        "type": "command",
+        "command": "python3 .agents/agents/academic-orchestrator/guard.py --event Stop",
+        "timeout": 20
       }
     ]
   }

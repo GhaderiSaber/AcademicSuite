@@ -239,31 +239,82 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
     Safely inspects a transcript file on disk to determine caller identity.
     Returns (agent_name, track, confidence) if conclusive, else None.
     """
-    if not transcript_path or not os.path.isfile(transcript_path):
+    if not transcript_path:
+        return None
+
+    target_path = transcript_path
+    if os.path.basename(transcript_path) == "transcript.jsonl":
+        full_cand = os.path.join(os.path.dirname(transcript_path), "transcript_full.jsonl")
+        if os.path.isfile(full_cand) and os.path.getsize(full_cand) > 0:
+            target_path = full_cand
+
+    if not os.path.isfile(target_path):
         return None
 
     try:
-        with open(transcript_path, "r", encoding="utf-8", errors="ignore") as f:
-            for idx, line in enumerate(f):
-                if idx > 30:
-                    break
-                line_str = line.strip()
-                if not line_str:
-                    continue
-                try:
-                    step = json.loads(line_str)
-                    content = step.get("content") or ""
-                    # Check for explicit identity block in system prompt
-                    if "<identity>" in content:
-                        if "You are Antigravity, a powerful agentic AI coding assistant" in content:
-                            if "academic-orchestrator" not in content and "digital-saber" not in content:
-                                return "default", "track_1_developer", "moderate"
-                        if "academic-orchestrator" in content:
-                            return "academic-orchestrator", "track_2_academic", "moderate"
-                        if "digital-saber" in content:
-                            return "digital-saber", "track_2_academic", "moderate"
-                except Exception:
-                    continue
+        with open(target_path, "r", encoding="utf-8", errors="ignore") as f:
+            lines = [l.strip() for l in f if l.strip()]
+        if not lines:
+            return None
+
+        # Pass 1: Check identity block in early steps (first 30 lines)
+        for line_str in lines[:30]:
+            try:
+                step = json.loads(line_str)
+                content = step.get("content") or ""
+                if "<identity>" in content:
+                    if "You are Antigravity, a powerful agentic AI coding assistant" in content:
+                        if "academic-orchestrator" not in content and "digital-saber" not in content:
+                            return "default", "track_1_developer", "moderate"
+                    if "academic-orchestrator" in content:
+                        return "academic-orchestrator", "track_2_academic", "moderate"
+                    if "digital-saber" in content:
+                        return "digital-saber", "track_2_academic", "moderate"
+            except Exception:
+                continue
+
+        # Pass 2: Behavioral pattern scan across transcript
+        academic_orchestrator_patterns = (
+            "Pre-Flight Pipeline Declaration",
+            "Contractual Delegation Envelope",
+            "academic-orchestrator",
+            "Master Academic Orchestrator",
+            "### 🛫 Pre-Flight Pipeline Declaration",
+            "TSK-2026-",
+            "academic-state/routing_plan.json"
+        )
+
+        for line_str in reversed(lines[-50:]):
+            try:
+                step = json.loads(line_str)
+                content = str(step.get("content") or "")
+                thinking = str(step.get("thinking") or "")
+                step_text = content + " " + thinking
+
+                if any(pat in step_text for pat in academic_orchestrator_patterns):
+                    return "academic-orchestrator", "track_2_academic", "high"
+
+                for tc in step.get("tool_calls", []):
+                    tc_name = tc.get("name")
+                    if tc_name == "invoke_subagent":
+                        tc_args = tc.get("args", {})
+                        subs = tc_args.get("Subagents", [])
+                        if isinstance(subs, str):
+                            try:
+                                subs = json.loads(subs, strict=False)
+                            except Exception:
+                                subs = []
+                        if isinstance(subs, list):
+                            for s in subs:
+                                if isinstance(s, dict):
+                                    t_name = (s.get("TypeName") or "").lower()
+                                    if t_name in (
+                                        "academic-writer", "statistics-agent", "data-agent",
+                                        "psychometric-expert", "results-auditor", "validation-agent"
+                                    ):
+                                        return "academic-orchestrator", "track_2_academic", "high"
+            except Exception:
+                continue
     except Exception:
         return None
 
@@ -501,6 +552,39 @@ def resolve_hook_identity(payload: Dict[str, Any], env: Optional[Dict[str, str]]
                 resolution_source="transcript_analysis",
                 details={"inspected_transcript": transcript_path}
             )
+
+    # -------------------------------------------------------------
+    # Signal 3.5: Contextual Academic Workspace & Delegation Signature
+    # -------------------------------------------------------------
+    if not is_subagent:
+        tool_call = payload.get("toolCall", {})
+        tool_name = (tool_call.get("name") or "").strip().lower()
+        if tool_name == "invoke_subagent":
+            args = tool_call.get("args", {})
+            subs = args.get("Subagents", [])
+            if isinstance(subs, str):
+                try:
+                    subs = json.loads(subs, strict=False)
+                except Exception:
+                    subs = []
+            if isinstance(subs, list):
+                for s in subs:
+                    if isinstance(s, dict):
+                        t_name = (s.get("TypeName") or "").lower()
+                        if t_name in canonical_agents or "academic" in t_name or "stat" in t_name:
+                            return HookIdentity(
+                                agent_name="academic-orchestrator",
+                                agent_role="orchestrator",
+                                track="track_2_academic",
+                                is_main_developer=False,
+                                is_subagent=False,
+                                parent_conversation_id=None,
+                                interface=interface,
+                                confidence="high",
+                                resolution_source="tool_call_signature",
+                                details={"target_worker": t_name}
+                            )
+
 
     # -------------------------------------------------------------
     # Signal 4: Fail-Closed Default
