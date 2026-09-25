@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:11.383491+00:00",
+  "updated_at": "2026-09-25T17:08:11.448951+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -629,6 +629,26 @@
       "remedy": "Enforce strict per-item fail-closed iteration: every individual table must satisfy exact header whitelists and have full symbol definitions in its note; any English word outside allowed statistical symbols must trigger a hard FAIL verdict.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:11.383473+00:00"
+    },
+    "AP-2026-RAW-DATASET-MUTATION": {
+      "item_id": "AP-2026-RAW-DATASET-MUTATION",
+      "category": "Anti-Pattern",
+      "statement": "Preserve raw data permanently as read-only inputs; export transformed datasets to new timestamped output files (e.g. data_cleaned.xlsx).",
+      "target_agents": [
+        "data-agent",
+        "data-curator",
+        "academic-orchestrator"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Target output path in data cleaning or transformation is identical to raw input path.",
+      "violation_message": "Preserve raw data permanently as read-only inputs; export transformed datasets to new timestamped output files (e.g. data_cleaned.xlsx).",
+      "remedy": "Preserve raw data permanently as read-only inputs; export transformed datasets to new timestamped output files (e.g. data_cleaned.xlsx).",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:11.448932+00:00"
     }
   }
 }

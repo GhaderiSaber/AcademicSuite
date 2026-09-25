@@ -28,6 +28,7 @@ These domain rules are automatically loaded and applied across all conversations
 - **Anti-pattern (AP-2026-INVERTED-TABLE-NUMBERING)**: Enforce 'جدول [فصل]- [شماره]' (e.g. 'جدول ۴- ۳۱') in all captions and narrative citations. [Enforcement: dynamic_invariant_guard.py (AP-2026-INVERTED-TABLE-NUMBERING)]
 - **Anti-pattern (AP-2026-MISSING-BLANK-LINE-BEFORE-HEADINGS)**: Insert exactly one blank newline before each heading in Markdown and enforce an explicit blank line separation in OpenXML DOCX. [Enforcement: dynamic_invariant_guard.py (AP-2026-MISSING-BLANK-LINE-BEFORE-HEADINGS)]
 - **Anti-pattern (AP-2026-PARTIAL-TABLE-TRANSFORMATION)**: Build defensive, exhaustive table-by-table processors that iterate over all 45 tables, instantiate missing note blocks automatically, and map all demographic, descriptive, and inferential headers to standard APA Latin symbols. [Enforcement: dynamic_invariant_guard.py (AP-2026-PARTIAL-TABLE-TRANSFORMATION)]
+- **Anti-pattern (AP-2026-RAW-DATASET-MUTATION)**: Preserve raw data permanently as read-only inputs; export transformed datasets to new timestamped output files (e.g. data_cleaned.xlsx). [Enforcement: dynamic_invariant_guard.py (AP-2026-RAW-DATASET-MUTATION)]
 ## 2. Interaction & File Naming Standards (Universal Mandate)
 - **Directive 6 (English Primary Interaction & English-Only Filenames)**:
   - Agents communicate, reason, plan, and report strictly in **English**. Persian is reserved strictly for academic deliverable content.
