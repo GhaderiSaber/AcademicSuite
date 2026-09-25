@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:47:23.695339+00:00",
+  "updated_at": "2026-09-25T17:47:23.739001+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -40,7 +40,7 @@
       "violation_message": "Remove bold weight from table captions. Ensure font is B Nazanin, size 12 pt, Regular.",
       "remedy": "Remove bold weight from table captions. Ensure font is B Nazanin, size 12 pt, Regular.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:27:28.735402+00:00"
+      "updated_at": "2026-09-25T17:47:23.738984+00:00"
     },
     "AP-2026-INLINE-COLON-LISTICLES": {
       "item_id": "AP-2026-INLINE-COLON-LISTICLES",
