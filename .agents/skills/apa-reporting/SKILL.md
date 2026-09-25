@@ -139,5 +139,5 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-STRUCTURAL-REFERENCE-PARSING-001)**: When extracting or parsing references, always employ structural validation (e.g., matching authors, years, DOIs, or using specialized reference extraction libraries) and explicitly forbid naive character-length filtering. [Enforcement: results_auditor_guard.py]
-- **Lesson (LSN-2026-CORRELATION-TABLE-THREE-COLUMN-HEADER-001)**: Structure all correlation matrices with: Col 1 ('ردیف'), Col 2 ('متغیر'), Col 3 ('خرده‌مقیاس'), followed by correlation columns ('۱', '۲', '۳', ...). [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-EXHAUSTIVE-TABLE-BY-TABLE-AUDIT-001)**: Every validation gatekeeper must inspect 100% of tables individually, asserting that every column header conforms to standard APA symbols, every table has a Persian definition note, and zero English words exist in narrative text or table cells. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)**: Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth. [Enforcement: results_auditor_guard.py]
