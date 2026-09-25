@@ -138,7 +138,7 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 - Variable names in tables must represent pure conceptual constructs (e.g. `خودآسیبی`, `افسردگی`), strictly stripped of operational instrument nouns (`پرسشنامه`, `مقیاس`, `سیاهه`) and author surnames.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-NO-META-METHODOLOGY-JARGON-IN-CHAPTERS-001)**: Describe statistical analyses using substantive methodological terms (e.g., bivariate correlations, simple linear regression, hierarchical regression, binary logistic odds ratios) and strictly eliminate all meta-commentary references to internal structural templates or table counts. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-PURE-NUMERIC-P-VALUES-IN-TABLES-001)**: Report strictly pure numbers or comparison operators in p-value cells; eliminate 'p =', 'p <', '> p' from all table data cells. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-OPENXML-TRAILING-EDGE-INVERSION-001)**: For Right-aligned text under BiDi, omit <w:jc>. Ensure section properties declare <w:bidi/>. Use jc_val='both' only for narrative body. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NARRATIVE-PRECEDES-TABLE-CAPTION-001)**: Strictly order document elements: Heading first, followed by the explanatory continuous prose narrative, then the non-bold table caption, then the table itself, and finally the table note. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NO-BLANK-LINE-BETWEEN-TABLE-AND-NOTE-001)**: Attach table notes directly beneath the table with 0 blank lines in Markdown and 0 intervening paragraphs in Word DOCX. [Enforcement: results_auditor_guard.py]

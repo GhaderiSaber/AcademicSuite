@@ -105,6 +105,6 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-NO-INLINE-COLON-LISTICLES-001)**: Never use inline colon-delimited labels or telegraphic pseudo-bullets (**موضوع:** ... **موضوع بعدی:** ...) in formal academic prose. Always weave empirical parameters into flowing, cohesive narrative paragraphs using scholarly transitions. [Enforcement: results_auditor_guard.py]
-- **Lesson (LSN-2026-NO-META-METHODOLOGY-JARGON-IN-CHAPTERS-001)**: Describe statistical analyses using substantive methodological terms (e.g., bivariate correlations, simple linear regression, hierarchical regression, binary logistic odds ratios) and strictly eliminate all meta-commentary references to internal structural templates or table counts. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-PURE-NUMERIC-P-VALUES-IN-TABLES-001)**: Report strictly pure numbers or comparison operators in p-value cells; eliminate 'p =', 'p <', '> p' from all table data cells. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NO-BLANK-LINE-BETWEEN-TABLE-AND-NOTE-001)**: Attach table notes directly beneath the table with 0 blank lines in Markdown and 0 intervening paragraphs in Word DOCX. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-MANDATORY-BLANK-LINE-BEFORE-HEADINGS-001)**: Ensure an explicit blank line precedes every heading across Markdown source and Word DOCX deliverables. [Enforcement: results_auditor_guard.py]
