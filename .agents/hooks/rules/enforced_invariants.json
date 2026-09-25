@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:45.531179+00:00",
+  "updated_at": "2026-09-25T18:08:46.187682+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -686,7 +686,7 @@
       "violation_message": "Strip all 'p', 'P', 'p =', and '> p' occurrences from table cells; output pure numbers (e.g. '۰.۰۱۴') or inequality with number ('< ۰.۰۰۱' / '۰.۰۰۱ >').",
       "remedy": "Strip all 'p', 'P', 'p =', and '> p' occurrences from table cells; output pure numbers (e.g. '۰.۰۱۴') or inequality with number ('< ۰.۰۰۱' / '۰.۰۰۱ >').",
       "enabled": true,
-      "updated_at": "2026-09-25T17:27:29.675634+00:00"
+      "updated_at": "2026-09-25T18:08:46.187671+00:00"
     },
     "AP-2026-REDUNDANT-TOTAL-ROW-IN-HIERARCHICAL-TABLES": {
       "item_id": "AP-2026-REDUNDANT-TOTAL-ROW-IN-HIERARCHICAL-TABLES",
