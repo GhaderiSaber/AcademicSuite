@@ -21,7 +21,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/longitudinal-modmed-expert/hooks.json
 ---
 
 # 3-Wave Longitudinal Moderated Mediation Specialist

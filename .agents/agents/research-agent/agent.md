@@ -23,7 +23,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/research-agent/hooks.json
 ---
 
 # Scientific Literature Harvester & Research Question Architect

@@ -19,10 +19,9 @@ import importlib
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 AGENTS_DIR = os.path.join(ROOT_DIR, ".agents", "agents")
-AGENTS_HOOKS_DIR = os.path.join(ROOT_DIR, ".agents", "hooks", "agents")
 HOOKS_DIR = os.path.join(ROOT_DIR, ".agents", "hooks")
 
-for p in (ROOT_DIR, AGENTS_DIR, AGENTS_HOOKS_DIR, HOOKS_DIR):
+for p in (ROOT_DIR, AGENTS_DIR, HOOKS_DIR):
     if p not in sys.path:
         sys.path.insert(0, p)
 
@@ -62,6 +61,18 @@ ALL_31_AGENTS = [
     "validation-agent",
 ]
 
+# Pre-populate sys.modules directly from canonical ASAM guard files
+for agent_kebab in ALL_31_AGENTS:
+    guard_path = os.path.join(AGENTS_DIR, agent_kebab, "guard.py")
+    if os.path.exists(guard_path):
+        snake = agent_kebab.replace("-", "_")
+        mod_name = f"{snake}_guard"
+        spec = importlib.util.spec_from_file_location(mod_name, guard_path)
+        if spec and spec.loader:
+            mod = importlib.util.module_from_spec(spec)
+            sys.modules[mod_name] = mod
+            spec.loader.exec_module(mod)
+
 
 class TestDedicatedGuardsCompleteness(unittest.TestCase):
     """Verifies that all 31 agents have dedicated 1:1 guards, hook JSONs, and frontmatter."""
@@ -71,20 +82,19 @@ class TestDedicatedGuardsCompleteness(unittest.TestCase):
 
     def test_all_guard_python_modules_exist_and_importable(self):
         for agent_kebab in ALL_31_AGENTS:
-            snake = agent_kebab.replace("-", "_")
-            mod_name = f"{snake}_guard"
-            py_file = os.path.join(AGENTS_HOOKS_DIR, f"{mod_name}.py")
+            py_file = os.path.join(AGENTS_DIR, agent_kebab, "guard.py")
             self.assertTrue(os.path.exists(py_file), f"Missing guard file: {py_file}")
             
-            # Module must import and have handle_pre_tool_use and handle_stop
-            mod = importlib.import_module(mod_name)
+            snake = agent_kebab.replace("-", "_")
+            mod_name = f"{snake}_guard"
+            mod = sys.modules.get(mod_name)
+            self.assertIsNotNone(mod, f"{mod_name} not loaded")
             self.assertTrue(hasattr(mod, "handle_pre_tool_use"), f"{mod_name} missing handle_pre_tool_use")
             self.assertTrue(hasattr(mod, "handle_stop"), f"{mod_name} missing handle_stop")
 
     def test_all_hook_json_files_exist_and_valid(self):
         for agent_kebab in ALL_31_AGENTS:
-            snake = agent_kebab.replace("-", "_")
-            json_file = os.path.join(AGENTS_HOOKS_DIR, f"{snake}_hook.json")
+            json_file = os.path.join(AGENTS_DIR, agent_kebab, "hooks.json")
             self.assertTrue(os.path.exists(json_file), f"Missing hook json: {json_file}")
             
             with open(json_file, "r", encoding="utf-8") as f:
@@ -94,16 +104,17 @@ class TestDedicatedGuardsCompleteness(unittest.TestCase):
             self.assertIn("PreToolUse", data[guard_key])
             self.assertIn("Stop", data[guard_key])
             
-            # Verify command points to its dedicated guard
+            # Verify command points to its dedicated guard using full canonical path
             cmd = data[guard_key]["PreToolUse"][0]["hooks"][0]["command"]
-            self.assertTrue(
-                f"{snake}_guard.py" in cmd or f"{agent_kebab}/guard.py" in cmd or "guard.py" in cmd,
-                f"Command in {json_file} does not target dedicated guard: {cmd}"
+            expected_cmd = f"python3 .agents/agents/{agent_kebab}/guard.py --event PreToolUse"
+            self.assertEqual(
+                cmd,
+                expected_cmd,
+                f"Command in {json_file} is not canonical non-shortpath: {cmd}"
             )
 
     def test_all_agent_md_frontmatter_references_dedicated_hook(self):
         for agent_kebab in ALL_31_AGENTS:
-            snake = agent_kebab.replace("-", "_")
             md_path = os.path.join(AGENTS_DIR, agent_kebab, "agent.md")
             self.assertTrue(os.path.exists(md_path), f"Missing agent.md: {md_path}")
             
@@ -112,14 +123,11 @@ class TestDedicatedGuardsCompleteness(unittest.TestCase):
             parts = content.split("---", 2)
             self.assertGreaterEqual(len(parts), 3, f"{agent_kebab}/agent.md missing frontmatter")
             fm = parts[1]
-            has_valid_ref = (
-                "./hooks.json" in fm
-                or f".agents/hooks/agents/{snake}_hook.json" in fm
-                or f"./{snake}_hook.json" in fm
-            )
-            self.assertTrue(
-                has_valid_ref,
-                f"{agent_kebab}/agent.md frontmatter does not reference ./hooks.json or {snake}_hook.json"
+            expected_ref = f".agents/agents/{agent_kebab}/hooks.json"
+            self.assertIn(
+                expected_ref,
+                fm,
+                f"{agent_kebab}/agent.md frontmatter does not reference canonical hook path: {expected_ref}"
             )
 
     def test_co_located_agent_module_integrity(self):

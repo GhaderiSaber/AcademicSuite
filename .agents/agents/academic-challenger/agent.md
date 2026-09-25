@@ -19,7 +19,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/academic-challenger/hooks.json
 ---
 
 # Adversarial Methodology, Bias & Statistical Challenger

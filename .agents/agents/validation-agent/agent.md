@@ -21,7 +21,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/validation-agent/hooks.json
 ---
 
 # Independent Quality Assurance & Pre-Flight Release Gatekeeper

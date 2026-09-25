@@ -50,9 +50,10 @@ graph TD
 
 ### Layer 4: Hook Enforcement (Secondary Passive Interception & ASAM Architecture)
 - **Mechanism**:
-  1. **Agent-Scoped Hooks (ASAM)**: Dedicated `hooks.json` and `guard.py` co-located inside each agent directory (`.agents/agents/<agent-name>/`), declared via `hooks: - ./hooks.json` in `agent.md`.
+  1. **Agent-Scoped Hooks (ASAM)**: Dedicated `hooks.json` and `guard.py` co-located inside each agent directory (`.agents/agents/<agent-name>/`), declared via `hooks: - .agents/agents/<agent-name>/hooks.json` in `agent.md`.
   2. **Dual-Track Decoupled Gate (`.agents/hooks.json`)**: Separates Track 1 Developer Safety (`track1_developer_dispatcher.py`) from Track 2 Academic Governance (`track2_academic_dispatcher.py`).
 - **Role**: **Secondary defense**. Hooks intercept tool invocations and turn completion to catch anomalies, policy violations, and feedback events.
+- **Direct Resolution**: Zero shortpaths and zero symlinks; full canonical paths ensure reliable cross-platform execution.
 - **Strict Non-Orchestrator Invariant**: Hooks MUST NOT act as the primary orchestrator, MUST NOT simulate agent delegation, MUST NOT replace `invoke_subagent`, and MUST NOT run workflows or statistical scripts.
 
 ### Layer 5: Evaluation (Continuous Verification & Quality Assurance)

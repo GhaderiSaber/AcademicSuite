@@ -20,7 +20,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/curriculum-builder/hooks.json
 ---
 
 # Graduated Complexity Curriculum & Adversarial Benchmark Architect

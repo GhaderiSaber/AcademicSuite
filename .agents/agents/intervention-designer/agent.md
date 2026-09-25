@@ -19,7 +19,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/intervention-designer/hooks.json
 ---
 
 # Clinical Protocol, Manualization & Fidelity Sheet Specialist

@@ -18,7 +18,7 @@ skills:
 agents: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/final-judge/hooks.json
 ---
 
 # Viva Voce Defense Simulator, Institutional Gatekeeper & Release Authority

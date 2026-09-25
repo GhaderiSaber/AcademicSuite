@@ -23,7 +23,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/data-agent/hooks.json
 ---
 
 # Raw Data Screening, Reverse-Coding & Psychometric Simulator

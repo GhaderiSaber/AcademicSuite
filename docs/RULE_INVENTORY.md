@@ -84,18 +84,13 @@ Mechanical rule enforcement is handled via Atomic Self-Contained Agent Modules (
 ```mermaid
 flowchart TD
     subgraph AgentDir [".agents/agents/<agent_name>/ (ASAM Module)"]
-        AF["agent.md\nhooks: - ./hooks.json"]
+        AF["agent.md\nhooks: - .agents/agents/<name>/hooks.json"]
         Contract["contract.md\n(CDE Protocol & Tool Ceiling)"]
         HookConfig["hooks.json\n(Scoped PreToolUse & Stop)"]
         GuardScript["guard.py\n(Dedicated Executable Guard)"]
         
         AF --> HookConfig
         HookConfig --> GuardScript
-    end
-
-    subgraph SymlinkBridge [".agents/hooks/agents/ (Compatibility Bridge)"]
-        SymlinkGuard["<snake>_guard.py -> ../../agents/<name>/guard.py"]
-        SymlinkHook["<snake>_hook.json -> ../../agents/<name>/hooks.json"]
     end
 
     subgraph DualTrack [".agents/hooks.json (Track 1 & Track 2 Separation)"]
@@ -106,7 +101,8 @@ flowchart TD
 
 ### Architecture Details:
 - **Atomic Self-Contained Agent Modules (ASAM)**: All 31 subagent directories (`.agents/agents/<name>/`) contain `agent.md`, `contract.md`, `guard.py`, and `hooks.json`.
-- **Native Engine Scoping (`hooks: - ./hooks.json`)**: In Antigravity 2.17, relative hook paths resolve directly to the agent directory, eliminating centralized dispatcher bottlenecks.
+- **Canonical Full Paths (`hooks: - .agents/agents/<name>/hooks.json`)**: Declared directly in frontmatter without relative shortpaths or symlinks.
+- **Direct Command Execution**: Hook commands invoke `python3 .agents/agents/<name>/guard.py --event <Event>` directly from project root.
 - **Dual-Track Decoupled Gate**: Global `.agents/hooks.json` cleanly separates Track 1 (Main Developer Agent safety) and Track 2 (Academic Orchestrator and specialist subagent governance).
-- **Backward-Compatible Symlink Bridge**: Relative symlinks in `.agents/hooks/agents/` preserve 100% interoperability with legacy test harnesses and external tooling.
+- **Zero Symlinks & Zero Broken Links**: Direct filesystem resolution eliminates brittle symlink dependencies and guarantees clean VCS lifecycle.
 - **Fail-Closed Mechanical Gate**: Ensures zero execution runaway, zero synthetic statistics, and 100% verified disk deliverables.

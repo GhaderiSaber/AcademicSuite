@@ -1,1 +1,0 @@
-../../agents/journal-strategist/guard.py

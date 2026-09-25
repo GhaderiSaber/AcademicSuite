@@ -20,7 +20,7 @@ skills:
 agents: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/evidence-auditor/hooks.json
 ---
 
 # Epistemic Evidence, Bibliographic Reconciliation & Anti-Plagiarism Authority

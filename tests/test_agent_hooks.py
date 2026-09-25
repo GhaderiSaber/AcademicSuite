@@ -36,19 +36,33 @@ import tempfile
 import unittest
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+AGENTS_DIR = os.path.join(ROOT_DIR, ".agents", "agents")
 AGENTS_HOOKS_DIR = os.path.join(ROOT_DIR, ".agents", "hooks", "agents")
-for p in (ROOT_DIR, AGENTS_HOOKS_DIR):
+for p in (ROOT_DIR, AGENTS_DIR, AGENTS_HOOKS_DIR):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-import academic_orchestrator_guard
-import statistics_agent_guard
-import data_agent_guard
-import academic_writer_guard
-import validation_agent_guard
+import importlib.util
+
+def _load_asam_guard(agent_kebab: str):
+    guard_path = os.path.join(AGENTS_DIR, agent_kebab, "guard.py")
+    snake = agent_kebab.replace("-", "_")
+    mod_name = f"{snake}_guard"
+    spec = importlib.util.spec_from_file_location(mod_name, guard_path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[mod_name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+academic_orchestrator_guard = _load_asam_guard("academic-orchestrator")
+statistics_agent_guard = _load_asam_guard("statistics-agent")
+data_agent_guard = _load_asam_guard("data-agent")
+academic_writer_guard = _load_asam_guard("academic-writer")
+validation_agent_guard = _load_asam_guard("validation-agent")
+project_organizer_guard = _load_asam_guard("project-organizer")
+psychometric_expert_guard = _load_asam_guard("psychometric-expert")
+
 import auditor_agents_guard
-import project_organizer_guard
-import psychometric_expert_guard
 import research_literature_guard
 import domain_specialists_guard
 import advisory_agents_guard

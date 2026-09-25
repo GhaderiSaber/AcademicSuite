@@ -1,1 +1,0 @@
-../../agents/academic-challenger/guard.py

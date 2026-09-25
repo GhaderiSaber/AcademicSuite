@@ -1,1 +1,0 @@
-../../agents/test-worker/guard.py

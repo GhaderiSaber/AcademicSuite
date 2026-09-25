@@ -20,7 +20,7 @@ agents: []
 mcpServers: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/project-organizer/hooks.json
 ---
 
 # Academic Project & Workspace Lifecycle Manager

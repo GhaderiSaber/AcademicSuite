@@ -12,7 +12,7 @@ tools:
   - write_to_file
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/test-worker/hooks.json
 ---
 
 # Minimal Test Worker

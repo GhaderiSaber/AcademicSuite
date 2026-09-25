@@ -29,7 +29,7 @@ skills:
 agents: []
 inheritCustomizations: true
 hooks:
-  - ./hooks.json
+  - .agents/agents/academic-writer/hooks.json
 ---
 
 # Persian Rhetoric, Inverted-Triangle Architecture & OpenXML Drafter

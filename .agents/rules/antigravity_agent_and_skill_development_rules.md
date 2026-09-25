@@ -18,13 +18,13 @@ Architectural standards for Agents, Subagents, Skills, and Lifecycle Hooks in An
   2. `contract.md`: Contractual Delegation Envelope (CDE) specification and tool boundary.
   3. `guard.py`: Dedicated executable lifecycle guard intercepting runtime operations.
   4. `hooks.json`: Scoped hook definition binding lifecycle events directly to `guard.py`.
-- Hook binding is declared directly in `agent.md` frontmatter using the native relative path:
+- Hook binding is declared directly in `agent.md` frontmatter using the full canonical project path:
   ```yaml
   hooks:
-    - ./hooks.json
+    - .agents/agents/<agent_name>/hooks.json
   ```
 - Execution intercepted synchronously via `PreToolUse` (circuit-breaker) and `Stop` (deliverable quality gate).
-- Backward compatibility is maintained via symlink bridges in `.agents/hooks/agents/`.
+- Zero shortpaths and zero symlinks: direct, explicit paths ensure 100% stable execution.
 
 ---
 

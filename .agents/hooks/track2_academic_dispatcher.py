@@ -112,6 +112,30 @@ def resolve_agent_caller(payload: Dict[str, Any]) -> str:
     return caller
 
 
+def load_agent_guard_module(agent_name: str):
+    """Loads dedicated lifecycle guard directly from .agents/agents/<agent_name>/guard.py."""
+    if not agent_name:
+        return None
+    guard_path = os.path.join(ROOT_DIR, ".agents", "agents", agent_name, "guard.py")
+    if not os.path.exists(guard_path):
+        return None
+    mod_name = f"asam_guard_{agent_name.replace('-', '_')}"
+    if mod_name in sys.modules:
+        return sys.modules[mod_name]
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(mod_name, guard_path)
+        if not spec or not spec.loader:
+            return None
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[mod_name] = mod
+        spec.loader.exec_module(mod)
+        return mod
+    except Exception as e:
+        sys.stderr.write(f"[track2_academic_dispatcher] Error loading guard from {guard_path}: {e}\n")
+        return None
+
+
 def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Dispatches lifecycle events for Track 2 Academic Agents.
@@ -142,17 +166,14 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
 
         # Agent-Specific Guard Check (e.g. academic_orchestrator_guard strips mutation tools)
         caller = resolve_agent_caller(payload)
-        guard_mod_name = AGENT_GUARD_MAP.get(caller)
-        if guard_mod_name:
+        guard_mod = load_agent_guard_module(caller)
+        if guard_mod and hasattr(guard_mod, "handle_pre_tool_use"):
             try:
-                import importlib
-                guard_mod = importlib.import_module(guard_mod_name)
-                if hasattr(guard_mod, "handle_pre_tool_use"):
-                    agent_res = guard_mod.handle_pre_tool_use(payload)
-                    if isinstance(agent_res, dict) and agent_res.get("decision") == "deny":
-                        return agent_res
+                agent_res = guard_mod.handle_pre_tool_use(payload)
+                if isinstance(agent_res, dict) and agent_res.get("decision") == "deny":
+                    return agent_res
             except Exception as e_agent:
-                sys.stderr.write(f"[track2_academic_dispatcher] Agent guard error ({guard_mod_name}): {e_agent}\n")
+                sys.stderr.write(f"[track2_academic_dispatcher] Agent guard error ({caller}): {e_agent}\n")
 
         # Dynamic Learned Invariant Guard Check
         try:
@@ -193,17 +214,14 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
 
         # Agent-Specific Stop Guard Check (e.g. academic_orchestrator_guard, validation_agent_guard)
         caller = resolve_agent_caller(payload)
-        guard_mod_name = AGENT_GUARD_MAP.get(caller)
-        if guard_mod_name:
+        guard_mod = load_agent_guard_module(caller)
+        if guard_mod and hasattr(guard_mod, "handle_stop"):
             try:
-                import importlib
-                guard_mod = importlib.import_module(guard_mod_name)
-                if hasattr(guard_mod, "handle_stop"):
-                    agent_stop_res = guard_mod.handle_stop(payload)
-                    if isinstance(agent_stop_res, dict) and agent_stop_res.get("decision") == "continue":
-                        return agent_stop_res
+                agent_stop_res = guard_mod.handle_stop(payload)
+                if isinstance(agent_stop_res, dict) and agent_stop_res.get("decision") == "continue":
+                    return agent_stop_res
             except Exception as e_agent_stop:
-                sys.stderr.write(f"[track2_academic_dispatcher] Agent stop guard error ({guard_mod_name}): {e_agent_stop}\n")
+                sys.stderr.write(f"[track2_academic_dispatcher] Agent stop guard error ({caller}): {e_agent_stop}\n")
 
         # Dynamic Learned Invariant Stop Check
         try:
