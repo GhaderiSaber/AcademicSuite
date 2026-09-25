@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:55.112926+00:00",
+  "updated_at": "2026-09-25T18:08:55.823798+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -823,7 +823,7 @@
       "violation_message": "Implement mandatory fail-closed assertion in validator: every regression hypothesis deliverable MUST contain Table 1 (Correlations), Table 2 (Model Summary & Combined ANOVA with 11 columns), and Table 3 (Coefficients & Collinearity with 8 columns). If any table or column is missing, the validator MUST emit verdict: FAIL.",
       "remedy": "Implement mandatory fail-closed assertion in validator: every regression hypothesis deliverable MUST contain Table 1 (Correlations), Table 2 (Model Summary & Combined ANOVA with 11 columns), and Table 3 (Coefficients & Collinearity with 8 columns). If any table or column is missing, the validator MUST emit verdict: FAIL.",
       "enabled": true,
-      "updated_at": "2026-09-25T18:08:55.112910+00:00"
+      "updated_at": "2026-09-25T18:08:55.823785+00:00"
     },
     "AP-2026-VERBOSE-PERSIAN-TABLE-HEADERS": {
       "item_id": "AP-2026-VERBOSE-PERSIAN-TABLE-HEADERS",
