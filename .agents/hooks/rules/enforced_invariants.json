@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:29.335760+00:00",
+  "updated_at": "2026-09-25T17:27:29.370906+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -531,7 +531,7 @@
       "violation_message": "Insert exactly one blank newline before each heading in Markdown and enforce an explicit blank line separation in OpenXML DOCX.",
       "remedy": "Insert exactly one blank newline before each heading in Markdown and enforce an explicit blank line separation in OpenXML DOCX.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:02.940592+00:00"
+      "updated_at": "2026-09-25T17:27:29.370888+00:00"
     },
     "AP-2026-MULTIDIMENSIONAL-FORCED-UNIDIMENSIONAL-SEM": {
       "item_id": "AP-2026-MULTIDIMENSIONAL-FORCED-UNIDIMENSIONAL-SEM",
