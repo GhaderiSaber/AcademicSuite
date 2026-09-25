@@ -99,3 +99,5 @@ The script produces:
 - **Correlation Inversion Sanity Check**: Inverted items must correlate positively with their respective subscale total ($r \ge .30$). A negative item-total correlation indicates an erroneous reverse-coding specification.
 - **Theoretical Range Conformance**: Subscale scores must fall strictly within theoretical boundaries (e.g. For a 5-item 1–5 scale, sum must fall within $[5, 25]$).
 
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-DETERMINISTIC-REVERSE-CODING-001)**: Deterministically verify and extract reverse-coded item indices from Questionnaires.xlsx via psychometric-scale-resolver before computing subscale sums. [Enforcement: data_agent_guard.py]

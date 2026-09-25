@@ -113,3 +113,6 @@ The skill produces:
 - AVE $\ge .50$ and CR $\ge .70$ mandatory for claiming convergent validity.
 - McDonald's $\omega$ mandatory under APA 7th Edition guidelines.
 - Item fit statistics for IRT must fall within $[0.60, 1.40]$.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-DETERMINISTIC-REVERSE-CODING-001)**: Deterministically verify and extract reverse-coded item indices from Questionnaires.xlsx via psychometric-scale-resolver before computing subscale sums. [Enforcement: dynamic_invariant_guard.py (LSN-2026-DETERMINISTIC-REVERSE-CODING-001)]

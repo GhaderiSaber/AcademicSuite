@@ -120,3 +120,6 @@ Automatically:
 - [Questionnaire Scoring & Factor Guide](.agents/skills/psychometric-scale-resolver/references/questionnaire_scoring_and_factor_guide.md) — Complete psychometric reference guide and reporting sentences.
 - [questionnaire_resolver.py](.agents/skills/psychometric-scale-resolver/scripts/questionnaire_resolver.py) — Core resolution and scoring engine.
 - [Questionnaires.xlsx](.agents/data/questionnaires/Questionnaires.xlsx) — Master registry of 4,880 psychometric scales and subscales.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-DETERMINISTIC-REVERSE-CODING-001)**: Deterministically verify and extract reverse-coded item indices from Questionnaires.xlsx via psychometric-scale-resolver before computing subscale sums. [Enforcement: dynamic_invariant_guard.py (LSN-2026-DETERMINISTIC-REVERSE-CODING-001)]
