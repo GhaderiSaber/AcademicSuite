@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260925-826A8D",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260925-054CA0",
+  "target_agent": "methodology-expert",
+  "target_agents": [
+    "methodology-expert"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nCatalog the diagnosed anti-pattern into state/pitfalls.jsonl based on behavior analysis BAN-20260925-001 (FORMATTING_AND_FILTERING_FAILURE):\n1. Missing explicit blank line before headings and/or presence of trailing blank lines after headings in DOCX generation.\n2. Failure to filter out non-table narrative/scoring text in the 'پیوست' (Appendices) section, requiring strictly only the questionnaire table with its title.\n\nPlease catalog structured anti-patterns and actionable lessons in .agents/learning/knowledge/.\n\n\nThe current local time is: 2026-09-25T21:35:29+03:30.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding methodology correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nCatalog the diagnosed anti-pattern into state/pitfalls.jsonl based on behavior analysis BAN-20260925-001 (FORMATTING_AND_FILTERING_FAILURE):\n1. Missing explicit blank line before headings and/or presence of trailing blank lines after headings in DOCX generation.\n2. Failure to filter out non-table narrative/scoring text in the 'پیوست' (Appendices) section, requiring strictly only the questionnaire table with its title.\n\nPlease catalog structured anti-patterns and actionable lessons in .agents/learning/knowledge/.\n\n\nThe current local time is: 2026-09-25T21:35:29+03:30.",
+    "rationale_why": "Unscreened missing data or unverified assumptions distort variance estimation and bias inferential statistics."
+  },
+  "applicability_conditions": [
+    "Studies utilizing methodology-review or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nCatalog the diagnosed anti-pattern into state/pitfalls.jsonl based on behavior analysis BAN-20260925-001 (FORMATTING_AND_FILTERING_FAILURE):\n1. Missing explicit blank line before headings and/or presence of trailing blank lines after headings in DOCX generation.\n2. Failure to filter out non-table narrative/scoring text in the 'پیوست' (Appendices) section, requiring strictly only the questionnaire table with its title.\n\nPlease catalog structured anti-patterns and actionable lessons in .agents/learning/knowledge/.\n\n\nThe current local time is: 2026-09-25T21:35:29+03:30.",
+  "generalization": "Procedural Guideline for methodology-review: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nCatalog the diagnosed anti-pattern into state/pitfalls.jsonl based on behavior analysis BAN-20260925-001 (FORMATTING_AND_FILTERING_FAILURE):\n1. Missing explicit blank line before headings and/or presence of trailing blank lines after headings in DOCX generation.\n2. Failure to filter out non-table narrative/scoring text in the 'پیوست' (Appendices) section, requiring strictly only the questionnaire table with its title.\n\nPlease catalog structured anti-patterns and actionable lessons in .agents/learning/knowledge/.\n\n\nThe current local time is: 2026-09-25T21:35:29+03:30. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-METHODOLOGY_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- **Target Capability**",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- ",
+    "supporting_report_ids": [
+      "FDB-20260925-0069E8"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "methodology-review"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-25T18:05:29.423263+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-25T18:05:29.423323+00:00"
+  }
+}
