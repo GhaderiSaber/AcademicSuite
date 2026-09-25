@@ -21,6 +21,7 @@ These domain rules are automatically loaded and applied across all conversations
 
 ---
 - **Anti-pattern (AP-2026-NAIVE-LENGTH-REFERENCE-PARSING)**: Implement robust structural parsing using regex patterns that match specific citation components (e.g., publication year in parentheses, DOI links, standard APA 7 formatting) or use a dedicated reference parser rather than character count. [Enforcement: dynamic_invariant_guard.py (AP-2026-NAIVE-LENGTH-REFERENCE-PARSING)]
+- **Anti-pattern (AP-2026-AMBIGUOUS-STACKED-REGRESSION-COEFFICIENTS)**: Add 'متغیر ملاک' as Column 1, listing 'رفتارهای خودآسیبی' on the first row of Model 1 and 'رفتارهای خودکشی' on the first row of Model 2. [Enforcement: dynamic_invariant_guard.py (AP-2026-AMBIGUOUS-STACKED-REGRESSION-COEFFICIENTS)]
 ## 2. Interaction & File Naming Standards (Universal Mandate)
 - **Directive 6 (English Primary Interaction & English-Only Filenames)**:
   - Agents communicate, reason, plan, and report strictly in **English**. Persian is reserved strictly for academic deliverable content.
