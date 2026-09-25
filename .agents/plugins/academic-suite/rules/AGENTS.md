@@ -24,6 +24,7 @@ These domain rules are automatically loaded and applied across all conversations
 - **Anti-pattern (AP-2026-CONSOLIDATED-REGRESSION-TABLE)**: Decompose each regression reporting block into the mandatory 3 tables: Table 1 (Correlations), Table 2 (ANOVA & Model Summary), Table 3 (Coefficients & Collinearity). [Enforcement: dynamic_invariant_guard.py (AP-2026-CONSOLIDATED-REGRESSION-TABLE)]
 - **Anti-pattern (AP-2026-EXPLICIT-RIGHT-UNDER-BIDI)**: Omit <w:jc> on BiDi paragraphs for right alignment; inject <w:bidi/> into sectPr. [Enforcement: dynamic_invariant_guard.py (AP-2026-EXPLICIT-RIGHT-UNDER-BIDI)]
 - **Anti-pattern (AP-2026-FLAT-OR-UNGROUPED-VARIABLE-SUBSCALE-TABLES)**: Structure tables hierarchically: write one row for the parent variable, list its subscales in column 2 on subsequent rows, then proceed to the next parent variable. [Enforcement: dynamic_invariant_guard.py (AP-2026-FLAT-OR-UNGROUPED-VARIABLE-SUBSCALE-TABLES)]
+- **Anti-pattern (AP-2026-HANGING-COLONS-AND-TELEGRAPHIC-RESULTS)**: Merge the introductory context into the main narrative clause; use varied syntactic transitions, consistent past tense, and formal table attribution. [Enforcement: dynamic_invariant_guard.py (AP-2026-HANGING-COLONS-AND-TELEGRAPHIC-RESULTS)]
 ## 2. Interaction & File Naming Standards (Universal Mandate)
 - **Directive 6 (English Primary Interaction & English-Only Filenames)**:
   - Agents communicate, reason, plan, and report strictly in **English**. Persian is reserved strictly for academic deliverable content.
