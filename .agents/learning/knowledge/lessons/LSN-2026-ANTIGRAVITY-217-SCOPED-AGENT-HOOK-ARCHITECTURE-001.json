@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001",
+  "lesson_type": "WHAT_TO_DO",
+  "trigger_source": "HUMAN_MENTOR_FEEDBACK",
+  "source_experience_id": "EXP-2026-ANTIGRAVITY-217-AGENT-HOOKS-001",
+  "diagnosis": {
+    "what_happened": "Hooks were previously centralized into a global dispatcher (hook_dispatcher.py) with 66+ hook files in .agents/hooks/agents/ because earlier Antigravity versions lacked agent-scoped hook selectors.",
+    "behavior_caused_outcome": "Required complex runtime identity resolution, transcript reverse-engineering, and fast-paths to prevent developer agent interference.",
+    "what_should_have_happened": "Under Antigravity 2.17+, each agent should declare its scoped hooks directly in its own folder and front matter (agent.md), co-locating definitions, contracts, and guardrails.",
+    "rationale_why": "Atomic self-contained agent modules eliminate centralized dispatcher bottlenecks, eliminate hook pollution, and preserve developer velocity natively."
+  },
+  "desired_behavior": "Package each agent and subagent as an autonomous unit containing its definition (agent.md), contracts (contract.md), and dedicated lifecycle guard (guard.py / hooks.json) within its own dedicated folder.",
+  "generalization": "Co-locate agent-specific lifecycle hooks and governance guards inside each agent's individual directory (.agents/agents/<agent>/), declaring them via frontmatter hooks: in agent.md.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "PROMOTED_PRINCIPLE",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "ANTIGRAVITY_217_FRONTMATTER_HOOK_FEATURE",
+    "observed_value": "Antigravity 2.17.0 supports scoped hooks: in Markdown agent frontmatter with relative path resolution.",
+    "threshold_value": "100% native engine scoping without central Python dispatcher.",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-suite-orchestrator",
+    "agy-customizations"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-25T07:25:00+03:30",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "validation-agent",
+    "statistics-agent",
+    "academic-writer"
+  ]
+}

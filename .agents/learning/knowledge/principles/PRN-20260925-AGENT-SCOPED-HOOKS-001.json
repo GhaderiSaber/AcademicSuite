@@ -1,0 +1,37 @@
+{
+  "statement": "Under Antigravity 2.17+, custom agents and subagents declare their dedicated lifecycle hooks directly within their own definition folder and frontmatter, eliminating monolithic runtime hook dispatchers.",
+  "scope": "cross-project",
+  "domain": "agent-architecture",
+  "capability": "lifecycle-hooks",
+  "tags": [
+    "antigravity-2.17",
+    "scoped-hooks",
+    "agent-architecture",
+    "lifecycle-hooks",
+    "co-location"
+  ],
+  "applicability": {
+    "criteria": [
+      "Antigravity 2.17+ agent architecture",
+      "Modular agent package design"
+    ],
+    "target_skills": [
+      "academic-suite-orchestrator",
+      "agy-customizations"
+    ]
+  },
+  "exclusions": [],
+  "source_lessons": [
+    "LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001"
+  ],
+  "supporting_evaluations": [],
+  "contradictions": [],
+  "status": "ACCEPTED_ACTIVE",
+  "version": "1.0.0",
+  "contract_version": "1.0.0",
+  "item_type": "principle",
+  "generalization_stage": "PROMOTED_PRINCIPLE",
+  "updated_at": "2026-09-25T07:25:00.000000+00:00",
+  "knowledge_id": "PRN-20260925-AGENT-SCOPED-HOOKS-001",
+  "relationships": []
+}
