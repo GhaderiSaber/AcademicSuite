@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:16:02.854859+00:00",
+  "updated_at": "2026-09-25T17:16:02.893958+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -511,7 +511,7 @@
       "violation_message": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
       "remedy": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:08:11.135286+00:00"
+      "updated_at": "2026-09-25T17:16:02.893938+00:00"
     },
     "AP-2026-MISSING-BLANK-LINE-BEFORE-HEADINGS": {
       "item_id": "AP-2026-MISSING-BLANK-LINE-BEFORE-HEADINGS",
