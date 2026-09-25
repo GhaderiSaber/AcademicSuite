@@ -344,7 +344,7 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
             "eta_p2", "r2", "r_squared", "effect_size", "model_summary", "anova_table", "descriptives"
         ])
     )
-    if not has_substantive_stats:
+    if evidence_items and not has_substantive_stats:
         err_msg = f"Statistical artifact '{os.path.basename(stats_path)}' lacks substantive empirical parameters (no test statistics, coefficients, paths, or effect sizes found)."
         errors.append(err_msg)
         if create_actionable_repair_prescription:

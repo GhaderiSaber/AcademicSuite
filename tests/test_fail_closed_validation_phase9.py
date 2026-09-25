@@ -39,8 +39,16 @@ class TestFailClosedValidationPhase9(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    def _create_minimal_docx(self, path: str, text: str = "Test deliverable content"):
-        xml_content = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    def _create_minimal_docx(self, path: str, text: str = "Test deliverable content", body_xml: str = None):
+        if body_xml:
+            xml_content = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    {body_xml}
+  </w:body>
+</w:document>"""
+        else:
+            xml_content = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:body>
     <w:p><w:r><w:t>{text}</w:t></w:r></w:p>
@@ -294,10 +302,58 @@ class TestFailClosedValidationPhase9(unittest.TestCase):
         docx_path = os.path.join(self.test_dir, f"{stage_name}.docx")
 
         with open(json_path, "w", encoding="utf-8") as f:
-            json.dump({"stage_id": stage_name, "sample_size": 100, "f_stat": 4.5}, f)
+            json.dump({"stage_id": stage_name, "sample_size": 100, "f_stat": 4.5, "p_value": 0.001, "f": 4.5}, f)
+
+        element_1 = "فرضیه اول پژوهش به بررسی اثربخشی مداخله بر متغیر وابسته با نمونه ۱۰۰ نفر اختصاص داشت. "
+        element_2 = "همان‌طور که در جدول ۱ مشاهده می‌شود، نتایج تحلیل واریانس نشان داد که تفاوت معنادار است. "
+        element_3 = "یافته‌های تجربی حاصل از آزمون آماری نشان داد که F = 4.50 و سطح معناداری کمتر از ۰.۰۰۱ است. " * 5
+        element_4 = "بنابراین، فرضیه پژوهش تأیید شد و مداخله توانست تغییرات معناداری ایجاد کند. "
+        full_text = (element_1 + element_2 + element_3 + element_4) * 2
+
         with open(md_path, "w", encoding="utf-8") as f:
-            f.write("# Findings\n\nSample N = 100, F = 4.50, p < .001.\n")
-        self._create_minimal_docx(docx_path, "Sample N = 100, F = 4.50")
+            f.write(f"# یافته‌های فرضیه اول\n\nSample N = 100, F = 4.50, p < 0.001.\n\n{full_text}\n\n| متغیر | میانگین | F | p |\n|---|---|---|---|\n| متغیر | 24.50 | 4.50 | 0.001 |\n")
+
+        body_xml = f"""
+        <w:p>
+          <w:pPr><w:jc w:val="both"/><w:bidi w:val="1"/></w:pPr>
+          <w:r><w:t>{full_text}</w:t></w:r>
+        </w:p>
+        <w:p>
+          <w:pPr><w:bidi w:val="1"/></w:pPr>
+          <w:r>
+            <w:rPr><w:rFonts w:ascii="B Nazanin" w:cs="B Nazanin"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr>
+            <w:t>جدول ۱. نتایج آزمون تحلیل واریانس فرضیه اول</w:t>
+          </w:r>
+        </w:p>
+        <w:tbl>
+          <w:tblPr>
+            <w:bidiVisual/>
+            <w:tblBorders>
+              <w:top w:val="single" w:sz="6"/>
+              <w:bottom w:val="single" w:sz="6"/>
+              <w:left w:val="none"/><w:right w:val="none"/>
+              <w:insideV w:val="none"/><w:insideH w:val="none"/>
+            </w:tblBorders>
+          </w:tblPr>
+          <w:tr>
+            <w:tc><w:p><w:r><w:t>متغیر</w:t></w:r></w:p></w:tc>
+            <w:tc><w:p><w:r><w:t>میانگین</w:t></w:r></w:p></w:tc>
+            <w:tc><w:p><w:r><w:t>آماره F</w:t></w:r></w:p></w:tc>
+            <w:tc><w:p><w:r><w:t>سطح معناداری (p)</w:t></w:r></w:p></w:tc>
+          </w:tr>
+          <w:tr>
+            <w:tc><w:p><w:r><w:t>نمره کل</w:t></w:r></w:p></w:tc>
+            <w:tc><w:p><w:r><w:t>۲۴.۵۰</w:t></w:r></w:p></w:tc>
+            <w:tc><w:p><w:r><w:t>۴.۵۰</w:t></w:r></w:p></w:tc>
+            <w:tc><w:p><w:r><w:t>۰.۰۰۱ > p</w:t></w:r></w:p></w:tc>
+          </w:tr>
+        </w:tbl>
+        <w:p>
+          <w:pPr><w:jc w:val="both"/><w:bidi w:val="1"/></w:pPr>
+          <w:r><w:t>یادداشت: مقادیر آماره F در سطح معناداری کمتر از ۰.۰۰۱ گزارش شده است.</w:t></w:r>
+        </w:p>
+        """
+        self._create_minimal_docx(docx_path, body_xml=body_xml)
 
         upstream_dir = os.path.join(self.test_dir, "upstream")
         os.makedirs(upstream_dir, exist_ok=True)

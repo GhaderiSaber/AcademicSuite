@@ -44,7 +44,11 @@ def test_skills_active_invariants_have_enforcement_anchors():
     # Gather all known hook and script files
     hook_files = {os.path.basename(p) for p in glob.glob(os.path.join(AGENTS_DIR, "hooks", "*.py"))}
     hook_agent_files = {os.path.basename(p) for p in glob.glob(os.path.join(AGENTS_DIR, "hooks", "agents", "*.py"))}
-    all_hook_files = hook_files | hook_agent_files
+    agent_guards = {
+        f"{os.path.basename(os.path.dirname(p)).replace('-', '_')}_guard.py"
+        for p in glob.glob(os.path.join(AGENTS_DIR, "agents", "*", "guard.py"))
+    }
+    all_hook_files = hook_files | hook_agent_files | agent_guards
 
     script_files = {os.path.basename(p) for p in glob.glob(os.path.join(AGENTS_DIR, "scripts", "*.py"))}
     skill_script_files = {os.path.basename(p) for p in glob.glob(os.path.join(AGENTS_DIR, "skills", "*", "scripts", "*.py"))}

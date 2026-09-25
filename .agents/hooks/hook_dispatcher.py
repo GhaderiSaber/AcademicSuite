@@ -24,15 +24,12 @@ from typing import Dict, Any, Set
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", ".."))
 AGENTS_DIR = os.path.abspath(os.path.join(HOOKS_DIR, ".."))
-AGENTS_HOOKS_DIR = os.path.join(HOOKS_DIR, "agents")
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 if AGENTS_DIR not in sys.path:
     sys.path.insert(0, AGENTS_DIR)
 if HOOKS_DIR not in sys.path:
     sys.path.insert(0, HOOKS_DIR)
-if AGENTS_HOOKS_DIR not in sys.path:
-    sys.path.insert(0, AGENTS_HOOKS_DIR)
 
 try:
     from safety_hooks import SafetyHooks
