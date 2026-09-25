@@ -139,7 +139,7 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-20260925-6B5CE4)**: Standard compliance: The effect size in Table 3 is incorrect, please fix it. [Enforcement: results_auditor_guard.py]
-- **Lesson (LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001)**: Enforce explicit blank line logic for headings. Implement a strict filter for Appendices to strip narrative/scoring text, retaining only the table and its title. [Enforcement: results_auditor_guard.py]
+- **Learned candidate (CAND-2026-FORMATTING-AND-FILTERING-001)**: - Enforce explicit 1 blank line before each header and 0 blank lines after headers in OpenXML paragraphs and templates. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)**: Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NO-BLANK-LINE-BETWEEN-TABLE-AND-NOTE-001)**: Attach table notes directly beneath the table with 0 blank lines in Markdown and 0 intervening paragraphs in Word DOCX. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-QUESTION-HYPOTHESIS-HEADINGS-AND-CLEAN-DOCX-001)**: Enforce 'سوال اول: ...' and 'فرضیه اول: ...' section titles, clean non-redundant subheadings, and complete elimination of raw markdown artifacts in Word output. [Enforcement: results_auditor_guard.py]
