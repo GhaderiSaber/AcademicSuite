@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:11.699789+00:00",
+  "updated_at": "2026-09-25T17:08:11.735138+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -785,6 +785,26 @@
       "remedy": "Move the explanatory narrative paragraph to strictly precede the table caption. The flow must be: Heading -> Narrative -> Table Caption -> Table -> Table Note.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:11.699778+00:00"
+    },
+    "AP-2026-UNVERIFIED-REVERSE-CODING": {
+      "item_id": "AP-2026-UNVERIFIED-REVERSE-CODING",
+      "category": "Anti-Pattern",
+      "statement": "Query psychometric-scale-resolver or Questionnaires.xlsx to extract the exact inverted item list for the target questionnaire before aggregation.",
+      "target_agents": [
+        "data-agent",
+        "data-curator",
+        "psychometric-expert"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Reverse coding script executed without referencing verified scale_spec or Questionnaires.xlsx.",
+      "violation_message": "Query psychometric-scale-resolver or Questionnaires.xlsx to extract the exact inverted item list for the target questionnaire before aggregation.",
+      "remedy": "Query psychometric-scale-resolver or Questionnaires.xlsx to extract the exact inverted item list for the target questionnaire before aggregation.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:11.735121+00:00"
     }
   }
 }
