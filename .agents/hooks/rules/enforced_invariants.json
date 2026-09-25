@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:50.474200+00:00",
+  "updated_at": "2026-09-25T18:08:51.115044+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -746,7 +746,7 @@
       "violation_message": "Whitelist only correlation matrix tables for asterisks; enforce pure clean Persian construct names in table headers and row labels.",
       "remedy": "Whitelist only correlation matrix tables for asterisks; enforce pure clean Persian construct names in table headers and row labels.",
       "enabled": true,
-      "updated_at": "2026-09-25T18:08:50.474188+00:00"
+      "updated_at": "2026-09-25T18:08:51.115018+00:00"
     },
     "AP-2026-TABLE-CELL-CORRUPTION-AND-STAR-STRIPPING": {
       "item_id": "AP-2026-TABLE-CELL-CORRUPTION-AND-STAR-STRIPPING",
