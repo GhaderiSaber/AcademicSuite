@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:16:03.393403+00:00",
+  "updated_at": "2026-09-25T17:16:03.423706+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -804,7 +804,7 @@
       "violation_message": "Query psychometric-scale-resolver or Questionnaires.xlsx to extract the exact inverted item list for the target questionnaire before aggregation.",
       "remedy": "Query psychometric-scale-resolver or Questionnaires.xlsx to extract the exact inverted item list for the target questionnaire before aggregation.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:08:11.735121+00:00"
+      "updated_at": "2026-09-25T17:16:03.423696+00:00"
     },
     "AP-2026-VALIDATOR-REGRESSION-TABLE-BLINDSPOT": {
       "item_id": "AP-2026-VALIDATOR-REGRESSION-TABLE-BLINDSPOT",
