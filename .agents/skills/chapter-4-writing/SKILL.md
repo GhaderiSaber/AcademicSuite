@@ -111,7 +111,7 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 ⚠️ Known Pitfalls (Anti-Patterns to Avoid):
 - [AP-2026-RAW-MARKDOWN-LEAKAGE-AND-REDUNDANT-HEADERS] Avoid: Allowing raw markdown syntax (>, ---, markdown links, unmatched asterisks) to leak into Word DOCX deliverables, using ambiguous question/hypothesis titles, or repeating headers like 'پایه تحصیلی (*پایه تحصیلی*)'.
   Approved Remedy: Enforce strict heading naming standard ('سوال اول: ...', 'فرضیه اول: ...'), strip parenthetical duplicates, remove raw markdown tokens from markdown source, and equip the OpenXML renderer with robust parsing.
-- [AP-2026-ISOLATED-PROSE-POLISHING] Avoid: Fixing prose style only in isolated paragraphs flagged by the user while leaving the remaining sections in an unrefined, mechanical state.
+- **Lesson (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)**: Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth. [Enforcement: results_auditor_guard.py]
   Approved Remedy: When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.
 - [AP-2026-VERBOSE-PERSIAN-TABLE-HEADERS] Avoid: Writing clumsy verbose Persian terms in table metric headers (e.g. مجموع مجذورات (SS)) instead of standard APA Latin symbols, or leaving raw English words scattered in Persian narrative.
   Approved Remedy: Use concise APA Latin symbols in table headers, define them in Persian in the note, and ensure pure Persian prose without raw English words.
