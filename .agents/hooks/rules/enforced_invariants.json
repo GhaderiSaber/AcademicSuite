@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:47:23.932296+00:00",
+  "updated_at": "2026-09-25T17:47:23.968177+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -336,7 +336,7 @@
       "violation_message": "Structure tables hierarchically: write one row for the parent variable, list its subscales in column 2 on subsequent rows, then proceed to the next parent variable.",
       "remedy": "Structure tables hierarchically: write one row for the parent variable, list its subscales in column 2 on subsequent rows, then proceed to the next parent variable.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:27:28.989618+00:00"
+      "updated_at": "2026-09-25T17:47:23.968167+00:00"
     },
     "AP-2026-GENERIC-AGENTS-FOR-LEARNING": {
       "item_id": "AP-2026-GENERIC-AGENTS-FOR-LEARNING",
