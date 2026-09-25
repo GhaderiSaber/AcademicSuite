@@ -33,6 +33,7 @@ These domain rules are automatically loaded and applied across all conversations
 - **Anti-pattern (AP-2026-UNVERIFIED-REVERSE-CODING)**: Query psychometric-scale-resolver or Questionnaires.xlsx to extract the exact inverted item list for the target questionnaire before aggregation. [Enforcement: dynamic_invariant_guard.py (AP-2026-UNVERIFIED-REVERSE-CODING)]
 - **Anti-pattern (AP-2026-B-TITR-OVERUSE)**: Replace B Titr with B Nazanin for all elements except chapter names. Set body font to 14 pt, table fonts to 12 pt. Replace w:br with w:p. [Enforcement: dynamic_invariant_guard.py (AP-2026-B-TITR-OVERUSE)]
 - **Anti-pattern (AP-2026-FLAT-OR-UNGROUPED-VARIABLE-SUBSCALE-TABLES)**: Structure tables hierarchically: write one row for the parent variable, list its subscales in column 2 on subsequent rows, then proceed to the next parent variable. [Enforcement: dynamic_invariant_guard.py (AP-2026-FLAT-OR-UNGROUPED-VARIABLE-SUBSCALE-TABLES)]
+- **Anti-pattern (AP-2026-INVERTED-TABLE-NUMBERING)**: Enforce 'جدول [فصل]- [شماره]' (e.g. 'جدول ۴- ۳۱') in all captions and narrative citations. [Enforcement: dynamic_invariant_guard.py (AP-2026-INVERTED-TABLE-NUMBERING)]
 ## 2. Interaction & File Naming Standards (Universal Mandate)
 - **Directive 6 (English Primary Interaction & English-Only Filenames)**:
   - Agents communicate, reason, plan, and report strictly in **English**. Persian is reserved strictly for academic deliverable content.
