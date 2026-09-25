@@ -36,5 +36,12 @@
     "data-agent",
     "data-curator",
     "psychometric-expert"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T18:07:20.364158+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/data-cleaning/SKILL.md",
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/psychometric-scale-resolver/SKILL.md",
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/psychometric-scale-validator/SKILL.md"
   ]
 }

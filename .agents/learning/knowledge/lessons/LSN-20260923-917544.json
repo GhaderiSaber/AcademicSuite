@@ -67,5 +67,10 @@
       "task_quality": "EMPIRICAL_EXECUTION"
     },
     "evaluated_at": "2026-09-23T11:19:39.125729+00:00"
-  }
+  },
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T18:07:49.506141+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/apa-reporting/SKILL.md"
+  ]
 }

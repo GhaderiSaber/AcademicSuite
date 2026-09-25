@@ -36,5 +36,12 @@
     "statistics-agent",
     "academic-orchestrator",
     "academic-writer"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T18:07:41.089093+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/sem/SKILL.md",
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/cfa/SKILL.md",
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-adaptive-context/SKILL.md"
   ]
 }

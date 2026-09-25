@@ -32,5 +32,11 @@
     "academic-writer",
     "academic-orchestrator",
     "results-auditor"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T18:07:44.850963+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/chapter-4-writing/SKILL.md",
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-thesis-builder/SKILL.md"
   ]
 }

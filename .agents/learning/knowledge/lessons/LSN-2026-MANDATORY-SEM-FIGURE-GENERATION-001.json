@@ -19,7 +19,9 @@
     "metric_or_check": "USER_FEEDBACK_MANDATE",
     "observed_value": "Figure omission went undetected",
     "threshold_value": "Zero tolerance for omission of required figures",
-    "supporting_report_ids": ["BAN-20260923-FIGURE-001"],
+    "supporting_report_ids": [
+      "BAN-20260923-FIGURE-001"
+    ],
     "supporting_artifact_paths": []
   },
   "related_skills": [
@@ -35,5 +37,11 @@
     "academic-orchestrator",
     "data-agent",
     "validation-agent"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T18:07:34.918298+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/sem/SKILL.md",
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-suite-orchestrator/SKILL.md"
   ]
 }

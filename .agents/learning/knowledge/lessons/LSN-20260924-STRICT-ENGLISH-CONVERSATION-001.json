@@ -35,5 +35,10 @@
   "target_agents": [
     "academic-orchestrator",
     "academic-writer"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T18:07:50.069880+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-suite-orchestrator/SKILL.md"
   ]
 }

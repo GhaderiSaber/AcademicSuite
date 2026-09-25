@@ -20,5 +20,10 @@
     "data-agent",
     "data-curator",
     "academic-orchestrator"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T18:08:45.524514+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/plugins/academic-suite/rules/AGENTS.md"
   ]
 }

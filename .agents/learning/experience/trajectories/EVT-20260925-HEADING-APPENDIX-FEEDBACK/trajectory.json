@@ -1,0 +1,177 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260925-HEADING-APPENDIX-001",
+  "experience_id": "EVT-20260925-HEADING-APPENDIX-FEEDBACK",
+  "project_id": "Morteza_Estaki",
+  "task_id": "TSK-20260925-HEADING-APPENDIX-RECONSTRUCTION",
+  "timestamp": "2026-09-25T21:27:06+03:30",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SCRIPT_EXECUTION",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T06:13:45Z",
+      "description": "scaffold_chapter5_triad.py was executed to compile Chapter 5 deliverables. During parsing, blank lines were stripped with 'if not line_str: continue' while paragraph properties lacked 24pt blank line separation before headings, causing heading elements to render without standardized preceding blank lines.",
+      "observable_input": {
+        "script": ".agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py",
+        "inputs": ["03_deliverables/stage_08_recommendations/draft.md"]
+      },
+      "observable_output": {
+        "status": "COMPILED",
+        "artifacts": [
+          "03_deliverables/stage_08_recommendations/08_recommendations.docx",
+          "03_deliverables/stage_08_recommendations/08_recommendations.md"
+        ]
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SCRIPT_EXECUTION",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-24T18:30:10Z",
+      "description": "02_analysis_code/build_chapter4_triad.py and 02_analysis_code/generate_clean_chapter4_docx.py defined add_persian_heading with space_before=Pt(12) and space_after=Pt(6) without inserting an explicit blank paragraph (doc.add_paragraph('')) prior to the heading. Furthermore, setting space_after=Pt(6) introduced spacing/blank space after headings where none should exist.",
+      "observable_input": {
+        "script": "02_analysis_code/build_chapter4_triad.py",
+        "heading_function": "add_persian_heading(doc, text, level=1)",
+        "space_before_pt": 12,
+        "space_after_pt": 6
+      },
+      "observable_output": {
+        "status": "GENERATED",
+        "artifacts": [
+          "03_deliverables/Chapter_4_Results.docx",
+          "03_deliverables/Chapter_4_Results.md"
+        ]
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-25T12:15:00Z",
+      "description": "03_deliverables/All_Appendices.docx was compiled from raw questionnaire source documents in 01_raw_inputs/Questionnaires/ (-کنترل-شغلی.docx, Oldham_and_Hackman_Job_Characteristics.docx, Organizational Innovation.docx, پرسشنامه نوآوری سازمانی اوگر یوزگت و همکاران (2015).doc). Full explanatory narratives, institutional introductions, scoring guidelines, subscale definitions, and reliability citations were retained instead of extracting strictly the question tables and question headers.",
+      "observable_input": {
+        "source_folder": "01_raw_inputs/Questionnaires",
+        "source_files": [
+          "-کنترل-شغلی.docx",
+          "Oldham_and_Hackman_Job_Characteristics.docx",
+          "Organizational Innovation.docx",
+          "پرسشنامه نوآوری سازمانی اوگر یوزگت و همکاران (2015).doc"
+        ],
+        "target_file": "03_deliverables/All_Appendices.docx"
+      },
+      "observable_output": {
+        "status": "COMPILED",
+        "sha256": "9c14f3ace1062897f5761a55f126699cc59acbc411fc3d60b5f93d6100a9c634",
+        "size_bytes": 66724,
+        "content_leakage": "Retained introductory text, scoring manuals, psychometric reliability reports, and subscale keys alongside question tables."
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "SCRIPT_EXECUTION",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-25T16:27:21Z",
+      "description": "02_analysis_code/assemble_full_thesis_v2.py appended 03_deliverables/All_Appendices.docx directly to Thesis_Final_Master.docx via docxcompose without filtering out extraneous non-table paragraphs.",
+      "observable_input": {
+        "script": "02_analysis_code/assemble_full_thesis_v2.py",
+        "inputs": [
+          "03_deliverables/Thesis_Chapters1to3.docx",
+          "01_raw_inputs/فصل 4 خانم مرضیه ابراهیمی (1).docx",
+          "03_deliverables/Chapter_5_Discussion.docx",
+          "04_references_and_lit/Reference.docx",
+          "03_deliverables/All_Appendices.docx"
+        ]
+      },
+      "observable_output": {
+        "status": "COMPILED",
+        "output_master": "03_deliverables/Thesis_Final_Master.docx",
+        "sha256": "d76bfe19c7242782006a2177e67c0028dd773ae0c9dca96ceac71e9230ffea69"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-25T17:56:53.473706+00:00",
+      "description": "User reported formatting and structure defects: 1) Blank line missing before each header and presence of blank lines after headers. 2) In the 'پیوست' (Appendices) section, only the Questions table with the header of that question must be present.",
+      "observable_input": {
+        "event_id": "EVT-265DE764",
+        "feedback_id": "FDB-20260925-8E16C7",
+        "correction_text": "Problem: \n1. You should have a one blank line before each header. But there isn't any blank line after the headers. \n2. In the 'پیوست' section you should have only the Questions table with header of that question. \n\n\nThe current local time is: 2026-09-25T21:26:53+03:30."
+      },
+      "observable_output": {
+        "severity": "HIGH",
+        "scope": "REUSABLE_PROCEDURAL",
+        "target_agent": "academic-writer",
+        "target_skill": "academic-suite-orchestrator"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "python-docx / openxml",
+      "status": "DEFECTIVE",
+      "parameter_summary": "add_persian_heading with space_before=Pt(12), space_after=Pt(6), lacking empty paragraph node before header and adding non-zero space_after."
+    },
+    {
+      "tool_name": "docxcompose",
+      "status": "SUCCESS",
+      "parameter_summary": "Appended All_Appendices.docx directly to master document without DOM filtering of extraneous paragraphs."
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "apa-reporting",
+      "invoked_script": "02_analysis_code/build_chapter4_triad.py",
+      "exit_code": 0,
+      "duration_sec": 1.2
+    },
+    {
+      "skill_name": "persian-thesis-builder",
+      "invoked_script": "02_analysis_code/assemble_full_thesis_v2.py",
+      "exit_code": 0,
+      "duration_sec": 3.8
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "thesis_assembly_manifest_verification",
+      "verdict": "PARTIAL_PASS",
+      "failed_checks": [
+        "unverified_heading_spacing_rule",
+        "unfiltered_appendix_explanatory_text"
+      ],
+      "evidence_summary": {
+        "manifest_path": "03_deliverables/thesis_assembly_manifest.json",
+        "status": "success",
+        "flaw": "Manifest verified paragraph counts (804) and chapter existence without verifying heading blank line rules or appendix purity."
+      }
+    },
+    {
+      "validator_name": "user_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "missing_blank_line_before_header",
+        "unwanted_blank_space_after_header",
+        "extra_explanatory_text_in_appendices"
+      ],
+      "evidence_summary": {
+        "critique_text": "Problem: 1. You should have a one blank line before each header. But there isn't any blank line after the headers. 2. In the 'پیوست' section you should have only the Questions table with header of that question."
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/All_Appendices.docx",
+      "sha256": "9c14f3ace1062897f5761a55f126699cc59acbc411fc3d60b5f93d6100a9c634",
+      "type": "openxml_word"
+    },
+    {
+      "path": "03_deliverables/Thesis_Final_Master.docx",
+      "sha256": "d76bfe19c7242782006a2177e67c0028dd773ae0c9dca96ceac71e9230ffea69",
+      "type": "openxml_word"
+    }
+  ],
+  "outcome": "FAILURE"
+}

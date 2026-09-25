@@ -67,5 +67,10 @@
       "task_quality": "EMPIRICAL_EXECUTION"
     },
     "evaluated_at": "2026-09-25T16:13:10.286333+00:00"
-  }
+  },
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T18:08:10.652655+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-literature-review-builder/SKILL.md"
+  ]
 }

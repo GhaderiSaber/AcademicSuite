@@ -20,5 +20,10 @@
   ],
   "reusable": true,
   "updated_at": "2026-09-23T12:15:00+03:30",
-  "is_active_behavior": true
+  "is_active_behavior": true,
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T18:08:38.003221+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/plugins/academic-suite/rules/AGENTS.md"
+  ]
 }

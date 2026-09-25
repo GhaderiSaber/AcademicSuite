@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-FORMATTING-AND-FILTERING-FAILURE",
+  "category": "execution",
+  "defective_pattern": "Missing explicit blank line before headings, presence of trailing blank lines after headings, and failure to filter out non-table narrative/scoring text in the Appendices section.",
+  "why_defective": "Violates strict academic formatting standards and pollutes the Appendices with irrelevant scoring logic instead of strictly containing only the questionnaire table and title.",
+  "observed_symptoms": [
+    "Headings generated without preceding blank lines.",
+    "Trailing blank lines inserted after headings in DOCX.",
+    "Narrative text and scoring logic leak into the 'پیوست' (Appendices) section."
+  ],
+  "corrective_remedy": "Enforce strict blank line injection before headings and zero trailing blank lines after headings. Apply a strict filter during Appendices compilation to strip all narrative and scoring text, preserving strictly the questionnaire title and table.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect headings with no preceding blank lines or trailing empty paragraphs, and detect narrative paragraphs in the Appendices section.",
+    "regex_patterns": [
+      "(?m)^[^\\n]\\n#+\\s",
+      "(?m)^#+\\s.*\\n\\n"
+    ],
+    "pattern": "(?m)^[^\\n]\\n#+\\s",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.(md|docx)$",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-thesis-builder"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-25T21:35:29Z"
+}

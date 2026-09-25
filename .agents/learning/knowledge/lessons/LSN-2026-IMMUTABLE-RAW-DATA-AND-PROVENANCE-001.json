@@ -36,5 +36,12 @@
     "data-agent",
     "data-curator",
     "academic-orchestrator"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T18:07:31.424683+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/data-cleaning/SKILL.md",
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/data-audit/SKILL.md",
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-drive-project-organizer/SKILL.md"
   ]
 }
