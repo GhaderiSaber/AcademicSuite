@@ -104,7 +104,7 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 ```
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-NO-HANGING-COLONS-AND-COHESIVE-RESULTS-001)**: Eradicate all hanging colons, ensure consistent past tense, and write coherent academic prose integrating table references seamlessly. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-NO-INLINE-COLON-LISTICLES-001)**: Never use inline colon-delimited labels or telegraphic pseudo-bullets (**موضوع:** ... **موضوع بعدی:** ...) in formal academic prose. Always weave empirical parameters into flowing, cohesive narrative paragraphs using scholarly transitions. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NO-CHAPTER-WRITING-IN-DATA-MAKING-001)**: During data generation and SEM/statistical model verification phases, suppress Chapter 4 document compilation. Present only empirical findings: summary statistics, R/Python notebooks, regression/SEM tables, and visualization diagrams. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NO-BLANK-LINE-BETWEEN-TABLE-AND-NOTE-001)**: Attach table notes directly beneath the table with 0 blank lines in Markdown and 0 intervening paragraphs in Word DOCX. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-MANDATORY-BLANK-LINE-BEFORE-HEADINGS-001)**: Ensure an explicit blank line precedes every heading across Markdown source and Word DOCX deliverables. [Enforcement: results_auditor_guard.py]
