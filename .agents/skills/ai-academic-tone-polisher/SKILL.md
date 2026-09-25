@@ -121,4 +121,4 @@ Execute the 4-step diagnostic and rewriting sequence:
 - [academic_tone_and_humanization_standards.md](.agents/skills/ai-academic-tone-polisher/references/academic_tone_and_humanization_standards.md) — Stanford SciWrite 5-pass editorial framework and Persian orthography (نیم‌فاصله).
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-NO-HANGING-COLONS-AND-COHESIVE-RESULTS-001)**: Eradicate all hanging colons, ensure consistent past tense, and write coherent academic prose integrating table references seamlessly. [Enforcement: dynamic_invariant_guard.py (LSN-2026-NO-HANGING-COLONS-AND-COHESIVE-RESULTS-001)]
+- **Lesson (LSN-2026-NO-META-METHODOLOGY-JARGON-IN-CHAPTERS-001)**: Describe statistical analyses using substantive methodological terms (e.g., bivariate correlations, simple linear regression, hierarchical regression, binary logistic odds ratios) and strictly eliminate all meta-commentary references to internal structural templates or table counts. [Enforcement: dynamic_invariant_guard.py (LSN-2026-NO-META-METHODOLOGY-JARGON-IN-CHAPTERS-001)]
