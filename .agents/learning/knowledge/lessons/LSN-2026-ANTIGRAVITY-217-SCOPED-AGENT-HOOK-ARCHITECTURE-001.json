@@ -1,8 +1,8 @@
 {
   "contract_version": "1.0.0",
   "lesson_id": "LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001",
-  "lesson_type": "WHAT_TO_DO",
-  "trigger_source": "HUMAN_MENTOR_FEEDBACK",
+  "lesson_type": "WHAT_WORKED_WELL",
+  "trigger_source": "USER_FEEDBACK",
   "source_experience_id": "EXP-2026-ANTIGRAVITY-217-AGENT-HOOKS-001",
   "diagnosis": {
     "what_happened": "Hooks were previously centralized into a global dispatcher (hook_dispatcher.py) with 66+ hook files in .agents/hooks/agents/ because earlier Antigravity versions lacked agent-scoped hook selectors.",

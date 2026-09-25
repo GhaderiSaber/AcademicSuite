@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/project_organizer_guard.py
+.agents/agents/project-organizer/guard.py
 
 Dedicated Lifecycle Hook Guard for project-organizer:
 Enforces:

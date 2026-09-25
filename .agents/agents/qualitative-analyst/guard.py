@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/qualitative_analyst_guard.py
+.agents/agents/qualitative-analyst/guard.py
 Dedicated Lifecycle Hook Guard for qualitative-analyst.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/data_agent_guard.py
+.agents/agents/data-agent/guard.py
 
 Dedicated Lifecycle Hook Guard for Data Management Specialist Subagent (data-agent).
 Enforces:

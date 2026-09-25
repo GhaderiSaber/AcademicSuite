@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/digital_saber_guard.py
+.agents/agents/digital-saber/guard.py
 Dedicated Lifecycle Hook Guard for digital-saber.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

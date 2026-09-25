@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/journal_strategist_guard.py
+.agents/agents/journal-strategist/guard.py
 Dedicated Lifecycle Hook Guard for journal-strategist.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

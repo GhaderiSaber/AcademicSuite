@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/skill_evolver_guard.py
+.agents/agents/skill-evolver/guard.py
 Dedicated Lifecycle Hook Guard for skill-evolver.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/final_judge_guard.py
+.agents/agents/final-judge/guard.py
 Dedicated Lifecycle Hook Guard for final-judge.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

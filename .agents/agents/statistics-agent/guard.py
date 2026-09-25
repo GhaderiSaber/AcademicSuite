@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/statistics_agent_guard.py
+.agents/agents/statistics-agent/guard.py
 
 Dedicated Lifecycle Hook Guard for Statistics Specialist Subagent (statistics-agent).
 Enforces:

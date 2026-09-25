@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/methodology_expert_guard.py
+.agents/agents/methodology-expert/guard.py
 Dedicated Lifecycle Hook Guard for methodology-expert.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

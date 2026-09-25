@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/data_curator_guard.py
+.agents/agents/data-curator/guard.py
 Dedicated Lifecycle Hook Guard for data-curator.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

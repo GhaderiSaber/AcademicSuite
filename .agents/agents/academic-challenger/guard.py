@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/academic_challenger_guard.py
+.agents/agents/academic-challenger/guard.py
 Dedicated Lifecycle Hook Guard for academic-challenger.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

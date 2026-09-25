@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/psychometric_expert_guard.py
+.agents/agents/psychometric-expert/guard.py
 
 Dedicated Lifecycle Hook Guard for psychometric-expert:
 Enforces:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/evidence_auditor_guard.py
+.agents/agents/evidence-auditor/guard.py
 Dedicated Lifecycle Hook Guard for evidence-auditor.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

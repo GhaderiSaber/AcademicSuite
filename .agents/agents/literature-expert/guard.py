@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/literature_expert_guard.py
+.agents/agents/literature-expert/guard.py
 Dedicated Lifecycle Hook Guard for literature-expert.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

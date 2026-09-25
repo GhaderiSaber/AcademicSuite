@@ -11,7 +11,7 @@ Universal governance specification across all agents, subagents, and sessions in
 - **Directive 1 (Mandatory Pre-Flight Gate)**: Explicitly call `view_file` on `.agents/skills/<skill>/SKILL.md` and emit the Pre-Flight Pipeline Declaration prior to executing CLI analysis scripts. [Enforcement: `PreToolUse` hook / `<agent>_guard.py`]
 - **Directive 3 (Artifact-Gated Stage Execution & Triad Invariant)**: Jumping stages without physical checkpoint files on disk is prohibited. Every individual micro-stage must generate a synchronized triad: `.docx` (Word), `.md` (Markdown), and `.json` (Data/Stats). [Enforcement: `Stop` hook / `academic_orchestrator_guard.py`]
 - **Directive 11 (Interactive Stage-Gate Protocol)**: Emit Stage Completion Report (what was done, what is next) and HALT for user confirmation before advancing. Autonomous multi-stage runaway in a single turn is prohibited. [Enforcement: `Stop` hook / `academic_orchestrator_guard.py`]
-- **Directive 13 (Uncompromising Epistemic Honesty & Anti-Sycophancy)**: Flattery (*"Great question!"*, *"Excellent point!"*) is strictly prohibited. Report non-significant findings ($p > .05$), assumption violations, and high AI detection risks candidly without sugarcoating. [Enforcement: `Stop` hook / `advisory_agents_guard.py`]
+- **Directive 13 (Uncompromising Epistemic Honesty & Anti-Sycophancy)**: Flattery (*"Great question!"*, *"Excellent point!"*) is strictly prohibited. Report non-significant findings ($p > .05$), assumption violations, and high AI detection risks candidly without sugarcoating. [Enforcement: `Stop` hook / dedicated agent guards (`digital_saber_guard.py`, `academic_challenger_guard.py`)]
 
 ---
 

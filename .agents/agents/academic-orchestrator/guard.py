@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/academic_orchestrator_guard.py
+.agents/agents/academic-orchestrator/guard.py
 
 Dedicated Lifecycle Hook Guard for Academic Main Agent (academic-orchestrator).
 Enforces:

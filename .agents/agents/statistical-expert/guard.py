@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/statistical_expert_guard.py
+.agents/agents/statistical-expert/guard.py
 Dedicated Lifecycle Hook Guard for statistical-expert.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

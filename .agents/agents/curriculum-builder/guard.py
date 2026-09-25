@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/curriculum_builder_guard.py
+.agents/agents/curriculum-builder/guard.py
 Dedicated Lifecycle Hook Guard for curriculum-builder.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

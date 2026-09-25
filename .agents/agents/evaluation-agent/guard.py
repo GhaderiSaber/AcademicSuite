@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/evaluation_agent_guard.py
+.agents/agents/evaluation-agent/guard.py
 Dedicated Lifecycle Hook Guard for evaluation-agent.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

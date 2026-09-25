@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/results_auditor_guard.py
+.agents/agents/results-auditor/guard.py
 Dedicated Lifecycle Hook Guard for results-auditor.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

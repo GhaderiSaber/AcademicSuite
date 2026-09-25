@@ -12,7 +12,7 @@ Rules in the Academic Suite are non-negotiable architectural invariants designed
 Governance operates on three levels:
 1. **Constitutional Directives (`AGENTS.md`)**: 24 global principles binding on all agents.
 2. **Modular Domain Rule Specifications (`.agents/rules/`)**: 10 concise declarative specifications for typography, file naming, Git automation, honesty, and statistical reporting.
-3. **Machine Enforcement Hooks (`.agents/hooks/agents/`)**: Dedicated 1:1 real-time lifecycle intercepts (`PreToolUse`, `Stop`) backed by individual agent guards (`<agent_name_snake>_guard.py`) declared directly in `agent.md` frontmatter.
+3. **Machine Enforcement Hooks (`.agents/agents/<name>/hooks.json`)**: Dedicated 1:1 real-time lifecycle intercepts (`PreToolUse`, `Stop`) backed by individual agent guards (`guard.py`) co-located within each agent's ASAM directory and declared via `hooks: - ./hooks.json`.
 
 ---
 
@@ -77,32 +77,36 @@ The `academic-suite` plugin consolidates domain rules loaded globally across all
 
 ---
 
-## 5. Antigravity 2.17 1:1 Dedicated Hook Architecture
+## 5. Antigravity 2.17 ASAM Co-Located Hook Architecture
 
-Mechanical rule enforcement is handled via individual 1:1 dedicated hooks and guards:
+Mechanical rule enforcement is handled via Atomic Self-Contained Agent Modules (ASAM):
 
 ```mermaid
 flowchart TD
-    subgraph AgentMD ["agent.md Frontmatter Registration"]
-        AF["hooks:\n  - .agents/hooks/agents/<name_snake>_hook.json"]
+    subgraph AgentDir [".agents/agents/<agent_name>/ (ASAM Module)"]
+        AF["agent.md\nhooks: - ./hooks.json"]
+        Contract["contract.md\n(CDE Protocol & Tool Ceiling)"]
+        HookConfig["hooks.json\n(Scoped PreToolUse & Stop)"]
+        GuardScript["guard.py\n(Dedicated Executable Guard)"]
+        
+        AF --> HookConfig
+        HookConfig --> GuardScript
     end
 
-    subgraph HookConfig ["Dedicated Hook Config (<name_snake>_hook.json)"]
-        PreTool["PreToolUse Hook -> <name_snake>_guard.py --event PreToolUse"]
-        Stop["Stop Hook -> <name_snake>_guard.py --event Stop"]
+    subgraph SymlinkBridge [".agents/hooks/agents/ (Compatibility Bridge)"]
+        SymlinkGuard["<snake>_guard.py -> ../../agents/<name>/guard.py"]
+        SymlinkHook["<snake>_hook.json -> ../../agents/<name>/hooks.json"]
     end
 
-    subgraph GuardScript ["Executable Guard Script (<name_snake>_guard.py)"]
-        CB["PreToolUse: Intercepts forbidden tools, unviewed skills, raw data mutation, non-ASCII names"]
-        QG["Stop: Inspects output artifacts, APA 7 formatting, Heywood cases, p-values, validation reports"]
+    subgraph DualTrack [".agents/hooks.json (Track 1 & Track 2 Separation)"]
+        Track1["Track 1 Developer Safety Gate\n(Bypasses academic gates for coding agent)"]
+        Track2["Track 2 Academic Governance\n(Enforces CDE, Triad, & Validation)"]
     end
-
-    AF --> HookConfig
-    HookConfig --> GuardScript
 ```
 
 ### Architecture Details:
-- **Clean Subagent Directories**: All 31 subagent directories (`.agents/agents/<name>/`) contain only `agent.md` and optional `contract.md`.
-- **Dedicated Guard Directory**: Executable guards and configs reside in `.agents/hooks/agents/`, named 1:1 with each agent's identifier.
-- **Dynamic Dispatcher (`hook_dispatcher.py`)**: Resolves caller identity via `AGENT_GUARD_MAP`, preserving Track 1 Main Developer Agent exemptions while strictly gating academic subagents.
+- **Atomic Self-Contained Agent Modules (ASAM)**: All 31 subagent directories (`.agents/agents/<name>/`) contain `agent.md`, `contract.md`, `guard.py`, and `hooks.json`.
+- **Native Engine Scoping (`hooks: - ./hooks.json`)**: In Antigravity 2.17, relative hook paths resolve directly to the agent directory, eliminating centralized dispatcher bottlenecks.
+- **Dual-Track Decoupled Gate**: Global `.agents/hooks.json` cleanly separates Track 1 (Main Developer Agent safety) and Track 2 (Academic Orchestrator and specialist subagent governance).
+- **Backward-Compatible Symlink Bridge**: Relative symlinks in `.agents/hooks/agents/` preserve 100% interoperability with legacy test harnesses and external tooling.
 - **Fail-Closed Mechanical Gate**: Ensures zero execution runaway, zero synthetic statistics, and 100% verified disk deliverables.

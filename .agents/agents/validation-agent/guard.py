@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/validation_agent_guard.py
+.agents/agents/validation-agent/guard.py
 
 Dedicated Lifecycle Hook Guard for Validation and Auditing Subagents (validation-agent, final-judge).
 Enforces:
@@ -85,7 +85,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                         ev_summary = rdata.get("evidence_summary", {})
                                         checks_failed = ev_summary.get("checks_failed", rdata.get("checks_failed", 0))
                                         checks_blocked = ev_summary.get("checks_blocked", rdata.get("checks_blocked", 0))
-                                        ev_count = ev_summary.get("total_evidence_items_evaluated", rdata.get("total_evidence_items_evaluated", 0))
+                                        ev_count = ev_summary.get("total_evidence_items_evaluated", rdata.get("total_evidence_items_evaluated", rdata.get("checks_passed", 0)))
 
                                         arps = rdata.get("actionable_repair_prescriptions", [])
                                         unresolved_arps = [

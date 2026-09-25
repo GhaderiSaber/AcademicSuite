@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/meta_analyst_guard.py
+.agents/agents/meta-analyst/guard.py
 Dedicated Lifecycle Hook Guard for meta-analyst.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

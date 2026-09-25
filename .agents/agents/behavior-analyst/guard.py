@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/behavior_analyst_guard.py
+.agents/agents/behavior-analyst/guard.py
 Dedicated Lifecycle Hook Guard for behavior-analyst.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

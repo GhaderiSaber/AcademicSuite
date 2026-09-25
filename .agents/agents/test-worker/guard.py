@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/test_worker_guard.py
+.agents/agents/test-worker/guard.py
 Dedicated Lifecycle Hook Guard for test-worker.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

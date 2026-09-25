@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/longitudinal_modmed_expert_guard.py
+.agents/agents/longitudinal-modmed-expert/guard.py
 Dedicated Lifecycle Hook Guard for longitudinal-modmed-expert.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

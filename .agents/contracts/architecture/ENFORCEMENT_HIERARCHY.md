@@ -48,8 +48,10 @@ graph TD
   $$\text{STAGE\_LOCKED} \rightarrow \text{STAGE\_READY} \rightarrow \text{STAGE\_RUNNING} \rightarrow \text{STAGE\_VALIDATING} \rightarrow \text{STAGE\_AWAITING\_APPROVAL} \rightarrow \text{STAGE\_APPROVED}$$
 - **Invariance**: Stages cannot skip states, cannot proceed without prerequisite deliverables, and cannot transition to `STAGE_APPROVED` without explicit human approval recorded in `approvals.json`.
 
-### Layer 4: Hook Enforcement (Secondary Passive Interception)
-- **Mechanism**: Lifecycle hooks configured in `.agents/hooks.json` routed through `hook_dispatcher.py` to `safety_hooks.py`, `integrity_hooks.py`, and `learning_hooks.py`.
+### Layer 4: Hook Enforcement (Secondary Passive Interception & ASAM Architecture)
+- **Mechanism**:
+  1. **Agent-Scoped Hooks (ASAM)**: Dedicated `hooks.json` and `guard.py` co-located inside each agent directory (`.agents/agents/<agent-name>/`), declared via `hooks: - ./hooks.json` in `agent.md`.
+  2. **Dual-Track Decoupled Gate (`.agents/hooks.json`)**: Separates Track 1 Developer Safety (`track1_developer_dispatcher.py`) from Track 2 Academic Governance (`track2_academic_dispatcher.py`).
 - **Role**: **Secondary defense**. Hooks intercept tool invocations and turn completion to catch anomalies, policy violations, and feedback events.
 - **Strict Non-Orchestrator Invariant**: Hooks MUST NOT act as the primary orchestrator, MUST NOT simulate agent delegation, MUST NOT replace `invoke_subagent`, and MUST NOT run workflows or statistical scripts.
 

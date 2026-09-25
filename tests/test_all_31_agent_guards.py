@@ -131,6 +131,39 @@ class TestDedicatedGuardsCompleteness(unittest.TestCase):
                 fpath = os.path.join(agent_dir, required_file)
                 self.assertTrue(os.path.exists(fpath), f"Agent {agent_kebab} missing {required_file} at {fpath}")
 
+    def test_co_located_guards_direct_import_and_docstring(self):
+        """Verifies each agent's guard.py is directly importable from its folder and has correct docstring."""
+        import importlib.util
+        for agent_kebab in ALL_31_AGENTS:
+            guard_path = os.path.join(AGENTS_DIR, agent_kebab, "guard.py")
+            self.assertTrue(os.path.exists(guard_path), f"Missing {guard_path}")
+
+            # Verify docstring header matches .agents/agents/<agent>/guard.py
+            with open(guard_path, "r", encoding="utf-8") as f:
+                lines = [f.readline() for _ in range(6)]
+            expected_header = f".agents/agents/{agent_kebab}/guard.py"
+            self.assertIn(expected_header, lines[3], f"Docstring header mismatch in {guard_path}")
+
+            # Verify direct importability
+            spec = importlib.util.spec_from_file_location(f"direct_guard_{agent_kebab}", guard_path)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            self.assertTrue(hasattr(mod, "handle_pre_tool_use"), f"{guard_path} missing handle_pre_tool_use")
+            self.assertTrue(hasattr(mod, "handle_stop"), f"{guard_path} missing handle_stop")
+
+    def test_co_located_hooks_json_validity(self):
+        """Verifies each hooks.json defines valid PreToolUse and Stop events referencing guard.py."""
+        for agent_kebab in ALL_31_AGENTS:
+            hpath = os.path.join(AGENTS_DIR, agent_kebab, "hooks.json")
+            with open(hpath, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            guard_key = f"{agent_kebab}-guard"
+            self.assertIn(guard_key, data, f"{hpath} missing {guard_key}")
+            self.assertIn("PreToolUse", data[guard_key])
+            self.assertIn("Stop", data[guard_key])
+            cmd = data[guard_key]["PreToolUse"][0]["hooks"][0]["command"]
+            self.assertIn("guard.py", cmd, f"Command does not reference guard.py in {hpath}")
+
     def test_hook_dispatcher_guard_map_contains_all_31_agents(self):
         guard_map = hook_dispatcher.AGENT_GUARD_MAP
         self.assertEqual(len(guard_map), 31, f"Expected 31 mappings in AGENT_GUARD_MAP, got {len(guard_map)}")

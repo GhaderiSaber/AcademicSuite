@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/academic_writer_guard.py
+.agents/agents/academic-writer/guard.py
 
 Dedicated Lifecycle Hook Guard for Academic Writer Specialist Subagent (academic-writer).
 Enforces:

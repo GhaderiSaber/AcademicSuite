@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/trajectory_analyzer_guard.py
+.agents/agents/trajectory-analyzer/guard.py
 Dedicated Lifecycle Hook Guard for trajectory-analyzer.
 Enforces:
 1. Directive 12: Worker delegation guard (blocks invoke_subagent).

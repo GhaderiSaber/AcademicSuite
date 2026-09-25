@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/agents/test_orchestrator_guard.py
+.agents/agents/test-orchestrator/guard.py
 Dedicated Lifecycle Hook Guard for test-orchestrator.
 Enforces:
 1. Directive 20: Orchestrator Non-Execution Invariant (blocks run_command, write_to_file, replace_file_content, edit_file).
