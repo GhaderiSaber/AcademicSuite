@@ -104,7 +104,7 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 ```
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-NO-INLINE-COLON-LISTICLES-001)**: Never use inline colon-delimited labels or telegraphic pseudo-bullets (**موضوع:** ... **موضوع بعدی:** ...) in formal academic prose. Always weave empirical parameters into flowing, cohesive narrative paragraphs using scholarly transitions. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-SCHOLARLY-CONTINUOUS-PROSE-001)**: Write all narrative findings as continuous scholarly paragraphs. Never use bullets, hyphens, or numbered lists in the narrative body. Ensure table captions are 12pt B Nazanin Regular (non-bold). [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-REGRESSION-ANOVA-ROW-LABELS-001)**: In all regression ANOVA tables (خلاصه مدل و تحلیل واریانس), format source of variance rows as: [Variable Name], 'باقیمانده', 'کل' for each criterion variable, strictly omitting parenthetical variable names on residual and total rows. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-QUESTION-HYPOTHESIS-HEADINGS-AND-CLEAN-DOCX-001)**: Enforce 'سوال اول: ...' and 'فرضیه اول: ...' section titles, clean non-redundant subheadings, and complete elimination of raw markdown artifacts in Word output. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-MANDATORY-BLANK-LINE-BEFORE-HEADINGS-001)**: Ensure an explicit blank line precedes every heading across Markdown source and Word DOCX deliverables. [Enforcement: results_auditor_guard.py]
