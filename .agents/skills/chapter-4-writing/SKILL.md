@@ -111,7 +111,7 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 ⚠️ Known Pitfalls (Anti-Patterns to Avoid):
 - **Lesson (LSN-2026-NO-BLANK-LINE-BETWEEN-TABLE-AND-NOTE-001)**: Attach table notes directly beneath the table with 0 blank lines in Markdown and 0 intervening paragraphs in Word DOCX. [Enforcement: results_auditor_guard.py]
   Approved Remedy: Enforce strict heading naming standard ('سوال اول: ...', 'فرضیه اول: ...'), strip parenthetical duplicates, remove raw markdown tokens from markdown source, and equip the OpenXML renderer with robust parsing.
-- **Lesson (LSN-2026-NARRATIVE-PRECEDES-TABLE-CAPTION-001)**: Strictly order document elements: Heading first, followed by the explanatory continuous prose narrative, then the non-bold table caption, then the table itself, and finally the table note. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-NO-HANGING-COLONS-AND-COHESIVE-RESULTS-001)**: Eradicate all hanging colons, ensure consistent past tense, and write coherent academic prose integrating table references seamlessly. [Enforcement: results_auditor_guard.py]
   Approved Remedy: When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.
 - [AP-2026-VERBOSE-PERSIAN-TABLE-HEADERS] Avoid: Writing clumsy verbose Persian terms in table metric headers (e.g. مجموع مجذورات (SS)) instead of standard APA Latin symbols, or leaving raw English words scattered in Persian narrative.
   Approved Remedy: Use concise APA Latin symbols in table headers, define them in Persian in the note, and ensure pure Persian prose without raw English words.
