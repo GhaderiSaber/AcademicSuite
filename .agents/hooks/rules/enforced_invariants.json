@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:56.429784+00:00",
+  "updated_at": "2026-09-25T18:08:57.989585+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -842,7 +842,7 @@
       "violation_message": "Use concise APA Latin symbols in table headers, define them in Persian in the note, and ensure pure Persian prose without raw English words.",
       "remedy": "Use concise APA Latin symbols in table headers, define them in Persian in the note, and ensure pure Persian prose without raw English words.",
       "enabled": true,
-      "updated_at": "2026-09-25T18:08:56.429761+00:00"
+      "updated_at": "2026-09-25T18:08:57.989560+00:00"
     },
     "AP-2026-VERBOSE-REGRESSION-ANOVA-PARENTHETICALS": {
       "item_id": "AP-2026-VERBOSE-REGRESSION-ANOVA-PARENTHETICALS",
