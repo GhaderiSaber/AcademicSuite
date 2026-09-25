@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:28.879345+00:00",
+  "updated_at": "2026-09-25T17:27:28.912826+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -298,7 +298,7 @@
       "violation_message": "Expand the table to have 3 distinct columns before numbering: Col 1: 'ردیف', Col 2: 'متغیر', Col 3: 'خرده‌مقیاس'.",
       "remedy": "Expand the table to have 3 distinct columns before numbering: Col 1: 'ردیف', Col 2: 'متغیر', Col 3: 'خرده‌مقیاس'.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:02.476753+00:00"
+      "updated_at": "2026-09-25T17:27:28.912815+00:00"
     },
     "AP-2026-EXPLICIT-RIGHT-UNDER-BIDI": {
       "item_id": "AP-2026-EXPLICIT-RIGHT-UNDER-BIDI",
