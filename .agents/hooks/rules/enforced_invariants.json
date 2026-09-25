@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:51.533503+00:00",
+  "updated_at": "2026-09-25T18:08:52.200650+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -765,7 +765,7 @@
       "violation_message": "Distinguish markdown bolding from statistical asterisks; leave empty matrix cells strictly blank without hyphens.",
       "remedy": "Distinguish markdown bolding from statistical asterisks; leave empty matrix cells strictly blank without hyphens.",
       "enabled": true,
-      "updated_at": "2026-09-25T18:08:51.533487+00:00"
+      "updated_at": "2026-09-25T18:08:52.200615+00:00"
     },
     "AP-2026-TABLE-EXPLANATION-UNDER-TABLE": {
       "item_id": "AP-2026-TABLE-EXPLANATION-UNDER-TABLE",
