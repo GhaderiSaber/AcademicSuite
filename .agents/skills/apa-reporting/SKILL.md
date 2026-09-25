@@ -138,7 +138,7 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 - Variable names in tables must represent pure conceptual constructs (e.g. `خودآسیبی`, `افسردگی`), strictly stripped of operational instrument nouns (`پرسشنامه`, `مقیاس`, `سیاهه`) and author surnames.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-20260923-917544)**: Standard compliance: The effect size in Table 3 is incorrect, please fix it. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-20260925-64554D)**: Standard compliance: The effect size in Table 3 is incorrect, please fix it. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-TABLE-APA-SYMBOLS-AND-PERSIAN-NOTES-001)**: Use standard APA statistical symbols (M, SD, SE, F, t, p, R, R², B, β, OR, χ², df, SS, MS, DW, VIF, Tol) in table header cells; provide Persian definitions in table notes; enforce zero raw English words in Persian body text; include comprehensive introduction at chapter start and comprehensive summary at chapter end. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)**: Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NO-BLANK-LINE-BETWEEN-TABLE-AND-NOTE-001)**: Attach table notes directly beneath the table with 0 blank lines in Markdown and 0 intervening paragraphs in Word DOCX. [Enforcement: results_auditor_guard.py]
