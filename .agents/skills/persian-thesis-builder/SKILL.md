@@ -137,3 +137,6 @@ python3 .agents/skills/persian-thesis-builder/scripts/compile_full_thesis.py \
 - [Thesis Structure Guide](./references/thesis_structure_guide.md) — Comprehensive chapter breakdown and university specifications.
 - [Bilingual APA 7th Reference Guidelines](./references/apa_bilingual_reference_rules.md) — Detailed rules for Persian and English references.
 - [compile_full_thesis.py](./scripts/compile_full_thesis.py) — Unified master thesis compiler engine.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-EXPLICIT-RIGHT-ALIGNMENT-AND-INLINE-MARKDOWN-PARSING-001)**: Mandatory: 1) Inject explicit '<w:jc w:val="right"/>' for all Persian headings. 2) Tokenize inline Markdown into OpenXML '<w:i/>' / '<w:b/>' runs with zero raw asterisks in '<w:t>'. [Enforcement: dynamic_invariant_guard.py (LSN-2026-EXPLICIT-RIGHT-ALIGNMENT-AND-INLINE-MARKDOWN-PARSING-001)]

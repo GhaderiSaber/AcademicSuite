@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:06:38.655185+00:00",
+  "updated_at": "2026-09-25T17:06:42.275012+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -126,6 +126,28 @@
       "remedy": "Strictly ban regex string substitutions on minified XML. Mandate structured XML DOM parsing via lxml or ElementTree for all OpenXML modifications. Mandate mechanical body paragraph count verification (> 0) before release.",
       "enabled": true,
       "updated_at": "2026-09-25T17:06:38.655175+00:00"
+    },
+    "LSN-2026-EXPLICIT-RIGHT-ALIGNMENT-AND-INLINE-MARKDOWN-PARSING-001": {
+      "item_id": "LSN-2026-EXPLICIT-RIGHT-ALIGNMENT-AND-INLINE-MARKDOWN-PARSING-001",
+      "category": "Lesson",
+      "statement": "Mandatory: 1) Inject explicit '<w:jc w:val=\"right\"/>' for all Persian headings. 2) Tokenize inline Markdown into OpenXML '<w:i/>' / '<w:b/>' runs with zero raw asterisks in '<w:t>'.",
+      "target_agents": [
+        "academic-orchestrator",
+        "academic-writer"
+      ],
+      "target_skills": [
+        "persian-discussion-builder",
+        "persian-thesis-builder"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*(?:references|bibliography|bib).*\\.(?:txt|md|docx|enw|ris)",
+      "check_type": "regex_ban",
+      "pattern": "(?m)^\\s*(?:[#\\-*]+\\s*)?(?:(?:الف|ب|ج)\\)\\s*منابع.*|English References|Persian References|منابع فارسی|منابع انگلیسی|فصل\\s+\\d+|Chapter\\s+\\d+)\\s*$",
+      "violation_message": "Mandatory: 1) Inject explicit '<w:jc w:val=\"right\"/>' for all Persian headings. 2) Tokenize inline Markdown into OpenXML '<w:i/>' / '<w:b/>' runs with zero raw asterisks in '<w:t>'.",
+      "remedy": "Mandatory: 1) Inject explicit '<w:jc w:val=\"right\"/>' for all Persian headings. 2) Tokenize inline Markdown into OpenXML '<w:i/>' / '<w:b/>' runs with zero raw asterisks in '<w:t>'.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:06:42.274964+00:00"
     }
   }
 }
