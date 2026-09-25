@@ -113,7 +113,7 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
   Approved Remedy: Enforce strict heading naming standard ('سوال اول: ...', 'فرضیه اول: ...'), strip parenthetical duplicates, remove raw markdown tokens from markdown source, and equip the OpenXML renderer with robust parsing.
 - **Lesson (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)**: Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth. [Enforcement: results_auditor_guard.py]
   Approved Remedy: When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.
-- [AP-2026-VERBOSE-PERSIAN-TABLE-HEADERS] Avoid: Writing clumsy verbose Persian terms in table metric headers (e.g. مجموع مجذورات (SS)) instead of standard APA Latin symbols, or leaving raw English words scattered in Persian narrative.
+- **Lesson (LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001)**: Enforce explicit blank line logic for headings. Implement a strict filter for Appendices to strip narrative/scoring text, retaining only the table and its title. [Enforcement: results_auditor_guard.py]
   Approved Remedy: Use concise APA Latin symbols in table headers, define them in Persian in the note, and ensure pure Persian prose without raw English words.
 
 💡 Relevant Active Lessons:

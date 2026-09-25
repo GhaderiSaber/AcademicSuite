@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:07:26.170806+00:00",
+  "updated_at": "2026-09-25T18:07:29.001859+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -862,6 +862,29 @@
       "remedy": "Simplify the row labels to: First row: '[Criterion Variable Name]' (e.g. 'رفتارهای خودآسیبی'); Second row: 'باقیمانده'; Third row: 'کل'. Repeat identically for any other criterion variables in the table.",
       "enabled": true,
       "updated_at": "2026-09-25T17:27:29.991475+00:00"
+    },
+    "LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001": {
+      "item_id": "LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001",
+      "category": "Lesson",
+      "statement": "Enforce explicit blank line logic for headings. Implement a strict filter for Appendices to strip narrative/scoring text, retaining only the table and its title.",
+      "target_agents": [
+        "academic-writer",
+        "persian-thesis-builder"
+      ],
+      "target_skills": [
+        "apa-reporting",
+        "persian-thesis-builder",
+        "chapter-4-writing"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(md|docx)$",
+      "check_type": "regex_ban",
+      "pattern": "(?m)^[^\\n]\\n#+\\s",
+      "violation_message": "Enforce explicit blank line logic for headings. Implement a strict filter for Appendices to strip narrative/scoring text, retaining only the table and its title.",
+      "remedy": "Enforce explicit blank line logic for headings. Implement a strict filter for Appendices to strip narrative/scoring text, retaining only the table and its title.",
+      "enabled": true,
+      "updated_at": "2026-09-25T18:07:29.001815+00:00"
     }
   }
 }
