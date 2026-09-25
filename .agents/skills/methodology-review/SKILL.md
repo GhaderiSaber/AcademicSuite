@@ -39,6 +39,28 @@ Please catalog structured anti-patterns and actionable lessons in .agents/learni
 
 
 The current local time is: 2026-09-25T21:35:29+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-826A8D)]
+- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`
+
+
+⚠️ Known Pitfalls (Anti-Patterns to Avoid):
+- None cataloged. Enforce standard APA 7 & OpenXML rigor.
+
+💡 Relevant Active Lessons:
+- No specialized lessons flagged. Standard pipeline rules apply.
+
+⚖️ Applicable Methodology Rules & Boundary Conditions:
+- No conflicting paradigms active. Follow primary statistical decision tree.
+
+---
+### Executable Task Assignment:
+Catalog the diagnosed anti-pattern into state/pitfalls.jsonl based on behavior analysis BAN-20260925-001 (FORMATTING_AND_FILTERING_FAILURE):
+1. Missing explicit blank line before headings and/or presence of trailing blank lines after headings in DOCX generation.
+2. Failure to filter out non-table narrative/scoring text in the 'پیوست' (Appendices) section, requiring strictly only the questionnaire table with its title.
+
+Please catalog structured anti-patterns and actionable lessons in .agents/learning/knowledge/.
+
+
+The current local time is: 2026-09-25T21:35:29+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-826A8D)]
 - **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `skill-evolver` | **Project**: `cross-project`
 
 
