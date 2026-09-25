@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:10.575873+00:00",
+  "updated_at": "2026-09-25T17:08:10.605484+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -203,6 +203,25 @@
       "remedy": "Place *یادداشت immediately on the next line without an empty line in Markdown. In DOCX generation, attach the note paragraph directly with tight space_before (0-2 pt) and no intervening empty paragraph.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:10.546988+00:00"
+    },
+    "AP-2026-BULLETED-ACADEMIC-NARRATIVE": {
+      "item_id": "AP-2026-BULLETED-ACADEMIC-NARRATIVE",
+      "category": "Anti-Pattern",
+      "statement": "Synthesize points into continuous, cohesive scholarly prose using transition words instead of lists.",
+      "target_agents": [
+        "academic-writer",
+        "validation-agent"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "High frequency of <w:numPr> or bullet characters (•, -, 1.) in standard body narrative paragraphs.",
+      "violation_message": "Synthesize points into continuous, cohesive scholarly prose using transition words instead of lists.",
+      "remedy": "Synthesize points into continuous, cohesive scholarly prose using transition words instead of lists.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:10.605470+00:00"
     }
   }
 }
