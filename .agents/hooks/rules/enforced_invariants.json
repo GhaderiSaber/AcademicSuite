@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:10.513449+00:00",
+  "updated_at": "2026-09-25T17:08:10.547001+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -186,6 +186,25 @@
       "remedy": "Replace B Titr with B Nazanin for all elements except chapter names. Set body font to 14 pt, table fonts to 12 pt. Replace w:br with w:p.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:10.513439+00:00"
+    },
+    "AP-2026-BLANK-LINE-BETWEEN-TABLE-AND-NOTE": {
+      "item_id": "AP-2026-BLANK-LINE-BETWEEN-TABLE-AND-NOTE",
+      "category": "Anti-Pattern",
+      "statement": "Place *یادداشت immediately on the next line without an empty line in Markdown. In DOCX generation, attach the note paragraph directly with tight space_before (0-2 pt) and no intervening empty paragraph.",
+      "target_agents": [
+        "academic-writer",
+        "results-auditor"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Detection of a blank/empty paragraph or \\n\\n sequence immediately preceding a table note.",
+      "violation_message": "Place *یادداشت immediately on the next line without an empty line in Markdown. In DOCX generation, attach the note paragraph directly with tight space_before (0-2 pt) and no intervening empty paragraph.",
+      "remedy": "Place *یادداشت immediately on the next line without an empty line in Markdown. In DOCX generation, attach the note paragraph directly with tight space_before (0-2 pt) and no intervening empty paragraph.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:10.546988+00:00"
     }
   }
 }
