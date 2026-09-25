@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:10.805789+00:00",
+  "updated_at": "2026-09-25T17:08:10.836198+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -338,6 +338,24 @@
       "remedy": "Structure tables hierarchically: write one row for the parent variable, list its subscales in column 2 on subsequent rows, then proceed to the next parent variable.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:10.805772+00:00"
+    },
+    "AP-2026-GENERIC-AGENTS-FOR-LEARNING": {
+      "item_id": "AP-2026-GENERIC-AGENTS-FOR-LEARNING",
+      "category": "Anti-Pattern",
+      "statement": "Route all self-improvement and /learn episodes strictly to native learning subagents: trajectory-analyzer (observable actions), behavior-analyst (causal diagnosis), knowledge-curator (epistemic distillation), skill-evolver (branch candidate diffs), and evaluation-agent (independent 3-way benchmarking).",
+      "target_agents": [
+        "academic-orchestrator"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Disallowing invoke_subagent with TypeName not in [trajectory-analyzer, behavior-analyst, knowledge-curator, skill-evolver, evaluation-agent, curriculum-builder] when task is classified as LEARNING or SELF_IMPROVEMENT.",
+      "violation_message": "Route all self-improvement and /learn episodes strictly to native learning subagents: trajectory-analyzer (observable actions), behavior-analyst (causal diagnosis), knowledge-curator (epistemic distillation), skill-evolver (branch candidate diffs), and evaluation-agent (independent 3-way benchmarking).",
+      "remedy": "Route all self-improvement and /learn episodes strictly to native learning subagents: trajectory-analyzer (observable actions), behavior-analyst (causal diagnosis), knowledge-curator (epistemic distillation), skill-evolver (branch candidate diffs), and evaluation-agent (independent 3-way benchmarking).",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:10.836171+00:00"
     }
   }
 }
