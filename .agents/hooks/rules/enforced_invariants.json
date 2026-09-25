@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:25.970036+00:00",
+  "updated_at": "2026-09-25T18:08:26.793917+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -373,7 +373,7 @@
       "violation_message": "Merge the introductory context into the main narrative clause; use varied syntactic transitions, consistent past tense, and formal table attribution.",
       "remedy": "Merge the introductory context into the main narrative clause; use varied syntactic transitions, consistent past tense, and formal table attribution.",
       "enabled": true,
-      "updated_at": "2026-09-25T18:08:25.970020+00:00"
+      "updated_at": "2026-09-25T18:08:26.793902+00:00"
     },
     "AP-2026-HYPOTHESIS-QUESTION-AGGLOMERATION": {
       "item_id": "AP-2026-HYPOTHESIS-QUESTION-AGGLOMERATION",
