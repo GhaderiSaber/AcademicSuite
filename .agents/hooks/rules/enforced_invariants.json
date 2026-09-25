@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:29.540399+00:00",
+  "updated_at": "2026-09-25T17:27:29.575248+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -628,7 +628,7 @@
       "violation_message": "Enforce strict per-item fail-closed iteration: every individual table must satisfy exact header whitelists and have full symbol definitions in its note; any English word outside allowed statistical symbols must trigger a hard FAIL verdict.",
       "remedy": "Enforce strict per-item fail-closed iteration: every individual table must satisfy exact header whitelists and have full symbol definitions in its note; any English word outside allowed statistical symbols must trigger a hard FAIL verdict.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:03.141389+00:00"
+      "updated_at": "2026-09-25T17:27:29.575237+00:00"
     },
     "AP-2026-RAW-DATASET-MUTATION": {
       "item_id": "AP-2026-RAW-DATASET-MUTATION",
