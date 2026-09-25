@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:47:24.119860+00:00",
+  "updated_at": "2026-09-25T18:07:20.367642+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -122,7 +122,7 @@
       "violation_message": "Strictly ban regex string substitutions on minified XML. Mandate structured XML DOM parsing via lxml or ElementTree for all OpenXML modifications. Mandate mechanical body paragraph count verification (> 0) before release.",
       "remedy": "Strictly ban regex string substitutions on minified XML. Mandate structured XML DOM parsing via lxml or ElementTree for all OpenXML modifications. Mandate mechanical body paragraph count verification (> 0) before release.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:47:22.341161+00:00"
+      "updated_at": "2026-09-25T18:07:20.367630+00:00"
     },
     "LSN-2026-EXPLICIT-RIGHT-ALIGNMENT-AND-INLINE-MARKDOWN-PARSING-001": {
       "item_id": "LSN-2026-EXPLICIT-RIGHT-ALIGNMENT-AND-INLINE-MARKDOWN-PARSING-001",
