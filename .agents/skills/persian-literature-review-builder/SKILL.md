@@ -459,3 +459,6 @@ Required action: Create/update structured anti-pattern and knowledge item preven
 
 
 The current local time is: 2026-09-25T19:05:02+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-7E58F8)]
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-20260925-7E58F8)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUT... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: dynamic_invariant_guard.py (LSN-20260925-7E58F8)]
