@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:30.981109+00:00",
+  "updated_at": "2026-09-25T18:08:31.541114+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -432,7 +432,7 @@
       "violation_message": "Enforce 'جدول [فصل]- [شماره]' (e.g. 'جدول ۴- ۳۱') in all captions and narrative citations.",
       "remedy": "Enforce 'جدول [فصل]- [شماره]' (e.g. 'جدول ۴- ۳۱') in all captions and narrative citations.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:27:29.199275+00:00"
+      "updated_at": "2026-09-25T18:08:31.541102+00:00"
     },
     "AP-2026-ISOLATED-PROSE-POLISHING": {
       "item_id": "AP-2026-ISOLATED-PROSE-POLISHING",
