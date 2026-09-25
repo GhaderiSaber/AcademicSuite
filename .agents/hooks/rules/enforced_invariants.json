@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:29.958019+00:00",
+  "updated_at": "2026-09-25T17:27:29.991490+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -861,7 +861,7 @@
       "violation_message": "Simplify the row labels to: First row: '[Criterion Variable Name]' (e.g. 'رفتارهای خودآسیبی'); Second row: 'باقیمانده'; Third row: 'کل'. Repeat identically for any other criterion variables in the table.",
       "remedy": "Simplify the row labels to: First row: '[Criterion Variable Name]' (e.g. 'رفتارهای خودآسیبی'); Second row: 'باقیمانده'; Third row: 'کل'. Repeat identically for any other criterion variables in the table.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:03.520849+00:00"
+      "updated_at": "2026-09-25T17:27:29.991475+00:00"
     }
   }
 }
