@@ -71,3 +71,4 @@ Every execution run generates two verified tracking artifacts in `--out-dir`:
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-NATIVE-OPENXML-WORD-FOOTNOTES-001)**: Automated zip verification in orchestrator gates to physically validate presence of OpenXML native footnotes (`word/footnotes.xml` and `<w:footnoteReference>`) before approving `.docx` deliverables. [Enforcement: academic_writer_guard.py]
+- **Lesson (LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001)**: Package each agent and subagent as an autonomous unit containing its definition (agent.md), contracts (contract.md), and dedicated lifecycle guard (guard.py / hooks.json) within its own dedicated folder. [Enforcement: dynamic_invariant_guard.py (LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001)]
