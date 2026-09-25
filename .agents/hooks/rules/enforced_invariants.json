@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:24.798948+00:00",
+  "updated_at": "2026-09-25T18:08:25.709410+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -354,7 +354,7 @@
       "violation_message": "Route all self-improvement and /learn episodes strictly to native learning subagents: trajectory-analyzer (observable actions), behavior-analyst (causal diagnosis), knowledge-curator (epistemic distillation), skill-evolver (branch candidate diffs), and evaluation-agent (independent 3-way benchmarking).",
       "remedy": "Route all self-improvement and /learn episodes strictly to native learning subagents: trajectory-analyzer (observable actions), behavior-analyst (causal diagnosis), knowledge-curator (epistemic distillation), skill-evolver (branch candidate diffs), and evaluation-agent (independent 3-way benchmarking).",
       "enabled": true,
-      "updated_at": "2026-09-25T18:08:24.798907+00:00"
+      "updated_at": "2026-09-25T18:08:25.709390+00:00"
     },
     "AP-2026-HANGING-COLONS-AND-TELEGRAPHIC-RESULTS": {
       "item_id": "AP-2026-HANGING-COLONS-AND-TELEGRAPHIC-RESULTS",
