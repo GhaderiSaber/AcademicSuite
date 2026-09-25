@@ -152,3 +152,4 @@ Whenever any check fails or is blocked, the engine outputs structured machine-re
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-LEARN-ON-USER-FEEDBACK-001)**: Automatically activate the native learning pipeline upon any user feedback indicating wrong results, defects, or dissatisfaction, persisting structured lessons and anti-patterns. [Enforcement: data_agent_guard.py]
+- **Lesson (LSN-2026-VALIDATOR-THREE-TABLE-FAIL-CLOSED-001)**: Enforce fail-closed structural validation for regression models: exactly 3 tables per model (Correlations, ANOVA 11-col, Coefficients 8-col), failing any deliverable that consolidates them. [Enforcement: data_agent_guard.py]

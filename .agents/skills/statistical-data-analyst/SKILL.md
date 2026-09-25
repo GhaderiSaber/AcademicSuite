@@ -137,3 +137,6 @@ Each analysis run produces:
 - $p = .000$ strictly converted to $p < .001$ (`p < ۰.۰۰۱` یا `۰.۰۰۱ > p`).
 - Direction of mean difference or adjusted mean difference must align with theoretical hypothesis.
 - Residual normality and assumption checklists must be satisfied prior to confirming results.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-VALIDATOR-THREE-TABLE-FAIL-CLOSED-001)**: Enforce fail-closed structural validation for regression models: exactly 3 tables per model (Correlations, ANOVA 11-col, Coefficients 8-col), failing any deliverable that consolidates them. [Enforcement: data_agent_guard.py]
