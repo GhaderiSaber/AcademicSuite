@@ -138,7 +138,7 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 - Variable names in tables must represent pure conceptual constructs (e.g. `خودآسیبی`, `افسردگی`), strictly stripped of operational instrument nouns (`پرسشنامه`, `مقیاس`, `سیاهه`) and author surnames.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-FONT-HIERARCHY-001)**: Use B Titr ONLY for chapter names. Use 14pt B Nazanin for body, justified. Use 12pt B Nazanin for all table content/captions. No B Titr in tables. Never use manual line breaks. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-OPENXML-TRAILING-EDGE-INVERSION-001)**: For Right-aligned text under BiDi, omit <w:jc>. Ensure section properties declare <w:bidi/>. Use jc_val='both' only for narrative body. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NO-META-METHODOLOGY-JARGON-IN-CHAPTERS-001)**: Describe statistical analyses using substantive methodological terms (e.g., bivariate correlations, simple linear regression, hierarchical regression, binary logistic odds ratios) and strictly eliminate all meta-commentary references to internal structural templates or table counts. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)**: Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NO-BLANK-LINE-BETWEEN-TABLE-AND-NOTE-001)**: Attach table notes directly beneath the table with 0 blank lines in Markdown and 0 intervening paragraphs in Word DOCX. [Enforcement: results_auditor_guard.py]
