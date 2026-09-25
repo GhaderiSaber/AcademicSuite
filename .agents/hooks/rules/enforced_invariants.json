@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:11.205657+00:00",
+  "updated_at": "2026-09-25T17:08:11.236596+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -552,6 +552,26 @@
       "remedy": "Never suppress R warnings. Verify local identification (e.g., fixing parameters or adding indicators). Model multidimensional scales correctly. Enforce a mathematical admissibility gate before reporting results.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:11.205645+00:00"
+    },
+    "AP-2026-OMITTED-SEM-PATH-DIAGRAMS": {
+      "item_id": "AP-2026-OMITTED-SEM-PATH-DIAGRAMS",
+      "category": "Anti-Pattern",
+      "statement": "Explicitly include mandatory visual deliverables (like SEM path diagrams) in the delegation envelope for relevant stages. Ensure the data-agent knows it must generate them, and update validation-agent checks to assert the existence of expected figure artifacts in the deliverables directory before passing the audit.",
+      "target_agents": [
+        "academic-orchestrator",
+        "data-agent",
+        "validation-agent"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Absence of expected .png/.pdf SEM path diagrams in deliverables directory when executing SEM tasks, coupled with passing validation audits.",
+      "violation_message": "Explicitly include mandatory visual deliverables (like SEM path diagrams) in the delegation envelope for relevant stages. Ensure the data-agent knows it must generate them, and update validation-agent checks to assert the existence of expected figure artifacts in the deliverables directory before passing the audit.",
+      "remedy": "Explicitly include mandatory visual deliverables (like SEM path diagrams) in the delegation envelope for relevant stages. Ensure the data-agent knows it must generate them, and update validation-agent checks to assert the existence of expected figure artifacts in the deliverables directory before passing the audit.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:11.236577+00:00"
     }
   }
 }
