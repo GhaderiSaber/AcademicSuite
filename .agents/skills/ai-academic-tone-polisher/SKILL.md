@@ -122,3 +122,4 @@ Execute the 4-step diagnostic and rewriting sequence:
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-NO-META-METHODOLOGY-JARGON-IN-CHAPTERS-001)**: Describe statistical analyses using substantive methodological terms (e.g., bivariate correlations, simple linear regression, hierarchical regression, binary logistic odds ratios) and strictly eliminate all meta-commentary references to internal structural templates or table counts. [Enforcement: dynamic_invariant_guard.py (LSN-2026-NO-META-METHODOLOGY-JARGON-IN-CHAPTERS-001)]
+- **Lesson (LSN-2026-ACADEMIC-SOBRIETY-AND-ANTI-HYPERBOLE-001)**: Maintain strict academic sobriety and neutral academic prose. Do not use emotional, dramatic, or hyperbolic wording to inflate word counts. [Enforcement: dynamic_invariant_guard.py (LSN-2026-ACADEMIC-SOBRIETY-AND-ANTI-HYPERBOLE-001)]
