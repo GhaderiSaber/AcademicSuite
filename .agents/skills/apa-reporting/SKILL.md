@@ -139,7 +139,7 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-20260925-8E03F3)**: Standard compliance: So we have a problem. The table formatting is wrong and didn't trigger learning. [Enforcement: results_auditor_guard.py]
-- **Lesson (LSN-2026-TABLE-VARIABLE-CONSTRUCT-PURITY-001)**: Sanitize all variable names in empirical tables to ensure they represent pure conceptual constructs. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-ACADEMIC-TABLE-SPARSITY-AND-TERMINOLOGY-001)**: Use exact Persian psychological terminology ('متغیر' and 'مؤلفه'), two-column variable-component structures, standard abbreviations (CI 95%, ثابت), pure numeric cells with significance stars preserved, and pure blank sparseness for unestimated cells. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)**: Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-QUESTION-HYPOTHESIS-HEADINGS-AND-CLEAN-DOCX-001)**: Enforce 'سوال اول: ...' and 'فرضیه اول: ...' section titles, clean non-redundant subheadings, and complete elimination of raw markdown artifacts in Word output. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-REGRESSION-ANOVA-OPTION-A-STANDARD-001)**: In all regression ANOVA tables with multiple criterion variables, use a two-column structure: Column 1 ('متغیر ملاک') and Column 2 ('منبع تغییرات' with 'رگرسیون', 'باقیمانده', 'کل'). [Enforcement: results_auditor_guard.py]
