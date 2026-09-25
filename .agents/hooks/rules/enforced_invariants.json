@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:10.865404+00:00",
+  "updated_at": "2026-09-25T17:08:10.897133+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -375,6 +375,25 @@
       "remedy": "Merge the introductory context into the main narrative clause; use varied syntactic transitions, consistent past tense, and formal table attribution.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:10.865392+00:00"
+    },
+    "AP-2026-HYPOTHESIS-QUESTION-AGGLOMERATION": {
+      "item_id": "AP-2026-HYPOTHESIS-QUESTION-AGGLOMERATION",
+      "category": "Anti-Pattern",
+      "statement": "Enforce strictly separate, dedicated H2 sections for each research question and hypothesis, formatted in flowing, cohesive academic prose.",
+      "target_agents": [
+        "academic-writer",
+        "academic-orchestrator"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Flag chapter sections where multiple research questions or hypotheses share a single subsection header.",
+      "violation_message": "Enforce strictly separate, dedicated H2 sections for each research question and hypothesis, formatted in flowing, cohesive academic prose.",
+      "remedy": "Enforce strictly separate, dedicated H2 sections for each research question and hypothesis, formatted in flowing, cohesive academic prose.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:10.897116+00:00"
     }
   }
 }
