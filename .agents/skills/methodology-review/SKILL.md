@@ -43,6 +43,32 @@ Please examine:
 
 
 The current local time is: 2026-09-25T21:27:06+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-A833B2)]
+- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`
+
+
+⚠️ Known Pitfalls (Anti-Patterns to Avoid):
+- None cataloged. Enforce standard APA 7 & OpenXML rigor.
+
+💡 Relevant Active Lessons:
+- No specialized lessons flagged. Standard pipeline rules apply.
+
+⚖️ Applicable Methodology Rules & Boundary Conditions:
+- No conflicting paradigms active. Follow primary statistical decision tree.
+
+---
+### Executable Task Assignment:
+Reconstruct observable actions, tool calls, and error trajectory for user critique: Problem: 
+1. You should have a one blank line before each header. But there isn't any blank line after the headers. 
+2. In the 'پیوست' section you should have only the Questions table with header of that question. 
+
+The current local time is: 2026-09-25T21:26:53+03:30.
+
+Please examine:
+1. How headers and paragraph spacing were rendered across docx generation scripts, checking the presence of blank lines before/after headers.
+2. How the 'پیوست' (Appendices) section was constructed from raw questionnaire files (All_Appendices.docx) and what extra explanatory text or scoring guidelines were retained instead of only having the questions table with its header.
+
+
+The current local time is: 2026-09-25T21:27:06+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-A833B2)]
 - **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`
 
 
