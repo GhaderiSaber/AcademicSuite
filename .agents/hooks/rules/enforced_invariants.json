@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:11.104525+00:00",
+  "updated_at": "2026-09-25T17:08:11.135308+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -493,6 +493,25 @@
       "remedy": "Surgically rewrite the introductory paragraph of each question/hypothesis section to introduce only its own question, move Question 3's formal blockquote and measurement description into Section 4-5, and fix subsection numbering to follow strict parent hierarchy.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:11.104511+00:00"
+    },
+    "AP-2026-MANIFEST-PATH-LABELED-AS-SEM": {
+      "item_id": "AP-2026-MANIFEST-PATH-LABELED-AS-SEM",
+      "category": "Anti-Pattern",
+      "statement": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
+      "target_agents": [
+        "statistics-agent",
+        "academic-orchestrator"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Absence of '=~' operator in lavaan syntax when 'sem' function is called.",
+      "violation_message": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
+      "remedy": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:11.135286+00:00"
     }
   }
 }
