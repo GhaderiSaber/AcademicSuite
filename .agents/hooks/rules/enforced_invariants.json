@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:07:39.254895+00:00",
+  "updated_at": "2026-09-25T18:07:46.762030+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -906,6 +906,28 @@
       "remedy": "Enforce strict bibliographic component verification using anchored regex and explicit exclusion of meta-annotation prose prior to parsing.",
       "enabled": true,
       "updated_at": "2026-09-25T18:07:39.254848+00:00"
+    },
+    "LSN-2026-VALIDATOR-THREE-TABLE-FAIL-CLOSED-001": {
+      "item_id": "LSN-2026-VALIDATOR-THREE-TABLE-FAIL-CLOSED-001",
+      "category": "Lesson",
+      "statement": "Enforce fail-closed structural validation for regression models: exactly 3 tables per model (Correlations, ANOVA 11-col, Coefficients 8-col), failing any deliverable that consolidates them.",
+      "target_agents": [
+        "validation-agent",
+        "results-auditor"
+      ],
+      "target_skills": [
+        "statistical-data-analyst",
+        "thesis-integrity-auditor"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(md|docx)$",
+      "check_type": "regex_ban",
+      "pattern": "(?m)^[^\\n]\\n#+\\s",
+      "violation_message": "Enforce fail-closed structural validation for regression models: exactly 3 tables per model (Correlations, ANOVA 11-col, Coefficients 8-col), failing any deliverable that consolidates them.",
+      "remedy": "Enforce fail-closed structural validation for regression models: exactly 3 tables per model (Correlations, ANOVA 11-col, Coefficients 8-col), failing any deliverable that consolidates them.",
+      "enabled": true,
+      "updated_at": "2026-09-25T18:07:46.762015+00:00"
     }
   }
 }
