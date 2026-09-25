@@ -138,7 +138,7 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 - Variable names in tables must represent pure conceptual constructs (e.g. `خودآسیبی`, `افسردگی`), strictly stripped of operational instrument nouns (`پرسشنامه`, `مقیاس`, `سیاهه`) and author surnames.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-20260925-64554D)**: Standard compliance: The effect size in Table 3 is incorrect, please fix it. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-20260925-8E03F3)**: Standard compliance: So we have a problem. The table formatting is wrong and didn't trigger learning. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-TABLE-APA-SYMBOLS-AND-PERSIAN-NOTES-001)**: Use standard APA statistical symbols (M, SD, SE, F, t, p, R, R², B, β, OR, χ², df, SS, MS, DW, VIF, Tol) in table header cells; provide Persian definitions in table notes; enforce zero raw English words in Persian body text; include comprehensive introduction at chapter start and comprehensive summary at chapter end. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NARRATIVE-PRECEDES-TABLE-CAPTION-001)**: Strictly order document elements: Heading first, followed by the explanatory continuous prose narrative, then the non-bold table caption, then the table itself, and finally the table note. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-QUESTION-HYPOTHESIS-HEADINGS-AND-CLEAN-DOCX-001)**: Enforce 'سوال اول: ...' and 'فرضیه اول: ...' section titles, clean non-redundant subheadings, and complete elimination of raw markdown artifacts in Word output. [Enforcement: results_auditor_guard.py]
