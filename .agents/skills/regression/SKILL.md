@@ -122,4 +122,4 @@ In regression ANOVA tables with multiple criterion variables:
 - **Multiple Criteria Coefficients**: When reporting multiple criteria in a single coefficients table, Column 1 must specify `متغیر ملاک`.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-HYPOTHESIS-SEVEN-TABLE-SUITE-001)**: Enforce the canonical 7-Table Suite per hypothesis: Table 1 (Correlations), Table 2 (Simple ANOVA/Summary), Table 3 (Simple Coeffs), Table 4 (Multiple ANOVA/Summary), Table 5 (Multiple Coeffs), Table 6 (Logistic Omnibus & Fit), Table 7 (Logistic Variables in Equation & OR). [Enforcement: statistics_agent_guard.py]
+- **Lesson (LSN-2026-REGRESSION-ANOVA-OPTION-A-STANDARD-001)**: In all regression ANOVA tables with multiple criterion variables, use a two-column structure: Column 1 ('متغیر ملاک') and Column 2 ('منبع تغییرات' with 'رگرسیون', 'باقیمانده', 'کل'). [Enforcement: statistics_agent_guard.py]
