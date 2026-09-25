@@ -22,6 +22,7 @@ These domain rules are automatically loaded and applied across all conversations
 ---
 - **Anti-pattern (AP-2026-NAIVE-LENGTH-REFERENCE-PARSING)**: Implement robust structural parsing using regex patterns that match specific citation components (e.g., publication year in parentheses, DOI links, standard APA 7 formatting) or use a dedicated reference parser rather than character count. [Enforcement: dynamic_invariant_guard.py (AP-2026-NAIVE-LENGTH-REFERENCE-PARSING)]
 - **Anti-pattern (AP-2026-CONSOLIDATED-REGRESSION-TABLE)**: Decompose each regression reporting block into the mandatory 3 tables: Table 1 (Correlations), Table 2 (ANOVA & Model Summary), Table 3 (Coefficients & Collinearity). [Enforcement: dynamic_invariant_guard.py (AP-2026-CONSOLIDATED-REGRESSION-TABLE)]
+- **Anti-pattern (AP-2026-EXPLICIT-RIGHT-UNDER-BIDI)**: Omit <w:jc> on BiDi paragraphs for right alignment; inject <w:bidi/> into sectPr. [Enforcement: dynamic_invariant_guard.py (AP-2026-EXPLICIT-RIGHT-UNDER-BIDI)]
 ## 2. Interaction & File Naming Standards (Universal Mandate)
 - **Directive 6 (English Primary Interaction & English-Only Filenames)**:
   - Agents communicate, reason, plan, and report strictly in **English**. Persian is reserved strictly for academic deliverable content.
