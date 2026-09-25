@@ -121,4 +121,4 @@ Execute the 4-step diagnostic and rewriting sequence:
 - [academic_tone_and_humanization_standards.md](.agents/skills/ai-academic-tone-polisher/references/academic_tone_and_humanization_standards.md) — Stanford SciWrite 5-pass editorial framework and Persian orthography (نیم‌فاصله).
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-ACADEMIC-SOBRIETY-AND-ANTI-HYPERBOLE-001)**: Maintain strict academic sobriety and neutral academic prose. Do not use emotional, dramatic, or hyperbolic wording to inflate word counts. [Enforcement: dynamic_invariant_guard.py (LSN-2026-ACADEMIC-SOBRIETY-AND-ANTI-HYPERBOLE-001)]
+- **Lesson (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)**: Apply global academic prose refinement across all chapters, ensuring unified syntax, past-tense empirical consistency, and natural narrative transitions while preserving exact statistical ground truth. [Enforcement: dynamic_invariant_guard.py (LSN-2026-COMPREHENSIVE-ACADEMIC-PROSE-STANDARD-001)]
