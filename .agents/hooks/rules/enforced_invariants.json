@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:43.017131+00:00",
+  "updated_at": "2026-09-25T18:08:43.264134+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -608,7 +608,7 @@
       "violation_message": "Upon receiving any user critique or defect report, emit a USER_FEEDBACK_DETECTED event and invoke the learning pipeline (trajectory-analyzer for chronology, behavior-analyst for root cause, knowledge-curator for persistent anti-pattern/lesson).",
       "remedy": "Upon receiving any user critique or defect report, emit a USER_FEEDBACK_DETECTED event and invoke the learning pipeline (trajectory-analyzer for chronology, behavior-analyst for root cause, knowledge-curator for persistent anti-pattern/lesson).",
       "enabled": true,
-      "updated_at": "2026-09-25T18:08:43.017119+00:00"
+      "updated_at": "2026-09-25T18:08:43.264123+00:00"
     },
     "AP-2026-PERMISSIVE-VALIDATOR-BLINDSPOT": {
       "item_id": "AP-2026-PERMISSIVE-VALIDATOR-BLINDSPOT",
