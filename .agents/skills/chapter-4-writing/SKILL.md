@@ -109,7 +109,7 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 
 
 ⚠️ Known Pitfalls (Anti-Patterns to Avoid):
-- [AP-2026-RAW-MARKDOWN-LEAKAGE-AND-REDUNDANT-HEADERS] Avoid: Allowing raw markdown syntax (>, ---, markdown links, unmatched asterisks) to leak into Word DOCX deliverables, using ambiguous question/hypothesis titles, or repeating headers like 'پایه تحصیلی (*پایه تحصیلی*)'.
+- **Lesson (LSN-2026-NO-BLANK-LINE-BETWEEN-TABLE-AND-NOTE-001)**: Attach table notes directly beneath the table with 0 blank lines in Markdown and 0 intervening paragraphs in Word DOCX. [Enforcement: results_auditor_guard.py]
   Approved Remedy: Enforce strict heading naming standard ('سوال اول: ...', 'فرضیه اول: ...'), strip parenthetical duplicates, remove raw markdown tokens from markdown source, and equip the OpenXML renderer with robust parsing.
 - **Lesson (LSN-2026-NARRATIVE-PRECEDES-TABLE-CAPTION-001)**: Strictly order document elements: Heading first, followed by the explanatory continuous prose narrative, then the non-bold table caption, then the table itself, and finally the table note. [Enforcement: results_auditor_guard.py]
   Approved Remedy: When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.
@@ -171,7 +171,7 @@ The current local time is: 2026-09-25T19:13:18+03:30. [Enforcement: results_audi
 
 
 ⚠️ Known Pitfalls (Anti-Patterns to Avoid):
-- **Lesson (LSN-2026-TABLE-APA-SYMBOLS-AND-PERSIAN-NOTES-001)**: Use standard APA statistical symbols (M, SD, SE, F, t, p, R, R², B, β, OR, χ², df, SS, MS, DW, VIF, Tol) in table header cells; provide Persian definitions in table notes; enforce zero raw English words in Persian body text; include comprehensive introduction at chapter start and comprehensive summary at chapter end. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-NO-CHAPTER-WRITING-IN-DATA-MAKING-001)**: During data generation and SEM/statistical model verification phases, suppress Chapter 4 document compilation. Present only empirical findings: summary statistics, R/Python notebooks, regression/SEM tables, and visualization diagrams. [Enforcement: results_auditor_guard.py]
   Approved Remedy: Enforce strict heading naming standard ('سوال اول: ...', 'فرضیه اول: ...'), strip parenthetical duplicates, remove raw markdown tokens from markdown source, and equip the OpenXML renderer with robust parsing.
 - **Lesson (LSN-2026-COEFFICIENTS-TABLE-CRITERION-COLUMN-001)**: In all regression coefficients tables with multiple criteria, add 'متغیر ملاک' as Column 1, followed by 'متغیرهای مدل' / 'متغیرهای پیش‌بین' in Column 2, clearly demarcating the equations for each dependent outcome. [Enforcement: results_auditor_guard.py]
   Approved Remedy: When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.
