@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:27:29.370906+00:00",
+  "updated_at": "2026-09-25T17:27:29.406653+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -551,7 +551,7 @@
       "violation_message": "Never suppress R warnings. Verify local identification (e.g., fixing parameters or adding indicators). Model multidimensional scales correctly. Enforce a mathematical admissibility gate before reporting results.",
       "remedy": "Never suppress R warnings. Verify local identification (e.g., fixing parameters or adding indicators). Model multidimensional scales correctly. Enforce a mathematical admissibility gate before reporting results.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:16:02.973952+00:00"
+      "updated_at": "2026-09-25T17:27:29.406641+00:00"
     },
     "AP-2026-OMITTED-SEM-PATH-DIAGRAMS": {
       "item_id": "AP-2026-OMITTED-SEM-PATH-DIAGRAMS",
