@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:16:02.687553+00:00",
+  "updated_at": "2026-09-25T17:16:02.721045+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -412,7 +412,7 @@
       "violation_message": "Strip all instrument designators and author attributions from table variable columns, reporting exclusively the pure construct name ('خودآسیبی', 'افسردگی').",
       "remedy": "Strip all instrument designators and author attributions from table variable columns, reporting exclusively the pure construct name ('خودآسیبی', 'افسردگی').",
       "enabled": true,
-      "updated_at": "2026-09-25T17:08:10.968373+00:00"
+      "updated_at": "2026-09-25T17:16:02.721035+00:00"
     },
     "AP-2026-INVERTED-TABLE-NUMBERING": {
       "item_id": "AP-2026-INVERTED-TABLE-NUMBERING",
