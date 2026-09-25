@@ -146,3 +146,4 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 - **Lesson (LSN-2026-MANDATORY-BLANK-LINE-BEFORE-HEADINGS-001)**: Ensure an explicit blank line precedes every heading across Markdown source and Word DOCX deliverables. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-OPENXML-ALIGNMENT-SCHEMA-001)**: Use python-docx native enums (p.alignment = WD_ALIGN_PARAGRAPH.RIGHT/CENTER/JUSTIFY) and never append loose <w:jc> tags at the end of <w:pPr>. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-STARS-ONLY-IN-CORRELATION-TABLES-001)**: Restrict asterisk usage in tables exclusively to correlation matrices; purge all asterisks from non-correlation table cells, headers, and notes. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-TABLE-NUMBERING-CHAPTER-FIRST-001)**: Number all thesis tables with chapter first: 'جدول [فصل]- [شماره]' (e.g. 'جدول ۴- ۳۱'). [Enforcement: results_auditor_guard.py]
