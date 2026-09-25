@@ -112,3 +112,4 @@ python3 .agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py \
 - **Lesson (LSN-2026-STARS-ONLY-IN-CORRELATION-TABLES-001)**: Restrict asterisk usage in tables exclusively to correlation matrices; purge all asterisks from non-correlation table cells, headers, and notes. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-TABLE-NUMBERING-CHAPTER-FIRST-001)**: Number all thesis tables with chapter first: 'جدول [فصل]- [شماره]' (e.g. 'جدول ۴- ۳۱'). [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-TABLE-VARIABLE-CONSTRUCT-PURITY-001)**: Sanitize all variable names in empirical tables to ensure they represent pure conceptual constructs. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-VARIABLE-COMPOSITE-ROW-INVARIANT-001)**: Always populate parent variable rows with overall/composite metrics; never create an empty parent row followed by a separate 'total' row. [Enforcement: results_auditor_guard.py]
