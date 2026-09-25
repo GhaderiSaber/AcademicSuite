@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:28.059023+00:00",
+  "updated_at": "2026-09-25T18:08:29.377989+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -59,7 +59,7 @@
       "violation_message": "Transform label-colon pairs into continuous scholarly narrative using transitional connectives (در ارزیابی تفاوت‌های جنسیتی، ... در ادامه، بررسی متغیر پایه تحصیلی نشان داد ... سرانجام، در خصوص نوع مدرسه، ...).",
       "remedy": "Transform label-colon pairs into continuous scholarly narrative using transitional connectives (در ارزیابی تفاوت‌های جنسیتی، ... در ادامه، بررسی متغیر پایه تحصیلی نشان داد ... سرانجام، در خصوص نوع مدرسه، ...).",
       "enabled": true,
-      "updated_at": "2026-09-25T17:47:24.084439+00:00"
+      "updated_at": "2026-09-25T18:08:29.377977+00:00"
     },
     "LSN-2026-STRUCTURAL-REFERENCE-PARSING-001": {
       "item_id": "LSN-2026-STRUCTURAL-REFERENCE-PARSING-001",
