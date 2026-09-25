@@ -1,0 +1,39 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "AUDITOR_FAILURE",
+  "source_experience_id": "BAN-20260925-001",
+  "diagnosis": {
+    "what_happened": "An unanchored 4-digit regex mistakenly captured a year in meta-annotation prose instead of a valid bibliographic entry.",
+    "behavior_caused_outcome": "Permissive parsing rules failed to distinguish between valid bibliographic syntax and surrounding conversational/meta prose.",
+    "what_should_have_happened": "The parser should have verified structural bibliographic components and excluded non-bibliographic text blocks.",
+    "rationale_why": "Rigorous extraction requires explicit syntax boundaries to prevent data corruption from context pollution."
+  },
+  "desired_behavior": "Enforce strict bibliographic component verification using anchored regex and explicit exclusion of meta-annotation prose prior to parsing.",
+  "generalization": "All parsing of structured academic data from mixed text must anchor to formal syntax boundaries and exclude surrounding conversational contexts.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "BIBLIOGRAPHIC_EXTRACTION_VALIDATION",
+    "observed_value": "False positive year extraction from prose",
+    "threshold_value": "Zero false positives in extraction",
+    "supporting_report_ids": [
+      "BAN-20260925-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-reference-extractor"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-25T19:50:29Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-reference-extractor",
+  "target_agents": [
+    "academic-reference-extractor",
+    "thesis-integrity-auditor"
+  ]
+}

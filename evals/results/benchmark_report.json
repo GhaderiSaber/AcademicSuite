@@ -1,7 +1,7 @@
 {
   "benchmark_suite": "Academic Suite Permanent Evaluation Suite (evals/)",
-  "version_evaluated": "Academic Suite v2 (Unit Test)",
-  "timestamp": "2026-09-25T15:20:43.326575+00:00",
+  "version_evaluated": "Academic Suite v2",
+  "timestamp": "2026-09-25T16:25:14.428328+00:00",
   "total_test_cases": 10,
   "passed_test_cases": 10,
   "overall_benchmark_score": 100.0,
@@ -10,7 +10,7 @@
     {
       "test_id": "EVAL-DESC-01",
       "domain": "descriptive",
-      "version": "Academic Suite v2 (Unit Test)",
+      "version": "Academic Suite v2",
       "title": "Demographics and Longitudinal Repeated Measures Descriptives in Experimental RCT",
       "expected_n": 60,
       "dataset_verified": true,
@@ -24,7 +24,7 @@
     {
       "test_id": "EVAL-REL-01",
       "domain": "reliability",
-      "version": "Academic Suite v2 (Unit Test)",
+      "version": "Academic Suite v2",
       "title": "Scale Internal Consistency Reliability and Omega Estimation",
       "expected_n": 450,
       "dataset_verified": true,
@@ -38,7 +38,7 @@
     {
       "test_id": "EVAL-REG-01",
       "domain": "regression",
-      "version": "Academic Suite v2 (Unit Test)",
+      "version": "Academic Suite v2",
       "title": "Multiple Linear OLS Regression Modeling (Digital Saber 3-Table Standard)",
       "expected_n": 100,
       "dataset_verified": true,
@@ -52,7 +52,7 @@
     {
       "test_id": "EVAL-LMM-01",
       "domain": "mediation",
-      "version": "Academic Suite v2 (Unit Test)",
+      "version": "Academic Suite v2",
       "title": "3-Wave Longitudinal Moderated Mediation with Autoregressive Baseline Controls",
       "expected_n": 200,
       "dataset_verified": true,
@@ -66,7 +66,7 @@
     {
       "test_id": "EVAL-MED-01",
       "domain": "mediation",
-      "version": "Academic Suite v2 (Unit Test)",
+      "version": "Academic Suite v2",
       "title": "Serial Two-Mediator Bootstrap Mediation (Hayes PROCESS Model 6)",
       "expected_n": 300,
       "dataset_verified": true,
@@ -80,7 +80,7 @@
     {
       "test_id": "EVAL-CFA-01",
       "domain": "cfa",
-      "version": "Academic Suite v2 (Unit Test)",
+      "version": "Academic Suite v2",
       "title": "Confirmatory Factor Analysis Measurement Model Evaluation",
       "expected_n": 450,
       "dataset_verified": true,
@@ -94,7 +94,7 @@
     {
       "test_id": "EVAL-SEM-01",
       "domain": "sem",
-      "version": "Academic Suite v2 (Unit Test)",
+      "version": "Academic Suite v2",
       "title": "Macro Latent Structural Equation Modeling (SEM)",
       "expected_n": 250,
       "dataset_verified": true,
@@ -108,7 +108,7 @@
     {
       "test_id": "EVAL-NET-01",
       "domain": "network",
-      "version": "Academic Suite v2 (Unit Test)",
+      "version": "Academic Suite v2",
       "title": "Bibliometric Co-occurrence and Callon Strategic Thematic Mapping",
       "expected_n": 1250,
       "dataset_verified": true,
@@ -122,7 +122,7 @@
     {
       "test_id": "EVAL-WRIT-01",
       "domain": "writing",
-      "version": "Academic Suite v2 (Unit Test)",
+      "version": "Academic Suite v2",
       "title": "Master Chapter 4 Findings Triad Narrative Synthesis",
       "expected_n": 100,
       "dataset_verified": true,
@@ -136,7 +136,7 @@
     {
       "test_id": "EVAL-PRES-01",
       "domain": "presentation",
-      "version": "Academic Suite v2 (Unit Test)",
+      "version": "Academic Suite v2",
       "title": "14-Slide Vertical Slice Defense Presentation Architecture & Viva Voce Simulation (Clinical Psychology SEM)",
       "expected_n": 258,
       "dataset_verified": true,

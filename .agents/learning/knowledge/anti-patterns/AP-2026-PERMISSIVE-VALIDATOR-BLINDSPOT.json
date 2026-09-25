@@ -1,24 +1,29 @@
 {
-  "anti_pattern_id": "AP-2026-PERMISSIVE-VALIDATOR-BLINDSPOT",
-  "category": "validation",
-  "defective_pattern": "Employing aggregate document-level boolean assertions (e.g. any(), len() > 0) in validation scripts and downgrading critical domain violations (e.g. English words in Persian academic text) to non-blocking warnings.",
-  "why_defective": "Document-level aggregate metrics mask localized failures, allowing unformatted tables or untranslated prose to pass into production deliverables without detection.",
-  "observed_symptoms": [
-    "Aggregate boolean assertions passing while individual tables fail",
-    "English words present in Persian tables without triggering validator failure"
-  ],
-  "corrective_remedy": "Enforce strict per-item fail-closed iteration: every individual table must satisfy exact header whitelists and have full symbol definitions in its note; any English word outside allowed statistical symbols must trigger a hard FAIL verdict.",
-  "detection_heuristic": {
-    "trigger_rule": "Inspect validation scripts for any(), all(), or non-blocking warning downgrades on critical invariants."
-  },
-  "reusable": true,
-  "updated_at": "2026-09-21T16:57:00Z",
   "contract_version": "1.0.0",
-  "target_agent": "validation-agent",
-  "target_agents": [
-    "validation-agent",
-    "results-auditor",
-    "statistical-auditor"
+  "anti_pattern_id": "AP-2026-PERMISSIVE-VALIDATOR-BLINDSPOT",
+  "category": "execution",
+  "defective_pattern": "Unanchored 4-digit regex mistakenly capturing year in meta-annotation prose without bibliographic syntax validation.",
+  "why_defective": "Using permissive, unanchored regular expressions to extract years from text can inadvertently match 4-digit numbers in unrelated meta-annotations or prose.",
+  "observed_symptoms": [
+    "Capturing false positive years from prose or meta-annotations.",
+    "Corrupted bibliographic entries due to incorrect year extraction."
   ],
-  "is_active_behavior": true
+  "corrective_remedy": "Implement strict bibliographic component verification. Anchor regex patterns to specific bibliographic syntax boundaries (e.g., parentheses for APA) and explicitly exclude meta-annotation sections before parsing.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect unanchored 4-digit year extraction",
+    "regex_patterns": [
+      "(?m)^.*re\\.search\\(r['\"]\\\\d\\{4\\}['\"].*$"
+    ],
+    "pattern": "(?m)^.*re\\.search\\(r['\"]\\\\d\\{4\\}['\"].*$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-reference-extractor",
+  "target_agents": [
+    "academic-reference-extractor",
+    "thesis-integrity-auditor"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-25T19:50:29Z"
 }
