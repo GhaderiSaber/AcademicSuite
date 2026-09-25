@@ -61,11 +61,21 @@ academic_writer_guard = _load_asam_guard("academic-writer")
 validation_agent_guard = _load_asam_guard("validation-agent")
 project_organizer_guard = _load_asam_guard("project-organizer")
 psychometric_expert_guard = _load_asam_guard("psychometric-expert")
-
-import auditor_agents_guard
-import research_literature_guard
-import domain_specialists_guard
-import advisory_agents_guard
+academic_challenger_guard = _load_asam_guard("academic-challenger")
+statistical_auditor_guard = _load_asam_guard("statistical-auditor")
+evidence_auditor_guard = _load_asam_guard("evidence-auditor")
+results_auditor_guard = _load_asam_guard("results-auditor")
+final_judge_guard = _load_asam_guard("final-judge")
+research_agent_guard = _load_asam_guard("research-agent")
+literature_expert_guard = _load_asam_guard("literature-expert")
+data_curator_guard = _load_asam_guard("data-curator")
+qualitative_analyst_guard = _load_asam_guard("qualitative-analyst")
+intervention_designer_guard = _load_asam_guard("intervention-designer")
+meta_analyst_guard = _load_asam_guard("meta-analyst")
+journal_strategist_guard = _load_asam_guard("journal-strategist")
+digital_saber_guard = _load_asam_guard("digital-saber")
+methodology_expert_guard = _load_asam_guard("methodology-expert")
+statistical_expert_guard = _load_asam_guard("statistical-expert")
 
 
 class TestAcademicOrchestratorGuard(unittest.TestCase):
@@ -1044,36 +1054,52 @@ class TestValidationAgentGuard(unittest.TestCase):
 
 
 class TestAuditorAgentsGuard(unittest.TestCase):
-    """Tests for auditor_agents_guard (auditors and challengers)."""
+    """Tests for auditor and challenger co-located guards."""
 
     def test_blocks_subagent_delegation(self):
-        for auditor in ("evidence-auditor", "results-auditor", "statistical-auditor", "academic-challenger", "final-judge"):
+        for guard, name in (
+            (evidence_auditor_guard, "evidence-auditor"),
+            (results_auditor_guard, "results-auditor"),
+            (statistical_auditor_guard, "statistical-auditor"),
+            (academic_challenger_guard, "academic-challenger"),
+            (final_judge_guard, "final-judge"),
+        ):
             payload = {
-                "caller": auditor,
+                "caller": name,
                 "toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}
             }
-            res = auditor_agents_guard.handle_pre_tool_use(payload)
-            self.assertEqual(res.get("decision"), "deny", f"Failed for {auditor}")
+            res = guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed for {name}")
             self.assertIn("Directive 12", res.get("reason", ""))
 
     def test_blocks_mutation_for_read_only_auditors(self):
-        for auditor in ("evidence-auditor", "results-auditor", "academic-challenger", "final-judge"):
+        for guard, name in (
+            (evidence_auditor_guard, "evidence-auditor"),
+            (results_auditor_guard, "results-auditor"),
+            (academic_challenger_guard, "academic-challenger"),
+            (final_judge_guard, "final-judge"),
+        ):
             payload = {
-                "caller": auditor,
+                "caller": name,
                 "toolCall": {"name": "write_to_file", "args": {"TargetFile": "03_deliverables/report.docx"}}
             }
-            res = auditor_agents_guard.handle_pre_tool_use(payload)
-            self.assertEqual(res.get("decision"), "deny", f"Failed for {auditor}")
+            res = guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed for {name}")
             self.assertIn("Read-Only", res.get("reason", ""))
 
     def test_blocks_shell_execution_for_read_only_auditors(self):
-        for auditor in ("evidence-auditor", "results-auditor", "academic-challenger", "final-judge"):
+        for guard, name in (
+            (evidence_auditor_guard, "evidence-auditor"),
+            (results_auditor_guard, "results-auditor"),
+            (academic_challenger_guard, "academic-challenger"),
+            (final_judge_guard, "final-judge"),
+        ):
             payload = {
-                "caller": auditor,
+                "caller": name,
                 "toolCall": {"name": "run_command", "args": {"CommandLine": "ls -la"}}
             }
-            res = auditor_agents_guard.handle_pre_tool_use(payload)
-            self.assertEqual(res.get("decision"), "deny", f"Failed for {auditor}")
+            res = guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed for {name}")
             self.assertIn("Execution Revocation", res.get("reason", ""))
 
     def test_allows_read_tools_for_auditors(self):
@@ -1081,7 +1107,7 @@ class TestAuditorAgentsGuard(unittest.TestCase):
             "caller": "results-auditor",
             "toolCall": {"name": "view_file", "args": {"AbsolutePath": "03_deliverables/ch4.docx"}}
         }
-        res = auditor_agents_guard.handle_pre_tool_use(payload)
+        res = results_auditor_guard.handle_pre_tool_use(payload)
         self.assertEqual(res.get("decision"), "allow")
 
     def test_statistical_auditor_blocks_deliverables_mutation(self):
@@ -1089,7 +1115,7 @@ class TestAuditorAgentsGuard(unittest.TestCase):
             "caller": "statistical-auditor",
             "toolCall": {"name": "write_to_file", "args": {"TargetFile": "03_deliverables/findings.docx"}}
         }
-        res = auditor_agents_guard.handle_pre_tool_use(payload)
+        res = statistical_auditor_guard.handle_pre_tool_use(payload)
         self.assertEqual(res.get("decision"), "deny")
         self.assertIn("Auditor Mutation Boundary", res.get("reason", ""))
 
@@ -1100,7 +1126,7 @@ class TestAuditorAgentsGuard(unittest.TestCase):
 
         try:
             payload = {"caller": "results-auditor", "transcriptPath": tpath}
-            res = auditor_agents_guard.handle_stop(payload)
+            res = results_auditor_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Directive 4", res.get("reason", ""))
         finally:
@@ -1114,7 +1140,7 @@ class TestAuditorAgentsGuard(unittest.TestCase):
 
         try:
             payload = {"caller": "academic-challenger", "transcriptPath": tpath}
-            res = auditor_agents_guard.handle_stop(payload)
+            res = academic_challenger_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Anti-Sycophancy", res.get("reason", ""))
         finally:
@@ -1128,7 +1154,7 @@ class TestAuditorAgentsGuard(unittest.TestCase):
 
         try:
             payload = {"caller": "final-judge", "transcriptPath": tpath}
-            res = auditor_agents_guard.handle_stop(payload)
+            res = final_judge_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Zero Grade Inflation", res.get("reason", ""))
         finally:
@@ -1142,9 +1168,9 @@ class TestAuditorAgentsGuard(unittest.TestCase):
 
         try:
             payload = {"caller": "final-judge", "transcriptPath": tpath}
-            res = auditor_agents_guard.handle_stop(payload)
+            res = final_judge_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
-            self.assertIn("Human Gate Card Required", res.get("reason", ""))
+            self.assertIn("Human Gate Card", res.get("reason", ""))
         finally:
             if os.path.exists(tpath):
                 os.unlink(tpath)
@@ -1156,7 +1182,7 @@ class TestAuditorAgentsGuard(unittest.TestCase):
 
         try:
             payload = {"caller": "evidence-auditor", "transcriptPath": tpath}
-            res = auditor_agents_guard.handle_stop(payload)
+            res = evidence_auditor_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Directive 14", res.get("reason", ""))
         finally:
@@ -1170,12 +1196,13 @@ class TestAuditorAgentsGuard(unittest.TestCase):
 
         try:
             payload = {"caller": "statistical-auditor", "transcriptPath": tpath}
-            res = auditor_agents_guard.handle_stop(payload)
+            res = statistical_auditor_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Heywood case", res.get("reason", ""))
         finally:
             if os.path.exists(tpath):
                 os.unlink(tpath)
+
 
 
 class TestProjectOrganizerGuard(unittest.TestCase):
@@ -1326,17 +1353,18 @@ class TestPsychometricExpertGuard(unittest.TestCase):
 
 
 class TestResearchLiteratureGuard(unittest.TestCase):
-    """Tests for research_literature_guard."""
+    """Tests for research-agent and literature-expert co-located guards."""
 
     def test_blocks_subagent_delegation(self):
-        payload = {"toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}}
-        res = research_literature_guard.handle_pre_tool_use(payload)
-        self.assertEqual(res.get("decision"), "deny")
-        self.assertIn("Directive 12", res.get("reason", ""))
+        for guard, name in ((research_agent_guard, "research-agent"), (literature_expert_guard, "literature-expert")):
+            payload = {"caller": name, "toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}}
+            res = guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Directive 12", res.get("reason", ""))
 
     def test_blocks_cli_script_without_view_file(self):
         payload = {"toolCall": {"name": "run_command", "args": {"CommandLine": "python3 .agents/skills/gpower-sample-size-calculator/scripts/power_calc.py"}}}
-        res = research_literature_guard.handle_pre_tool_use(payload)
+        res = research_agent_guard.handle_pre_tool_use(payload)
         self.assertEqual(res.get("decision"), "deny")
         self.assertIn("Directive 1", res.get("reason", ""))
 
@@ -1347,7 +1375,7 @@ class TestResearchLiteratureGuard(unittest.TestCase):
 
         try:
             payload = {"transcriptPath": tpath}
-            res = research_literature_guard.handle_stop(payload)
+            res = research_agent_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Directive 15", res.get("reason", ""))
         finally:
@@ -1361,7 +1389,7 @@ class TestResearchLiteratureGuard(unittest.TestCase):
 
         try:
             payload = {"caller": "literature-expert", "transcriptPath": tpath}
-            res = research_literature_guard.handle_stop(payload)
+            res = literature_expert_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Directive 14", res.get("reason", ""))
         finally:
@@ -1370,20 +1398,21 @@ class TestResearchLiteratureGuard(unittest.TestCase):
 
 
 class TestDomainSpecialistsGuard(unittest.TestCase):
-    """Tests for domain_specialists_guard."""
+    """Tests for domain specialist co-located guards."""
 
     def test_blocks_subagent_delegation(self):
-        payload = {"caller": "data-curator", "toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}}
-        res = domain_specialists_guard.handle_pre_tool_use(payload)
-        self.assertEqual(res.get("decision"), "deny")
-        self.assertIn("Directive 12", res.get("reason", ""))
+        for guard, name in ((data_curator_guard, "data-curator"), (qualitative_analyst_guard, "qualitative-analyst"), (intervention_designer_guard, "intervention-designer")):
+            payload = {"caller": name, "toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}}
+            res = guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Directive 12", res.get("reason", ""))
 
     def test_data_curator_blocks_raw_data_modification(self):
         payload = {
             "caller": "data-curator",
             "toolCall": {"name": "write_to_file", "args": {"TargetFile": "01_raw_inputs/survey.csv"}}
         }
-        res = domain_specialists_guard.handle_pre_tool_use(payload)
+        res = data_curator_guard.handle_pre_tool_use(payload)
         self.assertEqual(res.get("decision"), "deny")
         self.assertIn("Raw Data Protection", res.get("reason", ""))
 
@@ -1394,17 +1423,17 @@ class TestDomainSpecialistsGuard(unittest.TestCase):
                 "toolCall": {"name": "write_to_file", "args": {"TargetFile": os.path.join(ws, "run_meta.py")}},
                 "workspacePaths": [ws]
             }
-            res = domain_specialists_guard.handle_pre_tool_use(payload)
+            res = meta_analyst_guard.handle_pre_tool_use(payload)
             self.assertEqual(res.get("decision"), "deny")
             self.assertIn("Directive 23", res.get("reason", ""))
 
     def test_blocks_shell_for_no_exec_specialists(self):
-        for spec in ("journal-strategist", "intervention-designer"):
+        for guard, spec in ((journal_strategist_guard, "journal-strategist"), (intervention_designer_guard, "intervention-designer")):
             payload = {
                 "caller": spec,
                 "toolCall": {"name": "run_command", "args": {"CommandLine": "python3 script.py"}}
             }
-            res = domain_specialists_guard.handle_pre_tool_use(payload)
+            res = guard.handle_pre_tool_use(payload)
             self.assertEqual(res.get("decision"), "deny", f"Failed for {spec}")
             self.assertIn("Capability Boundary", res.get("reason", ""))
 
@@ -1415,7 +1444,7 @@ class TestDomainSpecialistsGuard(unittest.TestCase):
 
         try:
             payload = {"transcriptPath": tpath}
-            res = domain_specialists_guard.handle_stop(payload)
+            res = meta_analyst_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Directive 4", res.get("reason", ""))
         finally:
@@ -1424,26 +1453,26 @@ class TestDomainSpecialistsGuard(unittest.TestCase):
 
 
 class TestAdvisoryAgentsGuard(unittest.TestCase):
-    """Tests for advisory_agents_guard (digital-saber, methodology-expert, statistical-expert)."""
+    """Tests for advisory co-located guards (digital-saber, methodology-expert, statistical-expert)."""
 
     def test_blocks_subagent_delegation(self):
-        for adv in ("digital-saber", "methodology-expert", "statistical-expert"):
+        for guard, adv in ((digital_saber_guard, "digital-saber"), (methodology_expert_guard, "methodology-expert"), (statistical_expert_guard, "statistical-expert")):
             payload = {"caller": adv, "toolCall": {"name": "invoke_subagent", "args": {"TypeName": "statistics-agent"}}}
-            res = advisory_agents_guard.handle_pre_tool_use(payload)
+            res = guard.handle_pre_tool_use(payload)
             self.assertEqual(res.get("decision"), "deny", f"Failed for {adv}")
             self.assertIn("Directive 12", res.get("reason", ""))
 
     def test_blocks_mutation_tools(self):
-        for adv in ("digital-saber", "methodology-expert", "statistical-expert"):
+        for guard, adv in ((digital_saber_guard, "digital-saber"), (methodology_expert_guard, "methodology-expert"), (statistical_expert_guard, "statistical-expert")):
             payload = {"caller": adv, "toolCall": {"name": "write_to_file", "args": {"TargetFile": "test.txt"}}}
-            res = advisory_agents_guard.handle_pre_tool_use(payload)
+            res = guard.handle_pre_tool_use(payload)
             self.assertEqual(res.get("decision"), "deny", f"Failed for {adv}")
             self.assertIn("Advisor Read-Only", res.get("reason", ""))
 
     def test_blocks_shell_execution(self):
-        for adv in ("digital-saber", "methodology-expert", "statistical-expert"):
+        for guard, adv in ((digital_saber_guard, "digital-saber"), (methodology_expert_guard, "methodology-expert"), (statistical_expert_guard, "statistical-expert")):
             payload = {"caller": adv, "toolCall": {"name": "run_command", "args": {"CommandLine": "ls"}}}
-            res = advisory_agents_guard.handle_pre_tool_use(payload)
+            res = guard.handle_pre_tool_use(payload)
             self.assertEqual(res.get("decision"), "deny", f"Failed for {adv}")
             self.assertIn("Execution Revocation", res.get("reason", ""))
 
@@ -1454,7 +1483,7 @@ class TestAdvisoryAgentsGuard(unittest.TestCase):
 
         try:
             payload = {"caller": "digital-saber", "transcriptPath": tpath}
-            res = advisory_agents_guard.handle_stop(payload)
+            res = digital_saber_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Directive 13", res.get("reason", ""))
         finally:
@@ -1468,12 +1497,13 @@ class TestAdvisoryAgentsGuard(unittest.TestCase):
 
         try:
             payload = {"caller": "digital-saber", "transcriptPath": tpath}
-            res = advisory_agents_guard.handle_stop(payload)
+            res = digital_saber_guard.handle_stop(payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Human Gate Required", res.get("reason", ""))
         finally:
             if os.path.exists(tpath):
                 os.unlink(tpath)
+
 
 
 class TestHookPerformanceAndLatency(unittest.TestCase):

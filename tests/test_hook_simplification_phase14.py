@@ -24,7 +24,7 @@ Verifies:
    - Hooks strictly intercept, enforce, diagnose, and audit
    - Hooks never mutate state machine stages or orchestrate workflows
 5. Dispatcher & Backward Compatibility
-   - hook_dispatcher.py routes all 5 lifecycle events cleanly
+   - Track dispatchers route all 5 lifecycle events cleanly
    - transcript_and_rule_guard.py facade preserves 100% backward compatibility
 """
 
@@ -53,7 +53,15 @@ from safety_hooks import (
 )
 from integrity_hooks import IntegrityHooks
 from learning_hooks import LearningHooks
-from hook_dispatcher import dispatch_event
+from track1_developer_dispatcher import dispatch_track1_event
+from track2_academic_dispatcher import dispatch_track2_event
+from contracts.hook_identity_contract import is_main_agent_developer
+
+def dispatch_event(event: str, payload: dict) -> dict:
+    if is_main_agent_developer(payload) or payload.get("track") == 1:
+        return dispatch_track1_event(event, payload)
+    return dispatch_track2_event(event, payload)
+
 import transcript_and_rule_guard as legacy_guard
 
 
@@ -361,7 +369,7 @@ class TestHookSimplificationPhase14(unittest.TestCase):
     # =========================================================================
 
     def test_12_dispatcher_and_facade_routing(self):
-        """hook_dispatcher and legacy facade route all 5 events without error."""
+        """Track dispatchers and legacy facade route all 5 events without error."""
         # PreToolUse
         res_pre = dispatch_event("PreToolUse", {"toolCall": {"name": "run_command", "args": {"CommandLine": "ls"}}})
         self.assertEqual(res_pre.get("decision"), "allow")

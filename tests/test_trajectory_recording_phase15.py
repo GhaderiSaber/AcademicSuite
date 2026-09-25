@@ -27,7 +27,8 @@ from datetime import datetime, timezone
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 HOOKS_DIR = os.path.join(ROOT_DIR, ".agents", "hooks")
-for p in (ROOT_DIR, HOOKS_DIR):
+AGENTS_DIR = os.path.join(ROOT_DIR, ".agents")
+for p in (ROOT_DIR, HOOKS_DIR, AGENTS_DIR):
     if p not in sys.path:
         sys.path.insert(0, p)
 
@@ -43,7 +44,7 @@ from scripts.academic_experience_recorder import (
 )
 from contracts.contract_validator import validate_trajectory
 from learning_hooks import LearningHooks
-from hook_dispatcher import dispatch_event
+from track2_academic_dispatcher import dispatch_track2_event as dispatch_event
 
 
 class TestTrajectoryRecordingPhase15(unittest.TestCase):
@@ -272,8 +273,8 @@ class TestTrajectoryRecordingPhase15(unittest.TestCase):
                 details={"thinking": "illegal reasoning"}
             )
 
-    def test_07_hook_dispatcher_pre_and_post_tool_use_events(self):
-        """Hook dispatcher must emit TOOL_CALLED and TOOL_RETURNED via LearningHooks."""
+    def test_07_track2_dispatcher_pre_and_post_tool_use_events(self):
+        """Track 2 dispatcher must emit TOOL_CALLED and TOOL_RETURNED via LearningHooks."""
         payload_pre = {
             "conversationId": "convo-hook-test",
             "workspacePaths": [self.temp_dir],

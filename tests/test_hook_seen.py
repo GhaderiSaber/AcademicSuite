@@ -13,7 +13,7 @@ Verifies:
 3. Timestamp extraction vs ISO-8601 fallback.
 4. Tool name extraction across various payload shapes.
 5. Deduplication within a single event run.
-6. Subprocess integration for hook_dispatcher.py, pre_tool_use.py, and safety_hooks.py.
+6. Subprocess integration for track dispatchers and safety_hooks.py.
 7. Valid JSON preservation on stdout.
 """
 
@@ -37,7 +37,15 @@ from hook_seen import (
     extract_agent_name,
     extract_timestamp
 )
-from hook_dispatcher import dispatch_event
+from track1_developer_dispatcher import dispatch_track1_event
+from track2_academic_dispatcher import dispatch_track2_event
+from contracts.hook_identity_contract import is_main_agent_developer
+
+def dispatch_event(event: str, payload: dict) -> dict:
+    if is_main_agent_developer(payload) or payload.get("track") == 1:
+        return dispatch_track1_event(event, payload)
+    return dispatch_track2_event(event, payload)
+
 from safety_hooks import SafetyHooks
 
 
@@ -154,9 +162,9 @@ class TestHookSeenTelemetry(unittest.TestCase):
         self.assertIn("tool=run_command", output)
         self.assertIn("agent=main", output)
 
-    def test_08_subprocess_hook_dispatcher(self):
-        """hook_dispatcher.py running via CLI must output HOOK_SEEN on stderr and valid JSON on stdout."""
-        script_path = os.path.join(HOOKS_DIR, "hook_dispatcher.py")
+    def test_08_subprocess_track2_dispatcher(self):
+        """track2_academic_dispatcher.py running via CLI must output HOOK_SEEN on stderr and valid JSON on stdout."""
+        script_path = os.path.join(HOOKS_DIR, "track2_academic_dispatcher.py")
         input_payload = json.dumps({
             "toolCall": {"name": "view_file", "args": {"AbsolutePath": "README.md"}},
             "agentName": "researcher",
@@ -176,16 +184,16 @@ class TestHookSeenTelemetry(unittest.TestCase):
         stdout_json = json.loads(proc.stdout.strip())
         self.assertEqual(stdout_json.get("decision"), "allow")
 
-    def test_09_subprocess_pre_tool_use_runner(self):
-        """pre_tool_use.py runner must emit HOOK_SEEN on stderr."""
-        script_path = os.path.join(HOOKS_DIR, "pre_tool_use.py")
+    def test_09_subprocess_track1_dispatcher(self):
+        """track1_developer_dispatcher.py runner must emit HOOK_SEEN on stderr."""
+        script_path = os.path.join(HOOKS_DIR, "track1_developer_dispatcher.py")
         input_payload = json.dumps({
             "toolCall": {"name": "run_command", "args": {"CommandLine": "python3 test.py"}},
-            "caller": "academic-writer"
+            "agentName": "default"
         })
 
         proc = subprocess.run(
-            [sys.executable, script_path],
+            [sys.executable, script_path, "--event", "PreToolUse"],
             input=input_payload,
             text=True,
             capture_output=True
@@ -193,7 +201,7 @@ class TestHookSeenTelemetry(unittest.TestCase):
         self.assertEqual(proc.returncode, 0)
         self.assertIn("HOOK_SEEN", proc.stderr)
         self.assertIn("tool=run_command", proc.stderr)
-        self.assertIn("agent=academic-writer", proc.stderr)
+        self.assertIn("agent=default", proc.stderr)
         stdout_json = json.loads(proc.stdout.strip())
         self.assertEqual(stdout_json.get("decision"), "allow")
 

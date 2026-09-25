@@ -27,11 +27,20 @@ if ROOT_DIR not in sys.path:
 verification_path = os.path.join(ROOT_DIR, ".agents", "verification")
 if verification_path not in sys.path:
     sys.path.insert(0, verification_path)
+agents_path = os.path.join(ROOT_DIR, ".agents")
 hooks_path = os.path.join(ROOT_DIR, ".agents", "hooks")
-if hooks_path not in sys.path:
-    sys.path.insert(0, hooks_path)
+for p in (agents_path, hooks_path):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
-from hook_dispatcher import is_main_agent_developer, dispatch_event
+from contracts.hook_identity_contract import is_main_agent_developer
+from track1_developer_dispatcher import dispatch_track1_event
+from track2_academic_dispatcher import dispatch_track2_event
+
+def dispatch_event(event_name: str, payload: dict) -> dict:
+    if is_main_agent_developer(payload) or payload.get("track") == 1:
+        return dispatch_track1_event(event_name, payload)
+    return dispatch_track2_event(event_name, payload)
 from scripts.permission_manager import (
     PermissionManager,
     CAT_RAW_DATA,

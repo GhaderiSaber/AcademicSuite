@@ -42,7 +42,15 @@ from contracts.hook_identity_contract import (
     resolve_transcript_path,
     SURFACE_APP_DATA_DIRS
 )
-from hooks.hook_dispatcher import dispatch_event, is_main_agent_developer as dispatcher_is_main
+from hooks.track1_developer_dispatcher import dispatch_track1_event
+from hooks.track2_academic_dispatcher import dispatch_track2_event
+
+def dispatch_event(event: str, payload: dict) -> dict:
+    if is_main_agent_developer(payload) or payload.get("track") == 1:
+        return dispatch_track1_event(event, payload)
+    return dispatch_track2_event(event, payload)
+
+dispatcher_is_main = is_main_agent_developer
 
 
 def load_fixture(fixture_name: str) -> dict:
@@ -233,7 +241,7 @@ class TestInterfaceDetection:
 
 
 class TestHookDispatcherDualTrackEnforcement:
-    """Verifies that hook_dispatcher correctly integrates resolve_hook_identity."""
+    """Verifies that track dispatchers correctly integrate resolve_hook_identity."""
 
     def test_main_developer_stop_hook_immediately_allowed(self):
         payload = load_fixture("main_antigravity.json")

@@ -14,8 +14,8 @@ Verifies Option A:
    - Enforces Contractual Delegation Envelopes (CDE) on subagent invocations.
    - Enforces on-disk Triad artifacts (.docx, .md, .json) and fail-closed validation reports on Stop (Directives 3, 22).
    - Bypasses Main Developer Agent in < 2ms.
-3. Unified Facade (hook_dispatcher.py)
-   - Backward-compatible delegation to Track 1 or Track 2 based on hook identity contract.
+3. Track Dispatchers & Native Agent Hooks
+   - Permanent removal of legacy hook_dispatcher.py in favor of native agent-scoped hooks.
 4. Hook Schema (.agents/hooks.json)
    - Validates independent registration of track1-developer-safety-gate and track2-academic-orchestrator-guard.
 """
@@ -28,14 +28,19 @@ import subprocess
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 HOOKS_DIR = os.path.join(ROOT_DIR, ".agents", "hooks")
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
-if HOOKS_DIR not in sys.path:
-    sys.path.insert(0, HOOKS_DIR)
+agents_path = os.path.join(ROOT_DIR, ".agents")
+for p in (ROOT_DIR, HOOKS_DIR, agents_path):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 from track1_developer_dispatcher import dispatch_track1_event
 from track2_academic_dispatcher import dispatch_track2_event
-from hook_dispatcher import dispatch_event, is_main_agent_developer
+from contracts.hook_identity_contract import is_main_agent_developer
+
+def dispatch_event(event: str, payload: dict) -> dict:
+    if is_main_agent_developer(payload) or payload.get("track") == 1:
+        return dispatch_track1_event(event, payload)
+    return dispatch_track2_event(event, payload)
 
 
 import tempfile
@@ -214,8 +219,13 @@ class TestTrack2AcademicGovernanceGuard(unittest.TestCase):
             self.assertIn("Directive 0 & Directive 12", res.get("reason", ""))
 
 
-class TestUnifiedFacadeAndSubprocess(unittest.TestCase):
-    """Verifies hook_dispatcher.py facade routing and subprocess CLI invocations."""
+class TestTrackDispatchersAndSubprocess(unittest.TestCase):
+    """Verifies track dispatchers routing and subprocess CLI invocations without legacy facade."""
+
+    def test_hook_dispatcher_permanently_removed(self):
+        """Verifies hook_dispatcher.py is deleted and replaced by native agent-scoped hooks."""
+        dispatcher_path = os.path.join(HOOKS_DIR, "hook_dispatcher.py")
+        self.assertFalse(os.path.exists(dispatcher_path), "hook_dispatcher.py must be permanently deleted")
 
     def test_facade_routes_main_agent_to_track1(self):
         """dispatch_event cleanly routes Main Agent payloads to Track 1."""

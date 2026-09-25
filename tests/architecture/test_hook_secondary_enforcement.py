@@ -46,7 +46,6 @@ if hooks_dir not in sys.path:
 from safety_hooks import SafetyHooks
 from integrity_hooks import IntegrityHooks
 from learning_hooks import LearningHooks
-from hook_dispatcher import dispatch_event
 from contracts.agents.capability_policy import load_capability_policy, get_agent_policy
 from validators.agent_integrity import parse_yaml_frontmatter, AGENTS_DIR
 from scripts.academic_state_manager import StrictStateMachine, StageState, STAGE_LEGAL_TRANSITIONS

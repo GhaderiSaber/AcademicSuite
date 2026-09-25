@@ -39,7 +39,9 @@ try:
     )
     from integrity_hooks import IntegrityHooks, load_transcript
     from learning_hooks import LearningHooks
-    from hook_dispatcher import dispatch_event
+    from track1_developer_dispatcher import dispatch_track1_event
+    from track2_academic_dispatcher import dispatch_track2_event
+    from contracts.hook_identity_contract import is_main_agent_developer
 except ImportError:
     from .safety_hooks import (
         SafetyHooks,
@@ -54,7 +56,9 @@ except ImportError:
     )
     from .integrity_hooks import IntegrityHooks, load_transcript
     from .learning_hooks import LearningHooks
-    from .hook_dispatcher import dispatch_event
+    from .track1_developer_dispatcher import dispatch_track1_event
+    from .track2_academic_dispatcher import dispatch_track2_event
+    from .contracts.hook_identity_contract import is_main_agent_developer
 
 
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -115,7 +119,10 @@ def main():
         sys.stderr.write(f"[transcript_and_rule_guard] Error reading stdin JSON: {e}\n")
 
     event = args.event or payload.get("event", "Stop")
-    result = dispatch_event(event=event, payload=payload)
+    if is_main_agent_developer(payload):
+        result = dispatch_track1_event(event=event, payload=payload)
+    else:
+        result = dispatch_track2_event(event=event, payload=payload)
     print(json.dumps(result, ensure_ascii=False))
 
 

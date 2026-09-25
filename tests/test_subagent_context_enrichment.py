@@ -25,7 +25,7 @@ for p in [ROOT_DIR, AGENTS_DIR]:
 from scripts.academic_adaptive_context_boundary import AcademicAdaptiveContextBoundary
 from scripts.academic_context_token_budgeter import AcademicContextTokenBudgeter
 from hooks.learning_hooks import LearningHooks
-from hooks.hook_dispatcher import dispatch_event
+from hooks.track2_academic_dispatcher import dispatch_track2_event as dispatch_event
 
 
 class TestSubagentContextEnrichment(unittest.TestCase):
@@ -148,7 +148,7 @@ class TestSubagentContextEnrichment(unittest.TestCase):
         enriched_subagents = res["overwrite"]["Subagents"]
         self.assertIn("🧠 DETERMINISTIC ADAPTIVE CONTEXT", enriched_subagents[0]["Prompt"])
 
-    def test_07_hook_dispatcher_propagates_overwrite(self):
+    def test_07_track2_dispatcher_propagates_overwrite(self):
         """dispatch_event('PreToolUse') must propagate overwrite payload."""
         payload = {
             "toolCall": {

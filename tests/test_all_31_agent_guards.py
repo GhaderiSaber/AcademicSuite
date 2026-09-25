@@ -5,7 +5,7 @@ tests/test_all_31_agent_guards.py — Verification of 1:1 Dedicated Lifecycle Ho
 
 Validates:
 1. Completeness: All 31 agents have dedicated <snake>_guard.py and <snake>_hook.json.
-2. Hook Dispatcher: hook_dispatcher.py AGENT_GUARD_MAP contains all 31 agents.
+2. Native CLI Execution: All 31 agents' guard.py files execute cleanly via CLI.
 3. Frontmatter: All 31 agent.md files declare their dedicated hook in YAML frontmatter.
 4. Functional Verification: Specific invariant enforcement across individual guards.
 """
@@ -25,7 +25,6 @@ for p in (ROOT_DIR, AGENTS_DIR, HOOKS_DIR):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-import hook_dispatcher
 
 ALL_31_AGENTS = [
     "academic-challenger",
@@ -172,13 +171,22 @@ class TestDedicatedGuardsCompleteness(unittest.TestCase):
             cmd = data[guard_key]["PreToolUse"][0]["hooks"][0]["command"]
             self.assertIn("guard.py", cmd, f"Command does not reference guard.py in {hpath}")
 
-    def test_hook_dispatcher_guard_map_contains_all_31_agents(self):
-        guard_map = hook_dispatcher.AGENT_GUARD_MAP
-        self.assertEqual(len(guard_map), 31, f"Expected 31 mappings in AGENT_GUARD_MAP, got {len(guard_map)}")
+    def test_all_31_agents_native_cli_execution(self):
+        """Verifies each agent's guard.py can be invoked via CLI as defined in its hooks.json."""
+        import subprocess
         for agent_kebab in ALL_31_AGENTS:
-            snake = agent_kebab.replace("-", "_")
-            expected_mod = f"{snake}_guard"
-            self.assertEqual(guard_map.get(agent_kebab), expected_mod, f"Mismatch for {agent_kebab}")
+            guard_path = os.path.join(AGENTS_DIR, agent_kebab, "guard.py")
+            payload = json.dumps({"toolCall": {"name": "view_file", "args": {"AbsolutePath": "/test"}}})
+            proc = subprocess.run(
+                ["python3", guard_path, "--event", "PreToolUse"],
+                input=payload,
+                capture_output=True,
+                text=True,
+                cwd=ROOT_DIR
+            )
+            self.assertEqual(proc.returncode, 0, f"CLI execution failed for {agent_kebab}: {proc.stderr}")
+            res = json.loads(proc.stdout.strip())
+            self.assertIn("decision", res, f"Invalid output from {agent_kebab}: {proc.stdout}")
 
 
 class TestIndividualDedicatedGuardsBehavior(unittest.TestCase):
