@@ -79,3 +79,4 @@ There is a text in the references section that unrelated to references.
 
 
 The current local time is: 2026-09-25T18:58:52+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-572A86)]
+- **Lesson (LSN-2026-EXHAUSTIVE-TABLE-BY-TABLE-AUDIT-001)**: Every validation gatekeeper must inspect 100% of tables individually, asserting that every column header conforms to standard APA symbols, every table has a Persian definition note, and zero English words exist in narrative text or table cells. [Enforcement: dynamic_invariant_guard.py (LSN-2026-EXHAUSTIVE-TABLE-BY-TABLE-AUDIT-001)]
