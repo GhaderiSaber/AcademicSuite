@@ -1026,44 +1026,46 @@ class IntegrityHooks:
         for ws in workspaces:
             forbidden_file = os.path.join(ws, ".agents", "skills", "academic-suite-orchestrator", "scripts", "multi_agent_orchestrator.py")
             if os.path.exists(forbidden_file):
+                msg = (
+                    "CONSTITUTIONAL VIOLATION (Directive 12.1 - Sole Orchestrator Mandate): "
+                    f"Forbidden file '{forbidden_file}' detected on disk. Standalone Python multi-agent "
+                    "orchestrators are prohibited. Antigravity is the sole agent conductor. Delete this file immediately."
+                )
                 return {
                     "decision": "continue",
-                    "reason": (
-                        "CONSTITUTIONAL VIOLATION (Directive 12.1 - Sole Orchestrator Mandate): "
-                        f"Forbidden file '{forbidden_file}' detected on disk. Standalone Python multi-agent "
-                        "orchestrators are prohibited. Antigravity is the sole agent conductor. Delete this file immediately."
-                    )
+                    "reason": msg,
+                    "message": msg
                 }
 
         # 2. Skill Modularity (Directive 18)
         ok, reason = IntegrityHooks.verify_skill_modularity(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason}
+            return {"decision": "continue", "reason": reason, "message": reason}
 
         # 3. State Machine Consistency (Invalid State Transition Detection)
         ok, reason = IntegrityHooks.verify_state_transitions(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason}
+            return {"decision": "continue", "reason": reason, "message": reason}
 
         # 3.5 Worker Return Structure (Phase 21 Invariant)
         ok, reason = IntegrityHooks.verify_worker_returns(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason}
+            return {"decision": "continue", "reason": reason, "message": reason}
 
         # 4. Missing Artifacts Detection (Triad Invariant & Manifest Deliverables)
         ok, reason = IntegrityHooks.verify_missing_artifacts(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason}
+            return {"decision": "continue", "reason": reason, "message": reason}
 
         # 5. Provenance Integrity Detection (Input/Output Hashes & Dependencies)
         ok, reason = IntegrityHooks.verify_provenance(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason}
+            return {"decision": "continue", "reason": reason, "message": reason}
 
         # 6. Post-Analysis Validation Reports
         ok, reason = IntegrityHooks.verify_post_analysis(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason}
+            return {"decision": "continue", "reason": reason, "message": reason}
 
         # 7. Transcript Checks (Binary Honesty & Multi-Agent Claims)
         transcript_path = resolve_transcript_path(payload)
@@ -1071,20 +1073,20 @@ class IntegrityHooks:
         if records:
             ok, reason = IntegrityHooks.verify_binary_honesty(records)
             if not ok:
-                return {"decision": "continue", "reason": reason}
+                return {"decision": "continue", "reason": reason, "message": reason}
 
             ok, reason = IntegrityHooks.verify_multiagent_truthfulness(records)
             if not ok:
-                return {"decision": "continue", "reason": reason}
+                return {"decision": "continue", "reason": reason, "message": reason}
 
             ok, reason = IntegrityHooks.verify_conversational_language(records)
             if not ok:
-                return {"decision": "continue", "reason": reason}
+                return {"decision": "continue", "reason": reason, "message": reason}
 
             # 8. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
             ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records)
             if not ok:
-                return {"decision": "continue", "reason": reason}
+                return {"decision": "continue", "reason": reason, "message": reason}
 
         return {"decision": "allow"}
 

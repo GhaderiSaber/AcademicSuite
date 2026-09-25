@@ -125,8 +125,15 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     # Directive 19 / Directive 12: Contractual Delegation Envelope & Capability Routing
     if tool_name == "invoke_subagent":
         subagents = args.get("Subagents", [])
+        if isinstance(subagents, str):
+            try:
+                subagents = json.loads(subagents, strict=False)
+            except Exception:
+                subagents = []
         if isinstance(subagents, list):
             for sub in subagents:
+                if not isinstance(sub, dict):
+                    continue
                 target_type = sub.get("TypeName", "")
                 prompt = sub.get("Prompt", "")
 
@@ -141,12 +148,19 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 if not ok_cap:
                     return {
                         "decision": "deny",
-                        "reason": cap_reason
+                        "reason": cap_reason,
+                        "message": cap_reason
                     }
 
                 if target_type in EXECUTION_SUBAGENTS:
                     # Directive 21.1: Premature Remediation Guard under Active Critique
                     transcript_path = payload.get("transcriptPath")
+                    if not transcript_path:
+                        try:
+                            from contracts.hook_identity_contract import resolve_transcript_path
+                            transcript_path = resolve_transcript_path(payload)
+                        except Exception:
+                            transcript_path = None
                     if transcript_path:
                         t_target = transcript_path
                         if os.path.basename(transcript_path) == "transcript.jsonl":
@@ -165,33 +179,37 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                             if atc.get("name") == "invoke_subagent":
                                                 asubs = atc.get("args", {}).get("Subagents", [])
                                                 if isinstance(asubs, str):
-                                                    try: asubs = json.loads(asubs)
+                                                    try: asubs = json.loads(asubs, strict=False)
                                                     except: asubs = []
                                                 for asa in (asubs if isinstance(asubs, list) else []):
                                                     if isinstance(asa, dict) and "evaluation-agent" in (asa.get("TypeName") or "").lower():
                                                         eval_completed = True
                                     if not eval_completed:
+                                        msg = (
+                                            f"CONSTITUTIONAL VIOLATION (Directive 21.1 — Premature Remediation Without Tool Evolution): "
+                                            f"User critique is active ('{crit_txt[:80]}...'). You are strictly prohibited from invoking delivery worker "
+                                            f"'{target_type}' before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
+                                            f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
+                                        )
                                         return {
                                             "decision": "deny",
-                                            "reason": (
-                                                f"CONSTITUTIONAL VIOLATION (Directive 21.1 — Premature Remediation Without Tool Evolution): "
-                                                f"User critique is active ('{crit_txt[:80]}...'). You are strictly prohibited from invoking delivery worker "
-                                                f"'{target_type}' before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
-                                                f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
-                                            )
+                                            "reason": msg,
+                                            "message": msg
                                         }
                             except Exception:
                                 pass
 
                     if not is_valid:
+                        msg = (
+                            f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 12 — Contractual Delegation Invariant): "
+                            f"Delegation to execution worker '{target_type}' was rejected: {reason}\n"
+                            f"You must embed a structured Contractual Delegation Envelope (CDE) in the prompt "
+                            f"specifying 'task_id', 'worker_agent', 'inputs', 'required_artifacts', and 'objective'/'target_script'."
+                        )
                         return {
                             "decision": "deny",
-                            "reason": (
-                                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 12 — Contractual Delegation Invariant): "
-                                f"Delegation to execution worker '{target_type}' was rejected: {reason}\n"
-                                f"You must embed a structured Contractual Delegation Envelope (CDE) in the prompt "
-                                f"specifying 'task_id', 'worker_agent', 'inputs', 'required_artifacts', and 'objective'/'target_script'."
-                            )
+                            "reason": msg,
+                            "message": msg
                         }
 
                     # Directive 3: Pipeline Stage Prerequisite Invariant (Zero Skipping)
@@ -206,7 +224,8 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     if not ok_prereq:
                         return {
                             "decision": "deny",
-                            "reason": prereq_reason
+                            "reason": prereq_reason,
+                            "message": prereq_reason
                         }
 
     return {"decision": "allow"}
@@ -215,6 +234,13 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
 def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
     # Check if there is a transcript available to verify Directive 0 or stage completion
     transcript_path = payload.get("transcriptPath")
+    if not transcript_path:
+        try:
+            from contracts.hook_identity_contract import resolve_transcript_path
+            transcript_path = resolve_transcript_path(payload)
+        except Exception:
+            transcript_path = None
+
     if transcript_path and os.path.exists(transcript_path):
         try:
             t_target = transcript_path
@@ -237,7 +263,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                             if (atc.get("name") or "").lower() == "invoke_subagent":
                                 asubs = atc.get("args", {}).get("Subagents", [])
                                 if isinstance(asubs, str):
-                                    try: asubs = json.loads(asubs)
+                                    try: asubs = json.loads(asubs, strict=False)
                                     except: asubs = []
                                 for asa in (asubs if isinstance(asubs, list) else []):
                                     if isinstance(asa, dict):
@@ -247,17 +273,19 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     has_diagnostic = any(any(k in sa for k in ("trajectory-analyzer", "behavior-analyst", "knowledge-curator")) for sa in invoked_in_turn)
                     has_evolution = any(any(ev in sa for ev in ("skill-evolver", "evaluation-agent")) for sa in invoked_in_turn)
                     if not has_diagnostic or not has_evolution:
+                        msg = (
+                            f"CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 — Uninvoked Learning Pipeline on Critique):\n"
+                            f"The user reported a defect or critique ('{crit_txt[:80]}...'), but the continuous learning cascade "
+                            f"was NOT executed in this turn!\n"
+                            f"Under Directive 21 and Directive 21.1, you are strictly prohibited from bypassing learning, attempting "
+                            f"ad-hoc direct fixes, or delegating remediation without first running the full 5-stage cascade:\n"
+                            f"1. trajectory-analyzer, 2. behavior-analyst, 3. knowledge-curator, 4. skill-evolver, 5. evaluation-agent.\n"
+                            f"Please invoke 'trajectory-analyzer' now."
+                        )
                         return {
                             "decision": "continue",
-                            "reason": (
-                                f"CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 — Uninvoked Learning Pipeline on Critique):\n"
-                                f"The user reported a defect or critique ('{crit_txt[:80]}...'), but the continuous learning cascade "
-                                f"was NOT executed in this turn!\n"
-                                f"Under Directive 21 and Directive 21.1, you are strictly prohibited from bypassing learning, attempting "
-                                f"ad-hoc direct fixes, or delegating remediation without first running the full 5-stage cascade:\n"
-                                f"1. trajectory-analyzer, 2. behavior-analyst, 3. knowledge-curator, 4. skill-evolver, 5. evaluation-agent.\n"
-                                f"Please invoke 'trajectory-analyzer' now."
-                            )
+                            "reason": msg,
+                            "message": msg
                         }
 
                 # If this was a planner response answering a compliance question, verify Directive 0
@@ -276,13 +304,15 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     model_text = (last_record.get("content") or "").strip()
                     first_word = model_text.split()[0].rstrip(",.:;!?") if model_text.split() else ""
                     if first_word.lower() not in ("yes", "no"):
+                        msg = (
+                            "CONSTITUTIONAL VIOLATION (Directive 0 — Binary Honesty Protocol): "
+                            "Compliance inquiries must begin with an unambiguous 'Yes' or 'No' as the very first word. "
+                            "State the unvarnished factual answer before proposing explanations or remedies."
+                        )
                         return {
                             "decision": "continue",
-                            "reason": (
-                                "CONSTITUTIONAL VIOLATION (Directive 0 — Binary Honesty Protocol): "
-                                "Compliance inquiries must begin with an unambiguous 'Yes' or 'No' as the very first word. "
-                                "State the unvarnished factual answer before proposing explanations or remedies."
-                            )
+                            "reason": msg,
+                            "message": msg
                         }
 
                 # Directive 13: Anti-Sycophancy Invariant
@@ -295,13 +325,15 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                 ]
                 for fp in flattery_patterns:
                     if re.search(fp, first_line, re.IGNORECASE):
+                        msg = (
+                            "CONSTITUTIONAL VIOLATION (Directive 13 — Anti-Sycophancy Invariant): "
+                            "Sycophantic conversational openings ('Great question!', 'You are absolutely right!') are strictly forbidden. "
+                            "Academic communication must remain strictly objective, neutral, and fact-based."
+                        )
                         return {
                             "decision": "continue",
-                            "reason": (
-                                "CONSTITUTIONAL VIOLATION (Directive 13 — Anti-Sycophancy Invariant): "
-                                "Sycophantic conversational openings ('Great question!', 'You are absolutely right!') are strictly forbidden. "
-                                "Academic communication must remain strictly objective, neutral, and fact-based."
-                            )
+                            "reason": msg,
+                            "message": msg
                         }
 
                 # Directive 6: Strict English Orchestration Dialogue
@@ -311,14 +343,16 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                 persian_chars = len(re.findall(r'[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF]', clean_text))
                 total_non_ws = len(re.sub(r'\s+', '', clean_text))
                 if total_non_ws >= 40 and (persian_chars / total_non_ws) > 0.15:
+                    msg = (
+                        "CONSTITUTIONAL VIOLATION (Directive 6 — Strict English Orchestration Dialogue):\n"
+                        "Meta-orchestration and user interaction must be conducted strictly in English.\n"
+                        "Persian is strictly reserved for academic deliverables (.docx, .md, .json) and client messages.\n"
+                        "Please translate your conversational response to English before concluding."
+                    )
                     return {
                         "decision": "continue",
-                        "reason": (
-                            "CONSTITUTIONAL VIOLATION (Directive 6 — Strict English Orchestration Dialogue):\n"
-                            "Meta-orchestration and user interaction must be conducted strictly in English.\n"
-                            "Persian is strictly reserved for academic deliverables (.docx, .md, .json) and client messages.\n"
-                            "Please translate your conversational response to English before concluding."
-                        )
+                        "reason": msg,
+                        "message": msg
                     }
 
                 # Directive 15: Temporal Reality Anchor (2026 / 1405 SH)
@@ -330,14 +364,16 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     re.IGNORECASE
                 )
                 if anachronism_match:
+                    msg = (
+                        f"CONSTITUTIONAL VIOLATION (Directive 15 — Temporal Reality Anchor):\n"
+                        f"Detected temporal hallucination: '{anachronism_match.group(0)}'.\n"
+                        f"The operative calendar year is 2026 (1405 SH). Recent empirical literature window is 2021–2026.\n"
+                        f"Never refer to 2024 or 2025 as the current or future year."
+                    )
                     return {
                         "decision": "continue",
-                        "reason": (
-                            f"CONSTITUTIONAL VIOLATION (Directive 15 — Temporal Reality Anchor):\n"
-                            f"Detected temporal hallucination: '{anachronism_match.group(0)}'.\n"
-                            f"The operative calendar year is 2026 (1405 SH). Recent empirical literature window is 2021–2026.\n"
-                            f"Never refer to 2024 or 2025 as the current or future year."
-                        )
+                        "reason": msg,
+                        "message": msg
                     }
 
                 # Directive 11: Interactive Stage-Gate Protocol
@@ -353,13 +389,15 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     has_stage_report = any(k in model_text for k in ("what was done", "completed", "executed", "stage", "انجام شد", "مرحله"))
                     has_next_step = any(k in model_text for k in ("what will be done next", "next step", "next stage", "گام بعدی", "مرحله بعد", "next:"))
                     if not (has_confirmation or (has_stage_report and has_next_step)):
+                        msg = (
+                            "CONSTITUTIONAL VIOLATION (Directive 11 — Interactive Stage-Gate Protocol): "
+                            "Following subagent execution, the Academic Orchestrator must report what was done, "
+                            "what will be done next, and halt to request user confirmation before proceeding."
+                        )
                         return {
                             "decision": "continue",
-                            "reason": (
-                                "CONSTITUTIONAL VIOLATION (Directive 11 — Interactive Stage-Gate Protocol): "
-                                "Following subagent execution, the Academic Orchestrator must report what was done, "
-                                "what will be done next, and halt to request user confirmation before proceeding."
-                            )
+                            "reason": msg,
+                            "message": msg
                         }
 
                     # Directive 3: Triad Artifact Completion Audit on Stage Conclusion
@@ -368,31 +406,39 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         for tc in r.get("tool_calls", []):
                             if (tc.get("name") or "").lower() == "invoke_subagent":
                                 sub_list = tc.get("args", {}).get("Subagents", [])
-                                for sub in sub_list:
-                                    p_text = sub.get("Prompt", "")
-                                    is_cde, _, env = validate_delegation_prompt(p_text, expected_worker=sub.get("TypeName"))
-                                    if env and env.get("required_artifacts"):
-                                        req_arts = env.get("required_artifacts", [])
-                                        missing_arts = []
-                                        empty_arts = []
-                                        for art in req_arts:
-                                            art_name = os.path.basename(art)
-                                            found = find_files_matching(workspaces, re.escape(art_name))
-                                            if not found:
-                                                missing_arts.append(art)
-                                            elif all(os.path.getsize(f) == 0 for f in found):
-                                                empty_arts.append(art)
-                                        if missing_arts or empty_arts:
-                                            return {
-                                                "decision": "continue",
-                                                "reason": (
+                                if isinstance(sub_list, str):
+                                    try: sub_list = json.loads(sub_list, strict=False)
+                                    except: sub_list = []
+                                if isinstance(sub_list, list):
+                                    for sub in sub_list:
+                                        if not isinstance(sub, dict):
+                                            continue
+                                        p_text = sub.get("Prompt", "")
+                                        is_cde, _, env = validate_delegation_prompt(p_text, expected_worker=sub.get("TypeName"))
+                                        if env and env.get("required_artifacts"):
+                                            req_arts = env.get("required_artifacts", [])
+                                            missing_arts = []
+                                            empty_arts = []
+                                            for art in req_arts:
+                                                art_name = os.path.basename(art)
+                                                found = find_files_matching(workspaces, re.escape(art_name))
+                                                if not found:
+                                                    missing_arts.append(art)
+                                                elif all(os.path.getsize(f) == 0 for f in found):
+                                                    empty_arts.append(art)
+                                            if missing_arts or empty_arts:
+                                                msg = (
                                                     f"CONSTITUTIONAL VIOLATION (Directive 3 — Triad Artifact Invariant):\n"
                                                     f"Stage declared completion, but required deliverables are missing or empty on disk.\n"
                                                     f"Missing artifacts: {missing_arts}\n"
                                                     f"Empty (0-byte) artifacts: {empty_arts}\n"
                                                     f"Every micro-stage must generate the complete synchronized triad on disk (.docx + .md + .json)."
                                                 )
-                                            }
+                                                return {
+                                                    "decision": "continue",
+                                                    "reason": msg,
+                                                    "message": msg
+                                                }
 
                     # Directive 3.1: Chapter 5 Table Ban Dual Gate
                     if any(k in model_text for k in ("chapter 5", "chapter_5", "ch5", "فصل پنجم", "فصل ۵", "discussion")):
@@ -411,14 +457,16 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                     root_xml = ET.fromstring(zf.read("word/document.xml"))
                                                     tables = [elem for elem in root_xml.iter() if elem.tag.endswith("}tbl") or elem.tag == "tbl"]
                                                     if tables:
+                                                        msg = (
+                                                            f"CONSTITUTIONAL VIOLATION (Directive 3.1 — Chapter 5 Prose-Only Invariant):\n"
+                                                            f"Chapter 5 Word deliverable '{f}' contains {len(tables)} table (<w:tbl>) element(s).\n"
+                                                            f"Chapter 5 must strictly contain ZERO tables (100% continuous narrative prose). "
+                                                            f"All statistical tables belong exclusively in Chapter 4."
+                                                        )
                                                         return {
                                                             "decision": "continue",
-                                                            "reason": (
-                                                                f"CONSTITUTIONAL VIOLATION (Directive 3.1 — Chapter 5 Prose-Only Invariant):\n"
-                                                                f"Chapter 5 Word deliverable '{f}' contains {len(tables)} table (<w:tbl>) element(s).\n"
-                                                                f"Chapter 5 must strictly contain ZERO tables (100% continuous narrative prose). "
-                                                                f"All statistical tables belong exclusively in Chapter 4."
-                                                            )
+                                                            "reason": msg,
+                                                            "message": msg
                                                         }
                                         except Exception:
                                             pass
@@ -439,14 +487,16 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                 doc_xml = zf.read("word/document.xml")
                                                 if b"<w:footnoteReference" in doc_xml:
                                                     if "word/footnotes.xml" not in zf.namelist():
+                                                        msg = (
+                                                            f"CONSTITUTIONAL VIOLATION (Directive 5 — Native OpenXML Footnotes):\n"
+                                                            f"Word deliverable '{f}' contains footnote references (<w:footnoteReference>), "
+                                                            f"but 'word/footnotes.xml' is missing from the OpenXML zip archive.\n"
+                                                            f"Footnotes must be compiled as true native OpenXML elements."
+                                                        )
                                                         return {
                                                             "decision": "continue",
-                                                            "reason": (
-                                                                f"CONSTITUTIONAL VIOLATION (Directive 5 — Native OpenXML Footnotes):\n"
-                                                                f"Word deliverable '{f}' contains footnote references (<w:footnoteReference>), "
-                                                                f"but 'word/footnotes.xml' is missing from the OpenXML zip archive.\n"
-                                                                f"Footnotes must be compiled as true native OpenXML elements."
-                                                            )
+                                                            "reason": msg,
+                                                            "message": msg
                                                         }
                                     except Exception:
                                         pass

@@ -917,14 +917,16 @@ class SafetyHooks:
                                     if any(w in t_name for w in delivery_workers):
                                         target_workers.append(t_name)
                             if target_workers:
+                                msg = (
+                                    f"CONSTITUTIONAL VIOLATION (Directive 21.1 - Premature Remediation Without Tool Evolution): "
+                                    f"User critique is active ('{clean_user[:80]}...'). You cannot invoke delivery worker(s) {target_workers} "
+                                    f"before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
+                                    f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
+                                )
                                 return {
                                     "decision": "deny",
-                                    "reason": (
-                                        f"CONSTITUTIONAL VIOLATION (Directive 21.1 - Premature Remediation Without Tool Evolution): "
-                                        f"User critique is active ('{clean_user[:80]}...'). You cannot invoke delivery worker(s) {target_workers} "
-                                        f"before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
-                                        f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
-                                    )
+                                    "reason": msg,
+                                    "message": msg
                                 }
 
         # 2. Raw-Data, Outside-Workspace & State Ledger Guard on Mutation Tools (tool -> target resource -> safety policy)
