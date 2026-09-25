@@ -87,3 +87,5 @@ The script produces:
 - **Range Sanity Check**: Ensure observed $\text{Min}$ and $\text{Max}$ values do not exceed the instrument's theoretical score bounds.
 - **Standard Deviation Non-Zero Check**: $SD > 0.0$. Zero variance indicates a constant or straight-lined variable.
 
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-CORRELATION-TABLE-THREE-COLUMN-HEADER-001)**: Structure all correlation matrices with: Col 1 ('ردیف'), Col 2 ('متغیر'), Col 3 ('خرده‌مقیاس'), followed by correlation columns ('۱', '۲', '۳', ...). [Enforcement: statistics_agent_guard.py]
