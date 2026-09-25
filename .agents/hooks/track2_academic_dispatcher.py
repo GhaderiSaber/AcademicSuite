@@ -134,7 +134,7 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
     if is_main:
         if event_upper == "Stop":
             return {"decision": "allow"}
-        if event_upper == "PreInvocation":
+        if event_upper in ("PostToolUse", "PreInvocation"):
             return {}
         if event_upper == "PostInvocation":
             return {"injectSteps": [], "terminationBehavior": ""}
