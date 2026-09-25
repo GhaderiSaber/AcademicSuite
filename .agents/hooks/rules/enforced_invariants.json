@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:40.454752+00:00",
+  "updated_at": "2026-09-25T18:08:41.700535+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -590,7 +590,7 @@
       "violation_message": "Build defensive, exhaustive table-by-table processors that iterate over all 45 tables, instantiate missing note blocks automatically, and map all demographic, descriptive, and inferential headers to standard APA Latin symbols.",
       "remedy": "Build defensive, exhaustive table-by-table processors that iterate over all 45 tables, instantiate missing note blocks automatically, and map all demographic, descriptive, and inferential headers to standard APA Latin symbols.",
       "enabled": true,
-      "updated_at": "2026-09-25T17:27:29.504666+00:00"
+      "updated_at": "2026-09-25T18:08:41.700513+00:00"
     },
     "AP-2026-PATCHING-WITHOUT-LEARNING": {
       "item_id": "AP-2026-PATCHING-WITHOUT-LEARNING",
