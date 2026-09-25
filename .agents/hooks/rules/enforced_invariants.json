@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:34.762069+00:00",
+  "updated_at": "2026-09-25T18:08:35.395855+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -492,7 +492,7 @@
       "violation_message": "Surgically rewrite the introductory paragraph of each question/hypothesis section to introduce only its own question, move Question 3's formal blockquote and measurement description into Section 4-5, and fix subsection numbering to follow strict parent hierarchy.",
       "remedy": "Surgically rewrite the introductory paragraph of each question/hypothesis section to introduce only its own question, move Question 3's formal blockquote and measurement description into Section 4-5, and fix subsection numbering to follow strict parent hierarchy.",
       "enabled": true,
-      "updated_at": "2026-09-25T18:08:34.762058+00:00"
+      "updated_at": "2026-09-25T18:08:35.395843+00:00"
     },
     "AP-2026-MANIFEST-PATH-LABELED-AS-SEM": {
       "item_id": "AP-2026-MANIFEST-PATH-LABELED-AS-SEM",
