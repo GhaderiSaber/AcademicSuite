@@ -452,3 +452,6 @@ The current local time is: 2026-09-25T19:13:18+03:30. [Enforcement: results_audi
 - **Lesson (LSN-2026-VARIABLE-COMPOSITE-ROW-INVARIANT-001)**: Always populate parent variable rows with overall/composite metrics; never create an empty parent row followed by a separate 'total' row. [Enforcement: results_auditor_guard.py]
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-20260925-A4DD06)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUT... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-20260925-C57A9F)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUT... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]
