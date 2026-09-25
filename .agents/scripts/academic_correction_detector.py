@@ -238,7 +238,12 @@ CORRECTION_TRIGGER_PATTERNS = [
     r"\brevise (?:this|the)\b|\bcorrect (?:this|the)\b",
     r"\b(?:use|write|replace with) this exact\b",
     r"\b(?:where is the citation|reference doesn'?t support|citation (?:needed|missing)|ghost citation)\b",
-    r"فراموش کردی|باید|نباید|اشتباه است|نادرست است|اصلاح کن|دقت کن"
+    r"\b(?:problem|error|bug|defect|issue|flaw|failure|discrepancy)s?\b",
+    r"\b(?:there|it)\s+(?:isn'?t|is\s+not|wasn'?t|was\s+not|aren'?t|are\s+not)\b",
+    r"\b(?:isn'?t|is\s+not|wasn'?t|was\s+not)\s+(?:the|what|any|working|correct)\b",
+    r"\bmissing\b",
+    r"\b(?:didn'?t|did\s+not)\s+(?:trigger|start|run|work|include|execute)\b",
+    r"فراموش کردی|باید|نباید|اشتباه است|نادرست است|اصلاح کن|دقت کن|ایراد|ایرادات|نواقص|نقص|مشکلات|وجود ندارد|نیست|جا افتاده|حذف شده"
 ]
 
 # Epistemic Methodological Blacklist (ATK-02 & ATK-14 Hardening: Experience is Evidence, Not Truth)
