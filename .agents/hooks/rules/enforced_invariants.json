@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:16:02.374540+00:00",
+  "updated_at": "2026-09-25T17:16:02.406976+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -260,7 +260,7 @@
       "violation_message": "Decompose each regression reporting block into the mandatory 3 tables: Table 1 (Correlations), Table 2 (ANOVA & Model Summary), Table 3 (Coefficients & Collinearity).",
       "remedy": "Decompose each regression reporting block into the mandatory 3 tables: Table 1 (Correlations), Table 2 (ANOVA & Model Summary), Table 3 (Coefficients & Collinearity).",
       "enabled": true,
-      "updated_at": "2026-09-25T17:08:10.680116+00:00"
+      "updated_at": "2026-09-25T17:16:02.406966+00:00"
     },
     "AP-2026-CONVERSATIONAL-LANGUAGE-BLEED": {
       "item_id": "AP-2026-CONVERSATIONAL-LANGUAGE-BLEED",
