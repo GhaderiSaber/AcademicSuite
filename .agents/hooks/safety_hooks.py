@@ -852,7 +852,12 @@ class SafetyHooks:
                 if transcript_path and os.path.exists(transcript_path):
                     records = []
                     try:
-                        with open(transcript_path, "r", encoding="utf-8") as tf:
+                        t_target = transcript_path
+                        if os.path.basename(transcript_path) == "transcript.jsonl":
+                            full_cand = os.path.join(os.path.dirname(transcript_path), "transcript_full.jsonl")
+                            if os.path.isfile(full_cand) and os.path.getsize(full_cand) > 0:
+                                t_target = full_cand
+                        with open(t_target, "r", encoding="utf-8") as tf:
                             for tline in tf:
                                 if tline.strip():
                                     records.append(json.loads(tline))
@@ -868,12 +873,16 @@ class SafetyHooks:
                     active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
 
                     clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
-                    critique_keywords = [
-                        "fix", "wrong", "incorrect", "error", "bug", "fail", "failed", "failure",
-                        "redo", "re-run", "reject", "rejected", "problem", "didn't trigger", "did not trigger",
-                        "اشتباه", "غلط", "اصلاح", "تصحیح", "رد شد", "نادرست", "خطا", "مشکل"
+                    critique_patterns = [
+                        r"\b(?:problem|error|bug|defect|issue|flaw|failure|discrepancy|mismatch)s?\b",
+                        r"\b(?:fix|wrong|incorrect|flawed|missing|redo|re-run|re-execute|reject|rejected)\b",
+                        r"\b(?:didn'?t|did\s+not)\s+(?:trigger|start|run|work|include|execute)\b",
+                        r"\b(?:there|it)\s+(?:isn'?t|is\s+not|wasn'?t|was\s+not|aren'?t|are\s+not)\b",
+                        r"\b(?:isn'?t|is\s+not|wasn'?t|was\s+not)\s+(?:the|what|any|working|correct)\b",
+                        r"\bnot\s+(?:working|correct|right|accurate)\b",
+                        r"اشتباه|اشتباهات|غلط|غلط‌ها|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا|خطاها|مشکل|مشکلات|ایراد|ایرادات|نواقص|نقص|جا افتاده|حذف شده|وجود ندارد|نیست"
                     ]
-                    if any(re.search(r"\b" + re.escape(kw) + r"\b", clean_user, re.IGNORECASE) for kw in critique_keywords):
+                    if any(re.search(pat, clean_user, re.IGNORECASE) for pat in critique_patterns):
                         evolver_seen = False
                         eval_seen = False
                         for r in active_records:
@@ -1341,7 +1350,12 @@ class SafetyHooks:
                     if transcript_path and os.path.exists(transcript_path):
                         records = []
                         try:
-                            with open(transcript_path, "r", encoding="utf-8") as tf:
+                            t_target = transcript_path
+                            if os.path.basename(transcript_path) == "transcript.jsonl":
+                                full_cand = os.path.join(os.path.dirname(transcript_path), "transcript_full.jsonl")
+                                if os.path.isfile(full_cand) and os.path.getsize(full_cand) > 0:
+                                    t_target = full_cand
+                            with open(t_target, "r", encoding="utf-8") as tf:
                                 for tline in tf:
                                     if tline.strip():
                                         records.append(json.loads(tline))
@@ -1357,12 +1371,16 @@ class SafetyHooks:
                         active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
 
                         clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
-                        critique_keywords = [
-                            "fix", "wrong", "incorrect", "error", "bug", "fail", "failed", "failure",
-                            "redo", "re-run", "reject", "rejected", "problem", "didn't trigger", "did not trigger",
-                            "اشتباه", "غلط", "اصلاح", "تصحیح", "رد شد", "نادرست", "خطا", "مشکل"
+                        critique_patterns = [
+                            r"\b(?:problem|error|bug|defect|issue|flaw|failure|discrepancy|mismatch)s?\b",
+                            r"\b(?:fix|wrong|incorrect|flawed|missing|redo|re-run|re-execute|reject|rejected)\b",
+                            r"\b(?:didn'?t|did\s+not)\s+(?:trigger|start|run|work|include|execute)\b",
+                            r"\b(?:there|it)\s+(?:isn'?t|is\s+not|wasn'?t|was\s+not|aren'?t|are\s+not)\b",
+                            r"\b(?:isn'?t|is\s+not|wasn'?t|was\s+not)\s+(?:the|what|any|working|correct)\b",
+                            r"\bnot\s+(?:working|correct|right|accurate)\b",
+                            r"اشتباه|اشتباهات|غلط|غلط‌ها|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا|خطاها|مشکل|مشکلات|ایراد|ایرادات|نواقص|نقص|جا افتاده|حذف شده|وجود ندارد|نیست"
                         ]
-                        if any(re.search(r"\b" + re.escape(kw) + r"\b", clean_user, re.IGNORECASE) for kw in critique_keywords):
+                        if any(re.search(pat, clean_user, re.IGNORECASE) for pat in critique_patterns):
                             evolver_seen = False
                             eval_seen = False
                             for r in active_records:

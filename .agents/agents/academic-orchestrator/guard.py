@@ -80,6 +80,29 @@ EXECUTION_SUBAGENTS = {
     "results-auditor"
 }
 
+CRITIQUE_PATTERNS = [
+    r"\b(?:problem|error|bug|defect|issue|flaw|failure|discrepancy|mismatch)s?\b",
+    r"\b(?:fix|wrong|incorrect|flawed|missing|redo|re-run|re-execute|reject|rejected)\b",
+    r"\b(?:didn'?t|did\s+not)\s+(?:trigger|start|run|work|include|execute)\b",
+    r"\b(?:there|it)\s+(?:isn'?t|is\s+not|wasn'?t|was\s+not|aren'?t|are\s+not)\b",
+    r"\b(?:isn'?t|is\s+not|wasn'?t|was\s+not)\s+(?:the|what|any|working|correct)\b",
+    r"\bnot\s+(?:working|correct|right|accurate)\b",
+    r"اشتباه|اشتباهات|غلط|غلط‌ها|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا|خطاها|مشکل|مشکلات|ایراد|ایرادات|نواقص|نقص|جا افتاده|حذف شده|وجود ندارد|نیست"
+]
+
+
+def is_user_critique_active(records: List[Dict[str, Any]]) -> Tuple[bool, str, List[Dict[str, Any]]]:
+    last_user_idx = -1
+    user_content = ""
+    for idx, r in enumerate(records):
+        if r.get("type") == "USER_INPUT":
+            last_user_idx = idx
+            user_content = str(r.get("content", ""))
+    active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
+    clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
+    is_critique = any(re.search(pat, clean_user, re.IGNORECASE) for pat in CRITIQUE_PATTERNS)
+    return is_critique, clean_user, active_records
+
 
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     tool_call = payload.get("toolCall", {})
@@ -122,6 +145,44 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     }
 
                 if target_type in EXECUTION_SUBAGENTS:
+                    # Directive 21.1: Premature Remediation Guard under Active Critique
+                    transcript_path = payload.get("transcriptPath")
+                    if transcript_path:
+                        t_target = transcript_path
+                        if os.path.basename(transcript_path) == "transcript.jsonl":
+                            full_cand = os.path.join(os.path.dirname(transcript_path), "transcript_full.jsonl")
+                            if os.path.isfile(full_cand) and os.path.getsize(full_cand) > 0:
+                                t_target = full_cand
+                        if os.path.exists(t_target):
+                            try:
+                                with open(t_target, "r", encoding="utf-8") as tf:
+                                    t_records = [json.loads(tl.strip()) for tl in tf if tl.strip()]
+                                is_crit, crit_txt, active_recs = is_user_critique_active(t_records)
+                                if is_crit:
+                                    eval_completed = False
+                                    for ar in active_recs:
+                                        for atc in ar.get("tool_calls", []):
+                                            if atc.get("name") == "invoke_subagent":
+                                                asubs = atc.get("args", {}).get("Subagents", [])
+                                                if isinstance(asubs, str):
+                                                    try: asubs = json.loads(asubs)
+                                                    except: asubs = []
+                                                for asa in (asubs if isinstance(asubs, list) else []):
+                                                    if isinstance(asa, dict) and "evaluation-agent" in (asa.get("TypeName") or "").lower():
+                                                        eval_completed = True
+                                    if not eval_completed:
+                                        return {
+                                            "decision": "deny",
+                                            "reason": (
+                                                f"CONSTITUTIONAL VIOLATION (Directive 21.1 — Premature Remediation Without Tool Evolution): "
+                                                f"User critique is active ('{crit_txt[:80]}...'). You are strictly prohibited from invoking delivery worker "
+                                                f"'{target_type}' before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
+                                                f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
+                                            )
+                                        }
+                            except Exception:
+                                pass
+
                     if not is_valid:
                         return {
                             "decision": "deny",
@@ -156,11 +217,49 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
     transcript_path = payload.get("transcriptPath")
     if transcript_path and os.path.exists(transcript_path):
         try:
-            # Quick tail check of transcript for binary honesty protocol
-            with open(transcript_path, "r", encoding="utf-8") as tf:
+            t_target = transcript_path
+            if os.path.basename(transcript_path) == "transcript.jsonl":
+                full_cand = os.path.join(os.path.dirname(transcript_path), "transcript_full.jsonl")
+                if os.path.isfile(full_cand) and os.path.getsize(full_cand) > 0:
+                    t_target = full_cand
+            with open(t_target, "r", encoding="utf-8") as tf:
                 lines = [l.strip() for l in tf if l.strip()]
             if lines:
                 last_record = json.loads(lines[-1])
+
+                # Directive 21 & Directive 21.1: Continuous Learning Cascade Gate on Critique
+                all_records = [json.loads(l) for l in lines]
+                is_crit, crit_txt, active_recs = is_user_critique_active(all_records)
+                if is_crit:
+                    invoked_in_turn = []
+                    for ar in active_recs:
+                        for atc in ar.get("tool_calls", []):
+                            if (atc.get("name") or "").lower() == "invoke_subagent":
+                                asubs = atc.get("args", {}).get("Subagents", [])
+                                if isinstance(asubs, str):
+                                    try: asubs = json.loads(asubs)
+                                    except: asubs = []
+                                for asa in (asubs if isinstance(asubs, list) else []):
+                                    if isinstance(asa, dict):
+                                        t_name = (asa.get("TypeName") or asa.get("Role") or "").lower().strip()
+                                        if t_name:
+                                            invoked_in_turn.append(t_name)
+                    has_diagnostic = any(any(k in sa for k in ("trajectory-analyzer", "behavior-analyst", "knowledge-curator")) for sa in invoked_in_turn)
+                    has_evolution = any(any(ev in sa for ev in ("skill-evolver", "evaluation-agent")) for sa in invoked_in_turn)
+                    if not has_diagnostic or not has_evolution:
+                        return {
+                            "decision": "continue",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 — Uninvoked Learning Pipeline on Critique):\n"
+                                f"The user reported a defect or critique ('{crit_txt[:80]}...'), but the continuous learning cascade "
+                                f"was NOT executed in this turn!\n"
+                                f"Under Directive 21 and Directive 21.1, you are strictly prohibited from bypassing learning, attempting "
+                                f"ad-hoc direct fixes, or delegating remediation without first running the full 5-stage cascade:\n"
+                                f"1. trajectory-analyzer, 2. behavior-analyst, 3. knowledge-curator, 4. skill-evolver, 5. evaluation-agent.\n"
+                                f"Please invoke 'trajectory-analyzer' now."
+                            )
+                        }
+
                 # If this was a planner response answering a compliance question, verify Directive 0
                 user_question = ""
                 for rec_line in reversed(lines[:-1]):

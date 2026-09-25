@@ -37,18 +37,36 @@ except ImportError:
 
 
 def load_transcript(transcript_path: Optional[str]) -> List[Dict[str, Any]]:
-    """Loads and parses transcript.jsonl safely."""
-    if not transcript_path or not os.path.exists(transcript_path):
+    """Loads and parses transcript safely, preferring untruncated transcript_full.jsonl if present."""
+    if not transcript_path:
+        return []
+    target_path = transcript_path
+    if os.path.basename(transcript_path) == "transcript.jsonl":
+        full_candidate = os.path.join(os.path.dirname(transcript_path), "transcript_full.jsonl")
+        if os.path.isfile(full_candidate) and os.path.getsize(full_candidate) > 0:
+            target_path = full_candidate
+    if not os.path.exists(target_path):
+        target_path = transcript_path
+    if not os.path.exists(target_path):
         return []
     records = []
     try:
-        with open(transcript_path, "r", encoding="utf-8") as f:
+        with open(target_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
                     records.append(json.loads(line))
     except Exception as e:
-        sys.stderr.write(f"[integrity_hooks] Error reading transcript: {e}\n")
+        sys.stderr.write(f"[integrity_hooks] Error reading transcript ({target_path}): {e}\n")
+        if target_path != transcript_path and os.path.exists(transcript_path):
+            try:
+                with open(transcript_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line:
+                            records.append(json.loads(line))
+            except Exception:
+                pass
     return records
 
 
@@ -871,12 +889,16 @@ class IntegrityHooks:
 
         # Check if critique/correction triggered learning
         clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
-        critique_keywords = [
-            "fix", "wrong", "incorrect", "error", "bug", "fail", "failed", "failure",
-            "redo", "re-run", "reject", "rejected", "problem", "didn't trigger", "did not trigger",
-            "اشتباه", "غلط", "اصلاح", "تصحیح", "رد شد", "نادرست", "خطا", "مشکل"
+        critique_patterns = [
+            r"\b(?:problem|error|bug|defect|issue|flaw|failure|discrepancy|mismatch)s?\b",
+            r"\b(?:fix|wrong|incorrect|flawed|missing|redo|re-run|re-execute|reject|rejected)\b",
+            r"\b(?:didn'?t|did\s+not)\s+(?:trigger|start|run|work|include|execute)\b",
+            r"\b(?:there|it)\s+(?:isn'?t|is\s+not|wasn'?t|was\s+not|aren'?t|are\s+not)\b",
+            r"\b(?:isn'?t|is\s+not|wasn'?t|was\s+not)\s+(?:the|what|any|working|correct)\b",
+            r"\bnot\s+(?:working|correct|right|accurate)\b",
+            r"اشتباه|اشتباهات|غلط|غلط‌ها|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا|خطاها|مشکل|مشکلات|ایراد|ایرادات|نواقص|نقص|جا افتاده|حذف شده|وجود ندارد|نیست"
         ]
-        is_user_critique = any(re.search(r"\b" + re.escape(kw) + r"\b", clean_user, re.IGNORECASE) for kw in critique_keywords)
+        is_user_critique = any(re.search(pat, clean_user, re.IGNORECASE) for pat in critique_patterns)
 
         # Check if premature remediation was attempted before evolution completed
         has_learning_started = any(
