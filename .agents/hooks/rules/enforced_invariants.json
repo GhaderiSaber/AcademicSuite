@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T17:08:11.735138+00:00",
+  "updated_at": "2026-09-25T17:08:11.770083+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -805,6 +805,25 @@
       "remedy": "Query psychometric-scale-resolver or Questionnaires.xlsx to extract the exact inverted item list for the target questionnaire before aggregation.",
       "enabled": true,
       "updated_at": "2026-09-25T17:08:11.735121+00:00"
+    },
+    "AP-2026-VALIDATOR-REGRESSION-TABLE-BLINDSPOT": {
+      "item_id": "AP-2026-VALIDATOR-REGRESSION-TABLE-BLINDSPOT",
+      "category": "Anti-Pattern",
+      "statement": "Implement mandatory fail-closed assertion in validator: every regression hypothesis deliverable MUST contain Table 1 (Correlations), Table 2 (Model Summary & Combined ANOVA with 11 columns), and Table 3 (Coefficients & Collinearity with 8 columns). If any table or column is missing, the validator MUST emit verdict: FAIL.",
+      "target_agents": [
+        "validation-agent",
+        "results-auditor"
+      ],
+      "target_skills": [],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(?:md|docx|txt)",
+      "check_type": "regex_ban",
+      "pattern": "Assert presence of (table_1_correlations, table_2_model_summary_anova, table_3_coefficients) in JSON and corresponding 3 tables in MD/DOCX for every regression model.",
+      "violation_message": "Implement mandatory fail-closed assertion in validator: every regression hypothesis deliverable MUST contain Table 1 (Correlations), Table 2 (Model Summary & Combined ANOVA with 11 columns), and Table 3 (Coefficients & Collinearity with 8 columns). If any table or column is missing, the validator MUST emit verdict: FAIL.",
+      "remedy": "Implement mandatory fail-closed assertion in validator: every regression hypothesis deliverable MUST contain Table 1 (Correlations), Table 2 (Model Summary & Combined ANOVA with 11 columns), and Table 3 (Coefficients & Collinearity with 8 columns). If any table or column is missing, the validator MUST emit verdict: FAIL.",
+      "enabled": true,
+      "updated_at": "2026-09-25T17:08:11.770064+00:00"
     }
   }
 }
