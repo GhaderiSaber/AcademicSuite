@@ -1,0 +1,52 @@
+{
+  "evaluation_id": "EVR-20260925-001",
+  "candidate_id": "CAND-2026-STRUCTURAL-REF-001",
+  "baseline_id": "baseline-v1.0",
+  "task_id": "extract_section_references_benchmark",
+  "dimensions": {
+    "correctness": 1.0,
+    "efficiency": 1.0,
+    "robustness": 1.0,
+    "consistency": 1.0
+  },
+  "baseline_metrics": {
+    "false_positive_references": 0.15
+  },
+  "candidate_metrics": {
+    "false_positive_references": 0.00
+  },
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": [],
+    "fixes_original_mistake": true,
+    "task_id": "regression_suite_1"
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false,
+    "task_id": "adversarial_suite_1",
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "pass_rate": 1.0,
+    "generalizes_to_different_case": true,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 1,
+    "task_id": "heldout_suite_1"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-reference-extractor/scripts/extract_section_references.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence_type": "execution_log"
+    }
+  ],
+  "verdict": "PASS"
+}

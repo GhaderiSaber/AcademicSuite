@@ -62,6 +62,10 @@ def extract_bibliography_entries(raw_bib_text):
     txt = re.sub(r'\n\s*\d+\s*\n', ' ', raw_bib_text)
     txt = re.sub(r'^\s*References\s*', '', txt.strip(), flags=re.IGNORECASE)
 
+    # Apply structural validation and subheading exclusions
+    txt = re.sub(r'\n\s*(?:English References|Persian References|منابع فارسی|منابع انگلیسی)\s*\n', '\n', txt, flags=re.IGNORECASE)
+    txt = re.sub(r'\n\s*(?:Chapter \d+|فصل \d+)\s*\n', '\n', txt, flags=re.IGNORECASE)
+
     # Detect publication years in parentheses: (YYYY) or (YYYYa)
     pattern = r'(?<![/\w])\((\d{4}[a-z]?)\)(?:\.|\,|\s+[A-Z\u0600-\u06FF])'
     year_matches = list(re.finditer(pattern, txt))

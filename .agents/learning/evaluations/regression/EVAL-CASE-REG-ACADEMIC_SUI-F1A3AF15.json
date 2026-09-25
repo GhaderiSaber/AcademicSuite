@@ -1,0 +1,64 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-F1A3AF15",
+  "capability": "academic-suite-orchestrator",
+  "suite_type": "regression",
+  "difficulty": "L2_INTERDEPENDENT_MODELS",
+  "tags": [
+    "methodology",
+    "regression_test"
+  ],
+  "task": {
+    "prompt": "Execute analytical task verifying problem:_evaluation, there_evaluation, references_evaluation, section_evaluation.",
+    "research_question": "Does analytical modeling satisfy rigorous methodological standards?",
+    "hypothesis": "Analytical procedures will strictly adhere to verified methodological prerequisites."
+  },
+  "inputs": {
+    "dataset_path": "evals/regression/data_f1a3af15.xlsx",
+    "dataset_sha256": "f1a3af154a4b51b4c8eadba4531caf3ac3ef2ae37bed1155ede5072d01ec6110",
+    "spec_parameters": {
+      "check_domain": "general_methodology"
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "reasoning_properties_evaluated": true
+    },
+    "required_reasoning_properties": [
+      "problem:_evaluation",
+      "there_evaluation",
+      "references_evaluation",
+      "section_evaluation"
+    ],
+    "required_artifacts": [
+      "03_model_comparison.json",
+      "03_model_comparison.md"
+    ],
+    "typography_rules": [
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "unverified_methodological_shortcut"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": [
+      "--suite",
+      "regression",
+      "--case",
+      "EVAL-CASE-REG-ACADEMIC_SUI-F1A3AF15"
+    ],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-09-25T15:28:53.133421+00:00",
+  "originating_lesson_id": "LSN-20260925-572A86",
+  "originating_experience_id": "EXP-FAST-20260925-FBDCA5",
+  "originating_feedback_id": "FDB-20260925-A0866E",
+  "status": "candidate",
+  "expected_behavior": "Ensure thorough methodological compliance and verification of problem:_evaluation, there_evaluation, references_evaluation, section_evaluation.",
+  "forbidden_behavior": "unverified_methodological_shortcut",
+  "repeat_count": 1,
+  "last_seen_at": "2026-09-25T15:28:53.133421+00:00"
+}

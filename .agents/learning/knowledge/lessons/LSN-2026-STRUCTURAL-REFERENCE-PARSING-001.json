@@ -19,7 +19,9 @@
     "metric_or_check": "VIOLATED_ASSUMPTION_IGNORED",
     "observed_value": "Non-reference text leaked into bibliography",
     "threshold_value": "Zero non-reference leakage allowed",
-    "supporting_report_ids": ["BAN-20260925-001"],
+    "supporting_report_ids": [
+      "BAN-20260925-001"
+    ],
     "supporting_artifact_paths": []
   },
   "related_skills": [
@@ -34,5 +36,11 @@
   "target_agents": [
     "academic-reference-extractor",
     "academic-writer"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-25T15:42:50.036923+00:00",
+  "graduated_targets": [
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-reference-extractor/SKILL.md",
+    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/apa-reporting/SKILL.md"
   ]
 }

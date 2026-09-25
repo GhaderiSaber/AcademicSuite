@@ -1,0 +1,9 @@
+{
+    "analysis_id": "BAN-20260925-001",
+    "target_agent": "academic-writer",
+    "target_skill": "academic-reference-extractor",
+    "observable_failure_step": "Extracting references in 02_analysis_code/restore_comprehensive_references.py using len(text) > 20 heuristic.",
+    "failure_signature": "VIOLATED_ASSUMPTION_IGNORED",
+    "root_cause_diagnosis": "The extraction logic in restore_comprehensive_references.py relied on a naive character length heuristic (len(text) > 20) to distinguish valid bibliographic references from document subheadings. Because some subheadings, such as 'الف) منابع و مآخذ فارسی (کتب و مقالات)', contain more than 20 characters, they bypassed the filter and were erroneously appended to the reference list. The script failed to validate standard bibliographic markers (e.g., publication year in parentheses, structured punctuation, or DOI patterns) before classifying a paragraph as a reference.",
+    "prescribed_behavior": "Instead of relying solely on string length, reference extraction logic must enforce structural bibliographic validation. A paragraph should only be classified as a reference if it contains standard citation markers (e.g., a four-digit year enclosed in parentheses) or meets rigorous regex criteria for APA 7 formatting. Subheadings should be explicitly filtered out using a predefined exclusion list or by checking for heading-specific structural keywords."
+}

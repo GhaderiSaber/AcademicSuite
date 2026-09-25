@@ -1,0 +1,64 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-REG-PERSIAN_LITE-9A21E072",
+  "capability": "persian-literature-review-builder",
+  "suite_type": "regression",
+  "difficulty": "L2_INTERDEPENDENT_MODELS",
+  "tags": [
+    "methodology",
+    "regression_test"
+  ],
+  "task": {
+    "prompt": "Execute analytical task verifying deterministic_evaluation, adaptive_evaluation, context_evaluation, (bound_evaluation.",
+    "research_question": "Does analytical modeling satisfy rigorous methodological standards?",
+    "hypothesis": "Analytical procedures will strictly adhere to verified methodological prerequisites."
+  },
+  "inputs": {
+    "dataset_path": "evals/regression/data_9a21e072.xlsx",
+    "dataset_sha256": "9a21e072b36812cf45a7b03a426539ba0242b0b1cacebd9ee48edd31229a64f7",
+    "spec_parameters": {
+      "check_domain": "general_methodology"
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "reasoning_properties_evaluated": true
+    },
+    "required_reasoning_properties": [
+      "deterministic_evaluation",
+      "adaptive_evaluation",
+      "context_evaluation",
+      "(bound_evaluation"
+    ],
+    "required_artifacts": [
+      "03_model_comparison.json",
+      "03_model_comparison.md"
+    ],
+    "typography_rules": [
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "unverified_methodological_shortcut"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": [
+      "--suite",
+      "regression",
+      "--case",
+      "EVAL-CASE-REG-PERSIAN_LITE-9A21E072"
+    ],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-09-25T15:29:06.764668+00:00",
+  "originating_lesson_id": "LSN-20260925-C8DB97",
+  "originating_experience_id": "EXP-FAST-20260925-103F52",
+  "originating_feedback_id": "FDB-20260925-686645",
+  "status": "candidate",
+  "expected_behavior": "Ensure thorough methodological compliance and verification of deterministic_evaluation, adaptive_evaluation, context_evaluation, (bound_evaluation.",
+  "forbidden_behavior": "unverified_methodological_shortcut",
+  "repeat_count": 2,
+  "last_seen_at": "2026-09-25T15:35:03.182343+00:00"
+}

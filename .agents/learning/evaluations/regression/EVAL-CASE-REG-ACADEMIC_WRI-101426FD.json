@@ -1,0 +1,66 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+  "capability": "academic-writer",
+  "suite_type": "regression",
+  "difficulty": "L1_UNIVARIATE_BASELINE",
+  "tags": [
+    "writing",
+    "causal_language_guard",
+    "observational_design"
+  ],
+  "task": {
+    "prompt": "Draft findings narrative for cross-sectional regression analysis without unwarranted causal assertions.",
+    "research_question": "Does perceived stress predict burnout in observational sample?",
+    "hypothesis": "Perceived stress will be positively associated with burnout."
+  },
+  "inputs": {
+    "dataset_path": "evals/regression/data_101426fd.xlsx",
+    "dataset_sha256": "101426fdd7a4808225f67fc8fc9fb0afac72304d6b2c83ca3f7bd1c457653a9b",
+    "spec_parameters": {
+      "design_type": "cross_sectional_correlational"
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "reasoning_properties_evaluated": true
+    },
+    "required_reasoning_properties": [
+      "study_design_type",
+      "associative_language",
+      "causal_language_guard",
+      "confounding"
+    ],
+    "required_artifacts": [
+      "03_model_comparison.json",
+      "03_model_comparison.md"
+    ],
+    "typography_rules": [
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "unsupported_causal_assertions",
+    "claiming_proof_in_observational_design"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": [
+      "--suite",
+      "regression",
+      "--case",
+      "EVAL-CASE-REG-ACADEMIC_WRI-101426FD"
+    ],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-09-25T15:34:24.417475+00:00",
+  "originating_lesson_id": "LSN-20260925-ADDFC7",
+  "originating_experience_id": "EXP-FAST-20260925-C648AD",
+  "originating_feedback_id": "FDB-20260925-D20681",
+  "status": "candidate",
+  "expected_behavior": "Strictly adhere to associative terminology (associated, predicted, accounted for) in observational designs, refraining from asserting direct causality or proof.",
+  "forbidden_behavior": "unsupported_causal_assertions",
+  "repeat_count": 2,
+  "last_seen_at": "2026-09-25T15:43:19.256977+00:00"
+}
