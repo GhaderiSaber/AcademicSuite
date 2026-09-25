@@ -207,3 +207,5 @@ When translating any academic paper, thesis chapter, or section, **always extrac
      - The translation files (`.docx` with native Persian footnotes and companion `.md`).
      - The section reference files (`.enw`, `.ris`, and `.txt`).
 
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-ACADEMIC-TABLE-SPARSITY-AND-TERMINOLOGY-001)**: Use exact Persian psychological terminology ('متغیر' and 'مؤلفه'), two-column variable-component structures, standard abbreviations (CI 95%, ثابت), pure numeric cells with significance stars preserved, and pure blank sparseness for unestimated cells. [Enforcement: dynamic_invariant_guard.py (LSN-2026-ACADEMIC-TABLE-SPARSITY-AND-TERMINOLOGY-001)]
