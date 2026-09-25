@@ -138,7 +138,7 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 - Variable names in tables must represent pure conceptual constructs (e.g. `خودآسیبی`, `افسردگی`), strictly stripped of operational instrument nouns (`پرسشنامه`, `مقیاس`, `سیاهه`) and author surnames.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-PURE-NUMERIC-P-VALUES-IN-TABLES-001)**: Report strictly pure numbers or comparison operators in p-value cells; eliminate 'p =', 'p <', '> p' from all table data cells. [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-REGRESSION-ANOVA-ROW-LABELS-001)**: In all regression ANOVA tables (خلاصه مدل و تحلیل واریانس), format source of variance rows as: [Variable Name], 'باقیمانده', 'کل' for each criterion variable, strictly omitting parenthetical variable names on residual and total rows. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-OPENXML-TRAILING-EDGE-INVERSION-001)**: For Right-aligned text under BiDi, omit <w:jc>. Ensure section properties declare <w:bidi/>. Use jc_val='both' only for narrative body. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-NARRATIVE-PRECEDES-TABLE-CAPTION-001)**: Strictly order document elements: Heading first, followed by the explanatory continuous prose narrative, then the non-bold table caption, then the table itself, and finally the table note. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-QUESTION-HYPOTHESIS-HEADINGS-AND-CLEAN-DOCX-001)**: Enforce 'سوال اول: ...' and 'فرضیه اول: ...' section titles, clean non-redundant subheadings, and complete elimination of raw markdown artifacts in Word output. [Enforcement: results_auditor_guard.py]
