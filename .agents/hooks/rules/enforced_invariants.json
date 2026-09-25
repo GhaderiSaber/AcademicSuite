@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:08:45.020953+00:00",
+  "updated_at": "2026-09-25T18:08:45.531179+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -667,7 +667,7 @@
       "violation_message": "Enforce strict heading naming standard ('سوال اول: ...', 'فرضیه اول: ...'), strip parenthetical duplicates, remove raw markdown tokens from markdown source, and equip the OpenXML renderer with robust parsing.",
       "remedy": "Enforce strict heading naming standard ('سوال اول: ...', 'فرضیه اول: ...'), strip parenthetical duplicates, remove raw markdown tokens from markdown source, and equip the OpenXML renderer with robust parsing.",
       "enabled": true,
-      "updated_at": "2026-09-25T18:08:45.020941+00:00"
+      "updated_at": "2026-09-25T18:08:45.531154+00:00"
     },
     "AP-2026-REDUNDANT-P-SYMBOL-IN-TABLE-CELLS": {
       "item_id": "AP-2026-REDUNDANT-P-SYMBOL-IN-TABLE-CELLS",
