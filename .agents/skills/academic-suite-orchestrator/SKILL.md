@@ -79,6 +79,10 @@ There is a text in the references section that unrelated to references.
 
 
 The current local time is: 2026-09-25T18:58:52+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-572A86)]
+There is a text in the references section that unrelated to references. 
+
+
+The current local time is: 2026-09-25T18:58:52+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-572A86)]
 You have this text in the references. This is unacceptable.
 جامعیت: این فهرست شامل تمامی ارجاعات موجود در متن فصول ۲.۱ تا ۲.۷ (نظریات بنیادین، مدلهای شناختی، پرسشنامهها و پیشینههای تجربی متأخر تا سال ۲۰۲۵) میباشد.
 
