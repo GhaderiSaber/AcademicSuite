@@ -120,7 +120,7 @@ python3 .agents/skills/persian-discussion-builder/scripts/assemble_chapter5.py \
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-ACADEMIC-SOBRIETY-AND-ANTI-HYPERBOLE-001)**: Maintain strict academic sobriety and neutral academic prose. Do not use emotional, dramatic, or hyperbolic wording to inflate word counts. [Enforcement: academic_writer_guard.py]
-- **Lesson (LSN-2026-ASSEMBLY-HEADING-DEDUPLICATION-AND-RIGHT-ALIGNMENT-001)**: Pre-assembly regex stripping of stage titles; remove <w:jc> on all headings under BiDi contexts; enforce multi-margin verification. [Enforcement: assemble_chapter5.py / academic_writer_guard.py]
+- **Lesson (LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001)**: Enforce a rigid Chapter 5 Prose-Only Invariant: generate zero tables in Chapter 5. Tables belong exclusively to Chapter 4. [Enforcement: academic_writer_guard.py]
 - **Lesson (LSN-2026-ACADEMIC-SOBRIETY-AND-HEADING-BLANK-LINE-INVARIANT-001)**: Maintain an objective, dispassionate register devoid of emotive adverbs; preserve blank lines before headings and inject <w:spacing w:before="240" w:after="120"/> in OpenXML. [Enforcement: academic_writer_guard.py]
 - **Lesson (LSN-2026-EXHAUSTIVE-HEADING-ALIGNMENT-AND-DOM-QC-001)**: Universal right-alignment enforcement on all headings (<w:jc w:val="right"/> + <w:bidi w:val="1"/>) with per-paragraph DOM validation. [Enforcement: assemble_chapter5.py / academic_writer_guard.py]
 - **Lesson (LSN-2026-EXHAUSTIVE-FOOTNOTE-TOKENIZATION-AND-PARITY-QC-001)**: Exhaustive loop tokenization for all footnote markers [^X] in text nodes; assert zero literal '[^' substrings in document.xml and 1:1 parity between footnoteReference tags and definitions. [Enforcement: academic_writer_guard.py]
