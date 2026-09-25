@@ -119,7 +119,7 @@ python3 .agents/skills/persian-discussion-builder/scripts/assemble_chapter5.py \
 - **Epistemic Honesty on Null Findings**: Candidly discuss non-significant findings without defensive rationalization.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-NO-INLINE-COLON-LISTICLES-001)**: Never use inline colon-delimited labels or telegraphic pseudo-bullets (**موضوع:** ... **موضوع بعدی:** ...) in formal academic prose. Always weave empirical parameters into flowing, cohesive narrative paragraphs using scholarly transitions. [Enforcement: academic_writer_guard.py]
+- **Lesson (LSN-2026-ACADEMIC-SOBRIETY-AND-ANTI-HYPERBOLE-001)**: Maintain strict academic sobriety and neutral academic prose. Do not use emotional, dramatic, or hyperbolic wording to inflate word counts. [Enforcement: academic_writer_guard.py]
 - **Lesson (LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001)**: Enforce a rigid Chapter 5 Prose-Only Invariant: generate zero tables in Chapter 5. Tables belong exclusively to Chapter 4. [Enforcement: academic_writer_guard.py]
 - **Lesson (LSN-2026-EXPLICIT-RIGHT-ALIGNMENT-AND-INLINE-MARKDOWN-PARSING-001)**: Mandatory: 1) Inject explicit '<w:jc w:val="right"/>' for all Persian headings. 2) Tokenize inline Markdown into OpenXML '<w:i/>' / '<w:b/>' runs with zero raw asterisks in '<w:t>'. [Enforcement: academic_writer_guard.py]
 - **Lesson (LSN-2026-EXHAUSTIVE-HEADING-ALIGNMENT-AND-DOM-QC-001)**: Universal right-alignment enforcement on all headings (<w:jc w:val="right"/> + <w:bidi w:val="1"/>) with per-paragraph DOM validation. [Enforcement: assemble_chapter5.py / academic_writer_guard.py]
