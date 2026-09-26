@@ -76,8 +76,6 @@ Your exclusive focus is evaluating candidate mutations (`improvement_candidate`)
      a) Update the candidate status in `improvement_candidate.json` to `"EVALUATION_PASSED"`.
      b) Execute the deterministic graduation compiler via `run_command`:
         `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate <candidate_json_path>`
-        and
-        `python3 .agents/scripts/academic_graduation_compiler.py compile-all`
         to compile the approved code diff into the target tool and register mechanical rules into `enforced_invariants.json`.
      c) Verify that target components and `enforced_invariants.json` were updated on disk.
 4. **No Direct Manual Skill Mutation**:
