@@ -40,7 +40,12 @@ from validators.numerical_consistency.validator import validate_numbers
 from validators.adversarial_challenge_runner import run_adversarial_audit
 from validators.defense_readiness_compiler import run_defense_certification
 from validators.run_all_validators import run_suite
-from validation_agent_guard import handle_stop
+import importlib.util
+_val_guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "validation-agent", "guard.py")
+_spec = importlib.util.spec_from_file_location("validation_agent_guard", _val_guard_path)
+_val_mod = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_val_mod)
+handle_stop = _val_mod.handle_stop
 
 
 class TestValidationEvolution(unittest.TestCase):

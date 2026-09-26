@@ -148,7 +148,7 @@ class TestTrack2AcademicGovernanceGuard(unittest.TestCase):
         main_payload = {"agentName": "main", "workspacePaths": [ROOT_DIR]}
         for event in ("PreToolUse", "PostToolUse", "PreInvocation", "PostInvocation", "Stop"):
             res = dispatch_track2_event(event, main_payload)
-            if event == "PreInvocation":
+            if event in ("PreInvocation", "PostToolUse"):
                 self.assertEqual(res, {})
             elif event == "PostInvocation":
                 self.assertEqual(res, {"injectSteps": [], "terminationBehavior": ""})

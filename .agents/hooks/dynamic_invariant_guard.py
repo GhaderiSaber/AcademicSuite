@@ -158,12 +158,21 @@ class DynamicInvariantGuard:
         args = tool_call.get("args") or payload.get("args") or {}
         caller_clean = (caller or payload.get("agentName") or payload.get("agent") or "").strip().lower()
 
-        invariants = cls.load_invariants()
-        if not invariants:
-            return {"decision": "allow"}
-
         target_file = cls._extract_target_file(args)
         content = cls._extract_content(args)
+
+        base_dir = payload.get("base_dir") or (payload.get("workspacePaths", [None])[0] if payload.get("workspacePaths") else None)
+        if not base_dir and target_file:
+            cur = os.path.dirname(os.path.abspath(target_file))
+            while cur and cur != "/":
+                if os.path.isdir(os.path.join(cur, ".agents")):
+                    base_dir = cur
+                    break
+                cur = os.path.dirname(cur)
+
+        invariants = cls.load_invariants(base_dir=base_dir)
+        if not invariants:
+            return {"decision": "allow"}
 
         for rule_id, rule in invariants.items():
             if not rule.get("enabled", True):

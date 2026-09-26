@@ -87,15 +87,15 @@ ALLOWED_LEARNING_CATEGORIES: Set[str] = {
 
 # Regex patterns detecting illicit attempts to give direct execution roles to orchestrator
 FORBIDDEN_ORCHESTRATOR_EXECUTION_PATTERNS = [
-    r"\b(?:academic-)?orchestrator\s+(?:can|should|will|must|may)?\s*(?:run|execute|calculate|compute|perform)\b",
-    r"\b(?:academic-)?orchestrator\s+can\s+run\s+cfa\s+itself\b",
-    r"\b(?:academic-)?orchestrator\s+(?:executes|runs)\s+(?:r|python|code|syntax|script|analysis|cfa|anova|sem)\b",
-    r"\bgrant\s+(?:run_command|execution\s+tools?|write_to_file|edit_file)\s+to\s+(?:academic-)?orchestrator\b",
-    r"\badd\s+(?:run_command|write_to_file|replace_file_content)\s+to\s+(?:academic-)?orchestrator\b",
-    r"\bbypass\s+delegation\s+and\s+execute\b",
-    r"\b(?:academic-)?orchestrator\s+directly\s+executes\b",
-    r"\bgrant\s+(?:academic-)?orchestrator\s+execution\s+tools\b",
-    r"\borchestrator\s+runs\s+cfa\b"
+    r"\b(?:academic-)?orchestrator[ \t]+(?:can|should|will|must|may)?[ \t]*(?:run|execute|calculate|compute|perform)\b",
+    r"\b(?:academic-)?orchestrator[ \t]+can[ \t]+run[ \t]+cfa[ \t]+itself\b",
+    r"\b(?:academic-)?orchestrator[ \t]+(?:executes|runs)[ \t]+(?:r|python|code|syntax|script|analysis|cfa|anova|sem)\b",
+    r"\bgrant[ \t]+(?:run_command|execution[ \t]+tools?|write_to_file|edit_file)[ \t]+to[ \t]+(?:academic-)?orchestrator\b",
+    r"\badd[ \t]+(?:run_command|write_to_file|replace_file_content)[ \t]+to[ \t]+(?:academic-)?orchestrator\b",
+    r"\bbypass[ \t]+delegation[ \t]+and[ \t]+execute\b",
+    r"\b(?:academic-)?orchestrator[ \t]+directly[ \t]+executes\b",
+    r"\bgrant[ \t]+(?:academic-)?orchestrator[ \t]+execution[ \t]+tools\b",
+    r"\borchestrator[ \t]+runs[ \t]+cfa\b"
 ]
 
 

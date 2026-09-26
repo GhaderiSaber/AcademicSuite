@@ -52,19 +52,94 @@
       "properties": {
         "diff_type": {
           "type": "string",
-          "enum": ["UNIFIED_DIFF", "FULL_CONTENT_REPLACEMENT", "PARAMETER_PATCH"]
+          "enum": ["UNIFIED_DIFF", "FULL_CONTENT_REPLACEMENT", "PARAMETER_PATCH", "STRING_REPLACE"]
         },
         "content": {
           "type": "string",
-          "minLength": 5,
+          "minLength": 1,
           "description": "Unified diff text or replacement content representing the exact proposed change."
+        },
+        "target_content": {
+          "type": "string",
+          "description": "Exact target content to be replaced when diff_type is STRING_REPLACE."
+        },
+        "replacement_content": {
+          "type": "string",
+          "description": "Replacement content when diff_type is STRING_REPLACE."
         },
         "checksum_sha256": {
           "type": "string",
           "pattern": "^[a-fA-F0-9]{64}$"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": true
+    },
+    "mechanical_rule": {
+      "type": "object",
+      "description": "Companion deterministic hook rule definition for enforced_invariants.json to mechanically prevent regressions.",
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": ["PreToolUse", "PostToolUse", "Stop", "PreInvocation", "Both", "*"]
+        },
+        "tool_match": {
+          "type": "string",
+          "description": "Regex matching tool names to intercept (e.g. write_to_file|replace_file_content|run_command)."
+        },
+        "file_pattern": {
+          "type": "string",
+          "description": "Regex matching file paths where this rule applies."
+        },
+        "check_type": {
+          "type": "string",
+          "enum": ["regex_ban", "substring_ban", "tool_ban", "file_not_found", "custom_check", "ast_check"]
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Actionable regex pattern or substring that triggers violation."
+        },
+        "regex_patterns": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "violation_message": {
+          "type": "string",
+          "description": "Explanatory error message returned to the agent when violated."
+        },
+        "remedy": {
+          "type": "string",
+          "description": "Actionable instruction on how to fix the violation."
+        },
+        "target_agents": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "List of agent names to enforce this rule on (or ['*'] for all agents)."
+        },
+        "target_skills": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "detection_heuristic": {
+      "type": "object",
+      "description": "Heuristic detection rules for catching the anti-pattern or bug.",
+      "additionalProperties": true
+    },
+    "graduation_status": {
+      "type": "string",
+      "enum": ["PENDING_GRADUATION", "GRADUATED", "REJECTED", "NOT_GRADUATED"]
+    },
+    "graduation_track": {
+      "type": "string"
+    },
+    "promoted_at": {
+      "type": "string"
+    },
+    "promoted_targets": {
+      "type": "array",
+      "items": {"type": "string"}
     },
     "rationale": {
       "type": "string",

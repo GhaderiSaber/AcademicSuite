@@ -61,6 +61,47 @@ CAPABILITY_TO_SKILLS = {
 }
 
 
+def _is_actionable_regex_pattern(pattern: str) -> bool:
+    """
+    Determines whether a string is an actionable regex pattern rather than descriptive English prose.
+    Rejects plain sentences (e.g. 'Presence of bold styling applied to...', 'Detection of...').
+    """
+    if not pattern or not isinstance(pattern, str):
+        return False
+    pat = pattern.strip()
+    if not pat:
+        return False
+
+    # English prose prefixes used in descriptive heuristics rather than regexes
+    prose_prefixes = (
+        "detection of", "detect any", "flag any", "flag two", "inspect",
+        "assert", "absence of", "presence of", "disallowing", "target output",
+        "target file", "user_feedback", "reverse coding", "high density",
+        "high frequency", "standard compliance", "remove "
+    )
+    pat_lower = pat.lower()
+    if any(pat_lower.startswith(prefix) for prefix in prose_prefixes):
+        return False
+
+    # Plain text sentences with multiple space-separated words without regex metacharacters
+    # are prose descriptions, NOT valid regexes for mechanical banning.
+    words = pat.split()
+    has_regex_metachar = bool(re.search(r"[\^\\\[\]|*+?{}]|(?:\(\?)|(?:\(\<\=)|(?:\(\<\!)", pat))
+    if len(words) > 3 and not has_regex_metachar:
+        return False
+
+    # English sentence ending with punctuation without regex tokens
+    if re.match(r"^[A-Z][a-zA-Z\s,'\"-:]+(?:\.|\!|\?)$", pat) and not has_regex_metachar:
+        return False
+
+    # Verify that the regex compiles without error
+    try:
+        re.compile(pat)
+        return True
+    except re.error:
+        return False
+
+
 class AcademicGraduationCompiler:
     """Deterministic compilation engine ('The Hands') for Track 1 invariant graduation."""
 
@@ -470,7 +511,7 @@ class AcademicGraduationCompiler:
         is_global = (data.get("scope") == "cross-project" and not skills and not capability)
 
         # Extract mechanical heuristic parameters for Channel 2 hook registration
-        dh = data.get("detection_heuristic", {})
+        dh = data.get("mechanical_rule") or data.get("detection_heuristic", {})
         pattern = dh.get("regex") or dh.get("pattern") or ""
         if not pattern and "regex_patterns" in dh and isinstance(dh["regex_patterns"], list) and dh["regex_patterns"]:
             pattern = dh["regex_patterns"][0]
@@ -492,11 +533,11 @@ class AcademicGraduationCompiler:
                         try:
                             with open(os.path.join(anti_dir, af), "r", encoding="utf-8") as f_ap:
                                 ap_data = json.load(f_ap)
-                            ap_dh = ap_data.get("detection_heuristic", {})
+                            ap_dh = ap_data.get("mechanical_rule") or ap_data.get("detection_heuristic", {})
                             ap_pat = ap_dh.get("pattern") or ap_dh.get("regex") or ""
                             if not ap_pat and "regex_patterns" in ap_dh and isinstance(ap_dh["regex_patterns"], list) and ap_dh["regex_patterns"]:
                                 ap_pat = ap_dh["regex_patterns"][0]
-                            if ap_pat:
+                            if ap_pat and _is_actionable_regex_pattern(ap_pat):
                                 pattern = ap_pat
                                 check_type = check_type or ap_dh.get("check_type")
                                 file_pattern = file_pattern or ap_dh.get("file_pattern")
@@ -507,8 +548,12 @@ class AcademicGraduationCompiler:
 
         if not pattern and category == "Anti-Pattern":
             trig = dh.get("trigger_rule", "")
-            if re.search(r"[\^\\\[\].*+?|]", trig):
+            if _is_actionable_regex_pattern(trig):
                 pattern = trig
+
+        eff_check = check_type or ("regex_ban" if pattern else "")
+        if pattern and eff_check == "regex_ban" and not _is_actionable_regex_pattern(pattern):
+            pattern = ""
 
         target_agents = data.get("target_agents") or ([data.get("target_agent")] if data.get("target_agent") else None)
         remedy = data.get("corrective_remedy") or statement
@@ -653,7 +698,7 @@ class AcademicGraduationCompiler:
                 applied, _ = self.apply_patch_to_file(target_path, diff_content, dry_run=dry_run)
             elif diff_type in ("STRING_REPLACE", "REPLACE"):
                 tgt_str = mutation.get("target_content") or mutation.get("target") or ""
-                repl_str = mutation.get("replacement_content") or mutation.get("replacement") or ""
+                repl_str = mutation.get("replacement_content") or mutation.get("replacement") or mutation.get("content") or ""
                 if tgt_str:
                     try:
                         with open(target_path, "r", encoding="utf-8") as f:
@@ -667,7 +712,7 @@ class AcademicGraduationCompiler:
                             applied = True  # already applied
                     except Exception as e_rep:
                         sys.stderr.write(f"[compiler] script replace error: {e_rep}\n")
-            elif diff_type in ("FILE_REPLACE", "FULL_CONTENT"):
+            elif diff_type in ("FILE_REPLACE", "FULL_CONTENT", "FULL_CONTENT_REPLACEMENT"):
                 new_c = mutation.get("new_content") or mutation.get("content")
                 if new_c:
                     if not dry_run:
@@ -714,17 +759,21 @@ class AcademicGraduationCompiler:
             hook_pat = dh.get("pattern") or dh.get("regex") or ""
             if not hook_pat and "regex_patterns" in dh and isinstance(dh["regex_patterns"], list) and dh["regex_patterns"]:
                 hook_pat = dh["regex_patterns"][0]
-            if hook_pat:
+            check_type = dh.get("check_type") or "regex_ban"
+            is_valid_pat = _is_actionable_regex_pattern(hook_pat) if check_type == "regex_ban" else bool(hook_pat)
+            if is_valid_pat or check_type in ("tool_ban", "file_not_found"):
                 try:
+                    default_file_pattern = ".*\\.py" if is_script else ".*\\.(?:md|docx|txt|py|sh)"
                     hook_registered = DynamicInvariantGuard.register_invariant(
                         item_id=candidate_id,
                         category="Learned Mechanical Rule",
                         statement=dh.get("violation_message") or rationale or candidate_id,
-                        target_agents=data.get("target_agents") or ["*"],
-                        target_skills=data.get("affected_capabilities") or [],
+                        target_agents=dh.get("target_agents") or data.get("target_agents") or ["*"],
+                        target_skills=dh.get("target_skills") or data.get("affected_capabilities") or [],
                         event=dh.get("event") or "PreToolUse",
-                        file_pattern=dh.get("file_pattern") or ".*\\.(?:md|docx|txt)",
-                        check_type=dh.get("check_type") or "regex_ban",
+                        tool_match=dh.get("tool_match") or "write_to_file|replace_file_content|patch|edit_file",
+                        file_pattern=dh.get("file_pattern") or default_file_pattern,
+                        check_type=check_type,
                         pattern=hook_pat,
                         violation_message=dh.get("violation_message") or rationale or candidate_id,
                         remedy=dh.get("remedy") or rationale or "",
@@ -799,8 +848,7 @@ class AcademicGraduationCompiler:
                             d.get("graduation_status") != "GRADUATED" and (
                                 d.get("graduation_status") == "PENDING_GRADUATION" or
                                 d.get("graduation_track") == "TRACK_1_IMMEDIATE_GRADUATION" or
-                                d.get("is_active_behavior") is True or
-                                d.get("status") in ("VALIDATED", "PROMOTED")
+                                d.get("status") == "PENDING_GRADUATION"
                             )
                         )
                         if is_pending:
