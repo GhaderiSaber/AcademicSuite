@@ -134,7 +134,17 @@ class AcademicExperienceRecorder:
         self.index_file = os.path.join(self.store_dir, "index.jsonl")
 
     def _append_index(self, index_entry: Dict[str, Any]) -> None:
-        """Atomically appends an entry to the fast experience index."""
+        """Atomically appends an entry to the fast experience index with deduplication."""
+        exp_id = index_entry.get("experience_id")
+        if os.path.isfile(self.index_file):
+            try:
+                with open(self.index_file, "r", encoding="utf-8") as f:
+                    for line in f:
+                        if exp_id and f'"{exp_id}"' in line:
+                            return  # Already indexed, avoid bloat
+            except Exception:
+                pass
+
         line = json.dumps(index_entry, ensure_ascii=False) + "\n"
         with open(self.index_file, "a", encoding="utf-8") as f:
             f.write(line)
@@ -183,6 +193,25 @@ class AcademicExperienceRecorder:
 
         exp_path = os.path.join(exp_dir, "experience.json")
         trj_path = os.path.join(exp_dir, "trajectory.json")
+
+        # Fast deduplication: if exact experience already exists on disk, avoid rewrite
+        if os.path.isfile(exp_path) and os.path.isfile(trj_path):
+            try:
+                with open(exp_path, "r", encoding="utf-8") as existing_f:
+                    existing_data = json.load(existing_f)
+                if (existing_data.get("outcome") == experience_clean.get("outcome") and
+                    existing_data.get("validation_status") == experience_clean.get("validation_status") and
+                    existing_data.get("artifact_references") == experience_clean.get("artifact_references")):
+                    fdb_path = os.path.join(exp_dir, "feedback.json") if os.path.isfile(os.path.join(exp_dir, "feedback.json")) else None
+                    return {
+                        "status": "RECORDED",
+                        "experience_id": exp_id,
+                        "experience_path": exp_path,
+                        "trajectory_path": trj_path,
+                        "feedback_path": fdb_path
+                    }
+            except Exception:
+                pass
 
         with open(exp_path, "w", encoding="utf-8") as f:
             json.dump(experience_clean, f, indent=2, ensure_ascii=False)
@@ -269,10 +298,7 @@ class AcademicExperienceRecorder:
 
         # Stable or unique IDs
         date_str = now_dt.strftime("%Y%m%d")
-        rand_suffix = uuid.uuid4().hex[:6].upper()
         clean_mid = milestone_id.replace("_", "-").upper()
-        exp_id = f"EXP-{date_str}-{clean_mid}-{rand_suffix}"
-        trj_id = f"TRJ-{date_str}-{clean_mid}-{rand_suffix}"
 
         # Resolve agent and skill
         configured_agent = m_data.get("active_agent")
@@ -320,6 +346,13 @@ class AcademicExperienceRecorder:
                     "sha256": sha,
                     "type": detect_file_type(req_out)
                 })
+
+        # Deterministic IDs based on milestone state and artifacts
+        artifact_sig = ",".join(f"{a['path']}:{a.get('sha256','')}" for a in sorted(artifacts, key=lambda x: x["path"]))
+        content_input = f"{clean_mid}|{status}|{outcome}|{artifact_sig}"
+        stable_hash = hashlib.sha256(content_input.encode("utf-8")).hexdigest()[:6].upper()
+        exp_id = f"EXP-{date_str}-{clean_mid}-{stable_hash}"
+        trj_id = f"TRJ-{date_str}-{clean_mid}-{stable_hash}"
 
         # Extract timing
         created_at = m_data.get("created_at", now_iso)
@@ -472,7 +505,7 @@ class AcademicExperienceRecorder:
             appr_status = appr.get("status")
 
             if appr_status == "REJECTED" or stipulations or comments:
-                f_id = f"FDB-{date_str}-{rand_suffix}"
+                f_id = f"FDB-{date_str}-{stable_hash}"
                 f_type = "STIPULATION" if stipulations else ("CRITIQUE" if appr_status == "REJECTED" else "PREFERENCE")
                 corr_text = comments or ("Stipulations added by supervisor" if stipulations else "Revision required")
                 if len(corr_text.strip()) < 5:
@@ -593,11 +626,7 @@ class AcademicExperienceRecorder:
         now_dt = datetime.now(timezone.utc)
         now_iso = now_dt.isoformat()
         date_str = now_dt.strftime("%Y%m%d")
-        rand_suffix = uuid.uuid4().hex[:6].upper()
         clean_task = resolved_task_id.replace("_", "-").upper()
-
-        exp_id = f"EXP-{date_str}-{clean_task}-{rand_suffix}"
-        trj_id = f"TRJ-{date_str}-{clean_task}-{rand_suffix}"
 
         # Inspect physical artifacts in stage directory
         artifacts = []
@@ -683,6 +712,15 @@ class AcademicExperienceRecorder:
                 resolved_outcome = "PARTIAL"
 
         trj_outcome = "SUCCESS" if resolved_outcome == "SUCCESS" else "FAILURE"
+
+        # Deterministic stable IDs based on stage identity, outcome, validation, and artifact signatures
+        artifact_sig = ",".join(f"{a['path']}:{a.get('sha256','')}" for a in sorted(artifacts, key=lambda x: x["path"]))
+        val_sig = f"{val_status.get('verdict')}:{val_status.get('checks_failed')}"
+        content_input = f"{clean_task}|{resolved_skill}|{resolved_outcome}|{val_sig}|{artifact_sig}"
+        stable_hash = hashlib.sha256(content_input.encode("utf-8")).hexdigest()[:6].upper()
+
+        exp_id = f"EXP-{date_str}-{clean_task}-{stable_hash}"
+        trj_id = f"TRJ-{date_str}-{clean_task}-{stable_hash}"
 
         feedback_ids = []
         if feedback and feedback.get("feedback_id"):
