@@ -12,10 +12,9 @@ from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-storage_dir = os.path.join(SCRIPT_DIR, "../.agents/skills/digital-twin-academic-consultant/scripts/userbot_storage")
-os.makedirs(storage_dir, exist_ok=True)
-session_path = os.path.join(storage_dir, "saber_second_userbot")
-qr_image_path = os.path.join(SCRIPT_DIR, "../telegram_login_qr.png")
+scripts_dir = os.path.join(SCRIPT_DIR, "../.agents/skills/digital-twin-academic-consultant/scripts")
+session_path = os.path.join(scripts_dir, "saber_second_userbot")
+qr_image_path = os.path.expanduser("~/Desktop/telegram_login_qr.png")
 proxy = ("socks5", "127.0.0.1", 3066)
 
 api_id = 6

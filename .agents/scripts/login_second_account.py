@@ -18,6 +18,7 @@ import sys
 import json
 import asyncio
 import argparse
+from pathlib import Path
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Correctly resolve workspace root from .agents/scripts
@@ -75,7 +76,7 @@ async def main():
     print("   3. Scan the QR code below or open the generated image:")
     print("=" * 65 + "\n")
 
-    img_path = "/home/ghaderi-saber/Desktop/telegram_qr.png"
+    img_path = str(Path.home() / "Desktop" / "telegram_qr.png")
     qr_login = await client.qr_login()
 
     user = None
