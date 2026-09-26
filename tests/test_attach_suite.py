@@ -168,6 +168,34 @@ class TestAttachSuite(unittest.TestCase):
                 self.assertTrue(status["agents_exists"])
                 self.assertFalse(status["agents_is_link"])
                 self.assertEqual(len(status["separate_folders"]), 0)
+                self.assertTrue(status["has_meta"])
+
+                # Test Detach: cleanly removes all suite files and detaches git repo
+                class DetachArgs:
+                    path = str(project_dir)
+                    keep_git = False
+
+                attach_suite.cmd_detach(DetachArgs())
+
+                # Verify git repository is detached (removed)
+                self.assertFalse((project_dir / ".git").exists())
+
+                # Verify all attached suite items are cleanly removed
+                self.assertFalse((project_dir / ".agents").exists())
+                self.assertFalse((project_dir / "AGENTS.md").exists())
+                self.assertFalse((project_dir / "ANTIGRAVITY_ARCHITECTURE_GUIDE.md").exists())
+                self.assertFalse((project_dir / "digital_saber.py").exists())
+                self.assertFalse((project_dir / ".attached_suite.json").exists())
+
+                # Verify user file is STILL intact
+                self.assertTrue(user_file.exists())
+                self.assertEqual(user_file.read_text(), "Confidential thesis notes")
+
+                # Verify get_status reports no attached suite
+                status_after = attach_suite.get_status(project_dir)
+                self.assertFalse(status_after["has_local_git"])
+                self.assertFalse(status_after["agents_exists"])
+                self.assertFalse(status_after["has_meta"])
 
             finally:
                 attach_suite.get_cwd = orig_get_cwd
@@ -220,6 +248,79 @@ class TestAttachSuite(unittest.TestCase):
                 # Verify project root contains attached items
                 self.assertTrue((project_dir / ".agents").exists())
                 self.assertTrue((project_dir / "AGENTS.md").exists())
+            finally:
+                attach_suite.get_cwd = orig_get_cwd
+
+    def test_detach_with_keep_git(self):
+        """Verifies that detaching with keep_git=True preserves .git while removing suite items."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project_dir = Path(tmp_dir) / "keep_git_thesis"
+            project_dir.mkdir()
+            user_file = project_dir / "notes.txt"
+            user_file.write_text("user notes")
+
+            orig_get_cwd = attach_suite.get_cwd
+            attach_suite.get_cwd = lambda target_path=".": project_dir
+
+            try:
+                class Args:
+                    suite = str(REPO_ROOT)
+                    keep_git = False
+
+                attach_suite.cmd_attach(Args())
+                self.assertTrue((project_dir / ".git").exists())
+                self.assertTrue((project_dir / ".agents").exists())
+
+                class DetachArgs:
+                    path = str(project_dir)
+                    keep_git = True
+
+                attach_suite.cmd_detach(DetachArgs())
+
+                # .git must be preserved
+                self.assertTrue((project_dir / ".git").exists())
+                # Suite files must be removed
+                self.assertFalse((project_dir / ".agents").exists())
+                self.assertFalse((project_dir / "AGENTS.md").exists())
+                # User file must be intact
+                self.assertTrue(user_file.exists())
+                self.assertEqual(user_file.read_text(), "user notes")
+            finally:
+                attach_suite.get_cwd = orig_get_cwd
+
+    def test_detach_preserves_user_files_in_suite_directories(self):
+        """Verifies that user-created files inside a suite directory (e.g. docs/) are preserved."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project_dir = Path(tmp_dir) / "user_docs_thesis"
+            project_dir.mkdir()
+
+            orig_get_cwd = attach_suite.get_cwd
+            attach_suite.get_cwd = lambda target_path=".": project_dir
+
+            try:
+                class Args:
+                    suite = str(REPO_ROOT)
+                    keep_git = False
+
+                attach_suite.cmd_attach(Args())
+                self.assertTrue((project_dir / "docs").exists())
+
+                # User adds custom file inside docs/
+                user_doc = project_dir / "docs" / "user_proposal.txt"
+                user_doc.write_text("My custom proposal")
+
+                class DetachArgs:
+                    path = str(project_dir)
+                    keep_git = False
+
+                attach_suite.cmd_detach(DetachArgs())
+
+                # docs/ directory must still exist with user_proposal.txt
+                self.assertTrue(user_doc.exists())
+                self.assertEqual(user_doc.read_text(), "My custom proposal")
+                # Suite files outside docs must be removed
+                self.assertFalse((project_dir / ".agents").exists())
+                self.assertFalse((project_dir / ".git").exists())
             finally:
                 attach_suite.get_cwd = orig_get_cwd
 
