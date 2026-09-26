@@ -1162,5 +1162,15 @@ if __name__ == '__main__':
         with open(args.output_json, "w", encoding="utf-8") as out_f:
             json.dump(rep, out_f, indent=2, ensure_ascii=False)
 
+    if rep["overall_verdict"] != "PASS":
+        try:
+            from hooks.learning_hooks import LearningHooks
+            LearningHooks.capture_validation_failure(
+                stage_dir=args.stage_dir,
+                validator_results=rep.get("results", [])
+            )
+        except Exception:
+            pass
+
     print(json.dumps(rep, indent=2, ensure_ascii=False))
     sys.exit(0 if rep["overall_verdict"] == "PASS" else 1)

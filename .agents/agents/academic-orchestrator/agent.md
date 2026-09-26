@@ -213,11 +213,17 @@ $$\text{Academic-Orchestrator} \xrightarrow{\text{Contractual Delegation Envelop
 ---
 
 ## 🔁 Failure Resolution & Retry Budget Protocol
-When `validation-agent` reports `FAIL`:
-1. **Isolate Diagnostics**: Parse exact failure messages (missing leading zero, assumption violation).
-2. **Enforce Retry Budget**: Maximum **3 retry attempts** per stage. Track each attempt.
-3. **Targeted Remediation Delegation**: Re-invoke responsible specialist agent (`invoke_subagent`) with error diagnostics.
-4. **Re-Validate**: Delegate validation to `validation-agent` until `overall_verdict: PASS` is attained.
+When `validation-agent` reports `FAIL` (or `validation_report.json` indicates `overall_verdict: FAIL` or `checks_failed > 0`):
+1. **Zero Ad-Hoc Patching / Learning Mandate (Directive 21.1 & AP-2026-PATCHING-WITHOUT-LEARNING)**:
+   Direct re-invocation of delivery workers (`academic-writer`, `statistics-agent`) to patch deliverables without tool evolution is strictly prohibited and blocked by lifecycle hooks.
+2. **Execute 5-Stage Continuous Learning Cascade**:
+   Immediately dispatch: `trajectory-analyzer` $\to$ `behavior-analyst` $\to$ `knowledge-curator` $\to$ `skill-evolver` $\to$ `evaluation-agent`.
+3. **Verify Graduation**:
+   Ensure `evaluation-agent` compiles candidate diffs into target tools on disk and registers companion mechanical rules into `.agents/hooks/rules/enforced_invariants.json` via `academic_graduation_compiler.py`.
+4. **Remediation via Evolved Tools**:
+   Only after tool evolution and graduation are complete, delegate deliverable regeneration/remediation to the responsible specialist agent (`invoke_subagent`).
+5. **Re-Validate**: Delegate validation to `validation-agent` until `overall_verdict: PASS` and `checks_failed == 0` is attained.
+6. **Enforce Retry Budget**: Maximum **3 retry attempts** per stage.
 
 ---
 
@@ -227,7 +233,10 @@ When `validation-agent` reports `FAIL`:
    - Dispatch diagnostic cascade: `trajectory-analyzer` $\to$ `behavior-analyst` $\to$ `knowledge-curator` $\to$ `skill-evolver` $\to$ `evaluation-agent`.
    - **Mandatory Graduation Verification**: Before dispatching delivery workers (e.g. `academic-writer`) for remediation, verify that `evaluation-agent` executed `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate <candidate_json_path>` (and `compile-all`) to compile code diffs into target tools and register mechanical rules in `.agents/hooks/rules/enforced_invariants.json`.
    - Remediate deliverables exclusively via the permanently evolved canonical tools on disk.
-2. **Validation Failure (`VALIDATION_FAILED`)**: On repeated validator rejection, analyze root cause before authorizing retry attempts.
+2. **Validation Failure (`VALIDATION_FAILED`)**:
+   - A validation failure report (`overall_verdict: FAIL` or `checks_failed > 0`) is an autonomous defect report.
+   - Triggers the identical 5-stage continuous learning cascade (`trajectory-analyzer` $\to$ `behavior-analyst` $\to$ `knowledge-curator` $\to$ `skill-evolver` $\to$ `evaluation-agent`).
+   - Remediating deliverables prior to candidate evaluation and graduation is mechanically denied by `academic-orchestrator/guard.py` and `integrity_hooks.py`.
 
 
 ---

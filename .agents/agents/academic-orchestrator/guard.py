@@ -104,6 +104,71 @@ def is_user_critique_active(records: List[Dict[str, Any]]) -> Tuple[bool, str, L
     return is_critique, clean_user, active_records
 
 
+def is_validation_failure_active(records: List[Dict[str, Any]], workspaces: List[str] = None) -> Tuple[bool, str, List[Dict[str, Any]]]:
+    last_user_idx = -1
+    for idx, r in enumerate(records):
+        if r.get("type") == "USER_INPUT":
+            last_user_idx = idx
+    active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
+
+    # 1. Check active records in transcript for explicit validation failure
+    for rec in reversed(active_records):
+        content = str(rec.get("content", ""))
+        if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed", "validation cascade", "validation audit")):
+            has_fail = (
+                re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                or re.search(r'\bverdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                or re.search(r'\boverall_verdict\s+of\s+\*?\*?fail\*?\*?', content, re.IGNORECASE)
+                or re.search(r'checks_failed[\'":\s]+[1-9]\d*', content, re.IGNORECASE)
+                or ("STAGE VERIFICATION ADVISORY" in content and "FAIL" in content)
+            )
+            has_pass = (
+                re.search(r'\boverall_verdict[\'":\s]+pass\b', content, re.IGNORECASE)
+                or re.search(r'\boverall_verdict\s+of\s+\*?\*?pass\*?\*?', content, re.IGNORECASE)
+            ) and re.search(r'checks_failed[\'":\s]+0\b', content, re.IGNORECASE)
+
+            if has_pass:
+                return False, "", active_records
+            if has_fail:
+                summary = "Validation failed: overall_verdict is FAIL"
+                m_failed = re.search(r'(\d+)\s+total\s+`?checks_failed`?|checks_failed[\'":\s]+(\d+)', content, re.IGNORECASE)
+                if m_failed:
+                    num = m_failed.group(1) or m_failed.group(2)
+                    summary = f"Validation failed ({num} checks failed, overall_verdict: FAIL)"
+                return True, summary, active_records
+
+    # 2. Check on disk in workspaces
+    ws_list = workspaces or [ROOT_DIR]
+    for ws in ws_list:
+        if not ws or not os.path.exists(ws):
+            continue
+        candidate_paths = [
+            os.path.join(ws, "03_deliverables", "validation_report.json"),
+            os.path.join(ws, "validation_report.json")
+        ]
+        deliv_dir = os.path.join(ws, "03_deliverables")
+        if os.path.isdir(deliv_dir):
+            for sdir in os.listdir(deliv_dir):
+                cand = os.path.join(deliv_dir, sdir, "validation_report.json")
+                if os.path.exists(cand):
+                    candidate_paths.append(cand)
+        for cp in candidate_paths:
+            if os.path.exists(cp):
+                try:
+                    with open(cp, "r", encoding="utf-8") as vf:
+                        v_data = json.load(vf)
+                    verdict = str(v_data.get("overall_verdict", "")).strip().upper()
+                    ev_sum = v_data.get("evidence_summary", {})
+                    checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
+                    if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
+                        summary = f"Validation report '{os.path.basename(cp)}' overall_verdict is FAIL ({checks_failed} checks failed)"
+                        return True, summary, active_records
+                except Exception:
+                    pass
+
+    return False, "", active_records
+
+
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     tool_call = payload.get("toolCall", {})
     tool_name = (tool_call.get("name") or "").strip().lower()
@@ -171,10 +236,16 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                             try:
                                 with open(t_target, "r", encoding="utf-8") as tf:
                                     t_records = [json.loads(tl.strip()) for tl in tf if tl.strip()]
+                                workspaces = payload.get("workspacePaths", [ROOT_DIR])
                                 is_crit, crit_txt, active_recs = is_user_critique_active(t_records)
-                                if is_crit:
+                                is_val, val_txt, val_active_recs = is_validation_failure_active(t_records, workspaces)
+                                if is_crit or is_val:
+                                    recs_to_check = active_recs if is_crit else val_active_recs
+                                    defect_type = "User critique" if is_crit else "Validation failure"
+                                    defect_txt = crit_txt if is_crit else val_txt
+
                                     eval_completed = False
-                                    for ar in active_recs:
+                                    for ar in recs_to_check:
                                         for atc in ar.get("tool_calls", []):
                                             if atc.get("name") == "invoke_subagent":
                                                 asubs = atc.get("args", {}).get("Subagents", [])
@@ -186,8 +257,8 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                         eval_completed = True
                                     if not eval_completed:
                                         msg = (
-                                            f"CONSTITUTIONAL VIOLATION (Directive 21.1 — Premature Remediation Without Tool Evolution): "
-                                            f"User critique is active ('{crit_txt[:80]}...'). You are strictly prohibited from invoking delivery worker "
+                                            f"CONSTITUTIONAL VIOLATION (Directive 21.1 / AP-2026-PATCHING-WITHOUT-LEARNING — Premature Remediation Without Tool Evolution): "
+                                            f"{defect_type} is active ('{defect_txt[:80]}...'). You are strictly prohibited from invoking delivery worker "
                                             f"'{target_type}' before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
                                             f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
                                         )
@@ -281,12 +352,19 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
             if lines:
                 last_record = json.loads(lines[-1])
 
-                # Directive 21 & Directive 21.1: Continuous Learning Cascade Gate on Critique
+                # Directive 21 & Directive 21.1: Continuous Learning Cascade Gate on Critique or Validation Failure
                 all_records = [json.loads(l) for l in lines]
+                workspaces = payload.get("workspacePaths", [ROOT_DIR])
                 is_crit, crit_txt, active_recs = is_user_critique_active(all_records)
-                if is_crit:
+                is_val, val_txt, val_active_recs = is_validation_failure_active(all_records, workspaces)
+
+                if is_crit or is_val:
+                    recs_to_check = active_recs if is_crit else val_active_recs
+                    defect_label = "Critique" if is_crit else "Validation Failure"
+                    defect_txt = crit_txt if is_crit else val_txt
+
                     invoked_in_turn = []
-                    for ar in active_recs:
+                    for ar in recs_to_check:
                         for atc in ar.get("tool_calls", []):
                             if (atc.get("name") or "").lower() == "invoke_subagent":
                                 asubs = atc.get("args", {}).get("Subagents", [])
@@ -302,10 +380,10 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     has_evolution = any(any(ev in sa for ev in ("skill-evolver", "evaluation-agent")) for sa in invoked_in_turn)
                     if not has_diagnostic or not has_evolution:
                         msg = (
-                            f"CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 — Uninvoked Learning Pipeline on Critique):\n"
-                            f"The user reported a defect or critique ('{crit_txt[:80]}...'), but the continuous learning cascade "
+                            f"CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 — Uninvoked Learning Pipeline on {defect_label}):\n"
+                            f"A defect was detected ('{defect_txt[:80]}...'), but the continuous learning cascade "
                             f"was NOT executed in this turn!\n"
-                            f"Under Directive 21 and Directive 21.1, you are strictly prohibited from bypassing learning, attempting "
+                            f"Under Directive 21, Directive 21.1, and AP-2026-PATCHING-WITHOUT-LEARNING, you are strictly prohibited from bypassing learning, attempting "
                             f"ad-hoc direct fixes, or delegating remediation without first running the full 5-stage cascade:\n"
                             f"1. trajectory-analyzer, 2. behavior-analyst, 3. knowledge-curator, 4. skill-evolver, 5. evaluation-agent.\n"
                             f"Please invoke 'trajectory-analyzer' now."

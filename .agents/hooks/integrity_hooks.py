@@ -847,13 +847,71 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
-    def verify_learning_pipeline_completion(records: List[Dict[str, Any]]) -> Tuple[bool, str]:
+    def detect_validation_failure(active_records: List[Dict[str, Any]], workspaces: Optional[List[str]] = None) -> Tuple[bool, str]:
+        # 1. Transcript records check
+        for rec in reversed(active_records):
+            content = str(rec.get("content", ""))
+            if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed", "validation cascade", "validation audit")):
+                has_fail = (
+                    re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                    or re.search(r'\bverdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                    or re.search(r'\boverall_verdict\s+of\s+\*?\*?fail\*?\*?', content, re.IGNORECASE)
+                    or re.search(r'checks_failed[\'":\s]+[1-9]\d*', content, re.IGNORECASE)
+                    or ("STAGE VERIFICATION ADVISORY" in content and "FAIL" in content)
+                )
+                has_pass = (
+                    re.search(r'\boverall_verdict[\'":\s]+pass\b', content, re.IGNORECASE)
+                    or re.search(r'\boverall_verdict\s+of\s+\*?\*?pass\*?\*?', content, re.IGNORECASE)
+                ) and re.search(r'checks_failed[\'":\s]+0\b', content, re.IGNORECASE)
+
+                if has_pass:
+                    return False, ""
+                if has_fail:
+                    summary = "Validation failed: overall_verdict is FAIL"
+                    m_failed = re.search(r'(\d+)\s+total\s+`?checks_failed`?|checks_failed[\'":\s]+(\d+)', content, re.IGNORECASE)
+                    if m_failed:
+                        num = m_failed.group(1) or m_failed.group(2)
+                        summary = f"Validation failed ({num} checks failed, overall_verdict: FAIL)"
+                    return True, summary
+
+        # 2. Disk check
+        ws_list = workspaces or []
+        for ws in ws_list:
+            if not ws or not os.path.exists(ws):
+                continue
+            cand_paths = [
+                os.path.join(ws, "03_deliverables", "validation_report.json"),
+                os.path.join(ws, "validation_report.json")
+            ]
+            deliv_dir = os.path.join(ws, "03_deliverables")
+            if os.path.isdir(deliv_dir):
+                for sdir in os.listdir(deliv_dir):
+                    cp = os.path.join(deliv_dir, sdir, "validation_report.json")
+                    if os.path.exists(cp):
+                        cand_paths.append(cp)
+            for cp in cand_paths:
+                if os.path.exists(cp):
+                    try:
+                        with open(cp, "r", encoding="utf-8") as vf:
+                            v_data = json.load(vf)
+                        verdict = str(v_data.get("overall_verdict", "")).strip().upper()
+                        ev_sum = v_data.get("evidence_summary", {})
+                        checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
+                        if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
+                            summary = f"Validation report '{os.path.basename(cp)}' overall_verdict is FAIL ({checks_failed} checks failed)"
+                            return True, summary
+                    except Exception:
+                        pass
+        return False, ""
+
+    @staticmethod
+    def verify_learning_pipeline_completion(records: List[Dict[str, Any]], workspaces: Optional[List[str]] = None) -> Tuple[bool, str]:
         """
         Enforces Directive 21 & Directive 21.1 (Mandatory Learning & Evolution Pipeline & Zero Fast-Path):
         1. Prohibits claiming an authorized 'fast-path' or postponing tool/skill evolution to 'occur later'.
-        2. Affirmative Learning Gate on Critique: If user reported a defect/critique, the orchestrator
-           MUST execute the full continuous learning cascade (trajectory-analyzer -> behavior-analyst ->
-           knowledge-curator -> skill-evolver -> evaluation-agent) in the active turn.
+        2. Affirmative Learning Gate on Critique or Validation Failure: If user reported a defect/critique
+           or validator issued FAIL, the orchestrator MUST execute the full continuous learning cascade
+           (trajectory-analyzer -> behavior-analyst -> knowledge-curator -> skill-evolver -> evaluation-agent) in the active turn.
         3. Premature Remediation Gate: Delivery workers ('academic-writer', 'statistics-agent', etc.)
            CANNOT be invoked or messaged before 'skill-evolver' or 'evaluation-agent' have run.
         """
@@ -933,7 +991,7 @@ class IntegrityHooks:
                         if "academic-writer" not in invoked_subagents:
                             invoked_subagents.append("academic-writer")
 
-        # Check if critique/correction triggered learning
+        # Check if critique/correction or validation failure triggered learning
         clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
         critique_patterns = [
             r"\b(?:problem|error|bug|defect|issue|flaw|failure|discrepancy|mismatch)s?\b",
@@ -945,12 +1003,13 @@ class IntegrityHooks:
             r"اشتباه|اشتباهات|غلط|غلط‌ها|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا|خطاها|مشکل|مشکلات|ایراد|ایرادات|نواقص|نقص|جا افتاده|حذف شده|وجود ندارد|نیست"
         ]
         is_user_critique = any(re.search(pat, clean_user, re.IGNORECASE) for pat in critique_patterns)
+        is_val_failure, val_summary = IntegrityHooks.detect_validation_failure(active_records, workspaces)
 
         # Check if premature remediation was attempted before evolution completed
         has_learning_started = any(
             any(k in sa for k in ("knowledge-curator", "trajectory-analyzer", "behavior-analyst"))
             for sa in invoked_subagents
-        ) or is_user_critique
+        ) or is_user_critique or is_val_failure
 
         if has_learning_started:
             eval_seen = False
@@ -967,9 +1026,11 @@ class IntegrityHooks:
                             "Invoke 'skill-evolver' and 'evaluation-agent' first."
                         )
 
-        # 2a. Affirmative Learning Gate on Critique:
-        # If user reported critique, the learning and evolution cascade MUST be invoked in this turn!
-        if is_user_critique:
+        # 2a. Affirmative Learning Gate on Critique or Validation Failure:
+        # If user reported critique or validation failed, the learning and evolution cascade MUST be invoked in this turn!
+        if is_user_critique or is_val_failure:
+            trigger_label = "Critique" if is_user_critique else "Validation Failure"
+            trigger_detail = clean_user if is_user_critique else val_summary
             has_diagnostic = any(
                 any(k in sa for k in ("trajectory-analyzer", "behavior-analyst", "knowledge-curator"))
                 for sa in invoked_subagents
@@ -980,10 +1041,10 @@ class IntegrityHooks:
             )
             if not has_diagnostic or not has_evolution:
                 return False, (
-                    "CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 - Uninvoked Learning Pipeline on Critique): "
-                    f"The user reported a defect or critique ('{clean_user[:80]}...'), but the continuous learning cascade "
+                    f"CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 - Uninvoked Learning Pipeline on {trigger_label}): "
+                    f"A defect was detected ('{trigger_detail[:80]}...'), but the continuous learning cascade "
                     "was NOT executed in this turn! "
-                    "Under Directive 21 and Directive 21.1, you are strictly prohibited from bypassing learning, attempting "
+                    "Under Directive 21, Directive 21.1, and AP-2026-PATCHING-WITHOUT-LEARNING, you are strictly prohibited from bypassing learning, attempting "
                     "ad-hoc direct fixes, or messaging workers without first running the full 5-stage cascade: "
                     "1. trajectory-analyzer, 2. behavior-analyst, 3. knowledge-curator, 4. skill-evolver, 5. evaluation-agent. "
                     "Please invoke 'trajectory-analyzer' now."
@@ -1135,7 +1196,7 @@ class IntegrityHooks:
                 return {"decision": "continue", "reason": reason, "message": reason}
 
             # 9. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
-            ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records)
+            ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records, workspaces=workspaces)
             if not ok:
                 return {"decision": "continue", "reason": reason, "message": reason}
 

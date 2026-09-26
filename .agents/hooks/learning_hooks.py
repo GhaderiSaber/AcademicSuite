@@ -439,7 +439,8 @@ class LearningHooks:
     @staticmethod
     def detect_recent_validation_failure(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
-        Inspects trajectory events and recent reports for validation failures in the current session.
+        Inspects trajectory events, workspace validation reports, and recent transcript
+        for validation failures in the current session.
         """
         try:
             engine = LearningHooks._get_engine(payload)
@@ -456,6 +457,79 @@ class LearningHooks:
                     }
         except Exception as e:
             sys.stderr.write(f"[learning_hooks] Detect validation failure note: {e}\n")
+
+        # 2. Inspect on-disk validation_report.json across workspacePaths
+        try:
+            workspaces = payload.get("workspacePaths", [ROOT_DIR])
+            for ws in workspaces:
+                if not ws or not os.path.exists(ws):
+                    continue
+                cand_paths = [
+                    os.path.join(ws, "03_deliverables", "validation_report.json"),
+                    os.path.join(ws, "validation_report.json")
+                ]
+                deliv_dir = os.path.join(ws, "03_deliverables")
+                if os.path.isdir(deliv_dir):
+                    for sdir in os.listdir(deliv_dir):
+                        cp = os.path.join(deliv_dir, sdir, "validation_report.json")
+                        if os.path.exists(cp):
+                            cand_paths.append(cp)
+                for cp in cand_paths:
+                    if os.path.isfile(cp):
+                        try:
+                            with open(cp, "r", encoding="utf-8") as vf:
+                                v_data = json.load(vf)
+                            verdict = str(v_data.get("overall_verdict", "")).strip().upper()
+                            ev_sum = v_data.get("evidence_summary", {})
+                            checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
+                            if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
+                                s_dir = os.path.dirname(cp)
+                                try:
+                                    LearningHooks.capture_validation_failure(
+                                        stage_dir=s_dir,
+                                        validator_results=v_data.get("results", [{"validator_name": "ValidationReport", "verdict": "FAIL", "failed_checks": [f"{checks_failed} checks failed"]}])
+                                    )
+                                except Exception:
+                                    pass
+                                return {
+                                    "validator_name": v_data.get("validator_name", "ValidationReport"),
+                                    "summary": f"Report in '{os.path.basename(s_dir)}' overall_verdict is FAIL ({checks_failed} checks failed)",
+                                    "stage_dir": s_dir,
+                                    "checks_failed": checks_failed
+                                }
+                        except Exception:
+                            pass
+        except Exception as e_disk:
+            sys.stderr.write(f"[learning_hooks] Disk validation failure note: {e_disk}\n")
+
+        # 3. Inspect recent transcript messages for validation failures
+        try:
+            transcript_path = resolve_transcript_path(payload)
+            if transcript_path and os.path.isfile(transcript_path):
+                records = load_transcript(transcript_path)
+                for rec in reversed(records[-30:]):
+                    content = str(rec.get("content", ""))
+                    if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed")):
+                        has_fail = (
+                            re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                            or re.search(r'\bverdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                            or re.search(r'\boverall_verdict\s+of\s+\*?\*?fail\*?\*?', content, re.IGNORECASE)
+                            or re.search(r'checks_failed[\'":\s]+[1-9]\d*', content, re.IGNORECASE)
+                        )
+                        has_pass = (
+                            re.search(r'\boverall_verdict[\'":\s]+pass\b', content, re.IGNORECASE)
+                        ) and re.search(r'checks_failed[\'":\s]+0\b', content, re.IGNORECASE)
+                        if has_pass:
+                            break
+                        if has_fail:
+                            return {
+                                "validator_name": "ValidationAgent",
+                                "summary": "Validation cascade failed with overall_verdict: FAIL",
+                                "stage_dir": ""
+                            }
+        except Exception as e_tr:
+            sys.stderr.write(f"[learning_hooks] Transcript validation failure note: {e_tr}\n")
+
         return None
 
     @staticmethod
@@ -724,10 +798,16 @@ class LearningHooks:
         if val_failure:
             val_summary = val_failure.get("summary", "Validation failed")[:300]
             val_block = (
-                "⚠️ CONTINUOUS LEARNING TRIGGER ACTIVE (VALIDATION_FAILED):\n"
-                f"- Recent Validation Failure: {val_summary}\n"
-                "- Operational Mandate: If this failure indicates a systematic defect or exhausts the retry budget, "
-                "you MUST invoke 'trajectory-analyzer' and 'behavior-analyst' to diagnose root cause and catalog the pitfall."
+                "🧠 CONTINUOUS LEARNING TRIGGER ACTIVE (VALIDATION_FAILED):\n"
+                f"- Recent Validation Failure: \"{val_summary}\"\n"
+                "- Operational Mandate (Directive 21, AP-2026-PATCHING-WITHOUT-LEARNING & LEARNING_MULTI_AGENT_SPEC.md):\n"
+                "  A deliverable has failed validation audit. You MUST trigger the diagnostic learning pipeline via native invoke_subagent:\n"
+                f"  1. invoke_subagent(TypeName=\"trajectory-analyzer\", Prompt=\"Reconstruct observable actions, tool calls, and error trajectory for validation failure: {val_summary}\")\n"
+                "  2. invoke_subagent(TypeName=\"behavior-analyst\", Prompt=\"Perform causal root-cause analysis on the failure trajectory to determine failure mechanism\")\n"
+                "  3. invoke_subagent(TypeName=\"knowledge-curator\", Prompt=\"Catalog the diagnosed anti-pattern into persistent learning store\")\n"
+                "  4. invoke_subagent(TypeName=\"skill-evolver\", Workspace=\"branch\", Prompt=\"Synthesize candidate modification to evolve the skill/script and define companion mechanical rules\")\n"
+                "  5. invoke_subagent(TypeName=\"evaluation-agent\", Workspace=\"branch\", Prompt=\"Evaluate candidate and compile via academic_graduation_compiler.py\")\n"
+                "- Prohibited Anti-Pattern: Do NOT invoke delivery workers (academic-writer, statistics-agent) before completing the learning cascade."
             )
             ephemeral_blocks.append(val_block)
 
