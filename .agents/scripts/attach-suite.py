@@ -870,30 +870,77 @@ def cmd_detach(args):
 
     meta_file = cwd / ".attached_suite.json"
     has_meta = meta_file.exists()
-    attached_items_from_meta = []
+    meta_info = {}
 
     if has_meta:
         try:
             with open(meta_file, "r", encoding="utf-8") as f:
-                info = json.load(f)
-                attached_items_from_meta = info.get("attached_items", [])
+                meta_info = json.load(f)
         except Exception:
             pass
 
-    removed = []
+    attached_items_from_meta = meta_info.get("attached_items", [])
+    created_git = meta_info.get("created_git", True)
+    previous_origin = meta_info.get("previous_origin", None)
+
+    git_dir = cwd / ".git"
+    has_git = git_dir.exists()
+
+    git_tracked_items = []
+    is_suite_git = False
+    if has_git:
+        try:
+            res_remote = subprocess.run(["git", "-C", str(cwd), "remote", "get-url", "origin"], capture_output=True, text=True)
+            if res_remote.returncode == 0 and res_remote.stdout.strip():
+                remote_url = res_remote.stdout.strip()
+                for s_key, s_info in suites.items():
+                    s_url = s_info.get("repo_url", "")
+                    s_path = s_info.get("path", "")
+                    if s_url and (remote_url == s_url or remote_url.rstrip("/").endswith("/" + s_key) or remote_url.rstrip("/").endswith(Path(s_path).name)):
+                        is_suite_git = True
+                        break
+                    if s_path and Path(remote_url).resolve() == Path(s_path).resolve():
+                        is_suite_git = True
+                        break
+                if not is_suite_git and "academicsuite" in remote_url.lower():
+                    is_suite_git = True
+
+            ls_res = subprocess.run(["git", "-C", str(cwd), "ls-tree", "--name-only", "HEAD"], capture_output=True, text=True)
+            if ls_res.returncode == 0 and ls_res.stdout.strip():
+                git_tracked_items = [line.strip() for line in ls_res.stdout.strip().splitlines() if line.strip()]
+        except Exception:
+            pass
 
     # Items to check and detach
     items_to_detach = set(attached_items_from_meta)
+    if is_suite_git or has_meta:
+        items_to_detach.update(git_tracked_items)
+
     default_candidates = [
         ".agents", "AGENTS.md", "ANTIGRAVITY_ARCHITECTURE_GUIDE.md",
         "Questionnaires.xlsx", "digital_saber.py", "digital_broker.py",
         "agents", "data", "docs", "evals", "factory", "recovery",
         "scripts", "tests", "validators", "webapp", "requirements.txt",
-        "run_tests.py", "SETUP_GUIDE.md"
+        "run_tests.py", "SETUP_GUIDE.md", "README.md", ".github", ".gemini", ".gitignore"
     ]
-    items_to_detach.update(default_candidates)
+
+    if has_meta or is_suite_git or (cwd / ".agents").exists():
+        for candidate in default_candidates:
+            if candidate in git_tracked_items or candidate in attached_items_from_meta:
+                items_to_detach.add(candidate)
+            elif not has_git and (cwd / candidate).exists():
+                p = cwd / candidate
+                if is_link_path(p):
+                    items_to_detach.add(candidate)
+                elif candidate in [".agents", "AGENTS.md", "ANTIGRAVITY_ARCHITECTURE_GUIDE.md"]:
+                    items_to_detach.add(candidate)
+
+    removed = []
 
     for item_name in sorted(items_to_detach):
+        if item_name in [".git", ".", ".."]:
+            continue
+
         p = cwd / item_name
         if not p.exists() and not is_link_path(p):
             continue
@@ -902,19 +949,90 @@ def cmd_detach(args):
             remove_link(p, allow_delete_dir=p.is_dir())
             removed.append(f"{item_name} (link)")
         elif p.is_dir():
-            if item_name == ".agents" and (has_meta or (p / "skills.json").exists()):
+            if item_name in [".agents", ".gemini", ".github"]:
                 try:
                     shutil.rmtree(p)
-                    removed.append(".agents (pointer directory)")
+                    removed.append(f"{item_name}/ (directory)")
                 except Exception as e:
-                    print(f"{YELLOW}Could not remove .agents directory: {e}{RESET}")
-        elif p.is_file():
-            if item_name == "AGENTS.md" and (has_meta or is_attached_agents_md(p)):
+                    print(f"{YELLOW}Could not remove directory {item_name}: {e}{RESET}")
+            else:
+                # Check if directory has untracked user files
+                untracked_user_files = []
+                if has_git:
+                    try:
+                        res_untracked = subprocess.run(
+                            ["git", "-C", str(cwd), "ls-files", "--others", "--exclude-standard", item_name],
+                            capture_output=True, text=True
+                        )
+                        if res_untracked.returncode == 0 and res_untracked.stdout.strip():
+                            untracked_user_files = res_untracked.stdout.strip().splitlines()
+                    except Exception:
+                        pass
+
+                if untracked_user_files:
+                    # Directory contains user-created untracked files: only remove tracked suite files
+                    try:
+                        res_tracked = subprocess.run(
+                            ["git", "-C", str(cwd), "ls-files", item_name],
+                            capture_output=True, text=True
+                        )
+                        if res_tracked.returncode == 0 and res_tracked.stdout.strip():
+                            for tf in res_tracked.stdout.strip().splitlines():
+                                tf_path = cwd / tf.strip()
+                                if tf_path.is_symlink() or tf_path.is_file():
+                                    try:
+                                        tf_path.unlink()
+                                    except Exception:
+                                        pass
+                        # Clean up any newly empty subdirectories left
+                        for dirpath, dirnames, filenames in os.walk(str(p), topdown=False):
+                            if not dirnames and not filenames:
+                                try:
+                                    os.rmdir(dirpath)
+                                except OSError:
+                                    pass
+                        removed.append(f"{item_name}/ (cleaned suite files, preserved {len(untracked_user_files)} user file(s))")
+                    except Exception as e:
+                        print(f"{YELLOW}Could not clean suite files in {item_name}: {e}{RESET}")
+                else:
+                    # Directory contains only suite files: safe to rmtree
+                    try:
+                        shutil.rmtree(p)
+                        removed.append(f"{item_name}/ (directory)")
+                    except Exception as e:
+                        print(f"{YELLOW}Could not remove directory {item_name}: {e}{RESET}")
+        elif p.is_file() or p.is_symlink():
+            try:
+                p.unlink()
+                removed.append(f"{item_name} (file)")
+            except Exception as e:
+                print(f"{YELLOW}Could not remove file {item_name}: {e}{RESET}")
+
+    # Detach Git repository
+    keep_git = getattr(args, "keep_git", False)
+    if has_git and not keep_git:
+        if created_git or is_suite_git:
+            if previous_origin and not created_git:
                 try:
-                    p.unlink()
-                    removed.append("AGENTS.md")
+                    subprocess.run(["git", "-C", str(cwd), "remote", "set-url", "origin", previous_origin], check=True)
+                    removed.append(f"restored original Git remote origin ({previous_origin})")
                 except Exception as e:
-                    print(f"{YELLOW}Could not remove AGENTS.md: {e}{RESET}")
+                    print(f"{YELLOW}Could not restore Git remote: {e}{RESET}")
+            else:
+                try:
+                    if is_link_path(git_dir):
+                        remove_link(git_dir, allow_delete_dir=True)
+                    else:
+                        shutil.rmtree(git_dir)
+                    removed.append(".git/ (detached Git repository)")
+                except Exception as e:
+                    print(f"{YELLOW}Could not remove .git directory: {e}{RESET}")
+        elif previous_origin:
+            try:
+                subprocess.run(["git", "-C", str(cwd), "remote", "set-url", "origin", previous_origin], check=True)
+                removed.append(f"restored original Git remote origin ({previous_origin})")
+            except Exception as e:
+                print(f"{YELLOW}Could not restore Git remote: {e}{RESET}")
 
     # Restore pre-attach backup if one exists
     backup_agents = cwd / ".agents_backup_pre_attach"
@@ -938,7 +1056,7 @@ def cmd_detach(args):
         for r in removed:
             print(f"   - {r}")
     else:
-        print(f"\n{YELLOW}No active suite links or attached metadata found to detach in: {cwd}{RESET}")
+        print(f"\n{YELLOW}No active suite links, files, or attached Git repositories found to detach in: {cwd}{RESET}")
     print()
 
 
@@ -1022,6 +1140,15 @@ def cmd_attach(args):
 
     # Step 3: Clone repository directly into cwd without creating a separate subfolder
     git_dir = cwd / ".git"
+    had_existing_git = git_dir.exists()
+    existing_origin = None
+    if had_existing_git:
+        try:
+            res_orig = subprocess.run(["git", "-C", str(cwd), "remote", "get-url", "origin"], capture_output=True, text=True)
+            if res_orig.returncode == 0 and res_orig.stdout.strip():
+                existing_origin = res_orig.stdout.strip()
+        except Exception:
+            pass
 
     def _clone_or_update(target_url: str):
         if git_dir.exists():
@@ -1068,6 +1195,43 @@ def cmd_attach(args):
         else:
             print(f"\n{RED}Error cloning repository from {repo_url}: {e}{RESET}\n", file=sys.stderr)
             sys.exit(e.returncode)
+
+    # Record attached suite metadata for clean detachment and status inspection
+    attached_items = []
+    if git_dir.exists():
+        try:
+            ls_res = subprocess.run(
+                ["git", "-C", str(cwd), "ls-tree", "--name-only", "HEAD"],
+                capture_output=True, text=True
+            )
+            if ls_res.returncode == 0 and ls_res.stdout.strip():
+                attached_items = [line.strip() for line in ls_res.stdout.strip().splitlines() if line.strip()]
+        except Exception:
+            pass
+
+    if not attached_items:
+        fallback_candidates = [
+            ".agents", "AGENTS.md", "ANTIGRAVITY_ARCHITECTURE_GUIDE.md",
+            "Questionnaires.xlsx", "digital_saber.py", "digital_broker.py",
+            "requirements.txt", "run_tests.py", "SETUP_GUIDE.md", "README.md",
+            ".gitignore", ".github", ".gemini", "docs", "evals", "tests", "webapp"
+        ]
+        attached_items = [name for name in fallback_candidates if (cwd / name).exists()]
+
+    meta = {
+        "suite": suite_key or "academic",
+        "name": suite_title,
+        "repo_url": repo_url,
+        "attached_at": datetime.now().isoformat(),
+        "created_git": not had_existing_git,
+        "previous_origin": existing_origin,
+        "attached_items": attached_items
+    }
+    try:
+        with open(cwd / ".attached_suite.json", "w", encoding="utf-8") as f:
+            json.dump(meta, f, indent=2)
+    except Exception as e:
+        print(f"{YELLOW}Warning: Could not save .attached_suite.json: {e}{RESET}")
 
     # Count active skills
     skills_dir = cwd / ".agents" / "skills"
@@ -1251,6 +1415,7 @@ def main():
     # detach command
     p_detach = subparsers.add_parser("detach", help="Detach the current suite from the directory")
     p_detach.add_argument("path", nargs="?", default=".", help="Directory to detach suite from (default: current directory)")
+    p_detach.add_argument("--keep-git", action="store_true", help="Do not remove or decouple the .git directory when detaching")
 
     # clean command
     subparsers.add_parser("clean", help="Clean orphaned locks and Google Drive conflict duplicates")
