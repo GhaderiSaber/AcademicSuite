@@ -236,6 +236,106 @@ class TestTelethonDualAccount(unittest.IsolatedAsyncioTestCase):
         client1.get_dialogs.assert_called_once()
         client2.get_dialogs.assert_called_once()
 
+    async def test_06_proposal_deduplication_prevents_duplicate_quotes(self):
+        """Verify handle_proposal_message rejects identical proposal files/texts."""
+        import tempfile
+        import shutil
+
+        temp_dir = tempfile.mkdtemp()
+        try:
+            cfg = dict(self.test_config)
+            cfg["google_drive_work_dir"] = temp_dir
+            userbot = SaberTelethonUserbot(cfg)
+            userbot.storage_dir = temp_dir
+            userbot.processed_proposals_file = os.path.join(temp_dir, "processed_proposals.json")
+            userbot.send_to_desk = AsyncMock()
+
+            mock_event = MagicMock()
+            mock_event.chat_id = 999111
+            mock_event.sender_id = 999111
+
+            raw_proposal = "عنوان پژوهش: بررسی اثربخشی درمان مبتنی بر پذیرش و تعهد بر اضطراب و افسردگی دانشجویان. جامعه آماری کلیه دانشجویان..."
+
+            # Call 1: New proposal
+            await userbot.handle_proposal_message(
+                event=mock_event,
+                raw_text=raw_proposal,
+                client_name="Test Student",
+                file_name="proposal.docx",
+                sender_id=999111
+            )
+            self.assertEqual(len(userbot.pending_quotes), 1, "First proposal must create 1 pending quote")
+            self.assertEqual(userbot.send_to_desk.call_count, 1)
+
+            # Call 2: Duplicate file from same sender
+            await userbot.handle_proposal_message(
+                event=mock_event,
+                raw_text=raw_proposal,
+                client_name="Test Student",
+                file_name="proposal.docx",
+                sender_id=999111
+            )
+            self.assertEqual(len(userbot.pending_quotes), 1, "Duplicate proposal must NOT create a second quote")
+            self.assertEqual(userbot.send_to_desk.call_count, 1, "send_to_desk must not be called on duplicate")
+
+            # Check that processed_proposals registry recorded the key
+            expected_key = "999111_proposal.docx"
+            self.assertIn(expected_key, userbot.processed_proposals)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    async def test_07_processed_proposals_persistence_across_restarts(self):
+        """Verify processed proposals persist to disk and are reloaded upon restart."""
+        import tempfile
+        import shutil
+
+        temp_dir = tempfile.mkdtemp()
+        try:
+            cfg = dict(self.test_config)
+            cfg["google_drive_work_dir"] = temp_dir
+            userbot = SaberTelethonUserbot(cfg)
+            userbot.storage_dir = temp_dir
+            userbot.processed_proposals_file = os.path.join(temp_dir, "processed_proposals.json")
+            userbot.send_to_desk = AsyncMock()
+
+            mock_event = MagicMock()
+            mock_event.chat_id = 888222
+            mock_event.sender_id = 888222
+
+            await userbot.handle_proposal_message(
+                event=mock_event,
+                raw_text="عنوان پژوهش: فرضیه ها و جامعه آماری...",
+                client_name="Student Reload",
+                file_name="thesis_sample.pdf",
+                sender_id=888222
+            )
+
+            # Verify file exists on disk
+            self.assertTrue(os.path.exists(userbot.processed_proposals_file))
+
+            # Simulate daemon restart by instantiating new userbot
+            new_userbot = SaberTelethonUserbot(cfg)
+            new_userbot.storage_dir = temp_dir
+            new_userbot.processed_proposals_file = userbot.processed_proposals_file
+            new_userbot.processed_proposals = new_userbot._load_processed_proposals()
+            new_userbot.send_to_desk = AsyncMock()
+
+            self.assertIn("888222_thesis_sample.pdf", new_userbot.processed_proposals)
+
+            # Attempt duplicate on new instance
+            await new_userbot.handle_proposal_message(
+                event=mock_event,
+                raw_text="عنوان پژوهش: فرضیه ها و جامعه آماری...",
+                client_name="Student Reload",
+                file_name="thesis_sample.pdf",
+                sender_id=888222
+            )
+            self.assertEqual(len(new_userbot.pending_quotes), 0, "Restarted instance must reject already-processed proposal")
+            self.assertEqual(new_userbot.send_to_desk.call_count, 0)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
 
 if __name__ == "__main__":
     unittest.main()
+
