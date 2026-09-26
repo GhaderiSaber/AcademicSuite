@@ -76,7 +76,8 @@ Review each extracted comment and tag it:
   *Delegate to*: `persian-discussion-builder` or `persian-academic-translation`.
 
 ### Step 3: Apply Corrections to Thesis Files
-- Edit the corresponding chapter file directly.
+- Edit the corresponding chapter file directly using STRICT IN-PLACE MUTATION. Clean-room generation on existing manuscripts is prohibited (Draft Obliteration Replacement Anti-Pattern).
+- A Document Conservation Gate MUST be enforced by the thesis integrity auditor where output_bytes >= input_bytes * 0.90.
 - Note the exact **page number, section, and paragraph** where the change was introduced.
 
 ### Step 4: Draft Polite Academic Responses
@@ -102,3 +103,6 @@ Before delivering the revised documents to the student or professor, review [com
 - [ ] Page numbers in the table match the final compiled thesis document.
 - [ ] Any newly cited study in text is present in the references section.
 - [ ] Tone is polite, professional, and academically substantiated.
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION)**: Mandating in-place docx mutation and applying a Document Conservation Gate where output_bytes must be >= input_bytes * 0.90. [Enforcement: dynamic_invariant_guard.py (LSN-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION)]

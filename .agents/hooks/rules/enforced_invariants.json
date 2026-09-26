@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-25T18:09:25.468715+00:00",
+  "updated_at": "2026-09-26T17:41:42.832675+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -173,6 +173,70 @@
       "remedy": "Enforce fail-closed structural validation for regression models: exactly 3 tables per model (Correlations, ANOVA 11-col, Coefficients 8-col), failing any deliverable that consolidates them.",
       "enabled": true,
       "updated_at": "2026-09-25T18:07:47.011656+00:00"
+    },
+    "CAND-2026-TABLE-BORDER-PERSIAN-ZERO": {
+      "item_id": "CAND-2026-TABLE-BORDER-PERSIAN-ZERO",
+      "category": "Learned Mechanical Rule",
+      "statement": "Vertical borders (<w:insideV>) or English leading zeros (0.xx) detected, violating APA 7 and Persian typographic standards.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC",
+        "METHODOLOGY"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\\\.py|.*\\\\.docx",
+      "check_type": "regex_ban",
+      "pattern": "(<w:insideV>|(?<![۰-۹])0\\\\.\\\\d+)",
+      "violation_message": "Vertical borders (<w:insideV>) or English leading zeros (0.xx) detected, violating APA 7 and Persian typographic standards.",
+      "remedy": "Ensure python docx table generators remove <w:insideV> tags and format floating point numbers using Persian leading zeros ('۰.').",
+      "enabled": true,
+      "updated_at": "2026-09-26T15:59:49.761855+00:00"
+    },
+    "CAND-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION": {
+      "item_id": "CAND-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION",
+      "category": "Learned Mechanical Rule",
+      "statement": "Draft obliteration detected! Clean-room generation on existing manuscripts is prohibited. Ensure output_bytes >= input_bytes * 0.90.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "REVISION",
+        "DOCUMENT_INTEGRITY"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.(docx|md)",
+      "check_type": "tool_ban",
+      "pattern": "(?i)generate_new_document|clean_room|obliterate",
+      "violation_message": "Draft obliteration detected! Clean-room generation on existing manuscripts is prohibited. Ensure output_bytes >= input_bytes * 0.90.",
+      "remedy": "Switch to in-place document modification using DOM parsing or specific replacement. Preserve at least 90% of the original byte size.",
+      "enabled": true,
+      "updated_at": "2026-09-26T17:28:20.421994+00:00"
+    },
+    "CAND-2026-METHODOLOGY-AWARE-VALIDATION-BRANCHING": {
+      "item_id": "CAND-2026-METHODOLOGY-AWARE-VALIDATION-BRANCHING",
+      "category": "Learned Mechanical Rule",
+      "statement": "Do not enforce regression 3-table format on SEM manuscripts. Ensure Persian leading zeros are preserved.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "validation",
+        "SEM",
+        "APA_formatting"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\\\.py",
+      "check_type": "regex_ban",
+      "pattern": "enforce_regression_table_format_without_branching",
+      "violation_message": "Do not enforce regression 3-table format on SEM manuscripts. Ensure Persian leading zeros are preserved.",
+      "remedy": "Implement methodology-aware validation branching.",
+      "enabled": true,
+      "updated_at": "2026-09-26T17:41:42.832655+00:00"
     }
   }
 }

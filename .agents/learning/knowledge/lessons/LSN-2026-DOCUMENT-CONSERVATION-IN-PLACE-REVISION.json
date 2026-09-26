@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-DRAFT-OBLITERATION",
+  "diagnosis": {
+    "what_happened": "An agent replaced an entire document during a revision task, destroying previous content.",
+    "behavior_caused_outcome": "The lack of a constraint on document preservation allowed clean-room generation.",
+    "what_should_have_happened": "The agent should have parsed the document, modified only the targeted sections, and conserved at least 90% of the document size.",
+    "rationale_why": "Revision implies modifying existing content, not generating a new document from scratch, to retain accumulated academic value."
+  },
+  "desired_behavior": "Mandating in-place docx mutation and applying a Document Conservation Gate where output_bytes must be >= input_bytes * 0.90.",
+  "generalization": "Never use clean-room generation for revision tasks; strictly mutate in place and conserve document byte size.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "DOCUMENT_CONSERVATION_GATE",
+    "observed_value": "output_bytes < input_bytes * 0.90",
+    "threshold_value": "output_bytes >= input_bytes * 0.90",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-thesis-revision-assistant"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-26T20:54:47Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-thesis-revision-assistant",
+    "academic-orchestrator"
+  ]
+}

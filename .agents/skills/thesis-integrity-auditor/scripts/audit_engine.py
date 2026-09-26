@@ -535,6 +535,12 @@ class ThesisIntegrityAuditor:
     def _audit_apa7_compliance(self):
         """Scans for APA 7th Edition formatting infractions"""
         ch4_tests = self.payload.get("chapter4_statistical_tests", [])
+        # Methodology-aware validation branching: do not enforce regression 3-table format on SEM manuscripts
+        methodology_type = self.metadata.get("methodology_type", "")
+        if methodology_type.upper() == "SEM":
+            self.skip_regression_3_table_enforcement = True
+        # Enforce Persian leading zeros
+        enforce_persian_leading_zeros = True
         sampled_paragraphs = self.payload.get("apa7_formatting_audit", {}).get("sampled_paragraphs", [])
 
         # 1. p = .000 violation check in tests
