@@ -1,0 +1,37 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-DISCORDANT-HARNESSED-SAMPLE-SIZE",
+  "category": "methodological",
+  "defective_pattern": "Failing to commit to the harnessed/screened sample size (N) in downstream micro-stages, resulting in discordant N values between methodology, descriptive statistics, and inferential tests.",
+  "why_defective": "Once data screening (e.g., outlier removal, missing data exclusion) establishes a final analytic sample, using the original pre-screened N in subsequent chapters creates severe statistical discordance, invalid degrees of freedom, and fatal methodological flaws.",
+  "observed_symptoms": [
+    "Degrees of freedom in statistical outputs do not align with the reported N.",
+    "Chapter 3 states one sample size while Chapter 4 uses another without explicit justification of exclusion.",
+    "Micro-stages use different N values because they reload the raw dataset instead of the harnessed dataset."
+  ],
+  "corrective_remedy": "Strictly commit to the 'Harnessed N' after screening. All subsequent empirical chapters, micro-stages, and statistical tests must exclusively use the harnessed dataset and report this final N cases.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect inconsistent references to pre-screening sample sizes in analysis results",
+    "regex_patterns": [
+      "(?i)discordant_sample_size_detected"
+    ],
+    "pattern": "(?i)discordant_sample_size_detected",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "statistical-data-analyst",
+  "target_agents": [
+    "statistical-data-analyst",
+    "chapter-4-writing",
+    "data-audit",
+    "methodology-expert"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T08:19:03Z",
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-27T04:53:09.409790+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/.gemini/antigravity/brain/d789b7a0-7a61-4d0b-ae77-0490f05c95a7/.system_generated/worktrees/subagent-Evaluation-Agent-evaluation-agent-79bcf833/.agents/plugins/academic-suite/rules/AGENTS.md"
+  ]
+}
