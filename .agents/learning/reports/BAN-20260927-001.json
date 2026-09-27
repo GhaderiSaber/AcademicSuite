@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20260927-001",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "observable_failure_step": "Drafting of empirical findings narratives for Chapter 4 where statistical results were presented.",
+  "failure_signature": "FORBIDDEN_AI_CLICHE",
+  "root_cause_diagnosis": "The defect originates from a dual prompt engineering failure. First, the absence of a strict 'Objective Reporting Invariant' allowed the LLM's default synthetic behavior to cross the structural boundary, interpreting the statistical findings rather than merely reporting them (Boundary Bleed into Chapter 5). Second, the prompt lacked explicit negative constraints against semantic inflation; consequently, when the LLM encountered statistically significant p-values, it hallucinated hyperbolic, non-academic adjectives (e.g., 'تکاندهنده', 'اورژانسی') to dramatize the effect sizes.",
+  "prescribed_behavior": "1. Inject a strict 'Objective Empirical Reporting Invariant' into the chapter-4-writing skill: 'Report statistical parameters (e.g., Mean, SD, F, t, p) strictly without interpretation, clinical implications, or literature comparison.' 2. Add an explicit 'Academic Sobriety Negative Constraint': 'Zero tolerance for emotional, dramatic, or hyperbolic Persian adjectives (e.g., تکان‌دهنده، اورژانسی، شگفت‌انگیز، بی‌نظیر). Maintain absolute scholarly neutrality.'"
+}

@@ -1,0 +1,32 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE",
+  "category": "execution",
+  "defective_pattern": "Premature interpretation of statistical results in Chapter 4, accompanied by hyperbolic, emotional, or dramatic wording.",
+  "why_defective": "Chapter 4 is strictly for reporting observed descriptive and inferential parameters. Speculative interpretation belongs in Chapter 5. Academic tone must remain rigorously neutral and sober.",
+  "observed_symptoms": [
+    "Presence of subjective adjectives (e.g., 'shocking', 'dramatic', 'huge', 'surprising') in Chapter 4.",
+    "Sentences explaining *why* a result occurred rather than just reporting the test statistic, p-value, and effect size.",
+    "Blending discussion elements into the results section."
+  ],
+  "corrective_remedy": "Remove all explanatory or speculative text from Chapter 4. Report only the statistical test, df, test statistic value, p-value, and effect size. Strip all emotional or dramatic adjectives, enforcing a neutral, sober academic tone.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of interpretive phrases or dramatic adjectives in Chapter 4 drafts.",
+    "regex_patterns": [
+      "(?i)\\b(surprisingly|shockingly|dramatically|huge|massive|interpreting this|this means that because)\\b"
+    ],
+    "pattern": "(?i)\\b(surprisingly|shockingly|dramatically|huge|massive|interpreting this|this means that because)\\b",
+    "check_type": "regex_ban",
+    "file_pattern": ".*chapter_4.*\\.docx|.*chapter_4.*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor",
+    "statistical-data-analyst",
+    "chapter-4-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T09:30:31Z"
+}

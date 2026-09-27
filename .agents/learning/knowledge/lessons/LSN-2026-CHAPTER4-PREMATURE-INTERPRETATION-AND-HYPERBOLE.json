@@ -36,5 +36,12 @@
     "academic-writer",
     "results-auditor",
     "chapter-4-writing"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-27T06:02:02.782229+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/chapter-4-writing/SKILL.md",
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/apa-reporting/SKILL.md",
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/statistical-data-analyst/SKILL.md"
   ]
 }
