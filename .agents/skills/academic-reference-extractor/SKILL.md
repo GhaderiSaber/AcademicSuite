@@ -205,5 +205,5 @@ Place generated files directly in the user's project directory with descriptive 
 - [sample_workflow.md](./examples/sample_workflow.md): Complete walkthrough of section reference extraction for a dissertation chapter.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-STRUCTURAL-REFERENCE-PARSING-001)**: When extracting or parsing references, always employ structural validation (e.g., matching authors, years, DOIs, or using specialized reference extraction libraries) and explicitly forbid naive character-length filtering. [Enforcement: dynamic_invariant_guard.py (LSN-2026-STRUCTURAL-REFERENCE-PARSING-001)]
+- **Lesson (LSN-2026-NAIVE-LENGTH-REFERENCE-EXTRACTION)**: Enforce structural bibliographic validation (e.g., regex for a four-digit year enclosed in parentheses or APA 7 formatting) for reference extraction. Explicitly filter out subheadings. [Enforcement: dynamic_invariant_guard.py (LSN-2026-NAIVE-LENGTH-REFERENCE-EXTRACTION)]
 - **Lesson (LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001)**: Enforce strict bibliographic component verification using anchored regex and explicit exclusion of meta-annotation prose prior to parsing. [Enforcement: dynamic_invariant_guard.py (LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001)]
