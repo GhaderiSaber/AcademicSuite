@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260927-B0970F",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260927-55503C",
+  "target_agent": "literature-expert",
+  "target_agents": [
+    "literature-expert"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~554/600 tokens (92.3%)]\n- **Target Capability**: `SEM` | **Task**: `structural_equation_modeling` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [LSN-20260925-E80D47] Mandate: Standard compliance: There is a bug in the reference generation.\n  Generalization: Procedural Guideline for academic-suite-orchestrator: Standard compliance: There is a bug in the reference generation. Verify prerequisite checks prior to finalizing outputs.\n- [LSN-20260925-80C880] Mandate: Standard compliance: There is a bug in the reference generation.\n  Generalization: Procedural Guideline for academic-suite-orchestrator: Standard compliance: There is a bug in the reference generation. Verify prerequisite checks prior to finalizing outputs.\n- [LSN-20260925-C4E28A] Mandate: Standard compliance: There is a bug in the reference generation.\n  Generalization: Procedural Guideline for academic-suite-orchestrator: Standard compliance: There is a bug in the reference generation. Verify prerequisite checks prior to finalizing outputs.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- [PRN-20260923-3A66FF] Principle: Model ERQ as a single latent mediator with its two subscales ERQ_R and ERQ_S as indicators in SEM (ERQ =~ ERQ_R + ERQ_S).\n- [PRN-20260923-3A3A2B] Principle: In SEM, a latent variable can be specified with a single observed indicator by fixing factor loading to 1.0 and error variance to Var(y)*(1 - alpha).\n- [PTR-20260923-D83E86] Pattern: In SEM path diagrams (semPlot), stretch the canvas horizontally (e.g. width = 4500-4800, height = 2400 at 300 DPI) to give latent constructs ample breathing room between indicator columns.\n  Criteria: Approved methodological workflow procedure\n\n---\n### Executable Task Assignment:\nVerify that candidates CAND-2026-CH4-DYNAMIC-NARRATION, CAND-2026-CH4-ZERO-INTERPRETATION, and CAND-20260927-SEM-REG-001 remain fully registered in .agents/hooks/rules/enforced_invariants.json, and run run_eval_suite.py to certify benchmark passing with zero regressions ahead of Stage 4B.3 parametric assumptions verification. Return the verification confirmation.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding evidence correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~554/600 tokens (92.3%)]\n- **Target Capability**: `SEM` | **Task**: `structural_equation_modeling` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [LSN-20260925-E80D47] Mandate: Standard compliance: There is a bug in the reference generation.\n  Generalization: Procedural Guideline for academic-suite-orchestrator: Standard compliance: There is a bug in the reference generation. Verify prerequisite checks prior to finalizing outputs.\n- [LSN-20260925-80C880] Mandate: Standard compliance: There is a bug in the reference generation.\n  Generalization: Procedural Guideline for academic-suite-orchestrator: Standard compliance: There is a bug in the reference generation. Verify prerequisite checks prior to finalizing outputs.\n- [LSN-20260925-C4E28A] Mandate: Standard compliance: There is a bug in the reference generation.\n  Generalization: Procedural Guideline for academic-suite-orchestrator: Standard compliance: There is a bug in the reference generation. Verify prerequisite checks prior to finalizing outputs.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- [PRN-20260923-3A66FF] Principle: Model ERQ as a single latent mediator with its two subscales ERQ_R and ERQ_S as indicators in SEM (ERQ =~ ERQ_R + ERQ_S).\n- [PRN-20260923-3A3A2B] Principle: In SEM, a latent variable can be specified with a single observed indicator by fixing factor loading to 1.0 and error variance to Var(y)*(1 - alpha).\n- [PTR-20260923-D83E86] Pattern: In SEM path diagrams (semPlot), stretch the canvas horizontally (e.g. width = 4500-4800, height = 2400 at 300 DPI) to give latent constructs ample breathing room between indicator columns.\n  Criteria: Approved methodological workflow procedure\n\n---\n### Executable Task Assignment:\nVerify that candidates CAND-2026-CH4-DYNAMIC-NARRATION, CAND-2026-CH4-ZERO-INTERPRETATION, and CAND-20260927-SEM-REG-001 remain fully registered in .agents/hooks/rules/enforced_invariants.json, and run run_eval_suite.py to certify benchmark passing with zero regressions ahead of Stage 4B.3 parametric assumptions verification. Return the verification confirmation.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Current thesis project: academic_workspace",
+    "Target stage: 02_literature_review"
+  ],
+  "exclusions": [
+    "Other research projects with independent guidelines",
+    "Standard generic templates without client-specific stipulations"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~554/600 tokens (92.3%)]\n- **Target Capability**: `SEM` | **Task**: `structural_equation_modeling` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [LSN-20260925-E80D47] Mandate: Standard compliance: There is a bug in the reference generation.\n  Generalization: Procedural Guideline for academic-suite-orchestrator: Standard compliance: There is a bug in the reference generation. Verify prerequisite checks prior to finalizing outputs.\n- [LSN-20260925-80C880] Mandate: Standard compliance: There is a bug in the reference generation.\n  Generalization: Procedural Guideline for academic-suite-orchestrator: Standard compliance: There is a bug in the reference generation. Verify prerequisite checks prior to finalizing outputs.\n- [LSN-20260925-C4E28A] Mandate: Standard compliance: There is a bug in the reference generation.\n  Generalization: Procedural Guideline for academic-suite-orchestrator: Standard compliance: There is a bug in the reference generation. Verify prerequisite checks prior to finalizing outputs.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- [PRN-20260923-3A66FF] Principle: Model ERQ as a single latent mediator with its two subscales ERQ_R and ERQ_S as indicators in SEM (ERQ =~ ERQ_R + ERQ_S).\n- [PRN-20260923-3A3A2B] Principle: In SEM, a latent variable can be specified with a single observed indicator by fixing factor loading to 1.0 and error variance to Var(y)*(1 - alpha).\n- [PTR-20260923-D83E86] Pattern: In SEM path diagrams (semPlot), stretch the canvas horizontally (e.g. width = 4500-4800, height = 2400 at 300 DPI) to give latent constructs ample breathing room between indicator columns.\n  Criteria: Approved methodological workflow procedure\n\n---\n### Executable Task Assignment:\nVerify that candidates CAND-2026-CH4-DYNAMIC-NARRATION, CAND-2026-CH4-ZERO-INTERPRETATION, and CAND-20260927-SEM-REG-001 remain fully registered in .agents/hooks/rules/enforced_invariants.json, and run run_eval_suite.py to certify benchmark passing with zero regressions ahead of Stage 4B.3 parametric assumptions verification. Return the verification confirmation.",
+  "generalization": "For project context 'academic_workspace': strictly maintain exact phrasing and stipulations specified by supervisor.",
+  "scope": "PROJECT_SPECIFIC",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.055,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-EVIDENCE_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~554/600 tokens (92.3%)]\n- **Target Capability**",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~554/600 tokens (92.3%)]\n- ",
+    "supporting_report_ids": [
+      "FDB-20260927-7D3841"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-literature-review-builder"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T16:35:33.718844+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.055,
+    "evidence_strength": 0.693,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "MEDIUM",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-27T16:35:33.718893+00:00"
+  }
+}

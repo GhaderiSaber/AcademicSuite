@@ -2,28 +2,30 @@
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-MANIFEST-PATH-LABELED-AS-SEM",
   "category": "methodological",
-  "defective_pattern": "Substituting manifest composite sum scores for latent variables in SEM without measurement models.",
-  "why_defective": "Omission of measurement error, violation of SEM definition, conflating path analysis with SEM.",
+  "defective_pattern": "Substituting manifest composite sum path analysis for latent SEM without measurement models.",
+  "why_defective": "Manifest variables ignore measurement error, biasing structural parameter estimates and invalidating SEM's primary advantage of separating measurement from structural models.",
   "observed_symptoms": [
-    "No latent variable definition (=~) in lavaan syntax.",
-    "Only regressions (~) specified among composite variables.",
-    "No measurement model reporting."
+    "Manifest variables (rectangles) used in path diagrams instead of latent variables (ellipses)",
+    "No '=~' measurement model specification in lavaan syntax",
+    "Labeling a simple path analysis of manifest composites as 'Structural Equation Modeling'"
   ],
   "corrective_remedy": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
   "detection_heuristic": {
-    "trigger_rule": "Absence of '=~' operator in lavaan syntax when 'sem' function is called."
+    "trigger_rule": "Detecting lavaan syntax lacking '=~' when SEM is requested.",
+    "regex_patterns": [
+      "(?m)^(?![^\\n]*=~).*sem\\("
+    ],
+    "pattern": "(?m)^(?![^\\n]*=~).*sem\\(",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.R",
+    "event": "Both"
   },
   "target_agent": "statistics-agent",
   "target_agents": [
     "statistics-agent",
-    "academic-orchestrator"
+    "methodology-expert",
+    "results-auditor"
   ],
   "reusable": true,
-  "updated_at": "2026-09-23T12:15:00+03:30",
-  "is_active_behavior": true,
-  "graduation_status": "GRADUATED",
-  "graduated_at": "2026-09-25T18:08:38.003221+00:00",
-  "graduated_targets": [
-    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/plugins/academic-suite/rules/AGENTS.md"
-  ]
+  "updated_at": "2026-09-27T17:43:31Z"
 }

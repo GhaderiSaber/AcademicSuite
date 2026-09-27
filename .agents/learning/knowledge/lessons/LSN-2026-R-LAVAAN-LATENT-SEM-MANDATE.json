@@ -3,45 +3,40 @@
   "lesson_id": "LSN-2026-R-LAVAAN-LATENT-SEM-MANDATE",
   "lesson_type": "WHAT_NOT_TO_DO",
   "trigger_source": "USER_FEEDBACK",
-  "source_experience_id": "EVT-20260923-SEM-FEEDBACK",
+  "source_experience_id": "BAN-20260927-SEM-MODEL-FEEDBACK-001",
   "diagnosis": {
-    "what_happened": "Manifest path analysis was executed and labeled as Structural Equation Modeling (SEM).",
-    "behavior_caused_outcome": "Failure to define latent variables with measurement models led to incorrect model specification.",
-    "what_should_have_happened": "Latent indicators should have been explicitly defined using lavaan (=~) syntax.",
-    "rationale_why": "SEM strictly requires measurement models (latent variables) to account for measurement error, distinguishing it from simple path analysis."
+    "what_happened": "Manifest composite sum scores were substituted for latent variables in SEM without measurement models.",
+    "behavior_caused_outcome": "The model was technically a manifest path analysis rather than full SEM, ignoring measurement error.",
+    "what_should_have_happened": "Latent variables should have been specified with observed subscale indicators (=~) in lavaan, and multi-factor predictors decomposed into subscale factors.",
+    "rationale_why": "SEM requires measurement models to account for error variance and isolate true structural paths."
   },
-  "desired_behavior": "Specification of R (lavaan) as primary SEM engine, latent indicators (=~), R semPlot::semPaths() visualization, and mandatory pre-flight adaptive context retrieval.",
-  "generalization": "Never substitute manifest composite sum scores for latent variables when executing Structural Equation Modeling.",
-  "scope": "DOMAIN_WIDE",
+  "desired_behavior": "Never substitute manifest composite sum scores for latent variables when executing SEM. Always specify latent variables with observed subscale indicators (=~) in lavaan. Decompose multi-factor predictors into subscale factors when running regression on criterion variables.",
+  "generalization": "Latent constructs require measurement model specification (=~) rather than composite sum extraction.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
   "generalization_stage": "LOCAL_LESSON",
-  "confidence": 0.95,
+  "confidence": 1.0,
   "evidence": {
-    "metric_or_check": "USER_FEEDBACK_REJECTION",
-    "observed_value": "User rejected manifest path analysis labeled as SEM in P04.",
-    "threshold_value": "Zero tolerance for conflating path analysis with SEM.",
-    "supporting_report_ids": [],
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Manifest SEM",
+    "threshold_value": "Latent SEM",
+    "supporting_report_ids": [
+      "BAN-20260927-SEM-MODEL-FEEDBACK-001"
+    ],
     "supporting_artifact_paths": []
   },
   "related_skills": [
     "sem",
-    "cfa",
-    "academic-adaptive-context"
+    "statistical-data-analyst",
+    "chapter-4-writing"
   ],
   "is_active_behavior": true,
   "status": "VALIDATED",
-  "created_at": "2026-09-23T12:15:00+03:30",
+  "created_at": "2026-09-27T17:43:31Z",
   "derived_by": "knowledge-curator",
   "target_agent": "statistics-agent",
   "target_agents": [
     "statistics-agent",
-    "academic-orchestrator",
+    "methodology-expert",
     "academic-writer"
-  ],
-  "graduation_status": "GRADUATED",
-  "graduated_at": "2026-09-25T18:07:41.089093+00:00",
-  "graduated_targets": [
-    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/sem/SKILL.md",
-    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/cfa/SKILL.md",
-    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-adaptive-context/SKILL.md"
   ]
 }

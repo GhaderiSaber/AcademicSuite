@@ -1,0 +1,14 @@
+{
+  "analysis_id": "BAN-20260927-CH4-DEMOGRAPHICS-INTERPRETATION-001",
+  "target_agent": "statistics-agent",
+  "target_skill": "chapter-4-writing",
+  "observable_failure_step": {
+    "step_number": 5,
+    "action_type": "DECISION_FORMULATION",
+    "tool_name": "build_demographics_triad.py",
+    "description": "Agent decided to author substantive interpretive narratives in NARRATIVES dictionary inside build_demographics_triad.py, incorporating premature epidemiological, clinical, and theoretical explanations across all 12 demographic variables rather than purely factual statistical summaries."
+  },
+  "failure_signature": "AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE",
+  "root_cause_diagnosis": "The statistics-agent erroneously decided to inject subjective clinical, epidemiological, and theoretical interpretations into the Chapter 4 demographic findings (Step 5 & 6). This violates APA 7th guidelines which strictly isolate objective statistical reporting to Chapter 4, reserving interpretative and theoretical synthesis for Chapter 5.",
+  "prescribed_behavior": "When drafting Chapter 4 findings, the agent must enforce strict statistical sobriety, outputting purely objective, factual descriptions of data (e.g., frequencies, percentages, ranges) without any qualitative speculation, causal attribution, or clinical theorizing. All interpretation must be omitted from Chapter 4."
+}

@@ -2,43 +2,30 @@
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION",
   "category": "execution",
-  "defective_pattern": "Emitting prewritten template paragraphs, canned boilerplate, or static placeholder text for Chapter 4 findings tables.",
-  "why_defective": "Prewritten templates and boilerplate violate academic integrity, fail to communicate the actual empirical findings (effect sizes, direction, exact statistics), and disconnect narrative prose from table data.",
+  "defective_pattern": "Using cookie-cutter fill-in-the-blank templates and mechanical loop boilerplates to narrate tables.",
+  "why_defective": "Produces robotic, unnatural, and repetitive Persian academic prose that lacks the dynamic syntactic variation expected in high-quality scholarly writing.",
   "observed_symptoms": [
-    "Canned sentences like: در این بخش نتایج مربوط به گزارش میگردد.",
-    "Generic claims like: بر اساس دادههای به دست آمده فرضیه مورد تأیید قرار گرفت.",
-    "Placeholders like: در این بخش یافتههای آماری مربوطه تدوین میگردد."
+    "Repetitive sentence structures across multiple table narrations.",
+    "Mechanical insertion of numbers into fixed string templates.",
+    "Lack of natural syntactic and lexical variation."
   ],
-  "corrective_remedy": "Formulate dynamic, non-template scholarly narrative tailored specifically to each table cells using Sabers 4-element epistemic structure (Context -> Highlights -> Reference -> Verdict).",
+  "corrective_remedy": "Compose dynamic, authentic Persian academic prose with natural syntactic and lexical variation tailored to each specific table, completely banning cookie-cutter fill-in-the-blank templates and mechanical loop boilerplates, while preserving strict factual objectivity without speculative interpretation.",
   "detection_heuristic": {
-    "trigger_rule": "Regex banning known canned boilerplate and template placeholder phrases in Chapter 4 deliverables.",
+    "trigger_rule": "Detect identical or highly similar sentence structures enclosing changing statistical values across multiple paragraphs.",
     "regex_patterns": [
-      "(?m)در این بخش،? نتایج مربوط به .* گزارش می‌گردد",
-      "(?m)بر اساس داده‌های به دست آمده،? فرضیه مورد تأیید قرار گرفت",
-      "(?m)در این بخش یافته‌های آماری مربوطه تدوین می‌گردد"
+      "(?m)^(در جدول \\d+، (میانگین|انحراف معیار|مقدار) .*? است\\. ){3,}"
     ],
-    "pattern": "(?m)(در این بخش،? نتایج مربوط به .* گزارش می‌گردد|بر اساس داده‌های به دست آمده،? فرضیه مورد تأیید قرار گرفت|در این بخش یافته‌های آماری مربوطه تدوین می‌گردد)",
+    "pattern": "(?m)^(در جدول \\d+، (میانگین|انحراف معیار|مقدار) .*? است\\. ){3,}",
     "check_type": "regex_ban",
-    "file_pattern": ".*\\.(md|docx|json|txt)",
-    "event": "Both"
+    "file_pattern": ".*\\.md",
+    "event": "PreToolUse"
   },
   "target_agent": "academic-writer",
   "target_agents": [
     "academic-writer",
-    "chapter-4-writing",
-    "statistical-data-analyst"
-  ],
-  "related_skills": [
-    "chapter-4-writing",
-    "apa-reporting"
+    "ai-academic-tone-polisher",
+    "persian-thesis-builder"
   ],
   "reusable": true,
-  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
-  "graduation_status": "GRADUATED",
-  "updated_at": "2026-09-27T13:21:00Z",
-  "graduated_at": "2026-09-27T09:55:35.913753+00:00",
-  "graduated_targets": [
-    "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/skills/chapter-4-writing/SKILL.md",
-    "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/skills/apa-reporting/SKILL.md"
-  ]
+  "updated_at": "2026-09-27T15:43:10Z"
 }

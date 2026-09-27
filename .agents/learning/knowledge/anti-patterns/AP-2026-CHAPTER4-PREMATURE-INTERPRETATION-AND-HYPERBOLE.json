@@ -1,32 +1,31 @@
 {
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE",
-  "category": "execution",
-  "defective_pattern": "Premature interpretation of statistical results in Chapter 4, accompanied by hyperbolic, emotional, or dramatic wording.",
-  "why_defective": "Chapter 4 is strictly for reporting observed descriptive and inferential parameters. Speculative interpretation belongs in Chapter 5. Academic tone must remain rigorously neutral and sober.",
+  "category": "methodological",
+  "defective_pattern": "Including speculative clinical, epidemiological, developmental, or theoretical explanations and interpretations in Chapter 4 findings narratives.",
+  "why_defective": "Violates APA 7 Section 3.4, which mandates that Results sections must be strictly objective and factual. Interpretations belong in Chapter 5.",
   "observed_symptoms": [
-    "Presence of subjective adjectives (e.g., 'shocking', 'dramatic', 'huge', 'surprising') in Chapter 4.",
-    "Sentences explaining *why* a result occurred rather than just reporting the test statistic, p-value, and effect size.",
-    "Blending discussion elements into the results section."
+    "Presence of explanatory or interpretative prose in Chapter 4",
+    "Discussion of theoretical implications in Chapter 4",
+    "Clinical or epidemiological speculation in Chapter 4"
   ],
-  "corrective_remedy": "Remove all explanatory or speculative text from Chapter 4. Report only the statistical test, df, test statistic value, p-value, and effect size. Strip all emotional or dramatic adjectives, enforcing a neutral, sober academic tone.",
+  "corrective_remedy": "Remove all explanatory, speculative, and theoretical prose from Chapter 4. Ensure the narrative is strictly limited to objective, factual reporting of statistical numbers and tables.",
   "detection_heuristic": {
-    "trigger_rule": "Detection of interpretive phrases or dramatic adjectives in Chapter 4 drafts.",
+    "trigger_rule": "Subjective interpretation or explanation keywords found in Chapter 4 deliverables.",
     "regex_patterns": [
-      "(?i)\\b(surprisingly|shockingly|dramatically|huge|massive|interpreting this|this means that because)\\b"
+      "(?m)(implies that|suggests that|this means|explained by|theoretical implications|clinical significance)"
     ],
-    "pattern": "(?i)\\b(surprisingly|shockingly|dramatically|huge|massive|interpreting this|this means that because)\\b",
+    "pattern": "(?m)(implies that|suggests that|this means|explained by|theoretical implications|clinical significance)",
     "check_type": "regex_ban",
-    "file_pattern": ".*chapter_4.*\\.docx|.*chapter_4.*\\.md",
+    "file_pattern": ".*chapter_4.*\\.docx",
     "event": "Both"
   },
-  "target_agent": "academic-writer",
+  "target_agent": "chapter-4-writing",
   "target_agents": [
+    "chapter-4-writing",
     "academic-writer",
-    "results-auditor",
-    "statistical-data-analyst",
-    "chapter-4-writing"
+    "statistical-data-analyst"
   ],
   "reusable": true,
-  "updated_at": "2026-09-27T09:30:31Z"
+  "updated_at": "2026-09-27T14:59:55Z"
 }

@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260927-CH4-ROBOTIC-TEMPLATE-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260927-CH4-ROBOTIC-TEMPLATE-FEEDBACK",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "capability": "GENERAL_ACADEMIC",
+  "trajectory_id": "TRJ-20260927-CH4-ROBOTIC-TEMPLATE-001",
+  "observable_failure_step": {
+    "step_number": 6,
+    "action_type": "FILE_WRITTEN",
+    "description": "Generated generator script scaffold_demographics.py embedding hardcoded template string formatting across create_docx (lines 59-63) and create_md (line 112)."
+  },
+  "failure_signature": "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION",
+  "root_cause_diagnosis": "In attempting to comply with the Zero Interpretation Invariant, academic-writer took a fastpath shortcut by generating and executing scaffold_demographics.py with a rigid string template ('جدول ۴- X توزیع فراوانی و درصدی مربوط به ... را نشان میدهد. نتایج نشان داد که بیشترین فراوانی مربوط به گروه ... با ... نفر (...) بود.') repeated 12 times verbatim across all demographic tables instead of authoring authentic, contextually varied Persian scholarly narrative without boilerplate.",
+  "prescribed_behavior": "academic-writer must author dynamic, authentic, and contextually varied Persian academic prose for each table individually. It must never use repetitive string templates, mechanical boilerplates, or fastpath shortcuts (violating Directive 25) when generating narrative reporting.",
+  "created_at": "2026-09-27T19:12:11+03:30"
+}

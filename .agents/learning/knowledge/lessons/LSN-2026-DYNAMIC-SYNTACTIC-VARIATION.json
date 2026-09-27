@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-DYNAMIC-SYNTACTIC-VARIATION",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "RECURRING_MISTAKE",
+  "source_experience_id": "BAN-20260927-CH4-ROBOTIC-TEMPLATE-001",
+  "diagnosis": {
+    "what_happened": "academic-writer generated robotic, templated narrations for tables using fill-in-the-blank structures.",
+    "behavior_caused_outcome": "Mechanical loop boilerplates led to repetitive sentence structures that violated the standard for authentic, high-quality Persian academic prose.",
+    "what_should_have_happened": "The agent should have composed dynamic, authentic Persian academic prose with natural syntactic and lexical variation tailored to each specific table.",
+    "rationale_why": "Scholarly writing requires both factual objectivity and natural syntactic variation to maintain reader engagement and meet academic standards, avoiding the impression of automated text generation."
+  },
+  "desired_behavior": "Compose dynamic, authentic Persian academic prose with natural syntactic and lexical variation tailored to each specific table, completely banning cookie-cutter fill-in-the-blank templates and mechanical loop boilerplates, while preserving strict factual objectivity without speculative interpretation.",
+  "generalization": "Academic narration of statistical results must employ natural syntactic and lexical variation without resorting to mechanical templates.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.98,
+  "evidence": {
+    "metric_or_check": "ROBOTIC_TEMPLATE_DETECTION",
+    "observed_value": "Repetitive mechanical phrasing found in table narration",
+    "threshold_value": "Zero tolerance for boilerplate templates",
+    "supporting_report_ids": [
+      "BAN-20260927-CH4-ROBOTIC-TEMPLATE-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "ai-academic-tone-polisher"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T15:43:10Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "ai-academic-tone-polisher",
+    "persian-thesis-builder"
+  ]
+}

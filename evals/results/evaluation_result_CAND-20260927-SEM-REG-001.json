@@ -1,0 +1,53 @@
+{
+  "evaluation_id": "EVR-20260927-001",
+  "candidate_id": "CAND-20260927-SEM-REG-001",
+  "baseline_id": "BASELINE-20260927",
+  "task_id": "SEM-REG-BENCHMARK-001",
+  "dimensions": {
+    "correctness": 1.0,
+    "methodology": 1.0,
+    "statistical_validity": 1.0
+  },
+  "baseline_metrics": {
+    "SEM_Modeling_Validity": 0.0
+  },
+  "candidate_metrics": {
+    "SEM_Modeling_Validity": 1.0
+  },
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": [],
+    "fixes_original_mistake": true,
+    "task_id": "SEM-REG-BENCHMARK-001"
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false,
+    "task_id": "SEM-REG-BENCHMARK-001",
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "pass_rate": 1.0,
+    "generalizes_to_different_case": true,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 1,
+    "task_id": "SEM-REG-BENCHMARK-001"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/sem/SKILL.md",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence_type": "graduation_target"
+    }
+  ],
+  "verdict": "PASS",
+  "overall_verdict": "PASS",
+  "recommendation": "PROMOTE"
+}

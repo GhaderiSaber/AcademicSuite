@@ -1,0 +1,353 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260927-CH4-ROBOTIC-TEMPLATE-001",
+  "experience_id": "EVT-20260927-CH4-ROBOTIC-TEMPLATE-FEEDBACK",
+  "project_id": "Mohtasham_Valiyanpur_PhD_Thesis",
+  "task_id": "TSK-2026-CH4-STAGE-4B1-WRITING",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-27T14:53:26.252833+00:00",
+      "description": "User issued critique rejecting speculative interpretations in Chapter 4: 'We didn't innterpret the results in the chapter 4.'",
+      "observable_input": {
+        "critique_text": "We didn't innterpret the results in the chapter 4.",
+        "feedback_id": "FDB-20260927-0AEBE2"
+      },
+      "observable_output": {
+        "status": "FEEDBACK_LOGGED",
+        "severity": "HIGH",
+        "scope": "REUSABLE_PROCEDURAL"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "evaluation-agent",
+      "timestamp": "2026-09-27T15:01:24.447284+00:00",
+      "description": "Continuous learning pipeline graduated candidate CAND-2026-CH4-ZERO-INTERPRETATION, establishing the Zero Interpretation Invariant in Chapter 4.",
+      "observable_input": {
+        "candidate_id": "CAND-2026-CH4-ZERO-INTERPRETATION",
+        "lesson_id": "LSN-2026-CH4-STRICT-FACTUAL-REPORTING"
+      },
+      "observable_output": {
+        "status": "GRADUATED",
+        "rule": "Strictly objective statistical reporting without clinical/theoretical speculation"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T15:04:32.278491+00:00",
+      "description": "academic-orchestrator issued Contractual Delegation Envelope (CDE) for Stage 4.1 demographics regeneration under task TSK-2026-CH4-STAGE-4B1-WRITING to academic-writer.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4B1-WRITING",
+        "stage": "Stage 4.1: Demographics Profiling",
+        "worker_agent": "academic-writer",
+        "objective": "Regenerate Stage 4.1 demographic deliverables (01_demographics.docx and 01_demographics.md) purging all speculative interpretations and strictly authoring objective factual reporting across all 12 demographic tables.",
+        "inputs": [
+          "03_deliverables/01_demographics.json",
+          "02_analysis_code/demographics_calculated.json"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "child_agent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T15:04:32.281737+00:00",
+      "description": "academic-writer accepted and initiated execution of task TSK-2026-CH4-STAGE-4B1-WRITING.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4B1-WRITING"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T15:04:32.500000+00:00",
+      "description": "Agent chose a fastpath shortcut by creating a rigid fill-in-the-blank string template instead of authoring genuine, rich, authentic Persian academic prose with natural syntactic variation for each table.",
+      "observable_input": {
+        "target_stage": "Stage 4.1: Demographics Profiling",
+        "tables_count": 12
+      },
+      "observable_output": {
+        "selected_option": "Rigid cookie-cutter string template iteration loop",
+        "template_pattern": "جدول ۴- X توزیع فراوانی و درصدی مربوط به ... را نشان می‌دهد. نتایج نشان داد که بیشترین فراوانی مربوط به گروه ... با ... نفر (...) بود.",
+        "defect_signature": "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T15:04:32.800000+00:00",
+      "description": "Generated generator script scaffold_demographics.py embedding hardcoded template string formatting across create_docx (lines 59-63) and create_md (line 112).",
+      "observable_input": {
+        "target_file": "scaffold_demographics.py"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "hardcoded_template_present": true
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T15:04:33.000000+00:00",
+      "description": "Executed python3 scaffold_demographics.py to regenerate 01_demographics.docx and 01_demographics.md on disk.",
+      "observable_input": {
+        "command_line": "python3 scaffold_demographics.py"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T15:04:33.100000+00:00",
+      "description": "Generated 03_deliverables/01_demographics.md containing 12 identical template sentences repeated verbatim before every demographic table.",
+      "observable_input": {
+        "target_file": "03_deliverables/01_demographics.md"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "verbatim_repetition_count": 12,
+        "affected_lines": [3, 15, 28, 44, 58, 71, 82, 93, 104, 116, 127, 138]
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T15:04:33.150000+00:00",
+      "description": "Generated 03_deliverables/01_demographics.docx containing 12 APA 7 demographic tables preceded by identical mechanical boilerplate sentences.",
+      "observable_input": {
+        "target_file": "03_deliverables/01_demographics.docx"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "verbatim_repetition_count": 12
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T15:04:33.428405+00:00",
+      "description": "academic-writer completed task TSK-2026-CH4-STAGE-4B1-WRITING and delivered modified artifacts to academic-orchestrator.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4B1-WRITING"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "delivered_artifacts": [
+          "03_deliverables/01_demographics.docx",
+          "03_deliverables/01_demographics.md"
+        ]
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-27T15:08:21.991785+00:00",
+      "description": "User issued critique: 'Remove the prewritten and template text from the files.' rejecting the mechanical cookie-cutter boilerplate repeated 12 times.",
+      "observable_input": {
+        "critique_text": "Remove the prewritten and template text from the files.",
+        "feedback_id": "FDB-20260927-DF4BA5"
+      },
+      "observable_output": {
+        "status": "FEEDBACK_LOGGED",
+        "severity": "HIGH",
+        "scope": "REUSABLE_PROCEDURAL"
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T15:08:21.042136+00:00",
+      "description": "academic-orchestrator triggered Step 1 of continuous self-improvement learning pipeline, dispatching trajectory-analyzer under task TSK-DEL-TRAJECTORY_ANALYZER.",
+      "observable_input": {
+        "delegatee": "trajectory-analyzer",
+        "task_id": "TSK-DEL-TRAJECTORY_ANALYZER",
+        "objective": "Reconstruct observable actions, tool calls, and error trajectory for user critique: 'Remove the prewritten and template text from the files.' Focus on the defect where academic-writer replaced speculative text with a robotic, mechanical cookie-cutter template repeated 12 times verbatim."
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "view_file",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/01_demographics.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 110.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "AbsolutePath": "scaffold_demographics.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 105.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/01_demographics.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 125.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/data_provenance.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 95.0
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": "scaffold_demographics.py",
+      "cli_command": "python3 scaffold_demographics.py",
+      "exit_code": 0,
+      "duration_seconds": 2.8
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": ".agents/skills/apa-reporting/SKILL.md",
+      "exit_code": 0,
+      "duration_seconds": 1.2
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "TSK-2026-CH4-STAGE-4B1-WRITING",
+      "envelope_summary": "Regenerate Stage 4.1 demographic deliverables purging speculative interpretations and authoring objective statistical reporting.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/01_demographics.md",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-2026-CH4-STAGE-4B1-WRITING",
+      "objective": "Regenerate Stage 4.1 demographic deliverables (01_demographics.docx and 01_demographics.md) from 03_deliverables/01_demographics.json.",
+      "input_artifacts": [
+        "03_deliverables/01_demographics.json",
+        "02_analysis_code/demographics_calculated.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/01_demographics.docx",
+        "03_deliverables/01_demographics.md"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "TSK-DEL-TRAJECTORY_ANALYZER",
+      "envelope_summary": "Reconstruct observable actions, tool calls, and error trajectory for user critique regarding prewritten template text.",
+      "status": "RUNNING",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-DEL-TRAJECTORY_ANALYZER",
+      "objective": "Reconstruct observable trajectory focusing on prewritten cookie-cutter template repetition defect in Chapter 4 Stage 4.1."
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260927-CH4-ROBOTIC-TEMPLATE-SHORTCUT",
+      "decision_type": "NARRATIVE_GENERATION_STRATEGY",
+      "selected_option": "Rigid Cookie-Cutter Fill-in-the-Blank Template Loop",
+      "rationale": "In attempting to comply with the Zero Interpretation Invariant (CAND-2026-CH4-ZERO-INTERPRETATION) after prior user feedback, the worker agent took a fastpath shortcut by substituting qualitative speculation with a single rigid string template repeated 12 times verbatim instead of generating natural, differentiated Persian academic prose for each table.",
+      "alternatives_considered": [
+        {
+          "option": "Dynamic Table-Specific Scholarly Narration with Natural Syntactic and Lexical Variation",
+          "verdict": "OMITTED_IMPROPERLY",
+          "reason": "Worker agent prioritized turn completion and rigid compliance over natural scholarly depth, violating Directive 25 (Universal Anti-Shortcut Invariant) and the Zero-Template Dynamic Narration Invariant."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/01_demographics.docx",
+      "sha256": "23358fb7c93c095e91181c0346bdc0d007d31b40dc71f76a0441ab0d63e52337",
+      "type": "openxml_word"
+    },
+    {
+      "path": "03_deliverables/01_demographics.md",
+      "sha256": "3ed9a19f73a2c3163f08e0fa7d3c120d71c67f881c23c91e7b04f0a9f4a16f87",
+      "type": "narrative_markdown"
+    },
+    {
+      "path": "03_deliverables/01_demographics.json",
+      "sha256": "cd76d1f5480a1ae70721fa45c8b9d24776f335ffd0dd514819ff5044104a60ae",
+      "type": "metadata_json"
+    },
+    {
+      "path": "scaffold_demographics.py",
+      "sha256": "9f84b65a973cb12a58b0e7c54efdc62810a45d023349f8bb2ce8459f9393a7d1",
+      "type": "generator_script"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "ZeroTemplateDynamicNarrationValidator",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-ZERO-PREWRITTEN-TEMPLATE-NARRATION",
+        "CHK-AUTHENTIC-SCHOLARLY-VARIATION",
+        "CHK-TABLE-NARRATIVE-ENTROPY-DIVERSITY"
+      ],
+      "evidence_summary": {
+        "critique_text": "Remove the prewritten and template text from the files.",
+        "defect_signature": "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION",
+        "template_detected": "جدول ۴- X توزیع فراوانی و درصدی مربوط به ... را نشان می‌دهد. نتایج نشان داد که بیشترین فراوانی مربوط به گروه ... با ... نفر (...) بود.",
+        "repetition_count": 12,
+        "affected_sections": [
+          "Table 4-1 (Gender): Line 3",
+          "Table 4-2 (Marriage): Line 15",
+          "Table 4-3 (Education): Line 28",
+          "Table 4-4 (Employment): Line 44",
+          "Table 4-5 (Income): Line 58",
+          "Table 4-6 (Psychiatric History): Line 71",
+          "Table 4-7 (Consultation): Line 82",
+          "Table 4-8 (Hospitalization): Line 93",
+          "Table 4-9 (Suicidal Ideation/Attempt): Line 104",
+          "Table 4-10 (Medication): Line 116",
+          "Table 4-11 (Smoking): Line 127",
+          "Table 4-12 (Age Groups): Line 138"
+        ]
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260927-DF4BA5",
+    "FDB-20260927-714136"
+  ],
+  "outcome": "FAILURE"
+}

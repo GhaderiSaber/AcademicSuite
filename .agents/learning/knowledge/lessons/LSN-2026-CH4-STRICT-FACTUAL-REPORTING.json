@@ -1,0 +1,42 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-CH4-STRICT-FACTUAL-REPORTING",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20260927-CH4-DEMOGRAPHICS-INTERPRETATION-001",
+  "diagnosis": {
+    "what_happened": "Chapter 4 findings narratives included speculative clinical, epidemiological, developmental, or theoretical explanations and interpretations.",
+    "behavior_caused_outcome": "Violated APA 7 Section 3.4 strict factual reporting standards for Results sections by interpreting findings prematurely.",
+    "what_should_have_happened": "Chapter 4 should have been strictly objective, factual reporting of statistical numbers and tables, with zero interpretation.",
+    "rationale_why": "Interpretation of findings belongs strictly in Chapter 5 Discussion. Chapter 4 is for unbiased statistical reporting only."
+  },
+  "desired_behavior": "Strictly report objective, factual statistical numbers and tables in Chapter 4, completely abstaining from speculative or theoretical explanations.",
+  "generalization": "Chapter 4 findings narratives must be strictly objective, factual reporting of statistical numbers and tables (APA 7 Section 3.4), completely abstaining from speculative clinical, epidemiological, developmental, or theoretical explanations and interpretations.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "APA7_SECTION_3_4_COMPLIANCE",
+    "observed_value": "Interpretive narrative found in Chapter 4",
+    "threshold_value": "Zero interpretation in Chapter 4",
+    "supporting_report_ids": [
+      "BAN-20260927-CH4-DEMOGRAPHICS-INTERPRETATION-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "apa-reporting",
+    "statistical-data-analyst"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T14:59:55Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "chapter-4-writing",
+  "target_agents": [
+    "chapter-4-writing",
+    "academic-writer",
+    "statistical-data-analyst"
+  ]
+}

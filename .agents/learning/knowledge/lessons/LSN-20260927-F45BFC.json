@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260927-F45BFC",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260927-E51C64",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory TRJ-20260927-CH4-ROBOTIC-TEMPLATE-001 (and linked EVT-20260927-CH4-ROBOTIC-TEMPLATE-FEEDBACK) to determine the exact failure mechanism for AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION. Answer 'What behavior was wrong?': Explain why academic-writer took a fastpath shortcut by generating and executing scaffold_demographics.py with a rigid string template ('جدول ۴- X توزیع فراوانی و درصدی مربوط به ... را نشان میدهد. نتایج نشان داد که بیشترین فراوانی مربوط به گروه ... با ... نفر (...) بود.') repeated 12 times verbatim across all demographic tables instead of authoring authentic, contextually varied Persian scholarly narrative without boilerplate. Prescribe corrective behavioral rules. Emit the structured behavior diagnosis report.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding writing correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory TRJ-20260927-CH4-ROBOTIC-TEMPLATE-001 (and linked EVT-20260927-CH4-ROBOTIC-TEMPLATE-FEEDBACK) to determine the exact failure mechanism for AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION. Answer 'What behavior was wrong?': Explain why academic-writer took a fastpath shortcut by generating and executing scaffold_demographics.py with a rigid string template ('جدول ۴- X توزیع فراوانی و درصدی مربوط به ... را نشان میدهد. نتایج نشان داد که بیشترین فراوانی مربوط به گروه ... با ... نفر (...) بود.') repeated 12 times verbatim across all demographic tables instead of authoring authentic, contextually varied Persian scholarly narrative without boilerplate. Prescribe corrective behavioral rules. Emit the structured behavior diagnosis report.",
+    "rationale_why": "Academic scholarship requires formal psychological mechanisms and theoretical grounding rather than descriptive platitudes."
+  },
+  "applicability_conditions": [
+    "Studies utilizing chapter-4-writing or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory TRJ-20260927-CH4-ROBOTIC-TEMPLATE-001 (and linked EVT-20260927-CH4-ROBOTIC-TEMPLATE-FEEDBACK) to determine the exact failure mechanism for AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION. Answer 'What behavior was wrong?': Explain why academic-writer took a fastpath shortcut by generating and executing scaffold_demographics.py with a rigid string template ('جدول ۴- X توزیع فراوانی و درصدی مربوط به ... را نشان میدهد. نتایج نشان داد که بیشترین فراوانی مربوط به گروه ... با ... نفر (...) بود.') repeated 12 times verbatim across all demographic tables instead of authoring authentic, contextually varied Persian scholarly narrative without boilerplate. Prescribe corrective behavioral rules. Emit the structured behavior diagnosis report.",
+  "generalization": "Procedural Guideline for chapter-4-writing: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory TRJ-20260927-CH4-ROBOTIC-TEMPLATE-001 (and linked EVT-20260927-CH4-ROBOTIC-TEMPLATE-FEEDBACK) to determine the exact failure mechanism for AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION. Answer 'What behavior was wrong?': Explain why academic-writer took a fastpath shortcut by generating and executing scaffold_demographics.py with a rigid string template ('جدول ۴- X توزیع فراوانی و درصدی مربوط به ... را نشان میدهد. نتایج نشان داد که بیشترین فراوانی مربوط به گروه ... با ... نفر (...) بود.') repeated 12 times verbatim across all demographic tables instead of authoring authentic, contextually varied Persian scholarly narrative without boilerplate. Prescribe corrective behavioral rules. Emit the structured behavior diagnosis report. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-WRITING_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- **Target Capability**",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~163/600 tokens (27.2%)]\n- ",
+    "supporting_report_ids": [
+      "FDB-20260927-778B63"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T15:42:12.181719+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-27T15:42:12.181810+00:00"
+  }
+}
