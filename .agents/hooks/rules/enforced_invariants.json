@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-27T03:10:32.536464+00:00",
+  "updated_at": "2026-09-27T03:37:05.784765+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -305,6 +305,27 @@
       "remedy": "Ensure exhaustive search-and-replace across the entire document corpus. Apply yellow highlights to verified pre-existing elements. Do not skip paragraphs selectively.",
       "enabled": true,
       "updated_at": "2026-09-27T03:10:32.536423+00:00"
+    },
+    "CAND-2026-SURGICAL-RUN-LEVEL-MUTATION": {
+      "item_id": "CAND-2026-SURGICAL-RUN-LEVEL-MUTATION",
+      "category": "Learned Mechanical Rule",
+      "statement": "[AP-2026-PARAGRAPH-CLEAR-HIGHLIGHT-WIPEOUT] paragraph.clear() is strictly banned during document revisions. It wipes out existing run-level formatting, including client green highlights. You must use surgical run-level OpenXML mutation.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "DOCUMENT_REVISION",
+        "OPENXML_MUTATION"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.py",
+      "check_type": "substring_ban",
+      "pattern": "paragraph.clear()",
+      "violation_message": "[AP-2026-PARAGRAPH-CLEAR-HIGHLIGHT-WIPEOUT] paragraph.clear() is strictly banned during document revisions. It wipes out existing run-level formatting, including client green highlights. You must use surgical run-level OpenXML mutation.",
+      "remedy": "Iterate through paragraph.runs and modify text directly. Preserve <w:highlight w:val='green'/> and add <w:highlight w:val='yellow'/> for new revisions.",
+      "enabled": true,
+      "updated_at": "2026-09-27T03:37:05.784747+00:00"
     }
   }
 }

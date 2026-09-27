@@ -1,0 +1,37 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-SURGICAL-RUN-LEVEL-MUTATION",
+  "lesson_type": "WHAT_WORKED_WELL",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-HIGHLIGHT-WIPEOUT-RESOLUTION",
+  "diagnosis": {
+    "what_happened": "Revisions successfully implemented while preserving all client green highlights and marking new revisions with yellow highlights.",
+    "behavior_caused_outcome": "Surgical iteration and targeted OpenXML run mutation retained existing styles instead of overriding them.",
+    "what_should_have_happened": "Always mutate surgically at the run level.",
+    "rationale_why": "Document conservation dictates that existing client styling (like green highlights) must be preserved, and supervisors must see exactly what changed (via yellow highlights)."
+  },
+  "desired_behavior": "Mandating surgical run-level OpenXML mutation preserving all client green highlights and ensuring all 19 supervisor revisions have visible yellow highlights.",
+  "generalization": "Document text mutations must be non-destructive at the run level, explicitly preserving pre-existing client highlights and marking new modifications clearly.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "HIGHLIGHT_CONSERVATION",
+    "observed_value": "Successful preservation of green highlights and addition of yellow highlights",
+    "threshold_value": "100% highlight preservation",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-thesis-revision-assistant"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T07:02:54Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "persian-thesis-revision-assistant",
+  "target_agents": [
+    "academic-writer",
+    "persian-thesis-revision-assistant"
+  ]
+}
