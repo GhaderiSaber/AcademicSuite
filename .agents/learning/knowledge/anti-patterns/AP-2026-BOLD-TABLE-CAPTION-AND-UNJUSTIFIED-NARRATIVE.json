@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-BOLD-TABLE-CAPTION-AND-UNJUSTIFIED-NARRATIVE",
+  "category": "typography",
+  "defective_pattern": "Using bold font for table captions in APA 7 Markdown/DOCX and leaving narrative body paragraphs unjustified in DOCX.",
+  "why_defective": "APA 7 mandates regular (non-bold) font for table titles/captions. Furthermore, Persian narrative text in DOCX requires explicit full justification tags (<w:jc w:val=\"both\"/>) to render correctly.",
+  "observed_symptoms": [
+    "Table captions are bolded in Markdown or DOCX output.",
+    "Narrative paragraphs in DOCX appear left-aligned or right-aligned instead of fully justified."
+  ],
+  "corrective_remedy": "Ensure table captions are regular non-bold font. Ensure all narrative body paragraphs in DOCX explicitly contain <w:jc w:val=\"both\"/>.",
+  "detection_heuristic": {
+    "trigger_rule": "Regex matching bold Markdown table captions or DOCX paragraphs missing justification.",
+    "regex_patterns": [
+      "(?m)^\\*\\*Table .*\\*\\*",
+      "(?m)^\\*\\*جدول .*\\*\\*"
+    ],
+    "pattern": "(?m)^\\*\\*جدول .*\\*\\*",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.(md|json|docx|txt)",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "apa-reporting",
+    "persian-thesis-builder"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T10:24:37Z"
+}
