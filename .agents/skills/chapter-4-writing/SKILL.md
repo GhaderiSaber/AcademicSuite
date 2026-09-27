@@ -80,6 +80,10 @@ In regression ANOVA tables with multiple criterion variables:
 - All findings narratives must be composed as continuous, cohesive academic paragraphs.
 - Bullet points, hyphens, and numbered listicles are strictly prohibited in the Chapter 4 narrative body.
 
+### 6.1.1 Anti-Template & Dynamic Syntactic Variation Invariant
+- Findings narratives must be dynamically authored with authentic Persian scholarly prose, distinct syntactic structure, and varied phrasing per table.
+- Mechanical string templates or loop-generated boilerplate are strictly prohibited.
+
 ### 6.2 Zero Hanging Colons & Telegraphic Text
 - Eradicate hanging colons (`:`) at paragraph ends preceding tables or metrics.
 - Eradicate inline colon-delimited labels or pseudo-bullets (e.g. `**موضوع:** ... **هدف:** ...`).
@@ -92,6 +96,10 @@ In regression ANOVA tables with multiple criterion variables:
 ### 6.4 Comprehensive Boundaries
 - Chapter 4 must begin with a comprehensive structural introduction outlining the sample, variables, and sequence of analyses.
 - Chapter 4 must conclude with a comprehensive narrative summary synthesizing the status of all hypotheses.
+
+### 6.5 Zero Interpretation Invariant (اصل عدم تفسیر یافته‌ها)
+- Findings narratives must strictly report objective, factual statistical values, frequencies, percentages, and tables.
+- Speculative clinical, developmental, epidemiological, or theoretical interpretations and explanations are strictly prohibited in Chapter 4 (save them for Chapter 5).
 
 ---
 

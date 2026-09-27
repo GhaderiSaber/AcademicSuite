@@ -113,8 +113,9 @@ The script outputs:
 ## 9. INSTITUTIONAL INVARIANTS & PREVIOUS LESSONS GRADUATED
 
 ### 9.1 Latent Variable Modeling Mandate (`lavaan` Syntax)
-- Latent constructs must always be explicitly defined with multiple indicator items using latent measurement syntax (`=~`) via R (`lavaan`) or Python (`semopy`).
+- Latent constructs must always be explicitly defined with observed subscale indicators using latent measurement syntax (`=~`) via R (`lavaan`). Never substitute manifest path analysis on composite sum scores for true latent variable modeling.
 - **Anti-Pattern Prohibition**: Modeling observed composite sum-scores in a path diagram must strictly be labeled as **Path Analysis** (تحلیل مسیر), NEVER falsely labeled as Structural Equation Modeling (SEM).
+- **Regression Predictor Specification**: In regression analysis, multi-factor predictors must be entered by regressing their individual subscale factors onto the criterion variable, rather than aggregating them into a single score.
 
 ### 9.2 Mandatory High-Resolution Path Diagram Generation
 - Every SEM execution MUST generate a verified high-resolution (300-DPI) structural path diagram artifact (`05_macro_model_path.png` or `.svg`) visualizing standardized path coefficients ($\beta$), indicator factor loadings ($\lambda$), and residual variances.

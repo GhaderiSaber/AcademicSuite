@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-27T11:12:27.722948+00:00",
+  "updated_at": "2026-09-27T15:46:27.972233+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -495,6 +495,68 @@
       "remedy": "Enforce structural bibliographic validation (e.g., regex for a four-digit year enclosed in parentheses or APA 7 formatting) for reference extraction. Explicitly filter out subheadings.",
       "enabled": true,
       "updated_at": "2026-09-27T11:12:27.722861+00:00"
+    },
+    "CAND-20260927-SEM-REG-001": {
+      "item_id": "CAND-20260927-SEM-REG-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Latent variables in SEM must be specified with observed subscale indicators (=~), not by manifest path analysis on composite sum/mean scores.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "SEM",
+        "regression"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\\\.R$|.*sem_model\\\\.json$",
+      "check_type": "regex_ban",
+      "pattern": ".*\\\\b(sum|rowSums|mean|rowMeans)\\\\(.*\\\\).*~.*",
+      "violation_message": "Latent variables in SEM must be specified with observed subscale indicators (=~), not by manifest path analysis on composite sum/mean scores.",
+      "remedy": "Define latent constructs using `=~` and map to subscales or items. Do not pre-calculate sum or mean scores for structural equations. In regression, use individual subscale predictors.",
+      "enabled": true,
+      "updated_at": "2026-09-27T14:17:29.914581+00:00"
+    },
+    "CAND-2026-CH4-ZERO-INTERPRETATION": {
+      "item_id": "CAND-2026-CH4-ZERO-INTERPRETATION",
+      "category": "Learned Mechanical Rule",
+      "statement": "Premature interpretation detected in Chapter 4. Chapter 4 must strictly contain factual statistical reporting. Save all interpretations (تبیین، دلیل، شاید) for Chapter 5.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "CHAPTER4_DRAFTING"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*06_hypothesis_.*\\.md|.*stage_06_.*\\.docx|.*chapter_4.*\\.(md|docx)",
+      "check_type": "regex_ban",
+      "pattern": "(به دلیل|شاید|احتمالاً|تبیین|نشان‌دهنده این است که|تفسیر می‌شود|می‌توان نتیجه گرفت|علت این امر)",
+      "violation_message": "Premature interpretation detected in Chapter 4. Chapter 4 must strictly contain factual statistical reporting. Save all interpretations (تبیین، دلیل، شاید) for Chapter 5.",
+      "remedy": "Remove all speculative, explanatory, or interpretive phrases. Report only statistical parameters and direct empirical findings.",
+      "enabled": true,
+      "updated_at": "2026-09-27T15:03:48.814970+00:00"
+    },
+    "CAND-2026-CH4-DYNAMIC-NARRATION": {
+      "item_id": "CAND-2026-CH4-DYNAMIC-NARRATION",
+      "category": "Learned Mechanical Rule",
+      "statement": "Verbatim identical introductory sentences detected across findings tables (BAN-20260927-CH4-ROBOTIC-TEMPLATE-001).",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "CHAPTER4_WRITING",
+        "GENERAL_ACADEMIC"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\\\.(md|docx)",
+      "check_type": "regex_ban",
+      "pattern": "(?ms)^([آ-ی ]{30,}).*?^\\1",
+      "violation_message": "Verbatim identical introductory sentences detected across findings tables (BAN-20260927-CH4-ROBOTIC-TEMPLATE-001).",
+      "remedy": "Apply Dynamic Syntactic Variation. Ensure each table's findings narrative is authored with authentic, distinct syntactic structure.",
+      "enabled": true,
+      "updated_at": "2026-09-27T15:46:27.972207+00:00"
     }
   }
 }
