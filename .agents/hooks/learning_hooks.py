@@ -76,6 +76,7 @@ class LearningHooks:
     Class C: Learning Hooks
     Captures user corrections, validation failures, and agent trajectories for continuous learning.
     """
+    _captured_validation_failures: Set[str] = set()
 
     @staticmethod
     def _get_engine(payload: Dict[str, Any]):
@@ -406,27 +407,7 @@ class LearningHooks:
                         actor="user"
                     )
 
-            try:
-                from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
-                ws_paths = payload.get("workspacePaths", [])
-                if ws_paths and os.path.isdir(ws_paths[0]):
-                    base_ws = ws_paths[0]
-                elif "PYTEST_CURRENT_TEST" in os.environ or "pytest" in sys.modules:
-                    base_ws = None
-                else:
-                    base_ws = ROOT_DIR
 
-                if base_ws:
-                    hub = AcademicIntegratedLearningHub(base_dir=base_ws)
-                    meta = {
-                        "conversation_id": cid,
-                        "source_transcript_path": transcript_path,
-                        "turn_index": last_step_idx,
-                        "workspace_paths": [base_ws]
-                    }
-                    hub.process_user_turn(user_text=clean_user, metadata=meta)
-            except Exception as e_hub:
-                sys.stderr.write(f"[learning_hooks] Hub user turn note: {e_hub}\n")
 
         return {
             "is_critique": is_critique,
@@ -450,10 +431,13 @@ class LearningHooks:
                 if events:
                     last_ev = events[-1]
                     details = last_ev.get("details", {})
+                    failed_list = details.get("failed_checks", [])
+                    cf = details.get("checks_failed") or (len(failed_list) if isinstance(failed_list, list) and failed_list else 1)
                     return {
                         "validator_name": details.get("validator_name", "Validation Check"),
                         "summary": str(details.get("failed_checks") or details.get("error") or "Validation checks failed"),
-                        "stage_dir": details.get("stage_dir", "")
+                        "stage_dir": details.get("stage_dir", ""),
+                        "checks_failed": cf
                     }
         except Exception as e:
             sys.stderr.write(f"[learning_hooks] Detect validation failure note: {e}\n")
@@ -484,13 +468,20 @@ class LearningHooks:
                             checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
                             if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
                                 s_dir = os.path.dirname(cp)
-                                try:
-                                    LearningHooks.capture_validation_failure(
-                                        stage_dir=s_dir,
-                                        validator_results=v_data.get("results", [{"validator_name": "ValidationReport", "verdict": "FAIL", "failed_checks": [f"{checks_failed} checks failed"]}])
-                                    )
-                                except Exception:
-                                    pass
+                                val_key = f"{s_dir}:{checks_failed}:{v_data.get('timestamp') or os.path.getmtime(cp)}"
+                                if val_key not in LearningHooks._captured_validation_failures:
+                                    LearningHooks._captured_validation_failures.add(val_key)
+                                    try:
+                                        fr_list = v_data.get("results") or [{"validator_name": "ValidationReport", "verdict": "FAIL", "failed_checks": [f"{checks_failed} checks failed"]}]
+                                        for fr in fr_list:
+                                            if isinstance(fr, dict) and "checks_failed" not in fr:
+                                                fr["checks_failed"] = checks_failed
+                                        LearningHooks.capture_validation_failure(
+                                            stage_dir=s_dir,
+                                            validator_results=fr_list
+                                        )
+                                    except Exception:
+                                        pass
                                 return {
                                     "validator_name": v_data.get("validator_name", "ValidationReport"),
                                     "summary": f"Report in '{os.path.basename(s_dir)}' overall_verdict is FAIL ({checks_failed} checks failed)",
@@ -574,6 +565,7 @@ class LearningHooks:
                     details={
                         "validator_name": fr.get("validator_name", "Validator"),
                         "failed_checks": fr.get("failed_checks", []),
+                        "checks_failed": fr.get("checks_failed") or len(fr.get("failed_checks", [])) or 1,
                         "stage_dir": stage_dir
                     },
                     actor="validation-agent"
@@ -588,16 +580,7 @@ class LearningHooks:
         except Exception as e_rec:
             sys.stderr.write(f"[learning_hooks] Experience recording note: {e_rec}\n")
 
-        try:
-            from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
-            hub = AcademicIntegratedLearningHub(base_dir=cand_base)
-            hub.process_validation_failure(
-                stage_dir=stage_dir,
-                validator_results=validator_results,
-                is_challenger=False
-            )
-        except Exception as e_hub:
-            sys.stderr.write(f"[learning_hooks] Hub validation failure note: {e_hub}\n")
+
 
     @staticmethod
     def capture_feedback_event(event_type: str, payload: Dict[str, Any], details: Optional[Dict[str, Any]] = None) -> None:

@@ -30,6 +30,7 @@ import html
 import asyncio
 import argparse
 from datetime import datetime
+import hashlib
 from typing import Dict, List, Any, Optional, Tuple, Union
 
 try:
@@ -195,6 +196,8 @@ class SaberTelethonUserbot:
         self.persona = load_persona()
         self.pending_quotes: Dict[str, Dict[str, Any]] = {}
         self.quote_counter = 100
+        self.processed_proposals_file = os.path.join(self.storage_dir, "processed_proposals.json")
+        self.processed_proposals: Dict[str, Any] = self._load_processed_proposals()
         self.drafts_file = os.path.join(self.storage_dir, "pending_drafts.json")
         self.pending_drafts: Dict[str, Dict[str, Any]] = self._load_pending_drafts()
         existing_d = [int(k[1:]) for k in self.pending_drafts.keys() if k.startswith("D") and k[1:].isdigit()]
@@ -273,6 +276,24 @@ class SaberTelethonUserbot:
                 json.dump(clean_dict, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"[-] Error saving pending drafts: {e}")
+
+    def _load_processed_proposals(self) -> Dict[str, Any]:
+        p_file = getattr(self, "processed_proposals_file", os.path.join(self.storage_dir, "processed_proposals.json"))
+        if os.path.exists(p_file):
+            try:
+                with open(p_file, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception as e:
+                print(f"[-] Error loading processed proposals: {e}")
+        return {}
+
+    def _save_processed_proposals(self):
+        p_file = getattr(self, "processed_proposals_file", os.path.join(self.storage_dir, "processed_proposals.json"))
+        try:
+            with open(p_file, "w", encoding="utf-8") as f:
+                json.dump(self.processed_proposals, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"[-] Error saving processed proposals: {e}")
 
     def build_approval_keyboard(
         self,
@@ -550,10 +571,32 @@ class SaberTelethonUserbot:
         client_source=None
     ):
         """Process proposal received in private chat, provision Google Drive project folder, and post to Saved Messages."""
+        effective_sender_id = sender_id or getattr(event, "sender_id", getattr(event, "chat_id", 0))
+
+        # Deduplication Guard 1: Persistent registry
+        file_key = f"{effective_sender_id}_{file_name}" if file_name else None
+        text_hash = hashlib.sha256((raw_text or "").strip().encode("utf-8")).hexdigest()[:16]
+        text_key = f"{effective_sender_id}_{text_hash}"
+        dedup_key = file_key or text_key
+
+        if dedup_key in self.processed_proposals:
+            print(f"[*] Skipping duplicate proposal processing for {client_name} (Key: {dedup_key})")
+            return
+
+        # Deduplication Guard 2: Active in-memory pending quotes
+        for qid, qentry in self.pending_quotes.items():
+            if qentry.get("sender_id") == effective_sender_id:
+                if file_name and qentry.get("file_name") == file_name:
+                    print(f"[*] Quote {qid} is already pending for {client_name} ({file_name}). Skipping.")
+                    return
+                elif not file_name and qentry.get("text_hash") == text_hash:
+                    print(f"[*] Quote {qid} is already pending for {client_name} (text). Skipping.")
+                    return
+
         # 1. Provision standard 4-tier project folder in Google Drive
         project_paths = self.project_manager.provision_project(
             client_name=client_name,
-            client_id=sender_id,
+            client_id=effective_sender_id,
             username=username,
             status="proposal_received"
         )
@@ -568,7 +611,11 @@ class SaberTelethonUserbot:
 
         self.pending_quotes[quote_id] = {
             "chat_id": event.chat_id,
+            "sender_id": effective_sender_id,
             "sender_name": client_name,
+            "file_name": file_name,
+            "text_hash": text_hash,
+            "dedup_key": dedup_key,
             "quote": quote,
             "event": event,
             "project_dir": project_dir,
@@ -586,13 +633,13 @@ class SaberTelethonUserbot:
             f.write(f"# پیش‌نویس پیش‌فاکتور و پاسخ به مراجع ({client_name})\n\n{quote_card_fa}\n")
 
         # 5. Notify Saber via Academic Desk in English with clean path & clickable user link
-        client_link = format_client_mention_html(client_name, username=username, client_id=sender_id)
+        client_link = format_client_mention_html(client_name, username=username, client_id=effective_sender_id)
         clean_path = clean_drive_display_path(project_dir)
         safe_fname = html.escape(file_name or "Direct chat message")
 
         header_lines = [
             "╭─ <b>📥 NEW RESEARCH PROPOSAL RECEIVED</b> ─────────────",
-            f"│ 👤 <b>Client:</b> {client_link}  •  <code>#{sender_id}</code>",
+            f"│ 👤 <b>Client:</b> {client_link}  •  <code>#{effective_sender_id}</code>",
             f"│ 📄 <b>File / Source:</b> <code>{safe_fname}</code>",
             f"│ 📁 <b>Drive:</b> <code>{html.escape(clean_path)}</code>",
             f"│ 🆔 <b>Quotation ID:</b> <code>{quote_id}</code>",
@@ -619,12 +666,21 @@ class SaberTelethonUserbot:
             alert_text,
             buttons=buttons,
             topic_key="proposals",
-            client_id=sender_id,
+            client_id=effective_sender_id,
             client_name=client_name,
             parse_mode="html"
         )
         print(f"[+] Posted draft quote {quote_id} for {client_name} to Admin Desk via Assistant Bot.")
         print(f"[+] Project folder synced: {project_dir}")
+
+        self.processed_proposals[dedup_key] = {
+            "quote_id": quote_id,
+            "sender_id": effective_sender_id,
+            "client_name": client_name,
+            "file_name": file_name,
+            "processed_at": datetime.now().isoformat()
+        }
+        self._save_processed_proposals()
 
         if self.auto_reply:
             ack_msg = (
@@ -938,7 +994,7 @@ class SaberTelethonUserbot:
                 await self.scan_and_process_unread_messages(limit_dialogs=40)
             except Exception as e:
                 print(f"[-] Error in periodic catch-up sync loop: {e}")
-            await asyncio.sleep(300)
+            await asyncio.sleep(900)
 
     async def generate_and_post_math_defense(
         self,
@@ -1182,6 +1238,12 @@ class SaberTelethonUserbot:
                     fname = fn_detail
                     ext = os.path.splitext(fname)[1].lower()
                     if ext in [".docx", ".pdf", ".txt"]:
+                        f_key = f"{dlg.id}_{fname}"
+                        m_key = f"{dlg.id}_{msg.id}_{fname}"
+                        if f_key in self.processed_proposals or m_key in self.processed_proposals:
+                            print(f"      [*] Skipping already-quoted file: {fname} from {client_name}")
+                            continue
+
                         print(f"      [+] Unread proposal file detected: {fname} from {client_name}")
                         local_path = os.path.join(project_dir, "01_raw_inputs", fname)
                         if not os.path.exists(local_path):
@@ -1195,15 +1257,22 @@ class SaberTelethonUserbot:
                                 msg, raw_content, client_name, file_name=fname, sender_id=dlg.id, username=username, client_source=cl
                             )
                             found_proposal = True
+                            break
                         except Exception as err:
                             print(f"      [-] Error extracting proposal: {err}")
 
                 # Check for long text proposal
                 if len(txt) > 80 and any(w in txt for w in ["عنوان", "فرضیه", "پروپوزال", "جامعه", "نمونه", "متغیر"]):
+                    t_hash = hashlib.sha256(txt.strip().encode("utf-8")).hexdigest()[:16]
+                    t_key = f"{dlg.id}_{t_hash}"
+                    m_key = f"{dlg.id}_{msg.id}_text"
+                    if t_key in self.processed_proposals or m_key in self.processed_proposals:
+                        continue
                     await self.handle_proposal_message(
                         msg, txt, client_name, sender_id=dlg.id, username=username, client_source=cl
                     )
                     found_proposal = True
+                    break
 
             clean_pdir = clean_drive_display_path(project_dir)
             client_link = format_client_mention_html(client_name, username=username, client_id=dlg.id)
