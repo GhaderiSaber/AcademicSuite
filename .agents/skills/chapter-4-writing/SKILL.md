@@ -136,7 +136,7 @@ The current local time is: 2026-09-25T19:49:25+03:30. [Enforcement: results_audi
 
 
 ⚠️ Known Pitfalls (Anti-Patterns to Avoid):
-- **Lesson (LSN-2026-CH4-STAGE43-DEFECTS)**: Enforce non-bold table captions in markdown and explicitly add justification tags (<w:jc w:val='both'/>) to Persian narrative paragraphs in DOCX. [Enforcement: results_auditor_guard.py]
+- **Anti-pattern (AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION)**: Formulate dynamic, non-template scholarly narrative tailored specifically to each table cells using Sabers 4-element epistemic structure (Context -> Highlights -> Reference -> Verdict). [Enforcement: results_auditor_guard.py]
   Approved Remedy: Enforce strict heading naming standard ('سوال اول: ...', 'فرضیه اول: ...'), strip parenthetical duplicates, remove raw markdown tokens from markdown source, and equip the OpenXML renderer with robust parsing.
 - [AP-2026-ISOLATED-PROSE-POLISHING] Avoid: Fixing prose style only in isolated paragraphs flagged by the user while leaving the remaining sections in an unrefined, mechanical state.
   Approved Remedy: When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.

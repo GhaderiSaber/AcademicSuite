@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-27T07:32:25.970027+00:00",
+  "updated_at": "2026-09-27T09:55:35.904019+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -430,6 +430,29 @@
       "remedy": "Ensure table captions are regular non-bold font. Ensure all narrative body paragraphs in DOCX explicitly contain <w:jc w:val=\"both\"/>.",
       "enabled": true,
       "updated_at": "2026-09-27T07:32:25.970005+00:00"
+    },
+    "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION": {
+      "item_id": "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION",
+      "category": "Anti-Pattern",
+      "statement": "Formulate dynamic, non-template scholarly narrative tailored specifically to each table cells using Sabers 4-element epistemic structure (Context -> Highlights -> Reference -> Verdict).",
+      "target_agents": [
+        "academic-writer",
+        "chapter-4-writing",
+        "statistical-data-analyst"
+      ],
+      "target_skills": [
+        "chapter-4-writing",
+        "apa-reporting"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.(md|docx|json|txt)",
+      "check_type": "regex_ban",
+      "pattern": "(?m)(در این بخش،? نتایج مربوط به .* گزارش می‌گردد|بر اساس داده‌های به دست آمده،? فرضیه مورد تأیید قرار گرفت|در این بخش یافته‌های آماری مربوطه تدوین می‌گردد)",
+      "violation_message": "Formulate dynamic, non-template scholarly narrative tailored specifically to each table cells using Sabers 4-element epistemic structure (Context -> Highlights -> Reference -> Verdict).",
+      "remedy": "Formulate dynamic, non-template scholarly narrative tailored specifically to each table cells using Sabers 4-element epistemic structure (Context -> Highlights -> Reference -> Verdict).",
+      "enabled": true,
+      "updated_at": "2026-09-27T09:55:35.903829+00:00"
     }
   }
 }

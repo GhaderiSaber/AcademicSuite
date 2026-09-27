@@ -1,0 +1,44 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION",
+  "category": "execution",
+  "defective_pattern": "Emitting prewritten template paragraphs, canned boilerplate, or static placeholder text for Chapter 4 findings tables.",
+  "why_defective": "Prewritten templates and boilerplate violate academic integrity, fail to communicate the actual empirical findings (effect sizes, direction, exact statistics), and disconnect narrative prose from table data.",
+  "observed_symptoms": [
+    "Canned sentences like: در این بخش نتایج مربوط به گزارش میگردد.",
+    "Generic claims like: بر اساس دادههای به دست آمده فرضیه مورد تأیید قرار گرفت.",
+    "Placeholders like: در این بخش یافتههای آماری مربوطه تدوین میگردد."
+  ],
+  "corrective_remedy": "Formulate dynamic, non-template scholarly narrative tailored specifically to each table cells using Sabers 4-element epistemic structure (Context -> Highlights -> Reference -> Verdict).",
+  "detection_heuristic": {
+    "trigger_rule": "Regex banning known canned boilerplate and template placeholder phrases in Chapter 4 deliverables.",
+    "regex_patterns": [
+      "(?m)در این بخش،? نتایج مربوط به .* گزارش می‌گردد",
+      "(?m)بر اساس داده‌های به دست آمده،? فرضیه مورد تأیید قرار گرفت",
+      "(?m)در این بخش یافته‌های آماری مربوطه تدوین می‌گردد"
+    ],
+    "pattern": "(?m)(در این بخش،? نتایج مربوط به .* گزارش می‌گردد|بر اساس داده‌های به دست آمده،? فرضیه مورد تأیید قرار گرفت|در این بخش یافته‌های آماری مربوطه تدوین می‌گردد)",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.(md|docx|json|txt)",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "chapter-4-writing",
+    "statistical-data-analyst"
+  ],
+  "related_skills": [
+    "chapter-4-writing",
+    "apa-reporting"
+  ],
+  "reusable": true,
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+  "graduation_status": "GRADUATED",
+  "updated_at": "2026-09-27T13:21:00Z",
+  "graduated_at": "2026-09-27T09:55:35.913753+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/skills/chapter-4-writing/SKILL.md",
+    "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/skills/apa-reporting/SKILL.md"
+  ]
+}

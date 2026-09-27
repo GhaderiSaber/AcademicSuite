@@ -129,6 +129,21 @@ class TestChapter4SplitPipeline(unittest.TestCase):
         self.assertIn("mechanical fill-in-the-blank text are **strictly prohibited**", self.micro_stages_content)
         self.assertIn("refuse and fail any deliverable containing empty, canned, or template placeholder text", self.micro_stages_content)
 
+    def test_11_mechanical_invariant_registered_in_hook_rules(self):
+        """Verifies AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION is registered and active in enforced_invariants.json."""
+        import json
+        invariants_path = os.path.join(REPO_ROOT, ".agents", "hooks", "rules", "enforced_invariants.json")
+        self.assertTrue(os.path.isfile(invariants_path), f"Missing {invariants_path}")
+        with open(invariants_path, "r", encoding="utf-8") as f:
+            invariants_data = json.load(f)
+
+        invariants = invariants_data.get("invariants", {})
+        self.assertIn("AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION", invariants)
+        rule = invariants["AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION"]
+        self.assertTrue(rule.get("enabled"))
+        self.assertEqual(rule.get("check_type"), "regex_ban")
+        self.assertIn("در این بخش", rule.get("pattern", ""))
+
 
 if __name__ == "__main__":
     unittest.main()
