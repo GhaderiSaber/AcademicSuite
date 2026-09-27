@@ -132,7 +132,7 @@ Please formulate causal diagnosis, failure mode signature, and behavioral remedy
 
 
 The current local time is: 2026-09-25T19:49:25+03:30. [Enforcement: results_auditor_guard.py]
-- **Target Capability**: `CHAPTER4` | **Task**: `chapter_4_drafting` | **Agent**: `academic-writer` | **Project**: `cross-project`
+- **Lesson (LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE)**: When drafting Chapter 4, report only statistical parameters (e.g., F, t, p, effect sizes) and direct empirical findings. Eliminate all 'why' explanations, speculations, and dramatic adjectives. [Enforcement: results_auditor_guard.py]
 
 
 ⚠️ Known Pitfalls (Anti-Patterns to Avoid):

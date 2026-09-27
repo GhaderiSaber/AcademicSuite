@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-27T03:37:05.784765+00:00",
+  "updated_at": "2026-09-27T06:01:58.343606+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -326,6 +326,30 @@
       "remedy": "Iterate through paragraph.runs and modify text directly. Preserve <w:highlight w:val='green'/> and add <w:highlight w:val='yellow'/> for new revisions.",
       "enabled": true,
       "updated_at": "2026-09-27T03:37:05.784747+00:00"
+    },
+    "LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE": {
+      "item_id": "LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE",
+      "category": "Lesson",
+      "statement": "When drafting Chapter 4, report only statistical parameters (e.g., F, t, p, effect sizes) and direct empirical findings. Eliminate all 'why' explanations, speculations, and dramatic adjectives.",
+      "target_agents": [
+        "academic-writer",
+        "results-auditor",
+        "chapter-4-writing"
+      ],
+      "target_skills": [
+        "chapter-4-writing",
+        "apa-reporting",
+        "statistical-data-analyst"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*chapter_4.*\\.docx|.*chapter_4.*\\.md",
+      "check_type": "regex_ban",
+      "pattern": "(?i)\\b(surprisingly|shockingly|dramatically|huge|massive|interpreting this|this means that because)\\b",
+      "violation_message": "When drafting Chapter 4, report only statistical parameters (e.g., F, t, p, effect sizes) and direct empirical findings. Eliminate all 'why' explanations, speculations, and dramatic adjectives.",
+      "remedy": "When drafting Chapter 4, report only statistical parameters (e.g., F, t, p, effect sizes) and direct empirical findings. Eliminate all 'why' explanations, speculations, and dramatic adjectives.",
+      "enabled": true,
+      "updated_at": "2026-09-27T06:01:58.343589+00:00"
     }
   }
 }

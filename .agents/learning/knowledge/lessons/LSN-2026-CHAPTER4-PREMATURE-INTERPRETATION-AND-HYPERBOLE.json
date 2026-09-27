@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-2026-CHAPTER4-PREMATURE-INTERPRETATION",
+  "diagnosis": {
+    "what_happened": "Chapter 4 included speculative interpretations of results and hyperbolic, emotional wording.",
+    "behavior_caused_outcome": "The inclusion of discussion-like elements and dramatic tone violated the strict structural boundary between Chapter 4 (Results) and Chapter 5 (Discussion), and violated the academic sobriety rule.",
+    "what_should_have_happened": "Chapter 4 should exclusively report observed descriptive and inferential parameters with zero speculative interpretation, using rigorously neutral, sober academic prose.",
+    "rationale_why": "Scholarly methodology dictates that results reporting must be purely objective. Interpretations and theoretical implications are strictly reserved for the Discussion chapter."
+  },
+  "desired_behavior": "When drafting Chapter 4, report only statistical parameters (e.g., F, t, p, effect sizes) and direct empirical findings. Eliminate all 'why' explanations, speculations, and dramatic adjectives.",
+  "generalization": "Chapter 4 is strictly for objective parameter reporting; Chapter 5 is for interpretation. Academic prose must always remain neutral and free of hyperbole.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Premature interpretation and dramatic tone found in Chapter 4",
+    "threshold_value": "Zero tolerance for interpretation and hyperbole in Chapter 4",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "apa-reporting",
+    "statistical-data-analyst"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T09:30:31Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor",
+    "chapter-4-writing"
+  ]
+}
