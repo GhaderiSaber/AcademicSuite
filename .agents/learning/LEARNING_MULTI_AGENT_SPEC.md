@@ -75,13 +75,13 @@ flowchart TD
 - **Output**: JSON files in `learning/knowledge/lessons/`, `anti-patterns/`, `exemplars/`.
 
 ### Step 5: Candidate Patch Synthesis (`skill-evolver`)
-- **Invocation**: `invoke_subagent(TypeName="skill-evolver", Workspace="branch", Prompt="Synthesize candidate modification to address lesson ...")`
-- **Behavior**: Operates in an isolated branched workspace. Formulates unified diff for target script or `SKILL.md`. Computes SHA-256 target checksum and projected metric improvements.
+- **Invocation**: `invoke_subagent(TypeName="skill-evolver", Workspace="inherit", Prompt="Synthesize candidate modification to address lesson ...")`
+- **Behavior**: Operates in candidate workspace. Formulates unified diff for target script or `SKILL.md`. Computes SHA-256 target checksum and projected metric improvements.
 - **Invariant**: Zero direct mutation of canonical `.agents/skills/`. Must satisfy Directive 18 single-view ceilings (<= 500 lines, <= 40,000 bytes).
 - **Output**: `learning/candidates/<candidate_id>/candidate.json` compliant with `contracts/evolution/improvement_candidate.schema.json`.
 
 ### Step 6: Independent Candidate Evaluation (`evaluation-agent`)
-- **Invocation**: `invoke_subagent(TypeName="evaluation-agent", Workspace="branch", Prompt="Execute 3-way evaluation arm on candidate ...")`
+- **Invocation**: `invoke_subagent(TypeName="evaluation-agent", Workspace="inherit", Prompt="Execute 3-way evaluation arm on candidate ...")`
 - **Behavior**: Applies candidate diff in isolated branch workspace. Executes deterministic test harnesses (`run_command`) on baseline, unadapted candidate, and adapted candidate. Measures 8 multidimensional metrics:
   1. Success rate on triggering task
   2. Success rate on held-out tasks

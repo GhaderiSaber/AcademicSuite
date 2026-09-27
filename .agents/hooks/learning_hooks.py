@@ -817,8 +817,8 @@ class LearningHooks:
                 f"  1. invoke_subagent(TypeName=\"trajectory-analyzer\", Prompt=\"Reconstruct observable actions, tool calls, and error trajectory for validation failure: {val_summary}\")\n"
                 "  2. invoke_subagent(TypeName=\"behavior-analyst\", Prompt=\"Perform causal root-cause analysis on the failure trajectory to determine failure mechanism\")\n"
                 "  3. invoke_subagent(TypeName=\"knowledge-curator\", Prompt=\"Catalog the diagnosed anti-pattern into persistent learning store\")\n"
-                "  4. invoke_subagent(TypeName=\"skill-evolver\", Workspace=\"branch\", Prompt=\"Synthesize candidate modification to evolve the skill/script and define companion mechanical rules\")\n"
-                "  5. invoke_subagent(TypeName=\"evaluation-agent\", Workspace=\"branch\", Prompt=\"Evaluate candidate and compile via academic_graduation_compiler.py\")\n"
+                "  4. invoke_subagent(TypeName=\"skill-evolver\", Workspace=\"inherit\", Prompt=\"Synthesize candidate modification to evolve the skill/script and define companion mechanical rules\")\n"
+                "  5. invoke_subagent(TypeName=\"evaluation-agent\", Workspace=\"inherit\", Prompt=\"Evaluate candidate and compile via academic_graduation_compiler.py\")\n"
                 "- Prohibited Anti-Pattern: Do NOT invoke delivery workers (academic-writer, statistics-agent) before completing the learning cascade."
             )
             ephemeral_blocks.append(val_block)
