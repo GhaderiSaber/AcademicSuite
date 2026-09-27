@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-METADATA-LEAK-IN-TABLE-NOTES",
+  "category": "typography",
+  "defective_pattern": "Leaking typesetting or formatting instructions into APA 7 table notes.",
+  "why_defective": "Table notes should only contain explanatory information about the table contents. Exposing metadata or typesetting instructions violates APA 7 standards and degrades deliverable quality.",
+  "observed_symptoms": [
+    "Table notes contain raw formatting commands, XML tags, or phrases like 'typesetting instruction' or 'metadata'."
+  ],
+  "corrective_remedy": "Strip all typesetting instructions and metadata from the final output. Ensure table notes strictly contain standard APA 7 explanatory text.",
+  "detection_heuristic": {
+    "trigger_rule": "Typesetting or formatting commands present in table notes.",
+    "regex_patterns": [
+      "(?i)typesetting\\s*instruction",
+      "(?i)metadata\\s*leak"
+    ],
+    "pattern": "(?i)typesetting\\s*instruction",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "apa-reporting",
+  "target_agents": [
+    "apa-reporting",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T06:14:40Z"
+}

@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-STUB-TABLE-INTRODUCTION",
+  "category": "execution",
+  "defective_pattern": "Omitting empirical data highlights and normality parameter reporting preceding tables.",
+  "why_defective": "Tables should not be abruptly placed. They must be introduced with a textual description of the main empirical findings, descriptive statistics, or normality parameters contextualizing the data.",
+  "observed_symptoms": [
+    "Table appears immediately after a section heading without prior introductory text.",
+    "Lack of narrative context for the empirical data presented before the table."
+  ],
+  "corrective_remedy": "Always provide a comprehensive introductory paragraph before each table, highlighting key empirical findings, descriptive statistics, or normality parameters relevant to the table's contents.",
+  "detection_heuristic": {
+    "trigger_rule": "Table declaration immediately following a heading without prose.",
+    "regex_patterns": [
+      "(?m)^#+ .*\\n+^جدول"
+    ],
+    "pattern": "(?m)^#+ .*\\n+^جدول",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "chapter-4-writing",
+  "target_agents": [
+    "chapter-4-writing",
+    "apa-reporting",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T06:14:40Z"
+}

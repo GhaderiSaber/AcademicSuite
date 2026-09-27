@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260927-413",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260927-DEFBB6",
+  "target_agent": "academic-writer",
+  "target_skill": "apa-reporting",
+  "capability": "GENERAL_ACADEMIC",
+  "trajectory_id": "TRJ-FAST-20260927-DEFBB6",
+  "observable_failure_step": {
+    "step_number": 5,
+    "action_type": "FILE_WRITTEN",
+    "tool_name": "write_to_file",
+    "description": "academic-writer generated the markdown table file with a minimal stub paragraph for Table 4-13 instead of the 4-part empirical explanation, and leaked OpenXML typesetting metadata into the table note."
+  },
+  "failure_signature": "SHORTCUT_EXECUTION_STUB_AND_METADATA_LEAK",
+  "root_cause_diagnosis": "The academic-writer subagent took an execution shortcut by generating a minimal 2-sentence stub for Table 4-13 instead of explicitly synthesizing the full 4-part empirical explanation. Furthermore, the subagent hallucinated/copied technical DOCX typesetting directives ('مقادیر منفی به صورت چپچین (LTR) درج شدهاند') directly into the APA 7 academic table note.",
+  "prescribed_behavior": "academic-writer must strictly adhere to Directive 25 (Universal Anti-Shortcut Invariant) by reading empirical data and synthesizing the complete 4-part explanation directly preceding Table 4-13. Furthermore, all internal typesetting jargon (OpenXML, LTR, RTL, چپچین) must be strictly purged from the final APA 7 table notes.",
+  "created_at": "2026-09-27T09:50:00Z"
+}

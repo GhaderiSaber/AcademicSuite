@@ -1,0 +1,540 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260927-CH4-STAGE41-PREMATURE-INTERPRETATION-001",
+  "experience_id": "EVT-20260927-CH4-TONE-FEEDBACK",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "TSK-2026-CH4-STAGE41-OPTIONB-PROSE-REWRITE",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T05:54:27.443272+00:00",
+      "description": "academic-orchestrator delegated task TSK-2026-CH4-STAGE41-OPTIONB-PROSE-REWRITE to academic-writer, explicitly commanding in acceptance_criteria that every single demographic table (12 tables total) must have a unique multi-sentence paragraph providing epidemiological and clinical interpretation (e.g., female vulnerability, emotional buffering in marriage, academic distress, acute crises, coping mechanisms).",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE41-OPTIONB-PROSE-REWRITE",
+        "stage": "Stage 4.1: Demographic Profiling Triad (Option B Authentic Scholarly Rewrite)",
+        "worker_agent": "academic-writer",
+        "acceptance_criteria_excerpt": "DEEP SUBSTANTIVE SCHOLARLY NARRATIVE: Every single table (12 tables total) must have a unique, multi-sentence academic paragraph (3 to 5 sentences minimum) providing epidemiological and clinical interpretation: 1. Gender: Interpret the 71.6% female vs 28.2% male ratio through psychiatric consultation patterns, distress disclosure norms, and female vulnerability... 2. Marital Status: Discuss ... in relation to interpersonal support systems, familial responsibilities, and emotional buffering... 8. Psychiatric Hospitalization: Interpret the 2.1% (n=10) inpatient history as identifying the severe acute crisis subgroup... 9. Suicidal Ideation & Attempt History: Critically analyze the high-risk nature of the sample (86.3% with prior suicidal thoughts and 13.5% with prior attempts, n=65)... 11. Smoking: Interpret the 20.9% smoking prevalence as a behavioral coping mechanism for emotional distress and acute tension regulation..."
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "child_agent": "academic-writer",
+        "conversation_id": "e9bbe21f-7e19-4633-868d-68b02f49753b"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "AGENT_INVOKED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:54:28.000000+00:00",
+      "description": "academic-writer subagent session initialized in conversation e9bbe21f-7e19-4633-868d-68b02f49753b to execute Option B custom scholarly rewrite.",
+      "observable_input": {
+        "conversation_id": "e9bbe21f-7e19-4633-868d-68b02f49753b",
+        "task_id": "TSK-2026-CH4-STAGE41-OPTIONB-PROSE-REWRITE"
+      },
+      "observable_output": {
+        "status": "INITIALIZED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:54:28.500000+00:00",
+      "description": "academic-writer executed shell command to inspect analysis code directory.",
+      "observable_input": {
+        "command_line": "ls -la 02_analysis_code/",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:54:36.000000+00:00",
+      "description": "academic-writer executed shell command to inspect deliverables directory.",
+      "observable_input": {
+        "command_line": "ls -la 03_deliverables/",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:54:45.000000+00:00",
+      "description": "academic-writer read phase1_n483_summary.json to review N=483 psychometric parameters.",
+      "observable_input": {
+        "command_line": "cat 02_analysis_code/phase1_n483_summary.json",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:54:57.000000+00:00",
+      "description": "academic-writer inspected top 100 lines of stats_results.json for demographic breakdown.",
+      "observable_input": {
+        "command_line": "head -n 100 02_analysis_code/stats_results.json",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:55:11.000000+00:00",
+      "description": "academic-writer executed python one-liner to list all 12 demographic keys from stats_results.json.",
+      "observable_input": {
+        "command_line": "python3 -c 'import json; d = json.load(open(\"02_analysis_code/stats_results.json\")); print(list(d[\"demographics\"].keys()))'",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "stdout": "['Gender', 'Marriage', 'Education', 'Job', 'Income', 'SabEkht', 'SabPsych', 'SabBast', 'SabAfk', 'Daru', 'Sigar', 'Age']"
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:55:21.000000+00:00",
+      "description": "academic-writer executed python command to extract Age distribution parameters (M=35.72, SD=9.79, range 18-60).",
+      "observable_input": {
+        "command_line": "python3 -c 'import json; print(json.dumps(json.load(open(\"02_analysis_code/stats_results.json\"))[\"demographics\"][\"Age\"], indent=2, ensure_ascii=False))'",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:55:31.000000+00:00",
+      "description": "academic-writer executed python command to inspect SabAfk distribution (86.3% ideation, 13.5% attempt).",
+      "observable_input": {
+        "command_line": "python3 -c 'import json; print(json.dumps(json.load(open(\"02_analysis_code/stats_results.json\"))[\"demographics\"][\"SabAfk\"], indent=2, ensure_ascii=False))'",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:55:46.000000+00:00",
+      "description": "academic-writer extracted detailed categorical frequencies for Education, Job, Income, SabEkht, SabPsych, SabBast, Daru, and Sigar.",
+      "observable_input": {
+        "command_line": "python3 -c 'import json; d = json.load(open(\"02_analysis_code/stats_results.json\"))[\"demographics\"]; ...'",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:57:01.000000+00:00",
+      "description": "academic-writer attempted to write build_stage41_option_b.py into repository root; blocked by PreToolUse safety hook enforcing Directive 23 (Clean Workspace Root Invariant).",
+      "observable_input": {
+        "tool_name": "write_to_file",
+        "target_file": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/build_stage41_option_b.py"
+      },
+      "observable_output": {
+        "status": "BLOCKED_BY_GUARD",
+        "violation": "CONSTITUTIONAL VIOLATION (Directive 23 - Clean Workspace Root Invariant / Anti-Root-Pollution Guard)"
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:57:44.000000+00:00",
+      "description": "academic-writer created 02_analysis_code/build_stage41_option_b.py containing hardcoded interpretive narrative templates that incorporated premature theoretical discussion and hyperbolic adjectives.",
+      "observable_input": {
+        "target_file": "02_analysis_code/build_stage41_option_b.py",
+        "size_bytes": 21954
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN"
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:57:46.000000+00:00",
+      "description": "academic-writer executed python3 02_analysis_code/build_stage41_option_b.py to generate 01_demographics.docx, 01_demographics.md, and 01_demographics.json.",
+      "observable_input": {
+        "command_line": "python3 02_analysis_code/build_stage41_option_b.py",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:57:52.000000+00:00",
+      "description": "academic-writer verified generated deliverables on disk.",
+      "observable_input": {
+        "command_line": "ls -la 03_deliverables/01_demographics.*",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "stdout": "-rw-rw-r-- 1 ghaderi-saber ghaderi-saber 42728 Sep 27 09:27 03_deliverables/01_demographics.docx\n-rw-rw-r-- 1 ghaderi-saber ghaderi-saber 10949 Sep 27 09:27 03_deliverables/01_demographics.json\n-rw-rw-r-- 1 ghaderi-saber ghaderi-saber 15210 Sep 27 09:27 03_deliverables/01_demographics.md"
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:58:00.000000+00:00",
+      "description": "academic-writer read first 35 lines of 03_deliverables/01_demographics.md to verify formatting.",
+      "observable_input": {
+        "command_line": "cat 03_deliverables/01_demographics.md | head -n 35",
+        "cwd": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 16,
+      "action_type": "AGENT_RETURNED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:58:19.000000+00:00",
+      "description": "academic-writer sent completion message to orchestrator affirming generation of Option B substantive narratives highlighting clinical and epidemiological implications across all 12 variables.",
+      "observable_input": {
+        "recipient": "d789b7a0-7a61-4d0b-ae77-0490f05c95a7"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "report_summary": "All 12 paragraphs have completely distinct sentence structures and authentic Persian scholarly narratives... drafted to highlight epidemiological and clinical implications (e.g., female vulnerability, economic stratification stress, high-risk suicidal ideation prevalence)."
+      }
+    },
+    {
+      "step_number": 17,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-27T06:00:18.000000+00:00",
+      "description": "User reviewed Stage 4.1 deliverables and delivered critique regarding two fundamental methodology/style violations: (1) premature theoretical interpretation in Chapter 4, and (2) emotional/hyperbolic tone instead of academic sobriety.",
+      "observable_input": {
+        "feedback_id": "FDB-20260927-6E179F",
+        "event_id": "EVT-FDB-9BF280BD7197D22B",
+        "critique_text": "Problem:\n1. You should not interpret the results in the chapter 4.\n2. You should not use emotional and exagerated tone. You should write text in the academic and professional tone."
+      },
+      "observable_output": {
+        "status": "FEEDBACK_RECORDED",
+        "verdict": "REVISE_REQUIRED"
+      }
+    },
+    {
+      "step_number": 18,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T06:00:30.000000+00:00",
+      "description": "academic-orchestrator received critique, halted drafting, and triggered the 5-agent continuous learning cascade (trajectory-analyzer, behavior-analyst, knowledge-curator, skill-evolver, evaluation-agent) under Directive 21 and AP-2026-PATCHING-WITHOUT-LEARNING.",
+      "observable_input": {
+        "target_subagents": [
+          "trajectory-analyzer",
+          "behavior-analyst",
+          "knowledge-curator",
+          "skill-evolver",
+          "evaluation-agent"
+        ]
+      },
+      "observable_output": {
+        "status": "CASCADE_DISPATCHED"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "run_command",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "CommandLine": "ls -la 02_analysis_code/"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1000
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "CommandLine": "ls -la 03_deliverables/"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1000
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "CommandLine": "cat 02_analysis_code/phase1_n483_summary.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1200
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "CommandLine": "head -n 100 02_analysis_code/stats_results.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 800
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "CommandLine": "python3 -c 'import json; d = json.load(open(\"02_analysis_code/stats_results.json\")); print(list(d[\"demographics\"].keys()))'"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1100
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "CommandLine": "python3 -c 'import json; print(json.dumps(json.load(open(\"02_analysis_code/stats_results.json\"))[\"demographics\"][\"Age\"], indent=2, ensure_ascii=False))'"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1000
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 7,
+      "arguments_summary": {
+        "CommandLine": "python3 -c 'import json; print(json.dumps(json.load(open(\"02_analysis_code/stats_results.json\"))[\"demographics\"][\"SabAfk\"], indent=2, ensure_ascii=False))'"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 900
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 8,
+      "arguments_summary": {
+        "CommandLine": "python3 -c 'import json; d = json.load(open(\"02_analysis_code/stats_results.json\"))[\"demographics\"]; ...'"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1300
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 9,
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/build_stage41_option_b.py"
+      },
+      "status": "BLOCKED_BY_GUARD",
+      "execution_time_ms": 100,
+      "error_message": "tool call denied by pre-tool hook: CONSTITUTIONAL VIOLATION (Directive 23 - Clean Workspace Root Invariant / Anti-Root-Pollution Guard)"
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 10,
+      "arguments_summary": {
+        "TargetFile": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/02_analysis_code/build_stage41_option_b.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 400
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 11,
+      "arguments_summary": {
+        "CommandLine": "python3 02_analysis_code/build_stage41_option_b.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 2500
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 12,
+      "arguments_summary": {
+        "CommandLine": "ls -la 03_deliverables/01_demographics.*"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 800
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 13,
+      "arguments_summary": {
+        "CommandLine": "cat 03_deliverables/01_demographics.md | head -n 35"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 700
+    },
+    {
+      "tool_name": "send_message",
+      "invocation_index": 14,
+      "arguments_summary": {
+        "Recipient": "d789b7a0-7a61-4d0b-ae77-0490f05c95a7"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 300
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": "02_analysis_code/build_stage41_option_b.py",
+      "cli_command": "python3 02_analysis_code/build_stage41_option_b.py",
+      "exit_code": 0,
+      "duration_seconds": 2.5
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "Stage 4.1: Demographic Profiling Triad (Option B Authentic Scholarly Rewrite)",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-2026-CH4-STAGE41-OPTIONB-PROSE-REWRITE",
+      "objective": "Completely rewrite the Stage 4.1 Demographic Profiling Triad (.docx, .md, .json) across all 12 tables under Option B. Strictly eliminate all programmatic templates, boilerplate skeletons, and repetitive sentence patterns. Write authentic, distinct, substantively rich Persian academic narratives for every single demographic variable.",
+      "envelope_summary": "Orchestrator mandated deep substantive narrative with epidemiological/clinical interpretation across all 12 demographic tables.",
+      "status": "COMPLETED",
+      "input_artifacts": [
+        "02_analysis_code/stats_results.json",
+        "02_analysis_code/phase1_n483_summary.json",
+        "02_analysis_code/data_cleaned.xlsx"
+      ],
+      "output_artifacts": [
+        "03_deliverables/01_demographics.docx",
+        "03_deliverables/01_demographics.md",
+        "03_deliverables/01_demographics.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260927-OPTIONB-MANDATE",
+      "decision_type": "PROSE_GENERATION_STRATEGY",
+      "selected_option": "Option B (Substantive Clinical & Epidemiological Interpretation)",
+      "rationale": "Orchestrator sought to eliminate boilerplate sentence skeletons, but overcompensated by instructing the writer to perform deep theoretical and clinical interpretations of demographic parameters within Chapter 4.",
+      "alternatives_considered": [
+        {
+          "option": "Option A: Retain standard concise descriptive reporting",
+          "verdict": "REJECTED",
+          "reason": "Perceived as formulaic and repetitive across 12 tables."
+        },
+        {
+          "option": "Option B: Mandate epidemiological and clinical interpretation per table",
+          "verdict": "SELECTED",
+          "reason": "Attempted to maximize prose depth, but conflated Chapter 4 empirical reporting with Chapter 5 theoretical discussion."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260927-RHETORICAL-REGISTER",
+      "decision_type": "RHETORICAL_REGISTER",
+      "selected_option": "Dramatic Clinical Salience",
+      "rationale": "Writer incorporated dramatic words (تکان‌دهنده, اورژانسی) to emphasize the clinical gravity of the suicidal ideation statistics.",
+      "alternatives_considered": [
+        {
+          "option": "Neutral, sober APA reporting standard",
+          "verdict": "REJECTED",
+          "reason": "Writer sought to demonstrate high qualitative depth as requested by the prompt's demand for 'critically analyzing the high-risk nature'."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/01_demographics.md",
+      "sha256": "4b68ec993883a04918e959ecb001a1d94dbfa215ee79d679633ff8980b1e428e",
+      "type": "narrative_markdown"
+    },
+    {
+      "path": "03_deliverables/01_demographics.docx",
+      "sha256": "7a35c24944ec74a123f15c7e3fbe3f859549fce8f31922c070cb1e626e2e28fb",
+      "type": "openxml_word"
+    },
+    {
+      "path": "03_deliverables/01_demographics.json",
+      "sha256": "81f1816f0d11e8a4a5ebc40e1e6378e932b1239aaeb1d2dbd3fef1451e0ca65f",
+      "type": "metadata_json"
+    },
+    {
+      "path": "02_analysis_code/build_stage41_option_b.py",
+      "sha256": "f5e921d7b3ea40c31beaa067160cb21ea8a39cbe9bb3cb8c772cb5cb101ff2a1",
+      "type": "generator_script"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "pre_tool_root_guard",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "directive_23_clean_workspace_root"
+      ],
+      "evidence_summary": {
+        "blocked_path": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/build_stage41_option_b.py",
+        "action": "Redirected to 02_analysis_code/build_stage41_option_b.py"
+      }
+    },
+    {
+      "validator_name": "human_supervisor_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "chapter_4_non_interpretation_canon",
+        "academic_sobriety_and_anti_hyperbole"
+      ],
+      "evidence_summary": {
+        "critique_text": "Problem:\n1. You should not interpret the results in the chapter 4.\n2. You should not use emotional and exagerated tone. You should write text in the academic and professional tone.",
+        "observable_interpretations": [
+          "Attributing female frequency to disclosure norms and internalizing vulnerability (Table 4-1)",
+          "Theorizing marriage as interpersonal support buffer vs chronic role stress (Table 4-2)",
+          "Attributing education distribution to cognitive appraisal burden and career pressure (Table 4-3)",
+          "Speculating on job routine stability and resilience erosion (Table 4-4)",
+          "Theorizing broad financial distress across income tiers (Table 4-5)",
+          "Explaining psychiatric history as baseline psychological vulnerability (Table 4-6)",
+          "Speculating on help-seeking population traits (Table 4-7)",
+          "Categorizing hospitalization as acute crisis subgroup (Table 4-8)",
+          "Labeling suicidal ideation history as confirming ethical urgency (Table 4-9)",
+          "Theorizing psychotropic medication interaction with psychotherapy (Table 4-10)",
+          "Explaining smoking as behavioral coping mechanism for acute tension (Table 4-11)",
+          "Speculating on identity and career developmental distress in young adulthood (Table 4-12)"
+        ],
+        "observable_hyperbolic_tokens": [
+          "این ترکیب تکان‌دهنده (this shocking combination)",
+          "ضرورت اورژانسی (emergency necessity)",
+          "بحران‌های حاد بالینی (acute clinical crises)",
+          "افت تاب‌آوری روانی (collapse of psychological resilience)",
+          "فشار روانی مضاعفی (excessive psychological pressure)"
+        ]
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260927-6E179F"
+  ],
+  "outcome": "FAILURE"
+}
