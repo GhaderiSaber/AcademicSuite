@@ -83,20 +83,39 @@ Chapter 4 operates strictly as a **Four-Phase Decoupled Pipeline** separating co
 
 ### Phase 4D: Scholarly Persian Drafting, QC & Monograph Assembly (The Voice)
 * **Assigned Subagents**: `academic-writer`, `results-auditor`, `final-judge`
-* **Directives & Role**: Strictly "The Voice". Ingests the audited, immutable `empirical_findings_payload.json`. Formulates continuous Persian academic prose using Saber's 4-element epistemic framing (Context $\to$ Highlights $\to$ Table Reference $\to$ Verdict), enforces APA 7 typography, and compiles synchronized triad artifacts (`.docx` + `.md` + `.json`).
+* **Directives & Role**: Strictly "The Voice". Decouples drafting into **Tables First** followed by **Dynamic Epistemic Narration** for each table. Ingests the audited, immutable `empirical_findings_payload.json`. Formulates continuous Persian academic prose using Saber's 4-element epistemic framing (Context $\to$ Highlights $\to$ Table Reference $\to$ Verdict), enforces APA 7 typography, and compiles synchronized triad artifacts (`.docx` + `.md` + `.json`).
+
+#### 💡 The Internal Writing Phase Decoupling (Tables First $\to$ Dynamic Narration)
+Phase 4D strictly executes in a two-step sequence for every section and hypothesis:
+1. **Step 4D-1: Deterministic Table Scaffolding (Tables First)**:
+   - Scaffolds and renders exact APA 7 Word (`<w:tbl>`) and Markdown (`|---|`) tables directly from audited JSON payloads (`01_demographics_payload.json`, `06_hypothesis_1_payload.json`, etc.).
+   - Strictly enforces 3 horizontal borders (Top 0.75 pt, Header bottom 0.5 pt, Table bottom 0.75 pt), zero vertical borders, italicized Latin statistical symbols ($M, SD, t, F, p, R, R^2, \beta, B$), decoupled LTR numeric runs with Persian leading zeros (`۰.۰۵`, `۰.۰۰۱`), and Persian notes defining abbreviations.
+   - For regression hypotheses, strictly renders the canonical 3-table standard (Table 1: Correlations, Table 2: Model Summary & ANOVA with 11 columns, Table 3: Coefficients & Collinearity with 8 columns).
+   - **Zero narrative prose is written in this step.** Tables stand as the immutable, objective empirical anchor.
+2. **Step 4D-2: Dynamic Epistemic Narration Formulation (Zero Prewritten / Zero Template Invariant)**:
+   - Ingests the rendered table and its exact numerical cell values.
+   - Dynamically composes authentic, scholarly Persian narrative tailored specifically to that table using Saber's 4-element epistemic structure (Context $\to$ Data Highlights $\to$ In-Text Reference $\to$ Statistical Verdict).
+   - **Strict Zero-Template & Anti-Boilerplate Invariant**:
+     - Prewritten boilerplate, static placeholders (e.g. `در این بخش نتایج مربوط به ... گزارش می‌گردد`, `بر اساس داده‌های به دست آمده، فرضیه مورد تأیید قرار گرفت`), and mechanical fill-in-the-blank text are **strictly prohibited**.
+     - Narration must be dynamically synthesized to reflect the exact empirical findings: specific construct names, effect size magnitudes ($\eta^2_p, R^2$), standardized beta weights ($\beta$), standard errors ($SE$), exact $p$-values, degrees of freedom, and psychological meaning.
+     - Triad compilers and validation gates must refuse and fail any deliverable containing empty, canned, or template placeholder text.
+3. **Step 4D-3: Synchronized Triad Compilation & Monograph Assembly**:
+   - Pairs each dynamic narrative paragraph directly with its corresponding formatted table.
+   - Compiles physical section triads (`.docx`, `.md`, `.json`).
+   - DOM-based consolidation of verified triads into `Chapter_4_Results.docx` and `Chapter_4_Results.md`.
 
 | Stage | Name | Assigned Subagent | Official Script / Capability | Required Physical Triad Deliverables |
 | :--- | :--- | :--- | :--- | :--- |
 | **Stage 4D.0** | Chapter Structural Overview & Introduction | `academic-writer` | `academic_docgen.py` | `00_chapter_overview.docx`, `00_chapter_overview.md`, `00_chapter_overview.json` |
-| **Stage 4D.1** | Demographic Profiles Section | `academic-writer` | `academic_docgen.py` | `01_demographics.docx`, `01_demographics.md`, `01_demographics.json` |
-| **Stage 4D.2** | Descriptives & Scale Reliability Section | `academic-writer` | `academic_docgen.py` | `02_descriptives_and_reliability.docx`, `.md`, `.json` |
-| **Stage 4D.3** | Parametric Assumptions Narrative & Tables | `academic-writer` | `academic_docgen.py` | `03_parametric_assumptions.docx`, `.md`, `.json` |
-| **Stage 4D.4** | Bivariate Correlation Matrix Section | `academic-writer` | `academic_docgen.py` | `04_bivariate_correlations.docx`, `.md`, `.json` |
-| **Stage 4D.5** | Macro Model Fit & Path Diagram Section | `academic-writer` | `academic_docgen.py` | `05_macro_model.docx`, `.md`, `.json` |
-| **Stage 4D.6.1** | Dedicated Hypothesis 1 Triad (3-Table Standard) | `academic-writer` | `scaffold_chapter4_triad.py` + `academic_docgen.py` | `06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json` |
-| **Stage 4D.6.k** | Dedicated Hypothesis $k$ Triad (3-Table Standard) | `academic-writer` | `scaffold_chapter4_triad.py` + `academic_docgen.py` | `XX_hypothesis_k.docx`, `XX_hypothesis_k.md`, `XX_hypothesis_k.json` |
-| **Stage 4D.7.1** | Dedicated Mediation / Indirect Path 1 Triad | `academic-writer` | `scaffold_chapter4_triad.py` + `academic_docgen.py` | `XX_mediation_1.docx`, `XX_mediation_1.md`, `XX_mediation_1.json` |
-| **Stage 4D.8** | Master Decision Matrix & Chapter Summary | `academic-writer` | `scaffold_chapter4_triad.py` + `academic_docgen.py` | `XX_chapter_summary.docx`, `XX_chapter_summary.md`, `XX_chapter_summary.json` |
+| **Stage 4D.1** | Demographic Profiles (Tables + Dynamic Narration) | `academic-writer` | `academic_docgen.py` | `01_demographics.docx`, `01_demographics.md`, `01_demographics.json` |
+| **Stage 4D.2** | Descriptives & Reliability (Tables + Dynamic Narration) | `academic-writer` | `academic_docgen.py` | `02_descriptives_and_reliability.docx`, `.md`, `.json` |
+| **Stage 4D.3** | Parametric Assumptions (Tables + Dynamic Narration) | `academic-writer` | `academic_docgen.py` | `03_parametric_assumptions.docx`, `.md`, `.json` |
+| **Stage 4D.4** | Bivariate Correlation Matrix (Table + Dynamic Narration) | `academic-writer` | `academic_docgen.py` | `04_bivariate_correlations.docx`, `.md`, `.json` |
+| **Stage 4D.5** | Macro Model Fit & Diagram (Diagram/Table + Dynamic Narration) | `academic-writer` | `academic_docgen.py` | `05_macro_model.docx`, `.md`, `.json` |
+| **Stage 4D.6.1** | Hypothesis 1 Triad (3-Table Standard + Dynamic Narration) | `academic-writer` | `academic_docgen.py` | `06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json` |
+| **Stage 4D.6.k** | Hypothesis $k$ Triad (3-Table Standard + Dynamic Narration) | `academic-writer` | `academic_docgen.py` | `XX_hypothesis_k.docx`, `XX_hypothesis_k.md`, `XX_hypothesis_k.json` |
+| **Stage 4D.7.1** | Mediation Path 1 Triad (Bootstrap Table + Dynamic Narration) | `academic-writer` | `academic_docgen.py` | `XX_mediation_1.docx`, `XX_mediation_1.md`, `XX_mediation_1.json` |
+| **Stage 4D.8** | Master Decision Matrix & Summary (Matrix Table + Synthesis) | `academic-writer` | `academic_docgen.py` | `XX_chapter_summary.docx`, `XX_chapter_summary.md`, `XX_chapter_summary.json` |
 | **Stage 4D.9** | Results QC & APA 7 Typography Audit | `results-auditor` | `apa_typography_checker.py` | `XX_results_qc_checklist.json`, `XX_results_qc_checklist.md` |
 | **Stage 4D.10** | Chapter 4 Master Monograph Consolidation | `academic-writer` | `chapter_assembler.py` | `Chapter_4_Results.docx`, `Chapter_4_Results.md` |
 | **Stage 4D.11** | Committee Defense Viva Voce Brief | `final-judge` | `viva_voce_simulator.py` | `XX_defense_brief.docx`, `XX_defense_brief.md`, `XX_defense_brief.json` |
@@ -107,6 +126,7 @@ Chapter 4 operates strictly as a **Four-Phase Decoupled Pipeline** separating co
 1. **Computational Immunity**: Subagents executing Phases 4A, 4B, and 4C must strictly produce machine-readable JSON payloads, analysis code, and clean figures. Emitting Persian narrative draft text in Phases 4A–4C is strictly prohibited.
 2. **Hallucination Prevention**: `academic-writer` in Phase 4D is physically restricted to citing parameters present in the audited `empirical_findings_payload.json`. Inventing statistics or altering numerical values during prose formulation is strictly blocked.
 3. **One-Hypothesis-One-Stage Triad Invariant**: In Phase 4D, each research hypothesis is drafted in its own isolated micro-stage (producing `.docx` + `.md` + `.json`) enforcing the canonical 3-table standard (Table 1: Correlations, Table 2: Model Summary & ANOVA with 11 columns, Table 3: Coefficients & Collinearity with 8 columns).
+4. **Zero-Template Dynamic Narration Invariant**: Prewritten templates, placeholder stubs, or boilerplate narrative paragraphs are strictly prohibited. Narration for each table must be dynamically generated from that table's exact cells using Saber's 4-element epistemic structure. Any deliverable containing template text will fail validation.
 
 ---
 

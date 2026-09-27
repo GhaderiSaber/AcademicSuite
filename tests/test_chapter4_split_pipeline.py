@@ -108,9 +108,26 @@ class TestChapter4SplitPipeline(unittest.TestCase):
         """Verifies academic-orchestrator/agent.md reflects the 4-phase decoupled pipeline."""
         self.assertIn("Phase 4A: DATA (data-curator)", self.orchestrator_content)
         self.assertIn("Phase 4B: ASSUMPTIONS (statistics-agent + statistical-expert)", self.orchestrator_content)
-        self.assertIn("Phase 4C: MODELING (statistics-agent + statistical-auditor)", self.orchestrator_content)
-        self.assertIn("Phase 4D: DRAFTING (academic-writer + results-auditor + final-judge)", self.orchestrator_content)
+        self.assertIn("Phase 4D: DRAFTING (Tables First -> Dynamic Non-Template Narration -> Triad Assembly via academic-writer + results-auditor + final-judge)", self.orchestrator_content)
         self.assertIn("Chapter 4 Findings (Phases 4A–4D Decoupled)", self.orchestrator_content)
+        self.assertIn("Phase 4D: Scholarly Drafting (Tables First -> Dynamic Non-Template Narration -> 4D.0–4D.11)", self.orchestrator_content)
+
+
+    def test_09_writing_phase_internal_separation(self):
+        """Verifies Phase 4D internally separates into Tables First and Dynamic Narration."""
+        self.assertIn("The Internal Writing Phase Decoupling (Tables First", self.micro_stages_content)
+        self.assertIn("Step 4D-1: Deterministic Table Scaffolding (Tables First)", self.micro_stages_content)
+        self.assertIn("Step 4D-2: Dynamic Epistemic Narration Formulation", self.micro_stages_content)
+        self.assertIn("Step 4D-3: Synchronized Triad Compilation & Monograph Assembly", self.micro_stages_content)
+        self.assertIn("Zero narrative prose is written in this step", self.micro_stages_content)
+
+    def test_10_zero_template_dynamic_narration_invariant(self):
+        """Verifies that prewritten templates, canned boilerplate, and placeholders are strictly prohibited."""
+        self.assertIn("Zero-Template Dynamic Narration Invariant", self.micro_stages_content)
+        self.assertIn("Strict Zero-Template & Anti-Boilerplate Invariant", self.micro_stages_content)
+        self.assertIn("Prewritten boilerplate, static placeholders", self.micro_stages_content)
+        self.assertIn("mechanical fill-in-the-blank text are **strictly prohibited**", self.micro_stages_content)
+        self.assertIn("refuse and fail any deliverable containing empty, canned, or template placeholder text", self.micro_stages_content)
 
 
 if __name__ == "__main__":

@@ -124,7 +124,7 @@ Under **Directive 19** and **Directive 20**, the Orchestrator does NOT execute P
 
 ### Canonical Recognized Task Patterns:
 1. **"Analyze this dataset"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)`
-2. **"Write Chapter 4"** $\rightarrow$ `Phase 4A: DATA (data-curator)` $\to$ `Phase 4B: ASSUMPTIONS (statistics-agent + statistical-expert)` $\to$ `Phase 4C: MODELING (statistics-agent + statistical-auditor)` $\to$ `Phase 4D: DRAFTING (academic-writer + results-auditor + final-judge)`
+2. **"Write Chapter 4"** $\rightarrow$ `Phase 4A: DATA (data-curator)` $\to$ `Phase 4B: ASSUMPTIONS (statistics-agent + statistical-expert)` $\to$ `Phase 4C: MODELING (statistics-agent + statistical-auditor)` $\to$ `Phase 4D: DRAFTING (Tables First -> Dynamic Non-Template Narration -> Triad Assembly via academic-writer + results-auditor + final-judge)`
 3. **"Find research gaps"** $\rightarrow$ `RESEARCH (research-agent)` + `METHODOLOGY (research-agent)`
 4. **"Perform CFA and SEM"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
 5. **"Analyze these network data"** $\rightarrow$ `DATA (data-agent)` + `NETWORK-ANALYSIS (statistics-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
@@ -149,7 +149,7 @@ Authoritative presets and capability mappings are modularized in the reference d
 
 ### Canonical Academic Pipeline Sequences (Mandatory Stage-Gate Order)
 - **Chapter 4 Findings (Phases 4A–4D Decoupled)**:
-  `Phase 4A: Data Engineering & Curation (4A.0–4A.2)` $\to$ `[Gate 1: Data Passport]` $\to$ `Phase 4B: Assumptions & Descriptives (4B.1–4B.4)` $\to$ `[Gate 2: Assumption Authorization]` $\to$ `Phase 4C: Inferential Modeling & Anomaly Audit (4C.1–4C.5)` $\to$ `[Gate 3: Mathematical Admissibility Sign-Off]` $\to$ `Phase 4D: Scholarly Drafting & Assembly (4D.0–4D.11)`.
+  `Phase 4A: Data Engineering & Curation (4A.0–4A.2)` $\to$ `[Gate 1: Data Passport]` $\to$ `Phase 4B: Assumptions & Descriptives (4B.1–4B.4)` $\to$ `[Gate 2: Assumption Authorization]` $\to$ `Phase 4C: Inferential Modeling & Anomaly Audit (4C.1–4C.5)` $\to$ `[Gate 3: Mathematical Admissibility Sign-Off]` $\to$ `Phase 4D: Scholarly Drafting (Tables First -> Dynamic Non-Template Narration -> 4D.0–4D.11)`.
 - **Chapter 5 Discussion (Stages 5.1–5.10)**:
   `5.1 Recap` $\to$ `5.2 Deep Discussion (5.2.1, ...)` $\to$ `5.3 Null Results` $\to$ `5.4 Implications` $\to$ `5.5 Limitations` $\to$ `5.6 Recommendations` $\to$ `5.7 Fidelity Audit` $\to$ `5.8 Citation QC` $\to$ `5.9 Assembly` $\to$ `5.10 Viva Voce`.
 - **Chapter 2 Literature Review (Stages 2.1–2.8)**:
