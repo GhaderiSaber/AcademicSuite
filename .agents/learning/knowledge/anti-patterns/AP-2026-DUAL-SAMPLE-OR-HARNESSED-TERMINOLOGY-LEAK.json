@@ -1,0 +1,32 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-DUAL-SAMPLE-OR-HARNESSED-TERMINOLOGY-LEAK",
+  "category": "methodological",
+  "defective_pattern": "Mentioning sample harnessing/reduction terms like 'نمونه اولیه', 'نمونه مهارشده', or 'نمونه نهایی' in Chapter 4.",
+  "why_defective": "Chapter 4 must present strictly ONE final sample (N = 483). Detailing sample reduction (e.g., initial sample vs harnessed sample) in Chapter 4 creates confusion and violates the methodological reporting standard where such procedures belong exclusively in Chapter 3.",
+  "observed_symptoms": [
+    "Presence of phrases like 'نمونه اولیه' (initial sample) in Chapter 4 text or tables.",
+    "Presence of phrases like 'نمونه مهارشده' (harnessed sample) or 'نمونه نهایی' (final sample) in Chapter 4.",
+    "Discussing sample harnessing or reduction processes in Chapter 4."
+  ],
+  "corrective_remedy": "Refer to the sample strictly and simply as 'نمونه پژوهش (N = ۴۸۳)' or 'نمونه پژوهش'. Remove all mentions of initial or harnessed sample counts from Chapter 4.",
+  "detection_heuristic": {
+    "trigger_rule": "Deterministic regex pattern matching prohibited terminology in Chapter 4 deliverables.",
+    "regex_patterns": [
+      "(?m)(نمونه\\s+اولیه|نمونه\\s+مهارشده|نمونه\\s+نهایی)"
+    ],
+    "pattern": "(?m)(نمونه\\s+اولیه|نمونه\\s+مهارشده|نمونه\\s+نهایی)",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.txt",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor",
+    "statistical-data-analyst",
+    "chapter-4-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T09:57:31Z"
+}

@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20260927-001",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "observable_failure_step": "Drafting Chapter 4 descriptive and inferential statistics sections.",
+  "failure_signature": "CHAPTER_BOUNDARY_VIOLATION",
+  "root_cause_diagnosis": "The drafting agent narrated the data curation provenance (e.g., initial sample, outlier removal, final sample of N=483) in Chapter 4 because it received the full data processing history in its context window and lacked a strict scoping invariant to restrict sample attrition reporting to Chapter 3. Consequently, the agent leaked methodological data cleaning steps into the empirical results section.",
+  "prescribed_behavior": "Enforce a 'Unified Final Sample Invariant' for Chapter 4 drafting. The subagent must treat the post-cleaning sample (N=483) as the sole, unified baseline for all Chapter 4 text. Any mention of initial sample sizes, data cleaning, or outlier removal must be completely suppressed in Chapter 4 and explicitly deferred to Chapter 3."
+}

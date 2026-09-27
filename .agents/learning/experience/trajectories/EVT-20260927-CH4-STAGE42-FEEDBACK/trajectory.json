@@ -1,0 +1,285 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260927-CH4-STAGE42-STUB-AND-TYPESETTING-LEAK-001",
+  "experience_id": "EVT-20260927-CH4-STAGE42-FEEDBACK",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "TSK-2026-CH4-STAGE42-DESCRIPTIVES-RELIABILITY",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T06:05:10Z",
+      "description": "academic-orchestrator delegated task TSK-2026-CH4-STAGE42-DESCRIPTIVES-RELIABILITY to academic-writer to generate the Stage 4.2 Triad (.docx, .md, .json) for continuous descriptives and scale reliability.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE42-DESCRIPTIVES-RELIABILITY",
+        "stage": "Stage 4.2: Continuous Descriptives & Scale Reliability Triad",
+        "worker_agent": "academic-writer",
+        "inputs": [
+          "02_analysis_code/stats_results.json",
+          "02_analysis_code/phase1_n483_summary.json"
+        ],
+        "required_artifacts": [
+          "03_deliverables/02_descriptives_and_reliability.docx",
+          "03_deliverables/02_descriptives_and_reliability.md",
+          "03_deliverables/02_descriptives_and_reliability.json"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "target_agent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "AGENT_INVOKED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:05:12Z",
+      "description": "academic-writer session initialized to execute Stage 4.2 deliverable generation.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE42-DESCRIPTIVES-RELIABILITY"
+      },
+      "observable_output": {
+        "status": "INITIALIZED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_READ",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:05:18Z",
+      "description": "academic-writer read stats_results.json and phase1_n483_summary.json to retrieve continuous descriptive metrics and reliability coefficients on N=483.",
+      "observable_input": {
+        "paths": [
+          "02_analysis_code/stats_results.json",
+          "02_analysis_code/phase1_n483_summary.json"
+        ]
+      },
+      "observable_output": {
+        "sample_size": 483,
+        "variables_extracted": [
+          "IUS_FA",
+          "IUS_RA",
+          "IUS_T",
+          "SCI_T",
+          "Ru_Ref",
+          "Ru_Bro",
+          "Ru_Dep",
+          "RRS_T",
+          "PA_Negative",
+          "PA_Positive",
+          "BSSI_T"
+        ]
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:06:40Z",
+      "description": "academic-writer authored 03_deliverables/02_descriptives_and_reliability.md (44 lines). The deliverable incorporated a 3-sentence boilerplate template intro stub (lines 1-4) with zero narrative explanation for Table 4-13 or Table 4-14, followed immediately by Table 4-13. In line 22, the table note included an internal typesetting leakage ('مقادیر منفی به صورت چپ‌چین (LTR) درج شده‌اند').",
+      "observable_input": {
+        "target_file": "03_deliverables/02_descriptives_and_reliability.md",
+        "total_lines": 44,
+        "line_range_defect": "lines 1-23"
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "byte_count": 3781
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:06:55Z",
+      "description": "academic-writer authored 03_deliverables/02_descriptives_and_reliability.json containing structured statistical parameters for Table_4_13 and Table_4_14 on N=483.",
+      "observable_input": {
+        "target_file": "03_deliverables/02_descriptives_and_reliability.json",
+        "total_lines": 39
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "byte_count": 2257
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:07:30Z",
+      "description": "academic-writer generated 03_deliverables/02_descriptives_and_reliability.docx containing OpenXML APA 7 tables with identical stub narrative and the typesetting leak in Table 4-13 note.",
+      "observable_input": {
+        "target_file": "03_deliverables/02_descriptives_and_reliability.docx"
+      },
+      "observable_output": {
+        "status": "WRITTEN"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "results-auditor",
+      "timestamp": "2026-09-27T06:08:15Z",
+      "description": "results-auditor verified file existence, triad synchronization, and APA 7 table borders, but failed to evaluate empirical narrative adequacy or screen out bidi/typesetting technical leaks in table notes.",
+      "observable_input": {
+        "target_artifacts": [
+          "03_deliverables/02_descriptives_and_reliability.docx",
+          "03_deliverables/02_descriptives_and_reliability.md",
+          "03_deliverables/02_descriptives_and_reliability.json"
+        ]
+      },
+      "observable_output": {
+        "structural_triad_pass": true,
+        "narrative_substance_checked": false,
+        "typesetting_note_leak_checked": false
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "USER_CORRECTION",
+      "actor": "HumanSupervisor",
+      "timestamp": "2026-09-27T06:12:00Z",
+      "description": "Human supervisor reviewed the deliverable and rejected it with critique on missing table explanations, suspected boilerplate template use, and irrelevant typesetting jargon ('LTR') in the table note.",
+      "observable_input": {
+        "feedback_text": "There is no explanation for the tables. You just write the this is a table 4-13. Do you use the prewriten text or templat? Inn the note section why you write RTL and unrelevant to chapter 4 innformation?"
+      },
+      "observable_output": {
+        "critique_dimensions": [
+          "ABSENT_TABLE_EXPLANATION",
+          "TEMPLATE_BOILERPLATE_STUB",
+          "TYPESETTING_LEAK_IN_NOTE"
+        ]
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "view_file",
+      "status": "SUCCESS",
+      "parameters_summary": "Viewed 03_deliverables/02_descriptives_and_reliability.md lines 1-44 and 02_descriptives_and_reliability.json lines 1-39"
+    },
+    {
+      "tool_name": "find_by_name",
+      "status": "SUCCESS",
+      "parameters_summary": "Located deliverable files in 03_deliverables/"
+    },
+    {
+      "tool_name": "grep_search",
+      "status": "SUCCESS",
+      "parameters_summary": "Searched for deliverable references across analysis code and learning knowledge base"
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "chapter-4-writing",
+      "exit_code": 1,
+      "duration_seconds": 120.0
+    },
+    {
+      "skill_name": "apa-reporting",
+      "exit_code": 1,
+      "duration_seconds": 45.0
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "02_descriptives_and_reliability",
+      "envelope_summary": "Draft continuous descriptives and scale reliability triad on N=483",
+      "status": "FAILED",
+      "handoff_artifact_path": "03_deliverables/02_descriptives_and_reliability.md",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-2026-CH4-STAGE42-DESCRIPTIVES-RELIABILITY",
+      "objective": "Produce synchronized triad deliverables for Stage 4.2 descriptives and reliability",
+      "input_artifacts": [
+        "02_analysis_code/stats_results.json",
+        "02_analysis_code/phase1_n483_summary.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/02_descriptives_and_reliability.docx",
+        "03_deliverables/02_descriptives_and_reliability.md",
+        "03_deliverables/02_descriptives_and_reliability.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260927-CH4-STAGE42-BOILERPLATE-STUB",
+      "decision_type": "NARRATIVE_ARCHITECTURAL_CHOICE",
+      "selected_option": "Minimal generic template preamble without dedicated empirical narrative",
+      "rationale": "Writer emitted a 3-sentence boilerplate placeholder ('در این بخش، شاخص‌های توصیفی پیوسته... نتایج در جدول ۴- ۱۳ ارائه شده است') and omitted dedicated multi-part paragraphs describing central tendency, dispersion, and Kline normality criteria for Table 4-13 and scale reliability for Table 4-14.",
+      "alternatives_considered": [
+        {
+          "option": "Dedicated 4-part empirical preceding narrative for each table",
+          "verdict": "REJECTED",
+          "reason": "Agent took a fastpath/shortcut relying on boilerplate table introduction instead of writing comprehensive empirical analysis."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260927-CH4-STAGE42-NOTE-TYPESETTING-LEAK",
+      "decision_type": "TABLE_NOTE_FORMULATION",
+      "selected_option": "Inclusion of technical formatting metadata ('مقادیر منفی به صورت چپ‌چین (LTR) درج شده‌اند')",
+      "rationale": "Agent documented internal bidirectional text rendering mechanics into the thesis table note rather than restricting table notes strictly to statistical symbols and sample descriptors.",
+      "alternatives_considered": [
+        {
+          "option": "Sanitized APA 7 note defining statistical abbreviations (M, SD, SE, SK, KU)",
+          "verdict": "REJECTED",
+          "reason": "Agent inadvertently exposed pipeline formatting instructions in user-facing deliverable."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.md",
+      "sha256": "3cb40dbda8ce3d722b5e282aa56bc9cf4fa3764835698b9f1d9777f98e82ef6c",
+      "type": "deliverable_markdown"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.json",
+      "sha256": "d4c82b0e980ec8b74a4ff1d3ff2ad82381283d5a5cfda3a16d8a4369e46a7ce0",
+      "type": "deliverable_json"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.docx",
+      "sha256": "4b9e38f1a8e1cb6df4ce1502476b7e8d2e85871f30206baae4283c70f9df506e",
+      "type": "deliverable_docx"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "results_auditor_triad_check",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "docx_exists": true,
+        "md_exists": true,
+        "json_exists": true,
+        "table_borders_apa7": true,
+        "limitation": "Did not check for empirical prose completeness or sanitize note content against internal bidi technical keywords"
+      }
+    },
+    {
+      "validator_name": "human_supervisor_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "empirical_table_narrative_absence",
+        "prewritten_template_stub_detection",
+        "typesetting_jargon_leakage_in_note"
+      ],
+      "evidence_summary": {
+        "critique_text": "There is no explanation for the tables. You just write the this is a table 4-13. Do you use the prewriten text or templat? Inn the note section why you write RTL and unrelevant to chapter 4 innformation?",
+        "observable_stub_intro": "03_deliverables/02_descriptives_and_reliability.md lines 1-4 contain only a 3-sentence generic boilerplate ending in 'نتایج شاخص‌های توصیفی در جدول ۴- ۱۳ و شاخص‌های پایایی در جدول ۴- ۱۴ ارائه شده است.' with zero preceding or succeeding empirical explanation of the data.",
+        "observable_typesetting_leak": "03_deliverables/02_descriptives_and_reliability.md line 22 contains '*یادداشت.* ... مقادیر منفی به صورت چپ‌چین (LTR) درج شده‌اند.' exposing internal bidirectional formatting mechanics."
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260927-64D151"
+  ],
+  "outcome": "FAILURE"
+}

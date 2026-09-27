@@ -1,0 +1,247 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260927-CH4-DUAL-SAMPLE",
+  "experience_id": "EXP-20260927-CH4-DUAL-SAMPLE",
+  "project_id": "Mohtasham Valiyanpur",
+  "task_id": "chapter_4_drafting",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "USER_FEEDBACK",
+      "actor": "user",
+      "timestamp": "2026-09-27T04:46:40.693992Z",
+      "description": "User submitted initial critique demanding that all analyses commit on N=483 clean data",
+      "observable_input": {
+        "feedback_id": "FDB-20260927-95EFE2",
+        "raw_text": "No, this is wrong. We should do all the analysis onn N=483 clean data. Does all the analysis commit on 483 data?"
+      },
+      "observable_output": {
+        "severity": "HIGH",
+        "scope": "REUSABLE_PROCEDURAL"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T04:55:05.417793Z",
+      "description": "Orchestrator delegated statistical reconciliation task TSK-2026-CH4-PHASE1-N483 to statistics-agent",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-PHASE1-N483",
+        "inputs": [
+          "02_analysis_code/selected_cases_rmsea_05.xlsx",
+          "02_analysis_code/study_config.json"
+        ],
+        "objective": "Execute complete demographic profiling, scale descriptives, reliability, and regression strictly on clean harnessed dataset N=483"
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "ARTIFACT_GENERATION",
+      "actor": "data-curator",
+      "timestamp": "2026-09-27T05:50:00.000000Z",
+      "description": "Data curator produced Stage 4.0 data curation report detailing sample screening from N=578 to N=483",
+      "observable_input": {
+        "source_data": "01_raw_inputs/1_29761570989.csv",
+        "task_id": "TSK-2026-CH4-STAGE40-CURATION"
+      },
+      "observable_output": {
+        "target_file": "03_deliverables/00_data_curation_report.md",
+        "leaked_terms": [
+          "حجم نمونه نهایی پالایش‌شده: N = 483",
+          "پایگاه اولیه نمره‌گذاری‌شده (۵۷۷)",
+          "مجموعه نهایی پالایش‌شده (۴۸۳)",
+          "نرخ حفظ نمونه (Retention Rate): نمونه نهایی شامل ۴۸۳ آزمودنی از میان ۵۷۷ آزمودنی اولیه است که معادل ۸۳.۷۱٪ است",
+          "ثبات جهت و علامت پارامترها بین ۵۷۷ و ۴۸۳"
+        ]
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "PROMPT_SPECIFICATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T06:25:47.323126Z",
+      "description": "Orchestrator delegated Stage 4.3 assumptions triad with prompt mandating phrasing 'نمونه مهارشده نهایی (N = ۴۸۳)' in table note",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE43-ASSUMPTIONS-TRIAD",
+        "mandatory_note": "کلیه محاسبات بر اساس نمونه مهارشده نهایی (N = ۴۸۳) انجام شده است."
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "ARTIFACT_GENERATION",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:26:00.000000Z",
+      "description": "Academic writer drafted 00_structural_overview.md embedding pre/post cleaning phrasing",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE40-OVERVIEW"
+      },
+      "observable_output": {
+        "target_file": "03_deliverables/00_structural_overview.md",
+        "leaked_text_line_3": "پس از بررسی و پاک‌سازی داده‌ها، از میان شرکت‌کنندگان، تعداد ۴۸۳ نفر به عنوان نمونه نهایی (N = ۴۸۳) جهت آزمون فرضیه‌ها وارد تحلیل شدند."
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "ARTIFACT_GENERATION",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:26:30.000000Z",
+      "description": "Academic writer drafted 02_descriptives_and_reliability.md containing 4 repeated occurrences of 'نمونه مهارشده نهایی'",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE42-DESCRIPTIVES"
+      },
+      "observable_output": {
+        "target_file": "03_deliverables/02_descriptives_and_reliability.md",
+        "occurrences": [
+          {"line": 5, "text": "بر روی نمونه مهارشده نهایی (N = ۴۸۳) محاسبه گردید."},
+          {"line": 17, "text": "کلیه شاخصها بر روی نمونه مهارشده نهایی (N = ۴۸۳) محاسبه شدهاند."},
+          {"line": 21, "text": "بر روی نمونه مهارشده نهایی (N = ۴۸۳) محاسبه گردید."},
+          {"line": 34, "text": "مقادیر بر اساس نمونه مهارشده نهایی (N = ۴۸۳) برآورد شدهاند."}
+        ]
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "USER_FEEDBACK",
+      "actor": "user",
+      "timestamp": "2026-09-27T06:27:25.000000Z",
+      "description": "User submitted critique rejecting dual sample framing in Chapter 4",
+      "observable_input": {
+        "raw_text": "We don't have two sample. We have just one sample and it is 483. So don't mention it on chapter 4."
+      },
+      "observable_output": {
+        "target_imperative": "Eliminate all dual-sample terminology ('نمونه مهارشده نهایی', 'نمونه نهایی', 'نمونه اولیه', 'پاک‌سازی داده‌ها') from Chapter 4 and enforce Single Sample Invariant (نمونه پژوهش N=483)."
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "TargetFile": "03_deliverables/00_structural_overview.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 120.0
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "TargetFile": "03_deliverables/00_data_curation_report.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 250.0
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "TargetFile": "03_deliverables/02_descriptives_and_reliability.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 180.0
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "data-audit",
+      "script_path": ".agents/skills/data-audit/SKILL.md",
+      "cli_command": "internal_audit",
+      "exit_code": 0,
+      "duration_seconds": 15.0
+    },
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": ".agents/skills/chapter-4-writing/SKILL.md",
+      "cli_command": "draft_chapter4_triad",
+      "exit_code": 0,
+      "duration_seconds": 35.0
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "data-curator",
+      "stage_id": "00_data_curation",
+      "envelope_summary": "Perform raw dataset audit and case strain resolution",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/00_data_curation_report.md"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "00_structural_overview",
+      "envelope_summary": "Draft Chapter 4 introduction and structural overview",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/00_structural_overview.md"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "02_descriptives_and_reliability",
+      "envelope_summary": "Draft descriptive statistics and scale reliability",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/02_descriptives_and_reliability.md"
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260927-01",
+      "decision_type": "methodological_framing",
+      "selected_option": "Dual-sample screening audit bundled directly into Chapter 4 deliverables folder",
+      "rationale": "Orchestrator attempted to prove compliance with earlier N=483 critique by excessively exposing the curation mechanics (577 -> 483) and labeling the sample as 'نمونه مهارشده نهایی'",
+      "alternatives_considered": [
+        {
+          "option": "Isolate curation audit to Chapter 3 / methodology appendix and report only a single study sample of N=483 in Chapter 4",
+          "verdict": "REJECTED_PREVIOUSLY",
+          "reason": "Agent over-corrected to demonstrate audit provenance directly inside Chapter 4 files"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/00_structural_overview.md",
+      "sha256": "unverified",
+      "type": "markdown"
+    },
+    {
+      "path": "03_deliverables/00_data_curation_report.md",
+      "sha256": "unverified",
+      "type": "markdown"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.md",
+      "sha256": "unverified",
+      "type": "markdown"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "SingleSampleInvariantCheck",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "dual_sample_framing_in_overview",
+        "sample_retention_comparison_in_ch4_deliverables",
+        "banned_term_nomooneh_mahar_shodeh_in_descriptives"
+      ],
+      "evidence_summary": {
+        "00_structural_overview.md": "Line 3 contains 'پس از بررسی و پاک‌سازی داده‌ها، از میان شرکت‌کنندگان، تعداد ۴۸۳ نفر به عنوان نمونه نهایی'",
+        "00_data_curation_report.md": "Sections 1, 2, 5 explicitly contrast 577 with 483 and retention rate 83.71%",
+        "02_descriptives_and_reliability.md": "Lines 5, 17, 21, 34 repeat 'نمونه مهارشده نهایی (N = ۴۸۳)'"
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260927-95EFE2",
+    "FDB-20260927-DBFD12"
+  ],
+  "outcome": "FAILURE"
+}
