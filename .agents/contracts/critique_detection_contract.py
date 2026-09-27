@@ -104,12 +104,13 @@ HIGH_PRECISION_CRITIQUE_PATTERNS = [
     # Explicit omission / mistake accusation against the agent
     r"\byou (?:forgot|left out|omitted|missed|didn\x27?t include|failed to include)\b",
     r"\byou (?:made an error|made a mistake|got this wrong|did this wrong)\b",
-    r"\byou (?:should have|ought to have) (?:included|calculated|checked|run|used)\b",
+    r"\byou (?:should have|ought to have) (?:included|calculated|checked|run|used|had|put|added|set|created|\w+)\b",
     r"\byou (?:must|need to) fix\b",
     r"\byou need to (?:compare these two models|verify the effect size)\b",
     r"\bdon\x27?t say the treatment caused\b",
 
     # Explicit defect in deliverables / calculations / tables
+    r"\b(?:problem|defect|bug|flaw):\s*",
     r"\bthere (?:is|are) (?:a |an )?(?:bug|defect|flaw|error|discrepancy|mismatch|problem)(?::|\b|\s+in\s+(?:the|your|this))",
     r"\b(?:the |this |your )?(?:tables?|calculations?|results?|outputs?|statistics?|numbers?|scripts?|code|models?|figures?|documents?|drafts?|effect sizes?|parameters?|values?) (?:in [^,\.\n]+ )?(?:is wrong|is incorrect|is flawed|is invalid|are wrong|are incorrect|are flawed|are invalid|has an error|have an error|failed|does not match|doesn\x27?t match|do not match|don\x27?t match)\b",
     r"\b(?:numbers?|results?|tables?|data) (?:in [^,\.\n]+ )?(?:don\x27?t|do not|doesn\x27?t|does not) match\b",

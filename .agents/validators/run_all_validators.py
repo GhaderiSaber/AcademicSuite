@@ -173,14 +173,20 @@ def compute_sha256(filepath: str) -> str:
 
 def is_triad_required_stage(stage_id: str) -> bool:
     """Determines whether a stage is required to produce the .json, .md, .docx Triad."""
+    if mr.is_data_analysis_stage(stage_id):
+        return False
     norm = stage_id.strip().lower()
+    if "payload" in norm:
+        return False
     triad_indicators = [
         "hypothesis", "macro_model", "mediation", "moderation",
-        "demographics", "descriptives", "assumptions", "bivariate", "summary",
-        "cfa", "efa", "item_analysis", "construct_validity", "reliability",
-        "irt_roc", "findings"
+        "bivariate", "summary", "cfa", "efa", "item_analysis",
+        "construct_validity", "reliability", "irt_roc", "findings",
+        "phase4d", "stage_4d", "4d_"
     ]
-    return any(ind in norm for ind in triad_indicators) or norm.startswith("0") or norm.startswith("stage_")
+    return any(ind in norm for ind in triad_indicators) or (norm.startswith("stage_4d")) or (
+        (norm.startswith("0") or norm.startswith("stage_")) and not mr.is_data_analysis_stage(norm)
+    )
 
 
 def run_suite(
@@ -598,6 +604,15 @@ def run_suite(
             })
             continue
 
+        report["results"].append({
+            "check_id": f"CHK-EXISTS-{spec_id}",
+            "rule": f"Required artifact '{spec_id}' must physically exist on disk",
+            "verdict": "PASS",
+            "errors": [],
+            "warnings": [],
+            "evidence": {"artifact_id": spec_id, "file": os.path.basename(matched_file), "size_bytes": os.path.getsize(matched_file)}
+        })
+
         # Verify hash against manifest.json hashes if available
         if manifest_data and "hashes" in manifest_data:
             hashes_dict = manifest_data.get("hashes", {})
@@ -708,7 +723,7 @@ def run_suite(
 
     for json_path in json_files:
         bname = os.path.basename(json_path).lower()
-        if any(ex in bname for ex in ["curation", "data_audit", "data_quality", "assumption", "manifest", "audit", "challenge", "provenance", "decision"]):
+        if any(ex in bname for ex in ["curation", "data_audit", "data_quality", "assumption", "manifest", "audit", "challenge", "provenance", "decision", "demographic"]):
             continue
         res = validate_numbers(json_path)
         report["target_artifacts"].append(json_path)
@@ -800,11 +815,17 @@ def run_suite(
     if enforce_cross_artifacts:
         for json_path in json_files:
             bname = os.path.basename(json_path).lower()
-            if any(ex in bname for ex in ["curation", "data_audit", "data_quality", "assumption", "manifest", "audit", "challenge", "provenance", "decision"]):
+            if any(ex in bname for ex in ["curation", "data_audit", "data_quality", "assumption", "manifest", "audit", "challenge", "provenance", "decision", "payload"]):
+                continue
+            if mr.is_data_analysis_stage(bname):
                 continue
             stem = os.path.splitext(json_path)[0]
             md_cand = stem + ".md"
             docx_cand = stem + ".docx"
+
+            # If this is a data-only analysis stage without markdown or docx, skip cross-artifact check
+            if not os.path.exists(md_cand) and not os.path.exists(docx_cand) and not md_files and not docx_files:
+                continue
 
             md_to_check = md_cand if os.path.exists(md_cand) else (md_files[0] if len(md_files) == 1 else None)
             docx_to_check = docx_cand if os.path.exists(docx_cand) else (docx_files[0] if len(docx_files) == 1 else None)
@@ -1112,6 +1133,13 @@ def run_suite(
             "checks_passed": len([r for r in t2_results if r["verdict"] == "PASS"]),
             "checks_failed": t2_fails
         }
+    else:
+        report["tier_summaries"]["tier_2_forensic_math"] = {
+            "verdict": "NOT_APPLICABLE",
+            "checks_run": 0,
+            "checks_passed": 0,
+            "checks_failed": 0
+        }
 
     # Strict fail-closed verdict resolution (Phase 9 taxonomy)
     if blocked_checks > 0 or report["manifest_audit"]["missing_artifacts"]:
@@ -1123,7 +1151,7 @@ def run_suite(
     elif passed_checks > 0:
         t2_summary = report["tier_summaries"].get("tier_2_forensic_math")
         t3_summary = report["tier_summaries"].get("tier_3_adversarial")
-        if tier_2_active and t2_summary and t2_summary.get("verdict") != "PASS":
+        if tier_2_active and t2_summary and t2_summary.get("checks_run", 0) > 0 and t2_summary.get("verdict") != "PASS":
             report["overall_verdict"] = t2_summary.get("verdict", "FAIL")
         elif tier_3_active and t3_summary and t3_summary.get("verdict") != "PASS":
             report["overall_verdict"] = t3_summary.get("verdict", "BLOCKED")

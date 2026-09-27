@@ -23,9 +23,12 @@ import numpy as np
 import pandas as pd
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-for p in [REPO_ROOT, os.path.join(REPO_ROOT, ".agents", "scripts"), os.path.join(REPO_ROOT, ".agents", "hooks")]:
+for p in [REPO_ROOT, os.path.join(REPO_ROOT, ".agents", "scripts"), os.path.join(REPO_ROOT, ".agents", "hooks"), os.path.join(REPO_ROOT, ".agents", "validators")]:
     if p not in sys.path:
         sys.path.insert(0, p)
+
+from integrity_hooks import IntegrityHooks
+from run_all_validators import run_suite
 
 
 class TestChapter4E2EPipelineExample(unittest.TestCase):
@@ -335,6 +338,108 @@ class TestChapter4E2EPipelineExample(unittest.TestCase):
 
         self.assertTrue(os.path.isfile(md_deliverable))
         self.assertTrue(os.path.isfile(json_deliverable))
+
+    # --------------------------------------------------------------------------
+    # 5. Validation Isolation: JSON-Only for Phases 4A–4C vs. Triad for Phase 4D
+    # --------------------------------------------------------------------------
+    def test_05_data_analysis_phases_validation_isolation_and_triad_rules(self):
+        """
+        Verifies:
+        1. Data analysis phases (4A, 4B, 4C) pass validation and integrity hooks with ONLY .json.
+        2. Drafting phase (4D) strictly enforces the Triad Invariant (.docx, .md, .json) and blocks on missing .docx.
+        """
+        # 1. Phase 4A (Data Engineering & Curation): JSON-only report passes hook and run_suite
+        passport_path = os.path.join(self.p4a_dir, "00_data_curation_report.json")
+        with open(passport_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "stage": "4A.0",
+                "passport_id": "PASSPORT-4A-2026-001",
+                "sample_size": 100,
+                "missing_data_percent": 0.0,
+                "outliers_removed": 0,
+                "dataset_locked": True,
+                "overall_verdict": "PASS"
+            }, f, indent=2)
+        # Optional cleaned excel file
+        with open(os.path.join(self.p4a_dir, "data_cleaned.xlsx"), "wb") as f:
+            f.write(b"PK0304mockexcel")
+
+        ok_4a, msg_4a = IntegrityHooks.verify_artifacts([self.p4a_dir])
+        self.assertTrue(ok_4a, f"Phase 4A should pass integrity hooks with JSON only: {msg_4a}")
+
+        rep_4a = run_suite(self.p4a_dir, stage_id="00_data_curation_report")
+        self.assertEqual(rep_4a.get("overall_verdict"), "PASS", f"Phase 4A validation failed: {rep_4a.get('results')}")
+
+        # 2. Phase 4B (Exploratory Analysis & Assumptions): JSON payloads pass hook and run_suite
+        with open(os.path.join(self.p4b_dir, "01_demographics_payload.json"), "w", encoding="utf-8") as f:
+            json.dump({"gender": {"مرد": 48, "زن": 52}}, f)
+        with open(os.path.join(self.p4b_dir, "02_descriptives_payload.json"), "w", encoding="utf-8") as f:
+            json.dump({"anxiety": {"N": 100, "Mean": 25.0, "SD": 5.0}}, f)
+        with open(os.path.join(self.p4b_dir, "03_assumptions_report.json"), "w", encoding="utf-8") as f:
+            json.dump({
+                "normality": {"acceptable": True},
+                "homoscedasticity": {"acceptable": True},
+                "collinearity": {"VIF": 1.05, "Tolerance": 0.95, "acceptable": True},
+                "gate_2_certificate": {"status": "APPROVED", "authorized_model": "MULTIPLE_REGRESSION", "assumptions_met": True}
+            }, f)
+
+        ok_4b, msg_4b = IntegrityHooks.verify_artifacts([self.p4b_dir])
+        self.assertTrue(ok_4b, f"Phase 4B should pass integrity hooks with JSON only: {msg_4b}")
+
+        rep_4b_demog = run_suite(self.p4b_dir, stage_id="01_demographics_payload")
+        self.assertEqual(rep_4b_demog.get("overall_verdict"), "PASS")
+
+        rep_4b_desc = run_suite(self.p4b_dir, stage_id="02_descriptives_payload")
+        self.assertEqual(rep_4b_desc.get("overall_verdict"), "PASS")
+
+        rep_4b_assump = run_suite(self.p4b_dir, stage_id="03_assumptions_report")
+        self.assertEqual(rep_4b_assump.get("overall_verdict"), "PASS")
+
+        # 3. Phase 4C (Core Inferential Modeling): JSON payload passes hook and run_suite
+        h1_payload = {
+            "hypothesis_id": "H1",
+            "model_type": "MULTIPLE_REGRESSION",
+            "n": 100,
+            "table_1_correlations": {"r_anxiety_depression": 0.52, "r_coping_depression": -0.34},
+            "table_2_model_summary_anova": {
+                "R": 0.54, "R2": 0.29, "Adj_R2": 0.27, "SS_reg": 642.10, "df_reg": 2,
+                "MS_reg": 321.05, "F": 19.81, "p": 0.0001, "SS_res": 1572.30, "df_res": 97, "MS_res": 16.21
+            },
+            "table_3_coefficients": [
+                {"predictor": "anxiety", "B": 0.45, "SE": 0.08, "beta": 0.48, "t": 5.62, "p": 0.0001, "VIF": 1.05},
+                {"predictor": "coping", "B": -0.22, "SE": 0.07, "beta": -0.26, "t": -3.14, "p": 0.002, "VIF": 1.05}
+            ]
+        }
+        with open(os.path.join(self.p4c_dir, "06_hypothesis_1_payload.json"), "w", encoding="utf-8") as f:
+            json.dump(h1_payload, f, indent=2)
+
+        ok_4c, msg_4c = IntegrityHooks.verify_artifacts([self.p4c_dir])
+        self.assertTrue(ok_4c, f"Phase 4C should pass integrity hooks with JSON only: {msg_4c}")
+
+        rep_4c = run_suite(self.p4c_dir, stage_id="06_hypothesis_1_payload")
+        self.assertEqual(rep_4c.get("overall_verdict"), "PASS", f"Phase 4C validation failed: {rep_4c.get('results')}")
+
+        # 4. Phase 4D (Drafting & Assembly): Enforces Triad Invariant
+        with open(os.path.join(self.p4d_dir, "06_hypothesis_1.md"), "w", encoding="utf-8") as f:
+            f.write("# فرضیه اول\nمتن تحلیل رگرسیون...")
+        with open(os.path.join(self.p4d_dir, "06_hypothesis_1.json"), "w", encoding="utf-8") as f:
+            json.dump({"hypothesis_id": "H1", "f_stat": 19.81}, f)
+
+        # Missing .docx: Must FAIL IntegrityHooks and be BLOCKED by run_suite
+        ok_4d_missing, msg_4d_missing = IntegrityHooks.verify_artifacts([self.p4d_dir])
+        self.assertFalse(ok_4d_missing, "Phase 4D drafting must fail integrity hook if .docx is missing")
+        self.assertIn("Triad Artifact Invariant", msg_4d_missing)
+        self.assertIn("06_hypothesis_1.docx", msg_4d_missing)
+
+        rep_4d_missing = run_suite(self.p4d_dir, stage_id="06_hypothesis_1")
+        self.assertEqual(rep_4d_missing.get("overall_verdict"), "BLOCKED",
+                         "Phase 4D drafting must be BLOCKED by Gate 2 when missing .docx deliverable")
+
+        # Now supply .docx: IntegrityHooks must pass
+        with open(os.path.join(self.p4d_dir, "06_hypothesis_1.docx"), "wb") as f:
+            f.write(b"PK0304mockdocx")
+        ok_4d_present, msg_4d_present = IntegrityHooks.verify_artifacts([self.p4d_dir])
+        self.assertTrue(ok_4d_present, f"Phase 4D should pass integrity hook once triad is complete: {msg_4d_present}")
 
 
 if __name__ == "__main__":

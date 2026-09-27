@@ -17,6 +17,7 @@ Fails closed on any discrepancy.
 
 import os
 import sys
+import re
 import json
 import hashlib
 import argparse
@@ -137,16 +138,49 @@ def load_stage_manifest_schema() -> Dict[str, Any]:
         return json.load(f)
 
 
+def is_data_analysis_stage(stage_or_file: str) -> bool:
+    """
+    Determines whether a stage or artifact represents a pure computational data analysis stage
+    (Phases 4A, 4B, 4C) that outputs only structured data payloads (.json, .xlsx, .png)
+    and strictly does NOT require or produce narrative prose (.docx, .md).
+    """
+    if not stage_or_file or not isinstance(stage_or_file, str):
+        return False
+    norm = os.path.basename(stage_or_file).strip().lower()
+    norm = os.path.splitext(norm)[0]
+
+    if "payload" in norm:
+        return True
+
+    if re.search(r'(?:^|[_\-.])(?:phase\s*4[abc]|stage[_\-]?4[abc]|4[abc][_\-.])', norm):
+        return True
+
+    data_indicators = [
+        "curation", "data_quality", "data_audit", "clean_data", "data_cleaned",
+        "passport", "assumptions_report", "model_payload", "data_engineering"
+    ]
+    if any(ind in norm for ind in data_indicators):
+        return True
+
+    return False
+
+
 def is_triad_required_stage(stage_id: str) -> bool:
     """Determines whether a stage is required to produce the .json, .md, .docx Triad."""
+    if is_data_analysis_stage(stage_id):
+        return False
     norm = stage_id.strip().lower()
+    if "payload" in norm:
+        return False
     triad_indicators = [
         "hypothesis", "macro_model", "mediation", "moderation",
-        "demographics", "descriptives", "assumptions", "bivariate", "summary",
-        "cfa", "efa", "item_analysis", "construct_validity", "reliability",
-        "irt_roc", "findings"
+        "bivariate", "summary", "cfa", "efa", "item_analysis",
+        "construct_validity", "reliability", "irt_roc", "findings",
+        "phase4d", "stage_4d", "4d_"
     ]
-    return any(ind in norm for ind in triad_indicators) or norm.startswith("0") or norm.startswith("stage_")
+    return any(ind in norm for ind in triad_indicators) or (norm.startswith("stage_4d")) or (
+        (norm.startswith("0") or norm.startswith("stage_")) and not is_data_analysis_stage(norm)
+    )
 
 
 # ==============================================================================
@@ -269,10 +303,16 @@ def build_stage_manifest(
             raise ManifestTriadMissingError(
                 f"Stage '{stage_id}' violates Directive 3 Triad Artifact Invariant: missing {missing_parts}."
             )
+    elif is_data_analysis_stage(stage_id):
+        has_json = any(a["path"].endswith(".json") and "validation" not in a["path"] for a in declared_artifacts)
+        if not has_json:
+            raise ManifestArtifactMissingError(
+                f"Data analysis stage '{stage_id}' is missing required data payload file (.json)."
+            )
 
     # 4. Cross-Artifact Agreement Audit
     cross_record = None
-    if cross_agreement_required and json_path and (md_path or docx_path) and validate_cross_artifacts:
+    if cross_agreement_required and not is_data_analysis_stage(stage_id) and json_path and (md_path or docx_path) and validate_cross_artifacts:
         val_res = validate_cross_artifacts(json_path=json_path, md_path=md_path, docx_path=docx_path)
         verdict = val_res.get("verdict", "FAIL")
         if verdict != "PASS":

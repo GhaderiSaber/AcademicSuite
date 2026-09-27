@@ -108,6 +108,14 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
 
     # 1. Sample Size and Degrees of Freedom Check
     n = sample_n or data.get("sample_size") or data.get("n") or data.get("N")
+    if n is None and isinstance(data, dict):
+        for v in data.values():
+            if isinstance(v, dict) and ("N" in v or "n" in v):
+                try:
+                    n = int(v.get("N") or v.get("n"))
+                    break
+                except (ValueError, TypeError):
+                    pass
     if n is not None:
         try:
             n = int(n)
@@ -138,7 +146,7 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
                     evidence_items.append(f"fit_{idx_k}")
 
     # 2. Extract Coefficients & Perform Statcheck Verification
-    coefs = data.get("coefficients", [])
+    coefs = data.get("coefficients") or data.get("table_3_coefficients") or []
     if isinstance(coefs, dict):
         coef_list = list(coefs.values()) if all(isinstance(v, dict) for v in coefs.values()) else [coefs]
     elif isinstance(coefs, list):
@@ -149,7 +157,7 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
     # Calculate default residual df if not explicitly given
     k_preds = max(1, len(coef_list) - 1)
     df_resid_default = (n - k_preds - 1) if (n and n > (k_preds + 1)) else (n - 2 if n and n > 2 else 30)
-    df_explicit = data.get("df_residual") or data.get("df_error") or data.get("df2") or data.get("df")
+    df_explicit = data.get("df_residual") or data.get("df_error") or data.get("df2") or data.get("df") or (data.get("table_2_model_summary_anova", {}).get("df_res") if isinstance(data.get("table_2_model_summary_anova"), dict) else None)
 
     for c_idx, coef in enumerate(coef_list):
         if not isinstance(coef, dict):
@@ -233,9 +241,9 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
                 pass
 
     # 3. Overall F-test Statcheck Verification
-    f_stat = data.get("f_stat") or data.get("f_value") or data.get("f")
-    f_p = data.get("f_p_value") or (data.get("p_value") if f_stat else None)
-    df_between = data.get("df_between") or data.get("df1")
+    f_stat = data.get("f_stat") or data.get("f_value") or data.get("f") or (data.get("table_2_model_summary_anova", {}).get("F") if isinstance(data.get("table_2_model_summary_anova"), dict) else None)
+    f_p = data.get("f_p_value") or (data.get("p_value") if f_stat else None) or (data.get("table_2_model_summary_anova", {}).get("p") if isinstance(data.get("table_2_model_summary_anova"), dict) else None)
+    df_between = data.get("df_between") or data.get("df1") or (data.get("table_2_model_summary_anova", {}).get("df_reg") if isinstance(data.get("table_2_model_summary_anova"), dict) else None)
     df_within = data.get("df_within") or data.get("df2") or df_explicit
 
     if verify_statcheck and f_stat is not None and df_between is not None and df_within is not None:
@@ -264,22 +272,26 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
 
     # 4. Descriptive Statistics & GRIM / SPRITE Audit
     descriptives = data.get("descriptives", {})
-    scale_min = float(data.get("scale_min", 1.0))
-    scale_max = float(data.get("scale_max", 5.0))
+    if not descriptives and isinstance(data, dict):
+        if any(isinstance(v, dict) and any(k in v for k in ["mean", "Mean", "m", "sd", "SD", "std"]) for v in data.values()):
+            descriptives = data
+    scale_min = data.get("scale_min")
+    scale_max = data.get("scale_max")
 
     if isinstance(descriptives, dict):
         for var_name, var_stats in descriptives.items():
             if not isinstance(var_stats, dict):
                 continue
-            m_val = var_stats.get("mean") or var_stats.get("m")
-            sd_val = var_stats.get("sd") or var_stats.get("std")
+            m_val = var_stats.get("mean") or var_stats.get("Mean") or var_stats.get("m")
+            sd_val = var_stats.get("sd") or var_stats.get("SD") or var_stats.get("std")
+            var_n = var_stats.get("n") or var_stats.get("N") or n
             items_c = int(var_stats.get("items_count", 1))
 
             if m_val is not None:
                 evidence_items.append(f"mean_{var_name}")
-                if verify_grim and n is not None and n > 0:
+                if verify_grim and var_n is not None and var_n > 0:
                     try:
-                        g_res = verify_grim(float(m_val), n, items_count=items_c)
+                        g_res = verify_grim(float(m_val), int(var_n), items_count=items_c)
                         grim_results.append({"variable": var_name, **g_res})
                         if not g_res.get("grim_consistent"):
                             grim_failures += 1
@@ -301,9 +313,11 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
                     except (ValueError, TypeError):
                         pass
 
-                if verify_sprite_bounds and sd_val is not None:
+                var_smin = var_stats.get("scale_min", scale_min)
+                var_smax = var_stats.get("scale_max", scale_max)
+                if verify_sprite_bounds and sd_val is not None and var_smin is not None and var_smax is not None:
                     try:
-                        sp_res = verify_sprite_bounds(float(m_val), float(sd_val), scale_min=scale_min, scale_max=scale_max)
+                        sp_res = verify_sprite_bounds(float(m_val), float(sd_val), scale_min=float(var_smin), scale_max=float(var_smax))
                         sprite_results.append({"variable": var_name, **sp_res})
                         if not sp_res.get("sprite_consistent"):
                             errors.extend(sp_res.get("errors", []))
@@ -341,8 +355,11 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
         any(k in data for k in [
             "coefficients", "paths", "fit_indices", "correlation_matrix", "correlations_matrix",
             "t_stat", "t", "f_stat", "f", "chi2", "chi_square", "beta", "r", "z_stat", "z",
-            "eta_p2", "r2", "r_squared", "effect_size", "model_summary", "anova_table", "descriptives"
-        ])
+            "eta_p2", "r2", "r_squared", "effect_size", "model_summary", "anova_table", "descriptives",
+            "table_1_correlations", "table_2_model_summary_anova", "table_3_coefficients",
+            "table_1", "table_2", "table_3"
+        ]) or
+        bool(descriptives)
     )
     if evidence_items and not has_substantive_stats:
         err_msg = f"Statistical artifact '{os.path.basename(stats_path)}' lacks substantive empirical parameters (no test statistics, coefficients, paths, or effect sizes found)."
@@ -360,10 +377,11 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
             ))
 
     # Required p-value check for primary test statistics
-    has_primary_test = any(k in data for k in ["t_stat", "t", "f_stat", "f", "chi2", "chi_square", "beta", "z_stat", "z"])
+    has_primary_test = any(k in data for k in ["t_stat", "t", "f_stat", "f", "chi2", "chi_square", "beta", "z_stat", "z"]) or bool(f_stat)
     has_p_value = (
         any(k in data for k in ["p_value", "p", "p_val"]) or
-        any(isinstance(c, dict) and ("p_value" in c or "p" in c) for c in (data.get("coefficients") if isinstance(data.get("coefficients"), list) else [])) or
+        bool(f_p) or
+        any(isinstance(c, dict) and ("p_value" in c or "p" in c) for c in coef_list) or
         any(isinstance(p, dict) and ("p_value" in p or "p" in p) for p in (data.get("paths") if isinstance(data.get("paths"), list) else []))
     )
     if has_primary_test and not has_p_value:

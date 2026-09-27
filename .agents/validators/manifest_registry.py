@@ -123,9 +123,12 @@ KNOWN_STAGE_PATTERNS = [
     r"^02_lit_review.*",
     r"^01_demographics.*",
     r"^03_data_cleaning.*",
+    r"^02_descriptives.*",
     r"^02_descriptives_and_reliability.*",
+    r"^03_assumptions.*",
     r"^03_parametric_assumptions.*",
     r"^03_experimental_assumptions.*",
+    r"^04_correlations.*",
     r"^04_bivariate_correlations.*",
     r"^04_statistical_deliberation.*",
     r"^05_macro_model.*",
@@ -148,6 +151,16 @@ KNOWN_STAGE_PATTERNS = [
     r"^08_master_package.*",
     r"^09_defense_brief.*",
     r"^scale_validation_report.*",
+    r"^.*_payload$",
+    r"^stage_4[a-d].*",
+    r"^phase_?4[a-d].*",
+    r"^\d\d_hypothesis.*",
+    r"^xx_hypothesis.*",
+    r"^xx_mediation.*",
+    r"^00_scale_reliability.*",
+    r"^empirical_findings.*",
+    r"^statistical_audit.*",
+    r"^master_decision_matrix.*",
 ]
 
 
@@ -195,10 +208,41 @@ def resolve_stage_from_filename(filename: str) -> Optional[str]:
 # Authoritative Artifact Requirements
 # ==============================================================================
 
+def is_data_analysis_stage(stage_or_file: str) -> bool:
+    """
+    Determines whether a stage or artifact represents a pure computational data analysis stage
+    (Phases 4A, 4B, 4C) that outputs only structured data payloads (.json, .xlsx, .png)
+    and strictly does NOT require or produce narrative prose (.docx, .md).
+    """
+    if not stage_or_file or not isinstance(stage_or_file, str):
+        return False
+    norm = os.path.basename(stage_or_file).strip().lower()
+    norm = os.path.splitext(norm)[0]
+
+    # Explicit payload naming (e.g. 01_demographics_payload, 04_hypothesis_1_model_payload)
+    if "payload" in norm:
+        return True
+
+    # Phase 4A / 4B / 4C identifiers
+    if re.search(r'(?:^|[_\-.])(?:phase\s*4[abc]|stage[_\-]?4[abc]|4[abc][_\-.])', norm):
+        return True
+
+    # Curation, audit, assumptions, data preparation, passport, certificate
+    data_indicators = [
+        "curation", "data_quality", "data_audit", "clean_data", "data_cleaned",
+        "passport", "assumptions_report", "model_payload", "data_engineering"
+    ]
+    if any(ind in norm for ind in data_indicators):
+        return True
+
+    return False
+
+
 def get_required_artifacts_for_stage(stage_stem: str) -> List[Dict[str, Any]]:
     """
     Returns the authoritative list of required artifact specifications for a stage.
-    Every hypothesis and finding stage enforces the Triad Artifact Invariant (.json, .md, .docx).
+    Data analysis stages (Phases 4A, 4B, 4C) require only structured JSON payloads.
+    Drafting stages (Phase 4D) and hypothesis findings enforce the Triad Artifact Invariant (.json, .md, .docx).
     """
     norm = stage_stem.strip().lower()
 
@@ -225,12 +269,43 @@ def get_required_artifacts_for_stage(stage_stem: str) -> List[Dict[str, Any]]:
             }
         ]
 
-    # Hypothesis, Findings, or Scale Validation Micro-Stages -> TRIAD INVARIANT
+    # Deliberation stage
+    if "deliberation" in norm:
+        return [
+            {
+                "artifact_id": "ART-DELIBERATION-PLAN",
+                "type": "decision_log",
+                "extension": ".json",
+                "filename_pattern": "analysis_plan.json",
+                "required": True,
+                "schema": "analysis_plan.schema.json",
+                "description": "Synthesized and validated analysis plan artifact"
+            }
+        ]
+
+    # Data Analysis & Computational Payload Stages (Phases 4A, 4B, 4C) -> JSON ONLY
+    if is_data_analysis_stage(norm):
+        is_curation = any(k in norm for k in ["curation", "quality", "audit", "passport", "4a"])
+        art_type = "data_quality_report" if is_curation else "stats_json"
+        schema_file = "data_quality.schema.json" if is_curation else "stats_results.schema.json"
+        return [
+            {
+                "artifact_id": f"ART-{norm.upper()}-JSON",
+                "type": art_type,
+                "extension": ".json",
+                "filename_pattern": f"{norm}.json",
+                "required": True,
+                "schema": schema_file,
+                "description": f"Structured numerical payload for data analysis stage {norm}"
+            }
+        ]
+
+    # Drafting / Findings / Scale Validation Micro-Stages -> TRIAD INVARIANT (.docx, .md, .json)
     triad_stages = [
         "hypothesis", "macro_model", "mediation_macro", "moderation_macro",
-        "demographics", "descriptives", "assumptions", "bivariate", "summary",
-        "brief", "content_validity", "item_analysis", "efa_results", "cfa_results",
-        "construct_validity", "reliability_inv", "irt_roc"
+        "bivariate", "summary", "brief", "content_validity", "item_analysis",
+        "efa_results", "cfa_results", "construct_validity", "reliability_inv",
+        "irt_roc", "stage_4d", "phase4d"
     ]
 
     is_triad = any(k in norm for k in triad_stages) or re.match(r"^\d\d_.*", norm)
@@ -266,22 +341,8 @@ def get_required_artifacts_for_stage(stage_stem: str) -> List[Dict[str, Any]]:
             }
         ]
 
-    # Deliberation stage
-    if "deliberation" in norm:
-        return [
-            {
-                "artifact_id": "ART-DELIBERATION-PLAN",
-                "type": "decision_log",
-                "extension": ".json",
-                "filename_pattern": "analysis_plan.json",
-                "required": True,
-                "schema": "analysis_plan.schema.json",
-                "description": "Synthesized and validated analysis plan artifact"
-            }
-        ]
-
-    # Ingestion stage
-    if "ingestion" in norm or "curation" in norm:
+    # Ingestion stage without data analysis indicator (fallback)
+    if "ingestion" in norm:
         return [
             {
                 "artifact_id": "ART-DATA-QUALITY-REPORT",
@@ -291,24 +352,6 @@ def get_required_artifacts_for_stage(stage_stem: str) -> List[Dict[str, Any]]:
                 "required": True,
                 "schema": "data_quality.schema.json",
                 "description": "Data audit, missingness, and outlier screening report"
-            },
-            {
-                "artifact_id": "ART-DATA-CURATION-MD",
-                "type": "narrative_markdown",
-                "extension": ".md",
-                "filename_pattern": f"{norm}.md",
-                "required": True,
-                "schema": "",
-                "description": "Data curation narrative documentation"
-            },
-            {
-                "artifact_id": "ART-DATA-CURATION-DOCX",
-                "type": "openxml_word",
-                "extension": ".docx",
-                "filename_pattern": f"{norm}.docx",
-                "required": True,
-                "schema": "",
-                "description": "OpenXML Word data curation chapter section"
             }
         ]
 

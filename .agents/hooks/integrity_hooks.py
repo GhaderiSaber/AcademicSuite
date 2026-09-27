@@ -76,6 +76,33 @@ def load_transcript(transcript_path: Optional[str]) -> List[Dict[str, Any]]:
     return records
 
 
+def is_data_analysis_stage(stage_or_file: str) -> bool:
+    """
+    Determines whether a stage or artifact represents a pure computational data analysis stage
+    (Phases 4A, 4B, 4C) that outputs only structured data payloads (.json, .xlsx, .png)
+    and strictly does NOT require or produce narrative prose (.docx, .md).
+    """
+    if not stage_or_file or not isinstance(stage_or_file, str):
+        return False
+    norm = os.path.basename(stage_or_file).strip().lower()
+    norm = os.path.splitext(norm)[0]
+
+    if "payload" in norm:
+        return True
+
+    if re.search(r'(?:^|[_\-.])(?:phase\s*4[abc]|stage[_\-]?4[abc]|4[abc][_\-.])', norm):
+        return True
+
+    data_indicators = [
+        "curation", "data_quality", "data_audit", "clean_data", "data_cleaned",
+        "passport", "assumptions_report", "model_payload", "data_engineering"
+    ]
+    if any(ind in norm for ind in data_indicators):
+        return True
+
+    return False
+
+
 class IntegrityHooks:
     """
     Class B: Integrity Hooks
@@ -86,7 +113,8 @@ class IntegrityHooks:
     @staticmethod
     def verify_artifacts(workspaces: List[str]) -> Tuple[bool, str]:
         """
-        Enforces Triad Artifact Invariant (.docx, .md, .json) across active stage directories.
+        Enforces Triad Artifact Invariant (.docx, .md, .json) across active drafting stages,
+        while allowing data analysis payload stages (Phases 4A, 4B, 4C) to output strictly .json.
         """
         active_stage_dirs = []
         for ws in workspaces:
@@ -106,10 +134,46 @@ class IntegrityHooks:
                 if m:
                     stage_prefixes.add(m.group(1))
 
+            # Check if directory has an authoritative manifest
+            m_path = os.path.join(s_dir, "manifest.json")
+            manifest_declares_triad = False
+            manifest_is_data_stage = False
+            if os.path.exists(m_path):
+                try:
+                    with open(m_path, "r", encoding="utf-8") as mf:
+                        m_obj = json.load(mf)
+                    if isinstance(m_obj, dict):
+                        st_type = m_obj.get("stage_type", "").lower()
+                        if st_type in ("data_analysis", "computational_payload", "data_curation"):
+                            manifest_is_data_stage = True
+                        reqs = m_obj.get("required_artifacts", [])
+                        exts = {os.path.splitext(r.get("path", ""))[1].lower() for r in reqs if isinstance(r, dict)}
+                        if ".docx" in exts and ".md" in exts:
+                            manifest_declares_triad = True
+                except Exception:
+                    pass
+
             for pfx in stage_prefixes:
                 has_docx = f"{pfx}.docx" in files
                 has_md = f"{pfx}.md" in files
                 has_json = f"{pfx}.json" in files
+
+                # Determine whether this prefix or directory represents a data analysis payload stage
+                is_data_stage = (
+                    manifest_is_data_stage or
+                    is_data_analysis_stage(pfx) or
+                    is_data_analysis_stage(os.path.basename(s_dir))
+                ) and not manifest_declares_triad
+
+                if is_data_stage:
+                    # Data analysis stages strictly require non-empty .json payload, but NOT .docx or .md
+                    if not has_json:
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Data Analysis Payload Invariant): "
+                            f"Stage '{pfx}' in '{s_dir}' is missing required data payload file: '{pfx}.json'."
+                        )
+                    continue
+
                 missing = []
                 if not has_docx: missing.append(f"{pfx}.docx")
                 if not has_md: missing.append(f"{pfx}.md")

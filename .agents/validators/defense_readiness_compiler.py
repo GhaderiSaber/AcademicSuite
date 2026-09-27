@@ -18,9 +18,30 @@ Produces immutable `defense_readiness_certificate.json` and Saber's Human Gate C
 import os
 import sys
 import json
-import argparse
+import re
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
+
+try:
+    from manifest_registry import is_data_analysis_stage
+except ImportError:
+    try:
+        from validators.manifest_registry import is_data_analysis_stage
+    except ImportError:
+        def is_data_analysis_stage(stage_or_file: str) -> bool:
+            if not stage_or_file or not isinstance(stage_or_file, str):
+                return False
+            norm = os.path.basename(stage_or_file).strip().lower()
+            norm = os.path.splitext(norm)[0]
+            if "payload" in norm:
+                return True
+            if re.search(r'(?:^|[_\-.])(?:phase\s*4[abc]|stage[_\-]?4[abc]|4[abc][_\-.])', norm):
+                return True
+            data_indicators = [
+                "curation", "data_quality", "data_audit", "clean_data", "data_cleaned",
+                "passport", "assumptions_report", "model_payload", "data_engineering"
+            ]
+            return any(ind in norm for ind in data_indicators)
 
 
 class DefenseReadinessCompiler:
@@ -54,8 +75,23 @@ class DefenseReadinessCompiler:
         has_json = any(f.endswith(".json") and "manifest" not in f and "validation" not in f for f in files_on_disk)
         has_triad = has_docx and has_md and has_json
 
-        # If stage directory is empty or lacks triad artifacts:
-        if not files_on_disk or not has_triad:
+        is_data_stage = is_data_analysis_stage(self.stage_dir) or any(is_data_analysis_stage(f) for f in files_on_disk)
+
+        # If stage directory is empty:
+        if not files_on_disk:
+            deductions.append({
+                "examiner": "Committee Chair",
+                "reason": "Stage directory is empty",
+                "points": -3.00
+            })
+        elif is_data_stage:
+            if not has_json:
+                deductions.append({
+                    "examiner": "Committee Chair",
+                    "reason": "Data analysis stage directory lacks mandatory JSON payload (.json)",
+                    "points": -3.00
+                })
+        elif not has_triad:
             deductions.append({
                 "examiner": "Committee Chair",
                 "reason": "Stage directory lacks mandatory synchronized triad artifacts (.docx, .md, .json)",
@@ -68,13 +104,13 @@ class DefenseReadinessCompiler:
             if v_t1 == "PASS":
                 earned_points.append({
                     "examiner": "Committee Chair",
-                    "criterion": "Mechanical Triad & OpenXML Typography Compliance",
+                    "criterion": "Mechanical Triad & OpenXML Typography Compliance" if not is_data_stage else "Data Analysis Payload Integrity Compliance",
                     "points": 2.50
                 })
             elif v_t1 == "BLOCKED":
                 deductions.append({
                     "examiner": "Committee Chair",
-                    "reason": "Missing required artifact triad (.docx, .md, .json) or corrupt manifest",
+                    "reason": "Missing required artifacts or corrupt manifest",
                     "points": -3.00
                 })
             elif v_t1 == "FAIL":
@@ -85,10 +121,10 @@ class DefenseReadinessCompiler:
                     "reason": f"OpenXML typographic or structural non-compliance ({t1_errors} defects)",
                     "points": -round(pts, 2)
                 })
-        elif has_triad:
+        elif has_triad or (is_data_stage and has_json):
             earned_points.append({
                 "examiner": "Committee Chair",
-                "criterion": "Physical Triad Present on Disk",
+                "criterion": "Physical Deliverables Present on Disk",
                 "points": 1.50
             })
 
@@ -188,12 +224,13 @@ class DefenseReadinessCompiler:
             verdict = "REJECT"
             persian_verdict = "مردود"
 
+        has_valid_artifacts = (is_data_stage and has_json) or has_triad
         # Examiner Scorecards
         examiner_scores = {
             "committee_chair": max(0.0, min(4.0, 2.0 + sum(p["points"] for p in earned_points if p.get("examiner") == "Committee Chair") + sum(d["points"] for d in deductions if d.get("examiner") == "Committee Chair"))),
             "quantitative_examiner": max(0.0, min(6.0, 2.0 + sum(p["points"] for p in earned_points if p.get("examiner") == "Quantitative Examiner") + sum(d["points"] for d in deductions if d.get("examiner") == "Quantitative Examiner"))),
-            "psychometric_specialist": 4.0 if has_triad else 2.0,
-            "domain_specialist": 4.0 if has_triad else 2.0,
+            "psychometric_specialist": 4.0 if has_valid_artifacts else 2.0,
+            "domain_specialist": 4.0 if has_valid_artifacts else 2.0,
             "external_examiner": max(0.0, min(4.0, 2.0 + sum(p["points"] for p in earned_points if p.get("examiner") == "External Examiner") + sum(d["points"] for d in deductions if d.get("examiner") == "External Examiner")))
         }
 
