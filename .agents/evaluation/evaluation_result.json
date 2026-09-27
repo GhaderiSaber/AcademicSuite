@@ -1,0 +1,21 @@
+{
+  "evaluation_id": "INDEP-EVL-2026-001",
+  "candidate_id": "CAND-2026-TABLE-BORDER-PERSIAN-ZERO",
+  "overall_verdict": "FAIL",
+  "metrics": {
+    "execution_reliability": 0.0,
+    "statistical_precision": 0.0,
+    "typography_compliance": 0.0,
+    "msai_anomaly_score": 1.0
+  },
+  "regressions": [
+    {
+      "severity": "CRITICAL",
+      "description": "Candidate specifies STRING_REPLACE mutation for target content that does not exist in .agents/skills/persian-thesis-revision-assistant/scripts/generate_revision_response_docx.py. Furthermore, the target script already correctly implements <w:insideV w:val=\"none\"/> and does not handle floating point numeric values."
+    }
+  ],
+  "evidence": {
+    "log_files": [],
+    "compilation_exit_code": 1
+  }
+}

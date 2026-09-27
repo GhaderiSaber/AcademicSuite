@@ -35,5 +35,10 @@
   "target_agents": [
     "validation-agent",
     "thesis-integrity-auditor"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-26T17:41:51.003422+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/My Work/Shakila Salavati/.agents/skills/thesis-integrity-auditor/SKILL.md"
   ]
 }

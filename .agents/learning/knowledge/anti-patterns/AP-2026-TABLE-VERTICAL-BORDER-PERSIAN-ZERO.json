@@ -1,0 +1,26 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-TABLE-VERTICAL-BORDER-PERSIAN-ZERO",
+  "category": "execution",
+  "defective_pattern": "Generating Word document tables with <w:insideV> vertical borders and outputting decimal values missing Persian leading zeros.",
+  "why_defective": "Vertical borders violate strict APA 7 three-line formatting rules. Missing Persian leading zeros violates standard Persian typography norms.",
+  "observed_symptoms": [
+    "Word document table contains <w:insideV> vertical borders.",
+    "Decimals lack Persian leading zeros (e.g., .05 instead of ۰.۰۵) in markdown and docx."
+  ],
+  "corrective_remedy": "Suppress <w:insideV> tags in docx generation to strictly conform to APA 7 guidelines. Apply a regex or string replacement pass to convert all English decimals to Persian numbers with leading zeros before writing to disk.",
+  "detection_heuristic": {
+    "trigger_rule": "Deterministic regex pattern matching the defect",
+    "regex_patterns": ["(?i)<w:insideV\\s*/?>", "(?m)(?:^|\\s)\\.[0-9]+"],
+    "pattern": "(?i)<w:insideV\\s*/?>",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.(docx|md)",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-26T15:57:32Z"
+}

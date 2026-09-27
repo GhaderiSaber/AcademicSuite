@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-PERSIAN-ZERO-TABLE-BORDER",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "BAN-20260926-001",
+  "diagnosis": {
+    "what_happened": "Article_Revised.md was written with English decimals, and Revision_Response_Table.docx was compiled with <w:insideV> vertical borders.",
+    "behavior_caused_outcome": "The academic-writer agent did not execute post-processing to replace English decimals with Persian leading zeros and injected vertical borders in tables.",
+    "what_should_have_happened": "The article generation script must apply a regex or string replacement pass to convert all English decimals to Persian numbers with leading zeros before writing to .md and .docx. Additionally, the docx table generation logic must be modified to explicitly suppress <w:insideV> tags.",
+    "rationale_why": "APA 7 mandates three-line tables without vertical borders. Persian typography standards require decimals to have a leading zero and use Persian numbers."
+  },
+  "desired_behavior": "Strictly suppress <w:insideV> tags in Word tables and always post-process decimals to include Persian leading zeros (e.g., ۰.۰۵) in all written artifacts.",
+  "generalization": "Ensure strict APA 7 table formatting by omitting vertical borders and enforce Persian numerical typography in all outputs.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "VALIDATION_REPORT_MANDATE",
+    "observed_value": "overall_verdict: FAIL (2 checks failed)",
+    "threshold_value": "overall_verdict: PASS (0 checks failed)",
+    "supporting_report_ids": [
+      "BAN-20260926-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-article-writer",
+    "apa-reporting"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-26T15:57:32Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ]
+}

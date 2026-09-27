@@ -1,0 +1,28 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-REGRESSION-TABLE-OVERAPPLICATION-TO-SEM",
+  "category": "validation",
+  "defective_pattern": "Executing an unconditional, non-branching mechanical check for '3-table regression structure' on an SEM manuscript.",
+  "why_defective": "Fails to distinguish between regression and SEM deliverables, incorrectly marking SEM manuscripts as failing due to missing regression tables.",
+  "observed_symptoms": [
+    "Validation failure for SEM manuscript due to missing 3-table regression structure."
+  ],
+  "corrective_remedy": "Implement conditional branching in validation-agent/thesis-integrity-auditor to apply the 3-table regression invariant only to regression manuscripts, bypassing it for SEM manuscripts.",
+  "detection_heuristic": {
+    "trigger_rule": "Deterministic regex pattern matching unconditional 3-table check on SEM",
+    "regex_patterns": [
+      "(?m)^.*unconditional.*3-table regression.*SEM.*$"
+    ],
+    "pattern": "(?m)^.*unconditional.*3-table regression.*SEM.*$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "validation-agent",
+  "target_agents": [
+    "validation-agent",
+    "thesis-integrity-auditor"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-26T21:09:25Z"
+}

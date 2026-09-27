@@ -99,6 +99,7 @@ STAGE_TO_MILESTONE_MAP: Dict[str, str] = {
     "10_defense_brief": "M7_HYPOTHESIS_TESTING",
     "01_findings_recap": "M8_DISCUSSION",
     "01_defense_storyboard": "M9_DEFENSE",
+    "03_deliverables": "M9_DEFENSE",
     # Scale validation specialized micro-stages
     "01_content_validity": "M7_HYPOTHESIS_TESTING",
     "02_item_analysis": "M7_HYPOTHESIS_TESTING",

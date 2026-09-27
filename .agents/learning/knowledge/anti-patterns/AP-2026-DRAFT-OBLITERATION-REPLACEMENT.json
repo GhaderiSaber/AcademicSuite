@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-DRAFT-OBLITERATION-REPLACEMENT",
+  "category": "execution",
+  "defective_pattern": "Clean-room document generation during revision tasks, obliterating existing draft content.",
+  "why_defective": "Overwrites prior work, eliminates context, and causes regression in already established content. Violates document conservation principles.",
+  "observed_symptoms": [
+    "Complete replacement of existing draft",
+    "Loss of previously generated paragraphs or sections",
+    "Drastic reduction in file size or token count during revision"
+  ],
+  "corrective_remedy": "Perform in-place docx mutation. Modify only specific sections or paragraphs required by the revision task, preserving all other existing content.",
+  "detection_heuristic": {
+    "trigger_rule": "output_bytes < input_bytes * 0.90",
+    "regex_patterns": [],
+    "pattern": "",
+    "check_type": "substring_ban",
+    "file_pattern": ".*\\.docx",
+    "event": "Stop"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-thesis-revision-assistant",
+    "academic-orchestrator"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-26T20:54:47Z"
+}
