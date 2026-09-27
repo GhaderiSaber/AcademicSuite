@@ -68,6 +68,7 @@ Every execution run generates two verified tracking artifacts in `--out-dir`:
 - **Zero Silent Fallback (Directive 0 & 2)**: In `production` mode, missing payloads cause immediate script termination with exit code 1.
 - **Exit Code Verification**: Each child process must return exit code 0. Any non-zero exit code halts the sequence.
 - **Physical Disk Confirmation**: Upstream files must physically exist on disk before downstream steps begin.
+- **Atomic Micro-Stage Triad Synthesis Invariant**: Every micro-stage must sequentially and atomically generate its complete synchronized triad (`.docx`, `.md`, `.json`) before proceeding to subsequent stages or triggering validation gates. Fragmented pipeline states where statistical JSON payloads exist on disk without corresponding `.docx` and `.md` deliverables are strictly prohibited.
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-MANDATORY-SEM-FIGURE-GENERATION-001)**: When delegating SEM or relevant simulation tasks, explicitly require the generation of high-resolution path diagrams (semPlot / matplotlib) in the delegation scope. Correspondingly, require the validation-agent to actively assert the existence of these figure artifacts in the deliverables directory before passing the audit. [Enforcement: dynamic_invariant_guard.py (LSN-2026-MANDATORY-SEM-FIGURE-GENERATION-001)]

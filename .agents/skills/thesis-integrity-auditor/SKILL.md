@@ -147,6 +147,9 @@ python3 .agents/validators/run_all_validators.py --stage-dir <stage_dir> --tier 
 python3 .agents/validators/run_all_validators.py --stage-dir <stage_dir> --tier 2  # Forensic math & Statcheck
 ```
 
+### Decoupled Micro-Stage Gate Invariant
+In decoupled execution pipelines, validation gates must evaluate micro-stage triads (`.docx`, `.md`, `.json`) at the micro-stage boundary. Global directory-wide validation on `03_deliverables` is strictly blocked until all micro-stages in the phase have their complete triads on disk. Never run global validation when only intermediate computational JSON payloads exist without their paired `.docx` and `.md` deliverables.
+
 ### Actionable Repair Prescriptions (ARP):
 Whenever any check fails or is blocked, the engine outputs structured machine-readable repair recipes (`{prescription_id, tier, defect_type, severity, target_artifact, responsible_agent, remedy_instruction}`) so `academic-orchestrator` can dispatch targeted agent remediation.
 

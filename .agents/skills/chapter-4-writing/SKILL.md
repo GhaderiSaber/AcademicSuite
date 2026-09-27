@@ -47,6 +47,11 @@ Every micro-stage and hypothesis stage MUST produce a synchronized triad of phys
 2. **`.md`**: Scholarly Markdown narrative with clean APA 7 tables for immediate inspection and diffing.
 3. **`.json`**: Exact statistical parameters, test statistics, and audit checklists.
 
+**Decoupled Micro-Stage Gate Invariant:** In decoupled execution pipelines, validation gates must evaluate these triads at the micro-stage boundary. Global directory-wide validation on `03_deliverables` is blocked until all micro-stages in the phase have their complete triads on disk. Do not trigger global validation on intermediate JSON payloads before `.docx` and `.md` are fully synthesized.
+
+### 4.1.1 Atomic Micro-Stage Triad Synthesis Invariant
+Every micro-stage must sequentially and atomically generate its complete synchronized triad (`.docx`, `.md`, `.json`) before proceeding to subsequent stages or triggering validation gates. Fragmented pipeline states where statistical JSON payloads exist on disk without corresponding `.docx` and `.md` deliverables are strictly prohibited.
+
 ### 4.2 One-Hypothesis-One-Stage Invariant (اصل یک فرضیه = یک مرحله مجزا)
 Every individual research hypothesis or question must have its own dedicated, isolated micro-stage producing its own independent triad artifacts (e.g. `06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json`). Never lump multiple hypotheses into a single calculation or drafting step.
 

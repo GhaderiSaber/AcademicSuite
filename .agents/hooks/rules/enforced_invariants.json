@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-27T15:46:27.972233+00:00",
+  "updated_at": "2026-09-27T18:18:38.224122+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -557,6 +557,92 @@
       "remedy": "Apply Dynamic Syntactic Variation. Ensure each table's findings narrative is authored with authentic, distinct syntactic structure.",
       "enabled": true,
       "updated_at": "2026-09-27T15:46:27.972207+00:00"
+    },
+    "CAND-20260927-THESIS-INTEGRITY-001": {
+      "item_id": "CAND-20260927-THESIS-INTEGRITY-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "BAN-20260927-002: Premature global validation on 03_deliverables is blocked. Ensure all micro-stage triads (.docx, .md, .json) are complete.",
+      "target_agents": [
+        "academic-orchestrator",
+        "*"
+      ],
+      "target_skills": [
+        "METHODOLOGY",
+        "GENERAL_ACADEMIC"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "run_command",
+      "file_pattern": ".*",
+      "check_type": "regex_ban",
+      "pattern": "python3 .*run_all_validators\\.py --stage-dir 03_deliverables/?\\s",
+      "violation_message": "BAN-20260927-002: Premature global validation on 03_deliverables is blocked. Ensure all micro-stage triads (.docx, .md, .json) are complete.",
+      "remedy": "Wait until all micro-stage deliverables (.docx, .md, .json) are synthesized before running global validation, or target a specific micro-stage directory.",
+      "enabled": true,
+      "updated_at": "2026-09-27T17:35:51.044145+00:00"
+    },
+    "CAND-20260927-CHAPTER4-WRITING-001": {
+      "item_id": "CAND-20260927-CHAPTER4-WRITING-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "AP-2026-PREMATURE-GLOBAL-VALIDATION-DECOUPLED-TRIAD: Premature global validation blocked. Validate at micro-stage boundary first.",
+      "target_agents": [
+        "academic-orchestrator",
+        "*"
+      ],
+      "target_skills": [
+        "CHAPTER4",
+        "METHODOLOGY"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "run_command",
+      "file_pattern": ".*",
+      "check_type": "regex_ban",
+      "pattern": "python3 .*run_all_validators\\.py --stage-dir 03_deliverables/?\\s",
+      "violation_message": "AP-2026-PREMATURE-GLOBAL-VALIDATION-DECOUPLED-TRIAD: Premature global validation blocked. Validate at micro-stage boundary first.",
+      "remedy": "Target specific micro-stage directories for validation, or ensure all triads (.docx, .md, .json) are generated before running global validation.",
+      "enabled": true,
+      "updated_at": "2026-09-27T17:35:39.269013+00:00"
+    },
+    "CAND-2026-ATOMIC-TRIAD-CH4-001": {
+      "item_id": "CAND-2026-ATOMIC-TRIAD-CH4-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Atomic Micro-Stage Triad Synthesis Invariant violation: Fragmented pipeline state detected. You must sequentially and atomically generate its complete synchronized triad (.docx, .md, .json).",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC",
+        "CHAPTER4"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file",
+      "file_pattern": ".*\\\\.json$",
+      "check_type": "substring_ban",
+      "pattern": "FRAGMENTED_JSON_PAYLOAD_ONLY",
+      "violation_message": "Atomic Micro-Stage Triad Synthesis Invariant violation: Fragmented pipeline state detected. You must sequentially and atomically generate its complete synchronized triad (.docx, .md, .json).",
+      "remedy": "Ensure your micro-stage execution generates the complete triad (.docx, .md, .json) before proceeding or validating.",
+      "enabled": true,
+      "updated_at": "2026-09-27T18:18:37.979305+00:00"
+    },
+    "CAND-2026-ATOMIC-TRIAD-ORCH-001": {
+      "item_id": "CAND-2026-ATOMIC-TRIAD-ORCH-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Atomic Micro-Stage Triad Synthesis Invariant violation: Cannot validate fragmented JSON-only states.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "METHODOLOGY",
+        "PIPELINE_ORCHESTRATION"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "run_command",
+      "file_pattern": ".*",
+      "check_type": "regex_ban",
+      "pattern": "--validate-json-only",
+      "violation_message": "Atomic Micro-Stage Triad Synthesis Invariant violation: Cannot validate fragmented JSON-only states.",
+      "remedy": "Ensure the pipeline sequentially and atomically generates the complete synchronized triad (.docx, .md, .json) before validation.",
+      "enabled": true,
+      "updated_at": "2026-09-27T18:18:38.224090+00:00"
     }
   }
 }
