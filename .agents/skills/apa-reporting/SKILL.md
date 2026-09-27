@@ -14,7 +14,7 @@ Activate this skill when:
 - Converting raw statistical results (`.json`) into APA 7th Edition Markdown or Word tables.
 - Enforcing the 3-line horizontal border standard (zero vertical borders).
 - Formatting statistical metrics in narrative text (*M, SD, t, F, p, r, β, η², z*).
-- Applying the Persian leading zero standard (`۰.۰۰۱`, `۰.۰۵`) and dot decimal delimiter (`.`).
+- Enforce language-track-aware typography: For Persian manuscripts, use Persian leading zero standard (`۰.۰۰۱`, `۰.۰۵`). For English manuscripts, strictly use Western digits and omit leading zeros for bounded metrics (e.g., p < .001).
 - Decoupling numbers to LTR (`rtl="0"`) with `Times New Roman` in OpenXML tables so negative signs precede numbers ($-0.32$).
 
 ## 2. WHEN NOT TO USE (Exclusion Criteria)
@@ -150,3 +150,4 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 - **Lesson (LSN-2026-VARIABLE-COMPOSITE-ROW-INVARIANT-001)**: Always populate parent variable rows with overall/composite metrics; never create an empty parent row followed by a separate 'total' row. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-OPENXML-TRAILING-EDGE-INVERSION-001)**: For Right-aligned text under BiDi, omit <w:jc>. Ensure section properties declare <w:bidi/>. Use jc_val='both' only for narrative body. [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-REGRESSION-ANOVA-OPTION-A-STANDARD-001)**: In all regression ANOVA tables with multiple criterion variables, use a two-column structure: Column 1 ('متغیر ملاک') and Column 2 ('منبع تغییرات' with 'رگرسیون', 'باقیمانده', 'کل'). [Enforcement: results_auditor_guard.py]
+- **Lesson (LSN-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY)**: Enforce language-track-aware typography: English manuscripts must follow APA 7 English rules with Western digits and leading zeros omitted for bounded metrics. [Enforcement: results_auditor_guard.py]

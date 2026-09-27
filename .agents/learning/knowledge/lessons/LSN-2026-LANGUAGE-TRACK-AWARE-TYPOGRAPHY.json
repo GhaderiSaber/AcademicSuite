@@ -1,0 +1,39 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "EXP-2026-VALIDATION-FAIL-ENGLISH-TRACK",
+  "diagnosis": {
+    "what_happened": "Persian typography rules were blindly applied to an English manuscript, causing validation to fail.",
+    "behavior_caused_outcome": "The typography enforcement lacked a language context check, applying Persian invariants universally.",
+    "what_should_have_happened": "The pipeline should have checked the manuscript language track before applying typography rules.",
+    "rationale_why": "APA 7 formatting differs fundamentally by language, especially regarding digits and punctuation."
+  },
+  "desired_behavior": "Enforce language-track-aware typography: English manuscripts must follow APA 7 English rules with Western digits and leading zeros omitted for bounded metrics.",
+  "generalization": "Typography and formatting invariants must be strictly conditional on the target manuscript language.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "VALIDATION_FAILED",
+    "observed_value": "Persian digits in English output",
+    "threshold_value": "Zero tolerance for wrong language typography",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T06:03:06Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "statistics-agent",
+    "results-auditor"
+  ]
+}

@@ -144,7 +144,7 @@ The current local time is: 2026-09-25T19:49:25+03:30. [Enforcement: results_audi
   Approved Remedy: Use concise APA Latin symbols in table headers, define them in Persian in the note, and ensure pure Persian prose without raw English words.
 
 💡 Relevant Active Lessons:
-- [LSN-2026-PERSIAN-SCRIPT-ONLY-WITH-ENGLISH-FOOTNOTES-001] Mandate: Enforce zero Latin script in Persian body text. Transliterate all author names to Persian, use Persian equivalents for technical terms, and provide original English text strictly via footnotes.
+- **Lesson (LSN-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY)**: Enforce language-track-aware typography: English manuscripts must follow APA 7 English rules with Western digits and leading zeros omitted for bounded metrics. [Enforcement: results_auditor_guard.py]
   Generalization: Running Persian academic text must strictly contain zero Latin script words.
 
 ⚖️ Applicable Methodology Rules & Boundary Conditions:

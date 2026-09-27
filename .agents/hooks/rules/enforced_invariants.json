@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-26T17:41:42.832675+00:00",
+  "updated_at": "2026-09-27T02:37:28.281653+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -237,6 +237,50 @@
       "remedy": "Implement methodology-aware validation branching.",
       "enabled": true,
       "updated_at": "2026-09-26T17:41:42.832655+00:00"
+    },
+    "CAND-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY": {
+      "item_id": "CAND-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY",
+      "category": "Learned Mechanical Rule",
+      "statement": "Language-Track Typography Violation: English manuscripts must omit the leading zero for bounded metrics (e.g., p < .001, not p < 0.001) per APA 7.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC",
+        "METHODOLOGY"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*_English.*\\.(md|docx|txt)$",
+      "check_type": "regex_ban",
+      "pattern": "(?i)p\\s*[<>=]\\s*0\\.\\d+",
+      "violation_message": "Language-Track Typography Violation: English manuscripts must omit the leading zero for bounded metrics (e.g., p < .001, not p < 0.001) per APA 7.",
+      "remedy": "Remove the leading zero for p-values and correlation coefficients in English documents. Ensure Western digits are used.",
+      "enabled": true,
+      "updated_at": "2026-09-27T02:37:15.747257+00:00"
+    },
+    "LSN-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY": {
+      "item_id": "LSN-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY",
+      "category": "Lesson",
+      "statement": "Enforce language-track-aware typography: English manuscripts must follow APA 7 English rules with Western digits and leading zeros omitted for bounded metrics.",
+      "target_agents": [
+        "academic-writer",
+        "statistics-agent",
+        "results-auditor"
+      ],
+      "target_skills": [
+        "apa-reporting",
+        "chapter-4-writing"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "def enforce_persian_digits\\([^)]*\\):",
+      "violation_message": "Enforce language-track-aware typography: English manuscripts must follow APA 7 English rules with Western digits and leading zeros omitted for bounded metrics.",
+      "remedy": "Enforce language-track-aware typography: English manuscripts must follow APA 7 English rules with Western digits and leading zeros omitted for bounded metrics.",
+      "enabled": true,
+      "updated_at": "2026-09-27T02:37:28.281638+00:00"
     }
   }
 }
