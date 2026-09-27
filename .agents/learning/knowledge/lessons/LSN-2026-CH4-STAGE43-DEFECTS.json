@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-CH4-STAGE43-DEFECTS",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "EXP-2026-CH4-STAGE43-VAL",
+  "diagnosis": {
+    "what_happened": "Table captions in parametric assumptions were bolded and Persian narrative paragraphs were not justified.",
+    "behavior_caused_outcome": "The academic-writer used bold formatting (**...**) for table captions and omitted the <w:jc w:val='both'/> tag in DOCX narrative paragraphs.",
+    "what_should_have_happened": "Table captions must be regular weight B Nazanin 12pt, and all Persian narrative text must be explicitly justified.",
+    "rationale_why": "Institutional and APA 7 guidelines explicitly prohibit bold table captions. Full justification is mandatory for Persian narrative formatting."
+  },
+  "observed_failure": {
+    "defect_type": "REPORTING_OR_TYPOGRAPHY_DEFECT",
+    "description": "Validation checks failed on Stage 4.3 deliverable due to bold table captions and missing justification in Persian narrative.",
+    "failing_artifact_path": "03_deliverables/03_parametric_assumptions.md"
+  },
+  "desired_behavior": "Enforce non-bold table captions in markdown and explicitly add justification tags (<w:jc w:val='both'/>) to Persian narrative paragraphs in DOCX.",
+  "generalization": "Adhere strictly to APA 7th Edition formatting rules (no bold captions) and enforce explicit alignment tags in OpenXML for Persian text.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "run_all_validators.py typography checks",
+    "observed_value": "Bold text and missing <w:jc>",
+    "threshold_value": "0 occurrences",
+    "supporting_report_ids": ["VAL-20260927065027"],
+    "supporting_artifact_paths": ["03_deliverables/03_validation_report.json"]
+  },
+  "related_skills": ["apa-reporting", "chapter-4-writing", "ai-academic-tone-polisher"],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "derived_by": "validation-agent",
+  "target_agent": "academic-writer",
+  "target_agents": ["academic-writer"],
+  "created_at": "2026-09-27T10:23:45+03:30",
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+  "graduation_status": "PENDING_GRADUATION"
+}
