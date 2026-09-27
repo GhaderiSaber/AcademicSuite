@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-PREMATURE-GLOBAL-VALIDATION-DECOUPLED-TRIAD",
+  "category": "execution",
+  "defective_pattern": "Triggering global directory-wide validation on 03_deliverables in decoupled pipelines when only JSON payloads are generated, before .md and .docx artifacts are synthesized.",
+  "why_defective": "Causes validation cascade failures because uncertified or outdated draft artifacts contaminate validation suites, violating the Triad Invariant (Directive 3).",
+  "observed_symptoms": [
+    "Validation cascade failures in decoupled pipelines",
+    "Validation checks running on incomplete Triad states"
+  ],
+  "corrective_remedy": "Delay global validation gates until all corresponding micro-stage .md and .docx deliverables are fully synthesized and synchronized to fulfill Directive 3.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect invocation of validation-agent or global validation tools on 03_deliverables when a decoupled pipeline has not completed Triad synchronization.",
+    "regex_patterns": ["(?i)validate.*03_deliverables.*before.*triad.*sync"],
+    "pattern": "(?i)validate.*03_deliverables.*before.*triad.*sync",
+    "check_type": "substring_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "validation-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T20:57:49Z"
+}

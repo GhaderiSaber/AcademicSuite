@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-DECOUPLED-PAYLOAD-TRIAD-FRAGMENTATION",
+  "category": "execution",
+  "defective_pattern": "Generating isolated JSON statistical payloads in micro-stages without synchronously synthesizing and emitting the corresponding Markdown (.md) and Word (.docx) deliverables before triggering validation or declaring completion.",
+  "why_defective": "Violates Directive 3 Triad Invariant. It fragments the deliverables, decoupling data from narrative and formatting, and causes validation cascades to fail because the triad is incomplete.",
+  "observed_symptoms": [
+    "Validation failures complaining about missing .md or .docx files.",
+    "Micro-stage completes but leaves only .json files.",
+    "Decoupled pipelines triggering global validation too early."
+  ],
+  "corrective_remedy": "Micro-stage execution must sequentially and completely synthesize all three components (.json, .md, .docx) within the same micro-stage phase before triggering directory-wide validation gates or declaring the micro-stage complete.",
+  "detection_heuristic": {
+    "trigger_rule": "Detecting micro-stage completion or validation trigger when only JSON payload has been created and MD/DOCX are missing",
+    "regex_patterns": [
+      "(?s)trigger_validation.*\\.json.*(?!(?:\\.md|\\.docx))"
+    ],
+    "pattern": "(?s)trigger_validation.*\\.json.*(?!(?:\\.md|\\.docx))",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "chapter-4-writing",
+    "chapter-5-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T21:42:20Z"
+}

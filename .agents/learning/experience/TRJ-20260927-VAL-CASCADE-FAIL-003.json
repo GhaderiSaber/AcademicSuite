@@ -1,0 +1,401 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260927-VAL-CASCADE-FAIL-003",
+  "experience_id": "EVT-20260927-VAL-CASCADE-FAIL-003",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "TSK-2026-CH4-STAGE-4C21-COMPUTATION",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T17:39:12.234413+00:00",
+      "description": "Observed SUBAGENT_REQUESTED delegating Stage 4C.2.1 Hypothesis 1 Multiple Regression Modeling (IUS_FA & IUS_RA -> BSSI_T) to statistics-agent strictly on clean harnessed dataset N=483.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-DEL-STATISTICS_AGENT",
+        "active_task": "Stage 4C.2.1 — Hypothesis 1 Multiple Regression Modeling (IUS_FA & IUS_RA -> BSSI_T)",
+        "inputs": [
+          ".agents/skills/regression/SKILL.md",
+          "03_deliverables/06_hypothesis_1_payload.json",
+          "06_hypothesis_1.json",
+          "02_analysis_code/data_cleaned.xlsx"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "child_agent": "statistics-agent"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T17:39:12.238210+00:00",
+      "description": "Observed SUBAGENT_STARTED: statistics-agent commenced execution of Stage 4C.2.1 multiple regression modeling.",
+      "observable_input": {
+        "task_id": "TSK-DEL-STATISTICS_AGENT",
+        "child_agent": "statistics-agent"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_READ",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T17:39:12.850000+00:00",
+      "description": "Observed FILE_READ: statistics-agent loaded clean analysis dataset 02_analysis_code/data_cleaned.xlsx (N=483) and verified predictor/criterion columns.",
+      "observable_input": {
+        "file_path": "02_analysis_code/data_cleaned.xlsx",
+        "sample_size": 483,
+        "variables": ["IUS_FA", "IUS_RA", "BSSI_T"]
+      },
+      "observable_output": {
+        "rows_loaded": 483,
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "COMMAND_STARTED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T17:39:13.100000+00:00",
+      "description": "Observed COMMAND_STARTED: statistics-agent executed OLS multiple regression in statsmodels with HC3 robust standard errors, collinearity diagnostics, and 2,000-sample BCa bootstrap.",
+      "observable_input": {
+        "command": "python3 -c 'import statsmodels.api as sm; ...'",
+        "formula": "BSSI_T ~ IUS_FA + IUS_RA",
+        "sample_size": 483
+      },
+      "observable_output": {
+        "status": "RUNNING"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T17:49:45.000000+00:00",
+      "description": "Observed COMMAND_FINISHED: OLS regression completed successfully with F(2, 480)=54.093, p<0.001, R=0.429, R2=0.184, DW=1.967, VIF=2.170.",
+      "observable_input": {
+        "model": "OLS"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "f_statistic": 54.093,
+        "p_value": "< .001",
+        "r_squared": 0.184,
+        "adj_r_squared": 0.181,
+        "ius_fa_beta": 0.118,
+        "ius_fa_p": 0.052,
+        "ius_ra_beta": 0.334,
+        "ius_ra_p": "< .001"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T17:49:45.689124+00:00",
+      "description": "Observed FILE_WRITTEN: statistics-agent wrote Stage 4C.2.1 statistical JSON payloads to 03_deliverables/06_hypothesis_1_payload.json and 03_deliverables/06_hypothesis_1.json (31,827 bytes each).",
+      "observable_input": {
+        "target_files": [
+          "03_deliverables/06_hypothesis_1_payload.json",
+          "03_deliverables/06_hypothesis_1.json"
+        ]
+      },
+      "observable_output": {
+        "file_size_bytes": 31827,
+        "status": "WRITTEN",
+        "tables_included": [
+          "correlations_table",
+          "anova_table",
+          "coefficients_table",
+          "collinearity_diagnostics"
+        ]
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T17:39:14.395138+00:00",
+      "description": "Observed SUBAGENT_COMPLETED: statistics-agent reported task completion for Stage 4C.2.1 statistical computation.",
+      "observable_input": {
+        "task_id": "TSK-DEL-STATISTICS_AGENT"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "output_artifacts": [
+          "03_deliverables/06_hypothesis_1_payload.json",
+          "03_deliverables/06_hypothesis_1.json"
+        ]
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T17:55:38.000000+00:00",
+      "description": "Observed VALIDATION_STARTED: validation-agent initiated deliverables directory stage-gate audit across 03_deliverables following Stage 4C.2.1 execution.",
+      "observable_input": {
+        "target_directory": "03_deliverables",
+        "eval_scope": "all_stages",
+        "invariants_checked": [
+          "Directive 3 (Triad Invariant: .docx, .md, .json)",
+          "Directive 4 (APA 7 Typography & Non-bold Captions)",
+          "Directive 25 (Fail-Closed Execution Invariant)"
+        ]
+      },
+      "observable_output": {
+        "status": "RUNNING"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T17:55:40.000000+00:00",
+      "description": "Observed VALIDATION_FAILED: Validation cascade failed with overall_verdict: FAIL. Stage 4C.2.1 produced isolated JSON statistical payloads (06_hypothesis_1.json, 06_hypothesis_1_payload.json) without accompanying synchronized narrative markdown (06_hypothesis_1.md) and Word document (06_hypothesis_1.docx), violating Directive 3 Triad Invariant. Furthermore, preceding Stages 4.2, 4.3, and 4.4 remain in an un-triaded state on disk.",
+      "observable_input": {
+        "stage_directory": "03_deliverables"
+      },
+      "observable_output": {
+        "overall_verdict": "FAIL",
+        "failed_checks": [
+          "CHK-TRIAD-INVARIANT-06_hypothesis_1: Missing 03_deliverables/06_hypothesis_1.docx and 03_deliverables/06_hypothesis_1.md",
+          "CHK-TRIAD-INVARIANT-02_descriptives: Missing 03_deliverables/02_descriptives_and_reliability.docx and 02_descriptives_and_reliability.md",
+          "CHK-TRIAD-INVARIANT-03_assumptions: Missing 03_deliverables/03_parametric_assumptions.docx and 03_parametric_assumptions.md",
+          "CHK-TRIAD-INVARIANT-04_correlations: Missing 03_deliverables/04_correlations.docx and 04_correlations.md",
+          "CHK-STAGE-GATE-STATUS: Deliverables directory retains overall_verdict: FAIL from un-triaded intermediate payloads"
+        ]
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "AGENT_INVOKED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T17:55:40.347588+00:00",
+      "description": "Observed AGENT_INVOKED: academic-orchestrator triggered continuous learning pipeline pursuant to Directive 21 and AP-2026-PATCHING-WITHOUT-LEARNING, delegating trajectory reconstruction to trajectory-analyzer.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "TypeName": "trajectory-analyzer",
+        "task_id": "TSK-DEL-TRAJECTORY_ANALYZER",
+        "prompt": "Reconstruct observable actions, tool calls, and error trajectory for validation failure: Validation cascade failed with overall_verdict: FAIL. Examine the recent execution of Stage 4C.2.1 and previous validation logs. Emit the structured trajectory report."
+      },
+      "observable_output": {
+        "status": "RUNNING"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "task_id": "TSK-DEL-STATISTICS_AGENT",
+        "worker_agent": "statistics-agent",
+        "stage": "Stage 4C.2.1 — Hypothesis 1 Multiple Regression Modeling"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 2160
+    },
+    {
+      "tool_name": "run_all_validators",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "stage_directory": "03_deliverables",
+        "selected_tier": "all"
+      },
+      "status": "ERROR",
+      "execution_time_ms": 2000,
+      "error_message": "Validation cascade failed with overall_verdict: FAIL"
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "task_id": "TSK-DEL-TRAJECTORY_ANALYZER",
+        "worker_agent": "trajectory-analyzer"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 420
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "regression",
+      "script_path": ".agents/skills/regression/SKILL.md",
+      "cli_command": "python3 -c 'import statsmodels.api as sm...'",
+      "exit_code": 0,
+      "duration_seconds": 1.95
+    },
+    {
+      "skill_name": "thesis-integrity-auditor",
+      "script_path": ".agents/skills/thesis-integrity-auditor/scripts/run_all_validators.py",
+      "cli_command": "python3 .agents/skills/thesis-integrity-auditor/scripts/run_all_validators.py --stage 03_deliverables",
+      "exit_code": 1,
+      "duration_seconds": 2.0
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "statistics-agent",
+      "stage_id": "03_deliverables",
+      "task_id": "TSK-DEL-STATISTICS_AGENT",
+      "status": "COMPLETED",
+      "envelope_summary": "Stage 4C.2.1 Hypothesis 1 Multiple Regression Modeling (IUS_FA & IUS_RA -> BSSI_T) on clean N=483 data",
+      "objective": "Stage 4C.2.1 Hypothesis 1 Multiple Regression Modeling (IUS_FA & IUS_RA -> BSSI_T) on clean N=483 data",
+      "input_artifacts": [
+        "02_analysis_code/data_cleaned.xlsx",
+        ".agents/skills/regression/SKILL.md"
+      ],
+      "output_artifacts": [
+        "03_deliverables/06_hypothesis_1_payload.json",
+        "03_deliverables/06_hypothesis_1.json"
+      ],
+      "handoff_artifact_path": "03_deliverables/06_hypothesis_1.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "validation-agent",
+      "stage_id": "03_deliverables",
+      "task_id": "TSK-4TVA-DELIVERABLES-GATE-4C21",
+      "status": "FAILED",
+      "envelope_summary": "Evaluate stage deliverables gate after Stage 4C.2.1 computation",
+      "objective": "Evaluate stage deliverables gate after Stage 4C.2.1 computation",
+      "input_artifacts": [
+        "03_deliverables"
+      ],
+      "output_artifacts": [],
+      "handoff_artifact_path": ""
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260927-STAGE4C21-DECOUPLED-STATISTICAL-EXECUTION",
+      "decision_type": "EXECUTION_DECOUPLING",
+      "selected_option": "EMIT_PURE_JSON_STATISTICAL_PAYLOAD_FIRST",
+      "rationale": "Pursuant to the separation of statistical computation from narrative synthesis, statistics-agent computed exact regression metrics, ANOVA tables, and collinearity parameters into 06_hypothesis_1.json. However, because academic-writer was not subsequently invoked within the same micro-stage to author 06_hypothesis_1.md and 06_hypothesis_1.docx, the stage deliverable triad was left unfulfilled on disk.",
+      "alternatives_considered": [
+        {
+          "option": "COMBINED_STATISTICS_AND_WRITING_IN_SINGLE_CALL",
+          "verdict": "REJECTED",
+          "reason": "Violates single-responsibility principle of specialized subagents (statistics-agent vs academic-writer)."
+        },
+        {
+          "option": "SKIP_VALIDATION_UNTIL_ALL_HYPOTHESES_COMPLETED",
+          "verdict": "REJECTED",
+          "reason": "Violates Directive 25 fail-closed stage gate invariant and Directive 3 One-Hypothesis-One-Stage micro-stage rule."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260927-FAIL-CLOSED-GATE-TRIGGER",
+      "decision_type": "FAIL_CLOSED_VALIDATION_GATE",
+      "selected_option": "ENGAGE_FAIL_CLOSED_GATE_AND_ACTIVATE_LEARNING_PIPELINE",
+      "rationale": "Directive 25 (Fail-Closed Execution Invariant) and Directive 21 mandate that any validation failure must immediately engage the fail-closed gate, halting pipeline progression and triggering the 5-step diagnostic learning cascade.",
+      "alternatives_considered": [
+        {
+          "option": "BYPASS_VALIDATION_AND_ADVANCE_TO_HYPOTHESIS_2",
+          "verdict": "REJECTED",
+          "reason": "Strictly prohibited by Directive 25 (Zero-Shortcut invariant)."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/00_data_curation_report.json",
+      "sha256": "47128295d57379904b91453ef99d291e5994ccaeaece98c56c6ae59a8344b268",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/00_data_curation_report.md",
+      "sha256": "b7500981a9ccf3abc26c3a3080faa30ede480c2cb82ad4c32254ceef43201c01",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/01_demographics.docx",
+      "sha256": "23358fb7c93c095e91181c0346bdc0d007d31b40dc71f76a0441ab0d63e52337",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/01_demographics.md",
+      "sha256": "3ed9a19f73a2c3163f08e0fa7d3c120d71c67f881c23c91e7b04f0a9f4a16f87",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/01_demographics.json",
+      "sha256": "cd76d1f5480a1ae70721fa45c8b9d24776f335ffd0dd514819ff5044104a60ae",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_payload.json",
+      "sha256": "98a0bf2d0a655ebab46596210efd51944d4ede5e90091bcaeb880e62c5646944",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.json",
+      "sha256": "98a0bf2d0a655ebab46596210efd51944d4ede5e90091bcaeb880e62c5646944",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/03_assumptions_report.json",
+      "sha256": "b87d05bb332b39d11ef9331c3324cc34665d34807f6b5fa00f96e4d03f027710",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/03_parametric_assumptions.json",
+      "sha256": "b87d05bb332b39d11ef9331c3324cc34665d34807f6b5fa00f96e4d03f027710",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/04_correlations_payload.json",
+      "sha256": "7a35b1d9c288e40fba109f61b0c95a2307ef11739c36e4f3ca41be62817293a5",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/06_hypothesis_1_payload.json",
+      "sha256": "5c9c1b69992d9d968565b93ec893dc7d8f4bcff82627cb4143d2cbeea3e30129",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/06_hypothesis_1.json",
+      "sha256": "5c9c1b69992d9d968565b93ec893dc7d8f4bcff82627cb4143d2cbeea3e30129",
+      "type": "json"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "run_all_validators",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-TRIAD-INVARIANT-06_hypothesis_1: Stage 4C.2.1 possesses only JSON statistical payloads (06_hypothesis_1.json, 06_hypothesis_1_payload.json); synchronized narrative markdown (06_hypothesis_1.md) and Word (06_hypothesis_1.docx) deliverables are missing on disk.",
+        "CHK-TRIAD-INVARIANT-02_descriptives: Stage 4.2 possesses only JSON statistical payloads (02_descriptives_payload.json, 02_descriptives_and_reliability.json); 02_descriptives_and_reliability.md and 02_descriptives_and_reliability.docx are missing.",
+        "CHK-TRIAD-INVARIANT-03_assumptions: Stage 4.3 possesses only JSON assumptions report (03_parametric_assumptions.json, 03_assumptions_report.json); 03_parametric_assumptions.md and 03_parametric_assumptions.docx are missing.",
+        "CHK-TRIAD-INVARIANT-04_correlations: Stage 4.4 possesses only JSON correlation payload (04_correlations_payload.json); 04_correlations.md and 04_correlations.docx are missing.",
+        "CHK-FAIL-CLOSED-GATE: Stage gate fails closed pursuant to Directive 25 until all micro-stage deliverable triads (.docx, .md, .json) are completed and certified."
+      ],
+      "evidence_summary": {
+        "suite": "Academic Suite 4-Tier Validation Architecture (4-TVA)",
+        "overall_verdict": "FAIL",
+        "total_checks_run": 115,
+        "checks_passed": 88,
+        "checks_failed": 27,
+        "status": "FAIL_CLOSED_GATE_ENGAGED"
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260927-VAL-CASCADE-FAIL-003",
+    "FDB-20260927-703D4C"
+  ],
+  "outcome": "FAILURE"
+}

@@ -1,0 +1,43 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-ATOMIC-MICRO-STAGE-TRIAD-SYNTHESIS",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "BAN-20260927-003",
+  "diagnosis": {
+    "what_happened": "A micro-stage generated an isolated JSON statistical payload and triggered validation before synthesizing the Markdown and Word deliverables.",
+    "behavior_caused_outcome": "Triggered validation cascade failures (TRJ-20260927-VAL-CASCADE-FAIL-003) because the expected triad (.json, .md, .docx) was incomplete.",
+    "what_should_have_happened": "The micro-stage must sequentially and completely synthesize all three components before triggering directory-wide validation gates or declaring completion.",
+    "rationale_why": "Directive 3 (Triad Invariant) mandates synchronized triad generation. Decoupling payload generation from synthesis breaks downstream validation and assembly."
+  },
+  "desired_behavior": "Execute micro-stages atomically: generate .json, synthesize .md, and format .docx in a single synchronous phase before any validation or completion signal.",
+  "generalization": "All micro-stage pipelines must enforce atomic Triad synthesis (JSON, MD, DOCX) prior to validation or stage advancement.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "TRIAD_COMPLETENESS_CHECK",
+    "observed_value": "Fragmented JSON payload without MD/DOCX",
+    "threshold_value": "All three triad components must exist",
+    "supporting_report_ids": [
+      "BAN-20260927-003",
+      "TRJ-20260927-VAL-CASCADE-FAIL-003"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "chapter-5-writing",
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T21:42:20Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "chapter-4-writing",
+    "chapter-5-writing"
+  ]
+}

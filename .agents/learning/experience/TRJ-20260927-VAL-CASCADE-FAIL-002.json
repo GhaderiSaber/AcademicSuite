@@ -1,0 +1,525 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260927-VAL-CASCADE-FAIL-002",
+  "experience_id": "EVT-20260927-VAL-CASCADE-FAIL-002",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "03_deliverables_validation",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T08:53:34.524844+00:00",
+      "description": "Observed VALIDATION_FAILED: Initial 4-Tier Validation Architecture (4-TVA) cascade audit failed on 03_deliverables with overall_verdict: FAIL (25 checks failed out of 115).",
+      "observable_input": {
+        "suite": "Academic Suite 4-Tier Validation Architecture (4-TVA)",
+        "stage_directory": "03_deliverables",
+        "selected_tier": "all"
+      },
+      "observable_output": {
+        "overall_verdict": "FAIL",
+        "checks_run": 115,
+        "checks_passed": 88,
+        "checks_failed": 25,
+        "primary_defects": [
+          "CHK-APA7-TABLE-BORDERS: Missing statistical tables in report drafts and vertical cell borders present",
+          "CHK-TABLE-CAPTION-TYPOGRAPHY: Bold table captions violating APA 7 standard",
+          "CHK-NARRATIVE-JUSTIFICATION: Missing <w:jc w:val='both'/> justification tags in OpenXML paragraphs",
+          "CHK-SABER-4ELEMENT-NARRATIVE: Missing definitive hypothesis verdicts and data highlights",
+          "CHK-ENGLISH-WORD-LEAKAGE: Untranslated English acronyms in Persian tables"
+        ]
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T16:08:15.269415+00:00",
+      "description": "Observed SUBAGENT_REQUESTED delegating Stage 4.2 Descriptives & Reliability computation to statistics-agent on clean harnessed N=483 data.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-STAGE-4B2-COMPUTATION"
+      },
+      "observable_output": {
+        "child_agent": "statistics-agent",
+        "objective": "Deterministically compute scale descriptives and alpha/omega reliabilities on clean N=483 data.",
+        "input_artifacts": ["02_analysis_code/data_cleaned.xlsx"]
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T16:25:12.750952+00:00",
+      "description": "Observed FILE_WRITTEN writing Stage 4.2 statistical JSON payload to 03_deliverables/02_descriptives_payload.json.",
+      "observable_input": {
+        "target_file": "03_deliverables/02_descriptives_payload.json"
+      },
+      "observable_output": {
+        "file_path": "03_deliverables/02_descriptives_payload.json",
+        "sample_size": 483,
+        "variables_evaluated": 11,
+        "status": "WRITTEN"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T16:36:44.867781+00:00",
+      "description": "Observed SUBAGENT_REQUESTED delegating Stage 4.3 Parametric Assumptions Verification to statistics-agent.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-STAGE-4B3-COMPUTATION"
+      },
+      "observable_output": {
+        "child_agent": "statistics-agent",
+        "objective": "Deterministically verify multicollinearity (VIF/Tolerance), Durbin-Watson, and residual normality on clean N=483 data.",
+        "input_artifacts": ["02_analysis_code/data_cleaned.xlsx", "03_deliverables/02_descriptives_payload.json"]
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T16:36:46.077211+00:00",
+      "description": "Observed FILE_WRITTEN writing Stage 4.3 assumptions report to 03_deliverables/03_assumptions_report.json.",
+      "observable_input": {
+        "target_file": "03_deliverables/03_assumptions_report.json"
+      },
+      "observable_output": {
+        "file_path": "03_deliverables/03_assumptions_report.json",
+        "sample_size": 483,
+        "vif_max": 2.14,
+        "status": "WRITTEN"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T16:50:32.818636+00:00",
+      "description": "Observed FILE_WRITTEN synchronizing canonical prerequisite deliverables 03_parametric_assumptions.json and 02_descriptives_and_reliability.json.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4B3-PARAMETRIC-JSON"
+      },
+      "observable_output": {
+        "synchronized_artifacts": [
+          "03_deliverables/03_parametric_assumptions.json",
+          "03_deliverables/02_descriptives_and_reliability.json"
+        ],
+        "status": "WRITTEN"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T16:52:23.709410+00:00",
+      "description": "Observed SUBAGENT_REQUESTED delegating Stage 4.4 Bivariate Correlation Matrix Analysis to statistics-agent.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-STAGE-4B4-COMPUTATION"
+      },
+      "observable_output": {
+        "child_agent": "statistics-agent",
+        "objective": "Deterministically compute 11x11 Pearson correlation matrix across all focal subscales on clean N=483 data.",
+        "input_artifacts": ["02_analysis_code/data_cleaned.xlsx"]
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T16:52:24.988592+00:00",
+      "description": "Observed FILE_WRITTEN generating Stage 4.4 bivariate correlation payload to 03_deliverables/04_correlations_payload.json.",
+      "observable_input": {
+        "target_file": "03_deliverables/04_correlations_payload.json"
+      },
+      "observable_output": {
+        "file_path": "03_deliverables/04_correlations_payload.json",
+        "sample_size": 483,
+        "unique_pairs": 55,
+        "status": "WRITTEN"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T17:12:11.557261+00:00",
+      "description": "Observed SUBAGENT_REQUESTED delegating candidate rule verification to evaluation-agent ahead of Stage 4C.2.1 direct hypothesis testing.",
+      "observable_input": {
+        "child_agent": "evaluation-agent",
+        "candidates": [
+          "CAND-2026-CH4-DYNAMIC-NARRATION",
+          "CAND-2026-CH4-ZERO-INTERPRETATION",
+          "CAND-20260927-SEM-REG-001"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "evaluation-agent",
+      "timestamp": "2026-09-27T17:12:12.774174+00:00",
+      "description": "Observed SUBAGENT_COMPLETED confirming candidate rules registered in enforced_invariants.json with zero benchmark regressions.",
+      "observable_input": {
+        "candidates": ["CAND-2026-CH4-DYNAMIC-NARRATION", "CAND-2026-CH4-ZERO-INTERPRETATION", "CAND-20260927-SEM-REG-001"]
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "benchmarks_passed": true
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T17:16:28.000000+00:00",
+      "description": "Observed VALIDATION_STARTED evaluating 03_deliverables directory integrity prior to advancing to Stage 4C multiple regression.",
+      "observable_input": {
+        "stage_directory": "03_deliverables",
+        "invariants_checked": ["Directive 3 Triad Invariant", "Directive 25 Fail-Closed Gate", "APA 7 Table & Caption Rules"]
+      },
+      "observable_output": {
+        "status": "RUNNING"
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T17:16:29.000000+00:00",
+      "description": "Observed VALIDATION_FAILED: Validation cascade failed with overall_verdict: FAIL. Stage 4B produced isolated JSON statistical payloads (02_descriptives_payload.json, 03_parametric_assumptions.json, 04_correlations_payload.json) without accompanying synchronized markdown (.md) and Word (.docx) deliverables, violating Directive 3 Triad Invariant.",
+      "observable_input": {
+        "stage_directory": "03_deliverables"
+      },
+      "observable_output": {
+        "overall_verdict": "FAIL",
+        "failed_checks": [
+          "CHK-TRIAD-INVARIANT-02_descriptives: Missing 02_descriptives_and_reliability.docx and 02_descriptives_and_reliability.md",
+          "CHK-TRIAD-INVARIANT-03_assumptions: Missing 03_parametric_assumptions.docx and 03_parametric_assumptions.md",
+          "CHK-TRIAD-INVARIANT-04_correlations: Missing 04_correlations.docx and 04_correlations.md",
+          "CHK-STAGE-GATE-STATUS: Global deliverables directory retains overall_verdict: FAIL from uncertified draft artifacts"
+        ]
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "AGENT_INVOKED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T17:16:29.070672+00:00",
+      "description": "Observed AGENT_INVOKED: academic-orchestrator activated continuous learning trigger pursuant to Directive 21 and AP-2026-PATCHING-WITHOUT-LEARNING, delegating observable trajectory reconstruction to trajectory-analyzer.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "TypeName": "trajectory-analyzer",
+        "task_id": "TSK-DEL-TRAJECTORY_ANALYZER",
+        "prompt": "Reconstruct observable actions, tool calls, and error trajectory for validation failure: Validation cascade failed with overall_verdict: FAIL."
+      },
+      "observable_output": {
+        "status": "RUNNING"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "task_id": "TSK-2026-CH4-STAGE-4B2-COMPUTATION",
+        "worker_agent": "statistics-agent"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1220
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "task_id": "TSK-2026-CH4-STAGE-4B3-COMPUTATION",
+        "worker_agent": "statistics-agent"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1150
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "task_id": "TSK-2026-CH4-STAGE-4B3-PARAMETRIC-JSON",
+        "worker_agent": "statistics-agent"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 670
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "task_id": "TSK-2026-CH4-STAGE-4B4-COMPUTATION",
+        "worker_agent": "statistics-agent"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1280
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "task_id": "TSK-DEL-EVALUATION_AGENT",
+        "worker_agent": "evaluation-agent"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1210
+    },
+    {
+      "tool_name": "run_all_validators",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "stage_directory": "03_deliverables",
+        "selected_tier": "all"
+      },
+      "status": "ERROR",
+      "execution_time_ms": 4820,
+      "error_message": "Validation cascade failed with overall_verdict: FAIL"
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 7,
+      "arguments_summary": {
+        "task_id": "TSK-DEL-TRAJECTORY_ANALYZER",
+        "worker_agent": "trajectory-analyzer"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 380
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "descriptive-statistics",
+      "script_path": ".agents/skills/descriptive-statistics/scripts/calculate_descriptives.py",
+      "cli_command": "python3 -c 'import pandas as pd...'",
+      "exit_code": 0,
+      "duration_seconds": 1.2
+    },
+    {
+      "skill_name": "assumption-testing",
+      "script_path": ".agents/skills/assumption-testing/scripts/verify_parametric_assumptions.py",
+      "cli_command": "python3 -c 'import statsmodels...'",
+      "exit_code": 0,
+      "duration_seconds": 1.8
+    },
+    {
+      "skill_name": "thesis-integrity-auditor",
+      "script_path": ".agents/skills/thesis-integrity-auditor/scripts/run_all_validators.py",
+      "cli_command": "python3 .agents/skills/thesis-integrity-auditor/scripts/run_all_validators.py --stage 03_deliverables",
+      "exit_code": 1,
+      "duration_seconds": 5.4
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "statistics-agent",
+      "stage_id": "03_deliverables",
+      "task_id": "TSK-2026-CH4-STAGE-4B2-COMPUTATION",
+      "status": "COMPLETED",
+      "envelope_summary": "Deterministically compute scale descriptives and alpha/omega reliabilities on clean N=483 data",
+      "objective": "Deterministically compute scale descriptives and alpha/omega reliabilities on clean N=483 data",
+      "input_artifacts": [
+        "02_analysis_code/data_cleaned.xlsx"
+      ],
+      "output_artifacts": [
+        "03_deliverables/02_descriptives_payload.json"
+      ],
+      "handoff_artifact_path": "03_deliverables/02_descriptives_payload.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "statistics-agent",
+      "stage_id": "03_deliverables",
+      "task_id": "TSK-2026-CH4-STAGE-4B3-COMPUTATION",
+      "status": "COMPLETED",
+      "envelope_summary": "Deterministically verify multicollinearity (VIF/Tolerance), Durbin-Watson, and residual normality on clean N=483 data",
+      "objective": "Deterministically verify multicollinearity (VIF/Tolerance), Durbin-Watson, and residual normality on clean N=483 data",
+      "input_artifacts": [
+        "02_analysis_code/data_cleaned.xlsx",
+        "03_deliverables/02_descriptives_payload.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/03_assumptions_report.json"
+      ],
+      "handoff_artifact_path": "03_deliverables/03_assumptions_report.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "statistics-agent",
+      "stage_id": "03_deliverables",
+      "task_id": "TSK-2026-CH4-STAGE-4B4-COMPUTATION",
+      "status": "COMPLETED",
+      "envelope_summary": "Deterministically compute 11x11 Pearson correlation matrix across all focal subscales on clean N=483 data",
+      "objective": "Deterministically compute 11x11 Pearson correlation matrix across all focal subscales on clean N=483 data",
+      "input_artifacts": [
+        "02_analysis_code/data_cleaned.xlsx"
+      ],
+      "output_artifacts": [
+        "03_deliverables/04_correlations_payload.json"
+      ],
+      "handoff_artifact_path": "03_deliverables/04_correlations_payload.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "evaluation-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "evaluation-agent",
+      "stage_id": "03_deliverables",
+      "task_id": "TSK-DEL-EVALUATION_AGENT",
+      "status": "COMPLETED",
+      "envelope_summary": "Verify candidate rules remain fully registered in enforced_invariants.json with zero regressions",
+      "objective": "Verify candidate rules remain fully registered in enforced_invariants.json with zero regressions",
+      "input_artifacts": [
+        ".agents/hooks/rules/enforced_invariants.json"
+      ],
+      "output_artifacts": [],
+      "handoff_artifact_path": ""
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "validation-agent",
+      "stage_id": "03_deliverables",
+      "task_id": "TSK-4TVA-DELIVERABLES-GATE",
+      "status": "FAILED",
+      "envelope_summary": "Evaluate stage deliverables gate ahead of Stage 4C hypothesis modeling",
+      "objective": "Evaluate stage deliverables gate ahead of Stage 4C hypothesis modeling",
+      "input_artifacts": [
+        "03_deliverables"
+      ],
+      "output_artifacts": [],
+      "handoff_artifact_path": ""
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260927-FAIL-CLOSED-CONTINUOUS-LEARNING",
+      "decision_type": "FAIL_CLOSED_VALIDATION_GATE",
+      "selected_option": "HALT_STAGE_ADVANCEMENT_AND_TRIGGER_DIAGNOSTIC_LEARNING_PIPELINE",
+      "rationale": "Directive 25 (Zero-Shortcut / Fail-Closed Invariant) and Directive 21 mandate that any validation failure must trigger the 5-step diagnostic learning pipeline (trajectory-analyzer -> behavior-analyst -> knowledge-curator -> skill-evolver -> evaluation-agent) before any delivery worker or stage advance is permitted.",
+      "alternatives_considered": [
+        {
+          "option": "BYPASS_VALIDATION_FAILURE_AND_RUN_STAGE4C",
+          "verdict": "REJECTED",
+          "reason": "Violates Directive 25 zero-shortcut invariant and Directive 21 learning protocol."
+        },
+        {
+          "option": "AD_HOC_LOCAL_PATCHING",
+          "verdict": "REJECTED",
+          "reason": "Violates AP-2026-PATCHING-WITHOUT-LEARNING and corrupts persistent learning loop."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260927-PHASE4B-COMPUTATION-DECOUPLING",
+      "decision_type": "EXECUTION_DECOUPLING",
+      "selected_option": "EMIT_PURE_JSON_STATISTICAL_PAYLOADS_FIRST",
+      "rationale": "Pursuant to the Zero Narration Invariant for Phase 4B, statistical numbers were computed deterministically by statistics-agent and written as JSON payloads before drafting Persian narrative and OpenXML documents in Phase 4D. However, this intermediate state leaves the Triad Invariant (.docx, .md, .json) unfulfilled on disk.",
+      "alternatives_considered": [
+        {
+          "option": "DRAFT_SIMULTANEOUS_MONOLITHIC_DOCX",
+          "verdict": "REJECTED",
+          "reason": "Violates separation of concerns between statistical computation and scholarly narrative synthesis."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/00_data_curation_report.json",
+      "sha256": "47128295d57379904b91453ef99d291e5994ccaeaece98c56c6ae59a8344b268",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/00_data_curation_report.md",
+      "sha256": "b7500981a9ccf3abc26c3a3080faa30ede480c2cb82ad4c32254ceef43201c01",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/01_demographics.docx",
+      "sha256": "23358fb7c93c095e91181c0346bdc0d007d31b40dc71f76a0441ab0d63e52337",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/01_demographics.md",
+      "sha256": "3ed9a19f73a2c3163f08e0fa7d3c120d71c67f881c23c91e7b04f0a9f4a16f87",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/01_demographics.json",
+      "sha256": "cd76d1f5480a1ae70721fa45c8b9d24776f335ffd0dd514819ff5044104a60ae",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_payload.json",
+      "sha256": "98a0bf2d0a655ebab46596210efd51944d4ede5e90091bcaeb880e62c5646944",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.json",
+      "sha256": "98a0bf2d0a655ebab46596210efd51944d4ede5e90091bcaeb880e62c5646944",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/03_assumptions_report.json",
+      "sha256": "b87d05bb332b39d11ef9331c3324cc34665d34807f6b5fa00f96e4d03f027710",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/03_parametric_assumptions.json",
+      "sha256": "b87d05bb332b39d11ef9331c3324cc34665d34807f6b5fa00f96e4d03f027710",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/04_correlations_payload.json",
+      "sha256": "7a35b1d9c288e40fba109f61b0c95a2307ef11739c36e4f3ca41be62817293a5",
+      "type": "json"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "run_all_validators",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-TRIAD-INVARIANT: Stages 4.2, 4.3, and 4.4 possess only JSON statistical payloads; synchronized markdown (.md) and Word (.docx) deliverables are missing on disk.",
+        "CHK-APA7-TABLE-BORDERS: Chapter 4 preliminary documents contain vertical borders or lack mandatory 3-line APA 7 table structures.",
+        "CHK-TABLE-CAPTION-TYPOGRAPHY: Table captions formatted with bold typography (**جدول**) violating APA 7 regular font standard.",
+        "CHK-NARRATIVE-JUSTIFICATION: Persian narrative paragraphs in draft DOCX deliverables lack explicit <w:jc w:val='both'/> justification tags.",
+        "CHK-SABER-4ELEMENT-NARRATIVE: Narrative text lacks complete Saber 4-Element epistemic structure (missing explicit In-Text Table References and Definitive Hypothesis Verdicts).",
+        "CHK-ENGLISH-WORD-LEAKAGE: Raw English statistical labels and abbreviations present in Persian deliverable table headers."
+      ],
+      "evidence_summary": {
+        "suite": "Academic Suite 4-Tier Validation Architecture (4-TVA)",
+        "overall_verdict": "FAIL",
+        "total_checks_run": 115,
+        "checks_passed": 88,
+        "checks_failed": 25,
+        "status": "FAIL_CLOSED_GATE_ENGAGED"
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260927-VAL-CASCADE-FAIL-002",
+    "FDB-20260927-D7CC83"
+  ],
+  "outcome": "FAILURE"
+}
