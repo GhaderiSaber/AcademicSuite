@@ -309,9 +309,16 @@ GLOBAL_INVARIANT_PATTERNS = [
 
 
 def clean_text(text: str) -> str:
-    """Removes HTML and XML tags and trims whitespace."""
+    """Removes HTML and XML tags, IDE metadata, and trims whitespace."""
     if not text:
         return ""
+    try:
+        from contracts.critique_detection_contract import extract_clean_user_message
+        clean = extract_clean_user_message(text)
+        if clean:
+            return clean
+    except Exception:
+        pass
     cleaned = re.sub(r"<[^>]+>", "", text)
     return cleaned.strip()
 
@@ -392,8 +399,17 @@ class AcademicCorrectionDetector:
         if re.search(r"\b(?:don'?t you think|what do you think|is it possible|could it be)\b", text_lower):
             return None
 
-        # 1. Check trigger markers
-        has_trigger = any(re.search(pat, text_lower) for pat in CORRECTION_TRIGGER_PATTERNS)
+        # Mask known domain/statistical collocations to prevent false positive triggers
+        try:
+            from contracts.critique_detection_contract import DOMAIN_COLLOCATION_EXCLUSIONS
+            masked_lower = text_lower
+            for d_pat in DOMAIN_COLLOCATION_EXCLUSIONS:
+                masked_lower = re.sub(d_pat, " [DOMAIN_TERM] ", masked_lower, flags=re.IGNORECASE)
+        except Exception:
+            masked_lower = text_lower
+
+        # 1. Check trigger markers on masked text
+        has_trigger = any(re.search(pat, masked_lower) for pat in CORRECTION_TRIGGER_PATTERNS)
         if not has_trigger:
             return None
 
@@ -437,12 +453,16 @@ class AcademicCorrectionDetector:
 
         meta = metadata or {}
         source_transcript = meta.get("source_transcript_path", "")
-        resolved_ctx = router.resolve_context(
-            metadata=meta,
-            user_text=cleaned,
-            transcript_path=source_transcript,
-            category=detected_category
-        )
+        try:
+            resolved_ctx = router.resolve_context(
+                metadata=meta,
+                user_text=cleaned,
+                transcript_path=source_transcript,
+                category=detected_category
+            )
+        except Exception as e_res:
+            sys.stderr.write(f"[academic_correction_detector] Warning resolving context: {e_res}\n")
+            return None
 
         target_agent = resolved_ctx["target_agent"]
         target_skill = resolved_ctx["target_skill"]

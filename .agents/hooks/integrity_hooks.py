@@ -28,12 +28,18 @@ if ROOT_DIR not in sys.path:
 
 try:
     from contracts.hook_identity_contract import resolve_transcript_path
+    from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
 except ImportError:
     try:
         from .contracts.hook_identity_contract import resolve_transcript_path
+        from .contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
     except ImportError:
         def resolve_transcript_path(payload):
             return payload.get("transcriptPath") if isinstance(payload, dict) else None
+        def is_meaningful_user_critique(user_text, **kw):
+            return False, None
+        def extract_clean_user_message(raw_text):
+            return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
 
 
 def load_transcript(transcript_path: Optional[str]) -> List[Dict[str, Any]]:
@@ -992,17 +998,12 @@ class IntegrityHooks:
                             invoked_subagents.append("academic-writer")
 
         # Check if critique/correction or validation failure triggered learning
-        clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
-        critique_patterns = [
-            r"\b(?:problem|error|bug|defect|issue|flaw|failure|discrepancy|mismatch)s?\b",
-            r"\b(?:fix|wrong|incorrect|flawed|missing|redo|re-run|re-execute|reject|rejected)\b",
-            r"\b(?:didn'?t|did\s+not)\s+(?:trigger|start|run|work|include|execute)\b",
-            r"\b(?:there|it)\s+(?:isn'?t|is\s+not|wasn'?t|was\s+not|aren'?t|are\s+not)\b",
-            r"\b(?:isn'?t|is\s+not|wasn'?t|was\s+not)\s+(?:the|what|any|working|correct)\b",
-            r"\bnot\s+(?:working|correct|right|accurate)\b",
-            r"اشتباه|اشتباهات|غلط|غلط‌ها|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا|خطاها|مشکل|مشکلات|ایراد|ایرادات|نواقص|نقص|جا افتاده|حذف شده|وجود ندارد|نیست"
-        ]
-        is_user_critique = any(re.search(pat, clean_user, re.IGNORECASE) for pat in critique_patterns)
+        clean_user = extract_clean_user_message(user_content)
+        is_user_critique, _ = is_meaningful_user_critique(
+            clean_user,
+            is_subagent=False,
+            caller="academic-orchestrator"
+        )
         is_val_failure, val_summary = IntegrityHooks.detect_validation_failure(active_records, workspaces)
 
         # Check if premature remediation was attempted before evolution completed

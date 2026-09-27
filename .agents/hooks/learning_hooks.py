@@ -27,14 +27,20 @@ for p in (ROOT_DIR, AGENTS_DIR):
 
 try:
     from contracts.hook_identity_contract import resolve_transcript_path, is_main_agent_developer
+    from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
 except ImportError:
     try:
         from .contracts.hook_identity_contract import resolve_transcript_path, is_main_agent_developer
+        from .contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
     except ImportError:
         def resolve_transcript_path(payload):
             return payload.get("transcriptPath") if isinstance(payload, dict) else None
         def is_main_agent_developer(payload):
             return payload.get("track") in (1, "1", "track_1", "developer") or payload.get("mode") == "developer"
+        def is_meaningful_user_critique(user_text, **kw):
+            return False, None
+        def extract_clean_user_message(raw_text):
+            return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
 
 
 def load_transcript(transcript_path: Optional[str]) -> List[Dict[str, Any]]:
@@ -347,6 +353,15 @@ class LearningHooks:
         Delegates to AcademicCorrectionDetector and AcademicIntegratedLearningHub, and records USER_CORRECTION event.
         Returns a dictionary with critique detection metadata.
         """
+        is_sub = (
+            payload.get("isSubagent") is True
+            or bool(payload.get("parentConversationId"))
+            or bool(payload.get("parent_conversation_id"))
+        )
+        if is_sub:
+            return {"is_critique": False, "text": "", "matched_term": None}
+
+        caller = LearningHooks._extract_actor(payload).lower().strip()
         cid = payload.get("conversationId")
         transcript_path = resolve_transcript_path(payload)
 
@@ -374,39 +389,46 @@ class LearningHooks:
                     last_step_idx = r.get("step_index")
                     break
 
-        clean_user = re.sub(r"<[^>]+>", "", str(user_text)).strip()
-        is_critique = False
-        matched_term = None
+        clean_user = extract_clean_user_message(user_text)
+        is_critique, matched_term = is_meaningful_user_critique(
+            clean_user,
+            is_subagent=is_sub,
+            caller=caller
+        )
+
+        if is_critique:
+            engine = LearningHooks._get_engine(payload)
+            if engine:
+                from scripts.trajectory_engine import TrajectoryEventType
+                engine.record_event(
+                    TrajectoryEventType.USER_CORRECTION,
+                    payload=payload,
+                    details={"correction_text": clean_user[:500], "matched_term": matched_term},
+                    actor="user"
+                )
 
         if clean_user:
-            # Check for critique patterns
-            critique_patterns = [
-                r"\b(?:problem|error|bug|defect|issue|flaw|failure|discrepancy|mismatch)s?\b",
-                r"\b(?:fix|wrong|incorrect|flawed|missing|redo|re-run|re-execute|reject|rejected|change|modify|correction)\b",
-                r"\b(?:didn'?t|did\s+not)\s+(?:trigger|start|run|work|include|execute)\b",
-                r"\b(?:there|it)\s+(?:isn'?t|is\s+not|wasn'?t|was\s+not|aren'?t|are\s+not)\b",
-                r"\b(?:isn'?t|is\s+not|wasn'?t|was\s+not)\s+(?:the|what|any|working|correct)\b",
-                r"\bnot\s+(?:working|correct|right|accurate)\b",
-                r"اشتباه|اشتباهات|غلط|غلط‌ها|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا|خطاها|مشکل|مشکلات|ایراد|ایرادات|نواقص|نقص|جا افتاده|حذف شده|وجود ندارد|نیست"
-            ]
-            for pat in critique_patterns:
-                m = re.search(pat, clean_user, re.IGNORECASE)
-                if m:
-                    is_critique = True
-                    matched_term = m.group(0)
-                    break
+            try:
+                from scripts.academic_integrated_learning_hub import AcademicIntegratedLearningHub
+                ws_paths = payload.get("workspacePaths", [])
+                if ws_paths and os.path.isdir(ws_paths[0]):
+                    base_ws = ws_paths[0]
+                elif "PYTEST_CURRENT_TEST" in os.environ or "pytest" in sys.modules:
+                    base_ws = None
+                else:
+                    base_ws = ROOT_DIR
 
-            if is_critique:
-                engine = LearningHooks._get_engine(payload)
-                if engine:
-                    from scripts.trajectory_engine import TrajectoryEventType
-                    engine.record_event(
-                        TrajectoryEventType.USER_CORRECTION,
-                        payload=payload,
-                        details={"correction_text": clean_user[:500], "matched_term": matched_term},
-                        actor="user"
-                    )
-
+                if base_ws:
+                    hub = AcademicIntegratedLearningHub(base_dir=base_ws)
+                    meta = {
+                        "conversation_id": cid,
+                        "source_transcript_path": transcript_path,
+                        "turn_index": last_step_idx,
+                        "workspace_paths": [base_ws]
+                    }
+                    hub.process_user_turn(user_text=clean_user, metadata=meta)
+            except Exception as e_hub:
+                sys.stderr.write(f"[learning_hooks] Hub user turn note: {e_hub}\n")
 
 
         return {
@@ -747,7 +769,14 @@ class LearningHooks:
         if is_main_agent_developer(payload):
             return {}
 
+        is_sub = (
+            payload.get("isSubagent") is True
+            or bool(payload.get("parentConversationId"))
+            or bool(payload.get("parent_conversation_id"))
+        )
         caller = LearningHooks._extract_actor(payload).lower().strip()
+        if is_sub or (caller and caller not in ("", "unspecified", "academic-orchestrator", "orchestrator", "main", "default", "digital-saber")):
+            return {}
 
         critique_info = LearningHooks.capture_user_correction(payload)
 

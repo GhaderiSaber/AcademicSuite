@@ -59,6 +59,16 @@ except ImportError:
             return True, "Capability validator unavailable"
         def find_files_matching(w, p):
             return []
+try:
+    from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
+except ImportError:
+    try:
+        from critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
+    except ImportError:
+        def is_meaningful_user_critique(user_text, **kw):
+            return False, None
+        def extract_clean_user_message(raw_text):
+            return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
 
 FORBIDDEN_ORCHESTRATOR_TOOLS = {
     "run_command",
@@ -99,8 +109,12 @@ def is_user_critique_active(records: List[Dict[str, Any]]) -> Tuple[bool, str, L
             last_user_idx = idx
             user_content = str(r.get("content", ""))
     active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
-    clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
-    is_critique = any(re.search(pat, clean_user, re.IGNORECASE) for pat in CRITIQUE_PATTERNS)
+    clean_user = extract_clean_user_message(user_content)
+    is_critique, _ = is_meaningful_user_critique(
+        clean_user,
+        is_subagent=False,
+        caller="academic-orchestrator"
+    )
     return is_critique, clean_user, active_records
 
 
