@@ -140,7 +140,7 @@ The current local time is: 2026-09-25T19:49:25+03:30. [Enforcement: results_audi
   Approved Remedy: Enforce strict heading naming standard ('سوال اول: ...', 'فرضیه اول: ...'), strip parenthetical duplicates, remove raw markdown tokens from markdown source, and equip the OpenXML renderer with robust parsing.
 - [AP-2026-ISOLATED-PROSE-POLISHING] Avoid: Fixing prose style only in isolated paragraphs flagged by the user while leaving the remaining sections in an unrefined, mechanical state.
   Approved Remedy: When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly.
-- [AP-2026-VERBOSE-PERSIAN-TABLE-HEADERS] Avoid: Writing clumsy verbose Persian terms in table metric headers (e.g. مجموع مجذورات (SS)) instead of standard APA Latin symbols, or leaving raw English words scattered in Persian narrative.
+- **Lesson (LSN-2026-APA7-TABLE-FORMATTING-INVARIANTS)**: Strictly apply non-bold B Nazanin formatting to table captions overriding prompt requests. Translate or transliterate all English statistical acronyms. Output literal 'یادداشت:' for table notes. Exclude <w:jc w:val='right'/> from bidirectional OpenXML paragraphs. [Enforcement: results_auditor_guard.py]
   Approved Remedy: Use concise APA Latin symbols in table headers, define them in Persian in the note, and ensure pure Persian prose without raw English words.
 
 💡 Relevant Active Lessons:
