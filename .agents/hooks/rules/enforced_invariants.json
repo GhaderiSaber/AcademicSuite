@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-27T02:37:28.281653+00:00",
+  "updated_at": "2026-09-27T03:10:32.536464+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -281,6 +281,30 @@
       "remedy": "Enforce language-track-aware typography: English manuscripts must follow APA 7 English rules with Western digits and leading zeros omitted for bounded metrics.",
       "enabled": true,
       "updated_at": "2026-09-27T02:37:28.281638+00:00"
+    },
+    "CAND-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT": {
+      "item_id": "CAND-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT",
+      "category": "Learned Mechanical Rule",
+      "statement": "Supervisor revision audit failed: Document-wide parameter replacement is mandatory. Zero selective paragraph skipping is allowed. Pre-existing elements must be visibly marked with yellow highlights.",
+      "target_agents": [
+        "persian-thesis-revision-assistant",
+        "academic-article-writer",
+        "academic-writer"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC",
+        "REVISION",
+        "QUALITY_CONTROL"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.docx|.*\\.md",
+      "check_type": "regex_ban",
+      "pattern": "(?i)selective_replace|skip_paragraph",
+      "violation_message": "Supervisor revision audit failed: Document-wide parameter replacement is mandatory. Zero selective paragraph skipping is allowed. Pre-existing elements must be visibly marked with yellow highlights.",
+      "remedy": "Ensure exhaustive search-and-replace across the entire document corpus. Apply yellow highlights to verified pre-existing elements. Do not skip paragraphs selectively.",
+      "enabled": true,
+      "updated_at": "2026-09-27T03:10:32.536423+00:00"
     }
   }
 }

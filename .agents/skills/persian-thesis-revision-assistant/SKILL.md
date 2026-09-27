@@ -106,3 +106,5 @@ Before delivering the revised documents to the student or professor, review [com
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION)**: Mandating in-place docx mutation and applying a Document Conservation Gate where output_bytes must be >= input_bytes * 0.90. [Enforcement: dynamic_invariant_guard.py (LSN-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION)]
+- **Lesson (LSN-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT)**: Mandate document-wide search-and-replace. Use explicit yellow highlight marking for pre-existing verified items to prove coverage. Ensure 100% complete execution of all comments across all sections. [Enforcement: dynamic_invariant_guard.py (LSN-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT)]
+- **Lesson (LSN-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT)**: Mandating document-wide parameter replacement, explicit visual marking (yellow highlight) for verified pre-existing elements, and zero selective paragraph skipping. [Enforcement: exhaustive_revision_guard.py (LSN-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT)]

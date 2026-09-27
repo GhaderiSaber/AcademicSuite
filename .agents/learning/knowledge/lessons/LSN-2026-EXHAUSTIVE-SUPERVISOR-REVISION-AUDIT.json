@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "DIAG-PHANTOM-REVISION",
+  "diagnosis": {
+    "what_happened": "Revisions were only partially applied due to selective patching, leaving identical errors unresolved elsewhere in the document.",
+    "behavior_caused_outcome": "Reliance on local index patching instead of systematic global document audits and lack of visible verification.",
+    "what_should_have_happened": "Agents should have performed document-wide search-and-replace, used explicit yellow highlight marking for pre-existing verified items, and ensured 100% complete execution of all comments.",
+    "rationale_why": "Thesis revisions require absolute consistency. Leaving partial errors invalidates the revision process, damages academic credibility, and leads to rejection."
+  },
+  "desired_behavior": "Mandate document-wide search-and-replace. Use explicit yellow highlight marking for pre-existing verified items to prove coverage. Ensure 100% complete execution of all comments across all sections.",
+  "generalization": "All text revisions targeting specific errors must execute exhaustively across the entire document corpus with visible verification trails.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "PROMOTED_PRINCIPLE",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "100_PERCENT_REVISION_EXECUTION",
+    "observed_value": "Partial application of comments via selective index",
+    "threshold_value": "100% application across all relevant document sections",
+    "supporting_report_ids": [
+      "DIAG-PHANTOM-REVISION"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-thesis-revision-assistant",
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T06:35:51Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "persian-thesis-revision-assistant",
+  "target_agents": [
+    "persian-thesis-revision-assistant",
+    "academic-writer",
+    "academic-suite-orchestrator"
+  ]
+}
