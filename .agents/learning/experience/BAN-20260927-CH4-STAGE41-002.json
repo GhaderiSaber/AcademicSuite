@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260927-CH4-STAGE41-002",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260927-CH4-TONE-FEEDBACK",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "capability": "academic_writing",
+  "trajectory_id": "TRJ-20260927-CH4-STAGE41-PREMATURE-INTERPRETATION-001",
+  "observable_failure_step": {
+    "step_number": 12,
+    "action_type": "FILE_WRITTEN",
+    "tool_name": "write_to_file",
+    "description": "academic-writer authored 02_analysis_code/build_stage41_option_b.py containing hardcoded interpretive narrative templates that incorporated premature theoretical discussion (e.g., attributing female frequency to disclosure norms) and hyperbolic adjectives (e.g., 'این ترکیب تکان‌دهنده')."
+  },
+  "failure_signature": "PREMATURE_INTERPRETATION_AND_HYPERBOLIC_TONE",
+  "root_cause_diagnosis": "The academic-orchestrator issued an invalid instruction to provide clinical and epidemiological interpretation within Chapter 4, which fundamentally violates the APA boundary between reporting (Ch 4) and discussion (Ch 5). Concurrently, academic-writer executed this by adopting a non-academic, exaggerated emotional tone ('تکان‌دهنده', 'بحران‌های حاد') rather than maintaining objective scholarly sobriety.",
+  "prescribed_behavior": "academic-orchestrator must strictly restrict Chapter 4 tasks to descriptive empirical reporting without theoretical interpretation. academic-writer must maintain a neutral, objective academic tone at all times, strictly avoiding hyperbolic, emotional, or dramatic vocabulary in all deliverables.",
+  "created_at": "2026-09-27T11:06:00Z"
+}

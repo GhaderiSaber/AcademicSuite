@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20260927-001",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "observable_failure_step": "Step 6 and Step 8 (FILE_WRITTEN: Chapter_4_Tables_Only.md and Chapter_4_Tables_Only.docx)",
+  "failure_signature": "FORMATTING_INVARIANT_VIOLATION",
+  "root_cause_diagnosis": "1. Caption Typography: The agent adhered to upstream task prompt instructions requesting bold captions instead of overriding it with the strict APA 7 validator invariant (unbolded regular text). 2. English Leakage: The agent mapped English statistical acronyms (e.g., Tol, VIF, DW) directly into Persian table cells instead of translating or transliterating them. 3. Table Note Prefix: The agent used Markdown italic syntax (*یادداشت.*) which corrupted the required literal string invariant ('یادداشت:'). 4. RTL Alignment Inversion: The agent explicitly injected <w:jc w:val='right'/> inside <w:bidi/> OpenXML runs, causing the Word layout engine to interpret 'right' as trailing-edge, thereby flipping the alignment to the left.",
+  "prescribed_behavior": "1. Force table captions to regular (non-bold) B Nazanin font, strictly overriding any prompt requests for bolding. 2. Enforce zero-tolerance translation/transliteration for all English acronyms in Persian table cells. 3. Output the exact literal prefix 'یادداشت:' without Markdown italic wrappers. 4. Exclude <w:jc w:val='right'/> from bidirectional OpenXML paragraphs, relying on default RTL orientation or explicitly using <w:jc w:val='both'/>."
+}

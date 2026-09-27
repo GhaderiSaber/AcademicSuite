@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CHAPTER-BOUNDARY-VIOLATION",
+  "category": "methodological",
+  "defective_pattern": "Narrating data curation provenance, such as initial sample size, data cleaning, and outlier removal, within Chapter 4.",
+  "why_defective": "Violates strict chapter boundary invariants. Data processing history, including sample attrition and outlier removal, belongs exclusively in Chapter 3. Chapter 4 must strictly start with the final, unified post-cleaning sample (e.g., N=483).",
+  "observed_symptoms": [
+    "Discussion of initial sample size before data cleaning in Chapter 4.",
+    "Mentioning the removal of unengaged responses or multivariate outliers in Chapter 4.",
+    "Narrating the step-by-step determination of the final sample size within the results chapter."
+  ],
+  "corrective_remedy": "Enforce a 'Unified Final Sample Invariant' for Chapter 4 drafting. Treat the post-cleaning sample as the single baseline. Defer all mentions of initial samples and outlier removal entirely to Chapter 3.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect keywords relating to initial sample, outlier removal, or data cleaning in Chapter 4 markdown files.",
+    "regex_patterns": [
+      "(?m)(initial sample|outlier removal|data cleaning|deleted cases|removed from the dataset|نمونه اولیه|حذف داده|داده پرت)"
+    ],
+    "pattern": "(?m)(initial sample|outlier removal|data cleaning|deleted cases|removed from the dataset|نمونه اولیه|حذف داده|داده پرت)",
+    "check_type": "regex_ban",
+    "file_pattern": ".*04_.*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "chapter-4-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T11:20:00Z"
+}

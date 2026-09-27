@@ -1,0 +1,605 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260927-TABLES-ONLY-VAL-FAIL-001",
+  "experience_id": "EVT-20260927-TABLES-ONLY-VAL-FAIL",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "TSK-2026-CH4-TABLES-VAL-N483",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T04:55:05.417793+00:00",
+      "description": "academic-orchestrator delegated task TSK-2026-CH4-PHASE1-N483 to statistics-agent to compute full demographics, descriptives, reliability, and regression strictly on clean harnessed N=483 data.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-PHASE1-N483",
+        "stage": "Phase 1: Harmonize Statistical Ledger on Clean N=483 Data",
+        "worker_agent": "statistics-agent",
+        "input_artifacts": [
+          "02_analysis_code/selected_cases_rmsea_05.xlsx",
+          "02_analysis_code/study_config.json"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "target_agent": "statistics-agent"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T05:12:18.000000+00:00",
+      "description": "statistics-agent generated synchronized statistical ledgers on N=483 clean sample: stats_results.json and phase1_n483_summary.json.",
+      "observable_input": {
+        "target_files": [
+          "02_analysis_code/stats_results.json",
+          "02_analysis_code/phase1_n483_summary.json"
+        ]
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "sample_size": 483,
+        "hypotheses_evaluated": ["H1", "H2", "SEM"]
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T08:01:45.969321+00:00",
+      "description": "academic-orchestrator delegated task TSK-2026-CH4-STAGE43-STATISTICS-TRIAD to statistics-agent to author Stage 4.3 parametric assumptions verification triad (.docx, .md, .json).",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE43-STATISTICS-TRIAD",
+        "stage": "Stage 4.3: Statistical Assumptions Verification",
+        "worker_agent": "statistics-agent"
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "required_artifacts": [
+          "03_deliverables/03_parametric_assumptions.docx",
+          "03_deliverables/03_parametric_assumptions.md",
+          "03_deliverables/03_parametric_assumptions.json"
+        ]
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T08:05:12.000000+00:00",
+      "description": "statistics-agent authored 03_deliverables/03_parametric_assumptions.md, .docx, and .json.",
+      "observable_input": {
+        "target_directory": "03_deliverables"
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "files": [
+          "03_deliverables/03_parametric_assumptions.docx",
+          "03_deliverables/03_parametric_assumptions.md",
+          "03_deliverables/03_parametric_assumptions.json"
+        ]
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T08:20:00.000000+00:00",
+      "description": "academic-orchestrator delegated task TSK-2026-CH4-TABLES-ONLY-COMPILATION to academic-writer to author the full 26-table Chapter 4 Tables-Only deliverable (.docx, .md, .json) adhering to APA 7th Edition with zero narrative prose.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-TABLES-ONLY-COMPILATION",
+        "worker_agent": "academic-writer",
+        "required_artifacts": [
+          "03_deliverables/Chapter_4_Tables_Only.docx",
+          "03_deliverables/Chapter_4_Tables_Only.md",
+          "03_deliverables/Chapter_4_Tables_Only.json"
+        ],
+        "inventory_count": 26
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "target_agent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T08:35:10.000000+00:00",
+      "description": "academic-writer authored 03_deliverables/Chapter_4_Tables_Only.md (300 lines, 33,791 bytes). Observed in-file formatting: Table notes initiated with '*یادداشت.' (e.g. lines 9, 20, 34, 46, 57, 158, 170) instead of strict 'یادداشت:'; Tables 15 and 16 retained untranslated English acronyms ('Tol', 'VIF', 'DW', 'IUS-FA', 'IUS-RA', 'SCI-T', 'RRS-T', 'PANAS-NA', 'BSSI-T').",
+      "observable_input": {
+        "target_file": "03_deliverables/Chapter_4_Tables_Only.md",
+        "total_lines": 300,
+        "byte_count": 33791
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "table_count": 26,
+        "table_note_prefix": "*یادداشت.",
+        "english_acronyms_present": ["Tol", "VIF", "DW", "IUS", "SCI", "RRS", "PANAS", "BSSI"]
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T08:36:45.000000+00:00",
+      "description": "academic-writer authored 03_deliverables/Chapter_4_Tables_Only.json (167,725 bytes) containing structured numerical parameters for all 26 tables.",
+      "observable_input": {
+        "target_file": "03_deliverables/Chapter_4_Tables_Only.json",
+        "byte_count": 167725
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "tables_defined": 26,
+        "sample_size": 483
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T08:42:30.000000+00:00",
+      "description": "academic-writer generated 03_deliverables/Chapter_4_Tables_Only.docx (467,307 bytes). Observed in-file XML structure: All 26 table captions formatted as Bold text in B Nazanin 12pt; multiple paragraphs set manual <w:jc w:val='right'/> under <w:bidi/> causing trailing-edge alignment inversion; Table 15 and Table 16 cells contain untranslated English acronyms.",
+      "observable_input": {
+        "target_file": "03_deliverables/Chapter_4_Tables_Only.docx",
+        "byte_count": 467307
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "table_captions_bold": true,
+        "bidi_alignment_inversion_present": true,
+        "table_note_star_prefix": true
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T08:47:43.841419+00:00",
+      "description": "academic-orchestrator delegated task TSK-2026-CH4-TABLES-VAL-N483 to validation-agent to conduct an adversarial forensic audit of Chapter_4_Tables_Only and associated deliverables in 03_deliverables/.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-TABLES-VAL-N483",
+        "stage": "Phase 3: Adversarial Forensic Validation & Certification Gate",
+        "worker_agent": "validation-agent",
+        "inputs": [
+          "03_deliverables/Chapter_4_Tables_Only.docx",
+          "03_deliverables/Chapter_4_Tables_Only.md",
+          "03_deliverables/Chapter_4_Tables_Only.json",
+          "03_deliverables/Model_Statistical_Results.xlsx",
+          "02_analysis_code/phase1_n483_summary.json"
+        ],
+        "required_artifacts": [
+          "03_deliverables/validation_report.json"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "target_agent": "validation-agent"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "COMMAND_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T08:48:00.000000+00:00",
+      "description": "validation-agent executed 4-Tier Validation Architecture audit suite (run_all_validators) targeting 03_deliverables directory.",
+      "observable_input": {
+        "command": "run_all_validators",
+        "stage_directory": "03_deliverables",
+        "tier": "all"
+      },
+      "observable_output": {
+        "status": "RUNNING"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "FILE_WRITTEN",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T08:48:25.226622+00:00",
+      "description": "validation-agent authored 03_deliverables/validation_report.json (363,199 bytes, report_id VAL-20260927084825). Evaluation yielded overall_verdict: FAIL with 30 failed checks across 135 total checks evaluated.",
+      "observable_input": {
+        "target_file": "03_deliverables/validation_report.json",
+        "report_id": "VAL-20260927084825"
+      },
+      "observable_output": {
+        "overall_verdict": "FAIL",
+        "total_checks_run": 135,
+        "checks_passed": 100,
+        "checks_failed": 30,
+        "checks_unknown": 5,
+        "tier_1_failed": 29,
+        "tier_2_failed": 1,
+        "tier_3_verdict": "PASS",
+        "tier_4_verdict": "PASS"
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "FILE_WRITTEN",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T08:48:27.000000+00:00",
+      "description": "validation-agent compiled 03_deliverables/tables_only_defect_dossier.json (1,901 bytes, report_id VAL-20260927-TABLES-ONLY) specifically scoping the failure to 4 invariant defects on Chapter_4_Tables_Only.",
+      "observable_input": {
+        "target_file": "03_deliverables/tables_only_defect_dossier.json",
+        "target_deliverable": "Chapter_4_Tables_Only"
+      },
+      "observable_output": {
+        "report_id": "VAL-20260927-TABLES-ONLY",
+        "overall_verdict": "FAIL",
+        "checks_run": 7,
+        "checks_failed": 4,
+        "defects": [
+          "Typography & Font Invariant: Bold table captions (APA 7 mandates regular non-bold)",
+          "English Word Leakage Invariant: Untranslated English acronyms in Tables 15 and 16",
+          "Table Note Sequence Invariant: Table notes start with '*یادداشت.' instead of 'یادداشت:'",
+          "RTL Alignment Inversion: Manual <w:jc w:val='right'/> under <w:bidi/> causing trailing-edge flip to Left"
+        ]
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T08:48:28.720498+00:00",
+      "description": "validation-agent emitted fail-closed event VALIDATION_FAILED on 03_deliverables/ indicating 30 checks failed.",
+      "observable_input": {
+        "stage_directory": "03_deliverables",
+        "validator_name": "run_all_validators"
+      },
+      "observable_output": {
+        "event_id": "EVT-FBCB0698",
+        "checks_failed": 30,
+        "overall_verdict": "FAIL"
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T08:52:06.767161+00:00",
+      "description": "academic-orchestrator initiated Continuous Learning Cascade Step 1, assigning TSK-2026-LEARN-TRAJECTORY-VAL-FAIL to trajectory-analyzer to reconstruct the observable chronological execution trajectory.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-TRAJECTORY-VAL-FAIL",
+        "stage": "Learning Cascade Step 1: Reconstruct Execution Trajectory",
+        "worker_agent": "trajectory-analyzer",
+        "inputs": [
+          "03_deliverables/validation_report.json",
+          "03_deliverables/tables_only_defect_dossier.json"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "target_agent": "trajectory-analyzer"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "child_agent": "statistics-agent",
+        "task_id": "TSK-2026-CH4-PHASE1-N483"
+      },
+      "execution_time_ms": 1167.0
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "child_agent": "statistics-agent",
+        "task_id": "TSK-2026-CH4-STAGE43-STATISTICS-TRIAD"
+      },
+      "execution_time_ms": 1122.0
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "child_agent": "academic-writer",
+        "task_id": "TSK-2026-CH4-TABLES-ONLY-COMPILATION"
+      },
+      "execution_time_ms": 1420.0
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "child_agent": "validation-agent",
+        "task_id": "TSK-2026-CH4-TABLES-VAL-N483"
+      },
+      "execution_time_ms": 1867.0
+    },
+    {
+      "tool_name": "run_all_validators",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "target_directory": "03_deliverables",
+        "tier": "all"
+      },
+      "execution_time_ms": 25226.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "target_file": "03_deliverables/validation_report.json"
+      },
+      "execution_time_ms": 420.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 7,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "target_file": "03_deliverables/tables_only_defect_dossier.json"
+      },
+      "execution_time_ms": 310.0
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "statistical-data-analyst",
+      "script_path": "02_analysis_code/Model Analysis.py",
+      "cli_command": "python3 '02_analysis_code/Model Analysis.py'",
+      "exit_code": 0,
+      "duration_seconds": 12.4
+    },
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": "scripts/chapter_4_orchestrator.py",
+      "cli_command": "python3 scripts/chapter_4_orchestrator.py --tables-only",
+      "exit_code": 0,
+      "duration_seconds": 8.7
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": "scripts/apa_table_formatter.py",
+      "cli_command": "python3 scripts/apa_table_formatter.py --target 03_deliverables/Chapter_4_Tables_Only.docx",
+      "exit_code": 0,
+      "duration_seconds": 4.1
+    },
+    {
+      "skill_name": "thesis-integrity-auditor",
+      "script_path": "scripts/run_all_validators.py",
+      "cli_command": "python3 scripts/run_all_validators.py --stage 03_deliverables --tier all",
+      "exit_code": 1,
+      "duration_seconds": 25.2
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "stage_id": "01_harmonize_ledger",
+      "status": "COMPLETED",
+      "envelope_summary": "Recalculate demographic frequencies, descriptive statistics, internal consistency, and baseline regressions on clean N=483 sample.",
+      "handoff_artifact_path": "02_analysis_code/stats_results.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "03_tables_only_compilation",
+      "status": "COMPLETED",
+      "envelope_summary": "Compile complete 26-table Chapter 4 Tables-Only deliverable (.docx, .md, .json) with zero prose narrative.",
+      "handoff_artifact_path": "03_deliverables/Chapter_4_Tables_Only.docx"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "stage_id": "04_forensic_validation",
+      "status": "COMPLETED",
+      "envelope_summary": "Audit tables-only deliverable and all 03_deliverables artifacts against N=483 ledger and APA 7 typography.",
+      "handoff_artifact_path": "03_deliverables/validation_report.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "05_learning_step1",
+      "status": "STARTED",
+      "envelope_summary": "Reconstruct observable actions, tool calls, and error trajectory for validation failure in 03_deliverables.",
+      "handoff_artifact_path": ".agents/learning/experience/trajectories/EVT-20260927-TABLES-ONLY-VAL-FAIL/trajectory.json"
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260927-TABLE-CAPTION-BOLDING",
+      "decision_type": "TYPOGRAPHY_FORMATTING",
+      "selected_option": "Bold table captions in Word DOCX",
+      "rationale": "Task prompt initially mentioned bold titles, but master validator strictly enforces non-bold Regular text per APA 7th Edition standards.",
+      "alternatives_considered": [
+        {
+          "option": "B Nazanin 12pt Regular (Unbolded)",
+          "verdict": "REJECTED_BY_WRITER",
+          "reason": "Writer followed task prompt wording requesting bold titles instead of prioritizing constitutional validator rule."
+        },
+        {
+          "option": "B Nazanin 12pt Bold",
+          "verdict": "SELECTED",
+          "reason": "Writer implemented bold styling, directly triggering validator failure."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260927-TABLE-NOTE-PREFIX",
+      "decision_type": "SYNTAX_STANDARDIZATION",
+      "selected_option": "Markdown italic asterisk wrapper prefix '*یادداشت.'",
+      "rationale": "Writer formatted notes with leading asterisk and trailing period, violating the invariant requiring exact prefix 'یادداشت:'.",
+      "alternatives_considered": [
+        {
+          "option": "Exact string 'یادداشت:' without leading asterisks",
+          "verdict": "REJECTED_BY_WRITER",
+          "reason": "Writer added markdown italic wrappers (*)."
+        },
+        {
+          "option": "'*یادداشت.' with trailing period",
+          "verdict": "SELECTED",
+          "reason": "Selected by writer, triggering Table Note Sequence Invariant failure."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260927-RTL-JUSTIFICATION-TAG",
+      "decision_type": "OPENXML_ALIGNMENT",
+      "selected_option": "Manual <w:jc w:val='right'/> inside paragraph properties under <w:bidi/>",
+      "rationale": "Writer explicitly applied right alignment tag under bidirectional container, which OpenXML flips to Align Left on trailing edges.",
+      "alternatives_considered": [
+        {
+          "option": "Omit manual <w:jc> under <w:bidi/> or set <w:jc w:val='both'/>",
+          "verdict": "REJECTED_BY_WRITER",
+          "reason": "Writer attempted explicit right-alignment."
+        },
+        {
+          "option": "Explicit <w:jc w:val='right'/>",
+          "verdict": "SELECTED",
+          "reason": "Selected by writer, triggering RTL Alignment Inversion failure."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260927-ENGLISH-ACRONYMS",
+      "decision_type": "LINGUISTIC_STANDARDIZATION",
+      "selected_option": "Retaining Latin acronyms (Tol, VIF, DW, IUS, SCI, RRS, PANAS, BSSI) in Persian table cells",
+      "rationale": "Writer kept standard statistical shorthand in Table 15 and Table 16, violating Directive 4.1 zero untranslated English words invariant.",
+      "alternatives_considered": [
+        {
+          "option": "Full Persian translation/transliteration for all abbreviations",
+          "verdict": "REJECTED_BY_WRITER",
+          "reason": "Writer preserved Latin acronyms for brevity."
+        },
+        {
+          "option": "Raw English acronyms in table cells",
+          "verdict": "SELECTED",
+          "reason": "Selected by writer, triggering English Word Leakage failure."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/Chapter_4_Tables_Only.docx",
+      "sha256": "4b92b6eb5032517a0ef88f01b7a2d8a43f885e330f81d113476fb83df3985ee1",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Tables_Only.md",
+      "sha256": "3d9c8bbba446cf0595304b40733d3c870a312ba3ec738a164b38d97be58a8a66",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Tables_Only.json",
+      "sha256": "9f71c4c1a938c5b054238e8de56b4618e404b8b64b35ef58713d2975cc3598d9",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/validation_report.json",
+      "sha256": "80629ecbf249bce3260c6c19c4dcb7ad97161829e1eb1c4e9cb44320641b7145",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/tables_only_defect_dossier.json",
+      "sha256": "5698b671a93d0bbba5202685de7da4692795a94775249f3e49687e1f4d93021f",
+      "type": "json"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "run_all_validators",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-NUMERICAL-00_structural_overview.json: Statistical artifact lacks substantive empirical parameters",
+        "CHK-APA7-TABLE-BORDERS-00_data_curation_report.docx: Chapter 4 findings deliverable strictly requires at least one APA 7 statistical table, but 0 found",
+        "CHK-NARRATIVE-JUSTIFICATION-00_data_curation_report.docx: 40 Persian narrative paragraphs not justified (<w:jc w:val='both'/> missing)",
+        "CHK-SABER-4ELEMENT-NARRATIVE-00_data_curation_report.docx: Missing required epistemic components (In-text Table Reference, Definitive Hypothesis Verdict)",
+        "CHK-NARRATIVE-JUSTIFICATION-02_descriptives_and_reliability.docx: 4 Persian narrative paragraphs not justified",
+        "CHK-APA7-TABLE-BORDERS-00_structural_overview.docx: Chapter 4 findings deliverable strictly requires at least one APA 7 statistical table, but 0 found",
+        "CHK-NARRATIVE-JUSTIFICATION-00_structural_overview.docx: Paragraph 2 not justified",
+        "CHK-MINIMUM-SUBSTANTIVE-DENSITY-00_structural_overview.docx: Contains only 80 narrative words (minimum required: 200 words)",
+        "CHK-SABER-4ELEMENT-NARRATIVE-00_structural_overview.docx: Missing Data Highlights, In-text Table Reference, Definitive Hypothesis Verdict",
+        "CHK-APA7-TABLE-BORDERS-Defense_Viva_Voce_Brief.docx: Vertical cell borders present on 6 tables",
+        "CHK-TABLE-BIDI-DIRECTION-Defense_Viva_Voce_Brief.docx: Persian tables lack <w:bidiVisual/> in <w:tblPr>",
+        "CHK-TABLE-SEQUENCE-AND-NOTE-Defense_Viva_Voce_Brief.docx: 13 table sequence errors (missing table caption or explanatory table note starting with 'یادداشت:')",
+        "CHK-NARRATIVE-JUSTIFICATION-Defense_Viva_Voce_Brief.docx: 6 Persian narrative paragraphs not justified",
+        "CHK-PERSIAN-LEADING-ZERO-Defense_Viva_Voce_Brief.docx: Naked decimals '.۰۵' and '.۰۰۱' missing leading zero",
+        "CHK-ENGLISH-WORD-LEAKAGE-Defense_Viva_Voce_Brief.docx: Untranslated English words in Persian table cells ('lavaan', 'Data', 'Harnessing', 'Final', 'Judge', 'Kline', 'Bentler', 'Hayes', 'Podsakoff', 'Publication')",
+        "CHK-SABER-4ELEMENT-NARRATIVE-Defense_Viva_Voce_Brief.docx: Missing Definitive Hypothesis Verdict",
+        "CHK-CHAPTER5-PROSE-ONLY-Chapter_4_Results.docx: Directive 3.1 Prose-Only Invariant violation: 25 tables found (validator applied Ch5 rule to Ch4)",
+        "CHK-TABLE-CAPTION-TYPOGRAPHY-Chapter_4_Results.docx: 50 table captions are bold and use 'B Titr' font instead of 'B Nazanin' 12pt Regular",
+        "CHK-TABLE-SEQUENCE-AND-NOTE-Chapter_4_Results.docx: 13 tables not followed by explanatory table note starting with 'یادداشت:'",
+        "CHK-NARRATIVE-JUSTIFICATION-Chapter_4_Results.docx: 14 Persian narrative paragraphs not justified",
+        "CHK-ENGLISH-WORD-LEAKAGE-Chapter_4_Results.docx: Untranslated English acronyms in table cells (IUS, SCI, RRS, Reflection)",
+        "CHK-NARRATIVE-JUSTIFICATION-01_demographics.docx: 13 Persian narrative paragraphs not justified",
+        "CHK-APA7-TABLE-BORDERS-03_parametric_assumptions.docx: Chapter 4 findings deliverable strictly requires at least one APA 7 statistical table, but 0 found",
+        "CHK-NARRATIVE-JUSTIFICATION-03_parametric_assumptions.docx: Persian narrative paragraphs not justified",
+        "CHK-SABER-4ELEMENT-NARRATIVE-03_parametric_assumptions.docx: Missing Definitive Hypothesis Verdict",
+        "CHK-TABLE-CAPTION-TYPOGRAPHY-Chapter_4_Tables_Only.docx: Table captions formatted as bold (APA 7 mandates regular unbolded B Nazanin)",
+        "CHK-TABLE-SEQUENCE-AND-NOTE-Chapter_4_Tables_Only.docx: Table notes start with '*یادداشت.' instead of exact string 'یادداشت:'",
+        "CHK-NARRATIVE-JUSTIFICATION-Chapter_4_Tables_Only.docx: Paragraphs 161, 197, 312, 446, 532, 583, 728, 742, 772, 806, 820, 850, 876, 950, 1054, 1155, 1220 have <w:jc w:val='right'/> instead of <w:jc w:val='both'/>",
+        "CHK-BIDI-ALIGNMENT-INVERSION-Chapter_4_Tables_Only.docx: Setting <w:jc w:val='right'/> under <w:bidi/> causes trailing-edge flip to Align Left",
+        "CHK-ENGLISH-WORD-LEAKAGE-Chapter_4_Tables_Only.docx: Untranslated English acronyms in Table 15 and Table 16 (Tol, VIF, DW, IUS, SCI, RRS, PANAS, BSSI)"
+      ],
+      "evidence_summary": {
+        "report_id": "VAL-20260927084825",
+        "total_checks_run": 135,
+        "checks_passed": 100,
+        "checks_failed": 30,
+        "checks_unknown": 5,
+        "checks_unverified": 5,
+        "checks_incomplete": 5,
+        "tier_1_mechanical": {
+          "verdict": "FAIL",
+          "checks_run": 115,
+          "checks_passed": 86,
+          "checks_failed": 29
+        },
+        "tier_2_forensic_math": {
+          "verdict": "FAIL",
+          "checks_run": 18,
+          "checks_passed": 12,
+          "checks_failed": 1
+        },
+        "tier_3_adversarial": {
+          "verdict": "PASS",
+          "challenges_count": 2,
+          "open_critical": 0,
+          "open_high": 0
+        },
+        "tier_4_viva_voce": {
+          "verdict": "PASS",
+          "score_out_of_20": 13.0,
+          "defense_verdict": "PASS_WITH_MAJOR_REVISIONS"
+        }
+      }
+    },
+    {
+      "validator_name": "tables_only_audit",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "Typography & Font Invariant: Table captions must be non-bold regular text in B Nazanin (NO bold, NO B Titr) in Chapter_4_Tables_Only.docx",
+        "English Word Leakage Invariant: Directive 4.1 zero untranslated English words in Persian table cells (Table 15 and Table 16: Tol, VIF, DW, IUS, SCI, RRS, PANAS, BSSI)",
+        "Table Note Sequence Invariant: Table notes must start exactly with 'یادداشت:' without leading asterisks",
+        "RTL Alignment Inversion: Setting <w:jc w:val='right'/> under <w:bidi/> flips trailing-edge to Align Left in Word"
+      ],
+      "evidence_summary": {
+        "report_id": "VAL-20260927-TABLES-ONLY",
+        "checks_run": 7,
+        "checks_failed": 4
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260927-TABLES-ONLY-FAIL",
+    "VAL-20260927084825",
+    "VAL-20260927-TABLES-ONLY"
+  ],
+  "outcome": "FAILURE"
+}

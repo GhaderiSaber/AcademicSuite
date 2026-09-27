@@ -1,0 +1,37 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-UNIFIED-FINAL-SAMPLE-INVARIANT-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20260927-001",
+  "diagnosis": {
+    "what_happened": "The drafting agent narrated the data curation provenance (e.g., initial sample, outlier removal, final sample size) in Chapter 4.",
+    "behavior_caused_outcome": "Leaked methodological data cleaning steps into the empirical results section, violating the strict chapter boundary scoping invariants.",
+    "what_should_have_happened": "Chapter 4 should have started strictly with the unified final sample size (e.g., N=483). All mentions of initial sample sizes and outlier removal should have been confined to Chapter 3.",
+    "rationale_why": "Methodological rigor demands a strict boundary where data preparation and cleaning are reported in Methodology (Chapter 3), whereas Results (Chapter 4) operates solely on the finalized baseline dataset."
+  },
+  "desired_behavior": "Enforce a 'Unified Final Sample Invariant' for Chapter 4 drafting. The post-cleaning sample must be treated as the sole baseline for Chapter 4 text. Never mention data cleaning, outlier removal, or initial sample sizes in Chapter 4.",
+  "generalization": "Strict decoupling of data processing history (Chapter 3) from empirical results reporting (Chapter 4).",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.98,
+  "evidence": {
+    "metric_or_check": "CHAPTER_BOUNDARY_VIOLATION",
+    "observed_value": "Data curation leaked into Chapter 4",
+    "threshold_value": "Zero tolerance for methodology narrative in results chapter",
+    "supporting_report_ids": ["BAN-20260927-001"],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T11:20:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "chapter-4-writing"
+  ]
+}

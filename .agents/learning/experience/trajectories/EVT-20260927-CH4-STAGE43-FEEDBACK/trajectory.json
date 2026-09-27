@@ -1,0 +1,422 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260927-CH4-STAGE43",
+  "experience_id": "EVT-20260927-CH4-STAGE43-FEEDBACK",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "TSK-2026-CH4-STAGE43-VALIDATION",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T06:40:15Z",
+      "description": "academic-orchestrator delegated task TSK-2026-CH4-STAGE43-ASSUMPTIONS to academic-writer to generate the Stage 4.3 Triad (.docx, .md, .json) for parametric assumptions verification.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE43-ASSUMPTIONS",
+        "stage": "Stage 4.3: Parametric Assumptions Verification",
+        "worker_agent": "academic-writer",
+        "inputs": [
+          "02_analysis_code/stats_results.json",
+          "02_analysis_code/phase1_n483_summary.json"
+        ],
+        "required_artifacts": [
+          "03_deliverables/03_parametric_assumptions.docx",
+          "03_deliverables/03_parametric_assumptions.md",
+          "03_deliverables/03_parametric_assumptions.json"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "target_agent": "academic-writer"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "AGENT_INVOKED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:40:18Z",
+      "description": "academic-writer session initialized to execute Stage 4.3 deliverable generation.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE43-ASSUMPTIONS"
+      },
+      "observable_output": {
+        "status": "INITIALIZED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_READ",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:40:25Z",
+      "description": "academic-writer read stats_results.json and phase1_n483_summary.json to retrieve collinearity (VIF, Tol), error independence (DW), multivariate outliers (Mahalanobis D2, Cook's distance), and distribution normality (skewness, kurtosis) on N=483.",
+      "observable_input": {
+        "paths": [
+          "02_analysis_code/stats_results.json",
+          "02_analysis_code/phase1_n483_summary.json"
+        ]
+      },
+      "observable_output": {
+        "sample_size": 483,
+        "parameters_extracted": {
+          "vif_range": [1.000, 3.144],
+          "tolerance_range": [0.318, 1.000],
+          "dw_hypothesis1": 1.967,
+          "dw_hypothesis2": 1.956,
+          "dw_structural_paths": [1.959, 2.085],
+          "mahalanobis_max": 28.94,
+          "cooks_distance_max": 0.0845,
+          "skewness_range": [-0.43, 1.09],
+          "kurtosis_range": [-0.76, 1.29]
+        }
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:41:40Z",
+      "description": "academic-writer authored 03_deliverables/03_parametric_assumptions.md (17 lines). Line 5 explicitly used bold markdown asterisks for Table 4-15 caption: '**جدول ۴- ۱۵: بررسی مفروضه‌های آماری مدل رگرسیون و معادلات ساختاری**', violating APA 7 regular caption standards.",
+      "observable_input": {
+        "target_file": "03_deliverables/03_parametric_assumptions.md",
+        "total_lines": 17,
+        "line_range_defect": "line 5"
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "byte_count": 3662,
+        "bold_caption_detected": "**جدول ۴- ۱۵: بررسی مفروضه‌های آماری مدل رگرسیون و معادلات ساختاری**"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:41:55Z",
+      "description": "academic-writer authored 03_deliverables/03_parametric_assumptions.json containing structured statistical parameters for diagnostics on N=483.",
+      "observable_input": {
+        "target_file": "03_deliverables/03_parametric_assumptions.json",
+        "total_lines": 44
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "byte_count": 1006
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:42:30Z",
+      "description": "academic-writer authored and compiled 03_deliverables/03_parametric_assumptions.docx. In the compiled OpenXML document, Persian narrative paragraphs (Paragraph 2 len=1390, Paragraph 4 len=100, Paragraph 12 len=159) omitted <w:jc w:val='both'/> within <w:pPr>, leaving text default right-aligned rather than fully justified.",
+      "observable_input": {
+        "target_file": "03_deliverables/03_parametric_assumptions.docx",
+        "paragraph_justification_defect": "missing <w:jc w:val='both'/> on paragraphs 2, 4, 12"
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "byte_count": 27351
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "AGENT_RETURNED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:42:35Z",
+      "description": "academic-writer returned execution status and generated Stage 4.3 triad artifacts to academic-orchestrator.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE43-ASSUMPTIONS"
+      },
+      "observable_output": {
+        "status": "COMPLETED",
+        "artifacts": [
+          "03_deliverables/03_parametric_assumptions.docx",
+          "03_deliverables/03_parametric_assumptions.md",
+          "03_deliverables/03_parametric_assumptions.json"
+        ]
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "SUBAGENT_DELEGATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T06:48:10Z",
+      "description": "academic-orchestrator delegated task TSK-2026-CH4-STAGE43-VALIDATION to validation-agent to perform 4-Tier Validation Architecture (4-TVA) audit.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE43-VALIDATION",
+        "stage": "Stage 4.3 Validation Gate",
+        "worker_agent": "validation-agent",
+        "inputs": [
+          "03_deliverables/03_parametric_assumptions.docx",
+          "03_deliverables/03_parametric_assumptions.md",
+          "03_deliverables/03_parametric_assumptions.json"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "target_agent": "validation-agent"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T06:50:20Z",
+      "description": "validation-agent initiated run_all_validators across 03_deliverables/ artifacts.",
+      "observable_input": {
+        "validator_name": "run_all_validators",
+        "target_directory": "03_deliverables",
+        "suite": "Academic Suite 4-Tier Validation Architecture (4-TVA)"
+      },
+      "observable_output": {
+        "status": "STARTED",
+        "checks_queued": 115
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T06:50:27Z",
+      "description": "validation-agent completed audit and emitted 03_validation_report.json with overall_verdict: FAIL. Stage 4.3 deliverable failed on CHK-NARRATIVE-JUSTIFICATION-03_parametric_assumptions.docx (3 justification errors: paragraphs 2, 4, 12 missing <w:jc w:val='both'/>), CHK-APA7-TABLE-BORDERS-03_parametric_assumptions.docx (0 tables recognized in docx binary), and CHK-SABER-4ELEMENT-NARRATIVE-03_parametric_assumptions.docx. Additionally, Markdown table caption in 03_parametric_assumptions.md line 5 was bolded with asterisks.",
+      "observable_input": {
+        "report_id": "VAL-20260927065027",
+        "target_artifacts": [
+          "03_deliverables/03_parametric_assumptions.docx",
+          "03_deliverables/03_parametric_assumptions.md",
+          "03_deliverables/03_parametric_assumptions.json"
+        ]
+      },
+      "observable_output": {
+        "verdict": "FAIL",
+        "checks_passed": 88,
+        "checks_failed": 25,
+        "stage_43_failures": [
+          "CHK-NARRATIVE-JUSTIFICATION-03_parametric_assumptions.docx",
+          "CHK-APA7-TABLE-BORDERS-03_parametric_assumptions.docx",
+          "CHK-SABER-4ELEMENT-NARRATIVE-03_parametric_assumptions.docx"
+        ]
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "USER_CORRECTION",
+      "actor": "HumanSupervisor",
+      "timestamp": "2026-09-27T06:54:37Z",
+      "description": "Human supervisor and automated continuous learning trigger registered validation failure and issued directive to reconstruct observable trajectory: 'Validation cascade failed with overall_verdict: FAIL in Stage 4.3 (03_parametric_assumptions.md and .docx). Record trajectory for bold table captions and unjustified narrative alignment in OpenXML.'",
+      "observable_input": {
+        "feedback_id": "FDB-20260927-6B3452",
+        "event_id": "EVT-FDB-83FA21F7FD3C40F6",
+        "stage": "03_parametric_assumptions",
+        "trigger": "VALIDATION_FAILED"
+      },
+      "observable_output": {
+        "status": "CORRECTION_REGISTERED",
+        "mandated_actions": [
+          "trajectory-analyzer: reconstruct observable actions and error trajectory",
+          "behavior-analyst: perform causal root-cause analysis",
+          "knowledge-curator: catalog AP-2026-BOLD-TABLE-CAPTION-AND-UNJUSTIFIED-NARRATIVE",
+          "skill-evolver: update apa-reporting and docx generators",
+          "evaluation-agent: benchmark and compile lessons"
+        ]
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "view_file",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "path": "02_analysis_code/stats_results.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 115
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "path": "02_analysis_code/phase1_n483_summary.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 98
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "target_file": "03_deliverables/03_parametric_assumptions.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 180
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "target_file": "03_deliverables/03_parametric_assumptions.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 140
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "target_file": "03_deliverables/03_parametric_assumptions.docx"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 420
+    },
+    {
+      "tool_name": "run_all_validators",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "stage_directory": "03_deliverables",
+        "suite": "all"
+      },
+      "status": "ERROR",
+      "execution_time_ms": 3850,
+      "error_message": "Validation cascade failed with overall_verdict: FAIL (25 checks failed)"
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "assumption-testing",
+      "script_path": ".agents/skills/assumption-testing/scripts/verify_assumptions.py",
+      "cli_command": "python3 .agents/skills/assumption-testing/scripts/verify_assumptions.py --input 02_analysis_code/selected_cases_rmsea_05.xlsx --output 03_deliverables/03_parametric_assumptions.json",
+      "exit_code": 0,
+      "duration_seconds": 2.45
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": ".agents/skills/apa-reporting/scripts/format_table.py",
+      "cli_command": "python3 .agents/skills/apa-reporting/scripts/format_table.py --input 03_deliverables/03_parametric_assumptions.json --output 03_deliverables/03_parametric_assumptions.md",
+      "exit_code": 0,
+      "duration_seconds": 1.12
+    },
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": ".agents/skills/chapter-4-writing/scripts/academic_docgen.py",
+      "cli_command": "python3 .agents/skills/chapter-4-writing/scripts/academic_docgen.py --md 03_deliverables/03_parametric_assumptions.md --docx 03_deliverables/03_parametric_assumptions.docx",
+      "exit_code": 0,
+      "duration_seconds": 3.10
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "stage_id": "TSK-2026-CH4-STAGE43-ASSUMPTIONS",
+      "task_id": "TSK-2026-CH4-STAGE43-ASSUMPTIONS",
+      "envelope_summary": "Draft and format Stage 4.3 parametric assumptions deliverable triad on N=483 clean dataset.",
+      "objective": "Draft and format Stage 4.3 parametric assumptions deliverable triad on N=483 clean dataset.",
+      "status": "COMPLETED",
+      "input_artifacts": [
+        "02_analysis_code/stats_results.json",
+        "02_analysis_code/phase1_n483_summary.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/03_parametric_assumptions.docx",
+        "03_deliverables/03_parametric_assumptions.md",
+        "03_deliverables/03_parametric_assumptions.json"
+      ],
+      "handoff_artifact_path": "03_deliverables/03_parametric_assumptions.docx"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "validation-agent",
+      "stage_id": "TSK-2026-CH4-STAGE43-VALIDATION",
+      "task_id": "TSK-2026-CH4-STAGE43-VALIDATION",
+      "envelope_summary": "Execute adversarial 4-Tier Validation Architecture audit on Stage 4.3 artifacts.",
+      "objective": "Execute adversarial 4-Tier Validation Architecture audit on Stage 4.3 artifacts.",
+      "status": "FAILED",
+      "input_artifacts": [
+        "03_deliverables/03_parametric_assumptions.docx",
+        "03_deliverables/03_parametric_assumptions.md",
+        "03_deliverables/03_parametric_assumptions.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/03_validation_report.json"
+      ],
+      "handoff_artifact_path": "03_deliverables/03_validation_report.json"
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260927-STAGE43-001",
+      "decision_type": "TYPOGRAPHY_FORMATTING",
+      "selected_option": "Markdown bold wrapper for table caption (**جدول ۴- ۱۵: ...**)",
+      "rationale": "Defective choice: Writer agent wrapped entire caption in bold markdown rather than keeping table caption regular non-bold per APA 7.",
+      "alternatives_considered": [
+        {
+          "option": "Regular non-bold caption per APA 7 standard",
+          "verdict": "REJECTED_BY_DEFECTIVE_WRITER",
+          "reason": "Agent mistakenly assumed all headings and titles should be bolded"
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260927-STAGE43-002",
+      "decision_type": "OPENXML_ALIGNMENT",
+      "selected_option": "Omit explicit <w:jc w:val='both'/> from narrative paragraph properties",
+      "rationale": "Defective choice: Document compiler relied on default alignment, omitting explicit justification tags for Persian narrative blocks.",
+      "alternatives_considered": [
+        {
+          "option": "Mandatory injection of <w:jc w:val='both'/> for substantive Persian paragraphs",
+          "verdict": "REJECTED_BY_DEFECTIVE_COMPILER",
+          "reason": "Generator lacked fail-closed assertion for paragraph justification"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/03_parametric_assumptions.md",
+      "sha256": "4b6c31e9c5f8841da9282365cf7985c5dfb536fa4762ef4fefaa50352ef2bbd7",
+      "type": "text/markdown"
+    },
+    {
+      "path": "03_deliverables/03_parametric_assumptions.json",
+      "sha256": "c85d7b32230232efd48d085695022fbefee4a30e8c89c4ebcb9a896d74efef91",
+      "type": "application/json"
+    },
+    {
+      "path": "03_deliverables/03_parametric_assumptions.docx",
+      "sha256": "81c3e3e070c79f187a552824987071fdf066ebbc5b08ec8bc75c80521e1a539c",
+      "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    },
+    {
+      "path": "03_deliverables/03_validation_report.json",
+      "sha256": "742918884967399e289bf597a76c02ef1bb28935c1ec8891d4e0e5a956157127",
+      "type": "application/json"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "run_all_validators",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-NARRATIVE-JUSTIFICATION-03_parametric_assumptions.docx",
+        "CHK-APA7-TABLE-BORDERS-03_parametric_assumptions.docx",
+        "CHK-SABER-4ELEMENT-NARRATIVE-03_parametric_assumptions.docx"
+      ],
+      "evidence_summary": {
+        "report_id": "VAL-20260927065027",
+        "total_checks_run": 115,
+        "checks_passed": 88,
+        "checks_failed": 25,
+        "justification_errors_count": 3,
+        "justification_paragraphs_affected": [2, 4, 12],
+        "bold_caption_markdown": "**جدول ۴- ۱۵: بررسی مفروضه‌های آماری مدل رگرسیون و معادلات ساختاری**"
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260927-6B3452"
+  ],
+  "outcome": "FAILURE"
+}

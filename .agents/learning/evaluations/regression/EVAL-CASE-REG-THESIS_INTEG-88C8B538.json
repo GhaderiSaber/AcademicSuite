@@ -1,7 +1,7 @@
 {
   "contract_version": "1.0.0",
-  "case_id": "EVAL-CASE-REG-METHODOLOGY_-235FEE3A",
-  "capability": "methodology-review",
+  "case_id": "EVAL-CASE-REG-THESIS_INTEG-88C8B538",
+  "capability": "thesis-integrity-auditor",
   "suite_type": "regression",
   "difficulty": "L2_INTERDEPENDENT_MODELS",
   "tags": [
@@ -14,8 +14,8 @@
     "hypothesis": "Analytical procedures will strictly adhere to verified methodological prerequisites."
   },
   "inputs": {
-    "dataset_path": "evals/regression/data_235fee3a.xlsx",
-    "dataset_sha256": "235fee3a1e2615baf7b38ed28303c355e11630982fdd0e248b3e4f881b18fd9c",
+    "dataset_path": "evals/regression/data_88c8b538.xlsx",
+    "dataset_sha256": "88c8b538d792e4796e652b81a0c4c2938daf1fa29da3294312a85bc2975e789c",
     "spec_parameters": {
       "check_domain": "general_methodology"
     }
@@ -48,17 +48,17 @@
       "--suite",
       "regression",
       "--case",
-      "EVAL-CASE-REG-METHODOLOGY_-235FEE3A"
+      "EVAL-CASE-REG-THESIS_INTEG-88C8B538"
     ],
     "timeout_seconds": 30
   },
-  "created_at": "2026-09-25T17:57:06.552342+00:00",
-  "originating_lesson_id": "LSN-20260925-A833B2",
-  "originating_experience_id": "EXP-FAST-20260925-8401A9",
-  "originating_feedback_id": "FDB-20260925-C37993",
+  "created_at": "2026-09-27T08:52:11.274708+00:00",
+  "originating_lesson_id": "LSN-20260927-231C93",
+  "originating_experience_id": "EXP-FAST-20260927-981865",
+  "originating_feedback_id": "FDB-20260927-C53E42",
   "status": "candidate",
   "expected_behavior": "Ensure thorough methodological compliance and verification of deterministic_evaluation, adaptive_evaluation, context_evaluation, (bound_evaluation.",
   "forbidden_behavior": "unverified_methodological_shortcut",
-  "repeat_count": 8,
-  "last_seen_at": "2026-09-27T09:29:44.176961+00:00"
+  "repeat_count": 1,
+  "last_seen_at": "2026-09-27T08:52:11.274708+00:00"
 }

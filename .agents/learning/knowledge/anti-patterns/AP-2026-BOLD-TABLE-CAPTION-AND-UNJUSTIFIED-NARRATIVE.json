@@ -2,30 +2,29 @@
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-BOLD-TABLE-CAPTION-AND-UNJUSTIFIED-NARRATIVE",
   "category": "typography",
-  "defective_pattern": "Using bold font for table captions in APA 7 Markdown/DOCX and leaving narrative body paragraphs unjustified in DOCX.",
-  "why_defective": "APA 7 mandates regular (non-bold) font for table titles/captions. Furthermore, Persian narrative text in DOCX requires explicit full justification tags (<w:jc w:val=\"both\"/>) to render correctly.",
+  "defective_pattern": "Applying bold formatting to table captions in markdown and omitting explicit text justification tags in OpenXML for Persian narrative paragraphs.",
+  "why_defective": "Violates APA 7th Edition standards which dictate that the table number is bold, but the table title/caption must be italicized or plain text, not bold. Furthermore, Persian academic typography strictly requires full justification (<w:jc w:val='both'/>).",
   "observed_symptoms": [
-    "Table captions are bolded in Markdown or DOCX output.",
-    "Narrative paragraphs in DOCX appear left-aligned or right-aligned instead of fully justified."
+    "Table captions enclosed in bold markdown (e.g., **جدول...**).",
+    "Persian text in DOCX deliverables appears jagged because default alignment is applied instead of 'both' (justified)."
   ],
-  "corrective_remedy": "Ensure table captions are regular non-bold font. Ensure all narrative body paragraphs in DOCX explicitly contain <w:jc w:val=\"both\"/>.",
+  "corrective_remedy": "Format table captions without bolding (only bold the table number). For DOCX generation, always explicitly include <w:jc w:val='both'/> within the <w:pPr> element of narrative paragraphs.",
   "detection_heuristic": {
-    "trigger_rule": "Regex matching bold Markdown table captions or DOCX paragraphs missing justification.",
+    "trigger_rule": "Deterministic regex pattern matching bolded table captions in markdown.",
     "regex_patterns": [
-      "(?m)^\\*\\*Table .*\\*\\*",
-      "(?m)^\\*\\*جدول .*\\*\\*"
+      "(?m)^\\*\\*جدول.*\\*\\*$"
     ],
-    "pattern": "(?m)^\\*\\*جدول .*\\*\\*",
+    "pattern": "(?m)^\\*\\*جدول.*\\*\\*$",
     "check_type": "regex_ban",
-    "file_pattern": ".*\\.(md|json|docx|txt)",
+    "file_pattern": ".*\\.md",
     "event": "Both"
   },
-  "target_agent": "academic-writer",
+  "target_agent": "apa-reporting",
   "target_agents": [
-    "academic-writer",
     "apa-reporting",
+    "academic-writer",
     "persian-thesis-builder"
   ],
   "reusable": true,
-  "updated_at": "2026-09-27T10:24:37Z"
+  "updated_at": "2026-09-27T11:02:23Z"
 }

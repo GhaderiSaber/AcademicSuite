@@ -1,0 +1,34 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-APA7-TABLE-FORMATTING-INVARIANTS",
+  "category": "typography",
+  "defective_pattern": "Applying bold formatting to table captions, retaining untranslated English acronyms in Persian tables, wrapping table notes in Markdown italics, and injecting explicit right-alignment tags inside bidirectional OpenXML containers.",
+  "why_defective": "Violates strict APA 7th Edition rules (non-bold titles), Directive 4.1 (no English leakage), table note literal string parsing requirements, and Word's RTL bidirectional layout engine behavior.",
+  "observed_symptoms": [
+    "Bold table captions (e.g., B Titr Bold)",
+    "Presence of Latin letters (Tol, VIF, DW, IUS) in Persian table cells",
+    "Table notes beginning with '*یادداشت.' instead of 'یادداشت:'",
+    "Text aligning to the left edge in RTL tables due to explicit <w:jc w:val='right'/>"
+  ],
+  "corrective_remedy": "1. Force table captions to regular (non-bold) B Nazanin font. 2. Translate/transliterate all English acronyms (e.g., VIF -> عامل تورم واریانس). 3. Use exact string 'یادداشت:'. 4. Exclude <w:jc w:val='right'/> under <w:bidi/> or use <w:jc w:val='both'/>.",
+  "detection_heuristic": {
+    "trigger_rule": "Deterministic regex pattern matching formatting defects",
+    "regex_patterns": [
+      "(?i)(Tol|VIF|DW|IUS|SCI|RRS|PANAS|BSSI)",
+      "\\*یادداشت\\.",
+      "<w:jc w:val=\"right\"\\/>(.*?<w:bidi\\/>|<w:bidi\\/>.*?<w:jc w:val=\"right\"\\/>)",
+      "\\*\\*جدول.*\\*\\*"
+    ],
+    "pattern": "(?i)(Tol|VIF|DW|IUS|SCI|RRS|PANAS|BSSI)|\\*یادداشت\\.|<w:jc w:val=\"right\"\\/>.*<w:bidi\\/>|\\*\\*جدول.*\\*\\*",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.(md|docx|json)",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T12:35:00Z"
+}

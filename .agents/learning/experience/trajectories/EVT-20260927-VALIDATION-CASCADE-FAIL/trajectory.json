@@ -1,0 +1,444 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260927-VAL-CASCADE-FAIL-001",
+  "experience_id": "EVT-20260927-VALIDATION-CASCADE-FAIL",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "03_deliverables_validation",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-27T04:46:40.693992+00:00",
+      "description": "Observed USER_CORRECTION on sample size consistency: Mandated strict computation on clean harnessed N=483 cases across all deliverables",
+      "observable_input": {
+        "event_id": "EVT-C769A1F7",
+        "feedback_id": "FDB-20260927-95EFE2"
+      },
+      "observable_output": {
+        "correction": "No, this is wrong. We should do all the analysis onn N=483 clean data. Does all the analysis commit on 483 data?",
+        "severity": "HIGH",
+        "scope": "REUSABLE_PROCEDURAL"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T04:55:05.417793+00:00",
+      "description": "Observed SUBAGENT_REQUESTED delegating statistical recalculation on N=483 to statistics-agent",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-PHASE1-N483"
+      },
+      "observable_output": {
+        "child_agent": "statistics-agent",
+        "objective": "Execute complete demographic profiling, scale descriptives, reliability, and regression strictly on clean harnessed dataset N=483",
+        "input_artifacts": [
+          "02_analysis_code/selected_cases_rmsea_05.xlsx",
+          "02_analysis_code/study_config.json"
+        ]
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T05:12:18.000000+00:00",
+      "description": "Observed FILE_WRITTEN generating statistical result ledger on N=483",
+      "observable_input": {
+        "target_file": "02_analysis_code/stats_results.json"
+      },
+      "observable_output": {
+        "file_path": "02_analysis_code/stats_results.json",
+        "sample_size": 483,
+        "status": "WRITTEN"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:15:30.000000+00:00",
+      "description": "Observed FILE_WRITTEN producing Chapter 4 deliverable files in 03_deliverables directory",
+      "observable_input": {
+        "stage_dir": "03_deliverables"
+      },
+      "observable_output": {
+        "artifacts_generated": [
+          "00_data_curation_report.docx",
+          "00_data_curation_report.md",
+          "00_data_curation_report.json",
+          "00_structural_overview.docx",
+          "00_structural_overview.md",
+          "00_structural_overview.json",
+          "01_demographics.docx",
+          "01_demographics.md",
+          "01_demographics.json",
+          "02_descriptives_and_reliability.docx",
+          "02_descriptives_and_reliability.md",
+          "02_descriptives_and_reliability.json",
+          "03_parametric_assumptions.docx",
+          "03_parametric_assumptions.md",
+          "03_parametric_assumptions.json",
+          "Chapter_4_Results.docx",
+          "Defense_Viva_Voce_Brief.docx"
+        ]
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T06:50:20.000000+00:00",
+      "description": "Observed VALIDATION_STARTED running 4-Tier Validation Architecture (4-TVA) across 03_deliverables",
+      "observable_input": {
+        "suite": "Academic Suite 4-Tier Validation Architecture (4-TVA)",
+        "selected_tier": "all",
+        "stage_directory": "03_deliverables"
+      },
+      "observable_output": {
+        "status": "RUNNING",
+        "target_artifacts_count": 17
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T06:50:27.440532+00:00",
+      "description": "Observed VALIDATION_FAILED: Validation cascade failed with overall_verdict: FAIL (25 failed checks out of 115 run)",
+      "observable_input": {
+        "report_id": "VAL-20260927065027",
+        "stage_directory": "03_deliverables"
+      },
+      "observable_output": {
+        "overall_verdict": "FAIL",
+        "total_checks_run": 115,
+        "checks_passed": 88,
+        "checks_failed": 25,
+        "checks_unknown": 2,
+        "tier_1_mechanical": {
+          "verdict": "FAIL",
+          "checks_run": 100,
+          "checks_passed": 76,
+          "checks_failed": 24
+        },
+        "tier_2_forensic_math": {
+          "verdict": "FAIL",
+          "checks_run": 13,
+          "checks_passed": 10,
+          "checks_failed": 1
+        },
+        "tier_3_adversarial": {
+          "verdict": "PASS",
+          "challenges_count": 2
+        },
+        "tier_4_viva_voce": {
+          "verdict": "PASS",
+          "score_out_of_20": 13.0,
+          "defense_verdict": "PASS_WITH_MAJOR_REVISIONS"
+        }
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_WRITTEN",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T06:50:27.500000+00:00",
+      "description": "Observed FILE_WRITTEN serializing comprehensive validation report to 03_deliverables/03_validation_report.json",
+      "observable_input": {
+        "target_file": "03_deliverables/03_validation_report.json"
+      },
+      "observable_output": {
+        "report_id": "VAL-20260927065027",
+        "total_lines": 2401,
+        "status": "WRITTEN"
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-27T06:54:37.887557+00:00",
+      "description": "Observed USER_CORRECTION requiring diagnostic investigation into bold table captions and unjustified narrative alignment",
+      "observable_input": {
+        "event_id": "EVT-786D7F36",
+        "feedback_id": "FDB-20260927-6B3452"
+      },
+      "observable_output": {
+        "correction": "Reconstruct observable actions, tool calls, and error trajectory for validation failure: Validation cascade failed with overall_verdict: FAIL in Stage 4.3 (03_parametric_assumptions.md and .docx)",
+        "severity": "HIGH"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "task_id": "TSK-2026-CH4-PHASE1-N483",
+        "worker_agent": "statistics-agent"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1032
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "TargetFile": "03_deliverables/03_validation_report.json",
+        "Overwrite": true
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 145
+    },
+    {
+      "tool_name": "run_all_validators",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "stage_directory": "03_deliverables",
+        "selected_tier": "all"
+      },
+      "status": "ERROR",
+      "execution_time_ms": 5240,
+      "error_message": "Validation cascade failed with overall_verdict: FAIL"
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "assumption-testing",
+      "script_path": ".agents/skills/assumption-testing/scripts/verify_parametric_assumptions.py",
+      "cli_command": "python3 .agents/skills/assumption-testing/scripts/verify_parametric_assumptions.py --data 02_analysis_code/selected_cases_rmsea_05.xlsx",
+      "exit_code": 0,
+      "duration_seconds": 2.1
+    },
+    {
+      "skill_name": "thesis-integrity-auditor",
+      "script_path": ".agents/skills/thesis-integrity-auditor/scripts/run_all_validators.py",
+      "cli_command": "python3 .agents/skills/thesis-integrity-auditor/scripts/run_all_validators.py --stage 03_deliverables",
+      "exit_code": 1,
+      "duration_seconds": 6.8
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "statistics-agent",
+      "stage_id": "03_deliverables",
+      "task_id": "TSK-2026-CH4-PHASE1-N483",
+      "status": "COMPLETED",
+      "envelope_summary": "Execute complete demographic profiling, scale descriptives, reliability, and regression strictly on clean harnessed dataset N=483",
+      "objective": "Execute complete demographic profiling, scale descriptives, reliability, and regression strictly on clean harnessed dataset N=483",
+      "input_artifacts": [
+        "02_analysis_code/selected_cases_rmsea_05.xlsx",
+        "02_analysis_code/study_config.json"
+      ],
+      "output_artifacts": [
+        "02_analysis_code/stats_results.json",
+        "02_analysis_code/phase1_n483_summary.json"
+      ],
+      "handoff_artifact_path": "02_analysis_code/stats_results.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "validation-agent",
+      "stage_id": "03_deliverables",
+      "task_id": "TSK-4TVA-VALIDATION-AUDIT",
+      "status": "FAILED",
+      "envelope_summary": "Execute 4-Tier Validation Architecture across all deliverables in 03_deliverables",
+      "objective": "Execute 4-Tier Validation Architecture across all deliverables in 03_deliverables",
+      "input_artifacts": [
+        "03_deliverables"
+      ],
+      "output_artifacts": [
+        "03_deliverables/03_validation_report.json"
+      ],
+      "handoff_artifact_path": "03_deliverables/03_validation_report.json"
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260927-4TVA-FAIL-GATE",
+      "decision_type": "FAIL_CLOSED_VALIDATION_GATE",
+      "selected_option": "REJECT_AND_TRIGGER_DIAGNOSTIC_LEARNING_PIPELINE",
+      "rationale": "Directive 25, Directive 21, and fail-closed architecture prohibit publishing or advancing stage deliverables when overall_verdict is FAIL",
+      "alternatives_considered": [
+        {
+          "option": "FORCE_PASS_WITH_WARNINGS",
+          "verdict": "REJECTED",
+          "reason": "Violates Directive 25 zero-shortcut invariant and fail-closed constitutional design"
+        },
+        {
+          "option": "REPAIR_LOCALLY_WITHOUT_LEARNING",
+          "verdict": "REJECTED",
+          "reason": "Violates Directive 21 and anti-pattern AP-2026-PATCHING-WITHOUT-LEARNING"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/00_data_curation_report.docx",
+      "sha256": "d4ec25dafb53b02d03d8f62fe9907ab186d48a69a588ca93f675687197ea8418",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/00_data_curation_report.json",
+      "sha256": "26a50c4291a03449c6005d714f8ddf4282d3e6df7a390c20b51fbd72c78c64d1",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/00_data_curation_report.md",
+      "sha256": "c996118056b21a94e07fffdca514d8ab8bba5e5d92c41acf5e76400e7c1fd4b0",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/00_structural_overview.docx",
+      "sha256": "4c30c45e561baf4dfdd5f2018568cf54c780e6ee8cd65f45e8705b9d4b68569b",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/00_structural_overview.json",
+      "sha256": "efb9d49f2985e9073e105023ce1ec4e304e0eff4651089f9962e2d1cd8c9fe87",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/00_structural_overview.md",
+      "sha256": "c71d21f5793ceab82abaa29c20077b1c36ca574fd76c7c79ba2f7fddf9c03024",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/01_demographics.docx",
+      "sha256": "1aa04c6cdbc718af4efdb659ff4c93cb0a14f68f824d1d928eb9bbaabcb53695",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/01_demographics.json",
+      "sha256": "501fb34504ccf5daea6aecfa9d594ecc305a138ea577c6e766753cd708ed14ea",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/01_demographics.md",
+      "sha256": "71eb96709191c4529307282328a688d8e4e41cdc127729762cc4045732f142bb",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.docx",
+      "sha256": "91f760195447f32e18294eb709ad79d5106c3a7db79d05f44e93d31f8b1f09a9",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.json",
+      "sha256": "98a0bf2d0a655ebab46596210efd51944d4ede5e90091bcaeb880e62c5646944",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.md",
+      "sha256": "4efcf71caa2e5923c980a263ded4193155a8eaf5f4c547e6af12ab6143ad812f",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/03_parametric_assumptions.docx",
+      "sha256": "b96622d7071fcbf65a30e15973c4732ce2a14df9a8c7e8d23e65fb72c9dabd31",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/03_parametric_assumptions.json",
+      "sha256": "b87d05bb332b39d11ef9331c3324cc34665d34807f6b5fa00f96e4d03f027710",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/03_parametric_assumptions.md",
+      "sha256": "29df56a960f23664d722c3bacea646680da5ef1332368036c6fe65d8609c7f39",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/03_validation_report.json",
+      "sha256": "8410ee5e9f93dd4151b61b7d7f43a2999a79022916ad429be4b99f8d92eedab1",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Results.docx",
+      "sha256": "565e4858bf4abe71b9384925f80cd9e36ecb97cf0c083974de6cfeeb4510d516",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/Defense_Viva_Voce_Brief.docx",
+      "sha256": "6001afdb0b4a98bbb9d7802df6d249aead3e4c5bca38aefa25a269c6fed4391b",
+      "type": "docx"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "run_all_validators",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-NUMERICAL-00_structural_overview.json: Statistical artifact lacks substantive empirical parameters",
+        "CHK-APA7-TABLE-BORDERS-00_data_curation_report.docx: Chapter 4 findings deliverable strictly requires at least one APA 7 statistical table, but 0 found",
+        "CHK-NARRATIVE-JUSTIFICATION-00_data_curation_report.docx: 40 Persian narrative paragraphs not justified (<w:jc w:val='both'/> missing)",
+        "CHK-SABER-4ELEMENT-NARRATIVE-00_data_curation_report.docx: Missing required epistemic components (In-text Table Reference, Definitive Hypothesis Verdict)",
+        "CHK-NARRATIVE-JUSTIFICATION-02_descriptives_and_reliability.docx: 4 Persian narrative paragraphs not justified",
+        "CHK-APA7-TABLE-BORDERS-00_structural_overview.docx: Chapter 4 findings deliverable strictly requires at least one APA 7 statistical table, but 0 found",
+        "CHK-NARRATIVE-JUSTIFICATION-00_structural_overview.docx: Paragraph 2 not justified",
+        "CHK-MINIMUM-SUBSTANTIVE-DENSITY-00_structural_overview.docx: Contains only 80 narrative words (minimum required: 200 words)",
+        "CHK-SABER-4ELEMENT-NARRATIVE-00_structural_overview.docx: Missing Data Highlights, In-text Table Reference, Definitive Hypothesis Verdict",
+        "CHK-APA7-TABLE-BORDERS-Defense_Viva_Voce_Brief.docx: Vertical cell borders present on 6 tables",
+        "CHK-TABLE-BIDI-DIRECTION-Defense_Viva_Voce_Brief.docx: Persian tables lack <w:bidiVisual/> in <w:tblPr>",
+        "CHK-TABLE-SEQUENCE-AND-NOTE-Defense_Viva_Voce_Brief.docx: 13 table sequence errors (missing table caption or explanatory table note starting with 'یادداشت:')",
+        "CHK-NARRATIVE-JUSTIFICATION-Defense_Viva_Voce_Brief.docx: 6 Persian narrative paragraphs not justified",
+        "CHK-PERSIAN-LEADING-ZERO-Defense_Viva_Voce_Brief.docx: Naked decimals '.۰۵' and '.۰۰۱' missing leading zero",
+        "CHK-ENGLISH-WORD-LEAKAGE-Defense_Viva_Voce_Brief.docx: 51 untranslated English words in Persian table cells",
+        "CHK-SABER-4ELEMENT-NARRATIVE-Defense_Viva_Voce_Brief.docx: Missing Definitive Hypothesis Verdict",
+        "CHK-CHAPTER5-PROSE-ONLY-Chapter_4_Results.docx: Directive 3.1 Prose-Only Invariant violation: 25 tables found",
+        "CHK-TABLE-CAPTION-TYPOGRAPHY-Chapter_4_Results.docx: 50 table captions are bold and use 'B Titr' font instead of 'B Nazanin' 12pt Regular",
+        "CHK-TABLE-SEQUENCE-AND-NOTE-Chapter_4_Results.docx: 13 tables not followed by explanatory table note starting with 'یادداشت:'",
+        "CHK-NARRATIVE-JUSTIFICATION-Chapter_4_Results.docx: 14 Persian narrative paragraphs not justified",
+        "CHK-ENGLISH-WORD-LEAKAGE-Chapter_4_Results.docx: 50 untranslated English words in Persian table cells",
+        "CHK-NARRATIVE-JUSTIFICATION-01_demographics.docx: 13 Persian narrative paragraphs not justified",
+        "CHK-APA7-TABLE-BORDERS-03_parametric_assumptions.docx: Chapter 4 findings deliverable strictly requires at least one APA 7 statistical table, but 0 found",
+        "CHK-NARRATIVE-JUSTIFICATION-03_parametric_assumptions.docx: 3 Persian narrative paragraphs not justified",
+        "CHK-SABER-4ELEMENT-NARRATIVE-03_parametric_assumptions.docx: Missing Definitive Hypothesis Verdict"
+      ],
+      "evidence_summary": {
+        "report_id": "VAL-20260927065027",
+        "total_checks_run": 115,
+        "checks_passed": 88,
+        "checks_failed": 25,
+        "checks_unknown": 2,
+        "checks_unverified": 2,
+        "checks_incomplete": 2,
+        "tier_1_mechanical": {
+          "verdict": "FAIL",
+          "checks_run": 100,
+          "checks_passed": 76,
+          "checks_failed": 24
+        },
+        "tier_2_forensic_math": {
+          "verdict": "FAIL",
+          "checks_run": 13,
+          "checks_passed": 10,
+          "checks_failed": 1
+        },
+        "tier_3_adversarial": {
+          "verdict": "PASS",
+          "challenges_count": 2
+        },
+        "tier_4_viva_voce": {
+          "verdict": "PASS",
+          "score_out_of_20": 13.0,
+          "defense_verdict": "PASS_WITH_MAJOR_REVISIONS"
+        }
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260927-VAL-CASCADE-FAIL",
+    "FDB-20260927-6B3452"
+  ],
+  "outcome": "FAILURE"
+}

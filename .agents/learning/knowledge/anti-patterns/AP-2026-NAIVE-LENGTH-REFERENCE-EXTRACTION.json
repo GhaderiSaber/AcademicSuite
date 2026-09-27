@@ -1,0 +1,26 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-NAIVE-LENGTH-REFERENCE-EXTRACTION",
+  "category": "execution",
+  "defective_pattern": "Relying on naive character length heuristics (e.g., len(text) > 20) to distinguish valid bibliographic references from document subheadings.",
+  "why_defective": "Subheadings (such as 'الف) منابع و مآخذ فارسی (کتب و مقالات)') often exceed 20 characters and bypass length-only filters, leaking into bibliographies as erroneous references. It fails to enforce structural bibliographic validation.",
+  "observed_symptoms": [
+    "Document subheadings erroneously appearing in compiled reference lists.",
+    "Non-citation text blocks classified as references."
+  ],
+  "corrective_remedy": "Enforce structural bibliographic validation. A paragraph must only be classified as a reference if it contains standard citation markers (e.g., a 4-digit year in parentheses) or meets rigorous regex criteria for APA 7 formatting. Filter subheadings explicitly.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect naive length check heuristic in reference extraction logic without year/marker validation.",
+    "regex_patterns": ["len\\(.*?\\)\\s*>\\s*\\d+"],
+    "pattern": "len\\(.*?\\)\\s*>\\s*\\d+",
+    "check_type": "regex_ban",
+    "file_pattern": ".*reference.*\\.py$",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-27T11:05:00Z"
+}

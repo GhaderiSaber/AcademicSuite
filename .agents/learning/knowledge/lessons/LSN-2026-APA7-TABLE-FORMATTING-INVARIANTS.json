@@ -1,0 +1,42 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-APA7-TABLE-FORMATTING-INVARIANTS",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "EVT-20260927-TABLES-ONLY-VAL-FAIL",
+  "diagnosis": {
+    "what_happened": "academic-writer generated a 26-table Chapter 4 Tables-Only deliverable with multiple formatting invariant violations: bold table captions, untranslated English acronyms in table cells, invalid table note prefixes (*یادداشت.), and right-alignment tags inside bidi containers causing RTL alignment inversion.",
+    "behavior_caused_outcome": "The agent followed prompt hints for bolding instead of strict APA 7 rules, retained English acronyms for brevity, used Markdown formatting for table notes, and misunderstood OpenXML bidi alignment logic.",
+    "what_should_have_happened": "Agent must enforce non-bold B Nazanin table captions, zero-tolerance translation of English acronyms, literal string 'یادداشت:' without asterisks, and omit right-alignment in bidi containers (or use 'both').",
+    "rationale_why": "APA 7 strictly requires non-bold table titles. Persian academic standards strictly forbid untranslated English acronyms in tables. Literal string prefixes are required for parsers. Word OpenXML Engine flips 'right' alignment to left on trailing edges in RTL mode."
+  },
+  "desired_behavior": "Strictly apply non-bold B Nazanin formatting to table captions overriding prompt requests. Translate or transliterate all English statistical acronyms. Output literal 'یادداشت:' for table notes. Exclude <w:jc w:val='right'/> from bidirectional OpenXML paragraphs.",
+  "generalization": "Universal formatting invariants (APA 7 and RTL constraints) always override local task prompt preferences or convenience shortcuts.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "run_all_validators",
+    "observed_value": "30 checks failed",
+    "threshold_value": "0 checks failed",
+    "supporting_report_ids": [
+      "VAL-20260927084825",
+      "VAL-20260927-TABLES-ONLY"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-27T12:35:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ],
+  "graduation_status": "PENDING_GRADUATION"
+}

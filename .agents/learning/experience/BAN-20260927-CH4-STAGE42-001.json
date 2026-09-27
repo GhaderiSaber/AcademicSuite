@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260927-CH4-STAGE42-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "EVT-20260927-CH4-STAGE42-FEEDBACK",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "capability": "academic_writing",
+  "trajectory_id": "TRJ-20260927-CH4-STAGE42-STUB-AND-TYPESETTING-LEAK-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "FILE_WRITTEN",
+    "tool_name": "write_to_file",
+    "description": "academic-writer authored 03_deliverables/02_descriptives_and_reliability.md containing a 3-sentence boilerplate template intro stub without empirical explanation, and leaked internal typesetting metadata into the table note."
+  },
+  "failure_signature": "SHORTCUT_EXECUTION_STUB_AND_METADATA_LEAK",
+  "root_cause_diagnosis": "The academic-writer subagent took a fastpath shortcut by generating a minimal boilerplate stub preamble instead of synthesizing a complete empirical narrative explanation for the tables. Furthermore, the agent directly injected internal bidirectional formatting instructions ('LTR') into the APA 7 table note.",
+  "prescribed_behavior": "The academic-writer must strictly adhere to Directive 25 (Universal Anti-Shortcut Invariant) by writing comprehensive empirical prose describing the data before presenting any table. All internal typesetting jargon must be omitted from final user-facing table notes.",
+  "created_at": "2026-09-27T11:06:00Z"
+}

@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260927-414",
+  "trigger_type": "QC_FAILURE",
+  "trigger_event_id": "EVT-20260927-CH4-STAGE43-FEEDBACK",
+  "target_agent": "apa-reporting",
+  "target_skill": "apa-reporting",
+  "capability": "GENERAL_ACADEMIC",
+  "trajectory_id": "TRJ-20260927-CH4-STAGE43",
+  "observable_failure_step": {
+    "step_number": 0,
+    "action_type": "DELIVERABLE_GENERATION",
+    "description": "Generated 03_parametric_assumptions.md and .docx with bold table captions and unjustified text."
+  },
+  "failure_signature": "APA_FORMATTING_VIOLATION",
+  "root_cause_diagnosis": "The generation logic wrapped Markdown table captions in asterisks (e.g., **جدول ۴- ۱۵...**), violating APA 7 guidelines which strictly prohibit bold table captions. Concurrently, the OpenXML generation for DOCX files omitted the necessary justification tags (<w:jc w:val='both'/>) within the paragraph properties (<w:pPr>), causing Persian narrative text to default to right-aligned rather than fully justified.",
+  "prescribed_behavior": "The markdown generator must output plain text without asterisks for table captions. The DOCX compiler must explicitly inject `<w:jc w:val='both'/>` into the OpenXML paragraph properties for all Persian narrative blocks.",
+  "created_at": "2026-09-27T11:05:00+03:30"
+}

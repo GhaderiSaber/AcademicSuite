@@ -1,0 +1,39 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-NAIVE-LENGTH-REFERENCE-EXTRACTION",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "BAN-20260925-001",
+  "diagnosis": {
+    "what_happened": "The extraction logic in restore_comprehensive_references.py relied on a naive character length heuristic (len(text) > 20) to extract valid bibliographic references. Consequently, long document subheadings were erroneously extracted.",
+    "behavior_caused_outcome": "Because some subheadings contain more than 20 characters, they bypassed the filter and were erroneously appended to the reference list.",
+    "what_should_have_happened": "The script should have validated standard bibliographic markers (e.g., publication year in parentheses, structured punctuation, or DOI patterns) before classifying a paragraph as a reference.",
+    "rationale_why": "Bibliographic references follow strict structured formats (like APA 7). Relying solely on string length lacks the precision needed to differentiate between narrative text, long headings, and actual citations."
+  },
+  "desired_behavior": "Enforce structural bibliographic validation (e.g., regex for a four-digit year enclosed in parentheses or APA 7 formatting) for reference extraction. Explicitly filter out subheadings.",
+  "generalization": "Never use pure string length as a heuristic for structural text classification tasks (like reference extraction); always validate structural markers or domain-specific patterns.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "REFERENCE_EXTRACTION_VALIDATION",
+    "observed_value": "Subheadings leaked into references",
+    "threshold_value": "Zero non-reference items in bibliography",
+    "supporting_report_ids": [
+      "BAN-20260925-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-reference-extractor"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "graduation_status": "PENDING_GRADUATION",
+  "created_at": "2026-09-27T11:05:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer"
+  ]
+}

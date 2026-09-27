@@ -1,0 +1,524 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260927-VAL-CASCADE-FAIL-001",
+  "experience_id": "EXP-20260927-03-DELIVERABLES-45827E",
+  "project_id": "Mohtasham_Valiyanpur_PhD_Thesis",
+  "task_id": "03_deliverables",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T04:55:05.422752+00:00",
+      "description": "Orchestrator delegated statistical ledger harmonization strictly on clean N=483 data to statistics-agent",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-PHASE1-N483",
+        "inputs": [
+          "02_analysis_code/selected_cases_rmsea_05.xlsx",
+          "02_analysis_code/study_config.json"
+        ]
+      },
+      "observable_output": {
+        "status": "STARTED",
+        "worker_agent": "statistics-agent"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "COMMAND_STARTED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T05:00:10.000000+00:00",
+      "description": "Executed python statistical analysis script reading selected_cases_rmsea_05.xlsx on clean N=483 cases",
+      "observable_input": {
+        "script": "02_analysis_code/Model Analysis.py",
+        "dataset": "02_analysis_code/selected_cases_rmsea_05.xlsx"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "sample_size": 483
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T05:15:30.000000+00:00",
+      "description": "Wrote statistical calculations and ledger summaries to JSON artifacts",
+      "observable_input": {
+        "paths": [
+          "02_analysis_code/stats_results.json",
+          "02_analysis_code/phase1_n483_summary.json"
+        ]
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T05:20:00.000000+00:00",
+      "description": "Delegated Stage 4.0 and Stage 4.1 triad writing to academic-writer",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE40-41-N483",
+        "inputs": [
+          "02_analysis_code/stats_results.json",
+          "02_analysis_code/phase1_n483_summary.json"
+        ]
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T05:45:00.000000+00:00",
+      "description": "Drafted and compiled 00_structural_overview triad (.docx, .md, .json) and 01_demographics triad (.docx, .md, .json)",
+      "observable_input": {
+        "target_stage": "03_deliverables"
+      },
+      "observable_output": {
+        "files_generated": [
+          "03_deliverables/00_structural_overview.docx",
+          "03_deliverables/00_structural_overview.json",
+          "03_deliverables/00_structural_overview.md",
+          "03_deliverables/01_demographics.docx",
+          "03_deliverables/01_demographics.json",
+          "03_deliverables/01_demographics.md"
+        ]
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T05:50:00.000000+00:00",
+      "description": "Delegated Stage 4.0 data curation documentation to data-curator",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE40-CURATION",
+        "inputs": [
+          "02_analysis_code/selected_cases_rmsea_05.xlsx",
+          "02_analysis_code/stats_results.json"
+        ]
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_WRITTEN",
+      "actor": "data-curator",
+      "timestamp": "2026-09-27T06:05:00.000000+00:00",
+      "description": "Generated 00_data_curation_report triad (.docx, .md, .json) and data_cleaned.xlsx",
+      "observable_input": {
+        "target_stage": "03_deliverables"
+      },
+      "observable_output": {
+        "files_generated": [
+          "03_deliverables/00_data_curation_report.docx",
+          "03_deliverables/00_data_curation_report.json",
+          "03_deliverables/00_data_curation_report.md"
+        ]
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T06:10:00.000000+00:00",
+      "description": "Delegated Stage 4.2 Descriptives & Reliability and Stage 4.3 Parametric Assumptions triad generation to academic-writer and statistics-agent",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE42-DESCRIPTIVES-RELIABILITY-N483"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-27T06:30:00.000000+00:00",
+      "description": "Generated 02_descriptives_and_reliability triad, 03_parametric_assumptions triad, Chapter_4_Results.docx, and Defense_Viva_Voce_Brief.docx",
+      "observable_input": {
+        "target_stage": "03_deliverables"
+      },
+      "observable_output": {
+        "files_generated": [
+          "03_deliverables/02_descriptives_and_reliability.docx",
+          "03_deliverables/02_descriptives_and_reliability.json",
+          "03_deliverables/02_descriptives_and_reliability.md",
+          "03_deliverables/03_parametric_assumptions.docx",
+          "03_deliverables/03_parametric_assumptions.json",
+          "03_deliverables/03_parametric_assumptions.md",
+          "03_deliverables/Chapter_4_Results.docx",
+          "03_deliverables/Defense_Viva_Voce_Brief.docx"
+        ]
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T06:50:27.440532+00:00",
+      "description": "Triggered 4-Tier Validation Architecture audit on 03_deliverables stage",
+      "observable_input": {
+        "validator_name": "run_all_validators",
+        "stage_directory": "03_deliverables",
+        "selected_tier": "all"
+      },
+      "observable_output": {
+        "status": "RUNNING"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T06:50:27.699301+00:00",
+      "description": "Validation cascade concluded with overall_verdict: FAIL (115 checks executed: 88 PASS, 25 FAIL, 2 UNKNOWN)",
+      "observable_input": {
+        "report_id": "VAL-20260927065027"
+      },
+      "observable_output": {
+        "overall_verdict": "FAIL",
+        "checks_passed": 88,
+        "checks_failed": 25,
+        "report_path": "03_deliverables/03_validation_report.json"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "run_all_validators",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "stage_dir": "03_deliverables",
+        "tier": "all"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1250.0,
+      "error_message": "Validation cascade failed with overall_verdict: FAIL"
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "assumption-testing",
+      "script_path": ".agents/skills/assumption-testing/scripts/run_assumption_testing.py",
+      "cli_command": "python3 .agents/skills/assumption-testing/scripts/run_assumption_testing.py --input 02_analysis_code/selected_cases_rmsea_05.xlsx",
+      "exit_code": 0,
+      "duration_seconds": 1.2
+    },
+    {
+      "skill_name": "thesis-integrity-auditor",
+      "script_path": ".agents/skills/thesis-integrity-auditor/scripts/run_integrity_audit.py",
+      "cli_command": "python3 .agents/skills/thesis-integrity-auditor/scripts/run_integrity_audit.py --stage 03_deliverables",
+      "exit_code": 1,
+      "duration_seconds": 3.4
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "stage_id": "TSK-2026-CH4-PHASE1-N483",
+      "status": "COMPLETED",
+      "envelope_summary": "Execute complete demographic profiling, scale descriptives, Cronbach alpha / McDonald omega reliability, parametric assumption testing, and linear regressions strictly on the clean harnessed dataset N=483.",
+      "handoff_artifact_path": "02_analysis_code/stats_results.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "statistics-agent",
+      "task_id": "TSK-2026-CH4-PHASE1-N483",
+      "objective": "Execute complete demographic profiling, scale descriptives, Cronbach alpha / McDonald omega reliability, parametric assumption testing, zero-order Pearson correlations, and linear regressions strictly on clean harnessed dataset N=483.",
+      "input_artifacts": [
+        "02_analysis_code/selected_cases_rmsea_05.xlsx",
+        "02_analysis_code/study_config.json"
+      ],
+      "output_artifacts": [
+        "02_analysis_code/stats_results.json",
+        "02_analysis_code/phase1_n483_summary.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "TSK-2026-CH4-STAGE40-41-N483",
+      "status": "COMPLETED",
+      "envelope_summary": "Draft and compile the synchronized triad deliverables (.docx, .md, .json) for Stage 4.0 (Structural Overview) and Stage 4.1 (Demographic Profiling) strictly on clean N=483 dataset.",
+      "handoff_artifact_path": "03_deliverables/00_structural_overview.docx",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-2026-CH4-STAGE40-41-N483",
+      "objective": "Draft and compile the synchronized triad deliverables for Stage 4.0 and Stage 4.1 strictly on clean N=483 dataset.",
+      "input_artifacts": [
+        "02_analysis_code/stats_results.json",
+        "02_analysis_code/phase1_n483_summary.json",
+        "02_analysis_code/study_config.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/00_structural_overview.docx",
+        "03_deliverables/00_structural_overview.md",
+        "03_deliverables/00_structural_overview.json",
+        "03_deliverables/01_demographics.docx",
+        "03_deliverables/01_demographics.md",
+        "03_deliverables/01_demographics.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "data-curator",
+      "stage_id": "TSK-2026-CH4-STAGE40-CURATION",
+      "status": "COMPLETED",
+      "envelope_summary": "Execute Stage 4.0 Data Curation for clean N=483 dataset and generate 00_data_curation_report triad.",
+      "handoff_artifact_path": "00_data_curation_report.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "data-curator",
+      "task_id": "TSK-2026-CH4-STAGE40-CURATION",
+      "objective": "Execute Stage 4.0 Data Curation for clean N=483 dataset.",
+      "input_artifacts": [
+        "02_analysis_code/selected_cases_rmsea_05.xlsx",
+        "02_analysis_code/stats_results.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/00_data_curation_report.docx",
+        "03_deliverables/00_data_curation_report.json",
+        "03_deliverables/00_data_curation_report.md"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "TSK-2026-CH4-STAGE42-DESCRIPTIVES-RELIABILITY-N483",
+      "status": "COMPLETED",
+      "envelope_summary": "Draft and compile synchronized triad deliverables for Stage 4.2 Descriptives & Reliability.",
+      "handoff_artifact_path": "03_deliverables/02_descriptives_and_reliability.docx",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-2026-CH4-STAGE42-DESCRIPTIVES-RELIABILITY-N483",
+      "objective": "Draft and compile synchronized triad deliverables for Stage 4.2 Continuous Descriptives & Scale Reliability strictly on clean N=483 dataset.",
+      "input_artifacts": [
+        "02_analysis_code/stats_results.json",
+        "02_analysis_code/phase1_n483_summary.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/02_descriptives_and_reliability.docx",
+        "03_deliverables/02_descriptives_and_reliability.md",
+        "03_deliverables/02_descriptives_and_reliability.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "stage_id": "TSK-DEL-VALIDATION_AGENT",
+      "status": "COMPLETED",
+      "envelope_summary": "Run 4-tier validation cascade across all deliverables in 03_deliverables.",
+      "handoff_artifact_path": "03_deliverables/03_validation_report.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "validation-agent",
+      "task_id": "TSK-DEL-VALIDATION_AGENT",
+      "objective": "Execute 4-tier validation cascade across all 03_deliverables artifacts.",
+      "input_artifacts": [
+        "03_deliverables/00_data_curation_report.docx",
+        "03_deliverables/00_structural_overview.docx",
+        "03_deliverables/01_demographics.docx",
+        "03_deliverables/02_descriptives_and_reliability.docx",
+        "03_deliverables/03_parametric_assumptions.docx",
+        "03_deliverables/Chapter_4_Results.docx",
+        "03_deliverables/Defense_Viva_Voce_Brief.docx"
+      ],
+      "output_artifacts": [
+        "03_deliverables/03_validation_report.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260927-001",
+      "decision_type": "SAMPLE_SIZE_HARMONIZATION",
+      "selected_option": "Commit strictly to clean N=483 cases across all stages",
+      "rationale": "User critique explicitly mandated eliminating sample size discrepancies between N=577 and N=483, committing 100% of statistical stages to clean N=483 cases.",
+      "alternatives_considered": [
+        {
+          "option": "Report raw N=577 for descriptives and N=483 for SEM",
+          "verdict": "REJECTED",
+          "reason": "Directly rejected by user correction and violates sample size consistency."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260927-002",
+      "decision_type": "VALIDATION_AUDIT_EXECUTION",
+      "selected_option": "Execute complete 4-TVA cascade across 03_deliverables",
+      "rationale": "Mandatory quality gate prior to delivery handoff.",
+      "alternatives_considered": [
+        {
+          "option": "Run only mechanical checks (Tier 1)",
+          "verdict": "REJECTED",
+          "reason": "Violates Directive 25 zero-shortcut invariant."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/00_data_curation_report.docx",
+      "sha256": "d4ec25dafb53b02d03d8f62fe9907ab186d48a69a588ca93f675687197ea8418",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/00_data_curation_report.json",
+      "sha256": "26a50c4291a03449c6005d714f8ddf4282d3e6df7a390c20b51fbd72c78c64d1",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/00_data_curation_report.md",
+      "sha256": "c996118056b21a94e07fffdca514d8ab8bba5e5d92c41acf5e76400e7c1fd4b0",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/00_structural_overview.docx",
+      "sha256": "4c30c45e561baf4dfdd5f2018568cf54c780e6ee8cd65f45e8705b9d4b68569b",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/00_structural_overview.json",
+      "sha256": "efb9d49f2985e9073e105023ce1ec4e304e0eff4651089f9962e2d1cd8c9fe87",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/00_structural_overview.md",
+      "sha256": "c71d21f5793ceab82abaa29c20077b1c36ca574fd76c7c79ba2f7fddf9c03024",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/01_demographics.docx",
+      "sha256": "1aa04c6cdbc718af4efdb659ff4c93cb0a14f68f824d1d928eb9bbaabcb53695",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/01_demographics.json",
+      "sha256": "501fb34504ccf5daea6aecfa9d594ecc305a138ea577c6e766753cd708ed14ea",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/01_demographics.md",
+      "sha256": "71eb96709191c4529307282328a688d8e4e41cdc127729762cc4045732f142bb",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.docx",
+      "sha256": "91f760195447f32e18294eb709ad79d5106c3a7db79d05f44e93d31f8b1f09a9",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.json",
+      "sha256": "98a0bf2d0a655ebab46596210efd51944d4ede5e90091bcaeb880e62c5646944",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.md",
+      "sha256": "4efcf71caa2e5923c980a263ded4193155a8eaf5f4c547e6af12ab6143ad812f",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/03_parametric_assumptions.docx",
+      "sha256": "b96622d7071fcbf65a30e15973c4732ce2a14df9a8c7e8d23e65fb72c9dabd31",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/03_parametric_assumptions.json",
+      "sha256": "b87d05bb332b39d11ef9331c3324cc34665d34807f6b5fa00f96e4d03f027710",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/03_parametric_assumptions.md",
+      "sha256": "29df56a960f23664d722c3bacea646680da5ef1332368036c6fe65d8609c7f39",
+      "type": "md"
+    },
+    {
+      "path": "03_deliverables/03_validation_report.json",
+      "sha256": "8410ee5e9f93dd4151b61b7d7f43a2999a79022916ad429be4b99f8d92eedab1",
+      "type": "json"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Results.docx",
+      "sha256": "565e4858bf4abe71b9384925f80cd9e36ecb97cf0c083974de6cfeeb4510d516",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/Defense_Viva_Voce_Brief.docx",
+      "sha256": "6001afdb0b4a98bbb9d7802df6d249aead3e4c5bca38aefa25a269c6fed4391b",
+      "type": "docx"
+    },
+    {
+      "path": "03_deliverables/Model_Statistical_Results.xlsx",
+      "sha256": "5900e7f3920ebceda1b82ff57473ec9ea3d16d339fa86978afadf83af6f705e9",
+      "type": "xlsx"
+    },
+    {
+      "path": "03_deliverables/fig_residual_diagnostics.png",
+      "sha256": "c9d6b27577d2ac784f51b9ec035ecb9e57c23c4aad0e2a539d738fb02ad3ade4",
+      "type": "png"
+    },
+    {
+      "path": "03_deliverables/fig_serial_mediation_model.png",
+      "sha256": "32c5ba7097a63e6e9837a10885eefa2dba5a7b8e3b2e182fdd20d9b2429c535c",
+      "type": "png"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "run_all_validators",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-NUMERICAL-00_structural_overview.json",
+        "CHK-APA7-TABLE-BORDERS-00_data_curation_report.docx",
+        "CHK-NARRATIVE-JUSTIFICATION-00_data_curation_report.docx",
+        "CHK-SABER-4ELEMENT-NARRATIVE-00_data_curation_report.docx",
+        "CHK-NARRATIVE-JUSTIFICATION-02_descriptives_and_reliability.docx",
+        "CHK-APA7-TABLE-BORDERS-00_structural_overview.docx",
+        "CHK-NARRATIVE-JUSTIFICATION-00_structural_overview.docx",
+        "CHK-MINIMUM-SUBSTANTIVE-DENSITY-00_structural_overview.docx",
+        "CHK-SABER-4ELEMENT-NARRATIVE-00_structural_overview.docx",
+        "CHK-APA7-TABLE-BORDERS-Defense_Viva_Voce_Brief.docx",
+        "CHK-TABLE-BIDI-DIRECTION-Defense_Viva_Voce_Brief.docx",
+        "CHK-TABLE-SEQUENCE-AND-NOTE-Defense_Viva_Voce_Brief.docx",
+        "CHK-NARRATIVE-JUSTIFICATION-Defense_Viva_Voce_Brief.docx",
+        "CHK-PERSIAN-LEADING-ZERO-Defense_Viva_Voce_Brief.docx",
+        "CHK-ENGLISH-WORD-LEAKAGE-Defense_Viva_Voce_Brief.docx",
+        "CHK-SABER-4ELEMENT-NARRATIVE-Defense_Viva_Voce_Brief.docx",
+        "CHK-CHAPTER5-PROSE-ONLY-Chapter_4_Results.docx",
+        "CHK-TABLE-CAPTION-TYPOGRAPHY-Chapter_4_Results.docx",
+        "CHK-TABLE-SEQUENCE-AND-NOTE-Chapter_4_Results.docx",
+        "CHK-NARRATIVE-JUSTIFICATION-Chapter_4_Results.docx",
+        "CHK-ENGLISH-WORD-LEAKAGE-Chapter_4_Results.docx",
+        "CHK-NARRATIVE-JUSTIFICATION-01_demographics.docx",
+        "CHK-APA7-TABLE-BORDERS-03_parametric_assumptions.docx",
+        "CHK-NARRATIVE-JUSTIFICATION-03_parametric_assumptions.docx",
+        "CHK-SABER-4ELEMENT-NARRATIVE-03_parametric_assumptions.docx"
+      ],
+      "evidence_summary": {
+        "report_id": "VAL-20260927065027",
+        "total_checks_run": 115,
+        "checks_passed": 88,
+        "checks_failed": 25,
+        "checks_unknown": 2,
+        "checks_unverified": 2,
+        "checks_incomplete": 2,
+        "tier_1_failures": 24,
+        "tier_2_failures": 1,
+        "tier_3_verdict": "PASS",
+        "tier_4_verdict": "PASS"
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260927-95EFE2",
+    "FDB-20260927-462359",
+    "FDB-20260927-03BDB2"
+  ],
+  "outcome": "FAILURE"
+}

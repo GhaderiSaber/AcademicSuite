@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260927-VAL-CASCADE-FAIL-001",
+  "trigger_type": "QC_FAILURE",
+  "trigger_event_id": "EVT-20260927-VALIDATION-CASCADE-FAIL",
+  "target_agent": "academic-writer",
+  "target_skill": "apa-reporting",
+  "capability": "GENERAL_ACADEMIC",
+  "trajectory_id": "TRJ-20260927-VAL-CASCADE-FAIL-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "FILE_WRITTEN",
+    "tool_name": "write_to_file",
+    "description": "Observed FILE_WRITTEN producing Chapter 4 deliverable files in 03_deliverables directory"
+  },
+  "failure_signature": "APA7_VIOLATION_AND_UNJUSTIFIED_TEXT",
+  "root_cause_diagnosis": "The academic-writer agent generated Chapter 4 artifacts containing unaligned (unjustified) narrative paragraphs, bold table captions, numerical values lacking Persian leading zeros, non-RTL table cell directions, untranslated English words in Persian tables, and tables inside text where prose-only formatting was required, directly violating APA 7 formatting norms and specific OpenXML directives.",
+  "prescribed_behavior": "When executing 'write_to_file' for Persian Academic artifacts, the agent must embed explicit <w:jc w:val='both'/> justification tags for prose, strip bold formatting from table captions in Markdown/OpenXML according to APA 7 rules, strictly enforce Persian leading zeroes (e.g. ۰.۰۵), and remove remaining English term leakage in Persian table cells.",
+  "created_at": "2026-09-27T11:15:34+03:30"
+}
