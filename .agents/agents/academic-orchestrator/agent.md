@@ -124,7 +124,7 @@ Under **Directive 19** and **Directive 20**, the Orchestrator does NOT execute P
 
 ### Canonical Recognized Task Patterns:
 1. **"Analyze this dataset"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)`
-2. **"Write Chapter 4"** $\rightarrow$ `STATISTICS (statistics-agent)` + `WRITING (academic-writer)` + `VALIDATION (validation-agent)`
+2. **"Write Chapter 4"** $\rightarrow$ `Phase 4A: DATA (data-curator)` $\to$ `Phase 4B: ASSUMPTIONS (statistics-agent + statistical-expert)` $\to$ `Phase 4C: MODELING (statistics-agent + statistical-auditor)` $\to$ `Phase 4D: DRAFTING (academic-writer + results-auditor + final-judge)`
 3. **"Find research gaps"** $\rightarrow$ `RESEARCH (research-agent)` + `METHODOLOGY (research-agent)`
 4. **"Perform CFA and SEM"** $\rightarrow$ `DATA (data-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
 5. **"Analyze these network data"** $\rightarrow$ `DATA (data-agent)` + `NETWORK-ANALYSIS (statistics-agent)` + `STATISTICS (statistics-agent)` + `VALIDATION (validation-agent)`
@@ -148,8 +148,8 @@ Authoritative presets and capability mappings are modularized in the reference d
 *(Mechanically Enforced by Hook: Computational scripts cannot be delegated to writers; drafting cannot be delegated to statistics workers).*
 
 ### Canonical Academic Pipeline Sequences (Mandatory Stage-Gate Order)
-- **Chapter 4 Findings (Stages 4.0–4.12)**:
-  `4.0 Curation` $\to$ `4.1 Demographics` $\to$ `4.2 Reliability` $\to$ `4.3 Assumptions` $\to$ `4.4 Correlations` $\to$ `4.5 Structural Model` $\to$ `4.6 Hypotheses (4.6.1, ...)` $\to$ `4.7 Indirect Paths` $\to$ `4.8 Decision Matrix` $\to$ `4.9 QC (MSAI)` $\to$ `4.10 Typography` $\to$ `4.11 Assembly` $\to$ `4.12 Viva Voce`.
+- **Chapter 4 Findings (Phases 4A–4D Decoupled)**:
+  `Phase 4A: Data Engineering & Curation (4A.0–4A.2)` $\to$ `[Gate 1: Data Passport]` $\to$ `Phase 4B: Assumptions & Descriptives (4B.1–4B.4)` $\to$ `[Gate 2: Assumption Authorization]` $\to$ `Phase 4C: Inferential Modeling & Anomaly Audit (4C.1–4C.5)` $\to$ `[Gate 3: Mathematical Admissibility Sign-Off]` $\to$ `Phase 4D: Scholarly Drafting & Assembly (4D.0–4D.11)`.
 - **Chapter 5 Discussion (Stages 5.1–5.10)**:
   `5.1 Recap` $\to$ `5.2 Deep Discussion (5.2.1, ...)` $\to$ `5.3 Null Results` $\to$ `5.4 Implications` $\to$ `5.5 Limitations` $\to$ `5.6 Recommendations` $\to$ `5.7 Fidelity Audit` $\to$ `5.8 Citation QC` $\to$ `5.9 Assembly` $\to$ `5.10 Viva Voce`.
 - **Chapter 2 Literature Review (Stages 2.1–2.8)**:

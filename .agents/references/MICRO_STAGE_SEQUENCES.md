@@ -6,31 +6,107 @@ Per **Directive 3 (Artifact-Gated Stage Execution, Micro-Stage Granularity & Tri
 
 ---
 
-## 1. Chapter 4: Empirical Findings Pipeline (Stages 4.0 – 4.12)
+## 1. Chapter 4: Decoupled Empirical Findings Pipeline (Phases 4A – 4D)
+
+Chapter 4 operates strictly as a **Four-Phase Decoupled Pipeline** separating computational data engineering and inferential modeling from academic drafting. The pipeline enforces three intermediate mathematical/methodological validation gates before a single sentence of narrative text is drafted.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ Phase 4A: Data Engineering & Curation (data-curator, psychometric-expert)               │
+│ -> Reverse coding, MCAR missingness, outlier screening (D²), scale reliability (α, ω)  │
+└───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                            ▼ [Gate 1: Data Curation Passport]
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ Phase 4B: Exploratory Analysis & Assumptions (statistics-agent, statistical-expert)    │
+│ -> Demographics, univariate descriptives, parametric assumptions, bivariate matrix     │
+└───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                            ▼ [Gate 2: Assumption Compliance & Method Authorization]
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ Phase 4C: Core Inferential Modeling & Audit (statistics-agent, statistical-auditor)    │
+│ -> SEM macro fit, hypothesis testing, bootstrap mediation (5,000 BCa), MSAI QC audit   │
+└───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                            ▼ [Gate 3: Mathematical Admissibility & MSAI Sign-Off]
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ Phase 4D: Scholarly Persian Drafting & Assembly (academic-writer, results-auditor)     │
+│ -> Section triads (.docx, .md, .json), 3-table standard, OpenXML master compilation    │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Phase 4A: Data Engineering & Curation Gate (The Foundation)
+* **Assigned Subagents**: `data-curator`, `psychometric-expert`
+* **Directives & Role**: Strictly "The Hands". Ingests raw survey inputs, cleans items, resolves reverse coding, screens missing data and multivariate outliers, and locks the final dataset. ZERO narrative text is drafted.
+
+| Stage | Name | Assigned Subagent | Official Script / Capability | Required Physical Deliverables |
+| :--- | :--- | :--- | :--- | :--- |
+| **Stage 4A.0** | Data Quality Screening & Outliers | `data-curator` | `data_curation_pipeline.py` / `data-audit` | `00_data_curation_report.json`, `00_data_curation_report.md` |
+| **Stage 4A.1** | Reverse-Scoring & Scale Aggregation | `data-curator` + `psychometric-expert` | `psychometric_scale_resolver.py` / `data-cleaning` | `data_cleaned.xlsx`, `codebook_manifest.json` |
+| **Stage 4A.2** | Baseline Scale Reliability ($\alpha, \omega$) | `statistics-agent` | `scale_reliability_runner.py` / `reliability-analysis` | `00_scale_reliability_baseline.json` |
+
+* **Gate 1 Checkpoint**: `data_cleaned.xlsx` is permanently locked and frozen. No downstream stage may alter raw or cleaned datasets (Directive 24 / AP-2026-RAW-DATASET-MUTATION).
+
+---
+
+### Phase 4B: Exploratory Analysis & Assumptions Gate (The Method Gate)
+* **Assigned Subagents**: `statistics-agent`, `statistical-expert`
+* **Directives & Role**: Strictly "The Hands". Computes sample distributions, univariate normality, homoscedasticity, collinearity, and bivariate correlations. Prepares structured JSON payloads and verifies parametric eligibility before selecting/authorizing inferential tests.
+
+| Stage | Name | Assigned Subagent | Official Script / Capability | Required Physical Deliverables |
+| :--- | :--- | :--- | :--- | :--- |
+| **Stage 4B.1** | Demographic Frequencies & Profiles | `statistics-agent` | `demographic_profiler.py` / `descriptive-statistics` | `01_demographics_payload.json` |
+| **Stage 4B.2** | Univariate Descriptives ($M, SD$, Skew, Kurt) | `statistics-agent` | `descriptive_statistics_runner.py` | `02_descriptives_payload.json` |
+| **Stage 4B.3** | Parametric Assumptions Verification | `statistical-expert` + `statistics-agent` | `assumption_tester.py` / `assumption-testing` | `03_assumptions_report.json`, `03_assumptions_report.md` |
+| **Stage 4B.4** | Bivariate Pearson Correlation Matrix | `statistics-agent` | `correlation_matrix_builder.py` | `04_correlations_payload.json` |
+
+* **Gate 2 Checkpoint**: `statistical-expert` issues the **Assumption Compliance Certificate**. If assumptions fail (e.g. $VIF > 5$ or extreme non-normality), the modeling plan is dynamically adjusted (e.g. robust standard errors, WLS, bootstrapping, or variable restructuring) *prior* to inferential execution.
+
+---
+
+### Phase 4C: Core Inferential Modeling & Anomaly Audit (The Evidence)
+* **Assigned Subagents**: `statistics-agent`, `statistical-auditor`
+* **Directives & Role**: Strictly "The Hands" and Adversarial Auditor. Executes approved hypothesis tests, structural models, and bootstrap indirect mediation. Evaluates the Multi-Signal Anomaly Index (MSAI) to verify degrees of freedom, variance plausibility, and admissibility.
+
+| Stage | Name | Assigned Subagent | Official Script / Capability | Required Physical Deliverables |
+| :--- | :--- | :--- | :--- | :--- |
+| **Stage 4C.1** | Macro Model Fit / Structural Model | `statistics-agent` | `sem_modeler.py` / `sem_lavaan_runner.R` | `05_macro_model_payload.json`, `structural_model_diagram.png` (300 DPI) |
+| **Stage 4C.2.1** | Hypothesis 1 Inferential Test | `statistics-agent` | Deterministic hypothesis runner (`regression.py`, etc.) | `06_hypothesis_1_payload.json` |
+| **Stage 4C.2.k** | Hypothesis $k$ Inferential Test | `statistics-agent` | Deterministic hypothesis runner | `XX_hypothesis_k_payload.json` |
+| **Stage 4C.3.1** | Indirect / Mediation Path 1 (Bootstrap 5,000) | `statistics-agent` | `bootstrap_mediation_runner.py` | `XX_mediation_1_payload.json` |
+| **Stage 4C.3.k** | Indirect / Mediation Path $k$ (Bootstrap 5,000) | `statistics-agent` | `bootstrap_mediation_runner.py` | `XX_mediation_k_payload.json` |
+| **Stage 4C.4** | Master Hypotheses Decision Matrix Synthesis | `statistics-agent` + `statistical-expert` | `decision_matrix_generator.py` | `master_decision_matrix.json` |
+| **Stage 4C.5** | Statistical QC & MSAI Anomaly Audit | `statistical-auditor` | `msai_detector.py` / `statistical-auditor` | `empirical_findings_payload.json`, `statistical_audit_report.json` |
+
+* **Gate 3 Checkpoint**: Mathematical Admissibility & Statistical Clearance Gate. `statistical-auditor` certifies `overall_verdict: "PASS"` on `statistical_audit_report.json`. The user and committee review empirical parameters before authoring narrative text.
+
+---
+
+### Phase 4D: Scholarly Persian Drafting, QC & Monograph Assembly (The Voice)
+* **Assigned Subagents**: `academic-writer`, `results-auditor`, `final-judge`
+* **Directives & Role**: Strictly "The Voice". Ingests the audited, immutable `empirical_findings_payload.json`. Formulates continuous Persian academic prose using Saber's 4-element epistemic framing (Context $\to$ Highlights $\to$ Table Reference $\to$ Verdict), enforces APA 7 typography, and compiles synchronized triad artifacts (`.docx` + `.md` + `.json`).
 
 | Stage | Name | Assigned Subagent | Official Script / Capability | Required Physical Triad Deliverables |
 | :--- | :--- | :--- | :--- | :--- |
-| **Stage 4.0** | Data Curation & Preprocessing | `data-curator` | `data_curation_pipeline.py` | `00_data_curation_report.json`, `00_data_curation_report.md`, `data_cleaned.xlsx` |
-| **Stage 4.1** | Demographics Profiling | `statistics-agent` + `academic-writer` | `demographic_profiler.py` + `academic_docgen.py` | `01_demographics.docx`, `01_demographics.md`, `01_demographics.json` |
-| **Stage 4.2** | Descriptives & Reliability ($\alpha, \omega$) | `statistics-agent` + `academic-writer` | `scale_reliability_runner.py` + `academic_docgen.py` | `02_descriptives_and_reliability.docx`, `02_descriptives_and_reliability.md`, `02_descriptives_and_reliability.json` |
-| **Stage 4.3** | Parametric Assumptions Verification | `statistical-expert` + `academic-writer` | `assumption_tester.py` + `academic_docgen.py` | `03_parametric_assumptions.docx`, `03_parametric_assumptions.md`, `03_parametric_assumptions.json` |
-| **Stage 4.4** | Bivariate Correlation Matrix Analysis | `statistics-agent` + `academic-writer` | `correlation_matrix_builder.py` + `academic_docgen.py` | `04_bivariate_correlations.docx`, `04_bivariate_correlations.md`, `04_bivariate_correlations.json` |
-| **Stage 4.5** | Macro Model Fit / Primary Structural Model | `statistics-agent` + `academic-writer` | `sem_modeler.py` / `sem_lavaan_runner.R` + `academic_docgen.py` | `05_macro_model.docx`, `05_macro_model.md`, `05_macro_model.json` |
-| **Stage 4.6.1** | Hypothesis 1 Testing & Narrative Dissection | `statistics-agent` + `academic-writer` | Deterministic hypothesis runner + `academic_docgen.py` | `06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json` |
-| **Stage 4.6.2** | Hypothesis 2 Testing & Narrative Dissection | `statistics-agent` + `academic-writer` | Deterministic hypothesis runner + `academic_docgen.py` | `07_hypothesis_2.docx`, `07_hypothesis_2.md`, `07_hypothesis_2.json` |
-| **Stage 4.6.k** | Hypothesis $k$ Testing & Narrative Dissection | `statistics-agent` + `academic-writer` | Deterministic hypothesis runner + `academic_docgen.py` | `XX_hypothesis_k.docx`, `XX_hypothesis_k.md`, `XX_hypothesis_k.json` |
-| **Stage 4.7.1** | Indirect / Mediation Path 1 (Bootstrap 5,000) | `statistics-agent` + `academic-writer` | `bootstrap_mediation_runner.py` + `academic_docgen.py` | `XX_mediation_1.docx`, `XX_mediation_1.md`, `XX_mediation_1.json` |
-| **Stage 4.7.k** | Indirect / Mediation Path $k$ (Bootstrap 5,000) | `statistics-agent` + `academic-writer` | `bootstrap_mediation_runner.py` + `academic_docgen.py` | `XX_mediation_k.docx`, `XX_mediation_k.md`, `XX_mediation_k.json` |
-| **Stage 4.8** | Master Decision Matrix & Chapter Summary | `academic-writer` | `decision_matrix_generator.py` | `XX_chapter_summary.docx`, `XX_chapter_summary.md`, `XX_chapter_summary.json` |
-| **Stage 4.9** | Statistical QC & MSAI Anomaly Audit | `statistical-auditor` | `msai_detector.py` | `XX_statistical_audit_report.json`, `XX_statistical_audit_report.md` |
-| **Stage 4.10** | Results QC & APA 7 Typography Audit | `results-auditor` | `apa_typography_checker.py` | `XX_results_qc_checklist.json`, `XX_results_qc_checklist.md` |
-| **Stage 4.11** | OpenXML & Markdown Chapter Assembly | `academic-writer` | `chapter_assembler.py` | `Chapter_4_Results.docx`, `Chapter_4_Results.md` |
-| **Stage 4.12** | Committee Defense Viva Voce Simulation | `final-judge` | `viva_voce_simulator.py` | `XX_defense_brief.docx`, `XX_defense_brief.md`, `XX_defense_brief.json` |
+| **Stage 4D.0** | Chapter Structural Overview & Introduction | `academic-writer` | `academic_docgen.py` | `00_chapter_overview.docx`, `00_chapter_overview.md`, `00_chapter_overview.json` |
+| **Stage 4D.1** | Demographic Profiles Section | `academic-writer` | `academic_docgen.py` | `01_demographics.docx`, `01_demographics.md`, `01_demographics.json` |
+| **Stage 4D.2** | Descriptives & Scale Reliability Section | `academic-writer` | `academic_docgen.py` | `02_descriptives_and_reliability.docx`, `.md`, `.json` |
+| **Stage 4D.3** | Parametric Assumptions Narrative & Tables | `academic-writer` | `academic_docgen.py` | `03_parametric_assumptions.docx`, `.md`, `.json` |
+| **Stage 4D.4** | Bivariate Correlation Matrix Section | `academic-writer` | `academic_docgen.py` | `04_bivariate_correlations.docx`, `.md`, `.json` |
+| **Stage 4D.5** | Macro Model Fit & Path Diagram Section | `academic-writer` | `academic_docgen.py` | `05_macro_model.docx`, `.md`, `.json` |
+| **Stage 4D.6.1** | Dedicated Hypothesis 1 Triad (3-Table Standard) | `academic-writer` | `scaffold_chapter4_triad.py` + `academic_docgen.py` | `06_hypothesis_1.docx`, `06_hypothesis_1.md`, `06_hypothesis_1.json` |
+| **Stage 4D.6.k** | Dedicated Hypothesis $k$ Triad (3-Table Standard) | `academic-writer` | `scaffold_chapter4_triad.py` + `academic_docgen.py` | `XX_hypothesis_k.docx`, `XX_hypothesis_k.md`, `XX_hypothesis_k.json` |
+| **Stage 4D.7.1** | Dedicated Mediation / Indirect Path 1 Triad | `academic-writer` | `scaffold_chapter4_triad.py` + `academic_docgen.py` | `XX_mediation_1.docx`, `XX_mediation_1.md`, `XX_mediation_1.json` |
+| **Stage 4D.8** | Master Decision Matrix & Chapter Summary | `academic-writer` | `scaffold_chapter4_triad.py` + `academic_docgen.py` | `XX_chapter_summary.docx`, `XX_chapter_summary.md`, `XX_chapter_summary.json` |
+| **Stage 4D.9** | Results QC & APA 7 Typography Audit | `results-auditor` | `apa_typography_checker.py` | `XX_results_qc_checklist.json`, `XX_results_qc_checklist.md` |
+| **Stage 4D.10** | Chapter 4 Master Monograph Consolidation | `academic-writer` | `chapter_assembler.py` | `Chapter_4_Results.docx`, `Chapter_4_Results.md` |
+| **Stage 4D.11** | Committee Defense Viva Voce Brief | `final-judge` | `viva_voce_simulator.py` | `XX_defense_brief.docx`, `XX_defense_brief.md`, `XX_defense_brief.json` |
 
-### 💡 The Two-Pass Compute-to-Draft Handshake Invariant (Stages 4.1 – 4.7)
-Every empirical micro-stage producing a synchronized triad (`.docx` + `.md` + `.json`) strictly executes in a two-step handshake to preserve the 4-tier cognitive boundary (ADR-016 & ADR-017):
-1. **Pass 1: Computation (`statistics-agent` — The Hands)**: Executes the deterministic calculation script on curated data, generating numerical checkpoints (`stats_results.json`, `table_payload.json`, `execution_manifest.json`). `statistics-agent` outputs strictly structured numerical data with ZERO narrative text.
-2. **Pass 2: Rhetoric & Assembly (`academic-writer` — The Voice)**: Ingests `stats_results.json` and `table_payload.json`, formulates Saber's 4-element table explanation directly above the table (Context $\to$ Data Highlights $\to$ In-Text Reference $\to$ Preliminary Verdict), and compiles the physical triad (`.docx`, `.md`, `.json`) using `academic_docgen.py`.
+---
+
+### 💡 The Decoupled Pipeline Invariant & Immutable Contract
+1. **Computational Immunity**: Subagents executing Phases 4A, 4B, and 4C must strictly produce machine-readable JSON payloads, analysis code, and clean figures. Emitting Persian narrative draft text in Phases 4A–4C is strictly prohibited.
+2. **Hallucination Prevention**: `academic-writer` in Phase 4D is physically restricted to citing parameters present in the audited `empirical_findings_payload.json`. Inventing statistics or altering numerical values during prose formulation is strictly blocked.
+3. **One-Hypothesis-One-Stage Triad Invariant**: In Phase 4D, each research hypothesis is drafted in its own isolated micro-stage (producing `.docx` + `.md` + `.json`) enforcing the canonical 3-table standard (Table 1: Correlations, Table 2: Model Summary & ANOVA with 11 columns, Table 3: Coefficients & Collinearity with 8 columns).
 
 ---
 
