@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-27T06:01:58.343606+00:00",
+  "updated_at": "2026-09-27T06:41:54.710917+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -350,6 +350,66 @@
       "remedy": "When drafting Chapter 4, report only statistical parameters (e.g., F, t, p, effect sizes) and direct empirical findings. Eliminate all 'why' explanations, speculations, and dramatic adjectives.",
       "enabled": true,
       "updated_at": "2026-09-27T06:01:58.343589+00:00"
+    },
+    "CAND-2026-APA-SINGLE-SAMPLE-INVARIANT": {
+      "item_id": "CAND-2026-APA-SINGLE-SAMPLE-INVARIANT",
+      "category": "Learned Mechanical Rule",
+      "statement": "Single Sample Invariant violated: Dual-sample terminology is prohibited in table notes and captions.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "APA_REPORTING"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\.(md|docx)$",
+      "check_type": "regex_ban",
+      "pattern": "(نمونه اولیه|نمونه مهارشده|نمونه نهایی|مهار داده(?:ها|‌ها)|کاهش نمونه)",
+      "violation_message": "Single Sample Invariant violated: Dual-sample terminology is prohibited in table notes and captions.",
+      "remedy": "Replace banned terminology with 'نمونه پژوهش'.",
+      "enabled": true,
+      "updated_at": "2026-09-27T06:41:54.686680+00:00"
+    },
+    "CAND-2026-CH4-SINGLE-SAMPLE-INVARIANT": {
+      "item_id": "CAND-2026-CH4-SINGLE-SAMPLE-INVARIANT",
+      "category": "Learned Mechanical Rule",
+      "statement": "Single Sample Invariant violated: Dual-sample terminology is prohibited in Chapter 4 deliverables. Use 'نمونه پژوهش' instead.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "CHAPTER4"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\.(md|docx|json)$",
+      "check_type": "regex_ban",
+      "pattern": "(نمونه اولیه|نمونه مهارشده|نمونه نهایی|مهار داده(?:ها|‌ها)|کاهش نمونه)",
+      "violation_message": "Single Sample Invariant violated: Dual-sample terminology is prohibited in Chapter 4 deliverables. Use 'نمونه پژوهش' instead.",
+      "remedy": "Replace banned sample terminology with a unified designation such as 'نمونه پژوهش (N = ۴۸۳)'.",
+      "enabled": true,
+      "updated_at": "2026-09-27T06:41:54.701098+00:00"
+    },
+    "CAND-2026-DATA-AUDIT-SINGLE-SAMPLE-INVARIANT": {
+      "item_id": "CAND-2026-DATA-AUDIT-SINGLE-SAMPLE-INVARIANT",
+      "category": "Learned Mechanical Rule",
+      "statement": "Single Sample Invariant violated: Do not output dual-sample terminology in audit reports.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "DATA_AUDIT"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\.json",
+      "check_type": "regex_ban",
+      "pattern": "(نمونه اولیه|نمونه مهارشده|نمونه نهایی|مهار داده(?:ها|‌ها)|کاهش نمونه)",
+      "violation_message": "Single Sample Invariant violated: Do not output dual-sample terminology in audit reports.",
+      "remedy": "Report only the final sample as 'نمونه پژوهش'.",
+      "enabled": true,
+      "updated_at": "2026-09-27T06:41:54.710905+00:00"
     }
   }
 }
