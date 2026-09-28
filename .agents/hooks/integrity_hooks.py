@@ -76,7 +76,7 @@ def load_transcript(transcript_path: Optional[str]) -> List[Dict[str, Any]]:
     return records
 
 
-def is_data_analysis_stage(stage_or_file: str) -> bool:
+def is_data_analysis_stage(stage_or_file: str, stage_dir: Optional[str] = None) -> bool:
     """
     Determines whether a stage or artifact represents a pure computational data analysis stage
     (Phases 4A, 4B, 4C) that outputs only structured data payloads (.json, .xlsx, .png)
@@ -85,20 +85,41 @@ def is_data_analysis_stage(stage_or_file: str) -> bool:
     if not stage_or_file or not isinstance(stage_or_file, str):
         return False
     norm = os.path.basename(stage_or_file).strip().lower()
-    norm = os.path.splitext(norm)[0]
+    stem = os.path.splitext(norm)[0]
 
-    if "payload" in norm:
+    if "payload" in stem:
         return True
 
-    if re.search(r'(?:^|[_\-.])(?:phase\s*4[abc]|stage[_\-]?4[abc]|4[abc][_\-.])', norm):
+    if re.search(r'(?:^|[_\-.])(?:phase\s*4[abc]|stage[_\-]?4[abc]|4[abc][_\-.])', stem):
         return True
 
     data_indicators = [
         "curation", "data_quality", "data_audit", "clean_data", "data_cleaned",
         "passport", "assumptions_report", "model_payload", "data_engineering"
     ]
-    if any(ind in norm for ind in data_indicators):
+    if any(ind in stem for ind in data_indicators):
         return True
+
+    # Check on-disk evidence if stage_dir is available or if stage_or_file is an absolute path
+    target_dir = stage_dir if (stage_dir and os.path.isdir(stage_dir)) else (
+        os.path.dirname(stage_or_file) if os.path.isabs(stage_or_file) and os.path.isdir(os.path.dirname(stage_or_file)) else None
+    )
+    if target_dir and os.path.isdir(target_dir):
+        files = os.listdir(target_dir)
+        # If a corresponding _payload file exists for this stem
+        if f"{stem}_payload.json" in files or f"{stem}_payload" in files:
+            return True
+        # If neither .docx nor .md exists on disk for this stem, check if .json has statistical data
+        json_file = f"{stem}.json"
+        has_text_draft = f"{stem}.md" in files or f"{stem}.docx" in files
+        if not has_text_draft and json_file in files:
+            try:
+                with open(os.path.join(target_dir, json_file), "r", encoding="utf-8") as jf:
+                    jdata = json.load(jf)
+                if isinstance(jdata, dict) and any(k in jdata for k in ["result_json", "contract_version", "test_statistics", "execution_id", "tables", "diagnostics", "model_type"]):
+                    return True
+            except Exception:
+                pass
 
     return False
 
@@ -161,13 +182,14 @@ class IntegrityHooks:
                 # Determine whether this prefix or directory represents a data analysis payload stage
                 is_data_stage = (
                     manifest_is_data_stage or
-                    is_data_analysis_stage(pfx) or
-                    is_data_analysis_stage(os.path.basename(s_dir))
+                    is_data_analysis_stage(pfx, stage_dir=s_dir) or
+                    is_data_analysis_stage(os.path.basename(s_dir), stage_dir=s_dir)
                 ) and not manifest_declares_triad
 
                 if is_data_stage:
                     # Data analysis stages strictly require non-empty .json payload, but NOT .docx or .md
-                    if not has_json:
+                    has_matching_json = has_json or f"{pfx}_payload.json" in files or (pfx.endswith("_payload") and f"{pfx[:-8]}.json" in files)
+                    if not has_matching_json:
                         return False, (
                             f"HARD HOOK ENFORCEMENT (Data Analysis Payload Invariant): "
                             f"Stage '{pfx}' in '{s_dir}' is missing required data payload file: '{pfx}.json'."

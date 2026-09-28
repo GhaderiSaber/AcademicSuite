@@ -21,9 +21,16 @@ Validates:
 
 import os
 import re
+import sys
+import json
 import unittest
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+AGENTS_DIR = os.path.join(REPO_ROOT, ".agents")
+for p in [REPO_ROOT, AGENTS_DIR, os.path.join(AGENTS_DIR, "validators")]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
 MICRO_STAGES_PATH = os.path.join(REPO_ROOT, ".agents", "references", "MICRO_STAGE_SEQUENCES.md")
 ORCHESTRATOR_AGENT_PATH = os.path.join(REPO_ROOT, ".agents", "agents", "academic-orchestrator", "agent.md")
 
@@ -143,6 +150,106 @@ class TestChapter4SplitPipeline(unittest.TestCase):
         self.assertTrue(rule.get("enabled"))
         self.assertEqual(rule.get("check_type"), "regex_ban")
         self.assertIn("در این بخش", rule.get("pattern", ""))
+
+    def test_12_wrapped_result_json_numerical_validation(self):
+        """Verifies validate_numbers properly extracts parameters from wrapped result_json payloads."""
+        import tempfile
+        from validators.numerical_consistency.validator import validate_numbers
+
+        # Construct a synthetic SEM payload conforming to statistical_execution_result.schema.json
+        payload = {
+            "contract_version": "1.0.0",
+            "execution_id": "test_exec_01",
+            "stage": "05_macro_model",
+            "sample_size": 300,
+            "result_json": {
+                "sample_size": 300,
+                "test_statistics": {
+                    "chi2": 12.5,
+                    "df": 8,
+                    "cfi": 0.985,
+                    "tli": 0.978,
+                    "rmsea": 0.042,
+                    "srmr": 0.035
+                },
+                "structural_paths": [
+                    {
+                        "parameter_label": "X -> Y",
+                        "unstandardized_b": 0.35,
+                        "standardized_beta": 0.28,
+                        "se": 0.07,
+                        "critical_ratio_z": 5.0,
+                        "p_value": 0.00001
+                    }
+                ]
+            }
+        }
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as tmp:
+            json.dump(payload, tmp)
+            tmp_path = tmp.name
+
+        try:
+            res = validate_numbers(tmp_path)
+            self.assertEqual(res["verdict"], "PASS")
+            self.assertGreater(res["evidence_items_audited"], 0)
+            self.assertEqual(res["errors"], [])
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
+    def test_13_stage_scoped_validation_suite_data_analysis(self):
+        """Verifies run_all_validators passes for data analysis stages with only .json payload."""
+        import tempfile
+        import shutil
+        from validators.run_all_validators import run_suite
+
+        temp_dir = tempfile.mkdtemp(prefix="test_stage_val_")
+        try:
+            # Create a data analysis payload file
+            payload_file = os.path.join(temp_dir, "05_macro_model_payload.json")
+            with open(payload_file, "w", encoding="utf-8") as f:
+                json.dump({
+                    "contract_version": "1.0.0",
+                    "execution_id": "exec_05",
+                    "sample_size": 250,
+                    "result_json": {
+                        "sample_size": 250,
+                        "test_statistics": {"chi2": 15.2, "df": 10, "cfi": 0.98, "rmsea": 0.04},
+                        "structural_paths": [
+                            {"parameter_label": "path_1", "critical_ratio_z": 4.2, "p_value": 0.0001}
+                        ]
+                    }
+                }, f)
+
+            rep = run_suite(stage_dir=temp_dir, stage_id="05_macro_model_payload")
+            self.assertEqual(rep["overall_verdict"], "PASS")
+            self.assertEqual(rep["evidence_summary"]["checks_failed"], 0)
+            self.assertEqual(rep["evidence_summary"]["checks_blocked"], 0)
+            self.assertGreater(rep["evidence_summary"]["checks_passed"], 0)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_14_tier_summaries_evaluated_before_defense_certification(self):
+        """Verifies Tier 1 and Tier 2 summaries are evaluated and passed into defense certification."""
+        from validators.defense_readiness_compiler import run_defense_certification
+        import tempfile
+        import shutil
+
+        temp_dir = tempfile.mkdtemp(prefix="test_tier_eval_")
+        try:
+            with open(os.path.join(temp_dir, "05_macro_model_payload.json"), "w", encoding="utf-8") as f:
+                json.dump({"sample_size": 200}, f)
+
+            cert = run_defense_certification(
+                temp_dir,
+                tier1_result={"verdict": "PASS"},
+                tier2_result={"verdict": "PASS"},
+                tier3_result={"verdict": "PASS"}
+            )
+            self.assertTrue(cert["defense_verdict"].startswith("PASS"))
+            self.assertGreaterEqual(cert["overall_score_out_of_20"], 14.0)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":
