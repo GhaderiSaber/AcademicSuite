@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-COPY-WITHOUT-UNLINK-CONTAMINATION",
+  "category": "execution",
+  "defective_pattern": "Creating .stale copies of validation_report.json without physically deleting or unlinking the original file, leaving the legacy state on disk.",
+  "why_defective": "Leaving the original validation_report.json on disk triggers recursive validation gates to re-evaluate legacy failures, causing pipeline blockers despite the intent to archive the report.",
+  "observed_symptoms": [
+    "Validation gates repeatedly failing on old reports",
+    "Existence of both validation_report.json and validation_report.stale.json with identical contents",
+    "Pipeline stalled due to ghost validation artifacts"
+  ],
+  "corrective_remedy": "Always physically unlink (delete) or move the original validation_report.json when renaming or archiving to a .stale copy. Use explicit shutil.move or os.rename instead of copy.",
+  "detection_heuristic": {
+    "trigger_rule": "Deterministic regex pattern matching the use of shutil.copy on validation reports without a subsequent os.remove",
+    "regex_patterns": [
+      "(?m)shutil\\.copy.*validation_report\\.json"
+    ],
+    "pattern": "(?m)shutil\\.copy.*validation_report\\.json",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "statistics-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-28T18:52:51Z"
+}

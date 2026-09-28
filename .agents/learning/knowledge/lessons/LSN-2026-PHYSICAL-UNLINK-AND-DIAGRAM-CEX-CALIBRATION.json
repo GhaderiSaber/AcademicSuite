@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-PHYSICAL-UNLINK-AND-DIAGRAM-CEX-CALIBRATION",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "EXP-BAN-20260928-005",
+  "diagnosis": {
+    "what_happened": "Agents created .stale copies but left original validation files, and semPlot diagram edge labels were oversized (cex=1.3) causing text crowding.",
+    "behavior_caused_outcome": "Ghost validation files stalled the pipeline recursively, and high-res semPaths plots were visually unreadable due to overlapping edge labels.",
+    "what_should_have_happened": "Physical deletion of old validation files (unlinking), and edge.label.cex calibrated to 0.80 for 4500x2400 canvases.",
+    "rationale_why": "Recursive file watchers require exact current state representation without legacy residue. High DPI canvases require downscaled label vectors to prevent collision."
+  },
+  "desired_behavior": "Always delete original files when archiving to .stale. Explicitly set edge.label.cex = 0.80 (range 0.75-0.85) in semPaths for high-res high-DPI outputs.",
+  "generalization": "Artifact lifecycle requires hard unlinking of legacy states. R plotting aesthetics must scale inversely with high canvas resolutions.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "VALIDATION_PIPELINE_AND_VISUAL_QC",
+    "observed_value": "Validation loop failed continuously; text crowded on plot",
+    "threshold_value": "Zero residual legacy files; readable plot text",
+    "supporting_report_ids": [
+      "BAN-20260928-005.json"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "sem",
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-28T18:52:51Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "academic-orchestrator"
+  ]
+}
