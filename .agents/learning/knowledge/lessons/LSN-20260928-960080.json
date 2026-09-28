@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260928-960080",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260928-9683B9",
+  "target_agent": "methodology-expert",
+  "target_agents": [
+    "methodology-expert"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Continuous learning trigger: Report in 'legacy_validation' overall_verdict is FAIL (28 checks failed).\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory `TRJ-20260928-LEGACY-VAL-ISOLATION-001` (and linked `EXP-20260928-LEGACY-VALIDATION-4713C3`) to determine the exact failure mechanism for the validation alert.\nAnswer 'What behavior was wrong?':\n1. Explain the behavioral and procedural root cause behind placing the legacy validation report in a child subdirectory of `03_deliverables/` (`03_deliverables/legacy_validation/validation_report.json`), which failed quarantine because `academic-orchestrator/guard.py` explicitly iterates over all child subdirectories of `03_deliverables/` and `integrity_hooks.py` performs recursive `os.walk` on the workspace looking for exact filename `validation_report.json`.\n2. Prescribe the authoritative mechanical solution:\n   - Stale legacy validation reports must be renamed (e.g. `validation_report.stale.json` or `validation_report.legacy.json`) or relocated completely outside `03_deliverables/` so they are never detected as active reports.\n   - When active micro-stage triads are evaluated, fresh validation reports must reflect solely the current micro-stage deliverable set.\nEmit the structured behavior diagnosis report in `.agents/learning/analysis/BAN-20260928-003.json`.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding methodology correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Continuous learning trigger: Report in 'legacy_validation' overall_verdict is FAIL (28 checks failed).\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory `TRJ-20260928-LEGACY-VAL-ISOLATION-001` (and linked `EXP-20260928-LEGACY-VALIDATION-4713C3`) to determine the exact failure mechanism for the validation alert.\nAnswer 'What behavior was wrong?':\n1. Explain the behavioral and procedural root cause behind placing the legacy validation report in a child subdirectory of `03_deliverables/` (`03_deliverables/legacy_validation/validation_report.json`), which failed quarantine because `academic-orchestrator/guard.py` explicitly iterates over all child subdirectories of `03_deliverables/` and `integrity_hooks.py` performs recursive `os.walk` on the workspace looking for exact filename `validation_report.json`.\n2. Prescribe the authoritative mechanical solution:\n   - Stale legacy validation reports must be renamed (e.g. `validation_report.stale.json` or `validation_report.legacy.json`) or relocated completely outside `03_deliverables/` so they are never detected as active reports.\n   - When active micro-stage triads are evaluated, fresh validation reports must reflect solely the current micro-stage deliverable set.\nEmit the structured behavior diagnosis report in `.agents/learning/analysis/BAN-20260928-003.json`.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Studies utilizing methodology-review or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Continuous learning trigger: Report in 'legacy_validation' overall_verdict is FAIL (28 checks failed).\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory `TRJ-20260928-LEGACY-VAL-ISOLATION-001` (and linked `EXP-20260928-LEGACY-VALIDATION-4713C3`) to determine the exact failure mechanism for the validation alert.\nAnswer 'What behavior was wrong?':\n1. Explain the behavioral and procedural root cause behind placing the legacy validation report in a child subdirectory of `03_deliverables/` (`03_deliverables/legacy_validation/validation_report.json`), which failed quarantine because `academic-orchestrator/guard.py` explicitly iterates over all child subdirectories of `03_deliverables/` and `integrity_hooks.py` performs recursive `os.walk` on the workspace looking for exact filename `validation_report.json`.\n2. Prescribe the authoritative mechanical solution:\n   - Stale legacy validation reports must be renamed (e.g. `validation_report.stale.json` or `validation_report.legacy.json`) or relocated completely outside `03_deliverables/` so they are never detected as active reports.\n   - When active micro-stage triads are evaluated, fresh validation reports must reflect solely the current micro-stage deliverable set.\nEmit the structured behavior diagnosis report in `.agents/learning/analysis/BAN-20260928-003.json`.",
+  "generalization": "Procedural Guideline for methodology-review: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Continuous learning trigger: Report in 'legacy_validation' overall_verdict is FAIL (28 checks failed).\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory `TRJ-20260928-LEGACY-VAL-ISOLATION-001` (and linked `EXP-20260928-LEGACY-VALIDATION-4713C3`) to determine the exact failure mechanism for the validation alert.\nAnswer 'What behavior was wrong?':\n1. Explain the behavioral and procedural root cause behind placing the legacy validation report in a child subdirectory of `03_deliverables/` (`03_deliverables/legacy_validation/validation_report.json`), which failed quarantine because `academic-orchestrator/guard.py` explicitly iterates over all child subdirectories of `03_deliverables/` and `integrity_hooks.py` performs recursive `os.walk` on the workspace looking for exact filename `validation_report.json`.\n2. Prescribe the authoritative mechanical solution:\n   - Stale legacy validation reports must be renamed (e.g. `validation_report.stale.json` or `validation_report.legacy.json`) or relocated completely outside `03_deliverables/` so they are never detected as active reports.\n   - When active micro-stage triads are evaluated, fresh validation reports must reflect solely the current micro-stage deliverable set.\nEmit the structured behavior diagnosis report in `.agents/learning/analysis/BAN-20260928-003.json`. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-METHODOLOGY_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENER",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target",
+    "supporting_report_ids": [
+      "FDB-20260928-415F48"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "methodology-review"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-28T12:48:42.429650+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-28T12:48:42.430229+00:00"
+  }
+}

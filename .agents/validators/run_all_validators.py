@@ -171,9 +171,9 @@ def compute_sha256(filepath: str) -> str:
     return hasher.hexdigest()
 
 
-def is_triad_required_stage(stage_id: str) -> bool:
+def is_triad_required_stage(stage_id: str, stage_dir: Optional[str] = None) -> bool:
     """Determines whether a stage is required to produce the .json, .md, .docx Triad."""
-    if mr.is_data_analysis_stage(stage_id):
+    if mr.is_data_analysis_stage(stage_id, stage_dir=stage_dir):
         return False
     norm = stage_id.strip().lower()
     if "payload" in norm:
@@ -185,7 +185,7 @@ def is_triad_required_stage(stage_id: str) -> bool:
         "phase4d", "stage_4d", "4d_"
     ]
     return any(ind in norm for ind in triad_indicators) or (norm.startswith("stage_4d")) or (
-        (norm.startswith("0") or norm.startswith("stage_")) and not mr.is_data_analysis_stage(norm)
+        (norm.startswith("0") or norm.startswith("stage_")) and not mr.is_data_analysis_stage(norm, stage_dir=stage_dir)
     )
 
 
@@ -505,12 +505,12 @@ def run_suite(
             })
     else:
         for stg in sorted(target_stages):
-            stg_reqs = mr.get_required_artifacts_for_stage(stg)
+            stg_reqs = mr.get_required_artifacts_for_stage(stg, stage_dir=stage_dir)
             all_required_specs.extend(stg_reqs)
 
     # Triad Invariant Check for findings/hypothesis stages
     for stg in sorted(target_stages):
-        if is_triad_required_stage(stg):
+        if is_triad_required_stage(stg, stage_dir=stage_dir):
             has_json = any(f.endswith(".json") and "manifest" not in f and "validation" not in f for f in files_on_disk)
             has_md = any(f.endswith(".md") for f in files_on_disk)
             has_docx = any(f.endswith(".docx") for f in files_on_disk)
@@ -565,6 +565,12 @@ def run_suite(
                 if f.lower() == fname_pattern.lower() or os.path.basename(f).lower() == os.path.basename(fname_pattern).lower():
                     matched_file = os.path.join(stage_dir, f)
                     break
+            if not matched_file and fname_pattern.endswith(".json"):
+                alt_pattern = fname_pattern[:-5] + "_payload.json" if not fname_pattern.endswith("_payload.json") else fname_pattern.replace("_payload.json", ".json")
+                for f in files_on_disk:
+                    if f.lower() == alt_pattern.lower() or os.path.basename(f).lower() == os.path.basename(alt_pattern).lower():
+                        matched_file = os.path.join(stage_dir, f)
+                        break
         elif expected_ext:
             candidates = [
                 os.path.join(stage_dir, f) for f in files_on_disk if f.endswith(expected_ext)
@@ -717,13 +723,47 @@ def run_suite(
     # ==========================================================================
     # Gate 3: Numerical Consistency Execution
     # ==========================================================================
+    is_pure_data_stage = any(mr.is_data_analysis_stage(stg, stage_dir=stage_dir) for stg in target_stages) if target_stages else False
+
     json_files = [os.path.join(stage_dir, f) for f in files_on_disk if f.endswith(".json") and f not in ["manifest.json", "artifact_manifest.json"]]
     md_files = [os.path.join(stage_dir, f) for f in files_on_disk if f.endswith(".md")]
     docx_files = [os.path.join(stage_dir, f) for f in files_on_disk if f.endswith(".docx")]
 
+    # If specific target stages are being validated, scope the candidate files to those stages
+    if stage_id or (target_stages and len(target_stages) == 1):
+        primary_stg = stage_id or list(target_stages)[0]
+        stg_stem = primary_stg.lower().replace("_payload", "")
+        stage_json_files = [
+            jf for jf in json_files
+            if primary_stg.lower() in os.path.basename(jf).lower() or stg_stem in os.path.basename(jf).lower()
+        ]
+        if stage_json_files:
+            json_files = stage_json_files
+
+        if is_pure_data_stage:
+            md_files = []
+            docx_files = []
+        else:
+            stage_md_files = [
+                mf for mf in md_files
+                if primary_stg.lower() in os.path.basename(mf).lower() or stg_stem in os.path.basename(mf).lower()
+            ]
+            if stage_md_files:
+                md_files = stage_md_files
+            stage_docx_files = [
+                df for df in docx_files
+                if primary_stg.lower() in os.path.basename(df).lower() or stg_stem in os.path.basename(df).lower()
+            ]
+            if stage_docx_files:
+                docx_files = stage_docx_files
+
     for json_path in json_files:
         bname = os.path.basename(json_path).lower()
-        if any(ex in bname for ex in ["curation", "data_audit", "data_quality", "assumption", "manifest", "audit", "challenge", "provenance", "decision", "demographic"]):
+        if any(ex in bname for ex in [
+            "curation", "data_audit", "data_quality", "assumption", "manifest",
+            "audit", "challenge", "provenance", "decision", "demographic",
+            "overview", "structural", "tables_only", "defect", "dossier", "passport"
+        ]):
             continue
         res = validate_numbers(json_path)
         report["target_artifacts"].append(json_path)
@@ -817,7 +857,7 @@ def run_suite(
             bname = os.path.basename(json_path).lower()
             if any(ex in bname for ex in ["curation", "data_audit", "data_quality", "assumption", "manifest", "audit", "challenge", "provenance", "decision", "payload"]):
                 continue
-            if mr.is_data_analysis_stage(bname):
+            if mr.is_data_analysis_stage(bname, stage_dir=stage_dir):
                 continue
             stem = os.path.splitext(json_path)[0]
             md_cand = stem + ".md"
@@ -921,7 +961,7 @@ def run_suite(
                     report["warnings"].append(f"Error auditing interpretation contract for '{md_path}': {str(ex)}")
 
     # 5. OpenXML Chapter Forensic Audit (Phase 44)
-    if docx_files and audit_chapter_artifacts:
+    if docx_files and audit_chapter_artifacts and not is_pure_data_stage:
         for docx_path in docx_files:
             stem = os.path.splitext(docx_path)[0]
             md_cand = stem + ".md" if os.path.exists(stem + ".md") else (md_files[0] if md_files else None)
@@ -1028,6 +1068,37 @@ def run_suite(
             report["warnings"].append(f"Tier 3 adversarial audit warning: {str(ex_t3)}")
 
     # ==========================================================================
+    # Tier 1 & Tier 2 Summaries (computed prior to Tier 4 Defense Certification)
+    # ==========================================================================
+    t1_results = [r for r in report["results"] if not any(k in r["check_id"] for k in ["NUMERICAL", "DATA", "ASSUMPTION", "REPORTING", "CROSS", "PROVENANCE", "CONTRACT", "STAT-CLAIM", "TIER3", "TIER4"])]
+    t2_results = [r for r in report["results"] if any(k in r["check_id"] for k in ["NUMERICAL", "DATA", "ASSUMPTION", "REPORTING", "CROSS", "PROVENANCE", "CONTRACT", "STAT-CLAIM"])]
+
+    if t1_results:
+        t1_fails = len([r for r in t1_results if r["verdict"] in ("FAIL", "BLOCKED")])
+        report["tier_summaries"]["tier_1_mechanical"] = {
+            "verdict": "PASS" if t1_fails == 0 and len(t1_results) > 0 else ("BLOCKED" if any(r["verdict"] == "BLOCKED" for r in t1_results) else "FAIL"),
+            "checks_run": len(t1_results),
+            "checks_passed": len([r for r in t1_results if r["verdict"] == "PASS"]),
+            "checks_failed": t1_fails
+        }
+
+    if t2_results:
+        t2_fails = len([r for r in t2_results if r["verdict"] in ("FAIL", "BLOCKED")])
+        report["tier_summaries"]["tier_2_forensic_math"] = {
+            "verdict": "PASS" if t2_fails == 0 and len(t2_results) > 0 else "FAIL",
+            "checks_run": len(t2_results),
+            "checks_passed": len([r for r in t2_results if r["verdict"] == "PASS"]),
+            "checks_failed": t2_fails
+        }
+    else:
+        report["tier_summaries"]["tier_2_forensic_math"] = {
+            "verdict": "NOT_APPLICABLE",
+            "checks_run": 0,
+            "checks_passed": 0,
+            "checks_failed": 0
+        }
+
+    # ==========================================================================
     # Gate 5.8: Tier 4 Viva Voce & Defense Certification Audit
     # ==========================================================================
     if tier_4_active and run_defense_certification and os.path.exists(stage_dir):
@@ -1111,35 +1182,6 @@ def run_suite(
     report["evidence_summary"]["checks_unknown"] = unverified_checks
     report["evidence_summary"]["checks_unverified"] = unverified_checks
     report["evidence_summary"]["total_evidence_items_evaluated"] = evidence_count
-
-    # Tier 1 & Tier 2 Summaries
-    t1_results = [r for r in report["results"] if not any(k in r["check_id"] for k in ["NUMERICAL", "DATA", "ASSUMPTION", "REPORTING", "CROSS", "PROVENANCE", "CONTRACT", "STAT-CLAIM", "TIER3", "TIER4"])]
-    t2_results = [r for r in report["results"] if any(k in r["check_id"] for k in ["NUMERICAL", "DATA", "ASSUMPTION", "REPORTING", "CROSS", "PROVENANCE", "CONTRACT", "STAT-CLAIM"])]
-
-    if t1_results:
-        t1_fails = len([r for r in t1_results if r["verdict"] in ("FAIL", "BLOCKED")])
-        report["tier_summaries"]["tier_1_mechanical"] = {
-            "verdict": "PASS" if t1_fails == 0 and len(t1_results) > 0 else ("BLOCKED" if any(r["verdict"] == "BLOCKED" for r in t1_results) else "FAIL"),
-            "checks_run": len(t1_results),
-            "checks_passed": len([r for r in t1_results if r["verdict"] == "PASS"]),
-            "checks_failed": t1_fails
-        }
-
-    if t2_results:
-        t2_fails = len([r for r in t2_results if r["verdict"] in ("FAIL", "BLOCKED")])
-        report["tier_summaries"]["tier_2_forensic_math"] = {
-            "verdict": "PASS" if t2_fails == 0 and len(t2_results) > 0 else "FAIL",
-            "checks_run": len(t2_results),
-            "checks_passed": len([r for r in t2_results if r["verdict"] == "PASS"]),
-            "checks_failed": t2_fails
-        }
-    else:
-        report["tier_summaries"]["tier_2_forensic_math"] = {
-            "verdict": "NOT_APPLICABLE",
-            "checks_run": 0,
-            "checks_passed": 0,
-            "checks_failed": 0
-        }
 
     # Strict fail-closed verdict resolution (Phase 9 taxonomy)
     if blocked_checks > 0 or report["manifest_audit"]["missing_artifacts"]:

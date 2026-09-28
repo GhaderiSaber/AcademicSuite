@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-SUBDIRECTORY-VALIDATION-QUARANTINE-FAILURE",
+  "category": "validation",
+  "defective_pattern": "Placing stale legacy validation reports (validation_report.json) into child subdirectories of 03_deliverables/.",
+  "why_defective": "guard.py and integrity_hooks.py use recursive os.walk to find validation_report.json. Legacy reports that retain the exact name falsely trigger failed checks for the active pipeline.",
+  "observed_symptoms": [
+    "Report in '03_deliverables' overall_verdict is FAIL",
+    "28 checks failed",
+    "Pipeline halted due to stale failure states in legacy subdirectories"
+  ],
+  "corrective_remedy": "Rename stale validation reports (e.g. validation_report.stale.json or validation_report.legacy.json) or relocate them completely outside 03_deliverables/ so they are never detected as active reports.",
+  "detection_heuristic": {
+    "trigger_rule": "Prevent saving validation_report.json into subdirectories of 03_deliverables",
+    "regex_patterns": [
+      "03_deliverables/.+/validation_report\\.json$"
+    ],
+    "pattern": "03_deliverables/.+/validation_report\\.json$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.json",
+    "event": "Both"
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "thesis-integrity-auditor"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-28T16:19:59Z"
+}

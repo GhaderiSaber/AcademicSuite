@@ -156,3 +156,4 @@ Whenever any check fails or is blocked, the engine outputs structured machine-re
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-LEARN-ON-USER-FEEDBACK-001)**: Automatically activate the native learning pipeline upon any user feedback indicating wrong results, defects, or dissatisfaction, persisting structured lessons and anti-patterns. [Enforcement: data_agent_guard.py]
 - **Lesson (LSN-2026-METHODOLOGY-AWARE-VALIDATION-BRANCHING)**: validation-agent must implement conditional branching in thesis-integrity-auditor to apply the 3-table regression invariant only to regression manuscripts, bypassing it for SEM manuscripts. [Enforcement: data_agent_guard.py]
+- **Lesson (LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION)**: Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks. [Enforcement: data_agent_guard.py]

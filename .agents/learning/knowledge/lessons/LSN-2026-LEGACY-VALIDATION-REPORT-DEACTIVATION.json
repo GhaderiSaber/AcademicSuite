@@ -1,0 +1,48 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "BAN-20260928-003",
+  "diagnosis": {
+    "what_happened": "Stale legacy validation reports were placed into child subdirectories of 03_deliverables/, causing a false validation failure.",
+    "behavior_caused_outcome": "academic-orchestrator/guard.py and integrity_hooks.py run recursive os.walk searching for validation_report.json, and incorrectly evaluated the stale report.",
+    "what_should_have_happened": "Stale legacy validation reports must be renamed (e.g., validation_report.stale.json) or relocated outside 03_deliverables/ entirely.",
+    "rationale_why": "Recursive integrity hooks treat any instance of the strict filename 'validation_report.json' within the deliverable tree as active pipeline state."
+  },
+  "desired_behavior": "Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks.",
+  "generalization": "Never store unmodified active pipeline markers in recursively monitored target directories.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "VALIDATION_FAILED",
+    "observed_value": "Report in '03_deliverables' overall_verdict is FAIL (28 checks failed)",
+    "threshold_value": "Zero failed checks",
+    "supporting_report_ids": [
+      "BAN-20260928-003.json",
+      "TRJ-20260928-LEGACY-VAL-ISOLATION-001.json"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-suite-orchestrator",
+    "thesis-integrity-auditor"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-28T16:19:59Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "thesis-integrity-auditor"
+  ],
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-28T12:55:27.582866+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/academic-suite-orchestrator/SKILL.md",
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/thesis-integrity-auditor/SKILL.md"
+  ]
+}

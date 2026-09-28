@@ -107,7 +107,8 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
     grim_failures = 0
 
     # 1. Sample Size and Degrees of Freedom Check
-    n = sample_n or data.get("sample_size") or data.get("n") or data.get("N")
+    rj = data.get("result_json") if isinstance(data, dict) and isinstance(data.get("result_json"), dict) else {}
+    n = sample_n or data.get("sample_size") or data.get("n") or data.get("N") or rj.get("sample_size") or rj.get("n")
     if n is None and isinstance(data, dict):
         for v in data.values():
             if isinstance(v, dict) and ("N" in v or "n" in v):
@@ -116,6 +117,10 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
                     break
                 except (ValueError, TypeError):
                     pass
+    if n is None and isinstance(rj, dict):
+        ts = rj.get("test_statistics", {})
+        if isinstance(ts, dict) and ("sample_size" in ts or "n" in ts or "N" in ts):
+            n = ts.get("sample_size") or ts.get("n") or ts.get("N")
     if n is not None:
         try:
             n = int(n)
@@ -123,10 +128,16 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
         except (ValueError, TypeError):
             n = None
 
-    if "fit_indices" in data:
+    fit_indices = data.get("fit_indices")
+    if not fit_indices and isinstance(rj.get("test_statistics"), dict):
+        ts = rj["test_statistics"]
+        if any(k in ts for k in ["cfi", "tli", "rmsea", "srmr", "chi2", "df"]):
+            fit_indices = ts
+
+    if fit_indices:
         evidence_items.append("fit_indices")
-        if isinstance(data["fit_indices"], dict):
-            df_val = data["fit_indices"].get("df")
+        if isinstance(fit_indices, dict):
+            df_val = fit_indices.get("df")
             if df_val is not None and df_val <= 0:
                 err_msg = f"Invalid SEM degrees of freedom: {df_val}"
                 errors.append(err_msg)
@@ -142,11 +153,20 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
                         remedy_instruction="Recalculate model specifications; degrees of freedom must be strictly positive."
                     ))
             for idx_k in ["cfi", "tli", "rmsea", "srmr", "chi2"]:
-                if idx_k in data["fit_indices"]:
+                if idx_k in fit_indices:
                     evidence_items.append(f"fit_{idx_k}")
 
     # 2. Extract Coefficients & Perform Statcheck Verification
-    coefs = data.get("coefficients") or data.get("table_3_coefficients") or []
+    coefs = (
+        data.get("coefficients") or
+        data.get("table_3_coefficients") or
+        rj.get("coefficients_table") or
+        rj.get("coefficients") or
+        rj.get("structural_paths") or
+        rj.get("measurement_model") or
+        (rj.get("three_table_standard_suite", {}).get("table_3_coefficients", {}).get("coefficients")) or
+        []
+    )
     if isinstance(coefs, dict):
         coef_list = list(coefs.values()) if all(isinstance(v, dict) for v in coefs.values()) else [coefs]
     elif isinstance(coefs, list):
@@ -157,21 +177,26 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
     # Calculate default residual df if not explicitly given
     k_preds = max(1, len(coef_list) - 1)
     df_resid_default = (n - k_preds - 1) if (n and n > (k_preds + 1)) else (n - 2 if n and n > 2 else 30)
-    df_explicit = data.get("df_residual") or data.get("df_error") or data.get("df2") or data.get("df") or (data.get("table_2_model_summary_anova", {}).get("df_res") if isinstance(data.get("table_2_model_summary_anova"), dict) else None)
+    df_explicit = (
+        data.get("df_residual") or data.get("df_error") or data.get("df2") or data.get("df") or
+        (data.get("table_2_model_summary_anova", {}).get("df_res") if isinstance(data.get("table_2_model_summary_anova"), dict) else None) or
+        (rj.get("test_statistics", {}).get("df_resid") if isinstance(rj.get("test_statistics"), dict) else None) or
+        (rj.get("anova_table", {}).get("residual", {}).get("df") if isinstance(rj.get("anova_table"), dict) else None)
+    )
 
     for c_idx, coef in enumerate(coef_list):
         if not isinstance(coef, dict):
             continue
 
-        pred_name = coef.get("predictor") or coef.get("variable") or f"var_{c_idx}"
+        pred_name = coef.get("predictor") or coef.get("variable") or coef.get("parameter_label") or coef.get("from") or f"var_{c_idx}"
         evidence_items.append(f"coef_{pred_name}")
 
-        t_val = coef.get("t") or coef.get("t_stat") or coef.get("t_value")
+        t_val = coef.get("t") or coef.get("t_stat") or coef.get("t_value") or coef.get("critical_ratio_z") or coef.get("z")
         p_val = coef.get("p_value") or coef.get("p") or coef.get("sig")
         df_coef = coef.get("df") or df_explicit or df_resid_default
 
         # Check for prohibited p = .000
-        if p_val in ("0", ".000", "0.000", 0, 0.0):
+        if str(p_val).strip() in ("0", ".000", "0.000", "0.0", "p = .000", "p = 0.000") or p_val == 0:
             err_msg = f"Prohibited p = .000 reported for predictor '{pred_name}'. Must use p < .001."
             errors.append(err_msg)
             if create_actionable_repair_prescription:
@@ -241,10 +266,34 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
                 pass
 
     # 3. Overall F-test Statcheck Verification
-    f_stat = data.get("f_stat") or data.get("f_value") or data.get("f") or (data.get("table_2_model_summary_anova", {}).get("F") if isinstance(data.get("table_2_model_summary_anova"), dict) else None)
-    f_p = data.get("f_p_value") or (data.get("p_value") if f_stat else None) or (data.get("table_2_model_summary_anova", {}).get("p") if isinstance(data.get("table_2_model_summary_anova"), dict) else None)
-    df_between = data.get("df_between") or data.get("df1") or (data.get("table_2_model_summary_anova", {}).get("df_reg") if isinstance(data.get("table_2_model_summary_anova"), dict) else None)
-    df_within = data.get("df_within") or data.get("df2") or df_explicit
+    ts_rj = rj.get("test_statistics", {}) if isinstance(rj, dict) and isinstance(rj.get("test_statistics"), dict) else {}
+    anova_rj = rj.get("anova_table", {}) if isinstance(rj, dict) and isinstance(rj.get("anova_table"), dict) else {}
+    reg_anova = anova_rj.get("regression", {}) if isinstance(anova_rj.get("regression"), dict) else {}
+
+    f_stat = (
+        data.get("f_stat") or data.get("f_value") or data.get("f") or
+        (data.get("table_2_model_summary_anova", {}).get("F") if isinstance(data.get("table_2_model_summary_anova"), dict) else None) or
+        ts_rj.get("f_statistic") or ts_rj.get("f") or
+        reg_anova.get("f") or reg_anova.get("f_statistic")
+    )
+    f_p = (
+        data.get("f_p_value") or
+        (data.get("p_value") if f_stat else None) or
+        (data.get("table_2_model_summary_anova", {}).get("p") if isinstance(data.get("table_2_model_summary_anova"), dict) else None) or
+        ts_rj.get("p_value") or
+        reg_anova.get("p_value")
+    )
+    df_between = (
+        data.get("df_between") or data.get("df1") or
+        (data.get("table_2_model_summary_anova", {}).get("df_reg") if isinstance(data.get("table_2_model_summary_anova"), dict) else None) or
+        ts_rj.get("df_model") or ts_rj.get("df1") or
+        reg_anova.get("df")
+    )
+    df_within = (
+        data.get("df_within") or data.get("df2") or df_explicit or
+        ts_rj.get("df_resid") or ts_rj.get("df2") or
+        (anova_rj.get("residual", {}).get("df") if isinstance(anova_rj.get("residual"), dict) else None)
+    )
 
     if verify_statcheck and f_stat is not None and df_between is not None and df_within is not None:
         try:
@@ -271,7 +320,11 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
             pass
 
     # 4. Descriptive Statistics & GRIM / SPRITE Audit
-    descriptives = data.get("descriptives", {})
+    descriptives = data.get("descriptives", {}) or rj.get("descriptives", {})
+    if not descriptives and isinstance(rj.get("raw_data_summary"), dict):
+        descriptives = rj["raw_data_summary"].get("descriptives", {})
+    if not descriptives and isinstance(rj.get("study_variables"), list):
+        descriptives = {v.get("code") or f"var_{i}": v for i, v in enumerate(rj["study_variables"]) if isinstance(v, dict)}
     if not descriptives and isinstance(data, dict):
         if any(isinstance(v, dict) and any(k in v for k in ["mean", "Mean", "m", "sd", "SD", "std"]) for v in data.values()):
             descriptives = data
@@ -313,8 +366,8 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
                     except (ValueError, TypeError):
                         pass
 
-                var_smin = var_stats.get("scale_min", scale_min)
-                var_smax = var_stats.get("scale_max", scale_max)
+                var_smin = var_stats.get("scale_min", scale_min) or var_stats.get("theoretical_min") or var_stats.get("min")
+                var_smax = var_stats.get("scale_max", scale_max) or var_stats.get("theoretical_max") or var_stats.get("max")
                 if verify_sprite_bounds and sd_val is not None and var_smin is not None and var_smax is not None:
                     try:
                         sp_res = verify_sprite_bounds(float(m_val), float(sd_val), scale_min=float(var_smin), scale_max=float(var_smax))
@@ -325,41 +378,81 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
                         pass
 
     # 5. Correlation Matrix Admissibility
-    corr_matrix = data.get("correlation_matrix") or data.get("correlations_matrix")
-    if verify_correlation_matrix and isinstance(corr_matrix, list) and corr_matrix:
-        corr_res = verify_correlation_matrix(corr_matrix)
-        correlation_results = corr_res
-        evidence_items.append("correlation_matrix_admissibility")
-        if not corr_res.get("matrix_valid"):
-            errors.extend(corr_res.get("errors", []))
-            if create_actionable_repair_prescription:
-                arps.append(create_actionable_repair_prescription(
-                    prescription_id="ARP-CORR-MATRIX-INVALID",
-                    tier=2,
-                    defect_type="CORRELATION_MATRIX_INVALID",
-                    severity="CRITICAL",
-                    target_artifact=stats_path,
-                    target_key_or_line="correlation_matrix",
-                    responsible_agent="statistics-agent",
-                    remedy_instruction="Correlation matrix has invalid bounds or is non-positive semi-definite. Re-estimate Pearson correlations."
-                ))
+    corr_matrix = data.get("correlation_matrix") or data.get("correlations_matrix") or rj.get("correlation_matrix")
+    if verify_correlation_matrix and corr_matrix:
+        matrix_list = None
+        labels = None
+        if isinstance(corr_matrix, list) and corr_matrix:
+            if isinstance(corr_matrix[0], list):
+                matrix_list = corr_matrix
+            elif isinstance(corr_matrix[0], dict):
+                labels = [k for k in corr_matrix[0].keys() if k not in ("variable", "var", "name")]
+                try:
+                    matrix_list = [[float(row.get(col, 0.0)) for col in labels] for row in corr_matrix]
+                except (ValueError, TypeError):
+                    matrix_list = None
+        elif isinstance(corr_matrix, dict) and corr_matrix:
+            labels = list(corr_matrix.keys())
+            try:
+                matrix_list = []
+                for v1 in labels:
+                    row = []
+                    for v2 in labels:
+                        cell = corr_matrix[v1].get(v2)
+                        if isinstance(cell, dict):
+                            val = cell.get("r") or cell.get("correlation") or 0.0
+                        else:
+                            val = float(cell) if cell is not None else 0.0
+                        row.append(float(val))
+                    matrix_list.append(row)
+            except (ValueError, TypeError):
+                matrix_list = None
 
-    # Other statistical keys
+        if matrix_list:
+            corr_res = verify_correlation_matrix(matrix_list, labels=labels)
+            correlation_results = corr_res
+            evidence_items.append("correlation_matrix_admissibility")
+            if not corr_res.get("matrix_valid"):
+                errors.extend(corr_res.get("errors", []))
+                if create_actionable_repair_prescription:
+                    arps.append(create_actionable_repair_prescription(
+                        prescription_id="ARP-CORR-MATRIX-INVALID",
+                        tier=2,
+                        defect_type="CORRELATION_MATRIX_INVALID",
+                        severity="CRITICAL",
+                        target_artifact=stats_path,
+                        target_key_or_line="correlation_matrix",
+                        responsible_agent="statistics-agent",
+                        remedy_instruction="Correlation matrix has invalid bounds or is non-positive semi-definite. Re-estimate Pearson correlations."
+                    ))
+
+    # Other statistical keys & evidence items
     for stat_k in ["r2", "r_squared", "eta_p2", "effect_size", "paths"]:
-        if stat_k in data:
+        if stat_k in data or stat_k in rj or stat_k in ts_rj:
             evidence_items.append(stat_k)
+    for rj_ev_key in ["structural_paths", "measurement_model", "study_variables", "correlation_matrix", "indirect_effects", "single_indicator_error_constraints"]:
+        if rj_ev_key in rj:
+            evidence_items.append(rj_ev_key)
 
     # Substantive parameter check (anti-hollow gate): Reject artifacts with zero statistical parameters
     has_substantive_stats = bool(
         statcheck_results or grim_results or sprite_results or correlation_results or
+        bool(coef_list) or bool(descriptives) or bool(fit_indices) or
         any(k in data for k in [
             "coefficients", "paths", "fit_indices", "correlation_matrix", "correlations_matrix",
             "t_stat", "t", "f_stat", "f", "chi2", "chi_square", "beta", "r", "z_stat", "z",
             "eta_p2", "r2", "r_squared", "effect_size", "model_summary", "anova_table", "descriptives",
             "table_1_correlations", "table_2_model_summary_anova", "table_3_coefficients",
-            "table_1", "table_2", "table_3"
+            "table_1", "table_2", "table_3", "tables", "diagnostics", "effect_sizes"
         ]) or
-        bool(descriptives)
+        any(k in rj for k in [
+            "coefficients", "coefficients_table", "structural_paths", "measurement_model",
+            "test_statistics", "anova_table", "study_variables", "correlation_matrix",
+            "bivariate_pairs", "reliability_analysis", "indirect_effects", "r_squared",
+            "tables", "diagnostics", "collinearity_diagnostics_7_predictors",
+            "collinearity_diagnostics_composite_predictors", "collinearity_diagnostics_exogenous_predictors",
+            "structural_models_assumptions"
+        ])
     )
     if evidence_items and not has_substantive_stats:
         err_msg = f"Statistical artifact '{os.path.basename(stats_path)}' lacks substantive empirical parameters (no test statistics, coefficients, paths, or effect sizes found)."
@@ -377,12 +470,19 @@ def validate_numbers(stats_path: str, sample_n: Optional[int] = None) -> Dict[st
             ))
 
     # Required p-value check for primary test statistics
-    has_primary_test = any(k in data for k in ["t_stat", "t", "f_stat", "f", "chi2", "chi_square", "beta", "z_stat", "z"]) or bool(f_stat)
+    has_primary_test = (
+        any(k in data for k in ["t_stat", "t", "f_stat", "f", "chi2", "chi_square", "beta", "z_stat", "z"]) or
+        bool(f_stat) or
+        any(k in ts_rj for k in ["f_statistic", "chi2", "f"]) or
+        any(isinstance(c, dict) and any(k in c for k in ["t", "t_stat", "z", "critical_ratio_z"]) for c in coef_list)
+    )
     has_p_value = (
         any(k in data for k in ["p_value", "p", "p_val"]) or
         bool(f_p) or
-        any(isinstance(c, dict) and ("p_value" in c or "p" in c) for c in coef_list) or
-        any(isinstance(p, dict) and ("p_value" in p or "p" in p) for p in (data.get("paths") if isinstance(data.get("paths"), list) else []))
+        any(isinstance(c, dict) and ("p_value" in c or "p" in c or "p_formatted" in c) for c in coef_list) or
+        any(isinstance(p, dict) and ("p_value" in p or "p" in p) for p in (data.get("paths") if isinstance(data.get("paths"), list) else [])) or
+        any(isinstance(p, dict) and ("p_value" in p or "p" in p) for p in (rj.get("structural_paths") if isinstance(rj.get("structural_paths"), list) else [])) or
+        ("p_value" in ts_rj or "p" in ts_rj or "p_formatted" in ts_rj)
     )
     if has_primary_test and not has_p_value:
         errors.append(f"Statistical artifact '{os.path.basename(stats_path)}' reports primary test statistics but omits exact p-value.")

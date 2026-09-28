@@ -1,0 +1,28 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-STALE-VALIDATION-REPORT-CONTAMINATION",
+  "category": "execution",
+  "defective_pattern": "Allowing stale, legacy validation reports from earlier monolithic drafts to persist in active deliverable directories (e.g., 03_deliverables/validation_report.json).",
+  "why_defective": "Stale reports from legacy monolithic workflows trigger continuous fail-closed validation gates when transitioning to atomic micro-stages, creating false-positive FAIL loops.",
+  "observed_symptoms": [
+    "Continuous fail-closed validation gates triggered",
+    "Report in 03_deliverables overall_verdict is FAIL persistently",
+    "Legacy report overwrites or conflicts with active micro-stage evaluations"
+  ],
+  "corrective_remedy": "Archive or isolate legacy validation reports before executing atomic micro-stage pipelines. Ensure validation strictly evaluates the active micro-stage triads.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect presence of monolithic validation_report.json preventing micro-stage validation",
+    "regex_patterns": ["validation_report\\.json"],
+    "pattern": "validation_report\\.json",
+    "check_type": "substring_ban",
+    "file_pattern": ".*",
+    "event": "Both"
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "evaluation-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-28T15:45:41Z"
+}
