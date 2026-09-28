@@ -1,0 +1,28 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-PHYSICAL-DECONTAMINATION-OMISSION",
+  "category": "execution",
+  "defective_pattern": "Failing to physically rename or relocate stale legacy validation reports during graduation or stage transitions, allowing them to remain on disk and trigger recursive validation guards.",
+  "why_defective": "Stale files in active deliverable directories corrupt the validation state and cause infinite loops or false failures.",
+  "observed_symptoms": [
+    "Recursive validation guard failures",
+    "Stale validation files triggering checks"
+  ],
+  "corrective_remedy": "During graduation or stage completion, the evaluation agent or worker must execute a physical file mutation to de-index legacy validation reports (e.g., renaming '03_deliverables/legacy_validation/validation_report.json' to 'validation_report.stale.json').",
+  "detection_heuristic": {
+    "trigger_rule": "Detecting unaltered legacy validation_report.json during graduation transition",
+    "regex_patterns": [],
+    "pattern": "validation_report\\.json$",
+    "check_type": "substring_ban",
+    "file_pattern": "validation_report\\.json",
+    "event": "PreToolUse"
+  },
+  "target_agent": "evaluation-agent",
+  "target_agents": [
+    "evaluation-agent",
+    "academic-orchestrator",
+    "execution-worker"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-28T18:06:57Z"
+}

@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-PHYSICAL-DISK-DECONTAMINATION-MANDATE",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "BAN-20260928-004",
+  "diagnosis": {
+    "what_happened": "Stale legacy validation reports were left on disk during graduation or stage transitions.",
+    "behavior_caused_outcome": "Failing to rename or relocate legacy validation reports caused recursive validation guards to be triggered by stale data.",
+    "what_should_have_happened": "A physical file mutation should have been executed to de-index legacy validation reports.",
+    "rationale_why": "Leaving legacy state files in active deliverable directories corrupts the current validation state."
+  },
+  "desired_behavior": "During graduation or stage completion, execute a physical file mutation to de-index legacy validation reports (e.g., rename '03_deliverables/legacy_validation/validation_report.json' to 'validation_report.stale.json').",
+  "generalization": "Always decontaminate persistent directories by de-indexing or removing legacy validation reports to prevent false-positive validation loops.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "VALIDATION_GUARD_CHECK",
+    "observed_value": "Stale validation report triggered failure.",
+    "threshold_value": "Zero active stale validation reports.",
+    "supporting_report_ids": [
+      "BAN-20260928-004"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-28T18:06:57Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "evaluation-agent",
+  "target_agents": [
+    "evaluation-agent",
+    "academic-orchestrator",
+    "execution-worker"
+  ]
+}
