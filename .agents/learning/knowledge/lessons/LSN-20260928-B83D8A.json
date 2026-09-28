@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260928-B83D8A",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260928-879F99",
+  "target_agent": "methodology-expert",
+  "target_agents": [
+    "methodology-expert"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [PTR-20260923-D83E86] Pattern: In SEM path diagrams (semPlot), stretch the canvas horizontally (e.g. width = 4500-4800, height = 2400 at 300 DPI) to give latent constructs ample breathing room between indicator columns.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Continuous learning trigger: Report in '03_deliverables' overall_verdict is FAIL (28 checks failed).\n\n---\n### Executable Task Assignment:\nCatalog the diagnosed anti-pattern `AP-2026-STALE-VALIDATION-REPORT-CONTAMINATION` and prescriptive lesson `LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING` from `BAN-20260928-002.json` (and linked `TRJ-20260928-STALE-VAL-AND-SEM-REFINE-001.json`) into the persistent learning store.\nEnforce that:\n1. Anti-Pattern: Avoid allowing stale, legacy validation reports from earlier monolithic drafts to persist in active deliverable directories (`03_deliverables/validation_report.json`), which continuously triggers fail-closed validation gates.\n2. Approved Remedy: Archive or isolate legacy validation reports when transitioning to atomic micro-stage pipelines, ensuring validation evaluates active micro-stage triads.\n3. SEM Modeling & Diagram Standards: In SEM, when theoretical multidimensional scales share common item variance (e.g. Rumination subscales `Ru_Ref`, `Ru_Bro`, `Ru_Dep`), explicitly support specifying residual error covariances (`Ru_Ref ~~ Ru_Dep` and `Ru_Bro ~~ Ru_Dep`) in R `lavaan`, and enforce horizontal canvas `semPaths` diagram generation per PTR-20260923-D83E86.\nEmit persistent knowledge items in `.agents/learning/knowledge/`.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding methodology correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [PTR-20260923-D83E86] Pattern: In SEM path diagrams (semPlot), stretch the canvas horizontally (e.g. width = 4500-4800, height = 2400 at 300 DPI) to give latent constructs ample breathing room between indicator columns.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Continuous learning trigger: Report in '03_deliverables' overall_verdict is FAIL (28 checks failed).\n\n---\n### Executable Task Assignment:\nCatalog the diagnosed anti-pattern `AP-2026-STALE-VALIDATION-REPORT-CONTAMINATION` and prescriptive lesson `LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING` from `BAN-20260928-002.json` (and linked `TRJ-20260928-STALE-VAL-AND-SEM-REFINE-001.json`) into the persistent learning store.\nEnforce that:\n1. Anti-Pattern: Avoid allowing stale, legacy validation reports from earlier monolithic drafts to persist in active deliverable directories (`03_deliverables/validation_report.json`), which continuously triggers fail-closed validation gates.\n2. Approved Remedy: Archive or isolate legacy validation reports when transitioning to atomic micro-stage pipelines, ensuring validation evaluates active micro-stage triads.\n3. SEM Modeling & Diagram Standards: In SEM, when theoretical multidimensional scales share common item variance (e.g. Rumination subscales `Ru_Ref`, `Ru_Bro`, `Ru_Dep`), explicitly support specifying residual error covariances (`Ru_Ref ~~ Ru_Dep` and `Ru_Bro ~~ Ru_Dep`) in R `lavaan`, and enforce horizontal canvas `semPaths` diagram generation per PTR-20260923-D83E86.\nEmit persistent knowledge items in `.agents/learning/knowledge/`.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Studies utilizing methodology-review or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [PTR-20260923-D83E86] Pattern: In SEM path diagrams (semPlot), stretch the canvas horizontally (e.g. width = 4500-4800, height = 2400 at 300 DPI) to give latent constructs ample breathing room between indicator columns.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Continuous learning trigger: Report in '03_deliverables' overall_verdict is FAIL (28 checks failed).\n\n---\n### Executable Task Assignment:\nCatalog the diagnosed anti-pattern `AP-2026-STALE-VALIDATION-REPORT-CONTAMINATION` and prescriptive lesson `LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING` from `BAN-20260928-002.json` (and linked `TRJ-20260928-STALE-VAL-AND-SEM-REFINE-001.json`) into the persistent learning store.\nEnforce that:\n1. Anti-Pattern: Avoid allowing stale, legacy validation reports from earlier monolithic drafts to persist in active deliverable directories (`03_deliverables/validation_report.json`), which continuously triggers fail-closed validation gates.\n2. Approved Remedy: Archive or isolate legacy validation reports when transitioning to atomic micro-stage pipelines, ensuring validation evaluates active micro-stage triads.\n3. SEM Modeling & Diagram Standards: In SEM, when theoretical multidimensional scales share common item variance (e.g. Rumination subscales `Ru_Ref`, `Ru_Bro`, `Ru_Dep`), explicitly support specifying residual error covariances (`Ru_Ref ~~ Ru_Dep` and `Ru_Bro ~~ Ru_Dep`) in R `lavaan`, and enforce horizontal canvas `semPaths` diagram generation per PTR-20260923-D83E86.\nEmit persistent knowledge items in `.agents/learning/knowledge/`.",
+  "generalization": "Procedural Guideline for methodology-review: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `knowledge-curator` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [PTR-20260923-D83E86] Pattern: In SEM path diagrams (semPlot), stretch the canvas horizontally (e.g. width = 4500-4800, height = 2400 at 300 DPI) to give latent constructs ample breathing room between indicator columns.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Continuous learning trigger: Report in '03_deliverables' overall_verdict is FAIL (28 checks failed).\n\n---\n### Executable Task Assignment:\nCatalog the diagnosed anti-pattern `AP-2026-STALE-VALIDATION-REPORT-CONTAMINATION` and prescriptive lesson `LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING` from `BAN-20260928-002.json` (and linked `TRJ-20260928-STALE-VAL-AND-SEM-REFINE-001.json`) into the persistent learning store.\nEnforce that:\n1. Anti-Pattern: Avoid allowing stale, legacy validation reports from earlier monolithic drafts to persist in active deliverable directories (`03_deliverables/validation_report.json`), which continuously triggers fail-closed validation gates.\n2. Approved Remedy: Archive or isolate legacy validation reports when transitioning to atomic micro-stage pipelines, ensuring validation evaluates active micro-stage triads.\n3. SEM Modeling & Diagram Standards: In SEM, when theoretical multidimensional scales share common item variance (e.g. Rumination subscales `Ru_Ref`, `Ru_Bro`, `Ru_Dep`), explicitly support specifying residual error covariances (`Ru_Ref ~~ Ru_Dep` and `Ru_Bro ~~ Ru_Dep`) in R `lavaan`, and enforce horizontal canvas `semPaths` diagram generation per PTR-20260923-D83E86.\nEmit persistent knowledge items in `.agents/learning/knowledge/`. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-METHODOLOGY_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENER",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target",
+    "supporting_report_ids": [
+      "FDB-20260928-B264CC"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "methodology-review"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-28T12:15:46.606218+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-28T12:15:46.606318+00:00"
+  }
+}

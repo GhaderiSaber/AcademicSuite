@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING",
+  "lesson_type": "WHAT_WORKED_WELL",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "BAN-20260928-002",
+  "diagnosis": {
+    "what_happened": "SEM paths required residual covariance specifications and proper diagram formatting to prevent overlapping elements.",
+    "behavior_caused_outcome": "Missing covariance statements caused model misfit, and standard plot dimensions caused visual crowding of latent constructs.",
+    "what_should_have_happened": "Include theoretical residual covariances and apply horizontal canvas stretch to SEM plots.",
+    "rationale_why": "Multidimensional scales sharing item variance require explicit residual covariances for model accuracy. Proper visualization requires adequate canvas breathing room."
+  },
+  "desired_behavior": "Explicitly support and specify residual error covariances (e.g., Ru_Ref ~~ Ru_Dep) in R lavaan for multidimensional scales. Enforce horizontal canvas semPaths generation (e.g., width=4500-4800, height=2400 at 300 DPI) per PTR-20260923-D83E86.",
+  "generalization": "In SEM, model shared theoretical variance using explicit residual covariances in lavaan. Visually present SEM diagrams using horizontal aspect ratios to ensure spatial legibility.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "SEM_FIT_AND_VISUAL_QUALITY",
+    "observed_value": "Clean plot generation and convergent SEM modeling",
+    "threshold_value": "No overlapping nodes, robust model identification",
+    "supporting_report_ids": [
+      "BAN-20260928-002",
+      "TRJ-20260928-STALE-VAL-AND-SEM-REFINE-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "sem",
+    "statistics-agent"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-28T15:45:41Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "academic-orchestrator"
+  ]
+}

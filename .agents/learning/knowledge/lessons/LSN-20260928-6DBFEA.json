@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260928-6DBFEA",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260928-4F5C60",
+  "target_agent": "methodology-expert",
+  "target_agents": [
+    "methodology-expert"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~390/600 tokens]\n- **Target Capability**: `SEM` | **Task**: `structural_equation_modeling` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING] Mandate: Explicitly support and specify residual error covariances (e.g., Ru_Ref ~~ Ru_Dep) in R lavaan for multidimensional scales. Enforce horizontal canvas semPaths generation (e.g., width=4500-4800, height=2400 at 300 DPI) per PTR-20260923-D83E86.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Evaluate candidate CAND-2026-SEM-RESIDUAL-COV-001.json, compile via academic_graduation_compiler.py, run eval suite, and isolate stale validation_report.json from 03_deliverables.\n\n---\n### Executable Task Assignment:\n1. Independently evaluate candidate `CAND-2026-SEM-RESIDUAL-COV-001` located at `.agents/learning/candidates/CAND-2026-SEM-RESIDUAL-COV-001.json` against benchmark definitions and verify zero regressions.\n2. Execute graduation and compilation:\n   `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate .agents/learning/candidates/CAND-2026-SEM-RESIDUAL-COV-001.json`\n   followed by `python3 .agents/scripts/academic_graduation_compiler.py compile-all`.\n3. In accordance with `AP-2026-STALE-VALIDATION-REPORT-CONTAMINATION`, isolate the stale legacy validation report: move/archive `03_deliverables/validation_report.json` to `03_deliverables/legacy_validation/validation_report.json` so that outdated checks on non-existent monolithic files do not falsely contaminate active micro-stage gates.\n4. Run `python3 evals/run_eval_suite.py` to certify benchmark passing with zero regressions.\n5. In your final report, include exact fields `overall_verdict: PASS` and `checks_failed: 0` to certify the validation audit.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding methodology correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~390/600 tokens]\n- **Target Capability**: `SEM` | **Task**: `structural_equation_modeling` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING] Mandate: Explicitly support and specify residual error covariances (e.g., Ru_Ref ~~ Ru_Dep) in R lavaan for multidimensional scales. Enforce horizontal canvas semPaths generation (e.g., width=4500-4800, height=2400 at 300 DPI) per PTR-20260923-D83E86.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Evaluate candidate CAND-2026-SEM-RESIDUAL-COV-001.json, compile via academic_graduation_compiler.py, run eval suite, and isolate stale validation_report.json from 03_deliverables.\n\n---\n### Executable Task Assignment:\n1. Independently evaluate candidate `CAND-2026-SEM-RESIDUAL-COV-001` located at `.agents/learning/candidates/CAND-2026-SEM-RESIDUAL-COV-001.json` against benchmark definitions and verify zero regressions.\n2. Execute graduation and compilation:\n   `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate .agents/learning/candidates/CAND-2026-SEM-RESIDUAL-COV-001.json`\n   followed by `python3 .agents/scripts/academic_graduation_compiler.py compile-all`.\n3. In accordance with `AP-2026-STALE-VALIDATION-REPORT-CONTAMINATION`, isolate the stale legacy validation report: move/archive `03_deliverables/validation_report.json` to `03_deliverables/legacy_validation/validation_report.json` so that outdated checks on non-existent monolithic files do not falsely contaminate active micro-stage gates.\n4. Run `python3 evals/run_eval_suite.py` to certify benchmark passing with zero regressions.\n5. In your final report, include exact fields `overall_verdict: PASS` and `checks_failed: 0` to certify the validation audit.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Studies utilizing methodology-review or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~390/600 tokens]\n- **Target Capability**: `SEM` | **Task**: `structural_equation_modeling` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING] Mandate: Explicitly support and specify residual error covariances (e.g., Ru_Ref ~~ Ru_Dep) in R lavaan for multidimensional scales. Enforce horizontal canvas semPaths generation (e.g., width=4500-4800, height=2400 at 300 DPI) per PTR-20260923-D83E86.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Evaluate candidate CAND-2026-SEM-RESIDUAL-COV-001.json, compile via academic_graduation_compiler.py, run eval suite, and isolate stale validation_report.json from 03_deliverables.\n\n---\n### Executable Task Assignment:\n1. Independently evaluate candidate `CAND-2026-SEM-RESIDUAL-COV-001` located at `.agents/learning/candidates/CAND-2026-SEM-RESIDUAL-COV-001.json` against benchmark definitions and verify zero regressions.\n2. Execute graduation and compilation:\n   `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate .agents/learning/candidates/CAND-2026-SEM-RESIDUAL-COV-001.json`\n   followed by `python3 .agents/scripts/academic_graduation_compiler.py compile-all`.\n3. In accordance with `AP-2026-STALE-VALIDATION-REPORT-CONTAMINATION`, isolate the stale legacy validation report: move/archive `03_deliverables/validation_report.json` to `03_deliverables/legacy_validation/validation_report.json` so that outdated checks on non-existent monolithic files do not falsely contaminate active micro-stage gates.\n4. Run `python3 evals/run_eval_suite.py` to certify benchmark passing with zero regressions.\n5. In your final report, include exact fields `overall_verdict: PASS` and `checks_failed: 0` to certify the validation audit.",
+  "generalization": "Procedural Guideline for methodology-review: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~390/600 tokens]\n- **Target Capability**: `SEM` | **Task**: `structural_equation_modeling` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING] Mandate: Explicitly support and specify residual error covariances (e.g., Ru_Ref ~~ Ru_Dep) in R lavaan for multidimensional scales. Enforce horizontal canvas semPaths generation (e.g., width=4500-4800, height=2400 at 300 DPI) per PTR-20260923-D83E86.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- Evaluate candidate CAND-2026-SEM-RESIDUAL-COV-001.json, compile via academic_graduation_compiler.py, run eval suite, and isolate stale validation_report.json from 03_deliverables.\n\n---\n### Executable Task Assignment:\n1. Independently evaluate candidate `CAND-2026-SEM-RESIDUAL-COV-001` located at `.agents/learning/candidates/CAND-2026-SEM-RESIDUAL-COV-001.json` against benchmark definitions and verify zero regressions.\n2. Execute graduation and compilation:\n   `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate .agents/learning/candidates/CAND-2026-SEM-RESIDUAL-COV-001.json`\n   followed by `python3 .agents/scripts/academic_graduation_compiler.py compile-all`.\n3. In accordance with `AP-2026-STALE-VALIDATION-REPORT-CONTAMINATION`, isolate the stale legacy validation report: move/archive `03_deliverables/validation_report.json` to `03_deliverables/legacy_validation/validation_report.json` so that outdated checks on non-existent monolithic files do not falsely contaminate active micro-stage gates.\n4. Run `python3 evals/run_eval_suite.py` to certify benchmark passing with zero regressions.\n5. In your final report, include exact fields `overall_verdict: PASS` and `checks_failed: 0` to certify the validation audit. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-METHODOLOGY_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~390/600 tokens]\n- **Target Capability**: `SEM` ",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~390/600 tokens]\n- **Target",
+    "supporting_report_ids": [
+      "FDB-20260928-620F0B"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "methodology-review"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-28T12:23:10.494240+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-28T12:23:10.494329+00:00"
+  }
+}
