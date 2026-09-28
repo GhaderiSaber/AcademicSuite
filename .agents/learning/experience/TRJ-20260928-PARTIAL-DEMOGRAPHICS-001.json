@@ -1,0 +1,528 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260928-PARTIAL-DEMOGRAPHICS-001",
+  "experience_id": "EXP-20260928-PARTIAL-DEMOGRAPHICS-001",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "TSK-2026-CH4-STAGE-4D1-DEMOGRAPHICS-TRIAD",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T14:40:00.000000+00:00",
+      "description": "academic-orchestrator initiated Stage 4B.1 (Demographic Profiling & Descriptives) under task TSK-2026-CH4-STAGE-4B1 delegating to statistics-agent to calculate frequency distributions and descriptive statistics across all surveyed variables in clean dataset N=483.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4B1",
+        "stage": "Phase 4B.1: Demographic Profiling",
+        "worker_agent": "statistics-agent",
+        "inputs": [
+          "02_analysis_code/data_cleaned.xlsx"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T14:40:05.000000+00:00",
+      "description": "statistics-agent started execution of demographic profiling task TSK-2026-CH4-STAGE-4B1.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4B1"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T14:40:10.000000+00:00",
+      "description": "statistics-agent executed python3 02_analysis_code/compute_demographics.py against 02_analysis_code/data_cleaned.xlsx to compute frequency distributions, percentages, cumulative percentages, and descriptive statistics across all 12 demographic and clinical background variables on N=483 complete cases.",
+      "observable_input": {
+        "cli_command": "python3 02_analysis_code/compute_demographics.py",
+        "dataset_path": "02_analysis_code/data_cleaned.xlsx",
+        "target_sample_size": 483
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "sample_size": 483,
+        "variables_calculated_count": 12
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T14:40:15.000000+00:00",
+      "description": "statistics-agent persisted exhaustive calculations for all 12 variables (11 categorical: Gender, Marriage, Education, Job, Income, SabEkht, SabPsych, SabBast, SabAfk, Daru, Sigar; and 1 continuous/grouped: Age) into 02_analysis_code/demographics_calculated.json.",
+      "observable_input": {
+        "target_file": "02_analysis_code/demographics_calculated.json",
+        "calculated_variables": [
+          "Gender",
+          "Marriage",
+          "Education",
+          "Job",
+          "Income",
+          "SabEkht",
+          "SabPsych",
+          "SabBast",
+          "SabAfk",
+          "Daru",
+          "Sigar",
+          "Age"
+        ]
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "file_size_bytes": 13901,
+        "sample_size": 483
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T14:40:20.000000+00:00",
+      "description": "statistics-agent concluded Stage 4B.1 returning success status and output artifact 02_analysis_code/demographics_calculated.json.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4B1"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "output_artifacts": [
+          "02_analysis_code/demographics_calculated.json"
+        ]
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-28T09:15:00.000000+00:00",
+      "description": "academic-orchestrator formulated task TSK-2026-CH4-STAGE-4D1-DISAGGREGATED-DEMOGRAPHICS for Phase 4D Scholarly Drafting, but erroneously pruned the demographic reporting scope from 12 empirical variables down to only 4 conventional variables (Gender, Marriage, Education, Employment), omitting clinical background features and Age.",
+      "observable_input": {
+        "decision_type": "DEMOGRAPHIC_REPORTING_SCOPE_PRUNING",
+        "source_data_available": "02_analysis_code/demographics_calculated.json",
+        "available_variables_count": 12
+      },
+      "observable_output": {
+        "selected_option": "PRUNE_TO_FOUR_CONVENTIONAL_VARIABLES",
+        "rationale": "Orchestrator framed Stage 4D.1 as a 4-variable demographic presentation and substituted an ad-hoc truncated 4-variable JSON artifact instead of passing the comprehensive 12-variable demographic ledger.",
+        "omitted_variables": [
+          "Age",
+          "Income",
+          "SabEkht",
+          "SabPsych",
+          "SabBast",
+          "SabAfk",
+          "Daru",
+          "Sigar"
+        ]
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-28T09:15:10.000000+00:00",
+      "description": "academic-orchestrator generated 03_deliverables/01_demographics.json as a truncated 31-line stub containing only the 4 pruned variables, and furthermore distorted employment categories into 3 groups (Employed=248, Unemployed=124, Student=111) discordant with the empirical 5-category data in demographics_calculated.json.",
+      "observable_input": {
+        "target_file": "03_deliverables/01_demographics.json"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "line_count": 31,
+        "variables_included": [
+          "gender",
+          "marital_status",
+          "education",
+          "employment"
+        ]
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-28T09:15:30.000000+00:00",
+      "description": "academic-orchestrator issued Contractual Delegation Envelope (CDE) TSK-2026-CH4-STAGE-4D1-DISAGGREGATED-DEMOGRAPHICS to academic-writer, explicitly mandating Option 2 Disaggregated Architecture with exactly 4 separate subsections and 4 tables (Gender, Marriage, Education, Employment), passing only the pruned 01_demographics.json and omitting demographics_calculated.json from inputs.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4D1-DISAGGREGATED-DEMOGRAPHICS",
+        "worker_agent": "academic-writer",
+        "objective": "Implement Option 2 (Disaggregated Demographics Architecture) for Stage 4D.1. Provide a dedicated subsection (H2: ## جنسیت, ## وضعیت تأهل, ## سطح تحصیلات, ## وضعیت اشتغال), an individual APA 7 3-line table (جدول ۴-۱, جدول ۴-۲, جدول ۴-۳, جدول ۴-۴)...",
+        "inputs": [
+          "03_deliverables/01_demographics.json"
+        ],
+        "acceptance_criteria": [
+          "Option 2 Structure: Exactly 4 separate subsections with 4 separate APA 7 3-line tables: جدول ۴-۱ (جنسیت), جدول ۴-۲ (وضعیت تأهل), جدول ۴-۳ (سطح تحصیلات), جدول ۴-۴ (وضعیت اشتغال)"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-28T09:15:35.000000+00:00",
+      "description": "academic-writer started Stage 4D.1 drafting, operating strictly within the bounded envelope and instructions provided by the orchestrator.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4D1-DISAGGREGATED-DEMOGRAPHICS"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-28T09:16:15.000000+00:00",
+      "description": "academic-writer generated 03_deliverables/01_demographics.md containing 65 lines and exactly 4 subsections (Gender, Marital status, Education, Employment), omitting the 8 clinical and age features.",
+      "observable_input": {
+        "target_file": "03_deliverables/01_demographics.md"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "line_count": 65,
+        "table_count": 4
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-28T09:16:45.000000+00:00",
+      "description": "academic-writer compiled 03_deliverables/01_demographics.docx formatting the 4 APA 7 demographic tables into Word OpenXML.",
+      "observable_input": {
+        "target_file": "03_deliverables/01_demographics.docx"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "file_size_bytes": 37248
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-28T09:17:00.000000+00:00",
+      "description": "academic-writer returned completed payload for Stage 4D.1 with deliverables covering only the 4 truncated demographic variables.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4D1-DISAGGREGATED-DEMOGRAPHICS"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "artifacts_emitted": [
+          "03_deliverables/01_demographics.md",
+          "03_deliverables/01_demographics.docx",
+          "03_deliverables/01_demographics.json"
+        ]
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-28T16:15:00.000000+00:00",
+      "description": "User inspected Stage 4D.1 deliverable triad and issued critique: \"You don't follow the rules . you should report all of the demographc features.\"",
+      "observable_input": {
+        "critique_text": "You don't follow the rules . you should report all of the demographc features.",
+        "target_stage": "Stage 4D.1: Demographics Triad"
+      },
+      "observable_output": {
+        "feedback_event": "USER_CRITIQUE_RECORDED"
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "thesis-integrity-auditor",
+      "timestamp": "2026-09-28T16:15:10.000000+00:00",
+      "description": "thesis-integrity-auditor initiated forensic verification of demographic reporting completeness against 02_analysis_code/demographics_calculated.json and empirical questionnaire design.",
+      "observable_input": {
+        "benchmark_file": "02_analysis_code/demographics_calculated.json",
+        "deliverable_triad": [
+          "03_deliverables/01_demographics.md",
+          "03_deliverables/01_demographics.docx",
+          "03_deliverables/01_demographics.json"
+        ]
+      },
+      "observable_output": {
+        "status": "VALIDATION_STARTED"
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "thesis-integrity-auditor",
+      "timestamp": "2026-09-28T16:15:20.000000+00:00",
+      "description": "thesis-integrity-auditor recorded FAIL verdict: Stage 4D.1 truncated demographic reporting to 4 variables, completely omitting 8 variables (Age, Income, SabEkht, SabPsych, SabBast, SabAfk, Daru, Sigar) and distorting Job categories.",
+      "observable_input": {
+        "audited_stage": "Stage 4D.1"
+      },
+      "observable_output": {
+        "verdict": "FAIL",
+        "missing_variable_count": 8,
+        "omitted_variables": [
+          "Age",
+          "Income",
+          "SabEkht",
+          "SabPsych",
+          "SabBast",
+          "SabAfk",
+          "Daru",
+          "Sigar"
+        ]
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "view_file",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "AbsolutePath": "02_analysis_code/demographics_calculated.json",
+        "StartLine": 1,
+        "EndLine": 424
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 15.2
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/01_demographics.md",
+        "StartLine": 1,
+        "EndLine": 65
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 12.1
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/01_demographics.json",
+        "StartLine": 1,
+        "EndLine": 31
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 10.4
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "AbsolutePath": "02_analysis_code/compute_demographics.py",
+        "StartLine": 1,
+        "EndLine": 274
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 14.8
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "AbsolutePath": "02_analysis_code/build_demographics_triad.py",
+        "StartLine": 1,
+        "EndLine": 300
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 18.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "AbsolutePath": "scaffold_demographics.py",
+        "StartLine": 1,
+        "EndLine": 132
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 11.6
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "descriptive-statistics",
+      "script_path": "02_analysis_code/compute_demographics.py",
+      "cli_command": "python3 02_analysis_code/compute_demographics.py",
+      "exit_code": 0,
+      "duration_seconds": 1.25
+    },
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": ".agents/skills/chapter-4-writing/SKILL.md",
+      "cli_command": "internal_subagent_execution",
+      "exit_code": 0,
+      "duration_seconds": 4.5
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": ".agents/skills/apa-reporting/SKILL.md",
+      "cli_command": "internal_subagent_execution",
+      "exit_code": 0,
+      "duration_seconds": 2.8
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "stage_id": "Stage 4B.1: Demographic Profiling Calculations",
+      "envelope_summary": "Calculate complete descriptive and frequency statistics for all 12 demographic and clinical background variables on clean N=483 data.",
+      "status": "SUCCESS",
+      "handoff_artifact_path": "02_analysis_code/demographics_calculated.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "statistics-agent",
+      "task_id": "TSK-2026-CH4-STAGE-4B1",
+      "objective": "Execute complete demographic profiling across all 11 categorical variables and age continuous statistics on N=483 complete cases.",
+      "input_artifacts": [
+        "02_analysis_code/data_cleaned.xlsx"
+      ],
+      "output_artifacts": [
+        "02_analysis_code/demographics_calculated.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "Stage 4D.1: Demographics Triad Synthesis",
+      "envelope_summary": "Draft Persian narrative prose and format APA 7 3-line tables for Option 2 Disaggregated Demographics Architecture, restricted to 4 variables.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/01_demographics.docx",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-2026-CH4-STAGE-4D1-DISAGGREGATED-DEMOGRAPHICS",
+      "objective": "Implement Option 2 (Disaggregated Demographics Architecture) for Stage 4D.1 with exactly 4 separate subsections and 4 APA 7 tables.",
+      "input_artifacts": [
+        "03_deliverables/01_demographics.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/01_demographics.md",
+        "03_deliverables/01_demographics.docx",
+        "03_deliverables/01_demographics.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260928-ORCH-SCOPE-PRUNING",
+      "decision_type": "DEMOGRAPHIC_REPORTING_SCOPE_REDUCTION",
+      "selected_option": "Prune Stage 4D.1 reporting scope to 4 conventional variables (Gender, Marriage, Education, Employment)",
+      "rationale": "The orchestrator assumed a conventional minimal demographic profile of 4 basic sociodemographic indicators for drafting simplicity, ignoring the comprehensive 12-variable demographic and clinical profile pre-calculated in 02_analysis_code/demographics_calculated.json and failing to pass the calculated ledger to academic-writer.",
+      "alternatives_considered": [
+        {
+          "option": "Exhaustive reporting of all 12 demographic and clinical background variables (Age + 11 categorical features) in 12 separate tables and distinct narratives",
+          "verdict": "REJECTED_IMPROPERLY",
+          "reason": "Orchestrator erroneously assumed that reporting 12 tables was overly extensive or optional, leading to arbitrary truncation."
+        },
+        {
+          "option": "Consolidated multi-variable demographic ledger table",
+          "verdict": "REJECTED",
+          "reason": "Violates Option 2 Disaggregated Demographics Architecture mandate."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260928-WRITER-UNQUESTIONING-COMPLIANCE",
+      "decision_type": "WORKER_INPUT_VALIDATION_STRATEGY",
+      "selected_option": "Strict adherence to CDE mathematical specification without reconciling against empirical data ledger",
+      "rationale": "academic-writer operated strictly within the bounded envelope provided by the orchestrator, reading only 03_deliverables/01_demographics.json and not checking whether earlier pipeline stages (compute_demographics.py) had calculated additional variables.",
+      "alternatives_considered": [
+        {
+          "option": "Cross-check deliverable scope against data_cleaned.xlsx and demographics_calculated.json before drafting",
+          "verdict": "OMITTED_IMPROPERLY",
+          "reason": "academic-writer lacked pre-flight input cross-checking logic to detect upstream orchestrator scope omission."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "02_analysis_code/demographics_calculated.json",
+      "sha256": "6b72a48f98ec34f4340a6b738914da76db781121df0c14b223405f6e5200ecae",
+      "type": "calculated_ledger_json"
+    },
+    {
+      "path": "03_deliverables/01_demographics.docx",
+      "sha256": "23358fb7c93c095e91181c0346bdc0d007d31b40dc71f76a0441ab0d63e52337",
+      "type": "openxml_word"
+    },
+    {
+      "path": "03_deliverables/01_demographics.md",
+      "sha256": "3ed9a19f73a2c3163f08e0fa7d3c120d71c67f881c23c91e7b04f0a9f4a16f87",
+      "type": "narrative_markdown"
+    },
+    {
+      "path": "03_deliverables/01_demographics.json",
+      "sha256": "cd76d1f5480a1ae70721fa45c8b9d24776f335ffd0dd514819ff5044104a60ae",
+      "type": "metadata_json"
+    },
+    {
+      "path": "02_analysis_code/compute_demographics.py",
+      "sha256": "a93b42901dbdf548174f9814421b590e8a712394c8bdf90b6a12cd712f5a041c",
+      "type": "calculation_script"
+    },
+    {
+      "path": "02_analysis_code/build_demographics_triad.py",
+      "sha256": "f5e921d7b3ea40c31beaa067160cb21ea8a39cbe9bb3cb8c772cb5cb101ff2a1",
+      "type": "builder_script"
+    },
+    {
+      "path": "scaffold_demographics.py",
+      "sha256": "9f84b65a973cb12a58b0e7c54efdc62810a45d023349f8bb2ce8459f9393a7d1",
+      "type": "scaffold_script"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "DemographicCompletenessValidator",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-EXHAUSTIVE-DEMOGRAPHIC-REPORTING: Deliverable reported only 4 variables (Gender, Marriage, Education, Employment); 8 variables omitted (Age, Income, SabEkht, SabPsych, SabBast, SabAfk, Daru, Sigar).",
+        "CHK-VARIABLE-DISTRIBUTION-CONCORDANCE: Employment distribution in 01_demographics.json (3 categories: 248, 124, 111) was distorted and discorded from empirical 5 categories in demographics_calculated.json (214, 131, 63, 63, 12)."
+      ],
+      "evidence_summary": {
+        "expected_variables_count": 12,
+        "observed_variables_count": 4,
+        "missing_variables": [
+          "Age (سن)",
+          "Income (سطح درآمد ماهانه خانوار)",
+          "SabEkht (سابقه ابتلا به اختلالات روان‌پزشکی)",
+          "SabPsych (سابقه مراجعه به روانشناس یا روانپزشک)",
+          "SabBast (سابقه بستری در بخش روانپزشکی)",
+          "SabAfk (سابقه افکار یا اقدام به خودکشی)",
+          "Daru (وضعیت مصرف داروهای روانپزشکی)",
+          "Sigar (وضعیت مصرف سیگار یا دخانیات)"
+        ],
+        "user_critique": "You don't follow the rules . you should report all of the demographc features."
+      }
+    },
+    {
+      "validator_name": "PipelineDataHandoffValidator",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-UPSTREAM-PAYLOAD-PRESERVATION: Orchestrator failed to pass 02_analysis_code/demographics_calculated.json to academic-writer CDE, substituting an ad-hoc truncated 4-variable stub in 03_deliverables/01_demographics.json."
+      ],
+      "evidence_summary": {
+        "upstream_artifact": "02_analysis_code/demographics_calculated.json",
+        "upstream_variables_count": 12,
+        "cde_input_artifact": "03_deliverables/01_demographics.json",
+        "cde_variables_count": 4
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260928-PARTIAL-DEMOGRAPHICS-USER"
+  ],
+  "outcome": "FAILURE"
+}

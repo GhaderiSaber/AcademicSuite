@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-ARBITRARY-DEMOGRAPHIC-TRUNCATION",
+  "category": "execution",
+  "defective_pattern": "Arbitrarily pruning or truncating calculated demographic/clinical variables from reporting scope or substituting comprehensive calculation ledgers with truncated stubs.",
+  "why_defective": "Leads to incomplete empirical reporting and violates full disclosure principles required by APA 7 and stage triad invariants.",
+  "observed_symptoms": [
+    "Missing demographic variables in the final report.",
+    "Truncated stubs used instead of full demographics_calculated.json ledger."
+  ],
+  "corrective_remedy": "Preserve and pass the full calculation ledger (`demographics_calculated.json`) and exhaustively report all empirical variables in the Stage 4D.1 triad.",
+  "detection_heuristic": {
+    "trigger_rule": "Detecting omission of variables present in demographics_calculated.json within the generated markdown or docx.",
+    "regex_patterns": [],
+    "pattern": "",
+    "check_type": "substring_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "academic-orchestrator"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-28T19:29:13Z"
+}

@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-EXHAUSTIVE-DEMOGRAPHIC-REPORTING-MANDATE",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "AUDITOR_FAILURE",
+  "source_experience_id": "BAN-20260928-006",
+  "diagnosis": {
+    "what_happened": "Arbitrarily pruned or truncated calculated demographic/clinical variables from reporting scope.",
+    "behavior_caused_outcome": "Incomplete reporting and failure to adhere to the full calculation ledger.",
+    "what_should_have_happened": "Orchestrator and writers must preserve and pass the full calculation ledger (demographics_calculated.json) and exhaustively report all empirical variables in the Stage 4D.1 triad.",
+    "rationale_why": "APA 7 and rigorous methodological standards require exhaustive reporting of all calculated empirical features to maintain transparency and reproducibility."
+  },
+  "desired_behavior": "Orchestrator and writers must preserve and pass the full calculation ledger (`demographics_calculated.json`) and exhaustively report all empirical variables (both socio-demographic and clinical features) in the Stage 4D.1 triad.",
+  "generalization": "Never arbitrarily truncate or prune empirical variables from reporting; always reflect the comprehensive calculation ledger.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "COMPREHENSIVE_REPORTING_CHECK",
+    "observed_value": "Truncated demographic reporting observed.",
+    "threshold_value": "Zero tolerance for arbitrary variable omission.",
+    "supporting_report_ids": [
+      "BAN-20260928-006"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-28T19:29:13Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "academic-orchestrator",
+    "results-auditor"
+  ]
+}
