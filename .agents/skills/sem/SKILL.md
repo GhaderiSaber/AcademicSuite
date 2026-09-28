@@ -124,6 +124,11 @@ The script outputs:
 ### 9.3 Multidimensional Construct Preservation
 - Scales with validated multidimensional subscales must preserve their dimensional structure in the measurement model. Forcibly collapsing multidimensional scales into an artificial single-factor latent variable without theoretical justification is prohibited.
 
+### 9.4 Single-Indicator Latent Variables for Unidimensional Constructs
+- When composite total scores are mandated for unidimensional constructs (e.g., `SCI_T`, `PA_Negative`, `BSSI_T`), they must be specified in R `lavaan` as single-indicator latent variables.
+- **Factor Loading Fix**: Fix the factor loading to 1.0 (e.g., `Latent =~ 1*Observed`).
+- **Error Variance Fix**: Fix the measurement error variance to $Var(y) \times (1 - \alpha)$, rather than generating ad-hoc item parcels (per PRN-20260923-3A3A2B).
+
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001)**: Enforcing a strict fail-closed mathematical admissibility gate requiring lavaan post-check verification, information matrix invertibility, zero negative variances, and all standardized betas <= 1.0 before any SEM results or chapter deliverables can pass validation. [Enforcement: dynamic_invariant_guard.py (LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001)]
 - **Lesson (LSN-2026-R-LAVAAN-LATENT-SEM-MANDATE)**: Specification of R (lavaan) as primary SEM engine, latent indicators (=~), R semPlot::semPaths() visualization, and mandatory pre-flight adaptive context retrieval. [Enforcement: dynamic_invariant_guard.py (LSN-2026-R-LAVAAN-LATENT-SEM-MANDATE)]

@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-27T18:18:38.224122+00:00",
+  "updated_at": "2026-09-28T10:19:16.105304+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -643,6 +643,27 @@
       "remedy": "Ensure the pipeline sequentially and atomically generates the complete synchronized triad (.docx, .md, .json) before validation.",
       "enabled": true,
       "updated_at": "2026-09-27T18:18:38.224090+00:00"
+    },
+    "CAND-2026-SEM-SINGLE-INDICATOR-001": {
+      "item_id": "CAND-2026-SEM-SINGLE-INDICATOR-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Ad-hoc item parceling for unidimensional constructs is strictly prohibited (AP-2026-ADHOC-ITEM-PARCELING-UNIDIMENSIONAL).",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "STRUCTURAL_EQUATION_MODELING",
+        "METHODOLOGY_RIGOR"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\\\.(R|Rmd|r|py)$",
+      "check_type": "regex_ban",
+      "pattern": "(?i)parceling.*unidimensional|ad-hoc parcel",
+      "violation_message": "Ad-hoc item parceling for unidimensional constructs is strictly prohibited (AP-2026-ADHOC-ITEM-PARCELING-UNIDIMENSIONAL).",
+      "remedy": "Use single-indicator latent variables with factor loading fixed to 1.0 and measurement error variance fixed to Var(y) * (1 - alpha) per PRN-20260923-3A3A2B.",
+      "enabled": true,
+      "updated_at": "2026-09-28T10:19:16.105277+00:00"
     }
   }
 }
