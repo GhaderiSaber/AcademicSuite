@@ -469,3 +469,6 @@ The current local time is: 2026-09-25T19:13:18+03:30. [Enforcement: results_audi
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-20260925-C57A9F)**: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUT... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-WRITER-READ-ONLY-JSON-MANDATE)**: Strictly enforce READ-ONLY access to 03_deliverables/*.json for academ... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]

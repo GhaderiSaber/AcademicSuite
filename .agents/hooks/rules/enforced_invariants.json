@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-28T19:30:58.580126+00:00",
+  "updated_at": "2026-09-28T19:57:02.486544+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -788,6 +788,28 @@
       "remedy": "Ensure all demographics from the calculation ledger (e.g. demographics_calculated.json) are fully included in the output file.",
       "enabled": true,
       "updated_at": "2026-09-28T19:30:58.580107+00:00"
+    },
+    "LSN-2026-WRITER-READ-ONLY-JSON-MANDATE": {
+      "item_id": "LSN-2026-WRITER-READ-ONLY-JSON-MANDATE",
+      "category": "Lesson",
+      "statement": "Strictly enforce READ-ONLY access to 03_deliverables/*.json for academic-writer. Do not delegate JSON mutation tasks to narrative agents.",
+      "target_agents": [
+        "academic-orchestrator",
+        "academic-writer"
+      ],
+      "target_skills": [
+        "chapter-4-writing",
+        "apa-reporting"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.R",
+      "check_type": "regex_ban",
+      "pattern": "(?i)parcel",
+      "violation_message": "Strictly enforce READ-ONLY access to 03_deliverables/*.json for academic-writer. Do not delegate JSON mutation tasks to narrative agents.",
+      "remedy": "Strictly enforce READ-ONLY access to 03_deliverables/*.json for academic-writer. Do not delegate JSON mutation tasks to narrative agents.",
+      "enabled": true,
+      "updated_at": "2026-09-28T19:57:02.486528+00:00"
     }
   }
 }
