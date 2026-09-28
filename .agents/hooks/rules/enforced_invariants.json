@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-28T14:40:21.349639+00:00",
+  "updated_at": "2026-09-28T15:59:23.303275+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -746,6 +746,28 @@
       "remedy": "Ensure you physically rename to .stale.json or remove the file. Do not save as validation_report.json if it is stale.",
       "enabled": true,
       "updated_at": "2026-09-28T14:40:21.349610+00:00"
+    },
+    "CAND-2026-DIAGRAM-CEX-AND-UNLINK-001": {
+      "item_id": "CAND-2026-DIAGRAM-CEX-AND-UNLINK-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Failing validation_report.json files must be physically deleted (unlinked) using 'rm' or 'os.remove'. Creating '.stale' copies is strictly prohibited to prevent cache contamination.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "SEM",
+        "structural_equation_modeling",
+        "validation_enforcement"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "run_command|write_to_file",
+      "file_pattern": ".*",
+      "check_type": "regex_ban",
+      "pattern": "validation_report\\.json.*\\.stale",
+      "violation_message": "Failing validation_report.json files must be physically deleted (unlinked) using 'rm' or 'os.remove'. Creating '.stale' copies is strictly prohibited to prevent cache contamination.",
+      "remedy": "Replace move/rename operations with physical deletion ('rm validation_report.json' or 'os.remove(\"validation_report.json\")').",
+      "enabled": true,
+      "updated_at": "2026-09-28T15:59:23.303254+00:00"
     }
   }
 }
