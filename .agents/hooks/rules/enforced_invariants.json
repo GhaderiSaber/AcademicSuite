@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-28T15:59:23.303275+00:00",
+  "updated_at": "2026-09-28T19:30:58.580126+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -768,6 +768,26 @@
       "remedy": "Replace move/rename operations with physical deletion ('rm validation_report.json' or 'os.remove(\"validation_report.json\")').",
       "enabled": true,
       "updated_at": "2026-09-28T15:59:23.303254+00:00"
+    },
+    "CAND-2026-EXHAUSTIVE-DEMOGRAPHICS-001": {
+      "item_id": "CAND-2026-EXHAUSTIVE-DEMOGRAPHICS-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Arbitrary truncation of demographic variables detected. You must exhaustively report all demographic and clinical background variables without stubs or omissions.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\\\.(md|json|docx)$",
+      "check_type": "regex_ban",
+      "pattern": "(truncated for brevity|remaining demographics omitted|stub substitution|TODO.*demographics)",
+      "violation_message": "Arbitrary truncation of demographic variables detected. You must exhaustively report all demographic and clinical background variables without stubs or omissions.",
+      "remedy": "Ensure all demographics from the calculation ledger (e.g. demographics_calculated.json) are fully included in the output file.",
+      "enabled": true,
+      "updated_at": "2026-09-28T19:30:58.580107+00:00"
     }
   }
 }

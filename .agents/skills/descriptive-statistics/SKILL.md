@@ -89,3 +89,4 @@ The script produces:
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-CORRELATION-TABLE-THREE-COLUMN-HEADER-001)**: Structure all correlation matrices with: Col 1 ('ردیف'), Col 2 ('متغیر'), Col 3 ('خرده‌مقیاس'), followed by correlation columns ('۱', '۲', '۳', ...). [Enforcement: statistics_agent_guard.py]
+- **Lesson (LSN-2026-EXHAUSTIVE-DEMOGRAPHIC-REPORTING-MANDATE)**: Mandate exhaustive reporting of all calculated demographic and clinical background variables. Arbitrary truncation or stub substitution of demographic variables present in the calculation ledger (demographics_calculated.json) is strictly prohibited. [Enforcement: exhaustive_demographic_guard.py]
