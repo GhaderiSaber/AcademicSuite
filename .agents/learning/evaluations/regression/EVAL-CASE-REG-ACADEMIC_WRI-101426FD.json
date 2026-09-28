@@ -61,6 +61,6 @@
   "status": "candidate",
   "expected_behavior": "Strictly adhere to associative terminology (associated, predicted, accounted for) in observational designs, refraining from asserting direct causality or proof.",
   "forbidden_behavior": "unsupported_causal_assertions",
-  "repeat_count": 60,
-  "last_seen_at": "2026-09-28T19:53:42.879546+00:00"
+  "repeat_count": 68,
+  "last_seen_at": "2026-09-28T20:59:39.461182+00:00"
 }
