@@ -26,95 +26,109 @@ from typing import Dict, Any, List, Optional, Tuple
 
 
 CANONICAL_STAGE_PREREQUISITES: Dict[str, Dict[str, Any]] = {
-    # ─── 1. Chapter 4 Pipeline (Empirical Findings: Stages 4.0 – 4.12) ───
-    r"4\.0": {
-        "name": "Stage 4.0: Data Curation & Preprocessing",
+    # ─── 1. Chapter 4 Pipeline (Decoupled Findings: Phases 4A – 4D) ───
+    # Phase 4A: Data Engineering & Curation (Stages 4A.0 – 4A.2)
+    r"(?:4A\.0|4\.0)": {
+        "name": "Stage 4A.0: Data Curation & Preprocessing",
         "pipeline": "chapter4",
         "required_prerequisites": []
     },
-    r"4\.1": {
-        "name": "Stage 4.1: Demographics Profiling",
+    r"(?:4A\.1|4\.0\.1)": {
+        "name": "Stage 4A.1: Reverse-Scoring & Scale Aggregation",
+        "pipeline": "chapter4",
+        "required_prerequisites": [
+            r"(?:00_data_curation_report\.(?:json|md)|primary_data\.xlsx|.*data.*\.xlsx)"
+        ]
+    },
+    r"(?:4A\.2|4\.0\.2)": {
+        "name": "Stage 4A.2: Baseline Scale Reliability (alpha, omega)",
+        "pipeline": "chapter4",
+        "required_prerequisites": [
+            r"data_cleaned\.xlsx"
+        ]
+    },
+
+    # Phase 4B: Exploratory Analysis & Assumptions (Stages 4B.1 – 4B.4)
+    r"(?:4B\.1|4\.1)": {
+        "name": "Stage 4B.1: Demographics Profiling",
         "pipeline": "chapter4",
         "required_prerequisites": [
             r"(?:data_cleaned\.xlsx|00_data_curation_report\.(?:json|md))"
         ]
     },
-    r"4\.2": {
-        "name": "Stage 4.2: Descriptives & Reliability",
+    r"(?:4B\.2|4\.2)": {
+        "name": "Stage 4B.2: Descriptives & Reliability",
         "pipeline": "chapter4",
         "required_prerequisites": [
-            r"(?:data_cleaned\.xlsx|01_demographics\.(?:docx|md|json))"
+            r"data_cleaned\.xlsx"
         ]
     },
-    r"4\.3": {
-        "name": "Stage 4.3: Parametric Assumptions Verification",
+    r"(?:4B\.3|4\.3)": {
+        "name": "Stage 4B.3: Parametric Assumptions Verification",
         "pipeline": "chapter4",
         "required_prerequisites": [
-            r"(?:data_cleaned\.xlsx|02_descriptives_and_reliability\.(?:docx|md|json))"
+            r"(?:02_descriptives_payload\.json|02_descriptives_and_reliability\.(?:docx|md|json)|data_cleaned\.xlsx)"
         ]
     },
-    r"4\.4": {
-        "name": "Stage 4.4: Bivariate Correlation Matrix Analysis",
+    r"(?:4B\.4|4\.4)": {
+        "name": "Stage 4B.4: Bivariate Correlation Matrix Analysis",
         "pipeline": "chapter4",
         "required_prerequisites": [
-            r"03_parametric_assumptions\.(?:docx|md|json)"
+            r"(?:02_descriptives_payload\.json|02_descriptives_and_reliability\.(?:docx|md|json)|data_cleaned\.xlsx)"
         ]
     },
-    r"4\.5": {
-        "name": "Stage 4.5: Macro Model Fit / Primary Structural Model",
+
+    # Phase 4C: Core Inferential Modeling & Computations (Stages 4C.1 – 4C.5)
+    r"(?:4C\.1|4\.5(?:\.1)?)": {
+        "name": "Stage 4C.1: Macro Model Fit / Structural Equation Model",
         "pipeline": "chapter4",
         "required_prerequisites": [
-            r"03_parametric_assumptions\.(?:docx|md|json)"
+            r"(?:03_assumptions_report\.(?:json|md)|03_parametric_assumptions\.(?:docx|md|json))",
+            r"(?:04_correlations_payload\.json|04_bivariate_correlations\.(?:docx|md|json))"
         ]
     },
-    r"4\.6(?:\.\d+)?": {
-        "name": "Stage 4.6: Hypothesis Testing & Narrative Dissection",
+    r"(?:4C\.2(?:\.\d+)?|4\.6(?:\.\d+)?)": {
+        "name": "Stage 4C.2: Direct Hypothesis Regressions",
         "pipeline": "chapter4",
         "required_prerequisites": [
-            r"03_parametric_assumptions\.(?:docx|md|json)"
+            r"(?:03_assumptions_report\.(?:json|md)|03_parametric_assumptions\.(?:docx|md|json))"
         ]
     },
-    r"4\.7(?:\.\d+)?": {
-        "name": "Stage 4.7: Indirect / Mediation Path Testing",
+    r"(?:4C\.3(?:\.\d+)?|4\.7(?:\.\d+)?)": {
+        "name": "Stage 4C.3: Indirect & Bootstrap Mediation Analysis (5,000 resamples)",
         "pipeline": "chapter4",
         "required_prerequisites": [
-            r"03_parametric_assumptions\.(?:docx|md|json)"
+            r"(?:03_assumptions_report\.(?:json|md)|03_parametric_assumptions\.(?:docx|md|json))",
+            r"(?:04_correlations_payload\.json|04_bivariate_correlations\.(?:docx|md|json))",
+            r"(?:05_macro_model_payload\.json|06_hypothesis_1_payload\.json)"
         ]
     },
-    r"4\.8": {
-        "name": "Stage 4.8: Master Decision Matrix & Chapter Summary",
+    r"(?:4C\.4|4\.8)": {
+        "name": "Stage 4C.4: Master Decision Matrix Synthesis",
         "pipeline": "chapter4",
         "required_prerequisites": [
-            r"06_hypothesis_1\.(?:docx|md|json)"
+            r"(?:05_macro_model_payload\.json|06_hypothesis_1_payload\.json)",
+            r"(?:08_mediation.*payload\.json|.*mediation.*payload\.json)"
         ]
     },
-    r"4\.9": {
-        "name": "Stage 4.9: Statistical QC & MSAI Anomaly Audit",
+    r"(?:4C\.5|4\.9)": {
+        "name": "Stage 4C.5: Statistical QC & MSAI Anomaly Audit",
         "pipeline": "chapter4",
         "required_prerequisites": [
-            r"06_hypothesis_1\.(?:docx|md|json)"
+            r"master_decision_matrix\.json"
         ]
     },
-    r"4\.10": {
-        "name": "Stage 4.10: Results QC & APA 7 Typography Audit",
+
+    # Phase 4D: Scholarly Drafting & Assembly (Stages 4D.0 – 4D.11)
+    # Strictly requires Gate 3 Clearance: ALL Phase 4C inferential calculations must exist on disk!
+    r"(?:4D\.\d+(?:\.\d+)?|4\.1[0-2])": {
+        "name": "Phase 4D: Scholarly Drafting & Assembly (Gate 3 Required)",
         "pipeline": "chapter4",
         "required_prerequisites": [
-            r"06_hypothesis_1\.(?:docx|md|json)"
-        ]
-    },
-    r"4\.11": {
-        "name": "Stage 4.11: Chapter 4 Assembly",
-        "pipeline": "chapter4",
-        "required_prerequisites": [
-            r"06_hypothesis_1\.(?:docx|md|json)",
-            r"(?:chapter_summary|decision_matrix)\.(?:docx|md|json)"
-        ]
-    },
-    r"4\.12": {
-        "name": "Stage 4.12: Committee Defense Viva Voce Simulation",
-        "pipeline": "chapter4",
-        "required_prerequisites": [
-            r"Chapter_4_Results\.(?:docx|md)"
+            r"05_macro_model_payload\.json",
+            r"06_hypothesis_1_payload\.json",
+            r"(?:08_mediation.*payload\.json|.*mediation.*payload\.json)",
+            r"master_decision_matrix\.json"
         ]
     },
 
@@ -484,13 +498,50 @@ def find_files_matching(workspaces: List[str], pattern: str) -> List[str]:
     return matched
 
 
+GATE3_REQUIRED_INFERENTIAL_PAYLOADS: List[Tuple[str, str]] = [
+    (r"05_macro_model_payload\.json", "Macro SEM Model Fit Payload (05_macro_model_payload.json)"),
+    (r"06_hypothesis_1_payload\.json", "Direct Hypothesis Regression Payload (06_hypothesis_1_payload.json)"),
+    (r"(?:08_mediation.*payload\.json|.*mediation.*payload\.json)", "Bootstrap Mediation Analysis Payload (08_mediation_analysis_payload.json / 5,000 resamples)"),
+    (r"master_decision_matrix\.json", "Master Hypotheses Decision Matrix (master_decision_matrix.json)"),
+]
+
+
+def verify_chapter4_gate3_clearance(workspaces: List[str]) -> Tuple[bool, str, List[str]]:
+    """
+    Mechanically verifies Gate 3 (Mathematical Admissibility & MSAI Sign-Off Gate).
+    Guarantees that ALL Phase 4C inferential computations (macro SEM, direct regressions,
+    5,000-bootstrap mediation pathways, and master decision matrix) are physically present
+    on disk before Phase 4D drafting can be authorized or delegated to academic-writer.
+    """
+    missing_items = []
+    for pattern, label in GATE3_REQUIRED_INFERENTIAL_PAYLOADS:
+        matches = find_files_matching(workspaces, pattern)
+        if not matches:
+            missing_items.append(label)
+
+    if missing_items:
+        err_msg = (
+            f"CONSTITUTIONAL PIPELINE VIOLATION (Directive 3 / Gate 3 Clearance Invariant):\n"
+            f"Cannot authorize Phase 4D drafting or delegate Chapter 4 text generation to 'academic-writer'.\n"
+            f"Phase 4C Core Inferential Computations are INCOMPLETE on disk.\n"
+            f"Missing required computational artifact(s):\n"
+            + "\n".join(f"  - {item}" for item in missing_items) + "\n"
+            f"Mandate: All inferential statistical modeling, direct regressions, structural equations, and "
+            f"5,000-sample bootstrap mediation analyses must be deterministically executed by 'statistics-agent' "
+            f"in Phase 4C and pass Gate 3 BEFORE Phase 4D drafting is unlocked."
+        )
+        return False, err_msg, missing_items
+
+    return True, "Gate 3 Clearance verified: All Phase 4C inferential payloads exist on disk.", []
+
+
 def resolve_stage_spec(stage_str: str) -> Optional[Tuple[str, Dict[str, Any]]]:
     """Matches a stage string to canonical stage prerequisites across all 7 pipelines."""
     if not stage_str or not isinstance(stage_str, str):
         return None
 
-    # Match stage numbers (e.g. 'DS.1', 'D.3', 'V.4', 'P.2', '4.6.1', '2.3', '5.2')
-    m = re.search(r'\b(DS\.\d+|D\.\d+|V\.\d+|P\.\d+|[245]\.\d+(?:\.\d+)?)\b', stage_str, re.IGNORECASE)
+    # Match stage numbers (e.g. '4A.1', '4B.3', '4C.2.1', '4D.5', 'DS.1', 'D.3', 'V.4', 'P.2', '4.6.1', '2.3', '5.2')
+    m = re.search(r'\b(4[A-D]\.\d+(?:\.\d+)?|DS\.\d+|D\.\d+|V\.\d+|P\.\d+|[245]\.\d+(?:\.\d+)?)\b', stage_str, re.IGNORECASE)
     if not m:
         return None
 
@@ -655,13 +706,15 @@ CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
 def verify_capability_routing(
     worker_agent: str,
     prompt: str,
-    envelope: Optional[Dict[str, Any]] = None
+    envelope: Optional[Dict[str, Any]] = None,
+    workspaces: Optional[List[str]] = None
 ) -> Tuple[bool, str]:
     """
     Mechanically verifies that a task capability is routed to the authorized specialist subagent.
     Enforces Directive 19 (Functional Separation) and Directive 12 (Specialist Boundaries).
     Prevents capability misrouting (e.g. delegating statistical scripts to academic-writer,
     data simulation to statistics-agent, or narrative drafting to data-agent).
+    Also mechanically enforces Gate 2 and Gate 3 stage clearance before authorizing delegations.
     """
     if not worker_agent or not isinstance(worker_agent, str):
         return False, "Target worker agent name must be specified."
@@ -709,6 +762,43 @@ def verify_capability_routing(
                 f"Detected forbidden signature: '{trigger}'.\n"
                 f"Operational Remedy: {remedy}"
             )
+
+    # ─── MECHANICAL PIPELINE GATE ENFORCEMENT ───
+    # Phase 4D Gate 3 Clearance Check for academic-writer
+    if worker == "academic-writer" and workspaces:
+        stg = str(envelope.get("stage", "")) if envelope else ""
+        tsk = str(envelope.get("task_id", "")) if envelope else ""
+        combined = f"{prompt} {stg} {tsk}".lower()
+        is_ch4_drafting = any(k in combined for k in [
+            "chapter 4", "chapter_4", "فصل ۴", "فصل چهارم", "phase 4d",
+            "4d.", "05_macro_model", "06_hypothesis", "07_hypothesis", "08_mediation",
+            "macro path model", "مدل کلان"
+        ]) or re.search(r'\b(?:stage\s*4\.[0-9]|stage\s*4d\.[0-9])\b', combined, re.IGNORECASE) is not None
+        if is_ch4_drafting:
+            ok_gate3, gate3_err, _ = verify_chapter4_gate3_clearance(workspaces)
+            if not ok_gate3:
+                return False, gate3_err
+
+    # Phase 4C Gate 2 Clearance Check for statistics-agent (Inferential modeling)
+    if worker in ("statistics-agent", "statistical-expert") and workspaces:
+        stg = str(envelope.get("stage", "")) if envelope else ""
+        tsk = str(envelope.get("task_id", "")) if envelope else ""
+        combined = f"{prompt} {stg} {tsk}".lower()
+        is_inferential = any(k in combined for k in [
+            "stage 4c", "stage 4.5", "stage 4.6", "stage 4.7", "sem", "lavaan",
+            "hypothesis 1", "hypothesis 2", "hypothesis 3", "hypothesis 4",
+            "bootstrap mediation", "mediation analysis", "مدل معادلات ساختاری", "آزمون فرضیه"
+        ])
+        if is_inferential:
+            assumptions_matches = find_files_matching(workspaces, r"(?:03_assumptions_report\.(?:json|md)|03_parametric_assumptions\.(?:docx|md|json))")
+            if not assumptions_matches:
+                return False, (
+                    f"CONSTITUTIONAL PIPELINE VIOLATION (Directive 3 — Zero Skipping Invariant / Gate 2 Assumption Authorization Invariant):\n"
+                    f"Cannot authorize inferential modeling delegation to '{worker_agent}'.\n"
+                    f"Phase 4B Parametric Assumptions Verification is MISSING on disk ('03_assumptions_report.json').\n"
+                    f"Mandate: Parametric assumptions (normality, collinearity, homoscedasticity) must be verified "
+                    f"and certified in Phase 4B before executing Phase 4C inferential models."
+                )
 
     return True, f"Capability routing to '{worker_agent}' verified."
 

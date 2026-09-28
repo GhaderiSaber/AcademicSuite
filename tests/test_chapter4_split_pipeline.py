@@ -251,6 +251,188 @@ class TestChapter4SplitPipeline(unittest.TestCase):
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
 
+    def test_15_verify_chapter4_gate3_clearance_detects_missing_payloads(self):
+        """Verifies verify_chapter4_gate3_clearance detects missing inferential payloads."""
+        import tempfile
+        import shutil
+        from contracts.canonical_pipelines import verify_chapter4_gate3_clearance
+
+        temp_dir = tempfile.mkdtemp(prefix="test_gate3_clearance_")
+        try:
+            # 1. Empty directory -> Fails with all items missing
+            ok, err_msg, missing = verify_chapter4_gate3_clearance([temp_dir])
+            self.assertFalse(ok)
+            self.assertEqual(len(missing), 4)
+            self.assertIn("Gate 3 Clearance Invariant", err_msg)
+
+            # 2. Add macro SEM and H1 -> Still missing bootstrap mediation and decision matrix
+            with open(os.path.join(temp_dir, "05_macro_model_payload.json"), "w") as f:
+                f.write("{}")
+            with open(os.path.join(temp_dir, "06_hypothesis_1_payload.json"), "w") as f:
+                f.write("{}")
+            ok, err_msg, missing = verify_chapter4_gate3_clearance([temp_dir])
+            self.assertFalse(ok)
+            self.assertEqual(len(missing), 2)
+            self.assertTrue(any("mediation" in m.lower() for m in missing))
+            self.assertTrue(any("decision matrix" in m.lower() for m in missing))
+
+            # 3. Add mediation payload and decision matrix -> PASS
+            with open(os.path.join(temp_dir, "08_mediation_analysis_payload.json"), "w") as f:
+                f.write("{}")
+            with open(os.path.join(temp_dir, "master_decision_matrix.json"), "w") as f:
+                f.write("{}")
+            ok, err_msg, missing = verify_chapter4_gate3_clearance([temp_dir])
+            self.assertTrue(ok)
+            self.assertEqual(len(missing), 0)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_16_verify_capability_routing_blocks_academic_writer_without_gate3(self):
+        """Verifies verify_capability_routing mechanically blocks academic-writer if Gate 3 is incomplete."""
+        import tempfile
+        import shutil
+        from contracts.canonical_pipelines import verify_capability_routing
+
+        temp_dir = tempfile.mkdtemp(prefix="test_cap_routing_gate3_")
+        try:
+            # Workspace has macro model and H1, but MISSING bootstrap mediation
+            with open(os.path.join(temp_dir, "05_macro_model_payload.json"), "w") as f:
+                f.write("{}")
+            with open(os.path.join(temp_dir, "06_hypothesis_1_payload.json"), "w") as f:
+                f.write("{}")
+
+            envelope = {
+                "task_id": "TSK-2026-CH4-STAGE-45-DRAFTING",
+                "stage": "Stage 4.5: Macro Path Model Findings (Drafting & Triad Completion)",
+                "worker_agent": "academic-writer",
+                "objective": "Synthesize authentic Persian scholarly findings narrative into 03_deliverables/05_macro_model.docx"
+            }
+            prompt = "Draft Stage 4.5 Macro Model findings in Word (.docx) and Markdown (.md)"
+
+            ok, reason = verify_capability_routing(
+                worker_agent="academic-writer",
+                prompt=prompt,
+                envelope=envelope,
+                workspaces=[temp_dir]
+            )
+            self.assertFalse(ok)
+            self.assertIn("Gate 3 Clearance Invariant", reason)
+            self.assertIn("Bootstrap Mediation Analysis Payload", reason)
+
+            # Now add bootstrap mediation and decision matrix
+            with open(os.path.join(temp_dir, "08_mediation_analysis_payload.json"), "w") as f:
+                f.write("{}")
+            with open(os.path.join(temp_dir, "master_decision_matrix.json"), "w") as f:
+                f.write("{}")
+
+            ok_pass, reason_pass = verify_capability_routing(
+                worker_agent="academic-writer",
+                prompt=prompt,
+                envelope=envelope,
+                workspaces=[temp_dir]
+            )
+            self.assertTrue(ok_pass)
+            self.assertIn("verified", reason_pass.lower())
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_17_verify_pipeline_stage_prerequisites_phase4c_and_phase4d(self):
+        """Verifies verify_pipeline_stage_prerequisites validates Phase 4C and 4D dependencies."""
+        import tempfile
+        import shutil
+        from contracts.canonical_pipelines import verify_pipeline_stage_prerequisites
+
+        temp_dir = tempfile.mkdtemp(prefix="test_prereq_stages_")
+        try:
+            # Stage 4C.1 without assumptions -> FAIL
+            ok, reason = verify_pipeline_stage_prerequisites("Stage 4C.1: Macro SEM", [temp_dir])
+            self.assertFalse(ok)
+            self.assertIn("MISSING on disk", reason)
+
+            # Add Gate 2 assumptions and correlation matrix
+            with open(os.path.join(temp_dir, "03_assumptions_report.json"), "w") as f:
+                f.write("{}")
+            with open(os.path.join(temp_dir, "04_correlations_payload.json"), "w") as f:
+                f.write("{}")
+            ok, reason = verify_pipeline_stage_prerequisites("Stage 4C.1: Macro SEM", [temp_dir])
+            self.assertTrue(ok)
+
+            # Stage 4C.3 without macro model or H1 -> FAIL
+            ok, reason = verify_pipeline_stage_prerequisites("Stage 4C.3: Indirect Mediation", [temp_dir])
+            self.assertFalse(ok)
+
+            with open(os.path.join(temp_dir, "05_macro_model_payload.json"), "w") as f:
+                f.write("{}")
+            ok, reason = verify_pipeline_stage_prerequisites("Stage 4C.3: Indirect Mediation", [temp_dir])
+            self.assertTrue(ok)
+
+            # Stage 4D.5 drafting without Gate 3 (missing mediation & decision matrix) -> FAIL
+            ok, reason = verify_pipeline_stage_prerequisites("Stage 4D.5: Macro Path Findings Drafting", [temp_dir])
+            self.assertFalse(ok)
+
+            with open(os.path.join(temp_dir, "06_hypothesis_1_payload.json"), "w") as f:
+                f.write("{}")
+            with open(os.path.join(temp_dir, "08_mediation_analysis_payload.json"), "w") as f:
+                f.write("{}")
+            with open(os.path.join(temp_dir, "master_decision_matrix.json"), "w") as f:
+                f.write("{}")
+
+            ok, reason = verify_pipeline_stage_prerequisites("Stage 4D.5: Macro Path Findings Drafting", [temp_dir])
+            self.assertTrue(ok)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_18_academic_orchestrator_guard_blocks_premature_academic_writer(self):
+        """Verifies academic-orchestrator/guard.py handle_pre_tool_use denies premature writer dispatch."""
+        import tempfile
+        import shutil
+        import importlib.util
+
+        guard_path = os.path.join(REPO_ROOT, ".agents", "agents", "academic-orchestrator", "guard.py")
+        spec = importlib.util.spec_from_file_location("test_orch_guard", guard_path)
+        guard_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(guard_mod)
+
+        temp_dir = tempfile.mkdtemp(prefix="test_guard_writer_")
+        try:
+            # Workspace has only Gate 2 assumptions, but NO mediation payload
+            with open(os.path.join(temp_dir, "03_assumptions_report.json"), "w") as f:
+                f.write("{}")
+            with open(os.path.join(temp_dir, "05_macro_model_payload.json"), "w") as f:
+                f.write("{}")
+
+            payload = {
+                "caller": "academic-orchestrator",
+                "toolCall": {
+                    "name": "invoke_subagent",
+                    "args": {
+                        "Subagents": json.dumps([{
+                            "TypeName": "academic-writer",
+                            "Prompt": (
+                                "### Contractual Delegation Envelope (CDE)\n"
+                                "```json\n"
+                                "{\n"
+                                '  "task_id": "TSK-2026-CH4-STAGE-45-DRAFTING",\n'
+                                '  "stage": "Stage 4.5: Macro Path Model Findings (Drafting & Triad Completion)",\n'
+                                '  "worker_agent": "academic-writer",\n'
+                                '  "objective": "Synthesize authentic Persian scholarly findings narrative into 03_deliverables/05_macro_model.docx",\n'
+                                '  "inputs": ["03_deliverables/05_macro_model_payload.json"],\n'
+                                '  "required_artifacts": ["03_deliverables/05_macro_model.docx"]\n'
+                                "}\n"
+                                "```\n"
+                            )
+                        }])
+                    }
+                },
+                "workspacePaths": [temp_dir]
+            }
+
+            res = guard_mod.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny")
+            self.assertIn("Gate 3 Clearance Invariant", res.get("reason", ""))
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
 
 if __name__ == "__main__":
     unittest.main()

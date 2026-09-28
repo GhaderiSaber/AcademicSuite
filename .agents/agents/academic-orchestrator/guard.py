@@ -43,22 +43,26 @@ try:
     from contracts.canonical_pipelines import (
         verify_pipeline_stage_prerequisites,
         verify_capability_routing,
-        find_files_matching
+        find_files_matching,
+        verify_chapter4_gate3_clearance
     )
 except ImportError:
     try:
         from canonical_pipelines import (
             verify_pipeline_stage_prerequisites,
             verify_capability_routing,
-            find_files_matching
+            find_files_matching,
+            verify_chapter4_gate3_clearance
         )
     except ImportError:
         def verify_pipeline_stage_prerequisites(s, w):
             return True, "Pipeline validator unavailable"
-        def verify_capability_routing(w, p, e=None):
+        def verify_capability_routing(w, p, e=None, ws=None):
             return True, "Capability validator unavailable"
         def find_files_matching(w, p):
             return []
+        def verify_chapter4_gate3_clearance(w):
+            return True, "Gate 3 validator unavailable", []
 try:
     from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
 except ImportError:
@@ -222,8 +226,9 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     else (True, "", None)
                 )
 
-                # Capability Routing Verification (Directive 19 / Directive 12)
-                ok_cap, cap_reason = verify_capability_routing(target_type, prompt, env)
+                # Capability Routing Verification & Gate Clearance (Directive 19 / Directive 12 / Directive 3)
+                workspaces = payload.get("workspacePaths")
+                ok_cap, cap_reason = verify_capability_routing(target_type, prompt, env, workspaces)
                 if not ok_cap:
                     return {
                         "decision": "deny",
