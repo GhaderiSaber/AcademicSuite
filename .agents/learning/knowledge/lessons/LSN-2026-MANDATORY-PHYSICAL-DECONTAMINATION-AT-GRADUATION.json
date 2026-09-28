@@ -19,7 +19,10 @@
     "metric_or_check": "VALIDATION_HOOK_FAILURES",
     "observed_value": "Validation block due to stale legacy_validation/validation_report.json.",
     "threshold_value": "Zero stale validation reports in active delivery directories.",
-    "supporting_report_ids": ["BAN-20260928-004", "TRJ-20260928-LEGACY-VAL-RECURSIVE-002"],
+    "supporting_report_ids": [
+      "BAN-20260928-004",
+      "TRJ-20260928-LEGACY-VAL-RECURSIVE-002"
+    ],
     "supporting_artifact_paths": []
   },
   "related_skills": [
@@ -34,5 +37,10 @@
     "evaluation-agent",
     "academic-orchestrator"
   ],
-  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION"
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-28T14:07:14.519525+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/academic-suite-orchestrator/SKILL.md"
+  ]
 }

@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-PERSISTENT-LEGACY-VALIDATION-REPORT-CONTAMINATION",
+  "category": "execution",
+  "defective_pattern": "Failing to execute physical disk decontamination (e.g., renaming to .stale.json or removing from 03_deliverables/) during learning graduation, which leaves stale validation reports on disk.",
+  "why_defective": "Stale validation reports on disk cause recursive validation hooks to continuously block progress by falsely detecting a failed validation state.",
+  "observed_symptoms": [
+    "Validation hooks recursively and continuously block progress.",
+    "Stale validation reports (like validation_report.json) remain in 03_deliverables/legacy_validation/."
+  ],
+  "corrective_remedy": "During graduation, physically enforce de-indexing of any stale validation reports by renaming 03_deliverables/legacy_validation/validation_report.json to 03_deliverables/legacy_validation/validation_report.stale.json (or removing the directory).",
+  "detection_heuristic": {
+    "trigger_rule": "Detecting un-renamed validation_report.json files in legacy validation directories inside deliverables.",
+    "regex_patterns": ["legacy_validation/validation_report\\.json"],
+    "pattern": "legacy_validation/validation_report\\.json",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.json",
+    "event": "Both"
+  },
+  "target_agent": "evaluation-agent",
+  "target_agents": [
+    "evaluation-agent",
+    "academic-orchestrator"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-28T17:34:20Z"
+}
