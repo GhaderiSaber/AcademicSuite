@@ -1,0 +1,32 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-ADHOC-ITEM-PARCELING-UNIDIMENSIONAL",
+  "category": "statistical",
+  "defective_pattern": "Partitioning unidimensional scales into ad-hoc item parcels when composite total scores are mandated.",
+  "why_defective": "Ad-hoc parceling violates the structural integrity of unidimensional scales and ignores the composite total score mandate.",
+  "observed_symptoms": [
+    "Creation of arbitrary parcels for unidimensional scales",
+    "Ignoring composite total score mandates in SEM",
+    "Lack of synchronization with atomic micro-stage synthesis"
+  ],
+  "corrective_remedy": "When composite total scores are mandated for unidimensional constructs (e.g., SCI_T, PA_Negative, BSSI_T), specify them in R lavaan as single-indicator latent variables with factor loading fixed to 1.0 and measurement error variance fixed to Var(y) * (1 - alpha) per PRN-20260923-3A3A2B. Must be synchronized with LSN-2026-ATOMIC-MICRO-STAGE-TRIAD-SYNTHESIS.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect ad-hoc parceling terms in syntax for unidimensional scales",
+    "regex_patterns": [
+      "(?i)parcel",
+      "(?i)item_parcel"
+    ],
+    "pattern": "(?i)parcel",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.R",
+    "event": "Both"
+  },
+  "target_agent": "sem",
+  "target_agents": [
+    "sem",
+    "statistical-data-analyst",
+    "academic-orchestrator"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-28T13:42:45Z"
+}

@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260928-017EF6",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260928-0F3737",
+  "target_agent": "methodology-expert",
+  "target_agents": [
+    "methodology-expert"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `subagent_execution` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- [PRN-20260923-3A3A2B] Principle: In SEM, a latent variable can be specified with a single observed indicator by fixing factor loading to 1.0 and error variance to Var(y)*(1 - alpha).\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory TRJ-20260928-SEM-SINGLE-INDICATOR-001 (and linked EXP-20260928-SEM-SINGLE-INDICATOR-001) to determine the exact failure mechanism.\nAnswer 'What behavior was wrong?':\n1. Explain the behavioral and procedural root cause behind the agent choosing ad-hoc item parceling for unidimensional constructs (SCI, NA, BSSI) instead of honoring single-indicator SEM latent specification with measurement error variance fixed to Var(y)*(1 - alpha) per PRN-20260923-3A3A2B when total composite scores are mandated.\n2. Evaluate the accompanying micro-stage triad synchronization requirements under Directive 3 and LSN-2026-ATOMIC-MICRO-STAGE-TRIAD-SYNTHESIS.\n3. Prescribe actionable corrective behavioral rules and anti-patterns.\nEmit the structured behavior diagnosis report in `.agents/learning/analysis/BAN-20260928-001.json`.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding methodology correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `subagent_execution` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- [PRN-20260923-3A3A2B] Principle: In SEM, a latent variable can be specified with a single observed indicator by fixing factor loading to 1.0 and error variance to Var(y)*(1 - alpha).\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory TRJ-20260928-SEM-SINGLE-INDICATOR-001 (and linked EXP-20260928-SEM-SINGLE-INDICATOR-001) to determine the exact failure mechanism.\nAnswer 'What behavior was wrong?':\n1. Explain the behavioral and procedural root cause behind the agent choosing ad-hoc item parceling for unidimensional constructs (SCI, NA, BSSI) instead of honoring single-indicator SEM latent specification with measurement error variance fixed to Var(y)*(1 - alpha) per PRN-20260923-3A3A2B when total composite scores are mandated.\n2. Evaluate the accompanying micro-stage triad synchronization requirements under Directive 3 and LSN-2026-ATOMIC-MICRO-STAGE-TRIAD-SYNTHESIS.\n3. Prescribe actionable corrective behavioral rules and anti-patterns.\nEmit the structured behavior diagnosis report in `.agents/learning/analysis/BAN-20260928-001.json`.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Studies utilizing methodology-review or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `subagent_execution` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- [PRN-20260923-3A3A2B] Principle: In SEM, a latent variable can be specified with a single observed indicator by fixing factor loading to 1.0 and error variance to Var(y)*(1 - alpha).\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory TRJ-20260928-SEM-SINGLE-INDICATOR-001 (and linked EXP-20260928-SEM-SINGLE-INDICATOR-001) to determine the exact failure mechanism.\nAnswer 'What behavior was wrong?':\n1. Explain the behavioral and procedural root cause behind the agent choosing ad-hoc item parceling for unidimensional constructs (SCI, NA, BSSI) instead of honoring single-indicator SEM latent specification with measurement error variance fixed to Var(y)*(1 - alpha) per PRN-20260923-3A3A2B when total composite scores are mandated.\n2. Evaluate the accompanying micro-stage triad synchronization requirements under Directive 3 and LSN-2026-ATOMIC-MICRO-STAGE-TRIAD-SYNTHESIS.\n3. Prescribe actionable corrective behavioral rules and anti-patterns.\nEmit the structured behavior diagnosis report in `.agents/learning/analysis/BAN-20260928-001.json`.",
+  "generalization": "Procedural Guideline for methodology-review: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `subagent_execution` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- None cataloged. Enforce standard APA 7 & OpenXML rigor.\n\n💡 Relevant Active Lessons:\n- No specialized lessons flagged. Standard pipeline rules apply.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- [PRN-20260923-3A3A2B] Principle: In SEM, a latent variable can be specified with a single observed indicator by fixing factor loading to 1.0 and error variance to Var(y)*(1 - alpha).\n\n---\n### Executable Task Assignment:\nPerform causal root-cause analysis on failure trajectory TRJ-20260928-SEM-SINGLE-INDICATOR-001 (and linked EXP-20260928-SEM-SINGLE-INDICATOR-001) to determine the exact failure mechanism.\nAnswer 'What behavior was wrong?':\n1. Explain the behavioral and procedural root cause behind the agent choosing ad-hoc item parceling for unidimensional constructs (SCI, NA, BSSI) instead of honoring single-indicator SEM latent specification with measurement error variance fixed to Var(y)*(1 - alpha) per PRN-20260923-3A3A2B when total composite scores are mandated.\n2. Evaluate the accompanying micro-stage triad synchronization requirements under Directive 3 and LSN-2026-ATOMIC-MICRO-STAGE-TRIAD-SYNTHESIS.\n3. Prescribe actionable corrective behavioral rules and anti-patterns.\nEmit the structured behavior diagnosis report in `.agents/learning/analysis/BAN-20260928-001.json`. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-METHODOLOGY_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target Capability**: `GENER",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~200/600 tokens]\n- **Target",
+    "supporting_report_ids": [
+      "FDB-20260928-7E5A82"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "methodology-review"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-28T10:11:36.213190+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-28T10:11:36.213236+00:00"
+  }
+}
