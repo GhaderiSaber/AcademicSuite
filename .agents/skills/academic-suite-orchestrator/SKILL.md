@@ -69,6 +69,7 @@ Every execution run generates two verified tracking artifacts in `--out-dir`:
 - **Exit Code Verification**: Each child process must return exit code 0. Any non-zero exit code halts the sequence.
 - **Physical Disk Confirmation**: Upstream files must physically exist on disk before downstream steps begin.
 - **Atomic Micro-Stage Triad Synthesis Invariant**: Every micro-stage must sequentially and atomically generate its complete synchronized triad (`.docx`, `.md`, `.json`) before proceeding to subsequent stages or triggering validation gates. Fragmented pipeline states where statistical JSON payloads exist on disk without corresponding `.docx` and `.md` deliverables are strictly prohibited.
+- **Physical Disk Decontamination (LSN-2026-PHYSICAL-DISK-DECONTAMINATION-MANDATE)**: Mandate physical disk decontamination of stale legacy validation reports during graduation or stage transitions. Any stale validation_report.json files left in subdirectories of 03_deliverables/ must be physically renamed to .stale.json or removed.
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION)**: Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them. [Enforcement: dynamic_invariant_guard.py (LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION)]

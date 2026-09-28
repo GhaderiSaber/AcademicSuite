@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-28T14:06:55.067956+00:00",
+  "updated_at": "2026-09-28T14:40:21.349639+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -726,6 +726,26 @@
       "remedy": "Rename to validation_report.stale.json or remove.",
       "enabled": true,
       "updated_at": "2026-09-28T14:06:55.067935+00:00"
+    },
+    "CAND-2026-PHYSICAL-DECONTAMINATION-001": {
+      "item_id": "CAND-2026-PHYSICAL-DECONTAMINATION-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Stale validation_report.json files are forbidden in 03_deliverables/. They must be physically renamed to .stale.json or removed.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "PIPELINE_ORCHESTRATION"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|run_command",
+      "file_pattern": ".*03_deliverables/.*validation_report\\.json",
+      "check_type": "regex_ban",
+      "pattern": "validation_report\\.json$",
+      "violation_message": "Stale validation_report.json files are forbidden in 03_deliverables/. They must be physically renamed to .stale.json or removed.",
+      "remedy": "Ensure you physically rename to .stale.json or remove the file. Do not save as validation_report.json if it is stale.",
+      "enabled": true,
+      "updated_at": "2026-09-28T14:40:21.349610+00:00"
     }
   }
 }
