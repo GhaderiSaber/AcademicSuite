@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "TRJ-20260928-LEGACY-VAL-RECURSIVE-002",
+  "diagnosis": {
+    "what_happened": "Stale validation reports were left on disk after graduation, causing continuous validation hook failures.",
+    "behavior_caused_outcome": "Failure to physically decontaminate legacy validation reports caused recursive validation hooks to detect stale errors and block progress.",
+    "what_should_have_happened": "Legacy validation reports should have been renamed to .stale.json or the directory removed during the graduation process.",
+    "rationale_why": "Physical decontamination prevents stale states from triggering recursive pipeline blocks, ensuring accurate state evaluation."
+  },
+  "desired_behavior": "Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them.",
+  "generalization": "Never leave stale validation state files on disk; always proactively de-index them to prevent false validation failures.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "VALIDATION_HOOK_FAILURES",
+    "observed_value": "Validation block due to stale legacy_validation/validation_report.json.",
+    "threshold_value": "Zero stale validation reports in active delivery directories.",
+    "supporting_report_ids": ["BAN-20260928-004", "TRJ-20260928-LEGACY-VAL-RECURSIVE-002"],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-28T17:34:20Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "evaluation-agent",
+  "target_agents": [
+    "evaluation-agent",
+    "academic-orchestrator"
+  ],
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION"
+}

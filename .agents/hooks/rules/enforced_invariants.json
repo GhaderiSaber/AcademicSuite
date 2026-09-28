@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-28T12:55:24.350340+00:00",
+  "updated_at": "2026-09-28T14:06:55.067956+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -706,6 +706,26 @@
       "remedy": "Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks.",
       "enabled": true,
       "updated_at": "2026-09-28T12:55:24.350315+00:00"
+    },
+    "CAND-2026-LEGACY-VAL-PHYSICAL-CLEAN-001": {
+      "item_id": "CAND-2026-LEGACY-VAL-PHYSICAL-CLEAN-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Cannot create or modify an active validation_report.json in legacy_validation. It must be physically de-indexed as .stale.json.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*/legacy_validation/validation_report\\.json",
+      "check_type": "tool_ban",
+      "pattern": ".*",
+      "violation_message": "Cannot create or modify an active validation_report.json in legacy_validation. It must be physically de-indexed as .stale.json.",
+      "remedy": "Rename to validation_report.stale.json or remove.",
+      "enabled": true,
+      "updated_at": "2026-09-28T14:06:55.067935+00:00"
     }
   }
 }
