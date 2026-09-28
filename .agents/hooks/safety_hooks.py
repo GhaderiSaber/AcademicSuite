@@ -1076,6 +1076,23 @@ class SafetyHooks:
                         )
                     }
 
+                # Statistical Immobility Invariant (Directive 19 / Directive 2):
+                # Academic-Writer is strictly forbidden from creating, mutating, or overwriting .json files
+                if "academic-writer" in caller:
+                    if target and target.strip().lower().endswith(".json"):
+                        target_base = os.path.basename(target)
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 2 — Statistical Immobility Invariant): "
+                                f"Academic-Writer is strictly 'The Voice' and is forbidden from creating, mutating, "
+                                f"or overwriting statistical or analytical results files ('{target_base}'). "
+                                f"All analytical JSON artifacts in '03_deliverables/' are immutable read-only records produced "
+                                f"exclusively by statistics-agent and data-curator during Phases 4A–4C. "
+                                f"Academic-Writer must inspect JSON results as read-only inputs via 'view_file' and draft only .docx and .md deliverables."
+                            )
+                        }
+
                 # Clean Workspace Root Standard (Directive 23 / Anti-Root-Pollution Guard)
                 is_root_script, script_name = is_root_script_target(target, workspaces)
                 if is_root_script:
@@ -1163,6 +1180,28 @@ class SafetyHooks:
             # academic-writer may execute ONLY declared document-generation / formatting workflows,
             # NOT independent statistical analysis, data cleaning, or psychometrics.
             if "academic-writer" in caller:
+                # Step 0: Statistical Immobility Invariant — Forbid shell writes/redirects/copies into .json files
+                json_mutation_patterns = [
+                    r'(?:>|>>)\s*[\'"]?[^;&|\s]+\.json\b',
+                    r'\btee(?:\s+-a)?\s+[\'"]?[^;&|\s]+\.json\b',
+                    r'\bcp\s+.*\.json\b',
+                    r'\bmv\s+.*\.json\b',
+                    r'\bcat\s+.*>\s*.*\.json\b',
+                    r'\b(?:touch|truncate|sed\s+-i|perl\s+-i)\b.*\.json\b'
+                ]
+                for pat in json_mutation_patterns:
+                    if re.search(pat, cmd, re.IGNORECASE):
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 2 — Statistical Immobility Invariant): "
+                                f"Academic-Writer is strictly forbidden from executing shell commands that write, copy, move, "
+                                f"or redirect into JSON files ('{cmd}'). "
+                                f"All analytical JSON results are immutable outputs of Phase 4A–4C. "
+                                f"Academic-Writer produces strictly .docx and .md deliverables."
+                            )
+                        }
+
                 # Step 1: Detect shell control and chaining operators
                 # (;, &&, ||, |, &, `, $(), ${}, \n, \r)
                 if any(op in cmd for op in (";", "&&", "||", "|", "`", "$(", "${", "\n", "\r")):

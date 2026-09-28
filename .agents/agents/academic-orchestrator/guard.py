@@ -236,6 +236,28 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                         "message": cap_reason
                     }
 
+                # Directive 19 / Directive 2: Statistical Immobility Invariant for Delegation to Academic-Writer
+                if target_type == "academic-writer":
+                    req_artifacts = (env.get("required_artifacts") if env else None) or []
+                    if isinstance(req_artifacts, list):
+                        forbidden_json_targets = []
+                        for art in req_artifacts:
+                            art_name = art.get("path", "") if isinstance(art, dict) else str(art)
+                            if art_name.strip().lower().endswith(".json"):
+                                forbidden_json_targets.append(art_name)
+                        if forbidden_json_targets:
+                            msg = (
+                                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 2 — Statistical Immobility Invariant):\n"
+                                f"Delegation envelope for 'academic-writer' lists statistical/analytical JSON artifact(s) in 'required_artifacts': {forbidden_json_targets}.\n"
+                                f"Academic-Writer is strictly 'The Voice' and produces ONLY scholarly narratives (.docx, .md). "
+                                f"All numerical and analytical JSON files are immutable outputs of Phase 4A–4C and belong strictly under 'inputs' as read-only anchors."
+                            )
+                            return {
+                                "decision": "deny",
+                                "reason": msg,
+                                "message": msg
+                            }
+
                 if target_type in EXECUTION_SUBAGENTS:
                     # Directive 21.1: Premature Remediation Guard under Active Critique
                     transcript_path = payload.get("transcriptPath")

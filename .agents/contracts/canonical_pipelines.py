@@ -764,6 +764,31 @@ def verify_capability_routing(
             )
 
     # ─── MECHANICAL PIPELINE GATE ENFORCEMENT ───
+    # Directive 19 / Directive 2 — Statistical Immobility Invariant for academic-writer
+    if worker == "academic-writer":
+        req_artifacts = []
+        if envelope and isinstance(envelope, dict):
+            req_artifacts = (
+                envelope.get("required_artifacts")
+                or envelope.get("expected_triad")
+                or envelope.get("deliverables")
+                or envelope.get("expected_artifacts")
+                or []
+            )
+        if isinstance(req_artifacts, list):
+            forbidden_json_targets = []
+            for art in req_artifacts:
+                art_name = art.get("path", "") if isinstance(art, dict) else str(art)
+                if art_name.strip().lower().endswith(".json"):
+                    forbidden_json_targets.append(art_name)
+            if forbidden_json_targets:
+                return False, (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 2 — Statistical Immobility Invariant):\n"
+                    f"Delegation envelope for 'academic-writer' lists statistical/analytical JSON artifact(s) in 'required_artifacts': {forbidden_json_targets}.\n"
+                    f"Academic-Writer is strictly 'The Voice' and produces ONLY scholarly narratives (.docx, .md).\n"
+                    f"All numerical and analytical JSON files are immutable outputs of Phase 4A–4C and belong strictly under 'inputs' as read-only anchors."
+                )
+
     # Phase 4D Gate 3 Clearance Check for academic-writer
     if worker == "academic-writer" and workspaces:
         stg = str(envelope.get("stage", "")) if envelope else ""

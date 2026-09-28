@@ -104,48 +104,74 @@ def resolve_agent_caller(payload: Dict[str, Any]) -> str:
     return caller
 
 
-def check_orchestrator_tool_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Enforces academic-orchestrator invariants via its dedicated co-located guard."""
+def check_agent_tool_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Enforces agent-specific invariants via its dedicated co-located guard."""
     caller = resolve_agent_caller(payload)
-    if caller in ("academic-orchestrator", "orchestrator"):
-        guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "academic-orchestrator", "guard.py")
-        if os.path.exists(guard_path):
-            try:
-                import importlib.util
-                mod_name = "asam_guard_academic_orchestrator"
-                if mod_name in sys.modules:
-                    mod = sys.modules[mod_name]
-                else:
-                    spec = importlib.util.spec_from_file_location(mod_name, guard_path)
-                    mod = importlib.util.module_from_spec(spec)
-                    sys.modules[mod_name] = mod
-                    spec.loader.exec_module(mod)
+    if not caller:
+        return None
+    agent_dir_name = caller
+    agents_root = os.path.join(ROOT_DIR, ".agents", "agents")
+    if os.path.isdir(agents_root):
+        for a in os.listdir(agents_root):
+            if a == caller or a in caller or caller in a:
+                agent_dir_name = a
+                break
+    guard_path = os.path.join(agents_root, agent_dir_name, "guard.py")
+    if os.path.exists(guard_path):
+        try:
+            import importlib.util
+            mod_name = f"asam_guard_{agent_dir_name.replace('-', '_')}"
+            if mod_name in sys.modules:
+                mod = sys.modules[mod_name]
+            else:
+                spec = importlib.util.spec_from_file_location(mod_name, guard_path)
+                mod = importlib.util.module_from_spec(spec)
+                sys.modules[mod_name] = mod
+                spec.loader.exec_module(mod)
+            if hasattr(mod, "handle_pre_tool_use"):
                 return mod.handle_pre_tool_use(payload)
-            except Exception as e:
-                sys.stderr.write(f"[track2_academic_dispatcher] Error executing orchestrator guard: {e}\n")
+        except Exception as e:
+            sys.stderr.write(f"[track2_academic_dispatcher] Error executing {agent_dir_name} guard: {e}\n")
+    return None
+
+
+def check_orchestrator_tool_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    return check_agent_tool_restrictions(payload)
+
+
+def check_agent_stop_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Enforces agent-specific stop invariants via its dedicated co-located guard."""
+    caller = resolve_agent_caller(payload)
+    if not caller:
+        return None
+    agent_dir_name = caller
+    agents_root = os.path.join(ROOT_DIR, ".agents", "agents")
+    if os.path.isdir(agents_root):
+        for a in os.listdir(agents_root):
+            if a == caller or a in caller or caller in a:
+                agent_dir_name = a
+                break
+    guard_path = os.path.join(agents_root, agent_dir_name, "guard.py")
+    if os.path.exists(guard_path):
+        try:
+            import importlib.util
+            mod_name = f"asam_guard_{agent_dir_name.replace('-', '_')}"
+            if mod_name in sys.modules:
+                mod = sys.modules[mod_name]
+            else:
+                spec = importlib.util.spec_from_file_location(mod_name, guard_path)
+                mod = importlib.util.module_from_spec(spec)
+                sys.modules[mod_name] = mod
+                spec.loader.exec_module(mod)
+            if hasattr(mod, "handle_stop"):
+                return mod.handle_stop(payload)
+        except Exception as e:
+            sys.stderr.write(f"[track2_academic_dispatcher] Error executing {agent_dir_name} stop guard: {e}\n")
     return None
 
 
 def check_orchestrator_stop_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Enforces academic-orchestrator stop invariants via its dedicated co-located guard."""
-    caller = resolve_agent_caller(payload)
-    if caller in ("academic-orchestrator", "orchestrator"):
-        guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "academic-orchestrator", "guard.py")
-        if os.path.exists(guard_path):
-            try:
-                import importlib.util
-                mod_name = "asam_guard_academic_orchestrator"
-                if mod_name in sys.modules:
-                    mod = sys.modules[mod_name]
-                else:
-                    spec = importlib.util.spec_from_file_location(mod_name, guard_path)
-                    mod = importlib.util.module_from_spec(spec)
-                    sys.modules[mod_name] = mod
-                    spec.loader.exec_module(mod)
-                return mod.handle_stop(payload)
-            except Exception as e:
-                sys.stderr.write(f"[track2_academic_dispatcher] Error executing orchestrator stop guard: {e}\n")
-    return None
+    return check_agent_stop_restrictions(payload)
 
 
 def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:

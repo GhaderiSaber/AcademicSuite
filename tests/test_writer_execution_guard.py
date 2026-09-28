@@ -347,6 +347,220 @@ class TestAcademicWriterExecutionGuard(unittest.TestCase):
             self.assertIn("Academic Writer Execution Guard", res.get("reason", ""))
 
 
+    def test_13_writer_blocked_from_mutating_json_files(self):
+        """SafetyHooks and academic-writer guard must deny writer from writing or modifying .json files."""
+        writer_guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "academic-writer", "guard.py")
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("test_writer_guard", writer_guard_path)
+        writer_guard_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(writer_guard_mod)
+
+        target_json_files = [
+            "03_deliverables/01_demographics.json",
+            "03_deliverables/02_descriptives_and_reliability.json",
+            "/home/ghaderi-saber/Desktop/AcademicSuite/03_deliverables/06_hypothesis_1.json",
+        ]
+
+        mutation_tools = ["write_to_file", "replace_file_content", "edit_file", "patch"]
+
+        for tool in mutation_tools:
+            for json_path in target_json_files:
+                payload = {
+                    "toolCall": {
+                        "name": tool,
+                        "args": {
+                            "TargetFile": json_path,
+                            "CodeContent": '{"status": "overwritten"}'
+                        }
+                    },
+                    "agentName": "academic-writer",
+                    "workspacePaths": [ROOT_DIR]
+                }
+                # 1. Test via SafetyHooks
+                res_safety = SafetyHooks.handle_pre_tool_use(payload)
+                self.assertEqual(
+                    res_safety.get("decision"), "deny",
+                    f"SafetyHooks failed to deny {tool} on {json_path} for academic-writer"
+                )
+                self.assertIn("Statistical Immobility Invariant", res_safety.get("reason", ""))
+
+                # 2. Test directly via academic-writer guard
+                res_guard = writer_guard_mod.handle_pre_tool_use(payload)
+                self.assertEqual(
+                    res_guard.get("decision"), "deny",
+                    f"academic-writer guard failed to deny {tool} on {json_path}"
+                )
+                self.assertIn("Statistical Immobility Invariant", res_guard.get("reason", ""))
+
+    def test_14_writer_blocked_from_shell_commands_targeting_json(self):
+        """SafetyHooks and academic-writer guard must deny writer from shell redirection/copy targeting .json."""
+        writer_guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "academic-writer", "guard.py")
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("test_writer_guard_shell", writer_guard_path)
+        writer_guard_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(writer_guard_mod)
+
+        shell_json_commands = [
+            "cat 02_analysis_code/demographics_calculated.json > 03_deliverables/01_demographics.json",
+            "cp 02_analysis_code/data.json 03_deliverables/01_demographics.json",
+            "echo '{}' >> 03_deliverables/02_descriptives.json",
+            "tee 03_deliverables/01_demographics.json",
+            "mv temp.json 03_deliverables/01_demographics.json",
+        ]
+
+        for cmd in shell_json_commands:
+            payload = {
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": cmd}
+                },
+                "agentName": "academic-writer",
+                "workspacePaths": [ROOT_DIR]
+            }
+            # 1. Test via SafetyHooks
+            res_safety = SafetyHooks.handle_pre_tool_use(payload)
+            self.assertEqual(
+                res_safety.get("decision"), "deny",
+                f"SafetyHooks failed to deny shell command targeting JSON: '{cmd}'"
+            )
+            self.assertIn("Statistical Immobility Invariant", res_safety.get("reason", ""))
+
+            # 2. Test directly via academic-writer guard
+            res_guard = writer_guard_mod.handle_pre_tool_use(payload)
+            self.assertEqual(
+                res_guard.get("decision"), "deny",
+                f"academic-writer guard failed to deny shell command targeting JSON: '{cmd}'"
+            )
+            self.assertIn("Statistical Immobility Invariant", res_guard.get("reason", ""))
+
+    def test_15_orchestrator_blocked_from_delegating_json_in_required_artifacts_to_writer(self):
+        """Orchestrator must deny delegation to academic-writer if required_artifacts contains .json."""
+        orch_guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "academic-orchestrator", "guard.py")
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("test_orch_guard", orch_guard_path)
+        orch_guard_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(orch_guard_mod)
+
+        from contracts.canonical_pipelines import verify_capability_routing
+
+        invalid_envelope_prompt = """
+        Execute Stage 4D.1:
+        ```json
+        {
+          "task_id": "TSK-2026-CH4-STAGE-4D1-DEMOGRAPHICS",
+          "worker_agent": "academic-writer",
+          "objective": "Draft Chapter 4 demographics",
+          "inputs": [
+            "02_analysis_code/demographics_calculated.json"
+          ],
+          "required_artifacts": [
+            "03_deliverables/01_demographics.docx",
+            "03_deliverables/01_demographics.md",
+            "03_deliverables/01_demographics.json"
+          ]
+        }
+        ```
+        """
+
+        # 1. Test verify_capability_routing directly
+        import json
+        from contracts.delegation_envelope_parser import validate_delegation_prompt
+        _, _, env = validate_delegation_prompt(invalid_envelope_prompt, expected_worker="academic-writer")
+        ok, reason = verify_capability_routing("academic-writer", invalid_envelope_prompt, env, [ROOT_DIR])
+        self.assertFalse(ok, "verify_capability_routing should have rejected delegation with .json in required_artifacts")
+        self.assertIn("Statistical Immobility Invariant", reason)
+
+        # 2. Test orchestrator handle_pre_tool_use
+        payload = {
+            "toolCall": {
+                "name": "invoke_subagent",
+                "args": {
+                    "Subagents": [
+                        {
+                            "TypeName": "academic-writer",
+                            "Prompt": invalid_envelope_prompt
+                        }
+                    ]
+                }
+            },
+            "agentName": "academic-orchestrator",
+            "workspacePaths": [ROOT_DIR]
+        }
+        res_orch = orch_guard_mod.handle_pre_tool_use(payload)
+        self.assertEqual(
+            res_orch.get("decision"), "deny",
+            "academic-orchestrator guard should have denied delegation with .json in required_artifacts"
+        )
+        self.assertIn("Statistical Immobility Invariant", res_orch.get("reason", ""))
+
+    def test_16_orchestrator_permits_json_in_inputs_for_writer(self):
+        """Orchestrator must permit delegation to academic-writer when .json is in inputs and only docx/md in required_artifacts."""
+        from contracts.canonical_pipelines import verify_capability_routing
+        from contracts.delegation_envelope_parser import validate_delegation_prompt
+
+        valid_envelope_prompt = """
+        Execute Stage 2.1:
+        ```json
+        {
+          "task_id": "TSK-2026-CH2-STAGE-21-THEORETICAL-FOUNDATIONS",
+          "worker_agent": "academic-writer",
+          "objective": "Draft Chapter 2 theoretical framework",
+          "inputs": [
+            "03_deliverables/00_literature_extracted.json"
+          ],
+          "required_artifacts": [
+            "03_deliverables/01_theoretical_foundations.docx",
+            "03_deliverables/01_theoretical_foundations.md"
+          ]
+        }
+        ```
+        """
+        _, _, env = validate_delegation_prompt(valid_envelope_prompt, expected_worker="academic-writer")
+        ok, reason = verify_capability_routing("academic-writer", valid_envelope_prompt, env, [ROOT_DIR])
+        self.assertTrue(ok, f"verify_capability_routing unexpectedly rejected valid writer envelope: {reason}")
+
+    def test_17_subagent_descriptor_hook_identity_resolution(self):
+        """resolve_hook_identity must resolve academic-writer from subagent descriptor file."""
+        import json
+        import tempfile
+        from contracts.hook_identity_contract import resolve_hook_identity, SURFACE_APP_DATA_DIRS
+
+        test_cid = "test-writer-cid-9999"
+        primary_surf = list(SURFACE_APP_DATA_DIRS.values())[0]
+        subagent_dir = os.path.join(primary_surf, "brain", "test-parent", ".system_generated", "subagents")
+        os.makedirs(subagent_dir, exist_ok=True)
+        subagent_file = os.path.join(subagent_dir, f"{test_cid}.json")
+
+        try:
+            with open(subagent_file, "w", encoding="utf-8") as f:
+                json.dump({
+                    "conversationId": test_cid,
+                    "subagentDescriptor": {
+                        "typeName": "academic-writer",
+                        "role": "Academic Drafting Specialist"
+                    }
+                }, f)
+
+            payload = {
+                "conversationId": test_cid,
+                "toolCall": {
+                    "name": "run_command",
+                    "args": {"CommandLine": "ls -la"}
+                },
+                "workspacePaths": [ROOT_DIR]
+            }
+
+            ident = resolve_hook_identity(payload)
+            self.assertEqual(ident.agent_name, "academic-writer")
+            self.assertEqual(ident.track, "track_2_academic")
+            self.assertTrue(ident.is_subagent)
+            self.assertFalse(ident.is_main_developer)
+            self.assertEqual(ident.resolution_source, "subagent_descriptor")
+        finally:
+            if os.path.exists(subagent_file):
+                os.remove(subagent_file)
+
+
 if __name__ == "__main__":
     unittest.main()
 

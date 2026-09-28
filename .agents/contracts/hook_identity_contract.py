@@ -234,6 +234,33 @@ def extract_subagent_info(payload: Dict[str, Any]) -> Tuple[bool, Optional[str]]
     return False, None
 
 
+def resolve_subagent_descriptor(cid: str) -> Optional[str]:
+    """
+    Finds and reads subagent descriptor JSON file created by Antigravity
+    under ~/.gemini/antigravity/brain/<parent>/.system_generated/subagents/<cid>.json.
+    """
+    if not cid:
+        return None
+    import glob
+    for base_dir in SURFACE_APP_DATA_DIRS.values():
+        brain_dir = os.path.join(base_dir, "brain")
+        if not os.path.isdir(brain_dir):
+            continue
+        cand_pattern = os.path.join(brain_dir, "*", ".system_generated", "subagents", f"{cid}.json")
+        matches = glob.glob(cand_pattern)
+        if matches:
+            try:
+                with open(matches[0], "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                desc = data.get("subagentDescriptor", {})
+                t_name = desc.get("typeName") or desc.get("name")
+                if t_name and isinstance(t_name, str):
+                    return t_name.strip().lower()
+            except Exception:
+                pass
+    return None
+
+
 def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str, str, str]]:
     """
     Safely inspects a transcript file on disk to determine caller identity.
@@ -272,6 +299,29 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
                             return "academic-orchestrator", "track_2_academic", "high"
                         if "digital-saber" in id_text:
                             return "digital-saber", "track_2_academic", "high"
+                        if "academic-writer" in id_text or "Academic Writer" in id_text:
+                            return "academic-writer", "track_2_academic", "high"
+                        for ac in get_canonical_academic_agents():
+                            if ac in id_text.lower():
+                                return ac, "track_2_academic", "high"
+            except Exception:
+                continue
+
+        # Pass 1.5: Check prompt / task assignment in early steps
+        for line_str in lines[:10]:
+            try:
+                step = json.loads(line_str)
+                content = step.get("content") or ""
+                m_worker = re.search(r'["\'](?:worker_agent|target_worker)["\']\s*:\s*["\']([a-zA-Z0-9_-]+)["\']', content)
+                if m_worker:
+                    w_name = m_worker.group(1).lower()
+                    if w_name in get_canonical_academic_agents():
+                        return w_name, "track_2_academic", "high"
+                m_agent_tag = re.search(r'\bAgent:\s*`?([a-zA-Z0-9_-]+)`?', content)
+                if m_agent_tag:
+                    a_name = m_agent_tag.group(1).lower()
+                    if a_name in get_canonical_academic_agents():
+                        return a_name, "track_2_academic", "high"
             except Exception:
                 continue
 
@@ -360,6 +410,27 @@ def resolve_hook_identity(payload: Dict[str, Any], env: Optional[Dict[str, str]]
     interface = detect_interface(payload)
     is_subagent, parent_id = extract_subagent_info(payload)
     canonical_agents = get_canonical_academic_agents()
+
+    # Signal 0: Subagent Descriptor Resolution from Antigravity Storage
+    cid = str(payload.get("conversationId") or "")
+    if cid:
+        subagent_type = resolve_subagent_descriptor(cid)
+        if subagent_type:
+            for ac in canonical_agents:
+                if ac == subagent_type or ac in subagent_type:
+                    role = "orchestrator" if ac == "academic-orchestrator" else "specialist_worker"
+                    return HookIdentity(
+                        agent_name=ac,
+                        agent_role=str(payload.get("agentRole") or role),
+                        track="track_2_academic",
+                        is_main_developer=False,
+                        is_subagent=True,
+                        parent_conversation_id=parent_id,
+                        interface=interface,
+                        confidence="high",
+                        resolution_source="subagent_descriptor",
+                        details={"matched_subagent_descriptor": ac}
+                    )
 
     # -------------------------------------------------------------
     # Signal 1: Explicit Payload Identity Fields

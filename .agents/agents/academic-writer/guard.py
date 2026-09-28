@@ -193,8 +193,24 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     # Directive 23: Clean Workspace Root & Deliverables Purity Standards
-    if tool_name in ("write_to_file", "replace_file_content", "edit_file", "patch"):
-        target_path = args.get("TargetFile") or args.get("target") or args.get("file_path") or ""
+    if tool_name in ("write_to_file", "replace_file_content", "edit_file", "patch", "apply_diff", "multi_file_edit", "batch_replace"):
+        target_path = args.get("TargetFile") or args.get("target") or args.get("file_path") or args.get("path") or ""
+
+        # Directive 19 / Directive 2: Statistical Immobility Invariant
+        # Academic-Writer cannot create, mutate, or overwrite statistical JSON files
+        if target_path and target_path.strip().lower().endswith(".json"):
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 2 — Statistical Immobility Invariant): "
+                    f"Specialist subagent 'academic-writer' is strictly 'The Voice' and is forbidden from creating, "
+                    f"mutating, or overwriting statistical or analytical results files ('{os.path.basename(target_path)}'). "
+                    f"All analytical JSON artifacts in '03_deliverables/' are immutable read-only records produced "
+                    f"exclusively by statistics-agent and data-curator during Phases 4A–4C. "
+                    f"Academic-Writer must inspect JSON results as read-only inputs via 'view_file' and draft only .docx and .md deliverables."
+                )
+            }
+
         is_root, script_name = is_root_script_target(target_path, workspaces)
         if is_root:
             return {
@@ -241,6 +257,30 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                         f"Detected raw inline Latin words in Persian text for '{os.path.basename(target_path)}': {raw_latins[:5]}.\n"
                         f"Foreign author names must be phonetically transliterated to Persian (e.g. «اسمیت») and technical terms translated, "
                         f"with original English terms placed strictly in footnotes."
+                    )
+                }
+
+    # Directive 19 / Directive 2: Statistical Immobility Invariant for Shell Commands
+    if tool_name == "run_command":
+        cmd = args.get("CommandLine", "")
+        json_mutation_patterns = [
+            r'(?:>|>>)\s*[\'"]?[^;&|\s]+\.json\b',
+            r'\btee(?:\s+-a)?\s+[\'"]?[^;&|\s]+\.json\b',
+            r'\bcp\s+.*\.json\b',
+            r'\bmv\s+.*\.json\b',
+            r'\bcat\s+.*>\s*.*\.json\b',
+            r'\b(?:touch|truncate|sed\s+-i|perl\s+-i)\b.*\.json\b'
+        ]
+        for pat in json_mutation_patterns:
+            if re.search(pat, cmd, re.IGNORECASE):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 2 — Statistical Immobility Invariant): "
+                        f"Academic-Writer is strictly forbidden from executing shell commands that write, copy, move, "
+                        f"or redirect into JSON files ('{cmd}'). "
+                        f"All analytical JSON results are immutable outputs of Phase 4A–4C. "
+                        f"Academic-Writer produces strictly .docx and .md deliverables."
                     )
                 }
 
