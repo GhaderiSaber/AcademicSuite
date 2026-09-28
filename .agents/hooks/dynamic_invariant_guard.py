@@ -194,8 +194,9 @@ class DynamicInvariantGuard:
 
             # File pattern matching
             file_pattern = rule.get("file_pattern", "")
-            if file_pattern and target_file and not re.search(file_pattern, target_file, re.IGNORECASE):
-                continue
+            if file_pattern:
+                if not target_file or not re.search(file_pattern, target_file, re.IGNORECASE):
+                    continue
 
             # Check evaluation
             check_type = rule.get("check_type", "regex_ban")
@@ -229,6 +230,10 @@ class DynamicInvariantGuard:
                     }
 
             elif check_type == "tool_ban":
+                if pattern:
+                    full_haystack = f"{content} {json.dumps(args)}"
+                    if not re.search(pattern, full_haystack, re.IGNORECASE):
+                        continue
                 return {
                     "decision": "deny",
                     "reason": f"CONSTITUTIONAL VIOLATION ({rule_id}): Tool '{tool_name}' is forbidden for agent '{caller_clean}'. {v_msg}"
