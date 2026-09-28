@@ -1,0 +1,517 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260928-WRITER-JSON-MUTATION-001",
+  "experience_id": "EXP-20260928-WRITER-JSON-MUTATION-001",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "TSK-2026-CH4-STAGE-4D2-DESCRIPTIVES-TRIAD",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-27T16:08:15.269415+00:00",
+      "description": "academic-orchestrator initiated Stage 4B.2 (Univariate Descriptives and Reliability Computation) delegating task TSK-2026-CH4-STAGE-4B2-COMPUTATION to statistics-agent to calculate exhaustive descriptive metrics, parametric normality tests, and psychometric reliability across 11 study variables on cleaned sample N=483.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4B2-COMPUTATION",
+        "stage": "Stage 4.2: Descriptives & Reliability",
+        "worker_agent": "statistics-agent",
+        "inputs": [
+          "02_analysis_code/data_cleaned.xlsx"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "COMMAND_STARTED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T16:33:50.120000+00:00",
+      "description": "statistics-agent executed python3 02_analysis_code/compute_stage4b2_descriptives.py against data_cleaned.xlsx (N=483).",
+      "observable_input": {
+        "cli_command": "python3 02_analysis_code/compute_stage4b2_descriptives.py",
+        "dataset_path": "02_analysis_code/data_cleaned.xlsx",
+        "sample_size": 483
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "variables_computed": 11,
+        "reliabilities_computed": 11
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T16:33:56.755349+00:00",
+      "description": "statistics-agent generated and persisted the comprehensive 7-part statistical execution payload to 03_deliverables/02_descriptives_payload.json containing 2,389 lines (72,819 bytes) of exhaustive computational data.",
+      "observable_input": {
+        "target_file": "03_deliverables/02_descriptives_payload.json",
+        "script": "02_analysis_code/compute_stage4b2_descriptives.py"
+      },
+      "observable_output": {
+        "file_path": "03_deliverables/02_descriptives_payload.json",
+        "file_size_bytes": 72819,
+        "line_count": 2389,
+        "sample_size": 483,
+        "contents_included": [
+          "univariate_descriptives (M, SD, SE, Min, Max, Skewness, Kurtosis, SE_skew, SE_kurt, z-scores)",
+          "normality_tests (Shapiro-Wilk W and p-value, Kolmogorov-Smirnov D and p-value)",
+          "confidence_intervals (95% CI lower and upper)",
+          "reliabilities (Cronbach alpha, McDonald omega, item-total correlations, alpha-if-deleted)",
+          "covariance_matrix",
+          "correlation_matrix",
+          "variances",
+          "degrees_of_freedom",
+          "cryptographic_provenance"
+        ],
+        "status": "WRITTEN"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-09-27T16:34:02.000000+00:00",
+      "description": "statistics-agent completed Stage 4B.2 returning output artifact 03_deliverables/02_descriptives_payload.json. No Word (.docx) or Markdown (.md) documents were produced, in strict accordance with the statistical execution role boundary.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4B2-COMPUTATION"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "output_artifacts": [
+          "03_deliverables/02_descriptives_payload.json"
+        ]
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-27T17:16:29.000000+00:00",
+      "description": "validation-agent executed directory-wide validation on 03_deliverables/ and failed with overall_verdict: FAIL because Stage 4B generated standalone JSON files without accompanying synchronized .md and .docx triad deliverables (violating Directive 3 Triad Invariant).",
+      "observable_input": {
+        "stage_directory": "03_deliverables",
+        "checks_run": 115
+      },
+      "observable_output": {
+        "overall_verdict": "FAIL",
+        "checks_failed": 25,
+        "failed_checks": [
+          "CHK-TRIAD-INVARIANT-02_descriptives: Missing 02_descriptives_and_reliability.docx and 02_descriptives_and_reliability.md",
+          "CHK-TRIAD-INVARIANT-03_assumptions: Missing 03_parametric_assumptions.docx and 03_parametric_assumptions.md",
+          "CHK-TRIAD-INVARIANT-04_correlations: Missing 04_correlations.docx and 04_correlations.md"
+        ]
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-28T19:37:19.238476+00:00",
+      "description": "academic-orchestrator inspected lines 1-60 of 03_deliverables/02_descriptives_payload.json to verify variables and parameters prior to launching scholarly drafting Phase 4D.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "03_deliverables/02_descriptives_payload.json",
+        "StartLine": 1,
+        "EndLine": 60
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "task_id": "TSK-2026-CH4-STAGE-4B2-COMPUTATION",
+        "sample_size": 483
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-28T19:37:32.000000+00:00",
+      "description": "academic-orchestrator formulated task TSK-2026-CH4-STAGE-4D2-DESCRIPTIVES-TRIAD. Instead of instructing academic-writer strictly to produce narrative (.docx and .md) and preserving 02_descriptives_payload.json as the unmutated statistical JSON deliverable, the orchestrator explicitly mandated academic-writer to 'synchronize 03_deliverables/02_descriptives_and_reliability.json', transferring file-writing authority over statistical result JSONs to a drafting agent.",
+      "observable_input": {
+        "decision_type": "TRIAD_DELIVERABLE_RESPONSIBILITY_ASSIGNMENT",
+        "source_statistical_payload": "03_deliverables/02_descriptives_payload.json",
+        "target_agent": "academic-writer"
+      },
+      "observable_output": {
+        "selected_option": "MANDATE_WRITER_TO_SYNCHRONIZE_DELIVERABLE_JSON",
+        "rationale": "Orchestrator sought to satisfy Directive 3 Triad Invariant (requiring matching .docx, .md, .json) at the micro-stage boundary by delegating the entire triad artifact generation package directly to academic-writer.",
+        "procedural_error": "Violated Separation of Concerns: Result JSON payload management was assigned to academic-writer whose constitutional boundary forbids altering or generating statistical data structures."
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-28T19:37:32.757179+00:00",
+      "description": "academic-orchestrator dispatched Contractual Delegation Envelope (CDE) for TSK-2026-CH4-STAGE-4D2-DESCRIPTIVES-TRIAD to academic-writer, explicitly commanding it to output 03_deliverables/02_descriptives_and_reliability.md, compile 03_deliverables/02_descriptives_and_reliability.docx, and synchronize 03_deliverables/02_descriptives_and_reliability.json.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-STAGE-4D2-DESCRIPTIVES-TRIAD",
+        "stage": "Stage 4D.2: Descriptives & Reliability Triad Synthesis",
+        "worker_agent": "academic-writer",
+        "inputs": [
+          "03_deliverables/02_descriptives_payload.json"
+        ],
+        "required_artifacts": [
+          "03_deliverables/02_descriptives_and_reliability.md",
+          "03_deliverables/02_descriptives_and_reliability.docx",
+          "03_deliverables/02_descriptives_and_reliability.json"
+        ],
+        "acceptance_criteria": [
+          "Draft authentic Persian scholarly prose: continuous academic paragraphs, high syntactic variability",
+          "Report all 11 study variables: pure construct names in Persian without instrument nouns or author surnames",
+          "Table: APA 7th Edition 3-line summary table with columns (ردیف, متغیر/سازه, میانگین M, انحراف معیار SD, حداقل, حداکثر, چولگی, کشیدگی, آلفای کرونباخ alpha, امگای مک‌دونالد omega)",
+          "Confirm univariate distributional normality against Kline (2023) criteria",
+          "Compile 03_deliverables/02_descriptives_and_reliability.docx via academic_docgen.py",
+          "Synchronize 03_deliverables/02_descriptives_and_reliability.json",
+          "Verify all 3 triad files exist on disk"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-28T19:38:15.000000+00:00",
+      "description": "academic-writer authored 03_deliverables/02_descriptives_and_reliability.md (3,689 bytes, 21 lines) synthesizing Persian explanatory prose and APA 7 Table 4-2 reporting 11 study variables.",
+      "observable_input": {
+        "target_file": "03_deliverables/02_descriptives_and_reliability.md",
+        "format": "Markdown",
+        "variables_reported": 11
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "file_size_bytes": 3689,
+        "line_count": 21
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-28T19:38:40.000000+00:00",
+      "description": "academic-writer executed academic_docgen.py to render 03_deliverables/02_descriptives_and_reliability.docx from markdown source.",
+      "observable_input": {
+        "cli_command": "python3 .agents/scripts/academic_docgen.py render-docx --md 03_deliverables/02_descriptives_and_reliability.md --docx 03_deliverables/02_descriptives_and_reliability.docx",
+        "typography": "B Nazanin 13pt body, B Titr headings, Times New Roman numbers"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "output_file": "03_deliverables/02_descriptives_and_reliability.docx",
+        "file_size_bytes": 38005
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-28T19:39:10.000000+00:00",
+      "description": "academic-writer authored and overwritten 03_deliverables/02_descriptives_and_reliability.json. Following the instruction to 'synchronize' the JSON, academic-writer condensed the entire statistical output into a 22-line table stub (2,598 bytes) containing only the 11 rows of Table 4-2, stripping out normality test statistics (Shapiro-Wilk, Kolmogorov-Smirnov), 95% confidence intervals, standard errors, item-level reliabilities, covariance matrices, and execution provenance.",
+      "observable_input": {
+        "target_file": "03_deliverables/02_descriptives_and_reliability.json",
+        "source_data": "Table 4-2 Markdown cells",
+        "structure": "Simplified tabular variable array"
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "file_size_bytes": 2598,
+        "line_count": 22,
+        "lines_stripped_relative_to_payload": 2367,
+        "stripped_fields": [
+          "normality_tests (shapiro_wilk statistic & p_value, kolmogorov_smirnov statistic & p_value)",
+          "confidence_intervals (ci_95 lower, upper, level)",
+          "standard_errors (se, skewness_se, kurtosis_se)",
+          "standardized_z_scores (z_skewness, z_kurtosis)",
+          "theoretical_vs_observed_ranges",
+          "item_level_diagnostics (item_total_correlations, alpha_if_deleted)",
+          "covariance_matrix",
+          "correlation_matrix",
+          "degrees_of_freedom (df_within, df_total)",
+          "provenance (dataset_sha256, script_identity, python_version, platform)"
+        ]
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-28T19:39:56.000000+00:00",
+      "description": "academic-writer returned execution control to academic-orchestrator certifying completion of TSK-2026-CH4-STAGE-4D2-DESCRIPTIVES-TRIAD with triad artifacts (.docx, .md, .json) present on disk.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE-4D2-DESCRIPTIVES-TRIAD"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "artifacts_delivered": [
+          "03_deliverables/02_descriptives_and_reliability.docx",
+          "03_deliverables/02_descriptives_and_reliability.md",
+          "03_deliverables/02_descriptives_and_reliability.json"
+        ]
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-28T19:43:26.286841+00:00",
+      "description": "academic-orchestrator read 03_deliverables/02_descriptives_and_reliability.json and verified that the file had been reduced to a 22-line table stub.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "AbsolutePath": "03_deliverables/02_descriptives_and_reliability.json",
+        "StartLine": 1,
+        "EndLine": 60
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "line_count": 22,
+        "task_id": "TSK-2026-CH4-STAGE-4D2-DESCRIPTIVES-TRIAD"
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-28T19:45:49.000000+00:00",
+      "description": "User issued direct architectural critique: 'The Academic-writer do not have a right to alter the .json files of results.' User criticized the fact that academic-writer modified 02_descriptives_and_reliability.json and replaced the 2,389-line computational payload (02_descriptives_payload.json) with a condensed 22-line stub, stripping vital normality tests, confidence intervals, and standard errors in violation of the separation of concerns.",
+      "observable_input": {
+        "user_critique": "The Academic-writer do not have a right to alter the .json files of results."
+      },
+      "observable_output": {
+        "action_required": "Trigger trajectory reconstruction to document the exact observable steps, instructions, and file mutations leading to the unauthorized JSON alteration."
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "TypeName": "statistics-agent",
+        "task_id": "TSK-2026-CH4-STAGE-4B2-COMPUTATION"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1220
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "command": "python3 02_analysis_code/compute_stage4b2_descriptives.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 6634
+    },
+    {
+      "tool_name": "run_all_validators",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "stage_directory": "03_deliverables",
+        "selected_tier": "all"
+      },
+      "status": "ERROR",
+      "execution_time_ms": 4820,
+      "error_message": "Validation cascade failed with overall_verdict: FAIL (25 checks failed)"
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/02_descriptives_payload.json",
+        "StartLine": 1,
+        "EndLine": 60
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 226
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "TypeName": "academic-writer",
+        "task_id": "TSK-2026-CH4-STAGE-4D2-DESCRIPTIVES-TRIAD",
+        "acceptance_criteria_snippet": "Synchronize 03_deliverables/02_descriptives_and_reliability.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1382
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "TargetFile": "03_deliverables/02_descriptives_and_reliability.md",
+        "Overwrite": true
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 310
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 7,
+      "arguments_summary": {
+        "command": "python3 .agents/scripts/academic_docgen.py render-docx --md 03_deliverables/02_descriptives_and_reliability.md --docx 03_deliverables/02_descriptives_and_reliability.docx"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 2840
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 8,
+      "arguments_summary": {
+        "TargetFile": "03_deliverables/02_descriptives_and_reliability.json",
+        "Overwrite": true,
+        "line_count": 22
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 180
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 9,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/02_descriptives_and_reliability.json",
+        "StartLine": 1,
+        "EndLine": 60
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 245
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "descriptive-statistics",
+      "script_path": "02_analysis_code/compute_stage4b2_descriptives.py",
+      "cli_command": "python3 02_analysis_code/compute_stage4b2_descriptives.py",
+      "exit_code": 0,
+      "duration_seconds": 6.63
+    },
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": ".agents/skills/chapter-4-writing/scripts/scaffold_chapter4_triad.py",
+      "cli_command": "scaffold_triad",
+      "exit_code": 0,
+      "duration_seconds": 0.45
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": ".agents/scripts/academic_docgen.py",
+      "cli_command": "python3 .agents/scripts/academic_docgen.py render-docx --md 03_deliverables/02_descriptives_and_reliability.md --docx 03_deliverables/02_descriptives_and_reliability.docx",
+      "exit_code": 0,
+      "duration_seconds": 2.84
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "stage_id": "Stage 4B.2",
+      "envelope_summary": "TSK-2026-CH4-STAGE-4B2-COMPUTATION: Compute descriptive statistics and reliability metrics from data_cleaned.xlsx (N=483 complete cases) and save raw execution payload to 03_deliverables/02_descriptives_payload.json.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/02_descriptives_payload.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "Stage 4D.2",
+      "envelope_summary": "TSK-2026-CH4-STAGE-4D2-DESCRIPTIVES-TRIAD: Synthesize Chapter 4 findings prose, construct APA 7 summary Table 4-2, compile .docx, and synchronize 03_deliverables/02_descriptives_and_reliability.json from 02_descriptives_payload.json.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/02_descriptives_and_reliability.json"
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260928-ORCH-WRITER-JSON-SYNC",
+      "decision_type": "ORCHESTRATOR_DELEGATION_SCOPE_EXPANSION",
+      "selected_option": "DELEGATE_JSON_SYNCHRONIZATION_TO_ACADEMIC_WRITER",
+      "rationale": "To satisfy Directive 3 Triad Invariant (.docx, .md, .json) at the micro-stage boundary, the orchestrator bundled JSON creation into the drafting subagent's task definition without enforcing read-only isolation on statistical result files.",
+      "alternatives_considered": [
+        {
+          "option": "DELEGATE_JSON_CANONICALIZATION_TO_STATISTICS_AGENT",
+          "verdict": "REJECTED_BY_ORCHESTRATOR",
+          "reason": "Orchestrator treated Stage 4D as a pure writing phase and attempted to resolve triad deliverable completeness entirely through academic-writer."
+        },
+        {
+          "option": "SYMLINK_OR_RENAME_PAYLOAD_TO_CANONICAL_NAME",
+          "verdict": "NOT_EXECUTED",
+          "reason": "Orchestrator did not instruct academic-writer to treat 02_descriptives_payload.json as canonical or copy it untouched to 02_descriptives_and_reliability.json."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20260928-WRITER-PAYLOAD-TRUNCATION",
+      "decision_type": "WRITER_JSON_PAYLOAD_SYNTHESIS_METHOD",
+      "selected_option": "CREATE_CONDENSED_22_LINE_TABLE_STUB",
+      "rationale": "academic-writer treated 02_descriptives_and_reliability.json as a direct machine-readable representation of its 11-row Markdown Table 4-2, rather than a preservation of the 2,389-line computational result payload.",
+      "alternatives_considered": [
+        {
+          "option": "COPY_COMPREHENSIVE_PAYLOAD_UNTOUCHED",
+          "verdict": "REJECTED_BY_WRITER",
+          "reason": "Writer followed literal instruction to synchronize matching triad artifacts and generated a clean tabular schema matching Table 4-2 rows."
+        },
+        {
+          "option": "REFUSE_MUTATION_AND_ESCALATE_BOUNDARY_VIOLATION",
+          "verdict": "NOT_TRIGGERED",
+          "reason": "academic-writer lacked an active PreToolUse hook intercepting write_to_file calls targeting .json deliverable paths in 03_deliverables/."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/02_descriptives_payload.json",
+      "sha256": "47a9f731a52b826b1c0683ea1c944f77c8e9f2a74c2d3086eb0a45d078b543fa",
+      "type": "statistical_execution_result"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.json",
+      "sha256": "69f21f1d169a98ef2e3d3fa58a436279f6ebf91757ca504faea542d992e5912a",
+      "type": "truncated_table_stub"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.md",
+      "sha256": "3e9b110a2f7c00e129188476de6f8092d6e3558c49a60e0a58ad8cf441e8884a",
+      "type": "findings_markdown_narrative"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.docx",
+      "sha256": "81f1e9488a09cf46de0f854a8e6e5a0737a0f789ba88d447a06c547847c21110",
+      "type": "openxml_word_deliverable"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "academic_suite_4tva",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-TRIAD-INVARIANT-02_descriptives: Missing 02_descriptives_and_reliability.docx and 02_descriptives_and_reliability.md"
+      ],
+      "evidence_summary": {
+        "stage": "Stage 4B",
+        "checks_run": 115,
+        "checks_failed": 25,
+        "root_trigger": "Statistical computation phase produced lone JSON payloads without simultaneous narrative and Word documents."
+      }
+    },
+    {
+      "validator_name": "separation_of_concerns_boundary_audit",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-ROLE-BOUNDARY-WRITER-JSON-MUTATION: academic-writer wrote to 03_deliverables/02_descriptives_and_reliability.json",
+        "CHK-PAYLOAD-COMPLETENESS-COLLAPSE: Output JSON size collapsed from 72,819 bytes (2,389 lines) to 2,598 bytes (22 lines), stripping 2,367 lines of empirical data"
+      ],
+      "evidence_summary": {
+        "agent": "academic-writer",
+        "rule_violated": "Phase 12 Writing Invariant: The Writer Never Becomes a Second Statistician / Separation of Concerns",
+        "user_critique": "The Academic-writer do not have a right to alter the .json files of results."
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20260928-WRITER-JSON-MUTATION-001"
+  ],
+  "outcome": "FAILURE"
+}
