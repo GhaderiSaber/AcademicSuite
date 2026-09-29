@@ -24,7 +24,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 'decision': 'deny',
                 'reason': f"CONSTITUTIONAL VIOLATION (Candidate Safety Invariant): skill-evolver cannot directly mutate canonical skills '{target}'. It must formulate and stage candidate diffs in .agents/learning/candidates/."
             }
-    if target and not re.match(r'^[a-zA-Z0-9_.\-/\\]+$', target):
+    if target and not re.match(r'^[a-zA-Z0-9_.\-/\\ ]+$', target):
         return {'decision': 'deny', 'reason': f"CONSTITUTIONAL VIOLATION (Directive 6): File '{target}' must use strictly English ASCII characters."}
     return {'decision': 'allow'}
 

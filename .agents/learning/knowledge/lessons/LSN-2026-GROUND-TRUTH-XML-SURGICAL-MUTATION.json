@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-GROUND-TRUTH-XML-SURGICAL-MUTATION",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20260929-PROP-REV-001",
+  "diagnosis": {
+    "what_happened": "Script hardcoded fabricated search strings and used character-by-character regex XML tag insertion, which failed to match across whitespace, half-spaces, and runs. The script lacked checks for replacement success, leading to silent passes.",
+    "behavior_caused_outcome": "Silent regex zero match failure due to lack of assertion that replacements_count > 0.",
+    "what_should_have_happened": "Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast.",
+    "rationale_why": "Failing fast ensures that issues with text matching are immediately caught, rather than corrupting the pipeline with silent non-changes."
+  },
+  "desired_behavior": "Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.",
+  "generalization": "Always assert replacement success (assert replacements_count > 0) when mutating text or XML strings to prevent silent failures.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "SILENT_FAILURE_DETECTION",
+    "observed_value": "Zero matches during regex substitution without error",
+    "threshold_value": "Replacements count must be > 0",
+    "supporting_report_ids": [
+      "BAN-20260929-PROP-REV-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-proposal-builder"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T09:55:37Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer"
+  ]
+}
