@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-MISSING-TRIAD-JSON-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "BAN-20260929-MISSING-TRIAD-JSON-001",
+  "diagnosis": {
+    "what_happened": "Agent generated partial deliverables for Hypotheses 3-8 (.md and .docx) without synthesizing the mandatory underlying .json data payloads (e.g., 08_hypothesis_3.json).",
+    "behavior_caused_outcome": "Missing .json files violated the Triad Invariant and caused validation to fail.",
+    "what_should_have_happened": "Agent must enforce the Triad Invariant (Directive 3) by atomically generating the .json, .md, and .docx artifacts for every single hypothesis micro-stage.",
+    "rationale_why": "Triad artifact synchronization is required for downstream assembly and validation integrity."
+  },
+  "desired_behavior": "Strictly enforce the Triad Invariant by atomically generating the .json, .md, and .docx artifacts for every single hypothesis micro-stage, using canonical naming conventions.",
+  "generalization": "Never skip the underlying .json payload generation during triad micro-stage deliverables.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "VALIDATOR_FAILURE",
+    "observed_value": "7 checks failed",
+    "threshold_value": "0 checks failed",
+    "supporting_report_ids": [
+      "BAN-20260929-MISSING-TRIAD-JSON-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "statistical-data-analyst"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T10:25:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "academic-writer"
+  ],
+  "graduation_status": "PENDING_GRADUATION"
+}

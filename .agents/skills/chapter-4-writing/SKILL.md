@@ -472,3 +472,6 @@ The current local time is: 2026-09-25T19:13:18+03:30. [Enforcement: results_audi
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-WRITER-READ-ONLY-JSON-MANDATE)**: Strictly enforce READ-ONLY access to 03_deliverables/*.json for academ... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-MISSING-TRIAD-JSON-001)**: Strictly enforce the Triad Invariant by atomically generating the .jso... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]
