@@ -34,6 +34,7 @@ Key Invariants:
 import os
 import sys
 import json
+import re
 import uuid
 import hashlib
 import argparse
@@ -92,6 +93,23 @@ VAGUE_PHRASES = {
     "check things",
     "write better"
 }
+
+
+def _normalize_text_for_comparison(text: Any) -> str:
+    """Normalizes text for fuzzy token overlap comparison."""
+    if not text:
+        return ""
+    cleaned = re.sub(r"[^\w\s]", " ", str(text).lower())
+    return " ".join(cleaned.split())
+
+
+def _token_jaccard_similarity(text1: Any, text2: Any) -> float:
+    """Computes Jaccard similarity over word tokens."""
+    t1 = set(_normalize_text_for_comparison(text1).split())
+    t2 = set(_normalize_text_for_comparison(text2).split())
+    if not t1 or not t2:
+        return 0.0
+    return len(t1 & t2) / len(t1 | t2)
 
 
 def is_vague_lesson(text: str) -> bool:
@@ -759,8 +777,16 @@ class AcademicLessonDistiller:
                     e_wc = (edata.get("what_behavior_caused_outcome") or (e_diag.get("behavior_caused_outcome") if isinstance(e_diag, dict) else "") or "").strip()
                     e_desired = (edata.get("desired_behavior") or "").strip()
 
-                    # Deduplication: identical observed defect or identical cause & desired remedy
+                    # Deduplication: identical observed defect, identical cause & remedy, or semantic similarity >= 0.70
+                    is_dup = False
                     if (wh and e_wh and wh == e_wh) or (wc and e_wc and wc == e_wc and desired and e_desired and desired == e_desired):
+                        is_dup = True
+                    elif desired and e_desired and _token_jaccard_similarity(desired, e_desired) >= 0.70:
+                        is_dup = True
+                    elif wh and e_wh and wc and e_wc and _token_jaccard_similarity(wh, e_wh) >= 0.70 and _token_jaccard_similarity(wc, e_wc) >= 0.60:
+                        is_dup = True
+
+                    if is_dup:
                         return {
                             "status": "ALREADY_EXISTS",
                             "lesson_id": edata.get("lesson_id") or os.path.splitext(existing_fn)[0],

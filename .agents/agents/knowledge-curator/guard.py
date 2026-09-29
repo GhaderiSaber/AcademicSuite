@@ -21,6 +21,12 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     if name in ('write_to_file', 'replace_file_content', 'multi_replace_file_content', 'apply_diff', 'edit_file'):
         if '03_deliverables' in target or '01_raw_inputs' in target or '02_analysis_code' in target:
             return {'decision': 'deny', 'reason': f"CONSTITUTIONAL VIOLATION (Scoped Knowledge Invariant): knowledge-curator cannot mutate production files '{target}'. It writes strictly to learning/memory stores."}
+        content = args.get('CodeContent') or args.get('ReplacementContent') or ''
+        if '/home/' in content and re.search(r'/home/[^/\s"\']+', content):
+            return {
+                'decision': 'deny',
+                'reason': "CONSTITUTIONAL VIOLATION (Universal Portability Invariant): knowledge-curator cannot record machine-specific absolute paths ('/home/...'). Use repository-relative paths or '${WORKSPACE_ROOT}'."
+            }
     if target and not re.match(r'^[a-zA-Z0-9_.\-/\\ ]+$', target):
         return {'decision': 'deny', 'reason': f"CONSTITUTIONAL VIOLATION (Directive 6): File '{target}' must use strictly English ASCII characters."}
     return {'decision': 'allow'}

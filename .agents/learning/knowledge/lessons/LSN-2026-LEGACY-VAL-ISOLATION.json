@@ -20,7 +20,11 @@
     "observed_value": "Validation block due to legacy file",
     "threshold_value": "Clean state",
     "supporting_report_ids": [
-      "BAN-20260929-LEGACY-VAL-ISOLATION-001"
+      "BAN-20260928-003",
+      "BAN-20260928-004",
+      "BAN-20260929-LEGACY-VAL-ISOLATION-001",
+      "TRJ-20260928-LEGACY-VAL-ISOLATION-001",
+      "TRJ-20260928-LEGACY-VAL-RECURSIVE-002"
     ],
     "supporting_artifact_paths": []
   },

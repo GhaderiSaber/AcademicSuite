@@ -134,14 +134,40 @@ def is_validation_command(command_line: str) -> bool:
     return any(ind in cmd_lower for ind in VALIDATION_INDICATORS)
 
 
-def sanitize_tool_args(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Sanitizes tool arguments for logging by omitting sensitive bodies and truncating long strings."""
+def make_portable_path(path_str: Any, project_root: Optional[str] = None) -> Any:
+    """Normalizes absolute machine paths to repo-relative or ${WORKSPACE_ROOT}."""
+    if not isinstance(path_str, str) or not path_str:
+        return path_str
+    norm_root = os.path.abspath(project_root or ROOT_DIR)
+    if os.path.isabs(path_str):
+        try:
+            rel = os.path.relpath(path_str, norm_root)
+            if not rel.startswith(".."):
+                return rel.replace("\\", "/")
+        except Exception:
+            pass
+    clean = re.sub(r"^/home/[^/]+/(?:Desktop|Documents|projects)/AcademicSuite(?:/)?", "${WORKSPACE_ROOT}/", path_str)
+    clean = re.sub(r"^/home/[^/]+/\.gemini/", "~/.gemini/", clean)
+    clean = re.sub(r"^/home/[^/]+/", "~/", clean)
+    return clean
+
+
+def sanitize_tool_args(args: Dict[str, Any], project_root: Optional[str] = None) -> Dict[str, Any]:
+    """Sanitizes tool arguments for logging by omitting sensitive bodies, truncating long strings, and making paths portable."""
     sanitized = {}
     for k, v in args.items():
         if k in ("CodeContent", "ReplacementContent"):
             continue
+        elif k in ("AbsolutePath", "TargetFile", "target_file", "file_path", "Cwd") and isinstance(v, str):
+            sanitized[k] = make_portable_path(v, project_root)
         elif isinstance(v, str) and len(v) > 500:
-            sanitized[k] = v[:500] + f"... [truncated {len(v)-500} chars]"
+            sanitized[k] = make_portable_path(v[:500], project_root) + f"... [truncated {len(v)-500} chars]"
+        elif isinstance(v, str):
+            sanitized[k] = make_portable_path(v, project_root)
+        elif isinstance(v, list):
+            sanitized[k] = [make_portable_path(elem, project_root) if isinstance(elem, str) else elem for elem in v]
+        elif isinstance(v, dict):
+            sanitized[k] = sanitize_tool_args(v, project_root)
         else:
             sanitized[k] = v
     return sanitized
@@ -182,13 +208,17 @@ class TrajectoryEngine:
 
         cid = payload.get("conversationId", "")
         step_idx = payload.get("stepIdx")
-        ws_paths = payload.get("workspacePaths", [])
-        transcript_path = payload.get("transcriptPath", "")
-        artifact_dir = payload.get("artifactDirectoryPath", "")
+        ws_paths = [make_portable_path(p, self.project_root) for p in payload.get("workspacePaths", [])]
+        transcript_path = make_portable_path(payload.get("transcriptPath", ""), self.project_root)
+        artifact_dir = make_portable_path(payload.get("artifactDirectoryPath", ""), self.project_root)
         model_name = payload.get("modelName", "")
         tool_call = payload.get("toolCall", {})
 
         clean_details = sanitize_no_cot(details or {})
+        if isinstance(clean_details, dict):
+            for pk in ("file_path", "target_file", "path"):
+                if pk in clean_details and isinstance(clean_details[pk], str):
+                    clean_details[pk] = make_portable_path(clean_details[pk], self.project_root)
 
         event_record = {
             "event_id": f"EVT-{uuid.uuid4().hex[:8].upper()}",
@@ -281,6 +311,8 @@ class TrajectoryEngine:
 
         events = []
         step_counter = 1
+        norm_ws = [make_portable_path(self.project_root, self.project_root)]
+        norm_transcript = make_portable_path(transcript_path, self.project_root)
 
         with open(transcript_path, "r", encoding="utf-8") as f:
             for line in f:
@@ -314,8 +346,8 @@ class TrajectoryEngine:
                             "step_index": step_idx,
                             "actor": "user",
                             "model_name": "",
-                            "workspace_paths": [self.project_root],
-                            "transcript_path": transcript_path,
+                            "workspace_paths": norm_ws,
+                            "transcript_path": norm_transcript,
                             "artifact_directory_path": "",
                             "tool_name": "",
                             "details": {
@@ -334,7 +366,7 @@ class TrajectoryEngine:
                             continue
                         t_name = tc.get("name", "")
                         t_args = tc.get("args", {})
-                        sanitized_args = sanitize_tool_args(t_args)
+                        sanitized_args = sanitize_tool_args(t_args, self.project_root)
 
                         # Event A: TOOL_CALLED
                         events.append({
@@ -345,8 +377,8 @@ class TrajectoryEngine:
                             "step_index": step_idx,
                             "actor": actor,
                             "model_name": "",
-                            "workspace_paths": [self.project_root],
-                            "transcript_path": transcript_path,
+                            "workspace_paths": norm_ws,
+                            "transcript_path": norm_transcript,
                             "artifact_directory_path": "",
                             "tool_name": t_name,
                             "details": {
@@ -364,12 +396,12 @@ class TrajectoryEngine:
                                 "step_index": step_idx,
                                 "actor": actor,
                                 "model_name": "",
-                                "workspace_paths": [self.project_root],
-                                "transcript_path": transcript_path,
+                                "workspace_paths": norm_ws,
+                                "transcript_path": norm_transcript,
                                 "artifact_directory_path": "",
                                 "tool_name": t_name,
                                 "details": {
-                                    "file_path": t_args.get("AbsolutePath") or t_args.get("TargetFile") or t_args.get("Url") or "",
+                                    "file_path": make_portable_path(t_args.get("AbsolutePath") or t_args.get("TargetFile") or t_args.get("Url") or "", self.project_root),
                                     "arguments": sanitized_args
                                 }
                             })
@@ -383,12 +415,12 @@ class TrajectoryEngine:
                                 "step_index": step_idx,
                                 "actor": actor,
                                 "model_name": "",
-                                "workspace_paths": [self.project_root],
-                                "transcript_path": transcript_path,
+                                "workspace_paths": norm_ws,
+                                "transcript_path": norm_transcript,
                                 "artifact_directory_path": "",
                                 "tool_name": t_name,
                                 "details": {
-                                    "file_path": t_args.get("TargetFile") or t_args.get("AbsolutePath") or "",
+                                    "file_path": make_portable_path(t_args.get("TargetFile") or t_args.get("AbsolutePath") or "", self.project_root),
                                     "overwrite": t_args.get("Overwrite", False)
                                 }
                             })
@@ -403,13 +435,13 @@ class TrajectoryEngine:
                                 "step_index": step_idx,
                                 "actor": actor,
                                 "model_name": "",
-                                "workspace_paths": [self.project_root],
-                                "transcript_path": transcript_path,
+                                "workspace_paths": norm_ws,
+                                "transcript_path": norm_transcript,
                                 "artifact_directory_path": "",
                                 "tool_name": t_name,
                                 "details": {
                                     "command_line": cmd_line,
-                                    "cwd": t_args.get("Cwd", "")
+                                    "cwd": make_portable_path(t_args.get("Cwd", ""), self.project_root)
                                 }
                             })
 
@@ -422,8 +454,8 @@ class TrajectoryEngine:
                                     "step_index": step_idx,
                                     "actor": actor,
                                     "model_name": "",
-                                    "workspace_paths": [self.project_root],
-                                    "transcript_path": transcript_path,
+                                    "workspace_paths": norm_ws,
+                                    "transcript_path": norm_transcript,
                                     "artifact_directory_path": "",
                                     "tool_name": t_name,
                                     "details": {
@@ -443,8 +475,8 @@ class TrajectoryEngine:
                                     "step_index": step_idx,
                                     "actor": actor,
                                     "model_name": sa.get("Model", ""),
-                                    "workspace_paths": [self.project_root],
-                                    "transcript_path": transcript_path,
+                                    "workspace_paths": norm_ws,
+                                    "transcript_path": norm_transcript,
                                     "artifact_directory_path": "",
                                     "tool_name": t_name,
                                     "details": {

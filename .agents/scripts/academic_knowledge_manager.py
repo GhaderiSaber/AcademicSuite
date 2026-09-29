@@ -28,10 +28,28 @@ Features:
 import os
 import sys
 import json
+import re
 import uuid
 import argparse
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple, Set
+
+
+def _normalize_text_for_comparison(text: Any) -> str:
+    """Normalizes text for fuzzy token overlap comparison."""
+    if not text:
+        return ""
+    cleaned = re.sub(r"[^\w\s]", " ", str(text).lower())
+    return " ".join(cleaned.split())
+
+
+def _token_jaccard_similarity(text1: Any, text2: Any) -> float:
+    """Computes Jaccard similarity over word tokens."""
+    t1 = set(_normalize_text_for_comparison(text1).split())
+    t2 = set(_normalize_text_for_comparison(text2).split())
+    if not t1 or not t2:
+        return 0.0
+    return len(t1 & t2) / len(t1 | t2)
 
 # Virtualenv auto-discovery shim
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -232,7 +250,7 @@ class AcademicKnowledgeManager:
                 "confidence": item.get("confidence"),
                 "tags": item.get("tags", []),
                 "updated_at": item["updated_at"],
-                "file_path": file_path
+                "file_path": os.path.relpath(file_path, self.base_dir).replace("\\", "/")
             }
         )
         return item["knowledge_id"]
@@ -288,7 +306,7 @@ class AcademicKnowledgeManager:
                 "confidence": item.get("confidence"),
                 "tags": item.get("tags", []),
                 "updated_at": item["updated_at"],
-                "file_path": file_path
+                "file_path": os.path.relpath(file_path, self.base_dir).replace("\\", "/")
             }
         )
         return item["knowledge_id"]
@@ -332,6 +350,46 @@ class AcademicKnowledgeManager:
         if not val_res["valid"]:
             raise ContractValidationError(f"Invalid anti-pattern contract: {val_res.get('errors')}")
 
+        # Content-addressable deduplication: prevent runaway anti-pattern accumulation
+        if os.path.isdir(self.anti_patterns_dir):
+            in_pattern = item.get("defective_pattern", "")
+            in_category = item.get("category", "")
+            in_trigger = str(item.get("detection_heuristic", {}).get("trigger_rule", ""))
+
+            for existing_fn in os.listdir(self.anti_patterns_dir):
+                if not existing_fn.endswith(".json") or existing_fn.startswith("."):
+                    continue
+                existing_fp = os.path.join(self.anti_patterns_dir, existing_fn)
+                try:
+                    with open(existing_fp, "r", encoding="utf-8") as ef:
+                        edata = json.load(ef)
+                    if edata.get("category") != in_category:
+                        continue
+                    e_pattern = edata.get("defective_pattern", "")
+                    e_trigger = str(edata.get("detection_heuristic", {}).get("trigger_rule", ""))
+
+                    is_dup = False
+                    if in_trigger and e_trigger and in_trigger.strip() == e_trigger.strip():
+                        is_dup = True
+                    elif in_pattern and e_pattern:
+                        sim = _token_jaccard_similarity(in_pattern, e_pattern)
+                        if sim >= 0.70:
+                            is_dup = True
+
+                    if is_dup:
+                        new_symptoms = item.get("observed_symptoms", [])
+                        if isinstance(new_symptoms, list):
+                            existing_syms = set(edata.get("observed_symptoms", []))
+                            for s in new_symptoms:
+                                existing_syms.add(s)
+                            edata["observed_symptoms"] = sorted(list(existing_syms))
+                        edata["updated_at"] = datetime.now(timezone.utc).isoformat()
+                        with open(existing_fp, "w", encoding="utf-8") as ef:
+                            json.dump(edata, ef, indent=2, ensure_ascii=False)
+                        return edata.get("anti_pattern_id") or os.path.splitext(existing_fn)[0]
+                except Exception:
+                    pass
+
         file_path = os.path.join(self.anti_patterns_dir, f"{item['anti_pattern_id']}.json")
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(item, f, indent=2, ensure_ascii=False)
@@ -345,7 +403,7 @@ class AcademicKnowledgeManager:
                 "corrective_remedy": item["corrective_remedy"][:120],
                 "reusable": item["reusable"],
                 "updated_at": item["updated_at"],
-                "file_path": file_path
+                "file_path": os.path.relpath(file_path, self.base_dir).replace("\\", "/")
             }
         )
         return item["anti_pattern_id"]
@@ -382,7 +440,7 @@ class AcademicKnowledgeManager:
                 "task_type": item["task_type"],
                 "why_exemplary": item["why_exemplary"][:120],
                 "created_at": item["created_at"],
-                "file_path": file_path
+                "file_path": os.path.relpath(file_path, self.base_dir).replace("\\", "/")
             }
         )
         return item["exemplar_id"]
@@ -409,6 +467,59 @@ class AcademicKnowledgeManager:
             item["target_agent"] = AcademicTwoStageRetriever.SKILL_TO_PRIMARY_AGENT.get(skill, "academic-orchestrator")
         if "target_agents" not in item:
             item["target_agents"] = [item["target_agent"]]
+        # Content-addressable deduplication: prevent runaway duplicate accumulation
+        if os.path.isdir(self.lessons_dir):
+            in_desired = item.get("desired_behavior", "") or item.get("statement", "")
+            in_agent = item.get("target_agent", "")
+            in_diag = item.get("diagnosis", {}) if isinstance(item.get("diagnosis"), dict) else {}
+            in_wh = item.get("what_happened") or in_diag.get("what_happened", "")
+            in_wc = item.get("what_behavior_caused_outcome") or in_diag.get("behavior_caused_outcome", "")
+
+            for existing_fn in os.listdir(self.lessons_dir):
+                if not existing_fn.endswith(".json") or existing_fn.startswith("."):
+                    continue
+                # If explicit lesson_id was requested and exactly matches an existing file, let it overwrite/update
+                if lid and existing_fn == f"{lid}.json":
+                    continue
+                existing_fp = os.path.join(self.lessons_dir, existing_fn)
+                try:
+                    with open(existing_fp, "r", encoding="utf-8") as ef:
+                        edata = json.load(ef)
+                    e_agent = edata.get("target_agent", "")
+                    if in_agent and e_agent and in_agent != e_agent:
+                        continue
+
+                    e_desired = edata.get("desired_behavior", "") or edata.get("statement", "")
+                    e_diag = edata.get("diagnosis", {}) if isinstance(edata.get("diagnosis"), dict) else {}
+                    e_wh = edata.get("what_happened") or e_diag.get("what_happened", "")
+                    e_wc = edata.get("what_behavior_caused_outcome") or e_diag.get("behavior_caused_outcome", "")
+
+                    is_dup = False
+                    if in_desired and e_desired:
+                        sim_des = _token_jaccard_similarity(in_desired, e_desired)
+                        if sim_des >= 0.70 or in_desired.strip().lower() == e_desired.strip().lower():
+                            is_dup = True
+                    if not is_dup and in_wh and e_wh and in_wc and e_wc:
+                        sim_wh = _token_jaccard_similarity(in_wh, e_wh)
+                        sim_wc = _token_jaccard_similarity(in_wc, e_wc)
+                        if sim_wh >= 0.70 and sim_wc >= 0.60:
+                            is_dup = True
+
+                    if is_dup:
+                        # Augment evidence of existing lesson
+                        e_ev = edata.setdefault("evidence", {})
+                        if isinstance(e_ev, dict):
+                            e_reports = set(e_ev.get("supporting_report_ids", []))
+                            new_reports = item.get("evidence", {}).get("supporting_report_ids", []) if isinstance(item.get("evidence"), dict) else []
+                            for r in new_reports:
+                                e_reports.add(r)
+                            e_ev["supporting_report_ids"] = sorted(list(e_reports))
+                        edata["updated_at"] = datetime.now(timezone.utc).isoformat()
+                        with open(existing_fp, "w", encoding="utf-8") as ef:
+                            json.dump(edata, ef, indent=2, ensure_ascii=False)
+                        return edata.get("lesson_id") or os.path.splitext(existing_fn)[0]
+                except Exception:
+                    pass
 
         file_path = os.path.join(self.lessons_dir, f"{lid}.json")
         with open(file_path, "w", encoding="utf-8") as f:
@@ -422,7 +533,8 @@ class AcademicKnowledgeManager:
                 "target_skill": item.get("target_skill") or (item.get("related_skills", ["unknown"])[0] if item.get("related_skills") else "unknown"),
                 "status": item["status"],
                 "confidence": item.get("confidence"),
-                "created_at": item["created_at"]
+                "created_at": item["created_at"],
+                "file_path": os.path.relpath(file_path, self.base_dir).replace("\\", "/")
             }
         )
         return item["lesson_id"]

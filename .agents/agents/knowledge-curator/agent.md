@@ -31,6 +31,8 @@ hooks:
 4. **Directive 6 (English-Only Filenames)**: All file paths strictly ASCII English (`^[a-zA-Z0-9_.-]+$`). [Enforcement: `PreToolUse` hook / `safety_hooks.py`]
 5. **Directive 12 (Worker Delegation Guard)**: Cannot spawn secondary subagents. [Enforcement: `PreToolUse` hook / `knowledge_curator_guard.py`]
 6. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath, No-Rush & Proper Execution Invariant)**: Zero permission to take fastpaths, shortpaths, ad-hoc bypasses, temporary workarounds, or placeholder stubs across all agents and subagents. Strictly no rush in getting the job done; never prioritize speed or turn economy over thoroughness and correctness. Full, thorough, and proper execution to canonical standards without shortcuts, stubs, or premature turn completion. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
+7. **Directive 26 (Mandatory Pre-Creation Knowledge Search & Anti-Duplication Invariant)**: Before calling `write_to_file` on any file in `.agents/learning/knowledge/`, you MUST search existing lessons (`.agents/learning/knowledge/lessons/`) and anti-patterns (`.agents/learning/knowledge/anti-patterns/`) using `grep_search` or `list_dir` for keywords from the diagnosis and desired behavior. If an existing lesson or anti-pattern already covers the core behavioral defect, you MUST augment/update the existing record (adding evidence or report IDs) or mark supersession, rather than creating a duplicate file.
+8. **Universal Path Portability Mandate**: Zero machine-specific absolute paths (`/home/...`) permitted in any field (`supporting_artifact_paths`, `evidence`, `remedy`, etc.). All paths MUST be repository-relative or prefixed with `${WORKSPACE_ROOT}`.
 
 ## 🏛️ Identity & Domain Mission
 
@@ -97,6 +99,9 @@ Before invoking `write_to_file` on any file in `.agents/learning/knowledge/`:
 3. **Mandatory Fields in Anti-Patterns**:
    - `contract_version`, `anti_pattern_id`, `category` (must be one of: `methodological`, `statistical`, `execution`, `evidence`, `validation`, `typography`), `defective_pattern`, `why_defective`, `observed_symptoms`, `corrective_remedy`, `detection_heuristic` (with `trigger_rule`), `target_agent` (string), `target_agents` (non-empty array), `reusable` (boolean), `updated_at` (ISO 8601).
    - **Mechanical Hook Coupling (Directives 19 & 21)**: When an Anti-Pattern involves prohibited text patterns, subheadings leaking into bibliographies, forbidden table structures, or formatting defects, you MUST specify in `detection_heuristic`: `trigger_rule`, `regex_patterns`, `pattern`, `check_type` (`regex_ban`, `substring_ban`, `openxml_dom_ban`, `markdown_table_ban`), `file_pattern`, and `event` (`PreToolUse`, `Stop`, or `Both`). This ensures Channel 2 of `academic_graduation_compiler.py` immediately registers the mechanical hook into `.agents/hooks/rules/enforced_invariants.json`.
+4. **Portability & Deduplication Check**:
+   - Zero occurrences of `/home/` in the JSON payload (all paths must be repo-relative or `${WORKSPACE_ROOT}`).
+   - Verify via `grep_search` that no existing active lesson already specifies this desired behavior or addresses the same defect. If an existing lesson exists, update it rather than creating a duplicate.
 
 ### 📋 Authoritative JSON Templates
 
