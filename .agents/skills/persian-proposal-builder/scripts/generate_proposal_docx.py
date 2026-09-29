@@ -1,87 +1,63 @@
-import os
+import sys
+import re
 import zipfile
-import xml.etree.ElementTree as ET
+import shutil
+import os
 
-def edit_docx(input_path, output_clean_path, output_tracked_path):
-    with zipfile.ZipFile(input_path, 'r') as zf:
-        entries = {name: zf.read(name) for name in zf.namelist()}
+def process_docx(input_docx, output_docx, track=False):
+    extract_dir = input_docx + "_extracted"
+    with zipfile.ZipFile(input_docx, 'r') as docx:
+        docx.extractall(extract_dir)
         
-    xml_str = entries['word/document.xml'].decode('utf-8')
-    
+    doc_path = os.path.join(extract_dir, 'word', 'document.xml')
+    with open(doc_path, 'r', encoding='utf-8') as f:
+        xml_content = f.read()
+        
+    original_xml = xml_content
     replacements_count = 0
     
-    # Exact source strings
-    old_c3 = "و تاثیر آن بر همدلی"
-    new_c3 = "و نقش آن در ارتقای همدلی"
+    searches = [
+        ("سبک های دلبستگی بر همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.", "بین سبکهای دلبستگی و همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (سبکهای دلبستگی پیشبینیکننده معنادار همدلی است)."),
+        ("سبک های دلبستگی بر تنظیم هیجان در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.", "بین سبکهای دلبستگی و تنظیم هیجان در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (سبکهای دلبستگی پیشبینیکننده معنادار تنظیم هیجان است)."),
+        ("سبک های دلبستگی بر خود شفقتی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.", "بین سبکهای دلبستگی و خودشفقتی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (سبکهای دلبستگی پیشبینیکننده معنادار خودشفقتی است)."),
+        ("تنظیم هیجان بر همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.", "بین تنظیم هیجان و همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (تنظیم هیجان پیشبینیکننده معنادار همدلی است)."),
+        ("خود شفقتی بر همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.", "بین خودشفقتی و همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (خودشفقتی پیشبینیکننده معنادار همدلی است)."),
+        ("و تاثیر آن بر همدلی", "و نقش آن در ارتقای همدلی")
+    ]
     
-    hypotheses = {
-        "۱) سبک های دلبستگی بر همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.": "۱. بین سبکهای دلبستگی و همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (سبکهای دلبستگی پیشبینیکننده معنادار همدلی است).",
-        "۲) سبک های دلبستگی بر تنظیم هیجان در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.": "۲. بین سبکهای دلبستگی و تنظیم هیجان در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (سبکهای دلبستگی پیشبینیکننده معنادار تنظیم هیجان است).",
-        "۳) سبک های دلبستگی بر خود شفقتی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.": "۳. بین سبکهای دلبستگی و خودشفقتی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (سبکهای دلبستگی پیشبینیکننده معنادار خودشفقتی است).",
-        "۴) تنظیم هیجان بر همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.": "۴. بین تنظیم هیجان و همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (تنظیم هیجان پیشبینیکننده معنادار همدلی است).",
-        "۵) خود شفقتی بر همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.": "۵. بین خودشفقتی و همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (خودشفقتی پیشبینیکننده معنادار همدلی است)."
-    }
-    
-    # Extract text and replace
-    def process_xml(xml_content, track=False):
-        nonlocal replacements_count
-        root = ET.fromstring(xml_content)
-        ns = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
-        for p in root.findall('.//w:p', ns):
-            runs = p.findall('.//w:r', ns)
-            text_nodes = []
-            full_text = ""
-            for r in runs:
-                t = r.find('w:t', ns)
-                if t is not None and t.text:
-                    text_nodes.append(t)
-                    full_text += t.text
-            
-            if old_c3 in full_text:
-                # Simplified replacement for demonstration
-                full_text = full_text.replace(old_c3, new_c3)
-                if text_nodes:
-                    text_nodes[0].text = full_text
-                    for t in text_nodes[1:]:
-                        t.text = ""
-                replacements_count += 1
+    for search_text, replace_text in searches:
+        if search_text in xml_content:
+            if track:
+                pattern = re.compile(rf'(<w:r(?: [^>]*)?>)((?:(?!<w:r(?: [^>]*)?>).)*?{re.escape(search_text)}.*?</w:r>)', re.DOTALL)
+                def repl_func(match):
+                    r_start = match.group(1)
+                    r_inner = match.group(2)
+                    r_inner = r_inner.replace(search_text, replace_text)
+                    if '<w:rPr>' in r_inner:
+                        r_inner = r_inner.replace('<w:rPr>', '<w:rPr><w:highlight w:val="yellow"/>')
+                    else:
+                        r_start += '<w:rPr><w:highlight w:val="yellow"/></w:rPr>'
+                    return r_start + r_inner
+                xml_content, subs_made = pattern.subn(repl_func, xml_content)
+                if subs_made == 0:
+                    xml_content = xml_content.replace(search_text, replace_text)
+            else:
+                xml_content = xml_content.replace(search_text, replace_text)
                 
-            for old_h, new_h in hypotheses.items():
-                if old_h in full_text:
-                    full_text = full_text.replace(old_h, new_h)
-                    if text_nodes:
-                        text_nodes[0].text = full_text
-                        for t in text_nodes[1:]:
-                            t.text = ""
-                    replacements_count += 1
-                    
-        return ET.tostring(root, encoding='unicode')
+            replacements_count += 1
+            
+    assert replacements_count == 6, f"Expected 6 replacements, got {replacements_count}"
+    assert xml_content != original_xml, "XML was not modified"
+    
+    with open(doc_path, 'w', encoding='utf-8') as f:
+        f.write(xml_content)
         
-    clean_xml = process_xml(xml_str, track=False)
-    
-    # We did 1 C3 replace and 5 hypotheses replaces, so total 6
-    assert replacements_count == 6, f"Failed: replacements_count is {replacements_count}, expected 6"
-    assert clean_xml != xml_str, "Failed: clean_xml is identical to xml_str"
-    
-    entries_clean = entries.copy()
-    entries_clean['word/document.xml'] = clean_xml.encode('utf-8')
-    
-    with zipfile.ZipFile(output_clean_path, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
-        for name, data in entries_clean.items():
-            zf.writestr(name, data)
-            
-    # For tracked, a robust approach would insert highlight tags
-    # Since the prompt requires it, we'll write a simplified version
-    tracked_xml = process_xml(xml_str, track=True)
-    entries_tracked = entries.copy()
-    entries_tracked['word/document.xml'] = tracked_xml.encode('utf-8')
-    with zipfile.ZipFile(output_tracked_path, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
-        for name, data in entries_tracked.items():
-            zf.writestr(name, data)
-            
-if __name__ == "__main__":
-    input_file = "/home/saber-ghaderi/My Work/Mehrane/01_raw_inputs/فایل پروپوزال.docx"
-    output_c = "/home/saber-ghaderi/My Work/Mehrane/03_deliverables/Proposal_Revised_Clean.docx"
-    output_t = "/home/saber-ghaderi/My Work/Mehrane/03_deliverables/Proposal_Revised_Tracked.docx"
-    os.makedirs(os.path.dirname(output_c), exist_ok=True)
-    edit_docx(input_file, output_c, output_t)
+    shutil.make_archive(extract_dir, 'zip', extract_dir)
+    shutil.move(extract_dir + '.zip', output_docx)
+    shutil.rmtree(extract_dir)
+
+if __name__ == '__main__':
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
+    track = '--track' in sys.argv
+    process_docx(input_file, output_file, track)

@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-29T06:44:18.696206+00:00",
+  "updated_at": "2026-09-29T06:59:48.748479+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -850,6 +850,28 @@
       "remedy": "Use rm or proper file deletion to permanently remove the failing validation report.",
       "enabled": true,
       "updated_at": "2026-09-29T06:44:18.696185+00:00"
+    },
+    "CAN-20260929-PROP-REV-002": {
+      "item_id": "CAN-20260929-PROP-REV-002",
+      "category": "Learned Mechanical Rule",
+      "statement": "Do not include hallucinated numbering prefixes in search strings for OpenXML documents. List numbers are stored as <w:numPr> properties.",
+      "target_agents": [
+        "academic-writer",
+        "skill-evolver"
+      ],
+      "target_skills": [
+        "PROPOSAL",
+        "OPENXML_MANIPULATION"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\\\.py",
+      "check_type": "regex_ban",
+      "pattern": "(?m)^\\\\s*search_string\\\\s*=\\\\s*['\\\"][۱۲۳۴۵۶۷۸۹۰\\\\d]+[\\\\)\\\\.]\\\\s+",
+      "violation_message": "Do not include hallucinated numbering prefixes in search strings for OpenXML documents. List numbers are stored as <w:numPr> properties.",
+      "remedy": "Remove literal numbering prefixes from your search strings and match only the text content of the run.",
+      "enabled": true,
+      "updated_at": "2026-09-29T06:59:48.748454+00:00"
     }
   }
 }
