@@ -41,7 +41,7 @@
       "timestamp": "2026-09-24T05:32:00Z",
       "description": "academic-writer created hotfix script inject_footnotes.py designed to extract the docx zip archive, modify word/document.xml via regular expressions, inject word/footnotes.xml, and re-zip the Word package.",
       "observable_input": {
-        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/inject_footnotes.py",
+        "target_file": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/inject_footnotes.py",
         "lines_count": 170,
         "bytes_count": 6776
       },
@@ -58,7 +58,7 @@
       "description": "Executed CLI runner to run inject_footnotes.py on 02_hypothesis_1_discussion.docx.",
       "observable_input": {
         "command_line": "python3 03_deliverables/stage_02_hypo_1/inject_footnotes.py",
-        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "status": "EXECUTING"
@@ -192,7 +192,7 @@
       "tool_name": "write_to_file",
       "invocation_index": 1,
       "arguments_summary": {
-        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/inject_footnotes.py",
+        "TargetFile": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/inject_footnotes.py",
         "Overwrite": true,
         "Description": "Regex script to manipulate word/document.xml and inject word/footnotes.xml into 02_hypothesis_1_discussion.docx"
       },
@@ -204,7 +204,7 @@
       "invocation_index": 2,
       "arguments_summary": {
         "CommandLine": "python3 03_deliverables/stage_02_hypo_1/inject_footnotes.py",
-        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "status": "SUCCESS",
       "execution_time_ms": 1250
@@ -213,7 +213,7 @@
       "tool_name": "view_file",
       "invocation_index": 3,
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
       },
       "status": "SUCCESS",
       "execution_time_ms": 45
@@ -246,7 +246,7 @@
       "stage_id": "02_hypothesis_discussion",
       "envelope_summary": "Inject native OpenXML footnotes into 02_hypothesis_1_discussion.docx to satisfy critique EVT-20260924-NATIVE-FN-FEEDBACK",
       "status": "FAILED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
       "parent_agent": "academic-orchestrator",
       "child_agent": "academic-writer",
       "task_id": "TSK-20260924-REMEDIATE-FN-002",
@@ -266,7 +266,7 @@
       "stage_id": "trajectory_reconstruction",
       "envelope_summary": "Reconstruct observable actions, tool calls, and error trajectory for user critique 'The word file is empty.'",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-EMPTY-DOCX-FEEDBACK/trajectory.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-EMPTY-DOCX-FEEDBACK/trajectory.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "trajectory-analyzer",
       "task_id": "TSK-20260924-EMPTY-DOCX-TRAJECTORY-001",
@@ -316,17 +316,17 @@
   ],
   "outputs": [
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
       "sha256": "8ee91b833e2e4cf17a1554d372a8d943533071a91f3b0f5200a9b41ab1106830",
       "type": "corrupted_empty_openxml_word"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
       "sha256": "6a5bd766062d1961911f854139f7cf373e517d5d08d83c9df7381dec30aa1a3c",
       "type": "narrative_markdown"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
       "sha256": "3b845ea1b2f71b2e0e85bf95d9c914466009cfc04346f67f3aca2c8b61b09f59",
       "type": "triad_metadata"
     }
@@ -342,7 +342,7 @@
         "zero_footnote_reference_elements"
       ],
       "evidence_summary": {
-        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "docx_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
         "faulty_script": "03_deliverables/stage_02_hypo_1/inject_footnotes.py",
         "faulty_line": 37,
         "faulty_code": "doc_data = re.sub(r'<w:p[ >].*?\\[\\^[1-8]\\]:.*?</w:p>', '', doc_data)",

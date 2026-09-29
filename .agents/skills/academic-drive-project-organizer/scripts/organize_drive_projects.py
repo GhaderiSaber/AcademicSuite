@@ -867,7 +867,7 @@ def generate_project_brief(
     template_candidates = [
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "templates", "PROJECT_BRIEF_TEMPLATE.md")),
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "references", "PROJECT_BRIEF_TEMPLATE.md")),
-        os.path.abspath("/home/ghaderi-saber/Desktop/AcademicSuite/.agents/templates/PROJECT_BRIEF_TEMPLATE.md")
+        os.path.abspath("/home/saber-ghaderi/Desktop/AcademicSuite/.agents/templates/PROJECT_BRIEF_TEMPLATE.md")
     ]
     template_content = None
     for cand in template_candidates:

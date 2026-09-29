@@ -216,7 +216,7 @@
       "description": "Orchestrator executed grep_search for 'English' across workspace to verify language rules.",
       "observable_input": {
         "query": "English",
-        "search_path": "/home/ghaderi-saber/My Work/Shahram Amiri"
+        "search_path": "/home/saber-ghaderi/My Work/Shahram Amiri"
       },
       "observable_output": {
         "status": "SUCCESS"
@@ -350,7 +350,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "Query": "English",
-        "SearchPath": "/home/ghaderi-saber/My Work/Shahram Amiri"
+        "SearchPath": "/home/saber-ghaderi/My Work/Shahram Amiri"
       },
       "execution_time_ms": 190
     },
@@ -377,14 +377,14 @@
       "envelope_summary": "Generate complete 8-table Chapter 4 findings triad in Persian resolving p_value key defect",
       "objective": "Compile Chapter4_SEM_Findings.docx, .md, .json resolving p_value key defect and restoring all 8 tables and 2 figures.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
       "input_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_latent_parameters.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_latent_parameters.json"
       ],
       "output_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.json"
       ]
     },
     {
@@ -397,14 +397,14 @@
       "envelope_summary": "Adversarial mechanical audit of 8-table Chapter 4 findings triad",
       "objective": "Execute academic_chapter_auditor.py on compiled Chapter 4 deliverables and verify 10 forensic dimensions.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json",
       "input_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.json"
       ],
       "output_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json"
       ]
     },
     {
@@ -417,10 +417,10 @@
       "envelope_summary": "Reconstruct error trajectory for language rule violation",
       "objective": "Reconstruct observable trajectory for user critique 'Violation of English speaking rule.'",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/.agents/learning/experience/trajectories/EVT-20260923-LANG-FEEDBACK/trajectory.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/.agents/learning/experience/trajectories/EVT-20260923-LANG-FEEDBACK/trajectory.json",
       "input_artifacts": [],
       "output_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/.agents/learning/experience/trajectories/EVT-20260923-LANG-FEEDBACK/trajectory.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/.agents/learning/experience/trajectories/EVT-20260923-LANG-FEEDBACK/trajectory.json"
       ]
     }
   ],
@@ -441,12 +441,12 @@
   ],
   "outputs": [
     {
-      "path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+      "path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
       "sha256": "6ecd3ed36a4173d1465ebe4caa6c2d3a6eeb1e00ee10deaa79dc6587571cfe16",
       "type": "dataset"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
+      "path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
       "sha256": "ef1a996c12010cd5359a243aedc76ba89572117cfef821461c318713d1f3f08d",
       "type": "dataset"
     }

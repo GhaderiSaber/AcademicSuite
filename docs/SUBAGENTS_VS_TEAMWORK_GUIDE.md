@@ -174,5 +174,5 @@ For fine-grained multi-agent task scaling, AcademicSuite integrates with native 
 | **L3** | Thesis/Paper Milestone | `full_milestone_pipeline` | Stage Dirs | `academic-orchestrator` (`invoke_subagent`) |
 | **L4** | Full Research Project | `dynamic_teamwork` | `branch` / `share` | Antigravity Native Teamwork (`/teamwork-preview`) |
 
-For the complete specification on ownership boundaries and abstract role mappings, see [ANTIGRAVITY_TEAMWORK_INTEGRATION.md](file:///home/ghaderi-saber/Desktop/AcademicSuite/docs/ANTIGRAVITY_TEAMWORK_INTEGRATION.md).
+For the complete specification on ownership boundaries and abstract role mappings, see [ANTIGRAVITY_TEAMWORK_INTEGRATION.md](file:///home/saber-ghaderi/Desktop/AcademicSuite/docs/ANTIGRAVITY_TEAMWORK_INTEGRATION.md).
 

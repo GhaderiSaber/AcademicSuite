@@ -43,7 +43,7 @@
       "description": "academic-writer ensured stage deliverable directory 03_deliverables/stage_05_hypo_4 exists on disk.",
       "observable_input": {
         "command_line": "mkdir -p \"03_deliverables/stage_05_hypo_4\"",
-        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "exit_code": 0
@@ -56,7 +56,7 @@
       "timestamp": "2026-09-24T08:28:40Z",
       "description": "academic-writer authored 03_deliverables/stage_05_hypo_4/draft.md (674 words, 3,957 characters). In paragraph 1, the writer used spelled-out word 'beta' (*beta*) three times instead of Latin 'B'. Across paragraphs 2, 3, and 5, the writer inserted footnote markers [^1] through [^10] where trailing whitespace was missing or immediately adjacent to subsequent words without space delimiters.",
       "observable_input": {
-        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/draft.md",
+        "target_file": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/draft.md",
         "word_count": 674,
         "char_count": 3957
       },
@@ -101,7 +101,7 @@
       "description": "academic-writer executed compilation pipeline 03_deliverables/stage_05_hypo_4/process_hypo4.py to convert draft.md into Word DOCX, inject OpenXML native footnotes, and format statistics.",
       "observable_input": {
         "command_line": "python3 03_deliverables/stage_05_hypo_4/process_hypo4.py",
-        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "status": "EXECUTING"
@@ -160,7 +160,7 @@
       "timestamp": "2026-09-24T08:31:08Z",
       "description": "process_hypo4.py repackaged 05_hypothesis_4_discussion.docx with 10 native footnote references and updated deliverable hashes in 05_hypothesis_4_discussion.json.",
       "observable_input": {
-        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx"
+        "target_file": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -190,7 +190,7 @@
       "description": "academic-writer executed automated verification script 03_deliverables/stage_05_hypo_4/verify_hypo4.py to validate the generated Word document.",
       "observable_input": {
         "command_line": "python3 03_deliverables/stage_05_hypo_4/verify_hypo4.py",
-        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "status": "EXECUTING"
@@ -306,7 +306,7 @@
       "invocation_index": 2,
       "status": "SUCCESS",
       "arguments_summary": {
-        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/draft.md",
+        "TargetFile": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/draft.md",
         "Overwrite": true,
         "Description": "Drafting Section 5-2-4 discussion with spelled-out beta and in-text footnote markers"
       },
@@ -318,7 +318,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "python3 03_deliverables/stage_05_hypo_4/process_hypo4.py",
-        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "execution_time_ms": 4350
     },
@@ -328,7 +328,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "python3 03_deliverables/stage_05_hypo_4/verify_hypo4.py",
-        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "execution_time_ms": 1150
     },
@@ -337,7 +337,7 @@
       "invocation_index": 5,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/docx_verification_report.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/docx_verification_report.json"
       },
       "execution_time_ms": 40
     },
@@ -346,7 +346,7 @@
       "invocation_index": 6,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json"
       },
       "execution_time_ms": 45
     },
@@ -391,7 +391,7 @@
       "delegatee": "academic-writer",
       "stage_id": "05_hypothesis_4_discussion",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "academic-writer",
       "task_id": "TSK-20260924-STAGE5-DRAFT-001",
@@ -413,7 +413,7 @@
       "delegatee": "trajectory-analyzer",
       "stage_id": "trajectory_reconstruction",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-BETA-FOOTNOTE-FEEDBACK/trajectory.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-BETA-FOOTNOTE-FEEDBACK/trajectory.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "trajectory-analyzer",
       "task_id": "TSK-20260924-BETA-FOOTNOTE-TRAJECTORY-001",
@@ -487,17 +487,17 @@
   ],
   "outputs": [
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx",
       "sha256": "7ff2f774a131ff5b0093617075c68135b57d8472d6753053220c6d64c59da28f",
       "type": "openxml_word"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.md",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.md",
       "sha256": "d75172889ad6920640203ebb731ccb85bbb93b047a0544f1b3187d372bd4a170",
       "type": "narrative_markdown"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.json",
       "sha256": "dd1e566ff53cbd3d3d16e48fb3de9a03f1358156bb0e07d41770d9c92aa235cc",
       "type": "triad_metadata"
     }
@@ -526,9 +526,9 @@
         "footnote_reference_lacking_trailing_whitespace"
       ],
       "evidence_summary": {
-        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx",
-        "md_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.md",
-        "proof_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/proof.txt",
+        "docx_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.docx",
+        "md_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/05_hypothesis_4_discussion.md",
+        "proof_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_05_hypo_4/proof.txt",
         "spelled_out_beta_occurrences": [
           {
             "occurrence_index": 1,

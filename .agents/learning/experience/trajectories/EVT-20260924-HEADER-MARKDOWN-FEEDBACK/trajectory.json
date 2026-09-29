@@ -30,7 +30,7 @@
       "timestamp": "2026-09-24T05:55:20Z",
       "description": "academic-writer drafted 02_hypothesis_1_discussion.md incorporating empirical statistics with Markdown italic asterisks for statistical notation (*N* = ۲۰۸, *r* = -۰.۱۸, *p* = ۰.۰۱۰) and Markdown headings (# and ##).",
       "observable_input": {
-        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "target_file": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
         "char_count": 3921,
         "word_count": 663
       },
@@ -52,7 +52,7 @@
       "description": "academic-writer executed CLI triad compiler scaffold_chapter5_triad.py to build Word (.docx), Markdown (.md), and metadata (.json) deliverables from 02_hypothesis_1_discussion.md.",
       "observable_input": {
         "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md'",
-        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "status": "EXECUTING"
@@ -208,7 +208,7 @@
       "invocation_index": 2,
       "status": "SUCCESS",
       "arguments_summary": {
-        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+        "TargetFile": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
         "Overwrite": true,
         "Description": "Hypothesis 1 discussion narrative with Markdown headings and statistical notation"
       },
@@ -220,7 +220,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md'",
-        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "execution_time_ms": 3820
     },
@@ -230,7 +230,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "python3 03_deliverables/stage_02_hypo_1/inject_footnotes_dom.py",
-        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "execution_time_ms": 1420
     },
@@ -240,7 +240,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "python3 03_deliverables/stage_02_hypo_1/verify_docx.py",
-        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "execution_time_ms": 680
     },
@@ -249,7 +249,7 @@
       "invocation_index": 6,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/docx_verification_report.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/docx_verification_report.json"
       },
       "execution_time_ms": 45
     },
@@ -281,7 +281,7 @@
       "stage_id": "02_hypothesis_discussion",
       "envelope_summary": "Compile Section 5-2-1 Hypothesis 1 discussion triad artifacts (.docx, .md, .json)",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "academic-writer",
       "task_id": "TSK-20260924-STAGE2-TRIAD-001",
@@ -301,7 +301,7 @@
       "stage_id": "trajectory_reconstruction",
       "envelope_summary": "Reconstruct chronological trajectory for dual user critique regarding left-aligned headers and raw markdown syntax",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-HEADER-MARKDOWN-FEEDBACK/trajectory.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-HEADER-MARKDOWN-FEEDBACK/trajectory.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "trajectory-analyzer",
       "task_id": "TSK-20260924-HEADER-MD-TRAJECTORY-001",
@@ -359,17 +359,17 @@
   ],
   "outputs": [
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
       "sha256": "8fa0074210947ed276e7b7aa20a07bc45d3d35a0002e8491196ce6269463503a",
       "type": "openxml_word"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
       "sha256": "6a5bd766062d1961911f854139f7cf373e517d5d08d83c9df7381dec30aa1a3c",
       "type": "narrative_markdown"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
       "sha256": "785f44e3a9c2c0827842d2fcdb4d8199849aa7f2b7a0c0c8f06ea774fcbf4663",
       "type": "triad_metadata"
     }
@@ -385,7 +385,7 @@
         "headings_render_left_aligned_in_word"
       ],
       "evidence_summary": {
-        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "docx_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
         "code_location": "scaffold_chapter5_triad.py:77-80",
         "offending_code": "if align == WD_ALIGN_PARAGRAPH.RIGHT: jc = pPr.find(qn('w:jc')); if jc is not None: pPr.remove(jc)",
         "heading_1_pPr_xml": "<w:pPr><w:bidi w:val=\"1\"/></w:pPr>",
@@ -405,7 +405,7 @@
         "missing_inline_italic_run_formatting"
       ],
       "evidence_summary": {
-        "docx_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "docx_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
         "xml_part": "word/document.xml",
         "target_paragraph_index": 3,
         "code_location": "scaffold_chapter5_triad.py:240",

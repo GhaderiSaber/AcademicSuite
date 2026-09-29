@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-This architecture audit provides a systematic, forensic assessment of the **Academic Suite** codebase at `/home/ghaderi-saber/Desktop/AcademicSuite/`. 
+This architecture audit provides a systematic, forensic assessment of the **Academic Suite** codebase at `/home/saber-ghaderi/Desktop/AcademicSuite/`. 
 
 Over previous iterations, the suite underwent major enhancements:
 - Canonical agent definitions and persistent cognitive roles (`.agents/agents/`).

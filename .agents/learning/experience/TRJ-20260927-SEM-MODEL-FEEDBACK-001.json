@@ -126,7 +126,7 @@
       "timestamp": "2026-09-27T10:33:08.223025+00:00",
       "description": "Validation cascade concluded with overall_verdict: FAIL with 28 checks failed across APA borders, narrative justification, bidi direction, and table formatting.",
       "observable_input": {
-        "stage_dir": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/03_deliverables"
+        "stage_dir": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables"
       },
       "observable_output": {
         "overall_verdict": "FAIL",

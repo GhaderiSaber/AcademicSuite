@@ -97,13 +97,13 @@
       "timestamp": "2026-09-28T14:47:42.327315+00:00",
       "description": "integrity_hooks.py post-invocation hook traversed ws, re-discovered the physically unremoved 03_deliverables/legacy_validation/validation_report.json, and logged a continuous burst of VALIDATION_FAILED events (EVT-90463782 through EVT-30B724BF, EVT-DD588536 through EVT-ECB0280B, EVT-6844B265 through EVT-46A86DAD, and EVT-1CF694E6 through EVT-F835C5CB), each reporting 28 checks failed.",
       "observable_input": {
-        "scanned_file": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation/validation_report.json"
+        "scanned_file": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation/validation_report.json"
       },
       "observable_output": {
         "verdict": "FAIL",
         "checks_failed": 28,
         "events_logged_count": 87,
-        "advisory_injected": "STAGE VERIFICATION ADVISORY: Validation report in '/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation' does not satisfy passing contract (overall_verdict: 'FAIL', checks_failed: 28)."
+        "advisory_injected": "STAGE VERIFICATION ADVISORY: Validation report in '/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation' does not satisfy passing contract (overall_verdict: 'FAIL', checks_failed: 28)."
       }
     },
     {
@@ -142,7 +142,7 @@
       "tool_name": "list_dir",
       "invocation_index": 1,
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation"
       },
       "status": "SUCCESS",
       "execution_time_ms": 15.2
@@ -151,7 +151,7 @@
       "tool_name": "view_file",
       "invocation_index": 2,
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/learning/experience/EXP-20260928-LEGACY-VALIDATION-82CE45/experience.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/.agents/learning/experience/EXP-20260928-LEGACY-VALIDATION-82CE45/experience.json"
       },
       "status": "SUCCESS",
       "execution_time_ms": 12.4
@@ -160,7 +160,7 @@
       "tool_name": "view_file",
       "invocation_index": 3,
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/02_analysis_code/run_user_specified_model.R"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/02_analysis_code/run_user_specified_model.R"
       },
       "status": "SUCCESS",
       "execution_time_ms": 18.1
@@ -170,7 +170,7 @@
       "invocation_index": 4,
       "arguments_summary": {
         "Query": "edge.label.cex",
-        "SearchPath": "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur"
+        "SearchPath": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
       },
       "status": "SUCCESS",
       "execution_time_ms": 25.8

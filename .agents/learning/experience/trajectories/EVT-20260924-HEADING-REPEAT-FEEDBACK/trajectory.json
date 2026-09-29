@@ -42,7 +42,7 @@
       "description": "Executed CLI runner to run fix_headings.py to modify word/document.xml inside 03_hypothesis_2_discussion.docx.",
       "observable_input": {
         "command_line": "python3 03_deliverables/stage_03_hypo_2/fix_headings.py",
-        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "status": "EXECUTING"
@@ -87,7 +87,7 @@
       "description": "academic-orchestrator executed verify_hypo2.py to audit paragraph alignment attributes in 03_hypothesis_2_discussion.docx.",
       "observable_input": {
         "command_line": "python3 03_deliverables/stage_03_hypo_2/verify_hypo2.py",
-        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "status": "VALIDATING"

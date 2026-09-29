@@ -2,10 +2,10 @@
   "$comment": "Captured hook payload: Antigravity CLI Runner (antigravity-cli)",
   "conversationId": "cli-8812-4cba-99ef",
   "workspacePaths": [
-    "/home/ghaderi-saber/Desktop/AcademicSuite"
+    "/home/saber-ghaderi/Desktop/AcademicSuite"
   ],
-  "transcriptPath": "/home/ghaderi-saber/.gemini/antigravity-cli/brain/cli-8812-4cba-99ef/.system_generated/logs/transcript.jsonl",
-  "artifactDirectoryPath": "/home/ghaderi-saber/.gemini/antigravity-cli/brain/cli-8812-4cba-99ef",
+  "transcriptPath": "/home/saber-ghaderi/.gemini/antigravity-cli/brain/cli-8812-4cba-99ef/.system_generated/logs/transcript.jsonl",
+  "artifactDirectoryPath": "/home/saber-ghaderi/.gemini/antigravity-cli/brain/cli-8812-4cba-99ef",
   "modelName": "auto",
   "stepIdx": 1,
   "toolCall": {

@@ -402,7 +402,7 @@
   "skill_activations": [
     {
       "skill_name": "psychometric-data-simulator",
-      "script_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py",
+      "script_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py",
       "cli_command": "python3 P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py",
       "exit_code": 0,
       "duration_seconds": 5.4
@@ -419,19 +419,19 @@
       "envelope_summary": "Synthesize and verify analysis-ready psychometric SEM dataset (N=297) matching client specifications, omitting path diagram figure deliverables",
       "objective": "Synthesize and verify an analysis-ready psychometric dataset for subproject P04_SEM_Mediation_PIES strictly matching client Shahram Amiri's technical specifications in 01_raw_inputs/client_specifications.json and client_specifications.md. The dataset will serve as the empirical foundation for structural equation modeling (SEM) and multiple mediation analysis.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json",
       "input_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.json",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.md"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.json",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.md"
       ],
       "output_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.csv",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.md",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.docx"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/simulate_p04_sem_data.py",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.csv",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.md",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.docx"
       ]
     },
     {
@@ -444,13 +444,13 @@
       "envelope_summary": "Execute statistical-auditor on simulation deliverables and emit validation report",
       "objective": "Audit simulation deliverables against 11 psychometric and formatting checks.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json",
       "input_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/dataset_verification_report.json"
       ],
       "output_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json"
       ]
     }
   ],
@@ -497,12 +497,12 @@
   ],
   "outputs": [
     {
-      "path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+      "path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
       "sha256": "6ecd3ed36a4173d1465ebe4caa6c2d3a6eeb1e00ee10deaa79dc6587571cfe16",
       "type": "dataset"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
+      "path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
       "sha256": "ef1a996c12010cd5359a243aedc76ba89572117cfef821461c318713d1f3f08d",
       "type": "dataset"
     }

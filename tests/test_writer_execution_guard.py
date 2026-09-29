@@ -358,7 +358,7 @@ class TestAcademicWriterExecutionGuard(unittest.TestCase):
         target_json_files = [
             "03_deliverables/01_demographics.json",
             "03_deliverables/02_descriptives_and_reliability.json",
-            "/home/ghaderi-saber/Desktop/AcademicSuite/03_deliverables/06_hypothesis_1.json",
+            "/home/saber-ghaderi/Desktop/AcademicSuite/03_deliverables/06_hypothesis_1.json",
         ]
 
         mutation_tools = ["write_to_file", "replace_file_content", "edit_file", "patch"]

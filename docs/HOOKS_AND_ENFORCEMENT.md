@@ -141,7 +141,7 @@ Each line in `audit_log.jsonl` contains a single JSON object:
   "tool_name": "run_command",
   "tool_args": {
     "CommandLine": "python3 tests/test_lifecycle_hooks.py",
-    "Cwd": "/home/ghaderi-saber/Desktop/AcademicSuite"
+    "Cwd": "/home/saber-ghaderi/Desktop/AcademicSuite"
   },
   "error": null,
   "status": "SUCCESS"

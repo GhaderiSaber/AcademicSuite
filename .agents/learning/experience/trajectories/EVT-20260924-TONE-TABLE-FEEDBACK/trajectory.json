@@ -43,7 +43,7 @@
       "description": "academic-writer executed shell command to ensure deliverable directory 03_deliverables/stage_01_recap exists on disk.",
       "observable_input": {
         "command_line": "mkdir -p \"03_deliverables/stage_01_recap\"",
-        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "exit_code": 0
@@ -56,7 +56,7 @@
       "timestamp": "2026-09-24T04:49:13Z",
       "description": "academic-writer drafted initial draft.md (339 words, 1,880 chars) inserting Table 5-1 as commanded, but transposing H2 and H3 variable paths.",
       "observable_input": {
-        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
+        "target_file": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
         "word_count": 339,
         "char_count": 1880
       },
@@ -77,7 +77,7 @@
       "description": "academic-writer executed deterministic CLI triad compiler scaffold_chapter5_triad.py.",
       "observable_input": {
         "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '01_findings_recap' --base 'stage_01_recap' --outdir '03_deliverables/stage_01_recap' --title 'مقدمه و مرور یافتههای پژوهش' --narrative-file '03_deliverables/stage_01_recap/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
-        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "exit_code": 0,
@@ -109,7 +109,7 @@
       "timestamp": "2026-09-24T04:49:30Z",
       "description": "academic-orchestrator viewed 03_deliverables/stage_01_recap/stage_01_recap.md to audit generated content.",
       "observable_input": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -125,7 +125,7 @@
       "timestamp": "2026-09-24T04:49:49Z",
       "description": "academic-orchestrator viewed 03_deliverables/stage_01_recap/stage_01_recap.json to inspect triad metadata.",
       "observable_input": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -173,7 +173,7 @@
       "timestamp": "2026-09-24T04:50:13Z",
       "description": "academic-writer rewrote draft.md expanding narrative to 931 words. Under volume expansion pressure without new empirical data, writer introduced hyperbolic, dramatic prose ('آوردگاهی است', 'یکی از حیاتی‌ترین', 'سرشار از تنش', 'نتایج شگفت‌انگیز') and retained Table 5-1.",
       "observable_input": {
-        "target_file": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
+        "target_file": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
         "word_count": 931,
         "char_count": 5334
       },
@@ -196,7 +196,7 @@
       "description": "academic-writer executed scaffold_chapter5_triad.py to recompile remediated triad deliverables.",
       "observable_input": {
         "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '01_findings_recap' --base 'stage_01_recap' --outdir '03_deliverables/stage_01_recap' --title 'مقدمه و مرور یافته‌های پژوهش' --narrative-file '03_deliverables/stage_01_recap/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
-        "cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "exit_code": 0,
@@ -229,7 +229,7 @@
       "timestamp": "2026-09-24T04:51:04Z",
       "description": "academic-orchestrator viewed remediated stage_01_recap.md to verify correction of H2/H3 variable swap.",
       "observable_input": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -245,7 +245,7 @@
       "timestamp": "2026-09-24T04:51:18Z",
       "description": "academic-orchestrator viewed remediated stage_01_recap.json to verify SHA-256 hashes and char count.",
       "observable_input": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -323,7 +323,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "mkdir -p \"03_deliverables/stage_01_recap\"",
-        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "execution_time_ms": 115
     },
@@ -332,7 +332,7 @@
       "invocation_index": 3,
       "status": "SUCCESS",
       "arguments_summary": {
-        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
+        "TargetFile": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
         "Overwrite": true,
         "Description": "Drafted Section 5-1 narrative and summary table for Chapter 5 recap."
       },
@@ -344,7 +344,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '01_findings_recap' --base 'stage_01_recap' --outdir '03_deliverables/stage_01_recap' --title 'مقدمه و مرور یافتههای پژوهش' --narrative-file '03_deliverables/stage_01_recap/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
-        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "execution_time_ms": 3850
     },
@@ -364,7 +364,7 @@
       "invocation_index": 6,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -375,7 +375,7 @@
       "invocation_index": 7,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
       },
       "execution_time_ms": 70
     },
@@ -395,7 +395,7 @@
       "invocation_index": 9,
       "status": "SUCCESS",
       "arguments_summary": {
-        "TargetFile": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
+        "TargetFile": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/draft.md",
         "Overwrite": true,
         "Description": "Rewrote Section 5-1 to fix variable transposition (H2 & H3) and expanded narrative depth to 650 words."
       },
@@ -407,7 +407,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '01_findings_recap' --base 'stage_01_recap' --outdir '03_deliverables/stage_01_recap' --title 'مقدمه و مرور یافته‌های پژوهش' --narrative-file '03_deliverables/stage_01_recap/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
-        "Cwd": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "execution_time_ms": 3920
     },
@@ -427,7 +427,7 @@
       "invocation_index": 12,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -438,7 +438,7 @@
       "invocation_index": 13,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json"
       },
       "execution_time_ms": 75
     },
@@ -477,7 +477,7 @@
       "stage_id": "01_findings_recap",
       "envelope_summary": "Initial drafting of Section 5-1 recap with commanded APA 7 comparative summary table",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "academic-writer",
       "task_id": "TSK-20260924-STAGE1-RECAP-001",
@@ -499,7 +499,7 @@
       "stage_id": "01_findings_recap",
       "envelope_summary": "Remediate H2/H3 variable transposition and expand narrative to 600-900 words",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "academic-writer",
       "task_id": "TSK-20260924-STAGE1-RECAP-RETRY1",
@@ -520,7 +520,7 @@
       "stage_id": "trajectory_reconstruction",
       "envelope_summary": "Reconstruct observable actions, tool calls, and error trajectory for dual user critique regarding emotional language and table presence in Chapter 5",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-TONE-TABLE-FEEDBACK/trajectory.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-TONE-TABLE-FEEDBACK/trajectory.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "trajectory-analyzer",
       "task_id": "TSK-20260924-TONE-TRAJECTORY-001",
@@ -577,17 +577,17 @@
   ],
   "outputs": [
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.md",
       "sha256": "37bd1cc8a200b93b5dcc9b7a1db51006a0fb5c8e4855e6647f22794a848cf80d",
       "type": "narrative_markdown"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.docx",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.docx",
       "sha256": "a3aa3e7442c435f54ffe99155c71db6329294f77c4f7e2a47904115eb999ad4a",
       "type": "openxml_word"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json",
+      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_01_recap/stage_01_recap.json",
       "sha256": "64115bd8759c524eb7d576ee2c8a7950aaead63c44465c54cccb09913db8b347",
       "type": "audit_metadata"
     }

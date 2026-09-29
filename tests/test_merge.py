@@ -15,7 +15,7 @@ files = [
 
 if __name__ == '__main__':
     for file in files:
-        target = '/home/ghaderi-saber/My Work/Narjes/' + file
+        target = '/home/saber-ghaderi/My Work/Narjes/' + file
         if os.path.exists(target):
             with open(target, 'r', encoding='utf-8') as f:
                 lines = f.readlines()

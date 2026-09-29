@@ -327,7 +327,7 @@
       "invocation_index": 1,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Shahram Amiri/.agents/skills/sem/SKILL.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Shahram Amiri/.agents/skills/sem/SKILL.md"
       },
       "execution_time_ms": 120
     },
@@ -336,7 +336,7 @@
       "invocation_index": 2,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Shahram Amiri/.agents/skills/sem/scripts"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Shahram Amiri/.agents/skills/sem/scripts"
       },
       "execution_time_ms": 45
     },
@@ -345,7 +345,7 @@
       "invocation_index": 3,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Shahram Amiri/.agents/skills/mediation/SKILL.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Shahram Amiri/.agents/skills/mediation/SKILL.md"
       },
       "execution_time_ms": 110
     },
@@ -409,7 +409,7 @@
       "invocation_index": 9,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_path_diagram.png"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_path_diagram.png"
       },
       "execution_time_ms": 80
     },
@@ -418,7 +418,7 @@
       "invocation_index": 10,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_2_path_diagram.png"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_2_path_diagram.png"
       },
       "execution_time_ms": 75
     },
@@ -427,7 +427,7 @@
       "invocation_index": 11,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt"
       },
       "execution_time_ms": 90
     }
@@ -435,14 +435,14 @@
   "skill_activations": [
     {
       "skill_name": "sem",
-      "script_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_mediation_analysis.py",
+      "script_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_mediation_analysis.py",
       "cli_command": "python3 P04_SEM_Mediation_PIES/02_analysis_code/run_sem_mediation_analysis.py",
       "exit_code": 0,
       "duration_seconds": 4.2
     },
     {
       "skill_name": "sem",
-      "script_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R",
+      "script_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R",
       "cli_command": "Rscript P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R",
       "exit_code": 0,
       "duration_seconds": 3.8
@@ -459,15 +459,15 @@
       "envelope_summary": "Perform SEM & Multiple Mediation in Python on composite total scores (PIES_Total -> MZQ, ERQ -> SB, OCP)",
       "objective": "Develop and execute a deterministic Python script to perform Structural Equation Modeling (SEM) and Multiple Mediation Analysis with 5,000 bootstrap resamples on the curated dataset for Subproject P04_SEM_Mediation_PIES (N = 297).",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_model_results.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_model_results.json",
       "input_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.json"
       ],
       "output_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_mediation_analysis.py",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_model_results.json",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_mediation_analysis.py",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_model_results.json",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md"
       ]
     },
     {
@@ -480,13 +480,13 @@
       "envelope_summary": "Compile defense-ready APA 7 Chapter 4 findings (.docx) from sem_model_results.json",
       "objective": "Compile Chapter4_SEM_Findings.docx from structured results JSON with strict APA 7 3-line tables and Bidi layout.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
       "input_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_model_results.json",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_model_results.json",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md"
       ],
       "output_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx"
       ]
     },
     {
@@ -499,13 +499,13 @@
       "envelope_summary": "Execute academic_chapter_auditor.py on Chapter4_SEM_Findings.docx",
       "objective": "Perform forensic audit on compiled Chapter 4 deliverables and emit validation_report_ch4.json.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report_ch4.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report_ch4.json",
       "input_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_model_results.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_model_results.json"
       ],
       "output_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report_ch4.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report_ch4.json"
       ]
     },
     {
@@ -518,19 +518,19 @@
       "envelope_summary": "Execute R lavaan model script and render 300-DPI publication structural path diagrams",
       "objective": "Execute model in R lavaan and generate publication-ready 300-DPI structural model path diagrams for Model 1 and Model 2.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt",
       "input_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_model_results.json"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_model_results.json"
       ],
       "output_artifacts": [
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/render_path_diagrams.py",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_path_diagram.png",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_2_path_diagram.png",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_lavaan_semplot.png",
-        "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_2_lavaan_semplot.png"
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/render_path_diagrams.py",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_path_diagram.png",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_2_path_diagram.png",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_lavaan_semplot.png",
+        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_2_lavaan_semplot.png"
       ]
     }
   ],
@@ -590,12 +590,12 @@
   ],
   "outputs": [
     {
-      "path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+      "path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
       "sha256": "6ecd3ed36a4173d1465ebe4caa6c2d3a6eeb1e00ee10deaa79dc6587571cfe16",
       "type": "dataset"
     },
     {
-      "path": "/home/ghaderi-saber/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
+      "path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
       "sha256": "ef1a996c12010cd5359a243aedc76ba89572117cfef821461c318713d1f3f08d",
       "type": "dataset"
     }

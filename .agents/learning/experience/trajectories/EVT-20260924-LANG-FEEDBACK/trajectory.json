@@ -27,7 +27,7 @@
       "description": "Orchestrator listed workspace root directory to assess project structure and files.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -43,7 +43,7 @@
       "description": "Orchestrator inspected project_meta.json to confirm client metadata, variables, and stage readiness.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/project_meta.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/project_meta.json"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -59,7 +59,7 @@
       "description": "Orchestrator listed 03_deliverables to inspect available Chapter 4 deliverables and audit reports.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -80,7 +80,7 @@
       "description": "Orchestrator listed 01_raw_inputs to examine incoming client documents, scales, and questionnaires.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -100,7 +100,7 @@
       "description": "Orchestrator inspected Persian client profile client_profile.md (lines 1-55) detailing research hypotheses, variables, and instruments.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/client_profile.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs/client_profile.md"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -117,7 +117,7 @@
       "description": "Orchestrator inspected Persian quote draft telegram_response_draft.md to review project commitments and pricing.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/telegram_response_draft.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/telegram_response_draft.md"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -132,7 +132,7 @@
       "description": "Orchestrator inspected Persian forensic audit report Thesis_Chapter4_Audit_Report.md lines 1-100, absorbing Persian clinical findings, reverse-scoring error, and negative correlations.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -154,7 +154,7 @@
       "description": "Orchestrator inspected remainder of Persian forensic audit report Thesis_Chapter4_Audit_Report.md lines 101-178, covering cross-chapter discrepancies.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
         "StartLine": 101,
         "EndLine": 178
       },
@@ -171,7 +171,7 @@
       "description": "Orchestrator inspected Persian results summary Chapter_4_Results.md lines 1-24, absorbing Persian narrative of sample (N=208) and correlation/moderation statistics.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Chapter_4_Results.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/Chapter_4_Results.md"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -192,7 +192,7 @@
       "description": "Orchestrator inspected Persian chat transcript chat_transcript.md lines 1-100.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -209,7 +209,7 @@
       "description": "Orchestrator inspected recent Persian chat transcript lines 300-379 regarding client's decision to proceed with university Chapter 4.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
         "StartLine": 300,
         "EndLine": 379
       },
@@ -227,7 +227,7 @@
       "description": "Orchestrator inspected marzieh_chapter4_audit_payload.json containing Persian hypothesis text, sample specifications (N=208 Red Crescent), and statistical values.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/marzieh_chapter4_audit_payload.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs/marzieh_chapter4_audit_payload.json"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -243,7 +243,7 @@
       "description": "Orchestrator inspected skill definition for chapter-5-writing to identify pipeline micro-stages and CLI workflows.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/chapter-5-writing/SKILL.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/chapter-5-writing/SKILL.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -260,7 +260,7 @@
       "description": "Orchestrator inspected persian-discussion-builder SKILL.md lines 1-100 to check 6-part Chapter 5 architecture and 4-element psychological model.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -277,7 +277,7 @@
       "description": "Orchestrator inspected remainder of persian-discussion-builder SKILL.md regarding epistemic honesty and typography standards.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
         "StartLine": 101,
         "EndLine": 116
       },
@@ -293,7 +293,7 @@
       "description": "Orchestrator listed references directory 04_references_and_lit to locate reference PDFs.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/04_references_and_lit"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/04_references_and_lit"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -312,7 +312,7 @@
       "description": "Orchestrator listed literature_pdfs directory, finding 23 academic papers.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/04_references_and_lit/literature_pdfs"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/04_references_and_lit/literature_pdfs"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -327,7 +327,7 @@
       "description": "Orchestrator listed audit_results_chapter4 directory to check audit summaries.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/audit_results_chapter4"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/audit_results_chapter4"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -346,7 +346,7 @@
       "description": "Orchestrator searched for academic-state directory in workspace.",
       "observable_input": {
         "tool_name": "find_by_name",
-        "SearchDirectory": "/home/ghaderi-saber/My Work/Morteza Estaki",
+        "SearchDirectory": "/home/saber-ghaderi/My Work/Morteza Estaki",
         "Pattern": "*academic-state*"
       },
       "observable_output": {
@@ -362,7 +362,7 @@
       "description": "Orchestrator listed .agents directory.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -377,7 +377,7 @@
       "description": "Orchestrator listed .agents/state directory.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/state"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/state"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -394,7 +394,7 @@
       "description": "Orchestrator inspected capabilities.yaml lines 1-100 to check registered capabilities.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -411,7 +411,7 @@
       "observable_input": {
         "tool_name": "grep_search",
         "Query": "chapter_5",
-        "SearchPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml"
+        "SearchPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/config/capabilities.yaml"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -426,7 +426,7 @@
       "description": "Orchestrator inspected thesis_chapter5 capability definition in capabilities.yaml lines 680-746.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
         "StartLine": 680,
         "EndLine": 746
       },
@@ -448,7 +448,7 @@
       "description": "Orchestrator listed persian-discussion-builder directory.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder"
       },
       "observable_output": {
         "status": "SUCCESS"
@@ -462,7 +462,7 @@
       "description": "Orchestrator listed references in persian-discussion-builder.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -480,7 +480,7 @@
       "description": "Orchestrator viewed discussion_framework_guide.md lines 1-81 to review structural blueprint for Chapter 5.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/discussion_framework_guide.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/discussion_framework_guide.md"
       },
       "observable_output": {
         "status": "SUCCESS"
@@ -494,7 +494,7 @@
       "description": "Orchestrator viewed psychology_theoretical_mechanisms.md lines 1-69 to review theoretical models.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/psychology_theoretical_mechanisms.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/psychology_theoretical_mechanisms.md"
       },
       "observable_output": {
         "status": "SUCCESS"
@@ -543,7 +543,7 @@
       "observable_input": {
         "tool_name": "grep_search",
         "Query": "English speaking",
-        "SearchPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents"
+        "SearchPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -558,7 +558,7 @@
       "description": "Orchestrator inspected anti-pattern AP-2026-CONVERSATIONAL-LANGUAGE-BLEED.json.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/knowledge/anti-patterns/AP-2026-CONVERSATIONAL-LANGUAGE-BLEED.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/knowledge/anti-patterns/AP-2026-CONVERSATIONAL-LANGUAGE-BLEED.json"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -573,7 +573,7 @@
       "description": "Orchestrator inspected previous language bleed trajectory EVT-20260923-LANG-FEEDBACK/trajectory.json lines 1-60.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260923-LANG-FEEDBACK/trajectory.json",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260923-LANG-FEEDBACK/trajectory.json",
         "StartLine": 1,
         "EndLine": 60
       },
@@ -589,7 +589,7 @@
       "description": "Orchestrator searched for contract schemas using find_by_name with pattern '*contract*'.",
       "observable_input": {
         "tool_name": "find_by_name",
-        "SearchDirectory": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents",
+        "SearchDirectory": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents",
         "Pattern": "*contract*"
       },
       "observable_output": {
@@ -605,7 +605,7 @@
       "description": "Orchestrator viewed delegation contract schema delegation_contract.schema.json.",
       "observable_input": {
         "tool_name": "view_file",
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/contracts/delegation_contract.schema.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/contracts/delegation_contract.schema.json"
       },
       "observable_output": {
         "status": "SUCCESS"
@@ -619,7 +619,7 @@
       "description": "Orchestrator listed existing trajectories in .agents/learning/experience/trajectories.",
       "observable_input": {
         "tool_name": "list_dir",
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -668,7 +668,7 @@
       "invocation_index": 1,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki"
       },
       "execution_time_ms": 75
     },
@@ -677,7 +677,7 @@
       "invocation_index": 2,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/project_meta.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/project_meta.json"
       },
       "execution_time_ms": 60
     },
@@ -686,7 +686,7 @@
       "invocation_index": 3,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables"
       },
       "execution_time_ms": 65
     },
@@ -695,7 +695,7 @@
       "invocation_index": 4,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs"
       },
       "execution_time_ms": 70
     },
@@ -704,7 +704,7 @@
       "invocation_index": 5,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/client_profile.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs/client_profile.md"
       },
       "execution_time_ms": 65
     },
@@ -713,7 +713,7 @@
       "invocation_index": 6,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/telegram_response_draft.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/telegram_response_draft.md"
       },
       "execution_time_ms": 60
     },
@@ -722,7 +722,7 @@
       "invocation_index": 7,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -733,7 +733,7 @@
       "invocation_index": 8,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
         "StartLine": 101,
         "EndLine": 178
       },
@@ -744,7 +744,7 @@
       "invocation_index": 9,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Chapter_4_Results.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/Chapter_4_Results.md"
       },
       "execution_time_ms": 55
     },
@@ -753,7 +753,7 @@
       "invocation_index": 10,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -764,7 +764,7 @@
       "invocation_index": 11,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs/chat_transcript.md",
         "StartLine": 300,
         "EndLine": 379
       },
@@ -775,7 +775,7 @@
       "invocation_index": 12,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/marzieh_chapter4_audit_payload.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs/marzieh_chapter4_audit_payload.json"
       },
       "execution_time_ms": 80
     },
@@ -784,7 +784,7 @@
       "invocation_index": 13,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/chapter-5-writing/SKILL.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/chapter-5-writing/SKILL.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -795,7 +795,7 @@
       "invocation_index": 14,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -806,7 +806,7 @@
       "invocation_index": 15,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/SKILL.md",
         "StartLine": 101,
         "EndLine": 116
       },
@@ -817,7 +817,7 @@
       "invocation_index": 16,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/04_references_and_lit"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/04_references_and_lit"
       },
       "execution_time_ms": 60
     },
@@ -826,7 +826,7 @@
       "invocation_index": 17,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/04_references_and_lit/literature_pdfs"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/04_references_and_lit/literature_pdfs"
       },
       "execution_time_ms": 70
     },
@@ -835,7 +835,7 @@
       "invocation_index": 18,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/audit_results_chapter4"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/audit_results_chapter4"
       },
       "execution_time_ms": 60
     },
@@ -844,7 +844,7 @@
       "invocation_index": 19,
       "status": "SUCCESS",
       "arguments_summary": {
-        "SearchDirectory": "/home/ghaderi-saber/My Work/Morteza Estaki",
+        "SearchDirectory": "/home/saber-ghaderi/My Work/Morteza Estaki",
         "Pattern": "*academic-state*"
       },
       "execution_time_ms": 110
@@ -854,7 +854,7 @@
       "invocation_index": 20,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents"
       },
       "execution_time_ms": 75
     },
@@ -863,7 +863,7 @@
       "invocation_index": 21,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/state"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/state"
       },
       "execution_time_ms": 55
     },
@@ -872,7 +872,7 @@
       "invocation_index": 22,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
         "StartLine": 1,
         "EndLine": 100
       },
@@ -884,7 +884,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "Query": "chapter_5",
-        "SearchPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml"
+        "SearchPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/config/capabilities.yaml"
       },
       "execution_time_ms": 130
     },
@@ -893,7 +893,7 @@
       "invocation_index": 24,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/config/capabilities.yaml",
         "StartLine": 680,
         "EndLine": 746
       },
@@ -904,7 +904,7 @@
       "invocation_index": 25,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder"
       },
       "execution_time_ms": 65
     },
@@ -913,7 +913,7 @@
       "invocation_index": 26,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references"
       },
       "execution_time_ms": 60
     },
@@ -922,7 +922,7 @@
       "invocation_index": 27,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/discussion_framework_guide.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/discussion_framework_guide.md"
       },
       "execution_time_ms": 70
     },
@@ -931,7 +931,7 @@
       "invocation_index": 28,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/psychology_theoretical_mechanisms.md"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/persian-discussion-builder/references/psychology_theoretical_mechanisms.md"
       },
       "execution_time_ms": 65
     },
@@ -941,7 +941,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "Query": "English speaking",
-        "SearchPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents"
+        "SearchPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents"
       },
       "execution_time_ms": 140
     },
@@ -950,7 +950,7 @@
       "invocation_index": 30,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/knowledge/anti-patterns/AP-2026-CONVERSATIONAL-LANGUAGE-BLEED.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/knowledge/anti-patterns/AP-2026-CONVERSATIONAL-LANGUAGE-BLEED.json"
       },
       "execution_time_ms": 55
     },
@@ -959,7 +959,7 @@
       "invocation_index": 31,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260923-LANG-FEEDBACK/trajectory.json",
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260923-LANG-FEEDBACK/trajectory.json",
         "StartLine": 1,
         "EndLine": 60
       },
@@ -970,7 +970,7 @@
       "invocation_index": 32,
       "status": "SUCCESS",
       "arguments_summary": {
-        "SearchDirectory": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents",
+        "SearchDirectory": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents",
         "Pattern": "*contract*"
       },
       "execution_time_ms": 120
@@ -980,7 +980,7 @@
       "invocation_index": 33,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/contracts/delegation_contract.schema.json"
+        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/contracts/delegation_contract.schema.json"
       },
       "execution_time_ms": 65
     },
@@ -989,7 +989,7 @@
       "invocation_index": 34,
       "status": "SUCCESS",
       "arguments_summary": {
-        "DirectoryPath": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories"
+        "DirectoryPath": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories"
       },
       "execution_time_ms": 60
     },
@@ -1016,14 +1016,14 @@
       "envelope_summary": "Reconstruct observable actions, tool calls, and error trajectory for user critique 'Violation of English speaking rule.'",
       "objective": "Reconstruct observable actions, tool calls, and error trajectory for the explicit user critique: 'Violation of English speaking rule.' Capture the exact sequence where the orchestrator inspected Persian project artifacts (client_profile.md, Thesis_Chapter4_Audit_Report.md, marzieh_chapter4_audit_payload.json) and subsequently suffered context bleed, emitting the Chapter 5 planning report in Persian rather than English, violating Directive 6 and the English conversational interaction standard.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-LANG-FEEDBACK/trajectory.json",
+      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-LANG-FEEDBACK/trajectory.json",
       "input_artifacts": [
-        "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/client_profile.md",
-        "/home/ghaderi-saber/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
-        "/home/ghaderi-saber/My Work/Morteza Estaki/01_raw_inputs/marzieh_chapter4_audit_payload.json"
+        "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs/client_profile.md",
+        "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/Thesis_Chapter4_Audit_Report.md",
+        "/home/saber-ghaderi/My Work/Morteza Estaki/01_raw_inputs/marzieh_chapter4_audit_payload.json"
       ],
       "output_artifacts": [
-        "/home/ghaderi-saber/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-LANG-FEEDBACK/trajectory.json"
+        "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-LANG-FEEDBACK/trajectory.json"
       ]
     }
   ],

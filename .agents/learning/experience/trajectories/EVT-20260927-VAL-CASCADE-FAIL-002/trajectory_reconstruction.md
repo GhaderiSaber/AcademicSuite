@@ -99,6 +99,6 @@ Pursuant to **Directive 21**, **Directive 25 (Universal Anti-Shortcut, Zero-Fast
 ## 6. Handoff to Continuous Learning Pipeline
 
 This observable trajectory establishes the objective factual timeline of what occurred. The artifact is serialized and ready for causal diagnosis:
-- **Contract JSON**: [.agents/learning/experience/trajectories/EVT-20260927-VAL-CASCADE-FAIL-002/trajectory.json](file:///home/ghaderi-saber/My%20Work/Mohtasham%20Valiyanpur/.agents/learning/experience/trajectories/EVT-20260927-VAL-CASCADE-FAIL-002/trajectory.json)
-- **Root Experience JSON**: [.agents/learning/experience/TRJ-20260927-VAL-CASCADE-FAIL-002.json](file:///home/ghaderi-saber/My%20Work/Mohtasham%20Valiyanpur/.agents/learning/experience/TRJ-20260927-VAL-CASCADE-FAIL-002.json)
+- **Contract JSON**: [.agents/learning/experience/trajectories/EVT-20260927-VAL-CASCADE-FAIL-002/trajectory.json](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/.agents/learning/experience/trajectories/EVT-20260927-VAL-CASCADE-FAIL-002/trajectory.json)
+- **Root Experience JSON**: [.agents/learning/experience/TRJ-20260927-VAL-CASCADE-FAIL-002.json](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/.agents/learning/experience/TRJ-20260927-VAL-CASCADE-FAIL-002.json)
 - **Next Step Mandate**: Dispatch `behavior-analyst` for causal root-cause analysis pursuant to AP-2026-PATCHING-WITHOUT-LEARNING.

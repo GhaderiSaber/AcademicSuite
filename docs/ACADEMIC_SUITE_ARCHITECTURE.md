@@ -73,7 +73,7 @@ The **Academic Suite** (incorporating the **Digital Saber Professional AI Twin**
 ## 3. Tier-by-Tier Specification
 
 ### Tier 1: Primary Agent (Academic Orchestrator / `digital-saber`)
-- **Persona & Identity:** Digital Twin of Saber Ghaderi ([`.agents/identity/`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/identity/)).
+- **Persona & Identity:** Digital Twin of Saber Ghaderi ([`.agents/identity/`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/identity/)).
 - **Execution Role:** Operates in the main Antigravity conversation context.
 - **Responsibilities:**
   - Client engagement, requirement intake, and project scoping.
@@ -172,15 +172,15 @@ The foundation of the architecture is mechanically enforced by Antigravity lifec
 ```
 
 #### Rule Base:
-- **Global Directives:** [`AGENTS.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/AGENTS.md) (Directives 0 through 18).
-- **Domain Rules:** [`.agents/rules/`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/rules/):
+- **Global Directives:** [`AGENTS.md`](file:///home/saber-ghaderi/Desktop/AcademicSuite/AGENTS.md) (Directives 0 through 18).
+- **Domain Rules:** [`.agents/rules/`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/rules/):
   - `radical_honesty_and_pipeline_enforcement.md`
   - `file_naming_rules.md`
   - `git_lifecycle_rules.md`
   - `persian_font_rules.md`
   - `digital_twin_rules.md`
   - `chapter4_hypothesis_and_sem_structure_rules.md`
-- **Plugin Governance:** [`.agents/plugins/academic-suite/rules/AGENTS.md`](file:///home/ghaderi-saber/Desktop/AcademicSuite/.agents/plugins/academic-suite/rules/AGENTS.md).
+- **Plugin Governance:** [`.agents/plugins/academic-suite/rules/AGENTS.md`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/plugins/academic-suite/rules/AGENTS.md).
 
 ---
 
