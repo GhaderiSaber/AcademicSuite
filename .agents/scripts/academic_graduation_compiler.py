@@ -598,6 +598,7 @@ class AcademicGraduationCompiler:
                     json.dump(data, cf, indent=2, ensure_ascii=False)
                 if auto_commit:
                     self.git_sync([central_json], item_id, f"sync knowledge {fname}")
+            self.decontaminate_failing_validation_reports()
 
         return res
 
@@ -797,6 +798,7 @@ class AcademicGraduationCompiler:
                 if hook_registered and os.path.isfile(self.invariants_file):
                     commit_files.append(self.invariants_file)
                 self.git_sync(commit_files, candidate_id, f"promote candidate {candidate_id}")
+            self.decontaminate_failing_validation_reports()
 
         return {
             "candidate_id": candidate_id,
@@ -807,6 +809,48 @@ class AcademicGraduationCompiler:
             "success": applied,
             "hook_registered": hook_registered
         }
+
+    def decontaminate_failing_validation_reports(self, workspaces: Optional[List[str]] = None) -> List[str]:
+        """
+        Mechanically decontaminates failing validation_report.json files across 03_deliverables/
+        upon graduation to prevent repetitive learning loops.
+        Enforces CAND-2026-DIAGRAM-CEX-AND-UNLINK-001 & AP-2026-NONATOMIC-STALE-REPORT-COEXISTENCE.
+        """
+        unlinked = []
+        all_dirs = [self.base_dir] + (workspaces or [])
+        for ws_dir in all_dirs:
+            if not ws_dir or not isinstance(ws_dir, str) or not os.path.isdir(ws_dir):
+                continue
+            deliv_dir = os.path.join(ws_dir, "03_deliverables")
+            if not os.path.isdir(deliv_dir):
+                continue
+            cand_paths = [
+                os.path.join(deliv_dir, "validation_report.json"),
+                os.path.join(deliv_dir, "legacy_validation", "validation_report.json"),
+            ]
+            try:
+                for entry in os.listdir(deliv_dir):
+                    sub_p = os.path.join(deliv_dir, entry)
+                    if os.path.isdir(sub_p):
+                        cand_paths.append(os.path.join(sub_p, "validation_report.json"))
+            except OSError:
+                pass
+
+            for cp in cand_paths:
+                if os.path.isfile(cp):
+                    try:
+                        with open(cp, "r", encoding="utf-8") as f:
+                            rep = json.load(f)
+                        verdict = str(rep.get("overall_verdict", "")).strip().upper()
+                        ev_sum = rep.get("evidence_summary", {})
+                        checks_failed = ev_sum.get("checks_failed", rep.get("checks_failed", 0))
+                        # Only delete failing reports; keep passing ones
+                        if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
+                            os.remove(cp)
+                            unlinked.append(cp)
+                    except Exception:
+                        pass
+        return unlinked
 
     def compile_all_pending(
         self,
@@ -831,17 +875,8 @@ class AcademicGraduationCompiler:
 
         results = []
 
-        # 0. Mechanical Disk Decontamination (AP-2026-NONATOMIC-STALE-REPORT-COEXISTENCE)
-        # Purge failing validation_report.json in legacy directories during compile-all
-        for ws_dir in [self.base_dir] + (workspaces or []):
-            if ws_dir and isinstance(ws_dir, str) and os.path.isdir(ws_dir):
-                legacy_dir = os.path.join(ws_dir, "03_deliverables", "legacy_validation")
-                stale_report = os.path.join(legacy_dir, "validation_report.json")
-                if os.path.isfile(stale_report):
-                    try:
-                        os.remove(stale_report)
-                    except OSError:
-                        pass
+        # 0. Mechanical Disk Decontamination (AP-2026-NONATOMIC-STALE-REPORT-COEXISTENCE & CAND-2026-DIAGRAM-CEX-AND-UNLINK-001)
+        self.decontaminate_failing_validation_reports(workspaces)
 
         # 1. Graduate pending knowledge items (lessons, anti-patterns, principles)
         for k_dir in search_dirs:
