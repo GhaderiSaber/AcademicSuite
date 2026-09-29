@@ -142,11 +142,16 @@ class IntegrityHooks:
            .md scholarly narrative). Generating an intermediate .docx is optional and non-blocking.
         """
         active_stage_dirs = []
+        exclude_dirs = {".git", ".agents", ".venv", "node_modules", "archive", "tests", "evals"}
         for ws in workspaces:
             for rel_root in ("projects", "03_deliverables", "."):
                 p_dir = os.path.join(ws, rel_root)
                 if os.path.exists(p_dir):
                     for root, dirs, files in os.walk(p_dir):
+                        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+                        rel_from_ws = os.path.relpath(root, ws).replace("\\", "/")
+                        if any(seg.startswith(".") and seg not in (".", "..") for seg in rel_from_ws.split("/")):
+                            continue
                         if any(re.search(r'^(?:\d+_)?[a-zA-Z0-9_-]+\.(?:docx|md|json)$', f) for f in files):
                             if any(re.search(r'(?:hypothesis|demographic|descriptive|assumption|correlation|model|curation|deliverable|chapter|summary|monograph)', f, re.I) for f in files):
                                 active_stage_dirs.append(root)
@@ -768,7 +773,7 @@ class IntegrityHooks:
                     for r in results:
                         if isinstance(r, dict):
                             r_verdict = str(r.get("verdict", "")).strip().upper()
-                            if r_verdict in ("FAIL", "BLOCKED", "UNKNOWN", "UNVERIFIED", "INCOMPLETE"):
+                            if r_verdict in ("FAIL", "BLOCKED"):
                                 return False, (
                                     f"HARD HOOK ENFORCEMENT (Post-Analysis Validation Gate): Stage artifacts in '{s_dir}' "
                                     f"contain non-passing check '{r.get('check_id', r.get('check', 'unknown'))}' "

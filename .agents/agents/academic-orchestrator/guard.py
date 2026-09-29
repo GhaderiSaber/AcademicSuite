@@ -220,58 +220,8 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 target_type = sub.get("TypeName", "")
                 prompt = sub.get("Prompt", "")
 
-                is_valid, reason, env = (
-                    validate_delegation_prompt(prompt, expected_worker=target_type)
-                    if target_type in EXECUTION_SUBAGENTS
-                    else (True, "", None)
-                )
-
-                if not is_valid:
-                    return {
-                        "decision": "deny",
-                        "reason": (
-                            f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 12 — Contractual Delegation Invariant / Contractual Delegation Envelope Required):\n"
-                            f"{reason}\n"
-                            f"Academic-Orchestrator must provide a structured Contractual Delegation Envelope (CDE) specifying "
-                            f"task_id, worker_agent, inputs, and required_artifacts."
-                        ),
-                        "message": reason
-                    }
-
-                # Capability Routing Verification & Gate Clearance (Directive 19 / Directive 12 / Directive 3)
-                workspaces = payload.get("workspacePaths")
-                ok_cap, cap_reason = verify_capability_routing(target_type, prompt, env, workspaces)
-                if not ok_cap:
-                    return {
-                        "decision": "deny",
-                        "reason": cap_reason,
-                        "message": cap_reason
-                    }
-
-                # Directive 19 / Directive 2: Statistical Immobility Invariant for Delegation to Academic-Writer
-                if target_type == "academic-writer":
-                    req_artifacts = (env.get("required_artifacts") if env else None) or []
-                    if isinstance(req_artifacts, list):
-                        forbidden_json_targets = []
-                        for art in req_artifacts:
-                            art_name = art.get("path", "") if isinstance(art, dict) else str(art)
-                            if art_name.strip().lower().endswith(".json"):
-                                forbidden_json_targets.append(art_name)
-                        if forbidden_json_targets:
-                            msg = (
-                                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 2 — Statistical Immobility Invariant):\n"
-                                f"Delegation envelope for 'academic-writer' lists statistical/analytical JSON artifact(s) in 'required_artifacts': {forbidden_json_targets}.\n"
-                                f"Academic-Writer is strictly 'The Voice' and produces ONLY scholarly narratives (.docx, .md). "
-                                f"All numerical and analytical JSON files are immutable outputs of Phase 4A–4C and belong strictly under 'inputs' as read-only anchors."
-                            )
-                            return {
-                                "decision": "deny",
-                                "reason": msg,
-                                "message": msg
-                            }
-
+                # 1. Directive 21.1: Premature Remediation Guard under Active Critique or Validation Failure
                 if target_type in EXECUTION_SUBAGENTS:
-                    # Directive 21.1: Premature Remediation Guard under Active Critique
                     transcript_path = payload.get("transcriptPath")
                     if not transcript_path:
                         try:
@@ -350,6 +300,57 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                         }
                             except Exception:
                                 pass
+
+                # 2. Directive 19 / Directive 12: Contractual Delegation Envelope Validation
+                is_valid, reason, env = (
+                    validate_delegation_prompt(prompt, expected_worker=target_type)
+                    if target_type in EXECUTION_SUBAGENTS
+                    else (True, "", None)
+                )
+
+                if not is_valid:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 12 — Contractual Delegation Invariant / Contractual Delegation Envelope Required):\n"
+                            f"{reason}\n"
+                            f"Academic-Orchestrator must provide a structured Contractual Delegation Envelope (CDE) specifying "
+                            f"task_id, worker_agent, inputs, and required_artifacts."
+                        ),
+                        "message": reason
+                    }
+
+                # 3. Capability Routing Verification & Gate Clearance (Directive 19 / Directive 12 / Directive 3)
+                workspaces = payload.get("workspacePaths")
+                ok_cap, cap_reason = verify_capability_routing(target_type, prompt, env, workspaces)
+                if not ok_cap:
+                    return {
+                        "decision": "deny",
+                        "reason": cap_reason,
+                        "message": cap_reason
+                    }
+
+                # 4. Directive 19 / Directive 2: Statistical Immobility Invariant for Delegation to Academic-Writer
+                if target_type == "academic-writer":
+                    req_artifacts = (env.get("required_artifacts") if env else None) or []
+                    if isinstance(req_artifacts, list):
+                        forbidden_json_targets = []
+                        for art in req_artifacts:
+                            art_name = art.get("path", "") if isinstance(art, dict) else str(art)
+                            if art_name.strip().lower().endswith(".json"):
+                                forbidden_json_targets.append(art_name)
+                        if forbidden_json_targets:
+                            msg = (
+                                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 2 — Statistical Immobility Invariant):\n"
+                                f"Delegation envelope for 'academic-writer' lists statistical/analytical JSON artifact(s) in 'required_artifacts': {forbidden_json_targets}.\n"
+                                f"Academic-Writer is strictly 'The Voice' and produces ONLY scholarly narratives (.docx, .md). "
+                                f"All numerical and analytical JSON files are immutable outputs of Phase 4A–4C and belong strictly under 'inputs' as read-only anchors."
+                            )
+                            return {
+                                "decision": "deny",
+                                "reason": msg,
+                                "message": msg
+                            }
 
                     if not is_valid:
                         msg = (
