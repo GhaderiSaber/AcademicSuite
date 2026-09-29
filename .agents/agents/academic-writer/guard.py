@@ -74,6 +74,45 @@ ALLOWED_LATIN_TOKENS = {
     "jpeg", "z", "b", "n", "k"
 }
 
+DISALLOWED_ARABIC_LETTERS = {
+    '\u064A': ('ي', 'Persian Yeh "ی" (U+06CC)'),
+    '\u0643': ('ك', 'Persian Keheh "ک" (U+06A9)'),
+    '\u0629': ('ة', 'Persian Heh "ه" (U+0647) or Teh "ت" (U+062A)'),
+}
+ARABIC_DIGITS_PATTERN = re.compile(r'[\u0660-\u0669]')
+
+
+def find_disallowed_arabic_characters(text: str) -> List[Dict[str, str]]:
+    """Detects disallowed Arabic letter glyphs (ي, ك, ة) and Arabic digits (٠-٩) in Persian text."""
+    if not text or not isinstance(text, str):
+        return []
+    cleaned = re.sub(r'```[\s\S]*?```', '', text)
+    cleaned = re.sub(r'`[^`]*`', '', cleaned)
+    cleaned = re.sub(r'\[([^\]]*)\]\([^\)]*\)', r'\1', cleaned)
+    cleaned = re.sub(r'\$\$[\s\S]*?\$\$', '', cleaned)
+    cleaned = re.sub(r'\$[^\$]*?\$', '', cleaned)
+
+    violations = {}
+    for line in cleaned.split("\n"):
+        if len(re.findall(r'[\u0600-\u06FF]', line)) >= 3:
+            for char, (glyph, replacement) in DISALLOWED_ARABIC_LETTERS.items():
+                if char in line and glyph not in violations:
+                    violations[glyph] = {
+                        "glyph": glyph,
+                        "codepoint": f"U+{ord(char):04X}",
+                        "replacement": replacement,
+                        "sample": line.strip()[:60]
+                    }
+            arabic_digits = ARABIC_DIGITS_PATTERN.findall(line)
+            if arabic_digits and "Arabic Digits" not in violations:
+                violations["Arabic Digits"] = {
+                    "glyph": "".join(sorted(set(arabic_digits))),
+                    "codepoint": "U+0660-U+0669",
+                    "replacement": "Persian digits (۰-۹ / U+06F0-U+06F9)",
+                    "sample": line.strip()[:60]
+                }
+    return list(violations.values())
+
 
 def find_raw_latin_in_persian(text: str) -> List[str]:
     """Detects raw inline Latin words (>=3 chars) embedded in Persian narrative sentences."""
@@ -148,6 +187,23 @@ def check_docx_openxml_integrity(file_path: str) -> Tuple[bool, str]:
                     return False, (
                         f"Deliverable '{os.path.basename(file_path)}' references footnotes, "
                         f"but 'word/footnotes.xml' contains no valid footnote definitions."
+                    )
+
+            # 4. Persian orthography: check for disallowed Arabic letters in Persian body text
+            has_persian = any('\u0600' <= c <= '\u06FF' for c in body_text)
+            if has_persian:
+                arabic_chars_found = set()
+                for char in DISALLOWED_ARABIC_LETTERS:
+                    if char in body_text:
+                        arabic_chars_found.add(char)
+                if arabic_chars_found:
+                    char_desc = ", ".join(
+                        f"'{c}' (U+{ord(c):04X} -> use {DISALLOWED_ARABIC_LETTERS[c][1]})"
+                        for c in sorted(arabic_chars_found)
+                    )
+                    return False, (
+                        f"Deliverable '{os.path.basename(file_path)}' contains disallowed Arabic letter characters "
+                        f"in Persian text: {char_desc}. Directive 5 mandates standard Persian letters."
                     )
     except Exception as e:
         return False, f"DOM parsing failed on '{os.path.basename(file_path)}': {e}"
@@ -257,6 +313,24 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                         f"Detected raw inline Latin words in Persian text for '{os.path.basename(target_path)}': {raw_latins[:5]}.\n"
                         f"Foreign author names must be phonetically transliterated to Persian (e.g. «اسمیت») and technical terms translated, "
                         f"with original English terms placed strictly in footnotes."
+                    )
+                }
+
+        # Directive 5: Zero Arabic Letter Glyphs in Persian Deliverables (Persian Orthography Standard)
+        if isinstance(content_to_check, str) and any(ext in target_path.lower() for ext in (".docx", ".md", ".txt")):
+            arabic_issues = find_disallowed_arabic_characters(content_to_check)
+            if arabic_issues:
+                details = "; ".join(
+                    f"'{issue['glyph']}' ({issue['codepoint']} -> use {issue['replacement']})"
+                    for issue in arabic_issues
+                )
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 5 — Persian Orthography Standard / Zero Arabic Letters Invariant):\n"
+                        f"Detected disallowed Arabic character glyphs in Persian deliverable text for '{os.path.basename(target_path)}': {details}.\n"
+                        f"Standard Iranian academic publishing strictly mandates Persian letters (e.g. 'ی' U+06CC instead of 'ي' U+064A, "
+                        f"'ک' U+06A9 instead of 'ك' U+0643, 'ه/ت' instead of 'ة' U+0629, and Persian digits ۰-۹ instead of ٠-٩)."
                     )
                 }
 
@@ -385,6 +459,22 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                     f"Found only {tbl_count} table(s) in markdown deliverable."
                                 )
                             }
+
+                    # 6. Directive 5: Zero Arabic Letters in Persian Text
+                    arabic_issues = find_disallowed_arabic_characters(content)
+                    if arabic_issues:
+                        details = "; ".join(
+                            f"'{issue['glyph']}' ({issue['codepoint']} -> use {issue['replacement']})"
+                            for issue in arabic_issues
+                        )
+                        return {
+                            "decision": "continue",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 5 — Persian Orthography Standard / Zero Arabic Letters Invariant):\n"
+                                f"Detected disallowed Arabic character glyphs in response content: {details}.\n"
+                                f"Academic deliverables and summaries must use standard Persian letters ('ی' U+06CC, 'ک' U+06A9, 'ه/ت', and digits ۰-۹)."
+                            )
+                        }
                     break
         except Exception:
             pass

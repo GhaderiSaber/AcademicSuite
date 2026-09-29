@@ -152,6 +152,76 @@ class TestTypographyAndTableBiDiEnforcement(unittest.TestCase):
         self.assertEqual(check["verdict"], "PASS")
         self.assertEqual(len(check["errors"]), 0)
 
+    def test_07_arabic_yeh_and_kaf_are_blocked_in_writer(self):
+        """Directive 5: Arabic Yeh (ي), Kaf (ك), and Ta Marbuta (ة) must be blocked in deliverable text."""
+        arabic_samples = [
+            ("پژوهش‌هاي قبلي نشان داد كه...", "Arabic Yeh (ي) and Kaf (ك)"),
+            ("اين متغير به صورت چندگانه تحليل شد.", "Arabic Yeh (ي)"),
+            ("دورة آموزشي بر تاب‌آوري تاثير داشت.", "Arabic Ta Marbuta (ة)"),
+            ("جامعه آماري شامل ۲۵۰ نفر بود.", "Arabic Yeh (ي) in amari"),
+        ]
+        for txt, desc in arabic_samples:
+            payload = {
+                "toolCall": {
+                    "name": "write_to_file",
+                    "args": {"TargetFile": "03_deliverables/chapter_4_results.md", "CodeContent": txt}
+                },
+                "agentName": "academic-writer"
+            }
+            res = writer_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "deny", f"Failed to block {desc} in: {txt}")
+            self.assertIn("Zero Arabic Letters Invariant", res.get("reason", ""))
+
+    def test_08_persian_letters_are_allowed_in_writer(self):
+        """Directive 5: Standard Persian Yeh (ی U+06CC) and Keheh (ک U+06A9) must pass without obstruction."""
+        clean_persian_text = (
+            "پژوهش‌های پیشین نشان داد که مداخله آموزشی بر خودکارآمدی و تاب‌آوری "
+            "دانشجویان نمونه اثربخش بوده است (۰.۰۰۱ > p)."
+        )
+        payload = {
+            "toolCall": {
+                "name": "write_to_file",
+                "args": {"TargetFile": "03_deliverables/chapter_4_results.md", "CodeContent": clean_persian_text}
+            },
+            "agentName": "academic-writer"
+        }
+        res = writer_guard.handle_pre_tool_use(payload)
+        self.assertEqual(res.get("decision"), "allow", f"Incorrectly blocked standard Persian letters: {res}")
+
+    def test_09_docx_with_arabic_letters_fails_auditor(self):
+        """Auditor strictly fails CHK-PERSIAN-ORTHOGRAPHY-ARABIC-LETTERS if DOCX contains Arabic characters."""
+        xml_with_arabic = '''<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p>
+      <w:r><w:t>يافته‌هاي پژوهش حاضر حاكي از برازش مناسب مدل ساختاري بود.</w:t></w:r>
+    </w:p>
+  </w:body>
+</w:document>'''
+        root = ET.fromstring(xml_with_arabic)
+        auditor = AcademicChapterAuditor("dummy.docx")
+        auditor._audit_persian_orthography(root)
+        check = next(c for c in auditor.results if c["check_id"] == "CHK-PERSIAN-ORTHOGRAPHY-ARABIC-LETTERS")
+        self.assertEqual(check["verdict"], "FAIL")
+        self.assertGreater(len(check["errors"]), 0)
+        self.assertTrue(any("disallowed Arabic glyph" in e for e in check["errors"]))
+
+    def test_10_docx_with_standard_persian_passes_auditor(self):
+        """Auditor passes CHK-PERSIAN-ORTHOGRAPHY-ARABIC-LETTERS when standard Persian letters are used."""
+        xml_clean_persian = '''<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p>
+      <w:r><w:t>یافته‌های پژوهش حاضر حاکی از برازش مناسب مدل ساختاری بود.</w:t></w:r>
+    </w:p>
+  </w:body>
+</w:document>'''
+        root = ET.fromstring(xml_clean_persian)
+        auditor = AcademicChapterAuditor("dummy.docx")
+        auditor._audit_persian_orthography(root)
+        check = next(c for c in auditor.results if c["check_id"] == "CHK-PERSIAN-ORTHOGRAPHY-ARABIC-LETTERS")
+        self.assertEqual(check["verdict"], "PASS")
+        self.assertEqual(len(check["errors"]), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
+

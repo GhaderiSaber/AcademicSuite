@@ -154,6 +154,7 @@ class AcademicChapterAuditor:
         self._audit_text_direction_and_justification(root)
         self._audit_typography_and_p_zero(root)
         self._audit_english_leakage_in_cells(root)
+        self._audit_persian_orthography(root)
         self._audit_cliches(root)
         self._audit_3_table_standard(root)
         self._audit_triad_concordance(root)
@@ -498,6 +499,63 @@ class AcademicChapterAuditor:
             leakage_errors[:10],
             [],
             {"leakage_count": len(leakage_errors)}
+        )
+
+    def _audit_persian_orthography(self, root: ET.Element):
+        """Dimension: Persian Orthography & Disallowed Arabic Letter Glyphs (Directive 5)."""
+        full_text = _clean_text(root)
+        arabic_errors = []
+        has_persian = any('\u0600' <= c <= '\u06FF' for c in full_text)
+
+        disallowed = {
+            '\u064A': ('ي', 'ی (U+06CC)'),
+            '\u0643': ('ك', 'ک (U+06A9)'),
+            '\u0629': ('ة', 'ه (U+0647) / ت (U+062A)')
+        }
+
+        found_chars = {}
+        if has_persian:
+            for char, (glyph, repl) in disallowed.items():
+                count = full_text.count(char)
+                if count > 0:
+                    found_chars[glyph] = (count, repl, f"U+{ord(char):04X}")
+
+            arabic_digits = re.findall(r'[\u0660-\u0669]', full_text)
+            if arabic_digits:
+                found_chars['Arabic Digits (٠-٩)'] = (len(arabic_digits), 'Persian digits (۰-۹ / U+06F0-U+06F9)', 'U+0660-U+0669')
+
+            if found_chars:
+                for glyph, (count, repl, cp) in found_chars.items():
+                    arabic_errors.append(
+                        f"Found {count} instance(s) of disallowed Arabic glyph '{glyph}' ({cp}) in Word document text. "
+                        f"Directive 5 Persian Orthography standard strictly requires standard Persian characters: replace with {repl}."
+                    )
+
+        # Also inspect markdown document if provided
+        if self.md_path and os.path.isfile(self.md_path):
+            try:
+                with open(self.md_path, 'r', encoding='utf-8') as f:
+                    md_text = f.read()
+                md_clean = re.sub(r'```[\s\S]*?```', '', md_text)
+                md_clean = re.sub(r'`[^`]*`', '', md_clean)
+                for char, (glyph, repl) in disallowed.items():
+                    count = md_clean.count(char)
+                    if count > 0 and glyph not in found_chars:
+                        arabic_errors.append(
+                            f"Found {count} instance(s) of disallowed Arabic glyph '{glyph}' (U+{ord(char):04X}) in Markdown deliverable '{os.path.basename(self.md_path)}'. "
+                            f"Replace with {repl}."
+                        )
+            except Exception:
+                pass
+
+        verdict = "FAIL" if arabic_errors else "PASS"
+        self._add_check(
+            "CHK-PERSIAN-ORTHOGRAPHY-ARABIC-LETTERS",
+            "Deliverable text must use standard Persian letters (ی U+06CC, ک U+06A9, ه/ت) instead of Arabic glyphs (ي U+064A, ك U+0643, ة U+0629, ٠-٩)",
+            verdict,
+            arabic_errors,
+            [],
+            {"disallowed_arabic_instances": len(arabic_errors)}
         )
 
     def _audit_cliches(self, root: ET.Element):
