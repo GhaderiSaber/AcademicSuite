@@ -57,26 +57,103 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
     # Fallback to python-docx or minimal OpenXML builder
     try:
         from docx import Document
+        from docx.shared import Pt
+        from docx.oxml import OxmlElement
+        from docx.oxml.ns import qn
+
         doc = Document()
+
+        def set_rtl(paragraph):
+            pPr = paragraph._p.get_or_add_pPr()
+            bidi = OxmlElement('w:bidi')
+            bidi.set(qn('w:val'), '1')
+            pPr.append(bidi)
+
+        def set_font(run, font_name, size_pt):
+            run.font.name = font_name
+            run.font.size = Pt(size_pt)
+            rPr = run._r.get_or_add_rPr()
+            rFonts = rPr.find(qn('w:rFonts'))
+            if rFonts is None:
+                rFonts = OxmlElement('w:rFonts')
+                rPr.append(rFonts)
+            rFonts.set(qn('w:ascii'), font_name)
+            rFonts.set(qn('w:hAnsi'), font_name)
+            rFonts.set(qn('w:cs'), font_name)
+
         title = args.title or "سند دانشگاهی"
-        doc.add_heading(title, level=1)
+        h = doc.add_heading(title, level=1)
+        set_rtl(h)
+        if h.runs: set_font(h.runs[0], 'B Titr', 18)
+
         if md_path and os.path.exists(md_path):
             with open(md_path, "r", encoding="utf-8") as f:
-                content = f.read()
+                content = f.read().replace('\\n', '\n')
+
+            in_table = False
+            table_data = []
+
             for line in content.splitlines():
                 if line.startswith("# "):
-                    continue
+                    h = doc.add_heading(line[2:].strip(), level=1)
+                    set_rtl(h)
+                    if h.runs: set_font(h.runs[0], 'B Titr', 18)
                 elif line.startswith("## "):
-                    doc.add_heading(line[3:].strip(), level=2)
+                    h = doc.add_heading(line[3:].strip(), level=2)
+                    set_rtl(h)
+                    if h.runs: set_font(h.runs[0], 'B Titr', 16)
                 elif line.startswith("### "):
-                    doc.add_heading(line[4:].strip(), level=3)
-                elif line.strip():
-                    doc.add_paragraph(line.strip())
+                    h = doc.add_heading(line[4:].strip(), level=3)
+                    set_rtl(h)
+                    if h.runs: set_font(h.runs[0], 'B Nazanin', 15)
+                elif line.startswith("#### "):
+                    h = doc.add_heading(line[5:].strip(), level=4)
+                    set_rtl(h)
+                    if h.runs: set_font(h.runs[0], 'B Nazanin', 14)
+                elif line.startswith("|"):
+                    in_table = True
+                    if "---" not in line:
+                        table_data.append([c.strip() for c in line.strip().strip("|").split("|")])
+                else:
+                    if in_table:
+                        if table_data:
+                            table = doc.add_table(rows=len(table_data), cols=len(table_data[0]))
+                            table.style = 'Light Shading'
+                            table.autofit = True
+                            for i, row in enumerate(table_data):
+                                for j, cell_text in enumerate(row):
+                                    cell = table.cell(i, j)
+                                    cell.text = cell_text
+                                    for p in cell.paragraphs:
+                                        set_rtl(p)
+                                        for r in p.runs:
+                                            set_font(r, 'B Nazanin', 12)
+                            table_data = []
+                        in_table = False
+
+                    if line.strip():
+                        p = doc.add_paragraph(line.strip())
+                        set_rtl(p)
+                        if p.runs: set_font(p.runs[0], 'B Nazanin', 14)
+            if in_table and table_data:
+                table = doc.add_table(rows=len(table_data), cols=len(table_data[0]))
+                table.style = 'Light Shading'
+                for i, row in enumerate(table_data):
+                    for j, cell_text in enumerate(row):
+                        cell = table.cell(i, j)
+                        cell.text = cell_text
+                        for p in cell.paragraphs:
+                            set_rtl(p)
+                            for r in p.runs:
+                                set_font(r, 'B Nazanin', 12)
         else:
-            doc.add_paragraph("متن پیش‌فرض سند دانشگاهی با رعایت استانداردهای تایپوگرافی فارسی.")
+            p = doc.add_paragraph("متن پیش‌فرض سند دانشگاهی با رعایت استانداردهای تایپوگرافی فارسی.")
+            set_rtl(p)
+            if p.runs: set_font(p.runs[0], 'B Nazanin', 14)
+
         os.makedirs(os.path.dirname(os.path.abspath(out_docx)), exist_ok=True)
         doc.save(out_docx)
-        print(f"SUCCESS: Rendered DOCX via python-docx: {out_docx}")
+        print(f"SUCCESS: Rendered DOCX via python-docx AST Parser: {out_docx}")
         return 0
     except Exception as e:
         # Minimal OpenXML fallback
