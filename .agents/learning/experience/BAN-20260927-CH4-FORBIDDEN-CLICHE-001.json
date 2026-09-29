@@ -1,5 +1,5 @@
 {
-  "analysis_id": "BAN-20260927-001",
+  "analysis_id": "BAN-20260927-CH4-FORBIDDEN-CLICHE-001",
   "target_agent": "academic-writer",
   "target_skill": "chapter-4-writing",
   "observable_failure_step": "Drafting of empirical findings narratives for Chapter 4 where statistical results were presented.",
