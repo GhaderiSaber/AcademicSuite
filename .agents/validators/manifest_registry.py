@@ -262,16 +262,35 @@ def is_data_analysis_stage(stage_or_file: str, stage_dir: Optional[str] = None) 
     return False
 
 
+def is_monograph_stage(stage_or_file: str) -> bool:
+    """
+    Determines whether a stage represents an assembled chapter monograph milestone
+    (e.g., Chapter_4_Results, scale_validation_report, master_package)
+    that strictly requires an institutional OpenXML Word document (.docx) and Markdown (.md).
+    """
+    if not stage_or_file or not isinstance(stage_or_file, str):
+        return False
+    norm = os.path.basename(stage_or_file).strip().lower()
+    stem = os.path.splitext(norm)[0]
+    monograph_indicators = [
+        "scale_validation_report", "chapter_", "chapter4", "master_package",
+        "chapter_4_results", "defense_brief", "monograph", "assembled_chapter"
+    ]
+    return any(ind in stem for ind in monograph_indicators)
+
+
 def get_required_artifacts_for_stage(stage_stem: str, stage_dir: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Returns the authoritative list of required artifact specifications for a stage.
-    Data analysis stages (Phases 4A, 4B, 4C) require only structured JSON payloads.
-    Drafting stages (Phase 4D) and hypothesis findings enforce the Triad Artifact Invariant (.json, .md, .docx).
+    Option B (Two-Tier Drafting Architecture):
+    1. Data analysis stages (Phases 4A, 4B, 4C) require only structured JSON payloads.
+    2. Chapter assembly milestones (Tier 2) enforce the Chapter Monograph (.docx + .md).
+    3. Micro-stages (Tier 1) enforce the Dyad (.json + .md), with .docx marked optional.
     """
     norm = stage_stem.strip().lower()
 
-    # Assembled Master Deliverables (DOCX + MD, JSON resides in micro-stages)
-    if "scale_validation_report" in norm or "chapter_" in norm or "master_package" in norm:
+    # Tier 2: Assembled Master Deliverables (DOCX + MD strictly required)
+    if is_monograph_stage(norm) or "scale_validation_report" in norm or "chapter_" in norm or "master_package" in norm:
         return [
             {
                 "artifact_id": f"ART-{norm.upper()}-MD",
@@ -324,17 +343,18 @@ def get_required_artifacts_for_stage(stage_stem: str, stage_dir: Optional[str] =
             }
         ]
 
-    # Drafting / Findings / Scale Validation Micro-Stages -> TRIAD INVARIANT (.docx, .md, .json)
-    triad_stages = [
+    # Tier 1: Drafting / Findings / Scale Validation Micro-Stages -> DYAD INVARIANT (.json + .md)
+    # Intermediate .docx is optional (required: False) and assembled into monograph at chapter completion
+    dyad_stages = [
         "hypothesis", "macro_model", "mediation_macro", "moderation_macro",
         "bivariate", "summary", "brief", "content_validity", "item_analysis",
         "efa_results", "cfa_results", "construct_validity", "reliability_inv",
-        "irt_roc", "stage_4d", "phase4d"
+        "irt_roc", "stage_4d", "phase4d", "demographic", "descriptive"
     ]
 
-    is_triad = any(k in norm for k in triad_stages) or re.match(r"^\d\d_.*", norm)
+    is_dyad = any(k in norm for k in dyad_stages) or re.match(r"^\d\d_.*", norm)
 
-    if is_triad:
+    if is_dyad:
         return [
             {
                 "artifact_id": f"ART-{norm.upper()}-JSON",
@@ -359,9 +379,9 @@ def get_required_artifacts_for_stage(stage_stem: str, stage_dir: Optional[str] =
                 "type": "openxml_word",
                 "extension": ".docx",
                 "filename_pattern": f"{norm}.docx",
-                "required": True,
+                "required": False,
                 "schema": "",
-                "description": f"Institutional OpenXML Word document for {norm}"
+                "description": f"Optional intermediate OpenXML Word document for {norm} (Tier 2 chapter compilation will assemble monograph)"
             }
         ]
 

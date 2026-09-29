@@ -38,6 +38,8 @@ from scripts.stage_manifest_engine import (
     ManifestInputMismatchError,
     ManifestArtifactMissingError,
     ManifestTriadMissingError,
+    ManifestDyadMissingError,
+    ManifestMonographMissingError,
     ManifestHashMismatchError,
     ManifestDependencyMismatchError,
     ManifestCrossAgreementError,
@@ -254,10 +256,24 @@ class TestAuthoritativeManifestPhase8(unittest.TestCase):
             verify_stage_manifest(manifest_path, fail_closed=True)
 
     def test_08_triad_invariant_enforcement_for_hypothesis_stages(self):
-        """Tests that hypothesis micro-stages strictly enforce the .json + .md + .docx Triad."""
+        """Tests Option B: micro-stages enforce Dyad (.json + .md), chapter milestones enforce Monograph (.docx + .md)."""
+        # 1. Tier 1 Micro-Stage: removing .docx succeeds with Dyad (.json + .md)
         os.remove(self.docx_file)
+        manifest = build_stage_manifest(
+            stage_dir=self.stage_dir,
+            stage_id="06_hypothesis_1",
+            project_id="phase8_study",
+            agent="statistics-agent",
+            script_or_generator="scripts/statistical_pipeline_engine.py",
+            inputs=[{"path": self.input_file}],
+            cross_agreement_required=False,
+            write_manifest=True
+        )
+        self.assertIsNotNone(manifest)
 
-        with self.assertRaises(ManifestTriadMissingError):
+        # Micro-stage fails if .md is missing
+        os.remove(self.md_file)
+        with self.assertRaises(ManifestDyadMissingError):
             build_stage_manifest(
                 stage_dir=self.stage_dir,
                 stage_id="06_hypothesis_1",
@@ -265,6 +281,24 @@ class TestAuthoritativeManifestPhase8(unittest.TestCase):
                 agent="statistics-agent",
                 script_or_generator="scripts/statistical_pipeline_engine.py",
                 inputs=[{"path": self.input_file}],
+                cross_agreement_required=False,
+                write_manifest=True
+            )
+
+        # 2. Tier 2 Chapter Monograph: missing .docx strictly raises ManifestMonographMissingError
+        ch_dir = os.path.join(self.temp_dir, "chapter_4_results")
+        os.makedirs(ch_dir, exist_ok=True)
+        ch_md = os.path.join(ch_dir, "chapter_4_results.md")
+        with open(ch_md, "w", encoding="utf-8") as f:
+            f.write("# Chapter 4 Assembled Results\n")
+
+        with self.assertRaises(ManifestMonographMissingError):
+            build_stage_manifest(
+                stage_dir=ch_dir,
+                stage_id="chapter_4_results",
+                project_id="phase8_study",
+                agent="academic-writer",
+                script_or_generator="scripts/chapter_assembler.py",
                 cross_agreement_required=False,
                 write_manifest=True
             )

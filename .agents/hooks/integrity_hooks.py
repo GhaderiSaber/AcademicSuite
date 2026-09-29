@@ -134,8 +134,12 @@ class IntegrityHooks:
     @staticmethod
     def verify_artifacts(workspaces: List[str]) -> Tuple[bool, str]:
         """
-        Enforces Triad Artifact Invariant (.docx, .md, .json) across active drafting stages,
-        while allowing data analysis payload stages (Phases 4A, 4B, 4C) to output strictly .json.
+        Enforces Option B (Two-Tier Drafting Architecture):
+        1. Pure computational data analysis stages (Phases 4A, 4B, 4C) require strictly .json data payloads.
+        2. Chapter consolidation milestones (e.g., Chapter_4_Results, scale_validation_report, master_package)
+           strictly require Chapter Monograph deliverables (.docx OpenXML Word document + .md Markdown).
+        3. Micro-stage empirical findings & hypotheses (Tier 1) require the Dyad (.json statistical anchor +
+           .md scholarly narrative). Generating an intermediate .docx is optional and non-blocking.
         """
         active_stage_dirs = []
         for ws in workspaces:
@@ -144,7 +148,7 @@ class IntegrityHooks:
                 if os.path.exists(p_dir):
                     for root, dirs, files in os.walk(p_dir):
                         if any(re.search(r'^(?:\d+_)?[a-zA-Z0-9_-]+\.(?:docx|md|json)$', f) for f in files):
-                            if any(re.search(r'(?:hypothesis|demographic|descriptive|assumption|correlation|model|curation|deliverable)', f, re.I) for f in files):
+                            if any(re.search(r'(?:hypothesis|demographic|descriptive|assumption|correlation|model|curation|deliverable|chapter|summary|monograph)', f, re.I) for f in files):
                                 active_stage_dirs.append(root)
 
         for s_dir in set(active_stage_dirs):
@@ -154,10 +158,16 @@ class IntegrityHooks:
                 m = re.match(r'^(\d+_[a-zA-Z0-9_-]+)\.(?:docx|md|json)$', f)
                 if m:
                     stage_prefixes.add(m.group(1))
+                else:
+                    m2 = re.match(r'^([a-zA-Z0-9_-]+)\.(?:docx|md|json)$', f)
+                    if m2:
+                        stem = m2.group(1)
+                        if any(k in stem.lower() for k in ["chapter", "scale_validation", "master_package", "monograph", "defense_brief"]):
+                            stage_prefixes.add(stem)
 
             # Check if directory has an authoritative manifest
             m_path = os.path.join(s_dir, "manifest.json")
-            manifest_declares_triad = False
+            manifest_declares_monograph = False
             manifest_is_data_stage = False
             if os.path.exists(m_path):
                 try:
@@ -168,9 +178,9 @@ class IntegrityHooks:
                         if st_type in ("data_analysis", "computational_payload", "data_curation"):
                             manifest_is_data_stage = True
                         reqs = m_obj.get("required_artifacts", [])
-                        exts = {os.path.splitext(r.get("path", ""))[1].lower() for r in reqs if isinstance(r, dict)}
+                        exts = {os.path.splitext(r.get("path", ""))[1].lower() for r in reqs if isinstance(r, dict) and r.get("required", True)}
                         if ".docx" in exts and ".md" in exts:
-                            manifest_declares_triad = True
+                            manifest_declares_monograph = True
                 except Exception:
                     pass
 
@@ -184,7 +194,7 @@ class IntegrityHooks:
                     manifest_is_data_stage or
                     is_data_analysis_stage(pfx, stage_dir=s_dir) or
                     is_data_analysis_stage(os.path.basename(s_dir), stage_dir=s_dir)
-                ) and not manifest_declares_triad
+                ) and not manifest_declares_monograph
 
                 if is_data_stage:
                     # Data analysis stages strictly require non-empty .json payload, but NOT .docx or .md
@@ -196,15 +206,36 @@ class IntegrityHooks:
                         )
                     continue
 
+                # Check if this represents a chapter monograph assembly milestone
+                norm_pfx = pfx.lower()
+                is_monograph = (
+                    manifest_declares_monograph or
+                    any(k in norm_pfx for k in ["chapter_", "chapter4", "scale_validation_report", "master_package", "monograph", "defense_brief"])
+                )
+
+                if is_monograph:
+                    missing = []
+                    if not has_docx: missing.append(f"{pfx}.docx")
+                    if not has_md: missing.append(f"{pfx}.md")
+                    if missing and (has_docx or has_md):
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Directive 3 - Triad Artifact Invariant / Chapter Monograph Invariant): "
+                            f"Chapter consolidation milestone '{pfx}' in '{s_dir}' is missing required master deliverables. Missing: {missing}. "
+                            f"Chapter consolidation milestones strictly require both OpenXML Word (.docx) and Markdown (.md)."
+                        )
+                    continue
+
+                # Otherwise: Tier 1 Micro-Stage (Hypothesis / Section Findings)
+                # Enforces Dyad (.json statistical anchor + .md scholarly narrative)
+                # Intermediate .docx is optional and permitted, but its absence does NOT fail
                 missing = []
-                if not has_docx: missing.append(f"{pfx}.docx")
-                if not has_md: missing.append(f"{pfx}.md")
                 if not has_json: missing.append(f"{pfx}.json")
-                if missing and (has_docx or has_md or has_json):
+                if not has_md: missing.append(f"{pfx}.md")
+                if missing and (has_md or has_json or has_docx):
                     return False, (
-                        f"HARD HOOK ENFORCEMENT (Directive 3 - Triad Artifact Invariant): "
+                        f"HARD HOOK ENFORCEMENT (Directive 3 - Triad Artifact Invariant / Micro-Stage Dyad Invariant): "
                         f"Stage '{pfx}' in '{s_dir}' has incomplete physical artifacts. Missing: {missing}. "
-                        f"Every stage and individual hypothesis must generate a synchronized triad: .docx, .md, and .json."
+                        f"Micro-stages require a synchronized dyad: structured data (.json) and scholarly narrative (.md)."
                     )
         return True, ""
 

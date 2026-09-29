@@ -98,8 +98,11 @@ class ManifestArtifactMissingError(StageManifestError):
     pass
 
 class ManifestTriadMissingError(StageManifestError):
-    """Raised when a hypothesis or findings stage fails the Triad Invariant (.json, .md, .docx)."""
+    """Raised when a hypothesis or findings stage fails the Triad/Dyad/Monograph Invariant."""
     pass
+
+ManifestDyadMissingError = ManifestTriadMissingError
+ManifestMonographMissingError = ManifestTriadMissingError
 
 class ManifestHashMismatchError(StageManifestError):
     """Raised when an artifact on disk does not match its declared cryptographic SHA-256 hash."""
@@ -165,22 +168,37 @@ def is_data_analysis_stage(stage_or_file: str) -> bool:
     return False
 
 
-def is_triad_required_stage(stage_id: str) -> bool:
-    """Determines whether a stage is required to produce the .json, .md, .docx Triad."""
-    if is_data_analysis_stage(stage_id):
+def is_monograph_required_stage(stage_id: str) -> bool:
+    """Determines whether a stage represents an assembled chapter monograph milestone requiring .docx and .md."""
+    norm = stage_id.strip().lower()
+    monograph_indicators = [
+        "scale_validation_report", "chapter_", "chapter4", "master_package",
+        "chapter_4_results", "defense_brief", "monograph", "assembled_chapter"
+    ]
+    return any(ind in norm for ind in monograph_indicators)
+
+
+def is_dyad_required_stage(stage_id: str) -> bool:
+    """Determines whether a stage is a micro-stage requiring the .json + .md Dyad."""
+    if is_data_analysis_stage(stage_id) or is_monograph_required_stage(stage_id):
         return False
     norm = stage_id.strip().lower()
     if "payload" in norm:
         return False
-    triad_indicators = [
+    dyad_indicators = [
         "hypothesis", "macro_model", "mediation", "moderation",
         "bivariate", "summary", "cfa", "efa", "item_analysis",
         "construct_validity", "reliability", "irt_roc", "findings",
-        "phase4d", "stage_4d", "4d_"
+        "phase4d", "stage_4d", "4d_", "demographic", "descriptive"
     ]
-    return any(ind in norm for ind in triad_indicators) or (norm.startswith("stage_4d")) or (
+    return any(ind in norm for ind in dyad_indicators) or (norm.startswith("stage_4d")) or (
         (norm.startswith("0") or norm.startswith("stage_")) and not is_data_analysis_stage(norm)
     )
+
+
+def is_triad_required_stage(stage_id: str) -> bool:
+    """Backward-compatible alias for legacy callers."""
+    return is_monograph_required_stage(stage_id) or is_dyad_required_stage(stage_id)
 
 
 # ==============================================================================
@@ -290,18 +308,26 @@ def build_stage_manifest(
                 elif fname.endswith(".docx") and not docx_path:
                     docx_path = art_full
 
-    # 3. Triad Invariant Enforcement
-    if is_triad_required_stage(stage_id):
-        has_json = any(a["path"].endswith(".json") and "validation" not in a["path"] for a in declared_artifacts)
+    # 3. Two-Tier Artifact Invariant Enforcement (Option B)
+    if is_monograph_required_stage(stage_id):
         has_md = any(a["path"].endswith(".md") for a in declared_artifacts)
         has_docx = any(a["path"].endswith(".docx") for a in declared_artifacts)
-        if not (has_json and has_md and has_docx):
+        if not (has_docx and has_md):
+            missing_parts = []
+            if not has_md: missing_parts.append(".md")
+            if not has_docx: missing_parts.append(".docx")
+            raise ManifestMonographMissingError(
+                f"Chapter milestone '{stage_id}' violates Chapter Monograph Invariant: missing {missing_parts}."
+            )
+    elif is_dyad_required_stage(stage_id):
+        has_json = any(a["path"].endswith(".json") and "validation" not in a["path"] for a in declared_artifacts)
+        has_md = any(a["path"].endswith(".md") for a in declared_artifacts)
+        if not (has_json and has_md):
             missing_parts = []
             if not has_json: missing_parts.append(".json")
             if not has_md: missing_parts.append(".md")
-            if not has_docx: missing_parts.append(".docx")
-            raise ManifestTriadMissingError(
-                f"Stage '{stage_id}' violates Directive 3 Triad Artifact Invariant: missing {missing_parts}."
+            raise ManifestDyadMissingError(
+                f"Micro-stage '{stage_id}' violates Directive 3 Dyad Artifact Invariant: missing {missing_parts}."
             )
     elif is_data_analysis_stage(stage_id):
         has_json = any(a["path"].endswith(".json") and "validation" not in a["path"] for a in declared_artifacts)
@@ -561,19 +587,28 @@ def verify_stage_manifest(
         elif art_rel.endswith(".docx") and not docx_path:
             docx_path = art_full
 
-    # Triad Check
-    if is_triad_required_stage(stage_id):
-        has_json = any(a["path"].endswith(".json") and "validation" not in a["path"] for a in declared_artifacts)
+    # Two-Tier Artifact Invariant Check (Option B)
+    if is_monograph_required_stage(stage_id):
         has_md = any(a["path"].endswith(".md") for a in declared_artifacts)
         has_docx = any(a["path"].endswith(".docx") for a in declared_artifacts)
-        if not (has_json and has_md and has_docx):
+        if not (has_docx and has_md):
+            missing_types = []
+            if not has_md: missing_types.append(".md")
+            if not has_docx: missing_types.append(".docx")
+            err_msg = f"Chapter milestone '{stage_id}' violates Chapter Monograph Invariant: missing required {missing_types} deliverable(s)."
+            if fail_closed:
+                raise ManifestMonographMissingError(err_msg)
+            errors.append(err_msg)
+    elif is_dyad_required_stage(stage_id):
+        has_json = any(a["path"].endswith(".json") and "validation" not in a["path"] for a in declared_artifacts)
+        has_md = any(a["path"].endswith(".md") for a in declared_artifacts)
+        if not (has_json and has_md):
             missing_types = []
             if not has_json: missing_types.append(".json")
             if not has_md: missing_types.append(".md")
-            if not has_docx: missing_types.append(".docx")
-            err_msg = f"Stage '{stage_id}' violates Triad Invariant: missing required {missing_types} deliverable(s)."
+            err_msg = f"Micro-stage '{stage_id}' violates Dyad Invariant: missing required {missing_types} deliverable(s)."
             if fail_closed:
-                raise ManifestTriadMissingError(err_msg)
+                raise ManifestDyadMissingError(err_msg)
             errors.append(err_msg)
 
     # 5. Dependency Hash Verification

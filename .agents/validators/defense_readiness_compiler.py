@@ -23,10 +23,10 @@ from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 
 try:
-    from manifest_registry import is_data_analysis_stage
+    from manifest_registry import is_data_analysis_stage, is_monograph_stage
 except ImportError:
     try:
-        from validators.manifest_registry import is_data_analysis_stage
+        from validators.manifest_registry import is_data_analysis_stage, is_monograph_stage
     except ImportError:
         def is_data_analysis_stage(stage_or_file: str) -> bool:
             if not stage_or_file or not isinstance(stage_or_file, str):
@@ -42,6 +42,17 @@ except ImportError:
                 "passport", "assumptions_report", "model_payload", "data_engineering"
             ]
             return any(ind in norm for ind in data_indicators)
+
+        def is_monograph_stage(stage_or_file: str) -> bool:
+            if not stage_or_file or not isinstance(stage_or_file, str):
+                return False
+            norm = os.path.basename(stage_or_file).strip().lower()
+            stem = os.path.splitext(norm)[0]
+            monograph_indicators = [
+                "scale_validation_report", "chapter_", "chapter4", "master_package",
+                "chapter_4_results", "defense_brief", "monograph", "assembled_chapter"
+            ]
+            return any(ind in stem for ind in monograph_indicators)
 
 
 class DefenseReadinessCompiler:
@@ -76,6 +87,7 @@ class DefenseReadinessCompiler:
         has_triad = has_docx and has_md and has_json
 
         is_data_stage = is_data_analysis_stage(self.stage_dir) or any(is_data_analysis_stage(f) for f in files_on_disk)
+        is_monograph = is_monograph_stage(self.stage_dir) or any(is_monograph_stage(f) for f in files_on_disk)
 
         # If stage directory is empty:
         if not files_on_disk:
@@ -91,10 +103,17 @@ class DefenseReadinessCompiler:
                     "reason": "Data analysis stage directory lacks mandatory JSON payload (.json)",
                     "points": -3.00
                 })
-        elif not has_triad:
+        elif is_monograph:
+            if not (has_docx and has_md):
+                deductions.append({
+                    "examiner": "Committee Chair",
+                    "reason": "Chapter consolidation milestone lacks mandatory monograph deliverables (.docx, .md)",
+                    "points": -3.00
+                })
+        elif not (has_json and has_md):
             deductions.append({
                 "examiner": "Committee Chair",
-                "reason": "Stage directory lacks mandatory synchronized triad artifacts (.docx, .md, .json)",
+                "reason": "Stage directory lacks mandatory synchronized dyad artifacts (.json, .md)",
                 "points": -3.00
             })
 
@@ -102,9 +121,12 @@ class DefenseReadinessCompiler:
         if tier1_result:
             v_t1 = tier1_result.get("verdict") or tier1_result.get("overall_verdict", "UNKNOWN")
             if v_t1 == "PASS":
+                crit = "Data Analysis Payload Integrity Compliance" if is_data_stage else (
+                    "Chapter Monograph & OpenXML Typography Compliance" if is_monograph else "Micro-Stage Dyad Artifact Invariant Compliance"
+                )
                 earned_points.append({
                     "examiner": "Committee Chair",
-                    "criterion": "Mechanical Triad & OpenXML Typography Compliance" if not is_data_stage else "Data Analysis Payload Integrity Compliance",
+                    "criterion": crit,
                     "points": 2.50
                 })
             elif v_t1 == "BLOCKED":
@@ -121,7 +143,7 @@ class DefenseReadinessCompiler:
                     "reason": f"OpenXML typographic or structural non-compliance ({t1_errors} defects)",
                     "points": -round(pts, 2)
                 })
-        elif has_triad or (is_data_stage and has_json):
+        elif has_triad or (is_data_stage and has_json) or (is_monograph and has_docx and has_md) or (has_json and has_md):
             earned_points.append({
                 "examiner": "Committee Chair",
                 "criterion": "Physical Deliverables Present on Disk",

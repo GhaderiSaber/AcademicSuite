@@ -151,7 +151,7 @@ def populate_arps_for_failures(rep: Dict[str, Any], default_target: str) -> None
                 rem = r.get("errors", ["Address detected check failure."])[0] if r.get("errors") else "Resolve invariant defect."
                 rep["actionable_repair_prescriptions"].append(create_actionable_repair_prescription(
                     prescription_id=f"ARP-{cid}",
-                    tier=1 if any(k in cid for k in ["TRIAD", "MANIFEST", "EXISTS", "DOM", "BORDER", "DIR", "STAGE"]) else 2,
+                    tier=1 if any(k in cid for k in ["TRIAD", "DYAD", "MONOGRAPH", "MANIFEST", "EXISTS", "DOM", "BORDER", "DIR", "STAGE"]) else 2,
                     defect_type=cid,
                     severity=sev,
                     target_artifact=str(target_art),
@@ -171,22 +171,40 @@ def compute_sha256(filepath: str) -> str:
     return hasher.hexdigest()
 
 
-def is_triad_required_stage(stage_id: str, stage_dir: Optional[str] = None) -> bool:
-    """Determines whether a stage is required to produce the .json, .md, .docx Triad."""
-    if mr.is_data_analysis_stage(stage_id, stage_dir=stage_dir):
+def is_monograph_required_stage(stage_id: str, stage_dir: Optional[str] = None) -> bool:
+    """Determines whether a stage is an assembled chapter monograph milestone requiring .docx and .md."""
+    norm = stage_id.strip().lower()
+    monograph_indicators = [
+        "scale_validation_report", "chapter_", "chapter4", "master_package",
+        "chapter_4_results", "defense_brief", "monograph", "assembled_chapter"
+    ]
+    return any(ind in norm for ind in monograph_indicators)
+
+
+def is_dyad_required_stage(stage_id: str, stage_dir: Optional[str] = None) -> bool:
+    """Determines whether a stage is a micro-stage requiring the .json + .md Dyad."""
+    if mr.is_data_analysis_stage(stage_id, stage_dir=stage_dir) or is_monograph_required_stage(stage_id, stage_dir=stage_dir):
         return False
     norm = stage_id.strip().lower()
     if "payload" in norm:
         return False
-    triad_indicators = [
+    dyad_indicators = [
         "hypothesis", "macro_model", "mediation", "moderation",
         "bivariate", "summary", "cfa", "efa", "item_analysis",
         "construct_validity", "reliability", "irt_roc", "findings",
-        "phase4d", "stage_4d", "4d_"
+        "phase4d", "stage_4d", "4d_", "demographic", "descriptive"
     ]
-    return any(ind in norm for ind in triad_indicators) or (norm.startswith("stage_4d")) or (
+    return any(ind in norm for ind in dyad_indicators) or (norm.startswith("stage_4d")) or (
         (norm.startswith("0") or norm.startswith("stage_")) and not mr.is_data_analysis_stage(norm, stage_dir=stage_dir)
     )
+
+
+def is_triad_required_stage(stage_id: str, stage_dir: Optional[str] = None) -> bool:
+    """
+    Backward-compatible alias for legacy calls. In Option B (Two-Tier Drafting Architecture),
+    micro-stages enforce the Dyad (.json + .md), while chapter milestones enforce the Monograph (.docx + .md).
+    """
+    return is_monograph_required_stage(stage_id, stage_dir=stage_dir) or is_dyad_required_stage(stage_id, stage_dir=stage_dir)
 
 
 def run_suite(
@@ -508,26 +526,41 @@ def run_suite(
             stg_reqs = mr.get_required_artifacts_for_stage(stg, stage_dir=stage_dir)
             all_required_specs.extend(stg_reqs)
 
-    # Triad Invariant Check for findings/hypothesis stages
+    # Two-Tier Artifact Invariant Check (Option B: Monograph for Chapter Assembly, Dyad for Micro-Stages)
     for stg in sorted(target_stages):
-        if is_triad_required_stage(stg, stage_dir=stage_dir):
-            has_json = any(f.endswith(".json") and "manifest" not in f and "validation" not in f for f in files_on_disk)
+        if is_monograph_required_stage(stg, stage_dir=stage_dir):
             has_md = any(f.endswith(".md") for f in files_on_disk)
             has_docx = any(f.endswith(".docx") for f in files_on_disk)
-            if not (has_json and has_md and has_docx):
+            if not (has_docx and has_md):
                 missing_parts = []
-                if not has_json: missing_parts.append(".json")
                 if not has_md: missing_parts.append(".md")
                 if not has_docx: missing_parts.append(".docx")
-                err_msg = f"Stage '{stg}' violates Triad Artifact Invariant (Directive 3): missing {missing_parts}"
+                err_msg = f"Chapter milestone '{stg}' violates Chapter Monograph Invariant: missing {missing_parts}"
                 report["errors"].append(err_msg)
                 report["results"].append({
-                    "check_id": f"CHK-TRIAD-{stg}",
-                    "rule": "Every hypothesis and findings stage must generate a synchronized triad (.docx, .md, .json)",
+                    "check_id": f"CHK-MONOGRAPH-{stg}",
+                    "rule": "Every chapter consolidation milestone must generate both master OpenXML Word (.docx) and Markdown (.md)",
                     "verdict": "BLOCKED",
                     "errors": [err_msg],
                     "warnings": [],
-                    "evidence": {"stage_id": stg, "has_json": has_json, "has_md": has_md, "has_docx": has_docx}
+                    "evidence": {"stage_id": stg, "has_md": has_md, "has_docx": has_docx}
+                })
+        elif is_dyad_required_stage(stg, stage_dir=stage_dir):
+            has_json = any(f.endswith(".json") and "manifest" not in f and "validation" not in f for f in files_on_disk)
+            has_md = any(f.endswith(".md") for f in files_on_disk)
+            if not (has_json and has_md):
+                missing_parts = []
+                if not has_json: missing_parts.append(".json")
+                if not has_md: missing_parts.append(".md")
+                err_msg = f"Micro-stage '{stg}' violates Dyad Artifact Invariant (Directive 3): missing {missing_parts}"
+                report["errors"].append(err_msg)
+                report["results"].append({
+                    "check_id": f"CHK-DYAD-{stg}",
+                    "rule": "Every micro-stage findings section must generate a synchronized dyad (.json, .md)",
+                    "verdict": "BLOCKED",
+                    "errors": [err_msg],
+                    "warnings": [],
+                    "evidence": {"stage_id": stg, "has_json": has_json, "has_md": has_md}
                 })
 
     # Verify each required artifact

@@ -419,27 +419,58 @@ class TestChapter4E2EPipelineExample(unittest.TestCase):
         rep_4c = run_suite(self.p4c_dir, stage_id="06_hypothesis_1_payload")
         self.assertEqual(rep_4c.get("overall_verdict"), "PASS", f"Phase 4C validation failed: {rep_4c.get('results')}")
 
-        # 4. Phase 4D (Drafting & Assembly): Enforces Triad Invariant
+        # 4. Phase 4D (Option B: Two-Tier Drafting Architecture)
+        # Tier 1 Micro-Stage (06_hypothesis_1): Dyad (.json + .md) passes cleanly without .docx
+        h1_md = (
+            "# آزمون فرضیه اول\n\n"
+            "به منظور پیش‌بینی تغییرات افسردگی بر اساس متغیرهای اضطراب و راهبردهای مقابله‌ای، "
+            "تحلیل رگرسیون خطی چندگانه به روش همزمان اجرا شد. "
+            "الگوی رگرسیونی ترسیم‌شده از لحاظ آماری در سطح خطای کمتر از ۰.۰۰۱ معنادار است "
+            "(F(۲, ۹۷) = ۱۹.۸۱, p < ۰.۰۰۱) و متغیرهای پیش‌بین در مجموع توانسته‌اند ۲۹ درصد از واریانس نمرات افسردگی را تبیین نمایند "
+            "(R² = ۰.۲۹, Adj R² = ۰.۲۷). بنابراین فرضیه اول پژوهش تأیید گردید."
+        )
         with open(os.path.join(self.p4d_dir, "06_hypothesis_1.md"), "w", encoding="utf-8") as f:
-            f.write("# فرضیه اول\nمتن تحلیل رگرسیون...")
+            f.write(h1_md)
         with open(os.path.join(self.p4d_dir, "06_hypothesis_1.json"), "w", encoding="utf-8") as f:
-            json.dump({"hypothesis_id": "H1", "f_stat": 19.81}, f)
+            json.dump({
+                "hypothesis_id": "H1",
+                "sample_size": 100,
+                "f_stat": 19.81,
+                "p_value": 0.0001,
+                "df1": 2,
+                "df2": 97,
+                "r2": 0.29,
+                "adj_r2": 0.27
+            }, f, indent=2)
 
-        # Missing .docx: Must FAIL IntegrityHooks and be BLOCKED by run_suite
-        ok_4d_missing, msg_4d_missing = IntegrityHooks.verify_artifacts([self.p4d_dir])
-        self.assertFalse(ok_4d_missing, "Phase 4D drafting must fail integrity hook if .docx is missing")
-        self.assertIn("Triad Artifact Invariant", msg_4d_missing)
-        self.assertIn("06_hypothesis_1.docx", msg_4d_missing)
+        # Micro-stage with Dyad only (no .docx) passes IntegrityHooks and run_suite
+        ok_4d_micro, msg_4d_micro = IntegrityHooks.verify_artifacts([self.p4d_dir])
+        self.assertTrue(ok_4d_micro, f"Micro-stage should pass integrity hook with Dyad (.json + .md): {msg_4d_micro}")
 
-        rep_4d_missing = run_suite(self.p4d_dir, stage_id="06_hypothesis_1")
-        self.assertEqual(rep_4d_missing.get("overall_verdict"), "BLOCKED",
-                         "Phase 4D drafting must be BLOCKED by Gate 2 when missing .docx deliverable")
+        rep_4d_micro = run_suite(self.p4d_dir, stage_id="06_hypothesis_1")
+        self.assertEqual(rep_4d_micro.get("overall_verdict"), "PASS",
+                         f"Micro-stage should PASS validation with Dyad (.json + .md): {rep_4d_micro.get('results')}")
 
-        # Now supply .docx: IntegrityHooks must pass
-        with open(os.path.join(self.p4d_dir, "06_hypothesis_1.docx"), "wb") as f:
+        # Tier 2 Chapter Consolidation Monograph: missing .docx must FAIL IntegrityHooks and be BLOCKED
+        ch_assembly_dir = os.path.join(self.temp_dir, "05_chapter_assembly")
+        os.makedirs(ch_assembly_dir, exist_ok=True)
+        with open(os.path.join(ch_assembly_dir, "Chapter_4_Results.md"), "w", encoding="utf-8") as f:
+            f.write("# فصل چهارم: یافته‌های پژوهش\nمتن کامل فصل...")
+
+        ok_monograph_missing, msg_monograph_missing = IntegrityHooks.verify_artifacts([ch_assembly_dir])
+        self.assertFalse(ok_monograph_missing, "Chapter assembly monograph must fail integrity hook if .docx is missing")
+        self.assertIn("Chapter Monograph Invariant", msg_monograph_missing)
+        self.assertIn("Chapter_4_Results.docx", msg_monograph_missing)
+
+        rep_monograph_missing = run_suite(ch_assembly_dir, stage_id="Chapter_4_Results")
+        self.assertEqual(rep_monograph_missing.get("overall_verdict"), "BLOCKED",
+                         "Chapter assembly must be BLOCKED by Gate 2 when missing master .docx deliverable")
+
+        # Supplying .docx to Chapter Assembly: must pass
+        with open(os.path.join(ch_assembly_dir, "Chapter_4_Results.docx"), "wb") as f:
             f.write(b"PK0304mockdocx")
-        ok_4d_present, msg_4d_present = IntegrityHooks.verify_artifacts([self.p4d_dir])
-        self.assertTrue(ok_4d_present, f"Phase 4D should pass integrity hook once triad is complete: {msg_4d_present}")
+        ok_monograph_present, msg_monograph_present = IntegrityHooks.verify_artifacts([ch_assembly_dir])
+        self.assertTrue(ok_monograph_present, f"Chapter assembly should pass integrity hook once monograph is complete: {msg_monograph_present}")
 
 
 if __name__ == "__main__":
