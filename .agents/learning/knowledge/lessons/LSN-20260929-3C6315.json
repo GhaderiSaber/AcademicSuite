@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260929-3C6315",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260929-5A1D21",
+  "target_agent": "methodology-expert",
+  "target_agents": [
+    "methodology-expert"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~516/600 tokens (86.0%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-PERSISTENT-LEGACY-VALIDATION-REPORT-CONTAMINATION] Avoid: Failing to execute physical disk decontamination (e.g., renaming to .stale.json or removing from 03_deliverables/) during learning graduation, which leaves stale validation reports on disk.\n  Approved Remedy: During graduation, physically enforce de-indexing of any stale validation reports by renaming 03_deliverables/legacy_validation/validation_report.json to 03_deliverables/legacy_validation/validation_report.stale.json (or removing the directory).\n- [AP-2026-LEGACY-VAL-ISOLATION] Avoid: Moving or archiving failing validation_report.json files into subdirectories under 03_deliverables.\n  Approved Remedy: Physically delete the file using os.remove.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION] Mandate: Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them.\n  Generalization: Never leave stale validation state files on disk; always proactively de-index them to prevent false validation failures.\n- [LSN-2026-LEGACY-VAL-ISOLATION] Mandate: Physically delete failing validation_report.json files using os.remove instead of moving or archiving them within monitored directories.\n  Generalization: Always use absolute deletion for stale state files instead of archiving inside monitored directories.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nEvaluate candidate and compile via academic_graduation_compiler.py:\n1. Evaluate candidate CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001 located at `.agents/learning/candidates/CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001.json`.\n2. Compile lessons LSN-2026-MISSING-TRIAD-JSON-001 and LSN-2026-LEGACY-VAL-ISOLATION via `python3 .agents/scripts/academic_graduation_compiler.py compile-lesson ...`\n3. Execute `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate .agents/learning/candidates/CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001.json` and `python3 .agents/scripts/academic_graduation_compiler.py compile-all`.\n4. Run `python3 evals/run_eval_suite.py` to certify benchmark passing with zero regressions.\n5. In your final report, include exact fields `overall_verdict: PASS` and `checks_failed: 0`.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding methodology correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~516/600 tokens (86.0%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-PERSISTENT-LEGACY-VALIDATION-REPORT-CONTAMINATION] Avoid: Failing to execute physical disk decontamination (e.g., renaming to .stale.json or removing from 03_deliverables/) during learning graduation, which leaves stale validation reports on disk.\n  Approved Remedy: During graduation, physically enforce de-indexing of any stale validation reports by renaming 03_deliverables/legacy_validation/validation_report.json to 03_deliverables/legacy_validation/validation_report.stale.json (or removing the directory).\n- [AP-2026-LEGACY-VAL-ISOLATION] Avoid: Moving or archiving failing validation_report.json files into subdirectories under 03_deliverables.\n  Approved Remedy: Physically delete the file using os.remove.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION] Mandate: Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them.\n  Generalization: Never leave stale validation state files on disk; always proactively de-index them to prevent false validation failures.\n- [LSN-2026-LEGACY-VAL-ISOLATION] Mandate: Physically delete failing validation_report.json files using os.remove instead of moving or archiving them within monitored directories.\n  Generalization: Always use absolute deletion for stale state files instead of archiving inside monitored directories.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nEvaluate candidate and compile via academic_graduation_compiler.py:\n1. Evaluate candidate CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001 located at `.agents/learning/candidates/CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001.json`.\n2. Compile lessons LSN-2026-MISSING-TRIAD-JSON-001 and LSN-2026-LEGACY-VAL-ISOLATION via `python3 .agents/scripts/academic_graduation_compiler.py compile-lesson ...`\n3. Execute `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate .agents/learning/candidates/CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001.json` and `python3 .agents/scripts/academic_graduation_compiler.py compile-all`.\n4. Run `python3 evals/run_eval_suite.py` to certify benchmark passing with zero regressions.\n5. In your final report, include exact fields `overall_verdict: PASS` and `checks_failed: 0`.",
+    "rationale_why": "Unscreened missing data or unverified assumptions distort variance estimation and bias inferential statistics."
+  },
+  "applicability_conditions": [
+    "Studies utilizing methodology-review or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~516/600 tokens (86.0%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-PERSISTENT-LEGACY-VALIDATION-REPORT-CONTAMINATION] Avoid: Failing to execute physical disk decontamination (e.g., renaming to .stale.json or removing from 03_deliverables/) during learning graduation, which leaves stale validation reports on disk.\n  Approved Remedy: During graduation, physically enforce de-indexing of any stale validation reports by renaming 03_deliverables/legacy_validation/validation_report.json to 03_deliverables/legacy_validation/validation_report.stale.json (or removing the directory).\n- [AP-2026-LEGACY-VAL-ISOLATION] Avoid: Moving or archiving failing validation_report.json files into subdirectories under 03_deliverables.\n  Approved Remedy: Physically delete the file using os.remove.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION] Mandate: Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them.\n  Generalization: Never leave stale validation state files on disk; always proactively de-index them to prevent false validation failures.\n- [LSN-2026-LEGACY-VAL-ISOLATION] Mandate: Physically delete failing validation_report.json files using os.remove instead of moving or archiving them within monitored directories.\n  Generalization: Always use absolute deletion for stale state files instead of archiving inside monitored directories.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nEvaluate candidate and compile via academic_graduation_compiler.py:\n1. Evaluate candidate CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001 located at `.agents/learning/candidates/CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001.json`.\n2. Compile lessons LSN-2026-MISSING-TRIAD-JSON-001 and LSN-2026-LEGACY-VAL-ISOLATION via `python3 .agents/scripts/academic_graduation_compiler.py compile-lesson ...`\n3. Execute `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate .agents/learning/candidates/CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001.json` and `python3 .agents/scripts/academic_graduation_compiler.py compile-all`.\n4. Run `python3 evals/run_eval_suite.py` to certify benchmark passing with zero regressions.\n5. In your final report, include exact fields `overall_verdict: PASS` and `checks_failed: 0`.",
+  "generalization": "Procedural Guideline for methodology-review: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~516/600 tokens (86.0%)]\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `evaluation-agent` | **Project**: `cross-project`\n\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-PERSISTENT-LEGACY-VALIDATION-REPORT-CONTAMINATION] Avoid: Failing to execute physical disk decontamination (e.g., renaming to .stale.json or removing from 03_deliverables/) during learning graduation, which leaves stale validation reports on disk.\n  Approved Remedy: During graduation, physically enforce de-indexing of any stale validation reports by renaming 03_deliverables/legacy_validation/validation_report.json to 03_deliverables/legacy_validation/validation_report.stale.json (or removing the directory).\n- [AP-2026-LEGACY-VAL-ISOLATION] Avoid: Moving or archiving failing validation_report.json files into subdirectories under 03_deliverables.\n  Approved Remedy: Physically delete the file using os.remove.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION] Mandate: Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them.\n  Generalization: Never leave stale validation state files on disk; always proactively de-index them to prevent false validation failures.\n- [LSN-2026-LEGACY-VAL-ISOLATION] Mandate: Physically delete failing validation_report.json files using os.remove instead of moving or archiving them within monitored directories.\n  Generalization: Always use absolute deletion for stale state files instead of archiving inside monitored directories.\n\n⚖️ Applicable Methodology Rules & Boundary Conditions:\n- No conflicting paradigms active. Follow primary statistical decision tree.\n\n---\n### Executable Task Assignment:\nEvaluate candidate and compile via academic_graduation_compiler.py:\n1. Evaluate candidate CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001 located at `.agents/learning/candidates/CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001.json`.\n2. Compile lessons LSN-2026-MISSING-TRIAD-JSON-001 and LSN-2026-LEGACY-VAL-ISOLATION via `python3 .agents/scripts/academic_graduation_compiler.py compile-lesson ...`\n3. Execute `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate .agents/learning/candidates/CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001.json` and `python3 .agents/scripts/academic_graduation_compiler.py compile-all`.\n4. Run `python3 evals/run_eval_suite.py` to certify benchmark passing with zero regressions.\n5. In your final report, include exact fields `overall_verdict: PASS` and `checks_failed: 0`. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-METHODOLOGY_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~516/600 tokens (86.0%)]\n- **Target Capability**",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY) [Budget: ~516/600 tokens (86.0%)]\n- ",
+    "supporting_report_ids": [
+      "FDB-20260929-09900D"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "methodology-review"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T06:59:17.020005+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-29T06:59:17.020099+00:00"
+  }
+}

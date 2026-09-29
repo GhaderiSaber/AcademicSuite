@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-29T08:20:10.835391+00:00",
+  "updated_at": "2026-09-29T08:20:24.792460+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -870,7 +870,7 @@
       "violation_message": "Monolithic hypothesis JSON files are prohibited. You must emit disaggregated micro-stage JSON files (e.g., `08_hypothesis_3.json`) for each individual hypothesis.",
       "remedy": "Separate the hypotheses into their own dedicated, isolated micro-stages and emit individual `.json`, `.md`, and `.docx` artifacts for each.",
       "enabled": true,
-      "updated_at": "2026-09-29T07:00:55.940352+00:00"
+      "updated_at": "2026-09-29T08:20:24.792436+00:00"
     },
     "LSN-2026-LEGACY-VAL-ISOLATION": {
       "item_id": "LSN-2026-LEGACY-VAL-ISOLATION",

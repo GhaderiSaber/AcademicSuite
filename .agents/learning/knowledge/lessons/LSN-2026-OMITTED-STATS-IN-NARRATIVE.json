@@ -1,0 +1,12 @@
+{
+  "id": "LSN-2026-OMITTED-STATS-IN-NARRATIVE",
+  "title": "Mandatory Statistical Parameter Reporting in Micro-Stage Narratives",
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "target_agent": "academic-writer",
+  "target_agents": ["academic-writer", "statistics-agent"],
+  "context": "When generating micro-stage markdown (.md) and Word (.docx) deliverables from statistical JSON artifacts.",
+  "anti_pattern": "Omitting explicit statistical parameters (t, F, beta, p, r, z, b, effect sizes) in the narrative text when they are present in the JSON artifact.",
+  "remedy_instruction": "Always explicitly extract and report the primary test statistics from the JSON artifact in the narrative text using APA 7 format.",
+  "severity": "HIGH"
+}

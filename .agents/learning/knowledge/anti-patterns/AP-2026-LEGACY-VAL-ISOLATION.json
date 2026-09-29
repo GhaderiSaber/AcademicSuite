@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-LEGACY-VAL-ISOLATION",
+  "category": "execution",
+  "defective_pattern": "Moving or archiving failing validation_report.json files into subdirectories under 03_deliverables.",
+  "why_defective": "Integrity guards perform recursive scans, causing the stale files to block validation.",
+  "observed_symptoms": [
+    "Failing validation report even though corrections were made."
+  ],
+  "corrective_remedy": "Physically delete the file using os.remove.",
+  "detection_heuristic": {
+    "trigger_rule": "Moving validation report to subdirectory",
+    "regex_patterns": [
+      "(?m)^.*os\\.rename.*validation_report\\.json.*$"
+    ],
+    "pattern": "(?m)^.*os\\.rename.*validation_report\\.json.*$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "PreToolUse"
+  },
+  "target_agent": "evaluation-agent",
+  "target_agents": [
+    "evaluation-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T10:25:00Z"
+}
