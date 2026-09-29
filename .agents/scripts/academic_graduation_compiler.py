@@ -875,14 +875,22 @@ class AcademicGraduationCompiler:
             deliv_dir = os.path.join(ws_dir, "03_deliverables")
             if not os.path.isdir(deliv_dir):
                 continue
+            import shutil
+            legacy_dir = os.path.join(deliv_dir, "legacy_validation")
+            if os.path.exists(legacy_dir):
+                try:
+                    shutil.rmtree(legacy_dir)
+                    unlinked.append(legacy_dir)
+                except Exception:
+                    pass
+
             cand_paths = [
                 os.path.join(deliv_dir, "validation_report.json"),
-                os.path.join(deliv_dir, "legacy_validation", "validation_report.json"),
             ]
             try:
                 for entry in os.listdir(deliv_dir):
                     sub_p = os.path.join(deliv_dir, entry)
-                    if os.path.isdir(sub_p):
+                    if os.path.isdir(sub_p) and entry != "legacy_validation":
                         cand_paths.append(os.path.join(sub_p, "validation_report.json"))
             except OSError:
                 pass

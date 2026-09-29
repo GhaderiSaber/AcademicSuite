@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-29T15:17:21.241426+00:00",
+  "updated_at": "2026-09-29T10:51:19.307526+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -892,7 +892,7 @@
       "violation_message": "Monolithic hypothesis JSON files are prohibited. You must emit disaggregated micro-stage JSON files (e.g., `08_hypothesis_3.json`) for each individual hypothesis.",
       "remedy": "Separate the hypotheses into their own dedicated, isolated micro-stages and emit individual `.json`, `.md`, and `.docx` artifacts for each.",
       "enabled": true,
-      "updated_at": "2026-09-29T09:43:11.386541+00:00"
+      "updated_at": "2026-09-29T10:14:12.858194+00:00"
     },
     "CAND-2026-DOCX-AST-PARSER-AND-CHAPTER4-FRAMING-001": {
       "item_id": "CAND-2026-DOCX-AST-PARSER-AND-CHAPTER4-FRAMING-001",
@@ -935,396 +935,51 @@
       "enabled": true,
       "updated_at": "2026-09-29T09:45:31.798848+00:00"
     },
-    "AP-2026-CHAPTER-BOUNDARY-VIOLATION": {
-      "item_id": "AP-2026-CHAPTER-BOUNDARY-VIOLATION",
-      "category": "Anti-Pattern",
-      "statement": "Enforce a 'Unified Final Sample Invariant' for Chapter 4 drafting. Treat the post-cleaning sample as the single baseline. Defer all mentions of initial samples and outlier removal entirely to Chapter 3.",
+    "CAND-2026-UNRESTRICTED-DECONTAMINATION-001": {
+      "item_id": "CAND-2026-UNRESTRICTED-DECONTAMINATION-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Do not use shell commands to remove legacy_validation. Use Python shutil.rmtree() instead to prevent rule deadlocks.",
       "target_agents": [
-        "academic-writer",
-        "chapter-4-writing"
+        "*"
       ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*04_.*\\.md",
-      "check_type": "regex_ban",
-      "pattern": "(?m)(initial sample|outlier removal|data cleaning|deleted cases|removed from the dataset|نمونه اولیه|حذف داده|داده پرت)",
-      "violation_message": "Narrating data curation provenance, such as initial sample size, data cleaning, and outlier removal, within Chapter 4.",
-      "remedy": "Enforce a 'Unified Final Sample Invariant' for Chapter 4 drafting. Treat the post-cleaning sample as the single baseline. Defer all mentions of initial samples and outlier removal entirely to Chapter 3.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.177213+00:00"
-    },
-    "AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE": {
-      "item_id": "AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE",
-      "category": "Anti-Pattern",
-      "statement": "Remove all explanatory, speculative, and theoretical prose from Chapter 4. Ensure the narrative is strictly limited to objective, factual reporting of statistical numbers and tables.",
-      "target_agents": [
-        "chapter-4-writing",
-        "academic-writer",
-        "statistical-data-analyst"
+      "target_skills": [
+        "decontamination",
+        "legacy_cleanup"
       ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*chapter_4.*\\.docx",
-      "check_type": "regex_ban",
-      "pattern": "(?m)(implies that|suggests that|this means|explained by|theoretical implications|clinical significance)",
-      "violation_message": "Including speculative clinical, epidemiological, developmental, or theoretical explanations and interpretations in Chapter 4 findings narratives.",
-      "remedy": "Remove all explanatory, speculative, and theoretical prose from Chapter 4. Ensure the narrative is strictly limited to objective, factual reporting of statistical numbers and tables.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.179707+00:00"
-    },
-    "AP-2026-COPY-WITHOUT-UNLINK-CONTAMINATION": {
-      "item_id": "AP-2026-COPY-WITHOUT-UNLINK-CONTAMINATION",
-      "category": "Anti-Pattern",
-      "statement": "Always physically unlink (delete) or move the original validation_report.json when renaming or archiving to a .stale copy. Use explicit shutil.move or os.rename instead of copy.",
-      "target_agents": [
-        "academic-orchestrator",
-        "statistics-agent"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.py",
-      "check_type": "regex_ban",
-      "pattern": "(?m)shutil\\.copy.*validation_report\\.json",
-      "violation_message": "Creating .stale copies of validation_report.json without physically deleting or unlinking the original file, leaving the legacy state on disk.",
-      "remedy": "Always physically unlink (delete) or move the original validation_report.json when renaming or archiving to a .stale copy. Use explicit shutil.move or os.rename instead of copy.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.185753+00:00"
-    },
-    "AP-2026-DECOUPLED-PAYLOAD-TRIAD-FRAGMENTATION": {
-      "item_id": "AP-2026-DECOUPLED-PAYLOAD-TRIAD-FRAGMENTATION",
-      "category": "Anti-Pattern",
-      "statement": "Micro-stage execution must sequentially and completely synthesize all three components (.json, .md, .docx) within the same micro-stage phase before triggering directory-wide validation gates or declaring the micro-stage complete.",
-      "target_agents": [
-        "academic-orchestrator",
-        "chapter-4-writing",
-        "chapter-5-writing"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.py",
-      "check_type": "regex_ban",
-      "pattern": "(?s)trigger_validation.*\\.json.*(?!(?:\\.md|\\.docx))",
-      "violation_message": "Generating isolated JSON statistical payloads in micro-stages without synchronously synthesizing and emitting the corresponding Markdown (.md) and Word (.docx) deliverables before triggering validation or declaring completion.",
-      "remedy": "Micro-stage execution must sequentially and completely synthesize all three components (.json, .md, .docx) within the same micro-stage phase before triggering directory-wide validation gates or declaring the micro-stage complete.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.188573+00:00"
-    },
-    "AP-2026-DISCORDANT-HARNESSED-SAMPLE-SIZE": {
-      "item_id": "AP-2026-DISCORDANT-HARNESSED-SAMPLE-SIZE",
-      "category": "Anti-Pattern",
-      "statement": "Strictly commit to the 'Harnessed N' after screening. All subsequent empirical chapters, micro-stages, and statistical tests must exclusively use the harnessed dataset and report this final N cases.",
-      "target_agents": [
-        "statistical-data-analyst",
-        "chapter-4-writing",
-        "data-audit",
-        "methodology-expert"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.md",
-      "check_type": "regex_ban",
-      "pattern": "(?i)discordant_sample_size_detected",
-      "violation_message": "Failing to commit to the harnessed/screened sample size (N) in downstream micro-stages, resulting in discordant N values between methodology, descriptive statistics, and inferential tests.",
-      "remedy": "Strictly commit to the 'Harnessed N' after screening. All subsequent empirical chapters, micro-stages, and statistical tests must exclusively use the harnessed dataset and report this final N cases.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.191569+00:00"
-    },
-    "AP-2026-DRAFT-OBLITERATION-REPLACEMENT": {
-      "item_id": "AP-2026-DRAFT-OBLITERATION-REPLACEMENT",
-      "category": "Anti-Pattern",
-      "statement": "Perform in-place docx mutation. Modify only specific sections or paragraphs required by the revision task, preserving all other existing content.",
-      "target_agents": [
-        "academic-writer",
-        "persian-thesis-revision-assistant",
-        "academic-orchestrator"
-      ],
-      "target_skills": [],
-      "event": "Stop",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.docx",
-      "check_type": "substring_ban",
-      "pattern": "output_bytes < input_bytes * 0.90",
-      "violation_message": "Clean-room document generation during revision tasks, obliterating existing draft content.",
-      "remedy": "Perform in-place docx mutation. Modify only specific sections or paragraphs required by the revision task, preserving all other existing content.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.194119+00:00"
-    },
-    "AP-2026-DUAL-SAMPLE-OR-HARNESSED-TERMINOLOGY-LEAK": {
-      "item_id": "AP-2026-DUAL-SAMPLE-OR-HARNESSED-TERMINOLOGY-LEAK",
-      "category": "Anti-Pattern",
-      "statement": "Refer to the sample strictly and simply as 'نمونه پژوهش (N = ۴۸۳)' or 'نمونه پژوهش'. Remove all mentions of initial or harnessed sample counts from Chapter 4.",
-      "target_agents": [
-        "academic-writer",
-        "results-auditor",
-        "statistical-data-analyst",
-        "chapter-4-writing"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.txt",
-      "check_type": "regex_ban",
-      "pattern": "(?m)(نمونه\\s+اولیه|نمونه\\s+مهارشده|نمونه\\s+نهایی)",
-      "violation_message": "Mentioning sample harnessing/reduction terms like 'نمونه اولیه', 'نمونه مهارشده', or 'نمونه نهایی' in Chapter 4.",
-      "remedy": "Refer to the sample strictly and simply as 'نمونه پژوهش (N = ۴۸۳)' or 'نمونه پژوهش'. Remove all mentions of initial or harnessed sample counts from Chapter 4.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.197922+00:00"
-    },
-    "AP-2026-LEGACY-VAL-ISOLATION": {
-      "item_id": "AP-2026-LEGACY-VAL-ISOLATION",
-      "category": "Anti-Pattern",
-      "statement": "Physically delete the file using os.remove.",
-      "target_agents": [
-        "evaluation-agent"
-      ],
-      "target_skills": [],
       "event": "PreToolUse",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.py",
+      "tool_match": "run_command|execute_shell",
+      "file_pattern": ".*",
       "check_type": "regex_ban",
-      "pattern": "(?m)^.*os\\.rename.*validation_report\\.json.*$",
-      "violation_message": "Moving or archiving failing validation_report.json files into subdirectories under 03_deliverables.",
-      "remedy": "Physically delete the file using os.remove.",
+      "pattern": "rm\\s+-r.*legacy_validation",
+      "violation_message": "Do not use shell commands to remove legacy_validation. Use Python shutil.rmtree() instead to prevent rule deadlocks.",
+      "remedy": "Rely on the Python-based decontamination utilities or os/shutil instead of shell.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.201142+00:00"
+      "updated_at": "2026-09-29T10:14:02.940884+00:00"
     },
-    "AP-2026-MANIFEST-PATH-LABELED-AS-SEM": {
-      "item_id": "AP-2026-MANIFEST-PATH-LABELED-AS-SEM",
-      "category": "Anti-Pattern",
-      "statement": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
+    "LSN-2026-GLOBAL-TABLE-AND-DOCX-STANDARDS": {
+      "item_id": "LSN-2026-GLOBAL-TABLE-AND-DOCX-STANDARDS",
+      "category": "Lesson",
+      "statement": "Always apply bidiVisual to tables, use single-line table captions, enforce APA 7 Latin abbreviations (M, SD, etc.) in table headers, parse and translate markdown formatting in Word cell elements, and prevent duplicate document headings.",
       "target_agents": [
-        "statistics-agent",
-        "methodology-expert",
-        "results-auditor"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.R",
-      "check_type": "regex_ban",
-      "pattern": "(?m)^(?![^\\n]*=~).*sem\\(",
-      "violation_message": "Substituting manifest composite sum path analysis for latent SEM without measurement models.",
-      "remedy": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.204292+00:00"
-    },
-    "AP-2026-METADATA-LEAK-IN-TABLE-NOTES": {
-      "item_id": "AP-2026-METADATA-LEAK-IN-TABLE-NOTES",
-      "category": "Anti-Pattern",
-      "statement": "Strip all typesetting instructions and metadata from the final output. Ensure table notes strictly contain standard APA 7 explanatory text.",
-      "target_agents": [
+        "academic-writer",
+        "persian-thesis-builder",
         "apa-reporting",
-        "academic-writer"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.md",
-      "check_type": "regex_ban",
-      "pattern": "(?i)typesetting\\s*instruction",
-      "violation_message": "Leaking typesetting or formatting instructions into APA 7 table notes.",
-      "remedy": "Strip all typesetting instructions and metadata from the final output. Ensure table notes strictly contain standard APA 7 explanatory text.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.207027+00:00"
-    },
-    "AP-2026-MISSING-TRIAD-JSON-001": {
-      "item_id": "AP-2026-MISSING-TRIAD-JSON-001",
-      "category": "Anti-Pattern",
-      "statement": "Atomically generate .json, .md, and .docx files with correct canonical file names for every micro-stage. Ensure parameter files like gate3 report are fully populated.",
-      "target_agents": [
-        "statistics-agent",
-        "academic-writer"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.json",
-      "check_type": "regex_ban",
-      "pattern": "(?m)^.*_mediation_analysis\\.json$",
-      "violation_message": "Generating .md and .docx files for micro-stages but omitting or improperly naming the underlying .json data payloads.",
-      "remedy": "Atomically generate .json, .md, and .docx files with correct canonical file names for every micro-stage. Ensure parameter files like gate3 report are fully populated.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.211010+00:00"
-    },
-    "AP-2026-OPENXML-NUMPR-LITERAL-PREFIX-HALLUCINATION": {
-      "item_id": "AP-2026-OPENXML-NUMPR-LITERAL-PREFIX-HALLUCINATION",
-      "category": "Anti-Pattern",
-      "statement": "Search for exact run text stripped of assumed OpenXML numPr prefixes or match by paragraph content normalized of numPr.",
-      "target_agents": [
-        "academic-writer",
-        "skill-evolver"
-      ],
-      "target_skills": [],
-      "event": "PreToolUse",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.py",
-      "check_type": "regex_ban",
-      "pattern": "(?m)^\\s*search_string\\s*=\\s*['\"][۱۲۳۴۵۶۷۸۹۰\\d]+[\\)\\.]\\s+",
-      "violation_message": "Assuming list numbers are stored as literal text in OpenXML runs rather than paragraph properties numPr",
-      "remedy": "Search for exact run text stripped of assumed OpenXML numPr prefixes or match by paragraph content normalized of numPr.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.214638+00:00"
-    },
-    "AP-2026-PHONETIC-BETA-AND-UNSPACED-FOOTNOTE": {
-      "item_id": "AP-2026-PHONETIC-BETA-AND-UNSPACED-FOOTNOTE",
-      "category": "Anti-Pattern",
-      "statement": "Strictly replace 'beta' with Latin *B* (or Greek β if appropriate). Ensure every footnote reference is followed by a space.",
-      "target_agents": [
-        "academic-orchestrator",
-        "academic-writer"
+        "statistical-data-analyst"
       ],
       "target_skills": [
         "apa-reporting",
-        "chapter-4-writing"
-      ],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.(?:md|docx|txt)",
-      "check_type": "regex_ban",
-      "pattern": "(?i)\\bbeta\\s*=|\\w+<footnote[^>]*>\\w+",
-      "violation_message": "Spelling out 'beta' for regression coefficients and failing to delimit footnote references with whitespace.",
-      "remedy": "Strictly replace 'beta' with Latin *B* (or Greek β if appropriate). Ensure every footnote reference is followed by a space.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.217996+00:00"
-    },
-    "AP-2026-RAW-MARKDOWN-IN-DOCX-DUMP": {
-      "item_id": "AP-2026-RAW-MARKDOWN-IN-DOCX-DUMP",
-      "category": "Anti-Pattern",
-      "statement": "Use a robust Markdown to OpenXML AST compiler or python-docx library to natively build tables, apply paragraph styles, and insert runs.",
-      "target_agents": [
-        "academic-writer",
-        "results-auditor",
-        "chapter-4-writing"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.docx",
-      "check_type": "openxml_dom_ban",
-      "pattern": "(?m)^\\|.*\\|$",
-      "violation_message": "Dumping raw markdown syntax, unparsed pipe tables, and string escapes into .docx files via naive string fallbacks",
-      "remedy": "Use a robust Markdown to OpenXML AST compiler or python-docx library to natively build tables, apply paragraph styles, and insert runs.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.221915+00:00"
-    },
-    "AP-2026-REGRESSION-TABLE-OVERAPPLICATION-TO-SEM": {
-      "item_id": "AP-2026-REGRESSION-TABLE-OVERAPPLICATION-TO-SEM",
-      "category": "Anti-Pattern",
-      "statement": "Implement conditional branching in validation-agent/thesis-integrity-auditor to apply the 3-table regression invariant only to regression manuscripts, bypassing it for SEM manuscripts.",
-      "target_agents": [
-        "validation-agent",
-        "thesis-integrity-auditor"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.py",
-      "check_type": "regex_ban",
-      "pattern": "(?m)^.*unconditional.*3-table regression.*SEM.*$",
-      "violation_message": "Executing an unconditional, non-branching mechanical check for '3-table regression structure' on an SEM manuscript.",
-      "remedy": "Implement conditional branching in validation-agent/thesis-integrity-auditor to apply the 3-table regression invariant only to regression manuscripts, bypassing it for SEM manuscripts.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.225369+00:00"
-    },
-    "AP-2026-SILENT-REGEX-DOCX-FAILURE": {
-      "item_id": "AP-2026-SILENT-REGEX-DOCX-FAILURE",
-      "category": "Anti-Pattern",
-      "statement": "Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.",
-      "target_agents": [
-        "academic-writer",
-        "results-auditor"
-      ],
-      "target_skills": [],
-      "event": "PreToolUse",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.py",
-      "check_type": "regex_ban",
-      "pattern": "(?m)^.*re\\.sub.*xml.*$",
-      "violation_message": "Hardcoded fabricated search strings and character-by-character regex XML tag insertion without verifying replacements count.",
-      "remedy": "Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.228967+00:00"
-    },
-    "AP-2026-STUB-TABLE-INTRODUCTION": {
-      "item_id": "AP-2026-STUB-TABLE-INTRODUCTION",
-      "category": "Anti-Pattern",
-      "statement": "Always provide a comprehensive introductory paragraph before each table, highlighting key empirical findings, descriptive statistics, or normality parameters relevant to the table's contents.",
-      "target_agents": [
         "chapter-4-writing",
-        "apa-reporting",
-        "academic-writer"
+        "persian-thesis-builder"
       ],
-      "target_skills": [],
       "event": "Both",
       "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.md",
+      "file_pattern": ".*\\.(md|docx|json)",
       "check_type": "regex_ban",
-      "pattern": "(?m)^#+ .*\\n+^جدول",
-      "violation_message": "Omitting empirical data highlights and normality parameter reporting preceding tables.",
-      "remedy": "Always provide a comprehensive introductory paragraph before each table, highlighting key empirical findings, descriptive statistics, or normality parameters relevant to the table's contents.",
+      "pattern": "(?i)(Tol|VIF|DW|IUS|SCI|RRS|PANAS|BSSI)|\\*یادداشت\\.|<w:jc w:val=\"right\"\\/>.*<w:bidi\\/>|\\*\\*جدول.*\\*\\*",
+      "violation_message": "Always apply bidiVisual to tables, use single-line table captions, enforce APA 7 Latin abbreviations (M, SD, etc.) in table headers, parse and translate markdown formatting in Word cell elements, and prevent duplicate document headings.",
+      "remedy": "Always apply bidiVisual to tables, use single-line table captions, enforce APA 7 Latin abbreviations (M, SD, etc.) in table headers, parse and translate markdown formatting in Word cell elements, and prevent duplicate document headings.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.232122+00:00"
-    },
-    "AP-2026-SUBDIRECTORY-VALIDATION-QUARANTINE-FAILURE": {
-      "item_id": "AP-2026-SUBDIRECTORY-VALIDATION-QUARANTINE-FAILURE",
-      "category": "Anti-Pattern",
-      "statement": "Rename stale validation reports (e.g. validation_report.stale.json or validation_report.legacy.json) or relocate them completely outside 03_deliverables/ so they are never detected as active reports.",
-      "target_agents": [
-        "academic-orchestrator",
-        "thesis-integrity-auditor"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.json",
-      "check_type": "regex_ban",
-      "pattern": "03_deliverables/.+/validation_report\\.json$",
-      "violation_message": "Placing stale legacy validation reports (validation_report.json) into child subdirectories of 03_deliverables/.",
-      "remedy": "Rename stale validation reports (e.g. validation_report.stale.json or validation_report.legacy.json) or relocate them completely outside 03_deliverables/ so they are never detected as active reports.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.234733+00:00"
-    },
-    "AP-2026-TABLE-VERTICAL-BORDER-PERSIAN-ZERO": {
-      "item_id": "AP-2026-TABLE-VERTICAL-BORDER-PERSIAN-ZERO",
-      "category": "Anti-Pattern",
-      "statement": "Suppress <w:insideV> tags in docx generation to strictly conform to APA 7 guidelines. Apply a regex or string replacement pass to convert all English decimals to Persian numbers with leading zeros before writing to disk.",
-      "target_agents": [
-        "academic-writer"
-      ],
-      "target_skills": [],
-      "event": "Both",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.(docx|md)",
-      "check_type": "regex_ban",
-      "pattern": "(?i)<w:insideV\\s*/?>",
-      "violation_message": "Generating Word document tables with <w:insideV> vertical borders and outputting decimal values missing Persian leading zeros.",
-      "remedy": "Suppress <w:insideV> tags in docx generation to strictly conform to APA 7 guidelines. Apply a regex or string replacement pass to convert all English decimals to Persian numbers with leading zeros before writing to disk.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.238134+00:00"
-    },
-    "AP-2026-WRITER-JSON-MUTATION": {
-      "item_id": "AP-2026-WRITER-JSON-MUTATION",
-      "category": "Anti-Pattern",
-      "statement": "Statistical .json files in 03_deliverables/ are produced strictly by computational specialists (statistics-agent, data-curator) and are strictly READ-ONLY for academic-writer. Orchestrators must never assign JSON mutation tasks to narrative agents.",
-      "target_agents": [
-        "academic-orchestrator",
-        "academic-writer"
-      ],
-      "target_skills": [],
-      "event": "PreToolUse",
-      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.md",
-      "check_type": "regex_ban",
-      "pattern": "(?m)^.*academic-writer.*(mutate|write|update|truncate).*\\.json.*$",
-      "violation_message": "Delegating mutation, re-serialization, or truncation of computational statistical .json artifacts in 03_deliverables/ to academic-writer.",
-      "remedy": "Statistical .json files in 03_deliverables/ are produced strictly by computational specialists (statistics-agent, data-curator) and are strictly READ-ONLY for academic-writer. Orchestrators must never assign JSON mutation tasks to narrative agents.",
-      "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.241412+00:00"
+      "updated_at": "2026-09-29T10:51:19.307508+00:00"
     }
   }
 }
