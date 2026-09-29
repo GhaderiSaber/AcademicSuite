@@ -1,0 +1,42 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-ECMA376-STRICT-RTL-TABLE-DOM-CASCADE",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "TRJ-20260929-ONLYOFFICE-TABLE-RTL-HANDLE-001",
+  "diagnosis": {
+    "what_happened": "Appending w:bidiVisual out of sequence in w:tblPr caused strict parsers to drop RTL formatting.",
+    "behavior_caused_outcome": "Strict ECMA-376 parsers (ONLYOFFICE) reject out-of-order schema elements, nullifying RTL table orientation.",
+    "what_should_have_happened": "Validators and builders should enforce strict ECMA-376 sequence: bidiVisual before tblW, jc after tblW.",
+    "rationale_why": "OpenXML relies on precise sequence ordering inside properties blocks; deviation leads to silent failure."
+  },
+  "desired_behavior": "Mandating strict ECMA-376 CT_TblPr schema ordering: bidiVisual w:val=\"1\" before tblW, jc w:val=\"right\" after tblW, and section-level w:bidi w:val=\"1\" in w:sectPr.",
+  "generalization": "XML and OpenXML mutations must strictly adhere to element sequence ordering as defined in the schema, not just presence.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "ONLYOFFICE_TABLE_RTL_RENDERING",
+    "observed_value": "Out-of-order elements caused LTR rendering despite tag presence.",
+    "threshold_value": "Elements must be ordered strictly.",
+    "supporting_report_ids": [
+      "BAN-20260929-ONLYOFFICE-TABLE-RTL-HANDLE-001.json"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "academic-writer"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T20:14:20Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "apa-reporting",
+    "persian-thesis-builder",
+    "thesis-integrity-auditor"
+  ]
+}
