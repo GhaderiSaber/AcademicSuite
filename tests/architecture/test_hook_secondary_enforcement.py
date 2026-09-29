@@ -311,19 +311,19 @@ class TestHookSecondaryEnforcement(unittest.TestCase):
     # =========================================================================
 
     def test_hooks_detect_missing_artifact_triad(self):
-        """Category 3: Detects missing triad component (.docx, .md, .json) in active stage."""
-        stage_dir = os.path.join(self.workspace, "projects", "study1", "06_hypothesis_1")
+        """Category 3: Detects missing monograph component (.docx) in chapter consolidation milestone."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "stage_chapter_4")
         os.makedirs(stage_dir, exist_ok=True)
-        # Create only .md and .json, omitting .docx
-        with open(os.path.join(stage_dir, "06_hypothesis_1.md"), "w") as f:
-            f.write("# Hypothesis 1")
-        with open(os.path.join(stage_dir, "06_hypothesis_1.json"), "w") as f:
+        # Create only .md and .json, omitting mandatory monograph .docx
+        with open(os.path.join(stage_dir, "stage_chapter_4.md"), "w") as f:
+            f.write("# Chapter 4")
+        with open(os.path.join(stage_dir, "stage_chapter_4.json"), "w") as f:
             f.write("{}")
 
         ok, reason = IntegrityHooks.verify_missing_artifacts([self.workspace])
         self.assertFalse(ok, "Failed to detect missing .docx artifact")
-        self.assertIn("Triad Artifact Invariant", reason)
-        self.assertIn("06_hypothesis_1.docx", reason)
+        self.assertIn("Chapter Monograph Invariant", reason)
+        self.assertIn("stage_chapter_4.docx", reason)
 
     def test_hooks_detect_missing_artifact_manifest_deliverable(self):
         """Category 3: Detects declared deliverable missing on disk from manifest.json."""

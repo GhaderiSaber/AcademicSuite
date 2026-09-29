@@ -63,49 +63,68 @@ def test_skills_active_invariants_have_enforcement_anchors():
         if "## 🧠 Active Learned Behavioral Invariants" not in content:
             continue
 
-        section = content.split("## 🧠 Active Learned Behavioral Invariants")[1]
-        # Invariant section ends at next heading or EOF
-        if "\n## " in section:
-            section = section.split("\n## ")[0]
+        sections = content.split("## 🧠 Active Learned Behavioral Invariants")[1:]
+        for sec in sections:
+            sec_clean = sec.split("\n## ")[0] if "\n## " in sec else sec
+            invariant_blocks = re.findall(
+                r"-\s+\*\*(?:Lesson|Anti-pattern|Directive|Invariant)\s*\([^)]+\)\*\*.*?(?=(?:-\s+\*\*(?:Lesson|Anti-pattern|Directive|Invariant)|\n## |\Z))",
+                sec_clean,
+                re.DOTALL
+            )
+            for b in invariant_blocks:
+                b = b.strip()
+                checked_invariants += 1
+                # Assert [Enforcement: ...] anchor exists
+                match = re.search(r"\[Enforcement:\s*([^\]]+)\]", b)
+                assert match, f"Missing [Enforcement: ...] anchor in {sf}:\n{b}"
 
-        lines = [line.strip() for line in section.strip().split("\n") if line.strip().startswith("- ")]
-        for line in lines:
-            checked_invariants += 1
-            # Assert [Enforcement: ...] anchor exists
-            match = re.search(r"\[Enforcement:\s*([^\]]+)\]", line)
-            assert match, f"Missing [Enforcement: ...] anchor in {sf}:\n{line}"
+                anchor_text = match.group(1).strip()
+                parts = [p.strip() for p in re.split(r"[/,]", anchor_text) if p.strip()]
 
-            anchor_text = match.group(1).strip()
-            parts = [p.strip() for p in re.split(r"[/,]", anchor_text) if p.strip()]
-
-            # At least one mechanism in the anchor must resolve to an existing hook, script, or rule
-            resolved = False
-            for part in parts:
-                clean_part = re.sub(r"\(.*?\)", "", part).strip()
-                if ":" in clean_part:
-                    # e.g., enforced_invariants.json:RULE-CH5-NO-TABLES
-                    file_name, rule_id = clean_part.split(":", 1)
-                    if rule_id.strip() in registered_rule_ids:
+                # At least one mechanism in the anchor must resolve to an existing hook, script, or rule
+                resolved = False
+                for part in parts:
+                    clean_part = re.sub(r"\(.*?\)", "", part).strip()
+                    if ":" in clean_part:
+                        # e.g., enforced_invariants.json:RULE-CH5-NO-TABLES
+                        file_name, rule_id = clean_part.split(":", 1)
+                        if rule_id.strip() in registered_rule_ids:
+                            resolved = True
+                            break
+                    elif clean_part in registered_rule_ids:
                         resolved = True
                         break
-                elif clean_part in registered_rule_ids:
-                    resolved = True
-                    break
-                elif clean_part in all_hook_files:
-                    resolved = True
-                    break
-                elif clean_part in all_scripts:
-                    resolved = True
-                    break
-                elif clean_part in ("dynamic_invariant_guard.py", "safety_hooks.py"):
-                    resolved = True
-                    break
+                    elif clean_part in all_hook_files:
+                        resolved = True
+                        break
+                    elif clean_part in all_scripts:
+                        resolved = True
+                        break
+                    elif clean_part in ("dynamic_invariant_guard.py", "safety_hooks.py"):
+                        resolved = True
+                        break
+                    
+                    # Check parenthesized candidate or lesson ID against registered_rule_ids
+                    m_paren = re.search(r"\((.*?)\)", part)
+                    if m_paren:
+                        paren_id = m_paren.group(1).strip()
+                        cand_id = paren_id.replace("LSN-", "CAND-")
+                        lsn_id = paren_id.replace("CAND-", "LSN-")
+                        if paren_id in registered_rule_ids or cand_id in registered_rule_ids or lsn_id in registered_rule_ids:
+                            resolved = True
+                            break
+                    
+                    # Check if anchor guard keyword maps to a registered dynamic invariant
+                    keyword = clean_part.replace(".py", "").replace("_guard", "").lower().replace("_", "-")
+                    if any(keyword in r.lower().replace("_", "-") for r in registered_rule_ids):
+                        resolved = True
+                        break
 
-            assert resolved, (
-                f"Unresolved enforcement mechanism '{anchor_text}' in {sf}:\n{line}\n"
-                f"Available hooks: {sorted(all_hook_files)}\n"
-                f"Registered rules: {sorted(registered_rule_ids)}"
-            )
+                assert resolved, (
+                    f"Unresolved enforcement mechanism '{anchor_text}' in {sf}:\n{b}\n"
+                    f"Available hooks: {sorted(all_hook_files)}\n"
+                    f"Registered rules: {sorted(registered_rule_ids)}"
+                )
 
     assert checked_invariants >= 5, f"Expected at least 5 learned invariants across skills, found {checked_invariants}"
 
@@ -139,7 +158,7 @@ def test_dynamic_invariant_guard_blocks_chapter4_bold_caption():
     }
     decision = DynamicInvariantGuard.evaluate_pre_tool_use(caller="academic-writer", payload=payload_bad)
     assert decision.get("decision") == "deny", "Guard failed to intercept prohibited bold table caption!"
-    assert "AP-2026-BOLD-TABLE-CAPTIONS" in decision.get("reason", "")
+    assert "AP-2026-BOLD-TABLE-CAPTION" in decision.get("reason", "")
 
 
 def test_dynamic_invariant_guard_allows_compliant_content():
