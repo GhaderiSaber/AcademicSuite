@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260929-88A266",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260929-FE6884",
+  "target_agent": "literature-expert",
+  "target_agents": [
+    "literature-expert"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` | **Task**: `proposal_drafting` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-SILENT-REGEX-DOCX-FAILURE] Lack of assertion on replacements count leads to silent passes.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-GROUND-TRUTH-XML-SURGICAL-MUTATION] Mandate: Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.\n\n---\n### Executable Task Assignment:\n{\n  \"task_id\": \"TSK-2026-LEARN-TRAJECTORY-2\",\n  \"stage\": \"Continuous Learning Stage 1: Trajectory Analysis\",\n  \"worker_agent\": \"trajectory-analyzer\",\n  \"objective\": \"Reconstruct observable actions, tool calls, and error trajectory for validation failure: Validation cascade failed with overall_verdict: FAIL in .agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json (AssertionError: Failed: replacements_count is 1, expected 6). Inspect 01_raw_inputs/فایل پروپوزال.docx, extract the exact paragraphs containing hypotheses 1 to 5, and explain why old_h in full_text did not match.\",\n  \"inputs\": [\n    \".agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json\",\n    \".agents/learning/candidates/CAN-20260929-PROP-REV-001.json\",\n    \".agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py\",\n    \"01_raw_inputs/فایل پروپوزال.docx\"\n  ],\n  \"required_artifacts\": [\n    \".agents/learning/trajectories/trajectory_proposal_eval_failure_002.json\"\n  ],\n  \"acceptance_criteria\": [\n    \"Reconstruct observable trajectory for EVAL-20260929-PROP-REV-001 failure\",\n    \"Determine why replacements_count was 1 instead of 6\",\n    \"Extract exact ground-truth paragraph text and run structure from 01_raw_inputs/فایل پروپوزال.docx for hypotheses 1-5\",\n    \"Write structured JSON report conforming to trajectory.schema.json to .agents/learning/trajectories/trajectory_proposal_eval_failure_002.json\"\n  ],\n  \"constraints\": [\n    \"Directive 0 (Factual truth, zero rationalization)\",\n    \"Directive 6 (English ASCII filenames)\"\n  ]\n}",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding evidence correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` | **Task**: `proposal_drafting` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-SILENT-REGEX-DOCX-FAILURE] Lack of assertion on replacements count leads to silent passes.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-GROUND-TRUTH-XML-SURGICAL-MUTATION] Mandate: Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.\n\n---\n### Executable Task Assignment:\n{\n  \"task_id\": \"TSK-2026-LEARN-TRAJECTORY-2\",\n  \"stage\": \"Continuous Learning Stage 1: Trajectory Analysis\",\n  \"worker_agent\": \"trajectory-analyzer\",\n  \"objective\": \"Reconstruct observable actions, tool calls, and error trajectory for validation failure: Validation cascade failed with overall_verdict: FAIL in .agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json (AssertionError: Failed: replacements_count is 1, expected 6). Inspect 01_raw_inputs/فایل پروپوزال.docx, extract the exact paragraphs containing hypotheses 1 to 5, and explain why old_h in full_text did not match.\",\n  \"inputs\": [\n    \".agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json\",\n    \".agents/learning/candidates/CAN-20260929-PROP-REV-001.json\",\n    \".agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py\",\n    \"01_raw_inputs/فایل پروپوزال.docx\"\n  ],\n  \"required_artifacts\": [\n    \".agents/learning/trajectories/trajectory_proposal_eval_failure_002.json\"\n  ],\n  \"acceptance_criteria\": [\n    \"Reconstruct observable trajectory for EVAL-20260929-PROP-REV-001 failure\",\n    \"Determine why replacements_count was 1 instead of 6\",\n    \"Extract exact ground-truth paragraph text and run structure from 01_raw_inputs/فایل پروپوزال.docx for hypotheses 1-5\",\n    \"Write structured JSON report conforming to trajectory.schema.json to .agents/learning/trajectories/trajectory_proposal_eval_failure_002.json\"\n  ],\n  \"constraints\": [\n    \"Directive 0 (Factual truth, zero rationalization)\",\n    \"Directive 6 (English ASCII filenames)\"\n  ]\n}.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Studies utilizing persian-literature-review-builder or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` | **Task**: `proposal_drafting` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-SILENT-REGEX-DOCX-FAILURE] Lack of assertion on replacements count leads to silent passes.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-GROUND-TRUTH-XML-SURGICAL-MUTATION] Mandate: Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.\n\n---\n### Executable Task Assignment:\n{\n  \"task_id\": \"TSK-2026-LEARN-TRAJECTORY-2\",\n  \"stage\": \"Continuous Learning Stage 1: Trajectory Analysis\",\n  \"worker_agent\": \"trajectory-analyzer\",\n  \"objective\": \"Reconstruct observable actions, tool calls, and error trajectory for validation failure: Validation cascade failed with overall_verdict: FAIL in .agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json (AssertionError: Failed: replacements_count is 1, expected 6). Inspect 01_raw_inputs/فایل پروپوزال.docx, extract the exact paragraphs containing hypotheses 1 to 5, and explain why old_h in full_text did not match.\",\n  \"inputs\": [\n    \".agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json\",\n    \".agents/learning/candidates/CAN-20260929-PROP-REV-001.json\",\n    \".agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py\",\n    \"01_raw_inputs/فایل پروپوزال.docx\"\n  ],\n  \"required_artifacts\": [\n    \".agents/learning/trajectories/trajectory_proposal_eval_failure_002.json\"\n  ],\n  \"acceptance_criteria\": [\n    \"Reconstruct observable trajectory for EVAL-20260929-PROP-REV-001 failure\",\n    \"Determine why replacements_count was 1 instead of 6\",\n    \"Extract exact ground-truth paragraph text and run structure from 01_raw_inputs/فایل پروپوزال.docx for hypotheses 1-5\",\n    \"Write structured JSON report conforming to trajectory.schema.json to .agents/learning/trajectories/trajectory_proposal_eval_failure_002.json\"\n  ],\n  \"constraints\": [\n    \"Directive 0 (Factual truth, zero rationalization)\",\n    \"Directive 6 (English ASCII filenames)\"\n  ]\n}.",
+  "generalization": "Procedural Guideline for persian-literature-review-builder: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` | **Task**: `proposal_drafting` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-SILENT-REGEX-DOCX-FAILURE] Lack of assertion on replacements count leads to silent passes.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-GROUND-TRUTH-XML-SURGICAL-MUTATION] Mandate: Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.\n\n---\n### Executable Task Assignment:\n{\n  \"task_id\": \"TSK-2026-LEARN-TRAJECTORY-2\",\n  \"stage\": \"Continuous Learning Stage 1: Trajectory Analysis\",\n  \"worker_agent\": \"trajectory-analyzer\",\n  \"objective\": \"Reconstruct observable actions, tool calls, and error trajectory for validation failure: Validation cascade failed with overall_verdict: FAIL in .agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json (AssertionError: Failed: replacements_count is 1, expected 6). Inspect 01_raw_inputs/فایل پروپوزال.docx, extract the exact paragraphs containing hypotheses 1 to 5, and explain why old_h in full_text did not match.\",\n  \"inputs\": [\n    \".agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json\",\n    \".agents/learning/candidates/CAN-20260929-PROP-REV-001.json\",\n    \".agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py\",\n    \"01_raw_inputs/فایل پروپوزال.docx\"\n  ],\n  \"required_artifacts\": [\n    \".agents/learning/trajectories/trajectory_proposal_eval_failure_002.json\"\n  ],\n  \"acceptance_criteria\": [\n    \"Reconstruct observable trajectory for EVAL-20260929-PROP-REV-001 failure\",\n    \"Determine why replacements_count was 1 instead of 6\",\n    \"Extract exact ground-truth paragraph text and run structure from 01_raw_inputs/فایل پروپوزال.docx for hypotheses 1-5\",\n    \"Write structured JSON report conforming to trajectory.schema.json to .agents/learning/trajectories/trajectory_proposal_eval_failure_002.json\"\n  ],\n  \"constraints\": [\n    \"Directive 0 (Factual truth, zero rationalization)\",\n    \"Directive 6 (English ASCII filenames)\"\n  ]\n}. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-EVIDENCE_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` | **Task**: `proposal",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` ",
+    "supporting_report_ids": [
+      "FDB-20260929-ECF2DC"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-literature-review-builder"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T06:44:04.492718+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-29T06:44:04.492769+00:00"
+  }
+}
