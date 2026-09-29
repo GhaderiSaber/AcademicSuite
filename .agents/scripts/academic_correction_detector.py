@@ -55,6 +55,22 @@ except ImportError:
     validate_feedback = None
     ContractValidationError = Exception
 
+try:
+    from contracts.critique_detection_contract import (
+        MACHINE_CONTEXT_MARKERS,
+        DOMAIN_COLLOCATION_EXCLUSIONS,
+        extract_clean_user_message
+    )
+except ImportError:
+    MACHINE_CONTEXT_MARKERS = (
+        "🧠 DETERMINISTIC ADAPTIVE CONTEXT",
+        "### Contractual Delegation Envelope",
+        "🚨 CONSTITUTIONAL ENFORCEMENT",
+        "### 🛫 Pre-Flight Pipeline Declaration",
+        "🧠 CONTINUOUS LEARNING TRIGGER ACTIVE",
+        "### Contractual Delegation Envelope (CDE)"
+    )
+
 
 # ==============================================================================
 # Category Detection Rules & Patterns
@@ -360,6 +376,11 @@ class AcademicCorrectionDetector:
         cleaned = clean_text(user_text)
         if len(cleaned) < 8:
             return None
+
+        # Immune check: Never detect internal machine markers or subagent prompts as user feedback
+        for marker in MACHINE_CONTEXT_MARKERS:
+            if marker in user_text:
+                return None
 
         text_lower = cleaned.lower()
         meta = metadata or {}
@@ -685,6 +706,10 @@ class AcademicCorrectionDetector:
                 content = record.get("content", "")
 
                 if stype == "USER_INPUT" or source == "USER_EXPLICIT":
+                    # Immune check: Never scan machine envelopes or subagent prompt markers
+                    if any(marker in content for marker in MACHINE_CONTEXT_MARKERS):
+                        continue
+
                     turn_idx = record.get("step_index", idx)
                     cid = record.get("conversation_id")
                     event_id = self.event_tracker.generate_event_id(

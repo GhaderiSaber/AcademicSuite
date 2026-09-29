@@ -240,7 +240,9 @@ class AcademicRealBehaviorEvolution:
             "is_active_behavior": True,
             "status": "VALIDATED"
         }
-        self.lesson_distiller.record_lesson(lesson_data)
+        rec_res = self.lesson_distiller.record_lesson(lesson_data)
+        if isinstance(rec_res, dict) and rec_res.get("status") == "ALREADY_EXISTS":
+            lesson_data["lesson_id"] = rec_res["lesson_id"]
 
         # ---------------------------------------------------------------------
         # Stage 7: CANDIDATE PATCH (Reflective mutation without modifying production)

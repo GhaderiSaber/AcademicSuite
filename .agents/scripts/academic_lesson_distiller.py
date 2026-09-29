@@ -735,10 +735,40 @@ class AcademicLessonDistiller:
         return lesson_record
 
     def record_lesson(self, lesson_record: Dict[str, Any]) -> Dict[str, Any]:
-        """Persists lesson record to disk and updates fast index."""
+        """Persists lesson record to disk and updates fast index with content-addressable deduplication."""
         lesson_record = dict(lesson_record)
         lesson_record.setdefault("is_active_behavior", True)
         lesson_record.setdefault("status", "VALIDATED")
+
+        # Content-addressable deduplication: prevent runaway duplicate accumulation
+        diag = lesson_record.get("diagnosis", {})
+        wh = (lesson_record.get("what_happened") or (diag.get("what_happened") if isinstance(diag, dict) else "") or "").strip()
+        wc = (lesson_record.get("what_behavior_caused_outcome") or (diag.get("behavior_caused_outcome") if isinstance(diag, dict) else "") or "").strip()
+        desired = (lesson_record.get("desired_behavior") or "").strip()
+
+        if os.path.isdir(self.lessons_dir):
+            for existing_fn in os.listdir(self.lessons_dir):
+                if not existing_fn.endswith(".json") or existing_fn.startswith("."):
+                    continue
+                existing_fp = os.path.join(self.lessons_dir, existing_fn)
+                try:
+                    with open(existing_fp, "r", encoding="utf-8") as ef:
+                        edata = json.load(ef)
+                    e_diag = edata.get("diagnosis", {})
+                    e_wh = (edata.get("what_happened") or (e_diag.get("what_happened") if isinstance(e_diag, dict) else "") or "").strip()
+                    e_wc = (edata.get("what_behavior_caused_outcome") or (e_diag.get("behavior_caused_outcome") if isinstance(e_diag, dict) else "") or "").strip()
+                    e_desired = (edata.get("desired_behavior") or "").strip()
+
+                    # Deduplication: identical observed defect or identical cause & desired remedy
+                    if (wh and e_wh and wh == e_wh) or (wc and e_wc and wc == e_wc and desired and e_desired and desired == e_desired):
+                        return {
+                            "status": "ALREADY_EXISTS",
+                            "lesson_id": edata.get("lesson_id") or os.path.splitext(existing_fn)[0],
+                            "filepath": existing_fp,
+                            "lesson_type": edata.get("lesson_type", lesson_record.get("lesson_type"))
+                        }
+                except Exception:
+                    pass
 
         # IMMUTABLE BOUNDARY VERIFICATION (Phase 24)
         verify_lesson_boundary(lesson_record)
