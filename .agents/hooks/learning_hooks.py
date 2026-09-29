@@ -776,7 +776,64 @@ class LearningHooks:
         )
         caller = LearningHooks._extract_actor(payload).lower().strip()
         if is_sub or (caller and caller not in ("", "unspecified", "academic-orchestrator", "orchestrator", "main", "default", "digital-saber")):
-            return {}
+            # Specialist Subagent PreInvocation Context Rehydration
+            sub_role = caller
+            if not sub_role or sub_role in ("unspecified", "subagent"):
+                try:
+                    from contracts.hook_identity_contract import resolve_hook_identity
+                    ident = resolve_hook_identity(payload)
+                    if ident and ident.agent_name and ident.agent_name != "unknown":
+                        sub_role = ident.agent_name.lower().strip()
+                except Exception:
+                    pass
+
+            sub_blocks = [
+                f"🚨 SUBAGENT CONSTITUTIONAL GOVERNANCE ACTIVE ({sub_role.upper()}):\n"
+                f"- Role Scope: You are the specialized '{sub_role}' subagent operating in an isolated context.\n"
+                "- Directive 6: All operational interaction, reasoning, and tool calls strictly in ASCII English.\n"
+                "- Directive 12: You are a specialist worker and strictly forbidden from invoking secondary subagents (invoke_subagent)."
+            ]
+
+            if "writer" in sub_role:
+                sub_blocks.append(
+                    "📝 ACADEMIC WRITER DIRECTIVES:\n"
+                    "- Directive 3.1: Chapter 5 (Discussion) must strictly contain ZERO tables (no markdown tables, no Word tables).\n"
+                    "- Directive 4 & 5: Persian text in B Nazanin (13-14 pt), Headings in B Titr. Times New Roman for stats.\n"
+                    "- Persian Leading Zero: Always keep leading zero in Persian (۰.۰۰۱, ۰.۰۵).\n"
+                    "- Zero Robotic AI Clichés: Eliminate 'شایان ذکر است که', 'پرواضح است که', etc.\n"
+                    "- True OpenXML Footnotes: Native footnote references; zero plain-text footnote paragraphs."
+                )
+            elif any(k in sub_role for k in ("stat", "data", "psychometric")):
+                sub_blocks.append(
+                    "📊 STATISTICAL & DATA INTEGRITY DIRECTIVES:\n"
+                    "- Directive 2: Deterministic calculation invariant. Zero mental math or hallucinated numbers.\n"
+                    "- Directive 9: Realistic decimal noise. Never output whole integer synthetic means.\n"
+                    "- Directive 4: Exactly 2 decimals for M/SD, exactly 3 decimals for p-values (p < .001, never p = .000)."
+                )
+            elif any(k in sub_role for k in ("validation", "judge", "auditor")):
+                sub_blocks.append(
+                    "🔍 VALIDATION & AUDIT DIRECTIVES:\n"
+                    "- Directive 22: Fail-closed mechanical validation gate. Emit physical validation_report.json.\n"
+                    "- Never emit verbal PASS without 100% verified checks on disk."
+                )
+
+            try:
+                from dynamic_invariant_guard import DynamicInvariantGuard
+                invariants = DynamicInvariantGuard.load_invariants()
+                role_pitfalls = []
+                for r_id, r_spec in invariants.items():
+                    target_agents = [a.lower().strip() for a in r_spec.get("target_agents", [])]
+                    if "*" in target_agents or sub_role in target_agents or any(t in sub_role for t in target_agents):
+                        stmt = r_spec.get("statement", "")
+                        remedy = r_spec.get("remedy", "")
+                        if stmt:
+                            role_pitfalls.append(f"- [{r_id}]: {stmt[:160]}" + (f" (Remedy: {remedy[:120]})" if remedy else ""))
+                if role_pitfalls:
+                    sub_blocks.append("⚠️ KNOWN ANTI-PATTERNS TO AVOID:\n" + "\n".join(role_pitfalls[:5]))
+            except Exception:
+                pass
+
+            return {"injectSteps": [{"ephemeralMessage": "\n\n".join(sub_blocks)}]}
 
         critique_info = LearningHooks.capture_user_correction(payload)
 
@@ -893,6 +950,9 @@ class LearningHooks:
                 }
             ]
         }
+
+
+handle_pre_invocation = LearningHooks.handle_pre_invocation
 
 
 def main():

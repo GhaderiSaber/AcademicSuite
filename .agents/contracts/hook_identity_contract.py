@@ -229,11 +229,15 @@ def extract_subagent_info(payload: Dict[str, Any]) -> Tuple[bool, Optional[str]]
     if isinstance(parent_ids, list) and len(parent_ids) > 0:
         return True, str(parent_ids[0])
 
-    if payload.get("isSubagent") is True or payload.get("subagent") is True:
+    if payload.get("isSubagent") is True or payload.get("subagent") is True or payload.get("is_subagent") is True:
         return True, parent_id
 
     subagent_depth = payload.get("subagentDepth") or payload.get("depth")
     if isinstance(subagent_depth, int) and subagent_depth > 0:
+        return True, parent_id
+
+    cid = str(payload.get("conversationId") or "").strip()
+    if cid and resolve_subagent_descriptor(cid):
         return True, parent_id
 
     return False, None
@@ -435,6 +439,8 @@ def _resolve_hook_identity_core(payload: Dict[str, Any], env: Optional[Dict[str,
         payload.get("agentName") or
         payload.get("agentRole") or
         payload.get("agent") or
+        payload.get("agent_name") or
+        payload.get("agent_type") or
         payload.get("caller") or
         ""
     ).strip()
@@ -445,12 +451,13 @@ def _resolve_hook_identity_core(payload: Dict[str, Any], env: Optional[Dict[str,
         for ac in canonical_agents:
             if ac == agent_name_lower or ac in agent_name_lower:
                 role = "orchestrator" if ac == "academic-orchestrator" else "specialist_worker"
+                resolved_is_sub = is_subagent or (ac not in ("academic-orchestrator", "digital-saber"))
                 return HookIdentity(
                     agent_name=ac,
                     agent_role=str(payload.get("agentRole") or role),
                     track="track_2_academic",
                     is_main_developer=False,
-                    is_subagent=is_subagent,
+                    is_subagent=resolved_is_sub,
                     parent_conversation_id=parent_id,
                     interface=interface,
                     confidence="high",

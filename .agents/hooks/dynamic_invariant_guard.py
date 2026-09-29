@@ -185,7 +185,8 @@ class DynamicInvariantGuard:
             # Agent target filtering
             target_agents = [a.lower().strip() for a in rule.get("target_agents", [])]
             if "*" not in target_agents and caller_clean and caller_clean not in target_agents:
-                continue
+                if caller_clean not in ("academic-agent", "academic", "unknown", "specialist", "subagent"):
+                    continue
 
             # Tool name matching
             tool_match = rule.get("tool_match", "")
@@ -270,7 +271,8 @@ class DynamicInvariantGuard:
 
             target_agents = [a.lower().strip() for a in rule.get("target_agents", [])]
             if "*" not in target_agents and caller_clean and caller_clean not in target_agents:
-                continue
+                if caller_clean not in ("academic-agent", "academic", "unknown", "specialist", "subagent"):
+                    continue
 
             file_pattern = rule.get("file_pattern", "")
             check_type = rule.get("check_type", "")

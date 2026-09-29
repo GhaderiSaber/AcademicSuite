@@ -1,3 +1,4 @@
+import os
 import re
 
 files = [
@@ -12,16 +13,19 @@ files = [
     '03_deliverables/stage_09_multivariate_synthesis/09_multivariate_synthesis.md'
 ]
 
-for file in files:
-    with open('/home/ghaderi-saber/My Work/Narjes/' + file, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    
-    first_h2_idx = -1
-    for i, line in enumerate(lines):
-        if line.startswith('## '):
-            first_h2_idx = i
-            break
+if __name__ == '__main__':
+    for file in files:
+        target = '/home/ghaderi-saber/My Work/Narjes/' + file
+        if os.path.exists(target):
+            with open(target, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
             
-    print(f"{file} -> first H2 at line {first_h2_idx}")
-    if first_h2_idx != -1:
-        print(f"H2 text: {lines[first_h2_idx].strip()}")
+            first_h2_idx = -1
+            for i, line in enumerate(lines):
+                if line.startswith('## '):
+                    first_h2_idx = i
+                    break
+                    
+            print(f"{file} -> first H2 at line {first_h2_idx}")
+            if first_h2_idx != -1:
+                print(f"H2 text: {lines[first_h2_idx].strip()}")

@@ -63,20 +63,5 @@
         "timeout": 20
       }
     ]
-  },
-  "safety-hooks": {
-    "enabled": true,
-    "description": "Class A: Safety Hooks (raw-data protection, dangerous command protection, outside-workspace protection)",
-    "module": ".agents/hooks/safety_hooks.py"
-  },
-  "integrity-hooks": {
-    "enabled": true,
-    "description": "Class B: Integrity Hooks (artifact verification, state consistency, manifest verification, post-analysis validation)",
-    "module": ".agents/hooks/integrity_hooks.py"
-  },
-  "learning-hooks": {
-    "enabled": true,
-    "description": "Class C: Learning Hooks (capture user correction, capture validation failure, capture agent trajectory)",
-    "module": ".agents/hooks/learning_hooks.py"
   }
 }

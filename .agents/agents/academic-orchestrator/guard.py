@@ -188,9 +188,9 @@ def is_validation_failure_active(records: List[Dict[str, Any]], workspaces: List
 
 
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
-    tool_call = payload.get("toolCall", {})
-    tool_name = (tool_call.get("name") or "").strip().lower()
-    args = tool_call.get("args", {})
+    tool_call = payload.get("toolCall") or payload.get("tool_call") or {}
+    tool_name = (tool_call.get("name") or payload.get("tool_name") or "").strip().lower()
+    args = tool_call.get("args") or payload.get("args") or {}
 
     # Directive 20 / Directive 12.1: Non-Execution Invariant
     if tool_name in FORBIDDEN_ORCHESTRATOR_TOOLS:
@@ -225,6 +225,18 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     if target_type in EXECUTION_SUBAGENTS
                     else (True, "", None)
                 )
+
+                if not is_valid:
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 12 — Contractual Delegation Invariant / Contractual Delegation Envelope Required):\n"
+                            f"{reason}\n"
+                            f"Academic-Orchestrator must provide a structured Contractual Delegation Envelope (CDE) specifying "
+                            f"task_id, worker_agent, inputs, and required_artifacts."
+                        ),
+                        "message": reason
+                    }
 
                 # Capability Routing Verification & Gate Clearance (Directive 19 / Directive 12 / Directive 3)
                 workspaces = payload.get("workspacePaths")

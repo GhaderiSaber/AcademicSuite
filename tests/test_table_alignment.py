@@ -103,58 +103,59 @@ def create_table_test_doc():
     doc.save(docx_path)
     return docx_path
 
-docx_path = create_table_test_doc()
-subprocess.run(["soffice", "--headless", "--convert-to", "fodt", docx_path, "--outdir", OUTDIR], check=True)
-subprocess.run(["soffice", "--headless", "--convert-to", "pdf", docx_path, "--outdir", OUTDIR], check=True)
+if __name__ == '__main__':
+    docx_path = create_table_test_doc()
+    subprocess.run(["soffice", "--headless", "--convert-to", "fodt", docx_path, "--outdir", OUTDIR], check=True)
+    subprocess.run(["soffice", "--headless", "--convert-to", "pdf", docx_path, "--outdir", OUTDIR], check=True)
 
-# Parse FODT
-tree = ET.parse(os.path.join(OUTDIR, "table_test.fodt"))
-root = tree.getroot()
-ODF_NS = {
-    'office': 'urn:oasis:names:tc:opendocument:xmlns:office:1.0',
-    'style': 'urn:oasis:names:tc:opendocument:xmlns:style:1.0',
-    'text': 'urn:oasis:names:tc:opendocument:xmlns:text:1.0',
-    'table': 'urn:oasis:names:tc:opendocument:xmlns:table:1.0',
-    'fo': 'urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0',
-}
+    # Parse FODT
+    tree = ET.parse(os.path.join(OUTDIR, "table_test.fodt"))
+    root = tree.getroot()
+    ODF_NS = {
+        'office': 'urn:oasis:names:tc:opendocument:xmlns:office:1.0',
+        'style': 'urn:oasis:names:tc:opendocument:xmlns:style:1.0',
+        'text': 'urn:oasis:names:tc:opendocument:xmlns:text:1.0',
+        'table': 'urn:oasis:names:tc:opendocument:xmlns:table:1.0',
+        'fo': 'urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0',
+    }
 
-style_props = {}
-for s in root.findall('.//style:style', ODF_NS):
-    name = s.attrib.get(f"{{{ODF_NS['style']}}}name")
-    props = {}
-    for child in s:
-        if child.tag == f"{{{ODF_NS['style']}}}paragraph-properties":
-            props['text-align'] = child.attrib.get(f"{{{ODF_NS['fo']}}}text-align")
-            props['writing-mode'] = child.attrib.get(f"{{{ODF_NS['style']}}}writing-mode")
-        elif child.tag == f"{{{ODF_NS['style']}}}table-properties":
-            props['table-align'] = child.attrib.get(f"{{{ODF_NS['table']}}}align")
-            props['writing-mode'] = child.attrib.get(f"{{{ODF_NS['style']}}}writing-mode")
-    style_props[name] = props
+    style_props = {}
+    for s in root.findall('.//style:style', ODF_NS):
+        name = s.attrib.get(f"{{{ODF_NS['style']}}}name")
+        props = {}
+        for child in s:
+            if child.tag == f"{{{ODF_NS['style']}}}paragraph-properties":
+                props['text-align'] = child.attrib.get(f"{{{ODF_NS['fo']}}}text-align")
+                props['writing-mode'] = child.attrib.get(f"{{{ODF_NS['style']}}}writing-mode")
+            elif child.tag == f"{{{ODF_NS['style']}}}table-properties":
+                props['table-align'] = child.attrib.get(f"{{{ODF_NS['table']}}}align")
+                props['writing-mode'] = child.attrib.get(f"{{{ODF_NS['style']}}}writing-mode")
+        style_props[name] = props
 
-print("=== TABLE TEST FODT PARAGRAPHS ===")
-for p in root.findall('.//text:p', ODF_NS):
-    st = p.attrib.get(f"{{{ODF_NS['text']}}}style-name")
-    text = "".join(p.itertext()).strip()
-    if text:
-        props = style_props.get(st, {})
-        print(f"[{props.get('text-align', 'NONE'):^10}] [wm: {props.get('writing-mode', 'NONE'):^6}] {text}")
+    print("=== TABLE TEST FODT PARAGRAPHS ===")
+    for p in root.findall('.//text:p', ODF_NS):
+        st = p.attrib.get(f"{{{ODF_NS['text']}}}style-name")
+        text = "".join(p.itertext()).strip()
+        if text:
+            props = style_props.get(st, {})
+            print(f"[{props.get('text-align', 'NONE'):^10}] [wm: {props.get('writing-mode', 'NONE'):^6}] {text}")
 
-print("\n=== TABLE TEST FODT TABLE PROPS ===")
-for tbl in root.findall('.//table:table', ODF_NS):
-    st = tbl.attrib.get(f"{{{ODF_NS['table']}}}style-name")
-    print(f"Table style: {st}, props: {style_props.get(st)}")
+    print("\n=== TABLE TEST FODT TABLE PROPS ===")
+    for tbl in root.findall('.//table:table', ODF_NS):
+        st = tbl.attrib.get(f"{{{ODF_NS['table']}}}style-name")
+        print(f"Table style: {st}, props: {style_props.get(st)}")
 
-# Parse PDF layout
-xml_path = os.path.join(OUTDIR, "table_test.xml")
-subprocess.run(["pdftotext", "-bbox-layout", os.path.join(OUTDIR, "table_test.pdf"), xml_path], check=True)
-pdf_tree = ET.parse(xml_path)
-pdf_ns = {'h': 'http://www.w3.org/1999/xhtml'}
-print("\n=== TABLE TEST PDF PHYSICAL LAYOUT ===")
-for line in pdf_tree.findall('.//h:line', pdf_ns):
-    words = [w.text for w in line.findall('.//h:word', pdf_ns) if w.text]
-    line_text = ' '.join(words)
-    xMin = float(line.attrib['xMin'])
-    xMax = float(line.attrib['xMax'])
-    pos = 'RIGHT' if xMax > 500 else ('LEFT' if xMin < 100 else 'MIDDLE')
-    print(f"[{pos:6}] (xMin={xMin:5.1f}, xMax={xMax:5.1f}) | {line_text}")
+    # Parse PDF layout
+    xml_path = os.path.join(OUTDIR, "table_test.xml")
+    subprocess.run(["pdftotext", "-bbox-layout", os.path.join(OUTDIR, "table_test.pdf"), xml_path], check=True)
+    pdf_tree = ET.parse(xml_path)
+    pdf_ns = {'h': 'http://www.w3.org/1999/xhtml'}
+    print("\n=== TABLE TEST PDF PHYSICAL LAYOUT ===")
+    for line in pdf_tree.findall('.//h:line', pdf_ns):
+        words = [w.text for w in line.findall('.//h:word', pdf_ns) if w.text]
+        line_text = ' '.join(words)
+        xMin = float(line.attrib['xMin'])
+        xMax = float(line.attrib['xMax'])
+        pos = 'RIGHT' if xMax > 500 else ('LEFT' if xMin < 100 else 'MIDDLE')
+        print(f"[{pos:6}] (xMin={xMin:5.1f}, xMax={xMax:5.1f}) | {line_text}")
 
