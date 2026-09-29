@@ -5,7 +5,7 @@ These domain rules are automatically loaded and applied across all conversations
 ---
 
 ## 1. Radical Honesty & Pipeline Enforcement
-- **Anti-pattern (AP-2026-PATCHING-WITHOUT-LEARNING)**: Upon receiving any user critique or validation failure report (overall_verdict: FAIL or checks_failed > 0), invoke the continuous learning cascade (trajectory-analyzer -> behavior-analyst -> knowledge-curator -> skill-evolver -> evaluation-agent) and compile candidates before dispatching remediation. Delegating deliverable remediation to delivery workers without completing the learning cascade is strictly prohibited. [Enforcement: academic-orchestrator/guard.py & integrity_hooks.py]
+- **Lesson (LSN-2026-LEGACY-VAL-ISOLATION)**: Physically delete failing validation_report.json files using os.remove instead of moving or archiving them within monitored directories. [Enforcement: dynamic_invariant_guard.py (LSN-2026-LEGACY-VAL-ISOLATION)]
 - **Anti-pattern (AP-2026-BOLD-TABLE-CAPTION-AND-UNJUSTIFIED-NARRATIVE)**: Ensure table captions are regular non-bold font. Ensure all narrative body paragraphs in DOCX explicitly contain <w:jc w:val="both"/>. [Enforcement: dynamic_invariant_guard.py (AP-2026-BOLD-TABLE-CAPTION-AND-UNJUSTIFIED-NARRATIVE)]
 - **Directive 2 (Deterministic Calculation Invariant)**: Zero mental arithmetic or hallucinated statistics in memory. Compute via bundled deterministic Python/R CLI scripts on real datasets. [Enforcement: `Stop` hook / `statistics_agent_guard.py`]
 - **Anti-pattern (AP-2026-ISOLATED-PROSE-POLISHING)**: When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly. [Enforcement: dynamic_invariant_guard.py (AP-2026-ISOLATED-PROSE-POLISHING)]
