@@ -1,6 +1,6 @@
 # Google Antigravity Architecture & Customization Guide
 **Agents, Subagents, Skills, and Workflows**  
-*Document Version: 2026.09.24 | Operative Date: September 24, 2026 (Antigravity 2.17.0)*
+*Document Version: 2026.09.28 | Operative Date: September 28, 2026 (Antigravity 2.18.1)*
 
 ---
 
@@ -471,3 +471,16 @@ The release of Antigravity 2.17.0 (and 2.16.0) introduces significant architectu
 
 ### 8.7 LaTeX & Math Formula Rendering (2.17.0)
 *   Enhanced parser handles inline math immediately followed by digits, display math fences (`$$`), and row spacing adjustments (`\\[12pt]`) without Markdown truncation.
+
+### 8.8 In-App Plugin Marketplace & Customizations Tab (2.18.1)
+*   **Manage & Install Plugins**: Dedicated Customizations tab and integrated marketplace to discover, install, enable, and configure plugins.
+*   **Plugin Slash Command Attribution**: Slash commands provided by installed plugins display plugin source badges, hover cards with descriptions, and support filtering by plugin name.
+
+### 8.9 Multi-Tier Token Budget Visualization (2.18.1)
+*   **Decoupled Quota Telemetry**: Token usage breakdown displays separate bars for rules vs. customizations.
+*   **Demotion Flagging**: Visual indicators flag rules or customizations that exceed the 20,000-token rules budget or 40,000-byte skill limits and are demoted to path-only pointers.
+
+### 8.10 Subagent Worktree Hardening & Syntax-Highlighted Permissions (2.18.1)
+*   **Subagent Git Worktree Isolation**: Hardened boundary ensures worktrees created by subagents (`Workspace: "branch"`) are cleanly separated from conversation logs and never misclassified as project artifacts.
+*   **Syntax-Highlighted Terminal Approvals**: Permission review prompts feature full syntax highlighting for shell commands, making it easier to audit commands before manual authorization.
+
