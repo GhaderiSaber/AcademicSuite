@@ -1,3 +1,8 @@
+---
+trigger: model_decision
+description: "Canonical structural and statistical reporting standards for Chapter 4 research findings, APA 7 regression suites (3 tables), and SEM latent modeling."
+---
+
 # Chapter 4 Architecture & Statistical Reporting Specification (Directives 3, 3.1, 4)
 
 Canonical structural and reporting standards for Chapter 4 (یافته‌های پژوهش / Research Findings).

@@ -1,3 +1,9 @@
+---
+trigger: always_on
+description: "Universal filesystem naming conventions (Directive 6: strictly ASCII English filenames) and clean workspace root standards."
+globs: "*"
+---
+
 # File Naming & Directory Structure Specification (Directives 6, 23)
 
 Universal filesystem naming conventions and routing standards across AcademicSuite.

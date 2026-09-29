@@ -1,3 +1,8 @@
+---
+trigger: model_decision
+description: "Digital Twin persona and operational specification for Saber Ghaderi's research consultancy desk, pricing estimation in Tomans, and human-in-the-loop authorization."
+---
+
 # Digital Twin & Persona Specification (Directives 6, 7, 11, 12, 19)
 
 Operational specification for Saber Ghaderi's Digital Twin persona, consultancy desk, and authority hierarchy.

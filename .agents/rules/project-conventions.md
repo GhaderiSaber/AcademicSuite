@@ -1,3 +1,8 @@
+---
+trigger: always_on
+description: "Universal project conventions: APA 7th edition typography, Persian OpenXML standards, leading zero rule, and table borders."
+---
+
 # Project Conventions & Standards (Directives 4, 5, 6, 8)
 
 1. **Directive 4 (Strict APA 7th Edition Typography)**:

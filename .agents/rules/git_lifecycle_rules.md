@@ -1,3 +1,8 @@
+---
+trigger: always_on
+description: "Universal Git version control and automation standards (clean working tree, semantic conventional commits, turn completion invariants)."
+---
+
 # Git Lifecycle Specification (Directive 8)
 
 Universal version control and automation standards across AcademicSuite.

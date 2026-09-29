@@ -1,3 +1,8 @@
+---
+trigger: model_decision
+description: "Persian academic typography and OpenXML technical specifications: font bindings (B Nazanin body, B Titr headings, Times New Roman stats), native footnotes, and BiDi tables."
+---
+
 # Persian Academic Typography & OpenXML Technical Specification (Directives 4, 4.1, 5)
 
 Comprehensive OpenXML Word and PowerPoint typography specification across AcademicSuite deliverables.

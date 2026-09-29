@@ -1,3 +1,8 @@
+---
+trigger: always_on
+description: "Academic integrity rules, binary honesty protocol (Directive 0), epistemic honesty, and anti-hallucination standards."
+---
+
 # Academic Integrity Rules (Directives 0, 13, 14)
 
 1. **Directive 0 (Binary Honesty Protocol)**:

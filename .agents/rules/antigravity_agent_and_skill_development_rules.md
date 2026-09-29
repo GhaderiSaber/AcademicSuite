@@ -1,3 +1,8 @@
+---
+trigger: model_decision
+description: "Architectural standards for Agents, Subagents, Skills, and Lifecycle Hooks in Antigravity (Directives 12, 18, 19, 20)."
+---
+
 # Antigravity Agent, Subagent & Skill Specification (Directives 12, 18, 19, 20)
 
 Architectural standards for Agents, Subagents, Skills, and Lifecycle Hooks in Antigravity 2.17.

@@ -293,8 +293,6 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
                     id_match = re.search(r"<identity>([\s\S]*?)</identity>", content)
                     if id_match:
                         id_text = id_match.group(1)
-                        if "You are Antigravity, a powerful agentic AI coding assistant" in id_text:
-                            return "default", "track_1_developer", "high"
                         if "academic-orchestrator" in id_text or "Master Academic Orchestrator" in id_text:
                             return "academic-orchestrator", "track_2_academic", "high"
                         if "digital-saber" in id_text:
@@ -304,6 +302,8 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
                         for ac in get_canonical_academic_agents():
                             if ac in id_text.lower():
                                 return ac, "track_2_academic", "high"
+                        if "You are Antigravity, a powerful agentic AI coding assistant" in id_text:
+                            return "default", "track_1_developer", "high"
             except Exception:
                 continue
 
@@ -371,10 +371,10 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
             except Exception:
                 continue
 
-        if has_developer_tool_call:
-            return "default", "track_1_developer", "high"
         if has_orchestrator_signature:
             return "academic-orchestrator", "track_2_academic", "high"
+        if has_developer_tool_call:
+            return "default", "track_1_developer", "high"
     except Exception:
         return None
 

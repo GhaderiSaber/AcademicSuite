@@ -1,3 +1,8 @@
+---
+trigger: always_on
+description: "Data integrity rules, deterministic calculations (Directive 2), empirical decimal noise, and Multi-Signal Anomaly Index (MSAI)."
+---
+
 # Data Integrity Rules (Directives 2, 9, 10)
 
 1. **Directive 2 (Deterministic Calculation)**:

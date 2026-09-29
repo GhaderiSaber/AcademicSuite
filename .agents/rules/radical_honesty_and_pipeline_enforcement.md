@@ -1,3 +1,8 @@
+---
+trigger: always_on
+description: "Universal governance specification (Directives 0, 1, 3, 11, 13: Binary Honesty Protocol, Pre-Flight Pipeline Declaration, on-disk Triad artifacts, interactive stage gates)."
+---
+
 # Radical Honesty & Pipeline Enforcement Specification (Directives 0, 1, 3, 11, 13)
 
 Universal governance specification across all agents, subagents, and sessions in the AcademicSuite ecosystem.
