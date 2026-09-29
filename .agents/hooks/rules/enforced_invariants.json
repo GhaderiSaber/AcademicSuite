@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-29T05:25:39.701404+00:00",
+  "updated_at": "2026-09-29T06:37:59.892820+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -830,6 +830,27 @@
       "remedy": "Ensure legacy validation reports are physically unlinked.",
       "enabled": true,
       "updated_at": "2026-09-29T05:25:39.701384+00:00"
+    },
+    "CAN-20260929-PROP-REV-001": {
+      "item_id": "CAN-20260929-PROP-REV-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Do not use re.sub for XML replacement. Use robust DOM manipulation and assert replacements_count > 0.",
+      "target_agents": [
+        "academic-writer",
+        "results-auditor"
+      ],
+      "target_skills": [
+        "PROPOSAL"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\\\.py",
+      "check_type": "regex_ban",
+      "pattern": "(?m)^.*re\\\\.sub.*xml.*$",
+      "violation_message": "Do not use re.sub for XML replacement. Use robust DOM manipulation and assert replacements_count > 0.",
+      "remedy": "Refactor to use robust XML DOM paragraph/run text inspection and assert replacements_count.",
+      "enabled": true,
+      "updated_at": "2026-09-29T06:37:59.892797+00:00"
     }
   }
 }
