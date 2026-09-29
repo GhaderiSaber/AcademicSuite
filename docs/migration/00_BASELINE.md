@@ -185,6 +185,6 @@ The user provided an architectural hypothesis classifying roles into **Durable A
 
 ## 7. Next Documents in Migration Series
 
-- [01_CURRENT_AGENT_INVENTORY.md](file:///home/saber-ghaderi/Desktop/AcademicSuite/docs/migration/01_CURRENT_AGENT_INVENTORY.md): Exhaustive 13-point audit for every individual agent.
-- [02_CURRENT_DEPENDENCY_GRAPH.md](file:///home/saber-ghaderi/Desktop/AcademicSuite/docs/migration/02_CURRENT_DEPENDENCY_GRAPH.md): Comprehensive topology of dependencies, handoffs, and call graphs.
-- [03_CURRENT_RISK_REGISTER.md](file:///home/saber-ghaderi/Desktop/AcademicSuite/docs/migration/03_CURRENT_RISK_REGISTER.md): Forensic register of all fail-open paths, silent fallbacks, and security risks.
+- [01_CURRENT_AGENT_INVENTORY.md](01_CURRENT_AGENT_INVENTORY.md): Exhaustive 13-point audit for every individual agent.
+- [02_CURRENT_DEPENDENCY_GRAPH.md](02_CURRENT_DEPENDENCY_GRAPH.md): Comprehensive topology of dependencies, handoffs, and call graphs.
+- [03_CURRENT_RISK_REGISTER.md](03_CURRENT_RISK_REGISTER.md): Forensic register of all fail-open paths, silent fallbacks, and security risks.

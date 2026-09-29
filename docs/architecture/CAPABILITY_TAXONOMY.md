@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary & Objective
 
-Phase 1 formalizes the **Capability Model** for the AcademicSuite multi-agent system before modifying any agent configurations. In the V0 baseline ([AGENT_BEHAVIOR_BASELINE.md](file:///home/saber-ghaderi/Desktop/AcademicSuite/docs/architecture/AGENT_BEHAVIOR_BASELINE.md)), delegation failures occurred because managerial orchestrators possessed execution and writing privileges ("Hands"). This architectural defect tempted the orchestrator into running ad-hoc Python commands and authoring scripts directly rather than delegating to specialist workers.
+Phase 1 formalizes the **Capability Model** for the AcademicSuite multi-agent system before modifying any agent configurations. In the V0 baseline ([AGENT_BEHAVIOR_BASELINE.md](AGENT_BEHAVIOR_BASELINE.md)), delegation failures occurred because managerial orchestrators possessed execution and writing privileges ("Hands"). This architectural defect tempted the orchestrator into running ad-hoc Python commands and authoring scripts directly rather than delegating to specialist workers.
 
 To permanently resolve this structural contradiction and enforce Directive 12.1 (*Sole Orchestrator Mandate*) and Directive 19 (*The Six-Part Functional Separation Invariant*), this document defines:
 1. The **Formal Capability Taxonomy** (10 discrete capabilities).

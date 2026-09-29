@@ -630,39 +630,39 @@ All vulnerabilities identified during the red-team audit were systematically rem
 ### 1. Priority 0 Remediations (P0)
 
 1. **Remediate ATK-01 & ATK-02 (Standalone Script Safety & Plan Gating)**:
-   - **Fix**: Created [`.agents/scripts/script_execution_guard.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/scripts/script_execution_guard.py) featuring `enforce_script_safety`. In production mode, any dataset identified as sample/demo/synthetic/mock raises `ProductionSampleFallbackBlockedError`. Direct script execution requires an approved AnalysisPlan (`--plan`) with `status: APPROVED`; missing or unapproved plans raise `UnauthorizedAnalysisPlanError`.
-   - **Applied To**: [`.agents/skills/sem/scripts/run_sem.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/skills/sem/scripts/run_sem.py), [`.agents/skills/regression/scripts/run_regression.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/skills/regression/scripts/run_regression.py).
-   - **Regression Test**: [`tests/test_standalone_script_safety.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/tests/test_standalone_script_safety.py) (10 tests, all passing).
+   - **Fix**: Created [`.agents/scripts/script_execution_guard.py`](../../.agents/scripts/script_execution_guard.py) featuring `enforce_script_safety`. In production mode, any dataset identified as sample/demo/synthetic/mock raises `ProductionSampleFallbackBlockedError`. Direct script execution requires an approved AnalysisPlan (`--plan`) with `status: APPROVED`; missing or unapproved plans raise `UnauthorizedAnalysisPlanError`.
+   - **Applied To**: [`.agents/skills/sem/scripts/run_sem.py`](../../.agents/skills/sem/scripts/run_sem.py), [`.agents/skills/regression/scripts/run_regression.py`](../../.agents/skills/regression/scripts/run_regression.py).
+   - **Regression Test**: [`tests/test_standalone_script_safety.py`](../../tests/test_standalone_script_safety.py) (10 tests, all passing).
 
 3. **V-DATA-02: Silent Modification of Real Survey Raw Datasets**:
-   - **Fix**: Enhanced [`.agents/scripts/permission_manager.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/scripts/permission_manager.py) with `lock_raw_data_directory` setting `0444` read-only permissions on all raw dataset files. Added automatic read-only enforcement in [`.agents/verification/transcript_and_rule_guard.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/verification/transcript_and_rule_guard.py).
-   - **Regression Test**: [`tests/test_raw_data_mutation_guard.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/tests/test_raw_data_mutation_guard.py) (2 tests, all passing).
+   - **Fix**: Enhanced [`.agents/scripts/permission_manager.py`](../../.agents/scripts/permission_manager.py) with `lock_raw_data_directory` setting `0444` read-only permissions on all raw dataset files. Added automatic read-only enforcement in [`.agents/verification/transcript_and_rule_guard.py`](../../.agents/verification/transcript_and_rule_guard.py).
+   - **Regression Test**: [`tests/test_raw_data_mutation_guard.py`](../../tests/test_raw_data_mutation_guard.py) (2 tests, all passing).
 
 4. **V-AUDIT-01: Auto-Verification Regex Bypass in Reference Verification**:
-   - **Fix**: Removed the regex auto-verification shortcut in [`.agents/skills/academic-reference-extractor/scripts/verify_references.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/skills/academic-reference-extractor/scripts/verify_references.py). Fabricated Persian citations without verified local bibliography records or resolving DOIs strictly return `is_verified: False` with status `UNVERIFIED (LOCAL PERSIAN RECORD REQUIRES PROOF)`.
-   - **Regression Test**: [`tests/test_verify_references_persian.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/tests/test_verify_references_persian.py) (2 tests, all passing).
+   - **Fix**: Removed the regex auto-verification shortcut in [`.agents/skills/academic-reference-extractor/scripts/verify_references.py`](../../.agents/skills/academic-reference-extractor/scripts/verify_references.py). Fabricated Persian citations without verified local bibliography records or resolving DOIs strictly return `is_verified: False` with status `UNVERIFIED (LOCAL PERSIAN RECORD REQUIRES PROOF)`.
+   - **Regression Test**: [`tests/test_verify_references_persian.py`](../../tests/test_verify_references_persian.py) (2 tests, all passing).
 
 5. **V-GATE-01: Approval Granted Without Prior Passing Validation Artifact**:
-   - **Fix**: Added `MilestoneValidationRequiredError` to [`.agents/scripts/academic_state_manager.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/scripts/academic_state_manager.py). In `StrictStateMachine.transition_milestone`, transitioning to `APPROVED` now strictly requires a physical, schema-valid `validation_report.json` with `overall_verdict: PASS`. Missing or failing validation reports mechanically block approval.
-   - **Regression Test**: [`tests/test_state_machine_validation_gate.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/tests/test_state_machine_validation_gate.py) (3 tests, all passing).
+   - **Fix**: Added `MilestoneValidationRequiredError` to [`.agents/scripts/academic_state_manager.py`](../../.agents/scripts/academic_state_manager.py). In `StrictStateMachine.transition_milestone`, transitioning to `APPROVED` now strictly requires a physical, schema-valid `validation_report.json` with `overall_verdict: PASS`. Missing or failing validation reports mechanically block approval.
+   - **Regression Test**: [`tests/test_state_machine_validation_gate.py`](../../tests/test_state_machine_validation_gate.py) (3 tests, all passing).
 
 6. **V-STAT-01: Unverified Regression Beta & Statistical Parameters in Narrative**:
-   - **Fix**: Updated `find_contradictions_in_text` in [`.agents/validators/result_consistency/validator.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/validators/result_consistency/validator.py) to parse and cross-verify standardized beta coefficients ($\beta$), unstandardized $B$, $t$-statistics, $z$-scores, and SEM fit indices against structured JSON parameters. Contradictions between narrative text and stats JSON trigger validation `FAIL`.
-   - **Regression Test**: [`tests/test_result_consistency_coefficients.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/tests/test_result_consistency_coefficients.py) (2 tests, all passing).
+   - **Fix**: Updated `find_contradictions_in_text` in [`.agents/validators/result_consistency/validator.py`](../../.agents/validators/result_consistency/validator.py) to parse and cross-verify standardized beta coefficients ($\beta$), unstandardized $B$, $t$-statistics, $z$-scores, and SEM fit indices against structured JSON parameters. Contradictions between narrative text and stats JSON trigger validation `FAIL`.
+   - **Regression Test**: [`tests/test_result_consistency_coefficients.py`](../../tests/test_result_consistency_coefficients.py) (2 tests, all passing).
 
 7. **V-ARCH-01: Unauthorized Agent Re-Introduction & Retired Legacy Role Leakage**:
-   - **Fix**: Added `RETIRED_AGENTS = {"writing-agent", "legacy-orchestrator", "orchestrator-agent"}` to [`.agents/factory/agent_factory.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/factory/agent_factory.py). Attempting to generate or regenerate any retired agent raises `AgentValidationError`.
-   - **Regression Test**: [`tests/test_retired_agent_factory.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/tests/test_retired_agent_factory.py) (3 tests, all passing).
+   - **Fix**: Added `RETIRED_AGENTS = {"writing-agent", "legacy-orchestrator", "orchestrator-agent"}` to [`.agents/factory/agent_factory.py`](../../.agents/factory/agent_factory.py). Attempting to generate or regenerate any retired agent raises `AgentValidationError`.
+   - **Regression Test**: [`tests/test_retired_agent_factory.py`](../../tests/test_retired_agent_factory.py) (3 tests, all passing).
 
 7. **Remediate ATK-03 & ATK-17 (Worker Delegation Gate & Dynamic Nesting Ceilings)**:
-   - **Fix**: Stripped `invoke_subagent`, `manage_subagents`, and `send_message` from worker agents (`academic-writer`, `evidence-auditor`, `final-judge`). Added `invoke_subagent` to `PreToolUse` and `PostToolUse` matchers in [`.agents/hooks.json`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/hooks.json). In [`.agents/verification/transcript_and_rule_guard.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/verification/transcript_and_rule_guard.py), added caller-role validation and dynamic nesting depth inspection denying delegation at depth $\ge 3$.
-   - **Regression Test**: [`tests/test_agent_delegation_guard.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/tests/test_agent_delegation_guard.py) (4 tests, all passing).
+   - **Fix**: Stripped `invoke_subagent`, `manage_subagents`, and `send_message` from worker agents (`academic-writer`, `evidence-auditor`, `final-judge`). Added `invoke_subagent` to `PreToolUse` and `PostToolUse` matchers in [`.agents/hooks.json`](../../.agents/hooks.json). In [`.agents/verification/transcript_and_rule_guard.py`](../../.agents/verification/transcript_and_rule_guard.py), added caller-role validation and dynamic nesting depth inspection denying delegation at depth $\ge 3$.
+   - **Regression Test**: [`tests/test_agent_delegation_guard.py`](../../tests/test_agent_delegation_guard.py) (4 tests, all passing).
 
 ### 3. Priority 2 Remediations (P2)
 
 8. **Remediate ATK-10 & ATK-18 (Principle of Least Privilege for Reasoning Agents & MCP Permissions)**:
-   - **Fix**: Removed `run_command` from [`.agents/agents/statistical-expert/agent.md`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/agents/statistical-expert/agent.md) and contract. Reasoning experts are strictly analytical authorities who design plans; deterministic execution belongs strictly to `statistics-agent`. Confirmed 100% of 22 agents declare `mcpServers: []`.
-   - **Regression Test**: [`tests/test_statistical_expert_tool_least_privilege.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/tests/test_statistical_expert_tool_least_privilege.py) (2 tests, all passing).
+   - **Fix**: Removed `run_command` from [`.agents/agents/statistical-expert/agent.md`](../../.agents/agents/statistical-expert/agent.md) and contract. Reasoning experts are strictly analytical authorities who design plans; deterministic execution belongs strictly to `statistics-agent`. Confirmed 100% of 22 agents declare `mcpServers: []`.
+   - **Regression Test**: [`tests/test_statistical_expert_tool_least_privilege.py`](../../tests/test_statistical_expert_tool_least_privilege.py) (2 tests, all passing).
 
 ---
 
