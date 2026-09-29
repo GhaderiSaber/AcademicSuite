@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260929-B6B546",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260929-E03AAA",
+  "target_agent": "validation-agent",
+  "target_agents": [
+    "validation-agent"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` | **Task**: `proposal_drafting` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-SILENT-REGEX-DOCX-FAILURE] Lack of assertion on replacements count leads to silent passes.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-GROUND-TRUTH-XML-SURGICAL-MUTATION] Mandate: Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.\n\n---\n### Executable Task Assignment:\n{\n  \"task_id\": \"TSK-2026-LEARN-BEHAVIOR-2\",\n  \"stage\": \"Continuous Learning Stage 2: Causal Behavior Analysis\",\n  \"worker_agent\": \"behavior-analyst\",\n  \"objective\": \"Perform causal root-cause analysis on the failure trajectory TRJ-20260929-PROP-REV-FAILURE-002 to determine why candidate CAN-20260929-PROP-REV-001 produced replacements_count == 1 instead of 6.\",\n  \"inputs\": [\n    \"Trajectory TRJ-20260929-PROP-REV-FAILURE-002\",\n    \".agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json\",\n    \".agents/learning/candidates/CAN-20260929-PROP-REV-001.json\"\n  ],\n  \"trajectory_summary\": {\n    \"trajectory_id\": \"TRJ-20260929-PROP-REV-FAILURE-002\",\n    \"evaluation_id\": \"EVAL-20260929-PROP-REV-001\",\n    \"failure\": \"AssertionError: Failed: replacements_count is 1, expected 6\",\n    \"root_cause\": \"The candidate script hardcoded search strings with literal numbering prefixes ('۱) ', '۲) ', etc.). In Word OpenXML, list numbering is stored in paragraph properties () and is NOT present in run text (). The actual text inside paragraphs 288-292 starts directly with 'سبک های دلبستگی...' without any '۱) ' prefix. Consequently, old_h in full_text failed for all 5 hypotheses, matching only Section 6C Item 3.\"\n  },\n  \"required_artifacts\": [\n    \".agents/learning/behavior_analyses/BAN-20260929-PROP-REV-002.json\"\n  ],\n  \"acceptance_criteria\": [\n    \"Categorize failure signature as OPENXML_NUMPR_LITERAL_PREFIX_HALLUCINATION\",\n    \"Document causal chain from assumption of literal prefix text to AssertionError during benchmark test\",\n    \"Formulate prescribed counterfactual behavior: search for exact run text stripped of assumed OpenXML numPr prefixes or match by paragraph content normalized of numPr\",\n    \"Save validated report conforming to behavior_analysis.schema.json to .agents/learning/behavior_analyses/BAN-20260929-PROP-REV-002.json\"\n  ],\n  \"constraints\": [\n    \"Directive 0 (Factual truth, zero rationalization)\",\n    \"Directive 6 (English ASCII filenames)\"\n  ]\n}",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding research integrity correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` | **Task**: `proposal_drafting` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-SILENT-REGEX-DOCX-FAILURE] Lack of assertion on replacements count leads to silent passes.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-GROUND-TRUTH-XML-SURGICAL-MUTATION] Mandate: Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.\n\n---\n### Executable Task Assignment:\n{\n  \"task_id\": \"TSK-2026-LEARN-BEHAVIOR-2\",\n  \"stage\": \"Continuous Learning Stage 2: Causal Behavior Analysis\",\n  \"worker_agent\": \"behavior-analyst\",\n  \"objective\": \"Perform causal root-cause analysis on the failure trajectory TRJ-20260929-PROP-REV-FAILURE-002 to determine why candidate CAN-20260929-PROP-REV-001 produced replacements_count == 1 instead of 6.\",\n  \"inputs\": [\n    \"Trajectory TRJ-20260929-PROP-REV-FAILURE-002\",\n    \".agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json\",\n    \".agents/learning/candidates/CAN-20260929-PROP-REV-001.json\"\n  ],\n  \"trajectory_summary\": {\n    \"trajectory_id\": \"TRJ-20260929-PROP-REV-FAILURE-002\",\n    \"evaluation_id\": \"EVAL-20260929-PROP-REV-001\",\n    \"failure\": \"AssertionError: Failed: replacements_count is 1, expected 6\",\n    \"root_cause\": \"The candidate script hardcoded search strings with literal numbering prefixes ('۱) ', '۲) ', etc.). In Word OpenXML, list numbering is stored in paragraph properties () and is NOT present in run text (). The actual text inside paragraphs 288-292 starts directly with 'سبک های دلبستگی...' without any '۱) ' prefix. Consequently, old_h in full_text failed for all 5 hypotheses, matching only Section 6C Item 3.\"\n  },\n  \"required_artifacts\": [\n    \".agents/learning/behavior_analyses/BAN-20260929-PROP-REV-002.json\"\n  ],\n  \"acceptance_criteria\": [\n    \"Categorize failure signature as OPENXML_NUMPR_LITERAL_PREFIX_HALLUCINATION\",\n    \"Document causal chain from assumption of literal prefix text to AssertionError during benchmark test\",\n    \"Formulate prescribed counterfactual behavior: search for exact run text stripped of assumed OpenXML numPr prefixes or match by paragraph content normalized of numPr\",\n    \"Save validated report conforming to behavior_analysis.schema.json to .agents/learning/behavior_analyses/BAN-20260929-PROP-REV-002.json\"\n  ],\n  \"constraints\": [\n    \"Directive 0 (Factual truth, zero rationalization)\",\n    \"Directive 6 (English ASCII filenames)\"\n  ]\n}.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Studies utilizing thesis-integrity-auditor or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` | **Task**: `proposal_drafting` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-SILENT-REGEX-DOCX-FAILURE] Lack of assertion on replacements count leads to silent passes.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-GROUND-TRUTH-XML-SURGICAL-MUTATION] Mandate: Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.\n\n---\n### Executable Task Assignment:\n{\n  \"task_id\": \"TSK-2026-LEARN-BEHAVIOR-2\",\n  \"stage\": \"Continuous Learning Stage 2: Causal Behavior Analysis\",\n  \"worker_agent\": \"behavior-analyst\",\n  \"objective\": \"Perform causal root-cause analysis on the failure trajectory TRJ-20260929-PROP-REV-FAILURE-002 to determine why candidate CAN-20260929-PROP-REV-001 produced replacements_count == 1 instead of 6.\",\n  \"inputs\": [\n    \"Trajectory TRJ-20260929-PROP-REV-FAILURE-002\",\n    \".agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json\",\n    \".agents/learning/candidates/CAN-20260929-PROP-REV-001.json\"\n  ],\n  \"trajectory_summary\": {\n    \"trajectory_id\": \"TRJ-20260929-PROP-REV-FAILURE-002\",\n    \"evaluation_id\": \"EVAL-20260929-PROP-REV-001\",\n    \"failure\": \"AssertionError: Failed: replacements_count is 1, expected 6\",\n    \"root_cause\": \"The candidate script hardcoded search strings with literal numbering prefixes ('۱) ', '۲) ', etc.). In Word OpenXML, list numbering is stored in paragraph properties () and is NOT present in run text (). The actual text inside paragraphs 288-292 starts directly with 'سبک های دلبستگی...' without any '۱) ' prefix. Consequently, old_h in full_text failed for all 5 hypotheses, matching only Section 6C Item 3.\"\n  },\n  \"required_artifacts\": [\n    \".agents/learning/behavior_analyses/BAN-20260929-PROP-REV-002.json\"\n  ],\n  \"acceptance_criteria\": [\n    \"Categorize failure signature as OPENXML_NUMPR_LITERAL_PREFIX_HALLUCINATION\",\n    \"Document causal chain from assumption of literal prefix text to AssertionError during benchmark test\",\n    \"Formulate prescribed counterfactual behavior: search for exact run text stripped of assumed OpenXML numPr prefixes or match by paragraph content normalized of numPr\",\n    \"Save validated report conforming to behavior_analysis.schema.json to .agents/learning/behavior_analyses/BAN-20260929-PROP-REV-002.json\"\n  ],\n  \"constraints\": [\n    \"Directive 0 (Factual truth, zero rationalization)\",\n    \"Directive 6 (English ASCII filenames)\"\n  ]\n}.",
+  "generalization": "Procedural Guideline for thesis-integrity-auditor: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` | **Task**: `proposal_drafting` | **Agent**: `behavior-analyst` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-SILENT-REGEX-DOCX-FAILURE] Lack of assertion on replacements count leads to silent passes.\n\n💡 Relevant Active Lessons:\n- [LSN-2026-GROUND-TRUTH-XML-SURGICAL-MUTATION] Mandate: Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.\n\n---\n### Executable Task Assignment:\n{\n  \"task_id\": \"TSK-2026-LEARN-BEHAVIOR-2\",\n  \"stage\": \"Continuous Learning Stage 2: Causal Behavior Analysis\",\n  \"worker_agent\": \"behavior-analyst\",\n  \"objective\": \"Perform causal root-cause analysis on the failure trajectory TRJ-20260929-PROP-REV-FAILURE-002 to determine why candidate CAN-20260929-PROP-REV-001 produced replacements_count == 1 instead of 6.\",\n  \"inputs\": [\n    \"Trajectory TRJ-20260929-PROP-REV-FAILURE-002\",\n    \".agents/learning/evaluations/EVAL-20260929-PROP-REV-001.json\",\n    \".agents/learning/candidates/CAN-20260929-PROP-REV-001.json\"\n  ],\n  \"trajectory_summary\": {\n    \"trajectory_id\": \"TRJ-20260929-PROP-REV-FAILURE-002\",\n    \"evaluation_id\": \"EVAL-20260929-PROP-REV-001\",\n    \"failure\": \"AssertionError: Failed: replacements_count is 1, expected 6\",\n    \"root_cause\": \"The candidate script hardcoded search strings with literal numbering prefixes ('۱) ', '۲) ', etc.). In Word OpenXML, list numbering is stored in paragraph properties () and is NOT present in run text (). The actual text inside paragraphs 288-292 starts directly with 'سبک های دلبستگی...' without any '۱) ' prefix. Consequently, old_h in full_text failed for all 5 hypotheses, matching only Section 6C Item 3.\"\n  },\n  \"required_artifacts\": [\n    \".agents/learning/behavior_analyses/BAN-20260929-PROP-REV-002.json\"\n  ],\n  \"acceptance_criteria\": [\n    \"Categorize failure signature as OPENXML_NUMPR_LITERAL_PREFIX_HALLUCINATION\",\n    \"Document causal chain from assumption of literal prefix text to AssertionError during benchmark test\",\n    \"Formulate prescribed counterfactual behavior: search for exact run text stripped of assumed OpenXML numPr prefixes or match by paragraph content normalized of numPr\",\n    \"Save validated report conforming to behavior_analysis.schema.json to .agents/learning/behavior_analyses/BAN-20260929-PROP-REV-002.json\"\n  ],\n  \"constraints\": [\n    \"Directive 0 (Factual truth, zero rationalization)\",\n    \"Directive 6 (English ASCII filenames)\"\n  ]\n}. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-RESEARCH_INTEGRITY_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` | **Task**: `proposal",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `PROPOSAL` ",
+    "supporting_report_ids": [
+      "FDB-20260929-77E2A8"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "thesis-integrity-auditor"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T06:56:03.963019+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-29T06:56:03.963080+00:00"
+  }
+}

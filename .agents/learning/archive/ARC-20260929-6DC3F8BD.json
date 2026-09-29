@@ -1,0 +1,693 @@
+{
+  "contract_version": "1.0.0",
+  "archive_id": "ARC-20260929-6DC3F8BD",
+  "candidate_id": "CAND-20260929-THESIS-I-ANTI-DFB5",
+  "target_component": ".agents/skills/thesis-integrity-auditor/SKILL.md",
+  "target_type": "SKILL_PROCEDURAL_SPECIFICATION",
+  "mutation_type": "ANTI_PATTERN_ADDITION",
+  "failure_reason": "Evaluation gates failed: Candidate caused 21 regression(s) on protected capabilities.; Failed adversarial red-team verification checks.; MISSING_EVALUATION_EVIDENCE: Held-out evaluation was not performed; status is UNKNOWN.",
+  "affected_cases": [
+    "EVAL-CASE-ADV-SLOPE-VIOLATION-001",
+    "EVAL-CASE-REG-APA_REPORTIN-AB633180",
+    "EVAL-CASE-REG-APA_REPORTIN-538F7094",
+    "EVAL-CASE-REG-DATA_AUDIT-20EE3DF3",
+    "EVAL-CASE-REG-APA_REPORTIN-105028F5",
+    "regression_suite",
+    "EVAL-CASE-REG-PERSIAN_LITE-9A21E072",
+    "EVAL-CASE-REG-METHODOLOGY_-235FEE3A",
+    "EVAL-CASE-HELD-BOOTSTRAP-001",
+    "EVAL-CASE-REG-THESIS_INTEG-88C8B538",
+    "EVAL-CASE-REG-SLOPE-001",
+    "EVAL-CASE-REG-CHAPTER_4_WR-F7C2CF5B",
+    "EVAL-CASE-REG-ACADEMIC_SUI-C5DE645C",
+    "EVAL-CASE-REG-APA_REPORTIN-F3FE0326",
+    "EVAL-CASE-REG-STATISTICAL_-2FB6A96A",
+    "adversarial_suite",
+    "EVAL-CASE-ADV-MEDIAN-SPLIT-001",
+    "heldout_suite",
+    "EVAL-CASE-REG-ACADEMIC_SUI-9143A3A1",
+    "EVAL-CASE-REG-ACADEMIC_SUI-97555117",
+    "EVAL-CASE-REG-ACADEMIC_SUI-F1A3AF15",
+    "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+    "EVAL-CASE-HELD-LONGITUDINAL-3GROUP-001"
+  ],
+  "evaluation_evidence": {
+    "report_id": "CCR-20260929-063102",
+    "total_cases_evaluated": 21,
+    "failures": [],
+    "counterfactual_analysis": {
+      "what_changed": "Evaluated across 21 test cases spanning 5 suites. Candidate altered outcomes in 21 cases.",
+      "what_improved": [
+        "[EVAL-CASE-REG-ACADEMIC_SUI-9143A3A1] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-ACADEMIC_SUI-9143A3A1] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-ACADEMIC_SUI-97555117] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-ACADEMIC_SUI-C5DE645C] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-ACADEMIC_SUI-F1A3AF15] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-ACADEMIC_WRI-101426FD] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-APA_REPORTIN-105028F5] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-APA_REPORTIN-538F7094] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-APA_REPORTIN-AB633180] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-APA_REPORTIN-F3FE0326] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-CHAPTER_4_WR-F7C2CF5B] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-DATA_AUDIT-20EE3DF3] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-METHODOLOGY_-235FEE3A] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-PERSIAN_LITE-9A21E072] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-SLOPE-001] Resolved defect: omitted_critical_assumption",
+        "[EVAL-CASE-REG-SLOPE-001] Resolved defect: omitting_homogeneity_of_slopes_test",
+        "[EVAL-CASE-REG-SLOPE-001] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-SLOPE-001] Resolved defect: missing_effect_size",
+        "[EVAL-CASE-REG-STATISTICAL_-2FB6A96A] Resolved defect: missing_estimand",
+        "[EVAL-CASE-REG-THESIS_INTEG-88C8B538] Resolved defect: missing_estimand",
+        "[EVAL-CASE-ADV-MEDIAN-SPLIT-001] Resolved defect: missing_estimand",
+        "[EVAL-CASE-ADV-SLOPE-VIOLATION-001] Resolved defect: omitted_critical_assumption",
+        "[EVAL-CASE-ADV-SLOPE-VIOLATION-001] Resolved defect: omitting_homogeneity_of_slopes_test",
+        "[EVAL-CASE-ADV-SLOPE-VIOLATION-001] Resolved defect: missing_estimand",
+        "[EVAL-CASE-HELD-BOOTSTRAP-001] Resolved defect: missing_confidence_interval",
+        "[EVAL-CASE-HELD-BOOTSTRAP-001] Resolved defect: missing_estimand",
+        "[EVAL-CASE-HELD-LONGITUDINAL-3GROUP-001] Resolved defect: ignoring_missingness_in_longitudinal_data",
+        "[EVAL-CASE-HELD-LONGITUDINAL-3GROUP-001] Resolved defect: missing_estimand"
+      ],
+      "what_regressed": [
+        "[EVAL-CASE-REG-ACADEMIC_SUI-9143A3A1] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-ACADEMIC_SUI-9143A3A1] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-ACADEMIC_SUI-97555117] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-ACADEMIC_SUI-C5DE645C] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-ACADEMIC_SUI-F1A3AF15] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-ACADEMIC_WRI-101426FD] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-APA_REPORTIN-105028F5] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-APA_REPORTIN-538F7094] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-APA_REPORTIN-AB633180] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-APA_REPORTIN-F3FE0326] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-CHAPTER_4_WR-F7C2CF5B] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-DATA_AUDIT-20EE3DF3] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-METHODOLOGY_-235FEE3A] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-PERSIAN_LITE-9A21E072] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-SLOPE-001] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-STATISTICAL_-2FB6A96A] New regression: unsupported_causal_language",
+        "[EVAL-CASE-REG-THESIS_INTEG-88C8B538] New regression: unsupported_causal_language",
+        "[EVAL-CASE-ADV-MEDIAN-SPLIT-001] New regression: unsupported_causal_language",
+        "[EVAL-CASE-ADV-SLOPE-VIOLATION-001] New regression: unsupported_causal_language",
+        "[EVAL-CASE-HELD-BOOTSTRAP-001] New regression: unsupported_causal_language",
+        "[EVAL-CASE-HELD-LONGITUDINAL-3GROUP-001] New regression: unsupported_causal_language"
+      ],
+      "which_behavior_changed": [
+        {
+          "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-9143A3A1",
+          "suite": "original_failure",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-9143A3A1",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-97555117",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-C5DE645C",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-F1A3AF15",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-ACADEMIC_WRI-101426FD",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-APA_REPORTIN-105028F5",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-APA_REPORTIN-538F7094",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-APA_REPORTIN-AB633180",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-APA_REPORTIN-F3FE0326",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-CHAPTER_4_WR-F7C2CF5B",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-DATA_AUDIT-20EE3DF3",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-METHODOLOGY_-235FEE3A",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-PERSIAN_LITE-9A21E072",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-SLOPE-001",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "omitted_critical_assumption",
+            "omitting_homogeneity_of_slopes_test",
+            "missing_estimand",
+            "missing_effect_size"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-STATISTICAL_-2FB6A96A",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-REG-THESIS_INTEG-88C8B538",
+          "suite": "regression",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-ADV-MEDIAN-SPLIT-001",
+          "suite": "adversarial",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-ADV-SLOPE-VIOLATION-001",
+          "suite": "adversarial",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "omitted_critical_assumption",
+            "omitting_homogeneity_of_slopes_test",
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-HELD-BOOTSTRAP-001",
+          "suite": "heldout",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "missing_confidence_interval",
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        },
+        {
+          "case_id": "EVAL-CASE-HELD-LONGITUDINAL-3GROUP-001",
+          "suite": "heldout",
+          "baseline_verdict": "FAIL",
+          "candidate_verdict": "FAIL",
+          "resolved_failures": [
+            "ignoring_missingness_in_longitudinal_data",
+            "missing_estimand"
+          ],
+          "introduced_failures": [
+            "unsupported_causal_language"
+          ]
+        }
+      ],
+      "which_failure_disappeared": [
+        "ignoring_missingness_in_longitudinal_data",
+        "missing_confidence_interval",
+        "missing_estimand",
+        "omitted_critical_assumption",
+        "missing_effect_size",
+        "omitting_homogeneity_of_slopes_test"
+      ],
+      "which_new_failure_appeared": [
+        "unsupported_causal_language"
+      ]
+    }
+  },
+  "candidate_snapshot": {
+    "contract_version": "1.0.0",
+    "candidate_id": "CAND-20260929-THESIS-I-ANTI-DFB5",
+    "target_component": ".agents/skills/thesis-integrity-auditor/SKILL.md",
+    "target_skill": "thesis-integrity-auditor",
+    "target_type": "SKILL_PROCEDURAL_SPECIFICATION",
+    "mutation_type": "ANTI_PATTERN_ADDITION",
+    "parent_version": "main-HEAD",
+    "mutation": {
+      "diff_type": "UNIFIED_DIFF",
+      "content": "--- a/.agents/skills/thesis-integrity-auditor/SKILL.md\n+++ b/.agents/skills/thesis-integrity-auditor/SKILL.md\n@@ -156,4 +156,10 @@\n ## 🧠 Active Learned Behavioral Invariants\n - **Lesson (LSN-2026-LEARN-ON-USER-FEEDBACK-001)**: Automatically activate the native learning pipeline upon any user feedback indicating wrong results, defects, or dissatisfaction, persisting structured lessons and anti-patterns. [Enforcement: data_agent_guard.py]\n - **Lesson (LSN-2026-METHODOLOGY-AWARE-VALIDATION-BRANCHING)**: validation-agent must implement conditional branching in thesis-integrity-auditor to apply the 3-table regression invariant only to regression manuscripts, bypassing it for SEM manuscripts. [Enforcement: data_agent_guard.py]\n-- **Lesson (LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION)**: Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks. [Enforcement: data_agent_guard.py]+- **Lesson (LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION)**: Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks. [Enforcement: data_agent_guard.py]\n+\n+## 🚫 Prohibited Anti-Patterns: thesis-integrity-auditor\n+- **Anti-Pattern (GENERAL_METHODOLOGICAL_DEFECT)**: Observable defect identified from trigger: User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n+- **Target Capability\n+  - *Prescribed Alternative*: Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.\n+  - *Enforcement*: Any deliverable exhibiting 'GENERAL_METHODOLOGICAL_DEFECT' will fail validation closed.\n",
+      "checksum_sha256": "a1caf9686002912d4e4e61b7822d64f5bd31bdd1a8d239e054b5d80fdb90a6f6"
+    },
+    "rationale": "Addresses root cause 'Observable defect identified from trigger: User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability' by explicitly cataloging 'GENERAL_METHODOLOGICAL_DEFECT' as a prohibited anti-pattern.",
+    "source_lessons": [
+      "LSN-20260929-DCA7EA"
+    ],
+    "expected_improvement": {
+      "target_metric": "diagnostic_failure_rate",
+      "baseline_value": 1.0,
+      "projected_value": 0.0,
+      "qualitative_outcome": "Provides unmistakable negative constraints preventing recurring 'GENERAL_METHODOLOGICAL_DEFECT' shortcuts."
+    },
+    "expected_benefit": "Provides unmistakable negative constraints preventing recurring 'GENERAL_METHODOLOGICAL_DEFECT' shortcuts.",
+    "possible_downside": "Focuses on negative boundaries rather than step-by-step constructive procedures.",
+    "testable_hypothesis": "If the 'GENERAL_METHODOLOGICAL_DEFECT' anti-pattern is explicitly cataloged, agent recurrence of this defect will decrease by at least 90% and adhere to 'Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.'.",
+    "affected_capabilities": [
+      "thesis-integrity-auditor"
+    ],
+    "reflective_diagnosis": {
+      "root_cause": "Observable defect identified from trigger: User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability",
+      "failure_mechanism": "GENERAL_METHODOLOGICAL_DEFECT",
+      "generalizability": "Applies across empirical studies and tasks utilizing 'thesis-integrity-auditor'.",
+      "evidence_sources": [
+        "Observable Failure: GENERAL_METHODOLOGICAL_DEFECT",
+        "Observed Step: Step 1 (run_command)",
+        "Trigger Diagnostic: User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability"
+      ]
+    },
+    "author_agent": "skill-evolver",
+    "status": "EVALUATED",
+    "staged_at": "2026-09-29T06:59:39.993084+00:00",
+    "metadata": {
+      "candidate_diagnosis": {
+        "target_category": "retrieval rule",
+        "diagnosed_gap": "Missing or ambiguous retrieval rule in 'Master 4-Tier CLI Execution:': Observable defect identified from trigger: User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability",
+        "affected_section": "Master 4-Tier CLI Execution:",
+        "prescribed_behavior": "Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.",
+        "proposed_resolution": "WHEN standard baseline assumptions hold → use primary approach (Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.); WHEN complex data structures (multi-wave/missingness) present → use robust alternative; EXCEPT when GENERAL_METHODOLOGICAL_DEFECT or boundary violation occurs → use alternative remediation.",
+        "counterfactual": "Instead of TOOL_CALLED causing 'GENERAL_METHODOLOGICAL_DEFECT', the execution should have followed 'Adhere strictly to domain guidelines and verify task requirements against evaluation checklist.'.",
+        "evidence_sources": [
+          "Observable Failure: GENERAL_METHODOLOGICAL_DEFECT",
+          "Observed Step: Step 1 (run_command)",
+          "Trigger Diagnostic: User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability"
+        ]
+      },
+      "target_category": "retrieval rule"
+    },
+    "pareto_rank": 2,
+    "evaluation_verdicts": {
+      "verdict": "FAIL",
+      "pass_rate": 0.0,
+      "case_count": 3,
+      "evaluations": [
+        {
+          "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-9143A3A1",
+          "verdict": "FAIL",
+          "diagnostics": [
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'problem:_evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'problem:_evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            },
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'blank_evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'blank_evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            },
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'header._evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'header._evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            },
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'there_evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'there_evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            }
+          ],
+          "dimensional_evaluations": {
+            "correctness": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "methodology": {
+              "verdict": "FAIL",
+              "failures_count": 4,
+              "failure_types": [
+                "missing_reasoning_property",
+                "missing_reasoning_property",
+                "missing_reasoning_property",
+                "missing_reasoning_property"
+              ]
+            },
+            "statistical_validity": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "evidence_grounding": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "integrity": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "robustness": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "consistency": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "efficiency": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            }
+          }
+        },
+        {
+          "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-97555117",
+          "verdict": "FAIL",
+          "diagnostics": [
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'problem:_evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'problem:_evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            },
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'interpret_evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'interpret_evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            },
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'results_evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'results_evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            },
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'chapter_evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'chapter_evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            }
+          ],
+          "dimensional_evaluations": {
+            "correctness": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "methodology": {
+              "verdict": "FAIL",
+              "failures_count": 4,
+              "failure_types": [
+                "missing_reasoning_property",
+                "missing_reasoning_property",
+                "missing_reasoning_property",
+                "missing_reasoning_property"
+              ]
+            },
+            "statistical_validity": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "evidence_grounding": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "integrity": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "robustness": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "consistency": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "efficiency": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            }
+          }
+        },
+        {
+          "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-C5DE645C",
+          "verdict": "FAIL",
+          "diagnostics": [
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'problem:_evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'problem:_evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            },
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'references._evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'references._evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            },
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'unacceptable._evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'unacceptable._evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            },
+            {
+              "target_behavior": false,
+              "failure_type": "missing_reasoning_property",
+              "evidence": "Candidate analysis failed to consider required reasoning property 'جامعیت:_evaluation'.",
+              "missed_requirement": "Explicit evaluation and discussion of 'جامعیت:_evaluation'.",
+              "dimension": "methodology",
+              "regression": true
+            }
+          ],
+          "dimensional_evaluations": {
+            "correctness": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "methodology": {
+              "verdict": "FAIL",
+              "failures_count": 4,
+              "failure_types": [
+                "missing_reasoning_property",
+                "missing_reasoning_property",
+                "missing_reasoning_property",
+                "missing_reasoning_property"
+              ]
+            },
+            "statistical_validity": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "evidence_grounding": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "integrity": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "robustness": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "consistency": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            },
+            "efficiency": {
+              "verdict": "PASS",
+              "failures_count": 0,
+              "failure_types": []
+            }
+          }
+        }
+      ]
+    },
+    "lifecycle_stage": "EVALUATION",
+    "risk_level": "LEVEL_0_FORMATTING"
+  },
+  "archived_at": "2026-09-29T06:59:40.055558+00:00",
+  "status": "REJECTED_AND_ARCHIVED"
+}

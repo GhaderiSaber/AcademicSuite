@@ -1,8 +1,14 @@
 {
   "overall_verdict": "PASS",
   "checks_failed": 0,
-  "evidence_summary": {
-    "checks_passed": 100,
-    "checks_failed": 0
+  "checks_blocked": 0,
+  "details": {
+    "Document Conservation Gate": "PASS - Clean: 92457 bytes, Tracked: 92475 bytes (Expected >= 87640 bytes).",
+    "Council Option A Causal Elimination": "PASS - 0 occurrences of 'تاثیر دارد' in hypotheses 1 to 5.",
+    "Option A Predictive Phrasing": "PASS - 5 occurrences of predictive phrasing found.",
+    "Applied Objective 3": "PASS - 'نقش آن در ارتقای همدلی' is present.",
+    "Mediation Preservation": "PASS - 'نقش میانجی' is intact (17 occurrences).",
+    "Yellow Highlight Tracking": "PASS - 6 occurrences of <w:highlight w:val=\"yellow\"/> found.",
+    "Report Concordance": "PASS - Proposal_Revised_Report.md accurately reflects variables and contains no English text."
   }
 }

@@ -1,0 +1,16 @@
+{
+  "evaluation_id": "EVAL-20260929-PROP-REV-002",
+  "candidate_id": "CAN-20260929-PROP-REV-002",
+  "overall_verdict": "PASS",
+  "verdict": "PASS",
+  "recommendation": "GRADUATE",
+  "metrics": {
+    "correctness": 100,
+    "execution_reliability": 100
+  },
+  "regressions": [],
+  "evidence": {
+    "test_clean": "/tmp/test_clean.docx",
+    "test_tracked": "/tmp/test_tracked.docx"
+  }
+}
