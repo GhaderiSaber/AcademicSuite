@@ -74,20 +74,27 @@ def _is_actionable_regex_pattern(pattern: str) -> bool:
 
     # English prose prefixes used in descriptive heuristics rather than regexes
     prose_prefixes = (
-        "detection of", "detect any", "flag any", "flag two", "inspect",
+        "detection of", "detect any", "detecting", "flag any", "flag two", "inspect",
         "assert", "absence of", "presence of", "disallowing", "target output",
         "target file", "user_feedback", "reverse coding", "high density",
-        "high frequency", "standard compliance", "remove "
+        "high frequency", "standard compliance", "remove ", "scanning for",
+        "regex detecting", "regex matching", "scripts checking", "comparison heuristic",
+        "heuristic detecting", "checking layout", "verify", "verifying", "enforce",
+        "ensure", "prevent", "forbid", "prohibit"
     )
     pat_lower = pat.lower()
     if any(pat_lower.startswith(prefix) for prefix in prose_prefixes):
         return False
 
+    prose_markers = ("functioning as", "rather than", "applied to", "in table cells", "within rtl", "applied on")
+    if any(m in pat_lower for m in prose_markers):
+        return False
+
     # Plain text sentences with multiple space-separated words without regex metacharacters
     # are prose descriptions, NOT valid regexes for mechanical banning.
     words = pat.split()
-    has_regex_metachar = bool(re.search(r"[\^\\\[\]|*+?{}]|(?:\(\?)|(?:\(\<\=)|(?:\(\<\!)", pat))
-    if len(words) > 3 and not has_regex_metachar:
+    has_regex_metachar = bool(re.search(r"[\^\\*+?|]|(?:\(\?)|(?:\(\<\=)|(?:\(\<\!)", pat))
+    if len(words) > 4 and not has_regex_metachar:
         return False
 
     # English sentence ending with punctuation without regex tokens
@@ -523,28 +530,61 @@ class AcademicGraduationCompiler:
         if not pattern and category == "Lesson":
             anti_dir = os.path.join(self.agents_dir, "learning", "knowledge", "anti-patterns")
             if os.path.isdir(anti_dir):
-                slug = item_id.replace("LSN-", "").replace("AP-", "").strip()
-                tokens = [t.lower() for t in slug.split("-") if len(t) > 3 and not t.isdigit()]
+                STOP_WORDS = {
+                    "parsing", "alignment", "format", "formatting", "failure", "invariant", "invariants",
+                    "standard", "standards", "check", "rule", "rules", "modification", "table", "tables",
+                    "explicit", "lesson", "defect", "writing", "docx", "code", "file", "blindspot",
+                    "validation", "validator", "handling", "processing", "reporting", "model", "suite",
+                    "overuse", "error", "leak", "clean", "test", "structural"
+                }
+
+                def _slug_base(val: str) -> str:
+                    s = re.sub(r"^(?:LSN|AP|CAN|CAND)-\d{4}-?", "", val)
+                    s = re.sub(r"-\d+$", "", s)
+                    return s.lower()
+
+                lsn_base = _slug_base(item_id)
+                lsn_tokens = [t for t in lsn_base.split("-") if len(t) > 3 and not t.isdigit() and t not in STOP_WORDS]
+
+                matched_ap_file = None
+                # Pass 1: Exact base slug match
                 for af in sorted(os.listdir(anti_dir)):
                     if not af.endswith(".json") or af.startswith("."):
                         continue
-                    af_lower = af.lower()
-                    if any(tok in af_lower for tok in tokens):
-                        try:
-                            with open(os.path.join(anti_dir, af), "r", encoding="utf-8") as f_ap:
-                                ap_data = json.load(f_ap)
-                            ap_dh = ap_data.get("mechanical_rule") or ap_data.get("detection_heuristic", {})
-                            ap_pat = ap_dh.get("pattern") or ap_dh.get("regex") or ""
-                            if not ap_pat and "regex_patterns" in ap_dh and isinstance(ap_dh["regex_patterns"], list) and ap_dh["regex_patterns"]:
-                                ap_pat = ap_dh["regex_patterns"][0]
-                            if ap_pat and _is_actionable_regex_pattern(ap_pat):
-                                pattern = ap_pat
-                                check_type = check_type or ap_dh.get("check_type")
-                                file_pattern = file_pattern or ap_dh.get("file_pattern")
-                                event = event or ap_dh.get("event")
-                                break
-                        except Exception:
-                            pass
+                    af_base = _slug_base(af.replace(".json", ""))
+                    if lsn_base == af_base:
+                        matched_ap_file = af
+                        break
+
+                # Pass 2: Strict domain token subset match (requires >= 2 non-stop domain tokens)
+                if not matched_ap_file and len(lsn_tokens) >= 2:
+                    for af in sorted(os.listdir(anti_dir)):
+                        if not af.endswith(".json") or af.startswith("."):
+                            continue
+                        af_tokens = set(_slug_base(af.replace(".json", "")).split("-"))
+                        if set(lsn_tokens).issubset(af_tokens):
+                            matched_ap_file = af
+                            break
+
+                if matched_ap_file:
+                    try:
+                        with open(os.path.join(anti_dir, matched_ap_file), "r", encoding="utf-8") as f_ap:
+                            ap_data = json.load(f_ap)
+                        ap_dh = ap_data.get("mechanical_rule") or ap_data.get("detection_heuristic", {})
+                        ap_pat = ap_dh.get("pattern") or ap_dh.get("regex") or ""
+                        if not ap_pat and "regex_patterns" in ap_dh and isinstance(ap_dh["regex_patterns"], list) and ap_dh["regex_patterns"]:
+                            ap_pat = ap_dh["regex_patterns"][0]
+                        if not ap_pat:
+                            ap_trig = ap_dh.get("trigger_rule", "")
+                            if _is_actionable_regex_pattern(ap_trig):
+                                ap_pat = ap_trig
+                        if ap_pat and _is_actionable_regex_pattern(ap_pat):
+                            pattern = ap_pat
+                            check_type = check_type or ap_dh.get("check_type")
+                            file_pattern = file_pattern or ap_dh.get("file_pattern")
+                            event = event or ap_dh.get("event")
+                    except Exception:
+                        pass
 
         if not pattern and category == "Anti-Pattern":
             trig = dh.get("trigger_rule", "")
