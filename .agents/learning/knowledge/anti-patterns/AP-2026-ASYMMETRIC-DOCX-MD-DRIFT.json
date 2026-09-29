@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-ASYMMETRIC-DOCX-MD-DRIFT",
+  "category": "execution",
+  "defective_pattern": "Editing .md and .docx asymmetrically instead of compiling .docx strictly from .md source of truth",
+  "why_defective": "Breaks the Triad Invariant and introduces data divergence where the JSON/MD representations do not match the final DOCX, leading to audit failure.",
+  "observed_symptoms": [
+    "Manual patches applied to DOCX only",
+    "MD and DOCX files out of sync",
+    "Missing data in MD while present in DOCX"
+  ],
+  "corrective_remedy": "Always edit the MD source of truth and compile the DOCX deterministically from it to ensure the Triad Invariant is strictly upheld.",
+  "detection_heuristic": {
+    "trigger_rule": "Comparison heuristic detecting drift between MD and DOCX",
+    "regex_patterns": [],
+    "pattern": "",
+    "check_type": "drift_check",
+    "file_pattern": ".*\\.md|.*\\.docx",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "chapter-4-writing",
+    "chapter-5-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T13:08:28Z"
+}

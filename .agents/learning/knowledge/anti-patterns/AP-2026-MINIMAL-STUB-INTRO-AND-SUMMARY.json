@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-MINIMAL-STUB-INTRO-AND-SUMMARY",
+  "category": "execution",
+  "defective_pattern": "Using 4-line stubs instead of extensive institutional introduction and summary sections",
+  "why_defective": "Violates Directive 25 (Universal Anti-Shortcut, Zero-Fastpath, No-Rush). Academic deliverables require thorough, deep framing and concluding remarks, not minimal placeholders.",
+  "observed_symptoms": [
+    "Very short introduction sections (< 1 page)",
+    "Summary sections containing only bullet points",
+    "Lack of theoretical depth or framing"
+  ],
+  "corrective_remedy": "Draft comprehensive introduction and summary sections adhering to doctoral-level depth and institutional standards.",
+  "detection_heuristic": {
+    "trigger_rule": "Word count heuristic for intro/summary sections",
+    "regex_patterns": [],
+    "pattern": "",
+    "check_type": "word_count",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "chapter-4-writing",
+    "chapter-5-writing",
+    "persian-literature-review-builder"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T13:08:28Z"
+}

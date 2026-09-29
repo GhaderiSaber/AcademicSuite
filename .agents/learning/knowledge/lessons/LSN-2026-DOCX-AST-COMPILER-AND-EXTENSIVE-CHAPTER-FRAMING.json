@@ -1,0 +1,44 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-DOCX-AST-COMPILER-AND-EXTENSIVE-CHAPTER-FRAMING",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "AUDITOR_FAILURE",
+  "source_experience_id": "BAN-20260929-CH4-DOCX-FORMATTING-CRITIQUE-001",
+  "diagnosis": {
+    "what_happened": "Raw markdown syntax was dumped into DOCX files, edits between MD and DOCX drifted asymmetrically, and minimal stubs were used for introduction and summary sections.",
+    "behavior_caused_outcome": "Asymmetrical editing broke the Triad Invariant, native formatting constraints were violated via markdown string dumping, and doctoral depth was compromised by short stubs.",
+    "what_should_have_happened": "DOCX deliverables must be compiled from the MD source of truth using a robust Markdown to OpenXML AST compiler. Introductions and summaries must reflect extensive institutional depth.",
+    "rationale_why": "To rigorously uphold the Triad Invariant, formatting integrity, and Directive 25 (Universal Anti-Shortcut, Zero-Fastpath, No-Rush)."
+  },
+  "desired_behavior": "Mandate robust markdown-to-OpenXML parser compiling strictly from MD source of truth, and ensure doctoral-level depth for introductions and summaries.",
+  "generalization": "Deliverable formatting and content depth must strictly adhere to native compiling practices and zero-shortcut institutional standards across all projects.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "BEHAVIORAL_DIAGNOSIS",
+    "observed_value": "Markdown syntax in DOCX and stubs",
+    "threshold_value": "Zero tolerance for defect",
+    "supporting_report_ids": [
+      "BAN-20260929-CH4-DOCX-FORMATTING-CRITIQUE-001",
+      "TRJ-20260929-CH4-DOCX-FORMATTING-CRITIQUE-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing",
+    "chapter-5-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T13:08:28Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "chapter-4-writing",
+    "chapter-5-writing",
+    "results-auditor"
+  ]
+}
