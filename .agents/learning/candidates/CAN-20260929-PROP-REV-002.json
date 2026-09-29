@@ -1,0 +1,38 @@
+{
+  "candidate_id": "CAN-20260929-PROP-REV-002",
+  "target_component": ".agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py",
+  "target_type": "SKILL_DETERMINISTIC_SCRIPT",
+  "mutation": {
+    "diff_type": "FULL_CONTENT_REPLACEMENT",
+    "content": "import sys\nimport re\nimport zipfile\nimport shutil\nimport os\n\ndef process_docx(input_docx, output_docx, track=False):\n    extract_dir = input_docx + \"_extracted\"\n    with zipfile.ZipFile(input_docx, 'r') as docx:\n        docx.extractall(extract_dir)\n        \n    doc_path = os.path.join(extract_dir, 'word', 'document.xml')\n    with open(doc_path, 'r', encoding='utf-8') as f:\n        xml_content = f.read()\n        \n    original_xml = xml_content\n    replacements_count = 0\n    \n    searches = [\n        (\"سبک های دلبستگی بر همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.\", \"بین سبکهای دلبستگی و همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (سبکهای دلبستگی پیشبینیکننده معنادار همدلی است).\"),\n        (\"سبک های دلبستگی بر تنظیم هیجان در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.\", \"بین سبکهای دلبستگی و تنظیم هیجان در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (سبکهای دلبستگی پیشبینیکننده معنادار تنظیم هیجان است).\"),\n        (\"سبک های دلبستگی بر خود شفقتی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.\", \"بین سبکهای دلبستگی و خودشفقتی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (سبکهای دلبستگی پیشبینیکننده معنادار خودشفقتی است).\"),\n        (\"تنظیم هیجان بر همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.\", \"بین تنظیم هیجان و همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (تنظیم هیجان پیشبینیکننده معنادار همدلی است).\"),\n        (\"خود شفقتی بر همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم تاثیر دارد.\", \"بین خودشفقتی و همدلی در دانشجویان پزشکی دانشگاه علوم پزشکی قم رابطه معناداری وجود دارد (خودشفقتی پیشبینیکننده معنادار همدلی است).\"),\n        (\"و تاثیر آن بر همدلی\", \"و نقش آن در ارتقای همدلی\")\n    ]\n    \n    for search_text, replace_text in searches:\n        if search_text in xml_content:\n            if track:\n                pattern = re.compile(rf'(<w:r(?: [^>]*)?>)((?:(?!<w:r(?: [^>]*)?>).)*?{re.escape(search_text)}.*?</w:r>)', re.DOTALL)\n                def repl_func(match):\n                    r_start = match.group(1)\n                    r_inner = match.group(2)\n                    r_inner = r_inner.replace(search_text, replace_text)\n                    if '<w:rPr>' in r_inner:\n                        r_inner = r_inner.replace('<w:rPr>', '<w:rPr><w:highlight w:val=\"yellow\"/>')\n                    else:\n                        r_start += '<w:rPr><w:highlight w:val=\"yellow\"/></w:rPr>'\n                    return r_start + r_inner\n                xml_content, subs_made = pattern.subn(repl_func, xml_content)\n                if subs_made == 0:\n                    xml_content = xml_content.replace(search_text, replace_text)\n            else:\n                xml_content = xml_content.replace(search_text, replace_text)\n                \n            replacements_count += 1\n            \n    assert replacements_count == 6, f\"Expected 6 replacements, got {replacements_count}\"\n    assert xml_content != original_xml, \"XML was not modified\"\n    \n    with open(doc_path, 'w', encoding='utf-8') as f:\n        f.write(xml_content)\n        \n    shutil.make_archive(extract_dir, 'zip', extract_dir)\n    shutil.move(extract_dir + '.zip', output_docx)\n    shutil.rmtree(extract_dir)\n\nif __name__ == '__main__':\n    input_file = sys.argv[1]\n    output_file = sys.argv[2]\n    track = '--track' in sys.argv\n    process_docx(input_file, output_file, track)\n"
+  },
+  "mechanical_rule": {
+    "event": "PreToolUse",
+    "tool_match": "write_to_file|replace_file_content|run_command",
+    "file_pattern": ".*\\\\.py",
+    "check_type": "regex_ban",
+    "pattern": "(?m)^\\\\s*search_string\\\\s*=\\\\s*['\\\"][۱۲۳۴۵۶۷۸۹۰\\\\d]+[\\\\)\\\\.]\\\\s+",
+    "violation_message": "Do not include hallucinated numbering prefixes in search strings for OpenXML documents. List numbers are stored as <w:numPr> properties.",
+    "remedy": "Remove literal numbering prefixes from your search strings and match only the text content of the run.",
+    "target_agents": [
+      "academic-writer",
+      "skill-evolver"
+    ]
+  },
+  "expected_improvement": {
+    "metric": "Regex Replacement Success Rate",
+    "baseline": 0.0,
+    "projected": 1.0
+  },
+  "affected_capabilities": [
+    "PROPOSAL",
+    "OPENXML_MANIPULATION"
+  ],
+  "status": "PROMOTED",
+  "graduation_status": "GRADUATED",
+  "promoted_at": "2026-09-29T06:59:48.749710+00:00",
+  "promoted_targets": [
+    "/home/saber-ghaderi/My Work/Mehrane/.agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py",
+    "/home/saber-ghaderi/My Work/Mehrane/.agents/hooks/rules/enforced_invariants.json"
+  ]
+}

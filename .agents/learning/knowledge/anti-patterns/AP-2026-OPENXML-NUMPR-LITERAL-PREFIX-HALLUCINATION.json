@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-OPENXML-NUMPR-LITERAL-PREFIX-HALLUCINATION",
+  "category": "execution",
+  "defective_pattern": "Assuming list numbers are stored as literal text in OpenXML runs rather than paragraph properties numPr",
+  "why_defective": "Causes text matching to fail for numbered paragraphs, resulting in 0 replacements or AssertionErrors",
+  "observed_symptoms": [
+    "AssertionError: replacements_count is 1, expected 6",
+    "Silent matching failures when searching for paragraph text starting with numbering prefixes"
+  ],
+  "corrective_remedy": "Search for exact run text stripped of assumed OpenXML numPr prefixes or match by paragraph content normalized of numPr.",
+  "detection_heuristic": {
+    "trigger_rule": "Searching for list numbers in run text",
+    "regex_patterns": [
+      "(?m)^\\s*search_string\\s*=\\s*['\"][۱۲۳۴۵۶۷۸۹۰\\d]+[\\)\\.]\\s+"
+    ],
+    "pattern": "(?m)^\\s*search_string\\s*=\\s*['\"][۱۲۳۴۵۶۷۸۹۰\\d]+[\\)\\.]\\s+",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "PreToolUse"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "skill-evolver"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T10:27:26Z"
+}

@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260929-PROP-REV-002",
+  "trigger_type": "QC_FAILURE",
+  "trigger_event_id": "EVAL-20260929-PROP-REV-001",
+  "target_agent": "academic-writer",
+  "target_skill": "proposal_drafting",
+  "capability": "PROPOSAL",
+  "trajectory_id": "TRJ-20260929-PROP-REV-FAILURE-002",
+  "observable_failure_step": {
+    "step_number": 1,
+    "action_type": "SCRIPT_EXECUTION",
+    "tool_name": "python",
+    "description": "Executed script that failed with AssertionError: replacements_count is 1, expected 6"
+  },
+  "failure_signature": "OPENXML_NUMPR_LITERAL_PREFIX_HALLUCINATION",
+  "root_cause_diagnosis": "The candidate script hardcoded search strings with literal numbering prefixes ('۱) ', '۲) ', etc.). In Word OpenXML, list numbering is stored in paragraph properties (<w:pPr><w:numPr>) and is NOT present in run text (<w:r><w:t>). The actual text inside paragraphs 288-292 starts directly with 'سبک های دلبستگی...' without any '۱) ' prefix. Consequently, the replacement logic failed for all 5 hypotheses, matching only Section 6C Item 3, leading to an AssertionError during the benchmark test.",
+  "prescribed_behavior": "Search for exact run text stripped of assumed OpenXML numPr prefixes or match by paragraph content normalized of numPr.",
+  "created_at": "2026-09-29T10:26:03+03:30"
+}
