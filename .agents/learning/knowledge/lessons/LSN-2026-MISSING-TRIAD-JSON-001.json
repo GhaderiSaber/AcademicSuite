@@ -37,5 +37,10 @@
     "statistics-agent",
     "academic-writer"
   ],
-  "graduation_status": "PENDING_GRADUATION"
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-29T06:59:46.102541+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/chapter-4-writing/SKILL.md",
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/statistical-data-analyst/SKILL.md"
+  ]
 }

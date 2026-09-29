@@ -1,0 +1,24 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260929-VAL-FAIL-03DELIV-001",
+  "trigger_type": "QC_FAILURE",
+  "trigger_event_id": "VAL-20260929072956",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "capability": "academic_writing",
+  "task_context": {
+    "task_id": "hypothesis_5_drafting",
+    "milestone_id": "03_deliverables"
+  },
+  "trajectory_id": "TRJ-20260929-VAL-FAIL-03DELIV-001",
+  "observable_failure_step": {
+    "step_number": 1,
+    "action_type": "ARTIFACT_GENERATION",
+    "tool_name": "write_to_file",
+    "description": "Agent drafted 10_hypothesis_5.md and 10_hypothesis_5.docx text but omitted the extraction and inclusion of required statistical parameters (beta, p, z) from 10_hypothesis_5.json."
+  },
+  "failure_signature": "OMITTED_STATISTICAL_PARAMETERS",
+  "root_cause_diagnosis": "The agent generated the narrative text for Hypothesis 5 deliverables (.md and .docx) but failed to dynamically inject the primary test statistics (like beta, SE, z, and p-values) from the companion JSON payload into the paragraphs, violating the rule that text must explicitly report test statistics.",
+  "prescribed_behavior": "When drafting narrative deliverables (.md, .docx) from statistical JSON payloads, the writer agent must explicitly parse the 'primary_statistic' or structural path coefficients (B, SE, beta, z, p) and embed them directly into the running text of the report.",
+  "created_at": "2026-09-29T11:35:00Z"
+}

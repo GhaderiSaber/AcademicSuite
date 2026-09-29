@@ -102,3 +102,8 @@ The current local time is: 2026-09-25T19:49:25+03:30.
 - **Category**: Lesson
 - **Rule**: Strictly enforce READ-ONLY access to 03_deliverables/*.json for academic-writer. Do not delegate JSON mutation tasks to narrative agents.
 - **Enforcement**: results_auditor_guard.py
+
+### Invariant LSN-2026-MISSING-TRIAD-JSON-001 (20260929_065942)
+- **Category**: Lesson
+- **Rule**: Strictly enforce the Triad Invariant by atomically generating the .json, .md, and .docx artifacts for every single hypothesis micro-stage, using canonical naming conventions.
+- **Enforcement**: results_auditor_guard.py

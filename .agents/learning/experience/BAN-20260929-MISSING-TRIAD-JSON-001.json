@@ -1,0 +1,37 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260929-MISSING-TRIAD-JSON-001",
+  "trigger_type": "QC_FAILURE",
+  "trigger_event_id": "VAL-20260929064833",
+  "target_agent": "statistics-agent",
+  "target_skill": "statistical-data-analyst",
+  "capability": "METHODOLOGY",
+  "task_context": {
+    "task_id": "03_deliverables_hypotheses",
+    "stage_id": "chapter_4",
+    "milestone_id": "hypotheses_testing",
+    "prompt": "Perform causal root-cause analysis on the failure trajectory to determine failure mechanism for: Report in '03_deliverables' overall_verdict is FAIL (7 checks failed)"
+  },
+  "trajectory_id": "TRJ-MISSING-DUE-TO-ORCHESTRATOR-BYPASS",
+  "observable_failure_step": {
+    "step_number": 1,
+    "action_type": "artifact_generation",
+    "tool_name": "write_to_file",
+    "description": "Worker generated .md and .docx deliverables for Hypotheses 3-8 but failed to generate the corresponding .json files (e.g., 08_hypothesis_3.json) required by the Triad Invariant. Additionally, gate3_mathematical_admissibility_report.json lacked empirical parameters."
+  },
+  "failure_signature": "OMITTED_MICRO_STAGE_ARTIFACT",
+  "root_cause_diagnosis": "The agent violated Directive 3 (Triad Invariant & Micro-Stages) by generating partial deliverables for Hypotheses 3-8 (.md and .docx) without synthesizing the mandatory underlying .json data payloads (e.g., 08_hypothesis_3.json). Instead, it generated improperly named files (e.g., 08_mediation_analysis.json) or omitted them entirely. Furthermore, the gate3_mathematical_admissibility_report.json was initialized as an empty stub lacking substantive empirical parameters (no test statistics, paths, or effect sizes).",
+  "prescribed_behavior": "The agent must strictly enforce the Triad Invariant (Directive 3) by atomically generating the .json, .md, and .docx artifacts for every single hypothesis micro-stage. It must use canonical file naming (e.g., 08_hypothesis_3.json) instead of ad-hoc names. Additionally, the gate3 mathematical report must be fully populated with actual statistical parameters extracted from the hypothesis analyses.",
+  "created_at": "2026-09-29T10:25:00Z",
+  "metadata": {
+    "checks_failed": 7,
+    "missing_artifacts": [
+      "08_hypothesis_3.json",
+      "09_hypothesis_4.json",
+      "10_hypothesis_5.json",
+      "11_hypothesis_6.json",
+      "12_hypothesis_7.json",
+      "13_hypothesis_8.json"
+    ]
+  }
+}

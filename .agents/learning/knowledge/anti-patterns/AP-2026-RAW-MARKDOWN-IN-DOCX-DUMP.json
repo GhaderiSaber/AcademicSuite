@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-RAW-MARKDOWN-IN-DOCX-DUMP",
+  "category": "execution",
+  "defective_pattern": "Dumping raw markdown syntax, unparsed pipe tables, and string escapes into .docx files via naive string fallbacks",
+  "why_defective": "Results in unprofessional deliverable artifacts displaying plain markdown syntax instead of formatted Word tables and styles, violating formatting constraints.",
+  "observed_symptoms": [
+    "Raw markdown pipe tables in DOCX output",
+    "String escapes like \\n visible in text",
+    "Lack of native Word styles for headings and tables"
+  ],
+  "corrective_remedy": "Use a robust Markdown to OpenXML AST compiler or python-docx library to natively build tables, apply paragraph styles, and insert runs.",
+  "detection_heuristic": {
+    "trigger_rule": "Deterministic regex pattern matching the defect",
+    "regex_patterns": ["(?m)^\\|.*\\|$", "(?m)^#{1,6}\\s"],
+    "pattern": "(?m)^\\|.*\\|$",
+    "check_type": "openxml_dom_ban",
+    "file_pattern": ".*\\.docx",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor",
+    "chapter-4-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T13:08:28Z"
+}

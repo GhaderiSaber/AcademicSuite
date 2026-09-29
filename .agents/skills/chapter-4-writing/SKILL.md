@@ -99,12 +99,16 @@ In regression ANOVA tables with multiple criterion variables:
 - Variable names in text and tables must use pure conceptual constructs (e.g. `خودآسیبی`), never instrument nouns (`پرسشنامه`) or author names.
 
 ### 6.4 Comprehensive Boundaries
-- Chapter 4 must begin with a comprehensive structural introduction outlining the sample, variables, and sequence of analyses.
-- Chapter 4 must conclude with a comprehensive narrative summary synthesizing the status of all hypotheses.
+- Chapter 4 must begin with an extensive doctoral-level structural introduction (minimum 500 words) outlining the sample, variables, and sequence of analyses. 4-line stubs are strictly forbidden.
+- Chapter 4 must conclude with an extensive doctoral-level narrative summary (minimum 500 words) synthesizing the status of all hypotheses. 4-line stubs are strictly forbidden.
 
 ### 6.5 Zero Interpretation Invariant (اصل عدم تفسیر یافته‌ها)
 - Findings narratives must strictly report objective, factual statistical values, frequencies, percentages, and tables.
 - Speculative clinical, developmental, epidemiological, or theoretical interpretations and explanations are strictly prohibited in Chapter 4 (save them for Chapter 5).
+
+### 6.6 Explicit Statistical Parameter Injection Invariant (اصل درج پارامترهای آماری)
+- When drafting narrative deliverables (.md, .docx) for hypotheses from statistical JSON payloads, the writer MUST explicitly extract and embed the primary test statistics (B, SE, beta, t, z, p-values) directly into the continuous scholarly prose.
+- Generating narrative text that vaguely describes findings without explicitly reporting the specific numeric coefficients from the companion JSON is strictly prohibited and will cause validation failures.
 
 ---
 

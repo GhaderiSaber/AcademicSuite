@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-MISSING-TRIAD-JSON-001",
+  "category": "execution",
+  "defective_pattern": "Generating .md and .docx files for micro-stages but omitting or improperly naming the underlying .json data payloads.",
+  "why_defective": "Violates Directive 3 (Triad Invariant & Micro-Stages). Causes cascade failure in multi-agent validation.",
+  "observed_symptoms": [
+    "7 checks failed in validation report.",
+    "08_hypothesis_3.json is missing.",
+    "Empty stub gate3_mathematical_admissibility_report.json without empirical parameters."
+  ],
+  "corrective_remedy": "Atomically generate .json, .md, and .docx files with correct canonical file names for every micro-stage. Ensure parameter files like gate3 report are fully populated.",
+  "detection_heuristic": {
+    "trigger_rule": "Missing .json file in 03_deliverables when .md or .docx exists for the same prefix",
+    "regex_patterns": [
+      "(?m)^.*_mediation_analysis\\.json$"
+    ],
+    "pattern": "(?m)^.*_mediation_analysis\\.json$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.json",
+    "event": "Both"
+  },
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T10:25:00Z"
+}

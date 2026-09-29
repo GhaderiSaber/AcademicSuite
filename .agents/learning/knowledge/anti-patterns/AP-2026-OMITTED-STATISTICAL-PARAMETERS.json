@@ -1,0 +1,28 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-OMITTED-STATISTICAL-PARAMETERS",
+  "category": "execution",
+  "defective_pattern": "Drafting narrative text without explicitly extracting and embedding the relevant primary statistical parameters (B, SE, beta, z, p-values) from the companion JSON payload.",
+  "why_defective": "Failing to inject required test statistics into the text violates the academic writing standard that hypotheses results must explicitly report test statistics. This leads to validation failures.",
+  "observed_symptoms": [
+    "Generation of .md and .docx deliverables that lack extracted statistical parameters like beta, p, and z.",
+    "Validation reports failing with missing statistical parameters in narrative text."
+  ],
+  "corrective_remedy": "When drafting narrative deliverables from statistical JSON payloads, the agent MUST explicitly parse the 'primary_statistic' or structural path coefficients (B, SE, beta, z, p) from the JSON file and embed them directly into the running narrative.",
+  "detection_heuristic": {
+    "trigger_rule": "Missing statistical parameters in deliverables",
+    "regex_patterns": [],
+    "pattern": "",
+    "check_type": "substring_ban",
+    "file_pattern": ".*_hypothesis_.*\\.(md|docx)",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "statistical-data-analyst",
+    "results-auditor"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T11:39:00Z"
+}

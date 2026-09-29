@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20260929-CH4-DOCX-FORMATTING-CRITIQUE-001",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "observable_failure_step": "DOCX artifact generation step where markdown text is directly appended to python-docx paragraphs, and structural scaffolding step omitting Introduction/Summary.",
+  "failure_signature": "FORMATTING_VIOLATION",
+  "root_cause_diagnosis": "The agent injected raw Markdown syntax (e.g., `# Header`, `**bold**`) directly into the DOCX artifact instead of rendering styles, causing corrupted headers and formatting. It drafted the `.docx` and `.md` separately instead of compiling the `.docx` directly from the `.md` source of truth, causing content drift. Furthermore, the agent bypassed the structural scaffolding requirements of Chapter 4, omitting the necessary extensive introduction and summary.",
+  "prescribed_behavior": "1. Establish the `.md` file as the absolute single source of truth. 2. Compile the `.docx` file directly from the `.md` file using an automated conversion pipeline (e.g., pandoc or structured markdown-to-docx parser) rather than manual string injection. 3. Adhere strictly to the Chapter 4 structural template, generating an extensive Introduction and Summary before proceeding with statistical findings."
+}
