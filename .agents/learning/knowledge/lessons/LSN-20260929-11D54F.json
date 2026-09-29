@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260929-11D54F",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260929-419ABC",
+  "target_agent": "results-auditor",
+  "target_agents": [
+    "results-auditor"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-PERSISTENT-LEGACY-VALIDATION-REPORT-CONTAMINATION] Avoid: Failing to execute physical disk decontamination (e.g., renaming to .stale.json or removing from 03_deliverables/) during learning graduation, which leaves stale validation reports on disk.\n  Approved Remedy: During graduation, physically enforce de-indexing of any stale validation reports by renaming 03_deliverables/legacy_validation/validation_report.json to 03_deliverables/legacy_validation/validation_report.stale.json (or removing the directory).\n\n💡 Relevant Active Lessons:\n- [LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION] Mandate: Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them.\n\n---\n### Executable Task Assignment:\nReconstruct observable actions, tool calls, and error trajectory for validation failure: Report in 'legacy_validation' overall_verdict is FAIL (28 checks failed).\nInspect `03_deliverables/legacy_validation/validation_report.json` and examine why this legacy validation report remains active and triggers `VALIDATION_FAILED` in the orchestrator guard hook.\nReconstruct the exact trajectory and save the structured trajectory record to `.agents/learning/experience/trajectories/TRJ-20260929-LEGACY-VALIDATION-FAIL-001.json`.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding quality style correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-PERSISTENT-LEGACY-VALIDATION-REPORT-CONTAMINATION] Avoid: Failing to execute physical disk decontamination (e.g., renaming to .stale.json or removing from 03_deliverables/) during learning graduation, which leaves stale validation reports on disk.\n  Approved Remedy: During graduation, physically enforce de-indexing of any stale validation reports by renaming 03_deliverables/legacy_validation/validation_report.json to 03_deliverables/legacy_validation/validation_report.stale.json (or removing the directory).\n\n💡 Relevant Active Lessons:\n- [LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION] Mandate: Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them.\n\n---\n### Executable Task Assignment:\nReconstruct observable actions, tool calls, and error trajectory for validation failure: Report in 'legacy_validation' overall_verdict is FAIL (28 checks failed).\nInspect `03_deliverables/legacy_validation/validation_report.json` and examine why this legacy validation report remains active and triggers `VALIDATION_FAILED` in the orchestrator guard hook.\nReconstruct the exact trajectory and save the structured trajectory record to `.agents/learning/experience/trajectories/TRJ-20260929-LEGACY-VALIDATION-FAIL-001.json`.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Studies utilizing apa-reporting or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-PERSISTENT-LEGACY-VALIDATION-REPORT-CONTAMINATION] Avoid: Failing to execute physical disk decontamination (e.g., renaming to .stale.json or removing from 03_deliverables/) during learning graduation, which leaves stale validation reports on disk.\n  Approved Remedy: During graduation, physically enforce de-indexing of any stale validation reports by renaming 03_deliverables/legacy_validation/validation_report.json to 03_deliverables/legacy_validation/validation_report.stale.json (or removing the directory).\n\n💡 Relevant Active Lessons:\n- [LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION] Mandate: Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them.\n\n---\n### Executable Task Assignment:\nReconstruct observable actions, tool calls, and error trajectory for validation failure: Report in 'legacy_validation' overall_verdict is FAIL (28 checks failed).\nInspect `03_deliverables/legacy_validation/validation_report.json` and examine why this legacy validation report remains active and triggers `VALIDATION_FAILED` in the orchestrator guard hook.\nReconstruct the exact trajectory and save the structured trajectory record to `.agents/learning/experience/trajectories/TRJ-20260929-LEGACY-VALIDATION-FAIL-001.json`.",
+  "generalization": "Procedural Guideline for apa-reporting: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `general_task` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n⚠️ Known Pitfalls (Anti-Patterns to Avoid):\n- [AP-2026-PERSISTENT-LEGACY-VALIDATION-REPORT-CONTAMINATION] Avoid: Failing to execute physical disk decontamination (e.g., renaming to .stale.json or removing from 03_deliverables/) during learning graduation, which leaves stale validation reports on disk.\n  Approved Remedy: During graduation, physically enforce de-indexing of any stale validation reports by renaming 03_deliverables/legacy_validation/validation_report.json to 03_deliverables/legacy_validation/validation_report.stale.json (or removing the directory).\n\n💡 Relevant Active Lessons:\n- [LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION] Mandate: Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them.\n\n---\n### Executable Task Assignment:\nReconstruct observable actions, tool calls, and error trajectory for validation failure: Report in 'legacy_validation' overall_verdict is FAIL (28 checks failed).\nInspect `03_deliverables/legacy_validation/validation_report.json` and examine why this legacy validation report remains active and triggers `VALIDATION_FAILED` in the orchestrator guard hook.\nReconstruct the exact trajectory and save the structured trajectory record to `.agents/learning/experience/trajectories/TRJ-20260929-LEGACY-VALIDATION-FAIL-001.json`. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-QUALITY_STYLE_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_AC",
+    "supporting_report_ids": [
+      "FDB-20260929-57B099"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T05:12:01.221619+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-29T05:12:01.221718+00:00"
+  }
+}

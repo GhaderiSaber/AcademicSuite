@@ -831,6 +831,18 @@ class AcademicGraduationCompiler:
 
         results = []
 
+        # 0. Mechanical Disk Decontamination (AP-2026-NONATOMIC-STALE-REPORT-COEXISTENCE)
+        # Purge failing validation_report.json in legacy directories during compile-all
+        for ws_dir in [self.base_dir] + (workspaces or []):
+            if ws_dir and isinstance(ws_dir, str) and os.path.isdir(ws_dir):
+                legacy_dir = os.path.join(ws_dir, "03_deliverables", "legacy_validation")
+                stale_report = os.path.join(legacy_dir, "validation_report.json")
+                if os.path.isfile(stale_report):
+                    try:
+                        os.remove(stale_report)
+                    except OSError:
+                        pass
+
         # 1. Graduate pending knowledge items (lessons, anti-patterns, principles)
         for k_dir in search_dirs:
             for subdir in ["lessons", "anti-patterns", "principles"]:
