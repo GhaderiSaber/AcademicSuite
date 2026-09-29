@@ -20,6 +20,7 @@ Architectural Context:
 import os
 import sys
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, Tuple, List, Set
 
@@ -55,6 +56,10 @@ class HookIdentity:
     confidence: str                # "high", "moderate", "low", "fail_closed_default"
     resolution_source: str         # "explicit_payload", "environment_variable", "transcript_analysis", "path_signature", "fail_closed_default"
     details: Dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        if self.is_subagent and self.is_main_developer:
+            object.__setattr__(self, "is_main_developer", False)
 
 
 def get_canonical_academic_agents() -> Set[str]:
@@ -312,12 +317,12 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
             try:
                 step = json.loads(line_str)
                 content = step.get("content") or ""
-                m_worker = re.search(r'["\'](?:worker_agent|target_worker)["\']\s*:\s*["\']([a-zA-Z0-9_-]+)["\']', content)
+                m_worker = re.search(r'["\'](?:worker_agent|target_worker|TypeName)["\']\s*:\s*["\']([a-zA-Z0-9_-]+)["\']', content)
                 if m_worker:
                     w_name = m_worker.group(1).lower()
                     if w_name in get_canonical_academic_agents():
                         return w_name, "track_2_academic", "high"
-                m_agent_tag = re.search(r'\bAgent:\s*`?([a-zA-Z0-9_-]+)`?', content)
+                m_agent_tag = re.search(r'[-*]?\s*\**Agent\**:\s*`?([a-zA-Z0-9_-]+)`?', content)
                 if m_agent_tag:
                     a_name = m_agent_tag.group(1).lower()
                     if a_name in get_canonical_academic_agents():
@@ -333,7 +338,6 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
 
         academic_orchestrator_signatures = (
             "### 🛫 Pre-Flight Pipeline Declaration",
-            "Contractual Delegation Envelope (CDE)",
             "academic-state/routing_plan.json"
         )
 
@@ -371,28 +375,18 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
             except Exception:
                 continue
 
-        if has_orchestrator_signature:
-            return "academic-orchestrator", "track_2_academic", "high"
         if has_developer_tool_call:
             return "default", "track_1_developer", "high"
+        if has_orchestrator_signature:
+            return "academic-orchestrator", "track_2_academic", "high"
     except Exception:
         return None
 
     return None
 
 
-def resolve_hook_identity(payload: Dict[str, Any], env: Optional[Dict[str, str]] = None) -> HookIdentity:
-    """
-    Authoritatively resolves caller identity, track, and developer status
-    using a multi-signal hierarchy with fail-closed defaults.
-
-    Precedence Hierarchy:
-    1. Explicit Payload Identity Fields (track, mode, agentName, isSubagent)
-    2. Environment Variables (ANTIGRAVITY_AGENT_NAME, ANTIGRAVITY_TRACK, ANTIGRAVITY_MODE)
-    3. Transcript Analysis (Physical transcript inspection on disk)
-    4. Product / Interface Signature
-    5. Fail-Closed Default (Non-developer, governed track)
-    """
+def _resolve_hook_identity_core(payload: Dict[str, Any], env: Optional[Dict[str, str]] = None) -> HookIdentity:
+    """Internal core resolution logic for hook identity."""
     if not isinstance(payload, dict):
         return HookIdentity(
             agent_name="unknown",
@@ -545,6 +539,19 @@ def resolve_hook_identity(payload: Dict[str, Any], env: Optional[Dict[str, str]]
                 resolution_source="explicit_payload",
                 details={"matched_main_indicator": agent_name_lower}
             )
+        else:
+            return HookIdentity(
+                agent_name=agent_name_raw,
+                agent_role=str(payload.get("agentRole") or "subagent"),
+                track="track_1_developer",
+                is_main_developer=False,
+                is_subagent=True,
+                parent_conversation_id=parent_id,
+                interface=interface,
+                confidence="high",
+                resolution_source="explicit_payload",
+                details={"matched_main_indicator": agent_name_lower, "subagent_blocked_from_main_exemption": True}
+            )
 
     # -------------------------------------------------------------
     # Signal 2: Environment Variables
@@ -582,6 +589,19 @@ def resolve_hook_identity(payload: Dict[str, Any], env: Optional[Dict[str, str]]
                 resolution_source="environment_variable",
                 details={"env_agent": env_agent}
             )
+        elif any(ind in env_agent_lower for ind in main_developer_indicators) and is_subagent:
+            return HookIdentity(
+                agent_name=env_agent,
+                agent_role="subagent",
+                track="track_1_developer",
+                is_main_developer=False,
+                is_subagent=True,
+                parent_conversation_id=parent_id,
+                interface=interface,
+                confidence="high",
+                resolution_source="environment_variable",
+                details={"env_agent": env_agent, "subagent_blocked_from_main_exemption": True}
+            )
 
     if env_track in ("1", "developer") or env_mode == "developer":
         if not is_subagent:
@@ -596,6 +616,19 @@ def resolve_hook_identity(payload: Dict[str, Any], env: Optional[Dict[str, str]]
                 confidence="high",
                 resolution_source="environment_variable",
                 details={"env_track": env_track, "env_mode": env_mode}
+            )
+        else:
+            return HookIdentity(
+                agent_name="subagent-developer",
+                agent_role="subagent",
+                track="track_1_developer",
+                is_main_developer=False,
+                is_subagent=True,
+                parent_conversation_id=parent_id,
+                interface=interface,
+                confidence="high",
+                resolution_source="environment_variable",
+                details={"env_track": env_track, "env_mode": env_mode, "subagent_blocked_from_main_exemption": True}
             )
 
     if env_track in ("2", "academic") or env_mode == "academic":
@@ -666,7 +699,6 @@ def resolve_hook_identity(payload: Dict[str, Any], env: Optional[Dict[str, str]]
                                 details={"target_worker": t_name}
                             )
 
-
     # -------------------------------------------------------------
     # Signal 4: Fail-Closed Default
     # -------------------------------------------------------------
@@ -684,6 +716,36 @@ def resolve_hook_identity(payload: Dict[str, Any], env: Optional[Dict[str, str]]
             "reason": "No explicit, environment, or transcript identity signal established Track 1 status."
         }
     )
+
+
+def resolve_hook_identity(payload: Dict[str, Any], env: Optional[Dict[str, str]] = None) -> HookIdentity:
+    """
+    Authoritatively resolves caller identity, track, and developer status
+    using a multi-signal hierarchy with fail-closed defaults.
+
+    Precedence Hierarchy:
+    1. Explicit Payload Identity Fields (track, mode, agentName, isSubagent)
+    2. Environment Variables (ANTIGRAVITY_AGENT_NAME, ANTIGRAVITY_TRACK, ANTIGRAVITY_MODE)
+    3. Transcript Analysis (Physical transcript inspection on disk)
+    4. Product / Interface Signature
+    5. Fail-Closed Default (Non-developer, governed track)
+    """
+    identity = _resolve_hook_identity_core(payload, env=env)
+    # Architectural Invariant: Subagents can NEVER be main developer
+    if identity.is_subagent and identity.is_main_developer:
+        return HookIdentity(
+            agent_name=identity.agent_name,
+            agent_role=identity.agent_role,
+            track=identity.track,
+            is_main_developer=False,
+            is_subagent=True,
+            parent_conversation_id=identity.parent_conversation_id,
+            interface=identity.interface,
+            confidence=identity.confidence,
+            resolution_source=identity.resolution_source,
+            details={**identity.details, "subagent_enforced_non_developer": True}
+        )
+    return identity
 
 
 def validate_hook_payload_schema(payload: Dict[str, Any]) -> Tuple[bool, List[str]]:
