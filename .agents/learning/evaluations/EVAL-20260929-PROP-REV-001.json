@@ -1,0 +1,77 @@
+{
+  "evaluation_id": "EVAL-20260929-PROP-REV-001",
+  "candidate_id": "CAN-20260929-PROP-REV-001",
+  "baseline_id": "BASE-2026-PROP",
+  "task_id": "TSK-2026-LEARN-EVAL",
+  "dimensions": {
+    "correctness": 0,
+    "methodology": 100,
+    "statistical_validity": 100,
+    "evidence_grounding": 100,
+    "integrity": 100,
+    "robustness": 0,
+    "consistency": 100,
+    "efficiency": 100
+  },
+  "baseline_metrics": {
+    "replacements_count": 0,
+    "silent_failure": true
+  },
+  "candidate_metrics": {
+    "replacements_count": 1,
+    "silent_failure": false,
+    "assertion_error": true
+  },
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": [],
+    "fixes_original_mistake": false,
+    "task_id": "TSK-2026-LEARN-EVAL"
+  },
+  "adversarial_results": {
+    "verdict": "FAIL",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false,
+    "task_id": "TSK-2026-LEARN-EVAL",
+    "details": ["AssertionError on benchmark test for replacement count"]
+  },
+  "heldout_results": {
+    "verdict": "FAIL",
+    "evidence_status": "VERIFIED",
+    "pass_rate": 0.0,
+    "generalizes_to_different_case": false,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 1,
+    "task_id": "TSK-2026-LEARN-EVAL"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": "/home/saber-ghaderi/My Work/Mehrane/.agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py",
+      "sha256": "898bb4e6b069f4035e68c78d8bf7fc45372153f481bc12d001c8cfa2f0ecd3db",
+      "evidence_type": "script_execution"
+    }
+  ],
+  "verdict": "FAIL",
+  "contract_version": "1.0.0",
+  "evaluated_at": "2026-09-29T10:11:00Z",
+  "recommendation": "REJECT",
+  "baseline_version": "1.0",
+  "overall_verdict": "FAIL",
+  "metrics": {
+    "statistical_precision": 100,
+    "typography_compliance": 100,
+    "execution_reliability": 0,
+    "msai_anomaly_score": 0
+  },
+  "summary_metrics": {},
+  "dimensional_evaluations": {},
+  "diagnostics": [],
+  "regressions": {},
+  "failures": ["AssertionError: Failed: replacements_count is 1, expected 6"],
+  "unblinded_comparison": {},
+  "metadata": {}
+}
