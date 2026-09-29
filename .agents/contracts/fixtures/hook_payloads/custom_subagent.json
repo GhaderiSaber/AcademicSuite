@@ -3,10 +3,10 @@
   "conversationId": "subagent-9921-b4f1-482a",
   "parentConversationId": "326940d3-3f79-47c6-ac67-d358fe2ccadf",
   "workspacePaths": [
-    "/home/saber-ghaderi/Desktop/AcademicSuite"
+    "/home/developer/Desktop/AcademicSuite"
   ],
-  "transcriptPath": "/home/saber-ghaderi/.gemini/antigravity/brain/subagent-9921-b4f1-482a/.system_generated/logs/transcript.jsonl",
-  "artifactDirectoryPath": "/home/saber-ghaderi/.gemini/antigravity/brain/subagent-9921-b4f1-482a",
+  "transcriptPath": "/home/developer/.gemini/antigravity/brain/subagent-9921-b4f1-482a/.system_generated/logs/transcript.jsonl",
+  "artifactDirectoryPath": "/home/developer/.gemini/antigravity/brain/subagent-9921-b4f1-482a",
   "modelName": "gemini-3.8-pro",
   "stepIdx": 2,
   "toolCall": {

@@ -2,16 +2,16 @@
   "$comment": "Minimal documented baseline hook payload from official Antigravity documentation",
   "conversationId": "ec33ebf9-0cba-4100-8142-c61503f6c587",
   "workspacePaths": [
-    "/home/saber-ghaderi/Desktop/AcademicSuite"
+    "/home/developer/Desktop/AcademicSuite"
   ],
-  "transcriptPath": "/home/saber-ghaderi/.gemini/antigravity/brain/ec33ebf9-0cba-4100-8142-c61503f6c587/.system_generated/logs/transcript.jsonl",
-  "artifactDirectoryPath": "/home/saber-ghaderi/.gemini/antigravity/brain/ec33ebf9-0cba-4100-8142-c61503f6c587",
+  "transcriptPath": "/home/developer/.gemini/antigravity/brain/ec33ebf9-0cba-4100-8142-c61503f6c587/.system_generated/logs/transcript.jsonl",
+  "artifactDirectoryPath": "/home/developer/.gemini/antigravity/brain/ec33ebf9-0cba-4100-8142-c61503f6c587",
   "modelName": "auto",
   "stepIdx": 1,
   "toolCall": {
     "name": "view_file",
     "args": {
-      "AbsolutePath": "/home/saber-ghaderi/Desktop/AcademicSuite/README.md"
+      "AbsolutePath": "/home/developer/Desktop/AcademicSuite/README.md"
     }
   }
 }

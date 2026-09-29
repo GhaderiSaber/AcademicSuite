@@ -2,10 +2,10 @@
   "$comment": "Captured hook payload: Custom Academic Orchestrator Main Agent (Track 2)",
   "conversationId": "326940d3-3f79-47c6-ac67-d358fe2ccadf",
   "workspacePaths": [
-    "/home/saber-ghaderi/Desktop/AcademicSuite"
+    "/home/developer/Desktop/AcademicSuite"
   ],
-  "transcriptPath": "/home/saber-ghaderi/.gemini/antigravity/brain/326940d3-3f79-47c6-ac67-d358fe2ccadf/.system_generated/logs/transcript.jsonl",
-  "artifactDirectoryPath": "/home/saber-ghaderi/.gemini/antigravity/brain/326940d3-3f79-47c6-ac67-d358fe2ccadf",
+  "transcriptPath": "/home/developer/.gemini/antigravity/brain/326940d3-3f79-47c6-ac67-d358fe2ccadf/.system_generated/logs/transcript.jsonl",
+  "artifactDirectoryPath": "/home/developer/.gemini/antigravity/brain/326940d3-3f79-47c6-ac67-d358fe2ccadf",
   "modelName": "gemini-3.8-pro",
   "stepIdx": 4,
   "toolCall": {
