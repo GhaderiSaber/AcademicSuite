@@ -1,0 +1,64 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-60383060",
+  "capability": "academic-suite-orchestrator",
+  "suite_type": "regression",
+  "difficulty": "L2_INTERDEPENDENT_MODELS",
+  "tags": [
+    "methodology",
+    "regression_test"
+  ],
+  "task": {
+    "prompt": "Execute analytical task verifying format_evaluation, tables_evaluation, correct._evaluation, table._evaluation.",
+    "research_question": "Does analytical modeling satisfy rigorous methodological standards?",
+    "hypothesis": "Analytical procedures will strictly adhere to verified methodological prerequisites."
+  },
+  "inputs": {
+    "dataset_path": "evals/regression/data_60383060.xlsx",
+    "dataset_sha256": "60383060d3f9663f47ea1cd3fe4ca96cc20c2a95eb2c0d3f7b6e0256fca9a0a4",
+    "spec_parameters": {
+      "check_domain": "general_methodology"
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "reasoning_properties_evaluated": true
+    },
+    "required_reasoning_properties": [
+      "format_evaluation",
+      "tables_evaluation",
+      "correct._evaluation",
+      "table._evaluation"
+    ],
+    "required_artifacts": [
+      "03_model_comparison.json",
+      "03_model_comparison.md"
+    ],
+    "typography_rules": [
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "unverified_methodological_shortcut"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": [
+      "--suite",
+      "regression",
+      "--case",
+      "EVAL-CASE-REG-ACADEMIC_SUI-60383060"
+    ],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-09-29T18:20:12.165038+00:00",
+  "originating_lesson_id": "LSN-20260929-EB0977",
+  "originating_experience_id": "EXP-FAST-20260929-AC0D08",
+  "originating_feedback_id": "FDB-20260929-DDAA55",
+  "status": "candidate",
+  "expected_behavior": "Ensure thorough methodological compliance and verification of format_evaluation, tables_evaluation, correct._evaluation, table._evaluation.",
+  "forbidden_behavior": "unverified_methodological_shortcut",
+  "repeat_count": 1,
+  "last_seen_at": "2026-09-29T18:20:12.165038+00:00"
+}
