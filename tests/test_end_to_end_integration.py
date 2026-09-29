@@ -342,18 +342,18 @@ class TestEndToEndIntegration(unittest.TestCase):
         """4. Failure 2 Injection: Missing triad artifact must fail validation and block milestone approval."""
         temp_fail2 = tempfile.mkdtemp(prefix="test_fail2_")
         try:
-            # Create only .json and .md, omitting .docx
-            json_file = os.path.join(temp_fail2, "06_hypothesis_1.json")
-            md_file = os.path.join(temp_fail2, "06_hypothesis_1.md")
+            # Create only .json and .md, omitting mandatory monograph .docx
+            json_file = os.path.join(temp_fail2, "stage_4d_chapter_4.json")
+            md_file = os.path.join(temp_fail2, "stage_4d_chapter_4.md")
             with open(json_file, "w", encoding="utf-8") as f:
                 json.dump({"sample_size": 80, "test_statistics": {"F": 12.45}}, f)
             with open(md_file, "w", encoding="utf-8") as f:
-                f.write("# Hypothesis 1\n\nN = 80, F = 12.45")
+                f.write("# Chapter 4\n\nN = 80, F = 12.45")
 
             # Run validator suite: must fail closed on missing .docx
-            val_res = run_suite(stage_dir=temp_fail2, stage_id="06_hypothesis_1")
+            val_res = run_suite(stage_dir=temp_fail2, stage_id="stage_4d_chapter_4")
             self.assertIn(val_res.get("overall_verdict"), ["FAIL", "BLOCKED"])
-            self.assertTrue(any("06_hypothesis_1.docx" in err for err in val_res.get("errors", [])))
+            self.assertTrue(any("stage_4d_chapter_4.docx" in err or ".docx" in err for err in val_res.get("errors", [])))
 
             # Verify state machine transition to APPROVED is strictly blocked
             sm = StrictStateMachine(state_dir=temp_fail2, project_id="test_study_e2e")
@@ -384,12 +384,12 @@ class TestEndToEndIntegration(unittest.TestCase):
                 sm.transition_milestone("M4_CHAPTER4", MilestoneState.APPROVED)
 
             # Recovery: Add the missing .docx to temp_fail2 and re-validate
-            with open(os.path.join(temp_fail2, "06_hypothesis_1.docx"), "w", encoding="utf-8") as f:
+            with open(os.path.join(temp_fail2, "stage_4d_chapter_4.docx"), "w", encoding="utf-8") as f:
                 f.write("DUMMY_DOCX")
 
-            recov_val = run_suite(stage_dir=temp_fail2, stage_id="06_hypothesis_1")
-            # Verify 06_hypothesis_1.docx is no longer in missing_artifacts
-            self.assertNotIn("06_hypothesis_1.docx", recov_val.get("manifest_audit", {}).get("missing_artifacts", []))
+            recov_val = run_suite(stage_dir=temp_fail2, stage_id="stage_4d_chapter_4")
+            # Verify stage_4d_chapter_4.docx is no longer in missing_artifacts
+            self.assertNotIn("stage_4d_chapter_4.docx", recov_val.get("manifest_audit", {}).get("missing_artifacts", []))
         finally:
             shutil.rmtree(temp_fail2, ignore_errors=True)
 

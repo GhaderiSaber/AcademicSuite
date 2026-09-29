@@ -114,14 +114,14 @@ class TestFailClosedValidation(unittest.TestCase):
     # 5. Missing DOCX Artifact -> BLOCKED
     # ==========================================================================
     def test_05_missing_docx_blocked(self):
-        """A hypothesis stage with JSON and Markdown but missing required DOCX must return BLOCKED."""
-        stage_name = "06_hypothesis_1"
+        """A chapter monograph milestone with JSON and Markdown but missing required DOCX must return BLOCKED."""
+        stage_name = "stage_4d_chapter_4"
         json_path = os.path.join(self.test_dir, f"{stage_name}.json")
         md_path = os.path.join(self.test_dir, f"{stage_name}.md")
         with open(json_path, "w", encoding="utf-8") as f:
-            json.dump({"stage_id": stage_name, "sample_size": 100, "f_stat": 4.5}, f)
+            json.dump({"stage_id": stage_name, "sample_size": 100, "f_stat": 4.5, "p_value": 0.001}, f)
         with open(md_path, "w", encoding="utf-8") as f:
-            f.write("# Hypothesis 1 Findings\n\nF = 4.50, p < .001.")
+            f.write("# Chapter 4 Findings\n\nF = 4.50, p < .001.")
 
         report = run_suite(self.test_dir, stage_id=stage_name)
         self.assertEqual(report["overall_verdict"], "BLOCKED")
