@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20260929-LEGACY-VAL-ISOLATION-001",
+  "target_agent": "evaluation-agent",
+  "target_skill": "legacy-report-management",
+  "observable_failure_step": "evaluation-agent moving validation_report.json to 03_deliverables/legacy_validation/validation_report.json",
+  "failure_signature": "VIOLATED_ASSUMPTION_IGNORED",
+  "root_cause_diagnosis": "The evaluation-agent moved the failing validation_report.json into a subdirectory under 03_deliverables, assuming it would bypass the recursive integrity guard. The guard discovered it because it scans all child directories.",
+  "prescribed_behavior": "The evaluation-agent must physically delete the failing validation_report.json file using os.remove instead of moving or archiving it."
+}
