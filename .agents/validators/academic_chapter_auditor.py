@@ -221,8 +221,19 @@ class AcademicChapterAuditor:
                 bidi = tblPr.find('w:bidiVisual', NS)
                 tbl_text = _clean_text(tbl)
                 has_persian = any('\u0600' <= c <= '\u06FF' for c in tbl_text)
-                if has_persian and bidi is None:
-                    bidi_errors.append(f"Table {idx} contains Persian text but lacks <w:bidiVisual/> in <w:tblPr>.")
+                if has_persian:
+                    if bidi is None:
+                        bidi_errors.append(f"Table {idx} contains Persian text but lacks <w:bidiVisual/> in <w:tblPr>.")
+                    else:
+                        val = bidi.attrib.get(f"{{{NS['w']}}}val")
+                        if val != "1":
+                            bidi_errors.append(f"Table {idx} <w:bidiVisual/> missing explicit w:val='1'.")
+                        bidi_idx = list(tblPr).index(bidi)
+                        tblW = tblPr.find('w:tblW', NS)
+                        if tblW is not None:
+                            tblW_idx = list(tblPr).index(tblW)
+                            if bidi_idx > tblW_idx:
+                                bidi_errors.append(f"Table {idx} <w:bidiVisual/> must precede <w:tblW>.")
 
                 # Check Borders
                 tblBorders = tblPr.find('w:tblBorders', NS)

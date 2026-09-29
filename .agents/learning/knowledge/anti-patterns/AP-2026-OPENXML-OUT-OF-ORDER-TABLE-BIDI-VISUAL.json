@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-OPENXML-OUT-OF-ORDER-TABLE-BIDI-VISUAL",
+  "category": "execution",
+  "defective_pattern": "Appending w:bidiVisual at the end of w:tblPr after w:tblW and w:tblLook, violating ECMA-376 sequence order.",
+  "why_defective": "Violating ECMA-376 sequence order causes strict parsers like ONLYOFFICE to drop RTL table direction and render handle [+] on left and columns LTR.",
+  "observed_symptoms": [
+    "Table handle [+] appears on left instead of right in ONLYOFFICE.",
+    "Table columns render Left-to-Right in ONLYOFFICE despite having w:bidiVisual."
+  ],
+  "corrective_remedy": "Insert bidiVisual w:val=\"1\" strictly before tblW in the CT_TblPr schema ordering.",
+  "detection_heuristic": {
+    "trigger_rule": "Regex detecting w:tblW or w:tblLook followed by w:bidiVisual",
+    "regex_patterns": [
+      "<w:tblW[^>]*>.*<w:bidiVisual[^>]*>",
+      "<w:tblLook[^>]*>.*<w:bidiVisual[^>]*>"
+    ],
+    "pattern": "(<w:tblW|<w:tblLook).*<w:bidiVisual",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.xml",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "apa-reporting",
+    "persian-thesis-builder"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T20:14:20Z"
+}

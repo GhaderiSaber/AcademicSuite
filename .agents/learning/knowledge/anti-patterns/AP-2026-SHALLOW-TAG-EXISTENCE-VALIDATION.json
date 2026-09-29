@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-SHALLOW-TAG-EXISTENCE-VALIDATION",
+  "category": "validation",
+  "defective_pattern": "Validators performing shallow presence checks on w:bidiVisual without verifying schema child sequence, explicit w:val=\"1\", w:jc, or section-level w:bidi.",
+  "why_defective": "Causes false-positive validation passes where the tags exist but are structurally invalid (wrong order, missing explicit values), resulting in downstream parsing failures.",
+  "observed_symptoms": [
+    "Validation passes but ONLYOFFICE still renders RTL tables incorrectly.",
+    "Presence of tags without correct structural placement or attributes."
+  ],
+  "corrective_remedy": "Validators MUST verify exact structural DOM sequences (e.g., bidiVisual before tblW) and explicit attribute presence (w:val=\"1\").",
+  "detection_heuristic": {
+    "trigger_rule": "Validators checking merely `if 'w:bidiVisual' in tblPr` without checking index/order or attributes.",
+    "regex_patterns": [
+      "if.*w:bidiVisual.*in.*tblPr",
+      "tblPr\\.find.*w:bidiVisual"
+    ],
+    "pattern": "if.*w:bidiVisual.*in.*tblPr",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "thesis-integrity-auditor",
+  "target_agents": [
+    "thesis-integrity-auditor",
+    "academic-orchestrator",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T20:14:20Z"
+}

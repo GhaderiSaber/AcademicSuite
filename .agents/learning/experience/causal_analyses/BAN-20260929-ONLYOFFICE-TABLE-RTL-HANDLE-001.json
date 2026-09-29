@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20260929-ONLYOFFICE-TABLE-RTL-HANDLE-001",
+  "target_agent": "academic-writer",
+  "target_skill": "apa-reporting",
+  "observable_failure_step": "DOCX_TABLE_GENERATION_CT_TBLPR_SEQUENCE",
+  "failure_signature": "VIOLATED_ASSUMPTION_IGNORED",
+  "root_cause_diagnosis": "The failure occurred because the agent inserted `w:bidiVisual` and `w:jc` into `CT_TblPr` without adhering to the strict element sequence mandated by the ECMA-376 OpenXML schema. ONLYOFFICE employs a strict sequential XML parser. When `w:bidiVisual` appeared after `w:tblW` and `w:tblLook`, ONLYOFFICE dropped the out-of-order element, destroying the right-to-left layout. Additionally, `w:bidiVisual` lacked the explicit `w:val='1'` attribute, which some strict parsers require over implicit toggles. Table alignment `w:jc` was also misplaced instead of immediately following `w:tblW`. Furthermore, the section-level `w:bidi` (in `w:sectPr`) was omitted, causing column widths to calculate from a Left-To-Right coordinate system. Finally, `academic_chapter_auditor.py` produced a false-positive PASS because it relied on shallow tag existence checks (e.g., `find('w:bidiVisual')`) rather than enforcing strict sibling sequence validation.",
+  "prescribed_behavior": "1) In `CT_TblPr`, strictly enforce the ECMA-376 sequence: `w:tblStyle` -> `w:bidiVisual` -> `w:tblW` -> `w:jc` -> `w:tblLook`. 2) Always append `w:val=\"1\"` to `w:bidiVisual` for explicit parser compliance. 3) Place `w:jc w:val=\"right\"` immediately after `w:tblW`. 4) Inject `w:bidi w:val=\"1\"` into the document's `w:sectPr` to establish global RTL page coordinates. 5) Upgrade `academic_chapter_auditor.py` to use sequence-aware DOM validation instead of shallow existence checks."
+}
