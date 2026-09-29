@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260929-PROP-REV-001",
+  "trigger_type": "QC_FAILURE",
+  "trigger_event_id": "EXP-20260929-PROP-REV-FAILURE-001",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-proposal-builder",
+  "capability": "PROPOSAL",
+  "trajectory_id": "TRJ-20260929-PROP-REV-FAILURE-001",
+  "observable_failure_step": {
+    "step_number": 1,
+    "action_type": "Script Execution",
+    "tool_name": "generate_proposal_docx.py",
+    "description": "Script searched for non-existent strings, failing silently with 0 replacements, and generating unmodified deliverables with a false success signal."
+  },
+  "failure_signature": "SILENT_REGEX_ZERO_MATCH_FAILURE",
+  "root_cause_diagnosis": "The script hardcoded fabricated search strings assuming already-revised relational phrasing instead of querying the actual source document. A character-by-character regex XML tag insertion failed to match across whitespace, half-spaces, and runs. The script lacked any assertion or check that replacements_count > 0 or clean_xml != xml_str, causing a silent pass and false completion reporting.",
+  "prescribed_behavior": "Instead of hardcoding fabricated strings, the agent must extract exact strings from the source document or use robust XML-aware replacement techniques (e.g. python-docx run manipulation) rather than naive character regex. Furthermore, any search-and-replace operation on deliverables must assert that replacements_count > 0 to fail fast instead of failing silently.",
+  "created_at": "2026-09-29T09:54:38+03:30"
+}

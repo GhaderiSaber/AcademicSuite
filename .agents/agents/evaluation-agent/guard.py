@@ -22,7 +22,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     if name in ('write_to_file', 'replace_file_content', 'multi_replace_file_content', 'apply_diff', 'edit_file'):
         if '03_deliverables' in target:
             return {'decision': 'deny', 'reason': 'CONSTITUTIONAL VIOLATION (Evaluator Boundary): evaluation-agent evaluates candidate performance and cannot edit deliverables directly.'}
-    if target and not re.match(r'^[a-zA-Z0-9_.\-/\\]+$', target):
+    if target and not re.match(r'^[a-zA-Z0-9_.\-/\\ ]+$', target):
         return {'decision': 'deny', 'reason': f"CONSTITUTIONAL VIOLATION (Directive 6): File '{target}' must use strictly English ASCII characters."}
     return {'decision': 'allow'}
 

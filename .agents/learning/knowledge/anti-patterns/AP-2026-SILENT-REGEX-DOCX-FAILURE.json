@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-SILENT-REGEX-DOCX-FAILURE",
+  "category": "execution",
+  "defective_pattern": "Hardcoded fabricated search strings and character-by-character regex XML tag insertion without verifying replacements count.",
+  "why_defective": "Regex fails to match across whitespace, half-spaces, and Word XML runs. Lack of assertion on replacements count leads to silent passes and false completion reporting.",
+  "observed_symptoms": [
+    "Silent regex zero match failure",
+    "False completion reporting despite no XML changes"
+  ],
+  "corrective_remedy": "Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect script modifications to docx xml without asserting replacements",
+    "regex_patterns": [
+      "(?m)^.*re\\.sub.*xml.*$"
+    ],
+    "pattern": "(?m)^.*re\\.sub.*xml.*$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "PreToolUse"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T09:55:37Z"
+}
