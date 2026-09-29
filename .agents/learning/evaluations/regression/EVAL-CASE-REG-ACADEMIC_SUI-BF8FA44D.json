@@ -1,7 +1,7 @@
 {
   "contract_version": "1.0.0",
-  "case_id": "EVAL-CASE-REG-PERSIAN_LITE-9A21E072",
-  "capability": "persian-literature-review-builder",
+  "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-BF8FA44D",
+  "capability": "academic-suite-orchestrator",
   "suite_type": "regression",
   "difficulty": "L2_INTERDEPENDENT_MODELS",
   "tags": [
@@ -9,13 +9,13 @@
     "regression_test"
   ],
   "task": {
-    "prompt": "Execute analytical task verifying deterministic_evaluation, adaptive_evaluation, context_evaluation, (bound_evaluation.",
+    "prompt": "Execute analytical task verifying problems:_evaluation, .docx_evaluation, markdown_evaluation, format._evaluation.",
     "research_question": "Does analytical modeling satisfy rigorous methodological standards?",
     "hypothesis": "Analytical procedures will strictly adhere to verified methodological prerequisites."
   },
   "inputs": {
-    "dataset_path": "evals/regression/data_9a21e072.xlsx",
-    "dataset_sha256": "9a21e072b36812cf45a7b03a426539ba0242b0b1cacebd9ee48edd31229a64f7",
+    "dataset_path": "evals/regression/data_bf8fa44d.xlsx",
+    "dataset_sha256": "bf8fa44da1758ab4eaac94db7a5f0da2ba34cf7790f07d5debc903c8549995f4",
     "spec_parameters": {
       "check_domain": "general_methodology"
     }
@@ -25,10 +25,10 @@
       "reasoning_properties_evaluated": true
     },
     "required_reasoning_properties": [
-      "deterministic_evaluation",
-      "adaptive_evaluation",
-      "context_evaluation",
-      "(bound_evaluation"
+      "problems:_evaluation",
+      ".docx_evaluation",
+      "markdown_evaluation",
+      "format._evaluation"
     ],
     "required_artifacts": [
       "03_model_comparison.json",
@@ -48,17 +48,17 @@
       "--suite",
       "regression",
       "--case",
-      "EVAL-CASE-REG-PERSIAN_LITE-9A21E072"
+      "EVAL-CASE-REG-ACADEMIC_SUI-BF8FA44D"
     ],
     "timeout_seconds": 30
   },
-  "created_at": "2026-09-25T15:29:06.764668+00:00",
-  "originating_lesson_id": "LSN-20260925-C8DB97",
-  "originating_experience_id": "EXP-FAST-20260925-103F52",
-  "originating_feedback_id": "FDB-20260925-686645",
+  "created_at": "2026-09-29T09:10:06.022605+00:00",
+  "originating_lesson_id": "LSN-20260929-1A6DE8",
+  "originating_experience_id": "EXP-FAST-20260929-2D29D0",
+  "originating_feedback_id": "FDB-20260929-084A9E",
   "status": "candidate",
-  "expected_behavior": "Ensure thorough methodological compliance and verification of deterministic_evaluation, adaptive_evaluation, context_evaluation, (bound_evaluation.",
+  "expected_behavior": "Ensure thorough methodological compliance and verification of problems:_evaluation, .docx_evaluation, markdown_evaluation, format._evaluation.",
   "forbidden_behavior": "unverified_methodological_shortcut",
-  "repeat_count": 5,
-  "last_seen_at": "2026-09-29T09:10:53.688192+00:00"
+  "repeat_count": 1,
+  "last_seen_at": "2026-09-29T09:10:06.022605+00:00"
 }

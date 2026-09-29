@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20260929-44D1DC",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20260929-D2469B",
+  "target_agent": "literature-expert",
+  "target_agents": [
+    "literature-expert"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `user_feedback_trajectory_reconstruction` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n---\n### Executable Task Assignment:\nReconstruct observable actions, tool calls, and error trajectory for user critique:\n\"Problems:\n1. All the text in the .docx file is raw markdown format.\n2. The text, headers and other thing is different with .md file. The .md file is source of truth.\n3. The headers is not right.\n4. There isn't any introduction section in the chapter 4. There should be extensive inntroduction there.\n5. There isn't any summary section in the chapter 4. There should be Extensive summary in there.\"\n\nInspect `03_deliverables/Chapter_4_Results.docx` and `03_deliverables/Chapter_4_Results.md`. Analyze:\n1. Why raw markdown syntax (literal '\\n\\n', escaped characters, markdown tables, raw hash symbols) was dumped into `Chapter_4_Results.docx`.\n2. Why `academic_docgen.py` or the assembly script failed to properly parse markdown into genuine OpenXML elements (headings, paragraphs, styled APA tables, runs).\n3. Why the text and headings diverged between `.docx` and the `.md` source of truth.\n4. Why the introduction and summary sections were reduced to minimal stubs rather than extensive, rich institutional sections.\nSave the structured trajectory record to `.agents/learning/experience/trajectories/TRJ-20260929-CH4-DOCX-FORMATTING-CRITIQUE-001.json`.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding evidence correction.",
+    "what_should_have_happened": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `user_feedback_trajectory_reconstruction` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n---\n### Executable Task Assignment:\nReconstruct observable actions, tool calls, and error trajectory for user critique:\n\"Problems:\n1. All the text in the .docx file is raw markdown format.\n2. The text, headers and other thing is different with .md file. The .md file is source of truth.\n3. The headers is not right.\n4. There isn't any introduction section in the chapter 4. There should be extensive inntroduction there.\n5. There isn't any summary section in the chapter 4. There should be Extensive summary in there.\"\n\nInspect `03_deliverables/Chapter_4_Results.docx` and `03_deliverables/Chapter_4_Results.md`. Analyze:\n1. Why raw markdown syntax (literal '\\n\\n', escaped characters, markdown tables, raw hash symbols) was dumped into `Chapter_4_Results.docx`.\n2. Why `academic_docgen.py` or the assembly script failed to properly parse markdown into genuine OpenXML elements (headings, paragraphs, styled APA tables, runs).\n3. Why the text and headings diverged between `.docx` and the `.md` source of truth.\n4. Why the introduction and summary sections were reduced to minimal stubs rather than extensive, rich institutional sections.\nSave the structured trajectory record to `.agents/learning/experience/trajectories/TRJ-20260929-CH4-DOCX-FORMATTING-CRITIQUE-001.json`.",
+    "rationale_why": "Adherence to empirical rigor and supervisor directives prevents methodological and institutional defects."
+  },
+  "applicability_conditions": [
+    "Studies utilizing persian-literature-review-builder or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `user_feedback_trajectory_reconstruction` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n---\n### Executable Task Assignment:\nReconstruct observable actions, tool calls, and error trajectory for user critique:\n\"Problems:\n1. All the text in the .docx file is raw markdown format.\n2. The text, headers and other thing is different with .md file. The .md file is source of truth.\n3. The headers is not right.\n4. There isn't any introduction section in the chapter 4. There should be extensive inntroduction there.\n5. There isn't any summary section in the chapter 4. There should be Extensive summary in there.\"\n\nInspect `03_deliverables/Chapter_4_Results.docx` and `03_deliverables/Chapter_4_Results.md`. Analyze:\n1. Why raw markdown syntax (literal '\\n\\n', escaped characters, markdown tables, raw hash symbols) was dumped into `Chapter_4_Results.docx`.\n2. Why `academic_docgen.py` or the assembly script failed to properly parse markdown into genuine OpenXML elements (headings, paragraphs, styled APA tables, runs).\n3. Why the text and headings diverged between `.docx` and the `.md` source of truth.\n4. Why the introduction and summary sections were reduced to minimal stubs rather than extensive, rich institutional sections.\nSave the structured trajectory record to `.agents/learning/experience/trajectories/TRJ-20260929-CH4-DOCX-FORMATTING-CRITIQUE-001.json`.",
+  "generalization": "Procedural Guideline for persian-literature-review-builder: Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `user_feedback_trajectory_reconstruction` | **Agent**: `trajectory-analyzer` | **Project**: `cross-project`\n\n---\n### Executable Task Assignment:\nReconstruct observable actions, tool calls, and error trajectory for user critique:\n\"Problems:\n1. All the text in the .docx file is raw markdown format.\n2. The text, headers and other thing is different with .md file. The .md file is source of truth.\n3. The headers is not right.\n4. There isn't any introduction section in the chapter 4. There should be extensive inntroduction there.\n5. There isn't any summary section in the chapter 4. There should be Extensive summary in there.\"\n\nInspect `03_deliverables/Chapter_4_Results.docx` and `03_deliverables/Chapter_4_Results.md`. Analyze:\n1. Why raw markdown syntax (literal '\\n\\n', escaped characters, markdown tables, raw hash symbols) was dumped into `Chapter_4_Results.docx`.\n2. Why `academic_docgen.py` or the assembly script failed to properly parse markdown into genuine OpenXML elements (headings, paragraphs, styled APA tables, runs).\n3. Why the text and headings diverged between `.docx` and the `.md` source of truth.\n4. Why the introduction and summary sections were reduced to minimal stubs rather than extensive, rich institutional sections.\nSave the structured trajectory record to `.agents/learning/experience/trajectories/TRJ-20260929-CH4-DOCX-FORMATTING-CRITIQUE-001.json`. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-EVIDENCE_CORRECTION",
+    "observed_value": "🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_ACADEMIC` | **Task**: `",
+    "threshold_value": "Standard compliance: 🧠 DETERMINISTIC ADAPTIVE CONTEXT (BOUND AT EXECUTION BOUNDARY)\n- **Target Capability**: `GENERAL_AC",
+    "supporting_report_ids": [
+      "FDB-20260929-785272"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-literature-review-builder"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T09:10:53.685242+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-09-29T09:10:53.685336+00:00"
+  }
+}
