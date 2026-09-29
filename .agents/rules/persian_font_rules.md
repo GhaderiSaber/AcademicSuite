@@ -64,6 +64,7 @@ Comprehensive OpenXML Word and PowerPoint typography specification across Academ
 - **Native OpenXML Footnotes**: Footnotes must compile to native elements (`word/footnotes.xml` and `<w:footnoteReference>`), never simulated plain text. [Enforcement: `academic_writer_guard.py`]
 - **Decoupled Negative Numbers**: Enforce LTR (`rtl="0"`) on numeric data cells so negative signs precede digits ($-0.32$).
 - **Preserve Native OMML Math**: Preserve `<m:oMath>` equations; never overwrite formulas via naive text assignments.
+- **Standard Persian Orthography & Disallowed Arabic Glyphs**: Deliverable Persian text must strictly use standard Persian letters (`ی` `\u06CC`, `ک` `\u06A9`, `ه` `\u0647` / `ت` `\u062A`) and Persian numerals (`۰-۹` `\u06F0-\u06F9`). Disallowed Arabic glyphs (`ي` `\u064A` with 2 dots, `ك` `\u0643` with hamza, `ة` `\u0629` ta marbuta, and Arabic digits `٠-٩` `\u0660-\u0669`) are mechanically rejected. [Enforcement: `academic_writer_guard.py` & `academic_chapter_auditor.py`]
 
 ---
 
