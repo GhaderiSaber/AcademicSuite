@@ -106,6 +106,10 @@ In regression ANOVA tables with multiple criterion variables:
 - Findings narratives must strictly report objective, factual statistical values, frequencies, percentages, and tables.
 - Speculative clinical, developmental, epidemiological, or theoretical interpretations and explanations are strictly prohibited in Chapter 4 (save them for Chapter 5).
 
+### 6.6 Explicit Statistical Parameter Injection Invariant (اصل درج پارامترهای آماری)
+- When drafting narrative deliverables (.md, .docx) for hypotheses from statistical JSON payloads, the writer MUST explicitly extract and embed the primary test statistics (B, SE, beta, t, z, p-values) directly into the continuous scholarly prose.
+- Generating narrative text that vaguely describes findings without explicitly reporting the specific numeric coefficients from the companion JSON is strictly prohibited and will cause validation failures.
+
 ---
 
 ## 7. CLI EXECUTION & SCAFFOLDING

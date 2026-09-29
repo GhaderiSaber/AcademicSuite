@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-29T06:59:42.569368+00:00",
+  "updated_at": "2026-09-29T08:20:10.835391+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -870,7 +870,7 @@
       "violation_message": "Monolithic hypothesis JSON files are prohibited. You must emit disaggregated micro-stage JSON files (e.g., `08_hypothesis_3.json`) for each individual hypothesis.",
       "remedy": "Separate the hypotheses into their own dedicated, isolated micro-stages and emit individual `.json`, `.md`, and `.docx` artifacts for each.",
       "enabled": true,
-      "updated_at": "2026-09-29T06:59:37.501533+00:00"
+      "updated_at": "2026-09-29T07:00:55.940352+00:00"
     },
     "LSN-2026-LEGACY-VAL-ISOLATION": {
       "item_id": "LSN-2026-LEGACY-VAL-ISOLATION",
@@ -913,6 +913,29 @@
       "remedy": "Strictly enforce the Triad Invariant by atomically generating the .json, .md, and .docx artifacts for every single hypothesis micro-stage, using canonical naming conventions.",
       "enabled": true,
       "updated_at": "2026-09-29T06:59:42.569350+00:00"
+    },
+    "CAND-2026-OMITTED-STATISTICAL-PARAMETERS-001": {
+      "item_id": "CAND-2026-OMITTED-STATISTICAL-PARAMETERS-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Drafting narrative text without explicitly extracting and embedding the relevant primary statistical parameters (B, SE, beta, z, p-values) from the companion JSON payload.",
+      "target_agents": [
+        "academic-writer",
+        "statistical-data-analyst",
+        "results-auditor"
+      ],
+      "target_skills": [
+        "academic_writing",
+        "chapter_4_drafting"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*_hypothesis_.*\\.(md|docx)",
+      "check_type": "regex_ban",
+      "pattern": "(?i)beta\\s*=\\s*\\[placeholder\\]|p\\s*=\\s*\\[insert\\]",
+      "violation_message": "Drafting narrative text without explicitly extracting and embedding the relevant primary statistical parameters (B, SE, beta, z, p-values) from the companion JSON payload.",
+      "remedy": "When drafting narrative deliverables from statistical JSON payloads, you MUST explicitly parse the structural path coefficients (B, SE, beta, z, p) from the JSON file and embed them directly into the running narrative.",
+      "enabled": true,
+      "updated_at": "2026-09-29T08:20:10.835351+00:00"
     }
   }
 }
