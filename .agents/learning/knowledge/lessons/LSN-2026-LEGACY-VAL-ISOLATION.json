@@ -1,0 +1,39 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-LEGACY-VAL-ISOLATION",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "BAN-20260929-LEGACY-VAL-ISOLATION-001",
+  "diagnosis": {
+    "what_happened": "The evaluation-agent moved the failing validation_report.json into a subdirectory under 03_deliverables.",
+    "behavior_caused_outcome": "The integrity guard recursively scans all child directories, leading to validation failure.",
+    "what_should_have_happened": "The evaluation-agent must physically delete the failing validation_report.json file using os.remove instead of moving or archiving it.",
+    "rationale_why": "Recursive integrity checks detect failure markers anywhere inside the monitored tree."
+  },
+  "desired_behavior": "Physically delete failing validation_report.json files using os.remove instead of moving or archiving them within monitored directories.",
+  "generalization": "Always use absolute deletion for stale state files instead of archiving inside monitored directories.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "VALIDATOR_FAILURE",
+    "observed_value": "Validation block due to legacy file",
+    "threshold_value": "Clean state",
+    "supporting_report_ids": [
+      "BAN-20260929-LEGACY-VAL-ISOLATION-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "legacy-report-management"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T10:25:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "evaluation-agent",
+  "target_agents": [
+    "evaluation-agent"
+  ],
+  "graduation_status": "PENDING_GRADUATION"
+}

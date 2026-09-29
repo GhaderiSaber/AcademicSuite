@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-29T06:44:18.696206+00:00",
+  "updated_at": "2026-09-29T06:59:39.079535+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -850,6 +850,47 @@
       "remedy": "Use rm or proper file deletion to permanently remove the failing validation report.",
       "enabled": true,
       "updated_at": "2026-09-29T06:44:18.696185+00:00"
+    },
+    "CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001": {
+      "item_id": "CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Monolithic hypothesis JSON files are prohibited. You must emit disaggregated micro-stage JSON files (e.g., `08_hypothesis_3.json`) for each individual hypothesis.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "CHAPTER4",
+        "GENERAL_ACADEMIC"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|run_command",
+      "file_pattern": ".*03_deliverables/.*",
+      "check_type": "regex_ban",
+      "pattern": "(?i)(consolidated_hypotheses|all_hypotheses|hypothesis_all)\\.json",
+      "violation_message": "Monolithic hypothesis JSON files are prohibited. You must emit disaggregated micro-stage JSON files (e.g., `08_hypothesis_3.json`) for each individual hypothesis.",
+      "remedy": "Separate the hypotheses into their own dedicated, isolated micro-stages and emit individual `.json`, `.md`, and `.docx` artifacts for each.",
+      "enabled": true,
+      "updated_at": "2026-09-29T06:59:37.501533+00:00"
+    },
+    "LSN-2026-LEGACY-VAL-ISOLATION": {
+      "item_id": "LSN-2026-LEGACY-VAL-ISOLATION",
+      "category": "Lesson",
+      "statement": "Physically delete failing validation_report.json files using os.remove instead of moving or archiving them within monitored directories.",
+      "target_agents": [
+        "evaluation-agent"
+      ],
+      "target_skills": [
+        "legacy-report-management"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "(?m)^.*os\\.rename.*validation_report\\.json.*$",
+      "violation_message": "Physically delete failing validation_report.json files using os.remove instead of moving or archiving them within monitored directories.",
+      "remedy": "Physically delete failing validation_report.json files using os.remove instead of moving or archiving them within monitored directories.",
+      "enabled": true,
+      "updated_at": "2026-09-29T06:59:39.079518+00:00"
     }
   }
 }
