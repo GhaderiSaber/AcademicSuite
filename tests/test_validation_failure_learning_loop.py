@@ -295,7 +295,39 @@ class TestValidationFailureLearningLoop(unittest.TestCase):
         self.assertTrue(os.path.isfile(events_file), "trajectory_events.jsonl was not created")
         with open(events_file, "r", encoding="utf-8") as f:
             events = [json.loads(line) for line in f if line.strip()]
-        self.assertTrue(any(e.get("event_type") == "VALIDATION_FAILED" for e in events))
+    def test_11_decontaminate_failing_validation_reports_prevents_recurrent_learning_loop(self):
+        """Graduation compiler decontaminates failing validation reports, preserving passing ones and preventing duplicate learning loops."""
+        from scripts.academic_graduation_compiler import AcademicGraduationCompiler
+        compiler = AcademicGraduationCompiler(base_dir=self.tmp_dir)
+
+        # 1. Setup a failing stage report and a passing stage report
+        stage_fail_dir = os.path.join(self.deliv_dir, "stage_06_hypothesis_1")
+        stage_pass_dir = os.path.join(self.deliv_dir, "stage_01_demographics")
+        os.makedirs(stage_fail_dir, exist_ok=True)
+        os.makedirs(stage_pass_dir, exist_ok=True)
+
+        fail_report_path = os.path.join(stage_fail_dir, "validation_report.json")
+        pass_report_path = os.path.join(stage_pass_dir, "validation_report.json")
+
+        with open(fail_report_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "FAIL", "checks_failed": 4}, f)
+        with open(pass_report_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "PASS", "checks_failed": 0}, f)
+
+        # Before decontamination: failure is active
+        records = [{"type": "USER_INPUT", "content": "Next turn after graduation"}]
+        is_active_before, _, _ = orch_guard.is_validation_failure_active(records, [self.tmp_dir])
+        self.assertTrue(is_active_before, "Failed to detect failing report before decontamination")
+
+        # 2. Execute mechanical decontamination
+        unlinked = compiler.decontaminate_failing_validation_reports([self.tmp_dir])
+        self.assertIn(fail_report_path, unlinked)
+        self.assertFalse(os.path.exists(fail_report_path), "Failing report was not physically unlinked")
+        self.assertTrue(os.path.exists(pass_report_path), "Passing report must be preserved on disk")
+
+        # 3. After decontamination: failure is no longer active on disk -> no duplicate learning loop
+        is_active_after, _, _ = orch_guard.is_validation_failure_active(records, [self.tmp_dir])
+        self.assertFalse(is_active_after, "Active validation failure persisted after decontamination")
 
 
 if __name__ == "__main__":
