@@ -38,6 +38,6 @@
   "graduation_status": "GRADUATED",
   "graduated_at": "2026-09-29T06:59:42.562493+00:00",
   "graduated_targets": [
-    "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/.agents/plugins/academic-suite/rules/AGENTS.md"
+    "${WORKSPACE_ROOT}/.agents/plugins/academic-suite/rules/AGENTS.md"
   ]
 }

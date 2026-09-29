@@ -45,7 +45,7 @@
       "description": "academic-writer executed shell command to inspect analysis code directory.",
       "observable_input": {
         "command_line": "ls -la 02_analysis_code/",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0
@@ -59,7 +59,7 @@
       "description": "academic-writer executed shell command to inspect deliverables directory.",
       "observable_input": {
         "command_line": "ls -la 03_deliverables/",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0
@@ -73,7 +73,7 @@
       "description": "academic-writer read phase1_n483_summary.json to review N=483 psychometric parameters.",
       "observable_input": {
         "command_line": "cat 02_analysis_code/phase1_n483_summary.json",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0
@@ -87,7 +87,7 @@
       "description": "academic-writer inspected top 100 lines of stats_results.json for demographic breakdown.",
       "observable_input": {
         "command_line": "head -n 100 02_analysis_code/stats_results.json",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0
@@ -101,7 +101,7 @@
       "description": "academic-writer executed python one-liner to list all 12 demographic keys from stats_results.json.",
       "observable_input": {
         "command_line": "python3 -c 'import json; d = json.load(open(\"02_analysis_code/stats_results.json\")); print(list(d[\"demographics\"].keys()))'",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0,
@@ -116,7 +116,7 @@
       "description": "academic-writer executed python command to extract Age distribution parameters (M=35.72, SD=9.79, range 18-60).",
       "observable_input": {
         "command_line": "python3 -c 'import json; print(json.dumps(json.load(open(\"02_analysis_code/stats_results.json\"))[\"demographics\"][\"Age\"], indent=2, ensure_ascii=False))'",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0
@@ -130,7 +130,7 @@
       "description": "academic-writer executed python command to inspect SabAfk distribution (86.3% ideation, 13.5% attempt).",
       "observable_input": {
         "command_line": "python3 -c 'import json; print(json.dumps(json.load(open(\"02_analysis_code/stats_results.json\"))[\"demographics\"][\"SabAfk\"], indent=2, ensure_ascii=False))'",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0
@@ -144,7 +144,7 @@
       "description": "academic-writer extracted detailed categorical frequencies for Education, Job, Income, SabEkht, SabPsych, SabBast, Daru, and Sigar.",
       "observable_input": {
         "command_line": "python3 -c 'import json; d = json.load(open(\"02_analysis_code/stats_results.json\"))[\"demographics\"]; ...'",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0
@@ -158,7 +158,7 @@
       "description": "academic-writer attempted to write build_stage41_option_b.py into repository root; blocked by PreToolUse safety hook enforcing Directive 23 (Clean Workspace Root Invariant).",
       "observable_input": {
         "tool_name": "write_to_file",
-        "target_file": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/build_stage41_option_b.py"
+        "target_file": "${WORKSPACE_ROOT}/build_stage41_option_b.py"
       },
       "observable_output": {
         "status": "BLOCKED_BY_GUARD",
@@ -187,7 +187,7 @@
       "description": "academic-writer executed python3 02_analysis_code/build_stage41_option_b.py to generate 01_demographics.docx, 01_demographics.md, and 01_demographics.json.",
       "observable_input": {
         "command_line": "python3 02_analysis_code/build_stage41_option_b.py",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0
@@ -201,7 +201,7 @@
       "description": "academic-writer verified generated deliverables on disk.",
       "observable_input": {
         "command_line": "ls -la 03_deliverables/01_demographics.*",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0,
@@ -216,7 +216,7 @@
       "description": "academic-writer read first 35 lines of 03_deliverables/01_demographics.md to verify formatting.",
       "observable_input": {
         "command_line": "cat 03_deliverables/01_demographics.md | head -n 35",
-        "cwd": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "exit_code": 0
@@ -349,7 +349,7 @@
       "tool_name": "write_to_file",
       "invocation_index": 9,
       "arguments_summary": {
-        "TargetFile": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/build_stage41_option_b.py"
+        "TargetFile": "${WORKSPACE_ROOT}/build_stage41_option_b.py"
       },
       "status": "BLOCKED_BY_GUARD",
       "execution_time_ms": 100,
@@ -359,7 +359,7 @@
       "tool_name": "write_to_file",
       "invocation_index": 10,
       "arguments_summary": {
-        "TargetFile": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/02_analysis_code/build_stage41_option_b.py"
+        "TargetFile": "02_analysis_code/build_stage41_option_b.py"
       },
       "status": "SUCCESS",
       "execution_time_ms": 400
@@ -496,7 +496,7 @@
         "directive_23_clean_workspace_root"
       ],
       "evidence_summary": {
-        "blocked_path": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/build_stage41_option_b.py",
+        "blocked_path": "${WORKSPACE_ROOT}/build_stage41_option_b.py",
         "action": "Redirected to 02_analysis_code/build_stage41_option_b.py"
       }
     },

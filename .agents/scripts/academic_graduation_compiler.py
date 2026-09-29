@@ -588,7 +588,18 @@ class AcademicGraduationCompiler:
         if res.get("all_passed") and not dry_run:
             data["graduation_status"] = "GRADUATED"
             data["graduated_at"] = datetime.now(timezone.utc).isoformat()
-            data["graduated_targets"] = res.get("targets", [])
+            norm_targets = []
+            for t in res.get("targets", []):
+                t_str = str(t)
+                if ".agents" in t_str:
+                    idx = t_str.find(".agents")
+                    norm_targets.append(t_str[idx:])
+                elif t_str.startswith(self.base_dir):
+                    rel = os.path.relpath(t_str, self.base_dir)
+                    norm_targets.append(rel)
+                else:
+                    norm_targets.append(t_str)
+            data["graduated_targets"] = norm_targets
             with open(json_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 

@@ -95,7 +95,7 @@
       "observable_input": {
         "guard_module": "academic-orchestrator/guard.py",
         "function": "is_validation_failure_active",
-        "workspace": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+        "workspace": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "status": "SCANNING_DELIVERABLES_DIRECTORY"
@@ -146,7 +146,7 @@
       "observable_output": {
         "event_id": "EVT-5CF87158",
         "event_type": "VALIDATION_FAILED",
-        "stage_dir": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation",
+        "stage_dir": "03_deliverables/legacy_validation",
         "checks_failed": 28,
         "advisory_injected": true
       }
@@ -203,7 +203,7 @@
       "tool_name": "integrity_hook_post_invocation",
       "invocation_index": 4,
       "arguments_summary": {
-        "workspace_root": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur",
+        "workspace_root": "${WORKSPACE_ROOT}",
         "scan_target": "validation_report.json"
       },
       "status": "SUCCESS",

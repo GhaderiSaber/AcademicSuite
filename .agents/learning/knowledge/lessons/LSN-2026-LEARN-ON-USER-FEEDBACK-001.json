@@ -21,7 +21,7 @@
     "threshold_value": "100% learning pipeline invocation on negative feedback",
     "supporting_report_ids": [],
     "supporting_artifact_paths": [
-      "/home/saber-ghaderi/.gemini/antigravity/brain/86f9eed6-0bdf-4088-93c5-c629a9276df8/learning_proposal.md"
+      "${APP_DATA_DIR}/antigravity/brain/86f9eed6-0bdf-4088-93c5-c629a9276df8/learning_proposal.md"
     ]
   },
   "related_skills": [
@@ -40,8 +40,8 @@
   "graduation_status": "GRADUATED",
   "graduated_at": "2026-09-25T18:07:33.788169+00:00",
   "graduated_targets": [
-    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-adaptive-context/SKILL.md",
-    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-suite-orchestrator/SKILL.md",
-    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/thesis-integrity-auditor/SKILL.md"
+    "${WORKSPACE_ROOT}/.agents/skills/academic-adaptive-context/SKILL.md",
+    "${WORKSPACE_ROOT}/.agents/skills/academic-suite-orchestrator/SKILL.md",
+    "${WORKSPACE_ROOT}/.agents/skills/thesis-integrity-auditor/SKILL.md"
   ]
 }

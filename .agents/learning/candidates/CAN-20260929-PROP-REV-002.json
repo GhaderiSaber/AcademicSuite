@@ -32,7 +32,7 @@
   "graduation_status": "GRADUATED",
   "promoted_at": "2026-09-29T06:59:48.749710+00:00",
   "promoted_targets": [
-    "/home/saber-ghaderi/My Work/Mehrane/.agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py",
-    "/home/saber-ghaderi/My Work/Mehrane/.agents/hooks/rules/enforced_invariants.json"
+    "${WORKSPACE_ROOT}/.agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py",
+    "${WORKSPACE_ROOT}/.agents/hooks/rules/enforced_invariants.json"
   ]
 }

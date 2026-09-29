@@ -40,6 +40,6 @@
   "graduation_status": "GRADUATED",
   "graduated_at": "2026-09-24T08:42:47.436048+00:00",
   "graduated_targets": [
-    "/home/saber-ghaderi/Desktop/Projects/AcademicSuite/.agents/skills/persian-discussion-builder/SKILL.md"
+    ".agents/skills/persian-discussion-builder/SKILL.md"
   ]
 }

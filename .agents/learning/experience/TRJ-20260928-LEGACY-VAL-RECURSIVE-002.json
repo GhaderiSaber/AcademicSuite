@@ -114,10 +114,10 @@
       "observable_input": {
         "guard_module": "academic-orchestrator/guard.py",
         "scan_function": "is_validation_failure_active",
-        "deliv_dir": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables"
+        "deliv_dir": "03_deliverables"
       },
       "observable_output": {
-        "candidate_path_evaluated": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation/validation_report.json",
+        "candidate_path_evaluated": "03_deliverables/legacy_validation/validation_report.json",
         "verdict": "FAIL",
         "checks_failed": 28,
         "guard_blocked": true
@@ -130,10 +130,10 @@
       "timestamp": "2026-09-28T17:15:05.112450+00:00",
       "description": "integrity_hooks.py handle_post_invocation traversed ws via os.walk(ws), encountered the unmodified 03_deliverables/legacy_validation/validation_report.json, and re-injected STAGE VERIFICATION ADVISORY into the transcript.",
       "observable_input": {
-        "file_path": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation/validation_report.json"
+        "file_path": "03_deliverables/legacy_validation/validation_report.json"
       },
       "observable_output": {
-        "injected_message": "STAGE VERIFICATION ADVISORY: Validation report in '/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation' does not satisfy passing contract (overall_verdict: 'FAIL', checks_failed: 28). Contract strictly requires overall_verdict == 'PASS' and checks_failed == 0."
+        "injected_message": "STAGE VERIFICATION ADVISORY: Validation report in '03_deliverables/legacy_validation' does not satisfy passing contract (overall_verdict: 'FAIL', checks_failed: 28). Contract strictly requires overall_verdict == 'PASS' and checks_failed == 0."
       }
     },
     {
@@ -157,7 +157,7 @@
       "tool_name": "view_file",
       "invocation_index": 1,
       "arguments_summary": {
-        "AbsolutePath": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation/validation_report.json"
+        "AbsolutePath": "03_deliverables/legacy_validation/validation_report.json"
       },
       "status": "SUCCESS",
       "execution_time_ms": 120.0
@@ -166,7 +166,7 @@
       "tool_name": "view_file",
       "invocation_index": 2,
       "arguments_summary": {
-        "AbsolutePath": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/.agents/learning/experience/TRJ-20260928-LEGACY-VAL-ISOLATION-001.json"
+        "AbsolutePath": "${WORKSPACE_ROOT}/.agents/learning/experience/TRJ-20260928-LEGACY-VAL-ISOLATION-001.json"
       },
       "status": "SUCCESS",
       "execution_time_ms": 85.0
@@ -175,7 +175,7 @@
       "tool_name": "view_file",
       "invocation_index": 3,
       "arguments_summary": {
-        "AbsolutePath": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/.agents/learning/experience/TRJ-20260928-LEGACY-VAL-ISOLATION-001.md"
+        "AbsolutePath": "${WORKSPACE_ROOT}/.agents/learning/experience/TRJ-20260928-LEGACY-VAL-ISOLATION-001.md"
       },
       "status": "SUCCESS",
       "execution_time_ms": 90.0
@@ -195,7 +195,7 @@
       "tool_name": "integrity_hook_post_invocation",
       "invocation_index": 5,
       "arguments_summary": {
-        "workspace_root": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur",
+        "workspace_root": "${WORKSPACE_ROOT}",
         "scan_target": "validation_report.json"
       },
       "status": "SUCCESS",

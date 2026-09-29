@@ -50,7 +50,7 @@
   "contradictions": [],
   "evidence": [
     {
-      "artifact_path": "/home/saber-ghaderi/My Work/Mehrane/.agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py",
+      "artifact_path": "${WORKSPACE_ROOT}/.agents/skills/persian-proposal-builder/scripts/generate_proposal_docx.py",
       "sha256": "898bb4e6b069f4035e68c78d8bf7fc45372153f481bc12d001c8cfa2f0ecd3db",
       "evidence_type": "script_execution"
     }

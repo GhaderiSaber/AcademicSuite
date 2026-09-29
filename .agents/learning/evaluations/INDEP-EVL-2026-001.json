@@ -47,12 +47,12 @@
   "contradictions": [],
   "evidence": [
     {
-      "artifact_path": "/home/saber-ghaderi/My Work/Shakila Salavati/.agents/skills/persian-thesis-revision-assistant/SKILL.md",
+      "artifact_path": "${WORKSPACE_ROOT}/.agents/skills/persian-thesis-revision-assistant/SKILL.md",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence_type": "SKILL_MUTATION"
     },
     {
-      "artifact_path": "/home/saber-ghaderi/My Work/Shakila Salavati/.agents/hooks/rules/enforced_invariants.json",
+      "artifact_path": "${WORKSPACE_ROOT}/.agents/hooks/rules/enforced_invariants.json",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence_type": "HOOK_REGISTRATION"
     }

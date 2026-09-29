@@ -20,7 +20,7 @@ This forensic trajectory investigation resolves two core execution anomalies:
 ## 2. Forensic Analysis 1: Legacy Validation Report False Absence Claim
 
 ### 2.1 The Observable Evidence on Disk
-Inspection of the directory `/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation` reveals three distinct files:
+Inspection of the directory `03_deliverables/legacy_validation` reveals three distinct files:
 
 | File Name | Size (Bytes) | SHA-256 Checksum | Description |
 | :--- | :--- | :--- | :--- |
@@ -58,7 +58,7 @@ Every time `academic-orchestrator` initiates a turn or invokes a tool:
 2. **Workspace Post-Invocation Hook (`integrity_hooks.py`)**:
    `integrity_hooks.py` runs `os.walk(ws)`, discovers `03_deliverables/legacy_validation/validation_report.json`, and emits:
    ```
-   STAGE VERIFICATION ADVISORY: Validation report in '/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/legacy_validation' does not satisfy passing contract (overall_verdict: 'FAIL', checks_failed: 28). Contract strictly requires overall_verdict == 'PASS' and checks_failed == 0.
+   STAGE VERIFICATION ADVISORY: Validation report in '03_deliverables/legacy_validation' does not satisfy passing contract (overall_verdict: 'FAIL', checks_failed: 28). Contract strictly requires overall_verdict == 'PASS' and checks_failed == 0.
    ```
 3. **Trigger Loop**:
    This advisory token matches `guard.py` line 137, re-firing the Continuous Learning Trigger:

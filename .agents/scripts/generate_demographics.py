@@ -3,11 +3,14 @@ import json
 import sys
 
 # Add scripts dir to path to import structured_docx_generator
-scripts_dir = os.path.join('/home/saber-ghaderi/My Work/Mohtasham Valiyanpur', '.agents', 'scripts')
-sys.path.append(scripts_dir)
+ws_dir = os.environ.get("WORKSPACE_ROOT", ".")
+scripts_dir = os.path.join(ws_dir, '.agents', 'scripts')
+if os.path.isdir(scripts_dir):
+    sys.path.append(scripts_dir)
 from structured_docx_generator import build_structured_docx
 
-os.makedirs('/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables', exist_ok=True)
+deliv_dir = os.path.join(ws_dir, '03_deliverables')
+os.makedirs(deliv_dir, exist_ok=True)
 
 md_content = """# ۴-۱. توصیف جمعیت‌شناختی نمونه پژوهش
 
@@ -194,14 +197,18 @@ json_content = {
     ]
 }
 
-with open('/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/01_demographics.md', 'w', encoding='utf-8') as f:
+md_out = os.path.join(deliv_dir, '01_demographics.md')
+json_out = os.path.join(deliv_dir, '01_demographics.json')
+docx_out = os.path.join(deliv_dir, '01_demographics.docx')
+
+with open(md_out, 'w', encoding='utf-8') as f:
     f.write(md_content)
 
-with open('/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/01_demographics.json', 'w', encoding='utf-8') as f:
+with open(json_out, 'w', encoding='utf-8') as f:
     json.dump(json_content, f, ensure_ascii=False, indent=4)
 
 build_structured_docx(
-    json_path='/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/01_demographics.json',
-    md_path='/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/01_demographics.md',
-    out_docx_path='/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/01_demographics.docx'
+    json_path=json_out,
+    md_path=md_out,
+    out_docx_path=docx_out
 )

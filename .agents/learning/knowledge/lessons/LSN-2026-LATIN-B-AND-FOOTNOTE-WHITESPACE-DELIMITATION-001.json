@@ -41,7 +41,7 @@
   ],
   "graduated_at": "2026-09-24T18:48:28.531129+00:00",
   "graduated_targets": [
-    "/home/saber-ghaderi/Desktop/AcademicSuite/.agents/skills/apa-reporting/SKILL.md",
-    "/home/saber-ghaderi/Desktop/AcademicSuite/.agents/skills/chapter-4-writing/SKILL.md"
+    ".agents/skills/apa-reporting/SKILL.md",
+    ".agents/skills/chapter-4-writing/SKILL.md"
   ]
 }

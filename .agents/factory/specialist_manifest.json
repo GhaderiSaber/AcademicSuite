@@ -4,25 +4,25 @@
   "agent": {
     "status": "SUCCESS",
     "agent_name": "longitudinal-modmed-expert",
-    "file_path": "/home/saber-ghaderi/Desktop/AcademicSuite/.agents/agents/longitudinal-modmed-expert.md",
+    "file_path": ".agents/agents/longitudinal-modmed-expert.md",
     "size_bytes": 3485
   },
   "skill": {
     "status": "SUCCESS",
     "skill_name": "longitudinal-moderated-mediation",
-    "skill_dir": "/home/saber-ghaderi/Desktop/AcademicSuite/.agents/skills/longitudinal-moderated-mediation",
-    "skill_file": "/home/saber-ghaderi/Desktop/AcademicSuite/.agents/skills/longitudinal-moderated-mediation/SKILL.md",
-    "script_path": "/home/saber-ghaderi/Desktop/AcademicSuite/.agents/skills/longitudinal-moderated-mediation/scripts/run_longitudinal_modmed.py",
+    "skill_dir": ".agents/skills/longitudinal-moderated-mediation",
+    "skill_file": ".agents/skills/longitudinal-moderated-mediation/SKILL.md",
+    "script_path": ".agents/skills/longitudinal-moderated-mediation/scripts/run_longitudinal_modmed.py",
     "lines": 20,
     "bytes": 935
   },
   "validator": {
     "status": "SUCCESS",
     "validator_name": "longitudinal_modmed",
-    "file_path": "/home/saber-ghaderi/Desktop/AcademicSuite/validators/longitudinal_modmed/validator.py",
+    "file_path": "validators/longitudinal_modmed/validator.py",
     "size_bytes": 2564
   },
-  "evaluation_case": "/home/saber-ghaderi/Desktop/AcademicSuite/evals/mediation/case_longitudinal_modmed_01.json",
+  "evaluation_case": "evals/mediation/case_longitudinal_modmed_01.json",
   "preregistration_sandbox_test": {
     "script_execution": "PASS",
     "validator_execution": "PASS",

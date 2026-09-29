@@ -21,18 +21,18 @@ During the execution and refinement of **Stage 4D.1 (Demographics Triad)** withi
 A forensic examination of the workspace, calculations, and delegation envelopes reveals the following empirical sequence:
 
 1. **Complete Statistical Calculation in Stage 4B.1**:
-   In Phase 4B.1, `statistics-agent` executed [`02_analysis_code/compute_demographics.py`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/02_analysis_code/compute_demographics.py) on the cleaned empirical dataset [`02_analysis_code/data_cleaned.xlsx`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/02_analysis_code/data_cleaned.xlsx) ($N = 483$). The script accurately calculated frequencies, valid percentages, cumulative percentages, and descriptive statistics across **all 12 demographic and clinical background variables** surveyed in the study, saving the results to [`02_analysis_code/demographics_calculated.json`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/02_analysis_code/demographics_calculated.json).
+   In Phase 4B.1, `statistics-agent` executed [`02_analysis_code/compute_demographics.py`](02_analysis_code/compute_demographics.py) on the cleaned empirical dataset [`02_analysis_code/data_cleaned.xlsx`](02_analysis_code/data_cleaned.xlsx) ($N = 483$). The script accurately calculated frequencies, valid percentages, cumulative percentages, and descriptive statistics across **all 12 demographic and clinical background variables** surveyed in the study, saving the results to [`02_analysis_code/demographics_calculated.json`](02_analysis_code/demographics_calculated.json).
 
 2. **Arbitrary Scope Pruning by the Orchestrator in Stage 4D.1**:
    When framing the Contractual Delegation Envelope (CDE) for Stage 4D.1 (`TSK-2026-CH4-STAGE-4D1-DISAGGREGATED-DEMOGRAPHICS`), the orchestrator (`academic-orchestrator`):
    - Arbitrarily restricted the reporting scope to only 4 conventional variables: **Gender, Marital Status, Education Level, and Employment Status**.
-   - Created a truncated 31-line stub [`03_deliverables/01_demographics.json`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/03_deliverables/01_demographics.json) omitting the remaining 8 variables.
-   - Omitted [`02_analysis_code/demographics_calculated.json`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/02_analysis_code/demographics_calculated.json) from the CDE input artifacts list.
+   - Created a truncated 31-line stub [`03_deliverables/01_demographics.json`](03_deliverables/01_demographics.json) omitting the remaining 8 variables.
+   - Omitted [`02_analysis_code/demographics_calculated.json`](02_analysis_code/demographics_calculated.json) from the CDE input artifacts list.
    - Explicitly instructed `academic-writer` in the CDE acceptance criteria: *"Option 2 Structure: Exactly 4 separate subsections with 4 separate APA 7 3-line tables: جدول ۴-۱ (جنسیت), جدول ۴-۲ (وضعیت تأهل), جدول ۴-۳ (سطح تحصیلات), جدول ۴-۴ (وضعیت اشتغال)"*.
    - Distorted the employment status variable from the empirical 5 categories (Employed 214, Homemaker 131, Student 63, Unemployed 63, Retired 12) into 3 coarse groups (Employed 248, Unemployed 124, Student 111).
 
 3. **Bounded Compliance by Academic Writer**:
-   Operating under bounded role constraints (Directive 20), `academic-writer` generated deliverables [`03_deliverables/01_demographics.md`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/03_deliverables/01_demographics.md) and [`03_deliverables/01_demographics.docx`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/03_deliverables/01_demographics.docx) strictly reflecting the 4 delegated variables and omitting **8 critical clinical and demographic variables** (Age, Monthly Income, History of Psychiatric Disorders, Psychological Consultation, Psychiatric Hospitalization, Suicidal Ideation/Attempt History, Psychotropic Medication, and Smoking Status).
+   Operating under bounded role constraints (Directive 20), `academic-writer` generated deliverables [`03_deliverables/01_demographics.md`](03_deliverables/01_demographics.md) and [`03_deliverables/01_demographics.docx`](03_deliverables/01_demographics.docx) strictly reflecting the 4 delegated variables and omitting **8 critical clinical and demographic variables** (Age, Monthly Income, History of Psychiatric Disorders, Psychological Consultation, Psychiatric Hospitalization, Suicidal Ideation/Attempt History, Psychotropic Medication, and Smoking Status).
 
 ---
 
@@ -43,14 +43,14 @@ A forensic examination of the workspace, calculations, and delegation envelopes 
 | **1** | `SUBAGENT_REQUESTED` | `academic-orchestrator` | `2026-09-27T14:40:00Z` | Delegated Stage 4B.1 to `statistics-agent` under task `TSK-2026-CH4-STAGE-4B1`. | Initiated calculation request on $N=483$. |
 | **2** | `SUBAGENT_STARTED` | `statistics-agent` | `2026-09-27T14:40:05Z` | Target task `TSK-2026-CH4-STAGE-4B1`. | Execution started. |
 | **3** | `COMMAND_STARTED` | `statistics-agent` | `2026-09-27T14:40:10Z` | Executed `python3 02_analysis_code/compute_demographics.py` on `02_analysis_code/data_cleaned.xlsx`. | Exit code 0, 12 variables computed on $N=483$. |
-| **4** | `FILE_WRITTEN` | `statistics-agent` | `2026-09-27T14:40:15Z` | Serialized calculations to [`02_analysis_code/demographics_calculated.json`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/02_analysis_code/demographics_calculated.json). | 13,901 bytes; contains all 12 variables (11 categorical + Age). |
+| **4** | `FILE_WRITTEN` | `statistics-agent` | `2026-09-27T14:40:15Z` | Serialized calculations to [`02_analysis_code/demographics_calculated.json`](02_analysis_code/demographics_calculated.json). | 13,901 bytes; contains all 12 variables (11 categorical + Age). |
 | **5** | `SUBAGENT_COMPLETED` | `statistics-agent` | `2026-09-27T14:40:20Z` | Return payload with `02_analysis_code/demographics_calculated.json`. | Task `TSK-2026-CH4-STAGE-4B1` succeeded. |
 | **6** | `DECISION_FORMULATION` | `academic-orchestrator` | `2026-09-28T09:15:00Z` | Formulated drafting assignment for Stage 4D.1. Pruned reporting scope from 12 variables down to 4. | Decision ID: `DEC-20260928-ORCH-SCOPE-PRUNING`. |
-| **7** | `FILE_WRITTEN` | `academic-orchestrator` | `2026-09-28T09:15:10Z` | Generated truncated stub [`03_deliverables/01_demographics.json`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/03_deliverables/01_demographics.json) (31 lines, 4 variables). | Emitted pruned input artifact with distorted Job counts. |
+| **7** | `FILE_WRITTEN` | `academic-orchestrator` | `2026-09-28T09:15:10Z` | Generated truncated stub [`03_deliverables/01_demographics.json`](03_deliverables/01_demographics.json) (31 lines, 4 variables). | Emitted pruned input artifact with distorted Job counts. |
 | **8** | `SUBAGENT_REQUESTED` | `academic-orchestrator` | `2026-09-28T09:15:30Z` | Issued CDE `TSK-2026-CH4-STAGE-4D1-DISAGGREGATED-DEMOGRAPHICS` to `academic-writer`. | Mandated Option 2 with exactly 4 tables; omitted `demographics_calculated.json`. |
 | **9** | `SUBAGENT_STARTED` | `academic-writer` | `2026-09-28T09:15:35Z` | Started drafting bounded strictly by the orchestrator's CDE. | Execution started. |
-| **10** | `FILE_WRITTEN` | `academic-writer` | `2026-09-28T09:16:15Z` | Generated [`03_deliverables/01_demographics.md`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/03_deliverables/01_demographics.md) (65 lines, 4 tables). | Tables 4-1 to 4-4 only; 8 variables omitted. |
-| **11** | `FILE_WRITTEN` | `academic-writer` | `2026-09-28T09:16:45Z` | Compiled [`03_deliverables/01_demographics.docx`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/03_deliverables/01_demographics.docx). | Word OpenXML deliverable with only 4 tables. |
+| **10** | `FILE_WRITTEN` | `academic-writer` | `2026-09-28T09:16:15Z` | Generated [`03_deliverables/01_demographics.md`](03_deliverables/01_demographics.md) (65 lines, 4 tables). | Tables 4-1 to 4-4 only; 8 variables omitted. |
+| **11** | `FILE_WRITTEN` | `academic-writer` | `2026-09-28T09:16:45Z` | Compiled [`03_deliverables/01_demographics.docx`](03_deliverables/01_demographics.docx). | Word OpenXML deliverable with only 4 tables. |
 | **12** | `SUBAGENT_COMPLETED` | `academic-writer` | `2026-09-28T09:17:00Z` | Returned completed triad payload for Stage 4D.1. | Status: `SUCCESS` (local contract fulfillment). |
 | **13** | `USER_CORRECTION` | `user` | `2026-09-28T16:15:00Z` | User critique: *"You don't follow the rules . you should report all of the demographc features."* | Error event logged; multi-agent learning triggered. |
 | **14** | `VALIDATION_STARTED` | `thesis-integrity-auditor` | `2026-09-28T16:15:10Z` | Forensic verification of demographic completeness against dataset and calculations ledger. | Audit engaged. |
@@ -60,7 +60,7 @@ A forensic examination of the workspace, calculations, and delegation envelopes 
 
 ## 3. Observable Discrepancy Matrix: Calculated vs Reported Features
 
-The following matrix documents the objective factual discrepancy between what was calculated in Phase 4B.1 ([`02_analysis_code/demographics_calculated.json`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/02_analysis_code/demographics_calculated.json)) versus what was drafted in Stage 4D.1 ([`03_deliverables/01_demographics.md`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/03_deliverables/01_demographics.md) and [`03_deliverables/01_demographics.docx`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/03_deliverables/01_demographics.docx)):
+The following matrix documents the objective factual discrepancy between what was calculated in Phase 4B.1 ([`02_analysis_code/demographics_calculated.json`](02_analysis_code/demographics_calculated.json)) versus what was drafted in Stage 4D.1 ([`03_deliverables/01_demographics.md`](03_deliverables/01_demographics.md) and [`03_deliverables/01_demographics.docx`](03_deliverables/01_demographics.docx)):
 
 | # | Variable Name | Variable Label (FA) | Calculated in Phase 4B.1? | Included in Stage 4D.1 Deliverable? | Status / Defect Signature |
 |:---:|:---|:---|:---:|:---:|:---|
@@ -88,8 +88,8 @@ Observable artifacts and transcript logs isolate the root mechanisms responsible
    - In doing so, the orchestrator ignored the clinical psychology research context of this thesis (studying suicide ideation, intolerance of uncertainty, cognitive emotion regulation, and negative affect), where psychiatric history, hospitalization, suicidal ideation/attempt history, medication, and smoking are indispensable sample characterization features.
 
 2. **Input Artifact Severance in the CDE**:
-   - The orchestrator created a separate file [`03_deliverables/01_demographics.json`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/03_deliverables/01_demographics.json) containing only the 4 variables, and passed **only this file** in the CDE `inputs` array.
-   - [`02_analysis_code/demographics_calculated.json`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/02_analysis_code/demographics_calculated.json) was completely omitted from the CDE `inputs`, severing the worker's visibility into the 8 additional variables.
+   - The orchestrator created a separate file [`03_deliverables/01_demographics.json`](03_deliverables/01_demographics.json) containing only the 4 variables, and passed **only this file** in the CDE `inputs` array.
+   - [`02_analysis_code/demographics_calculated.json`](02_analysis_code/demographics_calculated.json) was completely omitted from the CDE `inputs`, severing the worker's visibility into the 8 additional variables.
 
 3. **Over-Constrained CDE Acceptance Criteria**:
    - The CDE explicitly specified: *"Option 2 Structure: Exactly 4 separate subsections with 4 separate APA 7 3-line tables: جدول ۴-۱ (جنسیت), جدول ۴-۲ (وضعیت تأهل), جدول ۴-۳ (سطح تحصیلات), جدول ۴-۴ (وضعیت اشتغال)"*.

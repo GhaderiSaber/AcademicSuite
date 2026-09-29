@@ -32,6 +32,6 @@
   "graduation_status": "GRADUATED",
   "graduated_at": "2026-09-27T04:53:09.409790+00:00",
   "graduated_targets": [
-    "/home/saber-ghaderi/.gemini/antigravity/brain/d789b7a0-7a61-4d0b-ae77-0490f05c95a7/.system_generated/worktrees/subagent-Evaluation-Agent-evaluation-agent-79bcf833/.agents/plugins/academic-suite/rules/AGENTS.md"
+    ".agents/plugins/academic-suite/rules/AGENTS.md"
   ]
 }

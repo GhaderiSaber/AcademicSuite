@@ -98,7 +98,7 @@ The defect directly manifests across the 12 variable descriptions in `03_deliver
 
 ## 6. Linked Learning Assets
 
-- **Anti-Pattern**: [`AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/.agents/learning/knowledge/anti-patterns/AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE.json)
-- **Active Lesson**: [`LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/.agents/learning/knowledge/lessons/LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE.json)
-- **Previous Diagnosis**: [`BAN-20260927-CH4-STAGE41-002`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/.agents/learning/experience/BAN-20260927-CH4-STAGE41-002.json)
-- **Related Skill Targets**: [`chapter-4-writing`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/.agents/skills/chapter-4-writing/SKILL.md), [`apa-reporting`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/.agents/skills/apa-reporting/SKILL.md), [`statistical-data-analyst`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/.agents/skills/statistical-data-analyst/SKILL.md)
+- **Anti-Pattern**: [`AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE`](.agents/learning/knowledge/anti-patterns/AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE.json)
+- **Active Lesson**: [`LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE`](.agents/learning/knowledge/lessons/LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE.json)
+- **Previous Diagnosis**: [`BAN-20260927-CH4-STAGE41-002`](.agents/learning/experience/BAN-20260927-CH4-STAGE41-002.json)
+- **Related Skill Targets**: [`chapter-4-writing`](.agents/skills/chapter-4-writing/SKILL.md), [`apa-reporting`](.agents/skills/apa-reporting/SKILL.md), [`statistical-data-analyst`](.agents/skills/statistical-data-analyst/SKILL.md)

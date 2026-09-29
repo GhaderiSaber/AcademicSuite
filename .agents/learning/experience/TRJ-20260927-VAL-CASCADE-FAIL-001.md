@@ -3,7 +3,7 @@
 - **Trajectory ID**: `TRJ-20260927-VAL-CASCADE-FAIL-001`
 - **Associated Experience ID**: `EXP-20260927-03-DELIVERABLES-45827E`
 - **Associated Behavior Analysis ID**: `BAN-20260927-VAL-CASCADE-FAIL-001`
-- **Validation Report**: `VAL-20260927065027` ([`03_validation_report.json`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/03_deliverables/03_validation_report.json))
+- **Validation Report**: `VAL-20260927065027` ([`03_validation_report.json`](03_deliverables/03_validation_report.json))
 - **Execution Boundary Locus**: `03_deliverables` stage verification
 - **Overall Verdict**: `FAIL`
 - **Audit Outcome**: `FAILURE`
@@ -110,4 +110,4 @@ This report establishes the objective chronology of observable tool invocations,
 The observable chronology demonstrates that statistical computation completed without error on the $N=483$ dataset. However, the deliverable compilation process by `academic-writer` produced systematic typographic, formatting, and structural non-conformances in Word OpenXML documents, as well as an omission of empirical parameters in `00_structural_overview.json`. These 25 objective discrepancies triggered the fail-closed stop gate of the validation cascade.
 
 The full structured trajectory contract is registered at:
-- **Trajectory Contract**: [`TRJ-20260927-VAL-CASCADE-FAIL-001.json`](file:///home/saber-ghaderi/My%20Work/Mohtasham%20Valiyanpur/.agents/learning/experience/TRJ-20260927-VAL-CASCADE-FAIL-001.json)
+- **Trajectory Contract**: [`TRJ-20260927-VAL-CASCADE-FAIL-001.json`](.agents/learning/experience/TRJ-20260927-VAL-CASCADE-FAIL-001.json)

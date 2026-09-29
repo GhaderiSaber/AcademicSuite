@@ -97,8 +97,9 @@ def process_document(input_path, output_clean, output_tracked):
     doc_tracked.save(output_tracked)
 
 if __name__ == "__main__":
-    input_file = "/home/saber-ghaderi/My Work/Mehrane/01_raw_inputs/فایل پروپوزال.docx"
-    output_c = "/home/saber-ghaderi/My Work/Mehrane/03_deliverables/Proposal_Revised_Clean.docx"
-    output_t = "/home/saber-ghaderi/My Work/Mehrane/03_deliverables/Proposal_Revised_Tracked.docx"
+    ws = os.environ.get("WORKSPACE_ROOT", ".")
+    input_file = os.path.join(ws, "01_raw_inputs/فایل پروپوزال.docx")
+    output_c = os.path.join(ws, "03_deliverables/Proposal_Revised_Clean.docx")
+    output_t = os.path.join(ws, "03_deliverables/Proposal_Revised_Tracked.docx")
     
-    process_document(input_file, output_c, output_t)
+    os.makedirs(os.path.dirname(output_c), exist_ok=True)

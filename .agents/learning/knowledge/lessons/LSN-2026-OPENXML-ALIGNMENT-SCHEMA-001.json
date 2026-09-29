@@ -22,7 +22,7 @@
       "BAN-20260921-001"
     ],
     "supporting_artifact_paths": [
-      "/home/saber-ghaderi/My Work/Narjes/02_analysis_code/build_full_triad_docx.py"
+      "02_analysis_code/build_full_triad_docx.py"
     ]
   },
   "related_skills": [
@@ -42,7 +42,7 @@
   "graduation_status": "GRADUATED",
   "graduated_at": "2026-09-25T18:07:37.858848+00:00",
   "graduated_targets": [
-    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/apa-reporting/SKILL.md",
-    "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-article-writer/SKILL.md"
+    "${WORKSPACE_ROOT}/.agents/skills/apa-reporting/SKILL.md",
+    "${WORKSPACE_ROOT}/.agents/skills/academic-article-writer/SKILL.md"
   ]
 }

@@ -254,7 +254,7 @@ def resolve_google_drive_work_dir(config: Optional[Dict[str, Any]] = None) -> st
     Checks config -> environment variable -> macOS CloudStorage -> fallback.
     """
     if config and config.get("google_drive_work_dir"):
-        custom_dir = config["google_drive_work_dir"]
+        custom_dir = os.path.expanduser(os.path.expandvars(config["google_drive_work_dir"]))
         if os.path.exists(custom_dir):
             return custom_dir
 

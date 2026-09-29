@@ -42,7 +42,7 @@
   "graduation_status": "GRADUATED",
   "graduated_at": "2026-09-28T12:55:27.582866+00:00",
   "graduated_targets": [
-    "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/.agents/skills/academic-suite-orchestrator/SKILL.md",
-    "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/.agents/skills/thesis-integrity-auditor/SKILL.md"
+    "${WORKSPACE_ROOT}/.agents/skills/academic-suite-orchestrator/SKILL.md",
+    "${WORKSPACE_ROOT}/.agents/skills/thesis-integrity-auditor/SKILL.md"
   ]
 }

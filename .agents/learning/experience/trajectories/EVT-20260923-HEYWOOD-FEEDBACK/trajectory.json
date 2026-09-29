@@ -706,7 +706,7 @@
   "skill_activations": [
     {
       "skill_name": "sem",
-      "script_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R",
+      "script_path": "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R",
       "cli_command": "micromamba run -p ~/.conda/envs/r_sem Rscript 02_analysis_code/run_sem_lavaan.R",
       "exit_code": 0,
       "duration_seconds": 4.1
@@ -723,17 +723,17 @@
       "envelope_summary": "Implement full latent SEM with two-indicator ERQ and single-indicator MZQ in R lavaan and render semPlot diagrams",
       "objective": "Execute latent SEM in R lavaan specifying PIES (8 indicators), single-indicator MZQ (alpha fixed error), two-indicator ERQ (ERQ_R + ERQ_S), SB (2 indicators), and OCP (5 indicators), rendering 300 DPI path diagrams.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt",
+      "handoff_artifact_path": "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt",
       "input_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.json"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/01_raw_inputs/client_specifications.json"
       ],
       "output_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_latent_parameters.json",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_semplot.png",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_2_semplot.png"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/sem_latent_parameters.json",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/model_1_semplot.png",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/model_2_semplot.png"
       ]
     },
     {
@@ -746,15 +746,15 @@
       "envelope_summary": "Recompile 8-table Chapter 4 triad with updated latent SEM parameters",
       "objective": "Update Chapter4_SEM_Findings.docx, .md, .json incorporating factor loadings and structural regression paths from sem_latent_parameters.json.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
+      "handoff_artifact_path": "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
       "input_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/sem_latent_parameters.json",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/sem_latent_parameters.json",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/r_lavaan_sem_output.txt"
       ],
       "output_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.json"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.json"
       ]
     },
     {
@@ -767,14 +767,14 @@
       "envelope_summary": "Adversarial mechanical audit of recompiled Chapter 4 triad",
       "objective": "Execute academic_chapter_auditor.py on Chapter 4 deliverables and emit validation_report.json.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json",
+      "handoff_artifact_path": "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json",
       "input_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.json"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.docx",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.md",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/Chapter4_SEM_Findings.json"
       ],
       "output_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/validation_report.json"
       ]
     },
     {
@@ -787,13 +787,13 @@
       "envelope_summary": "Scale down semPlot edge value labels (edge.label.cex = 0.80)",
       "objective": "Update run_sem_lavaan.R to reduce edge.label.cex from 1.5 to 0.80 and re-render 300 DPI path diagrams.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_semplot.png",
+      "handoff_artifact_path": "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/model_1_semplot.png",
       "input_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R"
       ],
       "output_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_semplot.png",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_2_semplot.png"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/model_1_semplot.png",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/model_2_semplot.png"
       ]
     },
     {
@@ -806,13 +806,13 @@
       "envelope_summary": "Implement horizontal canvas stretch (4600x2400) and node sizing hierarchy (sizeLat=13 vs sizeMan=8)",
       "objective": "Update run_sem_lavaan.R with stretched canvas dimensions and inverted node hierarchy (latents larger than manifests) and re-render diagrams.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_semplot.png",
+      "handoff_artifact_path": "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/model_1_semplot.png",
       "input_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R"
       ],
       "output_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_1_semplot.png",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/model_2_semplot.png"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/model_1_semplot.png",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/model_2_semplot.png"
       ]
     },
     {
@@ -825,13 +825,13 @@
       "envelope_summary": "Generate 5-cell minimal R Jupyter notebook Model Analysis.ipynb",
       "objective": "Generate clean Model Analysis.ipynb with R kernel containing required packages, data ingestion, model syntax, sem analysis, and semPaths figure code.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/Model Analysis.ipynb",
+      "handoff_artifact_path": "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/02_analysis_code/Model Analysis.ipynb",
       "input_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/02_analysis_code/run_sem_lavaan.R"
       ],
       "output_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/02_analysis_code/Model Analysis.ipynb",
-        "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/Model Analysis.ipynb"
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/02_analysis_code/Model Analysis.ipynb",
+        "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/Model Analysis.ipynb"
       ]
     },
     {
@@ -844,10 +844,10 @@
       "envelope_summary": "Reconstruct error trajectory for Heywood cases, non-invertible matrix, and permissive validator failure",
       "objective": "Reconstruct observable execution trajectory for user critique regarding severe mathematical invalidity and validation gate failure.",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Shahram Amiri/.agents/learning/experience/trajectories/EVT-20260923-HEYWOOD-FEEDBACK/trajectory.json",
+      "handoff_artifact_path": "${WORKSPACE_ROOT}/.agents/learning/experience/trajectories/EVT-20260923-HEYWOOD-FEEDBACK/trajectory.json",
       "input_artifacts": [],
       "output_artifacts": [
-        "/home/saber-ghaderi/My Work/Shahram Amiri/.agents/learning/experience/trajectories/EVT-20260923-HEYWOOD-FEEDBACK/trajectory.json"
+        "${WORKSPACE_ROOT}/.agents/learning/experience/trajectories/EVT-20260923-HEYWOOD-FEEDBACK/trajectory.json"
       ]
     }
   ],
@@ -899,12 +899,12 @@
   ],
   "outputs": [
     {
-      "path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
+      "path": "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.xlsx",
       "sha256": "6ecd3ed36a4173d1465ebe4caa6c2d3a6eeb1e00ee10deaa79dc6587571cfe16",
       "type": "dataset"
     },
     {
-      "path": "/home/saber-ghaderi/My Work/Shahram Amiri/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
+      "path": "${WORKSPACE_ROOT}/P04_SEM_Mediation_PIES/03_deliverables/simulated_sem_dataset.sav",
       "sha256": "ef1a996c12010cd5359a243aedc76ba89572117cfef821461c318713d1f3f08d",
       "type": "dataset"
     }

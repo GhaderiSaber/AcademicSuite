@@ -29,7 +29,7 @@
       "timestamp": "2026-09-24T07:48:20Z",
       "description": "academic-writer authored 03_deliverables/stage_04_hypo_3/draft.md containing in-text footnote markers [^1] through [^11] across paragraphs 4 and 5, and appended footnote definition lines [^1]: Demircioglu through [^11]: Conservation of Resources (COR) Theory at lines 13-23.",
       "observable_input": {
-        "target_file": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/draft.md",
+        "target_file": "03_deliverables/stage_04_hypo_3/draft.md",
         "word_count": 680,
         "char_count": 4171
       },
@@ -71,7 +71,7 @@
       "description": "academic-writer executed post-processing pipeline script 03_deliverables/stage_04_hypo_3/process_hypo3.py to compile draft.md into Word DOCX and inject OpenXML native footnotes.",
       "observable_input": {
         "command_line": "python3 03_deliverables/stage_04_hypo_3/process_hypo3.py",
-        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "status": "EXECUTING"
@@ -133,7 +133,7 @@
       "timestamp": "2026-09-24T07:51:07Z",
       "description": "process_hypo3.py repackaged 04_hypothesis_3_discussion.docx with 9 raw literal footnote markers in word/document.xml, updated deliverable SHA256 hashes in 04_hypothesis_3_discussion.json, and cleaned up temporary extraction directories.",
       "observable_input": {
-        "target_file": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx"
+        "target_file": "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx"
       },
       "observable_output": {
         "status": "SUCCESS",
@@ -163,7 +163,7 @@
       "description": "academic-writer executed automated verification script 03_deliverables/stage_04_hypo_3/verify_hypo3.py to validate the generated Word document.",
       "observable_input": {
         "command_line": "python3 03_deliverables/stage_04_hypo_3/verify_hypo3.py",
-        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "status": "EXECUTING"
@@ -274,7 +274,7 @@
       "invocation_index": 2,
       "status": "SUCCESS",
       "arguments_summary": {
-        "TargetFile": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/draft.md",
+        "TargetFile": "03_deliverables/stage_04_hypo_3/draft.md",
         "Overwrite": true,
         "Description": "Stage 4 draft with in-text footnote markers [^1] through [^11] and footnote definitions"
       },
@@ -286,7 +286,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "python3 03_deliverables/stage_04_hypo_3/process_hypo3.py",
-        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
+        "Cwd": "${WORKSPACE_ROOT}"
       },
       "execution_time_ms": 4200
     },
@@ -296,7 +296,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "python3 03_deliverables/stage_04_hypo_3/verify_hypo3.py",
-        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
+        "Cwd": "${WORKSPACE_ROOT}"
       },
       "execution_time_ms": 1100
     },
@@ -305,7 +305,7 @@
       "invocation_index": 5,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/docx_verification_report.json"
+        "AbsolutePath": "03_deliverables/stage_04_hypo_3/docx_verification_report.json"
       },
       "execution_time_ms": 45
     },
@@ -350,7 +350,7 @@
       "delegatee": "academic-writer",
       "stage_id": "04_hypothesis_3_discussion",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.json",
+      "handoff_artifact_path": "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "academic-writer",
       "task_id": "TSK-20260924-STAGE4-DRAFT-001",
@@ -372,7 +372,7 @@
       "delegatee": "trajectory-analyzer",
       "stage_id": "trajectory_reconstruction",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-RAW-FOOTNOTE-FEEDBACK/trajectory.json",
+      "handoff_artifact_path": "${WORKSPACE_ROOT}/.agents/learning/experience/trajectories/EVT-20260924-RAW-FOOTNOTE-FEEDBACK/trajectory.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "trajectory-analyzer",
       "task_id": "TSK-20260924-FOOTNOTE-TRAJECTORY-001",
@@ -437,17 +437,17 @@
   ],
   "outputs": [
     {
-      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx",
+      "path": "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx",
       "sha256": "5e07e3fe62175309bc158e72d00d1e107846f8b424cb1d47f8944133c7e86163",
       "type": "openxml_word"
     },
     {
-      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.md",
+      "path": "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.md",
       "sha256": "077dd8c5d7f2bad5c5af4d0731d4368df41d447fa170620b5b8c2104f2cecbad",
       "type": "narrative_markdown"
     },
     {
-      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.json",
+      "path": "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.json",
       "sha256": "c149901b065f50c02f74011589220c0c8a360118cfbe3a76b13527f3d909dd0b",
       "type": "triad_metadata"
     }
@@ -476,7 +476,7 @@
         "mismatched_footnote_display_in_pdf_proof"
       ],
       "evidence_summary": {
-        "docx_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx",
+        "docx_path": "03_deliverables/stage_04_hypo_3/04_hypothesis_3_discussion.docx",
         "script_defect_location": "03_deliverables/stage_04_hypo_3/process_hypo3.py:166-215 (specifically line 213)",
         "converted_footnote_references": [
           {

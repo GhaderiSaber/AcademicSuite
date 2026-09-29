@@ -7,9 +7,10 @@ sys.path.append(script_dir)
 
 from structured_docx_generator import build_structured_docx
 
-json_path = "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/02_descriptives_and_reliability.json"
-md_path = "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/02_descriptives_and_reliability.md"
-docx_path = "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/02_descriptives_and_reliability.docx"
+ws_dir = os.environ.get("WORKSPACE_ROOT", ".")
+json_path = os.path.join(ws_dir, "03_deliverables/02_descriptives_and_reliability.json")
+md_path = os.path.join(ws_dir, "03_deliverables/02_descriptives_and_reliability.md")
+docx_path = os.path.join(ws_dir, "03_deliverables/02_descriptives_and_reliability.docx")
 
 try:
     build_structured_docx(json_path, md_path, docx_path)

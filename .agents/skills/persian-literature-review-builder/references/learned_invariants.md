@@ -239,7 +239,7 @@ The current local time is: 2026-09-25T19:43:09+03:30.
 
 ---
 ### Executable Task Assignment:
-Independently evaluate the staged candidate mutation in .agents/learning/candidates/improvement_candidate.json, run regression benchmarks to ensure zero regressions, and execute graduation via academic_graduation_compiler.py compile-lesson "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/knowledge/lessons/LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001.json" to promote the evolved tool to production.
+Independently evaluate the staged candidate mutation in .agents/learning/candidates/improvement_candidate.json, run regression benchmarks to ensure zero regressions, and execute graduation via academic_graduation_compiler.py compile-lesson "${WORKSPACE_ROOT}/.agents/learning/knowledge/lessons/LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001.json" to promote the evolved tool to production.
 
 
 The current local time is: 2026-09-25T21:36:59+03:30.
@@ -267,7 +267,7 @@ The current local time is: 2026-09-25T21:36:59+03:30.
 
 ---
 ### Executable Task Assignment:
-Independently evaluate the staged candidate mutation in .agents/learning/candidates/improvement_candidate.json, run regression benchmarks to ensure zero regressions, and execute graduation via academic_graduation_compiler.py compile-lesson "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/knowledge/lessons/LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001.json" to promote the evolved tool to production.
+Independently evaluate the staged candidate mutation in .agents/learning/candidates/improvement_candidate.json, run regression benchmarks to ensure zero regressions, and execute graduation via academic_graduation_compiler.py compile-lesson "${WORKSPACE_ROOT}/.agents/learning/knowledge/lessons/LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001.json" to promote the evolved tool to production.
 
 
 The current local time is: 2026-09-25T21:36:59+03:30.

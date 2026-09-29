@@ -28,7 +28,7 @@
       "timestamp": "2026-09-24T05:24:45Z",
       "description": "academic-writer revised draft.md using Markdown footnote markers [^1] through [^8] in the narrative and appended footnote definitions [^1]: Hackman & Oldham through [^8]: Standard Operating Procedures (SOPs) at lines 15-22 of the markdown file.",
       "observable_input": {
-        "target_file": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/draft.md",
+        "target_file": "03_deliverables/stage_02_hypo_1/draft.md",
         "word_count": 663,
         "char_count": 3921
       },
@@ -64,7 +64,7 @@
       "description": "academic-writer executed CLI triad compiler scaffold_chapter5_triad.py to build Word (.docx), Markdown (.md), and metadata (.json) deliverables from draft.md.",
       "observable_input": {
         "command_line": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
-        "cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
+        "cwd": "${WORKSPACE_ROOT}"
       },
       "observable_output": {
         "status": "EXECUTING"
@@ -112,7 +112,7 @@
       "timestamp": "2026-09-24T05:25:35Z",
       "description": "academic-orchestrator inspected 02_hypothesis_1_discussion.json to verify word count (663), character count (3921), and compiled status.",
       "observable_input": {
-        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+        "AbsolutePath": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
       },
       "observable_output": {
         "status": "STAGE_DRAFTED",
@@ -185,7 +185,7 @@
       "invocation_index": 2,
       "status": "SUCCESS",
       "arguments_summary": {
-        "TargetFile": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/draft.md",
+        "TargetFile": "03_deliverables/stage_02_hypo_1/draft.md",
         "Overwrite": true,
         "Description": "Persian transliteration of authors and English terms with markdown footnotes [^1] through [^8]"
       },
@@ -197,7 +197,7 @@
       "status": "SUCCESS",
       "arguments_summary": {
         "CommandLine": "python3 .agents/skills/persian-discussion-builder/scripts/scaffold_chapter5_triad.py --stage '02_hypothesis_discussion' --base '02_hypothesis_1_discussion' --outdir '03_deliverables/stage_02_hypo_1' --title 'بحث و بررسی فرضیه اول پژوهش' --narrative-file '03_deliverables/stage_02_hypo_1/draft.md' --articles 'academic-state/data/article_enrichment_cards.json'",
-        "Cwd": "/home/saber-ghaderi/My Work/Morteza Estaki"
+        "Cwd": "${WORKSPACE_ROOT}"
       },
       "execution_time_ms": 3750
     },
@@ -206,7 +206,7 @@
       "invocation_index": 4,
       "status": "SUCCESS",
       "arguments_summary": {
-        "AbsolutePath": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
+        "AbsolutePath": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json"
       },
       "execution_time_ms": 65
     },
@@ -238,7 +238,7 @@
       "stage_id": "02_hypothesis_discussion",
       "envelope_summary": "Revise Hypothesis 1 discussion using Persian transliterations and footnote markers [^1] through [^8]",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "handoff_artifact_path": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "academic-writer",
       "task_id": "TSK-20260924-REMEDIATE-FN-001",
@@ -259,7 +259,7 @@
       "stage_id": "trajectory_reconstruction",
       "envelope_summary": "Reconstruct chronological trajectory and identify exact failure point in scaffold_chapter5_triad.py and OpenXML footnote absence",
       "status": "COMPLETED",
-      "handoff_artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/learning/experience/trajectories/EVT-20260924-NATIVE-FN-FEEDBACK/trajectory.json",
+      "handoff_artifact_path": "${WORKSPACE_ROOT}/.agents/learning/experience/trajectories/EVT-20260924-NATIVE-FN-FEEDBACK/trajectory.json",
       "parent_agent": "academic-orchestrator",
       "child_agent": "trajectory-analyzer",
       "task_id": "TSK-20260924-NATIVE-FN-TRAJECTORY-001",
@@ -306,17 +306,17 @@
   ],
   "outputs": [
     {
-      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+      "path": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
       "sha256": "a84ee58a7d9ceb1e2944cf8a68dc6acfd3667f4bac11ee2b78c3039bf8899a6a",
       "type": "openxml_word"
     },
     {
-      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
+      "path": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.md",
       "sha256": "6a5bd766062d1961911f854139f7cf373e517d5d08d83c9df7381dec30aa1a3c",
       "type": "narrative_markdown"
     },
     {
-      "path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
+      "path": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.json",
       "sha256": "3b845ea1b2f71b2e0e85bf95d9c914466009cfc04346f67f3aca2c8b61b09f59",
       "type": "triad_metadata"
     }
@@ -345,7 +345,7 @@
         "footnote_definitions_rendered_as_body_paragraphs"
       ],
       "evidence_summary": {
-        "docx_path": "/home/saber-ghaderi/My Work/Morteza Estaki/03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
+        "docx_path": "03_deliverables/stage_02_hypo_1/02_hypothesis_1_discussion.docx",
         "failure_line_range": "scaffold_chapter5_triad.py:220-241",
         "raw_paragraph_footnote_lines": [
           "[^1]: Hackman & Oldham",
