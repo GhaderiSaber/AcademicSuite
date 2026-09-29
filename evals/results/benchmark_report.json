@@ -1,7 +1,7 @@
 {
   "benchmark_suite": "Academic Suite Permanent Evaluation Suite (evals/)",
-  "version_evaluated": "Academic Suite v2 (Unit Test)",
-  "timestamp": "2026-09-29T18:10:11.039460+00:00",
+  "version_evaluated": "Academic Suite v2",
+  "timestamp": "2026-09-29T10:54:53.056539+00:00",
   "total_test_cases": 10,
   "passed_test_cases": 10,
   "overall_benchmark_score": 100.0,

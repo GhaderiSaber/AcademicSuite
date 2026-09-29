@@ -479,3 +479,6 @@ The current local time is: 2026-09-25T19:13:18+03:30. [Enforcement: results_audi
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-MISSING-TRIAD-JSON-001)**: Strictly enforce the Triad Invariant by atomically generating the .jso... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-GLOBAL-TABLE-AND-DOCX-STANDARDS)**: Always apply bidiVisual to tables, use single-line table captions, enf... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]

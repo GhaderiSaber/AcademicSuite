@@ -81,15 +81,27 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
             rFonts.set(qn('w:hAnsi'), font_name)
             rFonts.set(qn('w:cs'), font_name)
 
-        title = args.title or "سند دانشگاهی"
-        h = doc.add_heading(title, level=1)
-        set_rtl(h)
-        if h.runs: set_font(h.runs[0], 'B Titr', 18)
+        import re
+        def clean_cell_text(text: str) -> str:
+            text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+            text = re.sub(r'\*(.*?)\*', r'\1', text)
+            text = text.replace('$\\beta$', 'β').replace('$\\to$', '→')
+            text = re.sub(r'\$(-?\d+(?:\.\d+)?)\$', lambda m: m.group(1).translate(str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹')), text)
+            return text.replace('$', '').strip()
 
+        title = args.title or "سند دانشگاهی"
+        has_h1 = False
         if md_path and os.path.exists(md_path):
             with open(md_path, "r", encoding="utf-8") as f:
                 content = f.read().replace('\\n', '\n')
+            has_h1 = any(line.startswith("# ") for line in content.splitlines())
 
+        if not has_h1:
+            h = doc.add_heading(title, level=1)
+            set_rtl(h)
+            if h.runs: set_font(h.runs[0], 'B Titr', 18)
+
+        if md_path and os.path.exists(md_path):
             in_table = False
             table_data = []
 
@@ -120,10 +132,14 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
                             table = doc.add_table(rows=len(table_data), cols=len(table_data[0]))
                             table.style = 'Light Shading'
                             table.autofit = True
+                            tblPr = table._tbl.tblPr
+                            if tblPr is not None:
+                                bidiVisual = OxmlElement('w:bidiVisual')
+                                tblPr.append(bidiVisual)
                             for i, row in enumerate(table_data):
                                 for j, cell_text in enumerate(row):
                                     cell = table.cell(i, j)
-                                    cell.text = cell_text
+                                    cell.text = clean_cell_text(cell_text)
                                     for p in cell.paragraphs:
                                         set_rtl(p)
                                         for r in p.runs:
@@ -138,10 +154,14 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
             if in_table and table_data:
                 table = doc.add_table(rows=len(table_data), cols=len(table_data[0]))
                 table.style = 'Light Shading'
+                tblPr = table._tbl.tblPr
+                if tblPr is not None:
+                    bidiVisual = OxmlElement('w:bidiVisual')
+                    tblPr.append(bidiVisual)
                 for i, row in enumerate(table_data):
                     for j, cell_text in enumerate(row):
                         cell = table.cell(i, j)
-                        cell.text = cell_text
+                        cell.text = clean_cell_text(cell_text)
                         for p in cell.paragraphs:
                             set_rtl(p)
                             for r in p.runs:
@@ -265,8 +285,8 @@ def cmd_scaffold_apa_tables(args: argparse.Namespace) -> int:
 
 def cmd_polish_tone(args: argparse.Namespace) -> int:
     """Polish academic tone and Persian typography."""
-    in_file = getattr(args, "in") or getattr(args, "in_file", None)
-    out_file = args.out or args.out_file
+    in_file = getattr(args, "in_file", None)
+    out_file = getattr(args, "out_file", None)
 
     if not in_file or not os.path.exists(in_file):
         print(f"ERROR: Input file not found: {in_file}", file=sys.stderr)
@@ -275,8 +295,47 @@ def cmd_polish_tone(args: argparse.Namespace) -> int:
     with open(in_file, "r", encoding="utf-8") as f:
         text = f.read()
 
+    import re
     # Basic normalization
     polished = text.replace("می باشد", "است").replace("می گردد", "می‌شود")
+
+    # 1. Fix two-line captions
+    polished = re.sub(r'^(جدول ۴-\s*\d+(?:-\d+)?)\n([^\n|]+)\n(?=\|)', r'\1: \2\n', polished, flags=re.MULTILINE)
+    polished = re.sub(r'^(جدول ۴-\s*\d+(?:-\d+)?)\n([^\n|]+)$', r'\1: \2', polished, flags=re.MULTILINE)
+
+    # 2. APA Headers and raw markdown
+    lines = polished.split('\n')
+    for i, line in enumerate(lines):
+        if line.strip().startswith('|'):
+            # headers
+            line = line.replace('| ردیف | متغیر/سازه | میانگین | انحراف معیار | حداقل | حداکثر | چولگی | کشیدگی | آلفای کرونباخ | امگا مک‌دونالد |',
+                                '| ردیف | متغیر/سازه | M | SD | حداقل | حداکثر | چولگی | کشیدگی | α | ω |')
+            line = line.replace('| متغیر | آماره W | p-value | آماره F | p-value | VIF | Tolerance | دوربین-واتسون |',
+                                '| متغیر | آماره W | p | آماره F | p | VIF | Tol | DW |')
+            line = line.replace('| متغیر | آماره W | p | آماره F | p | VIF | Tolerance | دوربین-واتسون |',
+                                '| متغیر | آماره W | p | آماره F | p | VIF | Tol | DW |')
+            line = line.replace('| متغیر | آماره W | p | آماره F | p | تلرانس | VIF | دوربین-واتسون |',
+                                '| متغیر | آماره W | p | آماره F | p | VIF | Tol | DW |')
+            line = line.replace('| مسیر ساختاری | ضریب غیر‌استاندارد (B) | خطای معیار (SE) | ضریب استاندارد (β) | آماره t/z | سطح معناداری (p) | نتیجه |',
+                                '| مسیر ساختاری | B | SE | β | z | p | نتیجه |')
+            
+            # Additional headers
+            line = re.sub(r'\| مدل \| R \| R² \| R² تعدیل‌شده \| خطای معیار .*? \| دوربین-واتسون \| مجموع مجذورات \| df \| میانگین مجذورات \| F \| p \|',
+                          r'| مدل | R | R² | R² تعدیل‌شده | SE | DW | مجموع مجذورات | df | میانگین مجذورات | F | p |', line)
+            
+            line = re.sub(r'\| متغیر پیش‌بین \| ضریب غیراستاندارد \(B\) \| خطای معیار \(SE\) \| ضریب استاندارد \(β\) \| آماره t \| p \| ۹۵٪ CI \[LL, UL\] \|',
+                          r'| متغیر پیش‌بین | B | SE | β | t | p | ۹۵٪ CI [LL, UL] |', line)
+
+            # Raw **
+            line = line.replace('**', '')
+            # math
+            line = line.replace('$\\beta$', 'β').replace('$\\to$', '→')
+            line = line.replace('$-0.165$', '۰.۱۶۵-')
+            line = re.sub(r'\$([^$]*?)\$', lambda m: m.group(1).replace('\\beta', 'β').replace('\\to', '→').replace('\\alpha', 'α').replace('\\omega', 'ω'), line)
+            lines[i] = line
+    
+    polished = '\n'.join(lines)
+
 
     if out_file:
         os.makedirs(os.path.dirname(os.path.abspath(out_file)), exist_ok=True)

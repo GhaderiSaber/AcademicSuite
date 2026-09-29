@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-RAW-MARKDOWN-IN-TABLE-CELLS",
+  "category": "execution",
+  "defective_pattern": "Dumping raw asterisks ** or LaTeX math delimiters $ directly into Word table cells.",
+  "why_defective": "python-docx does not parse markdown inherently. Dumping raw delimiters results in literal '**text**' appearing in the final document, breaking formatting.",
+  "observed_symptoms": [
+    "Literal '**' or '$' characters visible in DOCX table cells"
+  ],
+  "corrective_remedy": "Parse markdown and LaTeX delimiters explicitly before inserting text into python-docx cells, converting them to run properties (run.bold = True, etc.).",
+  "detection_heuristic": {
+    "trigger_rule": "Raw markdown injection into docx table cell text properties.",
+    "regex_patterns": ["(?m)cell\\.text\\s*=\\s*.*\\*\\*.*"],
+    "pattern": "(?m)cell\\.text\\s*=\\s*.*\\*\\*.*",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-thesis-builder",
+    "apa-reporting"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T10:45:56Z"
+}

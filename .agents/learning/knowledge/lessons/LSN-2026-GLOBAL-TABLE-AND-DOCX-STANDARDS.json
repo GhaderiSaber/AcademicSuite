@@ -1,0 +1,50 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-GLOBAL-TABLE-AND-DOCX-STANDARDS",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "TRJ-20260929-GLOBAL-TABLE-DOCX-STANDARDS-001",
+  "diagnosis": {
+    "what_happened": "Table rendering in DOCX violated RTL layout, captions were split, headers used raw Persian instead of APA symbols, raw markdown was leaked, and redundant heading duplication occurred.",
+    "behavior_caused_outcome": "Failure to apply OpenXML bidi properties and parse markdown properly resulted in strict 28 check validation failure.",
+    "what_should_have_happened": "Strict application of <w:bidiVisual/> for RTL tables, parsing of Markdown inside cells, deduplication of headings, single-line table captions, and APA Latin metrics in table headers.",
+    "rationale_why": "Scholarly Persian APA 7 Word deliverables require exact typographic handling, native RTL table grids, and uniform structural layout to pass graduate office scrutiny."
+  },
+  "desired_behavior": "Always apply bidiVisual to tables, use single-line table captions, enforce APA 7 Latin abbreviations (M, SD, etc.) in table headers, parse and translate markdown formatting in Word cell elements, and prevent duplicate document headings.",
+  "generalization": "All Word document generation routines must enforce bidi RTL structural elements and parse markdown into native Word formatting elements while adhering strictly to APA reporting symbols.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "PROMOTED_PRINCIPLE",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "LEGACY_VALIDATION_REPORT",
+    "observed_value": "FAIL (28 checks failed)",
+    "threshold_value": "Zero failures allowed for global table/docx standards.",
+    "supporting_report_ids": [
+      "BAN-20260929-GLOBAL-TABLE-DOCX-STANDARDS-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing",
+    "persian-thesis-builder"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T10:45:56Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-thesis-builder",
+    "apa-reporting",
+    "statistical-data-analyst"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-29T10:51:24.358730+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/apa-reporting/SKILL.md",
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/chapter-4-writing/SKILL.md",
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/persian-thesis-builder/SKILL.md"
+  ]
+}

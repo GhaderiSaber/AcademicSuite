@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-DOCX-TABLE-MISSING-BIDI-VISUAL",
+  "category": "execution",
+  "defective_pattern": "Omitting <w:bidiVisual/> in table._tbl.tblPr when constructing OpenXML tables.",
+  "why_defective": "Without bidiVisual, MS Word renders RTL tables with LTR column progression, destroying the logical structure of Persian tables.",
+  "observed_symptoms": [
+    "Persian table columns appearing backwards (left-to-right progression)"
+  ],
+  "corrective_remedy": "Always inject <w:bidiVisual/> into table._tbl.tblPr via docx.oxml.OxmlElement for all Persian document tables.",
+  "detection_heuristic": {
+    "trigger_rule": "Missing injection of bidiVisual in python-docx table generation scripts.",
+    "regex_patterns": ["(?m)add_table(?!.*bidiVisual)"],
+    "pattern": "(?m)add_table(?!.*bidiVisual)",
+    "check_type": "substring_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-thesis-builder",
+    "apa-reporting"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T10:45:56Z"
+}
