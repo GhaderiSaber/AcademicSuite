@@ -41,6 +41,9 @@
    - [6.2 Teamwork Agent Teams (`/teamwork-preview`)](#62-teamwork-agent-teams-teamwork-preview)
    - [6.3 Sidecars (`sidecar.json`) & Background Daemons](#63-sidecars-sidecarjson--background-daemons)
    - [6.4 The Sunset of Legacy Workflows & Migration to Skills](#64-the-sunset-of-legacy-workflows--migration-to-skills)
+   - [6.5 Remote Control & Cross-Surface Steering (`antigravity.google.com`)](#65-remote-control--cross-surface-steering-antigravitygooglecom)
+   - [6.6 Headless Execution & CI/CD Pipelines (`agy --headless`)](#66-headless-execution--cicd-pipelines-agy---headless)
+   - [6.7 Plugin CLI Operations & Marketplace Sync](#67-plugin-cli-operations--marketplace-sync)
 7. [Comprehensive Configuration Blueprint](#7-comprehensive-configuration-blueprint)
 
 ---
@@ -552,6 +555,26 @@ Sidecars are managed background processes running alongside Antigravity:
 Single-file legacy workflows (`.agents/workflows/*.md`) are formally **deprecated** and will be permanently decommissioned on **November 1, 2026**.
 *   **Why Skills Replaced Workflows:** Skills conform to the Agent Skills Standard (`agentskills.io`), feature semantic discovery, support multi-file encapsulation (`scripts/`, `references/`, `resources/`), and integrate with context budgeting.
 *   **Migration Tooling:** Running `/migrate-workflows` automatically parses legacy workflow files, converts them into valid `.agents/skills/<name>/SKILL.md` structures, and archives legacy files as `.md.bak`.
+
+### 6.5 Remote Control & Cross-Surface Steering (`antigravity.google.com`)
+Antigravity 2.18.1 provides native web-based **Remote Control** (`https://antigravity.google.com`):
+*   **Decoupled Web Monitoring:** Developers can monitor, steer, and interact with long-running desktop and CLI agent sessions from any mobile or desktop web browser.
+*   **Zero Environment Duplication:** The remote interface connects directly to your workstation's running agent instance, leveraging local toolchains, terminals, and Git worktrees without cloning code to remote servers.
+*   **Remote Permission Approvals:** Interactive tool authorization requests and question prompts stream live to the remote interface, allowing approvals from outside your desk.
+
+### 6.6 Headless Execution & CI/CD Pipelines (`agy --headless`)
+For automated build pipelines, GitHub Actions, and headless remote server management:
+*   **Headless Mode:** `agy --headless -p "Execute test suite and generate validation_report.json"` runs the agent autonomously to completion without opening interactive TUI prompts.
+*   **Structured Stream Logs:** Emits JSONL step transcripts directly to standard output or specified log targets for CI pipeline ingestion.
+*   **Fail-Closed Exit Codes:** Non-zero exit codes trigger automatically when `Stop` hooks reject completion or unhandled tool failures occur.
+
+### 6.7 Plugin CLI Operations & Marketplace Sync
+Plugins can be managed directly from the CLI or IDE settings:
+*   `agy plugin list`: Enumerate all workspace, global, and built-in plugins with enabled/disabled status.
+*   `agy plugin install <plugin-id>`: Install plugins directly from the marketplace into `~/.gemini/config/plugins/` or `.agents/plugins/`.
+*   `agy plugin enable <name>` / `agy plugin disable <name>`: Toggle plugins across workspace and global configurations without modifying plugin source files.
+*   **Cross-Surface Synchronization:** Plugins installed in the Antigravity 2.0 desktop app are automatically recognized and mounted in the Antigravity CLI and IDE surfaces.
+
 
 ---
 
