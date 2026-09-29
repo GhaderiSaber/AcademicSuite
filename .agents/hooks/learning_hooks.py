@@ -820,16 +820,27 @@ class LearningHooks:
             try:
                 from dynamic_invariant_guard import DynamicInvariantGuard
                 invariants = DynamicInvariantGuard.load_invariants()
-                role_pitfalls = []
+                tier1, tier2, tier3 = [], [], []
                 for r_id, r_spec in invariants.items():
+                    if not r_spec.get("enabled", True):
+                        continue
                     target_agents = [a.lower().strip() for a in r_spec.get("target_agents", [])]
-                    if "*" in target_agents or sub_role in target_agents or any(t in sub_role for t in target_agents):
-                        stmt = r_spec.get("statement", "")
-                        remedy = r_spec.get("remedy", "")
-                        if stmt:
-                            role_pitfalls.append(f"- [{r_id}]: {stmt[:160]}" + (f" (Remedy: {remedy[:120]})" if remedy else ""))
+                    stmt = r_spec.get("statement", "")
+                    remedy = r_spec.get("remedy", "")
+                    if not stmt:
+                        continue
+                    line = f"- [{r_id}]: {stmt[:160]}" + (f" (Remedy: {remedy[:120]})" if remedy else "")
+
+                    if sub_role in target_agents:
+                        tier1.append(line)
+                    elif any(t in sub_role for t in target_agents if t != "*"):
+                        tier2.append(line)
+                    elif "*" in target_agents:
+                        tier3.append(line)
+
+                role_pitfalls = (tier1 + tier2 + tier3)[:8]
                 if role_pitfalls:
-                    sub_blocks.append("⚠️ KNOWN ANTI-PATTERNS TO AVOID:\n" + "\n".join(role_pitfalls[:5]))
+                    sub_blocks.append("⚠️ ACTIVE ROLE INVARIANTS & KNOWN ANTI-PATTERNS:\n" + "\n".join(role_pitfalls))
             except Exception:
                 pass
 
@@ -848,6 +859,25 @@ class LearningHooks:
         )
 
         ephemeral_blocks = [reminder]
+
+        # Inject orchestrator-targeted invariants
+        try:
+            from dynamic_invariant_guard import DynamicInvariantGuard
+            invariants = DynamicInvariantGuard.load_invariants()
+            orch_pitfalls = []
+            for r_id, r_spec in invariants.items():
+                if not r_spec.get("enabled", True):
+                    continue
+                target_agents = [a.lower().strip() for a in r_spec.get("target_agents", [])]
+                if "academic-orchestrator" in target_agents or "orchestrator" in target_agents:
+                    stmt = r_spec.get("statement", "")
+                    remedy = r_spec.get("remedy", "")
+                    if stmt:
+                        orch_pitfalls.append(f"- [{r_id}]: {stmt[:160]}" + (f" (Remedy: {remedy[:120]})" if remedy else ""))
+            if orch_pitfalls:
+                ephemeral_blocks.append("⚠️ ACTIVE ORCHESTRATOR INVARIANTS:\n" + "\n".join(orch_pitfalls[:6]))
+        except Exception:
+            pass
 
         if critique_info and critique_info.get("is_critique"):
             clean_text = critique_info.get("text", "")[:300]

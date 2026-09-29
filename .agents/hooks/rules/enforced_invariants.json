@@ -1,27 +1,28 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-29T15:17:21.241426+00:00",
+  "updated_at": "2026-09-29T17:45:00.985277+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
-      "category": "Prose-Only",
-      "statement": "Chapter 5 must strictly contain zero tables (Markdown or Word). All tables belong exclusively in Chapter 4.",
+      "category": "Lesson",
+      "statement": "Chapter 5 must strictly contain ZERO tables (markdown or Word). All tables belong exclusively in Chapter 4.",
       "target_agents": [
         "academic-writer",
         "academic-orchestrator"
       ],
       "target_skills": [
-        "persian-discussion-builder",
-        "chapter-5-writing"
+        "chapter-5-writing",
+        "persian-discussion-builder"
       ],
-      "event": "PreToolUse",
+      "event": "Both",
       "tool_match": "write_to_file|replace_file_content|patch|edit_file",
       "file_pattern": ".*(?:chapter_5|chapter5|ch5|discussion).*\\.(?:md|docx|txt)",
       "check_type": "regex_ban",
-      "pattern": "\\|[ \\t]*-[ \\t]*\\|[ \\t]*-[ \\t]*\\|",
-      "violation_message": "Chapter 5 must strictly contain zero tables (Markdown or Word). All tables belong exclusively in Chapter 4.",
-      "remedy": "Remove markdown tables from Chapter 5 and synthesize findings into continuous theoretical prose.",
-      "enabled": true
+      "pattern": "\\|[ \\t]*:?-+:?[ \\t]*\\|[ \\t]*:?-+:?[ \\t]*\\|",
+      "violation_message": "Chapter 5 must strictly contain ZERO tables (markdown or Word). All tables belong exclusively in Chapter 4.",
+      "remedy": "Remove all markdown tables (|---|) and Word tables (<w:tbl>) from Chapter 5. Express findings exclusively through narrative prose.",
+      "enabled": true,
+      "updated_at": "2026-09-29T17:45:00.985254+00:00"
     },
     "LSN-2026-STRUCTURAL-REFERENCE-PARSING-001": {
       "item_id": "LSN-2026-STRUCTURAL-REFERENCE-PARSING-001",
@@ -206,7 +207,7 @@
         "REVISION",
         "DOCUMENT_INTEGRITY"
       ],
-      "event": "PreToolUse",
+      "event": "Both",
       "tool_match": "write_to_file|replace_file_content|run_command",
       "file_pattern": ".*\\.(docx|md)",
       "check_type": "tool_ban",
@@ -214,7 +215,7 @@
       "violation_message": "Draft obliteration detected! Clean-room generation on existing manuscripts is prohibited. Ensure output_bytes >= input_bytes * 0.90.",
       "remedy": "Switch to in-place document modification using DOM parsing or specific replacement. Preserve at least 90% of the original byte size.",
       "enabled": true,
-      "updated_at": "2026-09-26T17:28:20.421994+00:00"
+      "updated_at": "2026-09-29T17:39:41.785240+00:00"
     },
     "CAND-2026-METHODOLOGY-AWARE-VALIDATION-BRANCHING": {
       "item_id": "CAND-2026-METHODOLOGY-AWARE-VALIDATION-BRANCHING",
@@ -249,7 +250,7 @@
         "GENERAL_ACADEMIC",
         "METHODOLOGY"
       ],
-      "event": "PreToolUse",
+      "event": "Both",
       "tool_match": "write_to_file|replace_file_content",
       "file_pattern": ".*_English.*\\.(md|docx|txt)$",
       "check_type": "regex_ban",
@@ -257,7 +258,7 @@
       "violation_message": "Language-Track Typography Violation: English manuscripts must omit the leading zero for bounded metrics (e.g., p < .001, not p < 0.001) per APA 7.",
       "remedy": "Remove the leading zero for p-values and correlation coefficients in English documents. Ensure Western digits are used.",
       "enabled": true,
-      "updated_at": "2026-09-27T02:37:15.747257+00:00"
+      "updated_at": "2026-09-29T17:39:41.770334+00:00"
     },
     "LSN-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY": {
       "item_id": "LSN-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY",
@@ -296,7 +297,7 @@
         "REVISION",
         "QUALITY_CONTROL"
       ],
-      "event": "PreToolUse",
+      "event": "Both",
       "tool_match": "write_to_file|replace_file_content|run_command",
       "file_pattern": ".*\\.docx|.*\\.md",
       "check_type": "regex_ban",
@@ -304,7 +305,7 @@
       "violation_message": "Supervisor revision audit failed: Document-wide parameter replacement is mandatory. Zero selective paragraph skipping is allowed. Pre-existing elements must be visibly marked with yellow highlights.",
       "remedy": "Ensure exhaustive search-and-replace across the entire document corpus. Apply yellow highlights to verified pre-existing elements. Do not skip paragraphs selectively.",
       "enabled": true,
-      "updated_at": "2026-09-27T03:10:32.536423+00:00"
+      "updated_at": "2026-09-29T17:39:41.772939+00:00"
     },
     "CAND-2026-SURGICAL-RUN-LEVEL-MUTATION": {
       "item_id": "CAND-2026-SURGICAL-RUN-LEVEL-MUTATION",
@@ -361,7 +362,7 @@
       "target_skills": [
         "APA_REPORTING"
       ],
-      "event": "PreToolUse",
+      "event": "Both",
       "tool_match": "write_to_file|replace_file_content",
       "file_pattern": ".*\\.(md|docx)$",
       "check_type": "regex_ban",
@@ -369,7 +370,7 @@
       "violation_message": "Single Sample Invariant violated: Dual-sample terminology is prohibited in table notes and captions.",
       "remedy": "Replace banned terminology with 'نمونه پژوهش'.",
       "enabled": true,
-      "updated_at": "2026-09-27T06:41:54.686680+00:00"
+      "updated_at": "2026-09-29T17:39:41.757123+00:00"
     },
     "CAND-2026-CH4-SINGLE-SAMPLE-INVARIANT": {
       "item_id": "CAND-2026-CH4-SINGLE-SAMPLE-INVARIANT",
@@ -381,7 +382,7 @@
       "target_skills": [
         "CHAPTER4"
       ],
-      "event": "PreToolUse",
+      "event": "Both",
       "tool_match": "write_to_file|replace_file_content",
       "file_pattern": ".*\\.(md|docx|json)$",
       "check_type": "regex_ban",
@@ -389,7 +390,7 @@
       "violation_message": "Single Sample Invariant violated: Dual-sample terminology is prohibited in Chapter 4 deliverables. Use 'نمونه پژوهش' instead.",
       "remedy": "Replace banned sample terminology with a unified designation such as 'نمونه پژوهش (N = ۴۸۳)'.",
       "enabled": true,
-      "updated_at": "2026-09-27T06:41:54.701098+00:00"
+      "updated_at": "2026-09-29T17:39:41.764222+00:00"
     },
     "CAND-2026-DATA-AUDIT-SINGLE-SAMPLE-INVARIANT": {
       "item_id": "CAND-2026-DATA-AUDIT-SINGLE-SAMPLE-INVARIANT",
@@ -401,7 +402,7 @@
       "target_skills": [
         "DATA_AUDIT"
       ],
-      "event": "PreToolUse",
+      "event": "Both",
       "tool_match": "write_to_file|replace_file_content",
       "file_pattern": ".*\\.json",
       "check_type": "regex_ban",
@@ -409,7 +410,7 @@
       "violation_message": "Single Sample Invariant violated: Do not output dual-sample terminology in audit reports.",
       "remedy": "Report only the final sample as 'نمونه پژوهش'.",
       "enabled": true,
-      "updated_at": "2026-09-27T06:41:54.710905+00:00"
+      "updated_at": "2026-09-29T17:39:41.767026+00:00"
     },
     "AP-2026-BOLD-TABLE-CAPTION-AND-UNJUSTIFIED-NARRATIVE": {
       "item_id": "AP-2026-BOLD-TABLE-CAPTION-AND-UNJUSTIFIED-NARRATIVE",
@@ -613,7 +614,7 @@
         "GENERAL_ACADEMIC",
         "CHAPTER4"
       ],
-      "event": "PreToolUse",
+      "event": "Both",
       "tool_match": "write_to_file",
       "file_pattern": ".*\\\\.json$",
       "check_type": "substring_ban",
@@ -621,7 +622,7 @@
       "violation_message": "Atomic Micro-Stage Triad Synthesis Invariant violation: Fragmented pipeline state detected. You must sequentially and atomically generate its complete synchronized triad (.docx, .md, .json).",
       "remedy": "Ensure your micro-stage execution generates the complete triad (.docx, .md, .json) before proceeding or validating.",
       "enabled": true,
-      "updated_at": "2026-09-27T18:18:37.979305+00:00"
+      "updated_at": "2026-09-29T17:39:41.782438+00:00"
     },
     "CAND-2026-ATOMIC-TRIAD-ORCH-001": {
       "item_id": "CAND-2026-ATOMIC-TRIAD-ORCH-001",
@@ -779,7 +780,7 @@
       "target_skills": [
         "GENERAL_ACADEMIC"
       ],
-      "event": "PreToolUse",
+      "event": "Both",
       "tool_match": "write_to_file|replace_file_content",
       "file_pattern": ".*\\\\.(md|json|docx)$",
       "check_type": "regex_ban",
@@ -787,7 +788,7 @@
       "violation_message": "Arbitrary truncation of demographic variables detected. You must exhaustively report all demographic and clinical background variables without stubs or omissions.",
       "remedy": "Ensure all demographics from the calculation ledger (e.g. demographics_calculated.json) are fully included in the output file.",
       "enabled": true,
-      "updated_at": "2026-09-28T19:30:58.580107+00:00"
+      "updated_at": "2026-09-29T17:39:41.775796+00:00"
     },
     "LSN-2026-WRITER-READ-ONLY-JSON-MANDATE": {
       "item_id": "LSN-2026-WRITER-READ-ONLY-JSON-MANDATE",
@@ -1316,7 +1317,7 @@
         "academic-writer"
       ],
       "target_skills": [],
-      "event": "PreToolUse",
+      "event": "Both",
       "tool_match": "write_to_file|replace_file_content|patch|edit_file",
       "file_pattern": ".*\\.md",
       "check_type": "regex_ban",
@@ -1324,7 +1325,7 @@
       "violation_message": "Delegating mutation, re-serialization, or truncation of computational statistical .json artifacts in 03_deliverables/ to academic-writer.",
       "remedy": "Statistical .json files in 03_deliverables/ are produced strictly by computational specialists (statistics-agent, data-curator) and are strictly READ-ONLY for academic-writer. Orchestrators must never assign JSON mutation tasks to narrative agents.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.241412+00:00"
+      "updated_at": "2026-09-29T17:39:41.778927+00:00"
     }
   }
 }

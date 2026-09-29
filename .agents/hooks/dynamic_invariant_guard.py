@@ -253,12 +253,27 @@ class DynamicInvariantGuard:
         if not invariants:
             return {"decision": "allow"}
 
-        workspaces = payload.get("workspacePaths", [ROOT_DIR])
-        base_ws = workspaces[0] if workspaces and os.path.isdir(workspaces[0]) else ROOT_DIR
+        cand_dirs = []
+        for k in ("deliverables_path", "deliverables_dir", "stage_dir"):
+            val = payload.get(k)
+            if val and os.path.isdir(str(val)):
+                cand_p = os.path.abspath(str(val))
+                if cand_p not in cand_dirs:
+                    cand_dirs.append(cand_p)
 
-        # Identify candidate deliverables in workspace
-        deliverables_dir = os.path.join(base_ws, "03_deliverables")
-        if not os.path.isdir(deliverables_dir):
+        if not cand_dirs:
+            workspaces = payload.get("workspacePaths", [ROOT_DIR]) or [ROOT_DIR]
+            for ws in workspaces:
+                if ws and os.path.isdir(ws):
+                    cand = os.path.join(ws, "03_deliverables")
+                    if os.path.isdir(cand) and cand not in cand_dirs:
+                        cand_dirs.append(cand)
+
+            cwd_cand = os.path.join(os.getcwd(), "03_deliverables")
+            if os.path.isdir(cwd_cand) and cwd_cand not in cand_dirs:
+                cand_dirs.append(cwd_cand)
+
+        if not cand_dirs:
             return {"decision": "allow"}
 
         for rule_id, rule in invariants.items():
@@ -280,50 +295,105 @@ class DynamicInvariantGuard:
             v_msg = rule.get("violation_message") or rule.get("statement") or "Mechanical integrity defect detected."
             remedy = rule.get("remedy", "")
 
-            # Scan files matching file_pattern in 03_deliverables
-            for root_p, _, files in os.walk(deliverables_dir):
-                for fname in files:
-                    full_p = os.path.join(root_p, fname)
-                    if file_pattern and not re.search(file_pattern, full_p, re.IGNORECASE):
-                        continue
+            # Scan files matching file_pattern across all discovered deliverable directories
+            for d_dir in cand_dirs:
+                for root_p, _, files in os.walk(d_dir):
+                    for fname in files:
+                        full_p = os.path.join(root_p, fname)
+                        if file_pattern and not re.search(file_pattern, full_p, re.IGNORECASE):
+                            continue
 
-                    # DOM check for OpenXML tables
-                    if check_type == "openxml_dom_ban" and full_p.lower().endswith(".docx"):
-                        try:
-                            with zipfile.ZipFile(full_p, "r") as zf:
-                                if "word/document.xml" in zf.namelist():
-                                    root_xml = ET.fromstring(zf.read("word/document.xml"))
-                                    tbls = [e for e in root_xml.iter() if e.tag.endswith("}tbl") or e.tag == "tbl"]
-                                    if tbls:
+                        # Validation reports are audit logs, exempt from narrative content bans unless explicitly targeted
+                        if fname.lower() == "validation_report.json" and "validation_report" not in file_pattern.lower():
+                            continue
+
+                        # OpenXML (.docx) deep inspection
+                        if full_p.lower().endswith(".docx"):
+                            try:
+                                with zipfile.ZipFile(full_p, "r") as zf:
+                                    if "word/document.xml" in zf.namelist():
+                                        xml_bytes = zf.read("word/document.xml")
+                                        xml_content = xml_bytes.decode("utf-8", errors="replace")
+
+                                        # DOM table check (Directive 3.1 & openxml_dom_ban)
+                                        is_ch5_prose_rule = (
+                                            rule_id == "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001"
+                                            or "chapter-5" in rule_id.lower()
+                                            or "prose-only" in rule_id.lower()
+                                        )
+                                        if check_type == "openxml_dom_ban" or is_ch5_prose_rule:
+                                            root_xml = ET.fromstring(xml_bytes)
+                                            tbls = [e for e in root_xml.iter() if e.tag.endswith("}tbl") or e.tag == "tbl"]
+                                            if tbls and (check_type == "openxml_dom_ban" or is_ch5_prose_rule):
+                                                return {
+                                                    "decision": "continue",
+                                                    "reason": (
+                                                        f"MECHANICAL INTEGRITY DEFECT (Learned Invariant {rule_id}):\n"
+                                                        f"Word deliverable '{os.path.basename(full_p)}' contains {len(tbls)} prohibited Word table(s).\n"
+                                                        f"{v_msg}\n"
+                                                        f"Remedy: {remedy}"
+                                                    )
+                                                }
+
+                                        # Regex check on OpenXML markup / text runs
+                                        if check_type in ("regex_ban", "markdown_table_ban") and pattern:
+                                            if re.search(pattern, xml_content, re.MULTILINE):
+                                                return {
+                                                    "decision": "continue",
+                                                    "reason": (
+                                                        f"MECHANICAL INTEGRITY DEFECT (Learned Invariant {rule_id}):\n"
+                                                        f"Word deliverable '{os.path.basename(full_p)}' matches prohibited pattern '{pattern}'.\n"
+                                                        f"{v_msg}\n"
+                                                        f"Remedy: {remedy}"
+                                                    )
+                                                }
+
+                                        # Substring check on OpenXML markup
+                                        elif check_type == "substring_ban" and pattern:
+                                            if pattern in xml_content:
+                                                return {
+                                                    "decision": "continue",
+                                                    "reason": (
+                                                        f"MECHANICAL INTEGRITY DEFECT (Learned Invariant {rule_id}):\n"
+                                                        f"Word deliverable '{os.path.basename(full_p)}' contains prohibited substring '{pattern}'.\n"
+                                                        f"{v_msg}\n"
+                                                        f"Remedy: {remedy}"
+                                                    )
+                                                }
+                            except Exception:
+                                pass
+
+                        # Text, Markdown, JSON, HTML, and script deliverable inspection
+                        elif full_p.lower().endswith((".md", ".txt", ".json", ".xml", ".html", ".r", ".py")):
+                            try:
+                                with open(full_p, "r", encoding="utf-8") as f:
+                                    f_content = f.read()
+
+                                if check_type in ("regex_ban", "markdown_table_ban") and pattern:
+                                    if re.search(pattern, f_content, re.MULTILINE):
                                         return {
                                             "decision": "continue",
                                             "reason": (
                                                 f"MECHANICAL INTEGRITY DEFECT (Learned Invariant {rule_id}):\n"
-                                                f"File '{os.path.basename(full_p)}' contains {len(tbls)} prohibited Word table(s).\n"
+                                                f"File '{os.path.basename(full_p)}' matches prohibited pattern '{pattern}'.\n"
                                                 f"{v_msg}\n"
                                                 f"Remedy: {remedy}"
                                             )
                                         }
-                        except Exception:
-                            pass
 
-                    # Regex check on text deliverables
-                    elif check_type in ("regex_ban", "markdown_table_ban") and full_p.lower().endswith((".md", ".txt")):
-                        try:
-                            with open(full_p, "r", encoding="utf-8") as f:
-                                f_content = f.read()
-                            if pattern and re.search(pattern, f_content, re.MULTILINE):
-                                return {
-                                    "decision": "continue",
-                                    "reason": (
-                                        f"MECHANICAL INTEGRITY DEFECT (Learned Invariant {rule_id}):\n"
-                                        f"File '{os.path.basename(full_p)}' matches prohibited pattern '{pattern}'.\n"
-                                        f"{v_msg}\n"
-                                        f"Remedy: {remedy}"
-                                    )
-                                }
-                        except Exception:
-                            pass
+                                elif check_type == "substring_ban" and pattern:
+                                    if pattern in f_content:
+                                        return {
+                                            "decision": "continue",
+                                            "reason": (
+                                                f"MECHANICAL INTEGRITY DEFECT (Learned Invariant {rule_id}):\n"
+                                                f"File '{os.path.basename(full_p)}' contains prohibited substring '{pattern}'.\n"
+                                                f"{v_msg}\n"
+                                                f"Remedy: {remedy}"
+                                            )
+                                        }
+                            except Exception:
+                                pass
 
         return {"decision": "allow"}
 
