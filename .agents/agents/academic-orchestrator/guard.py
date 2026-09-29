@@ -352,34 +352,21 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 "message": msg
                             }
 
-                    if not is_valid:
-                        msg = (
-                            f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 12 — Contractual Delegation Invariant): "
-                            f"Delegation to execution worker '{target_type}' was rejected: {reason}\n"
-                            f"You must embed a structured Contractual Delegation Envelope (CDE) in the prompt "
-                            f"specifying 'task_id', 'worker_agent', 'inputs', 'required_artifacts', and 'objective'/'target_script'."
-                        )
-                        return {
-                            "decision": "deny",
-                            "reason": msg,
-                            "message": msg
-                        }
+                # 5. Directive 3: Pipeline Stage Prerequisite Invariant (Zero Skipping)
+                stage_label = ""
+                if env:
+                    stage_label = env.get("stage") or env.get("task_id") or ""
+                if not stage_label:
+                    stage_label = prompt
 
-                    # Directive 3: Pipeline Stage Prerequisite Invariant (Zero Skipping)
-                    stage_label = ""
-                    if env:
-                        stage_label = env.get("stage") or env.get("task_id") or ""
-                    if not stage_label:
-                        stage_label = prompt
-
-                    workspaces = payload.get("workspacePaths", [ROOT_DIR])
-                    ok_prereq, prereq_reason = verify_pipeline_stage_prerequisites(stage_label, workspaces)
-                    if not ok_prereq:
-                        return {
-                            "decision": "deny",
-                            "reason": prereq_reason,
-                            "message": prereq_reason
-                        }
+                workspaces = payload.get("workspacePaths", [ROOT_DIR])
+                ok_prereq, prereq_reason = verify_pipeline_stage_prerequisites(stage_label, workspaces)
+                if not ok_prereq:
+                    return {
+                        "decision": "deny",
+                        "reason": prereq_reason,
+                        "message": prereq_reason
+                    }
 
     return {"decision": "allow"}
 
