@@ -63,6 +63,11 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
 
         doc = Document()
 
+        for section in doc.sections:
+            bidi = OxmlElement('w:bidi')
+            bidi.set(qn('w:val'), '1')
+            section._sectPr.append(bidi)
+
         def set_rtl(paragraph):
             pPr = paragraph._p.get_or_add_pPr()
             bidi = OxmlElement('w:bidi')
@@ -135,7 +140,20 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
                             tblPr = table._tbl.tblPr
                             if tblPr is not None:
                                 bidiVisual = OxmlElement('w:bidiVisual')
-                                tblPr.append(bidiVisual)
+                                bidiVisual.set(qn('w:val'), '1')
+                                tblW_idx = -1
+                                for idx, child in enumerate(tblPr):
+                                    if child.tag == qn('w:tblW'):
+                                        tblW_idx = idx
+                                        break
+                                jc = OxmlElement('w:jc')
+                                jc.set(qn('w:val'), 'right')
+                                if tblW_idx >= 0:
+                                    tblPr.insert(tblW_idx, bidiVisual)
+                                    tblPr.insert(tblW_idx + 2, jc)
+                                else:
+                                    tblPr.insert(0, bidiVisual)
+                                    tblPr.append(jc)
                             for i, row in enumerate(table_data):
                                 for j, cell_text in enumerate(row):
                                     cell = table.cell(i, j)
@@ -157,7 +175,20 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
                 tblPr = table._tbl.tblPr
                 if tblPr is not None:
                     bidiVisual = OxmlElement('w:bidiVisual')
-                    tblPr.append(bidiVisual)
+                    bidiVisual.set(qn('w:val'), '1')
+                    tblW_idx = -1
+                    for idx, child in enumerate(tblPr):
+                        if child.tag == qn('w:tblW'):
+                            tblW_idx = idx
+                            break
+                    jc = OxmlElement('w:jc')
+                    jc.set(qn('w:val'), 'right')
+                    if tblW_idx >= 0:
+                        tblPr.insert(tblW_idx, bidiVisual)
+                        tblPr.insert(tblW_idx + 2, jc)
+                    else:
+                        tblPr.insert(0, bidiVisual)
+                        tblPr.append(jc)
                 for i, row in enumerate(table_data):
                     for j, cell_text in enumerate(row):
                         cell = table.cell(i, j)

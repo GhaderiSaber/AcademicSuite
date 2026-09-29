@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-29T17:45:00.985277+00:00",
+  "updated_at": "2026-09-29T20:21:54.050107+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -893,7 +893,7 @@
       "violation_message": "Monolithic hypothesis JSON files are prohibited. You must emit disaggregated micro-stage JSON files (e.g., `08_hypothesis_3.json`) for each individual hypothesis.",
       "remedy": "Separate the hypotheses into their own dedicated, isolated micro-stages and emit individual `.json`, `.md`, and `.docx` artifacts for each.",
       "enabled": true,
-      "updated_at": "2026-09-29T09:43:11.386541+00:00"
+      "updated_at": "2026-09-29T20:18:02.286960+00:00"
     },
     "CAND-2026-DOCX-AST-PARSER-AND-CHAPTER4-FRAMING-001": {
       "item_id": "CAND-2026-DOCX-AST-PARSER-AND-CHAPTER4-FRAMING-001",
@@ -1326,6 +1326,48 @@
       "remedy": "Statistical .json files in 03_deliverables/ are produced strictly by computational specialists (statistics-agent, data-curator) and are strictly READ-ONLY for academic-writer. Orchestrators must never assign JSON mutation tasks to narrative agents.",
       "enabled": true,
       "updated_at": "2026-09-29T17:39:41.778927+00:00"
+    },
+    "CAND-2026-GLOBAL-TABLE-DOCX-STANDARDS-001": {
+      "item_id": "CAND-2026-GLOBAL-TABLE-DOCX-STANDARDS-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Do not split table captions across multiple lines.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\\\.md",
+      "check_type": "regex_ban",
+      "pattern": "جدول \\\\d+-\\\\d+\\\\n.*",
+      "violation_message": "Do not split table captions across multiple lines.",
+      "remedy": "Use single line: جدول [فصل]-[شماره]: [عنوان]",
+      "enabled": true,
+      "updated_at": "2026-09-29T20:18:02.295929+00:00"
+    },
+    "CAND-2026-ONLYOFFICE-STRICT-RTL-TABLE-001": {
+      "item_id": "CAND-2026-ONLYOFFICE-STRICT-RTL-TABLE-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Do not append bidiVisual directly to tblPr, as it must precede tblW to be strictly ECMA-376 compliant.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "DOCX_GENERATION",
+        "TABLE_FORMATTING",
+        "VALIDATION"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.py",
+      "check_type": "substring_ban",
+      "pattern": "tblPr.append(bidiVisual)",
+      "violation_message": "Do not append bidiVisual directly to tblPr, as it must precede tblW to be strictly ECMA-376 compliant.",
+      "remedy": "Insert bidiVisual before tblW in tblPr instead of appending.",
+      "enabled": true,
+      "updated_at": "2026-09-29T20:21:54.050088+00:00"
     }
   }
 }
