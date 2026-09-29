@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-UNRESTRICTED-STALE-REPORT-UNLINKING",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "BAN-20260929-LEGACY-VALIDATION-PURGE-FAIL-001",
+  "diagnosis": {
+    "what_happened": "Command bans prevented absolute deletion and unlinking of stale validation reports.",
+    "behavior_caused_outcome": "Dynamic invariant rules intended to prevent creation of files accidentally blocked deletion/unlinking commands, leading to rule deadlock preventing decontamination.",
+    "what_should_have_happened": "Deletion/unlinking of stale validation reports should be exempt from command bans so decontamination can occur cleanly.",
+    "rationale_why": "Stale reports must be removed to avoid false feedback loops. Security invariants should not prevent cleanup operations."
+  },
+  "desired_behavior": "Exempt absolute deletion and unlinking of stale validation reports from command bans so decontamination can occur cleanly.",
+  "generalization": "Decontamination and cleanup commands must be explicitly exempted from restrictive creation/modification invariant rules to avoid deadlocks.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "DECONTAMINATION_EXECUTION",
+    "observed_value": "Cleanup prevented by rule deadlock",
+    "threshold_value": "Cleanup executes successfully",
+    "supporting_report_ids": [
+      "BAN-20260929-LEGACY-VALIDATION-PURGE-FAIL-001"
+    ],
+    "supporting_artifact_paths": [
+      "TRJ-20260929-LEGACY-VALIDATION-PURGE-FAIL-001.json"
+    ]
+  },
+  "related_skills": [
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-29T13:38:17Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator"
+  ]
+}

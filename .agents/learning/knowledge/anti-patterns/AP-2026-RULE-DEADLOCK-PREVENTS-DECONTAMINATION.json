@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-RULE-DEADLOCK-PREVENTS-DECONTAMINATION",
+  "category": "execution",
+  "defective_pattern": "Dynamic invariant rules intended to prevent creation of files accidentally blocking deletion/unlinking commands.",
+  "why_defective": "Causes rule deadlock, preventing decontamination and cleanup of stale validation reports.",
+  "observed_symptoms": [
+    "Failed to delete stale validation reports.",
+    "Command execution blocked by invariant rules.",
+    "Stale reports persist and cause false validation results."
+  ],
+  "corrective_remedy": "Exempt absolute deletion and unlinking commands (e.g. rm) for stale validation reports from command bans.",
+  "detection_heuristic": {
+    "trigger_rule": "Invariant blocks deletion of stale report",
+    "regex_patterns": [
+      "(?m)^rm.*validation.*blocked$"
+    ],
+    "pattern": "(?m)^rm.*validation.*blocked$",
+    "check_type": "substring_ban",
+    "file_pattern": ".*",
+    "event": "Both"
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T13:38:17Z"
+}

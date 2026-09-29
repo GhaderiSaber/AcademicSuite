@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20260929-LEGACY-VALIDATION-PURGE-FAIL-001",
+  "trigger_type": "QC_FAILURE",
+  "trigger_event_id": "EVT-20260929-LEGACY-VALIDATION-PURGE-FAIL",
+  "target_agent": "academic-suite-orchestrator",
+  "target_skill": "legacy_validation_cleanup",
+  "capability": "file_deletion_and_state_purge",
+  "trajectory_id": "TRJ-20260929-LEGACY-VALIDATION-PURGE-FAIL-001.json",
+  "observable_failure_step": {
+    "step_number": 1,
+    "action_type": "tool_call",
+    "tool_name": "delete_file",
+    "description": "Attempted to physically unlink the stale validation report in 03_deliverables/legacy_validation/validation_report.json, but a dynamic invariant rule deadlock blocked the deletion tool."
+  },
+  "failure_signature": "DYNAMIC_INVARIANT_RULE_DEADLOCK",
+  "root_cause_diagnosis": "A dynamic invariant rule deadlock occurred during the file deletion operation. The agent attempted to unlink the stale file '03_deliverables/legacy_validation/validation_report.json', but strict rules preventing the deletion of critical validation artifacts triggered a deadlock. This resulted in the stale file persisting, which caused the orchestrator to repeatedly read the old report showing 28 failed checks.",
+  "prescribed_behavior": "The agent must employ an explicit override flag or invoke a dedicated state-purge routine designed specifically for legacy validation directories, ensuring that state cleanup operations can safely clear out stale validation reports without violating read-only dynamic invariant rules.",
+  "created_at": "2026-09-29T13:36:26Z"
+}

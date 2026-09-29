@@ -19,7 +19,9 @@
     "metric_or_check": "LEGACY_VALIDATION_REPORT",
     "observed_value": "FAIL (28 checks failed)",
     "threshold_value": "Zero failures allowed for global table/docx standards.",
-    "supporting_report_ids": ["BAN-20260929-GLOBAL-TABLE-DOCX-STANDARDS-001"],
+    "supporting_report_ids": [
+      "BAN-20260929-GLOBAL-TABLE-DOCX-STANDARDS-001"
+    ],
     "supporting_artifact_paths": []
   },
   "related_skills": [
@@ -37,5 +39,12 @@
     "persian-thesis-builder",
     "apa-reporting",
     "statistical-data-analyst"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-09-29T10:51:24.358730+00:00",
+  "graduated_targets": [
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/apa-reporting/SKILL.md",
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/chapter-4-writing/SKILL.md",
+    "/home/ghaderi-saber/My Work/Mohtasham Valiyanpur/.agents/skills/persian-thesis-builder/SKILL.md"
   ]
 }

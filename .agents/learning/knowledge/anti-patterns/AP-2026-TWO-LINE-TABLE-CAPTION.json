@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-TWO-LINE-TABLE-CAPTION",
+  "category": "typography",
+  "defective_pattern": "Authoring table captions split across two separate lines instead of unified single-line",
+  "why_defective": "Violates Persian academic formatting standards which dictate a single unified line for table numbering and titles.",
+  "observed_symptoms": [
+    "Table number on one line, table title on the next"
+  ],
+  "corrective_remedy": "Format table captions strictly as 'جدول [فصل]- [شماره]: [عنوان]' on a single continuous line.",
+  "detection_heuristic": {
+    "trigger_rule": "Detecting split table captions using hard breaks or multiple paragraphs for a single caption.",
+    "regex_patterns": ["(?m)^جدول\\s+\\d+-\\d+\\s*\\n.*$"],
+    "pattern": "(?m)^جدول\\s+\\d+-\\d+\\s*\\n.*$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.(md|docx|txt)",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "apa-reporting",
+    "statistical-data-analyst"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T10:45:56Z"
+}

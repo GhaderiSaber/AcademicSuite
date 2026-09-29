@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20260929-GLOBAL-TABLE-DOCX-STANDARDS-001",
+  "target_agent": "statistics-agent",
+  "target_skill": "apa-reporting",
+  "observable_failure_step": "Markdown formatting, Word DOCX generation, and table rendering phases.",
+  "failure_signature": "VIOLATED_ASSUMPTION_IGNORED",
+  "root_cause_diagnosis": "The defect stems from five mechanical oversights: 1. `academic_docgen.py` unconditionally injects document titles, ignoring pre-existing Markdown `#` headings, causing duplication. 2. Generators emit two-line table captions in Markdown, violating the single-line standard. 3. Agents translate standard statistical symbols (M, SD, p) into verbose Persian phrases, breaking APA conventions. 4. The DOCX generator omits the `<w:bidiVisual/>` XML tag in `table._tbl.tblPr`, causing table layouts to visually default to LTR instead of RTL. 5. The table cell population routine directly pipes Markdown (`**`) and LaTeX (`$`) syntax into Word without a parsing/stripping step.",
+  "prescribed_behavior": "1. Modify `academic_docgen.py` to conditionally skip title insertion if a top-level Markdown heading is detected. 2. Strictly format all table captions on a single line: `جدول [فصل]- [شماره]: [عنوان]`. 3. Enforce retention of Latin APA statistical symbols (`M`, `SD`, `SE`, `t`, `F`, `p`, `z`, `B`, `β`, `df`, `R²`) in all Persian tables. 4. Update the docx table generation logic to explicitly inject the `<w:bidiVisual/>` element into table properties for RTL alignment. 5. Implement a sanitization filter to strip `**` and `$` delimiters before injecting text into DOCX table cells."
+}

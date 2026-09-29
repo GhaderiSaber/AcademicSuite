@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-VERBOSE-PERSIAN-TABLE-HEADER-METRICS",
+  "category": "statistical",
+  "defective_pattern": "Using verbose Persian phrases (e.g., میانگین) in table header cells instead of standard APA 7 Latin abbreviations.",
+  "why_defective": "Violates APA 7 standard which dictates using universal statistical abbreviations (M, SD, p, etc.) in headers and defining them in a note.",
+  "observed_symptoms": [
+    "Persian text like 'میانگین' or 'انحراف معیار' in table columns"
+  ],
+  "corrective_remedy": "Use standard APA 7 Latin abbreviations (M, SD, SE, t, F, p, z, B, β, df, R²) in headers. Provide definitions in the table note.",
+  "detection_heuristic": {
+    "trigger_rule": "Detecting verbose Persian statistical terms in table header syntax.",
+    "regex_patterns": ["(?m)\\|\\s*(میانگین|انحراف معیار|درجه آزادی)\\s*\\|"],
+    "pattern": "(?m)\\|\\s*(میانگین|انحراف معیار|درجه آزادی)\\s*\\|",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.(md|docx)",
+    "event": "Both"
+  },
+  "target_agent": "apa-reporting",
+  "target_agents": [
+    "apa-reporting",
+    "statistical-data-analyst",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T10:45:56Z"
+}

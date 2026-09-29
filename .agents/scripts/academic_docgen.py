@@ -285,8 +285,8 @@ def cmd_scaffold_apa_tables(args: argparse.Namespace) -> int:
 
 def cmd_polish_tone(args: argparse.Namespace) -> int:
     """Polish academic tone and Persian typography."""
-    in_file = getattr(args, "in") or getattr(args, "in_file", None)
-    out_file = args.out or args.out_file
+    in_file = getattr(args, "in_file", None)
+    out_file = getattr(args, "out_file", None)
 
     if not in_file or not os.path.exists(in_file):
         print(f"ERROR: Input file not found: {in_file}", file=sys.stderr)
@@ -295,8 +295,47 @@ def cmd_polish_tone(args: argparse.Namespace) -> int:
     with open(in_file, "r", encoding="utf-8") as f:
         text = f.read()
 
+    import re
     # Basic normalization
     polished = text.replace("می باشد", "است").replace("می گردد", "می‌شود")
+
+    # 1. Fix two-line captions
+    polished = re.sub(r'^(جدول ۴-\s*\d+(?:-\d+)?)\n([^\n|]+)\n(?=\|)', r'\1: \2\n', polished, flags=re.MULTILINE)
+    polished = re.sub(r'^(جدول ۴-\s*\d+(?:-\d+)?)\n([^\n|]+)$', r'\1: \2', polished, flags=re.MULTILINE)
+
+    # 2. APA Headers and raw markdown
+    lines = polished.split('\n')
+    for i, line in enumerate(lines):
+        if line.strip().startswith('|'):
+            # headers
+            line = line.replace('| ردیف | متغیر/سازه | میانگین | انحراف معیار | حداقل | حداکثر | چولگی | کشیدگی | آلفای کرونباخ | امگا مک‌دونالد |',
+                                '| ردیف | متغیر/سازه | M | SD | حداقل | حداکثر | چولگی | کشیدگی | α | ω |')
+            line = line.replace('| متغیر | آماره W | p-value | آماره F | p-value | VIF | Tolerance | دوربین-واتسون |',
+                                '| متغیر | آماره W | p | آماره F | p | VIF | Tol | DW |')
+            line = line.replace('| متغیر | آماره W | p | آماره F | p | VIF | Tolerance | دوربین-واتسون |',
+                                '| متغیر | آماره W | p | آماره F | p | VIF | Tol | DW |')
+            line = line.replace('| متغیر | آماره W | p | آماره F | p | تلرانس | VIF | دوربین-واتسون |',
+                                '| متغیر | آماره W | p | آماره F | p | VIF | Tol | DW |')
+            line = line.replace('| مسیر ساختاری | ضریب غیر‌استاندارد (B) | خطای معیار (SE) | ضریب استاندارد (β) | آماره t/z | سطح معناداری (p) | نتیجه |',
+                                '| مسیر ساختاری | B | SE | β | z | p | نتیجه |')
+            
+            # Additional headers
+            line = re.sub(r'\| مدل \| R \| R² \| R² تعدیل‌شده \| خطای معیار .*? \| دوربین-واتسون \| مجموع مجذورات \| df \| میانگین مجذورات \| F \| p \|',
+                          r'| مدل | R | R² | R² تعدیل‌شده | SE | DW | مجموع مجذورات | df | میانگین مجذورات | F | p |', line)
+            
+            line = re.sub(r'\| متغیر پیش‌بین \| ضریب غیراستاندارد \(B\) \| خطای معیار \(SE\) \| ضریب استاندارد \(β\) \| آماره t \| p \| ۹۵٪ CI \[LL, UL\] \|',
+                          r'| متغیر پیش‌بین | B | SE | β | t | p | ۹۵٪ CI [LL, UL] |', line)
+
+            # Raw **
+            line = line.replace('**', '')
+            # math
+            line = line.replace('$\\beta$', 'β').replace('$\\to$', '→')
+            line = line.replace('$-0.165$', '۰.۱۶۵-')
+            line = re.sub(r'\$([^$]*?)\$', lambda m: m.group(1).replace('\\beta', 'β').replace('\\to', '→').replace('\\alpha', 'α').replace('\\omega', 'ω'), line)
+            lines[i] = line
+    
+    polished = '\n'.join(lines)
+
 
     if out_file:
         os.makedirs(os.path.dirname(os.path.abspath(out_file)), exist_ok=True)

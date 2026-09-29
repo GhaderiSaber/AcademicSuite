@@ -1,0 +1,28 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-DOCX-DUPLICATE-LEVEL1-HEADING",
+  "category": "execution",
+  "defective_pattern": "Unconditionally adding doc.add_heading(title, level=1) when markdown source already contains # Level 1 heading",
+  "why_defective": "Causes duplicate titles in the generated DOCX, violating document formatting standards and creating visual redundancy.",
+  "observed_symptoms": [
+    "Duplicate title lines in Word document",
+    "Redundant H1 elements"
+  ],
+  "corrective_remedy": "Check for existing level 1 headings in the parsed markdown source before conditionally adding doc.add_heading, or strip the markdown heading if adding manually.",
+  "detection_heuristic": {
+    "trigger_rule": "Detecting both doc.add_heading(level=1) and a markdown # heading in the same document generation flow without conditional checks.",
+    "regex_patterns": ["(?m)^#\\s.*\\ndoc\\.add_heading"],
+    "pattern": "(?m)^#\\s.*\\ndoc\\.add_heading",
+    "check_type": "substring_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-thesis-builder",
+    "apa-reporting"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-29T10:45:56Z"
+}
