@@ -385,9 +385,9 @@ Hooks communicate strictly via JSON over standard streams using **`camelCase`** 
 ```json
 {
   "conversationId": "801bc7ea-5feb-44bd-ad55-00799869f233",
-  "workspacePaths": ["/home/saber-ghaderi/Desktop/AcademicSuite"],
-  "transcriptPath": "/home/saber-ghaderi/.gemini/antigravity/brain/801bc7ea/transcript.jsonl",
-  "artifactDirectoryPath": "/home/saber-ghaderi/.gemini/antigravity/brain/801bc7ea",
+  "workspacePaths": ["${WORKSPACE_ROOT}"],
+  "transcriptPath": "${APP_DATA_DIR}/antigravity/brain/801bc7ea/transcript.jsonl",
+  "artifactDirectoryPath": "${APP_DATA_DIR}/antigravity/brain/801bc7ea",
   "modelName": "gemini-3.8-flash"
 }
 ```
@@ -400,7 +400,7 @@ Hooks communicate strictly via JSON over standard streams using **`camelCase`** 
         "name": "run_command",
         "args": {
           "CommandLine": "rm -rf /tmp/data",
-          "Cwd": "/home/saber-ghaderi/Desktop/AcademicSuite"
+          "Cwd": "${WORKSPACE_ROOT}"
         }
       },
       "stepIdx": 14,

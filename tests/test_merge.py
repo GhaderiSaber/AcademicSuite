@@ -14,8 +14,9 @@ files = [
 ]
 
 if __name__ == '__main__':
+    workspace_root = os.environ.get("WORKSPACE_ROOT", os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     for file in files:
-        target = '/home/saber-ghaderi/My Work/Narjes/' + file
+        target = os.path.join(workspace_root, file)
         if os.path.exists(target):
             with open(target, 'r', encoding='utf-8') as f:
                 lines = f.readlines()

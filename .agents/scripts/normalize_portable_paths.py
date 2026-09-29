@@ -89,12 +89,19 @@ def process_file(file_path: str, dry_run: bool = True) -> Tuple[bool, int, str]:
     if count == 0 or normalized_content == original_content:
         return False, 0, ""
 
-    # JSON validation: if JSON, ensure normalized content parses cleanly
+    # JSON validation: if JSON or JSONL, ensure normalized content parses cleanly
     if file_path.endswith(".json"):
         try:
             json.loads(normalized_content)
         except Exception as e_json:
             return False, 0, f"JSON parse error after normalization: {e_json}"
+    elif file_path.endswith(".jsonl"):
+        try:
+            for l in normalized_content.splitlines():
+                if l.strip():
+                    json.loads(l)
+        except Exception as e_jsonl:
+            return False, 0, f"JSONL parse error after normalization: {e_jsonl}"
 
     if not dry_run:
         try:
@@ -110,7 +117,9 @@ def run_normalization(dry_run: bool = True) -> Dict[str, Any]:
     """Runs path normalization across target directories."""
     target_dirs = [
         os.path.join(AGENTS_DIR, "learning"),
-        os.path.join(AGENTS_DIR, "factory")
+        os.path.join(AGENTS_DIR, "factory"),
+        os.path.join(ROOT_DIR, "docs"),
+        os.path.join(ROOT_DIR, "evals"),
     ]
     target_specific_files = [
         os.path.join(AGENTS_DIR, "skills", "digital-twin-academic-consultant", "scripts", "bot_config.json"),
@@ -130,7 +139,7 @@ def run_normalization(dry_run: bool = True) -> Dict[str, Any]:
             if ".git" in root or "__pycache__" in root:
                 continue
             for fn in files:
-                if fn.endswith((".json", ".md")):
+                if fn.endswith((".json", ".md", ".jsonl")):
                     fpath = os.path.join(root, fn)
                     files_inspected += 1
                     mod, n, err = process_file(fpath, dry_run=dry_run)

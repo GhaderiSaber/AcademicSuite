@@ -3,7 +3,7 @@
 **Document Version:** 1.0.0  
 **Status:** READ-ONLY BASELINE AUDIT COMPLETE  
 **Operative Temporal Reality:** 2026 (1405 SH)  
-**Workspace:** `/home/saber-ghaderi/Desktop/AcademicSuite`  
+**Workspace:** `${WORKSPACE_ROOT}`  
 **Git Working Tree:** Clean (`main` branch)  
 
 ---
@@ -25,7 +25,7 @@ The audit was conducted strictly under read-only conditions:
 | Dimension | Measured Value | Operational Impact / Findings |
 | :--- | :--- | :--- |
 | **Operating System** | Linux 6.8.0-52-generic (x86_64 Ubuntu) | POSIX environment supporting native bash, symlinks, and fork-based subprocesses. |
-| **Workspace Root** | `/home/saber-ghaderi/Desktop/AcademicSuite` | Single active workspace registered with Google Antigravity. |
+| **Workspace Root** | `${WORKSPACE_ROOT}` | Single active workspace registered with Google Antigravity. |
 | **Git Working Tree** | Clean (`branch main`, commit synced) | All tests and inspections executed without leaving untracked or modified artifacts. |
 | **Host Python** | Python 3.14.0a3 (`/usr/bin/python3`) | Complete dependencies installed globally (`jsonschema`, `pandas`, `scipy`, `docx`, `pptx`). |
 | **Local Virtualenv** | Python 3.12 (`.venv/bin/python3`) | **DEFECT DETECTED**: `jsonschema` is missing in `.venv`, causing 6 test failures when invoked via `.venv`. |

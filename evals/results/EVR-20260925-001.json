@@ -43,7 +43,7 @@
   "contradictions": [],
   "evidence": [
     {
-      "artifact_path": "/home/saber-ghaderi/My Work/Morteza Estaki/.agents/skills/academic-reference-extractor/scripts/extract_section_references.py",
+      "artifact_path": "${WORKSPACE_ROOT}/.agents/skills/academic-reference-extractor/scripts/extract_section_references.py",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence_type": "execution_log"
     }

@@ -35,7 +35,7 @@ class TestPhase2PortablePaths:
         violating_files = []
         for root, dirs, files in os.walk(learning_dir):
             for fn in files:
-                if fn.endswith((".json", ".md")):
+                if fn.endswith((".json", ".md", ".jsonl")):
                     fp = os.path.join(root, fn)
                     with open(fp, "r", encoding="utf-8", errors="ignore") as f:
                         c = f.read()
@@ -45,10 +45,12 @@ class TestPhase2PortablePaths:
         assert len(violating_files) == 0, f"Found machine paths in learning files: {violating_files}"
 
     def test_02_zero_hardcoded_user_paths_in_skills_and_factory(self):
-        """Asserts zero machine paths in skills, scripts, and factory manifest."""
+        """Asserts zero machine paths in skills, scripts, factory manifest, docs, and evals."""
         target_dirs = [
             os.path.join(AGENTS_DIR, "skills"),
-            os.path.join(AGENTS_DIR, "factory")
+            os.path.join(AGENTS_DIR, "factory"),
+            os.path.join(ROOT_DIR, "docs"),
+            os.path.join(ROOT_DIR, "evals"),
         ]
 
         violating_files = []
@@ -57,7 +59,7 @@ class TestPhase2PortablePaths:
                 continue
             for root, dirs, files in os.walk(tdir):
                 for fn in files:
-                    if fn.endswith((".json", ".md", ".py")):
+                    if fn.endswith((".json", ".md", ".py", ".jsonl")):
                         fp = os.path.join(root, fn)
                         with open(fp, "r", encoding="utf-8", errors="ignore") as f:
                             c = f.read()

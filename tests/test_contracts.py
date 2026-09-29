@@ -521,7 +521,7 @@ class TestContractSystem(unittest.TestCase):
             "milestone_id": "M4_CHAPTER4",
             "generated_by": "academic-orchestrator",
             "execution_environment": {
-                "working_directory": "/home/saber-ghaderi/Desktop/AcademicSuite/projects/study_act_burnout",
+                "working_directory": "/home/developer/workspace/projects/study_act_burnout",
                 "python_interpreter": "python3"
             },
             "dry_run": False,

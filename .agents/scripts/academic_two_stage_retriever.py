@@ -150,7 +150,11 @@ class AcademicTwoStageRetriever:
 
             # 2. Scope Containment Gate
             scope = str(item.get("scope") or "domain").lower()
-            item_proj = item.get("project_id") or item.get("context", {}).get("project_id") or item.get("metadata", {}).get("project_id")
+            ctx = item.get("context")
+            ctx_proj = ctx.get("project_id") if isinstance(ctx, dict) else None
+            meta = item.get("metadata")
+            meta_proj = meta.get("project_id") if isinstance(meta, dict) else None
+            item_proj = item.get("project_id") or ctx_proj or meta_proj
             if (scope in ["project", "local_project", "global-in-project", "project_specific", "project-specific"] or bool(item_proj)) and (not project_id or (item_proj and item_proj != project_id)):
                 pruned_counts["scope"] += 1
                 pruned_details.append({"item_id": item_id, "failed_dimension": "scope", "reason": f"Project-scoped item '{item_proj}' does not match query '{project_id}'."})

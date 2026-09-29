@@ -32,12 +32,14 @@ from learning_hooks import LearningHooks
 
 
 def test_zero_machine_paths_in_core_assets():
-    """Test 1: Zero hardcoded developer machine paths in active learning, hooks, and contracts."""
+    """Test 1: Zero hardcoded developer machine paths in active learning, hooks, contracts, docs, and evals."""
     banned_prefixes = ["/home/saber-ghaderi", "/home/ghaderi-saber"]
     target_dirs = [
         os.path.join(AGENTS_DIR, "learning", "knowledge"),
         os.path.join(AGENTS_DIR, "hooks"),
         os.path.join(AGENTS_DIR, "contracts"),
+        os.path.join(ROOT_DIR, "docs"),
+        os.path.join(ROOT_DIR, "evals"),
     ]
 
     violations = []
@@ -46,7 +48,7 @@ def test_zero_machine_paths_in_core_assets():
             continue
         for root_p, _, files in os.walk(t_dir):
             for fname in files:
-                if fname.endswith((".json", ".py", ".md", ".sh")):
+                if fname.endswith((".json", ".py", ".md", ".sh", ".jsonl")):
                     full_p = os.path.join(root_p, fname)
                     with open(full_p, "r", encoding="utf-8", errors="ignore") as f:
                         content = f.read()

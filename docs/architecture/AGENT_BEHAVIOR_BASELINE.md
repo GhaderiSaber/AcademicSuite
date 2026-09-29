@@ -51,7 +51,7 @@ For every task, six deterministic criteria were logged from subagent execution t
 ### Task 1: "Analyze this dataset and determine the appropriate statistical test."
 
 - **Conversation ID:** `976113f4-3134-427e-bbf4-e94ffb27f83c`
-- **Transcript URI:** `file:///home/saber-ghaderi/.gemini/antigravity/brain/976113f4-3134-427e-bbf4-e94ffb27f83c/.system_generated/logs/transcript.jsonl`
+- **Transcript URI:** `${APP_DATA_DIR}/antigravity/brain/976113f4-3134-427e-bbf4-e94ffb27f83c/.system_generated/logs/transcript.jsonl`
 - **Dataset Provided:** `evals/benchmarks/datasets/bm_rm_anova_multitime.csv` ($N = 61$ subjects, 4 time points)
 
 #### Step-by-Step Trajectory
@@ -79,7 +79,7 @@ For every task, six deterministic criteria were logged from subagent execution t
 ### Task 2: "Calculate the repeated-measures analysis."
 
 - **Conversation ID:** `d51ce10f-79db-4701-8e3f-7bc64fc71010`
-- **Transcript URI:** `file:///home/saber-ghaderi/.gemini/antigravity/brain/d51ce10f-79db-4701-8e3f-7bc64fc71010/.system_generated/logs/transcript.jsonl`
+- **Transcript URI:** `${APP_DATA_DIR}/antigravity/brain/d51ce10f-79db-4701-8e3f-7bc64fc71010/.system_generated/logs/transcript.jsonl`
 - **Dataset Provided:** `evals/benchmarks/datasets/bm_rm_anova_multitime.csv`
 
 #### Step-by-Step Trajectory
@@ -112,7 +112,7 @@ For every task, six deterministic criteria were logged from subagent execution t
 ### Task 3: "Write Chapter 4 from these results."
 
 - **Conversation ID:** `7f7b0def-ced7-44dd-8e75-4ce69492ec1f`
-- **Transcript URI:** `file:///home/saber-ghaderi/.gemini/antigravity/brain/7f7b0def-ced7-44dd-8e75-4ce69492ec1f/.system_generated/logs/transcript.jsonl`
+- **Transcript URI:** `${APP_DATA_DIR}/antigravity/brain/7f7b0def-ced7-44dd-8e75-4ce69492ec1f/.system_generated/logs/transcript.jsonl`
 - **Input Checkpoints:** `academic-state/outputs/rm_anova.json` & `rm_anova.md`
 
 #### Step-by-Step Trajectory

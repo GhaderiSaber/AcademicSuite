@@ -74,13 +74,13 @@ def _is_actionable_regex_pattern(pattern: str) -> bool:
 
     # English prose prefixes used in descriptive heuristics rather than regexes
     prose_prefixes = (
-        "detection of", "detect any", "detecting", "flag any", "flag two", "inspect",
-        "assert", "absence of", "presence of", "disallowing", "target output",
-        "target file", "user_feedback", "reverse coding", "high density",
-        "high frequency", "standard compliance", "remove ", "scanning for",
-        "regex detecting", "regex matching", "scripts checking", "comparison heuristic",
-        "heuristic detecting", "checking layout", "verify", "verifying", "enforce",
-        "ensure", "prevent", "forbid", "prohibit"
+        "detection of ", "detect any ", "detecting ", "flag any ", "flag two ", "inspect ",
+        "assert ", "absence of ", "presence of ", "disallowing ", "target output ",
+        "target file ", "user_feedback ", "reverse coding ", "high density ",
+        "high frequency ", "standard compliance ", "remove ", "scanning for ",
+        "regex detecting ", "regex matching ", "scripts checking ", "comparison heuristic ",
+        "heuristic detecting ", "checking layout ", "verify ", "verifying ", "enforce ",
+        "ensure ", "prevent ", "forbid ", "prohibit "
     )
     pat_lower = pat.lower()
     if any(pat_lower.startswith(prefix) for prefix in prose_prefixes):
@@ -539,7 +539,7 @@ class AcademicGraduationCompiler:
                 }
 
                 def _slug_base(val: str) -> str:
-                    s = re.sub(r"^(?:LSN|AP|CAN|CAND)-\d{4}-?", "", val)
+                    s = re.sub(r"^(?:LSN|AP|CAN|CAND|PTR|PRN)(?:-\d{4})?-?", "", val)
                     s = re.sub(r"-\d+$", "", s)
                     return s.lower()
 

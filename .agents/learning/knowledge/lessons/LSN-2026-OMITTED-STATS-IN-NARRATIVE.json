@@ -1,12 +1,31 @@
 {
-  "id": "LSN-2026-OMITTED-STATS-IN-NARRATIVE",
-  "title": "Mandatory Statistical Parameter Reporting in Micro-Stage Narratives",
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-OMITTED-STATS-IN-NARRATIVE",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "EXP-2026-OMITTED-STATS",
+  "desired_behavior": "Always explicitly extract and report primary test statistics (t, F, beta, p, r, z, b, effect sizes) from the JSON artifact in the narrative text using APA 7 format.",
+  "generalization": "Micro-stage narrative text must explicitly present the statistical parameters computed in the JSON artifact.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "PARAMETER_REPORTING",
+    "observed_value": "Omitting explicit statistical parameters in narrative text.",
+    "threshold_value": "Explicit reporting required.",
+    "supporting_report_ids": [],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing",
+    "persian-thesis-builder"
+  ],
   "is_active_behavior": true,
   "status": "VALIDATED",
+  "created_at": "2026-09-24T05:00:00Z",
   "target_agent": "academic-writer",
-  "target_agents": ["academic-writer", "statistics-agent"],
-  "context": "When generating micro-stage markdown (.md) and Word (.docx) deliverables from statistical JSON artifacts.",
-  "anti_pattern": "Omitting explicit statistical parameters (t, F, beta, p, r, z, b, effect sizes) in the narrative text when they are present in the JSON artifact.",
-  "remedy_instruction": "Always explicitly extract and report the primary test statistics from the JSON artifact in the narrative text using APA 7 format.",
-  "severity": "HIGH"
+  "target_agents": [
+    "academic-writer",
+    "statistics-agent"
+  ]
 }

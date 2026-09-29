@@ -118,7 +118,7 @@ Enable Antigravity's native Terminal Sandbox so that shell commands executed by 
     "filesystem": {
       "readOnlyPaths": ["/usr", "/lib", "/bin", "/etc"],
       "deniedPaths": ["~/.ssh", "~/.gnupg", "~/.aws", "**/.env*"],
-      "allowedWorkspaces": ["/home/saber-ghaderi/Desktop/AcademicSuite"]
+      "allowedWorkspaces": ["${WORKSPACE_ROOT}"]
     },
     "network": {
       "allowNetwork": false

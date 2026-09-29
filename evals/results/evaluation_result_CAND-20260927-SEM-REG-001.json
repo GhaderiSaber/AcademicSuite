@@ -42,7 +42,7 @@
   "contradictions": [],
   "evidence": [
     {
-      "artifact_path": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/.agents/skills/sem/SKILL.md",
+      "artifact_path": "${WORKSPACE_ROOT}/.agents/skills/sem/SKILL.md",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence_type": "graduation_target"
     }

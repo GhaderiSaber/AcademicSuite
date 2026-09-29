@@ -13,7 +13,7 @@
     "status": "BLOCKED",
     "severity": "LOW",
     "evidence": {
-      "engine_check": "BLOCKED: ProductionSampleFallbackBlockedError: CRITICAL SAFETY VIOLATION: Production execution attempted with sample/demo dataset '/home/saber-ghaderi/Desktop/AcademicSuite/.agents/skills/psychometric-data-simulator/examples/sample_regression_payload.json'. Production mode strictly requires real empirical data on disk. Silent fallback is prohibited.",
+      "engine_check": "BLOCKED: ProductionSampleFallbackBlockedError: CRITICAL SAFETY VIOLATION: Production execution attempted with sample/demo dataset '.agents/skills/psychometric-data-simulator/examples/sample_regression_payload.json'. Production mode strictly requires real empirical data on disk. Silent fallback is prohibited.",
       "standalone_script_has_mode_flag": true,
       "standalone_script_blocked_sample_data": true
     },
@@ -83,7 +83,7 @@
     "evidence": {
       "hook_decision": {
         "decision": "deny",
-        "reason": "HARD HOOK ENFORCEMENT (Raw-Data Immutability Guard): Modification of raw dataset file '/home/saber-ghaderi/Desktop/AcademicSuite/projects/study_act_burnout/01_raw_inputs/raw_burnout_data.xlsx' is strictly prohibited. Raw datasets are immutable. Transform data into separate analytical/cleaned files (e.g., 'data_cleaned.xlsx', 'data_scored.xlsx') instead."
+        "reason": "HARD HOOK ENFORCEMENT (Raw-Data Immutability Guard): Modification of raw dataset file 'projects/study_act_burnout/01_raw_inputs/raw_burnout_data.xlsx' is strictly prohibited. Raw datasets are immutable. Transform data into separate analytical/cleaned files (e.g., 'data_cleaned.xlsx', 'data_scored.xlsx') instead."
       },
       "os_write_accessible": false,
       "file_mode": "0o100444",
