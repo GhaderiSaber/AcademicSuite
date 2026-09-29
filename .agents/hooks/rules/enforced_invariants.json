@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-29T10:51:19.307526+00:00",
+  "updated_at": "2026-09-29T10:53:48.206250+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -980,6 +980,26 @@
       "remedy": "Always apply bidiVisual to tables, use single-line table captions, enforce APA 7 Latin abbreviations (M, SD, etc.) in table headers, parse and translate markdown formatting in Word cell elements, and prevent duplicate document headings.",
       "enabled": true,
       "updated_at": "2026-09-29T10:51:19.307508+00:00"
+    },
+    "CAND-2026-GLOBAL-TABLE-DOCX-STANDARDS-001": {
+      "item_id": "CAND-2026-GLOBAL-TABLE-DOCX-STANDARDS-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Do not split table captions across multiple lines.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\\\.md",
+      "check_type": "regex_ban",
+      "pattern": "جدول \\\\d+-\\\\d+\\\\n.*",
+      "violation_message": "Do not split table captions across multiple lines.",
+      "remedy": "Use single line: جدول [فصل]-[شماره]: [عنوان]",
+      "enabled": true,
+      "updated_at": "2026-09-29T10:53:48.206225+00:00"
     }
   }
 }

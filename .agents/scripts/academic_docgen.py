@@ -81,15 +81,27 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
             rFonts.set(qn('w:hAnsi'), font_name)
             rFonts.set(qn('w:cs'), font_name)
 
-        title = args.title or "سند دانشگاهی"
-        h = doc.add_heading(title, level=1)
-        set_rtl(h)
-        if h.runs: set_font(h.runs[0], 'B Titr', 18)
+        import re
+        def clean_cell_text(text: str) -> str:
+            text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+            text = re.sub(r'\*(.*?)\*', r'\1', text)
+            text = text.replace('$\\beta$', 'β').replace('$\\to$', '→')
+            text = re.sub(r'\$(-?\d+(?:\.\d+)?)\$', lambda m: m.group(1).translate(str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹')), text)
+            return text.replace('$', '').strip()
 
+        title = args.title or "سند دانشگاهی"
+        has_h1 = False
         if md_path and os.path.exists(md_path):
             with open(md_path, "r", encoding="utf-8") as f:
                 content = f.read().replace('\\n', '\n')
+            has_h1 = any(line.startswith("# ") for line in content.splitlines())
 
+        if not has_h1:
+            h = doc.add_heading(title, level=1)
+            set_rtl(h)
+            if h.runs: set_font(h.runs[0], 'B Titr', 18)
+
+        if md_path and os.path.exists(md_path):
             in_table = False
             table_data = []
 
@@ -120,10 +132,14 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
                             table = doc.add_table(rows=len(table_data), cols=len(table_data[0]))
                             table.style = 'Light Shading'
                             table.autofit = True
+                            tblPr = table._tbl.tblPr
+                            if tblPr is not None:
+                                bidiVisual = OxmlElement('w:bidiVisual')
+                                tblPr.append(bidiVisual)
                             for i, row in enumerate(table_data):
                                 for j, cell_text in enumerate(row):
                                     cell = table.cell(i, j)
-                                    cell.text = cell_text
+                                    cell.text = clean_cell_text(cell_text)
                                     for p in cell.paragraphs:
                                         set_rtl(p)
                                         for r in p.runs:
@@ -138,10 +154,14 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
             if in_table and table_data:
                 table = doc.add_table(rows=len(table_data), cols=len(table_data[0]))
                 table.style = 'Light Shading'
+                tblPr = table._tbl.tblPr
+                if tblPr is not None:
+                    bidiVisual = OxmlElement('w:bidiVisual')
+                    tblPr.append(bidiVisual)
                 for i, row in enumerate(table_data):
                     for j, cell_text in enumerate(row):
                         cell = table.cell(i, j)
-                        cell.text = cell_text
+                        cell.text = clean_cell_text(cell_text)
                         for p in cell.paragraphs:
                             set_rtl(p)
                             for r in p.runs:
