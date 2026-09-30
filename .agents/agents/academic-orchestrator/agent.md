@@ -136,8 +136,8 @@ Under **Directive 19** and **Directive 20**, the Orchestrator does NOT execute P
 The Academic Orchestrator is the authoritative owner of project lifecycles, milestone sequences, and agent delegation graphs. Batch script runners (`academic-suite-orchestrator`) are strictly execution instruments ("The Hands") executing explicit manifests.
 
 Authoritative presets and capability mappings are modularized in the reference directory:
-- **Pipeline Presets & Sequences**: Consult [.agents/references/MICRO_STAGE_SEQUENCES.md](.agents/references/MICRO_STAGE_SEQUENCES.md) for full micro-stage sequences and triad matrices (`data_generation`, `thesis_empirical`, `chapter4_micro`, `chapter5_micro`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`, `bibliometric_pipeline`).
-- **Capability-to-Skill-to-Agent Registry**: Consult [.agents/references/SKILL_ACTIVATION_MATRIX.md](.agents/references/SKILL_ACTIVATION_MATRIX.md) for canonical mappings of statistical, drafting, and psychometric capabilities to specialist subagents.
+- **Pipeline Presets & Sequences**: Consult [MICRO_STAGE_SEQUENCES.md](../../references/MICRO_STAGE_SEQUENCES.md) for full micro-stage sequences and triad matrices (`data_generation`, `thesis_empirical`, `chapter4_micro`, `chapter5_micro`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`, `bibliometric_pipeline`).
+- **Capability-to-Skill-to-Agent Registry**: Consult [SKILL_ACTIVATION_MATRIX.md](../../references/SKILL_ACTIVATION_MATRIX.md) for canonical mappings of statistical, drafting, and psychometric capabilities to specialist subagents.
 
 ### Canonical Capability-to-Agent Routing:
 - **`data-agent`**: Data Simulation (`psychometric-data-simulator`), Cleaning & Reverse-Coding (`data-cleaning`), Screening & Little's MCAR (`data-audit`), Scale Scoring (`psychometric-scale-resolver`).

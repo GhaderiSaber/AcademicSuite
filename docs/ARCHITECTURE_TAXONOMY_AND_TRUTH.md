@@ -32,7 +32,7 @@ Every document and architectural reference in AcademicSuite belongs to exactly o
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ 1. CURRENT ARCHITECTURE (Ground Truth — As-Built)                            │
 │    • Active operational policy enforced by hooks, code, and test harness    │
-│    • Canonical files: AGENTS.md, README.md, docs/CURRENT_ARCHITECTURE.md    │
+│    • Canonical files: AGENTS.md, README.md, docs/architecture/CURRENT_ARCHITECTURE.md │
 └─────────────────────────────────────────────────────────────────────────────┘
                                ▲
                                │ Replaces & Consolidates
@@ -152,7 +152,7 @@ Documents located in:
 Are **permanent historical audit records** of specific milestones in the evolution of AcademicSuite. They reflect the exact state of the codebase at the time that phase was completed. 
 
 **Rule for Autonomous Agents**:
-> **NEVER override current directives in `AGENTS.md` or `docs/CURRENT_ARCHITECTURE.md` using numbers, paths, or rules from historical phase reports.**
+> **NEVER override current directives in `AGENTS.md` or `docs/architecture/CURRENT_ARCHITECTURE.md` using numbers, paths, or rules from historical phase reports.**
 
 ---
 
@@ -171,7 +171,7 @@ Represent forward-looking blueprints and target state proposals. Features in Tar
 When any conflict arises between documents, resolve strictly in this order:
 
 1. **Constitutional Law**: [`.agents/AGENTS.md`](../AGENTS.md) and repository [`AGENTS.md`](../AGENTS.md).
-2. **Current Architecture Specification**: [`docs/CURRENT_ARCHITECTURE.md`](CURRENT_ARCHITECTURE.md) and this document ([`docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md`](ARCHITECTURE_TAXONOMY_AND_TRUTH.md)).
+2. **Current Architecture Specification**: [`docs/architecture/CURRENT_ARCHITECTURE.md`](architecture/CURRENT_ARCHITECTURE.md) and this document ([`docs/ARCHITECTURE_TAXONOMY_AND_TRUTH.md`](ARCHITECTURE_TAXONOMY_AND_TRUTH.md)).
 3. **Active Schemas & Contracts**: [`.agents/contracts/`](../.agents/contracts/).
 4. **Target Architecture Roadmaps**: [`docs/architecture/TARGET_ARCHITECTURE.md`](architecture/TARGET_ARCHITECTURE.md).
 5. **Historical Milestone Reports**: [`docs/migration/`](migration/) and [`docs/evolution/`](evolution/) (historical context only).
