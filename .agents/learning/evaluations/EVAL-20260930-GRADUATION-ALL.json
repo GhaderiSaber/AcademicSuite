@@ -1,0 +1,54 @@
+{
+  "evaluation_id": "EVAL-20260930-GRADUATION-ALL",
+  "candidate_id": "GRADUATION-ALL",
+  "baseline_id": "PRE-GRADUATION",
+  "task_id": "TSK-2026-GRAD-COMPILE-ALL",
+  "dimensions": {
+    "correctness": 1.0,
+    "methodology": 1.0,
+    "statistical_validity": 1.0,
+    "evidence_grounding": 1.0,
+    "integrity": 1.0,
+    "robustness": 1.0,
+    "consistency": 1.0,
+    "efficiency": 1.0
+  },
+  "baseline_metrics": {},
+  "candidate_metrics": {},
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": [],
+    "fixes_original_mistake": true,
+    "task_id": "TSK-2026-GRAD-COMPILE-ALL"
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false,
+    "task_id": "TSK-2026-GRAD-COMPILE-ALL",
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "pass_rate": 1.0,
+    "generalizes_to_different_case": true,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 1,
+    "task_id": "TSK-2026-GRAD-COMPILE-ALL"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": ".agents/hooks/rules/enforced_invariants.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "evidence_type": "compilation_output"
+    }
+  ],
+  "verdict": "PASS",
+  "overall_verdict": "PASS",
+  "checks_failed": 0
+}

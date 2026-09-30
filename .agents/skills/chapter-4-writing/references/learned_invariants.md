@@ -112,3 +112,8 @@ The current local time is: 2026-09-25T19:49:25+03:30.
 - **Category**: Lesson
 - **Rule**: Always apply bidiVisual to tables, use single-line table captions, enforce APA 7 Latin abbreviations (M, SD, etc.) in table headers, parse and translate markdown formatting in Word cell elements, and prevent duplicate document headings.
 - **Enforcement**: results_auditor_guard.py
+
+### Invariant LSN-2026-OPENXML-PERSIAN-TYPOGRAPHY-AND-NORMALIZATION-001 (20260930_105850)
+- **Category**: Lesson
+- **Rule**: Modify python-docx compiler to inject w:hint="cs" and w:eastAsia into w:rFonts for Persian text. Enforce regex parsing for Latin acronym isolation. Sanitize markdown generation from AI clichés. Localize all numbers to Persian digits.
+- **Enforcement**: results_auditor_guard.py

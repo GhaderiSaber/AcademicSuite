@@ -1,0 +1,83 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20260930-CH4-TYPOGRAPHY-ARABIC-001",
+  "experience_id": "EXP-20260930-CH4-TYPOGRAPHY-ARABIC-001",
+  "project_id": "Mohtasham_Valiyanpur_PhD_Thesis",
+  "task_id": "TSK-2026-LEARN-TRJ-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-09-29T20:25:00.000000+00:00",
+      "description": "User issued critique regarding Chapter 4 formatting and content.",
+      "observable_input": {
+        "critique_text": "Markdown in DOCX, content drift, missing Intro/Summary."
+      },
+      "observable_output": {
+        "status": "FEEDBACK_LOGGED"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-29T20:45:10.000000+00:00",
+      "description": "Updated Chapter_4_Results.md with inline Latin abbreviations and clichés.",
+      "observable_input": {
+        "target_file": "03_deliverables/Chapter_4_Results.md"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "observed_defects": ["inline_latin", "ai_cliche"]
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-29T20:52:10.000000+00:00",
+      "description": "Compiled Chapter_4_Results.docx with missing w:hint=cs and fa-IR.",
+      "observable_input": {
+        "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py"
+      },
+      "observable_output": {
+        "status": "EXECUTED",
+        "exit_code": 0
+      }
+    }
+  ],
+  "tool_usages": [],
+  "skill_activations": [
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py",
+      "exit_code": 0,
+      "duration_seconds": 3.42
+    }
+  ],
+  "subagent_delegations": [],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20260929-INLINE-ENGLISH-ACRONYMS",
+      "decision_type": "TEXT_TERMINOLOGY_ENCODING",
+      "selected_option": "INSERT_RAW_ENGLISH_ACRONYMS_IN_PARENTHESES"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/Chapter_4_Results.md",
+      "sha256": "4b971a4f00b9913214a1a51c9b68db6d89953835f0535bbfe8c3a165cf5a8647",
+      "type": "master_chapter4_markdown"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Results.docx",
+      "sha256": "3fa3097b6a152341b528b122ddfaec0b6fdb120cce9d2e1c9e83ec4a6860d5b5",
+      "type": "master_chapter4_openxml_word"
+    }
+  ],
+  "validation_events": [],
+  "feedback": ["FDB-20260930-CH4-TYPOGRAPHY-ARABIC-001"],
+  "outcome": "FAILURE"
+}

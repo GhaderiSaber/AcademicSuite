@@ -39,6 +39,12 @@
     "persian-thesis-builder",
     "chapter-4-writing"
   ],
-  "graduation_status": "PENDING_GRADUATION",
-  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION"
+  "graduation_status": "GRADUATED",
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+  "graduated_at": "2026-09-30T10:58:50.718045+00:00",
+  "graduated_targets": [
+    ".agents/skills/chapter-4-writing/SKILL.md",
+    ".agents/skills/persian-thesis-builder/SKILL.md",
+    ".agents/skills/ai-academic-tone-polisher/SKILL.md"
+  ]
 }
