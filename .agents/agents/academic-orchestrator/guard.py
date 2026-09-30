@@ -13,9 +13,6 @@ Enforces:
    Requires interactive confirmation pause between multi-stage workflows.
 3. Directive 0 (Binary Honesty Protocol):
    First word must be unambiguous "Yes" or "No" on compliance questions.
-4. Directive 21 & 21.1 (Autonomous Learning & Remediation Cascade):
-   Prevents premature remediation prior to learning evaluation and invariant graduation.
-5. Directive 3 & 3.1 (Triad Deliverables & Chapter 5 Prose-Only Standards).
 """
 
 import sys
@@ -23,7 +20,9 @@ import os
 import re
 import json
 import argparse
-from typing import Dict, Any, List
+import zipfile
+import xml.etree.ElementTree as ET
+from typing import Dict, Any, List, Tuple
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", "..", ".."))
@@ -56,38 +55,24 @@ except ImportError:
             verify_chapter4_gate3_clearance
         )
     except ImportError:
-        def verify_pipeline_stage_prerequisites(s, w): return True, "Pipeline validator unavailable"
-        def verify_capability_routing(w, p, e=None, ws=None): return True, "Capability validator unavailable"
-        def find_files_matching(w, p): return []
-        def verify_chapter4_gate3_clearance(w): return True, "Gate 3 validator unavailable", []
-
+        def verify_pipeline_stage_prerequisites(s, w):
+            return True, "Pipeline validator unavailable"
+        def verify_capability_routing(w, p, e=None, ws=None):
+            return True, "Capability validator unavailable"
+        def find_files_matching(w, p):
+            return []
+        def verify_chapter4_gate3_clearance(w):
+            return True, "Gate 3 validator unavailable", []
 try:
     from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
 except ImportError:
     try:
         from critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
     except ImportError:
-        def is_meaningful_user_critique(user_text, **kw): return False, None
-        def extract_clean_user_message(raw_text): return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
-
-try:
-    from contracts.orchestrator_lifecycle_engine import (
-        is_user_critique_active,
-        is_validation_failure_active,
-        get_defect_and_learning_lifecycle_state,
-        audit_triad_artifacts_completion,
-        audit_chapter5_docx_tables,
-        audit_native_docx_footnotes
-    )
-except ImportError:
-    from orchestrator_lifecycle_engine import (
-        is_user_critique_active,
-        is_validation_failure_active,
-        get_defect_and_learning_lifecycle_state,
-        audit_triad_artifacts_completion,
-        audit_chapter5_docx_tables,
-        audit_native_docx_footnotes
-    )
+        def is_meaningful_user_critique(user_text, **kw):
+            return False, None
+        def extract_clean_user_message(raw_text):
+            return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
 
 FORBIDDEN_ORCHESTRATOR_TOOLS = {
     "run_command",
@@ -108,6 +93,265 @@ EXECUTION_SUBAGENTS = {
     "psychometric-expert",
     "results-auditor"
 }
+
+CRITIQUE_PATTERNS = [
+    r"\b(?:problem|error|bug|defect|issue|flaw|failure|discrepancy|mismatch)s?\b",
+    r"\b(?:fix|wrong|incorrect|flawed|missing|redo|re-run|re-execute|reject|rejected)\b",
+    r"\b(?:didn'?t|did\s+not)\s+(?:trigger|start|run|work|include|execute)\b",
+    r"\b(?:there|it)\s+(?:isn'?t|is\s+not|wasn'?t|was\s+not|aren'?t|are\s+not)\b",
+    r"\b(?:isn'?t|is\s+not|wasn'?t|was\s+not)\s+(?:the|what|any|working|correct)\b",
+    r"\bnot\s+(?:working|correct|right|accurate)\b",
+    r"اشتباه|اشتباهات|غلط|غلط‌ها|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا|خطاها|مشکل|مشکلات|ایراد|ایرادات|نواقص|نقص|جا افتاده|حذف شده|وجود ندارد|نیست"
+]
+
+
+def is_user_critique_active(records: List[Dict[str, Any]]) -> Tuple[bool, str, List[Dict[str, Any]]]:
+    last_user_idx = -1
+    user_content = ""
+    for idx, r in enumerate(records):
+        if r.get("type") == "USER_INPUT":
+            last_user_idx = idx
+            user_content = str(r.get("content", ""))
+    active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
+    clean_user = extract_clean_user_message(user_content)
+    is_critique, _ = is_meaningful_user_critique(
+        clean_user,
+        is_subagent=False,
+        caller="academic-orchestrator"
+    )
+    return is_critique, clean_user, active_records
+
+
+def is_validation_failure_active(records: List[Dict[str, Any]], workspaces: List[str] = None) -> Tuple[bool, str, List[Dict[str, Any]]]:
+    last_user_idx = -1
+    for idx, r in enumerate(records):
+        if r.get("type") == "USER_INPUT":
+            last_user_idx = idx
+    active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
+
+    # 1. Check active records in transcript for explicit validation failure
+    for rec in reversed(active_records):
+        t = rec.get("type", "")
+        src = rec.get("source", "")
+        if t in ("EPHEMERAL_MESSAGE",) or src in ("SYSTEM_SDK",):
+            continue
+        content = str(rec.get("content", ""))
+        # Skip source code file inspection and grep search false positives
+        if "File Path: `file:///" in content or "Total Lines:" in content:
+            continue
+        if content.strip().startswith('{"File":') and '"LineNumber":' in content:
+            continue
+
+        if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed", "validation cascade", "validation audit")):
+            has_fail = (
+                re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                or re.search(r'\bverdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                or re.search(r'\boverall_verdict\s+of\s+\*?\*?fail\*?\*?', content, re.IGNORECASE)
+                or re.search(r'checks_failed[\'":\s]+[1-9]\d*', content, re.IGNORECASE)
+                or ("STAGE VERIFICATION ADVISORY" in content and "FAIL" in content)
+            )
+            has_pass = (
+                re.search(r'\boverall_verdict[\'":\s]+pass\b', content, re.IGNORECASE)
+                or re.search(r'\boverall_verdict\s+of\s+\*?\*?pass\*?\*?', content, re.IGNORECASE)
+            ) and re.search(r'checks_failed[\'":\s]+0\b', content, re.IGNORECASE)
+
+            if has_pass:
+                return False, "", active_records
+            if has_fail:
+                summary = "Validation failed: overall_verdict is FAIL"
+                m_failed = re.search(r'(\d+)\s+total\s+`?checks_failed`?|checks_failed[\'":\s]+(\d+)', content, re.IGNORECASE)
+                if m_failed:
+                    num = m_failed.group(1) or m_failed.group(2)
+                    summary = f"Validation failed ({num} checks failed, overall_verdict: FAIL)"
+                return True, summary, active_records
+
+    # 2. Check on disk in workspaces
+    ws_list = workspaces or [ROOT_DIR]
+    for ws in ws_list:
+        if not ws or not os.path.exists(ws):
+            continue
+        candidate_paths = [
+            os.path.join(ws, "03_deliverables", "validation_report.json"),
+            os.path.join(ws, "validation_report.json")
+        ]
+        deliv_dir = os.path.join(ws, "03_deliverables")
+        if os.path.isdir(deliv_dir):
+            for sdir in os.listdir(deliv_dir):
+                cand = os.path.join(deliv_dir, sdir, "validation_report.json")
+                if os.path.exists(cand):
+                    candidate_paths.append(cand)
+        for cp in candidate_paths:
+            if os.path.exists(cp):
+                try:
+                    with open(cp, "r", encoding="utf-8") as vf:
+                        v_data = json.load(vf)
+                    verdict = str(v_data.get("overall_verdict", "")).strip().upper()
+                    ev_sum = v_data.get("evidence_summary", {})
+                    checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
+                    if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
+                        summary = f"Validation report '{os.path.basename(cp)}' overall_verdict is FAIL ({checks_failed} checks failed)"
+                        return True, summary, active_records
+                except Exception:
+                    pass
+
+    return False, "", active_records
+
+
+def get_defect_and_learning_lifecycle_state(
+    records: List[Dict[str, Any]],
+    workspaces: Optional[List[str]] = None
+) -> Tuple[str, List[str], str]:
+    """
+    Evaluates global multi-turn conversation state machine across turn boundaries.
+    
+    States:
+    - 'NO_DEFECT': Zero active critique or validation failure.
+    - 'LEARNING_REQUIRED': Critique or validation failure is active and has not completed evaluation.
+    - 'PENDING_GRADUATION': Evaluation-agent ran, but candidates remain ungraduated on disk.
+    - 'REMEDIATION_PHASE': Learning cascade completed and candidates are graduated. Delivery
+      workers (academic-writer, data-agent, statistics-agent) are AUTHORIZED to recompile deliverables.
+    """
+    latest_crit_idx = -1
+    latest_crit_txt = ""
+    latest_val_idx = -1
+    latest_val_txt = ""
+    latest_eval_idx = -1
+
+    for idx, r in enumerate(records):
+        t = r.get("type", "")
+        src = r.get("source", "")
+        content = str(r.get("content", ""))
+
+        if t == "USER_INPUT":
+            clean = extract_clean_user_message(content)
+            is_crit, _ = is_meaningful_user_critique(clean, is_subagent=False, caller="academic-orchestrator")
+            if is_crit:
+                latest_crit_idx = idx
+                latest_crit_txt = clean
+
+        # Check for evaluation-agent invocation in this record
+        for tc in r.get("tool_calls", []):
+            if (tc.get("name") or "").lower() == "invoke_subagent":
+                subs = tc.get("args", {}).get("Subagents", [])
+                if isinstance(subs, str):
+                    try:
+                        subs = json.loads(subs, strict=False)
+                    except Exception:
+                        subs = []
+                for s in (subs if isinstance(subs, list) else []):
+                    if isinstance(s, dict) and "evaluation-agent" in (s.get("TypeName") or s.get("Role") or "").lower():
+                        latest_eval_idx = idx
+
+        # Check for validation failures in transcript (skip ephemerals, system SDK prompt injections, code previews)
+        if t in ("EPHEMERAL_MESSAGE",) or src in ("SYSTEM_SDK",):
+            continue
+        if "File Path: `file:///" in content or "Total Lines:" in content:
+            continue
+        if content.strip().startswith('{"File":') and '"LineNumber":' in content:
+            continue
+
+        if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed", "validation cascade", "validation audit")):
+            has_fail = (
+                re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                or re.search(r'\bverdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                or re.search(r'\boverall_verdict\s+of\s+\*?\*?fail\*?\*?', content, re.IGNORECASE)
+                or re.search(r'checks_failed[\'":\s]+[1-9]\d*', content, re.IGNORECASE)
+                or ("STAGE VERIFICATION ADVISORY" in content and "FAIL" in content)
+            )
+            has_pass = (
+                re.search(r'\boverall_verdict[\'":\s]+pass\b', content, re.IGNORECASE)
+                or re.search(r'\boverall_verdict\s+of\s+\*?\*?pass\*?\*?', content, re.IGNORECASE)
+            ) and re.search(r'checks_failed[\'":\s]+0\b', content, re.IGNORECASE)
+
+            if has_pass:
+                latest_val_idx = -1
+                latest_val_txt = ""
+            elif has_fail:
+                latest_val_idx = idx
+                summary = "Validation failed: overall_verdict is FAIL"
+                m_failed = re.search(r'(\d+)\s+total\s+`?checks_failed`?|checks_failed[\'":\s]+(\d+)', content, re.IGNORECASE)
+                if m_failed:
+                    num = m_failed.group(1) or m_failed.group(2)
+                    summary = f"Validation failed ({num} checks failed, overall_verdict: FAIL)"
+                latest_val_txt = summary
+
+    # Check on-disk validation failure
+    disk_val_fail = False
+    disk_val_summary = ""
+    ws_list = workspaces or [ROOT_DIR]
+    for ws in ws_list:
+        if not ws or not os.path.exists(ws):
+            continue
+        candidate_paths = [
+            os.path.join(ws, "03_deliverables", "validation_report.json"),
+            os.path.join(ws, "validation_report.json")
+        ]
+        deliv_dir = os.path.join(ws, "03_deliverables")
+        if os.path.isdir(deliv_dir):
+            for sdir in os.listdir(deliv_dir):
+                cand = os.path.join(deliv_dir, sdir, "validation_report.json")
+                if os.path.exists(cand):
+                    candidate_paths.append(cand)
+        for cp in candidate_paths:
+            if os.path.exists(cp):
+                try:
+                    with open(cp, "r", encoding="utf-8") as vf:
+                        v_data = json.load(vf)
+                    verdict = str(v_data.get("overall_verdict", "")).strip().upper()
+                    ev_sum = v_data.get("evidence_summary", {})
+                    checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
+                    if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
+                        disk_val_fail = True
+                        disk_val_summary = f"Validation report '{os.path.basename(cp)}' overall_verdict is FAIL ({checks_failed} checks failed)"
+                        break
+                except Exception:
+                    pass
+        if disk_val_fail:
+            break
+
+    # Determine defect index
+    defect_idx = -1
+    defect_desc = ""
+    defect_label = ""
+    if latest_crit_idx >= 0:
+        defect_idx = latest_crit_idx
+        defect_desc = latest_crit_txt
+        defect_label = "Critique"
+    if latest_val_idx >= 0 and latest_val_idx >= defect_idx:
+        defect_idx = latest_val_idx
+        defect_desc = latest_val_txt
+        defect_label = "Validation Failure"
+    if disk_val_fail and defect_idx < 0:
+        defect_idx = 0
+        defect_desc = disk_val_summary
+        defect_label = "Validation Failure"
+
+    if defect_idx < 0 and not disk_val_fail:
+        return "NO_DEFECT", [], "", ""
+
+    # Check pending candidates on disk
+    pending_cands = []
+    cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
+    if os.path.isdir(cand_dir):
+        for cf in os.listdir(cand_dir):
+            if cf.endswith(".json") and not cf.startswith("."):
+                try:
+                    with open(os.path.join(cand_dir, cf), "r", encoding="utf-8") as f_c:
+                        cd = json.load(f_c)
+                    c_st = str(cd.get("status", "")).upper()
+                    g_st = str(cd.get("graduation_status", "")).upper()
+                    if c_st in ("STAGED", "EVALUATED", "EVALUATION_PASSED") and g_st != "GRADUATED":
+                        pending_cands.append(cd.get("candidate_id") or cf)
+                except Exception:
+                    pass
+
+    # Compare evaluation timing with defect occurrence
+    if latest_eval_idx >= 0 and latest_eval_idx >= defect_idx:
+        if pending_cands:
+            return "PENDING_GRADUATION", pending_cands, defect_desc, defect_label
+        return "REMEDIATION_PHASE", [], defect_desc, defect_label
+
+    return "LEARNING_REQUIRED", [], defect_desc, defect_label
 
 
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -163,9 +407,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 with open(t_target, "r", encoding="utf-8") as tf:
                                     t_records = [json.loads(tl.strip()) for tl in tf if tl.strip()]
                                 workspaces = payload.get("workspacePaths", [ROOT_DIR])
-                                state, pending_cands, defect_desc, defect_label = get_defect_and_learning_lifecycle_state(
-                                    t_records, workspaces, ROOT_DIR
-                                )
+                                state, pending_cands, defect_desc, defect_label = get_defect_and_learning_lifecycle_state(t_records, workspaces)
                                 defect_type = "User critique" if defect_label == "Critique" else "Validation failure"
                                 if state == "LEARNING_REQUIRED":
                                     msg = (
@@ -174,7 +416,10 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                         f"'{target_type}' before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
                                         f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
                                     )
-                                    return {"decision": "deny", "reason": msg}
+                                    return {
+                                        "decision": "deny",
+                                        "reason": msg
+                                    }
                                 elif state == "PENDING_GRADUATION":
                                     msg = (
                                         f"CONSTITUTIONAL VIOLATION (Directive 21.1 — Premature Remediation Without Invariant Graduation): "
@@ -182,7 +427,12 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                         f"The autonomous learning pipeline must compile candidates via 'academic_graduation_compiler.py compile-all' "
                                         f"before invoking delivery worker '{target_type}'."
                                     )
-                                    return {"decision": "deny", "reason": msg}
+                                    return {
+                                        "decision": "deny",
+                                        "reason": msg
+                                    }
+                                # If state == "REMEDIATION_PHASE" or "NO_DEFECT":
+                                # Delivery worker is AUTHORIZED for remediation!
                             except Exception:
                                 pass
 
@@ -204,11 +454,14 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                         )
                     }
 
-                # 3. Capability Routing Verification & Gate Clearance
+                # 3. Capability Routing Verification & Gate Clearance (Directive 19 / Directive 12 / Directive 3)
                 workspaces = payload.get("workspacePaths")
                 ok_cap, cap_reason = verify_capability_routing(target_type, prompt, env, workspaces)
                 if not ok_cap:
-                    return {"decision": "deny", "reason": cap_reason}
+                    return {
+                        "decision": "deny",
+                        "reason": cap_reason
+                    }
 
                 # 4. Directive 19 / Directive 2: Statistical Immobility Invariant for Delegation to Academic-Writer
                 if target_type == "academic-writer":
@@ -226,7 +479,10 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 f"Academic-Writer is strictly 'The Voice' and produces ONLY scholarly narratives (.docx, .md). "
                                 f"All numerical and analytical JSON files are immutable outputs of Phase 4A–4C and belong strictly under 'inputs' as read-only anchors."
                             )
-                            return {"decision": "deny", "reason": msg}
+                            return {
+                                "decision": "deny",
+                                "reason": msg
+                            }
 
                 # 5. Directive 3: Pipeline Stage Prerequisite Invariant (Zero Skipping)
                 stage_label = ""
@@ -238,12 +494,16 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 workspaces = payload.get("workspacePaths", [ROOT_DIR])
                 ok_prereq, prereq_reason = verify_pipeline_stage_prerequisites(stage_label, workspaces)
                 if not ok_prereq:
-                    return {"decision": "deny", "reason": prereq_reason}
+                    return {
+                        "decision": "deny",
+                        "reason": prereq_reason
+                    }
 
     return {"decision": "allow"}
 
 
 def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
+    # Check if there is a transcript available to verify Directive 0 or stage completion
     transcript_path = payload.get("transcriptPath")
     if not transcript_path:
         try:
@@ -264,12 +524,10 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
             if lines:
                 last_record = json.loads(lines[-1])
 
-                # Directive 21 & Directive 21.1: Continuous Learning Cascade Gate
+                # Directive 21 & Directive 21.1: Continuous Learning Cascade Gate on Critique or Validation Failure
                 all_records = [json.loads(l) for l in lines]
                 workspaces = payload.get("workspacePaths", [ROOT_DIR])
-                state, pending_cands, defect_desc, defect_label = get_defect_and_learning_lifecycle_state(
-                    all_records, workspaces, ROOT_DIR
-                )
+                state, pending_cands, defect_desc, defect_label = get_defect_and_learning_lifecycle_state(all_records, workspaces)
 
                 if state == "LEARNING_REQUIRED":
                     msg = (
@@ -281,7 +539,10 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         f"1. trajectory-analyzer, 2. behavior-analyst, 3. knowledge-curator, 4. skill-evolver, 5. evaluation-agent.\n"
                         f"Please invoke 'trajectory-analyzer' now."
                     )
-                    return {"decision": "continue", "reason": msg}
+                    return {
+                        "decision": "continue",
+                        "reason": msg
+                    }
                 elif state == "PENDING_GRADUATION":
                     msg = (
                         f"CONSTITUTIONAL VIOLATION (Directive 21 — Incomplete Invariant Graduation):\n"
@@ -289,18 +550,21 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         f"The autonomous learning pipeline must compile candidates via 'academic_graduation_compiler.py compile-all' "
                         f"before concluding this turn."
                     )
-                    return {"decision": "continue", "reason": msg}
+                    return {
+                        "decision": "continue",
+                        "reason": msg
+                    }
 
-                # Directive 0: Binary Honesty Protocol on Compliance Questions
+                # If this was a planner response answering a compliance question, verify Directive 0
                 user_question = ""
                 for rec_line in reversed(lines[:-1]):
                     rec = json.loads(rec_line)
                     if rec.get("type") == "USER_INPUT":
                         user_question = rec.get("content", "")
                         break
-
+                
                 is_compliance_q = any(
-                    k in user_question.lower()
+                    k in user_question.lower() 
                     for k in ("did you check", "did you follow", "did you use", "have you checked", "is it compliant")
                 )
                 if is_compliance_q:
@@ -312,7 +576,10 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                             "Compliance inquiries must begin with an unambiguous 'Yes' or 'No' as the very first word. "
                             "State the unvarnished factual answer before proposing explanations or remedies."
                         )
-                        return {"decision": "continue", "reason": msg}
+                        return {
+                            "decision": "continue",
+                            "reason": msg
+                        }
 
                 # Directive 13: Anti-Sycophancy Invariant
                 raw_model_text = (last_record.get("content") or "").strip()
@@ -329,7 +596,10 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                             "Sycophantic conversational openings ('Great question!', 'You are absolutely right!') are strictly forbidden. "
                             "Academic communication must remain strictly objective, neutral, and fact-based."
                         )
-                        return {"decision": "continue", "reason": msg}
+                        return {
+                            "decision": "continue",
+                            "reason": msg
+                        }
 
                 # Directive 6: Strict English Orchestration Dialogue
                 clean_text = re.sub(r'```[\s\S]*?```', '', raw_model_text)
@@ -344,7 +614,10 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         "Persian is strictly reserved for academic deliverables (.docx, .md, .json) and client messages.\n"
                         "Please translate your conversational response to English before concluding."
                     )
-                    return {"decision": "continue", "reason": msg}
+                    return {
+                        "decision": "continue",
+                        "reason": msg
+                    }
 
                 # Directive 15: Temporal Reality Anchor (2026 / 1405 SH)
                 anachronism_match = re.search(
@@ -361,9 +634,13 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         f"The operative calendar year is 2026 (1405 SH). Recent empirical literature window is 2021–2026.\n"
                         f"Never refer to 2024 or 2025 as the current or future year."
                     )
-                    return {"decision": "continue", "reason": msg}
+                    return {
+                        "decision": "continue",
+                        "reason": msg
+                    }
 
                 # Directive 11: Interactive Stage-Gate Protocol
+                # If subagents were invoked in this turn, verify that orchestrator halted and requested user confirmation
                 records = [json.loads(l) for l in lines]
                 had_delegation = any(
                     any((tc.get("name") or "").lower() == "invoke_subagent" for tc in r.get("tool_calls", []))
@@ -380,24 +657,114 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                             "Following subagent execution, the Academic Orchestrator must report what was done, "
                             "what will be done next, and halt to request user confirmation before proceeding."
                         )
-                        return {"decision": "continue", "reason": msg}
+                        return {
+                            "decision": "continue",
+                            "reason": msg
+                        }
 
-                    # Directive 3: Triad Artifact Completion Audit
+                    # Directive 3: Triad Artifact Completion Audit on Stage Conclusion
                     workspaces = payload.get("workspacePaths", [ROOT_DIR])
-                    ok_triad, triad_msg = audit_triad_artifacts_completion(records, workspaces)
-                    if not ok_triad:
-                        return {"decision": "continue", "reason": triad_msg}
+                    for r in records:
+                        for tc in r.get("tool_calls", []):
+                            if (tc.get("name") or "").lower() == "invoke_subagent":
+                                sub_list = tc.get("args", {}).get("Subagents", [])
+                                if isinstance(sub_list, str):
+                                    try: sub_list = json.loads(sub_list, strict=False)
+                                    except: sub_list = []
+                                if isinstance(sub_list, list):
+                                    for sub in sub_list:
+                                        if not isinstance(sub, dict):
+                                            continue
+                                        p_text = sub.get("Prompt", "")
+                                        is_cde, _, env = validate_delegation_prompt(p_text, expected_worker=sub.get("TypeName"))
+                                        if env and env.get("required_artifacts"):
+                                            req_arts = env.get("required_artifacts", [])
+                                            missing_arts = []
+                                            empty_arts = []
+                                            for art in req_arts:
+                                                art_name = os.path.basename(art)
+                                                found = find_files_matching(workspaces, re.escape(art_name))
+                                                if not found:
+                                                    missing_arts.append(art)
+                                                elif all(os.path.getsize(f) == 0 for f in found):
+                                                    empty_arts.append(art)
+                                            if missing_arts or empty_arts:
+                                                msg = (
+                                                    f"CONSTITUTIONAL VIOLATION (Directive 3 — Triad Artifact Invariant):\n"
+                                                    f"Stage declared completion, but required deliverables are missing or empty on disk.\n"
+                                                    f"Missing artifacts: {missing_arts}\n"
+                                                    f"Empty (0-byte) artifacts: {empty_arts}\n"
+                                                    f"Every micro-stage must generate the complete synchronized triad on disk (.docx + .md + .json)."
+                                                )
+                                                return {
+                                                    "decision": "continue",
+                                                    "reason": msg
+                                                }
 
-                    # Directive 3.1: Chapter 5 Table Ban Dual Gate (Scoped to 03_deliverables/)
+                    # Directive 3.1: Chapter 5 Table Ban Dual Gate
                     if any(k in model_text for k in ("chapter 5", "chapter_5", "ch5", "فصل پنجم", "فصل ۵", "discussion")):
-                        ok_ch5, ch5_msg = audit_chapter5_docx_tables(workspaces)
-                        if not ok_ch5:
-                            return {"decision": "continue", "reason": ch5_msg}
+                        for ws in workspaces:
+                            if not os.path.exists(ws):
+                                continue
+                            cand_dirs = [os.path.join(ws, "03_deliverables")] if os.path.isdir(os.path.join(ws, "03_deliverables")) else [ws]
+                            for c_dir in cand_dirs:
+                                for root, _, files in os.walk(c_dir):
+                                    rel = os.path.relpath(root, ws) if ws else root
+                                    if any(p in ("01_raw_inputs", "02_analysis_code", "04_references_and_lit", "scratch") or p.startswith(".") for p in rel.split(os.sep)):
+                                        continue
+                                    for f in files:
+                                        if f.lower().endswith(".docx") and any(k in f.lower() for k in ("chapter_5", "chapter5", "ch5", "discussion")):
+                                            fpath = os.path.join(root, f)
+                                            try:
+                                                with zipfile.ZipFile(fpath, "r") as zf:
+                                                    if "word/document.xml" in zf.namelist():
+                                                        root_xml = ET.fromstring(zf.read("word/document.xml"))
+                                                        tables = [elem for elem in root_xml.iter() if elem.tag.endswith("}tbl") or elem.tag == "tbl"]
+                                                        if tables:
+                                                            msg = (
+                                                                f"CONSTITUTIONAL VIOLATION (Directive 3.1 — Chapter 5 Prose-Only Invariant):\n"
+                                                                f"Chapter 5 Word deliverable '{f}' contains {len(tables)} table (<w:tbl>) element(s).\n"
+                                                                f"Chapter 5 must strictly contain ZERO tables (100% continuous narrative prose). "
+                                                                f"All statistical tables belong exclusively in Chapter 4."
+                                                            )
+                                                            return {
+                                                                "decision": "continue",
+                                                                "reason": msg
+                                                            }
+                                            except Exception:
+                                                pass
 
-                    # Directive 5: Native OpenXML Footnotes Verification (Scoped to 03_deliverables/)
-                    ok_fn, fn_msg = audit_native_docx_footnotes(workspaces)
-                    if not ok_fn:
-                        return {"decision": "continue", "reason": fn_msg}
+                    # Directive 5: Native OpenXML Footnotes Verification
+                    for ws in workspaces:
+                        if not os.path.exists(ws):
+                            continue
+                        cand_dirs = [os.path.join(ws, "03_deliverables")] if os.path.isdir(os.path.join(ws, "03_deliverables")) else [ws]
+                        for c_dir in cand_dirs:
+                            for root, _, files in os.walk(c_dir):
+                                rel = os.path.relpath(root, ws) if ws else root
+                                if any(p in ("01_raw_inputs", "02_analysis_code", "04_references_and_lit", "scratch") or p.startswith(".") for p in rel.split(os.sep)):
+                                    continue
+                                for f in files:
+                                    if f.lower().endswith(".docx"):
+                                        fpath = os.path.join(root, f)
+                                        try:
+                                            with zipfile.ZipFile(fpath, "r") as zf:
+                                                if "word/document.xml" in zf.namelist():
+                                                    doc_xml = zf.read("word/document.xml")
+                                                    if b"<w:footnoteReference" in doc_xml:
+                                                        if "word/footnotes.xml" not in zf.namelist():
+                                                            msg = (
+                                                                f"CONSTITUTIONAL VIOLATION (Directive 5 — Native OpenXML Footnotes):\n"
+                                                                f"Word deliverable '{f}' contains footnote references (<w:footnoteReference>), "
+                                                                f"but 'word/footnotes.xml' is missing from the OpenXML zip archive.\n"
+                                                                f"Footnotes must be compiled as true native OpenXML elements."
+                                                            )
+                                                            return {
+                                                                "decision": "continue",
+                                                                "reason": msg
+                                                            }
+                                        except Exception:
+                                            pass
         except Exception:
             pass
 
