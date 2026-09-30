@@ -1462,8 +1462,14 @@ class SafetyHooks:
 
         # 4. Indirect Execution Prevention: Dynamic Subagent Elevation Guard (define_subagent)
         if name == "define_subagent":
-            # Antigravity 2.18.1: Subagents are permitted write tools for authorized workspace tasks
-            pass
+            if args.get("enable_write_tools") or args.get("enable_subagent_tools"):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        "CONSTITUTIONAL VIOLATION (Phase 18 - Indirect Execution Guard): "
+                        "Dynamic elevation of write or subagent privileges via define_subagent is strictly prohibited."
+                    )
+                }
 
         # 5. Worker Return Payload & Formal Closure Guard (send_message / Phase 21 & Phase 22)
         if name == "send_message":

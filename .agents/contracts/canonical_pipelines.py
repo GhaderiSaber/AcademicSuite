@@ -751,7 +751,7 @@ CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
         ],
         "keyword_patterns": [
             r"\bthesis-integrity-auditor\b",
-            r"\bvalidation_report\.json\b",
+            r"\b(?:generate|compile|produce|create|execute)\s+(?:the\s+)?validation_report\.json\b",
             r"\badversarial verification\b",
             r"\bmsai anomaly audit\b",
             r"\bcross-chapter consistency audit\b",
@@ -829,6 +829,14 @@ def verify_capability_routing(
         if not matched_script:
             for kw in kw_pats:
                 if re.search(kw, text_to_check, re.IGNORECASE):
+                    # Remediation exemption: authoring workers fixing defects reported in audits/validation
+                    is_remediation = bool(re.search(
+                        r"\b(?:fix|fixing|resolve|resolving|remediate|remediating|remedy|correct|correcting|address|addressing|defect|defects|failed checks|failed check|issues|findings|revising|repair|clean up)\b",
+                        text_to_check,
+                        re.IGNORECASE
+                    ))
+                    if cap_key == "adversarial_validation_and_audit" and is_remediation:
+                        continue
                     matched_kw = kw
                     break
 

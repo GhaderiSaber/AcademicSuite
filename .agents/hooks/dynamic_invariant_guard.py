@@ -526,6 +526,9 @@ class DynamicInvariantGuard:
             if isinstance(sub_desc, dict):
                 caller_clean = (sub_desc.get("typeName") or sub_desc.get("role") or "").strip().lower()
 
+        if not caller_clean or caller_clean in ("default", "main", "unspecified"):
+            return {"decision": "allow"}
+
         # Learning subagents (benchmarking/evaluation) and quality auditor subagents (audit reporting)
         # do not author thesis deliverables in 03_deliverables/ and must never be blocked by deliverable defects.
         if is_learning_subagent(caller_clean) or is_auditor_agent(caller_clean):
@@ -544,16 +547,22 @@ class DynamicInvariantGuard:
                     cand_dirs.append(cand_p)
 
         if not cand_dirs:
-            workspaces = payload.get("workspacePaths", [ROOT_DIR]) or [ROOT_DIR]
-            for ws in workspaces:
-                if ws and os.path.isdir(ws):
-                    cand = os.path.join(ws, "03_deliverables")
-                    if os.path.isdir(cand) and cand not in cand_dirs:
-                        cand_dirs.append(cand)
-
-            cwd_cand = os.path.join(os.getcwd(), "03_deliverables")
-            if os.path.isdir(cwd_cand) and cwd_cand not in cand_dirs:
-                cand_dirs.append(cwd_cand)
+            workspaces = payload.get("workspacePaths")
+            if workspaces:
+                for ws in workspaces:
+                    if ws and os.path.isdir(ws):
+                        cand = os.path.join(ws, "03_deliverables")
+                        if os.path.isdir(cand) and cand not in cand_dirs:
+                            cand_dirs.append(cand)
+            else:
+                for ws in [ROOT_DIR]:
+                    if ws and os.path.isdir(ws):
+                        cand = os.path.join(ws, "03_deliverables")
+                        if os.path.isdir(cand) and cand not in cand_dirs:
+                            cand_dirs.append(cand)
+                cwd_cand = os.path.join(os.getcwd(), "03_deliverables")
+                if os.path.isdir(cwd_cand) and cwd_cand not in cand_dirs:
+                    cand_dirs.append(cwd_cand)
 
         if not cand_dirs:
             return {"decision": "allow"}

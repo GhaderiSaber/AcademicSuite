@@ -255,7 +255,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
         # Directive 19 / Directive 2: Statistical Immobility Invariant
         # Academic-Writer cannot overwrite canonical statistical results files in 03_deliverables
         target_norm = target_path.strip().lower().replace("\\", "/")
-        if "03_deliverables" in target_norm and any(k in os.path.basename(target_norm) for k in ("stats_results", "statistical_results", "analysis_results")):
+        if "03_deliverables" in target_norm and (target_norm.endswith(".json") or any(k in os.path.basename(target_norm) for k in ("stats_results", "statistical_results", "analysis_results"))):
             return {
                 "decision": "deny",
                 "reason": (
