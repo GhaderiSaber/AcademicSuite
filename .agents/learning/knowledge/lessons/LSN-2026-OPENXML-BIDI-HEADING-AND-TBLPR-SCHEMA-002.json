@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-OPENXML-BIDI-HEADING-AND-TBLPR-SCHEMA-002",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20260930-VAL-FAIL-CH4-ALIGNMENT-003",
+  "diagnosis": {
+    "what_happened": "Left alignment inversion on headings, ragged narrative paragraphs, untranslated acronyms, tblPr sequence violations, and false Chapter 5 detection.",
+    "behavior_caused_outcome": "Injecting <w:jc w:val='right'/> under <w:bidi w:val='1'/> caused trailing-edge flip inversion. Missing <w:jc w:val='both'/> left text ragged. Using append() put bidiVisual after tblW. Regex for 'فصل پنجم' caught bridge headings.",
+    "what_should_have_happened": "Omit w:jc completely for RTL headings. Apply w:jc w:val='both' to narrative paragraphs. Use tblPr[0].insert(0, ...) for bidiVisual. Sanitize acronyms. Constrain auditor regex to chapter titles.",
+    "rationale_why": "OpenXML BiDi Golden Rule states explicit right alignment reverses trailing edges under RTL. CT_TblPr demands bidiVisual precedes tblW."
+  },
+  "desired_behavior": "Strictly adhere to the OpenXML BiDi Golden Rule: omit <w:jc> for right alignment under RTL bidi. Strip any existing w:jc from RTL headings (this resolves contradiction with and supersedes LSN-2026-EXPLICIT-RIGHT-ALIGNMENT). Enforce w:jc w:val='both' on narrative body paragraphs. Use tblPr.insert(0, ...) for bidiVisual before tblW. Perform preamble table acronym sanitization pass. Refine auditor regex for Chapter 5.",
+  "generalization": "OpenXML Bidi requires zero right-alignment tags for RTL to avoid trailing-edge flips, strict element ordering in tblPr, explicit justification for narrative prose, and semantic checks for chapter bounds.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Validation failed with 5 checks failed",
+    "threshold_value": "Zero validation errors",
+    "supporting_report_ids": [
+      "BAN-20260930-VAL-FAIL-CH4-ALIGNMENT-003"
+    ],
+    "supporting_artifact_paths": [
+      ".agents/learning/experience/BAN-20260930-VAL-FAIL-CH4-ALIGNMENT-003.md"
+    ]
+  },
+  "related_skills": [
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-30T12:07:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "statistics-agent"
+  ]
+}

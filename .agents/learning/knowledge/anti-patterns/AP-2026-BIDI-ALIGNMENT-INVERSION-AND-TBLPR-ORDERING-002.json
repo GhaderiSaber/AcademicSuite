@@ -1,0 +1,32 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-BIDI-ALIGNMENT-INVERSION-AND-TBLPR-ORDERING-002",
+  "category": "execution",
+  "defective_pattern": "Injecting <w:jc w:val='right'/> alongside <w:bidi w:val='1'/>, omitting w:jc w:val='both' for narrative paragraphs, using append() for bidiVisual, leaving acronyms in English in preamble copies, and using brittle heading regex for chapter detection.",
+  "why_defective": "Violates OpenXML BiDi Golden Rule (causes trailing-edge flip inversion). Violates CT_TblPr schema ordering. Fails formatting standards (ragged text, English acronyms).",
+  "observed_symptoms": [
+    "Headings aligned left instead of right.",
+    "Narrative paragraphs not justified (missing w:jc w:val='both').",
+    "Invalid OpenXML table schema due to w:bidiVisual positioned after w:tblW.",
+    "Untranslated English acronyms in preamble tables.",
+    "Validator misclassifying Chapter 4 as Chapter 5."
+  ],
+  "corrective_remedy": "Strip w:jc elements from RTL headings/titles when w:bidi=1. Enforce w:jc w:val='both' on narrative. Sanitize acronyms. Insert bidiVisual at the beginning of tblPr using insert(0, ...). Differentiate chapter titles from internal section headings.",
+  "detection_heuristic": {
+    "trigger_rule": "w:jc w:val='right' injected by scripts",
+    "regex_patterns": [
+      "(?m)<w:jc\\s+w:val=\"right\"\\s*/>"
+    ],
+    "pattern": "(?m)<w:jc\\s+w:val=\"right\"\\s*/>",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "statistics-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-30T12:07:00Z"
+}
