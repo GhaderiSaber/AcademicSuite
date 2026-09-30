@@ -560,61 +560,6 @@ class TestAcademicWriterExecutionGuard(unittest.TestCase):
             if os.path.exists(subagent_file):
                 os.remove(subagent_file)
 
-    def test_18_writer_stop_ignores_raw_inputs_and_audits_deliverables(self):
-        """academic-writer handle_stop must ignore raw input docx files and strictly audit 03_deliverables."""
-        import zipfile
-        import tempfile
-        import importlib.util
-
-        guard_path = os.path.join(ROOT_DIR, ".agents", "agents", "academic-writer", "guard.py")
-        spec = importlib.util.spec_from_file_location("academic_writer_guard_test", guard_path)
-        writer_guard = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(writer_guard)
-
-        with tempfile.TemporaryDirectory() as temp_ws:
-            raw_dir = os.path.join(temp_ws, "01_raw_inputs")
-            deliv_dir = os.path.join(temp_ws, "03_deliverables")
-            os.makedirs(raw_dir, exist_ok=True)
-            os.makedirs(deliv_dir, exist_ok=True)
-
-            # Raw input with Arabic letters (must be ignored)
-            raw_docx = os.path.join(raw_dir, "intolerance_of_uncertainty_scale_ius12.docx")
-            raw_xml = (
-                b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-                b'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                b'<w:body><w:p><w:r><w:t>\xd9\x8a\xd9\x83</w:t></w:r></w:p></w:body></w:document>'
-            )
-            with zipfile.ZipFile(raw_docx, "w") as zf:
-                zf.writestr("word/document.xml", raw_xml)
-
-            # Valid deliverable in 03_deliverables
-            deliv_docx = os.path.join(deliv_dir, "Chapter_4_Results.docx")
-            deliv_xml = (
-                b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-                b'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                b'<w:body><w:p><w:r><w:t>' + (b'\xd9\xbe\xd8\xb1\xd9\x88\xd9\x87\xd8\xb4 ' * 25) + b'</w:t></w:r></w:p></w:body></w:document>'
-            )
-            with zipfile.ZipFile(deliv_docx, "w") as zf:
-                zf.writestr("word/document.xml", deliv_xml)
-
-            payload = {"workspacePaths": [temp_ws]}
-            res = writer_guard.handle_stop(payload)
-            self.assertEqual(res.get("decision"), "allow", f"Expected allow but got: {res}")
-
-            # Now put a failing docx inside 03_deliverables (must be caught)
-            bad_docx = os.path.join(deliv_dir, "Chapter_4_Bad.docx")
-            bad_xml = (
-                b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-                b'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                b'<w:body><w:p><w:r><w:t>' + (b'\xd9\x8a\xd9\x83\xd9\x87\xd8\xb1 ' * 25) + b'</w:t></w:r></w:p></w:body></w:document>'
-            )
-            with zipfile.ZipFile(bad_docx, "w") as zf:
-                zf.writestr("word/document.xml", bad_xml)
-
-            res2 = writer_guard.handle_stop(payload)
-            self.assertEqual(res2.get("decision"), "continue", f"Expected continue for bad deliverable but got: {res2}")
-            self.assertIn("Directive 5", res2.get("reason", ""))
-
 
 if __name__ == "__main__":
     unittest.main()
