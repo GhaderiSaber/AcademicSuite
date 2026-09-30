@@ -8,9 +8,29 @@
 !.github/
 !webapp/
 !projects/
+!projects/**
 !docs/
 !evals/
 !evaluations
+
+# Allow 4-Tier Academic Thesis & Project Structure (Directives 6, 8, 23)
+!01_raw_inputs/
+01_raw_inputs/*.xlsx
+01_raw_inputs/*.csv
+01_raw_inputs/*.sav
+01_raw_inputs/*.dta
+!01_raw_inputs/.gitkeep
+!01_raw_inputs/data_dictionary.*
+!01_raw_inputs/codebook.*
+
+!02_analysis_code/
+!02_analysis_code/**
+
+!03_deliverables/
+!03_deliverables/**
+
+!04_references_and_lit/
+!04_references_and_lit/**
 !.agents/learning/
 !.agents/learning/**
 .agents/learning/evolution.lock
@@ -78,5 +98,5 @@ tests/**/academic-state/current_state.json
 *.session-journal
 projects/**/raw_burnout_data.xlsx
 projects/**/learning/
-validation_report.json
-03_validation_report.json
+/validation_report.json
+/03_validation_report.json
