@@ -937,7 +937,7 @@ class LearningHooks:
         # Resolve transcript path for context analysis
         transcript_path = resolve_transcript_path(payload)
 
-        is_orchestrator = caller in ("academic-orchestrator", "orchestrator")
+        is_orchestrator = caller in ("academic-orchestrator", "orchestrator", "unspecified", "unknown", "")
         if not is_orchestrator:
             # Check if user message explicitly requests academic orchestration or thesis pipelines
             u_msg = str(payload.get("userMessage") or payload.get("prompt") or payload.get("message") or "")

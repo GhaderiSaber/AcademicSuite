@@ -346,7 +346,7 @@ class IntegrityHooks:
                 if not has_md: missing.append(f"{pfx}.md")
                 if missing and (has_md or has_json or has_docx):
                     return False, (
-                        f"HARD HOOK ENFORCEMENT (Directive 3 - Micro-Stage Dyad Invariant): "
+                        f"HARD HOOK ENFORCEMENT (Directive 3 - Triad Artifact Invariant / Micro-Stage Dyad Invariant): "
                         f"Stage '{pfx}' in '{s_dir}' has incomplete physical artifacts. Missing: {missing}. "
                         f"Micro-stages require a synchronized dyad: structured data (.json) and scholarly narrative (.md)."
                     )

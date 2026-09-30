@@ -411,17 +411,22 @@ class DynamicInvariantGuard:
     @classmethod
     def evaluate_pre_tool_use(cls, caller: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         """Evaluates active mechanical rules during PreToolUse."""
-        if is_main_agent_developer(payload) or payload.get("track") == 1:
+        caller_clean = (caller or payload.get("agentName") or payload.get("agent") or payload.get("caller") or "").strip().lower()
+        if not caller_clean:
+            sub_desc = payload.get("subagentDescriptor") or {}
+            if isinstance(sub_desc, dict):
+                caller_clean = (sub_desc.get("typeName") or sub_desc.get("role") or "").strip().lower()
+
+        payload_eval = dict(payload)
+        if caller_clean and "caller" not in payload_eval:
+            payload_eval["caller"] = caller_clean
+
+        if is_main_agent_developer(payload_eval) or payload.get("track") == 1:
             return {"decision": "allow"}
 
         tool_call = payload.get("toolCall", {})
         tool_name = (tool_call.get("name") or payload.get("tool_name") or "").strip().lower()
         args = tool_call.get("args") or payload.get("args") or {}
-        caller_clean = (caller or payload.get("agentName") or payload.get("agent") or "").strip().lower()
-        if not caller_clean:
-            sub_desc = payload.get("subagentDescriptor") or {}
-            if isinstance(sub_desc, dict):
-                caller_clean = (sub_desc.get("typeName") or sub_desc.get("role") or "").strip().lower()
 
         target_file = cls._extract_target_file(args)
         content = cls._extract_content(args)

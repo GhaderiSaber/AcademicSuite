@@ -42,7 +42,5 @@
   "graduated_targets": [
     "${WORKSPACE_ROOT}/.agents/skills/chapter-4-writing/SKILL.md",
     "${WORKSPACE_ROOT}/.agents/skills/statistical-data-analyst/SKILL.md"
-  ],
-  "reusable": false,
-  "updated_at": "2026-09-30T18:21:00.778041+00:00"
+  ]
 }

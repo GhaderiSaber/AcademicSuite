@@ -1,0 +1,11 @@
+{
+  "status": "SUCCESS",
+  "results": {
+    "metric": 1.0
+  },
+  "artifacts": [
+    "output.docx",
+    "output.md",
+    "output.json"
+  ]
+}

@@ -67,7 +67,7 @@ def dispatch_track1_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
 
     if event_upper == "PostToolUse":
         emit_hook_seen(payload, event="PostToolUse")
-        return {"decision": "allow"}
+        return {}
 
     if event_upper == "PreInvocation":
         return {}

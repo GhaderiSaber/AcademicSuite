@@ -372,6 +372,49 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
             )
         }
 
+    # Anti-Polling Circuit Breaker on manage_subagents
+    if tool_name == "manage_subagents":
+        action = (args.get("Action") or "").lower().strip()
+        if action == "list":
+            transcript_path = payload.get("transcriptPath")
+            if not transcript_path:
+                try:
+                    from contracts.hook_identity_contract import resolve_transcript_path
+                    transcript_path = resolve_transcript_path(payload)
+                except Exception:
+                    transcript_path = None
+            if transcript_path:
+                t_target = transcript_path
+                if os.path.basename(transcript_path) == "transcript.jsonl":
+                    full_cand = os.path.join(os.path.dirname(transcript_path), "transcript_full.jsonl")
+                    if os.path.isfile(full_cand) and os.path.getsize(full_cand) > 0:
+                        t_target = full_cand
+                if os.path.exists(t_target):
+                    try:
+                        with open(t_target, "r", encoding="utf-8") as tf:
+                            t_records = [json.loads(tl.strip()) for tl in tf if tl.strip()]
+                        consecutive_lists = 0
+                        for r in reversed(t_records):
+                            calls = [tc.get("name") for tc in r.get("tool_calls", [])]
+                            if "manage_subagents" in calls:
+                                consecutive_lists += 1
+                            elif r.get("type") in ("EPHEMERAL_MESSAGE", "GENERIC"):
+                                continue
+                            else:
+                                break
+                        if consecutive_lists >= 3:
+                            return {
+                                "decision": "deny",
+                                "reason": (
+                                    "CONSTITUTIONAL SAFEGUARD (Anti-Polling Circuit Breaker): "
+                                    "Repeatedly polling manage_subagents in a tight loop is prohibited to prevent quota exhaustion. "
+                                    "Antigravity subagents notify automatically upon completion. "
+                                    "Please stop calling tools and wait for the subagent's message."
+                                )
+                            }
+                    except Exception:
+                        pass
+
     # Directive 19 / Directive 12: Contractual Delegation Envelope & Capability Routing
     if tool_name == "invoke_subagent":
         subagents = args.get("Subagents", [])
@@ -524,12 +567,37 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
             if lines:
                 last_record = json.loads(lines[-1])
 
-                # Directive 21 & Directive 21.1: Continuous Learning Cascade Gate on Critique or Validation Failure
+                # CRITICAL RESILIENCE GATE:
+                # If last record is NOT a planner response (e.g. ERROR_MESSAGE, SYSTEM_MESSAGE, GENERIC tool output),
+                # allow stop immediately. Never block system errors, API quota limits, or interruptions from stopping!
+                if last_record.get("type") != "PLANNER_RESPONSE":
+                    return {"decision": "allow"}
+
                 all_records = [json.loads(l) for l in lines]
+                last_user_idx = -1
+                for idx, r in enumerate(all_records):
+                    if r.get("type") == "USER_INPUT":
+                        last_user_idx = idx
+                active_records = all_records[last_user_idx + 1:] if last_user_idx >= 0 else all_records
+
+                # Check if learning subagents were already invoked in the active turn
+                learning_agents = ("trajectory-analyzer", "behavior-analyst", "knowledge-curator", "skill-evolver", "evaluation-agent")
+                learning_invoked_in_turn = any(
+                    any(
+                        any(la in (s.get("TypeName") or s.get("Role") or "").lower() for la in learning_agents)
+                        for s in (tc.get("args", {}).get("Subagents", []) if isinstance(tc.get("args", {}).get("Subagents", []), list) else [])
+                        if isinstance(s, dict)
+                    )
+                    for r in active_records
+                    for tc in r.get("tool_calls", [])
+                    if (tc.get("name") or "").lower() == "invoke_subagent"
+                )
+
+                # Directive 21 & Directive 21.1: Continuous Learning Cascade Gate on Critique or Validation Failure
                 workspaces = payload.get("workspacePaths", [ROOT_DIR])
                 state, pending_cands, defect_desc, defect_label = get_defect_and_learning_lifecycle_state(all_records, workspaces)
 
-                if state == "LEARNING_REQUIRED":
+                if state == "LEARNING_REQUIRED" and not learning_invoked_in_turn:
                     msg = (
                         f"CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 — Uninvoked Learning Pipeline on {defect_label}):\n"
                         f"A defect was detected ('{defect_desc[:80]}...'), but the continuous learning cascade "
@@ -640,13 +708,16 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     }
 
                 # Directive 11: Interactive Stage-Gate Protocol
-                # If subagents were invoked in this turn, verify that orchestrator halted and requested user confirmation
-                records = [json.loads(l) for l in lines]
+                # If subagents were invoked in this turn and orchestrator is speaking to user, verify report and confirmation
                 had_delegation = any(
                     any((tc.get("name") or "").lower() == "invoke_subagent" for tc in r.get("tool_calls", []))
-                    for r in records
+                    for r in active_records
                 )
-                if had_delegation:
+                last_calls = [tc.get("name") for tc in last_record.get("tool_calls", [])]
+                is_yielding_to_subagent = "invoke_subagent" in last_calls or "manage_subagents" in last_calls
+                has_text_response = bool((last_record.get("content") or "").strip())
+
+                if had_delegation and has_text_response and not is_yielding_to_subagent:
                     model_text = (last_record.get("content") or "").lower()
                     has_confirmation = any(k in model_text for k in ("confirm", "approve", "proceed", "shall we", "تایید", "ادامه", "pause", "wait", "halt"))
                     has_stage_report = any(k in model_text for k in ("what was done", "completed", "executed", "stage", "انجام شد", "مرحله"))
@@ -664,7 +735,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
 
                     # Directive 3: Triad Artifact Completion Audit on Stage Conclusion
                     workspaces = payload.get("workspacePaths", [ROOT_DIR])
-                    for r in records:
+                    for r in active_records:
                         for tc in r.get("tool_calls", []):
                             if (tc.get("name") or "").lower() == "invoke_subagent":
                                 sub_list = tc.get("args", {}).get("Subagents", [])

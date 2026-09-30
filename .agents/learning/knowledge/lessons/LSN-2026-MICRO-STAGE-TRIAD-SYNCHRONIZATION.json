@@ -37,7 +37,5 @@
   "target_agents": [
     "academic-orchestrator",
     "validation-agent"
-  ],
-  "reusable": false,
-  "updated_at": "2026-09-30T18:21:00.778041+00:00"
+  ]
 }
