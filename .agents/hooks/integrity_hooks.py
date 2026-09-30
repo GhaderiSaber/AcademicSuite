@@ -27,19 +27,50 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 try:
-    from contracts.hook_identity_contract import resolve_transcript_path
+    from contracts.hook_identity_contract import resolve_transcript_path, resolve_hook_identity
     from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
 except ImportError:
     try:
-        from .contracts.hook_identity_contract import resolve_transcript_path
+        from .contracts.hook_identity_contract import resolve_transcript_path, resolve_hook_identity
         from .contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
     except ImportError:
         def resolve_transcript_path(payload):
             return payload.get("transcriptPath") if isinstance(payload, dict) else None
+        def resolve_hook_identity(payload):
+            return None
         def is_meaningful_user_critique(user_text, **kw):
             return False, None
         def extract_clean_user_message(raw_text):
             return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
+
+
+def resolve_caller(payload: Dict[str, Any]) -> str:
+    """Resolves caller identity from Antigravity lifecycle hook payloads."""
+    caller = ""
+    if resolve_hook_identity:
+        try:
+            ident = resolve_hook_identity(payload)
+            if ident:
+                if ident.is_main_developer:
+                    return "default"
+                if ident.agent_name and ident.agent_name != "unknown":
+                    return ident.agent_name.lower().strip()
+        except Exception:
+            pass
+    if not caller:
+        sub_desc = payload.get("subagentDescriptor") or {}
+        if isinstance(sub_desc, dict):
+            caller = sub_desc.get("typeName") or sub_desc.get("role") or ""
+    if not caller:
+        caller = (
+            payload.get("agent_name") or
+            payload.get("agentName") or
+            payload.get("agent") or
+            payload.get("caller") or
+            payload.get("role") or
+            payload.get("agentRole") or ""
+        )
+    return str(caller).lower().strip()
 
 
 def load_transcript(transcript_path: Optional[str]) -> List[Dict[str, Any]]:
@@ -663,7 +694,7 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
-    def verify_post_analysis(workspaces: List[str]) -> Tuple[bool, str]:
+    def verify_post_analysis(workspaces: List[str], caller: str = "") -> Tuple[bool, str]:
         """
         Secondary Enforcement (Post-Analysis Validation Gate):
         Enforces Directive 22 (Fail-Closed Mechanical Validation Gate Invariant):
@@ -677,7 +708,24 @@ class IntegrityHooks:
         4. checks_blocked is 0 (if present in evidence_summary).
         5. failed_checks list is empty (if present).
         6. All individual check results are PASS or SKIP (if results list is present).
+
+        EXEMPTION FOR AUDITOR AGENTS & MAIN DEVELOPER:
+        Auditor subagents (validation-agent, results-auditor, statistical-auditor,
+        evidence-auditor, academic-challenger, final-judge, thesis-integrity-auditor)
+        audit deliverables and produce defect dossiers. When an auditor records a
+        legitimate FAIL report on disk, it MUST NOT be blocked from concluding its turn
+        to report findings to the orchestrator or user.
+        Similarly, Track 1 Main Developer is exempt from academic delivery gates.
         """
+        caller_clean = (caller or "").lower().strip()
+        is_auditor = any(k in caller_clean for k in (
+            "validation", "auditor", "challenger", "judge", "inspector"
+        ))
+        is_main_dev = caller_clean in (
+            "default", "main", "developer", "coding", "cli-developer", "ide-developer"
+        )
+        if is_auditor or is_main_dev:
+            return True, ""
         active_stage_dirs = []
         for ws in workspaces:
             for rel_root in ("projects", "03_deliverables", "."):
@@ -1309,6 +1357,7 @@ class IntegrityHooks:
         8. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
         """
         workspaces = payload.get("workspacePaths", [])
+        caller = resolve_caller(payload)
 
         # 1. Standalone Python Orchestrator Prohibition (Directive 12.1)
         for ws in workspaces:
@@ -1350,7 +1399,7 @@ class IntegrityHooks:
             return {"decision": "continue", "reason": reason}
 
         # 6. Post-Analysis Validation Reports
-        ok, reason = IntegrityHooks.verify_post_analysis(workspaces)
+        ok, reason = IntegrityHooks.verify_post_analysis(workspaces, caller=caller)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
@@ -1387,7 +1436,19 @@ class IntegrityHooks:
         """
         Advisory verification after model tool turn:
         Injects advisory if active stage validation report is FAIL.
+        Suppressed for auditor agents and main developer.
         """
+        caller = resolve_caller(payload)
+        caller_clean = caller.lower().strip()
+        is_auditor = any(k in caller_clean for k in (
+            "validation", "auditor", "challenger", "judge", "inspector"
+        ))
+        is_main_dev = caller_clean in (
+            "default", "main", "developer", "coding", "cli-developer", "ide-developer"
+        )
+        if is_auditor or is_main_dev:
+            return {"injectSteps": [], "terminationBehavior": ""}
+
         workspaces = payload.get("workspacePaths", [])
         inject_steps = []
         for ws in workspaces:

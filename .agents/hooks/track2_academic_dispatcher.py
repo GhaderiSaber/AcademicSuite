@@ -250,10 +250,16 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
         return pre_res
 
     elif event_upper == "PostInvocation":
+        caller = resolve_agent_caller(payload)
+        if caller and "caller" not in payload:
+            payload["caller"] = caller
         post_res = IntegrityHooks.handle_post_invocation(payload)
         return post_res
 
     elif event_upper == "Stop":
+        caller = resolve_agent_caller(payload)
+        if caller and "caller" not in payload:
+            payload["caller"] = caller
         # Class B: Integrity Hooks (Triad artifact check, manifest check, validation gate, honesty protocol)
         stop_res = IntegrityHooks.handle_stop(payload)
         if stop_res.get("decision") == "continue":

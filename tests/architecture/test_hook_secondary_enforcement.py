@@ -716,6 +716,65 @@ class TestHookSecondaryEnforcement(unittest.TestCase):
         self.assertEqual(res.get("decision"), "continue")
         self.assertIn("Post-Analysis Validation Gate", res.get("reason", ""))
 
+    def test_verify_post_analysis_exempts_auditor_agent_on_fail_report(self):
+        """Auditors (validation-agent, results-auditor, etc.) must not be blocked when reporting FAIL."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "FAIL", "checks_failed": 3}, f)
+
+        # Auditor callers must be allowed to return their defect reports
+        for auditor_caller in ["validation-agent", "results-auditor", "statistical-auditor", "final-judge", "academic-challenger"]:
+            ok, reason = IntegrityHooks.verify_post_analysis([self.workspace], caller=auditor_caller)
+            self.assertTrue(ok, f"Auditor '{auditor_caller}' should be exempt from fail-blocking but got: {reason}")
+            self.assertEqual(reason, "")
+
+    def test_verify_post_analysis_exempts_main_developer_on_fail_report(self):
+        """Track 1 Main Developer must not be blocked by academic validation gates."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "FAIL", "checks_failed": 3}, f)
+
+        for dev_caller in ["default", "main", "developer", "ide-developer"]:
+            ok, reason = IntegrityHooks.verify_post_analysis([self.workspace], caller=dev_caller)
+            self.assertTrue(ok, f"Main developer '{dev_caller}' should be exempt from fail-blocking but got: {reason}")
+            self.assertEqual(reason, "")
+
+    def test_verify_post_analysis_strictly_blocks_orchestrator_and_workers_on_fail_report(self):
+        """Orchestrator, delivery workers, and unspecified callers must fail closed on FAIL reports."""
+        stage_dir = os.path.join(self.workspace, "projects", "study1", "01_demographics")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "FAIL", "checks_failed": 2}, f)
+
+        for non_auditor in ["academic-orchestrator", "academic-writer", "statistics-agent", "data-agent", ""]:
+            ok, reason = IntegrityHooks.verify_post_analysis([self.workspace], caller=non_auditor)
+            self.assertFalse(ok, f"Caller '{non_auditor}' must be blocked on FAIL reports")
+            self.assertIn("Post-Analysis Validation Gate", reason)
+
+    def test_handle_stop_exempts_validation_subagent(self):
+        """handle_stop allows validation-agent to stop after recording FAIL report."""
+        stage_dir = os.path.join(self.workspace, "03_deliverables")
+        os.makedirs(stage_dir, exist_ok=True)
+        vr_path = os.path.join(stage_dir, "validation_report.json")
+        with open(vr_path, "w", encoding="utf-8") as f:
+            json.dump({"overall_verdict": "FAIL", "checks_failed": 4}, f)
+
+        # validation-agent caller must be allowed
+        payload = {"workspacePaths": [self.workspace], "caller": "validation-agent"}
+        res = IntegrityHooks.handle_stop(payload)
+        self.assertEqual(res.get("decision"), "allow")
+
+        # orchestrator caller must be blocked
+        payload_orch = {"workspacePaths": [self.workspace], "caller": "academic-orchestrator"}
+        res_orch = IntegrityHooks.handle_stop(payload_orch)
+        self.assertEqual(res_orch.get("decision"), "continue")
+        self.assertIn("Post-Analysis Validation Gate", res_orch.get("reason", ""))
+
 
 if __name__ == "__main__":
     unittest.main()

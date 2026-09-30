@@ -164,15 +164,72 @@ class AcademicChapterAuditor:
 
         return self._build_report(report_id, target_artifacts)
 
+    def _detect_stage(self, text_sample: str = "") -> str:
+        """
+        Detects whether the target deliverable belongs to Chapter 4 (Findings/Results),
+        Chapter 5 (Discussion/Conclusion), or another stage.
+
+        Priority order:
+        1. File path / name signals (highest precedence).
+        2. Heading / Title text signals.
+        3. Position-weighted body text signals (handling closing transition bridges).
+        """
+        paths = [p for p in (self.docx_path, self.md_path, self.json_path) if p]
+        basenames = " ".join(os.path.basename(p) for p in paths).lower()
+        full_paths = " ".join(paths).lower()
+
+        # Path-based patterns for Chapter 4 and Chapter 5
+        ch4_pattern = re.compile(
+            r'(?:chapter[-_ ]?0?4|ch0?4|stage[-_ ]?0?4|\b04[-_]|\b4[-_]results|\b4[-_]\d|chapter[-_ ]?iv)\b',
+            re.IGNORECASE
+        )
+        ch5_pattern = re.compile(
+            r'(?:chapter[-_ ]?0?5|ch0?5|stage[-_ ]?0?5|\b05[-_]|\b5[-_]discussion|\b5[-_]\d|chapter[-_ ]?v)\b',
+            re.IGNORECASE
+        )
+
+        ch4_in_path = bool(ch4_pattern.search(full_paths) or any(k in basenames for k in ["ch4", "stage_4", "stage_04", "4_results", "chapter_4"]))
+        ch5_in_path = bool(ch5_pattern.search(full_paths) or any(k in basenames for k in ["ch5", "stage_5", "stage_05", "5_discussion", "chapter_5"]))
+
+        # 1. Definite path signals take absolute precedence
+        if ch4_in_path and not ch5_in_path:
+            return "chapter_4"
+        if ch5_in_path and not ch4_in_path:
+            return "chapter_5"
+
+        # 2. Text-based detection
+        text = text_sample or ""
+        pos_ch4 = text.find("فصل چهارم")
+        pos_ch5 = text.find("فصل پنجم")
+
+        if pos_ch4 != -1 and pos_ch5 == -1:
+            return "chapter_4"
+        if pos_ch5 != -1 and pos_ch4 == -1:
+            return "chapter_5"
+        if pos_ch4 != -1 and pos_ch5 != -1:
+            # Primary chapter appears earlier in the document; transition bridge appears at the end
+            return "chapter_4" if pos_ch4 < pos_ch5 else "chapter_5"
+
+        # Check hypothesis vs discussion keywords
+        has_hypo = "فرضیه" in text or "hypothesis" in basenames
+        has_disc = ("بحث و نتیجه‌گیری" in text) or ("بحث و نتیجه گیری" in text) or ("discussion" in basenames)
+
+        if has_hypo and not has_disc:
+            return "chapter_4"
+        if has_disc and not has_hypo:
+            return "chapter_5"
+        if has_hypo and has_disc:
+            p_hypo = text.find("فرضیه")
+            p_disc = text.find("بحث و نتیجه")
+            return "chapter_4" if p_hypo < p_disc else "chapter_5"
+
+        return "other"
+
     def _is_chapter_4_stage(self, text_sample: str = "") -> bool:
-        combined = (self.docx_path or "") + " " + (self.md_path or "") + " " + (self.json_path or "") + " " + text_sample
-        combined_lower = combined.lower()
-        return any(k in combined_lower for k in ["ch4", "stage_4", "stage_04", "4_", "hypothesis", "findings"]) or ("فصل چهارم" in combined) or ("فرضیه" in combined)
+        return self._detect_stage(text_sample) == "chapter_4"
 
     def _is_chapter_5_stage(self, text_sample: str = "") -> bool:
-        combined = (self.docx_path or "") + " " + (self.md_path or "") + " " + (self.json_path or "") + " " + text_sample
-        combined_lower = combined.lower()
-        return any(k in combined_lower for k in ["ch5", "stage_5", "stage_05", "5_", "discussion"]) or ("فصل پنجم" in combined) or ("بحث و نتیجه‌گیری" in combined)
+        return self._detect_stage(text_sample) == "chapter_5"
 
     def _audit_tables(self, root: ET.Element):
         """Dimension 1 & 4: APA 7 Table Borders & BiDi Directionality."""

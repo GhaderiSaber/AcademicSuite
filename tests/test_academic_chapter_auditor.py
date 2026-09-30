@@ -336,6 +336,69 @@ class TestAcademicChapterAuditor(unittest.TestCase):
         self.assertTrue("negative variance" in errs)
         self.assertTrue("Warning suppression detected" in errs)
 
-if __name__ == "__main__":
+    def test_10_chapter_4_with_transition_bridge_to_chapter_5_passes(self):
+        """
+        Verifies that a Chapter 4 deliverable containing tables and a closing transitional
+        bridge referencing Chapter 5 is correctly recognized as Chapter 4 and does NOT trigger
+        the Chapter 5 prose-only invariant (CHK-CHAPTER5-PROSE-ONLY).
+        """
+        body_xml = """
+        <w:p>
+          <w:pPr><w:jc w:val="both"/><w:bidi w:val="1"/></w:pPr>
+          <w:r><w:t>فصل چهارم: یافته‌های پژوهش. در این بخش از پژوهش حاضر، به بررسی تجربی فرضیه پژوهش پرداخته شده است. فرضیه پژوهش حاضر تصریح می‌کند که اجرای برنامه مداخله آموزشی و رفتاری موجب افزایش معنادار تاب‌آوری و بهبود سلامت روان در میان آزمودنی‌های گروه آزمایش در مقایسه با گروه کنترل خواهد شد. جهت آزمون این فرضیه، متغیرهای مداخله و تاب‌آوری با استفاده از ابزارهای استاندارد اندازه‌گیری شده و پیش‌فرض‌های آماری به طور کامل مورد ارزیابی قرار گرفتند. همان‌گونه که در جدول ۱-۴ مشخص شده است، یافته‌های به دست آمده از تحلیل آماری نشان داد که تفاوت میانگین‌های پس‌آزمون پس از کنترل اثر پیش‌آزمون کاملاً معنادار است. شاخص‌های آماری گزارش شده در متن بیانگر آن است که مقدار آماره محاسبه شده برابر با ۴.۲۵ و سطح معناداری کمتر از یک هزارم (t = 4.25, p &lt; ۰.۰۰۱) به دست آمده است. با توجه به اینکه سطح معناداری به دست آمده به مراتب کوچک‌تر از آستانه خطای پنج صدم است، فرضیه پژوهش با اطمینان نود و پنج درصد مورد تأیید قرار گرفت و فرض صفر با قاطعیت رد شد. این یافته مؤید اثربخشی ساختاریافته مداخله در ارتقای شاخص‌های بهزیستی روان‌شناختی است. در فصل پنجم، این یافته‌ها به تفصیل به بحث و نتیجه‌گیری گذاشته خواهند شد و سازوکارهای نظری و کاربردهای بالینی آن در انطباق با پیشینه پژوهش‌های پیشین به دقت تبیین می‌گردند.</w:t></w:r>
+        </w:p>
+        <w:p>
+          <w:pPr><w:bidi w:val="1"/></w:pPr>
+          <w:r>
+            <w:rPr><w:rFonts w:ascii="B Nazanin" w:cs="B Nazanin"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr>
+            <w:t>جدول ۱-۴. نتایج آزمون فرضیه پژوهش</w:t>
+          </w:r>
+        </w:p>
+        <w:tbl>
+          <w:tblPr>
+            <w:bidiVisual/>
+            <w:tblBorders>
+              <w:top w:val="single" w:sz="6"/>
+              <w:bottom w:val="single" w:sz="6"/>
+              <w:left w:val="none"/><w:right w:val="none"/>
+              <w:insideV w:val="none"/><w:insideH w:val="none"/>
+            </w:tblBorders>
+          </w:tblPr>
+          <w:tr>
+            <w:tc><w:p><w:pPr><w:jc w:val="both"/><w:bidi w:val="1"/></w:pPr><w:r><w:t>شاخص</w:t></w:r></w:p></w:tc>
+            <w:tc><w:p><w:pPr><w:jc w:val="both"/><w:bidi w:val="1"/></w:pPr><w:r><w:t>آماره t</w:t></w:r></w:p></w:tc>
+            <w:tc><w:p><w:pPr><w:jc w:val="both"/><w:bidi w:val="1"/></w:pPr><w:r><w:t>سطح معناداری (p)</w:t></w:r></w:p></w:tc>
+          </w:tr>
+          <w:tr>
+            <w:tc><w:p><w:pPr><w:jc w:val="both"/><w:bidi w:val="1"/></w:pPr><w:r><w:t>اثر مداخله</w:t></w:r></w:p></w:tc>
+            <w:tc><w:p><w:pPr><w:jc w:val="both"/><w:bidi w:val="1"/></w:pPr><w:r><w:t>۴.۲۵</w:t></w:r></w:p></w:tc>
+            <w:tc><w:p><w:pPr><w:jc w:val="both"/><w:bidi w:val="1"/></w:pPr><w:r><w:t>۰.۰۰۱ > p</w:t></w:r></w:p></w:tc>
+          </w:tr>
+        </w:tbl>
+        <w:p>
+          <w:pPr><w:jc w:val="both"/><w:bidi w:val="1"/></w:pPr>
+          <w:r><w:t>یادداشت: تمامی تحلیل‌ها در سطح خطای ۰.۰۵ انجام شدند.</w:t></w:r>
+        </w:p>
+        """
+        docx_path = os.path.join(self.temp_dir, "Chapter_4_Results.docx")
+        create_mock_docx(docx_path, body_xml)
 
+        json_path = os.path.join(self.temp_dir, "Chapter_4_Results.json")
+        with open(json_path, "w", encoding="utf-8") as jf:
+            json.dump({"t_stat": 4.25, "p_value": 0.001, "verdict": "CONFIRMED"}, jf, indent=2)
+
+        auditor = AcademicChapterAuditor(docx_path=docx_path, json_path=json_path)
+
+        # Stage classification verification
+        self.assertTrue(auditor._is_chapter_4_stage())
+        self.assertFalse(auditor._is_chapter_5_stage())
+
+        report = auditor.audit()
+
+        # Must NOT fail with CHK-CHAPTER5-PROSE-ONLY
+        failed_checks = [r["check_id"] for r in report["results"] if r["verdict"] == "FAIL"]
+        self.assertNotIn("CHK-CHAPTER5-PROSE-ONLY", failed_checks)
+        self.assertEqual(report["overall_verdict"], "PASS")
+
+if __name__ == "__main__":
     unittest.main()
