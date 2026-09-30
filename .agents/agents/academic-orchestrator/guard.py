@@ -690,11 +690,11 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                     empty_arts.append(art)
                                             if missing_arts or empty_arts:
                                                 msg = (
-                                                    f"CONSTITUTIONAL VIOLATION (Directive 3 — Triad Artifact Invariant):\n"
+                                                    f"CONSTITUTIONAL VIOLATION (Directive 3 — Artifact-Gated Stage Execution):\n"
                                                     f"Stage declared completion, but required deliverables are missing or empty on disk.\n"
                                                     f"Missing artifacts: {missing_arts}\n"
                                                     f"Empty (0-byte) artifacts: {empty_arts}\n"
-                                                    f"Every micro-stage must generate the complete synchronized triad on disk (.docx + .md + .json)."
+                                                    f"All declared stage deliverables must exist non-empty on disk before completion can be certified."
                                                 )
                                                 return {
                                                     "decision": "continue",

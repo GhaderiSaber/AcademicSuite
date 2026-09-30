@@ -965,7 +965,7 @@ class LearningHooks:
         reminder = (
             "🚨 CONSTITUTIONAL ENFORCEMENT ACTIVE (Directives 0, 3, 6, 11, 12.1 & 20):\n"
             "- Directive 0 (Binary Honesty Protocol): Compliance queries MUST begin with 'Yes' or 'No'. Multi-agent claims strictly require invoke_subagent calls.\n"
-            "- Directive 3 (Triad Invariant & Micro-Stages): Monolithic drafting prohibited. Every section and individual hypothesis must generate a synchronized triad (.docx, .md, .json) before assembly.\n"
+            "- Directive 3 (Artifact-Gated Stage Execution & Two-Tier Drafting): Monolithic drafting prohibited. Tier 1 micro-stages enforce the analytical dyad (.json + .md; .docx optional); Tier 2 consolidation enforces the monograph (.docx + .md); learning tasks require verified .json/.md artifacts.\n"
             "- Directive 6 (English Primary Interaction): All conversational interaction, planning, coordination, and reporting strictly in English. Persian is reserved strictly for academic deliverable content.\n"
             "- Directive 11 (Interactive Stage-Gate Protocol): Emit Stage Completion Report (what was done, what is next) and HALT for user confirmation before advancing.\n"
             "- Directive 12.1 (Sole Orchestrator Mandate): Antigravity is the sole agent conductor via invoke_subagent. Python execution loops/emulators strictly prohibited.\n"
