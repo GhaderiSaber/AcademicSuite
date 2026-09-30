@@ -78,5 +78,3 @@ tests/**/academic-state/current_state.json
 *.session-journal
 projects/**/raw_burnout_data.xlsx
 projects/**/learning/
-validation_report.json
-03_validation_report.json
