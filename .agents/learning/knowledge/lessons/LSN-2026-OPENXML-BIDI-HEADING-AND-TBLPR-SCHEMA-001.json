@@ -1,0 +1,39 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-OPENXML-BIDI-HEADING-AND-TBLPR-SCHEMA-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20260930-VAL-FAIL-CH4-ALIGNMENT-001",
+  "diagnosis": {
+    "what_happened": "Headings aligned left, tables had schema errors, and acronyms remained English.",
+    "behavior_caused_outcome": "Injecting w:jc w:val='right' with w:bidi=1 caused left alignment inversion. bidiVisual appended at the end of tblPr violated schema. Narrative lacked w:jc w:val='both'. Acronyms were skipped.",
+    "what_should_have_happened": "Omit w:jc when w:bidi=1. Apply w:jc w:val='both' to narrative text. Translate acronyms. Insert bidiVisual as first child of tblPr.",
+    "rationale_why": "OpenXML specifies bidi logic where explicit right alignment reverses trailing edges. Strict schema specifies bidiVisual must precede tblW."
+  },
+  "desired_behavior": "Do not inject <w:jc w:val='right'/> under <w:bidi w:val='1'/>; strip existing ones (Supersedes LSN-2026-EXPLICIT-RIGHT-ALIGNMENT). Use tblPr.insert(0, bidi) for bidiVisual. Ensure narrative paragraphs have <w:jc w:val='both'/>. Translate English acronyms (e.g. IUS, SCI) in tables.",
+  "generalization": "OpenXML Bidi requires zero right-alignment tags for RTL, specific element ordering, and explicit justification for narrative.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Validation failed with 5 checks failed",
+    "threshold_value": "Zero validation errors",
+    "supporting_report_ids": [
+      "BAN-20260930-VAL-FAIL-CH4-ALIGNMENT-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-30T12:05:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "academic-writer"
+  ]
+}
