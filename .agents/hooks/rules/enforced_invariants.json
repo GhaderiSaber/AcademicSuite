@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-29T20:22:26.714933+00:00",
+  "updated_at": "2026-09-30T08:35:42.933526+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1368,6 +1368,27 @@
       "remedy": "Insert bidiVisual before tblW in tblPr instead of appending.",
       "enabled": true,
       "updated_at": "2026-09-29T20:21:54.050088+00:00"
+    },
+    "CAND-20260930-BIDI-ALIGNMENT-AND-TBLPR-002": {
+      "item_id": "CAND-20260930-BIDI-ALIGNMENT-AND-TBLPR-002",
+      "category": "Learned Mechanical Rule",
+      "statement": "Do not inject explicit right alignment alongside w:bidi=1 in OpenXML; it reverses alignment to left.",
+      "target_agents": [
+        "*"
+      ],
+      "target_skills": [
+        "CHAPTER4",
+        "OPENXML_BIDI"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\\\.py",
+      "check_type": "substring_ban",
+      "pattern": "<w:jc w:val=\\\"right\\\"/>",
+      "violation_message": "Do not inject explicit right alignment alongside w:bidi=1 in OpenXML; it reverses alignment to left.",
+      "remedy": "Omit the w:jc node entirely when using w:bidi=1.",
+      "enabled": true,
+      "updated_at": "2026-09-30T08:35:42.933501+00:00"
     }
   }
 }
