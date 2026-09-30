@@ -1,0 +1,44 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-OPENXML-PERSIAN-TYPOGRAPHY-AND-NORMALIZATION-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "AUDITOR_FAILURE",
+  "source_experience_id": "BAN-20260930-CH4-TYPOGRAPHY-ARABIC-001",
+  "diagnosis": {
+    "what_happened": "Chapter 4 compilation to docx resulted in Arabic Naskh fallback for Persian text, unisolated Latin acronyms, AI clichés in text, and unlocalized numerals.",
+    "behavior_caused_outcome": "Missing OpenXML attributes (w:hint=\"cs\", w:eastAsia) in python-docx generator and lack of regex parsing/prompt sanitization in drafting stage.",
+    "what_should_have_happened": "Persian text should be explicitly typed with OpenXML attributes preventing fallback, Latin acronyms isolated in Times New Roman, numerals converted to Persian, and text sanitized from AI clichés.",
+    "rationale_why": "Proper typographic standards are required for Persian academic documents to ensure visual consistency and adherence to university formatting guidelines."
+  },
+  "desired_behavior": "Modify python-docx compiler to inject w:hint=\"cs\" and w:eastAsia into w:rFonts for Persian text. Enforce regex parsing for Latin acronym isolation. Sanitize markdown generation from AI clichés. Localize all numbers to Persian digits.",
+  "generalization": "All OpenXML generation for Persian academic texts must explicitly define language hints to prevent Arabic fallback, and enforce strict typography for Latin scripts and numerals.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "OPENXML_ARABIC_FALLBACK",
+    "observed_value": "Missing w:hint=\"cs\" and unisolated Latin text",
+    "threshold_value": "Strict OpenXML attribute presence and text sanitization",
+    "supporting_report_ids": [
+      "BAN-20260930-CH4-TYPOGRAPHY-ARABIC-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "persian-thesis-builder",
+    "ai-academic-tone-polisher"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-09-30T07:42:53Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-thesis-builder",
+    "chapter-4-writing"
+  ],
+  "graduation_status": "PENDING_GRADUATION",
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION"
+}

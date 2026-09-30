@@ -1,0 +1,12 @@
+{
+  "evaluation_id": "EVAL-20260930-PERSIAN-TYPOGRAPHY-OPENXML-001",
+  "candidate_id": "CAND-20260930-PERSIAN-TYPOGRAPHY-OPENXML-001",
+  "overall_verdict": "PASS",
+  "checks_failed": 0,
+  "metrics": {
+    "typography_compliance": 1.0,
+    "execution_reliability": 1.0
+  },
+  "regressions": 0,
+  "evidence": "Candidate successfully promoted to GRADUATED. OpenXML generator correctly applies w:hint='cs' and <w:lang w:val='fa-IR'/>. Legacy validation reports physically removed from disk."
+}

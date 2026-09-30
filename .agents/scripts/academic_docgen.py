@@ -330,6 +330,36 @@ def cmd_polish_tone(args: argparse.Namespace) -> int:
     # Basic normalization
     polished = text.replace("می باشد", "است").replace("می گردد", "می‌شود")
 
+    # Arabic normalization
+    polished = polished.replace('ك', 'ک').replace('ي', 'ی').replace('ة', 'ه')
+    arabic_to_persian = str.maketrans('٠١٢٣٤٥٦٧٨٩', '۰۱۲۳۴۵۶۷۸۹')
+    polished = polished.translate(arabic_to_persian)
+    
+    # English digits to Persian
+    def eng_to_per_num(m):
+        return m.group(0).translate(str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹'))
+    polished = re.sub(r'(?<![a-zA-Z\._])\d+(?:\.\d+)?(?![a-zA-Z])', eng_to_per_num, polished)
+    def fix_leading_zero(m):
+        num = m.group(1).translate(str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹'))
+        return f"۰.{num}"
+    polished = re.sub(r'(?<!\d)\.(\d+)(?![a-zA-Z])', fix_leading_zero, polished)
+
+    acronym_map = {
+        r'\bSuicidal Ideation\b': 'افکار خودکشی',
+        r'\bIUS-12\b': 'تحمل‌ناپذیری عدم‌قطعیت',
+        r'\bSCI-16\b': 'کنترل ادراک‌شده',
+        r'\bRRS-22\b': 'نشخوار فکری',
+        r'\bPANAS-NA\b': 'عاطفه منفی'
+    }
+    for eng, per in acronym_map.items():
+        polished = re.sub(eng, per, polished)
+        
+    polished = polished.replace('(افکار خودکشی)', 'افکار خودکشی[^1]')
+    polished = polished.replace('(تحمل‌ناپذیری عدم‌قطعیت)', 'تحمل‌ناپذیری عدم‌قطعیت[^2]')
+    polished = polished.replace('(کنترل ادراک‌شده)', 'کنترل ادراک‌شده[^3]')
+    polished = polished.replace('(نشخوار فکری)', 'نشخوار فکری[^4]')
+    polished = polished.replace('(عاطفه منفی)', 'عاطفه منفی[^5]')
+
     # 1. Fix two-line captions
     polished = re.sub(r'^(جدول ۴-\s*\d+(?:-\d+)?)\n([^\n|]+)\n(?=\|)', r'\1: \2\n', polished, flags=re.MULTILINE)
     polished = re.sub(r'^(جدول ۴-\s*\d+(?:-\d+)?)\n([^\n|]+)$', r'\1: \2', polished, flags=re.MULTILINE)
@@ -366,6 +396,10 @@ def cmd_polish_tone(args: argparse.Namespace) -> int:
             lines[i] = line
     
     polished = '\n'.join(lines)
+    
+    # Remove AI cliches
+    for cliche in ['در این راستا، ', 'در این راستا ', 'در این راستا', 'شایان ذکر است که ', 'شایان ذکر است، ', 'شایان ذکر است', 'پرواضح است که ', 'پرواضح است که', 'همان‌طور که پیش‌تر اشاره شد، ', 'همان‌طور که پیش‌تر اشاره شد ']:
+        polished = polished.replace(cliche, '')
 
 
     if out_file:

@@ -1,0 +1,34 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-ARABIC-FALLBACK-AND-UNTRANSLITERATED-LATIN",
+  "category": "typography",
+  "defective_pattern": "Omitting w:hint=\"cs\" and w:eastAsia in OpenXML w:rFonts for Persian text, failing to wrap Latin acronyms in specific LTR font configurations, and using non-localized numerals.",
+  "why_defective": "Causes Word to fallback to Arabic Naskh rendering for Persian text, disrupting visual consistency. Fails to visually isolate Latin characters and uses unstandardized Western numerals in Persian text.",
+  "observed_symptoms": [
+    "OPENXML_ARABIC_FALLBACK",
+    "Persian text rendering in Arabic Naskh font in Word instead of the intended Persian font",
+    "Latin acronyms (IUS-12, SCI-16) not isolated in Times New Roman",
+    "Latin numerals (18.0) used instead of Persian numerals (۱۸.۰)",
+    "Presence of AI clichés like 'در این راستا' in generated markdown"
+  ],
+  "corrective_remedy": "1) Inject w:hint=\"cs\" and w:eastAsia=\"{font_name}\" into w:rFonts in python-docx compiler. 2) Wrap Latin acronyms and statistics in Times New Roman. 3) Sanitize markdown prompt against robotic phrases. 4) Convert non-code numbers to Persian localized digits with leading zeros.",
+  "detection_heuristic": {
+    "trigger_rule": "Missing w:hint=\"cs\" in OpenXML generation scripts or presence of AI clichés in Persian text",
+    "regex_patterns": [
+      "(?m)^.*در این راستا.*$",
+      "(?m)<w:rFonts(?!.*w:hint=\"cs\").*>"
+    ],
+    "pattern": "(?m)^.*در این راستا.*$|(?m)<w:rFonts(?!.*w:hint=\"cs\").*>",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.(py|md|docx)$",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "chapter-4-writing",
+    "persian-thesis-builder"
+  ],
+  "reusable": true,
+  "updated_at": "2026-09-30T07:42:53Z"
+}

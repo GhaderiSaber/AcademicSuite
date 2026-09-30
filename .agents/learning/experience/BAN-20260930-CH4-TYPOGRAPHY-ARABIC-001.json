@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20260930-CH4-TYPOGRAPHY-ARABIC-001",
+  "target_agent": "behavior-analyst",
+  "target_skill": "chapter-4-writing",
+  "observable_failure_step": "Drafting and compiling Chapter 4 markdown to docx",
+  "failure_signature": "OPENXML_ARABIC_FALLBACK",
+  "root_cause_diagnosis": "1) The compiler script (compile_full_chapter4_from_md.py) omits the w:hint=\"cs\" attribute and w:eastAsia binding when creating Persian text runs, leading to Arabic Naskh fallback rendering in Word. 2) Latin acronyms (IUS-12, SCI-16) are not isolated in Times New Roman. 3) The drafting stage introduced AI clichés (e.g., 'در این راستا'). 4) Numeral inconsistencies exist where Latin numerals (e.g., 18.0, 9.79) are used instead of Persian standard format (۱۸.۰, ۹.۷۹).",
+  "prescribed_behavior": "1) Modify the python-docx compiler to inject w:hint=\"cs\" and w:eastAsia=\"{font_name}\" into w:rFonts. 2) Enforce strict regex parsing to wrap Latin acronyms and statistics in Times New Roman. 3) Sanitize the markdown generation prompt against robotic transitional phrases. 4) Ensure all numbers outside of raw code blocks are converted to Persian localized digits with leading zeros."
+}
