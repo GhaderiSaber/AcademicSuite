@@ -549,7 +549,7 @@ class AcademicCorrectionDetector:
                 "capability": capability,
                 "task": task,
                 "stage": stage,
-                "source_transcript_path": source_transcript,
+                "source_transcript_path": re.sub(r"^/home/(?:saber-ghaderi|ghaderi-saber)/\.gemini/", r"${APP_DATA_DIR}/", re.sub(r"^/home/(?:saber-ghaderi|ghaderi-saber)/Desktop/AcademicSuite/?", "", source_transcript)),
                 "turn_index": turn_index if isinstance(turn_index, int) else None,
                 "related_artifact_paths": meta.get("related_artifact_paths", [])
             },

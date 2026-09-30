@@ -329,6 +329,150 @@ class TestValidationFailureLearningLoop(unittest.TestCase):
         is_active_after, _, _ = orch_guard.is_validation_failure_active(records, [self.tmp_dir])
         self.assertFalse(is_active_after, "Active validation failure persisted after decontamination")
 
+    def test_12_orchestrator_guard_allows_delivery_worker_across_turn_boundary_after_learning_and_graduation(self):
+        """After learning cascade completes and candidates graduate, orchestrator guard allows delivery workers across turn boundary."""
+        cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
+        os.makedirs(cand_dir, exist_ok=True)
+        cand_file = os.path.join(cand_dir, "test_graduated_cand.json")
+        try:
+            with open(cand_file, "w", encoding="utf-8") as f:
+                json.dump({"candidate_id": "test_graduated_cand", "status": "EVALUATION_PASSED", "graduation_status": "GRADUATED"}, f)
+
+            tr_path = os.path.join(self.tmp_dir, "transcript.jsonl")
+            records = [
+                {"type": "USER_INPUT", "content": "Please validate hypothesis 1"},
+                {"type": "PLANNER_RESPONSE", "content": "Validation failed with overall_verdict: FAIL (4 checks failed)"},
+                {"type": "PLANNER_RESPONSE", "content": "Invoking learning", "tool_calls": [
+                    {"name": "invoke_subagent", "args": {"Subagents": [{"TypeName": "trajectory-analyzer"}]}},
+                    {"name": "invoke_subagent", "args": {"Subagents": [{"TypeName": "behavior-analyst"}]}},
+                    {"name": "invoke_subagent", "args": {"Subagents": [{"TypeName": "knowledge-curator"}]}},
+                    {"name": "invoke_subagent", "args": {"Subagents": [{"TypeName": "skill-evolver"}]}},
+                    {"name": "invoke_subagent", "args": {"Subagents": [{"TypeName": "evaluation-agent"}]}}
+                ]},
+                # Turn boundary: user confirms remediation
+                {"type": "USER_INPUT", "content": "Confirm. Please proceed with fixing the deliverable."}
+            ]
+            with open(tr_path, "w", encoding="utf-8") as f:
+                for r in records:
+                    f.write(json.dumps(r) + "\n")
+
+            payload = {
+                "caller": "academic-orchestrator",
+                "transcriptPath": tr_path,
+                "workspacePaths": [self.tmp_dir],
+                "toolCall": {
+                    "name": "invoke_subagent",
+                    "args": {
+                        "Subagents": [{
+                            "TypeName": "academic-writer",
+                            "Role": "Academic Writer",
+                            "Prompt": (
+                                "### Contractual Delegation Envelope (CDE)\n"
+                                "```json\n"
+                                "{\n"
+                                '  "task_id": "TSK-REMEDIATION-002",\n'
+                                '  "worker_agent": "academic-writer",\n'
+                                '  "stage": "03_deliverables",\n'
+                                '  "objective": "Stage 6 Persian Remediation using evolved tools",\n'
+                                '  "inputs": ["03_deliverables/remediated_doc.docx"],\n'
+                                '  "required_artifacts": ["03_deliverables/remediated_doc.docx"]\n'
+                                "}\n"
+                                "```\n"
+                            )
+                        }]
+                    }
+                }
+            }
+
+            res = orch_guard.handle_pre_tool_use(payload)
+            self.assertEqual(res.get("decision"), "allow", f"Orchestrator guard denied remediation worker: {res}")
+            self.assertNotIn("message", res)
+        finally:
+            if os.path.exists(cand_file):
+                os.remove(cand_file)
+
+    def test_13_orchestrator_guard_returns_clean_protojson_payload_without_message_field(self):
+        """All return dictionaries from academic-orchestrator guard strictly omit the forbidden 'message' field."""
+        # 1. Deny case (forbidden tool)
+        payload_deny = {
+            "caller": "academic-orchestrator",
+            "toolCall": {"name": "run_command", "args": {"CommandLine": "ls"}}
+        }
+        res_deny = orch_guard.handle_pre_tool_use(payload_deny)
+        self.assertEqual(res_deny.get("decision"), "deny")
+        self.assertNotIn("message", res_deny)
+        self.assertIn("reason", res_deny)
+
+        # 2. Stop hook case
+        tr_path = os.path.join(self.tmp_dir, "transcript.jsonl")
+        with open(tr_path, "w", encoding="utf-8") as f:
+            f.write(json.dumps({"type": "USER_INPUT", "content": "Review"}) + "\n")
+        payload_stop = {
+            "caller": "academic-orchestrator",
+            "transcriptPath": tr_path,
+            "workspacePaths": [self.tmp_dir]
+        }
+        res_stop = orch_guard.handle_stop(payload_stop)
+        self.assertNotIn("message", res_stop)
+
+    def test_14_ephemeral_and_code_previews_do_not_trigger_phantom_validation_failure(self):
+        """Ephemeral messages, SYSTEM_SDK prompt injections, and file/code previews do not trigger false-positive validation failures."""
+        records = [
+            {"type": "USER_INPUT", "content": "Show me the report file"},
+            {"type": "EPHEMERAL_MESSAGE", "content": "🧠 CONTINUOUS LEARNING TRIGGER ACTIVE (VALIDATION_FAILED): overall_verdict: FAIL (10 checks failed)"},
+            {"type": "PLANNER_RESPONSE", "source": "SYSTEM_SDK", "content": "overall_verdict: FAIL"},
+            {"type": "PLANNER_RESPONSE", "content": "File Path: `file:///home/user/validation_report.json`\nTotal Lines: 50\n{\"overall_verdict\": \"FAIL\"}"},
+            {"type": "PLANNER_RESPONSE", "content": "{\"File\": \"03_deliverables/validation_report.json\", \"LineNumber\": 5, \"Content\": \"overall_verdict: FAIL\"}"}
+        ]
+        is_active, summary, _ = orch_guard.is_validation_failure_active(records, [self.tmp_dir])
+        self.assertFalse(is_active, f"Phantom validation failure triggered: {summary}")
+
+        is_fail_integ, summary_integ = IntegrityHooks.detect_validation_failure(records, [self.tmp_dir])
+        self.assertFalse(is_fail_integ, f"IntegrityHooks phantom validation failure triggered: {summary_integ}")
+
+    def test_15_safety_hooks_allow_delivery_worker_in_remediation_phase_without_message_field(self):
+        """SafetyHooks permits delivery workers in Remediation Phase and never emits 'message' in return dict."""
+        from safety_hooks import SafetyHooks
+
+        cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
+        os.makedirs(cand_dir, exist_ok=True)
+        cand_file = os.path.join(cand_dir, "test_graduated_cand_safety.json")
+        try:
+            with open(cand_file, "w", encoding="utf-8") as f:
+                json.dump({"candidate_id": "test_graduated_cand_safety", "status": "EVALUATION_PASSED", "graduation_status": "GRADUATED"}, f)
+
+            tr_path = os.path.join(self.tmp_dir, "transcript.jsonl")
+            records = [
+                {"type": "USER_INPUT", "content": "The headings are wrong and have defects."},
+                {"type": "PLANNER_RESPONSE", "content": "Running learning cascade", "tool_calls": [
+                    {"name": "invoke_subagent", "args": {"Subagents": [{"TypeName": "trajectory-analyzer"}]}},
+                    {"name": "invoke_subagent", "args": {"Subagents": [{"TypeName": "evaluation-agent"}]}}
+                ]},
+                {"type": "USER_INPUT", "content": "Please fix the document now."}
+            ]
+            with open(tr_path, "w", encoding="utf-8") as f:
+                for r in records:
+                    f.write(json.dumps(r) + "\n")
+
+            payload = {
+                "caller": "academic-orchestrator",
+                "transcriptPath": tr_path,
+                "workspacePaths": [self.tmp_dir],
+                "toolCall": {
+                    "name": "invoke_subagent",
+                    "args": {
+                        "Subagents": [{"TypeName": "academic-writer", "Role": "Academic Writer"}]
+                    }
+                }
+            }
+
+            res = SafetyHooks.handle_pre_tool_use(payload)
+            self.assertNotEqual(res.get("decision"), "deny", f"SafetyHooks denied delivery worker during remediation: {res}")
+            self.assertNotIn("message", res)
+        finally:
+            if os.path.exists(cand_file):
+                os.remove(cand_file)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -445,6 +445,76 @@ class LearningHooks:
         Inspects trajectory events, workspace validation reports, and recent transcript
         for validation failures in the current session.
         """
+        # Step 0: Check if learning was already completed across the conversation (Remediation Phase)
+        transcript_path = resolve_transcript_path(payload)
+        records = load_transcript(transcript_path) if transcript_path else []
+
+        latest_eval_idx = -1
+        latest_val_after_eval = False
+
+        if records:
+            for idx, r in enumerate(records):
+                for tc in r.get("tool_calls", []):
+                    if (tc.get("name") or "").lower() == "invoke_subagent":
+                        subs = tc.get("args", {}).get("Subagents", [])
+                        if isinstance(subs, str):
+                            try:
+                                subs = json.loads(subs)
+                            except Exception:
+                                subs = []
+                        for s in (subs if isinstance(subs, list) else []):
+                            if isinstance(s, dict):
+                                t_name = (s.get("TypeName") or s.get("Role") or "").lower()
+                                if "evaluation-agent" in t_name:
+                                    latest_eval_idx = idx
+
+            if latest_eval_idx >= 0:
+                for idx in range(latest_eval_idx + 1, len(records)):
+                    r = records[idx]
+                    t = r.get("type", "")
+                    src = r.get("source", "")
+                    content = str(r.get("content", ""))
+
+                    if t in ("EPHEMERAL_MESSAGE",) or src in ("SYSTEM_SDK",):
+                        continue
+                    if "File Path: `file:///" in content or "Total Lines:" in content:
+                        continue
+                    if content.strip().startswith('{"File":') and '"LineNumber":' in content:
+                        continue
+
+                    if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed")):
+                        has_fail = (
+                            re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                            or re.search(r'\bverdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                            or re.search(r'\boverall_verdict\s+of\s+\*?\*?fail\*?\*?', content, re.IGNORECASE)
+                            or re.search(r'checks_failed[\'":\s]+[1-9]\d*', content, re.IGNORECASE)
+                        )
+                        has_pass = (
+                            re.search(r'\boverall_verdict[\'":\s]+pass\b', content, re.IGNORECASE)
+                        ) and re.search(r'checks_failed[\'":\s]+0\b', content, re.IGNORECASE)
+                        if has_fail and not has_pass:
+                            latest_val_after_eval = True
+
+        # Check pending candidates on disk
+        has_pending_candidates = False
+        cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
+        if os.path.isdir(cand_dir):
+            for cf in os.listdir(cand_dir):
+                if cf.endswith(".json") and not cf.startswith("."):
+                    try:
+                        with open(os.path.join(cand_dir, cf), "r", encoding="utf-8") as fc:
+                            cd = json.load(fc)
+                        if str(cd.get("status", "")).upper() in ("STAGED", "EVALUATED", "EVALUATION_PASSED") and str(cd.get("graduation_status", "")).upper() != "GRADUATED":
+                            has_pending_candidates = True
+                            break
+                    except Exception:
+                        pass
+
+        # If evaluation completed, all candidates are graduated, and NO new validation failure occurred after eval,
+        # then learning is already complete and the system is in REMEDIATION_PHASE. Suppress validation failure trigger.
+        if latest_eval_idx >= 0 and not has_pending_candidates and not latest_val_after_eval:
+            return None
+
         try:
             engine = LearningHooks._get_engine(payload)
             if engine:
@@ -517,11 +587,17 @@ class LearningHooks:
 
         # 3. Inspect recent transcript messages for validation failures
         try:
-            transcript_path = resolve_transcript_path(payload)
-            if transcript_path and os.path.isfile(transcript_path):
-                records = load_transcript(transcript_path)
+            if records:
                 for rec in reversed(records[-30:]):
+                    t = rec.get("type", "")
+                    src = rec.get("source", "")
+                    if t in ("EPHEMERAL_MESSAGE",) or src in ("SYSTEM_SDK",):
+                        continue
                     content = str(rec.get("content", ""))
+                    if "File Path: `file:///" in content or "Total Lines:" in content:
+                        continue
+                    if content.strip().startswith('{"File":') and '"LineNumber":' in content:
+                        continue
                     if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed")):
                         has_fail = (
                             re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE)

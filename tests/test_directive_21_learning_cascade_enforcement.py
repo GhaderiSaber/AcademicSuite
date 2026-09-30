@@ -81,7 +81,7 @@ class TestDirective21LearningCascadeEnforcement(unittest.TestCase):
         res = dispatch_track2_event("PreToolUse", payload)
         self.assertEqual(res.get("decision"), "deny")
         self.assertIn("Directive 21.1", res.get("reason", ""))
-        self.assertEqual(res.get("reason"), res.get("message"))
+        self.assertNotIn("message", res)
 
     def test_02_critique_allows_learning_agent_pre_tool_use(self):
         """PreToolUse must allow invoking learning agents (trajectory-analyzer) when user critique is active."""
@@ -131,7 +131,7 @@ class TestDirective21LearningCascadeEnforcement(unittest.TestCase):
         res = dispatch_track2_event("Stop", payload)
         self.assertEqual(res.get("decision"), "continue")
         self.assertIn("Directive 21", res.get("reason", ""))
-        self.assertEqual(res.get("reason"), res.get("message"))
+        self.assertNotIn("message", res)
 
     def test_04_critique_allows_stop_when_learning_cascade_completed(self):
         """Stop hook must allow stop when full 5-stage continuous learning cascade was executed."""

@@ -43,6 +43,14 @@ except ImportError:
         def resolve_hook_identity(p): return None
         def resolve_transcript_path(p): return p.get("transcriptPath") if isinstance(p, dict) else None
 try:
+    from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
+except ImportError:
+    try:
+        from .contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
+    except ImportError:
+        def is_meaningful_user_critique(user_text, **kw): return False, None
+        def extract_clean_user_message(raw_text): return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
+try:
     from contracts.canonical_tools import ALL_MUTATION_TOOLS as _ALL_MUTATION_TOOLS
     MUTATION_TOOLS = tuple(sorted(_ALL_MUTATION_TOOLS))
 except ImportError:
@@ -933,17 +941,9 @@ class SafetyHooks:
                             user_content = str(r.get("content", ""))
                     active_records = records[last_user_idx + 1:] if last_user_idx >= 0 else records
 
-                    clean_user = re.sub(r"<[^>]+>", "", user_content).strip()
-                    critique_patterns = [
-                        r"\b(?:problem|error|bug|defect|issue|flaw|failure|discrepancy|mismatch)s?\b",
-                        r"\b(?:fix|wrong|incorrect|flawed|missing|redo|re-run|re-execute|reject|rejected)\b",
-                        r"\b(?:didn'?t|did\s+not)\s+(?:trigger|start|run|work|include|execute)\b",
-                        r"\b(?:there|it)\s+(?:isn'?t|is\s+not|wasn'?t|was\s+not|aren'?t|are\s+not)\b",
-                        r"\b(?:isn'?t|is\s+not|wasn'?t|was\s+not)\s+(?:the|what|any|working|correct)\b",
-                        r"\bnot\s+(?:working|correct|right|accurate)\b",
-                        r"اشتباه|اشتباهات|غلط|غلط‌ها|اصلاح|تصحیح|مجدد|تکرار|رد شد|نادرست|خطا|خطاها|مشکل|مشکلات|ایراد|ایرادات|نواقص|نقص|جا افتاده|حذف شده|وجود ندارد|نیست"
-                    ]
-                    if any(re.search(pat, clean_user, re.IGNORECASE) for pat in critique_patterns):
+                    clean_user = extract_clean_user_message(user_content)
+                    is_user_critique, _ = is_meaningful_user_critique(clean_user, is_subagent=False, caller="academic-orchestrator")
+                    if is_user_critique:
                         evolver_seen = False
                         eval_seen = False
                         for r in active_records:
@@ -964,7 +964,57 @@ class SafetyHooks:
                                                     evolver_seen = True
 
                         # Both evolver and evaluation-agent must complete to evolve tools on disk
-                        evolution_completed = eval_seen or (evolver_seen and eval_seen)
+                        # Check if learning was already completed across the conversation (Remediation Phase)
+                        learning_already_completed = False
+                        latest_eval_idx = -1
+                        for idx, r in enumerate(records):
+                            for tc in r.get("tool_calls", []):
+                                if (tc.get("name") or "").lower() == "invoke_subagent":
+                                    subs_rec = tc.get("args", {}).get("Subagents", [])
+                                    if isinstance(subs_rec, str):
+                                        try: subs_rec = json.loads(subs_rec)
+                                        except Exception: subs_rec = []
+                                    for s in (subs_rec if isinstance(subs_rec, list) else []):
+                                        if isinstance(s, dict) and "evaluation-agent" in (s.get("TypeName") or s.get("Role") or "").lower():
+                                            latest_eval_idx = idx
+
+                        if latest_eval_idx >= 0:
+                            new_defect_after_eval = False
+                            for idx in range(latest_eval_idx + 1, len(records)):
+                                r = records[idx]
+                                t = r.get("type", "")
+                                src = r.get("source", "")
+                                content = str(r.get("content", ""))
+                                if t == "USER_INPUT":
+                                    cl = extract_clean_user_message(content)
+                                    is_c, _ = is_meaningful_user_critique(cl, is_subagent=False, caller="academic-orchestrator")
+                                    if is_c:
+                                        new_defect_after_eval = True
+                                        break
+                                if t not in ("EPHEMERAL_MESSAGE",) and src not in ("SYSTEM_SDK",):
+                                    if "File Path: `file:///" not in content and "Total Lines:" not in content:
+                                        if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed")):
+                                            if re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE):
+                                                new_defect_after_eval = True
+                                                break
+                            if not new_defect_after_eval:
+                                cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
+                                has_pending = False
+                                if os.path.isdir(cand_dir):
+                                    for cf in os.listdir(cand_dir):
+                                        if cf.endswith(".json") and not cf.startswith("."):
+                                            try:
+                                                with open(os.path.join(cand_dir, cf), "r", encoding="utf-8") as fc:
+                                                    cd = json.load(fc)
+                                                if str(cd.get("status", "")).upper() in ("STAGED", "EVALUATED", "EVALUATION_PASSED") and str(cd.get("graduation_status", "")).upper() != "GRADUATED":
+                                                    has_pending = True
+                                                    break
+                                            except Exception:
+                                                pass
+                                if not has_pending:
+                                    learning_already_completed = True
+
+                        evolution_completed = eval_seen or (evolver_seen and eval_seen) or learning_already_completed
 
                         if not evolution_completed:
                             delivery_workers = [
@@ -986,8 +1036,7 @@ class SafetyHooks:
                                 )
                                 return {
                                     "decision": "deny",
-                                    "reason": msg,
-                                    "message": msg
+                                    "reason": msg
                                 }
 
         # 2. Raw-Data, Outside-Workspace & State Ledger Guard on Mutation Tools (tool -> target resource -> safety policy)

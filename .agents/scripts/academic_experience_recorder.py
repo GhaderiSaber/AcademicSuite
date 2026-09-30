@@ -740,7 +740,7 @@ class AcademicExperienceRecorder:
             "artifact_references": artifacts,
             "validation_status": val_status,
             "metadata": {
-                "stage_dir": stage_dir,
+                "stage_dir": os.path.relpath(abs_stage_dir, self.project_root) if (self.project_root and os.path.isabs(abs_stage_dir)) else stage_dir,
                 "triad_complete": has_docx and has_md and has_json
             }
         }
@@ -774,8 +774,8 @@ class AcademicExperienceRecorder:
                     "action_type": "ARTIFACT_GENERATION",
                     "actor": agent,
                     "timestamp": now_iso,
-                    "description": f"Generated {len(artifacts)} physical artifacts in {stage_dir}",
-                    "observable_input": {"stage_dir": stage_dir},
+                    "description": f"Generated {len(artifacts)} physical artifacts in {os.path.relpath(abs_stage_dir, self.project_root) if (self.project_root and os.path.isabs(abs_stage_dir)) else stage_dir}",
+                    "observable_input": {"stage_dir": os.path.relpath(abs_stage_dir, self.project_root) if (self.project_root and os.path.isabs(abs_stage_dir)) else stage_dir},
                     "observable_output": {"count": len(artifacts), "status": resolved_outcome}
                 }
             ]

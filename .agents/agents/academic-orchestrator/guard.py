@@ -131,7 +131,17 @@ def is_validation_failure_active(records: List[Dict[str, Any]], workspaces: List
 
     # 1. Check active records in transcript for explicit validation failure
     for rec in reversed(active_records):
+        t = rec.get("type", "")
+        src = rec.get("source", "")
+        if t in ("EPHEMERAL_MESSAGE",) or src in ("SYSTEM_SDK",):
+            continue
         content = str(rec.get("content", ""))
+        # Skip source code file inspection and grep search false positives
+        if "File Path: `file:///" in content or "Total Lines:" in content:
+            continue
+        if content.strip().startswith('{"File":') and '"LineNumber":' in content:
+            continue
+
         if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed", "validation cascade", "validation audit")):
             has_fail = (
                 re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE)
@@ -187,6 +197,163 @@ def is_validation_failure_active(records: List[Dict[str, Any]], workspaces: List
     return False, "", active_records
 
 
+def get_defect_and_learning_lifecycle_state(
+    records: List[Dict[str, Any]],
+    workspaces: Optional[List[str]] = None
+) -> Tuple[str, List[str], str]:
+    """
+    Evaluates global multi-turn conversation state machine across turn boundaries.
+    
+    States:
+    - 'NO_DEFECT': Zero active critique or validation failure.
+    - 'LEARNING_REQUIRED': Critique or validation failure is active and has not completed evaluation.
+    - 'PENDING_GRADUATION': Evaluation-agent ran, but candidates remain ungraduated on disk.
+    - 'REMEDIATION_PHASE': Learning cascade completed and candidates are graduated. Delivery
+      workers (academic-writer, data-agent, statistics-agent) are AUTHORIZED to recompile deliverables.
+    """
+    latest_crit_idx = -1
+    latest_crit_txt = ""
+    latest_val_idx = -1
+    latest_val_txt = ""
+    latest_eval_idx = -1
+
+    for idx, r in enumerate(records):
+        t = r.get("type", "")
+        src = r.get("source", "")
+        content = str(r.get("content", ""))
+
+        if t == "USER_INPUT":
+            clean = extract_clean_user_message(content)
+            is_crit, _ = is_meaningful_user_critique(clean, is_subagent=False, caller="academic-orchestrator")
+            if is_crit:
+                latest_crit_idx = idx
+                latest_crit_txt = clean
+
+        # Check for evaluation-agent invocation in this record
+        for tc in r.get("tool_calls", []):
+            if (tc.get("name") or "").lower() == "invoke_subagent":
+                subs = tc.get("args", {}).get("Subagents", [])
+                if isinstance(subs, str):
+                    try:
+                        subs = json.loads(subs, strict=False)
+                    except Exception:
+                        subs = []
+                for s in (subs if isinstance(subs, list) else []):
+                    if isinstance(s, dict) and "evaluation-agent" in (s.get("TypeName") or s.get("Role") or "").lower():
+                        latest_eval_idx = idx
+
+        # Check for validation failures in transcript (skip ephemerals, system SDK prompt injections, code previews)
+        if t in ("EPHEMERAL_MESSAGE",) or src in ("SYSTEM_SDK",):
+            continue
+        if "File Path: `file:///" in content or "Total Lines:" in content:
+            continue
+        if content.strip().startswith('{"File":') and '"LineNumber":' in content:
+            continue
+
+        if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed", "validation cascade", "validation audit")):
+            has_fail = (
+                re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                or re.search(r'\bverdict[\'":\s]+fail\b', content, re.IGNORECASE)
+                or re.search(r'\boverall_verdict\s+of\s+\*?\*?fail\*?\*?', content, re.IGNORECASE)
+                or re.search(r'checks_failed[\'":\s]+[1-9]\d*', content, re.IGNORECASE)
+                or ("STAGE VERIFICATION ADVISORY" in content and "FAIL" in content)
+            )
+            has_pass = (
+                re.search(r'\boverall_verdict[\'":\s]+pass\b', content, re.IGNORECASE)
+                or re.search(r'\boverall_verdict\s+of\s+\*?\*?pass\*?\*?', content, re.IGNORECASE)
+            ) and re.search(r'checks_failed[\'":\s]+0\b', content, re.IGNORECASE)
+
+            if has_pass:
+                latest_val_idx = -1
+                latest_val_txt = ""
+            elif has_fail:
+                latest_val_idx = idx
+                summary = "Validation failed: overall_verdict is FAIL"
+                m_failed = re.search(r'(\d+)\s+total\s+`?checks_failed`?|checks_failed[\'":\s]+(\d+)', content, re.IGNORECASE)
+                if m_failed:
+                    num = m_failed.group(1) or m_failed.group(2)
+                    summary = f"Validation failed ({num} checks failed, overall_verdict: FAIL)"
+                latest_val_txt = summary
+
+    # Check on-disk validation failure
+    disk_val_fail = False
+    disk_val_summary = ""
+    ws_list = workspaces or [ROOT_DIR]
+    for ws in ws_list:
+        if not ws or not os.path.exists(ws):
+            continue
+        candidate_paths = [
+            os.path.join(ws, "03_deliverables", "validation_report.json"),
+            os.path.join(ws, "validation_report.json")
+        ]
+        deliv_dir = os.path.join(ws, "03_deliverables")
+        if os.path.isdir(deliv_dir):
+            for sdir in os.listdir(deliv_dir):
+                cand = os.path.join(deliv_dir, sdir, "validation_report.json")
+                if os.path.exists(cand):
+                    candidate_paths.append(cand)
+        for cp in candidate_paths:
+            if os.path.exists(cp):
+                try:
+                    with open(cp, "r", encoding="utf-8") as vf:
+                        v_data = json.load(vf)
+                    verdict = str(v_data.get("overall_verdict", "")).strip().upper()
+                    ev_sum = v_data.get("evidence_summary", {})
+                    checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
+                    if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
+                        disk_val_fail = True
+                        disk_val_summary = f"Validation report '{os.path.basename(cp)}' overall_verdict is FAIL ({checks_failed} checks failed)"
+                        break
+                except Exception:
+                    pass
+        if disk_val_fail:
+            break
+
+    # Determine defect index
+    defect_idx = -1
+    defect_desc = ""
+    defect_label = ""
+    if latest_crit_idx >= 0:
+        defect_idx = latest_crit_idx
+        defect_desc = latest_crit_txt
+        defect_label = "Critique"
+    if latest_val_idx >= 0 and latest_val_idx >= defect_idx:
+        defect_idx = latest_val_idx
+        defect_desc = latest_val_txt
+        defect_label = "Validation Failure"
+    if disk_val_fail and defect_idx < 0:
+        defect_idx = 0
+        defect_desc = disk_val_summary
+        defect_label = "Validation Failure"
+
+    if defect_idx < 0 and not disk_val_fail:
+        return "NO_DEFECT", [], "", ""
+
+    # Check pending candidates on disk
+    pending_cands = []
+    cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
+    if os.path.isdir(cand_dir):
+        for cf in os.listdir(cand_dir):
+            if cf.endswith(".json") and not cf.startswith("."):
+                try:
+                    with open(os.path.join(cand_dir, cf), "r", encoding="utf-8") as f_c:
+                        cd = json.load(f_c)
+                    c_st = str(cd.get("status", "")).upper()
+                    g_st = str(cd.get("graduation_status", "")).upper()
+                    if c_st in ("STAGED", "EVALUATED", "EVALUATION_PASSED") and g_st != "GRADUATED":
+                        pending_cands.append(cd.get("candidate_id") or cf)
+                except Exception:
+                    pass
+
+    # Compare evaluation timing with defect occurrence
+    if latest_eval_idx >= 0 and latest_eval_idx >= defect_idx:
+        if pending_cands:
+            return "PENDING_GRADUATION", pending_cands, defect_desc, defect_label
+        return "REMEDIATION_PHASE", [], defect_desc, defect_label
+
+    return "LEARNING_REQUIRED", [], defect_desc, defect_label
+
+
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     tool_call = payload.get("toolCall") or payload.get("tool_call") or {}
     tool_name = (tool_call.get("name") or payload.get("tool_name") or "").strip().lower()
@@ -240,64 +407,32 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 with open(t_target, "r", encoding="utf-8") as tf:
                                     t_records = [json.loads(tl.strip()) for tl in tf if tl.strip()]
                                 workspaces = payload.get("workspacePaths", [ROOT_DIR])
-                                is_crit, crit_txt, active_recs = is_user_critique_active(t_records)
-                                is_val, val_txt, val_active_recs = is_validation_failure_active(t_records, workspaces)
-                                if is_crit or is_val:
-                                    recs_to_check = active_recs if is_crit else val_active_recs
-                                    defect_type = "User critique" if is_crit else "Validation failure"
-                                    defect_txt = crit_txt if is_crit else val_txt
-
-                                    eval_completed = False
-                                    for ar in recs_to_check:
-                                        for atc in ar.get("tool_calls", []):
-                                            if atc.get("name") == "invoke_subagent":
-                                                asubs = atc.get("args", {}).get("Subagents", [])
-                                                if isinstance(asubs, str):
-                                                    try: asubs = json.loads(asubs, strict=False)
-                                                    except: asubs = []
-                                                for asa in (asubs if isinstance(asubs, list) else []):
-                                                    if isinstance(asa, dict) and "evaluation-agent" in (asa.get("TypeName") or "").lower():
-                                                        eval_completed = True
-                                    if not eval_completed:
-                                        msg = (
-                                            f"CONSTITUTIONAL VIOLATION (Directive 21.1 / AP-2026-PATCHING-WITHOUT-LEARNING — Premature Remediation Without Tool Evolution): "
-                                            f"{defect_type} is active ('{defect_txt[:80]}...'). You are strictly prohibited from invoking delivery worker "
-                                            f"'{target_type}' before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
-                                            f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
-                                        )
-                                        return {
-                                            "decision": "deny",
-                                            "reason": msg,
-                                            "message": msg
-                                        }
-
-                                    # Candidate graduation verification: ensure evaluated candidates are graduated on disk
-                                    cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
-                                    pending_cands = []
-                                    if os.path.isdir(cand_dir):
-                                        for cf in os.listdir(cand_dir):
-                                            if cf.endswith(".json") and not cf.startswith("."):
-                                                try:
-                                                    with open(os.path.join(cand_dir, cf), "r", encoding="utf-8") as f_c:
-                                                        cd = json.load(f_c)
-                                                    c_st = str(cd.get("status", "")).upper()
-                                                    g_st = str(cd.get("graduation_status", "")).upper()
-                                                    if c_st in ("STAGED", "EVALUATED", "EVALUATION_PASSED") and g_st != "GRADUATED":
-                                                        pending_cands.append(cd.get("candidate_id") or cf)
-                                                except Exception:
-                                                    pass
-                                    if pending_cands:
-                                        msg = (
-                                            f"CONSTITUTIONAL VIOLATION (Directive 21.1 — Premature Remediation Without Invariant Graduation): "
-                                            f"Improvement candidate(s) {pending_cands} are evaluated but have not been graduated into canonical tools or mechanical rules. "
-                                            f"The autonomous learning pipeline must compile candidates via 'academic_graduation_compiler.py compile-all' "
-                                            f"before invoking delivery worker '{target_type}'."
-                                        )
-                                        return {
-                                            "decision": "deny",
-                                            "reason": msg,
-                                            "message": msg
-                                        }
+                                state, pending_cands, defect_desc, defect_label = get_defect_and_learning_lifecycle_state(t_records, workspaces)
+                                defect_type = "User critique" if defect_label == "Critique" else "Validation failure"
+                                if state == "LEARNING_REQUIRED":
+                                    msg = (
+                                        f"CONSTITUTIONAL VIOLATION (Directive 21.1 / AP-2026-PATCHING-WITHOUT-LEARNING — Premature Remediation Without Tool Evolution): "
+                                        f"{defect_type} is active ('{defect_desc[:80]}...'). You are strictly prohibited from invoking delivery worker "
+                                        f"'{target_type}' before completing the continuous learning cascade via 'trajectory-analyzer' -> 'behavior-analyst' -> "
+                                        f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
+                                    )
+                                    return {
+                                        "decision": "deny",
+                                        "reason": msg
+                                    }
+                                elif state == "PENDING_GRADUATION":
+                                    msg = (
+                                        f"CONSTITUTIONAL VIOLATION (Directive 21.1 — Premature Remediation Without Invariant Graduation): "
+                                        f"Improvement candidate(s) {pending_cands} are evaluated but have not been graduated into canonical tools or mechanical rules. "
+                                        f"The autonomous learning pipeline must compile candidates via 'academic_graduation_compiler.py compile-all' "
+                                        f"before invoking delivery worker '{target_type}'."
+                                    )
+                                    return {
+                                        "decision": "deny",
+                                        "reason": msg
+                                    }
+                                # If state == "REMEDIATION_PHASE" or "NO_DEFECT":
+                                # Delivery worker is AUTHORIZED for remediation!
                             except Exception:
                                 pass
 
@@ -316,8 +451,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                             f"{reason}\n"
                             f"Academic-Orchestrator must provide a structured Contractual Delegation Envelope (CDE) specifying "
                             f"task_id, worker_agent, inputs, and required_artifacts."
-                        ),
-                        "message": reason
+                        )
                     }
 
                 # 3. Capability Routing Verification & Gate Clearance (Directive 19 / Directive 12 / Directive 3)
@@ -326,8 +460,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 if not ok_cap:
                     return {
                         "decision": "deny",
-                        "reason": cap_reason,
-                        "message": cap_reason
+                        "reason": cap_reason
                     }
 
                 # 4. Directive 19 / Directive 2: Statistical Immobility Invariant for Delegation to Academic-Writer
@@ -348,8 +481,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                             )
                             return {
                                 "decision": "deny",
-                                "reason": msg,
-                                "message": msg
+                                "reason": msg
                             }
 
                 # 5. Directive 3: Pipeline Stage Prerequisite Invariant (Zero Skipping)
@@ -364,8 +496,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                 if not ok_prereq:
                     return {
                         "decision": "deny",
-                        "reason": prereq_reason,
-                        "message": prereq_reason
+                        "reason": prereq_reason
                     }
 
     return {"decision": "allow"}
@@ -396,44 +527,33 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                 # Directive 21 & Directive 21.1: Continuous Learning Cascade Gate on Critique or Validation Failure
                 all_records = [json.loads(l) for l in lines]
                 workspaces = payload.get("workspacePaths", [ROOT_DIR])
-                is_crit, crit_txt, active_recs = is_user_critique_active(all_records)
-                is_val, val_txt, val_active_recs = is_validation_failure_active(all_records, workspaces)
+                state, pending_cands, defect_desc, defect_label = get_defect_and_learning_lifecycle_state(all_records, workspaces)
 
-                if is_crit or is_val:
-                    recs_to_check = active_recs if is_crit else val_active_recs
-                    defect_label = "Critique" if is_crit else "Validation Failure"
-                    defect_txt = crit_txt if is_crit else val_txt
-
-                    invoked_in_turn = []
-                    for ar in recs_to_check:
-                        for atc in ar.get("tool_calls", []):
-                            if (atc.get("name") or "").lower() == "invoke_subagent":
-                                asubs = atc.get("args", {}).get("Subagents", [])
-                                if isinstance(asubs, str):
-                                    try: asubs = json.loads(asubs, strict=False)
-                                    except: asubs = []
-                                for asa in (asubs if isinstance(asubs, list) else []):
-                                    if isinstance(asa, dict):
-                                        t_name = (asa.get("TypeName") or asa.get("Role") or "").lower().strip()
-                                        if t_name:
-                                            invoked_in_turn.append(t_name)
-                    has_diagnostic = any(any(k in sa for k in ("trajectory-analyzer", "behavior-analyst", "knowledge-curator")) for sa in invoked_in_turn)
-                    has_evolution = any(any(ev in sa for ev in ("skill-evolver", "evaluation-agent")) for sa in invoked_in_turn)
-                    if not has_diagnostic or not has_evolution:
-                        msg = (
-                            f"CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 — Uninvoked Learning Pipeline on {defect_label}):\n"
-                            f"A defect was detected ('{defect_txt[:80]}...'), but the continuous learning cascade "
-                            f"was NOT executed in this turn!\n"
-                            f"Under Directive 21, Directive 21.1, and AP-2026-PATCHING-WITHOUT-LEARNING, you are strictly prohibited from bypassing learning, attempting "
-                            f"ad-hoc direct fixes, or delegating remediation without first running the full 5-stage cascade:\n"
-                            f"1. trajectory-analyzer, 2. behavior-analyst, 3. knowledge-curator, 4. skill-evolver, 5. evaluation-agent.\n"
-                            f"Please invoke 'trajectory-analyzer' now."
-                        )
-                        return {
-                            "decision": "continue",
-                            "reason": msg,
-                            "message": msg
-                        }
+                if state == "LEARNING_REQUIRED":
+                    msg = (
+                        f"CONSTITUTIONAL VIOLATION (Directive 21 & Directive 21.1 — Uninvoked Learning Pipeline on {defect_label}):\n"
+                        f"A defect was detected ('{defect_desc[:80]}...'), but the continuous learning cascade "
+                        f"was NOT executed in this turn!\n"
+                        f"Under Directive 21, Directive 21.1, and AP-2026-PATCHING-WITHOUT-LEARNING, you are strictly prohibited from bypassing learning, attempting "
+                        f"ad-hoc direct fixes, or delegating remediation without first running the full 5-stage cascade:\n"
+                        f"1. trajectory-analyzer, 2. behavior-analyst, 3. knowledge-curator, 4. skill-evolver, 5. evaluation-agent.\n"
+                        f"Please invoke 'trajectory-analyzer' now."
+                    )
+                    return {
+                        "decision": "continue",
+                        "reason": msg
+                    }
+                elif state == "PENDING_GRADUATION":
+                    msg = (
+                        f"CONSTITUTIONAL VIOLATION (Directive 21 — Incomplete Invariant Graduation):\n"
+                        f"Improvement candidate(s) {pending_cands} are evaluated but have not been graduated into canonical tools or mechanical rules. "
+                        f"The autonomous learning pipeline must compile candidates via 'academic_graduation_compiler.py compile-all' "
+                        f"before concluding this turn."
+                    )
+                    return {
+                        "decision": "continue",
+                        "reason": msg
+                    }
 
                 # If this was a planner response answering a compliance question, verify Directive 0
                 user_question = ""
@@ -458,8 +578,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         )
                         return {
                             "decision": "continue",
-                            "reason": msg,
-                            "message": msg
+                            "reason": msg
                         }
 
                 # Directive 13: Anti-Sycophancy Invariant
@@ -479,8 +598,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         )
                         return {
                             "decision": "continue",
-                            "reason": msg,
-                            "message": msg
+                            "reason": msg
                         }
 
                 # Directive 6: Strict English Orchestration Dialogue
@@ -498,8 +616,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     )
                     return {
                         "decision": "continue",
-                        "reason": msg,
-                        "message": msg
+                        "reason": msg
                     }
 
                 # Directive 15: Temporal Reality Anchor (2026 / 1405 SH)
@@ -519,8 +636,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     )
                     return {
                         "decision": "continue",
-                        "reason": msg,
-                        "message": msg
+                        "reason": msg
                     }
 
                 # Directive 11: Interactive Stage-Gate Protocol
@@ -543,8 +659,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         )
                         return {
                             "decision": "continue",
-                            "reason": msg,
-                            "message": msg
+                            "reason": msg
                         }
 
                     # Directive 3: Triad Artifact Completion Audit on Stage Conclusion
@@ -583,8 +698,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                 )
                                                 return {
                                                     "decision": "continue",
-                                                    "reason": msg,
-                                                    "message": msg
+                                                    "reason": msg
                                                 }
 
                     # Directive 3.1: Chapter 5 Table Ban Dual Gate
@@ -612,8 +726,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                         )
                                                         return {
                                                             "decision": "continue",
-                                                            "reason": msg,
-                                                            "message": msg
+                                                            "reason": msg
                                                         }
                                         except Exception:
                                             pass
@@ -642,8 +755,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                         )
                                                         return {
                                                             "decision": "continue",
-                                                            "reason": msg,
-                                                            "message": msg
+                                                            "reason": msg
                                                         }
                                     except Exception:
                                         pass

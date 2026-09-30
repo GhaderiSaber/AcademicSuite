@@ -978,7 +978,16 @@ class IntegrityHooks:
     def detect_validation_failure(active_records: List[Dict[str, Any]], workspaces: Optional[List[str]] = None) -> Tuple[bool, str]:
         # 1. Transcript records check
         for rec in reversed(active_records):
+            t = rec.get("type", "")
+            src = rec.get("source", "")
+            if t in ("EPHEMERAL_MESSAGE",) or src in ("SYSTEM_SDK",):
+                continue
             content = str(rec.get("content", ""))
+            if "File Path: `file:///" in content or "Total Lines:" in content:
+                continue
+            if content.strip().startswith('{"File":') and '"LineNumber":' in content:
+                continue
+
             if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed", "validation cascade", "validation audit")):
                 has_fail = (
                     re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE)
@@ -1127,12 +1136,61 @@ class IntegrityHooks:
             caller="academic-orchestrator"
         )
         is_val_failure, val_summary = IntegrityHooks.detect_validation_failure(active_records, workspaces)
+        # Check if defect was already learned across the conversation (Remediation Phase)
+        learning_already_completed = False
+        latest_eval_idx = -1
+        for idx, r in enumerate(records):
+            for tc in r.get("tool_calls", []):
+                if (tc.get("name") or "").lower() == "invoke_subagent":
+                    subs = tc.get("args", {}).get("Subagents", [])
+                    if isinstance(subs, str):
+                        try: subs = json.loads(subs)
+                        except Exception: subs = []
+                    for s in (subs if isinstance(subs, list) else []):
+                        if isinstance(s, dict) and "evaluation-agent" in (s.get("TypeName") or s.get("Role") or "").lower():
+                            latest_eval_idx = idx
+
+        if latest_eval_idx >= 0:
+            new_defect_after_eval = False
+            for idx in range(latest_eval_idx + 1, len(records)):
+                r = records[idx]
+                t = r.get("type", "")
+                src = r.get("source", "")
+                content = str(r.get("content", ""))
+                if t == "USER_INPUT":
+                    cl = extract_clean_user_message(content)
+                    is_c, _ = is_meaningful_user_critique(cl, is_subagent=False, caller="academic-orchestrator")
+                    if is_c:
+                        new_defect_after_eval = True
+                        break
+                if t not in ("EPHEMERAL_MESSAGE",) and src not in ("SYSTEM_SDK",):
+                    if "File Path: `file:///" not in content and "Total Lines:" not in content:
+                        if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed")):
+                            if re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE):
+                                new_defect_after_eval = True
+                                break
+            if not new_defect_after_eval:
+                cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
+                has_pending = False
+                if os.path.isdir(cand_dir):
+                    for cf in os.listdir(cand_dir):
+                        if cf.endswith(".json") and not cf.startswith("."):
+                            try:
+                                with open(os.path.join(cand_dir, cf), "r", encoding="utf-8") as fc:
+                                    cd = json.load(fc)
+                                if str(cd.get("status", "")).upper() in ("STAGED", "EVALUATED", "EVALUATION_PASSED") and str(cd.get("graduation_status", "")).upper() != "GRADUATED":
+                                    has_pending = True
+                                    break
+                            except Exception:
+                                pass
+                if not has_pending:
+                    learning_already_completed = True
 
         # Check if premature remediation was attempted before evolution completed
-        has_learning_started = any(
+        has_learning_started = (any(
             any(k in sa for k in ("knowledge-curator", "trajectory-analyzer", "behavior-analyst"))
             for sa in invoked_subagents
-        ) or is_user_critique or is_val_failure
+        ) or is_user_critique or is_val_failure) and not learning_already_completed
 
         if has_learning_started:
             eval_seen = False
@@ -1151,7 +1209,7 @@ class IntegrityHooks:
 
         # 2a. Affirmative Learning Gate on Critique or Validation Failure:
         # If user reported critique or validation failed, the learning and evolution cascade MUST be invoked in this turn!
-        if is_user_critique or is_val_failure:
+        if (is_user_critique or is_val_failure) and not learning_already_completed:
             trigger_label = "Critique" if is_user_critique else "Validation Failure"
             trigger_detail = clean_user if is_user_critique else val_summary
             has_diagnostic = any(
@@ -1263,39 +1321,38 @@ class IntegrityHooks:
                 )
                 return {
                     "decision": "continue",
-                    "reason": msg,
-                    "message": msg
+                    "reason": msg
                 }
 
         # 2. Skill Modularity (Directive 18)
         ok, reason = IntegrityHooks.verify_skill_modularity(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason, "message": reason}
+            return {"decision": "continue", "reason": reason}
 
         # 3. State Machine Consistency (Invalid State Transition Detection)
         ok, reason = IntegrityHooks.verify_state_transitions(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason, "message": reason}
+            return {"decision": "continue", "reason": reason}
 
         # 3.5 Worker Return Structure (Phase 21 Invariant)
         ok, reason = IntegrityHooks.verify_worker_returns(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason, "message": reason}
+            return {"decision": "continue", "reason": reason}
 
         # 4. Missing Artifacts Detection (Triad Invariant & Manifest Deliverables)
         ok, reason = IntegrityHooks.verify_missing_artifacts(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason, "message": reason}
+            return {"decision": "continue", "reason": reason}
 
         # 5. Provenance Integrity Detection (Input/Output Hashes & Dependencies)
         ok, reason = IntegrityHooks.verify_provenance(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason, "message": reason}
+            return {"decision": "continue", "reason": reason}
 
         # 6. Post-Analysis Validation Reports
         ok, reason = IntegrityHooks.verify_post_analysis(workspaces)
         if not ok:
-            return {"decision": "continue", "reason": reason, "message": reason}
+            return {"decision": "continue", "reason": reason}
 
         # 7. Transcript Checks (Binary Honesty & Multi-Agent Claims)
         transcript_path = resolve_transcript_path(payload)
@@ -1303,25 +1360,25 @@ class IntegrityHooks:
         if records:
             ok, reason = IntegrityHooks.verify_binary_honesty(records)
             if not ok:
-                return {"decision": "continue", "reason": reason, "message": reason}
+                return {"decision": "continue", "reason": reason}
 
             ok, reason = IntegrityHooks.verify_multiagent_truthfulness(records)
             if not ok:
-                return {"decision": "continue", "reason": reason, "message": reason}
+                return {"decision": "continue", "reason": reason}
 
             ok, reason = IntegrityHooks.verify_conversational_language(records)
             if not ok:
-                return {"decision": "continue", "reason": reason, "message": reason}
+                return {"decision": "continue", "reason": reason}
 
             # 8. Anti-Shortcut, Zero-Fastpath & No-Rush Invariant (Directive 25)
             ok, reason = IntegrityHooks.verify_anti_shortcut_and_no_rush(records)
             if not ok:
-                return {"decision": "continue", "reason": reason, "message": reason}
+                return {"decision": "continue", "reason": reason}
 
             # 9. Learning & Evolution Pipeline Completion (Directive 21 & 21.1)
             ok, reason = IntegrityHooks.verify_learning_pipeline_completion(records, workspaces=workspaces)
             if not ok:
-                return {"decision": "continue", "reason": reason, "message": reason}
+                return {"decision": "continue", "reason": reason}
 
         return {"decision": "allow"}
 
