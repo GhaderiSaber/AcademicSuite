@@ -87,6 +87,109 @@ class DynamicInvariantGuard:
             return cls._cached_invariants
 
     @classmethod
+    def normalize_target_agents(
+        cls,
+        target_agents: Optional[List[str]],
+        file_pattern: Optional[str] = None,
+        target_skills: Optional[List[str]] = None,
+        statement: Optional[str] = None
+    ) -> List[str]:
+        """
+        Normalizes wildcard ['*'] or empty target_agents to explicit academic delivery workers.
+        Ensures continuous learning subagents and quality auditors are never inadvertently targeted.
+        """
+        raw = [a.strip() for a in (target_agents or []) if a and a.strip()]
+        if raw and "*" not in raw:
+            return sorted(list(set(raw)))
+
+        fp = (file_pattern or "").lower()
+        skills = [s.lower() for s in (target_skills or [])]
+        stmt = (statement or "").lower()
+
+        agents = set()
+
+        is_doc = (
+            any(ext in fp for ext in ("docx", "doc", "md", "txt"))
+            or any(k in fp for k in ("chapter", "discussion", "proposal", "defense", "deliverable"))
+            or any(k in stmt for k in ("table", "bidi", "font", "openxml", "docx", "heading", "typography", "footnote"))
+        )
+        is_stats = (
+            any(ext in fp for ext in ("r", "rmd", "sps"))
+            or any(k in fp for k in ("sem", "spss", "stat", "regression", "mediation", "cfa"))
+            or any(k in stmt for k in ("sem", "latent", "indicator", "parceling", "regression", "lavaan", "f-test"))
+        )
+        is_data = (
+            any(k in fp for k in ("data", "audit", "clean", "dataset", "curat"))
+            or any(k in stmt for k in ("dual-sample", "data audit", "demographic", "sample size"))
+        )
+        is_orch = (
+            any(k in fp for k in ("validation_report", "legacy_validation", "manifest"))
+            or any(k in stmt for k in ("premature global validation", "legacy validation", "decontamination", "triad synthesis", "orchestrat"))
+            or any(any(k in s for k in ("orchestrat", "pipeline")) for s in skills)
+        )
+
+        if is_doc:
+            agents.update(["academic-writer", "academic-orchestrator"])
+        if is_stats:
+            agents.update(["statistics-agent", "academic-orchestrator"])
+        if is_data:
+            agents.update(["data-agent", "statistics-agent", "academic-orchestrator"])
+        if is_orch:
+            agents.update(["academic-orchestrator"])
+
+        if not agents:
+            agents.update(["academic-writer", "academic-orchestrator", "statistics-agent", "data-agent"])
+
+        # Also incorporate any skill-based mappings
+        for s in skills:
+            if any(k in s for k in ("write", "discussion", "builder", "apa", "thesis", "docx", "table")):
+                agents.add("academic-writer")
+            if any(k in s for k in ("stat", "sem", "cfa", "regression", "mediation")):
+                agents.add("statistics-agent")
+            if any(k in s for k in ("data", "audit", "cleaning")):
+                agents.add("data-agent")
+
+        specific = [a for a in raw if a != "*"]
+        agents.update(specific)
+        return sorted(list(agents))
+
+    @classmethod
+    def normalize_all_invariants(cls, base_dir: Optional[str] = None) -> int:
+        """Normalizes any wildcard '*' target_agents across all active invariants in enforced_invariants.json."""
+        target_path = INVARIANTS_FILE
+        if base_dir:
+            target_path = os.path.join(base_dir, ".agents", "hooks", "rules", "enforced_invariants.json")
+        if not os.path.isfile(target_path):
+            return 0
+
+        with open(target_path, "r", encoding="utf-8") as f:
+            raw_data = json.load(f)
+
+        invariants = raw_data.get("invariants", {})
+        updated_count = 0
+        for item_id, rule in invariants.items():
+            targets = rule.get("target_agents", [])
+            if "*" in targets or not targets:
+                normalized = cls.normalize_target_agents(
+                    targets,
+                    file_pattern=rule.get("file_pattern"),
+                    target_skills=rule.get("target_skills"),
+                    statement=rule.get("statement")
+                )
+                rule["target_agents"] = normalized
+                rule["updated_at"] = datetime.now(timezone.utc).isoformat()
+                updated_count += 1
+
+        if updated_count > 0:
+            raw_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+            with open(target_path, "w", encoding="utf-8") as f:
+                json.dump(raw_data, f, indent=2, ensure_ascii=False)
+            cls._cached_mtime = os.path.getmtime(target_path)
+            cls._cached_invariants = invariants
+
+        return updated_count
+
+    @classmethod
     def register_invariant(
         cls,
         item_id: str,
@@ -117,12 +220,19 @@ class DynamicInvariantGuard:
             except Exception:
                 pass
 
+        normalized_targets = cls.normalize_target_agents(
+            target_agents,
+            file_pattern=file_pattern,
+            target_skills=target_skills,
+            statement=statement
+        )
+
         invariants = raw_data.get("invariants", {})
         rule_entry = {
             "item_id": item_id,
             "category": category,
             "statement": statement,
-            "target_agents": target_agents or ["*"],
+            "target_agents": normalized_targets,
             "target_skills": target_skills or [],
             "event": event,
             "tool_match": tool_match,
