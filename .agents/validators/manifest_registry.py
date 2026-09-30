@@ -297,6 +297,14 @@ def is_narrative_stage(stage_or_file: str, stage_dir: Optional[str] = None) -> b
     if any(ind in stem for ind in narrative_indicators):
         return True
 
+    statistical_indicators = [
+        "hypothesis", "hypo", "demographic", "descript", "correl",
+        "regress", "reliab", "sem", "cfa", "mediat", "moderat",
+        "ancova", "anova", "model", "factor"
+    ]
+    if any(k in stem for k in statistical_indicators):
+        return False
+
     target_dir = stage_dir if (stage_dir and os.path.isdir(stage_dir)) else (
         os.path.dirname(stage_or_file) if os.path.isabs(stage_or_file) and os.path.isdir(os.path.dirname(stage_or_file)) else None
     )
