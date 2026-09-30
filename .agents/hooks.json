@@ -1,10 +1,10 @@
 {
-  "security-firewall": {
+  "track1-developer-safety-gate": {
     "enabled": true,
-    "description": "Antigravity 2.18.1 Mechanical Security Firewall: Protects raw data immutability, blocks catastrophic system commands, and enforces ASCII English filenames across all agents and subagents.",
+    "description": "Antigravity Developer Safety Gate: Protects raw data immutability, blocks catastrophic commands, and enforces ASCII filenames.",
     "PreToolUse": [
       {
-        "matcher": "run_command|write_to_file|replace_file_content|edit_file|apply_diff|multi_file_edit|patch|batch_replace|multi_replace_file_content",
+        "matcher": "apply_diff|batch_replace|edit_file|multi_file_edit|multi_replace_file_content|patch|replace_file_content|run_command|write_to_file",
         "hooks": [
           {
             "type": "command",
@@ -15,18 +15,52 @@
       }
     ]
   },
-  "deliverable-validation-gate": {
+  "track2-academic-orchestrator-guard": {
     "enabled": true,
-    "description": "Antigravity 2.18.1 Mechanical Stop Verification Gate: Enforces clean release gates for formal benchmarks while allowing subagents and interactive sessions to complete seamlessly.",
-    "Stop": [
+    "description": "Antigravity Track 2 Academic Governance Guard: Enforces academic invariants, CDE contracts, Triad artifacts, and stage validation.",
+    "PreToolUse": [
       {
+        "matcher": "apply_diff|batch_replace|call_mcp_tool|define_subagent|edit_file|invoke_subagent|manage_subagents|manage_task|multi_file_edit|multi_replace_file_content|patch|read_resource|read_url_content|replace_file_content|run_command|schedule|send_message|view_file|write_to_file",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,sys; f='.agents/scripts/mechanical_stop_gate.py' if os.path.exists('.agents/scripts/mechanical_stop_gate.py') else 'scripts/mechanical_stop_gate.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\"",
-            "timeout": 20
+            "command": "python3 -c \"import os,sys; f='.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreToolUse",
+            "timeout": 15
           }
         ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "apply_diff|batch_replace|call_mcp_tool|define_subagent|edit_file|invoke_subagent|manage_subagents|manage_task|multi_file_edit|multi_replace_file_content|patch|read_resource|read_url_content|replace_file_content|run_command|schedule|send_message|view_file|write_to_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import os,sys; f='.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PostToolUse",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python3 -c \"import os,sys; f='.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreInvocation",
+        "timeout": 15
+      }
+    ],
+    "PostInvocation": [
+      {
+        "type": "command",
+        "command": "python3 -c \"import os,sys; f='.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PostInvocation",
+        "timeout": 15
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 -c \"import os,sys; f='.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event Stop",
+        "timeout": 20
       }
     ]
   }

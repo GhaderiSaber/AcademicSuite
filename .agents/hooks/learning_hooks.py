@@ -534,6 +534,23 @@ class LearningHooks:
         except Exception as e:
             sys.stderr.write(f"[learning_hooks] Detect validation failure note: {e}\n")
 
+        # Suppress if learning or authoring remediation subagents were already launched in recent turns
+        if records:
+            for r in reversed(records[-15:]):
+                for tc in r.get("tool_calls", []):
+                    if (tc.get("name") or "").lower() == "invoke_subagent":
+                        subs = tc.get("args", {}).get("Subagents", [])
+                        if isinstance(subs, str):
+                            try:
+                                subs = json.loads(subs)
+                            except Exception:
+                                subs = []
+                        for s in (subs if isinstance(subs, list) else []):
+                            if isinstance(s, dict):
+                                t_name = (s.get("TypeName") or s.get("Role") or "").lower()
+                                if any(k in t_name for k in ("trajectory", "behavior", "curator", "evolver", "writer", "academic-writer")):
+                                    return None
+
         # 2. Inspect on-disk validation_report.json across workspacePaths
         try:
             workspaces = payload.get("workspacePaths", [ROOT_DIR])
@@ -574,12 +591,12 @@ class LearningHooks:
                                         )
                                     except Exception:
                                         pass
-                                return {
-                                    "validator_name": v_data.get("validator_name", "ValidationReport"),
-                                    "summary": f"Report in '{os.path.basename(s_dir)}' overall_verdict is FAIL ({checks_failed} checks failed)",
-                                    "stage_dir": s_dir,
-                                    "checks_failed": checks_failed
-                                }
+                                    return {
+                                        "validator_name": v_data.get("validator_name", "ValidationReport"),
+                                        "summary": f"Report in '{os.path.basename(s_dir)}' overall_verdict is FAIL ({checks_failed} checks failed)",
+                                        "stage_dir": s_dir,
+                                        "checks_failed": checks_failed
+                                    }
                         except Exception:
                             pass
         except Exception as e_disk:
