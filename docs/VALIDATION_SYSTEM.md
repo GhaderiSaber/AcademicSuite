@@ -12,7 +12,7 @@ In autonomous agent pipelines, allowing generator agents (`academic-writer`, `st
 
 Under **Phase 8**, the Academic Suite establishes an independent, adversarial validation layer consisting of:
 1. **`validation-agent`:** The cognitive evaluator and Viva Voce defense committee simulator.
-2. **Deterministic Validators (`validators/`):** 5 programmatic inspection engines executing mathematical, statistical, and typographical verification on physical disk artifacts.
+2. **Deterministic Validators (`.agents/validators/`):** 5 programmatic inspection engines executing mathematical, statistical, and typographical verification on physical disk artifacts.
 
 ```text
 +-----------------------------------------------------------------------------+
@@ -30,7 +30,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
 |   (Independent Adversarial Auditor & Defense Committee Gatekeeper)          |
 |                                                                             |
 |                 Invokes Deterministic Validator Suite CLI:                  |
-|          python3 validators/run_all_validators.py --stage-dir <path>        |
+|          python3 .agents/validators/run_all_validators.py --stage-dir <path>        |
 +-------------------------------------+---------------------------------------+
                                       |
                                       v
@@ -58,9 +58,9 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
 
 ---
 
-## 2. Directory of Deterministic Validators (`validators/`)
+## 2. Directory of Deterministic Validators (`.agents/validators/`)
 
-### 1. `validators/data_integrity/`
+### 1. `.agents/validators/data_integrity/`
 - **Script:** [`validators/data_integrity/validator.py`](../.agents/validators/data_integrity/validator.py)
 - **Target Deliverables:** `data_cleaned.xlsx`, `00_data_curation_report.json`
 - **Evaluated Signals:**
@@ -69,7 +69,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
   - Multivariate outliers: Confirms Mahalanobis $D^2$ ($p < .001$) outliers are documented in the curation log.
   - Little's MCAR test: Flags `FAIL` if missingness is MAR/MNAR ($p \le .05$) without appropriate handling.
 
-### 2. `validators/numerical_consistency/`
+### 2. `.agents/validators/numerical_consistency/`
 - **Script:** [`validators/numerical_consistency/validator.py`](../.agents/validators/numerical_consistency/validator.py)
 - **Target Deliverables:** `stats_results.json`, `<stage>.json`
 - **Evaluated Signals:**
@@ -80,7 +80,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
   - Parameter bounds: Verifies correlations remain in $[-1.0, +1.0]$ and $R^2$ in $[0.0, 1.0]$.
   - Multi-Signal Anomaly Index (MSAI) computation ($0-100$).
 
-### 3. `validators/statistical_assumptions/`
+### 3. `.agents/validators/statistical_assumptions/`
 - **Script:** [`validators/statistical_assumptions/validator.py`](../.agents/validators/statistical_assumptions/validator.py)
 - **Target Deliverables:** `03_parametric_assumptions.json`, `assumptions.json`
 - **Evaluated Signals:**
@@ -89,7 +89,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
   - Homogeneity of Regression Slopes: $Group \times Covariate$ interaction ($p > .05$). Flags `FAIL` if $p \le .05$ because ANCOVA is fundamentally invalid.
   - Multicollinearity: Collinearity diagnostics (VIF $< 5.0$, Tolerance $> .20$).
 
-### 4. `validators/result_consistency/`
+### 4. `.agents/validators/result_consistency/`
 - **Script:** [`validators/result_consistency/validator.py`](../.agents/validators/result_consistency/validator.py)
 - **Target Deliverables:** Synchronized Triad (`<stage>.json` vs. `<stage>.md` vs. `<stage>.docx`)
 - **Evaluated Signals:**
@@ -97,7 +97,7 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
   - Flags `FAIL` if a number reported in narrative or tables differs from the deterministic calculation JSON.
   - Verifies sample size $N$ is invariant across all 3 files.
 
-### 5. `validators/reporting_consistency/`
+### 5. `.agents/validators/reporting_consistency/`
 - **Script:** [`validators/reporting_consistency/validator.py`](../.agents/validators/reporting_consistency/validator.py)
 - **Target Deliverables:** `<stage>.md`, `<stage>.docx`
 - **Evaluated Signals:**
@@ -111,10 +111,10 @@ Under **Phase 8**, the Academic Suite establishes an independent, adversarial va
 
 ## 3. Master Unified Validator CLI Runner
 
-The suite is orchestrated via [`validators/run_all_validators.py`](../.agents/validators/run_all_validators.py):
+The suite is orchestrated via [`.agents/validators/run_all_validators.py`](../.agents/validators/run_all_validators.py):
 
 ```bash
-python3 validators/run_all_validators.py --stage-dir projects/active/ch4/stage_4_6_1
+python3 .agents/validators/run_all_validators.py --stage-dir projects/active/ch4/stage_4_6_1
 ```
 
 ### JSON Output Structure:
@@ -151,7 +151,7 @@ Statistics Agent
        ↓
 sem_results.json
        ↓
-Statistical Validator (validators/numerical_consistency/validator.py)
+Statistical Validator (.agents/validators/numerical_consistency/validator.py)
        ↓
 PASS / FAIL / NEEDS_REVIEW
 ```
@@ -160,7 +160,7 @@ PASS / FAIL / NEEDS_REVIEW
 2. **Handoff:** `academic-orchestrator` invokes `validation-agent` with the path to `sem_results.json`.
 3. **Execution:** `validation-agent` executes:
    ```bash
-   python3 validators/numerical_consistency/validator.py --stats sem_results.json --n 116
+   python3 .agents/validators/numerical_consistency/validator.py --stats sem_results.json --n 116
    ```
 4. **Verdict Evaluation:**
    - If degrees of freedom match model parameters and fit indices satisfy cutoffs $\rightarrow$ **`PASS`**.

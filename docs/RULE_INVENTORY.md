@@ -47,6 +47,8 @@ Governance operates on three levels:
 | **Directive 21** | **Proactive Human Mentorship Graduation** | Human mentor guidance immediately codified into `.agents/learning/knowledge/`. Universal procedural invariants graduated into `SKILL.md` / `rules/AGENTS.md`. | `academic_graduation_compiler.py` |
 | **Directive 22** | **Fail-Closed Mechanical Validation Gate Invariant** | Reject verbal "PASS"; require verified physical `validation_report.json` on disk with `overall_verdict == "PASS"` and `checks_failed == 0`. | `Stop` hook / `validation_agent_guard.py` |
 | **Directive 23** | **Clean Workspace Root Standard** | Writing or dropping executable/analysis scripts directly into repository root is strictly prohibited. Route scripts strictly to: scratch, `02_analysis_code/`, `.agents/scripts/`, or `tests/`. | `PreToolUse` hook / `safety_hooks.py` |
+| **Directive 24** | **Main Agent Codification Boundary & Non-Interference** | Track 1 Main Agent is strictly responsible for repository infrastructure and must NEVER manually evolve skills or edit enforced invariants. Autonomous learning belongs exclusively to the learning pipeline. | `PreToolUse` hook / `safety_hooks.py` |
+| **Directive 25** | **Universal Anti-Shortcut, Zero-Fastpath & No-Rush Invariant** | Zero permission for fastpaths, shortpaths, ad-hoc bypasses, temporary workarounds, placeholder stubs, or mock implementations across ALL agents, subagents, and the Main Agent itself. Strictly zero rush or haste in getting the job done. | `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py` |
 
 ---
 

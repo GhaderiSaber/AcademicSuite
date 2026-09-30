@@ -164,7 +164,7 @@ python3 scripts/orchestrator_dependency_resolver.py route-task \
 
 ## 7. Graduated Complexity Levels (L0–L4) & Teamwork Integration
 
-For fine-grained multi-agent task scaling, AcademicSuite integrates with native Antigravity Teamwork via `scripts/teamwork_boundary_adapter.py` and `contracts/teamwork_boundary.schema.json`:
+For fine-grained multi-agent task scaling, AcademicSuite integrates with native Antigravity Teamwork via `.agents/scripts/teamwork_boundary_adapter.py` and `.agents/contracts/teamwork_boundary.schema.json`:
 
 | Level | Scope | Team Formation Mode | Workspaces | Conductor |
 | :--- | :--- | :--- | :--- | :--- |
@@ -174,5 +174,5 @@ For fine-grained multi-agent task scaling, AcademicSuite integrates with native 
 | **L3** | Thesis/Paper Milestone | `full_milestone_pipeline` | Stage Dirs | `academic-orchestrator` (`invoke_subagent`) |
 | **L4** | Full Research Project | `dynamic_teamwork` | `branch` / `share` | Antigravity Native Teamwork (`/teamwork-preview`) |
 
-For the complete specification on ownership boundaries and abstract role mappings, see [ANTIGRAVITY_TEAMWORK_INTEGRATION.md](ANTIGRAVITY_TEAMWORK_INTEGRATION.md).
+For the complete architectural manual on subagents, rules, and lifecycle hooks, see [ANTIGRAVITY_2.18_AGENTS_SUBAGENTS_RULES_HOOKS_MANUAL.md](ANTIGRAVITY_2.18_AGENTS_SUBAGENTS_RULES_HOOKS_MANUAL.md).
 

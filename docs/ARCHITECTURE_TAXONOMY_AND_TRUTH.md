@@ -70,7 +70,7 @@ The filesystem contains exactly 31 packaged agent directories, categorized into:
 - **Total Registered Agents on Disk**: **31**.
 
 #### 1.1 The Planar Architecture Model (6 Operational Planes + 1 Administrative Plane)
-To eliminate mesh authority sprawl where secondary planners spawned sub-agents and critics mutated files they audited, the 30 agents are strictly partitioned into **6 Operational Planes** and **1 Administrative Plane**:
+To eliminate mesh authority sprawl where secondary planners spawned sub-agents and critics mutated files they audited, the 31 agents are strictly partitioned into **6 Operational Planes** and **1 Administrative Plane**:
 
 1. **CONTROL PLANE** (Coordination & Strategy):
    - `academic-orchestrator` (Conductor): Holds `invoke_subagent`. Strictly prohibited from file mutation and code execution (Directive 20).
@@ -123,8 +123,8 @@ To eliminate mesh authority sprawl where secondary planners spawned sub-agents a
 ### 4. Consolidated Subsystem Architecture (`.agents/` Enclosure)
 In accordance with Directive 19 and the root-cleanliness invariant:
 - All framework code, scripts, contracts, hooks, and legacy assets reside strictly inside `.agents/`:
-  - `.agents/agents/` — 30 Cognitive Roles
-  - `.agents/skills/` — 44 Production Capabilities
+  - `.agents/agents/` — 31 Cognitive Roles (29 Production + 2 Verification Fixtures)
+  - `.agents/skills/` — 45 Production Capabilities
   - `.agents/contracts/` — 51 Schema & Manifest Contracts
   - `.agents/scripts/` — Deterministic Orchestration & State Engines
   - `.agents/validators/` — Gatekeeper Validators (Data, Numbers, Reporting)
@@ -137,7 +137,7 @@ In accordance with Directive 19 and the root-cleanliness invariant:
 - **Root Directory Cleanliness**: Zero `scripts/`, `tools/`, `contracts/`, `validators/`, or `legacy/` symlinks or directories exist in the root repository. Python path resolution is enforced deterministically by `tests/conftest.py` and `run_tests.py`.
 
 ### 5. Repository File Count Reconciliation
-- An earlier historical document (`CODEBASE_INVENTORY_AUDIT.md`) reported "7,102 repository files". That audit scanned an uncleaned development environment containing untracked build artifacts, temporary directories, and git objects.
+- An earlier historical document reported "7,102 repository files". That audit scanned an uncleaned development environment containing untracked build artifacts, temporary directories, and git objects.
 - In the active, clean production repository, exactly **~1,445 tracked files** exist in git version control, with 100% of Python files passing AST parsing and bytecode compilation.
 
 ---
@@ -147,7 +147,6 @@ In accordance with Directive 19 and the root-cleanliness invariant:
 Documents located in:
 - `docs/migration/` (Reports 00 through 14)
 - `docs/evolution/` (Reports 00 through 08)
-- `docs/architecture/CODEBASE_INVENTORY_AUDIT.md`
 
 Are **permanent historical audit records** of specific milestones in the evolution of AcademicSuite. They reflect the exact state of the codebase at the time that phase was completed. 
 

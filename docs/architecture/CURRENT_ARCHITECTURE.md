@@ -28,8 +28,8 @@
 The **AcademicSuite** (incorporating the **Digital Saber Professional AI Twin**) is a comprehensive research cognitive architecture and statistical consultancy framework engineered for graduate dissertations (M.A./M.Sc., Ph.D.) and academic journal publishing in psychology and the behavioral sciences.
 
 The system is architected around a strict division between:
-1. **The Brains & Critics**: 28 autonomous cognitive agents and subagents executing within the native Google Antigravity runtime.
-2. **The Hands**: 44 specialized skills containing deterministic Python and R calculation scripts, psychometric simulators, and OpenXML Word/PPTX compilation engines.
+1. **The Brains & Critics**: 31 registered cognitive agents and subagents (29 production roles + 2 verification test fixtures) executing within the native Google Antigravity runtime.
+2. **The Hands**: 45 specialized skills containing deterministic Python and R calculation scripts, psychometric simulators, and OpenXML Word/PPTX compilation engines.
 3. **The Guardrails**: Lifecycle hooks (`.agents/hooks.json`), OS-level least-privilege file permissions, and fail-closed schema validators.
 
 ```text
@@ -82,7 +82,7 @@ The system is architected around a strict division between:
 
 ---
 
-## 2. Current Agents & Subagents (28 Roles)
+## 2. Current Agents & Subagents (31 Roles: 29 Production + 2 Verification Test Fixtures)
 
 Agents are defined declaratively in `.agents/agents/<name>/agent.md` with companion contracts in `contract.md` and backward-compatible discovery symlinks at `.agents/agents/<name>.md`.
 
@@ -97,7 +97,7 @@ Agents are defined declaratively in `.agents/agents/<name>/agent.md` with compan
 6. **`evidence-auditor`**: Plagiarism detection (Irandoc/SamimNoor), reference accuracy, DOI resolution, and bibliographic library management (.enw/.ris).
 7. **`final-judge`**: Impartial quality release gatekeeper certifying milestone compliance, multi-signal integrity, and defense readiness.
 
-### 2.3 Tier 3: Bounded Specialist Execution Subagents (8 Agents)
+### 2.3 Tier 3: Bounded Specialist Execution Subagents (9 Agents)
 8. **`data-agent`**: Data discovery, schema mapping, reverse-coding from 4,880 validated instruments, variable transformations, and psychometric simulation.
 9. **`data-curator`**: Raw dataset ingestion, missing data pattern diagnosis (MCAR/MAR/MNAR), unengaged response filtering, and multivariate outlier screening (Mahalanobis $D^2$).
 10. **`statistics-agent`**: Executes approved statistical plans on verified data, parametric assumption tests, and APA 7 table generation.
@@ -106,27 +106,32 @@ Agents are defined declaratively in `.agents/agents/<name>/agent.md` with compan
 13. **`literature-expert`**: Multi-database literature harvesting, empirical parameter extraction (N, design, scales), and theoretical mechanism synthesis.
 14. **`intervention-designer`**: Standardized psychological intervention protocols (ACT, CBT, Schema, CFT, MBSR) and clinical session tables.
 15. **`qualitative-analyst`**: Reflexive Thematic Analysis (Braun & Clarke) and Grounded Theory (Strauss & Corbin).
+16. **`project-organizer`**: Standard 4-tier project taxonomy scaffolding (01_raw_inputs, 02_analysis_code, 03_deliverables, 04_references_and_lit), metadata initialization & workspace migration.
 
 ### 2.4 Tier 4: Specialist Reviewers & Adversarial Critics (7 Agents)
-16. **`validation-agent`**: Independent adversarial quality auditor, Viva Voce defense simulator, and institutional release gatekeeper.
-17. **`statistical-auditor`**: Adversarial auditor for statistical assumptions, degrees of freedom concordance, and Multi-Signal Anomaly Index (MSAI) scoring.
-18. **`results-auditor`**: Enforces APA 7th Edition numerical precision, Persian leading zero standard (۰.۰۰۱), and OpenXML 3-line table borders.
-19. **`academic-challenger`**: Adversarial examiner identifying p-hacking, unmeasured confounding, sample selection bias, and statistical fragility.
-20. **`journal-strategist`**: Target journal matching (WoS/Scopus/ISC), formatting guidelines, and peer-review rebuttal management.
-21. **`meta-analyst`**: PRISMA 2020 systematic literature reviews, Cochrane RoB 2 risk of bias evaluations, and quantitative meta-analysis.
-22. **`longitudinal-modmed-expert`**: 3-wave longitudinal moderated mediation modeling and autoregressive cross-lagged controls.
+17. **`validation-agent`**: Independent adversarial quality auditor, Viva Voce defense simulator, and institutional release gatekeeper.
+18. **`statistical-auditor`**: Adversarial auditor for statistical assumptions, degrees of freedom concordance, and Multi-Signal Anomaly Index (MSAI) scoring.
+19. **`results-auditor`**: Enforces APA 7th Edition numerical precision, Persian leading zero standard (۰.۰۰۱), and OpenXML 3-line table borders.
+20. **`academic-challenger`**: Adversarial examiner identifying p-hacking, unmeasured confounding, sample selection bias, and statistical fragility.
+21. **`journal-strategist`**: Target journal matching (WoS/Scopus/ISC), formatting guidelines, and peer-review rebuttal management.
+22. **`meta-analyst`**: PRISMA 2020 systematic literature reviews, Cochrane RoB 2 risk of bias evaluations, and quantitative meta-analysis.
+23. **`longitudinal-modmed-expert`**: 3-wave longitudinal moderated mediation modeling and autoregressive cross-lagged controls.
 
 ### 2.5 Tier 5: Autonomous Learning & Evolution Subagents (6 Subagents)
-23. **`behavior-analyst`**: Diagnoses why agent behavior succeeded or failed via causal root-cause analysis.
-24. **`curriculum-builder`**: Architects graduated training scenarios and challenge benchmark datasets.
-25. **`evaluation-agent`**: Independently benchmarks improvement candidates with zero regressions.
-26. **`knowledge-curator`**: Synthesizes episodic experiences and causal diagnoses into structured knowledge items and anti-patterns.
-27. **`skill-evolver`**: Formulates candidate mutations to Skills and behavioral instructions.
-28. **`trajectory-analyzer`**: Reconstructs observable execution trajectories from raw tool calls and script exits.
+24. **`behavior-analyst`**: Diagnoses why agent behavior succeeded or failed via causal root-cause analysis.
+25. **`curriculum-builder`**: Architects graduated training scenarios and challenge benchmark datasets.
+26. **`evaluation-agent`**: Independently benchmarks improvement candidates with zero regressions.
+27. **`knowledge-curator`**: Synthesizes episodic experiences and causal diagnoses into structured knowledge items and anti-patterns.
+28. **`skill-evolver`**: Formulates candidate mutations to Skills and behavioral instructions.
+29. **`trajectory-analyzer`**: Reconstructs observable execution trajectories from raw tool calls and script exits.
+
+### 2.6 Tier 6: Verification Test Fixtures (2 Agents)
+30. **`test-orchestrator`**: Minimal proof-of-concept orchestrator verifying pure delegation without execution tools.
+31. **`test-worker`**: Minimal proof-of-concept worker with execution tools.
 
 ---
 
-## 3. Current Skills (44 Skills)
+## 3. Current Skills (45 Skills)
 
 Skills reside in `.agents/skills/<skill-name>/SKILL.md` and are loaded on-demand via Antigravity's progressive disclosure mechanism:
 
@@ -143,39 +148,40 @@ Skills reside in `.agents/skills/<skill-name>/SKILL.md` and are loaded on-demand
 | 9 | `bibliometric-network-analyst` | Bibliometric mapping, VOSviewer | Bradford/Lotka, Callon density |
 | 10 | `cfa` | Confirmatory Factor Analysis | Factor loading & AVE/CR script |
 | 11 | `chapter-4-writing` | Chapter 4 micro-stage drafting | Stage-gate builders & tables |
-| 12 | `citation-network-visualizer` | 300-DPI citation graphs | Citation network graphers |
-| 13 | `data-audit` | Screening straight-lining, MCAR | Little's MCAR & Mahalanobis |
-| 14 | `data-cleaning` | Reverse-coding 4,880 questionnaires| Instrument scoring engines |
-| 15 | `descriptive-statistics` | Descriptive parameters (M, SD, Skew)| Univariate descriptives calculator |
-| 16 | `digital-twin-academic-consultant`| Proposal pricing & consulting | `proposal_price_estimator.py` |
-| 17 | `gpower-sample-size-calculator` | Statistical power & sample sizing | G*Power 3.1 calculation engine |
-| 18 | `irandoc-plagiarism-reducer` | SamimNoor/Irandoc similarity repair | Structural paraphrasing engine |
-| 19 | `journal-submission-assistant` | Journal matching & author guidelines| Submission packaging scripts |
-| 20 | `literature-harvester` | CrossRef, PubMed, SID harvester | Harvester CLI runners |
-| 21 | `literature-review` | Inverted-triangle literature review | Literature synthesizer |
-| 22 | `longitudinal-moderated-mediation`| 3-wave longitudinal modmed | Longitudinal bootstrap engine |
-| 23 | `mediation` | PROCESS Model 4 bootstrap mediation | Preacher & Hayes 5,000 bootstrap |
-| 24 | `methodology-review` | Methodology validity audit | Design audit checklists |
-| 25 | `moderation` | PROCESS Model 1 moderation | Simple slopes & Johnson-Neyman |
-| 26 | `network-analysis` | Bibliometric & citation networks | Co-occurrence network scripts |
-| 27 | `persian-academic-translation` | Academic translation with APA rules | Translation terminology mapper |
-| 28 | `persian-defense-presentation-builder`| 16:9 defense slides (PPTX + HTML) | DrawingML SmartArt generator |
-| 29 | `persian-discussion-builder` | Chapter 5 Discussion & Mechanisms | Mechanism & concordance builder |
-| 30 | `persian-literature-review-builder`| Chapter 2 Review & Background table| Background empirical matrix |
-| 31 | `persian-proposal-builder` | Graduate research proposals | Proposal OpenXML generator |
-| 32 | `persian-thesis-builder` | 5-chapter thesis compilation | Master Word compiler |
-| 33 | `persian-thesis-revision-assistant`| Examiner response tables & diffs | Track changes & response table |
-| 34 | `psychological-intervention-protocol-builder`| Intervention manuals (ACT, CBT) | Session table OpenXML compiler |
-| 35 | `psychometric-data-simulator` | Monte Carlo realistic data simulation| Realistic decimal noise engine |
-| 36 | `psychometric-scale-resolver` | 4,880 questionnaires resolver | Questionnaire database query |
-| 37 | `psychometric-scale-validator` | CVR/CVI, EFA, CFA, Omega, IRT | Psychometric validation pipeline |
-| 38 | `qualitative-data-analyst` | Thematic analysis & Grounded Theory | Inter-coder reliability calculator |
-| 39 | `regression` | Hierarchical & stepwise regression | Multiple regression engine |
-| 40 | `reliability-analysis` | Cronbach's alpha & McDonald's omega | Reliability calculation engine |
-| 41 | `sem` | Structural Equation Modeling | Latent SEM & Hu & Bentler fit |
-| 42 | `statistical-data-analyst` | Hypothesis testing & APA 4 report | Hypothesis test runners |
-| 43 | `systematic-review-meta-analyst` | PRISMA 2020 & Hedges' g pooling | Forest/Funnel plot generators |
-| 44 | `thesis-integrity-auditor` | Forensic cross-chapter audit | df & citation reconciliation |
+| 12 | `chapter-5-writing` | Chapter 5 Discussion orchestration | 4-element psychological model & triads |
+| 13 | `citation-network-visualizer` | 300-DPI citation graphs | Citation network graphers |
+| 14 | `data-audit` | Screening straight-lining, MCAR | Little's MCAR & Mahalanobis |
+| 15 | `data-cleaning` | Reverse-coding 4,880 questionnaires| Instrument scoring engines |
+| 16 | `descriptive-statistics` | Descriptive parameters (M, SD, Skew)| Univariate descriptives calculator |
+| 17 | `digital-twin-academic-consultant`| Proposal pricing & consulting | `proposal_price_estimator.py` |
+| 18 | `gpower-sample-size-calculator` | Statistical power & sample sizing | G*Power 3.1 calculation engine |
+| 19 | `irandoc-plagiarism-reducer` | SamimNoor/Irandoc similarity repair | Structural paraphrasing engine |
+| 20 | `journal-submission-assistant` | Journal matching & author guidelines| Submission packaging scripts |
+| 21 | `literature-harvester` | CrossRef, PubMed, SID harvester | Harvester CLI runners |
+| 22 | `literature-review` | Inverted-triangle literature review | Literature synthesizer |
+| 23 | `longitudinal-moderated-mediation`| 3-wave longitudinal modmed | Longitudinal bootstrap engine |
+| 24 | `mediation` | PROCESS Model 4 bootstrap mediation | Preacher & Hayes 5,000 bootstrap |
+| 25 | `methodology-review` | Methodology validity audit | Design audit checklists |
+| 26 | `moderation` | PROCESS Model 1 moderation | Simple slopes & Johnson-Neyman |
+| 27 | `network-analysis` | Bibliometric & citation networks | Co-occurrence network scripts |
+| 28 | `persian-academic-translation` | Academic translation with APA rules | Translation terminology mapper |
+| 29 | `persian-defense-presentation-builder`| 16:9 defense slides (PPTX + HTML) | DrawingML SmartArt generator |
+| 30 | `persian-discussion-builder` | Chapter 5 Discussion & Mechanisms | Mechanism & concordance builder |
+| 31 | `persian-literature-review-builder`| Chapter 2 Review & Background table| Background empirical matrix |
+| 32 | `persian-proposal-builder` | Graduate research proposals | Proposal OpenXML generator |
+| 33 | `persian-thesis-builder` | 5-chapter thesis compilation | Master Word compiler |
+| 34 | `persian-thesis-revision-assistant`| Examiner response tables & diffs | Track changes & response table |
+| 35 | `psychological-intervention-protocol-builder`| Intervention manuals (ACT, CBT) | Session table OpenXML compiler |
+| 36 | `psychometric-data-simulator` | Monte Carlo realistic data simulation| Realistic decimal noise engine |
+| 37 | `psychometric-scale-resolver` | 4,880 questionnaires resolver | Questionnaire database query |
+| 38 | `psychometric-scale-validator` | CVR/CVI, EFA, CFA, Omega, IRT | Psychometric validation pipeline |
+| 39 | `qualitative-data-analyst` | Thematic analysis & Grounded Theory | Inter-coder reliability calculator |
+| 40 | `regression` | Hierarchical & stepwise regression | Multiple regression engine |
+| 41 | `reliability-analysis` | Cronbach's alpha & McDonald's omega | Reliability calculation engine |
+| 42 | `sem` | Structural Equation Modeling | Latent SEM & Hu & Bentler fit |
+| 43 | `statistical-data-analyst` | Hypothesis testing & APA 4 report | Hypothesis test runners |
+| 44 | `systematic-review-meta-analyst` | PRISMA 2020 & Hedges' g pooling | Forest/Funnel plot generators |
+| 45 | `thesis-integrity-auditor` | Forensic cross-chapter audit | df & citation reconciliation |
 
 *(Built-in Antigravity skills mounted automatically: `agy-customizations`, `antigravity_guide`, `generative_ui`, `migrate-workflows`, `google-antigravity-sdk`).*
 

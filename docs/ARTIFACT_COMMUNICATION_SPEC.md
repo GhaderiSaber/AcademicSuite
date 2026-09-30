@@ -21,7 +21,7 @@ In complex multi-agent academic workflows (such as dissertation analysis, psycho
 
 ## 2. Canonical Directory Hierarchy
 
-Every research project maintained in `projects/<project-name>/` includes a dedicated `academic-state/` directory structured as follows:
+Every research project conforms to the standardized 4-tier taxonomy (`01_raw_inputs/`, `02_analysis_code/`, `03_deliverables/`, `04_references_and_lit/`) and includes an auditable `academic-state/` directory structured as follows:
 
 ```
 academic-state/

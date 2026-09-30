@@ -1,7 +1,7 @@
 # Agent Inventory & Cognitive Role Audit
 
-**Document Version:** 2.3.0 (Project Organizer Integrated)  
-**Total Agents Defined:** 29 (23 Domain & Research Roles + 6 Continuous Learning Subagents)  
+**Document Version:** 3.0.0 (Authoritative 31-Agent Production Baseline)  
+**Total Agents Defined:** 31 Registered Agents on Disk (29 Production Roles + 2 Verification Test Agents)  
 **Runtime Architecture:** Antigravity Native Multi-Agent System (`invoke_subagent`)  
 **Behavioral Contracts:** 100% of agents possess a verified 12-section `contract.md`  
 
@@ -24,34 +24,36 @@ Every agent is packaged as an **Option 1 Directory Package** containing:
 | Category | Agent Name | Primary Mandate | Behavioral Contract |
 | :--- | :--- | :--- | :--- |
 | Domain Specialist Subagent | `academic-challenger` | Adversarial methodology, bias & statistical challenger | [contract.md](../.agents/agents/academic-challenger/contract.md) |
-| Core Primary Agent (Phase 3) | `academic-orchestrator` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/academic-orchestrator/contract.md) |
-| Core Primary Agent (Phase 3) | `academic-writer` | Master academic chapter drafter, Persian rhetoric specialist & durable writing authority | [contract.md](../.agents/agents/academic-writer/contract.md) |
-| Core Primary Agent (Phase 3) | `data-agent` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/data-agent/contract.md) |
-| Domain Specialist Subagent | `data-curator` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/data-curator/contract.md) |
-| Domain Specialist Subagent | `digital-saber` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/digital-saber/contract.md) |
-| Domain Specialist Subagent | `evidence-auditor` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/evidence-auditor/contract.md) |
-| Domain Specialist Subagent | `final-judge` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/final-judge/contract.md) |
-| Domain Specialist Subagent | `intervention-designer` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/intervention-designer/contract.md) |
-| Domain Specialist Subagent | `journal-strategist` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/journal-strategist/contract.md) |
-| Domain Specialist Subagent | `literature-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/literature-expert/contract.md) |
-| Domain Specialist Subagent | `longitudinal-modmed-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/longitudinal-modmed-expert/contract.md) |
-| Domain Specialist Subagent | `meta-analyst` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/meta-analyst/contract.md) |
-| Domain Specialist Subagent | `methodology-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/methodology-expert/contract.md) |
-| Domain Specialist Subagent | `project-organizer` | Standard 4-tier project taxonomy scaffolding, metadata initialization & workspace migration | [contract.md](../.agents/agents/project-organizer/contract.md) |
-| Domain Specialist Subagent | `psychometric-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/psychometric-expert/contract.md) |
-| Domain Specialist Subagent | `qualitative-analyst` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/qualitative-analyst/contract.md) |
-| Core Primary Agent (Phase 3) | `research-agent` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/research-agent/contract.md) |
-| Domain Specialist Subagent | `results-auditor` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/results-auditor/contract.md) |
-| Domain Specialist Subagent | `statistical-auditor` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/statistical-auditor/contract.md) |
-| Domain Specialist Subagent | `statistical-expert` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/statistical-expert/contract.md) |
-| Core Primary Agent (Phase 3) | `statistics-agent` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/statistics-agent/contract.md) |
-| Core Primary Agent (Phase 3) | `validation-agent` | Specialized academic/statistical mandate | [contract.md](../.agents/agents/validation-agent/contract.md) |
+| Core Conductor Agent | `academic-orchestrator` | Master academic research conductor, workflow decomposition & capability routing (Directive 20: Pure Conductor) | [contract.md](../.agents/agents/academic-orchestrator/contract.md) |
+| Core Primary Agent | `academic-writer` | Master academic chapter drafter, Persian rhetoric specialist & durable writing authority | [contract.md](../.agents/agents/academic-writer/contract.md) |
+| Core Primary Agent | `data-agent` | Raw dataset ingestion, data screening, reverse-coding from 4,880 instruments & psychometric simulation | [contract.md](../.agents/agents/data-agent/contract.md) |
+| Domain Specialist Subagent | `data-curator` | Missing data pattern diagnosis (MCAR/MAR/MNAR), unengaged response filtering & multivariate outlier screening | [contract.md](../.agents/agents/data-curator/contract.md) |
+| Principal Cognitive Twin | `digital-saber` | Principal cognitive twin of Saber Ghaderi, master research lead & academic consultancy desk | [contract.md](../.agents/agents/digital-saber/contract.md) |
+| Epistemic Integrity Auditor | `evidence-auditor` | Epistemic integrity, bidirectional citation concordance, Irandoc similarity compliance & AI cliché elimination | [contract.md](../.agents/agents/evidence-auditor/contract.md) |
+| Defense Committee Simulator | `final-judge` | Independent dissertation defense committee simulator, viva voce cross-examiner & institutional release gatekeeper | [contract.md](../.agents/agents/final-judge/contract.md) |
+| Domain Specialist Subagent | `intervention-designer` | Evidence-based psychological intervention protocols, clinical manuals & session worksheets | [contract.md](../.agents/agents/intervention-designer/contract.md) |
+| Domain Specialist Subagent | `journal-strategist` | Academic journal article packaging, target WoS/Scopus journal selection & peer-review rebuttal packages | [contract.md](../.agents/agents/journal-strategist/contract.md) |
+| Domain Specialist Subagent | `literature-expert` | Multi-database literature harvesting, empirical parameter extraction & theoretical mechanism synthesis | [contract.md](../.agents/agents/literature-expert/contract.md) |
+| Domain Specialist Subagent | `longitudinal-modmed-expert` | 3-wave longitudinal moderated mediation modeling with autoregressive baseline controls | [contract.md](../.agents/agents/longitudinal-modmed-expert/contract.md) |
+| Domain Specialist Subagent | `meta-analyst` | PRISMA 2020 systematic literature reviews, Cochrane RoB 2 risk of bias & quantitative meta-analysis | [contract.md](../.agents/agents/meta-analyst/contract.md) |
+| Domain Specialist Subagent | `methodology-expert` | Research methodology, experimental and quasi-experimental design, G*Power sampling & validity safeguards | [contract.md](../.agents/agents/methodology-expert/contract.md) |
+| Execution Subagent | `project-organizer` | Standard 4-tier project taxonomy scaffolding, metadata initialization & workspace migration | [contract.md](../.agents/agents/project-organizer/contract.md) |
+| Domain Specialist Subagent | `psychometric-expert` | Psychometric instrument resolution, Classical Test Theory (CTT), Item Response Theory (IRT) & CFA construct validation | [contract.md](../.agents/agents/psychometric-expert/contract.md) |
+| Domain Specialist Subagent | `qualitative-analyst` | Qualitative data analysis, Braun & Clarke Reflexive Thematic Analysis & Grounded Theory | [contract.md](../.agents/agents/qualitative-analyst/contract.md) |
+| Core Primary Agent | `research-agent` | Scientific literature harvesting, research question formulation, experimental design & methodology specification | [contract.md](../.agents/agents/research-agent/contract.md) |
+| Quality Control Auditor | `results-auditor` | Quality control enforcing APA 7th Edition numerical precision, Persian leading zero rule & 3-line tables | [contract.md](../.agents/agents/results-auditor/contract.md) |
+| Adversarial Quality Auditor | `statistical-auditor` | Adversarial auditor for parametric assumptions, degrees of freedom concordance & Multi-Signal Anomaly Index (MSAI) | [contract.md](../.agents/agents/statistical-auditor/contract.md) |
+| Domain Specialist Advisor | `statistical-expert` | Statistical method selection, hypothesis testing determination & formal analysis plan reasoning | [contract.md](../.agents/agents/statistical-expert/contract.md) |
+| Core Primary Agent | `statistics-agent` | Computational inferential modeling (ANCOVA, RM-ANOVA, PROCESS mediation, SEM), results extraction & APA 7 tables | [contract.md](../.agents/agents/statistics-agent/contract.md) |
+| Independent Quality Auditor | `validation-agent` | Independent pre-flight quality assurance, cross-chapter consistency & institutional release gatekeeper | [contract.md](../.agents/agents/validation-agent/contract.md) |
 | Continuous Learning Subagent | `behavior-analyst` | Causal root-cause analysis and diagnosis of agent behavior | [contract.md](../.agents/agents/behavior-analyst/contract.md) |
 | Continuous Learning Subagent | `curriculum-builder` | Graduated complexity benchmark scenarios and practice tasks | [contract.md](../.agents/agents/curriculum-builder/contract.md) |
 | Continuous Learning Subagent | `evaluation-agent` | Deterministic evaluation lab harness and counterfactual tests | [contract.md](../.agents/agents/evaluation-agent/contract.md) |
 | Continuous Learning Subagent | `knowledge-curator` | Synthesis of episodic experiences into reusable knowledge | [contract.md](../.agents/agents/knowledge-curator/contract.md) |
 | Continuous Learning Subagent | `skill-evolver` | Candidate Skill mutations and behavioral instructions diffs | [contract.md](../.agents/agents/skill-evolver/contract.md) |
 | Continuous Learning Subagent | `trajectory-analyzer` | Reconstructs observable tool calls, exit codes, and artifacts | [contract.md](../.agents/agents/trajectory-analyzer/contract.md) |
+| Verification Test Fixture | `test-orchestrator` | Minimal proof-of-concept orchestrator verifying pure delegation without execution tools | [contract.md](../.agents/agents/test-orchestrator/contract.md) |
+| Verification Test Fixture | `test-worker` | Minimal proof-of-concept worker with execution tools | [contract.md](../.agents/agents/test-worker/contract.md) |
 
 ---
 

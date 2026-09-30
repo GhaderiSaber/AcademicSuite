@@ -13,7 +13,7 @@ In the Academic Suite:
 
 When presented with an academic research prompt:
 1. **Preflight Intent & Capability Resolution (Model B Architecture)**:
-   - External CLI runners or the Antigravity `PreInvocation` lifecycle hook execute `scripts/academic_task_router.py` ("The Hands") deterministically.
+   - External CLI runners or the Antigravity `PreInvocation` lifecycle hook execute `.agents/scripts/academic_task_router.py` ("The Hands") deterministically.
    - The router compiles the minimum sufficient capability pipeline into `academic-state/routing_plan.json`.
 2. **Artifact Consumption (The Brains)**:
    - The **Academic Orchestrator** (pure cognitive conductor without `run_command`, Directive 20) calls `view_file` on `academic-state/routing_plan.json` (or inspects the pre-invocation context) to ingest the required capability order and artifact contracts.
@@ -108,17 +108,17 @@ The router employs a multi-tiered recognition grammar:
 
 ## 6. Deterministic CLI Tooling ("The Hands")
 
-In compliance with **Directive 12.1 (Sole Orchestrator Mandate)**, all pattern matching and pipeline construction logic is implemented as a deterministic Python tool in `scripts/academic_task_router.py`:
+In compliance with **Directive 12.1 (Sole Orchestrator Mandate)**, all pattern matching and pipeline construction logic is implemented as a deterministic Python tool in `.agents/scripts/academic_task_router.py`:
 
 ```bash
 # 1. Generate JSON pipeline specification
-python3 scripts/academic_task_router.py route "Perform CFA and SEM"
+python3 .agents/scripts/academic_task_router.py route "Perform CFA and SEM"
 
 # 2. Print formatted human-readable summary
-python3 scripts/academic_task_router.py explain "Write Chapter 4"
+python3 .agents/scripts/academic_task_router.py explain "Write Chapter 4"
 
 # 3. List canonical archetypes
-python3 scripts/academic_task_router.py list-patterns
+python3 .agents/scripts/academic_task_router.py list-patterns
 ```
 
 ### Sample Output (`route`):
@@ -175,7 +175,7 @@ python3 scripts/academic_task_router.py list-patterns
 Under **Directive 19 (Six-Part Separation)** and **Directive 20 (Orchestrator Non-Execution Invariant)**, the Academic Orchestrator possesses zero execution tools (`run_command` absent). Routing is strictly decoupled from runtime agent execution:
 
 1. **Preflight Plan Compilation**:
-   - For CLI/batch runs: `python3 scripts/academic_task_router.py route "<user prompt>" -o academic-state/routing_plan.json`
+   - For CLI/batch runs: `python3 .agents/scripts/academic_task_router.py route "<user prompt>" -o academic-state/routing_plan.json`
    - For interactive chat: Antigravity's `PreInvocation` lifecycle hook intercepts the user message, invokes `academic_task_router.py`, persists `academic-state/routing_plan.json`, and injects the deterministic capability plan into the orchestrator context.
 2. **Deterministic Plan Consumption**:
    - The Orchestrator inspects `academic-state/routing_plan.json` via its canonical `view_file` tool.

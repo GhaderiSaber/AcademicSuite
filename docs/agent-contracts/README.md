@@ -16,7 +16,7 @@ In accordance with **Phase 4 (Design Agent Contracts)** of the Academic Suite Ar
 11. `COMPLETION CRITERIA`: Conditions required before signaling task completion.
 12. `FAILURE CONDITIONS`: Specific triggers for reporting failure to the recovery engine.
 
-## Agent Contracts Index (22 Roles)
+## Agent Contracts Index (31 Registered Roles)
 
 ### Core Primary Agents (Phase 3 Taxonomy)
 - [academic-orchestrator](../../.agents/agents/academic-orchestrator/contract.md): Task decomposition, delegation, state coordination.
@@ -38,8 +38,21 @@ In accordance with **Phase 4 (Design Agent Contracts)** of the Academic Suite Ar
 - [longitudinal-modmed-expert](../../.agents/agents/longitudinal-modmed-expert/contract.md): 3-wave longitudinal moderated mediation specialist.
 - [meta-analyst](../../.agents/agents/meta-analyst/contract.md): PRISMA 2020 systematic review & Cochrane RoB 2 meta-analyst.
 - [methodology-expert](../../.agents/agents/methodology-expert/contract.md): Research design & G*Power sampling auditor.
+- [project-organizer](../../.agents/agents/project-organizer/contract.md): Standard 4-tier project taxonomy scaffolding & workspace migrations.
 - [psychometric-expert](../../.agents/agents/psychometric-expert/contract.md): CVR/CVI, CTT, IRT, EFA & CFA construct validator.
 - [qualitative-analyst](../../.agents/agents/qualitative-analyst/contract.md): Reflexive Thematic Analysis & Grounded Theory specialist.
 - [results-auditor](../../.agents/agents/results-auditor/contract.md): APA 7 numerical precision & OpenXML OMML math auditor.
 - [statistical-auditor](../../.agents/agents/statistical-auditor/contract.md): Adversarial degrees-of-freedom & MSAI scoring auditor.
 - [statistical-expert](../../.agents/agents/statistical-expert/contract.md): Statistical hypothesis testing planner & execution architect.
+
+### Continuous Learning & Evolution Agents
+- [behavior-analyst](../../.agents/agents/behavior-analyst/contract.md): Causal root-cause analysis and diagnosis of agent behavior.
+- [curriculum-builder](../../.agents/agents/curriculum-builder/contract.md): Graduated complexity benchmark scenarios and practice tasks.
+- [evaluation-agent](../../.agents/agents/evaluation-agent/contract.md): Deterministic evaluation lab harness and counterfactual tests.
+- [knowledge-curator](../../.agents/agents/knowledge-curator/contract.md): Synthesis of episodic experiences into reusable knowledge.
+- [skill-evolver](../../.agents/agents/skill-evolver/contract.md): Candidate Skill mutations and behavioral instructions diffs.
+- [trajectory-analyzer](../../.agents/agents/trajectory-analyzer/contract.md): Reconstructs observable tool calls, exit codes, and artifacts.
+
+### Verification Test Fixtures
+- [test-orchestrator](../../.agents/agents/test-orchestrator/contract.md): Minimal proof-of-concept orchestrator verifying pure delegation.
+- [test-worker](../../.agents/agents/test-worker/contract.md): Minimal proof-of-concept worker with execution tools.
