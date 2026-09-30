@@ -417,6 +417,12 @@ class TestIndividualDedicatedGuardsBehavior(unittest.TestCase):
         self.assertEqual(res.get("decision"), "deny")
         res = trajectory_analyzer_guard.handle_pre_tool_use({"toolCall": {"name": "write_to_file", "args": {"TargetFile": "a.txt"}}})
         self.assertEqual(res.get("decision"), "deny")
+        # Production mutation denied
+        res = trajectory_analyzer_guard.handle_pre_tool_use({"toolCall": {"name": "write_to_file", "args": {"TargetFile": "03_deliverables/output.json"}}})
+        self.assertEqual(res.get("decision"), "deny")
+        # Learning experience write allowed
+        res = trajectory_analyzer_guard.handle_pre_tool_use({"toolCall": {"name": "write_to_file", "args": {"TargetFile": ".agents/learning/experience/TRJ-2026-TEST.json"}}})
+        self.assertEqual(res.get("decision"), "allow")
 
     def test_test_orchestrator_guard(self):
         import test_orchestrator_guard

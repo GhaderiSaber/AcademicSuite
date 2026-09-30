@@ -122,7 +122,7 @@ sequenceDiagram
 ## 5. Architectural Invariants & Implementation Details
 
 ### 5.1 Anti-Amnesia Temporal Indexing
-- **Location**: [`.agents/agents/academic-orchestrator/guard.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/agents/academic-orchestrator/guard.py) (`get_defect_and_learning_lifecycle_state`)
+- **Location**: [`.agents/agents/academic-orchestrator/guard.py`](.agents/agents/academic-orchestrator/guard.py) (`get_defect_and_learning_lifecycle_state`)
 - **Mechanism**:
   - `defect_idx = max(latest_critique_idx, latest_validation_failure_idx)`
   - When `latest_eval_idx >= defect_idx` and zero pending candidates exist in `.agents/learning/candidates/`:
@@ -130,13 +130,13 @@ sequenceDiagram
   - Turn boundaries (`records[last_user_idx + 1:]`) no longer erase earlier evaluation accomplishments.
 
 ### 5.2 Anti-Phantom False Positive Suppression
-- **Location**: [`.agents/hooks/learning_hooks.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/hooks/learning_hooks.py) (`detect_recent_validation_failure`)
+- **Location**: [`.agents/hooks/learning_hooks.py`](.agents/hooks/learning_hooks.py) (`detect_recent_validation_failure`)
 - **Mechanism**:
   - Suppresses ephemeral learning prompt injections (`CONTINUOUS LEARNING TRIGGER ACTIVE`) when in `REMEDIATION_PHASE`.
   - Filters out `EPHEMERAL_MESSAGE`, `SYSTEM_SDK`, and code preview (`File Path: \`file:///`) records so viewing failing reports does not trigger false defects.
 
 ### 5.3 Protojson Schema Safety (Zero `"message"` Field)
-- **Location**: [`.agents/hooks/track2_academic_dispatcher.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/hooks/track2_academic_dispatcher.py) & [`.agents/hooks/safety_hooks.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/hooks/safety_hooks.py)
+- **Location**: [`.agents/hooks/track2_academic_dispatcher.py`](.agents/hooks/track2_academic_dispatcher.py) & [`.agents/hooks/safety_hooks.py`](.agents/hooks/safety_hooks.py)
 - **Mechanism**:
   - Antigravity's HookResult protobuf schema defines `decision`, `reason`, etc., but strictly lacks a `message` field.
   - All hooks and dispatchers strictly emit:
@@ -149,7 +149,7 @@ sequenceDiagram
   - Eliminates protobuf unmarshaling errors (`via protojson: unknown field "message"`).
 
 ### 5.4 High-Precision Critique Detection
-- **Location**: [`.agents/contracts/critique_detection_contract.py`](file:///home/saber-ghaderi/Desktop/AcademicSuite/.agents/contracts/critique_detection_contract.py)
+- **Location**: [`.agents/contracts/critique_detection_contract.py`](.agents/contracts/critique_detection_contract.py)
 - **Mechanism**:
   - Distinguishes authentic error reports (*"The table numbers are wrong"*) from conversational instructions (*"Please fix the document now"*).
   - Eliminates false-positive cascade resets during turn 2 remediation confirmations.
