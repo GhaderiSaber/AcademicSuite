@@ -28,6 +28,15 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+# Auto-discovery of local virtualenv site-packages (.venv / venv)
+for venv_name in [".venv", "venv"]:
+    venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
+    if os.path.isdir(venv_lib):
+        for entry in os.listdir(venv_lib):
+            sp = os.path.join(venv_lib, entry, "site-packages")
+            if os.path.isdir(sp) and sp not in sys.path:
+                sys.path.insert(0, sp)
+
 # Also ensure .agents/scripts is in sys.path
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 if SCRIPTS_DIR not in sys.path:
@@ -166,9 +175,26 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
                         in_table = False
 
                     if line.strip():
-                        p = doc.add_paragraph(line.strip())
+                        p = doc.add_paragraph()
                         set_rtl(p)
-                        if p.runs: set_font(p.runs[0], 'B Nazanin', 14)
+                        # Tokenize markdown
+                        import re
+                        parts = re.split(r'(\*\*[^*]+\*\*|\*[^*]+\*)', line.strip())
+                        for part in parts:
+                            if not part: continue
+                            is_bold = False
+                            is_italic = False
+                            content = part
+                            if part.startswith('**') and part.endswith('**'):
+                                is_bold = True
+                                content = part[2:-2]
+                            elif part.startswith('*') and part.endswith('*'):
+                                is_italic = True
+                                content = part[1:-1]
+                            run = p.add_run(content)
+                            run.bold = is_bold
+                            run.italic = is_italic
+                            set_font(run, 'B Nazanin', 14)
             if in_table and table_data:
                 table = doc.add_table(rows=len(table_data), cols=len(table_data[0]))
                 table.style = 'Light Shading'
@@ -387,13 +413,15 @@ def cmd_polish_tone(args: argparse.Namespace) -> int:
             line = re.sub(r'\| متغیر پیش‌بین \| ضریب غیراستاندارد \(B\) \| خطای معیار \(SE\) \| ضریب استاندارد \(β\) \| آماره t \| p \| ۹۵٪ CI \[LL, UL\] \|',
                           r'| متغیر پیش‌بین | B | SE | β | t | p | ۹۵٪ CI [LL, UL] |', line)
 
-            # Raw **
-            line = line.replace('**', '')
-            # math
+            # math inside table
             line = line.replace('$\\beta$', 'β').replace('$\\to$', '→')
             line = line.replace('$-0.165$', '۰.۱۶۵-')
             line = re.sub(r'\$([^$]*?)\$', lambda m: m.group(1).replace('\\beta', 'β').replace('\\to', '→').replace('\\alpha', 'α').replace('\\omega', 'ω'), line)
-            lines[i] = line
+        
+        # Strip all raw asterisks globally from all lines
+        line = line.replace('**', '')
+        line = line.replace('*', '')
+        lines[i] = line
     
     polished = '\n'.join(lines)
     
@@ -455,12 +483,32 @@ def build_parser() -> argparse.ArgumentParser:
     p_apa.add_argument("--input", help="Table specification JSON")
     p_apa.add_argument("--out", help="Output path")
 
-    # polish-tone
     p_tone = subparsers.add_parser("polish-tone", help="Polish Persian academic tone and half-spaces")
     p_tone.add_argument("--in", dest="in_file", help="Input draft file")
     p_tone.add_argument("--out", dest="out_file", help="Output polished file")
 
+    # batch-fix
+    p_batch = subparsers.add_parser("batch-fix", help="Batch polish and re-render all deliverables")
+
     return parser
+
+def cmd_batch_fix(args: argparse.Namespace) -> int:
+    import glob
+    from argparse import Namespace
+    md_files = glob.glob("03_deliverables/*.md")
+    for md_path in md_files:
+        base = os.path.splitext(md_path)[0]
+        json_path = base + ".json"
+        docx_path = base + ".docx"
+        # polish
+        cmd_polish_tone(Namespace(in_file=md_path, out_file=md_path))
+        # render
+        if os.path.exists(json_path):
+            cmd_render_docx(Namespace(md=md_path, json=json_path, docx=docx_path, out=docx_path, title=None))
+        else:
+            cmd_render_docx(Namespace(md=md_path, json=None, docx=docx_path, out=docx_path, title=None))
+    print("SUCCESS: Batch fixed all deliverables.")
+    return 0
 
 
 def main() -> int:
@@ -475,6 +523,7 @@ def main() -> int:
         "compile-presentation": cmd_compile_presentation,
         "scaffold-apa-tables": cmd_scaffold_apa_tables,
         "polish-tone": cmd_polish_tone,
+        "batch-fix": cmd_batch_fix,
     }
 
     handler = handlers.get(args.subcommand)

@@ -8,14 +8,15 @@
 - **Investigation Targets**: `03_deliverables/Chapter_4_Results.md`, `03_deliverables/Chapter_4_Results.docx`
 - **Overall Verdict**: `FAIL`
 - **Audit Outcome**: `FAILURE`
-- **Reconstruction Date**: `2026-09-30T07:35:00Z`
-- **Reconstructing Subagent**: `trajectory-analyzer`
 
 ## 1. Forensic Executive Summary
 During the quality audit of Chapter 4 deliverables, critical defects were observed across Persian academic typography, OpenXML styling tags, and scholarly tone.
 
-1. Resolution of earlier Markdown-dumping critique triggered new defects.
-2. Defect 1: Inline raw Latin terminology and scale acronyms without transliteration.
-3. Defect 2: Formulaic generative AI clichés («در این راستا»).
-4. Defect 3: Arabic font fallback in OpenXML DOCX due to missing w:hint="cs" and <w:lang w:val="fa-IR"/>.
-5. Defect 4: Numeral formatting anomalies.
+1. **Inline Raw Latin Terminology & Scale Acronyms**:
+   Raw English terms were inserted directly into parentheses in body text (e.g. Suicidal Ideation, IUS-12, SCI-16, RRS-22, PANAS-NA).
+2. **Formulaic Generative AI Clichés**:
+   In lines 5 and 193 of Chapter_4_Results.md, the writer inserted the banned mechanical phrase «در این راستا».
+3. **Arabic Font Fallback in OpenXML DOCX**:
+   The compilation script omitted w:hint="cs", <w:lang w:val="fa-IR" w:bidi="fa-IR"/>, <w:szCs>, and <w:bCs>, causing Microsoft Word to fall back to Arabic Naskh rendering.
+4. **Numeral Formatting Inconsistencies**:
+   ASCII English numerals were mixed in Persian narrative sentences and table notes.
