@@ -264,8 +264,9 @@ def is_data_analysis_stage(stage_or_file: str, stage_dir: Optional[str] = None) 
             return True
         # If neither .docx nor .md exists on disk for this stem, check if .json has valid data
         json_file = f"{stem}.json"
-        has_text_draft = f"{stem}.md" in files or f"{stem}.docx" in files
-        if not has_text_draft and json_file in files:
+        has_text_draft = any(f.endswith(".md") or f.endswith(".docx") for f in files)
+        is_hypo_or_findings = any(k in stem for k in ("hypo", "demographic", "descript", "correl", "regress", "reliab", "sem", "cfa", "mediat", "moderat", "ancova", "anova"))
+        if not is_hypo_or_findings and not has_text_draft and json_file in files:
             try:
                 with open(os.path.join(target_dir, json_file), "r", encoding="utf-8") as jf:
                     jdata = json.load(jf)
