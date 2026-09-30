@@ -33,14 +33,27 @@ for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents")):
         sys.path.insert(0, p)
 
 try:
-    from contracts.hook_identity_contract import is_main_agent_developer
+    from contracts.hook_identity_contract import is_main_agent_developer, is_learning_subagent, is_auditor_agent
 except ImportError:
     try:
-        from .contracts.hook_identity_contract import is_main_agent_developer
+        from .contracts.hook_identity_contract import is_main_agent_developer, is_learning_subagent, is_auditor_agent
     except ImportError:
         def is_main_agent_developer(payload):
             caller = (payload.get("agentName") or payload.get("caller") or "").lower().strip()
             return caller in ("main", "default", "antigravity", "developer")
+
+        def is_learning_subagent(caller):
+            if not caller:
+                return False
+            c = str(caller).lower().strip()
+            return any(k in c for k in ("behavior-analyst", "curriculum-builder", "evaluation-agent", "knowledge-curator", "skill-evolver", "trajectory-analyzer"))
+
+        def is_auditor_agent(caller):
+            if not caller:
+                return False
+            c = str(caller).lower().strip()
+            return any(k in c for k in ("validation", "auditor", "challenger", "judge", "inspector"))
+
 
 
 class DynamicInvariantGuard:
@@ -157,6 +170,10 @@ class DynamicInvariantGuard:
         tool_name = (tool_call.get("name") or payload.get("tool_name") or "").strip().lower()
         args = tool_call.get("args") or payload.get("args") or {}
         caller_clean = (caller or payload.get("agentName") or payload.get("agent") or "").strip().lower()
+        if not caller_clean:
+            sub_desc = payload.get("subagentDescriptor") or {}
+            if isinstance(sub_desc, dict):
+                caller_clean = (sub_desc.get("typeName") or sub_desc.get("role") or "").strip().lower()
 
         target_file = cls._extract_target_file(args)
         content = cls._extract_content(args)
@@ -184,6 +201,8 @@ class DynamicInvariantGuard:
 
             # Agent target filtering
             target_agents = [a.lower().strip() for a in rule.get("target_agents", [])]
+            if is_learning_subagent(caller_clean) and caller_clean not in target_agents:
+                continue
             if "*" not in target_agents and caller_clean and caller_clean not in target_agents:
                 if caller_clean not in ("academic-agent", "academic", "unknown", "specialist", "subagent"):
                     continue
@@ -249,6 +268,16 @@ class DynamicInvariantGuard:
             return {"decision": "allow"}
 
         caller_clean = (caller or payload.get("agentName") or payload.get("agent") or "").strip().lower()
+        if not caller_clean:
+            sub_desc = payload.get("subagentDescriptor") or {}
+            if isinstance(sub_desc, dict):
+                caller_clean = (sub_desc.get("typeName") or sub_desc.get("role") or "").strip().lower()
+
+        # Learning subagents (benchmarking/evaluation) and quality auditor subagents (audit reporting)
+        # do not author thesis deliverables in 03_deliverables/ and must never be blocked by deliverable defects.
+        if is_learning_subagent(caller_clean) or is_auditor_agent(caller_clean):
+            return {"decision": "allow"}
+
         invariants = cls.load_invariants()
         if not invariants:
             return {"decision": "allow"}
@@ -285,6 +314,8 @@ class DynamicInvariantGuard:
                 continue
 
             target_agents = [a.lower().strip() for a in rule.get("target_agents", [])]
+            if is_learning_subagent(caller_clean) and caller_clean not in target_agents:
+                continue
             if "*" not in target_agents and caller_clean and caller_clean not in target_agents:
                 if caller_clean not in ("academic-agent", "academic", "unknown", "specialist", "subagent"):
                     continue

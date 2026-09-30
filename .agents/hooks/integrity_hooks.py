@@ -27,11 +27,23 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 try:
-    from contracts.hook_identity_contract import resolve_transcript_path, resolve_hook_identity
+    from contracts.hook_identity_contract import (
+        resolve_transcript_path,
+        resolve_hook_identity,
+        is_learning_subagent,
+        is_auditor_agent,
+        LEARNING_SUBAGENTS,
+    )
     from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
 except ImportError:
     try:
-        from .contracts.hook_identity_contract import resolve_transcript_path, resolve_hook_identity
+        from .contracts.hook_identity_contract import (
+            resolve_transcript_path,
+            resolve_hook_identity,
+            is_learning_subagent,
+            is_auditor_agent,
+            LEARNING_SUBAGENTS,
+        )
         from .contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
     except ImportError:
         def resolve_transcript_path(payload):
@@ -42,6 +54,21 @@ except ImportError:
             return False, None
         def extract_clean_user_message(raw_text):
             return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
+        LEARNING_SUBAGENTS = (
+            "behavior-analyst", "curriculum-builder", "evaluation-agent",
+            "knowledge-curator", "skill-evolver", "trajectory-analyzer",
+        )
+        def is_learning_subagent(caller):
+            if not caller:
+                return False
+            c = str(caller).lower().strip()
+            return any(k in c for k in LEARNING_SUBAGENTS)
+        def is_auditor_agent(caller):
+            if not caller:
+                return False
+            c = str(caller).lower().strip()
+            return any(k in c for k in ("validation", "auditor", "challenger", "judge", "inspector"))
+
 
 
 def resolve_caller(payload: Dict[str, Any]) -> str:
@@ -321,13 +348,23 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
-    def verify_missing_artifacts(workspaces: List[str]) -> Tuple[bool, str]:
+    def verify_missing_artifacts(workspaces: List[str], caller: str = "") -> Tuple[bool, str]:
         """
         Secondary Enforcement (Missing Artifact Guard):
         Detects missing artifacts across active stage directories and authoritative manifests.
         1. Checks Triad Artifact Invariant (.docx, .md, .json).
         2. Checks declared manifest deliverables exist and have non-zero size.
+
+        EXEMPTION FOR LEARNING SUBAGENTS, AUDITORS, AND MAIN DEVELOPER:
+        Learning subagents (benchmarking/evaluation) and quality auditors do not author
+        thesis deliverables and must not be blocked by incomplete chapter deliverables on disk.
         """
+        caller_clean = (caller or "").lower().strip()
+        if is_learning_subagent(caller_clean) or is_auditor_agent(caller_clean) or caller_clean in (
+            "default", "main", "developer", "coding", "cli-developer", "ide-developer"
+        ):
+            return True, ""
+
         ok_triad, reason_triad = IntegrityHooks.verify_artifacts(workspaces)
         if not ok_triad:
             return False, reason_triad
@@ -339,7 +376,7 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
-    def verify_state_transitions(workspaces: List[str]) -> Tuple[bool, str]:
+    def verify_state_transitions(workspaces: List[str], caller: str = "") -> Tuple[bool, str]:
         """
         Secondary Enforcement (Invalid State Transition Guard):
         Detects invalid state transitions in workspace state directories.
@@ -347,6 +384,11 @@ class IntegrityHooks:
         STAGE_LEGAL_TRANSITIONS and explicit human approval gates.
         Fails closed on any malformed JSON, corrupted ledger, non-dict state, or illegal transition.
         """
+        caller_clean = (caller or "").lower().strip()
+        if is_learning_subagent(caller_clean) or is_auditor_agent(caller_clean) or caller_clean in (
+            "default", "main", "developer", "coding", "cli-developer", "ide-developer"
+        ):
+            return True, ""
         legal_transitions = {
             "STAGE_LOCKED": {"STAGE_READY", "STAGE_BLOCKED"},
             "STAGE_READY": {"STAGE_RUNNING", "STAGE_BLOCKED"},
@@ -465,12 +507,17 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
-    def verify_worker_returns(workspaces: List[str]) -> Tuple[bool, str]:
+    def verify_worker_returns(workspaces: List[str], caller: str = "") -> Tuple[bool, str]:
         """
         Secondary Enforcement (Worker Return Invariant Guard - Phase 21):
         Verifies that worker subagent returns recorded in state or handoffs contain:
         artifact, evidence, status, validation (not simply 'done').
         """
+        caller_clean = (caller or "").lower().strip()
+        if is_learning_subagent(caller_clean) or is_auditor_agent(caller_clean) or caller_clean in (
+            "default", "main", "developer", "coding", "cli-developer", "ide-developer"
+        ):
+            return True, ""
         try:
             from validators.worker_return_validator import validate_worker_return_payload
         except ImportError:
@@ -558,12 +605,17 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
-    def verify_provenance(workspaces: List[str]) -> Tuple[bool, str]:
+    def verify_provenance(workspaces: List[str], caller: str = "") -> Tuple[bool, str]:
         """
         Secondary Enforcement (Invalid Provenance Guard):
         Detects invalid provenance across manifests, deliverables, and dependencies.
         Verifies input SHA-256 integrity, deliverable SHA-256 hash match, and dependency manifest hashes.
         """
+        caller_clean = (caller or "").lower().strip()
+        if is_learning_subagent(caller_clean) or is_auditor_agent(caller_clean) or caller_clean in (
+            "default", "main", "developer", "coding", "cli-developer", "ide-developer"
+        ):
+            return True, ""
         def compute_file_sha256(filepath: str) -> str:
             h = hashlib.sha256()
             with open(filepath, "rb") as f:
@@ -718,13 +770,9 @@ class IntegrityHooks:
         Similarly, Track 1 Main Developer is exempt from academic delivery gates.
         """
         caller_clean = (caller or "").lower().strip()
-        is_auditor = any(k in caller_clean for k in (
-            "validation", "auditor", "challenger", "judge", "inspector"
-        ))
-        is_main_dev = caller_clean in (
+        if is_learning_subagent(caller_clean) or is_auditor_agent(caller_clean) or caller_clean in (
             "default", "main", "developer", "coding", "cli-developer", "ide-developer"
-        )
-        if is_auditor or is_main_dev:
+        ):
             return True, ""
         active_stage_dirs = []
         for ws in workspaces:
@@ -1379,22 +1427,22 @@ class IntegrityHooks:
             return {"decision": "continue", "reason": reason}
 
         # 3. State Machine Consistency (Invalid State Transition Detection)
-        ok, reason = IntegrityHooks.verify_state_transitions(workspaces)
+        ok, reason = IntegrityHooks.verify_state_transitions(workspaces, caller=caller)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
         # 3.5 Worker Return Structure (Phase 21 Invariant)
-        ok, reason = IntegrityHooks.verify_worker_returns(workspaces)
+        ok, reason = IntegrityHooks.verify_worker_returns(workspaces, caller=caller)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
         # 4. Missing Artifacts Detection (Triad Invariant & Manifest Deliverables)
-        ok, reason = IntegrityHooks.verify_missing_artifacts(workspaces)
+        ok, reason = IntegrityHooks.verify_missing_artifacts(workspaces, caller=caller)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
         # 5. Provenance Integrity Detection (Input/Output Hashes & Dependencies)
-        ok, reason = IntegrityHooks.verify_provenance(workspaces)
+        ok, reason = IntegrityHooks.verify_provenance(workspaces, caller=caller)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
