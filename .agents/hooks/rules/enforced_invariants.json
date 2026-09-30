@@ -1,14 +1,13 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-30T16:59:40.146839+00:00",
+  "updated_at": "2026-09-30T17:09:43.924465+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
       "category": "Lesson",
       "statement": "Chapter 5 must strictly contain ZERO tables (markdown or Word). All tables belong exclusively in Chapter 4.",
       "target_agents": [
-        "academic-writer",
-        "academic-orchestrator"
+        "academic-writer"
       ],
       "target_skills": [
         "chapter-5-writing",
@@ -22,16 +21,15 @@
       "violation_message": "Chapter 5 must strictly contain ZERO tables (markdown or Word). All tables belong exclusively in Chapter 4.",
       "remedy": "Remove all markdown tables (|---|) and Word tables (<w:tbl>) from Chapter 5. Express findings exclusively through narrative prose.",
       "enabled": true,
-      "updated_at": "2026-09-29T17:45:00.985254+00:00"
+      "updated_at": "2026-09-30T17:09:43.924235+00:00"
     },
     "LSN-2026-STRUCTURAL-REFERENCE-PARSING-001": {
       "item_id": "LSN-2026-STRUCTURAL-REFERENCE-PARSING-001",
       "category": "Reference Integrity",
       "statement": "Reference extraction and bibliography compilation must strictly exclude document subheadings, chapter titles, and non-reference text blocks from bibliography lists.",
       "target_agents": [
-        "academic-reference-extractor",
         "academic-writer",
-        "results-auditor"
+        "research-agent"
       ],
       "target_skills": [
         "academic-reference-extractor",
@@ -45,15 +43,15 @@
       "violation_message": "Non-reference text or subheading leaked into bibliography or reference artifact.",
       "remedy": "Strip document subheadings and chapter headers before emitting reference list. Validate publication year in parentheses or standard bibliographic markers.",
       "enabled": true,
-      "updated_at": "2026-09-25T15:57:52.521410+00:00"
+      "updated_at": "2026-09-30T17:09:43.924271+00:00"
     },
     "AP-2026-NAIVE-LENGTH-REFERENCE-PARSING": {
       "item_id": "AP-2026-NAIVE-LENGTH-REFERENCE-PARSING",
       "category": "Anti-Pattern",
       "statement": "Implement robust structural parsing using regex patterns that match specific citation components (e.g., publication year in parentheses, DOI links, standard APA 7 formatting) or use a dedicated reference parser rather than character count.",
       "target_agents": [
-        "academic-reference-extractor",
-        "academic-writer"
+        "academic-writer",
+        "research-agent"
       ],
       "target_skills": [],
       "event": "Both",
@@ -64,14 +62,13 @@
       "violation_message": "Implement robust structural parsing using regex patterns that match specific citation components (e.g., publication year in parentheses, DOI links, standard APA 7 formatting) or use a dedicated reference parser rather than character count.",
       "remedy": "Implement robust structural parsing using regex patterns that match specific citation components (e.g., publication year in parentheses, DOI links, standard APA 7 formatting) or use a dedicated reference parser rather than character count.",
       "enabled": true,
-      "updated_at": "2026-09-25T16:01:58.343524+00:00"
+      "updated_at": "2026-09-30T17:09:43.924279+00:00"
     },
     "LSN-2026-DOM-PARSING-FOR-OPENXML-MODIFICATION-001": {
       "item_id": "LSN-2026-DOM-PARSING-FOR-OPENXML-MODIFICATION-001",
       "category": "Lesson",
       "statement": "Strictly ban regex string substitutions on minified XML. Mandate structured XML DOM parsing via lxml or ElementTree for all OpenXML modifications. Mandate mechanical body paragraph count verification (> 0) before release.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -85,14 +82,13 @@
       "violation_message": "Strictly ban regex string substitutions on minified XML. Mandate structured XML DOM parsing via lxml or ElementTree for all OpenXML modifications. Mandate mechanical body paragraph count verification (> 0) before release.",
       "remedy": "Use structured XML DOM parsing (lxml / ElementTree) instead of regex string substitutions on OpenXML files.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:16:01.107142+00:00"
+      "updated_at": "2026-09-30T17:09:43.924283+00:00"
     },
     "LSN-2026-EXPLICIT-RIGHT-ALIGNMENT-AND-INLINE-MARKDOWN-PARSING-001": {
       "item_id": "LSN-2026-EXPLICIT-RIGHT-ALIGNMENT-AND-INLINE-MARKDOWN-PARSING-001",
       "category": "Lesson",
       "statement": "Mandatory: 1) Inject explicit \"<w:jc w:val=\"right\"/>\" for all Persian headings. 2) Tokenize inline Markdown into OpenXML \"<w:i/>\" / \"<w:b/>\" runs with zero raw asterisks in \"<w:t>\".",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -107,15 +103,14 @@
       "violation_message": "Raw markdown asterisks detected in OpenXML text runs. Inline markdown must be tokenized into native <w:b/> or <w:i/> runs.",
       "remedy": "Tokenize inline Markdown into OpenXML native runs (<w:b/>, <w:i/>) with zero raw asterisks dumped into <w:t> text elements.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:16:01.109297+00:00"
+      "updated_at": "2026-09-30T17:09:43.924287+00:00"
     },
     "LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001": {
       "item_id": "LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001",
       "category": "Lesson",
       "statement": "Enforce explicit blank line logic for headings. Implement a strict filter for Appendices to strip narrative/scoring text, retaining only the table and its title.",
       "target_agents": [
-        "academic-writer",
-        "persian-thesis-builder"
+        "academic-writer"
       ],
       "target_skills": [
         "apa-reporting",
@@ -130,15 +125,15 @@
       "violation_message": "Enforce explicit blank line logic for headings. Implement a strict filter for Appendices to strip narrative/scoring text, retaining only the table and its title.",
       "remedy": "Enforce explicit blank line logic for headings. Implement a strict filter for Appendices to strip narrative/scoring text, retaining only the table and its title.",
       "enabled": true,
-      "updated_at": "2026-09-25T18:09:25.468694+00:00"
+      "updated_at": "2026-09-30T17:09:43.924290+00:00"
     },
     "LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001": {
       "item_id": "LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001",
       "category": "Lesson",
       "statement": "Enforce strict bibliographic component verification using anchored regex and explicit exclusion of meta-annotation prose prior to parsing.",
       "target_agents": [
-        "academic-reference-extractor",
-        "thesis-integrity-auditor"
+        "academic-writer",
+        "research-agent"
       ],
       "target_skills": [
         "academic-reference-extractor"
@@ -151,15 +146,15 @@
       "violation_message": "Enforce strict bibliographic component verification using anchored regex and explicit exclusion of meta-annotation prose prior to parsing.",
       "remedy": "Enforce strict bibliographic component verification using anchored regex and explicit exclusion of meta-annotation prose prior to parsing.",
       "enabled": true,
-      "updated_at": "2026-09-25T18:07:39.254848+00:00"
+      "updated_at": "2026-09-30T17:09:43.924293+00:00"
     },
     "LSN-2026-VALIDATOR-THREE-TABLE-FAIL-CLOSED-001": {
       "item_id": "LSN-2026-VALIDATOR-THREE-TABLE-FAIL-CLOSED-001",
       "category": "Lesson",
       "statement": "Enforce fail-closed structural validation for regression models: exactly 3 tables per model (Correlations, ANOVA 11-col, Coefficients 8-col), failing any deliverable that consolidates them.",
       "target_agents": [
-        "validation-agent",
-        "results-auditor"
+        "academic-writer",
+        "statistics-agent"
       ],
       "target_skills": [
         "statistical-data-analyst",
@@ -173,14 +168,13 @@
       "violation_message": "Consolidated single-table regression reporting detected. Institutional standard mandates 3 separate tables per regression hypothesis: Table 1 (Correlations), Table 2 (Model Summary & Combined ANOVA), Table 3 (Coefficients & Collinearity).",
       "remedy": "Decompose regression reporting into the mandatory 3-table format per hypothesis.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:16:01.115341+00:00"
+      "updated_at": "2026-09-30T17:09:43.924296+00:00"
     },
     "CAND-2026-TABLE-BORDER-PERSIAN-ZERO": {
       "item_id": "CAND-2026-TABLE-BORDER-PERSIAN-ZERO",
       "category": "Learned Mechanical Rule",
       "statement": "Vertical borders (<w:insideV>) or English leading zeros (0.xx) detected, violating APA 7 and Persian typographic standards.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -195,14 +189,13 @@
       "violation_message": "Vertical borders (<w:insideV>) or English leading zeros (0.xx) detected, violating APA 7 and Persian typographic standards.",
       "remedy": "Ensure python docx table generators remove <w:insideV> tags and format floating point numbers using Persian leading zeros ('۰.').",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146293+00:00"
+      "updated_at": "2026-09-30T17:09:43.924299+00:00"
     },
     "CAND-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION": {
       "item_id": "CAND-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION",
       "category": "Learned Mechanical Rule",
       "statement": "Draft obliteration detected! Clean-room generation on existing manuscripts is prohibited. Ensure output_bytes >= input_bytes * 0.90.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -217,7 +210,7 @@
       "violation_message": "Draft obliteration detected! Clean-room generation on existing manuscripts is prohibited. Ensure output_bytes >= input_bytes * 0.90.",
       "remedy": "Switch to in-place document modification using DOM parsing or specific replacement. Preserve at least 90% of the original byte size.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146347+00:00"
+      "updated_at": "2026-09-30T17:09:43.924303+00:00"
     },
     "CAND-2026-METHODOLOGY-AWARE-VALIDATION-BRANCHING": {
       "item_id": "CAND-2026-METHODOLOGY-AWARE-VALIDATION-BRANCHING",
@@ -225,7 +218,6 @@
       "statement": "Do not enforce regression 3-table format on SEM manuscripts. Ensure Persian leading zeros are preserved.",
       "target_agents": [
         "academic-orchestrator",
-        "academic-writer",
         "statistics-agent"
       ],
       "target_skills": [
@@ -241,14 +233,13 @@
       "violation_message": "Do not enforce regression 3-table format on SEM manuscripts. Ensure Persian leading zeros are preserved.",
       "remedy": "Implement methodology-aware validation branching.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146376+00:00"
+      "updated_at": "2026-09-30T17:09:43.924306+00:00"
     },
     "CAND-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY": {
       "item_id": "CAND-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY",
       "category": "Learned Mechanical Rule",
       "statement": "Language-Track Typography Violation: English manuscripts must omit the leading zero for bounded metrics (e.g., p < .001, not p < 0.001) per APA 7.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -263,7 +254,7 @@
       "violation_message": "Language-Track Typography Violation: English manuscripts must omit the leading zero for bounded metrics (e.g., p < .001, not p < 0.001) per APA 7.",
       "remedy": "Remove the leading zero for p-values and correlation coefficients in English documents. Ensure Western digits are used.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146399+00:00"
+      "updated_at": "2026-09-30T17:09:43.924309+00:00"
     },
     "LSN-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY": {
       "item_id": "LSN-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY",
@@ -271,8 +262,7 @@
       "statement": "Enforce language-track-aware typography: English manuscripts must follow APA 7 English rules with Western digits and leading zeros omitted for bounded metrics.",
       "target_agents": [
         "academic-writer",
-        "statistics-agent",
-        "results-auditor"
+        "statistics-agent"
       ],
       "target_skills": [
         "apa-reporting",
@@ -286,15 +276,13 @@
       "violation_message": "Enforce language-track-aware typography: English manuscripts must follow APA 7 English rules with Western digits and leading zeros omitted for bounded metrics.",
       "remedy": "Enforce language-track-aware typography: English manuscripts must follow APA 7 English rules with Western digits and leading zeros omitted for bounded metrics.",
       "enabled": true,
-      "updated_at": "2026-09-27T02:37:28.281638+00:00"
+      "updated_at": "2026-09-30T17:09:43.924312+00:00"
     },
     "CAND-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT": {
       "item_id": "CAND-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT",
       "category": "Learned Mechanical Rule",
       "statement": "Supervisor revision audit failed: Document-wide parameter replacement is mandatory. Zero selective paragraph skipping is allowed. Pre-existing elements must be visibly marked with yellow highlights.",
       "target_agents": [
-        "persian-thesis-revision-assistant",
-        "academic-article-writer",
         "academic-writer"
       ],
       "target_skills": [
@@ -310,14 +298,13 @@
       "violation_message": "Supervisor revision audit failed: Document-wide parameter replacement is mandatory. Zero selective paragraph skipping is allowed. Pre-existing elements must be visibly marked with yellow highlights.",
       "remedy": "Ensure exhaustive search-and-replace across the entire document corpus. Apply yellow highlights to verified pre-existing elements. Do not skip paragraphs selectively.",
       "enabled": true,
-      "updated_at": "2026-09-29T17:39:41.772939+00:00"
+      "updated_at": "2026-09-30T17:09:43.924315+00:00"
     },
     "CAND-2026-SURGICAL-RUN-LEVEL-MUTATION": {
       "item_id": "CAND-2026-SURGICAL-RUN-LEVEL-MUTATION",
       "category": "Learned Mechanical Rule",
       "statement": "[AP-2026-PARAGRAPH-CLEAR-HIGHLIGHT-WIPEOUT] paragraph.clear() is strictly banned during document revisions. It wipes out existing run-level formatting, including client green highlights. You must use surgical run-level OpenXML mutation.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -332,16 +319,14 @@
       "violation_message": "[AP-2026-PARAGRAPH-CLEAR-HIGHLIGHT-WIPEOUT] paragraph.clear() is strictly banned during document revisions. It wipes out existing run-level formatting, including client green highlights. You must use surgical run-level OpenXML mutation.",
       "remedy": "Iterate through paragraph.runs and modify text directly. Preserve <w:highlight w:val='green'/> and add <w:highlight w:val='yellow'/> for new revisions.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146424+00:00"
+      "updated_at": "2026-09-30T17:09:43.924318+00:00"
     },
     "LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE": {
       "item_id": "LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE",
       "category": "Lesson",
       "statement": "When drafting Chapter 4, report only statistical parameters (e.g., F, t, p, effect sizes) and direct empirical findings. Eliminate all 'why' explanations, speculations, and dramatic adjectives.",
       "target_agents": [
-        "academic-writer",
-        "results-auditor",
-        "chapter-4-writing"
+        "academic-writer"
       ],
       "target_skills": [
         "chapter-4-writing",
@@ -356,17 +341,14 @@
       "violation_message": "When drafting Chapter 4, report only statistical parameters (e.g., F, t, p, effect sizes) and direct empirical findings. Eliminate all 'why' explanations, speculations, and dramatic adjectives.",
       "remedy": "When drafting Chapter 4, report only statistical parameters (e.g., F, t, p, effect sizes) and direct empirical findings. Eliminate all 'why' explanations, speculations, and dramatic adjectives.",
       "enabled": true,
-      "updated_at": "2026-09-27T06:01:58.343589+00:00"
+      "updated_at": "2026-09-30T17:09:43.924321+00:00"
     },
     "CAND-2026-APA-SINGLE-SAMPLE-INVARIANT": {
       "item_id": "CAND-2026-APA-SINGLE-SAMPLE-INVARIANT",
       "category": "Learned Mechanical Rule",
       "statement": "Single Sample Invariant violated: Dual-sample terminology is prohibited in table notes and captions.",
       "target_agents": [
-        "academic-orchestrator",
-        "academic-writer",
-        "data-agent",
-        "statistics-agent"
+        "academic-writer"
       ],
       "target_skills": [
         "APA_REPORTING"
@@ -379,16 +361,14 @@
       "violation_message": "Single Sample Invariant violated: Dual-sample terminology is prohibited in table notes and captions.",
       "remedy": "Replace banned terminology with 'نمونه پژوهش'.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146442+00:00"
+      "updated_at": "2026-09-30T17:09:43.924323+00:00"
     },
     "CAND-2026-CH4-SINGLE-SAMPLE-INVARIANT": {
       "item_id": "CAND-2026-CH4-SINGLE-SAMPLE-INVARIANT",
       "category": "Learned Mechanical Rule",
       "statement": "Single Sample Invariant violated: Dual-sample terminology is prohibited in Chapter 4 deliverables. Use 'نمونه پژوهش' instead.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer",
-        "data-agent",
         "statistics-agent"
       ],
       "target_skills": [
@@ -402,14 +382,13 @@
       "violation_message": "Single Sample Invariant violated: Dual-sample terminology is prohibited in Chapter 4 deliverables. Use 'نمونه پژوهش' instead.",
       "remedy": "Replace banned sample terminology with a unified designation such as 'نمونه پژوهش (N = ۴۸۳)'.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146462+00:00"
+      "updated_at": "2026-09-30T17:09:43.924326+00:00"
     },
     "CAND-2026-DATA-AUDIT-SINGLE-SAMPLE-INVARIANT": {
       "item_id": "CAND-2026-DATA-AUDIT-SINGLE-SAMPLE-INVARIANT",
       "category": "Learned Mechanical Rule",
       "statement": "Single Sample Invariant violated: Do not output dual-sample terminology in audit reports.",
       "target_agents": [
-        "academic-orchestrator",
         "data-agent",
         "statistics-agent"
       ],
@@ -424,16 +403,14 @@
       "violation_message": "Single Sample Invariant violated: Do not output dual-sample terminology in audit reports.",
       "remedy": "Report only the final sample as 'نمونه پژوهش'.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146480+00:00"
+      "updated_at": "2026-09-30T17:09:43.924329+00:00"
     },
     "AP-2026-BOLD-TABLE-CAPTION-AND-UNJUSTIFIED-NARRATIVE": {
       "item_id": "AP-2026-BOLD-TABLE-CAPTION-AND-UNJUSTIFIED-NARRATIVE",
       "category": "Anti-Pattern",
       "statement": "Ensure table captions are regular non-bold font. Ensure all narrative body paragraphs in DOCX explicitly contain <w:jc w:val=\"both\"/>.",
       "target_agents": [
-        "academic-writer",
-        "apa-reporting",
-        "persian-thesis-builder"
+        "academic-writer"
       ],
       "target_skills": [],
       "event": "Both",
@@ -444,16 +421,14 @@
       "violation_message": "Ensure table captions are regular non-bold font. Ensure all narrative body paragraphs in DOCX explicitly contain <w:jc w:val=\"both\"/>.",
       "remedy": "Ensure table captions are regular non-bold font. Ensure all narrative body paragraphs in DOCX explicitly contain <w:jc w:val=\"both\"/>.",
       "enabled": true,
-      "updated_at": "2026-09-27T07:32:25.970005+00:00"
+      "updated_at": "2026-09-30T17:09:43.924332+00:00"
     },
     "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION": {
       "item_id": "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION",
       "category": "Anti-Pattern",
       "statement": "Formulate dynamic, non-template scholarly narrative tailored specifically to each table cells using Sabers 4-element epistemic structure (Context -> Highlights -> Reference -> Verdict).",
       "target_agents": [
-        "academic-writer",
-        "chapter-4-writing",
-        "statistical-data-analyst"
+        "academic-writer"
       ],
       "target_skills": [
         "chapter-4-writing",
@@ -467,15 +442,14 @@
       "violation_message": "Formulate dynamic, non-template scholarly narrative tailored specifically to each table cells using Sabers 4-element epistemic structure (Context -> Highlights -> Reference -> Verdict).",
       "remedy": "Formulate dynamic, non-template scholarly narrative tailored specifically to each table cells using Sabers 4-element epistemic structure (Context -> Highlights -> Reference -> Verdict).",
       "enabled": true,
-      "updated_at": "2026-09-27T09:55:35.903829+00:00"
+      "updated_at": "2026-09-30T17:09:43.924335+00:00"
     },
     "LSN-2026-APA7-TABLE-FORMATTING-INVARIANTS": {
       "item_id": "LSN-2026-APA7-TABLE-FORMATTING-INVARIANTS",
       "category": "Lesson",
       "statement": "Strictly apply non-bold B Nazanin formatting to table captions overriding prompt requests. Translate or transliterate all English statistical acronyms. Output literal 'یادداشت:' for table notes. Exclude <w:jc w:val='right'/> from bidirectional OpenXML paragraphs.",
       "target_agents": [
-        "academic-writer",
-        "validation-agent"
+        "academic-writer"
       ],
       "target_skills": [
         "apa-reporting",
@@ -489,14 +463,15 @@
       "violation_message": "Strictly apply non-bold B Nazanin formatting to table captions overriding prompt requests. Translate or transliterate all English statistical acronyms. Output literal 'یادداشت:' for table notes. Exclude <w:jc w:val='right'/> from bidirectional OpenXML paragraphs.",
       "remedy": "Strictly apply non-bold B Nazanin formatting to table captions overriding prompt requests. Translate or transliterate all English statistical acronyms. Output literal 'یادداشت:' for table notes. Exclude <w:jc w:val='right'/> from bidirectional OpenXML paragraphs.",
       "enabled": true,
-      "updated_at": "2026-09-27T11:12:24.377623+00:00"
+      "updated_at": "2026-09-30T17:09:43.924339+00:00"
     },
     "LSN-2026-NAIVE-LENGTH-REFERENCE-EXTRACTION": {
       "item_id": "LSN-2026-NAIVE-LENGTH-REFERENCE-EXTRACTION",
       "category": "Lesson",
       "statement": "Enforce structural bibliographic validation (e.g., regex for a four-digit year enclosed in parentheses or APA 7 formatting) for reference extraction. Explicitly filter out subheadings.",
       "target_agents": [
-        "academic-writer"
+        "academic-writer",
+        "research-agent"
       ],
       "target_skills": [
         "academic-reference-extractor"
@@ -509,14 +484,13 @@
       "violation_message": "Enforce structural bibliographic validation (e.g., regex for a four-digit year enclosed in parentheses or APA 7 formatting) for reference extraction. Explicitly filter out subheadings.",
       "remedy": "Enforce structural bibliographic validation (e.g., regex for a four-digit year enclosed in parentheses or APA 7 formatting) for reference extraction. Explicitly filter out subheadings.",
       "enabled": true,
-      "updated_at": "2026-09-27T11:12:27.722861+00:00"
+      "updated_at": "2026-09-30T17:09:43.924341+00:00"
     },
     "CAND-20260927-SEM-REG-001": {
       "item_id": "CAND-20260927-SEM-REG-001",
       "category": "Learned Mechanical Rule",
       "statement": "Latent variables in SEM must be specified with observed subscale indicators (=~), not by manifest path analysis on composite sum/mean scores.",
       "target_agents": [
-        "academic-orchestrator",
         "statistics-agent"
       ],
       "target_skills": [
@@ -531,16 +505,14 @@
       "violation_message": "Latent variables in SEM must be specified with observed subscale indicators (=~), not by manifest path analysis on composite sum/mean scores.",
       "remedy": "Define latent constructs using `=~` and map to subscales or items. Do not pre-calculate sum or mean scores for structural equations. In regression, use individual subscale predictors.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146501+00:00"
+      "updated_at": "2026-09-30T17:09:43.924344+00:00"
     },
     "CAND-2026-CH4-ZERO-INTERPRETATION": {
       "item_id": "CAND-2026-CH4-ZERO-INTERPRETATION",
       "category": "Learned Mechanical Rule",
       "statement": "Premature interpretation detected in Chapter 4. Chapter 4 must strictly contain factual statistical reporting. Save all interpretations (تبیین، دلیل، شاید) for Chapter 5.",
       "target_agents": [
-        "academic-orchestrator",
-        "academic-writer",
-        "statistics-agent"
+        "academic-writer"
       ],
       "target_skills": [
         "CHAPTER4_DRAFTING"
@@ -553,14 +525,13 @@
       "violation_message": "Premature interpretation detected in Chapter 4. Chapter 4 must strictly contain factual statistical reporting. Save all interpretations (تبیین، دلیل، شاید) for Chapter 5.",
       "remedy": "Remove all speculative, explanatory, or interpretive phrases. Report only statistical parameters and direct empirical findings.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146517+00:00"
+      "updated_at": "2026-09-30T17:09:43.924347+00:00"
     },
     "CAND-2026-CH4-DYNAMIC-NARRATION": {
       "item_id": "CAND-2026-CH4-DYNAMIC-NARRATION",
       "category": "Learned Mechanical Rule",
       "statement": "Verbatim identical introductory sentences detected across findings tables (BAN-20260927-CH4-ROBOTIC-TEMPLATE-001).",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -575,15 +546,14 @@
       "violation_message": "Verbatim identical introductory sentences detected across findings tables (BAN-20260927-CH4-ROBOTIC-TEMPLATE-001).",
       "remedy": "Apply Dynamic Syntactic Variation. Ensure each table's findings narrative is authored with authentic, distinct syntactic structure.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146536+00:00"
+      "updated_at": "2026-09-30T17:09:43.924350+00:00"
     },
     "CAND-20260927-THESIS-INTEGRITY-001": {
       "item_id": "CAND-20260927-THESIS-INTEGRITY-001",
       "category": "Learned Mechanical Rule",
       "statement": "BAN-20260927-002: Premature global validation on 03_deliverables is blocked. Ensure all micro-stage triads (.docx, .md, .json) are complete.",
       "target_agents": [
-        "academic-orchestrator",
-        "academic-writer"
+        "academic-orchestrator"
       ],
       "target_skills": [
         "METHODOLOGY",
@@ -597,7 +567,7 @@
       "violation_message": "BAN-20260927-002: Premature global validation on 03_deliverables is blocked. Ensure all micro-stage triads (.docx, .md, .json) are complete.",
       "remedy": "Wait until all micro-stage deliverables (.docx, .md, .json) are synthesized before running global validation, or target a specific micro-stage directory.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146556+00:00"
+      "updated_at": "2026-09-30T17:09:43.924353+00:00"
     },
     "CAND-20260927-CHAPTER4-WRITING-001": {
       "item_id": "CAND-20260927-CHAPTER4-WRITING-001",
@@ -626,7 +596,7 @@
       "statement": "Atomic Micro-Stage Triad Synthesis Invariant violation: Fragmented pipeline state detected. You must sequentially and atomically generate its complete synchronized triad (.docx, .md, .json).",
       "target_agents": [
         "academic-orchestrator",
-        "academic-writer"
+        "statistics-agent"
       ],
       "target_skills": [
         "GENERAL_ACADEMIC",
@@ -640,7 +610,7 @@
       "violation_message": "Atomic Micro-Stage Triad Synthesis Invariant violation: Fragmented pipeline state detected. You must sequentially and atomically generate its complete synchronized triad (.docx, .md, .json).",
       "remedy": "Ensure your micro-stage execution generates the complete triad (.docx, .md, .json) before proceeding or validating.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146596+00:00"
+      "updated_at": "2026-09-30T17:09:43.924358+00:00"
     },
     "CAND-2026-ATOMIC-TRIAD-ORCH-001": {
       "item_id": "CAND-2026-ATOMIC-TRIAD-ORCH-001",
@@ -668,8 +638,6 @@
       "category": "Learned Mechanical Rule",
       "statement": "Ad-hoc item parceling for unidimensional constructs is strictly prohibited (AP-2026-ADHOC-ITEM-PARCELING-UNIDIMENSIONAL).",
       "target_agents": [
-        "academic-orchestrator",
-        "academic-writer",
         "statistics-agent"
       ],
       "target_skills": [
@@ -684,16 +652,14 @@
       "violation_message": "Ad-hoc item parceling for unidimensional constructs is strictly prohibited (AP-2026-ADHOC-ITEM-PARCELING-UNIDIMENSIONAL).",
       "remedy": "Use single-indicator latent variables with factor loading fixed to 1.0 and measurement error variance fixed to Var(y) * (1 - alpha) per PRN-20260923-3A3A2B.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146631+00:00"
+      "updated_at": "2026-09-30T17:09:43.924362+00:00"
     },
     "CAND-2026-LEGACY-VAL-ISOLATION-001": {
       "item_id": "CAND-2026-LEGACY-VAL-ISOLATION-001",
       "category": "Learned Mechanical Rule",
       "statement": "Legacy validation reports in subdirectories of 03_deliverables/ cause false recursive gate failures.",
       "target_agents": [
-        "academic-orchestrator",
-        "academic-writer",
-        "statistics-agent"
+        "academic-orchestrator"
       ],
       "target_skills": [
         "GENERAL_ACADEMIC"
@@ -706,15 +672,14 @@
       "violation_message": "Legacy validation reports in subdirectories of 03_deliverables/ cause false recursive gate failures.",
       "remedy": "Rename the file to validation_report.stale.json or validation_report.legacy.json, or move it completely outside of 03_deliverables/.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146644+00:00"
+      "updated_at": "2026-09-30T17:09:43.924365+00:00"
     },
     "LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION": {
       "item_id": "LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION",
       "category": "Lesson",
       "statement": "Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks.",
       "target_agents": [
-        "academic-orchestrator",
-        "thesis-integrity-auditor"
+        "academic-orchestrator"
       ],
       "target_skills": [
         "academic-suite-orchestrator",
@@ -728,15 +693,14 @@
       "violation_message": "Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks.",
       "remedy": "Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks.",
       "enabled": true,
-      "updated_at": "2026-09-28T12:55:24.350315+00:00"
+      "updated_at": "2026-09-30T17:09:43.924368+00:00"
     },
     "CAND-2026-LEGACY-VAL-PHYSICAL-CLEAN-001": {
       "item_id": "CAND-2026-LEGACY-VAL-PHYSICAL-CLEAN-001",
       "category": "Learned Mechanical Rule",
       "statement": "Cannot create or modify an active validation_report.json in legacy_validation. It must be physically de-indexed as .stale.json.",
       "target_agents": [
-        "academic-orchestrator",
-        "statistics-agent"
+        "academic-orchestrator"
       ],
       "target_skills": [
         "GENERAL_ACADEMIC"
@@ -749,16 +713,14 @@
       "violation_message": "Cannot create or modify an active validation_report.json in legacy_validation. It must be physically de-indexed as .stale.json.",
       "remedy": "Rename to validation_report.stale.json or remove.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146669+00:00"
+      "updated_at": "2026-09-30T17:09:43.924370+00:00"
     },
     "CAND-2026-PHYSICAL-DECONTAMINATION-001": {
       "item_id": "CAND-2026-PHYSICAL-DECONTAMINATION-001",
       "category": "Learned Mechanical Rule",
       "statement": "Stale validation_report.json files are forbidden in 03_deliverables/. They must be physically renamed to .stale.json or removed.",
       "target_agents": [
-        "academic-orchestrator",
-        "academic-writer",
-        "statistics-agent"
+        "academic-orchestrator"
       ],
       "target_skills": [
         "PIPELINE_ORCHESTRATION"
@@ -771,16 +733,13 @@
       "violation_message": "Stale validation_report.json files are forbidden in 03_deliverables/. They must be physically renamed to .stale.json or removed.",
       "remedy": "Ensure you physically rename to .stale.json or remove the file. Do not save as validation_report.json if it is stale.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146683+00:00"
+      "updated_at": "2026-09-30T17:09:43.924373+00:00"
     },
     "CAND-2026-DIAGRAM-CEX-AND-UNLINK-001": {
       "item_id": "CAND-2026-DIAGRAM-CEX-AND-UNLINK-001",
       "category": "Learned Mechanical Rule",
       "statement": "Failing validation_report.json files must be physically deleted (unlinked) using 'rm' or 'os.remove'. Creating '.stale' copies is strictly prohibited to prevent cache contamination.",
       "target_agents": [
-        "academic-orchestrator",
-        "academic-writer",
-        "data-agent",
         "statistics-agent"
       ],
       "target_skills": [
@@ -796,14 +755,13 @@
       "violation_message": "Failing validation_report.json files must be physically deleted (unlinked) using 'rm' or 'os.remove'. Creating '.stale' copies is strictly prohibited to prevent cache contamination.",
       "remedy": "Replace move/rename operations with physical deletion ('rm validation_report.json' or 'os.remove(\"validation_report.json\")').",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146709+00:00"
+      "updated_at": "2026-09-30T17:09:43.924377+00:00"
     },
     "CAND-2026-EXHAUSTIVE-DEMOGRAPHICS-001": {
       "item_id": "CAND-2026-EXHAUSTIVE-DEMOGRAPHICS-001",
       "category": "Learned Mechanical Rule",
       "statement": "Arbitrary truncation of demographic variables detected. You must exhaustively report all demographic and clinical background variables without stubs or omissions.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer",
         "data-agent",
         "statistics-agent"
@@ -819,15 +777,14 @@
       "violation_message": "Arbitrary truncation of demographic variables detected. You must exhaustively report all demographic and clinical background variables without stubs or omissions.",
       "remedy": "Ensure all demographics from the calculation ledger (e.g. demographics_calculated.json) are fully included in the output file.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146726+00:00"
+      "updated_at": "2026-09-30T17:09:43.924380+00:00"
     },
     "LSN-2026-WRITER-READ-ONLY-JSON-MANDATE": {
       "item_id": "LSN-2026-WRITER-READ-ONLY-JSON-MANDATE",
       "category": "Lesson",
       "statement": "Strictly enforce READ-ONLY access to 03_deliverables/*.json for academic-writer. Do not delegate JSON mutation tasks to narrative agents.",
       "target_agents": [
-        "academic-orchestrator",
-        "academic-writer"
+        "statistics-agent"
       ],
       "target_skills": [
         "chapter-4-writing",
@@ -841,7 +798,7 @@
       "violation_message": "Strictly enforce READ-ONLY access to 03_deliverables/*.json for academic-writer. Do not delegate JSON mutation tasks to narrative agents.",
       "remedy": "Strictly enforce READ-ONLY access to 03_deliverables/*.json for academic-writer. Do not delegate JSON mutation tasks to narrative agents.",
       "enabled": true,
-      "updated_at": "2026-09-28T19:57:02.486528+00:00"
+      "updated_at": "2026-09-30T17:09:43.924383+00:00"
     },
     "CAND-2026-MECHANICAL-GRADUATION-DECONTAMINATION-001": {
       "item_id": "CAND-2026-MECHANICAL-GRADUATION-DECONTAMINATION-001",
@@ -868,7 +825,7 @@
       "category": "Learned Mechanical Rule",
       "statement": "Do not move or archive failing validation reports inside 03_deliverables. You must physically delete them.",
       "target_agents": [
-        "evaluation-agent"
+        "academic-orchestrator"
       ],
       "target_skills": [
         "REPORT_VALIDATION_ISOLATION"
@@ -881,15 +838,14 @@
       "violation_message": "Do not move or archive failing validation reports inside 03_deliverables. You must physically delete them.",
       "remedy": "Use rm or proper file deletion to permanently remove the failing validation report.",
       "enabled": true,
-      "updated_at": "2026-09-29T06:44:18.696185+00:00"
+      "updated_at": "2026-09-30T17:09:43.924387+00:00"
     },
     "CAN-20260929-PROP-REV-002": {
       "item_id": "CAN-20260929-PROP-REV-002",
       "category": "Learned Mechanical Rule",
       "statement": "Do not include hallucinated numbering prefixes in search strings for OpenXML documents. List numbers are stored as <w:numPr> properties.",
       "target_agents": [
-        "academic-writer",
-        "skill-evolver"
+        "academic-writer"
       ],
       "target_skills": [
         "PROPOSAL",
@@ -903,14 +859,13 @@
       "violation_message": "Do not include hallucinated numbering prefixes in search strings for OpenXML documents. List numbers are stored as <w:numPr> properties.",
       "remedy": "Remove literal numbering prefixes from your search strings and match only the text content of the run.",
       "enabled": true,
-      "updated_at": "2026-09-29T06:59:48.748454+00:00"
+      "updated_at": "2026-09-30T17:09:43.924390+00:00"
     },
     "CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001": {
       "item_id": "CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001",
       "category": "Learned Mechanical Rule",
       "statement": "Monolithic hypothesis JSON files are prohibited. You must emit disaggregated micro-stage JSON files (e.g., `08_hypothesis_3.json`) for each individual hypothesis.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer",
         "statistics-agent"
       ],
@@ -926,14 +881,13 @@
       "violation_message": "Monolithic hypothesis JSON files are prohibited. You must emit disaggregated micro-stage JSON files (e.g., `08_hypothesis_3.json`) for each individual hypothesis.",
       "remedy": "Separate the hypotheses into their own dedicated, isolated micro-stages and emit individual `.json`, `.md`, and `.docx` artifacts for each.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146759+00:00"
+      "updated_at": "2026-09-30T17:09:43.924393+00:00"
     },
     "CAND-2026-DOCX-AST-PARSER-AND-CHAPTER4-FRAMING-001": {
       "item_id": "CAND-2026-DOCX-AST-PARSER-AND-CHAPTER4-FRAMING-001",
       "category": "Learned Mechanical Rule",
       "statement": "Use comprehensive OpenXML AST parser for markdown conversion.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -948,7 +902,7 @@
       "violation_message": "Use comprehensive OpenXML AST parser for markdown conversion.",
       "remedy": "Ensure proper Persian RTL layout, typography, and table parsing are applied.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146777+00:00"
+      "updated_at": "2026-09-30T17:09:43.924396+00:00"
     },
     "CAND-2026-DOCX-AST-PARSER-AND-CHAPTER4-FRAMING-001-B": {
       "item_id": "CAND-2026-DOCX-AST-PARSER-AND-CHAPTER4-FRAMING-001-B",
@@ -975,8 +929,7 @@
       "category": "Anti-Pattern",
       "statement": "Enforce a 'Unified Final Sample Invariant' for Chapter 4 drafting. Treat the post-cleaning sample as the single baseline. Defer all mentions of initial samples and outlier removal entirely to Chapter 3.",
       "target_agents": [
-        "academic-writer",
-        "chapter-4-writing"
+        "academic-writer"
       ],
       "target_skills": [],
       "event": "Both",
@@ -987,16 +940,14 @@
       "violation_message": "Narrating data curation provenance, such as initial sample size, data cleaning, and outlier removal, within Chapter 4.",
       "remedy": "Enforce a 'Unified Final Sample Invariant' for Chapter 4 drafting. Treat the post-cleaning sample as the single baseline. Defer all mentions of initial samples and outlier removal entirely to Chapter 3.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.177213+00:00"
+      "updated_at": "2026-09-30T17:09:43.924400+00:00"
     },
     "AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE": {
       "item_id": "AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE",
       "category": "Anti-Pattern",
       "statement": "Remove all explanatory, speculative, and theoretical prose from Chapter 4. Ensure the narrative is strictly limited to objective, factual reporting of statistical numbers and tables.",
       "target_agents": [
-        "chapter-4-writing",
-        "academic-writer",
-        "statistical-data-analyst"
+        "academic-writer"
       ],
       "target_skills": [],
       "event": "Both",
@@ -1007,7 +958,7 @@
       "violation_message": "Including speculative clinical, epidemiological, developmental, or theoretical explanations and interpretations in Chapter 4 findings narratives.",
       "remedy": "Remove all explanatory, speculative, and theoretical prose from Chapter 4. Ensure the narrative is strictly limited to objective, factual reporting of statistical numbers and tables.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.179707+00:00"
+      "updated_at": "2026-09-30T17:09:43.924402+00:00"
     },
     "AP-2026-COPY-WITHOUT-UNLINK-CONTAMINATION": {
       "item_id": "AP-2026-COPY-WITHOUT-UNLINK-CONTAMINATION",
@@ -1033,9 +984,7 @@
       "category": "Anti-Pattern",
       "statement": "Micro-stage execution must sequentially and completely synthesize all three components (.json, .md, .docx) within the same micro-stage phase before triggering directory-wide validation gates or declaring the micro-stage complete.",
       "target_agents": [
-        "academic-orchestrator",
-        "chapter-4-writing",
-        "chapter-5-writing"
+        "academic-orchestrator"
       ],
       "target_skills": [],
       "event": "Both",
@@ -1046,17 +995,16 @@
       "violation_message": "Generating isolated JSON statistical payloads in micro-stages without synchronously synthesizing and emitting the corresponding Markdown (.md) and Word (.docx) deliverables before triggering validation or declaring completion.",
       "remedy": "Micro-stage execution must sequentially and completely synthesize all three components (.json, .md, .docx) within the same micro-stage phase before triggering directory-wide validation gates or declaring the micro-stage complete.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.188573+00:00"
+      "updated_at": "2026-09-30T17:09:43.924407+00:00"
     },
     "AP-2026-DISCORDANT-HARNESSED-SAMPLE-SIZE": {
       "item_id": "AP-2026-DISCORDANT-HARNESSED-SAMPLE-SIZE",
       "category": "Anti-Pattern",
       "statement": "Strictly commit to the 'Harnessed N' after screening. All subsequent empirical chapters, micro-stages, and statistical tests must exclusively use the harnessed dataset and report this final N cases.",
       "target_agents": [
-        "statistical-data-analyst",
-        "chapter-4-writing",
-        "data-audit",
-        "methodology-expert"
+        "academic-writer",
+        "data-agent",
+        "statistics-agent"
       ],
       "target_skills": [],
       "event": "Both",
@@ -1067,16 +1015,14 @@
       "violation_message": "Failing to commit to the harnessed/screened sample size (N) in downstream micro-stages, resulting in discordant N values between methodology, descriptive statistics, and inferential tests.",
       "remedy": "Strictly commit to the 'Harnessed N' after screening. All subsequent empirical chapters, micro-stages, and statistical tests must exclusively use the harnessed dataset and report this final N cases.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.191569+00:00"
+      "updated_at": "2026-09-30T17:09:43.924411+00:00"
     },
     "AP-2026-DRAFT-OBLITERATION-REPLACEMENT": {
       "item_id": "AP-2026-DRAFT-OBLITERATION-REPLACEMENT",
       "category": "Anti-Pattern",
       "statement": "Perform in-place docx mutation. Modify only specific sections or paragraphs required by the revision task, preserving all other existing content.",
       "target_agents": [
-        "academic-writer",
-        "persian-thesis-revision-assistant",
-        "academic-orchestrator"
+        "academic-writer"
       ],
       "target_skills": [],
       "event": "Stop",
@@ -1087,17 +1033,14 @@
       "violation_message": "Clean-room document generation during revision tasks, obliterating existing draft content.",
       "remedy": "Perform in-place docx mutation. Modify only specific sections or paragraphs required by the revision task, preserving all other existing content.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.194119+00:00"
+      "updated_at": "2026-09-30T17:09:43.924414+00:00"
     },
     "AP-2026-DUAL-SAMPLE-OR-HARNESSED-TERMINOLOGY-LEAK": {
       "item_id": "AP-2026-DUAL-SAMPLE-OR-HARNESSED-TERMINOLOGY-LEAK",
       "category": "Anti-Pattern",
       "statement": "Refer to the sample strictly and simply as 'نمونه پژوهش (N = ۴۸۳)' or 'نمونه پژوهش'. Remove all mentions of initial or harnessed sample counts from Chapter 4.",
       "target_agents": [
-        "academic-writer",
-        "results-auditor",
-        "statistical-data-analyst",
-        "chapter-4-writing"
+        "academic-writer"
       ],
       "target_skills": [],
       "event": "Both",
@@ -1108,14 +1051,14 @@
       "violation_message": "Mentioning sample harnessing/reduction terms like 'نمونه اولیه', 'نمونه مهارشده', or 'نمونه نهایی' in Chapter 4.",
       "remedy": "Refer to the sample strictly and simply as 'نمونه پژوهش (N = ۴۸۳)' or 'نمونه پژوهش'. Remove all mentions of initial or harnessed sample counts from Chapter 4.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.197922+00:00"
+      "updated_at": "2026-09-30T17:09:43.924417+00:00"
     },
     "AP-2026-LEGACY-VAL-ISOLATION": {
       "item_id": "AP-2026-LEGACY-VAL-ISOLATION",
       "category": "Anti-Pattern",
       "statement": "Physically delete the file using os.remove.",
       "target_agents": [
-        "evaluation-agent"
+        "academic-orchestrator"
       ],
       "target_skills": [],
       "event": "PreToolUse",
@@ -1126,16 +1069,14 @@
       "violation_message": "Moving or archiving failing validation_report.json files into subdirectories under 03_deliverables.",
       "remedy": "Physically delete the file using os.remove.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.201142+00:00"
+      "updated_at": "2026-09-30T17:09:43.924420+00:00"
     },
     "AP-2026-MANIFEST-PATH-LABELED-AS-SEM": {
       "item_id": "AP-2026-MANIFEST-PATH-LABELED-AS-SEM",
       "category": "Anti-Pattern",
       "statement": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
       "target_agents": [
-        "statistics-agent",
-        "methodology-expert",
-        "results-auditor"
+        "statistics-agent"
       ],
       "target_skills": [],
       "event": "Both",
@@ -1146,14 +1087,13 @@
       "violation_message": "Substituting manifest composite sum path analysis for latent SEM without measurement models.",
       "remedy": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.204292+00:00"
+      "updated_at": "2026-09-30T17:09:43.924423+00:00"
     },
     "AP-2026-METADATA-LEAK-IN-TABLE-NOTES": {
       "item_id": "AP-2026-METADATA-LEAK-IN-TABLE-NOTES",
       "category": "Anti-Pattern",
       "statement": "Strip all typesetting instructions and metadata from the final output. Ensure table notes strictly contain standard APA 7 explanatory text.",
       "target_agents": [
-        "apa-reporting",
         "academic-writer"
       ],
       "target_skills": [],
@@ -1165,15 +1105,15 @@
       "violation_message": "Leaking typesetting or formatting instructions into APA 7 table notes.",
       "remedy": "Strip all typesetting instructions and metadata from the final output. Ensure table notes strictly contain standard APA 7 explanatory text.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.207027+00:00"
+      "updated_at": "2026-09-30T17:09:43.924425+00:00"
     },
     "AP-2026-MISSING-TRIAD-JSON-001": {
       "item_id": "AP-2026-MISSING-TRIAD-JSON-001",
       "category": "Anti-Pattern",
       "statement": "Atomically generate .json, .md, and .docx files with correct canonical file names for every micro-stage. Ensure parameter files like gate3 report are fully populated.",
       "target_agents": [
-        "statistics-agent",
-        "academic-writer"
+        "academic-writer",
+        "statistics-agent"
       ],
       "target_skills": [],
       "event": "Both",
@@ -1184,15 +1124,14 @@
       "violation_message": "Generating .md and .docx files for micro-stages but omitting or improperly naming the underlying .json data payloads.",
       "remedy": "Atomically generate .json, .md, and .docx files with correct canonical file names for every micro-stage. Ensure parameter files like gate3 report are fully populated.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.211010+00:00"
+      "updated_at": "2026-09-30T17:09:43.924428+00:00"
     },
     "AP-2026-OPENXML-NUMPR-LITERAL-PREFIX-HALLUCINATION": {
       "item_id": "AP-2026-OPENXML-NUMPR-LITERAL-PREFIX-HALLUCINATION",
       "category": "Anti-Pattern",
       "statement": "Search for exact run text stripped of assumed OpenXML numPr prefixes or match by paragraph content normalized of numPr.",
       "target_agents": [
-        "academic-writer",
-        "skill-evolver"
+        "academic-writer"
       ],
       "target_skills": [],
       "event": "PreToolUse",
@@ -1203,14 +1142,13 @@
       "violation_message": "Assuming list numbers are stored as literal text in OpenXML runs rather than paragraph properties numPr",
       "remedy": "Search for exact run text stripped of assumed OpenXML numPr prefixes or match by paragraph content normalized of numPr.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.214638+00:00"
+      "updated_at": "2026-09-30T17:09:43.924431+00:00"
     },
     "AP-2026-PHONETIC-BETA-AND-UNSPACED-FOOTNOTE": {
       "item_id": "AP-2026-PHONETIC-BETA-AND-UNSPACED-FOOTNOTE",
       "category": "Anti-Pattern",
       "statement": "Strictly replace 'beta' with Latin *B* (or Greek β if appropriate). Ensure every footnote reference is followed by a space.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -1225,16 +1163,14 @@
       "violation_message": "Spelling out 'beta' for regression coefficients and failing to delimit footnote references with whitespace.",
       "remedy": "Strictly replace 'beta' with Latin *B* (or Greek β if appropriate). Ensure every footnote reference is followed by a space.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.217996+00:00"
+      "updated_at": "2026-09-30T17:09:43.924434+00:00"
     },
     "AP-2026-RAW-MARKDOWN-IN-DOCX-DUMP": {
       "item_id": "AP-2026-RAW-MARKDOWN-IN-DOCX-DUMP",
       "category": "Anti-Pattern",
       "statement": "Use a robust Markdown to OpenXML AST compiler or python-docx library to natively build tables, apply paragraph styles, and insert runs.",
       "target_agents": [
-        "academic-writer",
-        "results-auditor",
-        "chapter-4-writing"
+        "academic-writer"
       ],
       "target_skills": [],
       "event": "Both",
@@ -1245,15 +1181,15 @@
       "violation_message": "Dumping raw markdown syntax, unparsed pipe tables, and string escapes into .docx files via naive string fallbacks",
       "remedy": "Use a robust Markdown to OpenXML AST compiler or python-docx library to natively build tables, apply paragraph styles, and insert runs.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.221915+00:00"
+      "updated_at": "2026-09-30T17:09:43.924438+00:00"
     },
     "AP-2026-REGRESSION-TABLE-OVERAPPLICATION-TO-SEM": {
       "item_id": "AP-2026-REGRESSION-TABLE-OVERAPPLICATION-TO-SEM",
       "category": "Anti-Pattern",
       "statement": "Implement conditional branching in validation-agent/thesis-integrity-auditor to apply the 3-table regression invariant only to regression manuscripts, bypassing it for SEM manuscripts.",
       "target_agents": [
-        "validation-agent",
-        "thesis-integrity-auditor"
+        "academic-orchestrator",
+        "statistics-agent"
       ],
       "target_skills": [],
       "event": "Both",
@@ -1264,15 +1200,14 @@
       "violation_message": "Executing an unconditional, non-branching mechanical check for '3-table regression structure' on an SEM manuscript.",
       "remedy": "Implement conditional branching in validation-agent/thesis-integrity-auditor to apply the 3-table regression invariant only to regression manuscripts, bypassing it for SEM manuscripts.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.225369+00:00"
+      "updated_at": "2026-09-30T17:09:43.924441+00:00"
     },
     "AP-2026-SILENT-REGEX-DOCX-FAILURE": {
       "item_id": "AP-2026-SILENT-REGEX-DOCX-FAILURE",
       "category": "Anti-Pattern",
       "statement": "Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.",
       "target_agents": [
-        "academic-writer",
-        "results-auditor"
+        "academic-writer"
       ],
       "target_skills": [],
       "event": "PreToolUse",
@@ -1283,15 +1218,13 @@
       "violation_message": "Hardcoded fabricated search strings and character-by-character regex XML tag insertion without verifying replacements count.",
       "remedy": "Extract exact strings from source document; use robust XML DOM paragraph/run text inspection; assert replacements_count > 0 on every substitution to fail fast instead of failing silently.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.228967+00:00"
+      "updated_at": "2026-09-30T17:09:43.924444+00:00"
     },
     "AP-2026-STUB-TABLE-INTRODUCTION": {
       "item_id": "AP-2026-STUB-TABLE-INTRODUCTION",
       "category": "Anti-Pattern",
       "statement": "Always provide a comprehensive introductory paragraph before each table, highlighting key empirical findings, descriptive statistics, or normality parameters relevant to the table's contents.",
       "target_agents": [
-        "chapter-4-writing",
-        "apa-reporting",
         "academic-writer"
       ],
       "target_skills": [],
@@ -1303,15 +1236,14 @@
       "violation_message": "Omitting empirical data highlights and normality parameter reporting preceding tables.",
       "remedy": "Always provide a comprehensive introductory paragraph before each table, highlighting key empirical findings, descriptive statistics, or normality parameters relevant to the table's contents.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.232122+00:00"
+      "updated_at": "2026-09-30T17:09:43.924447+00:00"
     },
     "AP-2026-SUBDIRECTORY-VALIDATION-QUARANTINE-FAILURE": {
       "item_id": "AP-2026-SUBDIRECTORY-VALIDATION-QUARANTINE-FAILURE",
       "category": "Anti-Pattern",
       "statement": "Rename stale validation reports (e.g. validation_report.stale.json or validation_report.legacy.json) or relocate them completely outside 03_deliverables/ so they are never detected as active reports.",
       "target_agents": [
-        "academic-orchestrator",
-        "thesis-integrity-auditor"
+        "academic-orchestrator"
       ],
       "target_skills": [],
       "event": "Both",
@@ -1322,7 +1254,7 @@
       "violation_message": "Placing stale legacy validation reports (validation_report.json) into child subdirectories of 03_deliverables/.",
       "remedy": "Rename stale validation reports (e.g. validation_report.stale.json or validation_report.legacy.json) or relocate them completely outside 03_deliverables/ so they are never detected as active reports.",
       "enabled": true,
-      "updated_at": "2026-09-29T15:17:21.234733+00:00"
+      "updated_at": "2026-09-30T17:09:43.924450+00:00"
     },
     "AP-2026-TABLE-VERTICAL-BORDER-PERSIAN-ZERO": {
       "item_id": "AP-2026-TABLE-VERTICAL-BORDER-PERSIAN-ZERO",
@@ -1347,7 +1279,6 @@
       "category": "Anti-Pattern",
       "statement": "Statistical .json files in 03_deliverables/ are produced strictly by computational specialists (statistics-agent, data-curator) and are strictly READ-ONLY for academic-writer. Orchestrators must never assign JSON mutation tasks to narrative agents.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [],
@@ -1359,14 +1290,13 @@
       "violation_message": "Delegating mutation, re-serialization, or truncation of computational statistical .json artifacts in 03_deliverables/ to academic-writer.",
       "remedy": "Statistical .json files in 03_deliverables/ are produced strictly by computational specialists (statistics-agent, data-curator) and are strictly READ-ONLY for academic-writer. Orchestrators must never assign JSON mutation tasks to narrative agents.",
       "enabled": true,
-      "updated_at": "2026-09-29T17:39:41.778927+00:00"
+      "updated_at": "2026-09-30T17:09:43.924454+00:00"
     },
     "CAND-2026-GLOBAL-TABLE-DOCX-STANDARDS-001": {
       "item_id": "CAND-2026-GLOBAL-TABLE-DOCX-STANDARDS-001",
       "category": "Learned Mechanical Rule",
       "statement": "Do not split table captions across multiple lines.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -1380,14 +1310,13 @@
       "violation_message": "Do not split table captions across multiple lines.",
       "remedy": "Use single line: جدول [فصل]-[شماره]: [عنوان]",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146795+00:00"
+      "updated_at": "2026-09-30T17:09:43.924457+00:00"
     },
     "CAND-2026-ONLYOFFICE-STRICT-RTL-TABLE-001": {
       "item_id": "CAND-2026-ONLYOFFICE-STRICT-RTL-TABLE-001",
       "category": "Learned Mechanical Rule",
       "statement": "Do not append bidiVisual directly to tblPr, as it must precede tblW to be strictly ECMA-376 compliant.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -1403,14 +1332,13 @@
       "violation_message": "Do not append bidiVisual directly to tblPr, as it must precede tblW to be strictly ECMA-376 compliant.",
       "remedy": "Insert bidiVisual before tblW in tblPr instead of appending.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146817+00:00"
+      "updated_at": "2026-09-30T17:09:43.924459+00:00"
     },
     "CAND-20260930-BIDI-ALIGNMENT-AND-TBLPR-002": {
       "item_id": "CAND-20260930-BIDI-ALIGNMENT-AND-TBLPR-002",
       "category": "Learned Mechanical Rule",
       "statement": "Do not inject explicit right alignment alongside w:bidi=1 in OpenXML; it reverses alignment to left.",
       "target_agents": [
-        "academic-orchestrator",
         "academic-writer"
       ],
       "target_skills": [
@@ -1425,7 +1353,7 @@
       "violation_message": "Do not inject explicit right alignment alongside w:bidi=1 in OpenXML; it reverses alignment to left.",
       "remedy": "Omit the w:jc node entirely when using w:bidi=1.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146836+00:00"
+      "updated_at": "2026-09-30T17:09:43.924462+00:00"
     }
   }
 }

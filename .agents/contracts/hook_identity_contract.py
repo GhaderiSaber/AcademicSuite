@@ -529,7 +529,7 @@ def _resolve_hook_identity_core(payload: Dict[str, Any], env: Optional[Dict[str,
                     details={"matched_canonical_agent": ac}
                 )
 
-        academic_keywords = ("orchestrator", "auditor", "expert", "challenger", "judge")
+        academic_keywords = ("academic", "orchestrator", "auditor", "expert", "challenger", "judge", "thesis", "writer")
         if any(k in agent_name_lower for k in academic_keywords):
             return HookIdentity(
                 agent_name=agent_name_raw,

@@ -86,32 +86,164 @@ class DynamicInvariantGuard:
             sys.stderr.write(f"[dynamic_invariant_guard] Error loading invariants: {e}\n")
             return cls._cached_invariants
 
+    SKILL_TO_AGENT: Dict[str, str] = {
+        "chapter-4-writing": "academic-writer",
+        "chapter-5-writing": "academic-writer",
+        "persian-thesis-builder": "academic-writer",
+        "persian-thesis-revision-assistant": "academic-writer",
+        "academic-article-writer": "academic-writer",
+        "apa-reporting": "academic-writer",
+        "persian-discussion-builder": "academic-writer",
+        "persian-literature-review-builder": "academic-writer",
+        "persian-proposal-builder": "academic-writer",
+        "statistical-data-analyst": "statistics-agent",
+        "data-audit": "data-agent",
+        "data-cleaning": "data-agent",
+        "academic-reference-extractor": "academic-writer",
+        "thesis-integrity-auditor": "validation-agent",
+    }
+
+    CANONICAL_RULE_TARGETS: Dict[str, List[str]] = {
+        # Group 1: Manuscript & Document Authoring (Prose, Typography, Tables, OpenXML)
+        "AP-2026-BOLD-TABLE-CAPTION-AND-UNJUSTIFIED-NARRATIVE": ["academic-writer"],
+        "AP-2026-CHAPTER-BOUNDARY-VIOLATION": ["academic-writer"],
+        "AP-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE": ["academic-writer"],
+        "AP-2026-DRAFT-OBLITERATION-REPLACEMENT": ["academic-writer"],
+        "AP-2026-DUAL-SAMPLE-OR-HARNESSED-TERMINOLOGY-LEAK": ["academic-writer"],
+        "AP-2026-METADATA-LEAK-IN-TABLE-NOTES": ["academic-writer"],
+        "AP-2026-OPENXML-NUMPR-LITERAL-PREFIX-HALLUCINATION": ["academic-writer"],
+        "AP-2026-PHONETIC-BETA-AND-UNSPACED-FOOTNOTE": ["academic-writer"],
+        "AP-2026-RAW-MARKDOWN-IN-DOCX-DUMP": ["academic-writer"],
+        "AP-2026-SILENT-REGEX-DOCX-FAILURE": ["academic-writer"],
+        "AP-2026-STUB-TABLE-INTRODUCTION": ["academic-writer"],
+        "AP-2026-TABLE-VERTICAL-BORDER-PERSIAN-ZERO": ["academic-writer"],
+        "AP-2026-WRITER-JSON-MUTATION": ["academic-writer"],
+        "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION": ["academic-writer"],
+        "CAN-20260929-PROP-REV-002": ["academic-writer"],
+        "CAND-2026-APA-SINGLE-SAMPLE-INVARIANT": ["academic-writer"],
+        "CAND-2026-CH4-DYNAMIC-NARRATION": ["academic-writer"],
+        "CAND-2026-CH4-ZERO-INTERPRETATION": ["academic-writer"],
+        "CAND-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION": ["academic-writer"],
+        "CAND-2026-DOCX-AST-PARSER-AND-CHAPTER4-FRAMING-001": ["academic-writer"],
+        "CAND-2026-DOCX-AST-PARSER-AND-CHAPTER4-FRAMING-001-B": ["academic-writer"],
+        "CAND-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT": ["academic-writer"],
+        "CAND-2026-GLOBAL-TABLE-DOCX-STANDARDS-001": ["academic-writer"],
+        "CAND-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY": ["academic-writer"],
+        "CAND-2026-ONLYOFFICE-STRICT-RTL-TABLE-001": ["academic-writer"],
+        "CAND-2026-SURGICAL-RUN-LEVEL-MUTATION": ["academic-writer"],
+        "CAND-2026-TABLE-BORDER-PERSIAN-ZERO": ["academic-writer"],
+        "CAND-20260930-BIDI-ALIGNMENT-AND-TBLPR-002": ["academic-writer"],
+        "LSN-2026-APA7-TABLE-FORMATTING-INVARIANTS": ["academic-writer"],
+        "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": ["academic-writer"],
+        "LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE": ["academic-writer"],
+        "LSN-2026-DOM-PARSING-FOR-OPENXML-MODIFICATION-001": ["academic-writer"],
+        "LSN-2026-EXPLICIT-RIGHT-ALIGNMENT-AND-INLINE-MARKDOWN-PARSING-001": ["academic-writer"],
+        "LSN-2026-FORMATTING-AND-FILTERING-FAILURE-001": ["academic-writer"],
+
+        # Group 2: Bibliographic Management & Citation Extraction
+        "AP-2026-NAIVE-LENGTH-REFERENCE-PARSING": ["academic-writer", "research-agent"],
+        "LSN-2026-NAIVE-LENGTH-REFERENCE-EXTRACTION": ["academic-writer", "research-agent"],
+        "LSN-2026-PERMISSIVE-VALIDATOR-BLINDSPOT-001": ["academic-writer", "research-agent"],
+        "LSN-2026-STRUCTURAL-REFERENCE-PARSING-001": ["academic-writer", "research-agent"],
+
+        # Group 3: Statistical Modeling, SEM, & Analysis Syntax
+        "AP-2026-MANIFEST-PATH-LABELED-AS-SEM": ["statistics-agent"],
+        "CAND-2026-DIAGRAM-CEX-AND-UNLINK-001": ["statistics-agent"],
+        "CAND-2026-SEM-SINGLE-INDICATOR-001": ["statistics-agent"],
+        "CAND-20260927-SEM-REG-001": ["statistics-agent"],
+        "LSN-2026-WRITER-READ-ONLY-JSON-MANDATE": ["statistics-agent"],
+
+        # Group 4: Joint Analytical & Narrative Delivery (Regression Tables & Triad JSON)
+        "AP-2026-MISSING-TRIAD-JSON-001": ["academic-writer", "statistics-agent"],
+        "CAND-2026-CH4-SINGLE-SAMPLE-INVARIANT": ["academic-writer", "statistics-agent"],
+        "CAND-2026-DISAGGREGATED-HYPOTHESIS-JSON-001": ["academic-writer", "statistics-agent"],
+        "LSN-2026-LANGUAGE-TRACK-AWARE-TYPOGRAPHY": ["academic-writer", "statistics-agent"],
+        "LSN-2026-VALIDATOR-THREE-TABLE-FAIL-CLOSED-001": ["academic-writer", "statistics-agent"],
+
+        # Group 5: Data Screening & Demographic Statistics
+        "CAND-2026-DATA-AUDIT-SINGLE-SAMPLE-INVARIANT": ["data-agent", "statistics-agent"],
+        "CAND-2026-EXHAUSTIVE-DEMOGRAPHICS-001": ["academic-writer", "data-agent", "statistics-agent"],
+        "AP-2026-DISCORDANT-HARNESSED-SAMPLE-SIZE": ["academic-writer", "data-agent", "statistics-agent"],
+
+        # Group 6: Pipeline Orchestration & Validation Decontamination
+        "AP-2026-COPY-WITHOUT-UNLINK-CONTAMINATION": ["academic-orchestrator", "statistics-agent"],
+        "AP-2026-DECOUPLED-PAYLOAD-TRIAD-FRAGMENTATION": ["academic-orchestrator"],
+        "AP-2026-LEGACY-VAL-ISOLATION": ["academic-orchestrator"],
+        "AP-2026-REGRESSION-TABLE-OVERAPPLICATION-TO-SEM": ["academic-orchestrator", "statistics-agent"],
+        "AP-2026-SUBDIRECTORY-VALIDATION-QUARANTINE-FAILURE": ["academic-orchestrator"],
+        "CAND-2026-ATOMIC-TRIAD-CH4-001": ["academic-orchestrator", "statistics-agent"],
+        "CAND-2026-ATOMIC-TRIAD-ORCH-001": ["academic-orchestrator"],
+        "CAND-2026-EVAL-DECONTAMINATION-001": ["academic-orchestrator"],
+        "CAND-2026-LEGACY-VAL-ISOLATION-001": ["academic-orchestrator"],
+        "CAND-2026-LEGACY-VAL-PHYSICAL-CLEAN-001": ["academic-orchestrator"],
+        "CAND-2026-MECHANICAL-GRADUATION-DECONTAMINATION-001": ["academic-orchestrator"],
+        "CAND-2026-METHODOLOGY-AWARE-VALIDATION-BRANCHING": ["academic-orchestrator", "statistics-agent"],
+        "CAND-2026-PHYSICAL-DECONTAMINATION-001": ["academic-orchestrator"],
+        "CAND-20260927-CHAPTER4-WRITING-001": ["academic-orchestrator"],
+        "CAND-20260927-THESIS-INTEGRITY-001": ["academic-orchestrator"],
+        "LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION": ["academic-orchestrator"],
+    }
+
     @classmethod
     def normalize_target_agents(
         cls,
         target_agents: Optional[List[str]],
         file_pattern: Optional[str] = None,
         target_skills: Optional[List[str]] = None,
-        statement: Optional[str] = None
+        statement: Optional[str] = None,
+        rule_id: Optional[str] = None
     ) -> List[str]:
         """
-        Normalizes wildcard ['*'] or empty target_agents to explicit academic delivery workers.
-        Ensures continuous learning subagents and quality auditors are never inadvertently targeted.
+        Normalizes target_agents to explicit, canonical academic workers.
+        Translates legacy skill names, strips unassociated auditors from authoring rules,
+        and excludes continuous learning subagents from academic delivery gates.
         """
+        if rule_id and rule_id in cls.CANONICAL_RULE_TARGETS:
+            return sorted(list(cls.CANONICAL_RULE_TARGETS[rule_id]))
+
         raw = [a.strip() for a in (target_agents or []) if a and a.strip()]
-        if raw and "*" not in raw:
-            return sorted(list(set(raw)))
+
+        # Translate legacy skill names to canonical agent names
+        translated = []
+        for a in raw:
+            if a in cls.SKILL_TO_AGENT:
+                translated.append(cls.SKILL_TO_AGENT[a])
+            else:
+                translated.append(a)
+
+        # Exclude continuous learning subagents from delivery rules
+        filtered = [
+            a for a in translated
+            if a not in (
+                "evaluation-agent", "skill-evolver", "behavior-analyst",
+                "knowledge-curator", "trajectory-analyzer", "curriculum-builder"
+            )
+        ]
 
         fp = (file_pattern or "").lower()
-        skills = [s.lower() for s in (target_skills or [])]
         stmt = (statement or "").lower()
+        skills = [s.lower() for s in (target_skills or [])]
 
-        agents = set()
+        is_authoring_rule = any(ext in fp for ext in ("docx", "doc", "md", "txt", "r", "py")) and "validation_report" not in fp
+        if is_authoring_rule:
+            # Exclude auditors from deliverable authoring rules
+            filtered = [
+                a for a in filtered
+                if a not in ("validation-agent", "results-auditor", "statistical-auditor", "evidence-auditor", "academic-challenger", "final-judge")
+            ]
+
+        # If explicit, valid agents remain and '*' is not present, return them
+        clean_explicit = [a for a in filtered if a != "*"]
+        if clean_explicit and "*" not in filtered:
+            return sorted(list(set(clean_explicit)))
+
+        # Infer canonical delivery agents from file_pattern, statement, and skills
+        agents = set(clean_explicit)
 
         is_doc = (
             any(ext in fp for ext in ("docx", "doc", "md", "txt"))
             or any(k in fp for k in ("chapter", "discussion", "proposal", "defense", "deliverable"))
-            or any(k in stmt for k in ("table", "bidi", "font", "openxml", "docx", "heading", "typography", "footnote"))
+            or any(k in stmt for k in ("table", "bidi", "font", "openxml", "docx", "heading", "typography", "footnote", "prose"))
         )
         is_stats = (
             any(ext in fp for ext in ("r", "rmd", "sps"))
@@ -127,20 +259,26 @@ class DynamicInvariantGuard:
             or any(k in stmt for k in ("premature global validation", "legacy validation", "decontamination", "triad synthesis", "orchestrat"))
             or any(any(k in s for k in ("orchestrat", "pipeline")) for s in skills)
         )
+        is_ref = (
+            any(k in fp for k in ("reference", "bibliography", "bib"))
+            or any(k in stmt for k in ("reference", "bibliography", "citation", "endnote"))
+        )
 
+        if is_ref:
+            agents.update(["academic-writer", "research-agent"])
         if is_doc:
-            agents.update(["academic-writer", "academic-orchestrator"])
+            agents.add("academic-writer")
         if is_stats:
-            agents.update(["statistics-agent", "academic-orchestrator"])
+            agents.add("statistics-agent")
         if is_data:
-            agents.update(["data-agent", "statistics-agent", "academic-orchestrator"])
+            agents.update(["data-agent", "statistics-agent"])
         if is_orch:
-            agents.update(["academic-orchestrator"])
+            agents.add("academic-orchestrator")
 
         if not agents:
-            agents.update(["academic-writer", "academic-orchestrator", "statistics-agent", "data-agent"])
+            agents.update(["academic-writer", "statistics-agent", "data-agent"])
 
-        # Also incorporate any skill-based mappings
+        # Incorporate skill mappings
         for s in skills:
             if any(k in s for k in ("write", "discussion", "builder", "apa", "thesis", "docx", "table")):
                 agents.add("academic-writer")
@@ -149,13 +287,11 @@ class DynamicInvariantGuard:
             if any(k in s for k in ("data", "audit", "cleaning")):
                 agents.add("data-agent")
 
-        specific = [a for a in raw if a != "*"]
-        agents.update(specific)
         return sorted(list(agents))
 
     @classmethod
     def normalize_all_invariants(cls, base_dir: Optional[str] = None) -> int:
-        """Normalizes any wildcard '*' target_agents across all active invariants in enforced_invariants.json."""
+        """Normalizes target_agents across all active invariants in enforced_invariants.json."""
         target_path = INVARIANTS_FILE
         if base_dir:
             target_path = os.path.join(base_dir, ".agents", "hooks", "rules", "enforced_invariants.json")
@@ -169,13 +305,14 @@ class DynamicInvariantGuard:
         updated_count = 0
         for item_id, rule in invariants.items():
             targets = rule.get("target_agents", [])
-            if "*" in targets or not targets:
-                normalized = cls.normalize_target_agents(
-                    targets,
-                    file_pattern=rule.get("file_pattern"),
-                    target_skills=rule.get("target_skills"),
-                    statement=rule.get("statement")
-                )
+            normalized = cls.normalize_target_agents(
+                targets,
+                file_pattern=rule.get("file_pattern"),
+                target_skills=rule.get("target_skills"),
+                statement=rule.get("statement"),
+                rule_id=item_id
+            )
+            if normalized != targets:
                 rule["target_agents"] = normalized
                 rule["updated_at"] = datetime.now(timezone.utc).isoformat()
                 updated_count += 1
@@ -224,7 +361,8 @@ class DynamicInvariantGuard:
             target_agents,
             file_pattern=file_pattern,
             target_skills=target_skills,
-            statement=statement
+            statement=statement,
+            rule_id=item_id
         )
 
         invariants = raw_data.get("invariants", {})
