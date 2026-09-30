@@ -257,17 +257,17 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
         # Class B: Integrity Hooks (Triad artifact check, manifest check, validation gate, honesty protocol)
         stop_res = IntegrityHooks.handle_stop(payload)
         if stop_res.get("decision") == "continue":
-            msg = stop_res.get("reason") or stop_res.get("message") or ""
+            msg = stop_res.get("reason") or ""
             stop_res["reason"] = msg
-            stop_res["message"] = msg
+            stop_res.pop("message", None)
             return stop_res
 
         # Orchestrator-specific Stop Guard Check
         orch_stop_res = check_orchestrator_stop_restrictions(payload)
         if orch_stop_res and orch_stop_res.get("decision") == "continue":
-            msg = orch_stop_res.get("reason") or orch_stop_res.get("message") or ""
+            msg = orch_stop_res.get("reason") or ""
             orch_stop_res["reason"] = msg
-            orch_stop_res["message"] = msg
+            orch_stop_res.pop("message", None)
             return orch_stop_res
 
         # Dynamic Learned Invariant Stop Check
@@ -275,9 +275,9 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
         try:
             dynamic_stop_res = DynamicInvariantGuard.evaluate_stop(caller, payload)
             if isinstance(dynamic_stop_res, dict) and dynamic_stop_res.get("decision") == "continue":
-                msg = dynamic_stop_res.get("reason") or dynamic_stop_res.get("message") or ""
+                msg = dynamic_stop_res.get("reason") or ""
                 dynamic_stop_res["reason"] = msg
-                dynamic_stop_res["message"] = msg
+                dynamic_stop_res.pop("message", None)
                 return dynamic_stop_res
         except Exception as e_dyn_stop:
             sys.stderr.write(f"[track2_academic_dispatcher] Dynamic invariant stop guard error: {e_dyn_stop}\n")
